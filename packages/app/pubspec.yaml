@@ -71,7 +71,7 @@ dependencies:
   file_picker: ^10.3.2
   google_mobile_ads: ^7.0.0
   app_tracking_transparency: ^2.0.6
-  package_info_plus: ^9.0.0
+  package_info_plus: ^9.0.1
   in_app_purchase: ^3.2.0
   uuid: ^4.5.1
 
