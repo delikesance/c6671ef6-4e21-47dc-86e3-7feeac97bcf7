@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bot_creator/utils/app_diagnostics.dart';
 import 'package:bot_creator/utils/i18n.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +12,7 @@ class DiagnosticsLogsPage extends StatefulWidget {
 }
 
 class _DiagnosticsLogsPageState extends State<DiagnosticsLogsPage> {
+  Timer? _autoRefreshTimer;
   bool _loading = false;
   bool _copying = false;
   String _logs = '';
@@ -18,15 +21,29 @@ class _DiagnosticsLogsPageState extends State<DiagnosticsLogsPage> {
   void initState() {
     super.initState();
     _loadLogs();
+    _autoRefreshTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      unawaited(_loadLogs(showLoading: false));
+    });
   }
 
-  Future<void> _loadLogs() async {
+  @override
+  void dispose() {
+    _autoRefreshTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _loadLogs({bool showLoading = true}) async {
     if (!mounted) {
       return;
     }
-    setState(() {
-      _loading = true;
-    });
+    if (_loading && !showLoading) {
+      return;
+    }
+    if (showLoading) {
+      setState(() {
+        _loading = true;
+      });
+    }
 
     final text = await AppDiagnostics.readAllLog();
     if (!mounted) {

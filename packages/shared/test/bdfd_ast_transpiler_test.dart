@@ -2745,18 +2745,23 @@ void main() {
       );
 
       expect(result.diagnostics, isEmpty);
-      expect(result.actions, hasLength(3));
+      expect(result.actions, hasLength(4));
       expect(result.actions[0].type, BotCreatorActionType.ifBlock);
       expect(result.actions[1].type, BotCreatorActionType.runtimeJsonBlock);
-      expect(result.actions[2].type, BotCreatorActionType.ifBlock);
+      expect(result.actions[2].type, BotCreatorActionType.setTemporaryVariable);
+      expect(result.actions[3].type, BotCreatorActionType.ifBlock);
+
+      final tempPayload = result.actions[2].payload;
+      expect(tempPayload['key'], 'idx');
+      expect((tempPayload['value'] ?? '').toString(), contains('rtJson_'));
+      expect((tempPayload['value'] ?? '').toString(), contains('.json_0'));
 
       final conditionVariable =
-          (result.actions[2].payload['condition.variable'] ?? '').toString();
-      expect(conditionVariable, contains('rtJson_'));
-      expect(conditionVariable, contains('.json_0'));
+          (result.actions[3].payload['condition.variable'] ?? '').toString();
+      expect(conditionVariable, '((temp.idx))');
 
       final elseActions = List<Map<String, dynamic>>.from(
-        result.actions[2].payload['elseActions'] as List? ?? const [],
+        result.actions[3].payload['elseActions'] as List? ?? const [],
       );
       expect(elseActions, hasLength(2));
       expect(elseActions[0]['type'], 'runtimeJsonBlock');
@@ -2765,9 +2770,712 @@ void main() {
       final elseContent =
           (elseActions[1]['payload'] as Map<String, dynamic>)['content']
               .toString();
-      expect(elseContent, contains('rtJson_'));
-      expect(elseContent, contains('.json_0'));
+      expect(elseContent, contains('((temp.idx))'));
       expect(elseContent, contains('rtJson_1.json_0'));
+    });
+
+    test(r'try block flushes runtime json before temp var actions', () {
+      final result = BdfdAstTranspiler().transpile(
+        const BdfdScriptAst(
+          nodes: [
+            BdfdFunctionCallAst(
+              name: r'$jsonParse',
+              arguments: [
+                <BdfdAstNode>[
+                  BdfdFunctionCallAst(
+                    name: r'$getServerVar',
+                    arguments: [
+                      <BdfdAstNode>[BdfdTextAst('items_db')],
+                    ],
+                  ),
+                ],
+              ],
+            ),
+            BdfdFunctionCallAst(name: r'$try'),
+            BdfdFunctionCallAst(
+              name: r'$var',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('idx')],
+                <BdfdAstNode>[
+                  BdfdFunctionCallAst(
+                    name: r'$jsonArrayIndex',
+                    arguments: [
+                      <BdfdAstNode>[BdfdTextAst('items')],
+                      <BdfdAstNode>[
+                        BdfdFunctionCallAst(
+                          name: r'$message',
+                          arguments: [
+                            <BdfdAstNode>[BdfdTextAst('1')],
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
+              ],
+            ),
+            BdfdFunctionCallAst(
+              name: r'$reply',
+              arguments: [
+                <BdfdAstNode>[
+                  BdfdFunctionCallAst(
+                    name: r'$var',
+                    arguments: [
+                      <BdfdAstNode>[BdfdTextAst('idx')],
+                    ],
+                  ),
+                ],
+              ],
+            ),
+            BdfdFunctionCallAst(name: r'$catch'),
+            BdfdFunctionCallAst(
+              name: r'$reply',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('fallback')],
+              ],
+            ),
+            BdfdFunctionCallAst(name: r'$endtry'),
+          ],
+        ),
+      );
+
+      expect(result.diagnostics, isEmpty);
+      expect(result.actions, hasLength(2));
+      expect(result.actions[0].type, BotCreatorActionType.runtimeJsonBlock);
+      expect(result.actions[1].type, BotCreatorActionType.ifBlock);
+
+      final thenActions = List<Map<String, dynamic>>.from(
+        result.actions[1].payload['thenActions'] as List? ?? const [],
+      );
+      expect(thenActions, hasLength(3));
+      expect(thenActions[0]['type'], 'runtimeJsonBlock');
+      expect(thenActions[1]['type'], 'setTemporaryVariable');
+      expect(thenActions[2]['type'], 'respondWithMessage');
+
+      final bodyJsonPayload = Map<String, dynamic>.from(
+        thenActions[0]['payload'] as Map? ?? const <String, dynamic>{},
+      );
+      expect((bodyJsonPayload['source'] ?? '').toString(), '((rtJson_0))');
+
+      final tempPayload = Map<String, dynamic>.from(
+        thenActions[1]['payload'] as Map? ?? const <String, dynamic>{},
+      );
+      expect(tempPayload['key'], 'idx');
+      expect((tempPayload['value'] ?? '').toString(), contains('rtJson_'));
+      expect((tempPayload['value'] ?? '').toString(), contains('.json_0'));
+      expect(
+        (thenActions[2]['payload'] as Map<String, dynamic>)['content'],
+        '((temp.idx))',
+      );
+
+      final elseActions = List<Map<String, dynamic>>.from(
+        result.actions[1].payload['elseActions'] as List? ?? const [],
+      );
+      expect(elseActions, hasLength(1));
+      expect(elseActions.single['type'], 'respondWithMessage');
+    });
+
+    test(r'runtime temp var is emitted before a runtime for loop', () {
+      final result = BdfdAstTranspiler().transpile(
+        const BdfdScriptAst(
+          nodes: [
+            BdfdFunctionCallAst(
+              name: r'$jsonParse',
+              arguments: [
+                <BdfdAstNode>[
+                  BdfdFunctionCallAst(
+                    name: r'$getServerVar',
+                    arguments: [
+                      <BdfdAstNode>[BdfdTextAst('items_db')],
+                    ],
+                  ),
+                ],
+              ],
+            ),
+            BdfdFunctionCallAst(
+              name: r'$var',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('looping')],
+                <BdfdAstNode>[
+                  BdfdFunctionCallAst(
+                    name: r'$jsonArrayCount',
+                    arguments: [
+                      <BdfdAstNode>[BdfdTextAst('currencies')],
+                    ],
+                  ),
+                ],
+              ],
+            ),
+            BdfdFunctionCallAst(
+              name: r'$for',
+              arguments: [
+                <BdfdAstNode>[
+                  BdfdFunctionCallAst(
+                    name: r'$var',
+                    arguments: [
+                      <BdfdAstNode>[BdfdTextAst('looping')],
+                    ],
+                  ),
+                ],
+              ],
+            ),
+            BdfdFunctionCallAst(
+              name: r'$reply',
+              arguments: [
+                <BdfdAstNode>[BdfdFunctionCallAst(name: r'$i')],
+              ],
+            ),
+            BdfdFunctionCallAst(name: r'$endfor'),
+          ],
+        ),
+      );
+
+      expect(result.diagnostics, isEmpty);
+      expect(result.actions, hasLength(3));
+      expect(result.actions[0].type, BotCreatorActionType.runtimeJsonBlock);
+      expect(result.actions[1].type, BotCreatorActionType.setTemporaryVariable);
+      expect(result.actions[2].type, BotCreatorActionType.forLoop);
+      expect(result.actions[2].payload['iterations'], '((temp.looping))');
+    });
+
+    test(r'runtime loop body keeps temp setter actions in bodyActions', () {
+      final result = BdfdAstTranspiler().transpile(
+        const BdfdScriptAst(
+          nodes: [
+            BdfdFunctionCallAst(
+              name: r'$for',
+              arguments: [
+                <BdfdAstNode>[
+                  BdfdFunctionCallAst(
+                    name: r'$message',
+                    arguments: [
+                      <BdfdAstNode>[BdfdTextAst('1')],
+                    ],
+                  ),
+                ],
+              ],
+            ),
+            BdfdFunctionCallAst(
+              name: r'$var',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('current')],
+                <BdfdAstNode>[BdfdFunctionCallAst(name: r'$i')],
+              ],
+            ),
+            BdfdFunctionCallAst(
+              name: r'$reply',
+              arguments: [
+                <BdfdAstNode>[
+                  BdfdFunctionCallAst(
+                    name: r'$var',
+                    arguments: [
+                      <BdfdAstNode>[BdfdTextAst('current')],
+                    ],
+                  ),
+                ],
+              ],
+            ),
+            BdfdFunctionCallAst(name: r'$endfor'),
+          ],
+        ),
+      );
+
+      expect(result.diagnostics, isEmpty);
+      expect(result.actions, hasLength(1));
+      expect(result.actions.single.type, BotCreatorActionType.forLoop);
+
+      final bodyActions = List<Map<String, dynamic>>.from(
+        result.actions.single.payload['bodyActions'] as List? ?? const [],
+      );
+      expect(bodyActions, hasLength(2));
+      expect(bodyActions[0]['type'], 'setTemporaryVariable');
+      expect(bodyActions[1]['type'], 'respondWithMessage');
+
+      final tempPayload = Map<String, dynamic>.from(
+        bodyActions[0]['payload'] as Map? ?? const <String, dynamic>{},
+      );
+      expect(tempPayload['key'], 'current');
+      expect(tempPayload['value'], '((_loop.index))');
+      expect(
+        (bodyActions[1]['payload'] as Map<String, dynamic>)['content'],
+        '((temp.current))',
+      );
+    });
+
+    test(
+      r'weighted roll style runtime loop keeps nested json if flow dynamic',
+      () {
+        final result = BdfdAstTranspiler().transpile(
+          const BdfdScriptAst(
+            nodes: [
+              BdfdFunctionCallAst(
+                name: r'$jsonParse',
+                arguments: [
+                  <BdfdAstNode>[
+                    BdfdFunctionCallAst(
+                      name: r'$getServerVar',
+                      arguments: [
+                        <BdfdAstNode>[BdfdTextAst('items_db')],
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+              BdfdFunctionCallAst(
+                name: r'$var',
+                arguments: [
+                  <BdfdAstNode>[BdfdTextAst('in')],
+                  <BdfdAstNode>[BdfdTextAst('items')],
+                ],
+              ),
+              BdfdFunctionCallAst(
+                name: r'$var',
+                arguments: [
+                  <BdfdAstNode>[BdfdTextAst('target')],
+                  <BdfdAstNode>[BdfdTextAst('sword')],
+                ],
+              ),
+              BdfdFunctionCallAst(
+                name: r'$var',
+                arguments: [
+                  <BdfdAstNode>[BdfdTextAst('looping')],
+                  <BdfdAstNode>[
+                    BdfdFunctionCallAst(
+                      name: r'$jsonArrayCount',
+                      arguments: [
+                        <BdfdAstNode>[
+                          BdfdFunctionCallAst(
+                            name: r'$var',
+                            arguments: [
+                              <BdfdAstNode>[BdfdTextAst('in')],
+                            ],
+                          ),
+                        ],
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+              BdfdFunctionCallAst(
+                name: r'$for',
+                arguments: [
+                  <BdfdAstNode>[
+                    BdfdFunctionCallAst(
+                      name: r'$var',
+                      arguments: [
+                        <BdfdAstNode>[BdfdTextAst('looping')],
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+              BdfdFunctionCallAst(
+                name: r'$if',
+                arguments: [
+                  <BdfdAstNode>[
+                    BdfdFunctionCallAst(
+                      name: r'$json',
+                      arguments: [
+                        <BdfdAstNode>[
+                          BdfdFunctionCallAst(
+                            name: r'$var',
+                            arguments: [
+                              <BdfdAstNode>[BdfdTextAst('in')],
+                            ],
+                          ),
+                        ],
+                        <BdfdAstNode>[BdfdFunctionCallAst(name: r'$i')],
+                        <BdfdAstNode>[BdfdTextAst('name')],
+                      ],
+                    ),
+                    BdfdTextAst('=='),
+                    BdfdFunctionCallAst(
+                      name: r'$var',
+                      arguments: [
+                        <BdfdAstNode>[BdfdTextAst('target')],
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+              BdfdFunctionCallAst(
+                name: r'$reply',
+                arguments: [
+                  <BdfdAstNode>[
+                    BdfdFunctionCallAst(
+                      name: r'$json',
+                      arguments: [
+                        <BdfdAstNode>[
+                          BdfdFunctionCallAst(
+                            name: r'$var',
+                            arguments: [
+                              <BdfdAstNode>[BdfdTextAst('in')],
+                            ],
+                          ),
+                        ],
+                        <BdfdAstNode>[BdfdFunctionCallAst(name: r'$i')],
+                        <BdfdAstNode>[BdfdTextAst('weight')],
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+              BdfdFunctionCallAst(name: r'$endif'),
+              BdfdFunctionCallAst(name: r'$endfor'),
+            ],
+          ),
+        );
+
+        expect(result.diagnostics, isEmpty);
+        expect(result.actions, hasLength(6));
+        expect(result.actions[0].type, BotCreatorActionType.runtimeJsonBlock);
+        expect(
+          result.actions[1].type,
+          BotCreatorActionType.setTemporaryVariable,
+        );
+        expect(result.actions[1].payload['key'], 'in');
+        expect(
+          result.actions[2].type,
+          BotCreatorActionType.setTemporaryVariable,
+        );
+        expect(result.actions[2].payload['key'], 'target');
+        expect(result.actions[3].type, BotCreatorActionType.runtimeJsonBlock);
+        expect(
+          result.actions[4].type,
+          BotCreatorActionType.setTemporaryVariable,
+        );
+        expect(result.actions[4].payload['key'], 'looping');
+        expect(result.actions[5].type, BotCreatorActionType.forLoop);
+        expect(result.actions[5].payload['iterations'], '((temp.looping))');
+
+        final bodyActions = List<Map<String, dynamic>>.from(
+          result.actions[5].payload['bodyActions'] as List? ?? const [],
+        );
+        expect(bodyActions, hasLength(2));
+        expect(bodyActions[0]['type'], 'runtimeJsonBlock');
+        expect(bodyActions[1]['type'], 'ifBlock');
+
+        final ifPayload = Map<String, dynamic>.from(
+          bodyActions[1]['payload'] as Map? ?? const <String, dynamic>{},
+        );
+        final conditionVariable =
+            (ifPayload['condition.variable'] ?? '').toString();
+        expect(conditionVariable, contains('rtJson_'));
+        expect(conditionVariable, contains('.json_0'));
+        expect(ifPayload['condition.value'], '((temp.target))');
+
+        final thenActions = List<Map<String, dynamic>>.from(
+          ifPayload['thenActions'] as List? ?? const [],
+        );
+        expect(thenActions, hasLength(2));
+        expect(thenActions[0]['type'], 'runtimeJsonBlock');
+        expect(thenActions[1]['type'], 'respondWithMessage');
+
+        final weightContent =
+            (thenActions[1]['payload'] as Map<String, dynamic>)['content']
+                .toString();
+        expect(weightContent, contains('rtJson_'));
+        expect(weightContent, contains('.json_'));
+      },
+    );
+
+    test(
+      r'aggressive nested ifs in a runtime loop keep json reads executable',
+      () {
+        final result = BdfdAstTranspiler().transpile(
+          const BdfdScriptAst(
+            nodes: [
+              BdfdFunctionCallAst(
+                name: r'$jsonParse',
+                arguments: [
+                  <BdfdAstNode>[
+                    BdfdFunctionCallAst(
+                      name: r'$getServerVar',
+                      arguments: [
+                        <BdfdAstNode>[BdfdTextAst('items_db')],
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+              BdfdFunctionCallAst(
+                name: r'$var',
+                arguments: [
+                  <BdfdAstNode>[BdfdTextAst('in')],
+                  <BdfdAstNode>[BdfdTextAst('items')],
+                ],
+              ),
+              BdfdFunctionCallAst(
+                name: r'$var',
+                arguments: [
+                  <BdfdAstNode>[BdfdTextAst('looping')],
+                  <BdfdAstNode>[
+                    BdfdFunctionCallAst(
+                      name: r'$jsonArrayCount',
+                      arguments: [
+                        <BdfdAstNode>[
+                          BdfdFunctionCallAst(
+                            name: r'$var',
+                            arguments: [
+                              <BdfdAstNode>[BdfdTextAst('in')],
+                            ],
+                          ),
+                        ],
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+              BdfdFunctionCallAst(
+                name: r'$for',
+                arguments: [
+                  <BdfdAstNode>[
+                    BdfdFunctionCallAst(
+                      name: r'$var',
+                      arguments: [
+                        <BdfdAstNode>[BdfdTextAst('looping')],
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+              BdfdFunctionCallAst(
+                name: r'$if',
+                arguments: [
+                  <BdfdAstNode>[
+                    BdfdFunctionCallAst(
+                      name: r'$json',
+                      arguments: [
+                        <BdfdAstNode>[
+                          BdfdFunctionCallAst(
+                            name: r'$var',
+                            arguments: [
+                              <BdfdAstNode>[BdfdTextAst('in')],
+                            ],
+                          ),
+                        ],
+                        <BdfdAstNode>[BdfdFunctionCallAst(name: r'$i')],
+                        <BdfdAstNode>[BdfdTextAst('enabled')],
+                      ],
+                    ),
+                    BdfdTextAst('==true'),
+                  ],
+                ],
+              ),
+              BdfdFunctionCallAst(
+                name: r'$if',
+                arguments: [
+                  <BdfdAstNode>[
+                    BdfdFunctionCallAst(
+                      name: r'$json',
+                      arguments: [
+                        <BdfdAstNode>[
+                          BdfdFunctionCallAst(
+                            name: r'$var',
+                            arguments: [
+                              <BdfdAstNode>[BdfdTextAst('in')],
+                            ],
+                          ),
+                        ],
+                        <BdfdAstNode>[BdfdFunctionCallAst(name: r'$i')],
+                        <BdfdAstNode>[BdfdTextAst('weight')],
+                      ],
+                    ),
+                    BdfdTextAst('>5'),
+                  ],
+                ],
+              ),
+              BdfdFunctionCallAst(
+                name: r'$reply',
+                arguments: [
+                  <BdfdAstNode>[
+                    BdfdFunctionCallAst(
+                      name: r'$json',
+                      arguments: [
+                        <BdfdAstNode>[
+                          BdfdFunctionCallAst(
+                            name: r'$var',
+                            arguments: [
+                              <BdfdAstNode>[BdfdTextAst('in')],
+                            ],
+                          ),
+                        ],
+                        <BdfdAstNode>[BdfdFunctionCallAst(name: r'$i')],
+                        <BdfdAstNode>[BdfdTextAst('name')],
+                      ],
+                    ),
+                    BdfdTextAst(':'),
+                    BdfdFunctionCallAst(
+                      name: r'$json',
+                      arguments: [
+                        <BdfdAstNode>[
+                          BdfdFunctionCallAst(
+                            name: r'$var',
+                            arguments: [
+                              <BdfdAstNode>[BdfdTextAst('in')],
+                            ],
+                          ),
+                        ],
+                        <BdfdAstNode>[BdfdFunctionCallAst(name: r'$i')],
+                        <BdfdAstNode>[BdfdTextAst('weight')],
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+              BdfdFunctionCallAst(name: r'$endif'),
+              BdfdFunctionCallAst(name: r'$endif'),
+              BdfdFunctionCallAst(name: r'$endfor'),
+            ],
+          ),
+        );
+
+        expect(result.diagnostics, isEmpty);
+        expect(result.actions, hasLength(5));
+        expect(result.actions[0].type, BotCreatorActionType.runtimeJsonBlock);
+        expect(
+          result.actions[1].type,
+          BotCreatorActionType.setTemporaryVariable,
+        );
+        expect(result.actions[2].type, BotCreatorActionType.runtimeJsonBlock);
+        expect(
+          result.actions[3].type,
+          BotCreatorActionType.setTemporaryVariable,
+        );
+        expect(result.actions[4].type, BotCreatorActionType.forLoop);
+
+        final bodyActions = List<Map<String, dynamic>>.from(
+          result.actions[4].payload['bodyActions'] as List? ?? const [],
+        );
+        expect(bodyActions, hasLength(2));
+        expect(bodyActions[0]['type'], 'runtimeJsonBlock');
+        expect(bodyActions[1]['type'], 'ifBlock');
+
+        final outerIfPayload = Map<String, dynamic>.from(
+          bodyActions[1]['payload'] as Map? ?? const <String, dynamic>{},
+        );
+        expect(
+          (outerIfPayload['condition.variable'] ?? '').toString(),
+          contains('.json_0'),
+        );
+
+        final outerThenActions = List<Map<String, dynamic>>.from(
+          outerIfPayload['thenActions'] as List? ?? const [],
+        );
+        expect(outerThenActions, hasLength(2));
+        expect(outerThenActions[0]['type'], 'runtimeJsonBlock');
+        expect(outerThenActions[1]['type'], 'ifBlock');
+
+        final innerIfPayload = Map<String, dynamic>.from(
+          outerThenActions[1]['payload'] as Map? ?? const <String, dynamic>{},
+        );
+        expect(
+          (innerIfPayload['condition.variable'] ?? '').toString(),
+          contains('.json_0'),
+        );
+
+        final innerThenActions = List<Map<String, dynamic>>.from(
+          innerIfPayload['thenActions'] as List? ?? const [],
+        );
+        expect(innerThenActions, hasLength(2));
+        expect(innerThenActions[0]['type'], 'runtimeJsonBlock');
+        expect(innerThenActions[1]['type'], 'respondWithMessage');
+
+        final nestedReply =
+            (innerThenActions[1]['payload'] as Map<String, dynamic>)['content']
+                .toString();
+        expect(nestedReply, contains('rtJson_'));
+        expect(nestedReply, contains('.json_'));
+      },
+    );
+
+    test(r'standalone if hoists runtime json condition before if action', () {
+      final result = BdfdAstTranspiler().transpile(
+        const BdfdScriptAst(
+          nodes: [
+            BdfdFunctionCallAst(
+              name: r'$jsonParse',
+              arguments: [
+                <BdfdAstNode>[
+                  BdfdFunctionCallAst(
+                    name: r'$getServerVar',
+                    arguments: [
+                      <BdfdAstNode>[BdfdTextAst('items_db')],
+                    ],
+                  ),
+                ],
+              ],
+            ),
+            BdfdFunctionCallAst(
+              name: r'$var',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('in')],
+                <BdfdAstNode>[BdfdTextAst('items')],
+              ],
+            ),
+            BdfdFunctionCallAst(
+              name: r'$if',
+              arguments: [
+                <BdfdAstNode>[
+                  BdfdFunctionCallAst(
+                    name: r'$json',
+                    arguments: [
+                      <BdfdAstNode>[
+                        BdfdFunctionCallAst(
+                          name: r'$var',
+                          arguments: [
+                            <BdfdAstNode>[BdfdTextAst('in')],
+                          ],
+                        ),
+                      ],
+                      <BdfdAstNode>[
+                        BdfdFunctionCallAst(
+                          name: r'$message',
+                          arguments: [
+                            <BdfdAstNode>[BdfdTextAst('1')],
+                          ],
+                        ),
+                      ],
+                      <BdfdAstNode>[BdfdTextAst('enabled')],
+                    ],
+                  ),
+                  BdfdTextAst('==true'),
+                ],
+                <BdfdAstNode>[
+                  BdfdFunctionCallAst(
+                    name: r'$reply',
+                    arguments: [
+                      <BdfdAstNode>[BdfdTextAst('enabled')],
+                    ],
+                  ),
+                ],
+                <BdfdAstNode>[
+                  BdfdFunctionCallAst(
+                    name: r'$reply',
+                    arguments: [
+                      <BdfdAstNode>[BdfdTextAst('disabled')],
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ],
+        ),
+      );
+
+      expect(result.diagnostics, isEmpty);
+      expect(result.actions, hasLength(4));
+      expect(result.actions[0].type, BotCreatorActionType.runtimeJsonBlock);
+      expect(result.actions[1].type, BotCreatorActionType.setTemporaryVariable);
+      expect(result.actions[2].type, BotCreatorActionType.runtimeJsonBlock);
+      expect(result.actions[3].type, BotCreatorActionType.ifBlock);
+
+      final ifPayload = result.actions[3].payload;
+      final conditionVariable =
+          (ifPayload['condition.variable'] ?? '').toString();
+      expect(conditionVariable, contains('rtJson_'));
+      expect(conditionVariable, contains('.json_0'));
+      expect(ifPayload['condition.value'], 'true');
     });
   });
 }

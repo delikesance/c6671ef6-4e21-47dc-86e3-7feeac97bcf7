@@ -18,6 +18,7 @@ import 'utils/app_diagnostics.dart';
 import 'utils/bot_payload_builder.dart';
 import 'utils/bot.dart';
 import 'utils/database.dart';
+import 'utils/discord_rpc_service.dart';
 import 'utils/analytics.dart';
 import 'utils/ad_consent_service.dart';
 import 'utils/ad_native_service.dart';
@@ -170,6 +171,7 @@ Future<void> _bootstrapAndRunApp() async {
   try {
     appManager = AppManager();
     initRunnerAutoReload();
+    await DiscordRpcService.instance.initialize();
     final prefs = await SharedPreferences.getInstance();
     final onboardingManager = OnboardingManager(prefs);
 

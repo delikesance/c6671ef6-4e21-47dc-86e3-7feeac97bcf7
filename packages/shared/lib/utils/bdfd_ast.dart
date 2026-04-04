@@ -5,6 +5,14 @@ abstract class BdfdAstNode {
   final int? end;
 }
 
+String normalizeBdfdFunctionName(String name) {
+  final trimmed = name.trim();
+  if (trimmed.startsWith(r'$')) {
+    return trimmed.substring(1).toLowerCase();
+  }
+  return trimmed.toLowerCase();
+}
+
 class BdfdScriptAst {
   const BdfdScriptAst({required this.nodes});
 
@@ -28,11 +36,5 @@ class BdfdFunctionCallAst extends BdfdAstNode {
   final String name;
   final List<List<BdfdAstNode>> arguments;
 
-  String get normalizedName {
-    final trimmed = name.trim();
-    if (trimmed.startsWith(r'$')) {
-      return trimmed.substring(1).toLowerCase();
-    }
-    return trimmed.toLowerCase();
-  }
+  String get normalizedName => normalizeBdfdFunctionName(name);
 }

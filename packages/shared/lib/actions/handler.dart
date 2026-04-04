@@ -368,6 +368,7 @@ Future<Map<String, String>> handleActions(
         case BotCreatorActionType.debugProfile:
         case BotCreatorActionType.log:
         case BotCreatorActionType.runtimeJsonBlock:
+        case BotCreatorActionType.setTemporaryVariable:
           throw StateError(
             'Action ${action.type.name} should have been handled by an executor before switch dispatch.',
           );
