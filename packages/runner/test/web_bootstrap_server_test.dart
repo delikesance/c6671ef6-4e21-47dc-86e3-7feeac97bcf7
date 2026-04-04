@@ -171,12 +171,42 @@ void main() {
       );
       expect(setDef.statusCode, HttpStatus.ok);
 
+      await variableStore.setScopedVariable(
+        botId,
+        'user',
+        'u-score',
+        'score',
+        7,
+      );
+      await variableStore.setScopedVariable(
+        botId,
+        'user',
+        'u-legacy-score',
+        'bc_score',
+        8,
+      );
+
       final removeDef = await http.post(
         base.resolve('/bots/$botId/variables/scoped-definitions/remove'),
         headers: const <String, String>{'content-type': 'application/json'},
-        body: jsonEncode(<String, dynamic>{'scope': 'user', 'key': 'score'}),
+        body: jsonEncode(<String, dynamic>{
+          'scope': 'user',
+          'key': 'score',
+          'purgeStoredValues': true,
+        }),
       );
       expect(removeDef.statusCode, HttpStatus.ok);
+
+      final purgedScoreValues = await http.get(
+        base.resolve(
+          '/bots/$botId/variables/scoped-values?scope=user&key=score',
+        ),
+      );
+      final purgedScoreJson = Map<String, dynamic>.from(
+        jsonDecode(purgedScoreValues.body) as Map,
+      );
+      expect(purgedScoreValues.statusCode, HttpStatus.ok);
+      expect(purgedScoreJson['values'], isEmpty);
 
       await variableStore.setScopedVariable(botId, 'user', 'u1', 'coins', 99);
       await variableStore.setScopedVariable(

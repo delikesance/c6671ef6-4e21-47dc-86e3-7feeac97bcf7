@@ -883,7 +883,10 @@ Future<List<Map<String, dynamic>>> _resolveLocalLegacyActionsJson({
 }) async {
   final executionMode =
       (data['executionMode'] ?? 'workflow').toString().trim().toLowerCase();
-  if (executionMode != 'bdfd_script') {
+  final source = (data['bdfdScriptContent'] ?? '').toString();
+  final shouldCompileFromBdfdSource =
+      executionMode == 'bdfd_script' || source.trim().isNotEmpty;
+  if (!shouldCompileFromBdfdSource) {
     return List<Map<String, dynamic>>.from(
       (data['actions'] as List?)?.whereType<Map>().map(
             (entry) => Map<String, dynamic>.from(entry),
@@ -892,7 +895,6 @@ Future<List<Map<String, dynamic>>> _resolveLocalLegacyActionsJson({
     );
   }
 
-  final source = (data['bdfdScriptContent'] ?? '').toString();
   final compileResult = BdfdCompiler().compile(source);
   if (compileResult.hasErrors) {
     final diagnostics = _formatBdfdRuntimeDiagnostics(
@@ -2007,9 +2009,11 @@ Future<bool> _tryExecuteLocalLegacyCommand(
     // Determine whether expensive permission population is needed.
     final executionMode =
         (data['executionMode'] ?? 'workflow').toString().trim().toLowerCase();
+    final source = (data['bdfdScriptContent'] ?? '').toString();
+    final shouldCompileFromBdfdSource =
+        executionMode == 'bdfd_script' || source.trim().isNotEmpty;
     final bool needsPermissions;
-    if (executionMode == 'bdfd_script') {
-      final source = (data['bdfdScriptContent'] ?? '').toString();
+    if (shouldCompileFromBdfdSource) {
       needsPermissions = _bdfdPermissionPattern.hasMatch(source);
     } else {
       needsPermissions = true;
@@ -2135,7 +2139,7 @@ Future<bool> _tryExecuteLocalLegacyCommand(
       }
     }
 
-    if (executionMode != 'bdfd_script') {
+    if (!shouldCompileFromBdfdSource) {
       await _sendLocalLegacyWorkflowResponse(
         gateway,
         context: context,

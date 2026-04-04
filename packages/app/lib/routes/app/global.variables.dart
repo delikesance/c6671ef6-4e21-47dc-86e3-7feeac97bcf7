@@ -433,14 +433,16 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
     await _load();
   }
 
-  Future<void> _deleteScopedDefinition(String key) async {
+  Future<void> _deleteScopedDefinition(String key, String scope) async {
     final shouldDelete =
         await showDialog<bool>(
           context: context,
           builder:
               (ctx) => AlertDialog.adaptive(
                 title: const Text('Supprimer la variable scopée'),
-                content: Text('Supprimer "$key" ?'),
+                content: Text(
+                  'Supprimer "$key" et toutes ses données runtime stockées ?',
+                ),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(ctx, false),
@@ -464,20 +466,24 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
     final existing = _scopedDefinitions
         .cast<Map<String, dynamic>?>()
         .firstWhere(
-          (entry) => (entry?['key'] ?? '').toString() == key,
+          (entry) =>
+              (entry?['key'] ?? '').toString() == key &&
+              (entry?['scope'] ?? '').toString() == scope,
           orElse: () => null,
         );
     if (_isRunnerMode) {
       await _requireRunnerClient().removeScopedVariableDefinition(
         widget.botId,
         key,
-        scope: existing?['scope']?.toString(),
+        scope: existing?['scope']?.toString() ?? scope,
+        purgeStoredValues: true,
       );
     } else {
       await appManager.removeScopedVariableDefinition(
         widget.botId,
         key,
-        scope: existing?['scope']?.toString(),
+        scope: existing?['scope']?.toString() ?? scope,
+        purgeStoredValues: true,
       );
     }
     await _load();
@@ -769,7 +775,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
               ),
               IconButton(
                 icon: const Icon(Icons.delete_outline, size: 20),
-                onPressed: () => _deleteScopedDefinition(key),
+                onPressed: () => _deleteScopedDefinition(key, scope),
               ),
             ],
           ),
