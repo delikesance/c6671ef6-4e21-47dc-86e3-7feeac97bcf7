@@ -791,7 +791,7 @@ class _BotCard extends StatelessWidget {
                             height: avatarRadius * 2,
                             fit: BoxFit.cover,
                             errorBuilder:
-                                (_, __, ___) => Icon(
+                                (context, error, stackTrace) => Icon(
                                   Icons.account_circle,
                                   size: avatarFallbackSize,
                                 ),

@@ -481,10 +481,11 @@ class _AppHomePageState extends State<AppHomePage>
                                       height: 80,
                                       fit: BoxFit.cover,
                                       errorBuilder:
-                                          (_, __, ___) => const Icon(
-                                            Icons.account_circle,
-                                            size: 80,
-                                          ),
+                                          (context, error, stackTrace) =>
+                                              const Icon(
+                                                Icons.account_circle,
+                                                size: 80,
+                                              ),
                                     ),
                                   ),
                                 )
