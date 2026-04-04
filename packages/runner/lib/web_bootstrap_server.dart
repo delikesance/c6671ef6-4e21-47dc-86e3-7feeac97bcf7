@@ -891,6 +891,7 @@ class RunnerWebBootstrapServer {
     final payload = await _readJsonBody(request);
     final key = _normalizeScopedStorageKey((payload['key'] ?? '').toString());
     final scope = (payload['scope'] ?? '').toString().trim();
+    final purgeStoredValues = payload['purgeStoredValues'] == true;
     if (key.isEmpty) {
       await _respondJson(request, <String, dynamic>{
         'error': 'Missing key.',
@@ -905,6 +906,27 @@ class RunnerWebBootstrapServer {
       }, statusCode: HttpStatus.notFound);
       return;
     }
+
+    final scopesToPurge =
+        purgeStoredValues
+            ? <String>{
+              if (scope.isNotEmpty) scope,
+              if (scope.isEmpty)
+                ...entry.config.scopedVariableDefinitions
+                    .where(
+                      (definition) =>
+                          _normalizeScopedStorageKey(
+                            (definition['key'] ?? '').toString(),
+                          ) ==
+                          key,
+                    )
+                    .map(
+                      (definition) =>
+                          (definition['scope'] ?? '').toString().trim(),
+                    )
+                    .where((value) => value.isNotEmpty),
+            }
+            : const <String>{};
 
     final defs = entry.config.scopedVariableDefinitions
         .map((e) => Map<String, dynamic>.from(e))
@@ -926,6 +948,10 @@ class RunnerWebBootstrapServer {
       'scopedVariableDefinitions': defs,
     });
     await _runtimeController.botStore.save(botId, entry.name, nextConfig);
+
+    for (final scopeName in scopesToPurge) {
+      await _removeAllScopedValuesForKey(botId, scopeName, key);
+    }
 
     await _respondJson(request, <String, dynamic>{'ok': true});
   }
@@ -993,6 +1019,55 @@ class RunnerWebBootstrapServer {
       'key': storageKey,
       'values': values,
     });
+  }
+
+  Future<void> _removeAllScopedValuesForKey(
+    String botId,
+    String scope,
+    String key,
+  ) async {
+    final normalizedScope = scope.trim();
+    final storageKey = _normalizeScopedStorageKey(key);
+    if (normalizedScope.isEmpty || storageKey.isEmpty) {
+      return;
+    }
+
+    await _ensureVariableStoreInitialized();
+    final legacyKey = _toScopedReferenceKey(storageKey);
+    final contextIds = List<String>.from(
+      await _variableStore.listContextIds(
+        botId,
+        normalizedScope,
+        searchKey: storageKey,
+      ),
+      growable: true,
+    );
+    if (legacyKey != storageKey) {
+      final legacyContextIds = await _variableStore.listContextIds(
+        botId,
+        normalizedScope,
+        searchKey: legacyKey,
+      );
+      contextIds.addAll(legacyContextIds);
+    }
+
+    final uniqueContextIds = contextIds.toSet().toList(growable: false)..sort();
+    for (final contextId in uniqueContextIds) {
+      await _variableStore.removeScopedVariable(
+        botId,
+        normalizedScope,
+        contextId,
+        storageKey,
+      );
+      if (legacyKey != storageKey) {
+        await _variableStore.removeScopedVariable(
+          botId,
+          normalizedScope,
+          contextId,
+          legacyKey,
+        );
+      }
+    }
   }
 
   Map<String, dynamic> _runtimeStateToPayload(RunnerBotRuntimeState state) {

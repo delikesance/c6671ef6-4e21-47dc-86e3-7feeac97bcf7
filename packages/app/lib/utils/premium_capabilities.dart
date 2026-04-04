@@ -1,4 +1,5 @@
 import 'package:bot_creator/utils/subscription_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// Centralized premium capability matrix used to gate paid features.
@@ -102,7 +103,12 @@ class PremiumCapabilities {
     PremiumCapability.autoRestart: true,
   };
 
-  static bool get isPremiumUser => SubscriptionService.isSubscribed;
+  static bool get isPremiumUser =>
+      (kDebugMode && debugPremiumBypass) || SubscriptionService.isSubscribed;
+
+  /// Debug-only toggle that bypasses Premium gating for all features.
+  /// Only effective when [kDebugMode] is true.
+  static bool debugPremiumBypass = false;
 
   static bool isCapabilityRolledOut(PremiumCapability capability) {
     return _rolloutEnabled[capability] ?? false;

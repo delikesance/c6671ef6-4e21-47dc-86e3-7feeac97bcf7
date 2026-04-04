@@ -2174,5 +2174,600 @@ void main() {
       );
       expect(embeds.single['description'], '((user.id))');
     });
+
+    test(r'$mentions transpiles to ((message.mentions)) placeholder', () {
+      final result = BdfdAstTranspiler().transpile(
+        const BdfdScriptAst(
+          nodes: [
+            BdfdTextAst('Users: '),
+            BdfdFunctionCallAst(name: r'$mentions'),
+          ],
+        ),
+      );
+
+      expect(result.diagnostics, isEmpty);
+      expect(result.actions, hasLength(1));
+      expect(
+        result.actions.single.type,
+        BotCreatorActionType.respondWithMessage,
+      );
+      expect(
+        result.actions.single.payload['content'],
+        'Users: ((message.mentions))',
+      );
+    });
+
+    test(r'$jsonParse with runtime placeholder emits runtimeJsonBlock', () {
+      final result = BdfdAstTranspiler().transpile(
+        const BdfdScriptAst(
+          nodes: [
+            BdfdFunctionCallAst(
+              name: r'$jsonParse',
+              arguments: [
+                <BdfdAstNode>[
+                  BdfdFunctionCallAst(
+                    name: r'$getServerVar',
+                    arguments: [
+                      <BdfdAstNode>[BdfdTextAst('data')],
+                    ],
+                  ),
+                ],
+              ],
+            ),
+            BdfdTextAst('v='),
+            BdfdFunctionCallAst(
+              name: r'$json',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('key')],
+              ],
+            ),
+          ],
+        ),
+      );
+
+      expect(result.diagnostics, isEmpty);
+      // Should have a runtimeJsonBlock action + a respondWithMessage
+      final runtimeBlocks =
+          result.actions
+              .where((a) => a.type == BotCreatorActionType.runtimeJsonBlock)
+              .toList();
+      expect(runtimeBlocks, hasLength(1));
+
+      final payload = runtimeBlocks.single.payload;
+      expect(payload['source'], contains('(('));
+      expect(payload['operations'], isList);
+    });
+
+    test(r'$jsonArrayAppend supports complex JSON objects at compile time', () {
+      final result = BdfdAstTranspiler().transpile(
+        const BdfdScriptAst(
+          nodes: [
+            BdfdFunctionCallAst(
+              name: r'$jsonParse',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('{"items":[]}')],
+              ],
+            ),
+            BdfdFunctionCallAst(
+              name: r'$jsonArrayAppend',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('items')],
+                <BdfdAstNode>[BdfdTextAst('{"name":"A","val":1}')],
+              ],
+            ),
+            BdfdFunctionCallAst(name: r'$jsonStringify'),
+          ],
+        ),
+      );
+
+      expect(result.diagnostics, isEmpty);
+      expect(result.actions, hasLength(1));
+      expect(
+        result.actions.single.payload['content'],
+        '{"items":[{"name":"A","val":1}]}',
+      );
+    });
+
+    test(r'literal $jsonParse still works at compile-time (regression)', () {
+      final result = BdfdAstTranspiler().transpile(
+        const BdfdScriptAst(
+          nodes: [
+            BdfdFunctionCallAst(
+              name: r'$jsonParse',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('{"a":1}')],
+              ],
+            ),
+            BdfdTextAst('v='),
+            BdfdFunctionCallAst(
+              name: r'$json',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('a')],
+              ],
+            ),
+          ],
+        ),
+      );
+
+      expect(result.diagnostics, isEmpty);
+      expect(result.actions, hasLength(1));
+      expect(
+        result.actions.single.type,
+        BotCreatorActionType.respondWithMessage,
+      );
+      expect(result.actions.single.payload['content'], 'v=1');
+      // No runtimeJsonBlock when literal JSON
+      expect(
+        result.actions
+            .where((a) => a.type == BotCreatorActionType.runtimeJsonBlock)
+            .toList(),
+        isEmpty,
+      );
+    });
+
+    test(r'$jsonPretty does not corrupt double-spaces inside strings', () {
+      final result = BdfdAstTranspiler().transpile(
+        const BdfdScriptAst(
+          nodes: [
+            BdfdFunctionCallAst(
+              name: r'$jsonParse',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('{"msg":"hello  world"}')],
+              ],
+            ),
+            BdfdFunctionCallAst(
+              name: r'$jsonPretty',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('4')],
+              ],
+            ),
+          ],
+        ),
+      );
+
+      expect(result.diagnostics, isEmpty);
+      expect(result.actions, hasLength(1));
+      final content = result.actions.single.payload['content'] as String;
+      // The double-space inside the value MUST be preserved.
+      expect(content, contains('"hello  world"'));
+    });
+
+    test(r'$jsonExists returns false when no JSON context', () {
+      final result = BdfdAstTranspiler().transpile(
+        const BdfdScriptAst(
+          nodes: [
+            BdfdTextAst('exists='),
+            BdfdFunctionCallAst(
+              name: r'$jsonExists',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('key')],
+              ],
+            ),
+          ],
+        ),
+      );
+
+      expect(result.diagnostics, isEmpty);
+      expect(result.actions, hasLength(1));
+      expect(result.actions.single.payload['content'], 'exists=false');
+    });
+
+    test(r'$jsonSet supports complex JSON objects', () {
+      final result = BdfdAstTranspiler().transpile(
+        const BdfdScriptAst(
+          nodes: [
+            BdfdFunctionCallAst(
+              name: r'$jsonParse',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('{}')],
+              ],
+            ),
+            BdfdFunctionCallAst(
+              name: r'$jsonSet',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('nested')],
+                <BdfdAstNode>[BdfdTextAst('{"a":1,"b":2}')],
+              ],
+            ),
+            BdfdFunctionCallAst(name: r'$jsonStringify'),
+          ],
+        ),
+      );
+
+      expect(result.diagnostics, isEmpty);
+      expect(result.actions, hasLength(1));
+      expect(
+        result.actions.single.payload['content'],
+        '{"nested":{"a":1,"b":2}}',
+      );
+    });
+
+    test(r'$argsCheck emits diagnostic for unknown operator', () {
+      final result = BdfdAstTranspiler().transpile(
+        const BdfdScriptAst(
+          nodes: [
+            BdfdFunctionCallAst(
+              name: r'$argsCheck',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('==')],
+                <BdfdAstNode>[BdfdTextAst('3')],
+                <BdfdAstNode>[BdfdTextAst('Need 3 args')],
+              ],
+            ),
+          ],
+        ),
+      );
+
+      // Should emit a diagnostic warning about unknown operator.
+      expect(result.diagnostics, hasLength(1));
+      expect(result.diagnostics.single.message, contains('unknown operator'));
+      // Action should still be emitted (with fallback).
+      expect(result.actions, isNotEmpty);
+    });
+
+    test('two consecutive deferred jsonParse blocks get unique prefixes', () {
+      final result = BdfdAstTranspiler().transpile(
+        const BdfdScriptAst(
+          nodes: [
+            BdfdFunctionCallAst(
+              name: r'$jsonParse',
+              arguments: [
+                <BdfdAstNode>[
+                  BdfdFunctionCallAst(
+                    name: r'$getServerVar',
+                    arguments: [
+                      <BdfdAstNode>[BdfdTextAst('json1')],
+                    ],
+                  ),
+                ],
+              ],
+            ),
+            BdfdTextAst('a='),
+            BdfdFunctionCallAst(
+              name: r'$json',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('k')],
+              ],
+            ),
+            BdfdFunctionCallAst(
+              name: r'$jsonParse',
+              arguments: [
+                <BdfdAstNode>[
+                  BdfdFunctionCallAst(
+                    name: r'$getServerVar',
+                    arguments: [
+                      <BdfdAstNode>[BdfdTextAst('json2')],
+                    ],
+                  ),
+                ],
+              ],
+            ),
+            BdfdTextAst('b='),
+            BdfdFunctionCallAst(
+              name: r'$json',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('k')],
+              ],
+            ),
+          ],
+        ),
+      );
+
+      expect(result.diagnostics, isEmpty);
+      final blocks =
+          result.actions
+              .where((a) => a.type == BotCreatorActionType.runtimeJsonBlock)
+              .toList();
+      expect(blocks, hasLength(2));
+      // Keys must be different.
+      expect(blocks[0].key, isNot(equals(blocks[1].key)));
+    });
+
+    test(
+      r'deferred json is flushed before setServerVar action using $jsonStringify',
+      () {
+        final result = BdfdAstTranspiler().transpile(
+          const BdfdScriptAst(
+            nodes: [
+              BdfdFunctionCallAst(
+                name: r'$jsonParse',
+                arguments: [
+                  <BdfdAstNode>[
+                    BdfdFunctionCallAst(
+                      name: r'$getServerVar',
+                      arguments: [
+                        <BdfdAstNode>[BdfdTextAst('items_db')],
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+              BdfdFunctionCallAst(
+                name: r'$jsonArrayAppend',
+                arguments: [
+                  <BdfdAstNode>[BdfdTextAst('items')],
+                  <BdfdAstNode>[BdfdTextAst('sword')],
+                ],
+              ),
+              BdfdFunctionCallAst(
+                name: r'$setServerVar',
+                arguments: [
+                  <BdfdAstNode>[BdfdTextAst('items_db')],
+                  <BdfdAstNode>[BdfdFunctionCallAst(name: r'$jsonStringify')],
+                ],
+              ),
+            ],
+          ),
+        );
+
+        expect(result.diagnostics, isEmpty);
+        expect(result.actions, hasLength(2));
+        expect(result.actions[0].type, BotCreatorActionType.runtimeJsonBlock);
+        expect(result.actions[1].type, BotCreatorActionType.setScopedVariable);
+
+        final value = (result.actions[1].payload['value'] ?? '').toString();
+        expect(value, contains('rtJson_'));
+        expect(value, isNot(contains('.json_')));
+      },
+    );
+
+    test(r'full additem script keeps runtimeJsonBlock before setServerVar', () {
+      final result = BdfdAstTranspiler().transpile(
+        const BdfdScriptAst(
+          nodes: [
+            BdfdFunctionCallAst(
+              name: r'$onlyIf',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('((args.count))>0')],
+                <BdfdAstNode>[BdfdTextAst('usage')],
+              ],
+            ),
+            BdfdFunctionCallAst(
+              name: r'$jsonParse',
+              arguments: [
+                <BdfdAstNode>[
+                  BdfdFunctionCallAst(
+                    name: r'$getServerVar',
+                    arguments: [
+                      <BdfdAstNode>[BdfdTextAst('items_db')],
+                    ],
+                  ),
+                ],
+              ],
+            ),
+            BdfdFunctionCallAst(
+              name: r'$jsonArrayAppend',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('items')],
+                <BdfdAstNode>[BdfdTextAst('sword')],
+              ],
+            ),
+            BdfdFunctionCallAst(
+              name: r'$setServerVar',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('items_db')],
+                <BdfdAstNode>[BdfdFunctionCallAst(name: r'$jsonStringify')],
+              ],
+            ),
+            BdfdFunctionCallAst(
+              name: r'$reply',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('ok')],
+              ],
+            ),
+          ],
+        ),
+      );
+
+      expect(result.diagnostics, isEmpty);
+
+      final runtimeIndex = result.actions.indexWhere(
+        (a) => a.type == BotCreatorActionType.runtimeJsonBlock,
+      );
+      final setVarIndex = result.actions.indexWhere(
+        (a) => a.type == BotCreatorActionType.setScopedVariable,
+      );
+
+      expect(runtimeIndex, greaterThanOrEqualTo(0));
+      expect(setVarIndex, greaterThanOrEqualTo(0));
+      expect(runtimeIndex, lessThan(setVarIndex));
+
+      final setValue =
+          (result.actions[setVarIndex].payload['value'] ?? '').toString();
+      expect(setValue, contains('rtJson_'));
+      expect(setValue, isNot(contains('.json_')));
+    });
+
+    test(
+      r'deferred json reads continue after setServerVar using $jsonPretty',
+      () {
+        final result = BdfdAstTranspiler().transpile(
+          const BdfdScriptAst(
+            nodes: [
+              BdfdFunctionCallAst(
+                name: r'$jsonParse',
+                arguments: [
+                  <BdfdAstNode>[
+                    BdfdFunctionCallAst(
+                      name: r'$getServerVar',
+                      arguments: [
+                        <BdfdAstNode>[BdfdTextAst('items_db')],
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+              BdfdFunctionCallAst(
+                name: r'$jsonArrayAppend',
+                arguments: [
+                  <BdfdAstNode>[BdfdTextAst('items')],
+                  <BdfdAstNode>[BdfdTextAst('sword')],
+                ],
+              ),
+              BdfdFunctionCallAst(
+                name: r'$setServerVar',
+                arguments: [
+                  <BdfdAstNode>[BdfdTextAst('items_db')],
+                  <BdfdAstNode>[BdfdFunctionCallAst(name: r'$jsonStringify')],
+                ],
+              ),
+              BdfdFunctionCallAst(
+                name: r'$reply',
+                arguments: [
+                  <BdfdAstNode>[
+                    BdfdTextAst('Pretty: '),
+                    BdfdFunctionCallAst(
+                      name: r'$jsonPretty',
+                      arguments: [
+                        <BdfdAstNode>[BdfdTextAst('1')],
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ],
+          ),
+        );
+
+        expect(result.diagnostics, isEmpty);
+        expect(result.actions, hasLength(4));
+        expect(result.actions[0].type, BotCreatorActionType.runtimeJsonBlock);
+        expect(result.actions[1].type, BotCreatorActionType.setScopedVariable);
+        expect(result.actions[2].type, BotCreatorActionType.runtimeJsonBlock);
+        expect(result.actions[3].type, BotCreatorActionType.respondWithMessage);
+
+        final setValue = (result.actions[1].payload['value'] ?? '').toString();
+        expect(setValue, contains('rtJson_'));
+        expect(setValue, isNot(contains('.json_')));
+
+        final replyContent =
+            (result.actions[3].payload['content'] ?? '').toString();
+        expect(replyContent, contains('Pretty: '));
+        expect(replyContent, contains('rtJson_'));
+        expect(replyContent, contains('.json_0'));
+      },
+    );
+
+    test(r'finditem flow emits runtime json before if block', () {
+      final result = BdfdAstTranspiler().transpile(
+        const BdfdScriptAst(
+          nodes: [
+            BdfdFunctionCallAst(
+              name: r'$onlyIf',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('((args.count))>0')],
+                <BdfdAstNode>[BdfdTextAst('usage')],
+              ],
+            ),
+            BdfdFunctionCallAst(
+              name: r'$jsonParse',
+              arguments: [
+                <BdfdAstNode>[
+                  BdfdFunctionCallAst(
+                    name: r'$getServerVar',
+                    arguments: [
+                      <BdfdAstNode>[BdfdTextAst('items_db')],
+                    ],
+                  ),
+                ],
+              ],
+            ),
+            BdfdFunctionCallAst(
+              name: r'$var',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('idx')],
+                <BdfdAstNode>[
+                  BdfdFunctionCallAst(
+                    name: r'$jsonArrayIndex',
+                    arguments: [
+                      <BdfdAstNode>[BdfdTextAst('items')],
+                      <BdfdAstNode>[BdfdTextAst('potion')],
+                    ],
+                  ),
+                ],
+              ],
+            ),
+            BdfdFunctionCallAst(
+              name: r'$if',
+              arguments: [
+                <BdfdAstNode>[
+                  BdfdFunctionCallAst(
+                    name: r'$var',
+                    arguments: [
+                      <BdfdAstNode>[BdfdTextAst('idx')],
+                    ],
+                  ),
+                  BdfdTextAst('==-1'),
+                ],
+                <BdfdAstNode>[
+                  BdfdFunctionCallAst(
+                    name: r'$reply',
+                    arguments: [
+                      <BdfdAstNode>[BdfdTextAst('not found')],
+                    ],
+                  ),
+                ],
+                <BdfdAstNode>[
+                  BdfdFunctionCallAst(
+                    name: r'$reply',
+                    arguments: [
+                      <BdfdAstNode>[
+                        BdfdTextAst('found at '),
+                        BdfdFunctionCallAst(
+                          name: r'$var',
+                          arguments: [
+                            <BdfdAstNode>[BdfdTextAst('idx')],
+                          ],
+                        ),
+                        BdfdTextAst(': '),
+                        BdfdFunctionCallAst(
+                          name: r'$json',
+                          arguments: [
+                            <BdfdAstNode>[BdfdTextAst('items')],
+                            <BdfdAstNode>[
+                              BdfdFunctionCallAst(
+                                name: r'$var',
+                                arguments: [
+                                  <BdfdAstNode>[BdfdTextAst('idx')],
+                                ],
+                              ),
+                            ],
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ],
+        ),
+      );
+
+      expect(result.diagnostics, isEmpty);
+      expect(result.actions, hasLength(3));
+      expect(result.actions[0].type, BotCreatorActionType.ifBlock);
+      expect(result.actions[1].type, BotCreatorActionType.runtimeJsonBlock);
+      expect(result.actions[2].type, BotCreatorActionType.ifBlock);
+
+      final conditionVariable =
+          (result.actions[2].payload['condition.variable'] ?? '').toString();
+      expect(conditionVariable, contains('rtJson_'));
+      expect(conditionVariable, contains('.json_0'));
+
+      final elseActions = List<Map<String, dynamic>>.from(
+        result.actions[2].payload['elseActions'] as List? ?? const [],
+      );
+      expect(elseActions, hasLength(2));
+      expect(elseActions[0]['type'], 'runtimeJsonBlock');
+      expect(elseActions[1]['type'], 'respondWithMessage');
+
+      final elseContent =
+          (elseActions[1]['payload'] as Map<String, dynamic>)['content']
+              .toString();
+      expect(elseContent, contains('rtJson_'));
+      expect(elseContent, contains('.json_0'));
+      expect(elseContent, contains('rtJson_1.json_0'));
+    });
   });
 }

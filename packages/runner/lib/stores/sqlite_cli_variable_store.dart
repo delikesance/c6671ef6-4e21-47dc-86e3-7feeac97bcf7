@@ -549,15 +549,15 @@ class SqliteCliVariableStore implements VariableDatabase {
   (String, String?) _parseContextId(String scope, String contextId) {
     if (scope == 'guildMember') {
       final parts = contextId.split(':');
-      return (parts[0], parts.length > 1 ? parts[1] : null);
+      return (parts[0], parts.length > 1 ? parts[1] : '');
     }
-    return (contextId, null);
+    return (contextId, '');
   }
 
   String _scopedContextWhereClause({required bool includeKey}) {
     final keyClause = includeKey ? ' AND key = ?' : '';
     return 'bot_id = ? AND scope = ? AND context_id_1 = ? AND '
-        '((? = 1 AND context_id_2 IS NULL) OR context_id_2 = ?)$keyClause';
+        'COALESCE(context_id_2, "") = ?$keyClause';
   }
 
   List<Object?> _scopedContextWhereArgs({
@@ -567,14 +567,7 @@ class SqliteCliVariableStore implements VariableDatabase {
     required String? ctx2,
     String? key,
   }) {
-    return <Object?>[
-      botId,
-      scope,
-      ctx1,
-      ctx2 == null ? 1 : 0,
-      ctx2 ?? '',
-      if (key != null) key,
-    ];
+    return <Object?>[botId, scope, ctx1, ctx2 ?? '', if (key != null) key];
   }
 
   /// Serialize dynamic value to (string, type).

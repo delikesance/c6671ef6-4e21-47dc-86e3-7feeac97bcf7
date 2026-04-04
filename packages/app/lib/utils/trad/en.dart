@@ -122,6 +122,9 @@ const Map<String, String> appStringsEn = {
   'settings_replay_onboarding': 'Replay onboarding',
   'settings_replay_onboarding_desc':
       'Reset onboarding and launch it again now.',
+  'settings_debug_premium_bypass': 'Premium bypass',
+  'settings_debug_premium_bypass_desc':
+      'Unlock all Premium features without a subscription (debug only).',
   'settings_preferences_reset_done': 'Preferences reset',
   'settings_backup_restore_title': 'Backup and Restore',
   'settings_backup_restore_desc':
@@ -574,6 +577,8 @@ const Map<String, String> appStringsEn = {
   'debug_replay_result_empty': '(no result)',
   'debug_replay_start_offset': '+{ms} ms from start',
   'debug_replay_loop_info': 'Loop depth {depth}, iteration {iteration}',
+  'debug_replay_variables_label': 'VARIABLES',
+  'debug_replay_variables_empty': '(no variables)',
 
   // Bot stats page
   'bot_stats_title': 'Bot Stats',

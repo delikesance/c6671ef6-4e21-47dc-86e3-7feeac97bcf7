@@ -63,6 +63,19 @@ class _BdfdAstTranspilationScope {
   final List<Action> _deferredInlineActions = <Action>[];
   dynamic _jsonContext;
   bool _hasJsonContext = false;
+
+  // ── Deferred (runtime) JSON state ──────────────────────────────────────────
+  /// When true, JSON operations are collected instead of executed because the
+  /// source contains runtime placeholders that cannot be resolved at
+  /// compile-time.
+  bool _deferredJsonMode = false;
+  String _deferredJsonSource = '';
+  final List<Map<String, dynamic>> _deferredJsonOps = <Map<String, dynamic>>[];
+  int _deferredJsonReadCounter = 0;
+  int _deferredJsonBlockCounter = 0;
+  String? _deferredJsonResultKeyPrefix;
+  String? _lastDeferredJsonResultKeyPrefix;
+
   List<String> _textSplitParts = <String>[];
   String? _useChannelId;
   bool _suppressErrors = false;
@@ -272,11 +285,25 @@ class _BdfdAstTranspilationScope {
         continue;
       }
 
-      if (_requiresPendingResponseFlush(node.normalizedName)) {
+      if (_requiresPendingResponseFlush(node.normalizedName) &&
+          pendingResponse.hasPendingContent) {
+        // Flush deferred JSON before emitting a pending response so that
+        // runtime JSON placeholders used in the response are resolved first.
+        final deferredJson = _flushDeferredJson();
+        if (deferredJson != null) actions.add(deferredJson);
+
         final flushed = pendingResponse.buildAction(channelId: _useChannelId);
         if (flushed != null) {
           actions.add(flushed);
         }
+      }
+
+      final shouldFlushDeferredBeforeCurrentAction =
+          node.normalizedName == 'if';
+
+      if (shouldFlushDeferredBeforeCurrentAction) {
+        final deferredJson = _flushDeferredJson();
+        if (deferredJson != null) actions.add(deferredJson);
       }
 
       final emitted = _transpileStandaloneFunction(
@@ -284,11 +311,30 @@ class _BdfdAstTranspilationScope {
         pendingResponse: pendingResponse,
       );
       actions.addAll(_drainDeferredInlineActions());
+
+      // Flush deferred JSON AFTER transpiling a non-JSON standalone function
+      // so inline JSON reads inside its arguments (e.g. $setServerVar[...,
+      // $jsonStringify]) are converted into runtime placeholders first.
+      final shouldFlushDeferredAfterCurrentAction =
+          !_isJsonMutationFunction(node.normalizedName) &&
+          node.normalizedName != 'jsonparse' &&
+          !shouldFlushDeferredBeforeCurrentAction;
+      if (shouldFlushDeferredAfterCurrentAction) {
+        final deferredJson = _flushDeferredJson();
+        if (deferredJson != null) actions.add(deferredJson);
+      }
+
       if (emitted != null) {
         actions.add(emitted);
       }
 
       index += 1;
+    }
+
+    // Flush any remaining deferred JSON block before the trailing response.
+    final trailingDeferredJson = _flushDeferredJson();
+    if (trailingDeferredJson != null) {
+      actions.add(trailingDeferredJson);
     }
 
     final trailingResponse = pendingResponse.buildAction(
@@ -1752,8 +1798,11 @@ class _BdfdAstTranspilationScope {
       case 'awaitfunc':
         return _buildAwaitFuncAction(node);
       case 'jsonparse':
+        // _jsonParse internally flushes any previous deferred JSON block.
+        // We capture and return it so it gets emitted as an action.
+        final previousBlock = _flushDeferredJson();
         _jsonParse(node);
-        return null;
+        return previousBlock;
       case 'jsonset':
         _jsonSet(node, forceString: false);
         return null;
@@ -3245,8 +3294,9 @@ class _BdfdAstTranspilationScope {
       case 'checkusersperms':
         return _inlineCheckUserPerms(node);
       case 'message':
-      case 'args':
         return _inlineMessageArgument(node);
+      case 'args':
+        return _inlineArgsArgument(node);
       case 'i':
       case 'loopindex':
       case 'loopiteration':
@@ -3444,6 +3494,9 @@ class _BdfdAstTranspilationScope {
           }
         }
         return '((message.mentions[0]))';
+      // All mentions (comma-separated user IDs)
+      case 'mentions':
+        return '((message.mentions))';
       // Reactions
       case 'getreactions':
         final emoji = _stringifyArgument(node, 0).trim();
@@ -4026,6 +4079,7 @@ class _BdfdAstTranspilationScope {
       case 'useravatar':
       case 'userbanner':
       case 'mentioned':
+      case 'mentions':
       case 'getreactions':
       case 'userreacted':
       case 'customemoji':
@@ -4359,19 +4413,65 @@ class _BdfdAstTranspilationScope {
     if (raw.isEmpty) {
       _hasJsonContext = false;
       _jsonContext = null;
+      _lastDeferredJsonResultKeyPrefix = null;
+      return;
+    }
+
+    // If the argument contains runtime placeholders, we cannot decode it at
+    // compile-time.  Switch to deferred mode so that all subsequent JSON
+    // operations are collected and emitted as a single runtimeJsonBlock action.
+    if (raw.contains('((')) {
+      _deferredJsonMode = true;
+      _deferredJsonSource = raw;
+      _deferredJsonOps.clear();
+      _deferredJsonReadCounter = 0;
+      _deferredJsonResultKeyPrefix = 'rtJson_${_deferredJsonBlockCounter++}';
+      _hasJsonContext = false;
+      _jsonContext = null;
+      _lastDeferredJsonResultKeyPrefix = null;
       return;
     }
 
     try {
       _jsonContext = jsonDecode(raw);
       _hasJsonContext = true;
+      _lastDeferredJsonResultKeyPrefix = null;
     } catch (_) {
       _hasJsonContext = false;
       _jsonContext = null;
+      _lastDeferredJsonResultKeyPrefix = null;
     }
   }
 
+  bool _resumeDeferredJsonFromLastRuntimeContext() {
+    if (_deferredJsonMode || _hasJsonContext) {
+      return _deferredJsonMode;
+    }
+
+    final previousKey = _lastDeferredJsonResultKeyPrefix;
+    if (previousKey == null || previousKey.isEmpty) {
+      return false;
+    }
+
+    _deferredJsonMode = true;
+    _deferredJsonSource = '(($previousKey))';
+    _deferredJsonOps.clear();
+    _deferredJsonReadCounter = 0;
+    _deferredJsonResultKeyPrefix = 'rtJson_${_deferredJsonBlockCounter++}';
+    return true;
+  }
+
   String _jsonGet(BdfdFunctionCallAst node) {
+    if (_deferredJsonMode || _resumeDeferredJsonFromLastRuntimeContext()) {
+      final segments = _jsonPathSegmentsRaw(node);
+      final readIndex = _deferredJsonReadCounter++;
+      _deferredJsonOps.add(<String, dynamic>{
+        'op': 'get',
+        'path': segments,
+        'readIndex': readIndex,
+      });
+      return '(($_deferredJsonResultKeyPrefix.json_$readIndex))';
+    }
     if (!_hasJsonContext) {
       return '';
     }
@@ -4394,13 +4494,33 @@ class _BdfdAstTranspilationScope {
       return;
     }
 
+    if (_deferredJsonMode || _resumeDeferredJsonFromLastRuntimeContext()) {
+      final segments = _jsonPathSegmentsRaw(node, endExclusive: pathLength);
+      final rawValue = _stringifyArgument(node, pathLength);
+      _deferredJsonOps.add(<String, dynamic>{
+        'op': 'set',
+        'path': segments,
+        'value': rawValue,
+        'forceString': forceString,
+      });
+      return;
+    }
+
     final pathSegments = _jsonPathSegments(node, endExclusive: pathLength);
     final rawValue = _stringifyArgument(node, pathLength);
-    final value = forceString ? rawValue : _coerceJsonPrimitive(rawValue);
+    final value = forceString ? rawValue : _coerceJsonValue(rawValue);
     _jsonSetPathValue(pathSegments, value);
   }
 
   void _jsonUnset(BdfdFunctionCallAst node) {
+    if (_deferredJsonMode || _resumeDeferredJsonFromLastRuntimeContext()) {
+      final segments = _jsonPathSegmentsRaw(node);
+      _deferredJsonOps.add(<String, dynamic>{
+        'op': segments.isEmpty ? 'clear' : 'unset',
+        'path': segments,
+      });
+      return;
+    }
     if (!_hasJsonContext) {
       return;
     }
@@ -4413,13 +4533,28 @@ class _BdfdAstTranspilationScope {
   }
 
   void _jsonClear() {
+    if (_deferredJsonMode || _resumeDeferredJsonFromLastRuntimeContext()) {
+      _deferredJsonOps.add(<String, dynamic>{'op': 'clear'});
+      return;
+    }
     _jsonContext = null;
     _hasJsonContext = false;
+    _lastDeferredJsonResultKeyPrefix = null;
   }
 
   String _jsonExists(BdfdFunctionCallAst node) {
+    if (_deferredJsonMode || _resumeDeferredJsonFromLastRuntimeContext()) {
+      final segments = _jsonPathSegmentsRaw(node);
+      final readIndex = _deferredJsonReadCounter++;
+      _deferredJsonOps.add(<String, dynamic>{
+        'op': 'exists',
+        'path': segments,
+        'readIndex': readIndex,
+      });
+      return '(($_deferredJsonResultKeyPrefix.json_$readIndex))';
+    }
     if (!_hasJsonContext) {
-      return '';
+      return 'false';
     }
     final segments = _jsonPathSegments(node);
     final exists = _jsonPathExists(segments);
@@ -4427,6 +4562,13 @@ class _BdfdAstTranspilationScope {
   }
 
   String _jsonStringify() {
+    if (_deferredJsonMode || _resumeDeferredJsonFromLastRuntimeContext()) {
+      // In deferred mode, the runtime block always stores the full JSON
+      // payload under its action key (e.g. rtJson_0). Returning the root key
+      // avoids fragile json_n indirection when setServerVar consumes
+      // $jsonStringify.
+      return '(($_deferredJsonResultKeyPrefix))';
+    }
     if (!_hasJsonContext) {
       return '';
     }
@@ -4434,23 +4576,49 @@ class _BdfdAstTranspilationScope {
   }
 
   String _jsonPretty(BdfdFunctionCallAst node) {
+    if (_deferredJsonMode || _resumeDeferredJsonFromLastRuntimeContext()) {
+      final indentRaw = _stringifyArgument(node, 0).trim();
+      final readIndex = _deferredJsonReadCounter++;
+      _deferredJsonOps.add(<String, dynamic>{
+        'op': 'pretty',
+        'indent': indentRaw,
+        'readIndex': readIndex,
+      });
+      return '(($_deferredJsonResultKeyPrefix.json_$readIndex))';
+    }
     if (!_hasJsonContext) {
       return '';
     }
     final indentRaw = _stringifyArgument(node, 0).trim();
     final indent = int.tryParse(indentRaw);
     final spaces = (indent == null || indent < 0) ? 2 : indent;
-    return const JsonEncoder.withIndent(
-      '  ',
-    ).convert(_jsonContext).replaceAll('  ', ' ' * spaces);
+    return JsonEncoder.withIndent(' ' * spaces).convert(_jsonContext);
   }
 
   void _jsonArray(BdfdFunctionCallAst node) {
+    if (_deferredJsonMode || _resumeDeferredJsonFromLastRuntimeContext()) {
+      final segments = _jsonPathSegmentsRaw(node);
+      _deferredJsonOps.add(<String, dynamic>{
+        'op': 'initArray',
+        'path': segments,
+      });
+      return;
+    }
     final segments = _jsonPathSegments(node);
     _jsonSetPathValue(segments, <dynamic>[]);
   }
 
   String _jsonArrayCount(BdfdFunctionCallAst node) {
+    if (_deferredJsonMode || _resumeDeferredJsonFromLastRuntimeContext()) {
+      final segments = _jsonPathSegmentsRaw(node);
+      final readIndex = _deferredJsonReadCounter++;
+      _deferredJsonOps.add(<String, dynamic>{
+        'op': 'arrayCount',
+        'path': segments,
+        'readIndex': readIndex,
+      });
+      return '(($_deferredJsonResultKeyPrefix.json_$readIndex))';
+    }
     if (!_hasJsonContext) {
       return '';
     }
@@ -4462,6 +4630,22 @@ class _BdfdAstTranspilationScope {
   }
 
   String _jsonArrayIndex(BdfdFunctionCallAst node) {
+    if (_deferredJsonMode || _resumeDeferredJsonFromLastRuntimeContext()) {
+      if (node.arguments.length < 2) return '-1';
+      final segments = _jsonPathSegmentsRaw(
+        node,
+        endExclusive: node.arguments.length - 1,
+      );
+      final expected = _stringifyArgument(node, node.arguments.length - 1);
+      final readIndex = _deferredJsonReadCounter++;
+      _deferredJsonOps.add(<String, dynamic>{
+        'op': 'arrayIndex',
+        'path': segments,
+        'value': expected,
+        'readIndex': readIndex,
+      });
+      return '(($_deferredJsonResultKeyPrefix.json_$readIndex))';
+    }
     if (!_hasJsonContext) {
       return '';
     }
@@ -4498,18 +4682,41 @@ class _BdfdAstTranspilationScope {
       return;
     }
 
+    if (_deferredJsonMode || _resumeDeferredJsonFromLastRuntimeContext()) {
+      final segments = _jsonPathSegmentsRaw(
+        node,
+        endExclusive: node.arguments.length - 1,
+      );
+      final rawValue = _stringifyArgument(node, node.arguments.length - 1);
+      _deferredJsonOps.add(<String, dynamic>{
+        'op': 'arrayAppend',
+        'path': segments,
+        'value': rawValue,
+      });
+      return;
+    }
+
     final path = _jsonPathSegments(
       node,
       endExclusive: node.arguments.length - 1,
     );
-    final value = _coerceJsonPrimitive(
-      _stringifyArgument(node, node.arguments.length - 1),
-    );
+    final rawValue = _stringifyArgument(node, node.arguments.length - 1);
+    final value = _coerceJsonValue(rawValue);
     final list = _jsonEnsureArray(path);
     list.add(value);
   }
 
   String _jsonArrayPop(BdfdFunctionCallAst node) {
+    if (_deferredJsonMode || _resumeDeferredJsonFromLastRuntimeContext()) {
+      final segments = _jsonPathSegmentsRaw(node);
+      final readIndex = _deferredJsonReadCounter++;
+      _deferredJsonOps.add(<String, dynamic>{
+        'op': 'arrayPop',
+        'path': segments,
+        'readIndex': readIndex,
+      });
+      return '(($_deferredJsonResultKeyPrefix.json_$readIndex))';
+    }
     final list = _jsonEnsureArray(_jsonPathSegments(node));
     if (list.isEmpty) {
       return '';
@@ -4519,6 +4726,16 @@ class _BdfdAstTranspilationScope {
   }
 
   String _jsonArrayShift(BdfdFunctionCallAst node) {
+    if (_deferredJsonMode || _resumeDeferredJsonFromLastRuntimeContext()) {
+      final segments = _jsonPathSegmentsRaw(node);
+      final readIndex = _deferredJsonReadCounter++;
+      _deferredJsonOps.add(<String, dynamic>{
+        'op': 'arrayShift',
+        'path': segments,
+        'readIndex': readIndex,
+      });
+      return '(($_deferredJsonResultKeyPrefix.json_$readIndex))';
+    }
     final list = _jsonEnsureArray(_jsonPathSegments(node));
     if (list.isEmpty) {
       return '';
@@ -4540,6 +4757,20 @@ class _BdfdAstTranspilationScope {
       return;
     }
 
+    if (_deferredJsonMode || _resumeDeferredJsonFromLastRuntimeContext()) {
+      final segments = _jsonPathSegmentsRaw(
+        node,
+        endExclusive: node.arguments.length - 1,
+      );
+      final rawValue = _stringifyArgument(node, node.arguments.length - 1);
+      _deferredJsonOps.add(<String, dynamic>{
+        'op': 'arrayUnshift',
+        'path': segments,
+        'value': rawValue,
+      });
+      return;
+    }
+
     final path = _jsonPathSegments(
       node,
       endExclusive: node.arguments.length - 1,
@@ -4552,6 +4783,14 @@ class _BdfdAstTranspilationScope {
   }
 
   void _jsonArraySort(BdfdFunctionCallAst node) {
+    if (_deferredJsonMode || _resumeDeferredJsonFromLastRuntimeContext()) {
+      final segments = _jsonPathSegmentsRaw(node);
+      _deferredJsonOps.add(<String, dynamic>{
+        'op': 'arraySort',
+        'path': segments,
+      });
+      return;
+    }
     final list = _jsonEnsureArray(_jsonPathSegments(node));
     list.sort((left, right) {
       final leftNumber = left is num ? left : num.tryParse(left.toString());
@@ -4570,6 +4809,14 @@ class _BdfdAstTranspilationScope {
   }
 
   void _jsonArrayReverse(BdfdFunctionCallAst node) {
+    if (_deferredJsonMode || _resumeDeferredJsonFromLastRuntimeContext()) {
+      final segments = _jsonPathSegmentsRaw(node);
+      _deferredJsonOps.add(<String, dynamic>{
+        'op': 'arrayReverse',
+        'path': segments,
+      });
+      return;
+    }
     final list = _jsonEnsureArray(_jsonPathSegments(node));
     final reversed = list.reversed.toList(growable: false);
     list
@@ -4578,6 +4825,22 @@ class _BdfdAstTranspilationScope {
   }
 
   String _jsonJoinArray(BdfdFunctionCallAst node) {
+    if (_deferredJsonMode || _resumeDeferredJsonFromLastRuntimeContext()) {
+      if (node.arguments.isEmpty) return '';
+      final separator = _stringifyArgument(node, node.arguments.length - 1);
+      final segments = _jsonPathSegmentsRaw(
+        node,
+        endExclusive: node.arguments.length - 1,
+      );
+      final readIndex = _deferredJsonReadCounter++;
+      _deferredJsonOps.add(<String, dynamic>{
+        'op': 'joinArray',
+        'path': segments,
+        'separator': separator,
+        'readIndex': readIndex,
+      });
+      return '(($_deferredJsonResultKeyPrefix.json_$readIndex))';
+    }
     if (!_hasJsonContext) {
       return '';
     }
@@ -4630,6 +4893,59 @@ class _BdfdAstTranspilationScope {
       }
     }
     return segments;
+  }
+
+  /// Like [_jsonPathSegments] but keeps segments as raw strings (including
+  /// potential runtime placeholders) for deferred operations.
+  List<String> _jsonPathSegmentsRaw(
+    BdfdFunctionCallAst node, {
+    int startInclusive = 0,
+    int? endExclusive,
+  }) {
+    final end = endExclusive ?? node.arguments.length;
+    final segments = <String>[];
+    for (var index = startInclusive; index < end; index++) {
+      final raw = _stringifyArgument(node, index).trim();
+      if (raw.isNotEmpty) {
+        segments.add(raw);
+      }
+    }
+    return segments;
+  }
+
+  /// Tries to decode [raw] as a JSON object/array first, falls back to
+  /// [_coerceJsonPrimitive] for simple values.
+  dynamic _coerceJsonValue(String raw) {
+    final trimmed = raw.trim();
+    if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+      try {
+        return jsonDecode(trimmed);
+      } catch (_) {
+        // Not valid JSON — fall through to primitive coercion.
+      }
+    }
+    return _coerceJsonPrimitive(raw);
+  }
+
+  /// Flushes any pending deferred JSON operations into a
+  /// [BotCreatorActionType.runtimeJsonBlock] action and resets the state.
+  Action? _flushDeferredJson() {
+    if (!_deferredJsonMode) return null;
+    final action = Action(
+      type: BotCreatorActionType.runtimeJsonBlock,
+      key: _deferredJsonResultKeyPrefix,
+      payload: <String, dynamic>{
+        'source': _deferredJsonSource,
+        'operations': List<Map<String, dynamic>>.from(_deferredJsonOps),
+      },
+    );
+    _lastDeferredJsonResultKeyPrefix = action.key;
+    _deferredJsonMode = false;
+    _deferredJsonSource = '';
+    _deferredJsonOps.clear();
+    _deferredJsonReadCounter = 0;
+    _deferredJsonResultKeyPrefix = null;
+    return action;
   }
 
   dynamic _coerceJsonPrimitive(String raw) {
@@ -5076,6 +5392,55 @@ class _BdfdAstTranspilationScope {
     }
 
     return '((message.content))';
+  }
+
+  String _inlineArgsArgument(BdfdFunctionCallAst node) {
+    final first = _stringifyArgument(node, 0).trim();
+    final second = _stringifyArgument(node, 1).trim();
+
+    if (first.isEmpty && second.isEmpty) {
+      return '((message.content))';
+    }
+
+    final argsExpression = _argsArgumentExpression(first);
+    final optionSource =
+        second.isNotEmpty ? second : (argsExpression == null ? first : '');
+    final optionExpression = _optionExpression(optionSource);
+
+    if (argsExpression != null && optionExpression != null) {
+      return '(($argsExpression|$optionExpression))';
+    }
+    if (argsExpression != null) {
+      return '(($argsExpression))';
+    }
+    if (optionExpression != null) {
+      return '(($optionExpression))';
+    }
+
+    return '((message.content))';
+  }
+
+  String? _argsArgumentExpression(String rawIndex) {
+    final trimmed = rawIndex.trim();
+    if (trimmed.isEmpty) {
+      return null;
+    }
+
+    if (trimmed == '>') {
+      return 'last(split(message.content, " "))';
+    }
+
+    final parsedIndex = int.tryParse(trimmed);
+    if (parsedIndex == null || parsedIndex < 0) {
+      return null;
+    }
+
+    if (parsedIndex == 0) {
+      return 'args.0';
+    }
+
+    final zeroBasedIndex = parsedIndex - 1;
+    return 'message.content[$zeroBasedIndex]|args.$parsedIndex';
   }
 
   String? _messageArgumentExpression(String rawIndex) {
@@ -6462,6 +6827,16 @@ class _BdfdAstTranspilationScope {
     } else if (operatorRaw == '<' || operatorRaw == '<=') {
       operator = operatorRaw == '<=' ? 'lessOrEqual' : 'lessThan';
     } else {
+      _diagnostics.add(
+        BdfdTranspileDiagnostic(
+          message:
+              '${node.name}: unknown operator "$operatorRaw". '
+              'Expected >, >=, <, or <=.',
+          start: node.start,
+          end: node.end,
+          functionName: node.name,
+        ),
+      );
       operator = 'greaterOrEqual';
     }
 

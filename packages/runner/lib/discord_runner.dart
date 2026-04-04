@@ -2292,7 +2292,11 @@ class DiscordRunner {
   }) async {
     final executionMode =
         (value['executionMode'] ?? 'workflow').toString().trim().toLowerCase();
-    if (executionMode != 'bdfd_script') {
+    final source = (value['bdfdScriptContent'] ?? '').toString();
+    final shouldCompileFromBdfdSource =
+        executionMode == 'bdfd_script' || source.trim().isNotEmpty;
+
+    if (!shouldCompileFromBdfdSource) {
       return List<Map<String, dynamic>>.from(
         (value['actions'] as List?)?.whereType<Map>().map(
               (entry) => Map<String, dynamic>.from(entry),
@@ -2301,7 +2305,6 @@ class DiscordRunner {
       );
     }
 
-    final source = (value['bdfdScriptContent'] ?? '').toString();
     final compileResult = BdfdCompiler().compile(source);
     if (compileResult.hasErrors) {
       final diagnostics = _formatRunnerBdfdDiagnostics(

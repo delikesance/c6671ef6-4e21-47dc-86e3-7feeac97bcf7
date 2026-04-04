@@ -161,6 +161,7 @@ Les boucles avec des valeurs dynamiques (ex: `$for[$args[2]]`, `$for[i=0;i<$args
 
 - message
 - message[]
+- mentions (comma-separated list of mentioned user IDs)
 - mentionedChannels
 
 ### Runtime placeholders alias
