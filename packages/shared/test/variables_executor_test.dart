@@ -1,6 +1,7 @@
 import 'package:bot_creator_shared/actions/executors/variables_executor.dart';
 import 'package:bot_creator_shared/bot/bot_data_store.dart';
 import 'package:bot_creator_shared/types/action.dart';
+import 'package:bot_creator_shared/utils/template_resolver.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:test/test.dart';
 
@@ -410,6 +411,118 @@ void main() {
     );
 
     test(
+      'runtimeJsonBlock resolves temp scope and loop index inside weighted item paths',
+      () async {
+        final store = _MemoryBotDataStore();
+        final results = <String, String>{};
+        final variables = <String, String>{
+          'temp.in': 'items',
+          '_loop.index': '1',
+        };
+
+        final handled = await executeVariablesAction(
+          type: BotCreatorActionType.runtimeJsonBlock,
+          store: store,
+          botId: 'bot-1',
+          payload: <String, dynamic>{
+            'source': '((guild.bc_items_db))',
+            'operations': <Map<String, dynamic>>[
+              <String, dynamic>{
+                'op': 'get',
+                'path': <String>['((temp.in))', '((_loop.index))', 'name'],
+                'readIndex': 0,
+              },
+              <String, dynamic>{
+                'op': 'get',
+                'path': <String>['((temp.in))', '((_loop.index))', 'weight'],
+                'readIndex': 1,
+              },
+            ],
+          },
+          resultKey: 'rtJson',
+          results: results,
+          variables: variables,
+          resolveValue:
+              (input) =>
+                  input == '((guild.bc_items_db))'
+                      ? '{"items":[{"name":"axe","weight":2},{"name":"sword","weight":5}]}'
+                      : input,
+          guildId: null,
+          fallbackChannelId: null,
+          interaction: null,
+        );
+
+        expect(handled, isTrue);
+        expect(
+          results['rtJson'],
+          '{"items":[{"name":"axe","weight":2},{"name":"sword","weight":5}]}',
+        );
+        expect(variables['rtJson.json_0'], 'sword');
+        expect(variables['rtJson.json_1'], '5');
+      },
+    );
+
+    test(
+      'runtimeJsonBlock resolves enabled rarity name and weight for one loot item',
+      () async {
+        final store = _MemoryBotDataStore();
+        final results = <String, String>{};
+        final variables = <String, String>{
+          'temp.in': 'items',
+          '_loop.index': '0',
+        };
+
+        final handled = await executeVariablesAction(
+          type: BotCreatorActionType.runtimeJsonBlock,
+          store: store,
+          botId: 'bot-1',
+          payload: <String, dynamic>{
+            'source': '((guild.bc_items_db))',
+            'operations': <Map<String, dynamic>>[
+              <String, dynamic>{
+                'op': 'get',
+                'path': <String>['((temp.in))', '((_loop.index))', 'enabled'],
+                'readIndex': 0,
+              },
+              <String, dynamic>{
+                'op': 'get',
+                'path': <String>['((temp.in))', '((_loop.index))', 'rarity'],
+                'readIndex': 1,
+              },
+              <String, dynamic>{
+                'op': 'get',
+                'path': <String>['((temp.in))', '((_loop.index))', 'name'],
+                'readIndex': 2,
+              },
+              <String, dynamic>{
+                'op': 'get',
+                'path': <String>['((temp.in))', '((_loop.index))', 'weight'],
+                'readIndex': 3,
+              },
+            ],
+          },
+          resultKey: 'rtJson',
+          results: results,
+          variables: variables,
+          resolveValue:
+              (input) =>
+                  input == '((guild.bc_items_db))'
+                      ? '{"items":[{"enabled":true,"rarity":"legendary","name":"phoenix_blade","weight":8}]}'
+                      : input,
+          guildId: null,
+          fallbackChannelId: null,
+          interaction: null,
+        );
+
+        expect(handled, isTrue);
+        expect(variables['rtJson.json_0'], 'true');
+        expect(variables['rtJson.json_1'], 'legendary');
+        expect(variables['rtJson.json_2'], 'phoenix_blade');
+        expect(variables['rtJson.json_3'], '8');
+      },
+    );
+
+    test(
       'runtimeJsonBlock recovers from scalar source by promoting to object',
       () async {
         final store = _MemoryBotDataStore();
@@ -445,6 +558,77 @@ void main() {
 
         expect(handled, isTrue);
         expect(results['rtJson'], '{"items":["sword"]}');
+      },
+    );
+
+    test(
+      'setTemporaryVariable stores a resolved runtime value in the temp namespace',
+      () async {
+        final store = _MemoryBotDataStore();
+        final results = <String, String>{'rtJson_0.json_0': '2'};
+        final variables = <String, String>{};
+
+        final handled = await executeVariablesAction(
+          type: BotCreatorActionType.setTemporaryVariable,
+          store: store,
+          botId: 'bot-1',
+          payload: <String, dynamic>{
+            'key': 'looping',
+            'valueType': 'string',
+            'value': '((rtJson_0.json_0))',
+          },
+          resultKey: 'setTemp',
+          results: results,
+          variables: variables,
+          resolveValue: (input) => input == '((rtJson_0.json_0))' ? '' : input,
+          guildId: null,
+          fallbackChannelId: null,
+          interaction: null,
+        );
+
+        expect(handled, isTrue);
+        expect(results['setTemp'], 'OK');
+        expect(variables['temp.looping'], '2');
+        expect(variables['setTemp.value'], '2');
+        expect(variables['setTemp.sourceRaw'], '((rtJson_0.json_0))');
+        expect(variables['setTemp.scope'], 'temp');
+        expect(variables['setTemp.key'], 'looping');
+      },
+    );
+
+    test(
+      'setTemporaryVariable can resolve a runtime random threshold template',
+      () async {
+        final store = _MemoryBotDataStore();
+        final results = <String, String>{};
+        final variables = <String, String>{};
+
+        final handled = await executeVariablesAction(
+          type: BotCreatorActionType.setTemporaryVariable,
+          store: store,
+          botId: 'bot-1',
+          payload: <String, dynamic>{
+            'key': 'roll',
+            'valueType': 'string',
+            'value': '((randomint(1, 10)))',
+          },
+          resultKey: 'setRoll',
+          results: results,
+          variables: variables,
+          resolveValue:
+              (input) => resolveTemplatePlaceholders(input, <String, String>{
+                ...variables,
+                ...results,
+              }),
+          guildId: null,
+          fallbackChannelId: null,
+          interaction: null,
+        );
+
+        expect(handled, isTrue);
+        final rollValue = int.tryParse(variables['temp.roll'] ?? '');
+        expect(rollValue, isNotNull);
+        expect(rollValue!, inInclusiveRange(1, 10));
       },
     );
 

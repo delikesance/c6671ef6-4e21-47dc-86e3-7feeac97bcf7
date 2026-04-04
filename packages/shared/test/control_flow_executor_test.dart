@@ -198,6 +198,127 @@ void main() {
       expect(executed, contains('respondWithMessage'));
     });
 
+    test(
+      'runBdfdScript supports loot flow with enabled gate fallback and first-win stop',
+      () async {
+        final results = <String, String>{};
+        List<Action> capturedActions = const <Action>[];
+
+        final handled = await executeControlFlowAction(
+          type: BotCreatorActionType.runBdfdScript,
+          payload: <String, dynamic>{
+            'scriptContent':
+                r'$jsonParse[$getServerVar[items_db]]'
+                r'$var[in;items]'
+                r'$var[looping;$jsonArrayCount[$var[in]]]'
+                r'$var[roll;$random[1;10]]'
+                r'$var[currentWeight;0]'
+                r'$var[winner;]'
+                r'$for[$var[looping]]'
+                r'$if[$json[$var[in];$i;enabled]==true]'
+                r'$if[$json[$var[in];$i;rarity]==legendary]'
+                r'$var[bonus;2]'
+                r'$else'
+                r'$var[bonus;0]'
+                r'$endif'
+                r'$var[itemWeight;$json[$var[in];$i;weight]]'
+                r'$var[currentWeight;$calculate[$var[currentWeight]+$var[itemWeight]+$var[bonus]]]'
+                r'$if[$var[winner]==]'
+                r'$if[$var[roll]<=$var[currentWeight]]'
+                r'$var[winner;$json[$var[in];$i;name]]'
+                r'$reply[$var[winner]]'
+                r'$stop'
+                r'$endif'
+                r'$endif'
+                r'$endif'
+                r'$endfor'
+                r'$if[$var[winner]==]'
+                r'$reply[fallback_common]'
+                r'$endif',
+          },
+          resultKey: 'bdfd',
+          results: results,
+          variables: <String, String>{},
+          resolveValue: (input) => input,
+          onLog: null,
+          activeWorkflowStack: <String>{},
+          getWorkflowByName: (_) async => null,
+          executeActions: (actions) async {
+            capturedActions = List<Action>.from(actions);
+            return <String, String>{};
+          },
+        );
+
+        expect(handled, isTrue);
+        expect(results['bdfd'], 'BDFD_OK');
+
+        final topLevelLoops = capturedActions
+            .where((action) => action.type == BotCreatorActionType.forLoop)
+            .toList(growable: false);
+        expect(topLevelLoops, hasLength(1));
+
+        final fallbackIf = capturedActions.lastWhere(
+          (action) => action.type == BotCreatorActionType.ifBlock,
+        );
+        expect(fallbackIf.payload['condition.variable'], '((temp.winner))');
+        expect(fallbackIf.payload['condition.value'], '');
+
+        final loopBody = List<Map<String, dynamic>>.from(
+          topLevelLoops.single.payload['bodyActions'] as List? ?? const [],
+        );
+        expect(
+          loopBody.any((action) => action['type'] == 'runtimeJsonBlock'),
+          isTrue,
+        );
+
+        final enabledIf = Map<String, dynamic>.from(
+          loopBody.firstWhere(
+                    (action) => action['type'] == 'ifBlock',
+                  )['payload']
+                  as Map? ??
+              const <String, dynamic>{},
+        );
+        expect(
+          (enabledIf['condition.variable'] ?? '').toString(),
+          contains('rtJson_'),
+        );
+        expect(enabledIf['condition.value'], 'true');
+
+        final enabledThen = List<Map<String, dynamic>>.from(
+          enabledIf['thenActions'] as List? ?? const [],
+        );
+        final winnerGate = Map<String, dynamic>.from(
+          enabledThen
+              .where((action) => action['type'] == 'ifBlock')
+              .map(
+                (action) => Map<String, dynamic>.from(
+                  action['payload'] as Map? ?? const <String, dynamic>{},
+                ),
+              )
+              .firstWhere(
+                (payload) => payload['condition.variable'] == '((temp.winner))',
+              ),
+        );
+        final rollGate = Map<String, dynamic>.from(
+          List<Map<String, dynamic>>.from(
+                    winnerGate['thenActions'] as List? ?? const [],
+                  ).firstWhere(
+                    (action) => action['type'] == 'ifBlock',
+                  )['payload']
+                  as Map? ??
+              const <String, dynamic>{},
+        );
+
+        final winnerThen = List<Map<String, dynamic>>.from(
+          rollGate['thenActions'] as List? ?? const [],
+        );
+        expect(
+          winnerThen.any((action) => action['type'] == 'stopUnless'),
+          isTrue,
+        );
+      },
+    );
+
     test('returns BDFD_EMPTY for blank script', () async {
       final results = <String, String>{};
       final executed = <String>[];
@@ -259,6 +380,157 @@ void main() {
 
       expect(results['bdfd.nested'], 'ok');
     });
+
+    test(
+      'forwards compiled runtime loop temp var actions to executeActions',
+      () async {
+        final results = <String, String>{};
+        List<Action> capturedActions = const <Action>[];
+
+        final handled = await executeControlFlowAction(
+          type: BotCreatorActionType.runBdfdScript,
+          payload: <String, dynamic>{
+            'scriptContent':
+                r'$for[$message[1]]$var[current;$i]$reply[$var[current]]$endfor',
+          },
+          resultKey: 'bdfd',
+          results: results,
+          variables: <String, String>{},
+          resolveValue: (input) => input,
+          onLog: null,
+          activeWorkflowStack: <String>{},
+          getWorkflowByName: (_) async => null,
+          executeActions: (actions) async {
+            capturedActions = List<Action>.from(actions);
+            return <String, String>{};
+          },
+        );
+
+        expect(handled, isTrue);
+        expect(results['bdfd'], 'BDFD_OK');
+        expect(capturedActions, hasLength(1));
+        expect(capturedActions.single.type, BotCreatorActionType.forLoop);
+
+        final bodyActions = List<Map<String, dynamic>>.from(
+          capturedActions.single.payload['bodyActions'] as List? ?? const [],
+        );
+        expect(bodyActions, hasLength(2));
+        expect(bodyActions[0]['type'], 'setTemporaryVariable');
+        expect(bodyActions[1]['type'], 'respondWithMessage');
+      },
+    );
+
+    test(
+      'forwards weighted roll style runtime loop with nested if blocks',
+      () async {
+        final results = <String, String>{};
+        List<Action> capturedActions = const <Action>[];
+
+        final handled = await executeControlFlowAction(
+          type: BotCreatorActionType.runBdfdScript,
+          payload: <String, dynamic>{
+            'scriptContent':
+                r'$jsonParse[$getServerVar[items_db]]'
+                r'$var[in;items]'
+                r'$var[target;sword]'
+                r'$var[looping;$jsonArrayCount[$var[in]]]'
+                r'$for[$var[looping]]'
+                r'$if[$json[$var[in];$i;name]==$var[target]]'
+                r'$reply[$json[$var[in];$i;weight]]'
+                r'$endif'
+                r'$endfor',
+          },
+          resultKey: 'bdfd',
+          results: results,
+          variables: <String, String>{},
+          resolveValue: (input) => input,
+          onLog: null,
+          activeWorkflowStack: <String>{},
+          getWorkflowByName: (_) async => null,
+          executeActions: (actions) async {
+            capturedActions = List<Action>.from(actions);
+            return <String, String>{};
+          },
+        );
+
+        expect(handled, isTrue);
+        expect(results['bdfd'], 'BDFD_OK');
+        expect(capturedActions, hasLength(6));
+        expect(capturedActions.last.type, BotCreatorActionType.forLoop);
+
+        final bodyActions = List<Map<String, dynamic>>.from(
+          capturedActions.last.payload['bodyActions'] as List? ?? const [],
+        );
+        expect(bodyActions, hasLength(2));
+        expect(bodyActions[0]['type'], 'runtimeJsonBlock');
+        expect(bodyActions[1]['type'], 'ifBlock');
+      },
+    );
+
+    test(
+      'forwards full weighted roll script with accumulation and winner selection',
+      () async {
+        final results = <String, String>{};
+        List<Action> capturedActions = const <Action>[];
+
+        final handled = await executeControlFlowAction(
+          type: BotCreatorActionType.runBdfdScript,
+          payload: <String, dynamic>{
+            'scriptContent':
+                r'$jsonParse[$getServerVar[items_db]]'
+                r'$var[in;items]'
+                r'$var[looping;$jsonArrayCount[$var[in]]]'
+                r'$var[totalWeight;0]'
+                r'$for[$var[looping]]'
+                r'$var[itemWeight;$json[$var[in];$i;weight]]'
+                r'$var[totalWeight;$calculate[$var[totalWeight]+$var[itemWeight]]]'
+                r'$endfor'
+                r'$var[roll;$random[1;10]]'
+                r'$var[currentWeight;0]'
+                r'$for[$var[looping]]'
+                r'$var[itemName;$json[$var[in];$i;name]]'
+                r'$var[itemWeight;$json[$var[in];$i;weight]]'
+                r'$var[currentWeight;$calculate[$var[currentWeight]+$var[itemWeight]]]'
+                r'$if[$var[roll]<=$var[currentWeight]]'
+                r'$var[winner;$var[itemName]]'
+                r'$reply[$var[winner]]'
+                r'$endif'
+                r'$endfor',
+          },
+          resultKey: 'bdfd',
+          results: results,
+          variables: <String, String>{},
+          resolveValue: (input) => input,
+          onLog: null,
+          activeWorkflowStack: <String>{},
+          getWorkflowByName: (_) async => null,
+          executeActions: (actions) async {
+            capturedActions = List<Action>.from(actions);
+            return <String, String>{};
+          },
+        );
+
+        expect(handled, isTrue);
+        expect(results['bdfd'], 'BDFD_OK');
+
+        final topLevelLoops = capturedActions
+            .where((action) => action.type == BotCreatorActionType.forLoop)
+            .toList(growable: false);
+        expect(topLevelLoops, hasLength(2));
+
+        final selectionBody = List<Map<String, dynamic>>.from(
+          topLevelLoops[1].payload['bodyActions'] as List? ?? const [],
+        );
+        expect(
+          selectionBody.any((action) => action['type'] == 'runtimeJsonBlock'),
+          isTrue,
+        );
+        expect(
+          selectionBody.any((action) => action['type'] == 'ifBlock'),
+          isTrue,
+        );
+      },
+    );
 
     test('propagates __stopped__ from nested execution', () async {
       final results = <String, String>{};
@@ -355,6 +627,34 @@ void main() {
           results: results,
           executedBatches: batches,
           resolveValue: (input) => input.replaceAll('((message[2]))', '2'),
+        );
+
+        expect(batches, hasLength(2));
+        expect(results['loop'], 'LOOP_2');
+      },
+    );
+
+    test(
+      'simple runtime loop resolves iteration count from temp variables',
+      () async {
+        final results = <String, String>{};
+        final batches = <List<Action>>[];
+
+        await runForLoop(
+          payload: <String, dynamic>{
+            'mode': 'simple',
+            'iterations': '((temp.looping))',
+            'bodyActions': <Map<String, dynamic>>[
+              <String, dynamic>{
+                'type': 'sendMessage',
+                'payload': <String, dynamic>{'content': 'hello'},
+              },
+            ],
+          },
+          results: results,
+          executedBatches: batches,
+          variables: <String, String>{'temp.looping': '2'},
+          resolveValue: (input) => input.replaceAll('((temp.looping))', '2'),
         );
 
         expect(batches, hasLength(2));
