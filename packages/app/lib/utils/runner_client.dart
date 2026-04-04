@@ -488,6 +488,7 @@ class RunnerClient {
     String botId,
     String key, {
     String? scope,
+    bool purgeStoredValues = false,
   }) async {
     final normalizedBotId = botId.trim();
     final normalizedKey = _normalizeScopedStorageKey(key);
@@ -501,6 +502,7 @@ class RunnerClient {
       <String, dynamic>{
         'key': normalizedKey,
         if (scope != null && scope.trim().isNotEmpty) 'scope': scope.trim(),
+        if (purgeStoredValues) 'purgeStoredValues': true,
       },
     );
   }

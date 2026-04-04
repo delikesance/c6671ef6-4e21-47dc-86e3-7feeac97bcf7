@@ -107,7 +107,11 @@ class _DebugReplayPageState extends State<DebugReplayPage> {
           ],
         ],
       ),
-      body: hasCapability ? _buildBody(context) : _buildSoftLockedBody(context),
+      body: SafeArea(
+        top: false,
+        child:
+            hasCapability ? _buildBody(context) : _buildSoftLockedBody(context),
+      ),
     );
   }
 
@@ -385,30 +389,33 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // ── Header summary ──
-          _buildHeader(context, replay, colorScheme),
-          const Divider(height: 1),
-          // ── Timeline bar ──
-          if (frames.isNotEmpty) _buildTimeline(context, frames, colorScheme),
-          const Divider(height: 1),
-          // ── Playback controls ──
-          _buildPlaybackControls(context, frames),
-          const Divider(height: 1),
-          // ── Detail pane ──
-          Expanded(
-            child:
-                _activeStep < 0
-                    ? _buildOverview(context, replay, colorScheme)
-                    : _buildFrameDetail(
-                      context,
-                      frames[_activeStep],
-                      _activeStep,
-                      colorScheme,
-                    ),
-          ),
-        ],
+      body: SafeArea(
+        top: false,
+        child: Column(
+          children: [
+            // ── Header summary ──
+            _buildHeader(context, replay, colorScheme),
+            const Divider(height: 1),
+            // ── Timeline bar ──
+            if (frames.isNotEmpty) _buildTimeline(context, frames, colorScheme),
+            const Divider(height: 1),
+            // ── Playback controls ──
+            _buildPlaybackControls(context, frames),
+            const Divider(height: 1),
+            // ── Detail pane ──
+            Expanded(
+              child:
+                  _activeStep < 0
+                      ? _buildOverview(context, replay, colorScheme)
+                      : _buildFrameDetail(
+                        context,
+                        frames[_activeStep],
+                        _activeStep,
+                        colorScheme,
+                      ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -790,6 +797,15 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
               ),
             ),
           ],
+          // ── Variables diff ──
+          if (frame.variablesBefore != null ||
+              frame.variablesAfter != null) ...[
+            const SizedBox(height: 20),
+            _VariablesDiffSection(
+              before: frame.variablesBefore ?? const {},
+              after: frame.variablesAfter ?? const {},
+            ),
+          ],
         ],
       ),
     );
@@ -808,6 +824,241 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
         .replaceAllMapped(RegExp(r'([A-Z])'), (m) => ' ${m.group(0)}')
         .trimLeft()
         .replaceFirstMapped(RegExp(r'^.'), (m) => m.group(0)!.toUpperCase());
+  }
+}
+
+// ─── Variables diff widget ───────────────────────────────────────────────────
+
+class _VariablesDiffSection extends StatefulWidget {
+  const _VariablesDiffSection({required this.before, required this.after});
+
+  final Map<String, String> before;
+  final Map<String, String> after;
+
+  @override
+  State<_VariablesDiffSection> createState() => _VariablesDiffSectionState();
+}
+
+class _VariablesDiffSectionState extends State<_VariablesDiffSection> {
+  bool _expanded = false;
+
+  bool _isPersistenceDebugKey(String key) {
+    final lower = key.toLowerCase();
+    if (!lower.startsWith('action_')) {
+      return false;
+    }
+    return lower.endsWith('.value') ||
+        lower.endsWith('.persisted') ||
+        lower.endsWith('.scope') ||
+        lower.endsWith('.key');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final allKeys =
+        <String>{...widget.before.keys, ...widget.after.keys}.toList()..sort();
+
+    final added = <String>[];
+    final modified = <String>[];
+    final removed = <String>[];
+    final unchanged = <String>[];
+
+    for (final key in allKeys) {
+      final inBefore = widget.before.containsKey(key);
+      final inAfter = widget.after.containsKey(key);
+      if (!inBefore && inAfter) {
+        added.add(key);
+      } else if (inBefore && !inAfter) {
+        removed.add(key);
+      } else if (widget.before[key] != widget.after[key]) {
+        modified.add(key);
+      } else {
+        unchanged.add(key);
+      }
+    }
+
+    final changedCount = added.length + modified.length + removed.length;
+    final highlightedKeys = <String>[
+      ...added.where(_isPersistenceDebugKey),
+      ...modified.where(_isPersistenceDebugKey),
+      ...removed.where(_isPersistenceDebugKey),
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        InkWell(
+          onTap: () => setState(() => _expanded = !_expanded),
+          borderRadius: BorderRadius.circular(6),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Row(
+              children: [
+                Icon(
+                  _expanded ? Icons.expand_less : Icons.expand_more,
+                  size: 18,
+                  color: cs.onSurface.withValues(alpha: 0.55),
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  AppStrings.t('debug_replay_variables_label'),
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: cs.onSurface.withValues(alpha: 0.55),
+                    letterSpacing: 0.6,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                if (changedCount > 0)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 1,
+                    ),
+                    decoration: BoxDecoration(
+                      color: cs.primary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      '$changedCount',
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: cs.primary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        if (_expanded) ...[
+          const SizedBox(height: 6),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: cs.surfaceContainer,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (highlightedKeys.isNotEmpty) ...[
+                  Text(
+                    'Persistence debug',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: cs.primary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  for (final key in highlightedKeys)
+                    _varRow(
+                      context,
+                      key: key,
+                      value: widget.after[key] ?? widget.before[key] ?? '',
+                      color: cs.primary,
+                      prefix: '*',
+                    ),
+                  const Divider(height: 12),
+                ],
+                for (final key in added)
+                  _varRow(
+                    context,
+                    key: key,
+                    value: widget.after[key] ?? '',
+                    color: Colors.green,
+                    prefix: '+',
+                  ),
+                for (final key in modified)
+                  _varRow(
+                    context,
+                    key: key,
+                    value: '${widget.before[key]} → ${widget.after[key]}',
+                    color: Colors.orange,
+                    prefix: '~',
+                  ),
+                for (final key in removed)
+                  _varRow(
+                    context,
+                    key: key,
+                    value: widget.before[key] ?? '',
+                    color: cs.error,
+                    prefix: '−',
+                  ),
+                if (unchanged.isNotEmpty) ...[
+                  if (changedCount > 0) const Divider(height: 12),
+                  for (final key in unchanged)
+                    _varRow(
+                      context,
+                      key: key,
+                      value: widget.after[key] ?? '',
+                      color: cs.onSurface.withValues(alpha: 0.4),
+                      prefix: ' ',
+                    ),
+                ],
+                if (allKeys.isEmpty)
+                  Text(
+                    AppStrings.t('debug_replay_variables_empty'),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: cs.onSurface.withValues(alpha: 0.45),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _varRow(
+    BuildContext context, {
+    required String key,
+    required String value,
+    required Color color,
+    required String prefix,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 1),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            prefix,
+            style: TextStyle(
+              fontFamily: 'monospace',
+              fontSize: 12,
+              color: color,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            key,
+            style: TextStyle(
+              fontFamily: 'monospace',
+              fontSize: 12,
+              color: color,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(
+                fontFamily: 'monospace',
+                fontSize: 12,
+                color: color.withValues(alpha: 0.8),
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

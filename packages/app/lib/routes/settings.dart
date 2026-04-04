@@ -5,6 +5,7 @@ import 'package:bot_creator/routes/onboarding.dart';
 import 'package:bot_creator/utils/analytics.dart';
 import 'package:bot_creator/utils/ad_consent_service.dart';
 import 'package:bot_creator/utils/app_diagnostics.dart';
+import 'package:bot_creator/utils/premium_capabilities.dart';
 import 'package:bot_creator/utils/subscription_service.dart';
 import 'package:bot_creator/widgets/subscription_page.dart';
 import 'package:bot_creator/utils/drive.dart';
@@ -1143,6 +1144,28 @@ class _SettingPageState extends State<SettingPage> {
                                   AppStrings.t('settings_replay_onboarding'),
                                 ),
                               ),
+                            ),
+                            const SizedBox(height: 16),
+                            SwitchListTile(
+                              contentPadding: EdgeInsets.zero,
+                              secondary: const Icon(
+                                Icons.workspace_premium_rounded,
+                              ),
+                              title: Text(
+                                AppStrings.t('settings_debug_premium_bypass'),
+                              ),
+                              subtitle: Text(
+                                AppStrings.t(
+                                  'settings_debug_premium_bypass_desc',
+                                ),
+                              ),
+                              value: PremiumCapabilities.debugPremiumBypass,
+                              onChanged: (value) {
+                                setState(() {
+                                  PremiumCapabilities.debugPremiumBypass =
+                                      value;
+                                });
+                              },
                             ),
                           ],
                         ),

@@ -125,6 +125,9 @@
   'settings_replay_onboarding': 'Relancer l’onboarding',
   'settings_replay_onboarding_desc':
       'Réinitialise l’onboarding et le relance immédiatement.',
+  'settings_debug_premium_bypass': 'Bypass Premium',
+  'settings_debug_premium_bypass_desc':
+      'Débloque toutes les fonctionnalités Premium sans abonnement (debug uniquement).',
   'settings_preferences_reset_done': 'Préférences réinitialisées',
   'settings_backup_restore_title': 'Sauvegarde et restauration',
   'settings_backup_restore_desc':
@@ -591,6 +594,8 @@
   'debug_replay_result_empty': '(aucun résultat)',
   'debug_replay_start_offset': '+{ms} ms depuis le début',
   'debug_replay_loop_info': 'Boucle profondeur {depth}, itération {iteration}',
+  'debug_replay_variables_label': 'VARIABLES',
+  'debug_replay_variables_empty': '(aucune variable)',
 
   // Page stats du bot
   'bot_stats_title': 'Statistiques du bot',

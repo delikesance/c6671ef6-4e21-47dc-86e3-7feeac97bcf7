@@ -156,6 +156,150 @@ String _stringifyRuntimeValue(dynamic value) {
   return value.toString();
 }
 
+bool _looksLikeJsonPayload(String value) {
+  final trimmed = value.trim();
+  if (trimmed.isEmpty) {
+    return false;
+  }
+  if (!((trimmed.startsWith('{') && trimmed.endsWith('}')) ||
+      (trimmed.startsWith('[') && trimmed.endsWith(']')))) {
+    return false;
+  }
+  try {
+    jsonDecode(trimmed);
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+int _actionKeyIndex(String key) {
+  final match = RegExp(r'^action_(\d+)').firstMatch(key.toLowerCase());
+  return int.tryParse(match?.group(1) ?? '') ?? -1;
+}
+
+String _lookupMergedContextValue(
+  String rawValueSource,
+  Map<String, String> mergedContext,
+) {
+  final match = RegExp(r'^\s*\(\((.+)\)\)\s*$').firstMatch(rawValueSource);
+  if (match == null) {
+    return '';
+  }
+
+  final requestedKey = (match.group(1) ?? '').trim();
+  if (requestedKey.isEmpty) {
+    return '';
+  }
+
+  if (mergedContext.containsKey(requestedKey)) {
+    return mergedContext[requestedKey] ?? '';
+  }
+
+  final jsonReadKeyMatch = RegExp(r'^(.+)\.json_\d+$').firstMatch(requestedKey);
+  if (jsonReadKeyMatch != null) {
+    final rootKey = (jsonReadKeyMatch.group(1) ?? '').trim();
+    if (rootKey.isNotEmpty && mergedContext.containsKey(rootKey)) {
+      return mergedContext[rootKey] ?? '';
+    }
+  }
+
+  final requestedKeyLower = requestedKey.toLowerCase();
+  for (final entry in mergedContext.entries) {
+    if (entry.key.toLowerCase() == requestedKeyLower) {
+      return entry.value;
+    }
+  }
+
+  if (jsonReadKeyMatch != null) {
+    final rootKey = (jsonReadKeyMatch.group(1) ?? '').trim().toLowerCase();
+    if (rootKey.isNotEmpty) {
+      for (final entry in mergedContext.entries) {
+        if (entry.key.toLowerCase() == rootKey) {
+          return entry.value;
+        }
+      }
+    }
+  }
+
+  // Some execution paths may rewrite action keys (for example from rtJson_0 to
+  // action_1). If the script still references rtJson_* placeholders, map them
+  // to equivalent action_* keys.
+  final aliasMatch = RegExp(
+    r'^(rtJson_\d+)(\.json_\d+)?$',
+    caseSensitive: false,
+  ).firstMatch(requestedKey);
+  if (aliasMatch != null) {
+    final suffix = aliasMatch.group(2) ?? '';
+    final actionKeyPattern =
+        suffix.isEmpty
+            ? RegExp(r'^action_\d+$', caseSensitive: false)
+            : RegExp(
+              '^action_\\d+${RegExp.escape(suffix)}'
+              r'$',
+              caseSensitive: false,
+            );
+    final matching = mergedContext.entries
+        .where(
+          (entry) =>
+              actionKeyPattern.hasMatch(entry.key) &&
+              entry.value.trim().isNotEmpty,
+        )
+        .toList(growable: false);
+    if (matching.isNotEmpty) {
+      matching.sort((left, right) {
+        final leftJson = _looksLikeJsonPayload(left.value) ? 1 : 0;
+        final rightJson = _looksLikeJsonPayload(right.value) ? 1 : 0;
+        if (leftJson != rightJson) {
+          return rightJson.compareTo(leftJson);
+        }
+        return _actionKeyIndex(right.key).compareTo(_actionKeyIndex(left.key));
+      });
+      return matching.first.value;
+    }
+  }
+
+  return '';
+}
+
+String _lookupLatestRuntimeJsonValue(Map<String, String> mergedContext) {
+  final candidates = mergedContext.entries
+      .where((entry) {
+        final key = entry.key.toLowerCase();
+        if (entry.value.trim().isEmpty) {
+          return false;
+        }
+        if (key.startsWith('rtjson_')) {
+          return true;
+        }
+        if (RegExp(r'^action_\d+(\.json_\d+)?$').hasMatch(key)) {
+          return true;
+        }
+        return false;
+      })
+      .toList(growable: false);
+
+  if (candidates.isEmpty) {
+    return '';
+  }
+
+  candidates.sort((left, right) {
+    final leftJson = _looksLikeJsonPayload(left.value) ? 1 : 0;
+    final rightJson = _looksLikeJsonPayload(right.value) ? 1 : 0;
+    if (leftJson != rightJson) {
+      return rightJson.compareTo(leftJson);
+    }
+    final leftPriority = left.key.toLowerCase().contains('.json_') ? 1 : 0;
+    final rightPriority = right.key.toLowerCase().contains('.json_') ? 1 : 0;
+    if (leftPriority != rightPriority) {
+      return rightPriority.compareTo(leftPriority);
+    }
+    return _actionKeyIndex(right.key).compareTo(_actionKeyIndex(left.key));
+  });
+
+  return candidates.first.value;
+}
+
 bool _isInvalidContextId(String? value) {
   final normalized = (value ?? '').trim().toLowerCase();
   return normalized.isEmpty ||
@@ -739,8 +883,70 @@ Future<bool> executeVariablesAction({
         throw Exception('Unable to resolve context ID for scope "$scope"');
       }
 
-      final value = _resolveVariableValuePayload(payload, resolveValue);
+      final rawValueSource =
+          payload.containsKey('value')
+              ? (payload['value'] ?? '').toString()
+              : (payload['element'] ?? '').toString();
+      dynamic value = _resolveVariableValuePayload(payload, resolveValue);
+      final resolvedByResolver = value is String ? value : value.toString();
+      String fallbackResolved = '';
+      String directFallbackResolved = '';
+      if (value is String &&
+          rawValueSource.contains('((') &&
+          rawValueSource.contains('))') &&
+          (value.isEmpty || (value.contains('((') && value.contains('))')))) {
+        final mergedContext = <String, String>{...variables, ...results};
+        final fallback = resolveTemplatePlaceholders(
+          rawValueSource,
+          mergedContext,
+        );
+        fallbackResolved = fallback;
+        if (fallback.isNotEmpty && fallback != rawValueSource) {
+          value = fallback;
+        } else {
+          final directFallback = _lookupMergedContextValue(
+            rawValueSource,
+            mergedContext,
+          );
+          directFallbackResolved = directFallback;
+          if (directFallback.isNotEmpty) {
+            value = directFallback;
+          }
+        }
+      }
+      if (value is String &&
+          value.isEmpty &&
+          rawValueSource.trim().toLowerCase() == r'$jsonstringify') {
+        final mergedContext = <String, String>{...variables, ...results};
+        final latestJson = _lookupLatestRuntimeJsonValue(mergedContext);
+        if (latestJson.isNotEmpty) {
+          value = latestJson;
+        }
+      }
       await store.setScopedVariable(botId, scope, contextId, storageKey, value);
+      dynamic persisted = await store.getScopedVariable(
+        botId,
+        scope,
+        contextId,
+        storageKey,
+      );
+      final expectedRuntimeValue = _stringifyRuntimeValue(value);
+      if ((_stringifyRuntimeValue(persisted).isEmpty) &&
+          expectedRuntimeValue.isNotEmpty) {
+        await store.setScopedVariable(
+          botId,
+          scope,
+          contextId,
+          storageKey,
+          expectedRuntimeValue,
+        );
+        persisted = await store.getScopedVariable(
+          botId,
+          scope,
+          contextId,
+          storageKey,
+        );
+      }
       await _ensureScopedDefinitionExists(
         store: store,
         botId: botId,
@@ -748,11 +954,21 @@ Future<bool> executeVariablesAction({
         storageKey: storageKey,
         defaultValue: value,
       );
-      final runtimeValue = _stringifyRuntimeValue(value);
+      final runtimeValue = _stringifyRuntimeValue(
+        persisted ?? expectedRuntimeValue,
+      );
       variables['$scope.$referenceKey'] = runtimeValue;
       if (rawKey.isNotEmpty && rawKey != referenceKey) {
         variables['$scope.$rawKey'] = runtimeValue;
       }
+      variables['$resultKey.value'] = runtimeValue;
+      variables['$resultKey.persisted'] = runtimeValue;
+      variables['$resultKey.sourceRaw'] = rawValueSource;
+      variables['$resultKey.resolved'] = resolvedByResolver;
+      variables['$resultKey.fallback'] = fallbackResolved;
+      variables['$resultKey.directFallback'] = directFallbackResolved;
+      variables['$resultKey.scope'] = scope;
+      variables['$resultKey.key'] = referenceKey;
       results[resultKey] = 'OK';
       return true;
 
@@ -1334,9 +1550,66 @@ Future<bool> executeVariablesAction({
       if (key.isEmpty) {
         throw Exception('key is required for setGlobalVariable');
       }
-      final value = _resolveVariableValuePayload(payload, resolveValue);
+      final rawValueSource =
+          payload.containsKey('value')
+              ? (payload['value'] ?? '').toString()
+              : (payload['element'] ?? '').toString();
+      dynamic value = _resolveVariableValuePayload(payload, resolveValue);
+      final resolvedByResolver = value is String ? value : value.toString();
+      String fallbackResolved = '';
+      String directFallbackResolved = '';
+      if (value is String &&
+          rawValueSource.contains('((') &&
+          rawValueSource.contains('))') &&
+          (value.isEmpty || (value.contains('((') && value.contains('))')))) {
+        final mergedContext = <String, String>{...variables, ...results};
+        final fallback = resolveTemplatePlaceholders(
+          rawValueSource,
+          mergedContext,
+        );
+        fallbackResolved = fallback;
+        if (fallback.isNotEmpty && fallback != rawValueSource) {
+          value = fallback;
+        } else {
+          final directFallback = _lookupMergedContextValue(
+            rawValueSource,
+            mergedContext,
+          );
+          directFallbackResolved = directFallback;
+          if (directFallback.isNotEmpty) {
+            value = directFallback;
+          }
+        }
+      }
+      if (value is String &&
+          value.isEmpty &&
+          rawValueSource.trim().toLowerCase() == r'$jsonstringify') {
+        final mergedContext = <String, String>{...variables, ...results};
+        final latestJson = _lookupLatestRuntimeJsonValue(mergedContext);
+        if (latestJson.isNotEmpty) {
+          value = latestJson;
+        }
+      }
       await store.setGlobalVariable(botId, key, value);
-      variables['global.$key'] = _stringifyRuntimeValue(value);
+      dynamic persisted = await store.getGlobalVariable(botId, key);
+      final expectedRuntimeValue = _stringifyRuntimeValue(value);
+      if ((_stringifyRuntimeValue(persisted).isEmpty) &&
+          expectedRuntimeValue.isNotEmpty) {
+        await store.setGlobalVariable(botId, key, expectedRuntimeValue);
+        persisted = await store.getGlobalVariable(botId, key);
+      }
+      final runtimeValue = _stringifyRuntimeValue(
+        persisted ?? expectedRuntimeValue,
+      );
+      variables['global.$key'] = runtimeValue;
+      variables['$resultKey.value'] = runtimeValue;
+      variables['$resultKey.persisted'] = runtimeValue;
+      variables['$resultKey.sourceRaw'] = rawValueSource;
+      variables['$resultKey.resolved'] = resolvedByResolver;
+      variables['$resultKey.fallback'] = fallbackResolved;
+      variables['$resultKey.directFallback'] = directFallbackResolved;
+      variables['$resultKey.scope'] = 'global';
+      variables['$resultKey.key'] = key;
       results[resultKey] = 'OK';
       return true;
 
@@ -1371,7 +1644,408 @@ Future<bool> executeVariablesAction({
       results[resultKey] = 'REMOVED';
       return true;
 
+    case BotCreatorActionType.runtimeJsonBlock:
+      _executeRuntimeJsonBlock(
+        payload: payload,
+        resultKey: resultKey,
+        results: results,
+        variables: variables,
+        resolveValue: resolveValue,
+      );
+      return true;
+
     default:
       return false;
   }
+}
+
+/// Executes a deferred JSON block at runtime.
+///
+/// The transpiler emits this action when `$jsonParse` receives an argument
+/// containing a runtime placeholder (e.g. `$getServerVar[data]`).  All
+/// subsequent JSON operations (`$json`, `$jsonSet`, `$jsonArrayAppend`, etc.)
+/// are collected as a list of operations and executed here once the source
+/// string has been resolved.
+void _executeRuntimeJsonBlock({
+  required Map<String, dynamic> payload,
+  required String resultKey,
+  required Map<String, String> results,
+  required Map<String, String> variables,
+  required String Function(String input) resolveValue,
+}) {
+  String resolveRuntimeJsonInput(String input) {
+    final resolved = resolveValue(input);
+    final mergedContext = <String, String>{...variables, ...results};
+    final hasTemplatePlaceholder = input.contains('((') && input.contains('))');
+    if (hasTemplatePlaceholder) {
+      if (resolved.isNotEmpty &&
+          !(resolved.contains('((') && resolved.contains('))'))) {
+        return resolved;
+      }
+      final fallbackResolved = resolveTemplatePlaceholders(
+        input,
+        mergedContext,
+      );
+      if (fallbackResolved != input) {
+        return fallbackResolved;
+      }
+      final directFallback = _lookupMergedContextValue(input, mergedContext);
+      if (directFallback.isNotEmpty) {
+        return directFallback;
+      }
+    }
+
+    if (resolved.isEmpty && input.trim().toLowerCase() == r'$jsonstringify') {
+      final latestJson = _lookupLatestRuntimeJsonValue(mergedContext);
+      if (latestJson.isNotEmpty) {
+        return latestJson;
+      }
+    }
+
+    return resolved;
+  }
+
+  final rawSource = (payload['source'] ?? '').toString();
+  final resolvedSource = resolveRuntimeJsonInput(rawSource).trim();
+  dynamic jsonCtx;
+  if (resolvedSource.isEmpty) {
+    // Empty source means variable not initialized yet. Bootstrap with an
+    // object so jsonSet/jsonArrayAppend can materialize paths.
+    jsonCtx = <String, dynamic>{};
+  } else {
+    try {
+      jsonCtx = jsonDecode(resolvedSource);
+      // Scalars (number/string/bool/null) cannot host object paths like
+      // `items`. Promote to an empty object so runtime JSON ops can recover.
+      if (jsonCtx is! Map && jsonCtx is! List) {
+        jsonCtx = <String, dynamic>{};
+      }
+    } catch (_) {
+      // Corrupted or non-JSON payload: recover by reinitializing as object.
+      jsonCtx = <String, dynamic>{};
+    }
+  }
+
+  final operations = payload['operations'];
+  if (operations is! List) {
+    final encoded = jsonEncode(jsonCtx);
+    results[resultKey] = encoded;
+    variables[resultKey] = encoded;
+    return;
+  }
+
+  for (final rawOp in operations) {
+    if (rawOp is! Map) continue;
+    final op = rawOp['op']?.toString() ?? '';
+    final pathRaw = rawOp['path'];
+    final path =
+        (pathRaw is List)
+            ? pathRaw.map((e) => e.toString()).toList()
+            : const <String>[];
+    final resolvedPath = path
+        .map(resolveRuntimeJsonInput)
+        .toList(growable: false);
+
+    switch (op) {
+      case 'get':
+        final readIndex = rawOp['readIndex'];
+        final value = _rtJsonGetPath(jsonCtx, resolvedPath);
+        final stringified = _rtJsonStringifyValue(value);
+        if (readIndex != null) {
+          results['$resultKey.json_$readIndex'] = stringified;
+          variables['$resultKey.json_$readIndex'] = stringified;
+        }
+        break;
+
+      case 'set':
+        final rawValue = resolveRuntimeJsonInput(
+          (rawOp['value'] ?? '').toString(),
+        );
+        final forceString = rawOp['forceString'] == true;
+        final value = forceString ? rawValue : _rtCoerceJsonValue(rawValue);
+        jsonCtx = _rtJsonSetPath(jsonCtx, resolvedPath, value);
+        break;
+
+      case 'unset':
+        jsonCtx = _rtJsonRemovePath(jsonCtx, resolvedPath);
+        break;
+
+      case 'clear':
+        jsonCtx = null;
+        break;
+
+      case 'exists':
+        final readIndex = rawOp['readIndex'];
+        final exists = _rtJsonPathExists(jsonCtx, resolvedPath);
+        if (readIndex != null) {
+          results['$resultKey.json_$readIndex'] = exists ? 'true' : 'false';
+          variables['$resultKey.json_$readIndex'] = exists ? 'true' : 'false';
+        }
+        break;
+
+      case 'stringify':
+        final readIndex = rawOp['readIndex'];
+        final value = jsonCtx != null ? jsonEncode(jsonCtx) : '';
+        if (readIndex != null) {
+          results['$resultKey.json_$readIndex'] = value;
+          variables['$resultKey.json_$readIndex'] = value;
+        }
+        break;
+
+      case 'pretty':
+        final readIndex = rawOp['readIndex'];
+        final indentRaw = resolveRuntimeJsonInput(
+          (rawOp['indent'] ?? '').toString(),
+        );
+        final indent = int.tryParse(indentRaw);
+        final spaces = (indent == null || indent < 0) ? 2 : indent;
+        final value =
+            jsonCtx != null
+                ? const JsonEncoder.withIndent(
+                  '  ',
+                ).convert(jsonCtx).replaceAll('  ', ' ' * spaces)
+                : '';
+        if (readIndex != null) {
+          results['$resultKey.json_$readIndex'] = value;
+          variables['$resultKey.json_$readIndex'] = value;
+        }
+        break;
+
+      case 'initArray':
+        jsonCtx = _rtJsonSetPath(jsonCtx, resolvedPath, <dynamic>[]);
+        break;
+
+      case 'arrayAppend':
+        final rawValue = resolveRuntimeJsonInput(
+          (rawOp['value'] ?? '').toString(),
+        );
+        final value = _rtCoerceJsonValue(rawValue);
+        final list = _rtJsonEnsureArray(jsonCtx, resolvedPath);
+        list.add(value);
+        break;
+
+      case 'arrayUnshift':
+        final rawValue = resolveRuntimeJsonInput(
+          (rawOp['value'] ?? '').toString(),
+        );
+        final value = _rtCoerceJsonValue(rawValue);
+        final list = _rtJsonEnsureArray(jsonCtx, resolvedPath);
+        list.insert(0, value);
+        break;
+
+      case 'arrayPop':
+        final readIndex = rawOp['readIndex'];
+        final list = _rtJsonEnsureArray(jsonCtx, resolvedPath);
+        final removed =
+            list.isNotEmpty ? _rtJsonStringifyValue(list.removeLast()) : '';
+        if (readIndex != null) {
+          results['$resultKey.json_$readIndex'] = removed;
+          variables['$resultKey.json_$readIndex'] = removed;
+        }
+        break;
+
+      case 'arrayShift':
+        final readIndex = rawOp['readIndex'];
+        final list = _rtJsonEnsureArray(jsonCtx, resolvedPath);
+        final removed =
+            list.isNotEmpty ? _rtJsonStringifyValue(list.removeAt(0)) : '';
+        if (readIndex != null) {
+          results['$resultKey.json_$readIndex'] = removed;
+          variables['$resultKey.json_$readIndex'] = removed;
+        }
+        break;
+
+      case 'arraySort':
+        final list = _rtJsonEnsureArray(jsonCtx, resolvedPath);
+        list.sort((a, b) {
+          final aNum = a is num ? a : num.tryParse(a.toString());
+          final bNum = b is num ? b : num.tryParse(b.toString());
+          if (aNum != null && bNum != null) return aNum.compareTo(bNum);
+          if (aNum != null) return -1;
+          if (bNum != null) return 1;
+          return a.toString().compareTo(b.toString());
+        });
+        break;
+
+      case 'arrayReverse':
+        final list = _rtJsonEnsureArray(jsonCtx, resolvedPath);
+        final reversed = list.reversed.toList(growable: false);
+        list
+          ..clear()
+          ..addAll(reversed);
+        break;
+
+      case 'arrayCount':
+        final readIndex = rawOp['readIndex'];
+        final value = _rtJsonGetPath(jsonCtx, resolvedPath);
+        final count = value is List ? value.length.toString() : '0';
+        if (readIndex != null) {
+          results['$resultKey.json_$readIndex'] = count;
+          variables['$resultKey.json_$readIndex'] = count;
+        }
+        break;
+
+      case 'arrayIndex':
+        final readIndex = rawOp['readIndex'];
+        final expected = _rtCoerceJsonValue(
+          resolveRuntimeJsonInput((rawOp['value'] ?? '').toString()),
+        );
+        final list = _rtJsonGetPath(jsonCtx, resolvedPath);
+        final index =
+            list is List
+                ? list.indexWhere((item) => item == expected).toString()
+                : '-1';
+        if (readIndex != null) {
+          results['$resultKey.json_$readIndex'] = index;
+          variables['$resultKey.json_$readIndex'] = index;
+        }
+        break;
+
+      case 'joinArray':
+        final readIndex = rawOp['readIndex'];
+        final separator = resolveRuntimeJsonInput(
+          (rawOp['separator'] ?? '').toString(),
+        );
+        final value = _rtJsonGetPath(jsonCtx, resolvedPath);
+        final joined =
+            value is List
+                ? value.map(_rtJsonStringifyValue).join(separator)
+                : '';
+        if (readIndex != null) {
+          results['$resultKey.json_$readIndex'] = joined;
+          variables['$resultKey.json_$readIndex'] = joined;
+        }
+        break;
+    }
+  }
+
+  final encodedRoot = jsonCtx != null ? jsonEncode(jsonCtx) : '';
+  results[resultKey] = encodedRoot;
+  variables[resultKey] = encodedRoot;
+}
+
+// ── Runtime JSON helpers ────────────────────────────────────────────────────
+
+dynamic _rtJsonGetPath(dynamic root, List<String> path) {
+  dynamic current = root;
+  for (final segment in path) {
+    final index = int.tryParse(segment);
+    if (index != null && current is List) {
+      if (index < 0 || index >= current.length) return null;
+      current = current[index];
+    } else if (current is Map) {
+      if (!current.containsKey(segment)) return null;
+      current = current[segment];
+    } else {
+      return null;
+    }
+  }
+  return current;
+}
+
+bool _rtJsonPathExists(dynamic root, List<String> path) {
+  dynamic current = root;
+  for (final segment in path) {
+    final index = int.tryParse(segment);
+    if (index != null && current is List) {
+      if (index < 0 || index >= current.length) return false;
+      current = current[index];
+    } else if (current is Map) {
+      if (!current.containsKey(segment)) return false;
+      current = current[segment];
+    } else {
+      return false;
+    }
+  }
+  return true;
+}
+
+dynamic _rtJsonSetPath(dynamic root, List<String> path, dynamic value) {
+  if (path.isEmpty) return value;
+  root ??= <String, dynamic>{};
+  dynamic current = root;
+  for (var i = 0; i < path.length - 1; i++) {
+    final segment = path[i];
+    final index = int.tryParse(segment);
+    if (index != null && current is List) {
+      if (index < 0 || index >= current.length) return root;
+      current = current[index];
+    } else if (current is Map) {
+      current.putIfAbsent(segment, () => <String, dynamic>{});
+      current = current[segment];
+    } else {
+      return root;
+    }
+  }
+  final lastSegment = path.last;
+  final lastIndex = int.tryParse(lastSegment);
+  if (lastIndex != null && current is List) {
+    if (lastIndex >= 0 && lastIndex < current.length) {
+      current[lastIndex] = value;
+    }
+  } else if (current is Map) {
+    current[lastSegment] = value;
+  }
+  return root;
+}
+
+dynamic _rtJsonRemovePath(dynamic root, List<String> path) {
+  if (path.isEmpty) return null;
+  dynamic current = root;
+  for (var i = 0; i < path.length - 1; i++) {
+    final segment = path[i];
+    final index = int.tryParse(segment);
+    if (index != null && current is List) {
+      if (index < 0 || index >= current.length) return root;
+      current = current[index];
+    } else if (current is Map) {
+      if (!current.containsKey(segment)) return root;
+      current = current[segment];
+    } else {
+      return root;
+    }
+  }
+  final lastSegment = path.last;
+  final lastIndex = int.tryParse(lastSegment);
+  if (lastIndex != null && current is List) {
+    if (lastIndex >= 0 && lastIndex < current.length) {
+      current.removeAt(lastIndex);
+    }
+  } else if (current is Map) {
+    current.remove(lastSegment);
+  }
+  return root;
+}
+
+List<dynamic> _rtJsonEnsureArray(dynamic root, List<String> path) {
+  final existing = _rtJsonGetPath(root, path);
+  if (existing is List<dynamic>) return existing;
+  _rtJsonSetPath(root, path, <dynamic>[]);
+  final resolved = _rtJsonGetPath(root, path);
+  return resolved is List<dynamic> ? resolved : <dynamic>[];
+}
+
+dynamic _rtCoerceJsonValue(String raw) {
+  final trimmed = raw.trim();
+  if (trimmed.isEmpty) return '';
+  if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+    try {
+      return jsonDecode(trimmed);
+    } catch (_) {}
+  }
+  if (trimmed.toLowerCase() == 'true') return true;
+  if (trimmed.toLowerCase() == 'false') return false;
+  if (trimmed.toLowerCase() == 'null') return null;
+  final asInt = int.tryParse(trimmed);
+  if (asInt != null) return asInt;
+  final asDouble = double.tryParse(trimmed);
+  if (asDouble != null) return asDouble;
+  return raw;
+}
+
+String _rtJsonStringifyValue(dynamic value) {
+  if (value == null) return '';
+  if (value is String) return value;
+  if (value is num || value is bool) return value.toString();
+  return jsonEncode(value);
 }

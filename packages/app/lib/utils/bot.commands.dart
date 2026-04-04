@@ -132,22 +132,28 @@ Future<void> handleLocalCommands(
               : resolveSubcommandWorkflowPayload(value, subcommandRoute);
       final executionValue = routePayload ?? value;
       final executionMode =
-          (value['executionMode'] ?? 'workflow')
+          (executionValue['executionMode'] ??
+                  value['executionMode'] ??
+                  'workflow')
               .toString()
               .trim()
               .toLowerCase();
+      final scriptSource =
+          (executionValue['bdfdScriptContent'] ??
+                  executionValue['scriptContent'] ??
+                  value['bdfdScriptContent'] ??
+                  value['scriptContent'] ??
+                  '')
+              .toString();
+      final shouldCompileFromBdfdSource =
+          executionMode == 'bdfd_script' || scriptSource.trim().isNotEmpty;
 
       appendBotDebugLog(
         'Resolved command route=${subcommandRoute ?? '(none)'} payloadFound=${routePayload != null}',
         botId: clientId,
       );
 
-      if (executionMode == 'bdfd_script') {
-        final scriptSource =
-            (executionValue['bdfdScriptContent'] ??
-                    value['bdfdScriptContent'] ??
-                    '')
-                .toString();
+      if (shouldCompileFromBdfdSource) {
         final compileResult = BdfdCompiler().compile(scriptSource);
 
         if (compileResult.hasErrors) {

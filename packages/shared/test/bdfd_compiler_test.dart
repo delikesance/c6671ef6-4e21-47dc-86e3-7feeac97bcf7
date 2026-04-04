@@ -56,6 +56,21 @@ void main() {
       expect(result.actions.single.payload['content'], '((message.content))');
     });
 
+    test('compiles args helper with runtime args fallback', () {
+      final result = BdfdCompiler().compile(r'$reply[$args[2]]');
+
+      expect(result.hasErrors, isFalse);
+      expect(result.actions, hasLength(1));
+      expect(
+        result.actions.single.type,
+        BotCreatorActionType.respondWithMessage,
+      );
+      expect(
+        result.actions.single.payload['content'],
+        '((message.content[1]|args.2))',
+      );
+    });
+
     test('compiles getTimestampMs as runtime placeholder', () {
       final result = BdfdCompiler().compile(r'$reply[$getTimestampMs]');
 
@@ -345,6 +360,96 @@ void main() {
         result.actions[6].payload['content'],
         'Thread created: ((thread.lastId))',
       );
+    });
+
+    test(
+      'compiles additem flow with deferred json stringify into setServerVar payload',
+      () {
+        final result = BdfdCompiler().compile(
+          r'$onlyIf[$argCount>0;usage]'
+          r'$jsonParse[$getServerVar[items_db]]'
+          r'$jsonArrayAppend[items;$args[2]]'
+          r'$setServerVar[items_db;$jsonStringify]'
+          r'$reply[ok]',
+        );
+
+        expect(result.hasErrors, isFalse);
+
+        final runtimeIndex = result.actions.indexWhere(
+          (a) => a.type == BotCreatorActionType.runtimeJsonBlock,
+        );
+        final setVarIndex = result.actions.indexWhere(
+          (a) => a.type == BotCreatorActionType.setScopedVariable,
+        );
+
+        expect(runtimeIndex, greaterThanOrEqualTo(0));
+        expect(setVarIndex, greaterThanOrEqualTo(0));
+        expect(runtimeIndex, lessThan(setVarIndex));
+
+        final setPayload = result.actions[setVarIndex].payload;
+        expect(setPayload['scope'], 'guild');
+        expect(setPayload['key'], 'items_db');
+
+        final value = (setPayload['value'] ?? '').toString();
+        expect(value, contains('rtJson_'));
+        expect(value, isNot(contains('.json_')));
+      },
+    );
+
+    test('compiles finditem flow with runtime json before if block', () {
+      final result = BdfdCompiler().compile(
+        r'$onlyIf[$argCount>0;usage]'
+        r'$jsonParse[$getServerVar[items_db]]'
+        r'$var[idx;$jsonArrayIndex[items;$args[2]]]'
+        r'$if[$var[idx]==-1;$reply[not found];$reply[found at $var[idx]: $json[items;$var[idx]]]]',
+      );
+
+      expect(result.hasErrors, isFalse);
+      expect(result.actions, hasLength(3));
+      expect(result.actions[0].type, BotCreatorActionType.ifBlock);
+      expect(result.actions[1].type, BotCreatorActionType.runtimeJsonBlock);
+      expect(result.actions[2].type, BotCreatorActionType.ifBlock);
+
+      final conditionVariable =
+          (result.actions[2].payload['condition.variable'] ?? '').toString();
+      expect(conditionVariable, contains('rtJson_'));
+      expect(conditionVariable, contains('.json_0'));
+
+      final elseActions = List<Map<String, dynamic>>.from(
+        result.actions[2].payload['elseActions'] as List? ?? const [],
+      );
+      expect(elseActions, hasLength(2));
+      expect(elseActions[0]['type'], 'runtimeJsonBlock');
+      expect(elseActions[1]['type'], 'respondWithMessage');
+
+      final elseContent =
+          (elseActions[1]['payload'] as Map<String, dynamic>)['content']
+              .toString();
+      expect(elseContent, contains('rtJson_'));
+      expect(elseContent, contains('.json_0'));
+      expect(elseContent, contains('rtJson_1.json_0'));
+    });
+
+    test('compiles additem flow with literal setServerVar value', () {
+      final result = BdfdCompiler().compile(
+        r'$onlyIf[$argCount>0;usage]'
+        r'$jsonParse[$getServerVar[items_db]]'
+        r'$jsonArrayAppend[items;$args[2]]'
+        r'$setServerVar[items_db;teststorage]'
+        r'$reply[ok]',
+      );
+
+      expect(result.hasErrors, isFalse);
+
+      final setVarIndex = result.actions.indexWhere(
+        (a) => a.type == BotCreatorActionType.setScopedVariable,
+      );
+      expect(setVarIndex, greaterThanOrEqualTo(0));
+
+      final setPayload = result.actions[setVarIndex].payload;
+      expect(setPayload['scope'], 'guild');
+      expect(setPayload['key'], 'items_db');
+      expect(setPayload['value'], 'teststorage');
     });
 
     test('compiles guard helpers without diagnostics', () {
