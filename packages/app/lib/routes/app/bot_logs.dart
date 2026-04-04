@@ -19,6 +19,7 @@ class BotLogsPage extends StatefulWidget {
 class _BotLogsPageState extends State<BotLogsPage> {
   late bool _debugEnabled;
   String? _selectedBotId;
+  Map<String, String> _botNamesById = const <String, String>{};
   final Set<String> _expandedLogs = <String>{};
   final ScrollController _scrollController = ScrollController();
   bool _showNewestFirst = true;
@@ -38,6 +39,7 @@ class _BotLogsPageState extends State<BotLogsPage> {
     super.initState();
     _debugEnabled = isBotDebugLogsEnabled;
     _selectedBotId = widget.botId;
+    unawaited(_loadBotNamesById());
     _initRunnerPolling();
   }
 
@@ -115,6 +117,16 @@ class _BotLogsPageState extends State<BotLogsPage> {
     } catch (_) {
       // Polling errors are silently ignored to avoid UI noise.
     }
+  }
+
+  Future<void> _loadBotNamesById() async {
+    final namesById = await getKnownBotNamesById();
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _botNamesById = namesById;
+    });
   }
 
   int _computeOverlap(List<String> previous, List<String> current) {
@@ -286,7 +298,7 @@ class _BotLogsPageState extends State<BotLogsPage> {
                           for (final botId in knownBotIds)
                             DropdownMenuItem<String>(
                               value: botId,
-                              child: Text(botId),
+                              child: Text(_botNamesById[botId] ?? botId),
                             ),
                         ],
                         onChanged: (value) {

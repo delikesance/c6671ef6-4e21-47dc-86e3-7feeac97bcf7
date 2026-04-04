@@ -18,6 +18,7 @@ class BotStatsPage extends StatefulWidget {
 class _BotStatsPageState extends State<BotStatsPage> {
   static const int _maxPoints = 40;
   String? _selectedBotId;
+  Map<String, String> _botNamesById = const <String, String>{};
 
   final List<double> _ramHistory = <double>[];
   final List<double> _ramEstimatedHistory = <double>[];
@@ -44,6 +45,7 @@ class _BotStatsPageState extends State<BotStatsPage> {
   void initState() {
     super.initState();
     _selectedBotId = widget.botId;
+    unawaited(_loadBotNamesById());
     captureBotBaselineRss(force: false);
     _rssBytes = getBotProcessRssBytesForBot(_selectedBotId);
     _rssEstimatedBytes = getBotEstimatedRssBytesForBot(_selectedBotId);
@@ -58,6 +60,16 @@ class _BotStatsPageState extends State<BotStatsPage> {
     _pushMetric(_storageHistory, _storageBytes?.toDouble());
 
     _subscribeMetricStreams();
+  }
+
+  Future<void> _loadBotNamesById() async {
+    final namesById = await getKnownBotNamesById();
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _botNamesById = namesById;
+    });
   }
 
   Future<void> _initializeStatsSync() async {
@@ -224,7 +236,7 @@ class _BotStatsPageState extends State<BotStatsPage> {
                     for (final botId in knownBotIds)
                       DropdownMenuItem<String>(
                         value: botId,
-                        child: Text(botId),
+                        child: Text(_botNamesById[botId] ?? botId),
                       ),
                   ],
                   onChanged: (value) {

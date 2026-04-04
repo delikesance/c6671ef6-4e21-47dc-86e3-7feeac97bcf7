@@ -7,6 +7,7 @@ import 'package:bot_creator/routes/app/bot_logs.dart';
 import 'package:bot_creator/utils/analytics.dart';
 import 'package:bot_creator/utils/bot.dart';
 import 'package:bot_creator/utils/bot_payload_builder.dart';
+import 'package:bot_creator/utils/discord_rpc_service.dart';
 import 'package:bot_creator/utils/i18n.dart';
 import 'package:bot_creator/utils/ad_reward_service.dart';
 import 'package:bot_creator/utils/ads_placement_policy.dart';
@@ -89,6 +90,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         _activeRunnerLabel = config!.name ?? config.url;
       });
       _syncPulse(runningIds);
+      await _syncDiscordRpcPresence(runningIds);
       return;
     }
 
@@ -126,6 +128,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       _runnerModeEnabled = false;
     });
     _syncPulse(runningIds);
+    await _syncDiscordRpcPresence(runningIds);
   }
 
   // ── Gestion des animations pulse ───────────────────────────────────────────
@@ -151,6 +154,48 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           ..stop()
           ..value = 0;
       }
+    }
+  }
+
+  Future<Map<String, String>> _loadBotNamesById() async {
+    final apps = await appManager.getAllApps();
+    final namesById = <String, String>{};
+    for (final rawApp in apps) {
+      if (rawApp is! Map) {
+        continue;
+      }
+      final app = Map<String, dynamic>.from(rawApp);
+      final botId = (app['id'] ?? '').toString();
+      if (botId.isEmpty) {
+        continue;
+      }
+      namesById[botId] = (app['name'] ?? botId).toString();
+    }
+    return namesById;
+  }
+
+  Future<void> _syncDiscordRpcPresence(
+    Set<String> runningBotIds, {
+    String? preferredBotId,
+    String? preferredBotName,
+  }) async {
+    try {
+      final config = await RunnerSettings.getConfig();
+      final botNamesById = await _loadBotNamesById();
+      await DiscordRpcService.instance.syncBotRuntimeState(
+        runningBotIds: runningBotIds,
+        botNamesById: botNamesById,
+        runnerModeEnabled: config != null,
+        preferredBotId: preferredBotId,
+        preferredBotName: preferredBotName,
+        activeRunnerLabel: config?.name ?? config?.url,
+      );
+    } catch (error, stackTrace) {
+      developer.log(
+        'Failed to sync Discord RPC presence: $error',
+        name: 'HomePage',
+        stackTrace: stackTrace,
+      );
     }
   }
 
@@ -257,6 +302,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           }
         }
         _syncPulse(_runningBotIds);
+        await _syncDiscordRpcPresence(
+          _runningBotIds,
+          preferredBotId: _runningBotIds.contains(botId) ? botId : null,
+          preferredBotName: _runningBotIds.contains(botId) ? botName : null,
+        );
         return;
       }
 
@@ -351,6 +401,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       }
 
       _syncPulse(_runningBotIds);
+      await _syncDiscordRpcPresence(
+        _runningBotIds,
+        preferredBotId: _runningBotIds.contains(botId) ? botId : null,
+        preferredBotName: _runningBotIds.contains(botId) ? botName : null,
+      );
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
