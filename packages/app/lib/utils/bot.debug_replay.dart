@@ -9,6 +9,8 @@ class DebugActionFrame {
   final String? result;
   final int? loopDepth;
   final int? loopIteration;
+  final Map<String, String>? variablesBefore;
+  final Map<String, String>? variablesAfter;
 
   const DebugActionFrame({
     required this.actionType,
@@ -17,6 +19,8 @@ class DebugActionFrame {
     this.result,
     this.loopDepth,
     this.loopIteration,
+    this.variablesBefore,
+    this.variablesAfter,
   });
 
   bool get isError => result != null && result!.startsWith('Error:');
@@ -29,6 +33,8 @@ class DebugActionFrame {
         result: json['result']?.toString(),
         loopDepth: json['loopDepth'] as int?,
         loopIteration: json['loopIteration'] as int?,
+        variablesBefore: _castStringMap(json['variablesBefore']),
+        variablesAfter: _castStringMap(json['variablesAfter']),
       );
 
   Map<String, dynamic> toJson() => <String, dynamic>{
@@ -38,7 +44,16 @@ class DebugActionFrame {
     if (result != null) 'result': result,
     if (loopDepth != null) 'loopDepth': loopDepth,
     if (loopIteration != null) 'loopIteration': loopIteration,
+    if (variablesBefore != null) 'variablesBefore': variablesBefore,
+    if (variablesAfter != null) 'variablesAfter': variablesAfter,
   };
+}
+
+Map<String, String>? _castStringMap(dynamic raw) {
+  if (raw is Map) {
+    return raw.map((k, v) => MapEntry(k.toString(), v.toString()));
+  }
+  return null;
 }
 
 class DebugReplayRecord {

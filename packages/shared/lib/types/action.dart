@@ -93,6 +93,8 @@ enum BotCreatorActionType {
   // Debugging
   debugProfile,
   log,
+  // Runtime JSON
+  runtimeJsonBlock,
 }
 
 enum ActionOnErrorMode { stop, continueMode }

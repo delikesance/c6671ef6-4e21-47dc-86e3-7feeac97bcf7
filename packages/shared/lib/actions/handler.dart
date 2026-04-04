@@ -98,10 +98,16 @@ Future<Map<String, String>> handleActions(
     final int? traceStartMs = debugStopwatch?.elapsedMilliseconds;
     final int replayStartMs = replayStopwatch?.elapsedMilliseconds ?? 0;
 
+    // Capture variable snapshot before execution for replay.
+    final Map<String, String>? varSnapshotBefore =
+        replayTrace != null ? _snapshotVariables(variables) : null;
+
     void recordTrace({String? resultOverride}) {
       final traceResult = resultOverride ?? results[resultKey];
       final loopDepth = action.payload['_debugLoopDepth'] as int?;
       final loopIteration = action.payload['_debugLoopIteration'] as int?;
+      final Map<String, String>? varSnapshotAfter =
+          replayTrace != null ? _snapshotVariables(variables) : null;
       debugTrace?.add(
         _DebugTraceEntry(
           actionType: action.type.name,
@@ -120,6 +126,8 @@ Future<Map<String, String>> handleActions(
           result: traceResult,
           loopDepth: loopDepth,
           loopIteration: loopIteration,
+          variablesBefore: varSnapshotBefore,
+          variablesAfter: varSnapshotAfter,
         ),
       );
     }
@@ -359,6 +367,7 @@ Future<Map<String, String>> handleActions(
         case BotCreatorActionType.calculate:
         case BotCreatorActionType.debugProfile:
         case BotCreatorActionType.log:
+        case BotCreatorActionType.runtimeJsonBlock:
           throw StateError(
             'Action ${action.type.name} should have been handled by an executor before switch dispatch.',
           );
@@ -963,6 +972,10 @@ Future<Map<String, String>> handleActions(
               if (entry.loopDepth != null) 'loopDepth': entry.loopDepth,
               if (entry.loopIteration != null)
                 'loopIteration': entry.loopIteration,
+              if (entry.variablesBefore != null)
+                'variablesBefore': entry.variablesBefore,
+              if (entry.variablesAfter != null)
+                'variablesAfter': entry.variablesAfter,
             },
           )
           .toList(growable: false),
@@ -996,6 +1009,23 @@ Future<Map<String, String>> handleListenerWorkflowActions(
   );
 }
 
+/// Takes a lightweight snapshot of [variables] for debug replay, capped
+/// at 800 entries with values truncated to 500 characters.
+Map<String, String> _snapshotVariables(Map<String, String> variables) {
+  const maxEntries = 800;
+  const maxValueLen = 500;
+  final snapshot = <String, String>{};
+  var count = 0;
+  for (final entry in variables.entries) {
+    if (count >= maxEntries) break;
+    final value = entry.value;
+    snapshot[entry.key] =
+        value.length > maxValueLen ? value.substring(0, maxValueLen) : value;
+    count++;
+  }
+  return snapshot;
+}
+
 class _DebugTraceEntry {
   const _DebugTraceEntry({
     required this.actionType,
@@ -1004,6 +1034,8 @@ class _DebugTraceEntry {
     this.result,
     this.loopDepth,
     this.loopIteration,
+    this.variablesBefore,
+    this.variablesAfter,
   });
 
   final String actionType;
@@ -1012,4 +1044,6 @@ class _DebugTraceEntry {
   final String? result;
   final int? loopDepth;
   final int? loopIteration;
+  final Map<String, String>? variablesBefore;
+  final Map<String, String>? variablesAfter;
 }

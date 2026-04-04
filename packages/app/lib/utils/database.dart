@@ -1130,8 +1130,34 @@ class AppManager implements BotDataStore {
     String botId,
     String key, {
     String? scope,
+    bool purgeStoredValues = false,
   }) async {
     final normalizedKey = _normalizeScopedStorageKey(key);
+    final normalizedScope = (scope ?? '').trim();
+    if (normalizedKey.isEmpty) {
+      return;
+    }
+
+    if (purgeStoredValues) {
+      final scopesToPurge =
+          normalizedScope.isNotEmpty
+              ? <String>{normalizedScope}
+              : (await getScopedVariableDefinitions(botId))
+                  .where(
+                    (entry) =>
+                        _normalizeScopedStorageKey(
+                          (entry['key'] ?? '').toString(),
+                        ) ==
+                        normalizedKey,
+                  )
+                  .map((entry) => (entry['scope'] ?? '').toString().trim())
+                  .where((value) => value.isNotEmpty)
+                  .toSet();
+      for (final scopeName in scopesToPurge) {
+        await _removeAllScopedValuesForKey(botId, scopeName, normalizedKey);
+      }
+    }
+
     await _mutateApp(botId, (data) {
       final defs = List<dynamic>.from(
         (data['scopedVariableDefinitions'] as List?) ?? const [],
@@ -1141,11 +1167,67 @@ class AppManager implements BotDataStore {
             e is Map &&
             _normalizeScopedStorageKey((e['key'] ?? '').toString()) ==
                 normalizedKey &&
-            (scope == null ||
-                (e['scope'] ?? '').toString().trim() == scope.trim()),
+            (normalizedScope.isEmpty ||
+                (e['scope'] ?? '').toString().trim() == normalizedScope),
       );
       data['scopedVariableDefinitions'] = defs;
     });
+  }
+
+  Future<void> _removeAllScopedValuesForKey(
+    String botId,
+    String scope,
+    String key,
+  ) async {
+    final normalizedScope = scope.trim();
+    final storageKey = _normalizeScopedStorageKey(key);
+    if (normalizedScope.isEmpty || storageKey.isEmpty) {
+      return;
+    }
+
+    final legacyKey = _toScopedReferenceKey(storageKey);
+    final contextIds = List<String>.from(
+      _sqliteAvailable
+          ? await _variableStore.listContextIds(
+            botId,
+            normalizedScope,
+            searchKey: storageKey,
+          )
+          : await _listContextIdsFromJson(
+            botId,
+            normalizedScope,
+            searchKey: storageKey,
+          ),
+      growable: true,
+    );
+    if (legacyKey != storageKey) {
+      final legacyContextIds =
+          _sqliteAvailable
+              ? await _variableStore.listContextIds(
+                botId,
+                normalizedScope,
+                searchKey: legacyKey,
+              )
+              : await _listContextIdsFromJson(
+                botId,
+                normalizedScope,
+                searchKey: legacyKey,
+              );
+      contextIds.addAll(legacyContextIds);
+    }
+
+    final uniqueContextIds = contextIds.toSet().toList(growable: false)..sort();
+    for (final contextId in uniqueContextIds) {
+      await removeScopedVariable(botId, normalizedScope, contextId, storageKey);
+      if (legacyKey != storageKey) {
+        await removeScopedVariable(
+          botId,
+          normalizedScope,
+          contextId,
+          legacyKey,
+        );
+      }
+    }
   }
 
   @override
