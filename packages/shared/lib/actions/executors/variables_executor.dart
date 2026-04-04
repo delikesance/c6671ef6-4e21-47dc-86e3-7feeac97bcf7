@@ -143,6 +143,68 @@ dynamic _resolveVariableValuePayload(
   return resolveValue((rawValue ?? '').toString());
 }
 
+({
+  dynamic value,
+  String rawValueSource,
+  String resolvedByResolver,
+  String fallbackResolved,
+  String directFallbackResolved,
+})
+_resolveRuntimeVariableWriteValue({
+  required Map<String, dynamic> payload,
+  required String Function(String input) resolveValue,
+  required Map<String, String> variables,
+  required Map<String, String> results,
+}) {
+  final rawValueSource =
+      payload.containsKey('value')
+          ? (payload['value'] ?? '').toString()
+          : (payload['element'] ?? '').toString();
+  dynamic value = _resolveVariableValuePayload(payload, resolveValue);
+  final resolvedByResolver = value is String ? value : value.toString();
+  var fallbackResolved = '';
+  var directFallbackResolved = '';
+
+  if (value is String &&
+      rawValueSource.contains('((') &&
+      rawValueSource.contains('))') &&
+      (value.isEmpty || (value.contains('((') && value.contains('))')))) {
+    final mergedContext = <String, String>{...variables, ...results};
+    final fallback = resolveTemplatePlaceholders(rawValueSource, mergedContext);
+    fallbackResolved = fallback;
+    if (fallback.isNotEmpty && fallback != rawValueSource) {
+      value = fallback;
+    } else {
+      final directFallback = _lookupMergedContextValue(
+        rawValueSource,
+        mergedContext,
+      );
+      directFallbackResolved = directFallback;
+      if (directFallback.isNotEmpty) {
+        value = directFallback;
+      }
+    }
+  }
+
+  if (value is String &&
+      value.isEmpty &&
+      rawValueSource.trim().toLowerCase() == r'$jsonstringify') {
+    final mergedContext = <String, String>{...variables, ...results};
+    final latestJson = _lookupLatestRuntimeJsonValue(mergedContext);
+    if (latestJson.isNotEmpty) {
+      value = latestJson;
+    }
+  }
+
+  return (
+    value: value,
+    rawValueSource: rawValueSource,
+    resolvedByResolver: resolvedByResolver,
+    fallbackResolved: fallbackResolved,
+    directFallbackResolved: directFallbackResolved,
+  );
+}
+
 String _stringifyRuntimeValue(dynamic value) {
   if (value == null) {
     return '';
@@ -861,6 +923,31 @@ Future<bool> executeVariablesAction({
   required Interaction? interaction,
 }) async {
   switch (type) {
+    case BotCreatorActionType.setTemporaryVariable:
+      final rawKey = resolveValue((payload['key'] ?? '').toString()).trim();
+      final storageKey = _scopedStorageKey(rawKey);
+      final resolvedWrite = _resolveRuntimeVariableWriteValue(
+        payload: payload,
+        resolveValue: resolveValue,
+        variables: variables,
+        results: results,
+      );
+      final runtimeValue = _stringifyRuntimeValue(resolvedWrite.value);
+      variables['temp.$storageKey'] = runtimeValue;
+      if (rawKey.isNotEmpty && rawKey != storageKey) {
+        variables['temp.$rawKey'] = runtimeValue;
+      }
+      variables['$resultKey.value'] = runtimeValue;
+      variables['$resultKey.sourceRaw'] = resolvedWrite.rawValueSource;
+      variables['$resultKey.resolved'] = resolvedWrite.resolvedByResolver;
+      variables['$resultKey.fallback'] = resolvedWrite.fallbackResolved;
+      variables['$resultKey.directFallback'] =
+          resolvedWrite.directFallbackResolved;
+      variables['$resultKey.scope'] = 'temp';
+      variables['$resultKey.key'] = storageKey;
+      results[resultKey] = 'OK';
+      return true;
+
     case BotCreatorActionType.setScopedVariable:
       final scope = resolveValue((payload['scope'] ?? '').toString()).trim();
       if (!_supportedVariableScopes.contains(scope)) {
@@ -883,46 +970,17 @@ Future<bool> executeVariablesAction({
         throw Exception('Unable to resolve context ID for scope "$scope"');
       }
 
-      final rawValueSource =
-          payload.containsKey('value')
-              ? (payload['value'] ?? '').toString()
-              : (payload['element'] ?? '').toString();
-      dynamic value = _resolveVariableValuePayload(payload, resolveValue);
-      final resolvedByResolver = value is String ? value : value.toString();
-      String fallbackResolved = '';
-      String directFallbackResolved = '';
-      if (value is String &&
-          rawValueSource.contains('((') &&
-          rawValueSource.contains('))') &&
-          (value.isEmpty || (value.contains('((') && value.contains('))')))) {
-        final mergedContext = <String, String>{...variables, ...results};
-        final fallback = resolveTemplatePlaceholders(
-          rawValueSource,
-          mergedContext,
-        );
-        fallbackResolved = fallback;
-        if (fallback.isNotEmpty && fallback != rawValueSource) {
-          value = fallback;
-        } else {
-          final directFallback = _lookupMergedContextValue(
-            rawValueSource,
-            mergedContext,
-          );
-          directFallbackResolved = directFallback;
-          if (directFallback.isNotEmpty) {
-            value = directFallback;
-          }
-        }
-      }
-      if (value is String &&
-          value.isEmpty &&
-          rawValueSource.trim().toLowerCase() == r'$jsonstringify') {
-        final mergedContext = <String, String>{...variables, ...results};
-        final latestJson = _lookupLatestRuntimeJsonValue(mergedContext);
-        if (latestJson.isNotEmpty) {
-          value = latestJson;
-        }
-      }
+      final resolvedWrite = _resolveRuntimeVariableWriteValue(
+        payload: payload,
+        resolveValue: resolveValue,
+        variables: variables,
+        results: results,
+      );
+      final rawValueSource = resolvedWrite.rawValueSource;
+      final value = resolvedWrite.value;
+      final resolvedByResolver = resolvedWrite.resolvedByResolver;
+      final fallbackResolved = resolvedWrite.fallbackResolved;
+      final directFallbackResolved = resolvedWrite.directFallbackResolved;
       await store.setScopedVariable(botId, scope, contextId, storageKey, value);
       dynamic persisted = await store.getScopedVariable(
         botId,

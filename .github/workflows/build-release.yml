@@ -8,88 +8,10 @@ on:
 
 env:
   APP_DIR: packages/app
+  FLUTTER_VERSION: "3.41.2"
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  build_android_release:
-    runs-on: ubuntu-latest
-    env:
-      HAS_ANDROID_SIGNING: ${{ secrets.KEYSTORE_BASE64 != '' && secrets.KEYSTORE_PASSWORD != '' && secrets.KEY_PASSWORD != '' && secrets.KEY_ALIAS != '' }}
-    defaults:
-      run:
-        working-directory: packages/app
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Setup Java
-        uses: actions/setup-java@v5
-        with:
-          distribution: 'zulu'
-          java-version: '17'
-          cache: 'gradle'
-
-      - name: Install Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: "3.41.2"
-          channel: 'stable'
-          cache: true
-
-      - name: Cache pub dependencies
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pub-
-
-      - name: Get dependencies
-        run: flutter pub get
-
-      - name: Skip Android release build when signing secrets are unavailable
-        if: ${{ env.HAS_ANDROID_SIGNING != 'true' }}
-        run: echo "Android signing secrets are unavailable; skipping Android release artifacts."
-
-      - name: Decode Keystore
-        if: ${{ env.HAS_ANDROID_SIGNING == 'true' }}
-        run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-keystore.jks
-
-      - name: Create key.properties
-        if: ${{ env.HAS_ANDROID_SIGNING == 'true' }}
-        run: |
-          cat <<EOF > android/key.properties
-          storePassword=${{ secrets.KEYSTORE_PASSWORD }}
-          keyPassword=${{ secrets.KEY_PASSWORD }}
-          keyAlias=${{ secrets.KEY_ALIAS }}
-          storeFile=upload-keystore.jks
-          EOF
-
-      - name: Build release APK
-        if: ${{ env.HAS_ANDROID_SIGNING == 'true' }}
-        run: flutter build apk --release
-
-      - name: Archive APK
-        if: ${{ env.HAS_ANDROID_SIGNING == 'true' }}
-        uses: actions/upload-artifact@v6
-        with:
-          name: release-apk
-          path: ${{ env.APP_DIR }}/build/app/outputs/flutter-apk/app-release.apk
-
-      - name: Build release AAB
-        if: ${{ env.HAS_ANDROID_SIGNING == 'true' }}
-        run: flutter build appbundle --release
-
-      - name: Archive AAB
-        if: ${{ env.HAS_ANDROID_SIGNING == 'true' }}
-        uses: actions/upload-artifact@v6
-        with:
-          name: release-aab
-          path: ${{ env.APP_DIR }}/build/app/outputs/bundle/release/app-release.aab
-
   build_linux_release:
     runs-on: ubuntu-latest
     defaults:
@@ -108,18 +30,10 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.41.2"
+          flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
           cache: true
-
-      - name: Cache pub dependencies
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pub-
+          pub-cache: false
 
       - name: Get dependencies
         run: flutter pub get
@@ -130,17 +44,16 @@ jobs:
       - name: Build Linux release
         run: flutter build linux --release
 
-      - name: Package Linux portable ZIP
+      - name: Package Linux Steam bundle
         run: |
           mkdir -p "$GITHUB_WORKSPACE/$APP_DIR/build"
-          cd build/linux/x64/release
-          zip -r "$GITHUB_WORKSPACE/$APP_DIR/build/bot_creator-linux-x64-portable.zip" bundle
+          tar -C build/linux/x64/release -czf "$GITHUB_WORKSPACE/$APP_DIR/build/bot_creator-linux-x64-steam.tar.gz" bundle
 
-      - name: Archive Linux ZIP
+      - name: Archive Linux Steam bundle
         uses: actions/upload-artifact@v6
         with:
-          name: linux-portable-zip
-          path: ${{ env.APP_DIR }}/build/bot_creator-linux-x64-portable.zip
+          name: linux-steam-tarball
+          path: ${{ env.APP_DIR }}/build/bot_creator-linux-x64-steam.tar.gz
 
       - name: Build Linux AppImage
         run: bash packaging/linux/appimage/build_appimage.sh
@@ -150,6 +63,48 @@ jobs:
         with:
           name: linux-appimage
           path: ${{ env.APP_DIR }}/build/appimage/bot_creator-linux-x86_64.AppImage
+
+  build_macos_release:
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: packages/app
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+          pub-cache: false
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Enable macOS Flutter Desktop
+        run: flutter config --enable-macos-desktop
+
+      - name: Build macOS release
+        run: flutter build macos --release
+
+      - name: Package macOS Steam app bundle
+        run: |
+          APP_PATH=$(find build/macos/Build/Products/Release -maxdepth 1 -name '*.app' -print -quit)
+          if [ -z "$APP_PATH" ]; then
+            echo "No macOS app bundle found in build output." >&2
+            exit 1
+          fi
+          ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" build/bot_creator-macos-universal-steam.zip
+
+      - name: Archive macOS Steam bundle
+        uses: actions/upload-artifact@v6
+        with:
+          name: macos-steam-zip
+          path: ${{ env.APP_DIR }}/build/bot_creator-macos-universal-steam.zip
 
   build_windows_release:
     runs-on: windows-latest
@@ -164,18 +119,10 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.41.2"
+          flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
           cache: true
-
-      - name: Cache pub dependencies
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~\AppData\Local\Pub\Cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pub-
+          pub-cache: false
 
       - name: Get dependencies
         run: flutter pub get
@@ -186,16 +133,16 @@ jobs:
       - name: Build Windows release
         run: flutter build windows --release
 
-      - name: Package Windows portable ZIP
+      - name: Package Windows Steam ZIP
         shell: pwsh
         run: |
-          Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath build/bot_creator-windows-x64-portable.zip -Force
+          Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath build/bot_creator-windows-x64-steam.zip -Force
 
-      - name: Archive Windows ZIP
+      - name: Archive Windows Steam ZIP
         uses: actions/upload-artifact@v6
         with:
-          name: windows-portable-zip
-          path: ${{ env.APP_DIR }}/build/bot_creator-windows-x64-portable.zip
+          name: windows-steam-zip
+          path: ${{ env.APP_DIR }}/build/bot_creator-windows-x64-steam.zip
 
       - name: Archive Windows EXE
         uses: actions/upload-artifact@v6
@@ -231,7 +178,7 @@ jobs:
 
   create_release:
     if: ${{ startsWith(github.ref, 'refs/tags/v') }}
-    needs: [build_android_release, build_linux_release, build_windows_release]
+    needs: [build_linux_release, build_macos_release, build_windows_release]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -246,12 +193,11 @@ jobs:
           shopt -s nullglob
           files=()
           patterns=(
-            "release-apk/app-release.apk"
-            "release-aab/app-release.aab"
-            "linux-portable-zip/bot_creator-linux-x64-portable.zip"
+            "linux-steam-tarball/bot_creator-linux-x64-steam.tar.gz"
             "linux-appimage/*.AppImage"
-            "windows-portable-zip/bot_creator-windows-x64-portable.zip"
+            "windows-steam-zip/bot_creator-windows-x64-steam.zip"
             "windows-msix/*.msix"
+            "macos-steam-zip/bot_creator-macos-universal-steam.zip"
           )
 
           for pattern in "${patterns[@]}"; do

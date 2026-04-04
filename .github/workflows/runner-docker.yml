@@ -23,7 +23,7 @@ on:
   workflow_dispatch:
     inputs:
       publish:
-        description: "Push image to GHCR"
+        description: "Push image to GHCR and Docker Hub"
         required: false
         default: "false"
         type: choice
@@ -32,8 +32,10 @@ on:
           - "true"
 
 env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/bot-creator-runner
+  GHCR_REGISTRY: ghcr.io
+  GHCR_IMAGE_NAME: ${{ github.repository_owner }}/bot-creator-runner
+  DOCKERHUB_REGISTRY: docker.io
+  DOCKERHUB_IMAGE_NAME: garder500/bot-creator-runner
   SMOKE_PLATFORM: linux/amd64
   PUBLISH_PLATFORMS: linux/amd64,linux/arm64
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -68,10 +70,13 @@ jobs:
           cache-to: type=gha,mode=max
 
   publish:
-    name: Publish image to GHCR
+    name: Publish image to registries
     needs: build
     if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.publish == 'true') }}
     runs-on: ubuntu-latest
+    env:
+      DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+      HAS_DOCKERHUB_TOKEN: ${{ secrets.DOCKER_TOKEN != '' }}
     permissions:
       contents: read
       packages: write
@@ -99,15 +104,38 @@ jobs:
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ${{ env.GHCR_REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract Docker metadata
-        id: meta
+      - name: Login to Docker Hub
+        if: env.HAS_DOCKERHUB_TOKEN == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.DOCKERHUB_REGISTRY }}
+          username: garder500
+          password: ${{ env.DOCKER_TOKEN }}
+
+      - name: Extract GHCR Docker metadata
+        id: meta-ghcr
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}},value=v${{ steps.latest-tag.outputs.version }}
+            type=semver,pattern={{major}}.{{minor}},value=v${{ steps.latest-tag.outputs.version }}
+            type=semver,pattern={{major}},value=v${{ steps.latest-tag.outputs.version }}
+            type=raw,value=stable,enable=${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) || startsWith(github.ref, 'refs/tags/v') }}
+            type=sha,prefix=sha-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Extract Docker Hub metadata
+        if: env.HAS_DOCKERHUB_TOKEN == 'true'
+        id: meta-dockerhub
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKERHUB_REGISTRY }}/${{ env.DOCKERHUB_IMAGE_NAME }}
           tags: |
             type=ref,event=branch
             type=semver,pattern={{version}},value=v${{ steps.latest-tag.outputs.version }}
@@ -124,7 +152,9 @@ jobs:
           file: ./Dockerfile
           push: true
           platforms: ${{ env.PUBLISH_PLATFORMS }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: |
+            ${{ steps.meta-ghcr.outputs.tags }}
+            ${{ steps.meta-dockerhub.outputs.tags }}
+          labels: ${{ steps.meta-ghcr.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

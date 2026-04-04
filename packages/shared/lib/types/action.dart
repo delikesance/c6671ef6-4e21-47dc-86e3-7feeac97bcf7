@@ -32,6 +32,7 @@ enum BotCreatorActionType {
   getGlobalVariable,
   removeGlobalVariable,
   setScopedVariable,
+  setTemporaryVariable,
   getScopedVariable,
   removeScopedVariable,
   renameScopedVariable,

@@ -405,18 +405,23 @@ void main() {
       );
 
       expect(result.hasErrors, isFalse);
-      expect(result.actions, hasLength(3));
+      expect(result.actions, hasLength(4));
       expect(result.actions[0].type, BotCreatorActionType.ifBlock);
       expect(result.actions[1].type, BotCreatorActionType.runtimeJsonBlock);
-      expect(result.actions[2].type, BotCreatorActionType.ifBlock);
+      expect(result.actions[2].type, BotCreatorActionType.setTemporaryVariable);
+      expect(result.actions[3].type, BotCreatorActionType.ifBlock);
+
+      final tempPayload = result.actions[2].payload;
+      expect(tempPayload['key'], 'idx');
+      expect((tempPayload['value'] ?? '').toString(), contains('rtJson_'));
+      expect((tempPayload['value'] ?? '').toString(), contains('.json_0'));
 
       final conditionVariable =
-          (result.actions[2].payload['condition.variable'] ?? '').toString();
-      expect(conditionVariable, contains('rtJson_'));
-      expect(conditionVariable, contains('.json_0'));
+          (result.actions[3].payload['condition.variable'] ?? '').toString();
+      expect(conditionVariable, '((temp.idx))');
 
       final elseActions = List<Map<String, dynamic>>.from(
-        result.actions[2].payload['elseActions'] as List? ?? const [],
+        result.actions[3].payload['elseActions'] as List? ?? const [],
       );
       expect(elseActions, hasLength(2));
       expect(elseActions[0]['type'], 'runtimeJsonBlock');
@@ -425,10 +430,63 @@ void main() {
       final elseContent =
           (elseActions[1]['payload'] as Map<String, dynamic>)['content']
               .toString();
-      expect(elseContent, contains('rtJson_'));
-      expect(elseContent, contains('.json_0'));
+      expect(elseContent, contains('((temp.idx))'));
       expect(elseContent, contains('rtJson_1.json_0'));
     });
+
+    test(
+      'compiles try block after runtime json with temp runtime var body',
+      () {
+        final result = BdfdCompiler().compile(
+          r'$jsonParse[$getServerVar[items_db]]'
+          r'$try'
+          r'$var[idx;$jsonArrayIndex[items;$message[1]]]'
+          r'$reply[$var[idx]]'
+          r'$catch'
+          r'$reply[fallback]'
+          r'$endtry',
+        );
+
+        expect(result.hasErrors, isFalse);
+        expect(result.actions, hasLength(2));
+        expect(result.actions[0].type, BotCreatorActionType.runtimeJsonBlock);
+        expect(result.actions[1].type, BotCreatorActionType.ifBlock);
+
+        final thenActions = List<Map<String, dynamic>>.from(
+          result.actions[1].payload['thenActions'] as List? ?? const [],
+        );
+        expect(thenActions, hasLength(3));
+        expect(thenActions[0]['type'], 'runtimeJsonBlock');
+        expect(thenActions[1]['type'], 'setTemporaryVariable');
+        expect(thenActions[2]['type'], 'respondWithMessage');
+
+        final bodyJsonPayload = Map<String, dynamic>.from(
+          thenActions[0]['payload'] as Map? ?? const <String, dynamic>{},
+        );
+        expect((bodyJsonPayload['source'] ?? '').toString(), '((rtJson_0))');
+
+        final tempPayload = Map<String, dynamic>.from(
+          thenActions[1]['payload'] as Map? ?? const <String, dynamic>{},
+        );
+        expect(tempPayload['key'], 'idx');
+        expect((tempPayload['value'] ?? '').toString(), contains('rtJson_'));
+        expect((tempPayload['value'] ?? '').toString(), contains('.json_0'));
+        expect(
+          (thenActions[2]['payload'] as Map<String, dynamic>)['content'],
+          '((temp.idx))',
+        );
+
+        final elseActions = List<Map<String, dynamic>>.from(
+          result.actions[1].payload['elseActions'] as List? ?? const [],
+        );
+        expect(elseActions, hasLength(1));
+        expect(elseActions.single['type'], 'respondWithMessage');
+        expect(
+          (elseActions.single['payload'] as Map<String, dynamic>)['content'],
+          'fallback',
+        );
+      },
+    );
 
     test('compiles additem flow with literal setServerVar value', () {
       final result = BdfdCompiler().compile(
@@ -907,6 +965,27 @@ void main() {
       expect(bodyActions, hasLength(1));
     });
 
+    test('runtime loop can consume a temporary runtime variable', () {
+      final result = BdfdCompiler().compile(
+        r'$jsonParse[$getServerVar[$args[2]]]'
+        r'$var[looping;$jsonArrayCount[currencies]]'
+        r'$for[$var[looping]]$reply[$i]$endfor',
+      );
+
+      expect(result.hasErrors, isFalse);
+      expect(result.actions, hasLength(3));
+      expect(result.actions[0].type, BotCreatorActionType.runtimeJsonBlock);
+      expect(result.actions[1].type, BotCreatorActionType.setTemporaryVariable);
+      expect(result.actions[2].type, BotCreatorActionType.forLoop);
+      expect(result.actions[2].payload['mode'], 'simple');
+      expect(result.actions[2].payload['iterations'], '((temp.looping))');
+
+      final tempPayload = result.actions[1].payload;
+      expect(tempPayload['key'], 'looping');
+      expect((tempPayload['value'] ?? '').toString(), contains('rtJson_'));
+      expect((tempPayload['value'] ?? '').toString(), contains('.json_0'));
+    });
+
     test('simple runtime loop with \$loop alias', () {
       final result = BdfdCompiler().compile(
         r'$loop[$args[1]]$reply[hi]$endloop',
@@ -984,6 +1063,411 @@ void main() {
         expect(content, contains('((_loop.count))'));
       },
     );
+
+    test('runtime loop body preserves temp variable actions', () {
+      final result = BdfdCompiler().compile(
+        r'$for[$message[1]]$var[current;$i]$reply[$var[current]]$endfor',
+      );
+
+      expect(result.hasErrors, isFalse);
+      expect(result.actions, hasLength(1));
+      expect(result.actions.single.type, BotCreatorActionType.forLoop);
+
+      final bodyActions = List<Map<String, dynamic>>.from(
+        result.actions.single.payload['bodyActions'] as List? ?? const [],
+      );
+      expect(bodyActions, hasLength(2));
+      expect(bodyActions[0]['type'], 'setTemporaryVariable');
+      expect(bodyActions[1]['type'], 'respondWithMessage');
+
+      final tempPayload = Map<String, dynamic>.from(
+        bodyActions[0]['payload'] as Map? ?? const <String, dynamic>{},
+      );
+      expect(tempPayload['key'], 'current');
+      expect(tempPayload['value'], '((_loop.index))');
+      expect(
+        (bodyActions[1]['payload'] as Map<String, dynamic>)['content'],
+        '((temp.current))',
+      );
+    });
+
+    test(
+      'weighted roll style loop keeps nested json and if blocks runtime',
+      () {
+        final result = BdfdCompiler().compile(
+          r'$jsonParse[$getServerVar[items_db]]'
+          r'$var[in;items]'
+          r'$var[target;sword]'
+          r'$var[looping;$jsonArrayCount[$var[in]]]'
+          r'$for[$var[looping]]'
+          r'$if[$json[$var[in];$i;name]==$var[target]]'
+          r'$reply[$json[$var[in];$i;weight]]'
+          r'$endif'
+          r'$endfor',
+        );
+
+        expect(result.hasErrors, isFalse);
+        expect(result.actions, hasLength(6));
+        expect(result.actions[0].type, BotCreatorActionType.runtimeJsonBlock);
+        expect(
+          result.actions[1].type,
+          BotCreatorActionType.setTemporaryVariable,
+        );
+        expect(result.actions[1].payload['key'], 'in');
+        expect(
+          result.actions[2].type,
+          BotCreatorActionType.setTemporaryVariable,
+        );
+        expect(result.actions[2].payload['key'], 'target');
+        expect(result.actions[3].type, BotCreatorActionType.runtimeJsonBlock);
+        expect(
+          result.actions[4].type,
+          BotCreatorActionType.setTemporaryVariable,
+        );
+        expect(result.actions[4].payload['key'], 'looping');
+        expect(result.actions[5].type, BotCreatorActionType.forLoop);
+        expect(result.actions[5].payload['iterations'], '((temp.looping))');
+
+        final loopingValue =
+            (result.actions[4].payload['value'] ?? '').toString();
+        expect(loopingValue, contains('rtJson_'));
+        expect(loopingValue, contains('.json_0'));
+
+        final bodyActions = List<Map<String, dynamic>>.from(
+          result.actions[5].payload['bodyActions'] as List? ?? const [],
+        );
+        expect(bodyActions, hasLength(2));
+        expect(bodyActions[0]['type'], 'runtimeJsonBlock');
+        expect(bodyActions[1]['type'], 'ifBlock');
+
+        final ifPayload = Map<String, dynamic>.from(
+          bodyActions[1]['payload'] as Map? ?? const <String, dynamic>{},
+        );
+        final conditionVariable =
+            (ifPayload['condition.variable'] ?? '').toString();
+        expect(conditionVariable, contains('rtJson_'));
+        expect(conditionVariable, contains('.json_0'));
+        expect(ifPayload['condition.value'], '((temp.target))');
+
+        final thenActions = List<Map<String, dynamic>>.from(
+          ifPayload['thenActions'] as List? ?? const [],
+        );
+        expect(thenActions, hasLength(2));
+        expect(thenActions[0]['type'], 'runtimeJsonBlock');
+        expect(thenActions[1]['type'], 'respondWithMessage');
+
+        final weightContent =
+            (thenActions[1]['payload'] as Map<String, dynamic>)['content']
+                .toString();
+        expect(weightContent, contains('rtJson_'));
+        expect(weightContent, contains('.json_'));
+      },
+    );
+
+    test(
+      'full weighted roll compiles accumulation, random threshold, and winner selection',
+      () {
+        final result = BdfdCompiler().compile(
+          r'$jsonParse[$getServerVar[items_db]]'
+          r'$var[in;items]'
+          r'$var[looping;$jsonArrayCount[$var[in]]]'
+          r'$var[totalWeight;0]'
+          r'$for[$var[looping]]'
+          r'$var[itemWeight;$json[$var[in];$i;weight]]'
+          r'$var[totalWeight;$calculate[$var[totalWeight]+$var[itemWeight]]]'
+          r'$endfor'
+          r'$var[roll;$random[1;10]]'
+          r'$var[currentWeight;0]'
+          r'$for[$var[looping]]'
+          r'$var[itemName;$json[$var[in];$i;name]]'
+          r'$var[itemWeight;$json[$var[in];$i;weight]]'
+          r'$var[currentWeight;$calculate[$var[currentWeight]+$var[itemWeight]]]'
+          r'$if[$var[roll]<=$var[currentWeight]]'
+          r'$var[winner;$var[itemName]]'
+          r'$reply[$var[winner]]'
+          r'$endif'
+          r'$endfor',
+        );
+
+        expect(result.hasErrors, isFalse);
+
+        final topLevelLoops = result.actions
+            .where((action) => action.type == BotCreatorActionType.forLoop)
+            .toList(growable: false);
+        expect(topLevelLoops, hasLength(2));
+
+        final topLevelTempKeys = result.actions
+            .where(
+              (action) =>
+                  action.type == BotCreatorActionType.setTemporaryVariable,
+            )
+            .map((action) => (action.payload['key'] ?? '').toString())
+            .toList(growable: false);
+        expect(
+          topLevelTempKeys,
+          containsAll(<String>[
+            'in',
+            'looping',
+            'totalWeight',
+            'roll',
+            'currentWeight',
+          ]),
+        );
+
+        final rollAction = result.actions.firstWhere(
+          (action) =>
+              action.type == BotCreatorActionType.setTemporaryVariable &&
+              action.payload['key'] == 'roll',
+        );
+        final rollValue = (rollAction.payload['value'] ?? '').toString();
+        final rollNumber = int.tryParse(rollValue);
+        expect(rollNumber, isNotNull);
+        expect(rollNumber!, inInclusiveRange(1, 10));
+
+        final accumulationBody = List<Map<String, dynamic>>.from(
+          topLevelLoops[0].payload['bodyActions'] as List? ?? const [],
+        );
+        expect(
+          accumulationBody.any(
+            (action) => action['type'] == 'runtimeJsonBlock',
+          ),
+          isTrue,
+        );
+        final accumulationTempKeys = accumulationBody
+            .where((action) => action['type'] == 'setTemporaryVariable')
+            .map(
+              (action) =>
+                  ((action['payload'] as Map?)?['key'] ?? '').toString(),
+            )
+            .toList(growable: false);
+        expect(
+          accumulationTempKeys,
+          containsAll(<String>['itemWeight', 'totalWeight']),
+        );
+
+        final selectionBody = List<Map<String, dynamic>>.from(
+          topLevelLoops[1].payload['bodyActions'] as List? ?? const [],
+        );
+        expect(
+          selectionBody.any((action) => action['type'] == 'runtimeJsonBlock'),
+          isTrue,
+        );
+        final selectionTempKeys = selectionBody
+            .where((action) => action['type'] == 'setTemporaryVariable')
+            .map(
+              (action) =>
+                  ((action['payload'] as Map?)?['key'] ?? '').toString(),
+            )
+            .toList(growable: false);
+        expect(
+          selectionTempKeys,
+          containsAll(<String>['itemName', 'itemWeight', 'currentWeight']),
+        );
+
+        final winnerIfPayload = Map<String, dynamic>.from(
+          selectionBody.firstWhere(
+                    (action) => action['type'] == 'ifBlock',
+                  )['payload']
+                  as Map? ??
+              const <String, dynamic>{},
+        );
+        expect(winnerIfPayload['condition.variable'], '((temp.roll))');
+        expect(winnerIfPayload['condition.value'], '((temp.currentWeight))');
+
+        final winnerThenActions = List<Map<String, dynamic>>.from(
+          winnerIfPayload['thenActions'] as List? ?? const [],
+        );
+        final winnerTempKeys = winnerThenActions
+            .where((action) => action['type'] == 'setTemporaryVariable')
+            .map(
+              (action) =>
+                  ((action['payload'] as Map?)?['key'] ?? '').toString(),
+            )
+            .toList(growable: false);
+        expect(winnerTempKeys, contains('winner'));
+
+        final winnerReply = Map<String, dynamic>.from(
+          winnerThenActions.firstWhere(
+                    (action) => action['type'] == 'respondWithMessage',
+                  )['payload']
+                  as Map? ??
+              const <String, dynamic>{},
+        );
+        expect(winnerReply['content'], '((temp.winner))');
+      },
+    );
+
+    test('standalone if hoists runtime json condition before if action', () {
+      final result = BdfdCompiler().compile(
+        r'$jsonParse[$getServerVar[items_db]]'
+        r'$var[in;items]'
+        r'$if[$json[$var[in];$message[1];enabled]==true;$reply[enabled];$reply[disabled]]',
+      );
+
+      expect(result.hasErrors, isFalse);
+      expect(result.actions, hasLength(4));
+      expect(result.actions[0].type, BotCreatorActionType.runtimeJsonBlock);
+      expect(result.actions[1].type, BotCreatorActionType.setTemporaryVariable);
+      expect(result.actions[2].type, BotCreatorActionType.runtimeJsonBlock);
+      expect(result.actions[3].type, BotCreatorActionType.ifBlock);
+
+      final ifPayload = result.actions[3].payload;
+      expect(
+        (ifPayload['condition.variable'] ?? '').toString(),
+        contains('rtJson_'),
+      );
+      expect(
+        (ifPayload['condition.variable'] ?? '').toString(),
+        contains('.json_0'),
+      );
+      expect(ifPayload['condition.value'], 'true');
+
+      final thenActions = List<Map<String, dynamic>>.from(
+        ifPayload['thenActions'] as List? ?? const [],
+      );
+      final elseActions = List<Map<String, dynamic>>.from(
+        ifPayload['elseActions'] as List? ?? const [],
+      );
+      expect(
+        (thenActions.single['payload'] as Map<String, dynamic>)['content'],
+        'enabled',
+      );
+      expect(
+        (elseActions.single['payload'] as Map<String, dynamic>)['content'],
+        'disabled',
+      );
+    });
+
+    test(
+      'loot flow compiles tiers, enabled gate, fallback, and first-win stop',
+      () {
+        final result = BdfdCompiler().compile(
+          r'$jsonParse[$getServerVar[items_db]]'
+          r'$var[in;items]'
+          r'$var[looping;$jsonArrayCount[$var[in]]]'
+          r'$var[roll;$random[1;10]]'
+          r'$var[currentWeight;0]'
+          r'$var[winner;]'
+          r'$for[$var[looping]]'
+          r'$if[$json[$var[in];$i;enabled]==true]'
+          r'$if[$json[$var[in];$i;rarity]==legendary]'
+          r'$var[bonus;2]'
+          r'$else'
+          r'$var[bonus;0]'
+          r'$endif'
+          r'$var[itemWeight;$json[$var[in];$i;weight]]'
+          r'$var[currentWeight;$calculate[$var[currentWeight]+$var[itemWeight]+$var[bonus]]]'
+          r'$if[$var[winner]==]'
+          r'$if[$var[roll]<=$var[currentWeight]]'
+          r'$var[winner;$json[$var[in];$i;name]]'
+          r'$reply[$var[winner]]'
+          r'$stop'
+          r'$endif'
+          r'$endif'
+          r'$endif'
+          r'$endfor'
+          r'$if[$var[winner]==]'
+          r'$reply[fallback_common]'
+          r'$endif',
+        );
+
+        expect(result.hasErrors, isFalse);
+
+        final topLevelLoops = result.actions
+            .where((action) => action.type == BotCreatorActionType.forLoop)
+            .toList(growable: false);
+        expect(topLevelLoops, hasLength(1));
+
+        final fallbackIf = result.actions.lastWhere(
+          (action) => action.type == BotCreatorActionType.ifBlock,
+        );
+        expect(fallbackIf.payload['condition.variable'], '((temp.winner))');
+        expect(fallbackIf.payload['condition.value'], '');
+        final fallbackThen = List<Map<String, dynamic>>.from(
+          fallbackIf.payload['thenActions'] as List? ?? const [],
+        );
+        expect(
+          (fallbackThen.single['payload'] as Map<String, dynamic>)['content'],
+          'fallback_common',
+        );
+
+        final loopBody = List<Map<String, dynamic>>.from(
+          topLevelLoops.single.payload['bodyActions'] as List? ?? const [],
+        );
+        expect(
+          loopBody.any((action) => action['type'] == 'runtimeJsonBlock'),
+          isTrue,
+        );
+        final enabledIf = Map<String, dynamic>.from(
+          loopBody.firstWhere(
+                    (action) => action['type'] == 'ifBlock',
+                  )['payload']
+                  as Map? ??
+              const <String, dynamic>{},
+        );
+        expect(
+          (enabledIf['condition.variable'] ?? '').toString(),
+          contains('rtJson_'),
+        );
+        expect(enabledIf['condition.value'], 'true');
+
+        final enabledThen = List<Map<String, dynamic>>.from(
+          enabledIf['thenActions'] as List? ?? const [],
+        );
+        expect(
+          enabledThen.any((action) => action['type'] == 'ifBlock'),
+          isTrue,
+        );
+        expect(
+          enabledThen.any(
+            (action) =>
+                action['type'] == 'setTemporaryVariable' &&
+                ((action['payload'] as Map?)?['key'] ?? '') == 'currentWeight',
+          ),
+          isTrue,
+        );
+
+        final winnerGate = Map<String, dynamic>.from(
+          enabledThen
+              .where((action) => action['type'] == 'ifBlock')
+              .map(
+                (action) => Map<String, dynamic>.from(
+                  action['payload'] as Map? ?? const <String, dynamic>{},
+                ),
+              )
+              .firstWhere(
+                (payload) => payload['condition.variable'] == '((temp.winner))',
+              ),
+        );
+        final rollGate = Map<String, dynamic>.from(
+          List<Map<String, dynamic>>.from(
+                    winnerGate['thenActions'] as List? ?? const [],
+                  ).firstWhere(
+                    (action) => action['type'] == 'ifBlock',
+                  )['payload']
+                  as Map? ??
+              const <String, dynamic>{},
+        );
+        expect(rollGate['condition.variable'], '((temp.roll))');
+        expect(rollGate['condition.value'], '((temp.currentWeight))');
+
+        final winnerThen = List<Map<String, dynamic>>.from(
+          rollGate['thenActions'] as List? ?? const [],
+        );
+        expect(
+          winnerThen.any(
+            (action) =>
+                action['type'] == 'setTemporaryVariable' &&
+                ((action['payload'] as Map?)?['key'] ?? '') == 'winner',
+          ),
+          isTrue,
+        );
+        expect(
+          winnerThen.any((action) => action['type'] == 'stopUnless'),
+          isTrue,
+        );
+      },
+    );
   });
 
   group('temporary variables via \$var', () {
@@ -993,8 +1477,12 @@ void main() {
       );
 
       expect(result.hasErrors, isFalse);
-      expect(result.actions, hasLength(1));
-      expect(result.actions.single.payload['content'], 'Hello World!');
+      expect(result.actions, hasLength(2));
+      expect(result.actions[0].type, BotCreatorActionType.setTemporaryVariable);
+      expect(result.actions[0].payload['key'], 'name');
+      expect(result.actions[0].payload['value'], 'World');
+      expect(result.actions[1].type, BotCreatorActionType.respondWithMessage);
+      expect(result.actions[1].payload['content'], 'Hello ((temp.name))!');
     });
 
     test('overwrite a temporary variable', () {
@@ -1003,8 +1491,12 @@ void main() {
       );
 
       expect(result.hasErrors, isFalse);
-      expect(result.actions, hasLength(1));
-      expect(result.actions.single.payload['content'], 'Value: second');
+      expect(result.actions, hasLength(3));
+      expect(result.actions[0].type, BotCreatorActionType.setTemporaryVariable);
+      expect(result.actions[0].payload['value'], 'first');
+      expect(result.actions[1].type, BotCreatorActionType.setTemporaryVariable);
+      expect(result.actions[1].payload['value'], 'second');
+      expect(result.actions[2].payload['content'], 'Value: ((temp.x))');
     });
 
     test('multiple independent temporary variables', () {
@@ -1013,8 +1505,19 @@ void main() {
       );
 
       expect(result.hasErrors, isFalse);
-      expect(result.actions, hasLength(1));
-      expect(result.actions.single.payload['content'], '1+2');
+      expect(result.actions, hasLength(3));
+      expect(result.actions[0].type, BotCreatorActionType.setTemporaryVariable);
+      expect(result.actions[1].type, BotCreatorActionType.setTemporaryVariable);
+      expect(result.actions[2].payload['content'], '((temp.a))+((temp.b))');
+
+      final runtimeVariables = <String, String>{'temp.a': '1', 'temp.b': '2'};
+      expect(
+        resolveTemplatePlaceholders(
+          result.actions[2].payload['content'] as String,
+          runtimeVariables,
+        ),
+        '1+2',
+      );
     });
 
     test('unknown temp var falls back to runtime placeholder', () {
@@ -1024,7 +1527,7 @@ void main() {
       expect(result.actions, hasLength(1));
       expect(
         result.actions.single.payload['content'],
-        'Value: ((global.bc_unknown))',
+        'Value: ((temp.unknown))',
       );
     });
 
@@ -1032,8 +1535,16 @@ void main() {
       final result = BdfdCompiler().compile(r'$var[x;hello]$var[x]');
 
       expect(result.hasErrors, isFalse);
-      expect(result.actions, hasLength(1));
-      expect(result.actions.single.payload['content'], 'hello');
+      expect(result.actions, hasLength(2));
+      expect(result.actions[0].type, BotCreatorActionType.setTemporaryVariable);
+      expect(result.actions[1].payload['content'], '((temp.x))');
+      expect(
+        resolveTemplatePlaceholders(
+          result.actions[1].payload['content'] as String,
+          <String, String>{'temp.x': 'hello'},
+        ),
+        'hello',
+      );
     });
 
     test('temp var with computed value from inline function', () {
@@ -1042,12 +1553,14 @@ void main() {
       );
 
       expect(result.hasErrors, isFalse);
-      expect(result.actions, hasLength(1));
-      expect(result.actions.single.payload['content'], 'Result: HELLO');
+      expect(result.actions, hasLength(2));
+      expect(result.actions[0].type, BotCreatorActionType.setTemporaryVariable);
+      expect(result.actions[0].payload['value'], 'HELLO');
+      expect(result.actions[1].payload['content'], 'Result: ((temp.upper))');
     });
 
     test(
-      'runtime inline math stays dynamic and branch-local temp vars do not leak',
+      'runtime inline math stays dynamic and temp vars persist through branches',
       () {
         final result = BdfdCompiler().compile(
           r'$if[$isbot[$authorID]==false]'
@@ -1085,6 +1598,7 @@ void main() {
             .map((json) => Action.fromJson(Map<String, dynamic>.from(json)))
             .toList(growable: false);
         expect(thenActions.map((action) => action.type), <BotCreatorActionType>[
+          BotCreatorActionType.setTemporaryVariable,
           BotCreatorActionType.sendMessage,
           BotCreatorActionType.ifBlock,
           BotCreatorActionType.sendMessage,
@@ -1092,33 +1606,40 @@ void main() {
           BotCreatorActionType.sendMessage,
         ]);
 
-        final previewContent = thenActions[0].payload['content'] as String;
-        expect(previewContent, contains('((charcount['));
-        expect(previewContent, contains('((multi['));
+        final tempSetValue = thenActions[0].payload['value'] as String;
+        expect(tempSetValue, contains('((multi['));
 
         final runtimeVariables = <String, String>{
           'message.content': 'bzbd',
           'author.isBot': 'false',
         };
+        final resolvedTemp = resolveTemplatePlaceholders(
+          tempSetValue,
+          runtimeVariables,
+        );
+        expect(resolvedTemp, '2');
+        runtimeVariables['temp.toadd'] = resolvedTemp;
+
+        final previewContent = thenActions[1].payload['content'] as String;
         expect(
           resolveTemplatePlaceholders(previewContent, runtimeVariables),
           'bzbd, charcount 4, after mult 2',
         );
 
         final clampCondition =
-            thenActions[1].payload['condition.variable'] as String;
+            thenActions[2].payload['condition.variable'] as String;
         expect(
           resolveTemplatePlaceholders(clampCondition, runtimeVariables),
           '2',
         );
 
-        final awardContent = thenActions[2].payload['content'] as String;
+        final awardContent = thenActions[3].payload['content'] as String;
         expect(
           resolveTemplatePlaceholders(awardContent, runtimeVariables),
           'you have been given 2 xp',
         );
 
-        final setXpValue = thenActions[3].payload['value'] as String;
+        final setXpValue = thenActions[4].payload['value'] as String;
         final resolvedXp = resolveTemplatePlaceholders(
           setXpValue,
           runtimeVariables,
@@ -1126,7 +1647,7 @@ void main() {
         expect(resolvedXp, '2');
 
         runtimeVariables['user.bc_xp'] = resolvedXp;
-        final newXpContent = thenActions[4].payload['content'] as String;
+        final newXpContent = thenActions[5].payload['content'] as String;
         expect(
           resolveTemplatePlaceholders(newXpContent, runtimeVariables),
           'new xp 2',
