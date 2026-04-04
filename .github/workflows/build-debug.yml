@@ -164,4 +164,4 @@ jobs:
         run: flutter config --enable-macos-desktop
 
       - name: Smoke build macOS desktop
-        run: flutter build macos --debug --no-codesign
+        run: flutter build macos --debug
