@@ -47,7 +47,8 @@ class _BdfdAutoIndentFormatter extends TextInputFormatter {
       return newValue;
     }
 
-    final previousLineBreak = newText.lastIndexOf('\n', caret - 2);
+    final previousLineBreak =
+        caret > 1 ? newText.lastIndexOf('\n', caret - 2) : -1;
     final previousLineStart = previousLineBreak < 0 ? 0 : previousLineBreak + 1;
     final previousLine = newText.substring(previousLineStart, caret - 1);
     final indentMatch = RegExp(r'^[ \t]+').firstMatch(previousLine);
@@ -923,12 +924,15 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
         editorTopPadding + (caret.line * lineHeight) - scrollY - 32;
 
     final minLeft = _lineNumberGutterWidth + 4;
-    final maxLeft = (constraints.maxWidth - 320).clamp(
-      minLeft,
-      double.infinity,
-    );
+    final maxLeft =
+        constraints.maxWidth <= minLeft
+            ? minLeft
+            : (constraints.maxWidth - 320).clamp(minLeft, constraints.maxWidth);
     final left = desiredLeft.clamp(minLeft, maxLeft);
-    final maxTop = (constraints.maxHeight - 40).clamp(0.0, double.infinity);
+    final maxTop =
+        constraints.maxHeight <= 0
+            ? 0.0
+            : (constraints.maxHeight - 40).clamp(0.0, constraints.maxHeight);
     final top = desiredTop.clamp(0.0, maxTop);
 
     // Build the parameter spans with the active one highlighted.
@@ -1067,11 +1071,14 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
               final isSelected = index == _autocompleteSelectedIndex;
               return InkWell(
                 onHover: (hovering) {
-                  if (hovering && _autocompleteSelectedIndex != index) {
-                    setState(() {
-                      _autocompleteSelectedIndex = index;
-                    });
+                  if (!mounted ||
+                      !hovering ||
+                      _autocompleteSelectedIndex == index) {
+                    return;
                   }
+                  setState(() {
+                    _autocompleteSelectedIndex = index;
+                  });
                 },
                 onTap:
                     () => _insertAutocompleteTemplate(entry.key, entry.value),

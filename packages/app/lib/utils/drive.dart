@@ -54,6 +54,17 @@ const String _androidServerClientIdFallback =
 
 bool _googleSignInInitialized = false;
 
+class UserCancelledGoogleSignInException implements Exception {
+  const UserCancelledGoogleSignInException([
+    this.message = 'Google sign-in cancelled by user.',
+  ]);
+
+  final String message;
+
+  @override
+  String toString() => message;
+}
+
 /// Cached OAuth tokens for browser-based desktop flow.
 _BrowserOAuthTokens? _desktopTokens;
 
@@ -149,11 +160,17 @@ Future<GoogleSignInAccount> _getMobileSignedInAccount({
     try {
       account = await signIn.authenticate(scopeHint: _mobileDriveScopes);
     } catch (e) {
-      throw Exception('Authentication cancelled or failed: $e');
+      if (isDriveAuthCancellation(e)) {
+        throw const UserCancelledGoogleSignInException();
+      }
+      throw Exception('Authentication failed: $e');
     }
   }
 
   if (account == null) {
+    if (interactive) {
+      throw const UserCancelledGoogleSignInException();
+    }
     throw Exception('No Google account is signed in.');
   }
   return account;
@@ -171,11 +188,22 @@ Future<DriveApi> _getMobileDriveApi({bool interactive = true}) async {
 
   final future = () async {
     final account = await _getMobileSignedInAccount(interactive: interactive);
+    final existingAuth = await account.authorizationClient
+        .authorizationForScopes(_mobileDriveScopes);
     final authz =
-        await account.authorizationClient.authorizationForScopes(
-          _mobileDriveScopes,
-        ) ??
-        await account.authorizationClient.authorizeScopes(_mobileDriveScopes);
+        existingAuth ??
+        await (() async {
+          try {
+            return await account.authorizationClient.authorizeScopes(
+              _mobileDriveScopes,
+            );
+          } catch (e) {
+            if (isDriveAuthCancellation(e)) {
+              throw const UserCancelledGoogleSignInException();
+            }
+            rethrow;
+          }
+        })();
     final auth.AuthClient client = authz.authClient(scopes: _mobileDriveScopes);
     _mobileDriveApiCache = DriveApi(client);
     return _mobileDriveApiCache!;
@@ -353,6 +381,20 @@ Future<DriveApi> getDriveApi({bool interactive = true}) async {
   }
 
   throw Exception('Google Drive sync is not supported on this platform.');
+}
+
+bool isDriveAuthCancellation(Object error) {
+  if (error is UserCancelledGoogleSignInException) {
+    return true;
+  }
+
+  final message = error.toString().toLowerCase();
+  return message.contains('cancelled by user') ||
+      message.contains('canceled by user') ||
+      message.contains('googlesigninexceptioncode.canceled') ||
+      message.contains('authentication cancelled') ||
+      message.contains('authentication cancelled or failed') ||
+      message.contains('sign_in_canceled');
 }
 
 // ---------------------------------------------------------------------------

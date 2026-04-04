@@ -10,6 +10,7 @@ import '../../../types/component.dart';
 import '../../../routes/app/workflows.page.dart';
 import '../../../routes/app/global.variables.dart';
 import '../../../main.dart';
+import '../../../utils/embed_normalization.dart';
 import '../../../utils/i18n.dart';
 import '../../../widgets/component_v2_builder/component_v2_editor.dart';
 import '../../../widgets/component_v2_builder/modal_builder.dart';
@@ -1202,18 +1203,7 @@ class ActionCard extends StatelessWidget {
         );
 
       case ParameterType.embeds:
-        final embeds =
-            (currentValue is List)
-                ? List<Map<String, dynamic>>.from(
-                  currentValue.whereType<Map>().map(
-                    (embed) => Map<String, dynamic>.from(
-                      embed.map(
-                        (key, value) => MapEntry(key.toString(), value),
-                      ),
-                    ),
-                  ),
-                )
-                : <Map<String, dynamic>>[];
+        final embeds = normalizeResponseEmbedsPayload(currentValue);
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

@@ -88,7 +88,8 @@ BdfdSignatureContext? bdfdSignatureContextAt(
   return BdfdSignatureContext(
     functionName: funcName,
     parameters: params,
-    activeIndex: frame.argIndex.clamp(0, params.length - 1),
+    activeIndex:
+        params.isEmpty ? 0 : frame.argIndex.clamp(0, params.length - 1),
   );
 }
 
