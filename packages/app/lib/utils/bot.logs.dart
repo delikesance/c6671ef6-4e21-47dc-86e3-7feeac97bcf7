@@ -438,6 +438,39 @@ Set<String> getKnownBotLogIds() {
   return ids;
 }
 
+Future<Map<String, String>> getKnownBotNamesById() async {
+  final knownIds = getKnownBotLogIds();
+  if (knownIds.isEmpty) {
+    return const <String, String>{};
+  }
+
+  final namesById = <String, String>{};
+  try {
+    final apps = await appManager.getAllApps();
+    for (final rawApp in apps) {
+      if (rawApp is! Map) {
+        continue;
+      }
+      final app = Map<String, dynamic>.from(rawApp);
+      final botId = (app['id'] ?? '').toString().trim();
+      if (botId.isEmpty || !knownIds.contains(botId)) {
+        continue;
+      }
+
+      final botName = (app['name'] ?? '').toString().trim();
+      if (botName.isNotEmpty) {
+        namesById[botId] = botName;
+      }
+    }
+  } catch (_) {}
+
+  for (final botId in knownIds) {
+    namesById.putIfAbsent(botId, () => botId);
+  }
+
+  return Map<String, String>.unmodifiable(namesById);
+}
+
 void startBotLogSession({required String botId}) {
   _activeBotLogBotId = botId;
   _botLogsByBot[botId] = <String>[];

@@ -181,6 +181,56 @@ const Map<String, String> appStringsEn = {
       'Runner temporarily disabled (local mode active)',
   'settings_runner_temporarily_disabled_saved': 'Runner temporarily disabled',
   'settings_runner_reenabled': 'Runner re-enabled',
+  'settings_discord_rpc_title': 'Discord Rich Presence',
+  'settings_discord_rpc_desc':
+      'Publish Bot Creator desktop activity to the local Discord client. Bot Creator always uses the built-in Discord application and sends SET_ACTIVITY directly over local IPC when enabled.',
+  'settings_discord_rpc_enable': 'Enable Discord Rich Presence',
+  'settings_discord_rpc_client_id_hint': '1350824555119382678',
+  'settings_discord_rpc_client_id_helper':
+      'This ID is fixed in Bot Creator and cannot be changed from settings.',
+  'settings_discord_rpc_client_secret_label':
+      'Discord application client secret (optional)',
+  'settings_discord_rpc_client_secret_hint': 'Client secret',
+  'settings_discord_rpc_client_secret_helper':
+      'Optional advanced fallback for a confidential-client flow handled locally.',
+  'settings_discord_rpc_broker_label': 'OAuth broker URL (advanced, optional)',
+  'settings_discord_rpc_broker_hint': 'https://auth.example.com',
+  'settings_discord_rpc_save': 'Save settings',
+  'settings_discord_rpc_saved': 'Discord Rich Presence settings saved',
+  'settings_discord_rpc_connect': 'Refresh presence',
+  'settings_discord_rpc_authorize': 'Authorize',
+  'settings_discord_rpc_complete_authorization': 'Complete authorization',
+  'settings_discord_rpc_authorization_pending_exchange':
+      'Authorization code received',
+  'settings_discord_rpc_open_ipc': 'Open local IPC',
+  'settings_discord_rpc_ipc_open': 'Local IPC already open',
+  'settings_discord_rpc_disconnect': 'Close IPC',
+  'settings_discord_rpc_user': 'Authorized user: {user}',
+  'settings_discord_rpc_endpoint': 'IPC endpoint: {endpoint}',
+  'settings_discord_rpc_last_error': 'Last error: {error}',
+  'settings_discord_rpc_enable_first': 'Enable Discord Rich Presence first',
+  'settings_discord_rpc_client_id_required':
+      'Discord application client ID required',
+  'settings_discord_rpc_disabled': 'Disabled',
+  'settings_discord_rpc_platform_unsupported':
+      'Discord Rich Presence is desktop only',
+  'settings_discord_rpc_transport_unsupported':
+      'Discord transport is not supported on this platform yet',
+  'settings_discord_rpc_not_configured': 'Client ID required',
+  'settings_discord_rpc_broker_required':
+      'Client ID is enough for the public-client flow; broker URL and client secret are optional fallbacks',
+  'settings_discord_rpc_disconnected': 'IPC closed',
+  'settings_discord_rpc_needs_authorization': 'Authorization required',
+  'settings_discord_rpc_authorization_code_pending_exchange':
+      'Authorization code cached; retry to finish the token exchange',
+  'settings_discord_rpc_ipc_connected_auth_required':
+      'Local Discord IPC connected; no OAuth HTTP request sent yet, authentication still required',
+  'settings_discord_rpc_connecting': 'Connecting to Discord…',
+  'settings_discord_rpc_authorizing': 'Waiting for Discord authorization…',
+  'settings_discord_rpc_exchanging_code': 'Completing OAuth exchange…',
+  'settings_discord_rpc_authenticating': 'Authenticating with Discord…',
+  'settings_discord_rpc_connected': 'Presence sent to Discord',
+  'settings_discord_rpc_error': 'Discord RPC error',
   'settings_data_operations_title': 'Data Operations',
   'settings_export': 'Export',
   'settings_import': 'Import',
