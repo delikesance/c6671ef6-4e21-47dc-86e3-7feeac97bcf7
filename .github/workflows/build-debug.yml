@@ -25,15 +25,7 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: "stable"
           cache: true
-
-      - name: Cache pub dependencies
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pub-
+          pub-cache: false
 
       - name: Install workspace dependencies
         run: flutter pub get
@@ -77,15 +69,7 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: "stable"
           cache: true
-
-      - name: Cache pub dependencies
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pub-
+          pub-cache: false
 
       - name: Get dependencies
         run: flutter pub get
@@ -112,15 +96,7 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: "stable"
           cache: true
-
-      - name: Cache pub dependencies
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~\AppData\Local\Pub\Cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pub-
+          pub-cache: false
 
       - name: Get dependencies
         run: flutter pub get
@@ -147,15 +123,7 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: "stable"
           cache: true
-
-      - name: Cache pub dependencies
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pub-
+          pub-cache: false
 
       - name: Get dependencies
         run: flutter pub get
