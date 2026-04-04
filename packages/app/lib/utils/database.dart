@@ -184,12 +184,18 @@ class AppManager implements BotDataStore {
 
   Future<void> deleteApp(String id) async {
     final path = await _path();
-    await File("$path/apps/$id.json").delete();
+    final appFile = File("$path/apps/$id.json");
+    if (await appFile.exists()) {
+      await appFile.delete();
+    }
     final statsFile = File("$path/apps/$id.command_stats.json");
     if (await statsFile.exists()) {
       await statsFile.delete();
     }
-    await Directory("$path/apps/$id").delete(recursive: true);
+    final appDirectory = Directory("$path/apps/$id");
+    if (await appDirectory.exists()) {
+      await appDirectory.delete(recursive: true);
+    }
     final allAppsFile = File("$path/apps/all_apps.json");
     if (!await allAppsFile.exists()) return;
 
@@ -285,7 +291,10 @@ class AppManager implements BotDataStore {
 
   Future<void> clearLogs(String id) async {
     final path = await _path();
-    await File("$path/apps/$id/logs.json").delete();
+    final logsFile = File("$path/apps/$id/logs.json");
+    if (await logsFile.exists()) {
+      await logsFile.delete();
+    }
   }
 
   Future<void> deleteAllLogs() async {

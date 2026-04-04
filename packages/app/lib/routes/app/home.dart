@@ -474,7 +474,19 @@ class _AppHomePageState extends State<AppHomePage>
                             avatar.isNotEmpty
                                 ? CircleAvatar(
                                   radius: 40,
-                                  backgroundImage: NetworkImage(avatar),
+                                  child: ClipOval(
+                                    child: Image.network(
+                                      avatar,
+                                      width: 80,
+                                      height: 80,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (_, __, ___) => const Icon(
+                                            Icons.account_circle,
+                                            size: 80,
+                                          ),
+                                    ),
+                                  ),
                                 )
                                 : const Icon(Icons.account_circle, size: 80),
                       ),

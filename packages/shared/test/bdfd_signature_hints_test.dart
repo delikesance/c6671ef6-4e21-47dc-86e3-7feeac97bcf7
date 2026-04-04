@@ -86,6 +86,15 @@ void main() {
       expect(result!.activeIndex, 0); // clamped to 0 (only 1 param)
     });
 
+    test('handles zero-parameter functions without clamp errors', () {
+      const source = r'$jsonclear[]';
+      final result = ctx(source, 11);
+      expect(result, isNotNull);
+      expect(result!.functionName, r'$jsonclear');
+      expect(result.parameters, isEmpty);
+      expect(result.activeIndex, 0);
+    });
+
     test('returns null for bare functions without brackets', () {
       const source = r'$authorID';
       final result = ctx(source, 5);
