@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:bot_creator/utils/bot.dart';
 import 'package:bot_creator/utils/i18n.dart';
 import 'package:bot_creator/utils/premium_capabilities.dart';
+import 'package:bot_creator/utils/runner_client.dart';
+import 'package:bot_creator/utils/runner_settings.dart';
 import 'package:bot_creator/widgets/subscription_page.dart';
 import 'package:flutter/material.dart';
 
@@ -19,6 +21,10 @@ class DebugReplayPage extends StatefulWidget {
 
 class _DebugReplayPageState extends State<DebugReplayPage> {
   StreamSubscription<List<DebugReplayRecord>>? _sub;
+  Timer? _runnerPollTimer;
+  RunnerClient? _runnerClient;
+  bool _usingRemoteData = false;
+
   List<DebugReplayRecord> _replays = const [];
   bool _capturing = false;
 
@@ -29,7 +35,63 @@ class _DebugReplayPageState extends State<DebugReplayPage> {
     _replays = _filtered(debugReplays);
     _sub = debugReplaysStream.listen((all) {
       if (!mounted) return;
+      if (_usingRemoteData) return;
       setState(() => _replays = _filtered(all));
+    });
+    unawaited(_initRunnerPolling());
+  }
+
+  Future<void> _initRunnerPolling() async {
+    final botId = widget.botId?.trim() ?? '';
+    if (botId.isEmpty) {
+      return;
+    }
+
+    final config = await RunnerSettings.getConfig();
+    if (!mounted || config == null) {
+      return;
+    }
+
+    final client = config.createClient(
+      getTimeout: const Duration(seconds: 30),
+      postTimeout: const Duration(seconds: 90),
+    );
+    _runnerClient = client;
+
+    try {
+      await _pollRunnerReplays();
+      if (!mounted) return;
+      setState(() => _usingRemoteData = true);
+      _runnerPollTimer = Timer.periodic(const Duration(milliseconds: 2500), (
+        _,
+      ) {
+        if (mounted) {
+          unawaited(_pollRunnerReplays());
+        }
+      });
+    } catch (_) {
+      _runnerClient = null;
+    }
+  }
+
+  Future<void> _pollRunnerReplays() async {
+    final client = _runnerClient;
+    final botId = widget.botId?.trim() ?? '';
+    if (client == null || botId.isEmpty) {
+      return;
+    }
+
+    final snapshot = await client.getDebugReplays(botId, limit: 30);
+    if (!mounted) {
+      return;
+    }
+
+    final remoteReplays = snapshot.replays
+        .map(DebugReplayRecord.fromJson)
+        .toList(growable: false);
+    setState(() {
+      _capturing = snapshot.capturing;
+      _replays = _filtered(remoteReplays);
     });
   }
 
@@ -41,6 +103,7 @@ class _DebugReplayPageState extends State<DebugReplayPage> {
 
   @override
   void dispose() {
+    _runnerPollTimer?.cancel();
     _sub?.cancel();
     super.dispose();
   }
@@ -68,8 +131,9 @@ class _DebugReplayPageState extends State<DebugReplayPage> {
                 color: _capturing ? Colors.red : null,
               ),
               onPressed: () {
-                setState(() => _capturing = !_capturing);
-                setDebugReplayCapturing(_capturing);
+                final next = !_capturing;
+                setState(() => _capturing = next);
+                unawaited(_setCaptureEnabled(next));
               },
             ),
             if (_replays.isNotEmpty)
@@ -101,7 +165,19 @@ class _DebugReplayPageState extends State<DebugReplayPage> {
                             ),
                       ) ??
                       false;
-                  if (confirmed) clearDebugReplays();
+                  if (!confirmed) return;
+                  final client = _runnerClient;
+                  final botId = widget.botId?.trim() ?? '';
+                  if (_usingRemoteData && client != null && botId.isNotEmpty) {
+                    try {
+                      await client.clearDebugReplays(botId);
+                      if (mounted) {
+                        setState(() => _replays = const <DebugReplayRecord>[]);
+                      }
+                    } catch (_) {}
+                    return;
+                  }
+                  clearDebugReplays();
                 },
               ),
           ],
@@ -212,7 +288,7 @@ class _DebugReplayPageState extends State<DebugReplayPage> {
                 FilledButton.icon(
                   onPressed: () {
                     setState(() => _capturing = true);
-                    setDebugReplayCapturing(true);
+                    unawaited(_setCaptureEnabled(true));
                   },
                   icon: const Icon(Icons.fiber_manual_record),
                   label: Text(AppStrings.t('debug_replay_start_capture')),
@@ -245,6 +321,26 @@ class _DebugReplayPageState extends State<DebugReplayPage> {
         );
       },
     );
+  }
+
+  Future<void> _setCaptureEnabled(bool enabled) async {
+    final client = _runnerClient;
+    final botId = widget.botId?.trim() ?? '';
+    if (_usingRemoteData && client != null && botId.isNotEmpty) {
+      try {
+        final remoteState = await client.setDebugReplayCapturing(botId, enabled);
+        if (mounted) {
+          setState(() => _capturing = remoteState);
+        }
+      } catch (_) {
+        if (mounted) {
+          setState(() => _capturing = !enabled);
+        }
+      }
+      return;
+    }
+
+    setDebugReplayCapturing(enabled);
   }
 }
 

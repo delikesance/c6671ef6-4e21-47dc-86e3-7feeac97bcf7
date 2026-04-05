@@ -60,6 +60,9 @@ String _resolveVersion() {
 /// GET  /bots/{id}/status    → state for one bot
 /// GET  /bots/{id}/metrics   → process metrics + one bot state
 /// GET  /bots/{id}/command-stats → command usage statistics
+/// GET  /bots/{id}/debug-replays?limit=N → debug replay list
+/// POST /bots/{id}/debug-replays/clear → clear replay list
+/// POST /bots/{id}/debug-replays/capture → body: {enabled: bool}
 /// GET  /bots/{id}/variables/global → global key/value map
 /// POST /bots/{id}/variables/global/set
 /// POST /bots/{id}/variables/global/remove
@@ -179,6 +182,11 @@ class RunnerWebBootstrapServer {
     final scopedStatusBotId = _extractBotAction(path, action: 'status');
     final scopedMetricsBotId = _extractBotAction(path, action: 'metrics');
     final scopedStatsBotId = _extractBotAction(path, action: 'command-stats');
+    final scopedDebugReplaysBotId = _extractBotNestedAction(
+      path,
+      parentAction: 'debug-replays',
+      action: '',
+    );
     final scopedGlobalVariablesBotId = _extractBotNestedAction(
       path,
       parentAction: 'variables',
@@ -210,6 +218,14 @@ class RunnerWebBootstrapServer {
       path,
       actionPath: 'variables/scoped-definitions/remove',
     );
+    final scopedClearDebugReplaysBotId = _extractBotDeepAction(
+      path,
+      actionPath: 'debug-replays/clear',
+    );
+    final scopedCaptureDebugReplaysBotId = _extractBotDeepAction(
+      path,
+      actionPath: 'debug-replays/capture',
+    );
     final scopedInboundWebhook = _extractBotInboundWorkflow(path);
     try {
       if (request.method == 'GET') {
@@ -226,6 +242,10 @@ class RunnerWebBootstrapServer {
         }
         if (scopedStatsBotId != null) {
           await _handleCommandStats(request, scopedStatsBotId);
+          return;
+        }
+        if (scopedDebugReplaysBotId != null) {
+          await _handleDebugReplays(request, scopedDebugReplaysBotId);
           return;
         }
         if (scopedGlobalVariablesBotId != null) {
@@ -297,6 +317,17 @@ class RunnerWebBootstrapServer {
           await _handleRemoveScopedDefinition(
             request,
             scopedRemoveDefinitionsBotId,
+          );
+          return;
+        }
+        if (scopedClearDebugReplaysBotId != null) {
+          await _handleClearDebugReplays(request, scopedClearDebugReplaysBotId);
+          return;
+        }
+        if (scopedCaptureDebugReplaysBotId != null) {
+          await _handleSetDebugReplayCapture(
+            request,
+            scopedCaptureDebugReplaysBotId,
           );
           return;
         }
@@ -487,6 +518,54 @@ class RunnerWebBootstrapServer {
     await _respondJson(request, <String, dynamic>{
       'lines': logStore.tail(limit: limit),
     });
+  }
+
+  Future<void> _handleDebugReplays(HttpRequest request, String botId) async {
+    final limitRaw = request.uri.queryParameters['limit'] ?? '30';
+    final parsed = int.tryParse(limitRaw);
+    final limit = (parsed == null || parsed <= 0) ? 30 : parsed;
+    try {
+      final replays = _runtimeController.listDebugReplays(botId, limit: limit);
+      await _respondJson(request, <String, dynamic>{
+        'botId': botId,
+        'capturing': _runtimeController.isDebugReplayCapturing(botId),
+        'replays': replays,
+      });
+    } on StateError catch (error) {
+      await _respondJson(request, <String, dynamic>{
+        'error': error.message,
+      }, statusCode: HttpStatus.conflict);
+    }
+  }
+
+  Future<void> _handleClearDebugReplays(HttpRequest request, String botId) async {
+    try {
+      _runtimeController.clearDebugReplays(botId);
+      await _respondJson(request, <String, dynamic>{'ok': true});
+    } on StateError catch (error) {
+      await _respondJson(request, <String, dynamic>{
+        'error': error.message,
+      }, statusCode: HttpStatus.conflict);
+    }
+  }
+
+  Future<void> _handleSetDebugReplayCapture(
+    HttpRequest request,
+    String botId,
+  ) async {
+    final payload = await _readJsonBody(request);
+    final enabled = payload['enabled'] == true;
+    try {
+      _runtimeController.setDebugReplayCapturing(botId, enabled);
+      await _respondJson(request, <String, dynamic>{
+        'ok': true,
+        'capturing': _runtimeController.isDebugReplayCapturing(botId),
+      });
+    } on StateError catch (error) {
+      await _respondJson(request, <String, dynamic>{
+        'error': error.message,
+      }, statusCode: HttpStatus.conflict);
+    }
   }
 
   /// POST /bots/{id}/inbound/{path} — trigger an inbound webhook by path + secret.
@@ -1095,6 +1174,12 @@ class RunnerWebBootstrapServer {
     required String action,
   }) {
     final parts = path.split('/').where((p) => p.isNotEmpty).toList();
+    if (action.isEmpty) {
+      if (parts.length == 3 && parts[0] == 'bots' && parts[2] == parentAction) {
+        return Uri.decodeComponent(parts[1]);
+      }
+      return null;
+    }
     if (parts.length == 4 &&
         parts[0] == 'bots' &&
         parts[2] == parentAction &&
