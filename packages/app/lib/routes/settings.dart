@@ -62,6 +62,15 @@ class _SettingPageState extends State<SettingPage> {
   bool _discordSectionExpanded = false;
   bool _developerSectionExpanded = false;
 
+  bool get _isDesktopPlatform {
+    if (kIsWeb) {
+      return false;
+    }
+    return defaultTargetPlatform == TargetPlatform.windows ||
+        defaultTargetPlatform == TargetPlatform.linux ||
+        defaultTargetPlatform == TargetPlatform.macOS;
+  }
+
   Future<void> _runWithLoading(
     String message,
     Future<void> Function() action,
@@ -112,7 +121,11 @@ class _SettingPageState extends State<SettingPage> {
     _loadRecoverySettings();
     _initializeDriveApi();
     _loadRunnerSettings();
-    _loadDiscordRpcSettings();
+    if (_isDesktopPlatform) {
+      _loadDiscordRpcSettings();
+    } else {
+      _loadingDiscordRpc = false;
+    }
     _loadAdPrivacyRequirement();
   }
 
@@ -2063,8 +2076,10 @@ class _SettingPageState extends State<SettingPage> {
                     ),
                   ),
                   const SizedBox(height: 32),
-                  _buildDiscordRpcCard(isMobile: isMobile),
-                  const SizedBox(height: 16),
+                  if (_isDesktopPlatform) ...[
+                    _buildDiscordRpcCard(isMobile: isMobile),
+                    const SizedBox(height: 16),
+                  ],
                   // Data Operations Section
                   Text(
                     AppStrings.t('settings_data_operations_title'),
