@@ -328,7 +328,10 @@ class _DebugReplayPageState extends State<DebugReplayPage> {
     final botId = widget.botId?.trim() ?? '';
     if (_usingRemoteData && client != null && botId.isNotEmpty) {
       try {
-        final remoteState = await client.setDebugReplayCapturing(botId, enabled);
+        final remoteState = await client.setDebugReplayCapturing(
+          botId,
+          enabled,
+        );
         if (mounted) {
           setState(() => _capturing = remoteState);
         }
