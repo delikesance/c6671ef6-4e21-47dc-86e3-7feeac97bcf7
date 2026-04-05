@@ -150,6 +150,10 @@ class _BdfdAstTranspilationScope {
           }
 
           if (consumed.isRuntimeLoop) {
+            final runtimeLoopDeferredJson = _flushDeferredJson();
+            if (runtimeLoopDeferredJson != null) {
+              actions.add(runtimeLoopDeferredJson);
+            }
             final flushed = pendingResponse.buildAction(
               channelId: _useChannelId,
             );
