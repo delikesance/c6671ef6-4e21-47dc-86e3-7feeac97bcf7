@@ -652,7 +652,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             AppStrings.t('home_unknown_app');
                         final id = app['id']?.toString() ?? '';
                         final avatar = app['avatar']?.toString();
-                        final guildCount = app['guild_count'] as int?;
+                        final guildCount = switch (app['guild_count']) {
+                          final int value => value,
+                          final String value => int.tryParse(value),
+                          _ => null,
+                        };
                         final isRunning = _runningBotIds.contains(id);
                         const runtimeToggleAllowed = true;
                         // Multi-bot is allowed on runner, mobile foreground, and
@@ -777,133 +781,154 @@ class _BotCard extends StatelessWidget {
           children: [
             // ── Partie haute flexible ────────────────────────────────────────
             Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // ── Avatar ────────────────────────────────────────────────
-                  avatar != null && avatar!.isNotEmpty
-                      ? CircleAvatar(
-                        radius: avatarRadius,
-                        child: ClipOval(
-                          child: Image.network(
-                            avatar!,
-                            width: avatarRadius * 2,
-                            height: avatarRadius * 2,
-                            fit: BoxFit.cover,
-                            errorBuilder:
-                                (context, error, stackTrace) => Icon(
-                                  Icons.account_circle,
-                                  size: avatarFallbackSize,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    physics: const ClampingScrollPhysics(),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: constraints.maxHeight,
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // ── Avatar ────────────────────────────────────────────────
+                          avatar != null && avatar!.isNotEmpty
+                              ? CircleAvatar(
+                                radius: avatarRadius,
+                                child: ClipOval(
+                                  child: Image.network(
+                                    avatar!,
+                                    width: avatarRadius * 2,
+                                    height: avatarRadius * 2,
+                                    fit: BoxFit.cover,
+                                    errorBuilder:
+                                        (context, error, stackTrace) => Icon(
+                                          Icons.account_circle,
+                                          size: avatarFallbackSize,
+                                        ),
+                                  ),
                                 ),
-                          ),
-                        ),
-                      )
-                      : Icon(Icons.account_circle, size: avatarFallbackSize),
-
-                  SizedBox(height: compact ? 8 : 10),
-
-                  // ── Nom ───────────────────────────────────────────────────
-                  Text(
-                    name,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: titleFontSize,
-                      fontWeight: FontWeight.w600,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-
-                  SizedBox(height: compact ? 4 : 5),
-
-                  // ── Statut avec animation pulse ────────────────────────────
-                  AnimatedBuilder(
-                    animation: pulseController,
-                    builder: (_, _) {
-                      final opacity =
-                          isRunning ? 0.4 + 0.6 * pulseController.value : 1.0;
-                      return Opacity(
-                        opacity: opacity,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              width: 8,
-                              height: 8,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: isRunning ? Colors.green : Colors.grey,
+                              )
+                              : Icon(
+                                Icons.account_circle,
+                                size: avatarFallbackSize,
                               ),
+
+                          SizedBox(height: compact ? 8 : 10),
+
+                          // ── Nom ───────────────────────────────────────────────────
+                          Text(
+                            name,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: titleFontSize,
+                              fontWeight: FontWeight.w600,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            const SizedBox(width: 5),
-                            Text(
-                              isRunning
-                                  ? AppStrings.t('home_status_online')
-                                  : AppStrings.t('home_status_offline'),
-                              style: TextStyle(
-                                fontSize: statusFontSize,
-                                fontWeight: FontWeight.w500,
-                                color: isRunning ? Colors.green : Colors.grey,
-                              ),
+                          ),
+
+                          SizedBox(height: compact ? 4 : 5),
+
+                          // ── Statut avec animation pulse ────────────────────────────
+                          AnimatedBuilder(
+                            animation: pulseController,
+                            builder: (_, _) {
+                              final opacity =
+                                  isRunning
+                                      ? 0.4 + 0.6 * pulseController.value
+                                      : 1.0;
+                              return Opacity(
+                                opacity: opacity,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      width: 8,
+                                      height: 8,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color:
+                                            isRunning
+                                                ? Colors.green
+                                                : Colors.grey,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Text(
+                                      isRunning
+                                          ? AppStrings.t('home_status_online')
+                                          : AppStrings.t('home_status_offline'),
+                                      style: TextStyle(
+                                        fontSize: statusFontSize,
+                                        fontWeight: FontWeight.w500,
+                                        color:
+                                            isRunning
+                                                ? Colors.green
+                                                : Colors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+
+                          // ── Runner affinity ────────────────────────────────────────
+                          if (runnerLabel != null) ...[
+                            SizedBox(height: compact ? 3 : 4),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.dns_outlined,
+                                  size: 13,
+                                  color: colorScheme.primary,
+                                ),
+                                const SizedBox(width: 3),
+                                Flexible(
+                                  child: Text(
+                                    runnerLabel!,
+                                    style: TextStyle(
+                                      fontSize: compact ? 9.5 : 10.0,
+                                      color: colorScheme.primary,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
-                        ),
-                      );
-                    },
-                  ),
-
-                  // ── Runner affinity ────────────────────────────────────────
-                  if (runnerLabel != null) ...[
-                    SizedBox(height: compact ? 3 : 4),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.dns_outlined,
-                          size: 13,
-                          color: colorScheme.primary,
-                        ),
-                        const SizedBox(width: 3),
-                        Flexible(
-                          child: Text(
-                            runnerLabel!,
-                            style: TextStyle(
-                              fontSize: compact ? 9.5 : 10.0,
-                              color: colorScheme.primary,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ],
-
-                  // ── Compteur de serveurs ───────────────────────────────────
-                  if (guildCount != null && guildCount! > 0) ...[
-                    SizedBox(height: compact ? 4 : 5),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.groups,
-                          size: 16,
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                        const SizedBox(width: 3),
-                        Text(
-                          _serverCountLabel(),
-                          style: TextStyle(
-                            fontSize: serverFontSize,
-                            color: colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ],
+                  );
+                },
               ),
+            ),
+
+            // ── Compteur de serveurs (toujours visible) ─────────────────────
+            SizedBox(height: compact ? 4 : 5),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.groups,
+                  size: 16,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 3),
+                Text(
+                  _serverCountLabel(),
+                  style: TextStyle(
+                    fontSize: serverFontSize,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
             ),
 
             // ── Bouton Lancer / Arrêter ──────────────────────────────────────

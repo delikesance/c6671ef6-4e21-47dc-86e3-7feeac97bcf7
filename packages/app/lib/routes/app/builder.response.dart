@@ -38,7 +38,10 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
   void initState() {
     super.initState();
     for (final action in widget.initialActions) {
-      final item = ActionItem.fromJson(action);
+      final item = ActionItem.fromJson(
+        action,
+        fallbackId: 'action_$_actionCounter',
+      );
       _actions.add(item);
       _actionCounter++;
     }
@@ -58,7 +61,10 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
 
   void _removeAction(String actionId) {
     setState(() {
-      _actions.removeWhere((action) => action.id == actionId);
+      final index = _actions.indexWhere((action) => action.id == actionId);
+      if (index != -1) {
+        _actions.removeAt(index);
+      }
       _fieldRefreshVersions.removeWhere(
         (compositeKey, _) => compositeKey.startsWith('$actionId::'),
       );

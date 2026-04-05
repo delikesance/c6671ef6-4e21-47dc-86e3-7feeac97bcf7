@@ -50,7 +50,7 @@ String? _resolveExplicitListenerMessageId(
 
 Future<bool> executeComponentsInteractionsAction({
   required BotCreatorActionType type,
-  required NyxxGateway client,
+  required NyxxGateway? client,
   required Interaction? interaction,
   required Map<String, dynamic> payload,
   required String resultKey,
@@ -64,7 +64,7 @@ Future<bool> executeComponentsInteractionsAction({
   switch (type) {
     case BotCreatorActionType.sendComponentV2:
       final result = await sendComponentV2Action(
-        client,
+        client!,
         payload: payload,
         fallbackChannelId: fallbackChannelId,
         resolve: resolveValue,
@@ -79,7 +79,7 @@ Future<bool> executeComponentsInteractionsAction({
 
     case BotCreatorActionType.editComponentV2:
       final result = await editComponentV2Action(
-        client,
+        client!,
         payload: payload,
         fallbackChannelId: fallbackChannelId,
         resolve: resolveValue,
@@ -210,15 +210,20 @@ Future<bool> executeComponentsInteractionsAction({
       if (workflowName.isEmpty) {
         throw Exception('workflowName is required for ${type.name}');
       }
+
+      // Guard: in an event workflow, listenForButtonClick/listenForSelectMenu
+      // without an explicit messageId should NOT derive a messageId from the
+      // triggering event context (that would cause mismatches on subsequent
+      // clicks). Instead, pass null so the listener matches any message with
+      // the given customId.
+
       final ttlRaw = payload['ttlMinutes'];
       final ttlMinutes = (ttlRaw is num
               ? ttlRaw.toInt()
               : int.tryParse(ttlRaw?.toString() ?? '') ?? 60)
           .clamp(1, 60);
-      final oneShot =
-          type == BotCreatorActionType.listenForModalSubmit
-              ? true
-              : (payload['oneShot'] != false);
+      // Modals are always one-shot; buttons/selects repeat on every click until TTL.
+      final oneShot = type == BotCreatorActionType.listenForModalSubmit;
       final workflowEntryPoint =
           resolveValue((payload['entryPoint'] ?? '').toString()).trim();
       final workflowArguments = resolveWorkflowCallArguments(
@@ -245,6 +250,8 @@ Future<bool> executeComponentsInteractionsAction({
           channelId: fallbackChannelId?.toString(),
           messageId:
               type == BotCreatorActionType.listenForModalSubmit
+                  ? _resolveExplicitListenerMessageId(payload, resolveValue)
+                  : variables['workflow.type'] == workflowTypeEvent
                   ? _resolveExplicitListenerMessageId(payload, resolveValue)
                   : _resolveListenerMessageId(
                     payload: payload,

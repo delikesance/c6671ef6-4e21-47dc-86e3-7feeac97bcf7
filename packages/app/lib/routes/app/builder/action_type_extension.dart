@@ -1805,7 +1805,7 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             key: 'workflowName',
             type: ParameterType.string,
             defaultValue: '',
-            hint: 'Workflow to run when button is clicked',
+            hint: 'Workflow to run when button is clicked.',
             required: true,
           ),
           ParameterDefinition(
@@ -1827,12 +1827,6 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             hint: 'Listener TTL in minutes (max 60)',
             minValue: 1,
             maxValue: 60,
-          ),
-          ParameterDefinition(
-            key: 'oneShot',
-            type: ParameterType.boolean,
-            defaultValue: true,
-            hint: 'Remove listener after first click',
           ),
         ];
       case BotCreatorActionType.listenForSelectMenu:
@@ -1855,7 +1849,7 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             key: 'workflowName',
             type: ParameterType.string,
             defaultValue: '',
-            hint: 'Workflow to run when the select menu is used',
+            hint: 'Workflow to run when the select menu is used.',
             required: true,
           ),
           ParameterDefinition(
@@ -1878,12 +1872,6 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             minValue: 1,
             maxValue: 60,
           ),
-          ParameterDefinition(
-            key: 'oneShot',
-            type: ParameterType.boolean,
-            defaultValue: true,
-            hint: 'Remove listener after first selection',
-          ),
         ];
       case BotCreatorActionType.listenForModalSubmit:
         return [
@@ -1905,7 +1893,7 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             key: 'workflowName',
             type: ParameterType.string,
             defaultValue: '',
-            hint: 'Workflow to run when modal is submitted',
+            hint: 'Workflow to run when modal is submitted.',
             required: true,
           ),
           ParameterDefinition(
