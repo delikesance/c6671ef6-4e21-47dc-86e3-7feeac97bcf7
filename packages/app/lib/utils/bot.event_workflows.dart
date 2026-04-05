@@ -673,14 +673,14 @@ Future<void> _executeLocalEventWorkflow(
   // Fast-path: when every action is a listener registration, skip expensive
   // guild/channel/member fetches and DB variable hydration — the listener
   // executor only needs the context variables already present.
-  const _listenerOnlyTypes = {
+  const listenerOnlyTypes = {
     BotCreatorActionType.listenForButtonClick,
     BotCreatorActionType.listenForSelectMenu,
     BotCreatorActionType.listenForModalSubmit,
   };
   final enabledActions = actions.where((a) => a.enabled);
   final listenerOnly = enabledActions.every(
-    (a) => _listenerOnlyTypes.contains(a.type),
+    (a) => listenerOnlyTypes.contains(a.type),
   );
 
   if (!listenerOnly) {
