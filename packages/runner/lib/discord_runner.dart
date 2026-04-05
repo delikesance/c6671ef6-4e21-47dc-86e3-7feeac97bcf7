@@ -289,7 +289,9 @@ class DiscordRunner {
               }
               : null,
     ).then((results) {
-      if (_debugReplayCapturing && !replayCapturedByActions && actions.isNotEmpty) {
+      if (_debugReplayCapturing &&
+          !replayCapturedByActions &&
+          actions.isNotEmpty) {
         _appendDebugReplay(
           commandLabel: replayLabel,
           botId: botId,

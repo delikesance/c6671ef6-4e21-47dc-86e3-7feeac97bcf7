@@ -417,9 +417,7 @@ class RunnerClient {
   }) async {
     final normalizedBotId = botId.trim();
     if (normalizedBotId.isEmpty) {
-      throw const RunnerClientException(
-        'Missing botId for getDebugReplays().',
-      );
+      throw const RunnerClientException('Missing botId for getDebugReplays().');
     }
     final json = await _get(
       '/bots/${Uri.encodeComponent(normalizedBotId)}/debug-replays',

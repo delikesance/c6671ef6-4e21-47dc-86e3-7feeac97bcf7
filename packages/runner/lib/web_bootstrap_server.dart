@@ -538,7 +538,10 @@ class RunnerWebBootstrapServer {
     }
   }
 
-  Future<void> _handleClearDebugReplays(HttpRequest request, String botId) async {
+  Future<void> _handleClearDebugReplays(
+    HttpRequest request,
+    String botId,
+  ) async {
     try {
       _runtimeController.clearDebugReplays(botId);
       await _respondJson(request, <String, dynamic>{'ok': true});
