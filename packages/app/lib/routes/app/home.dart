@@ -452,6 +452,7 @@ class _AppHomePageState extends State<AppHomePage>
       body: LayoutBuilder(
         builder: (context, constraints) {
           final contentMaxWidth = constraints.maxWidth >= 900 ? 560.0 : 460.0;
+          final showQuickAccess = constraints.maxWidth < 900;
           return SafeArea(
             child: Center(
               child: SingleChildScrollView(
@@ -560,7 +561,7 @@ class _AppHomePageState extends State<AppHomePage>
                                   : _botStarting
                                   ? Colors.orange
                                   : Colors.green,
-                          minimumSize: const Size.fromHeight(44),
+                          minimumSize: const Size.fromHeight(42),
                         ),
                         onPressed:
                             _botStarting
@@ -835,7 +836,8 @@ class _AppHomePageState extends State<AppHomePage>
                         endIndent: 20,
                       ),
                       // ── Quick access to secondary sections (mobile) ──
-                      if (widget.secondarySections.isNotEmpty &&
+                      if (showQuickAccess &&
+                          widget.secondarySections.isNotEmpty &&
                           widget.onNavigateToSection != null)
                         Padding(
                           padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
@@ -862,7 +864,7 @@ class _AppHomePageState extends State<AppHomePage>
                                 crossAxisCount: 3,
                                 mainAxisSpacing: 10,
                                 crossAxisSpacing: 10,
-                                childAspectRatio: 1.02,
+                                childAspectRatio: 1.12,
                                 shrinkWrap: true,
                                 physics: const NeverScrollableScrollPhysics(),
                                 children: [
@@ -893,7 +895,7 @@ class _AppHomePageState extends State<AppHomePage>
                       // Logs Button
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          minimumSize: const Size.fromHeight(44),
+                          minimumSize: const Size.fromHeight(42),
                         ),
                         onPressed: () {
                           final botId = widget.client.user.id.toString();
@@ -916,7 +918,7 @@ class _AppHomePageState extends State<AppHomePage>
                       const SizedBox(height: 12),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          minimumSize: const Size.fromHeight(44),
+                          minimumSize: const Size.fromHeight(42),
                         ),
                         onPressed: () {
                           final botId = widget.client.user.id.toString();
@@ -942,7 +944,7 @@ class _AppHomePageState extends State<AppHomePage>
                         const SizedBox(height: 12),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            minimumSize: const Size.fromHeight(44),
+                            minimumSize: const Size.fromHeight(42),
                           ),
                           onPressed: () {
                             final botId = widget.client.user.id.toString();
@@ -966,7 +968,7 @@ class _AppHomePageState extends State<AppHomePage>
                       const SizedBox(height: 20),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          minimumSize: const Size.fromHeight(44),
+                          minimumSize: const Size.fromHeight(42),
                         ),
                         onPressed:
                             _isSyncingApp
@@ -996,7 +998,7 @@ class _AppHomePageState extends State<AppHomePage>
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
-                          minimumSize: const Size.fromHeight(44),
+                          minimumSize: const Size.fromHeight(42),
                         ),
                         onPressed: () async {
                           final botId = widget.client.user.id.toString();
@@ -1033,7 +1035,7 @@ class _AppHomePageState extends State<AppHomePage>
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red,
-                          minimumSize: const Size.fromHeight(44),
+                          minimumSize: const Size.fromHeight(42),
                         ),
                         onPressed: () async {
                           final dialog = AlertDialog.adaptive(
@@ -1105,18 +1107,18 @@ class _QuickAccessChip extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     return Material(
       color: colorScheme.surfaceContainer,
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(12),
       child: InkWell(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(12),
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 20, color: colorScheme.primary),
-              const SizedBox(height: 5),
+              Icon(icon, size: 18, color: colorScheme.primary),
+              const SizedBox(height: 4),
               Text(
                 label,
                 textAlign: TextAlign.center,
