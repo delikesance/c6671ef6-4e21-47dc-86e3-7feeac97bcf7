@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:bot_creator/types/app_emoji.dart';
 import 'package:bot_creator/types/variable_suggestion.dart';
+import 'package:bot_creator/utils/embed_normalization.dart';
 import 'package:bot_creator/widgets/variable_text_field.dart';
 
 class ResponseEmbedsEditor extends StatefulWidget {
@@ -104,54 +105,31 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
   @override
   void initState() {
     super.initState();
-    _embeds = widget.embeds.map(_normalizeEmbed).toList();
+    _embeds = normalizeResponseEmbedsPayload(
+      widget.embeds,
+      maxEmbeds: widget.maxEmbeds,
+    );
   }
 
   @override
   void didUpdateWidget(covariant ResponseEmbedsEditor oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.embeds != widget.embeds) {
-      _embeds = widget.embeds.map(_normalizeEmbed).toList();
+      _embeds = normalizeResponseEmbedsPayload(
+        widget.embeds,
+        maxEmbeds: widget.maxEmbeds,
+      );
     }
   }
 
   Map<String, dynamic> _normalizeEmbed(Map<String, dynamic> embed) {
-    return {
-      'title': (embed['title'] ?? '').toString(),
-      'type': (embed['type'] ?? 'rich').toString(),
-      'description': (embed['description'] ?? '').toString(),
-      'url': (embed['url'] ?? '').toString(),
-      'timestamp': (embed['timestamp'] ?? '').toString(),
-      'color': (embed['color'] ?? '').toString(),
-      'footer': {
-        'text': (embed['footer']?['text'] ?? '').toString(),
-        'icon_url': (embed['footer']?['icon_url'] ?? '').toString(),
-      },
-      'image': {'url': (embed['image']?['url'] ?? '').toString()},
-      'thumbnail': {'url': (embed['thumbnail']?['url'] ?? '').toString()},
-      'author': {
-        'name': (embed['author']?['name'] ?? '').toString(),
-        'url': (embed['author']?['url'] ?? '').toString(),
-        'icon_url': (embed['author']?['icon_url'] ?? '').toString(),
-      },
-      'fieldsTemplate': (embed['fieldsTemplate'] ?? '').toString(),
-      'fields':
-          (embed['fields'] is List)
-              ? List<Map<String, dynamic>>.from(
-                (embed['fields'] as List).whereType<Map>().map(
-                  (field) => {
-                    'name': (field['name'] ?? '').toString(),
-                    'value': (field['value'] ?? '').toString(),
-                    'inline': field['inline'] == true,
-                  },
-                ),
-              ).take(25).toList()
-              : <Map<String, dynamic>>[],
-    };
+    return normalizeResponseEmbed(embed);
   }
 
   void _emit() {
-    widget.onChanged(List<Map<String, dynamic>>.from(_embeds));
+    widget.onChanged(
+      normalizeResponseEmbedsPayload(_embeds, maxEmbeds: widget.maxEmbeds),
+    );
   }
 
   void _addEmbed() {
@@ -293,9 +271,15 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Response Embeds (${_embeds.length}/${widget.maxEmbeds})',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            Expanded(
+              child: Text(
+                'Response Embeds (${_embeds.length}/${widget.maxEmbeds})',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
             IconButton(
               onPressed: _embeds.length >= widget.maxEmbeds ? null : _addEmbed,
@@ -312,8 +296,8 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: Colors.grey.shade300),
             ),
-            child: const Text(
-              'No embeds. You can add up to 10 embeds.',
+            child: Text(
+              'No embeds. You can add up to ${widget.maxEmbeds} embeds.',
               style: TextStyle(color: Colors.grey),
               textAlign: TextAlign.center,
             ),
@@ -321,15 +305,15 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
         else
           ..._embeds.asMap().entries.map((entry) {
             final index = entry.key;
-            final embed = entry.value;
-            final footer = Map<String, dynamic>.from(embed['footer'] ?? {});
-            final image = Map<String, dynamic>.from(embed['image'] ?? {});
+            final embed = _normalizeEmbed(entry.value);
+            final footer = Map<String, dynamic>.from(embed['footer'] as Map);
+            final image = Map<String, dynamic>.from(embed['image'] as Map);
             final thumbnail = Map<String, dynamic>.from(
-              embed['thumbnail'] ?? {},
+              embed['thumbnail'] as Map,
             );
-            final author = Map<String, dynamic>.from(embed['author'] ?? {});
+            final author = Map<String, dynamic>.from(embed['author'] as Map);
             final fields = List<Map<String, dynamic>>.from(
-              embed['fields'] ?? [],
+              embed['fields'] as List,
             );
 
             return Card(
@@ -341,7 +325,12 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Embed #${index + 1}'),
+                        Expanded(
+                          child: Text(
+                            'Embed #${index + 1}',
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                         IconButton(
                           onPressed: () => _removeEmbed(index),
                           icon: const Icon(Icons.delete, color: Colors.red),
@@ -379,63 +368,84 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
                       onChanged: (value) => _setEmbedValue(index, 'url', value),
                     ),
                     const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        SizedBox(
-                          width: 280,
-                          child: VariableTextField(
-                            label: 'Timestamp (ISO8601)',
-                            initialValue: embed['timestamp']?.toString() ?? '',
-                            suggestions: widget.variableSuggestions,
-                            emojiSuggestions: widget.emojiSuggestions,
-                            onChanged:
-                                (value) =>
-                                    _setEmbedValue(index, 'timestamp', value),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 220,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              VariableTextField(
-                                label: 'Color (int or #hex)',
-                                initialValue: embed['color']?.toString() ?? '',
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final availableWidth =
+                            constraints.maxWidth.isFinite
+                                ? constraints.maxWidth
+                                : MediaQuery.of(context).size.width;
+                        final stacked = availableWidth < 560;
+
+                        return Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            SizedBox(
+                              width: stacked ? availableWidth : 280,
+                              child: VariableTextField(
+                                label: 'Timestamp (ISO8601)',
+                                initialValue:
+                                    embed['timestamp']?.toString() ?? '',
                                 suggestions: widget.variableSuggestions,
                                 emojiSuggestions: widget.emojiSuggestions,
                                 onChanged:
-                                    (value) =>
-                                        _setEmbedValue(index, 'color', value),
+                                    (value) => _setEmbedValue(
+                                      index,
+                                      'timestamp',
+                                      value,
+                                    ),
                               ),
-                              const SizedBox(height: 6),
-                              Align(
-                                alignment: Alignment.centerRight,
-                                child: TextButton.icon(
-                                  onPressed: () => _pickEmbedColor(index),
-                                  icon: Container(
-                                    width: 16,
-                                    height: 16,
-                                    decoration: BoxDecoration(
-                                      color:
-                                          _parseEmbedColor(
-                                            embed['color']?.toString() ?? '',
-                                          ) ??
-                                          Colors.transparent,
-                                      border: Border.all(
-                                        color: Colors.grey.shade500,
+                            ),
+                            SizedBox(
+                              width: stacked ? availableWidth : 220,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  VariableTextField(
+                                    label: 'Color (int or #hex)',
+                                    initialValue:
+                                        embed['color']?.toString() ?? '',
+                                    suggestions: widget.variableSuggestions,
+                                    emojiSuggestions: widget.emojiSuggestions,
+                                    onChanged:
+                                        (value) => _setEmbedValue(
+                                          index,
+                                          'color',
+                                          value,
+                                        ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: TextButton.icon(
+                                      onPressed: () => _pickEmbedColor(index),
+                                      icon: Container(
+                                        width: 16,
+                                        height: 16,
+                                        decoration: BoxDecoration(
+                                          color:
+                                              _parseEmbedColor(
+                                                embed['color']?.toString() ??
+                                                    '',
+                                              ) ??
+                                              Colors.transparent,
+                                          border: Border.all(
+                                            color: Colors.grey.shade500,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
+                                        ),
                                       ),
-                                      borderRadius: BorderRadius.circular(4),
+                                      label: const Text('Pick'),
                                     ),
                                   ),
-                                  label: const Text('Pick'),
-                                ),
+                                ],
                               ),
-                            ],
-                          ),
-                        ),
-                      ],
+                            ),
+                          ],
+                        );
+                      },
                     ),
                     const SizedBox(height: 8),
                     ExpansionTile(
@@ -577,7 +587,12 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text('Field #${fieldIndex + 1}'),
+                                        Expanded(
+                                          child: Text(
+                                            'Field #${fieldIndex + 1}',
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
                                         IconButton(
                                           onPressed:
                                               () => _removeField(

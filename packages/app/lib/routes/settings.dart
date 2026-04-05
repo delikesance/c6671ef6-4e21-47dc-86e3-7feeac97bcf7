@@ -88,7 +88,15 @@ class _SettingPageState extends State<SettingPage> {
     if (driveApi != null) {
       return;
     }
-    final drive = await getDriveApi(interactive: interactive);
+    DriveApi drive;
+    try {
+      drive = await getDriveApi(interactive: interactive);
+    } catch (error) {
+      if (isDriveAuthCancellation(error)) {
+        return;
+      }
+      rethrow;
+    }
     if (!mounted) {
       return;
     }

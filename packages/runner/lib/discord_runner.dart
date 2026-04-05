@@ -206,6 +206,109 @@ class DiscordRunner {
   final List<StreamSubscription<dynamic>> _eventWorkflowSubscriptions =
       <StreamSubscription<dynamic>>[];
   final Random _random = Random();
+  bool _debugReplayCapturing = true;
+  final List<Map<String, dynamic>> _debugReplays = <Map<String, dynamic>>[];
+
+  static const int _maxDebugReplays = 30;
+
+  bool get isDebugReplayCapturing => _debugReplayCapturing;
+
+  void setDebugReplayCapturing(bool enabled) {
+    _debugReplayCapturing = enabled;
+  }
+
+  List<Map<String, dynamic>> listDebugReplays({int limit = _maxDebugReplays}) {
+    final safeLimit = limit <= 0 ? 1 : limit;
+    if (_debugReplays.length <= safeLimit) {
+      return List<Map<String, dynamic>>.from(_debugReplays);
+    }
+    return List<Map<String, dynamic>>.from(_debugReplays.take(safeLimit));
+  }
+
+  void clearDebugReplays() {
+    _debugReplays.clear();
+  }
+
+  void _appendDebugReplay({
+    required String commandLabel,
+    required String botId,
+    required List<Map<String, dynamic>> frames,
+    required int totalMs,
+  }) {
+    final record = <String, dynamic>{
+      'commandLabel': commandLabel,
+      'triggeredAt': DateTime.now().toUtc().toIso8601String(),
+      'botId': botId,
+      'frames': frames,
+      'totalMs': totalMs,
+    };
+    _debugReplays.insert(0, record);
+    if (_debugReplays.length > _maxDebugReplays) {
+      _debugReplays.removeRange(_maxDebugReplays, _debugReplays.length);
+    }
+  }
+
+  Future<Map<String, String>> _runActionsWithReplay({
+    required String replayLabel,
+    required NyxxGateway client,
+    required Interaction? interaction,
+    required List<Action> actions,
+    required String botId,
+    required Map<String, String> runtimeVariables,
+    Snowflake? fallbackChannelId,
+    Snowflake? fallbackGuildId,
+  }) async {
+    var replayCapturedByActions = false;
+    return handleActions(
+      client,
+      interaction,
+      actions: actions,
+      store: store,
+      botId: botId,
+      variables: runtimeVariables,
+      resolveTemplate:
+          (input) => resolveTemplatePlaceholders(
+            input,
+            Map<String, String>.from(runtimeVariables),
+          ),
+      fallbackChannelId: fallbackChannelId,
+      fallbackGuildId: fallbackGuildId,
+      onLog: (msg) => _log.info(msg),
+      onReplayCaptured:
+          _debugReplayCapturing
+              ? (frames, totalMs) {
+                replayCapturedByActions = true;
+                _appendDebugReplay(
+                  commandLabel: replayLabel,
+                  botId: botId,
+                  frames: frames
+                      .map((entry) => Map<String, dynamic>.from(entry))
+                      .toList(growable: false),
+                  totalMs: totalMs,
+                );
+              }
+              : null,
+    ).then((results) {
+      if (_debugReplayCapturing &&
+          !replayCapturedByActions &&
+          actions.isNotEmpty) {
+        _appendDebugReplay(
+          commandLabel: replayLabel,
+          botId: botId,
+          frames: <Map<String, dynamic>>[
+            <String, dynamic>{
+              'actionType': 'commandExecution',
+              'startMs': 0,
+              'durationMs': 1,
+              'result': 'No replay frames were produced.',
+            },
+          ],
+          totalMs: 1,
+        );
+      }
+      return results;
+    });
+  }
 
   DiscordRunner(this.config, {this.statsStore})
     : store = RunnerDataStore(config);
@@ -459,19 +562,13 @@ class DiscordRunner {
       providedArguments: providedArguments,
     );
 
-    await handleActions(
-      gateway,
-      null,
+    await _runActionsWithReplay(
+      replayLabel: 'inbound:$normalizedWorkflowName',
+      client: gateway,
+      interaction: null,
       actions: actions,
-      store: store,
       botId: botId,
-      variables: runtimeVariables,
-      resolveTemplate:
-          (input) => resolveTemplatePlaceholders(
-            input,
-            Map<String, String>.from(runtimeVariables),
-          ),
-      onLog: (msg) => _log.info(msg),
+      runtimeVariables: runtimeVariables,
     );
     _log.info('Executed inbound workflow "$normalizedWorkflowName".');
   }
@@ -625,19 +722,13 @@ class DiscordRunner {
     );
 
     try {
-      await handleActions(
-        _gateway!,
-        null,
+      await _runActionsWithReplay(
+        replayLabel: 'scheduled:$workflowName',
+        client: _gateway!,
+        interaction: null,
         actions: actions,
-        store: store,
         botId: botId,
-        variables: runtimeVariables,
-        resolveTemplate:
-            (input) => resolveTemplatePlaceholders(
-              input,
-              Map<String, String>.from(runtimeVariables),
-            ),
-        onLog: (msg) => _log.info(msg),
+        runtimeVariables: runtimeVariables,
       );
       _log.info('Executed scheduled workflow "$workflowName".');
     } catch (error, stackTrace) {
@@ -2253,18 +2344,15 @@ class DiscordRunner {
             .map((json) => _adaptLegacyActionForMessageCreate(json, context))
             .map(Action.fromJson)
             .toList(growable: false);
-        final actionResults = await handleActions(
-          gateway,
-          null,
+        final actionResults = await _runActionsWithReplay(
+          replayLabel: 'legacy:$commandName',
+          client: gateway,
+          interaction: null,
           actions: actions,
-          store: store,
           botId: botId,
-          variables: runtimeVariables,
-          resolveTemplate:
-              (input) => resolveTemplatePlaceholders(input, runtimeVariables),
+          runtimeVariables: runtimeVariables,
           fallbackChannelId: context.channelId,
           fallbackGuildId: context.guildId,
-          onLog: (msg) => _log.info(msg),
         );
         for (final entry in actionResults.entries) {
           runtimeVariables['action.${entry.key}'] = entry.value;
@@ -2466,18 +2554,15 @@ class DiscordRunner {
             .map((json) => _adaptLegacyActionForMessageCreate(json, context))
             .map(Action.fromJson)
             .toList(growable: false);
-        final actionResults = await handleActions(
-          _gateway!,
-          null,
+        final actionResults = await _runActionsWithReplay(
+          replayLabel: 'awaited:$commandName',
+          client: _gateway!,
+          interaction: null,
           actions: actions,
-          store: store,
           botId: botId,
-          variables: runtimeVariables,
-          resolveTemplate:
-              (input) => resolveTemplatePlaceholders(input, runtimeVariables),
+          runtimeVariables: runtimeVariables,
           fallbackChannelId: context.channelId,
           fallbackGuildId: context.guildId,
-          onLog: (msg) => _log.info(msg),
         );
         for (final resultEntry in actionResults.entries) {
           runtimeVariables['action.${resultEntry.key}'] = resultEntry.value;
@@ -2599,21 +2684,15 @@ class DiscordRunner {
     );
 
     try {
-      await handleActions(
-        _gateway!,
-        null,
+      await _runActionsWithReplay(
+        replayLabel: 'event:${context.eventName}:$workflowName',
+        client: _gateway!,
+        interaction: null,
         actions: actions,
-        store: store,
         botId: botId,
-        variables: runtimeVariables,
-        resolveTemplate:
-            (input) => resolveTemplatePlaceholders(
-              input,
-              Map<String, String>.from(runtimeVariables),
-            ),
+        runtimeVariables: runtimeVariables,
         fallbackChannelId: context.channelId,
         fallbackGuildId: context.guildId,
-        onLog: (msg) => _log.info(msg),
       );
       _log.info(
         'Executed event workflow "$workflowName" for ${context.eventName}.',
@@ -2767,19 +2846,13 @@ class DiscordRunner {
       }
 
       try {
-        final actionResults = await handleActions(
-          client,
-          interaction,
+        final actionResults = await _runActionsWithReplay(
+          replayLabel: interaction.data.name,
+          client: client,
+          interaction: interaction,
           actions: compileResult.actions,
-          store: store,
           botId: botId,
-          variables: runtimeVariables,
-          resolveTemplate:
-              (input) => resolveTemplatePlaceholders(
-                input,
-                Map<String, String>.from(runtimeVariables),
-              ),
-          onLog: (msg) => _log.info(msg),
+          runtimeVariables: runtimeVariables,
         );
         for (final entry in actionResults.entries) {
           runtimeVariables['action.${entry.key}'] = entry.value;
@@ -2888,19 +2961,13 @@ class DiscordRunner {
 
       if (actionsJson.isNotEmpty) {
         final actions = actionsJson.map(Action.fromJson).toList();
-        final actionResults = await handleActions(
-          client,
-          interaction,
+        final actionResults = await _runActionsWithReplay(
+          replayLabel: interaction.data.name,
+          client: client,
+          interaction: interaction,
           actions: actions,
-          store: store,
           botId: botId,
-          variables: runtimeVariables,
-          resolveTemplate:
-              (input) => resolveTemplatePlaceholders(
-                input,
-                Map<String, String>.from(runtimeVariables),
-              ),
-          onLog: (msg) => _log.info(msg),
+          runtimeVariables: runtimeVariables,
         );
         for (final entry in actionResults.entries) {
           runtimeVariables['action.${entry.key}'] = entry.value;
@@ -3079,19 +3146,13 @@ class DiscordRunner {
       }
 
       try {
-        final actionResults = await handleActions(
-          client,
-          interaction,
+        final actionResults = await _runActionsWithReplay(
+          replayLabel: 'autocomplete:$workflowName',
+          client: client,
+          interaction: interaction,
           actions: actions,
-          store: store,
           botId: botId,
-          variables: runtimeVariables,
-          resolveTemplate:
-              (input) => resolveTemplatePlaceholders(
-                input,
-                Map<String, String>.from(runtimeVariables),
-              ),
-          onLog: (msg) => _log.info(msg),
+          runtimeVariables: runtimeVariables,
         );
 
         if (!actionResults.containsKey('__stopped__')) {

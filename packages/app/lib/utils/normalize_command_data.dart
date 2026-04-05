@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:bot_creator/utils/embed_normalization.dart';
 import 'package:bot_creator/utils/simple_mode.dart';
 
 Map<String, dynamic> normalizeCommandData(Map<String, dynamic> command) {
@@ -35,35 +36,11 @@ Map<String, dynamic> normalizeCommandData(Map<String, dynamic> command) {
         },
   );
 
-  final legacySingleEmbed = Map<String, dynamic>.from(
-    (response['embed'] as Map?)?.cast<String, dynamic>() ??
-        {'title': '', 'description': '', 'url': ''},
+  final embeds = normalizeResponseEmbedsPayload(
+    response['embeds'],
+    legacySingleEmbed: response['embed'],
+    deepNormalize: false,
   );
-  final embeds =
-      (response['embeds'] is List)
-          ? List<Map<String, dynamic>>.from(
-            (response['embeds'] as List).whereType<Map>().map(
-              (embed) => Map<String, dynamic>.from(embed),
-            ),
-          )
-          : <Map<String, dynamic>>[];
-
-  final hasLegacyEmbed =
-      (legacySingleEmbed['title']?.toString().isNotEmpty ?? false) ||
-      (legacySingleEmbed['description']?.toString().isNotEmpty ?? false) ||
-      (legacySingleEmbed['url']?.toString().isNotEmpty ?? false) ||
-      (legacySingleEmbed['color']?.toString().isNotEmpty ?? false) ||
-      (legacySingleEmbed['footer'] is Map &&
-          (legacySingleEmbed['footer'] as Map).isNotEmpty) ||
-      (legacySingleEmbed['thumbnail']?.toString().isNotEmpty ?? false) ||
-      (legacySingleEmbed['image']?.toString().isNotEmpty ?? false) ||
-      (legacySingleEmbed['author'] is Map &&
-          (legacySingleEmbed['author'] as Map).isNotEmpty) ||
-      (legacySingleEmbed['fields'] is List &&
-          (legacySingleEmbed['fields'] as List).isNotEmpty);
-  if (embeds.isEmpty && hasLegacyEmbed) {
-    embeds.add(legacySingleEmbed);
-  }
 
   final actions =
       (rawData['actions'] is List)

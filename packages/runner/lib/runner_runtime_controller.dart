@@ -56,6 +56,38 @@ class RunnerRuntimeController {
 
   bool isBotRunning(String botId) => _runners.containsKey(botId);
 
+  bool isDebugReplayCapturing(String botId) {
+    final runner = _runners[botId];
+    if (runner == null) {
+      return false;
+    }
+    return runner.isDebugReplayCapturing;
+  }
+
+  void setDebugReplayCapturing(String botId, bool enabled) {
+    final runner = _runners[botId];
+    if (runner == null) {
+      throw StateError('Bot "$botId" is not running.');
+    }
+    runner.setDebugReplayCapturing(enabled);
+  }
+
+  List<Map<String, dynamic>> listDebugReplays(String botId, {int limit = 30}) {
+    final runner = _runners[botId];
+    if (runner == null) {
+      throw StateError('Bot "$botId" is not running.');
+    }
+    return runner.listDebugReplays(limit: limit);
+  }
+
+  void clearDebugReplays(String botId) {
+    final runner = _runners[botId];
+    if (runner == null) {
+      throw StateError('Bot "$botId" is not running.');
+    }
+    runner.clearDebugReplays();
+  }
+
   int? baselineRssForBot(String botId) => _baselineRssByBot[botId];
 
   RunnerBotRuntimeState runtimeStateForBot(String botId) {

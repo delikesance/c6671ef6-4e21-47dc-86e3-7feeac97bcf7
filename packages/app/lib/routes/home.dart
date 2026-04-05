@@ -784,7 +784,19 @@ class _BotCard extends StatelessWidget {
                   avatar != null && avatar!.isNotEmpty
                       ? CircleAvatar(
                         radius: avatarRadius,
-                        backgroundImage: NetworkImage(avatar!),
+                        child: ClipOval(
+                          child: Image.network(
+                            avatar!,
+                            width: avatarRadius * 2,
+                            height: avatarRadius * 2,
+                            fit: BoxFit.cover,
+                            errorBuilder:
+                                (context, error, stackTrace) => Icon(
+                                  Icons.account_circle,
+                                  size: avatarFallbackSize,
+                                ),
+                          ),
+                        ),
                       )
                       : Icon(Icons.account_circle, size: avatarFallbackSize),
 
