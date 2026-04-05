@@ -49,6 +49,12 @@ Future<Map<String, String>> handleActions(
   /// This is independent of the $debug embed — both can be active at once.
   void Function(List<Map<String, dynamic>> frames, int totalMs)?
   onReplayCaptured,
+
+  /// When provided, applied to actions before each nested execution triggered
+  /// by [runBdfdScript] or [runWorkflow]. Used by Legacy command handlers to
+  /// adapt interaction-oriented actions (e.g. respondWithMessage → sendMessage)
+  /// for messageCreate context.
+  List<Action> Function(List<Action>)? nestedActionsPreprocessor,
 }) async {
   final results = <String, String>{};
   final resolvedFallbackChannelId =
@@ -261,6 +267,7 @@ Future<Map<String, String>> handleActions(
       activeWorkflowStack: activeWorkflowStack,
       getWorkflowByName:
           (workflowName) => store.getWorkflowByName(botId, workflowName),
+      nestedActionsPreprocessor: nestedActionsPreprocessor,
       executeActions:
           (nestedActions) => handleActions(
             client,
@@ -274,6 +281,7 @@ Future<Map<String, String>> handleActions(
             fallbackGuildId: guildId,
             workflowStack: activeWorkflowStack,
             onLog: onLog,
+            nestedActionsPreprocessor: nestedActionsPreprocessor,
           ),
     );
     if (handledByControlFlowExecutor) {

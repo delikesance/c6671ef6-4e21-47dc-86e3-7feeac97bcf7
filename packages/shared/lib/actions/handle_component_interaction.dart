@@ -51,10 +51,8 @@ Future<void> handleComponentInteraction(
   );
 
   if (entry == null) {
-    await _safeInteractionRespond(
-      interaction,
-      'This interaction is no longer active. Please try again.',
-    );
+    // No registered listener — let the interactionCreate event workflow handle it.
+    // Do not acknowledge here; the event workflow will respond.
     return;
   }
 
@@ -107,10 +105,7 @@ Future<void> handleModalSubmitInteraction(
   );
 
   if (entry == null) {
-    await _safeInteractionRespond(
-      interaction,
-      'This modal submission has expired. Please reopen the modal and try again.',
-    );
+    // No registered listener — let the interactionCreate event workflow handle it.
     return;
   }
 

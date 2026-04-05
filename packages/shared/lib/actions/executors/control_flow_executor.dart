@@ -179,6 +179,11 @@ Future<bool> executeControlFlowAction({
   getWorkflowByName,
   required Future<Map<String, String>> Function(List<Action> actions)
   executeActions,
+
+  /// When provided, applied to compiled/resolved actions before they are
+  /// passed to [executeActions] in [runBdfdScript] and [runWorkflow]. Used by
+  /// Legacy command handlers to adapt actions for messageCreate context.
+  List<Action> Function(List<Action>)? nestedActionsPreprocessor,
 }) async {
   switch (type) {
     case BotCreatorActionType.runBdfdScript:
@@ -205,7 +210,10 @@ Future<bool> executeControlFlowAction({
         return true;
       }
 
-      final bdfdResults = await executeActions(compileResult.actions);
+      final preprocessedActions =
+          nestedActionsPreprocessor?.call(compileResult.actions) ??
+          compileResult.actions;
+      final bdfdResults = await executeActions(preprocessedActions);
       for (final entry in bdfdResults.entries) {
         results['$resultKey.${entry.key}'] = entry.value;
       }
@@ -262,11 +270,13 @@ Future<bool> executeControlFlowAction({
             .whereType<Map>()
             .map((json) => Action.fromJson(Map<String, dynamic>.from(json))),
       );
+      final preprocessedWorkflowActions =
+          nestedActionsPreprocessor?.call(workflowActions) ?? workflowActions;
 
       activeWorkflowStack.add(stackKey);
       late final Map<String, String> workflowResults;
       try {
-        workflowResults = await executeActions(workflowActions);
+        workflowResults = await executeActions(preprocessedWorkflowActions);
       } finally {
         activeWorkflowStack.remove(stackKey);
       }

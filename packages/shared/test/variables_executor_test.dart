@@ -1,9 +1,105 @@
+import 'dart:convert';
+
+import 'package:bot_creator_shared/actions/executors/control_flow_executor.dart';
 import 'package:bot_creator_shared/actions/executors/variables_executor.dart';
 import 'package:bot_creator_shared/bot/bot_data_store.dart';
 import 'package:bot_creator_shared/types/action.dart';
+import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
+import 'package:bot_creator_shared/utils/runtime_variables.dart';
 import 'package:bot_creator_shared/utils/template_resolver.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:test/test.dart';
+
+Map<String, String> _mergeRuntimeContext(
+  Map<String, String> variables,
+  Map<String, String> inheritedResults,
+  Map<String, String> localResults,
+) {
+  return <String, String>{...variables, ...inheritedResults, ...localResults};
+}
+
+Future<Map<String, String>> _executeCompiledActions({
+  required List<Action> actions,
+  required BotDataStore store,
+  required Map<String, String> variables,
+  required List<String> replies,
+  Map<String, String> inheritedResults = const <String, String>{},
+}) async {
+  final localResults = <String, String>{};
+
+  for (var index = 0; index < actions.length; index++) {
+    final action = actions[index];
+    final resultKey = action.key ?? 'action_$index';
+
+    String resolveValue(String input) {
+      return resolveTemplatePlaceholders(
+        input,
+        _mergeRuntimeContext(variables, inheritedResults, localResults),
+      );
+    }
+
+    final handledVariable = await executeVariablesAction(
+      type: action.type,
+      store: store,
+      botId: 'bot-1',
+      payload: action.payload,
+      resultKey: resultKey,
+      results: localResults,
+      variables: variables,
+      resolveValue: resolveValue,
+      guildId: Snowflake.parse('1'),
+      fallbackChannelId: null,
+      interaction: null,
+    );
+    if (handledVariable) {
+      continue;
+    }
+
+    final handledControlFlow = await executeControlFlowAction(
+      type: action.type,
+      payload: action.payload,
+      resultKey: resultKey,
+      results: localResults,
+      variables: variables,
+      resolveValue: resolveValue,
+      onLog: null,
+      activeWorkflowStack: <String>{},
+      getWorkflowByName: (_) async => null,
+      executeActions: (nestedActions) {
+        return _executeCompiledActions(
+          actions: nestedActions,
+          store: store,
+          variables: variables,
+          replies: replies,
+          inheritedResults: _mergeRuntimeContext(
+            variables,
+            inheritedResults,
+            localResults,
+          ),
+        );
+      },
+    );
+    if (handledControlFlow) {
+      continue;
+    }
+
+    switch (action.type) {
+      case BotCreatorActionType.respondWithMessage:
+        final content = resolveValue(
+          (action.payload['content'] ?? '').toString(),
+        );
+        replies.add(content);
+        localResults[resultKey] = content;
+        break;
+      default:
+        fail(
+          'Unsupported compiled action in test harness: ${action.type.name}',
+        );
+    }
+  }
+
+  return localResults;
+}
 
 void main() {
   group('executeVariablesAction', () {
@@ -865,6 +961,167 @@ void main() {
         expect(results['setItems5'], 'OK');
       },
     );
+
+    test(
+      'compiled BDFD script resolves dynamic getServerVar keys with bc_ prefix args',
+      () async {
+        final store = _MemoryBotDataStore(
+          scopedVariables: <String, Map<String, Map<String, dynamic>>>{
+            'guild': <String, Map<String, dynamic>>{
+              'guild-1': <String, dynamic>{
+                'wallet_db':
+                    '{"currencies":[{"name":"bunbux"},{"name":"carrots"},{"name":"test"}]}',
+              },
+            },
+          },
+        );
+        final variables = <String, String>{
+          'guildId': 'guild-1',
+          'args.2': 'bc_wallet_db',
+          'args.3': 'carrots',
+          'args.4': 'currencies',
+        };
+        await hydrateRuntimeVariables(
+          store: store,
+          botId: 'bot-1',
+          runtimeVariables: variables,
+          guildContextId: 'guild-1',
+        );
+
+        final compileResult = BdfdCompiler().compile(
+          r'$var[s;$args[3]]'
+          r'$var[in;$args[4]]'
+          r'$jsonParse[$getServerVar[$args[2]]]'
+          r'$for[$jsonArrayCount[$var[in]]]'
+          r'$if[$json[$var[in];$i;name]==$var[s]]'
+          r'$var[r;$i]'
+          r'$endif'
+          r'$endfor'
+          r'$reply[$var[r]]',
+        );
+
+        expect(compileResult.hasErrors, isFalse);
+
+        final replies = <String>[];
+        final results = await _executeCompiledActions(
+          actions: compileResult.actions,
+          store: store,
+          variables: variables,
+          replies: replies,
+        );
+
+        expect(
+          variables['rtJson_0'],
+          '{"currencies":[{"name":"bunbux"},{"name":"carrots"},{"name":"test"}]}',
+        );
+        expect(variables['rtJson_1.json_0'], '3');
+        expect(variables['temp.r'], '1');
+        expect(replies, <String>['1']);
+        expect(results.values, contains('1'));
+      },
+    );
+
+    group(r'runtime $jsonSet array support', () {
+      // Helper: compile BDFD script + run, return (variables, replies).
+      Future<(Map<String, String>, List<String>)> runScript(
+        String script, {
+        Map<String, String> vars = const <String, String>{},
+      }) async {
+        final compiled = BdfdCompiler().compile(script);
+        expect(compiled.hasErrors, isFalse, reason: 'Compile errors: $script');
+        final store = _MemoryBotDataStore();
+        final variables = <String, String>{
+          'guild.id': 'guild-1',
+          'bot.id': 'bot-1',
+          ...vars,
+        };
+        final replies = <String>[];
+        await _executeCompiledActions(
+          actions: compiled.actions,
+          store: store,
+          variables: variables,
+          replies: replies,
+        );
+        return (variables, replies);
+      }
+
+      test('creates array element from empty object', () async {
+        // Source JSON is empty (guild.bc_db not pre-set → jsonCtx defaults to {}).
+        // $jsonSet[currency;0;name;carrot] should produce
+        // {"currency":[{"name":"carrot"}]}
+        final (_, replies) = await runScript(
+          r'$jsonParse[$getServerVar[db]]'
+          r'$jsonSet[currency;0;name;carrot]'
+          r'$reply[$jsonStringify]',
+        );
+        expect(replies, hasLength(1));
+        final decoded = jsonDecode(replies.first) as Map<String, dynamic>;
+        expect(decoded['currency'], isA<List>());
+        expect(
+          (decoded['currency'] as List).first,
+          containsPair('name', 'carrot'),
+        );
+      });
+
+      test('mutates existing array element', () async {
+        // Pre-populate the guild variable in variables map (as the runtime does).
+        // $jsonSet[currency;1;name;carrot] → index 1 updated
+        final (_, replies) = await runScript(
+          r'$jsonParse[$getServerVar[db]]'
+          r'$jsonSet[currency;1;name;carrot]'
+          r'$reply[$jsonStringify]',
+          vars: <String, String>{
+            'guild.bc_db': '{"currency":[{"name":"bunbux"},{"name":"old"}]}',
+          },
+        );
+        expect(replies, hasLength(1));
+        final decoded = jsonDecode(replies.first) as Map<String, dynamic>;
+        final list = decoded['currency'] as List;
+        expect(list[0], containsPair('name', 'bunbux'));
+        expect(list[1], containsPair('name', 'carrot'));
+      });
+
+      test('extends list with nulls when index is out of bounds', () async {
+        // Pre-populate guild.bc_db = '{"arr":[]}'.
+        // $jsonSet[arr;2;x;1] → arr=[null,null,{"x":1}]
+        final (_, replies) = await runScript(
+          r'$jsonParse[$getServerVar[db]]'
+          r'$jsonSet[arr;2;x;1]'
+          r'$reply[$jsonStringify]',
+          vars: <String, String>{'guild.bc_db': '{"arr":[]}'},
+        );
+        expect(replies, hasLength(1));
+        final decoded = jsonDecode(replies.first) as Map<String, dynamic>;
+        final arr = decoded['arr'] as List;
+        expect(arr.length, 3);
+        expect(arr[0], isNull);
+        expect(arr[1], isNull);
+        expect(arr[2], containsPair('x', 1));
+      });
+
+      test(
+        r'nested $jsonParse inside $if does not leak prefix to outer scope',
+        () async {
+          // After $endif, $json[outerKey] must read from outer block (rtJson_0),
+          // not from the inner block created inside the $if branch.
+          final (vars, _) = await runScript(
+            r'$jsonParse[$getServerVar[outer]]'
+            r'$if[$json[flag]==yes]'
+            r'$jsonParse[$getServerVar[inner]]'
+            r'$var[inner;$json[innerKey]]'
+            r'$endif'
+            r'$var[outer;$json[outerKey]]',
+            vars: <String, String>{
+              'guild.bc_outer': '{"outerKey":"outer_val","flag":"no"}',
+              'guild.bc_inner': '{"innerKey":"inner_val"}',
+            },
+          );
+          expect(vars['temp.outer'], 'outer_val');
+          // inner branch was not taken (flag=="no"), inner var absent/empty.
+          expect(vars['temp.inner'] ?? '', isEmpty);
+        },
+      );
+    });
   });
 }
 

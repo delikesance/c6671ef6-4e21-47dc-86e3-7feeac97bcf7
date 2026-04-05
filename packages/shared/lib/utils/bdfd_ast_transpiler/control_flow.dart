@@ -692,9 +692,14 @@ extension _BdfdAstTranspilationScopeControlFlow on _BdfdAstTranspilationScope {
       _loopVariables[name] = 0; // sentinel – overridden by placeholder path
     }
 
+    // Save and restore _lastDeferredJsonResultKeyPrefix around the body so
+    // that JSON operations inside the loop body cannot leak their prefix into
+    // the outer scope after $endfor.
+    final savedDeferredKey = _lastDeferredJsonResultKeyPrefix;
     final bodyActions = _transpileNodesPreservingTempVariables(
       consumed.bodyNodes,
     );
+    _lastDeferredJsonResultKeyPrefix = savedDeferredKey;
 
     // Restore transpiler state.
     _runtimeLoopVarNames = null;
@@ -868,8 +873,16 @@ extension _BdfdAstTranspilationScopeControlFlow on _BdfdAstTranspilationScope {
       _enqueuePendingConditionAction(conditionDeferredJson);
     }
 
+    // Save and restore _lastDeferredJsonResultKeyPrefix around each branch so
+    // that JSON operations inside a branch (e.g. a nested $jsonParse) cannot
+    // leak their prefix back into the outer scope after $endif.
+    final savedDeferredKey = _lastDeferredJsonResultKeyPrefix;
+
     final thenActions = _transpileNodesPreservingTempVariables(thenNodes);
+    _lastDeferredJsonResultKeyPrefix = savedDeferredKey;
+
     final elseActions = _transpileNodesPreservingTempVariables(elseNodes);
+    _lastDeferredJsonResultKeyPrefix = savedDeferredKey;
 
     final elseIfPayload = elseIfBranches
         .map((branch) {
@@ -877,12 +890,13 @@ extension _BdfdAstTranspilationScopeControlFlow on _BdfdAstTranspilationScope {
             _stringifyArgument(branch.conditionNode, 0),
             branch.conditionNode,
           );
+          final branchActions = _transpileNodesPreservingTempVariables(
+            branch.nodes,
+          );
+          _lastDeferredJsonResultKeyPrefix = savedDeferredKey;
           return <String, dynamic>{
             ...elseIfCondition.toPayload(prefix: 'condition.'),
-            'actions':
-                _transpileNodesPreservingTempVariables(
-                  branch.nodes,
-                ).map((action) => action.toJson()).toList(),
+            'actions': branchActions.map((action) => action.toJson()).toList(),
           };
         })
         .toList(growable: false);

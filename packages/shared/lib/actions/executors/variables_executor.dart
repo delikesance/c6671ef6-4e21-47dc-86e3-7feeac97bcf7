@@ -2020,16 +2020,26 @@ bool _rtJsonPathExists(dynamic root, List<String> path) {
 
 dynamic _rtJsonSetPath(dynamic root, List<String> path, dynamic value) {
   if (path.isEmpty) return value;
-  root ??= <String, dynamic>{};
+  final nextIsNumeric = path.length > 1 && int.tryParse(path[0]) != null;
+  root ??= nextIsNumeric ? <dynamic>[] : <String, dynamic>{};
   dynamic current = root;
   for (var i = 0; i < path.length - 1; i++) {
     final segment = path[i];
     final index = int.tryParse(segment);
-    if (index != null && current is List) {
-      if (index < 0 || index >= current.length) return root;
+    final nextSegment = path[i + 1];
+    final nextIndex = int.tryParse(nextSegment);
+    if (index != null) {
+      if (current is! List || index < 0) return root;
+      while (current.length <= index) {
+        current.add(null);
+      }
+      current[index] ??= nextIndex != null ? <dynamic>[] : <String, dynamic>{};
       current = current[index];
     } else if (current is Map) {
-      current.putIfAbsent(segment, () => <String, dynamic>{});
+      if (!current.containsKey(segment) || current[segment] == null) {
+        current[segment] =
+            nextIndex != null ? <dynamic>[] : <String, dynamic>{};
+      }
       current = current[segment];
     } else {
       return root;
@@ -2037,10 +2047,12 @@ dynamic _rtJsonSetPath(dynamic root, List<String> path, dynamic value) {
   }
   final lastSegment = path.last;
   final lastIndex = int.tryParse(lastSegment);
-  if (lastIndex != null && current is List) {
-    if (lastIndex >= 0 && lastIndex < current.length) {
-      current[lastIndex] = value;
+  if (lastIndex != null) {
+    if (current is! List || lastIndex < 0) return root;
+    while (current.length <= lastIndex) {
+      current.add(null);
     }
+    current[lastIndex] = value;
   } else if (current is Map) {
     current[lastSegment] = value;
   }
