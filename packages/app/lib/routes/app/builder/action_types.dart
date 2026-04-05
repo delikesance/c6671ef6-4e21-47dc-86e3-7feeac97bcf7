@@ -71,7 +71,7 @@ class ActionItem {
     this.onErrorMode = 'stop',
   });
 
-  factory ActionItem.fromJson(Map<String, dynamic> json) {
+  factory ActionItem.fromJson(Map<String, dynamic> json, {String? fallbackId}) {
     final parameters = Map<String, dynamic>.from(
       (json['payload'] as Map?)?.cast<String, dynamic>() ?? const {},
     );
@@ -80,8 +80,10 @@ class ActionItem {
       parameters['key'] = persistedKey;
     }
 
+    final rawId = (json['id'] ?? '').toString().trim();
+
     return ActionItem(
-      id: (json['id'] ?? '').toString(),
+      id: rawId.isNotEmpty ? rawId : (fallbackId ?? ''),
       type: BotCreatorActionType.values.firstWhere(
         (e) => e.name == json['type'],
         orElse: () => BotCreatorActionType.sendMessage,

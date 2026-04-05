@@ -8,6 +8,8 @@ import 'package:bot_creator_shared/actions/handler.dart';
 import 'package:bot_creator_shared/actions/interaction_response.dart';
 import 'package:bot_creator_shared/bot/bot_config.dart';
 import 'package:bot_creator_shared/events/event_contexts.dart';
+import 'package:bot_creator_shared/utils/interaction_ack_state.dart';
+import 'package:bot_creator_shared/utils/interaction_listener_registry.dart';
 import 'package:bot_creator_shared/utils/command_autocomplete.dart';
 import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 import 'package:bot_creator_shared/utils/global.dart';
@@ -257,6 +259,7 @@ class DiscordRunner {
     required Map<String, String> runtimeVariables,
     Snowflake? fallbackChannelId,
     Snowflake? fallbackGuildId,
+    List<Action> Function(List<Action>)? nestedActionsPreprocessor,
   }) async {
     var replayCapturedByActions = false;
     return handleActions(
@@ -274,6 +277,7 @@ class DiscordRunner {
       fallbackChannelId: fallbackChannelId,
       fallbackGuildId: fallbackGuildId,
       onLog: (msg) => _log.info(msg),
+      nestedActionsPreprocessor: nestedActionsPreprocessor,
       onReplayCaptured:
           _debugReplayCapturing
               ? (frames, totalMs) {
@@ -2353,6 +2357,14 @@ class DiscordRunner {
           runtimeVariables: runtimeVariables,
           fallbackChannelId: context.channelId,
           fallbackGuildId: context.guildId,
+          nestedActionsPreprocessor:
+              (nestedActions) => nestedActions
+                  .map(
+                    (a) => Action.fromJson(
+                      _adaptLegacyActionForMessageCreate(a.toJson(), context),
+                    ),
+                  )
+                  .toList(growable: false),
         );
         for (final entry in actionResults.entries) {
           runtimeVariables['action.${entry.key}'] = entry.value;
@@ -2563,6 +2575,14 @@ class DiscordRunner {
           runtimeVariables: runtimeVariables,
           fallbackChannelId: context.channelId,
           fallbackGuildId: context.guildId,
+          nestedActionsPreprocessor:
+              (nestedActions) => nestedActions
+                  .map(
+                    (a) => Action.fromJson(
+                      _adaptLegacyActionForMessageCreate(a.toJson(), context),
+                    ),
+                  )
+                  .toList(growable: false),
         );
         for (final resultEntry in actionResults.entries) {
           runtimeVariables['action.${resultEntry.key}'] = resultEntry.value;
@@ -2622,58 +2642,81 @@ class DiscordRunner {
       }
     }
 
-    // Inject guild, channel and member variables for event workflows.
-    final eventGuildId = context.guildId;
-    Guild? eventGuild;
-    if (eventGuildId != null && _gateway != null) {
-      try {
-        final fetched = await fetchGuildCached(_gateway!, eventGuildId);
-        eventGuild = fetched;
-        if (fetched != null) {
-          runtimeVariables.addAll(extractGuildRuntimeDetails(fetched));
-        }
-      } catch (_) {}
-    }
-
-    final eventChannelId = context.channelId;
-    if (eventChannelId != null && _gateway != null) {
-      try {
-        final channel = await fetchChannelCached(_gateway!, eventChannelId);
-        if (channel != null) {
-          runtimeVariables.addAll(extractChannelRuntimeDetails(channel));
-        }
-      } catch (_) {}
-    }
-
-    final eventUserId = context.userId;
-    if (eventGuild != null && eventUserId != null) {
-      try {
-        final member = await eventGuild.members.fetch(eventUserId);
-        runtimeVariables.addAll(
-          extractMemberRuntimeDetails(
-            member: member,
-            guild: eventGuild,
-            guildId: eventGuildId.toString(),
-          ),
-        );
-      } catch (_) {}
-    }
-
-    await hydrateRuntimeVariables(
-      store: store,
-      botId: botId,
-      runtimeVariables: runtimeVariables,
-      guildContextId:
-          context.variables['guildId'] ?? context.guildId?.toString(),
-      channelContextId:
-          context.variables['channelId'] ?? context.channelId?.toString(),
-      userContextId:
-          context.variables['userId'] ?? context.variables['author.id'],
-      messageContextId:
-          context.variables['messageId'] ??
-          context.variables['message.id'] ??
-          context.variables['event.id'],
+    // Fast-path: when every action is a listener registration, skip expensive
+    // guild/channel/member fetches and DB variable hydration — the listener
+    // executor only needs the context variables already present.
+    const listenerOnlyTypes = {
+      BotCreatorActionType.listenForButtonClick,
+      BotCreatorActionType.listenForSelectMenu,
+      BotCreatorActionType.listenForModalSubmit,
+    };
+    final enabledActions = actions.where((a) => a.enabled);
+    final listenerOnly = enabledActions.every(
+      (a) => listenerOnlyTypes.contains(a.type),
     );
+
+    if (!listenerOnly) {
+      // Inject guild, channel and member variables for event workflows.
+      // Fetch guild and channel in parallel to reduce latency.
+      final eventGuildId = context.guildId;
+      final eventChannelId = context.channelId;
+      Guild? eventGuild;
+
+      await Future.wait(<Future<void>>[
+        if (eventGuildId != null && _gateway != null)
+          (() async {
+            try {
+              final fetched = await fetchGuildCached(_gateway!, eventGuildId);
+              eventGuild = fetched;
+              if (fetched != null) {
+                runtimeVariables.addAll(extractGuildRuntimeDetails(fetched));
+              }
+            } catch (_) {}
+          })(),
+        if (eventChannelId != null && _gateway != null)
+          (() async {
+            try {
+              final channel = await fetchChannelCached(
+                _gateway!,
+                eventChannelId,
+              );
+              if (channel != null) {
+                runtimeVariables.addAll(extractChannelRuntimeDetails(channel));
+              }
+            } catch (_) {}
+          })(),
+      ]);
+
+      final eventUserId = context.userId;
+      if (eventGuild != null && eventUserId != null) {
+        try {
+          final member = await eventGuild!.members.fetch(eventUserId);
+          runtimeVariables.addAll(
+            extractMemberRuntimeDetails(
+              member: member,
+              guild: eventGuild!,
+              guildId: eventGuildId.toString(),
+            ),
+          );
+        } catch (_) {}
+      }
+
+      await hydrateRuntimeVariables(
+        store: store,
+        botId: botId,
+        runtimeVariables: runtimeVariables,
+        guildContextId:
+            context.variables['guildId'] ?? context.guildId?.toString(),
+        channelContextId:
+            context.variables['channelId'] ?? context.channelId?.toString(),
+        userContextId:
+            context.variables['userId'] ?? context.variables['author.id'],
+        messageContextId:
+            context.variables['messageId'] ??
+            context.variables['message.id'] ??
+            context.variables['event.id'],
+      );
+    }
 
     applyWorkflowInvocationContext(
       variables: runtimeVariables,
@@ -2684,16 +2727,65 @@ class DiscordRunner {
     );
 
     try {
+      final effectiveInteraction =
+          context.interaction != null &&
+                  !isInteractionAcknowledged(context.interaction!)
+              ? context.interaction
+              : null;
+
       await _runActionsWithReplay(
         replayLabel: 'event:${context.eventName}:$workflowName',
         client: _gateway!,
-        interaction: null,
+        interaction: effectiveInteraction,
         actions: actions,
         botId: botId,
         runtimeVariables: runtimeVariables,
         fallbackChannelId: context.channelId,
         fallbackGuildId: context.guildId,
       );
+
+      // After the event workflow finishes (which may have registered a
+      // listener via listenForButtonClick/listenForSelectMenu), check if the
+      // interaction is still unacknowledged AND a matching listener now
+      // exists. If so, immediately dispatch it so the first click is not lost.
+      if (effectiveInteraction != null &&
+          !isInteractionAcknowledged(effectiveInteraction) &&
+          effectiveInteraction is MessageComponentInteraction) {
+        final compInteraction = effectiveInteraction;
+        final customId = compInteraction.data.customId;
+        final userId =
+            compInteraction.user?.id.toString() ??
+            compInteraction.member?.user?.id.toString() ??
+            '';
+        final interactionType =
+            (compInteraction.data.values?.isNotEmpty ?? false)
+                ? 'select'
+                : 'button';
+        final entry = InteractionListenerRegistry.instance.getMatching(
+          customId,
+          ListenerMatchRequest(
+            botId: botId,
+            type: interactionType,
+            guildId:
+                ((compInteraction as dynamic)?.guildId as Snowflake?)
+                    ?.toString(),
+            channelId:
+                ((compInteraction as dynamic)?.channel?.id as Snowflake?)
+                    ?.toString(),
+            messageId: compInteraction.message?.id.toString(),
+            userId: userId,
+          ),
+        );
+        if (entry != null) {
+          await handleComponentInteraction(
+            _gateway!,
+            compInteraction,
+            store,
+            botId,
+          );
+        }
+      }
+
       _log.info(
         'Executed event workflow "$workflowName" for ${context.eventName}.',
       );

@@ -795,4 +795,52 @@ void main() {
       expect(results['__stopped__'], 'true');
     });
   });
+
+  group('executeControlFlowAction runBdfdScript nestedActionsPreprocessor', () {
+    test(
+      'preprocessor is applied to compiled sub-actions before executeActions',
+      () async {
+        final results = <String, String>{};
+        final executedTypes = <String>[];
+
+        // The BDFD script compiles to a respondWithMessage action.
+        // The preprocessor replaces it with sendMessage, simulating Legacy
+        // messageCreate adaptation.
+        final handled = await executeControlFlowAction(
+          type: BotCreatorActionType.runBdfdScript,
+          payload: <String, dynamic>{'scriptContent': r'Hello $username!'},
+          resultKey: 'bdfd',
+          results: results,
+          variables: <String, String>{},
+          resolveValue: (input) => input,
+          onLog: null,
+          activeWorkflowStack: <String>{},
+          getWorkflowByName: (_) async => null,
+          executeActions: (actions) async {
+            executedTypes.addAll(actions.map((a) => a.type.name));
+            return <String, String>{};
+          },
+          nestedActionsPreprocessor:
+              (actions) =>
+                  actions
+                      .map(
+                        (a) =>
+                            a.type == BotCreatorActionType.respondWithMessage
+                                ? Action(
+                                  type: BotCreatorActionType.sendMessage,
+                                  payload: Map<String, dynamic>.from(a.payload),
+                                )
+                                : a,
+                      )
+                      .toList(),
+        );
+
+        expect(handled, isTrue);
+        expect(results['bdfd'], 'BDFD_OK');
+        // respondWithMessage must have been replaced by sendMessage
+        expect(executedTypes, isNot(contains('respondWithMessage')));
+        expect(executedTypes, contains('sendMessage'));
+      },
+    );
+  });
 }
