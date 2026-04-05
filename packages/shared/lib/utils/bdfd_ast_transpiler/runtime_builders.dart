@@ -1289,12 +1289,16 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
   }
 
   String _scopedVariablePlaceholder(String scope, String rawKey) {
-    final key = _normalizeScopedVariableKey(rawKey);
+    final trimmedKey = rawKey.trim();
+    final key = _normalizeScopedVariableKey(trimmedKey);
     if (key.isEmpty) {
       return '';
     }
     if (scope == 'temp') {
       return '((temp.$key))';
+    }
+    if (_containsRuntimePlaceholder(trimmedKey)) {
+      return '(($scope.bc_$trimmedKey|$scope.$trimmedKey))';
     }
     return '(($scope.bc_$key))';
   }
