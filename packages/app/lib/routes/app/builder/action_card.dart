@@ -2320,6 +2320,10 @@ class ActionCard extends StatelessWidget {
       _showHeadersEditor(context, paramDef, currentValue);
       return;
     }
+    if (paramDef.key == 'arguments') {
+      _showKeyValueEditor(context, paramDef, currentValue);
+      return;
+    }
     final maxHeight = MediaQuery.of(context).size.height * 0.7;
     final rawMap =
         (currentValue is Map)
@@ -2520,14 +2524,14 @@ class ActionCard extends StatelessWidget {
 
   Widget _buildMapPreview(String key, dynamic currentValue) {
     if (currentValue is Map && currentValue.isNotEmpty) {
-      if (key == 'headers') {
+      if (key == 'headers' || key == 'arguments') {
         final entries = currentValue.entries.toList();
         final preview = entries
             .take(6)
             .map((entry) {
-              final headerKey = entry.key.toString();
-              final headerValue = entry.value?.toString() ?? '';
-              return '$headerKey: $headerValue';
+              final entryKey = entry.key.toString();
+              final entryValue = entry.value?.toString() ?? '';
+              return '$entryKey: $entryValue';
             })
             .join('\n');
         final extraCount = entries.length - 6;
@@ -2556,8 +2560,164 @@ class ActionCard extends StatelessWidget {
     return Text(
       key == 'headers'
           ? 'No headers - tap edit to add'
+          : key == 'arguments'
+          ? 'No arguments - tap edit to add'
           : 'No properties - tap edit to configure',
       style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+    );
+  }
+
+  void _showKeyValueEditor(
+    BuildContext context,
+    ParameterDefinition paramDef,
+    dynamic currentValue,
+  ) {
+    final maxHeight = MediaQuery.of(context).size.height * 0.7;
+    final Map<String, dynamic> rawMap =
+        (currentValue is Map)
+            ? Map<String, dynamic>.from(currentValue.cast<String, dynamic>())
+            : <String, dynamic>{};
+
+    final List<Map<String, TextEditingController>> pairs =
+        rawMap.entries
+            .map(
+              (entry) => {
+                'keyController': TextEditingController(text: entry.key),
+                'valueController': TextEditingController(
+                  text: entry.value?.toString() ?? '',
+                ),
+              },
+            )
+            .toList();
+
+    if (pairs.isEmpty) {
+      pairs.add({
+        'keyController': TextEditingController(),
+        'valueController': TextEditingController(),
+      });
+    }
+
+    showDialog(
+      context: context,
+      builder:
+          (dialogContext) => StatefulBuilder(
+            builder:
+                (context, setDialogState) => AlertDialog(
+                  title: Text('Edit ${_formatParameterName(paramDef.key)}'),
+                  content: SizedBox(
+                    width: double.maxFinite,
+                    height: maxHeight,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Key / Value pairs',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Expanded(
+                          child: ListView.builder(
+                            itemCount: pairs.length,
+                            itemBuilder: (context, index) {
+                              final keyController =
+                                  pairs[index]['keyController']!;
+                              final valueController =
+                                  pairs[index]['valueController']!;
+
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 12),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      flex: 4,
+                                      child: TextField(
+                                        controller: keyController,
+                                        decoration: const InputDecoration(
+                                          hintText: 'Key',
+                                          border: OutlineInputBorder(),
+                                          isDense: true,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      flex: 6,
+                                      child: TextField(
+                                        controller: valueController,
+                                        decoration: const InputDecoration(
+                                          hintText: 'Value',
+                                          border: OutlineInputBorder(),
+                                          isDense: true,
+                                        ),
+                                        maxLines: null,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.delete,
+                                        color: Colors.red,
+                                      ),
+                                      onPressed: () {
+                                        setDialogState(() {
+                                          if (pairs.length > 1) {
+                                            pairs.removeAt(index);
+                                          } else {
+                                            keyController.clear();
+                                            valueController.clear();
+                                          }
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            setDialogState(() {
+                              pairs.add({
+                                'keyController': TextEditingController(),
+                                'valueController': TextEditingController(),
+                              });
+                            });
+                          },
+                          icon: const Icon(Icons.add),
+                          label: const Text('Add argument'),
+                        ),
+                      ],
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(dialogContext),
+                      child: const Text('Cancel'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        final result = <String, dynamic>{};
+                        for (final pair in pairs) {
+                          final key = pair['keyController']!.text.trim();
+                          final value = pair['valueController']!.text.trim();
+                          if (key.isNotEmpty) {
+                            result[key] = value;
+                          }
+                        }
+                        onParameterChanged(paramDef.key, result);
+                        Navigator.pop(dialogContext);
+                      },
+                      child: const Text('Save'),
+                    ),
+                  ],
+                ),
+          ),
     );
   }
 

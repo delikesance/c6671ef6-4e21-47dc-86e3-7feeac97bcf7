@@ -286,6 +286,7 @@ EventExecutionContext buildInteractionCreateEventContext(
     userId:
         _asSnowflake(interaction.user?.id) ??
         _asSnowflake(interaction.member?.user?.id),
+    interaction: interaction,
     extra: extra,
   );
 }

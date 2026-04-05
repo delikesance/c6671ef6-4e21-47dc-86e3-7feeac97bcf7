@@ -335,272 +335,279 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                         ),
                       ),
                     ],
-                    const SizedBox(height: 8),
-                    Text(
-                      'Where this command can be used',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
+                    if (!widget.isLegacyCommand) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        'Where this command can be used',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade600,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      alignment: WrapAlignment.start,
-                      spacing: 20,
-                      runSpacing: 8,
-                      children: [
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Checkbox(
-                              value: widget.integrationTypes.contains(
-                                ApplicationIntegrationType.guildInstall,
-                              ),
-                              onChanged: (value) {
-                                final newTypes =
-                                    List<ApplicationIntegrationType>.from(
-                                      widget.integrationTypes,
+                      const SizedBox(height: 8),
+                      Wrap(
+                        alignment: WrapAlignment.start,
+                        spacing: 20,
+                        runSpacing: 8,
+                        children: [
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Checkbox(
+                                value: widget.integrationTypes.contains(
+                                  ApplicationIntegrationType.guildInstall,
+                                ),
+                                onChanged: (value) {
+                                  final newTypes =
+                                      List<ApplicationIntegrationType>.from(
+                                        widget.integrationTypes,
+                                      );
+                                  if (value == true) {
+                                    newTypes.add(
+                                      ApplicationIntegrationType.guildInstall,
                                     );
-                                if (value == true) {
-                                  newTypes.add(
-                                    ApplicationIntegrationType.guildInstall,
-                                  );
-                                } else {
-                                  newTypes.remove(
-                                    ApplicationIntegrationType.guildInstall,
-                                  );
-                                }
-                                widget.onIntegrationTypesChanged(newTypes);
-                              },
-                            ),
-                            const Text('Guild Install'),
-                          ],
-                        ),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Checkbox(
-                              value: widget.integrationTypes.contains(
-                                ApplicationIntegrationType.userInstall,
-                              ),
-                              onChanged: (value) {
-                                final newTypes =
-                                    List<ApplicationIntegrationType>.from(
-                                      widget.integrationTypes,
+                                  } else {
+                                    newTypes.remove(
+                                      ApplicationIntegrationType.guildInstall,
                                     );
-                                if (value == true) {
-                                  newTypes.add(
-                                    ApplicationIntegrationType.userInstall,
-                                  );
-                                } else {
-                                  newTypes.remove(
-                                    ApplicationIntegrationType.userInstall,
-                                  );
-                                }
-                                widget.onIntegrationTypesChanged(newTypes);
-                              },
-                            ),
-                            const Text('User Install'),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Scope of the command (Contexts)',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
+                                  }
+                                  widget.onIntegrationTypesChanged(newTypes);
+                                },
+                              ),
+                              const Text('Guild Install'),
+                            ],
+                          ),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Checkbox(
+                                value: widget.integrationTypes.contains(
+                                  ApplicationIntegrationType.userInstall,
+                                ),
+                                onChanged: (value) {
+                                  final newTypes =
+                                      List<ApplicationIntegrationType>.from(
+                                        widget.integrationTypes,
+                                      );
+                                  if (value == true) {
+                                    newTypes.add(
+                                      ApplicationIntegrationType.userInstall,
+                                    );
+                                  } else {
+                                    newTypes.remove(
+                                      ApplicationIntegrationType.userInstall,
+                                    );
+                                  }
+                                  widget.onIntegrationTypesChanged(newTypes);
+                                },
+                              ),
+                              const Text('User Install'),
+                            ],
+                          ),
+                        ],
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      alignment: WrapAlignment.start,
-                      spacing: 20,
-                      runSpacing: 8,
-                      children: [
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Checkbox(
-                              value: widget.contexts.contains(
-                                InteractionContextType.guild,
-                              ),
-                              onChanged: (value) {
-                                final newContexts =
-                                    List<InteractionContextType>.from(
-                                      widget.contexts,
-                                    );
-                                if (value == true) {
-                                  newContexts.add(InteractionContextType.guild);
-                                } else {
-                                  newContexts.remove(
-                                    InteractionContextType.guild,
-                                  );
-                                }
-                                widget.onContextsChanged(newContexts);
-                              },
-                            ),
-                            const Text('Guild'),
-                          ],
+                      const SizedBox(height: 16),
+                      Text(
+                        'Scope of the command (Contexts)',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade600,
                         ),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Checkbox(
-                              value: widget.contexts.contains(
-                                InteractionContextType.botDm,
-                              ),
-                              onChanged: (value) {
-                                final newContexts =
-                                    List<InteractionContextType>.from(
-                                      widget.contexts,
-                                    );
-                                if (value == true) {
-                                  newContexts.add(InteractionContextType.botDm);
-                                } else {
-                                  newContexts.remove(
-                                    InteractionContextType.botDm,
-                                  );
-                                }
-                                widget.onContextsChanged(newContexts);
-                              },
-                            ),
-                            const Text('Bot DM'),
-                          ],
-                        ),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Checkbox(
-                              value: widget.contexts.contains(
-                                InteractionContextType.privateChannel,
-                              ),
-                              onChanged: (value) {
-                                final newContexts =
-                                    List<InteractionContextType>.from(
-                                      widget.contexts,
-                                    );
-                                if (value == true) {
-                                  newContexts.add(
-                                    InteractionContextType.privateChannel,
-                                  );
-                                } else {
-                                  newContexts.remove(
-                                    InteractionContextType.privateChannel,
-                                  );
-                                }
-                                widget.onContextsChanged(newContexts);
-                              },
-                            ),
-                            const Text('Group DM / Other'),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Default Member Permissions (optional)',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    ExpansionTile(
-                      tilePadding: const EdgeInsets.symmetric(horizontal: 8),
-                      childrenPadding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
-                      title: const Text('Select permissions'),
-                      subtitle: Text(
-                        _selectedPermissionOffsets.isEmpty
-                            ? 'No selection (everyone can use command)'
-                            : '${_selectedPermissionOffsets.length} permission(s) selected',
-                        style: const TextStyle(fontSize: 12),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        alignment: WrapAlignment.start,
+                        spacing: 20,
+                        runSpacing: 8,
+                        children: [
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Checkbox(
+                                value: widget.contexts.contains(
+                                  InteractionContextType.guild,
+                                ),
+                                onChanged: (value) {
+                                  final newContexts =
+                                      List<InteractionContextType>.from(
+                                        widget.contexts,
+                                      );
+                                  if (value == true) {
+                                    newContexts.add(
+                                      InteractionContextType.guild,
+                                    );
+                                  } else {
+                                    newContexts.remove(
+                                      InteractionContextType.guild,
+                                    );
+                                  }
+                                  widget.onContextsChanged(newContexts);
+                                },
+                              ),
+                              const Text('Guild'),
+                            ],
+                          ),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Checkbox(
+                                value: widget.contexts.contains(
+                                  InteractionContextType.botDm,
+                                ),
+                                onChanged: (value) {
+                                  final newContexts =
+                                      List<InteractionContextType>.from(
+                                        widget.contexts,
+                                      );
+                                  if (value == true) {
+                                    newContexts.add(
+                                      InteractionContextType.botDm,
+                                    );
+                                  } else {
+                                    newContexts.remove(
+                                      InteractionContextType.botDm,
+                                    );
+                                  }
+                                  widget.onContextsChanged(newContexts);
+                                },
+                              ),
+                              const Text('Bot DM'),
+                            ],
+                          ),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Checkbox(
+                                value: widget.contexts.contains(
+                                  InteractionContextType.privateChannel,
+                                ),
+                                onChanged: (value) {
+                                  final newContexts =
+                                      List<InteractionContextType>.from(
+                                        widget.contexts,
+                                      );
+                                  if (value == true) {
+                                    newContexts.add(
+                                      InteractionContextType.privateChannel,
+                                    );
+                                  } else {
+                                    newContexts.remove(
+                                      InteractionContextType.privateChannel,
+                                    );
+                                  }
+                                  widget.onContextsChanged(newContexts);
+                                },
+                              ),
+                              const Text('Group DM / Other'),
+                            ],
+                          ),
+                        ],
                       ),
-                      children: [
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children:
-                                selectedNames
-                                    .map((name) => Chip(label: Text(name)))
-                                    .toList(),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Default Member Permissions (optional)',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      ExpansionTile(
+                        tilePadding: const EdgeInsets.symmetric(horizontal: 8),
+                        childrenPadding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
+                        title: const Text('Select permissions'),
+                        subtitle: Text(
+                          _selectedPermissionOffsets.isEmpty
+                              ? 'No selection (everyone can use command)'
+                              : '${_selectedPermissionOffsets.length} permission(s) selected',
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                        children: [
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children:
+                                  selectedNames
+                                      .map((name) => Chip(label: Text(name)))
+                                      .toList(),
+                            ),
+                          ),
+                          if (selectedNames.isNotEmpty)
+                            const SizedBox(height: 8),
+                          ..._permissionItems.map((item) {
+                            final isSelected = _selectedPermissionOffsets
+                                .contains(item.offset);
+                            return CheckboxListTile(
+                              contentPadding: EdgeInsets.zero,
+                              dense: true,
+                              value: isSelected,
+                              title: Text(item.label),
+                              subtitle: Text(
+                                'Bit ${item.offset}',
+                                style: const TextStyle(fontSize: 11),
+                              ),
+                              onChanged: (checked) {
+                                _togglePermission(item.offset, checked == true);
+                              },
+                              controlAffinity: ListTileControlAffinity.leading,
+                            );
+                          }),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              OutlinedButton.icon(
+                                onPressed: _clearPermissions,
+                                icon: const Icon(Icons.clear),
+                                label: const Text('Clear'),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        key: ValueKey('permissions_bitfield_$computedBitfield'),
+                        initialValue:
+                            computedBitfield.isEmpty ? '0' : computedBitfield,
+                        readOnly: true,
+                        decoration: const InputDecoration(
+                          labelText: 'Calculated Permission Bitfield',
+                          border: OutlineInputBorder(),
+                          helperText:
+                              'Automatically computed from selected permissions.',
+                        ),
+                      ),
+                      if (_unknownBits != BigInt.zero) ...[
+                        const SizedBox(height: 6),
+                        Text(
+                          'Warning: unknown permission bits detected from saved data and preserved: ${_unknownBits.toString()}',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.orange.shade700,
                           ),
                         ),
-                        if (selectedNames.isNotEmpty) const SizedBox(height: 8),
-                        ..._permissionItems.map((item) {
-                          final isSelected = _selectedPermissionOffsets
-                              .contains(item.offset);
-                          return CheckboxListTile(
-                            contentPadding: EdgeInsets.zero,
-                            dense: true,
-                            value: isSelected,
-                            title: Text(item.label),
-                            subtitle: Text(
-                              'Bit ${item.offset}',
-                              style: const TextStyle(fontSize: 11),
-                            ),
-                            onChanged: (checked) {
-                              _togglePermission(item.offset, checked == true);
-                            },
-                            controlAffinity: ListTileControlAffinity.leading,
-                          );
-                        }),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            OutlinedButton.icon(
-                              onPressed: _clearPermissions,
-                              icon: const Icon(Icons.clear),
-                              label: const Text('Clear'),
-                            ),
-                          ],
+                      ],
+                      if (_selectedPermissionOffsets.contains(3)) ...[
+                        const SizedBox(height: 6),
+                        Text(
+                          'Administrator selected: this bypasses other permission checks.',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.orange.shade700,
+                          ),
                         ),
                       ],
-                    ),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      key: ValueKey('permissions_bitfield_$computedBitfield'),
-                      initialValue:
-                          computedBitfield.isEmpty ? '0' : computedBitfield,
-                      readOnly: true,
-                      decoration: const InputDecoration(
-                        labelText: 'Calculated Permission Bitfield',
-                        border: OutlineInputBorder(),
-                        helperText:
-                            'Automatically computed from selected permissions.',
-                      ),
-                    ),
-                    if (_unknownBits != BigInt.zero) ...[
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 4),
                       Text(
-                        'Warning: unknown permission bits detected from saved data and preserved: ${_unknownBits.toString()}',
+                        'Tip: leave all unchecked to make the command available to everyone by default.',
                         style: TextStyle(
                           fontSize: 11,
-                          color: Colors.orange.shade700,
+                          color: Colors.grey.shade600,
                         ),
                       ),
                     ],
-                    if (_selectedPermissionOffsets.contains(3)) ...[
-                      const SizedBox(height: 6),
-                      Text(
-                        'Administrator selected: this bypasses other permission checks.',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.orange.shade700,
-                        ),
-                      ),
-                    ],
-                    const SizedBox(height: 4),
-                    Text(
-                      'Tip: leave all unchecked to make the command available to everyone by default.',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
                   ],
                 );
               },

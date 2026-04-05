@@ -930,10 +930,9 @@ Future<Map<String, String>> handleActions(
                   ? ttlRaw.toInt()
                   : int.tryParse(ttlRaw?.toString() ?? '') ?? 60)
               .clamp(1, 60);
+          // Modals are always one-shot; buttons/selects repeat on every click until TTL.
           final oneShot =
-              action.type == BotCreatorActionType.listenForModalSubmit
-                  ? true
-                  : (action.payload['oneShot'] != false);
+              action.type == BotCreatorActionType.listenForModalSubmit;
           final workflowEntryPoint =
               resolveValue(
                 (action.payload['entryPoint'] ?? '').toString(),

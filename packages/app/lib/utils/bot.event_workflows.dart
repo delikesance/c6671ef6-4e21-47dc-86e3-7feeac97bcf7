@@ -670,57 +670,78 @@ Future<void> _executeLocalEventWorkflow(
     startedAt: _botStartedAt(botId),
   );
 
-  // Inject guild, channel and member variables for event workflows.
-  final eventGuildId = context.guildId;
-  Guild? eventGuild;
-  if (eventGuildId != null) {
-    try {
-      final fetched = await gateway.guilds.get(eventGuildId);
-      eventGuild = fetched;
-      runtimeVariables.addAll(
-        shared_global.extractGuildRuntimeDetails(fetched),
-      );
-    } catch (_) {}
-  }
-
-  final eventChannelId = context.channelId;
-  if (eventChannelId != null) {
-    try {
-      final channel = await gateway.channels.get(eventChannelId);
-      runtimeVariables.addAll(
-        shared_global.extractChannelRuntimeDetails(channel),
-      );
-    } catch (_) {}
-  }
-
-  final eventUserId = context.userId;
-  if (eventGuild != null && eventUserId != null) {
-    try {
-      final member = await eventGuild.members.fetch(eventUserId);
-      runtimeVariables.addAll(
-        shared_global.extractMemberRuntimeDetails(
-          member: member,
-          guild: eventGuild,
-          guildId: eventGuildId.toString(),
-        ),
-      );
-    } catch (_) {}
-  }
-
-  await hydrateRuntimeVariables(
-    store: manager,
-    botId: botId,
-    runtimeVariables: runtimeVariables,
-    guildContextId: context.variables['guildId'] ?? context.guildId?.toString(),
-    channelContextId:
-        context.variables['channelId'] ?? context.channelId?.toString(),
-    userContextId:
-        context.variables['userId'] ?? context.variables['author.id'],
-    messageContextId:
-        context.variables['messageId'] ??
-        context.variables['message.id'] ??
-        context.variables['event.id'],
+  // Fast-path: when every action is a listener registration, skip expensive
+  // guild/channel/member fetches and DB variable hydration — the listener
+  // executor only needs the context variables already present.
+  const listenerOnlyTypes = {
+    BotCreatorActionType.listenForButtonClick,
+    BotCreatorActionType.listenForSelectMenu,
+    BotCreatorActionType.listenForModalSubmit,
+  };
+  final enabledActions = actions.where((a) => a.enabled);
+  final listenerOnly = enabledActions.every(
+    (a) => listenerOnlyTypes.contains(a.type),
   );
+
+  if (!listenerOnly) {
+    // Inject guild, channel and member variables for event workflows.
+    // Fetch guild and channel in parallel to reduce latency.
+    final eventGuildId = context.guildId;
+    final eventChannelId = context.channelId;
+    Guild? eventGuild;
+
+    await Future.wait(<Future<void>>[
+      if (eventGuildId != null)
+        (() async {
+          try {
+            final fetched = await gateway.guilds.get(eventGuildId);
+            eventGuild = fetched;
+            runtimeVariables.addAll(
+              shared_global.extractGuildRuntimeDetails(fetched),
+            );
+          } catch (_) {}
+        })(),
+      if (eventChannelId != null)
+        (() async {
+          try {
+            final channel = await gateway.channels.get(eventChannelId);
+            runtimeVariables.addAll(
+              shared_global.extractChannelRuntimeDetails(channel),
+            );
+          } catch (_) {}
+        })(),
+    ]);
+
+    final eventUserId = context.userId;
+    if (eventGuild != null && eventUserId != null) {
+      try {
+        final member = await eventGuild!.members.fetch(eventUserId);
+        runtimeVariables.addAll(
+          shared_global.extractMemberRuntimeDetails(
+            member: member,
+            guild: eventGuild!,
+            guildId: eventGuildId.toString(),
+          ),
+        );
+      } catch (_) {}
+    }
+
+    await hydrateRuntimeVariables(
+      store: manager,
+      botId: botId,
+      runtimeVariables: runtimeVariables,
+      guildContextId:
+          context.variables['guildId'] ?? context.guildId?.toString(),
+      channelContextId:
+          context.variables['channelId'] ?? context.channelId?.toString(),
+      userContextId:
+          context.variables['userId'] ?? context.variables['author.id'],
+      messageContextId:
+          context.variables['messageId'] ??
+          context.variables['message.id'] ??
+          context.variables['event.id'],
+    );
+  }
 
   applyWorkflowInvocationContext(
     variables: runtimeVariables,
@@ -730,9 +751,15 @@ Future<void> _executeLocalEventWorkflow(
     providedArguments: const <String, String>{},
   );
 
+  final effectiveInteraction =
+      context.interaction != null &&
+              !isInteractionAcknowledged(context.interaction!)
+          ? context.interaction
+          : null;
+
   final actionResults = await handleActions(
     gateway,
-    null,
+    effectiveInteraction,
     actions: actions,
     store: manager,
     botId: botId,
@@ -744,6 +771,47 @@ Future<void> _executeLocalEventWorkflow(
     fallbackGuildId: context.guildId,
     onLog: onLog,
   );
+
+  // After the event workflow finishes (which may have registered a listener
+  // via listenForButtonClick/listenForSelectMenu), check if the interaction
+  // is still unacknowledged AND a matching listener now exists. If so,
+  // immediately dispatch it so the very first interaction is not lost.
+  if (effectiveInteraction != null &&
+      !isInteractionAcknowledged(effectiveInteraction) &&
+      effectiveInteraction is MessageComponentInteraction) {
+    final compInteraction = effectiveInteraction;
+    final customId = compInteraction.data.customId;
+    final userId =
+        compInteraction.user?.id.toString() ??
+        compInteraction.member?.user?.id.toString() ??
+        '';
+    final interactionType =
+        (compInteraction.data.values?.isNotEmpty ?? false)
+            ? 'select'
+            : 'button';
+    final entry = InteractionListenerRegistry.instance.getMatching(
+      customId,
+      ListenerMatchRequest(
+        botId: botId,
+        type: interactionType,
+        guildId:
+            ((compInteraction as dynamic)?.guildId as Snowflake?)?.toString(),
+        channelId:
+            ((compInteraction as dynamic)?.channel?.id as Snowflake?)
+                ?.toString(),
+        messageId: compInteraction.message?.id.toString(),
+        userId: userId,
+      ),
+    );
+    if (entry != null) {
+      await handleComponentInteraction(
+        gateway,
+        compInteraction,
+        manager,
+        botId,
+      );
+    }
+  }
 
   if (actionResults.isNotEmpty) {
     onLog?.call(
@@ -2133,6 +2201,17 @@ Future<bool> _tryExecuteLocalLegacyCommand(
                   unawaited(_emitReplayToMain(record));
                 }
                 : null,
+        nestedActionsPreprocessor:
+            (nestedActions) => nestedActions
+                .map(
+                  (a) => Action.fromJson(
+                    _adaptLocalLegacyActionForMessageCreate(
+                      a.toJson(),
+                      context,
+                    ),
+                  ),
+                )
+                .toList(growable: false),
       );
       for (final entry in actionResults.entries) {
         runtimeVariables['action.${entry.key}'] = entry.value;
