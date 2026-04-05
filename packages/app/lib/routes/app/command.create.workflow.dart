@@ -2,19 +2,7 @@ part of 'command.create.dart';
 
 extension _CommandCreateWorkflow on _CommandCreatePageState {
   List<Map<String, dynamic>> _normalizeEmbedsPayload(dynamic rawEmbeds) {
-    if (rawEmbeds is! List) {
-      return <Map<String, dynamic>>[];
-    }
-
-    return rawEmbeds
-        .whereType<Map>()
-        .map((embed) {
-          return Map<String, dynamic>.from(
-            embed.map((key, value) => MapEntry(key.toString(), value)),
-          );
-        })
-        .take(10)
-        .toList(growable: false);
+    return normalizeResponseEmbedsPayload(rawEmbeds);
   }
 
   Map<String, dynamic> _normalizeWorkflow(Map<String, dynamic> input) {

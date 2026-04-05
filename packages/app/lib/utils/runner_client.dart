@@ -134,6 +134,30 @@ class RunnerBotSummary {
   }
 }
 
+class RunnerDebugReplaySnapshot {
+  const RunnerDebugReplaySnapshot({
+    required this.capturing,
+    required this.replays,
+  });
+
+  final bool capturing;
+  final List<Map<String, dynamic>> replays;
+
+  factory RunnerDebugReplaySnapshot.fromJson(Map<String, dynamic> json) {
+    final rawReplays = json['replays'];
+    return RunnerDebugReplaySnapshot(
+      capturing: json['capturing'] == true,
+      replays:
+          (rawReplays is List)
+              ? rawReplays
+                  .whereType<Map>()
+                  .map((entry) => Map<String, dynamic>.from(entry))
+                  .toList(growable: false)
+              : const <Map<String, dynamic>>[],
+    );
+  }
+}
+
 /// HTTP client for the Bot Creator Runner REST API.
 ///
 /// All methods throw a [RunnerClientException] if the server returns an error
@@ -385,6 +409,48 @@ class RunnerClient {
       '/bots/${Uri.encodeComponent(botId.trim())}/command-stats',
       query: {'hours': hours.toString()},
     );
+  }
+
+  Future<RunnerDebugReplaySnapshot> getDebugReplays(
+    String botId, {
+    int limit = 30,
+  }) async {
+    final normalizedBotId = botId.trim();
+    if (normalizedBotId.isEmpty) {
+      throw const RunnerClientException('Missing botId for getDebugReplays().');
+    }
+    final json = await _get(
+      '/bots/${Uri.encodeComponent(normalizedBotId)}/debug-replays',
+      query: {'limit': limit.toString()},
+    );
+    return RunnerDebugReplaySnapshot.fromJson(json);
+  }
+
+  Future<void> clearDebugReplays(String botId) async {
+    final normalizedBotId = botId.trim();
+    if (normalizedBotId.isEmpty) {
+      throw const RunnerClientException(
+        'Missing botId for clearDebugReplays().',
+      );
+    }
+    await _post(
+      '/bots/${Uri.encodeComponent(normalizedBotId)}/debug-replays/clear',
+      const <String, dynamic>{},
+    );
+  }
+
+  Future<bool> setDebugReplayCapturing(String botId, bool enabled) async {
+    final normalizedBotId = botId.trim();
+    if (normalizedBotId.isEmpty) {
+      throw const RunnerClientException(
+        'Missing botId for setDebugReplayCapturing().',
+      );
+    }
+    final json = await _post(
+      '/bots/${Uri.encodeComponent(normalizedBotId)}/debug-replays/capture',
+      <String, dynamic>{'enabled': enabled},
+    );
+    return json['capturing'] == true;
   }
 
   Future<Map<String, dynamic>> getGlobalVariables(String botId) async {

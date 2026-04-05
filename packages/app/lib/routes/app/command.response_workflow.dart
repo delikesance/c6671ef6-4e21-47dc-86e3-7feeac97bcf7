@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:bot_creator/types/app_emoji.dart';
+import 'package:bot_creator/utils/embed_normalization.dart';
 import 'package:bot_creator/utils/i18n.dart';
 import 'package:bot_creator/widgets/response_embeds_editor.dart';
 import 'package:bot_creator/widgets/component_v2_builder/component_v2_editor.dart';
@@ -59,19 +60,7 @@ class _CommandResponseWorkflowPageState
   late Map<String, dynamic> _whenFalseModal;
 
   List<Map<String, dynamic>> _normalizeEmbedsPayload(dynamic rawEmbeds) {
-    if (rawEmbeds is! List) {
-      return <Map<String, dynamic>>[];
-    }
-
-    return rawEmbeds
-        .whereType<Map>()
-        .map((embed) {
-          return Map<String, dynamic>.from(
-            embed.map((key, value) => MapEntry(key.toString(), value)),
-          );
-        })
-        .take(10)
-        .toList(growable: false);
+    return normalizeResponseEmbedsPayload(rawEmbeds);
   }
 
   @override

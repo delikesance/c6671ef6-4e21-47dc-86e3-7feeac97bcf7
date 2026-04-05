@@ -10,6 +10,7 @@ import 'package:bot_creator/utils/analytics.dart';
 import 'package:bot_creator/utils/app_emoji_api.dart';
 import 'package:bot_creator/utils/bot.dart';
 import 'package:bot_creator/utils/command_variable_catalog.dart';
+import 'package:bot_creator/utils/embed_normalization.dart';
 import 'package:bot_creator/utils/i18n.dart';
 import 'package:bot_creator/utils/simple_mode.dart';
 import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
@@ -333,25 +334,10 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       (payload['response'] as Map?)?.cast<String, dynamic>() ?? const {},
     );
 
-    var embeds = _normalizeEmbedsPayload(response['embeds']);
-    if (embeds.isEmpty) {
-      final legacyEmbed = Map<String, dynamic>.from(
-        (response['embed'] as Map?)?.cast<String, dynamic>() ?? const {},
-      );
-      final hasLegacyEmbed =
-          (legacyEmbed['title']?.toString().isNotEmpty ?? false) ||
-          (legacyEmbed['description']?.toString().isNotEmpty ?? false) ||
-          (legacyEmbed['url']?.toString().isNotEmpty ?? false);
-      if (hasLegacyEmbed) {
-        embeds = <Map<String, dynamic>>[
-          {
-            'title': legacyEmbed['title']?.toString() ?? '',
-            'description': legacyEmbed['description']?.toString() ?? '',
-            'url': legacyEmbed['url']?.toString() ?? '',
-          },
-        ];
-      }
-    }
+    final embeds = normalizeResponseEmbedsPayload(
+      response['embeds'],
+      legacySingleEmbed: response['embed'],
+    );
 
     final actions = List<Map<String, dynamic>>.from(
       (payload['actions'] as List?)?.whereType<Map>().map(
@@ -909,33 +895,10 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         (normalizedData['response'] as Map?)?.cast<String, dynamic>() ??
             const {},
       );
-      final embeds =
-          (response['embeds'] is List)
-              ? List<Map<String, dynamic>>.from(
-                (response['embeds'] as List).whereType<Map>().map(
-                  (embed) => Map<String, dynamic>.from(
-                    embed.map((key, value) => MapEntry(key.toString(), value)),
-                  ),
-                ),
-              )
-              : <Map<String, dynamic>>[];
-
-      if (embeds.isEmpty) {
-        final legacyEmbed = Map<String, dynamic>.from(
-          (response['embed'] as Map?)?.cast<String, dynamic>() ?? const {},
-        );
-        final hasLegacyEmbed =
-            (legacyEmbed['title']?.toString().isNotEmpty ?? false) ||
-            (legacyEmbed['description']?.toString().isNotEmpty ?? false) ||
-            (legacyEmbed['url']?.toString().isNotEmpty ?? false);
-        if (hasLegacyEmbed) {
-          embeds.add({
-            'title': legacyEmbed['title']?.toString() ?? '',
-            'description': legacyEmbed['description']?.toString() ?? '',
-            'url': legacyEmbed['url']?.toString() ?? '',
-          });
-        }
-      }
+      final embeds = normalizeResponseEmbedsPayload(
+        response['embeds'],
+        legacySingleEmbed: response['embed'],
+      );
 
       setState(() {
         _isLocalOnlyCommand = true;
@@ -1079,35 +1042,10 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           (normalizedData["response"] as Map?)?.cast<String, dynamic>() ??
               const {},
         );
-        final embeds =
-            (response['embeds'] is List)
-                ? List<Map<String, dynamic>>.from(
-                  (response['embeds'] as List).whereType<Map>().map(
-                    (embed) => Map<String, dynamic>.from(
-                      embed.map(
-                        (key, value) => MapEntry(key.toString(), value),
-                      ),
-                    ),
-                  ),
-                )
-                : <Map<String, dynamic>>[];
-
-        if (embeds.isEmpty) {
-          final legacyEmbed = Map<String, dynamic>.from(
-            (response['embed'] as Map?)?.cast<String, dynamic>() ?? const {},
-          );
-          final hasLegacyEmbed =
-              (legacyEmbed['title']?.toString().isNotEmpty ?? false) ||
-              (legacyEmbed['description']?.toString().isNotEmpty ?? false) ||
-              (legacyEmbed['url']?.toString().isNotEmpty ?? false);
-          if (hasLegacyEmbed) {
-            embeds.add({
-              'title': legacyEmbed['title']?.toString() ?? '',
-              'description': legacyEmbed['description']?.toString() ?? '',
-              'url': legacyEmbed['url']?.toString() ?? '',
-            });
-          }
-        }
+        final embeds = normalizeResponseEmbedsPayload(
+          response['embeds'],
+          legacySingleEmbed: response['embed'],
+        );
 
         if (!mounted) return;
         setState(() {
