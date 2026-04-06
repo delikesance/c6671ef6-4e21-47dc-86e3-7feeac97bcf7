@@ -63,7 +63,9 @@ Future<void> handleLocalCommands(
         event.gateway.client,
         runtimeVariables,
         startedAt: _botStartedAt(clientId),
+        botId: clientId,
       );
+      runtimeVariables['interaction.isSlash'] = 'true';
       final dynamic rawInteraction = interaction;
       String? normalizeContextId(String? value) {
         final trimmed = (value ?? '').trim();
@@ -667,6 +669,7 @@ Future<void> _handleLocalCommandAutocomplete(
       'command.type': 'chatInput',
       'interaction.command.type': 'chatInput',
       'config.command.type': 'chatInput',
+      'interaction.isSlash': 'true',
       'interaction.command.name': interaction.data.name,
       'interaction.command.id': interaction.data.id.toString(),
       'interaction.command.route':
@@ -683,6 +686,7 @@ Future<void> _handleLocalCommandAutocomplete(
       event.gateway.client,
       runtimeVariables,
       startedAt: _botStartedAt(clientId),
+      botId: clientId,
     );
     final dynamic rawInteraction = interaction;
 

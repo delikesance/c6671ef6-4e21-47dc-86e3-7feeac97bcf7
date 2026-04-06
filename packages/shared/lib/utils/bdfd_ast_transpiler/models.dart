@@ -601,7 +601,7 @@ const Map<String, String> _inlineRuntimeVariables = <String, String>{
   'shardid': '((bot.shardId))',
   'getbotinvite': '((bot.invite))',
   'scriptlanguage': 'BDFD',
-  // ── Bot info — not yet resolved ──
+  // ── Bot info — resolved via _injectGatewayBotVariables ──
   'botownerid': '((bot.ownerId))',
   'botcommands': '((bot.commands))',
   'executiontime': '((execution.time))',
@@ -652,7 +652,6 @@ const Map<String, String> _inlineRuntimeVariables = <String, String>{
   // ── Misc ──
   'argcount': '((args.count))',
   'isslash': '((interaction.isSlash))',
-  'enabled': '((command.enabled))',
   'variablescount': '((variables.count))',
   // ── Select menu interaction results ──
   'getmentionableselectusercount':

@@ -57,12 +57,14 @@ String _formatBdfdRuntimeDiagnostics(List<BdfdCompileDiagnostic> diagnostics) {
   return 'This BDFD script could not be compiled:\n$summary';
 }
 
-/// Injects gateway-only bot variables (ping, uptime, shardId) into
-/// a runtime variables map.  Works for both desktop and mobile sessions.
+/// Injects gateway-only bot variables (ping, uptime, shardId) and
+/// bot info variables (ownerId, commands count, nodeVersion, execution time)
+/// into a runtime variables map.  Works for both desktop and mobile sessions.
 void _injectLocalGatewayBotVariables(
   NyxxGateway gateway,
   Map<String, String> variables, {
   DateTime? startedAt,
+  String? botId,
 }) {
   try {
     variables['bot.ping'] = gateway.gateway.latency.inMilliseconds.toString();
@@ -73,6 +75,19 @@ void _injectLocalGatewayBotVariables(
   if (startedAt != null) {
     variables['bot.uptime'] =
         DateTime.now().difference(startedAt).inSeconds.toString();
+  }
+
+  // ── Bot info variables (always resolved) ──
+  final resolvedBotId = botId ?? '';
+  variables['bot.ownerId'] = _desktopCachedOwnerIdByBotId[resolvedBotId] ?? '';
+  final commandCount =
+      _desktopCachedCommandCountByBotId[resolvedBotId]?.toString() ?? '0';
+  variables['bot.commands'] = commandCount;
+  variables['bot.commandsCount'] = commandCount;
+  variables['bot.slashCommandsCount'] = commandCount;
+  variables['bot.nodeVersion'] = 'Dart ${Platform.version.split(' ').first}';
+  if (!variables.containsKey('execution.time')) {
+    variables['execution.time'] = '0ms';
   }
 }
 
@@ -92,6 +107,8 @@ DateTime? _botStartedAt(String botId) {
 final Map<String, NyxxGateway> _desktopGatewaysByBotId =
     <String, NyxxGateway>{};
 final Map<String, DateTime> _desktopStartedAtByBotId = <String, DateTime>{};
+final Map<String, String> _desktopCachedOwnerIdByBotId = <String, String>{};
+final Map<String, int> _desktopCachedCommandCountByBotId = <String, int>{};
 StreamSubscription<LogRecord>? _desktopNyxxLogsSubscription;
 final Map<String, Timer> _desktopMetricsTimersByBotId = <String, Timer>{};
 final Map<String, Timer> _desktopStatusRotationTimersByBotId =
@@ -318,6 +335,20 @@ Future<void> startDesktopBot(String token) async {
   gateway.onReady.listen((event) async {
     setBotRuntimeActive(true);
     appendBotLog('Desktop bot connected and ready', botId: botId);
+
+    // Cache the application owner ID for $botOwnerID resolution.
+    try {
+      final app =
+          await event.gateway.client.applications.fetchCurrentApplication();
+      _desktopCachedOwnerIdByBotId[botId] = app.owner?.id.toString() ?? '';
+    } catch (_) {}
+
+    // Cache command count for $commandsCount / $slashCommandsCount.
+    try {
+      final commands = await appManager.listAppCommands(botId);
+      _desktopCachedCommandCountByBotId[botId] = commands.length;
+    } catch (_) {}
+
     unawaited(appManager.updateGuildCount(botId, event.guilds.length));
     unawaited(_refreshBotMetrics(botId: botId));
     _desktopMetricsTimersByBotId[botId]?.cancel();
@@ -361,6 +392,8 @@ Future<void> stopDesktopBot({String? botId}) async {
 
   final gateway = _desktopGatewaysByBotId.remove(normalizedBotId);
   _desktopStartedAtByBotId.remove(normalizedBotId);
+  _desktopCachedOwnerIdByBotId.remove(normalizedBotId);
+  _desktopCachedCommandCountByBotId.remove(normalizedBotId);
   if (gateway != null) {
     await gateway.close();
   }
