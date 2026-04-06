@@ -172,7 +172,11 @@ Map<String, dynamic> normalizeCommandData(Map<String, dynamic> command) {
     },
   };
 
+  // Preserve folder at root level (empty string = uncategorized).
+  final folder = (normalized['folder'] ?? '').toString().trim();
+
   normalized['type'] = commandType;
+  if (folder.isNotEmpty) normalized['folder'] = folder;
   normalized['data'] = {
     'version': 1,
     'commandType': commandType,

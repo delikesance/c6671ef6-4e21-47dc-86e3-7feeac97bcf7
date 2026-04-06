@@ -42,7 +42,7 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
       'executionMode': _executionMode,
       'bdfdScriptContent': _bdfdScriptController.text,
       'legacyModeEnabled': _legacyModeEnabled,
-      'legacyLocalOnly': _legacyOnlyLocalCommand,
+      'legacyLocalOnly': _localOnlyCommand,
       'legacyPrefixOverride': _legacyPrefixOverride.trim(),
       'legacyResponseTarget': _legacyResponseTarget,
       'simpleConfig': _currentSimpleConfig(),
@@ -144,6 +144,7 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
         'contexts': _contexts.map(_contextTypeToText).toList(growable: false),
         'options': _serializeOptions(effectiveOptions),
         'data': commandData,
+        if (_folder.isNotEmpty) 'folder': _folder,
       },
     };
   }
@@ -546,6 +547,9 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
       if (importedContexts.isNotEmpty) {
         _contexts = importedContexts;
       }
+
+      _folder = (commandRoot['folder'] ?? '').toString().trim();
+      _folderController.text = _folder;
 
       _syncSubcommandWorkflowRoutes();
 

@@ -97,6 +97,9 @@ enum BotCreatorActionType {
   log,
   // Runtime JSON
   runtimeJsonBlock,
+  // Guild Commands
+  registerGuildCommands,
+  unregisterGuildCommands,
 }
 
 enum ActionOnErrorMode { stop, continueMode }

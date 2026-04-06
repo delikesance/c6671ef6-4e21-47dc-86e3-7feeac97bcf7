@@ -133,7 +133,7 @@ extension _CommandCreateValidation on _CommandCreatePageState {
       }
     }
 
-    if (!_isBdfdScriptMode && _legacyOnlyLocalCommand) {
+    if (!_isBdfdScriptMode && _localOnlyCommand) {
       if (!_legacyModeEnabled) {
         showDialog(
           context: context,

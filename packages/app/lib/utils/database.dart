@@ -1083,6 +1083,11 @@ class AppManager implements BotDataStore {
   /// Returns the list of scoped variable definitions for [botId].
   /// Each entry is { 'key': String, 'scope': String, 'defaultValue': dynamic }.
   @override
+  Future<List<Map<String, dynamic>>> getCommands(String botId) async {
+    return await listAppCommands(botId);
+  }
+
+  @override
   Future<List<Map<String, dynamic>>> getScopedVariableDefinitions(
     String botId,
   ) async {
@@ -1415,6 +1420,7 @@ class AppManager implements BotDataStore {
     List<Map<String, dynamic>>? arguments,
     String? workflowType,
     Map<String, dynamic>? eventTrigger,
+    String? folder,
   }) async {
     final app = Map<String, dynamic>.from(await getApp(id));
     final workflows = _coerceWorkflowList(app['workflows']);
@@ -1445,6 +1451,9 @@ class AppManager implements BotDataStore {
       ),
     );
 
+    final resolvedFolder =
+        (folder ?? existing?['folder'] ?? '').toString().trim();
+
     final payload = <String, dynamic>{
       'name': normalizedName,
       'actions': List<Map<String, dynamic>>.from(actions),
@@ -1452,6 +1461,7 @@ class AppManager implements BotDataStore {
       'entryPoint': normalizedEntryPoint,
       'arguments': normalizedArguments,
       'updatedAt': DateTime.now().toIso8601String(),
+      if (resolvedFolder.isNotEmpty) 'folder': resolvedFolder,
     };
 
     if (normalizedWorkflowType == workflowTypeEvent) {
