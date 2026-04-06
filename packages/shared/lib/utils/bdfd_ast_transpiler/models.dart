@@ -481,6 +481,15 @@ class _ConsumedLoopBlock {
   bool get isRuntimeCStyleLoop => runtimeInit != null;
 }
 
+class _ConsumedJsonForEachBlock {
+  const _ConsumedJsonForEachBlock({
+    required this.action,
+    required this.nextIndex,
+  });
+  final Action action;
+  final int nextIndex;
+}
+
 bool _parseBooleanLike(String raw) {
   final normalized = raw.trim().toLowerCase();
   return normalized == 'yes' ||

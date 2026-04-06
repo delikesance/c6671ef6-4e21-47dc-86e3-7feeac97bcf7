@@ -727,6 +727,116 @@ extension _BdfdAstTranspilationScopeControlFlow on _BdfdAstTranspilationScope {
     return Action(type: BotCreatorActionType.forLoop, payload: payload);
   }
 
+  // ── $jsonForEach / $endJsonForEach ──────────────────────────────────────
+
+  _ConsumedJsonForEachBlock? _consumeJsonForEachBlock({
+    required List<BdfdAstNode> nodes,
+    required int startIndex,
+  }) {
+    final feNode = nodes[startIndex];
+    if (feNode is! BdfdFunctionCallAst ||
+        !_isBlockJsonForEachSignature(feNode)) {
+      return null;
+    }
+
+    final bodyNodes = <BdfdAstNode>[];
+    var nestingDepth = 0;
+
+    for (var cursor = startIndex + 1; cursor < nodes.length; cursor++) {
+      final currentNode = nodes[cursor];
+
+      if (currentNode is BdfdFunctionCallAst) {
+        final name = currentNode.normalizedName;
+
+        if (_isBlockJsonForEachSignature(currentNode)) {
+          nestingDepth += 1;
+          bodyNodes.add(currentNode);
+          continue;
+        }
+
+        if (_isStandaloneJsonForEachDelimiter(name)) {
+          if (nestingDepth > 0) {
+            nestingDepth -= 1;
+            bodyNodes.add(currentNode);
+            continue;
+          }
+
+          return _buildJsonForEachAction(
+            feNode: feNode,
+            bodyNodes: bodyNodes,
+            nextIndex: cursor + 1,
+          );
+        }
+      }
+
+      bodyNodes.add(currentNode);
+    }
+
+    _diagnostics.add(
+      BdfdTranspileDiagnostic(
+        message: '${feNode.name} not closed with ${r'$endJsonForEach'}.',
+        start: feNode.start,
+        end: feNode.end,
+        functionName: feNode.name,
+      ),
+    );
+
+    return _buildJsonForEachAction(
+      feNode: feNode,
+      bodyNodes: bodyNodes,
+      nextIndex: nodes.length,
+    );
+  }
+
+  _ConsumedJsonForEachBlock _buildJsonForEachAction({
+    required BdfdFunctionCallAst feNode,
+    required List<BdfdAstNode> bodyNodes,
+    required int nextIndex,
+  }) {
+    // Extract the JSON path argument (all args form the path).
+    final pathSegments = <String>[];
+    for (var i = 0; i < feNode.arguments.length; i++) {
+      final raw = _stringifyArgument(feNode, i).trim();
+      if (raw.isNotEmpty) pathSegments.add(raw);
+    }
+
+    // Save transpiler state.
+    final previousDepth = _loopDepth;
+    final previousVars = Map<String, int>.from(_loopVariables);
+    final previousRuntimeVarNames = _runtimeLoopVarNames;
+
+    _loopDepth += 1;
+    _runtimeLoopVarNames = const <String>{'jsonkey', 'jsonvalue', 'jsonindex'};
+    // Seed _loopVariables so the inline resolver recognises these names.
+    _loopVariables = <String, int>{};
+    for (final name in _runtimeLoopVarNames!) {
+      _loopVariables[name] = 0;
+    }
+
+    final savedDeferredKey = _lastDeferredJsonResultKeyPrefix;
+    final bodyActions = _transpileNodesPreservingTempVariables(bodyNodes);
+    _lastDeferredJsonResultKeyPrefix = savedDeferredKey;
+
+    // Restore transpiler state.
+    _runtimeLoopVarNames = previousRuntimeVarNames;
+    _loopDepth = previousDepth;
+    _loopVariables = previousVars;
+
+    final payload = <String, dynamic>{
+      'path': pathSegments,
+      'bodyActions': bodyActions.map((a) => a.toJson()).toList(),
+      'maxIterations': _maxSupportedLoopIterations,
+    };
+
+    return _ConsumedJsonForEachBlock(
+      action: Action(
+        type: BotCreatorActionType.jsonForEachLoop,
+        payload: payload,
+      ),
+      nextIndex: nextIndex,
+    );
+  }
+
   /// Returns `true` when every node in [bodyNodes] is either plain text,
   /// an inline-only function, or a response-mutation function.  In that case
   /// the loop body can be unrolled directly into the current pending response

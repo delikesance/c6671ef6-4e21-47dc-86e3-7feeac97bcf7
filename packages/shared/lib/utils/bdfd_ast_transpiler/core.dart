@@ -219,6 +219,34 @@ class _BdfdAstTranspilationScope {
           continue;
         }
 
+        if (_isBlockJsonForEachSignature(node)) {
+          final deferredJson = _flushDeferredJson();
+          if (deferredJson != null) {
+            actions.add(deferredJson);
+          }
+
+          final result = _consumeJsonForEachBlock(
+            nodes: nodes,
+            startIndex: index,
+          );
+          if (result == null) {
+            index += 1;
+            continue;
+          }
+
+          final runtimeDeferredJson = _flushDeferredJson();
+          if (runtimeDeferredJson != null) {
+            actions.add(runtimeDeferredJson);
+          }
+          final flushed = pendingResponse.buildAction(channelId: _useChannelId);
+          if (flushed != null) {
+            actions.add(flushed);
+          }
+          actions.add(result.action);
+          index = result.nextIndex;
+          continue;
+        }
+
         if (_isBlockTrySignature(node)) {
           final deferredJson = _flushDeferredJson();
           if (deferredJson != null) {
@@ -263,6 +291,20 @@ class _BdfdAstTranspilationScope {
             BdfdTranspileDiagnostic(
               message:
                   'Unexpected ${node.name} without a matching surrounding block ${r'$for'}[] statement.',
+              start: node.start,
+              end: node.end,
+              functionName: node.name,
+            ),
+          );
+          index += 1;
+          continue;
+        }
+
+        if (_isStandaloneJsonForEachDelimiter(node.normalizedName)) {
+          _diagnostics.add(
+            BdfdTranspileDiagnostic(
+              message:
+                  'Unexpected ${node.name} without a matching surrounding ${r'$jsonForEach'}[] block.',
               start: node.start,
               end: node.end,
               functionName: node.name,
@@ -415,6 +457,14 @@ class _BdfdAstTranspilationScope {
 
   bool _isStandaloneLoopDelimiter(String normalizedName) {
     return normalizedName == 'endfor' || normalizedName == 'endloop';
+  }
+
+  bool _isBlockJsonForEachSignature(BdfdFunctionCallAst node) {
+    return node.normalizedName == 'jsonforeach';
+  }
+
+  bool _isStandaloneJsonForEachDelimiter(String normalizedName) {
+    return normalizedName == 'endjsonforeach';
   }
 
   bool _isBlockTrySignature(BdfdFunctionCallAst node) {
