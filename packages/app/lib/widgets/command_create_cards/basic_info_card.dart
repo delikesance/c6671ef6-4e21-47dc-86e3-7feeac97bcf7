@@ -6,6 +6,7 @@ class BasicInfoCard extends StatefulWidget {
   final String commandDescription;
   final ApplicationCommandType commandType;
   final bool isLegacyCommand;
+  final bool localOnlyCommand;
   final bool canEditCommandType;
   final bool showDescriptionField;
   final List<ApplicationIntegrationType> integrationTypes;
@@ -14,6 +15,7 @@ class BasicInfoCard extends StatefulWidget {
   final ValueChanged<String> onDescriptionChanged;
   final ValueChanged<ApplicationCommandType> onCommandTypeChanged;
   final ValueChanged<bool> onLegacyCommandChanged;
+  final ValueChanged<bool> onLocalOnlyCommandChanged;
   final ValueChanged<List<ApplicationIntegrationType>>
   onIntegrationTypesChanged;
   final ValueChanged<List<InteractionContextType>> onContextsChanged;
@@ -35,6 +37,8 @@ class BasicInfoCard extends StatefulWidget {
     required this.onDescriptionChanged,
     required this.onCommandTypeChanged,
     required this.onLegacyCommandChanged,
+    required this.localOnlyCommand,
+    required this.onLocalOnlyCommandChanged,
     required this.onIntegrationTypesChanged,
     required this.onContextsChanged,
     required this.defaultMemberPermissions,
@@ -335,6 +339,14 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                         ),
                       ),
                     ],
+                    const SizedBox(height: 12),
+                    SwitchListTile.adaptive(
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text('Local Command (Do not register on Discord)'),
+                      subtitle: const Text('Store command only in Bot Creator. You can dynamically register it on Specific Guilds using BDFD \$registerGuildCommands.'),
+                      value: widget.localOnlyCommand,
+                      onChanged: widget.onLocalOnlyCommandChanged,
+                    ),
                     if (!widget.isLegacyCommand) ...[
                       const SizedBox(height: 8),
                       Text(

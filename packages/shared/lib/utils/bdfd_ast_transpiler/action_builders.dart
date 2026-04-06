@@ -1361,4 +1361,52 @@ extension _BdfdAstTranspilationScopeActionBuilders
   }
 
   // ── Inline computation helpers ──────────────────────────────────
+
+  Action? _buildRegisterGuildCommandsAction(BdfdFunctionCallAst node) {
+    if (node.arguments.isEmpty) {
+      return Action(
+        type: BotCreatorActionType.registerGuildCommands,
+        payload: <String, dynamic>{},
+      );
+    }
+
+    final commandNamesRaw = _stringifyArgument(node, 0);
+    final commandNames = commandNamesRaw
+        .split(';')
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
+
+    return Action(
+      type: BotCreatorActionType.registerGuildCommands,
+      payload: <String, dynamic>{
+        if (commandNames.isNotEmpty) 'commandNames': commandNames,
+      },
+    );
+  }
+
+  Action? _buildUnregisterGuildCommandsAction(BdfdFunctionCallAst node) {
+    if (node.arguments.isEmpty) {
+      return Action(
+        type: BotCreatorActionType.unregisterGuildCommands,
+        payload: <String, dynamic>{},
+      );
+    }
+
+    final commandNamesRaw = _stringifyArgument(node, 0);
+    final commandNames = commandNamesRaw
+        .split(';')
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
+
+    return Action(
+      type: BotCreatorActionType.unregisterGuildCommands,
+      payload: <String, dynamic>{
+        if (commandNames.isNotEmpty) 'commandNames': commandNames,
+      },
+    );
+  }
 }
+
+
