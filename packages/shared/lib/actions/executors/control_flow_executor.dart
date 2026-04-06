@@ -452,7 +452,11 @@ Future<bool> executeControlFlowAction({
       // Look for the latest runtimeJsonBlock result in variables.
       dynamic jsonCtx;
       final mergedContext = <String, String>{...variables, ...results};
-      final jsonSource = _findLatestJsonContext(mergedContext);
+      var jsonSource = _findLatestJsonContext(mergedContext);
+      // Fall back to the compile-time source embedded in the payload.
+      if (jsonSource.isEmpty) {
+        jsonSource = (payload['source'] as String?) ?? '';
+      }
       if (jsonSource.isNotEmpty) {
         try {
           jsonCtx = jsonDecode(jsonSource);
