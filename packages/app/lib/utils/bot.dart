@@ -635,6 +635,7 @@ Future<void> createCommand(
   NyxxRest client,
   ApplicationCommandBuilder commandBuilder, {
   Map<String, dynamic> data = const {},
+  String folder = '',
 }) async {
   try {
     final command = await client.commands.create(commandBuilder);
@@ -647,6 +648,9 @@ Future<void> createCommand(
     };
     if (data.isNotEmpty) {
       commandData['data'] = data;
+    }
+    if (folder.isNotEmpty) {
+      commandData['folder'] = folder;
     }
     await appManager.saveAppCommand(
       client.user.id.toString(),
@@ -663,6 +667,7 @@ Future<void> updateCommand(
   Snowflake commandId, {
   required ApplicationCommandUpdateBuilder commandBuilder,
   Map<String, dynamic> data = const {},
+  String folder = '',
 }) async {
   try {
     final command = await client.commands.update(commandId, commandBuilder);
@@ -676,6 +681,9 @@ Future<void> updateCommand(
 
     if (data.isNotEmpty) {
       commandData['data'] = data;
+    }
+    if (folder.isNotEmpty) {
+      commandData['folder'] = folder;
     }
     await appManager.saveAppCommand(
       client.user.id.toString(),

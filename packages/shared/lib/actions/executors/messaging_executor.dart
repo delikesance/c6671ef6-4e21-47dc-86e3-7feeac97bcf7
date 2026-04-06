@@ -184,6 +184,13 @@ Future<bool> executeMessagingAction({
         guildId: guildId?.toString(),
       );
       if (result['error'] != null) {
+        // When content/embeds/components are all empty (e.g. template resolved
+        // to blank inside a loop iteration), skip silently instead of crashing.
+        if (content.trim().isEmpty &&
+            result['error']!.contains('needs at least')) {
+          results[resultKey] = '';
+          return true;
+        }
         throw Exception(result['error']);
       }
       results[resultKey] = result['messageId'] ?? '';

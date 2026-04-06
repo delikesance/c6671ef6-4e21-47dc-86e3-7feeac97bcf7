@@ -477,6 +477,9 @@ const Map<String, String> appStringsEn = {
   'copy': 'Copy',
   'delete': 'Delete',
   'cancel': 'Cancel',
+  'save': 'Save',
+  'create': 'Create',
+  'confirm': 'Confirm',
 
   // Bot internal pages — app/home.dart
   'bot_home_start': 'Start Bot',
@@ -518,6 +521,9 @@ const Map<String, String> appStringsEn = {
   'bot_settings_workflow_docs': 'Documentation Center',
   'bot_settings_workflow_docs_desc':
       'Centralized documentation for commands, workflows, runtime variables, and execution behavior.',
+  'bot_settings_export_import': 'Export / Import',
+  'bot_settings_export_import_desc':
+      'Export or import your bot configuration as a ZIP file.',
   'bot_settings_app_flags': 'Application Flags',
   'bot_settings_gateway_intents': 'Gateway Intents Configuration',
   'bot_settings_gateway_intents_desc':
@@ -647,6 +653,36 @@ const Map<String, String> appStringsEn = {
   'commands_empty': 'No commands found',
   'commands_error': 'Error: {error}',
   'commands_create_button': 'Create command',
+  'commands_move_to_folder': 'Move to folder',
+  'commands_remove_from_folder': 'Remove from folder',
+  'commands_new_folder_hint': 'New folder name',
+  'commands_folder_label': 'Folder',
+  'commands_folder_hint': 'Optional folder name',
+  'commands_create_folder': 'Create folder',
+  'commands_rename_folder': 'Rename folder',
+  'commands_delete_folder': 'Delete folder',
+  'commands_delete_folder_desc':
+      'The commands inside this folder will not be deleted, only un-foldered.',
+  'commands_reorder_title': 'Organize commands',
+  'commands_no_folder': 'No folder',
+
+  // Export / Import page
+  'export_import_title': 'Export / Import',
+  'export_section_title': 'Export',
+  'export_section_desc':
+      'Export selected sections of your bot as a ZIP file. The bot token is never included.',
+  'export_commands': 'Commands',
+  'export_workflows': 'Workflows',
+  'export_status': 'Status & Activities',
+  'export_global_variables': 'Global Variables',
+  'export_button': 'Export ZIP',
+  'import_section_title': 'Import',
+  'import_section_desc':
+      'Import a previously exported ZIP file. Conflicts can be resolved per item.',
+  'import_pick_file': 'Select ZIP file',
+  'import_button': 'Import',
+  'import_overwrite': 'Overwrite',
+  'import_skip': 'Skip',
 
   // Global variables page
   'globals_title': 'Global Variables',
@@ -740,6 +776,11 @@ const Map<String, String> appStringsEn = {
       'Invalid format. Use JSON or Base64(JSON).',
   'workflows_import_no_valid': 'No valid workflow found.',
   'workflows_import_done': '{count} workflow(s) imported.',
+  'workflows_move_to_folder': 'Move to folder',
+  'workflows_remove_from_folder': 'Remove from folder',
+  'workflows_new_folder_hint': 'New folder name',
+  'workflows_folder_label': 'Folder',
+  'workflows_folder_hint': 'Optional folder name',
 
   // Command create page
   'cmd_error_fill_fields': 'Please fill all fields',

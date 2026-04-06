@@ -99,7 +99,9 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   final BdfdCompiler _bdfdCompiler = BdfdCompiler();
   BdfdCompileResult? _bdfdCompileResult;
   bool _legacyModeEnabled = false;
-  bool _legacyOnlyLocalCommand = false;
+  bool _localOnlyCommand = false;
+  String _folder = '';
+  final TextEditingController _folderController = TextEditingController();
   String _legacyPrefixOverride = '';
   String _legacyResponseTarget = 'reply';
   bool _simpleModeLocked = false;
@@ -491,9 +493,6 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                       : (enabled) {
                         setState(() {
                           _legacyModeEnabled = enabled;
-                          if (!enabled) {
-                            _legacyOnlyLocalCommand = false;
-                          }
                           if (_legacyModeEnabled && _responseType == 'modal') {
                             _responseType = 'normal';
                           }
@@ -501,23 +500,6 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                       },
             ),
             if (_legacyModeEnabled) ...[
-              const SizedBox(height: 8),
-              SwitchListTile.adaptive(
-                contentPadding: EdgeInsets.zero,
-                title: const Text('Legacy-only (no slash command)'),
-                subtitle: const Text(
-                  'Do not register/update this command on Discord API; keep it local.',
-                ),
-                value: _legacyOnlyLocalCommand,
-                onChanged:
-                    _canToggleLegacyOnlyLocal
-                        ? (enabled) {
-                          setState(() {
-                            _legacyOnlyLocalCommand = enabled;
-                          });
-                        }
-                        : null,
-              ),
               const SizedBox(height: 8),
               TextFormField(
                 initialValue: _legacyPrefixOverride,
@@ -759,6 +741,22 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     super.dispose();
   }
 
+  Widget _buildFolderField() {
+    return TextField(
+      controller: _folderController,
+      decoration: InputDecoration(
+        labelText: AppStrings.t('commands_folder_label'),
+        hintText: AppStrings.t('commands_folder_hint'),
+        prefixIcon: const Icon(Icons.folder_outlined),
+        border: const OutlineInputBorder(),
+        isDense: true,
+      ),
+      onChanged: (val) {
+        _folder = val.trim();
+      },
+    );
+  }
+
   void _applyStateUpdate(VoidCallback callback) {
     if (!mounted) {
       return;
@@ -904,6 +902,8 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         _isLocalOnlyCommand = true;
         _commandName = (normalized['name'] ?? '').toString();
         _commandDescription = (normalized['description'] ?? '').toString();
+        _folder = (normalized['folder'] ?? '').toString().trim();
+        _folderController.text = _folder;
         final savedType = _commandTypeFromText(
           (normalizedData['commandType'] ?? normalized['type'] ?? '')
               .toString(),
@@ -916,7 +916,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         _bdfdScriptController.text = _bdfdScriptContent;
         _bdfdCompileResult = _bdfdCompiler.compile(_bdfdScriptContent);
         _legacyModeEnabled = normalizedData['legacyModeEnabled'] == true;
-        _legacyOnlyLocalCommand = normalizedData['legacyLocalOnly'] == true;
+        _localOnlyCommand = normalizedData['localOnly'] == true;
         _legacyPrefixOverride =
             (normalizedData['legacyPrefixOverride'] ?? '').toString();
         final loadedLegacyResponseTarget =
@@ -1051,12 +1051,14 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         setState(() {
           _editorMode = editorMode;
           _executionMode = executionMode;
+          _folder = (normalized['folder'] ?? '').toString().trim();
+          _folderController.text = _folder;
           _bdfdScriptContent =
               (normalizedData['bdfdScriptContent'] ?? '').toString();
           _bdfdScriptController.text = _bdfdScriptContent;
           _bdfdCompileResult = _bdfdCompiler.compile(_bdfdScriptContent);
           _legacyModeEnabled = normalizedData['legacyModeEnabled'] == true;
-          _legacyOnlyLocalCommand = normalizedData['legacyLocalOnly'] == true;
+          _localOnlyCommand = normalizedData['localOnly'] == true;
           _legacyPrefixOverride =
               (normalizedData['legacyPrefixOverride'] ?? '').toString();
           final loadedLegacyResponseTarget =
@@ -1302,6 +1304,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         'id': commandId,
         'updatedAt': DateTime.now().toIso8601String(),
         'data': commandData,
+        if (_folder.isNotEmpty) 'folder': _folder,
       };
       if (!_isEditingExistingCommand) {
         localPayload['createdAt'] = DateTime.now().toIso8601String();
@@ -1312,7 +1315,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     if (client == null) {
       final localCommandId =
           existingStorageId ??
-          (_legacyOnlyLocalCommand
+          (_localOnlyCommand
               ? _generateLegacyOnlyCommandId()
               : DateTime.now().microsecondsSinceEpoch.toString());
       await saveLocal(localCommandId);
@@ -1324,7 +1327,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     }
 
     try {
-      if (_legacyOnlyLocalCommand) {
+      if (_localOnlyCommand) {
         final localCommandId =
             existingStorageId ?? _generateLegacyOnlyCommandId();
         await saveLocal(localCommandId);
@@ -1361,7 +1364,12 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         if (_contexts.isNotEmpty) {
           commandBuilder.contexts = _contexts;
         }
-        await createCommand(client, commandBuilder, data: commandData);
+        await createCommand(
+          client,
+          commandBuilder,
+          data: commandData,
+          folder: _folder,
+        );
         // Delete the old temp-ID file if this was a local-only command
         if (_isLocalOnlyCommand) {
           final previousId = existingStorageId;
@@ -1409,6 +1417,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           widget.id,
           commandBuilder: commandBuilder,
           data: commandData,
+          folder: _folder,
         );
       }
       Navigator.pop(context);
@@ -1668,10 +1677,11 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                                 commandType: _commandType,
                                 isLegacyCommand:
                                     _legacyModeEnabled &&
-                                    _legacyOnlyLocalCommand &&
+                                    _localOnlyCommand &&
                                     _commandType ==
                                         ApplicationCommandType.chatInput,
                                 canEditCommandType: !_isEditingExistingCommand,
+                                localOnlyCommand: _localOnlyCommand,
                                 showDescriptionField:
                                     _supportsCommandDescription,
                                 integrationTypes: _integrationTypes,
@@ -1693,7 +1703,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                                     if (!_supportsSimpleMode) {
                                       _editorMode = _editorModeAdvanced;
                                       _legacyModeEnabled = false;
-                                      _legacyOnlyLocalCommand = false;
+                                      _localOnlyCommand = false;
                                     }
                                     _simpleModeLocked =
                                         _editorMode == _editorModeAdvanced;
@@ -1714,12 +1724,17 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                                     _commandType =
                                         ApplicationCommandType.chatInput;
                                     _legacyModeEnabled = enabled;
-                                    _legacyOnlyLocalCommand = enabled;
+                                    _localOnlyCommand = enabled;
                                     if (_legacyModeEnabled &&
                                         _responseType == 'modal') {
                                       _responseType = 'normal';
                                     }
                                     _syncSubcommandWorkflowRoutes();
+                                  });
+                                },
+                                onLocalOnlyCommandChanged: (enabled) {
+                                  setState(() {
+                                    _localOnlyCommand = enabled;
                                   });
                                 },
                                 onIntegrationTypesChanged: (val) {
@@ -1741,6 +1756,8 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                                     _defaultMemberPermissions,
                                 nameValidator: _validateName,
                               ),
+                              const SizedBox(height: 12),
+                              _buildFolderField(),
                               const SizedBox(height: 12),
                               Align(
                                 alignment: Alignment.centerRight,
