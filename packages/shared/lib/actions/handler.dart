@@ -13,6 +13,8 @@ import 'package:bot_creator_shared/actions/guild_onboarding.dart';
 import 'package:bot_creator_shared/actions/update_self_user.dart';
 import 'package:bot_creator_shared/actions/thread_management.dart';
 import 'package:bot_creator_shared/actions/channel_permissions.dart';
+import 'package:bot_creator_shared/actions/register_guild_commands.dart';
+import 'package:bot_creator_shared/actions/unregister_guild_commands.dart';
 import 'package:bot_creator_shared/actions/send_message.dart';
 import 'package:bot_creator_shared/actions/permission_checks.dart';
 import 'package:bot_creator_shared/actions/executors/messaging_executor.dart';
@@ -769,6 +771,35 @@ Future<Map<String, String>> handleActions(
           results[resultKey] = suResult['status'] ?? 'updated';
           variables['$resultKey.username'] = suResult['username'] ?? '';
           variables['$resultKey.userId'] = suResult['userId'] ?? '';
+          break;
+
+        // ─── Guild Commands ───────────────────────────────────────────────
+        case BotCreatorActionType.registerGuildCommands:
+          final rgcResult = await registerGuildCommandsAction(
+            client,
+            botId: botId,
+            store: store,
+            guildId: guildId,
+            payload: action.payload,
+          );
+          if (rgcResult['error'] != null) {
+            throw Exception(rgcResult['error']);
+          }
+          results[resultKey] = rgcResult['registered'] ?? '0';
+          break;
+
+        case BotCreatorActionType.unregisterGuildCommands:
+          final ugcResult = await unregisterGuildCommandsAction(
+            client,
+            botId: botId,
+            store: store,
+            guildId: guildId,
+            payload: action.payload,
+          );
+          if (ugcResult['error'] != null) {
+            throw Exception(ugcResult['error']);
+          }
+          results[resultKey] = ugcResult['unregistered'] ?? '0';
           break;
 
         // ─── Thread management ────────────────────────────────────────────

@@ -673,8 +673,6 @@ const Map<String, String> _inlineRuntimeVariables = <String, String>{
   'botlisthide': '',
   'botnode': '',
   'deletecommand': '',
-  'registerguildcommands': '',
-  'unregisterguildcommands': '',
 };
 
 const Set<String> _knownBdfdPermissionTokens = <String>{

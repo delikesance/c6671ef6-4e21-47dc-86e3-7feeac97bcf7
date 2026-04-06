@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:bot_creator/main.dart';
+import 'package:bot_creator/routes/app/export_import.page.dart';
 import 'package:bot_creator/routes/app/workflow_docs.page.dart';
 import 'package:bot_creator/utils/analytics.dart';
 import 'package:bot_creator/utils/bot.dart';
@@ -614,6 +615,32 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                 builder:
                                     (context) =>
                                         const WorkflowDocumentationPage(),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Card(
+                        child: ListTile(
+                          leading: const Icon(Icons.import_export),
+                          title: Text(
+                            AppStrings.t('bot_settings_export_import'),
+                          ),
+                          subtitle: Text(
+                            AppStrings.t('bot_settings_export_import_desc'),
+                          ),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (_) => BotExportImportPage(
+                                      botId:
+                                          widget.client.application.id
+                                              .toString(),
+                                    ),
                               ),
                             );
                           },

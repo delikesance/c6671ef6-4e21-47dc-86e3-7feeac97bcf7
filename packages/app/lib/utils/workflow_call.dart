@@ -139,6 +139,12 @@ Map<String, dynamic> normalizeStoredWorkflowDefinition(
     }
   }
   normalized['name'] = (normalized['name'] ?? '').toString().trim();
+  final rawFolder = (normalized['folder'] ?? '').toString().trim();
+  if (rawFolder.isNotEmpty) {
+    normalized['folder'] = rawFolder;
+  } else {
+    normalized.remove('folder');
+  }
   normalized['workflowType'] = normalizeWorkflowType(
     normalized['workflowType'],
   );
