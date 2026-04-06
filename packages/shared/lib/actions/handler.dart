@@ -83,12 +83,19 @@ Future<Map<String, String>> handleActions(
     replayTrace = <_DebugTraceEntry>[];
   }
 
+  // Execution timer for ((execution.time)) resolution.
+  final executionStopwatch = Stopwatch()..start();
+
   for (var i = 0; i < actions.length; i++) {
     final action = actions[i];
     final resultKey = action.key ?? 'action_$i';
     if (!action.enabled) {
       continue;
     }
+
+    // Update execution.time before each action so templates pick up the
+    // elapsed time since command execution started.
+    variables['execution.time'] = '${executionStopwatch.elapsedMilliseconds}ms';
 
     // Start debug profiling when debugProfile action is encountered
     if (action.type == BotCreatorActionType.debugProfile) {

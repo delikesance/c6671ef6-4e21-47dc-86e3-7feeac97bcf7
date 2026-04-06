@@ -80,6 +80,7 @@ Future<void> injectGlobalRuntimeVariables({
       entry.value,
     );
   }
+  runtimeVariables['variables.count'] = globalVars.length.toString();
 }
 
 Future<void> injectScopedRuntimeVariables({

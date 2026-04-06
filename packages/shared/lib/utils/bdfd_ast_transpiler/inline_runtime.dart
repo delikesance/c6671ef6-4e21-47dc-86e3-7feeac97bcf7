@@ -893,6 +893,7 @@ extension _BdfdAstTranspilationScopeInlineRuntime
       case 'checkuserperms':
       case 'checkusersperms':
       case 'onlyifmessagecontains':
+      case 'enabled':
       case 'startthread':
       case 'editthread':
       case 'threadaddmember':

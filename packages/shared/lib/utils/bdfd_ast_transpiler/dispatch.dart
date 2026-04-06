@@ -802,6 +802,9 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
       // Dynamic eval
       case 'eval':
         return _buildEvalAction(node);
+      // Enabled guard
+      case 'enabled':
+        return _transpileEnabled(node);
       // Debug profiling
       case 'debug':
         return _buildDebugAction(node);
@@ -859,6 +862,43 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
       elseActions: _buildGuardFailureActions(
         message: _stringifyArgument(node, 1),
       ),
+    );
+  }
+
+  /// Transpiles `$enabled[Enabled;Error message]`.
+  ///
+  /// The command is allowed to proceed when the first argument resolves to a
+  /// truthy value (`yes`, `true`, `1`).  When it resolves to a falsy value
+  /// (`no`, `false`, `0`) execution is stopped with the optional error
+  /// message from the second argument.
+  Action? _transpileEnabled(BdfdFunctionCallAst node) {
+    if (node.arguments.isEmpty) {
+      return null;
+    }
+    final enabledValue = _stringifyArgument(node, 0);
+    final errorMessage = _stringifyArgument(node, 1);
+
+    // Guard: NOT (value == 'no' OR value == 'false' OR value == '0')
+    // When the condition is satisfied (value is disabled), the else branch
+    // fires, sending the error message and stopping execution.
+    final condition = _ParsedCondition.logical(
+      group: 'or',
+      negate: true,
+      conditions: <_ParsedCondition>[
+        _ParsedCondition(left: enabledValue, operator: 'equals', right: 'no'),
+        _ParsedCondition(
+          left: enabledValue,
+          operator: 'equals',
+          right: 'false',
+        ),
+        _ParsedCondition(left: enabledValue, operator: 'equals', right: '0'),
+      ],
+    );
+
+    return _buildGuardIfAction(
+      condition: condition,
+      thenActions: const <Action>[],
+      elseActions: _buildGuardFailureActions(message: errorMessage),
     );
   }
 
