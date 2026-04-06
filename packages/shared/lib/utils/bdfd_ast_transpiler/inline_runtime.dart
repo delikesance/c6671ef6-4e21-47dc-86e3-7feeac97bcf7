@@ -343,6 +343,8 @@ extension _BdfdAstTranspilationScopeInlineRuntime
         return _jsonArrayIndex(node);
       case 'jsonjoinarray':
         return _jsonJoinArray(node);
+      case 'jsonkeys':
+        return _jsonKeys(node);
       case 'jsonarraypop':
         return _jsonArrayPop(node);
       case 'jsonarrayshift':
@@ -725,6 +727,7 @@ extension _BdfdAstTranspilationScopeInlineRuntime
       case 'jsonarraycount':
       case 'jsonarrayindex':
       case 'jsonjoinarray':
+      case 'jsonkeys':
       case 'jsonarraypop':
       case 'jsonarrayshift':
       case 'startthread':
