@@ -592,6 +592,45 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
     return value.map(_jsonStringifyValue).join(separator);
   }
 
+  String _jsonKeys(BdfdFunctionCallAst node) {
+    final hasSeparatorArg = node.arguments.length >= 2;
+    if (_deferredJsonMode || _resumeDeferredJsonFromLastRuntimeContext()) {
+      final separator =
+          hasSeparatorArg
+              ? _stringifyArgument(node, node.arguments.length - 1)
+              : ',';
+      final segments = _jsonPathSegmentsRaw(
+        node,
+        endExclusive: hasSeparatorArg ? node.arguments.length - 1 : null,
+      );
+      final readIndex = _deferredJsonReadCounter++;
+      _deferredJsonOps.add(<String, dynamic>{
+        'op': 'keys',
+        'path': segments,
+        'separator': separator,
+        'readIndex': readIndex,
+      });
+      return '(($_deferredJsonResultKeyPrefix.json_$readIndex))';
+    }
+    if (!_hasJsonContext) {
+      return '';
+    }
+
+    final separator =
+        hasSeparatorArg
+            ? _stringifyArgument(node, node.arguments.length - 1)
+            : ',';
+    final path = _jsonPathSegments(
+      node,
+      endExclusive: hasSeparatorArg ? node.arguments.length - 1 : null,
+    );
+    final value = path.isEmpty ? _jsonContext : _jsonGetPathValue(path);
+    if (value is! Map) {
+      return '';
+    }
+    return value.keys.map((k) => k.toString()).join(separator);
+  }
+
   List<dynamic> _jsonEnsureArray(List<Object> path) {
     final existing = _jsonGetPathValue(path);
     if (existing is List<dynamic>) {

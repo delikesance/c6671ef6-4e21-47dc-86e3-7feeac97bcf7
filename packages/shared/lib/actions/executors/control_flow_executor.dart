@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../../types/action.dart';
 import '../../utils/bdfd_compiler.dart';
 import '../../utils/workflow_call.dart';
@@ -431,6 +433,101 @@ Future<bool> executeControlFlowAction({
       results[resultKey] = 'LOOP_$capped';
       return true;
 
+    case BotCreatorActionType.jsonForEachLoop:
+      final maxIterations = (payload['maxIterations'] as int?) ?? 100;
+      final pathRaw = payload['path'];
+      final pathSegments =
+          (pathRaw is List)
+              ? pathRaw.map((e) => resolveValue(e.toString())).toList()
+              : const <String>[];
+      final bodyActionsRaw = payload['bodyActions'];
+      final templateActions = _decodeActionList(bodyActionsRaw);
+
+      if (templateActions.isEmpty) {
+        results[resultKey] = 'JSONFE_0';
+        return true;
+      }
+
+      // Resolve the JSON source from the variables/results context.
+      // Look for the latest runtimeJsonBlock result in variables.
+      dynamic jsonCtx;
+      final mergedContext = <String, String>{...variables, ...results};
+      final jsonSource = _findLatestJsonContext(mergedContext);
+      if (jsonSource.isNotEmpty) {
+        try {
+          jsonCtx = jsonDecode(jsonSource);
+        } catch (_) {
+          jsonCtx = null;
+        }
+      }
+
+      // Navigate the path.
+      if (jsonCtx != null && pathSegments.isNotEmpty) {
+        for (final segment in pathSegments) {
+          final index = int.tryParse(segment);
+          if (index != null && jsonCtx is List) {
+            if (index < 0 || index >= jsonCtx.length) {
+              jsonCtx = null;
+              break;
+            }
+            jsonCtx = jsonCtx[index];
+          } else if (jsonCtx is Map) {
+            if (!jsonCtx.containsKey(segment)) {
+              jsonCtx = null;
+              break;
+            }
+            jsonCtx = jsonCtx[segment];
+          } else {
+            jsonCtx = null;
+            break;
+          }
+        }
+      }
+
+      if (jsonCtx is! Map) {
+        results[resultKey] = 'JSONFE_0';
+        return true;
+      }
+
+      final keys = jsonCtx.keys.toList();
+      final capped2 = keys.length > maxIterations ? maxIterations : keys.length;
+
+      for (var i = 0; i < capped2; i++) {
+        final key = keys[i].toString();
+        final value = _jsonStringifyForEach(jsonCtx[keys[i]]);
+        variables['_loop.var.jsonkey'] = key;
+        variables['_loop.var.jsonvalue'] = value;
+        variables['_loop.var.jsonindex'] = i.toString();
+        variables['_loop.index'] = i.toString();
+        variables['_loop.count'] = (i + 1).toString();
+
+        final iterActions = _cloneActionsWithLoopVars(
+          templateActions,
+          loopVars: <String, String>{
+            '_loop.var.jsonkey': key,
+            '_loop.var.jsonvalue': value,
+            '_loop.var.jsonindex': i.toString(),
+            '_loop.index': i.toString(),
+            '_loop.count': (i + 1).toString(),
+          },
+        );
+        final iterResults = await executeActions(iterActions);
+        for (final entry in iterResults.entries) {
+          results['$resultKey.iter$i.${entry.key}'] = entry.value;
+        }
+        if (iterResults.containsKey('__stopped__')) {
+          results['__stopped__'] = 'true';
+          break;
+        }
+      }
+      variables.remove('_loop.var.jsonkey');
+      variables.remove('_loop.var.jsonvalue');
+      variables.remove('_loop.var.jsonindex');
+      variables.remove('_loop.index');
+      variables.remove('_loop.count');
+      results[resultKey] = 'JSONFE_$capped2';
+      return true;
+
     default:
       return false;
   }
@@ -648,4 +745,42 @@ void _applyRuntimeCStyleUpdate(
       vars[name] = (vars[name] ?? 0) * value;
     }
   }
+}
+
+/// Finds the latest runtime JSON context value from merged variables/results.
+String _findLatestJsonContext(Map<String, String> mergedContext) {
+  String? best;
+  int bestIndex = -1;
+  for (final entry in mergedContext.entries) {
+    final key = entry.key.toLowerCase();
+    if (entry.value.trim().isEmpty) continue;
+    if (!key.startsWith('rtjson_') &&
+        !RegExp(r'^action_\d+(\.json_\d+)?$').hasMatch(key)) {
+      continue;
+    }
+    final idx = _feActionKeyIndex(key);
+    if (idx > bestIndex && _looksLikeJson(entry.value)) {
+      bestIndex = idx;
+      best = entry.value;
+    }
+  }
+  return best ?? '';
+}
+
+int _feActionKeyIndex(String key) {
+  final match = RegExp(r'(\d+)').firstMatch(key);
+  return match != null ? (int.tryParse(match.group(1)!) ?? 0) : 0;
+}
+
+bool _looksLikeJson(String value) {
+  final trimmed = value.trim();
+  return (trimmed.startsWith('{') && trimmed.endsWith('}')) ||
+      (trimmed.startsWith('[') && trimmed.endsWith(']'));
+}
+
+String _jsonStringifyForEach(dynamic value) {
+  if (value == null) return '';
+  if (value is String) return value;
+  if (value is num || value is bool) return value.toString();
+  return jsonEncode(value);
 }
