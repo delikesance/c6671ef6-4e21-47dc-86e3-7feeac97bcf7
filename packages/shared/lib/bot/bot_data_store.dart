@@ -6,6 +6,14 @@ abstract class BotDataStore {
   /// Each entry typically contains:
   /// - `scope`: guild|channel|user|guildMember|message
   /// - `key`: variable key (with or without bc_ prefix)
+  /// Returns a list of all commands for [botId].
+  Future<List<Map<String, dynamic>>> getCommands(String botId);
+
+  /// Returns scoped variable definitions for [botId].
+  ///
+  /// Each entry typically contains:
+  /// - `scope`: guild|channel|user|guildMember|message
+  /// - `key`: variable key (with or without bc_ prefix)
   /// - `defaultValue`: fallback value when missing/empty
   Future<List<Map<String, dynamic>>> getScopedVariableDefinitions(String botId);
 
