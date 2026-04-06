@@ -1974,6 +1974,22 @@ void _executeRuntimeJsonBlock({
           variables['$resultKey.json_$readIndex'] = joined;
         }
         break;
+
+      case 'keys':
+        final readIndex = rawOp['readIndex'];
+        final separator = resolveRuntimeJsonInput(
+          (rawOp['separator'] ?? ',').toString(),
+        );
+        final value = _rtJsonGetPath(jsonCtx, resolvedPath);
+        final keys =
+            value is Map
+                ? value.keys.map((k) => k.toString()).join(separator)
+                : '';
+        if (readIndex != null) {
+          results['$resultKey.json_$readIndex'] = keys;
+          variables['$resultKey.json_$readIndex'] = keys;
+        }
+        break;
     }
   }
 
