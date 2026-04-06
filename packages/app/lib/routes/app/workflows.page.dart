@@ -1327,6 +1327,9 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
     final nameController = TextEditingController(
       text: (normalizedInitial?['name'] ?? '').toString(),
     );
+    final folderController = TextEditingController(
+      text: (normalizedInitial?['folder'] ?? '').toString().trim(),
+    );
     final entryPointController = TextEditingController(
       text: normalizeWorkflowEntryPoint(normalizedInitial?['entryPoint']),
     );
@@ -1483,6 +1486,17 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                           decoration: InputDecoration(
                             labelText: AppStrings.t('workflows_name'),
                             border: const OutlineInputBorder(),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        TextField(
+                          controller: folderController,
+                          decoration: InputDecoration(
+                            labelText: AppStrings.t('workflows_folder_label'),
+                            hintText: AppStrings.t('workflows_folder_hint'),
+                            prefixIcon: const Icon(Icons.folder_outlined),
+                            border: const OutlineInputBorder(),
+                            isDense: true,
                           ),
                         ),
                         const SizedBox(height: 10),
@@ -2013,6 +2027,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
           selectedWorkflowType == workflowTypeEvent
               ? selectedEventTrigger
               : null,
+      folder: folderController.text.trim(),
     );
     await _load();
   }
@@ -2434,6 +2449,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
             workflowType == workflowTypeEvent
                 ? normalizeWorkflowEventTrigger(workflow['eventTrigger'])
                 : null,
+        folder: (workflow['folder'] ?? '').toString().trim(),
       );
       importedCount++;
     }
@@ -2452,6 +2468,116 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
         ),
       ),
     );
+  }
+
+  Set<String> get _existingWorkflowFolders {
+    return _workflows
+        .map((w) => (w['folder'] ?? '').toString().trim())
+        .where((f) => f.isNotEmpty)
+        .toSet();
+  }
+
+  Future<void> _showWorkflowMoveToFolderDialog(
+    Map<String, dynamic> workflow,
+  ) async {
+    final name = (workflow['name'] ?? '').toString();
+    final currentFolder = (workflow['folder'] ?? '').toString().trim();
+    final folders = _existingWorkflowFolders.toList()..sort();
+    final controller = TextEditingController();
+
+    final chosen = await showModalBottomSheet<String>(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                child: Text(
+                  AppStrings.t('workflows_move_to_folder'),
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+              if (currentFolder.isNotEmpty)
+                ListTile(
+                  leading: const Icon(Icons.clear),
+                  title: Text(AppStrings.t('workflows_remove_from_folder')),
+                  onTap: () => Navigator.pop(context, ''),
+                ),
+              for (final folder in folders)
+                ListTile(
+                  leading: Icon(
+                    Icons.folder,
+                    color:
+                        folder == currentFolder
+                            ? Theme.of(context).colorScheme.primary
+                            : null,
+                  ),
+                  title: Text(folder),
+                  selected: folder == currentFolder,
+                  onTap: () => Navigator.pop(context, folder),
+                ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: controller,
+                        decoration: InputDecoration(
+                          hintText: AppStrings.t('workflows_new_folder_hint'),
+                          border: const OutlineInputBorder(),
+                          isDense: true,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      icon: const Icon(Icons.check),
+                      onPressed: () {
+                        final newFolder = controller.text.trim();
+                        if (newFolder.isNotEmpty) {
+                          Navigator.pop(context, newFolder);
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (chosen == null || !mounted) return;
+
+    await appManager.saveWorkflow(
+      widget.botId,
+      name: name,
+      actions: List<Map<String, dynamic>>.from(
+        (workflow['actions'] as List?)?.whereType<Map>().map(
+              (e) => Map<String, dynamic>.from(e),
+            ) ??
+            const <Map<String, dynamic>>[],
+      ),
+      entryPoint: normalizeWorkflowEntryPoint(workflow['entryPoint']),
+      arguments: serializeWorkflowArgumentDefinitions(
+        parseWorkflowArgumentDefinitions(workflow['arguments']),
+      ),
+      workflowType: normalizeWorkflowType(workflow['workflowType']),
+      eventTrigger:
+          normalizeWorkflowType(workflow['workflowType']) == workflowTypeEvent
+              ? normalizeWorkflowEventTrigger(workflow['eventTrigger'])
+              : null,
+      folder: chosen,
+    );
+    await _load();
   }
 
   @override
@@ -2482,23 +2608,47 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
       }
 
       workflowChildren.add(_WorkflowSectionHeader(title: title));
+
+      // Sub-group by folder within each section
+      final Map<String, List<Map<String, dynamic>>> byFolder = {};
       for (final workflow in workflows) {
-        workflowChildren.add(_buildWorkflowTile(workflow));
-        displayedWorkflowsCount += 1;
-        if (adsEnabled &&
-            AdsPlacementPolicy.shouldInsertAfterContentCount(
-              displayedWorkflowsCount,
-            )) {
+        final folder = (workflow['folder'] ?? '').toString().trim();
+        byFolder.putIfAbsent(folder, () => []).add(workflow);
+      }
+      final sortedFolders =
+          byFolder.keys.toList()..sort((a, b) {
+            if (a.isEmpty) return -1;
+            if (b.isEmpty) return 1;
+            return a.compareTo(b);
+          });
+
+      for (final folder in sortedFolders) {
+        if (folder.isNotEmpty) {
           workflowChildren.add(
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              child: NativeAdSlot(
-                placement: NativeAdPlacement.workflowsList,
-                height: 110,
-                margin: EdgeInsets.zero,
-              ),
+            _WorkflowFolderHeader(
+              title: folder,
+              count: byFolder[folder]!.length,
             ),
           );
+        }
+        for (final workflow in byFolder[folder]!) {
+          workflowChildren.add(_buildWorkflowTile(workflow));
+          displayedWorkflowsCount += 1;
+          if (adsEnabled &&
+              AdsPlacementPolicy.shouldInsertAfterContentCount(
+                displayedWorkflowsCount,
+              )) {
+            workflowChildren.add(
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                child: NativeAdSlot(
+                  placement: NativeAdPlacement.workflowsList,
+                  height: 110,
+                  margin: EdgeInsets.zero,
+                ),
+              ),
+            );
+          }
         }
       }
     }
@@ -2586,6 +2736,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
     return Column(
       children: [
         ListTile(
+          onLongPress: () => _showWorkflowMoveToFolderDialog(workflow),
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
             vertical: 10,
@@ -2832,6 +2983,46 @@ class _WorkflowSectionHeader extends StatelessWidget {
         style: Theme.of(
           context,
         ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+      ),
+    );
+  }
+}
+
+class _WorkflowFolderHeader extends StatelessWidget {
+  const _WorkflowFolderHeader({required this.title, required this.count});
+
+  final String title;
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 10, 16, 4),
+      child: Row(
+        children: [
+          Icon(
+            Icons.folder,
+            size: 16,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            '($count)',
+            style: TextStyle(
+              fontSize: 11,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
       ),
     );
   }

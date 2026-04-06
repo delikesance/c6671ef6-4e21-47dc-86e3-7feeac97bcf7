@@ -566,6 +566,10 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         // No-op flag – absorbed at transpile time.
         return null;
       // Moderation actions
+      case 'registerguildcommands':
+        return _buildRegisterGuildCommandsAction(node);
+      case 'unregisterguildcommands':
+        return _buildUnregisterGuildCommandsAction(node);
       case 'ban':
         return _buildBanAction(node);
       case 'banid':

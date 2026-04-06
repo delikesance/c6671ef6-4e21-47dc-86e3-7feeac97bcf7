@@ -585,6 +585,9 @@ class DiscordBotTaskHandler extends TaskHandler {
           'Mobile bot connected and ready',
           botId: resolvedBotId,
         );
+        unawaited(
+          _manager!.updateGuildCount(resolvedBotId, event.guilds.length),
+        );
         final latestAppData = await _manager!.getApp(resolvedBotId);
         _startMobileStatusRotation(resolvedBotId, gateway, latestAppData);
         await _emitTaskMetricsToMain(botId: resolvedBotId);

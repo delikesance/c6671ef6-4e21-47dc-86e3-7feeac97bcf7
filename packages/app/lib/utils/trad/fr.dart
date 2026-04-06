@@ -491,6 +491,9 @@
   'copy': 'Copier',
   'delete': 'Supprimer',
   'cancel': 'Annuler',
+  'save': 'Enregistrer',
+  'create': 'Créer',
+  'confirm': 'Confirmer',
 
   // Pages internes au bot — app/home.dart
   'bot_home_start': 'Lancer le bot',
@@ -534,6 +537,9 @@
   'bot_settings_workflow_docs_desc':
       'Documentation centralisée pour les commandes, workflows, variables runtime et comportement d’exécution.',
   'bot_settings_app_flags': 'Indicateurs de l’application',
+  'bot_settings_export_import': 'Export / Import',
+  'bot_settings_export_import_desc':
+      'Exportez ou importez la configuration de votre bot sous forme de fichier ZIP.',
   'bot_settings_gateway_intents': 'Configuration des Gateway Intents',
   'bot_settings_gateway_intents_desc':
       'Sélectionnez les intents dont votre bot a besoin. Configurez-les sur le Discord Developer Portal.',
@@ -664,6 +670,18 @@
   'commands_empty': 'Aucune commande trouvée',
   'commands_error': 'Erreur : {error}',
   'commands_create_button': 'Créer une commande',
+  'commands_move_to_folder': 'Déplacer dans un dossier',
+  'commands_remove_from_folder': 'Retirer du dossier',
+  'commands_new_folder_hint': 'Nom du nouveau dossier',
+  'commands_folder_label': 'Dossier',
+  'commands_folder_hint': 'Nom du dossier (optionnel)',
+  'commands_create_folder': 'Créer un dossier',
+  'commands_rename_folder': 'Renommer le dossier',
+  'commands_delete_folder': 'Supprimer le dossier',
+  'commands_delete_folder_desc':
+      'Les commandes de ce dossier ne seront pas supprimées, juste retirées du dossier.',
+  'commands_reorder_title': 'Organiser les commandes',
+  'commands_no_folder': 'Aucun dossier',
 
   // Page variables globales
   'globals_title': 'Variables globales',
@@ -757,6 +775,29 @@
       'Format invalide. Utilise JSON ou Base64(JSON).',
   'workflows_import_no_valid': 'Aucun workflow valide trouvé.',
   'workflows_import_done': '{count} workflow(s) importé(s).',
+  'workflows_move_to_folder': 'Déplacer dans un dossier',
+  'workflows_remove_from_folder': 'Retirer du dossier',
+  'workflows_new_folder_hint': 'Nom du nouveau dossier',
+  'workflows_folder_label': 'Dossier',
+  'workflows_folder_hint': 'Nom du dossier (optionnel)',
+
+  // Export / Import
+  'export_import_title': 'Export / Import',
+  'export_section_title': 'Export',
+  'export_section_desc':
+      'Exportez les sections sélectionnées de votre bot sous forme de fichier ZIP. Le token du bot n\'est jamais inclus.',
+  'export_commands': 'Commandes',
+  'export_workflows': 'Workflows',
+  'export_status': 'Statut & Activités',
+  'export_global_variables': 'Variables globales',
+  'export_button': 'Exporter en ZIP',
+  'import_section_title': 'Import',
+  'import_section_desc':
+      'Importez un fichier ZIP précédemment exporté. Les conflits peuvent être résolus par élément.',
+  'import_pick_file': 'Sélectionner un fichier ZIP',
+  'import_button': 'Importer',
+  'import_overwrite': 'Écraser',
+  'import_skip': 'Ignorer',
 
   // Page création de commande
   'cmd_error_fill_fields': 'Veuillez remplir tous les champs',

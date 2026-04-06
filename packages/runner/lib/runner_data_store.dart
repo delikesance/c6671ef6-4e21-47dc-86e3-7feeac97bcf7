@@ -123,6 +123,9 @@ class RunnerDataStore implements BotDataStore {
   }
 
   @override
+  Future<List<Map<String, dynamic>>> getCommands(String botId) async => const [];
+
+  @override
   Future<List<Map<String, dynamic>>> getScopedVariableDefinitions(
     String botId,
   ) async {
