@@ -202,6 +202,7 @@ class DiscordRunner {
 
   NyxxGateway? _gateway;
   DateTime? _startedAt;
+  String? _cachedApplicationOwnerId;
   Timer? _statusRotationTimer;
   Timer? _scheduledWorkflowTimer;
   final Map<String, DateTime> _scheduledLastRun = <String, DateTime>{};
@@ -413,6 +414,13 @@ class DiscordRunner {
       final botId = event.gateway.client.user.id.toString();
       _log.info('Bot ready — bot ID: $botId');
 
+      // Cache the application owner ID for $botOwnerID resolution.
+      try {
+        final app =
+            await event.gateway.client.applications.fetchCurrentApplication();
+        _cachedApplicationOwnerId = app.owner?.id.toString() ?? '';
+      } catch (_) {}
+
       await _reconcileCurrentBotProfile(event.gateway.client);
       _startStatusRotation(event.gateway.client);
     });
@@ -596,6 +604,17 @@ class DiscordRunner {
     if (_startedAt != null) {
       variables['bot.uptime'] =
           DateTime.now().difference(_startedAt!).inSeconds.toString();
+    }
+
+    // ── Bot info variables (always resolved) ──
+    variables['bot.ownerId'] = _cachedApplicationOwnerId ?? '';
+    variables['bot.commands'] = config.commands.length.toString();
+    variables['bot.commandsCount'] = config.commands.length.toString();
+    variables['bot.slashCommandsCount'] = config.commands.length.toString();
+    variables['bot.nodeVersion'] = 'Dart ${Platform.version.split(' ').first}';
+    // execution.time is injected by handleActions via its execution stopwatch.
+    if (!variables.containsKey('execution.time')) {
+      variables['execution.time'] = '0ms';
     }
   }
 
@@ -2289,6 +2308,7 @@ class DiscordRunner {
       }
 
       final args = tokens.length > 1 ? tokens.sublist(1) : const <String>[];
+      runtimeVariables['message.content'] = args.join(' ');
       runtimeVariables['message.content[0]'] = commandName;
       for (var i = 0; i < args.length; i++) {
         runtimeVariables['message.content[${i + 1}]'] = args[i];
@@ -2298,6 +2318,7 @@ class DiscordRunner {
       runtimeVariables['command.type'] = 'legacy';
       runtimeVariables['interaction.command.type'] = 'legacy';
       runtimeVariables['config.command.type'] = 'chatInput';
+      runtimeVariables['interaction.isSlash'] = 'false';
       runtimeVariables['interaction.command.name'] = commandName;
       runtimeVariables['interaction.command.route'] = '';
 
@@ -2540,6 +2561,7 @@ class DiscordRunner {
       runtimeVariables['command.type'] = 'legacy';
       runtimeVariables['interaction.command.type'] = 'legacy';
       runtimeVariables['config.command.type'] = 'chatInput';
+      runtimeVariables['interaction.isSlash'] = 'false';
       runtimeVariables['interaction.command.name'] = commandName;
       runtimeVariables['interaction.command.route'] = '';
 
@@ -2629,18 +2651,8 @@ class DiscordRunner {
     // Inject bot-level variables.
     if (_gateway != null) {
       runtimeVariables.addAll(extractBotRuntimeDetails(_gateway!));
-      try {
-        runtimeVariables['bot.ping'] =
-            _gateway!.gateway.latency.inMilliseconds.toString();
-      } catch (_) {}
-      try {
-        runtimeVariables['bot.shardId'] = _gateway!.gateway.shardIds.join(',');
-      } catch (_) {}
-      if (_startedAt != null) {
-        runtimeVariables['bot.uptime'] =
-            DateTime.now().difference(_startedAt!).inSeconds.toString();
-      }
     }
+    _injectGatewayBotVariables(runtimeVariables);
 
     // Fast-path: when every action is a listener registration, skip expensive
     // guild/channel/member fetches and DB variable hydration — the listener
@@ -2835,6 +2847,7 @@ class DiscordRunner {
     runtimeVariables['command.type'] = interactionType;
     runtimeVariables['interaction.command.type'] = interactionType;
     runtimeVariables['config.command.type'] = storedType;
+    runtimeVariables['interaction.isSlash'] = 'true';
     runtimeVariables['interaction.command.name'] = interaction.data.name;
     runtimeVariables['interaction.command.id'] = interaction.data.id.toString();
     runtimeVariables['interaction.command.route'] = subcommandRoute ?? '';

@@ -668,6 +668,7 @@ Future<void> _executeLocalEventWorkflow(
     gateway,
     runtimeVariables,
     startedAt: _botStartedAt(botId),
+    botId: botId,
   );
 
   // Fast-path: when every action is a listener registration, skip expensive
@@ -1078,6 +1079,7 @@ Future<bool> _tryExecuteLocalAwaitedInput(
       gateway,
       runtimeVariables,
       startedAt: _botStartedAt(botId),
+      botId: botId,
     );
     await hydrateRuntimeVariables(
       store: manager,
@@ -1097,6 +1099,7 @@ Future<bool> _tryExecuteLocalAwaitedInput(
     runtimeVariables['command.type'] = 'legacy';
     runtimeVariables['interaction.command.type'] = 'legacy';
     runtimeVariables['config.command.type'] = 'chatInput';
+    runtimeVariables['interaction.isSlash'] = 'false';
     runtimeVariables['interaction.command.name'] = commandName;
     runtimeVariables['interaction.command.route'] = '';
 
@@ -1963,6 +1966,7 @@ Future<bool> _tryExecuteLocalLegacyCommand(
     gateway,
     baseRuntimeVariables,
     startedAt: _botStartedAt(botId),
+    botId: botId,
   );
 
   // Hydrate runtime variables in parallel with command loading.
@@ -2097,6 +2101,7 @@ Future<bool> _tryExecuteLocalLegacyCommand(
     }
 
     final args = tokens.length > 1 ? tokens.sublist(1) : const <String>[];
+    runtimeVariables['message.content'] = args.join(' ');
     runtimeVariables['message.content[0]'] = commandName;
     for (var i = 0; i < args.length; i++) {
       runtimeVariables['message.content[${i + 1}]'] = args[i];
@@ -2106,6 +2111,7 @@ Future<bool> _tryExecuteLocalLegacyCommand(
     runtimeVariables['command.type'] = 'legacy';
     runtimeVariables['interaction.command.type'] = 'legacy';
     runtimeVariables['config.command.type'] = 'chatInput';
+    runtimeVariables['interaction.isSlash'] = 'false';
     runtimeVariables['interaction.command.name'] = commandName;
     runtimeVariables['interaction.command.route'] = '';
 
