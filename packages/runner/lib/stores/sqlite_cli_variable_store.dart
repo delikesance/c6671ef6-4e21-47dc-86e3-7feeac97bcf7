@@ -556,7 +556,7 @@ class SqliteCliVariableStore implements VariableDatabase {
 
   String _scopedContextWhereClause({required bool includeKey}) {
     final keyClause = includeKey ? ' AND key = ?' : '';
-    return 'bot_id = ? AND scope = ? AND context_id_1 = ? AND '
+    return "bot_id = ? AND scope = ? AND context_id_1 = ? AND "
         "COALESCE(context_id_2, '') = ?$keyClause";
   }
 
