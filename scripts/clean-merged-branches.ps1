@@ -15,12 +15,16 @@ function Invoke-Git {
     )
 
     $stderrFile = [System.IO.Path]::GetTempFileName()
+    $previousEAP = $ErrorActionPreference
 
     try {
+        $ErrorActionPreference = "Continue"
         $output = & git @Arguments 2> $stderrFile
+        $ErrorActionPreference = $previousEAP
         $stderr = Get-Content -Path $stderrFile -ErrorAction SilentlyContinue
     }
     finally {
+        $ErrorActionPreference = $previousEAP
         Remove-Item -Path $stderrFile -Force -ErrorAction SilentlyContinue
     }
 
