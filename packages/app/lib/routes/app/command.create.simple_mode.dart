@@ -78,45 +78,19 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
     return buildSimpleModeActions(_simpleModeConfig);
   }
 
-  Future<void> _switchToAdvancedMode() async {
-    if (_simpleModeLocked || !_isSimpleMode) {
-      return;
+  void _applyQuickStartToDraft({bool syncRoutes = true}) {
+    _options = _buildSimpleModeOptions();
+    _actions = _buildSimpleModeActions();
+    _editorMode = _CommandCreatePageState._editorModeAdvanced;
+    if (syncRoutes) {
+      _syncSubcommandWorkflowRoutes();
     }
-
-    final confirmed =
-        await showDialog<bool>(
-          context: context,
-          builder:
-              (context) => AlertDialog(
-                title: Text(AppStrings.t('cmd_editor_mode_switch_adv_title')),
-                content: Text(
-                  AppStrings.t('cmd_editor_mode_switch_adv_content'),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    child: Text(AppStrings.t('cancel')),
-                  ),
-                  FilledButton(
-                    onPressed: () => Navigator.of(context).pop(true),
-                    child: Text(
-                      AppStrings.t('cmd_editor_mode_switch_adv_confirm'),
-                    ),
-                  ),
-                ],
-              ),
-        ) ??
-        false;
-
-    if (!confirmed || !mounted) {
-      return;
-    }
-
-    _applyStateUpdate(() {
-      _editorMode = _CommandCreatePageState._editorModeAdvanced;
-      _simpleModeLocked = true;
-    });
   }
+
+  void _hydrateLegacySimpleModeIntoDraft() {
+    _applyQuickStartToDraft(syncRoutes: false);
+  }
+
 
   Widget _buildSimpleActionToggle({
     required bool value,
@@ -134,71 +108,6 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
     );
   }
 
-  Widget _buildEditorModeCard(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              AppStrings.t('cmd_editor_mode_title'),
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              _isSimpleMode
-                  ? AppStrings.t('cmd_editor_mode_simple_desc')
-                  : AppStrings.t('cmd_editor_mode_advanced_desc'),
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.grey.shade300),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    _isSimpleMode ? Icons.auto_awesome : Icons.tune,
-                    color:
-                        _isSimpleMode
-                            ? const Color.fromRGBO(106, 15, 162, 1)
-                            : Colors.blueGrey,
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      _isSimpleMode
-                          ? AppStrings.t('cmd_editor_mode_simple')
-                          : AppStrings.t('cmd_editor_mode_advanced'),
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            if (_isSimpleMode) ...[
-              const SizedBox(height: 12),
-              FilledButton.tonalIcon(
-                onPressed: _simpleModeLocked ? null : _switchToAdvancedMode,
-                icon: const Icon(Icons.upgrade),
-                label: Text(AppStrings.t('cmd_editor_mode_switch_adv')),
-              ),
-            ] else ...[
-              const SizedBox(height: 12),
-              Text(
-                AppStrings.t('cmd_editor_mode_locked'),
-                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _buildExecutionModeCard() {
     final isWorkflowMode = !_isBdfdScriptMode;
@@ -945,86 +854,4 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
     );
   }
 
-  Widget _buildSimpleResponseCard() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              AppStrings.t('cmd_simple_response_title'),
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              AppStrings.t('cmd_simple_response_desc'),
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-            ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              initialValue: _responseType,
-              decoration: InputDecoration(
-                labelText: AppStrings.t('cmd_simple_response_visibility_label'),
-                border: const OutlineInputBorder(),
-              ),
-              items: [
-                DropdownMenuItem(
-                  value: 'normal',
-                  child: Text(
-                    AppStrings.t('cmd_simple_response_visibility_public'),
-                  ),
-                ),
-                DropdownMenuItem(
-                  value: 'ephemeral',
-                  child: Text(
-                    AppStrings.t('cmd_simple_response_visibility_ephemeral'),
-                  ),
-                ),
-              ],
-              onChanged: (value) {
-                if (value == null) {
-                  return;
-                }
-                _applyStateUpdate(() {
-                  _responseType = value;
-                });
-              },
-            ),
-            const SizedBox(height: 8),
-            TextFormField(
-              controller: _responseController,
-              minLines: 3,
-              maxLines: 6,
-              decoration: InputDecoration(
-                hintText: AppStrings.t('cmd_simple_response_hint'),
-                border: const OutlineInputBorder(),
-              ),
-            ),
-            _buildVariableSuggestionBar(_responseController),
-            const SizedBox(height: 12),
-            Text(
-              AppStrings.t('cmd_simple_response_embeds_title'),
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              AppStrings.t('cmd_simple_response_embeds_desc'),
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-            ),
-            const SizedBox(height: 8),
-            ResponseEmbedsEditor(
-              embeds: _responseEmbeds,
-              variableSuggestions: _actionVariableSuggestions,
-              onChanged: (embeds) {
-                _applyStateUpdate(() {
-                  _responseEmbeds = embeds;
-                });
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

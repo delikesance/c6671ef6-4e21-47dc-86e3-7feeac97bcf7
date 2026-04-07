@@ -23,10 +23,14 @@ class _AppCommandsPageState extends State<AppCommandsPage>
   bool _loading = true;
   final Set<String> _emptyFolders = {};
   bool _isReorderMode = false;
-  bool _isFabExpanded = false;
   final Set<String> _expandedFolders = {};
   // commandId -> folder name (empty string = no folder)
   Map<String, String> _reorderFolderMap = {};
+  String _searchQuery = '';
+  String _typeFilter = 'all';
+  String _folderFilter = '';
+  bool _showTemplateOnly = false;
+  bool _showLegacyOnly = false;
 
   @override
   void initState() {
@@ -106,10 +110,28 @@ class _AppCommandsPageState extends State<AppCommandsPage>
               ),
           ],
         ),
-        subtitle: Text(
-          (command['description'] ?? '').toString(),
-          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w400),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              ((command['description'] ?? '').toString().trim().isEmpty
+                      ? 'No description'
+                      : (command['description'] ?? '').toString())
+                  .toString(),
+              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w400),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _buildCommandMetaChips(command),
+            ),
+          ],
         ),
+        isThreeLine: true,
+        minVerticalPadding: 12,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        dense: false,
         onLongPress: () {
           if (!_isReorderMode) _enterReorderMode();
         },
@@ -135,15 +157,283 @@ class _AppCommandsPageState extends State<AppCommandsPage>
     );
   }
 
+  List<Widget> _buildCommandMetaChips(Map<String, dynamic> command) {
+    final data = Map<String, dynamic>.from(
+      (command['data'] as Map?)?.cast<String, dynamic>() ?? const {},
+    );
+    final commandType =
+        (command['type'] ?? data['commandType'] ?? 'chatInput').toString();
+    final optionsCount = (data['options'] as List?)?.length ?? 0;
+    final actionsCount = (data['actions'] as List?)?.length ?? 0;
+    final subcommandCount = (data['subcommandWorkflows'] as Map?)?.length ?? 0;
+    final legacyMode = data['legacyModeEnabled'] == true;
+    final legacyLocal = data['legacyLocalOnly'] == true;
+
+    final chips = <Widget>[
+      _CommandMetaChip(
+        label: legacyLocal ? 'legacy' : commandType,
+        icon: legacyLocal ? Icons.history_toggle_off : Icons.bolt_outlined,
+      ),
+      _CommandMetaChip(label: '$optionsCount option(s)', icon: Icons.tune),
+      _CommandMetaChip(
+        label: '$actionsCount action(s)',
+        icon: Icons.account_tree_outlined,
+      ),
+    ];
+    if (subcommandCount > 0) {
+      chips.add(
+        _CommandMetaChip(
+          label: '$subcommandCount route(s)',
+          icon: Icons.route_outlined,
+        ),
+      );
+    }
+    if (legacyMode && !legacyLocal) {
+      chips.add(
+        _CommandMetaChip(label: 'legacy', icon: Icons.history_toggle_off),
+      );
+    }
+    if (legacyLocal) {
+      chips.add(
+        _CommandMetaChip(label: 'local-only', icon: Icons.offline_bolt),
+      );
+    }
+    return chips;
+  }
+
+  List<Map<String, dynamic>> _visibleCommands() {
+    final query = _searchQuery.trim().toLowerCase();
+    return _commands
+        .where((command) {
+          final data = Map<String, dynamic>.from(
+            (command['data'] as Map?)?.cast<String, dynamic>() ?? const {},
+          );
+          final type =
+              (command['type'] ?? data['commandType'] ?? 'chatInput')
+                  .toString();
+          final folder = (command['folder'] ?? '').toString().trim();
+          final templateId =
+              ((command['templateOrigin']
+                          as Map<String, dynamic>?)?['templateId'] ??
+                      '')
+                  .toString()
+                  .trim();
+          final legacyMode = data['legacyModeEnabled'] == true;
+          final legacyLocal = data['legacyLocalOnly'] == true;
+          final name = (command['name'] ?? '').toString().toLowerCase();
+          final description =
+              (command['description'] ?? '').toString().toLowerCase();
+          if (_typeFilter == 'legacy') {
+            if (!legacyMode) return false;
+          } else if (_typeFilter != 'all' && type != _typeFilter) {
+            return false;
+          }
+          if (_folderFilter.isNotEmpty && folder != _folderFilter) {
+            return false;
+          }
+          if (_showTemplateOnly && templateId.isEmpty) {
+            return false;
+          }
+          if (_showLegacyOnly && !legacyLocal) {
+            return false;
+          }
+          if (query.isEmpty) {
+            return true;
+          }
+          return name.contains(query) ||
+              description.contains(query) ||
+              folder.toLowerCase().contains(query) ||
+              templateId.toLowerCase().contains(query);
+        })
+        .toList(growable: false);
+  }
+
+  Future<void> _showCreateMenu() async {
+    final selection = await showModalBottomSheet<String>(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.add_circle_outline),
+                title: Text(AppStrings.t('commands_create_button')),
+                onTap: () => Navigator.pop(context, 'command'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.auto_awesome),
+                title: Text(AppStrings.t('template_gallery_title')),
+                onTap: () => Navigator.pop(context, 'template'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.create_new_folder_outlined),
+                title: Text(AppStrings.t('commands_create_folder')),
+                onTap: () => Navigator.pop(context, 'folder'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (!mounted || selection == null) {
+      return;
+    }
+
+    if (selection == 'command') {
+      await _navigateToCreateCommand();
+      return;
+    }
+
+    if (selection == 'template') {
+      final applied = await Navigator.push<bool>(
+        context,
+        MaterialPageRoute(
+          builder:
+              (_) => TemplateGalleryPage(
+                botId: widget.botId,
+                client: widget.client,
+              ),
+        ),
+      );
+      if (applied == true && mounted) {
+        _load();
+      }
+      return;
+    }
+
+    if (selection == 'folder') {
+      await _showCreateFolderDialog();
+    }
+  }
+
+  Widget _buildFiltersBar() {
+    final folders = _existingFolders.toList()..sort();
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TextField(
+            onChanged: (value) {
+              setState(() {
+                _searchQuery = value;
+              });
+            },
+            decoration: const InputDecoration(
+              hintText: 'Search commands...',
+              prefixIcon: Icon(Icons.search),
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              ChoiceChip(
+                label: const Text('All'),
+                selected: _typeFilter == 'all',
+                onSelected: (_) {
+                  setState(() {
+                    _typeFilter = 'all';
+                  });
+                },
+              ),
+              ChoiceChip(
+                label: const Text('Slash'),
+                selected: _typeFilter == 'chatInput',
+                onSelected: (_) {
+                  setState(() {
+                    _typeFilter = 'chatInput';
+                  });
+                },
+              ),
+              ChoiceChip(
+                label: const Text('User'),
+                selected: _typeFilter == 'user',
+                onSelected: (_) {
+                  setState(() {
+                    _typeFilter = 'user';
+                  });
+                },
+              ),
+              ChoiceChip(
+                label: const Text('Message'),
+                selected: _typeFilter == 'message',
+                onSelected: (_) {
+                  setState(() {
+                    _typeFilter = 'message';
+                  });
+                },
+              ),
+              ChoiceChip(
+                label: const Text('Legacy'),
+                selected: _typeFilter == 'legacy',
+                onSelected: (_) {
+                  setState(() {
+                    _typeFilter = 'legacy';
+                  });
+                },
+              ),
+              FilterChip(
+                label: const Text('Template'),
+                selected: _showTemplateOnly,
+                onSelected: (selected) {
+                  setState(() {
+                    _showTemplateOnly = selected;
+                  });
+                },
+              ),
+              FilterChip(
+                label: const Text('Legacy local'),
+                selected: _showLegacyOnly,
+                onSelected: (selected) {
+                  setState(() {
+                    _showLegacyOnly = selected;
+                  });
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          DropdownButtonFormField<String>(
+            initialValue: _folderFilter.isEmpty ? '__all__' : _folderFilter,
+            decoration: const InputDecoration(
+              labelText: 'Folder',
+              border: OutlineInputBorder(),
+              isDense: true,
+            ),
+            items: [
+              const DropdownMenuItem<String>(
+                value: '__all__',
+                child: Text('All folders'),
+              ),
+              ...folders.map(
+                (folder) => DropdownMenuItem<String>(
+                  value: folder,
+                  child: Text(folder),
+                ),
+              ),
+            ],
+            onChanged: (value) {
+              setState(() {
+                _folderFilter =
+                    value == null || value == '__all__' ? '' : value;
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   Set<String> get _existingFolders {
     return _commands
         .map((c) => (c['folder'] ?? '').toString().trim())
         .where((f) => f.isNotEmpty)
         .toSet();
-  }
-
-  void _toggleFab() {
-    setState(() => _isFabExpanded = !_isFabExpanded);
   }
 
   Future<void> _navigateToCreateCommand() async {
@@ -469,7 +759,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
 
   List<Widget> _buildGroupedCommandList() {
     final Map<String, List<Map<String, dynamic>>> grouped = {};
-    for (final command in _commands) {
+    for (final command in _visibleCommands()) {
       final folder = (command['folder'] ?? '').toString().trim();
       grouped.putIfAbsent(folder, () => []).add(command);
     }
@@ -595,6 +885,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
       body: LayoutBuilder(
         builder: (context, constraints) {
           final contentMaxWidth = constraints.maxWidth >= 900 ? 760.0 : 640.0;
+          final visibleCommands = _visibleCommands();
           if (_loading) {
             return const Center(
               child: CircularProgressIndicator(
@@ -639,13 +930,29 @@ class _AppCommandsPageState extends State<AppCommandsPage>
           return Center(
             child: ConstrainedBox(
               constraints: BoxConstraints(maxWidth: contentMaxWidth),
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(12, 16, 12, 80),
-                children:
-                    _isReorderMode
-                        ? _buildReorderList()
-                        : _buildGroupedCommandList(),
-              ),
+              child:
+                  _isReorderMode
+                      ? ListView(
+                        padding: const EdgeInsets.fromLTRB(12, 16, 12, 80),
+                        children: _buildReorderList(),
+                      )
+                      : ListView(
+                        padding: const EdgeInsets.fromLTRB(12, 8, 12, 80),
+                        children: [
+                          _buildFiltersBar(),
+                          if (visibleCommands.isEmpty)
+                            const Padding(
+                              padding: EdgeInsets.only(top: 48),
+                              child: Center(
+                                child: Text(
+                                  'No commands match the current filters.',
+                                ),
+                              ),
+                            )
+                          else
+                            ..._buildGroupedCommandList(),
+                        ],
+                      ),
             ),
           );
         },
@@ -653,40 +960,11 @@ class _AppCommandsPageState extends State<AppCommandsPage>
       floatingActionButton:
           _isReorderMode
               ? null
-              : Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  if (_isFabExpanded) ...[
-                    _SpeedDialItem(
-                      label: AppStrings.t('commands_create_folder'),
-                      icon: Icons.create_new_folder_outlined,
-                      onTap: () {
-                        setState(() => _isFabExpanded = false);
-                        _showCreateFolderDialog();
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    _SpeedDialItem(
-                      label: AppStrings.t('commands_create_button'),
-                      icon: Icons.add_circle_outline,
-                      onTap: () {
-                        setState(() => _isFabExpanded = false);
-                        _navigateToCreateCommand();
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                  ],
-                  FloatingActionButton(
-                    onPressed: _toggleFab,
-                    tooltip: AppStrings.t('commands_create_button'),
-                    child: AnimatedRotation(
-                      turns: _isFabExpanded ? 0.125 : 0,
-                      duration: const Duration(milliseconds: 200),
-                      child: const Icon(Icons.add),
-                    ),
-                  ),
-                ],
+              : FloatingActionButton.extended(
+                onPressed: _showCreateMenu,
+                tooltip: AppStrings.t('commands_create_button'),
+                icon: const Icon(Icons.add),
+                label: const Text('Create'),
               ),
     );
   }
@@ -796,6 +1074,36 @@ class _CommandFolderHeader extends StatelessWidget {
   }
 }
 
+class _CommandMetaChip extends StatelessWidget {
+  const _CommandMetaChip({required this.label, required this.icon});
+
+  final String label;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ignore: unused_element
 class _SpeedDialItem extends StatelessWidget {
   final String label;
   final IconData icon;

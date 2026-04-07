@@ -573,10 +573,12 @@ class DiscordRpcService {
   }
 
   bool get _transportSupported {
-    if (kIsWeb) {
-      return false;
-    }
-    return Platform.isLinux || Platform.isMacOS;
+    return isDiscordRpcTransportSupported(
+      isWeb: kIsWeb,
+      isLinux: !kIsWeb && Platform.isLinux,
+      isMacOS: !kIsWeb && Platform.isMacOS,
+      isWindows: !kIsWeb && Platform.isWindows,
+    );
   }
 
   Future<T> _enqueue<T>(Future<T> Function() action) {

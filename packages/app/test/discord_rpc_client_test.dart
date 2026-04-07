@@ -35,8 +35,34 @@ void main() {
     test('builds the documented named pipe range', () {
       final candidates = buildDiscordWindowsIpcCandidates();
       expect(candidates, hasLength(10));
-      expect(candidates.first, r'\\?\pipe\discord-ipc-0');
-      expect(candidates.last, r'\\?\pipe\discord-ipc-9');
+      expect(candidates.first, r'\\.\pipe\discord-ipc-0');
+      expect(candidates.last, r'\\.\pipe\discord-ipc-9');
+    });
+  });
+
+  group('isDiscordRpcTransportSupported', () {
+    test('supports Windows desktop transport', () {
+      expect(
+        isDiscordRpcTransportSupported(
+          isWeb: false,
+          isLinux: false,
+          isMacOS: false,
+          isWindows: true,
+        ),
+        isTrue,
+      );
+    });
+
+    test('rejects web transport', () {
+      expect(
+        isDiscordRpcTransportSupported(
+          isWeb: true,
+          isLinux: false,
+          isMacOS: false,
+          isWindows: true,
+        ),
+        isFalse,
+      );
     });
   });
 }

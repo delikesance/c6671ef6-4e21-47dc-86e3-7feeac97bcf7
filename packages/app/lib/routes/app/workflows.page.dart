@@ -25,6 +25,8 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
   List<Map<String, dynamic>> _workflows = <Map<String, dynamic>>[];
   bool _loading = true;
   List<AppEmoji> _appEmojis = [];
+  String _searchQuery = '';
+  String _workflowFilter = 'all';
 
   String _toScopedReferenceName(String rawKey) {
     final key = rawKey.trim();
@@ -1317,7 +1319,10 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
     return preview;
   }
 
-  Future<void> _createOrEditWorkflow({Map<String, dynamic>? initial}) async {
+  Future<void> _createOrEditWorkflow({
+    Map<String, dynamic>? initial,
+    String? initialWorkflowType,
+  }) async {
     final normalizedInitial =
         initial == null
             ? null
@@ -1334,7 +1339,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
       text: normalizeWorkflowEntryPoint(normalizedInitial?['entryPoint']),
     );
     var selectedWorkflowType = normalizeWorkflowType(
-      normalizedInitial?['workflowType'],
+      initialWorkflowType ?? normalizedInitial?['workflowType'],
     );
     var selectedEventTrigger = normalizeWorkflowEventTrigger(
       normalizedInitial?['eventTrigger'],
@@ -2580,16 +2585,135 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
     await _load();
   }
 
+  List<Map<String, dynamic>> _visibleWorkflows() {
+    final query = _searchQuery.trim().toLowerCase();
+    return _workflows.where((workflow) {
+      final workflowType = normalizeWorkflowType(workflow['workflowType']);
+      if (_workflowFilter != 'all' && workflowType != _workflowFilter) {
+        return false;
+      }
+
+      if (query.isEmpty) {
+        return true;
+      }
+
+      final name = (workflow['name'] ?? '').toString().toLowerCase();
+      final folder = (workflow['folder'] ?? '').toString().toLowerCase();
+      final entryPoint =
+          normalizeWorkflowEntryPoint(workflow['entryPoint']).toLowerCase();
+      final eventTrigger = normalizeWorkflowEventTrigger(
+        workflow['eventTrigger'],
+      );
+      final eventName = _eventLabel((eventTrigger['event'] ?? '').toString())
+          .toLowerCase();
+      return name.contains(query) ||
+          folder.contains(query) ||
+          entryPoint.contains(query) ||
+          eventName.contains(query);
+    }).toList(growable: false);
+  }
+
+  Future<void> _showCreateWorkflowMenu() async {
+    final selection = await showModalBottomSheet<String>(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.account_tree_outlined),
+                title: Text(AppStrings.t('workflows_type_general')),
+                subtitle: Text(AppStrings.t('workflows_type_general_desc')),
+                onTap: () => Navigator.pop(context, workflowTypeGeneral),
+              ),
+              ListTile(
+                leading: const Icon(Icons.notifications_active_outlined),
+                title: Text(AppStrings.t('workflows_type_event')),
+                subtitle: Text(AppStrings.t('workflows_type_event_desc')),
+                onTap: () => Navigator.pop(context, workflowTypeEvent),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (selection == null) {
+      return;
+    }
+
+    await _createOrEditWorkflow(initialWorkflowType: selection);
+  }
+
+  Widget _buildFilters() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TextField(
+            onChanged: (value) {
+              setState(() {
+                _searchQuery = value;
+              });
+            },
+            decoration: const InputDecoration(
+              hintText: 'Search workflows...',
+              prefixIcon: Icon(Icons.search),
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              ChoiceChip(
+                label: const Text('All'),
+                selected: _workflowFilter == 'all',
+                onSelected: (_) {
+                  setState(() {
+                    _workflowFilter = 'all';
+                  });
+                },
+              ),
+              ChoiceChip(
+                label: Text(AppStrings.t('workflows_type_badge_general')),
+                selected: _workflowFilter == workflowTypeGeneral,
+                onSelected: (_) {
+                  setState(() {
+                    _workflowFilter = workflowTypeGeneral;
+                  });
+                },
+              ),
+              ChoiceChip(
+                label: Text(AppStrings.t('workflows_type_badge_event')),
+                selected: _workflowFilter == workflowTypeEvent,
+                onSelected: (_) {
+                  setState(() {
+                    _workflowFilter = workflowTypeEvent;
+                  });
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final generalWorkflows = _workflows
+    final visibleWorkflows = _visibleWorkflows();
+    final generalWorkflows = visibleWorkflows
         .where(
           (workflow) =>
               normalizeWorkflowType(workflow['workflowType']) ==
               workflowTypeGeneral,
         )
         .toList(growable: false);
-    final eventWorkflows = _workflows
+    final eventWorkflows = visibleWorkflows
         .where(
           (workflow) =>
               normalizeWorkflowType(workflow['workflowType']) ==
@@ -2608,8 +2732,45 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
       }
 
       workflowChildren.add(_WorkflowSectionHeader(title: title));
+      if (title == AppStrings.t('workflows_event_section')) {
+        final Map<String, List<Map<String, dynamic>>> byEvent = {};
+        for (final workflow in workflows) {
+          final trigger = normalizeWorkflowEventTrigger(workflow['eventTrigger']);
+          final eventKey = (trigger['event'] ?? '').toString();
+          byEvent.putIfAbsent(eventKey, () => []).add(workflow);
+        }
+        final sortedEvents = byEvent.keys.toList(growable: false)..sort();
+        for (final event in sortedEvents) {
+          workflowChildren.add(
+            _WorkflowFolderHeader(
+              title: _eventLabel(event),
+              count: byEvent[event]!.length,
+              icon: Icons.notifications_active_outlined,
+            ),
+          );
+          for (final workflow in byEvent[event]!) {
+            workflowChildren.add(_buildWorkflowTile(workflow));
+            displayedWorkflowsCount += 1;
+            if (adsEnabled &&
+                AdsPlacementPolicy.shouldInsertAfterContentCount(
+                  displayedWorkflowsCount,
+                )) {
+              workflowChildren.add(
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  child: NativeAdSlot(
+                    placement: NativeAdPlacement.workflowsList,
+                    height: 110,
+                    margin: EdgeInsets.zero,
+                  ),
+                ),
+              );
+            }
+          }
+        }
+        return;
+      }
 
-      // Sub-group by folder within each section
       final Map<String, List<Map<String, dynamic>>> byFolder = {};
       for (final workflow in workflows) {
         final folder = (workflow['folder'] ?? '').toString().trim();
@@ -2685,7 +2846,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _createOrEditWorkflow(),
+        onPressed: _showCreateWorkflowMenu,
         child: const Icon(Icons.add),
       ),
       body:
@@ -2693,9 +2854,23 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
               ? const Center(child: CircularProgressIndicator())
               : _workflows.isEmpty
               ? Center(child: Text(AppStrings.t('workflows_empty')))
+              : visibleWorkflows.isEmpty
+              ? Column(
+                children: [
+                  _buildFilters(),
+                  const Expanded(
+                    child: Center(
+                      child: Text('No workflows match the current filters.'),
+                    ),
+                  ),
+                ],
+              )
               : ListView(
                 padding: const EdgeInsets.only(bottom: 80),
-                children: workflowChildren,
+                children: [
+                  _buildFilters(),
+                  ...workflowChildren,
+                ],
               ),
     );
   }
@@ -2710,6 +2885,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
     final entryPoint = normalizeWorkflowEntryPoint(workflow['entryPoint']);
     final argsCount =
         parseWorkflowArgumentDefinitions(workflow['arguments']).length;
+    final folder = (workflow['folder'] ?? '').toString().trim();
     final eventTrigger = normalizeWorkflowEventTrigger(
       workflow['eventTrigger'],
     );
@@ -2773,6 +2949,27 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                       ),
                     ),
                   ),
+                  if (folder.isNotEmpty)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(999),
+                        color:
+                            Theme.of(
+                              context,
+                            ).colorScheme.surfaceContainerHighest,
+                      ),
+                      child: Text(
+                        folder,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
                   if (((workflow['templateOrigin']
                               as Map<String, dynamic>?)?['templateId'] ??
                           '')
@@ -2989,10 +3186,15 @@ class _WorkflowSectionHeader extends StatelessWidget {
 }
 
 class _WorkflowFolderHeader extends StatelessWidget {
-  const _WorkflowFolderHeader({required this.title, required this.count});
+  const _WorkflowFolderHeader({
+    required this.title,
+    required this.count,
+    this.icon = Icons.folder,
+  });
 
   final String title;
   final int count;
+  final IconData icon;
 
   @override
   Widget build(BuildContext context) {
@@ -3001,7 +3203,7 @@ class _WorkflowFolderHeader extends StatelessWidget {
       child: Row(
         children: [
           Icon(
-            Icons.folder,
+            icon,
             size: 16,
             color: Theme.of(context).colorScheme.primary,
           ),
