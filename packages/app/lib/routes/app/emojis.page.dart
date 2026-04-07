@@ -298,7 +298,7 @@ class _EmojisPageState extends State<EmojisPage> {
         icon: const Icon(Icons.add),
         label: Text(AppStrings.t('emojis_upload')),
       ),
-      body: _buildBody(),
+      body: SafeArea(top: false, child: _buildBody()),
     );
   }
 

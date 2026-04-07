@@ -882,80 +882,83 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                   ),
                 ],
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final contentMaxWidth = constraints.maxWidth >= 900 ? 760.0 : 640.0;
-          final visibleCommands = _visibleCommands();
-          if (_loading) {
-            return const Center(
-              child: CircularProgressIndicator(
-                strokeAlign: 0.5,
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-              ),
-            );
-          }
+      body: SafeArea(
+        top: false,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final contentMaxWidth = constraints.maxWidth >= 900 ? 760.0 : 640.0;
+            final visibleCommands = _visibleCommands();
+            if (_loading) {
+              return const Center(
+                child: CircularProgressIndicator(
+                  strokeAlign: 0.5,
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                ),
+              );
+            }
 
-          if (_commands.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(AppStrings.t('commands_empty')),
-                  const SizedBox(height: 16),
-                  FilledButton.icon(
-                    onPressed: () async {
-                      final applied = await Navigator.push<bool>(
-                        context,
-                        MaterialPageRoute(
-                          builder:
-                              (_) => TemplateGalleryPage(
-                                botId: widget.botId,
-                                client: widget.client,
-                              ),
-                        ),
-                      );
-                      if (applied == true && mounted) {
-                        _load();
-                      }
-                    },
-                    icon: const Icon(Icons.auto_awesome),
-                    label: Text(AppStrings.t('template_gallery_title')),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          return Center(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: contentMaxWidth),
-              child:
-                  _isReorderMode
-                      ? ListView(
-                        padding: const EdgeInsets.fromLTRB(12, 16, 12, 80),
-                        children: _buildReorderList(),
-                      )
-                      : ListView(
-                        padding: const EdgeInsets.fromLTRB(12, 8, 12, 80),
-                        children: [
-                          _buildFiltersBar(),
-                          if (visibleCommands.isEmpty)
-                            const Padding(
-                              padding: EdgeInsets.only(top: 48),
-                              child: Center(
-                                child: Text(
-                                  'No commands match the current filters.',
+            if (_commands.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(AppStrings.t('commands_empty')),
+                    const SizedBox(height: 16),
+                    FilledButton.icon(
+                      onPressed: () async {
+                        final applied = await Navigator.push<bool>(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (_) => TemplateGalleryPage(
+                                  botId: widget.botId,
+                                  client: widget.client,
                                 ),
-                              ),
-                            )
-                          else
-                            ..._buildGroupedCommandList(),
-                        ],
-                      ),
-            ),
-          );
-        },
+                          ),
+                        );
+                        if (applied == true && mounted) {
+                          _load();
+                        }
+                      },
+                      icon: const Icon(Icons.auto_awesome),
+                      label: Text(AppStrings.t('template_gallery_title')),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            return Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: contentMaxWidth),
+                child:
+                    _isReorderMode
+                        ? ListView(
+                          padding: const EdgeInsets.fromLTRB(12, 16, 12, 80),
+                          children: _buildReorderList(),
+                        )
+                        : ListView(
+                          padding: const EdgeInsets.fromLTRB(12, 8, 12, 80),
+                          children: [
+                            _buildFiltersBar(),
+                            if (visibleCommands.isEmpty)
+                              const Padding(
+                                padding: EdgeInsets.only(top: 48),
+                                child: Center(
+                                  child: Text(
+                                    'No commands match the current filters.',
+                                  ),
+                                ),
+                              )
+                            else
+                              ..._buildGroupedCommandList(),
+                          ],
+                        ),
+              ),
+            );
+          },
+        ),
       ),
       floatingActionButton:
           _isReorderMode

@@ -3,19 +3,26 @@ part of 'command.create.dart';
 extension _CommandCreateSerialization on _CommandCreatePageState {
   Map<String, dynamic> _buildCommandDataPayload({
     required List<Map<String, dynamic>> effectiveActions,
+    bool persistActiveRoute = true,
+    Map<String, Map<String, dynamic>>? subcommandWorkflowsOverride,
   }) {
-    _persistActiveSubcommandWorkflow();
+    if (persistActiveRoute) {
+      _persistActiveSubcommandWorkflow();
+    }
 
-    final hasSubcommandWorkflows = _subcommandWorkflows.isNotEmpty;
+    final subcommandWorkflows =
+        subcommandWorkflowsOverride ?? _subcommandWorkflows;
+
+    final hasSubcommandWorkflows = subcommandWorkflows.isNotEmpty;
     final fallbackRoute =
-        _subcommandWorkflows.containsKey(_activeSubcommandRoute)
+        subcommandWorkflows.containsKey(_activeSubcommandRoute)
             ? _activeSubcommandRoute
             : (hasSubcommandWorkflows
-                ? _subcommandWorkflows.keys.first
+                ? subcommandWorkflows.keys.first
                 : _CommandCreatePageState._rootWorkflowRoute);
 
     final fallbackPayload =
-        hasSubcommandWorkflows ? _subcommandWorkflows[fallbackRoute] : null;
+        hasSubcommandWorkflows ? subcommandWorkflows[fallbackRoute] : null;
 
     final responsePayload =
         fallbackPayload != null
@@ -53,7 +60,7 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
       'actions': actionsPayload,
       if (hasSubcommandWorkflows)
         'subcommandWorkflows': cloneSubcommandWorkflowPayloads(
-          _subcommandWorkflows,
+          subcommandWorkflows,
         ),
       if (hasSubcommandWorkflows)
         'activeSubcommandRoute': _activeSubcommandRoute,
@@ -453,7 +460,7 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
         _editorMode = _CommandCreatePageState._editorModeAdvanced;
         _legacyModeEnabled = false;
       }
-          _editorMode == _CommandCreatePageState._editorModeAdvanced;
+      _editorMode == _CommandCreatePageState._editorModeAdvanced;
       _legacyModeEnabled = normalizedPayload['legacyModeEnabled'] == true;
       _legacyPrefixOverride =
           (normalizedPayload['legacyPrefixOverride'] ?? '').toString();

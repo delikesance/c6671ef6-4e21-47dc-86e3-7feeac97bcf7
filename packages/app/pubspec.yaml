@@ -70,6 +70,7 @@ dependencies:
   shared_preferences: ^2.5.5
   file_picker: ^10.3.2
   google_mobile_ads: ^7.0.0
+  gma_mediation_unity: ^1.6.4
   app_tracking_transparency: ^2.0.6
   package_info_plus: ^9.0.1
   in_app_purchase: ^3.2.0
