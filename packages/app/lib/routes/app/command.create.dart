@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:bot_creator/main.dart';
@@ -28,6 +29,7 @@ import 'package:uuid/uuid.dart';
 part 'command.create.variable_suggestions.dart';
 part 'command.create.serialization.dart';
 part 'command.create.simple_mode.dart';
+part 'command.create.edit_shell.dart';
 part 'command.create.workflow.dart';
 part 'command.create.validation.dart';
 part 'command.create.wizard.dart';
@@ -144,6 +146,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   bool _isApplyingWorkflowPayload = false;
   int _currentEditorStep = 0;
   bool _showQuickStartBuilder = false;
+  String _initialEditSnapshot = '';
 
   static Map<String, dynamic> _defaultWorkflow() {
     return {
@@ -631,8 +634,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       _editorMode = _editorModeAdvanced;
     } else if (!_supportsSimpleMode) {
       _editorMode = _editorModeAdvanced;
-    } else {
-    }
+    } else {}
     _syncSubcommandWorkflowRoutes();
   }
 
@@ -721,6 +723,16 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
 
   String _generateLegacyOnlyCommandId() => _uuid.v4();
 
+  bool get _showEditShell =>
+      _isEditingExistingCommand && !_isDataIncomplete && !_isLoading;
+
+  bool get _isDirty {
+    if (!_showEditShell || _initialEditSnapshot.isEmpty) {
+      return false;
+    }
+    return _buildEditSnapshot() != _initialEditSnapshot;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -777,6 +789,94 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       return;
     }
     setState(callback);
+  }
+
+  Map<String, Map<String, dynamic>> _buildSnapshotSubcommandWorkflows() {
+    final workflows = cloneSubcommandWorkflowPayloads(_subcommandWorkflows).map(
+      (key, value) => MapEntry(
+        key,
+        Map<String, dynamic>.from((value as Map).cast<String, dynamic>()),
+      ),
+    );
+    if (_activeSubcommandRoute != _rootWorkflowRoute &&
+        workflows.containsKey(_activeSubcommandRoute)) {
+      workflows[_activeSubcommandRoute] = _buildCurrentWorkflowPayload();
+    }
+    return workflows;
+  }
+
+  String _buildEditSnapshot() {
+    final integrationTypes = _integrationTypes
+      .map(_integrationTypeToText)
+      .toList(growable: false)..sort();
+    final contexts = _contexts.map(_contextTypeToText).toList(growable: false)
+      ..sort();
+
+    final snapshot = <String, dynamic>{
+      'name': _commandName,
+      'description': _effectiveCommandDescription,
+      'commandType': _commandTypeToText(_commandType),
+      'folder': _folder.trim(),
+      'integrationTypes': integrationTypes,
+      'contexts': contexts,
+      'data': _buildCommandDataPayload(
+        effectiveActions: _effectiveActions,
+        persistActiveRoute: false,
+        subcommandWorkflowsOverride: _buildSnapshotSubcommandWorkflows(),
+      ),
+    };
+
+    return jsonEncode(snapshot);
+  }
+
+  void _captureInitialEditSnapshot() {
+    _initialEditSnapshot = _buildEditSnapshot();
+  }
+
+  Future<bool> _confirmDiscardIfDirty() async {
+    if (!_isDirty) {
+      return true;
+    }
+
+    final discard = await showDialog<bool>(
+      context: context,
+      builder:
+          (ctx) => AlertDialog.adaptive(
+            title: const Text('Unsaved changes'),
+            content: const Text('You have unsaved changes. Discard them?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: const Text('Keep editing'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: Text(
+                  'Discard',
+                  style: TextStyle(color: Theme.of(ctx).colorScheme.error),
+                ),
+              ),
+            ],
+          ),
+    );
+
+    return discard == true;
+  }
+
+  Future<void> _saveExistingCommand() async {
+    if (!_validateCommandInputs()) {
+      return;
+    }
+    unawaited(
+      AppAnalytics.logEvent(
+        name: "update_command",
+        parameters: {
+          "command_name": _commandName,
+          "command_id": _existingCommandStorageId ?? 'unknown',
+        },
+      ),
+    );
+    await _updateOrCreate();
   }
 
   void _openDocumentationCenter() {
@@ -993,6 +1093,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
             (normalizedData['defaultMemberPermissions'] ?? '')
                 .toString()
                 .trim();
+        _captureInitialEditSnapshot();
         _isLoading = false;
       });
       return;
@@ -1178,6 +1279,9 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           }
           _isLoading = false;
           _isDataIncomplete = !hasFullLocalData;
+          if (hasFullLocalData) {
+            _captureInitialEditSnapshot();
+          }
         });
         return;
       }
@@ -1232,6 +1336,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           _editorMode = _editorModeAdvanced;
         }
         _syncSubcommandWorkflowRoutes();
+        _captureInitialEditSnapshot();
         _isLoading = false;
       });
     } else {
@@ -1462,236 +1567,253 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color.fromRGBO(106, 15, 162, 1),
-        actions: [
-          IconButton(
-            tooltip: 'Import command payload',
-            onPressed: _importCommandPayload,
-            icon: const Icon(Icons.content_paste_go_outlined),
-          ),
-          IconButton(
-            tooltip: 'Export command payload',
-            onPressed: _showCommandExportOptions,
-            icon: const Icon(Icons.copy_all_outlined),
-          ),
-          IconButton(
-            onPressed: _openDocumentationCenter,
-            tooltip: AppStrings.t('cmd_show_variables'),
-            icon: const Icon(Icons.info_outline),
-          ),
-          if (!_isEditingExistingCommand && !_isDataIncomplete)
+    final guardDiscardOnPop = _showEditShell && _isDirty;
+
+    return PopScope(
+      canPop: !guardDiscardOnPop,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop || !guardDiscardOnPop) {
+          return;
+        }
+        if (await _confirmDiscardIfDirty()) {
+          if (mounted) {
+            Navigator.pop(context);
+          }
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: const Color.fromRGBO(106, 15, 162, 1),
+          actions: [
+            if (!_isEditingExistingCommand)
+              IconButton(
+                tooltip: 'Import command payload',
+                onPressed: _importCommandPayload,
+                icon: const Icon(Icons.content_paste_go_outlined),
+              ),
             IconButton(
-              icon: const Icon(Icons.add),
-              tooltip: AppStrings.t('cmd_create_tooltip'),
-              onPressed: () {
-                if (_validateCommandInputs()) {
-                  _updateOrCreate();
-                }
-              },
+              tooltip: 'Export command payload',
+              onPressed: _showCommandExportOptions,
+              icon: const Icon(Icons.copy_all_outlined),
             ),
-          if (!_isDataIncomplete)
             IconButton(
-              icon: Icon(_isEditingExistingCommand ? Icons.save : Icons.cancel),
-              tooltip:
-                  !_isEditingExistingCommand
-                      ? AppStrings.t('cancel')
-                      : AppStrings.t('cmd_create_tooltip'),
-              onPressed: () async {
-                if (!_isEditingExistingCommand) {
-                  Navigator.pop(context);
-                } else {
+              onPressed: _openDocumentationCenter,
+              tooltip: AppStrings.t('cmd_show_variables'),
+              icon: const Icon(Icons.info_outline),
+            ),
+            if (!_isEditingExistingCommand && !_isDataIncomplete)
+              IconButton(
+                icon: const Icon(Icons.add),
+                tooltip: AppStrings.t('cmd_create_tooltip'),
+                onPressed: () {
                   if (_validateCommandInputs()) {
                     _updateOrCreate();
-                    AppAnalytics.logEvent(
-                      name: "update_command",
-                      parameters: {
-                        "command_name": _commandName,
-                        "command_id": _existingCommandStorageId ?? 'unknown',
-                      },
-                    );
                   }
-                }
-              },
-            ),
-          if (_isEditingExistingCommand)
-            IconButton(
-              icon: const Icon(Icons.delete),
-              tooltip: AppStrings.t('cmd_delete_tooltip'),
-              onPressed: () async {
-                final shouldDelete =
-                    await showDialog<bool>(
-                      context: context,
-                      builder:
-                          (dialogContext) => AlertDialog.adaptive(
-                            title: Text(AppStrings.t('cmd_delete_tooltip')),
-                            content: const Text(
-                              'This command will be deleted permanently. Continue?',
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed:
-                                    () =>
-                                        Navigator.of(dialogContext).pop(false),
-                                child: Text(AppStrings.t('cancel')),
+                },
+              ),
+            if (!_isEditingExistingCommand && !_isDataIncomplete)
+              IconButton(
+                icon: const Icon(Icons.cancel),
+                tooltip: AppStrings.t('cancel'),
+                onPressed: () async {
+                  Navigator.pop(context);
+                },
+              ),
+            if (_isEditingExistingCommand)
+              IconButton(
+                icon: const Icon(Icons.delete),
+                tooltip: AppStrings.t('cmd_delete_tooltip'),
+                onPressed: () async {
+                  final shouldDelete =
+                      await showDialog<bool>(
+                        context: context,
+                        builder:
+                            (dialogContext) => AlertDialog.adaptive(
+                              title: Text(AppStrings.t('cmd_delete_tooltip')),
+                              content: const Text(
+                                'This command will be deleted permanently. Continue?',
                               ),
-                              TextButton(
-                                onPressed:
-                                    () => Navigator.of(dialogContext).pop(true),
-                                child: Text(
-                                  AppStrings.t('delete'),
-                                  style: TextStyle(
-                                    color:
-                                        Theme.of(
-                                          dialogContext,
-                                        ).colorScheme.error,
+                              actions: [
+                                TextButton(
+                                  onPressed:
+                                      () => Navigator.of(
+                                        dialogContext,
+                                      ).pop(false),
+                                  child: Text(AppStrings.t('cancel')),
+                                ),
+                                TextButton(
+                                  onPressed:
+                                      () =>
+                                          Navigator.of(dialogContext).pop(true),
+                                  child: Text(
+                                    AppStrings.t('delete'),
+                                    style: TextStyle(
+                                      color:
+                                          Theme.of(
+                                            dialogContext,
+                                          ).colorScheme.error,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
+                      ) ??
+                      false;
+                  if (!shouldDelete) {
+                    return;
+                  }
+
+                  final botId = _botIdForConfig;
+                  final commandId = _existingCommandStorageId;
+                  if (botId == null) {
+                    return;
+                  }
+                  if (commandId == null) {
+                    return;
+                  }
+
+                  final remoteClient = widget.client;
+                  if (remoteClient != null && !widget.id.isZero) {
+                    try {
+                      await remoteClient.commands.delete(widget.id);
+                    } catch (e) {
+                      final message = e.toString();
+                      final alreadyDeleted =
+                          message.contains('10063') ||
+                          message.contains('Unknown application command') ||
+                          message.contains('404');
+                      if (!alreadyDeleted) {
+                        if (!mounted) {
+                          return;
+                        }
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Discord delete failed. Local delete applied. $e',
+                            ),
                           ),
-                    ) ??
-                    false;
-                if (!shouldDelete) {
-                  return;
-                }
-
-                final botId = _botIdForConfig;
-                final commandId = _existingCommandStorageId;
-                if (botId == null) {
-                  return;
-                }
-                if (commandId == null) {
-                  return;
-                }
-
-                final remoteClient = widget.client;
-                if (remoteClient != null && !widget.id.isZero) {
-                  try {
-                    await remoteClient.commands.delete(widget.id);
-                  } catch (e) {
-                    final message = e.toString();
-                    final alreadyDeleted =
-                        message.contains('10063') ||
-                        message.contains('Unknown application command') ||
-                        message.contains('404');
-                    if (!alreadyDeleted) {
-                      if (!mounted) {
-                        return;
+                        );
                       }
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            'Discord delete failed. Local delete applied. $e',
-                          ),
-                        ),
-                      );
                     }
                   }
-                }
 
-                await appManager.deleteAppCommand(botId, commandId);
-                if (!mounted) {
-                  return;
-                }
-                Navigator.pop(context);
-              },
-            ),
-        ],
-      ),
-      body: SafeArea(
-        top: false,
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final contentMaxWidth =
-                constraints.maxWidth >= 1200
-                    ? 980.0
-                    : (constraints.maxWidth >= 900 ? 860.0 : 680.0);
+                  await appManager.deleteAppCommand(botId, commandId);
+                  if (!mounted) {
+                    return;
+                  }
+                  Navigator.pop(context);
+                },
+              ),
+          ],
+        ),
+        body: SafeArea(
+          top: false,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final contentMaxWidth =
+                  constraints.maxWidth >= 1200
+                      ? 980.0
+                      : (constraints.maxWidth >= 900 ? 860.0 : 680.0);
 
-            return Center(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 16,
-                ),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: contentMaxWidth),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                        !_isEditingExistingCommand
-                            ? "Create a new command"
-                            : "Update command",
-                        style: const TextStyle(fontSize: 24),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 20),
-                      if (_isLoading)
-                        const CircularProgressIndicator()
-                      else if (_isDataIncomplete) ...[
-                        const SizedBox(height: 12),
-                        Container(
-                          padding: const EdgeInsets.all(14),
-                          decoration: BoxDecoration(
-                            color: Colors.orange.shade50,
-                            border: Border.all(color: Colors.orange.shade300),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.warning_amber_rounded,
-                                color: Colors.orange.shade700,
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  AppStrings.t(
-                                    'cmd_offline_incomplete_warning',
+              return Center(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: contentMaxWidth),
+                    child:
+                        _isLoading
+                            ? const Center(child: CircularProgressIndicator())
+                            : _isDataIncomplete
+                            ? Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                const SizedBox(height: 12),
+                                Container(
+                                  padding: const EdgeInsets.all(14),
+                                  decoration: BoxDecoration(
+                                    color: Colors.orange.shade50,
+                                    border: Border.all(
+                                      color: Colors.orange.shade300,
+                                    ),
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
-                                  style: TextStyle(
-                                    color: Colors.orange.shade800,
-                                    fontSize: 13,
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.warning_amber_rounded,
+                                        color: Colors.orange.shade700,
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Text(
+                                          AppStrings.t(
+                                            'cmd_offline_incomplete_warning',
+                                          ),
+                                          style: TextStyle(
+                                            color: Colors.orange.shade800,
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Card(
-                          child: ListTile(
-                            leading: const Icon(Icons.terminal),
-                            title: Text(
-                              _commandName.isNotEmpty
-                                  ? _commandName
-                                  : (_existingCommandStorageId ?? ''),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
+                                const SizedBox(height: 16),
+                                Card(
+                                  child: ListTile(
+                                    leading: const Icon(Icons.terminal),
+                                    title: Text(
+                                      _commandName.isNotEmpty
+                                          ? _commandName
+                                          : (_existingCommandStorageId ?? ''),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    subtitle:
+                                        _commandDescription.isNotEmpty
+                                            ? Text(_commandDescription)
+                                            : null,
+                                    trailing: IconButton(
+                                      icon: const Icon(
+                                        Icons.menu_book_outlined,
+                                      ),
+                                      tooltip: AppStrings.t(
+                                        'cmd_show_variables',
+                                      ),
+                                      onPressed: _openDocumentationCenter,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )
+                            : _showEditShell
+                            ? _buildEditShell()
+                            : Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Text(
+                                  !_isEditingExistingCommand
+                                      ? "Create a new command"
+                                      : "Update command",
+                                  style: const TextStyle(fontSize: 24),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 20),
+                                _buildWizardShell(
+                                  contentMaxWidth: contentMaxWidth,
+                                ),
+                              ],
                             ),
-                            subtitle:
-                                _commandDescription.isNotEmpty
-                                    ? Text(_commandDescription)
-                                    : null,
-                            trailing: IconButton(
-                              icon: const Icon(Icons.menu_book_outlined),
-                              tooltip: AppStrings.t('cmd_show_variables'),
-                              onPressed: _openDocumentationCenter,
-                            ),
-                          ),
-                        ),
-                      ] else
-                        _buildWizardShell(contentMaxWidth: contentMaxWidth),
-                    ],
                   ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );

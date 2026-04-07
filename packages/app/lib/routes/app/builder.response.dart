@@ -888,12 +888,14 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
     if (query.isEmpty) {
       return List<ActionItem>.from(_actions, growable: false);
     }
-    return _actions.where((action) {
-      final summary = summarizeActionItem(action);
-      return summary.title.toLowerCase().contains(query) ||
-          summary.summary.toLowerCase().contains(query) ||
-          summary.outputKey.toLowerCase().contains(query);
-    }).toList(growable: false);
+    return _actions
+        .where((action) {
+          final summary = summarizeActionItem(action);
+          return summary.title.toLowerCase().contains(query) ||
+              summary.summary.toLowerCase().contains(query) ||
+              summary.outputKey.toLowerCase().contains(query);
+        })
+        .toList(growable: false);
   }
 
   Widget _buildEmptyState() {
@@ -946,10 +948,9 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
               child: ListTile(
                 onTap: () => _openActionDetails(action, absoluteIndex),
                 leading: CircleAvatar(
-                  backgroundColor: Theme.of(context)
-                      .colorScheme
-                      .primaryContainer
-                      .withValues(alpha: 0.8),
+                  backgroundColor: Theme.of(
+                    context,
+                  ).colorScheme.primaryContainer.withValues(alpha: 0.8),
                   child: Icon(action.type.icon),
                 ),
                 title: Text(
@@ -981,8 +982,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
                           for (final meta in summary.meta)
                             _SequenceMetaChip(
                               label: meta,
-                              color:
-                                  Theme.of(context).colorScheme.secondary,
+                              color: Theme.of(context).colorScheme.secondary,
                             ),
                         ],
                       ),
@@ -1012,11 +1012,11 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
                   _desktopActionSearch = value;
                 });
               },
-            decoration: InputDecoration(
-              hintText: 'Search actions in this sequence...',
-              prefixIcon: const Icon(Icons.search),
-              border: const OutlineInputBorder(),
-            ),
+              decoration: InputDecoration(
+                hintText: 'Search actions in this sequence...',
+                prefixIcon: const Icon(Icons.search),
+                border: const OutlineInputBorder(),
+              ),
             ),
             const SizedBox(height: 12),
             Row(
@@ -1066,24 +1066,24 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          _buildSequenceHeader(),
-          Expanded(
-            child: _buildActionSequence(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-              maxContentWidth: 980,
+      body: SafeArea(
+        top: false,
+        child: Column(
+          children: [
+            _buildSequenceHeader(),
+            Expanded(
+              child: _buildActionSequence(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                maxContentWidth: 980,
+              ),
             ),
-          ),
-          if (_actions.isNotEmpty)
-            SafeArea(
-              top: false,
-              child: Padding(
+            if (_actions.isNotEmpty)
+              Padding(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                 child: SizedBox(width: double.infinity, child: saveButton()),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -1154,9 +1154,7 @@ class _ActionDetailPageState extends State<_ActionDetailPage> {
   Widget build(BuildContext context) {
     final summary = summarizeActionItem(widget.action);
     return Scaffold(
-      appBar: AppBar(
-        title: Text(summary.title),
-      ),
+      appBar: AppBar(title: Text(summary.title)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -1185,8 +1183,7 @@ class _ActionDetailPageState extends State<_ActionDetailPage> {
                       ),
                       _SequenceMetaChip(
                         label: summary.isEnabled ? 'Enabled' : 'Disabled',
-                        color:
-                            summary.isEnabled ? Colors.green : Colors.orange,
+                        color: summary.isEnabled ? Colors.green : Colors.orange,
                       ),
                       for (final meta in summary.meta)
                         _SequenceMetaChip(

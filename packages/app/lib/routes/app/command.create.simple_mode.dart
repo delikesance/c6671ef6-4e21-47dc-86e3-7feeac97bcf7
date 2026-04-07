@@ -91,7 +91,6 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
     _applyQuickStartToDraft(syncRoutes: false);
   }
 
-
   Widget _buildSimpleActionToggle({
     required bool value,
     required String title,
@@ -108,8 +107,7 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
     );
   }
 
-
-  Widget _buildExecutionModeCard() {
+  Widget _buildExecutionModeCard({bool includeInlineEditor = true}) {
     final isWorkflowMode = !_isBdfdScriptMode;
 
     Widget buildModeTile({
@@ -207,7 +205,7 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
                 ),
               ),
             ),
-            if (_isBdfdScriptMode) ...[
+            if (includeInlineEditor && _isBdfdScriptMode) ...[
               const SizedBox(height: 12),
               _buildBdfdEditorTile(),
               const SizedBox(height: 12),
@@ -853,5 +851,4 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
       ),
     );
   }
-
 }

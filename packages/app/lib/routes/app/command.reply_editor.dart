@@ -47,11 +47,12 @@ class _CommandReplyEditorPageState extends State<CommandReplyEditorPage> {
   void initState() {
     super.initState();
     _responseType = widget.initialResponseType;
-    _responseController = TextEditingController(text: widget.initialResponseText);
-    _responseEmbeds =
-        widget.initialEmbeds
-            .map((item) => Map<String, dynamic>.from(item))
-            .toList(growable: false);
+    _responseController = TextEditingController(
+      text: widget.initialResponseText,
+    );
+    _responseEmbeds = widget.initialEmbeds
+        .map((item) => Map<String, dynamic>.from(item))
+        .toList(growable: false);
     _responseComponents = Map<String, dynamic>.from(widget.initialComponents);
     _responseModal = Map<String, dynamic>.from(widget.initialModal);
     _responseWorkflow = widget.normalizeWorkflow(
@@ -80,31 +81,33 @@ class _CommandReplyEditorPageState extends State<CommandReplyEditorPage> {
     if (widget.variableSuggestions.isEmpty) {
       return const SizedBox.shrink();
     }
-    final suggestions = widget.variableSuggestions.take(10).toList(growable: false);
+    final suggestions = widget.variableSuggestions
+        .take(10)
+        .toList(growable: false);
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: Wrap(
         spacing: 8,
         runSpacing: 8,
-        children:
-            suggestions
-                .map(
-                  (suggestion) => ActionChip(
-                    label: Text('((${suggestion.name}))'),
-                    onPressed: () {
-                      final current = _responseController.text;
-                      final next = current.isEmpty
+        children: suggestions
+            .map(
+              (suggestion) => ActionChip(
+                label: Text('((${suggestion.name}))'),
+                onPressed: () {
+                  final current = _responseController.text;
+                  final next =
+                      current.isEmpty
                           ? '((${suggestion.name}))'
                           : '$current ((${suggestion.name}))';
-                      _responseController.text = next;
-                      _responseController.selection = TextSelection.collapsed(
-                        offset: _responseController.text.length,
-                      );
-                      setState(() {});
-                    },
-                  ),
-                )
-                .toList(growable: false),
+                  _responseController.text = next;
+                  _responseController.selection = TextSelection.collapsed(
+                    offset: _responseController.text.length,
+                  );
+                  setState(() {});
+                },
+              ),
+            )
+            .toList(growable: false),
       ),
     );
   }
@@ -118,9 +121,8 @@ class _CommandReplyEditorPageState extends State<CommandReplyEditorPage> {
           const <String, dynamic>{},
     );
     final conditionEnabled = conditional['enabled'] == true;
-    final modeLabel = _responseWorkflow['workflowMode'] == 'bdfd'
-        ? 'BDFD Script'
-        : 'Visual';
+    final modeLabel =
+        _responseWorkflow['workflowMode'] == 'bdfd' ? 'BDFD Script' : 'Visual';
     return '$modeLabel | ${autoDefer ? 'Auto defer' : 'Manual'} | $visibility | ${conditionEnabled ? 'Condition on' : 'Condition off'}';
   }
 
@@ -129,57 +131,55 @@ class _CommandReplyEditorPageState extends State<CommandReplyEditorPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Reply Details'),
-        actions: [
-          TextButton(
-            onPressed: _save,
-            child: const Text('Save'),
-          ),
-        ],
+        actions: [TextButton(onPressed: _save, child: const Text('Save'))],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          ReplyCard(
-            responseType: _responseType,
-            onResponseTypeChanged: (type) {
-              setState(() {
-                _responseType = type;
-              });
-            },
-            responseController: _responseController,
-            variableSuggestionBar: _buildSuggestionBar(),
-            responseEmbeds: _responseEmbeds,
-            onEmbedsChanged: (embeds) {
-              setState(() {
-                _responseEmbeds = embeds;
-              });
-            },
-            responseComponents: _responseComponents,
-            onComponentsChanged: (components) {
-              setState(() {
-                _responseComponents = components;
-              });
-            },
-            responseModal: _responseModal,
-            onModalChanged: (modal) {
-              setState(() {
-                _responseModal = modal;
-              });
-            },
-            responseWorkflow: _responseWorkflow,
-            normalizeWorkflow: widget.normalizeWorkflow,
-            variableSuggestions: widget.variableSuggestions,
-            emojiSuggestions: widget.emojiSuggestions,
-            botIdForConfig: widget.botIdForConfig,
-            onWorkflowChanged: (workflow) {
-              setState(() {
-                _responseWorkflow = widget.normalizeWorkflow(workflow);
-              });
-            },
-            workflowSummary: _workflowSummary(),
-            allowModal: widget.allowModal,
-          ),
-        ],
+      body: SafeArea(
+        top: false,
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            ReplyCard(
+              responseType: _responseType,
+              onResponseTypeChanged: (type) {
+                setState(() {
+                  _responseType = type;
+                });
+              },
+              responseController: _responseController,
+              variableSuggestionBar: _buildSuggestionBar(),
+              responseEmbeds: _responseEmbeds,
+              onEmbedsChanged: (embeds) {
+                setState(() {
+                  _responseEmbeds = embeds;
+                });
+              },
+              responseComponents: _responseComponents,
+              onComponentsChanged: (components) {
+                setState(() {
+                  _responseComponents = components;
+                });
+              },
+              responseModal: _responseModal,
+              onModalChanged: (modal) {
+                setState(() {
+                  _responseModal = modal;
+                });
+              },
+              responseWorkflow: _responseWorkflow,
+              normalizeWorkflow: widget.normalizeWorkflow,
+              variableSuggestions: widget.variableSuggestions,
+              emojiSuggestions: widget.emojiSuggestions,
+              botIdForConfig: widget.botIdForConfig,
+              onWorkflowChanged: (workflow) {
+                setState(() {
+                  _responseWorkflow = widget.normalizeWorkflow(workflow);
+                });
+              },
+              workflowSummary: _workflowSummary(),
+              allowModal: widget.allowModal,
+            ),
+          ],
+        ),
       ),
     );
   }

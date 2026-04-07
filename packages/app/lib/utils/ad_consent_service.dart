@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:bot_creator/utils/app_diagnostics.dart';
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:flutter/foundation.dart';
+import 'package:gma_mediation_unity/gma_mediation_unity.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class AdConsentService {
@@ -39,6 +40,7 @@ class AdConsentService {
       await _loadAndShowConsentFormIfRequired();
 
       final canRequestAds = await ConsentInformation.instance.canRequestAds();
+      _forwardConsentToUnity(canRequestAds);
       unawaited(
         AppDiagnostics.logInfo(
           'UMP consent completed',
@@ -185,5 +187,23 @@ class AdConsentService {
       completer.complete(true);
     });
     return completer.future;
+  }
+
+  /// Forwards the user's consent status to the Unity Ads SDK for mediation.
+  static void _forwardConsentToUnity(bool hasConsent) {
+    try {
+      final unity = GmaMediationUnity();
+      unity.setGDPRConsent(hasConsent);
+      unity.setCCPAConsent(hasConsent);
+    } catch (error, stack) {
+      unawaited(
+        AppDiagnostics.logError(
+          'Failed to forward consent to Unity Ads',
+          error,
+          stack,
+          fatal: false,
+        ),
+      );
+    }
   }
 }
