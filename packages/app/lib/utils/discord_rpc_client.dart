@@ -1,11 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:bot_creator/utils/app_diagnostics.dart';
+import 'package:ffi/ffi.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as path;
 import 'package:uuid/uuid.dart';
+import 'package:win32/win32.dart';
 
 const List<String> _discordIpcEnvPriority = <String>[
   'XDG_RUNTIME_DIR',
@@ -41,10 +44,22 @@ List<String> buildDiscordWindowsIpcCandidates() {
   return List<String>.generate(
     10,
     (index) =>
-        r'\\?\pipe\discord-ipc-'
+        r'\\.\pipe\discord-ipc-'
         '$index',
     growable: false,
   );
+}
+
+bool isDiscordRpcTransportSupported({
+  required bool isWeb,
+  required bool isLinux,
+  required bool isMacOS,
+  required bool isWindows,
+}) {
+  if (isWeb) {
+    return false;
+  }
+  return isLinux || isMacOS || isWindows;
 }
 
 class DiscordRpcClient {
@@ -64,14 +79,14 @@ class DiscordRpcClient {
   final StreamController<Map<String, dynamic>> _eventsController =
       StreamController<Map<String, dynamic>>.broadcast();
 
-  Socket? _socket;
-  StreamSubscription<Uint8List>? _socketSubscription;
+  _DiscordRpcTransport? _transport;
+  StreamSubscription<Uint8List>? _transportSubscription;
   Completer<Map<String, dynamic>>? _readyCompleter;
   String? _connectedEndpoint;
 
   Stream<Map<String, dynamic>> get events => _eventsController.stream;
 
-  bool get isConnected => _socket != null;
+  bool get isConnected => _transport != null;
 
   String? get connectedEndpoint => _connectedEndpoint;
 
@@ -84,13 +99,14 @@ class DiscordRpcClient {
       },
     );
     await close();
-    final endpoint = await _connectSocket();
-    _connectedEndpoint = endpoint;
+    final transport = await _connectTransport();
+    _bindTransport(transport);
+    _connectedEndpoint = transport.endpoint;
     _readyCompleter = Completer<Map<String, dynamic>>();
     await AppDiagnostics.logInfo(
       'Discord RPC handshake sent',
       data: <String, Object?>{
-        'endpoint': endpoint,
+        'endpoint': transport.endpoint,
         'clientId': _maskClientId(clientId),
       },
     );
@@ -105,7 +121,7 @@ class DiscordRpcClient {
       data: _commandResponseLogData(
         'HANDSHAKE',
         readyPayload,
-        endpoint: endpoint,
+        endpoint: transport.endpoint,
       ),
     );
   }
@@ -157,12 +173,12 @@ class DiscordRpcClient {
   }
 
   Future<void> close() async {
-    final socket = _socket;
-    final subscription = _socketSubscription;
+    final transport = _transport;
+    final subscription = _transportSubscription;
     final endpoint = _connectedEndpoint;
     final pendingRequests = _pendingRequests.length;
-    _socket = null;
-    _socketSubscription = null;
+    _transport = null;
+    _transportSubscription = null;
     _connectedEndpoint = null;
     _incomingBytes.clear();
 
@@ -170,15 +186,15 @@ class DiscordRpcClient {
       await subscription.cancel();
     }
 
-    if (socket != null) {
+    if (transport != null) {
       try {
-        await socket.close();
+        await transport.close();
       } catch (_) {}
     }
 
     _completePendingWithError(StateError('Discord RPC connection closed.'));
 
-    if (socket != null || subscription != null || endpoint != null) {
+    if (transport != null || subscription != null || endpoint != null) {
       await AppDiagnostics.logInfo(
         'Discord RPC client connection closed',
         data: <String, Object?>{
@@ -189,21 +205,22 @@ class DiscordRpcClient {
     }
   }
 
-  Future<String> _connectSocket() async {
+  Future<_DiscordRpcTransport> _connectTransport() async {
     if (kIsWeb) {
       throw UnsupportedError('Discord RPC is not available on web builds.');
     }
     if (Platform.isWindows) {
-      throw UnsupportedError(
-        'Discord RPC named pipe transport is not implemented on Windows yet.',
-      );
+      return _connectWindowsPipeTransport();
     }
     if (!(Platform.isLinux || Platform.isMacOS)) {
       throw UnsupportedError(
         'Discord RPC is currently available only on Linux and macOS builds.',
       );
     }
+    return _connectUnixSocketTransport();
+  }
 
+  Future<_DiscordRpcTransport> _connectUnixSocketTransport() async {
     Object? firstError;
     final candidates = buildDiscordUnixIpcCandidates(
       environment: Platform.environment,
@@ -226,12 +243,11 @@ class DiscordRpcClient {
           type: InternetAddressType.unix,
         );
         final socket = await Socket.connect(address, 0, timeout: timeout);
-        _bindSocket(socket);
         await AppDiagnostics.logInfo(
           'Discord RPC socket connected',
           data: <String, Object?>{'candidate': candidate},
         );
-        return candidate;
+        return _DiscordRpcSocketTransport(socket, candidate);
       } catch (error) {
         firstError ??= error;
         await AppDiagnostics.logInfo(
@@ -257,17 +273,104 @@ class DiscordRpcClient {
     );
   }
 
-  void _bindSocket(Socket socket) {
-    _socket = socket;
-    _socketSubscription = socket.listen(
-      _handleSocketData,
-      onError: _handleSocketError,
-      onDone: _handleSocketDone,
+  Future<_DiscordRpcTransport> _connectWindowsPipeTransport() async {
+    final candidates = buildDiscordWindowsIpcCandidates();
+    final deadline = DateTime.now().add(timeout);
+    Object? firstError;
+
+    await AppDiagnostics.logInfo(
+      'Discord RPC pipe discovery started',
+      data: <String, Object?>{
+        'platform': defaultTargetPlatform.name,
+        'candidateCount': candidates.length,
+      },
+    );
+
+    while (DateTime.now().isBefore(deadline)) {
+      for (final candidate in candidates) {
+        await AppDiagnostics.logInfo(
+          'Discord RPC pipe candidate attempt',
+          data: <String, Object?>{'candidate': candidate},
+        );
+        try {
+          final handle = _openWindowsPipeHandle(candidate);
+          await AppDiagnostics.logInfo(
+            'Discord RPC pipe connected',
+            data: <String, Object?>{'candidate': candidate},
+          );
+          return _DiscordRpcWindowsPipeTransport(
+            handle,
+            candidate,
+            pollInterval: const Duration(milliseconds: 50),
+          );
+        } catch (error) {
+          firstError ??= error;
+          await AppDiagnostics.logInfo(
+            'Discord RPC pipe candidate unavailable',
+            data: <String, Object?>{
+              'candidate': candidate,
+              'error': _truncateLogValue(error.toString()),
+            },
+          );
+        }
+      }
+
+      await Future<void>.delayed(const Duration(milliseconds: 120));
+    }
+
+    await AppDiagnostics.logInfo(
+      'Discord RPC pipe discovery failed',
+      data: <String, Object?>{
+        'error': _truncateLogValue((firstError ?? 'unknown').toString()),
+      },
+    );
+
+    throw SocketException(
+      'Unable to connect to the local Discord IPC named pipe.',
+      osError:
+          firstError is _DiscordRpcWindowsPipeException
+              ? OSError(firstError.message, firstError.errorCode)
+              : null,
+    );
+  }
+
+  int _openWindowsPipeHandle(String candidate) {
+    final pipeName = candidate.toNativeUtf16();
+    try {
+      final handle = CreateFile(
+        pipeName,
+        GENERIC_READ | GENERIC_WRITE,
+        0,
+        nullptr,
+        OPEN_EXISTING,
+        FILE_ATTRIBUTE_NORMAL,
+        0,
+      );
+      if (handle != INVALID_HANDLE_VALUE) {
+        return handle;
+      }
+
+      final errorCode = GetLastError();
+      throw _DiscordRpcWindowsPipeException(
+        'CreateFile failed for $candidate',
+        errorCode,
+      );
+    } finally {
+      calloc.free(pipeName);
+    }
+  }
+
+  void _bindTransport(_DiscordRpcTransport transport) {
+    _transport = transport;
+    _transportSubscription = transport.stream.listen(
+      _handleTransportData,
+      onError: _handleTransportError,
+      onDone: _handleTransportDone,
       cancelOnError: true,
     );
   }
 
-  void _handleSocketData(Uint8List chunk) {
+  void _handleTransportData(Uint8List chunk) {
     _incomingBytes.addAll(chunk);
 
     while (_incomingBytes.length >= 8) {
@@ -362,10 +465,10 @@ class DiscordRpcClient {
     }
   }
 
-  void _handleSocketError(Object error, [StackTrace? stackTrace]) {
+  void _handleTransportError(Object error, [StackTrace? stackTrace]) {
     unawaited(
       AppDiagnostics.logInfo(
-        'Discord RPC socket error',
+        'Discord RPC transport error',
         data: <String, Object?>{
           if (_connectedEndpoint != null) 'endpoint': _connectedEndpoint,
           'error': _truncateLogValue(error.toString()),
@@ -379,10 +482,10 @@ class DiscordRpcClient {
     unawaited(close());
   }
 
-  void _handleSocketDone() {
+  void _handleTransportDone() {
     unawaited(
       AppDiagnostics.logInfo(
-        'Discord RPC socket closed by peer',
+        'Discord RPC transport closed by peer',
         data: <String, Object?>{
           if (_connectedEndpoint != null) 'endpoint': _connectedEndpoint,
         },
@@ -390,7 +493,7 @@ class DiscordRpcClient {
     );
     _eventsController.add(<String, dynamic>{
       'evt': 'DISCONNECTED',
-      'data': const <String, dynamic>{'reason': 'socket_done'},
+      'data': const <String, dynamic>{'reason': 'transport_done'},
     });
     unawaited(close());
   }
@@ -400,7 +503,7 @@ class DiscordRpcClient {
     required Map<String, dynamic> args,
     String? event,
   }) async {
-    if (_socket == null) {
+    if (_transport == null) {
       throw StateError('Discord RPC is not connected.');
     }
 
@@ -460,9 +563,9 @@ class DiscordRpcClient {
   }
 
   Future<void> _writeRawFrame(int opcode, List<int> payloadBytes) async {
-    final socket = _socket;
-    if (socket == null) {
-      throw StateError('Discord RPC socket is not connected.');
+    final transport = _transport;
+    if (transport == null) {
+      throw StateError('Discord RPC transport is not connected.');
     }
 
     final header =
@@ -470,11 +573,10 @@ class DiscordRpcClient {
           ..setUint32(0, opcode, Endian.little)
           ..setUint32(4, payloadBytes.length, Endian.little);
 
-    socket.add(header.buffer.asUint8List());
-    if (payloadBytes.isNotEmpty) {
-      socket.add(payloadBytes);
-    }
-    await socket.flush();
+    await transport.write(<int>[
+      ...header.buffer.asUint8List(),
+      ...payloadBytes,
+    ]);
   }
 
   void _completePendingWithError(Object error) {
@@ -491,6 +593,208 @@ class DiscordRpcClient {
       readyCompleter.completeError(error);
     }
   }
+}
+
+abstract class _DiscordRpcTransport {
+  String get endpoint;
+  Stream<Uint8List> get stream;
+
+  Future<void> write(List<int> bytes);
+  Future<void> close();
+}
+
+class _DiscordRpcSocketTransport implements _DiscordRpcTransport {
+  _DiscordRpcSocketTransport(this._socket, this.endpoint);
+
+  final Socket _socket;
+
+  @override
+  final String endpoint;
+
+  @override
+  Stream<Uint8List> get stream => _socket;
+
+  @override
+  Future<void> write(List<int> bytes) async {
+    _socket.add(bytes);
+    await _socket.flush();
+  }
+
+  @override
+  Future<void> close() async {
+    await _socket.close();
+  }
+}
+
+class _DiscordRpcWindowsPipeTransport implements _DiscordRpcTransport {
+  _DiscordRpcWindowsPipeTransport(
+    this._handle,
+    this.endpoint, {
+    required this.pollInterval,
+  }) {
+    _pollTimer = Timer.periodic(pollInterval, (_) {
+      if (_polling || _closed) {
+        return;
+      }
+      unawaited(_pollOnce());
+    });
+  }
+
+  static const int _maxReadChunkSize = 64 * 1024;
+
+  final int _handle;
+  final Duration pollInterval;
+  final StreamController<Uint8List> _streamController =
+      StreamController<Uint8List>.broadcast();
+
+  Timer? _pollTimer;
+  bool _polling = false;
+  bool _closed = false;
+
+  @override
+  final String endpoint;
+
+  @override
+  Stream<Uint8List> get stream => _streamController.stream;
+
+  @override
+  Future<void> write(List<int> bytes) async {
+    if (_closed) {
+      throw StateError('Discord RPC named pipe is closed.');
+    }
+    if (bytes.isEmpty) {
+      return;
+    }
+
+    final buffer = calloc<Uint8>(bytes.length);
+    final bytesWritten = calloc<Uint32>();
+    try {
+      buffer.asTypedList(bytes.length).setAll(0, bytes);
+      final result = WriteFile(
+        _handle,
+        buffer,
+        bytes.length,
+        bytesWritten,
+        nullptr,
+      );
+      if (result == 0 || bytesWritten.value != bytes.length) {
+        final errorCode = GetLastError();
+        throw _DiscordRpcWindowsPipeException(
+          'WriteFile failed for $endpoint',
+          errorCode,
+        );
+      }
+    } finally {
+      calloc.free(buffer);
+      calloc.free(bytesWritten);
+    }
+  }
+
+  Future<void> _pollOnce() async {
+    if (_closed) {
+      return;
+    }
+
+    _polling = true;
+    try {
+      while (!_closed) {
+        final available = _peekAvailableBytes();
+        if (available <= 0) {
+          break;
+        }
+
+        final chunk = _readChunk(available);
+        if (chunk.isEmpty) {
+          break;
+        }
+        _streamController.add(chunk);
+      }
+    } catch (error, stackTrace) {
+      if (!_streamController.isClosed) {
+        _streamController.addError(error, stackTrace);
+      }
+      await close();
+    } finally {
+      _polling = false;
+    }
+  }
+
+  int _peekAvailableBytes() {
+    final bytesAvailable = calloc<Uint32>();
+    try {
+      final result = PeekNamedPipe(
+        _handle,
+        nullptr,
+        0,
+        nullptr,
+        bytesAvailable,
+        nullptr,
+      );
+      if (result == 0) {
+        final errorCode = GetLastError();
+        throw _DiscordRpcWindowsPipeException(
+          'PeekNamedPipe failed for $endpoint',
+          errorCode,
+        );
+      }
+      return bytesAvailable.value;
+    } finally {
+      calloc.free(bytesAvailable);
+    }
+  }
+
+  Uint8List _readChunk(int bytesAvailable) {
+    final bytesToRead =
+        bytesAvailable > _maxReadChunkSize ? _maxReadChunkSize : bytesAvailable;
+    final buffer = calloc<Uint8>(bytesToRead);
+    final bytesRead = calloc<Uint32>();
+    try {
+      final result = ReadFile(_handle, buffer, bytesToRead, bytesRead, nullptr);
+      if (result == 0) {
+        final errorCode = GetLastError();
+        if (errorCode == ERROR_MORE_DATA && bytesRead.value > 0) {
+          return Uint8List.fromList(buffer.asTypedList(bytesRead.value));
+        }
+        throw _DiscordRpcWindowsPipeException(
+          'ReadFile failed for $endpoint',
+          errorCode,
+        );
+      }
+
+      if (bytesRead.value == 0) {
+        return Uint8List(0);
+      }
+
+      return Uint8List.fromList(buffer.asTypedList(bytesRead.value));
+    } finally {
+      calloc.free(buffer);
+      calloc.free(bytesRead);
+    }
+  }
+
+  @override
+  Future<void> close() async {
+    if (_closed) {
+      return;
+    }
+    _closed = true;
+    _pollTimer?.cancel();
+    _pollTimer = null;
+    CloseHandle(_handle);
+    if (!_streamController.isClosed) {
+      await _streamController.close();
+    }
+  }
+}
+
+class _DiscordRpcWindowsPipeException implements Exception {
+  const _DiscordRpcWindowsPipeException(this.message, this.errorCode);
+
+  final String message;
+  final int errorCode;
+
+  @override
+  String toString() => '$message (error $errorCode)';
 }
 
 Object _rpcErrorFromPayload(Map<String, dynamic> payload) {

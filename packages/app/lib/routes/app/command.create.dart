@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/routes/app/builder.response.dart';
+import 'package:bot_creator/routes/app/command.reply_editor.dart';
 import 'package:bot_creator/routes/app/command_option_serialization.dart';
 import 'package:bot_creator/routes/app/command_option_validation.dart';
 import 'package:bot_creator/routes/app/workflow_docs.page.dart';
@@ -17,9 +18,7 @@ import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 import 'package:bot_creator/widgets/bdfd_editor_page.dart';
 import 'package:bot_creator/widgets/option_widget.dart';
 import 'package:bot_creator/widgets/command_create_cards/basic_info_card.dart';
-import 'package:bot_creator/widgets/command_create_cards/reply_card.dart';
 import 'package:bot_creator/widgets/command_create_cards/actions_card.dart';
-import 'package:bot_creator/widgets/response_embeds_editor.dart';
 import 'package:bot_creator/types/variable_suggestion.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -31,6 +30,7 @@ part 'command.create.serialization.dart';
 part 'command.create.simple_mode.dart';
 part 'command.create.workflow.dart';
 part 'command.create.validation.dart';
+part 'command.create.wizard.dart';
 
 class CommandCreatePage extends StatefulWidget {
   final NyxxRest? client;
@@ -104,7 +104,6 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   final TextEditingController _folderController = TextEditingController();
   String _legacyPrefixOverride = '';
   String _legacyResponseTarget = 'reply';
-  bool _simpleModeLocked = false;
   bool _simpleDeleteMessages = false;
   bool _simpleKickUser = false;
   bool _simpleBanUser = false;
@@ -143,6 +142,8 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       <String, Map<String, dynamic>>{};
   String _activeSubcommandRoute = _rootWorkflowRoute;
   bool _isApplyingWorkflowPayload = false;
+  int _currentEditorStep = 0;
+  bool _showQuickStartBuilder = false;
 
   static Map<String, dynamic> _defaultWorkflow() {
     return {
@@ -187,6 +188,24 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     return value == _executionModeBdfdScript
         ? _executionModeBdfdScript
         : _executionModeWorkflow;
+  }
+
+  void _promoteSimpleModeDraftIfNeeded(String persistedEditorMode) {
+    if (persistedEditorMode == _editorModeSimple) {
+      _hydrateLegacySimpleModeIntoDraft();
+    }
+    _editorMode = _editorModeAdvanced;
+  }
+
+  void _normalizeLegacySimpleResponseType() {
+    if (_responseType != 'ephemeral') {
+      return;
+    }
+    _responseType = 'normal';
+    _responseWorkflow = _normalizeWorkflow({
+      ..._responseWorkflow,
+      'visibility': 'ephemeral',
+    });
   }
 
   void _refreshBdfdCompileResult({bool notify = true}) {
@@ -610,12 +629,9 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     _options = options;
     if (_containsHierarchyOption(_options)) {
       _editorMode = _editorModeAdvanced;
-      _simpleModeLocked = true;
     } else if (!_supportsSimpleMode) {
       _editorMode = _editorModeAdvanced;
-      _simpleModeLocked = true;
     } else {
-      _simpleModeLocked = _editorMode == _editorModeAdvanced;
     }
     _syncSubcommandWorkflowRoutes();
   }
@@ -674,11 +690,10 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     if (_isBdfdScriptMode) {
       return _options;
     }
-    return _isSimpleMode ? _buildSimpleModeOptions() : _options;
+    return _options;
   }
 
-  List<Map<String, dynamic>> get _effectiveActions =>
-      _isSimpleMode ? _buildSimpleModeActions() : _actions;
+  List<Map<String, dynamic>> get _effectiveActions => _actions;
 
   String? get _botIdForConfig =>
       widget.client?.user.id.toString() ?? widget.botId;
@@ -916,7 +931,9 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         _bdfdScriptController.text = _bdfdScriptContent;
         _bdfdCompileResult = _bdfdCompiler.compile(_bdfdScriptContent);
         _legacyModeEnabled = normalizedData['legacyModeEnabled'] == true;
-        _localOnlyCommand = normalizedData['localOnly'] == true;
+        _localOnlyCommand =
+            normalizedData['legacyLocalOnly'] == true ||
+            normalizedData['localOnly'] == true;
         _legacyPrefixOverride =
             (normalizedData['legacyPrefixOverride'] ?? '').toString();
         final loadedLegacyResponseTarget =
@@ -928,7 +945,6 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         if (!_supportsSimpleMode) {
           _editorMode = _editorModeAdvanced;
         }
-        _simpleModeLocked = _editorMode == _editorModeAdvanced;
         _applySimpleConfig(simpleConfig);
         _responseType = (response['type'] ?? 'normal').toString();
         if (_legacyModeEnabled && _responseType == 'modal') {
@@ -949,6 +965,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                 _defaultWorkflow(),
           ),
         );
+        _normalizeLegacySimpleResponseType();
         _actions = List<Map<String, dynamic>>.from(
           (normalizedData['actions'] as List?)?.whereType<Map>().map(
                 (e) => Map<String, dynamic>.from(e),
@@ -965,6 +982,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         if (storedOptions is List) {
           _options = deserializeCommandOptions(storedOptions);
         }
+        _promoteSimpleModeDraftIfNeeded(editorMode);
         if (_subcommandWorkflows.containsKey(_activeSubcommandRoute)) {
           final activePayload = _subcommandWorkflows[_activeSubcommandRoute];
           if (activePayload != null) {
@@ -1058,7 +1076,9 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           _bdfdScriptController.text = _bdfdScriptContent;
           _bdfdCompileResult = _bdfdCompiler.compile(_bdfdScriptContent);
           _legacyModeEnabled = normalizedData['legacyModeEnabled'] == true;
-          _localOnlyCommand = normalizedData['localOnly'] == true;
+          _localOnlyCommand =
+              normalizedData['legacyLocalOnly'] == true ||
+              normalizedData['localOnly'] == true;
           _legacyPrefixOverride =
               (normalizedData['legacyPrefixOverride'] ?? '').toString();
           final loadedLegacyResponseTarget =
@@ -1075,7 +1095,6 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           if (!_supportsSimpleMode) {
             _editorMode = _editorModeAdvanced;
           }
-          _simpleModeLocked = _editorMode == _editorModeAdvanced;
           _applySimpleConfig(simpleConfig);
           _responseType = (response['type'] ?? 'normal').toString();
           if (_legacyModeEnabled && _responseType == 'modal') {
@@ -1097,6 +1116,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                   _defaultWorkflow(),
             ),
           );
+          _normalizeLegacySimpleResponseType();
           _actions = List<Map<String, dynamic>>.from(
             (normalizedData["actions"] as List?)?.whereType<Map>().map(
                   (e) => Map<String, dynamic>.from(e),
@@ -1113,6 +1133,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           if (storedOptions is List) {
             _options = deserializeCommandOptions(storedOptions);
           }
+          _promoteSimpleModeDraftIfNeeded(editorMode);
           if (_subcommandWorkflows.containsKey(_activeSubcommandRoute)) {
             final activePayload = _subcommandWorkflows[_activeSubcommandRoute];
             if (activePayload != null) {
@@ -1129,7 +1150,6 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         if (!mounted) return;
         setState(() {
           _editorMode = _editorModeAdvanced;
-          _simpleModeLocked = true;
         });
       }
       // ── Safety net: always terminate loading even if Discord is offline ──
@@ -1207,11 +1227,9 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         }
         if (!_supportsSimpleMode) {
           _editorMode = _editorModeAdvanced;
-          _simpleModeLocked = true;
         }
         if (_containsHierarchyOption(_options)) {
           _editorMode = _editorModeAdvanced;
-          _simpleModeLocked = true;
         }
         _syncSubcommandWorkflowRoutes();
         _isLoading = false;
@@ -1667,229 +1685,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                           ),
                         ),
                       ] else
-                        Form(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              BasicInfoCard(
-                                commandName: _commandName,
-                                commandDescription: _commandDescription,
-                                commandType: _commandType,
-                                isLegacyCommand:
-                                    _legacyModeEnabled &&
-                                    _localOnlyCommand &&
-                                    _commandType ==
-                                        ApplicationCommandType.chatInput,
-                                canEditCommandType: !_isEditingExistingCommand,
-                                localOnlyCommand: _localOnlyCommand,
-                                showDescriptionField:
-                                    _supportsCommandDescription,
-                                integrationTypes: _integrationTypes,
-                                contexts: _contexts,
-                                onNameChanged: (val) {
-                                  setState(() {
-                                    _commandName = val;
-                                  });
-                                },
-                                onDescriptionChanged: (val) {
-                                  setState(() {
-                                    _commandDescription = val;
-                                  });
-                                },
-                                onCommandTypeChanged: (val) {
-                                  setState(() {
-                                    _persistActiveSubcommandWorkflow();
-                                    _commandType = val;
-                                    if (!_supportsSimpleMode) {
-                                      _editorMode = _editorModeAdvanced;
-                                      _legacyModeEnabled = false;
-                                      _localOnlyCommand = false;
-                                    }
-                                    _simpleModeLocked =
-                                        _editorMode == _editorModeAdvanced;
-                                    if (_commandType !=
-                                        ApplicationCommandType.chatInput) {
-                                      _subcommandWorkflows =
-                                          <String, Map<String, dynamic>>{};
-                                      _activeSubcommandRoute =
-                                          _rootWorkflowRoute;
-                                    } else {
-                                      _syncSubcommandWorkflowRoutes();
-                                    }
-                                  });
-                                },
-                                onLegacyCommandChanged: (enabled) {
-                                  setState(() {
-                                    _persistActiveSubcommandWorkflow();
-                                    _commandType =
-                                        ApplicationCommandType.chatInput;
-                                    _legacyModeEnabled = enabled;
-                                    _localOnlyCommand = enabled;
-                                    if (_legacyModeEnabled &&
-                                        _responseType == 'modal') {
-                                      _responseType = 'normal';
-                                    }
-                                    _syncSubcommandWorkflowRoutes();
-                                  });
-                                },
-                                onLocalOnlyCommandChanged: (enabled) {
-                                  setState(() {
-                                    _localOnlyCommand = enabled;
-                                  });
-                                },
-                                onIntegrationTypesChanged: (val) {
-                                  setState(() {
-                                    _integrationTypes = val;
-                                  });
-                                },
-                                onContextsChanged: (val) {
-                                  setState(() {
-                                    _contexts = val;
-                                  });
-                                },
-                                onDefaultMemberPermissionsChanged: (value) {
-                                  setState(() {
-                                    _defaultMemberPermissions = value;
-                                  });
-                                },
-                                defaultMemberPermissions:
-                                    _defaultMemberPermissions,
-                                nameValidator: _validateName,
-                              ),
-                              const SizedBox(height: 12),
-                              _buildFolderField(),
-                              const SizedBox(height: 12),
-                              Align(
-                                alignment: Alignment.centerRight,
-                                child: TextButton.icon(
-                                  onPressed: _openDocumentationCenter,
-                                  icon: const Icon(Icons.menu_book_outlined),
-                                  label: Text(
-                                    AppStrings.t('cmd_show_variables'),
-                                  ),
-                                ),
-                              ),
-                              if (_supportsSimpleMode &&
-                                  !_isBdfdScriptMode) ...[
-                                _buildEditorModeCard(context),
-                                const SizedBox(height: 12),
-                              ],
-                              _buildExecutionModeCard(),
-                              const SizedBox(height: 12),
-                              if (_supportsCommandOptions &&
-                                  !_isBdfdScriptMode) ...[
-                                _buildLegacyModeCard(),
-                                const SizedBox(height: 12),
-                              ],
-                              if (_isBdfdScriptMode) ...[
-                                if (_supportsCommandOptions) ...[
-                                  _buildCommandOptionsCard(),
-                                  const SizedBox(height: 16),
-                                ],
-                              ] else if (_isSimpleMode) ...[
-                                _buildSimpleActionsCard(),
-                                const SizedBox(height: 12),
-                                _buildSimpleResponseCard(),
-                              ] else ...[
-                                if (_subcommandWorkflows.isNotEmpty) ...[
-                                  _buildSubcommandWorkflowSelectorCard(),
-                                  const SizedBox(height: 12),
-                                ],
-                                ReplyCard(
-                                  responseType: _responseType,
-                                  onResponseTypeChanged: (type) {
-                                    setState(() {
-                                      if (_legacyModeEnabled &&
-                                          type == 'modal') {
-                                        _responseType = 'normal';
-                                      } else {
-                                        _responseType = type;
-                                      }
-                                      _persistActiveSubcommandWorkflow();
-                                    });
-                                  },
-                                  responseController: _responseController,
-                                  variableSuggestionBar:
-                                      _buildVariableSuggestionBar(
-                                        _responseController,
-                                      ),
-                                  responseEmbeds: _responseEmbeds,
-                                  onEmbedsChanged: (embeds) {
-                                    setState(() {
-                                      _responseEmbeds = embeds;
-                                      _persistActiveSubcommandWorkflow();
-                                    });
-                                  },
-                                  responseComponents: _responseComponents,
-                                  onComponentsChanged: (components) {
-                                    setState(() {
-                                      _responseComponents = components;
-                                      _persistActiveSubcommandWorkflow();
-                                    });
-                                  },
-                                  responseModal: _responseModal,
-                                  onModalChanged: (modal) {
-                                    setState(() {
-                                      _responseModal = modal;
-                                      _persistActiveSubcommandWorkflow();
-                                    });
-                                  },
-                                  responseWorkflow: _responseWorkflow,
-                                  normalizeWorkflow: _normalizeWorkflow,
-                                  variableSuggestions:
-                                      _actionVariableSuggestions,
-                                  emojiSuggestions: _appEmojis,
-                                  botIdForConfig: _botIdForConfig,
-                                  onWorkflowChanged: (workflow) {
-                                    setState(() {
-                                      _responseWorkflow = workflow;
-                                      _persistActiveSubcommandWorkflow();
-                                    });
-                                  },
-                                  workflowSummary: _workflowSummary(),
-                                  activeRouteLabel:
-                                      _subcommandWorkflows.isNotEmpty
-                                          ? _workflowRouteLabel(
-                                            _activeSubcommandRoute,
-                                          )
-                                          : null,
-                                  activeRouteIsGrouped:
-                                      _subcommandWorkflows.isNotEmpty &&
-                                      _activeSubcommandRoute.contains('/'),
-                                  allowModal: _allowModalResponses,
-                                ),
-                                if (_supportsCommandOptions) ...[
-                                  const SizedBox(height: 16),
-                                  _buildCommandOptionsCard(),
-                                  const SizedBox(height: 16),
-                                ],
-                                ActionsCard(
-                                  actions: _actions,
-                                  onActionsChanged: (val) {
-                                    setState(() {
-                                      _actions = val;
-                                      _persistActiveSubcommandWorkflow();
-                                    });
-                                  },
-                                  actionVariableSuggestions:
-                                      _actionVariableSuggestions,
-                                  emojiSuggestions: _appEmojis,
-                                  botIdForConfig: _botIdForConfig,
-                                  activeRouteLabel:
-                                      _subcommandWorkflows.isNotEmpty
-                                          ? _workflowRouteLabel(
-                                            _activeSubcommandRoute,
-                                          )
-                                          : null,
-                                  activeRouteIsGrouped:
-                                      _subcommandWorkflows.isNotEmpty &&
-                                      _activeSubcommandRoute.contains('/'),
-                                ),
-                              ],
-                              const SizedBox(height: 20),
-                            ],
-                          ),
-                        ),
+                        _buildWizardShell(contentMaxWidth: contentMaxWidth),
                     ],
                   ),
                 ),

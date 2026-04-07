@@ -38,7 +38,7 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
     return {
       'version': 1,
       'commandType': _commandTypeToText(_commandType),
-      'editorMode': _editorMode,
+      'editorMode': _CommandCreatePageState._editorModeAdvanced,
       'executionMode': _executionMode,
       'bdfdScriptContent': _bdfdScriptController.text,
       'legacyModeEnabled': _legacyModeEnabled,
@@ -453,7 +453,6 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
         _editorMode = _CommandCreatePageState._editorModeAdvanced;
         _legacyModeEnabled = false;
       }
-      _simpleModeLocked =
           _editorMode == _CommandCreatePageState._editorModeAdvanced;
       _legacyModeEnabled = normalizedPayload['legacyModeEnabled'] == true;
       _legacyPrefixOverride =
@@ -498,6 +497,7 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
               _CommandCreatePageState._defaultWorkflow(),
         ),
       );
+      _normalizeLegacySimpleResponseType();
 
       _actions = _normalizeImportedScopedActionKeys(
         List<Map<String, dynamic>>.from(
@@ -541,6 +541,7 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
       if (_supportsCommandOptions && importedOptions.isNotEmpty) {
         _options = importedOptions;
       }
+      _promoteSimpleModeDraftIfNeeded(_editorMode);
       if (importedIntegrationTypes.isNotEmpty) {
         _integrationTypes = importedIntegrationTypes;
       }
