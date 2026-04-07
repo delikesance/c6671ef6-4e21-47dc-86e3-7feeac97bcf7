@@ -826,6 +826,8 @@ extension _BdfdAstTranspilationScopeControlFlow on _BdfdAstTranspilationScope {
       'path': pathSegments,
       'bodyActions': bodyActions.map((a) => a.toJson()).toList(),
       'maxIterations': _maxSupportedLoopIterations,
+      if (_hasJsonContext && _jsonContext != null)
+        'source': jsonEncode(_jsonContext),
     };
 
     return _ConsumedJsonForEachBlock(

@@ -368,7 +368,7 @@ void main() {
       );
 
       expect(result.hasErrors, isFalse);
-      // jsonParse emits a runtimeJsonBlock, jsonForEach emits a jsonForEachLoop
+      // jsonParse with a literal embeds the source in the jsonForEachLoop payload
       final feActions = result.actions.where(
         (a) => a.type == BotCreatorActionType.jsonForEachLoop,
       );
@@ -377,6 +377,7 @@ void main() {
       expect(payload['path'], isEmpty);
       expect(payload['bodyActions'], isA<List>());
       expect((payload['bodyActions'] as List), isNotEmpty);
+      expect(payload['source'], '{"a":1,"b":2}');
     });
 
     test('compiles jsonForEach with nested path', () {
