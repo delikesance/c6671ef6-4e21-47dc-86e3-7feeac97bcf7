@@ -1605,6 +1605,11 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   @override
   Widget build(BuildContext context) {
     final guardDiscardOnPop = _showEditShell && _isDirty;
+    final showStickyEditSave =
+        _showEditShell &&
+        _isEditingExistingCommand &&
+        !_isLoading &&
+        !_isDataIncomplete;
 
     return PopScope(
       canPop: !guardDiscardOnPop,
@@ -1743,6 +1748,35 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
               ),
           ],
         ),
+        bottomNavigationBar:
+            showStickyEditSave
+                ? SafeArea(
+                  top: false,
+                  child: Container(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).scaffoldBackgroundColor,
+                      border: Border(
+                        top: BorderSide(
+                          color: Theme.of(
+                            context,
+                          ).dividerColor.withValues(alpha: 0.2),
+                        ),
+                      ),
+                    ),
+                    child: SizedBox(
+                      height: 48,
+                      child: FilledButton.icon(
+                        onPressed: _isDirty ? _saveExistingCommand : null,
+                        icon: const Icon(Icons.save_outlined),
+                        label: Text(
+                          _isDirty ? 'Save changes' : 'All changes saved',
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+                : null,
         body: SafeArea(
           top: false,
           child: LayoutBuilder(
@@ -1755,9 +1789,11 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
               return Center(
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 16,
+                  padding: EdgeInsets.fromLTRB(
+                    16,
+                    16,
+                    16,
+                    showStickyEditSave ? 116 : 16,
                   ),
                   child: ConstrainedBox(
                     constraints: BoxConstraints(maxWidth: contentMaxWidth),

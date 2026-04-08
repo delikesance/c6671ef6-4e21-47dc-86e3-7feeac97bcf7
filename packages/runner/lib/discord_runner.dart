@@ -11,7 +11,6 @@ import 'package:bot_creator_shared/events/event_contexts.dart';
 import 'package:bot_creator_shared/utils/interaction_ack_state.dart';
 import 'package:bot_creator_shared/utils/interaction_listener_registry.dart';
 import 'package:bot_creator_shared/utils/command_autocomplete.dart';
-import 'package:bot_creator_shared/utils/awaited_registration.dart';
 import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 import 'package:bot_creator_shared/utils/global.dart';
 import 'package:bot_creator_shared/utils/intent_resolver.dart';
@@ -70,7 +69,10 @@ _AwaitedLegacyTrigger? _parseAwaitedLegacyTrigger(String rawName) {
     caseSensitive: false,
   ).firstMatch(name);
   if (successMatch != null) {
-    final awaitedName = successMatch.group(1)?.trim().toLowerCase() ?? '';
+    final awaitedName = (successMatch.group(1) ?? '')
+        .trim()
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9_]'), '_');
     final filter = successMatch.group(2)?.trim();
     if (awaitedName.isEmpty) {
       return null;
@@ -87,7 +89,10 @@ _AwaitedLegacyTrigger? _parseAwaitedLegacyTrigger(String rawName) {
     caseSensitive: false,
   ).firstMatch(name);
   if (errorMatch != null) {
-    final awaitedName = errorMatch.group(1)?.trim().toLowerCase() ?? '';
+    final awaitedName = (errorMatch.group(1) ?? '')
+        .trim()
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9_]'), '_');
     if (awaitedName.isEmpty) {
       return null;
     }
@@ -2515,7 +2520,6 @@ class DiscordRunner {
       if (pendingRaw == null) {
         continue;
       }
-      final pendingSnapshot = awaitedRegistrationSnapshot(pendingRaw);
 
       Map<String, dynamic> pending = <String, dynamic>{};
       if (pendingRaw is Map) {
@@ -2590,6 +2594,14 @@ class DiscordRunner {
       final response = Map<String, dynamic>.from(
         (value['response'] as Map?)?.cast<String, dynamic>() ?? const {},
       );
+
+      // Remove the pending await BEFORE executing the callback so that
+      // re-arm detection is simply: "does the variable exist again after
+      // execution?".  This avoids snapshot-comparison issues when the
+      // callback actions come from pre-compiled (workflow-mode) storage
+      // where the createdAt timestamp is static.
+      await store.removeScopedVariable(botId, 'user', authorId, awaitKey);
+
       late final List<Map<String, dynamic>> actionsJson;
       try {
         actionsJson = await _resolveLegacyActionsJson(
@@ -2640,21 +2652,19 @@ class DiscordRunner {
         responseTarget: _effectiveLegacyResponseTarget(value),
       );
 
-      final currentPendingRaw = await store.getScopedVariable(
+      final reArmedRaw = await store.getScopedVariable(
         botId,
         'user',
         authorId,
         awaitKey,
       );
-      if (currentPendingRaw != null &&
-          awaitedRegistrationSnapshot(currentPendingRaw) != pendingSnapshot) {
+      if (reArmedRaw != null) {
         _log.info('Awaited legacy callback re-armed: $awaitName');
-        return true;
+      } else {
+        _log.info(
+          'Awaited legacy callback executed (not re-armed): $awaitName',
+        );
       }
-      if (currentPendingRaw != null) {
-        await store.removeScopedVariable(botId, 'user', authorId, awaitKey);
-      }
-      _log.info('Awaited legacy callback executed: $awaitName');
       return true;
     }
 
