@@ -144,8 +144,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
     final data = Map<String, dynamic>.from(
       (command['data'] as Map?)?.cast<String, dynamic>() ?? const {},
     );
-    final commandType =
-        (command['type'] ?? data['commandType'] ?? 'chatInput').toString();
+    (command['type'] ?? data['commandType'] ?? 'chatInput').toString();
     final optionsCount = (data['options'] as List?)?.length ?? 0;
     final actionsCount = (data['actions'] as List?)?.length ?? 0;
     final subcommandCount = (data['subcommandWorkflows'] as Map?)?.length ?? 0;
