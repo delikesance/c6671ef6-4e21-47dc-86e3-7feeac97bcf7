@@ -1458,9 +1458,18 @@
   'premium_active_title': 'Premium actif',
   'premium_active_desc':
       'Merci pour votre soutien ! Toutes les publicités sont désactivées.',
-  'subscription_title': 'Supprimer les pubs',
+  'subscription_title': 'Premium',
   'subscription_subtitle':
-      'Choisissez une offre pour supprimer les pubs et débloquer toutes les fonctionnalités premium.',
+      'Choisissez une offre pour débloquer toutes les fonctionnalités premium.',
+  'subscription_plan_label': 'Premium Basique',
+  'subscription_plan_desc':
+      'Supprime les pubs et accède à toutes les fonctionnalités premium actuelles et à venir.',
+  'subscription_success':
+      'Bienvenue dans Premium ! Toutes les publicités ont été supprimées.',
+  'subscription_manage': 'Gérer l\'abonnement',
+  'subscription_active_label': 'Offre active :',
+  'subscription_active_annual': 'Premium — Annuel',
+  'subscription_active_monthly': 'Premium — Mensuel',
   'subscription_benefit_no_ads': 'Aucune pub dans toute l\'application',
   'subscription_benefit_fast_start':
       'Bots démarrent instantanément, sans pop-up',
