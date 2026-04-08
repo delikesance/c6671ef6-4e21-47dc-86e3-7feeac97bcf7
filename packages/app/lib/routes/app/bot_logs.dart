@@ -25,7 +25,11 @@ class _BotLogsPageState extends State<BotLogsPage> {
   bool _showNewestFirst = true;
   int _visibleLimit = 200;
   bool _rawMode = false;
+  double _rawFontSize = 11.0;
+  double _rawFontSizeAtScaleStart = 11.0;
 
+  static const double _rawFontSizeMin = 7.0;
+  static const double _rawFontSizeMax = 22.0;
   static const int _collapseThreshold = 240;
 
   // Runner log polling
@@ -429,35 +433,48 @@ class _BotLogsPageState extends State<BotLogsPage> {
                               MediaQuery.of(context).padding.bottom;
 
                           if (_rawMode) {
-                            return ListView.builder(
-                              controller: _scrollController,
-                              padding: EdgeInsets.fromLTRB(
-                                12,
-                                12,
-                                12,
-                                16 + bottomInset + 64,
-                              ),
-                              itemCount: logs.length,
-                              itemExtent: 20,
-                              itemBuilder: (context, index) {
-                                final raw = logs[index];
-                                final parsed = _parseLog(raw);
-                                return Text(
-                                  '${parsed.time} [${parsed.level}] ${parsed.message}',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: textTheme.bodySmall?.copyWith(
-                                    fontFamily: 'monospace',
-                                    fontSize: 11,
-                                    height: 1.3,
-                                    color: _rawLevelColor(
-                                      context,
-                                      parsed.level,
-                                      parsed.isDebug,
-                                    ),
-                                  ),
-                                );
+                            final itemH = (_rawFontSize * 1.6).roundToDouble();
+                            return GestureDetector(
+                              onScaleStart: (_) {
+                                _rawFontSizeAtScaleStart = _rawFontSize;
                               },
+                              onScaleUpdate: (details) {
+                                setState(() {
+                                  _rawFontSize = (_rawFontSizeAtScaleStart *
+                                          details.scale)
+                                      .clamp(_rawFontSizeMin, _rawFontSizeMax);
+                                });
+                              },
+                              child: ListView.builder(
+                                controller: _scrollController,
+                                padding: EdgeInsets.fromLTRB(
+                                  12,
+                                  12,
+                                  12,
+                                  16 + bottomInset + 64,
+                                ),
+                                itemCount: logs.length,
+                                itemExtent: itemH,
+                                itemBuilder: (context, index) {
+                                  final raw = logs[index];
+                                  final parsed = _parseLog(raw);
+                                  return Text(
+                                    '${parsed.time} [${parsed.level}] ${parsed.message}',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: textTheme.bodySmall?.copyWith(
+                                      fontFamily: 'monospace',
+                                      fontSize: _rawFontSize,
+                                      height: 1.3,
+                                      color: _rawLevelColor(
+                                        context,
+                                        parsed.level,
+                                        parsed.isDebug,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
                             );
                           }
 
