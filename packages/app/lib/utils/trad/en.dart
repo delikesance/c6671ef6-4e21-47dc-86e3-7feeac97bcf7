@@ -1463,6 +1463,12 @@ const Map<String, String> appStringsEn = {
   'subscription_terms': 'Terms of use',
   'subscription_privacy': 'Privacy policy',
   'subscription_error': 'Purchase could not be completed. Please try again.',
+  'subscription_error_store_unavailable':
+      'The App Store is currently unavailable. Please try again in a moment.',
+  'subscription_error_product_unavailable':
+      'This plan is currently unavailable. Please try again later.',
+  'subscription_error_purchase_start_failed':
+      'Purchase could not be started. Please try again.',
   'subscription_restored': 'Subscription restored successfully!',
   'subscription_restore_not_found': 'No active subscription found.',
   'subscription_not_available_on_platform':
