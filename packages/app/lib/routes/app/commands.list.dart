@@ -110,28 +110,11 @@ class _AppCommandsPageState extends State<AppCommandsPage>
               ),
           ],
         ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              ((command['description'] ?? '').toString().trim().isEmpty
-                      ? 'No description'
-                      : (command['description'] ?? '').toString())
-                  .toString(),
-              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w400),
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: _buildCommandMetaChips(command),
-            ),
-          ],
-        ),
-        isThreeLine: true,
-        minVerticalPadding: 12,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        dense: false,
+        subtitle: Row(children: _buildCommandMetaChips(command)),
+        isThreeLine: false,
+        minVerticalPadding: 8,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        dense: true,
         onLongPress: () {
           if (!_isReorderMode) _enterReorderMode();
         },
@@ -161,8 +144,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
     final data = Map<String, dynamic>.from(
       (command['data'] as Map?)?.cast<String, dynamic>() ?? const {},
     );
-    final commandType =
-        (command['type'] ?? data['commandType'] ?? 'chatInput').toString();
+    (command['type'] ?? data['commandType'] ?? 'chatInput').toString();
     final optionsCount = (data['options'] as List?)?.length ?? 0;
     final actionsCount = (data['actions'] as List?)?.length ?? 0;
     final subcommandCount = (data['subcommandWorkflows'] as Map?)?.length ?? 0;
@@ -171,32 +153,24 @@ class _AppCommandsPageState extends State<AppCommandsPage>
 
     final chips = <Widget>[
       _CommandMetaChip(
-        label: legacyLocal ? 'legacy' : commandType,
         icon: legacyLocal ? Icons.history_toggle_off : Icons.bolt_outlined,
       ),
-      _CommandMetaChip(label: '$optionsCount option(s)', icon: Icons.tune),
+      _CommandMetaChip(label: '$optionsCount', icon: Icons.tune),
       _CommandMetaChip(
-        label: '$actionsCount action(s)',
+        label: '$actionsCount',
         icon: Icons.account_tree_outlined,
       ),
     ];
     if (subcommandCount > 0) {
       chips.add(
-        _CommandMetaChip(
-          label: '$subcommandCount route(s)',
-          icon: Icons.route_outlined,
-        ),
+        _CommandMetaChip(label: '$subcommandCount', icon: Icons.route_outlined),
       );
     }
     if (legacyMode && !legacyLocal) {
-      chips.add(
-        _CommandMetaChip(label: 'legacy', icon: Icons.history_toggle_off),
-      );
+      chips.add(const _CommandMetaChip(icon: Icons.history_toggle_off));
     }
     if (legacyLocal) {
-      chips.add(
-        _CommandMetaChip(label: 'local-only', icon: Icons.offline_bolt),
-      );
+      chips.add(const _CommandMetaChip(icon: Icons.offline_bolt));
     }
     return chips;
   }
@@ -1078,28 +1052,34 @@ class _CommandFolderHeader extends StatelessWidget {
 }
 
 class _CommandMetaChip extends StatelessWidget {
-  const _CommandMetaChip({required this.label, required this.icon});
+  const _CommandMetaChip({this.label, required this.icon});
 
-  final String label;
+  final String? label;
   final IconData icon;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(999),
-      ),
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+          Icon(
+            icon,
+            size: 13,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
+          if (label != null) ...[
+            const SizedBox(width: 3),
+            Text(
+              label!,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
         ],
       ),
     );

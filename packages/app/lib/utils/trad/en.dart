@@ -605,6 +605,8 @@ const Map<String, String> appStringsEn = {
   'bot_logs_ram_estimated': 'Estimated bot RAM: {memory}',
   'bot_logs_go_to_latest': 'Go to latest log',
   'bot_logs_go_to_bottom': 'Go to bottom',
+  'bot_logs_raw_mode': 'Compact raw logs',
+  'bot_logs_rich_mode': 'Rich formatted logs',
 
   // Debug Replay page
   'debug_replay_title': 'Debugger Replay',
@@ -1423,9 +1425,16 @@ const Map<String, String> appStringsEn = {
   'premium_card_button': 'See plans',
   'premium_active_title': 'Premium active',
   'premium_active_desc': 'Thank you for your support! All ads are disabled.',
-  'subscription_title': 'Remove Ads',
-  'subscription_subtitle':
-      'Choose a plan to remove ads and unlock all premium features.',
+  'subscription_title': 'Premium',
+  'subscription_subtitle': 'Choose a plan to unlock all premium features.',
+  'subscription_plan_label': 'Premium Basic',
+  'subscription_plan_desc':
+      'Remove ads and get access to all current and upcoming premium features.',
+  'subscription_success': 'Welcome to Premium! All ads have been removed.',
+  'subscription_manage': 'Manage subscription',
+  'subscription_active_label': 'Active plan:',
+  'subscription_active_annual': 'Premium — Annual',
+  'subscription_active_monthly': 'Premium — Monthly',
   'subscription_benefit_no_ads': 'No ads anywhere in the app',
   'subscription_benefit_fast_start': 'Bots start instantly, no popup',
   'subscription_benefit_support': 'Support independent development',
@@ -1463,6 +1472,12 @@ const Map<String, String> appStringsEn = {
   'subscription_terms': 'Terms of use',
   'subscription_privacy': 'Privacy policy',
   'subscription_error': 'Purchase could not be completed. Please try again.',
+  'subscription_error_store_unavailable':
+      'The App Store is currently unavailable. Please try again in a moment.',
+  'subscription_error_product_unavailable':
+      'This plan is currently unavailable. Please try again later.',
+  'subscription_error_purchase_start_failed':
+      'Purchase could not be started. Please try again.',
   'subscription_restored': 'Subscription restored successfully!',
   'subscription_restore_not_found': 'No active subscription found.',
   'subscription_not_available_on_platform':

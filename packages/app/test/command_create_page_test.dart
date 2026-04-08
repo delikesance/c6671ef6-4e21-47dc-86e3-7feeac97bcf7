@@ -281,7 +281,7 @@ void main() {
     });
 
     testWidgets(
-      'edit mode prioritizes reply and actions before lower sections',
+      'edit mode shows settings and inputs before actions and reply',
       (tester) async {
         const botId = 'bot-edit-order';
         const commandId = 'local-edit-order';
@@ -299,14 +299,14 @@ void main() {
           ),
         );
 
-        final replyY = tester.getTopLeft(find.text('Reply summary')).dy;
-        final actionsY = tester.getTopLeft(find.text('Actions')).dy;
-        final triggerY = tester.getTopLeft(find.text('Trigger & Inputs')).dy;
         final settingsY = tester.getTopLeft(find.text('Command settings')).dy;
+        final triggerY = tester.getTopLeft(find.text('Trigger & Inputs')).dy;
+        final actionsY = tester.getTopLeft(find.text('Actions')).dy;
+        final replyY = tester.getTopLeft(find.text('Reply summary')).dy;
 
-        expect(replyY, lessThan(actionsY));
-        expect(actionsY, lessThan(triggerY));
-        expect(triggerY, lessThan(settingsY));
+        expect(settingsY, lessThan(triggerY));
+        expect(triggerY, lessThan(actionsY));
+        expect(actionsY, lessThan(replyY));
       },
     );
 
