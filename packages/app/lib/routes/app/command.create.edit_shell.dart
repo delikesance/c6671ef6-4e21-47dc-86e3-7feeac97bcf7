@@ -246,7 +246,7 @@ extension _CommandCreateEditShell on _CommandCreatePageState {
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
-          key: PageStorageKey<String>('edit-section-$title'),
+          key: ValueKey<String>('edit-section-$title'),
           maintainState: true,
           title: Text(
             title,
