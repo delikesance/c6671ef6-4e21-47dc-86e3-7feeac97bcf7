@@ -1031,6 +1031,7 @@ Future<bool> _tryExecuteLocalAwaitedInput(
     if (pendingRaw == null) {
       continue;
     }
+    final pendingSnapshot = awaitedRegistrationSnapshot(pendingRaw);
 
     Map<String, dynamic> pending = <String, dynamic>{};
     if (pendingRaw is Map) {
@@ -1158,7 +1159,20 @@ Future<bool> _tryExecuteLocalAwaitedInput(
       responseTarget: _localLegacyResponseTarget(data),
     );
 
-    await manager.removeScopedVariable(botId, 'user', authorId, awaitKey);
+    final currentPendingRaw = await manager.getScopedVariable(
+      botId,
+      'user',
+      authorId,
+      awaitKey,
+    );
+    if (currentPendingRaw != null &&
+        awaitedRegistrationSnapshot(currentPendingRaw) != pendingSnapshot) {
+      onLog?.call('Awaited local callback re-armed: $awaitName');
+      return true;
+    }
+    if (currentPendingRaw != null) {
+      await manager.removeScopedVariable(botId, 'user', authorId, awaitKey);
+    }
     onLog?.call('Awaited local callback executed: $awaitName');
     return true;
   }
@@ -1219,7 +1233,13 @@ String _buildLocalLegacyHelpMessage({
   String? specificCommand,
 }) {
   final normalizedSpecific = (specificCommand ?? '').trim().toLowerCase();
-  final sorted = List<Map<String, dynamic>>.from(legacyCommands)..sort(
+  final publicLegacyCommands = legacyCommands
+      .where((command) {
+        return _parseAwaitedLocalTrigger((command['name'] ?? '').toString()) ==
+            null;
+      })
+      .toList(growable: false);
+  final sorted = List<Map<String, dynamic>>.from(publicLegacyCommands)..sort(
     (a, b) => (a['name'] ?? '').toString().toLowerCase().compareTo(
       (b['name'] ?? '').toString().toLowerCase(),
     ),
@@ -1321,7 +1341,17 @@ Future<bool> _tryExecuteBuiltInLocalLegacyHelp(
     return false;
   }
 
-  final hasCustomHelp = legacyCommands.any(
+  final publicLegacyCommands = legacyCommands
+      .where((command) {
+        return _parseAwaitedLocalTrigger((command['name'] ?? '').toString()) ==
+            null;
+      })
+      .toList(growable: false);
+  if (publicLegacyCommands.isEmpty) {
+    return false;
+  }
+
+  final hasCustomHelp = publicLegacyCommands.any(
     (command) =>
         (command['name'] ?? '').toString().trim().toLowerCase() == 'help',
   );
@@ -1330,7 +1360,7 @@ Future<bool> _tryExecuteBuiltInLocalLegacyHelp(
   }
 
   final prefixes = <String>{};
-  for (final command in legacyCommands) {
+  for (final command in publicLegacyCommands) {
     final data = Map<String, dynamic>.from(
       (command['data'] as Map?)?.cast<String, dynamic>() ?? const {},
     );
@@ -1363,7 +1393,7 @@ Future<bool> _tryExecuteBuiltInLocalLegacyHelp(
     final specificCommand = tokens.length > 1 ? tokens[1] : null;
     final helpText = _buildLocalLegacyHelpMessage(
       prefix: prefix,
-      legacyCommands: legacyCommands,
+      legacyCommands: publicLegacyCommands,
       specificCommand: specificCommand,
     );
 

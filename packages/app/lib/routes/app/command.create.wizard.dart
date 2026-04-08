@@ -321,6 +321,7 @@ extension _CommandCreateWizard on _CommandCreatePageState {
           },
           defaultMemberPermissions: _defaultMemberPermissions,
           nameValidator: _validateName,
+          nameMaxLength: _commandNameMaxLength,
         ),
         const SizedBox(height: 12),
         _buildFolderField(),
