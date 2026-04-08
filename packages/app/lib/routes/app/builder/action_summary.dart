@@ -20,9 +20,8 @@ class ActionSummaryData {
 
 ActionSummaryData summarizeActionItem(ActionItem action) {
   final params = action.parameters;
-  final outputKey = (params['key'] ?? action.id).toString().trim().isEmpty
-      ? action.type.name
-      : (params['key'] ?? action.id).toString().trim();
+  final configuredKey = _valueOrEmpty(params['key']);
+  final outputKey = configuredKey.isEmpty ? action.id : configuredKey;
 
   switch (action.type) {
     case BotCreatorActionType.sendMessage:
@@ -34,7 +33,9 @@ ActionSummaryData summarizeActionItem(ActionItem action) {
       return ActionSummaryData(
         title: action.type.displayName,
         summary:
-            content.isNotEmpty ? 'Send to $channel: $content' : 'Send to $channel',
+            content.isNotEmpty
+                ? 'Send to $channel: $content'
+                : 'Send to $channel',
         outputKey: outputKey,
         isEnabled: action.enabled,
       );
@@ -50,9 +51,7 @@ ActionSummaryData summarizeActionItem(ActionItem action) {
                 : 'Run $workflow${entryPoint.isNotEmpty ? ' -> $entryPoint' : ''}',
         outputKey: outputKey,
         isEnabled: action.enabled,
-        meta: ifList(<String>[
-          if (arguments > 0) '$arguments arg(s)',
-        ]),
+        meta: ifList(<String>[if (arguments > 0) '$arguments arg(s)']),
       );
     case BotCreatorActionType.listenForButtonClick:
       final workflow = _valueOrEmpty(params['workflowName']);
@@ -100,18 +99,14 @@ ActionSummaryData summarizeActionItem(ActionItem action) {
       final thenCount = _countNestedActions(params['thenActions']);
       final elseCount = _countNestedActions(params['elseActions']);
       final elseIfCount = (params['elseIfConditions'] as List?)?.length ?? 0;
-      final condition =
-          [
-            if (variable.isNotEmpty) variable,
-            if (operator.isNotEmpty) operator,
-            if (compareValue.isNotEmpty) compareValue,
-          ].join(' ');
+      final condition = [
+        if (variable.isNotEmpty) variable,
+        if (operator.isNotEmpty) operator,
+        if (compareValue.isNotEmpty) compareValue,
+      ].join(' ');
       return ActionSummaryData(
         title: action.type.displayName,
-        summary:
-            condition.isEmpty
-                ? 'Conditional branch'
-                : 'If $condition',
+        summary: condition.isEmpty ? 'Conditional branch' : 'If $condition',
         outputKey: outputKey,
         isEnabled: action.enabled,
         meta: ifList(<String>[
@@ -124,23 +119,25 @@ ActionSummaryData summarizeActionItem(ActionItem action) {
       final variable = _valueOrEmpty(params['variable']);
       final operator = _valueOrEmpty(params['operator']);
       final compareValue = _valueOrEmpty(params['value']);
-      final condition =
-          [
-            if (variable.isNotEmpty) variable,
-            if (operator.isNotEmpty) operator,
-            if (compareValue.isNotEmpty) compareValue,
-          ].join(' ');
+      final condition = [
+        if (variable.isNotEmpty) variable,
+        if (operator.isNotEmpty) operator,
+        if (compareValue.isNotEmpty) compareValue,
+      ].join(' ');
       return ActionSummaryData(
         title: action.type.displayName,
         summary:
-            condition.isEmpty ? 'Guard the workflow' : 'Continue only if $condition',
+            condition.isEmpty
+                ? 'Guard the workflow'
+                : 'Continue only if $condition',
         outputKey: outputKey,
         isEnabled: action.enabled,
       );
     case BotCreatorActionType.httpRequest:
-      final method = _valueOrEmpty(params['method']).isEmpty
-          ? 'GET'
-          : _valueOrEmpty(params['method']).toUpperCase();
+      final method =
+          _valueOrEmpty(params['method']).isEmpty
+              ? 'GET'
+              : _valueOrEmpty(params['method']).toUpperCase();
       final url = _preview(params['url'], maxLength: 56);
       return ActionSummaryData(
         title: action.type.displayName,
