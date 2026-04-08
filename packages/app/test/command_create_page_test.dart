@@ -162,6 +162,23 @@ void main() {
     return Map<String, dynamic>.from(jsonDecode(content) as Map);
   }
 
+  List<Map<String, dynamic>> readAllLocalCommands(String botId) {
+    final directory = Directory('${documentsDir.path}/apps/$botId');
+    if (!directory.existsSync()) {
+      return const <Map<String, dynamic>>[];
+    }
+
+    return directory
+        .listSync()
+        .whereType<File>()
+        .map(
+          (file) => Map<String, dynamic>.from(
+            jsonDecode(file.readAsStringSync()) as Map,
+          ),
+        )
+        .toList(growable: false);
+  }
+
   Future<void> pumpCreatePage(
     WidgetTester tester, {
     required Widget page,
@@ -436,5 +453,129 @@ void main() {
       expect(saved['id'], commandId);
       expect(saved.containsKey('updatedAt'), isTrue);
     });
+
+    testWidgets(
+      'awaited callback legacy commands can be created locally without a description',
+      (tester) async {
+        const botId = 'bot-awaited-callback-create';
+
+        await openPageFromHost(
+          tester,
+          page: const CommandCreatePage(botId: botId),
+        );
+
+        await tester.tap(find.byType(DropdownButtonFormField<String>).first);
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+        await tester.tap(find.text('Legacy Command').last);
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+
+        await tester.enterText(
+          find.byType(TextFormField).first,
+          r'$awaitedCommand[say;<numeric>]',
+        );
+        await tester.pump();
+
+        for (var i = 0; i < 4; i++) {
+          await tester.tap(find.widgetWithText(FilledButton, 'Next'));
+          await tester.pump();
+          await tester.pump(const Duration(milliseconds: 300));
+        }
+
+        await tester.runAsync(() async {
+          final createButton = tester.widget<FilledButton>(
+            find.widgetWithText(FilledButton, 'Create command'),
+          );
+          createButton.onPressed?.call();
+          final deadline = DateTime.now().add(const Duration(seconds: 2));
+          while (DateTime.now().isBefore(deadline)) {
+            final savedCommands = readAllLocalCommands(botId);
+            if (savedCommands.isNotEmpty) {
+              return;
+            }
+            await Future<void>.delayed(const Duration(milliseconds: 50));
+          }
+        });
+        await tester.pump(const Duration(milliseconds: 800));
+
+        final savedCommands = readAllLocalCommands(botId);
+        expect(savedCommands, hasLength(1));
+        expect(savedCommands.single['name'], r'$awaitedCommand[say;<numeric>]');
+        expect(savedCommands.single['description'], isEmpty);
+
+        final data = Map<String, dynamic>.from(savedCommands.single['data']);
+        expect(data['legacyModeEnabled'], isTrue);
+        expect(data['legacyLocalOnly'], isTrue);
+      },
+    );
+
+    testWidgets(
+      'awaited callback preset generates the trigger syntax automatically',
+      (tester) async {
+        const botId = 'bot-awaited-preset-create';
+
+        await openPageFromHost(
+          tester,
+          page: const CommandCreatePage(botId: botId),
+        );
+
+        await tester.tap(find.byKey(const ValueKey('awaited-preset-enable')));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+
+        await tester.enterText(
+          find.byKey(const ValueKey('awaited-preset-name')),
+          'odd',
+        );
+        await tester.pump();
+        await tester.enterText(
+          find.byKey(const ValueKey('awaited-preset-filter')),
+          '<yes/no/cancel>',
+        );
+        await tester.pump();
+
+        expect(
+          find.descendant(
+            of: find.byKey(const ValueKey('awaited-preset-preview')),
+            matching: find.text(r'$awaitedCommand[odd;<yes/no/cancel>]'),
+          ),
+          findsOneWidget,
+        );
+
+        for (var i = 0; i < 4; i++) {
+          await tester.tap(find.widgetWithText(FilledButton, 'Next'));
+          await tester.pump();
+          await tester.pump(const Duration(milliseconds: 300));
+        }
+
+        await tester.runAsync(() async {
+          final createButton = tester.widget<FilledButton>(
+            find.widgetWithText(FilledButton, 'Create command'),
+          );
+          createButton.onPressed?.call();
+          final deadline = DateTime.now().add(const Duration(seconds: 2));
+          while (DateTime.now().isBefore(deadline)) {
+            final savedCommands = readAllLocalCommands(botId);
+            if (savedCommands.isNotEmpty) {
+              return;
+            }
+            await Future<void>.delayed(const Duration(milliseconds: 50));
+          }
+        });
+        await tester.pump(const Duration(milliseconds: 800));
+
+        final savedCommands = readAllLocalCommands(botId);
+        expect(savedCommands, hasLength(1));
+        expect(
+          savedCommands.single['name'],
+          r'$awaitedCommand[odd;<yes/no/cancel>]',
+        );
+
+        final data = Map<String, dynamic>.from(savedCommands.single['data']);
+        expect(data['legacyModeEnabled'], isTrue);
+        expect(data['legacyLocalOnly'], isTrue);
+      },
+    );
   });
 }

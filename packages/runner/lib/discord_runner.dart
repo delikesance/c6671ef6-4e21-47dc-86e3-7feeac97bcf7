@@ -11,6 +11,7 @@ import 'package:bot_creator_shared/events/event_contexts.dart';
 import 'package:bot_creator_shared/utils/interaction_ack_state.dart';
 import 'package:bot_creator_shared/utils/interaction_listener_registry.dart';
 import 'package:bot_creator_shared/utils/command_autocomplete.dart';
+import 'package:bot_creator_shared/utils/awaited_registration.dart';
 import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 import 'package:bot_creator_shared/utils/global.dart';
 import 'package:bot_creator_shared/utils/intent_resolver.dart';
@@ -1446,7 +1447,15 @@ class DiscordRunner {
     String? specificCommand,
   }) {
     final normalizedSpecific = (specificCommand ?? '').trim().toLowerCase();
-    final sorted = List<Map<String, dynamic>>.from(legacyCommands)..sort(
+    final publicLegacyCommands = legacyCommands
+        .where((command) {
+          return _parseAwaitedLegacyTrigger(
+                (command['name'] ?? '').toString(),
+              ) ==
+              null;
+        })
+        .toList(growable: false);
+    final sorted = List<Map<String, dynamic>>.from(publicLegacyCommands)..sort(
       (a, b) => (a['name'] ?? '').toString().toLowerCase().compareTo(
         (b['name'] ?? '').toString().toLowerCase(),
       ),
@@ -1552,7 +1561,19 @@ class DiscordRunner {
       return false;
     }
 
-    final hasCustomHelp = legacyCommands.any(
+    final publicLegacyCommands = legacyCommands
+        .where((command) {
+          return _parseAwaitedLegacyTrigger(
+                (command['name'] ?? '').toString(),
+              ) ==
+              null;
+        })
+        .toList(growable: false);
+    if (publicLegacyCommands.isEmpty) {
+      return false;
+    }
+
+    final hasCustomHelp = publicLegacyCommands.any(
       (command) =>
           (command['name'] ?? '').toString().trim().toLowerCase() == 'help',
     );
@@ -1561,7 +1582,7 @@ class DiscordRunner {
     }
 
     final prefixes = <String>{};
-    for (final command in legacyCommands) {
+    for (final command in publicLegacyCommands) {
       final data = Map<String, dynamic>.from(
         (command['data'] as Map?)?.cast<String, dynamic>() ?? const {},
       );
@@ -1593,7 +1614,7 @@ class DiscordRunner {
       final specificCommand = tokens.length > 1 ? tokens[1] : null;
       final helpText = _buildLegacyHelpMessage(
         prefix: prefix,
-        legacyCommands: legacyCommands,
+        legacyCommands: publicLegacyCommands,
         specificCommand: specificCommand,
       );
       await _sendLegacyMessage(
@@ -2494,6 +2515,7 @@ class DiscordRunner {
       if (pendingRaw == null) {
         continue;
       }
+      final pendingSnapshot = awaitedRegistrationSnapshot(pendingRaw);
 
       Map<String, dynamic> pending = <String, dynamic>{};
       if (pendingRaw is Map) {
@@ -2618,7 +2640,20 @@ class DiscordRunner {
         responseTarget: _effectiveLegacyResponseTarget(value),
       );
 
-      await store.removeScopedVariable(botId, 'user', authorId, awaitKey);
+      final currentPendingRaw = await store.getScopedVariable(
+        botId,
+        'user',
+        authorId,
+        awaitKey,
+      );
+      if (currentPendingRaw != null &&
+          awaitedRegistrationSnapshot(currentPendingRaw) != pendingSnapshot) {
+        _log.info('Awaited legacy callback re-armed: $awaitName');
+        return true;
+      }
+      if (currentPendingRaw != null) {
+        await store.removeScopedVariable(botId, 'user', authorId, awaitKey);
+      }
       _log.info('Awaited legacy callback executed: $awaitName');
       return true;
     }

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:bot_creator/utils/ad_mediation_debug.dart';
 import 'package:bot_creator/utils/ad_native_service.dart';
 import 'package:bot_creator/utils/ads_placement_policy.dart';
 import 'package:flutter/material.dart';
@@ -55,12 +56,18 @@ class _NativeAdSlotState extends State<NativeAdSlot> {
       placement: widget.placement,
       listener: NativeAdListener(
         onAdLoaded: (ad) {
+          final loadedAd = ad as NativeAd;
+          AdMediationDebug.logResponseInfo(
+            format: 'native',
+            placement: AdsPlacementPolicy.placementKey(widget.placement),
+            responseInfo: loadedAd.responseInfo,
+          );
           if (!mounted) {
             ad.dispose();
             return;
           }
           setState(() {
-            _nativeAd = ad as NativeAd;
+            _nativeAd = loadedAd;
             _loaded = true;
           });
           unawaited(AdNativeService.trackLoaded(widget.placement));

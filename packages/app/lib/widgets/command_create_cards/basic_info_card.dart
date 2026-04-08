@@ -22,6 +22,7 @@ class BasicInfoCard extends StatefulWidget {
   final String defaultMemberPermissions;
   final ValueChanged<String> onDefaultMemberPermissionsChanged;
   final String? Function(String?) nameValidator;
+  final int nameMaxLength;
 
   const BasicInfoCard({
     super.key,
@@ -44,6 +45,7 @@ class BasicInfoCard extends StatefulWidget {
     required this.defaultMemberPermissions,
     required this.onDefaultMemberPermissionsChanged,
     required this.nameValidator,
+    this.nameMaxLength = 32,
   });
 
   @override
@@ -51,6 +53,14 @@ class BasicInfoCard extends StatefulWidget {
 }
 
 class _BasicInfoCardState extends State<BasicInfoCard> {
+  static final RegExp _awaitedSuccessPattern = RegExp(
+    r'^\$awaitedcommand\[(.+?);(.*)\]$',
+    caseSensitive: false,
+  );
+  static final RegExp _awaitedErrorPattern = RegExp(
+    r'^\$awaitedcommanderror\[(.+?)\]$',
+    caseSensitive: false,
+  );
   static final List<_PermissionItem> _permissionItems = [
     _PermissionItem(0, 'Create Invite'),
     _PermissionItem(1, 'Kick Members'),
@@ -105,13 +115,20 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
 
   late Set<int> _selectedPermissionOffsets;
   late BigInt _unknownBits;
+  late final TextEditingController _nameController;
+  bool _awaitedPresetEnabled = false;
+  bool _awaitedIsErrorTrigger = false;
+  String _awaitedCallbackName = '';
+  String _awaitedCallbackFilter = '';
 
   @override
   void initState() {
     super.initState();
     _selectedPermissionOffsets = <int>{};
     _unknownBits = BigInt.zero;
+    _nameController = TextEditingController(text: widget.commandName);
     _applyBitfield(widget.defaultMemberPermissions);
+    _syncAwaitedPresetFromCommandName(widget.commandName);
   }
 
   @override
@@ -120,6 +137,21 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
     if (oldWidget.defaultMemberPermissions != widget.defaultMemberPermissions) {
       _applyBitfield(widget.defaultMemberPermissions);
     }
+    if (oldWidget.commandName != widget.commandName &&
+        _nameController.text != widget.commandName) {
+      _nameController.text = widget.commandName;
+    }
+    if (oldWidget.commandName != widget.commandName ||
+        oldWidget.isLegacyCommand != widget.isLegacyCommand ||
+        oldWidget.localOnlyCommand != widget.localOnlyCommand) {
+      _syncAwaitedPresetFromCommandName(widget.commandName);
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
   }
 
   void _applyBitfield(String raw) {
@@ -198,6 +230,238 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
     return 'slash';
   }
 
+  bool get _canUseAwaitedPreset =>
+      widget.isLegacyCommand ||
+      widget.localOnlyCommand ||
+      widget.canEditCommandType;
+
+  void _syncAwaitedPresetFromCommandName(String commandName) {
+    final normalized = commandName.trim();
+    final successMatch = _awaitedSuccessPattern.firstMatch(normalized);
+    if (successMatch != null) {
+      _awaitedPresetEnabled = true;
+      _awaitedIsErrorTrigger = false;
+      _awaitedCallbackName = successMatch.group(1)?.trim() ?? '';
+      _awaitedCallbackFilter = successMatch.group(2)?.trim() ?? '';
+      return;
+    }
+
+    final errorMatch = _awaitedErrorPattern.firstMatch(normalized);
+    if (errorMatch != null) {
+      _awaitedPresetEnabled = true;
+      _awaitedIsErrorTrigger = true;
+      _awaitedCallbackName = errorMatch.group(1)?.trim() ?? '';
+      _awaitedCallbackFilter = '';
+      return;
+    }
+
+    if (!_awaitedPresetEnabled) {
+      _awaitedIsErrorTrigger = false;
+      _awaitedCallbackName = '';
+      _awaitedCallbackFilter = '';
+    }
+  }
+
+  String _fallbackAwaitedName() {
+    final trimmed = _nameController.text.trim();
+    if (trimmed.isEmpty) {
+      return 'callback';
+    }
+    final successMatch = _awaitedSuccessPattern.firstMatch(trimmed);
+    if (successMatch != null) {
+      return successMatch.group(1)?.trim().isNotEmpty == true
+          ? successMatch.group(1)!.trim()
+          : 'callback';
+    }
+    final errorMatch = _awaitedErrorPattern.firstMatch(trimmed);
+    if (errorMatch != null) {
+      return errorMatch.group(1)?.trim().isNotEmpty == true
+          ? errorMatch.group(1)!.trim()
+          : 'callback';
+    }
+    return trimmed;
+  }
+
+  String _buildAwaitedCommandName() {
+    final callbackName = _awaitedCallbackName.trim();
+    if (_awaitedIsErrorTrigger) {
+      return '\$awaitedCommandError[$callbackName]';
+    }
+    return '\$awaitedCommand[$callbackName;${_awaitedCallbackFilter.trim()}]';
+  }
+
+  void _applyAwaitedPresetName() {
+    final nextName = _buildAwaitedCommandName();
+    if (_nameController.text != nextName) {
+      _nameController.text = nextName;
+    }
+    widget.onNameChanged(nextName);
+  }
+
+  void _enableAwaitedPreset() {
+    if (!_awaitedPresetEnabled) {
+      widget.onLegacyCommandChanged(true);
+      widget.onCommandTypeChanged(ApplicationCommandType.chatInput);
+      widget.onLocalOnlyCommandChanged(true);
+    }
+    setState(() {
+      _awaitedPresetEnabled = true;
+      _awaitedCallbackName = _fallbackAwaitedName();
+      _awaitedCallbackFilter =
+          _awaitedIsErrorTrigger ? '' : _awaitedCallbackFilter;
+      if (_awaitedCallbackName.isEmpty) {
+        _awaitedCallbackName = 'callback';
+      }
+    });
+    _applyAwaitedPresetName();
+  }
+
+  void _disableAwaitedPreset() {
+    setState(() {
+      _awaitedPresetEnabled = false;
+      _awaitedIsErrorTrigger = false;
+      _awaitedCallbackName = '';
+      _awaitedCallbackFilter = '';
+    });
+  }
+
+  Widget _buildAwaitedPresetCard() {
+    final colorScheme = Theme.of(context).colorScheme;
+    if (!_awaitedPresetEnabled) {
+      return Card(
+        color: colorScheme.secondaryContainer.withValues(alpha: 0.4),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Legacy preset',
+                style: Theme.of(
+                  context,
+                ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Generate an internal awaited callback trigger and switch this command to the required local legacy setup.',
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+              ),
+              const SizedBox(height: 12),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: OutlinedButton.icon(
+                  key: const ValueKey('awaited-preset-enable'),
+                  onPressed: _enableAwaitedPreset,
+                  icon: const Icon(Icons.hourglass_top_rounded),
+                  label: const Text('Use Awaited Callback Preset'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Card(
+      color: colorScheme.secondaryContainer.withValues(alpha: 0.45),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Awaited callback preset',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                TextButton(
+                  onPressed: _disableAwaitedPreset,
+                  child: const Text('Edit Raw Name'),
+                ),
+              ],
+            ),
+            Text(
+              'The command name is generated for you and saved as an internal legacy callback.',
+              style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+            ),
+            const SizedBox(height: 12),
+            SegmentedButton<bool>(
+              key: const ValueKey('awaited-preset-kind'),
+              segments: const <ButtonSegment<bool>>[
+                ButtonSegment<bool>(
+                  value: false,
+                  label: Text('Success'),
+                  icon: Icon(Icons.check_circle_outline),
+                ),
+                ButtonSegment<bool>(
+                  value: true,
+                  label: Text('Error'),
+                  icon: Icon(Icons.error_outline),
+                ),
+              ],
+              selected: <bool>{_awaitedIsErrorTrigger},
+              onSelectionChanged: (selection) {
+                final nextValue = selection.first;
+                setState(() {
+                  _awaitedIsErrorTrigger = nextValue;
+                  if (_awaitedIsErrorTrigger) {
+                    _awaitedCallbackFilter = '';
+                  }
+                });
+                _applyAwaitedPresetName();
+              },
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              key: const ValueKey('awaited-preset-name'),
+              initialValue: _awaitedCallbackName,
+              decoration: const InputDecoration(
+                labelText: 'Awaited callback name',
+                hintText: 'Example: say',
+                border: OutlineInputBorder(),
+              ),
+              onChanged: (value) {
+                _awaitedCallbackName = value.trim();
+                _applyAwaitedPresetName();
+              },
+            ),
+            if (!_awaitedIsErrorTrigger) ...[
+              const SizedBox(height: 12),
+              TextFormField(
+                key: const ValueKey('awaited-preset-filter'),
+                initialValue: _awaitedCallbackFilter,
+                decoration: const InputDecoration(
+                  labelText: 'Filter (optional)',
+                  hintText: 'Example: <numeric> or <yes/no/cancel>',
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: (value) {
+                  _awaitedCallbackFilter = value.trim();
+                  _applyAwaitedPresetName();
+                },
+              ),
+            ],
+            const SizedBox(height: 10),
+            SelectableText(
+              _buildAwaitedCommandName(),
+              key: const ValueKey('awaited-preset-preview'),
+              style: TextStyle(
+                fontFamily: 'monospace',
+                fontSize: 12,
+                color: colorScheme.onSecondaryContainer,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final computedBitfield = _computedBitfield();
@@ -226,13 +490,18 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
               builder: (context, innerConstraints) {
                 final isWide = innerConstraints.maxWidth >= 760;
                 final nameField = TextFormField(
+                  controller: _nameController,
                   autocorrect: false,
+                  readOnly: _awaitedPresetEnabled,
                   validator: widget.nameValidator,
-                  initialValue: widget.commandName,
-                  maxLength: 32,
-                  decoration: const InputDecoration(
+                  maxLength: widget.nameMaxLength,
+                  decoration: InputDecoration(
                     labelText: 'Name',
-                    border: OutlineInputBorder(),
+                    border: const OutlineInputBorder(),
+                    helperText:
+                        _awaitedPresetEnabled
+                            ? 'Generated by the awaited callback preset.'
+                            : null,
                   ),
                   onChanged: widget.onNameChanged,
                 );
@@ -262,7 +531,7 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                     ),
                   ],
                   onChanged:
-                      widget.canEditCommandType
+                      widget.canEditCommandType && !_awaitedPresetEnabled
                           ? (value) {
                             if (value != null) {
                               if (value == 'legacy') {
@@ -329,6 +598,10 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                     ],
                     const SizedBox(height: 12),
                     commandTypeField,
+                    if (_canUseAwaitedPreset) ...[
+                      const SizedBox(height: 12),
+                      _buildAwaitedPresetCard(),
+                    ],
                     if (!widget.canEditCommandType) ...[
                       const SizedBox(height: 6),
                       Text(
@@ -342,10 +615,19 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                     const SizedBox(height: 12),
                     SwitchListTile.adaptive(
                       contentPadding: EdgeInsets.zero,
-                      title: const Text('Local Command (Do not register on Discord)'),
-                      subtitle: const Text('Store command only in Bot Creator. You can dynamically register it on Specific Guilds using BDFD \$registerGuildCommands.'),
+                      title: const Text(
+                        'Local Command (Do not register on Discord)',
+                      ),
+                      subtitle: Text(
+                        _awaitedPresetEnabled
+                            ? 'Awaited callback presets stay local because they are internal runtime callbacks.'
+                            : 'Store command only in Bot Creator. You can dynamically register it on Specific Guilds using BDFD \$registerGuildCommands.',
+                      ),
                       value: widget.localOnlyCommand,
-                      onChanged: widget.onLocalOnlyCommandChanged,
+                      onChanged:
+                          _awaitedPresetEnabled
+                              ? null
+                              : widget.onLocalOnlyCommandChanged,
                     ),
                     if (!widget.isLegacyCommand) ...[
                       const SizedBox(height: 8),

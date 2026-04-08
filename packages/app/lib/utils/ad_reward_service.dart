@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:bot_creator/utils/ad_mediation_debug.dart';
 import 'package:bot_creator/utils/app_diagnostics.dart';
 import 'package:bot_creator/utils/premium_capabilities.dart';
 import 'package:flutter/foundation.dart';
@@ -157,6 +158,11 @@ class AdRewardService {
         onAdLoaded: (ad) {
           _isLoading = false;
           _rewardedAd = ad;
+          AdMediationDebug.logResponseInfo(
+            format: 'rewarded',
+            placement: 'bot_start',
+            responseInfo: ad.responseInfo,
+          );
           unawaited(AppDiagnostics.logInfo('Rewarded ad loaded'));
         },
         onAdFailedToLoad: (error) {

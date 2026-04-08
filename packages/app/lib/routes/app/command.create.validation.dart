@@ -8,37 +8,53 @@ extension _CommandCreateValidation on _CommandCreatePageState {
   }) => validateOptionsForLevel(options, level: level, parentType: parentType);
 
   String? _validateName(String? value) {
-    if (value!.isEmpty) {
+    final normalized = (value ?? '').trim();
+    if (normalized.isEmpty) {
       return 'Please enter a command name';
     }
-    if (value.length > 32) {
-      return 'Command name must be at most 32 characters long';
+
+    if (_isAwaitedCallbackTrigger(normalized)) {
+      if (!_allowsInternalLegacyCallbackNames) {
+        return 'Awaited callbacks require a local-only Legacy Command.';
+      }
+      if (normalized.length > _commandNameMaxLength) {
+        return 'Awaited callback trigger must be at most $_commandNameMaxLength characters long';
+      }
+      return null;
     }
-    if (value.contains(' ')) {
+
+    if (_looksLikeAwaitedCallbackTrigger(normalized)) {
+      return 'Awaited callback must use \$awaitedCommand[name;filter] or \$awaitedCommandError[name].';
+    }
+
+    if (normalized.length > _commandNameMaxLength) {
+      return 'Command name must be at most $_commandNameMaxLength characters long';
+    }
+    if (normalized.contains(' ')) {
       return 'Command name cannot contain spaces';
     }
-    if (value.contains(RegExp(r'[^a-zA-Z0-9_]'))) {
+    if (normalized.contains(RegExp(r'[^a-zA-Z0-9_]'))) {
       return 'Command name can only contain letters, numbers, and underscores';
     }
-    if (value.startsWith('_')) {
+    if (normalized.startsWith('_')) {
       return 'Command name cannot start with an underscore';
     }
-    if (value.startsWith('!')) {
+    if (normalized.startsWith('!')) {
       return 'Command name cannot start with an exclamation mark';
     }
-    if (value.startsWith('/')) {
+    if (normalized.startsWith('/')) {
       return 'Command name cannot start with a slash';
     }
-    if (value.startsWith('#')) {
+    if (normalized.startsWith('#')) {
       return 'Command name cannot start with a hash';
     }
-    if (value.startsWith('@')) {
+    if (normalized.startsWith('@')) {
       return 'Command name cannot start with an at sign';
     }
-    if (value.startsWith('&')) {
+    if (normalized.startsWith('&')) {
       return 'Command name cannot start with an ampersand';
     }
-    if (value.startsWith('%')) {
+    if (normalized.startsWith('%')) {
       return 'Command name cannot start with a percent sign';
     }
     return null;

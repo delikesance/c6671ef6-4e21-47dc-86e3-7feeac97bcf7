@@ -1155,67 +1155,72 @@ class _ActionDetailPageState extends State<_ActionDetailPage> {
     final summary = summarizeActionItem(widget.action);
     return Scaffold(
       appBar: AppBar(title: Text(summary.title)),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    summary.summary,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      _SequenceMetaChip(
-                        label: 'Step ${widget.index + 1}/${widget.totalCount}',
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      _SequenceMetaChip(
-                        label: 'Key: ${summary.outputKey}',
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
-                      _SequenceMetaChip(
-                        label: summary.isEnabled ? 'Enabled' : 'Disabled',
-                        color: summary.isEnabled ? Colors.green : Colors.orange,
-                      ),
-                      for (final meta in summary.meta)
+      body: SafeArea(
+        top: false,
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      summary.summary,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
                         _SequenceMetaChip(
-                          label: meta,
-                          color: Theme.of(context).colorScheme.tertiary,
+                          label:
+                              'Step ${widget.index + 1}/${widget.totalCount}',
+                          color: Theme.of(context).colorScheme.primary,
                         ),
-                    ],
-                  ),
-                ],
+                        _SequenceMetaChip(
+                          label: 'Key: ${summary.outputKey}',
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                        _SequenceMetaChip(
+                          label: summary.isEnabled ? 'Enabled' : 'Disabled',
+                          color:
+                              summary.isEnabled ? Colors.green : Colors.orange,
+                        ),
+                        for (final meta in summary.meta)
+                          _SequenceMetaChip(
+                            label: meta,
+                            color: Theme.of(context).colorScheme.tertiary,
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 12),
-          ActionCard(
-            action: widget.action,
-            index: widget.index,
-            totalCount: widget.totalCount,
-            actionKey: widget.actionKey,
-            onRemove: _handleRemove,
-            onMoveUp: widget.onMoveUp,
-            onMoveDown: widget.onMoveDown,
-            onParameterChanged: _handleParameterChanged,
-            onSuggestionSelected: _handleSuggestionSelected,
-            fieldRefreshVersionOf: widget.fieldRefreshVersionOf,
-            variableSuggestions: widget.variableSuggestions,
-            emojiSuggestions: widget.emojiSuggestions,
-            botIdForConfig: widget.botIdForConfig,
-            onEditNestedActions: widget.onEditNestedActions,
-            showPositionLabel: false,
-            collapseActionSettings: true,
-          ),
-        ],
+            const SizedBox(height: 12),
+            ActionCard(
+              action: widget.action,
+              index: widget.index,
+              totalCount: widget.totalCount,
+              actionKey: widget.actionKey,
+              onRemove: _handleRemove,
+              onMoveUp: widget.onMoveUp,
+              onMoveDown: widget.onMoveDown,
+              onParameterChanged: _handleParameterChanged,
+              onSuggestionSelected: _handleSuggestionSelected,
+              fieldRefreshVersionOf: widget.fieldRefreshVersionOf,
+              variableSuggestions: widget.variableSuggestions,
+              emojiSuggestions: widget.emojiSuggestions,
+              botIdForConfig: widget.botIdForConfig,
+              onEditNestedActions: widget.onEditNestedActions,
+              showPositionLabel: false,
+              collapseActionSettings: true,
+            ),
+          ],
+        ),
       ),
     );
   }

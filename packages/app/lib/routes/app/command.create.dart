@@ -58,6 +58,16 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   static const String _executionModeWorkflow = 'workflow';
   static const String _executionModeBdfdScript = 'bdfd_script';
   static const String _rootWorkflowRoute = '__root__';
+  static const int _defaultCommandNameMaxLength = 32;
+  static const int _localLegacyCommandNameMaxLength = 256;
+  static final RegExp _awaitedCommandTriggerPattern = RegExp(
+    r'^\$awaitedcommand\[(.+?);(.*)\]$',
+    caseSensitive: false,
+  );
+  static final RegExp _awaitedCommandErrorTriggerPattern = RegExp(
+    r'^\$awaitedcommanderror\[(.+?)\]$',
+    caseSensitive: false,
+  );
 
   String _commandName = "";
   String _commandDescription = "";
@@ -244,6 +254,33 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       _commandType == ApplicationCommandType.chatInput;
 
   bool get _allowModalResponses => !_legacyModeEnabled;
+
+  bool get _allowsInternalLegacyCallbackNames =>
+      _commandType == ApplicationCommandType.chatInput &&
+      _legacyModeEnabled &&
+      _localOnlyCommand;
+
+  int get _commandNameMaxLength =>
+      _allowsInternalLegacyCallbackNames
+          ? _localLegacyCommandNameMaxLength
+          : _defaultCommandNameMaxLength;
+
+  bool _looksLikeAwaitedCallbackTrigger(String value) {
+    final normalized = value.trim().toLowerCase();
+    return normalized.startsWith(r'$awaitedcommand[') ||
+        normalized.startsWith(r'$awaitedcommanderror[');
+  }
+
+  bool _isAwaitedCallbackTrigger(String value) {
+    final normalized = value.trim();
+    return _awaitedCommandTriggerPattern.hasMatch(normalized) ||
+        _awaitedCommandErrorTriggerPattern.hasMatch(normalized);
+  }
+
+  bool get _isAwaitedCallbackCommand => _isAwaitedCallbackTrigger(_commandName);
+
+  bool get _requiresCommandDescription =>
+      _supportsCommandDescription && !_isAwaitedCallbackCommand;
 
   String get _effectiveCommandDescription =>
       _supportsCommandDescription ? _commandDescription : '';
@@ -1349,7 +1386,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   Future<void> _updateOrCreate() async {
     // check if any field is empty
     if (_commandName.isEmpty ||
-        (_supportsCommandDescription && _commandDescription.isEmpty)) {
+        (_requiresCommandDescription && _commandDescription.isEmpty)) {
       final dialog = AlertDialog(
         title: Text(AppStrings.t('error')),
         content: Text(AppStrings.t('cmd_error_fill_fields')),
