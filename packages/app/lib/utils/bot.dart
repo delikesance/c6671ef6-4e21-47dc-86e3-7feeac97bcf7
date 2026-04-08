@@ -15,7 +15,6 @@ import 'package:bot_creator_shared/actions/interaction_response.dart';
 import 'package:bot_creator_shared/events/event_contexts.dart';
 import 'package:bot_creator_shared/utils/interaction_ack_state.dart';
 import 'package:bot_creator_shared/utils/interaction_listener_registry.dart';
-import 'package:bot_creator_shared/utils/awaited_registration.dart';
 import 'package:bot_creator_shared/types/action.dart';
 import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 import 'package:bot_creator_shared/utils/command_autocomplete.dart';
