@@ -622,6 +622,8 @@
   'bot_logs_ram_estimated': 'RAM bot estimée : {memory}',
   'bot_logs_go_to_latest': 'Aller au dernier log',
   'bot_logs_go_to_bottom': 'Aller en bas',
+  'bot_logs_raw_mode': 'Logs bruts compacts',
+  'bot_logs_rich_mode': 'Logs formatés',
 
   // Page Replay Débogueur
   'debug_replay_title': 'Replay Débogueur',

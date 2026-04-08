@@ -605,6 +605,8 @@ const Map<String, String> appStringsEn = {
   'bot_logs_ram_estimated': 'Estimated bot RAM: {memory}',
   'bot_logs_go_to_latest': 'Go to latest log',
   'bot_logs_go_to_bottom': 'Go to bottom',
+  'bot_logs_raw_mode': 'Compact raw logs',
+  'bot_logs_rich_mode': 'Rich formatted logs',
 
   // Debug Replay page
   'debug_replay_title': 'Debugger Replay',

@@ -46,7 +46,7 @@ extension _CommandCreateEditShell on _CommandCreatePageState {
           title:
               _commandName.trim().isEmpty ? 'Untitled command' : _commandName,
           subtitle:
-              'Reply and behavior are front and center here. Inputs and availability settings stay below when you need them.',
+              'Settings and inputs are at the top. Actions and reply follow below.',
           saveLabel: 'Save changes',
           onSave: () {
             _saveExistingCommand();
@@ -82,68 +82,6 @@ extension _CommandCreateEditShell on _CommandCreatePageState {
           const SizedBox(height: 12),
           _buildSubcommandWorkflowSelectorCard(),
         ],
-        const SizedBox(height: 12),
-        _buildReplyStep(),
-        const SizedBox(height: 12),
-        if (_isBdfdScriptMode)
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Text(
-                    'Command body',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    _actionsSummaryLine(),
-                    style: TextStyle(color: Colors.grey.shade700),
-                  ),
-                  const SizedBox(height: 12),
-                  _buildBdfdEditorTile(),
-                  const SizedBox(height: 12),
-                  _buildBdfdDiagnosticsPanel(),
-                ],
-              ),
-            ),
-          )
-        else
-          ActionsCard(
-            actions: _actions,
-            onActionsChanged: (val) {
-              _applyStateUpdate(() {
-                _actions = val;
-                _persistActiveSubcommandWorkflow();
-              });
-            },
-            actionVariableSuggestions: _actionVariableSuggestions,
-            emojiSuggestions: _appEmojis,
-            botIdForConfig: _botIdForConfig,
-            activeRouteLabel: activeRouteLabel,
-            activeRouteIsGrouped:
-                _subcommandWorkflows.isNotEmpty &&
-                _activeSubcommandRoute.contains('/'),
-          ),
-        const SizedBox(height: 12),
-        _buildEditSectionCard(
-          title: 'Trigger & Inputs',
-          subtitle:
-              'Adjust command options, trigger behavior, and execution mode.',
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (_supportsCommandOptions) _buildCommandOptionsCard(),
-              if (_supportsCommandOptions) const SizedBox(height: 12),
-              if (_supportsCommandOptions && !_isBdfdScriptMode)
-                _buildLegacyModeCard(),
-              if (_supportsCommandOptions && !_isBdfdScriptMode)
-                const SizedBox(height: 12),
-              _buildExecutionModeCard(includeInlineEditor: false),
-            ],
-          ),
-        ),
         const SizedBox(height: 12),
         _buildEditSectionCard(
           title: 'Command settings',
@@ -233,6 +171,68 @@ extension _CommandCreateEditShell on _CommandCreatePageState {
             ],
           ),
         ),
+        const SizedBox(height: 12),
+        _buildEditSectionCard(
+          title: 'Trigger & Inputs',
+          subtitle:
+              'Adjust command options, trigger behavior, and execution mode.',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (_supportsCommandOptions) _buildCommandOptionsCard(),
+              if (_supportsCommandOptions) const SizedBox(height: 12),
+              if (_supportsCommandOptions && !_isBdfdScriptMode)
+                _buildLegacyModeCard(),
+              if (_supportsCommandOptions && !_isBdfdScriptMode)
+                const SizedBox(height: 12),
+              _buildExecutionModeCard(includeInlineEditor: false),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        if (_isBdfdScriptMode)
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Text(
+                    'Command body',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    _actionsSummaryLine(),
+                    style: TextStyle(color: Colors.grey.shade700),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildBdfdEditorTile(),
+                  const SizedBox(height: 12),
+                  _buildBdfdDiagnosticsPanel(),
+                ],
+              ),
+            ),
+          )
+        else
+          ActionsCard(
+            actions: _actions,
+            onActionsChanged: (val) {
+              _applyStateUpdate(() {
+                _actions = val;
+                _persistActiveSubcommandWorkflow();
+              });
+            },
+            actionVariableSuggestions: _actionVariableSuggestions,
+            emojiSuggestions: _appEmojis,
+            botIdForConfig: _botIdForConfig,
+            activeRouteLabel: activeRouteLabel,
+            activeRouteIsGrouped:
+                _subcommandWorkflows.isNotEmpty &&
+                _activeSubcommandRoute.contains('/'),
+          ),
+        const SizedBox(height: 12),
+        _buildReplyStep(),
       ],
     );
   }

@@ -24,6 +24,7 @@ class _BotLogsPageState extends State<BotLogsPage> {
   final ScrollController _scrollController = ScrollController();
   bool _showNewestFirst = true;
   int _visibleLimit = 200;
+  bool _rawMode = false;
 
   static const int _collapseThreshold = 240;
 
@@ -179,6 +180,18 @@ class _BotLogsPageState extends State<BotLogsPage> {
       appBar: AppBar(
         title: Text(AppStrings.t('bot_logs_title')),
         actions: [
+          IconButton(
+            tooltip:
+                _rawMode
+                    ? AppStrings.t('bot_logs_rich_mode')
+                    : AppStrings.t('bot_logs_raw_mode'),
+            icon: Icon(_rawMode ? Icons.view_agenda_outlined : Icons.terminal),
+            onPressed: () {
+              setState(() {
+                _rawMode = !_rawMode;
+              });
+            },
+          ),
           IconButton(
             tooltip:
                 _debugEnabled
@@ -414,6 +427,39 @@ class _BotLogsPageState extends State<BotLogsPage> {
                           final textTheme = Theme.of(context).textTheme;
                           final bottomInset =
                               MediaQuery.of(context).padding.bottom;
+
+                          if (_rawMode) {
+                            return ListView.builder(
+                              controller: _scrollController,
+                              padding: EdgeInsets.fromLTRB(
+                                12,
+                                12,
+                                12,
+                                16 + bottomInset + 64,
+                              ),
+                              itemCount: logs.length,
+                              itemExtent: 20,
+                              itemBuilder: (context, index) {
+                                final raw = logs[index];
+                                final parsed = _parseLog(raw);
+                                return Text(
+                                  '${parsed.time} [${parsed.level}] ${parsed.message}',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: textTheme.bodySmall?.copyWith(
+                                    fontFamily: 'monospace',
+                                    fontSize: 11,
+                                    height: 1.3,
+                                    color: _rawLevelColor(
+                                      context,
+                                      parsed.level,
+                                      parsed.isDebug,
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
+                          }
 
                           return ListView.separated(
                             controller: _scrollController,
@@ -812,6 +858,21 @@ class _BotLogsPageState extends State<BotLogsPage> {
     }
 
     return out.toString().replaceAll(RegExp(r'\n{3,}'), '\n\n').trim();
+  }
+
+  Color _rawLevelColor(BuildContext context, String level, bool isDebug) {
+    final scheme = Theme.of(context).colorScheme;
+    final upper = level.toUpperCase();
+    if (upper == 'SEVERE' || upper == 'ERROR') {
+      return scheme.error;
+    }
+    if (upper == 'WARNING' || upper == 'WARN') {
+      return scheme.tertiary;
+    }
+    if (isDebug || upper == 'FINE' || upper == 'FINER' || upper == 'FINEST') {
+      return scheme.onSurface.withValues(alpha: 0.55);
+    }
+    return scheme.onSurface.withValues(alpha: 0.85);
   }
 
   Color _levelBackground(BuildContext context, String level, bool isDebug) {
