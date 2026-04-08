@@ -8,6 +8,20 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+@visibleForTesting
+String subscriptionPurchaseErrorKey(SubscriptionPurchaseFailureReason? reason) {
+  switch (reason) {
+    case SubscriptionPurchaseFailureReason.storeUnavailable:
+      return 'subscription_error_store_unavailable';
+    case SubscriptionPurchaseFailureReason.productUnavailable:
+      return 'subscription_error_product_unavailable';
+    case SubscriptionPurchaseFailureReason.purchaseStartFailed:
+      return 'subscription_error_purchase_start_failed';
+    case null:
+      return 'subscription_error';
+  }
+}
+
 /// Full-screen page (or bottom-sheet) for purchasing a premium subscription.
 class SubscriptionPage extends StatefulWidget {
   const SubscriptionPage({super.key});
@@ -50,13 +64,18 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
     });
 
     try {
-      final success =
+      final result =
           annual
               ? await SubscriptionService.purchaseAnnual()
               : await SubscriptionService.purchaseMonthly();
 
-      if (!success && mounted) {
-        setState(() => _error = AppStrings.t('subscription_error'));
+      if (!result.started && mounted) {
+        setState(
+          () =>
+              _error = AppStrings.t(
+                subscriptionPurchaseErrorKey(result.failureReason),
+              ),
+        );
       }
     } catch (e) {
       if (mounted) {

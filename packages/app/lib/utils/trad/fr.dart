@@ -1500,6 +1500,12 @@
   'subscription_privacy': 'Politique de confidentialité',
   'subscription_error':
       'L\'achat n\'a pas pu être finalisé. Veuillez réessayer.',
+  'subscription_error_store_unavailable':
+      'L\'App Store est temporairement indisponible. Veuillez réessayer dans un instant.',
+  'subscription_error_product_unavailable':
+      'Cette offre est actuellement indisponible. Veuillez réessayer plus tard.',
+  'subscription_error_purchase_start_failed':
+      'L\'achat n\'a pas pu démarrer. Veuillez réessayer.',
   'subscription_restored': 'Abonnement restauré avec succès !',
   'subscription_restore_not_found': 'Aucun abonnement actif trouvé.',
   'subscription_not_available_on_platform':

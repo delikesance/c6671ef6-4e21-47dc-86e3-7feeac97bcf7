@@ -220,7 +220,7 @@ class _AppCreatePageState extends State<AppCreatePage> {
                               ),
                               onTap:
                                   () => _openExternalPage(
-                                    'https://bot-creator.fr/tutorials/2025/05/18/how-to-create-a-bot-token-bot-creator.html',
+                                    'https://bot-creator.fr/tutorials/setup/security/2025/05/18/how-to-create-a-bot-token-bot-creator.html',
                                   ),
                             ),
                           ],
