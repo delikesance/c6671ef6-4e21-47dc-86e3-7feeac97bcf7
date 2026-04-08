@@ -401,204 +401,214 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
                 label: const Text('Add webhook'),
               )
               : null,
-      body:
-          _loading
-              ? const Center(child: CircularProgressIndicator())
-              : Column(
-                children: [
-                  if (!_hasCapability) _buildUpsellCard(),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                    child: Row(
-                      children: [
-                        Text(
-                          'Webhooks: ${_webhooks.length}${limit > 0 ? ' / $limit' : ''}',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ],
+      body: SafeArea(
+        top: false,
+        child:
+            _loading
+                ? const Center(child: CircularProgressIndicator())
+                : Column(
+                  children: [
+                    if (!_hasCapability) _buildUpsellCard(),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                      child: Row(
+                        children: [
+                          Text(
+                            'Webhooks: ${_webhooks.length}${limit > 0 ? ' / $limit' : ''}',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  Expanded(
-                    child:
-                        _webhooks.isEmpty
-                            ? const Center(
-                              child: Text('No inbound webhooks yet.'),
-                            )
-                            : ListView.separated(
-                              itemCount: _webhooks.length,
-                              separatorBuilder:
-                                  (_, _) => const Divider(height: 1),
-                              itemBuilder: (context, index) {
-                                final webhook = _webhooks[index];
-                                final path = (webhook['path'] ?? '').toString();
-                                final workflow =
-                                    (webhook['workflowName'] ?? '').toString();
-                                final secret =
-                                    (webhook['secret'] ?? '').toString();
-                                final enabled = webhook['enabled'] != false;
-                                return ListTile(
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 4,
-                                  ),
-                                  title: Text('/$path'),
-                                  subtitle: Text('Workflow: $workflow'),
-                                  trailing: PopupMenuButton<String>(
-                                    itemBuilder:
-                                        (BuildContext context) => [
-                                          PopupMenuItem<String>(
-                                            value: 'copy_url',
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                const Icon(
-                                                  Icons.content_copy_outlined,
-                                                  size: 18,
-                                                ),
-                                                const SizedBox(width: 12),
-                                                const Text('Copy URL'),
-                                              ],
-                                            ),
-                                            onTap:
-                                                () => _copyFullWebhookUrl(
-                                                  webhook,
-                                                ),
-                                          ),
-                                          PopupMenuItem<String>(
-                                            value: 'copy_path',
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                const Icon(
-                                                  Icons.link_outlined,
-                                                  size: 18,
-                                                ),
-                                                const SizedBox(width: 12),
-                                                const Text('Copy path'),
-                                              ],
-                                            ),
-                                            onTap: () async {
-                                              await Clipboard.setData(
-                                                ClipboardData(text: '/$path'),
-                                              );
-                                              if (!mounted) {
-                                                return;
-                                              }
-                                              ScaffoldMessenger.of(
-                                                context,
-                                              ).showSnackBar(
-                                                const SnackBar(
-                                                  content: Text('Path copied.'),
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                          PopupMenuItem<String>(
-                                            value: 'copy_secret',
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                const Icon(
-                                                  Icons.key_outlined,
-                                                  size: 18,
-                                                ),
-                                                const SizedBox(width: 12),
-                                                const Text('Copy secret'),
-                                              ],
-                                            ),
-                                            onTap: () async {
-                                              await Clipboard.setData(
-                                                ClipboardData(text: secret),
-                                              );
-                                              if (!mounted) {
-                                                return;
-                                              }
-                                              ScaffoldMessenger.of(
-                                                context,
-                                              ).showSnackBar(
-                                                const SnackBar(
-                                                  content: Text(
-                                                    'Secret copied.',
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                          if (_hasCapability) ...[
+                    Expanded(
+                      child:
+                          _webhooks.isEmpty
+                              ? const Center(
+                                child: Text('No inbound webhooks yet.'),
+                              )
+                              : ListView.separated(
+                                itemCount: _webhooks.length,
+                                separatorBuilder:
+                                    (_, _) => const Divider(height: 1),
+                                itemBuilder: (context, index) {
+                                  final webhook = _webhooks[index];
+                                  final path =
+                                      (webhook['path'] ?? '').toString();
+                                  final workflow =
+                                      (webhook['workflowName'] ?? '')
+                                          .toString();
+                                  final secret =
+                                      (webhook['secret'] ?? '').toString();
+                                  final enabled = webhook['enabled'] != false;
+                                  return ListTile(
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 4,
+                                    ),
+                                    title: Text('/$path'),
+                                    subtitle: Text('Workflow: $workflow'),
+                                    trailing: PopupMenuButton<String>(
+                                      itemBuilder:
+                                          (BuildContext context) => [
                                             PopupMenuItem<String>(
-                                              value: 'edit',
+                                              value: 'copy_url',
                                               child: Row(
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
                                                   const Icon(
-                                                    Icons.edit_outlined,
+                                                    Icons.content_copy_outlined,
                                                     size: 18,
                                                   ),
                                                   const SizedBox(width: 12),
-                                                  const Text('Edit'),
+                                                  const Text('Copy URL'),
                                                 ],
                                               ),
                                               onTap:
-                                                  () => _showEditor(
-                                                    initial: webhook,
+                                                  () => _copyFullWebhookUrl(
+                                                    webhook,
                                                   ),
                                             ),
                                             PopupMenuItem<String>(
-                                              value: 'delete',
+                                              value: 'copy_path',
                                               child: Row(
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
                                                   const Icon(
-                                                    Icons.delete_outline,
+                                                    Icons.link_outlined,
                                                     size: 18,
-                                                    color: Colors.red,
                                                   ),
                                                   const SizedBox(width: 12),
-                                                  const Text(
-                                                    'Delete',
-                                                    style: TextStyle(
-                                                      color: Colors.red,
+                                                  const Text('Copy path'),
+                                                ],
+                                              ),
+                                              onTap: () async {
+                                                await Clipboard.setData(
+                                                  ClipboardData(text: '/$path'),
+                                                );
+                                                if (!mounted) {
+                                                  return;
+                                                }
+                                                ScaffoldMessenger.of(
+                                                  context,
+                                                ).showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                      'Path copied.',
                                                     ),
                                                   ),
+                                                );
+                                              },
+                                            ),
+                                            PopupMenuItem<String>(
+                                              value: 'copy_secret',
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  const Icon(
+                                                    Icons.key_outlined,
+                                                    size: 18,
+                                                  ),
+                                                  const SizedBox(width: 12),
+                                                  const Text('Copy secret'),
                                                 ],
                                               ),
-                                              onTap:
-                                                  () => _deleteWebhook(webhook),
+                                              onTap: () async {
+                                                await Clipboard.setData(
+                                                  ClipboardData(text: secret),
+                                                );
+                                                if (!mounted) {
+                                                  return;
+                                                }
+                                                ScaffoldMessenger.of(
+                                                  context,
+                                                ).showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                      'Secret copied.',
+                                                    ),
+                                                  ),
+                                                );
+                                              },
                                             ),
+                                            if (_hasCapability) ...[
+                                              PopupMenuItem<String>(
+                                                value: 'edit',
+                                                child: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    const Icon(
+                                                      Icons.edit_outlined,
+                                                      size: 18,
+                                                    ),
+                                                    const SizedBox(width: 12),
+                                                    const Text('Edit'),
+                                                  ],
+                                                ),
+                                                onTap:
+                                                    () => _showEditor(
+                                                      initial: webhook,
+                                                    ),
+                                              ),
+                                              PopupMenuItem<String>(
+                                                value: 'delete',
+                                                child: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    const Icon(
+                                                      Icons.delete_outline,
+                                                      size: 18,
+                                                      color: Colors.red,
+                                                    ),
+                                                    const SizedBox(width: 12),
+                                                    const Text(
+                                                      'Delete',
+                                                      style: TextStyle(
+                                                        color: Colors.red,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                onTap:
+                                                    () =>
+                                                        _deleteWebhook(webhook),
+                                              ),
+                                            ],
                                           ],
-                                        ],
-                                    child: IconButton(
-                                      icon: const Icon(Icons.more_vert),
-                                      tooltip: 'Actions',
-                                      onPressed: null,
+                                      child: IconButton(
+                                        icon: const Icon(Icons.more_vert),
+                                        tooltip: 'Actions',
+                                        onPressed: null,
+                                      ),
                                     ),
-                                  ),
-                                  leading: Switch.adaptive(
-                                    value: enabled,
-                                    onChanged:
-                                        _hasCapability
-                                            ? (value) async {
-                                              await appManager
-                                                  .saveInboundWebhook(
-                                                    widget.botId,
-                                                    path: path,
-                                                    workflowName: workflow,
-                                                    secret: secret,
-                                                    enabled: value,
-                                                    webhookId:
-                                                        (webhook['id'] ?? '')
-                                                            .toString(),
-                                                  );
-                                              await _load();
-                                            }
-                                            : null,
-                                  ),
-                                );
-                              },
-                            ),
-                  ),
-                ],
-              ),
+                                    leading: Switch.adaptive(
+                                      value: enabled,
+                                      onChanged:
+                                          _hasCapability
+                                              ? (value) async {
+                                                await appManager
+                                                    .saveInboundWebhook(
+                                                      widget.botId,
+                                                      path: path,
+                                                      workflowName: workflow,
+                                                      secret: secret,
+                                                      enabled: value,
+                                                      webhookId:
+                                                          (webhook['id'] ?? '')
+                                                              .toString(),
+                                                    );
+                                                await _load();
+                                              }
+                                              : null,
+                                    ),
+                                  );
+                                },
+                              ),
+                    ),
+                  ],
+                ),
+      ),
     );
   }
 }

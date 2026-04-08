@@ -69,7 +69,10 @@ _AwaitedLegacyTrigger? _parseAwaitedLegacyTrigger(String rawName) {
     caseSensitive: false,
   ).firstMatch(name);
   if (successMatch != null) {
-    final awaitedName = successMatch.group(1)?.trim().toLowerCase() ?? '';
+    final awaitedName = (successMatch.group(1) ?? '')
+        .trim()
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9_]'), '_');
     final filter = successMatch.group(2)?.trim();
     if (awaitedName.isEmpty) {
       return null;
@@ -86,7 +89,10 @@ _AwaitedLegacyTrigger? _parseAwaitedLegacyTrigger(String rawName) {
     caseSensitive: false,
   ).firstMatch(name);
   if (errorMatch != null) {
-    final awaitedName = errorMatch.group(1)?.trim().toLowerCase() ?? '';
+    final awaitedName = (errorMatch.group(1) ?? '')
+        .trim()
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9_]'), '_');
     if (awaitedName.isEmpty) {
       return null;
     }
@@ -1446,7 +1452,15 @@ class DiscordRunner {
     String? specificCommand,
   }) {
     final normalizedSpecific = (specificCommand ?? '').trim().toLowerCase();
-    final sorted = List<Map<String, dynamic>>.from(legacyCommands)..sort(
+    final publicLegacyCommands = legacyCommands
+        .where((command) {
+          return _parseAwaitedLegacyTrigger(
+                (command['name'] ?? '').toString(),
+              ) ==
+              null;
+        })
+        .toList(growable: false);
+    final sorted = List<Map<String, dynamic>>.from(publicLegacyCommands)..sort(
       (a, b) => (a['name'] ?? '').toString().toLowerCase().compareTo(
         (b['name'] ?? '').toString().toLowerCase(),
       ),
@@ -1552,7 +1566,19 @@ class DiscordRunner {
       return false;
     }
 
-    final hasCustomHelp = legacyCommands.any(
+    final publicLegacyCommands = legacyCommands
+        .where((command) {
+          return _parseAwaitedLegacyTrigger(
+                (command['name'] ?? '').toString(),
+              ) ==
+              null;
+        })
+        .toList(growable: false);
+    if (publicLegacyCommands.isEmpty) {
+      return false;
+    }
+
+    final hasCustomHelp = publicLegacyCommands.any(
       (command) =>
           (command['name'] ?? '').toString().trim().toLowerCase() == 'help',
     );
@@ -1561,7 +1587,7 @@ class DiscordRunner {
     }
 
     final prefixes = <String>{};
-    for (final command in legacyCommands) {
+    for (final command in publicLegacyCommands) {
       final data = Map<String, dynamic>.from(
         (command['data'] as Map?)?.cast<String, dynamic>() ?? const {},
       );
@@ -1593,7 +1619,7 @@ class DiscordRunner {
       final specificCommand = tokens.length > 1 ? tokens[1] : null;
       final helpText = _buildLegacyHelpMessage(
         prefix: prefix,
-        legacyCommands: legacyCommands,
+        legacyCommands: publicLegacyCommands,
         specificCommand: specificCommand,
       );
       await _sendLegacyMessage(
@@ -2568,6 +2594,14 @@ class DiscordRunner {
       final response = Map<String, dynamic>.from(
         (value['response'] as Map?)?.cast<String, dynamic>() ?? const {},
       );
+
+      // Remove the pending await BEFORE executing the callback so that
+      // re-arm detection is simply: "does the variable exist again after
+      // execution?".  This avoids snapshot-comparison issues when the
+      // callback actions come from pre-compiled (workflow-mode) storage
+      // where the createdAt timestamp is static.
+      await store.removeScopedVariable(botId, 'user', authorId, awaitKey);
+
       late final List<Map<String, dynamic>> actionsJson;
       try {
         actionsJson = await _resolveLegacyActionsJson(
@@ -2618,8 +2652,19 @@ class DiscordRunner {
         responseTarget: _effectiveLegacyResponseTarget(value),
       );
 
-      await store.removeScopedVariable(botId, 'user', authorId, awaitKey);
-      _log.info('Awaited legacy callback executed: $awaitName');
+      final reArmedRaw = await store.getScopedVariable(
+        botId,
+        'user',
+        authorId,
+        awaitKey,
+      );
+      if (reArmedRaw != null) {
+        _log.info('Awaited legacy callback re-armed: $awaitName');
+      } else {
+        _log.info(
+          'Awaited legacy callback executed (not re-armed): $awaitName',
+        );
+      }
       return true;
     }
 

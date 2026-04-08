@@ -5,6 +5,7 @@ import '../../types/app_emoji.dart';
 import 'builder/action_types.dart';
 import 'builder/action_type_extension.dart';
 import 'builder/action_card.dart';
+import 'builder/action_summary.dart';
 
 export 'builder/action_types.dart';
 export 'builder/action_type_extension.dart';
@@ -359,6 +360,61 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
     }
 
     return merged.values.toList(growable: false);
+  }
+
+  Future<void> _openActionDetails(ActionItem action, int index) async {
+    final mergedVariableSuggestions = _buildMergedVariableSuggestions();
+    final wasDeleted = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute<bool>(
+        builder:
+            (_) => _ActionDetailPage(
+              action: action,
+              index: index,
+              totalCount: _actions.length,
+              actionKey: _resolvedActionResultKey(action),
+              variableSuggestions: mergedVariableSuggestions,
+              emojiSuggestions: widget.emojiSuggestions,
+              botIdForConfig: widget.botIdForConfig,
+              fieldRefreshVersionOf:
+                  (paramKey) =>
+                      _fieldRefreshVersions['${action.id}::$paramKey'] ?? 0,
+              onSuggestionSelected:
+                  (key, value) => _updateActionParameter(
+                    action.id,
+                    key,
+                    value,
+                    forceFieldRefresh: true,
+                  ),
+              onParameterChanged:
+                  (key, value) => _updateActionParameter(action.id, key, value),
+              onMoveUp: index > 0 ? () => _moveAction(index, index - 1) : null,
+              onMoveDown:
+                  index < _actions.length - 1
+                      ? () => _moveAction(index, index + 1)
+                      : null,
+              onRemove: () => _removeAction(action.id),
+              onEditNestedActions: (current, suggestions) async {
+                return await Navigator.push<List<Map<String, dynamic>>>(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (_) => ActionsBuilderPage(
+                          initialActions: current,
+                          variableSuggestions: suggestions,
+                          emojiSuggestions: widget.emojiSuggestions,
+                          botIdForConfig: widget.botIdForConfig,
+                        ),
+                  ),
+                );
+              },
+            ),
+      ),
+    );
+
+    if (wasDeleted == true && mounted) {
+      setState(() {});
+    }
   }
 
   void _showAddActionDialog() {
@@ -827,7 +883,22 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
     }
   }
 
-  Widget _buildEmptyState({required bool isDesktop}) {
+  List<ActionItem> _filteredActions() {
+    final query = _desktopActionSearch.trim().toLowerCase();
+    if (query.isEmpty) {
+      return List<ActionItem>.from(_actions, growable: false);
+    }
+    return _actions
+        .where((action) {
+          final summary = summarizeActionItem(action);
+          return summary.title.toLowerCase().contains(query) ||
+              summary.summary.toLowerCase().contains(query) ||
+              summary.outputKey.toLowerCase().contains(query);
+        })
+        .toList(growable: false);
+  }
+
+  Widget _buildEmptyState() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -839,83 +910,87 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
             style: TextStyle(fontSize: 18, color: Colors.grey),
           ),
           const SizedBox(height: 8),
-          Text(
-            isDesktop
-                ? 'Choose an action from the Action Library on the left.'
-                : 'Tap the + button to add your first action',
-            style: const TextStyle(color: Colors.grey),
+          const Text(
+            'Add an action, then open it to configure details.',
+            style: TextStyle(color: Colors.grey),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildActionList({
+  Widget _buildActionSequence({
     required EdgeInsetsGeometry padding,
     required double maxContentWidth,
-    required bool isDesktop,
   }) {
     if (_actions.isEmpty) {
-      return _buildEmptyState(isDesktop: isDesktop);
+      return _buildEmptyState();
     }
-
-    final mergedVariableSuggestions = _buildMergedVariableSuggestions();
+    final filtered = _filteredActions();
+    if (filtered.isEmpty) {
+      return const Center(child: Text('No actions match your search.'));
+    }
 
     return ListView.builder(
       padding: padding,
-      itemCount: _actions.length,
+      itemCount: filtered.length,
       itemBuilder: (context, index) {
-        final action = _actions[index];
-        final computedActionKey =
-            (action.parameters['key'] ?? action.id).toString().trim();
+        final action = filtered[index];
+        final absoluteIndex = _actions.indexOf(action);
+        final summary = summarizeActionItem(action);
 
         return Align(
           alignment: Alignment.topCenter,
           child: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: maxContentWidth),
-            child: ActionCard(
-              key: ValueKey('action-card-${action.id}-$index'),
-              action: action,
-              index: index,
-              totalCount: _actions.length,
-              actionKey:
-                  computedActionKey.isNotEmpty
-                      ? computedActionKey
-                      : action.type.name,
-              onRemove: () => _removeAction(action.id),
-              onMoveUp: index > 0 ? () => _moveAction(index, index - 1) : null,
-              onMoveDown:
-                  index < _actions.length - 1
-                      ? () => _moveAction(index, index + 1)
-                      : null,
-              variableSuggestions: mergedVariableSuggestions,
-              emojiSuggestions: widget.emojiSuggestions,
-              botIdForConfig: widget.botIdForConfig,
-              fieldRefreshVersionOf:
-                  (paramKey) =>
-                      _fieldRefreshVersions['${action.id}::$paramKey'] ?? 0,
-              onSuggestionSelected:
-                  (key, value) => _updateActionParameter(
-                    action.id,
-                    key,
-                    value,
-                    forceFieldRefresh: true,
+            child: Card(
+              margin: const EdgeInsets.only(bottom: 12),
+              child: ListTile(
+                onTap: () => _openActionDetails(action, absoluteIndex),
+                leading: CircleAvatar(
+                  backgroundColor: Theme.of(
+                    context,
+                  ).colorScheme.primaryContainer.withValues(alpha: 0.8),
+                  child: Icon(action.type.icon),
+                ),
+                title: Text(
+                  '${absoluteIndex + 1}. ${summary.title}',
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
+                subtitle: Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(summary.summary),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          _SequenceMetaChip(
+                            label: summary.isEnabled ? 'Enabled' : 'Disabled',
+                            color:
+                                summary.isEnabled
+                                    ? Colors.green
+                                    : Colors.orange,
+                          ),
+                          _SequenceMetaChip(
+                            label: 'Key: ${summary.outputKey}',
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          for (final meta in summary.meta)
+                            _SequenceMetaChip(
+                              label: meta,
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                        ],
+                      ),
+                    ],
                   ),
-              onParameterChanged:
-                  (key, value) => _updateActionParameter(action.id, key, value),
-              onEditNestedActions: (current, suggestions) async {
-                return await Navigator.push<List<Map<String, dynamic>>>(
-                  context,
-                  MaterialPageRoute(
-                    builder:
-                        (_) => ActionsBuilderPage(
-                          initialActions: current,
-                          variableSuggestions: suggestions,
-                          botIdForConfig: widget.botIdForConfig,
-                        ),
-                  ),
-                );
-              },
+                ),
+                trailing: const Icon(Icons.chevron_right),
+              ),
             ),
           ),
         );
@@ -923,115 +998,43 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
     );
   }
 
-  Widget _buildDesktopActionLibrary() {
-    final allActions = BotCreatorActionType.values.toList(growable: false);
-    final filteredByCategory = <String, List<BotCreatorActionType>>{};
-
-    for (final actionType in allActions) {
-      if (_desktopActionSearch.isNotEmpty &&
-          !actionType.displayName.toLowerCase().contains(
-            _desktopActionSearch.toLowerCase(),
-          )) {
-        continue;
-      }
-
-      final category = _getCategoryForAction(actionType);
-      filteredByCategory.putIfAbsent(category, () => <BotCreatorActionType>[]);
-      filteredByCategory[category]!.add(actionType);
-    }
-
-    for (final entry in filteredByCategory.entries) {
-      entry.value.sort((a, b) => a.displayName.compareTo(b.displayName));
-    }
-
-    final sortedEntries = filteredByCategory.entries.toList(growable: false)
-      ..sort((a, b) => a.key.compareTo(b.key));
-
+  Widget _buildSequenceHeader() {
     return SafeArea(
-      right: false,
       bottom: false,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
-        child: Card(
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextField(
+              onChanged: (value) {
+                setState(() {
+                  _desktopActionSearch = value;
+                });
+              },
+              decoration: InputDecoration(
+                hintText: 'Search actions in this sequence...',
+                prefixIcon: const Icon(Icons.search),
+                border: const OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
               children: [
-                const Text(
-                  'Action Library',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Add blocks to your workflow',
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  onChanged: (value) {
-                    setState(() {
-                      _desktopActionSearch = value;
-                    });
-                  },
-                  decoration: const InputDecoration(
-                    hintText: 'Search actions...',
-                    prefixIcon: Icon(Icons.search),
-                    border: OutlineInputBorder(),
-                    isDense: true,
+                Expanded(
+                  child: Text(
+                    '${_actions.length} action(s) in sequence',
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ),
-                const SizedBox(height: 12),
-                Expanded(
-                  child:
-                      sortedEntries.isEmpty
-                          ? const Center(child: Text('No actions found.'))
-                          : ListView(
-                            children: [
-                              for (final entry in sortedEntries) ...[
-                                Padding(
-                                  padding: const EdgeInsets.only(bottom: 8),
-                                  child: Text(
-                                    entry.key,
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w700,
-                                      color: _getCategoryColor(entry.key),
-                                    ),
-                                  ),
-                                ),
-                                ...entry.value.map(
-                                  (type) => Padding(
-                                    padding: const EdgeInsets.only(bottom: 8),
-                                    child: OutlinedButton.icon(
-                                      onPressed: () => _addAction(type),
-                                      icon: Icon(type.icon, size: 18),
-                                      label: Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                          type.displayName,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                      style: OutlinedButton.styleFrom(
-                                        alignment: Alignment.centerLeft,
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                          vertical: 12,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 6),
-                              ],
-                            ],
-                          ),
+                FilledButton.icon(
+                  onPressed: _showAddActionDialog,
+                  icon: const Icon(Icons.add),
+                  label: const Text('Add Action'),
                 ),
               ],
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -1039,8 +1042,6 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isMobileLayout = MediaQuery.of(context).size.width < 900;
-
     Widget saveButton() {
       return ElevatedButton.icon(
         onPressed: _saveActions,
@@ -1051,67 +1052,6 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
           backgroundColor: Colors.green,
           foregroundColor: Colors.white,
         ),
-      );
-    }
-
-    Widget mobileBody() {
-      return Column(
-        children: [
-          Expanded(
-            child: _buildActionList(
-              padding: const EdgeInsets.all(16),
-              maxContentWidth: double.infinity,
-              isDesktop: false,
-            ),
-          ),
-          if (_actions.isNotEmpty)
-            SafeArea(
-              top: false,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                child: SizedBox(width: double.infinity, child: saveButton()),
-              ),
-            ),
-        ],
-      );
-    }
-
-    Widget desktopBody() {
-      return Row(
-        children: [
-          SizedBox(width: 340, child: _buildDesktopActionLibrary()),
-          VerticalDivider(width: 1, color: Colors.grey.shade800),
-          Expanded(
-            child: Column(
-              children: [
-                Expanded(
-                  child: _buildActionList(
-                    padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
-                    maxContentWidth: 980,
-                    isDesktop: true,
-                  ),
-                ),
-                if (_actions.isNotEmpty)
-                  SafeArea(
-                    top: false,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 360),
-                          child: SizedBox(
-                            width: double.infinity,
-                            child: saveButton(),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ],
       );
     }
 
@@ -1126,14 +1066,188 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
           ),
         ],
       ),
-      body: isMobileLayout ? mobileBody() : desktopBody(),
-      floatingActionButton:
-          isMobileLayout
-              ? FloatingActionButton(
-                onPressed: _showAddActionDialog,
-                child: const Icon(Icons.add),
-              )
-              : null,
+      body: SafeArea(
+        top: false,
+        child: Column(
+          children: [
+            _buildSequenceHeader(),
+            Expanded(
+              child: _buildActionSequence(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                maxContentWidth: 980,
+              ),
+            ),
+            if (_actions.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                child: SizedBox(width: double.infinity, child: saveButton()),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ActionDetailPage extends StatefulWidget {
+  const _ActionDetailPage({
+    required this.action,
+    required this.index,
+    required this.totalCount,
+    required this.actionKey,
+    required this.variableSuggestions,
+    required this.fieldRefreshVersionOf,
+    required this.onSuggestionSelected,
+    required this.onParameterChanged,
+    required this.onRemove,
+    required this.onEditNestedActions,
+    this.emojiSuggestions,
+    this.botIdForConfig,
+    this.onMoveUp,
+    this.onMoveDown,
+  });
+
+  final ActionItem action;
+  final int index;
+  final int totalCount;
+  final String actionKey;
+  final List<VariableSuggestion> variableSuggestions;
+  final List<AppEmoji>? emojiSuggestions;
+  final String? botIdForConfig;
+  final int Function(String paramKey) fieldRefreshVersionOf;
+  final Function(String key, dynamic value) onSuggestionSelected;
+  final Function(String key, dynamic value) onParameterChanged;
+  final VoidCallback onRemove;
+  final VoidCallback? onMoveUp;
+  final VoidCallback? onMoveDown;
+  final Future<List<Map<String, dynamic>>?> Function(
+    List<Map<String, dynamic>> current,
+    List<VariableSuggestion> suggestions,
+  )?
+  onEditNestedActions;
+
+  @override
+  State<_ActionDetailPage> createState() => _ActionDetailPageState();
+}
+
+class _ActionDetailPageState extends State<_ActionDetailPage> {
+  void _handleParameterChanged(String key, dynamic value) {
+    widget.onParameterChanged(key, value);
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  void _handleSuggestionSelected(String key, dynamic value) {
+    widget.onSuggestionSelected(key, value);
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  void _handleRemove() {
+    widget.onRemove();
+    Navigator.pop(context, true);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final summary = summarizeActionItem(widget.action);
+    return Scaffold(
+      appBar: AppBar(title: Text(summary.title)),
+      body: SafeArea(
+        top: false,
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      summary.summary,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        _SequenceMetaChip(
+                          label:
+                              'Step ${widget.index + 1}/${widget.totalCount}',
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        _SequenceMetaChip(
+                          label: 'Key: ${summary.outputKey}',
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                        _SequenceMetaChip(
+                          label: summary.isEnabled ? 'Enabled' : 'Disabled',
+                          color:
+                              summary.isEnabled ? Colors.green : Colors.orange,
+                        ),
+                        for (final meta in summary.meta)
+                          _SequenceMetaChip(
+                            label: meta,
+                            color: Theme.of(context).colorScheme.tertiary,
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            ActionCard(
+              action: widget.action,
+              index: widget.index,
+              totalCount: widget.totalCount,
+              actionKey: widget.actionKey,
+              onRemove: _handleRemove,
+              onMoveUp: widget.onMoveUp,
+              onMoveDown: widget.onMoveDown,
+              onParameterChanged: _handleParameterChanged,
+              onSuggestionSelected: _handleSuggestionSelected,
+              fieldRefreshVersionOf: widget.fieldRefreshVersionOf,
+              variableSuggestions: widget.variableSuggestions,
+              emojiSuggestions: widget.emojiSuggestions,
+              botIdForConfig: widget.botIdForConfig,
+              onEditNestedActions: widget.onEditNestedActions,
+              showPositionLabel: false,
+              collapseActionSettings: true,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SequenceMetaChip extends StatelessWidget {
+  const _SequenceMetaChip({required this.label, required this.color});
+
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(999),
+        color: color.withValues(alpha: 0.12),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: color,
+        ),
+      ),
     );
   }
 }

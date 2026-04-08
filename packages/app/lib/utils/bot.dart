@@ -124,6 +124,12 @@ Set<String> get desktopRunningBotIds =>
     Set<String>.unmodifiable(_desktopGatewaysByBotId.keys);
 bool isDesktopBotRunningId(String botId) =>
     _desktopGatewaysByBotId.containsKey(botId.trim());
+
+/// Returns the [NyxxGateway] for a running desktop bot, or `null` when the
+/// bot is not running on desktop.
+NyxxGateway? desktopGatewayForBot(String botId) =>
+    _desktopGatewaysByBotId[botId.trim()];
+
 String? _mobileRunningBotId;
 final Set<String> _mobileRunningBotIds = <String>{};
 String? get mobileRunningBotId {

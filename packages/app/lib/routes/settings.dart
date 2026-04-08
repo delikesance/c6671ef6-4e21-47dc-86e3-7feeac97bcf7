@@ -6,6 +6,7 @@ import 'package:bot_creator/routes/diagnostics_logs_page.dart';
 import 'package:bot_creator/routes/onboarding.dart';
 import 'package:bot_creator/utils/analytics.dart';
 import 'package:bot_creator/utils/ad_consent_service.dart';
+import 'package:bot_creator/utils/ad_mediation_debug.dart';
 import 'package:bot_creator/utils/app_diagnostics.dart';
 import 'package:bot_creator/utils/discord_rpc_service.dart';
 import 'package:bot_creator/utils/premium_capabilities.dart';
@@ -155,20 +156,27 @@ class _SettingPageState extends State<SettingPage> {
 
   Future<void> _openAdPrivacyOptions() async {
     final opened = await AdConsentService.showPrivacyOptionsForm();
-    if (!mounted) return;
-
     await _loadAdPrivacyRequirement();
-    if (!mounted) return;
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          opened
-              ? AppStrings.t('settings_ads_privacy_opened')
-              : AppStrings.t('settings_ads_privacy_open_error'),
-        ),
-      ),
+    _showSnack(
+      opened
+          ? AppStrings.t('settings_ads_privacy_opened')
+          : AppStrings.t('settings_ads_privacy_open_error'),
     );
+  }
+
+  Future<void> _runMediationDiagnostics() async {
+    await AdMediationDebug.logInitializationStatus();
+    final canRequest = await AdConsentService.ensureCanRequestAds();
+    _showSnack(
+      canRequest
+          ? 'Mediation diagnostics launched. Check diagnostics logs.'
+          : 'Consent blocked ads request. Open privacy options and retry.',
+    );
+  }
+
+  Future<void> _openAdInspector() async {
+    await AdMediationDebug.openAdInspector();
+    _showSnack('Ad Inspector closed. Check diagnostics logs.');
   }
 
   Future<void> _initializeDriveApi() async {
@@ -219,16 +227,11 @@ class _SettingPageState extends State<SettingPage> {
       await _checkRunnerConnection();
     }
 
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          AppStrings.t(
-            disabled
-                ? 'settings_runner_temporarily_disabled_saved'
-                : 'settings_runner_reenabled',
-          ),
-        ),
+    _showSnack(
+      AppStrings.t(
+        disabled
+            ? 'settings_runner_temporarily_disabled_saved'
+            : 'settings_runner_reenabled',
       ),
     );
   }
@@ -241,14 +244,10 @@ class _SettingPageState extends State<SettingPage> {
     setState(() {
       _runnerStatusKey = null;
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          url.isEmpty && apiToken.isEmpty
-              ? AppStrings.t('settings_runner_cleared')
-              : AppStrings.t('settings_runner_saved'),
-        ),
-      ),
+    _showSnack(
+      url.isEmpty && apiToken.isEmpty
+          ? AppStrings.t('settings_runner_cleared')
+          : AppStrings.t('settings_runner_saved'),
     );
     if (url.isNotEmpty) {
       await _checkRunnerConnection();
@@ -383,9 +382,7 @@ class _SettingPageState extends State<SettingPage> {
           result.snapshot == null
               ? ''
               : ' (${result.snapshot!.snapshotId.substring(0, 19)})';
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('${result.message}$suffix')));
+      _showSnack('${result.message}$suffix');
     }
   }
 
@@ -402,15 +399,31 @@ class _SettingPageState extends State<SettingPage> {
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
   }
 
-  void _showSnack(String message) {
+  ScaffoldMessengerState? _currentScaffoldMessenger() {
     if (!mounted) {
-      return;
+      return null;
     }
-    final messenger = ScaffoldMessenger.maybeOf(context);
+    final currentMessenger = ScaffoldMessenger.maybeOf(context);
+    if (currentMessenger != null) {
+      return currentMessenger;
+    }
+    final navigatorContext = MyApp.navigatorKey.currentContext;
+    if (navigatorContext == null) {
+      return null;
+    }
+    return ScaffoldMessenger.maybeOf(navigatorContext);
+  }
+
+  void _showSnackBar(SnackBar snackBar) {
+    final messenger = _currentScaffoldMessenger();
     if (messenger == null) {
       return;
     }
-    messenger.showSnackBar(SnackBar(content: Text(message)));
+    messenger.showSnackBar(snackBar);
+  }
+
+  void _showSnack(String message) {
+    _showSnackBar(SnackBar(content: Text(message)));
   }
 
   Widget _dropdownLabel(String text) {
@@ -1650,6 +1663,45 @@ class _SettingPageState extends State<SettingPage> {
                         ),
                       ),
                     ),
+                    const SizedBox(height: 16),
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Ads Mediation Debug',
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Open Ad Inspector and log adapter status (Unity/Google) to validate mediation.',
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: Colors.grey[500]),
+                            ),
+                            const SizedBox(height: 12),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: [
+                                FilledButton.tonalIcon(
+                                  onPressed: _runMediationDiagnostics,
+                                  icon: const Icon(Icons.analytics_outlined),
+                                  label: const Text('Run Diagnostics'),
+                                ),
+                                FilledButton.tonalIcon(
+                                  onPressed: _openAdInspector,
+                                  icon: const Icon(Icons.bug_report_outlined),
+                                  label: const Text('Open Ad Inspector'),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                     const SizedBox(height: 24),
                   ],
                   if (_isBusy)
@@ -1711,15 +1763,9 @@ class _SettingPageState extends State<SettingPage> {
                                                 force: false,
                                                 showSnack: false,
                                               );
-                                              ScaffoldMessenger.of(
-                                                context,
-                                              ).showSnackBar(
-                                                SnackBar(
-                                                  content: Text(
-                                                    AppStrings.t(
-                                                      'settings_drive_connected',
-                                                    ),
-                                                  ),
+                                              _showSnack(
+                                                AppStrings.t(
+                                                  'settings_drive_connected',
                                                 ),
                                               );
                                             } catch (e, st) {
@@ -1727,14 +1773,8 @@ class _SettingPageState extends State<SettingPage> {
                                                 'Connect to Google Drive failed: $e',
                                               );
                                               debugPrintStack(stackTrace: st);
-                                              ScaffoldMessenger.of(
-                                                context,
-                                              ).showSnackBar(
-                                                SnackBar(
-                                                  content: Text(
-                                                    _formatErrorMessage(e),
-                                                  ),
-                                                ),
+                                              _showSnack(
+                                                _formatErrorMessage(e),
                                               );
                                             }
                                           },
@@ -1787,15 +1827,9 @@ class _SettingPageState extends State<SettingPage> {
                                               driveApi = null;
                                             });
                                             await _loadCachedSnapshotsFromCache();
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              SnackBar(
-                                                content: Text(
-                                                  AppStrings.t(
-                                                    'settings_drive_disconnected',
-                                                  ),
-                                                ),
+                                            _showSnack(
+                                              AppStrings.t(
+                                                'settings_drive_disconnected',
                                               ),
                                             );
                                           },
@@ -2110,25 +2144,13 @@ class _SettingPageState extends State<SettingPage> {
                                               appManager,
                                             );
                                             await _refreshSnapshots();
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              SnackBar(content: Text(message)),
-                                            );
+                                            _showSnack(message);
                                           } catch (e, st) {
                                             debugPrint(
                                               'Export App Data failed: $e',
                                             );
                                             debugPrintStack(stackTrace: st);
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              SnackBar(
-                                                content: Text(
-                                                  _formatErrorMessage(e),
-                                                ),
-                                              ),
-                                            );
+                                            _showSnack(_formatErrorMessage(e));
                                           }
                                         },
                                       );
@@ -2157,25 +2179,13 @@ class _SettingPageState extends State<SettingPage> {
                                                 );
                                             await appManager.refreshApps();
                                             await _refreshSnapshots();
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              SnackBar(content: Text(message)),
-                                            );
+                                            _showSnack(message);
                                           } catch (e, st) {
                                             debugPrint(
                                               'Import App Data failed: $e',
                                             );
                                             debugPrintStack(stackTrace: st);
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              SnackBar(
-                                                content: Text(
-                                                  _formatErrorMessage(e),
-                                                ),
-                                              ),
-                                            );
+                                            _showSnack(_formatErrorMessage(e));
                                           }
                                         },
                                       );
@@ -2205,25 +2215,13 @@ class _SettingPageState extends State<SettingPage> {
                                             appManager,
                                           );
                                           await _refreshSnapshots();
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            SnackBar(content: Text(message)),
-                                          );
+                                          _showSnack(message);
                                         } catch (e, st) {
                                           debugPrint(
                                             'Export App Data failed: $e',
                                           );
                                           debugPrintStack(stackTrace: st);
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                _formatErrorMessage(e),
-                                              ),
-                                            ),
-                                          );
+                                          _showSnack(_formatErrorMessage(e));
                                         }
                                       },
                                     );
@@ -2249,25 +2247,13 @@ class _SettingPageState extends State<SettingPage> {
                                           );
                                           await appManager.refreshApps();
                                           await _refreshSnapshots();
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            SnackBar(content: Text(message)),
-                                          );
+                                          _showSnack(message);
                                         } catch (e, st) {
                                           debugPrint(
                                             'Import App Data failed: $e',
                                           );
                                           debugPrintStack(stackTrace: st);
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                _formatErrorMessage(e),
-                                              ),
-                                            ),
-                                          );
+                                          _showSnack(_formatErrorMessage(e));
                                         }
                                       },
                                     );
@@ -2391,20 +2377,12 @@ class _SettingPageState extends State<SettingPage> {
                                                 if (!mounted) {
                                                   return;
                                                 }
-                                                ScaffoldMessenger.of(
-                                                  context,
-                                                ).showSnackBar(
-                                                  SnackBar(
-                                                    content: Text(
-                                                      AppStrings.tr(
-                                                        'settings_snapshot_created_message',
-                                                        params: {
-                                                          'id':
-                                                              snapshot
-                                                                  .snapshotId,
-                                                        },
-                                                      ),
-                                                    ),
+                                                _showSnack(
+                                                  AppStrings.tr(
+                                                    'settings_snapshot_created_message',
+                                                    params: {
+                                                      'id': snapshot.snapshotId,
+                                                    },
                                                   ),
                                                 );
                                               } catch (e, st) {
@@ -2415,14 +2393,8 @@ class _SettingPageState extends State<SettingPage> {
                                                 if (!mounted) {
                                                   return;
                                                 }
-                                                ScaffoldMessenger.of(
-                                                  context,
-                                                ).showSnackBar(
-                                                  SnackBar(
-                                                    content: Text(
-                                                      _formatErrorMessage(e),
-                                                    ),
-                                                  ),
+                                                _showSnack(
+                                                  _formatErrorMessage(e),
                                                 );
                                               }
                                             },
@@ -2600,16 +2572,8 @@ class _SettingPageState extends State<SettingPage> {
                                       if (!mounted) {
                                         return;
                                       }
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            AppStrings.t(
-                                              'settings_logs_cleared',
-                                            ),
-                                          ),
-                                        ),
+                                      _showSnack(
+                                        AppStrings.t('settings_logs_cleared'),
                                       );
                                     },
                           ),
@@ -2648,12 +2612,8 @@ class _SettingPageState extends State<SettingPage> {
                                     if (!mounted) {
                                       return;
                                     }
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          AppStrings.t('settings_logs_cleared'),
-                                        ),
-                                      ),
+                                    _showSnack(
+                                      AppStrings.t('settings_logs_cleared'),
                                     );
                                   },
                         ),

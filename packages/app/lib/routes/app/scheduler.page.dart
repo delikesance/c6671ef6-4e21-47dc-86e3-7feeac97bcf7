@@ -330,91 +330,98 @@ class _SchedulerPageState extends State<SchedulerPage> {
                 label: const Text('Add trigger'),
               )
               : null,
-      body:
-          _loading
-              ? const Center(child: CircularProgressIndicator())
-              : Column(
-                children: [
-                  if (!_hasSchedulerCapability) _buildUpsellCard(),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                    child: Row(
-                      children: [
-                        Text(
-                          'Triggers: ${_triggers.length}${limit > 0 ? ' / $limit' : ''}',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ],
+      body: SafeArea(
+        top: false,
+        child:
+            _loading
+                ? const Center(child: CircularProgressIndicator())
+                : Column(
+                  children: [
+                    if (!_hasSchedulerCapability) _buildUpsellCard(),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                      child: Row(
+                        children: [
+                          Text(
+                            'Triggers: ${_triggers.length}${limit > 0 ? ' / $limit' : ''}',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  Expanded(
-                    child:
-                        _triggers.isEmpty
-                            ? const Center(
-                              child: Text('No scheduled triggers yet.'),
-                            )
-                            : ListView.separated(
-                              itemCount: _triggers.length,
-                              separatorBuilder:
-                                  (_, _) => const Divider(height: 1),
-                              itemBuilder: (context, index) {
-                                final trigger = _triggers[index];
-                                final label =
-                                    (trigger['label'] ??
-                                            trigger['workflowName'] ??
-                                            '')
-                                        .toString();
-                                final workflowName =
-                                    (trigger['workflowName'] ?? '').toString();
-                                final everyMinutes =
-                                    int.tryParse(
-                                      (trigger['everyMinutes'] ?? '')
-                                          .toString(),
-                                    ) ??
-                                    60;
-                                final enabled = trigger['enabled'] != false;
-                                return ListTile(
-                                  title: Text(label),
-                                  subtitle: Text(
-                                    'Workflow: $workflowName • Every $everyMinutes min',
-                                  ),
-                                  leading: Switch.adaptive(
-                                    value: enabled,
-                                    onChanged:
-                                        _hasSchedulerCapability
-                                            ? (value) =>
-                                                _toggleTrigger(trigger, value)
-                                            : null,
-                                  ),
-                                  trailing: Wrap(
-                                    spacing: 4,
-                                    children: [
-                                      IconButton(
-                                        tooltip: 'Edit',
-                                        onPressed:
-                                            _hasSchedulerCapability
-                                                ? () => _showEditor(
-                                                  initial: trigger,
-                                                )
-                                                : null,
-                                        icon: const Icon(Icons.edit_outlined),
-                                      ),
-                                      IconButton(
-                                        tooltip: AppStrings.t('delete'),
-                                        onPressed:
-                                            _hasSchedulerCapability
-                                                ? () => _deleteTrigger(trigger)
-                                                : null,
-                                        icon: const Icon(Icons.delete_outline),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
-                  ),
-                ],
-              ),
+                    Expanded(
+                      child:
+                          _triggers.isEmpty
+                              ? const Center(
+                                child: Text('No scheduled triggers yet.'),
+                              )
+                              : ListView.separated(
+                                itemCount: _triggers.length,
+                                separatorBuilder:
+                                    (_, _) => const Divider(height: 1),
+                                itemBuilder: (context, index) {
+                                  final trigger = _triggers[index];
+                                  final label =
+                                      (trigger['label'] ??
+                                              trigger['workflowName'] ??
+                                              '')
+                                          .toString();
+                                  final workflowName =
+                                      (trigger['workflowName'] ?? '')
+                                          .toString();
+                                  final everyMinutes =
+                                      int.tryParse(
+                                        (trigger['everyMinutes'] ?? '')
+                                            .toString(),
+                                      ) ??
+                                      60;
+                                  final enabled = trigger['enabled'] != false;
+                                  return ListTile(
+                                    title: Text(label),
+                                    subtitle: Text(
+                                      'Workflow: $workflowName • Every $everyMinutes min',
+                                    ),
+                                    leading: Switch.adaptive(
+                                      value: enabled,
+                                      onChanged:
+                                          _hasSchedulerCapability
+                                              ? (value) =>
+                                                  _toggleTrigger(trigger, value)
+                                              : null,
+                                    ),
+                                    trailing: Wrap(
+                                      spacing: 4,
+                                      children: [
+                                        IconButton(
+                                          tooltip: 'Edit',
+                                          onPressed:
+                                              _hasSchedulerCapability
+                                                  ? () => _showEditor(
+                                                    initial: trigger,
+                                                  )
+                                                  : null,
+                                          icon: const Icon(Icons.edit_outlined),
+                                        ),
+                                        IconButton(
+                                          tooltip: AppStrings.t('delete'),
+                                          onPressed:
+                                              _hasSchedulerCapability
+                                                  ? () =>
+                                                      _deleteTrigger(trigger)
+                                                  : null,
+                                          icon: const Icon(
+                                            Icons.delete_outline,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                    ),
+                  ],
+                ),
+      ),
     );
   }
 }

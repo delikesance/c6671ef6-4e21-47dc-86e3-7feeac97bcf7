@@ -685,12 +685,65 @@ const Map<String, String> appStringsEn = {
   'import_skip': 'Skip',
 
   // Global variables page
-  'globals_title': 'Global Variables',
+  'globals_title': 'Variables',
   'globals_empty': 'No global variables yet',
+  'globals_empty_subtitle':
+      'Add a variable to store persistent data accessible by all commands.',
   'globals_add': 'Add Variable',
+  'globals_add_global': 'Add Global Variable',
+  'globals_add_scoped': 'Add Scoped Variable',
   'globals_edit': 'Edit Variable',
+  'globals_edit_global': 'Edit Global Variable',
+  'globals_edit_scoped': 'Edit Scoped Variable',
   'globals_key': 'Key',
+  'globals_key_hint': 'e.g. prefix, level, welcome_message',
   'globals_value': 'Value',
+  'globals_delete_title': 'Delete Variable',
+  'globals_delete_confirm': 'Delete "{key}"?',
+  'globals_search': 'Search variables…',
+  'globals_mode_global': 'Global',
+  'globals_mode_scoped': 'Scoped',
+  'globals_help_global':
+      'Shared across all commands. Access via \$getVar[key].',
+  'globals_help_scoped':
+      'Stored per context (server, user, channel…). Each entry keeps a distinct value per Discord context.',
+  'globals_source_local': 'Local',
+  'globals_source_runner': 'Runner: {name}',
+  'globals_value_auto_type_hint':
+      'Value is auto-typed (number, boolean, JSON).',
+  'globals_copy_value': 'Copy value',
+  'globals_no_default': 'No default value',
+  'globals_dialog_global_desc':
+      'Global variables are shared across all commands and servers.',
+  'globals_dialog_scoped_desc':
+      'A scoped variable stores a separate value per {scope} context.',
+  'globals_dialog_ref_preview': 'Usage: \$getVar[{ref}]',
+  'scoped_title': 'Scoped Variables',
+  'scoped_empty': 'No scoped variables defined',
+  'scoped_empty_subtitle':
+      'Scoped variables store a value per Discord context (user, server…). They are populated by the bot at runtime.',
+  'scoped_delete_title': 'Delete Scoped Variable',
+  'scoped_delete_confirm': 'Delete "{key}" and all its stored runtime data?',
+  'scoped_default_value': 'Default value',
+  'scoped_default_value_hint': 'Optional',
+  'scoped_scope': 'Scope',
+  'scoped_scope_help': 'The entity level at which the variable is stored.',
+  'scoped_ref': 'Reference: {ref}',
+  'scoped_ref_legacy': 'Legacy: {ref}',
+  'scoped_runtime_title': 'Runtime data — "{key}"',
+  'scoped_runtime_subtitle': 'Scope: {scope} · {count} context(s) found',
+  'scoped_runtime_empty':
+      'No runtime data.\nThis key will be populated by the bot at execution.',
+  'scoped_runtime_copy_all': 'Copy all',
+  'scoped_runtime_search': 'Search by ID or name…',
+  'scoped_explore_runtime': 'Explore runtime data',
+  'globals_refresh': 'Refresh',
+  'globals_retry': 'Retry',
+  'globals_scope_guild': 'guild',
+  'globals_scope_user': 'user',
+  'globals_scope_channel': 'channel',
+  'globals_scope_guildMember': 'guildMember',
+  'globals_scope_message': 'message',
 
   // Workflows page
   'workflows_title': 'Workflows',

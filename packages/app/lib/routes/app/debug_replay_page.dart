@@ -59,7 +59,7 @@ class _DebugReplayPageState extends State<DebugReplayPage> {
     _runnerClient = client;
 
     try {
-      await _pollRunnerReplays();
+      await _pollRunnerReplays(rethrowErrors: true);
       if (!mounted) return;
       setState(() => _usingRemoteData = true);
       _runnerPollTimer = Timer.periodic(const Duration(milliseconds: 2500), (
@@ -74,14 +74,28 @@ class _DebugReplayPageState extends State<DebugReplayPage> {
     }
   }
 
-  Future<void> _pollRunnerReplays() async {
+  Future<void> _pollRunnerReplays({bool rethrowErrors = false}) async {
     final client = _runnerClient;
     final botId = widget.botId?.trim() ?? '';
     if (client == null || botId.isEmpty) {
       return;
     }
 
-    final snapshot = await client.getDebugReplays(botId, limit: 30);
+    RunnerDebugReplaySnapshot snapshot;
+    try {
+      snapshot = await client.getDebugReplays(botId, limit: 30);
+    } on RunnerClientException {
+      if (rethrowErrors) {
+        rethrow;
+      }
+      return;
+    } catch (_) {
+      if (rethrowErrors) {
+        rethrow;
+      }
+      return;
+    }
+
     if (!mounted) {
       return;
     }

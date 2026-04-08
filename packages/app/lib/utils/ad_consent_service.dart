@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:bot_creator/utils/app_diagnostics.dart';
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:flutter/foundation.dart';
+import 'package:gma_mediation_ironsource/gma_mediation_ironsource.dart';
+import 'package:gma_mediation_unity/gma_mediation_unity.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class AdConsentService {
@@ -39,6 +41,7 @@ class AdConsentService {
       await _loadAndShowConsentFormIfRequired();
 
       final canRequestAds = await ConsentInformation.instance.canRequestAds();
+      await forwardConsentToMediationPartners(canRequestAds);
       unawaited(
         AppDiagnostics.logInfo(
           'UMP consent completed',
@@ -59,9 +62,11 @@ class AdConsentService {
 
       try {
         final canRequestAds = await ConsentInformation.instance.canRequestAds();
+        await forwardConsentToMediationPartners(canRequestAds);
         completer.complete(canRequestAds);
         return canRequestAds;
       } catch (_) {
+        await forwardConsentToMediationPartners(false);
         completer.complete(false);
         return false;
       }
@@ -106,7 +111,16 @@ class AdConsentService {
     final completer = Completer<void>();
 
     ConsentInformation.instance.requestConsentInfoUpdate(
-      ConsentRequestParameters(tagForUnderAgeOfConsent: false),
+      ConsentRequestParameters(
+        tagForUnderAgeOfConsent: false,
+        consentDebugSettings:
+            kReleaseMode
+                ? null
+                : ConsentDebugSettings(
+                  debugGeography: DebugGeography.debugGeographyEea,
+                  testIdentifiers: const ['2214CFDBCFAD5ACC7D062BE23959B7B1'],
+                ),
+      ),
       () => completer.complete(),
       (formError) {
         completer.completeError(
@@ -185,5 +199,41 @@ class AdConsentService {
       completer.complete(true);
     });
     return completer.future;
+  }
+
+  /// Forwards the user's consent status to mediation partner SDKs.
+  ///
+  /// Must be called **before** [MobileAds.instance.initialize] so that the
+  /// buyer-generated data (GDPR / CCPA signals) is included in bid requests.
+  static Future<void> forwardConsentToMediationPartners(bool hasConsent) async {
+    try {
+      final unity = GmaMediationUnity();
+      await unity.setGDPRConsent(hasConsent);
+      await unity.setCCPAConsent(hasConsent);
+    } catch (error, stack) {
+      unawaited(
+        AppDiagnostics.logError(
+          'Failed to forward consent to Unity Ads',
+          error,
+          stack,
+          fatal: false,
+        ),
+      );
+    }
+
+    try {
+      final ironSource = GmaMediationIronsource();
+      await ironSource.setConsent(hasConsent);
+      await ironSource.setDoNotSell(!hasConsent);
+    } catch (error, stack) {
+      unawaited(
+        AppDiagnostics.logError(
+          'Failed to forward consent to ironSource',
+          error,
+          stack,
+          fatal: false,
+        ),
+      );
+    }
   }
 }

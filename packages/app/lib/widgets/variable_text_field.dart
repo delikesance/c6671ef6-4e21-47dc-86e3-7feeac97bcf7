@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import '../types/app_emoji.dart';
 import '../types/variable_suggestion.dart';
 
@@ -44,6 +45,8 @@ class _VariableTextFieldState extends State<VariableTextField> {
   TextEditingController? _internalController;
   late final FocusNode _focusNode;
   String _lastDispatchedValue = '';
+  bool _suppressControllerNotifications = false;
+  bool _rebuildScheduled = false;
 
   TextEditingController get _effectiveController =>
       widget.controller ?? _internalController!;
@@ -93,12 +96,7 @@ class _VariableTextFieldState extends State<VariableTextField> {
         widget.initialValue != null &&
         !_focusNode.hasFocus &&
         widget.initialValue != _effectiveController.text) {
-      final value = widget.initialValue!;
-      _effectiveController.value = TextEditingValue(
-        text: value,
-        selection: TextSelection.collapsed(offset: value.length),
-      );
-      _lastDispatchedValue = value;
+      _syncControllerText(widget.initialValue!);
     }
   }
 
@@ -111,15 +109,50 @@ class _VariableTextFieldState extends State<VariableTextField> {
   }
 
   void _handleControllerChange() {
+    if (_suppressControllerNotifications) {
+      return;
+    }
+
     final current = _effectiveController.text;
     if (current != _lastDispatchedValue) {
       _lastDispatchedValue = current;
       widget.onChanged(current);
     }
 
-    if (mounted) {
-      setState(() {});
+    _markNeedsRebuild();
+  }
+
+  void _syncControllerText(String value) {
+    _suppressControllerNotifications = true;
+    _lastDispatchedValue = value;
+    _effectiveController.value = TextEditingValue(
+      text: value,
+      selection: TextSelection.collapsed(offset: value.length),
+    );
+    _suppressControllerNotifications = false;
+  }
+
+  void _markNeedsRebuild() {
+    if (!mounted) {
+      return;
     }
+
+    if (SchedulerBinding.instance.schedulerPhase ==
+        SchedulerPhase.persistentCallbacks) {
+      if (_rebuildScheduled) {
+        return;
+      }
+      _rebuildScheduled = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _rebuildScheduled = false;
+        if (mounted) {
+          setState(() {});
+        }
+      });
+      return;
+    }
+
+    setState(() {});
   }
 
   int _safeCursor(String text, int rawOffset) {

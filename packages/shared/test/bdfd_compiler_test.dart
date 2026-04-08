@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:bot_creator_shared/types/action.dart';
+import 'package:bot_creator_shared/utils/awaited_registration.dart';
 import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 import 'package:bot_creator_shared/utils/template_resolver.dart';
 import 'package:test/test.dart';
@@ -2042,5 +2045,98 @@ void main() {
         expect(a.payload['_debugLoopIteration'], equals(i - 1));
       }
     });
+
+    test(
+      'recursive awaitFunc produces different snapshots on each compilation',
+      () async {
+        // Simulate a callback command that echoes and re-arms:
+        //   $message
+        //   $awaitFunc[say]
+        const script = r'$message$awaitFunc[say]';
+
+        // First compilation (initial command execution)
+        final first = BdfdCompiler().compile(script);
+        expect(first.hasErrors, isFalse);
+        final firstSet = first.actions.firstWhere(
+          (a) => a.type == BotCreatorActionType.setScopedVariable,
+        );
+        expect(firstSet.payload['key'], 'await_say');
+        expect(firstSet.payload['valueType'], 'json');
+        final firstJson = firstSet.payload['jsonValue'] as String;
+        final firstResolved = resolveTemplatePlaceholders(firstJson, {
+          'author.id': '111',
+          'channel.id': '222',
+        });
+        final firstValue = jsonDecode(firstResolved) as Map<String, dynamic>;
+        final firstSnapshot = awaitedRegistrationSnapshot(firstValue);
+
+        // Tiny delay so DateTime.now() differs
+        await Future<void>.delayed(const Duration(milliseconds: 2));
+
+        // Second compilation (callback re-arms)
+        final second = BdfdCompiler().compile(script);
+        expect(second.hasErrors, isFalse);
+        final secondSet = second.actions.firstWhere(
+          (a) => a.type == BotCreatorActionType.setScopedVariable,
+        );
+        final secondJson = secondSet.payload['jsonValue'] as String;
+        final secondResolved = resolveTemplatePlaceholders(secondJson, {
+          'author.id': '111',
+          'channel.id': '222',
+        });
+        final secondValue = jsonDecode(secondResolved) as Map<String, dynamic>;
+        final secondSnapshot = awaitedRegistrationSnapshot(secondValue);
+
+        // Snapshots MUST differ for re-arm to be detected
+        expect(
+          secondSnapshot,
+          isNot(firstSnapshot),
+          reason:
+              'Each compilation must produce a unique createdAt so that '
+              'the re-arm check detects the change.',
+        );
+      },
+    );
+
+    test(
+      'pre-compiled awaitFunc actions produce identical snapshots (no re-arm)',
+      () {
+        // When using workflow-mode (pre-compiled actions), the same action
+        // JSON is reused. The createdAt is static → snapshots are identical
+        // → re-arm is NOT detected.
+        const script = r'$awaitFunc[echo]';
+        final compiled = BdfdCompiler().compile(script);
+        expect(compiled.hasErrors, isFalse);
+        final action = compiled.actions.single;
+        // Serialize to JSON and deserialize (simulating workflow-mode storage)
+        final actionJson = action.toJson();
+
+        final firstResolved = resolveTemplatePlaceholders(
+          (actionJson['payload'] as Map)['jsonValue'] as String,
+          {'author.id': '111', 'channel.id': '222'},
+        );
+        final firstSnapshot = awaitedRegistrationSnapshot(
+          jsonDecode(firstResolved),
+        );
+
+        // Reuse same serialized action JSON (workflow mode)
+        final secondResolved = resolveTemplatePlaceholders(
+          (actionJson['payload'] as Map)['jsonValue'] as String,
+          {'author.id': '111', 'channel.id': '222'},
+        );
+        final secondSnapshot = awaitedRegistrationSnapshot(
+          jsonDecode(secondResolved),
+        );
+
+        // Same static payload → identical snapshots → no re-arm!
+        expect(
+          secondSnapshot,
+          equals(firstSnapshot),
+          reason:
+              'Pre-compiled actions have a static createdAt, so '
+              'snapshots are identical and re-arm is not detected.',
+        );
+      },
+    );
   });
 }

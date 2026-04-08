@@ -163,6 +163,7 @@ Future<void> _bootstrapAndRunApp() async {
     firebaseReady: firebaseReady,
   );
 
+  await AdConsentService.ensureCanRequestAds();
   await AdRewardService.initialize();
   await AdNativeService.initialize();
   await SubscriptionService.initialize();
