@@ -324,7 +324,7 @@ class _CreateBotStep extends StatelessWidget {
                   label: Text(AppStrings.t('onboarding_create_tutorial')),
                   onPressed: () async {
                     final uri = Uri.parse(
-                      'https://bot-creator.fr/tutorials/2025/05/18/how-to-create-a-bot-token-bot-creator.html',
+                      'https://bot-creator.fr/tutorials/setup/security/2025/05/18/how-to-create-a-bot-token-bot-creator.html',
                     );
                     await launchUrl(uri, mode: LaunchMode.externalApplication);
                   },

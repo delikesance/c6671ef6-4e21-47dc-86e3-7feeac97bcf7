@@ -622,6 +622,8 @@
   'bot_logs_ram_estimated': 'RAM bot estimée : {memory}',
   'bot_logs_go_to_latest': 'Aller au dernier log',
   'bot_logs_go_to_bottom': 'Aller en bas',
+  'bot_logs_raw_mode': 'Logs bruts compacts',
+  'bot_logs_rich_mode': 'Logs formatés',
 
   // Page Replay Débogueur
   'debug_replay_title': 'Replay Débogueur',
@@ -1458,9 +1460,18 @@
   'premium_active_title': 'Premium actif',
   'premium_active_desc':
       'Merci pour votre soutien ! Toutes les publicités sont désactivées.',
-  'subscription_title': 'Supprimer les pubs',
+  'subscription_title': 'Premium',
   'subscription_subtitle':
-      'Choisissez une offre pour supprimer les pubs et débloquer toutes les fonctionnalités premium.',
+      'Choisissez une offre pour débloquer toutes les fonctionnalités premium.',
+  'subscription_plan_label': 'Premium Basique',
+  'subscription_plan_desc':
+      'Supprime les pubs et accède à toutes les fonctionnalités premium actuelles et à venir.',
+  'subscription_success':
+      'Bienvenue dans Premium ! Toutes les publicités ont été supprimées.',
+  'subscription_manage': 'Gérer l\'abonnement',
+  'subscription_active_label': 'Offre active :',
+  'subscription_active_annual': 'Premium — Annuel',
+  'subscription_active_monthly': 'Premium — Mensuel',
   'subscription_benefit_no_ads': 'Aucune pub dans toute l\'application',
   'subscription_benefit_fast_start':
       'Bots démarrent instantanément, sans pop-up',
@@ -1500,6 +1511,12 @@
   'subscription_privacy': 'Politique de confidentialité',
   'subscription_error':
       'L\'achat n\'a pas pu être finalisé. Veuillez réessayer.',
+  'subscription_error_store_unavailable':
+      'L\'App Store est temporairement indisponible. Veuillez réessayer dans un instant.',
+  'subscription_error_product_unavailable':
+      'Cette offre est actuellement indisponible. Veuillez réessayer plus tard.',
+  'subscription_error_purchase_start_failed':
+      'L\'achat n\'a pas pu démarrer. Veuillez réessayer.',
   'subscription_restored': 'Abonnement restauré avec succès !',
   'subscription_restore_not_found': 'Aucun abonnement actif trouvé.',
   'subscription_not_available_on_platform':

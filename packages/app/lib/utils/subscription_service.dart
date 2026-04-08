@@ -15,6 +15,29 @@ const Set<String> _kSubscriptionIds = {
   kAnnualSubscriptionId,
 };
 
+enum SubscriptionPurchaseFailureReason {
+  storeUnavailable,
+  productUnavailable,
+  purchaseStartFailed,
+}
+
+class SubscriptionPurchaseResult {
+  const SubscriptionPurchaseResult._({
+    required this.started,
+    this.failureReason,
+  });
+
+  const SubscriptionPurchaseResult.started()
+    : this._(started: true, failureReason: null);
+
+  const SubscriptionPurchaseResult.failed(
+    SubscriptionPurchaseFailureReason reason,
+  ) : this._(started: false, failureReason: reason);
+
+  final bool started;
+  final SubscriptionPurchaseFailureReason? failureReason;
+}
+
 class SubscriptionService {
   SubscriptionService._();
 
@@ -137,24 +160,119 @@ class SubscriptionService {
   // ── Purchase flow ──────────────────────────────────────────────────────────
 
   /// Start a monthly subscription purchase.
-  static Future<bool> purchaseMonthly() => _purchase(kMonthlySubscriptionId);
+  static Future<SubscriptionPurchaseResult> purchaseMonthly() =>
+      _purchase(kMonthlySubscriptionId);
 
   /// Start an annual subscription purchase.
-  static Future<bool> purchaseAnnual() => _purchase(kAnnualSubscriptionId);
+  static Future<SubscriptionPurchaseResult> purchaseAnnual() =>
+      _purchase(kAnnualSubscriptionId);
 
-  static Future<bool> _purchase(String productId) async {
-    if (!_storeAvailable) return false;
+  static Future<SubscriptionPurchaseResult> _purchase(String productId) async {
+    try {
+      final iap = InAppPurchase.instance;
+      var storeAvailable = _storeAvailable;
 
-    final product = products.cast<ProductDetails?>().firstWhere(
-      (p) => p?.id == productId,
-      orElse: () => null,
-    );
-    if (product == null) return false;
+      if (!storeAvailable) {
+        storeAvailable = await iap.isAvailable();
+        _storeAvailable = storeAvailable;
+      }
 
-    final purchaseParam = PurchaseParam(productDetails: product);
-    return InAppPurchase.instance.buyNonConsumable(
-      purchaseParam: purchaseParam,
-    );
+      if (!storeAvailable) {
+        unawaited(
+          AppDiagnostics.logInfo(
+            'Purchase blocked: store unavailable',
+            data: {'product': productId},
+          ),
+        );
+        return const SubscriptionPurchaseResult.failed(
+          SubscriptionPurchaseFailureReason.storeUnavailable,
+        );
+      }
+
+      unawaited(
+        AppDiagnostics.logInfo(
+          'Purchase attempt started',
+          data: {'product': productId},
+        ),
+      );
+
+      ProductDetails? product = products.cast<ProductDetails?>().firstWhere(
+        (p) => p?.id == productId,
+        orElse: () => null,
+      );
+
+      if (product == null) {
+        final response = await iap.queryProductDetails(_kSubscriptionIds);
+        if (response.error != null) {
+          unawaited(
+            AppDiagnostics.logInfo(
+              'Purchase preflight product query error',
+              data: {
+                'product': productId,
+                'error': response.error?.message ?? 'unknown',
+              },
+            ),
+          );
+        }
+        if (response.notFoundIDs.isNotEmpty) {
+          unawaited(
+            AppDiagnostics.logInfo(
+              'Purchase preflight product not found',
+              data: {
+                'product': productId,
+                'notFound': response.notFoundIDs.join(', '),
+              },
+            ),
+          );
+        }
+        products = response.productDetails;
+        product = products.cast<ProductDetails?>().firstWhere(
+          (p) => p?.id == productId,
+          orElse: () => null,
+        );
+      }
+
+      if (product == null) {
+        unawaited(
+          AppDiagnostics.logInfo(
+            'Purchase blocked: product unavailable',
+            data: {'product': productId},
+          ),
+        );
+        return const SubscriptionPurchaseResult.failed(
+          SubscriptionPurchaseFailureReason.productUnavailable,
+        );
+      }
+
+      final purchaseParam = PurchaseParam(productDetails: product);
+      final started = await iap.buyNonConsumable(purchaseParam: purchaseParam);
+      if (!started) {
+        unawaited(
+          AppDiagnostics.logInfo(
+            'Purchase could not be started',
+            data: {'product': productId},
+          ),
+        );
+        return const SubscriptionPurchaseResult.failed(
+          SubscriptionPurchaseFailureReason.purchaseStartFailed,
+        );
+      }
+
+      return const SubscriptionPurchaseResult.started();
+    } catch (error, stack) {
+      unawaited(
+        AppDiagnostics.logError(
+          'Purchase preflight failed',
+          error,
+          stack,
+          fatal: false,
+          reason: 'product=$productId',
+        ),
+      );
+      return const SubscriptionPurchaseResult.failed(
+        SubscriptionPurchaseFailureReason.purchaseStartFailed,
+      );
+    }
   }
 
   /// Restore purchases — surfaces the store-native restore dialog on iOS.
