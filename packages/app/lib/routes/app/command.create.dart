@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/routes/app/builder.response.dart';
+import 'package:bot_creator/routes/app/command.reply_editor.dart';
 import 'package:bot_creator/routes/app/command_option_serialization.dart';
 import 'package:bot_creator/routes/app/command_option_validation.dart';
 import 'package:bot_creator/routes/app/workflow_docs.page.dart';
@@ -17,9 +19,7 @@ import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 import 'package:bot_creator/widgets/bdfd_editor_page.dart';
 import 'package:bot_creator/widgets/option_widget.dart';
 import 'package:bot_creator/widgets/command_create_cards/basic_info_card.dart';
-import 'package:bot_creator/widgets/command_create_cards/reply_card.dart';
 import 'package:bot_creator/widgets/command_create_cards/actions_card.dart';
-import 'package:bot_creator/widgets/response_embeds_editor.dart';
 import 'package:bot_creator/types/variable_suggestion.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -29,8 +29,10 @@ import 'package:uuid/uuid.dart';
 part 'command.create.variable_suggestions.dart';
 part 'command.create.serialization.dart';
 part 'command.create.simple_mode.dart';
+part 'command.create.edit_shell.dart';
 part 'command.create.workflow.dart';
 part 'command.create.validation.dart';
+part 'command.create.wizard.dart';
 
 class CommandCreatePage extends StatefulWidget {
   final NyxxRest? client;
@@ -56,6 +58,16 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   static const String _executionModeWorkflow = 'workflow';
   static const String _executionModeBdfdScript = 'bdfd_script';
   static const String _rootWorkflowRoute = '__root__';
+  static const int _defaultCommandNameMaxLength = 32;
+  static const int _localLegacyCommandNameMaxLength = 256;
+  static final RegExp _awaitedCommandTriggerPattern = RegExp(
+    r'^\$awaitedcommand\[(.+?);(.*)\]$',
+    caseSensitive: false,
+  );
+  static final RegExp _awaitedCommandErrorTriggerPattern = RegExp(
+    r'^\$awaitedcommanderror\[(.+?)\]$',
+    caseSensitive: false,
+  );
 
   String _commandName = "";
   String _commandDescription = "";
@@ -104,7 +116,6 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   final TextEditingController _folderController = TextEditingController();
   String _legacyPrefixOverride = '';
   String _legacyResponseTarget = 'reply';
-  bool _simpleModeLocked = false;
   bool _simpleDeleteMessages = false;
   bool _simpleKickUser = false;
   bool _simpleBanUser = false;
@@ -143,6 +154,9 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       <String, Map<String, dynamic>>{};
   String _activeSubcommandRoute = _rootWorkflowRoute;
   bool _isApplyingWorkflowPayload = false;
+  int _currentEditorStep = 0;
+  bool _showQuickStartBuilder = false;
+  String _initialEditSnapshot = '';
 
   static Map<String, dynamic> _defaultWorkflow() {
     return {
@@ -189,6 +203,24 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         : _executionModeWorkflow;
   }
 
+  void _promoteSimpleModeDraftIfNeeded(String persistedEditorMode) {
+    if (persistedEditorMode == _editorModeSimple) {
+      _hydrateLegacySimpleModeIntoDraft();
+    }
+    _editorMode = _editorModeAdvanced;
+  }
+
+  void _normalizeLegacySimpleResponseType() {
+    if (_responseType != 'ephemeral') {
+      return;
+    }
+    _responseType = 'normal';
+    _responseWorkflow = _normalizeWorkflow({
+      ..._responseWorkflow,
+      'visibility': 'ephemeral',
+    });
+  }
+
   void _refreshBdfdCompileResult({bool notify = true}) {
     final source = _bdfdScriptController.text;
     final nextResult = _bdfdCompiler.compile(source);
@@ -222,6 +254,33 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       _commandType == ApplicationCommandType.chatInput;
 
   bool get _allowModalResponses => !_legacyModeEnabled;
+
+  bool get _allowsInternalLegacyCallbackNames =>
+      _commandType == ApplicationCommandType.chatInput &&
+      _legacyModeEnabled &&
+      _localOnlyCommand;
+
+  int get _commandNameMaxLength =>
+      _allowsInternalLegacyCallbackNames
+          ? _localLegacyCommandNameMaxLength
+          : _defaultCommandNameMaxLength;
+
+  bool _looksLikeAwaitedCallbackTrigger(String value) {
+    final normalized = value.trim().toLowerCase();
+    return normalized.startsWith(r'$awaitedcommand[') ||
+        normalized.startsWith(r'$awaitedcommanderror[');
+  }
+
+  bool _isAwaitedCallbackTrigger(String value) {
+    final normalized = value.trim();
+    return _awaitedCommandTriggerPattern.hasMatch(normalized) ||
+        _awaitedCommandErrorTriggerPattern.hasMatch(normalized);
+  }
+
+  bool get _isAwaitedCallbackCommand => _isAwaitedCallbackTrigger(_commandName);
+
+  bool get _requiresCommandDescription =>
+      _supportsCommandDescription && !_isAwaitedCallbackCommand;
 
   String get _effectiveCommandDescription =>
       _supportsCommandDescription ? _commandDescription : '';
@@ -610,13 +669,9 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     _options = options;
     if (_containsHierarchyOption(_options)) {
       _editorMode = _editorModeAdvanced;
-      _simpleModeLocked = true;
     } else if (!_supportsSimpleMode) {
       _editorMode = _editorModeAdvanced;
-      _simpleModeLocked = true;
-    } else {
-      _simpleModeLocked = _editorMode == _editorModeAdvanced;
-    }
+    } else {}
     _syncSubcommandWorkflowRoutes();
   }
 
@@ -674,11 +729,10 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     if (_isBdfdScriptMode) {
       return _options;
     }
-    return _isSimpleMode ? _buildSimpleModeOptions() : _options;
+    return _options;
   }
 
-  List<Map<String, dynamic>> get _effectiveActions =>
-      _isSimpleMode ? _buildSimpleModeActions() : _actions;
+  List<Map<String, dynamic>> get _effectiveActions => _actions;
 
   String? get _botIdForConfig =>
       widget.client?.user.id.toString() ?? widget.botId;
@@ -705,6 +759,16 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       !_isEditingExistingCommand || _isLocalOnlyCommand;
 
   String _generateLegacyOnlyCommandId() => _uuid.v4();
+
+  bool get _showEditShell =>
+      _isEditingExistingCommand && !_isDataIncomplete && !_isLoading;
+
+  bool get _isDirty {
+    if (!_showEditShell || _initialEditSnapshot.isEmpty) {
+      return false;
+    }
+    return _buildEditSnapshot() != _initialEditSnapshot;
+  }
 
   @override
   void initState() {
@@ -762,6 +826,94 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       return;
     }
     setState(callback);
+  }
+
+  Map<String, Map<String, dynamic>> _buildSnapshotSubcommandWorkflows() {
+    final workflows = cloneSubcommandWorkflowPayloads(_subcommandWorkflows).map(
+      (key, value) => MapEntry(
+        key,
+        Map<String, dynamic>.from((value as Map).cast<String, dynamic>()),
+      ),
+    );
+    if (_activeSubcommandRoute != _rootWorkflowRoute &&
+        workflows.containsKey(_activeSubcommandRoute)) {
+      workflows[_activeSubcommandRoute] = _buildCurrentWorkflowPayload();
+    }
+    return workflows;
+  }
+
+  String _buildEditSnapshot() {
+    final integrationTypes = _integrationTypes
+      .map(_integrationTypeToText)
+      .toList(growable: false)..sort();
+    final contexts = _contexts.map(_contextTypeToText).toList(growable: false)
+      ..sort();
+
+    final snapshot = <String, dynamic>{
+      'name': _commandName,
+      'description': _effectiveCommandDescription,
+      'commandType': _commandTypeToText(_commandType),
+      'folder': _folder.trim(),
+      'integrationTypes': integrationTypes,
+      'contexts': contexts,
+      'data': _buildCommandDataPayload(
+        effectiveActions: _effectiveActions,
+        persistActiveRoute: false,
+        subcommandWorkflowsOverride: _buildSnapshotSubcommandWorkflows(),
+      ),
+    };
+
+    return jsonEncode(snapshot);
+  }
+
+  void _captureInitialEditSnapshot() {
+    _initialEditSnapshot = _buildEditSnapshot();
+  }
+
+  Future<bool> _confirmDiscardIfDirty() async {
+    if (!_isDirty) {
+      return true;
+    }
+
+    final discard = await showDialog<bool>(
+      context: context,
+      builder:
+          (ctx) => AlertDialog.adaptive(
+            title: const Text('Unsaved changes'),
+            content: const Text('You have unsaved changes. Discard them?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: const Text('Keep editing'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: Text(
+                  'Discard',
+                  style: TextStyle(color: Theme.of(ctx).colorScheme.error),
+                ),
+              ),
+            ],
+          ),
+    );
+
+    return discard == true;
+  }
+
+  Future<void> _saveExistingCommand() async {
+    if (!_validateCommandInputs()) {
+      return;
+    }
+    unawaited(
+      AppAnalytics.logEvent(
+        name: "update_command",
+        parameters: {
+          "command_name": _commandName,
+          "command_id": _existingCommandStorageId ?? 'unknown',
+        },
+      ),
+    );
+    await _updateOrCreate();
   }
 
   void _openDocumentationCenter() {
@@ -916,7 +1068,9 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         _bdfdScriptController.text = _bdfdScriptContent;
         _bdfdCompileResult = _bdfdCompiler.compile(_bdfdScriptContent);
         _legacyModeEnabled = normalizedData['legacyModeEnabled'] == true;
-        _localOnlyCommand = normalizedData['localOnly'] == true;
+        _localOnlyCommand =
+            normalizedData['legacyLocalOnly'] == true ||
+            normalizedData['localOnly'] == true;
         _legacyPrefixOverride =
             (normalizedData['legacyPrefixOverride'] ?? '').toString();
         final loadedLegacyResponseTarget =
@@ -928,7 +1082,6 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         if (!_supportsSimpleMode) {
           _editorMode = _editorModeAdvanced;
         }
-        _simpleModeLocked = _editorMode == _editorModeAdvanced;
         _applySimpleConfig(simpleConfig);
         _responseType = (response['type'] ?? 'normal').toString();
         if (_legacyModeEnabled && _responseType == 'modal') {
@@ -949,6 +1102,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                 _defaultWorkflow(),
           ),
         );
+        _normalizeLegacySimpleResponseType();
         _actions = List<Map<String, dynamic>>.from(
           (normalizedData['actions'] as List?)?.whereType<Map>().map(
                 (e) => Map<String, dynamic>.from(e),
@@ -965,6 +1119,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         if (storedOptions is List) {
           _options = deserializeCommandOptions(storedOptions);
         }
+        _promoteSimpleModeDraftIfNeeded(editorMode);
         if (_subcommandWorkflows.containsKey(_activeSubcommandRoute)) {
           final activePayload = _subcommandWorkflows[_activeSubcommandRoute];
           if (activePayload != null) {
@@ -975,6 +1130,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
             (normalizedData['defaultMemberPermissions'] ?? '')
                 .toString()
                 .trim();
+        _captureInitialEditSnapshot();
         _isLoading = false;
       });
       return;
@@ -1058,7 +1214,9 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           _bdfdScriptController.text = _bdfdScriptContent;
           _bdfdCompileResult = _bdfdCompiler.compile(_bdfdScriptContent);
           _legacyModeEnabled = normalizedData['legacyModeEnabled'] == true;
-          _localOnlyCommand = normalizedData['localOnly'] == true;
+          _localOnlyCommand =
+              normalizedData['legacyLocalOnly'] == true ||
+              normalizedData['localOnly'] == true;
           _legacyPrefixOverride =
               (normalizedData['legacyPrefixOverride'] ?? '').toString();
           final loadedLegacyResponseTarget =
@@ -1075,7 +1233,6 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           if (!_supportsSimpleMode) {
             _editorMode = _editorModeAdvanced;
           }
-          _simpleModeLocked = _editorMode == _editorModeAdvanced;
           _applySimpleConfig(simpleConfig);
           _responseType = (response['type'] ?? 'normal').toString();
           if (_legacyModeEnabled && _responseType == 'modal') {
@@ -1097,6 +1254,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                   _defaultWorkflow(),
             ),
           );
+          _normalizeLegacySimpleResponseType();
           _actions = List<Map<String, dynamic>>.from(
             (normalizedData["actions"] as List?)?.whereType<Map>().map(
                   (e) => Map<String, dynamic>.from(e),
@@ -1113,6 +1271,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           if (storedOptions is List) {
             _options = deserializeCommandOptions(storedOptions);
           }
+          _promoteSimpleModeDraftIfNeeded(editorMode);
           if (_subcommandWorkflows.containsKey(_activeSubcommandRoute)) {
             final activePayload = _subcommandWorkflows[_activeSubcommandRoute];
             if (activePayload != null) {
@@ -1129,7 +1288,6 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         if (!mounted) return;
         setState(() {
           _editorMode = _editorModeAdvanced;
-          _simpleModeLocked = true;
         });
       }
       // ── Safety net: always terminate loading even if Discord is offline ──
@@ -1158,6 +1316,9 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           }
           _isLoading = false;
           _isDataIncomplete = !hasFullLocalData;
+          if (hasFullLocalData) {
+            _captureInitialEditSnapshot();
+          }
         });
         return;
       }
@@ -1207,13 +1368,12 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         }
         if (!_supportsSimpleMode) {
           _editorMode = _editorModeAdvanced;
-          _simpleModeLocked = true;
         }
         if (_containsHierarchyOption(_options)) {
           _editorMode = _editorModeAdvanced;
-          _simpleModeLocked = true;
         }
         _syncSubcommandWorkflowRoutes();
+        _captureInitialEditSnapshot();
         _isLoading = false;
       });
     } else {
@@ -1226,7 +1386,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   Future<void> _updateOrCreate() async {
     // check if any field is empty
     if (_commandName.isEmpty ||
-        (_supportsCommandDescription && _commandDescription.isEmpty)) {
+        (_requiresCommandDescription && _commandDescription.isEmpty)) {
       final dialog = AlertDialog(
         title: Text(AppStrings.t('error')),
         content: Text(AppStrings.t('cmd_error_fill_fields')),
@@ -1444,458 +1604,289 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color.fromRGBO(106, 15, 162, 1),
-        actions: [
-          IconButton(
-            tooltip: 'Import command payload',
-            onPressed: _importCommandPayload,
-            icon: const Icon(Icons.content_paste_go_outlined),
-          ),
-          IconButton(
-            tooltip: 'Export command payload',
-            onPressed: _showCommandExportOptions,
-            icon: const Icon(Icons.copy_all_outlined),
-          ),
-          IconButton(
-            onPressed: _openDocumentationCenter,
-            tooltip: AppStrings.t('cmd_show_variables'),
-            icon: const Icon(Icons.info_outline),
-          ),
-          if (!_isEditingExistingCommand && !_isDataIncomplete)
+    final guardDiscardOnPop = _showEditShell && _isDirty;
+    final showStickyEditSave =
+        _showEditShell &&
+        _isEditingExistingCommand &&
+        !_isLoading &&
+        !_isDataIncomplete;
+
+    return PopScope(
+      canPop: !guardDiscardOnPop,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop || !guardDiscardOnPop) {
+          return;
+        }
+        if (await _confirmDiscardIfDirty()) {
+          if (mounted) {
+            Navigator.pop(context);
+          }
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: const Color.fromRGBO(106, 15, 162, 1),
+          actions: [
+            if (!_isEditingExistingCommand)
+              IconButton(
+                tooltip: 'Import command payload',
+                onPressed: _importCommandPayload,
+                icon: const Icon(Icons.content_paste_go_outlined),
+              ),
             IconButton(
-              icon: const Icon(Icons.add),
-              tooltip: AppStrings.t('cmd_create_tooltip'),
-              onPressed: () {
-                if (_validateCommandInputs()) {
-                  _updateOrCreate();
-                }
-              },
+              tooltip: 'Export command payload',
+              onPressed: _showCommandExportOptions,
+              icon: const Icon(Icons.copy_all_outlined),
             ),
-          if (!_isDataIncomplete)
             IconButton(
-              icon: Icon(_isEditingExistingCommand ? Icons.save : Icons.cancel),
-              tooltip:
-                  !_isEditingExistingCommand
-                      ? AppStrings.t('cancel')
-                      : AppStrings.t('cmd_create_tooltip'),
-              onPressed: () async {
-                if (!_isEditingExistingCommand) {
-                  Navigator.pop(context);
-                } else {
+              onPressed: _openDocumentationCenter,
+              tooltip: AppStrings.t('cmd_show_variables'),
+              icon: const Icon(Icons.info_outline),
+            ),
+            if (!_isEditingExistingCommand && !_isDataIncomplete)
+              IconButton(
+                icon: const Icon(Icons.add),
+                tooltip: AppStrings.t('cmd_create_tooltip'),
+                onPressed: () {
                   if (_validateCommandInputs()) {
                     _updateOrCreate();
-                    AppAnalytics.logEvent(
-                      name: "update_command",
-                      parameters: {
-                        "command_name": _commandName,
-                        "command_id": _existingCommandStorageId ?? 'unknown',
-                      },
-                    );
                   }
-                }
-              },
-            ),
-          if (_isEditingExistingCommand)
-            IconButton(
-              icon: const Icon(Icons.delete),
-              tooltip: AppStrings.t('cmd_delete_tooltip'),
-              onPressed: () async {
-                final shouldDelete =
-                    await showDialog<bool>(
-                      context: context,
-                      builder:
-                          (dialogContext) => AlertDialog.adaptive(
-                            title: Text(AppStrings.t('cmd_delete_tooltip')),
-                            content: const Text(
-                              'This command will be deleted permanently. Continue?',
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed:
-                                    () =>
-                                        Navigator.of(dialogContext).pop(false),
-                                child: Text(AppStrings.t('cancel')),
+                },
+              ),
+            if (!_isEditingExistingCommand && !_isDataIncomplete)
+              IconButton(
+                icon: const Icon(Icons.cancel),
+                tooltip: AppStrings.t('cancel'),
+                onPressed: () async {
+                  Navigator.pop(context);
+                },
+              ),
+            if (_isEditingExistingCommand)
+              IconButton(
+                icon: const Icon(Icons.delete),
+                tooltip: AppStrings.t('cmd_delete_tooltip'),
+                onPressed: () async {
+                  final shouldDelete =
+                      await showDialog<bool>(
+                        context: context,
+                        builder:
+                            (dialogContext) => AlertDialog.adaptive(
+                              title: Text(AppStrings.t('cmd_delete_tooltip')),
+                              content: const Text(
+                                'This command will be deleted permanently. Continue?',
                               ),
-                              TextButton(
-                                onPressed:
-                                    () => Navigator.of(dialogContext).pop(true),
-                                child: Text(
-                                  AppStrings.t('delete'),
-                                  style: TextStyle(
-                                    color:
-                                        Theme.of(
-                                          dialogContext,
-                                        ).colorScheme.error,
+                              actions: [
+                                TextButton(
+                                  onPressed:
+                                      () => Navigator.of(
+                                        dialogContext,
+                                      ).pop(false),
+                                  child: Text(AppStrings.t('cancel')),
+                                ),
+                                TextButton(
+                                  onPressed:
+                                      () =>
+                                          Navigator.of(dialogContext).pop(true),
+                                  child: Text(
+                                    AppStrings.t('delete'),
+                                    style: TextStyle(
+                                      color:
+                                          Theme.of(
+                                            dialogContext,
+                                          ).colorScheme.error,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
+                      ) ??
+                      false;
+                  if (!shouldDelete) {
+                    return;
+                  }
+
+                  final botId = _botIdForConfig;
+                  final commandId = _existingCommandStorageId;
+                  if (botId == null) {
+                    return;
+                  }
+                  if (commandId == null) {
+                    return;
+                  }
+
+                  final remoteClient = widget.client;
+                  if (remoteClient != null && !widget.id.isZero) {
+                    try {
+                      await remoteClient.commands.delete(widget.id);
+                    } catch (e) {
+                      final message = e.toString();
+                      final alreadyDeleted =
+                          message.contains('10063') ||
+                          message.contains('Unknown application command') ||
+                          message.contains('404');
+                      if (!alreadyDeleted) {
+                        if (!mounted) {
+                          return;
+                        }
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Discord delete failed. Local delete applied. $e',
+                            ),
                           ),
-                    ) ??
-                    false;
-                if (!shouldDelete) {
-                  return;
-                }
-
-                final botId = _botIdForConfig;
-                final commandId = _existingCommandStorageId;
-                if (botId == null) {
-                  return;
-                }
-                if (commandId == null) {
-                  return;
-                }
-
-                final remoteClient = widget.client;
-                if (remoteClient != null && !widget.id.isZero) {
-                  try {
-                    await remoteClient.commands.delete(widget.id);
-                  } catch (e) {
-                    final message = e.toString();
-                    final alreadyDeleted =
-                        message.contains('10063') ||
-                        message.contains('Unknown application command') ||
-                        message.contains('404');
-                    if (!alreadyDeleted) {
-                      if (!mounted) {
-                        return;
+                        );
                       }
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            'Discord delete failed. Local delete applied. $e',
-                          ),
-                        ),
-                      );
                     }
                   }
-                }
 
-                await appManager.deleteAppCommand(botId, commandId);
-                if (!mounted) {
-                  return;
-                }
-                Navigator.pop(context);
-              },
-            ),
-        ],
-      ),
-      body: SafeArea(
-        top: false,
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final contentMaxWidth =
-                constraints.maxWidth >= 1200
-                    ? 980.0
-                    : (constraints.maxWidth >= 900 ? 860.0 : 680.0);
-
-            return Center(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 16,
-                ),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: contentMaxWidth),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                        !_isEditingExistingCommand
-                            ? "Create a new command"
-                            : "Update command",
-                        style: const TextStyle(fontSize: 24),
-                        textAlign: TextAlign.center,
+                  await appManager.deleteAppCommand(botId, commandId);
+                  if (!mounted) {
+                    return;
+                  }
+                  Navigator.pop(context);
+                },
+              ),
+          ],
+        ),
+        bottomNavigationBar:
+            showStickyEditSave
+                ? SafeArea(
+                  top: false,
+                  child: Container(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).scaffoldBackgroundColor,
+                      border: Border(
+                        top: BorderSide(
+                          color: Theme.of(
+                            context,
+                          ).dividerColor.withValues(alpha: 0.2),
+                        ),
                       ),
-                      const SizedBox(height: 20),
-                      if (_isLoading)
-                        const CircularProgressIndicator()
-                      else if (_isDataIncomplete) ...[
-                        const SizedBox(height: 12),
-                        Container(
-                          padding: const EdgeInsets.all(14),
-                          decoration: BoxDecoration(
-                            color: Colors.orange.shade50,
-                            border: Border.all(color: Colors.orange.shade300),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.warning_amber_rounded,
-                                color: Colors.orange.shade700,
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  AppStrings.t(
-                                    'cmd_offline_incomplete_warning',
-                                  ),
-                                  style: TextStyle(
-                                    color: Colors.orange.shade800,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                    ),
+                    child: SizedBox(
+                      height: 48,
+                      child: FilledButton.icon(
+                        onPressed: _isDirty ? _saveExistingCommand : null,
+                        icon: const Icon(Icons.save_outlined),
+                        label: Text(
+                          _isDirty ? 'Save changes' : 'All changes saved',
                         ),
-                        const SizedBox(height: 16),
-                        Card(
-                          child: ListTile(
-                            leading: const Icon(Icons.terminal),
-                            title: Text(
-                              _commandName.isNotEmpty
-                                  ? _commandName
-                                  : (_existingCommandStorageId ?? ''),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            subtitle:
-                                _commandDescription.isNotEmpty
-                                    ? Text(_commandDescription)
-                                    : null,
-                            trailing: IconButton(
-                              icon: const Icon(Icons.menu_book_outlined),
-                              tooltip: AppStrings.t('cmd_show_variables'),
-                              onPressed: _openDocumentationCenter,
-                            ),
-                          ),
-                        ),
-                      ] else
-                        Form(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              BasicInfoCard(
-                                commandName: _commandName,
-                                commandDescription: _commandDescription,
-                                commandType: _commandType,
-                                isLegacyCommand:
-                                    _legacyModeEnabled &&
-                                    _localOnlyCommand &&
-                                    _commandType ==
-                                        ApplicationCommandType.chatInput,
-                                canEditCommandType: !_isEditingExistingCommand,
-                                localOnlyCommand: _localOnlyCommand,
-                                showDescriptionField:
-                                    _supportsCommandDescription,
-                                integrationTypes: _integrationTypes,
-                                contexts: _contexts,
-                                onNameChanged: (val) {
-                                  setState(() {
-                                    _commandName = val;
-                                  });
-                                },
-                                onDescriptionChanged: (val) {
-                                  setState(() {
-                                    _commandDescription = val;
-                                  });
-                                },
-                                onCommandTypeChanged: (val) {
-                                  setState(() {
-                                    _persistActiveSubcommandWorkflow();
-                                    _commandType = val;
-                                    if (!_supportsSimpleMode) {
-                                      _editorMode = _editorModeAdvanced;
-                                      _legacyModeEnabled = false;
-                                      _localOnlyCommand = false;
-                                    }
-                                    _simpleModeLocked =
-                                        _editorMode == _editorModeAdvanced;
-                                    if (_commandType !=
-                                        ApplicationCommandType.chatInput) {
-                                      _subcommandWorkflows =
-                                          <String, Map<String, dynamic>>{};
-                                      _activeSubcommandRoute =
-                                          _rootWorkflowRoute;
-                                    } else {
-                                      _syncSubcommandWorkflowRoutes();
-                                    }
-                                  });
-                                },
-                                onLegacyCommandChanged: (enabled) {
-                                  setState(() {
-                                    _persistActiveSubcommandWorkflow();
-                                    _commandType =
-                                        ApplicationCommandType.chatInput;
-                                    _legacyModeEnabled = enabled;
-                                    _localOnlyCommand = enabled;
-                                    if (_legacyModeEnabled &&
-                                        _responseType == 'modal') {
-                                      _responseType = 'normal';
-                                    }
-                                    _syncSubcommandWorkflowRoutes();
-                                  });
-                                },
-                                onLocalOnlyCommandChanged: (enabled) {
-                                  setState(() {
-                                    _localOnlyCommand = enabled;
-                                  });
-                                },
-                                onIntegrationTypesChanged: (val) {
-                                  setState(() {
-                                    _integrationTypes = val;
-                                  });
-                                },
-                                onContextsChanged: (val) {
-                                  setState(() {
-                                    _contexts = val;
-                                  });
-                                },
-                                onDefaultMemberPermissionsChanged: (value) {
-                                  setState(() {
-                                    _defaultMemberPermissions = value;
-                                  });
-                                },
-                                defaultMemberPermissions:
-                                    _defaultMemberPermissions,
-                                nameValidator: _validateName,
-                              ),
-                              const SizedBox(height: 12),
-                              _buildFolderField(),
-                              const SizedBox(height: 12),
-                              Align(
-                                alignment: Alignment.centerRight,
-                                child: TextButton.icon(
-                                  onPressed: _openDocumentationCenter,
-                                  icon: const Icon(Icons.menu_book_outlined),
-                                  label: Text(
-                                    AppStrings.t('cmd_show_variables'),
+                      ),
+                    ),
+                  ),
+                )
+                : null,
+        body: SafeArea(
+          top: false,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final contentMaxWidth =
+                  constraints.maxWidth >= 1200
+                      ? 980.0
+                      : (constraints.maxWidth >= 900 ? 860.0 : 680.0);
+
+              return Center(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: EdgeInsets.fromLTRB(
+                    16,
+                    16,
+                    16,
+                    showStickyEditSave ? 116 : 16,
+                  ),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: contentMaxWidth),
+                    child:
+                        _isLoading
+                            ? const Center(child: CircularProgressIndicator())
+                            : _isDataIncomplete
+                            ? Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                const SizedBox(height: 12),
+                                Container(
+                                  padding: const EdgeInsets.all(14),
+                                  decoration: BoxDecoration(
+                                    color: Colors.orange.shade50,
+                                    border: Border.all(
+                                      color: Colors.orange.shade300,
+                                    ),
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
-                                ),
-                              ),
-                              if (_supportsSimpleMode &&
-                                  !_isBdfdScriptMode) ...[
-                                _buildEditorModeCard(context),
-                                const SizedBox(height: 12),
-                              ],
-                              _buildExecutionModeCard(),
-                              const SizedBox(height: 12),
-                              if (_supportsCommandOptions &&
-                                  !_isBdfdScriptMode) ...[
-                                _buildLegacyModeCard(),
-                                const SizedBox(height: 12),
-                              ],
-                              if (_isBdfdScriptMode) ...[
-                                if (_supportsCommandOptions) ...[
-                                  _buildCommandOptionsCard(),
-                                  const SizedBox(height: 16),
-                                ],
-                              ] else if (_isSimpleMode) ...[
-                                _buildSimpleActionsCard(),
-                                const SizedBox(height: 12),
-                                _buildSimpleResponseCard(),
-                              ] else ...[
-                                if (_subcommandWorkflows.isNotEmpty) ...[
-                                  _buildSubcommandWorkflowSelectorCard(),
-                                  const SizedBox(height: 12),
-                                ],
-                                ReplyCard(
-                                  responseType: _responseType,
-                                  onResponseTypeChanged: (type) {
-                                    setState(() {
-                                      if (_legacyModeEnabled &&
-                                          type == 'modal') {
-                                        _responseType = 'normal';
-                                      } else {
-                                        _responseType = type;
-                                      }
-                                      _persistActiveSubcommandWorkflow();
-                                    });
-                                  },
-                                  responseController: _responseController,
-                                  variableSuggestionBar:
-                                      _buildVariableSuggestionBar(
-                                        _responseController,
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.warning_amber_rounded,
+                                        color: Colors.orange.shade700,
                                       ),
-                                  responseEmbeds: _responseEmbeds,
-                                  onEmbedsChanged: (embeds) {
-                                    setState(() {
-                                      _responseEmbeds = embeds;
-                                      _persistActiveSubcommandWorkflow();
-                                    });
-                                  },
-                                  responseComponents: _responseComponents,
-                                  onComponentsChanged: (components) {
-                                    setState(() {
-                                      _responseComponents = components;
-                                      _persistActiveSubcommandWorkflow();
-                                    });
-                                  },
-                                  responseModal: _responseModal,
-                                  onModalChanged: (modal) {
-                                    setState(() {
-                                      _responseModal = modal;
-                                      _persistActiveSubcommandWorkflow();
-                                    });
-                                  },
-                                  responseWorkflow: _responseWorkflow,
-                                  normalizeWorkflow: _normalizeWorkflow,
-                                  variableSuggestions:
-                                      _actionVariableSuggestions,
-                                  emojiSuggestions: _appEmojis,
-                                  botIdForConfig: _botIdForConfig,
-                                  onWorkflowChanged: (workflow) {
-                                    setState(() {
-                                      _responseWorkflow = workflow;
-                                      _persistActiveSubcommandWorkflow();
-                                    });
-                                  },
-                                  workflowSummary: _workflowSummary(),
-                                  activeRouteLabel:
-                                      _subcommandWorkflows.isNotEmpty
-                                          ? _workflowRouteLabel(
-                                            _activeSubcommandRoute,
-                                          )
-                                          : null,
-                                  activeRouteIsGrouped:
-                                      _subcommandWorkflows.isNotEmpty &&
-                                      _activeSubcommandRoute.contains('/'),
-                                  allowModal: _allowModalResponses,
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Text(
+                                          AppStrings.t(
+                                            'cmd_offline_incomplete_warning',
+                                          ),
+                                          style: TextStyle(
+                                            color: Colors.orange.shade800,
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                                if (_supportsCommandOptions) ...[
-                                  const SizedBox(height: 16),
-                                  _buildCommandOptionsCard(),
-                                  const SizedBox(height: 16),
-                                ],
-                                ActionsCard(
-                                  actions: _actions,
-                                  onActionsChanged: (val) {
-                                    setState(() {
-                                      _actions = val;
-                                      _persistActiveSubcommandWorkflow();
-                                    });
-                                  },
-                                  actionVariableSuggestions:
-                                      _actionVariableSuggestions,
-                                  emojiSuggestions: _appEmojis,
-                                  botIdForConfig: _botIdForConfig,
-                                  activeRouteLabel:
-                                      _subcommandWorkflows.isNotEmpty
-                                          ? _workflowRouteLabel(
-                                            _activeSubcommandRoute,
-                                          )
-                                          : null,
-                                  activeRouteIsGrouped:
-                                      _subcommandWorkflows.isNotEmpty &&
-                                      _activeSubcommandRoute.contains('/'),
+                                const SizedBox(height: 16),
+                                Card(
+                                  child: ListTile(
+                                    leading: const Icon(Icons.terminal),
+                                    title: Text(
+                                      _commandName.isNotEmpty
+                                          ? _commandName
+                                          : (_existingCommandStorageId ?? ''),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    subtitle:
+                                        _commandDescription.isNotEmpty
+                                            ? Text(_commandDescription)
+                                            : null,
+                                    trailing: IconButton(
+                                      icon: const Icon(
+                                        Icons.menu_book_outlined,
+                                      ),
+                                      tooltip: AppStrings.t(
+                                        'cmd_show_variables',
+                                      ),
+                                      onPressed: _openDocumentationCenter,
+                                    ),
+                                  ),
                                 ),
                               ],
-                              const SizedBox(height: 20),
-                            ],
-                          ),
-                        ),
-                    ],
+                            )
+                            : _showEditShell
+                            ? _buildEditShell()
+                            : Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Text(
+                                  !_isEditingExistingCommand
+                                      ? "Create a new command"
+                                      : "Update command",
+                                  style: const TextStyle(fontSize: 24),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 20),
+                                _buildWizardShell(
+                                  contentMaxWidth: contentMaxWidth,
+                                ),
+                              ],
+                            ),
                   ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );

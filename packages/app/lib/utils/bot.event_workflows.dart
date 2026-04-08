@@ -879,7 +879,10 @@ _AwaitedLocalTrigger? _parseAwaitedLocalTrigger(String rawName) {
     caseSensitive: false,
   ).firstMatch(name);
   if (successMatch != null) {
-    final awaitedName = successMatch.group(1)?.trim().toLowerCase() ?? '';
+    final awaitedName = (successMatch.group(1) ?? '')
+        .trim()
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9_]'), '_');
     final filter = successMatch.group(2)?.trim();
     if (awaitedName.isEmpty) {
       return null;
@@ -896,7 +899,10 @@ _AwaitedLocalTrigger? _parseAwaitedLocalTrigger(String rawName) {
     caseSensitive: false,
   ).firstMatch(name);
   if (errorMatch != null) {
-    final awaitedName = errorMatch.group(1)?.trim().toLowerCase() ?? '';
+    final awaitedName = (errorMatch.group(1) ?? '')
+        .trim()
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9_]'), '_');
     if (awaitedName.isEmpty) {
       return null;
     }
@@ -1019,6 +1025,10 @@ Future<bool> _tryExecuteLocalAwaitedInput(
     return false;
   }
 
+  onLog?.call(
+    'Awaited local dispatch | callbacks=${callbacks.keys.join(",")} author=$authorId channel=$channelId msg=${messageContent.length > 40 ? messageContent.substring(0, 40) : messageContent}',
+  );
+
   for (final entry in callbacks.entries) {
     final awaitName = entry.key;
     final awaitKey = 'await_$awaitName';
@@ -1029,8 +1039,14 @@ Future<bool> _tryExecuteLocalAwaitedInput(
       awaitKey,
     );
     if (pendingRaw == null) {
+      onLog?.call(
+        'Awaited local skip: no pending await for "$awaitName" (key=$awaitKey, user=$authorId)',
+      );
       continue;
     }
+    onLog?.call(
+      'Awaited local found: "$awaitName" | rawType=${pendingRaw.runtimeType}',
+    );
 
     Map<String, dynamic> pending = <String, dynamic>{};
     if (pendingRaw is Map) {
@@ -1051,9 +1067,15 @@ Future<bool> _tryExecuteLocalAwaitedInput(
     final expectedChannel =
         (pending['channelId'] ?? channelId).toString().trim();
     if (expectedUser.isNotEmpty && expectedUser != authorId) {
+      onLog?.call(
+        'Awaited local skip: userId mismatch for "$awaitName" (expected=$expectedUser, got=$authorId)',
+      );
       continue;
     }
     if (expectedChannel.isNotEmpty && expectedChannel != channelId) {
+      onLog?.call(
+        'Awaited local skip: channelId mismatch for "$awaitName" (expected=$expectedChannel, got=$channelId)',
+      );
       continue;
     }
 
@@ -1065,6 +1087,9 @@ Future<bool> _tryExecuteLocalAwaitedInput(
     final selected =
         passesFilter ? callbackSet.successCommand : callbackSet.errorCommand;
     if (selected == null) {
+      onLog?.call(
+        'Awaited local skip: no ${passesFilter ? "success" : "error"} callback for "$awaitName" (filter=${callbackSet.filter})',
+      );
       return true;
     }
 
@@ -1123,6 +1148,18 @@ Future<bool> _tryExecuteLocalAwaitedInput(
       );
       return true;
     }
+    onLog?.call(
+      'Awaited local actions compiled: "$awaitName" | '
+      'count=${actionsJson.length}',
+    );
+
+    // Remove the pending await BEFORE executing the callback so that
+    // re-arm detection is simply: "does the variable exist again after
+    // execution?".  This avoids snapshot-comparison issues when the
+    // callback actions come from pre-compiled (workflow-mode) storage
+    // where the createdAt timestamp is static.
+    await manager.removeScopedVariable(botId, 'user', authorId, awaitKey);
+
     if (actionsJson.isNotEmpty) {
       final actions = actionsJson
           .map(
@@ -1131,6 +1168,10 @@ Future<bool> _tryExecuteLocalAwaitedInput(
             ),
           )
           .toList(growable: false);
+      onLog?.call(
+        'Awaited local handleActions start: "$awaitName" | '
+        'actionTypes=${actions.map((a) => a.type).toList()}',
+      );
       final actionResults = await handleActions(
         gateway,
         null,
@@ -1145,6 +1186,10 @@ Future<bool> _tryExecuteLocalAwaitedInput(
         fallbackGuildId: context.guildId,
         onLog: onLog,
       );
+      onLog?.call(
+        'Awaited local handleActions done: "$awaitName" | '
+        'results=${actionResults.keys.toList()}',
+      );
       for (final resultEntry in actionResults.entries) {
         runtimeVariables['action.${resultEntry.key}'] = resultEntry.value;
       }
@@ -1158,8 +1203,17 @@ Future<bool> _tryExecuteLocalAwaitedInput(
       responseTarget: _localLegacyResponseTarget(data),
     );
 
-    await manager.removeScopedVariable(botId, 'user', authorId, awaitKey);
-    onLog?.call('Awaited local callback executed: $awaitName');
+    final reArmedRaw = await manager.getScopedVariable(
+      botId,
+      'user',
+      authorId,
+      awaitKey,
+    );
+    if (reArmedRaw != null) {
+      onLog?.call('Awaited local callback re-armed: $awaitName');
+    } else {
+      onLog?.call('Awaited local callback executed (not re-armed): $awaitName');
+    }
     return true;
   }
 
@@ -1219,7 +1273,13 @@ String _buildLocalLegacyHelpMessage({
   String? specificCommand,
 }) {
   final normalizedSpecific = (specificCommand ?? '').trim().toLowerCase();
-  final sorted = List<Map<String, dynamic>>.from(legacyCommands)..sort(
+  final publicLegacyCommands = legacyCommands
+      .where((command) {
+        return _parseAwaitedLocalTrigger((command['name'] ?? '').toString()) ==
+            null;
+      })
+      .toList(growable: false);
+  final sorted = List<Map<String, dynamic>>.from(publicLegacyCommands)..sort(
     (a, b) => (a['name'] ?? '').toString().toLowerCase().compareTo(
       (b['name'] ?? '').toString().toLowerCase(),
     ),
@@ -1321,7 +1381,17 @@ Future<bool> _tryExecuteBuiltInLocalLegacyHelp(
     return false;
   }
 
-  final hasCustomHelp = legacyCommands.any(
+  final publicLegacyCommands = legacyCommands
+      .where((command) {
+        return _parseAwaitedLocalTrigger((command['name'] ?? '').toString()) ==
+            null;
+      })
+      .toList(growable: false);
+  if (publicLegacyCommands.isEmpty) {
+    return false;
+  }
+
+  final hasCustomHelp = publicLegacyCommands.any(
     (command) =>
         (command['name'] ?? '').toString().trim().toLowerCase() == 'help',
   );
@@ -1330,7 +1400,7 @@ Future<bool> _tryExecuteBuiltInLocalLegacyHelp(
   }
 
   final prefixes = <String>{};
-  for (final command in legacyCommands) {
+  for (final command in publicLegacyCommands) {
     final data = Map<String, dynamic>.from(
       (command['data'] as Map?)?.cast<String, dynamic>() ?? const {},
     );
@@ -1363,7 +1433,7 @@ Future<bool> _tryExecuteBuiltInLocalLegacyHelp(
     final specificCommand = tokens.length > 1 ? tokens[1] : null;
     final helpText = _buildLocalLegacyHelpMessage(
       prefix: prefix,
-      legacyCommands: legacyCommands,
+      legacyCommands: publicLegacyCommands,
       specificCommand: specificCommand,
     );
 

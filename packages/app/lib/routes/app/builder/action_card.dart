@@ -62,6 +62,10 @@ class ActionCard extends StatelessWidget {
     List<VariableSuggestion> suggestions,
   )?
   onEditNestedActions;
+  final bool showHeader;
+  final bool showPositionLabel;
+  final bool showManagementControls;
+  final bool collapseActionSettings;
 
   const ActionCard({
     super.key,
@@ -79,6 +83,10 @@ class ActionCard extends StatelessWidget {
     this.emojiSuggestions,
     this.botIdForConfig,
     this.onEditNestedActions,
+    this.showHeader = true,
+    this.showPositionLabel = true,
+    this.showManagementControls = true,
+    this.collapseActionSettings = false,
   });
 
   Key _parameterInputKey(String paramKey) {
@@ -97,166 +105,131 @@ class ActionCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Icon(action.type.icon, color: Colors.blue),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        action.type.displayName,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'Action ${index + 1}/$totalCount',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (compactHeader)
-                  PopupMenuButton<_ActionCardMenuAction>(
-                    tooltip: 'Action options',
-                    onSelected: (value) async {
-                      if (value == _ActionCardMenuAction.moveUp &&
-                          onMoveUp != null) {
-                        onMoveUp!();
-                      } else if (value == _ActionCardMenuAction.moveDown &&
-                          onMoveDown != null) {
-                        onMoveDown!();
-                      } else if (value == _ActionCardMenuAction.remove) {
-                        await _confirmAndRemoveAction(context);
-                      }
-                    },
-                    itemBuilder:
-                        (context) => [
-                          PopupMenuItem<_ActionCardMenuAction>(
-                            value: _ActionCardMenuAction.moveUp,
-                            enabled: onMoveUp != null,
-                            child: const Row(
-                              children: [
-                                Icon(Icons.arrow_upward),
-                                SizedBox(width: 8),
-                                Text('Move up'),
-                              ],
-                            ),
+            if (showHeader) ...[
+              Row(
+                children: [
+                  Icon(action.type.icon, color: Colors.blue),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          action.type.displayName,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
-                          PopupMenuItem<_ActionCardMenuAction>(
-                            value: _ActionCardMenuAction.moveDown,
-                            enabled: onMoveDown != null,
-                            child: const Row(
-                              children: [
-                                Icon(Icons.arrow_downward),
-                                SizedBox(width: 8),
-                                Text('Move down'),
-                              ],
-                            ),
-                          ),
-                          PopupMenuItem<_ActionCardMenuAction>(
-                            value: _ActionCardMenuAction.remove,
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.delete_outline,
-                                  color: Theme.of(context).colorScheme.error,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Remove action',
-                                  style: TextStyle(
-                                    color: Theme.of(context).colorScheme.error,
-                                  ),
-                                ),
-                              ],
+                        ),
+                        if (showPositionLabel) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            'Action ${index + 1}/$totalCount',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
                             ),
                           ),
                         ],
-                  )
-                else ...[
-                  IconButton(
-                    onPressed: onMoveUp,
-                    tooltip: 'Move up',
-                    icon: const Icon(Icons.arrow_upward),
-                  ),
-                  IconButton(
-                    onPressed: onMoveDown,
-                    tooltip: 'Move down',
-                    icon: const Icon(Icons.arrow_downward),
-                  ),
-                  IconButton(
-                    onPressed: () => _confirmAndRemoveAction(context),
-                    tooltip: 'Remove action',
-                    icon: Icon(
-                      Icons.delete_outline,
-                      color: Theme.of(context).colorScheme.error,
+                      ],
                     ),
                   ),
-                ],
-              ],
-            ),
-            const SizedBox(height: 8),
-            if (index > 0 || index < totalCount - 1)
-              Text(
-                'Tip: use arrows to change action order.',
-                style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
-              ),
-            if (index > 0 || index < totalCount - 1) const SizedBox(height: 8),
-            TextFormField(
-              key: ValueKey('action-key-${action.id}'),
-              initialValue: actionKey,
-              decoration: const InputDecoration(
-                labelText: 'Action Key',
-                border: OutlineInputBorder(),
-              ),
-              onChanged: (newValue) => onParameterChanged('key', newValue),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text('Enabled'),
-                    value: action.enabled,
-                    onChanged:
-                        (value) => onParameterChanged('__enabled__', value),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: DropdownButtonFormField<String>(
-                    initialValue: action.onErrorMode,
-                    isExpanded: true,
-                    decoration: const InputDecoration(
-                      labelText: 'On Error',
-                      border: OutlineInputBorder(),
-                      isDense: true,
+                  if (showManagementControls && compactHeader)
+                    PopupMenuButton<_ActionCardMenuAction>(
+                      tooltip: 'Action options',
+                      onSelected: (value) async {
+                        if (value == _ActionCardMenuAction.moveUp &&
+                            onMoveUp != null) {
+                          onMoveUp!();
+                        } else if (value == _ActionCardMenuAction.moveDown &&
+                            onMoveDown != null) {
+                          onMoveDown!();
+                        } else if (value == _ActionCardMenuAction.remove) {
+                          await _confirmAndRemoveAction(context);
+                        }
+                      },
+                      itemBuilder:
+                          (context) => [
+                            PopupMenuItem<_ActionCardMenuAction>(
+                              value: _ActionCardMenuAction.moveUp,
+                              enabled: onMoveUp != null,
+                              child: const Row(
+                                children: [
+                                  Icon(Icons.arrow_upward),
+                                  SizedBox(width: 8),
+                                  Text('Move up'),
+                                ],
+                              ),
+                            ),
+                            PopupMenuItem<_ActionCardMenuAction>(
+                              value: _ActionCardMenuAction.moveDown,
+                              enabled: onMoveDown != null,
+                              child: const Row(
+                                children: [
+                                  Icon(Icons.arrow_downward),
+                                  SizedBox(width: 8),
+                                  Text('Move down'),
+                                ],
+                              ),
+                            ),
+                            PopupMenuItem<_ActionCardMenuAction>(
+                              value: _ActionCardMenuAction.remove,
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.delete_outline,
+                                    color: Theme.of(context).colorScheme.error,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Remove action',
+                                    style: TextStyle(
+                                      color: Theme.of(context).colorScheme.error,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                    )
+                  else if (showManagementControls) ...[
+                    IconButton(
+                      onPressed: onMoveUp,
+                      tooltip: 'Move up',
+                      icon: const Icon(Icons.arrow_upward),
                     ),
-                    items: const [
-                      DropdownMenuItem(value: 'stop', child: Text('Stop')),
-                      DropdownMenuItem(
-                        value: 'continue',
-                        child: Text('Continue'),
+                    IconButton(
+                      onPressed: onMoveDown,
+                      tooltip: 'Move down',
+                      icon: const Icon(Icons.arrow_downward),
+                    ),
+                    IconButton(
+                      onPressed: () => _confirmAndRemoveAction(context),
+                      tooltip: 'Remove action',
+                      icon: Icon(
+                        Icons.delete_outline,
+                        color: Theme.of(context).colorScheme.error,
                       ),
-                    ],
-                    onChanged: (value) {
-                      if (value != null) {
-                        onParameterChanged('__onErrorMode__', value);
-                      }
-                    },
-                  ),
+                    ),
+                  ],
+                ],
+              ),
+              const SizedBox(height: 8),
+              if (showManagementControls && (index > 0 || index < totalCount - 1))
+                Text(
+                  'Tip: use arrows to change action order.',
+                  style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
                 ),
-              ],
-            ),
+              if (showManagementControls && (index > 0 || index < totalCount - 1))
+                const SizedBox(height: 8),
+            ],
+            if (collapseActionSettings)
+              _buildActionSettingsPanel(context, collapsed: true)
+            else ...[
+              _buildActionKeyField(),
+              const SizedBox(height: 12),
+              _buildActionStateRow(),
+            ],
             const SizedBox(height: 16),
             if (action.type == BotCreatorActionType.httpRequest)
               ..._buildHttpRequestFields(context)
@@ -277,6 +250,84 @@ class ActionCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildActionKeyField() {
+    return TextFormField(
+      key: ValueKey('action-key-${action.id}'),
+      initialValue: actionKey,
+      decoration: const InputDecoration(
+        labelText: 'Action Key',
+        border: OutlineInputBorder(),
+      ),
+      onChanged: (newValue) => onParameterChanged('key', newValue),
+    );
+  }
+
+  Widget _buildActionStateRow() {
+    return Row(
+      children: [
+        Expanded(
+          child: SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            title: const Text('Enabled'),
+            value: action.enabled,
+            onChanged: (value) => onParameterChanged('__enabled__', value),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: DropdownButtonFormField<String>(
+            initialValue: action.onErrorMode,
+            isExpanded: true,
+            decoration: const InputDecoration(
+              labelText: 'On Error',
+              border: OutlineInputBorder(),
+              isDense: true,
+            ),
+            items: const [
+              DropdownMenuItem(value: 'stop', child: Text('Stop')),
+              DropdownMenuItem(value: 'continue', child: Text('Continue')),
+            ],
+            onChanged: (value) {
+              if (value != null) {
+                onParameterChanged('__onErrorMode__', value);
+              }
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActionSettingsPanel(
+    BuildContext context, {
+    required bool collapsed,
+  }) {
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildActionKeyField(),
+        const SizedBox(height: 12),
+        _buildActionStateRow(),
+      ],
+    );
+    if (!collapsed) {
+      return content;
+    }
+    return ExpansionTile(
+      tilePadding: EdgeInsets.zero,
+      childrenPadding: EdgeInsets.zero,
+      title: const Text('Advanced settings'),
+      subtitle: Text(
+        action.enabled ? 'Enabled' : 'Disabled',
+        style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+      ),
+      children: [
+        const SizedBox(height: 8),
+        content,
+      ],
     );
   }
 

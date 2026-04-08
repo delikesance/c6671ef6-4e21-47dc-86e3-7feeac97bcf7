@@ -28,6 +28,13 @@ class ResponseEmbedsEditor extends StatefulWidget {
 class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
   List<Map<String, dynamic>> _embeds = [];
 
+  List<Map<String, dynamic>> _normalizeEmbedsForState(dynamic rawEmbeds) {
+    return normalizeResponseEmbedsPayload(
+      rawEmbeds,
+      maxEmbeds: widget.maxEmbeds,
+    ).map((embed) => Map<String, dynamic>.from(embed)).toList(growable: true);
+  }
+
   Color? _parseEmbedColor(String raw) {
     final value = raw.trim();
     if (value.isEmpty) {
@@ -105,20 +112,14 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
   @override
   void initState() {
     super.initState();
-    _embeds = normalizeResponseEmbedsPayload(
-      widget.embeds,
-      maxEmbeds: widget.maxEmbeds,
-    );
+    _embeds = _normalizeEmbedsForState(widget.embeds);
   }
 
   @override
   void didUpdateWidget(covariant ResponseEmbedsEditor oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.embeds != widget.embeds) {
-      _embeds = normalizeResponseEmbedsPayload(
-        widget.embeds,
-        maxEmbeds: widget.maxEmbeds,
-      );
+      _embeds = _normalizeEmbedsForState(widget.embeds);
     }
   }
 

@@ -684,12 +684,66 @@
   'commands_no_folder': 'Aucun dossier',
 
   // Page variables globales
-  'globals_title': 'Variables globales',
+  'globals_title': 'Variables',
   'globals_empty': 'Aucune variable globale pour le moment',
+  'globals_empty_subtitle':
+      'Ajoutez une variable pour stocker des données persistantes accessibles par toutes les commandes.',
   'globals_add': 'Ajouter une variable',
+  'globals_add_global': 'Ajouter une variable globale',
+  'globals_add_scoped': 'Ajouter une variable scopée',
   'globals_edit': 'Modifier une variable',
+  'globals_edit_global': 'Modifier la variable globale',
+  'globals_edit_scoped': 'Modifier la variable scopée',
   'globals_key': 'Clé',
+  'globals_key_hint': 'ex. prefix, level, welcome_message',
   'globals_value': 'Valeur',
+  'globals_delete_title': 'Supprimer la variable',
+  'globals_delete_confirm': 'Supprimer « {key} » ?',
+  'globals_search': 'Rechercher des variables…',
+  'globals_mode_global': 'Globale',
+  'globals_mode_scoped': 'Scopée',
+  'globals_help_global':
+      'Partagées entre toutes les commandes. Accessibles via \$getVar[clé].',
+  'globals_help_scoped':
+      'Stockées par contexte (serveur, utilisateur, salon…). Chaque entrée conserve une valeur distincte par contexte Discord.',
+  'globals_source_local': 'Local',
+  'globals_source_runner': 'Runner : {name}',
+  'globals_value_auto_type_hint':
+      'La valeur est auto-typée (nombre, booléen, JSON).',
+  'globals_copy_value': 'Copier la valeur',
+  'globals_no_default': 'Aucune valeur par défaut',
+  'globals_dialog_global_desc':
+      'Les variables globales sont partagées entre toutes les commandes et serveurs.',
+  'globals_dialog_scoped_desc':
+      'Une variable scopée stocke une valeur distincte par contexte {scope}.',
+  'globals_dialog_ref_preview': 'Usage : \$getVar[{ref}]',
+  'scoped_title': 'Variables scopées',
+  'scoped_empty': 'Aucune variable scopée définie',
+  'scoped_empty_subtitle':
+      'Les variables scopées stockent une valeur par contexte Discord (utilisateur, serveur…). Elles sont peuplées par le bot à l\'exécution.',
+  'scoped_delete_title': 'Supprimer la variable scopée',
+  'scoped_delete_confirm':
+      'Supprimer « {key} » et toutes ses données runtime stockées ?',
+  'scoped_default_value': 'Valeur par défaut',
+  'scoped_default_value_hint': 'Optionnel',
+  'scoped_scope': 'Scope',
+  'scoped_scope_help': 'Le niveau d\'entité auquel la variable est stockée.',
+  'scoped_ref': 'Référence : {ref}',
+  'scoped_ref_legacy': 'Legacy : {ref}',
+  'scoped_runtime_title': 'Données runtime — « {key} »',
+  'scoped_runtime_subtitle': 'Scope : {scope} · {count} contexte(s) trouvé(s)',
+  'scoped_runtime_empty':
+      'Aucune donnée runtime.\nCette clé sera peuplée par le bot à l\'exécution.',
+  'scoped_runtime_copy_all': 'Tout copier',
+  'scoped_runtime_search': 'Rechercher par ID ou nom…',
+  'scoped_explore_runtime': 'Explorer les données runtime',
+  'globals_refresh': 'Actualiser',
+  'globals_retry': 'Réessayer',
+  'globals_scope_guild': 'guild',
+  'globals_scope_user': 'user',
+  'globals_scope_channel': 'channel',
+  'globals_scope_guildMember': 'guildMember',
+  'globals_scope_message': 'message',
 
   // Page workflows
   'workflows_title': 'Workflows',
