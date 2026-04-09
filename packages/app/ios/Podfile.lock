@@ -133,6 +133,12 @@ PODS:
   - Flutter (1.0.0)
   - flutter_foreground_task (0.0.1):
     - Flutter
+  - gma_mediation_ironsource (2.3.0):
+    - Flutter
+    - GoogleMobileAdsMediationIronSource (~> 9.2.0.0.0)
+  - gma_mediation_unity (1.6.5):
+    - Flutter
+    - GoogleMobileAdsMediationUnity (~> 4.16.6.0)
   - Google-Mobile-Ads-SDK (12.14.0):
     - GoogleUserMessagingPlatform (>= 1.1)
   - google_mobile_ads (7.0.0):
@@ -153,6 +159,12 @@ PODS:
   - GoogleDataTransport (10.1.0):
     - nanopb (~> 3.30910.0)
     - PromisesObjC (~> 2.4)
+  - GoogleMobileAdsMediationIronSource (9.2.0.0.1):
+    - Google-Mobile-Ads-SDK (~> 12.0)
+    - IronSourceSDK (= 9.2.0.0)
+  - GoogleMobileAdsMediationUnity (4.16.6.0):
+    - Google-Mobile-Ads-SDK (~> 12.0)
+    - UnityAds (= 4.16.5)
   - GoogleSignIn (9.1.0):
     - AppAuth (~> 2.0)
     - AppCheckCore (~> 11.0)
@@ -197,6 +209,13 @@ PODS:
   - in_app_purchase_storekit (0.0.1):
     - Flutter
     - FlutterMacOS
+  - IronSourceAdQualitySDK (9.1.1)
+  - IronSourceSDK (9.2.0.0):
+    - IronSourceSDK/AdQuality (= 9.2.0.0)
+    - IronSourceSDK/Ads (= 9.2.0.0)
+  - IronSourceSDK/AdQuality (9.2.0.0):
+    - IronSourceAdQualitySDK (~> 9.1.1)
+  - IronSourceSDK/Ads (9.2.0.0)
   - nanopb (3.30910.0):
     - nanopb/decode (= 3.30910.0)
     - nanopb/encode (= 3.30910.0)
@@ -217,6 +236,7 @@ PODS:
     - Flutter
     - FlutterMacOS
   - SwiftyGif (5.4.5)
+  - UnityAds (4.16.5)
   - url_launcher_ios (0.0.1):
     - Flutter
   - webview_flutter_wkwebview (0.0.1):
@@ -232,6 +252,8 @@ DEPENDENCIES:
   - firebase_performance (from `.symlinks/plugins/firebase_performance/ios`)
   - Flutter (from `Flutter`)
   - flutter_foreground_task (from `.symlinks/plugins/flutter_foreground_task/ios`)
+  - gma_mediation_ironsource (from `.symlinks/plugins/gma_mediation_ironsource/ios`)
+  - gma_mediation_unity (from `.symlinks/plugins/gma_mediation_unity/ios`)
   - google_mobile_ads (from `.symlinks/plugins/google_mobile_ads/ios`)
   - google_sign_in_ios (from `.symlinks/plugins/google_sign_in_ios/darwin`)
   - in_app_purchase_storekit (from `.symlinks/plugins/in_app_purchase_storekit/darwin`)
@@ -263,16 +285,21 @@ SPEC REPOS:
     - Google-Mobile-Ads-SDK
     - GoogleAppMeasurement
     - GoogleDataTransport
+    - GoogleMobileAdsMediationIronSource
+    - GoogleMobileAdsMediationUnity
     - GoogleSignIn
     - GoogleUserMessagingPlatform
     - GoogleUtilities
     - GTMAppAuth
     - GTMSessionFetcher
+    - IronSourceAdQualitySDK
+    - IronSourceSDK
     - nanopb
     - PromisesObjC
     - PromisesSwift
     - SDWebImage
     - SwiftyGif
+    - UnityAds
 
 EXTERNAL SOURCES:
   app_tracking_transparency:
@@ -291,6 +318,10 @@ EXTERNAL SOURCES:
     :path: Flutter
   flutter_foreground_task:
     :path: ".symlinks/plugins/flutter_foreground_task/ios"
+  gma_mediation_ironsource:
+    :path: ".symlinks/plugins/gma_mediation_ironsource/ios"
+  gma_mediation_unity:
+    :path: ".symlinks/plugins/gma_mediation_unity/ios"
   google_mobile_ads:
     :path: ".symlinks/plugins/google_mobile_ads/ios"
   google_sign_in_ios:
@@ -334,17 +365,23 @@ SPEC CHECKSUMS:
   FirebaseSharedSwift: 9d2fa84a46676302b89dbd5e6e62bce2fe376909
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   flutter_foreground_task: 21ef182ab0a29a3005cc72cd70e5f45cb7f7f817
+  gma_mediation_ironsource: 7f15f6ba940abad272c7a6dee5aa0964829deb4d
+  gma_mediation_unity: 7c45447dd245d4e60bffba4051a15d4ea94c17e4
   Google-Mobile-Ads-SDK: 4534fd2dfcd3f705c5485a6633c5188d03d4eed2
   google_mobile_ads: 2ba32ffef4a026aa94f526774a40a14ca9662adf
   google_sign_in_ios: 7336a3372ea93ea56a21e126a0055ffca3723601
   GoogleAppMeasurement: fce7c1c90640d2f9f5c56771f71deacb2ba3f98c
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
+  GoogleMobileAdsMediationIronSource: a20d099561770858de392aa5885df29c9aca46bd
+  GoogleMobileAdsMediationUnity: 85fd40e2b42371341446745899e2963faaaaaba9
   GoogleSignIn: fcee2257188d5eda57a5e2b6a715550ffff9206d
   GoogleUserMessagingPlatform: befe603da6501006420c206222acd449bba45a9c
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
   GTMAppAuth: 217a876b249c3c585a54fd6f73e6b58c4f5c4238
   GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
   in_app_purchase_storekit: 2342c0a5da86593124d08dd13d920f39a52b273a
+  IronSourceAdQualitySDK: 56314ade811a5226f76dfd377bc09aca0d6610c0
+  IronSourceSDK: 66e1483cd62fb63162a965651f6f41c6b91664db
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   package_info_plus: c0502532a26c7662a62a356cebe2692ec5fe4ec4
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
@@ -353,6 +390,7 @@ SPEC CHECKSUMS:
   shared_preferences_foundation: 5086985c1d43c5ba4d5e69a4e8083a389e2909e6
   sqflite_darwin: 5a7236e3b501866c1c9befc6771dfd73ffb8702d
   SwiftyGif: 706c60cf65fa2bc5ee0313beece843c8eb8194d4
+  UnityAds: 8b9e0ecf7c4aa7334d15f81efb58db279e28f502
   url_launcher_ios: bb13df5870e8c4234ca12609d04010a21be43dfa
   webview_flutter_wkwebview: 29eb20d43355b48fe7d07113835b9128f84e3af4
 
