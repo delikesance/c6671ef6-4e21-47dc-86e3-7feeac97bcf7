@@ -120,6 +120,15 @@ class SubscriptionService {
           ),
         );
       }
+      unawaited(
+        AppDiagnostics.logInfo(
+          'Store product catalog fetched',
+          data: {
+            'count': response.productDetails.length,
+            'ids': response.productDetails.map((p) => p.id).join(', '),
+          },
+        ),
+      );
       products = response.productDetails;
 
       // Restore previous purchases (required by Apple guidelines).
@@ -225,6 +234,16 @@ class SubscriptionService {
             ),
           );
         }
+        unawaited(
+          AppDiagnostics.logInfo(
+            'Purchase preflight store catalog snapshot',
+            data: {
+              'product': productId,
+              'count': response.productDetails.length,
+              'available': response.productDetails.map((p) => p.id).join(', '),
+            },
+          ),
+        );
         products = response.productDetails;
         product = products.cast<ProductDetails?>().firstWhere(
           (p) => p?.id == productId,
