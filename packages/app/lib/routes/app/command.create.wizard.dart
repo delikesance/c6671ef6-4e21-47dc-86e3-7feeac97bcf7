@@ -1,12 +1,16 @@
 part of 'command.create.dart';
 
-const List<String> _commandCreateStepTitles = <String>[
-  'Infos',
-  'Trigger & Inputs',
-  'Reply',
-  'Actions',
-  'Review',
-];
+const int _commandCreateStepCount = 5;
+
+extension _CommandCreateStepTitles on _CommandCreatePageState {
+  List<String> get _commandCreateStepTitles => <String>[
+    context.tr.wizard_step_infos,
+    context.tr.wizard_step_trigger_inputs,
+    context.tr.wizard_step_reply,
+    context.tr.wizard_step_actions,
+    context.tr.wizard_step_review,
+  ];
+}
 
 extension _CommandCreateWizard on _CommandCreatePageState {
   IconData _stepIconFor(int index) {
@@ -85,20 +89,18 @@ extension _CommandCreateWizard on _CommandCreatePageState {
       _persistActiveSubcommandWorkflow();
     });
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Quick start applied to the command draft.'),
-      ),
+      SnackBar(content: Text(context.tr.wizard_quick_start_applied)),
     );
   }
 
   String _responseModeLabel() {
     switch (_responseType) {
       case 'componentV2':
-        return 'Layout mode';
+        return context.tr.response_mode_layout;
       case 'modal':
-        return 'Modal form';
+        return context.tr.response_mode_modal;
       default:
-        return 'Standard message';
+        return context.tr.response_mode_standard;
     }
   }
 
@@ -107,14 +109,16 @@ extension _CommandCreateWizard on _CommandCreatePageState {
     final embeds = _responseEmbeds.length;
     final hasComponents = _responseComponents.isNotEmpty;
     final visibility =
-        _responseWorkflow['visibility'] == 'ephemeral' ? 'ephemeral' : 'public';
+        _responseWorkflow['visibility'] == 'ephemeral'
+            ? context.tr.response_visibility_ephemeral
+            : context.tr.response_visibility_public;
     final parts = <String>[
       _responseModeLabel(),
       visibility,
       if (preview.isNotEmpty)
         preview.length > 80 ? '${preview.substring(0, 79)}...' : preview,
-      if (embeds > 0) '$embeds embed(s)',
-      if (hasComponents) 'interactive components',
+      if (embeds > 0) context.tr.response_embeds_count(embeds),
+      if (hasComponents) context.tr.response_interactive_components,
     ];
     return parts.join(' | ');
   }
@@ -123,14 +127,17 @@ extension _CommandCreateWizard on _CommandCreatePageState {
     if (_isBdfdScriptMode) {
       final lines = _bdfdScriptController.text.trim().split('\n');
       final diagnostics = _bdfdDiagnostics.length;
-      return 'BDFD script | ${lines.where((line) => line.trim().isNotEmpty).length} line(s) | $diagnostics diagnostic(s)';
+      return context.tr.actions_summary_bdfd(
+        lines.where((line) => line.trim().isNotEmpty).length,
+        diagnostics,
+      );
     }
     final actionCount = _actions.length;
     final subcommands = _subcommandWorkflows.length;
     if (subcommands > 0) {
-      return '$actionCount action(s) on active route | $subcommands route(s)';
+      return context.tr.actions_summary_routes(actionCount, subcommands);
     }
-    return '$actionCount action(s) configured';
+    return context.tr.actions_summary_configured(actionCount);
   }
 
   Widget _buildWizardShell({required double contentMaxWidth}) {
@@ -155,7 +162,7 @@ extension _CommandCreateWizard on _CommandCreatePageState {
     return Wrap(
       spacing: 8,
       runSpacing: 8,
-      children: List<Widget>.generate(_commandCreateStepTitles.length, (index) {
+      children: List<Widget>.generate(_commandCreateStepCount, (index) {
         final selected = _currentEditorStep == index;
         return ChoiceChip(
           selected: selected,
@@ -180,7 +187,7 @@ extension _CommandCreateWizard on _CommandCreatePageState {
   }
 
   Widget _buildStepFooter() {
-    final isReview = _currentEditorStep == _commandCreateStepTitles.length - 1;
+    final isReview = _currentEditorStep == _commandCreateStepCount - 1;
     return Row(
       children: [
         if (_currentEditorStep > 0)
@@ -192,7 +199,7 @@ extension _CommandCreateWizard on _CommandCreatePageState {
                 });
               },
               icon: const Icon(Icons.arrow_back),
-              label: const Text('Back'),
+              label: Text(context.tr.common_back),
             ),
           ),
         if (_currentEditorStep > 0) const SizedBox(width: 12),
@@ -208,8 +215,8 @@ extension _CommandCreateWizard on _CommandCreatePageState {
                     icon: const Icon(Icons.save),
                     label: Text(
                       _isEditingExistingCommand
-                          ? 'Save command'
-                          : 'Create command',
+                          ? context.tr.wizard_save_command
+                          : context.tr.wizard_create_command,
                     ),
                   )
                   : FilledButton.icon(
@@ -219,7 +226,7 @@ extension _CommandCreateWizard on _CommandCreatePageState {
                       });
                     },
                     icon: const Icon(Icons.arrow_forward),
-                    label: const Text('Next'),
+                    label: Text(context.tr.common_next),
                   ),
         ),
       ],
@@ -331,7 +338,7 @@ extension _CommandCreateWizard on _CommandCreatePageState {
           child: TextButton.icon(
             onPressed: _openDocumentationCenter,
             icon: const Icon(Icons.menu_book_outlined),
-            label: Text(AppStrings.t('cmd_show_variables')),
+            label: Text(context.tr.cmd_show_variables),
           ),
         ),
       ],
@@ -353,9 +360,9 @@ extension _CommandCreateWizard on _CommandCreatePageState {
         ],
         if (_supportsCommandOptions && !_isBdfdScriptMode)
           ExpansionTile(
-            title: const Text('Advanced trigger settings'),
+            title: Text(context.tr.wizard_advanced_trigger),
             subtitle: Text(
-              'Legacy command options and local-only behavior',
+              context.tr.wizard_legacy_options_subtitle,
               style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
             ),
             children: [
@@ -384,9 +391,12 @@ extension _CommandCreateWizard on _CommandCreatePageState {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text(
-                  'Reply summary',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                Text(
+                  context.tr.wizard_reply_summary,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 6),
                 Text(
@@ -410,7 +420,7 @@ extension _CommandCreateWizard on _CommandCreatePageState {
                 FilledButton.tonalIcon(
                   onPressed: _openReplyEditor,
                   icon: const Icon(Icons.edit_outlined),
-                  label: const Text('Edit reply details'),
+                  label: Text(context.tr.wizard_edit_reply),
                 ),
               ],
             ),
@@ -433,9 +443,9 @@ extension _CommandCreateWizard on _CommandCreatePageState {
                 _showQuickStartBuilder = expanded;
               });
             },
-            title: const Text('Quick starts'),
+            title: Text(context.tr.wizard_quick_starts),
             subtitle: Text(
-              'Use the legacy simple builder as a starting point, then apply it to the shared draft.',
+              context.tr.wizard_quick_start_subtitle,
               style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
             ),
             children: [
@@ -448,18 +458,18 @@ extension _CommandCreateWizard on _CommandCreatePageState {
                 child: FilledButton.tonalIcon(
                   onPressed: _applyQuickStartPreset,
                   icon: const Icon(Icons.bolt_outlined),
-                  label: const Text('Apply quick start to draft'),
+                  label: Text(context.tr.wizard_apply_quick_start),
                 ),
               ),
             ],
           ),
         const SizedBox(height: 12),
         ExpansionTile(
-          title: const Text('Code / Advanced'),
+          title: Text(context.tr.wizard_code_advanced),
           subtitle: Text(
             _isBdfdScriptMode
-                ? 'BDFD script mode enabled'
-                : 'Visual workflow mode enabled',
+                ? context.tr.wizard_bdfd_mode_enabled
+                : context.tr.wizard_visual_mode_enabled,
             style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
           ),
           children: [
@@ -481,9 +491,12 @@ extension _CommandCreateWizard on _CommandCreatePageState {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Text(
-                    'Command body',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  Text(
+                    context.tr.wizard_command_body,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 6),
                   Text(
@@ -529,36 +542,42 @@ extension _CommandCreateWizard on _CommandCreatePageState {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _ReviewCard(
-          title: 'Info',
+          title: context.tr.review_info_title,
           icon: Icons.info_outline,
           lines: <String>[
-            'Name: ${_commandName.isEmpty ? '(untitled)' : _commandName}',
-            'Type: ${_commandTypeToText(_commandType)}',
+            context.tr.review_name_line(
+              _commandName.isEmpty
+                  ? context.tr.review_name_untitled
+                  : _commandName,
+            ),
+            context.tr.review_type_line(_commandTypeToText(_commandType)),
             if (_commandDescription.trim().isNotEmpty)
-              'Description: ${_commandDescription.trim()}',
-            if (_folder.trim().isNotEmpty) 'Folder: ${_folder.trim()}',
+              context.tr.review_description_line(_commandDescription.trim()),
+            if (_folder.trim().isNotEmpty)
+              context.tr.review_folder_line(_folder.trim()),
           ],
         ),
         const SizedBox(height: 12),
         _ReviewCard(
-          title: 'Trigger & Inputs',
+          title: context.tr.review_trigger_inputs_title,
           icon: Icons.tune,
           lines: <String>[
-            '${_effectiveOptions.length} option(s)',
-            if (subcommandCount > 0) '$subcommandCount subcommand route(s)',
-            if (_legacyModeEnabled) 'Legacy mode enabled',
-            if (_localOnlyCommand) 'Local-only command',
+            context.tr.review_options_count(_effectiveOptions.length),
+            if (subcommandCount > 0)
+              context.tr.review_subcommand_routes(subcommandCount),
+            if (_legacyModeEnabled) context.tr.review_legacy_mode,
+            if (_localOnlyCommand) context.tr.review_local_only,
           ],
         ),
         const SizedBox(height: 12),
         _ReviewCard(
-          title: 'Reply',
+          title: context.tr.review_reply_title,
           icon: Icons.reply_outlined,
           lines: <String>[_responseSummaryLine(), _workflowSummary()],
         ),
         const SizedBox(height: 12),
         _ReviewCard(
-          title: 'Actions',
+          title: context.tr.review_actions_title,
           icon: Icons.account_tree_outlined,
           lines: <String>[_actionsSummaryLine()],
         ),

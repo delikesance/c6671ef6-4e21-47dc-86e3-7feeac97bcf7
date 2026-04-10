@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'package:bot_creator/widgets/variable_text_field.dart';
 import 'package:bot_creator/widgets/component_v2_builder/component_node_factory.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import '../../utils/i18n.dart';
 
 /// Depth-based accent colours for nesting levels (0 = root).
 const _kDepthColors = [
@@ -54,19 +55,17 @@ class ComponentNodeEditor extends StatelessWidget {
           context: context,
           builder:
               (dialogContext) => AlertDialog.adaptive(
-                title: const Text('Remove component'),
-                content: const Text(
-                  'This component will be removed from the layout. Continue?',
-                ),
+                title: Text(context.tr.component_remove_title),
+                content: Text(context.tr.component_remove_confirm),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(dialogContext).pop(false),
-                    child: const Text('Cancel'),
+                    child: Text(context.tr.common_cancel),
                   ),
                   TextButton(
                     onPressed: () => Navigator.of(dialogContext).pop(true),
                     child: Text(
-                      'Remove',
+                      context.tr.common_remove,
                       style: TextStyle(
                         color: Theme.of(dialogContext).colorScheme.error,
                       ),
@@ -156,7 +155,7 @@ class ComponentNodeEditor extends StatelessWidget {
                         height: 28,
                         child: IconButton(
                           icon: const Icon(Icons.arrow_upward, size: 14),
-                          tooltip: 'Move up',
+                          tooltip: context.tr.common_move_up,
                           onPressed: onMoveUp,
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(),
@@ -168,7 +167,7 @@ class ComponentNodeEditor extends StatelessWidget {
                         height: 28,
                         child: IconButton(
                           icon: const Icon(Icons.arrow_downward, size: 14),
-                          tooltip: 'Move down',
+                          tooltip: context.tr.common_move_down,
                           onPressed: onMoveDown,
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(),
@@ -183,7 +182,7 @@ class ComponentNodeEditor extends StatelessWidget {
                           size: 16,
                           color: Colors.red.shade400,
                         ),
-                        tooltip: 'Remove',
+                        tooltip: context.tr.common_remove,
                         onPressed: () {
                           _confirmAndRemove(context);
                         },
@@ -232,41 +231,47 @@ class ComponentNodeEditor extends StatelessWidget {
 
   Widget _buildEditorBody(BuildContext context) {
     if (node is ActionRowNode) {
-      return _buildActionRowEditor(node as ActionRowNode);
+      return _buildActionRowEditor(node as ActionRowNode, context);
     }
-    if (node is ButtonNode) return _buildButtonEditor(node as ButtonNode);
+    if (node is ButtonNode) {
+      return _buildButtonEditor(node as ButtonNode, context);
+    }
     if (node is SelectMenuNode) {
-      return _buildSelectMenuEditor(node as SelectMenuNode);
+      return _buildSelectMenuEditor(node as SelectMenuNode, context);
     }
     if (node is TextDisplayNode) {
-      return _buildTextDisplayEditor(node as TextDisplayNode);
+      return _buildTextDisplayEditor(node as TextDisplayNode, context);
     }
     if (node is SeparatorNode) {
-      return _buildSeparatorEditor(node as SeparatorNode);
+      return _buildSeparatorEditor(node as SeparatorNode, context);
     }
-    if (node is SectionNode) return _buildSectionEditor(node as SectionNode);
+    if (node is SectionNode) {
+      return _buildSectionEditor(node as SectionNode, context);
+    }
     if (node is ContainerNode) {
       return _buildContainerEditor(node as ContainerNode, context);
     }
-    if (node is LabelNode) return _buildLabelEditor(node as LabelNode);
-    if (node is CheckboxNode) return _buildCheckboxEditor(node as CheckboxNode);
+    if (node is LabelNode) return _buildLabelEditor(node as LabelNode, context);
+    if (node is CheckboxNode) {
+      return _buildCheckboxEditor(node as CheckboxNode, context);
+    }
     if (node is RadioGroupNode) {
-      return _buildRadioGroupEditor(node as RadioGroupNode);
+      return _buildRadioGroupEditor(node as RadioGroupNode, context);
     }
     if (node is CheckboxGroupNode) {
-      return _buildCheckboxGroupEditor(node as CheckboxGroupNode);
+      return _buildCheckboxGroupEditor(node as CheckboxGroupNode, context);
     }
     if (node is FileUploadNode) {
-      return _buildFileUploadEditor(node as FileUploadNode);
+      return _buildFileUploadEditor(node as FileUploadNode, context);
     }
-    if (node is FileNode) return _buildFileEditor(node as FileNode);
+    if (node is FileNode) return _buildFileEditor(node as FileNode, context);
     if (node is ThumbnailNode) {
-      return _buildThumbnailEditor(node as ThumbnailNode);
+      return _buildThumbnailEditor(node as ThumbnailNode, context);
     }
     if (node is MediaGalleryNode) {
-      return _buildMediaGalleryEditor(node as MediaGalleryNode);
+      return _buildMediaGalleryEditor(node as MediaGalleryNode, context);
     }
-    return const Text('Editor not implemented yet');
+    return Text(context.tr.component_not_implemented);
   }
 
   Widget _buildResponsiveTwoFieldRow({
@@ -298,7 +303,7 @@ class ComponentNodeEditor extends StatelessWidget {
 
   // --- Node Editors ---
 
-  Widget _buildActionRowEditor(ActionRowNode row) {
+  Widget _buildActionRowEditor(ActionRowNode row, BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -376,7 +381,7 @@ class ComponentNodeEditor extends StatelessWidget {
 
             if (allowedTypes.isEmpty) return const SizedBox.shrink();
 
-            return _buildAddComponentDropdown((newNode) {
+            return _buildAddComponentDropdown(context, (newNode) {
               row.components = [...row.components, newNode];
               onChanged(row);
             }, allowedTypes: allowedTypes);
@@ -386,12 +391,12 @@ class ComponentNodeEditor extends StatelessWidget {
     );
   }
 
-  Widget _buildButtonEditor(ButtonNode btn) {
+  Widget _buildButtonEditor(ButtonNode btn, BuildContext context) {
     return Column(
       children: [
         _buildResponsiveTwoFieldRow(
           first: VariableTextField(
-            label: 'Label',
+            label: context.tr.component_label,
             initialValue: btn.label,
             suggestions: variableSuggestions,
             onChanged: (v) {
@@ -402,9 +407,9 @@ class ComponentNodeEditor extends StatelessWidget {
           second: DropdownButtonFormField<BcButtonStyle>(
             initialValue: btn.style,
             isExpanded: true,
-            decoration: const InputDecoration(
-              labelText: 'Style',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: context.tr.common_style,
+              border: const OutlineInputBorder(),
               isDense: true,
             ),
             items:
@@ -423,9 +428,9 @@ class ComponentNodeEditor extends StatelessWidget {
         if (btn.style == BcButtonStyle.link)
           TextFormField(
             initialValue: btn.url,
-            decoration: const InputDecoration(
-              labelText: 'URL',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: context.tr.common_url,
+              border: const OutlineInputBorder(),
               isDense: true,
             ),
             onChanged: (v) {
@@ -438,14 +443,17 @@ class ComponentNodeEditor extends StatelessWidget {
             children: [
               TextFormField(
                 initialValue: btn.customId,
-                decoration: const InputDecoration(
-                  labelText: 'Custom ID *',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: context.tr.common_custom_id_required,
+                  border: const OutlineInputBorder(),
                   isDense: true,
                 ),
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 validator:
-                    (v) => v == null || v.trim().isEmpty ? 'Required' : null,
+                    (v) =>
+                        v == null || v.trim().isEmpty
+                            ? context.tr.component_validation_required
+                            : null,
                 onChanged: (v) {
                   btn.customId = v;
                   onChanged(btn);
@@ -454,13 +462,13 @@ class ComponentNodeEditor extends StatelessWidget {
               const SizedBox(height: 8),
               _WorkflowSelectorField(
                 botIdForConfig: botIdForConfig,
-                label: 'Call Workflow (optional)',
-                fallbackHint: 'Saved workflow name to run on click',
+                label: context.tr.component_workflow_optional,
+                fallbackHint: context.tr.component_workflow_click_hint,
                 selectedWorkflow: btn.workflowName,
                 entryPoint: btn.workflowEntryPoint,
                 workflowArguments: btn.workflowArguments,
                 variableSuggestions: variableSuggestions,
-                successMessage: 'On click, the workflow',
+                successMessage: context.tr.component_on_click_workflow,
                 onChanged: (value) {
                   btn.workflowName = value ?? '';
                   onChanged(btn);
@@ -480,15 +488,15 @@ class ComponentNodeEditor extends StatelessWidget {
     );
   }
 
-  Widget _buildSelectMenuEditor(SelectMenuNode menu) {
+  Widget _buildSelectMenuEditor(SelectMenuNode menu, BuildContext context) {
     return Column(
       children: [
         _buildResponsiveTwoFieldRow(
           first: TextFormField(
             initialValue: menu.customId,
-            decoration: const InputDecoration(
-              labelText: 'Custom ID',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: context.tr.common_custom_id,
+              border: const OutlineInputBorder(),
               isDense: true,
             ),
             onChanged: (v) {
@@ -498,9 +506,9 @@ class ComponentNodeEditor extends StatelessWidget {
           ),
           second: TextFormField(
             initialValue: menu.placeholder,
-            decoration: const InputDecoration(
-              labelText: 'Placeholder',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: context.tr.common_placeholder,
+              border: const OutlineInputBorder(),
               isDense: true,
             ),
             onChanged: (v) {
@@ -512,13 +520,13 @@ class ComponentNodeEditor extends StatelessWidget {
         const SizedBox(height: 8),
         _WorkflowSelectorField(
           botIdForConfig: botIdForConfig,
-          label: 'Call Workflow (optional)',
-          fallbackHint: 'Saved workflow name to run on selection',
+          label: context.tr.component_workflow_optional,
+          fallbackHint: context.tr.component_workflow_select_hint,
           selectedWorkflow: menu.workflowName,
           entryPoint: menu.workflowEntryPoint,
           workflowArguments: menu.workflowArguments,
           variableSuggestions: variableSuggestions,
-          successMessage: 'On select, the workflow',
+          successMessage: context.tr.component_on_select_workflow,
           onChanged: (value) {
             menu.workflowName = value ?? '';
             onChanged(menu);
@@ -534,9 +542,9 @@ class ComponentNodeEditor extends StatelessWidget {
         ),
         if (menu.type == ComponentV2Type.stringSelect) ...[
           const SizedBox(height: 8),
-          const Text(
-            'Options',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+          Text(
+            context.tr.component_options,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
           ),
           ...menu.options.asMap().entries.map((e) {
             final idx = e.key;
@@ -552,20 +560,8 @@ class ComponentNodeEditor extends StatelessWidget {
                       children: [
                         TextFormField(
                           initialValue: opt.label,
-                          decoration: const InputDecoration(
-                            labelText: 'Label',
-                            isDense: true,
-                          ),
-                          onChanged: (v) {
-                            opt.label = v;
-                            onChanged(menu);
-                          },
-                        ),
-                        const SizedBox(height: 8),
-                        TextFormField(
-                          initialValue: opt.value,
-                          decoration: const InputDecoration(
-                            labelText: 'Value',
+                          decoration: InputDecoration(
+                            labelText: context.tr.common_label,
                             isDense: true,
                           ),
                           onChanged: (v) {
@@ -596,8 +592,8 @@ class ComponentNodeEditor extends StatelessWidget {
                       Expanded(
                         child: TextFormField(
                           initialValue: opt.label,
-                          decoration: const InputDecoration(
-                            labelText: 'Label',
+                          decoration: InputDecoration(
+                            labelText: context.tr.common_label,
                             isDense: true,
                           ),
                           onChanged: (v) {
@@ -610,8 +606,8 @@ class ComponentNodeEditor extends StatelessWidget {
                       Expanded(
                         child: TextFormField(
                           initialValue: opt.value,
-                          decoration: const InputDecoration(
-                            labelText: 'Value',
+                          decoration: InputDecoration(
+                            labelText: context.tr.common_value,
                             isDense: true,
                           ),
                           onChanged: (v) {
@@ -640,21 +636,27 @@ class ComponentNodeEditor extends StatelessWidget {
           TextButton.icon(
             onPressed: () {
               menu.options.add(
-                SelectMenuOption(label: 'New Option', value: 'value'),
+                SelectMenuOption(
+                  label: context.tr.component_new_option,
+                  value: 'value',
+                ),
               );
               onChanged(menu);
             },
             icon: const Icon(Icons.add, size: 14),
-            label: const Text('Add Option', style: TextStyle(fontSize: 12)),
+            label: Text(
+              context.tr.common_add_option,
+              style: TextStyle(fontSize: 12),
+            ),
           ),
         ],
       ],
     );
   }
 
-  Widget _buildTextDisplayEditor(TextDisplayNode node) {
+  Widget _buildTextDisplayEditor(TextDisplayNode node, BuildContext context) {
     return VariableTextField(
-      label: 'Markdown Content',
+      label: context.tr.component_markdown_content,
       initialValue: node.content,
       maxLines: 3,
       suggestions: variableSuggestions,
@@ -665,7 +667,7 @@ class ComponentNodeEditor extends StatelessWidget {
     );
   }
 
-  Widget _buildSeparatorEditor(SeparatorNode node) {
+  Widget _buildSeparatorEditor(SeparatorNode node, BuildContext context) {
     return Row(
       children: [
         Switch(
@@ -675,13 +677,19 @@ class ComponentNodeEditor extends StatelessWidget {
             onChanged(node);
           },
         ),
-        const Text('Visible Divider Line'),
+        Text(context.tr.component_visible_divider),
         const Spacer(),
         DropdownButton<int>(
           value: node.spacing,
-          items: const [
-            DropdownMenuItem(value: 1, child: Text('Small Spacing')),
-            DropdownMenuItem(value: 2, child: Text('Large Spacing')),
+          items: [
+            DropdownMenuItem(
+              value: 1,
+              child: Text(context.tr.component_spacing_small),
+            ),
+            DropdownMenuItem(
+              value: 2,
+              child: Text(context.tr.component_spacing_large),
+            ),
           ],
           onChanged: (v) {
             if (v != null) {
@@ -694,13 +702,13 @@ class ComponentNodeEditor extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionEditor(SectionNode node) {
+  Widget _buildSectionEditor(SectionNode node, BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text(
-          'Text Displays',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+        Text(
+          context.tr.component_section_text_displays,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
         ),
         ...node.components.asMap().entries.map((e) {
           final idx = e.key;
@@ -753,12 +761,15 @@ class ComponentNodeEditor extends StatelessWidget {
             onChanged(node);
           },
           icon: const Icon(Icons.add, size: 14),
-          label: const Text('Add Text Display', style: TextStyle(fontSize: 12)),
+          label: Text(
+            context.tr.component_add_text_display,
+            style: TextStyle(fontSize: 12),
+          ),
         ),
         const Divider(),
-        const Text(
-          'Accessory Node (Optional)',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+        Text(
+          context.tr.component_section_accessory,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
         ),
         if (node.accessory != null)
           ComponentNodeEditor(
@@ -776,7 +787,7 @@ class ComponentNodeEditor extends StatelessWidget {
             botIdForConfig: botIdForConfig,
           )
         else
-          _buildAddComponentDropdown((newNode) {
+          _buildAddComponentDropdown(context, (newNode) {
             node.accessory = newNode;
             onChanged(node);
           }, allowedTypes: [ComponentV2Type.button, ComponentV2Type.thumbnail]),
@@ -795,9 +806,9 @@ class ComponentNodeEditor extends StatelessWidget {
               child: TextFormField(
                 key: ValueKey('container_color_\${node.accentColor}'),
                 initialValue: node.accentColor,
-                decoration: const InputDecoration(
-                  labelText: 'Accent Color (Hex, e.g. FF0000)',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: context.tr.component_accent_color,
+                  border: const OutlineInputBorder(),
                   isDense: true,
                 ),
                 onChanged: (v) {
@@ -809,7 +820,7 @@ class ComponentNodeEditor extends StatelessWidget {
             const SizedBox(width: 8),
             IconButton(
               icon: const Icon(Icons.color_lens, color: Colors.blueAccent),
-              tooltip: 'Choose Color',
+              tooltip: context.tr.component_choose_color,
               onPressed: () {
                 Color currentColor = Colors.blueGrey;
                 if (node.accentColor.isNotEmpty) {
@@ -824,7 +835,7 @@ class ComponentNodeEditor extends StatelessWidget {
                   context: context,
                   builder:
                       (ctx) => AlertDialog(
-                        title: const Text('Pick Accent Color'),
+                        title: Text(context.tr.component_pick_accent_color),
                         content: SingleChildScrollView(
                           child: ColorPicker(
                             pickerColor: currentColor,
@@ -837,11 +848,11 @@ class ComponentNodeEditor extends StatelessWidget {
                         ),
                         actions: [
                           TextButton(
-                            child: const Text('Cancel'),
+                            child: Text(context.tr.common_cancel),
                             onPressed: () => Navigator.of(ctx).pop(),
                           ),
                           TextButton(
-                            child: const Text('OK'),
+                            child: Text(context.tr.common_ok),
                             onPressed: () {
                               node.accentColor =
                                   currentColor
@@ -909,6 +920,7 @@ class ComponentNodeEditor extends StatelessWidget {
         }),
         const SizedBox(height: 8),
         _buildAddComponentDropdown(
+          context,
           (newNode) {
             node.components = [...node.components, newNode];
             onChanged(node);
@@ -926,12 +938,12 @@ class ComponentNodeEditor extends StatelessWidget {
     );
   }
 
-  Widget _buildLabelEditor(LabelNode node) {
+  Widget _buildLabelEditor(LabelNode node, BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         VariableTextField(
-          label: 'Label Title',
+          label: context.tr.component_label_title,
           initialValue: node.label,
           suggestions: variableSuggestions,
           onChanged: (v) {
@@ -941,7 +953,7 @@ class ComponentNodeEditor extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         VariableTextField(
-          label: 'Description',
+          label: context.tr.common_description,
           initialValue: node.description,
           suggestions: variableSuggestions,
           onChanged: (v) {
@@ -950,9 +962,9 @@ class ComponentNodeEditor extends StatelessWidget {
           },
         ),
         const SizedBox(height: 8),
-        const Text(
-          'Component to Wrap:',
-          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+        Text(
+          context.tr.component_component_to_wrap,
+          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
         ),
         if (node.component != null)
           ComponentNodeEditor(
@@ -971,6 +983,7 @@ class ComponentNodeEditor extends StatelessWidget {
           )
         else
           _buildAddComponentDropdown(
+            context,
             (newNode) {
               node.component = newNode;
               onChanged(node);
@@ -991,15 +1004,15 @@ class ComponentNodeEditor extends StatelessWidget {
     );
   }
 
-  Widget _buildCheckboxEditor(CheckboxNode node) {
+  Widget _buildCheckboxEditor(CheckboxNode node, BuildContext context) {
     return Row(
       children: [
         Expanded(
           child: TextFormField(
             initialValue: node.customId,
-            decoration: const InputDecoration(
-              labelText: 'Custom ID',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: context.tr.common_custom_id,
+              border: const OutlineInputBorder(),
               isDense: true,
             ),
             onChanged: (v) {
@@ -1015,19 +1028,19 @@ class ComponentNodeEditor extends StatelessWidget {
             onChanged(node);
           },
         ),
-        const Text('Checked by default'),
+        Text(context.tr.component_checked_by_default),
       ],
     );
   }
 
-  Widget _buildRadioGroupEditor(RadioGroupNode node) {
+  Widget _buildRadioGroupEditor(RadioGroupNode node, BuildContext context) {
     return Column(
       children: [
         TextFormField(
           initialValue: node.customId,
-          decoration: const InputDecoration(
-            labelText: 'Custom ID',
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            labelText: context.tr.common_custom_id,
+            border: const OutlineInputBorder(),
             isDense: true,
           ),
           onChanged: (v) {
@@ -1036,9 +1049,9 @@ class ComponentNodeEditor extends StatelessWidget {
           },
         ),
         const SizedBox(height: 8),
-        const Text(
-          'Radio Options',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+        Text(
+          context.tr.component_radio_options,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
         ),
         ...node.options.asMap().entries.map((e) {
           final idx = e.key;
@@ -1050,8 +1063,8 @@ class ComponentNodeEditor extends StatelessWidget {
                 Expanded(
                   child: TextFormField(
                     initialValue: opt.label,
-                    decoration: const InputDecoration(
-                      labelText: 'Label',
+                    decoration: InputDecoration(
+                      labelText: context.tr.common_label,
                       isDense: true,
                     ),
                     onChanged: (v) {
@@ -1064,8 +1077,8 @@ class ComponentNodeEditor extends StatelessWidget {
                 Expanded(
                   child: TextFormField(
                     initialValue: opt.value,
-                    decoration: const InputDecoration(
-                      labelText: 'Value',
+                    decoration: InputDecoration(
+                      labelText: context.tr.common_value,
                       isDense: true,
                     ),
                     onChanged: (v) {
@@ -1092,96 +1105,16 @@ class ComponentNodeEditor extends StatelessWidget {
         TextButton.icon(
           onPressed: () {
             node.options.add(
-              RadioGroupOptionNode(label: 'New Radio', value: 'value'),
+              RadioGroupOptionNode(
+                label: context.tr.component_new_radio,
+                value: 'value',
+              ),
             );
             onChanged(node);
           },
           icon: const Icon(Icons.add, size: 14),
-          label: const Text('Add Radio Option', style: TextStyle(fontSize: 12)),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCheckboxGroupEditor(CheckboxGroupNode node) {
-    return Column(
-      children: [
-        TextFormField(
-          initialValue: node.customId,
-          decoration: const InputDecoration(
-            labelText: 'Custom ID',
-            border: OutlineInputBorder(),
-            isDense: true,
-          ),
-          onChanged: (v) {
-            node.customId = v;
-            onChanged(node);
-          },
-        ),
-        const SizedBox(height: 8),
-        const Text(
-          'Checkbox Options',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-        ),
-        ...node.options.asMap().entries.map((e) {
-          final idx = e.key;
-          final opt = e.value;
-          return Padding(
-            padding: const EdgeInsets.only(top: 4.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    initialValue: opt.label,
-                    decoration: const InputDecoration(
-                      labelText: 'Label',
-                      isDense: true,
-                    ),
-                    onChanged: (v) {
-                      opt.label = v;
-                      onChanged(node);
-                    },
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextFormField(
-                    initialValue: opt.value,
-                    decoration: const InputDecoration(
-                      labelText: 'Value',
-                      isDense: true,
-                    ),
-                    onChanged: (v) {
-                      opt.value = v;
-                      onChanged(node);
-                    },
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(
-                    Icons.remove_circle,
-                    size: 16,
-                    color: Colors.red,
-                  ),
-                  onPressed: () {
-                    node.options.removeAt(idx);
-                    onChanged(node);
-                  },
-                ),
-              ],
-            ),
-          );
-        }),
-        TextButton.icon(
-          onPressed: () {
-            node.options.add(
-              CheckboxGroupOptionNode(label: 'New Checkbox', value: 'value'),
-            );
-            onChanged(node);
-          },
-          icon: const Icon(Icons.add, size: 14),
-          label: const Text(
-            'Add Checkbox Option',
+          label: Text(
+            context.tr.component_add_radio_option,
             style: TextStyle(fontSize: 12),
           ),
         ),
@@ -1189,12 +1122,90 @@ class ComponentNodeEditor extends StatelessWidget {
     );
   }
 
-  Widget _buildFileUploadEditor(FileUploadNode node) {
+  Widget _buildCheckboxGroupEditor(
+    CheckboxGroupNode node,
+    BuildContext context,
+  ) {
+    return Column(
+      children: [
+        TextFormField(
+          initialValue: node.customId,
+          decoration: InputDecoration(
+            labelText: context.tr.common_custom_id,
+            border: const OutlineInputBorder(),
+            isDense: true,
+          ),
+          onChanged: (v) {
+            node.customId = v;
+            onChanged(node);
+          },
+        ),
+        const SizedBox(height: 8),
+        Text(
+          context.tr.component_checkbox_options,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+        ),
+        ...node.options.asMap().entries.map((e) {
+          final idx = e.key;
+          final opt = e.value;
+          return Padding(
+            padding: const EdgeInsets.only(top: 4.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    initialValue: opt.label,
+                    decoration: InputDecoration(
+                      labelText: context.tr.common_label,
+                      isDense: true,
+                    ),
+                    onChanged: (v) {
+                      opt.value = v;
+                      onChanged(node);
+                    },
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(
+                    Icons.remove_circle,
+                    size: 16,
+                    color: Colors.red,
+                  ),
+                  onPressed: () {
+                    node.options.removeAt(idx);
+                    onChanged(node);
+                  },
+                ),
+              ],
+            ),
+          );
+        }),
+        TextButton.icon(
+          onPressed: () {
+            node.options.add(
+              CheckboxGroupOptionNode(
+                label: context.tr.component_new_checkbox,
+                value: 'value',
+              ),
+            );
+            onChanged(node);
+          },
+          icon: const Icon(Icons.add, size: 14),
+          label: Text(
+            context.tr.component_add_checkbox_option,
+            style: const TextStyle(fontSize: 12),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFileUploadEditor(FileUploadNode node, BuildContext context) {
     return TextFormField(
       initialValue: node.customId,
-      decoration: const InputDecoration(
-        labelText: 'Custom ID',
-        border: OutlineInputBorder(),
+      decoration: InputDecoration(
+        labelText: context.tr.common_custom_id,
+        border: const OutlineInputBorder(),
         isDense: true,
       ),
       onChanged: (v) {
@@ -1204,12 +1215,12 @@ class ComponentNodeEditor extends StatelessWidget {
     );
   }
 
-  Widget _buildFileEditor(FileNode node) {
+  Widget _buildFileEditor(FileNode node, BuildContext context) {
     return TextFormField(
       initialValue: node.file.url,
-      decoration: const InputDecoration(
-        labelText: 'File URL',
-        border: OutlineInputBorder(),
+      decoration: InputDecoration(
+        labelText: context.tr.component_file_url,
+        border: const OutlineInputBorder(),
         isDense: true,
       ),
       onChanged: (v) {
@@ -1219,12 +1230,12 @@ class ComponentNodeEditor extends StatelessWidget {
     );
   }
 
-  Widget _buildThumbnailEditor(ThumbnailNode node) {
+  Widget _buildThumbnailEditor(ThumbnailNode node, BuildContext context) {
     return TextFormField(
       initialValue: node.media.url,
-      decoration: const InputDecoration(
-        labelText: 'Thumbnail URL',
-        border: OutlineInputBorder(),
+      decoration: InputDecoration(
+        labelText: context.tr.component_thumbnail_url,
+        border: const OutlineInputBorder(),
         isDense: true,
       ),
       onChanged: (v) {
@@ -1234,12 +1245,12 @@ class ComponentNodeEditor extends StatelessWidget {
     );
   }
 
-  Widget _buildMediaGalleryEditor(MediaGalleryNode node) {
+  Widget _buildMediaGalleryEditor(MediaGalleryNode node, BuildContext context) {
     return Column(
       children: [
-        const Text(
-          'Media URLs',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+        Text(
+          context.tr.component_media_urls,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
         ),
         ...node.items.asMap().entries.map((e) {
           final idx = e.key;
@@ -1251,8 +1262,8 @@ class ComponentNodeEditor extends StatelessWidget {
                 Expanded(
                   child: TextFormField(
                     initialValue: opt.media.url,
-                    decoration: const InputDecoration(
-                      labelText: 'Image / Video URL',
+                    decoration: InputDecoration(
+                      labelText: context.tr.component_media_url,
                       isDense: true,
                     ),
                     onChanged: (v) {
@@ -1282,7 +1293,10 @@ class ComponentNodeEditor extends StatelessWidget {
             onChanged(node);
           },
           icon: const Icon(Icons.add, size: 14),
-          label: const Text('Add Media Item', style: TextStyle(fontSize: 12)),
+          label: Text(
+            context.tr.component_add_media_item,
+            style: TextStyle(fontSize: 12),
+          ),
         ),
       ],
     );
@@ -1291,6 +1305,7 @@ class ComponentNodeEditor extends StatelessWidget {
   // --- Utility Component Adder ---
 
   Widget _buildAddComponentDropdown(
+    BuildContext context,
     ValueChanged<ComponentNode> onAdd, {
     List<ComponentV2Type>? allowedTypes,
   }) {
@@ -1300,7 +1315,7 @@ class ComponentNodeEditor extends StatelessWidget {
       children: [
         Expanded(
           child: PopupMenuButton<ComponentV2Type>(
-            tooltip: 'Add Child Component',
+            tooltip: context.tr.component_add_child,
             onSelected: (v) => onAdd(ComponentNodeFactory.create(v)),
             itemBuilder: (BuildContext context) {
               return types
@@ -1460,7 +1475,7 @@ class _WorkflowSelectorFieldState extends State<_WorkflowSelectorField> {
           (dialogContext) => StatefulBuilder(
             builder: (context, setDialogState) {
               return AlertDialog(
-                title: const Text('Workflow Call Arguments (JSON)'),
+                title: Text(context.tr.component_workflow_args_title),
                 content: SizedBox(
                   width: 520,
                   child: TextField(
@@ -1470,7 +1485,7 @@ class _WorkflowSelectorFieldState extends State<_WorkflowSelectorField> {
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(),
                       errorText: error,
-                      helperText: 'Example: {"ticketId":"((opts.ticket))"}',
+                      helperText: context.tr.component_workflow_args_hint,
                     ),
                     style: const TextStyle(fontFamily: 'monospace'),
                   ),
@@ -1478,7 +1493,7 @@ class _WorkflowSelectorFieldState extends State<_WorkflowSelectorField> {
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(dialogContext),
-                    child: const Text('Cancel'),
+                    child: Text(context.tr.common_cancel),
                   ),
                   FilledButton(
                     onPressed: () {
@@ -1496,7 +1511,7 @@ class _WorkflowSelectorFieldState extends State<_WorkflowSelectorField> {
                         final parsed = jsonDecode(raw);
                         if (parsed is! Map) {
                           setDialogState(() {
-                            error = 'Root must be a JSON object';
+                            error = context.tr.workflow_root_json_error;
                           });
                           return;
                         }
@@ -1516,7 +1531,7 @@ class _WorkflowSelectorFieldState extends State<_WorkflowSelectorField> {
                         });
                       }
                     },
-                    child: const Text('Save'),
+                    child: Text(context.tr.common_save),
                   ),
                 ],
               );
@@ -1573,15 +1588,15 @@ class _WorkflowSelectorFieldState extends State<_WorkflowSelectorField> {
                         isDense: true,
                         helperText:
                             _loadingWorkflows
-                                ? 'Loading workflows...'
+                                ? context.tr.autocomplete_loading
                                 : (_availableWorkflowNames.isEmpty
-                                    ? 'No saved workflows found'
-                                    : 'Select a saved workflow'),
+                                    ? context.tr.autocomplete_no_workflows
+                                    : context.tr.autocomplete_select_workflow),
                       ),
                     );
 
                     final refreshButton = IconButton(
-                      tooltip: 'Refresh workflows',
+                      tooltip: context.tr.common_refresh_workflows,
                       onPressed:
                           _loadingWorkflows ? null : _loadAvailableWorkflows,
                       icon: const Icon(Icons.refresh),
@@ -1615,9 +1630,9 @@ class _WorkflowSelectorFieldState extends State<_WorkflowSelectorField> {
                     'workflow_manual_${widget.label}_$_selectedWorkflow',
                   ),
                   initialValue: _selectedWorkflow,
-                  decoration: const InputDecoration(
-                    labelText: 'Or type workflow name',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: context.tr.autocomplete_type_name,
+                    border: const OutlineInputBorder(),
                     isDense: true,
                   ),
                   onChanged: (value) {
@@ -1664,18 +1679,18 @@ class _WorkflowSelectorFieldState extends State<_WorkflowSelectorField> {
                       await _loadAvailableWorkflows();
                     },
             icon: const Icon(Icons.account_tree),
-            label: const Text('Manage Workflows'),
+            label: Text(context.tr.common_manage_workflows),
           ),
         ],
         if (_selectedWorkflow.isNotEmpty) ...[
           const SizedBox(height: 8),
           TextFormField(
             controller: _entryPointCtrl,
-            decoration: const InputDecoration(
-              labelText: 'Entry Point (optional)',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: context.tr.workflow_entry_point_optional,
+              border: const OutlineInputBorder(),
               isDense: true,
-              helperText: 'Defaults to workflow entry point when empty',
+              helperText: context.tr.workflow_entry_point_helper,
             ),
             onChanged: (value) => widget.onEntryPointChanged(value.trim()),
           ),
@@ -1685,8 +1700,10 @@ class _WorkflowSelectorFieldState extends State<_WorkflowSelectorField> {
             icon: const Icon(Icons.data_object),
             label: Text(
               _workflowArguments.isEmpty
-                  ? 'Set Call Arguments'
-                  : 'Edit Call Arguments (${_workflowArguments.length})',
+                  ? context.tr.workflow_set_call_args
+                  : context.tr.workflow_edit_call_args(
+                    _workflowArguments.length,
+                  ),
             ),
           ),
           const SizedBox(height: 8),

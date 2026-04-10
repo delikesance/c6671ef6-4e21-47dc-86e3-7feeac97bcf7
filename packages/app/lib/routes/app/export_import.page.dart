@@ -95,7 +95,7 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
 
       // Save using file_picker save dialog
       final outputPath = await FilePicker.platform.saveFile(
-        dialogTitle: AppStrings.t('export_button'),
+        dialogTitle: context.tr.export_button,
         fileName: 'bot_export.zip',
         type: FileType.custom,
         allowedExtensions: ['zip'],
@@ -109,7 +109,7 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Export failed: $e')));
+      ).showSnackBar(SnackBar(content: Text(context.tr.export_failed('$e'))));
     } finally {
       if (mounted) setState(() => _isExporting = false);
     }
@@ -162,9 +162,9 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
       });
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Failed to parse ZIP: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.tr.import_parse_failed('$e'))),
+      );
     }
   }
 
@@ -187,23 +187,39 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
       if (!mounted) return;
       final parts = <String>[];
       if (result.commandsImported > 0) {
-        parts.add('${result.commandsImported} command(s) imported');
+        parts.add(
+          context.tr.import_summary_commands_imported(result.commandsImported),
+        );
       }
       if (result.commandsSkipped > 0) {
-        parts.add('${result.commandsSkipped} command(s) skipped');
+        parts.add(
+          context.tr.import_summary_commands_skipped(result.commandsSkipped),
+        );
       }
       if (result.workflowsImported > 0) {
-        parts.add('${result.workflowsImported} workflow(s) imported');
+        parts.add(
+          context.tr.import_summary_workflows_imported(
+            result.workflowsImported,
+          ),
+        );
       }
       if (result.workflowsSkipped > 0) {
-        parts.add('${result.workflowsSkipped} workflow(s) skipped');
+        parts.add(
+          context.tr.import_summary_workflows_skipped(result.workflowsSkipped),
+        );
       }
-      if (result.statusImported) parts.add('status imported');
-      if (result.globalVariablesImported) parts.add('variables imported');
+      if (result.statusImported) {
+        parts.add(context.tr.import_summary_status_imported);
+      }
+      if (result.globalVariablesImported) {
+        parts.add(context.tr.import_summary_variables_imported);
+      }
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(parts.isEmpty ? 'Nothing imported.' : parts.join(', ')),
+          content: Text(
+            parts.isEmpty ? context.tr.import_nothing : parts.join(', '),
+          ),
         ),
       );
 
@@ -213,7 +229,7 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Import failed: $e')));
+      ).showSnackBar(SnackBar(content: Text(context.tr.import_failed('$e'))));
     } finally {
       if (mounted) setState(() => _isImporting = false);
     }
@@ -222,7 +238,7 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(AppStrings.t('export_import_title'))),
+      appBar: AppBar(title: Text(context.tr.export_import_title)),
       body: SafeArea(
         top: false,
         child: LayoutBuilder(
@@ -257,12 +273,12 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          AppStrings.t('export_section_title'),
+          context.tr.export_section_title,
           style: Theme.of(context).textTheme.titleLarge,
         ),
         const SizedBox(height: 4),
         Text(
-          AppStrings.t('export_section_desc'),
+          context.tr.export_section_desc,
           style: Theme.of(context).textTheme.bodySmall,
         ),
         const SizedBox(height: 12),
@@ -271,13 +287,13 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
         CheckboxListTile(
           value: _exportStatus,
           onChanged: (v) => setState(() => _exportStatus = v ?? false),
-          title: Text(AppStrings.t('export_status')),
+          title: Text(context.tr.export_status),
           dense: true,
         ),
         CheckboxListTile(
           value: _exportGlobalVariables,
           onChanged: (v) => setState(() => _exportGlobalVariables = v ?? false),
-          title: Text(AppStrings.t('export_global_variables')),
+          title: Text(context.tr.export_global_variables),
           dense: true,
         ),
         const SizedBox(height: 12),
@@ -294,7 +310,7 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                   : const Icon(Icons.upload_file),
-          label: Text(AppStrings.t('export_button')),
+          label: Text(context.tr.export_button),
         ),
       ],
     );
@@ -332,7 +348,7 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
               }
             });
           },
-          title: Text(AppStrings.t('export_commands')),
+          title: Text(context.tr.export_commands),
           subtitle: Text(
             '${_selectedCommandIds.length} / ${_localCommands.length}',
           ),
@@ -399,7 +415,7 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
               }
             });
           },
-          title: Text(AppStrings.t('export_workflows')),
+          title: Text(context.tr.export_workflows),
           subtitle: Text(
             '${_selectedWorkflowNames.length} / ${_localWorkflows.length}',
           ),
@@ -438,12 +454,12 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          AppStrings.t('import_section_title'),
+          context.tr.import_section_title,
           style: Theme.of(context).textTheme.titleLarge,
         ),
         const SizedBox(height: 4),
         Text(
-          AppStrings.t('import_section_desc'),
+          context.tr.import_section_desc,
           style: Theme.of(context).textTheme.bodySmall,
         ),
         const SizedBox(height: 12),
@@ -451,7 +467,7 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
           OutlinedButton.icon(
             onPressed: _pickAndParseZip,
             icon: const Icon(Icons.folder_open),
-            label: Text(AppStrings.t('import_pick_file')),
+            label: Text(context.tr.import_pick_file),
           ),
         ] else ...[
           _buildImportPreview(),
@@ -461,7 +477,7 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
               Expanded(
                 child: OutlinedButton(
                   onPressed: () => setState(() => _importPreview = null),
-                  child: Text(AppStrings.t('cancel')),
+                  child: Text(context.tr.cancel),
                 ),
               ),
               const SizedBox(width: 12),
@@ -476,7 +492,7 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                           : const Icon(Icons.download),
-                  label: Text(AppStrings.t('import_button')),
+                  label: Text(context.tr.import_button),
                 ),
               ),
             ],
@@ -496,7 +512,7 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
             value: _importCommands,
             onChanged: (v) => setState(() => _importCommands = v ?? false),
             title: Text(
-              '${AppStrings.t("export_commands")} (${preview.commands.length})',
+              '${context.tr.export_commands} (${preview.commands.length})',
             ),
             dense: true,
           ),
@@ -507,7 +523,7 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
             value: _importWorkflows,
             onChanged: (v) => setState(() => _importWorkflows = v ?? false),
             title: Text(
-              '${AppStrings.t("export_workflows")} (${preview.workflows.length})',
+              '${context.tr.export_workflows} (${preview.workflows.length})',
             ),
             dense: true,
           ),
@@ -517,7 +533,7 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
           CheckboxListTile(
             value: _importStatus,
             onChanged: (v) => setState(() => _importStatus = v ?? false),
-            title: Text(AppStrings.t('export_status')),
+            title: Text(context.tr.export_status),
             dense: true,
           ),
         if (preview.hasGlobalVariables)
@@ -525,7 +541,7 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
             value: _importGlobalVariables,
             onChanged:
                 (v) => setState(() => _importGlobalVariables = v ?? false),
-            title: Text(AppStrings.t('export_global_variables')),
+            title: Text(context.tr.export_global_variables),
             dense: true,
           ),
       ],
@@ -553,14 +569,14 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
                   ButtonSegment(
                     value: ConflictResolution.overwrite,
                     label: Text(
-                      AppStrings.t('import_overwrite'),
+                      context.tr.import_overwrite,
                       style: const TextStyle(fontSize: 11),
                     ),
                   ),
                   ButtonSegment(
                     value: ConflictResolution.skip,
                     label: Text(
-                      AppStrings.t('import_skip'),
+                      context.tr.import_skip,
                       style: const TextStyle(fontSize: 11),
                     ),
                   ),
@@ -598,14 +614,14 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
                   ButtonSegment(
                     value: ConflictResolution.overwrite,
                     label: Text(
-                      AppStrings.t('import_overwrite'),
+                      context.tr.import_overwrite,
                       style: const TextStyle(fontSize: 11),
                     ),
                   ),
                   ButtonSegment(
                     value: ConflictResolution.skip,
                     label: Text(
-                      AppStrings.t('import_skip'),
+                      context.tr.import_skip,
                       style: const TextStyle(fontSize: 11),
                     ),
                   ),

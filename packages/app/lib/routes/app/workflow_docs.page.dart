@@ -64,44 +64,44 @@ class _WorkflowDocumentationPageState extends State<WorkflowDocumentationPage> {
     return _DocEntry(
       id: 'template.variables',
       kind: DocKind.template,
-      title: AppStrings.t('doc_template_variables_title'),
-      subtitle: AppStrings.t('doc_template_variables_subtitle'),
-      summary: AppStrings.t('doc_template_variables_summary'),
+      title: context.tr.doc_template_variables_title,
+      subtitle: context.tr.doc_template_variables_subtitle,
+      summary: context.tr.doc_template_variables_summary,
       variables: commandTemplateReferenceVariables,
       sections: <_DocSection>[
         _DocSection(
-          title: AppStrings.t('doc_template_variables_section_sources_title'),
+          title: context.tr.doc_template_variables_section_sources_title,
           lines: <String>[
-            AppStrings.t('doc_template_variables_section_sources_l1'),
-            AppStrings.t('doc_template_variables_section_sources_l2'),
-            AppStrings.t('doc_template_variables_section_sources_l3'),
-            AppStrings.t('doc_template_variables_section_sources_l4'),
-            AppStrings.t('doc_template_variables_section_sources_l5'),
+            context.tr.doc_template_variables_section_sources_l1,
+            context.tr.doc_template_variables_section_sources_l2,
+            context.tr.doc_template_variables_section_sources_l3,
+            context.tr.doc_template_variables_section_sources_l4,
+            context.tr.doc_template_variables_section_sources_l5,
           ],
         ),
         _DocSection(
-          title: AppStrings.t('doc_template_variables_section_builtin_title'),
+          title: context.tr.doc_template_variables_section_builtin_title,
           lines: commandBuiltinVariableDocumentationLines,
         ),
         _DocSection(
-          title: AppStrings.t('doc_template_variables_section_types_title'),
+          title: context.tr.doc_template_variables_section_types_title,
           lines: <String>[
-            AppStrings.t('doc_template_variables_section_types_l1'),
-            AppStrings.t('doc_template_variables_section_types_l2'),
-            AppStrings.t('doc_template_variables_section_types_l3'),
-            AppStrings.t('doc_template_variables_section_types_l4'),
+            context.tr.doc_template_variables_section_types_l1,
+            context.tr.doc_template_variables_section_types_l2,
+            context.tr.doc_template_variables_section_types_l3,
+            context.tr.doc_template_variables_section_types_l4,
           ],
         ),
         _DocSection(
-          title: AppStrings.t('doc_template_variables_section_fallbacks_title'),
+          title: context.tr.doc_template_variables_section_fallbacks_title,
           lines: <String>[
-            AppStrings.t('doc_template_variables_section_fallbacks_l1'),
-            AppStrings.t('doc_template_variables_section_fallbacks_l2'),
-            AppStrings.t('doc_template_variables_section_fallbacks_l3'),
+            context.tr.doc_template_variables_section_fallbacks_l1,
+            context.tr.doc_template_variables_section_fallbacks_l2,
+            context.tr.doc_template_variables_section_fallbacks_l3,
           ],
         ),
       ],
-      example: AppStrings.t('doc_template_variables_example'),
+      example: context.tr.doc_template_variables_example('{name}', '{score}'),
     );
   }
 
@@ -109,46 +109,46 @@ class _WorkflowDocumentationPageState extends State<WorkflowDocumentationPage> {
     return _DocEntry(
       id: 'template.functions',
       kind: DocKind.template,
-      title: AppStrings.t('doc_template_functions_title'),
-      subtitle: AppStrings.t('doc_template_functions_subtitle'),
-      summary: AppStrings.t('doc_template_functions_summary'),
+      title: context.tr.doc_template_functions_title,
+      subtitle: context.tr.doc_template_functions_subtitle,
+      summary: context.tr.doc_template_functions_summary,
       sections: <_DocSection>[
         _DocSection(
-          title: AppStrings.t('doc_template_functions_section_string_title'),
+          title: context.tr.doc_template_functions_section_string_title,
           lines: <String>[
-            AppStrings.t('doc_template_functions_section_string_l1'),
-            AppStrings.t('doc_template_functions_section_string_l2'),
-            AppStrings.t('doc_template_functions_section_string_l3'),
-            AppStrings.t('doc_template_functions_section_string_l4'),
+            context.tr.doc_template_functions_section_string_l1,
+            context.tr.doc_template_functions_section_string_l2,
+            context.tr.doc_template_functions_section_string_l3,
+            context.tr.doc_template_functions_section_string_l4,
           ],
         ),
         _DocSection(
-          title: AppStrings.t('doc_template_functions_section_array_title'),
+          title: context.tr.doc_template_functions_section_array_title,
           lines: <String>[
-            AppStrings.t('doc_template_functions_section_array_l1'),
-            AppStrings.t('doc_template_functions_section_array_l2'),
-            AppStrings.t('doc_template_functions_section_array_l3'),
-            AppStrings.t('doc_template_functions_section_array_l4'),
+            context.tr.doc_template_functions_section_array_l1,
+            context.tr.doc_template_functions_section_array_l2,
+            context.tr.doc_template_functions_section_array_l3,
+            context.tr.doc_template_functions_section_array_l4,
           ],
         ),
         _DocSection(
-          title: AppStrings.t('doc_template_functions_section_random_title'),
+          title: context.tr.doc_template_functions_section_random_title,
           lines: <String>[
-            AppStrings.t('doc_template_functions_section_random_l1'),
-            AppStrings.t('doc_template_functions_section_random_l2'),
+            context.tr.doc_template_functions_section_random_l1,
+            context.tr.doc_template_functions_section_random_l2,
           ],
         ),
         _DocSection(
-          title: AppStrings.t('doc_template_functions_section_notes_title'),
+          title: context.tr.doc_template_functions_section_notes_title,
           lines: <String>[
-            AppStrings.t('doc_template_functions_section_notes_l1'),
-            AppStrings.t('doc_template_functions_section_notes_l2'),
-            AppStrings.t('doc_template_functions_section_notes_l3'),
-            AppStrings.t('doc_template_functions_section_notes_l4'),
+            context.tr.doc_template_functions_section_notes_l1,
+            context.tr.doc_template_functions_section_notes_l2,
+            context.tr.doc_template_functions_section_notes_l3,
+            context.tr.doc_template_functions_section_notes_l4,
           ],
         ),
       ],
-      example: AppStrings.t('doc_template_functions_example'),
+      example: context.tr.doc_template_functions_example,
     );
   }
 
@@ -156,9 +156,9 @@ class _WorkflowDocumentationPageState extends State<WorkflowDocumentationPage> {
     return _DocEntry(
       id: 'template.advancedVariables',
       kind: DocKind.template,
-      title: AppStrings.t('doc_template_advanced_variables_title'),
-      subtitle: AppStrings.t('doc_template_advanced_variables_subtitle'),
-      summary: AppStrings.t('doc_template_advanced_variables_summary'),
+      title: context.tr.doc_template_advanced_variables_title,
+      subtitle: context.tr.doc_template_advanced_variables_subtitle,
+      summary: context.tr.doc_template_advanced_variables_summary,
       variables: const <String>[
         'interaction.kind',
         'interaction.values',
@@ -188,48 +188,37 @@ class _WorkflowDocumentationPageState extends State<WorkflowDocumentationPage> {
       ],
       sections: <_DocSection>[
         _DocSection(
-          title: AppStrings.t(
-            'doc_template_advanced_variables_section_interaction_title',
-          ),
+          title:
+              context
+                  .tr
+                  .doc_template_advanced_variables_section_interaction_title,
           lines: <String>[
-            AppStrings.t(
-              'doc_template_advanced_variables_section_interaction_l1',
-            ),
-            AppStrings.t(
-              'doc_template_advanced_variables_section_interaction_l2',
-            ),
-            AppStrings.t(
-              'doc_template_advanced_variables_section_interaction_l3',
-            ),
+            context.tr.doc_template_advanced_variables_section_interaction_l1,
+            context.tr.doc_template_advanced_variables_section_interaction_l2,
+            context.tr.doc_template_advanced_variables_section_interaction_l3,
           ],
         ),
         _DocSection(
-          title: AppStrings.t(
-            'doc_template_advanced_variables_section_channel_guild_title',
-          ),
+          title:
+              context
+                  .tr
+                  .doc_template_advanced_variables_section_channel_guild_title,
           lines: <String>[
-            AppStrings.t(
-              'doc_template_advanced_variables_section_channel_guild_l1',
-            ),
-            AppStrings.t(
-              'doc_template_advanced_variables_section_channel_guild_l2',
-            ),
-            AppStrings.t(
-              'doc_template_advanced_variables_section_channel_guild_l3',
-            ),
+            context.tr.doc_template_advanced_variables_section_channel_guild_l1,
+            context.tr.doc_template_advanced_variables_section_channel_guild_l2,
+            context.tr.doc_template_advanced_variables_section_channel_guild_l3,
           ],
         ),
         _DocSection(
-          title: AppStrings.t(
-            'doc_template_advanced_variables_section_aliases_title',
-          ),
+          title:
+              context.tr.doc_template_advanced_variables_section_aliases_title,
           lines: <String>[
-            AppStrings.t('doc_template_advanced_variables_section_aliases_l1'),
-            AppStrings.t('doc_template_advanced_variables_section_aliases_l2'),
+            context.tr.doc_template_advanced_variables_section_aliases_l1,
+            context.tr.doc_template_advanced_variables_section_aliases_l2,
           ],
         ),
       ],
-      example: AppStrings.t('doc_template_advanced_variables_example'),
+      example: context.tr.doc_template_advanced_variables_example,
     );
   }
 
@@ -237,9 +226,9 @@ class _WorkflowDocumentationPageState extends State<WorkflowDocumentationPage> {
     return _DocEntry(
       id: 'runtime.actionOutputs',
       kind: DocKind.runtime,
-      title: AppStrings.t('doc_runtime_action_outputs_title'),
-      subtitle: AppStrings.t('doc_runtime_action_outputs_subtitle'),
-      summary: AppStrings.t('doc_runtime_action_outputs_summary'),
+      title: context.tr.doc_runtime_action_outputs_title,
+      subtitle: context.tr.doc_runtime_action_outputs_subtitle,
+      summary: context.tr.doc_runtime_action_outputs_summary,
       variables: const <String>[
         'action.<resultKey>',
         'action.<resultKey>.status',
@@ -267,38 +256,33 @@ class _WorkflowDocumentationPageState extends State<WorkflowDocumentationPage> {
       ],
       sections: <_DocSection>[
         _DocSection(
-          title: AppStrings.t(
-            'doc_runtime_action_outputs_section_patterns_title',
-          ),
+          title: context.tr.doc_runtime_action_outputs_section_patterns_title,
           lines: <String>[
-            AppStrings.t('doc_runtime_action_outputs_section_patterns_l1'),
-            AppStrings.t('doc_runtime_action_outputs_section_patterns_l2'),
-            AppStrings.t('doc_runtime_action_outputs_section_patterns_l3'),
+            context.tr.doc_runtime_action_outputs_section_patterns_l1,
+            context.tr.doc_runtime_action_outputs_section_patterns_l2,
+            context.tr.doc_runtime_action_outputs_section_patterns_l3,
           ],
         ),
         _DocSection(
-          title: AppStrings.t(
-            'doc_runtime_action_outputs_section_common_fields_title',
-          ),
+          title:
+              context.tr.doc_runtime_action_outputs_section_common_fields_title,
           lines: <String>[
-            AppStrings.t('doc_runtime_action_outputs_section_common_fields_l1'),
-            AppStrings.t('doc_runtime_action_outputs_section_common_fields_l2'),
-            AppStrings.t('doc_runtime_action_outputs_section_common_fields_l3'),
-            AppStrings.t('doc_runtime_action_outputs_section_common_fields_l4'),
+            context.tr.doc_runtime_action_outputs_section_common_fields_l1,
+            context.tr.doc_runtime_action_outputs_section_common_fields_l2,
+            context.tr.doc_runtime_action_outputs_section_common_fields_l3,
+            context.tr.doc_runtime_action_outputs_section_common_fields_l4,
           ],
         ),
         _DocSection(
-          title: AppStrings.t(
-            'doc_runtime_action_outputs_section_caveats_title',
-          ),
+          title: context.tr.doc_runtime_action_outputs_section_caveats_title,
           lines: <String>[
-            AppStrings.t('doc_runtime_action_outputs_section_caveats_l1'),
-            AppStrings.t('doc_runtime_action_outputs_section_caveats_l2'),
-            AppStrings.t('doc_runtime_action_outputs_section_caveats_l3'),
+            context.tr.doc_runtime_action_outputs_section_caveats_l1,
+            context.tr.doc_runtime_action_outputs_section_caveats_l2,
+            context.tr.doc_runtime_action_outputs_section_caveats_l3,
           ],
         ),
       ],
-      example: AppStrings.t('doc_runtime_action_outputs_example'),
+      example: context.tr.doc_runtime_action_outputs_example,
     );
   }
 
@@ -306,47 +290,41 @@ class _WorkflowDocumentationPageState extends State<WorkflowDocumentationPage> {
     return _DocEntry(
       id: 'runtime.interactionCommands',
       kind: DocKind.runtime,
-      title: AppStrings.t('doc_interaction_commands_title'),
-      subtitle: AppStrings.t('doc_interaction_commands_subtitle'),
-      summary: AppStrings.t('doc_interaction_commands_summary'),
+      title: context.tr.doc_interaction_commands_title,
+      subtitle: context.tr.doc_interaction_commands_subtitle,
+      summary: context.tr.doc_interaction_commands_summary,
       variables: interactionCommandReferenceVariables,
       sections: <_DocSection>[
         _DocSection(
-          title: AppStrings.t(
-            'doc_interaction_commands_section_execution_title',
-          ),
+          title: context.tr.doc_interaction_commands_section_execution_title,
           lines: <String>[
-            AppStrings.t('doc_interaction_commands_section_execution_l1'),
-            AppStrings.t('doc_interaction_commands_section_execution_l2'),
-            AppStrings.t('doc_interaction_commands_section_execution_l3'),
+            context.tr.doc_interaction_commands_section_execution_l1,
+            context.tr.doc_interaction_commands_section_execution_l2,
+            context.tr.doc_interaction_commands_section_execution_l3,
           ],
         ),
         _DocSection(
-          title: AppStrings.t(
-            'doc_interaction_commands_section_per_type_title',
-          ),
+          title: context.tr.doc_interaction_commands_section_per_type_title,
           lines: <String>[
-            AppStrings.t('doc_interaction_commands_section_per_type_l1'),
-            AppStrings.t('doc_interaction_commands_section_per_type_l2'),
-            AppStrings.t('doc_interaction_commands_section_per_type_l3'),
+            context.tr.doc_interaction_commands_section_per_type_l1,
+            context.tr.doc_interaction_commands_section_per_type_l2,
+            context.tr.doc_interaction_commands_section_per_type_l3,
           ],
         ),
         _DocSection(
-          title: AppStrings.t('doc_interaction_commands_section_builtin_title'),
+          title: context.tr.doc_interaction_commands_section_builtin_title,
           lines: commandBuiltinVariableDocumentationLines,
         ),
         _DocSection(
-          title: AppStrings.t(
-            'doc_interaction_commands_section_guidance_title',
-          ),
+          title: context.tr.doc_interaction_commands_section_guidance_title,
           lines: <String>[
-            AppStrings.t('doc_interaction_commands_section_guidance_l1'),
-            AppStrings.t('doc_interaction_commands_section_guidance_l2'),
-            AppStrings.t('doc_interaction_commands_section_guidance_l3'),
+            context.tr.doc_interaction_commands_section_guidance_l1,
+            context.tr.doc_interaction_commands_section_guidance_l2,
+            context.tr.doc_interaction_commands_section_guidance_l3,
           ],
         ),
       ],
-      example: AppStrings.t('doc_interaction_commands_example'),
+      example: context.tr.doc_interaction_commands_example('{id}', '{name}'),
     );
   }
 
@@ -354,12 +332,12 @@ class _WorkflowDocumentationPageState extends State<WorkflowDocumentationPage> {
     return _DocEntry(
       id: 'event.messageCreate',
       kind: DocKind.event,
-      title: AppStrings.t('doc_event_message_create_title'),
-      subtitle: AppStrings.t('doc_event_message_create_subtitle'),
-      summary: AppStrings.t('doc_event_message_create_summary'),
+      title: context.tr.doc_event_message_create_title,
+      subtitle: context.tr.doc_event_message_create_subtitle,
+      summary: context.tr.doc_event_message_create_summary,
       requiresIntent: <String>[
-        AppStrings.t('doc_event_message_create_intent_1'),
-        AppStrings.t('doc_event_message_create_intent_2'),
+        context.tr.doc_event_message_create_intent_1,
+        context.tr.doc_event_message_create_intent_2,
       ],
       variables: <String>[
         'event.name',
@@ -383,23 +361,23 @@ class _WorkflowDocumentationPageState extends State<WorkflowDocumentationPage> {
       ],
       sections: <_DocSection>[
         _DocSection(
-          title: AppStrings.t('doc_common_section_best_use_cases'),
+          title: context.tr.doc_common_section_best_use_cases,
           lines: <String>[
-            AppStrings.t('doc_event_message_create_best_use_l1'),
-            AppStrings.t('doc_event_message_create_best_use_l2'),
-            AppStrings.t('doc_event_message_create_best_use_l3'),
+            context.tr.doc_event_message_create_best_use_l1,
+            context.tr.doc_event_message_create_best_use_l2,
+            context.tr.doc_event_message_create_best_use_l3,
           ],
         ),
         _DocSection(
-          title: AppStrings.t('doc_common_section_important_notes'),
+          title: context.tr.doc_common_section_important_notes,
           lines: <String>[
-            AppStrings.t('doc_event_message_create_notes_l1'),
-            AppStrings.t('doc_event_message_create_notes_l2'),
-            AppStrings.t('doc_event_message_create_notes_l3'),
+            context.tr.doc_event_message_create_notes_l1,
+            context.tr.doc_event_message_create_notes_l2,
+            context.tr.doc_event_message_create_notes_l3,
           ],
         ),
       ],
-      example: AppStrings.t('doc_event_message_create_example'),
+      example: context.tr.doc_event_message_create_example,
     );
   }
 
@@ -407,29 +385,25 @@ class _WorkflowDocumentationPageState extends State<WorkflowDocumentationPage> {
     return _DocEntry(
       id: 'runtime.executionFlow',
       kind: DocKind.runtime,
-      title: AppStrings.t('doc_runtime_execution_flow_title'),
-      subtitle: AppStrings.t('doc_runtime_execution_flow_subtitle'),
-      summary: AppStrings.t('doc_runtime_execution_flow_summary'),
+      title: context.tr.doc_runtime_execution_flow_title,
+      subtitle: context.tr.doc_runtime_execution_flow_subtitle,
+      summary: context.tr.doc_runtime_execution_flow_summary,
       sections: <_DocSection>[
         _DocSection(
-          title: AppStrings.t(
-            'doc_runtime_execution_flow_section_pipeline_title',
-          ),
+          title: context.tr.doc_runtime_execution_flow_section_pipeline_title,
           lines: <String>[
-            AppStrings.t('doc_runtime_execution_flow_section_pipeline_l1'),
-            AppStrings.t('doc_runtime_execution_flow_section_pipeline_l2'),
-            AppStrings.t('doc_runtime_execution_flow_section_pipeline_l3'),
-            AppStrings.t('doc_runtime_execution_flow_section_pipeline_l4'),
-            AppStrings.t('doc_runtime_execution_flow_section_pipeline_l5'),
+            context.tr.doc_runtime_execution_flow_section_pipeline_l1,
+            context.tr.doc_runtime_execution_flow_section_pipeline_l2,
+            context.tr.doc_runtime_execution_flow_section_pipeline_l3,
+            context.tr.doc_runtime_execution_flow_section_pipeline_l4,
+            context.tr.doc_runtime_execution_flow_section_pipeline_l5,
           ],
         ),
         _DocSection(
-          title: AppStrings.t(
-            'doc_runtime_execution_flow_section_parity_title',
-          ),
+          title: context.tr.doc_runtime_execution_flow_section_parity_title,
           lines: <String>[
-            AppStrings.t('doc_runtime_execution_flow_section_parity_l1'),
-            AppStrings.t('doc_runtime_execution_flow_section_parity_l2'),
+            context.tr.doc_runtime_execution_flow_section_parity_l1,
+            context.tr.doc_runtime_execution_flow_section_parity_l2,
           ],
         ),
       ],
@@ -441,11 +415,10 @@ class _WorkflowDocumentationPageState extends State<WorkflowDocumentationPage> {
     _DocEntry(
       id: 'event.messageReactionAdd',
       kind: DocKind.event,
-      title: 'Event: messageReactionAdd',
-      subtitle: 'Triggered when a user adds a reaction to a message.',
-      summary:
-          'Ideal for button-like UX without components, vote systems, role menus, and lightweight approvals.',
-      requiresIntent: <String>['Guild Message Reactions'],
+      title: context.tr.doc_event_reaction_add_title,
+      subtitle: context.tr.doc_event_reaction_add_subtitle,
+      summary: context.tr.doc_event_reaction_add_summary,
+      requiresIntent: <String>[context.tr.doc_event_reaction_add_intent],
       variables: <String>[
         'event.name',
         'guildId',
@@ -458,34 +431,31 @@ class _WorkflowDocumentationPageState extends State<WorkflowDocumentationPage> {
       ],
       sections: <_DocSection>[
         _DocSection(
-          title: 'Best Use Cases',
+          title: context.tr.doc_common_section_best_use_cases,
           lines: <String>[
-            'Approve/reject flows with unicode emoji.',
-            'Multi-step polls using custom emoji IDs.',
-            'Quick moderation signals from staff channels.',
+            context.tr.doc_event_reaction_add_best_use_l1,
+            context.tr.doc_event_reaction_add_best_use_l2,
+            context.tr.doc_event_reaction_add_best_use_l3,
           ],
         ),
         _DocSection(
-          title: 'Important Notes',
+          title: context.tr.doc_common_section_important_notes,
           lines: <String>[
-            'reaction.emoji.id can be empty for unicode emoji.',
-            'Use reaction.emoji.name for generic matching.',
-            'Use reaction.emoji.id for strict custom emoji matching.',
+            context.tr.doc_event_reaction_add_notes_l1,
+            context.tr.doc_event_reaction_add_notes_l2,
+            context.tr.doc_event_reaction_add_notes_l3,
           ],
         ),
       ],
-      example:
-          'Guard: ((reaction.emoji.name)) equals ✅\n'
-          'Action: addRole -> user=((userId)) role=((global.approvedRoleId))',
+      example: context.tr.doc_event_reaction_add_example,
     ),
     _DocEntry(
       id: 'event.messagePollVoteAdd',
       kind: DocKind.event,
-      title: 'Event: messagePollVoteAdd',
-      subtitle: 'Triggered when a user votes on a poll answer.',
-      summary:
-          'Useful for score tracking, role assignment by poll option, and survey processing.',
-      requiresIntent: <String>['Guild Messages'],
+      title: context.tr.doc_event_poll_vote_add_title,
+      subtitle: context.tr.doc_event_poll_vote_add_subtitle,
+      summary: context.tr.doc_event_poll_vote_add_summary,
+      requiresIntent: <String>[context.tr.doc_event_poll_vote_add_intent],
       variables: <String>[
         'event.name',
         'guildId',
@@ -497,17 +467,17 @@ class _WorkflowDocumentationPageState extends State<WorkflowDocumentationPage> {
       ],
       sections: <_DocSection>[
         _DocSection(
-          title: 'Best Use Cases',
+          title: context.tr.doc_common_section_best_use_cases,
           lines: <String>[
-            'Map each answer id to a different action branch.',
-            'Track poll participation per channel or user group.',
+            context.tr.doc_event_poll_vote_add_best_use_l1,
+            context.tr.doc_event_poll_vote_add_best_use_l2,
           ],
         ),
         _DocSection(
-          title: 'Important Notes',
+          title: context.tr.doc_common_section_important_notes,
           lines: <String>[
-            'poll.answer.id is the most stable key for routing.',
-            'poll.question is optional and may be empty depending on payload.',
+            context.tr.doc_event_poll_vote_add_notes_l1,
+            context.tr.doc_event_poll_vote_add_notes_l2,
           ],
         ),
       ],
@@ -515,11 +485,10 @@ class _WorkflowDocumentationPageState extends State<WorkflowDocumentationPage> {
     _DocEntry(
       id: 'event.voiceStateUpdate',
       kind: DocKind.event,
-      title: 'Event: voiceStateUpdate',
-      subtitle: 'Triggered when voice state changes for a user.',
-      summary:
-          'Use this for auto-moderation in voice channels, attendance checks, and voice automation.',
-      requiresIntent: <String>['Guilds'],
+      title: context.tr.doc_event_voice_state_update_title,
+      subtitle: context.tr.doc_event_voice_state_update_subtitle,
+      summary: context.tr.doc_event_voice_state_update_summary,
+      requiresIntent: <String>[context.tr.doc_event_voice_state_update_intent],
       variables: <String>[
         'event.name',
         'guildId',
@@ -535,11 +504,11 @@ class _WorkflowDocumentationPageState extends State<WorkflowDocumentationPage> {
       ],
       sections: <_DocSection>[
         _DocSection(
-          title: 'Typical Automations',
+          title: context.tr.doc_event_voice_state_update_section_title,
           lines: <String>[
-            'Detect self-mute/self-deafen policy violations.',
-            'Trigger welcome message on voice join for support channels.',
-            'Log leave/join patterns using channel changes.',
+            context.tr.doc_event_voice_state_update_automations_l1,
+            context.tr.doc_event_voice_state_update_automations_l2,
+            context.tr.doc_event_voice_state_update_automations_l3,
           ],
         ),
       ],
@@ -547,10 +516,9 @@ class _WorkflowDocumentationPageState extends State<WorkflowDocumentationPage> {
     _DocEntry(
       id: 'event.userUpdate',
       kind: DocKind.event,
-      title: 'Event: userUpdate',
-      subtitle: 'Triggered when user profile data changes.',
-      summary:
-          'Useful for profile-change auditing and username/avatar-driven triggers.',
+      title: context.tr.doc_event_user_update_title,
+      subtitle: context.tr.doc_event_user_update_subtitle,
+      summary: context.tr.doc_event_user_update_summary,
       variables: <String>[
         'event.name',
         'user.id',
@@ -561,10 +529,10 @@ class _WorkflowDocumentationPageState extends State<WorkflowDocumentationPage> {
       ],
       sections: <_DocSection>[
         _DocSection(
-          title: 'Important Notes',
+          title: context.tr.doc_common_section_important_notes,
           lines: <String>[
-            'No channel context for this event in most cases.',
-            'Prefer logging + moderation alerts over direct user-facing replies.',
+            context.tr.doc_event_user_update_notes_l1,
+            context.tr.doc_event_user_update_notes_l2,
           ],
         ),
       ],
@@ -572,9 +540,9 @@ class _WorkflowDocumentationPageState extends State<WorkflowDocumentationPage> {
     _DocEntry(
       id: 'event.guildAuditLogCreate',
       kind: DocKind.event,
-      title: 'Event: guildAuditLogCreate',
-      subtitle: 'Triggered when a new audit log entry is created.',
-      summary: 'High-value event for administrative security monitoring.',
+      title: context.tr.doc_event_audit_log_create_title,
+      subtitle: context.tr.doc_event_audit_log_create_subtitle,
+      summary: context.tr.doc_event_audit_log_create_summary,
       variables: <String>[
         'event.name',
         'guildId',
@@ -584,10 +552,10 @@ class _WorkflowDocumentationPageState extends State<WorkflowDocumentationPage> {
       ],
       sections: <_DocSection>[
         _DocSection(
-          title: 'Best Use Cases',
+          title: context.tr.doc_common_section_best_use_cases,
           lines: <String>[
-            'Alert staff on sensitive actions (role delete, webhook create, ban, etc.).',
-            'Route specific action types to dedicated workflows.',
+            context.tr.doc_event_audit_log_create_best_use_l1,
+            context.tr.doc_event_audit_log_create_best_use_l2,
           ],
         ),
       ],
@@ -595,48 +563,42 @@ class _WorkflowDocumentationPageState extends State<WorkflowDocumentationPage> {
     _DocEntry(
       id: 'action.stopUnless',
       kind: DocKind.action,
-      title: 'Action: stopUnless',
-      subtitle: 'Guard clause that stops workflow when condition fails.',
-      summary:
-          'Use it at the top of workflows to prevent unnecessary actions when context does not match.',
+      title: context.tr.doc_action_stop_unless_title,
+      subtitle: context.tr.doc_action_stop_unless_subtitle,
+      summary: context.tr.doc_action_stop_unless_summary,
       sections: <_DocSection>[
         _DocSection(
-          title: 'Supported Operators',
+          title: context.tr.doc_action_stop_unless_section_operators,
           lines: <String>[
-            'equals, notEquals, contains, notContains, startsWith, endsWith',
-            'greaterThan, lessThan, greaterOrEqual, lessOrEqual',
-            'isEmpty, isNotEmpty, matches',
+            context.tr.doc_action_stop_unless_operators_l1,
+            context.tr.doc_action_stop_unless_operators_l2,
+            context.tr.doc_action_stop_unless_operators_l3,
           ],
         ),
         _DocSection(
-          title: 'Condition Variable Format',
+          title: context.tr.doc_action_stop_unless_section_format,
           lines: <String>[
-            'You can use raw keys: message.content[0]',
-            'You can use wrapped variables: ((message.content[0]))',
-            'Both are resolved by runtime.',
+            context.tr.doc_action_stop_unless_format_l1,
+            context.tr.doc_action_stop_unless_format_l2,
+            context.tr.doc_action_stop_unless_format_l3,
           ],
         ),
       ],
-      example:
-          'condition.variable = ((reaction.emoji.name))\n'
-          'condition.operator = equals\n'
-          'condition.value = ✅',
+      example: context.tr.doc_action_stop_unless_example,
     ),
     _DocEntry(
       id: 'action.ifBlock',
       kind: DocKind.action,
-      title: 'Action: ifBlock',
-      subtitle:
-          'Branch execution between THEN, ELSE IF and ELSE nested action lists.',
-      summary:
-          'Use this to keep a single workflow while handling several outcomes based on runtime state.',
+      title: context.tr.doc_action_if_block_title,
+      subtitle: context.tr.doc_action_if_block_subtitle,
+      summary: context.tr.doc_action_if_block_summary,
       sections: <_DocSection>[
         _DocSection(
-          title: 'Execution Model',
+          title: context.tr.doc_action_if_block_section_execution,
           lines: <String>[
-            'Condition is evaluated once.',
-            'The first matching branch executes: THEN, then ELSE IF blocks in order, then ELSE.',
-            'Nested actions can include runWorkflow, API calls, and interaction replies.',
+            context.tr.doc_action_if_block_execution_l1,
+            context.tr.doc_action_if_block_execution_l2,
+            context.tr.doc_action_if_block_execution_l3,
           ],
         ),
       ],
@@ -644,17 +606,16 @@ class _WorkflowDocumentationPageState extends State<WorkflowDocumentationPage> {
     _DocEntry(
       id: 'action.runWorkflow',
       kind: DocKind.action,
-      title: 'Action: runWorkflow',
-      subtitle: 'Calls another workflow with entry point and arguments.',
-      summary:
-          'Core composition primitive to split business logic into reusable units.',
+      title: context.tr.doc_action_run_workflow_title,
+      subtitle: context.tr.doc_action_run_workflow_subtitle,
+      summary: context.tr.doc_action_run_workflow_summary,
       sections: <_DocSection>[
         _DocSection(
-          title: 'Best Practices',
+          title: context.tr.doc_action_run_workflow_section_practices,
           lines: <String>[
-            'Keep top-level workflow thin and delegate to domain workflows.',
-            'Pass explicit arguments instead of relying on implicit globals.',
-            'Use entry points to model sub-routines (create, close, assign, escalate).',
+            context.tr.doc_action_run_workflow_practices_l1,
+            context.tr.doc_action_run_workflow_practices_l2,
+            context.tr.doc_action_run_workflow_practices_l3,
           ],
         ),
       ],
@@ -662,17 +623,16 @@ class _WorkflowDocumentationPageState extends State<WorkflowDocumentationPage> {
     _DocEntry(
       id: 'action.httpRequest',
       kind: DocKind.action,
-      title: 'Action: httpRequest',
-      subtitle: 'Executes an external HTTP call inside a workflow.',
-      summary:
-          'Use this for webhooks, internal APIs, moderation services, AI endpoints, and integrations.',
+      title: context.tr.doc_action_http_request_title,
+      subtitle: context.tr.doc_action_http_request_subtitle,
+      summary: context.tr.doc_action_http_request_summary,
       sections: <_DocSection>[
         _DocSection(
-          title: 'Reliability Checklist',
+          title: context.tr.doc_action_http_request_section_checklist,
           lines: <String>[
-            'Set explicit timeout and retries in your service layer when possible.',
-            'Store API keys in globals or secure backend, never hardcode tokens.',
-            'Validate status code and response body before next actions.',
+            context.tr.doc_action_http_request_checklist_l1,
+            context.tr.doc_action_http_request_checklist_l2,
+            context.tr.doc_action_http_request_checklist_l3,
           ],
         ),
       ],
@@ -714,13 +674,13 @@ class _WorkflowDocumentationPageState extends State<WorkflowDocumentationPage> {
   String _kindLabel(DocKind kind) {
     switch (kind) {
       case DocKind.event:
-        return AppStrings.t('doc_kind_event');
+        return context.tr.doc_kind_event;
       case DocKind.action:
-        return AppStrings.t('doc_kind_action');
+        return context.tr.doc_kind_action;
       case DocKind.template:
-        return AppStrings.t('doc_kind_template');
+        return context.tr.doc_kind_template;
       case DocKind.runtime:
-        return AppStrings.t('doc_kind_runtime');
+        return context.tr.doc_kind_runtime;
     }
   }
 
@@ -748,7 +708,7 @@ class _WorkflowDocumentationPageState extends State<WorkflowDocumentationPage> {
     final docs = _filtered;
 
     return Scaffold(
-      appBar: AppBar(title: Text(AppStrings.t('doc_center_title'))),
+      appBar: AppBar(title: Text(context.tr.doc_center_title)),
       body: SafeArea(
         top: false,
         child: Column(
@@ -764,14 +724,14 @@ class _WorkflowDocumentationPageState extends State<WorkflowDocumentationPage> {
                       _searchCtrl.text.isEmpty
                           ? null
                           : IconButton(
-                            tooltip: AppStrings.t('doc_center_clear_search'),
+                            tooltip: context.tr.doc_center_clear_search,
                             onPressed: () {
                               _searchCtrl.clear();
                               setState(() {});
                             },
                             icon: const Icon(Icons.close),
                           ),
-                  hintText: AppStrings.t('doc_center_search_hint'),
+                  hintText: context.tr.doc_center_search_hint,
                   border: const OutlineInputBorder(),
                 ),
               ),
@@ -784,7 +744,7 @@ class _WorkflowDocumentationPageState extends State<WorkflowDocumentationPage> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     child: ChoiceChip(
-                      label: Text(AppStrings.t('doc_kind_all')),
+                      label: Text(context.tr.doc_kind_all),
                       selected: _kindFilter == null,
                       onSelected: (_) => setState(() => _kindFilter = null),
                     ),
@@ -807,7 +767,7 @@ class _WorkflowDocumentationPageState extends State<WorkflowDocumentationPage> {
                   docs.isEmpty
                       ? Center(
                         child: Text(
-                          AppStrings.t('doc_center_empty'),
+                          context.tr.doc_center_empty,
                           textAlign: TextAlign.center,
                         ),
                       )
@@ -880,7 +840,7 @@ class _WorkflowDocDetailPage extends StatelessWidget {
             if (doc.requiresIntent.isNotEmpty) ...<Widget>[
               const SizedBox(height: 14),
               Text(
-                AppStrings.t('doc_required_intents'),
+                context.tr.doc_required_intents,
                 style: const TextStyle(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 6),
@@ -895,7 +855,7 @@ class _WorkflowDocDetailPage extends StatelessWidget {
             if (doc.variables.isNotEmpty) ...<Widget>[
               const SizedBox(height: 14),
               Text(
-                AppStrings.t('doc_available_variables'),
+                context.tr.doc_available_variables,
                 style: const TextStyle(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 6),
@@ -918,7 +878,7 @@ class _WorkflowDocDetailPage extends StatelessWidget {
                 doc.example!.trim().isNotEmpty) ...<Widget>[
               const SizedBox(height: 14),
               Text(
-                AppStrings.t('doc_example'),
+                context.tr.doc_example,
                 style: const TextStyle(fontWeight: FontWeight.w700),
               ),
               _mono(doc.example!),

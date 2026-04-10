@@ -137,12 +137,12 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              AppStrings.t('cmd_execution_mode_title'),
+              context.tr.cmd_execution_mode_title,
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 6),
             Text(
-              AppStrings.t('cmd_execution_mode_desc'),
+              context.tr.cmd_execution_mode_desc,
               style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
             ),
             const SizedBox(height: 12),
@@ -161,14 +161,14 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
                 children: [
                   buildModeTile(
                     value: _CommandCreatePageState._executionModeWorkflow,
-                    title: AppStrings.t('cmd_execution_mode_workflow'),
-                    subtitle: AppStrings.t('cmd_execution_mode_workflow_desc'),
+                    title: context.tr.cmd_execution_mode_workflow,
+                    subtitle: context.tr.cmd_execution_mode_workflow_desc,
                     icon: Icons.account_tree_outlined,
                   ),
                   buildModeTile(
                     value: _CommandCreatePageState._executionModeBdfdScript,
-                    title: AppStrings.t('cmd_execution_mode_bdfd'),
-                    subtitle: AppStrings.t('cmd_execution_mode_bdfd_desc'),
+                    title: context.tr.cmd_execution_mode_bdfd,
+                    subtitle: context.tr.cmd_execution_mode_bdfd_desc,
                     icon: Icons.code_outlined,
                   ),
                 ],
@@ -222,7 +222,7 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
     final isEmpty = code.trim().isEmpty;
     final preview =
         isEmpty
-            ? AppStrings.t('bdfd_editor_tap_hint')
+            ? context.tr.bdfd_editor_tap_hint
             : code.length > 200
             ? '${code.substring(0, 200)}…'
             : code;
@@ -235,7 +235,7 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
             builder:
                 (_) => BdfdEditorPage(
                   initialCode: _bdfdScriptController.text,
-                  title: AppStrings.t('workflow_bdfd_editor_title'),
+                  title: context.tr.workflow_bdfd_editor_title,
                 ),
           ),
         );
@@ -261,7 +261,7 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
                 const Icon(Icons.code, size: 16, color: Colors.white70),
                 const SizedBox(width: 8),
                 Text(
-                  AppStrings.t('cmd_bdfd_script_label'),
+                  context.tr.cmd_bdfd_script_label,
                   style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 12,
@@ -309,12 +309,12 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    AppStrings.t('cmd_bdfd_diagnostics_title'),
+                    context.tr.cmd_bdfd_diagnostics_title,
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    AppStrings.t('cmd_bdfd_diagnostics_clean'),
+                    context.tr.cmd_bdfd_diagnostics_clean,
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.green.shade800,
@@ -345,7 +345,7 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            AppStrings.t('cmd_bdfd_diagnostics_title'),
+            context.tr.cmd_bdfd_diagnostics_title,
             style: const TextStyle(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
@@ -417,23 +417,23 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              AppStrings.t('cmd_simple_actions_title'),
+              context.tr.cmd_simple_actions_title,
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 4),
             Text(
-              AppStrings.t('cmd_simple_actions_desc'),
+              context.tr.cmd_simple_actions_desc,
               style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
             ),
             const SizedBox(height: 12),
             _buildSimpleActionSection(
-              title: AppStrings.t('cmd_simple_group_moderation_title'),
-              description: AppStrings.t('cmd_simple_group_moderation_desc'),
+              title: context.tr.cmd_simple_group_moderation_title,
+              description: context.tr.cmd_simple_group_moderation_desc,
               children: [
                 _buildSimpleActionToggle(
                   value: _simpleDeleteMessages,
-                  title: AppStrings.t('cmd_simple_action_delete'),
-                  subtitle: AppStrings.t('cmd_simple_action_delete_desc'),
+                  title: context.tr.cmd_simple_action_delete,
+                  subtitle: context.tr.cmd_simple_action_delete_desc,
                   onChanged: (value) {
                     _applyStateUpdate(() {
                       _simpleDeleteMessages = value;
@@ -442,8 +442,8 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
                 ),
                 _buildSimpleActionToggle(
                   value: _simpleKickUser,
-                  title: AppStrings.t('cmd_simple_action_kick'),
-                  subtitle: AppStrings.t('cmd_simple_action_kick_desc'),
+                  title: context.tr.cmd_simple_action_kick,
+                  subtitle: context.tr.cmd_simple_action_kick_desc,
                   onChanged: (value) {
                     _applyStateUpdate(() {
                       _simpleKickUser = value;
@@ -452,8 +452,8 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
                 ),
                 _buildSimpleActionToggle(
                   value: _simpleBanUser,
-                  title: AppStrings.t('cmd_simple_action_ban'),
-                  subtitle: AppStrings.t('cmd_simple_action_ban_desc'),
+                  title: context.tr.cmd_simple_action_ban,
+                  subtitle: context.tr.cmd_simple_action_ban_desc,
                   onChanged: (value) {
                     _applyStateUpdate(() {
                       _simpleBanUser = value;
@@ -462,8 +462,8 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
                 ),
                 _buildSimpleActionToggle(
                   value: _simpleUnbanUser,
-                  title: AppStrings.t('cmd_simple_action_unban'),
-                  subtitle: AppStrings.t('cmd_simple_action_unban_desc'),
+                  title: context.tr.cmd_simple_action_unban,
+                  subtitle: context.tr.cmd_simple_action_unban_desc,
                   onChanged: (value) {
                     _applyStateUpdate(() {
                       _simpleUnbanUser = value;
@@ -472,8 +472,8 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
                 ),
                 _buildSimpleActionToggle(
                   value: _simpleMuteUser,
-                  title: AppStrings.t('cmd_simple_action_mute'),
-                  subtitle: AppStrings.t('cmd_simple_action_mute_desc'),
+                  title: context.tr.cmd_simple_action_mute,
+                  subtitle: context.tr.cmd_simple_action_mute_desc,
                   onChanged: (value) {
                     _applyStateUpdate(() {
                       _simpleMuteUser = value;
@@ -482,8 +482,8 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
                 ),
                 _buildSimpleActionToggle(
                   value: _simpleUnmuteUser,
-                  title: AppStrings.t('cmd_simple_action_unmute'),
-                  subtitle: AppStrings.t('cmd_simple_action_unmute_desc'),
+                  title: context.tr.cmd_simple_action_unmute,
+                  subtitle: context.tr.cmd_simple_action_unmute_desc,
                   onChanged: (value) {
                     _applyStateUpdate(() {
                       _simpleUnmuteUser = value;
@@ -492,8 +492,8 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
                 ),
                 _buildSimpleActionToggle(
                   value: _simpleAddRole,
-                  title: AppStrings.t('cmd_simple_action_add_role'),
-                  subtitle: AppStrings.t('cmd_simple_action_add_role_desc'),
+                  title: context.tr.cmd_simple_action_add_role,
+                  subtitle: context.tr.cmd_simple_action_add_role_desc,
                   onChanged: (value) {
                     _applyStateUpdate(() {
                       _simpleAddRole = value;
@@ -502,8 +502,8 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
                 ),
                 _buildSimpleActionToggle(
                   value: _simpleRemoveRole,
-                  title: AppStrings.t('cmd_simple_action_remove_role'),
-                  subtitle: AppStrings.t('cmd_simple_action_remove_role_desc'),
+                  title: context.tr.cmd_simple_action_remove_role,
+                  subtitle: context.tr.cmd_simple_action_remove_role_desc,
                   onChanged: (value) {
                     _applyStateUpdate(() {
                       _simpleRemoveRole = value;
@@ -514,13 +514,13 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
             ),
             const SizedBox(height: 12),
             _buildSimpleActionSection(
-              title: AppStrings.t('cmd_simple_group_messages_title'),
-              description: AppStrings.t('cmd_simple_group_messages_desc'),
+              title: context.tr.cmd_simple_group_messages_title,
+              description: context.tr.cmd_simple_group_messages_desc,
               children: [
                 _buildSimpleActionToggle(
                   value: _simpleSendMessage,
-                  title: AppStrings.t('cmd_simple_action_send_message'),
-                  subtitle: AppStrings.t('cmd_simple_action_send_message_desc'),
+                  title: context.tr.cmd_simple_action_send_message,
+                  subtitle: context.tr.cmd_simple_action_send_message_desc,
                   onChanged: (value) {
                     _applyStateUpdate(() {
                       _simpleSendMessage = value;
@@ -529,8 +529,8 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
                 ),
                 _buildSimpleActionToggle(
                   value: _simplePinMessage,
-                  title: AppStrings.t('cmd_simple_action_pin'),
-                  subtitle: AppStrings.t('cmd_simple_action_pin_desc'),
+                  title: context.tr.cmd_simple_action_pin,
+                  subtitle: context.tr.cmd_simple_action_pin_desc,
                   onChanged: (value) {
                     _applyStateUpdate(() {
                       _simplePinMessage = value;
@@ -539,8 +539,8 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
                 ),
                 _buildSimpleActionToggle(
                   value: _simpleUnpinMessage,
-                  title: AppStrings.t('cmd_simple_action_unpin'),
-                  subtitle: AppStrings.t('cmd_simple_action_unpin_desc'),
+                  title: context.tr.cmd_simple_action_unpin,
+                  subtitle: context.tr.cmd_simple_action_unpin_desc,
                   onChanged: (value) {
                     _applyStateUpdate(() {
                       _simpleUnpinMessage = value;
@@ -551,15 +551,13 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
             ),
             const SizedBox(height: 12),
             _buildSimpleActionSection(
-              title: AppStrings.t('cmd_simple_group_utility_title'),
-              description: AppStrings.t('cmd_simple_group_utility_desc'),
+              title: context.tr.cmd_simple_group_utility_title,
+              description: context.tr.cmd_simple_group_utility_desc,
               children: [
                 _buildSimpleActionToggle(
                   value: _simpleCreateInvite,
-                  title: AppStrings.t('cmd_simple_action_create_invite'),
-                  subtitle: AppStrings.t(
-                    'cmd_simple_action_create_invite_desc',
-                  ),
+                  title: context.tr.cmd_simple_action_create_invite,
+                  subtitle: context.tr.cmd_simple_action_create_invite_desc,
                   onChanged: (value) {
                     _applyStateUpdate(() {
                       _simpleCreateInvite = value;
@@ -568,8 +566,8 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
                 ),
                 _buildSimpleActionToggle(
                   value: _simpleCreatePoll,
-                  title: AppStrings.t('cmd_simple_action_create_poll'),
-                  subtitle: AppStrings.t('cmd_simple_action_create_poll_desc'),
+                  title: context.tr.cmd_simple_action_create_poll,
+                  subtitle: context.tr.cmd_simple_action_create_poll_desc,
                   onChanged: (value) {
                     _applyStateUpdate(() {
                       _simpleCreatePoll = value;
@@ -585,10 +583,8 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
                 minLines: 2,
                 maxLines: 4,
                 decoration: InputDecoration(
-                  labelText: AppStrings.t(
-                    'cmd_simple_action_send_message_label',
-                  ),
-                  hintText: AppStrings.t('cmd_simple_action_send_message_hint'),
+                  labelText: context.tr.cmd_simple_action_send_message_label,
+                  hintText: context.tr.cmd_simple_action_send_message_hint,
                   border: const OutlineInputBorder(),
                 ),
                 onChanged: (_) {
@@ -601,20 +597,20 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
             if (config.hasAuditReasonAction) ...[
               const SizedBox(height: 12),
               Text(
-                AppStrings.t('cmd_simple_execution_title'),
+                context.tr.cmd_simple_execution_title,
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 4),
               Text(
-                AppStrings.t('cmd_simple_execution_desc'),
+                context.tr.cmd_simple_execution_desc,
                 style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
               ),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _simpleActionReasonController,
                 decoration: InputDecoration(
-                  labelText: AppStrings.t('cmd_simple_action_reason_label'),
-                  hintText: AppStrings.t('cmd_simple_action_reason_hint'),
+                  labelText: context.tr.cmd_simple_action_reason_label,
+                  hintText: context.tr.cmd_simple_action_reason_hint,
                   border: const OutlineInputBorder(),
                 ),
                 onChanged: (_) {
@@ -630,12 +626,10 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
                 controller: _simpleDeleteMessagesDefaultCountController,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
-                  labelText: AppStrings.t(
-                    'cmd_simple_action_delete_default_count_label',
-                  ),
-                  hintText: AppStrings.t(
-                    'cmd_simple_action_delete_default_count_hint',
-                  ),
+                  labelText:
+                      context.tr.cmd_simple_action_delete_default_count_label,
+                  hintText:
+                      context.tr.cmd_simple_action_delete_default_count_hint,
                   border: const OutlineInputBorder(),
                 ),
                 onChanged: (_) {
@@ -651,12 +645,8 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
                 controller: _simpleBanDeleteDaysController,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
-                  labelText: AppStrings.t(
-                    'cmd_simple_action_ban_delete_days_label',
-                  ),
-                  hintText: AppStrings.t(
-                    'cmd_simple_action_ban_delete_days_hint',
-                  ),
+                  labelText: context.tr.cmd_simple_action_ban_delete_days_label,
+                  hintText: context.tr.cmd_simple_action_ban_delete_days_hint,
                   border: const OutlineInputBorder(),
                 ),
                 onChanged: (_) {
@@ -671,12 +661,8 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
               TextFormField(
                 controller: _simpleMuteDurationController,
                 decoration: InputDecoration(
-                  labelText: AppStrings.t(
-                    'cmd_simple_action_mute_duration_label',
-                  ),
-                  hintText: AppStrings.t(
-                    'cmd_simple_action_mute_duration_hint',
-                  ),
+                  labelText: context.tr.cmd_simple_action_mute_duration_label,
+                  hintText: context.tr.cmd_simple_action_mute_duration_hint,
                   border: const OutlineInputBorder(),
                 ),
                 onChanged: (_) {
@@ -689,12 +675,12 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
             if (config.createInvite) ...[
               const SizedBox(height: 12),
               Text(
-                AppStrings.t('cmd_simple_invite_settings_title'),
+                context.tr.cmd_simple_invite_settings_title,
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 4),
               Text(
-                AppStrings.t('cmd_simple_invite_settings_desc'),
+                context.tr.cmd_simple_invite_settings_desc,
                 style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
               ),
               const SizedBox(height: 8),
@@ -705,12 +691,8 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
                       controller: _simpleInviteMaxAgeController,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
-                        labelText: AppStrings.t(
-                          'cmd_simple_invite_max_age_label',
-                        ),
-                        hintText: AppStrings.t(
-                          'cmd_simple_invite_max_age_hint',
-                        ),
+                        labelText: context.tr.cmd_simple_invite_max_age_label,
+                        hintText: context.tr.cmd_simple_invite_max_age_hint,
                         border: const OutlineInputBorder(),
                       ),
                       onChanged: (_) {
@@ -726,12 +708,8 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
                       controller: _simpleInviteMaxUsesController,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
-                        labelText: AppStrings.t(
-                          'cmd_simple_invite_max_uses_label',
-                        ),
-                        hintText: AppStrings.t(
-                          'cmd_simple_invite_max_uses_hint',
-                        ),
+                        labelText: context.tr.cmd_simple_invite_max_uses_label,
+                        hintText: context.tr.cmd_simple_invite_max_uses_hint,
                         border: const OutlineInputBorder(),
                       ),
                       onChanged: (_) {
@@ -746,10 +724,8 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
               const SizedBox(height: 8),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: Text(AppStrings.t('cmd_simple_invite_temporary_label')),
-                subtitle: Text(
-                  AppStrings.t('cmd_simple_invite_temporary_desc'),
-                ),
+                title: Text(context.tr.cmd_simple_invite_temporary_label),
+                subtitle: Text(context.tr.cmd_simple_invite_temporary_desc),
                 value: _simpleInviteTemporary,
                 onChanged: (value) {
                   _applyStateUpdate(() {
@@ -759,8 +735,8 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
               ),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: Text(AppStrings.t('cmd_simple_invite_unique_label')),
-                subtitle: Text(AppStrings.t('cmd_simple_invite_unique_desc')),
+                title: Text(context.tr.cmd_simple_invite_unique_label),
+                subtitle: Text(context.tr.cmd_simple_invite_unique_desc),
                 value: _simpleInviteUnique,
                 onChanged: (value) {
                   _applyStateUpdate(() {
@@ -772,12 +748,12 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
             if (config.createPoll) ...[
               const SizedBox(height: 12),
               Text(
-                AppStrings.t('cmd_simple_poll_settings_title'),
+                context.tr.cmd_simple_poll_settings_title,
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 4),
               Text(
-                AppStrings.t('cmd_simple_poll_settings_desc'),
+                context.tr.cmd_simple_poll_settings_desc,
                 style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
               ),
               const SizedBox(height: 8),
@@ -786,8 +762,8 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
                 minLines: 3,
                 maxLines: 6,
                 decoration: InputDecoration(
-                  labelText: AppStrings.t('cmd_simple_poll_answers_label'),
-                  hintText: AppStrings.t('cmd_simple_poll_answers_hint'),
+                  labelText: context.tr.cmd_simple_poll_answers_label,
+                  hintText: context.tr.cmd_simple_poll_answers_hint,
                   border: const OutlineInputBorder(),
                 ),
                 onChanged: (_) {
@@ -801,8 +777,8 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
                 controller: _simplePollDurationHoursController,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
-                  labelText: AppStrings.t('cmd_simple_poll_duration_label'),
-                  hintText: AppStrings.t('cmd_simple_poll_duration_hint'),
+                  labelText: context.tr.cmd_simple_poll_duration_label,
+                  hintText: context.tr.cmd_simple_poll_duration_hint,
                   border: const OutlineInputBorder(),
                 ),
                 onChanged: (_) {
@@ -814,10 +790,8 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
               const SizedBox(height: 8),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: Text(AppStrings.t('cmd_simple_poll_multiselect_label')),
-                subtitle: Text(
-                  AppStrings.t('cmd_simple_poll_multiselect_desc'),
-                ),
+                title: Text(context.tr.cmd_simple_poll_multiselect_label),
+                subtitle: Text(context.tr.cmd_simple_poll_multiselect_desc),
                 value: _simplePollAllowMultiselect,
                 onChanged: (value) {
                   _applyStateUpdate(() {
@@ -828,13 +802,13 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
             ],
             const SizedBox(height: 12),
             Text(
-              AppStrings.t('cmd_simple_generated_options'),
+              context.tr.cmd_simple_generated_options,
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             if (generatedOptionLabels.isEmpty)
               Text(
-                AppStrings.t('cmd_simple_generated_none'),
+                context.tr.cmd_simple_generated_none,
                 style: TextStyle(color: Colors.grey.shade600),
               )
             else

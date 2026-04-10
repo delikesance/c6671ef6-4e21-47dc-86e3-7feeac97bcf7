@@ -6,6 +6,7 @@ import 'builder/action_types.dart';
 import 'builder/action_type_extension.dart';
 import 'builder/action_card.dart';
 import 'builder/action_summary.dart';
+import '../../utils/i18n.dart';
 
 export 'builder/action_types.dart';
 export 'builder/action_type_extension.dart';
@@ -132,14 +133,14 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
             context: context,
             builder:
                 (context) => AlertDialog(
-                  title: const Text('Missing Required Field'),
+                  title: Text(context.tr.actions_missing_field_title),
                   content: Text(
                     '${action.type.displayName}: ${def.key} is required.',
                   ),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('OK'),
+                      child: Text(context.tr.common_ok),
                     ),
                   ],
                 ),
@@ -451,10 +452,10 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           TextField(
-            decoration: const InputDecoration(
-              hintText: 'Search actions...',
-              prefixIcon: Icon(Icons.search),
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              hintText: context.tr.actions_search_hint,
+              prefixIcon: const Icon(Icons.search),
+              border: const OutlineInputBorder(),
             ),
             onChanged: (value) {
               setDialogState(() {
@@ -466,7 +467,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
           Expanded(
             child:
                 actionsByCategory.isEmpty
-                    ? const Center(child: Text('No actions match your search.'))
+                    ? Center(child: Text(context.tr.actions_no_matches))
                     : SingleChildScrollView(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -483,14 +484,14 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
           if (isMobile)
             FilledButton(
               onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Close'),
+              child: Text(context.tr.common_close),
             )
           else
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
                 onPressed: () => Navigator.pop(dialogContext),
-                child: const Text('Cancel'),
+                child: Text(context.tr.common_cancel),
               ),
             ),
         ],
@@ -529,7 +530,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
-              title: const Text('Add New Action'),
+              title: Text(context.tr.actions_add_new_title),
               content: SizedBox(
                 width: 620,
                 height: maxHeight,
@@ -928,7 +929,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
     }
     final filtered = _filteredActions();
     if (filtered.isEmpty) {
-      return const Center(child: Text('No actions match your search.'));
+      return Center(child: Text(context.tr.actions_no_matches));
     }
 
     return ListView.builder(
@@ -969,14 +970,19 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
                         runSpacing: 8,
                         children: [
                           _SequenceMetaChip(
-                            label: summary.isEnabled ? 'Enabled' : 'Disabled',
+                            label:
+                                summary.isEnabled
+                                    ? context.tr.common_enabled
+                                    : context.tr.common_disabled,
                             color:
                                 summary.isEnabled
                                     ? Colors.green
                                     : Colors.orange,
                           ),
                           _SequenceMetaChip(
-                            label: 'Key: ${summary.outputKey}',
+                            label: context.tr.actions_key_label(
+                              summary.outputKey,
+                            ),
                             color: Theme.of(context).colorScheme.primary,
                           ),
                           for (final meta in summary.meta)
@@ -1013,7 +1019,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
                 });
               },
               decoration: InputDecoration(
-                hintText: 'Search actions in this sequence...',
+                hintText: context.tr.actions_search_sequence_hint,
                 prefixIcon: const Icon(Icons.search),
                 border: const OutlineInputBorder(),
               ),
@@ -1023,14 +1029,14 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
               children: [
                 Expanded(
                   child: Text(
-                    '${_actions.length} action(s) in sequence',
+                    context.tr.actions_sequence_count(_actions.length),
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ),
                 FilledButton.icon(
                   onPressed: _showAddActionDialog,
                   icon: const Icon(Icons.add),
-                  label: const Text('Add Action'),
+                  label: Text(context.tr.actions_add_label),
                 ),
               ],
             ),
@@ -1046,7 +1052,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
       return ElevatedButton.icon(
         onPressed: _saveActions,
         icon: const Icon(Icons.save),
-        label: Text('Save ${_actions.length} Actions'),
+        label: Text(context.tr.actions_save_count(_actions.length)),
         style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 16),
           backgroundColor: Colors.green,
@@ -1057,12 +1063,12 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Actions Builder'),
+        title: Text(context.tr.actions_builder_title),
         actions: [
           IconButton(
             onPressed: _saveActions,
             icon: const Icon(Icons.save),
-            tooltip: 'Save Actions',
+            tooltip: context.tr.actions_save_tooltip,
           ),
         ],
       ),
@@ -1176,16 +1182,23 @@ class _ActionDetailPageState extends State<_ActionDetailPage> {
                       runSpacing: 8,
                       children: [
                         _SequenceMetaChip(
-                          label:
-                              'Step ${widget.index + 1}/${widget.totalCount}',
+                          label: context.tr.actions_step_label(
+                            widget.index + 1,
+                            widget.totalCount,
+                          ),
                           color: Theme.of(context).colorScheme.primary,
                         ),
                         _SequenceMetaChip(
-                          label: 'Key: ${summary.outputKey}',
+                          label: context.tr.actions_key_label(
+                            summary.outputKey,
+                          ),
                           color: Theme.of(context).colorScheme.secondary,
                         ),
                         _SequenceMetaChip(
-                          label: summary.isEnabled ? 'Enabled' : 'Disabled',
+                          label:
+                              summary.isEnabled
+                                  ? context.tr.common_enabled
+                                  : context.tr.common_disabled,
                           color:
                               summary.isEnabled ? Colors.green : Colors.orange,
                         ),

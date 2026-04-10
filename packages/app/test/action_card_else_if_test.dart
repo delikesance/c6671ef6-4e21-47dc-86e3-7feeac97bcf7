@@ -1,6 +1,7 @@
 import 'package:bot_creator/routes/app/builder/action_card.dart';
 import 'package:bot_creator/routes/app/builder/action_types.dart';
 import 'package:bot_creator/types/action.dart';
+import 'package:bot_creator/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -14,6 +15,8 @@ Widget _buildActionCardHarness({
   onEditNestedActions,
 }) {
   return MaterialApp(
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
     home: StatefulBuilder(
       builder: (context, setState) {
         return Scaffold(

@@ -198,7 +198,7 @@ class _WelcomeStep extends StatelessWidget {
               ),
               const SizedBox(height: 32),
               Text(
-                AppStrings.t('onboarding_welcome_title'),
+                context.tr.onboarding_welcome_title,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
@@ -206,7 +206,7 @@ class _WelcomeStep extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                AppStrings.t('onboarding_welcome_desc'),
+                context.tr.onboarding_welcome_desc,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
@@ -220,7 +220,7 @@ class _WelcomeStep extends StatelessWidget {
                     backgroundColor: Colors.deepPurple,
                   ),
                   child: Text(
-                    AppStrings.t('onboarding_welcome_start'),
+                    context.tr.onboarding_welcome_start,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
@@ -234,7 +234,7 @@ class _WelcomeStep extends StatelessWidget {
                 width: double.infinity,
                 child: OutlinedButton(
                   onPressed: onSkip,
-                  child: Text(AppStrings.t('onboarding_welcome_skip')),
+                  child: Text(context.tr.onboarding_welcome_skip),
                 ),
               ),
             ],
@@ -260,11 +260,11 @@ class _CreateBotStep extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: Text(AppStrings.t('onboarding_create_title')),
+        title: Text(context.tr.onboarding_create_title),
         actions: [
           TextButton(
             onPressed: onSkip,
-            child: Text(AppStrings.t('onboarding_welcome_skip')),
+            child: Text(context.tr.onboarding_welcome_skip),
           ),
         ],
       ),
@@ -290,14 +290,14 @@ class _CreateBotStep extends StatelessWidget {
               ),
               const SizedBox(height: 32),
               Text(
-                AppStrings.t('onboarding_create_desc'),
+                context.tr.onboarding_create_desc,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 16),
               Text(
-                AppStrings.t('onboarding_create_steps'),
+                context.tr.onboarding_create_steps,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
@@ -312,7 +312,7 @@ class _CreateBotStep extends StatelessWidget {
                   ),
                 ),
                 child: Text(
-                  AppStrings.t('onboarding_create_tip'),
+                  context.tr.onboarding_create_tip,
                   style: const TextStyle(fontSize: 13),
                 ),
               ),
@@ -321,7 +321,7 @@ class _CreateBotStep extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   icon: const Icon(Icons.open_in_browser),
-                  label: Text(AppStrings.t('onboarding_create_tutorial')),
+                  label: Text(context.tr.onboarding_create_tutorial),
                   onPressed: () async {
                     final uri = Uri.parse(
                       'https://bot-creator.fr/tutorials/setup/security/2025/05/18/how-to-create-a-bot-token-bot-creator.html',
@@ -342,7 +342,7 @@ class _CreateBotStep extends StatelessWidget {
             backgroundColor: Colors.deepPurple,
           ),
           child: Text(
-            AppStrings.t('onboarding_create_button'),
+            context.tr.onboarding_create_button,
             style: const TextStyle(color: Colors.white, fontSize: 16),
           ),
         ),
@@ -366,11 +366,11 @@ class _AddCommandStep extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: Text(AppStrings.t('onboarding_command_title')),
+        title: Text(context.tr.onboarding_command_title),
         actions: [
           TextButton(
             onPressed: onSkip,
-            child: Text(AppStrings.t('onboarding_welcome_skip')),
+            child: Text(context.tr.onboarding_welcome_skip),
           ),
         ],
       ),
@@ -396,14 +396,14 @@ class _AddCommandStep extends StatelessWidget {
               ),
               const SizedBox(height: 32),
               Text(
-                AppStrings.t('onboarding_command_desc'),
+                context.tr.onboarding_command_desc,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 16),
               Text(
-                AppStrings.t('onboarding_command_text'),
+                context.tr.onboarding_command_text,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
@@ -423,7 +423,7 @@ class _AddCommandStep extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      AppStrings.t('onboarding_command_example'),
+                      context.tr.onboarding_command_example,
                       style: const TextStyle(fontSize: 13),
                     ),
                   ],
@@ -441,7 +441,7 @@ class _AddCommandStep extends StatelessWidget {
             backgroundColor: Colors.deepPurple,
           ),
           child: Text(
-            AppStrings.t('onboarding_command_button'),
+            context.tr.onboarding_command_button,
             style: const TextStyle(color: Colors.white, fontSize: 16),
           ),
         ),
@@ -465,11 +465,11 @@ class _StartBotStep extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: Text(AppStrings.t('onboarding_start_title')),
+        title: Text(context.tr.onboarding_start_title),
         actions: [
           TextButton(
             onPressed: onSkip,
-            child: Text(AppStrings.t('onboarding_welcome_skip')),
+            child: Text(context.tr.onboarding_welcome_skip),
           ),
         ],
       ),
@@ -495,14 +495,14 @@ class _StartBotStep extends StatelessWidget {
               ),
               const SizedBox(height: 32),
               Text(
-                AppStrings.t('onboarding_start_desc'),
+                context.tr.onboarding_start_desc,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 16),
               Text(
-                AppStrings.t('onboarding_start_text'),
+                context.tr.onboarding_start_text,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
@@ -517,7 +517,7 @@ class _StartBotStep extends StatelessWidget {
                   ),
                 ),
                 child: Text(
-                  AppStrings.t('onboarding_start_tip'),
+                  context.tr.onboarding_start_tip,
                   style: const TextStyle(fontSize: 13),
                 ),
               ),
@@ -533,7 +533,7 @@ class _StartBotStep extends StatelessWidget {
             backgroundColor: Colors.deepPurple,
           ),
           child: Text(
-            AppStrings.t('onboarding_start_button'),
+            context.tr.onboarding_start_button,
             style: const TextStyle(color: Colors.white, fontSize: 16),
           ),
         ),
@@ -575,7 +575,7 @@ class _SuccessStep extends StatelessWidget {
               ),
               const SizedBox(height: 32),
               Text(
-                AppStrings.t('onboarding_success_title'),
+                context.tr.onboarding_success_title,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: Colors.green,
@@ -583,13 +583,13 @@ class _SuccessStep extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                AppStrings.t('onboarding_success_desc'),
+                context.tr.onboarding_success_desc,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
               const SizedBox(height: 8),
               Text(
-                AppStrings.t('onboarding_success_whatsnext'),
+                context.tr.onboarding_success_whatsnext,
                 textAlign: TextAlign.center,
                 style: Theme.of(
                   context,
@@ -600,15 +600,15 @@ class _SuccessStep extends StatelessWidget {
                 children: [
                   _TipRow(
                     icon: Icons.auto_fix_high,
-                    title: AppStrings.t('onboarding_success_tip1'),
+                    title: context.tr.onboarding_success_tip1,
                   ),
                   _TipRow(
                     icon: Icons.workspaces,
-                    title: AppStrings.t('onboarding_success_tip2'),
+                    title: context.tr.onboarding_success_tip2,
                   ),
                   _TipRow(
                     icon: Icons.backup,
-                    title: AppStrings.t('onboarding_success_tip3'),
+                    title: context.tr.onboarding_success_tip3,
                   ),
                 ],
               ),
@@ -622,7 +622,7 @@ class _SuccessStep extends StatelessWidget {
                     backgroundColor: Colors.deepPurple,
                   ),
                   child: Text(
-                    AppStrings.t('onboarding_success_button'),
+                    context.tr.onboarding_success_button,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,

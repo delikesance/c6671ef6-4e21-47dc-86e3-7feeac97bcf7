@@ -1,7 +1,15 @@
 REMOTE ?= origin
 PROTECTED_BRANCHES ?= main master develop dev
 
-.PHONY: clean-merged-branches dry-run-clean-merged-branches
+.PHONY: clean-merged-branches dry-run-clean-merged-branches l10n check-hardcoded
+
+## Regenerate Dart translation maps from ARB source files
+l10n:
+	cd packages/app && dart run tools/generate_trad_from_arb.dart
+
+## Detect probable hardcoded user-facing strings in Flutter/UI code
+check-hardcoded:
+	cd packages/app && dart run tools/check_hardcoded_strings.dart
 
 clean-merged-branches:
 	@set -e; \

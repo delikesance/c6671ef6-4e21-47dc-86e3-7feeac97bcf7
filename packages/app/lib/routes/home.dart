@@ -213,10 +213,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
       if (!isRunning && _runningBotIds.length >= 5) {
         throw Exception(
-          AppStrings.tr(
-            'error_with_details',
-            params: {'error': 'Maximum active bots reached (5)'},
-          ),
+          context.tr.error_with_details('Maximum active bots reached (5)'),
         );
       }
 
@@ -229,9 +226,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           final app = await appManager.getApp(botId);
           token = app['token']?.toString();
           if (token == null || token.trim().isEmpty) {
-            throw Exception(
-              AppStrings.tr('home_token_missing', params: {'botName': botName}),
-            );
+            throw Exception(context.tr.home_token_missing(botName));
           }
 
           // Token check against Discord before showing ads
@@ -244,20 +239,18 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   context: context,
                   builder:
                       (ctx) => AlertDialog(
-                        title: Text(
-                          AppStrings.t('bot_home_token_invalid_title'),
-                        ),
+                        title: Text(context.tr.bot_home_token_invalid_title),
                         content: Text(
-                          AppStrings.t('bot_home_token_invalid_content'),
+                          context.tr.bot_home_token_invalid_content,
                         ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.of(ctx).pop(false),
-                            child: Text(AppStrings.t('cancel')),
+                            child: Text(context.tr.cancel),
                           ),
                           FilledButton(
                             onPressed: () => Navigator.of(ctx).pop(true),
-                            child: Text(AppStrings.t('bot_home_start')),
+                            child: Text(context.tr.bot_home_start),
                           ),
                         ],
                       ),
@@ -317,9 +310,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         token = app['token']?.toString();
       }
       if (token == null || token.trim().isEmpty) {
-        throw Exception(
-          AppStrings.tr('home_token_missing', params: {'botName': botName}),
-        );
+        throw Exception(context.tr.home_token_missing(botName));
       }
 
       if (!isRunning) {
@@ -358,9 +349,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           try {
             final running = await FlutterForegroundTask.isRunningService;
             if (!running) {
-              throw Exception(
-                AppStrings.t('home_foreground_service_not_started'),
-              );
+              throw Exception(context.tr.home_foreground_service_not_started);
             }
           } on MissingPluginException {
             // Accepter sur les plateformes de dev.
@@ -376,7 +365,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         // ── Desktop (Linux / Windows / macOS) ─────────────────────────────
         if (isRunning) {
           appendBotLog(
-            AppStrings.t('home_log_desktop_stop_requested'),
+            context.tr.home_log_desktop_stop_requested,
             botId: botId,
           );
           await stopDesktopBot(botId: botId);
@@ -409,14 +398,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppStrings.tr(
-                'error_with_details',
-                params: {'error': e.toString()},
-              ),
-            ),
-          ),
+          SnackBar(content: Text(context.tr.error_with_details(e.toString()))),
         );
       }
     } finally {
@@ -452,16 +434,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             context: context,
             builder:
                 (dialogContext) => AlertDialog(
-                  title: Text(AppStrings.t('rewarded_start_title')),
-                  content: Text(AppStrings.t('rewarded_start_message')),
+                  title: Text(context.tr.rewarded_start_title),
+                  content: Text(context.tr.rewarded_start_message),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.of(dialogContext).pop(false),
-                      child: Text(AppStrings.t('rewarded_start_skip')),
+                      child: Text(context.tr.rewarded_start_skip),
                     ),
                     FilledButton(
                       onPressed: () => Navigator.of(dialogContext).pop(true),
-                      child: Text(AppStrings.t('rewarded_start_watch')),
+                      child: Text(context.tr.rewarded_start_watch),
                     ),
                   ],
                 ),
@@ -477,12 +459,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         barrierDismissible: false,
         builder:
             (dialogContext) => AlertDialog(
-              title: Text(AppStrings.t('rewarded_start_title')),
-              content: Text(AppStrings.t('rewarded_start_message')),
+              title: Text(context.tr.rewarded_start_title),
+              content: Text(context.tr.rewarded_start_message),
               actions: [
                 FilledButton(
                   onPressed: () => Navigator.of(dialogContext).pop(),
-                  child: Text(AppStrings.t('rewarded_start_continue')),
+                  child: Text(context.tr.rewarded_start_continue),
                 ),
               ],
             ),
@@ -493,16 +475,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     if (!mounted) {
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(AppStrings.t('rewarded_start_thanks'))),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(context.tr.rewarded_start_thanks)));
   }
 
   Future<bool> _ensureAdsConsent() async {
     final consentGranted = await AdConsentService.ensureCanRequestAds();
     if (!consentGranted && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppStrings.t('ads_consent_refused_info'))),
+        SnackBar(content: Text(context.tr.ads_consent_refused_info)),
       );
     }
     return consentGranted;
@@ -573,7 +555,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   'Error loading data: ${snapshot.error}',
                   name: 'HomePage',
                 );
-                return Center(child: Text(AppStrings.t('app_loading_error')));
+                return Center(child: Text(context.tr.app_loading_error));
               }
 
               final apps = snapshot.data;
@@ -584,8 +566,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               final namesById = <String, String>{
                 for (final app in apps)
                   (app['id']?.toString() ?? ''):
-                      (app['name']?.toString() ??
-                          AppStrings.t('home_unknown_app')),
+                      (app['name']?.toString() ?? context.tr.home_unknown_app),
               };
               final activeSessionIds = _runningBotIds.toList(growable: false)
                 ..sort();
@@ -649,7 +630,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         final app = apps[index];
                         final name =
                             app['name']?.toString() ??
-                            AppStrings.t('home_unknown_app');
+                            context.tr.home_unknown_app;
                         final id = app['id']?.toString() ?? '';
                         final avatar = app['avatar']?.toString();
                         final guildCount = switch (app['guild_count']) {
@@ -858,8 +839,8 @@ class _BotCard extends StatelessWidget {
                                     const SizedBox(width: 5),
                                     Text(
                                       isRunning
-                                          ? AppStrings.t('home_status_online')
-                                          : AppStrings.t('home_status_offline'),
+                                          ? context.tr.home_status_online
+                                          : context.tr.home_status_offline,
                                       style: TextStyle(
                                         fontSize: statusFontSize,
                                         fontWeight: FontWeight.w500,
@@ -953,9 +934,7 @@ class _BotCard extends StatelessWidget {
                           size: 16,
                         ),
                 label: Text(
-                  isRunning
-                      ? AppStrings.t('home_stop')
-                      : AppStrings.t('home_start'),
+                  isRunning ? context.tr.home_stop : context.tr.home_start,
                 ),
                 style: ElevatedButton.styleFrom(
                   shape: const StadiumBorder(),
@@ -979,7 +958,7 @@ class _BotCard extends StatelessWidget {
                   child: ElevatedButton.icon(
                     onPressed: onManage,
                     icon: const Icon(Icons.tune, size: 14),
-                    label: Text(AppStrings.t('home_manage')),
+                    label: Text(context.tr.home_manage),
                     style: ElevatedButton.styleFrom(
                       shape: const StadiumBorder(),
                       backgroundColor: Colors.blue,
@@ -994,7 +973,7 @@ class _BotCard extends StatelessWidget {
                 IconButton.filled(
                   onPressed: onLogs,
                   icon: const Icon(Icons.article_outlined, size: 18),
-                  tooltip: AppStrings.t('home_logs_tooltip'),
+                  tooltip: context.tr.home_logs_tooltip,
                   style: IconButton.styleFrom(
                     backgroundColor:
                         onLogs != null
@@ -1044,7 +1023,7 @@ class _EmptyStateWithSupport extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              AppStrings.t('app_no_apps'),
+              context.tr.app_no_apps,
               style: Theme.of(
                 context,
               ).textTheme.titleMedium?.copyWith(color: scheme.onSurfaceVariant),
@@ -1054,7 +1033,7 @@ class _EmptyStateWithSupport extends StatelessWidget {
             const Divider(),
             const SizedBox(height: 16),
             Text(
-              AppStrings.t('home_empty_support_hint'),
+              context.tr.home_empty_support_hint,
               style: Theme.of(
                 context,
               ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
@@ -1064,7 +1043,7 @@ class _EmptyStateWithSupport extends StatelessWidget {
             FilledButton.icon(
               onPressed: _openDiscord,
               icon: const Icon(Icons.forum_rounded, size: 18),
-              label: Text(AppStrings.t('home_empty_support_btn')),
+              label: Text(context.tr.home_empty_support_btn),
               style: FilledButton.styleFrom(
                 backgroundColor: _discordColor,
                 foregroundColor: Colors.white,

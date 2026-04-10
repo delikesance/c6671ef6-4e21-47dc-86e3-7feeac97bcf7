@@ -204,14 +204,14 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
     if (_loading) {
       return _CenteredMessage(
         icon: Icons.hourglass_empty,
-        text: AppStrings.t('dashboard_loading'),
+        text: context.tr.dashboard_loading,
       );
     }
 
     if (_error != null) {
       return _CenteredMessage(
         icon: Icons.error_outline,
-        text: '${AppStrings.t('dashboard_error')}\n$_error',
+        text: '${context.tr.dashboard_error}\n$_error',
       );
     }
 
@@ -253,18 +253,17 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
         // ── Total card ──
         _StatCard(
           icon: Icons.functions,
-          label: AppStrings.t('dashboard_total'),
+          label: context.tr.dashboard_total,
           value: _totalAllTime.toString(),
-          subtitle: AppStrings.tr(
-            'dashboard_selected_period_total',
-            params: {'count': periodTotal.toString()},
+          subtitle: context.tr.dashboard_selected_period_total(
+            periodTotal.toString(),
           ),
           colorScheme: colorScheme,
         ),
         const SizedBox(height: 16),
         if (hasExpandedAnalytics) ...[
           Text(
-            AppStrings.t('dashboard_execution_health_title'),
+            context.tr.dashboard_execution_health_title,
             style: Theme.of(
               context,
             ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
@@ -275,19 +274,19 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
             runSpacing: 8,
             children: [
               _MetricChip(
-                label: AppStrings.t('dashboard_failed_commands'),
+                label: context.tr.dashboard_failed_commands,
                 value: _failedInPeriod.toString(),
               ),
               _MetricChip(
-                label: AppStrings.t('dashboard_error_rate'),
+                label: context.tr.dashboard_error_rate,
                 value: '${_errorRatePct.toStringAsFixed(1)}%',
               ),
               _MetricChip(
-                label: AppStrings.t('dashboard_p50_latency'),
+                label: context.tr.dashboard_p50_latency,
                 value: '$_p50LatencyMs ms',
               ),
               _MetricChip(
-                label: AppStrings.t('dashboard_p95_latency'),
+                label: context.tr.dashboard_p95_latency,
                 value: '$_p95LatencyMs ms',
               ),
             ],
@@ -300,13 +299,13 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    AppStrings.t('dashboard_premium_analytics_title'),
+                    context.tr.dashboard_premium_analytics_title,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                   const SizedBox(height: 6),
-                  Text(AppStrings.t('dashboard_premium_analytics_desc')),
+                  Text(context.tr.dashboard_premium_analytics_desc),
                   if (PremiumCapabilities.canShowPurchaseUI) ...[
                     const SizedBox(height: 8),
                     Align(
@@ -314,7 +313,7 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
                       child: FilledButton.icon(
                         onPressed: () => SubscriptionPage.show(context),
                         icon: const Icon(Icons.workspace_premium_rounded),
-                        label: Text(AppStrings.t('premium_card_button')),
+                        label: Text(context.tr.premium_card_button),
                       ),
                     ),
                   ],
@@ -326,7 +325,7 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
         if (hasExpandedAnalytics && _locales.isNotEmpty) ...[
           const SizedBox(height: 16),
           Text(
-            AppStrings.t('dashboard_top_locales'),
+            context.tr.dashboard_top_locales,
             style: Theme.of(
               context,
             ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
@@ -348,7 +347,7 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
 
         // ── Top commands ──
         Text(
-          AppStrings.t('dashboard_top_commands'),
+          context.tr.dashboard_top_commands,
           style: Theme.of(
             context,
           ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
@@ -359,7 +358,7 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
             padding: const EdgeInsets.symmetric(vertical: 24),
             child: Center(
               child: Text(
-                AppStrings.t('dashboard_no_data'),
+                context.tr.dashboard_no_data,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: colorScheme.onSurfaceVariant,
                 ),
@@ -378,7 +377,7 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
 
         // ── Timeline ──
         Text(
-          AppStrings.t('dashboard_timeline'),
+          context.tr.dashboard_timeline,
           style: Theme.of(
             context,
           ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
@@ -389,7 +388,7 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
             padding: const EdgeInsets.symmetric(vertical: 24),
             child: Center(
               child: Text(
-                AppStrings.t('dashboard_no_data'),
+                context.tr.dashboard_no_data,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: colorScheme.onSurfaceVariant,
                 ),
@@ -631,7 +630,7 @@ class _TimelineChart extends StatelessWidget {
                 final ratio = maxCount > 0 ? e.count / maxCount : 0.0;
                 return Tooltip(
                   message:
-                      '${e.label()}\n${AppStrings.tr('dashboard_executions', params: {'count': e.count.toString()})}',
+                      '${e.label()}\n${context.tr.dashboard_executions(e.count.toString())}',
                   child: Container(
                     width: barWidth - 1,
                     margin: const EdgeInsets.symmetric(horizontal: 0.5),
@@ -676,13 +675,12 @@ class _StatsSourceBanner extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final activeRunner =
         runners.where((r) => r.id == activeRunnerId).firstOrNull;
-    final localLabel = AppStrings.t('runner_source_local');
+    final localLabel = context.tr.runner_source_local;
     final activeRunnerLabel =
         activeRunner == null
             ? '?'
-            : AppStrings.tr(
-              'runner_source_label',
-              params: {'name': activeRunner.name ?? activeRunner.url},
+            : context.tr.runner_source_label(
+              activeRunner.name ?? activeRunner.url,
             );
     final selectedValue =
         source == _DashboardStatsSource.local
@@ -727,10 +725,7 @@ class _StatsSourceBanner extends StatelessWidget {
                             DropdownMenuItem(
                               value: r.id,
                               child: Text(
-                                AppStrings.tr(
-                                  'runner_source_label',
-                                  params: {'name': r.name ?? r.url},
-                                ),
+                                context.tr.runner_source_label(r.name ?? r.url),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
@@ -749,7 +744,7 @@ class _StatsSourceBanner extends StatelessWidget {
                     ),
           ),
           IconButton(
-            tooltip: AppStrings.t('dashboard_refresh_sources_tooltip'),
+            tooltip: context.tr.dashboard_refresh_sources_tooltip,
             onPressed:
                 onRefreshSources == null
                     ? null

@@ -3,6 +3,7 @@ import 'package:bot_creator/types/component.dart';
 import 'package:bot_creator/types/variable_suggestion.dart';
 import 'package:bot_creator/widgets/component_v2_builder/component_node_editor.dart';
 import 'package:bot_creator/widgets/component_v2_builder/component_node_factory.dart';
+import '../../utils/i18n.dart';
 
 /// Visual editor for traditional "normal" message components (only ActionRows containing Buttons/Selects).
 /// Manages a [ComponentV2Definition] but strictly limits available types.
@@ -83,14 +84,12 @@ class _NormalComponentEditorWidgetState
           context: context,
           builder:
               (dialogContext) => AlertDialog.adaptive(
-                title: const Text('Remove action row'),
-                content: const Text(
-                  'This row and all nested components will be removed. Continue?',
-                ),
+                title: Text(context.tr.component_remove_row_title),
+                content: Text(context.tr.component_remove_confirm),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(dialogContext).pop(false),
-                    child: const Text('Cancel'),
+                    child: Text(context.tr.common_cancel),
                   ),
                   TextButton(
                     onPressed: () => Navigator.of(dialogContext).pop(true),
@@ -242,7 +241,7 @@ class _NormalComponentEditorWidgetState
           ComponentV2Type.channelSelect,
         ];
     return PopupMenuButton<ComponentV2Type>(
-      tooltip: 'Add Component',
+      tooltip: context.tr.component_add_child,
       onSelected: (type) {
         onAdd(ComponentNodeFactory.create(type));
       },

@@ -14,6 +14,31 @@ const Duration _mobileServiceStartupTimeout = Duration(seconds: 5);
 final MobileSessionsOrchestrator _mobileSessionsOrchestrator =
     MobileSessionsOrchestrator();
 
+bool _isDeadChannelError(Object error) {
+  if (error is! PlatformException) return false;
+  final code = error.code.toLowerCase();
+  final message = (error.message ?? '').toLowerCase();
+  final details = (error.details?.toString() ?? '').toLowerCase();
+  return code.contains('channel') ||
+      message.contains('dead channel') ||
+      message.contains('unable to establish connection on channel') ||
+      details.contains('dead channel') ||
+      details.contains('unable to establish connection on channel');
+}
+
+Future<bool> _safeIsRunningForegroundService() async {
+  try {
+    return await FlutterForegroundTask.isRunningService;
+  } on MissingPluginException {
+    return false;
+  } on PlatformException catch (error) {
+    if (_isDeadChannelError(error)) {
+      return false;
+    }
+    rethrow;
+  }
+}
+
 Map<String, String> _normalizeMobileSessionsMap(dynamic raw) {
   if (raw is! Map) {
     return <String, String>{};
@@ -160,9 +185,15 @@ Future<void> startMobileBotSession({
 
     var running = false;
     try {
-      running = await FlutterForegroundTask.isRunningService;
+      running = await _safeIsRunningForegroundService();
     } on MissingPluginException {
       running = false;
+    } on PlatformException catch (error) {
+      if (_isDeadChannelError(error)) {
+        running = false;
+      } else {
+        rethrow;
+      }
     }
 
     if (running) {
@@ -190,14 +221,28 @@ Future<void> stopMobileBotSession({required String botId}) async {
 
     var running = false;
     try {
-      running = await FlutterForegroundTask.isRunningService;
+      running = await _safeIsRunningForegroundService();
     } on MissingPluginException {
       running = false;
+    } on PlatformException catch (error) {
+      if (_isDeadChannelError(error)) {
+        running = false;
+      } else {
+        rethrow;
+      }
     }
 
     if (running) {
       if (sessions.isEmpty) {
-        await FlutterForegroundTask.stopService();
+        try {
+          await FlutterForegroundTask.stopService();
+        } on MissingPluginException {
+          // Ignore when plugin is unavailable on this platform.
+        } on PlatformException catch (error) {
+          if (!_isDeadChannelError(error)) {
+            rethrow;
+          }
+        }
       } else {
         await _syncConfiguredMobileSessionsWithService(sessions);
       }
@@ -219,11 +264,16 @@ Future<bool> _waitForForegroundServiceStartup() async {
   final deadline = DateTime.now().add(_mobileServiceStartupTimeout);
   while (true) {
     try {
-      if (await FlutterForegroundTask.isRunningService) {
+      if (await _safeIsRunningForegroundService()) {
         return true;
       }
     } on MissingPluginException {
       return false;
+    } on PlatformException catch (error) {
+      if (_isDeadChannelError(error)) {
+        return false;
+      }
+      rethrow;
     } catch (_) {}
 
     if (DateTime.now().isAfter(deadline)) {
@@ -248,11 +298,16 @@ Future<void> _syncConfiguredMobileSessionsWithService(
 
   for (var attempt = 0; attempt < _mobileSessionSyncRetryCount; attempt++) {
     try {
-      if (await FlutterForegroundTask.isRunningService) {
+      if (await _safeIsRunningForegroundService()) {
         FlutterForegroundTask.sendDataToTask(payload);
       }
     } on MissingPluginException {
       return;
+    } on PlatformException catch (error) {
+      if (_isDeadChannelError(error)) {
+        return;
+      }
+      rethrow;
     } catch (_) {}
 
     if (attempt < _mobileSessionSyncRetryCount - 1) {
@@ -263,7 +318,7 @@ Future<void> _syncConfiguredMobileSessionsWithService(
 
 Future<void> syncMobileDebugFlagsWithService() async {
   try {
-    final running = await FlutterForegroundTask.isRunningService;
+    final running = await _safeIsRunningForegroundService();
     if (!running) {
       return;
     }
@@ -272,6 +327,10 @@ Future<void> syncMobileDebugFlagsWithService() async {
     });
   } on MissingPluginException {
     // Ignore when foreground task plugin is unavailable on this platform.
+  } on PlatformException catch (error) {
+    if (!_isDeadChannelError(error)) {
+      rethrow;
+    }
   } catch (_) {}
 }
 
@@ -301,13 +360,36 @@ Future<void> initForegroundService({int eventIntervalMs = 5000}) async {
 
 Future<void> startService() async {
   debugPrint('[Bot] startService() called');
-  await FlutterForegroundTask.startService(
-    serviceId: 110,
-    notificationTitle: 'Bots are running',
-    notificationText: 'Bots are running in the background',
-    callback: startCallback,
-    notificationButtons: [NotificationButton(id: 'stop', text: 'Stop')],
-  );
+  try {
+    await FlutterForegroundTask.startService(
+      serviceId: 110,
+      notificationTitle: 'Bots are running',
+      notificationText: 'Bots are running in the background',
+      callback: startCallback,
+      notificationButtons: [NotificationButton(id: 'stop', text: 'Stop')],
+    );
+  } on PlatformException catch (error) {
+    if (!_isDeadChannelError(error)) {
+      rethrow;
+    }
+    await Future<void>.delayed(const Duration(milliseconds: 200));
+    try {
+      await FlutterForegroundTask.startService(
+        serviceId: 110,
+        notificationTitle: 'Bots are running',
+        notificationText: 'Bots are running in the background',
+        callback: startCallback,
+        notificationButtons: [NotificationButton(id: 'stop', text: 'Stop')],
+      );
+    } on PlatformException catch (retryError) {
+      if (_isDeadChannelError(retryError)) {
+        throw Exception(
+          'Foreground service channel unavailable. Please reopen the app and try again.',
+        );
+      }
+      rethrow;
+    }
+  }
 }
 
 @pragma('vm:entry-point')
@@ -524,10 +606,17 @@ class DiscordBotTaskHandler extends TaskHandler {
     unawaited(_mobileNyxxLogsSubscription?.cancel());
     Logger.root.level = Level.ALL;
     _mobileNyxxLogsSubscription = Logger.root.onRecord.listen((record) {
+      final formatted = _formatNyxxLogRecord(record);
+      debugPrint('[Bot][Nyxx] $formatted');
+
+      if (record.level >= Level.WARNING) {
+        unawaited(_emitTaskLogToMain('NYXX: $formatted'));
+      }
+
       // Sur mobile, certains logs Nyxx n'utilisent pas toujours le préfixe
       // logger attendu. On laisse passer les records et le filtre final se fait
       // via _emitTaskDebugLogToMain (actif uniquement en mode debug).
-      unawaited(_emitTaskDebugLogToMain(_formatNyxxLogRecord(record)));
+      unawaited(_emitTaskDebugLogToMain(formatted));
     });
   }
 
@@ -564,6 +653,10 @@ class DiscordBotTaskHandler extends TaskHandler {
         '${enabledIntentNames.isEmpty ? 'none' : enabledIntentNames.join(', ')}',
         botId: resolvedBotId,
       );
+      await _emitTaskLogToMain(
+        'Opening Discord gateway connection...',
+        botId: resolvedBotId,
+      );
 
       final gateway = await Nyxx.connectGateway(
         trimmedToken,
@@ -572,6 +665,10 @@ class DiscordBotTaskHandler extends TaskHandler {
           loggerName: 'CardiaKexa-$resolvedBotId',
           plugins: [Logging(logLevel: Level.ALL)],
         ),
+      );
+      await _emitTaskLogToMain(
+        'Discord gateway connected, waiting for READY...',
+        botId: resolvedBotId,
       );
 
       _clients[resolvedBotId] = gateway;
