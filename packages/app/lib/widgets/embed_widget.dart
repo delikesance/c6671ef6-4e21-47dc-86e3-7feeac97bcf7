@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nyxx/nyxx.dart';
+import 'package:bot_creator/utils/i18n.dart';
 
 class EmbedWidget extends StatefulWidget {
   final Function(EmbedBuilder) onChange; // Callback for changes
@@ -27,8 +28,8 @@ class EmbedWidgetState extends State<EmbedWidget> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextFormField(
-              decoration: const InputDecoration(
-                labelText: 'Title',
+              decoration: InputDecoration(
+                labelText: context.tr.embed_label_title,
                 border: OutlineInputBorder(),
               ),
               onChanged: (value) {
@@ -48,8 +49,8 @@ class EmbedWidgetState extends State<EmbedWidget> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextFormField(
-              decoration: const InputDecoration(
-                labelText: 'Description',
+              decoration: InputDecoration(
+                labelText: context.tr.common_description,
                 border: OutlineInputBorder(),
               ),
               onChanged: (value) {
@@ -66,8 +67,8 @@ class EmbedWidgetState extends State<EmbedWidget> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextFormField(
-              decoration: const InputDecoration(
-                labelText: 'URL',
+              decoration: InputDecoration(
+                labelText: context.tr.common_url,
                 border: OutlineInputBorder(),
               ),
               onChanged: (value) {
@@ -79,7 +80,7 @@ class EmbedWidgetState extends State<EmbedWidget> {
               validator:
                   (value) =>
                       value != null && !Uri.tryParse(value)!.isAbsolute
-                          ? 'Please enter a valid URL'
+                          ? context.tr.action_provide_valid_url
                           : null,
             ),
           ),

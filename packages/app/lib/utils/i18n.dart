@@ -3,8 +3,18 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../l10n/app_localizations.dart';
 import 'trad/en.dart';
 import 'trad/fr.dart';
+
+export '../l10n/app_localizations.dart' show AppLocalizations;
+
+/// Convenient access to [AppLocalizations] from any [BuildContext].
+///
+/// Usage: `context.tr.app_title`
+extension AppLocalizationsX on BuildContext {
+  AppLocalizations get tr => AppLocalizations.of(this);
+}
 
 /// Locales supportees
 enum AppLocale {

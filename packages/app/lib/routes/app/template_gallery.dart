@@ -36,18 +36,18 @@ class TemplateGalleryPage extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: Text(AppStrings.t('template_gallery_title'))),
+      appBar: AppBar(title: Text(context.tr.template_gallery_title)),
       body: SafeArea(
         child:
             builtInTemplates.isEmpty
-                ? Center(child: Text(AppStrings.t('template_gallery_empty')))
+                ? Center(child: Text(context.tr.template_gallery_empty))
                 : ListView(
                   padding: const EdgeInsets.all(16),
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(bottom: 16),
                       child: Text(
-                        AppStrings.t('template_gallery_subtitle'),
+                        context.tr.template_gallery_subtitle,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: colorScheme.onSurfaceVariant,
                         ),
@@ -92,22 +92,19 @@ class _TemplateCardState extends State<_TemplateCard> {
           (ctx) => AlertDialog(
             title: Text(AppStrings.t(widget.template.nameKey)),
             content: Text(
-              AppStrings.tr(
-                'template_gallery_apply_success',
-                params: {
-                  'count': widget.template.commands.length.toString(),
-                  'wCount': widget.template.workflows.length.toString(),
-                },
+              context.tr.template_gallery_apply_success(
+                widget.template.commands.length.toString(),
+                widget.template.workflows.length.toString(),
               ),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(ctx).pop(false),
-                child: Text(AppStrings.t('cancel')),
+                child: Text(context.tr.cancel),
               ),
               FilledButton(
                 onPressed: () => Navigator.of(ctx).pop(true),
-                child: Text(AppStrings.t('template_gallery_apply')),
+                child: Text(context.tr.template_gallery_apply),
               ),
             ],
           ),
@@ -250,12 +247,7 @@ class _TemplateCardState extends State<_TemplateCard> {
       for (final name in skipped) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              AppStrings.tr(
-                'template_gallery_already_exists',
-                params: {'name': name},
-              ),
-            ),
+            content: Text(context.tr.template_gallery_already_exists(name)),
             duration: const Duration(seconds: 2),
           ),
         );
@@ -264,12 +256,9 @@ class _TemplateCardState extends State<_TemplateCard> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            AppStrings.tr(
-              'template_gallery_apply_success',
-              params: {
-                'count': addedCommands.toString(),
-                'wCount': addedWorkflows.toString(),
-              },
+            context.tr.template_gallery_apply_success(
+              addedCommands.toString(),
+              addedWorkflows.toString(),
             ),
           ),
         ),
@@ -278,7 +267,7 @@ class _TemplateCardState extends State<_TemplateCard> {
       if (client == null && addedCommands > 0) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppStrings.t('template_gallery_sync_warning')),
+            content: Text(context.tr.template_gallery_sync_warning),
             duration: const Duration(seconds: 4),
           ),
         );
@@ -301,10 +290,7 @@ class _TemplateCardState extends State<_TemplateCard> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              AppStrings.tr(
-                'template_gallery_apply_error',
-                params: {'error': e.toString()},
-              ),
+              context.tr.template_gallery_apply_error(e.toString()),
             ),
           ),
         );
@@ -349,9 +335,8 @@ class _TemplateCardState extends State<_TemplateCard> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            AppStrings.tr(
-              'template_gallery_nothing_to_remove',
-              params: {'name': AppStrings.t(widget.template.nameKey)},
+            context.tr.template_gallery_nothing_to_remove(
+              AppStrings.t(widget.template.nameKey),
             ),
           ),
         ),
@@ -363,28 +348,19 @@ class _TemplateCardState extends State<_TemplateCard> {
       context: context,
       builder:
           (ctx) => AlertDialog(
-            title: Text(AppStrings.t('template_gallery_remove_title')),
-            content: Text(
-              AppStrings.tr(
-                'template_gallery_remove_confirm',
-                params: {
-                  'name': AppStrings.t(widget.template.nameKey),
-                  'commands': templateCommands.length.toString(),
-                  'workflows': templateWorkflows.length.toString(),
-                },
-              ),
-            ),
+            title: Text(context.tr.template_gallery_remove_title),
+            content: Text(context.tr.template_gallery_remove_confirm),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(ctx).pop(false),
-                child: Text(AppStrings.t('cancel')),
+                child: Text(context.tr.cancel),
               ),
               FilledButton(
                 style: FilledButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.error,
                 ),
                 onPressed: () => Navigator.of(ctx).pop(true),
-                child: Text(AppStrings.t('delete')),
+                child: Text(context.tr.delete),
               ),
             ],
           ),
@@ -415,17 +391,7 @@ class _TemplateCardState extends State<_TemplateCard> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            AppStrings.tr(
-              'template_gallery_removed',
-              params: {
-                'commands': templateCommands.length.toString(),
-                'workflows': templateWorkflows.length.toString(),
-              },
-            ),
-          ),
-        ),
+        SnackBar(content: Text(context.tr.template_gallery_removed)),
       );
 
       Navigator.of(context).pop(true);
@@ -495,21 +461,15 @@ class _TemplateCardState extends State<_TemplateCard> {
                       children: [
                         _InfoChip(
                           icon: Icons.code,
-                          label: AppStrings.tr(
-                            'template_gallery_commands_count',
-                            params: {
-                              'count': template.commands.length.toString(),
-                            },
+                          label: context.tr.template_gallery_commands_count(
+                            template.commands.length.toString(),
                           ),
                         ),
                         if (template.workflows.isNotEmpty)
                           _InfoChip(
                             icon: Icons.account_tree,
-                            label: AppStrings.tr(
-                              'template_gallery_workflows_count',
-                              params: {
-                                'count': template.workflows.length.toString(),
-                              },
+                            label: context.tr.template_gallery_workflows_count(
+                              template.workflows.length.toString(),
                             ),
                           ),
                       ],

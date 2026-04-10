@@ -6,7 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:nyxx/nyxx.dart' hide Locale;
 import "routes/home.dart";
@@ -241,14 +240,10 @@ class _MyAppState extends State<MyApp> {
 
     return MaterialApp(
       navigatorKey: MyApp.navigatorKey,
-      title: AppStrings.t('app_title'),
+      onGenerateTitle: (context) => context.tr.app_title,
       locale: Locale(localeProvider.locale.code),
-      supportedLocales: const [Locale('en'), Locale('fr')],
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
@@ -271,8 +266,8 @@ class _MyAppState extends State<MyApp> {
                   }
                 },
               )
-              : const MyMainPage(title: 'Bot Creator'),
-      routes: {'/home': (context) => const MyMainPage(title: 'Bot Creator')},
+              : MyMainPage(title: AppStrings.t('app_title')),
+      routes: {'/home': (context) => MyMainPage(title: context.tr.app_title)},
     );
   }
 }
@@ -316,7 +311,7 @@ class _MyMainPageState extends State<MyMainPage> {
         },
         backgroundColor: const Color.fromRGBO(106, 15, 162, 1),
         icon: const Icon(Icons.add),
-        label: Text(AppStrings.t('app_create_button')),
+        label: Text(context.tr.app_create_button),
       ),
     );
   }
@@ -398,7 +393,7 @@ class _StartupFailureAppState extends State<StartupFailureApp> {
         return;
       }
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Diagnostics copied to clipboard')),
+        SnackBar(content: Text(context.tr.startup_diagnostics_copied)),
       );
     } finally {
       if (mounted) {
@@ -412,16 +407,16 @@ class _StartupFailureAppState extends State<StartupFailureApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Bot Creator',
+      title: AppStrings.t('app_title'),
       home: Scaffold(
-        appBar: AppBar(title: const Text('Startup Error')),
+        appBar: AppBar(title: Text(context.tr.startup_error_title)),
         body: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Bot Creator failed to start on this device.',
+                context.tr.startup_failed_message,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 8),
@@ -431,12 +426,12 @@ class _StartupFailureAppState extends State<StartupFailureApp> {
                 children: [
                   ElevatedButton(
                     onPressed: _copying ? null : _copyDiagnostics,
-                    child: const Text('Copy diagnostics'),
+                    child: Text(context.tr.startup_copy_diagnostics),
                   ),
                   const SizedBox(width: 8),
                   OutlinedButton(
                     onPressed: _loadDiagnostics,
-                    child: const Text('Refresh diagnostics'),
+                    child: Text(context.tr.startup_refresh_diagnostics),
                   ),
                 ],
               ),

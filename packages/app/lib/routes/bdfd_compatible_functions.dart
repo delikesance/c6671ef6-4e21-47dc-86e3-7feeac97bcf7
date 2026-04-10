@@ -714,7 +714,7 @@ class _BdfdCompatibleFunctionsPageState
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppStrings.t('settings_compatibility_functions_title')),
+        title: Text(context.tr.settings_compatibility_functions_title),
       ),
       body: SafeArea(
         child: ListView(
@@ -727,64 +727,58 @@ class _BdfdCompatibleFunctionsPageState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      AppStrings.t(
-                        'settings_compatibility_functions_matrix_subtitle',
-                      ),
+                      context
+                          .tr
+                          .settings_compatibility_functions_matrix_subtitle,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      AppStrings.tr(
-                        'settings_compatibility_functions_count_bot_creator',
-                        params: {
-                          'count': _botCreatorSupported.length.toString(),
-                        },
-                      ),
+                      context.tr
+                          .settings_compatibility_functions_count_bot_creator(
+                            _botCreatorSupported.length.toString(),
+                          ),
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      AppStrings.tr(
-                        'settings_compatibility_functions_count_bdfd',
-                        params: {'count': _bdfdReference.length.toString()},
+                      context.tr.settings_compatibility_functions_count_bdfd(
+                        _bdfdReference.length.toString(),
                       ),
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      AppStrings.tr(
-                        'settings_compatibility_functions_count_both',
-                        params: {'count': supportedByBoth.length.toString()},
+                      context.tr.settings_compatibility_functions_count_both(
+                        supportedByBoth.length.toString(),
                       ),
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      AppStrings.tr(
-                        'settings_compatibility_functions_count_missing',
-                        params: {
-                          'count': missingInBotCreator.length.toString(),
-                        },
+                      context.tr.settings_compatibility_functions_count_missing(
+                        missingInBotCreator.length.toString(),
                       ),
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      AppStrings.tr(
-                        'settings_compatibility_functions_count_bot_only',
-                        params: {'count': botCreatorOnly.length.toString()},
-                      ),
+                      context.tr
+                          .settings_compatibility_functions_count_bot_only(
+                            botCreatorOnly.length.toString(),
+                          ),
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     const SizedBox(height: 10),
                     TextField(
                       onChanged: (value) => setState(() => _query = value),
                       decoration: InputDecoration(
-                        hintText: AppStrings.t(
-                          'settings_compatibility_functions_search_hint',
-                        ),
+                        hintText:
+                            context
+                                .tr
+                                .settings_compatibility_functions_search_hint,
                         prefixIcon: const Icon(Icons.search),
                         border: const OutlineInputBorder(),
                         isDense: true,
@@ -792,9 +786,7 @@ class _BdfdCompatibleFunctionsPageState
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      AppStrings.t(
-                        'settings_compatibility_functions_matrix_note',
-                      ),
+                      context.tr.settings_compatibility_functions_matrix_note,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
@@ -805,30 +797,27 @@ class _BdfdCompatibleFunctionsPageState
             ),
             const SizedBox(height: 12),
             _StatusSectionCard(
-              title: AppStrings.t(
-                'settings_compatibility_functions_section_both',
-              ),
+              title: context.tr.settings_compatibility_functions_section_both,
               color: Theme.of(context).colorScheme.primaryContainer,
               textColor: Theme.of(context).colorScheme.onPrimaryContainer,
               functions: visibleBoth,
             ),
             const SizedBox(height: 12),
             _StatusSectionCard(
-              title: AppStrings.t(
-                'settings_compatibility_functions_section_bot_only',
-              ),
+              title:
+                  context.tr.settings_compatibility_functions_section_bot_only,
               color: Theme.of(context).colorScheme.tertiaryContainer,
               textColor: Theme.of(context).colorScheme.onTertiaryContainer,
               functions: visibleBotOnly,
-              subtitle: AppStrings.t(
-                'settings_compatibility_functions_section_bot_only_note',
-              ),
+              subtitle:
+                  context
+                      .tr
+                      .settings_compatibility_functions_section_bot_only_note,
             ),
             const SizedBox(height: 12),
             _StatusSectionCard(
-              title: AppStrings.t(
-                'settings_compatibility_functions_section_missing',
-              ),
+              title:
+                  context.tr.settings_compatibility_functions_section_missing,
               color: Theme.of(context).colorScheme.errorContainer,
               textColor: Theme.of(context).colorScheme.onErrorContainer,
               functions: visibleMissing,
@@ -881,7 +870,7 @@ class _StatusSectionCard extends StatelessWidget {
             const SizedBox(height: 10),
             if (functions.isEmpty)
               Text(
-                AppStrings.t('settings_compatibility_functions_empty'),
+                context.tr.settings_compatibility_functions_empty,
                 style: Theme.of(context).textTheme.bodyMedium,
               )
             else

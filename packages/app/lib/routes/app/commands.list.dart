@@ -232,17 +232,17 @@ class _AppCommandsPageState extends State<AppCommandsPage>
             children: [
               ListTile(
                 leading: const Icon(Icons.add_circle_outline),
-                title: Text(AppStrings.t('commands_create_button')),
+                title: Text(context.tr.commands_create_button),
                 onTap: () => Navigator.pop(context, 'command'),
               ),
               ListTile(
                 leading: const Icon(Icons.auto_awesome),
-                title: Text(AppStrings.t('template_gallery_title')),
+                title: Text(context.tr.template_gallery_title),
                 onTap: () => Navigator.pop(context, 'template'),
               ),
               ListTile(
                 leading: const Icon(Icons.create_new_folder_outlined),
-                title: Text(AppStrings.t('commands_create_folder')),
+                title: Text(context.tr.commands_create_folder),
                 onTap: () => Navigator.pop(context, 'folder'),
               ),
             ],
@@ -295,8 +295,8 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                 _searchQuery = value;
               });
             },
-            decoration: const InputDecoration(
-              hintText: 'Search commands...',
+            decoration: InputDecoration(
+              hintText: context.tr.commands_search_hint,
               prefixIcon: Icon(Icons.search),
               border: OutlineInputBorder(),
             ),
@@ -307,7 +307,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
             runSpacing: 8,
             children: [
               ChoiceChip(
-                label: const Text('All'),
+                label: Text(context.tr.common_all),
                 selected: _typeFilter == 'all',
                 onSelected: (_) {
                   setState(() {
@@ -316,7 +316,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                 },
               ),
               ChoiceChip(
-                label: const Text('Slash'),
+                label: Text(context.tr.command_type_slash),
                 selected: _typeFilter == 'chatInput',
                 onSelected: (_) {
                   setState(() {
@@ -325,7 +325,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                 },
               ),
               ChoiceChip(
-                label: const Text('User'),
+                label: Text(context.tr.command_type_user),
                 selected: _typeFilter == 'user',
                 onSelected: (_) {
                   setState(() {
@@ -334,7 +334,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                 },
               ),
               ChoiceChip(
-                label: const Text('Message'),
+                label: Text(context.tr.command_type_message),
                 selected: _typeFilter == 'message',
                 onSelected: (_) {
                   setState(() {
@@ -343,7 +343,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                 },
               ),
               ChoiceChip(
-                label: const Text('Legacy'),
+                label: Text(context.tr.command_type_legacy),
                 selected: _typeFilter == 'legacy',
                 onSelected: (_) {
                   setState(() {
@@ -352,7 +352,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                 },
               ),
               FilterChip(
-                label: const Text('Template'),
+                label: Text(context.tr.commands_filter_template),
                 selected: _showTemplateOnly,
                 onSelected: (selected) {
                   setState(() {
@@ -361,7 +361,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                 },
               ),
               FilterChip(
-                label: const Text('Legacy local'),
+                label: Text(context.tr.commands_filter_legacy_local),
                 selected: _showLegacyOnly,
                 onSelected: (selected) {
                   setState(() {
@@ -374,15 +374,15 @@ class _AppCommandsPageState extends State<AppCommandsPage>
           const SizedBox(height: 10),
           DropdownButtonFormField<String>(
             initialValue: _folderFilter.isEmpty ? '__all__' : _folderFilter,
-            decoration: const InputDecoration(
-              labelText: 'Folder',
+            decoration: InputDecoration(
+              labelText: context.tr.commands_folder_label,
               border: OutlineInputBorder(),
               isDense: true,
             ),
             items: [
-              const DropdownMenuItem<String>(
+              DropdownMenuItem<String>(
                 value: '__all__',
-                child: Text('All folders'),
+                child: Text(context.tr.commands_all_folders),
               ),
               ...folders.map(
                 (folder) => DropdownMenuItem<String>(
@@ -429,12 +429,12 @@ class _AppCommandsPageState extends State<AppCommandsPage>
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(AppStrings.t('commands_create_folder')),
+          title: Text(context.tr.commands_create_folder),
           content: TextField(
             controller: controller,
             autofocus: true,
             decoration: InputDecoration(
-              hintText: AppStrings.t('commands_new_folder_hint'),
+              hintText: context.tr.commands_new_folder_hint,
               border: const OutlineInputBorder(),
             ),
             onSubmitted: (v) {
@@ -445,14 +445,14 @@ class _AppCommandsPageState extends State<AppCommandsPage>
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text(AppStrings.t('cancel')),
+              child: Text(context.tr.cancel),
             ),
             FilledButton(
               onPressed: () {
                 final t = controller.text.trim();
                 if (t.isNotEmpty) Navigator.pop(context, t);
               },
-              child: Text(AppStrings.t('create')),
+              child: Text(context.tr.create),
             ),
           ],
         );
@@ -473,12 +473,12 @@ class _AppCommandsPageState extends State<AppCommandsPage>
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(AppStrings.t('commands_rename_folder')),
+          title: Text(context.tr.commands_rename_folder),
           content: TextField(
             controller: controller,
             autofocus: true,
             decoration: InputDecoration(
-              hintText: AppStrings.t('commands_new_folder_hint'),
+              hintText: context.tr.commands_new_folder_hint,
               border: const OutlineInputBorder(),
             ),
             onSubmitted: (v) {
@@ -489,14 +489,14 @@ class _AppCommandsPageState extends State<AppCommandsPage>
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text(AppStrings.t('cancel')),
+              child: Text(context.tr.cancel),
             ),
             FilledButton(
               onPressed: () {
                 final t = controller.text.trim();
                 if (t.isNotEmpty) Navigator.pop(context, t);
               },
-              child: Text(AppStrings.t('save')),
+              child: Text(context.tr.save),
             ),
           ],
         );
@@ -525,16 +525,16 @@ class _AppCommandsPageState extends State<AppCommandsPage>
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(AppStrings.t('commands_delete_folder')),
-          content: Text(AppStrings.t('commands_delete_folder_desc')),
+          title: Text(context.tr.commands_delete_folder),
+          content: Text(context.tr.commands_delete_folder_desc),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: Text(AppStrings.t('cancel')),
+              child: Text(context.tr.cancel),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(context, true),
-              child: Text(AppStrings.t('confirm')),
+              child: Text(context.tr.confirm),
             ),
           ],
         );
@@ -635,7 +635,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
             DropdownMenuItem<String>(
               value: '',
               child: Text(
-                AppStrings.t('commands_no_folder'),
+                context.tr.commands_no_folder,
                 style: TextStyle(
                   fontSize: 13,
                   fontStyle: FontStyle.italic,
@@ -808,15 +808,15 @@ class _AppCommandsPageState extends State<AppCommandsPage>
         backgroundColor: const Color.fromRGBO(106, 15, 162, 1),
         title: Text(
           _isReorderMode
-              ? AppStrings.t('commands_reorder_title')
-              : AppStrings.t('commands_title'),
+              ? context.tr.commands_reorder_title
+              : context.tr.commands_title,
         ),
         centerTitle: true,
         leading:
             _isReorderMode
                 ? IconButton(
                   icon: const Icon(Icons.close),
-                  tooltip: AppStrings.t('cancel'),
+                  tooltip: context.tr.cancel,
                   onPressed: _cancelReorderMode,
                 )
                 : null,
@@ -825,19 +825,19 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                 ? [
                   IconButton(
                     icon: const Icon(Icons.check),
-                    tooltip: AppStrings.t('save'),
+                    tooltip: context.tr.save,
                     onPressed: _saveReorderMode,
                   ),
                 ]
                 : [
                   IconButton(
                     icon: const Icon(Icons.swap_vert),
-                    tooltip: AppStrings.t('commands_reorder_title'),
+                    tooltip: context.tr.commands_reorder_title,
                     onPressed: _commands.isNotEmpty ? _enterReorderMode : null,
                   ),
                   IconButton(
                     icon: const Icon(Icons.auto_awesome),
-                    tooltip: AppStrings.t('template_gallery_title'),
+                    tooltip: context.tr.template_gallery_title,
                     onPressed: () async {
                       final applied = await Navigator.push<bool>(
                         context,
@@ -877,7 +877,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(AppStrings.t('commands_empty')),
+                    Text(context.tr.commands_empty),
                     const SizedBox(height: 16),
                     FilledButton.icon(
                       onPressed: () async {
@@ -896,7 +896,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                         }
                       },
                       icon: const Icon(Icons.auto_awesome),
-                      label: Text(AppStrings.t('template_gallery_title')),
+                      label: Text(context.tr.template_gallery_title),
                     ),
                   ],
                 ),
@@ -917,11 +917,11 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                           children: [
                             _buildFiltersBar(),
                             if (visibleCommands.isEmpty)
-                              const Padding(
+                              Padding(
                                 padding: EdgeInsets.only(top: 48),
                                 child: Center(
                                   child: Text(
-                                    'No commands match the current filters.',
+                                    context.tr.commands_no_match_filters,
                                   ),
                                 ),
                               )
@@ -939,9 +939,9 @@ class _AppCommandsPageState extends State<AppCommandsPage>
               ? null
               : FloatingActionButton.extended(
                 onPressed: _showCreateMenu,
-                tooltip: AppStrings.t('commands_create_button'),
+                tooltip: context.tr.commands_create_button,
                 icon: const Icon(Icons.add),
-                label: const Text('Create'),
+                label: Text(context.tr.create),
               ),
     );
   }
@@ -1021,7 +1021,7 @@ class _CommandFolderHeader extends StatelessWidget {
                         children: [
                           const Icon(Icons.edit, size: 18),
                           const SizedBox(width: 8),
-                          Text(AppStrings.t('commands_rename_folder')),
+                          Text(context.tr.commands_rename_folder),
                         ],
                       ),
                     ),
@@ -1031,7 +1031,7 @@ class _CommandFolderHeader extends StatelessWidget {
                         children: [
                           const Icon(Icons.delete_outline, size: 18),
                           const SizedBox(width: 8),
-                          Text(AppStrings.t('commands_delete_folder')),
+                          Text(context.tr.commands_delete_folder),
                         ],
                       ),
                     ),

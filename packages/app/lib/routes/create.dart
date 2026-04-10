@@ -35,7 +35,7 @@ class _AppCreatePageState extends State<AppCreatePage> {
     try {
       final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
       if (!opened && mounted) {
-        _showErrorDialog(AppStrings.t('app_open_link_error'));
+        _showErrorDialog(context.tr.app_open_link_error);
       }
     } catch (e) {
       if (mounted) {
@@ -46,14 +46,14 @@ class _AppCreatePageState extends State<AppCreatePage> {
 
   void _showErrorDialog(String message) {
     final dialog = AlertDialog(
-      title: Text(AppStrings.t('error')),
+      title: Text(context.tr.error),
       content: Text(message),
       actions: [
         TextButton(
           onPressed: () {
             Navigator.of(context).pop();
           },
-          child: Text(AppStrings.t('ok')),
+          child: Text(context.tr.ok),
         ),
       ],
     );
@@ -114,7 +114,7 @@ class _AppCreatePageState extends State<AppCreatePage> {
     final cardPadding = EdgeInsets.all(isMobile ? 16 : 20);
 
     return Scaffold(
-      appBar: AppBar(title: Text(AppStrings.t('app_create_page_title'))),
+      appBar: AppBar(title: Text(context.tr.app_create_page_title)),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Center(
@@ -152,7 +152,7 @@ class _AppCreatePageState extends State<AppCreatePage> {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            AppStrings.t('app_create_hero_title'),
+                            context.tr.app_create_hero_title,
                             style: Theme.of(
                               context,
                             ).textTheme.headlineSmall?.copyWith(
@@ -162,7 +162,7 @@ class _AppCreatePageState extends State<AppCreatePage> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            AppStrings.t('app_create_hero_desc'),
+                            context.tr.app_create_hero_desc,
                             style: Theme.of(
                               context,
                             ).textTheme.bodyLarge?.copyWith(
@@ -180,13 +180,13 @@ class _AppCreatePageState extends State<AppCreatePage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              AppStrings.t('app_resources_title'),
+                              context.tr.app_resources_title,
                               style: Theme.of(context).textTheme.titleLarge
                                   ?.copyWith(fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              AppStrings.t('app_resources_desc'),
+                              context.tr.app_resources_desc,
                               style: Theme.of(
                                 context,
                               ).textTheme.bodyMedium?.copyWith(
@@ -196,13 +196,9 @@ class _AppCreatePageState extends State<AppCreatePage> {
                             const SizedBox(height: 16),
                             _ExternalActionCard(
                               icon: Icons.open_in_new_rounded,
-                              title: AppStrings.t('app_open_discord_portal'),
-                              subtitle: AppStrings.t(
-                                'app_open_discord_portal_desc',
-                              ),
-                              badgeLabel: AppStrings.t(
-                                'app_external_link_badge',
-                              ),
+                              title: context.tr.app_open_discord_portal,
+                              subtitle: context.tr.app_open_discord_portal_desc,
+                              badgeLabel: context.tr.app_external_link_badge,
                               onTap:
                                   () => _openExternalPage(
                                     'https://discord.com/developers/applications',
@@ -211,13 +207,9 @@ class _AppCreatePageState extends State<AppCreatePage> {
                             const SizedBox(height: 12),
                             _ExternalActionCard(
                               icon: Icons.school_rounded,
-                              title: AppStrings.t('app_open_token_tutorial'),
-                              subtitle: AppStrings.t(
-                                'app_open_token_tutorial_desc',
-                              ),
-                              badgeLabel: AppStrings.t(
-                                'app_external_link_badge',
-                              ),
+                              title: context.tr.app_open_token_tutorial,
+                              subtitle: context.tr.app_open_token_tutorial_desc,
+                              badgeLabel: context.tr.app_external_link_badge,
                               onTap:
                                   () => _openExternalPage(
                                     'https://bot-creator.fr/tutorials/setup/security/2025/05/18/how-to-create-a-bot-token-bot-creator.html',
@@ -235,13 +227,13 @@ class _AppCreatePageState extends State<AppCreatePage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              AppStrings.t('app_token_section_title'),
+                              context.tr.app_token_section_title,
                               style: Theme.of(context).textTheme.titleLarge
                                   ?.copyWith(fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              AppStrings.t('app_token_section_desc'),
+                              context.tr.app_token_section_desc,
                               style: Theme.of(
                                 context,
                               ).textTheme.bodyMedium?.copyWith(
@@ -251,22 +243,20 @@ class _AppCreatePageState extends State<AppCreatePage> {
                             const SizedBox(height: 16),
                             TextField(
                               decoration: InputDecoration(
-                                labelText: AppStrings.t('app_bot_token'),
+                                labelText: context.tr.app_bot_token,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                                 contentPadding: const EdgeInsets.all(16),
-                                hintText: AppStrings.t('app_enter_token'),
-                                helperText: AppStrings.t(
-                                  'app_token_field_helper',
-                                ),
+                                hintText: context.tr.app_enter_token,
+                                helperText: context.tr.app_token_field_helper,
                                 isDense: isMobile,
                                 prefixIcon: const Icon(Icons.key_rounded),
                                 suffixIcon: IconButton(
                                   tooltip:
                                       _obscureToken
-                                          ? AppStrings.t('app_show_token')
-                                          : AppStrings.t('app_hide_token'),
+                                          ? context.tr.app_show_token
+                                          : context.tr.app_hide_token,
                                   onPressed: () {
                                     setState(
                                       () => _obscureToken = !_obscureToken,
@@ -310,7 +300,7 @@ class _AppCreatePageState extends State<AppCreatePage> {
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Text(
-                                      AppStrings.t('app_token_security_hint'),
+                                      context.tr.app_token_security_hint,
                                       style:
                                           Theme.of(
                                             context,
@@ -341,7 +331,7 @@ class _AppCreatePageState extends State<AppCreatePage> {
                                         : const Icon(
                                           Icons.check_circle_outline_rounded,
                                         ),
-                                label: Text(AppStrings.t('app_save_bot')),
+                                label: Text(context.tr.app_save_bot),
                                 style: FilledButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(
                                     vertical: 16,

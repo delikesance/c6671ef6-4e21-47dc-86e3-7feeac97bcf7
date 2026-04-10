@@ -630,21 +630,21 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
                   const Icon(Icons.tips_and_updates_outlined),
                   const SizedBox(width: 8),
                   Text(
-                    'Editor UX',
+                    context.tr.bdfd_editor_ux_title,
                     style: Theme.of(sheetContext).textTheme.titleMedium,
                   ),
                 ],
               ),
               const SizedBox(height: 10),
-              const Text('Includes:'),
+              Text(context.tr.bdfd_editor_includes),
               const SizedBox(height: 6),
-              const Text('• Smart auto indentation on Enter'),
-              const Text('• Live indentation guides'),
-              const Text('• Mobile quick-keys for BDFD symbols'),
+              Text(context.tr.bdfd_editor_auto_indent),
+              Text(context.tr.bdfd_editor_indent_guides),
+              Text(context.tr.bdfd_editor_quick_keys),
               const SizedBox(height: 8),
               TextButton(
                 onPressed: () => Navigator.of(sheetContext).pop(),
-                child: Text(AppStrings.t('close')),
+                child: Text(context.tr.close),
               ),
             ],
           ),
@@ -665,13 +665,13 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
         backgroundColor:
             isDark ? const Color(0xFF252526) : const Color(0xFF37474F),
         title: Text(
-          widget.title ?? AppStrings.t('bdfd_editor_title'),
+          widget.title ?? context.tr.bdfd_editor_title,
           style: const TextStyle(color: Colors.white, fontSize: 16),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           IconButton(
-            tooltip: AppStrings.t('bdfd_editor_docs'),
+            tooltip: context.tr.bdfd_editor_docs,
             icon: const Icon(Icons.menu_book, color: Colors.white70),
             onPressed: () {
               Navigator.push(
@@ -681,7 +681,7 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
             },
           ),
           IconButton(
-            tooltip: AppStrings.t('bdfd_editor_wrap_toggle'),
+            tooltip: context.tr.bdfd_editor_wrap_toggle,
             icon: Icon(
               _wordWrap ? Icons.wrap_text : Icons.format_align_left,
               color: Colors.white70,
@@ -689,7 +689,7 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
             onPressed: () => setState(() => _wordWrap = !_wordWrap),
           ),
           IconButton(
-            tooltip: 'Editor UX',
+            tooltip: context.tr.bdfd_editor_ux_title,
             icon: const Icon(
               Icons.tips_and_updates_outlined,
               color: Colors.white70,
@@ -697,7 +697,7 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
             onPressed: _showEditorUxSheet,
           ),
           IconButton(
-            tooltip: AppStrings.t('bdfd_editor_diagnostics_toggle'),
+            tooltip: context.tr.bdfd_editor_diagnostics_toggle,
             icon: Icon(
               _showDiagnostics ? Icons.bug_report : Icons.bug_report_outlined,
               color:
@@ -711,7 +711,7 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
                 () => setState(() => _showDiagnostics = !_showDiagnostics),
           ),
           IconButton(
-            tooltip: 'Toggle indentation guides',
+            tooltip: context.tr.bdfd_editor_toggle_indent,
             icon: Icon(
               _showIndentGuides
                   ? Icons.format_indent_increase
@@ -724,7 +724,7 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
           TextButton(
             onPressed: _done,
             child: Text(
-              AppStrings.t('done'),
+              context.tr.done,
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w600,
@@ -1200,7 +1200,7 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
             horizontal: 8,
             vertical: 12,
           ),
-          hintText: AppStrings.t('cmd_bdfd_script_hint'),
+          hintText: context.tr.cmd_bdfd_script_hint,
           hintStyle: TextStyle(
             fontFamily: 'monospace',
             fontSize: 13,
@@ -1235,8 +1235,8 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
             Expanded(
               child: Text(
                 isEmpty
-                    ? AppStrings.t('bdfd_editor_empty')
-                    : AppStrings.t('cmd_bdfd_diagnostics_clean'),
+                    ? context.tr.bdfd_editor_empty
+                    : context.tr.cmd_bdfd_diagnostics_clean,
                 style: TextStyle(fontSize: 12, color: Colors.green.shade200),
               ),
             ),

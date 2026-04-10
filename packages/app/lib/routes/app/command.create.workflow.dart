@@ -68,18 +68,26 @@ extension _CommandCreateWorkflow on _CommandCreatePageState {
 
   String _workflowSummary() {
     final visibility =
-        _responseWorkflow['visibility'] == 'ephemeral' ? 'Ephemeral' : 'Public';
+        _responseWorkflow['visibility'] == 'ephemeral'
+            ? context.tr.workflow_visibility_ephemeral
+            : context.tr.workflow_visibility_public;
     final autoDefer = _responseWorkflow['autoDeferIfActions'] != false;
     final conditional = Map<String, dynamic>.from(
       (_responseWorkflow['conditional'] as Map?)?.cast<String, dynamic>() ??
           const {},
     );
     final conditionEnabled = conditional['enabled'] == true;
-    final conditionLabel = conditionEnabled ? 'Condition ON' : 'Condition OFF';
+    final conditionLabel =
+        conditionEnabled
+            ? context.tr.workflow_condition_on_upper
+            : context.tr.workflow_condition_off_upper;
 
     final isBdfd = _responseWorkflow['workflowMode'] == 'bdfd';
-    final modeLabel = isBdfd ? 'BDFD Script' : 'Visual';
+    final modeLabel =
+        isBdfd
+            ? context.tr.workflow_mode_bdfd
+            : context.tr.workflow_mode_visual;
 
-    return '$modeLabel • ${autoDefer ? 'Auto defer if actions' : 'No auto defer'} • $visibility • $conditionLabel';
+    return '$modeLabel \u2022 ${autoDefer ? context.tr.workflow_auto_defer_actions : context.tr.workflow_no_auto_defer} \u2022 $visibility \u2022 $conditionLabel';
   }
 }

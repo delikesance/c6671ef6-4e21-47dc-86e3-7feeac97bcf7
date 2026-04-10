@@ -3,17 +3,17 @@ part of 'command.create.dart';
 extension _CommandCreateEditShell on _CommandCreatePageState {
   String _editCommandTypeLabel() {
     if (_legacyModeEnabled) {
-      return 'Legacy command';
+      return context.tr.edit_shell_type_legacy;
     }
     switch (_commandType) {
       case ApplicationCommandType.user:
-        return 'User command';
+        return context.tr.edit_shell_type_user;
       case ApplicationCommandType.message:
-        return 'Message command';
+        return context.tr.edit_shell_type_message;
       case ApplicationCommandType.chatInput:
-        return 'Slash command';
+        return context.tr.edit_shell_type_slash;
       default:
-        return 'Command';
+        return context.tr.edit_shell_type_command;
     }
   }
 
@@ -44,10 +44,11 @@ extension _CommandCreateEditShell on _CommandCreatePageState {
       children: [
         _EditSummaryCard(
           title:
-              _commandName.trim().isEmpty ? 'Untitled command' : _commandName,
-          subtitle:
-              'Settings and inputs are at the top. Actions and reply follow below.',
-          saveLabel: 'Save changes',
+              _commandName.trim().isEmpty
+                  ? context.tr.edit_shell_untitled_command
+                  : _commandName,
+          subtitle: context.tr.edit_shell_subtitle,
+          saveLabel: context.tr.edit_shell_save_changes,
           onSave: () {
             _saveExistingCommand();
           },
@@ -58,22 +59,24 @@ extension _CommandCreateEditShell on _CommandCreatePageState {
             ),
             if (_subcommandWorkflows.isNotEmpty)
               _EditSummaryBadge(
-                label: '${_subcommandWorkflows.length} route(s)',
+                label: context.tr.edit_shell_routes_count(
+                  _subcommandWorkflows.length,
+                ),
                 icon: Icons.route_outlined,
               ),
             if (_localOnlyCommand)
-              const _EditSummaryBadge(
-                label: 'Local-only',
+              _EditSummaryBadge(
+                label: context.tr.edit_shell_local_only,
                 icon: Icons.offline_bolt,
               ),
             if (_isLocalOnlyCommand)
-              const _EditSummaryBadge(
-                label: 'Local draft',
+              _EditSummaryBadge(
+                label: context.tr.edit_shell_local_draft,
                 icon: Icons.cloud_off,
               ),
             if (_isDirty)
-              const _EditSummaryBadge(
-                label: 'Unsaved changes',
+              _EditSummaryBadge(
+                label: context.tr.edit_shell_unsaved,
                 icon: Icons.circle,
               ),
           ],
@@ -84,9 +87,8 @@ extension _CommandCreateEditShell on _CommandCreatePageState {
         ],
         const SizedBox(height: 12),
         _buildEditSectionCard(
-          title: 'Command settings',
-          subtitle:
-              'Metadata, availability, permissions, and folder placement.',
+          title: context.tr.edit_shell_command_settings,
+          subtitle: context.tr.edit_shell_command_settings_desc,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -173,9 +175,8 @@ extension _CommandCreateEditShell on _CommandCreatePageState {
         ),
         const SizedBox(height: 12),
         _buildEditSectionCard(
-          title: 'Trigger & Inputs',
-          subtitle:
-              'Adjust command options, trigger behavior, and execution mode.',
+          title: context.tr.edit_shell_trigger_inputs,
+          subtitle: context.tr.edit_shell_trigger_inputs_desc,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -197,9 +198,12 @@ extension _CommandCreateEditShell on _CommandCreatePageState {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Text(
-                    'Command body',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  Text(
+                    context.tr.edit_shell_command_body,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 6),
                   Text(

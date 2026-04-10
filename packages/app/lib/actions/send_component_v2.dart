@@ -1,6 +1,7 @@
 import 'package:nyxx/nyxx.dart';
 import 'package:bot_creator/types/component.dart';
 import 'package:bot_creator/utils/component_workflow_bindings.dart';
+import 'package:bot_creator/utils/i18n.dart';
 
 class CustomSectionBuilder extends ComponentBuilder<SectionComponent> {
   final List<TextDisplayComponentBuilder> sectionComponents;
@@ -104,7 +105,12 @@ ComponentBuilder buildComponentNode(
           customId: customId,
           options:
               options.isEmpty
-                  ? [SelectMenuOptionBuilder(label: 'Empty', value: 'empty')]
+                  ? [
+                    SelectMenuOptionBuilder(
+                      label: AppStrings.t('component_empty_option'),
+                      value: 'empty',
+                    ),
+                  ]
                   : options,
           placeholder: placeholder,
           minValues: node.minValues,
@@ -238,7 +244,9 @@ ComponentBuilder buildComponentNode(
   }
 
   // Fallback
-  return TextDisplayComponentBuilder(content: 'Unknown component');
+  return TextDisplayComponentBuilder(
+    content: AppStrings.t('component_unknown_component'),
+  );
 }
 
 /// Convert a [ComponentV2Definition] into component builders for nyxx.

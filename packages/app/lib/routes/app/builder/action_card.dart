@@ -124,7 +124,7 @@ class ActionCard extends StatelessWidget {
                         if (showPositionLabel) ...[
                           const SizedBox(height: 2),
                           Text(
-                            'Action ${index + 1}/$totalCount',
+                            context.tr.action_position(index + 1, totalCount),
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.grey.shade600,
@@ -136,7 +136,7 @@ class ActionCard extends StatelessWidget {
                   ),
                   if (showManagementControls && compactHeader)
                     PopupMenuButton<_ActionCardMenuAction>(
-                      tooltip: 'Action options',
+                      tooltip: context.tr.action_options_tooltip,
                       onSelected: (value) async {
                         if (value == _ActionCardMenuAction.moveUp &&
                             onMoveUp != null) {
@@ -153,22 +153,22 @@ class ActionCard extends StatelessWidget {
                             PopupMenuItem<_ActionCardMenuAction>(
                               value: _ActionCardMenuAction.moveUp,
                               enabled: onMoveUp != null,
-                              child: const Row(
+                              child: Row(
                                 children: [
                                   Icon(Icons.arrow_upward),
                                   SizedBox(width: 8),
-                                  Text('Move up'),
+                                  Text(context.tr.common_move_up),
                                 ],
                               ),
                             ),
                             PopupMenuItem<_ActionCardMenuAction>(
                               value: _ActionCardMenuAction.moveDown,
                               enabled: onMoveDown != null,
-                              child: const Row(
+                              child: Row(
                                 children: [
                                   Icon(Icons.arrow_downward),
                                   SizedBox(width: 8),
-                                  Text('Move down'),
+                                  Text(context.tr.common_move_down),
                                 ],
                               ),
                             ),
@@ -182,9 +182,10 @@ class ActionCard extends StatelessWidget {
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
-                                    'Remove action',
+                                    context.tr.action_remove_menu,
                                     style: TextStyle(
-                                      color: Theme.of(context).colorScheme.error,
+                                      color:
+                                          Theme.of(context).colorScheme.error,
                                     ),
                                   ),
                                 ],
@@ -195,17 +196,17 @@ class ActionCard extends StatelessWidget {
                   else if (showManagementControls) ...[
                     IconButton(
                       onPressed: onMoveUp,
-                      tooltip: 'Move up',
+                      tooltip: context.tr.common_move_up,
                       icon: const Icon(Icons.arrow_upward),
                     ),
                     IconButton(
                       onPressed: onMoveDown,
-                      tooltip: 'Move down',
+                      tooltip: context.tr.common_move_down,
                       icon: const Icon(Icons.arrow_downward),
                     ),
                     IconButton(
                       onPressed: () => _confirmAndRemoveAction(context),
-                      tooltip: 'Remove action',
+                      tooltip: context.tr.action_remove_menu,
                       icon: Icon(
                         Icons.delete_outline,
                         color: Theme.of(context).colorScheme.error,
@@ -215,20 +216,22 @@ class ActionCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 8),
-              if (showManagementControls && (index > 0 || index < totalCount - 1))
+              if (showManagementControls &&
+                  (index > 0 || index < totalCount - 1))
                 Text(
-                  'Tip: use arrows to change action order.',
+                  context.tr.action_order_tip,
                   style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
                 ),
-              if (showManagementControls && (index > 0 || index < totalCount - 1))
+              if (showManagementControls &&
+                  (index > 0 || index < totalCount - 1))
                 const SizedBox(height: 8),
             ],
             if (collapseActionSettings)
               _buildActionSettingsPanel(context, collapsed: true)
             else ...[
-              _buildActionKeyField(),
+              _buildActionKeyField(context),
               const SizedBox(height: 12),
-              _buildActionStateRow(),
+              _buildActionStateRow(context),
             ],
             const SizedBox(height: 16),
             if (action.type == BotCreatorActionType.httpRequest)
@@ -253,25 +256,25 @@ class ActionCard extends StatelessWidget {
     );
   }
 
-  Widget _buildActionKeyField() {
+  Widget _buildActionKeyField(BuildContext context) {
     return TextFormField(
       key: ValueKey('action-key-${action.id}'),
       initialValue: actionKey,
-      decoration: const InputDecoration(
-        labelText: 'Action Key',
-        border: OutlineInputBorder(),
+      decoration: InputDecoration(
+        labelText: context.tr.action_key_field,
+        border: const OutlineInputBorder(),
       ),
       onChanged: (newValue) => onParameterChanged('key', newValue),
     );
   }
 
-  Widget _buildActionStateRow() {
+  Widget _buildActionStateRow(BuildContext context) {
     return Row(
       children: [
         Expanded(
           child: SwitchListTile(
             contentPadding: EdgeInsets.zero,
-            title: const Text('Enabled'),
+            title: Text(context.tr.common_enabled),
             value: action.enabled,
             onChanged: (value) => onParameterChanged('__enabled__', value),
           ),
@@ -281,14 +284,20 @@ class ActionCard extends StatelessWidget {
           child: DropdownButtonFormField<String>(
             initialValue: action.onErrorMode,
             isExpanded: true,
-            decoration: const InputDecoration(
-              labelText: 'On Error',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: context.tr.action_on_error,
+              border: const OutlineInputBorder(),
               isDense: true,
             ),
-            items: const [
-              DropdownMenuItem(value: 'stop', child: Text('Stop')),
-              DropdownMenuItem(value: 'continue', child: Text('Continue')),
+            items: [
+              DropdownMenuItem(
+                value: 'stop',
+                child: Text(context.tr.action_error_stop),
+              ),
+              DropdownMenuItem(
+                value: 'continue',
+                child: Text(context.tr.action_error_continue),
+              ),
             ],
             onChanged: (value) {
               if (value != null) {
@@ -308,9 +317,9 @@ class ActionCard extends StatelessWidget {
     final content = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildActionKeyField(),
+        _buildActionKeyField(context),
         const SizedBox(height: 12),
-        _buildActionStateRow(),
+        _buildActionStateRow(context),
       ],
     );
     if (!collapsed) {
@@ -319,15 +328,14 @@ class ActionCard extends StatelessWidget {
     return ExpansionTile(
       tilePadding: EdgeInsets.zero,
       childrenPadding: EdgeInsets.zero,
-      title: const Text('Advanced settings'),
+      title: Text(context.tr.action_advanced_settings),
       subtitle: Text(
-        action.enabled ? 'Enabled' : 'Disabled',
+        action.enabled
+            ? context.tr.action_status_enabled
+            : context.tr.action_status_disabled,
         style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
       ),
-      children: [
-        const SizedBox(height: 8),
-        content,
-      ],
+      children: [const SizedBox(height: 8), content],
     );
   }
 
@@ -336,19 +344,17 @@ class ActionCard extends StatelessWidget {
       context: context,
       builder:
           (dialogContext) => AlertDialog.adaptive(
-            title: const Text('Remove action'),
-            content: const Text(
-              'This action will be removed from the workflow. Continue?',
-            ),
+            title: Text(context.tr.action_remove_title),
+            content: Text(context.tr.action_remove_confirm),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(dialogContext).pop(false),
-                child: const Text('Cancel'),
+                child: Text(context.tr.common_cancel),
               ),
               TextButton(
                 onPressed: () => Navigator.of(dialogContext).pop(true),
                 child: Text(
-                  'Remove',
+                  context.tr.common_remove,
                   style: TextStyle(color: Theme.of(context).colorScheme.error),
                 ),
               ),
@@ -404,7 +410,7 @@ class ActionCard extends StatelessWidget {
               WidgetsBinding.instance.addPostFrameCallback((_) async {
                 try {
                   final urlStr = action.parameters['url']?.toString() ?? '';
-                  if (urlStr.isEmpty) throw 'Please provide a valid URL.';
+                  if (urlStr.isEmpty) throw context.tr.action_provide_valid_url;
 
                   // Fallback for placeholders: the request might just fail, but we'll try to execute it as-is
                   final uri = Uri.parse(urlStr);
@@ -508,9 +514,9 @@ class ActionCard extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Test Request Results',
-                            style: TextStyle(
+                          Text(
+                            context.tr.action_http_test_title,
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
@@ -577,7 +583,9 @@ class ActionCard extends StatelessWidget {
                                 ),
                               ),
                               child: Text(
-                                'Status: $statusCode',
+                                context.tr.action_http_status(
+                                  statusCode.toString(),
+                                ),
                                 style: TextStyle(
                                   color:
                                       statusCode != null &&
@@ -602,7 +610,9 @@ class ActionCard extends StatelessWidget {
                                   border: Border.all(color: Colors.blue),
                                 ),
                                 child: Text(
-                                  '${newPaths!.length} paths parsed',
+                                  context.tr.action_http_paths_parsed(
+                                    newPaths!.length,
+                                  ),
                                   style: const TextStyle(
                                     color: Colors.blueAccent,
                                     fontWeight: FontWeight.bold,
@@ -613,9 +623,12 @@ class ActionCard extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 12),
-                        const Text(
-                          'Response Body (Raw):',
-                          style: TextStyle(color: Colors.grey, fontSize: 13),
+                        Text(
+                          context.tr.action_http_response_body,
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 13,
+                          ),
                         ),
                         const SizedBox(height: 8),
                         Expanded(
@@ -685,7 +698,7 @@ class ActionCard extends StatelessWidget {
       Padding(
         padding: const EdgeInsets.only(bottom: 12),
         child: ExpansionTile(
-          title: const Text('Store results in global variables'),
+          title: Text(context.tr.action_store_results),
           tilePadding: EdgeInsets.zero,
           childrenPadding: const EdgeInsets.only(top: 4),
           children: [
@@ -702,7 +715,7 @@ class ActionCard extends StatelessWidget {
           child: ElevatedButton.icon(
             onPressed: () => _showTestRequestModal(context),
             icon: const Icon(Icons.send_rounded),
-            label: const Text('Send Test Request & Auto-Detect Routes'),
+            label: Text(context.tr.action_http_test_button),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blueAccent.withValues(alpha: 0.2),
               foregroundColor: Colors.blueAccent,
@@ -787,6 +800,7 @@ class ActionCard extends StatelessWidget {
   }
 
   Widget _buildInputModeToggle(
+    BuildContext context,
     ParameterDefinition paramDef,
     String currentMode,
   ) {
@@ -799,14 +813,14 @@ class ActionCard extends StatelessWidget {
         spacing: 8,
         children: [
           ChoiceChip(
-            label: const Text('Literal'),
+            label: Text(context.tr.action_literal),
             selected: currentMode == 'literal',
             onSelected:
                 (_) =>
                     onParameterChanged(_inputModeKey(paramDef.key), 'literal'),
           ),
           ChoiceChip(
-            label: const Text('Dynamic'),
+            label: Text(context.tr.action_dynamic),
             selected: currentMode == 'dynamic',
             onSelected:
                 (_) =>
@@ -836,15 +850,15 @@ class ActionCard extends StatelessWidget {
                 _formatParameterName(paramDef.key),
                 style: const TextStyle(fontWeight: FontWeight.w500),
               ),
-              _buildInputModeToggle(paramDef, inputMode),
+              _buildInputModeToggle(context, paramDef, inputMode),
               VariableTextField(
                 key: _parameterInputKey(paramDef.key),
-                label: 'Expression',
+                label: context.tr.action_expression,
                 initialValue:
                     (currentValue ?? paramDef.defaultValue).toString(),
                 hint:
                     _localizeHint(paramDef.hint) ??
-                    'true/false or ((variable))',
+                    context.tr.action_dynamic_bool_hint,
                 suggestions: variableSuggestions,
                 onChanged:
                     (newValue) => onParameterChanged(paramDef.key, newValue),
@@ -855,7 +869,7 @@ class ActionCard extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildInputModeToggle(paramDef, inputMode),
+            _buildInputModeToggle(context, paramDef, inputMode),
             Row(
               children: [
                 Expanded(
@@ -928,7 +942,7 @@ class ActionCard extends StatelessWidget {
                     })
                   else
                     Text(
-                      'No items - tap edit to add',
+                      context.tr.action_no_items_tap_edit,
                       style: TextStyle(
                         color: Colors.grey.shade600,
                         fontSize: 14,
@@ -941,7 +955,7 @@ class ActionCard extends StatelessWidget {
         );
 
       case ParameterType.elseIfBranches:
-        return _buildElseIfBranchesField(paramDef, currentValue);
+        return _buildElseIfBranchesField(context, paramDef, currentValue);
 
       case ParameterType.multiSelect:
         if (useDynamicInput) {
@@ -952,15 +966,15 @@ class ActionCard extends StatelessWidget {
                 _formatParameterName(paramDef.key),
                 style: const TextStyle(fontWeight: FontWeight.w500),
               ),
-              _buildInputModeToggle(paramDef, inputMode),
+              _buildInputModeToggle(context, paramDef, inputMode),
               VariableTextField(
                 key: _parameterInputKey(paramDef.key),
-                label: 'Expression',
+                label: context.tr.action_expression,
                 initialValue:
                     (currentValue ?? paramDef.defaultValue).toString(),
                 hint:
                     _localizeHint(paramDef.hint) ??
-                    'Dynamic value (supports ((...)))',
+                    context.tr.action_dynamic_multiselect_hint,
                 suggestions: variableSuggestions,
                 onChanged:
                     (newValue) => onParameterChanged(paramDef.key, newValue),
@@ -981,7 +995,7 @@ class ActionCard extends StatelessWidget {
               _formatParameterName(paramDef.key),
               style: const TextStyle(fontWeight: FontWeight.w500),
             ),
-            _buildInputModeToggle(paramDef, inputMode),
+            _buildInputModeToggle(context, paramDef, inputMode),
             const SizedBox(height: 4),
             DropdownButtonFormField<String>(
               initialValue: selectedValue,
@@ -1021,7 +1035,9 @@ class ActionCard extends StatelessWidget {
               key: _parameterInputKey(paramDef.key),
               initialValue: (currentValue ?? paramDef.defaultValue).toString(),
               decoration: InputDecoration(
-                hintText: _localizeHint(paramDef.hint) ?? 'e.g., 5m, 1h, 30s',
+                hintText:
+                    _localizeHint(paramDef.hint) ??
+                    context.tr.action_hint_duration,
                 border: const OutlineInputBorder(),
                 isDense: true,
                 suffixText: 's/m/h/d',
@@ -1077,15 +1093,15 @@ class ActionCard extends StatelessWidget {
                 _formatParameterName(paramDef.key),
                 style: const TextStyle(fontWeight: FontWeight.w500),
               ),
-              _buildInputModeToggle(paramDef, inputMode),
+              _buildInputModeToggle(context, paramDef, inputMode),
               VariableTextField(
                 key: _parameterInputKey(paramDef.key),
-                label: 'Expression',
+                label: context.tr.action_expression,
                 initialValue:
                     (currentValue ?? paramDef.defaultValue).toString(),
                 hint:
                     _localizeHint(paramDef.hint) ??
-                    'Dynamic ${paramDef.type.name} (supports ((...)))',
+                    context.tr.action_dynamic_id_hint(paramDef.type.name),
                 suggestions: variableSuggestions,
                 onChanged:
                     (newValue) => onParameterChanged(paramDef.key, newValue),
@@ -1100,7 +1116,7 @@ class ActionCard extends StatelessWidget {
               _formatParameterName(paramDef.key),
               style: const TextStyle(fontWeight: FontWeight.w500),
             ),
-            _buildInputModeToggle(paramDef, inputMode),
+            _buildInputModeToggle(context, paramDef, inputMode),
             const SizedBox(height: 4),
             TextFormField(
               key: _parameterInputKey(paramDef.key),
@@ -1108,7 +1124,7 @@ class ActionCard extends StatelessWidget {
               decoration: InputDecoration(
                 hintText:
                     _localizeHint(paramDef.hint) ??
-                    'Enter ${paramDef.type.name}',
+                    context.tr.action_hint_enter_type(paramDef.type.name),
                 border: const OutlineInputBorder(),
                 isDense: true,
                 prefixIcon: Icon(_getIconForIdType(paramDef.type), size: 20),
@@ -1138,7 +1154,7 @@ class ActionCard extends StatelessWidget {
                     decoration: InputDecoration(
                       hintText:
                           _localizeHint(paramDef.hint) ??
-                          'Enter emoji or :name:',
+                          context.tr.action_hint_emoji,
                       border: const OutlineInputBorder(),
                       isDense: true,
                       prefixIcon: const Icon(Icons.emoji_emotions, size: 20),
@@ -1188,7 +1204,7 @@ class ActionCard extends StatelessWidget {
                     decoration: InputDecoration(
                       hintText:
                           _localizeHint(paramDef.hint) ??
-                          '#FFFFFF or rgb(255,255,255)',
+                          context.tr.action_hint_color,
                       border: const OutlineInputBorder(),
                       isDense: true,
                       prefixIcon: const Icon(Icons.color_lens, size: 20),
@@ -1248,7 +1264,7 @@ class ActionCard extends StatelessWidget {
                 border: Border.all(color: Colors.grey.shade300),
                 borderRadius: BorderRadius.circular(4),
               ),
-              child: _buildMapPreview(paramDef.key, currentValue),
+              child: _buildMapPreview(context, paramDef.key, currentValue),
             ),
           ],
         );
@@ -1418,7 +1434,8 @@ class ActionCard extends StatelessWidget {
             label: _formatParameterName(paramDef.key),
             currentValue:
                 (currentValue ?? paramDef.defaultValue).toString().trim(),
-            hint: _localizeHint(paramDef.hint) ?? 'Saved workflow name',
+            hint:
+                _localizeHint(paramDef.hint) ?? context.tr.action_hint_workflow,
             botId: botIdForConfig!,
             onChanged: (value) {
               onParameterChanged(paramDef.key, value);
@@ -1442,7 +1459,9 @@ class ActionCard extends StatelessWidget {
           return _VariableKeyParameterField(
             label: _formatParameterName(paramDef.key),
             currentValue: (currentValue ?? paramDef.defaultValue).toString(),
-            hint: _localizeHint(paramDef.hint) ?? 'Select variable key',
+            hint:
+                _localizeHint(paramDef.hint) ??
+                context.tr.action_hint_variable_key,
             botId: botIdForConfig!,
             scope: currentScope,
             scoped: usesScopedKeys,
@@ -1577,6 +1596,7 @@ class ActionCard extends StatelessWidget {
   }
 
   Widget _buildElseIfBranchesField(
+    BuildContext context,
     ParameterDefinition paramDef,
     dynamic currentValue,
   ) {
@@ -1609,7 +1629,7 @@ class ActionCard extends StatelessWidget {
                 onParameterChanged(paramDef.key, updated);
               },
               icon: const Icon(Icons.add, size: 16),
-              label: const Text('Add ELSE IF'),
+              label: Text(context.tr.action_add_else_if),
             ),
           ],
         ),
@@ -1624,7 +1644,7 @@ class ActionCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
-              'No ELSE IF branches yet. Add one to test more conditions before ELSE.',
+              context.tr.action_no_else_if_yet,
               style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
             ),
           )
@@ -1635,6 +1655,7 @@ class ActionCard extends StatelessWidget {
                 bottom: entry.key == branches.length - 1 ? 0 : 12,
               ),
               child: _buildElseIfBranchCard(
+                context: context,
                 paramKey: paramDef.key,
                 branchIndex: entry.key,
                 branch: entry.value,
@@ -1647,6 +1668,7 @@ class ActionCard extends StatelessWidget {
   }
 
   Widget _buildElseIfBranchCard({
+    required BuildContext context,
     required String paramKey,
     required int branchIndex,
     required Map<String, dynamic> branch,
@@ -1682,7 +1704,7 @@ class ActionCard extends StatelessWidget {
                 ),
               ),
               IconButton(
-                tooltip: 'Remove ELSE IF',
+                tooltip: context.tr.action_remove_else_if,
                 onPressed: () {
                   final updated = _cloneElseIfBranches(branches)
                     ..removeAt(branchIndex);
@@ -1698,9 +1720,9 @@ class ActionCard extends StatelessWidget {
               final isCompact = constraints.maxWidth < 760;
               final variableField = VariableTextField(
                 key: ValueKey('elseif-$actionKey-$branchIndex-variable'),
-                label: 'Condition Variable',
+                label: context.tr.action_condition_variable,
                 initialValue: variableValue,
-                hint: 'Use ((variableName)) or a runtime value',
+                hint: context.tr.action_hint_condition_var,
                 suggestions: variableSuggestions,
                 onChanged: (value) {
                   final updated = _cloneElseIfBranches(branches);
@@ -1717,9 +1739,9 @@ class ActionCard extends StatelessWidget {
                           ? operatorValue
                           : 'equals',
                   isExpanded: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Operator',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: context.tr.common_operator,
+                    border: const OutlineInputBorder(),
                     isDense: true,
                   ),
                   items: _conditionOperators
@@ -1740,9 +1762,9 @@ class ActionCard extends StatelessWidget {
               );
               final valueField = VariableTextField(
                 key: ValueKey('elseif-$actionKey-$branchIndex-value'),
-                label: 'Condition Value',
+                label: context.tr.action_condition_value,
                 initialValue: conditionValue,
-                hint: 'Value to compare against',
+                hint: context.tr.action_hint_condition_value,
                 suggestions: variableSuggestions,
                 onChanged: (value) {
                   final updated = _cloneElseIfBranches(branches);
@@ -1778,7 +1800,7 @@ class ActionCard extends StatelessWidget {
           const SizedBox(height: 10),
           _buildNestedActionsEditor(
             nestedList: nestedActions,
-            blockLabel: 'ELSE IF ${branchIndex + 1} — actions',
+            blockLabel: context.tr.action_else_if_label(branchIndex + 1),
             blockColor: blockColor,
             icon: Icons.subdirectory_arrow_right,
             onEdit: () async {
@@ -1820,8 +1842,8 @@ class ActionCard extends StatelessWidget {
           icon: const Icon(Icons.edit, size: 15),
           label: Text(
             isCompact
-                ? 'Edit ${nestedList.length}'
-                : 'Edit (${nestedList.length})',
+                ? context.tr.action_edit_nested(nestedList.length)
+                : context.tr.action_edit_nested_parens(nestedList.length),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(fontSize: 13),
@@ -1899,7 +1921,7 @@ class ActionCard extends StatelessWidget {
                       child:
                           nestedList.isEmpty
                               ? Text(
-                                'No actions in this branch yet.',
+                                context.tr.action_no_actions_yet,
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: Colors.grey.shade500,
@@ -1943,7 +1965,9 @@ class ActionCard extends StatelessWidget {
                                     Padding(
                                       padding: const EdgeInsets.only(left: 20),
                                       child: Text(
-                                        '… and ${nestedList.length - 3} more',
+                                        context.tr.action_and_more(
+                                          nestedList.length - 3,
+                                        ),
                                         style: const TextStyle(
                                           fontSize: 11,
                                           color: Colors.grey,
@@ -2222,7 +2246,11 @@ class ActionCard extends StatelessWidget {
           (dialogContext) => StatefulBuilder(
             builder:
                 (context, setDialogState) => AlertDialog(
-                  title: Text('Edit ${_formatParameterName(paramDef.key)}'),
+                  title: Text(
+                    context.tr.action_edit_param(
+                      _formatParameterName(paramDef.key),
+                    ),
+                  ),
                   content: SizedBox(
                     width: double.maxFinite,
                     height: maxHeight,
@@ -2233,8 +2261,8 @@ class ActionCard extends StatelessWidget {
                             Expanded(
                               child: TextField(
                                 controller: controller,
-                                decoration: const InputDecoration(
-                                  hintText: 'Add new item',
+                                decoration: InputDecoration(
+                                  hintText: context.tr.action_add_new_item,
                                   border: OutlineInputBorder(),
                                 ),
                                 onSubmitted: (value) {
@@ -2287,14 +2315,14 @@ class ActionCard extends StatelessWidget {
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(dialogContext),
-                      child: const Text('Cancel'),
+                      child: Text(context.tr.common_cancel),
                     ),
                     ElevatedButton(
                       onPressed: () {
                         onParameterChanged(paramDef.key, items);
                         Navigator.pop(dialogContext);
                       },
-                      child: const Text('Save'),
+                      child: Text(context.tr.common_save),
                     ),
                   ],
                 ),
@@ -2311,7 +2339,11 @@ class ActionCard extends StatelessWidget {
       context: context,
       builder:
           (dialogContext) => AlertDialog(
-            title: Text('Choose ${_formatParameterName(paramDef.key)}'),
+            title: Text(
+              context.tr.action_choose_param(
+                _formatParameterName(paramDef.key),
+              ),
+            ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -2355,7 +2387,7 @@ class ActionCard extends StatelessWidget {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(dialogContext),
-                child: const Text('Cancel'),
+                child: Text(context.tr.common_cancel),
               ),
             ],
           ),
@@ -2402,7 +2434,7 @@ class ActionCard extends StatelessWidget {
                 final decoded = jsonDecode(text);
                 if (decoded is! Map) {
                   setDialogState(
-                    () => errorMessage = 'Root must be a JSON object {...}',
+                    () => errorMessage = context.tr.action_root_must_json,
                   );
                 } else {
                   setDialogState(() => errorMessage = null);
@@ -2416,14 +2448,18 @@ class ActionCard extends StatelessWidget {
               title: Row(
                 children: [
                   Expanded(
-                    child: Text('Edit ${_formatParameterName(paramDef.key)}'),
+                    child: Text(
+                      context.tr.action_edit_param(
+                        _formatParameterName(paramDef.key),
+                      ),
+                    ),
                   ),
                   IconButton(
                     icon: Icon(isPreviewMode ? Icons.code : Icons.visibility),
                     tooltip:
                         isPreviewMode
-                            ? 'Edit Raw JSON'
-                            : 'Preview Highlighted JSON',
+                            ? context.tr.action_edit_raw_json
+                            : context.tr.action_preview_json,
                     onPressed: () {
                       if (!isPreviewMode) {
                         // Before switching to preview, format the JSON to ensure it's pretty
@@ -2443,7 +2479,7 @@ class ActionCard extends StatelessWidget {
                   ),
                   IconButton(
                     icon: const Icon(Icons.format_align_left),
-                    tooltip: 'Format JSON',
+                    tooltip: context.tr.action_format_json,
                     onPressed: () {
                       try {
                         final decoded = jsonDecode(jsonController.text.trim());
@@ -2457,7 +2493,9 @@ class ActionCard extends StatelessWidget {
                         }
                       } catch (e) {
                         setDialogState(
-                          () => errorMessage = 'Cannot format: Invalid JSON',
+                          () =>
+                              errorMessage =
+                                  context.tr.action_cannot_format_json,
                         );
                       }
                     },
@@ -2472,7 +2510,7 @@ class ActionCard extends StatelessWidget {
                   children: [
                     if (!isPreviewMode)
                       Text(
-                        'JSON object editor (supports nested objects/arrays)',
+                        context.tr.action_json_editor_hint,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.grey.shade600,
@@ -2525,7 +2563,7 @@ class ActionCard extends StatelessWidget {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(dialogContext),
-                  child: const Text('Cancel'),
+                  child: Text(context.tr.common_cancel),
                 ),
                 ElevatedButton(
                   onPressed:
@@ -2547,7 +2585,7 @@ class ActionCard extends StatelessWidget {
                                 setDialogState(
                                   () =>
                                       errorMessage =
-                                          'Root must be a JSON object',
+                                          context.tr.action_root_must_json,
                                 );
                                 return;
                               }
@@ -2563,7 +2601,7 @@ class ActionCard extends StatelessWidget {
                               );
                             }
                           },
-                  child: const Text('Save'),
+                  child: Text(context.tr.common_save),
                 ),
               ],
             );
@@ -2573,7 +2611,11 @@ class ActionCard extends StatelessWidget {
     );
   }
 
-  Widget _buildMapPreview(String key, dynamic currentValue) {
+  Widget _buildMapPreview(
+    BuildContext context,
+    String key,
+    dynamic currentValue,
+  ) {
     if (currentValue is Map && currentValue.isNotEmpty) {
       if (key == 'headers' || key == 'arguments') {
         final entries = currentValue.entries.toList();
@@ -2610,10 +2652,10 @@ class ActionCard extends StatelessWidget {
 
     return Text(
       key == 'headers'
-          ? 'No headers - tap edit to add'
+          ? context.tr.action_no_headers_tap_edit
           : key == 'arguments'
-          ? 'No arguments - tap edit to add'
-          : 'No properties - tap edit to configure',
+          ? context.tr.action_no_args_tap_edit
+          : context.tr.action_no_properties_tap_edit,
       style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
     );
   }
@@ -2654,7 +2696,11 @@ class ActionCard extends StatelessWidget {
           (dialogContext) => StatefulBuilder(
             builder:
                 (context, setDialogState) => AlertDialog(
-                  title: Text('Edit ${_formatParameterName(paramDef.key)}'),
+                  title: Text(
+                    context.tr.action_edit_param(
+                      _formatParameterName(paramDef.key),
+                    ),
+                  ),
                   content: SizedBox(
                     width: double.maxFinite,
                     height: maxHeight,
@@ -2662,7 +2708,7 @@ class ActionCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Key / Value pairs',
+                          context.tr.action_key_value_pairs,
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey.shade600,
@@ -2687,9 +2733,9 @@ class ActionCard extends StatelessWidget {
                                       flex: 4,
                                       child: TextField(
                                         controller: keyController,
-                                        decoration: const InputDecoration(
-                                          hintText: 'Key',
-                                          border: OutlineInputBorder(),
+                                        decoration: InputDecoration(
+                                          hintText: context.tr.common_key,
+                                          border: const OutlineInputBorder(),
                                           isDense: true,
                                         ),
                                       ),
@@ -2699,9 +2745,9 @@ class ActionCard extends StatelessWidget {
                                       flex: 6,
                                       child: TextField(
                                         controller: valueController,
-                                        decoration: const InputDecoration(
-                                          hintText: 'Value',
-                                          border: OutlineInputBorder(),
+                                        decoration: InputDecoration(
+                                          hintText: context.tr.common_value,
+                                          border: const OutlineInputBorder(),
                                           isDense: true,
                                         ),
                                         maxLines: null,
@@ -2741,7 +2787,7 @@ class ActionCard extends StatelessWidget {
                             });
                           },
                           icon: const Icon(Icons.add),
-                          label: const Text('Add argument'),
+                          label: Text(context.tr.common_add_argument),
                         ),
                       ],
                     ),
@@ -2749,7 +2795,7 @@ class ActionCard extends StatelessWidget {
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(dialogContext),
-                      child: const Text('Cancel'),
+                      child: Text(context.tr.common_cancel),
                     ),
                     ElevatedButton(
                       onPressed: () {
@@ -2764,7 +2810,7 @@ class ActionCard extends StatelessWidget {
                         onParameterChanged(paramDef.key, result);
                         Navigator.pop(dialogContext);
                       },
-                      child: const Text('Save'),
+                      child: Text(context.tr.common_save),
                     ),
                   ],
                 ),
@@ -2824,7 +2870,11 @@ class ActionCard extends StatelessWidget {
           (dialogContext) => StatefulBuilder(
             builder:
                 (context, setDialogState) => AlertDialog(
-                  title: Text('Edit ${_formatParameterName(paramDef.key)}'),
+                  title: Text(
+                    context.tr.action_edit_param(
+                      _formatParameterName(paramDef.key),
+                    ),
+                  ),
                   content: SizedBox(
                     width: double.maxFinite,
                     height: maxHeight,
@@ -2832,7 +2882,7 @@ class ActionCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'HTTP Headers (Key/Value pairs)',
+                          context.tr.action_http_headers_title,
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey.shade600,
@@ -2899,9 +2949,10 @@ class ActionCard extends StatelessWidget {
                                             focusNode: focusNode,
                                             onEditingComplete:
                                                 onEditingComplete,
-                                            decoration: const InputDecoration(
-                                              hintText: 'Key',
-                                              border: OutlineInputBorder(),
+                                            decoration: InputDecoration(
+                                              hintText: context.tr.common_key,
+                                              border:
+                                                  const OutlineInputBorder(),
                                               isDense: true,
                                             ),
                                           );
@@ -2913,9 +2964,9 @@ class ActionCard extends StatelessWidget {
                                       flex: 6,
                                       child: TextField(
                                         controller: valueController,
-                                        decoration: const InputDecoration(
-                                          hintText: 'Value',
-                                          border: OutlineInputBorder(),
+                                        decoration: InputDecoration(
+                                          hintText: context.tr.common_value,
+                                          border: const OutlineInputBorder(),
                                           isDense: true,
                                         ),
                                         maxLines: null,
@@ -2957,7 +3008,7 @@ class ActionCard extends StatelessWidget {
                                 });
                               },
                               icon: const Icon(Icons.add),
-                              label: const Text('Add header'),
+                              label: Text(context.tr.action_add_header),
                             ),
                             const SizedBox(width: 8),
                             TextButton(
@@ -2973,14 +3024,14 @@ class ActionCard extends StatelessWidget {
                                   }
                                 });
                               },
-                              child: const Text('Clear all'),
+                              child: Text(context.tr.action_clear_all),
                             ),
                           ],
                         ),
                         const SizedBox(height: 16),
                         const Divider(),
                         Text(
-                          'Bulk import (Paste headers like Key: Value)',
+                          context.tr.action_bulk_import_hint,
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey.shade600,
@@ -3058,7 +3109,7 @@ class ActionCard extends StatelessWidget {
                                   }
                                 });
                               },
-                              child: const Text('Import'),
+                              child: Text(context.tr.common_import),
                             ),
                           ],
                         ),
@@ -3068,7 +3119,7 @@ class ActionCard extends StatelessWidget {
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(dialogContext),
-                      child: const Text('Cancel'),
+                      child: Text(context.tr.common_cancel),
                     ),
                     ElevatedButton(
                       onPressed: () {
@@ -3083,7 +3134,7 @@ class ActionCard extends StatelessWidget {
                         onParameterChanged(paramDef.key, result);
                         Navigator.pop(dialogContext);
                       },
-                      child: const Text('Save'),
+                      child: Text(context.tr.common_save),
                     ),
                   ],
                 ),
@@ -3388,9 +3439,9 @@ class _VariableKeyParameterFieldState
               style: const TextStyle(fontWeight: FontWeight.w500),
             ),
             const SizedBox(width: 6),
-            const Text(
-              '(static)',
-              style: TextStyle(fontSize: 11, color: Colors.orangeAccent),
+            Text(
+              context.tr.action_static_badge,
+              style: const TextStyle(fontSize: 11, color: Colors.orangeAccent),
             ),
           ],
         ),
@@ -3433,18 +3484,18 @@ class _VariableKeyParameterFieldState
                   isDense: true,
                   helperText:
                       _loading
-                          ? 'Loading keys...'
+                          ? context.tr.action_loading_keys
                           : (items.isEmpty
-                              ? 'No saved keys found. Keys are created automatically on first access.'
+                              ? context.tr.action_no_saved_keys
                               : (widget.scoped
-                                  ? 'Select a stored key (bc_ prefix is optional)'
-                                  : 'Select a saved key')),
+                                  ? context.tr.action_select_stored_key
+                                  : context.tr.action_select_saved_key)),
                 ),
               ),
             ),
             const SizedBox(width: 8),
             IconButton(
-              tooltip: 'Refresh keys',
+              tooltip: context.tr.action_refresh_keys,
               onPressed: _loading ? null : _loadKeys,
               icon: const Icon(Icons.refresh),
             ),
@@ -3462,7 +3513,7 @@ class _VariableKeyParameterFieldState
             await _loadKeys();
           },
           icon: const Icon(Icons.storage),
-          label: const Text('Manage Variable Keys'),
+          label: Text(context.tr.action_manage_variable_keys),
         ),
       ],
     );
@@ -3575,16 +3626,16 @@ class _WorkflowNameParameterFieldState
                   isDense: true,
                   helperText:
                       _loading
-                          ? 'Loading workflows...'
+                          ? context.tr.autocomplete_loading
                           : (_workflowNames.isEmpty
-                              ? 'No saved workflows found'
-                              : 'Select a saved workflow'),
+                              ? context.tr.autocomplete_no_workflows
+                              : context.tr.autocomplete_select_workflow),
                 ),
               ),
             ),
             const SizedBox(width: 8),
             IconButton(
-              tooltip: 'Refresh workflows',
+              tooltip: context.tr.common_refresh_workflows,
               onPressed: _loading ? null : _loadWorkflows,
               icon: const Icon(Icons.refresh),
             ),
@@ -3594,9 +3645,9 @@ class _WorkflowNameParameterFieldState
         TextFormField(
           key: ValueKey('workflowNameInput_${widget.currentValue}'),
           initialValue: trimmedCurrent,
-          decoration: const InputDecoration(
-            labelText: 'Or type workflow name',
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            labelText: context.tr.autocomplete_type_name,
+            border: const OutlineInputBorder(),
             isDense: true,
           ),
           onChanged: (value) => widget.onChanged(value.trim()),
@@ -3613,7 +3664,7 @@ class _WorkflowNameParameterFieldState
             await _loadWorkflows();
           },
           icon: const Icon(Icons.account_tree),
-          label: const Text('Manage Workflows'),
+          label: Text(context.tr.common_manage_workflows),
         ),
       ],
     );
@@ -3944,7 +3995,7 @@ class _BdfdScriptParameterFieldState extends State<_BdfdScriptParameterField> {
     final isEmpty = code.trim().isEmpty;
     final preview =
         isEmpty
-            ? AppStrings.t('bdfd_editor_tap_hint')
+            ? context.tr.bdfd_editor_tap_hint
             : code.length > 150
             ? '${code.substring(0, 150)}…'
             : code;
@@ -3996,7 +4047,7 @@ class _BdfdScriptParameterFieldState extends State<_BdfdScriptParameterField> {
                     const Icon(Icons.code, size: 16, color: Colors.white70),
                     const SizedBox(width: 8),
                     Text(
-                      AppStrings.t('bdfd_editor_tap_hint'),
+                      context.tr.bdfd_editor_tap_hint,
                       style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 12,
@@ -4058,7 +4109,7 @@ class _BdfdScriptParameterFieldState extends State<_BdfdScriptParameterField> {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                AppStrings.t('cmd_bdfd_diagnostics_clean'),
+                context.tr.cmd_bdfd_diagnostics_clean,
                 style: TextStyle(fontSize: 12, color: Colors.green.shade800),
               ),
             ),
@@ -4080,7 +4131,7 @@ class _BdfdScriptParameterFieldState extends State<_BdfdScriptParameterField> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            AppStrings.t('cmd_bdfd_diagnostics_title'),
+            context.tr.cmd_bdfd_diagnostics_title,
             style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
           ),
           const SizedBox(height: 6),
