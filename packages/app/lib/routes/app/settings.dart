@@ -510,7 +510,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   }
 
   Future<void> _pickAvatarFile() async {
-    final picked = await FilePicker.platform.pickFiles(
+    final picked = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: supportedDiscordAvatarFormats,
       allowMultiple: false,

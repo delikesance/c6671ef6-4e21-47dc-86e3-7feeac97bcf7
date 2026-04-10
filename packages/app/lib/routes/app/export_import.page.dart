@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/utils/bot_export_import.dart';
 import 'package:bot_creator/utils/i18n.dart';
@@ -94,17 +92,13 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
       if (!mounted) return;
 
       // Save using file_picker save dialog
-      final outputPath = await FilePicker.platform.saveFile(
+      await FilePicker.saveFile(
         dialogTitle: context.tr.export_button,
         fileName: 'bot_export.zip',
         type: FileType.custom,
         allowedExtensions: ['zip'],
+        bytes: zipBytes,
       );
-
-      if (outputPath == null) return;
-
-      final file = File(outputPath);
-      await file.writeAsBytes(zipBytes);
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(
@@ -116,17 +110,17 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
   }
 
   Future<void> _pickAndParseZip() async {
-    final result = await FilePicker.platform.pickFiles(
+    final result = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['zip'],
+      withData: true,
     );
     if (result == null || result.files.isEmpty) return;
 
-    final filePath = result.files.single.path;
-    if (filePath == null) return;
+    final bytes = result.files.single.bytes;
+    if (bytes == null || bytes.isEmpty) return;
 
     try {
-      final bytes = await File(filePath).readAsBytes();
       final preview = parseExportZip(bytes);
 
       if (!mounted) return;
