@@ -458,7 +458,7 @@ class _BdfdDocsPageState extends State<BdfdDocsPage> {
         backgroundColor:
             isDark ? const Color(0xFF252526) : const Color(0xFF37474F),
         title: Text(
-          AppStrings.t('bdfd_docs_title'),
+          context.tr.bdfd_docs_title,
           style: const TextStyle(color: Colors.white, fontSize: 16),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
@@ -472,7 +472,7 @@ class _BdfdDocsPageState extends State<BdfdDocsPage> {
               child: TextField(
                 style: const TextStyle(color: Colors.white, fontSize: 14),
                 decoration: InputDecoration(
-                  hintText: AppStrings.t('bdfd_docs_search_hint'),
+                  hintText: context.tr.bdfd_docs_search_hint,
                   hintStyle: TextStyle(color: Colors.grey.shade500),
                   prefixIcon: Icon(
                     Icons.search,
@@ -526,7 +526,7 @@ class _BdfdDocsPageState extends State<BdfdDocsPage> {
     if (filteredCategories.isEmpty) {
       return Center(
         child: Text(
-          AppStrings.t('bdfd_docs_empty'),
+          context.tr.bdfd_docs_empty,
           style: TextStyle(color: Colors.grey.shade500, fontSize: 14),
         ),
       );
@@ -637,7 +637,7 @@ class _BdfdDocsPageState extends State<BdfdDocsPage> {
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                AppStrings.t('bdfd_docs_syntax'),
+                context.tr.bdfd_docs_syntax,
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
@@ -666,7 +666,7 @@ class _BdfdDocsPageState extends State<BdfdDocsPage> {
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                AppStrings.t('bdfd_docs_parameters'),
+                context.tr.bdfd_docs_parameters,
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
@@ -713,7 +713,7 @@ class _BdfdDocsPageState extends State<BdfdDocsPage> {
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                AppStrings.t('bdfd_docs_no_params'),
+                context.tr.bdfd_docs_no_params,
                 style: TextStyle(
                   fontFamily: 'monospace',
                   fontSize: 12,

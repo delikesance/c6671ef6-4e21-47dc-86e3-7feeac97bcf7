@@ -1,10 +1,13 @@
 import 'package:bot_creator/types/variable_suggestion.dart';
 import 'package:bot_creator/widgets/response_embeds_editor.dart';
+import 'package:bot_creator/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Widget _buildEditor(List<Map<String, dynamic>> embeds) {
   return MaterialApp(
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
     home: Scaffold(
       body: SingleChildScrollView(
         child: ResponseEmbedsEditor(
@@ -49,6 +52,8 @@ class _StatefulEditorHostState extends State<_StatefulEditorHost> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: Scaffold(
         body: SingleChildScrollView(
           child: ResponseEmbedsEditor(
@@ -114,6 +119,8 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: SingleChildScrollView(
             child: ResponseEmbedsEditor(

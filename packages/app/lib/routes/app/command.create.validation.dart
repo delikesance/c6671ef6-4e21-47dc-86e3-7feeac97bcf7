@@ -10,52 +10,54 @@ extension _CommandCreateValidation on _CommandCreatePageState {
   String? _validateName(String? value) {
     final normalized = (value ?? '').trim();
     if (normalized.isEmpty) {
-      return 'Please enter a command name';
+      return context.tr.validation_command_name_required;
     }
 
     if (_isAwaitedCallbackTrigger(normalized)) {
       if (!_allowsInternalLegacyCallbackNames) {
-        return 'Awaited callbacks require a local-only Legacy Command.';
+        return context.tr.validation_awaited_callback_local_only;
       }
       if (normalized.length > _commandNameMaxLength) {
-        return 'Awaited callback trigger must be at most $_commandNameMaxLength characters long';
+        return context.tr.validation_awaited_callback_length(
+          _commandNameMaxLength,
+        );
       }
       return null;
     }
 
     if (_looksLikeAwaitedCallbackTrigger(normalized)) {
-      return 'Awaited callback must use \$awaitedCommand[name;filter] or \$awaitedCommandError[name].';
+      return context.tr.validation_awaited_callback_format;
     }
 
     if (normalized.length > _commandNameMaxLength) {
-      return 'Command name must be at most $_commandNameMaxLength characters long';
+      return context.tr.validation_command_name_length(_commandNameMaxLength);
     }
     if (normalized.contains(' ')) {
-      return 'Command name cannot contain spaces';
+      return context.tr.validation_command_name_no_spaces;
     }
     if (normalized.contains(RegExp(r'[^a-zA-Z0-9_]'))) {
-      return 'Command name can only contain letters, numbers, and underscores';
+      return context.tr.validation_command_name_invalid_chars;
     }
     if (normalized.startsWith('_')) {
-      return 'Command name cannot start with an underscore';
+      return context.tr.validation_command_name_no_underscore;
     }
     if (normalized.startsWith('!')) {
-      return 'Command name cannot start with an exclamation mark';
+      return context.tr.validation_command_name_no_exclamation;
     }
     if (normalized.startsWith('/')) {
-      return 'Command name cannot start with a slash';
+      return context.tr.validation_command_name_no_slash;
     }
     if (normalized.startsWith('#')) {
-      return 'Command name cannot start with a hash';
+      return context.tr.validation_command_name_no_hash;
     }
     if (normalized.startsWith('@')) {
-      return 'Command name cannot start with an at sign';
+      return context.tr.validation_command_name_no_at;
     }
     if (normalized.startsWith('&')) {
-      return 'Command name cannot start with an ampersand';
+      return context.tr.validation_command_name_no_ampersand;
     }
     if (normalized.startsWith('%')) {
-      return 'Command name cannot start with a percent sign';
+      return context.tr.validation_command_name_no_percent;
     }
     return null;
   }
@@ -67,12 +69,12 @@ extension _CommandCreateValidation on _CommandCreatePageState {
         context: context,
         builder:
             (context) => AlertDialog(
-              title: Text(AppStrings.t('error')),
+              title: Text(context.tr.error),
               content: Text(nameError),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: Text(AppStrings.t('ok')),
+                  child: Text(context.tr.ok),
                 ),
               ],
             ),
@@ -91,12 +93,12 @@ extension _CommandCreateValidation on _CommandCreatePageState {
           context: context,
           builder:
               (context) => AlertDialog(
-                title: Text(AppStrings.t('error')),
+                title: Text(context.tr.error),
                 content: Text(optionsError),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: Text(AppStrings.t('ok')),
+                    child: Text(context.tr.ok),
                   ),
                 ],
               ),
@@ -113,14 +115,12 @@ extension _CommandCreateValidation on _CommandCreatePageState {
           context: context,
           builder:
               (context) => AlertDialog(
-                title: Text(AppStrings.t('error')),
-                content: const Text(
-                  'Legacy mode is only available for chat input commands.',
-                ),
+                title: Text(context.tr.error),
+                content: Text(context.tr.validation_legacy_chat_input_only),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: Text(AppStrings.t('ok')),
+                    child: Text(context.tr.ok),
                   ),
                 ],
               ),
@@ -133,14 +133,12 @@ extension _CommandCreateValidation on _CommandCreatePageState {
           context: context,
           builder:
               (context) => AlertDialog(
-                title: Text(AppStrings.t('error')),
-                content: const Text(
-                  'Modal responses are not supported in legacy command mode.',
-                ),
+                title: Text(context.tr.error),
+                content: Text(context.tr.validation_modal_not_legacy),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: Text(AppStrings.t('ok')),
+                    child: Text(context.tr.ok),
                   ),
                 ],
               ),
@@ -155,14 +153,14 @@ extension _CommandCreateValidation on _CommandCreatePageState {
           context: context,
           builder:
               (context) => AlertDialog(
-                title: Text(AppStrings.t('error')),
-                content: const Text(
-                  'Legacy-only commands require legacy mode to be enabled.',
+                title: Text(context.tr.error),
+                content: Text(
+                  context.tr.validation_legacy_only_requires_legacy,
                 ),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: Text(AppStrings.t('ok')),
+                    child: Text(context.tr.ok),
                   ),
                 ],
               ),
@@ -175,14 +173,12 @@ extension _CommandCreateValidation on _CommandCreatePageState {
           context: context,
           builder:
               (context) => AlertDialog(
-                title: Text(AppStrings.t('error')),
-                content: const Text(
-                  'Legacy-only mode can only be used for new commands or existing local commands.',
-                ),
+                title: Text(context.tr.error),
+                content: Text(context.tr.validation_legacy_only_new_or_local),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: Text(AppStrings.t('ok')),
+                    child: Text(context.tr.ok),
                   ),
                 ],
               ),
@@ -201,9 +197,7 @@ extension _CommandCreateValidation on _CommandCreatePageState {
     }
     final parsed = int.tryParse(trimmed);
     if (parsed == null || parsed < 0) {
-      throw Exception(
-        'Invalid default member permissions bitfield. Use a positive integer or leave empty.',
-      );
+      throw Exception(context.tr.validation_invalid_permissions);
     }
     return Permissions(parsed);
   }

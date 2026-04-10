@@ -217,7 +217,7 @@ class _BotStatsPageState extends State<BotStatsPage> {
     final canSelectBot = knownBotIds.length > 1;
 
     return Scaffold(
-      appBar: AppBar(title: Text(AppStrings.t('bot_stats_title'))),
+      appBar: AppBar(title: Text(context.tr.bot_stats_title)),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16),
@@ -227,8 +227,8 @@ class _BotStatsPageState extends State<BotStatsPage> {
                 padding: const EdgeInsets.only(bottom: 12),
                 child: DropdownButtonFormField<String>(
                   initialValue: _selectedBotId,
-                  decoration: const InputDecoration(
-                    labelText: 'Bot',
+                  decoration: InputDecoration(
+                    labelText: context.tr.common_bot,
                     border: OutlineInputBorder(),
                     isDense: true,
                   ),
@@ -267,14 +267,14 @@ class _BotStatsPageState extends State<BotStatsPage> {
                 ),
               ),
             _MetricCard(
-              title: AppStrings.t('bot_stats_ram_process'),
+              title: context.tr.bot_stats_ram_process,
               value: _formatBytes(_rssBytes),
               icon: Icons.memory,
               history: _ramHistory,
             ),
             const SizedBox(height: 12),
             _MetricCard(
-              title: AppStrings.t('bot_stats_ram_estimated'),
+              title: context.tr.bot_stats_ram_estimated,
               value: _formatBytes(_rssEstimatedBytes),
               icon: Icons.auto_graph,
               history: _ramEstimatedHistory,
@@ -282,14 +282,14 @@ class _BotStatsPageState extends State<BotStatsPage> {
             ),
             const SizedBox(height: 12),
             _MetricCard(
-              title: AppStrings.t('bot_stats_cpu'),
+              title: context.tr.bot_stats_cpu,
               value: _formatCpu(_cpuPercent),
               icon: Icons.speed,
               history: _cpuHistory,
             ),
             const SizedBox(height: 12),
             _MetricCard(
-              title: AppStrings.t('bot_stats_storage'),
+              title: context.tr.bot_stats_storage,
               value: _formatBytes(_storageBytes),
               icon: Icons.storage,
               history: _storageHistory,
@@ -317,13 +317,10 @@ class _BotStatsPageState extends State<BotStatsPage> {
                   Expanded(
                     child: Text(
                       _usingRemoteMetrics && _runnerLabel != null
-                          ? AppStrings.tr(
-                            'runner_source_label',
-                            params: {'name': _runnerLabel!},
-                          )
+                          ? context.tr.runner_source_label(_runnerLabel!)
                           : _usingRemoteMetrics
-                          ? AppStrings.t('bot_stats_source_runner_api')
-                          : AppStrings.t('bot_stats_source_local_hosting'),
+                          ? context.tr.bot_stats_source_runner_api
+                          : context.tr.bot_stats_source_local_hosting,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color:
                             _usingRemoteMetrics
@@ -339,7 +336,7 @@ class _BotStatsPageState extends State<BotStatsPage> {
             ),
             const SizedBox(height: 10),
             Text(
-              AppStrings.t('bot_stats_notes'),
+              context.tr.bot_stats_notes,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
@@ -454,7 +451,7 @@ class _Sparkline extends StatelessWidget {
       return Container(
         alignment: Alignment.centerLeft,
         child: Text(
-          AppStrings.t('bot_stats_collecting'),
+          context.tr.bot_stats_collecting,
           style: Theme.of(context).textTheme.labelSmall,
         ),
       );

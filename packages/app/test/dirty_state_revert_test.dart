@@ -1,11 +1,14 @@
 import 'package:bot_creator/routes/app/command.response_workflow.dart';
 import 'package:bot_creator/types/variable_suggestion.dart';
+import 'package:bot_creator/utils/i18n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   Widget buildPage({Map<String, dynamic>? initialWorkflow}) {
     return MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: CommandResponseWorkflowPage(
         initialWorkflow: initialWorkflow ?? const <String, dynamic>{},
         variableSuggestions: const <VariableSuggestion>[],
@@ -106,23 +109,27 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           home: Builder(
-            builder: (context) => Scaffold(
-              body: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const CommandResponseWorkflowPage(
-                        initialWorkflow: <String, dynamic>{},
-                        variableSuggestions: <VariableSuggestion>[],
-                      ),
-                    ),
-                  );
-                },
-                child: const Text('Go'),
-              ),
-            ),
+            builder:
+                (context) => Scaffold(
+                  body: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (_) => const CommandResponseWorkflowPage(
+                                initialWorkflow: <String, dynamic>{},
+                                variableSuggestions: <VariableSuggestion>[],
+                              ),
+                        ),
+                      );
+                    },
+                    child: const Text('Go'),
+                  ),
+                ),
           ),
         ),
       );
@@ -153,23 +160,27 @@ void main() {
       // Use a Navigator to be able to catch pop
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           home: Builder(
-            builder: (context) => Scaffold(
-              body: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const CommandResponseWorkflowPage(
-                        initialWorkflow: <String, dynamic>{},
-                        variableSuggestions: <VariableSuggestion>[],
-                      ),
-                    ),
-                  );
-                },
-                child: const Text('Go'),
-              ),
-            ),
+            builder:
+                (context) => Scaffold(
+                  body: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (_) => const CommandResponseWorkflowPage(
+                                initialWorkflow: <String, dynamic>{},
+                                variableSuggestions: <VariableSuggestion>[],
+                              ),
+                        ),
+                      );
+                    },
+                    child: const Text('Go'),
+                  ),
+                ),
           ),
         ),
       );

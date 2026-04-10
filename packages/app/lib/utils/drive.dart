@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'package:bot_creator/utils/database.dart';
+import 'package:bot_creator/utils/i18n.dart';
 import 'package:archive/archive_io.dart';
 import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -674,7 +675,7 @@ Future<String> uploadAppData(DriveApi drive, AppManager appm) async {
     final snapshot = await createBackupSnapshot(
       drive,
       appm,
-      label: 'Manual backup',
+      label: AppStrings.t('drive_manual_backup'),
     );
     await _pruneSnapshots(drive, keepLatest: 20);
     return 'Sauvegarde terminee (${snapshot.snapshotId})';
@@ -1257,7 +1258,7 @@ Future<BackupSnapshotSummary> _readSnapshotMetadata(
 
   return BackupSnapshotSummary(
     snapshotId: fallbackSnapshotId,
-    label: 'Legacy snapshot',
+    label: AppStrings.t('drive_legacy_snapshot'),
     createdAt: DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
     fileCount: 0,
     totalBytes: 0,

@@ -8,6 +8,7 @@ import 'package:bot_creator/widgets/component_v2_builder/component_v2_editor.dar
 import 'package:bot_creator/widgets/component_v2_builder/normal_component_editor.dart';
 import 'package:bot_creator/widgets/component_v2_builder/modal_builder.dart';
 import 'package:bot_creator/types/component.dart';
+import '../../utils/i18n.dart';
 
 class ReplyCard extends StatelessWidget {
   final String responseType;
@@ -88,13 +89,13 @@ class ReplyCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              "Command Reply",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            Text(
+              context.tr.reply_command_reply_title,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 4),
             Text(
-              "Choose the type of response to send",
+              context.tr.reply_choose_type,
               style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
             ),
             if (activeRouteLabel != null && activeRouteLabel!.trim().isNotEmpty)
@@ -112,7 +113,7 @@ class ReplyCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(999),
                     ),
                     child: Text(
-                      'Active route: $activeRouteLabel',
+                      context.tr.reply_active_route(activeRouteLabel!),
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -134,9 +135,9 @@ class ReplyCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Response Workflow',
-                    style: TextStyle(fontWeight: FontWeight.w600),
+                  Text(
+                    context.tr.reply_response_workflow,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -147,7 +148,7 @@ class ReplyCard extends StatelessWidget {
                   FilledButton.tonalIcon(
                     onPressed: openWorkflowEditor,
                     icon: const Icon(Icons.account_tree_outlined),
-                    label: const Text('Configure Response Workflow'),
+                    label: Text(context.tr.reply_configure_workflow),
                   ),
                 ],
               ),
@@ -155,14 +156,13 @@ class ReplyCard extends StatelessWidget {
             const SizedBox(height: 16),
             if (responseType == 'normal') ...[
               VariableTextField(
-                label: "Response Text",
+                label: context.tr.reply_response_text_label,
                 controller: responseController,
                 maxLines: 4,
                 suggestions: variableSuggestions,
                 emojiSuggestions: emojiSuggestions,
                 onChanged: (_) {},
-                helperText:
-                    "Used as slash-command reply text. Supports ((variable)) syntax.",
+                helperText: context.tr.reply_response_text_helper,
               ),
               // external suggestion bar provided by parent (e.g. command creation page)
               variableSuggestionBar,
@@ -175,9 +175,9 @@ class ReplyCard extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               ExpansionTile(
-                title: const Text('Buttons & Select Menus (optional)'),
+                title: Text(context.tr.reply_buttons_optional),
                 subtitle: Text(
-                  'Add interactive buttons or dropdowns to this message',
+                  context.tr.reply_buttons_desc,
                   style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
                 ),
                 collapsedBackgroundColor: Colors.grey.withValues(alpha: 0.05),
@@ -225,18 +225,17 @@ class ReplyCard extends StatelessWidget {
   /// Unified mode selector that displays each response mode with a label,
   /// description, and icon so users understand when to use which mode.
   Widget _buildResponseModeSelector(BuildContext context) {
-    const modes = [
+    final modes = [
       (
         value: 'normal',
-        label: 'Standard Message',
-        description: 'Text, embeds and optional buttons / select menus',
+        label: context.tr.reply_mode_standard,
+        description: context.tr.reply_mode_standard_desc,
         icon: Icons.message_outlined,
       ),
       (
         value: 'componentV2',
-        label: 'Layout Mode',
-        description:
-            "Discord's rich layout system — containers, media, text & forms",
+        label: context.tr.reply_mode_layout,
+        description: context.tr.reply_mode_layout_desc,
         icon: Icons.dashboard_customize_outlined,
       ),
     ];
@@ -247,8 +246,8 @@ class ReplyCard extends StatelessWidget {
           if (allowModal)
             (
               value: 'modal',
-              label: 'Modal Form',
-              description: 'Pop-up dialog with text input fields',
+              label: context.tr.reply_mode_modal,
+              description: context.tr.reply_mode_modal_desc,
               icon: Icons.web_asset_outlined,
             ),
         ];

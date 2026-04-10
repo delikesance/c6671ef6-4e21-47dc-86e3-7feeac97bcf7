@@ -2,6 +2,7 @@ import 'package:bot_creator/types/app_emoji.dart';
 import 'package:bot_creator/types/variable_suggestion.dart';
 import 'package:bot_creator/widgets/command_create_cards/reply_card.dart';
 import 'package:flutter/material.dart';
+import '../../utils/i18n.dart';
 
 class CommandReplyEditorPage extends StatefulWidget {
   const CommandReplyEditorPage({
@@ -114,7 +115,9 @@ class _CommandReplyEditorPageState extends State<CommandReplyEditorPage> {
 
   String _workflowSummary() {
     final visibility =
-        _responseWorkflow['visibility'] == 'ephemeral' ? 'Ephemeral' : 'Public';
+        _responseWorkflow['visibility'] == 'ephemeral'
+            ? context.tr.workflow_visibility_ephemeral
+            : context.tr.workflow_visibility_public;
     final autoDefer = _responseWorkflow['autoDeferIfActions'] != false;
     final conditional = Map<String, dynamic>.from(
       (_responseWorkflow['conditional'] as Map?)?.cast<String, dynamic>() ??
@@ -122,16 +125,20 @@ class _CommandReplyEditorPageState extends State<CommandReplyEditorPage> {
     );
     final conditionEnabled = conditional['enabled'] == true;
     final modeLabel =
-        _responseWorkflow['workflowMode'] == 'bdfd' ? 'BDFD Script' : 'Visual';
-    return '$modeLabel | ${autoDefer ? 'Auto defer' : 'Manual'} | $visibility | ${conditionEnabled ? 'Condition on' : 'Condition off'}';
+        _responseWorkflow['workflowMode'] == 'bdfd'
+            ? context.tr.workflow_mode_bdfd
+            : context.tr.workflow_mode_visual;
+    return '$modeLabel | ${autoDefer ? context.tr.workflow_auto_defer : context.tr.workflow_manual} | $visibility | ${conditionEnabled ? context.tr.workflow_condition_on : context.tr.workflow_condition_off}';
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Reply Details'),
-        actions: [TextButton(onPressed: _save, child: const Text('Save'))],
+        title: Text(context.tr.reply_editor_title),
+        actions: [
+          TextButton(onPressed: _save, child: Text(context.tr.common_save)),
+        ],
       ),
       body: SafeArea(
         top: false,
