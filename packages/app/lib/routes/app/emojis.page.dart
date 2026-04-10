@@ -91,7 +91,7 @@ class _EmojisPageState extends State<EmojisPage> {
                       pickedFileName ?? context.tr.emojis_upload_pick_image,
                     ),
                     onPressed: () async {
-                      final result = await FilePicker.platform.pickFiles(
+                      final result = await FilePicker.pickFiles(
                         type: FileType.image,
                         allowMultiple: false,
                       );
