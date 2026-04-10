@@ -16,8 +16,6 @@ void main() {
     'lib/l10n/app_fr.arb',
   ).writeAsStringSync('${const JsonEncoder.withIndent('  ').convert(frArb)}\n');
 
-  print('Generated lib/l10n/app_en.arb (${appStringsEn.length} keys)');
-  print('Generated lib/l10n/app_fr.arb (${appStringsFr.length} keys)');
 }
 
 Map<String, dynamic> toArb(

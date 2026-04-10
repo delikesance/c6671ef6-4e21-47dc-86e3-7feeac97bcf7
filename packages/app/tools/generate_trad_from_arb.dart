@@ -39,5 +39,4 @@ void _generate(String arbPath, String dartPath, String varName) {
   buf.writeln('};');
 
   File(dartPath).writeAsStringSync(buf.toString());
-  print('  $dartPath (${entries.length} keys)');
 }

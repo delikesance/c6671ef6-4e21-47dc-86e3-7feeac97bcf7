@@ -87,8 +87,6 @@ void main() {
           .where((f) => !f.path.endsWith('i18n.dart'))
           .toList();
 
-  var totalT = 0;
-  var totalTr = 0;
   var totalDoubleQuoted = 0;
 
   for (final file in files) {
@@ -132,9 +130,6 @@ void main() {
       // Find the matching closing } for the params map
       final closingBrace = _findMatchingBrace(content, paramBodyStart - 1);
       if (closingBrace == -1) {
-        print(
-          '  WARNING: Could not find matching } for tr($key) in ${file.path}',
-        );
         break;
       }
 
@@ -160,9 +155,6 @@ void main() {
       // Get method signature
       final sig = paramSignatures[key];
       if (sig == null) {
-        print(
-          '  WARNING: No signature found for tr($key) in ${file.path}. Converting to simple getter.',
-        );
         // No params in the generated method — treat as a simple getter
         content =
             '${content.substring(0, match.start)}context.tr.$key${content.substring(trEnd)}';
@@ -175,9 +167,6 @@ void main() {
       for (final paramName in sig) {
         final expr = params[paramName];
         if (expr == null) {
-          print(
-            '  WARNING: Missing param "$paramName" for tr($key) in ${file.path}',
-          );
           args.add("'??? $paramName'");
         } else {
           args.add(expr);
@@ -194,20 +183,10 @@ void main() {
 
     if (tCount > 0 || trCount > 0) {
       file.writeAsStringSync(content);
-      print(
-        '${file.path}: $tCount .t() + $trCount .tr() = ${tCount + trCount} replacements',
-      );
-      totalT += tCount;
-      totalTr += trCount;
     }
   }
 
-  print('');
-  print(
-    'Total: $totalT .t() + $totalTr .tr() = ${totalT + totalTr} replacements',
-  );
   if (totalDoubleQuoted > 0) {
-    print('  (including $totalDoubleQuoted double-quoted keys)');
   }
 }
 
