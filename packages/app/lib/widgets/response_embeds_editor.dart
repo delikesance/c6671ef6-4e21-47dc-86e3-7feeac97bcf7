@@ -5,7 +5,6 @@ import 'package:bot_creator/types/variable_suggestion.dart';
 import 'package:bot_creator/utils/embed_normalization.dart';
 import 'package:bot_creator/widgets/variable_text_field.dart';
 import 'package:bot_creator/utils/i18n.dart';
-import 'package:bot_creator/utils/i18n.dart';
 
 class ResponseEmbedsEditor extends StatefulWidget {
   final List<Map<String, dynamic>> embeds;

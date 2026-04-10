@@ -233,8 +233,9 @@ class ComponentNodeEditor extends StatelessWidget {
     if (node is ActionRowNode) {
       return _buildActionRowEditor(node as ActionRowNode, context);
     }
-    if (node is ButtonNode)
+    if (node is ButtonNode) {
       return _buildButtonEditor(node as ButtonNode, context);
+    }
     if (node is SelectMenuNode) {
       return _buildSelectMenuEditor(node as SelectMenuNode, context);
     }
@@ -244,14 +245,16 @@ class ComponentNodeEditor extends StatelessWidget {
     if (node is SeparatorNode) {
       return _buildSeparatorEditor(node as SeparatorNode, context);
     }
-    if (node is SectionNode)
+    if (node is SectionNode) {
       return _buildSectionEditor(node as SectionNode, context);
+    }
     if (node is ContainerNode) {
       return _buildContainerEditor(node as ContainerNode, context);
     }
     if (node is LabelNode) return _buildLabelEditor(node as LabelNode, context);
-    if (node is CheckboxNode)
+    if (node is CheckboxNode) {
       return _buildCheckboxEditor(node as CheckboxNode, context);
+    }
     if (node is RadioGroupNode) {
       return _buildRadioGroupEditor(node as RadioGroupNode, context);
     }
