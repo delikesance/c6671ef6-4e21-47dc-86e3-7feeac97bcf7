@@ -266,8 +266,8 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
             children: [
               ListTile(
                 leading: const Icon(Icons.data_object_outlined),
-                title: const Text('Export command as JSON'),
-                subtitle: const Text('Copy readable JSON to clipboard'),
+                title: Text(context.tr.serialization_export_json_title),
+                subtitle: Text(context.tr.serialization_export_json_subtitle),
                 onTap: () async {
                   Navigator.pop(context);
                   await _copyCommandPayload(asBase64: false);
@@ -275,7 +275,7 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
               ),
               ListTile(
                 leading: const Icon(Icons.key_outlined),
-                title: const Text('Export command as Base64'),
+                title: Text(context.tr.serialization_export_base64_title),
                 subtitle: const Text(
                   'Copy compact Base64 payload to clipboard',
                 ),
@@ -300,22 +300,22 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Import command'),
+          title: Text(context.tr.serialization_import_title),
           content: SizedBox(
             width: double.maxFinite,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text('Paste a command payload (JSON or Base64).'),
+                Text(context.tr.serialization_import_desc),
                 const SizedBox(height: 10),
                 TextField(
                   controller: controller,
                   minLines: 6,
                   maxLines: 12,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     border: OutlineInputBorder(),
-                    hintText: 'Command payload',
+                    hintText: context.tr.command_payload_hint,
                   ),
                 ),
               ],
@@ -324,11 +324,11 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: Text(AppStrings.t('cancel')),
+              child: Text(context.tr.cancel),
             ),
             ElevatedButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Import'),
+              child: Text(context.tr.common_import),
             ),
           ],
         );
@@ -357,7 +357,7 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
         return;
       }
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid command payload format.')),
+        SnackBar(content: Text(context.tr.serialization_invalid_format)),
       );
       return;
     }
@@ -367,7 +367,7 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
         return;
       }
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid command payload structure.')),
+        SnackBar(content: Text(context.tr.serialization_invalid_structure)),
       );
       return;
     }
@@ -564,8 +564,8 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
       _isDataIncomplete = false;
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Command imported into editor.')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(context.tr.serialization_imported)));
   }
 }

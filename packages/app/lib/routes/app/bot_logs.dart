@@ -21,6 +21,7 @@ class _BotLogsPageState extends State<BotLogsPage> {
   String? _selectedBotId;
   Map<String, String> _botNamesById = const <String, String>{};
   final Set<String> _expandedLogs = <String>{};
+  final Set<String> _expandedRawLogs = <String>{};
   final ScrollController _scrollController = ScrollController();
   bool _showNewestFirst = true;
   int _visibleLimit = 200;
@@ -182,13 +183,13 @@ class _BotLogsPageState extends State<BotLogsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppStrings.t('bot_logs_title')),
+        title: Text(context.tr.bot_logs_title),
         actions: [
           IconButton(
             tooltip:
                 _rawMode
-                    ? AppStrings.t('bot_logs_rich_mode')
-                    : AppStrings.t('bot_logs_raw_mode'),
+                    ? context.tr.bot_logs_rich_mode
+                    : context.tr.bot_logs_raw_mode,
             icon: Icon(_rawMode ? Icons.view_agenda_outlined : Icons.terminal),
             onPressed: () {
               setState(() {
@@ -199,8 +200,8 @@ class _BotLogsPageState extends State<BotLogsPage> {
           IconButton(
             tooltip:
                 _debugEnabled
-                    ? AppStrings.t('bot_logs_disable_debug')
-                    : AppStrings.t('bot_logs_enable_debug'),
+                    ? context.tr.bot_logs_disable_debug
+                    : context.tr.bot_logs_enable_debug,
             icon: Icon(
               _debugEnabled ? Icons.bug_report : Icons.bug_report_outlined,
             ),
@@ -212,14 +213,14 @@ class _BotLogsPageState extends State<BotLogsPage> {
             },
           ),
           IconButton(
-            tooltip: AppStrings.t('copy'),
+            tooltip: context.tr.copy,
             icon: const Icon(Icons.copy),
             onPressed: () async {
               final logs = getBotLogsSnapshotForBot(_selectedBotId);
               await Clipboard.setData(ClipboardData(text: logs.join('\n')));
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(AppStrings.t('bot_logs_copied'))),
+                  SnackBar(content: Text(context.tr.bot_logs_copied)),
                 );
               }
             },
@@ -227,8 +228,8 @@ class _BotLogsPageState extends State<BotLogsPage> {
           IconButton(
             tooltip:
                 _showNewestFirst
-                    ? AppStrings.t('bot_logs_oldest_first')
-                    : AppStrings.t('bot_logs_newest_first'),
+                    ? context.tr.bot_logs_oldest_first
+                    : context.tr.bot_logs_newest_first,
             icon: Icon(
               _showNewestFirst
                   ? Icons.vertical_align_top
@@ -244,7 +245,7 @@ class _BotLogsPageState extends State<BotLogsPage> {
             },
           ),
           PopupMenuButton<int>(
-            tooltip: AppStrings.t('bot_logs_filter_count'),
+            tooltip: context.tr.bot_logs_filter_count,
             icon: const Icon(Icons.filter_list),
             initialValue: _visibleLimit,
             onSelected: (value) {
@@ -256,34 +257,19 @@ class _BotLogsPageState extends State<BotLogsPage> {
                 (context) => [
                   PopupMenuItem(
                     value: 100,
-                    child: Text(
-                      AppStrings.tr(
-                        'bot_logs_show_n',
-                        params: {'count': '100'},
-                      ),
-                    ),
+                    child: Text(context.tr.bot_logs_show_n('100')),
                   ),
                   PopupMenuItem(
                     value: 200,
-                    child: Text(
-                      AppStrings.tr(
-                        'bot_logs_show_n',
-                        params: {'count': '200'},
-                      ),
-                    ),
+                    child: Text(context.tr.bot_logs_show_n('200')),
                   ),
                   PopupMenuItem(
                     value: 500,
-                    child: Text(
-                      AppStrings.tr(
-                        'bot_logs_show_n',
-                        params: {'count': '500'},
-                      ),
-                    ),
+                    child: Text(context.tr.bot_logs_show_n('500')),
                   ),
                   PopupMenuItem(
                     value: 0,
-                    child: Text(AppStrings.t('bot_logs_show_all')),
+                    child: Text(context.tr.bot_logs_show_all),
                   ),
                 ],
           ),
@@ -308,8 +294,8 @@ class _BotLogsPageState extends State<BotLogsPage> {
                         padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
                         child: DropdownButtonFormField<String>(
                           initialValue: selectedBotId,
-                          decoration: const InputDecoration(
-                            labelText: 'Bot',
+                          decoration: InputDecoration(
+                            labelText: context.tr.common_bot,
                             border: OutlineInputBorder(),
                             isDense: true,
                           ),
@@ -350,8 +336,8 @@ class _BotLogsPageState extends State<BotLogsPage> {
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
-                                '${AppStrings.tr('bot_logs_ram', params: {'memory': memoryText})} • '
-                                '${AppStrings.tr('bot_logs_ram_estimated', params: {'memory': estimatedText})}',
+                                '${context.tr.bot_logs_ram(memoryText)} • '
+                                '${context.tr.bot_logs_ram_estimated(estimatedText)}',
                               ),
                             ),
                           ],
@@ -384,10 +370,7 @@ class _BotLogsPageState extends State<BotLogsPage> {
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
-                                  AppStrings.tr(
-                                    'logs_runner_source',
-                                    params: {'name': _runnerLabel!},
-                                  ),
+                                  context.tr.logs_runner_source(_runnerLabel!),
                                   style: Theme.of(
                                     context,
                                   ).textTheme.bodySmall?.copyWith(
@@ -411,7 +394,7 @@ class _BotLogsPageState extends State<BotLogsPage> {
                           final allLogs = snapshot.data ?? const <String>[];
                           if (allLogs.isEmpty) {
                             return Center(
-                              child: Text(AppStrings.t('bot_logs_empty')),
+                              child: Text(context.tr.bot_logs_empty),
                             );
                           }
 
@@ -433,6 +416,10 @@ class _BotLogsPageState extends State<BotLogsPage> {
                               MediaQuery.of(context).padding.bottom;
 
                           if (_rawMode) {
+                            final isCompactScreen =
+                                MediaQuery.of(context).size.width < 420;
+                            final compactRawFontSize =
+                                _rawFontSize < 10 ? 10.0 : _rawFontSize;
                             final itemH = (_rawFontSize * 1.6).roundToDouble();
                             return GestureDetector(
                               onScaleStart: (_) {
@@ -445,36 +432,134 @@ class _BotLogsPageState extends State<BotLogsPage> {
                                       .clamp(_rawFontSizeMin, _rawFontSizeMax);
                                 });
                               },
-                              child: ListView.builder(
-                                controller: _scrollController,
-                                padding: EdgeInsets.fromLTRB(
-                                  12,
-                                  12,
-                                  12,
-                                  16 + bottomInset + 64,
-                                ),
-                                itemCount: logs.length,
-                                itemExtent: itemH,
-                                itemBuilder: (context, index) {
-                                  final raw = logs[index];
-                                  final parsed = _parseLog(raw);
-                                  return Text(
-                                    '${parsed.time} [${parsed.level}] ${parsed.message}',
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: textTheme.bodySmall?.copyWith(
-                                      fontFamily: 'monospace',
-                                      fontSize: _rawFontSize,
-                                      height: 1.3,
-                                      color: _rawLevelColor(
-                                        context,
-                                        parsed.level,
-                                        parsed.isDebug,
+                              child:
+                                  isCompactScreen
+                                      ? ListView.separated(
+                                        controller: _scrollController,
+                                        padding: EdgeInsets.fromLTRB(
+                                          12,
+                                          12,
+                                          12,
+                                          16 + bottomInset + 64,
+                                        ),
+                                        itemCount: logs.length,
+                                        separatorBuilder:
+                                            (context, index) =>
+                                                const SizedBox(height: 6),
+                                        itemBuilder: (context, index) {
+                                          final raw = logs[index];
+                                          final parsed = _parseLog(raw);
+                                          final line =
+                                              '${parsed.time} [${parsed.level}] ${parsed.message}';
+                                          final expanded = _expandedRawLogs
+                                              .contains(raw);
+                                          return Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                              vertical: 8,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  Theme.of(context)
+                                                      .colorScheme
+                                                      .surfaceContainerHighest,
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                SelectableText(
+                                                  line,
+                                                  maxLines: expanded ? null : 3,
+                                                  style: textTheme.bodySmall
+                                                      ?.copyWith(
+                                                        fontFamily: 'monospace',
+                                                        fontSize:
+                                                            compactRawFontSize,
+                                                        height: 1.35,
+                                                        color: _rawLevelColor(
+                                                          context,
+                                                          parsed.level,
+                                                          parsed.isDebug,
+                                                        ),
+                                                      ),
+                                                ),
+                                                if (!expanded &&
+                                                    line.length > 140)
+                                                  Align(
+                                                    alignment:
+                                                        Alignment.centerLeft,
+                                                    child: TextButton(
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          _expandedRawLogs.add(
+                                                            raw,
+                                                          );
+                                                        });
+                                                      },
+                                                      child: Text(
+                                                        context
+                                                            .tr
+                                                            .bot_logs_show_more,
+                                                      ),
+                                                    ),
+                                                  )
+                                                else if (expanded)
+                                                  Align(
+                                                    alignment:
+                                                        Alignment.centerLeft,
+                                                    child: TextButton(
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          _expandedRawLogs
+                                                              .remove(raw);
+                                                        });
+                                                      },
+                                                      child: Text(
+                                                        context
+                                                            .tr
+                                                            .bot_logs_show_less,
+                                                      ),
+                                                    ),
+                                                  ),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                      )
+                                      : ListView.builder(
+                                        controller: _scrollController,
+                                        padding: EdgeInsets.fromLTRB(
+                                          12,
+                                          12,
+                                          12,
+                                          16 + bottomInset + 64,
+                                        ),
+                                        itemCount: logs.length,
+                                        itemExtent: itemH,
+                                        itemBuilder: (context, index) {
+                                          final raw = logs[index];
+                                          final parsed = _parseLog(raw);
+                                          return Text(
+                                            '${parsed.time} [${parsed.level}] ${parsed.message}',
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: textTheme.bodySmall
+                                                ?.copyWith(
+                                                  fontFamily: 'monospace',
+                                                  fontSize: _rawFontSize,
+                                                  height: 1.3,
+                                                  color: _rawLevelColor(
+                                                    context,
+                                                    parsed.level,
+                                                    parsed.isDebug,
+                                                  ),
+                                                ),
+                                          );
+                                        },
                                       ),
-                                    ),
-                                  );
-                                },
-                              ),
                             );
                           }
 
@@ -584,12 +669,8 @@ class _BotLogsPageState extends State<BotLogsPage> {
                                           ),
                                           label: Text(
                                             isExpanded
-                                                ? AppStrings.t(
-                                                  'bot_logs_show_less',
-                                                )
-                                                : AppStrings.t(
-                                                  'bot_logs_show_more',
-                                                ),
+                                                ? context.tr.bot_logs_show_less
+                                                : context.tr.bot_logs_show_more,
                                           ),
                                         ),
                                       ),
@@ -611,8 +692,8 @@ class _BotLogsPageState extends State<BotLogsPage> {
       floatingActionButton: FloatingActionButton.small(
         tooltip:
             _showNewestFirst
-                ? AppStrings.t('bot_logs_go_to_latest')
-                : AppStrings.t('bot_logs_go_to_bottom'),
+                ? context.tr.bot_logs_go_to_latest
+                : context.tr.bot_logs_go_to_bottom,
         onPressed: _jumpToEdge,
         child: Icon(
           _showNewestFirst

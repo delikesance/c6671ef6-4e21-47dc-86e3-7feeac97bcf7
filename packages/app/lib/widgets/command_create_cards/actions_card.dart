@@ -4,6 +4,7 @@ import 'package:bot_creator/routes/app/workflows.page.dart';
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/types/app_emoji.dart';
 import 'package:flutter/material.dart';
+import '../../utils/i18n.dart';
 
 class ActionsCard extends StatelessWidget {
   final List<Map<String, dynamic>> actions;
@@ -39,13 +40,13 @@ class ActionsCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              "Actions",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            Text(
+              context.tr.actions_title,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 4),
             Text(
-              "Build runtime actions for this command",
+              context.tr.actions_description,
               style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
             ),
             if (activeRouteLabel != null && activeRouteLabel!.trim().isNotEmpty)
@@ -63,7 +64,7 @@ class ActionsCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(999),
                     ),
                     child: Text(
-                      'Active route: $activeRouteLabel',
+                      context.tr.actions_active_route(activeRouteLabel!),
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -99,7 +100,7 @@ class ActionsCard extends StatelessWidget {
                   onActionsChanged(nextActions);
                 }
               },
-              child: Text("Build Actions (${actions.length})"),
+              child: Text(context.tr.actions_build_button(actions.length)),
             ),
             const SizedBox(height: 8),
             Wrap(
@@ -116,12 +117,17 @@ class ActionsCard extends StatelessWidget {
                               context: context,
                               builder:
                                   (dialogContext) => AlertDialog(
-                                    title: const Text('Save as Workflow'),
+                                    title: Text(
+                                      context.tr.actions_save_workflow_title,
+                                    ),
                                     content: TextField(
                                       controller: controller,
-                                      decoration: const InputDecoration(
-                                        labelText: 'Workflow name',
-                                        border: OutlineInputBorder(),
+                                      decoration: InputDecoration(
+                                        labelText:
+                                            context
+                                                .tr
+                                                .actions_workflow_name_label,
+                                        border: const OutlineInputBorder(),
                                       ),
                                       autofocus: true,
                                     ),
@@ -129,7 +135,7 @@ class ActionsCard extends StatelessWidget {
                                       TextButton(
                                         onPressed:
                                             () => Navigator.pop(dialogContext),
-                                        child: const Text('Cancel'),
+                                        child: Text(context.tr.common_cancel),
                                       ),
                                       FilledButton(
                                         onPressed: () {
@@ -139,7 +145,7 @@ class ActionsCard extends StatelessWidget {
                                           }
                                           Navigator.pop(dialogContext, name);
                                         },
-                                        child: const Text('Save'),
+                                        child: Text(context.tr.common_save),
                                       ),
                                     ],
                                   ),
@@ -169,13 +175,16 @@ class ActionsCard extends StatelessWidget {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                  'Workflow "$workflowName" saved (${actions.length} action(s)).',
+                                  context.tr.workflow_saved_snackbar(
+                                    workflowName,
+                                    actions.length,
+                                  ),
                                 ),
                               ),
                             );
                           },
                   icon: const Icon(Icons.save_as),
-                  label: const Text('Save as Workflow'),
+                  label: Text(context.tr.actions_save_workflow_title),
                 ),
                 OutlinedButton.icon(
                   onPressed:
@@ -193,7 +202,7 @@ class ActionsCard extends StatelessWidget {
                             );
                           },
                   icon: const Icon(Icons.key),
-                  label: const Text('Global Variables'),
+                  label: Text(context.tr.actions_global_variables),
                 ),
                 OutlinedButton.icon(
                   onPressed:
@@ -210,7 +219,7 @@ class ActionsCard extends StatelessWidget {
                             );
                           },
                   icon: const Icon(Icons.account_tree),
-                  label: const Text('Workflows'),
+                  label: Text(context.tr.actions_workflows),
                 ),
               ],
             ),

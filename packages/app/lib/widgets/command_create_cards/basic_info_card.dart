@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nyxx/nyxx.dart';
+import '../../utils/i18n.dart';
 
 class BasicInfoCard extends StatefulWidget {
   final String commandName;
@@ -336,14 +337,14 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Legacy preset',
+                context.tr.command_legacy_preset_title,
                 style: Theme.of(
                   context,
                 ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 4),
               Text(
-                'Generate an internal awaited callback trigger and switch this command to the required local legacy setup.',
+                context.tr.command_legacy_preset_desc,
                 style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
               ),
               const SizedBox(height: 12),
@@ -353,7 +354,7 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                   key: const ValueKey('awaited-preset-enable'),
                   onPressed: _enableAwaitedPreset,
                   icon: const Icon(Icons.hourglass_top_rounded),
-                  label: const Text('Use Awaited Callback Preset'),
+                  label: Text(context.tr.command_awaited_preset_button),
                 ),
               ),
             ],
@@ -373,7 +374,7 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
               children: [
                 Expanded(
                   child: Text(
-                    'Awaited callback preset',
+                    context.tr.command_awaited_preset_active,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
@@ -381,27 +382,27 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                 ),
                 TextButton(
                   onPressed: _disableAwaitedPreset,
-                  child: const Text('Edit Raw Name'),
+                  child: Text(context.tr.command_edit_raw_name),
                 ),
               ],
             ),
             Text(
-              'The command name is generated for you and saved as an internal legacy callback.',
+              context.tr.command_awaited_preset_desc,
               style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
             ),
             const SizedBox(height: 12),
             SegmentedButton<bool>(
               key: const ValueKey('awaited-preset-kind'),
-              segments: const <ButtonSegment<bool>>[
+              segments: <ButtonSegment<bool>>[
                 ButtonSegment<bool>(
                   value: false,
-                  label: Text('Success'),
-                  icon: Icon(Icons.check_circle_outline),
+                  label: Text(context.tr.command_awaited_success),
+                  icon: const Icon(Icons.check_circle_outline),
                 ),
                 ButtonSegment<bool>(
                   value: true,
-                  label: Text('Error'),
-                  icon: Icon(Icons.error_outline),
+                  label: Text(context.tr.command_awaited_error),
+                  icon: const Icon(Icons.error_outline),
                 ),
               ],
               selected: <bool>{_awaitedIsErrorTrigger},
@@ -420,9 +421,9 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
             TextFormField(
               key: const ValueKey('awaited-preset-name'),
               initialValue: _awaitedCallbackName,
-              decoration: const InputDecoration(
-                labelText: 'Awaited callback name',
-                hintText: 'Example: say',
+              decoration: InputDecoration(
+                labelText: context.tr.command_awaited_name_label,
+                hintText: context.tr.command_awaited_name_hint,
                 border: OutlineInputBorder(),
               ),
               onChanged: (value) {
@@ -435,9 +436,9 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
               TextFormField(
                 key: const ValueKey('awaited-preset-filter'),
                 initialValue: _awaitedCallbackFilter,
-                decoration: const InputDecoration(
-                  labelText: 'Filter (optional)',
-                  hintText: 'Example: <numeric> or <yes/no/cancel>',
+                decoration: InputDecoration(
+                  labelText: context.tr.command_awaited_filter_label,
+                  hintText: context.tr.command_awaited_filter_hint,
                   border: OutlineInputBorder(),
                 ),
                 onChanged: (value) {
@@ -476,13 +477,13 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              'Command Info',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            Text(
+              context.tr.command_info_title,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 4),
             Text(
-              'Basic metadata and availability',
+              context.tr.command_info_desc,
               style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
             ),
             const SizedBox(height: 12),
@@ -496,11 +497,11 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                   validator: widget.nameValidator,
                   maxLength: widget.nameMaxLength,
                   decoration: InputDecoration(
-                    labelText: 'Name',
+                    labelText: context.tr.command_name_label,
                     border: const OutlineInputBorder(),
                     helperText:
                         _awaitedPresetEnabled
-                            ? 'Generated by the awaited callback preset.'
+                            ? context.tr.command_name_generated
                             : null,
                   ),
                   onChanged: widget.onNameChanged,
@@ -508,26 +509,26 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
 
                 final commandTypeField = DropdownButtonFormField<String>(
                   initialValue: _commandTypeValue(),
-                  decoration: const InputDecoration(
-                    labelText: 'Command Type',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: context.tr.command_type_label,
+                    border: const OutlineInputBorder(),
                   ),
-                  items: const [
+                  items: [
                     DropdownMenuItem(
                       value: 'slash',
-                      child: Text('Slash Command'),
+                      child: Text(context.tr.command_type_slash),
                     ),
                     DropdownMenuItem(
                       value: 'legacy',
-                      child: Text('Legacy Command'),
+                      child: Text(context.tr.command_type_legacy),
                     ),
                     DropdownMenuItem(
                       value: 'user',
-                      child: Text('User Command'),
+                      child: Text(context.tr.command_type_user),
                     ),
                     DropdownMenuItem(
                       value: 'message',
-                      child: Text('Message Command'),
+                      child: Text(context.tr.command_type_message),
                     ),
                   ],
                   onChanged:
@@ -562,16 +563,16 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                   keyboardType: TextInputType.multiline,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter a command description';
+                      return context.tr.command_description_required;
                     }
                     if (value.length > 100) {
-                      return 'Command description must be at most 100 characters long';
+                      return context.tr.command_description_length;
                     }
                     return null;
                   },
                   initialValue: widget.commandDescription,
-                  decoration: const InputDecoration(
-                    labelText: 'Description',
+                  decoration: InputDecoration(
+                    labelText: context.tr.common_description,
                     border: OutlineInputBorder(),
                   ),
                   onChanged: widget.onDescriptionChanged,
@@ -605,7 +606,7 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                     if (!widget.canEditCommandType) ...[
                       const SizedBox(height: 6),
                       Text(
-                        'Command type cannot be changed after creation.',
+                        context.tr.command_type_locked,
                         style: TextStyle(
                           fontSize: 11,
                           color: Colors.grey.shade600,
@@ -615,13 +616,11 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                     const SizedBox(height: 12),
                     SwitchListTile.adaptive(
                       contentPadding: EdgeInsets.zero,
-                      title: const Text(
-                        'Local Command (Do not register on Discord)',
-                      ),
+                      title: Text(context.tr.local_command_title),
                       subtitle: Text(
                         _awaitedPresetEnabled
-                            ? 'Awaited callback presets stay local because they are internal runtime callbacks.'
-                            : 'Store command only in Bot Creator. You can dynamically register it on Specific Guilds using BDFD \$registerGuildCommands.',
+                            ? context.tr.local_command_awaited_desc
+                            : context.tr.local_command_desc,
                       ),
                       value: widget.localOnlyCommand,
                       onChanged:
@@ -632,7 +631,7 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                     if (!widget.isLegacyCommand) ...[
                       const SizedBox(height: 8),
                       Text(
-                        'Where this command can be used',
+                        context.tr.command_integration_label,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.grey.shade600,
@@ -668,7 +667,7 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                                   widget.onIntegrationTypesChanged(newTypes);
                                 },
                               ),
-                              const Text('Guild Install'),
+                              Text(context.tr.command_integration_guild),
                             ],
                           ),
                           Row(
@@ -695,14 +694,14 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                                   widget.onIntegrationTypesChanged(newTypes);
                                 },
                               ),
-                              const Text('User Install'),
+                              Text(context.tr.command_integration_user),
                             ],
                           ),
                         ],
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Scope of the command (Contexts)',
+                        context.tr.command_scope_label,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.grey.shade600,
@@ -738,7 +737,7 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                                   widget.onContextsChanged(newContexts);
                                 },
                               ),
-                              const Text('Guild'),
+                              Text(context.tr.command_context_guild),
                             ],
                           ),
                           Row(
@@ -765,7 +764,7 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                                   widget.onContextsChanged(newContexts);
                                 },
                               ),
-                              const Text('Bot DM'),
+                              Text(context.tr.command_context_bot_dm),
                             ],
                           ),
                           Row(
@@ -792,14 +791,14 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                                   widget.onContextsChanged(newContexts);
                                 },
                               ),
-                              const Text('Group DM / Other'),
+                              Text(context.tr.command_context_group_dm),
                             ],
                           ),
                         ],
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Default Member Permissions (optional)',
+                        context.tr.command_permissions_label,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.grey.shade600,
@@ -809,11 +808,13 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                       ExpansionTile(
                         tilePadding: const EdgeInsets.symmetric(horizontal: 8),
                         childrenPadding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
-                        title: const Text('Select permissions'),
+                        title: Text(context.tr.command_permissions_title),
                         subtitle: Text(
                           _selectedPermissionOffsets.isEmpty
-                              ? 'No selection (everyone can use command)'
-                              : '${_selectedPermissionOffsets.length} permission(s) selected',
+                              ? context.tr.command_permissions_none
+                              : context.tr.command_permissions_count(
+                                _selectedPermissionOffsets.length,
+                              ),
                           style: const TextStyle(fontSize: 12),
                         ),
                         children: [
@@ -854,7 +855,7 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                               OutlinedButton.icon(
                                 onPressed: _clearPermissions,
                                 icon: const Icon(Icons.clear),
-                                label: const Text('Clear'),
+                                label: Text(context.tr.common_clear),
                               ),
                             ],
                           ),
@@ -866,17 +867,19 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                         initialValue:
                             computedBitfield.isEmpty ? '0' : computedBitfield,
                         readOnly: true,
-                        decoration: const InputDecoration(
-                          labelText: 'Calculated Permission Bitfield',
-                          border: OutlineInputBorder(),
+                        decoration: InputDecoration(
+                          labelText: context.tr.command_permissions_bitfield,
+                          border: const OutlineInputBorder(),
                           helperText:
-                              'Automatically computed from selected permissions.',
+                              context.tr.command_permissions_bitfield_helper,
                         ),
                       ),
                       if (_unknownBits != BigInt.zero) ...[
                         const SizedBox(height: 6),
                         Text(
-                          'Warning: unknown permission bits detected from saved data and preserved: ${_unknownBits.toString()}',
+                          context.tr.command_permissions_unknown_bits(
+                            _unknownBits.toString(),
+                          ),
                           style: TextStyle(
                             fontSize: 11,
                             color: Colors.orange.shade700,
@@ -886,7 +889,7 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                       if (_selectedPermissionOffsets.contains(3)) ...[
                         const SizedBox(height: 6),
                         Text(
-                          'Administrator selected: this bypasses other permission checks.',
+                          context.tr.command_permissions_admin_warning,
                           style: TextStyle(
                             fontSize: 11,
                             color: Colors.orange.shade700,
@@ -895,7 +898,7 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                       ],
                       const SizedBox(height: 4),
                       Text(
-                        'Tip: leave all unchecked to make the command available to everyone by default.',
+                        context.tr.command_permissions_tip,
                         style: TextStyle(
                           fontSize: 11,
                           color: Colors.grey.shade600,

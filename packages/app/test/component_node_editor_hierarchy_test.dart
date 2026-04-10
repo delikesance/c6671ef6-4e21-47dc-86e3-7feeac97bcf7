@@ -1,6 +1,7 @@
 import 'package:bot_creator/types/component.dart';
 import 'package:bot_creator/types/variable_suggestion.dart';
 import 'package:bot_creator/widgets/component_v2_builder/component_node_editor.dart';
+import 'package:bot_creator/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -13,6 +14,8 @@ Widget _buildEditor({
   ValueChanged<ComponentNode>? onChanged,
 }) {
   return MaterialApp(
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
     home: Scaffold(
       body: SingleChildScrollView(
         child: ComponentNodeEditor(
@@ -123,11 +126,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        _buildEditor(
-          node: ButtonNode(),
-          onMoveUp: () {},
-          onMoveDown: () {},
-        ),
+        _buildEditor(node: ButtonNode(), onMoveUp: () {}, onMoveDown: () {}),
       );
       await tester.pumpAndSettle();
 
@@ -153,6 +152,8 @@ void main() {
 
         await tester.pumpWidget(
           MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
             home: Scaffold(
               body: SingleChildScrollView(
                 child: StatefulBuilder(

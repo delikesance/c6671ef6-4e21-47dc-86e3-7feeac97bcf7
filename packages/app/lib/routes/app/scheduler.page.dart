@@ -55,11 +55,7 @@ class _SchedulerPageState extends State<SchedulerPage> {
   Future<void> _showEditor({Map<String, dynamic>? initial}) async {
     if (_workflowNames.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Create at least one workflow before adding a schedule.',
-          ),
-        ),
+        SnackBar(content: Text(context.tr.scheduler_no_workflows)),
       );
       return;
     }
@@ -82,15 +78,19 @@ class _SchedulerPageState extends State<SchedulerPage> {
         return StatefulBuilder(
           builder: (dialogContext, setInnerState) {
             return AlertDialog.adaptive(
-              title: Text(initial == null ? 'Add schedule' : 'Edit schedule'),
+              title: Text(
+                initial == null
+                    ? context.tr.scheduler_add_title
+                    : context.tr.scheduler_edit_title,
+              ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   DropdownButtonFormField<String>(
                     initialValue: selectedWorkflow,
                     isExpanded: true,
-                    decoration: const InputDecoration(
-                      labelText: 'Workflow',
+                    decoration: InputDecoration(
+                      labelText: context.tr.common_workflow,
                       border: OutlineInputBorder(),
                     ),
                     items: _workflowNames
@@ -113,9 +113,9 @@ class _SchedulerPageState extends State<SchedulerPage> {
                   const SizedBox(height: 10),
                   TextField(
                     controller: labelCtrl,
-                    decoration: const InputDecoration(
-                      labelText: 'Label',
-                      hintText: 'Optional display label',
+                    decoration: InputDecoration(
+                      labelText: context.tr.scheduler_label_field,
+                      hintText: context.tr.scheduler_label_hint,
                       border: OutlineInputBorder(),
                     ),
                   ),
@@ -123,8 +123,8 @@ class _SchedulerPageState extends State<SchedulerPage> {
                   TextField(
                     controller: minutesCtrl,
                     keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      labelText: 'Every (minutes)',
+                    decoration: InputDecoration(
+                      labelText: context.tr.scheduler_every_minutes,
                       border: OutlineInputBorder(),
                     ),
                   ),
@@ -132,7 +132,7 @@ class _SchedulerPageState extends State<SchedulerPage> {
                   SwitchListTile.adaptive(
                     contentPadding: EdgeInsets.zero,
                     value: enabled,
-                    title: const Text('Enabled'),
+                    title: Text(context.tr.common_enabled),
                     onChanged: (value) {
                       setInnerState(() {
                         enabled = value;
@@ -144,11 +144,11 @@ class _SchedulerPageState extends State<SchedulerPage> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(dialogContext).pop(false),
-                  child: Text(AppStrings.t('cancel')),
+                  child: Text(context.tr.cancel),
                 ),
                 FilledButton(
                   onPressed: () => Navigator.of(dialogContext).pop(true),
-                  child: Text(AppStrings.t('app_save')),
+                  child: Text(context.tr.app_save),
                 ),
               ],
             );
@@ -164,7 +164,7 @@ class _SchedulerPageState extends State<SchedulerPage> {
     final everyMinutes = int.tryParse(minutesCtrl.text.trim()) ?? 0;
     if (everyMinutes <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Every minutes must be greater than 0.')),
+        SnackBar(content: Text(context.tr.scheduler_invalid_minutes)),
       );
       return;
     }
@@ -192,11 +192,11 @@ class _SchedulerPageState extends State<SchedulerPage> {
           PremiumCapability.schedulerTriggers,
         );
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Scheduler limit reached ($limit).')),
+          SnackBar(content: Text(context.tr.scheduler_limit_reached(limit))),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save schedule: $error')),
+          SnackBar(content: Text(context.tr.scheduler_save_failed('$error'))),
         );
       }
     }
@@ -211,17 +211,17 @@ class _SchedulerPageState extends State<SchedulerPage> {
           context: context,
           builder: (dialogContext) {
             return AlertDialog.adaptive(
-              title: const Text('Delete schedule'),
-              content: Text('Delete "$label" schedule?'),
+              title: Text(context.tr.scheduler_delete_title),
+              content: Text(context.tr.scheduler_delete_confirm(label)),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(dialogContext).pop(false),
-                  child: Text(AppStrings.t('cancel')),
+                  child: Text(context.tr.cancel),
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(dialogContext).pop(true),
                   child: Text(
-                    AppStrings.t('delete'),
+                    context.tr.delete,
                     style: TextStyle(
                       color: Theme.of(dialogContext).colorScheme.error,
                     ),
@@ -271,14 +271,14 @@ class _SchedulerPageState extends State<SchedulerPage> {
                 SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    AppStrings.t('subscription_feature_scheduler_title'),
+                    context.tr.subscription_feature_scheduler_title,
                     style: TextStyle(fontWeight: FontWeight.w700),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 8),
-            Text(AppStrings.t('subscription_feature_scheduler_desc')),
+            Text(context.tr.subscription_feature_scheduler_desc),
             const SizedBox(height: 12),
             if (PremiumCapabilities.canShowPurchaseUI)
               FilledButton.icon(
@@ -290,11 +290,11 @@ class _SchedulerPageState extends State<SchedulerPage> {
                   await _load();
                 },
                 icon: const Icon(Icons.workspace_premium_rounded),
-                label: Text(AppStrings.t('premium_card_button')),
+                label: Text(context.tr.premium_card_button),
               )
             else
               Text(
-                AppStrings.t('subscription_unavailable_platform'),
+                context.tr.subscription_unavailable_platform,
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
@@ -313,10 +313,10 @@ class _SchedulerPageState extends State<SchedulerPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Scheduler'),
+        title: Text(context.tr.scheduler_page_title),
         actions: [
           IconButton(
-            tooltip: 'Refresh',
+            tooltip: context.tr.common_refresh,
             onPressed: _load,
             icon: const Icon(Icons.refresh),
           ),
@@ -327,7 +327,7 @@ class _SchedulerPageState extends State<SchedulerPage> {
               ? FloatingActionButton.extended(
                 onPressed: () => _showEditor(),
                 icon: const Icon(Icons.add),
-                label: const Text('Add trigger'),
+                label: Text(context.tr.scheduler_add_trigger),
               )
               : null,
       body: SafeArea(
@@ -343,7 +343,10 @@ class _SchedulerPageState extends State<SchedulerPage> {
                       child: Row(
                         children: [
                           Text(
-                            'Triggers: ${_triggers.length}${limit > 0 ? ' / $limit' : ''}',
+                            context.tr.scheduler_triggers_count(
+                              _triggers.length,
+                              limit > 0 ? ' / $limit' : '',
+                            ),
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],
@@ -352,9 +355,7 @@ class _SchedulerPageState extends State<SchedulerPage> {
                     Expanded(
                       child:
                           _triggers.isEmpty
-                              ? const Center(
-                                child: Text('No scheduled triggers yet.'),
-                              )
+                              ? Center(child: Text(context.tr.scheduler_empty))
                               : ListView.separated(
                                 itemCount: _triggers.length,
                                 separatorBuilder:
@@ -379,7 +380,10 @@ class _SchedulerPageState extends State<SchedulerPage> {
                                   return ListTile(
                                     title: Text(label),
                                     subtitle: Text(
-                                      'Workflow: $workflowName • Every $everyMinutes min',
+                                      context.tr.scheduler_subtitle(
+                                        workflowName,
+                                        everyMinutes,
+                                      ),
                                     ),
                                     leading: Switch.adaptive(
                                       value: enabled,
@@ -393,7 +397,7 @@ class _SchedulerPageState extends State<SchedulerPage> {
                                       spacing: 4,
                                       children: [
                                         IconButton(
-                                          tooltip: 'Edit',
+                                          tooltip: context.tr.common_edit,
                                           onPressed:
                                               _hasSchedulerCapability
                                                   ? () => _showEditor(
@@ -403,7 +407,7 @@ class _SchedulerPageState extends State<SchedulerPage> {
                                           icon: const Icon(Icons.edit_outlined),
                                         ),
                                         IconButton(
-                                          tooltip: AppStrings.t('delete'),
+                                          tooltip: context.tr.delete,
                                           onPressed:
                                               _hasSchedulerCapability
                                                   ? () =>

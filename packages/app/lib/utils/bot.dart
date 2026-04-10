@@ -21,6 +21,7 @@ import 'package:bot_creator_shared/utils/command_autocomplete.dart';
 import 'package:bot_creator_shared/utils/runtime_variables.dart';
 import 'package:bot_creator/utils/database.dart';
 import 'package:bot_creator/utils/global.dart';
+import 'package:bot_creator/utils/i18n.dart';
 import 'package:bot_creator_shared/utils/global.dart' as shared_global;
 import 'package:bot_creator/utils/mobile_sessions_orchestrator.dart';
 import 'package:bot_creator/utils/template_resolver.dart';
@@ -41,7 +42,7 @@ part 'bot.event_workflows.dart';
 
 String _formatBdfdRuntimeDiagnostics(List<BdfdCompileDiagnostic> diagnostics) {
   if (diagnostics.isEmpty) {
-    return 'This BDFD script could not be compiled.';
+    return AppStrings.t('bdfd_compile_error_simple');
   }
 
   final summary = diagnostics
@@ -54,7 +55,32 @@ String _formatBdfdRuntimeDiagnostics(List<BdfdCompileDiagnostic> diagnostics) {
         return '- $location${diagnostic.message}';
       })
       .join('\n');
-  return 'This BDFD script could not be compiled:\n$summary';
+  return AppStrings.tr(
+    'bdfd_compile_error_detailed',
+    params: {'summary': summary},
+  );
+}
+
+AppLocale _discordLocaleForInteraction(dynamic interaction) {
+  String raw = '';
+  try {
+    raw = (interaction.locale?.toString() ?? '').trim();
+  } catch (_) {}
+  if (raw.isEmpty) {
+    try {
+      raw = (interaction.guildLocale?.toString() ?? '').trim();
+    } catch (_) {}
+  }
+
+  final normalized = raw.toLowerCase();
+  if (normalized.startsWith('fr')) {
+    return AppLocale.fr;
+  }
+  return AppLocale.en;
+}
+
+String _interactionT(dynamic interaction, String key) {
+  return AppStrings.t(key, locale: _discordLocaleForInteraction(interaction));
 }
 
 /// Injects gateway-only bot variables (ping, uptime, shardId) and

@@ -58,13 +58,9 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
 
   Future<void> _showEditor({Map<String, dynamic>? initial}) async {
     if (_workflowNames.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Create at least one workflow before adding an inbound webhook.',
-          ),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.tr.webhooks_no_workflows)));
       return;
     }
 
@@ -89,8 +85,8 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
             return AlertDialog.adaptive(
               title: Text(
                 initial == null
-                    ? 'Add inbound webhook'
-                    : 'Edit inbound webhook',
+                    ? context.tr.webhooks_add_title
+                    : context.tr.webhooks_edit_title,
               ),
               content: SingleChildScrollView(
                 child: ConstrainedBox(
@@ -100,9 +96,9 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
                     children: [
                       TextField(
                         controller: pathCtrl,
-                        decoration: const InputDecoration(
-                          labelText: 'Path',
-                          hintText: 'orders/new',
+                        decoration: InputDecoration(
+                          labelText: context.tr.webhooks_path_label,
+                          hintText: context.tr.webhooks_path_hint,
                           border: OutlineInputBorder(),
                         ),
                       ),
@@ -110,8 +106,8 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
                       DropdownButtonFormField<String>(
                         initialValue: selectedWorkflow,
                         isExpanded: true,
-                        decoration: const InputDecoration(
-                          labelText: 'Workflow target',
+                        decoration: InputDecoration(
+                          labelText: context.tr.webhooks_target_label,
                           border: OutlineInputBorder(),
                         ),
                         items: _workflowNames
@@ -135,10 +131,10 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
                       TextField(
                         controller: secretCtrl,
                         decoration: InputDecoration(
-                          labelText: 'Webhook secret',
+                          labelText: context.tr.webhooks_secret_label,
                           border: const OutlineInputBorder(),
                           suffixIcon: IconButton(
-                            tooltip: 'Generate',
+                            tooltip: context.tr.webhooks_generate,
                             icon: const Icon(Icons.casino_outlined),
                             onPressed: () {
                               setInnerState(() {
@@ -152,7 +148,7 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
                       SwitchListTile.adaptive(
                         contentPadding: EdgeInsets.zero,
                         value: enabled,
-                        title: const Text('Enabled'),
+                        title: Text(context.tr.common_enabled),
                         onChanged: (value) {
                           setInnerState(() {
                             enabled = value;
@@ -166,11 +162,11 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(dialogContext).pop(false),
-                  child: Text(AppStrings.t('cancel')),
+                  child: Text(context.tr.cancel),
                 ),
                 FilledButton(
                   onPressed: () => Navigator.of(dialogContext).pop(true),
-                  child: Text(AppStrings.t('app_save')),
+                  child: Text(context.tr.app_save),
                 ),
               ],
             );
@@ -206,17 +202,15 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
           PremiumCapability.inboundWebhooks,
         );
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Inbound webhook limit reached ($limit).')),
+          SnackBar(content: Text(context.tr.webhooks_limit_reached(limit))),
         );
       } else if (text.contains('inbound_webhook_path_conflict')) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('This path already exists. Choose another one.'),
-          ),
+          SnackBar(content: Text(context.tr.webhooks_path_exists)),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save inbound webhook: $error')),
+          SnackBar(content: Text(context.tr.webhooks_save_failed('$error'))),
         );
       }
     }
@@ -230,20 +224,20 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
           context: context,
           builder: (dialogContext) {
             return AlertDialog.adaptive(
-              title: const Text('Delete inbound webhook?'),
+              title: Text(context.tr.webhooks_delete_title),
               content: Text(
                 label.isEmpty
-                    ? 'This cannot be undone.'
-                    : 'Delete "$label"? This cannot be undone.',
+                    ? context.tr.webhooks_delete_confirm_no_label
+                    : context.tr.webhooks_delete_confirm(label),
               ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(dialogContext).pop(false),
-                  child: Text(AppStrings.t('cancel')),
+                  child: Text(context.tr.cancel),
                 ),
                 FilledButton(
                   onPressed: () => Navigator.of(dialogContext).pop(true),
-                  child: Text(AppStrings.t('delete')),
+                  child: Text(context.tr.delete),
                 ),
               ],
             );
@@ -270,11 +264,7 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
         return;
       }
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Configure a Runner URL first to copy the full webhook URL.',
-          ),
-        ),
+        SnackBar(content: Text(context.tr.webhooks_runner_url_required)),
       );
       return;
     }
@@ -285,9 +275,9 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Webhook path or secret is missing.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.tr.webhooks_missing_data)));
       return;
     }
 
@@ -310,14 +300,14 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
       }
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Full webhook URL copied.')));
+      ).showSnackBar(SnackBar(content: Text(context.tr.webhooks_copied)));
     } catch (_) {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Runner URL is invalid.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.tr.webhooks_invalid_runner_url)),
+      );
     }
   }
 
@@ -342,14 +332,14 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
                 SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    AppStrings.t('subscription_feature_webhooks_title'),
+                    context.tr.subscription_feature_webhooks_title,
                     style: TextStyle(fontWeight: FontWeight.w700),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 8),
-            Text(AppStrings.t('subscription_feature_webhooks_desc')),
+            Text(context.tr.subscription_feature_webhooks_desc),
             const SizedBox(height: 12),
             if (PremiumCapabilities.canShowPurchaseUI)
               FilledButton.icon(
@@ -361,11 +351,11 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
                   await _load();
                 },
                 icon: const Icon(Icons.workspace_premium_rounded),
-                label: Text(AppStrings.t('premium_card_button')),
+                label: Text(context.tr.premium_card_button),
               )
             else
               Text(
-                AppStrings.t('subscription_unavailable_platform'),
+                context.tr.subscription_unavailable_platform,
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
@@ -384,10 +374,10 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Inbound Webhooks'),
+        title: Text(context.tr.webhooks_page_title),
         actions: [
           IconButton(
-            tooltip: 'Refresh',
+            tooltip: context.tr.common_refresh,
             onPressed: _load,
             icon: const Icon(Icons.refresh),
           ),
@@ -398,7 +388,7 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
               ? FloatingActionButton.extended(
                 onPressed: () => _showEditor(),
                 icon: const Icon(Icons.add),
-                label: const Text('Add webhook'),
+                label: Text(context.tr.webhooks_add_action),
               )
               : null,
       body: SafeArea(
@@ -414,7 +404,10 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
                       child: Row(
                         children: [
                           Text(
-                            'Webhooks: ${_webhooks.length}${limit > 0 ? ' / $limit' : ''}',
+                            context.tr.webhooks_count(
+                              _webhooks.length,
+                              limit > 0 ? ' / $limit' : '',
+                            ),
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],
@@ -423,9 +416,7 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
                     Expanded(
                       child:
                           _webhooks.isEmpty
-                              ? const Center(
-                                child: Text('No inbound webhooks yet.'),
-                              )
+                              ? Center(child: Text(context.tr.webhooks_empty))
                               : ListView.separated(
                                 itemCount: _webhooks.length,
                                 separatorBuilder:
@@ -446,7 +437,11 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
                                       vertical: 4,
                                     ),
                                     title: Text('/$path'),
-                                    subtitle: Text('Workflow: $workflow'),
+                                    subtitle: Text(
+                                      context.tr.webhooks_workflow_subtitle(
+                                        workflow,
+                                      ),
+                                    ),
                                     trailing: PopupMenuButton<String>(
                                       itemBuilder:
                                           (BuildContext context) => [
@@ -460,7 +455,11 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
                                                     size: 18,
                                                   ),
                                                   const SizedBox(width: 12),
-                                                  const Text('Copy URL'),
+                                                  Text(
+                                                    context
+                                                        .tr
+                                                        .webhooks_copy_url,
+                                                  ),
                                                 ],
                                               ),
                                               onTap:
@@ -478,7 +477,11 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
                                                     size: 18,
                                                   ),
                                                   const SizedBox(width: 12),
-                                                  const Text('Copy path'),
+                                                  Text(
+                                                    context
+                                                        .tr
+                                                        .webhooks_copy_path,
+                                                  ),
                                                 ],
                                               ),
                                               onTap: () async {
@@ -491,9 +494,11 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
                                                 ScaffoldMessenger.of(
                                                   context,
                                                 ).showSnackBar(
-                                                  const SnackBar(
+                                                  SnackBar(
                                                     content: Text(
-                                                      'Path copied.',
+                                                      context
+                                                          .tr
+                                                          .webhooks_path_copied,
                                                     ),
                                                   ),
                                                 );
@@ -509,7 +514,11 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
                                                     size: 18,
                                                   ),
                                                   const SizedBox(width: 12),
-                                                  const Text('Copy secret'),
+                                                  Text(
+                                                    context
+                                                        .tr
+                                                        .webhooks_copy_secret,
+                                                  ),
                                                 ],
                                               ),
                                               onTap: () async {
@@ -522,9 +531,11 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
                                                 ScaffoldMessenger.of(
                                                   context,
                                                 ).showSnackBar(
-                                                  const SnackBar(
+                                                  SnackBar(
                                                     content: Text(
-                                                      'Secret copied.',
+                                                      context
+                                                          .tr
+                                                          .webhooks_secret_copied,
                                                     ),
                                                   ),
                                                 );
@@ -542,7 +553,9 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
                                                       size: 18,
                                                     ),
                                                     const SizedBox(width: 12),
-                                                    const Text('Edit'),
+                                                    Text(
+                                                      context.tr.common_edit,
+                                                    ),
                                                   ],
                                                 ),
                                                 onTap:
@@ -578,7 +591,7 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
                                           ],
                                       child: IconButton(
                                         icon: const Icon(Icons.more_vert),
-                                        tooltip: 'Actions',
+                                        tooltip: context.tr.webhooks_actions,
                                         onPressed: null,
                                       ),
                                     ),
