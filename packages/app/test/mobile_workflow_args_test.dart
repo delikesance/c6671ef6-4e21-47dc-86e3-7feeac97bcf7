@@ -1,4 +1,5 @@
 import 'package:bot_creator/widgets/option_widget.dart';
+import 'package:bot_creator/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nyxx/nyxx.dart' hide Builder;
@@ -10,14 +11,13 @@ void main() {
       List<CommandOptionBuilder>? initial,
     }) {
       return MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: SizedBox(
             width: width,
             child: SingleChildScrollView(
-              child: OptionWidget(
-                onChange: (_) {},
-                initialOptions: initial,
-              ),
+              child: OptionWidget(onChange: (_) {}, initialOptions: initial),
             ),
           ),
         ),
@@ -34,9 +34,7 @@ void main() {
         isRequired: false,
       );
 
-      await tester.pumpWidget(
-        buildOptionWidget(width: 600, initial: [option]),
-      );
+      await tester.pumpWidget(buildOptionWidget(width: 600, initial: [option]));
       await tester.pumpAndSettle();
 
       // Expand the option tile
@@ -60,9 +58,7 @@ void main() {
       );
 
       // Narrow width
-      await tester.pumpWidget(
-        buildOptionWidget(width: 350, initial: [option]),
-      );
+      await tester.pumpWidget(buildOptionWidget(width: 350, initial: [option]));
       await tester.pumpAndSettle();
 
       await tester.tap(find.text('count'));
@@ -85,9 +81,7 @@ void main() {
       );
 
       // Wide width
-      await tester.pumpWidget(
-        buildOptionWidget(width: 800, initial: [option]),
-      );
+      await tester.pumpWidget(buildOptionWidget(width: 800, initial: [option]));
       await tester.pumpAndSettle();
 
       await tester.tap(find.text('count'));

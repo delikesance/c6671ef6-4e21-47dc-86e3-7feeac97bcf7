@@ -138,8 +138,8 @@ class _AppEditPageState extends State<AppEditPage>
       return [
         _AppPageEntry(
           icon: Icons.warning_amber_rounded,
-          label: 'Recovery',
-          compactLabel: 'Recovery',
+          label: context.tr.recovery_label,
+          compactLabel: context.tr.recovery_label,
           page: _OfflineRecoveryPage(
             reason: _degradedReason,
             onRetry: _init,
@@ -149,7 +149,7 @@ class _AppEditPageState extends State<AppEditPage>
                     context: context,
                     builder:
                         (dialogContext) => AlertDialog.adaptive(
-                          title: const Text('Delete bot locally'),
+                          title: Text(context.tr.recovery_delete_bot),
                           content: const Text(
                             'This removes the local bot data from this device. Continue?',
                           ),
@@ -157,13 +157,13 @@ class _AppEditPageState extends State<AppEditPage>
                             TextButton(
                               onPressed:
                                   () => Navigator.of(dialogContext).pop(false),
-                              child: Text(AppStrings.t('cancel')),
+                              child: Text(context.tr.cancel),
                             ),
                             TextButton(
                               onPressed:
                                   () => Navigator.of(dialogContext).pop(true),
                               child: Text(
-                                AppStrings.t('delete'),
+                                context.tr.delete,
                                 style: TextStyle(
                                   color:
                                       Theme.of(dialogContext).colorScheme.error,
@@ -188,38 +188,38 @@ class _AppEditPageState extends State<AppEditPage>
         ),
         _AppPageEntry(
           icon: Icons.vpn_key_outlined,
-          label: AppStrings.t('settings_tab'),
-          compactLabel: AppStrings.t('settings_tab'),
+          label: context.tr.settings_tab,
+          compactLabel: context.tr.settings_tab,
           page: _OfflineTokenPage(botId: _botId, onTokenSaved: _init),
         ),
         _AppPageEntry(
           icon: Icons.add_circle,
-          label: AppStrings.t('commands_tab'),
-          compactLabel: AppStrings.t('commands_tab_short'),
+          label: context.tr.commands_tab,
+          compactLabel: context.tr.commands_tab_short,
           page: AppCommandsPage(botId: _botId),
         ),
         _AppPageEntry(
           icon: Icons.key,
-          label: AppStrings.t('globals_tab'),
-          compactLabel: AppStrings.t('globals_tab_short'),
+          label: context.tr.globals_tab,
+          compactLabel: context.tr.globals_tab_short,
           page: GlobalVariablesPage(botId: _botId),
         ),
         _AppPageEntry(
           icon: Icons.account_tree,
-          label: AppStrings.t('workflows_tab'),
-          compactLabel: AppStrings.t('workflows_tab_short'),
+          label: context.tr.workflows_tab,
+          compactLabel: context.tr.workflows_tab_short,
           page: WorkflowsPage(botId: _botId),
         ),
         _AppPageEntry(
           icon: Icons.schedule,
-          label: AppStrings.t('scheduler_tab'),
-          compactLabel: AppStrings.t('scheduler_tab_short'),
+          label: context.tr.scheduler_tab,
+          compactLabel: context.tr.scheduler_tab_short,
           page: SchedulerPage(botId: _botId),
         ),
         _AppPageEntry(
           icon: Icons.webhook,
-          label: 'Webhooks',
-          compactLabel: 'Hooks',
+          label: context.tr.webhooks_page_title,
+          compactLabel: context.tr.webhooks_page_title,
           page: InboundWebhooksPage(botId: _botId),
         ),
       ];
@@ -228,8 +228,8 @@ class _AppEditPageState extends State<AppEditPage>
     return [
       _AppPageEntry(
         icon: Icons.home,
-        label: AppStrings.t('home_tab'),
-        compactLabel: AppStrings.t('home_tab'),
+        label: context.tr.home_tab,
+        compactLabel: context.tr.home_tab,
         page: AppHomePage(
           client: client!,
           onNavigateToSection: (index) {
@@ -242,54 +242,54 @@ class _AppEditPageState extends State<AppEditPage>
       ),
       _AppPageEntry(
         icon: Icons.add_circle,
-        label: AppStrings.t('commands_tab'),
-        compactLabel: AppStrings.t('commands_tab_short'),
+        label: context.tr.commands_tab,
+        compactLabel: context.tr.commands_tab_short,
         page: AppCommandsPage(client: client!, botId: _botId),
       ),
       _AppPageEntry(
         icon: Icons.key,
-        label: AppStrings.t('globals_tab'),
-        compactLabel: AppStrings.t('globals_tab_short'),
+        label: context.tr.globals_tab,
+        compactLabel: context.tr.globals_tab_short,
         page: GlobalVariablesPage(botId: _botId),
       ),
       _AppPageEntry(
         icon: Icons.account_tree,
-        label: AppStrings.t('workflows_tab'),
-        compactLabel: AppStrings.t('workflows_tab_short'),
+        label: context.tr.workflows_tab,
+        compactLabel: context.tr.workflows_tab_short,
         page: WorkflowsPage(botId: _botId),
       ),
       _AppPageEntry(
         icon: Icons.schedule,
-        label: AppStrings.t('scheduler_tab'),
-        compactLabel: AppStrings.t('scheduler_tab_short'),
+        label: context.tr.scheduler_tab,
+        compactLabel: context.tr.scheduler_tab_short,
         page: SchedulerPage(botId: _botId),
         mobileSecondary: true,
       ),
       _AppPageEntry(
         icon: Icons.webhook,
-        label: 'Webhooks',
-        compactLabel: 'Hooks',
+        label: context.tr.webhooks_page_title,
+        compactLabel: context.tr.webhooks_page_title,
         page: InboundWebhooksPage(botId: _botId),
         mobileSecondary: true,
       ),
       _AppPageEntry(
         icon: Icons.emoji_emotions_outlined,
-        label: AppStrings.t('emojis_tab'),
-        compactLabel: AppStrings.t('emojis_tab_short'),
+        label: context.tr.emojis_tab,
+        compactLabel: context.tr.emojis_tab_short,
         page: EmojisPage(botId: _botId),
         mobileSecondary: true,
       ),
       _AppPageEntry(
         icon: Icons.bar_chart,
-        label: AppStrings.t('dashboard_title'),
-        compactLabel: AppStrings.t('dashboard_title'),
+        label: context.tr.dashboard_title,
+        compactLabel: context.tr.dashboard_title,
         page: CommandDashboardPage(botId: _botId),
         mobileSecondary: true,
       ),
       _AppPageEntry(
         icon: Icons.settings,
-        label: AppStrings.t('settings_tab'),
-        compactLabel: AppStrings.t('settings_tab'),
+        label: context.tr.settings_tab,
+        compactLabel: context.tr.settings_tab,
         page: AppSettingsPage(client: client!),
         mobileSecondary: true,
       ),
@@ -471,7 +471,7 @@ class _AppEditPageState extends State<AppEditPage>
       if (hasSecondary)
         BottomNavigationBarItem(
           icon: const Icon(Icons.more_horiz),
-          label: AppStrings.t('more_tab'),
+          label: context.tr.more_tab,
           backgroundColor: colorScheme.surface,
         ),
     ];
@@ -554,7 +554,7 @@ class _AppEditPageState extends State<AppEditPage>
                   child: Padding(
                     padding: const EdgeInsets.only(left: 4, bottom: 12),
                     child: Text(
-                      AppStrings.t('more_options_title'),
+                      context.tr.more_options_title,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                         fontWeight: FontWeight.w600,
@@ -567,7 +567,7 @@ class _AppEditPageState extends State<AppEditPage>
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     child: Text(
-                      AppStrings.t('no_more_options'),
+                      context.tr.no_more_options,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                       ),
@@ -730,7 +730,7 @@ class _OfflineTokenPageState extends State<_OfflineTokenPage> {
     final newToken = _tokenController.text.trim();
     if (newToken.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppStrings.t('bot_settings_token_required'))),
+        SnackBar(content: Text(context.tr.bot_settings_token_required)),
       );
       return;
     }
@@ -747,24 +747,22 @@ class _OfflineTokenPageState extends State<_OfflineTokenPage> {
               context: context,
               builder:
                   (ctx) => AlertDialog(
-                    title: Text(
-                      AppStrings.t('bot_settings_token_mismatch_title'),
-                    ),
+                    title: Text(context.tr.bot_settings_token_mismatch_title),
                     content: Text(
-                      AppStrings.tr(
-                        'bot_settings_token_mismatch_content',
-                        params: {'oldId': widget.botId, 'newId': newBotId},
+                      context.tr.bot_settings_token_mismatch_content(
+                        newBotId,
+                        widget.botId,
                       ),
                     ),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.of(ctx).pop(false),
-                        child: Text(AppStrings.t('cancel')),
+                        child: Text(context.tr.cancel),
                       ),
                       FilledButton(
                         onPressed: () => Navigator.of(ctx).pop(true),
                         child: Text(
-                          AppStrings.t('bot_settings_token_mismatch_confirm'),
+                          context.tr.bot_settings_token_mismatch_confirm,
                         ),
                       ),
                     ],
@@ -790,7 +788,7 @@ class _OfflineTokenPageState extends State<_OfflineTokenPage> {
       );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppStrings.t('bot_settings_token_saved'))),
+        SnackBar(content: Text(context.tr.bot_settings_token_saved)),
       );
       await widget.onTokenSaved();
     } catch (e) {
@@ -806,7 +804,7 @@ class _OfflineTokenPageState extends State<_OfflineTokenPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(AppStrings.t('bot_settings_token_title'))),
+      appBar: AppBar(title: Text(context.tr.bot_settings_token_title)),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 560),
@@ -823,7 +821,7 @@ class _OfflineTokenPageState extends State<_OfflineTokenPage> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  AppStrings.t('bot_offline_token_desc'),
+                  context.tr.bot_offline_token_desc,
                   textAlign: TextAlign.center,
                   style: const TextStyle(color: Colors.grey),
                 ),
@@ -832,8 +830,8 @@ class _OfflineTokenPageState extends State<_OfflineTokenPage> {
                   controller: _tokenController,
                   obscureText: _obscure,
                   decoration: InputDecoration(
-                    labelText: AppStrings.t('bot_settings_update_token'),
-                    hintText: AppStrings.t('bot_settings_token_hint'),
+                    labelText: context.tr.bot_settings_update_token,
+                    hintText: context.tr.bot_settings_token_hint,
                     border: const OutlineInputBorder(),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -854,7 +852,7 @@ class _OfflineTokenPageState extends State<_OfflineTokenPage> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                           : const Icon(Icons.save_outlined),
-                  label: Text(AppStrings.t('bot_settings_save_token_only_btn')),
+                  label: Text(context.tr.bot_settings_save_token_only_btn),
                 ),
               ],
             ),
@@ -879,7 +877,7 @@ class _OfflineRecoveryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Recovery mode')),
+      appBar: AppBar(title: Text(context.tr.recovery_title)),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -897,13 +895,13 @@ class _OfflineRecoveryPage extends StatelessWidget {
             FilledButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh),
-              label: const Text('Retry Discord connection'),
+              label: Text(context.tr.recovery_retry_discord),
             ),
             const SizedBox(height: 8),
             OutlinedButton.icon(
               onPressed: onDeleteLocal,
               icon: const Icon(Icons.delete),
-              label: const Text('Delete bot locally'),
+              label: Text(context.tr.recovery_delete_bot),
             ),
           ],
         ),

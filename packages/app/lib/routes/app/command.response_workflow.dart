@@ -206,12 +206,12 @@ class _CommandResponseWorkflowPageState
       context: context,
       builder:
           (ctx) => AlertDialog.adaptive(
-            title: const Text('Unsaved changes'),
-            content: const Text('You have unsaved changes. Discard them?'),
+            title: Text(context.tr.command_unsaved_title),
+            content: Text(context.tr.command_unsaved_confirm),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx, false),
-                child: const Text('Keep editing'),
+                child: Text(context.tr.command_unsaved_keep),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(ctx, true),
@@ -365,12 +365,12 @@ class _CommandResponseWorkflowPageState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              AppStrings.t('workflow_mode_title'),
+              context.tr.workflow_mode_title,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 4),
             Text(
-              AppStrings.t('workflow_mode_desc'),
+              context.tr.workflow_mode_desc,
               style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
             ),
             const SizedBox(height: 12),
@@ -385,7 +385,7 @@ class _CommandResponseWorkflowPageState
                     children: [
                       const Icon(Icons.account_tree_outlined, size: 16),
                       const SizedBox(width: 6),
-                      Text(AppStrings.t('workflow_mode_visual')),
+                      Text(context.tr.workflow_mode_visual),
                     ],
                   ),
                   onSelected: (_) {
@@ -399,7 +399,7 @@ class _CommandResponseWorkflowPageState
                     children: [
                       const Icon(Icons.code_outlined, size: 16),
                       const SizedBox(width: 6),
-                      Text(AppStrings.t('workflow_mode_bdfd')),
+                      Text(context.tr.workflow_mode_bdfd),
                     ],
                   ),
                   onSelected: (_) {
@@ -451,7 +451,7 @@ class _CommandResponseWorkflowPageState
     final isEmpty = code.trim().isEmpty;
     final preview =
         isEmpty
-            ? AppStrings.t('bdfd_editor_tap_hint')
+            ? context.tr.bdfd_editor_tap_hint
             : code.length > 200
             ? '${code.substring(0, 200)}…'
             : code;
@@ -463,12 +463,12 @@ class _CommandResponseWorkflowPageState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              AppStrings.t('workflow_bdfd_editor_title'),
+              context.tr.workflow_bdfd_editor_title,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 4),
             Text(
-              AppStrings.t('workflow_bdfd_editor_desc'),
+              context.tr.workflow_bdfd_editor_desc,
               style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
             ),
             const SizedBox(height: 12),
@@ -480,7 +480,7 @@ class _CommandResponseWorkflowPageState
                     builder:
                         (_) => BdfdEditorPage(
                           initialCode: _bdfdScriptController.text,
-                          title: AppStrings.t('workflow_bdfd_editor_title'),
+                          title: context.tr.workflow_bdfd_editor_title,
                         ),
                   ),
                 );
@@ -508,7 +508,7 @@ class _CommandResponseWorkflowPageState
                         const Icon(Icons.code, size: 16, color: Colors.white70),
                         const SizedBox(width: 8),
                         Text(
-                          AppStrings.t('cmd_bdfd_script_label'),
+                          context.tr.cmd_bdfd_script_label,
                           style: const TextStyle(
                             color: Colors.white70,
                             fontSize: 12,
@@ -561,7 +561,7 @@ class _CommandResponseWorkflowPageState
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          AppStrings.t('cmd_bdfd_diagnostics_clean'),
+                          context.tr.cmd_bdfd_diagnostics_clean,
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.green.shade800,
@@ -591,7 +591,7 @@ class _CommandResponseWorkflowPageState
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        AppStrings.t('cmd_bdfd_diagnostics_title'),
+                        context.tr.cmd_bdfd_diagnostics_title,
                         style: const TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 13,
@@ -668,13 +668,21 @@ class _CommandResponseWorkflowPageState
       spacing: 8,
       runSpacing: 8,
       children: [
-        chip(value: 'normal', label: 'Normal', icon: Icons.message),
+        chip(
+          value: 'normal',
+          label: context.tr.response_workflow_mode_normal,
+          icon: Icons.message,
+        ),
         chip(
           value: 'componentV2',
-          label: 'Component',
+          label: context.tr.response_workflow_mode_component,
           icon: Icons.dashboard_customize,
         ),
-        chip(value: 'modal', label: 'Modal', icon: Icons.web_asset),
+        chip(
+          value: 'modal',
+          label: context.tr.response_workflow_mode_modal,
+          icon: Icons.web_asset,
+        ),
       ],
     );
   }
@@ -693,24 +701,26 @@ class _CommandResponseWorkflowPageState
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Response Workflow${_isDirty ? ' •' : ''}'),
+          title: Text(
+            '${context.tr.response_workflow_title}${_isDirty ? ' •' : ''}',
+          ),
           actions: [
             if (_isDirty)
               IconButton(
-                tooltip: 'Revert all changes',
+                tooltip: context.tr.response_workflow_revert_tooltip,
                 onPressed: _revert,
                 icon: const Icon(Icons.undo),
               ),
             if (compact)
               IconButton(
-                tooltip: 'Save',
+                tooltip: context.tr.common_save,
                 onPressed: () => Navigator.pop(context, _buildResult()),
                 icon: const Icon(Icons.check),
               )
             else
               TextButton(
                 onPressed: () => Navigator.pop(context, _buildResult()),
-                child: const Text('Save'),
+                child: Text(context.tr.common_save),
               ),
           ],
         ),
@@ -730,15 +740,15 @@ class _CommandResponseWorkflowPageState
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Deferred reply',
+                          context.tr.response_workflow_deferred_reply,
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         const SizedBox(height: 8),
                         SwitchListTile(
                           contentPadding: EdgeInsets.zero,
-                          title: const Text('Auto defer if actions exist'),
-                          subtitle: const Text(
-                            'Acknowledge quickly, execute actions, then edit final response.',
+                          title: Text(context.tr.response_workflow_auto_defer),
+                          subtitle: Text(
+                            context.tr.response_workflow_auto_defer_desc,
                           ),
                           value: _autoDeferIfActions,
                           onChanged: (value) {
@@ -751,19 +761,21 @@ class _CommandResponseWorkflowPageState
                         DropdownButtonFormField<String>(
                           initialValue: _visibility,
                           isExpanded: true,
-                          decoration: const InputDecoration(
-                            labelText: 'Visibility',
+                          decoration: InputDecoration(
+                            labelText: context.tr.response_workflow_visibility,
                             border: OutlineInputBorder(),
                           ),
-                          items: const [
+                          items: [
                             DropdownMenuItem(
                               value: 'public',
-                              child: Text('Public'),
+                              child: Text(context.tr.response_workflow_public),
                             ),
                             DropdownMenuItem(
                               value: 'ephemeral',
                               child: Text(
-                                'Ephemeral (only command user)',
+                                context
+                                    .tr
+                                    .response_workflow_ephemeral_only_user,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
@@ -776,12 +788,14 @@ class _CommandResponseWorkflowPageState
                           },
                         ),
                         const SizedBox(height: 8),
-                        const ListTile(
+                        ListTile(
                           contentPadding: EdgeInsets.zero,
-                          leading: Icon(Icons.info_outline),
-                          title: Text('Error policy'),
+                          leading: const Icon(Icons.info_outline),
+                          title: Text(
+                            context.tr.response_workflow_error_policy,
+                          ),
                           subtitle: Text(
-                            'When an action fails, edit the deferred message with an error.',
+                            context.tr.response_workflow_error_policy_desc,
                           ),
                         ),
                       ],
@@ -796,15 +810,17 @@ class _CommandResponseWorkflowPageState
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Conditional response (MVP)',
+                          context.tr.response_workflow_conditional_title,
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         const SizedBox(height: 8),
                         SwitchListTile(
                           contentPadding: EdgeInsets.zero,
-                          title: const Text('Enable condition'),
-                          subtitle: const Text(
-                            'If variable exists and is not empty => use THEN text, otherwise ELSE text.',
+                          title: Text(
+                            context.tr.response_workflow_enable_condition,
+                          ),
+                          subtitle: Text(
+                            context.tr.response_workflow_condition_desc,
                           ),
                           value: _conditionEnabled,
                           onChanged: (value) {
@@ -816,8 +832,9 @@ class _CommandResponseWorkflowPageState
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: _variableController,
-                          decoration: const InputDecoration(
-                            labelText: 'Variable key (ex: opts.userId)',
+                          decoration: InputDecoration(
+                            labelText:
+                                context.tr.response_workflow_variable_key,
                             border: OutlineInputBorder(),
                           ),
                         ),
@@ -840,7 +857,7 @@ class _CommandResponseWorkflowPageState
                         const SizedBox(height: 12),
                         if (_whenTrueType == 'normal') ...[
                           VariableTextField(
-                            label: 'THEN response text (optional)',
+                            label: context.tr.response_workflow_then_text,
                             controller: _whenTrueController,
                             maxLines: 3,
                             suggestions: widget.variableSuggestions,
@@ -919,7 +936,7 @@ class _CommandResponseWorkflowPageState
                         const SizedBox(height: 12),
                         if (_whenFalseType == 'normal') ...[
                           VariableTextField(
-                            label: 'ELSE response text (optional)',
+                            label: context.tr.response_workflow_else_text,
                             controller: _whenFalseController,
                             maxLines: 3,
                             suggestions: widget.variableSuggestions,

@@ -5,6 +5,7 @@ import 'package:bot_creator/main.dart';
 import 'package:bot_creator/routes/app/command.create.dart';
 import 'package:bot_creator/routes/app/command_option_serialization.dart';
 import 'package:bot_creator/utils/database.dart';
+import 'package:bot_creator/utils/i18n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -190,7 +191,13 @@ void main() {
       tester.view.resetDevicePixelRatio();
     });
 
-    await tester.pumpWidget(MaterialApp(home: page));
+    await tester.pumpWidget(
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: page,
+      ),
+    );
     await tester.pump();
     for (var i = 0; i < 40; i++) {
       await tester.runAsync(() async {
@@ -251,7 +258,7 @@ void main() {
       expect(find.text('Reply'), findsOneWidget);
       expect(find.text('Actions'), findsOneWidget);
       expect(find.text('Review'), findsOneWidget);
-      expect(find.byTooltip('Import command payload'), findsOneWidget);
+      expect(find.byTooltip('Import command'), findsOneWidget);
       expect(find.text('Save changes'), findsNothing);
     });
 

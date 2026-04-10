@@ -252,8 +252,8 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                 Expanded(
                   child: Text(
                     key == null
-                        ? AppStrings.t('globals_add_global')
-                        : AppStrings.t('globals_edit_global'),
+                        ? context.tr.globals_add_global
+                        : context.tr.globals_edit_global,
                   ),
                 ),
               ],
@@ -264,7 +264,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    AppStrings.t('globals_dialog_global_desc'),
+                    context.tr.globals_dialog_global_desc,
                     style: Theme.of(ctx).textTheme.bodySmall?.copyWith(
                       color: Theme.of(ctx).colorScheme.onSurfaceVariant,
                     ),
@@ -275,8 +275,8 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                     enabled: key == null,
                     autofocus: key == null,
                     decoration: InputDecoration(
-                      labelText: AppStrings.t('globals_key'),
-                      hintText: AppStrings.t('globals_key_hint'),
+                      labelText: context.tr.globals_key,
+                      hintText: context.tr.globals_key_hint,
                       prefixIcon: const Icon(Icons.vpn_key_outlined, size: 20),
                       border: const OutlineInputBorder(),
                     ),
@@ -288,8 +288,8 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                     minLines: 1,
                     autofocus: key != null,
                     decoration: InputDecoration(
-                      labelText: AppStrings.t('globals_value'),
-                      helperText: AppStrings.t('globals_value_auto_type_hint'),
+                      labelText: context.tr.globals_value,
+                      helperText: context.tr.globals_value_auto_type_hint,
                       helperMaxLines: 2,
                       border: const OutlineInputBorder(),
                     ),
@@ -300,11 +300,11 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx, false),
-                child: Text(AppStrings.t('cancel')),
+                child: Text(context.tr.cancel),
               ),
               FilledButton(
                 onPressed: () => Navigator.pop(ctx, true),
-                child: Text(AppStrings.t('app_save')),
+                child: Text(context.tr.app_save),
               ),
             ],
           ),
@@ -333,19 +333,17 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
           context: context,
           builder:
               (ctx) => AlertDialog.adaptive(
-                title: Text(AppStrings.t('globals_delete_title')),
-                content: Text(
-                  AppStrings.tr('globals_delete_confirm', params: {'key': key}),
-                ),
+                title: Text(context.tr.globals_delete_title),
+                content: Text(context.tr.globals_delete_confirm(key)),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(ctx, false),
-                    child: Text(AppStrings.t('cancel')),
+                    child: Text(context.tr.cancel),
                   ),
                   TextButton(
                     onPressed: () => Navigator.pop(ctx, true),
                     child: Text(
-                      AppStrings.t('delete'),
+                      context.tr.delete,
                       style: TextStyle(color: Theme.of(ctx).colorScheme.error),
                     ),
                   ),
@@ -397,8 +395,8 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                       Expanded(
                         child: Text(
                           existing == null
-                              ? AppStrings.t('globals_add_scoped')
-                              : AppStrings.t('globals_edit_scoped'),
+                              ? context.tr.globals_add_scoped
+                              : context.tr.globals_edit_scoped,
                         ),
                       ),
                     ],
@@ -409,10 +407,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          AppStrings.tr(
-                            'globals_dialog_scoped_desc',
-                            params: {'scope': scope},
-                          ),
+                          context.tr.globals_dialog_scoped_desc(scope),
                           style: Theme.of(ctx).textTheme.bodySmall?.copyWith(
                             color: Theme.of(ctx).colorScheme.onSurfaceVariant,
                           ),
@@ -421,8 +416,8 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                         DropdownButtonFormField<String>(
                           initialValue: scope,
                           decoration: InputDecoration(
-                            labelText: AppStrings.t('scoped_scope'),
-                            helperText: AppStrings.t('scoped_scope_help'),
+                            labelText: context.tr.scoped_scope,
+                            helperText: context.tr.scoped_scope_help,
                             helperMaxLines: 2,
                             border: const OutlineInputBorder(),
                           ),
@@ -456,8 +451,8 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                           controller: keyCtrl,
                           autofocus: existing == null,
                           decoration: InputDecoration(
-                            labelText: AppStrings.t('globals_key'),
-                            hintText: AppStrings.t('globals_key_hint'),
+                            labelText: context.tr.globals_key,
+                            hintText: context.tr.globals_key_hint,
                             prefixIcon: const Icon(
                               Icons.vpn_key_outlined,
                               size: 20,
@@ -472,11 +467,9 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                           maxLines: 4,
                           minLines: 1,
                           decoration: InputDecoration(
-                            labelText: AppStrings.t('scoped_default_value'),
-                            hintText: AppStrings.t('scoped_default_value_hint'),
-                            helperText: AppStrings.t(
-                              'globals_value_auto_type_hint',
-                            ),
+                            labelText: context.tr.scoped_default_value,
+                            hintText: context.tr.scoped_default_value_hint,
+                            helperText: context.tr.globals_value_auto_type_hint,
                             helperMaxLines: 2,
                             border: const OutlineInputBorder(),
                           ),
@@ -500,12 +493,8 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  AppStrings.tr(
-                                    'globals_dialog_ref_preview',
-                                    params: {
-                                      'ref':
-                                          '$scope.${_toScopedReferenceKey(keyCtrl.text)}',
-                                    },
+                                  context.tr.globals_dialog_ref_preview(
+                                    '$scope.${_toScopedReferenceKey(keyCtrl.text)}',
                                   ),
                                   style: TextStyle(
                                     fontFamily: 'monospace',
@@ -514,12 +503,8 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                                   ),
                                 ),
                                 Text(
-                                  AppStrings.tr(
-                                    'scoped_ref',
-                                    params: {
-                                      'ref':
-                                          '$scope.${_toScopedReferenceKey(keyCtrl.text)}',
-                                    },
+                                  context.tr.scoped_ref(
+                                    '$scope.${_toScopedReferenceKey(keyCtrl.text)}',
                                   ),
                                   style: TextStyle(
                                     fontSize: 11,
@@ -539,11 +524,11 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(ctx, false),
-                      child: Text(AppStrings.t('cancel')),
+                      child: Text(context.tr.cancel),
                     ),
                     FilledButton(
                       onPressed: () => Navigator.pop(ctx, true),
-                      child: Text(AppStrings.t('app_save')),
+                      child: Text(context.tr.app_save),
                     ),
                   ],
                 ),
@@ -596,19 +581,17 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
           context: context,
           builder:
               (ctx) => AlertDialog.adaptive(
-                title: Text(AppStrings.t('scoped_delete_title')),
-                content: Text(
-                  AppStrings.tr('scoped_delete_confirm', params: {'key': key}),
-                ),
+                title: Text(context.tr.scoped_delete_title),
+                content: Text(context.tr.scoped_delete_confirm(key)),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(ctx, false),
-                    child: Text(AppStrings.t('cancel')),
+                    child: Text(context.tr.cancel),
                   ),
                   TextButton(
                     onPressed: () => Navigator.pop(ctx, true),
                     child: Text(
-                      AppStrings.t('delete'),
+                      context.tr.delete,
                       style: TextStyle(color: Theme.of(ctx).colorScheme.error),
                     ),
                   ),
@@ -775,27 +758,17 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         ListTile(
-                          title: Text(
-                            AppStrings.tr(
-                              'scoped_runtime_title',
-                              params: {'key': key},
-                            ),
-                          ),
+                          title: Text(context.tr.scoped_runtime_title(key)),
                           subtitle: Text(
-                            AppStrings.tr(
-                              'scoped_runtime_subtitle',
-                              params: {
-                                'scope': scope,
-                                'count': values.length.toString(),
-                              },
+                            context.tr.scoped_runtime_subtitle(
+                              scope,
+                              values.length.toString(),
                             ),
                           ),
                           trailing:
                               values.isNotEmpty
                                   ? IconButton(
-                                    tooltip: AppStrings.t(
-                                      'scoped_runtime_copy_all',
-                                    ),
+                                    tooltip: context.tr.scoped_runtime_copy_all,
                                     icon: const Icon(Icons.copy, size: 20),
                                     onPressed: () {
                                       Clipboard.setData(
@@ -808,9 +781,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                                       ScaffoldMessenger.of(ctx).showSnackBar(
                                         SnackBar(
                                           content: Text(
-                                            AppStrings.t(
-                                              'scoped_runtime_copy_all',
-                                            ),
+                                            context.tr.scoped_runtime_copy_all,
                                           ),
                                         ),
                                       );
@@ -826,7 +797,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                             ),
                             child: TextField(
                               decoration: InputDecoration(
-                                hintText: AppStrings.t('scoped_runtime_search'),
+                                hintText: context.tr.scoped_runtime_search,
                                 prefixIcon: const Icon(Icons.search, size: 20),
                                 isDense: true,
                                 border: const OutlineInputBorder(),
@@ -844,7 +815,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                               values.isEmpty
                                   ? Center(
                                     child: Text(
-                                      AppStrings.t('scoped_runtime_empty'),
+                                      context.tr.scoped_runtime_empty,
                                       textAlign: TextAlign.center,
                                     ),
                                   )
@@ -867,9 +838,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                                       if (filtered.isEmpty) {
                                         return Center(
                                           child: Text(
-                                            AppStrings.t(
-                                              'scoped_runtime_empty',
-                                            ),
+                                            context.tr.scoped_runtime_empty,
                                             textAlign: TextAlign.center,
                                           ),
                                         );
@@ -972,13 +941,10 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
 
   String get _sourceLabel {
     if (_source == _VariablesSource.local) {
-      return AppStrings.t('globals_source_local');
+      return context.tr.globals_source_local;
     }
     final runner = _runners.where((r) => r.id == _activeRunnerId).firstOrNull;
-    return AppStrings.tr(
-      'globals_source_runner',
-      params: {'name': runner?.name ?? '?'},
-    );
+    return context.tr.globals_source_runner(runner?.name ?? '?');
   }
 
   Widget _buildSearchBar() {
@@ -986,7 +952,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
       child: TextField(
         decoration: InputDecoration(
-          hintText: AppStrings.t('globals_search'),
+          hintText: context.tr.globals_search,
           prefixIcon: const Icon(Icons.search, size: 20),
           isDense: true,
           border: const OutlineInputBorder(),
@@ -1021,12 +987,12 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                   segments: [
                     ButtonSegment<_VariableMode>(
                       value: _VariableMode.global,
-                      label: Text(AppStrings.t('globals_mode_global')),
+                      label: Text(context.tr.globals_mode_global),
                       icon: const Icon(Icons.public, size: 18),
                     ),
                     ButtonSegment<_VariableMode>(
                       value: _VariableMode.scoped,
-                      label: Text(AppStrings.t('globals_mode_scoped')),
+                      label: Text(context.tr.globals_mode_scoped),
                       icon: const Icon(Icons.account_tree_outlined, size: 18),
                     ),
                   ],
@@ -1056,8 +1022,8 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
               Expanded(
                 child: Text(
                   _isScopedMode
-                      ? AppStrings.t('globals_help_scoped')
-                      : AppStrings.t('globals_help_global'),
+                      ? context.tr.globals_help_scoped
+                      : context.tr.globals_help_global,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
@@ -1091,7 +1057,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
               ),
               TextButton(
                 onPressed: _load,
-                child: Text(AppStrings.t('globals_retry')),
+                child: Text(context.tr.globals_retry),
               ),
             ],
           ),
@@ -1140,7 +1106,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                   FilledButton.icon(
                     onPressed: onAdd,
                     icon: const Icon(Icons.add),
-                    label: Text(AppStrings.t('globals_add')),
+                    label: Text(context.tr.globals_add),
                   ),
                 ],
               ),
@@ -1157,8 +1123,8 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
     if (_globalVariables.isEmpty) {
       return _buildEmptyState(
         icon: Icons.dataset_outlined,
-        title: AppStrings.t('globals_empty'),
-        subtitle: AppStrings.t('globals_empty_subtitle'),
+        title: context.tr.globals_empty,
+        subtitle: context.tr.globals_empty_subtitle,
         onAdd: () => _editGlobalVariable(),
       );
     }
@@ -1201,7 +1167,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                     value: 'edit',
                     child: ListTile(
                       leading: const Icon(Icons.edit_outlined, size: 20),
-                      title: Text(AppStrings.t('globals_edit')),
+                      title: Text(context.tr.globals_edit),
                       dense: true,
                       contentPadding: EdgeInsets.zero,
                     ),
@@ -1210,7 +1176,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                     value: 'copy',
                     child: ListTile(
                       leading: const Icon(Icons.copy, size: 20),
-                      title: Text(AppStrings.t('globals_copy_value')),
+                      title: Text(context.tr.globals_copy_value),
                       dense: true,
                       contentPadding: EdgeInsets.zero,
                     ),
@@ -1224,7 +1190,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                         color: Theme.of(ctx).colorScheme.error,
                       ),
                       title: Text(
-                        AppStrings.t('delete'),
+                        context.tr.delete,
                         style: TextStyle(
                           color: Theme.of(ctx).colorScheme.error,
                         ),
@@ -1243,7 +1209,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                     ClipboardData(text: _formatVariableValue(entry.value)),
                   );
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(AppStrings.t('globals_copy_value'))),
+                    SnackBar(content: Text(context.tr.globals_copy_value)),
                   );
                 case 'delete':
                   _deleteGlobalVariable(entry.key);
@@ -1259,8 +1225,8 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
     if (_scopedDefinitions.isEmpty) {
       return _buildEmptyState(
         icon: Icons.account_tree_outlined,
-        title: AppStrings.t('scoped_empty'),
-        subtitle: AppStrings.t('scoped_empty_subtitle'),
+        title: context.tr.scoped_empty,
+        subtitle: context.tr.scoped_empty_subtitle,
         onAdd: () => _editScopedDefinition(),
       );
     }
@@ -1363,7 +1329,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
               Text(
                 defaultValue != null && defaultValue.toString().isNotEmpty
                     ? '= ${_formatVariableValue(defaultValue)}'
-                    : AppStrings.t('globals_no_default'),
+                    : context.tr.globals_no_default,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
@@ -1373,7 +1339,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
               ),
               const SizedBox(height: 2),
               Text(
-                AppStrings.tr('scoped_ref', params: {'ref': '$scope.$refKey'}),
+                context.tr.scoped_ref('$scope.$refKey'),
                 style: TextStyle(
                   fontSize: 11,
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -1381,10 +1347,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
               ),
               if (hasLegacy)
                 Text(
-                  AppStrings.tr(
-                    'scoped_ref_legacy',
-                    params: {'ref': '$scope.$legacyRefKey'},
-                  ),
+                  context.tr.scoped_ref_legacy('$scope.$legacyRefKey'),
                   style: TextStyle(
                     fontSize: 10,
                     color: Theme.of(
@@ -1402,7 +1365,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                     value: 'explore',
                     child: ListTile(
                       leading: const Icon(Icons.travel_explore, size: 20),
-                      title: Text(AppStrings.t('scoped_explore_runtime')),
+                      title: Text(context.tr.scoped_explore_runtime),
                       dense: true,
                       contentPadding: EdgeInsets.zero,
                     ),
@@ -1411,7 +1374,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                     value: 'edit',
                     child: ListTile(
                       leading: const Icon(Icons.edit_outlined, size: 20),
-                      title: Text(AppStrings.t('globals_edit')),
+                      title: Text(context.tr.globals_edit),
                       dense: true,
                       contentPadding: EdgeInsets.zero,
                     ),
@@ -1425,7 +1388,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                         color: Theme.of(ctx).colorScheme.error,
                       ),
                       title: Text(
-                        AppStrings.t('delete'),
+                        context.tr.delete,
                         style: TextStyle(
                           color: Theme.of(ctx).colorScheme.error,
                         ),
@@ -1483,12 +1446,12 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
     final isGlobal = mode == _VariableMode.global;
     final title =
         isGlobal
-            ? AppStrings.t('globals_mode_global')
-            : AppStrings.t('globals_mode_scoped');
+            ? context.tr.globals_mode_global
+            : context.tr.globals_mode_scoped;
     final help =
         isGlobal
-            ? AppStrings.t('globals_help_global')
-            : AppStrings.t('globals_help_scoped');
+            ? context.tr.globals_help_global
+            : context.tr.globals_help_scoped;
     return Column(
       children: [
         Container(
@@ -1515,7 +1478,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                   const Spacer(),
                   IconButton(
                     icon: const Icon(Icons.add, size: 20),
-                    tooltip: AppStrings.t('globals_add'),
+                    tooltip: context.tr.globals_add,
                     onPressed:
                         isGlobal
                             ? () => _editGlobalVariable()
@@ -1574,7 +1537,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                   value: 'local',
                   child: ListTile(
                     leading: const Icon(Icons.storage_outlined, size: 20),
-                    title: Text(AppStrings.t('globals_source_local')),
+                    title: Text(context.tr.globals_source_local),
                     dense: true,
                     contentPadding: EdgeInsets.zero,
                     selected: !_isRunnerMode,
@@ -1586,10 +1549,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                     child: ListTile(
                       leading: const Icon(Icons.cloud_outlined, size: 20),
                       title: Text(
-                        AppStrings.tr(
-                          'globals_source_runner',
-                          params: {'name': runner.name ?? '?'},
-                        ),
+                        context.tr.globals_source_runner(runner.name ?? '?'),
                       ),
                       dense: true,
                       contentPadding: EdgeInsets.zero,
@@ -1601,7 +1561,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
           onSelected: (id) => unawaited(_switchSource(id)),
         ),
       IconButton(
-        tooltip: AppStrings.t('globals_refresh'),
+        tooltip: context.tr.globals_refresh,
         onPressed: _load,
         icon: const Icon(Icons.refresh),
       ),
@@ -1612,7 +1572,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(AppStrings.t('globals_title')),
+            Text(context.tr.globals_title),
             if (_runners.isNotEmpty)
               Text(
                 _sourceLabel,

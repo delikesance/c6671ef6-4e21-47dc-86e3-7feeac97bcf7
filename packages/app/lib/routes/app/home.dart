@@ -62,6 +62,18 @@ class _AppHomePageState extends State<AppHomePage>
 
   bool get _supportsForegroundTask => Platform.isAndroid || Platform.isIOS;
 
+  bool _isDeadChannelError(Object error) {
+    if (error is! PlatformException) return false;
+    final code = error.code.toLowerCase();
+    final message = (error.message ?? '').toLowerCase();
+    final details = (error.details?.toString() ?? '').toLowerCase();
+    return code.contains('channel') ||
+        message.contains('dead channel') ||
+        message.contains('unable to establish connection on channel') ||
+        details.contains('dead channel') ||
+        details.contains('unable to establish connection on channel');
+  }
+
   Future<bool> _requestPermissions() async {
     if (!_supportsForegroundTask) {
       return true;
@@ -91,6 +103,12 @@ class _AppHomePageState extends State<AppHomePage>
     } on MissingPluginException {
       // No-op on unsupported platforms.
       return true;
+    } on PlatformException catch (error) {
+      if (_isDeadChannelError(error)) {
+        debugPrint('Foreground permission channel unavailable; skipping.');
+        return true;
+      }
+      rethrow;
     }
 
     return true;
@@ -155,6 +173,12 @@ class _AppHomePageState extends State<AppHomePage>
         FlutterForegroundTask.addTaskDataCallback(_taskDataCallback!);
       } on MissingPluginException {
         debugPrint('Foreground callback registration unavailable on platform');
+      } on PlatformException catch (error) {
+        if (_isDeadChannelError(error)) {
+          debugPrint('Foreground callback channel unavailable; skipping.');
+        } else {
+          rethrow;
+        }
       }
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -172,6 +196,12 @@ class _AppHomePageState extends State<AppHomePage>
         FlutterForegroundTask.removeTaskDataCallback(callback);
       } on MissingPluginException {
         debugPrint('Foreground callback removal unavailable on platform');
+      } on PlatformException catch (error) {
+        if (_isDeadChannelError(error)) {
+          debugPrint('Foreground callback channel unavailable; skipping.');
+        } else {
+          rethrow;
+        }
       }
     }
     super.dispose();
@@ -215,6 +245,12 @@ class _AppHomePageState extends State<AppHomePage>
           }
         } on MissingPluginException {
           isRunning = false;
+        } on PlatformException catch (error) {
+          if (_isDeadChannelError(error)) {
+            isRunning = false;
+          } else {
+            rethrow;
+          }
         } catch (_) {
           isRunning = false;
         }
@@ -332,7 +368,7 @@ class _AppHomePageState extends State<AppHomePage>
 
       if (showSnack && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppStrings.t('bot_home_sync_success'))),
+          SnackBar(content: Text(context.tr.bot_home_sync_success)),
         );
       }
     } catch (e) {
@@ -382,16 +418,16 @@ class _AppHomePageState extends State<AppHomePage>
               context: context,
               builder:
                   (dialogContext) => AlertDialog(
-                    title: Text(AppStrings.t('rewarded_start_title')),
-                    content: Text(AppStrings.t('rewarded_start_message')),
+                    title: Text(context.tr.rewarded_start_title),
+                    content: Text(context.tr.rewarded_start_message),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.of(dialogContext).pop(false),
-                        child: Text(AppStrings.t('rewarded_start_skip')),
+                        child: Text(context.tr.rewarded_start_skip),
                       ),
                       FilledButton(
                         onPressed: () => Navigator.of(dialogContext).pop(true),
-                        child: Text(AppStrings.t('rewarded_start_watch')),
+                        child: Text(context.tr.rewarded_start_watch),
                       ),
                     ],
                   ),
@@ -407,12 +443,12 @@ class _AppHomePageState extends State<AppHomePage>
           barrierDismissible: false,
           builder:
               (dialogContext) => AlertDialog(
-                title: Text(AppStrings.t('rewarded_start_title')),
-                content: Text(AppStrings.t('rewarded_start_message')),
+                title: Text(context.tr.rewarded_start_title),
+                content: Text(context.tr.rewarded_start_message),
                 actions: [
                   FilledButton(
                     onPressed: () => Navigator.of(dialogContext).pop(),
-                    child: Text(AppStrings.t('rewarded_start_continue')),
+                    child: Text(context.tr.rewarded_start_continue),
                   ),
                 ],
               ),
@@ -423,9 +459,9 @@ class _AppHomePageState extends State<AppHomePage>
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppStrings.t('rewarded_start_thanks'))),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.tr.rewarded_start_thanks)));
     } catch (error) {
       appendBotDebugLog('Rewarded ad flow skipped due to error: $error');
     }
@@ -435,7 +471,7 @@ class _AppHomePageState extends State<AppHomePage>
     final consentGranted = await AdConsentService.ensureCanRequestAds();
     if (!consentGranted && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppStrings.t('ads_consent_refused_info'))),
+        SnackBar(content: Text(context.tr.ads_consent_refused_info)),
       );
     }
     return consentGranted;
@@ -530,7 +566,7 @@ class _AppHomePageState extends State<AppHomePage>
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      AppStrings.t('bot_home_ios_notice_title'),
+                                      context.tr.bot_home_ios_notice_title,
                                       style: Theme.of(
                                         context,
                                       ).textTheme.titleSmall?.copyWith(
@@ -539,9 +575,7 @@ class _AppHomePageState extends State<AppHomePage>
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      AppStrings.t(
-                                        'bot_home_ios_notice_content',
-                                      ),
+                                      context.tr.bot_home_ios_notice_content,
                                       style:
                                           Theme.of(context).textTheme.bodySmall,
                                     ),
@@ -590,14 +624,14 @@ class _AppHomePageState extends State<AppHomePage>
                                               builder:
                                                   (ctx) => AlertDialog(
                                                     title: Text(
-                                                      AppStrings.t(
-                                                        'bot_home_token_invalid_title',
-                                                      ),
+                                                      context
+                                                          .tr
+                                                          .bot_home_token_invalid_title,
                                                     ),
                                                     content: Text(
-                                                      AppStrings.t(
-                                                        'bot_home_token_invalid_content',
-                                                      ),
+                                                      context
+                                                          .tr
+                                                          .bot_home_token_invalid_content,
                                                     ),
                                                     actions: [
                                                       TextButton(
@@ -606,9 +640,7 @@ class _AppHomePageState extends State<AppHomePage>
                                                               ctx,
                                                             ).pop(false),
                                                         child: Text(
-                                                          AppStrings.t(
-                                                            'cancel',
-                                                          ),
+                                                          context.tr.cancel,
                                                         ),
                                                       ),
                                                       FilledButton(
@@ -617,9 +649,9 @@ class _AppHomePageState extends State<AppHomePage>
                                                               ctx,
                                                             ).pop(true),
                                                         child: Text(
-                                                          AppStrings.t(
-                                                            'bot_home_start',
-                                                          ),
+                                                          context
+                                                              .tr
+                                                              .bot_home_start,
                                                         ),
                                                       ),
                                                     ],
@@ -717,9 +749,7 @@ class _AppHomePageState extends State<AppHomePage>
                                           await _requestPermissions();
                                       if (!permissionGranted) {
                                         throw Exception(
-                                          AppStrings.t(
-                                            'bot_home_notif_required',
-                                          ),
+                                          context.tr.bot_home_notif_required,
                                         );
                                       }
                                       await _initService();
@@ -738,9 +768,9 @@ class _AppHomePageState extends State<AppHomePage>
                                               .isRunningService;
                                       if (!running) {
                                         throw Exception(
-                                          AppStrings.t(
-                                            'bot_home_service_not_started',
-                                          ),
+                                          context
+                                              .tr
+                                              .bot_home_service_not_started,
                                         );
                                       }
 
@@ -753,9 +783,7 @@ class _AppHomePageState extends State<AppHomePage>
                                     } else {
                                       if (_botLaunched) {
                                         appendBotLog(
-                                          AppStrings.t(
-                                            'bot_home_log_desktop_stop',
-                                          ),
+                                          context.tr.bot_home_log_desktop_stop,
                                           botId: botId,
                                         );
                                         await stopDesktopBot(botId: botId);
@@ -783,6 +811,29 @@ class _AppHomePageState extends State<AppHomePage>
                                         _botStarting = false;
                                       });
                                     }
+                                  } on PlatformException catch (error) {
+                                    if (!mounted) {
+                                      return;
+                                    }
+                                    setState(() {
+                                      _botStarting = false;
+                                    });
+                                    final deadChannel = _isDeadChannelError(
+                                      error,
+                                    );
+                                    final display =
+                                        deadChannel
+                                            ? 'Foreground service channel unavailable. Please reopen the app and try again.'
+                                            : error.toString();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          context.tr.bot_home_start_error(
+                                            display,
+                                          ),
+                                        ),
+                                      ),
+                                    );
                                   } catch (e) {
                                     if (!mounted) {
                                       return;
@@ -793,9 +844,8 @@ class _AppHomePageState extends State<AppHomePage>
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text(
-                                          AppStrings.tr(
-                                            'bot_home_start_error',
-                                            params: {'error': e.toString()},
+                                          context.tr.bot_home_start_error(
+                                            e.toString(),
                                           ),
                                         ),
                                       ),
@@ -821,10 +871,10 @@ class _AppHomePageState extends State<AppHomePage>
                             const SizedBox(width: 8),
                             Text(
                               _botStarting
-                                  ? AppStrings.t('bot_home_starting')
+                                  ? context.tr.bot_home_starting
                                   : _botLaunched
-                                  ? AppStrings.t('bot_home_stop')
-                                  : AppStrings.t('bot_home_start'),
+                                  ? context.tr.bot_home_stop
+                                  : context.tr.bot_home_start,
                             ),
                           ],
                         ),
@@ -851,7 +901,7 @@ class _AppHomePageState extends State<AppHomePage>
                                   bottom: 10,
                                 ),
                                 child: Text(
-                                  AppStrings.t('quick_access_title'),
+                                  context.tr.quick_access_title,
                                   style: Theme.of(
                                     context,
                                   ).textTheme.titleSmall?.copyWith(
@@ -911,7 +961,7 @@ class _AppHomePageState extends State<AppHomePage>
                           children: [
                             const Icon(Icons.receipt_long),
                             const SizedBox(width: 8),
-                            Text(AppStrings.t('bot_home_view_logs')),
+                            Text(context.tr.bot_home_view_logs),
                           ],
                         ),
                       ),
@@ -934,7 +984,7 @@ class _AppHomePageState extends State<AppHomePage>
                           children: [
                             const Icon(Icons.monitor_heart_outlined),
                             const SizedBox(width: 8),
-                            Text(AppStrings.t('bot_home_view_stats')),
+                            Text(context.tr.bot_home_view_stats),
                           ],
                         ),
                       ),
@@ -960,7 +1010,7 @@ class _AppHomePageState extends State<AppHomePage>
                             children: [
                               const Icon(Icons.play_circle_outline),
                               const SizedBox(width: 8),
-                              Text(AppStrings.t('bot_home_view_replay')),
+                              Text(context.tr.bot_home_view_replay),
                             ],
                           ),
                         ),
@@ -989,7 +1039,7 @@ class _AppHomePageState extends State<AppHomePage>
                                 )
                                 : const Icon(Icons.sync),
                             const SizedBox(width: 8),
-                            Text(AppStrings.t('bot_home_sync')),
+                            Text(context.tr.bot_home_sync),
                           ],
                         ),
                       ),
@@ -1015,9 +1065,7 @@ class _AppHomePageState extends State<AppHomePage>
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text(
-                                  AppStrings.t('bot_home_invite_error'),
-                                ),
+                                content: Text(context.tr.bot_home_invite_error),
                               ),
                             );
                           }
@@ -1027,7 +1075,7 @@ class _AppHomePageState extends State<AppHomePage>
                           children: [
                             const Icon(Icons.person_add),
                             const SizedBox(width: 8),
-                            Text(AppStrings.t('bot_home_invite')),
+                            Text(context.tr.bot_home_invite),
                           ],
                         ),
                       ),
@@ -1039,16 +1087,14 @@ class _AppHomePageState extends State<AppHomePage>
                         ),
                         onPressed: () async {
                           final dialog = AlertDialog.adaptive(
-                            title: Text(AppStrings.t('bot_home_delete')),
-                            content: Text(
-                              AppStrings.t('bot_home_delete_confirm'),
-                            ),
+                            title: Text(context.tr.bot_home_delete),
+                            content: Text(context.tr.bot_home_delete_confirm),
                             actions: [
                               TextButton(
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
-                                child: Text(AppStrings.t('cancel')),
+                                child: Text(context.tr.cancel),
                               ),
                               TextButton(
                                 onPressed: () async {
@@ -1058,7 +1104,7 @@ class _AppHomePageState extends State<AppHomePage>
                                   Navigator.of(context).pop();
                                   Navigator.of(context).pop();
                                 },
-                                child: Text(AppStrings.t('delete')),
+                                child: Text(context.tr.delete),
                               ),
                             ],
                           );
@@ -1074,7 +1120,7 @@ class _AppHomePageState extends State<AppHomePage>
                           children: [
                             const Icon(Icons.delete),
                             const SizedBox(width: 8),
-                            Text(AppStrings.t('bot_home_delete')),
+                            Text(context.tr.bot_home_delete),
                           ],
                         ),
                       ),

@@ -3,6 +3,7 @@ import 'package:bot_creator/types/component.dart';
 import 'package:bot_creator/types/variable_suggestion.dart';
 import 'package:bot_creator/widgets/component_v2_builder/component_node_editor.dart';
 import 'package:bot_creator/widgets/component_v2_builder/component_node_factory.dart';
+import '../../utils/i18n.dart';
 
 /// Full visual editor for a ComponentV2 message (text + recursive component nodes).
 /// Manages a [ComponentV2Definition] and notifies via [onChanged].
@@ -182,7 +183,7 @@ class _ComponentV2EditorWidgetState extends State<ComponentV2EditorWidget> {
               const SizedBox(height: 8),
               // Add root component dropdown
               PopupMenuButton<ComponentV2Type>(
-                tooltip: 'Add Root Component',
+                tooltip: context.tr.component_add_root,
                 onSelected: (v) {
                   _addNode(v);
                 },

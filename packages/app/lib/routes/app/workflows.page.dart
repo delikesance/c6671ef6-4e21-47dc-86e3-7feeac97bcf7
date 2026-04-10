@@ -590,8 +590,8 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
 
   String _workflowTypeBadgeLabel(String workflowType) {
     return workflowType == workflowTypeEvent
-        ? AppStrings.t('workflows_type_badge_event')
-        : AppStrings.t('workflows_type_badge_general');
+        ? context.tr.workflows_type_badge_event
+        : context.tr.workflows_type_badge_general;
   }
 
   Future<List<VariableSuggestion>> _buildWorkflowVariableSuggestions({
@@ -1395,8 +1395,8 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
               builder: (context, setDialogState) {
                 final titleText =
                     initial == null
-                        ? AppStrings.t('workflows_create')
-                        : AppStrings.t('workflows_edit');
+                        ? context.tr.workflows_create
+                        : context.tr.workflows_edit;
 
                 final formContent = SizedBox(
                   width: double.maxFinite,
@@ -1405,7 +1405,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
-                          AppStrings.t('workflows_type_title'),
+                          context.tr.workflows_type_title,
                           style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(height: 10),
@@ -1413,10 +1413,9 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                           Column(
                             children: [
                               _WorkflowTypeCard(
-                                title: AppStrings.t('workflows_type_general'),
-                                description: AppStrings.t(
-                                  'workflows_type_general_desc',
-                                ),
+                                title: context.tr.workflows_type_general,
+                                description:
+                                    context.tr.workflows_type_general_desc,
                                 icon: Icons.account_tree_outlined,
                                 selected:
                                     selectedWorkflowType == workflowTypeGeneral,
@@ -1428,10 +1427,9 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                               ),
                               const SizedBox(height: 10),
                               _WorkflowTypeCard(
-                                title: AppStrings.t('workflows_type_event'),
-                                description: AppStrings.t(
-                                  'workflows_type_event_desc',
-                                ),
+                                title: context.tr.workflows_type_event,
+                                description:
+                                    context.tr.workflows_type_event_desc,
                                 icon: Icons.notifications_active_outlined,
                                 selected:
                                     selectedWorkflowType == workflowTypeEvent,
@@ -1449,10 +1447,9 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                             children: [
                               Expanded(
                                 child: _WorkflowTypeCard(
-                                  title: AppStrings.t('workflows_type_general'),
-                                  description: AppStrings.t(
-                                    'workflows_type_general_desc',
-                                  ),
+                                  title: context.tr.workflows_type_general,
+                                  description:
+                                      context.tr.workflows_type_general_desc,
                                   icon: Icons.account_tree_outlined,
                                   selected:
                                       selectedWorkflowType ==
@@ -1468,10 +1465,9 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                               const SizedBox(width: 10),
                               Expanded(
                                 child: _WorkflowTypeCard(
-                                  title: AppStrings.t('workflows_type_event'),
-                                  description: AppStrings.t(
-                                    'workflows_type_event_desc',
-                                  ),
+                                  title: context.tr.workflows_type_event,
+                                  description:
+                                      context.tr.workflows_type_event_desc,
                                   icon: Icons.notifications_active_outlined,
                                   selected:
                                       selectedWorkflowType == workflowTypeEvent,
@@ -1489,7 +1485,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                         TextField(
                           controller: nameController,
                           decoration: InputDecoration(
-                            labelText: AppStrings.t('workflows_name'),
+                            labelText: context.tr.workflows_name,
                             border: const OutlineInputBorder(),
                           ),
                         ),
@@ -1497,8 +1493,8 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                         TextField(
                           controller: folderController,
                           decoration: InputDecoration(
-                            labelText: AppStrings.t('workflows_folder_label'),
-                            hintText: AppStrings.t('workflows_folder_hint'),
+                            labelText: context.tr.workflows_folder_label,
+                            hintText: context.tr.workflows_folder_hint,
                             prefixIcon: const Icon(Icons.folder_outlined),
                             border: const OutlineInputBorder(),
                             isDense: true,
@@ -1509,11 +1505,9 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                           TextField(
                             controller: entryPointController,
                             decoration: InputDecoration(
-                              labelText: AppStrings.t('workflows_entry_point'),
+                              labelText: context.tr.workflows_entry_point,
                               border: const OutlineInputBorder(),
-                              helperText: AppStrings.t(
-                                'workflows_entry_point_hint',
-                              ),
+                              helperText: context.tr.workflows_entry_point_hint,
                             ),
                           ),
                           const SizedBox(height: 10),
@@ -1521,7 +1515,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                             children: [
                               Expanded(
                                 child: Text(
-                                  AppStrings.t('workflows_arguments'),
+                                  context.tr.workflows_arguments,
                                   style: const TextStyle(
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -1539,13 +1533,11 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                                     });
                                   },
                                   icon: const Icon(Icons.add),
-                                  label: Text(
-                                    AppStrings.t('workflows_add_arg'),
-                                  ),
+                                  label: Text(context.tr.workflows_add_arg),
                                 )
                               else
                                 IconButton(
-                                  tooltip: AppStrings.t('workflows_add_arg'),
+                                  tooltip: context.tr.workflows_add_arg,
                                   onPressed: () {
                                     setDialogState(() {
                                       editableArgs.add(
@@ -1591,9 +1583,10 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                                             child: TextFormField(
                                               initialValue: value.name,
                                               decoration: InputDecoration(
-                                                labelText: AppStrings.t(
-                                                  'workflows_arg_name',
-                                                ),
+                                                labelText:
+                                                    context
+                                                        .tr
+                                                        .workflows_arg_name,
                                                 border:
                                                     const OutlineInputBorder(),
                                                 isDense: true,
@@ -1614,7 +1607,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                                             ),
                                             visualDensity:
                                                 VisualDensity.compact,
-                                            tooltip: AppStrings.t('delete'),
+                                            tooltip: context.tr.delete,
                                             onPressed: () {
                                               setDialogState(() {
                                                 editableArgs.removeAt(index);
@@ -1634,9 +1627,8 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                                       TextFormField(
                                         initialValue: value.defaultValue,
                                         decoration: InputDecoration(
-                                          labelText: AppStrings.t(
-                                            'workflows_arg_default',
-                                          ),
+                                          labelText:
+                                              context.tr.workflows_arg_default,
                                           border: const OutlineInputBorder(),
                                           isDense: true,
                                         ),
@@ -1650,9 +1642,9 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                                       Row(
                                         children: [
                                           Text(
-                                            AppStrings.t(
-                                              'workflows_arg_required_short',
-                                            ),
+                                            context
+                                                .tr
+                                                .workflows_arg_required_short,
                                             style: const TextStyle(
                                               fontSize: 13,
                                             ),
@@ -1686,9 +1678,8 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                                     child: TextFormField(
                                       initialValue: value.name,
                                       decoration: InputDecoration(
-                                        labelText: AppStrings.t(
-                                          'workflows_arg_name',
-                                        ),
+                                        labelText:
+                                            context.tr.workflows_arg_name,
                                         border: const OutlineInputBorder(),
                                         isDense: true,
                                       ),
@@ -1706,9 +1697,8 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                                     child: TextFormField(
                                       initialValue: value.defaultValue,
                                       decoration: InputDecoration(
-                                        labelText: AppStrings.t(
-                                          'workflows_arg_default',
-                                        ),
+                                        labelText:
+                                            context.tr.workflows_arg_default,
                                         border: const OutlineInputBorder(),
                                         isDense: true,
                                       ),
@@ -1734,9 +1724,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                                         },
                                       ),
                                       Text(
-                                        AppStrings.t(
-                                          'workflows_arg_required_short',
-                                        ),
+                                        context.tr.workflows_arg_required_short,
                                         style: const TextStyle(fontSize: 11),
                                       ),
                                     ],
@@ -1761,7 +1749,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                             );
                           }),
                           Text(
-                            AppStrings.t('workflows_arg_hint'),
+                            context.tr.workflows_arg_hint,
                             style: const TextStyle(
                               fontSize: 12,
                               color: Colors.grey,
@@ -1771,9 +1759,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                           DropdownButtonFormField<String>(
                             initialValue: selectedCategory,
                             decoration: InputDecoration(
-                              labelText: AppStrings.t(
-                                'workflows_event_category',
-                              ),
+                              labelText: context.tr.workflows_event_category,
                               border: const OutlineInputBorder(),
                             ),
                             items: _workflowEventCategories
@@ -1798,9 +1784,9 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                           DropdownButtonFormField<String>(
                             initialValue: selectedEvent,
                             decoration: InputDecoration(
-                              labelText: AppStrings.t('workflows_listen_for'),
+                              labelText: context.tr.workflows_listen_for,
                               border: const OutlineInputBorder(),
-                              helperText: AppStrings.t('workflows_event_hint'),
+                              helperText: context.tr.workflows_event_hint,
                             ),
                             items: _eventsForCategory(selectedCategory)
                                 .map((event) {
@@ -1834,11 +1820,8 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  AppStrings.tr(
-                                    'workflows_event_preview',
-                                    params: {
-                                      'event': _eventLabel(selectedEvent),
-                                    },
+                                  context.tr.workflows_event_preview(
+                                    _eventLabel(selectedEvent),
                                   ),
                                   style: const TextStyle(
                                     fontWeight: FontWeight.w700,
@@ -1848,9 +1831,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                                 Text(_eventDescription(selectedEvent)),
                                 const SizedBox(height: 10),
                                 Text(
-                                  AppStrings.t(
-                                    'workflows_event_available_vars',
-                                  ),
+                                  context.tr.workflows_event_available_vars,
                                   style: const TextStyle(
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -1901,7 +1882,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                                   ),
                                 ),
                                 IconButton(
-                                  tooltip: AppStrings.t('cancel'),
+                                  tooltip: context.tr.cancel,
                                   onPressed:
                                       () => Navigator.pop(context, false),
                                   icon: const Icon(Icons.close),
@@ -1925,7 +1906,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                                   child: OutlinedButton(
                                     onPressed:
                                         () => Navigator.pop(context, false),
-                                    child: Text(AppStrings.t('cancel')),
+                                    child: Text(context.tr.cancel),
                                   ),
                                 ),
                                 const SizedBox(width: 8),
@@ -1933,9 +1914,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                                   child: FilledButton(
                                     onPressed:
                                         () => Navigator.pop(context, true),
-                                    child: Text(
-                                      AppStrings.t('workflows_continue'),
-                                    ),
+                                    child: Text(context.tr.workflows_continue),
                                   ),
                                 ),
                               ],
@@ -1957,11 +1936,11 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context, false),
-                      child: Text(AppStrings.t('cancel')),
+                      child: Text(context.tr.cancel),
                     ),
                     FilledButton(
                       onPressed: () => Navigator.pop(context, true),
-                      child: Text(AppStrings.t('workflows_continue')),
+                      child: Text(context.tr.workflows_continue),
                     ),
                   ],
                 );
@@ -2068,12 +2047,12 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(
-                        AppStrings.t('workflows_delete_title'),
+                        context.tr.workflows_delete_title,
                         style: Theme.of(sheetContext).textTheme.titleMedium,
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '${AppStrings.tr('workflows_delete_confirm', params: {'name': name})}$extra',
+                        '${context.tr.workflows_delete_confirm(name)}$extra',
                       ),
                       const SizedBox(height: 14),
                       Row(
@@ -2082,7 +2061,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                             child: OutlinedButton(
                               onPressed:
                                   () => Navigator.pop(sheetContext, false),
-                              child: Text(AppStrings.t('cancel')),
+                              child: Text(context.tr.cancel),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -2094,7 +2073,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                               ),
                               onPressed:
                                   () => Navigator.pop(sheetContext, true),
-                              child: Text(AppStrings.t('delete')),
+                              child: Text(context.tr.delete),
                             ),
                           ),
                         ],
@@ -2108,19 +2087,19 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
               context: context,
               builder:
                   (dialogContext) => AlertDialog.adaptive(
-                    title: Text(AppStrings.t('workflows_delete_title')),
+                    title: Text(context.tr.workflows_delete_title),
                     content: Text(
-                      '${AppStrings.tr('workflows_delete_confirm', params: {'name': name})}$extra',
+                      '${context.tr.workflows_delete_confirm(name)}$extra',
                     ),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(dialogContext, false),
-                        child: Text(AppStrings.t('cancel')),
+                        child: Text(context.tr.cancel),
                       ),
                       TextButton(
                         onPressed: () => Navigator.pop(dialogContext, true),
                         child: Text(
-                          AppStrings.t('delete'),
+                          context.tr.delete,
                           style: TextStyle(
                             color: Theme.of(dialogContext).colorScheme.error,
                           ),
@@ -2158,9 +2137,9 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppStrings.t('workflows_copy_none'))),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.tr.workflows_copy_none)));
       return;
     }
 
@@ -2176,8 +2155,8 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
       SnackBar(
         content: Text(
           asBase64
-              ? AppStrings.t('workflows_copy_done_base64')
-              : AppStrings.t('workflows_copy_done_json'),
+              ? context.tr.workflows_copy_done_base64
+              : context.tr.workflows_copy_done_json,
         ),
       ),
     );
@@ -2193,8 +2172,8 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
             children: [
               ListTile(
                 leading: const Icon(Icons.data_object_outlined),
-                title: Text(AppStrings.t('workflows_export_json')),
-                subtitle: Text(AppStrings.t('workflows_export_json_desc')),
+                title: Text(context.tr.workflows_export_json),
+                subtitle: Text(context.tr.workflows_export_json_desc),
                 onTap: () async {
                   Navigator.pop(context);
                   await _copyWorkflowPayload(asBase64: false);
@@ -2202,8 +2181,8 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
               ),
               ListTile(
                 leading: const Icon(Icons.key_outlined),
-                title: Text(AppStrings.t('workflows_export_base64')),
-                subtitle: Text(AppStrings.t('workflows_export_base64_desc')),
+                title: Text(context.tr.workflows_export_base64),
+                subtitle: Text(context.tr.workflows_export_base64_desc),
                 onTap: () async {
                   Navigator.pop(context);
                   await _copyWorkflowPayload(asBase64: true);
@@ -2227,7 +2206,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(AppStrings.t('workflows_import_desc')),
+          Text(context.tr.workflows_import_desc),
           const SizedBox(height: 10),
           TextField(
             controller: controller,
@@ -2235,13 +2214,13 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
             maxLines: compact ? 14 : 12,
             decoration: InputDecoration(
               border: const OutlineInputBorder(),
-              hintText: AppStrings.t('workflows_import_input_hint'),
+              hintText: context.tr.workflows_import_input_hint,
             ),
           ),
           const SizedBox(height: 8),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
-            title: Text(AppStrings.t('workflows_import_overwrite')),
+            title: Text(context.tr.workflows_import_overwrite),
             value: overwrite,
             onChanged: (value) {
               setDialogState(() {
@@ -2278,7 +2257,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Text(
-                            AppStrings.t('workflows_import_title'),
+                            context.tr.workflows_import_title,
                             style: Theme.of(context).textTheme.titleLarge,
                           ),
                           const SizedBox(height: 10),
@@ -2294,7 +2273,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                                 child: OutlinedButton(
                                   onPressed:
                                       () => Navigator.pop(context, false),
-                                  child: Text(AppStrings.t('cancel')),
+                                  child: Text(context.tr.cancel),
                                 ),
                               ),
                               const SizedBox(width: 8),
@@ -2302,7 +2281,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                                 child: FilledButton(
                                   onPressed: () => Navigator.pop(context, true),
                                   child: Text(
-                                    AppStrings.t('workflows_import_action'),
+                                    context.tr.workflows_import_action,
                                   ),
                                 ),
                               ),
@@ -2321,7 +2300,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                 return StatefulBuilder(
                   builder: (context, setDialogState) {
                     return AlertDialog(
-                      title: Text(AppStrings.t('workflows_import_title')),
+                      title: Text(context.tr.workflows_import_title),
                       content: SizedBox(
                         width: double.maxFinite,
                         child: importForm(setDialogState),
@@ -2329,11 +2308,11 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context, false),
-                          child: Text(AppStrings.t('cancel')),
+                          child: Text(context.tr.cancel),
                         ),
                         ElevatedButton(
                           onPressed: () => Navigator.pop(context, true),
-                          child: Text(AppStrings.t('workflows_import_action')),
+                          child: Text(context.tr.workflows_import_action),
                         ),
                       ],
                     );
@@ -2352,7 +2331,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
         return;
       }
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppStrings.t('workflows_import_empty'))),
+        SnackBar(content: Text(context.tr.workflows_import_empty)),
       );
       return;
     }
@@ -2370,9 +2349,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
         return;
       }
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppStrings.t('workflows_import_invalid_format')),
-        ),
+        SnackBar(content: Text(context.tr.workflows_import_invalid_format)),
       );
       return;
     }
@@ -2397,7 +2374,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
         return;
       }
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppStrings.t('workflows_import_no_valid'))),
+        SnackBar(content: Text(context.tr.workflows_import_no_valid)),
       );
       return;
     }
@@ -2466,10 +2443,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          AppStrings.tr(
-            'workflows_import_done',
-            params: {'count': importedCount.toString()},
-          ),
+          context.tr.workflows_import_done(importedCount.toString()),
         ),
       ),
     );
@@ -2500,14 +2474,14 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                 child: Text(
-                  AppStrings.t('workflows_move_to_folder'),
+                  context.tr.workflows_move_to_folder,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
               ),
               if (currentFolder.isNotEmpty)
                 ListTile(
                   leading: const Icon(Icons.clear),
-                  title: Text(AppStrings.t('workflows_remove_from_folder')),
+                  title: Text(context.tr.workflows_remove_from_folder),
                   onTap: () => Navigator.pop(context, ''),
                 ),
               for (final folder in folders)
@@ -2534,7 +2508,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                       child: TextField(
                         controller: controller,
                         decoration: InputDecoration(
-                          hintText: AppStrings.t('workflows_new_folder_hint'),
+                          hintText: context.tr.workflows_new_folder_hint,
                           border: const OutlineInputBorder(),
                           isDense: true,
                         ),
@@ -2587,30 +2561,34 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
 
   List<Map<String, dynamic>> _visibleWorkflows() {
     final query = _searchQuery.trim().toLowerCase();
-    return _workflows.where((workflow) {
-      final workflowType = normalizeWorkflowType(workflow['workflowType']);
-      if (_workflowFilter != 'all' && workflowType != _workflowFilter) {
-        return false;
-      }
+    return _workflows
+        .where((workflow) {
+          final workflowType = normalizeWorkflowType(workflow['workflowType']);
+          if (_workflowFilter != 'all' && workflowType != _workflowFilter) {
+            return false;
+          }
 
-      if (query.isEmpty) {
-        return true;
-      }
+          if (query.isEmpty) {
+            return true;
+          }
 
-      final name = (workflow['name'] ?? '').toString().toLowerCase();
-      final folder = (workflow['folder'] ?? '').toString().toLowerCase();
-      final entryPoint =
-          normalizeWorkflowEntryPoint(workflow['entryPoint']).toLowerCase();
-      final eventTrigger = normalizeWorkflowEventTrigger(
-        workflow['eventTrigger'],
-      );
-      final eventName = _eventLabel((eventTrigger['event'] ?? '').toString())
-          .toLowerCase();
-      return name.contains(query) ||
-          folder.contains(query) ||
-          entryPoint.contains(query) ||
-          eventName.contains(query);
-    }).toList(growable: false);
+          final name = (workflow['name'] ?? '').toString().toLowerCase();
+          final folder = (workflow['folder'] ?? '').toString().toLowerCase();
+          final entryPoint =
+              normalizeWorkflowEntryPoint(workflow['entryPoint']).toLowerCase();
+          final eventTrigger = normalizeWorkflowEventTrigger(
+            workflow['eventTrigger'],
+          );
+          final eventName =
+              _eventLabel(
+                (eventTrigger['event'] ?? '').toString(),
+              ).toLowerCase();
+          return name.contains(query) ||
+              folder.contains(query) ||
+              entryPoint.contains(query) ||
+              eventName.contains(query);
+        })
+        .toList(growable: false);
   }
 
   Future<void> _showCreateWorkflowMenu() async {
@@ -2623,14 +2601,14 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
             children: [
               ListTile(
                 leading: const Icon(Icons.account_tree_outlined),
-                title: Text(AppStrings.t('workflows_type_general')),
-                subtitle: Text(AppStrings.t('workflows_type_general_desc')),
+                title: Text(context.tr.workflows_type_general),
+                subtitle: Text(context.tr.workflows_type_general_desc),
                 onTap: () => Navigator.pop(context, workflowTypeGeneral),
               ),
               ListTile(
                 leading: const Icon(Icons.notifications_active_outlined),
-                title: Text(AppStrings.t('workflows_type_event')),
-                subtitle: Text(AppStrings.t('workflows_type_event_desc')),
+                title: Text(context.tr.workflows_type_event),
+                subtitle: Text(context.tr.workflows_type_event_desc),
                 onTap: () => Navigator.pop(context, workflowTypeEvent),
               ),
             ],
@@ -2658,8 +2636,8 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                 _searchQuery = value;
               });
             },
-            decoration: const InputDecoration(
-              hintText: 'Search workflows...',
+            decoration: InputDecoration(
+              hintText: context.tr.workflows_search_hint,
               prefixIcon: Icon(Icons.search),
               border: OutlineInputBorder(),
             ),
@@ -2670,7 +2648,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
             runSpacing: 8,
             children: [
               ChoiceChip(
-                label: const Text('All'),
+                label: Text(context.tr.common_all),
                 selected: _workflowFilter == 'all',
                 onSelected: (_) {
                   setState(() {
@@ -2679,7 +2657,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                 },
               ),
               ChoiceChip(
-                label: Text(AppStrings.t('workflows_type_badge_general')),
+                label: Text(context.tr.workflows_type_badge_general),
                 selected: _workflowFilter == workflowTypeGeneral,
                 onSelected: (_) {
                   setState(() {
@@ -2688,7 +2666,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                 },
               ),
               ChoiceChip(
-                label: Text(AppStrings.t('workflows_type_badge_event')),
+                label: Text(context.tr.workflows_type_badge_event),
                 selected: _workflowFilter == workflowTypeEvent,
                 onSelected: (_) {
                   setState(() {
@@ -2732,10 +2710,12 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
       }
 
       workflowChildren.add(_WorkflowSectionHeader(title: title));
-      if (title == AppStrings.t('workflows_event_section')) {
+      if (title == context.tr.workflows_event_section) {
         final Map<String, List<Map<String, dynamic>>> byEvent = {};
         for (final workflow in workflows) {
-          final trigger = normalizeWorkflowEventTrigger(workflow['eventTrigger']);
+          final trigger = normalizeWorkflowEventTrigger(
+            workflow['eventTrigger'],
+          );
           final eventKey = (trigger['event'] ?? '').toString();
           byEvent.putIfAbsent(eventKey, () => []).add(workflow);
         }
@@ -2814,25 +2794,25 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
       }
     }
 
-    appendSection(AppStrings.t('workflows_general_section'), generalWorkflows);
-    appendSection(AppStrings.t('workflows_event_section'), eventWorkflows);
+    appendSection(context.tr.workflows_general_section, generalWorkflows);
+    appendSection(context.tr.workflows_event_section, eventWorkflows);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppStrings.t('workflows_title')),
+        title: Text(context.tr.workflows_title),
         actions: [
           IconButton(
-            tooltip: AppStrings.t('workflows_import_tooltip'),
+            tooltip: context.tr.workflows_import_tooltip,
             onPressed: _importWorkflows,
             icon: const Icon(Icons.content_paste_go_outlined),
           ),
           IconButton(
-            tooltip: AppStrings.t('workflows_export_tooltip'),
+            tooltip: context.tr.workflows_export_tooltip,
             onPressed: _showWorkflowExportOptions,
             icon: const Icon(Icons.copy_all_outlined),
           ),
           IconButton(
-            tooltip: AppStrings.t('workflows_docs_tooltip'),
+            tooltip: context.tr.workflows_docs_tooltip,
             onPressed: () {
               Navigator.push(
                 context,
@@ -2853,24 +2833,19 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
           _loading
               ? const Center(child: CircularProgressIndicator())
               : _workflows.isEmpty
-              ? Center(child: Text(AppStrings.t('workflows_empty')))
+              ? Center(child: Text(context.tr.workflows_empty))
               : visibleWorkflows.isEmpty
               ? Column(
                 children: [
                   _buildFilters(),
-                  const Expanded(
-                    child: Center(
-                      child: Text('No workflows match the current filters.'),
-                    ),
+                  Expanded(
+                    child: Center(child: Text(context.tr.workflows_no_matches)),
                   ),
                 ],
               )
               : ListView(
                 padding: const EdgeInsets.only(bottom: 80),
-                children: [
-                  _buildFilters(),
-                  ...workflowChildren,
-                ],
+                children: [_buildFilters(), ...workflowChildren],
               ),
     );
   }
@@ -2891,20 +2866,14 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
     );
     final subtitle =
         workflowType == workflowTypeEvent
-            ? AppStrings.tr(
-              'workflows_event_subtitle',
-              params: {
-                'count': actions.toString(),
-                'event': _eventLabel((eventTrigger['event'] ?? '').toString()),
-              },
+            ? context.tr.workflows_event_subtitle(
+              actions.toString(),
+              _eventLabel((eventTrigger['event'] ?? '').toString()),
             )
-            : AppStrings.tr(
-              'workflows_subtitle',
-              params: {
-                'count': actions.toString(),
-                'entry': entryPoint,
-                'args': argsCount.toString(),
-              },
+            : context.tr.workflows_subtitle(
+              actions.toString(),
+              entryPoint,
+              argsCount.toString(),
             );
 
     final compactTile = MediaQuery.of(context).size.width < 420;
@@ -3037,7 +3006,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                               children: [
                                 Icon(Icons.edit_outlined),
                                 SizedBox(width: 8),
-                                Text('Edit'),
+                                Text(context.tr.common_edit),
                               ],
                             ),
                           ),
@@ -3072,7 +3041,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                       ),
                       IconButton(
                         onPressed: () => _deleteWorkflow(name),
-                        tooltip: AppStrings.t('delete'),
+                        tooltip: context.tr.delete,
                         icon: Icon(
                           Icons.delete_outline,
                           color: Theme.of(context).colorScheme.error,
@@ -3202,11 +3171,7 @@ class _WorkflowFolderHeader extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(24, 10, 16, 4),
       child: Row(
         children: [
-          Icon(
-            icon,
-            size: 16,
-            color: Theme.of(context).colorScheme.primary,
-          ),
+          Icon(icon, size: 16, color: Theme.of(context).colorScheme.primary),
           const SizedBox(width: 6),
           Text(
             title,

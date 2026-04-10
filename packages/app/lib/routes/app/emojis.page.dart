@@ -55,7 +55,7 @@ class _EmojisPageState extends State<EmojisPage> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _errorMessage = AppStrings.t('emojis_loading_error');
+        _errorMessage = context.tr.emojis_loading_error;
         _loading = false;
       });
     }
@@ -72,7 +72,7 @@ class _EmojisPageState extends State<EmojisPage> {
         return StatefulBuilder(
           builder: (ctx, setDialogState) {
             return AlertDialog(
-              title: Text(AppStrings.t('emojis_upload')),
+              title: Text(context.tr.emojis_upload),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -80,7 +80,7 @@ class _EmojisPageState extends State<EmojisPage> {
                   TextField(
                     controller: nameController,
                     decoration: InputDecoration(
-                      labelText: AppStrings.t('emojis_upload_name_hint'),
+                      labelText: context.tr.emojis_upload_name_hint,
                       border: const OutlineInputBorder(),
                     ),
                   ),
@@ -88,8 +88,7 @@ class _EmojisPageState extends State<EmojisPage> {
                   OutlinedButton.icon(
                     icon: const Icon(Icons.image_outlined),
                     label: Text(
-                      pickedFileName ??
-                          AppStrings.t('emojis_upload_pick_image'),
+                      pickedFileName ?? context.tr.emojis_upload_pick_image,
                     ),
                     onPressed: () async {
                       final result = await FilePicker.platform.pickFiles(
@@ -116,7 +115,7 @@ class _EmojisPageState extends State<EmojisPage> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(ctx).pop(),
-                  child: Text(AppStrings.t('cancel')),
+                  child: Text(context.tr.cancel),
                 ),
                 FilledButton(
                   onPressed:
@@ -128,7 +127,7 @@ class _EmojisPageState extends State<EmojisPage> {
                             Navigator.of(ctx).pop();
                             await _uploadEmoji(name, pickedFilePath!);
                           },
-                  child: Text(AppStrings.t('emojis_upload')),
+                  child: Text(context.tr.emojis_upload),
                 ),
               ],
             );
@@ -161,9 +160,7 @@ class _EmojisPageState extends State<EmojisPage> {
       });
     } catch (e) {
       if (!mounted) return;
-      _showError(
-        AppStrings.tr('emojis_upload_error', params: {'error': e.toString()}),
-      );
+      _showError(context.tr.emojis_upload_error(e.toString()));
     }
   }
 
@@ -173,23 +170,23 @@ class _EmojisPageState extends State<EmojisPage> {
       context: context,
       builder:
           (ctx) => AlertDialog(
-            title: Text(AppStrings.t('emojis_rename_title')),
+            title: Text(context.tr.emojis_rename_title),
             content: TextField(
               controller: controller,
               autofocus: true,
               decoration: InputDecoration(
-                labelText: AppStrings.t('emojis_rename_hint'),
+                labelText: context.tr.emojis_rename_hint,
                 border: const OutlineInputBorder(),
               ),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(ctx).pop(false),
-                child: Text(AppStrings.t('cancel')),
+                child: Text(context.tr.cancel),
               ),
               FilledButton(
                 onPressed: () => Navigator.of(ctx).pop(true),
-                child: Text(AppStrings.t('emojis_rename_title')),
+                child: Text(context.tr.emojis_rename_title),
               ),
             ],
           ),
@@ -212,9 +209,7 @@ class _EmojisPageState extends State<EmojisPage> {
       });
     } catch (e) {
       if (!mounted) return;
-      _showError(
-        AppStrings.tr('emojis_rename_error', params: {'error': e.toString()}),
-      );
+      _showError(context.tr.emojis_rename_error(e.toString()));
     }
   }
 
@@ -223,22 +218,17 @@ class _EmojisPageState extends State<EmojisPage> {
       context: context,
       builder:
           (ctx) => AlertDialog(
-            title: Text(AppStrings.t('emojis_delete_confirm_title')),
-            content: Text(
-              AppStrings.tr(
-                'emojis_delete_confirm_body',
-                params: {'name': emoji.name},
-              ),
-            ),
+            title: Text(context.tr.emojis_delete_confirm_title),
+            content: Text(context.tr.emojis_delete_confirm_body(emoji.name)),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(ctx).pop(false),
-                child: Text(AppStrings.t('cancel')),
+                child: Text(context.tr.cancel),
               ),
               FilledButton(
                 style: FilledButton.styleFrom(backgroundColor: Colors.red),
                 onPressed: () => Navigator.of(ctx).pop(true),
-                child: Text(AppStrings.t('delete')),
+                child: Text(context.tr.delete),
               ),
             ],
           ),
@@ -254,9 +244,7 @@ class _EmojisPageState extends State<EmojisPage> {
       });
     } catch (e) {
       if (!mounted) return;
-      _showError(
-        AppStrings.tr('emojis_delete_error', params: {'error': e.toString()}),
-      );
+      _showError(context.tr.emojis_delete_error(e.toString()));
     }
   }
 
@@ -283,12 +271,12 @@ class _EmojisPageState extends State<EmojisPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromRGBO(106, 15, 162, 1),
-        title: Text(AppStrings.t('emojis_title')),
+        title: Text(context.tr.emojis_title),
         centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            tooltip: 'Refresh',
+            tooltip: context.tr.common_refresh,
             onPressed: _loadEmojis,
           ),
         ],
@@ -296,7 +284,7 @@ class _EmojisPageState extends State<EmojisPage> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _showUploadDialog,
         icon: const Icon(Icons.add),
-        label: Text(AppStrings.t('emojis_upload')),
+        label: Text(context.tr.emojis_upload),
       ),
       body: SafeArea(top: false, child: _buildBody()),
     );
@@ -316,7 +304,10 @@ class _EmojisPageState extends State<EmojisPage> {
             const SizedBox(height: 12),
             Text(_errorMessage!),
             const SizedBox(height: 12),
-            FilledButton(onPressed: _loadEmojis, child: const Text('Retry')),
+            FilledButton(
+              onPressed: _loadEmojis,
+              child: Text(context.tr.common_retry),
+            ),
           ],
         ),
       );
@@ -334,7 +325,7 @@ class _EmojisPageState extends State<EmojisPage> {
             ),
             const SizedBox(height: 16),
             Text(
-              AppStrings.t('emojis_empty'),
+              context.tr.emojis_empty,
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 15),
             ),
@@ -424,7 +415,7 @@ class _EmojiCard extends StatelessWidget {
             children: [
               IconButton(
                 icon: const Icon(Icons.edit, size: 18),
-                tooltip: 'Rename',
+                tooltip: context.tr.common_edit,
                 onPressed: onRename,
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
@@ -435,7 +426,7 @@ class _EmojiCard extends StatelessWidget {
                   size: 18,
                   color: Colors.red,
                 ),
-                tooltip: 'Delete',
+                tooltip: context.tr.common_delete,
                 onPressed: onDelete,
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(minWidth: 36, minHeight: 36),

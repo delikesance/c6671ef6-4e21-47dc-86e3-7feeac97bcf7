@@ -3,6 +3,7 @@ import 'package:bot_creator/widgets/command_create_cards/reply_card.dart';
 import 'package:bot_creator/widgets/component_v2_builder/component_v2_editor.dart';
 import 'package:bot_creator/widgets/component_v2_builder/normal_component_editor.dart';
 import 'package:bot_creator/widgets/component_v2_builder/modal_builder.dart';
+import 'package:bot_creator/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -16,6 +17,8 @@ Widget _buildReplyCard({
   String currentType = responseType;
 
   return MaterialApp(
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
     home: StatefulBuilder(
       builder: (context, setState) {
         return Scaffold(

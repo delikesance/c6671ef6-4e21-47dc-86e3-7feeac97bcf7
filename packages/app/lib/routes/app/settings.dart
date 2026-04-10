@@ -58,30 +58,30 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   String _statusTypeLabel(String type) {
     switch (type) {
       case 'streaming':
-        return AppStrings.t('bot_settings_status_type_streaming');
+        return context.tr.bot_settings_status_type_streaming;
       case 'listening':
-        return AppStrings.t('bot_settings_status_type_listening');
+        return context.tr.bot_settings_status_type_listening;
       case 'watching':
-        return AppStrings.t('bot_settings_status_type_watching');
+        return context.tr.bot_settings_status_type_watching;
       case 'competing':
-        return AppStrings.t('bot_settings_status_type_competing');
+        return context.tr.bot_settings_status_type_competing;
       case 'playing':
       default:
-        return AppStrings.t('bot_settings_status_type_playing');
+        return context.tr.bot_settings_status_type_playing;
     }
   }
 
   String _presenceStatusLabel(String status) {
     switch (status) {
       case 'idle':
-        return AppStrings.t('bot_settings_presence_idle');
+        return context.tr.bot_settings_presence_idle;
       case 'dnd':
-        return AppStrings.t('bot_settings_presence_dnd');
+        return context.tr.bot_settings_presence_dnd;
       case 'invisible':
-        return AppStrings.t('bot_settings_presence_invisible');
+        return context.tr.bot_settings_presence_invisible;
       case 'online':
       default:
-        return AppStrings.t('bot_settings_presence_online');
+        return context.tr.bot_settings_presence_online;
     }
   }
 
@@ -219,7 +219,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       );
       final token = (appData['token'] ?? _savedToken).toString().trim();
       if (token.isEmpty) {
-        throw Exception(AppStrings.t('bot_settings_save_token_first'));
+        throw Exception(context.tr.bot_settings_save_token_first);
       }
 
       final discordUser = await getDiscordUser(token);
@@ -246,7 +246,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppStrings.t('bot_settings_intents_saved'))),
+        SnackBar(content: Text(context.tr.bot_settings_intents_saved)),
       );
     } finally {
       if (mounted) {
@@ -265,7 +265,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     try {
       final effectiveToken = _tokenController.text.trim();
       if (effectiveToken.isEmpty) {
-        throw Exception(AppStrings.t('bot_settings_token_required'));
+        throw Exception(context.tr.bot_settings_token_required);
       }
 
       final discordUser = await getDiscordUser(effectiveToken);
@@ -280,24 +280,22 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               context: context,
               builder:
                   (ctx) => AlertDialog(
-                    title: Text(
-                      AppStrings.t('bot_settings_token_mismatch_title'),
-                    ),
+                    title: Text(context.tr.bot_settings_token_mismatch_title),
                     content: Text(
-                      AppStrings.tr(
-                        'bot_settings_token_mismatch_content',
-                        params: {'oldId': localBotId, 'newId': newBotId},
+                      context.tr.bot_settings_token_mismatch_content(
+                        newBotId,
+                        localBotId,
                       ),
                     ),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.of(ctx).pop(false),
-                        child: Text(AppStrings.t('cancel')),
+                        child: Text(context.tr.cancel),
                       ),
                       FilledButton(
                         onPressed: () => Navigator.of(ctx).pop(true),
                         child: Text(
-                          AppStrings.t('bot_settings_token_mismatch_confirm'),
+                          context.tr.bot_settings_token_mismatch_confirm,
                         ),
                       ),
                     ],
@@ -345,7 +343,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppStrings.t('bot_settings_token_saved'))),
+        SnackBar(content: Text(context.tr.bot_settings_token_saved)),
       );
     } finally {
       if (mounted) {
@@ -368,7 +366,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       );
       final token = (appData['token'] ?? _savedToken).toString().trim();
       if (token.isEmpty) {
-        throw Exception(AppStrings.t('bot_settings_save_token_first'));
+        throw Exception(context.tr.bot_settings_save_token_first);
       }
 
       final trimmedUsername = _usernameController.text.trim();
@@ -377,12 +375,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
           !isSupportedDiscordAvatarPath(trimmedAvatarPath)) {
         final ext = avatarFileExtension(trimmedAvatarPath) ?? 'unknown';
         throw Exception(
-          AppStrings.tr(
-            'bot_settings_avatar_unsupported_format',
-            params: {
-              'ext': ext,
-              'formats': supportedDiscordAvatarFormatsLabel(),
-            },
+          context.tr.bot_settings_avatar_unsupported_format(
+            ext,
+            supportedDiscordAvatarFormatsLabel(),
           ),
         );
       }
@@ -447,7 +442,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppStrings.t('bot_settings_profile_saved'))),
+        SnackBar(content: Text(context.tr.bot_settings_profile_saved)),
       );
     } finally {
       if (mounted) {
@@ -538,12 +533,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            AppStrings.tr(
-              'bot_settings_avatar_unsupported_format',
-              params: {
-                'ext': ext,
-                'formats': supportedDiscordAvatarFormatsLabel(),
-              },
+            context.tr.bot_settings_avatar_unsupported_format(
+              ext,
+              supportedDiscordAvatarFormatsLabel(),
             ),
           ),
         ),
@@ -578,7 +570,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     };
 
     return Scaffold(
-      appBar: AppBar(title: Text(AppStrings.t('bot_settings_title'))),
+      appBar: AppBar(title: Text(context.tr.bot_settings_title)),
       body: SafeArea(
         top: false,
         child: LayoutBuilder(
@@ -601,11 +593,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       Card(
                         child: ListTile(
                           leading: const Icon(Icons.menu_book_outlined),
-                          title: Text(
-                            AppStrings.t('bot_settings_workflow_docs'),
-                          ),
+                          title: Text(context.tr.bot_settings_workflow_docs),
                           subtitle: Text(
-                            AppStrings.t('bot_settings_workflow_docs_desc'),
+                            context.tr.bot_settings_workflow_docs_desc,
                           ),
                           trailing: const Icon(Icons.chevron_right),
                           onTap: () {
@@ -624,11 +614,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       Card(
                         child: ListTile(
                           leading: const Icon(Icons.import_export),
-                          title: Text(
-                            AppStrings.t('bot_settings_export_import'),
-                          ),
+                          title: Text(context.tr.bot_settings_export_import),
                           subtitle: Text(
-                            AppStrings.t('bot_settings_export_import_desc'),
+                            context.tr.bot_settings_export_import_desc,
                           ),
                           trailing: const Icon(Icons.chevron_right),
                           onTap: () {
@@ -654,7 +642,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                AppStrings.t('settings_version_title'),
+                                context.tr.settings_version_title,
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -666,7 +654,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                   const Icon(Icons.phone_android, size: 18),
                                   const SizedBox(width: 8),
                                   Text(
-                                    '${AppStrings.t('settings_app_version')}: $_appVersion',
+                                    '${context.tr.settings_app_version}: $_appVersion',
                                   ),
                                 ],
                               ),
@@ -676,7 +664,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                   const Icon(Icons.dns_outlined, size: 18),
                                   const SizedBox(width: 8),
                                   Text(
-                                    '${AppStrings.t('settings_runner_version')}: ${_runnerVersion ?? AppStrings.t('settings_runner_not_connected')}',
+                                    '${context.tr.settings_runner_version}: ${_runnerVersion ?? context.tr.settings_runner_not_connected}',
                                   ),
                                 ],
                               ),
@@ -688,7 +676,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         child: Text(
-                          AppStrings.t('bot_settings_app_flags'),
+                          context.tr.bot_settings_app_flags,
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -726,7 +714,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         child: Text(
-                          AppStrings.t('bot_settings_gateway_intents'),
+                          context.tr.bot_settings_gateway_intents,
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -736,7 +724,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       Padding(
                         padding: const EdgeInsets.only(bottom: 12),
                         child: Text(
-                          AppStrings.t('bot_settings_gateway_intents_desc'),
+                          context.tr.bot_settings_gateway_intents_desc,
                           style: const TextStyle(
                             fontSize: 12,
                             color: Colors.grey,
@@ -745,16 +733,15 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       ),
                       TextField(
                         controller: _prefixController,
-                        decoration: const InputDecoration(
-                          labelText: 'Legacy command prefix',
-                          border: OutlineInputBorder(),
-                          hintText:
-                              '!, ? or ((guild.prefix | user.prefix | !))',
+                        decoration: InputDecoration(
+                          labelText: context.tr.settings_legacy_prefix,
+                          border: const OutlineInputBorder(),
+                          hintText: context.tr.settings_legacy_prefix_hint,
                         ),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Supports templates and scoped variables (bc_ optional). Example: ((guild.prefix | user.prefix | !))',
+                        context.tr.settings_legacy_prefix_helper,
                         style: const TextStyle(
                           fontSize: 12,
                           color: Colors.grey,
@@ -763,9 +750,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       const SizedBox(height: 12),
                       SwitchListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: const Text('Built-in legacy !help command'),
-                        subtitle: const Text(
-                          'Mandatory feature with explicit toggle. Disable it if you only want custom help behavior.',
+                        title: Text(context.tr.settings_builtin_help),
+                        subtitle: Text(
+                          context.tr.settings_builtin_help_subtitle,
                         ),
                         value: _builtInLegacyHelpEnabled,
                         onChanged: (value) {
@@ -798,7 +785,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        AppStrings.t('bot_settings_save_intents_caption'),
+                        context.tr.bot_settings_save_intents_caption,
                         style: const TextStyle(
                           fontSize: 12,
                           color: Colors.grey,
@@ -821,14 +808,14 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                       );
                                       if (!mounted) return;
                                       final dialog = AlertDialog(
-                                        title: Text(AppStrings.t('error')),
+                                        title: Text(context.tr.error),
                                         content: Text(e.toString()),
                                         actions: [
                                           TextButton(
                                             onPressed: () {
                                               Navigator.of(context).pop();
                                             },
-                                            child: Text(AppStrings.t('ok')),
+                                            child: Text(context.tr.ok),
                                           ),
                                         ],
                                       );
@@ -841,9 +828,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                     }
                                   },
                           icon: const Icon(Icons.tune),
-                          label: Text(
-                            AppStrings.t('bot_settings_save_intents_btn'),
-                          ),
+                          label: Text(context.tr.bot_settings_save_intents_btn),
                         ),
                       ),
 
@@ -851,7 +836,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         child: Text(
-                          AppStrings.t('bot_settings_profile_title'),
+                          context.tr.bot_settings_profile_title,
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -860,12 +845,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       ),
                       TextField(
                         decoration: InputDecoration(
-                          labelText: AppStrings.t(
-                            'bot_settings_username_override',
-                          ),
+                          labelText: context.tr.bot_settings_username_override,
                           border: const OutlineInputBorder(),
                           contentPadding: const EdgeInsets.all(8),
-                          hintText: AppStrings.t('bot_settings_username_hint'),
+                          hintText: context.tr.bot_settings_username_hint,
                         ),
                         controller: _usernameController,
                         onChanged: (_) {
@@ -878,15 +861,14 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                         child: OutlinedButton.icon(
                           onPressed: _pickAvatarFile,
                           icon: const Icon(Icons.folder_open),
-                          label: Text(AppStrings.t('bot_settings_browse')),
+                          label: Text(context.tr.bot_settings_browse),
                         ),
                       ),
                       if (_selectedAvatarPath != null) ...[
                         const SizedBox(height: 10),
                         Text(
-                          AppStrings.tr(
-                            'bot_settings_avatar_selected_file',
-                            params: {'path': _selectedAvatarPath!},
+                          context.tr.bot_settings_avatar_selected_file(
+                            _selectedAvatarPath!,
                           ),
                           style: const TextStyle(
                             fontSize: 12,
@@ -977,9 +959,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                         const SizedBox(width: 8),
                                         Expanded(
                                           child: Text(
-                                            AppStrings.t(
-                                              'bot_settings_avatar_preview_label',
-                                            ),
+                                            context
+                                                .tr
+                                                .bot_settings_avatar_preview_label,
                                             overflow: TextOverflow.ellipsis,
                                             style: const TextStyle(
                                               color: Color(0xFFB5BAC1),
@@ -1006,9 +988,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                             },
                             icon: const Icon(Icons.clear),
                             label: Text(
-                              AppStrings.t(
-                                'bot_settings_avatar_clear_selection',
-                              ),
+                              context.tr.bot_settings_avatar_clear_selection,
                             ),
                           ),
                         ),
@@ -1018,7 +998,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         child: Text(
-                          AppStrings.t('bot_settings_presence_status_title'),
+                          context.tr.bot_settings_presence_status_title,
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -1030,9 +1010,8 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                         child: DropdownButtonFormField<String>(
                           initialValue: _presenceStatus,
                           decoration: InputDecoration(
-                            labelText: AppStrings.t(
-                              'bot_settings_presence_status_label',
-                            ),
+                            labelText:
+                                context.tr.bot_settings_presence_status_label,
                             border: const OutlineInputBorder(),
                           ),
                           items: _presenceStatuses
@@ -1058,7 +1037,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         child: Text(
-                          AppStrings.t('bot_settings_status_rotation_title'),
+                          context.tr.bot_settings_status_rotation_title,
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -1068,7 +1047,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       Padding(
                         padding: const EdgeInsets.only(bottom: 8),
                         child: Text(
-                          AppStrings.t('bot_settings_status_rotation_desc'),
+                          context.tr.bot_settings_status_rotation_desc,
                           style: const TextStyle(
                             fontSize: 12,
                             color: Colors.grey,
@@ -1084,7 +1063,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                             });
                           },
                           icon: const Icon(Icons.add),
-                          label: Text(AppStrings.t('bot_settings_add_status')),
+                          label: Text(context.tr.bot_settings_add_status),
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -1101,19 +1080,18 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                   children: [
                                     Expanded(
                                       child: Text(
-                                        AppStrings.tr(
-                                          'bot_settings_status_item_title',
-                                          params: {'index': '${index + 1}'},
-                                        ),
+                                        context.tr
+                                            .bot_settings_status_item_title(
+                                              '${index + 1}',
+                                            ),
                                         style: const TextStyle(
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
                                     ),
                                     IconButton(
-                                      tooltip: AppStrings.t(
-                                        'bot_settings_remove_status',
-                                      ),
+                                      tooltip:
+                                          context.tr.bot_settings_remove_status,
                                       onPressed:
                                           _statusDrafts.length <= 1
                                               ? null
@@ -1126,12 +1104,14 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                                             dialogContext,
                                                           ) => AlertDialog.adaptive(
                                                             title: Text(
-                                                              AppStrings.t(
-                                                                'bot_settings_remove_status',
-                                                              ),
+                                                              context
+                                                                  .tr
+                                                                  .bot_settings_remove_status,
                                                             ),
-                                                            content: const Text(
-                                                              'This status entry will be removed. Continue?',
+                                                            content: Text(
+                                                              context
+                                                                  .tr
+                                                                  .settings_status_remove_confirm,
                                                             ),
                                                             actions: [
                                                               TextButton(
@@ -1142,9 +1122,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                                                       false,
                                                                     ),
                                                                 child: Text(
-                                                                  AppStrings.t(
-                                                                    'cancel',
-                                                                  ),
+                                                                  context
+                                                                      .tr
+                                                                      .cancel,
                                                                 ),
                                                               ),
                                                               TextButton(
@@ -1153,9 +1133,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                                                       dialogContext,
                                                                     ).pop(true),
                                                                 child: Text(
-                                                                  AppStrings.t(
-                                                                    'delete',
-                                                                  ),
+                                                                  context
+                                                                      .tr
+                                                                      .delete,
                                                                   style: TextStyle(
                                                                     color:
                                                                         Theme.of(
@@ -1185,9 +1165,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                 DropdownButtonFormField<String>(
                                   initialValue: draft.type,
                                   decoration: InputDecoration(
-                                    labelText: AppStrings.t(
-                                      'bot_settings_status_type_label',
-                                    ),
+                                    labelText:
+                                        context
+                                            .tr
+                                            .bot_settings_status_type_label,
                                     border: const OutlineInputBorder(),
                                   ),
                                   items: _statusTypes
@@ -1211,9 +1192,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                 TextField(
                                   controller: draft.textController,
                                   decoration: InputDecoration(
-                                    labelText: AppStrings.t(
-                                      'bot_settings_status_text_label',
-                                    ),
+                                    labelText:
+                                        context
+                                            .tr
+                                            .bot_settings_status_text_label,
                                     border: const OutlineInputBorder(),
                                   ),
                                 ),
@@ -1221,9 +1203,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                 TextField(
                                   controller: draft.stateController,
                                   decoration: InputDecoration(
-                                    labelText: AppStrings.t(
-                                      'bot_settings_activity_state_label',
-                                    ),
+                                    labelText:
+                                        context
+                                            .tr
+                                            .bot_settings_activity_state_label,
                                     border: const OutlineInputBorder(),
                                   ),
                                 ),
@@ -1231,9 +1214,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                 TextField(
                                   controller: draft.urlController,
                                   decoration: InputDecoration(
-                                    labelText: AppStrings.t(
-                                      'bot_settings_activity_url_label',
-                                    ),
+                                    labelText:
+                                        context
+                                            .tr
+                                            .bot_settings_activity_url_label,
                                     border: const OutlineInputBorder(),
                                   ),
                                   keyboardType: TextInputType.url,
@@ -1246,9 +1230,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                         controller: draft.minController,
                                         keyboardType: TextInputType.number,
                                         decoration: InputDecoration(
-                                          labelText: AppStrings.t(
-                                            'bot_settings_status_min_interval',
-                                          ),
+                                          labelText:
+                                              context
+                                                  .tr
+                                                  .bot_settings_status_min_interval,
                                           border: const OutlineInputBorder(),
                                         ),
                                       ),
@@ -1259,9 +1244,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                         controller: draft.maxController,
                                         keyboardType: TextInputType.number,
                                         decoration: InputDecoration(
-                                          labelText: AppStrings.t(
-                                            'bot_settings_status_max_interval',
-                                          ),
+                                          labelText:
+                                              context
+                                                  .tr
+                                                  .bot_settings_status_max_interval,
                                           border: const OutlineInputBorder(),
                                         ),
                                       ),
@@ -1276,7 +1262,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
 
                       const SizedBox(height: 12),
                       Text(
-                        AppStrings.t('bot_settings_save_profile_caption'),
+                        context.tr.bot_settings_save_profile_caption,
                         style: const TextStyle(
                           fontSize: 12,
                           color: Colors.grey,
@@ -1299,14 +1285,14 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                       );
                                       if (!mounted) return;
                                       final dialog = AlertDialog(
-                                        title: Text(AppStrings.t('error')),
+                                        title: Text(context.tr.error),
                                         content: Text(e.toString()),
                                         actions: [
                                           TextButton(
                                             onPressed: () {
                                               Navigator.of(context).pop();
                                             },
-                                            child: Text(AppStrings.t('ok')),
+                                            child: Text(context.tr.ok),
                                           ),
                                         ],
                                       );
@@ -1320,9 +1306,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                   },
                           icon: const Icon(Icons.save_outlined),
                           label: Text(
-                            AppStrings.t(
-                              'bot_settings_save_profile_status_btn',
-                            ),
+                            context.tr.bot_settings_save_profile_status_btn,
                           ),
                         ),
                       ),
@@ -1332,7 +1316,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         child: Text(
-                          AppStrings.t('bot_settings_token_title'),
+                          context.tr.bot_settings_token_title,
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -1341,7 +1325,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       ),
                       if (!_isEditingToken) ...[
                         Text(
-                          AppStrings.t('bot_settings_token_hidden_desc'),
+                          context.tr.bot_settings_token_hidden_desc,
                           style: const TextStyle(
                             fontSize: 12,
                             color: Colors.grey,
@@ -1358,21 +1342,17 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                               });
                             },
                             icon: const Icon(Icons.edit_outlined),
-                            label: Text(
-                              AppStrings.t('bot_settings_edit_token_btn'),
-                            ),
+                            label: Text(context.tr.bot_settings_edit_token_btn),
                           ),
                         ),
                       ] else ...[
                         TextField(
                           controller: _tokenController,
                           decoration: InputDecoration(
-                            labelText: AppStrings.t(
-                              'bot_settings_update_token',
-                            ),
+                            labelText: context.tr.bot_settings_update_token,
                             border: const OutlineInputBorder(),
                             contentPadding: const EdgeInsets.all(8),
-                            hintText: AppStrings.t('bot_settings_token_hint'),
+                            hintText: context.tr.bot_settings_token_hint,
                           ),
                           obscureText: true,
                         ),
@@ -1391,16 +1371,14 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                     },
                             icon: const Icon(Icons.close),
                             label: Text(
-                              AppStrings.t(
-                                'bot_settings_cancel_token_edit_btn',
-                              ),
+                              context.tr.bot_settings_cancel_token_edit_btn,
                             ),
                           ),
                         ),
                       ],
                       const SizedBox(height: 12),
                       Text(
-                        AppStrings.t('bot_settings_save_token_caption'),
+                        context.tr.bot_settings_save_token_caption,
                         style: const TextStyle(
                           fontSize: 12,
                           color: Colors.grey,
@@ -1423,14 +1401,14 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                       );
                                       if (!mounted) return;
                                       final dialog = AlertDialog(
-                                        title: Text(AppStrings.t('error')),
+                                        title: Text(context.tr.error),
                                         content: Text(e.toString()),
                                         actions: [
                                           TextButton(
                                             onPressed: () {
                                               Navigator.of(context).pop();
                                             },
-                                            child: Text(AppStrings.t('ok')),
+                                            child: Text(context.tr.ok),
                                           ),
                                         ],
                                       );
@@ -1444,7 +1422,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                   },
                           icon: const Icon(Icons.vpn_key_outlined),
                           label: Text(
-                            AppStrings.t('bot_settings_save_token_only_btn'),
+                            context.tr.bot_settings_save_token_only_btn,
                           ),
                         ),
                       ),
