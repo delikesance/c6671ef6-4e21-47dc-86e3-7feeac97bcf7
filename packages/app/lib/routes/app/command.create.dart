@@ -529,22 +529,20 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              'Legacy Prefix Mode',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            Text(
+              context.tr.legacy_prefix_mode_title,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 4),
             Text(
-              'Handle commands from messageCreate using <prefix><command>.',
+              context.tr.legacy_prefix_mode_desc,
               style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
             ),
             const SizedBox(height: 10),
             SwitchListTile.adaptive(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Enable legacy mode on this command'),
-              subtitle: const Text(
-                'Uses positional options (example: !config #channel).',
-              ),
+              title: Text(context.tr.command_legacy_mode_title),
+              subtitle: Text(context.tr.legacy_prefix_mode_subtitle),
               value: _legacyModeEnabled,
               onChanged:
                   !_supportsCommandOptions
@@ -562,10 +560,10 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
               const SizedBox(height: 8),
               TextFormField(
                 initialValue: _legacyPrefixOverride,
-                decoration: const InputDecoration(
-                  labelText: 'Prefix override (optional)',
-                  hintText: 'Example: ? or ((guild.prefix | !))',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: context.tr.legacy_prefix_override_label,
+                  hintText: context.tr.legacy_prefix_override_hint,
+                  border: const OutlineInputBorder(),
                 ),
                 onChanged: (value) {
                   setState(() {
@@ -576,18 +574,18 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
               const SizedBox(height: 10),
               DropdownButtonFormField<String>(
                 initialValue: _legacyResponseTarget,
-                decoration: const InputDecoration(
-                  labelText: 'Legacy response mode',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: context.tr.legacy_response_mode_label,
+                  border: const OutlineInputBorder(),
                 ),
-                items: const [
+                items: [
                   DropdownMenuItem(
                     value: 'reply',
-                    child: Text('message.reply'),
+                    child: Text(context.tr.command_response_mode_reply),
                   ),
                   DropdownMenuItem(
                     value: 'channelSend',
-                    child: Text('message.channel.send'),
+                    child: Text(context.tr.command_response_mode_channel),
                   ),
                 ],
                 onChanged: (value) {
@@ -601,7 +599,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Modals are disabled in legacy mode.',
+                context.tr.command_modal_disabled_legacy,
                 style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
               ),
             ],
@@ -623,13 +621,13 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              'SubCommand Workflow',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            Text(
+              context.tr.command_subcommand_workflow_title,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 4),
             Text(
-              'Choose which subcommand you are configuring.',
+              context.tr.command_subcommand_workflow_desc,
               style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
             ),
             const SizedBox(height: 10),
@@ -638,8 +636,8 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                   routes.contains(_activeSubcommandRoute)
                       ? _activeSubcommandRoute
                       : routes.first,
-              decoration: const InputDecoration(
-                labelText: 'Target subcommand',
+              decoration: InputDecoration(
+                labelText: context.tr.command_target_subcommand,
                 border: OutlineInputBorder(),
               ),
               items: routes
@@ -809,8 +807,8 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     return TextField(
       controller: _folderController,
       decoration: InputDecoration(
-        labelText: AppStrings.t('commands_folder_label'),
-        hintText: AppStrings.t('commands_folder_hint'),
+        labelText: context.tr.commands_folder_label,
+        hintText: context.tr.commands_folder_hint,
         prefixIcon: const Icon(Icons.folder_outlined),
         border: const OutlineInputBorder(),
         isDense: true,
@@ -879,12 +877,12 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       context: context,
       builder:
           (ctx) => AlertDialog.adaptive(
-            title: const Text('Unsaved changes'),
-            content: const Text('You have unsaved changes. Discard them?'),
+            title: Text(context.tr.command_unsaved_title),
+            content: Text(context.tr.command_unsaved_confirm),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx, false),
-                child: const Text('Keep editing'),
+                child: Text(context.tr.command_unsaved_keep),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(ctx, true),
@@ -935,15 +933,15 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              'Command Options',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            Text(
+              context.tr.command_options_title,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 4),
             Text(
               _legacyModeEnabled
-                  ? 'Legacy positional parameters (ordered: required then optional)'
-                  : 'Slash-command parameters',
+                  ? context.tr.command_options_legacy_params
+                  : context.tr.command_options_slash_params,
               style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
             ),
             const SizedBox(height: 12),
@@ -1388,14 +1386,14 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     if (_commandName.isEmpty ||
         (_requiresCommandDescription && _commandDescription.isEmpty)) {
       final dialog = AlertDialog(
-        title: Text(AppStrings.t('error')),
-        content: Text(AppStrings.t('cmd_error_fill_fields')),
+        title: Text(context.tr.error),
+        content: Text(context.tr.cmd_error_fill_fields),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
             },
-            child: Text(AppStrings.t('ok')),
+            child: Text(context.tr.ok),
           ),
         ],
       );
@@ -1412,14 +1410,14 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
             : null;
     if (simpleValidationError != null) {
       final dialog = AlertDialog(
-        title: Text(AppStrings.t('error')),
+        title: Text(context.tr.error),
         content: Text(simpleValidationError),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
             },
-            child: Text(AppStrings.t('ok')),
+            child: Text(context.tr.ok),
           ),
         ],
       );
@@ -1441,14 +1439,14 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     final existingStorageId = _existingCommandStorageId;
     if (botId == null) {
       final dialog = AlertDialog(
-        title: const Text('Error'),
-        content: const Text('Missing bot id for local command save.'),
+        title: Text(context.tr.error),
+        content: Text(context.tr.command_error_missing_bot_id),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
             },
-            child: const Text('OK'),
+            child: Text(context.tr.common_ok),
           ),
         ],
       );
@@ -1585,16 +1583,16 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       final localCommandId =
           existingStorageId ?? DateTime.now().microsecondsSinceEpoch.toString();
       await saveLocal(localCommandId);
-      final errorText = 'Saved locally. Discord sync failed: $e';
+      final errorText = context.tr.command_sync_failed_local('$e');
       final dialog = AlertDialog(
-        title: const Text("Error"),
+        title: Text(context.tr.error),
         content: Text(errorText),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
             },
-            child: const Text("OK"),
+            child: Text(context.tr.ok),
           ),
         ],
       );
@@ -1629,24 +1627,24 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           actions: [
             if (!_isEditingExistingCommand)
               IconButton(
-                tooltip: 'Import command payload',
+                tooltip: context.tr.serialization_import_title,
                 onPressed: _importCommandPayload,
                 icon: const Icon(Icons.content_paste_go_outlined),
               ),
             IconButton(
-              tooltip: 'Export command payload',
+              tooltip: context.tr.serialization_export_json_title,
               onPressed: _showCommandExportOptions,
               icon: const Icon(Icons.copy_all_outlined),
             ),
             IconButton(
               onPressed: _openDocumentationCenter,
-              tooltip: AppStrings.t('cmd_show_variables'),
+              tooltip: context.tr.cmd_show_variables,
               icon: const Icon(Icons.info_outline),
             ),
             if (!_isEditingExistingCommand && !_isDataIncomplete)
               IconButton(
                 icon: const Icon(Icons.add),
-                tooltip: AppStrings.t('cmd_create_tooltip'),
+                tooltip: context.tr.cmd_create_tooltip,
                 onPressed: () {
                   if (_validateCommandInputs()) {
                     _updateOrCreate();
@@ -1656,7 +1654,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
             if (!_isEditingExistingCommand && !_isDataIncomplete)
               IconButton(
                 icon: const Icon(Icons.cancel),
-                tooltip: AppStrings.t('cancel'),
+                tooltip: context.tr.cancel,
                 onPressed: () async {
                   Navigator.pop(context);
                 },
@@ -1664,14 +1662,14 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
             if (_isEditingExistingCommand)
               IconButton(
                 icon: const Icon(Icons.delete),
-                tooltip: AppStrings.t('cmd_delete_tooltip'),
+                tooltip: context.tr.cmd_delete_tooltip,
                 onPressed: () async {
                   final shouldDelete =
                       await showDialog<bool>(
                         context: context,
                         builder:
                             (dialogContext) => AlertDialog.adaptive(
-                              title: Text(AppStrings.t('cmd_delete_tooltip')),
+                              title: Text(context.tr.cmd_delete_tooltip),
                               content: const Text(
                                 'This command will be deleted permanently. Continue?',
                               ),
@@ -1681,14 +1679,14 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                                       () => Navigator.of(
                                         dialogContext,
                                       ).pop(false),
-                                  child: Text(AppStrings.t('cancel')),
+                                  child: Text(context.tr.cancel),
                                 ),
                                 TextButton(
                                   onPressed:
                                       () =>
                                           Navigator.of(dialogContext).pop(true),
                                   child: Text(
-                                    AppStrings.t('delete'),
+                                    context.tr.delete,
                                     style: TextStyle(
                                       color:
                                           Theme.of(
@@ -1770,7 +1768,9 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                         onPressed: _isDirty ? _saveExistingCommand : null,
                         icon: const Icon(Icons.save_outlined),
                         label: Text(
-                          _isDirty ? 'Save changes' : 'All changes saved',
+                          _isDirty
+                              ? context.tr.edit_shell_save_changes
+                              : context.tr.edit_shell_all_saved,
                         ),
                       ),
                     ),
@@ -1823,9 +1823,9 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                                       const SizedBox(width: 12),
                                       Expanded(
                                         child: Text(
-                                          AppStrings.t(
-                                            'cmd_offline_incomplete_warning',
-                                          ),
+                                          context
+                                              .tr
+                                              .cmd_offline_incomplete_warning,
                                           style: TextStyle(
                                             color: Colors.orange.shade800,
                                             fontSize: 13,
@@ -1855,9 +1855,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                                       icon: const Icon(
                                         Icons.menu_book_outlined,
                                       ),
-                                      tooltip: AppStrings.t(
-                                        'cmd_show_variables',
-                                      ),
+                                      tooltip: context.tr.cmd_show_variables,
                                       onPressed: _openDocumentationCenter,
                                     ),
                                   ),

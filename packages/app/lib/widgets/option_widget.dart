@@ -5,6 +5,7 @@ import 'package:bot_creator/main.dart';
 import '../routes/app/command_option_serialization.dart';
 import '../types/variable_suggestion.dart';
 import 'variable_text_field.dart';
+import '../utils/i18n.dart';
 
 class OptionWidget extends StatefulWidget {
   final Function(List<CommandOptionBuilder>) onChange;
@@ -117,29 +118,29 @@ class OptionWidgetState extends State<OptionWidget> {
   String _typeLabel(CommandOptionType type) {
     switch (type) {
       case CommandOptionType.string:
-        return 'String';
+        return context.tr.option_type_string;
       case CommandOptionType.integer:
-        return 'Integer';
+        return context.tr.option_type_integer;
       case CommandOptionType.boolean:
-        return 'Boolean';
+        return context.tr.option_type_boolean;
       case CommandOptionType.user:
-        return 'User';
+        return context.tr.option_type_user;
       case CommandOptionType.channel:
-        return 'Channel';
+        return context.tr.option_type_channel;
       case CommandOptionType.role:
-        return 'Role';
+        return context.tr.option_type_role;
       case CommandOptionType.mentionable:
-        return 'Mentionable';
+        return context.tr.option_type_mentionable;
       case CommandOptionType.number:
-        return 'Number';
+        return context.tr.option_type_number;
       case CommandOptionType.attachment:
-        return 'Attachment';
+        return context.tr.option_type_attachment;
       case CommandOptionType.subCommand:
-        return 'SubCommand';
+        return context.tr.option_type_subcommand;
       case CommandOptionType.subCommandGroup:
-        return 'SubCommand Group';
+        return context.tr.option_type_subcommand_group;
     }
-    return 'Unknown';
+    return context.tr.option_type_unknown;
   }
 
   List<CommandOptionType> _allowedTypesForLevel({
@@ -244,15 +245,15 @@ class OptionWidgetState extends State<OptionWidget> {
     CommandOptionBuilder current,
   ) {
     if (value == null || value.isEmpty) {
-      return 'Please enter a name for the option';
+      return context.tr.option_name_required;
     }
 
     if (value.length > 32) {
-      return 'Option name must be at most 32 characters long';
+      return context.tr.option_name_max_length;
     }
 
     if (value.contains(RegExp(r'[^a-zA-Z0-9_]'))) {
-      return 'Option name can only contain letters, numbers, and underscores';
+      return context.tr.option_name_invalid_chars;
     }
 
     if (value.startsWith('_') ||
@@ -262,7 +263,7 @@ class OptionWidgetState extends State<OptionWidget> {
         value.startsWith('@') ||
         value.startsWith('&') ||
         value.startsWith('%')) {
-      return 'Option name starts with an unsupported character';
+      return context.tr.option_name_invalid_start;
     }
 
     var duplicates = 0;
@@ -273,7 +274,7 @@ class OptionWidgetState extends State<OptionWidget> {
     }
 
     if (duplicates > 0) {
-      return 'This name is already used at this level';
+      return context.tr.option_name_duplicate;
     }
 
     return null;
@@ -328,24 +329,22 @@ class OptionWidgetState extends State<OptionWidget> {
                         context: context,
                         builder:
                             (dialogContext) => AlertDialog.adaptive(
-                              title: const Text('Delete option'),
-                              content: const Text(
-                                'This option will be removed. Continue?',
-                              ),
+                              title: Text(context.tr.option_delete_title),
+                              content: Text(context.tr.option_delete_confirm),
                               actions: [
                                 TextButton(
                                   onPressed:
                                       () => Navigator.of(
                                         dialogContext,
                                       ).pop(false),
-                                  child: const Text('Cancel'),
+                                  child: Text(context.tr.common_cancel),
                                 ),
                                 TextButton(
                                   onPressed:
                                       () =>
                                           Navigator.of(dialogContext).pop(true),
                                   child: Text(
-                                    'Delete',
+                                    context.tr.common_delete,
                                     style: TextStyle(
                                       color:
                                           Theme.of(
@@ -378,8 +377,8 @@ class OptionWidgetState extends State<OptionWidget> {
                   child: Column(
                     children: <Widget>[
                       TextFormField(
-                        decoration: const InputDecoration(
-                          labelText: 'Name',
+                        decoration: InputDecoration(
+                          labelText: context.tr.common_name,
                           border: OutlineInputBorder(),
                         ),
                         initialValue: option.name,
@@ -396,8 +395,8 @@ class OptionWidgetState extends State<OptionWidget> {
                       ),
                       const SizedBox(height: 8),
                       TextFormField(
-                        decoration: const InputDecoration(
-                          labelText: 'Description',
+                        decoration: InputDecoration(
+                          labelText: context.tr.common_description,
                           border: OutlineInputBorder(),
                         ),
                         maxLength: 100,
@@ -406,7 +405,7 @@ class OptionWidgetState extends State<OptionWidget> {
                         initialValue: option.description,
                         validator: (String? value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter a description for the option';
+                            return context.tr.option_desc_required;
                           }
                           return null;
                         },
@@ -420,7 +419,7 @@ class OptionWidgetState extends State<OptionWidget> {
                       const SizedBox(height: 8),
                       Row(
                         children: <Widget>[
-                          const Text('Type'),
+                          Text(context.tr.common_type),
                           const Spacer(),
                           DropdownButton<CommandOptionType>(
                             value: option.type,
@@ -452,7 +451,7 @@ class OptionWidgetState extends State<OptionWidget> {
                           padding: const EdgeInsets.symmetric(vertical: 4),
                           child: Row(
                             children: [
-                              const Text('Required'),
+                              Text(context.tr.common_required),
                               const Spacer(),
                               Switch(
                                 value: option.isRequired ?? false,
@@ -469,10 +468,8 @@ class OptionWidgetState extends State<OptionWidget> {
                       if (!_isHierarchyType(option.type) &&
                           _supportsAutocomplete(option.type))
                         CheckboxListTile(
-                          title: const Text('Dynamic Autocomplete'),
-                          subtitle: const Text(
-                            'Resolve choices from a workflow instead of static values.',
-                          ),
+                          title: Text(context.tr.autocomplete_dynamic),
+                          subtitle: Text(context.tr.autocomplete_dynamic_desc),
                           value: isCommandOptionAutocompleteEnabled(option),
                           onChanged: (bool? value) {
                             setState(() {
@@ -537,16 +534,16 @@ class OptionWidgetState extends State<OptionWidget> {
 
                             // ── Mode selector ──────────────────────────────
                             final modeSelector = SegmentedButton<String>(
-                              segments: const [
+                              segments: [
                                 ButtonSegment(
                                   value: 'workflow',
-                                  label: Text('Workflow'),
-                                  icon: Icon(Icons.account_tree_outlined),
+                                  label: Text(context.tr.common_workflow),
+                                  icon: const Icon(Icons.account_tree_outlined),
                                 ),
                                 ButtonSegment(
                                   value: 'static',
-                                  label: Text('Static Options'),
-                                  icon: Icon(Icons.list_alt_outlined),
+                                  label: Text(context.tr.common_static_options),
+                                  icon: const Icon(Icons.list_alt_outlined),
                                 ),
                               ],
                               selected: {currentMode},
@@ -596,21 +593,31 @@ class OptionWidgetState extends State<OptionWidget> {
                                                     }),
                                                   ),
                                           decoration: InputDecoration(
-                                            labelText: 'Autocomplete Workflow',
+                                            labelText:
+                                                context
+                                                    .tr
+                                                    .autocomplete_workflow_label,
                                             border: const OutlineInputBorder(),
                                             helperText:
                                                 _loadingWorkflows
-                                                    ? 'Loading workflows…'
+                                                    ? context
+                                                        .tr
+                                                        .autocomplete_loading
                                                     : (_availableWorkflowNames
                                                             .isEmpty
-                                                        ? 'No saved workflows found'
-                                                        : 'Select a saved workflow'),
+                                                        ? context
+                                                            .tr
+                                                            .autocomplete_no_workflows
+                                                        : context
+                                                            .tr
+                                                            .autocomplete_select_workflow),
                                           ),
                                         ),
                                       ),
                                       const SizedBox(width: 4),
                                       IconButton(
-                                        tooltip: 'Refresh workflows',
+                                        tooltip:
+                                            context.tr.common_refresh_workflows,
                                         onPressed:
                                             _loadingWorkflows
                                                 ? null
@@ -625,9 +632,10 @@ class OptionWidgetState extends State<OptionWidget> {
                                       'ac_workflow_manual_$currentWorkflow',
                                     ),
                                     initialValue: currentWorkflow,
-                                    decoration: const InputDecoration(
-                                      labelText: 'Or type workflow name',
-                                      border: OutlineInputBorder(),
+                                    decoration: InputDecoration(
+                                      labelText:
+                                          context.tr.autocomplete_type_name,
+                                      border: const OutlineInputBorder(),
                                       isDense: true,
                                     ),
                                     onChanged:
@@ -638,9 +646,10 @@ class OptionWidgetState extends State<OptionWidget> {
                                   const SizedBox(height: 8),
                                   TextFormField(
                                     key: ValueKey('ac_ep_${cfg['workflow']}'),
-                                    decoration: const InputDecoration(
-                                      labelText: 'Entry Point',
-                                      border: OutlineInputBorder(),
+                                    decoration: InputDecoration(
+                                      labelText:
+                                          context.tr.workflow_entry_point,
+                                      border: const OutlineInputBorder(),
                                     ),
                                     initialValue:
                                         (cfg['entryPoint'] ?? 'main')
@@ -679,9 +688,13 @@ class OptionWidgetState extends State<OptionWidget> {
                                             CrossAxisAlignment.stretch,
                                         children: [
                                           if (entries.isNotEmpty)
-                                            const Text(
-                                              'Workflow Arguments',
-                                              style: TextStyle(fontSize: 12),
+                                            Text(
+                                              context
+                                                  .tr
+                                                  .workflow_arguments_section,
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                              ),
                                             ),
                                           if (entries.isNotEmpty)
                                             const SizedBox(height: 4),
@@ -700,13 +713,13 @@ class OptionWidgetState extends State<OptionWidget> {
                                                     'arg_k_${option.name}_$i',
                                                   ),
                                                   initialValue: k,
-                                                  decoration:
-                                                      const InputDecoration(
-                                                        labelText: 'Key',
-                                                        border:
-                                                            OutlineInputBorder(),
-                                                        isDense: true,
-                                                      ),
+                                                  decoration: InputDecoration(
+                                                    labelText:
+                                                        context.tr.common_key,
+                                                    border:
+                                                        OutlineInputBorder(),
+                                                    isDense: true,
+                                                  ),
                                                   onChanged: (newKey) {
                                                     final updated = Map<
                                                       String,
@@ -726,13 +739,16 @@ class OptionWidgetState extends State<OptionWidget> {
                                                   key: ValueKey(
                                                     'arg_v_${option.name}_$i',
                                                   ),
-                                                  label: 'Value',
+                                                  label:
+                                                      context.tr.common_value,
                                                   initialValue: v,
                                                   suggestions:
                                                       widget
                                                           .variableSuggestions,
                                                   hint:
-                                                      'Use variables/templates if needed',
+                                                      context
+                                                          .tr
+                                                          .hint_use_variables,
                                                   onChanged: (newVal) {
                                                     final updated = Map<
                                                       String,
@@ -746,7 +762,8 @@ class OptionWidgetState extends State<OptionWidget> {
                                                   icon: const Icon(
                                                     Icons.delete_outline,
                                                   ),
-                                                  tooltip: 'Remove',
+                                                  tooltip:
+                                                      context.tr.common_remove,
                                                   onPressed: () async {
                                                     final shouldDelete =
                                                         await showDialog<bool>(
@@ -755,11 +772,15 @@ class OptionWidgetState extends State<OptionWidget> {
                                                               (
                                                                 dialogContext,
                                                               ) => AlertDialog.adaptive(
-                                                                title: const Text(
-                                                                  'Delete argument',
+                                                                title: Text(
+                                                                  context
+                                                                      .tr
+                                                                      .option_delete_argument_title,
                                                                 ),
-                                                                content: const Text(
-                                                                  'This argument will be removed. Continue?',
+                                                                content: Text(
+                                                                  context
+                                                                      .tr
+                                                                      .option_delete_argument_confirm,
                                                                 ),
                                                                 actions: [
                                                                   TextButton(
@@ -769,8 +790,10 @@ class OptionWidgetState extends State<OptionWidget> {
                                                                         ).pop(
                                                                           false,
                                                                         ),
-                                                                    child: const Text(
-                                                                      'Cancel',
+                                                                    child: Text(
+                                                                      context
+                                                                          .tr
+                                                                          .common_cancel,
                                                                     ),
                                                                   ),
                                                                   TextButton(
@@ -781,7 +804,9 @@ class OptionWidgetState extends State<OptionWidget> {
                                                                           true,
                                                                         ),
                                                                     child: Text(
-                                                                      'Delete',
+                                                                      context
+                                                                          .tr
+                                                                          .common_delete,
                                                                       style: TextStyle(
                                                                         color:
                                                                             Theme.of(
@@ -825,7 +850,9 @@ class OptionWidgetState extends State<OptionWidget> {
                                               saveArgs(updated);
                                             },
                                             icon: const Icon(Icons.add),
-                                            label: const Text('Add Argument'),
+                                            label: Text(
+                                              context.tr.common_add_argument,
+                                            ),
                                           ),
                                         ],
                                       );
@@ -864,9 +891,9 @@ class OptionWidgetState extends State<OptionWidget> {
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
-                                  const Text(
-                                    'Suggestions are filtered by what the user types.',
-                                    style: TextStyle(
+                                  Text(
+                                    context.tr.autocomplete_filter_hint,
+                                    style: const TextStyle(
                                       fontSize: 12,
                                       color: Colors.grey,
                                     ),
@@ -886,7 +913,8 @@ class OptionWidgetState extends State<OptionWidget> {
                                           initialValue:
                                               (choice['name'] ?? '').toString(),
                                           decoration: InputDecoration(
-                                            labelText: 'Label ${i + 1}',
+                                            labelText: context.tr
+                                                .option_label_number(i + 1),
                                             border: const OutlineInputBorder(),
                                             isDense: true,
                                           ),
@@ -910,7 +938,8 @@ class OptionWidgetState extends State<OptionWidget> {
                                               (choice['value'] ?? '')
                                                   .toString(),
                                           decoration: InputDecoration(
-                                            labelText: 'Value ${i + 1}',
+                                            labelText: context.tr
+                                                .option_value_number(i + 1),
                                             border: const OutlineInputBorder(),
                                             isDense: true,
                                           ),
@@ -930,7 +959,7 @@ class OptionWidgetState extends State<OptionWidget> {
                                           icon: const Icon(
                                             Icons.delete_outline,
                                           ),
-                                          tooltip: 'Remove',
+                                          tooltip: context.tr.common_remove,
                                           onPressed: () async {
                                             final shouldDelete =
                                                 await showDialog<bool>(
@@ -939,11 +968,15 @@ class OptionWidgetState extends State<OptionWidget> {
                                                       (
                                                         dialogContext,
                                                       ) => AlertDialog.adaptive(
-                                                        title: const Text(
-                                                          'Delete option',
+                                                        title: Text(
+                                                          context
+                                                              .tr
+                                                              .option_delete_title,
                                                         ),
-                                                        content: const Text(
-                                                          'This choice will be removed. Continue?',
+                                                        content: Text(
+                                                          context
+                                                              .tr
+                                                              .option_choice_delete_confirm,
                                                         ),
                                                         actions: [
                                                           TextButton(
@@ -951,8 +984,10 @@ class OptionWidgetState extends State<OptionWidget> {
                                                                 () => Navigator.of(
                                                                   dialogContext,
                                                                 ).pop(false),
-                                                            child: const Text(
-                                                              'Cancel',
+                                                            child: Text(
+                                                              context
+                                                                  .tr
+                                                                  .common_cancel,
                                                             ),
                                                           ),
                                                           TextButton(
@@ -961,7 +996,9 @@ class OptionWidgetState extends State<OptionWidget> {
                                                                   dialogContext,
                                                                 ).pop(true),
                                                             child: Text(
-                                                              'Delete',
+                                                              context
+                                                                  .tr
+                                                                  .common_delete,
                                                               style: TextStyle(
                                                                 color:
                                                                     Theme.of(
@@ -1003,7 +1040,7 @@ class OptionWidgetState extends State<OptionWidget> {
                                         saveChoices(updated);
                                       },
                                       icon: const Icon(Icons.add),
-                                      label: const Text('Add Option'),
+                                      label: Text(context.tr.common_add_option),
                                     ),
                                   ),
                                 ],
@@ -1029,9 +1066,9 @@ class OptionWidgetState extends State<OptionWidget> {
                         _responsiveRow(
                           first: TextFormField(
                             keyboardType: TextInputType.number,
-                            decoration: const InputDecoration(
-                              labelText: 'Min Value',
-                              border: OutlineInputBorder(),
+                            decoration: InputDecoration(
+                              labelText: context.tr.option_min_value,
+                              border: const OutlineInputBorder(),
                               isDense: true,
                             ),
                             initialValue: option.minValue?.toString(),
@@ -1045,9 +1082,9 @@ class OptionWidgetState extends State<OptionWidget> {
                           ),
                           second: TextFormField(
                             keyboardType: TextInputType.number,
-                            decoration: const InputDecoration(
-                              labelText: 'Max Value',
-                              border: OutlineInputBorder(),
+                            decoration: InputDecoration(
+                              labelText: context.tr.option_max_value,
+                              border: const OutlineInputBorder(),
                               isDense: true,
                             ),
                             initialValue: option.maxValue?.toString(),
@@ -1063,16 +1100,16 @@ class OptionWidgetState extends State<OptionWidget> {
                         const SizedBox(height: 8),
                       ],
                       ExpansionTile(
-                        title: const Text('Add Localizations'),
+                        title: Text(context.tr.option_add_localizations),
                         childrenPadding: const EdgeInsets.symmetric(
                           horizontal: 16,
                           vertical: 8,
                         ),
                         children: <Widget>[
                           DropdownButtonFormField<Locale>(
-                            decoration: const InputDecoration(
-                              labelText: 'Select Language',
-                              border: OutlineInputBorder(),
+                            decoration: InputDecoration(
+                              labelText: context.tr.option_select_language,
+                              border: const OutlineInputBorder(),
                             ),
                             initialValue: Locale.fr,
                             items: Locale.values
@@ -1163,7 +1200,9 @@ class OptionWidgetState extends State<OptionWidget> {
                                                                     dialogContext,
                                                                   ).pop(true),
                                                               child: Text(
-                                                                'Delete',
+                                                                context
+                                                                    .tr
+                                                                    .common_delete,
                                                                 style: TextStyle(
                                                                   color:
                                                                       Theme.of(
@@ -1191,8 +1230,9 @@ class OptionWidgetState extends State<OptionWidget> {
                                         ],
                                       ),
                                       TextFormField(
-                                        decoration: const InputDecoration(
-                                          labelText: 'Localized Name',
+                                        decoration: InputDecoration(
+                                          labelText:
+                                              context.tr.option_localized_name,
                                           isDense: true,
                                         ),
                                         initialValue:
@@ -1207,8 +1247,11 @@ class OptionWidgetState extends State<OptionWidget> {
                                       ),
                                       const SizedBox(height: 8),
                                       TextFormField(
-                                        decoration: const InputDecoration(
-                                          labelText: 'Localized Description',
+                                        decoration: InputDecoration(
+                                          labelText:
+                                              context
+                                                  .tr
+                                                  .option_localized_description,
                                           isDense: true,
                                         ),
                                         initialValue:
@@ -1258,11 +1301,15 @@ class OptionWidgetState extends State<OptionWidget> {
                                               (
                                                 dialogContext,
                                               ) => AlertDialog.adaptive(
-                                                title: const Text(
-                                                  'Delete choice',
+                                                title: Text(
+                                                  context
+                                                      .tr
+                                                      .option_choice_delete_title,
                                                 ),
-                                                content: const Text(
-                                                  'This choice will be removed. Continue?',
+                                                content: Text(
+                                                  context
+                                                      .tr
+                                                      .option_choice_delete_confirm,
                                                 ),
                                                 actions: [
                                                   TextButton(
@@ -1270,7 +1317,9 @@ class OptionWidgetState extends State<OptionWidget> {
                                                         () => Navigator.of(
                                                           dialogContext,
                                                         ).pop(false),
-                                                    child: const Text('Cancel'),
+                                                    child: Text(
+                                                      context.tr.common_cancel,
+                                                    ),
                                                   ),
                                                   TextButton(
                                                     onPressed:
@@ -1278,7 +1327,7 @@ class OptionWidgetState extends State<OptionWidget> {
                                                           dialogContext,
                                                         ).pop(true),
                                                     child: Text(
-                                                      'Delete',
+                                                      context.tr.common_delete,
                                                       style: TextStyle(
                                                         color:
                                                             Theme.of(
@@ -1305,9 +1354,9 @@ class OptionWidgetState extends State<OptionWidget> {
                                     ListTileControlAffinity.leading,
                                 children: <Widget>[
                                   TextFormField(
-                                    decoration: const InputDecoration(
-                                      labelText: 'Choice Name',
-                                      border: OutlineInputBorder(),
+                                    decoration: InputDecoration(
+                                      labelText: context.tr.option_choice_name,
+                                      border: const OutlineInputBorder(),
                                     ),
                                     initialValue:
                                         option.choices![choiceIndex].name,
@@ -1325,9 +1374,9 @@ class OptionWidgetState extends State<OptionWidget> {
                                     keyboardType: _choiceKeyboardType(
                                       option.type,
                                     ),
-                                    decoration: const InputDecoration(
-                                      labelText: 'Choice Value',
-                                      border: OutlineInputBorder(),
+                                    decoration: InputDecoration(
+                                      labelText: context.tr.option_choice_value,
+                                      border: const OutlineInputBorder(),
                                     ),
                                     initialValue:
                                         option.choices![choiceIndex].value
@@ -1371,12 +1420,12 @@ class OptionWidgetState extends State<OptionWidget> {
                                 _updateWidget();
                               });
                             },
-                            child: const Row(
+                            child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
-                                Icon(Icons.add),
-                                SizedBox(width: 8),
-                                Text('Add Choice'),
+                                const Icon(Icons.add),
+                                const SizedBox(width: 8),
+                                Text(context.tr.option_add_choice),
                               ],
                             ),
                           ),
@@ -1388,8 +1437,8 @@ class OptionWidgetState extends State<OptionWidget> {
                           alignment: Alignment.centerLeft,
                           child: Text(
                             option.type == CommandOptionType.subCommandGroup
-                                ? 'SubCommands'
-                                : 'SubCommand Options',
+                                ? context.tr.option_subcommands
+                                : context.tr.option_subcommand_options,
                             style: const TextStyle(fontWeight: FontWeight.w600),
                           ),
                         ),
@@ -1427,12 +1476,12 @@ class OptionWidgetState extends State<OptionWidget> {
                   _updateWidget();
                 });
               },
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Icon(Icons.add),
-                  SizedBox(width: 8),
-                  Text('Add Option'),
+                  const Icon(Icons.add),
+                  const SizedBox(width: 8),
+                  Text(context.tr.common_add_option),
                 ],
               ),
             ),

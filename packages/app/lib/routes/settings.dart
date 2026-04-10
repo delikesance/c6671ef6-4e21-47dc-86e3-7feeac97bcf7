@@ -159,8 +159,8 @@ class _SettingPageState extends State<SettingPage> {
     await _loadAdPrivacyRequirement();
     _showSnack(
       opened
-          ? AppStrings.t('settings_ads_privacy_opened')
-          : AppStrings.t('settings_ads_privacy_open_error'),
+          ? context.tr.settings_ads_privacy_opened
+          : context.tr.settings_ads_privacy_open_error,
     );
   }
 
@@ -246,8 +246,8 @@ class _SettingPageState extends State<SettingPage> {
     });
     _showSnack(
       url.isEmpty && apiToken.isEmpty
-          ? AppStrings.t('settings_runner_cleared')
-          : AppStrings.t('settings_runner_saved'),
+          ? context.tr.settings_runner_cleared
+          : context.tr.settings_runner_saved,
     );
     if (url.isNotEmpty) {
       await _checkRunnerConnection();
@@ -436,7 +436,7 @@ class _SettingPageState extends State<SettingPage> {
   ) {
     switch (preference) {
       case AppLocalePreference.system:
-        return '${AppStrings.t('settings_language_system')} • ${detectedLocale.label}';
+        return '${context.tr.settings_language_system} • ${detectedLocale.label}';
       case AppLocalePreference.en:
         return AppLocale.en.label;
       case AppLocalePreference.fr:
@@ -445,10 +445,7 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   String _formatErrorMessage(Object error) {
-    return AppStrings.tr(
-      'error_with_details',
-      params: {'error': error.toString()},
-    );
+    return context.tr.error_with_details(error.toString());
   }
 
   Future<void> _loadDiscordRpcSettings() async {
@@ -533,7 +530,7 @@ class _SettingPageState extends State<SettingPage> {
         _discordRpcEnabled = snapshot.config.enabled;
       });
       if (showSnack) {
-        _showSnack(AppStrings.t('settings_discord_rpc_saved'));
+        _showSnack(context.tr.settings_discord_rpc_saved);
       }
       return snapshot;
     } catch (error) {
@@ -554,7 +551,7 @@ class _SettingPageState extends State<SettingPage> {
       return;
     }
     if (!savedSnapshot.config.enabled) {
-      _showSnack(AppStrings.t('settings_discord_rpc_enable_first'));
+      _showSnack(context.tr.settings_discord_rpc_enable_first);
       return;
     }
 
@@ -616,7 +613,7 @@ class _SettingPageState extends State<SettingPage> {
       setState(() {
         _discordRpcSnapshot = snapshot;
       });
-      _showSnack(AppStrings.t('settings_discord_rpc_disconnected'));
+      _showSnack(context.tr.settings_discord_rpc_disconnected);
     } catch (error) {
       _showSnack(_formatErrorMessage(error));
     } finally {
@@ -710,7 +707,7 @@ class _SettingPageState extends State<SettingPage> {
         },
         leading: const Icon(Icons.chat_bubble_outline, size: 18),
         title: Text(
-          AppStrings.t('settings_discord_rpc_title'),
+          context.tr.settings_discord_rpc_title,
           style: Theme.of(
             context,
           ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
@@ -729,7 +726,7 @@ class _SettingPageState extends State<SettingPage> {
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              AppStrings.t('settings_discord_rpc_desc'),
+              context.tr.settings_discord_rpc_desc,
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ),
@@ -740,7 +737,7 @@ class _SettingPageState extends State<SettingPage> {
           ],
           SwitchListTile.adaptive(
             contentPadding: EdgeInsets.zero,
-            title: Text(AppStrings.t('settings_discord_rpc_enable')),
+            title: Text(context.tr.settings_discord_rpc_enable),
             value: _discordRpcEnabled,
             onChanged:
                 isBusy
@@ -757,9 +754,8 @@ class _SettingPageState extends State<SettingPage> {
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                AppStrings.tr(
-                  'settings_discord_rpc_endpoint',
-                  params: {'endpoint': snapshot!.connectedEndpoint!},
+                context.tr.settings_discord_rpc_endpoint(
+                  snapshot!.connectedEndpoint!,
                 ),
                 style: Theme.of(context).textTheme.bodySmall,
               ),
@@ -770,9 +766,8 @@ class _SettingPageState extends State<SettingPage> {
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                AppStrings.tr(
-                  'settings_discord_rpc_last_error',
-                  params: {'error': snapshot!.lastError!},
+                context.tr.settings_discord_rpc_last_error(
+                  snapshot!.lastError!,
                 ),
                 style: Theme.of(
                   context,
@@ -794,7 +789,7 @@ class _SettingPageState extends State<SettingPage> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                         : const Icon(Icons.save_outlined, size: 18),
-                label: Text(AppStrings.t('settings_discord_rpc_save')),
+                label: Text(context.tr.settings_discord_rpc_save),
               ),
             ),
             const SizedBox(height: 8),
@@ -831,7 +826,7 @@ class _SettingPageState extends State<SettingPage> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                         : const Icon(Icons.link_off, size: 18),
-                label: Text(AppStrings.t('settings_discord_rpc_disconnect')),
+                label: Text(context.tr.settings_discord_rpc_disconnect),
               ),
             ),
           ] else ...[
@@ -848,7 +843,7 @@ class _SettingPageState extends State<SettingPage> {
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
                             : const Icon(Icons.save_outlined, size: 18),
-                    label: Text(AppStrings.t('settings_discord_rpc_save')),
+                    label: Text(context.tr.settings_discord_rpc_save),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -883,7 +878,7 @@ class _SettingPageState extends State<SettingPage> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                           : const Icon(Icons.link_off, size: 18),
-                  label: Text(AppStrings.t('settings_discord_rpc_disconnect')),
+                  label: Text(context.tr.settings_discord_rpc_disconnect),
                 ),
               ],
             ),
@@ -896,13 +891,13 @@ class _SettingPageState extends State<SettingPage> {
   String _autoBackupIntervalLabel(int hours) {
     switch (hours) {
       case 6:
-        return AppStrings.t('settings_auto_backup_every_6h');
+        return context.tr.settings_auto_backup_every_6h;
       case 12:
-        return AppStrings.t('settings_auto_backup_every_12h');
+        return context.tr.settings_auto_backup_every_12h;
       case 24:
-        return AppStrings.t('settings_auto_backup_every_24h');
+        return context.tr.settings_auto_backup_every_24h;
       case 72:
-        return AppStrings.t('settings_auto_backup_every_72h');
+        return context.tr.settings_auto_backup_every_72h;
       default:
         return '$hours h';
     }
@@ -910,25 +905,19 @@ class _SettingPageState extends State<SettingPage> {
 
   String _lastAutoBackupLabel() {
     if (_recoverySettings.lastAutoBackupAt == null) {
-      return AppStrings.t('settings_last_auto_backup_never');
+      return context.tr.settings_last_auto_backup_never;
     }
 
-    return AppStrings.tr(
-      'settings_last_auto_backup_at',
-      params: {
-        'date': _recoverySettings.lastAutoBackupAt!.toLocal().toString(),
-      },
+    return context.tr.settings_last_auto_backup_at(
+      _recoverySettings.lastAutoBackupAt!.toLocal().toString(),
     );
   }
 
   String _snapshotListEntryLabel(BackupSnapshotSummary snapshot) {
-    return AppStrings.tr(
-      'settings_snapshot_list_entry',
-      params: {
-        'date': snapshot.createdAt.toLocal().toString(),
-        'count': snapshot.fileCount.toString(),
-        'size': _formatBytes(snapshot.totalBytes),
-      },
+    return context.tr.settings_snapshot_list_entry(
+      snapshot.createdAt.toLocal().toString(),
+      snapshot.fileCount.toString(),
+      _formatBytes(snapshot.totalBytes),
     );
   }
 
@@ -937,7 +926,7 @@ class _SettingPageState extends State<SettingPage> {
     final themeProvider = context.read<ThemeProvider>();
     final localeProvider = context.read<LocaleProvider>();
 
-    await _runWithLoading(AppStrings.t('settings_reset_preferences'), () async {
+    await _runWithLoading(context.tr.settings_reset_preferences, () async {
       await onboardingManager.reset();
       await themeProvider.resetToDefault();
       await localeProvider.resetToSystem();
@@ -947,7 +936,7 @@ class _SettingPageState extends State<SettingPage> {
       return;
     }
 
-    _showSnack(AppStrings.t('settings_preferences_reset_done'));
+    _showSnack(context.tr.settings_preferences_reset_done);
   }
 
   Future<void> _replayOnboarding() async {
@@ -975,7 +964,7 @@ class _SettingPageState extends State<SettingPage> {
 
   Future<void> _deleteSnapshot(BackupSnapshotSummary snapshot) async {
     await _runWithLoading(
-      AppStrings.t('settings_snapshot_delete_loading'),
+      context.tr.settings_snapshot_delete_loading,
       () async {
         try {
           await _ensureDriveApiConnected();
@@ -987,7 +976,7 @@ class _SettingPageState extends State<SettingPage> {
           if (!mounted) {
             return;
           }
-          _showSnack(AppStrings.t('settings_snapshot_deleted'));
+          _showSnack(context.tr.settings_snapshot_deleted);
         } catch (e, st) {
           debugPrint('Delete snapshot failed: $e');
           debugPrintStack(stackTrace: st);
@@ -1002,7 +991,7 @@ class _SettingPageState extends State<SettingPage> {
 
   Future<void> _restoreSnapshot(BackupSnapshotSummary snapshot) async {
     await _runWithLoading(
-      AppStrings.t('settings_snapshot_restore_loading'),
+      context.tr.settings_snapshot_restore_loading,
       () async {
         try {
           await _ensureDriveApiConnected();
@@ -1035,47 +1024,32 @@ class _SettingPageState extends State<SettingPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
+          Text(context.tr.settings_snapshot_id(snapshot.snapshotId)),
+          Text(context.tr.settings_snapshot_label(snapshot.label)),
           Text(
-            AppStrings.tr(
-              'settings_snapshot_id',
-              params: {'id': snapshot.snapshotId},
+            context.tr.settings_snapshot_created_at(
+              snapshot.createdAt.toLocal().toString(),
             ),
           ),
           Text(
-            AppStrings.tr(
-              'settings_snapshot_label',
-              params: {'label': snapshot.label},
+            context.tr.settings_snapshot_files_size(
+              snapshot.fileCount.toString(),
+              _formatBytes(snapshot.totalBytes),
             ),
           ),
           Text(
-            AppStrings.tr(
-              'settings_snapshot_created_at',
-              params: {'date': snapshot.createdAt.toLocal().toString()},
-            ),
-          ),
-          Text(
-            AppStrings.tr(
-              'settings_snapshot_files_size',
-              params: {
-                'count': snapshot.fileCount.toString(),
-                'size': _formatBytes(snapshot.totalBytes),
-              },
-            ),
-          ),
-          Text(
-            AppStrings.tr(
-              'settings_snapshot_apps_count',
-              params: {'count': snapshot.appCount.toString()},
+            context.tr.settings_snapshot_apps_count(
+              snapshot.appCount.toString(),
             ),
           ),
           const SizedBox(height: 10),
           Text(
-            AppStrings.t('settings_snapshot_apps_list'),
+            context.tr.settings_snapshot_apps_list,
             style: Theme.of(context).textTheme.titleSmall,
           ),
           const SizedBox(height: 6),
           if (snapshot.apps.isEmpty)
-            Text(AppStrings.t('settings_snapshot_no_metadata'))
+            Text(context.tr.settings_snapshot_no_metadata)
           else
             ...snapshot.apps.map((entry) {
               final appName = (entry['name'] ?? '').trim();
@@ -1110,7 +1084,7 @@ class _SettingPageState extends State<SettingPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  AppStrings.t('settings_snapshot_preview_title'),
+                  context.tr.settings_snapshot_preview_title,
                   style: Theme.of(sheetContext).textTheme.titleLarge,
                 ),
                 const SizedBox(height: 12),
@@ -1122,7 +1096,7 @@ class _SettingPageState extends State<SettingPage> {
                     await _restoreSnapshot(snapshot);
                   },
                   icon: const Icon(Icons.restore),
-                  label: Text(AppStrings.t('settings_restore_snapshot')),
+                  label: Text(context.tr.settings_restore_snapshot),
                 ),
                 const SizedBox(height: 8),
                 TextButton(
@@ -1134,15 +1108,13 @@ class _SettingPageState extends State<SettingPage> {
                           builder: (dialogContext) {
                             return AlertDialog(
                               title: Text(
-                                AppStrings.t(
-                                  'settings_snapshot_delete_loading',
-                                ),
+                                context.tr.settings_snapshot_delete_loading,
                               ),
                               content: Text(
-                                AppStrings.tr(
-                                  'settings_snapshots_delete_one_confirm',
-                                  params: {'label': snapshot.label},
-                                ),
+                                context.tr
+                                    .settings_snapshots_delete_one_confirm(
+                                      snapshot.label,
+                                    ),
                               ),
                               actions: [
                                 TextButton(
@@ -1150,13 +1122,13 @@ class _SettingPageState extends State<SettingPage> {
                                       () => Navigator.of(
                                         dialogContext,
                                       ).pop(false),
-                                  child: Text(AppStrings.t('cancel')),
+                                  child: Text(context.tr.cancel),
                                 ),
                                 FilledButton(
                                   onPressed:
                                       () =>
                                           Navigator.of(dialogContext).pop(true),
-                                  child: Text(AppStrings.t('delete')),
+                                  child: Text(context.tr.delete),
                                 ),
                               ],
                             );
@@ -1168,11 +1140,11 @@ class _SettingPageState extends State<SettingPage> {
                     }
                     await _deleteSnapshot(snapshot);
                   },
-                  child: Text(AppStrings.t('delete')),
+                  child: Text(context.tr.delete),
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(sheetContext).pop(),
-                  child: Text(AppStrings.t('close')),
+                  child: Text(context.tr.close),
                 ),
               ],
             ),
@@ -1186,7 +1158,7 @@ class _SettingPageState extends State<SettingPage> {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: Text(AppStrings.t('settings_snapshot_preview_title')),
+          title: Text(context.tr.settings_snapshot_preview_title),
           content: SizedBox(
             width: 560,
             child: _buildSnapshotDetailsContent(snapshot),
@@ -1201,24 +1173,23 @@ class _SettingPageState extends State<SettingPage> {
                       builder: (confirmContext) {
                         return AlertDialog(
                           title: Text(
-                            AppStrings.t('settings_snapshot_delete_loading'),
+                            context.tr.settings_snapshot_delete_loading,
                           ),
                           content: Text(
-                            AppStrings.tr(
-                              'settings_snapshots_delete_one_confirm',
-                              params: {'label': snapshot.label},
+                            context.tr.settings_snapshots_delete_one_confirm(
+                              snapshot.label,
                             ),
                           ),
                           actions: [
                             TextButton(
                               onPressed:
                                   () => Navigator.of(confirmContext).pop(false),
-                              child: Text(AppStrings.t('cancel')),
+                              child: Text(context.tr.cancel),
                             ),
                             FilledButton(
                               onPressed:
                                   () => Navigator.of(confirmContext).pop(true),
-                              child: Text(AppStrings.t('delete')),
+                              child: Text(context.tr.delete),
                             ),
                           ],
                         );
@@ -1230,11 +1201,11 @@ class _SettingPageState extends State<SettingPage> {
                 }
                 await _deleteSnapshot(snapshot);
               },
-              child: Text(AppStrings.t('delete')),
+              child: Text(context.tr.delete),
             ),
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: Text(AppStrings.t('close')),
+              child: Text(context.tr.close),
             ),
             FilledButton.icon(
               onPressed: () async {
@@ -1242,7 +1213,7 @@ class _SettingPageState extends State<SettingPage> {
                 await _restoreSnapshot(snapshot);
               },
               icon: const Icon(Icons.restore),
-              label: Text(AppStrings.t('settings_restore_snapshot')),
+              label: Text(context.tr.settings_restore_snapshot),
             ),
           ],
         );
@@ -1261,21 +1232,20 @@ class _SettingPageState extends State<SettingPage> {
           context: context,
           builder: (dialogContext) {
             return AlertDialog(
-              title: Text(AppStrings.t('settings_snapshots_delete_all_title')),
+              title: Text(context.tr.settings_snapshots_delete_all_title),
               content: Text(
-                AppStrings.tr(
-                  'settings_snapshots_delete_all_confirm',
-                  params: {'count': count.toString()},
+                context.tr.settings_snapshots_delete_all_confirm(
+                  count.toString(),
                 ),
               ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(dialogContext).pop(false),
-                  child: Text(AppStrings.t('cancel')),
+                  child: Text(context.tr.cancel),
                 ),
                 FilledButton(
                   onPressed: () => Navigator.of(dialogContext).pop(true),
-                  child: Text(AppStrings.t('delete')),
+                  child: Text(context.tr.delete),
                 ),
               ],
             );
@@ -1288,7 +1258,7 @@ class _SettingPageState extends State<SettingPage> {
     }
 
     await _runWithLoading(
-      AppStrings.t('settings_snapshots_delete_all_loading'),
+      context.tr.settings_snapshots_delete_all_loading,
       () async {
         try {
           await _ensureDriveApiConnected();
@@ -1304,9 +1274,8 @@ class _SettingPageState extends State<SettingPage> {
             return;
           }
           _showSnack(
-            AppStrings.tr(
-              'settings_snapshots_delete_all_done',
-              params: {'count': snapshots.length.toString()},
+            context.tr.settings_snapshots_delete_all_done(
+              snapshots.length.toString(),
             ),
           );
         } catch (e, st) {
@@ -1341,12 +1310,12 @@ class _SettingPageState extends State<SettingPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                AppStrings.t('settings_snapshots_delete_select_title'),
+                context.tr.settings_snapshots_delete_select_title,
                 style: Theme.of(sheetContext).textTheme.titleMedium,
               ),
               const SizedBox(height: 6),
               Text(
-                AppStrings.t('settings_snapshots_delete_select_desc'),
+                context.tr.settings_snapshots_delete_select_desc,
                 style: Theme.of(sheetContext).textTheme.bodySmall,
               ),
               const SizedBox(height: 10),
@@ -1372,7 +1341,7 @@ class _SettingPageState extends State<SettingPage> {
                 alignment: Alignment.centerRight,
                 child: TextButton(
                   onPressed: () => Navigator.of(sheetContext).pop(),
-                  child: Text(AppStrings.t('close')),
+                  child: Text(context.tr.close),
                 ),
               ),
             ],
@@ -1390,21 +1359,20 @@ class _SettingPageState extends State<SettingPage> {
           context: context,
           builder: (dialogContext) {
             return AlertDialog(
-              title: Text(AppStrings.t('settings_snapshot_delete_loading')),
+              title: Text(context.tr.settings_snapshot_delete_loading),
               content: Text(
-                AppStrings.tr(
-                  'settings_snapshots_delete_one_confirm',
-                  params: {'label': selected.label},
+                context.tr.settings_snapshots_delete_one_confirm(
+                  selected.label,
                 ),
               ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(dialogContext).pop(false),
-                  child: Text(AppStrings.t('cancel')),
+                  child: Text(context.tr.cancel),
                 ),
                 FilledButton(
                   onPressed: () => Navigator.of(dialogContext).pop(true),
-                  child: Text(AppStrings.t('delete')),
+                  child: Text(context.tr.delete),
                 ),
               ],
             );
@@ -1436,14 +1404,14 @@ class _SettingPageState extends State<SettingPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppStrings.t('settings_tab')),
+        title: Text(context.tr.settings_tab),
         centerTitle: true,
         actions: [
           IconButton(
             tooltip:
                 isDark
-                    ? AppStrings.t('settings_theme_switch_light')
-                    : AppStrings.t('settings_theme_switch_dark'),
+                    ? context.tr.settings_theme_switch_light
+                    : context.tr.settings_theme_switch_dark,
             icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
             onPressed: () => themeProvider.toggleTheme(),
           ),
@@ -1468,7 +1436,7 @@ class _SettingPageState extends State<SettingPage> {
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    AppStrings.t('settings_backup_restore_title'),
+                    context.tr.settings_backup_restore_title,
                     style: TextStyle(
                       fontSize: titleSize,
                       fontWeight: FontWeight.bold,
@@ -1476,7 +1444,7 @@ class _SettingPageState extends State<SettingPage> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    AppStrings.t('settings_backup_restore_desc'),
+                    context.tr.settings_backup_restore_desc,
                     style: Theme.of(
                       context,
                     ).textTheme.bodyMedium?.copyWith(color: Colors.grey[400]),
@@ -1510,13 +1478,13 @@ class _SettingPageState extends State<SettingPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            AppStrings.t('settings_appearance_title'),
+                            context.tr.settings_appearance_title,
                             style: Theme.of(context).textTheme.titleMedium
                                 ?.copyWith(fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            AppStrings.t('settings_language_desc'),
+                            context.tr.settings_language_desc,
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                           const SizedBox(height: 12),
@@ -1524,9 +1492,7 @@ class _SettingPageState extends State<SettingPage> {
                             initialValue: localeProvider.preference,
                             isExpanded: true,
                             decoration: InputDecoration(
-                              labelText: AppStrings.t(
-                                'settings_language_title',
-                              ),
+                              labelText: context.tr.settings_language_title,
                               border: const OutlineInputBorder(),
                               isDense: true,
                             ),
@@ -1574,9 +1540,7 @@ class _SettingPageState extends State<SettingPage> {
                               if (!mounted) {
                                 return;
                               }
-                              _showSnack(
-                                AppStrings.t('settings_language_updated'),
-                              );
+                              _showSnack(context.tr.settings_language_updated);
                             },
                           ),
                         ],
@@ -1592,18 +1556,18 @@ class _SettingPageState extends State<SettingPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              AppStrings.t('settings_debug_title'),
+                              context.tr.settings_debug_title,
                               style: Theme.of(context).textTheme.titleMedium
                                   ?.copyWith(fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              AppStrings.t('settings_debug_desc'),
+                              context.tr.settings_debug_desc,
                               style: Theme.of(context).textTheme.bodyMedium,
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              AppStrings.t('settings_reset_preferences_desc'),
+                              context.tr.settings_reset_preferences_desc,
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                             const SizedBox(height: 8),
@@ -1616,13 +1580,13 @@ class _SettingPageState extends State<SettingPage> {
                                         : () => _resetLocalPreferences(),
                                 icon: const Icon(Icons.restart_alt),
                                 label: Text(
-                                  AppStrings.t('settings_reset_preferences'),
+                                  context.tr.settings_reset_preferences,
                                 ),
                               ),
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              AppStrings.t('settings_replay_onboarding_desc'),
+                              context.tr.settings_replay_onboarding_desc,
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                             const SizedBox(height: 8),
@@ -1633,7 +1597,7 @@ class _SettingPageState extends State<SettingPage> {
                                     _isBusy ? null : () => _replayOnboarding(),
                                 icon: const Icon(Icons.rocket_launch_outlined),
                                 label: Text(
-                                  AppStrings.t('settings_replay_onboarding'),
+                                  context.tr.settings_replay_onboarding,
                                 ),
                               ),
                             ),
@@ -1644,12 +1608,10 @@ class _SettingPageState extends State<SettingPage> {
                                 Icons.workspace_premium_rounded,
                               ),
                               title: Text(
-                                AppStrings.t('settings_debug_premium_bypass'),
+                                context.tr.settings_debug_premium_bypass,
                               ),
                               subtitle: Text(
-                                AppStrings.t(
-                                  'settings_debug_premium_bypass_desc',
-                                ),
+                                context.tr.settings_debug_premium_bypass_desc,
                               ),
                               value: PremiumCapabilities.debugPremiumBypass,
                               onChanged: (value) {
@@ -1689,12 +1651,16 @@ class _SettingPageState extends State<SettingPage> {
                                 FilledButton.tonalIcon(
                                   onPressed: _runMediationDiagnostics,
                                   icon: const Icon(Icons.analytics_outlined),
-                                  label: const Text('Run Diagnostics'),
+                                  label: Text(
+                                    context.tr.settings_run_diagnostics,
+                                  ),
                                 ),
                                 FilledButton.tonalIcon(
                                   onPressed: _openAdInspector,
                                   icon: const Icon(Icons.bug_report_outlined),
-                                  label: const Text('Open Ad Inspector'),
+                                  label: Text(
+                                    context.tr.settings_open_ad_inspector,
+                                  ),
                                 ),
                               ],
                             ),
@@ -1733,14 +1699,14 @@ class _SettingPageState extends State<SettingPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          AppStrings.t('settings_drive_title'),
+                          context.tr.settings_drive_title,
                           style: Theme.of(context).textTheme.titleMedium
                               ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 12),
                         if (driveApi == null) ...[
                           Text(
-                            AppStrings.t('settings_drive_desc'),
+                            context.tr.settings_drive_desc,
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                           const SizedBox(height: 12),
@@ -1752,9 +1718,9 @@ class _SettingPageState extends State<SettingPage> {
                                       ? null
                                       : () async {
                                         await _runWithLoading(
-                                          AppStrings.t(
-                                            'settings_drive_connect_loading',
-                                          ),
+                                          context
+                                              .tr
+                                              .settings_drive_connect_loading,
                                           () async {
                                             try {
                                               await _ensureDriveApiConnected();
@@ -1764,9 +1730,9 @@ class _SettingPageState extends State<SettingPage> {
                                                 showSnack: false,
                                               );
                                               _showSnack(
-                                                AppStrings.t(
-                                                  'settings_drive_connected',
-                                                ),
+                                                context
+                                                    .tr
+                                                    .settings_drive_connected,
                                               );
                                             } catch (e, st) {
                                               debugPrint(
@@ -1785,7 +1751,7 @@ class _SettingPageState extends State<SettingPage> {
                                 children: [
                                   const Icon(Icons.g_mobiledata),
                                   const SizedBox(width: 8),
-                                  Text(AppStrings.t('settings_drive_connect')),
+                                  Text(context.tr.settings_drive_connect),
                                 ],
                               ),
                             ),
@@ -1800,7 +1766,7 @@ class _SettingPageState extends State<SettingPage> {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                AppStrings.t('settings_drive_status_connected'),
+                                context.tr.settings_drive_status_connected,
                                 style: Theme.of(context).textTheme.bodySmall
                                     ?.copyWith(color: Colors.green[400]),
                               ),
@@ -1815,9 +1781,9 @@ class _SettingPageState extends State<SettingPage> {
                                       ? null
                                       : () async {
                                         await _runWithLoading(
-                                          AppStrings.t(
-                                            'settings_drive_disconnect_loading',
-                                          ),
+                                          context
+                                              .tr
+                                              .settings_drive_disconnect_loading,
                                           () async {
                                             await disconnectDriveAccount();
                                             if (!mounted) {
@@ -1828,9 +1794,9 @@ class _SettingPageState extends State<SettingPage> {
                                             });
                                             await _loadCachedSnapshotsFromCache();
                                             _showSnack(
-                                              AppStrings.t(
-                                                'settings_drive_disconnected',
-                                              ),
+                                              context
+                                                  .tr
+                                                  .settings_drive_disconnected,
                                             );
                                           },
                                         );
@@ -1843,9 +1809,7 @@ class _SettingPageState extends State<SettingPage> {
                                 children: [
                                   const Icon(Icons.logout),
                                   const SizedBox(width: 8),
-                                  Text(
-                                    AppStrings.t('settings_drive_disconnect'),
-                                  ),
+                                  Text(context.tr.settings_drive_disconnect),
                                 ],
                               ),
                             ),
@@ -1866,16 +1830,14 @@ class _SettingPageState extends State<SettingPage> {
                       },
                       leading: const Icon(Icons.developer_mode, size: 18),
                       title: Text(
-                        AppStrings.t('settings_runner_title'),
+                        context.tr.settings_runner_title,
                         style: Theme.of(context).textTheme.titleMedium
                             ?.copyWith(fontWeight: FontWeight.bold),
                       ),
                       subtitle:
                           _runnerTemporarilyDisabled
                               ? Text(
-                                AppStrings.t(
-                                  'settings_runner_temporarily_disabled',
-                                ),
+                                context.tr.settings_runner_temporarily_disabled,
                                 style: Theme.of(context).textTheme.bodySmall
                                     ?.copyWith(color: Colors.orange[400]),
                               )
@@ -1898,18 +1860,16 @@ class _SettingPageState extends State<SettingPage> {
                         Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            AppStrings.t('settings_runner_desc'),
+                            context.tr.settings_runner_desc,
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ),
                         const SizedBox(height: 8),
                         SwitchListTile.adaptive(
                           contentPadding: EdgeInsets.zero,
-                          title: Text(
-                            AppStrings.t('settings_runner_disable_temp'),
-                          ),
+                          title: Text(context.tr.settings_runner_disable_temp),
                           subtitle: Text(
-                            AppStrings.t('settings_runner_disable_temp_desc'),
+                            context.tr.settings_runner_disable_temp_desc,
                           ),
                           value: _runnerTemporarilyDisabled,
                           onChanged:
@@ -1919,7 +1879,7 @@ class _SettingPageState extends State<SettingPage> {
                         TextField(
                           controller: _runnerUrlController,
                           decoration: InputDecoration(
-                            hintText: AppStrings.t('settings_runner_url_hint'),
+                            hintText: context.tr.settings_runner_url_hint,
                             isDense: true,
                             border: const OutlineInputBorder(),
                             suffixIcon:
@@ -1956,12 +1916,8 @@ class _SettingPageState extends State<SettingPage> {
                         TextField(
                           controller: _runnerApiTokenController,
                           decoration: InputDecoration(
-                            labelText: AppStrings.t(
-                              'settings_runner_token_label',
-                            ),
-                            hintText: AppStrings.t(
-                              'settings_runner_token_hint',
-                            ),
+                            labelText: context.tr.settings_runner_token_label,
+                            hintText: context.tr.settings_runner_token_hint,
                             isDense: true,
                             border: const OutlineInputBorder(),
                             suffixIcon: IconButton(
@@ -1993,7 +1949,7 @@ class _SettingPageState extends State<SettingPage> {
                                       ? null
                                       : _saveRunnerSettings,
                               icon: const Icon(Icons.save_outlined, size: 18),
-                              label: Text(AppStrings.t('settings_runner_save')),
+                              label: Text(context.tr.settings_runner_save),
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -2014,9 +1970,7 @@ class _SettingPageState extends State<SettingPage> {
                                         ),
                                       )
                                       : const Icon(Icons.wifi_find, size: 18),
-                              label: Text(
-                                AppStrings.t('settings_runner_check'),
-                              ),
+                              label: Text(context.tr.settings_runner_check),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor:
                                     Theme.of(
@@ -2038,9 +1992,7 @@ class _SettingPageState extends State<SettingPage> {
                                         _saveRunnerSettings();
                                       },
                               icon: const Icon(Icons.clear, size: 18),
-                              label: Text(
-                                AppStrings.t('settings_runner_clear'),
-                              ),
+                              label: Text(context.tr.settings_runner_clear),
                             ),
                           ),
                         ] else ...[
@@ -2058,9 +2010,7 @@ class _SettingPageState extends State<SettingPage> {
                                     Icons.save_outlined,
                                     size: 18,
                                   ),
-                                  label: Text(
-                                    AppStrings.t('settings_runner_save'),
-                                  ),
+                                  label: Text(context.tr.settings_runner_save),
                                 ),
                               ),
                               const SizedBox(width: 8),
@@ -2080,9 +2030,7 @@ class _SettingPageState extends State<SettingPage> {
                                           ),
                                         )
                                         : const Icon(Icons.wifi_find, size: 18),
-                                label: Text(
-                                  AppStrings.t('settings_runner_check'),
-                                ),
+                                label: Text(context.tr.settings_runner_check),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor:
                                       Theme.of(
@@ -2101,7 +2049,7 @@ class _SettingPageState extends State<SettingPage> {
                                           _saveRunnerSettings();
                                         },
                                 icon: const Icon(Icons.clear, size: 18),
-                                tooltip: AppStrings.t('settings_runner_clear'),
+                                tooltip: context.tr.settings_runner_clear,
                               ),
                             ],
                           ),
@@ -2116,7 +2064,7 @@ class _SettingPageState extends State<SettingPage> {
                   ],
                   // Data Operations Section
                   Text(
-                    AppStrings.t('settings_data_operations_title'),
+                    context.tr.settings_data_operations_title,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -2129,13 +2077,13 @@ class _SettingPageState extends State<SettingPage> {
                           child: _buildDataButton(
                             context,
                             icon: Icons.upload_file,
-                            label: AppStrings.t('settings_export'),
+                            label: context.tr.settings_export,
                             onPressed:
                                 _isBusy
                                     ? null
                                     : () async {
                                       await _runWithLoading(
-                                        AppStrings.t('settings_export_loading'),
+                                        context.tr.settings_export_loading,
                                         () async {
                                           try {
                                             await _ensureDriveApiConnected();
@@ -2162,13 +2110,13 @@ class _SettingPageState extends State<SettingPage> {
                           child: _buildDataButton(
                             context,
                             icon: Icons.file_download_outlined,
-                            label: AppStrings.t('settings_import'),
+                            label: context.tr.settings_import,
                             onPressed:
                                 _isBusy
                                     ? null
                                     : () async {
                                       await _runWithLoading(
-                                        AppStrings.t('settings_import_loading'),
+                                        context.tr.settings_import_loading,
                                         () async {
                                           try {
                                             await _ensureDriveApiConnected();
@@ -2200,13 +2148,13 @@ class _SettingPageState extends State<SettingPage> {
                         _buildDataButton(
                           context,
                           icon: Icons.upload_file,
-                          label: AppStrings.t('settings_export_app_data'),
+                          label: context.tr.settings_export_app_data,
                           onPressed:
                               _isBusy
                                   ? null
                                   : () async {
                                     await _runWithLoading(
-                                      AppStrings.t('settings_export_loading'),
+                                      context.tr.settings_export_loading,
                                       () async {
                                         try {
                                           await _ensureDriveApiConnected();
@@ -2231,13 +2179,13 @@ class _SettingPageState extends State<SettingPage> {
                         _buildDataButton(
                           context,
                           icon: Icons.file_download_outlined,
-                          label: AppStrings.t('settings_import_app_data'),
+                          label: context.tr.settings_import_app_data,
                           onPressed:
                               _isBusy
                                   ? null
                                   : () async {
                                     await _runWithLoading(
-                                      AppStrings.t('settings_import_loading'),
+                                      context.tr.settings_import_loading,
                                       () async {
                                         try {
                                           await _ensureDriveApiConnected();
@@ -2263,7 +2211,7 @@ class _SettingPageState extends State<SettingPage> {
                     ),
                   const SizedBox(height: 32),
                   Text(
-                    AppStrings.t('settings_recovery_title'),
+                    context.tr.settings_recovery_title,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -2277,11 +2225,9 @@ class _SettingPageState extends State<SettingPage> {
                         children: [
                           SwitchListTile(
                             contentPadding: EdgeInsets.zero,
-                            title: Text(
-                              AppStrings.t('settings_enable_auto_backup'),
-                            ),
+                            title: Text(context.tr.settings_enable_auto_backup),
                             subtitle: Text(
-                              AppStrings.t('settings_enable_auto_backup_desc'),
+                              context.tr.settings_enable_auto_backup_desc,
                             ),
                             value:
                                 !_loadingRecoverySettings &&
@@ -2305,9 +2251,8 @@ class _SettingPageState extends State<SettingPage> {
                                 _recoverySettings.autoBackupIntervalHours,
                             isExpanded: true,
                             decoration: InputDecoration(
-                              labelText: AppStrings.t(
-                                'settings_auto_backup_interval',
-                              ),
+                              labelText:
+                                  context.tr.settings_auto_backup_interval,
                               border: OutlineInputBorder(),
                               isDense: true,
                             ),
@@ -2359,9 +2304,9 @@ class _SettingPageState extends State<SettingPage> {
                                         ? null
                                         : () async {
                                           await _runWithLoading(
-                                            AppStrings.t(
-                                              'settings_snapshot_create_loading',
-                                            ),
+                                            context
+                                                .tr
+                                                .settings_snapshot_create_loading,
                                             () async {
                                               try {
                                                 await _ensureDriveApiConnected();
@@ -2369,21 +2314,20 @@ class _SettingPageState extends State<SettingPage> {
                                                     await createBackupSnapshot(
                                                       driveApi!,
                                                       appManager,
-                                                      label: AppStrings.t(
-                                                        'settings_manual_snapshot_label',
-                                                      ),
+                                                      label:
+                                                          context
+                                                              .tr
+                                                              .settings_manual_snapshot_label,
                                                     );
                                                 await _refreshSnapshots();
                                                 if (!mounted) {
                                                   return;
                                                 }
                                                 _showSnack(
-                                                  AppStrings.tr(
-                                                    'settings_snapshot_created_message',
-                                                    params: {
-                                                      'id': snapshot.snapshotId,
-                                                    },
-                                                  ),
+                                                  context.tr
+                                                      .settings_snapshot_created_message(
+                                                        snapshot.snapshotId,
+                                                      ),
                                                 );
                                               } catch (e, st) {
                                                 debugPrint(
@@ -2401,9 +2345,7 @@ class _SettingPageState extends State<SettingPage> {
                                           );
                                         },
                                 icon: const Icon(Icons.backup),
-                                label: Text(
-                                  AppStrings.t('settings_backup_now'),
-                                ),
+                                label: Text(context.tr.settings_backup_now),
                               ),
                               OutlinedButton.icon(
                                 onPressed:
@@ -2412,9 +2354,9 @@ class _SettingPageState extends State<SettingPage> {
                                         ? null
                                         : () async {
                                           await _runWithLoading(
-                                            AppStrings.t(
-                                              'settings_auto_backup_check_loading',
-                                            ),
+                                            context
+                                                .tr
+                                                .settings_auto_backup_check_loading,
                                             () async {
                                               await _ensureDriveApiConnected();
                                               await _runAutoBackupCheck(
@@ -2426,7 +2368,7 @@ class _SettingPageState extends State<SettingPage> {
                                         },
                                 icon: const Icon(Icons.schedule_send),
                                 label: Text(
-                                  AppStrings.t('settings_run_auto_backup_now'),
+                                  context.tr.settings_run_auto_backup_now,
                                 ),
                               ),
                             ],
@@ -2446,7 +2388,7 @@ class _SettingPageState extends State<SettingPage> {
                             children: [
                               Expanded(
                                 child: Text(
-                                  AppStrings.t('settings_snapshots_title'),
+                                  context.tr.settings_snapshots_title,
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 16,
@@ -2454,9 +2396,10 @@ class _SettingPageState extends State<SettingPage> {
                                 ),
                               ),
                               IconButton(
-                                tooltip: AppStrings.t(
-                                  'settings_snapshots_delete_select_tooltip',
-                                ),
+                                tooltip:
+                                    context
+                                        .tr
+                                        .settings_snapshots_delete_select_tooltip,
                                 onPressed:
                                     _isBusy ||
                                             _loadingSnapshots ||
@@ -2466,9 +2409,8 @@ class _SettingPageState extends State<SettingPage> {
                                 icon: const Icon(Icons.remove_circle_outline),
                               ),
                               IconButton(
-                                tooltip: AppStrings.t(
-                                  'settings_snapshots_delete_all',
-                                ),
+                                tooltip:
+                                    context.tr.settings_snapshots_delete_all,
                                 onPressed:
                                     _isBusy ||
                                             _loadingSnapshots ||
@@ -2478,17 +2420,15 @@ class _SettingPageState extends State<SettingPage> {
                                 icon: const Icon(Icons.delete_sweep_outlined),
                               ),
                               IconButton(
-                                tooltip: AppStrings.t(
-                                  'settings_snapshots_refresh',
-                                ),
+                                tooltip: context.tr.settings_snapshots_refresh,
                                 onPressed:
                                     _isBusy || _loadingSnapshots
                                         ? null
                                         : () async {
                                           await _runWithLoading(
-                                            AppStrings.t(
-                                              'settings_snapshots_refresh_loading',
-                                            ),
+                                            context
+                                                .tr
+                                                .settings_snapshots_refresh_loading,
                                             () async {
                                               await _ensureDriveApiConnected();
                                               await _refreshSnapshots();
@@ -2508,7 +2448,7 @@ class _SettingPageState extends State<SettingPage> {
                             Padding(
                               padding: EdgeInsets.symmetric(vertical: 8),
                               child: Text(
-                                AppStrings.t('settings_snapshots_empty'),
+                                context.tr.settings_snapshots_empty,
                                 style: const TextStyle(color: Colors.grey),
                               ),
                             )
@@ -2530,7 +2470,7 @@ class _SettingPageState extends State<SettingPage> {
                   ),
                   const SizedBox(height: 32),
                   Text(
-                    AppStrings.t('settings_diagnostics_section_title'),
+                    context.tr.settings_diagnostics_section_title,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -2543,7 +2483,7 @@ class _SettingPageState extends State<SettingPage> {
                           child: _buildDataButton(
                             context,
                             icon: Icons.bug_report_outlined,
-                            label: AppStrings.t('settings_view_startup_logs'),
+                            label: context.tr.settings_view_startup_logs,
                             onPressed:
                                 _isBusy
                                     ? null
@@ -2563,7 +2503,7 @@ class _SettingPageState extends State<SettingPage> {
                           child: _buildDataButton(
                             context,
                             icon: Icons.delete_outline,
-                            label: AppStrings.t('settings_clear_logs'),
+                            label: context.tr.settings_clear_logs,
                             onPressed:
                                 _isBusy
                                     ? null
@@ -2573,7 +2513,7 @@ class _SettingPageState extends State<SettingPage> {
                                         return;
                                       }
                                       _showSnack(
-                                        AppStrings.t('settings_logs_cleared'),
+                                        context.tr.settings_logs_cleared,
                                       );
                                     },
                           ),
@@ -2586,7 +2526,7 @@ class _SettingPageState extends State<SettingPage> {
                         _buildDataButton(
                           context,
                           icon: Icons.bug_report_outlined,
-                          label: AppStrings.t('settings_view_startup_logs'),
+                          label: context.tr.settings_view_startup_logs,
                           onPressed:
                               _isBusy
                                   ? null
@@ -2603,7 +2543,7 @@ class _SettingPageState extends State<SettingPage> {
                         _buildDataButton(
                           context,
                           icon: Icons.delete_outline,
-                          label: AppStrings.t('settings_clear_logs'),
+                          label: context.tr.settings_clear_logs,
                           onPressed:
                               _isBusy
                                   ? null
@@ -2613,7 +2553,7 @@ class _SettingPageState extends State<SettingPage> {
                                       return;
                                     }
                                     _showSnack(
-                                      AppStrings.t('settings_logs_cleared'),
+                                      context.tr.settings_logs_cleared,
                                     );
                                   },
                         ),
@@ -2668,13 +2608,13 @@ class _PrivacyPolicyCard extends StatelessWidget {
       final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
       if (!opened) {
         ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-          SnackBar(content: Text(AppStrings.t('app_open_link_error'))),
+          SnackBar(content: Text(context.tr.app_open_link_error)),
         );
       }
     } catch (_) {
-      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-        SnackBar(content: Text(AppStrings.t('app_open_link_error'))),
-      );
+      ScaffoldMessenger.maybeOf(
+        context,
+      )?.showSnackBar(SnackBar(content: Text(context.tr.app_open_link_error)));
     }
   }
 
@@ -2687,14 +2627,14 @@ class _PrivacyPolicyCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              AppStrings.t('settings_legal_title'),
+              context.tr.settings_legal_title,
               style: Theme.of(
                 context,
               ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
-              AppStrings.t('settings_legal_desc'),
+              context.tr.settings_legal_desc,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 12),
@@ -2703,7 +2643,7 @@ class _PrivacyPolicyCard extends StatelessWidget {
               child: OutlinedButton.icon(
                 onPressed: () => _open(context),
                 icon: const Icon(Icons.privacy_tip_outlined),
-                label: Text(AppStrings.t('settings_privacy_policy')),
+                label: Text(context.tr.settings_privacy_policy),
               ),
             ),
             const SizedBox(height: 8),
@@ -2721,10 +2661,10 @@ class _PrivacyPolicyCard extends StatelessWidget {
                         : const Icon(Icons.shield_outlined),
                 label: Text(
                   checkingAdPrivacy
-                      ? AppStrings.t('settings_ads_privacy_loading')
+                      ? context.tr.settings_ads_privacy_loading
                       : (adPrivacyRequired
-                          ? AppStrings.t('settings_ads_privacy_manage')
-                          : AppStrings.t('settings_ads_privacy_not_required')),
+                          ? context.tr.settings_ads_privacy_manage
+                          : context.tr.settings_ads_privacy_not_required),
                 ),
               ),
             ),
@@ -2780,14 +2720,14 @@ class _BdfdCompatibilityCard extends StatelessWidget {
     ),
   ];
 
-  String _statusLabel(_CapabilityStatus status) {
+  String _statusLabel(_CapabilityStatus status, BuildContext context) {
     switch (status) {
       case _CapabilityStatus.supported:
-        return AppStrings.t('settings_compatibility_status_supported');
+        return context.tr.settings_compatibility_status_supported;
       case _CapabilityStatus.partial:
-        return AppStrings.t('settings_compatibility_status_partial');
+        return context.tr.settings_compatibility_status_partial;
       case _CapabilityStatus.missing:
-        return AppStrings.t('settings_compatibility_status_missing');
+        return context.tr.settings_compatibility_status_missing;
     }
   }
 
@@ -2811,14 +2751,14 @@ class _BdfdCompatibilityCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              AppStrings.t('settings_compatibility_title'),
+              context.tr.settings_compatibility_title,
               style: Theme.of(
                 context,
               ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
-              AppStrings.t('settings_compatibility_desc'),
+              context.tr.settings_compatibility_desc,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 12),
@@ -2858,7 +2798,7 @@ class _BdfdCompatibilityCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 10),
                     Text(
-                      _statusLabel(snapshot.status),
+                      _statusLabel(snapshot.status, context),
                       style: Theme.of(
                         context,
                       ).textTheme.bodySmall?.copyWith(color: color),
@@ -2869,7 +2809,7 @@ class _BdfdCompatibilityCard extends StatelessWidget {
             }),
             const SizedBox(height: 4),
             Text(
-              AppStrings.t('settings_compatibility_note'),
+              context.tr.settings_compatibility_note,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
@@ -2887,9 +2827,7 @@ class _BdfdCompatibilityCard extends StatelessWidget {
                   );
                 },
                 icon: const Icon(Icons.list_alt_outlined),
-                label: Text(
-                  AppStrings.t('settings_compatibility_open_functions'),
-                ),
+                label: Text(context.tr.settings_compatibility_open_functions),
               ),
             ),
           ],
@@ -2951,7 +2889,7 @@ class _SupportDiscordCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 5),
                     Text(
-                      AppStrings.t('support_discord_badge'),
+                      context.tr.support_discord_badge,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 11,
@@ -2971,7 +2909,7 @@ class _SupportDiscordCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    AppStrings.t('support_card_title'),
+                    context.tr.support_card_title,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 17,
@@ -2982,7 +2920,7 @@ class _SupportDiscordCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                AppStrings.t('support_card_desc'),
+                context.tr.support_card_desc,
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.90),
                   fontSize: 13,
@@ -2995,7 +2933,7 @@ class _SupportDiscordCard extends StatelessWidget {
                 child: FilledButton.icon(
                   onPressed: _open,
                   icon: const Icon(Icons.open_in_new, size: 16),
-                  label: Text(AppStrings.t('support_join_discord')),
+                  label: Text(context.tr.support_join_discord),
                   style: FilledButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: _discordColor,
@@ -3041,14 +2979,14 @@ class _PremiumCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      AppStrings.t('premium_active_title'),
+                      context.tr.premium_active_title,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      AppStrings.t('premium_active_desc'),
+                      context.tr.premium_active_desc,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
@@ -3086,7 +3024,7 @@ class _PremiumCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    AppStrings.t('premium_card_title'),
+                    context.tr.premium_card_title,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 17,
@@ -3097,7 +3035,7 @@ class _PremiumCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                AppStrings.t('premium_card_desc'),
+                context.tr.premium_card_desc,
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.90),
                   fontSize: 13,
@@ -3114,7 +3052,7 @@ class _PremiumCard extends StatelessWidget {
                     foregroundColor: Colors.amber.shade800,
                   ),
                   icon: const Icon(Icons.star_rounded, size: 18),
-                  label: Text(AppStrings.t('premium_card_button')),
+                  label: Text(context.tr.premium_card_button),
                 ),
               ),
             ],

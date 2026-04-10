@@ -4,6 +4,7 @@ import 'package:bot_creator/types/app_emoji.dart';
 import 'package:bot_creator/types/variable_suggestion.dart';
 import 'package:bot_creator/utils/embed_normalization.dart';
 import 'package:bot_creator/widgets/variable_text_field.dart';
+import 'package:bot_creator/utils/i18n.dart';
 
 class ResponseEmbedsEditor extends StatefulWidget {
   final List<Map<String, dynamic>> embeds;
@@ -81,7 +82,7 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Pick embed color'),
+          title: Text(context.tr.embed_color_picker_title),
           content: SingleChildScrollView(
             child: BlockPicker(
               pickerColor: selected,
@@ -93,11 +94,11 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
+              child: Text(context.tr.common_cancel),
             ),
             FilledButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Apply'),
+              child: Text(context.tr.common_apply),
             ),
           ],
         );
@@ -147,17 +148,17 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
           context: context,
           builder:
               (dialogContext) => AlertDialog.adaptive(
-                title: const Text('Delete embed'),
-                content: const Text('This embed will be removed. Continue?'),
+                title: Text(context.tr.embed_delete_title),
+                content: Text(context.tr.embed_delete_confirm),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(dialogContext).pop(false),
-                    child: const Text('Cancel'),
+                    child: Text(context.tr.common_cancel),
                   ),
                   TextButton(
                     onPressed: () => Navigator.of(dialogContext).pop(true),
                     child: Text(
-                      'Delete',
+                      context.tr.common_delete,
                       style: TextStyle(
                         color: Theme.of(dialogContext).colorScheme.error,
                       ),
@@ -212,19 +213,17 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
           context: context,
           builder:
               (dialogContext) => AlertDialog.adaptive(
-                title: const Text('Delete field'),
-                content: const Text(
-                  'This field will be removed from the embed. Continue?',
-                ),
+                title: Text(context.tr.embed_field_delete_title),
+                content: Text(context.tr.embed_field_delete_confirm),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(dialogContext).pop(false),
-                    child: const Text('Cancel'),
+                    child: Text(context.tr.common_cancel),
                   ),
                   TextButton(
                     onPressed: () => Navigator.of(dialogContext).pop(true),
                     child: Text(
-                      'Delete',
+                      context.tr.common_delete,
                       style: TextStyle(
                         color: Theme.of(dialogContext).colorScheme.error,
                       ),
@@ -274,7 +273,10 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
           children: [
             Expanded(
               child: Text(
-                'Response Embeds (${_embeds.length}/${widget.maxEmbeds})',
+                context.tr.embed_response_header(
+                  _embeds.length,
+                  widget.maxEmbeds,
+                ),
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -285,7 +287,7 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
             IconButton(
               onPressed: _embeds.length >= widget.maxEmbeds ? null : _addEmbed,
               icon: const Icon(Icons.add, size: 20),
-              tooltip: 'Add embed',
+              tooltip: context.tr.embed_add_tooltip,
             ),
           ],
         ),
@@ -298,7 +300,7 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
               border: Border.all(color: Colors.grey.shade300),
             ),
             child: Text(
-              'No embeds. You can add up to ${widget.maxEmbeds} embeds.',
+              context.tr.embed_empty_message(widget.maxEmbeds),
               style: TextStyle(color: Colors.grey),
               textAlign: TextAlign.center,
             ),
@@ -328,7 +330,7 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
                       children: [
                         Expanded(
                           child: Text(
-                            'Embed #${index + 1}',
+                            context.tr.embed_number(index + 1),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -340,7 +342,7 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
                     ),
                     const SizedBox(height: 8),
                     VariableTextField(
-                      label: 'Title',
+                      label: context.tr.embed_label_title,
                       initialValue: embed['title']?.toString() ?? '',
                       maxLength: 256,
                       suggestions: widget.variableSuggestions,
@@ -350,7 +352,7 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
                     ),
                     const SizedBox(height: 8),
                     VariableTextField(
-                      label: 'Description',
+                      label: context.tr.common_description,
                       initialValue: embed['description']?.toString() ?? '',
                       maxLength: 2000,
                       maxLines: 4,
@@ -362,7 +364,7 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
                     ),
                     const SizedBox(height: 8),
                     VariableTextField(
-                      label: 'URL',
+                      label: context.tr.embed_label_url,
                       initialValue: embed['url']?.toString() ?? '',
                       suggestions: widget.variableSuggestions,
                       emojiSuggestions: widget.emojiSuggestions,
@@ -384,7 +386,7 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
                             SizedBox(
                               width: stacked ? availableWidth : 280,
                               child: VariableTextField(
-                                label: 'Timestamp (ISO8601)',
+                                label: context.tr.embed_label_timestamp,
                                 initialValue:
                                     embed['timestamp']?.toString() ?? '',
                                 suggestions: widget.variableSuggestions,
@@ -403,7 +405,7 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
                                   VariableTextField(
-                                    label: 'Color (int or #hex)',
+                                    label: context.tr.embed_label_color,
                                     initialValue:
                                         embed['color']?.toString() ?? '',
                                     suggestions: widget.variableSuggestions,
@@ -438,7 +440,7 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
                                           ),
                                         ),
                                       ),
-                                      label: const Text('Pick'),
+                                      label: Text(context.tr.common_pick),
                                     ),
                                   ),
                                 ],
@@ -451,10 +453,10 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
                     const SizedBox(height: 8),
                     ExpansionTile(
                       tilePadding: EdgeInsets.zero,
-                      title: const Text('Footer'),
+                      title: Text(context.tr.embed_section_footer),
                       children: [
                         VariableTextField(
-                          label: 'Footer Text',
+                          label: context.tr.embed_label_footer_text,
                           initialValue: footer['text']?.toString() ?? '',
                           suggestions: widget.variableSuggestions,
                           emojiSuggestions: widget.emojiSuggestions,
@@ -468,7 +470,7 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
                         ),
                         const SizedBox(height: 8),
                         VariableTextField(
-                          label: 'Footer Icon URL',
+                          label: context.tr.embed_label_footer_icon,
                           initialValue: footer['icon_url']?.toString() ?? '',
                           suggestions: widget.variableSuggestions,
                           emojiSuggestions: widget.emojiSuggestions,
@@ -485,10 +487,10 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
                     const SizedBox(height: 4),
                     ExpansionTile(
                       tilePadding: EdgeInsets.zero,
-                      title: const Text('Author'),
+                      title: Text(context.tr.embed_section_author),
                       children: [
                         VariableTextField(
-                          label: 'Author Name',
+                          label: context.tr.embed_label_author_name,
                           initialValue: author['name']?.toString() ?? '',
                           suggestions: widget.variableSuggestions,
                           emojiSuggestions: widget.emojiSuggestions,
@@ -502,7 +504,7 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
                         ),
                         const SizedBox(height: 8),
                         VariableTextField(
-                          label: 'Author URL',
+                          label: context.tr.embed_label_author_url,
                           initialValue: author['url']?.toString() ?? '',
                           suggestions: widget.variableSuggestions,
                           emojiSuggestions: widget.emojiSuggestions,
@@ -516,7 +518,7 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
                         ),
                         const SizedBox(height: 8),
                         VariableTextField(
-                          label: 'Author Icon URL',
+                          label: context.tr.embed_label_author_icon,
                           initialValue: author['icon_url']?.toString() ?? '',
                           suggestions: widget.variableSuggestions,
                           emojiSuggestions: widget.emojiSuggestions,
@@ -533,10 +535,10 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
                     const SizedBox(height: 4),
                     ExpansionTile(
                       tilePadding: EdgeInsets.zero,
-                      title: const Text('Media'),
+                      title: Text(context.tr.embed_section_media),
                       children: [
                         VariableTextField(
-                          label: 'Image URL',
+                          label: context.tr.embed_label_image_url,
                           initialValue: image['url']?.toString() ?? '',
                           suggestions: widget.variableSuggestions,
                           emojiSuggestions: widget.emojiSuggestions,
@@ -546,7 +548,7 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
                         ),
                         const SizedBox(height: 8),
                         VariableTextField(
-                          label: 'Thumbnail URL',
+                          label: context.tr.embed_label_thumbnail_url,
                           initialValue: thumbnail['url']?.toString() ?? '',
                           suggestions: widget.variableSuggestions,
                           emojiSuggestions: widget.emojiSuggestions,
@@ -563,7 +565,9 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
                     const SizedBox(height: 4),
                     ExpansionTile(
                       tilePadding: EdgeInsets.zero,
-                      title: Text('Fields (${fields.length}/25)'),
+                      title: Text(
+                        context.tr.embed_fields_header(fields.length),
+                      ),
                       trailing: IconButton(
                         icon: const Icon(Icons.add),
                         onPressed:
@@ -571,9 +575,9 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
                       ),
                       children: [
                         if (fields.isEmpty)
-                          const Padding(
-                            padding: EdgeInsets.only(bottom: 8),
-                            child: Text('No fields yet.'),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: Text(context.tr.embed_fields_empty),
                           )
                         else
                           ...fields.asMap().entries.map((fieldEntry) {
@@ -590,7 +594,9 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
                                       children: [
                                         Expanded(
                                           child: Text(
-                                            'Field #${fieldIndex + 1}',
+                                            context.tr.embed_field_number(
+                                              fieldIndex + 1,
+                                            ),
                                             overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
@@ -608,7 +614,7 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
                                       ],
                                     ),
                                     VariableTextField(
-                                      label: 'Name',
+                                      label: context.tr.common_name,
                                       initialValue:
                                           field['name']?.toString() ?? '',
                                       suggestions: widget.variableSuggestions,
@@ -623,7 +629,7 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
                                     ),
                                     const SizedBox(height: 8),
                                     VariableTextField(
-                                      label: 'Value',
+                                      label: context.tr.common_value,
                                       initialValue:
                                           field['value']?.toString() ?? '',
                                       maxLines: 3,
@@ -640,7 +646,9 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
                                     const SizedBox(height: 8),
                                     SwitchListTile(
                                       contentPadding: EdgeInsets.zero,
-                                      title: const Text('Inline'),
+                                      title: Text(
+                                        context.tr.embed_label_inline,
+                                      ),
                                       value: field['inline'] == true,
                                       onChanged:
                                           (value) => _setFieldValue(
@@ -659,7 +667,7 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
                     ),
                     const SizedBox(height: 8),
                     VariableTextField(
-                      label: 'Dynamic Fields Template',
+                      label: context.tr.embed_label_dynamic_fields,
                       initialValue: embed['fieldsTemplate']?.toString() ?? '',
                       maxLines: 3,
                       suggestions: widget.variableSuggestions,

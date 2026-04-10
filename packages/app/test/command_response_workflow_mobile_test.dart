@@ -1,11 +1,14 @@
 import 'package:bot_creator/routes/app/command.response_workflow.dart';
 import 'package:bot_creator/types/variable_suggestion.dart';
+import 'package:bot_creator/utils/i18n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   Widget buildPage() {
     return const MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: CommandResponseWorkflowPage(
         initialWorkflow: <String, dynamic>{
           'conditional': <String, dynamic>{

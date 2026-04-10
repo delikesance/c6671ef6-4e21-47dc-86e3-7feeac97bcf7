@@ -1142,7 +1142,10 @@ Future<bool> _tryExecuteLocalAwaitedInput(
       await _sendLocalLegacyMessage(
         gateway,
         context: context,
-        content: 'Failed to run BDFD script for command "$commandName": $e',
+        content: AppStrings.tr(
+          'legacy_bdfd_run_failed',
+          params: {'command': commandName, 'error': '$e'},
+        ),
         embeds: const <EmbedBuilder>[],
         asReply: _localLegacyResponseTarget(data) == 'reply',
       );
@@ -1816,7 +1819,7 @@ Future<void> _sendLocalLegacyWorkflowResponse(
     await _sendLocalLegacyMessage(
       gateway,
       context: context,
-      content: 'Modal responses are not supported in legacy command mode.',
+      content: AppStrings.t('validation_modal_not_legacy'),
       embeds: const <EmbedBuilder>[],
       asReply: responseTarget == 'reply',
     );
@@ -2141,7 +2144,10 @@ Future<bool> _tryExecuteLocalLegacyCommand(
       await _sendLocalLegacyMessage(
         gateway,
         context: context,
-        content: 'Failed to run BDFD script for command "$commandName": $e',
+        content: AppStrings.tr(
+          'legacy_bdfd_run_failed',
+          params: {'command': commandName, 'error': '$e'},
+        ),
         embeds: const <EmbedBuilder>[],
         asReply: _localLegacyResponseTarget(data) == 'reply',
       );

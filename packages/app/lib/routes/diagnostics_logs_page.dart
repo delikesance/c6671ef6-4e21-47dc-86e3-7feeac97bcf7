@@ -70,7 +70,7 @@ class _DiagnosticsLogsPageState extends State<DiagnosticsLogsPage> {
         return;
       }
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppStrings.t('settings_diagnostics_copied'))),
+        SnackBar(content: Text(context.tr.settings_diagnostics_copied)),
       );
     } finally {
       if (mounted) {
@@ -86,9 +86,9 @@ class _DiagnosticsLogsPageState extends State<DiagnosticsLogsPage> {
     if (!mounted) {
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(AppStrings.t('settings_logs_cleared'))),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(context.tr.settings_logs_cleared)));
     await _loadLogs();
   }
 
@@ -99,9 +99,7 @@ class _DiagnosticsLogsPageState extends State<DiagnosticsLogsPage> {
     ).textTheme.bodySmall?.copyWith(fontFamily: 'monospace');
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(AppStrings.t('settings_diagnostics_page_title')),
-      ),
+      appBar: AppBar(title: Text(context.tr.settings_diagnostics_page_title)),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(12),
@@ -109,7 +107,7 @@ class _DiagnosticsLogsPageState extends State<DiagnosticsLogsPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                AppStrings.t('settings_diagnostics_page_scope_note'),
+                context.tr.settings_diagnostics_page_scope_note,
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(height: 10),
@@ -120,7 +118,7 @@ class _DiagnosticsLogsPageState extends State<DiagnosticsLogsPage> {
                   OutlinedButton.icon(
                     onPressed: _loading ? null : _loadLogs,
                     icon: const Icon(Icons.refresh),
-                    label: Text(AppStrings.t('settings_diagnostics_refresh')),
+                    label: Text(context.tr.settings_diagnostics_refresh),
                   ),
                   OutlinedButton.icon(
                     onPressed: _copying ? null : _copyAll,
@@ -132,12 +130,12 @@ class _DiagnosticsLogsPageState extends State<DiagnosticsLogsPage> {
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
                             : const Icon(Icons.copy_all),
-                    label: Text(AppStrings.t('settings_diagnostics_copy_all')),
+                    label: Text(context.tr.settings_diagnostics_copy_all),
                   ),
                   OutlinedButton.icon(
                     onPressed: _loading ? null : _clearAndReload,
                     icon: const Icon(Icons.delete_outline),
-                    label: Text(AppStrings.t('settings_clear_logs')),
+                    label: Text(context.tr.settings_clear_logs),
                   ),
                 ],
               ),
@@ -157,7 +155,7 @@ class _DiagnosticsLogsPageState extends State<DiagnosticsLogsPage> {
                             padding: const EdgeInsets.all(12),
                             child: SelectableText(
                               _logs.trim().isEmpty
-                                  ? AppStrings.t('settings_diagnostics_empty')
+                                  ? context.tr.settings_diagnostics_empty
                                   : _logs,
                               style: bodyStyle,
                             ),

@@ -130,14 +130,14 @@ class _DebugReplayPageState extends State<DebugReplayPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppStrings.t('debug_replay_title')),
+        title: Text(context.tr.debug_replay_title),
         actions: [
           if (hasCapability) ...[
             IconButton(
               tooltip:
                   _capturing
-                      ? AppStrings.t('debug_replay_stop_capture')
-                      : AppStrings.t('debug_replay_start_capture'),
+                      ? context.tr.debug_replay_stop_capture
+                      : context.tr.debug_replay_start_capture,
               icon: Icon(
                 _capturing
                     ? Icons.fiber_manual_record
@@ -152,7 +152,7 @@ class _DebugReplayPageState extends State<DebugReplayPage> {
             ),
             if (_replays.isNotEmpty)
               IconButton(
-                tooltip: AppStrings.t('debug_replay_clear'),
+                tooltip: context.tr.debug_replay_clear,
                 icon: const Icon(Icons.delete_sweep_outlined),
                 onPressed: () async {
                   final confirmed =
@@ -160,20 +160,18 @@ class _DebugReplayPageState extends State<DebugReplayPage> {
                         context: context,
                         builder:
                             (ctx) => AlertDialog(
-                              title: Text(
-                                AppStrings.t('debug_replay_clear_title'),
-                              ),
+                              title: Text(context.tr.debug_replay_clear_title),
                               content: Text(
-                                AppStrings.t('debug_replay_clear_confirm'),
+                                context.tr.debug_replay_clear_confirm,
                               ),
                               actions: [
                                 TextButton(
                                   onPressed: () => Navigator.of(ctx).pop(false),
-                                  child: Text(AppStrings.t('cancel')),
+                                  child: Text(context.tr.cancel),
                                 ),
                                 FilledButton(
                                   onPressed: () => Navigator.of(ctx).pop(true),
-                                  child: Text(AppStrings.t('delete')),
+                                  child: Text(context.tr.delete),
                                 ),
                               ],
                             ),
@@ -239,7 +237,7 @@ class _DebugReplayPageState extends State<DebugReplayPage> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    AppStrings.t('debug_replay_premium_title'),
+                    context.tr.debug_replay_premium_title,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
@@ -249,7 +247,7 @@ class _DebugReplayPageState extends State<DebugReplayPage> {
             ),
             const SizedBox(height: 8),
             Text(
-              AppStrings.t('debug_replay_premium_desc'),
+              context.tr.debug_replay_premium_desc,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             if (PremiumCapabilities.canShowPurchaseUI) ...[
@@ -257,7 +255,7 @@ class _DebugReplayPageState extends State<DebugReplayPage> {
               FilledButton.icon(
                 onPressed: () => SubscriptionPage.show(context),
                 icon: const Icon(Icons.workspace_premium_rounded),
-                label: Text(AppStrings.t('premium_card_button')),
+                label: Text(context.tr.premium_card_button),
               ),
             ],
           ],
@@ -288,8 +286,8 @@ class _DebugReplayPageState extends State<DebugReplayPage> {
               const SizedBox(height: 16),
               Text(
                 _capturing && allowCapture
-                    ? AppStrings.t('debug_replay_empty_capturing')
-                    : AppStrings.t('debug_replay_empty_idle'),
+                    ? context.tr.debug_replay_empty_capturing
+                    : context.tr.debug_replay_empty_idle,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(
@@ -305,7 +303,7 @@ class _DebugReplayPageState extends State<DebugReplayPage> {
                     unawaited(_setCaptureEnabled(true));
                   },
                   icon: const Icon(Icons.fiber_manual_record),
-                  label: Text(AppStrings.t('debug_replay_start_capture')),
+                  label: Text(context.tr.debug_replay_start_capture),
                 ),
               ],
             ],
@@ -496,7 +494,7 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
         ),
         actions: [
           IconButton(
-            tooltip: AppStrings.t('debug_replay_overview'),
+            tooltip: context.tr.debug_replay_overview,
             icon: const Icon(Icons.bar_chart_outlined),
             onPressed: () => _goToStep(-1),
           ),
@@ -619,7 +617,7 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           IconButton(
-            tooltip: AppStrings.t('debug_replay_step_first'),
+            tooltip: context.tr.debug_replay_step_first,
             icon: const Icon(Icons.skip_previous),
             onPressed:
                 frames.isEmpty
@@ -630,7 +628,7 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
                     },
           ),
           IconButton(
-            tooltip: AppStrings.t('debug_replay_step_back'),
+            tooltip: context.tr.debug_replay_step_back,
             icon: const Icon(Icons.chevron_left),
             onPressed:
                 canBack
@@ -651,13 +649,13 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
             icon: Icon(_isPlaying ? Icons.pause : Icons.play_arrow),
             label: Text(
               _isPlaying
-                  ? AppStrings.t('debug_replay_pause')
-                  : AppStrings.t('debug_replay_play'),
+                  ? context.tr.debug_replay_pause
+                  : context.tr.debug_replay_play,
             ),
           ),
           const SizedBox(width: 4),
           IconButton(
-            tooltip: AppStrings.t('debug_replay_step_forward'),
+            tooltip: context.tr.debug_replay_step_forward,
             icon: const Icon(Icons.chevron_right),
             onPressed:
                 canForward
@@ -668,7 +666,7 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
                     : null,
           ),
           IconButton(
-            tooltip: AppStrings.t('debug_replay_step_last'),
+            tooltip: context.tr.debug_replay_step_last,
             icon: const Icon(Icons.skip_next),
             onPressed:
                 frames.isEmpty
@@ -809,7 +807,7 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
           const SizedBox(height: 20),
           // ── Duration bar ──
           Text(
-            AppStrings.t('debug_replay_duration_label'),
+            context.tr.debug_replay_duration_label,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
               color: cs.onSurface.withValues(alpha: 0.55),
               letterSpacing: 0.6,
@@ -855,10 +853,7 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
           ),
           const SizedBox(height: 4),
           Text(
-            AppStrings.tr(
-              'debug_replay_start_offset',
-              params: {'ms': frame.startMs.toString()},
-            ),
+            context.tr.debug_replay_start_offset(frame.startMs.toString()),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: cs.onSurface.withValues(alpha: 0.5),
             ),
@@ -866,7 +861,7 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
           const SizedBox(height: 20),
           // ── Result ──
           Text(
-            AppStrings.t('debug_replay_result_label'),
+            context.tr.debug_replay_result_label,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
               color: cs.onSurface.withValues(alpha: 0.55),
               letterSpacing: 0.6,
@@ -884,7 +879,7 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
             child: Text(
               frame.result?.isNotEmpty == true
                   ? frame.result!
-                  : AppStrings.t('debug_replay_result_empty'),
+                  : context.tr.debug_replay_result_empty,
               style: TextStyle(
                 fontFamily: 'monospace',
                 fontSize: 13,
@@ -898,12 +893,9 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
           if (frame.loopIteration != null) ...[
             const SizedBox(height: 20),
             Text(
-              AppStrings.tr(
-                'debug_replay_loop_info',
-                params: {
-                  'depth': (frame.loopDepth ?? 0).toString(),
-                  'iteration': frame.loopIteration!.toString(),
-                },
+              context.tr.debug_replay_loop_info(
+                (frame.loopDepth ?? 0).toString(),
+                frame.loopIteration!.toString(),
               ),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: cs.onSurface.withValues(alpha: 0.6),
@@ -1015,7 +1007,7 @@ class _VariablesDiffSectionState extends State<_VariablesDiffSection> {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  AppStrings.t('debug_replay_variables_label'),
+                  context.tr.debug_replay_variables_label,
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: cs.onSurface.withValues(alpha: 0.55),
                     letterSpacing: 0.6,
@@ -1112,7 +1104,7 @@ class _VariablesDiffSectionState extends State<_VariablesDiffSection> {
                 ],
                 if (allKeys.isEmpty)
                   Text(
-                    AppStrings.t('debug_replay_variables_empty'),
+                    context.tr.debug_replay_variables_empty,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: cs.onSurface.withValues(alpha: 0.45),
                     ),

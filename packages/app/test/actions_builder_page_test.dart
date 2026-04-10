@@ -1,4 +1,5 @@
 import 'package:bot_creator/routes/app/builder.response.dart';
+import 'package:bot_creator/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -11,6 +12,8 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: ActionsBuilderPage(
           initialActions: const <Map<String, dynamic>>[
             <String, dynamic>{

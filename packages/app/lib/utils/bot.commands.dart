@@ -190,8 +190,7 @@ Future<void> handleLocalCommands(
             interaction: interaction,
             response: {
               'type': 'normal',
-              'text':
-                  'This BDFD script compiled successfully but did not produce any action.',
+              'text': _interactionT(interaction, 'bdfd_compiled_no_actions'),
               'embeds': const <Map<String, dynamic>>[],
               'components': const <String, dynamic>{},
               'modal': const <String, dynamic>{},
@@ -270,7 +269,10 @@ Future<void> handleLocalCommands(
             interaction: interaction,
             response: {
               'type': 'normal',
-              'text': 'An error occurred while executing this BDFD script.',
+              'text': _interactionT(
+                interaction,
+                'bdfd_runtime_execution_error',
+              ),
               'embeds': const <Map<String, dynamic>>[],
               'components': const <String, dynamic>{},
               'modal': const <String, dynamic>{},
@@ -533,7 +535,7 @@ Future<void> handleLocalCommands(
       } catch (error, stackTrace) {
         appendBotLog('Command workflow error: $error', botId: clientId);
         appendBotDebugLog('$stackTrace', botId: clientId);
-        final errorText = 'An error occurred while executing this command.';
+        final errorText = _interactionT(interaction, 'command_execution_error');
 
         try {
           if (didDefer) {
@@ -561,9 +563,13 @@ Future<void> handleLocalCommands(
 
       return;
     } else {
-      await interaction.respond(MessageBuilder(content: "Command not found"));
-      appendBotLog('Command not found', botId: clientId);
-      await _emitTaskLogToMain('Command not found', botId: clientId);
+      final commandNotFoundText = _interactionT(
+        interaction,
+        'command_not_found',
+      );
+      await interaction.respond(MessageBuilder(content: commandNotFoundText));
+      appendBotLog(commandNotFoundText, botId: clientId);
+      await _emitTaskLogToMain(commandNotFoundText, botId: clientId);
       return;
     }
   } else if (interaction is MessageComponentInteraction) {

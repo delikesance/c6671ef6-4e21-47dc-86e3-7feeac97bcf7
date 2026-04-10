@@ -31,7 +31,7 @@ class SubscriptionPage extends StatefulWidget {
     if (!SubscriptionService.supportsNativeBilling) {
       ScaffoldMessenger.maybeOf(context)?.showSnackBar(
         SnackBar(
-          content: Text(AppStrings.t('subscription_not_available_on_platform')),
+          content: Text(context.tr.subscription_not_available_on_platform),
         ),
       );
       return Future<void>.value();
@@ -100,12 +100,10 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
         if (SubscriptionService.isSubscribed) {
           Navigator.of(context).pop();
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(AppStrings.t('subscription_restored'))),
+            SnackBar(content: Text(context.tr.subscription_restored)),
           );
         } else {
-          setState(
-            () => _error = AppStrings.t('subscription_restore_not_found'),
-          );
+          setState(() => _error = context.tr.subscription_restore_not_found);
         }
       }
     } catch (e) {
@@ -168,7 +166,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
 
               // Title
               Text(
-                AppStrings.t('subscription_title'),
+                context.tr.subscription_title,
                 style: theme.textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -176,7 +174,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
               ),
               const SizedBox(height: 8),
               Text(
-                AppStrings.t('subscription_subtitle'),
+                context.tr.subscription_subtitle,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -206,10 +204,10 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
 
               // Annual plan (recommended)
               _PlanCard(
-                title: AppStrings.t('subscription_annual_title'),
+                title: context.tr.subscription_annual_title,
                 price: _priceForProduct(kAnnualSubscriptionId, '8,00 €'),
-                period: AppStrings.t('subscription_per_year'),
-                badge: AppStrings.t('subscription_save_badge'),
+                period: context.tr.subscription_per_year,
+                badge: context.tr.subscription_save_badge,
                 isPrimary: true,
                 onTap: _purchasing ? null : () => _buy(annual: true),
               ),
@@ -217,9 +215,9 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
 
               // Monthly plan
               _PlanCard(
-                title: AppStrings.t('subscription_monthly_title'),
+                title: context.tr.subscription_monthly_title,
                 price: _priceForProduct(kMonthlySubscriptionId, '2,00 €'),
-                period: AppStrings.t('subscription_per_month'),
+                period: context.tr.subscription_per_month,
                 isPrimary: false,
                 onTap: _purchasing ? null : () => _buy(annual: false),
               ),
@@ -246,7 +244,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
               // Restore purchases
               TextButton(
                 onPressed: _purchasing ? null : _restore,
-                child: Text(AppStrings.t('subscription_restore')),
+                child: Text(context.tr.subscription_restore),
               ),
               const SizedBox(height: 8),
 
@@ -255,12 +253,12 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   _LegalLink(
-                    label: AppStrings.t('subscription_terms'),
+                    label: context.tr.subscription_terms,
                     url: _termsUrl,
                   ),
                   const SizedBox(width: 16),
                   _LegalLink(
-                    label: AppStrings.t('subscription_privacy'),
+                    label: context.tr.subscription_privacy,
                     url: _privacyUrl,
                   ),
                 ],
@@ -341,7 +339,7 @@ class _BenefitRow extends StatelessWidget {
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: Text(
-                        AppStrings.t('subscription_feature_coming_soon'),
+                        context.tr.subscription_feature_coming_soon,
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
                           fontWeight: FontWeight.w700,
                         ),

@@ -6,6 +6,7 @@ import 'package:bot_creator/types/component.dart';
 import 'package:bot_creator/types/variable_suggestion.dart';
 import 'package:bot_creator/routes/app/workflows.page.dart';
 import 'package:bot_creator/widgets/variable_text_field.dart';
+import '../../utils/i18n.dart';
 
 /// Widget for editing a full Modal definition (title, customId, text inputs).
 class ModalBuilderWidget extends StatefulWidget {
@@ -113,7 +114,9 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
     if (_inputs.length >= 5) return;
     setState(() {
       _inputs.add(
-        ModalTextInputDefinition(label: 'Field ${_inputs.length + 1}'),
+        ModalTextInputDefinition(
+          label: context.tr.modal_field_default_label(_inputs.length + 1),
+        ),
       );
     });
     _emit();
@@ -125,19 +128,17 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
           context: context,
           builder:
               (dialogContext) => AlertDialog.adaptive(
-                title: const Text('Remove modal field'),
-                content: const Text(
-                  'This field will be removed from the modal. Continue?',
-                ),
+                title: Text(context.tr.modal_remove_field_title),
+                content: Text(context.tr.modal_remove_field_confirm),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(dialogContext).pop(false),
-                    child: const Text('Cancel'),
+                    child: Text(context.tr.common_cancel),
                   ),
                   TextButton(
                     onPressed: () => Navigator.of(dialogContext).pop(true),
                     child: Text(
-                      'Remove',
+                      context.tr.common_remove,
                       style: TextStyle(
                         color: Theme.of(dialogContext).colorScheme.error,
                       ),
@@ -212,7 +213,7 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
           (dialogContext) => StatefulBuilder(
             builder: (context, setDialogState) {
               return AlertDialog(
-                title: const Text('Workflow Call Arguments (JSON)'),
+                title: Text(context.tr.component_workflow_args_title),
                 content: SizedBox(
                   width: 520,
                   child: TextField(
@@ -222,7 +223,7 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(),
                       errorText: error,
-                      helperText: 'Example: {"ticketId":"((opts.ticket))"}',
+                      helperText: context.tr.component_workflow_args_hint,
                     ),
                     style: const TextStyle(fontFamily: 'monospace'),
                   ),
@@ -230,7 +231,7 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(dialogContext),
-                    child: const Text('Cancel'),
+                    child: Text(context.tr.common_cancel),
                   ),
                   FilledButton(
                     onPressed: () {
@@ -248,7 +249,7 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                         final parsed = jsonDecode(raw);
                         if (parsed is! Map) {
                           setDialogState(() {
-                            error = 'Root must be a JSON object';
+                            error = context.tr.workflow_root_json_error;
                           });
                           return;
                         }
@@ -268,7 +269,7 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                         });
                       }
                     },
-                    child: const Text('Save'),
+                    child: Text(context.tr.common_save),
                   ),
                 ],
               );
@@ -306,7 +307,7 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'Modal Builder',
+                            context.tr.modal_builder_title,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Colors.indigo.shade700,
@@ -318,7 +319,8 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${_inputs.length}/5 inputs',
+                      context.tr.modal_inputs_count(_inputs.length),
+
                       style: TextStyle(
                         color: Colors.indigo.shade400,
                         fontSize: 12,
@@ -338,7 +340,7 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Modal Builder',
+                      context.tr.modal_builder_title,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.indigo.shade700,
@@ -347,7 +349,7 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                     ),
                   ),
                   Text(
-                    '${_inputs.length}/5 inputs',
+                    context.tr.modal_inputs_count(_inputs.length),
                     style: TextStyle(
                       color: Colors.indigo.shade400,
                       fontSize: 12,
@@ -373,7 +375,7 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
               LayoutBuilder(
                 builder: (context, constraints) {
                   final titleField = VariableTextField(
-                    label: 'Modal Title',
+                    label: context.tr.modal_title_label,
                     initialValue: widget.modal.title,
                     suggestions: widget.variableSuggestions,
                     onChanged: (v) {
@@ -383,11 +385,11 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                   );
                   final customIdField = TextFormField(
                     controller: _customIdCtrl,
-                    decoration: const InputDecoration(
-                      labelText: 'Custom ID',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: context.tr.common_custom_id,
+                      border: const OutlineInputBorder(),
                       isDense: true,
-                      helperText: 'Used to identify this modal',
+                      helperText: context.tr.modal_custom_id_hint,
                     ),
                     onChanged: (_) => _emit(),
                   );
@@ -445,20 +447,20 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                                 _emit();
                               },
                       decoration: InputDecoration(
-                        labelText: 'Workflow to run on submit (optional)',
+                        labelText: context.tr.modal_workflow_submit,
                         border: const OutlineInputBorder(),
                         isDense: true,
                         helperText:
                             _loadingWorkflows
-                                ? 'Loading workflows...'
+                                ? context.tr.autocomplete_loading
                                 : (_availableWorkflowNames.isEmpty
-                                    ? 'No saved workflows found'
-                                    : 'Select a saved workflow'),
+                                    ? context.tr.autocomplete_no_workflows
+                                    : context.tr.autocomplete_select_workflow),
                       ),
                     );
 
                     final refreshButton = IconButton(
-                      tooltip: 'Refresh workflows',
+                      tooltip: context.tr.common_refresh_workflows,
                       onPressed:
                           _loadingWorkflows ? null : _loadAvailableWorkflows,
                       icon: const Icon(Icons.refresh),
@@ -492,9 +494,9 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                     'modal_manual_workflow_${widget.modal.customId}_${_onWorkflowCtrl.text.trim()}',
                   ),
                   initialValue: _onWorkflowCtrl.text.trim(),
-                  decoration: const InputDecoration(
-                    labelText: 'Or type workflow name',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: context.tr.autocomplete_type_name,
+                    border: const OutlineInputBorder(),
                     isDense: true,
                   ),
                   onChanged: (value) {
@@ -504,9 +506,9 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                 ),
               ] else ...[
                 VariableTextField(
-                  label: 'Workflow to run on submit (optional)',
+                  label: context.tr.modal_workflow_submit,
                   initialValue: widget.modal.onSubmitWorkflow ?? '',
-                  hint: 'e.g. handle_form_submit',
+                  hint: context.tr.workflow_hint_name,
                   suggestions: widget.variableSuggestions,
                   onChanged: (v) {
                     _onWorkflowCtrl.text = v;
@@ -538,7 +540,7 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                               await _loadAvailableWorkflows();
                             },
                     icon: const Icon(Icons.account_tree),
-                    label: const Text('Manage Workflows'),
+                    label: Text(context.tr.common_manage_workflows),
                   ),
                 ],
               ),
@@ -546,11 +548,11 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _onWorkflowEntryPointCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Entry Point (optional)',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: context.tr.workflow_entry_point_optional,
+                    border: const OutlineInputBorder(),
                     isDense: true,
-                    helperText: 'Defaults to workflow entry point when empty',
+                    helperText: context.tr.workflow_entry_point_helper,
                   ),
                   onChanged: (_) => _emit(),
                 ),
@@ -560,8 +562,10 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                   icon: const Icon(Icons.data_object),
                   label: Text(
                     _onWorkflowArguments.isEmpty
-                        ? 'Set Call Arguments'
-                        : 'Edit Call Arguments (${_onWorkflowArguments.length})',
+                        ? context.tr.workflow_set_call_args
+                        : context.tr.workflow_edit_call_args(
+                          _onWorkflowArguments.length,
+                        ),
                   ),
                 ),
               ],
@@ -584,7 +588,13 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'On submit, workflow "${_onWorkflowCtrl.text.trim()}" will run (entry: ${_onWorkflowEntryPointCtrl.text.trim().isEmpty ? 'default' : _onWorkflowEntryPointCtrl.text.trim()}, args: ${_onWorkflowArguments.length}).',
+                          context.tr.workflow_on_submit_info(
+                            _onWorkflowCtrl.text.trim(),
+                            _onWorkflowEntryPointCtrl.text.trim().isEmpty
+                                ? 'default'
+                                : _onWorkflowEntryPointCtrl.text.trim(),
+                            _onWorkflowArguments.length.toString(),
+                          ),
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.green.shade800,
@@ -600,7 +610,7 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: Text(
-                    'Note: If no workflow is selected, submitting this modal will do nothing.',
+                    context.tr.workflow_no_workflow_note,
                     style: TextStyle(
                       fontSize: 11,
                       color: Colors.grey.shade600,
@@ -630,7 +640,7 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                 TextButton.icon(
                   onPressed: _addInput,
                   icon: const Icon(Icons.add, size: 16),
-                  label: const Text('Add Text Input'),
+                  label: Text(context.tr.modal_add_text_input),
                 ),
             ],
           ),
@@ -761,7 +771,7 @@ class _ModalTextInputTileState extends State<_ModalTextInputTile> {
               builder: (context, constraints) {
                 final titleText = Text(
                   widget.input.label.isEmpty
-                      ? 'Input ${widget.index + 1}'
+                      ? context.tr.modal_input_index(widget.index + 1)
                       : widget.input.label,
                   style: const TextStyle(
                     fontWeight: FontWeight.w600,
@@ -812,18 +822,18 @@ class _ModalTextInputTileState extends State<_ModalTextInputTile> {
             _buildResponsiveTwoFieldRow(
               first: TextFormField(
                 controller: _labelCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Label',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: context.tr.common_label,
+                  border: const OutlineInputBorder(),
                   isDense: true,
                 ),
                 onChanged: (v) => _emit(),
               ),
               second: TextFormField(
                 controller: _customIdCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Custom ID',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: context.tr.common_custom_id,
+                  border: const OutlineInputBorder(),
                   isDense: true,
                 ),
                 onChanged: (v) => _emit(),
@@ -832,16 +842,16 @@ class _ModalTextInputTileState extends State<_ModalTextInputTile> {
             const SizedBox(height: 8),
             TextFormField(
               controller: _placeholderCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Placeholder',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: context.tr.common_placeholder,
+                border: const OutlineInputBorder(),
                 isDense: true,
               ),
               onChanged: (v) => _emit(),
             ),
             const SizedBox(height: 8),
             VariableTextField(
-              label: 'Default value',
+              label: context.tr.modal_default_value,
               initialValue: widget.input.defaultValue,
               suggestions: widget.variableSuggestions,
               onChanged: (v) {
@@ -855,7 +865,10 @@ class _ModalTextInputTileState extends State<_ModalTextInputTile> {
                 final stylePicker = Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Style:', style: TextStyle(fontSize: 12)),
+                    Text(
+                      context.tr.modal_style,
+                      style: const TextStyle(fontSize: 12),
+                    ),
                     const SizedBox(height: 6),
                     Wrap(
                       spacing: 6,
@@ -891,7 +904,10 @@ class _ModalTextInputTileState extends State<_ModalTextInputTile> {
                 final requiredToggle = Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text('Required', style: TextStyle(fontSize: 12)),
+                    Text(
+                      context.tr.common_required,
+                      style: const TextStyle(fontSize: 12),
+                    ),
                     Switch(
                       value: widget.input.required,
                       onChanged: (v) {
