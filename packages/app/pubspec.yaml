@@ -68,7 +68,7 @@ dependencies:
   sqlite3_flutter_libs: ^0.6.0+eol
   flutter_colorpicker: ^1.1.0
   shared_preferences: ^2.5.5
-  file_picker: ^10.3.2
+  file_picker: ^11.0.2
   google_mobile_ads: ^7.0.0
   gma_mediation_unity: ^1.6.4
   gma_mediation_ironsource: ^2.3.0
