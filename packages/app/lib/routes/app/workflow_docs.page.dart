@@ -2,6 +2,7 @@ import 'package:bot_creator/routes/app/doc_kind.dart';
 import 'package:bot_creator/utils/command_variable_catalog.dart';
 import 'package:bot_creator/utils/i18n.dart';
 import 'package:flutter/material.dart';
+import 'package:bot_creator/utils/app_theme.dart';
 
 class _DocSection {
   const _DocSection({required this.title, required this.lines});
@@ -815,8 +816,8 @@ class _WorkflowDocDetailPage extends StatelessWidget {
       margin: const EdgeInsets.only(top: 8),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+        border: Border.all(color: AppTheme.grey),
       ),
       child: SelectableText(
         text,

@@ -7,6 +7,7 @@ import 'builder/action_type_extension.dart';
 import 'builder/action_card.dart';
 import 'builder/action_summary.dart';
 import '../../utils/i18n.dart';
+import 'package:bot_creator/utils/app_theme.dart';
 
 export 'builder/action_types.dart';
 export 'builder/action_type_extension.dart';
@@ -658,7 +659,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: Colors.blue,
+              color: AppTheme.info,
             ),
           ),
         ),
@@ -678,7 +679,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
               ),
               subtitle: Text(
                 _getActionDescription(type),
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
+                style: const TextStyle(fontSize: 12, color: AppTheme.grey),
               ),
               onTap: () {
                 Navigator.pop(context);
@@ -695,15 +696,15 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
   Color _getCategoryColor(String category) {
     switch (category) {
       case 'Messages':
-        return Colors.green;
+        return AppTheme.success;
       case 'Reactions':
-        return Colors.orange;
+        return AppTheme.warning;
       case 'Channels':
-        return Colors.blue;
+        return AppTheme.info;
       case 'Moderation':
-        return Colors.red;
+        return AppTheme.error;
       case 'Components':
-        return Colors.purple;
+        return AppTheme.brandPrimary;
       case 'Webhooks':
         return Colors.teal;
       case 'Guild & Members':
@@ -713,13 +714,13 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
       case 'HTTP & Variables':
         return Colors.cyan;
       case 'Workflows':
-        return Colors.deepPurple;
+        return AppTheme.brandPrimary;
       case 'Logic & Flow':
         return Colors.pink;
       case 'Interactions':
-        return Colors.amber.shade700;
+        return AppTheme.premiumGold;
       default:
-        return Colors.grey;
+        return AppTheme.grey;
     }
   }
 
@@ -904,16 +905,16 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.add_task, size: 64, color: Colors.grey),
+          const Icon(Icons.add_task, size: 64, color: AppTheme.grey),
           const SizedBox(height: 16),
           const Text(
             'No actions yet',
-            style: TextStyle(fontSize: 18, color: Colors.grey),
+            style: TextStyle(fontSize: 18, color: AppTheme.grey),
           ),
           const SizedBox(height: 8),
           const Text(
             'Add an action, then open it to configure details.',
-            style: TextStyle(color: Colors.grey),
+            style: TextStyle(color: AppTheme.grey),
           ),
         ],
       ),
@@ -976,8 +977,8 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
                                     : context.tr.common_disabled,
                             color:
                                 summary.isEnabled
-                                    ? Colors.green
-                                    : Colors.orange,
+                                    ? AppTheme.success
+                                    : AppTheme.warning,
                           ),
                           _SequenceMetaChip(
                             label: context.tr.actions_key_label(
@@ -1055,7 +1056,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
         label: Text(context.tr.actions_save_count(_actions.length)),
         style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 16),
-          backgroundColor: Colors.green,
+          backgroundColor: AppTheme.success,
           foregroundColor: Colors.white,
         ),
       );
@@ -1200,7 +1201,7 @@ class _ActionDetailPageState extends State<_ActionDetailPage> {
                                   ? context.tr.common_enabled
                                   : context.tr.common_disabled,
                           color:
-                              summary.isEnabled ? Colors.green : Colors.orange,
+                              summary.isEnabled ? AppTheme.success : AppTheme.warning,
                         ),
                         for (final meta in summary.meta)
                           _SequenceMetaChip(
@@ -1250,7 +1251,7 @@ class _SequenceMetaChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: BorderRadius.circular(AppTheme.radiusPill),
         color: color.withValues(alpha: 0.12),
       ),
       child: Text(

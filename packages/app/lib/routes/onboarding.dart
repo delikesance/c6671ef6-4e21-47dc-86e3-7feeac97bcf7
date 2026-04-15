@@ -4,6 +4,7 @@ import 'package:bot_creator/utils/analytics.dart';
 import 'package:bot_creator/utils/i18n.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:bot_creator/utils/app_theme.dart';
 
 const double _onboardingContentMaxWidth = 560;
 
@@ -187,13 +188,13 @@ class _WelcomeStep extends StatelessWidget {
                 width: 120,
                 height: 120,
                 decoration: BoxDecoration(
-                  color: Colors.deepPurple.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(24),
+                  color: AppTheme.brandPrimary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                 ),
                 child: const Icon(
                   Icons.smart_toy_rounded,
                   size: 60,
-                  color: Colors.deepPurple,
+                  color: AppTheme.brandPrimary,
                 ),
               ),
               const SizedBox(height: 32),
@@ -217,7 +218,7 @@ class _WelcomeStep extends StatelessWidget {
                   onPressed: onNext,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: Colors.deepPurple,
+                    backgroundColor: AppTheme.brandPrimary,
                   ),
                   child: Text(
                     context.tr.onboarding_welcome_start,
@@ -279,13 +280,13 @@ class _CreateBotStep extends StatelessWidget {
                 width: 100,
                 height: 100,
                 decoration: BoxDecoration(
-                  color: Colors.blue.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(16),
+                  color: AppTheme.info.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                 ),
                 child: const Icon(
                   Icons.key_rounded,
                   size: 50,
-                  color: Colors.blue,
+                  color: AppTheme.info,
                 ),
               ),
               const SizedBox(height: 32),
@@ -305,10 +306,10 @@ class _CreateBotStep extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.amber.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  color: AppTheme.premiumGold.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                   border: Border.all(
-                    color: Colors.amber.withValues(alpha: 0.5),
+                    color: AppTheme.premiumGold.withValues(alpha: 0.5),
                   ),
                 ),
                 child: Text(
@@ -339,7 +340,7 @@ class _CreateBotStep extends StatelessWidget {
           onPressed: onNext,
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 16),
-            backgroundColor: Colors.deepPurple,
+            backgroundColor: AppTheme.brandPrimary,
           ),
           child: Text(
             context.tr.onboarding_create_button,
@@ -385,13 +386,13 @@ class _AddCommandStep extends StatelessWidget {
                 width: 100,
                 height: 100,
                 decoration: BoxDecoration(
-                  color: Colors.green.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(16),
+                  color: AppTheme.success.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                 ),
                 child: const Icon(
                   Icons.terminal_rounded,
                   size: 50,
-                  color: Colors.green,
+                  color: AppTheme.success,
                 ),
               ),
               const SizedBox(height: 32),
@@ -411,8 +412,8 @@ class _AddCommandStep extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.blue.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  color: AppTheme.info.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -438,7 +439,7 @@ class _AddCommandStep extends StatelessWidget {
           onPressed: onNext,
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 16),
-            backgroundColor: Colors.deepPurple,
+            backgroundColor: AppTheme.brandPrimary,
           ),
           child: Text(
             context.tr.onboarding_command_button,
@@ -484,13 +485,13 @@ class _StartBotStep extends StatelessWidget {
                 width: 100,
                 height: 100,
                 decoration: BoxDecoration(
-                  color: Colors.orange.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(16),
+                  color: AppTheme.warning.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                 ),
                 child: const Icon(
                   Icons.play_circle_outline_rounded,
                   size: 50,
-                  color: Colors.orange,
+                  color: AppTheme.warning,
                 ),
               ),
               const SizedBox(height: 32),
@@ -510,10 +511,10 @@ class _StartBotStep extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.green.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  color: AppTheme.success.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                   border: Border.all(
-                    color: Colors.green.withValues(alpha: 0.5),
+                    color: AppTheme.success.withValues(alpha: 0.5),
                   ),
                 ),
                 child: Text(
@@ -530,7 +531,7 @@ class _StartBotStep extends StatelessWidget {
           onPressed: onNext,
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 16),
-            backgroundColor: Colors.deepPurple,
+            backgroundColor: AppTheme.brandPrimary,
           ),
           child: Text(
             context.tr.onboarding_start_button,
@@ -564,13 +565,13 @@ class _SuccessStep extends StatelessWidget {
                 width: 120,
                 height: 120,
                 decoration: BoxDecoration(
-                  color: Colors.green.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(24),
+                  color: AppTheme.success.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                 ),
                 child: const Icon(
                   Icons.check_circle_rounded,
                   size: 70,
-                  color: Colors.green,
+                  color: AppTheme.success,
                 ),
               ),
               const SizedBox(height: 32),
@@ -578,7 +579,7 @@ class _SuccessStep extends StatelessWidget {
                 context.tr.onboarding_success_title,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: Colors.green,
+                  color: AppTheme.success,
                 ),
               ),
               const SizedBox(height: 16),
@@ -619,7 +620,7 @@ class _SuccessStep extends StatelessWidget {
                   onPressed: onDone,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: Colors.deepPurple,
+                    backgroundColor: AppTheme.brandPrimary,
                   ),
                   child: Text(
                     context.tr.onboarding_success_button,
@@ -652,7 +653,7 @@ class _TipRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         children: [
-          Icon(icon, color: Colors.deepPurple, size: 24),
+          Icon(icon, color: AppTheme.brandPrimary, size: 24),
           const SizedBox(width: 16),
           Expanded(child: Text(title)),
         ],

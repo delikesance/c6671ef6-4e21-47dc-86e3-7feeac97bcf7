@@ -8,6 +8,7 @@ import 'package:bot_creator_shared/bot/bot_template.dart';
 import 'package:bot_creator_shared/bot/builtin_templates.dart';
 import 'package:flutter/material.dart';
 import 'package:nyxx/nyxx.dart';
+import 'package:bot_creator/utils/app_theme.dart';
 
 /// Const icon mapping so Flutter's icon tree-shaker can resolve them
 /// statically (dynamic `IconData(codePoint)` breaks AOT builds).
@@ -416,7 +417,7 @@ class _TemplateCardState extends State<_TemplateCard> {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
         onTap: _applying ? null : _applyTemplate,
         onLongPress: _applying ? null : _removeTemplateContent,
         child: Padding(
@@ -428,7 +429,7 @@ class _TemplateCardState extends State<_TemplateCard> {
                 height: 52,
                 decoration: BoxDecoration(
                   color: colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                 ),
                 child: Icon(
                   _templateIcons[template.id] ?? Icons.smart_toy,
@@ -510,7 +511,7 @@ class _InfoChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

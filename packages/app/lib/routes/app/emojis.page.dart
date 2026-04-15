@@ -7,6 +7,7 @@ import 'package:bot_creator/utils/app_emoji_api.dart';
 import 'package:bot_creator/utils/i18n.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:bot_creator/utils/app_theme.dart';
 
 class EmojisPage extends StatefulWidget {
   final String botId;
@@ -214,26 +215,14 @@ class _EmojisPageState extends State<EmojisPage> {
   }
 
   Future<void> _confirmDelete(AppEmoji emoji) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder:
-          (ctx) => AlertDialog(
-            title: Text(context.tr.emojis_delete_confirm_title),
-            content: Text(context.tr.emojis_delete_confirm_body(emoji.name)),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(ctx).pop(false),
-                child: Text(context.tr.cancel),
-              ),
-              FilledButton(
-                style: FilledButton.styleFrom(backgroundColor: Colors.red),
-                onPressed: () => Navigator.of(ctx).pop(true),
-                child: Text(context.tr.delete),
-              ),
-            ],
-          ),
+    final confirmed = await AppTheme.showConfirmDialog(
+      context,
+      title: context.tr.emojis_delete_confirm_title,
+      content: context.tr.emojis_delete_confirm_body(emoji.name),
+      confirmLabel: context.tr.delete,
+      isDestructive: true,
     );
-    if (confirmed != true) return;
+    if (!confirmed) return;
     try {
       final token = await _getToken();
       if (token == null) throw Exception('No token');
@@ -250,7 +239,7 @@ class _EmojisPageState extends State<EmojisPage> {
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
+      SnackBar(content: Text(message), backgroundColor: AppTheme.error),
     );
   }
 
@@ -300,7 +289,7 @@ class _EmojisPageState extends State<EmojisPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline, size: 48, color: Colors.red),
+            const Icon(Icons.error_outline, size: 48, color: AppTheme.error),
             const SizedBox(height: 12),
             Text(_errorMessage!),
             const SizedBox(height: 12),
@@ -321,7 +310,7 @@ class _EmojisPageState extends State<EmojisPage> {
             const Icon(
               Icons.emoji_emotions_outlined,
               size: 64,
-              color: Colors.grey,
+              color: AppTheme.grey,
             ),
             const SizedBox(height: 16),
             Text(
@@ -387,7 +376,7 @@ class _EmojiCard extends StatelessWidget {
                     (context, error, stackTrace) => const Icon(
                       Icons.broken_image_outlined,
                       size: 40,
-                      color: Colors.grey,
+                      color: AppTheme.grey,
                     ),
               ),
             ),
@@ -407,7 +396,7 @@ class _EmojiCard extends StatelessWidget {
               padding: EdgeInsets.only(bottom: 2),
               child: Text(
                 'animated',
-                style: TextStyle(fontSize: 10, color: Colors.blueAccent),
+                style: TextStyle(fontSize: 10, color: AppTheme.info),
               ),
             ),
           Row(
@@ -424,7 +413,7 @@ class _EmojiCard extends StatelessWidget {
                 icon: const Icon(
                   Icons.delete_outline,
                   size: 18,
-                  color: Colors.red,
+                  color: AppTheme.error,
                 ),
                 tooltip: context.tr.common_delete,
                 onPressed: onDelete,
