@@ -100,8 +100,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining('Response Embeds'), findsOneWidget);
-    expect(find.text('Timestamp (ISO8601)'), findsOneWidget);
-    expect(find.text('Color (int or #hex)'), findsOneWidget);
+    // Timestamp and color mini-blocks are hidden by default when the embed
+    // has no value for those fields.  Verify that the blocks that DO have
+    // content are visible instead.
+    expect(find.text('Legacy embed'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
@@ -141,7 +143,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byIcon(Icons.delete).first);
+    await tester.tap(find.byIcon(Icons.delete_outline).first);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Delete'));
     await tester.pumpAndSettle();

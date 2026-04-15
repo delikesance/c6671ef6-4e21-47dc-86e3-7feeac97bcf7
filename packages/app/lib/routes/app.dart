@@ -14,6 +14,7 @@ import 'package:bot_creator/utils/i18n.dart';
 import 'package:bot_creator/utils/responsive.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:bot_creator/utils/app_theme.dart';
 import 'package:nyxx/nyxx.dart';
 
 class AppEditPage extends StatefulWidget {
@@ -144,36 +145,13 @@ class _AppEditPageState extends State<AppEditPage>
             reason: _degradedReason,
             onRetry: _init,
             onDeleteLocal: () async {
-              final shouldDelete =
-                  await showDialog<bool>(
-                    context: context,
-                    builder:
-                        (dialogContext) => AlertDialog.adaptive(
-                          title: Text(context.tr.recovery_delete_bot),
-                          content: const Text(
-                            'This removes the local bot data from this device. Continue?',
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed:
-                                  () => Navigator.of(dialogContext).pop(false),
-                              child: Text(context.tr.cancel),
-                            ),
-                            TextButton(
-                              onPressed:
-                                  () => Navigator.of(dialogContext).pop(true),
-                              child: Text(
-                                context.tr.delete,
-                                style: TextStyle(
-                                  color:
-                                      Theme.of(dialogContext).colorScheme.error,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                  ) ??
-                  false;
+              final shouldDelete = await AppTheme.showConfirmDialog(
+                    context,
+                    title: context.tr.recovery_delete_bot,
+                    content: 'This removes the local bot data from this device. Continue?',
+                    confirmLabel: context.tr.delete,
+                    isDestructive: true,
+                  );
               if (!shouldDelete) {
                 return;
               }
@@ -335,7 +313,7 @@ class _AppEditPageState extends State<AppEditPage>
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 3),
                   child: InkWell(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                     onTap: () {
                       setState(() {
                         _selectedIndex = index;
@@ -348,7 +326,7 @@ class _AppEditPageState extends State<AppEditPage>
                         vertical: 10,
                       ),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                         color:
                             selected
                                 ? colorScheme.primaryContainer
@@ -657,9 +635,9 @@ class _MoreSheetItem extends StatelessWidget {
           selected
               ? colorScheme.primaryContainer
               : colorScheme.surfaceContainerHigh,
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(AppTheme.radiusLg),
       child: InkWell(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -742,33 +720,15 @@ class _OfflineTokenPageState extends State<_OfflineTokenPage> {
       final newBotId = discordUser.id.toString();
       if (newBotId != widget.botId) {
         if (!mounted) return;
-        final proceed =
-            await showDialog<bool>(
-              context: context,
-              builder:
-                  (ctx) => AlertDialog(
-                    title: Text(context.tr.bot_settings_token_mismatch_title),
-                    content: Text(
-                      context.tr.bot_settings_token_mismatch_content(
-                        newBotId,
-                        widget.botId,
-                      ),
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.of(ctx).pop(false),
-                        child: Text(context.tr.cancel),
-                      ),
-                      FilledButton(
-                        onPressed: () => Navigator.of(ctx).pop(true),
-                        child: Text(
-                          context.tr.bot_settings_token_mismatch_confirm,
-                        ),
-                      ),
-                    ],
-                  ),
-            ) ??
-            false;
+        final proceed = await AppTheme.showConfirmDialog(
+              context,
+              title: context.tr.bot_settings_token_mismatch_title,
+              content: context.tr.bot_settings_token_mismatch_content(
+                newBotId,
+                widget.botId,
+              ),
+              confirmLabel: context.tr.bot_settings_token_mismatch_confirm,
+            );
         if (!proceed || !mounted) return;
       }
 
@@ -817,13 +777,13 @@ class _OfflineTokenPageState extends State<_OfflineTokenPage> {
                 const Icon(
                   Icons.vpn_key_outlined,
                   size: 48,
-                  color: Colors.orange,
+                  color: AppTheme.warning,
                 ),
                 const SizedBox(height: 16),
                 Text(
                   context.tr.bot_offline_token_desc,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.grey),
+                  style: const TextStyle(color: AppTheme.grey),
                 ),
                 const SizedBox(height: 24),
                 TextField(

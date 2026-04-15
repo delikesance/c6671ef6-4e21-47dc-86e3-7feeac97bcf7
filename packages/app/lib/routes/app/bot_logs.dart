@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bot_creator/utils/bot.dart';
+import 'package:bot_creator/utils/app_theme.dart';
 import 'package:bot_creator/utils/i18n.dart';
 import 'package:bot_creator/utils/runner_client.dart';
 import 'package:bot_creator/utils/runner_settings.dart';
@@ -328,7 +329,7 @@ class _BotLogsPageState extends State<BotLogsPage> {
                         ),
                         decoration: BoxDecoration(
                           color: Theme.of(context).colorScheme.surfaceContainer,
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                         ),
                         child: Row(
                           children: [
@@ -358,7 +359,7 @@ class _BotLogsPageState extends State<BotLogsPage> {
                                 .colorScheme
                                 .primaryContainer
                                 .withValues(alpha: 0.4),
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                           ),
                           child: Row(
                             children: [
@@ -464,7 +465,7 @@ class _BotLogsPageState extends State<BotLogsPage> {
                                                       .colorScheme
                                                       .surfaceContainerHighest,
                                               borderRadius:
-                                                  BorderRadius.circular(10),
+                                                  BorderRadius.circular(AppTheme.radiusMd),
                                             ),
                                             child: Column(
                                               crossAxisAlignment:
@@ -596,7 +597,7 @@ class _BotLogsPageState extends State<BotLogsPage> {
                                       Theme.of(
                                         context,
                                       ).colorScheme.surfaceContainerHighest,
-                                  borderRadius: BorderRadius.circular(10),
+                                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                                 ),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1050,7 +1051,7 @@ class _Badge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: background,
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: BorderRadius.circular(AppTheme.radiusPill),
       ),
       child: Text(
         text,

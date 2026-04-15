@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:bot_creator/utils/app_theme.dart';
 
 /// A widget that highlights a target widget on screen with a spotlight/overlay effect.
 /// Shows text description, an arrow pointing to the target, and typical tutorial UI.
@@ -248,9 +249,9 @@ class _TutorialCard extends StatelessWidget {
                 ),
               // Card content
               Card(
-                elevation: 8,
+                elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(16),

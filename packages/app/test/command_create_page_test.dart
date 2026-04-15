@@ -250,19 +250,18 @@ void main() {
   }
 
   group('CommandCreatePage', () {
-    testWidgets('new command keeps the wizard flow', (tester) async {
+    testWidgets('new command shows block editor', (tester) async {
       await pumpCreatePage(tester, page: const CommandCreatePage());
 
-      expect(find.text('Infos'), findsOneWidget);
-      expect(find.text('Trigger & Inputs'), findsOneWidget);
-      expect(find.text('Reply'), findsOneWidget);
-      expect(find.text('Actions'), findsOneWidget);
-      expect(find.text('Review'), findsOneWidget);
+      expect(find.text('Metadata'), findsOneWidget);
+      expect(find.text('Entry Point'), findsOneWidget);
+      expect(find.text('Response'), findsOneWidget);
+      expect(find.text('Add block'), findsOneWidget);
       expect(find.byTooltip('Import command'), findsOneWidget);
       expect(find.text('Save changes'), findsNothing);
     });
 
-    testWidgets('existing local command renders edit shell instead of wizard', (
+    testWidgets('existing local command renders block editor with save bar', (
       tester,
     ) async {
       const botId = 'bot-edit-shell';
@@ -278,17 +277,15 @@ void main() {
         page: const CommandCreatePage(botId: botId, localCommandId: commandId),
       );
 
-      expect(find.text('settings'), findsOneWidget);
-      expect(find.text('Reply summary'), findsOneWidget);
-      expect(find.text('Actions'), findsOneWidget);
-      expect(find.text('Trigger & Inputs'), findsOneWidget);
-      expect(find.text('Command settings'), findsOneWidget);
-      expect(find.text('Infos'), findsNothing);
-      expect(find.byTooltip('Import command payload'), findsNothing);
+      expect(find.text('Metadata'), findsOneWidget);
+      expect(find.text('Entry Point'), findsOneWidget);
+      expect(find.text('Response'), findsOneWidget);
+      expect(find.text('All changes saved'), findsOneWidget);
+      expect(find.byTooltip('Import command'), findsNothing);
     });
 
     testWidgets(
-      'edit mode shows settings and inputs before actions and reply',
+      'block editor shows metadata and entry point before response',
       (tester) async {
         const botId = 'bot-edit-order';
         const commandId = 'local-edit-order';
@@ -306,14 +303,12 @@ void main() {
           ),
         );
 
-        final settingsY = tester.getTopLeft(find.text('Command settings')).dy;
-        final triggerY = tester.getTopLeft(find.text('Trigger & Inputs')).dy;
-        final actionsY = tester.getTopLeft(find.text('Actions')).dy;
-        final replyY = tester.getTopLeft(find.text('Reply summary')).dy;
+        final metadataY = tester.getTopLeft(find.text('Metadata')).dy;
+        final entryPointY = tester.getTopLeft(find.text('Entry Point')).dy;
+        final responseY = tester.getTopLeft(find.text('Response')).dy;
 
-        expect(settingsY, lessThan(triggerY));
-        expect(triggerY, lessThan(actionsY));
-        expect(actionsY, lessThan(replyY));
+        expect(metadataY, lessThan(entryPointY));
+        expect(entryPointY, lessThan(responseY));
       },
     );
 
@@ -331,10 +326,11 @@ void main() {
         page: const CommandCreatePage(botId: botId, localCommandId: commandId),
       );
 
+      expect(find.byTooltip('Import command'), findsNothing);
+      expect(find.byTooltip('Create command'), findsNothing);
       expect(find.text('Infos'), findsNothing);
       expect(find.text('Review'), findsNothing);
       expect(find.text('Quick starts'), findsNothing);
-      expect(find.byTooltip('Import command payload'), findsNothing);
     });
 
     testWidgets(
@@ -370,23 +366,30 @@ void main() {
         page: const CommandCreatePage(botId: botId, localCommandId: commandId),
       );
 
-      expect(
-        find.text('Active route: /settings config status'),
-        findsOneWidget,
-      );
+      // Verify route chips are shown
+      expect(find.text('/settings config status'), findsOneWidget);
+      expect(find.text('/settings config logchannel'), findsOneWidget);
 
-      await tester.tap(find.byType(DropdownButtonFormField<String>).first);
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
-      await tester.tap(find.text('/settings config logchannel').last);
+      // Tap the logchannel route chip
+      await tester.tap(find.text('/settings config logchannel'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
 
-      expect(
-        find.text('Active route: /settings config logchannel'),
-        findsOneWidget,
+      // Verify the logchannel chip is now selected
+      final statusChip = tester.widget<ChoiceChip>(
+        find.ancestor(
+          of: find.text('/settings config status'),
+          matching: find.byType(ChoiceChip),
+        ),
       );
-      expect(find.text('Active route: /settings config status'), findsNothing);
+      final logchannelChip = tester.widget<ChoiceChip>(
+        find.ancestor(
+          of: find.text('/settings config logchannel'),
+          matching: find.byType(ChoiceChip),
+        ),
+      );
+      expect(statusChip.selected, isFalse);
+      expect(logchannelChip.selected, isTrue);
     });
 
     testWidgets('back navigation from dirty edit state prompts for discard', (
@@ -405,10 +408,11 @@ void main() {
         page: const CommandCreatePage(botId: botId, localCommandId: commandId),
       );
 
-      await tester.tap(find.text('Command settings'));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
-      await tester.enterText(find.byType(TextField).first, 'updated-folder');
+      // Edit the command name to make the page dirty
+      await tester.enterText(
+        find.byType(TextFormField).first,
+        'updated-name',
+      );
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
 
@@ -437,6 +441,15 @@ void main() {
         page: const CommandCreatePage(botId: botId, localCommandId: commandId),
       );
 
+      // Make the page dirty by editing the command name
+      await tester.enterText(
+        find.byType(TextFormField).first,
+        'settingsmodified',
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      // Trigger save inside runAsync so async I/O can complete
       await tester.runAsync(() async {
         final saveButton = tester.widget<FilledButton>(
           find.widgetWithText(FilledButton, 'Save changes'),
@@ -471,28 +484,38 @@ void main() {
           page: const CommandCreatePage(botId: botId),
         );
 
-        await tester.tap(find.byType(DropdownButtonFormField<String>).first);
+        // Expand "Advanced settings" before switching to prefix mode
+        await tester.ensureVisible(find.text('Advanced settings'));
         await tester.pump();
-        await tester.pump(const Duration(milliseconds: 300));
-        await tester.tap(find.text('Legacy Command').last);
+        await tester.tap(find.text('Advanced settings'));
+        await tester.pumpAndSettle();
+
+        // Switch to legacy/prefix command type via SegmentedButton
+        await tester.tap(find.text('Prefix command'));
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
 
+        // Enable local-only mode
+        await tester.tap(
+          find.text('Local Command (Do not register on Discord)'),
+        );
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+
+        // Enter the awaited command name
         await tester.enterText(
           find.byType(TextFormField).first,
           r'$awaitedCommand[say;<numeric>]',
         );
         await tester.pump();
 
-        for (var i = 0; i < 4; i++) {
-          await tester.tap(find.widgetWithText(FilledButton, 'Next'));
-          await tester.pump();
-          await tester.pump(const Duration(milliseconds: 300));
-        }
-
+        // Create the command inside runAsync so async I/O can complete
         await tester.runAsync(() async {
-          final createButton = tester.widget<FilledButton>(
-            find.widgetWithText(FilledButton, 'Create command'),
+          final createButton = tester.widget<IconButton>(
+            find.ancestor(
+              of: find.byTooltip('Create command'),
+              matching: find.byType(IconButton),
+            ),
           );
           createButton.onPressed?.call();
           final deadline = DateTime.now().add(const Duration(seconds: 2));
@@ -527,9 +550,18 @@ void main() {
           page: const CommandCreatePage(botId: botId),
         );
 
-        await tester.tap(find.byKey(const ValueKey('awaited-preset-enable')));
+        // Expand "Advanced settings" in MetadataBlock to reach the preset UI
+        await tester.ensureVisible(find.text('Advanced settings'));
         await tester.pump();
-        await tester.pump(const Duration(milliseconds: 300));
+        await tester.tap(find.text('Advanced settings'));
+        await tester.pumpAndSettle();
+
+        await tester.ensureVisible(
+          find.byKey(const ValueKey('awaited-preset-enable')),
+        );
+        await tester.pump();
+        await tester.tap(find.byKey(const ValueKey('awaited-preset-enable')));
+        await tester.pumpAndSettle();
 
         await tester.enterText(
           find.byKey(const ValueKey('awaited-preset-name')),
@@ -550,15 +582,13 @@ void main() {
           findsOneWidget,
         );
 
-        for (var i = 0; i < 4; i++) {
-          await tester.tap(find.widgetWithText(FilledButton, 'Next'));
-          await tester.pump();
-          await tester.pump(const Duration(milliseconds: 300));
-        }
-
+        // Create the command inside runAsync so async I/O can complete
         await tester.runAsync(() async {
-          final createButton = tester.widget<FilledButton>(
-            find.widgetWithText(FilledButton, 'Create command'),
+          final createButton = tester.widget<IconButton>(
+            find.ancestor(
+              of: find.byTooltip('Create command'),
+              matching: find.byType(IconButton),
+            ),
           );
           createButton.onPressed?.call();
           final deadline = DateTime.now().add(const Duration(seconds: 2));

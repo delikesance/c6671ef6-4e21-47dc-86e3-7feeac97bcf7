@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import '../types/app_emoji.dart';
 import '../types/variable_suggestion.dart';
+import 'package:bot_creator/utils/app_theme.dart';
 
 class VariableTextField extends StatefulWidget {
   final String? initialValue;
@@ -183,7 +184,7 @@ class _VariableTextFieldState extends State<VariableTextField> {
               const Text(
                 ' *',
                 style: TextStyle(
-                  color: Colors.red,
+                  color: AppTheme.error,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -232,7 +233,7 @@ class _VariableTextFieldState extends State<VariableTextField> {
             const SizedBox(height: 8),
             Text(
               'Emoji suggestions',
-              style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: 11, color: AppTheme.grey),
             ),
             const SizedBox(height: 6),
             Wrap(
@@ -301,14 +302,14 @@ class _VariableTextFieldState extends State<VariableTextField> {
         widget.isNumericField
             ? 'Dynamic numeric suggestions'
             : 'Dynamic variable suggestions',
-        style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+        style: TextStyle(fontSize: 11, color: AppTheme.grey),
       ),
       if (inFallbackMode)
         Padding(
           padding: const EdgeInsets.only(top: 4),
           child: Text(
             'Fallback mode enabled (using |)',
-            style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+            style: TextStyle(fontSize: 11, color: AppTheme.grey),
           ),
         ),
       const SizedBox(height: 6),

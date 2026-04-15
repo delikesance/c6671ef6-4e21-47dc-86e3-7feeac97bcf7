@@ -3,6 +3,7 @@ import 'package:bot_creator/utils/bot_export_import.dart';
 import 'package:bot_creator/utils/i18n.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:bot_creator/utils/app_theme.dart';
 
 class BotExportImportPage extends StatefulWidget {
   final String botId;
@@ -555,7 +556,7 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
           padding: const EdgeInsets.only(left: 32, bottom: 4),
           child: Row(
             children: [
-              Icon(Icons.warning_amber, size: 16, color: Colors.orange[700]),
+              Icon(Icons.warning_amber, size: 16, color: AppTheme.warning),
               const SizedBox(width: 8),
               Expanded(child: Text(name, style: const TextStyle(fontSize: 13))),
               SegmentedButton<ConflictResolution>(
@@ -600,7 +601,7 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
           padding: const EdgeInsets.only(left: 32, bottom: 4),
           child: Row(
             children: [
-              Icon(Icons.warning_amber, size: 16, color: Colors.orange[700]),
+              Icon(Icons.warning_amber, size: 16, color: AppTheme.warning),
               const SizedBox(width: 8),
               Expanded(child: Text(name, style: const TextStyle(fontSize: 13))),
               SegmentedButton<ConflictResolution>(

@@ -1,10 +1,12 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:bot_creator/utils/app_theme.dart';
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/types/component.dart';
 import 'package:bot_creator/types/variable_suggestion.dart';
 import 'package:bot_creator/routes/app/workflows.page.dart';
+import 'package:bot_creator/utils/workflow_call.dart';
 import 'package:bot_creator/widgets/variable_text_field.dart';
 import '../../utils/i18n.dart';
 
@@ -35,6 +37,8 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
   late Map<String, dynamic> _onWorkflowArguments;
   late List<ModalTextInputDefinition> _inputs;
   List<String> _availableWorkflowNames = const [];
+  /// Argument definitions per workflow name (loaded from saved workflows).
+  Map<String, List<WorkflowArgumentDefinition>> _workflowArgDefs = const {};
   bool _loadingWorkflows = false;
 
   @override
@@ -123,31 +127,13 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
   }
 
   Future<void> _removeInput(int index) async {
-    final shouldDelete =
-        await showDialog<bool>(
-          context: context,
-          builder:
-              (dialogContext) => AlertDialog.adaptive(
-                title: Text(context.tr.modal_remove_field_title),
-                content: Text(context.tr.modal_remove_field_confirm),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(dialogContext).pop(false),
-                    child: Text(context.tr.common_cancel),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.of(dialogContext).pop(true),
-                    child: Text(
-                      context.tr.common_remove,
-                      style: TextStyle(
-                        color: Theme.of(dialogContext).colorScheme.error,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-        ) ??
-        false;
+    final shouldDelete = await AppTheme.showConfirmDialog(
+      context,
+      title: context.tr.modal_remove_field_title,
+      content: context.tr.modal_remove_field_confirm,
+      confirmLabel: context.tr.common_remove,
+      isDestructive: true,
+    );
     if (!shouldDelete) {
       return;
     }
@@ -185,18 +171,142 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
       return;
     }
 
-    final names = workflows
+    final generalWorkflows = workflows
+      .where((workflow) =>
+          normalizeWorkflowType(workflow['workflowType']) == workflowTypeGeneral)
+      .toList();
+
+    final names = generalWorkflows
       .map((workflow) => (workflow['name'] ?? '').toString().trim())
       .where((name) => name.isNotEmpty)
       .toList(growable: false)..sort();
 
+    final argDefs = <String, List<WorkflowArgumentDefinition>>{};
+    for (final workflow in generalWorkflows) {
+      final name = (workflow['name'] ?? '').toString().trim();
+      if (name.isNotEmpty) {
+        argDefs[name] = parseWorkflowArgumentDefinitions(workflow['arguments']);
+      }
+    }
+
     setState(() {
       _availableWorkflowNames = names;
+      _workflowArgDefs = argDefs;
       _loadingWorkflows = false;
     });
   }
 
   Future<void> _editOnSubmitArguments() async {
+    final workflowName = _onWorkflowCtrl.text.trim();
+    final defs = _workflowArgDefs[workflowName] ?? const [];
+
+    // If the workflow has defined arguments, show a per-field form;
+    // otherwise fall back to a raw JSON editor for manual/custom args.
+    if (defs.isNotEmpty) {
+      await _editOnSubmitArgumentsForm(defs);
+    } else {
+      await _editOnSubmitArgumentsJson();
+    }
+  }
+
+  /// Per-field argument editor – one TextField per workflow argument definition.
+  Future<void> _editOnSubmitArgumentsForm(
+    List<WorkflowArgumentDefinition> defs,
+  ) async {
+    final controllers = <String, TextEditingController>{};
+    for (final def in defs) {
+      controllers[def.name] = TextEditingController(
+        text: (_onWorkflowArguments[def.name] ?? '').toString(),
+      );
+    }
+
+    final saved = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          shape: AppTheme.dialogShape,
+          icon: Icon(
+            Icons.data_object,
+            color: AppTheme.brandPrimary,
+            size: 32,
+          ),
+          title: Text(
+            context.tr.component_workflow_args_title,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+          ),
+          content: SizedBox(
+            width: 480,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (final def in defs) ...[
+                    TextField(
+                      controller: controllers[def.name],
+                      decoration: InputDecoration(
+                        labelText: def.name + (def.required ? ' *' : ''),
+                        hintText: '((value))',
+                        border: const OutlineInputBorder(),
+                        isDense: true,
+                        helperText: def.defaultValue.isNotEmpty
+                            ? '${context.tr.common_default}: ${def.defaultValue}'
+                            : null,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+                ],
+              ),
+            ),
+          ),
+          actionsAlignment: MainAxisAlignment.center,
+          actionsPadding:
+              const EdgeInsets.fromLTRB(
+                AppTheme.spacingLg,
+                0,
+                AppTheme.spacingLg,
+                AppTheme.spacingLg,
+              ),
+          actions: [
+            OutlinedButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              style: OutlinedButton.styleFrom(shape: AppTheme.buttonShape),
+              child: Text(context.tr.common_cancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              style: FilledButton.styleFrom(shape: AppTheme.buttonShape),
+              child: Text(context.tr.common_save),
+            ),
+          ],
+        );
+      },
+    );
+
+    // Read values and dispose controllers before setState to avoid
+    // "used after being disposed" errors during the rebuild.
+    final result = <String, dynamic>{};
+    if (saved == true) {
+      for (final def in defs) {
+        final value = controllers[def.name]!.text.trim();
+        if (value.isNotEmpty) {
+          result[def.name] = value;
+        }
+      }
+    }
+    for (final ctrl in controllers.values) {
+      ctrl.dispose();
+    }
+    if (saved == true) {
+      setState(() {
+        _onWorkflowArguments = result;
+      });
+      _emit();
+    }
+  }
+
+  /// Raw JSON fallback for workflows with no defined arguments.
+  Future<void> _editOnSubmitArgumentsJson() async {
     final jsonController = TextEditingController(
       text:
           _onWorkflowArguments.isEmpty
@@ -213,6 +323,7 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
           (dialogContext) => StatefulBuilder(
             builder: (context, setDialogState) {
               return AlertDialog(
+                shape: AppTheme.dialogShape,
                 title: Text(context.tr.component_workflow_args_title),
                 content: SizedBox(
                   width: 520,
@@ -228,9 +339,18 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                     style: const TextStyle(fontFamily: 'monospace'),
                   ),
                 ),
+                actionsAlignment: MainAxisAlignment.center,
+                actionsPadding:
+                    const EdgeInsets.fromLTRB(
+                      AppTheme.spacingLg,
+                      0,
+                      AppTheme.spacingLg,
+                      AppTheme.spacingLg,
+                    ),
                 actions: [
-                  TextButton(
+                  OutlinedButton(
                     onPressed: () => Navigator.pop(dialogContext),
+                    style: OutlinedButton.styleFrom(shape: AppTheme.buttonShape),
                     child: Text(context.tr.common_cancel),
                   ),
                   FilledButton(
@@ -269,6 +389,7 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                         });
                       }
                     },
+                    style: FilledButton.styleFrom(shape: AppTheme.buttonShape),
                     child: Text(context.tr.common_save),
                   ),
                 ],
@@ -286,10 +407,9 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
         // Header
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: Colors.indigo.shade50,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-            border: Border.all(color: Colors.indigo.shade200),
+          decoration: const BoxDecoration(
+            gradient: AppTheme.brandGradient,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
           ),
           child: LayoutBuilder(
             builder: (context, constraints) {
@@ -299,18 +419,18 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                   children: [
                     Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.dynamic_form,
-                          color: Colors.indigo.shade600,
+                          color: Colors.white,
                           size: 18,
                         ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             context.tr.modal_builder_title,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: Colors.indigo.shade700,
+                              color: Colors.white,
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -321,8 +441,8 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                     Text(
                       context.tr.modal_inputs_count(_inputs.length),
 
-                      style: TextStyle(
-                        color: Colors.indigo.shade400,
+                      style: const TextStyle(
+                        color: Colors.white70,
                         fontSize: 12,
                       ),
                     ),
@@ -332,26 +452,26 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
 
               return Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.dynamic_form,
-                    color: Colors.indigo.shade600,
+                    color: Colors.white,
                     size: 18,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       context.tr.modal_builder_title,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: Colors.indigo.shade700,
+                        color: Colors.white,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   Text(
                     context.tr.modal_inputs_count(_inputs.length),
-                    style: TextStyle(
-                      color: Colors.indigo.shade400,
+                    style: const TextStyle(
+                      color: Colors.white70,
                       fontSize: 12,
                     ),
                   ),
@@ -363,7 +483,9 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            border: Border.all(color: Colors.indigo.shade200),
+            border: Border.all(
+              color: AppTheme.brandPrimary.withValues(alpha: 0.3),
+            ),
             borderRadius: const BorderRadius.vertical(
               bottom: Radius.circular(8),
             ),
@@ -371,50 +493,141 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Title & customId
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  final titleField = VariableTextField(
-                    label: context.tr.modal_title_label,
-                    initialValue: widget.modal.title,
-                    suggestions: widget.variableSuggestions,
-                    onChanged: (v) {
-                      _titleCtrl.text = v;
-                      _emit();
-                    },
-                  );
-                  final customIdField = TextFormField(
-                    controller: _customIdCtrl,
-                    decoration: InputDecoration(
-                      labelText: context.tr.common_custom_id,
-                      border: const OutlineInputBorder(),
-                      isDense: true,
-                      helperText: context.tr.modal_custom_id_hint,
+              // ── Mini-block: Title & Custom ID ──
+              Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                  ),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .surfaceContainerHighest
+                          .withValues(alpha: 0.5),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.title,
+                            size: 16,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            context.tr.modal_title_label,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    onChanged: (_) => _emit(),
-                  );
+                    Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          final titleField = VariableTextField(
+                            label: context.tr.modal_title_label,
+                            initialValue: widget.modal.title,
+                            suggestions: widget.variableSuggestions,
+                            onChanged: (v) {
+                              _titleCtrl.text = v;
+                              _emit();
+                            },
+                          );
+                          final customIdField = TextFormField(
+                            controller: _customIdCtrl,
+                            decoration: InputDecoration(
+                              labelText: context.tr.common_custom_id,
+                              border: const OutlineInputBorder(),
+                              isDense: true,
+                              helperText: context.tr.modal_custom_id_hint,
+                            ),
+                            onChanged: (_) => _emit(),
+                          );
 
-                  if (constraints.maxWidth < 560) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        titleField,
-                        const SizedBox(height: 8),
-                        customIdField,
-                      ],
-                    );
-                  }
+                          if (constraints.maxWidth < 560) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                titleField,
+                                const SizedBox(height: 8),
+                                customIdField,
+                              ],
+                            );
+                          }
 
-                  return Row(
-                    children: [
-                      Expanded(flex: 3, child: titleField),
-                      const SizedBox(width: 8),
-                      Expanded(flex: 2, child: customIdField),
-                    ],
-                  );
-                },
+                          return Row(
+                            children: [
+                              Expanded(flex: 3, child: titleField),
+                              const SizedBox(width: 8),
+                              Expanded(flex: 2, child: customIdField),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 12),
+              // ── Mini-block: Workflow ──
+              Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                  ),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .surfaceContainerHighest
+                          .withValues(alpha: 0.5),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.account_tree,
+                            size: 16,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              context.tr.modal_workflow_submit,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
               if (widget.botIdForConfig != null) ...[
                 LayoutBuilder(
                   builder: (context, constraints) {
@@ -574,15 +787,17 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.green.shade50,
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: Colors.green.shade200),
+                    color: AppTheme.success.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                    border: Border.all(
+                      color: AppTheme.success.withValues(alpha: 0.3),
+                    ),
                   ),
                   child: Row(
                     children: [
                       Icon(
                         Icons.check_circle_outline,
-                        color: Colors.green.shade700,
+                        color: AppTheme.success,
                         size: 16,
                       ),
                       const SizedBox(width: 8),
@@ -597,7 +812,7 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                           ),
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.green.shade800,
+                            color: AppTheme.success,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -613,13 +828,19 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                     context.tr.workflow_no_workflow_note,
                     style: TextStyle(
                       fontSize: 11,
-                      color: Colors.grey.shade600,
+                      color: AppTheme.grey,
                       fontStyle: FontStyle.italic,
                     ),
                   ),
                 ),
               ],
-              const SizedBox(height: 16),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
               // Inputs list
               ..._inputs.asMap().entries.map((entry) {
                 final index = entry.key;
@@ -756,204 +977,215 @@ class _ModalTextInputTileState extends State<_ModalTextInputTile> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    final theme = Theme.of(context);
+
+    return Container(
       margin: const EdgeInsets.only(bottom: 8),
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        side: BorderSide(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          children: [
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final titleText = Text(
-                  widget.input.label.isEmpty
-                      ? context.tr.modal_input_index(widget.index + 1)
-                      : widget.input.label,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // ── Mini-block header (same style as embed mini-blocks) ──
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            color: theme.colorScheme.surfaceContainerHighest
+                .withValues(alpha: 0.5),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.text_fields,
+                  size: 16,
+                  color: theme.colorScheme.primary,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    widget.input.label.isEmpty
+                        ? context.tr.modal_input_index(widget.index + 1)
+                        : widget.input.label,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                    ),
                   ),
-                );
-
-                final actions = Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Chip(
-                      label: Text(
-                        widget.input.style.name,
-                        style: const TextStyle(fontSize: 11),
-                      ),
-                      visualDensity: VisualDensity.compact,
-                    ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.delete,
-                        size: 16,
-                        color: Colors.red,
-                      ),
-                      onPressed: widget.onRemove,
-                    ),
-                  ],
-                );
-
-                if (constraints.maxWidth < 420) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      titleText,
-                      const SizedBox(height: 6),
-                      Align(alignment: Alignment.centerRight, child: actions),
-                    ],
-                  );
-                }
-
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [Expanded(child: titleText), actions],
-                );
-              },
-            ),
-            const Divider(),
-            const SizedBox(height: 8),
-            _buildResponsiveTwoFieldRow(
-              first: TextFormField(
-                controller: _labelCtrl,
-                decoration: InputDecoration(
-                  labelText: context.tr.common_label,
-                  border: const OutlineInputBorder(),
-                  isDense: true,
                 ),
-                onChanged: (v) => _emit(),
-              ),
-              second: TextFormField(
-                controller: _customIdCtrl,
-                decoration: InputDecoration(
-                  labelText: context.tr.common_custom_id,
-                  border: const OutlineInputBorder(),
-                  isDense: true,
-                ),
-                onChanged: (v) => _emit(),
-              ),
-            ),
-            const SizedBox(height: 8),
-            TextFormField(
-              controller: _placeholderCtrl,
-              decoration: InputDecoration(
-                labelText: context.tr.common_placeholder,
-                border: const OutlineInputBorder(),
-                isDense: true,
-              ),
-              onChanged: (v) => _emit(),
-            ),
-            const SizedBox(height: 8),
-            VariableTextField(
-              label: context.tr.modal_default_value,
-              initialValue: widget.input.defaultValue,
-              suggestions: widget.variableSuggestions,
-              onChanged: (v) {
-                _defaultValCtrl.text = v;
-                _emit();
-              },
-            ),
-            const SizedBox(height: 4),
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final stylePicker = Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      context.tr.modal_style,
-                      style: const TextStyle(fontSize: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppTheme.brandPrimary.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+                  ),
+                  child: Text(
+                    widget.input.style.name,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: AppTheme.brandSecondary,
+                      fontWeight: FontWeight.w500,
                     ),
-                    const SizedBox(height: 6),
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 6,
-                      children:
-                          BcTextInputStyle.values.map((style) {
-                            return FilterChip(
-                              label: Text(
-                                style.name,
-                                style: const TextStyle(fontSize: 11),
-                              ),
-                              selected: widget.input.style == style,
-                              onSelected: (_) {
-                                widget.onChanged(
-                                  ModalTextInputDefinition(
-                                    customId: _customIdCtrl.text,
-                                    label: _labelCtrl.text,
-                                    style: style,
-                                    placeholder: _placeholderCtrl.text,
-                                    defaultValue: _defaultValCtrl.text,
-                                    required: widget.input.required,
-                                    minLength: widget.input.minLength,
-                                    maxLength: widget.input.maxLength,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                InkWell(
+                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                  onTap: widget.onRemove,
+                  child: const Padding(
+                    padding: EdgeInsets.all(4),
+                    child: Icon(Icons.close, size: 16, color: AppTheme.grey),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // ── Content ──
+          Padding(
+            padding: const EdgeInsets.all(10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildResponsiveTwoFieldRow(
+                  first: TextFormField(
+                    controller: _labelCtrl,
+                    decoration: InputDecoration(
+                      labelText: context.tr.common_label,
+                      border: const OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                    onChanged: (v) => _emit(),
+                  ),
+                  second: TextFormField(
+                    controller: _customIdCtrl,
+                    decoration: InputDecoration(
+                      labelText: context.tr.common_custom_id,
+                      border: const OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                    onChanged: (v) => _emit(),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: _placeholderCtrl,
+                  decoration: InputDecoration(
+                    labelText: context.tr.common_placeholder,
+                    border: const OutlineInputBorder(),
+                    isDense: true,
+                  ),
+                  onChanged: (v) => _emit(),
+                ),
+                const SizedBox(height: 8),
+                VariableTextField(
+                  label: context.tr.modal_default_value,
+                  initialValue: widget.input.defaultValue,
+                  suggestions: widget.variableSuggestions,
+                  onChanged: (v) {
+                    _defaultValCtrl.text = v;
+                    _emit();
+                  },
+                ),
+                const SizedBox(height: 8),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final stylePicker = Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.tr.modal_style,
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                        const SizedBox(height: 6),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children:
+                              BcTextInputStyle.values.map((style) {
+                                return FilterChip(
+                                  label: Text(
+                                    style.name,
+                                    style: const TextStyle(fontSize: 11),
                                   ),
+                                  selected: widget.input.style == style,
+                                  onSelected: (_) {
+                                    widget.onChanged(
+                                      ModalTextInputDefinition(
+                                        customId: _customIdCtrl.text,
+                                        label: _labelCtrl.text,
+                                        style: style,
+                                        placeholder: _placeholderCtrl.text,
+                                        defaultValue: _defaultValCtrl.text,
+                                        required: widget.input.required,
+                                        minLength: widget.input.minLength,
+                                        maxLength: widget.input.maxLength,
+                                      ),
+                                    );
+                                  },
                                 );
-                              },
+                              }).toList(),
+                        ),
+                      ],
+                    );
+
+                    final requiredToggle = Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          context.tr.common_required,
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                        Switch(
+                          value: widget.input.required,
+                          onChanged: (v) {
+                            widget.onChanged(
+                              ModalTextInputDefinition(
+                                customId: _customIdCtrl.text,
+                                label: _labelCtrl.text,
+                                style: widget.input.style,
+                                placeholder: _placeholderCtrl.text,
+                                defaultValue: _defaultValCtrl.text,
+                                required: v,
+                                minLength: widget.input.minLength,
+                                maxLength: widget.input.maxLength,
+                              ),
                             );
-                          }).toList(),
-                    ),
-                  ],
-                );
+                          },
+                        ),
+                      ],
+                    );
 
-                final requiredToggle = Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      context.tr.common_required,
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                    Switch(
-                      value: widget.input.required,
-                      onChanged: (v) {
-                        widget.onChanged(
-                          ModalTextInputDefinition(
-                            customId: _customIdCtrl.text,
-                            label: _labelCtrl.text,
-                            style: widget.input.style,
-                            placeholder: _placeholderCtrl.text,
-                            defaultValue: _defaultValCtrl.text,
-                            required: v,
-                            minLength: widget.input.minLength,
-                            maxLength: widget.input.maxLength,
+                    if (constraints.maxWidth < 560) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          stylePicker,
+                          const SizedBox(height: 6),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: requiredToggle,
                           ),
-                        );
-                      },
-                    ),
-                  ],
-                );
+                        ],
+                      );
+                    }
 
-                if (constraints.maxWidth < 560) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      stylePicker,
-                      const SizedBox(height: 6),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: requiredToggle,
-                      ),
-                    ],
-                  );
-                }
-
-                return Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(child: stylePicker),
-                    const SizedBox(width: 8),
-                    requiredToggle,
-                  ],
-                );
-              },
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(child: stylePicker),
+                        const SizedBox(width: 8),
+                        requiredToggle,
+                      ],
+                    );
+                  },
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

@@ -33,6 +33,7 @@ extension _CommandCreateEditShell on _CommandCreatePageState {
     }
   }
 
+  // ignore: unused_element
   Widget _buildEditShell() {
     final activeRouteLabel =
         _subcommandWorkflows.isNotEmpty
@@ -208,7 +209,7 @@ extension _CommandCreateEditShell on _CommandCreatePageState {
                   const SizedBox(height: 6),
                   Text(
                     _actionsSummaryLine(),
-                    style: TextStyle(color: Colors.grey.shade700),
+                    style: TextStyle(color: AppTheme.grey),
                   ),
                   const SizedBox(height: 12),
                   _buildBdfdEditorTile(),
@@ -258,7 +259,7 @@ extension _CommandCreateEditShell on _CommandCreatePageState {
           ),
           subtitle: Text(
             subtitle,
-            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+            style: TextStyle(fontSize: 12, color: AppTheme.grey),
           ),
           childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           children: [child],
@@ -302,7 +303,7 @@ class _EditSummaryCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 6),
-                Text(subtitle, style: TextStyle(color: Colors.grey.shade700)),
+                Text(subtitle, style: TextStyle(color: AppTheme.grey)),
                 const SizedBox(height: 12),
                 Wrap(spacing: 8, runSpacing: 8, children: badges),
               ],
@@ -350,7 +351,7 @@ class _EditSummaryBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: BorderRadius.circular(AppTheme.radiusPill),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

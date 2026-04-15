@@ -1,6 +1,7 @@
 import 'package:bot_creator/utils/i18n.dart';
 import 'package:bot_creator_shared/utils/bdfd_signature_hints.dart';
 import 'package:flutter/material.dart';
+import 'package:bot_creator/utils/app_theme.dart';
 
 class _DocCategory {
   const _DocCategory({required this.titleKey, required this.functions});
@@ -453,7 +454,7 @@ class _BdfdDocsPageState extends State<BdfdDocsPage> {
 
     return Scaffold(
       backgroundColor:
-          isDark ? const Color(0xFF1E1E1E) : const Color(0xFF263238),
+          isDark ? AppTheme.codeSurface : AppTheme.codeSurfaceVariant,
       appBar: AppBar(
         backgroundColor:
             isDark ? const Color(0xFF252526) : const Color(0xFF37474F),
@@ -473,10 +474,10 @@ class _BdfdDocsPageState extends State<BdfdDocsPage> {
                 style: const TextStyle(color: Colors.white, fontSize: 14),
                 decoration: InputDecoration(
                   hintText: context.tr.bdfd_docs_search_hint,
-                  hintStyle: TextStyle(color: Colors.grey.shade500),
+                  hintStyle: TextStyle(color: AppTheme.grey),
                   prefixIcon: Icon(
                     Icons.search,
-                    color: Colors.grey.shade400,
+                    color: AppTheme.grey,
                     size: 20,
                   ),
                   filled: true,
@@ -489,7 +490,7 @@ class _BdfdDocsPageState extends State<BdfdDocsPage> {
                     vertical: 10,
                   ),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                     borderSide: BorderSide.none,
                   ),
                 ),
@@ -527,7 +528,7 @@ class _BdfdDocsPageState extends State<BdfdDocsPage> {
       return Center(
         child: Text(
           context.tr.bdfd_docs_empty,
-          style: TextStyle(color: Colors.grey.shade500, fontSize: 14),
+          style: TextStyle(color: AppTheme.grey, fontSize: 14),
         ),
       );
     }
@@ -553,7 +554,7 @@ class _BdfdDocsPageState extends State<BdfdDocsPage> {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: Colors.blue.shade200,
+              color: AppTheme.info,
             ),
           ),
         ),
@@ -573,12 +574,12 @@ class _BdfdDocsPageState extends State<BdfdDocsPage> {
     return Card(
       color: const Color(0xFF253341),
       margin: const EdgeInsets.only(bottom: 6),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTheme.radiusSm)),
       child: ExpansionTile(
         tilePadding: const EdgeInsets.symmetric(horizontal: 12),
         childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-        iconColor: Colors.grey.shade400,
-        collapsedIconColor: Colors.grey.shade600,
+        iconColor: AppTheme.grey,
+        collapsedIconColor: AppTheme.grey,
         title: Row(
           children: [
             Expanded(
@@ -587,7 +588,7 @@ class _BdfdDocsPageState extends State<BdfdDocsPage> {
                 style: const TextStyle(
                   fontFamily: 'monospace',
                   fontSize: 13,
-                  color: Color(0xFFFF9800),
+                  color: AppTheme.syntaxOrange,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -596,8 +597,8 @@ class _BdfdDocsPageState extends State<BdfdDocsPage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: Colors.deepPurple.shade700.withValues(alpha: 0.6),
-                  borderRadius: BorderRadius.circular(4),
+                  color: AppTheme.brandPrimary.withValues(alpha: 0.6),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusXs),
                 ),
                 child: const Text(
                   'Bot Creator',
@@ -617,10 +618,10 @@ class _BdfdDocsPageState extends State<BdfdDocsPage> {
               padding: const EdgeInsets.all(8),
               margin: const EdgeInsets.only(bottom: 10),
               decoration: BoxDecoration(
-                color: Colors.deepPurple.shade900.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(6),
+                color: AppTheme.brandPrimary.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                 border: Border.all(
-                  color: Colors.deepPurple.shade700.withValues(alpha: 0.4),
+                  color: AppTheme.brandPrimary.withValues(alpha: 0.4),
                 ),
               ),
               child: Text(
@@ -641,7 +642,7 @@ class _BdfdDocsPageState extends State<BdfdDocsPage> {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: Colors.grey.shade400,
+                  color: AppTheme.grey,
                 ),
               ),
             ),
@@ -651,14 +652,14 @@ class _BdfdDocsPageState extends State<BdfdDocsPage> {
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: const Color(0xFF1A2530),
-                borderRadius: BorderRadius.circular(6),
+                borderRadius: BorderRadius.circular(AppTheme.radiusSm),
               ),
               child: Text(
                 displayName,
                 style: const TextStyle(
                   fontFamily: 'monospace',
                   fontSize: 12,
-                  color: Color(0xFFE0E0E0),
+                  color: AppTheme.syntaxGrey,
                 ),
               ),
             ),
@@ -670,7 +671,7 @@ class _BdfdDocsPageState extends State<BdfdDocsPage> {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: Colors.grey.shade400,
+                  color: AppTheme.grey,
                 ),
               ),
             ),
@@ -685,7 +686,7 @@ class _BdfdDocsPageState extends State<BdfdDocsPage> {
                       '• ',
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.grey.shade400,
+                        color: AppTheme.grey,
                       ),
                     ),
                     Expanded(
@@ -696,7 +697,7 @@ class _BdfdDocsPageState extends State<BdfdDocsPage> {
                           fontSize: 12,
                           color:
                               p.contains('(opt)')
-                                  ? Colors.grey.shade500
+                                  ? AppTheme.grey
                                   : Colors.white70,
                           fontStyle:
                               p.contains('(opt)')
@@ -717,7 +718,7 @@ class _BdfdDocsPageState extends State<BdfdDocsPage> {
                 style: TextStyle(
                   fontFamily: 'monospace',
                   fontSize: 12,
-                  color: Colors.grey.shade500,
+                  color: AppTheme.grey,
                   fontStyle: FontStyle.italic,
                 ),
               ),

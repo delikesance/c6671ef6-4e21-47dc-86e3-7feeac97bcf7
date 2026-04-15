@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bot_creator/utils/app_diagnostics.dart';
 import 'package:bot_creator/utils/i18n.dart';
 import 'package:flutter/material.dart';
+import 'package:bot_creator/utils/app_theme.dart';
 
 class DiagnosticsLogsPage extends StatefulWidget {
   const DiagnosticsLogsPage({super.key});
@@ -146,7 +147,7 @@ class _DiagnosticsLogsPageState extends State<DiagnosticsLogsPage> {
                     border: Border.all(
                       color: Theme.of(context).colorScheme.outlineVariant,
                     ),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                   ),
                   child:
                       _loading

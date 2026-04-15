@@ -1,14 +1,18 @@
 import 'dart:convert';
 
 import 'package:bot_creator/main.dart';
+import 'package:bot_creator/utils/app_theme.dart';
 import 'package:bot_creator/routes/app/builder.response.dart';
+import 'package:bot_creator/routes/app/workflow_block_editor.dart';
 import 'package:bot_creator/routes/app/workflow_docs.page.dart';
+import 'package:bot_creator/widgets/scratch_blocks/entry_point_block.dart';
 import 'package:bot_creator/types/app_emoji.dart';
 import 'package:bot_creator/utils/app_emoji_api.dart';
 import 'package:bot_creator/utils/ads_placement_policy.dart';
 import 'package:bot_creator/utils/i18n.dart';
 import 'package:bot_creator/utils/workflow_call.dart';
 import 'package:bot_creator/widgets/native_ad_slot.dart';
+import 'package:bot_creator/widgets/notion_filter_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -578,14 +582,6 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
       return eventName;
     }
     return definition.label;
-  }
-
-  String _eventDescription(String eventName) {
-    final definition = _findEventDefinition(eventName);
-    if (definition == null) {
-      return eventName;
-    }
-    return definition.description;
   }
 
   String _workflowTypeBadgeLabel(String workflowType) {
@@ -1174,846 +1170,49 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
     }
     return uniqueByName.values.toList(growable: false);
   }
-
-  List<String> _eventVariablePreview(String eventName) {
-    final preview = <String>['event.name', 'timestamp', 'actualTime'];
-    if (eventName.startsWith('message') &&
-        !eventName.startsWith('messageReaction') &&
-        !eventName.startsWith('messagePoll') &&
-        !eventName.startsWith('messageBulk')) {
-      preview.addAll(const <String>[
-        'message.id',
-        'message.content',
-        'message.content[0]',
-        'message.content[1]',
-        'message.word.count',
-        'message.isBot',
-        'message.isSystem',
-        'message.mentions',
-        'message.mentions[0]',
-        'message.mention.count',
-        'author.id',
-        'author.name',
-        'author.isBot',
-        'author.avatar',
-        'channelId',
-        'guildId',
-      ]);
-    } else if (eventName.startsWith('guildMember') ||
-        eventName.startsWith('guildBan')) {
-      preview.addAll(const <String>[
-        'member.id',
-        'member.name',
-        'member.joinedAt',
-        'guildId',
-      ]);
-    } else if (eventName.startsWith('channel') ||
-        eventName.startsWith('thread')) {
-      preview.addAll(const <String>[
-        'channel.id',
-        'channel.name',
-        'channel.type',
-        'guildId',
-      ]);
-    } else if (eventName.startsWith('invite')) {
-      preview.addAll(const <String>[
-        'invite.code',
-        'invite.channelId',
-        'invite.inviterId',
-        'guildId',
-      ]);
-    } else if (eventName.startsWith('guild')) {
-      preview.addAll(const <String>['guildId', 'guild.name']);
-    } else if (eventName == 'presenceUpdate') {
-      preview.addAll(const <String>[
-        'user.id',
-        'user.name',
-        'user.username',
-        'user.tag',
-        'user.avatar',
-        'presence.status',
-        'presence.activity.count',
-        'presence.activity[0].name',
-        'presence.activity[0].type',
-        'presence.activity[0].typeName',
-        'presence.activity[0].details',
-        'presence.activity[0].state',
-        'presence.activity[0].url',
-        'presence.activity[1].name',
-        'presence.activity[1].type',
-        'presence.activity[1].typeName',
-        'presence.activity[1].details',
-        'presence.activity[1].state',
-        'presence.activity[1].url',
-        'presence.client.desktop',
-        'presence.client.mobile',
-        'presence.client.web',
-        'guildId',
-      ]);
-    } else if (eventName.startsWith('voice')) {
-      preview.addAll(const <String>[
-        'guildId',
-        'channelId',
-        'userId',
-        'voice.channel.id',
-        'voice.user.id',
-        'voice.state.sessionId',
-        'voice.selfMute',
-        'voice.selfDeafen',
-        'voice.mute',
-        'voice.deafen',
-        'voice.server.endpoint',
-        'voice.effect.emoji',
-      ]);
-    } else if (eventName.startsWith('messageReaction') ||
-        eventName.startsWith('messagePoll') ||
-        eventName.startsWith('messageBulk')) {
-      preview.addAll(const <String>[
-        'message.id',
-        'channelId',
-        'guildId',
-        'userId',
-        'reaction.emoji.name',
-        'reaction.emoji.id',
-        'poll.answer.id',
-      ]);
-    } else if (eventName.startsWith('guildRole')) {
-      preview.addAll(const <String>[
-        'role.id',
-        'role.name',
-        'role.color',
-        'role.permissions',
-        'role.position',
-      ]);
-    } else if (eventName.startsWith('thread')) {
-      preview.addAll(const <String>[
-        'thread.id',
-        'thread.name',
-        'thread.parent.id',
-        'thread.owner.id',
-        'thread.archived',
-      ]);
-    } else if (eventName == 'typingStart') {
-      preview.addAll(const <String>[
-        'typing.timestamp',
-        'typing.member.id',
-        'typing.member.name',
-      ]);
-    } else if (eventName == 'userUpdate') {
-      preview.addAll(const <String>[
-        'user.id',
-        'user.username',
-        'user.avatar',
-        'user.banner',
-        'user.accentColor',
-      ]);
-    } else if (eventName == 'channelPinsUpdate') {
-      preview.addAll(const <String>['channel.lastPinTimestamp']);
-    } else if (eventName == 'guildAuditLogCreate') {
-      preview.addAll(const <String>[
-        'auditLog.action',
-        'auditLog.executorId',
-        'auditLog.targetId',
-      ]);
-    }
-    return preview;
-  }
-
   Future<void> _createOrEditWorkflow({
     Map<String, dynamic>? initial,
     String? initialWorkflowType,
   }) async {
-    final normalizedInitial =
-        initial == null
-            ? null
-            : normalizeStoredWorkflowDefinition(
-              Map<String, dynamic>.from(initial),
-            );
-    final nameController = TextEditingController(
-      text: (normalizedInitial?['name'] ?? '').toString(),
-    );
-    final folderController = TextEditingController(
-      text: (normalizedInitial?['folder'] ?? '').toString().trim(),
-    );
-    final entryPointController = TextEditingController(
-      text: normalizeWorkflowEntryPoint(normalizedInitial?['entryPoint']),
-    );
-    var selectedWorkflowType = normalizeWorkflowType(
-      initialWorkflowType ?? normalizedInitial?['workflowType'],
-    );
-    var selectedEventTrigger = normalizeWorkflowEventTrigger(
-      normalizedInitial?['eventTrigger'],
-    );
-    final editableArgs =
-        parseWorkflowArgumentDefinitions(normalizedInitial?['arguments']).map((
-          definition,
-        ) {
-          return _EditableWorkflowArgument(
-            name: definition.name,
-            required: definition.required,
-            defaultValue: definition.defaultValue,
-          );
-        }).toList();
-    if (editableArgs.isEmpty) {
-      editableArgs.add(const _EditableWorkflowArgument(name: ''));
-    }
-
-    var selectedCategory =
-        (selectedEventTrigger['category'] ?? 'messages').toString();
-    var selectedEvent =
-        (selectedEventTrigger['event'] ?? 'messageCreate').toString();
-
-    void ensureEventSelection() {
-      if (!_workflowEventCategories.contains(selectedCategory)) {
-        selectedCategory = _workflowEventCategories.first;
-      }
-      final events = _eventsForCategory(selectedCategory);
-      if (events.isEmpty) {
-        return;
-      }
-      final hasSelectedEvent = events.any(
-        (event) => event.event == selectedEvent,
-      );
-      if (!hasSelectedEvent) {
-        selectedEvent = events.first.event;
-      }
-      selectedEventTrigger = <String, dynamic>{
-        'category': selectedCategory,
-        'event': selectedEvent,
-      };
-    }
-
-    ensureEventSelection();
-
-    final isCompactScreen = MediaQuery.of(context).size.width < 600;
-
-    Future<bool?> openEditorDialog({required bool compactDialog}) {
-      return showDialog<bool>(
-        context: context,
-        builder:
-            (context) => StatefulBuilder(
-              builder: (context, setDialogState) {
-                final titleText =
-                    initial == null
-                        ? context.tr.workflows_create
-                        : context.tr.workflows_edit;
-
-                final formContent = SizedBox(
-                  width: double.maxFinite,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text(
-                          context.tr.workflows_type_title,
-                          style: const TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                        const SizedBox(height: 10),
-                        if (compactDialog)
-                          Column(
-                            children: [
-                              _WorkflowTypeCard(
-                                title: context.tr.workflows_type_general,
-                                description:
-                                    context.tr.workflows_type_general_desc,
-                                icon: Icons.account_tree_outlined,
-                                selected:
-                                    selectedWorkflowType == workflowTypeGeneral,
-                                onTap: () {
-                                  setDialogState(() {
-                                    selectedWorkflowType = workflowTypeGeneral;
-                                  });
-                                },
-                              ),
-                              const SizedBox(height: 10),
-                              _WorkflowTypeCard(
-                                title: context.tr.workflows_type_event,
-                                description:
-                                    context.tr.workflows_type_event_desc,
-                                icon: Icons.notifications_active_outlined,
-                                selected:
-                                    selectedWorkflowType == workflowTypeEvent,
-                                onTap: () {
-                                  setDialogState(() {
-                                    selectedWorkflowType = workflowTypeEvent;
-                                    ensureEventSelection();
-                                  });
-                                },
-                              ),
-                            ],
-                          )
-                        else
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _WorkflowTypeCard(
-                                  title: context.tr.workflows_type_general,
-                                  description:
-                                      context.tr.workflows_type_general_desc,
-                                  icon: Icons.account_tree_outlined,
-                                  selected:
-                                      selectedWorkflowType ==
-                                      workflowTypeGeneral,
-                                  onTap: () {
-                                    setDialogState(() {
-                                      selectedWorkflowType =
-                                          workflowTypeGeneral;
-                                    });
-                                  },
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: _WorkflowTypeCard(
-                                  title: context.tr.workflows_type_event,
-                                  description:
-                                      context.tr.workflows_type_event_desc,
-                                  icon: Icons.notifications_active_outlined,
-                                  selected:
-                                      selectedWorkflowType == workflowTypeEvent,
-                                  onTap: () {
-                                    setDialogState(() {
-                                      selectedWorkflowType = workflowTypeEvent;
-                                      ensureEventSelection();
-                                    });
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                        const SizedBox(height: 14),
-                        TextField(
-                          controller: nameController,
-                          decoration: InputDecoration(
-                            labelText: context.tr.workflows_name,
-                            border: const OutlineInputBorder(),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        TextField(
-                          controller: folderController,
-                          decoration: InputDecoration(
-                            labelText: context.tr.workflows_folder_label,
-                            hintText: context.tr.workflows_folder_hint,
-                            prefixIcon: const Icon(Icons.folder_outlined),
-                            border: const OutlineInputBorder(),
-                            isDense: true,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        if (selectedWorkflowType == workflowTypeGeneral) ...[
-                          TextField(
-                            controller: entryPointController,
-                            decoration: InputDecoration(
-                              labelText: context.tr.workflows_entry_point,
-                              border: const OutlineInputBorder(),
-                              helperText: context.tr.workflows_entry_point_hint,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  context.tr.workflows_arguments,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                              if (compactDialog)
-                                FilledButton.tonalIcon(
-                                  onPressed: () {
-                                    setDialogState(() {
-                                      editableArgs.add(
-                                        const _EditableWorkflowArgument(
-                                          name: '',
-                                        ),
-                                      );
-                                    });
-                                  },
-                                  icon: const Icon(Icons.add),
-                                  label: Text(context.tr.workflows_add_arg),
-                                )
-                              else
-                                IconButton(
-                                  tooltip: context.tr.workflows_add_arg,
-                                  onPressed: () {
-                                    setDialogState(() {
-                                      editableArgs.add(
-                                        const _EditableWorkflowArgument(
-                                          name: '',
-                                        ),
-                                      );
-                                    });
-                                  },
-                                  icon: const Icon(Icons.add),
-                                ),
-                            ],
-                          ),
-                          ...editableArgs.asMap().entries.map((entry) {
-                            final index = entry.key;
-                            final value = entry.value;
-                            if (compactDialog) {
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 8),
-                                child: Container(
-                                  padding: const EdgeInsets.fromLTRB(
-                                    10,
-                                    6,
-                                    4,
-                                    6,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(
-                                      color:
-                                          Theme.of(
-                                            context,
-                                          ).colorScheme.outlineVariant,
-                                    ),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.stretch,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: TextFormField(
-                                              initialValue: value.name,
-                                              decoration: InputDecoration(
-                                                labelText:
-                                                    context
-                                                        .tr
-                                                        .workflows_arg_name,
-                                                border:
-                                                    const OutlineInputBorder(),
-                                                isDense: true,
-                                              ),
-                                              onChanged: (next) {
-                                                editableArgs[index] =
-                                                    editableArgs[index]
-                                                        .copyWith(
-                                                          name: next.trim(),
-                                                        );
-                                              },
-                                            ),
-                                          ),
-                                          IconButton(
-                                            icon: const Icon(
-                                              Icons.delete_outline,
-                                              size: 20,
-                                            ),
-                                            visualDensity:
-                                                VisualDensity.compact,
-                                            tooltip: context.tr.delete,
-                                            onPressed: () {
-                                              setDialogState(() {
-                                                editableArgs.removeAt(index);
-                                                if (editableArgs.isEmpty) {
-                                                  editableArgs.add(
-                                                    const _EditableWorkflowArgument(
-                                                      name: '',
-                                                    ),
-                                                  );
-                                                }
-                                              });
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 6),
-                                      TextFormField(
-                                        initialValue: value.defaultValue,
-                                        decoration: InputDecoration(
-                                          labelText:
-                                              context.tr.workflows_arg_default,
-                                          border: const OutlineInputBorder(),
-                                          isDense: true,
-                                        ),
-                                        onChanged: (next) {
-                                          editableArgs[index] =
-                                              editableArgs[index].copyWith(
-                                                defaultValue: next,
-                                              );
-                                        },
-                                      ),
-                                      Row(
-                                        children: [
-                                          Text(
-                                            context
-                                                .tr
-                                                .workflows_arg_required_short,
-                                            style: const TextStyle(
-                                              fontSize: 13,
-                                            ),
-                                          ),
-                                          const Spacer(),
-                                          Switch(
-                                            value: value.required,
-                                            onChanged: (next) {
-                                              editableArgs[index] =
-                                                  editableArgs[index].copyWith(
-                                                    required: next,
-                                                  );
-                                              setDialogState(() {});
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            }
-
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    flex: 4,
-                                    child: TextFormField(
-                                      initialValue: value.name,
-                                      decoration: InputDecoration(
-                                        labelText:
-                                            context.tr.workflows_arg_name,
-                                        border: const OutlineInputBorder(),
-                                        isDense: true,
-                                      ),
-                                      onChanged: (next) {
-                                        editableArgs[index] =
-                                            editableArgs[index].copyWith(
-                                              name: next.trim(),
-                                            );
-                                      },
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    flex: 4,
-                                    child: TextFormField(
-                                      initialValue: value.defaultValue,
-                                      decoration: InputDecoration(
-                                        labelText:
-                                            context.tr.workflows_arg_default,
-                                        border: const OutlineInputBorder(),
-                                        isDense: true,
-                                      ),
-                                      onChanged: (next) {
-                                        editableArgs[index] =
-                                            editableArgs[index].copyWith(
-                                              defaultValue: next,
-                                            );
-                                      },
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Column(
-                                    children: [
-                                      Checkbox(
-                                        value: value.required,
-                                        onChanged: (next) {
-                                          editableArgs[index] =
-                                              editableArgs[index].copyWith(
-                                                required: next == true,
-                                              );
-                                          setDialogState(() {});
-                                        },
-                                      ),
-                                      Text(
-                                        context.tr.workflows_arg_required_short,
-                                        style: const TextStyle(fontSize: 11),
-                                      ),
-                                    ],
-                                  ),
-                                  IconButton(
-                                    onPressed: () {
-                                      setDialogState(() {
-                                        editableArgs.removeAt(index);
-                                        if (editableArgs.isEmpty) {
-                                          editableArgs.add(
-                                            const _EditableWorkflowArgument(
-                                              name: '',
-                                            ),
-                                          );
-                                        }
-                                      });
-                                    },
-                                    icon: const Icon(Icons.delete_outline),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }),
-                          Text(
-                            context.tr.workflows_arg_hint,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ] else ...[
-                          DropdownButtonFormField<String>(
-                            initialValue: selectedCategory,
-                            decoration: InputDecoration(
-                              labelText: context.tr.workflows_event_category,
-                              border: const OutlineInputBorder(),
-                            ),
-                            items: _workflowEventCategories
-                                .map((category) {
-                                  return DropdownMenuItem<String>(
-                                    value: category,
-                                    child: Text(_eventCategoryLabel(category)),
-                                  );
-                                })
-                                .toList(growable: false),
-                            onChanged: (value) {
-                              if (value == null) {
-                                return;
-                              }
-                              setDialogState(() {
-                                selectedCategory = value;
-                                ensureEventSelection();
-                              });
-                            },
-                          ),
-                          const SizedBox(height: 10),
-                          DropdownButtonFormField<String>(
-                            initialValue: selectedEvent,
-                            decoration: InputDecoration(
-                              labelText: context.tr.workflows_listen_for,
-                              border: const OutlineInputBorder(),
-                              helperText: context.tr.workflows_event_hint,
-                            ),
-                            items: _eventsForCategory(selectedCategory)
-                                .map((event) {
-                                  return DropdownMenuItem<String>(
-                                    value: event.event,
-                                    child: Text(event.label),
-                                  );
-                                })
-                                .toList(growable: false),
-                            onChanged: (value) {
-                              if (value == null) {
-                                return;
-                              }
-                              setDialogState(() {
-                                selectedEvent = value;
-                                ensureEventSelection();
-                              });
-                            },
-                          ),
-                          const SizedBox(height: 10),
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              color:
-                                  Theme.of(
-                                    context,
-                                  ).colorScheme.surfaceContainerHighest,
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  context.tr.workflows_event_preview(
-                                    _eventLabel(selectedEvent),
-                                  ),
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                                const SizedBox(height: 6),
-                                Text(_eventDescription(selectedEvent)),
-                                const SizedBox(height: 10),
-                                Text(
-                                  context.tr.workflows_event_available_vars,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  _eventVariablePreview(
-                                    selectedEvent,
-                                  ).join(', '),
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color:
-                                        Theme.of(
-                                          context,
-                                        ).colorScheme.onSurfaceVariant,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                );
-
-                if (compactDialog) {
-                  final maxHeight = MediaQuery.of(context).size.height * 0.92;
-                  return Dialog(
-                    insetPadding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 12,
-                    ),
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(maxHeight: maxHeight),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(12, 12, 6, 6),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    titleText,
-                                    style:
-                                        Theme.of(context).textTheme.titleLarge,
-                                  ),
-                                ),
-                                IconButton(
-                                  tooltip: context.tr.cancel,
-                                  onPressed:
-                                      () => Navigator.pop(context, false),
-                                  icon: const Icon(Icons.close),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const Divider(height: 1),
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.all(12),
-                              child: formContent,
-                            ),
-                          ),
-                          const Divider(height: 1),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: OutlinedButton(
-                                    onPressed:
-                                        () => Navigator.pop(context, false),
-                                    child: Text(context.tr.cancel),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: FilledButton(
-                                    onPressed:
-                                        () => Navigator.pop(context, true),
-                                    child: Text(context.tr.workflows_continue),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }
-
-                return AlertDialog(
-                  insetPadding: const EdgeInsets.symmetric(
-                    horizontal: 40,
-                    vertical: 24,
-                  ),
-                  title: Text(titleText),
-                  content: formContent,
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, false),
-                      child: Text(context.tr.cancel),
-                    ),
-                    FilledButton(
-                      onPressed: () => Navigator.pop(context, true),
-                      child: Text(context.tr.workflows_continue),
-                    ),
-                  ],
-                );
-              },
-            ),
-      );
-    }
-
-    final saveInfo = await openEditorDialog(compactDialog: isCompactScreen);
-
-    if (saveInfo != true) {
-      return;
-    }
-
-    final name = nameController.text.trim();
-    if (name.isEmpty) {
-      return;
-    }
-    final entryPoint = normalizeWorkflowEntryPoint(entryPointController.text);
-    final argumentDefinitions = editableArgs
-        .where((item) => item.name.trim().isNotEmpty)
-        .map(
-          (item) => WorkflowArgumentDefinition(
-            name: item.name.trim(),
-            required: item.required,
-            defaultValue: item.defaultValue,
-          ),
-        )
-        .toList(growable: false);
-    final workflowVariableSuggestions = await _buildWorkflowVariableSuggestions(
-      workflowType: selectedWorkflowType,
-      argumentDefinitions: argumentDefinitions,
-      eventTrigger: selectedEventTrigger,
-    );
-
-    final initialActions = List<Map<String, dynamic>>.from(
-      (initial?['actions'] as List?)?.whereType<Map>().map(
-            (item) => Map<String, dynamic>.from(item),
-          ) ??
-          const <Map<String, dynamic>>[],
-    );
-
-    final nextActions = await Navigator.push<List<Map<String, dynamic>>>(
+    final saved = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
-        builder:
-            (context) => ActionsBuilderPage(
-              initialActions: initialActions,
-              botIdForConfig: widget.botId,
-              variableSuggestions: workflowVariableSuggestions,
-              emojiSuggestions: _appEmojis,
-            ),
+        builder: (_) => WorkflowBlockEditor(
+          botId: widget.botId,
+          initial: initial,
+          initialWorkflowType: initialWorkflowType,
+          appEmojis: _appEmojis,
+          eventCatalog: _workflowEventCatalog
+              .map((e) => WorkflowEventItem(
+                    event: e.event,
+                    label: e.label,
+                    description: e.description,
+                  ))
+              .toList(growable: false),
+          eventCategories: _workflowEventCategories,
+          eventsForCategory: (category) => _eventsForCategory(category)
+              .map((e) => WorkflowEventItem(
+                    event: e.event,
+                    label: e.label,
+                    description: e.description,
+                  ))
+              .toList(growable: false),
+          eventCategoryLabel: _eventCategoryLabel,
+          buildVariableSuggestions: ({
+            required workflowType,
+            required argumentDefinitions,
+            required eventTrigger,
+          }) => _buildWorkflowVariableSuggestions(
+            workflowType: workflowType,
+            argumentDefinitions: argumentDefinitions,
+            eventTrigger: eventTrigger,
+          ),
+        ),
       ),
     );
-
-    if (nextActions == null) {
-      return;
+    if (saved == true) {
+      await _load();
     }
-
-    await appManager.saveWorkflow(
-      widget.botId,
-      name: name,
-      actions: nextActions,
-      entryPoint: entryPoint,
-      arguments: serializeWorkflowArgumentDefinitions(argumentDefinitions),
-      workflowType: selectedWorkflowType,
-      eventTrigger:
-          selectedWorkflowType == workflowTypeEvent
-              ? selectedEventTrigger
-              : null,
-      folder: folderController.text.trim(),
-    );
-    await _load();
   }
 
   Future<void> _deleteWorkflow(String name) async {
@@ -2030,6 +1229,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
         isCompactScreen
             ? await showModalBottomSheet<bool>(
               context: context,
+              isScrollControlled: true,
               useSafeArea: true,
               builder: (sheetContext) {
                 final colorScheme = Theme.of(sheetContext).colorScheme;
@@ -2083,30 +1283,12 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                 );
               },
             )
-            : await showDialog<bool>(
-              context: context,
-              builder:
-                  (dialogContext) => AlertDialog.adaptive(
-                    title: Text(context.tr.workflows_delete_title),
-                    content: Text(
-                      '${context.tr.workflows_delete_confirm(name)}$extra',
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(dialogContext, false),
-                        child: Text(context.tr.cancel),
-                      ),
-                      TextButton(
-                        onPressed: () => Navigator.pop(dialogContext, true),
-                        child: Text(
-                          context.tr.delete,
-                          style: TextStyle(
-                            color: Theme.of(dialogContext).colorScheme.error,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+            : await AppTheme.showConfirmDialog(
+              context,
+              title: context.tr.workflows_delete_title,
+              content: '${context.tr.workflows_delete_confirm(name)}$extra',
+              confirmLabel: context.tr.delete,
+              isDestructive: true,
             );
 
     if (shouldDelete != true) {
@@ -2165,6 +1347,8 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
   Future<void> _showWorkflowExportOptions() async {
     await showModalBottomSheet<void>(
       context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
       builder: (context) {
         return SafeArea(
           child: Column(
@@ -2466,6 +1650,8 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
 
     final chosen = await showModalBottomSheet<String>(
       context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
       builder: (context) {
         return SafeArea(
           child: Column(
@@ -2594,6 +1780,8 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
   Future<void> _showCreateWorkflowMenu() async {
     final selection = await showModalBottomSheet<String>(
       context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
       builder: (context) {
         return SafeArea(
           child: Column(
@@ -2625,59 +1813,42 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
   }
 
   Widget _buildFilters() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          TextField(
-            onChanged: (value) {
-              setState(() {
-                _searchQuery = value;
-              });
-            },
-            decoration: InputDecoration(
-              hintText: context.tr.workflows_search_hint,
-              prefixIcon: Icon(Icons.search),
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              ChoiceChip(
-                label: Text(context.tr.common_all),
-                selected: _workflowFilter == 'all',
-                onSelected: (_) {
-                  setState(() {
-                    _workflowFilter = 'all';
-                  });
-                },
-              ),
-              ChoiceChip(
-                label: Text(context.tr.workflows_type_badge_general),
-                selected: _workflowFilter == workflowTypeGeneral,
-                onSelected: (_) {
-                  setState(() {
-                    _workflowFilter = workflowTypeGeneral;
-                  });
-                },
-              ),
-              ChoiceChip(
-                label: Text(context.tr.workflows_type_badge_event),
-                selected: _workflowFilter == workflowTypeEvent,
-                onSelected: (_) {
-                  setState(() {
-                    _workflowFilter = workflowTypeEvent;
-                  });
-                },
-              ),
-            ],
-          ),
-        ],
-      ),
+    final visible = _visibleWorkflows();
+    final query = _searchQuery.trim();
+    final showCreate = query.isNotEmpty && visible.isEmpty;
+
+    return NotionFilterBar(
+      searchQuery: _searchQuery,
+      onSearchChanged: (value) => setState(() => _searchQuery = value),
+      searchHint: context.tr.workflows_search_hint,
+      addFilterLabel: context.tr.notion_filter_add,
+      filters: [
+        NotionFilter(
+          id: 'type',
+          label: context.tr.notion_filter_type,
+          icon: Icons.category_outlined,
+          options: {
+            '': context.tr.common_all,
+            workflowTypeGeneral: context.tr.workflows_type_badge_general,
+            workflowTypeEvent: context.tr.workflows_type_badge_event,
+          },
+          selectedValue: _workflowFilter == 'all' ? '' : _workflowFilter,
+        ),
+      ],
+      onFilterChanged: (filterId, value) {
+        setState(() {
+          if (filterId == 'type') {
+            _workflowFilter = value.isEmpty ? 'all' : value;
+          }
+        });
+      },
+      showCreateSuggestion: showCreate,
+      createFromQueryLabel: context.tr.notion_create_workflow_from_query(query),
+      onCreateFromQuery: showCreate
+          ? () => _createOrEditWorkflow(
+                initialWorkflowType: workflowTypeGeneral,
+              )
+          : null,
     );
   }
 
@@ -2834,18 +2005,20 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
               ? const Center(child: CircularProgressIndicator())
               : _workflows.isEmpty
               ? Center(child: Text(context.tr.workflows_empty))
-              : visibleWorkflows.isEmpty
-              ? Column(
-                children: [
-                  _buildFilters(),
-                  Expanded(
-                    child: Center(child: Text(context.tr.workflows_no_matches)),
-                  ),
-                ],
-              )
               : ListView(
                 padding: const EdgeInsets.only(bottom: 80),
-                children: [_buildFilters(), ...workflowChildren],
+                children: [
+                  _buildFilters(),
+                  if (visibleWorkflows.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 48),
+                      child: Center(
+                        child: Text(context.tr.workflows_no_matches),
+                      ),
+                    )
+                  else
+                    ...workflowChildren,
+                ],
               ),
     );
   }
@@ -2906,7 +2079,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(999),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusPill),
                       color:
                           Theme.of(context).colorScheme.surfaceContainerHighest,
                     ),
@@ -2925,7 +2098,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(999),
+                        borderRadius: BorderRadius.circular(AppTheme.radiusPill),
                         color:
                             Theme.of(
                               context,
@@ -2950,7 +2123,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(999),
+                        borderRadius: BorderRadius.circular(AppTheme.radiusPill),
                         color: Theme.of(context).colorScheme.tertiaryContainer,
                       ),
                       child: Row(
@@ -3052,85 +2225,6 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
         ),
         const Divider(height: 1),
       ],
-    );
-  }
-}
-
-class _EditableWorkflowArgument {
-  final String name;
-  final bool required;
-  final String defaultValue;
-
-  const _EditableWorkflowArgument({
-    required this.name,
-    this.required = false,
-    this.defaultValue = '',
-  });
-
-  _EditableWorkflowArgument copyWith({
-    String? name,
-    bool? required,
-    String? defaultValue,
-  }) {
-    return _EditableWorkflowArgument(
-      name: name ?? this.name,
-      required: required ?? this.required,
-      defaultValue: defaultValue ?? this.defaultValue,
-    );
-  }
-}
-
-class _WorkflowTypeCard extends StatelessWidget {
-  const _WorkflowTypeCard({
-    required this.title,
-    required this.description,
-    required this.icon,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final String title;
-  final String description;
-  final IconData icon;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: selected ? colorScheme.primary : colorScheme.outlineVariant,
-            width: selected ? 2 : 1,
-          ),
-          color:
-              selected
-                  ? colorScheme.primary.withValues(alpha: 0.08)
-                  : colorScheme.surface,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(icon),
-            const SizedBox(height: 8),
-            Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
-            const SizedBox(height: 4),
-            Text(
-              description,
-              style: TextStyle(
-                fontSize: 12,
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

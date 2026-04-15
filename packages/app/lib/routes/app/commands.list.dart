@@ -5,8 +5,10 @@ import 'package:bot_creator/utils/analytics.dart';
 import 'package:bot_creator/utils/ads_placement_policy.dart';
 import 'package:bot_creator/utils/i18n.dart';
 import 'package:bot_creator/widgets/native_ad_slot.dart';
+import 'package:bot_creator/widgets/notion_filter_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:nyxx/nyxx.dart';
+import 'package:bot_creator/utils/app_theme.dart';
 
 class AppCommandsPage extends StatefulWidget {
   final NyxxRest? client;
@@ -86,7 +88,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.tertiaryContainer,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -284,122 +286,86 @@ class _AppCommandsPageState extends State<AppCommandsPage>
 
   Widget _buildFiltersBar() {
     final folders = _existingFolders.toList()..sort();
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          TextField(
-            onChanged: (value) {
-              setState(() {
-                _searchQuery = value;
-              });
+    final query = _searchQuery.trim();
+    return NotionFilterBar(
+      searchQuery: _searchQuery,
+      onSearchChanged: (value) => setState(() => _searchQuery = value),
+      searchHint: context.tr.commands_search_hint,
+      addFilterLabel: context.tr.notion_filter_add,
+      filters: [
+        NotionFilter(
+          id: 'type',
+          label: context.tr.commands_filter_type_label,
+          icon: Icons.category_outlined,
+          options: {
+            '': context.tr.common_all,
+            'chatInput': context.tr.command_type_slash,
+            'user': context.tr.command_type_user,
+            'message': context.tr.command_type_message,
+            'legacy': context.tr.command_type_legacy,
+          },
+          selectedValue: _typeFilter == 'all' ? '' : _typeFilter,
+        ),
+        if (folders.isNotEmpty)
+          NotionFilter(
+            id: 'folder',
+            label: context.tr.commands_folder_label,
+            icon: Icons.folder_outlined,
+            options: {
+              '': context.tr.commands_all_folders,
+              for (final f in folders) f: f,
             },
-            decoration: InputDecoration(
-              hintText: context.tr.commands_search_hint,
-              prefixIcon: Icon(Icons.search),
-              border: OutlineInputBorder(),
+            selectedValue: _folderFilter,
+          ),
+      ],
+      toggleFilters: [
+        NotionToggleFilter(
+          id: 'template',
+          label: context.tr.commands_filter_template,
+          icon: Icons.auto_awesome,
+          enabled: _showTemplateOnly,
+        ),
+        NotionToggleFilter(
+          id: 'legacy_local',
+          label: context.tr.commands_filter_legacy_local,
+          icon: Icons.storage_outlined,
+          enabled: _showLegacyOnly,
+        ),
+      ],
+      onFilterChanged: (filterId, value) {
+        setState(() {
+          if (filterId == 'type') {
+            _typeFilter = value.isEmpty ? 'all' : value;
+          } else if (filterId == 'folder') {
+            _folderFilter = value;
+          }
+        });
+      },
+      onToggleFilterChanged: (filterId, enabled) {
+        setState(() {
+          if (filterId == 'template') {
+            _showTemplateOnly = enabled;
+          } else if (filterId == 'legacy_local') {
+            _showLegacyOnly = enabled;
+          }
+        });
+      },
+      showCreateSuggestion: query.isNotEmpty,
+      createFromQueryLabel: context.tr.commands_create_from_query(query),
+      onCreateFromQuery: () async {
+        await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => CommandCreatePage(
+              client: widget.client,
+              botId: widget.botId,
+              prefillName: query,
             ),
           ),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              ChoiceChip(
-                label: Text(context.tr.common_all),
-                selected: _typeFilter == 'all',
-                onSelected: (_) {
-                  setState(() {
-                    _typeFilter = 'all';
-                  });
-                },
-              ),
-              ChoiceChip(
-                label: Text(context.tr.command_type_slash),
-                selected: _typeFilter == 'chatInput',
-                onSelected: (_) {
-                  setState(() {
-                    _typeFilter = 'chatInput';
-                  });
-                },
-              ),
-              ChoiceChip(
-                label: Text(context.tr.command_type_user),
-                selected: _typeFilter == 'user',
-                onSelected: (_) {
-                  setState(() {
-                    _typeFilter = 'user';
-                  });
-                },
-              ),
-              ChoiceChip(
-                label: Text(context.tr.command_type_message),
-                selected: _typeFilter == 'message',
-                onSelected: (_) {
-                  setState(() {
-                    _typeFilter = 'message';
-                  });
-                },
-              ),
-              ChoiceChip(
-                label: Text(context.tr.command_type_legacy),
-                selected: _typeFilter == 'legacy',
-                onSelected: (_) {
-                  setState(() {
-                    _typeFilter = 'legacy';
-                  });
-                },
-              ),
-              FilterChip(
-                label: Text(context.tr.commands_filter_template),
-                selected: _showTemplateOnly,
-                onSelected: (selected) {
-                  setState(() {
-                    _showTemplateOnly = selected;
-                  });
-                },
-              ),
-              FilterChip(
-                label: Text(context.tr.commands_filter_legacy_local),
-                selected: _showLegacyOnly,
-                onSelected: (selected) {
-                  setState(() {
-                    _showLegacyOnly = selected;
-                  });
-                },
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          DropdownButtonFormField<String>(
-            initialValue: _folderFilter.isEmpty ? '__all__' : _folderFilter,
-            decoration: InputDecoration(
-              labelText: context.tr.commands_folder_label,
-              border: OutlineInputBorder(),
-              isDense: true,
-            ),
-            items: [
-              DropdownMenuItem<String>(
-                value: '__all__',
-                child: Text(context.tr.commands_all_folders),
-              ),
-              ...folders.map(
-                (folder) => DropdownMenuItem<String>(
-                  value: folder,
-                  child: Text(folder),
-                ),
-              ),
-            ],
-            onChanged: (value) {
-              setState(() {
-                _folderFilter =
-                    value == null || value == '__all__' ? '' : value;
-              });
-            },
-          ),
-        ],
-      ),
+        );
+        if (!mounted) return;
+        _load();
+      },
     );
   }
 
@@ -521,26 +487,14 @@ class _AppCommandsPageState extends State<AppCommandsPage>
   }
 
   Future<void> _deleteFolderDialog(String folderName) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(context.tr.commands_delete_folder),
-          content: Text(context.tr.commands_delete_folder_desc),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: Text(context.tr.cancel),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: Text(context.tr.confirm),
-            ),
-          ],
-        );
-      },
+    final confirmed = await AppTheme.showConfirmDialog(
+      context,
+      title: context.tr.commands_delete_folder,
+      content: context.tr.commands_delete_folder_desc,
+      confirmLabel: context.tr.confirm,
+      isDestructive: true,
     );
-    if (confirmed != true || !mounted) return;
+    if (!confirmed || !mounted) return;
     // Remove folder from all commands (commands stay, just become un-foldered)
     for (final cmd in _commands) {
       final f = (cmd['folder'] ?? '').toString().trim();
@@ -867,7 +821,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                 child: CircularProgressIndicator(
                   strokeAlign: 0.5,
                   strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                  valueColor: AlwaysStoppedAnimation<Color>(AppTheme.info),
                 ),
               );
             }
@@ -967,7 +921,7 @@ class _CommandFolderHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onToggle,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(AppTheme.radiusSm),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(4, 16, 4, 6),
         child: Row(
@@ -1103,11 +1057,11 @@ class _SpeedDialItem extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Material(
-          elevation: 2,
-          borderRadius: BorderRadius.circular(8),
+          elevation: 0,
+          borderRadius: BorderRadius.circular(AppTheme.radiusSm),
           color: Theme.of(context).colorScheme.surfaceContainerHighest,
           child: InkWell(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(AppTheme.radiusSm),
             onTap: onTap,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),

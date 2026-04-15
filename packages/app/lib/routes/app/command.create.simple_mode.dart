@@ -143,7 +143,7 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
             const SizedBox(height: 6),
             Text(
               context.tr.cmd_execution_mode_desc,
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: 12, color: AppTheme.grey),
             ),
             const SizedBox(height: 12),
             RadioGroup<String>(
@@ -180,14 +180,14 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
               decoration: BoxDecoration(
                 color:
                     isWorkflowMode
-                        ? Colors.blueGrey.shade50
-                        : Colors.orange.shade50,
-                borderRadius: BorderRadius.circular(10),
+                        ? AppTheme.grey
+                        : AppTheme.warning,
+                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                 border: Border.all(
                   color:
                       isWorkflowMode
-                          ? Colors.blueGrey.shade100
-                          : Colors.orange.shade200,
+                          ? AppTheme.grey
+                          : AppTheme.warning,
                 ),
               ),
               child: Text(
@@ -200,8 +200,8 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
                   fontSize: 12,
                   color:
                       isWorkflowMode
-                          ? Colors.blueGrey.shade700
-                          : Colors.orange.shade800,
+                          ? AppTheme.grey
+                          : AppTheme.warning,
                 ),
               ),
             ),
@@ -249,9 +249,9 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
         constraints: const BoxConstraints(minHeight: 120),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: const Color(0xFF263238),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.grey.shade600),
+          color: AppTheme.codeSurfaceVariant,
+          borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+          border: Border.all(color: AppTheme.grey),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -269,7 +269,7 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
                   ),
                 ),
                 const Spacer(),
-                Icon(Icons.open_in_new, size: 14, color: Colors.grey.shade500),
+                Icon(Icons.open_in_new, size: 14, color: AppTheme.grey),
               ],
             ),
             const SizedBox(height: 8),
@@ -278,7 +278,7 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
               style: TextStyle(
                 fontFamily: 'monospace',
                 fontSize: 12,
-                color: isEmpty ? Colors.grey.shade600 : Colors.grey.shade300,
+                color: isEmpty ? AppTheme.grey : AppTheme.grey,
               ),
               maxLines: 8,
               overflow: TextOverflow.ellipsis,
@@ -295,14 +295,14 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
       return Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.green.shade50,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: Colors.green.shade200),
+          color: AppTheme.success,
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+          border: Border.all(color: AppTheme.success),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(Icons.check_circle_outline, color: Colors.green.shade700),
+            Icon(Icons.check_circle_outline, color: AppTheme.success),
             const SizedBox(width: 10),
             Expanded(
               child: Column(
@@ -317,7 +317,7 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
                     context.tr.cmd_bdfd_diagnostics_clean,
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.green.shade800,
+                      color: AppTheme.success,
                     ),
                   ),
                 ],
@@ -332,13 +332,13 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color:
-            _hasBdfdCompileErrors ? Colors.red.shade50 : Colors.orange.shade50,
-        borderRadius: BorderRadius.circular(10),
+            _hasBdfdCompileErrors ? AppTheme.error : AppTheme.warning,
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
         border: Border.all(
           color:
               _hasBdfdCompileErrors
-                  ? Colors.red.shade200
-                  : Colors.orange.shade200,
+                  ? AppTheme.error
+                  : AppTheme.warning,
         ),
       ),
       child: Column(
@@ -360,7 +360,7 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
                   : 'cmd_bdfd_diagnostics_warning',
             );
             final color =
-                isError ? Colors.red.shade800 : Colors.orange.shade900;
+                isError ? AppTheme.error : AppTheme.warning;
             return Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: Row(
@@ -395,7 +395,7 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
         const SizedBox(height: 4),
         Text(
           description,
-          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+          style: TextStyle(fontSize: 12, color: AppTheme.grey),
         ),
         const SizedBox(height: 8),
         ...children,
@@ -423,7 +423,7 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
             const SizedBox(height: 4),
             Text(
               context.tr.cmd_simple_actions_desc,
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: 12, color: AppTheme.grey),
             ),
             const SizedBox(height: 12),
             _buildSimpleActionSection(
@@ -603,7 +603,7 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
               const SizedBox(height: 4),
               Text(
                 context.tr.cmd_simple_execution_desc,
-                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                style: TextStyle(fontSize: 12, color: AppTheme.grey),
               ),
               const SizedBox(height: 8),
               TextFormField(
@@ -681,7 +681,7 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
               const SizedBox(height: 4),
               Text(
                 context.tr.cmd_simple_invite_settings_desc,
-                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                style: TextStyle(fontSize: 12, color: AppTheme.grey),
               ),
               const SizedBox(height: 8),
               Row(
@@ -754,7 +754,7 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
               const SizedBox(height: 4),
               Text(
                 context.tr.cmd_simple_poll_settings_desc,
-                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                style: TextStyle(fontSize: 12, color: AppTheme.grey),
               ),
               const SizedBox(height: 8),
               TextFormField(
@@ -809,7 +809,7 @@ extension _CommandCreateSimpleMode on _CommandCreatePageState {
             if (generatedOptionLabels.isEmpty)
               Text(
                 context.tr.cmd_simple_generated_none,
-                style: TextStyle(color: Colors.grey.shade600),
+                style: TextStyle(color: AppTheme.grey),
               )
             else
               Wrap(

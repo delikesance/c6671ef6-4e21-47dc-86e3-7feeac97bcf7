@@ -5,6 +5,7 @@ import 'package:bot_creator/utils/i18n.dart';
 import 'package:bot_creator/utils/runner_client.dart';
 import 'package:bot_creator/utils/runner_settings.dart';
 import 'package:flutter/material.dart';
+import 'package:bot_creator/utils/app_theme.dart';
 
 class BotStatsPage extends StatefulWidget {
   const BotStatsPage({super.key, this.botId});
@@ -304,7 +305,7 @@ class _BotStatsPageState extends State<BotStatsPage> {
                           context,
                         ).colorScheme.primaryContainer.withValues(alpha: 0.4)
                         : Theme.of(context).colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
               ),
               child: Row(
                 children: [
@@ -404,7 +405,7 @@ class _MetricCard extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
       ),
       child: Row(
         children: [

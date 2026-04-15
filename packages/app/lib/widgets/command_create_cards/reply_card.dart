@@ -9,6 +9,7 @@ import 'package:bot_creator/widgets/component_v2_builder/normal_component_editor
 import 'package:bot_creator/widgets/component_v2_builder/modal_builder.dart';
 import 'package:bot_creator/types/component.dart';
 import '../../utils/i18n.dart';
+import 'package:bot_creator/utils/app_theme.dart';
 
 class ReplyCard extends StatelessWidget {
   final String responseType;
@@ -96,7 +97,7 @@ class ReplyCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               context.tr.reply_choose_type,
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: 12, color: AppTheme.grey),
             ),
             if (activeRouteLabel != null && activeRouteLabel!.trim().isNotEmpty)
               Padding(
@@ -110,7 +111,7 @@ class ReplyCard extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: routeColor.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(999),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusPill),
                     ),
                     child: Text(
                       context.tr.reply_active_route(activeRouteLabel!),
@@ -127,28 +128,55 @@ class ReplyCard extends StatelessWidget {
             _buildResponseModeSelector(context),
             const SizedBox(height: 12),
             Container(
-              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                border: Border.all(
+                  color: AppTheme.brandPrimary.withValues(alpha: 0.2),
+                ),
               ),
+              clipBehavior: Clip.antiAlias,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    context.tr.reply_response_workflow,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: const BoxDecoration(
+                      gradient: AppTheme.brandGradient,
+                    ),
+                    child: Text(
+                      context.tr.reply_response_workflow,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                        fontSize: 13,
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    workflowSummary,
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
-                  ),
-                  const SizedBox(height: 8),
-                  FilledButton.tonalIcon(
-                    onPressed: openWorkflowEditor,
-                    icon: const Icon(Icons.account_tree_outlined),
-                    label: Text(context.tr.reply_configure_workflow),
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          workflowSummary,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppTheme.grey,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        FilledButton.tonalIcon(
+                          onPressed: openWorkflowEditor,
+                          icon: const Icon(Icons.account_tree_outlined),
+                          label: Text(context.tr.reply_configure_workflow),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -174,32 +202,13 @@ class ReplyCard extends StatelessWidget {
                 onChanged: onEmbedsChanged,
               ),
               const SizedBox(height: 12),
-              ExpansionTile(
-                title: Text(context.tr.reply_buttons_optional),
-                subtitle: Text(
-                  context.tr.reply_buttons_desc,
-                  style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+              NormalComponentEditorWidget(
+                definition: ComponentV2Definition.fromJson(
+                  responseComponents,
                 ),
-                collapsedBackgroundColor: Colors.grey.withValues(alpha: 0.05),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  side: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
-                ),
-                collapsedShape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  side: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
-                ),
-                childrenPadding: const EdgeInsets.all(8.0),
-                children: [
-                  NormalComponentEditorWidget(
-                    definition: ComponentV2Definition.fromJson(
-                      responseComponents,
-                    ),
-                    onChanged: (def) => onComponentsChanged(def.toJson()),
-                    variableSuggestions: variableSuggestions,
-                    botIdForConfig: botIdForConfig,
-                  ),
-                ],
+                onChanged: (def) => onComponentsChanged(def.toJson()),
+                variableSuggestions: variableSuggestions,
+                botIdForConfig: botIdForConfig,
               ),
             ] else if (responseType == 'componentV2') ...[
               ComponentV2EditorWidget(
@@ -252,19 +261,37 @@ class ReplyCard extends StatelessWidget {
             ),
         ];
 
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        for (final mode in visibleModes)
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final useRow = constraints.maxWidth >= 420;
+        final chips = [
+          for (var i = 0; i < visibleModes.length; i++)
           _buildResponseModeChip(
             context: context,
-            value: mode.value,
-            label: mode.label,
-            description: mode.description,
-            icon: mode.icon,
+            value: visibleModes[i].value,
+            label: visibleModes[i].label,
+            description: visibleModes[i].description,
+            icon: visibleModes[i].icon,
+            useExpanded: useRow,
           ),
-      ],
+        ];
+
+        if (useRow) {
+          return Row(
+            children: [
+              for (var i = 0; i < chips.length; i++) ...[
+                chips[i],
+                if (i < chips.length - 1) const SizedBox(width: 8),
+              ],
+            ],
+          );
+        }
+        return Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: chips,
+        );
+      },
     );
   }
 
@@ -274,48 +301,67 @@ class ReplyCard extends StatelessWidget {
     required String label,
     required String description,
     required IconData icon,
+    bool useExpanded = true,
   }) {
     final selected = responseType == value;
-    final activeColor = Theme.of(context).colorScheme.primary;
+    final colorScheme = Theme.of(context).colorScheme;
 
-    return Tooltip(
-      message: description,
-      child: ChoiceChip(
-        selected: selected,
-        showCheckmark: false,
-        avatar: Icon(
-          icon,
-          size: 16,
-          color: selected ? activeColor : Colors.grey.shade600,
+    final chip = GestureDetector(
+      onTap: () => onResponseTypeChanged(value),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppTheme.spacingMd,
+          vertical: AppTheme.spacingSm,
         ),
-        label: Column(
+        decoration: BoxDecoration(
+          gradient: selected ? AppTheme.brandGradient : null,
+          color: selected ? null : colorScheme.surfaceContainerHigh,
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+          border: Border.all(
+            color:
+                selected
+                    ? Colors.transparent
+                    : colorScheme.outlineVariant.withValues(alpha: 0.4),
+          ),
+        ),
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
+            Icon(
+              icon,
+              size: 18,
+              color: selected ? Colors.white : AppTheme.grey,
+            ),
+            const SizedBox(height: 6),
             Text(
               label,
               style: TextStyle(
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w700,
                 fontSize: 13,
-                color: selected ? activeColor : null,
+                color: selected ? Colors.white : colorScheme.onSurface,
               ),
             ),
+            const SizedBox(height: 2),
             Text(
               description,
               style: TextStyle(
                 fontSize: 10,
                 color:
                     selected
-                        ? activeColor.withValues(alpha: 0.75)
-                        : Colors.grey.shade500,
+                        ? Colors.white70
+                        : colorScheme.onSurfaceVariant,
               ),
-              maxLines: 1,
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
-        onSelected: (_) => onResponseTypeChanged(value),
       ),
     );
+
+    return useExpanded ? Expanded(child: chip) : chip;
   }
 }

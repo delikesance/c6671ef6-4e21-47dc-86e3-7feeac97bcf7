@@ -6,6 +6,7 @@ import 'package:bot_creator/utils/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:developer' as developer;
+import 'package:bot_creator/utils/app_theme.dart';
 
 class AppCreatePage extends StatefulWidget {
   const AppCreatePage({super.key});
@@ -140,7 +141,7 @@ class _AppCreatePageState extends State<AppCreatePage> {
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
-                        borderRadius: BorderRadius.circular(24),
+                        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -245,7 +246,7 @@ class _AppCreatePageState extends State<AppCreatePage> {
                               decoration: InputDecoration(
                                 labelText: context.tr.app_bot_token,
                                 border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(16),
+                                  borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                                 ),
                                 contentPadding: const EdgeInsets.all(16),
                                 hintText: context.tr.app_enter_token,
@@ -285,7 +286,7 @@ class _AppCreatePageState extends State<AppCreatePage> {
                               padding: const EdgeInsets.all(14),
                               decoration: BoxDecoration(
                                 color: colorScheme.surfaceContainerHighest,
-                                borderRadius: BorderRadius.circular(16),
+                                borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                                 border: Border.all(
                                   color: colorScheme.outlineVariant,
                                 ),
@@ -378,12 +379,12 @@ class _ExternalActionCard extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
         child: Ink(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(AppTheme.radiusLg),
             border: Border.all(color: colorScheme.outlineVariant),
           ),
           child: Row(
@@ -394,7 +395,7 @@ class _ExternalActionCard extends StatelessWidget {
                 height: 44,
                 decoration: BoxDecoration(
                   color: colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                 ),
                 child: Icon(icon, color: colorScheme.onPrimaryContainer),
               ),
@@ -424,7 +425,7 @@ class _ExternalActionCard extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: colorScheme.secondaryContainer,
-                        borderRadius: BorderRadius.circular(999),
+                        borderRadius: BorderRadius.circular(AppTheme.radiusPill),
                       ),
                       child: Text(
                         badgeLabel,

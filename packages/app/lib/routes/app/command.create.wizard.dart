@@ -140,6 +140,7 @@ extension _CommandCreateWizard on _CommandCreatePageState {
     return context.tr.actions_summary_configured(actionCount);
   }
 
+  // ignore: unused_element
   Widget _buildWizardShell({required double contentMaxWidth}) {
     return Form(
       child: Column(
@@ -173,7 +174,7 @@ extension _CommandCreateWizard on _CommandCreatePageState {
             color:
                 selected
                     ? Theme.of(context).colorScheme.primary
-                    : Colors.grey.shade600,
+                    : AppTheme.grey,
           ),
           label: Text(_commandCreateStepTitles[index]),
           onSelected: (_) {
@@ -363,7 +364,7 @@ extension _CommandCreateWizard on _CommandCreatePageState {
             title: Text(context.tr.wizard_advanced_trigger),
             subtitle: Text(
               context.tr.wizard_legacy_options_subtitle,
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: 12, color: AppTheme.grey),
             ),
             children: [
               Padding(
@@ -401,7 +402,7 @@ extension _CommandCreateWizard on _CommandCreatePageState {
                 const SizedBox(height: 6),
                 Text(
                   _responseSummaryLine(),
-                  style: TextStyle(color: Colors.grey.shade700),
+                  style: TextStyle(color: AppTheme.grey),
                 ),
                 if (activeRouteLabel != null) ...[
                   const SizedBox(height: 10),
@@ -446,7 +447,7 @@ extension _CommandCreateWizard on _CommandCreatePageState {
             title: Text(context.tr.wizard_quick_starts),
             subtitle: Text(
               context.tr.wizard_quick_start_subtitle,
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: 12, color: AppTheme.grey),
             ),
             children: [
               Padding(
@@ -470,7 +471,7 @@ extension _CommandCreateWizard on _CommandCreatePageState {
             _isBdfdScriptMode
                 ? context.tr.wizard_bdfd_mode_enabled
                 : context.tr.wizard_visual_mode_enabled,
-            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+            style: TextStyle(fontSize: 12, color: AppTheme.grey),
           ),
           children: [
             Padding(
@@ -501,7 +502,7 @@ extension _CommandCreateWizard on _CommandCreatePageState {
                   const SizedBox(height: 6),
                   Text(
                     _actionsSummaryLine(),
-                    style: TextStyle(color: Colors.grey.shade700),
+                    style: TextStyle(color: AppTheme.grey),
                   ),
                   const SizedBox(height: 12),
                   _buildBdfdEditorTile(),
