@@ -1373,6 +1373,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bot_home_view_replay => 'View debugger replays';
 
   @override
+  String get bot_home_section_monitoring => 'MONITORING';
+
+  @override
+  String get bot_home_section_tools => 'TOOLS';
+
+  @override
+  String get bot_home_section_danger => 'DANGER ZONE';
+
+  @override
   String get bot_home_sync => 'Sync App';
 
   @override
@@ -3937,6 +3946,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get common_description => 'Description';
 
   @override
+  String get common_default => 'Default';
+
+  @override
   String get common_clear => 'Clear';
 
   @override
@@ -4419,7 +4431,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get component_label_title => 'Label Title';
 
   @override
-  String get component_workflow_args_title => 'Workflow Call Arguments (JSON)';
+  String get component_workflow_args_title => 'Workflow Call Arguments';
 
   @override
   String get component_workflow_args_hint =>
@@ -6219,4 +6231,50 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get bdfd_compiled_no_actions =>
       'This BDFD script compiled successfully but did not produce any action.';
+
+  @override
+  String get embed_section_color => 'Color';
+
+  @override
+  String get embed_section_timestamp => 'Timestamp';
+
+  @override
+  String get embed_section_fields => 'Fields';
+
+  @override
+  String get embed_section_dynamic_fields => 'Dynamic Fields';
+
+  @override
+  String get embed_add_field => 'Add Field';
+
+  @override
+  String get embed_add_section => 'Add Section';
+
+  @override
+  String get common_add_section => 'Add Section';
+
+  @override
+  String get component_block_workflow => 'Workflow';
+
+  @override
+  String get component_block_label_style => 'Style';
+
+  @override
+  String get notion_filter_add => 'Add Filter';
+
+  @override
+  String get notion_filter_type => 'Type';
+
+  @override
+  String notion_create_workflow_from_query(String query) {
+    return 'Create workflow \"$query\"';
+  }
+
+  @override
+  String commands_create_from_query(String query) {
+    return 'Create command \"$query\"';
+  }
+
+  @override
+  String get commands_filter_type_label => 'Type';
 }

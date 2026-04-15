@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bot_creator/main.dart';
+import 'package:bot_creator/utils/app_theme.dart';
 import 'package:bot_creator/routes/bdfd_compatible_functions.dart';
 import 'package:bot_creator/routes/diagnostics_logs_page.dart';
 import 'package:bot_creator/routes/onboarding.dart';
@@ -659,15 +660,15 @@ class _SettingPageState extends State<SettingPage> {
   Color? _discordRpcStatusColor(DiscordRpcRuntimeState state) {
     switch (state) {
       case DiscordRpcRuntimeState.connected:
-        return Colors.green[400];
+        return AppTheme.successLight;
       case DiscordRpcRuntimeState.error:
-        return Colors.red[400];
+        return AppTheme.errorLight;
       case DiscordRpcRuntimeState.transportUnsupported:
       case DiscordRpcRuntimeState.unsupportedPlatform:
       case DiscordRpcRuntimeState.notConfigured:
       case DiscordRpcRuntimeState.needsAuthorization:
       case DiscordRpcRuntimeState.authorizationCodePendingExchange:
-        return Colors.orange[400];
+        return AppTheme.warning;
       case DiscordRpcRuntimeState.connecting:
       case DiscordRpcRuntimeState.authorizing:
       case DiscordRpcRuntimeState.exchangingCode:
@@ -771,7 +772,7 @@ class _SettingPageState extends State<SettingPage> {
                 ),
                 style: Theme.of(
                   context,
-                ).textTheme.bodySmall?.copyWith(color: Colors.red[400]),
+                ).textTheme.bodySmall?.copyWith(color: AppTheme.errorLight),
               ),
             ),
           ],
@@ -1103,38 +1104,16 @@ class _SettingPageState extends State<SettingPage> {
                   onPressed: () async {
                     Navigator.of(sheetContext).pop();
                     final confirmed =
-                        await showDialog<bool>(
-                          context: context,
-                          builder: (dialogContext) {
-                            return AlertDialog(
-                              title: Text(
-                                context.tr.settings_snapshot_delete_loading,
+                        await AppTheme.showConfirmDialog(
+                          context,
+                          title: context.tr.settings_snapshot_delete_loading,
+                          content: context.tr
+                              .settings_snapshots_delete_one_confirm(
+                                snapshot.label,
                               ),
-                              content: Text(
-                                context.tr
-                                    .settings_snapshots_delete_one_confirm(
-                                      snapshot.label,
-                                    ),
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed:
-                                      () => Navigator.of(
-                                        dialogContext,
-                                      ).pop(false),
-                                  child: Text(context.tr.cancel),
-                                ),
-                                FilledButton(
-                                  onPressed:
-                                      () =>
-                                          Navigator.of(dialogContext).pop(true),
-                                  child: Text(context.tr.delete),
-                                ),
-                              ],
-                            );
-                          },
-                        ) ??
-                        false;
+                          confirmLabel: context.tr.delete,
+                          isDestructive: true,
+                        );
                     if (!confirmed) {
                       return;
                     }
@@ -1168,34 +1147,15 @@ class _SettingPageState extends State<SettingPage> {
               onPressed: () async {
                 Navigator.of(dialogContext).pop();
                 final confirmed =
-                    await showDialog<bool>(
-                      context: context,
-                      builder: (confirmContext) {
-                        return AlertDialog(
-                          title: Text(
-                            context.tr.settings_snapshot_delete_loading,
-                          ),
-                          content: Text(
-                            context.tr.settings_snapshots_delete_one_confirm(
-                              snapshot.label,
-                            ),
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed:
-                                  () => Navigator.of(confirmContext).pop(false),
-                              child: Text(context.tr.cancel),
-                            ),
-                            FilledButton(
-                              onPressed:
-                                  () => Navigator.of(confirmContext).pop(true),
-                              child: Text(context.tr.delete),
-                            ),
-                          ],
-                        );
-                      },
-                    ) ??
-                    false;
+                    await AppTheme.showConfirmDialog(
+                      context,
+                      title: context.tr.settings_snapshot_delete_loading,
+                      content: context.tr.settings_snapshots_delete_one_confirm(
+                        snapshot.label,
+                      ),
+                      confirmLabel: context.tr.delete,
+                      isDestructive: true,
+                    );
                 if (!confirmed) {
                   return;
                 }
@@ -1228,30 +1188,15 @@ class _SettingPageState extends State<SettingPage> {
 
     final count = _snapshots.length;
     final confirmed =
-        await showDialog<bool>(
-          context: context,
-          builder: (dialogContext) {
-            return AlertDialog(
-              title: Text(context.tr.settings_snapshots_delete_all_title),
-              content: Text(
-                context.tr.settings_snapshots_delete_all_confirm(
-                  count.toString(),
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(dialogContext).pop(false),
-                  child: Text(context.tr.cancel),
-                ),
-                FilledButton(
-                  onPressed: () => Navigator.of(dialogContext).pop(true),
-                  child: Text(context.tr.delete),
-                ),
-              ],
-            );
-          },
-        ) ??
-        false;
+        await AppTheme.showConfirmDialog(
+          context,
+          title: context.tr.settings_snapshots_delete_all_title,
+          content: context.tr.settings_snapshots_delete_all_confirm(
+            count.toString(),
+          ),
+          confirmLabel: context.tr.delete,
+          isDestructive: true,
+        );
 
     if (!confirmed) {
       return;
@@ -1355,30 +1300,15 @@ class _SettingPageState extends State<SettingPage> {
     }
 
     final confirmed =
-        await showDialog<bool>(
-          context: context,
-          builder: (dialogContext) {
-            return AlertDialog(
-              title: Text(context.tr.settings_snapshot_delete_loading),
-              content: Text(
-                context.tr.settings_snapshots_delete_one_confirm(
-                  selected.label,
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(dialogContext).pop(false),
-                  child: Text(context.tr.cancel),
-                ),
-                FilledButton(
-                  onPressed: () => Navigator.of(dialogContext).pop(true),
-                  child: Text(context.tr.delete),
-                ),
-              ],
-            );
-          },
-        ) ??
-        false;
+        await AppTheme.showConfirmDialog(
+          context,
+          title: context.tr.settings_snapshot_delete_loading,
+          content: context.tr.settings_snapshots_delete_one_confirm(
+            selected.label,
+          ),
+          confirmLabel: context.tr.delete,
+          isDestructive: true,
+        );
 
     if (!confirmed) {
       return;
@@ -1447,7 +1377,7 @@ class _SettingPageState extends State<SettingPage> {
                     context.tr.settings_backup_restore_desc,
                     style: Theme.of(
                       context,
-                    ).textTheme.bodyMedium?.copyWith(color: Colors.grey[400]),
+                    ).textTheme.bodyMedium?.copyWith(color: AppTheme.grey),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 32),
@@ -1641,7 +1571,7 @@ class _SettingPageState extends State<SettingPage> {
                             Text(
                               'Open Ad Inspector and log adapter status (Unity/Google) to validate mediation.',
                               style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(color: Colors.grey[500]),
+                                  ?.copyWith(color: AppTheme.grey),
                             ),
                             const SizedBox(height: 12),
                             Wrap(
@@ -1693,7 +1623,7 @@ class _SettingPageState extends State<SettingPage> {
                       border: Border.all(
                         color: Theme.of(context).colorScheme.outline,
                       ),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1761,14 +1691,14 @@ class _SettingPageState extends State<SettingPage> {
                             children: [
                               Icon(
                                 Icons.check_circle,
-                                color: Colors.green[400],
+                                color: AppTheme.successLight,
                                 size: 20,
                               ),
                               const SizedBox(width: 8),
                               Text(
                                 context.tr.settings_drive_status_connected,
                                 style: Theme.of(context).textTheme.bodySmall
-                                    ?.copyWith(color: Colors.green[400]),
+                                    ?.copyWith(color: AppTheme.successLight),
                               ),
                             ],
                           ),
@@ -1802,7 +1732,7 @@ class _SettingPageState extends State<SettingPage> {
                                         );
                                       },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red[700],
+                                backgroundColor: AppTheme.error,
                               ),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -1839,7 +1769,7 @@ class _SettingPageState extends State<SettingPage> {
                               ? Text(
                                 context.tr.settings_runner_temporarily_disabled,
                                 style: Theme.of(context).textTheme.bodySmall
-                                    ?.copyWith(color: Colors.orange[400]),
+                                    ?.copyWith(color: AppTheme.warning),
                               )
                               : _runnerStatusKey == null
                               ? null
@@ -1851,8 +1781,8 @@ class _SettingPageState extends State<SettingPage> {
                                   color:
                                       _runnerStatusKey ==
                                               'settings_runner_connected'
-                                          ? Colors.green[400]
-                                          : Colors.red[400],
+                                          ? AppTheme.successLight
+                                          : AppTheme.errorLight,
                                 ),
                               ),
                       childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -1904,8 +1834,8 @@ class _SettingPageState extends State<SettingPage> {
                                           color:
                                               _runnerStatusKey ==
                                                       'settings_runner_connected'
-                                                  ? Colors.green[400]
-                                                  : Colors.red[400],
+                                                  ? AppTheme.successLight
+                                                  : AppTheme.errorLight,
                                           size: 18,
                                         )),
                           ),
@@ -2449,7 +2379,7 @@ class _SettingPageState extends State<SettingPage> {
                               padding: EdgeInsets.symmetric(vertical: 8),
                               child: Text(
                                 context.tr.settings_snapshots_empty,
-                                style: const TextStyle(color: Colors.grey),
+                                style: const TextStyle(color: AppTheme.grey),
                               ),
                             )
                           else
@@ -2734,9 +2664,9 @@ class _BdfdCompatibilityCard extends StatelessWidget {
   Color _statusColor(_CapabilityStatus status, BuildContext context) {
     switch (status) {
       case _CapabilityStatus.supported:
-        return Colors.green;
+        return AppTheme.success;
       case _CapabilityStatus.partial:
-        return Colors.orange;
+        return AppTheme.warning;
       case _CapabilityStatus.missing:
         return Theme.of(context).colorScheme.error;
     }
@@ -2843,7 +2773,7 @@ class _SupportDiscordCard extends StatelessWidget {
   const _SupportDiscordCard();
 
   static const _discordUrl = 'https://discord.gg/gyEGNBUZdA';
-  static const _discordColor = Color(0xFF5865F2);
+  static const _discordColor = AppTheme.discord;
 
   Future<void> _open() async {
     final uri = Uri.parse(_discordUrl);
@@ -2859,7 +2789,7 @@ class _SupportDiscordCard extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [_discordColor, Color(0xFF7983F5)],
+            colors: [_discordColor, AppTheme.discordLight],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -2877,7 +2807,7 @@ class _SupportDiscordCard extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.20),
-                  borderRadius: BorderRadius.circular(999),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusPill),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -2970,7 +2900,7 @@ class _PremiumCard extends StatelessWidget {
             children: [
               const Icon(
                 Icons.workspace_premium_rounded,
-                color: Colors.amber,
+                color: AppTheme.premiumGold,
                 size: 28,
               ),
               const SizedBox(width: 12),
@@ -3005,7 +2935,7 @@ class _PremiumCard extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.amber.shade700, Colors.orange.shade600],
+            colors: [AppTheme.premiumGold, AppTheme.warning],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -3049,7 +2979,7 @@ class _PremiumCard extends StatelessWidget {
                   onPressed: () => SubscriptionPage.show(context),
                   style: FilledButton.styleFrom(
                     backgroundColor: Colors.white,
-                    foregroundColor: Colors.amber.shade800,
+                    foregroundColor: AppTheme.premiumGold,
                   ),
                   icon: const Icon(Icons.star_rounded, size: 18),
                   label: Text(context.tr.premium_card_button),

@@ -7,6 +7,7 @@ import 'package:bot_creator/utils/subscription_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:bot_creator/utils/app_theme.dart';
 
 @visibleForTesting
 String subscriptionPurchaseErrorKey(SubscriptionPurchaseFailureReason? reason) {
@@ -153,13 +154,13 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.amber.withValues(alpha: 0.15),
+                  color: AppTheme.premiumGold.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
                   Icons.workspace_premium_rounded,
                   size: 48,
-                  color: Colors.amber,
+                  color: AppTheme.premiumGold,
                 ),
               ),
               const SizedBox(height: 20),
@@ -309,7 +310,7 @@ class _BenefitRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 22, color: Colors.amber),
+        Icon(icon, size: 22, color: AppTheme.premiumGold),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -336,7 +337,7 @@ class _BenefitRow extends StatelessWidget {
                             Theme.of(
                               context,
                             ).colorScheme.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(999),
+                        borderRadius: BorderRadius.circular(AppTheme.radiusPill),
                       ),
                       child: Text(
                         context.tr.subscription_feature_coming_soon,
@@ -386,15 +387,15 @@ class _PlanCard extends StatelessWidget {
     return Card(
       elevation: isPrimary ? 4 : 1,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
         side:
             isPrimary
-                ? const BorderSide(color: Colors.amber, width: 2)
+                ? const BorderSide(color: AppTheme.premiumGold, width: 2)
                 : BorderSide.none,
       ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
           child: Row(
@@ -419,8 +420,8 @@ class _PlanCard extends StatelessWidget {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.amber,
-                              borderRadius: BorderRadius.circular(999),
+                              color: AppTheme.premiumGold,
+                              borderRadius: BorderRadius.circular(AppTheme.radiusPill),
                             ),
                             child: Text(
                               badge!,
@@ -448,7 +449,7 @@ class _PlanCard extends StatelessWidget {
                 price,
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: isPrimary ? Colors.amber : null,
+                  color: isPrimary ? AppTheme.premiumGold : null,
                 ),
               ),
             ],

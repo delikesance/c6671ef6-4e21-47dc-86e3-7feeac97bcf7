@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:bot_creator/main.dart';
+import 'package:bot_creator/utils/app_theme.dart';
 import 'package:bot_creator/routes/app/bot_logs.dart';
 import 'package:bot_creator/routes/app/bot_stats.dart';
 import 'package:bot_creator/routes/app/debug_replay_page.dart';
@@ -414,25 +415,13 @@ class _AppHomePageState extends State<AppHomePage>
 
       if (kDebugMode) {
         final shouldWatch =
-            await showDialog<bool>(
-              context: context,
-              builder:
-                  (dialogContext) => AlertDialog(
-                    title: Text(context.tr.rewarded_start_title),
-                    content: Text(context.tr.rewarded_start_message),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.of(dialogContext).pop(false),
-                        child: Text(context.tr.rewarded_start_skip),
-                      ),
-                      FilledButton(
-                        onPressed: () => Navigator.of(dialogContext).pop(true),
-                        child: Text(context.tr.rewarded_start_watch),
-                      ),
-                    ],
-                  ),
-            ) ??
-            false;
+            await AppTheme.showConfirmDialog(
+              context,
+              title: context.tr.rewarded_start_title,
+              content: context.tr.rewarded_start_message,
+              cancelLabel: context.tr.rewarded_start_skip,
+              confirmLabel: context.tr.rewarded_start_watch,
+            );
 
         if (!shouldWatch || !mounted) {
           return;
@@ -455,7 +444,7 @@ class _AppHomePageState extends State<AppHomePage>
         );
       }
 
-      AdRewardService.showRewardedAdNonBlocking();
+      await AdRewardService.showRewardedAd();
       if (!mounted) {
         return;
       }
@@ -477,13 +466,92 @@ class _AppHomePageState extends State<AppHomePage>
     return consentGranted;
   }
 
+  Widget _buildSection({
+    required IconData icon,
+    required String title,
+    required List<Widget> children,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+        border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppTheme.spacingLg,
+              AppTheme.spacingMd,
+              AppTheme.spacingLg,
+              AppTheme.spacingSm,
+            ),
+            child: Row(
+              children: [
+                Icon(icon, size: 16, color: colorScheme.primary),
+                const SizedBox(width: AppTheme.spacingSm),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.5,
+                    color: colorScheme.primary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          ...children,
+          const SizedBox(height: AppTheme.spacingXs),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionTile({
+    required IconData icon,
+    required String label,
+    required VoidCallback? onTap,
+    Color? iconColor,
+    Color? textColor,
+    Widget? trailing,
+  }) {
+    return ListTile(
+      dense: true,
+      leading: Icon(icon, size: 20, color: iconColor),
+      title: Text(
+        label,
+        style: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w500,
+          color: textColor,
+        ),
+      ),
+      trailing: trailing ?? const Icon(Icons.chevron_right, size: 18),
+      onTap: onTap,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromRGBO(106, 15, 162, 1),
-        title: Text(_appName),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(gradient: AppTheme.brandGradient),
+        ),
+        title: Text(
+          _appName,
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+        ),
         centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
@@ -494,8 +562,8 @@ class _AppHomePageState extends State<AppHomePage>
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 16,
+                  horizontal: AppTheme.spacingLg,
+                  vertical: AppTheme.spacingLg,
                 ),
                 child: ConstrainedBox(
                   constraints: BoxConstraints(maxWidth: contentMaxWidth),
@@ -503,39 +571,46 @@ class _AppHomePageState extends State<AppHomePage>
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
-                      // let's show the app icon
-                      const SizedBox(height: 20),
+                      const SizedBox(height: AppTheme.spacingLg),
+                      // Bot avatar with gradient ring
                       Align(
                         alignment: Alignment.center,
-                        child:
-                            avatar.isNotEmpty
-                                ? CircleAvatar(
-                                  radius: 40,
-                                  child: ClipOval(
+                        child: Container(
+                          padding: const EdgeInsets.all(3),
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: AppTheme.brandGradient,
+                          ),
+                          child: CircleAvatar(
+                            radius: 40,
+                            backgroundColor: colorScheme.surface,
+                            child: avatar.isNotEmpty
+                                ? ClipOval(
                                     child: Image.network(
                                       avatar,
-                                      width: 80,
-                                      height: 80,
+                                      width: 76,
+                                      height: 76,
                                       fit: BoxFit.cover,
                                       errorBuilder:
                                           (context, error, stackTrace) =>
                                               const Icon(
-                                                Icons.account_circle,
-                                                size: 80,
+                                                Icons.smart_toy,
+                                                size: 40,
                                               ),
                                     ),
-                                  ),
-                                )
-                                : const Icon(Icons.account_circle, size: 80),
+                                  )
+                                : const Icon(Icons.smart_toy, size: 40),
+                          ),
+                        ),
                       ),
-                      const SizedBox(height: 20),
-                      // App Name
+                      const SizedBox(height: AppTheme.spacingMd),
                       Text(
                         _appName,
                         textAlign: TextAlign.center,
                         style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.3,
                         ),
                       ),
                       if (Platform.isIOS) ...[
@@ -543,10 +618,10 @@ class _AppHomePageState extends State<AppHomePage>
                         Container(
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            color: Colors.orange.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(16),
+                            color: AppTheme.warning.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                             border: Border.all(
-                              color: Colors.orange.withValues(alpha: 0.35),
+                              color: AppTheme.warning.withValues(alpha: 0.35),
                             ),
                           ),
                           child: Row(
@@ -556,7 +631,7 @@ class _AppHomePageState extends State<AppHomePage>
                                 padding: EdgeInsets.only(top: 2),
                                 child: Icon(
                                   Icons.info_outline,
-                                  color: Colors.orange,
+                                  color: AppTheme.warning,
                                   size: 20,
                                 ),
                               ),
@@ -586,16 +661,18 @@ class _AppHomePageState extends State<AppHomePage>
                           ),
                         ),
                       ],
-                      const SizedBox(height: 20),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
+                      const SizedBox(height: AppTheme.spacingXl),
+                      // ── Start / Stop Bot ──────────────────────────
+                      FilledButton(
+                        style: FilledButton.styleFrom(
                           backgroundColor:
                               _botLaunched
-                                  ? Colors.red
+                                  ? AppTheme.error
                                   : _botStarting
-                                  ? Colors.orange
-                                  : Colors.green,
-                          minimumSize: const Size.fromHeight(42),
+                                  ? AppTheme.warning
+                                  : AppTheme.success,
+                          minimumSize: const Size.fromHeight(48),
+                          shape: AppTheme.buttonShape,
                         ),
                         onPressed:
                             _botStarting
@@ -619,45 +696,12 @@ class _AppHomePageState extends State<AppHomePage>
                                       } catch (_) {
                                         if (!mounted) return;
                                         final proceed =
-                                            await showDialog<bool>(
-                                              context: context,
-                                              builder:
-                                                  (ctx) => AlertDialog(
-                                                    title: Text(
-                                                      context
-                                                          .tr
-                                                          .bot_home_token_invalid_title,
-                                                    ),
-                                                    content: Text(
-                                                      context
-                                                          .tr
-                                                          .bot_home_token_invalid_content,
-                                                    ),
-                                                    actions: [
-                                                      TextButton(
-                                                        onPressed:
-                                                            () => Navigator.of(
-                                                              ctx,
-                                                            ).pop(false),
-                                                        child: Text(
-                                                          context.tr.cancel,
-                                                        ),
-                                                      ),
-                                                      FilledButton(
-                                                        onPressed:
-                                                            () => Navigator.of(
-                                                              ctx,
-                                                            ).pop(true),
-                                                        child: Text(
-                                                          context
-                                                              .tr
-                                                              .bot_home_start,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                            ) ??
-                                            false;
+                                            await AppTheme.showConfirmDialog(
+                                              context,
+                                              title: context.tr.bot_home_token_invalid_title,
+                                              content: context.tr.bot_home_token_invalid_content,
+                                              confirmLabel: context.tr.bot_home_start,
+                                            );
                                         if (!proceed || !mounted) return;
                                       }
                                       await _maybeOfferRewardedAd();
@@ -867,28 +911,28 @@ class _AppHomePageState extends State<AppHomePage>
                             else
                               Icon(
                                 _botLaunched ? Icons.stop : Icons.play_arrow,
+                                color: Colors.white,
                               ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: AppTheme.spacingSm),
                             Text(
                               _botStarting
                                   ? context.tr.bot_home_starting
                                   : _botLaunched
                                   ? context.tr.bot_home_stop
                                   : context.tr.bot_home_start,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ],
                         ),
                       ),
-                      const Divider(
-                        height: 40,
-                        thickness: 2,
-                        indent: 20,
-                        endIndent: 20,
-                      ),
+                      const SizedBox(height: AppTheme.spacingXl),
                       // ── Quick access to secondary sections (mobile) ──
                       if (showQuickAccess &&
                           widget.secondarySections.isNotEmpty &&
-                          widget.onNavigateToSection != null)
+                          widget.onNavigateToSection != null) ...[
                         Padding(
                           padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
                           child: Column(
@@ -942,189 +986,140 @@ class _AppHomePageState extends State<AppHomePage>
                             ],
                           ),
                         ),
-                      // Logs Button
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size.fromHeight(42),
-                        ),
-                        onPressed: () {
-                          final botId = widget.client.user.id.toString();
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => BotLogsPage(botId: botId),
-                            ),
-                          );
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.receipt_long),
-                            const SizedBox(width: 8),
-                            Text(context.tr.bot_home_view_logs),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size.fromHeight(42),
-                        ),
-                        onPressed: () {
-                          final botId = widget.client.user.id.toString();
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => BotStatsPage(botId: botId),
-                            ),
-                          );
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.monitor_heart_outlined),
-                            const SizedBox(width: 8),
-                            Text(context.tr.bot_home_view_stats),
-                          ],
-                        ),
-                      ),
-                      if (PremiumCapabilities.isCapabilityRolledOut(
-                        PremiumCapability.visualDebuggerReplay,
-                      )) ...[
-                        const SizedBox(height: 12),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            minimumSize: const Size.fromHeight(42),
-                          ),
-                          onPressed: () {
-                            final botId = widget.client.user.id.toString();
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => DebugReplayPage(botId: botId),
-                              ),
-                            );
-                          },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.play_circle_outline),
-                              const SizedBox(width: 8),
-                              Text(context.tr.bot_home_view_replay),
-                            ],
-                          ),
-                        ),
+                        const SizedBox(height: AppTheme.spacingSm),
                       ],
-                      const SizedBox(height: 20),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size.fromHeight(42),
-                        ),
-                        onPressed:
-                            _isSyncingApp
+                      // ── Monitoring section ──────────────────────────
+                      _buildSection(
+                        icon: Icons.monitor_heart_outlined,
+                        title: context.tr.bot_home_section_monitoring,
+                        children: [
+                          _buildActionTile(
+                            icon: Icons.receipt_long,
+                            label: context.tr.bot_home_view_logs,
+                            onTap: () {
+                              final botId = widget.client.user.id.toString();
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => BotLogsPage(botId: botId),
+                                ),
+                              );
+                            },
+                          ),
+                          _buildActionTile(
+                            icon: Icons.bar_chart,
+                            label: context.tr.bot_home_view_stats,
+                            onTap: () {
+                              final botId = widget.client.user.id.toString();
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => BotStatsPage(botId: botId),
+                                ),
+                              );
+                            },
+                          ),
+                          if (PremiumCapabilities.isCapabilityRolledOut(
+                            PremiumCapability.visualDebuggerReplay,
+                          ))
+                            _buildActionTile(
+                              icon: Icons.play_circle_outline,
+                              label: context.tr.bot_home_view_replay,
+                              onTap: () {
+                                final botId = widget.client.user.id.toString();
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => DebugReplayPage(botId: botId),
+                                  ),
+                                );
+                              },
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: AppTheme.spacingMd),
+                      // ── Tools section ──────────────────────────
+                      _buildSection(
+                        icon: Icons.build_outlined,
+                        title: context.tr.bot_home_section_tools,
+                        children: [
+                          _buildActionTile(
+                            icon: Icons.sync,
+                            label: context.tr.bot_home_sync,
+                            onTap: _isSyncingApp
                                 ? null
                                 : () async {
-                                  await _syncAppFromRemote(showSnack: true);
-                                },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            _isSyncingApp
+                                    await _syncAppFromRemote(showSnack: true);
+                                  },
+                            trailing: _isSyncingApp
                                 ? const SizedBox(
-                                  width: 18,
-                                  height: 18,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                                : const Icon(Icons.sync),
-                            const SizedBox(width: 8),
-                            Text(context.tr.bot_home_sync),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      // Invite Bot Button
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          minimumSize: const Size.fromHeight(42),
-                        ),
-                        onPressed: () async {
-                          final botId = widget.client.user.id.toString();
-                          final inviteUrl = Uri.parse(
-                            'https://discord.com/api/oauth2/authorize?client_id=$botId&scope=bot&permissions=8',
-                          );
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                  )
+                                : null,
+                          ),
+                          _buildActionTile(
+                            icon: Icons.person_add,
+                            label: context.tr.bot_home_invite,
+                            iconColor: AppTheme.info,
+                            onTap: () async {
+                              final botId = widget.client.user.id.toString();
+                              final inviteUrl = Uri.parse(
+                                'https://discord.com/api/oauth2/authorize?client_id=$botId&scope=bot&permissions=8',
+                              );
 
-                          if (await canLaunchUrl(inviteUrl)) {
-                            await launchUrl(inviteUrl);
-                            await AppAnalytics.logEvent(
-                              name: "invite_bot",
-                              parameters: {"bot_id": botId},
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(context.tr.bot_home_invite_error),
-                              ),
-                            );
-                          }
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.person_add),
-                            const SizedBox(width: 8),
-                            Text(context.tr.bot_home_invite),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          minimumSize: const Size.fromHeight(42),
-                        ),
-                        onPressed: () async {
-                          final dialog = AlertDialog.adaptive(
-                            title: Text(context.tr.bot_home_delete),
-                            content: Text(context.tr.bot_home_delete_confirm),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                                child: Text(context.tr.cancel),
-                              ),
-                              TextButton(
-                                onPressed: () async {
-                                  await appManager.deleteApp(
-                                    widget.client.user.id.toString(),
-                                  );
-                                  Navigator.of(context).pop();
-                                  Navigator.of(context).pop();
-                                },
-                                child: Text(context.tr.delete),
-                              ),
-                            ],
-                          );
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return dialog;
+                              if (await canLaunchUrl(inviteUrl)) {
+                                await launchUrl(inviteUrl);
+                                await AppAnalytics.logEvent(
+                                  name: "invite_bot",
+                                  parameters: {"bot_id": botId},
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(context.tr.bot_home_invite_error),
+                                  ),
+                                );
+                              }
                             },
-                          );
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.delete),
-                            const SizedBox(width: 8),
-                            Text(context.tr.bot_home_delete),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 80),
+                      const SizedBox(height: AppTheme.spacingMd),
+                      // ── Danger zone ──────────────────────────
+                      _buildSection(
+                        icon: Icons.warning_amber_rounded,
+                        title: context.tr.bot_home_section_danger,
+                        children: [
+                          _buildActionTile(
+                            icon: Icons.delete_outline,
+                            label: context.tr.bot_home_delete,
+                            iconColor: AppTheme.error,
+                            textColor: AppTheme.error,
+                            trailing: const Icon(
+                              Icons.chevron_right,
+                              size: 18,
+                              color: AppTheme.error,
+                            ),
+                            onTap: () async {
+                              final confirmed = await AppTheme.showConfirmDialog(
+                                context,
+                                title: context.tr.bot_home_delete,
+                                content: context.tr.bot_home_delete_confirm,
+                                confirmLabel: context.tr.common_delete,
+                                icon: Icons.delete_forever,
+                              );
+                              if (!confirmed || !mounted) return;
+                              await appManager.deleteApp(
+                                widget.client.user.id.toString(),
+                              );
+                              if (mounted) Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppTheme.spacingXxl),
                     ],
                   ),
                 ),
@@ -1153,9 +1148,9 @@ class _QuickAccessChip extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     return Material(
       color: colorScheme.surfaceContainer,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),

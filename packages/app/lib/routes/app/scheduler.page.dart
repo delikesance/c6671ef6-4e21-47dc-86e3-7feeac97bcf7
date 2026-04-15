@@ -3,6 +3,8 @@ import 'package:bot_creator/utils/i18n.dart';
 import 'package:bot_creator/utils/premium_capabilities.dart';
 import 'package:bot_creator/widgets/subscription_page.dart';
 import 'package:flutter/material.dart';
+import 'package:bot_creator/utils/app_theme.dart';
+import 'package:bot_creator/utils/workflow_call.dart';
 
 class SchedulerPage extends StatefulWidget {
   const SchedulerPage({super.key, required this.botId});
@@ -34,6 +36,8 @@ class _SchedulerPageState extends State<SchedulerPage> {
 
     final workflows = await appManager.getWorkflows(widget.botId);
     final workflowNames = workflows
+      .where((entry) =>
+          normalizeWorkflowType(entry['workflowType']) == workflowTypeGeneral)
       .map((entry) => (entry['name'] ?? '').toString().trim())
       .where((name) => name.isNotEmpty)
       .toSet()
@@ -206,32 +210,13 @@ class _SchedulerPageState extends State<SchedulerPage> {
     final label =
         (trigger['label'] ?? trigger['workflowName'] ?? '').toString().trim();
 
-    final confirm =
-        await showDialog<bool>(
-          context: context,
-          builder: (dialogContext) {
-            return AlertDialog.adaptive(
-              title: Text(context.tr.scheduler_delete_title),
-              content: Text(context.tr.scheduler_delete_confirm(label)),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(dialogContext).pop(false),
-                  child: Text(context.tr.cancel),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.of(dialogContext).pop(true),
-                  child: Text(
-                    context.tr.delete,
-                    style: TextStyle(
-                      color: Theme.of(dialogContext).colorScheme.error,
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
-        ) ??
-        false;
+    final confirm = await AppTheme.showConfirmDialog(
+      context,
+      title: context.tr.scheduler_delete_title,
+      content: context.tr.scheduler_delete_confirm(label),
+      confirmLabel: context.tr.delete,
+      isDestructive: true,
+    );
 
     if (!confirm) {
       return;
@@ -267,7 +252,7 @@ class _SchedulerPageState extends State<SchedulerPage> {
           children: [
             Row(
               children: [
-                Icon(Icons.workspace_premium_rounded, color: Colors.amber),
+                Icon(Icons.workspace_premium_rounded, color: AppTheme.premiumGold),
                 SizedBox(width: 8),
                 Expanded(
                   child: Text(

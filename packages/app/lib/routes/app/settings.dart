@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:bot_creator/main.dart';
+import 'package:bot_creator/utils/app_theme.dart';
 import 'package:bot_creator/routes/app/export_import.page.dart';
 import 'package:bot_creator/routes/app/workflow_docs.page.dart';
 import 'package:bot_creator/utils/analytics.dart';
@@ -276,32 +277,15 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       if (newBotId != localBotId) {
         if (!mounted) return;
         final proceed =
-            await showDialog<bool>(
-              context: context,
-              builder:
-                  (ctx) => AlertDialog(
-                    title: Text(context.tr.bot_settings_token_mismatch_title),
-                    content: Text(
-                      context.tr.bot_settings_token_mismatch_content(
-                        newBotId,
-                        localBotId,
-                      ),
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.of(ctx).pop(false),
-                        child: Text(context.tr.cancel),
-                      ),
-                      FilledButton(
-                        onPressed: () => Navigator.of(ctx).pop(true),
-                        child: Text(
-                          context.tr.bot_settings_token_mismatch_confirm,
-                        ),
-                      ),
-                    ],
-                  ),
-            ) ??
-            false;
+            await AppTheme.showConfirmDialog(
+              context,
+              title: context.tr.bot_settings_token_mismatch_title,
+              content: context.tr.bot_settings_token_mismatch_content(
+                newBotId,
+                localBotId,
+              ),
+              confirmLabel: context.tr.bot_settings_token_mismatch_confirm,
+            );
         if (!proceed || !mounted) return;
       }
 
@@ -727,7 +711,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                           context.tr.bot_settings_gateway_intents_desc,
                           style: const TextStyle(
                             fontSize: 12,
-                            color: Colors.grey,
+                            color: AppTheme.grey,
                           ),
                         ),
                       ),
@@ -744,7 +728,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                         context.tr.settings_legacy_prefix_helper,
                         style: const TextStyle(
                           fontSize: 12,
-                          color: Colors.grey,
+                          color: AppTheme.grey,
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -788,7 +772,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                         context.tr.bot_settings_save_intents_caption,
                         style: const TextStyle(
                           fontSize: 12,
-                          color: Colors.grey,
+                          color: AppTheme.grey,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -872,7 +856,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                           ),
                           style: const TextStyle(
                             fontSize: 12,
-                            color: Colors.grey,
+                            color: AppTheme.grey,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -880,9 +864,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                           width: double.infinity,
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF2B2D31),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: const Color(0xFF1E1F22)),
+                            color: AppTheme.discordDarkBg,
+                            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                            border: Border.all(color: AppTheme.discordDarkerBg),
                           ),
                           child: Row(
                             children: [
@@ -892,7 +876,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                    color: const Color(0xFF1E1F22),
+                                    color: AppTheme.discordDarkerBg,
                                     width: 2,
                                   ),
                                 ),
@@ -902,11 +886,11 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                     fit: BoxFit.cover,
                                     errorBuilder: (_, _, _) {
                                       return Container(
-                                        color: const Color(0xFF404249),
+                                        color: AppTheme.discordBorder,
                                         alignment: Alignment.center,
                                         child: const Icon(
                                           Icons.broken_image_outlined,
-                                          color: Color(0xFFB5BAC1),
+                                          color: AppTheme.discordText,
                                           size: 20,
                                         ),
                                       );
@@ -941,7 +925,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                             vertical: 2,
                                           ),
                                           decoration: BoxDecoration(
-                                            color: const Color(0xFF5865F2),
+                                            color: AppTheme.discord,
                                             borderRadius: BorderRadius.circular(
                                               6,
                                             ),
@@ -964,7 +948,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                                 .bot_settings_avatar_preview_label,
                                             overflow: TextOverflow.ellipsis,
                                             style: const TextStyle(
-                                              color: Color(0xFFB5BAC1),
+                                              color: AppTheme.discordText,
                                               fontSize: 12,
                                             ),
                                           ),
@@ -1050,7 +1034,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                           context.tr.bot_settings_status_rotation_desc,
                           style: const TextStyle(
                             fontSize: 12,
-                            color: Colors.grey,
+                            color: AppTheme.grey,
                           ),
                         ),
                       ),
@@ -1097,57 +1081,13 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                               ? null
                                               : () async {
                                                 final shouldDelete =
-                                                    await showDialog<bool>(
-                                                      context: context,
-                                                      builder:
-                                                          (
-                                                            dialogContext,
-                                                          ) => AlertDialog.adaptive(
-                                                            title: Text(
-                                                              context
-                                                                  .tr
-                                                                  .bot_settings_remove_status,
-                                                            ),
-                                                            content: Text(
-                                                              context
-                                                                  .tr
-                                                                  .settings_status_remove_confirm,
-                                                            ),
-                                                            actions: [
-                                                              TextButton(
-                                                                onPressed:
-                                                                    () => Navigator.of(
-                                                                      dialogContext,
-                                                                    ).pop(
-                                                                      false,
-                                                                    ),
-                                                                child: Text(
-                                                                  context
-                                                                      .tr
-                                                                      .cancel,
-                                                                ),
-                                                              ),
-                                                              TextButton(
-                                                                onPressed:
-                                                                    () => Navigator.of(
-                                                                      dialogContext,
-                                                                    ).pop(true),
-                                                                child: Text(
-                                                                  context
-                                                                      .tr
-                                                                      .delete,
-                                                                  style: TextStyle(
-                                                                    color:
-                                                                        Theme.of(
-                                                                          dialogContext,
-                                                                        ).colorScheme.error,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                    ) ??
-                                                    false;
+                                                    await AppTheme.showConfirmDialog(
+                                                      context,
+                                                      title: context.tr.bot_settings_remove_status,
+                                                      content: context.tr.settings_status_remove_confirm,
+                                                      confirmLabel: context.tr.delete,
+                                                      isDestructive: true,
+                                                    );
                                                 if (!shouldDelete) {
                                                   return;
                                                 }
@@ -1265,7 +1205,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                         context.tr.bot_settings_save_profile_caption,
                         style: const TextStyle(
                           fontSize: 12,
-                          color: Colors.grey,
+                          color: AppTheme.grey,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -1328,7 +1268,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                           context.tr.bot_settings_token_hidden_desc,
                           style: const TextStyle(
                             fontSize: 12,
-                            color: Colors.grey,
+                            color: AppTheme.grey,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -1381,7 +1321,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                         context.tr.bot_settings_save_token_caption,
                         style: const TextStyle(
                           fontSize: 12,
-                          color: Colors.grey,
+                          color: AppTheme.grey,
                         ),
                       ),
                       const SizedBox(height: 8),

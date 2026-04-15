@@ -7,6 +7,8 @@ import 'package:bot_creator/utils/runner_settings.dart';
 import 'package:bot_creator/widgets/subscription_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:bot_creator/utils/app_theme.dart';
+import 'package:bot_creator/utils/workflow_call.dart';
 
 class InboundWebhooksPage extends StatefulWidget {
   const InboundWebhooksPage({super.key, required this.botId});
@@ -38,6 +40,8 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
 
     final workflows = await appManager.getWorkflows(widget.botId);
     final workflowNames = workflows
+      .where((entry) =>
+          normalizeWorkflowType(entry['workflowType']) == workflowTypeGeneral)
       .map((entry) => (entry['name'] ?? '').toString().trim())
       .where((name) => name.isNotEmpty)
       .toSet()
@@ -219,31 +223,15 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
   Future<void> _deleteWebhook(Map<String, dynamic> webhook) async {
     final label = (webhook['path'] ?? '').toString().trim();
 
-    final confirm =
-        await showDialog<bool>(
-          context: context,
-          builder: (dialogContext) {
-            return AlertDialog.adaptive(
-              title: Text(context.tr.webhooks_delete_title),
-              content: Text(
-                label.isEmpty
-                    ? context.tr.webhooks_delete_confirm_no_label
-                    : context.tr.webhooks_delete_confirm(label),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(dialogContext).pop(false),
-                  child: Text(context.tr.cancel),
-                ),
-                FilledButton(
-                  onPressed: () => Navigator.of(dialogContext).pop(true),
-                  child: Text(context.tr.delete),
-                ),
-              ],
-            );
-          },
-        ) ??
-        false;
+    final confirm = await AppTheme.showConfirmDialog(
+      context,
+      title: context.tr.webhooks_delete_title,
+      content: label.isEmpty
+          ? context.tr.webhooks_delete_confirm_no_label
+          : context.tr.webhooks_delete_confirm(label),
+      confirmLabel: context.tr.delete,
+      isDestructive: true,
+    );
 
     if (!confirm) {
       return;
@@ -328,7 +316,7 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
           children: [
             Row(
               children: [
-                Icon(Icons.workspace_premium_rounded, color: Colors.amber),
+                Icon(Icons.workspace_premium_rounded, color: AppTheme.premiumGold),
                 SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -572,13 +560,13 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
                                                     const Icon(
                                                       Icons.delete_outline,
                                                       size: 18,
-                                                      color: Colors.red,
+                                                      color: AppTheme.error,
                                                     ),
                                                     const SizedBox(width: 12),
                                                     const Text(
                                                       'Delete',
                                                       style: TextStyle(
-                                                        color: Colors.red,
+                                                        color: AppTheme.error,
                                                       ),
                                                     ),
                                                   ],

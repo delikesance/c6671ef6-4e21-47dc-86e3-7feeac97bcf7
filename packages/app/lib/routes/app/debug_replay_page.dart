@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bot_creator/utils/bot.dart';
+import 'package:bot_creator/utils/app_theme.dart';
 import 'package:bot_creator/utils/i18n.dart';
 import 'package:bot_creator/utils/premium_capabilities.dart';
 import 'package:bot_creator/utils/runner_client.dart';
@@ -142,7 +143,7 @@ class _DebugReplayPageState extends State<DebugReplayPage> {
                 _capturing
                     ? Icons.fiber_manual_record
                     : Icons.fiber_manual_record_outlined,
-                color: _capturing ? Colors.red : null,
+                color: _capturing ? AppTheme.error : null,
               ),
               onPressed: () {
                 final next = !_capturing;
@@ -156,27 +157,13 @@ class _DebugReplayPageState extends State<DebugReplayPage> {
                 icon: const Icon(Icons.delete_sweep_outlined),
                 onPressed: () async {
                   final confirmed =
-                      await showDialog<bool>(
-                        context: context,
-                        builder:
-                            (ctx) => AlertDialog(
-                              title: Text(context.tr.debug_replay_clear_title),
-                              content: Text(
-                                context.tr.debug_replay_clear_confirm,
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.of(ctx).pop(false),
-                                  child: Text(context.tr.cancel),
-                                ),
-                                FilledButton(
-                                  onPressed: () => Navigator.of(ctx).pop(true),
-                                  child: Text(context.tr.delete),
-                                ),
-                              ],
-                            ),
-                      ) ??
-                      false;
+                      await AppTheme.showConfirmDialog(
+                        context,
+                        title: context.tr.debug_replay_clear_title,
+                        content: context.tr.debug_replay_clear_confirm,
+                        confirmLabel: context.tr.delete,
+                        isDestructive: true,
+                      );
                   if (!confirmed) return;
                   final client = _runnerClient;
                   final botId = widget.botId?.trim() ?? '';
@@ -368,7 +355,7 @@ class _ReplayListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final statusColor = replay.hasError ? colorScheme.error : Colors.green;
+    final statusColor = replay.hasError ? colorScheme.error : AppTheme.success;
     final timeAgo = _formatTimeAgo(replay.triggeredAt);
 
     return ListTile(
@@ -536,7 +523,7 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
     DebugReplayRecord replay,
     ColorScheme colorScheme,
   ) {
-    final statusColor = replay.hasError ? colorScheme.error : Colors.green;
+    final statusColor = replay.hasError ? colorScheme.error : AppTheme.success;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Row(
@@ -579,7 +566,7 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
           activeColor: cs.primary,
           errorColor: cs.error,
           baseColor: cs.onSurface.withValues(alpha: 0.15),
-          successColor: Colors.green.withValues(alpha: 0.7),
+          successColor: AppTheme.success.withValues(alpha: 0.7),
         ),
         child: GestureDetector(
           onTapDown: (details) {
@@ -697,7 +684,7 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
               _totalMs > 0
                   ? (frame.durationMs / _totalMs).clamp(0.0, 1.0)
                   : 0.0;
-          final color = frame.isError ? cs.error : Colors.green;
+          final color = frame.isError ? cs.error : AppTheme.success;
           return InkWell(
             onTap: () => _goToStep(i),
             child: Padding(
@@ -770,7 +757,7 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
     int index,
     ColorScheme cs,
   ) {
-    final statusColor = frame.isError ? cs.error : Colors.green;
+    final statusColor = frame.isError ? cs.error : AppTheme.success;
     final barWidth =
         _totalMs > 0 ? (frame.durationMs / _totalMs).clamp(0.0, 1.0) : 0.0;
 
@@ -873,7 +860,7 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: cs.surfaceContainer,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(AppTheme.radiusSm),
               border: Border.all(color: statusColor.withValues(alpha: 0.3)),
             ),
             child: Text(
@@ -995,7 +982,7 @@ class _VariablesDiffSectionState extends State<_VariablesDiffSection> {
       children: [
         InkWell(
           onTap: () => setState(() => _expanded = !_expanded),
-          borderRadius: BorderRadius.circular(6),
+          borderRadius: BorderRadius.circular(AppTheme.radiusSm),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 4),
             child: Row(
@@ -1022,7 +1009,7 @@ class _VariablesDiffSectionState extends State<_VariablesDiffSection> {
                     ),
                     decoration: BoxDecoration(
                       color: cs.primary.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                     ),
                     child: Text(
                       '$changedCount',
@@ -1043,7 +1030,7 @@ class _VariablesDiffSectionState extends State<_VariablesDiffSection> {
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: cs.surfaceContainer,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(AppTheme.radiusSm),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1072,7 +1059,7 @@ class _VariablesDiffSectionState extends State<_VariablesDiffSection> {
                     context,
                     key: key,
                     value: widget.after[key] ?? '',
-                    color: Colors.green,
+                    color: AppTheme.success,
                     prefix: '+',
                   ),
                 for (final key in modified)
@@ -1080,7 +1067,7 @@ class _VariablesDiffSectionState extends State<_VariablesDiffSection> {
                     context,
                     key: key,
                     value: '${widget.before[key]} → ${widget.after[key]}',
-                    color: Colors.orange,
+                    color: AppTheme.warning,
                     prefix: '~',
                   ),
                 for (final key in removed)

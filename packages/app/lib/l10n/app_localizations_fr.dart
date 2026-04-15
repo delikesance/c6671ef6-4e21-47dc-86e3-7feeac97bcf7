@@ -1403,6 +1403,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get bot_home_view_replay => 'Voir les replays du débogueur';
 
   @override
+  String get bot_home_section_monitoring => 'MONITORING';
+
+  @override
+  String get bot_home_section_tools => 'OUTILS';
+
+  @override
+  String get bot_home_section_danger => 'ZONE DE DANGER';
+
+  @override
   String get bot_home_sync => 'Synchroniser l’app';
 
   @override
@@ -3994,6 +4003,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get common_description => 'Description';
 
   @override
+  String get common_default => 'Défaut';
+
+  @override
   String get common_clear => 'Effacer';
 
   @override
@@ -4481,8 +4493,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get component_label_title => 'Titre du libellé';
 
   @override
-  String get component_workflow_args_title =>
-      'Arguments d\'appel du workflow (JSON)';
+  String get component_workflow_args_title => 'Arguments d\'appel du workflow';
 
   @override
   String get component_workflow_args_hint =>
@@ -6319,4 +6330,50 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get bdfd_compiled_no_actions =>
       'Ce script BDFD a été compilé avec succès mais n\'a produit aucune action.';
+
+  @override
+  String get embed_section_color => 'Couleur';
+
+  @override
+  String get embed_section_timestamp => 'Horodatage';
+
+  @override
+  String get embed_section_fields => 'Champs';
+
+  @override
+  String get embed_section_dynamic_fields => 'Champs dynamiques';
+
+  @override
+  String get embed_add_field => 'Ajouter un champ';
+
+  @override
+  String get embed_add_section => 'Ajouter une section';
+
+  @override
+  String get common_add_section => 'Ajouter une section';
+
+  @override
+  String get component_block_workflow => 'Workflow';
+
+  @override
+  String get component_block_label_style => 'Style';
+
+  @override
+  String get notion_filter_add => 'Ajouter un filtre';
+
+  @override
+  String get notion_filter_type => 'Type';
+
+  @override
+  String notion_create_workflow_from_query(String query) {
+    return 'Créer le workflow \"$query\"';
+  }
+
+  @override
+  String commands_create_from_query(String query) {
+    return 'Créer la commande \"$query\"';
+  }
+
+  @override
+  String get commands_filter_type_label => 'Type';
 }

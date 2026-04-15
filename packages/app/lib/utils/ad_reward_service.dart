@@ -85,6 +85,75 @@ class AdRewardService {
     return true;
   }
 
+  /// Shows the rewarded ad and returns a [Future] that completes when the ad
+  /// is dismissed or fails to show. Returns `true` if the ad was shown
+  /// successfully, `false` otherwise (no ad ready, already showing, failed).
+  static Future<bool> showRewardedAd() async {
+    if (!_initialized || !_isSupportedPlatform) {
+      return false;
+    }
+
+    if (_isShowing) {
+      return false;
+    }
+
+    final ad = _rewardedAd;
+    if (ad == null) {
+      _preloadRewardedAd();
+      return false;
+    }
+
+    _rewardedAd = null;
+    _isShowing = true;
+    _lastShownAt = DateTime.now();
+
+    final completer = Completer<bool>();
+
+    ad.fullScreenContentCallback = FullScreenContentCallback(
+      onAdShowedFullScreenContent: (_) {
+        unawaited(AppDiagnostics.logInfo('Rewarded ad displayed'));
+      },
+      onAdDismissedFullScreenContent: (ad) {
+        ad.dispose();
+        _isShowing = false;
+        _preloadRewardedAd();
+        if (!completer.isCompleted) completer.complete(true);
+      },
+      onAdFailedToShowFullScreenContent: (ad, error) {
+        ad.dispose();
+        _isShowing = false;
+        unawaited(
+          AppDiagnostics.logInfo(
+            'Rewarded ad failed to show',
+            data: {'error': error.message, 'code': error.code},
+          ),
+        );
+        _preloadRewardedAd();
+        if (!completer.isCompleted) completer.complete(false);
+      },
+    );
+
+    ad.show(
+      onUserEarnedReward: (_, reward) {
+        unawaited(
+          AppDiagnostics.logInfo(
+            'Reward earned from rewarded ad',
+            data: {'amount': reward.amount, 'type': reward.type},
+          ),
+        );
+      },
+    );
+
+    // Safety timeout so we never block forever.
+    return completer.future.timeout(
+      const Duration(seconds: 60),
+      onTimeout: () {
+        _isShowing = false;
+        return false;
+      },
+    );
+  }
+
   static void showRewardedAdNonBlocking() {
     if (!_initialized || !_isSupportedPlatform) {
       return;

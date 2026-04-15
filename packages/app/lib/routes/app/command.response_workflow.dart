@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:bot_creator/utils/app_theme.dart';
 import 'package:bot_creator/types/app_emoji.dart';
 import 'package:bot_creator/utils/embed_normalization.dart';
 import 'package:bot_creator/utils/i18n.dart';
@@ -202,28 +203,15 @@ class _CommandResponseWorkflowPageState
 
   Future<bool> _confirmDiscardIfDirty() async {
     if (!_isDirty) return true;
-    final discard = await showDialog<bool>(
-      context: context,
-      builder:
-          (ctx) => AlertDialog.adaptive(
-            title: Text(context.tr.command_unsaved_title),
-            content: Text(context.tr.command_unsaved_confirm),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, false),
-                child: Text(context.tr.command_unsaved_keep),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, true),
-                child: Text(
-                  'Discard',
-                  style: TextStyle(color: Theme.of(ctx).colorScheme.error),
-                ),
-              ),
-            ],
-          ),
+    final discard = await AppTheme.showConfirmDialog(
+      context,
+      title: context.tr.command_unsaved_title,
+      content: context.tr.command_unsaved_confirm,
+      cancelLabel: context.tr.command_unsaved_keep,
+      confirmLabel: 'Discard',
+      isDestructive: true,
     );
-    return discard == true;
+    return discard;
   }
 
   @override
@@ -307,7 +295,7 @@ class _CommandResponseWorkflowPageState
           children: [
             Text(
               'Dynamic variable suggestions',
-              style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: 11, color: AppTheme.grey),
             ),
             const SizedBox(height: 6),
             Wrap(
@@ -358,6 +346,8 @@ class _CommandResponseWorkflowPageState
   }
 
   Widget _buildWorkflowModeCard(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -371,72 +361,119 @@ class _CommandResponseWorkflowPageState
             const SizedBox(height: 4),
             Text(
               context.tr.workflow_mode_desc,
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: 12, color: AppTheme.grey),
             ),
             const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
+            Row(
               children: [
-                ChoiceChip(
-                  selected: !_isBdfdMode,
-                  label: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.account_tree_outlined, size: 16),
-                      const SizedBox(width: 6),
-                      Text(context.tr.workflow_mode_visual),
-                    ],
+                Expanded(
+                  child: _buildModeChip(
+                    context: context,
+                    selected: !_isBdfdMode,
+                    label: context.tr.workflow_mode_visual,
+                    icon: Icons.account_tree_outlined,
+                    onTap: () => setState(() => _workflowMode = _modeVisual),
                   ),
-                  onSelected: (_) {
-                    setState(() => _workflowMode = _modeVisual);
-                  },
                 ),
-                ChoiceChip(
-                  selected: _isBdfdMode,
-                  label: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.code_outlined, size: 16),
-                      const SizedBox(width: 6),
-                      Text(context.tr.workflow_mode_bdfd),
-                    ],
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _buildModeChip(
+                    context: context,
+                    selected: _isBdfdMode,
+                    label: context.tr.workflow_mode_bdfd,
+                    icon: Icons.code_outlined,
+                    onTap: () => setState(() => _workflowMode = _modeBdfd),
                   ),
-                  onSelected: (_) {
-                    setState(() => _workflowMode = _modeBdfd);
-                  },
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color:
-                    _isBdfdMode
-                        ? Colors.orange.shade50
-                        : Colors.blueGrey.shade50,
-                borderRadius: BorderRadius.circular(8),
+                    (_isBdfdMode ? AppTheme.warning : AppTheme.info)
+                        .withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                 border: Border.all(
                   color:
-                      _isBdfdMode
-                          ? Colors.orange.shade200
-                          : Colors.blueGrey.shade100,
+                      (_isBdfdMode ? AppTheme.warning : AppTheme.info)
+                          .withValues(alpha: 0.3),
                 ),
               ),
-              child: Text(
-                AppStrings.t(
-                  _isBdfdMode
-                      ? 'workflow_mode_bdfd_note'
-                      : 'workflow_mode_visual_note',
-                ),
-                style: TextStyle(
-                  fontSize: 12,
-                  color:
-                      _isBdfdMode
-                          ? Colors.orange.shade800
-                          : Colors.blueGrey.shade700,
-                ),
+              child: Row(
+                children: [
+                  Icon(
+                    _isBdfdMode ? Icons.warning_amber_rounded : Icons.info_outline,
+                    size: 16,
+                    color: _isBdfdMode ? AppTheme.warning : AppTheme.info,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      AppStrings.t(
+                        _isBdfdMode
+                            ? 'workflow_mode_bdfd_note'
+                            : 'workflow_mode_visual_note',
+                      ),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: colorScheme.onSurface,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildModeChip({
+    required BuildContext context,
+    required bool selected,
+    required String label,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppTheme.spacingMd,
+          vertical: 10,
+        ),
+        decoration: BoxDecoration(
+          gradient: selected ? AppTheme.brandGradient : null,
+          color: selected ? null : colorScheme.surfaceContainerHigh,
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+          border: Border.all(
+            color:
+                selected
+                    ? Colors.transparent
+                    : colorScheme.outlineVariant.withValues(alpha: 0.4),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: selected ? Colors.white : AppTheme.grey,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+                color: selected ? Colors.white : colorScheme.onSurface,
               ),
             ),
           ],
@@ -469,7 +506,7 @@ class _CommandResponseWorkflowPageState
             const SizedBox(height: 4),
             Text(
               context.tr.workflow_bdfd_editor_desc,
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: 12, color: AppTheme.grey),
             ),
             const SizedBox(height: 12),
             GestureDetector(
@@ -496,9 +533,9 @@ class _CommandResponseWorkflowPageState
                 constraints: const BoxConstraints(minHeight: 120),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF263238),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey.shade600),
+                  color: AppTheme.codeSurfaceVariant,
+                  borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                  border: Border.all(color: AppTheme.grey),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -519,7 +556,7 @@ class _CommandResponseWorkflowPageState
                         Icon(
                           Icons.open_in_new,
                           size: 14,
-                          color: Colors.grey.shade500,
+                          color: AppTheme.grey,
                         ),
                       ],
                     ),
@@ -531,8 +568,8 @@ class _CommandResponseWorkflowPageState
                         fontSize: 12,
                         color:
                             isEmpty
-                                ? Colors.grey.shade600
-                                : Colors.grey.shade300,
+                                ? AppTheme.grey
+                                : AppTheme.grey,
                       ),
                       maxLines: 8,
                       overflow: TextOverflow.ellipsis,
@@ -547,16 +584,18 @@ class _CommandResponseWorkflowPageState
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.green.shade50,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.green.shade200),
+                    color: AppTheme.success.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                    border: Border.all(
+                      color: AppTheme.success.withValues(alpha: 0.3),
+                    ),
                   ),
                   child: Row(
                     children: [
                       Icon(
                         Icons.check_circle_outline,
                         size: 18,
-                        color: Colors.green.shade700,
+                        color: AppTheme.success,
                       ),
                       const SizedBox(width: 8),
                       Expanded(
@@ -564,7 +603,7 @@ class _CommandResponseWorkflowPageState
                           context.tr.cmd_bdfd_diagnostics_clean,
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.green.shade800,
+                            color: AppTheme.success,
                           ),
                         ),
                       ),
@@ -576,15 +615,15 @@ class _CommandResponseWorkflowPageState
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color:
-                        _hasBdfdCompileErrors
-                            ? Colors.red.shade50
-                            : Colors.orange.shade50,
-                    borderRadius: BorderRadius.circular(8),
+                        (_hasBdfdCompileErrors
+                            ? AppTheme.error
+                            : AppTheme.warning).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                     border: Border.all(
                       color:
-                          _hasBdfdCompileErrors
-                              ? Colors.red.shade200
-                              : Colors.orange.shade200,
+                          (_hasBdfdCompileErrors
+                              ? AppTheme.error
+                              : AppTheme.warning).withValues(alpha: 0.3),
                     ),
                   ),
                   child: Column(
@@ -612,8 +651,8 @@ class _CommandResponseWorkflowPageState
                         );
                         final color =
                             isError
-                                ? Colors.red.shade800
-                                : Colors.orange.shade900;
+                                ? AppTheme.error
+                                : AppTheme.warning;
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 6),
                           child: Row(
@@ -650,17 +689,45 @@ class _CommandResponseWorkflowPageState
       required String label,
       required IconData icon,
     }) {
-      return ChoiceChip(
-        selected: selected == value,
-        label: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 16),
-            const SizedBox(width: 6),
-            Text(label),
-          ],
+      final isSelected = selected == value;
+      final colorScheme = Theme.of(context).colorScheme;
+      return GestureDetector(
+        onTap: () => onChanged(value),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            gradient: isSelected ? AppTheme.brandGradient : null,
+            color: isSelected ? null : colorScheme.surfaceContainerHigh,
+            borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+            border: Border.all(
+              color:
+                  isSelected
+                      ? Colors.transparent
+                      : colorScheme.outlineVariant.withValues(alpha: 0.4),
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: 16,
+                color: isSelected ? Colors.white : AppTheme.grey,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                  color: isSelected ? Colors.white : colorScheme.onSurface,
+                ),
+              ),
+            ],
+          ),
         ),
-        onSelected: (_) => onChanged(value),
       );
     }
 
@@ -841,9 +908,32 @@ class _CommandResponseWorkflowPageState
                         const SizedBox(height: 8),
                         _buildConditionVariableSuggestions(),
                         const SizedBox(height: 16),
-                        const Text(
-                          'THEN Response',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppTheme.success.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                            border: Border.all(
+                              color: AppTheme.success.withValues(alpha: 0.3),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.check_circle_outline, size: 16, color: AppTheme.successLight),
+                              const SizedBox(width: 8),
+                              Text(
+                                'THEN Response',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.successLight,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                         const SizedBox(height: 8),
                         _buildResponseTypeSelector(
@@ -920,9 +1010,32 @@ class _CommandResponseWorkflowPageState
                         const SizedBox(height: 24),
                         const Divider(),
                         const SizedBox(height: 16),
-                        const Text(
-                          'ELSE Response',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppTheme.warning.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                            border: Border.all(
+                              color: AppTheme.warning.withValues(alpha: 0.3),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.alt_route, size: 16, color: AppTheme.warning),
+                              const SizedBox(width: 8),
+                              Text(
+                                'ELSE Response',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.warning,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                         const SizedBox(height: 8),
                         _buildResponseTypeSelector(

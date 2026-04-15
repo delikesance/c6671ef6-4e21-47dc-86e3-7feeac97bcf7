@@ -9,6 +9,7 @@ import 'package:bot_creator/utils/runner_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nyxx/nyxx.dart' hide Builder;
+import 'package:bot_creator/utils/app_theme.dart';
 
 enum _VariableMode { global, scoped }
 
@@ -328,29 +329,13 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
   }
 
   Future<void> _deleteGlobalVariable(String key) async {
-    final shouldDelete =
-        await showDialog<bool>(
-          context: context,
-          builder:
-              (ctx) => AlertDialog.adaptive(
-                title: Text(context.tr.globals_delete_title),
-                content: Text(context.tr.globals_delete_confirm(key)),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(ctx, false),
-                    child: Text(context.tr.cancel),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.pop(ctx, true),
-                    child: Text(
-                      context.tr.delete,
-                      style: TextStyle(color: Theme.of(ctx).colorScheme.error),
-                    ),
-                  ),
-                ],
-              ),
-        ) ??
-        false;
+    final shouldDelete = await AppTheme.showConfirmDialog(
+      context,
+      title: context.tr.globals_delete_title,
+      content: context.tr.globals_delete_confirm(key),
+      confirmLabel: context.tr.delete,
+      isDestructive: true,
+    );
     if (!shouldDelete) {
       return;
     }
@@ -487,7 +472,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                                   Theme.of(
                                     ctx,
                                   ).colorScheme.surfaceContainerHighest,
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -576,29 +561,13 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
   }
 
   Future<void> _deleteScopedDefinition(String key, String scope) async {
-    final shouldDelete =
-        await showDialog<bool>(
-          context: context,
-          builder:
-              (ctx) => AlertDialog.adaptive(
-                title: Text(context.tr.scoped_delete_title),
-                content: Text(context.tr.scoped_delete_confirm(key)),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(ctx, false),
-                    child: Text(context.tr.cancel),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.pop(ctx, true),
-                    child: Text(
-                      context.tr.delete,
-                      style: TextStyle(color: Theme.of(ctx).colorScheme.error),
-                    ),
-                  ),
-                ],
-              ),
-        ) ??
-        false;
+    final shouldDelete = await AppTheme.showConfirmDialog(
+      context,
+      title: context.tr.scoped_delete_title,
+      content: context.tr.scoped_delete_confirm(key),
+      confirmLabel: context.tr.delete,
+      isDestructive: true,
+    );
     if (!shouldDelete) {
       return;
     }
@@ -1041,7 +1010,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
       padding: const EdgeInsets.all(12),
       child: Material(
         color: Theme.of(context).colorScheme.errorContainer,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Row(
@@ -1289,7 +1258,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                   ),
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                   ),
                   child: Text(
                     '${item.count}',

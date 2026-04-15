@@ -14,6 +14,7 @@ import 'package:bot_creator/utils/ads_placement_policy.dart';
 import 'package:bot_creator/utils/ad_consent_service.dart';
 import 'package:bot_creator/utils/premium_capabilities.dart';
 import 'package:bot_creator/utils/global.dart';
+import 'package:bot_creator/utils/app_theme.dart';
 import 'package:bot_creator/utils/runner_settings.dart';
 import 'package:bot_creator/widgets/native_ad_slot.dart';
 import 'package:flutter/foundation.dart';
@@ -235,27 +236,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           } catch (_) {
             if (!mounted) return;
             final proceed =
-                await showDialog<bool>(
-                  context: context,
-                  builder:
-                      (ctx) => AlertDialog(
-                        title: Text(context.tr.bot_home_token_invalid_title),
-                        content: Text(
-                          context.tr.bot_home_token_invalid_content,
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.of(ctx).pop(false),
-                            child: Text(context.tr.cancel),
-                          ),
-                          FilledButton(
-                            onPressed: () => Navigator.of(ctx).pop(true),
-                            child: Text(context.tr.bot_home_start),
-                          ),
-                        ],
-                      ),
-                ) ??
-                false;
+                await AppTheme.showConfirmDialog(
+                  context,
+                  title: context.tr.bot_home_token_invalid_title,
+                  content: context.tr.bot_home_token_invalid_content,
+                  confirmLabel: context.tr.bot_home_start,
+                );
             if (!proceed || !mounted) return;
           }
         }
@@ -430,30 +416,18 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
     if (kDebugMode) {
       final shouldWatch =
-          await showDialog<bool>(
-            context: context,
-            builder:
-                (dialogContext) => AlertDialog(
-                  title: Text(context.tr.rewarded_start_title),
-                  content: Text(context.tr.rewarded_start_message),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(dialogContext).pop(false),
-                      child: Text(context.tr.rewarded_start_skip),
-                    ),
-                    FilledButton(
-                      onPressed: () => Navigator.of(dialogContext).pop(true),
-                      child: Text(context.tr.rewarded_start_watch),
-                    ),
-                  ],
-                ),
-          ) ??
-          false;
+            await AppTheme.showConfirmDialog(
+              context,
+              title: context.tr.rewarded_start_title,
+              content: context.tr.rewarded_start_message,
+              cancelLabel: context.tr.rewarded_start_skip,
+              confirmLabel: context.tr.rewarded_start_watch,
+            );
 
-      if (!shouldWatch || !mounted) {
-        return;
-      }
-    } else {
+        if (!shouldWatch || !mounted) {
+          return;
+        }
+      } else {
       await showDialog<void>(
         context: context,
         barrierDismissible: false,
@@ -506,12 +480,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           // Small phone - single column
           crossAxisCount = 1;
           horizontalPadding = 12.0;
-          cardHeight = 280.0;
+          cardHeight = 250.0;
         } else if (width < 600) {
           // Mobile - 2 columns
           crossAxisCount = 2;
           horizontalPadding = 12.0;
-          cardHeight = 295.0;
+          cardHeight = 260.0;
         } else if (width >= 1500) {
           // Extra large desktop - 5 columns
           crossAxisCount = 5;
@@ -583,7 +557,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             Theme.of(
                               context,
                             ).colorScheme.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -653,7 +627,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           id: id,
                           avatar: avatar,
                           guildCount: guildCount,
-                          compact: width >= 760,
+                          compact: width < 760,
                           isRunning: isRunning,
                           canToggle: canToggle,
                           isTogglingThisBot: _isTogglingBot && isRunning,
@@ -730,6 +704,9 @@ class _BotCard extends StatelessWidget {
   final VoidCallback onToggle;
   final VoidCallback? onLogs;
 
+  static const _onlineGradient = AppTheme.botCardOnlineGradient;
+  static const _offlineGradient = AppTheme.botCardOfflineGradient;
+
   String _serverCountLabel() {
     final count = guildCount ?? 0;
     final key = count > 1 ? 'home_server_count_other' : 'home_server_count_one';
@@ -738,188 +715,216 @@ class _BotCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final avatarRadius = compact ? 30.0 : 36.0;
-    final avatarFallbackSize = compact ? 60.0 : 72.0;
-    final contentPadding = compact ? 9.0 : 12.0;
-    final titleFontSize = compact ? 14.0 : 15.0;
-    final statusFontSize = compact ? 10.5 : 11.0;
-    final serverFontSize = compact ? 10.5 : 11.0;
-    final buttonVerticalPadding = compact ? 7.0 : 12.0;
+    final avatarRadius = compact ? 24.0 : 34.0;
+    final avatarFallbackSize = compact ? 48.0 : 68.0;
+    final titleFontSize = compact ? 13.0 : 16.0;
+    final buttonVerticalPadding = compact ? 4.0 : 10.0;
+
+    final gradientColors = isRunning ? _onlineGradient : _offlineGradient;
 
     return Card(
+      clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side:
-            isRunning
-                ? BorderSide(color: Colors.green.shade400, width: 1.5)
-                : BorderSide.none,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
       ),
-      elevation: isRunning ? 6 : 4,
-      child: Padding(
-        padding: EdgeInsets.all(contentPadding),
-        child: Column(
-          children: [
-            // ── Partie haute flexible ────────────────────────────────────────
-            Expanded(
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  return SingleChildScrollView(
-                    physics: const ClampingScrollPhysics(),
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minHeight: constraints.maxHeight,
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          // ── Avatar ────────────────────────────────────────────────
-                          avatar != null && avatar!.isNotEmpty
-                              ? CircleAvatar(
-                                radius: avatarRadius,
-                                child: ClipOval(
-                                  child: Image.network(
-                                    avatar!,
-                                    width: avatarRadius * 2,
-                                    height: avatarRadius * 2,
-                                    fit: BoxFit.cover,
-                                    errorBuilder:
-                                        (context, error, stackTrace) => Icon(
-                                          Icons.account_circle,
-                                          size: avatarFallbackSize,
-                                        ),
-                                  ),
-                                ),
-                              )
-                              : Icon(
-                                Icons.account_circle,
-                                size: avatarFallbackSize,
+      elevation: isRunning ? 8 : 3,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: gradientColors,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(compact ? 10.0 : 14.0),
+          child: Column(
+            children: [
+              // ── Status badge pill ──────────────────────────────────────────
+              Align(
+                alignment: Alignment.topRight,
+                child: AnimatedBuilder(
+                  animation: pulseController,
+                  builder: (_, _) {
+                    final opacity =
+                        isRunning ? 0.5 + 0.5 * pulseController.value : 1.0;
+                    return Opacity(
+                      opacity: opacity,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 7,
+                              height: 7,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color:
+                                    isRunning
+                                        ? AppTheme.successAccent
+                                        : AppTheme.grey,
                               ),
-
-                          SizedBox(height: compact ? 8 : 10),
-
-                          // ── Nom ───────────────────────────────────────────────────
-                          Text(
-                            name,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: titleFontSize,
-                              fontWeight: FontWeight.w600,
-                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-
-                          SizedBox(height: compact ? 4 : 5),
-
-                          // ── Statut avec animation pulse ────────────────────────────
-                          AnimatedBuilder(
-                            animation: pulseController,
-                            builder: (_, _) {
-                              final opacity =
-                                  isRunning
-                                      ? 0.4 + 0.6 * pulseController.value
-                                      : 1.0;
-                              return Opacity(
-                                opacity: opacity,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Container(
-                                      width: 8,
-                                      height: 8,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color:
-                                            isRunning
-                                                ? Colors.green
-                                                : Colors.grey,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 5),
-                                    Text(
-                                      isRunning
-                                          ? context.tr.home_status_online
-                                          : context.tr.home_status_offline,
-                                      style: TextStyle(
-                                        fontSize: statusFontSize,
-                                        fontWeight: FontWeight.w500,
-                                        color:
-                                            isRunning
-                                                ? Colors.green
-                                                : Colors.grey,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-
-                          // ── Runner affinity ────────────────────────────────────────
-                          if (runnerLabel != null) ...[
-                            SizedBox(height: compact ? 3 : 4),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.dns_outlined,
-                                  size: 13,
-                                  color: colorScheme.primary,
-                                ),
-                                const SizedBox(width: 3),
-                                Flexible(
-                                  child: Text(
-                                    runnerLabel!,
-                                    style: TextStyle(
-                                      fontSize: compact ? 9.5 : 10.0,
-                                      color: colorScheme.primary,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
+                            const SizedBox(width: 5),
+                            Text(
+                              isRunning
+                                  ? context.tr.home_status_online
+                                  : context.tr.home_status_offline,
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.9),
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ],
-                        ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+
+              // ── Avatar + Identity ──────────────────────────────────────────
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Avatar with glow ring when running
+                    Container(
+                      decoration: isRunning
+                          ? BoxDecoration(
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppTheme.successAccent.withValues(alpha: 0.4),
+                                  blurRadius: 16,
+                                  spreadRadius: 2,
+                                ),
+                              ],
+                            )
+                          : null,
+                      child: avatar != null && avatar!.isNotEmpty
+                          ? CircleAvatar(
+                              radius: avatarRadius,
+                              backgroundColor: Colors.white.withValues(alpha: 0.1),
+                              child: ClipOval(
+                                child: Image.network(
+                                  avatar!,
+                                  width: avatarRadius * 2,
+                                  height: avatarRadius * 2,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, _, _) => Icon(
+                                    Icons.smart_toy_rounded,
+                                    size: avatarFallbackSize * 0.6,
+                                    color: Colors.white70,
+                                  ),
+                                ),
+                              ),
+                            )
+                          : CircleAvatar(
+                              radius: avatarRadius,
+                              backgroundColor: Colors.white.withValues(alpha: 0.1),
+                              child: Icon(
+                                Icons.smart_toy_rounded,
+                                size: avatarFallbackSize * 0.6,
+                                color: Colors.white70,
+                              ),
+                            ),
+                    ),
+
+                    SizedBox(height: compact ? 4 : 10),
+
+                    // Name
+                    Text(
+                      name,
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: titleFontSize,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
                     ),
-                  );
-                },
+
+                    const SizedBox(height: 4),
+
+                    // Server count + runner label
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.groups_rounded,
+                          size: 14,
+                          color: Colors.white.withValues(alpha: 0.6),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          _serverCountLabel(),
+                          style: TextStyle(
+                            fontSize: compact ? 10.5 : 11.0,
+                            color: Colors.white.withValues(alpha: 0.6),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    // Runner badge (hidden in compact to save space)
+                    if (runnerLabel != null && !compact) ...[
+                      const SizedBox(height: 4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.dns_outlined,
+                              size: 11,
+                              color: Colors.white.withValues(alpha: 0.7),
+                            ),
+                            const SizedBox(width: 3),
+                            Flexible(
+                              child: Text(
+                                runnerLabel!,
+                                style: TextStyle(
+                                  fontSize: compact ? 9.0 : 9.5,
+                                  color: Colors.white.withValues(alpha: 0.7),
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
               ),
-            ),
 
-            // ── Compteur de serveurs (toujours visible) ─────────────────────
-            SizedBox(height: compact ? 4 : 5),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.groups,
-                  size: 16,
-                  color: colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(width: 3),
-                Text(
-                  _serverCountLabel(),
-                  style: TextStyle(
-                    fontSize: serverFontSize,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-
-            // ── Bouton Lancer / Arrêter ──────────────────────────────────────
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: canToggle ? onToggle : null,
-                icon:
-                    isTogglingThisBot
-                        ? const SizedBox(
+              // ── Action buttons ─────────────────────────────────────────────
+              SizedBox(height: compact ? 2 : 6),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: canToggle ? onToggle : null,
+                  icon: isTogglingThisBot
+                      ? const SizedBox(
                           width: 14,
                           height: 14,
                           child: CircularProgressIndicator(
@@ -927,65 +932,75 @@ class _BotCard extends StatelessWidget {
                             color: Colors.white,
                           ),
                         )
-                        : Icon(
+                      : Icon(
                           isRunning
                               ? Icons.stop_rounded
                               : Icons.play_arrow_rounded,
                           size: 16,
                         ),
-                label: Text(
-                  isRunning ? context.tr.home_stop : context.tr.home_start,
-                ),
-                style: ElevatedButton.styleFrom(
-                  shape: const StadiumBorder(),
-                  backgroundColor: isRunning ? Colors.red : Colors.green,
-                  foregroundColor: Colors.white,
-                  disabledBackgroundColor: Colors.grey.shade300,
-                  disabledForegroundColor: Colors.white70,
-                  padding: EdgeInsets.symmetric(
-                    vertical: buttonVerticalPadding,
+                  label: Text(
+                    isRunning ? context.tr.home_stop : context.tr.home_start,
                   ),
-                ),
-              ),
-            ),
-
-            SizedBox(height: compact ? 4 : 6),
-
-            // ── Ligne inférieure : Gérer + Logs ──────────────────────────────
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: onManage,
-                    icon: const Icon(Icons.tune, size: 14),
-                    label: Text(context.tr.home_manage),
-                    style: ElevatedButton.styleFrom(
-                      shape: const StadiumBorder(),
-                      backgroundColor: Colors.blue,
-                      foregroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(
-                        vertical: buttonVerticalPadding,
-                      ),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: isRunning
+                        ? AppTheme.error
+                        : AppTheme.success,
+                    foregroundColor: Colors.white,
+                    disabledBackgroundColor: Colors.white.withValues(alpha: 0.1),
+                    disabledForegroundColor: Colors.white38,
+                    textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                    padding: EdgeInsets.symmetric(
+                      vertical: buttonVerticalPadding,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                     ),
                   ),
                 ),
-                SizedBox(width: compact ? 8 : 10),
-                IconButton.filled(
-                  onPressed: onLogs,
-                  icon: const Icon(Icons.article_outlined, size: 18),
-                  tooltip: context.tr.home_logs_tooltip,
-                  style: IconButton.styleFrom(
-                    backgroundColor:
-                        onLogs != null
-                            ? Colors.deepPurple.shade100
-                            : Colors.grey.shade200,
-                    foregroundColor:
-                        onLogs != null ? Colors.deepPurple : Colors.grey,
+              ),
+
+              SizedBox(height: compact ? 4 : 6),
+
+              // Manage + Logs row
+              Row(
+                children: [
+                  Expanded(
+                    child: FilledButton.icon(
+                      onPressed: onManage,
+                      icon: const Icon(Icons.tune_rounded, size: 14),
+                      label: Text(context.tr.home_manage),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.white.withValues(alpha: 0.15),
+                        foregroundColor: Colors.white,
+                        textStyle: const TextStyle(fontWeight: FontWeight.w600),
+                        padding: EdgeInsets.symmetric(
+                          vertical: buttonVerticalPadding,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                  const SizedBox(width: 8),
+                  IconButton(
+                    onPressed: onLogs,
+                    icon: const Icon(Icons.article_outlined, size: 18),
+                    tooltip: context.tr.home_logs_tooltip,
+                    style: IconButton.styleFrom(
+                      backgroundColor: Colors.white.withValues(alpha: 0.1),
+                      foregroundColor: onLogs != null
+                          ? Colors.white.withValues(alpha: 0.8)
+                          : Colors.white.withValues(alpha: 0.3),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -998,7 +1013,7 @@ class _EmptyStateWithSupport extends StatelessWidget {
   const _EmptyStateWithSupport();
 
   static const _discordUrl = 'https://discord.gg/gyEGNBUZdA';
-  static const _discordColor = Color(0xFF5865F2);
+  static const _discordColor = AppTheme.discord;
 
   Future<void> _openDiscord() async {
     final uri = Uri.parse(_discordUrl);

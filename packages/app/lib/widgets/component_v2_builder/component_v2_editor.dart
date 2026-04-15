@@ -4,6 +4,7 @@ import 'package:bot_creator/types/variable_suggestion.dart';
 import 'package:bot_creator/widgets/component_v2_builder/component_node_editor.dart';
 import 'package:bot_creator/widgets/component_v2_builder/component_node_factory.dart';
 import '../../utils/i18n.dart';
+import 'package:bot_creator/utils/app_theme.dart';
 
 /// Full visual editor for a ComponentV2 message (text + recursive component nodes).
 /// Manages a [ComponentV2Definition] and notifies via [onChanged].
@@ -99,17 +100,16 @@ class _ComponentV2EditorWidgetState extends State<ComponentV2EditorWidget> {
         // Header bar
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: Colors.purple.shade50,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-            border: Border.all(color: Colors.purple.shade200),
+          decoration: const BoxDecoration(
+            gradient: AppTheme.brandGradient,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
           ),
           child: Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.dashboard_customize,
                 size: 18,
-                color: Colors.purple.shade600,
+                color: Colors.white,
               ),
               const SizedBox(width: 8),
               Flexible(
@@ -117,28 +117,35 @@ class _ComponentV2EditorWidgetState extends State<ComponentV2EditorWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Layout Builder',
+                      context.tr.reply_mode_layout,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: Colors.purple.shade700,
+                        color: Colors.white,
                       ),
                     ),
                     Text(
-                      'Discord rich layout — containers, media, text & forms',
+                      context.tr.reply_mode_layout_desc,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 11,
-                        color: Colors.purple.shade500,
+                        color: Colors.white70,
                       ),
                     ),
                   ],
                 ),
               ),
               const SizedBox(width: 8),
-              Text(
-                '${_components.length} Root Nodes',
-                style: TextStyle(color: Colors.purple.shade400, fontSize: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+                ),
+                child: Text(
+                  '${_components.length}',
+                  style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                ),
               ),
             ],
           ),
@@ -146,7 +153,9 @@ class _ComponentV2EditorWidgetState extends State<ComponentV2EditorWidget> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            border: Border.all(color: Colors.purple.shade200),
+            border: Border.all(
+              color: AppTheme.brandPrimary.withValues(alpha: 0.3),
+            ),
             borderRadius: const BorderRadius.vertical(
               bottom: Radius.circular(8),
             ),
@@ -212,17 +221,17 @@ class _ComponentV2EditorWidgetState extends State<ComponentV2EditorWidget> {
                     horizontal: 8,
                   ),
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.blueGrey.shade300),
-                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: AppTheme.grey),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusXs),
                   ),
                   child: const Row(
                     children: [
-                      Icon(Icons.add, size: 16, color: Colors.blueGrey),
+                      Icon(Icons.add, size: 16, color: AppTheme.grey),
                       SizedBox(width: 8),
                       Text(
                         'Add Root Component',
                         style: TextStyle(
-                          color: Colors.blueGrey,
+                          color: AppTheme.grey,
                           fontWeight: FontWeight.bold,
                           fontSize: 13,
                         ),
