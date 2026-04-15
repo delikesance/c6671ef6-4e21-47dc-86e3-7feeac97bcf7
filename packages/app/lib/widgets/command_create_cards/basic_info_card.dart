@@ -298,6 +298,7 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
       _nameController.text = nextName;
     }
     widget.onNameChanged(nextName);
+    setState(() {});
   }
 
   void _enableAwaitedPreset() {

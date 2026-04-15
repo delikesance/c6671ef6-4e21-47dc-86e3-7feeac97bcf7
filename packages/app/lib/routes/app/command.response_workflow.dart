@@ -468,12 +468,15 @@ class _CommandResponseWorkflowPageState
               color: selected ? Colors.white : AppTheme.grey,
             ),
             const SizedBox(width: 8),
-            Text(
-              label,
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
-                color: selected ? Colors.white : colorScheme.onSurface,
+            Flexible(
+              child: Text(
+                label,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                  color: selected ? Colors.white : colorScheme.onSurface,
+                ),
               ),
             ),
           ],

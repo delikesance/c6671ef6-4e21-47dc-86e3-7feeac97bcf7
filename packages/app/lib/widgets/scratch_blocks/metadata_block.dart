@@ -288,7 +288,9 @@ class _MetadataBlockState extends State<MetadataBlock> {
           ],
 
           // ── Advanced settings (collapsed by default) ──
-          if (!widget.isLegacyCommand) ...[
+          // Keep visible if already expanded (e.g. user enabled awaited preset
+          // which changes the command type to legacy).
+          if (!widget.isLegacyCommand || _advancedExpanded) ...[
             const SizedBox(height: 16),
             _buildAdvancedSection(colorScheme),
           ],
@@ -377,7 +379,12 @@ class _MetadataBlockState extends State<MetadataBlock> {
             showDescriptionField: false, // Already shown above
             integrationTypes: widget.integrationTypes,
             contexts: widget.contexts,
-            onNameChanged: (_) {}, // Already handled above
+            onNameChanged: (name) {
+              if (_nameController.text != name) {
+                _nameController.text = name;
+              }
+              widget.onNameChanged(name);
+            },
             onDescriptionChanged: (_) {},
             onCommandTypeChanged: widget.onCommandTypeChanged,
             onLegacyCommandChanged: widget.onLegacyCommandChanged,
