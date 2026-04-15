@@ -54,13 +54,6 @@ Widget _buildReplyCard({
 }
 
 void main() {
-  Finder modeChip(String label) {
-    return find.ancestor(
-      of: find.text(label),
-      matching: find.byType(ChoiceChip),
-    );
-  }
-
   group('ReplyCard – mode selector labels', () {
     testWidgets('shows "Standard Message" chip instead of "Normal Reply"', (
       tester,
@@ -99,39 +92,39 @@ void main() {
     });
   });
 
-  group('ReplyCard – mode descriptions in tooltips', () {
-    testWidgets('Standard Message chip has tooltip with description', (
+  group('ReplyCard – mode descriptions shown inline', () {
+    testWidgets('Standard Message chip shows description text', (
       tester,
     ) async {
       await tester.pumpWidget(_buildReplyCard());
       await tester.pumpAndSettle();
 
       expect(
-        find.byTooltip('Text, embeds and optional buttons / select menus'),
+        find.text('Text, embeds and optional buttons / select menus'),
         findsOneWidget,
       );
     });
 
-    testWidgets('Layout Mode chip has tooltip with description', (
+    testWidgets('Layout Mode chip shows description text', (
       tester,
     ) async {
       await tester.pumpWidget(_buildReplyCard());
       await tester.pumpAndSettle();
 
       expect(
-        find.byTooltip(
+        find.text(
           "Discord's rich layout system — containers, media, text & forms",
         ),
         findsOneWidget,
       );
     });
 
-    testWidgets('Modal Form chip has tooltip with description', (tester) async {
+    testWidgets('Modal Form chip shows description text', (tester) async {
       await tester.pumpWidget(_buildReplyCard());
       await tester.pumpAndSettle();
 
       expect(
-        find.byTooltip('Pop-up dialog with text input fields'),
+        find.text('Pop-up dialog with text input fields'),
         findsOneWidget,
       );
     });
@@ -141,7 +134,7 @@ void main() {
     testWidgets('default normal mode shows NormalComponentEditorWidget', (
       tester,
     ) async {
-      // Use a large screen so the expansion tile is reachable without scrolling.
+      // Use a large screen so the components section is reachable.
       tester.view.physicalSize = const Size(800, 3000);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
@@ -150,14 +143,6 @@ void main() {
       });
 
       await tester.pumpWidget(_buildReplyCard(responseType: 'normal'));
-      await tester.pumpAndSettle();
-
-      // Expand the tile by tapping its title.
-      final tileFinder = find.ancestor(
-        of: find.text('Buttons & Select Menus (optional)'),
-        matching: find.byType(ExpansionTile),
-      );
-      await tester.tap(tileFinder);
       await tester.pumpAndSettle();
 
       expect(find.byType(NormalComponentEditorWidget), findsOneWidget);
@@ -191,9 +176,8 @@ void main() {
         await tester.pumpWidget(_buildReplyCard(responseType: 'normal'));
         await tester.pumpAndSettle();
 
-        final layoutModeChip = modeChip('Layout Mode');
-        await tester.ensureVisible(layoutModeChip);
-        await tester.tap(layoutModeChip);
+        await tester.ensureVisible(find.text('Layout Mode'));
+        await tester.tap(find.text('Layout Mode'));
         await tester.pumpAndSettle();
 
         expect(find.byType(ComponentV2EditorWidget), findsOneWidget);
@@ -206,9 +190,8 @@ void main() {
       await tester.pumpWidget(_buildReplyCard(responseType: 'normal'));
       await tester.pumpAndSettle();
 
-      final modalFormChip = modeChip('Modal Form');
-      await tester.ensureVisible(modalFormChip);
-      await tester.tap(modalFormChip);
+      await tester.ensureVisible(find.text('Modal Form'));
+      await tester.tap(find.text('Modal Form'));
       await tester.pumpAndSettle();
 
       expect(find.byType(ModalBuilderWidget), findsOneWidget);
@@ -230,12 +213,12 @@ void main() {
 
   group('ReplyCard – Layout Mode header text', () {
     testWidgets(
-      'ComponentV2EditorWidget header shows "Layout Builder" not "Full Component V2 Builder"',
+      'ComponentV2EditorWidget header shows "Layout Mode" not "Full Component V2 Builder"',
       (tester) async {
         await tester.pumpWidget(_buildReplyCard(responseType: 'componentV2'));
         await tester.pumpAndSettle();
 
-        expect(find.text('Layout Builder'), findsOneWidget);
+        expect(find.text('Layout Mode'), findsAtLeastNWidgets(1));
         expect(find.text('Full Component V2 Builder'), findsNothing);
       },
     );
