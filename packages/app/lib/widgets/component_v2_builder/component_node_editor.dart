@@ -1,38 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:bot_creator/main.dart';
+import 'package:bot_creator/utils/app_theme.dart';
 import 'package:bot_creator/routes/app/workflows.page.dart';
 import 'package:bot_creator/types/component.dart';
 import 'package:bot_creator/types/variable_suggestion.dart';
+import 'package:bot_creator/utils/workflow_call.dart';
 import 'dart:convert';
 import 'package:bot_creator/widgets/variable_text_field.dart';
 import 'package:bot_creator/widgets/component_v2_builder/component_node_factory.dart';
+import 'package:bot_creator/widgets/mini_block_container.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import '../../utils/i18n.dart';
 
 /// Depth-based accent colours for nesting levels (0 = root).
 const _kDepthColors = [
-  Colors.blueGrey,
-  Colors.blue,
-  Colors.green,
-  Colors.orange,
-  Colors.purple,
+  AppTheme.grey,
+  AppTheme.info,
+  AppTheme.success,
+  AppTheme.warning,
+  AppTheme.brandPrimary,
 ];
 
 Color _depthColor(int depth) =>
     _kDepthColors[depth.clamp(0, _kDepthColors.length - 1)];
 
-class ComponentNodeEditor extends StatelessWidget {
+class ComponentNodeEditor extends StatefulWidget {
   final ComponentNode node;
   final ValueChanged<ComponentNode> onChanged;
   final VoidCallback onRemove;
-
-  /// Optional: show an "up" arrow to move this node earlier in its parent list.
   final VoidCallback? onMoveUp;
-
-  /// Optional: show a "down" arrow to move this node later in its parent list.
   final VoidCallback? onMoveDown;
-
-  /// Nesting depth — 0 for root nodes, +1 for each level of children.
   final int depth;
   final List<VariableSuggestion> variableSuggestions;
   final String? botIdForConfig;
@@ -49,37 +46,63 @@ class ComponentNodeEditor extends StatelessWidget {
     this.botIdForConfig,
   });
 
+  @override
+  State<ComponentNodeEditor> createState() => _ComponentNodeEditorState();
+}
+
+class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
+  final Set<String> _forcedSections = {};
+
+  // Property getters to minimise changes in method bodies.
+  ComponentNode get node => widget.node;
+  ValueChanged<ComponentNode> get onChanged => widget.onChanged;
+  VoidCallback get onRemove => widget.onRemove;
+  VoidCallback? get onMoveUp => widget.onMoveUp;
+  VoidCallback? get onMoveDown => widget.onMoveDown;
+  int get depth => widget.depth;
+  List<VariableSuggestion> get variableSuggestions => widget.variableSuggestions;
+  String? get botIdForConfig => widget.botIdForConfig;
+
+  @override
+  void didUpdateWidget(ComponentNodeEditor oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.node.type != oldWidget.node.type) {
+      _forcedSections.clear();
+    }
+  }
+
+  bool _isSectionVisible(String section, bool hasContent) =>
+      hasContent || _forcedSections.contains(section);
+
+  void _showSection(String section) {
+    setState(() => _forcedSections.add(section));
+  }
+
+  void _hideSection(String section, VoidCallback clearData) {
+    setState(() => _forcedSections.remove(section));
+    clearData();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Confirm + remove
+  // ---------------------------------------------------------------------------
+
   Future<void> _confirmAndRemove(BuildContext context) async {
     final shouldDelete =
-        await showDialog<bool>(
-          context: context,
-          builder:
-              (dialogContext) => AlertDialog.adaptive(
-                title: Text(context.tr.component_remove_title),
-                content: Text(context.tr.component_remove_confirm),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(dialogContext).pop(false),
-                    child: Text(context.tr.common_cancel),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.of(dialogContext).pop(true),
-                    child: Text(
-                      context.tr.common_remove,
-                      style: TextStyle(
-                        color: Theme.of(dialogContext).colorScheme.error,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-        ) ??
-        false;
-    if (!shouldDelete) {
-      return;
-    }
+        await AppTheme.showConfirmDialog(
+          context,
+          title: context.tr.component_remove_title,
+          content: context.tr.component_remove_confirm,
+          confirmLabel: context.tr.common_remove,
+          isDestructive: true,
+        );
+    if (!shouldDelete) return;
     onRemove();
   }
+
+  // ---------------------------------------------------------------------------
+  // Build
+  // ---------------------------------------------------------------------------
 
   @override
   Widget build(BuildContext context) {
@@ -106,7 +129,7 @@ class ComponentNodeEditor extends StatelessWidget {
             ),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(AppTheme.spacingSm),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -136,7 +159,7 @@ class ComponentNodeEditor extends StatelessWidget {
                           ),
                           decoration: BoxDecoration(
                             color: accentColor.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(4),
+                            borderRadius: BorderRadius.circular(AppTheme.radiusXs),
                           ),
                           child: Text(
                             'L$depth',
@@ -180,12 +203,10 @@ class ComponentNodeEditor extends StatelessWidget {
                         icon: Icon(
                           Icons.delete_outline,
                           size: 16,
-                          color: Colors.red.shade400,
+                          color: AppTheme.errorLight,
                         ),
                         tooltip: context.tr.common_remove,
-                        onPressed: () {
-                          _confirmAndRemove(context);
-                        },
+                        onPressed: () => _confirmAndRemove(context),
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(),
                       ),
@@ -201,6 +222,10 @@ class ComponentNodeEditor extends StatelessWidget {
       ),
     );
   }
+
+  // ---------------------------------------------------------------------------
+  // Type helpers
+  // ---------------------------------------------------------------------------
 
   IconData _getIconForType(ComponentV2Type type) {
     return switch (type) {
@@ -229,50 +254,32 @@ class ComponentNodeEditor extends StatelessWidget {
   String _getTitleForType(ComponentV2Type type) =>
       ComponentNodeFactory.labelFor(type);
 
+  // ---------------------------------------------------------------------------
+  // Body dispatcher
+  // ---------------------------------------------------------------------------
+
   Widget _buildEditorBody(BuildContext context) {
-    if (node is ActionRowNode) {
-      return _buildActionRowEditor(node as ActionRowNode, context);
-    }
-    if (node is ButtonNode) {
-      return _buildButtonEditor(node as ButtonNode, context);
-    }
-    if (node is SelectMenuNode) {
-      return _buildSelectMenuEditor(node as SelectMenuNode, context);
-    }
-    if (node is TextDisplayNode) {
-      return _buildTextDisplayEditor(node as TextDisplayNode, context);
-    }
-    if (node is SeparatorNode) {
-      return _buildSeparatorEditor(node as SeparatorNode, context);
-    }
-    if (node is SectionNode) {
-      return _buildSectionEditor(node as SectionNode, context);
-    }
-    if (node is ContainerNode) {
-      return _buildContainerEditor(node as ContainerNode, context);
-    }
+    if (node is ActionRowNode) return _buildActionRowEditor(node as ActionRowNode, context);
+    if (node is ButtonNode) return _buildButtonEditor(node as ButtonNode, context);
+    if (node is SelectMenuNode) return _buildSelectMenuEditor(node as SelectMenuNode, context);
+    if (node is TextDisplayNode) return _buildTextDisplayEditor(node as TextDisplayNode, context);
+    if (node is SeparatorNode) return _buildSeparatorEditor(node as SeparatorNode, context);
+    if (node is SectionNode) return _buildSectionEditor(node as SectionNode, context);
+    if (node is ContainerNode) return _buildContainerEditor(node as ContainerNode, context);
     if (node is LabelNode) return _buildLabelEditor(node as LabelNode, context);
-    if (node is CheckboxNode) {
-      return _buildCheckboxEditor(node as CheckboxNode, context);
-    }
-    if (node is RadioGroupNode) {
-      return _buildRadioGroupEditor(node as RadioGroupNode, context);
-    }
-    if (node is CheckboxGroupNode) {
-      return _buildCheckboxGroupEditor(node as CheckboxGroupNode, context);
-    }
-    if (node is FileUploadNode) {
-      return _buildFileUploadEditor(node as FileUploadNode, context);
-    }
+    if (node is CheckboxNode) return _buildCheckboxEditor(node as CheckboxNode, context);
+    if (node is RadioGroupNode) return _buildRadioGroupEditor(node as RadioGroupNode, context);
+    if (node is CheckboxGroupNode) return _buildCheckboxGroupEditor(node as CheckboxGroupNode, context);
+    if (node is FileUploadNode) return _buildFileUploadEditor(node as FileUploadNode, context);
     if (node is FileNode) return _buildFileEditor(node as FileNode, context);
-    if (node is ThumbnailNode) {
-      return _buildThumbnailEditor(node as ThumbnailNode, context);
-    }
-    if (node is MediaGalleryNode) {
-      return _buildMediaGalleryEditor(node as MediaGalleryNode, context);
-    }
+    if (node is ThumbnailNode) return _buildThumbnailEditor(node as ThumbnailNode, context);
+    if (node is MediaGalleryNode) return _buildMediaGalleryEditor(node as MediaGalleryNode, context);
     return Text(context.tr.component_not_implemented);
   }
+
+  // ---------------------------------------------------------------------------
+  // Responsive helper
+  // ---------------------------------------------------------------------------
 
   Widget _buildResponsiveTwoFieldRow({
     required Widget first,
@@ -289,7 +296,6 @@ class ComponentNodeEditor extends StatelessWidget {
             children: [first, const SizedBox(height: 8), second],
           );
         }
-
         return Row(
           children: [
             Expanded(flex: firstFlex, child: first),
@@ -301,7 +307,9 @@ class ComponentNodeEditor extends StatelessWidget {
     );
   }
 
-  // --- Node Editors ---
+  // ---------------------------------------------------------------------------
+  // ActionRow editor (unchanged structure)
+  // ---------------------------------------------------------------------------
 
   Widget _buildActionRowEditor(ActionRowNode row, BuildContext context) {
     return Column(
@@ -325,28 +333,26 @@ class ComponentNodeEditor extends StatelessWidget {
               row.components = newChildren;
               onChanged(row);
             },
-            onMoveUp:
-                idx == 0
-                    ? null
-                    : () {
-                      final list = List<ComponentNode>.from(row.components);
-                      final tmp = list[idx - 1];
-                      list[idx - 1] = list[idx];
-                      list[idx] = tmp;
-                      row.components = list;
-                      onChanged(row);
-                    },
-            onMoveDown:
-                idx == row.components.length - 1
-                    ? null
-                    : () {
-                      final list = List<ComponentNode>.from(row.components);
-                      final tmp = list[idx + 1];
-                      list[idx + 1] = list[idx];
-                      list[idx] = tmp;
-                      row.components = list;
-                      onChanged(row);
-                    },
+            onMoveUp: idx == 0
+                ? null
+                : () {
+                    final list = List<ComponentNode>.from(row.components);
+                    final tmp = list[idx - 1];
+                    list[idx - 1] = list[idx];
+                    list[idx] = tmp;
+                    row.components = list;
+                    onChanged(row);
+                  },
+            onMoveDown: idx == row.components.length - 1
+                ? null
+                : () {
+                    final list = List<ComponentNode>.from(row.components);
+                    final tmp = list[idx + 1];
+                    list[idx + 1] = list[idx];
+                    list[idx] = tmp;
+                    row.components = list;
+                    onChanged(row);
+                  },
             variableSuggestions: variableSuggestions,
             botIdForConfig: botIdForConfig,
           );
@@ -358,17 +364,12 @@ class ComponentNodeEditor extends StatelessWidget {
             final buttonCount = components.whereType<ButtonNode>().length;
             final hasSelect = components.any((c) => c is SelectMenuNode);
 
-            List<ComponentV2Type>? allowedTypes;
+            List<ComponentV2Type> allowedTypes;
             if (hasSelect) {
-              allowedTypes = []; // No more components allowed
+              allowedTypes = [];
             } else if (buttonCount > 0) {
-              if (buttonCount < 5) {
-                allowedTypes = [ComponentV2Type.button];
-              } else {
-                allowedTypes = []; // Max buttons reached
-              }
+              allowedTypes = buttonCount < 5 ? [ComponentV2Type.button] : [];
             } else {
-              // Empty or other? (Discord V1 Action Row should only have these)
               allowedTypes = [
                 ComponentV2Type.button,
                 ComponentV2Type.stringSelect,
@@ -391,268 +392,331 @@ class ComponentNodeEditor extends StatelessWidget {
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // Button editor — MINI-BLOCKS
+  // ---------------------------------------------------------------------------
+
   Widget _buildButtonEditor(ButtonNode btn, BuildContext context) {
+    final hasWorkflow = btn.workflowName.trim().isNotEmpty;
+    final availableSections = <(String, IconData, String)>[
+      if (!_isSectionVisible('btn_workflow', hasWorkflow))
+        ('btn_workflow', Icons.account_tree, context.tr.component_block_workflow),
+    ];
+
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _buildResponsiveTwoFieldRow(
-          first: VariableTextField(
-            label: context.tr.component_label,
-            initialValue: btn.label,
-            suggestions: variableSuggestions,
-            onChanged: (v) {
-              btn.label = v;
-              onChanged(btn);
-            },
-          ),
-          second: DropdownButtonFormField<BcButtonStyle>(
-            initialValue: btn.style,
-            isExpanded: true,
-            decoration: InputDecoration(
-              labelText: context.tr.common_style,
-              border: const OutlineInputBorder(),
-              isDense: true,
-            ),
-            items:
-                BcButtonStyle.values
-                    .map((s) => DropdownMenuItem(value: s, child: Text(s.name)))
-                    .toList(),
-            onChanged: (v) {
-              if (v != null) {
-                btn.style = v;
+        // Label & Style (essential)
+        MiniBlockContainer(
+          icon: Icons.smart_button,
+          label: context.tr.component_block_label_style,
+          child: _buildResponsiveTwoFieldRow(
+            first: VariableTextField(
+              label: context.tr.component_label,
+              initialValue: btn.label,
+              suggestions: variableSuggestions,
+              onChanged: (v) {
+                btn.label = v;
                 onChanged(btn);
-              }
-            },
+              },
+            ),
+            second: DropdownButtonFormField<BcButtonStyle>(
+              initialValue: btn.style,
+              isExpanded: true,
+              decoration: InputDecoration(
+                labelText: context.tr.common_style,
+                border: const OutlineInputBorder(),
+                isDense: true,
+              ),
+              items: BcButtonStyle.values
+                  .map((s) => DropdownMenuItem(value: s, child: Text(s.name)))
+                  .toList(),
+              onChanged: (v) {
+                if (v != null) {
+                  btn.style = v;
+                  onChanged(btn);
+                }
+              },
+            ),
           ),
         ),
-        const SizedBox(height: 8),
+        // Custom ID or URL (essential, context-dependent)
         if (btn.style == BcButtonStyle.link)
-          TextFormField(
-            initialValue: btn.url,
-            decoration: InputDecoration(
-              labelText: context.tr.common_url,
-              border: const OutlineInputBorder(),
-              isDense: true,
+          MiniBlockContainer(
+            icon: Icons.link,
+            label: context.tr.embed_label_url,
+            child: TextFormField(
+              initialValue: btn.url,
+              decoration: InputDecoration(
+                labelText: context.tr.common_url,
+                border: const OutlineInputBorder(),
+                isDense: true,
+              ),
+              onChanged: (v) {
+                btn.url = v;
+                onChanged(btn);
+              },
             ),
-            onChanged: (v) {
-              btn.url = v;
-              onChanged(btn);
-            },
           )
         else
-          Column(
-            children: [
-              TextFormField(
-                initialValue: btn.customId,
-                decoration: InputDecoration(
-                  labelText: context.tr.common_custom_id_required,
-                  border: const OutlineInputBorder(),
-                  isDense: true,
-                ),
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                validator:
-                    (v) =>
-                        v == null || v.trim().isEmpty
-                            ? context.tr.component_validation_required
-                            : null,
-                onChanged: (v) {
-                  btn.customId = v;
-                  onChanged(btn);
-                },
+          MiniBlockContainer(
+            icon: Icons.fingerprint,
+            label: context.tr.common_custom_id_required,
+            child: TextFormField(
+              initialValue: btn.customId,
+              decoration: InputDecoration(
+                labelText: context.tr.common_custom_id_required,
+                border: const OutlineInputBorder(),
+                isDense: true,
               ),
-              const SizedBox(height: 8),
-              _WorkflowSelectorField(
-                botIdForConfig: botIdForConfig,
-                label: context.tr.component_workflow_optional,
-                fallbackHint: context.tr.component_workflow_click_hint,
-                selectedWorkflow: btn.workflowName,
-                entryPoint: btn.workflowEntryPoint,
-                workflowArguments: btn.workflowArguments,
-                variableSuggestions: variableSuggestions,
-                successMessage: context.tr.component_on_click_workflow,
-                onChanged: (value) {
-                  btn.workflowName = value ?? '';
-                  onChanged(btn);
-                },
-                onEntryPointChanged: (value) {
-                  btn.workflowEntryPoint = value ?? '';
-                  onChanged(btn);
-                },
-                onArgumentsChanged: (value) {
-                  btn.workflowArguments = Map<String, dynamic>.from(value);
-                  onChanged(btn);
-                },
-              ),
-            ],
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: (v) => v == null || v.trim().isEmpty
+                  ? context.tr.component_validation_required
+                  : null,
+              onChanged: (v) {
+                btn.customId = v;
+                onChanged(btn);
+              },
+            ),
+          ),
+        // Workflow (optional)
+        if (_isSectionVisible('btn_workflow', hasWorkflow))
+          MiniBlockContainer(
+            icon: Icons.account_tree,
+            label: context.tr.component_block_workflow,
+            onRemove: () => _hideSection('btn_workflow', () {
+              btn.workflowName = '';
+              btn.workflowEntryPoint = '';
+              btn.workflowArguments = {};
+              onChanged(btn);
+            }),
+            child: _WorkflowSelectorField(
+              botIdForConfig: botIdForConfig,
+              label: context.tr.component_workflow_optional,
+              fallbackHint: context.tr.component_workflow_click_hint,
+              selectedWorkflow: btn.workflowName,
+              entryPoint: btn.workflowEntryPoint,
+              workflowArguments: btn.workflowArguments,
+              variableSuggestions: variableSuggestions,
+              successMessage: context.tr.component_on_click_workflow,
+              onChanged: (value) {
+                btn.workflowName = value ?? '';
+                onChanged(btn);
+              },
+              onEntryPointChanged: (value) {
+                btn.workflowEntryPoint = value ?? '';
+                onChanged(btn);
+              },
+              onArgumentsChanged: (value) {
+                btn.workflowArguments = Map<String, dynamic>.from(value);
+                onChanged(btn);
+              },
+            ),
+          ),
+        if (availableSections.isNotEmpty)
+          AddSectionMenu(
+            sections: availableSections,
+            onSelected: _showSection,
+            buttonLabel: context.tr.common_add_section,
           ),
       ],
     );
   }
+
+  // ---------------------------------------------------------------------------
+  // SelectMenu editor — MINI-BLOCKS
+  // ---------------------------------------------------------------------------
 
   Widget _buildSelectMenuEditor(SelectMenuNode menu, BuildContext context) {
-    return Column(
-      children: [
-        _buildResponsiveTwoFieldRow(
-          first: TextFormField(
-            initialValue: menu.customId,
-            decoration: InputDecoration(
-              labelText: context.tr.common_custom_id,
-              border: const OutlineInputBorder(),
-              isDense: true,
-            ),
-            onChanged: (v) {
-              menu.customId = v;
-              onChanged(menu);
-            },
-          ),
-          second: TextFormField(
-            initialValue: menu.placeholder,
-            decoration: InputDecoration(
-              labelText: context.tr.common_placeholder,
-              border: const OutlineInputBorder(),
-              isDense: true,
-            ),
-            onChanged: (v) {
-              menu.placeholder = v;
-              onChanged(menu);
-            },
-          ),
-        ),
-        const SizedBox(height: 8),
-        _WorkflowSelectorField(
-          botIdForConfig: botIdForConfig,
-          label: context.tr.component_workflow_optional,
-          fallbackHint: context.tr.component_workflow_select_hint,
-          selectedWorkflow: menu.workflowName,
-          entryPoint: menu.workflowEntryPoint,
-          workflowArguments: menu.workflowArguments,
-          variableSuggestions: variableSuggestions,
-          successMessage: context.tr.component_on_select_workflow,
-          onChanged: (value) {
-            menu.workflowName = value ?? '';
-            onChanged(menu);
-          },
-          onEntryPointChanged: (value) {
-            menu.workflowEntryPoint = value ?? '';
-            onChanged(menu);
-          },
-          onArgumentsChanged: (value) {
-            menu.workflowArguments = Map<String, dynamic>.from(value);
-            onChanged(menu);
-          },
-        ),
-        if (menu.type == ComponentV2Type.stringSelect) ...[
-          const SizedBox(height: 8),
-          Text(
-            context.tr.component_options,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-          ),
-          ...menu.options.asMap().entries.map((e) {
-            final idx = e.key;
-            final opt = e.value;
-            return Padding(
-              padding: const EdgeInsets.only(top: 4.0),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final isNarrow = constraints.maxWidth < 540;
-                  if (isNarrow) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        TextFormField(
-                          initialValue: opt.label,
-                          decoration: InputDecoration(
-                            labelText: context.tr.common_label,
-                            isDense: true,
-                          ),
-                          onChanged: (v) {
-                            opt.value = v;
-                            onChanged(menu);
-                          },
-                        ),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: IconButton(
-                            icon: const Icon(
-                              Icons.remove_circle,
-                              size: 16,
-                              color: Colors.red,
-                            ),
-                            onPressed: () {
-                              menu.options.removeAt(idx);
-                              onChanged(menu);
-                            },
-                          ),
-                        ),
-                      ],
-                    );
-                  }
+    final hasWorkflow = menu.workflowName.trim().isNotEmpty;
+    final availableSections = <(String, IconData, String)>[
+      if (!_isSectionVisible('sel_workflow', hasWorkflow))
+        ('sel_workflow', Icons.account_tree, context.tr.component_block_workflow),
+    ];
 
-                  return Row(
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          initialValue: opt.label,
-                          decoration: InputDecoration(
-                            labelText: context.tr.common_label,
-                            isDense: true,
-                          ),
-                          onChanged: (v) {
-                            opt.label = v;
-                            onChanged(menu);
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: TextFormField(
-                          initialValue: opt.value,
-                          decoration: InputDecoration(
-                            labelText: context.tr.common_value,
-                            isDense: true,
-                          ),
-                          onChanged: (v) {
-                            opt.value = v;
-                            onChanged(menu);
-                          },
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(
-                          Icons.remove_circle,
-                          size: 16,
-                          color: Colors.red,
-                        ),
-                        onPressed: () {
-                          menu.options.removeAt(idx);
-                          onChanged(menu);
-                        },
-                      ),
-                    ],
-                  );
-                },
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Identity (essential)
+        MiniBlockContainer(
+          icon: Icons.fingerprint,
+          label: context.tr.common_custom_id,
+          child: _buildResponsiveTwoFieldRow(
+            first: TextFormField(
+              initialValue: menu.customId,
+              decoration: InputDecoration(
+                labelText: context.tr.common_custom_id,
+                border: const OutlineInputBorder(),
+                isDense: true,
               ),
-            );
-          }),
-          TextButton.icon(
-            onPressed: () {
-              menu.options.add(
-                SelectMenuOption(
-                  label: context.tr.component_new_option,
-                  value: 'value',
-                ),
-              );
-              onChanged(menu);
-            },
-            icon: const Icon(Icons.add, size: 14),
-            label: Text(
-              context.tr.common_add_option,
-              style: TextStyle(fontSize: 12),
+              onChanged: (v) {
+                menu.customId = v;
+                onChanged(menu);
+              },
+            ),
+            second: TextFormField(
+              initialValue: menu.placeholder,
+              decoration: InputDecoration(
+                labelText: context.tr.common_placeholder,
+                border: const OutlineInputBorder(),
+                isDense: true,
+              ),
+              onChanged: (v) {
+                menu.placeholder = v;
+                onChanged(menu);
+              },
             ),
           ),
-        ],
+        ),
+        // Workflow (optional)
+        if (_isSectionVisible('sel_workflow', hasWorkflow))
+          MiniBlockContainer(
+            icon: Icons.account_tree,
+            label: context.tr.component_block_workflow,
+            onRemove: () => _hideSection('sel_workflow', () {
+              menu.workflowName = '';
+              menu.workflowEntryPoint = '';
+              menu.workflowArguments = {};
+              onChanged(menu);
+            }),
+            child: _WorkflowSelectorField(
+              botIdForConfig: botIdForConfig,
+              label: context.tr.component_workflow_optional,
+              fallbackHint: context.tr.component_workflow_select_hint,
+              selectedWorkflow: menu.workflowName,
+              entryPoint: menu.workflowEntryPoint,
+              workflowArguments: menu.workflowArguments,
+              variableSuggestions: variableSuggestions,
+              successMessage: context.tr.component_on_select_workflow,
+              onChanged: (value) {
+                menu.workflowName = value ?? '';
+                onChanged(menu);
+              },
+              onEntryPointChanged: (value) {
+                menu.workflowEntryPoint = value ?? '';
+                onChanged(menu);
+              },
+              onArgumentsChanged: (value) {
+                menu.workflowArguments = Map<String, dynamic>.from(value);
+                onChanged(menu);
+              },
+            ),
+          ),
+        // Options (essential for stringSelect)
+        if (menu.type == ComponentV2Type.stringSelect)
+          MiniBlockContainer(
+            icon: Icons.list,
+            label: context.tr.component_options,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ...menu.options.asMap().entries.map((e) {
+                  final idx = e.key;
+                  final opt = e.value;
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 4.0),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final isNarrow = constraints.maxWidth < 540;
+                        if (isNarrow) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              TextFormField(
+                                initialValue: opt.label,
+                                decoration: InputDecoration(
+                                  labelText: context.tr.common_label,
+                                  isDense: true,
+                                ),
+                                onChanged: (v) {
+                                  opt.value = v;
+                                  onChanged(menu);
+                                },
+                              ),
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: IconButton(
+                                  icon: const Icon(Icons.remove_circle, size: 16, color: AppTheme.error),
+                                  onPressed: () {
+                                    menu.options.removeAt(idx);
+                                    onChanged(menu);
+                                  },
+                                ),
+                              ),
+                            ],
+                          );
+                        }
+                        return Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                initialValue: opt.label,
+                                decoration: InputDecoration(
+                                  labelText: context.tr.common_label,
+                                  isDense: true,
+                                ),
+                                onChanged: (v) {
+                                  opt.label = v;
+                                  onChanged(menu);
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: TextFormField(
+                                initialValue: opt.value,
+                                decoration: InputDecoration(
+                                  labelText: context.tr.common_value,
+                                  isDense: true,
+                                ),
+                                onChanged: (v) {
+                                  opt.value = v;
+                                  onChanged(menu);
+                                },
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.remove_circle, size: 16, color: AppTheme.error),
+                              onPressed: () {
+                                menu.options.removeAt(idx);
+                                onChanged(menu);
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  );
+                }),
+                TextButton.icon(
+                  onPressed: () {
+                    menu.options.add(
+                      SelectMenuOption(
+                        label: context.tr.component_new_option,
+                        value: 'value',
+                      ),
+                    );
+                    onChanged(menu);
+                  },
+                  icon: const Icon(Icons.add, size: 14),
+                  label: Text(context.tr.common_add_option, style: const TextStyle(fontSize: 12)),
+                ),
+              ],
+            ),
+          ),
+        if (availableSections.isNotEmpty)
+          AddSectionMenu(
+            sections: availableSections,
+            onSelected: _showSection,
+            buttonLabel: context.tr.common_add_section,
+          ),
       ],
     );
   }
+
+  // ---------------------------------------------------------------------------
+  // TextDisplay editor (unchanged)
+  // ---------------------------------------------------------------------------
 
   Widget _buildTextDisplayEditor(TextDisplayNode node, BuildContext context) {
     return VariableTextField(
@@ -666,6 +730,10 @@ class ComponentNodeEditor extends StatelessWidget {
       },
     );
   }
+
+  // ---------------------------------------------------------------------------
+  // Separator editor (unchanged)
+  // ---------------------------------------------------------------------------
 
   Widget _buildSeparatorEditor(SeparatorNode node, BuildContext context) {
     return Row(
@@ -682,14 +750,8 @@ class ComponentNodeEditor extends StatelessWidget {
         DropdownButton<int>(
           value: node.spacing,
           items: [
-            DropdownMenuItem(
-              value: 1,
-              child: Text(context.tr.component_spacing_small),
-            ),
-            DropdownMenuItem(
-              value: 2,
-              child: Text(context.tr.component_spacing_large),
-            ),
+            DropdownMenuItem(value: 1, child: Text(context.tr.component_spacing_small)),
+            DropdownMenuItem(value: 2, child: Text(context.tr.component_spacing_large)),
           ],
           onChanged: (v) {
             if (v != null) {
@@ -702,148 +764,184 @@ class ComponentNodeEditor extends StatelessWidget {
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // Section editor — MINI-BLOCKS
+  // ---------------------------------------------------------------------------
+
   Widget _buildSectionEditor(SectionNode node, BuildContext context) {
+    final hasAccessory = node.accessory != null;
+    final availableSections = <(String, IconData, String)>[
+      if (!_isSectionVisible('sec_accessory', hasAccessory))
+        ('sec_accessory', Icons.extension, context.tr.component_section_accessory),
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          context.tr.component_section_text_displays,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-        ),
-        ...node.components.asMap().entries.map((e) {
-          final idx = e.key;
-          final child = e.value;
-          return ComponentNodeEditor(
-            node: child,
-            depth: depth + 1,
-            onChanged: (updated) {
-              final newChildren = List<TextDisplayNode>.from(node.components);
-              newChildren[idx] = updated as TextDisplayNode;
-              node.components = newChildren;
-              onChanged(node);
-            },
-            onRemove: () {
-              final newChildren = List<TextDisplayNode>.from(node.components)
-                ..removeAt(idx);
-              node.components = newChildren;
-              onChanged(node);
-            },
-            onMoveUp:
-                idx == 0
-                    ? null
-                    : () {
-                      final list = List<TextDisplayNode>.from(node.components);
-                      final tmp = list[idx - 1];
-                      list[idx - 1] = list[idx];
-                      list[idx] = tmp;
-                      node.components = list;
-                      onChanged(node);
-                    },
-            onMoveDown:
-                idx == node.components.length - 1
-                    ? null
-                    : () {
-                      final list = List<TextDisplayNode>.from(node.components);
-                      final tmp = list[idx + 1];
-                      list[idx + 1] = list[idx];
-                      list[idx] = tmp;
-                      node.components = list;
-                      onChanged(node);
-                    },
-            variableSuggestions: variableSuggestions,
-            botIdForConfig: botIdForConfig,
-          );
-        }),
-        const SizedBox(height: 8),
-        TextButton.icon(
-          onPressed: () {
-            node.components = [...node.components, TextDisplayNode()];
-            onChanged(node);
-          },
-          icon: const Icon(Icons.add, size: 14),
-          label: Text(
-            context.tr.component_add_text_display,
-            style: TextStyle(fontSize: 12),
+        // Text Displays (essential)
+        MiniBlockContainer(
+          icon: Icons.text_fields,
+          label: context.tr.component_section_text_displays,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ...node.components.asMap().entries.map((e) {
+                final idx = e.key;
+                final child = e.value;
+                return ComponentNodeEditor(
+                  node: child,
+                  depth: depth + 1,
+                  onChanged: (updated) {
+                    final newChildren = List<TextDisplayNode>.from(node.components);
+                    newChildren[idx] = updated as TextDisplayNode;
+                    node.components = newChildren;
+                    onChanged(node);
+                  },
+                  onRemove: () {
+                    final newChildren = List<TextDisplayNode>.from(node.components)..removeAt(idx);
+                    node.components = newChildren;
+                    onChanged(node);
+                  },
+                  onMoveUp: idx == 0
+                      ? null
+                      : () {
+                          final list = List<TextDisplayNode>.from(node.components);
+                          final tmp = list[idx - 1];
+                          list[idx - 1] = list[idx];
+                          list[idx] = tmp;
+                          node.components = list;
+                          onChanged(node);
+                        },
+                  onMoveDown: idx == node.components.length - 1
+                      ? null
+                      : () {
+                          final list = List<TextDisplayNode>.from(node.components);
+                          final tmp = list[idx + 1];
+                          list[idx + 1] = list[idx];
+                          list[idx] = tmp;
+                          node.components = list;
+                          onChanged(node);
+                        },
+                  variableSuggestions: variableSuggestions,
+                  botIdForConfig: botIdForConfig,
+                );
+              }),
+              const SizedBox(height: 8),
+              TextButton.icon(
+                onPressed: () {
+                  node.components = [...node.components, TextDisplayNode()];
+                  onChanged(node);
+                },
+                icon: const Icon(Icons.add, size: 14),
+                label: Text(context.tr.component_add_text_display, style: const TextStyle(fontSize: 12)),
+              ),
+            ],
           ),
         ),
-        const Divider(),
-        Text(
-          context.tr.component_section_accessory,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-        ),
-        if (node.accessory != null)
-          ComponentNodeEditor(
-            node: node.accessory!,
-            depth: depth + 1,
-            onChanged: (updated) {
-              node.accessory = updated;
-              onChanged(node);
-            },
-            onRemove: () {
+        // Accessory (optional)
+        if (_isSectionVisible('sec_accessory', hasAccessory))
+          MiniBlockContainer(
+            icon: Icons.extension,
+            label: context.tr.component_section_accessory,
+            onRemove: () => _hideSection('sec_accessory', () {
               node.accessory = null;
               onChanged(node);
-            },
-            variableSuggestions: variableSuggestions,
-            botIdForConfig: botIdForConfig,
-          )
-        else
-          _buildAddComponentDropdown(context, (newNode) {
-            node.accessory = newNode;
-            onChanged(node);
-          }, allowedTypes: [ComponentV2Type.button, ComponentV2Type.thumbnail]),
+            }),
+            child: node.accessory != null
+                ? ComponentNodeEditor(
+                    node: node.accessory!,
+                    depth: depth + 1,
+                    onChanged: (updated) {
+                      node.accessory = updated;
+                      onChanged(node);
+                    },
+                    onRemove: () {
+                      node.accessory = null;
+                      onChanged(node);
+                    },
+                    variableSuggestions: variableSuggestions,
+                    botIdForConfig: botIdForConfig,
+                  )
+                : _buildAddComponentDropdown(context, (newNode) {
+                    node.accessory = newNode;
+                    onChanged(node);
+                  }, allowedTypes: [ComponentV2Type.button, ComponentV2Type.thumbnail]),
+          ),
+        if (availableSections.isNotEmpty)
+          AddSectionMenu(
+            sections: availableSections,
+            onSelected: _showSection,
+            buttonLabel: context.tr.common_add_section,
+          ),
       ],
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // Container editor — MINI-BLOCKS
+  // ---------------------------------------------------------------------------
+
   Widget _buildContainerEditor(ContainerNode node, BuildContext context) {
+    final hasColor = node.accentColor.isNotEmpty;
+    final availableSections = <(String, IconData, String)>[
+      if (!_isSectionVisible('cnt_color', hasColor))
+        ('cnt_color', Icons.palette, context.tr.component_accent_color),
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: TextFormField(
-                key: ValueKey('container_color_\${node.accentColor}'),
-                initialValue: node.accentColor,
-                decoration: InputDecoration(
-                  labelText: context.tr.component_accent_color,
-                  border: const OutlineInputBorder(),
-                  isDense: true,
+        // Accent Color (optional)
+        if (_isSectionVisible('cnt_color', hasColor))
+          MiniBlockContainer(
+            icon: Icons.palette,
+            label: context.tr.component_accent_color,
+            onRemove: () => _hideSection('cnt_color', () {
+              node.accentColor = '';
+              onChanged(node);
+            }),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    key: ValueKey('container_color_${node.accentColor}'),
+                    initialValue: node.accentColor,
+                    decoration: InputDecoration(
+                      labelText: context.tr.component_accent_color,
+                      border: const OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                    onChanged: (v) {
+                      node.accentColor = v;
+                      onChanged(node);
+                    },
+                  ),
                 ),
-                onChanged: (v) {
-                  node.accentColor = v;
-                  onChanged(node);
-                },
-              ),
-            ),
-            const SizedBox(width: 8),
-            IconButton(
-              icon: const Icon(Icons.color_lens, color: Colors.blueAccent),
-              tooltip: context.tr.component_choose_color,
-              onPressed: () {
-                Color currentColor = Colors.blueGrey;
-                if (node.accentColor.isNotEmpty) {
-                  try {
-                    final hex = node.accentColor.replaceAll('#', '');
-                    if (hex.length == 6) {
-                      currentColor = Color(int.parse('0xFF$hex'));
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(Icons.color_lens, color: AppTheme.info),
+                  tooltip: context.tr.component_choose_color,
+                  onPressed: () {
+                    Color currentColor = AppTheme.grey;
+                    if (node.accentColor.isNotEmpty) {
+                      try {
+                        final hex = node.accentColor.replaceAll('#', '');
+                        if (hex.length == 6) {
+                          currentColor = Color(int.parse('0xFF$hex'));
+                        }
+                      } catch (_) {}
                     }
-                  } catch (_) {}
-                }
-                showDialog(
-                  context: context,
-                  builder:
-                      (ctx) => AlertDialog(
+                    showDialog(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
                         title: Text(context.tr.component_pick_accent_color),
                         content: SingleChildScrollView(
                           child: ColorPicker(
                             pickerColor: currentColor,
                             enableAlpha: false,
                             hexInputBar: true,
-                            onColorChanged: (c) {
-                              currentColor = c;
-                            },
+                            onColorChanged: (c) => currentColor = c,
                           ),
                         ),
                         actions: [
@@ -854,26 +952,24 @@ class ComponentNodeEditor extends StatelessWidget {
                           TextButton(
                             child: Text(context.tr.common_ok),
                             onPressed: () {
-                              node.accentColor =
-                                  currentColor
-                                      .toARGB32()
-                                      .toRadixString(16)
-                                      .substring(
-                                        2,
-                                      ) // remove trailing alpha usually if length 8
-                                      .toUpperCase();
+                              node.accentColor = currentColor
+                                  .toARGB32()
+                                  .toRadixString(16)
+                                  .substring(2)
+                                  .toUpperCase();
                               onChanged(node);
                               Navigator.of(ctx).pop();
                             },
                           ),
                         ],
                       ),
-                );
-              },
+                    );
+                  },
+                ),
+              ],
             ),
-          ],
-        ),
-        const SizedBox(height: 8),
+          ),
+        // Children (always shown directly)
         ...node.components.asMap().entries.map((e) {
           final idx = e.key;
           final child = e.value;
@@ -887,33 +983,30 @@ class ComponentNodeEditor extends StatelessWidget {
               onChanged(node);
             },
             onRemove: () {
-              final newChildren = List<ComponentNode>.from(node.components)
-                ..removeAt(idx);
+              final newChildren = List<ComponentNode>.from(node.components)..removeAt(idx);
               node.components = newChildren;
               onChanged(node);
             },
-            onMoveUp:
-                idx == 0
-                    ? null
-                    : () {
-                      final list = List<ComponentNode>.from(node.components);
-                      final tmp = list[idx - 1];
-                      list[idx - 1] = list[idx];
-                      list[idx] = tmp;
-                      node.components = list;
-                      onChanged(node);
-                    },
-            onMoveDown:
-                idx == node.components.length - 1
-                    ? null
-                    : () {
-                      final list = List<ComponentNode>.from(node.components);
-                      final tmp = list[idx + 1];
-                      list[idx + 1] = list[idx];
-                      list[idx] = tmp;
-                      node.components = list;
-                      onChanged(node);
-                    },
+            onMoveUp: idx == 0
+                ? null
+                : () {
+                    final list = List<ComponentNode>.from(node.components);
+                    final tmp = list[idx - 1];
+                    list[idx - 1] = list[idx];
+                    list[idx] = tmp;
+                    node.components = list;
+                    onChanged(node);
+                  },
+            onMoveDown: idx == node.components.length - 1
+                ? null
+                : () {
+                    final list = List<ComponentNode>.from(node.components);
+                    final tmp = list[idx + 1];
+                    list[idx + 1] = list[idx];
+                    list[idx] = tmp;
+                    node.components = list;
+                    onChanged(node);
+                  },
             variableSuggestions: variableSuggestions,
             botIdForConfig: botIdForConfig,
           );
@@ -934,75 +1027,117 @@ class ComponentNodeEditor extends StatelessWidget {
             ComponentV2Type.file,
           ],
         ),
-      ],
-    );
-  }
-
-  Widget _buildLabelEditor(LabelNode node, BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        VariableTextField(
-          label: context.tr.component_label_title,
-          initialValue: node.label,
-          suggestions: variableSuggestions,
-          onChanged: (v) {
-            node.label = v;
-            onChanged(node);
-          },
-        ),
-        const SizedBox(height: 8),
-        VariableTextField(
-          label: context.tr.common_description,
-          initialValue: node.description,
-          suggestions: variableSuggestions,
-          onChanged: (v) {
-            node.description = v;
-            onChanged(node);
-          },
-        ),
-        const SizedBox(height: 8),
-        Text(
-          context.tr.component_component_to_wrap,
-          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-        ),
-        if (node.component != null)
-          ComponentNodeEditor(
-            node: node.component!,
-            depth: depth + 1,
-            onChanged: (updated) {
-              node.component = updated;
-              onChanged(node);
-            },
-            onRemove: () {
-              node.component = null;
-              onChanged(node);
-            },
-            variableSuggestions: variableSuggestions,
-            botIdForConfig: botIdForConfig,
-          )
-        else
-          _buildAddComponentDropdown(
-            context,
-            (newNode) {
-              node.component = newNode;
-              onChanged(node);
-            },
-            allowedTypes: [
-              ComponentV2Type.stringSelect,
-              ComponentV2Type.userSelect,
-              ComponentV2Type.roleSelect,
-              ComponentV2Type.mentionableSelect,
-              ComponentV2Type.channelSelect,
-              ComponentV2Type.fileUpload,
-              ComponentV2Type.radioGroup,
-              ComponentV2Type.checkboxGroup,
-              ComponentV2Type.checkbox,
-            ],
+        if (availableSections.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: AddSectionMenu(
+              sections: availableSections,
+              onSelected: _showSection,
+              buttonLabel: context.tr.common_add_section,
+            ),
           ),
       ],
     );
   }
+
+  // ---------------------------------------------------------------------------
+  // Label editor — MINI-BLOCKS
+  // ---------------------------------------------------------------------------
+
+  Widget _buildLabelEditor(LabelNode node, BuildContext context) {
+    final hasComponent = node.component != null;
+    final availableSections = <(String, IconData, String)>[
+      if (!_isSectionVisible('lbl_component', hasComponent))
+        ('lbl_component', Icons.extension, context.tr.component_component_to_wrap),
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Label & Description (essential)
+        MiniBlockContainer(
+          icon: Icons.label,
+          label: context.tr.component_label_title,
+          child: Column(
+            children: [
+              VariableTextField(
+                label: context.tr.component_label_title,
+                initialValue: node.label,
+                suggestions: variableSuggestions,
+                onChanged: (v) {
+                  node.label = v;
+                  onChanged(node);
+                },
+              ),
+              const SizedBox(height: 8),
+              VariableTextField(
+                label: context.tr.common_description,
+                initialValue: node.description,
+                suggestions: variableSuggestions,
+                onChanged: (v) {
+                  node.description = v;
+                  onChanged(node);
+                },
+              ),
+            ],
+          ),
+        ),
+        // Wrapped component (optional)
+        if (_isSectionVisible('lbl_component', hasComponent))
+          MiniBlockContainer(
+            icon: Icons.extension,
+            label: context.tr.component_component_to_wrap,
+            onRemove: () => _hideSection('lbl_component', () {
+              node.component = null;
+              onChanged(node);
+            }),
+            child: node.component != null
+                ? ComponentNodeEditor(
+                    node: node.component!,
+                    depth: depth + 1,
+                    onChanged: (updated) {
+                      node.component = updated;
+                      onChanged(node);
+                    },
+                    onRemove: () {
+                      node.component = null;
+                      onChanged(node);
+                    },
+                    variableSuggestions: variableSuggestions,
+                    botIdForConfig: botIdForConfig,
+                  )
+                : _buildAddComponentDropdown(
+                    context,
+                    (newNode) {
+                      node.component = newNode;
+                      onChanged(node);
+                    },
+                    allowedTypes: [
+                      ComponentV2Type.stringSelect,
+                      ComponentV2Type.userSelect,
+                      ComponentV2Type.roleSelect,
+                      ComponentV2Type.mentionableSelect,
+                      ComponentV2Type.channelSelect,
+                      ComponentV2Type.fileUpload,
+                      ComponentV2Type.radioGroup,
+                      ComponentV2Type.checkboxGroup,
+                      ComponentV2Type.checkbox,
+                    ],
+                  ),
+          ),
+        if (availableSections.isNotEmpty)
+          AddSectionMenu(
+            sections: availableSections,
+            onSelected: _showSection,
+            buttonLabel: context.tr.common_add_section,
+          ),
+      ],
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Simple editors (unchanged)
+  // ---------------------------------------------------------------------------
 
   Widget _buildCheckboxEditor(CheckboxNode node, BuildContext context) {
     return Row(
@@ -1063,10 +1198,7 @@ class ComponentNodeEditor extends StatelessWidget {
                 Expanded(
                   child: TextFormField(
                     initialValue: opt.label,
-                    decoration: InputDecoration(
-                      labelText: context.tr.common_label,
-                      isDense: true,
-                    ),
+                    decoration: InputDecoration(labelText: context.tr.common_label, isDense: true),
                     onChanged: (v) {
                       opt.label = v;
                       onChanged(node);
@@ -1077,10 +1209,7 @@ class ComponentNodeEditor extends StatelessWidget {
                 Expanded(
                   child: TextFormField(
                     initialValue: opt.value,
-                    decoration: InputDecoration(
-                      labelText: context.tr.common_value,
-                      isDense: true,
-                    ),
+                    decoration: InputDecoration(labelText: context.tr.common_value, isDense: true),
                     onChanged: (v) {
                       opt.value = v;
                       onChanged(node);
@@ -1088,11 +1217,7 @@ class ComponentNodeEditor extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(
-                    Icons.remove_circle,
-                    size: 16,
-                    color: Colors.red,
-                  ),
+                  icon: const Icon(Icons.remove_circle, size: 16, color: AppTheme.error),
                   onPressed: () {
                     node.options.removeAt(idx);
                     onChanged(node);
@@ -1104,28 +1229,17 @@ class ComponentNodeEditor extends StatelessWidget {
         }),
         TextButton.icon(
           onPressed: () {
-            node.options.add(
-              RadioGroupOptionNode(
-                label: context.tr.component_new_radio,
-                value: 'value',
-              ),
-            );
+            node.options.add(RadioGroupOptionNode(label: context.tr.component_new_radio, value: 'value'));
             onChanged(node);
           },
           icon: const Icon(Icons.add, size: 14),
-          label: Text(
-            context.tr.component_add_radio_option,
-            style: TextStyle(fontSize: 12),
-          ),
+          label: Text(context.tr.component_add_radio_option, style: const TextStyle(fontSize: 12)),
         ),
       ],
     );
   }
 
-  Widget _buildCheckboxGroupEditor(
-    CheckboxGroupNode node,
-    BuildContext context,
-  ) {
+  Widget _buildCheckboxGroupEditor(CheckboxGroupNode node, BuildContext context) {
     return Column(
       children: [
         TextFormField(
@@ -1155,10 +1269,7 @@ class ComponentNodeEditor extends StatelessWidget {
                 Expanded(
                   child: TextFormField(
                     initialValue: opt.label,
-                    decoration: InputDecoration(
-                      labelText: context.tr.common_label,
-                      isDense: true,
-                    ),
+                    decoration: InputDecoration(labelText: context.tr.common_label, isDense: true),
                     onChanged: (v) {
                       opt.value = v;
                       onChanged(node);
@@ -1166,11 +1277,7 @@ class ComponentNodeEditor extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(
-                    Icons.remove_circle,
-                    size: 16,
-                    color: Colors.red,
-                  ),
+                  icon: const Icon(Icons.remove_circle, size: 16, color: AppTheme.error),
                   onPressed: () {
                     node.options.removeAt(idx);
                     onChanged(node);
@@ -1182,19 +1289,11 @@ class ComponentNodeEditor extends StatelessWidget {
         }),
         TextButton.icon(
           onPressed: () {
-            node.options.add(
-              CheckboxGroupOptionNode(
-                label: context.tr.component_new_checkbox,
-                value: 'value',
-              ),
-            );
+            node.options.add(CheckboxGroupOptionNode(label: context.tr.component_new_checkbox, value: 'value'));
             onChanged(node);
           },
           icon: const Icon(Icons.add, size: 14),
-          label: Text(
-            context.tr.component_add_checkbox_option,
-            style: const TextStyle(fontSize: 12),
-          ),
+          label: Text(context.tr.component_add_checkbox_option, style: const TextStyle(fontSize: 12)),
         ),
       ],
     );
@@ -1262,10 +1361,7 @@ class ComponentNodeEditor extends StatelessWidget {
                 Expanded(
                   child: TextFormField(
                     initialValue: opt.media.url,
-                    decoration: InputDecoration(
-                      labelText: context.tr.component_media_url,
-                      isDense: true,
-                    ),
+                    decoration: InputDecoration(labelText: context.tr.component_media_url, isDense: true),
                     onChanged: (v) {
                       opt.media.url = v;
                       onChanged(node);
@@ -1273,11 +1369,7 @@ class ComponentNodeEditor extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(
-                    Icons.remove_circle,
-                    size: 16,
-                    color: Colors.red,
-                  ),
+                  icon: const Icon(Icons.remove_circle, size: 16, color: AppTheme.error),
                   onPressed: () {
                     node.items.removeAt(idx);
                     onChanged(node);
@@ -1293,16 +1385,15 @@ class ComponentNodeEditor extends StatelessWidget {
             onChanged(node);
           },
           icon: const Icon(Icons.add, size: 14),
-          label: Text(
-            context.tr.component_add_media_item,
-            style: TextStyle(fontSize: 12),
-          ),
+          label: Text(context.tr.component_add_media_item, style: const TextStyle(fontSize: 12)),
         ),
       ],
     );
   }
 
-  // --- Utility Component Adder ---
+  // ---------------------------------------------------------------------------
+  // Add component dropdown
+  // ---------------------------------------------------------------------------
 
   Widget _buildAddComponentDropdown(
     BuildContext context,
@@ -1310,7 +1401,6 @@ class ComponentNodeEditor extends StatelessWidget {
     List<ComponentV2Type>? allowedTypes,
   }) {
     final types = allowedTypes ?? ComponentV2Type.values;
-
     return Row(
       children: [
         Expanded(
@@ -1319,31 +1409,22 @@ class ComponentNodeEditor extends StatelessWidget {
             onSelected: (v) => onAdd(ComponentNodeFactory.create(v)),
             itemBuilder: (BuildContext context) {
               return types
-                  .map(
-                    (t) => PopupMenuItem(
-                      value: t,
-                      child: Text(_getTitleForType(t)),
-                    ),
-                  )
+                  .map((t) => PopupMenuItem(value: t, child: Text(_getTitleForType(t))))
                   .toList();
             },
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.blueGrey.shade300),
-                borderRadius: BorderRadius.circular(4),
+                border: Border.all(color: AppTheme.grey),
+                borderRadius: BorderRadius.circular(AppTheme.radiusXs),
               ),
               child: const Row(
                 children: [
-                  Icon(Icons.add, size: 16, color: Colors.blueGrey),
+                  Icon(Icons.add, size: 16, color: AppTheme.grey),
                   SizedBox(width: 8),
                   Text(
                     'Add Child Component',
-                    style: TextStyle(
-                      color: Colors.blueGrey,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
-                    ),
+                    style: TextStyle(color: AppTheme.grey, fontWeight: FontWeight.bold, fontSize: 13),
                   ),
                 ],
               ),
@@ -1354,6 +1435,7 @@ class ComponentNodeEditor extends StatelessWidget {
     );
   }
 }
+
 
 class _WorkflowSelectorField extends StatefulWidget {
   final String? botIdForConfig;
@@ -1391,6 +1473,7 @@ class _WorkflowSelectorFieldState extends State<_WorkflowSelectorField> {
   late TextEditingController _entryPointCtrl;
   late Map<String, dynamic> _workflowArguments;
   List<String> _availableWorkflowNames = const [];
+  Map<String, List<WorkflowArgumentDefinition>> _workflowArgDefs = const {};
   bool _loadingWorkflows = false;
 
   @override
@@ -1449,18 +1532,138 @@ class _WorkflowSelectorFieldState extends State<_WorkflowSelectorField> {
       return;
     }
 
-    final names = workflows
+    final generalWorkflows = workflows
+      .where((workflow) =>
+          normalizeWorkflowType(workflow['workflowType']) == workflowTypeGeneral)
+      .toList();
+
+    final names = generalWorkflows
       .map((workflow) => (workflow['name'] ?? '').toString().trim())
       .where((name) => name.isNotEmpty)
       .toList(growable: false)..sort();
 
+    final argDefs = <String, List<WorkflowArgumentDefinition>>{};
+    for (final workflow in generalWorkflows) {
+      final name = (workflow['name'] ?? '').toString().trim();
+      if (name.isNotEmpty) {
+        argDefs[name] = parseWorkflowArgumentDefinitions(workflow['arguments']);
+      }
+    }
+
     setState(() {
       _availableWorkflowNames = names;
+      _workflowArgDefs = argDefs;
       _loadingWorkflows = false;
     });
   }
 
   Future<void> _editWorkflowArguments() async {
+    final workflowName = _selectedWorkflow.trim();
+    final defs = _workflowArgDefs[workflowName] ?? const [];
+
+    if (defs.isNotEmpty) {
+      await _editWorkflowArgumentsForm(defs);
+    } else {
+      await _editWorkflowArgumentsJson();
+    }
+  }
+
+  Future<void> _editWorkflowArgumentsForm(
+    List<WorkflowArgumentDefinition> defs,
+  ) async {
+    final controllers = <String, TextEditingController>{};
+    for (final def in defs) {
+      controllers[def.name] = TextEditingController(
+        text: (_workflowArguments[def.name] ?? '').toString(),
+      );
+    }
+
+    final saved = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          shape: AppTheme.dialogShape,
+          icon: Icon(
+            Icons.data_object,
+            color: AppTheme.brandPrimary,
+            size: 32,
+          ),
+          title: Text(
+            context.tr.component_workflow_args_title,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+          ),
+          content: SizedBox(
+            width: 480,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (final def in defs) ...[
+                    TextField(
+                      controller: controllers[def.name],
+                      decoration: InputDecoration(
+                        labelText: def.name + (def.required ? ' *' : ''),
+                        hintText: '((value))',
+                        border: const OutlineInputBorder(),
+                        isDense: true,
+                        helperText: def.defaultValue.isNotEmpty
+                            ? '${context.tr.common_default}: ${def.defaultValue}'
+                            : null,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+                ],
+              ),
+            ),
+          ),
+          actionsAlignment: MainAxisAlignment.center,
+          actionsPadding:
+              const EdgeInsets.fromLTRB(
+                AppTheme.spacingLg,
+                0,
+                AppTheme.spacingLg,
+                AppTheme.spacingLg,
+              ),
+          actions: [
+            OutlinedButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              style: OutlinedButton.styleFrom(shape: AppTheme.buttonShape),
+              child: Text(context.tr.common_cancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              style: FilledButton.styleFrom(shape: AppTheme.buttonShape),
+              child: Text(context.tr.common_save),
+            ),
+          ],
+        );
+      },
+    );
+
+    // Read values and dispose controllers before setState to avoid
+    // "used after being disposed" errors during the rebuild.
+    final result = <String, dynamic>{};
+    if (saved == true) {
+      for (final def in defs) {
+        final value = controllers[def.name]!.text.trim();
+        if (value.isNotEmpty) {
+          result[def.name] = value;
+        }
+      }
+    }
+    for (final ctrl in controllers.values) {
+      ctrl.dispose();
+    }
+    if (saved == true) {
+      setState(() {
+        _workflowArguments = result;
+      });
+      widget.onArgumentsChanged(_workflowArguments);
+    }
+  }
+
+  Future<void> _editWorkflowArgumentsJson() async {
     final jsonController = TextEditingController(
       text:
           _workflowArguments.isEmpty
@@ -1475,6 +1678,7 @@ class _WorkflowSelectorFieldState extends State<_WorkflowSelectorField> {
           (dialogContext) => StatefulBuilder(
             builder: (context, setDialogState) {
               return AlertDialog(
+                shape: AppTheme.dialogShape,
                 title: Text(context.tr.component_workflow_args_title),
                 content: SizedBox(
                   width: 520,
@@ -1490,9 +1694,18 @@ class _WorkflowSelectorFieldState extends State<_WorkflowSelectorField> {
                     style: const TextStyle(fontFamily: 'monospace'),
                   ),
                 ),
+                actionsAlignment: MainAxisAlignment.center,
+                actionsPadding:
+                    const EdgeInsets.fromLTRB(
+                      AppTheme.spacingLg,
+                      0,
+                      AppTheme.spacingLg,
+                      AppTheme.spacingLg,
+                    ),
                 actions: [
-                  TextButton(
+                  OutlinedButton(
                     onPressed: () => Navigator.pop(dialogContext),
+                    style: OutlinedButton.styleFrom(shape: AppTheme.buttonShape),
                     child: Text(context.tr.common_cancel),
                   ),
                   FilledButton(
@@ -1531,6 +1744,7 @@ class _WorkflowSelectorFieldState extends State<_WorkflowSelectorField> {
                         });
                       }
                     },
+                    style: FilledButton.styleFrom(shape: AppTheme.buttonShape),
                     child: Text(context.tr.common_save),
                   ),
                 ],
@@ -1708,17 +1922,17 @@ class _WorkflowSelectorFieldState extends State<_WorkflowSelectorField> {
           ),
           const SizedBox(height: 8),
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(AppTheme.spacingSm),
             decoration: BoxDecoration(
-              color: Colors.green.shade50,
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: Colors.green.shade200),
+              color: AppTheme.success,
+              borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+              border: Border.all(color: AppTheme.success),
             ),
             child: Row(
               children: [
                 Icon(
                   Icons.check_circle_outline,
-                  color: Colors.green.shade700,
+                  color: AppTheme.success,
                   size: 16,
                 ),
                 const SizedBox(width: 8),
@@ -1727,7 +1941,7 @@ class _WorkflowSelectorFieldState extends State<_WorkflowSelectorField> {
                     '${widget.successMessage} "$_selectedWorkflow" will be executed (entry: ${_entryPointCtrl.text.trim().isEmpty ? 'default' : _entryPointCtrl.text.trim()}, args: ${_workflowArguments.length}).',
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.green.shade800,
+                      color: AppTheme.success,
                       fontWeight: FontWeight.w500,
                     ),
                   ),

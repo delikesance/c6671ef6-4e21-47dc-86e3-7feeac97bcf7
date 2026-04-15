@@ -25,6 +25,7 @@ import 'utils/ad_reward_service.dart';
 import 'utils/subscription_service.dart';
 import 'utils/i18n.dart';
 import 'utils/onboarding_manager.dart';
+import 'package:bot_creator/utils/app_theme.dart';
 
 @pragma('vm:entry-point')
 AppManager? _appManager;
@@ -245,7 +246,7 @@ class _MyAppState extends State<MyApp> {
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: AppTheme.brandPrimary),
         useMaterial3: true,
       ),
       darkTheme: ThemeData.dark(useMaterial3: true),

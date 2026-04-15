@@ -2540,6 +2540,24 @@ abstract class AppLocalizations {
   /// **'View debugger replays'**
   String get bot_home_view_replay;
 
+  /// No description provided for @bot_home_section_monitoring.
+  ///
+  /// In en, this message translates to:
+  /// **'MONITORING'**
+  String get bot_home_section_monitoring;
+
+  /// No description provided for @bot_home_section_tools.
+  ///
+  /// In en, this message translates to:
+  /// **'TOOLS'**
+  String get bot_home_section_tools;
+
+  /// No description provided for @bot_home_section_danger.
+  ///
+  /// In en, this message translates to:
+  /// **'DANGER ZONE'**
+  String get bot_home_section_danger;
+
   /// No description provided for @bot_home_sync.
   ///
   /// In en, this message translates to:
@@ -6992,6 +7010,12 @@ abstract class AppLocalizations {
   /// **'Description'**
   String get common_description;
 
+  /// No description provided for @common_default.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get common_default;
+
   /// No description provided for @common_clear.
   ///
   /// In en, this message translates to:
@@ -7823,7 +7847,7 @@ abstract class AppLocalizations {
   /// No description provided for @component_workflow_args_title.
   ///
   /// In en, this message translates to:
-  /// **'Workflow Call Arguments (JSON)'**
+  /// **'Workflow Call Arguments'**
   String get component_workflow_args_title;
 
   /// No description provided for @component_workflow_args_hint.
@@ -10933,6 +10957,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This BDFD script compiled successfully but did not produce any action.'**
   String get bdfd_compiled_no_actions;
+
+  /// No description provided for @embed_section_color.
+  ///
+  /// In en, this message translates to:
+  /// **'Color'**
+  String get embed_section_color;
+
+  /// No description provided for @embed_section_timestamp.
+  ///
+  /// In en, this message translates to:
+  /// **'Timestamp'**
+  String get embed_section_timestamp;
+
+  /// No description provided for @embed_section_fields.
+  ///
+  /// In en, this message translates to:
+  /// **'Fields'**
+  String get embed_section_fields;
+
+  /// No description provided for @embed_section_dynamic_fields.
+  ///
+  /// In en, this message translates to:
+  /// **'Dynamic Fields'**
+  String get embed_section_dynamic_fields;
+
+  /// No description provided for @embed_add_field.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Field'**
+  String get embed_add_field;
+
+  /// No description provided for @embed_add_section.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Section'**
+  String get embed_add_section;
+
+  /// No description provided for @common_add_section.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Section'**
+  String get common_add_section;
+
+  /// No description provided for @component_block_workflow.
+  ///
+  /// In en, this message translates to:
+  /// **'Workflow'**
+  String get component_block_workflow;
+
+  /// No description provided for @component_block_label_style.
+  ///
+  /// In en, this message translates to:
+  /// **'Style'**
+  String get component_block_label_style;
+
+  /// No description provided for @notion_filter_add.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Filter'**
+  String get notion_filter_add;
+
+  /// No description provided for @notion_filter_type.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get notion_filter_type;
+
+  /// No description provided for @notion_create_workflow_from_query.
+  ///
+  /// In en, this message translates to:
+  /// **'Create workflow \"{query}\"'**
+  String notion_create_workflow_from_query(String query);
+
+  /// No description provided for @commands_create_from_query.
+  ///
+  /// In en, this message translates to:
+  /// **'Create command \"{query}\"'**
+  String commands_create_from_query(String query);
+
+  /// No description provided for @commands_filter_type_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get commands_filter_type_label;
 }
 
 class _AppLocalizationsDelegate

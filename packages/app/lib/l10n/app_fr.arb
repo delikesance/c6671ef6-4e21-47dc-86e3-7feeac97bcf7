@@ -407,6 +407,9 @@
   "bot_home_view_logs": "Voir les logs du bot",
   "bot_home_view_stats": "Voir les stats du bot",
   "bot_home_view_replay": "Voir les replays du débogueur",
+  "bot_home_section_monitoring": "MONITORING",
+  "bot_home_section_tools": "OUTILS",
+  "bot_home_section_danger": "ZONE DE DANGER",
   "bot_home_sync": "Synchroniser l’app",
   "bot_home_sync_success": "Application synchronisée avec succès",
   "bot_home_invite": "Inviter le bot",
@@ -1149,6 +1152,7 @@
   "common_type": "Type",
   "common_required": "Requis",
   "common_description": "Description",
+  "common_default": "Défaut",
   "common_clear": "Effacer",
   "common_all": "Tout",
   "common_pick": "Choisir",
@@ -1325,7 +1329,7 @@
   "component_not_implemented": "Éditeur pas encore implémenté",
   "component_choose_color": "Choisir la couleur",
   "component_label_title": "Titre du libellé",
-  "component_workflow_args_title": "Arguments d'appel du workflow (JSON)",
+  "component_workflow_args_title": "Arguments d'appel du workflow",
   "component_workflow_args_hint": "Exemple : ticketId = ((opts.ticket))",
   "autocomplete_workflow_label": "Workflow d'autocomplétion",
   "autocomplete_loading": "Chargement des workflows…",
@@ -2142,5 +2146,33 @@
   "component_default_choice_label": "Choix",
   "command_execution_error": "Une erreur est survenue lors de l'exécution de cette commande.",
   "bdfd_runtime_execution_error": "Une erreur est survenue lors de l'exécution de ce script BDFD.",
-  "bdfd_compiled_no_actions": "Ce script BDFD a été compilé avec succès mais n'a produit aucune action."
+  "bdfd_compiled_no_actions": "Ce script BDFD a été compilé avec succès mais n'a produit aucune action.",
+  "embed_section_color": "Couleur",
+  "embed_section_timestamp": "Horodatage",
+  "embed_section_fields": "Champs",
+  "embed_section_dynamic_fields": "Champs dynamiques",
+  "embed_add_field": "Ajouter un champ",
+  "embed_add_section": "Ajouter une section",
+  "common_add_section": "Ajouter une section",
+  "component_block_workflow": "Workflow",
+  "component_block_label_style": "Style",
+  "notion_filter_add": "Ajouter un filtre",
+  "notion_filter_type": "Type",
+  "notion_create_workflow_from_query": "Créer le workflow \"{query}\"",
+  "@notion_create_workflow_from_query": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "commands_create_from_query": "Créer la commande \"{query}\"",
+  "@commands_create_from_query": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "commands_filter_type_label": "Type"
 }

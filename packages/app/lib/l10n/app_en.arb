@@ -619,6 +619,9 @@
   "bot_home_view_logs": "View bot logs",
   "bot_home_view_stats": "View bot stats",
   "bot_home_view_replay": "View debugger replays",
+  "bot_home_section_monitoring": "MONITORING",
+  "bot_home_section_tools": "TOOLS",
+  "bot_home_section_danger": "DANGER ZONE",
   "bot_home_sync": "Sync App",
   "bot_home_sync_success": "App synced successfully",
   "bot_home_invite": "Invite Bot",
@@ -1637,6 +1640,7 @@
   "common_type": "Type",
   "common_required": "Required",
   "common_description": "Description",
+  "common_default": "Default",
   "common_clear": "Clear",
   "common_all": "All",
   "common_pick": "Pick",
@@ -1813,7 +1817,7 @@
   "component_not_implemented": "Editor not implemented yet",
   "component_choose_color": "Choose Color",
   "component_label_title": "Label Title",
-  "component_workflow_args_title": "Workflow Call Arguments (JSON)",
+  "component_workflow_args_title": "Workflow Call Arguments",
   "component_workflow_args_hint": "Example: ticketId = ((opts.ticket))",
   "autocomplete_workflow_label": "Autocomplete Workflow",
   "autocomplete_loading": "Loading workflows…",
@@ -2826,5 +2830,33 @@
   "component_default_choice_label": "Choice",
   "command_execution_error": "An error occurred while executing this command.",
   "bdfd_runtime_execution_error": "An error occurred while executing this BDFD script.",
-  "bdfd_compiled_no_actions": "This BDFD script compiled successfully but did not produce any action."
+  "bdfd_compiled_no_actions": "This BDFD script compiled successfully but did not produce any action.",
+  "embed_section_color": "Color",
+  "embed_section_timestamp": "Timestamp",
+  "embed_section_fields": "Fields",
+  "embed_section_dynamic_fields": "Dynamic Fields",
+  "embed_add_field": "Add Field",
+  "embed_add_section": "Add Section",
+  "common_add_section": "Add Section",
+  "component_block_workflow": "Workflow",
+  "component_block_label_style": "Style",
+  "notion_filter_add": "Add Filter",
+  "notion_filter_type": "Type",
+  "notion_create_workflow_from_query": "Create workflow \"{query}\"",
+  "@notion_create_workflow_from_query": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "commands_create_from_query": "Create command \"{query}\"",
+  "@commands_create_from_query": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "commands_filter_type_label": "Type"
 }

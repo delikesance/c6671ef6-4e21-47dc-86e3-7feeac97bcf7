@@ -2,12 +2,14 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:bot_creator/main.dart';
+import 'package:bot_creator/utils/app_theme.dart';
 import 'package:bot_creator/routes/app/builder.response.dart';
 import 'package:bot_creator/routes/app/command.reply_editor.dart';
 import 'package:bot_creator/routes/app/command_option_serialization.dart';
 import 'package:bot_creator/routes/app/command_option_validation.dart';
 import 'package:bot_creator/routes/app/workflow_docs.page.dart';
 import 'package:bot_creator/types/app_emoji.dart';
+import 'package:bot_creator/types/action.dart' show BotCreatorActionType;
 import 'package:bot_creator/utils/analytics.dart';
 import 'package:bot_creator/utils/app_emoji_api.dart';
 import 'package:bot_creator/utils/bot.dart';
@@ -20,7 +22,12 @@ import 'package:bot_creator/widgets/bdfd_editor_page.dart';
 import 'package:bot_creator/widgets/option_widget.dart';
 import 'package:bot_creator/widgets/command_create_cards/basic_info_card.dart';
 import 'package:bot_creator/widgets/command_create_cards/actions_card.dart';
-import 'package:bot_creator/types/variable_suggestion.dart';
+import 'package:bot_creator/widgets/scratch_blocks/scratch_block.dart';
+import 'package:bot_creator/widgets/scratch_blocks/scratch_block_canvas.dart';
+import 'package:bot_creator/widgets/scratch_blocks/scratch_block_palette.dart';
+import 'package:bot_creator/widgets/scratch_blocks/metadata_block.dart';
+import 'package:bot_creator/widgets/scratch_blocks/entry_point_block.dart';
+import 'package:bot_creator/widgets/scratch_blocks/action_block.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nyxx/nyxx.dart';
@@ -33,18 +40,21 @@ part 'command.create.edit_shell.dart';
 part 'command.create.workflow.dart';
 part 'command.create.validation.dart';
 part 'command.create.wizard.dart';
+part 'command.create.block_editor.dart';
 
 class CommandCreatePage extends StatefulWidget {
   final NyxxRest? client;
   final String? botId;
   final Snowflake id;
   final String? localCommandId;
+  final String? prefillName;
   const CommandCreatePage({
     super.key,
     this.client,
     this.botId,
     this.id = Snowflake.zero,
     this.localCommandId,
+    this.prefillName,
   });
 
   @override
@@ -536,7 +546,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
             const SizedBox(height: 4),
             Text(
               context.tr.legacy_prefix_mode_desc,
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: 12, color: AppTheme.grey),
             ),
             const SizedBox(height: 10),
             SwitchListTile.adaptive(
@@ -600,7 +610,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
               const SizedBox(height: 8),
               Text(
                 context.tr.command_modal_disabled_legacy,
-                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                style: TextStyle(fontSize: 12, color: AppTheme.grey),
               ),
             ],
           ],
@@ -628,7 +638,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
             const SizedBox(height: 4),
             Text(
               context.tr.command_subcommand_workflow_desc,
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: 12, color: AppTheme.grey),
             ),
             const SizedBox(height: 10),
             DropdownButtonFormField<String>(
@@ -670,6 +680,49 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     } else if (!_supportsSimpleMode) {
       _editorMode = _editorModeAdvanced;
     } else {}
+    _syncSubcommandWorkflowRoutes();
+  }
+
+  /// Parses a prefill name like "ticket new" or "ticket config new" into the
+  /// proper SubCommand / SubCommandGroup structure.
+  ///
+  /// - 1 word  → `_commandName` only (no subcommands).
+  /// - 2 words → parent command + SubCommand option.
+  /// - 3 words → parent command + SubCommandGroup + SubCommand option.
+  void _applyPrefillName(String raw) {
+    final parts =
+        raw.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
+    if (parts.isEmpty) return;
+
+    _commandName = parts.first;
+
+    if (parts.length == 2) {
+      // "ticket new" → parent "ticket", subCommand "new"
+      final subCmd = CommandOptionBuilder(
+        type: CommandOptionType.subCommand,
+        name: parts[1],
+        description: parts[1],
+      );
+      _options = [subCmd];
+      _editorMode = _editorModeAdvanced;
+    } else if (parts.length >= 3) {
+      // "ticket config new" → parent "ticket", group "config", subCommand "new"
+      final subCmd = CommandOptionBuilder(
+        type: CommandOptionType.subCommand,
+        name: parts[2],
+        description: parts[2],
+      );
+      final group = CommandOptionBuilder(
+        type: CommandOptionType.subCommandGroup,
+        name: parts[1],
+        description: parts[1],
+      );
+      group.options = [subCmd];
+      _options = [group];
+      _editorMode = _editorModeAdvanced;
+    }
+
+    // Let the sync pick up the newly created options → workflows.
     _syncSubcommandWorkflowRoutes();
   }
 
@@ -771,6 +824,9 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   @override
   void initState() {
     super.initState();
+    if (widget.prefillName != null && widget.prefillName!.isNotEmpty) {
+      _applyPrefillName(widget.prefillName!);
+    }
     _responseController.text = _response;
     _bdfdScriptController.text = _bdfdScriptContent;
     _refreshBdfdCompileResult(notify: false);
@@ -873,29 +929,16 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       return true;
     }
 
-    final discard = await showDialog<bool>(
-      context: context,
-      builder:
-          (ctx) => AlertDialog.adaptive(
-            title: Text(context.tr.command_unsaved_title),
-            content: Text(context.tr.command_unsaved_confirm),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, false),
-                child: Text(context.tr.command_unsaved_keep),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, true),
-                child: Text(
-                  'Discard',
-                  style: TextStyle(color: Theme.of(ctx).colorScheme.error),
-                ),
-              ),
-            ],
-          ),
+    final discard = await AppTheme.showConfirmDialog(
+      context,
+      title: context.tr.command_unsaved_title,
+      content: context.tr.command_unsaved_confirm,
+      cancelLabel: context.tr.command_unsaved_keep,
+      confirmLabel: 'Discard',
+      isDestructive: true,
     );
 
-    return discard == true;
+    return discard;
   }
 
   Future<void> _saveExistingCommand() async {
@@ -942,7 +985,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
               _legacyModeEnabled
                   ? context.tr.command_options_legacy_params
                   : context.tr.command_options_slash_params,
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: 12, color: AppTheme.grey),
             ),
             const SizedBox(height: 12),
             OptionWidget(
@@ -1623,7 +1666,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       },
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: const Color.fromRGBO(106, 15, 162, 1),
+          backgroundColor: AppTheme.brandPrimary,
           actions: [
             if (!_isEditingExistingCommand)
               IconButton(
@@ -1665,40 +1708,13 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                 tooltip: context.tr.cmd_delete_tooltip,
                 onPressed: () async {
                   final shouldDelete =
-                      await showDialog<bool>(
-                        context: context,
-                        builder:
-                            (dialogContext) => AlertDialog.adaptive(
-                              title: Text(context.tr.cmd_delete_tooltip),
-                              content: const Text(
-                                'This command will be deleted permanently. Continue?',
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed:
-                                      () => Navigator.of(
-                                        dialogContext,
-                                      ).pop(false),
-                                  child: Text(context.tr.cancel),
-                                ),
-                                TextButton(
-                                  onPressed:
-                                      () =>
-                                          Navigator.of(dialogContext).pop(true),
-                                  child: Text(
-                                    context.tr.delete,
-                                    style: TextStyle(
-                                      color:
-                                          Theme.of(
-                                            dialogContext,
-                                          ).colorScheme.error,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                      ) ??
-                      false;
+                      await AppTheme.showConfirmDialog(
+                        context,
+                        title: context.tr.cmd_delete_tooltip,
+                        content: 'This command will be deleted permanently. Continue?',
+                        confirmLabel: context.tr.delete,
+                        isDestructive: true,
+                      );
                   if (!shouldDelete) {
                     return;
                   }
@@ -1808,17 +1824,17 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                                 Container(
                                   padding: const EdgeInsets.all(14),
                                   decoration: BoxDecoration(
-                                    color: Colors.orange.shade50,
+                                    color: AppTheme.warning,
                                     border: Border.all(
-                                      color: Colors.orange.shade300,
+                                      color: AppTheme.warning,
                                     ),
-                                    borderRadius: BorderRadius.circular(10),
+                                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                                   ),
                                   child: Row(
                                     children: [
                                       Icon(
                                         Icons.warning_amber_rounded,
-                                        color: Colors.orange.shade700,
+                                        color: AppTheme.warning,
                                       ),
                                       const SizedBox(width: 12),
                                       Expanded(
@@ -1827,7 +1843,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                                               .tr
                                               .cmd_offline_incomplete_warning,
                                           style: TextStyle(
-                                            color: Colors.orange.shade800,
+                                            color: AppTheme.warning,
                                             fontSize: 13,
                                           ),
                                         ),
@@ -1862,23 +1878,8 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                                 ),
                               ],
                             )
-                            : _showEditShell
-                            ? _buildEditShell()
-                            : Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Text(
-                                  !_isEditingExistingCommand
-                                      ? "Create a new command"
-                                      : "Update command",
-                                  style: const TextStyle(fontSize: 24),
-                                  textAlign: TextAlign.center,
-                                ),
-                                const SizedBox(height: 20),
-                                _buildWizardShell(
-                                  contentMaxWidth: contentMaxWidth,
-                                ),
-                              ],
+                            : _buildBlockEditor(
+                              contentMaxWidth: contentMaxWidth,
                             ),
                   ),
                 ),

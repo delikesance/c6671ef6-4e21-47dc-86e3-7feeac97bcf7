@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:bot_creator/utils/app_theme.dart';
 import 'package:nyxx/nyxx.dart';
 import '../../utils/i18n.dart';
 
@@ -297,6 +298,7 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
       _nameController.text = nextName;
     }
     widget.onNameChanged(nextName);
+    setState(() {});
   }
 
   void _enableAwaitedPreset() {
@@ -345,7 +347,7 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
               const SizedBox(height: 4),
               Text(
                 context.tr.command_legacy_preset_desc,
-                style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+                style: TextStyle(fontSize: 12, color: AppTheme.grey),
               ),
               const SizedBox(height: 12),
               Align(
@@ -388,7 +390,7 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
             ),
             Text(
               context.tr.command_awaited_preset_desc,
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+              style: TextStyle(fontSize: 12, color: AppTheme.grey),
             ),
             const SizedBox(height: 12),
             SegmentedButton<bool>(
@@ -484,7 +486,7 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
             const SizedBox(height: 4),
             Text(
               context.tr.command_info_desc,
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: 12, color: AppTheme.grey),
             ),
             const SizedBox(height: 12),
             LayoutBuilder(
@@ -609,7 +611,7 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                         context.tr.command_type_locked,
                         style: TextStyle(
                           fontSize: 11,
-                          color: Colors.grey.shade600,
+                          color: AppTheme.grey,
                         ),
                       ),
                     ],
@@ -634,7 +636,7 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                         context.tr.command_integration_label,
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.grey.shade600,
+                          color: AppTheme.grey,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -704,7 +706,7 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                         context.tr.command_scope_label,
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.grey.shade600,
+                          color: AppTheme.grey,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -801,7 +803,7 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                         context.tr.command_permissions_label,
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.grey.shade600,
+                          color: AppTheme.grey,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -882,7 +884,7 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                           ),
                           style: TextStyle(
                             fontSize: 11,
-                            color: Colors.orange.shade700,
+                            color: AppTheme.warning,
                           ),
                         ),
                       ],
@@ -892,7 +894,7 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                           context.tr.command_permissions_admin_warning,
                           style: TextStyle(
                             fontSize: 11,
-                            color: Colors.orange.shade700,
+                            color: AppTheme.warning,
                           ),
                         ),
                       ],
@@ -901,7 +903,7 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                         context.tr.command_permissions_tip,
                         style: TextStyle(
                           fontSize: 11,
-                          color: Colors.grey.shade600,
+                          color: AppTheme.grey,
                         ),
                       ),
                     ],

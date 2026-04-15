@@ -4,6 +4,7 @@ import 'package:bot_creator/types/variable_suggestion.dart';
 import 'package:bot_creator/widgets/component_v2_builder/component_node_editor.dart';
 import 'package:bot_creator/widgets/component_v2_builder/component_node_factory.dart';
 import '../../utils/i18n.dart';
+import 'package:bot_creator/utils/app_theme.dart';
 
 /// Visual editor for traditional "normal" message components (only ActionRows containing Buttons/Selects).
 /// Manages a [ComponentV2Definition] but strictly limits available types.
@@ -79,31 +80,13 @@ class _NormalComponentEditorWidgetState
   }
 
   Future<void> _confirmAndRemoveNode(int index) async {
-    final shouldDelete =
-        await showDialog<bool>(
-          context: context,
-          builder:
-              (dialogContext) => AlertDialog.adaptive(
-                title: Text(context.tr.component_remove_row_title),
-                content: Text(context.tr.component_remove_confirm),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(dialogContext).pop(false),
-                    child: Text(context.tr.common_cancel),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.of(dialogContext).pop(true),
-                    child: Text(
-                      'Remove',
-                      style: TextStyle(
-                        color: Theme.of(dialogContext).colorScheme.error,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-        ) ??
-        false;
+    final shouldDelete = await AppTheme.showConfirmDialog(
+      context,
+      title: context.tr.component_remove_row_title,
+      content: context.tr.component_remove_confirm,
+      confirmLabel: context.tr.common_remove,
+      isDestructive: true,
+    );
     if (!shouldDelete) {
       return;
     }
@@ -123,8 +106,8 @@ class _NormalComponentEditorWidgetState
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4),
       shape: RoundedRectangleBorder(
-        side: BorderSide(color: Colors.blueGrey.shade200),
-        borderRadius: BorderRadius.circular(8),
+        side: BorderSide(color: AppTheme.grey),
+        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
       ),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -133,18 +116,18 @@ class _NormalComponentEditorWidgetState
           children: [
             Row(
               children: [
-                const Icon(Icons.view_stream, size: 16, color: Colors.blueGrey),
+                const Icon(Icons.view_stream, size: 16, color: AppTheme.grey),
                 const SizedBox(width: 8),
                 const Text(
                   'Action Row',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: Colors.blueGrey,
+                    color: AppTheme.grey,
                   ),
                 ),
                 const Spacer(),
                 IconButton(
-                  icon: const Icon(Icons.delete, size: 16, color: Colors.red),
+                  icon: const Icon(Icons.delete, size: 16, color: AppTheme.error),
                   onPressed: () {
                     _confirmAndRemoveNode(index);
                   },
@@ -267,18 +250,18 @@ class _NormalComponentEditorWidgetState
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.blueGrey.shade100, width: 2),
-          borderRadius: BorderRadius.circular(4),
+          border: Border.all(color: AppTheme.grey, width: 2),
+          borderRadius: BorderRadius.circular(AppTheme.radiusXs),
         ),
         child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.add_circle_outline, size: 16, color: Colors.blueGrey),
+            Icon(Icons.add_circle_outline, size: 16, color: AppTheme.grey),
             SizedBox(width: 8),
             Text(
               'Add Button / Select Menu',
               style: TextStyle(
-                color: Colors.blueGrey,
+                color: AppTheme.grey,
                 fontWeight: FontWeight.bold,
                 fontSize: 12,
               ),
@@ -298,32 +281,43 @@ class _NormalComponentEditorWidgetState
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.blue.shade50,
+            gradient: LinearGradient(
+              colors: [
+                AppTheme.info,
+                AppTheme.info.withValues(alpha: 0.7),
+              ],
+            ),
             borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-            border: Border.all(color: Colors.blue.shade200),
           ),
           child: Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.dashboard_customize,
                 size: 18,
-                color: Colors.blue.shade600,
+                color: Colors.white,
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Message Components',
-                  style: TextStyle(
+                  context.tr.reply_buttons_optional,
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: Colors.blue.shade700,
+                    color: Colors.white,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
               const SizedBox(width: 8),
-              Text(
-                '${_components.length}/5 Action Rows',
-                style: TextStyle(color: Colors.blue.shade400, fontSize: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+                ),
+                child: Text(
+                  '${_components.length}/5',
+                  style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                ),
               ),
             ],
           ),
@@ -331,7 +325,9 @@ class _NormalComponentEditorWidgetState
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            border: Border.all(color: Colors.blue.shade200),
+            border: Border.all(
+              color: AppTheme.info.withValues(alpha: 0.3),
+            ),
             borderRadius: const BorderRadius.vertical(
               bottom: Radius.circular(8),
             ),
@@ -354,17 +350,17 @@ class _NormalComponentEditorWidgetState
                       horizontal: 8,
                     ),
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.blueGrey.shade300),
-                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: AppTheme.grey),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusXs),
                     ),
                     child: const Row(
                       children: [
-                        Icon(Icons.add, size: 16, color: Colors.blueGrey),
+                        Icon(Icons.add, size: 16, color: AppTheme.grey),
                         SizedBox(width: 8),
                         Text(
                           'Add Action Row',
                           style: TextStyle(
-                            color: Colors.blueGrey,
+                            color: AppTheme.grey,
                             fontWeight: FontWeight.bold,
                             fontSize: 13,
                           ),

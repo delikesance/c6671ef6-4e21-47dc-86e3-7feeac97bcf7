@@ -6,12 +6,13 @@ import 'package:bot_creator_shared/utils/bdfd_lexer.dart';
 import 'package:bot_creator_shared/utils/bdfd_signature_hints.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:bot_creator/utils/app_theme.dart';
 
 class _BdfdSyntaxColors {
-  static const Color function = Color(0xFFFF9800);
-  static const Color bracket = Color(0xFF00ACC1);
-  static const Color semicolon = Color(0xFFEF5350);
-  static const Color text = Color(0xFFE0E0E0);
+  static const Color function = AppTheme.syntaxOrange;
+  static const Color bracket = AppTheme.syntaxCyan;
+  static const Color semicolon = AppTheme.errorLight;
+  static const Color text = AppTheme.syntaxGrey;
 }
 
 class _BdfdAutoIndentFormatter extends TextInputFormatter {
@@ -660,7 +661,7 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
 
     return Scaffold(
       backgroundColor:
-          isDark ? const Color(0xFF1E1E1E) : const Color(0xFF263238),
+          isDark ? AppTheme.codeSurface : AppTheme.codeSurfaceVariant,
       appBar: AppBar(
         backgroundColor:
             isDark ? const Color(0xFF252526) : const Color(0xFF37474F),
@@ -702,10 +703,10 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
               _showDiagnostics ? Icons.bug_report : Icons.bug_report_outlined,
               color:
                   _hasErrors
-                      ? Colors.redAccent
+                      ? AppTheme.error
                       : (_diagnostics.isNotEmpty
-                          ? Colors.orangeAccent
-                          : Colors.green),
+                          ? AppTheme.warning
+                          : AppTheme.success),
             ),
             onPressed:
                 () => setState(() => _showDiagnostics = !_showDiagnostics),
@@ -838,12 +839,12 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
               margin: const EdgeInsets.only(right: 8),
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.amber.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(999),
-                border: Border.all(color: Colors.amber.withValues(alpha: 0.5)),
+                color: AppTheme.premiumGold.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+                border: Border.all(color: AppTheme.premiumGold.withValues(alpha: 0.5)),
               ),
               child: InkWell(
-                borderRadius: BorderRadius.circular(999),
+                borderRadius: BorderRadius.circular(AppTheme.radiusPill),
                 onTap: _showEditorUxSheet,
                 child: const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 2),
@@ -851,7 +852,7 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
                     'EDITOR UX',
                     style: TextStyle(
                       fontSize: 11,
-                      color: Colors.amber,
+                      color: AppTheme.premiumGold,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -970,10 +971,10 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
           style: TextStyle(
             fontFamily: 'monospace',
             fontSize: 12,
-            color: isActive ? Colors.white : Colors.grey.shade500,
+            color: isActive ? Colors.white : AppTheme.grey,
             fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
             decoration: isActive ? TextDecoration.underline : null,
-            decorationColor: isActive ? Colors.blue.shade300 : null,
+            decorationColor: isActive ? AppTheme.info : null,
           ),
         ),
       );
@@ -994,8 +995,8 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
       left: left,
       top: top,
       child: Material(
-        elevation: 4,
-        borderRadius: BorderRadius.circular(6),
+        elevation: 0,
+        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
         color: const Color(0xFF1E293B),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -1058,8 +1059,8 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
       top: top,
       width: 220,
       child: Material(
-        elevation: 4,
-        borderRadius: BorderRadius.circular(8),
+        elevation: 0,
+        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
         color: const Color(0xFF22313A),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxHeight: panelMaxHeight),
@@ -1090,7 +1091,7 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
                         isSelected
                             ? const Color(0xFF094771)
                             : Colors.transparent,
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusXs),
                   ),
                   child: Row(
                     children: [
@@ -1099,7 +1100,7 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
                             ? Icons.segment
                             : Icons.functions,
                         size: 14,
-                        color: isSelected ? Colors.white : Colors.blue.shade200,
+                        color: isSelected ? Colors.white : AppTheme.info,
                       ),
                       const SizedBox(width: 8),
                       Expanded(
@@ -1112,7 +1113,7 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
                             color:
                                 isSelected
                                     ? Colors.white
-                                    : Colors.blueGrey.shade50,
+                                    : AppTheme.grey,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -1125,7 +1126,7 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
                           color:
                               isSelected
                                   ? Colors.white70
-                                  : Colors.blueGrey.shade300,
+                                  : AppTheme.grey,
                         ),
                       ),
                     ],
@@ -1164,7 +1165,7 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
                       fontFamily: 'monospace',
                       fontSize: 13,
                       height: 1.54,
-                      color: Colors.grey.shade600,
+                      color: AppTheme.grey,
                     ),
                   ),
                 ),
@@ -1204,7 +1205,7 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
           hintStyle: TextStyle(
             fontFamily: 'monospace',
             fontSize: 13,
-            color: Colors.grey.shade700,
+            color: AppTheme.grey,
           ),
         ),
         cursorColor: Colors.white,
@@ -1221,15 +1222,15 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.green.shade900.withValues(alpha: 0.5),
-          border: Border(top: BorderSide(color: Colors.green.shade700)),
+          color: AppTheme.success.withValues(alpha: 0.5),
+          border: Border(top: BorderSide(color: AppTheme.success)),
         ),
         child: Row(
           children: [
             Icon(
               Icons.check_circle_outline,
               size: 16,
-              color: Colors.green.shade300,
+              color: AppTheme.success,
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -1237,7 +1238,7 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
                 isEmpty
                     ? context.tr.bdfd_editor_empty
                     : context.tr.cmd_bdfd_diagnostics_clean,
-                style: TextStyle(fontSize: 12, color: Colors.green.shade200),
+                style: TextStyle(fontSize: 12, color: AppTheme.success),
               ),
             ),
           ],
@@ -1247,10 +1248,10 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
 
     final bgColor =
         _hasErrors
-            ? Colors.red.shade900.withValues(alpha: 0.5)
-            : Colors.orange.shade900.withValues(alpha: 0.5);
+            ? AppTheme.error.withValues(alpha: 0.5)
+            : AppTheme.warning.withValues(alpha: 0.5);
     final borderColor =
-        _hasErrors ? Colors.red.shade700 : Colors.orange.shade700;
+        _hasErrors ? AppTheme.error : AppTheme.warning;
 
     return Container(
       constraints: const BoxConstraints(maxHeight: 140),
@@ -1267,7 +1268,7 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
               final icon =
                   isError ? Icons.error_outline : Icons.warning_amber_rounded;
               final color =
-                  isError ? Colors.red.shade200 : Colors.orange.shade200;
+                  isError ? AppTheme.error : AppTheme.warning;
               final loc =
                   (d.line != null && d.column != null)
                       ? 'L${d.line}:C${d.column} '

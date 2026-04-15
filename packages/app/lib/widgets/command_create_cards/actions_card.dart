@@ -4,6 +4,7 @@ import 'package:bot_creator/routes/app/workflows.page.dart';
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/types/app_emoji.dart';
 import 'package:flutter/material.dart';
+import 'package:bot_creator/utils/app_theme.dart';
 import '../../utils/i18n.dart';
 
 class ActionsCard extends StatelessWidget {
@@ -47,7 +48,7 @@ class ActionsCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               context.tr.actions_description,
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: 12, color: AppTheme.grey),
             ),
             if (activeRouteLabel != null && activeRouteLabel!.trim().isNotEmpty)
               Padding(
@@ -61,7 +62,7 @@ class ActionsCard extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: routeColor.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(999),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusPill),
                     ),
                     child: Text(
                       context.tr.actions_active_route(activeRouteLabel!),
