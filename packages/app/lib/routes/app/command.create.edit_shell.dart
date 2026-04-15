@@ -33,6 +33,7 @@ extension _CommandCreateEditShell on _CommandCreatePageState {
     }
   }
 
+  // ignore: unused_element
   Widget _buildEditShell() {
     final activeRouteLabel =
         _subcommandWorkflows.isNotEmpty

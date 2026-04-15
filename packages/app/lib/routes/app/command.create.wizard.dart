@@ -140,6 +140,7 @@ extension _CommandCreateWizard on _CommandCreatePageState {
     return context.tr.actions_summary_configured(actionCount);
   }
 
+  // ignore: unused_element
   Widget _buildWizardShell({required double contentMaxWidth}) {
     return Form(
       child: Column(
