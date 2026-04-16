@@ -44,16 +44,42 @@ jobs:
       - name: Build Linux release
         run: flutter build linux --release
 
+      - name: Verify Linux release bundle
+        shell: bash
+        run: |
+          BUNDLE_DIR="build/linux/x64/release/bundle"
+          BINARY_PATH="$BUNDLE_DIR/bot_creator"
+
+          if [ ! -d "$BUNDLE_DIR" ]; then
+            echo "Linux bundle directory not found: $BUNDLE_DIR" >&2
+            exit 1
+          fi
+
+          if [ ! -f "$BINARY_PATH" ]; then
+            echo "Linux executable not found: $BINARY_PATH" >&2
+            echo "Bundle content:" >&2
+            find "$BUNDLE_DIR" -maxdepth 2 -type f | sort >&2
+            exit 1
+          fi
+
+          chmod +x "$BINARY_PATH"
+
       - name: Package Linux Steam bundle
         run: |
-          mkdir -p "$GITHUB_WORKSPACE/$APP_DIR/build"
-          tar -C build/linux/x64/release -czf "$GITHUB_WORKSPACE/$APP_DIR/build/bot_creator-linux-x64-steam.tar.gz" bundle
+          STEAM_DIR="build/linux/x64/release/bot_creator-linux-x64-steam"
+          rm -rf "$STEAM_DIR"
+          mkdir -p "$STEAM_DIR"
+          cp -a build/linux/x64/release/bundle/. "$STEAM_DIR/"
 
-      - name: Archive Linux Steam bundle
+          mkdir -p "$GITHUB_WORKSPACE/$APP_DIR/build"
+          rm -f "$GITHUB_WORKSPACE/$APP_DIR/build/bot_creator-linux-x64-steam.zip"
+          (cd build/linux/x64/release && zip -r "$GITHUB_WORKSPACE/$APP_DIR/build/bot_creator-linux-x64-steam.zip" bot_creator-linux-x64-steam)
+
+      - name: Archive Linux Steam ZIP
         uses: actions/upload-artifact@v6
         with:
-          name: linux-steam-tarball
-          path: ${{ env.APP_DIR }}/build/bot_creator-linux-x64-steam.tar.gz
+          name: linux-steam-zip
+          path: ${{ env.APP_DIR }}/build/bot_creator-linux-x64-steam.zip
 
       - name: Build Linux AppImage
         run: bash packaging/linux/appimage/build_appimage.sh
@@ -193,7 +219,7 @@ jobs:
           shopt -s nullglob
           files=()
           patterns=(
-            "linux-steam-tarball/bot_creator-linux-x64-steam.tar.gz"
+            "linux-steam-zip/bot_creator-linux-x64-steam.zip"
             "linux-appimage/*.AppImage"
             "windows-steam-zip/bot_creator-windows-x64-steam.zip"
             "windows-msix/*.msix"
