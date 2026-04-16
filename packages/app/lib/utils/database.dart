@@ -3,12 +3,12 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:bot_creator/stores/sqlite_variable_store.dart';
+import 'package:bot_creator/utils/app_storage_directory.dart';
 import 'package:bot_creator/utils/premium_capabilities.dart';
 import 'package:bot_creator/utils/global.dart';
 import 'package:bot_creator/utils/normalize_command_data.dart' as normalize_lib;
 import 'package:bot_creator/utils/workflow_call.dart';
 import 'package:bot_creator_shared/bot/bot_data_store.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:nyxx/nyxx.dart';
 
 class AppManager implements BotDataStore {
@@ -35,13 +35,9 @@ class AppManager implements BotDataStore {
     unawaited(_init());
   }
 
-  static Future<String> _path() async {
-    final directory = await getApplicationDocumentsDirectory();
-    return directory.path;
-  }
+  static Future<String> _path() => getAppStoragePath();
 
-  Future<String> get path async =>
-      (await getApplicationDocumentsDirectory()).path;
+  Future<String> get path async => getAppStoragePath();
 
   Future<void> _init() async {
     final path = await _path();

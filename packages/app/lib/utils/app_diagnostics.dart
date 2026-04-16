@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:bot_creator/utils/app_storage_directory.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
 
 class AppDiagnostics {
   static bool _initialized = false;
@@ -19,7 +19,7 @@ class AppDiagnostics {
     _initialized = true;
 
     try {
-      final docs = await getApplicationDocumentsDirectory();
+      final docs = await getAppStorageDirectory();
       final diagnosticsDir = Directory('${docs.path}/diagnostics');
       if (!await diagnosticsDir.exists()) {
         await diagnosticsDir.create(recursive: true);

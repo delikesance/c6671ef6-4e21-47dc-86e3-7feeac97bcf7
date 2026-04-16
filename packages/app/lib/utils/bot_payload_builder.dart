@@ -1,13 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:bot_creator/utils/app_storage_directory.dart';
 import 'package:bot_creator/utils/database.dart';
 import 'package:bot_creator/utils/premium_capabilities.dart';
 import 'package:bot_creator/utils/runner_client.dart';
 import 'package:bot_creator/utils/runner_settings.dart';
 import 'package:bot_creator_shared/bot/bot_config.dart';
 import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
 
 final _appManager = AppManager();
 
@@ -137,7 +137,7 @@ Future<Map<String, dynamic>> buildBotPayload(String botId) async {
 
 /// Reads all command JSON files from the `apps/{botId}/` sub-directory.
 Future<List<Map<String, dynamic>>> _loadAllCommands(String botId) async {
-  final docsDir = await getApplicationDocumentsDirectory();
+  final docsDir = await getAppStorageDirectory();
   final commandDir = Directory('${docsDir.path}/apps/$botId');
 
   if (!await commandDir.exists()) return const [];

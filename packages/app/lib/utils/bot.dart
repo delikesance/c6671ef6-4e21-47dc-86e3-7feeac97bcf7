@@ -24,12 +24,12 @@ import 'package:bot_creator/utils/global.dart';
 import 'package:bot_creator/utils/i18n.dart';
 import 'package:bot_creator_shared/utils/global.dart' as shared_global;
 import 'package:bot_creator/utils/mobile_sessions_orchestrator.dart';
+import 'package:bot_creator/utils/app_storage_directory.dart';
 import 'package:bot_creator/utils/template_resolver.dart';
 import 'package:bot_creator/utils/workflow_call.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:logging/logging.dart';
 import 'package:nyxx/nyxx.dart';
 

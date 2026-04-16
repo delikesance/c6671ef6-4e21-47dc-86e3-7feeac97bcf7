@@ -2,6 +2,8 @@ name: Build Release
 
 on:
   push:
+    branches:
+      - main
     tags:
       - "v*"
   workflow_dispatch:
@@ -82,9 +84,11 @@ jobs:
           path: ${{ env.APP_DIR }}/build/bot_creator-linux-x64-steam.zip
 
       - name: Build Linux AppImage
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
         run: bash packaging/linux/appimage/build_appimage.sh
 
       - name: Archive AppImage
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
         uses: actions/upload-artifact@v6
         with:
           name: linux-appimage
@@ -171,12 +175,14 @@ jobs:
           path: ${{ env.APP_DIR }}/build/bot_creator-windows-x64-steam.zip
 
       - name: Archive Windows EXE
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
         uses: actions/upload-artifact@v6
         with:
           name: windows-exe
           path: ${{ env.APP_DIR }}/build/windows/x64/runner/Release/*.exe
 
       - name: Set Store-compatible MSIX version
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
         shell: pwsh
         run: |
           $pubspec = 'pubspec.yaml'
@@ -194,9 +200,11 @@ jobs:
           Write-Host "MSIX version set to $msixVersion"
 
       - name: Create MSIX package
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
         run: dart run msix:create
 
       - name: Archive Windows MSIX
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
         uses: actions/upload-artifact@v6
         with:
           name: windows-msix
