@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:bot_creator/utils/app_storage_directory.dart';
 import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:bot_creator_shared/bot/variable_database.dart';
 
@@ -50,7 +50,7 @@ class SqliteVariableStore implements VariableDatabase {
     }
 
     // Determine database path
-    final docsDir = await getApplicationDocumentsDirectory();
+    final docsDir = await getAppStorageDirectory();
     final dbPath = join(docsDir.path, 'databases', 'variables.db');
 
     _db = await openDatabase(

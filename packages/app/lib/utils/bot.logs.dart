@@ -177,7 +177,7 @@ double? _readCurrentProcessCpuPercent() {
 
 Future<int?> _readBotStorageBytes({String? botId}) async {
   try {
-    final docsDir = await getApplicationDocumentsDirectory();
+    final docsDir = await getAppStorageDirectory();
     final basePath = docsDir.path;
     final appsDir = Directory('$basePath/apps');
     if (!await appsDir.exists()) {

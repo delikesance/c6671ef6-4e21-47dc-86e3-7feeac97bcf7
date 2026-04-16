@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:io' as io;
 
+import 'package:bot_creator/utils/app_storage_directory.dart';
 import 'package:bot_creator/utils/app_diagnostics.dart';
 import 'package:bot_creator/utils/database.dart';
 import 'package:bot_creator/utils/drive.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:googleapis/drive/v3.dart';
 
 class RecoverySettings {
@@ -76,12 +76,12 @@ class RecoveryManager {
   static const String _snapshotsCacheFileName = 'recovery_snapshots_cache.json';
 
   static Future<io.File> _settingsFile() async {
-    final docs = await getApplicationDocumentsDirectory();
+    final docs = await getAppStorageDirectory();
     return io.File('${docs.path}/$_fileName');
   }
 
   static Future<io.File> _snapshotsCacheFile() async {
-    final docs = await getApplicationDocumentsDirectory();
+    final docs = await getAppStorageDirectory();
     return io.File('${docs.path}/$_snapshotsCacheFileName');
   }
 
