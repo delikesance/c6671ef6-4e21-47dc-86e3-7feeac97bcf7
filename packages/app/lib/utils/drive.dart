@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'package:bot_creator/utils/database.dart';
+import 'package:bot_creator/utils/external_link.dart';
 import 'package:bot_creator/utils/i18n.dart';
 import 'package:archive/archive_io.dart';
 import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart';
@@ -10,7 +11,6 @@ import 'package:googleapis/drive/v3.dart';
 import 'package:googleapis_auth/googleapis_auth.dart' as auth show AuthClient;
 import 'dart:io' as manager;
 import 'package:http/http.dart' as http;
-import 'package:url_launcher/url_launcher.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:crypto/crypto.dart';
@@ -459,10 +459,7 @@ Future<_BrowserOAuthTokens> _runBrowserOAuthFlow({
     'code_challenge_method': 'S256',
   });
 
-  final launched = await launchUrl(
-    authUri,
-    mode: LaunchMode.externalApplication,
-  );
+  final launched = await openExternalUrl(authUri);
   if (!launched) {
     await server.close(force: true);
     throw Exception('Could not open browser for Google OAuth.');

@@ -13,6 +13,7 @@ import 'package:bot_creator/utils/i18n.dart';
 import 'package:bot_creator/utils/ad_reward_service.dart';
 import 'package:bot_creator/utils/global.dart';
 import 'package:bot_creator/utils/ad_consent_service.dart';
+import 'package:bot_creator/utils/external_link.dart';
 import 'package:bot_creator/utils/premium_capabilities.dart';
 import 'package:bot_creator/utils/runner_settings.dart';
 import 'package:flutter/foundation.dart';
@@ -20,7 +21,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter/services.dart';
 import 'package:nyxx/nyxx.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'dart:developer' as developer;
 
 /// Describes a secondary section accessible via quick-actions on mobile.
@@ -1069,8 +1069,7 @@ class _AppHomePageState extends State<AppHomePage>
                                 'https://discord.com/api/oauth2/authorize?client_id=$botId&scope=bot&permissions=8',
                               );
 
-                              if (await canLaunchUrl(inviteUrl)) {
-                                await launchUrl(inviteUrl);
+                              if (await openExternalUrl(inviteUrl)) {
                                 await AppAnalytics.logEvent(
                                   name: "invite_bot",
                                   parameters: {"bot_id": botId},
