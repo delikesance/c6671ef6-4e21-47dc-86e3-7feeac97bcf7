@@ -414,14 +414,13 @@ class _AppHomePageState extends State<AppHomePage>
       }
 
       if (kDebugMode) {
-        final shouldWatch =
-            await AppTheme.showConfirmDialog(
-              context,
-              title: context.tr.rewarded_start_title,
-              content: context.tr.rewarded_start_message,
-              cancelLabel: context.tr.rewarded_start_skip,
-              confirmLabel: context.tr.rewarded_start_watch,
-            );
+        final shouldWatch = await AppTheme.showConfirmDialog(
+          context,
+          title: context.tr.rewarded_start_title,
+          content: context.tr.rewarded_start_message,
+          cancelLabel: context.tr.rewarded_start_skip,
+          confirmLabel: context.tr.rewarded_start_watch,
+        );
 
         if (!shouldWatch || !mounted) {
           return;
@@ -476,7 +475,9 @@ class _AppHomePageState extends State<AppHomePage>
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-        border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
+        border: Border.all(
+          color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -548,7 +549,10 @@ class _AppHomePageState extends State<AppHomePage>
         ),
         title: Text(
           _appName,
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white),
@@ -584,22 +588,23 @@ class _AppHomePageState extends State<AppHomePage>
                           child: CircleAvatar(
                             radius: 40,
                             backgroundColor: colorScheme.surface,
-                            child: avatar.isNotEmpty
-                                ? ClipOval(
-                                    child: Image.network(
-                                      avatar,
-                                      width: 76,
-                                      height: 76,
-                                      fit: BoxFit.cover,
-                                      errorBuilder:
-                                          (context, error, stackTrace) =>
-                                              const Icon(
-                                                Icons.smart_toy,
-                                                size: 40,
-                                              ),
-                                    ),
-                                  )
-                                : const Icon(Icons.smart_toy, size: 40),
+                            child:
+                                avatar.isNotEmpty
+                                    ? ClipOval(
+                                      child: Image.network(
+                                        avatar,
+                                        width: 76,
+                                        height: 76,
+                                        fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) =>
+                                                const Icon(
+                                                  Icons.smart_toy,
+                                                  size: 40,
+                                                ),
+                                      ),
+                                    )
+                                    : const Icon(Icons.smart_toy, size: 40),
                           ),
                         ),
                       ),
@@ -619,7 +624,9 @@ class _AppHomePageState extends State<AppHomePage>
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
                             color: AppTheme.warning.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.radiusLg,
+                            ),
                             border: Border.all(
                               color: AppTheme.warning.withValues(alpha: 0.35),
                             ),
@@ -698,9 +705,16 @@ class _AppHomePageState extends State<AppHomePage>
                                         final proceed =
                                             await AppTheme.showConfirmDialog(
                                               context,
-                                              title: context.tr.bot_home_token_invalid_title,
-                                              content: context.tr.bot_home_token_invalid_content,
-                                              confirmLabel: context.tr.bot_home_start,
+                                              title:
+                                                  context
+                                                      .tr
+                                                      .bot_home_token_invalid_title,
+                                              content:
+                                                  context
+                                                      .tr
+                                                      .bot_home_token_invalid_content,
+                                              confirmLabel:
+                                                  context.tr.bot_home_start,
                                             );
                                         if (!proceed || !mounted) return;
                                       }
@@ -1030,7 +1044,8 @@ class _AppHomePageState extends State<AppHomePage>
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (_) => DebugReplayPage(botId: botId),
+                                    builder:
+                                        (_) => DebugReplayPage(botId: botId),
                                   ),
                                 );
                               },
@@ -1046,18 +1061,22 @@ class _AppHomePageState extends State<AppHomePage>
                           _buildActionTile(
                             icon: Icons.sync,
                             label: context.tr.bot_home_sync,
-                            onTap: _isSyncingApp
-                                ? null
-                                : () async {
-                                    await _syncAppFromRemote(showSnack: true);
-                                  },
-                            trailing: _isSyncingApp
-                                ? const SizedBox(
-                                    width: 18,
-                                    height: 18,
-                                    child: CircularProgressIndicator(strokeWidth: 2),
-                                  )
-                                : null,
+                            onTap:
+                                _isSyncingApp
+                                    ? null
+                                    : () async {
+                                      await _syncAppFromRemote(showSnack: true);
+                                    },
+                            trailing:
+                                _isSyncingApp
+                                    ? const SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                    : null,
                           ),
                           _buildActionTile(
                             icon: Icons.person_add,
@@ -1077,7 +1096,9 @@ class _AppHomePageState extends State<AppHomePage>
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text(context.tr.bot_home_invite_error),
+                                    content: Text(
+                                      context.tr.bot_home_invite_error,
+                                    ),
                                   ),
                                 );
                               }
@@ -1102,13 +1123,14 @@ class _AppHomePageState extends State<AppHomePage>
                               color: AppTheme.error,
                             ),
                             onTap: () async {
-                              final confirmed = await AppTheme.showConfirmDialog(
-                                context,
-                                title: context.tr.bot_home_delete,
-                                content: context.tr.bot_home_delete_confirm,
-                                confirmLabel: context.tr.common_delete,
-                                icon: Icons.delete_forever,
-                              );
+                              final confirmed =
+                                  await AppTheme.showConfirmDialog(
+                                    context,
+                                    title: context.tr.bot_home_delete,
+                                    content: context.tr.bot_home_delete_confirm,
+                                    confirmLabel: context.tr.common_delete,
+                                    icon: Icons.delete_forever,
+                                  );
                               if (!confirmed || !mounted) return;
                               await appManager.deleteApp(
                                 widget.client.user.id.toString(),
