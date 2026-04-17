@@ -115,9 +115,18 @@ jobs:
           set -euo pipefail
           HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
           export LD_LIBRARY_PATH="$HERE/lib:${LD_LIBRARY_PATH:-}"
+          export PATH="$HERE:${PATH:-}"
           exec "$HERE/bot_creator.bin" "$@"
           EOF
           chmod +x "$BUNDLE_STEAM_DIR/bot_creator"
+
+          # Ensure external links/OAuth open with system libs, not bundled ones.
+          cat > "$BUNDLE_STEAM_DIR/xdg-open" <<'EOF'
+          #!/usr/bin/env bash
+          unset LD_LIBRARY_PATH
+          exec /usr/bin/xdg-open "$@"
+          EOF
+          chmod +x "$BUNDLE_STEAM_DIR/xdg-open"
 
           mkdir -p "$GITHUB_WORKSPACE/$APP_DIR/build"
           rm -f "$GITHUB_WORKSPACE/$APP_DIR/build/bot_creator-linux-x64-steam.zip"
