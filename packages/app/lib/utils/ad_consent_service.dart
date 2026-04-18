@@ -12,6 +12,9 @@ class AdConsentService {
   AdConsentService._();
 
   static Future<bool>? _inFlightRequest;
+  static const Duration _consentInfoTimeout = Duration(seconds: 8);
+  static const Duration _consentFormTimeout = Duration(seconds: 12);
+  static const Duration _privacyOptionsTimeout = Duration(seconds: 12);
 
   static bool get _isSupportedPlatform {
     if (kIsWeb) {
@@ -131,7 +134,14 @@ class AdConsentService {
       },
     );
 
-    return completer.future;
+    return completer.future.timeout(
+      _consentInfoTimeout,
+      onTimeout:
+          () =>
+              throw TimeoutException(
+                'requestConsentInfoUpdate timed out after ${_consentInfoTimeout.inSeconds} seconds',
+              ),
+    );
   }
 
   static Future<void> _loadAndShowConsentFormIfRequired() {
@@ -149,7 +159,14 @@ class AdConsentService {
       completer.complete();
     });
 
-    return completer.future;
+    return completer.future.timeout(
+      _consentFormTimeout,
+      onTimeout:
+          () =>
+              throw TimeoutException(
+                'loadAndShowConsentFormIfRequired timed out after ${_consentFormTimeout.inSeconds} seconds',
+              ),
+    );
   }
 
   static Future<PrivacyOptionsRequirementStatus>
@@ -198,7 +215,18 @@ class AdConsentService {
       }
       completer.complete(true);
     });
-    return completer.future;
+    return completer.future.timeout(
+      _privacyOptionsTimeout,
+      onTimeout: () {
+        unawaited(
+          AppDiagnostics.logInfo(
+            'UMP privacy options form timed out',
+            data: {'timeoutSeconds': _privacyOptionsTimeout.inSeconds},
+          ),
+        );
+        return false;
+      },
+    );
   }
 
   /// Forwards the user's consent status to mediation partner SDKs.

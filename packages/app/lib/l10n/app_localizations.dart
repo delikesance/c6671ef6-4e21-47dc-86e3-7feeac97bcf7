@@ -4400,6 +4400,24 @@ abstract class AppLocalizations {
   /// **'The script is compiled to internal actions. Diagnostics are shown while editing; invalid scripts fail when the command runs.'**
   String get cmd_execution_mode_bdfd_note;
 
+  /// No description provided for @cmd_execution_mode_dart.
+  ///
+  /// In en, this message translates to:
+  /// **'Dart Direct mode'**
+  String get cmd_execution_mode_dart;
+
+  /// No description provided for @cmd_execution_mode_dart_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Write the command body directly in Dart with runtime diagnostics.'**
+  String get cmd_execution_mode_dart_desc;
+
+  /// No description provided for @cmd_execution_mode_dart_note.
+  ///
+  /// In en, this message translates to:
+  /// **'Dart code is compiled at runtime through the sandboxed engine. Keep scripts deterministic and return a value when needed.'**
+  String get cmd_execution_mode_dart_note;
+
   /// No description provided for @cmd_bdfd_script_label.
   ///
   /// In en, this message translates to:
@@ -4448,6 +4466,54 @@ abstract class AppLocalizations {
   /// **'This BDFD script still contains diagnostics:'**
   String get cmd_bdfd_script_validation_error;
 
+  /// No description provided for @cmd_dart_script_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Dart script body'**
+  String get cmd_dart_script_label;
+
+  /// No description provided for @cmd_dart_script_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'return \"Hello from Dart Direct\";'**
+  String get cmd_dart_script_hint;
+
+  /// No description provided for @cmd_dart_diagnostics_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Dart diagnostics'**
+  String get cmd_dart_diagnostics_title;
+
+  /// No description provided for @cmd_dart_diagnostics_clean.
+  ///
+  /// In en, this message translates to:
+  /// **'No issue detected in the current Dart script.'**
+  String get cmd_dart_diagnostics_clean;
+
+  /// No description provided for @cmd_dart_diagnostics_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get cmd_dart_diagnostics_error;
+
+  /// No description provided for @cmd_dart_diagnostics_warning.
+  ///
+  /// In en, this message translates to:
+  /// **'Warning'**
+  String get cmd_dart_diagnostics_warning;
+
+  /// No description provided for @cmd_migrate_bdfd_to_dart_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate a Dart migration scaffold from your current BDFD script.'**
+  String get cmd_migrate_bdfd_to_dart_desc;
+
+  /// No description provided for @cmd_migrate_bdfd_to_dart_action.
+  ///
+  /// In en, this message translates to:
+  /// **'Migrate'**
+  String get cmd_migrate_bdfd_to_dart_action;
+
   /// No description provided for @cmd_bdfd_autocomplete_title.
   ///
   /// In en, this message translates to:
@@ -4484,6 +4550,12 @@ abstract class AppLocalizations {
   /// **'BDFD Script'**
   String get workflow_mode_bdfd;
 
+  /// No description provided for @workflow_mode_dart.
+  ///
+  /// In en, this message translates to:
+  /// **'Dart Direct'**
+  String get workflow_mode_dart;
+
   /// No description provided for @workflow_mode_visual_note.
   ///
   /// In en, this message translates to:
@@ -4496,6 +4568,12 @@ abstract class AppLocalizations {
   /// **'Write your entire workflow as a single BDFD script. The script is compiled and validated in real time.'**
   String get workflow_mode_bdfd_note;
 
+  /// No description provided for @workflow_mode_dart_note.
+  ///
+  /// In en, this message translates to:
+  /// **'Write your workflow in Dart. Diagnostics are updated while editing to catch errors early.'**
+  String get workflow_mode_dart_note;
+
   /// No description provided for @workflow_bdfd_editor_title.
   ///
   /// In en, this message translates to:
@@ -4507,6 +4585,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Write the complete BDFD code for this workflow response. Diagnostics are displayed live.'**
   String get workflow_bdfd_editor_desc;
+
+  /// No description provided for @workflow_dart_editor_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Dart Script Editor'**
+  String get workflow_dart_editor_title;
+
+  /// No description provided for @workflow_dart_editor_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Write full Dart code for this workflow response. Diagnostics are displayed live.'**
+  String get workflow_dart_editor_desc;
 
   /// No description provided for @bdfd_editor_title.
   ///
@@ -4538,6 +4628,24 @@ abstract class AppLocalizations {
   /// **'Empty script — start typing to see diagnostics.'**
   String get bdfd_editor_empty;
 
+  /// No description provided for @dart_editor_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Dart Editor'**
+  String get dart_editor_title;
+
+  /// No description provided for @dart_editor_tap_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to open Dart editor'**
+  String get dart_editor_tap_hint;
+
+  /// No description provided for @dart_editor_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty script — start typing to see Dart diagnostics.'**
+  String get dart_editor_empty;
+
   /// No description provided for @bdfd_editor_docs.
   ///
   /// In en, this message translates to:
@@ -4555,6 +4663,252 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search functions…'**
   String get bdfd_docs_search_hint;
+
+  /// No description provided for @scratch_block_metadata.
+  ///
+  /// In en, this message translates to:
+  /// **'Metadata'**
+  String get scratch_block_metadata;
+
+  /// No description provided for @scratch_block_required.
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get scratch_block_required;
+
+  /// No description provided for @scratch_block_entry_point.
+  ///
+  /// In en, this message translates to:
+  /// **'Entry Point'**
+  String get scratch_block_entry_point;
+
+  /// No description provided for @scratch_entry_point_listen.
+  ///
+  /// In en, this message translates to:
+  /// **'Listen for'**
+  String get scratch_entry_point_listen;
+
+  /// No description provided for @scratch_entry_interaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Interaction'**
+  String get scratch_entry_interaction;
+
+  /// No description provided for @scratch_entry_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get scratch_entry_message;
+
+  /// No description provided for @scratch_entry_point_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Entry point name'**
+  String get scratch_entry_point_label;
+
+  /// No description provided for @scratch_execution_mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Execution mode'**
+  String get scratch_execution_mode;
+
+  /// No description provided for @scratch_mode_blocks.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocks'**
+  String get scratch_mode_blocks;
+
+  /// No description provided for @scratch_mode_bdfd.
+  ///
+  /// In en, this message translates to:
+  /// **'BDFD'**
+  String get scratch_mode_bdfd;
+
+  /// No description provided for @scratch_mode_dart.
+  ///
+  /// In en, this message translates to:
+  /// **'Dart'**
+  String get scratch_mode_dart;
+
+  /// No description provided for @scratch_legacy_config.
+  ///
+  /// In en, this message translates to:
+  /// **'Legacy configuration'**
+  String get scratch_legacy_config;
+
+  /// No description provided for @scratch_add_block.
+  ///
+  /// In en, this message translates to:
+  /// **'Add block'**
+  String get scratch_add_block;
+
+  /// No description provided for @scratch_bdfd_script.
+  ///
+  /// In en, this message translates to:
+  /// **'BDFD Script'**
+  String get scratch_bdfd_script;
+
+  /// No description provided for @scratch_response_block.
+  ///
+  /// In en, this message translates to:
+  /// **'Response'**
+  String get scratch_response_block;
+
+  /// No description provided for @scratch_response_components.
+  ///
+  /// In en, this message translates to:
+  /// **'Components'**
+  String get scratch_response_components;
+
+  /// No description provided for @scratch_response_edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit response'**
+  String get scratch_response_edit;
+
+  /// No description provided for @scratch_meta_name_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Command name'**
+  String get scratch_meta_name_hint;
+
+  /// No description provided for @scratch_meta_desc_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Command description'**
+  String get scratch_meta_desc_hint;
+
+  /// No description provided for @scratch_meta_type_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Command type'**
+  String get scratch_meta_type_label;
+
+  /// No description provided for @scratch_meta_type_slash.
+  ///
+  /// In en, this message translates to:
+  /// **'Slash command'**
+  String get scratch_meta_type_slash;
+
+  /// No description provided for @scratch_meta_type_prefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Prefix command'**
+  String get scratch_meta_type_prefix;
+
+  /// No description provided for @scratch_meta_type_user.
+  ///
+  /// In en, this message translates to:
+  /// **'User command'**
+  String get scratch_meta_type_user;
+
+  /// No description provided for @scratch_meta_type_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Message command'**
+  String get scratch_meta_type_message;
+
+  /// No description provided for @scratch_meta_type_slash_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Triggered by typing / in Discord.'**
+  String get scratch_meta_type_slash_desc;
+
+  /// No description provided for @scratch_meta_type_prefix_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Triggered by a text prefix (e.g. !help).'**
+  String get scratch_meta_type_prefix_desc;
+
+  /// No description provided for @scratch_meta_type_user_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Triggered from the user context menu.'**
+  String get scratch_meta_type_user_desc;
+
+  /// No description provided for @scratch_meta_type_message_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Triggered from the message context menu.'**
+  String get scratch_meta_type_message_desc;
+
+  /// No description provided for @scratch_meta_advanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced settings'**
+  String get scratch_meta_advanced;
+
+  /// No description provided for @scratch_workflow_metadata.
+  ///
+  /// In en, this message translates to:
+  /// **'Workflow Metadata'**
+  String get scratch_workflow_metadata;
+
+  /// No description provided for @scratch_workflow_name.
+  ///
+  /// In en, this message translates to:
+  /// **'Workflow name'**
+  String get scratch_workflow_name;
+
+  /// No description provided for @scratch_workflow_type.
+  ///
+  /// In en, this message translates to:
+  /// **'Workflow type'**
+  String get scratch_workflow_type;
+
+  /// No description provided for @scratch_workflow_type_general.
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get scratch_workflow_type_general;
+
+  /// No description provided for @scratch_workflow_type_event.
+  ///
+  /// In en, this message translates to:
+  /// **'Event'**
+  String get scratch_workflow_type_event;
+
+  /// No description provided for @scratch_workflow_arguments.
+  ///
+  /// In en, this message translates to:
+  /// **'Arguments'**
+  String get scratch_workflow_arguments;
+
+  /// No description provided for @scratch_workflow_add_argument.
+  ///
+  /// In en, this message translates to:
+  /// **'Add argument'**
+  String get scratch_workflow_add_argument;
+
+  /// No description provided for @scratch_entry_event_trigger.
+  ///
+  /// In en, this message translates to:
+  /// **'Event trigger'**
+  String get scratch_entry_event_trigger;
+
+  /// No description provided for @scratch_entry_function.
+  ///
+  /// In en, this message translates to:
+  /// **'Function'**
+  String get scratch_entry_function;
+
+  /// No description provided for @scratch_event_category.
+  ///
+  /// In en, this message translates to:
+  /// **'Event category'**
+  String get scratch_event_category;
+
+  /// No description provided for @scratch_event_name.
+  ///
+  /// In en, this message translates to:
+  /// **'Event name'**
+  String get scratch_event_name;
+
+  /// No description provided for @scratch_event_variables.
+  ///
+  /// In en, this message translates to:
+  /// **'Event variables'**
+  String get scratch_event_variables;
 
   /// No description provided for @bdfd_docs_empty.
   ///
@@ -9560,6 +9914,12 @@ abstract class AppLocalizations {
   /// **'BDFD script mode enabled'**
   String get wizard_bdfd_mode_enabled;
 
+  /// No description provided for @wizard_dart_mode_enabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Dart script mode enabled'**
+  String get wizard_dart_mode_enabled;
+
   /// No description provided for @wizard_visual_mode_enabled.
   ///
   /// In en, this message translates to:
@@ -9883,6 +10243,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'BDFD script | {lines} line(s) | {diagnostics} diagnostic(s)'**
   String actions_summary_bdfd(int lines, int diagnostics);
+
+  /// No description provided for @actions_summary_dart.
+  ///
+  /// In en, this message translates to:
+  /// **'Dart script | {lines} line(s) | {diagnostics} diagnostic(s)'**
+  String actions_summary_dart(int lines, int diagnostics);
+
+  /// No description provided for @scratch_dart_script.
+  ///
+  /// In en, this message translates to:
+  /// **'Dart Script'**
+  String get scratch_dart_script;
 
   /// No description provided for @actions_summary_routes.
   ///

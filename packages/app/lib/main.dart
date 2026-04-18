@@ -125,54 +125,9 @@ class _WindowsHttpOverrides extends HttpOverrides {
 }
 
 Future<void> _bootstrapAndRunApp() async {
-  var firebaseReady = false;
-
-  if (_isFirebaseSupported) {
-    try {
-      await AppDiagnostics.logInfo(
-        'Initializing Firebase',
-        data: {'platform': defaultTargetPlatform.name},
-      );
-      firebaseApp = await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      ).timeout(
-        const Duration(seconds: 10),
-        onTimeout:
-            () =>
-                throw TimeoutException(
-                  'Firebase initialization timed out after 10 seconds',
-                ),
-      );
-      if (!firebaseApp!.isAutomaticDataCollectionEnabled) {
-        await firebaseApp!.setAutomaticDataCollectionEnabled(true);
-      }
-      firebaseReady = true;
-      await AppDiagnostics.logInfo('Firebase initialized');
-    } catch (error, stack) {
-      await AppDiagnostics.logError(
-        'Firebase initialization failed',
-        error,
-        stack,
-        fatal: false,
-      );
-    }
-  }
-
-  await AppDiagnostics.configureCrashlytics(
-    crashlyticsSupported: _isCrashlyticsSupported,
-    firebaseReady: firebaseReady,
-  );
-
-  await AdConsentService.ensureCanRequestAds();
-  await AdRewardService.initialize();
-  await AdNativeService.initialize();
-  await SubscriptionService.initialize();
-  await loadDebugReplayCapturingState();
-
   try {
     appManager = AppManager();
     initRunnerAutoReload();
-    await DiscordRpcService.instance.initialize();
     final prefs = await SharedPreferences.getInstance();
     final onboardingManager = OnboardingManager(prefs);
 
@@ -186,6 +141,8 @@ Future<void> _bootstrapAndRunApp() async {
         child: const MyApp(),
       ),
     );
+
+    unawaited(_warmUpServicesAfterLaunch());
   } catch (error, stack) {
     await AppDiagnostics.logError(
       'Fatal startup error before runApp',
@@ -194,6 +151,122 @@ Future<void> _bootstrapAndRunApp() async {
       fatal: true,
     );
     runApp(StartupFailureApp(error: error.toString()));
+  }
+}
+
+Future<void> _warmUpServicesAfterLaunch() async {
+  await AppDiagnostics.logInfo('Post-launch service warm-up started');
+
+  var firebaseReady = false;
+  if (_isFirebaseSupported) {
+    firebaseReady = await _runStartupTask(
+      label: 'Firebase initialization',
+      timeout: const Duration(seconds: 10),
+      action: () async {
+        await AppDiagnostics.logInfo(
+          'Initializing Firebase',
+          data: {'platform': defaultTargetPlatform.name},
+        );
+        firebaseApp = await Firebase.initializeApp(
+          options: DefaultFirebaseOptions.currentPlatform,
+        );
+        if (!firebaseApp!.isAutomaticDataCollectionEnabled) {
+          await firebaseApp!.setAutomaticDataCollectionEnabled(true);
+        }
+        await AppDiagnostics.logInfo('Firebase initialized');
+      },
+    );
+  }
+
+  await _runStartupTask(
+    label: 'Crashlytics configuration',
+    timeout: const Duration(seconds: 5),
+    action: () async {
+      await AppDiagnostics.configureCrashlytics(
+        crashlyticsSupported: _isCrashlyticsSupported,
+        firebaseReady: firebaseReady,
+      );
+    },
+  );
+
+  await _runStartupTask(
+    label: 'Ad consent flow',
+    timeout: const Duration(seconds: 8),
+    action: () async {
+      await AdConsentService.ensureCanRequestAds();
+    },
+  );
+
+  await _runStartupTask(
+    label: 'Rewarded ads initialization',
+    timeout: const Duration(seconds: 8),
+    action: () async {
+      await AdRewardService.initialize();
+    },
+  );
+
+  await _runStartupTask(
+    label: 'Native ads initialization',
+    timeout: const Duration(seconds: 8),
+    action: () async {
+      await AdNativeService.initialize();
+    },
+  );
+
+  await _runStartupTask(
+    label: 'Subscription service initialization',
+    timeout: const Duration(seconds: 8),
+    action: () async {
+      await SubscriptionService.initialize();
+    },
+  );
+
+  await _runStartupTask(
+    label: 'Debug replay state load',
+    timeout: const Duration(seconds: 5),
+    action: () async {
+      await loadDebugReplayCapturingState();
+    },
+  );
+
+  await _runStartupTask(
+    label: 'Discord RPC initialization',
+    timeout: const Duration(seconds: 5),
+    action: () async {
+      await DiscordRpcService.instance.initialize();
+    },
+  );
+
+  await AppDiagnostics.logInfo('Post-launch service warm-up completed');
+}
+
+Future<bool> _runStartupTask({
+  required String label,
+  required Duration timeout,
+  required Future<void> Function() action,
+}) async {
+  try {
+    await action().timeout(
+      timeout,
+      onTimeout:
+          () =>
+              throw TimeoutException(
+                '$label timed out after ${timeout.inSeconds} seconds',
+              ),
+    );
+    await AppDiagnostics.logInfo(
+      'Startup step completed',
+      data: {'step': label},
+    );
+    return true;
+  } catch (error, stack) {
+    await AppDiagnostics.logError(
+      '$label failed during startup warm-up',
+      error,
+      stack,
+      fatal: false,
+    );
+    return false;
   }
 }
 
