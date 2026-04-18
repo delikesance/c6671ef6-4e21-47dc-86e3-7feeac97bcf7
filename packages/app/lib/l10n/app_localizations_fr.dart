@@ -2448,6 +2448,17 @@ class AppLocalizationsFr extends AppLocalizations {
       'Le script est compilé en actions internes. Les diagnostics sont affichés pendant l’édition ; les scripts invalides échouent à l’exécution.';
 
   @override
+  String get cmd_execution_mode_dart => 'Mode Dart Direct';
+
+  @override
+  String get cmd_execution_mode_dart_desc =>
+      'Écrivez directement le corps de commande en Dart avec diagnostics runtime.';
+
+  @override
+  String get cmd_execution_mode_dart_note =>
+      'Le code Dart est compilé au runtime via un moteur sandboxé. Gardez les scripts déterministes et retournez une valeur quand nécessaire.';
+
+  @override
   String get cmd_bdfd_script_label => 'Corps du script BDFD';
 
   @override
@@ -2476,6 +2487,32 @@ class AppLocalizationsFr extends AppLocalizations {
       'Ce script BDFD contient encore des diagnostics :';
 
   @override
+  String get cmd_dart_script_label => 'Corps du script Dart';
+
+  @override
+  String get cmd_dart_script_hint => 'return \"Hello from Dart Direct\";';
+
+  @override
+  String get cmd_dart_diagnostics_title => 'Diagnostics Dart';
+
+  @override
+  String get cmd_dart_diagnostics_clean =>
+      'Aucun problème détecté dans le script Dart courant.';
+
+  @override
+  String get cmd_dart_diagnostics_error => 'Erreur';
+
+  @override
+  String get cmd_dart_diagnostics_warning => 'Avertissement';
+
+  @override
+  String get cmd_migrate_bdfd_to_dart_desc =>
+      'Générer un squelette de migration Dart à partir du script BDFD actuel.';
+
+  @override
+  String get cmd_migrate_bdfd_to_dart_action => 'Migrer';
+
+  @override
   String get cmd_bdfd_autocomplete_title => 'Auto-complétion BDFD par préfixe';
 
   @override
@@ -2496,6 +2533,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get workflow_mode_bdfd => 'Script BDFD';
 
   @override
+  String get workflow_mode_dart => 'Dart Direct';
+
+  @override
   String get workflow_mode_visual_note =>
       'Construisez votre workflow visuellement en ajoutant des actions individuelles avec l’éditeur de cartes.';
 
@@ -2504,11 +2544,22 @@ class AppLocalizationsFr extends AppLocalizations {
       'Écrivez l’intégralité de votre workflow sous forme de script BDFD. Le script est compilé et validé en temps réel.';
 
   @override
+  String get workflow_mode_dart_note =>
+      'Écrivez votre workflow en Dart. Les diagnostics sont mis à jour pendant l’édition pour détecter rapidement les erreurs.';
+
+  @override
   String get workflow_bdfd_editor_title => 'Éditeur de script BDFD';
 
   @override
   String get workflow_bdfd_editor_desc =>
       'Écrivez le code BDFD complet pour cette réponse workflow. Les diagnostics s’affichent en direct.';
+
+  @override
+  String get workflow_dart_editor_title => 'Éditeur de script Dart';
+
+  @override
+  String get workflow_dart_editor_desc =>
+      'Écrivez le code Dart complet pour cette réponse workflow. Les diagnostics s’affichent en direct.';
 
   @override
   String get bdfd_editor_title => 'Éditeur BDFD';
@@ -2529,6 +2580,16 @@ class AppLocalizationsFr extends AppLocalizations {
       'Script vide — commencez à écrire pour voir les diagnostics.';
 
   @override
+  String get dart_editor_title => 'Éditeur Dart';
+
+  @override
+  String get dart_editor_tap_hint => 'Appuyez pour ouvrir l’éditeur Dart';
+
+  @override
+  String get dart_editor_empty =>
+      'Script vide — commencez à écrire pour voir les diagnostics Dart.';
+
+  @override
   String get bdfd_editor_docs => 'Référence des fonctions BDFD';
 
   @override
@@ -2536,6 +2597,133 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get bdfd_docs_search_hint => 'Rechercher une fonction…';
+
+  @override
+  String get scratch_block_metadata => 'Métadonnées';
+
+  @override
+  String get scratch_block_required => 'Requis';
+
+  @override
+  String get scratch_block_entry_point => 'Point d’entrée';
+
+  @override
+  String get scratch_entry_point_listen => 'Écouter';
+
+  @override
+  String get scratch_entry_interaction => 'Interaction';
+
+  @override
+  String get scratch_entry_message => 'Message';
+
+  @override
+  String get scratch_entry_point_label => 'Nom du point d’entrée';
+
+  @override
+  String get scratch_execution_mode => 'Mode d’exécution';
+
+  @override
+  String get scratch_mode_blocks => 'Blocs';
+
+  @override
+  String get scratch_mode_bdfd => 'BDFD';
+
+  @override
+  String get scratch_mode_dart => 'Dart';
+
+  @override
+  String get scratch_legacy_config => 'Configuration héritée';
+
+  @override
+  String get scratch_add_block => 'Ajouter un bloc';
+
+  @override
+  String get scratch_bdfd_script => 'Script BDFD';
+
+  @override
+  String get scratch_response_block => 'Réponse';
+
+  @override
+  String get scratch_response_components => 'Composants';
+
+  @override
+  String get scratch_response_edit => 'Modifier la réponse';
+
+  @override
+  String get scratch_meta_name_hint => 'Nom de la commande';
+
+  @override
+  String get scratch_meta_desc_hint => 'Description de la commande';
+
+  @override
+  String get scratch_meta_type_label => 'Type de commande';
+
+  @override
+  String get scratch_meta_type_slash => 'Commande slash';
+
+  @override
+  String get scratch_meta_type_prefix => 'Commande préfixe';
+
+  @override
+  String get scratch_meta_type_user => 'Commande utilisateur';
+
+  @override
+  String get scratch_meta_type_message => 'Commande message';
+
+  @override
+  String get scratch_meta_type_slash_desc =>
+      'Déclenchée en tapant / dans Discord.';
+
+  @override
+  String get scratch_meta_type_prefix_desc =>
+      'Déclenchée par un préfixe texte (ex : !help).';
+
+  @override
+  String get scratch_meta_type_user_desc =>
+      'Déclenchée depuis le menu contextuel utilisateur.';
+
+  @override
+  String get scratch_meta_type_message_desc =>
+      'Déclenchée depuis le menu contextuel message.';
+
+  @override
+  String get scratch_meta_advanced => 'Paramètres avancés';
+
+  @override
+  String get scratch_workflow_metadata => 'Métadonnées du workflow';
+
+  @override
+  String get scratch_workflow_name => 'Nom du workflow';
+
+  @override
+  String get scratch_workflow_type => 'Type de workflow';
+
+  @override
+  String get scratch_workflow_type_general => 'Général';
+
+  @override
+  String get scratch_workflow_type_event => 'Événement';
+
+  @override
+  String get scratch_workflow_arguments => 'Arguments';
+
+  @override
+  String get scratch_workflow_add_argument => 'Ajouter un argument';
+
+  @override
+  String get scratch_entry_event_trigger => 'Déclencheur d’événement';
+
+  @override
+  String get scratch_entry_function => 'Fonction';
+
+  @override
+  String get scratch_event_category => 'Catégorie d’événement';
+
+  @override
+  String get scratch_event_name => 'Nom de l’événement';
+
+  @override
+  String get scratch_event_variables => 'Variables d’événement';
 
   @override
   String get bdfd_docs_empty => 'Aucune fonction trouvée.';
@@ -5484,6 +5672,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get wizard_bdfd_mode_enabled => 'Mode script BDFD activé';
 
   @override
+  String get wizard_dart_mode_enabled => 'Mode script Dart activé';
+
+  @override
   String get wizard_visual_mode_enabled => 'Mode workflow visuel activé';
 
   @override
@@ -5677,6 +5868,14 @@ class AppLocalizationsFr extends AppLocalizations {
   String actions_summary_bdfd(int lines, int diagnostics) {
     return 'Script BDFD | $lines ligne(s) | $diagnostics diagnostic(s)';
   }
+
+  @override
+  String actions_summary_dart(int lines, int diagnostics) {
+    return 'Script Dart | $lines ligne(s) | $diagnostics diagnostic(s)';
+  }
+
+  @override
+  String get scratch_dart_script => 'Script Dart';
 
   @override
   String actions_summary_routes(int count, int routes) {
