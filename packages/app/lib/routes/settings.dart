@@ -10,6 +10,9 @@ import 'package:bot_creator/utils/ad_consent_service.dart';
 import 'package:bot_creator/utils/ad_mediation_debug.dart';
 import 'package:bot_creator/utils/app_diagnostics.dart';
 import 'package:bot_creator/utils/discord_rpc_service.dart';
+import 'package:bot_creator/utils/main_api_auth_service.dart';
+import 'package:bot_creator/utils/main_api_client.dart';
+import 'package:bot_creator/utils/main_api_settings.dart';
 import 'package:bot_creator/utils/premium_capabilities.dart';
 import 'package:bot_creator/utils/subscription_service.dart';
 import 'package:bot_creator/widgets/subscription_page.dart';
@@ -46,12 +49,20 @@ class _SettingPageState extends State<SettingPage> {
   final TextEditingController _runnerUrlController = TextEditingController();
   final TextEditingController _runnerApiTokenController =
       TextEditingController();
+  final TextEditingController _mainApiUrlController = TextEditingController();
   final TextEditingController _discordRpcClientIdController =
       TextEditingController();
   bool _checkingRunner = false;
+  bool _checkingMainApi = false;
+  bool _savingMainApi = false;
+  bool _connectingMainApi = false;
+  bool _disconnectingMainApi = false;
   String? _runnerStatusKey;
+  String? _mainApiStatusKey;
   bool _runnerTokenObscured = true;
   bool _runnerTemporarilyDisabled = false;
+  bool _mainApiSectionExpanded = false;
+  MainApiSession? _mainApiSession;
   StreamSubscription<DiscordRpcSnapshot>? _discordRpcSnapshotSubscription;
   DiscordRpcSnapshot? _discordRpcSnapshot;
   bool _loadingDiscordRpc = true;
@@ -123,6 +134,7 @@ class _SettingPageState extends State<SettingPage> {
     _loadRecoverySettings();
     _initializeDriveApi();
     _loadRunnerSettings();
+    _loadMainApiSettings();
     if (_isDesktopPlatform) {
       _loadDiscordRpcSettings();
     } else {
@@ -296,10 +308,288 @@ class _SettingPageState extends State<SettingPage> {
     }
   }
 
+  Future<void> _loadMainApiSettings() async {
+    final config = await MainApiSettingsStore.loadConfig();
+    var session = await MainApiSettingsStore.loadSession();
+
+    if (session != null && session.isExpired && session.refreshToken == null) {
+      await MainApiSettingsStore.clearSession();
+      session = null;
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    final resolvedBaseUrl =
+        config.baseUrl.isEmpty ? defaultMainApiBaseUrl : config.baseUrl;
+
+    setState(() {
+      _mainApiUrlController.text = resolvedBaseUrl;
+      _mainApiSession = session;
+      if (!config.isConfigured) {
+        _mainApiStatusKey = null;
+      } else if (session != null) {
+        _mainApiStatusKey =
+            session.isExpired
+                ? 'settings_main_api_session_expired'
+                : 'settings_main_api_session_connected';
+      } else {
+        _mainApiStatusKey = 'settings_main_api_connected';
+      }
+    });
+
+    if (config.isConfigured) {
+      await _checkMainApiConnection();
+    }
+  }
+
+  Future<void> _saveMainApiSettings({
+    bool showSnack = true,
+    bool autoCheck = true,
+  }) async {
+    final nextUrl = MainApiConfig.normalizeBaseUrl(_mainApiUrlController.text);
+    final previous = await MainApiSettingsStore.loadConfig();
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _savingMainApi = true;
+    });
+
+    try {
+      if (nextUrl.isEmpty) {
+        await MainApiSettingsStore.clearAll();
+        if (!mounted) return;
+        setState(() {
+          _mainApiSession = null;
+          _mainApiStatusKey = null;
+        });
+        if (showSnack) {
+          _showSnack(AppStrings.t('settings_main_api_cleared'));
+        }
+        return;
+      }
+
+      await MainApiSettingsStore.saveConfig(MainApiConfig(baseUrl: nextUrl));
+
+      if (previous.baseUrl != nextUrl) {
+        await MainApiSettingsStore.clearSession();
+        if (mounted) {
+          setState(() {
+            _mainApiSession = null;
+          });
+        }
+      }
+
+      if (showSnack) {
+        _showSnack(AppStrings.t('settings_main_api_saved'));
+      }
+
+      if (autoCheck) {
+        await _checkMainApiConnection();
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _savingMainApi = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _checkMainApiConnection() async {
+    final url = MainApiConfig.normalizeBaseUrl(_mainApiUrlController.text);
+    if (url.isEmpty) {
+      if (!mounted) return;
+      setState(() {
+        _mainApiStatusKey = 'settings_main_api_not_configured';
+      });
+      return;
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _checkingMainApi = true;
+      _mainApiStatusKey = null;
+    });
+
+    try {
+      final publicClient = MainApiClient(baseUrl: url);
+      final healthy = await publicClient.checkHealth();
+      if (!healthy) {
+        if (!mounted) return;
+        setState(() {
+          _mainApiStatusKey = 'settings_main_api_unreachable';
+          _checkingMainApi = false;
+        });
+        return;
+      }
+
+      var nextSession = _mainApiSession;
+      var statusKey = 'settings_main_api_connected';
+
+      if (nextSession != null) {
+        var activeSession = nextSession;
+        if (activeSession.expiresSoon() && activeSession.refreshToken != null) {
+          try {
+            activeSession = await publicClient.refreshSession(
+              refreshToken: activeSession.refreshToken!,
+            );
+            await MainApiSettingsStore.saveSession(activeSession);
+          } catch (_) {
+            // Keep existing session and validate it below.
+          }
+        }
+
+        try {
+          final profile =
+              await publicClient
+                  .withAccessToken(activeSession.accessToken)
+                  .getCurrentUser();
+          final username =
+              (profile['username'] ?? profile['name'] ?? '').toString().trim();
+          if (username.isNotEmpty && username != activeSession.username) {
+            activeSession = activeSession.copyWith(username: username);
+            await MainApiSettingsStore.saveSession(activeSession);
+          }
+          nextSession = activeSession;
+          statusKey = 'settings_main_api_session_connected';
+        } on MainApiClientException catch (error) {
+          if (error.statusCode == 401 || error.statusCode == 403) {
+            statusKey = 'settings_main_api_auth_failed';
+          }
+        }
+      }
+
+      if (!mounted) return;
+      setState(() {
+        _mainApiSession = nextSession;
+        _mainApiStatusKey = statusKey;
+        _checkingMainApi = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _mainApiStatusKey = 'settings_main_api_unreachable';
+        _checkingMainApi = false;
+      });
+    }
+  }
+
+  Future<void> _connectMainApiDiscord() async {
+    final url = MainApiConfig.normalizeBaseUrl(_mainApiUrlController.text);
+    if (url.isEmpty) {
+      _showSnack(AppStrings.t('settings_main_api_url_required'));
+      return;
+    }
+
+    await _saveMainApiSettings(showSnack: false, autoCheck: false);
+
+    if (!mounted) return;
+    setState(() {
+      _connectingMainApi = true;
+    });
+
+    try {
+      final client = MainApiClient(baseUrl: url);
+      final session = await MainApiAuthService.connectWithDiscord(
+        client: client,
+      );
+      await MainApiSettingsStore.saveSession(session);
+
+      if (!mounted) return;
+      setState(() {
+        _mainApiSession = session;
+        _mainApiStatusKey = 'settings_main_api_session_connected';
+      });
+
+      final username = (session.username ?? '').trim();
+      if (username.isNotEmpty) {
+        _showSnack(
+          AppStrings.tr(
+            'settings_main_api_connected_user',
+            params: <String, String>{'user': username},
+          ),
+        );
+      } else {
+        _showSnack(AppStrings.t('settings_main_api_connected_discord'));
+      }
+
+      await _checkMainApiConnection();
+    } catch (error) {
+      _showSnack(_formatErrorMessage(error));
+    } finally {
+      if (mounted) {
+        setState(() {
+          _connectingMainApi = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _disconnectMainApi() async {
+    if (!mounted) return;
+
+    setState(() {
+      _disconnectingMainApi = true;
+    });
+
+    try {
+      await MainApiSettingsStore.clearSession();
+      if (!mounted) return;
+      setState(() {
+        _mainApiSession = null;
+        _mainApiStatusKey = 'settings_main_api_session_disconnected';
+      });
+      _showSnack(AppStrings.t('settings_main_api_session_disconnected'));
+    } finally {
+      if (mounted) {
+        setState(() {
+          _disconnectingMainApi = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _clearMainApiSettings() async {
+    await MainApiSettingsStore.clearAll();
+    if (!mounted) return;
+    setState(() {
+      _mainApiUrlController.clear();
+      _mainApiSession = null;
+      _mainApiStatusKey = null;
+    });
+    _showSnack(AppStrings.t('settings_main_api_cleared'));
+  }
+
+  Color? _mainApiStatusColor(String? statusKey) {
+    switch (statusKey) {
+      case 'settings_main_api_connected':
+      case 'settings_main_api_session_connected':
+        return AppTheme.successLight;
+      case 'settings_main_api_unreachable':
+      case 'settings_main_api_auth_failed':
+        return AppTheme.errorLight;
+      case 'settings_main_api_not_configured':
+      case 'settings_main_api_session_expired':
+      case 'settings_main_api_session_disconnected':
+        return AppTheme.warning;
+      default:
+        return null;
+    }
+  }
+
   @override
   void dispose() {
     _discordRpcSnapshotSubscription?.cancel();
     _discordRpcClientIdController.dispose();
+    _mainApiUrlController.dispose();
     _runnerUrlController.dispose();
     _runnerApiTokenController.dispose();
     super.dispose();
@@ -682,6 +972,273 @@ class _SettingPageState extends State<SettingPage> {
 
   String _discordRpcPrimaryActionLabelKey() {
     return 'settings_discord_rpc_connect';
+  }
+
+  Widget _buildMainApiCard({required bool isMobile}) {
+    final normalizedUrl = MainApiConfig.normalizeBaseUrl(
+      _mainApiUrlController.text,
+    );
+    final hasUrl = normalizedUrl.isNotEmpty;
+    final statusKey = _mainApiStatusKey;
+    final statusColor = _mainApiStatusColor(statusKey);
+    final session = _mainApiSession;
+    final hasSession = session != null && !session.isExpired;
+    final sessionUser = (session?.username ?? '').trim();
+
+    final isBusy =
+        _checkingMainApi ||
+        _savingMainApi ||
+        _connectingMainApi ||
+        _disconnectingMainApi;
+
+    return Card(
+      child: ExpansionTile(
+        initiallyExpanded: _mainApiSectionExpanded,
+        onExpansionChanged: (expanded) {
+          setState(() {
+            _mainApiSectionExpanded = expanded;
+          });
+        },
+        leading: const Icon(Icons.hub_outlined, size: 18),
+        title: Text(
+          AppStrings.t('settings_main_api_title'),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        subtitle:
+            statusKey == null
+                ? null
+                : Text(
+                  AppStrings.t(statusKey),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: statusColor),
+                ),
+        childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              AppStrings.t('settings_main_api_desc'),
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _mainApiUrlController,
+            keyboardType: TextInputType.url,
+            autocorrect: false,
+            decoration: InputDecoration(
+              hintText: AppStrings.t('settings_main_api_url_hint'),
+              isDense: true,
+              border: const OutlineInputBorder(),
+              suffixIcon:
+                  (_checkingMainApi || _savingMainApi)
+                      ? const Padding(
+                        padding: EdgeInsets.all(10),
+                        child: SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      )
+                      : (statusKey == null
+                          ? null
+                          : Icon(
+                            statusKey == 'settings_main_api_connected' ||
+                                    statusKey ==
+                                        'settings_main_api_session_connected'
+                                ? Icons.check_circle
+                                : Icons.error_outline,
+                            color: _mainApiStatusColor(statusKey),
+                            size: 18,
+                          )),
+            ),
+          ),
+          if (!_isDesktopPlatform) ...[
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                AppStrings.t('settings_main_api_desktop_only'),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: AppTheme.warning),
+              ),
+            ),
+          ],
+          if (hasSession) ...[
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Icon(Icons.verified_user, size: 18, color: AppTheme.success),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    AppStrings.tr(
+                      'settings_main_api_connected_user',
+                      params: <String, String>{
+                        'user':
+                            sessionUser.isEmpty
+                                ? AppStrings.t('settings_main_api_user_unknown')
+                                : sessionUser,
+                      },
+                    ),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ),
+              ],
+            ),
+          ],
+          const SizedBox(height: 12),
+          if (isMobile) ...[
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: isBusy ? null : _saveMainApiSettings,
+                icon:
+                    _savingMainApi
+                        ? const SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                        : const Icon(Icons.save_outlined, size: 18),
+                label: Text(AppStrings.t('settings_main_api_save')),
+              ),
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: isBusy || !hasUrl ? null : _checkMainApiConnection,
+                icon:
+                    _checkingMainApi
+                        ? const SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                        : const Icon(Icons.wifi_find, size: 18),
+                label: Text(AppStrings.t('settings_main_api_check')),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:
+                      Theme.of(context).colorScheme.secondaryContainer,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: isBusy || !hasUrl ? null : _connectMainApiDiscord,
+                icon:
+                    _connectingMainApi
+                        ? const SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                        : const Icon(Icons.login, size: 18),
+                label: Text(AppStrings.t('settings_main_api_connect_discord')),
+              ),
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: isBusy || !hasSession ? null : _disconnectMainApi,
+                icon:
+                    _disconnectingMainApi
+                        ? const SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                        : const Icon(Icons.logout, size: 18),
+                label: Text(AppStrings.t('settings_main_api_disconnect')),
+              ),
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: isBusy ? null : _clearMainApiSettings,
+                icon: const Icon(Icons.clear, size: 18),
+                label: Text(AppStrings.t('settings_main_api_clear')),
+              ),
+            ),
+          ] else ...[
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: isBusy ? null : _saveMainApiSettings,
+                  icon:
+                      _savingMainApi
+                          ? const SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                          : const Icon(Icons.save_outlined, size: 18),
+                  label: Text(AppStrings.t('settings_main_api_save')),
+                ),
+                ElevatedButton.icon(
+                  onPressed: isBusy || !hasUrl ? null : _checkMainApiConnection,
+                  icon:
+                      _checkingMainApi
+                          ? const SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                          : const Icon(Icons.wifi_find, size: 18),
+                  label: Text(AppStrings.t('settings_main_api_check')),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        Theme.of(context).colorScheme.secondaryContainer,
+                  ),
+                ),
+                ElevatedButton.icon(
+                  onPressed: isBusy || !hasUrl ? null : _connectMainApiDiscord,
+                  icon:
+                      _connectingMainApi
+                          ? const SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                          : const Icon(Icons.login, size: 18),
+                  label: Text(
+                    AppStrings.t('settings_main_api_connect_discord'),
+                  ),
+                ),
+                OutlinedButton.icon(
+                  onPressed: isBusy || !hasSession ? null : _disconnectMainApi,
+                  icon:
+                      _disconnectingMainApi
+                          ? const SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                          : const Icon(Icons.logout, size: 18),
+                  label: Text(AppStrings.t('settings_main_api_disconnect')),
+                ),
+                OutlinedButton.icon(
+                  onPressed: isBusy ? null : _clearMainApiSettings,
+                  icon: const Icon(Icons.clear, size: 18),
+                  label: Text(AppStrings.t('settings_main_api_clear')),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
   }
 
   Widget _buildDiscordRpcCard({required bool isMobile}) {
@@ -1103,17 +1660,15 @@ class _SettingPageState extends State<SettingPage> {
                 TextButton(
                   onPressed: () async {
                     Navigator.of(sheetContext).pop();
-                    final confirmed =
-                        await AppTheme.showConfirmDialog(
-                          context,
-                          title: context.tr.settings_snapshot_delete_loading,
-                          content: context.tr
-                              .settings_snapshots_delete_one_confirm(
-                                snapshot.label,
-                              ),
-                          confirmLabel: context.tr.delete,
-                          isDestructive: true,
-                        );
+                    final confirmed = await AppTheme.showConfirmDialog(
+                      context,
+                      title: context.tr.settings_snapshot_delete_loading,
+                      content: context.tr.settings_snapshots_delete_one_confirm(
+                        snapshot.label,
+                      ),
+                      confirmLabel: context.tr.delete,
+                      isDestructive: true,
+                    );
                     if (!confirmed) {
                       return;
                     }
@@ -1146,16 +1701,15 @@ class _SettingPageState extends State<SettingPage> {
             TextButton(
               onPressed: () async {
                 Navigator.of(dialogContext).pop();
-                final confirmed =
-                    await AppTheme.showConfirmDialog(
-                      context,
-                      title: context.tr.settings_snapshot_delete_loading,
-                      content: context.tr.settings_snapshots_delete_one_confirm(
-                        snapshot.label,
-                      ),
-                      confirmLabel: context.tr.delete,
-                      isDestructive: true,
-                    );
+                final confirmed = await AppTheme.showConfirmDialog(
+                  context,
+                  title: context.tr.settings_snapshot_delete_loading,
+                  content: context.tr.settings_snapshots_delete_one_confirm(
+                    snapshot.label,
+                  ),
+                  confirmLabel: context.tr.delete,
+                  isDestructive: true,
+                );
                 if (!confirmed) {
                   return;
                 }
@@ -1187,16 +1741,15 @@ class _SettingPageState extends State<SettingPage> {
     }
 
     final count = _snapshots.length;
-    final confirmed =
-        await AppTheme.showConfirmDialog(
-          context,
-          title: context.tr.settings_snapshots_delete_all_title,
-          content: context.tr.settings_snapshots_delete_all_confirm(
-            count.toString(),
-          ),
-          confirmLabel: context.tr.delete,
-          isDestructive: true,
-        );
+    final confirmed = await AppTheme.showConfirmDialog(
+      context,
+      title: context.tr.settings_snapshots_delete_all_title,
+      content: context.tr.settings_snapshots_delete_all_confirm(
+        count.toString(),
+      ),
+      confirmLabel: context.tr.delete,
+      isDestructive: true,
+    );
 
     if (!confirmed) {
       return;
@@ -1299,16 +1852,13 @@ class _SettingPageState extends State<SettingPage> {
       return;
     }
 
-    final confirmed =
-        await AppTheme.showConfirmDialog(
-          context,
-          title: context.tr.settings_snapshot_delete_loading,
-          content: context.tr.settings_snapshots_delete_one_confirm(
-            selected.label,
-          ),
-          confirmLabel: context.tr.delete,
-          isDestructive: true,
-        );
+    final confirmed = await AppTheme.showConfirmDialog(
+      context,
+      title: context.tr.settings_snapshot_delete_loading,
+      content: context.tr.settings_snapshots_delete_one_confirm(selected.label),
+      confirmLabel: context.tr.delete,
+      isDestructive: true,
+    );
 
     if (!confirmed) {
       return;
@@ -1988,6 +2538,8 @@ class _SettingPageState extends State<SettingPage> {
                     ),
                   ),
                   const SizedBox(height: 32),
+                  _buildMainApiCard(isMobile: isMobile),
+                  const SizedBox(height: 16),
                   if (_isDesktopPlatform) ...[
                     _buildDiscordRpcCard(isMobile: isMobile),
                     const SizedBox(height: 16),

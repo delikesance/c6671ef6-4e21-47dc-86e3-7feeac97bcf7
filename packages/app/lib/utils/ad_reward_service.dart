@@ -88,7 +88,9 @@ class AdRewardService {
   /// Shows the rewarded ad and returns a [Future] that completes when the ad
   /// is dismissed or fails to show. Returns `true` if the ad was shown
   /// successfully, `false` otherwise (no ad ready, already showing, failed).
-  static Future<bool> showRewardedAd() async {
+  static Future<bool> showRewardedAd({
+    Future<void> Function()? onRewardEarned,
+  }) async {
     if (!_initialized || !_isSupportedPlatform) {
       return false;
     }
@@ -135,6 +137,7 @@ class AdRewardService {
 
     ad.show(
       onUserEarnedReward: (_, reward) {
+        _notifyRewardEarned(onRewardEarned);
         unawaited(
           AppDiagnostics.logInfo(
             'Reward earned from rewarded ad',
@@ -154,7 +157,9 @@ class AdRewardService {
     );
   }
 
-  static void showRewardedAdNonBlocking() {
+  static void showRewardedAdNonBlocking({
+    Future<void> Function()? onRewardEarned,
+  }) {
     if (!_initialized || !_isSupportedPlatform) {
       return;
     }
@@ -197,6 +202,7 @@ class AdRewardService {
 
     ad.show(
       onUserEarnedReward: (_, reward) {
+        _notifyRewardEarned(onRewardEarned);
         unawaited(
           AppDiagnostics.logInfo(
             'Reward earned from rewarded ad',
@@ -212,6 +218,24 @@ class AdRewardService {
         _preloadRewardedAd();
       }
     });
+  }
+
+  static void _notifyRewardEarned(Future<void> Function()? callback) {
+    if (callback == null) {
+      return;
+    }
+    try {
+      unawaited(callback());
+    } catch (error, stack) {
+      unawaited(
+        AppDiagnostics.logError(
+          'Reward callback failed',
+          error,
+          stack,
+          fatal: false,
+        ),
+      );
+    }
   }
 
   static void _preloadRewardedAd() {

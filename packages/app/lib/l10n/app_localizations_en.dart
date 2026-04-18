@@ -502,6 +502,78 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings_runner_reenabled => 'Runner re-enabled';
 
   @override
+  String get settings_main_api_title => 'Main API';
+
+  @override
+  String get settings_main_api_desc =>
+      'Connect Bot Creator to your Main API and sign in with Discord. The Discord client secret must stay on the backend.';
+
+  @override
+  String get settings_main_api_url_hint => 'https://api.example.com';
+
+  @override
+  String get settings_main_api_save => 'Save Main API';
+
+  @override
+  String get settings_main_api_clear => 'Clear';
+
+  @override
+  String get settings_main_api_saved => 'Main API settings saved';
+
+  @override
+  String get settings_main_api_cleared => 'Main API settings cleared';
+
+  @override
+  String get settings_main_api_check => 'Check Main API';
+
+  @override
+  String get settings_main_api_connected => 'Main API reachable ✓';
+
+  @override
+  String get settings_main_api_unreachable => 'Main API unreachable';
+
+  @override
+  String get settings_main_api_auth_failed =>
+      'Main API session is invalid or expired';
+
+  @override
+  String get settings_main_api_connect_discord => 'Connect Discord account';
+
+  @override
+  String get settings_main_api_disconnect => 'Disconnect account';
+
+  @override
+  String get settings_main_api_desktop_only =>
+      'Discord login via Main API is available on desktop only.';
+
+  @override
+  String get settings_main_api_not_configured => 'Main API URL required';
+
+  @override
+  String get settings_main_api_session_connected => 'Discord session active';
+
+  @override
+  String get settings_main_api_session_disconnected =>
+      'Discord session disconnected';
+
+  @override
+  String get settings_main_api_session_expired => 'Discord session expired';
+
+  @override
+  String get settings_main_api_url_required => 'Main API URL required';
+
+  @override
+  String settings_main_api_connected_user(String user) {
+    return 'Connected as $user';
+  }
+
+  @override
+  String get settings_main_api_user_unknown => 'Discord user';
+
+  @override
+  String get settings_main_api_connected_discord => 'Discord account connected';
+
+  @override
   String get settings_discord_rpc_title => 'Discord Rich Presence';
 
   @override

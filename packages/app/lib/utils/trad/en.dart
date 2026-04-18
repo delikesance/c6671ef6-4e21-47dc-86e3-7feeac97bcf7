@@ -4,30 +4,24 @@
 const Map<String, String> appStringsEn = {
   'app_title': 'Bot Creator',
   'onboarding_welcome_title': 'Welcome to Bot Creator',
-  'onboarding_welcome_desc':
-      'Create your first Discord bot in 3 simple steps. We\'ll guide you through each step.',
+  'onboarding_welcome_desc': 'Create your first Discord bot in 3 simple steps. We\'ll guide you through each step.',
   'onboarding_welcome_start': 'Get Started',
   'onboarding_welcome_skip': 'Skip',
   'onboarding_create_title': 'Step 1: Create a Bot',
   'onboarding_create_desc': 'Get your Discord token',
-  'onboarding_create_steps':
-      '1. Go to Discord Developer Portal\n2. Create a new app\n3. Copy the bot token\n4. Paste it below',
-  'onboarding_create_tip':
-      '💡 Tip: Never share your token! It gives full access to your bot.',
+  'onboarding_create_steps': '1. Go to Discord Developer Portal\n2. Create a new app\n3. Copy the bot token\n4. Paste it below',
+  'onboarding_create_tip': '💡 Tip: Never share your token! It gives full access to your bot.',
   'onboarding_create_tutorial': 'Tutorial: How to get a token',
   'onboarding_create_button': 'Continue',
   'onboarding_command_title': 'Step 2: Add a Command',
   'onboarding_command_desc': 'Create your first command',
-  'onboarding_command_text':
-      'Commands are the heart of your bot. They allow users to interact with your bot via Discord.',
+  'onboarding_command_text': 'Commands are the heart of your bot. They allow users to interact with your bot via Discord.',
   'onboarding_command_example': 'Example:\n/hello → Bot replies "Hello! 👋"',
   'onboarding_command_button': 'Continue',
   'onboarding_start_title': 'Step 3: Start the Bot',
   'onboarding_start_desc': 'Launch your bot!',
-  'onboarding_start_text':
-      'Click the "Start" button on your bot card. Then test your command in Discord!',
-  'onboarding_start_tip':
-      '✨ Great! You\'ve created your first Discord bot. You can now add more commands and customize it!',
+  'onboarding_start_text': 'Click the "Start" button on your bot card. Then test your command in Discord!',
+  'onboarding_start_tip': '✨ Great! You\'ve created your first Discord bot. You can now add more commands and customize it!',
   'onboarding_start_button': 'Continue',
   'onboarding_success_title': 'Congratulations! 🎉',
   'onboarding_success_desc': 'Your Discord bot is ready to go!',
@@ -39,24 +33,18 @@ const Map<String, String> appStringsEn = {
   'app_create_new': 'Create a new App',
   'app_create_page_title': 'Create a bot',
   'app_create_hero_title': 'Connect your Discord bot',
-  'app_create_hero_desc':
-      'A guided setup to open the right pages, copy your token and import the bot safely.',
+  'app_create_hero_desc': 'A guided setup to open the right pages, copy your token and import the bot safely.',
   'app_resources_title': 'Guided setup',
-  'app_resources_desc':
-      'These actions open the official pages you need before saving your bot here.',
+  'app_resources_desc': 'These actions open the official pages you need before saving your bot here.',
   'app_open_discord_portal': 'Open Discord Developer Portal',
-  'app_open_discord_portal_desc':
-      'Create your application and enable the bot section.',
+  'app_open_discord_portal_desc': 'Create your application and enable the bot section.',
   'app_open_token_tutorial': 'Read the token tutorial',
-  'app_open_token_tutorial_desc':
-      'A step-by-step guide to generate and copy your bot token.',
+  'app_open_token_tutorial_desc': 'A step-by-step guide to generate and copy your bot token.',
   'app_external_link_badge': 'External link',
   'app_token_section_title': 'Paste your bot token',
-  'app_token_section_desc':
-      'Once the token is copied, paste it below to add your bot to the app.',
+  'app_token_section_desc': 'Once the token is copied, paste it below to add your bot to the app.',
   'app_token_field_helper': 'Paste the token exactly as provided by Discord.',
-  'app_token_security_hint':
-      'Keep this token private. Anyone with it can control your bot.',
+  'app_token_security_hint': 'Keep this token private. Anyone with it can control your bot.',
   'app_show_token': 'Show token',
   'app_hide_token': 'Hide token',
   'app_save_bot': 'Add bot',
@@ -64,8 +52,7 @@ const Map<String, String> appStringsEn = {
   'app_how_to_create_token': 'How to create a Bot Token?',
   'app_bot_token': 'Bot Token',
   'app_enter_token': 'Enter your bot token here',
-  'app_note':
-      'Note: You need to create a new App in the Discord Developer Portal and get your bot token.',
+  'app_note': 'Note: You need to create a new App in the Discord Developer Portal and get your bot token.',
   'app_save': 'Save Changes',
   'app_no_apps': 'No applications found',
   'app_loading_error': 'Loading error',
@@ -87,8 +74,7 @@ const Map<String, String> appStringsEn = {
   'emojis_upload_name_hint': 'Emoji name (letters, numbers, _)',
   'emojis_upload_pick_image': 'Pick Image',
   'emojis_delete_confirm_title': 'Delete Emoji',
-  'emojis_delete_confirm_body':
-      'Delete :{name}: ? This action cannot be undone.',
+  'emojis_delete_confirm_body': 'Delete :{name}: ? This action cannot be undone.',
   'emojis_rename_title': 'Rename Emoji',
   'emojis_rename_hint': 'New name',
   'emojis_loading_error': 'Failed to load emojis',
@@ -108,21 +94,16 @@ const Map<String, String> appStringsEn = {
   'settings_language_system': 'Automatic (device)',
   'settings_language_updated': 'Language updated',
   'settings_debug_title': 'Debug tools',
-  'settings_debug_desc':
-      'Reset local preferences or replay onboarding for testing.',
+  'settings_debug_desc': 'Reset local preferences or replay onboarding for testing.',
   'settings_reset_preferences': 'Reset preferences',
-  'settings_reset_preferences_desc':
-      'Reset theme, language and onboarding progress.',
+  'settings_reset_preferences_desc': 'Reset theme, language and onboarding progress.',
   'settings_replay_onboarding': 'Replay onboarding',
-  'settings_replay_onboarding_desc':
-      'Reset onboarding and launch it again now.',
+  'settings_replay_onboarding_desc': 'Reset onboarding and launch it again now.',
   'settings_debug_premium_bypass': 'Premium bypass',
-  'settings_debug_premium_bypass_desc':
-      'Unlock all Premium features without a subscription (debug only).',
+  'settings_debug_premium_bypass_desc': 'Unlock all Premium features without a subscription (debug only).',
   'settings_preferences_reset_done': 'Preferences reset',
   'settings_backup_restore_title': 'Backup and Restore',
-  'settings_backup_restore_desc':
-      'Manage your data synchronization with Google Drive',
+  'settings_backup_restore_desc': 'Manage your data synchronization with Google Drive',
   'settings_snapshot_preview_title': 'Snapshot Preview',
   'settings_snapshot_id': 'ID: {id}',
   'settings_snapshot_label': 'Label: {label}',
@@ -147,8 +128,7 @@ const Map<String, String> appStringsEn = {
   'settings_drive_disconnected': 'Disconnected from Google Drive',
   'settings_drive_disconnect': 'Disconnect',
   'settings_runner_title': 'Runner API',
-  'settings_runner_desc':
-      'Connect the app to a Bot Creator Runner. Remote runners should stay on trusted networks and use a bearer token.',
+  'settings_runner_desc': 'Connect the app to a Bot Creator Runner. Remote runners should stay on trusted networks and use a bearer token.',
   'settings_runner_url_hint': 'http://192.168.1.x:8080',
   'settings_runner_token_label': 'Runner API token',
   'settings_runner_token_hint': 'Bearer token (optional on localhost)',
@@ -167,24 +147,40 @@ const Map<String, String> appStringsEn = {
   'settings_runner_connecting': 'Checking connection…',
   'settings_runner_active': 'Active Runner API: {url}',
   'settings_runner_disable_temp': 'Temporarily disable Runner',
-  'settings_runner_disable_temp_desc':
-      'Keep Runner settings but force local mode until re-enabled.',
-  'settings_runner_temporarily_disabled':
-      'Runner temporarily disabled (local mode active)',
+  'settings_runner_disable_temp_desc': 'Keep Runner settings but force local mode until re-enabled.',
+  'settings_runner_temporarily_disabled': 'Runner temporarily disabled (local mode active)',
   'settings_runner_temporarily_disabled_saved': 'Runner temporarily disabled',
   'settings_runner_reenabled': 'Runner re-enabled',
+  'settings_main_api_title': 'Main API',
+  'settings_main_api_desc': 'Connect Bot Creator to your Main API and sign in with Discord. The Discord client secret must stay on the backend.',
+  'settings_main_api_url_hint': 'https://api.example.com',
+  'settings_main_api_save': 'Save Main API',
+  'settings_main_api_clear': 'Clear',
+  'settings_main_api_saved': 'Main API settings saved',
+  'settings_main_api_cleared': 'Main API settings cleared',
+  'settings_main_api_check': 'Check Main API',
+  'settings_main_api_connected': 'Main API reachable ✓',
+  'settings_main_api_unreachable': 'Main API unreachable',
+  'settings_main_api_auth_failed': 'Main API session is invalid or expired',
+  'settings_main_api_connect_discord': 'Connect Discord account',
+  'settings_main_api_disconnect': 'Disconnect account',
+  'settings_main_api_desktop_only': 'Discord login via Main API is available on desktop only.',
+  'settings_main_api_not_configured': 'Main API URL required',
+  'settings_main_api_session_connected': 'Discord session active',
+  'settings_main_api_session_disconnected': 'Discord session disconnected',
+  'settings_main_api_session_expired': 'Discord session expired',
+  'settings_main_api_url_required': 'Main API URL required',
+  'settings_main_api_connected_user': 'Connected as {user}',
+  'settings_main_api_user_unknown': 'Discord user',
+  'settings_main_api_connected_discord': 'Discord account connected',
   'settings_discord_rpc_title': 'Discord Rich Presence',
-  'settings_discord_rpc_desc':
-      'Publish Bot Creator desktop activity to the local Discord client. Bot Creator always uses the built-in Discord application and sends SET_ACTIVITY directly over local IPC when enabled.',
+  'settings_discord_rpc_desc': 'Publish Bot Creator desktop activity to the local Discord client. Bot Creator always uses the built-in Discord application and sends SET_ACTIVITY directly over local IPC when enabled.',
   'settings_discord_rpc_enable': 'Enable Discord Rich Presence',
   'settings_discord_rpc_client_id_hint': '1350824555119382678',
-  'settings_discord_rpc_client_id_helper':
-      'This ID is fixed in Bot Creator and cannot be changed from settings.',
-  'settings_discord_rpc_client_secret_label':
-      'Discord application client secret (optional)',
+  'settings_discord_rpc_client_id_helper': 'This ID is fixed in Bot Creator and cannot be changed from settings.',
+  'settings_discord_rpc_client_secret_label': 'Discord application client secret (optional)',
   'settings_discord_rpc_client_secret_hint': 'Client secret',
-  'settings_discord_rpc_client_secret_helper':
-      'Optional advanced fallback for a confidential-client flow handled locally.',
+  'settings_discord_rpc_client_secret_helper': 'Optional advanced fallback for a confidential-client flow handled locally.',
   'settings_discord_rpc_broker_label': 'OAuth broker URL (advanced, optional)',
   'settings_discord_rpc_broker_hint': 'https://auth.example.com',
   'settings_discord_rpc_save': 'Save settings',
@@ -192,8 +188,7 @@ const Map<String, String> appStringsEn = {
   'settings_discord_rpc_connect': 'Refresh presence',
   'settings_discord_rpc_authorize': 'Authorize',
   'settings_discord_rpc_complete_authorization': 'Complete authorization',
-  'settings_discord_rpc_authorization_pending_exchange':
-      'Authorization code received',
+  'settings_discord_rpc_authorization_pending_exchange': 'Authorization code received',
   'settings_discord_rpc_open_ipc': 'Open local IPC',
   'settings_discord_rpc_ipc_open': 'Local IPC already open',
   'settings_discord_rpc_disconnect': 'Close IPC',
@@ -201,22 +196,16 @@ const Map<String, String> appStringsEn = {
   'settings_discord_rpc_endpoint': 'IPC endpoint: {endpoint}',
   'settings_discord_rpc_last_error': 'Last error: {error}',
   'settings_discord_rpc_enable_first': 'Enable Discord Rich Presence first',
-  'settings_discord_rpc_client_id_required':
-      'Discord application client ID required',
+  'settings_discord_rpc_client_id_required': 'Discord application client ID required',
   'settings_discord_rpc_disabled': 'Disabled',
-  'settings_discord_rpc_platform_unsupported':
-      'Discord Rich Presence is desktop only',
-  'settings_discord_rpc_transport_unsupported':
-      'Discord transport is not supported on this platform yet',
+  'settings_discord_rpc_platform_unsupported': 'Discord Rich Presence is desktop only',
+  'settings_discord_rpc_transport_unsupported': 'Discord transport is not supported on this platform yet',
   'settings_discord_rpc_not_configured': 'Client ID required',
-  'settings_discord_rpc_broker_required':
-      'Client ID is enough for the public-client flow; broker URL and client secret are optional fallbacks',
+  'settings_discord_rpc_broker_required': 'Client ID is enough for the public-client flow; broker URL and client secret are optional fallbacks',
   'settings_discord_rpc_disconnected': 'IPC closed',
   'settings_discord_rpc_needs_authorization': 'Authorization required',
-  'settings_discord_rpc_authorization_code_pending_exchange':
-      'Authorization code cached; retry to finish the token exchange',
-  'settings_discord_rpc_ipc_connected_auth_required':
-      'Local Discord IPC connected; no OAuth HTTP request sent yet, authentication still required',
+  'settings_discord_rpc_authorization_code_pending_exchange': 'Authorization code cached; retry to finish the token exchange',
+  'settings_discord_rpc_ipc_connected_auth_required': 'Local Discord IPC connected; no OAuth HTTP request sent yet, authentication still required',
   'settings_discord_rpc_connecting': 'Connecting to Discord…',
   'settings_discord_rpc_authorizing': 'Waiting for Discord authorization…',
   'settings_discord_rpc_exchanging_code': 'Completing OAuth exchange…',
@@ -232,8 +221,7 @@ const Map<String, String> appStringsEn = {
   'settings_import_loading': 'Importing…',
   'settings_recovery_title': 'Recovery Pro',
   'settings_enable_auto_backup': 'Enable auto-backup',
-  'settings_enable_auto_backup_desc':
-      'Create versioned snapshots automatically when due.',
+  'settings_enable_auto_backup_desc': 'Create versioned snapshots automatically when due.',
   'settings_auto_backup_interval': 'Auto-backup interval',
   'settings_auto_backup_every_6h': 'Every 6h',
   'settings_auto_backup_every_12h': 'Every 12h',
@@ -251,23 +239,19 @@ const Map<String, String> appStringsEn = {
   'settings_snapshots_refresh': 'Refresh snapshots',
   'settings_snapshots_delete_all': 'Delete all snapshots',
   'settings_snapshots_delete_all_title': 'Delete all snapshots',
-  'settings_snapshots_delete_all_confirm':
-      'Permanently delete {count} snapshot(s)? This action cannot be undone.',
+  'settings_snapshots_delete_all_confirm': 'Permanently delete {count} snapshot(s)? This action cannot be undone.',
   'settings_snapshots_delete_all_loading': 'Deleting all snapshots…',
   'settings_snapshots_delete_all_done': '{count} snapshot(s) deleted.',
   'settings_snapshots_delete_select_tooltip': 'Delete a selected snapshot',
   'settings_snapshots_delete_select_title': 'Delete a snapshot',
-  'settings_snapshots_delete_select_desc':
-      'Select the snapshot to remove (oldest first).',
-  'settings_snapshots_delete_one_confirm':
-      'Permanently delete "{label}"? This action cannot be undone.',
+  'settings_snapshots_delete_select_desc': 'Select the snapshot to remove (oldest first).',
+  'settings_snapshots_delete_one_confirm': 'Permanently delete "{label}"? This action cannot be undone.',
   'settings_snapshots_refresh_loading': 'Refreshing snapshots…',
   'settings_snapshots_empty': 'No snapshots found yet.',
   'settings_snapshot_list_entry': '{date} • {count} files • {size}',
   'settings_diagnostics_section_title': 'Diagnostics',
   'settings_diagnostics_page_title': 'Application Logs',
-  'settings_diagnostics_page_scope_note':
-      'Shows app diagnostics logs only (bot logs are excluded).',
+  'settings_diagnostics_page_scope_note': 'Shows app diagnostics logs only (bot logs are excluded).',
   'settings_diagnostics_refresh': 'Refresh logs',
   'settings_diagnostics_copy_all': 'Copy all logs',
   'settings_diagnostics_empty': 'No application logs yet.',
@@ -278,66 +262,44 @@ const Map<String, String> appStringsEn = {
   'settings_legal_desc': 'Review how your data is handled and stored.',
   'settings_privacy_policy': 'Privacy Policy',
   'settings_compatibility_title': 'BDFD compatibility snapshot',
-  'settings_compatibility_desc':
-      'A quick view of feature coverage for users moving from BDFD.',
+  'settings_compatibility_desc': 'A quick view of feature coverage for users moving from BDFD.',
   'settings_compatibility_status_supported': 'Supported',
   'settings_compatibility_status_partial': 'Partial',
   'settings_compatibility_status_missing': 'Missing',
   'settings_compatibility_item_workflows_title': 'Workflow builder',
-  'settings_compatibility_item_workflows_desc':
-      'Visual command and response workflows are available.',
-  'settings_compatibility_item_variables_title':
-      'Runtime variables and templates',
-  'settings_compatibility_item_variables_desc':
-      'Dynamic variables and template helpers are supported.',
+  'settings_compatibility_item_workflows_desc': 'Visual command and response workflows are available.',
+  'settings_compatibility_item_variables_title': 'Runtime variables and templates',
+  'settings_compatibility_item_variables_desc': 'Dynamic variables and template helpers are supported.',
   'settings_compatibility_item_events_title': 'Event coverage',
-  'settings_compatibility_item_events_desc':
-      'Most common events are supported, some are runtime-limited.',
+  'settings_compatibility_item_events_desc': 'Most common events are supported, some are runtime-limited.',
   'settings_compatibility_item_runner_title': 'Runner architecture',
-  'settings_compatibility_item_runner_desc':
-      'Remote runner is available, multi-runner support is in progress.',
+  'settings_compatibility_item_runner_desc': 'Remote runner is available, multi-runner support is in progress.',
   'settings_compatibility_item_bdscript_title': 'BDScript function parity',
-  'settings_compatibility_item_bdscript_desc':
-      'Full coverage of the BDFD function catalog.',
-  'settings_compatibility_note':
-      'This snapshot is intentionally high-level and will evolve with releases.',
+  'settings_compatibility_item_bdscript_desc': 'Full coverage of the BDFD function catalog.',
+  'settings_compatibility_note': 'This snapshot is intentionally high-level and will evolve with releases.',
   'settings_compatibility_open_functions': 'View compatible functions',
   'settings_compatibility_functions_title': 'Compatible BDFD Functions',
-  'settings_compatibility_functions_subtitle':
-      'Functions currently implemented and usable in Bot Creator BDFD mode.',
-  'settings_compatibility_functions_matrix_subtitle':
-      'Diff view between Bot Creator implementation and BDFD reference functions.',
+  'settings_compatibility_functions_subtitle': 'Functions currently implemented and usable in Bot Creator BDFD mode.',
+  'settings_compatibility_functions_matrix_subtitle': 'Diff view between Bot Creator implementation and BDFD reference functions.',
   'settings_compatibility_functions_count': 'Compatible functions: {count}',
-  'settings_compatibility_functions_count_bot_creator':
-      'Bot Creator supported: {count}',
-  'settings_compatibility_functions_count_bdfd':
-      'BDFD reference total: {count}',
+  'settings_compatibility_functions_count_bot_creator': 'Bot Creator supported: {count}',
+  'settings_compatibility_functions_count_bdfd': 'BDFD reference total: {count}',
   'settings_compatibility_functions_count_both': 'Supported on both: {count}',
-  'settings_compatibility_functions_count_missing':
-      'Missing in Bot Creator: {count}',
-  'settings_compatibility_functions_count_bot_only':
-      'Bot Creator only: {count}',
-  'settings_compatibility_functions_note':
-      'This page is generated from the current implementation scope and will grow over time.',
-  'settings_compatibility_functions_matrix_note':
-      'BDFD-only entries are functions listed in the provided BDFD catalog but not currently implemented in Bot Creator.',
-  'settings_compatibility_functions_search_hint':
-      'Search a function (example: \$userJoined)',
-  'settings_compatibility_functions_section_both':
-      'Supported on Bot Creator and BDFD',
-  'settings_compatibility_functions_section_bot_only':
-      'Supported on Bot Creator only',
-  'settings_compatibility_functions_section_bot_only_note':
-      'Loop helpers are currently Bot Creator specific.',
-  'settings_compatibility_functions_section_missing':
-      'Available on BDFD but missing in Bot Creator',
+  'settings_compatibility_functions_count_missing': 'Missing in Bot Creator: {count}',
+  'settings_compatibility_functions_count_bot_only': 'Bot Creator only: {count}',
+  'settings_compatibility_functions_note': 'This page is generated from the current implementation scope and will grow over time.',
+  'settings_compatibility_functions_matrix_note': 'BDFD-only entries are functions listed in the provided BDFD catalog but not currently implemented in Bot Creator.',
+  'settings_compatibility_functions_search_hint': 'Search a function (example: \$userJoined)',
+  'settings_compatibility_functions_section_both': 'Supported on Bot Creator and BDFD',
+  'settings_compatibility_functions_section_bot_only': 'Supported on Bot Creator only',
+  'settings_compatibility_functions_section_bot_only_note': 'Loop helpers are currently Bot Creator specific.',
+  'settings_compatibility_functions_section_missing': 'Available on BDFD but missing in Bot Creator',
   'settings_compatibility_functions_empty': 'No function in this section.',
   'settings_compatibility_functions_category_guards': 'Guards and permissions',
   'settings_compatibility_functions_category_control': 'Control flow',
   'settings_compatibility_functions_category_messages': 'Messages',
   'settings_compatibility_functions_category_embeds': 'Embeds',
-  'settings_compatibility_functions_category_components':
-      'Components / Interactions',
+  'settings_compatibility_functions_category_components': 'Components / Interactions',
   'settings_compatibility_functions_category_logging': 'Logging',
   'settings_compatibility_functions_category_json': 'JSON helpers',
   'settings_compatibility_functions_category_http': 'HTTP helpers',
@@ -345,8 +307,7 @@ const Map<String, String> appStringsEn = {
   'settings_compatibility_functions_category_threads': 'Threads',
   'settings_compatibility_functions_category_runtime': 'Runtime placeholders',
   'settings_ads_privacy_manage': 'Manage ad privacy choices',
-  'settings_ads_privacy_not_required':
-      'Ad privacy options are not required right now',
+  'settings_ads_privacy_not_required': 'Ad privacy options are not required right now',
   'settings_ads_privacy_loading': 'Checking ad privacy settings...',
   'settings_ads_privacy_opened': 'Ad privacy options opened',
   'settings_ads_privacy_open_error': 'Could not open ad privacy options',
@@ -429,10 +390,8 @@ const Map<String, String> appStringsEn = {
   'home_token_missing': 'Token not found for {botName}',
   'home_log_start_requested': 'Bot start requested',
   'home_log_stop_requested': 'Bot stop requested',
-  'home_notification_permission_required':
-      'Notification permission is required to start the bot.',
-  'home_foreground_service_not_started':
-      'The foreground service did not start.',
+  'home_notification_permission_required': 'Notification permission is required to start the bot.',
+  'home_foreground_service_not_started': 'The foreground service did not start.',
   'home_log_desktop_stop_requested': 'Desktop bot stop requested',
   'home_unknown_app': 'Unknown',
   'home_status_online': 'Online',
@@ -444,19 +403,16 @@ const Map<String, String> appStringsEn = {
   'home_manage': 'Manage',
   'home_logs_tooltip': 'Bot logs',
   'rewarded_start_title': 'Support Bot Creator',
-  'rewarded_start_message':
-      'This ad helps fund the app and can only appear when you press Start. If no ad can be shown, the bot will still start normally.',
+  'rewarded_start_message': 'This ad helps fund the app and can only appear when you press Start. If no ad can be shown, the bot will still start normally.',
   'rewarded_start_watch': 'Watch ad',
   'rewarded_start_continue': 'Continue',
   'rewarded_start_skip': 'Skip',
   'rewarded_start_thanks': 'Thanks for your support!',
   'ads_consent_title': 'Ads consent',
-  'ads_consent_message':
-      'To comply with GDPR, we need your consent before showing ads. You can continue using the app even if you refuse.',
+  'ads_consent_message': 'To comply with GDPR, we need your consent before showing ads. You can continue using the app even if you refuse.',
   'ads_consent_accept': 'I accept',
   'ads_consent_refuse': 'I refuse',
-  'ads_consent_refused_info':
-      'Ad consent declined. The bot will still start normally.',
+  'ads_consent_refused_info': 'Ad consent declined. The bot will still start normally.',
   'error': 'Error',
   'error_with_details': 'Error: {error}',
   'ok': 'OK',
@@ -471,8 +427,7 @@ const Map<String, String> appStringsEn = {
   'bot_home_starting': 'Starting…',
   'bot_home_stop': 'Stop Bot',
   'bot_home_ios_notice_title': 'Local iOS constraint',
-  'bot_home_ios_notice_content':
-      'In local mode, iOS may suspend the app in the background. The bot can start, but keeping the Discord connection alive is not guaranteed like it is with a Runner.',
+  'bot_home_ios_notice_content': 'In local mode, iOS may suspend the app in the background. The bot can start, but keeping the Discord connection alive is not guaranteed like it is with a Runner.',
   'bot_home_view_logs': 'View bot logs',
   'bot_home_view_stats': 'View bot stats',
   'bot_home_view_replay': 'View debugger replays',
@@ -489,31 +444,23 @@ const Map<String, String> appStringsEn = {
   'bot_home_log_start': 'Bot start requested',
   'bot_home_log_stop': 'Bot stop requested',
   'bot_home_log_desktop_stop': 'Desktop bot stop requested',
-  'bot_home_notif_required':
-      'Notification permission is required to start the bot service.',
+  'bot_home_notif_required': 'Notification permission is required to start the bot service.',
   'bot_home_service_not_started': 'Foreground service did not start.',
   'bot_home_token_invalid_title': 'Token seems invalid',
-  'bot_home_token_invalid_content':
-      'Unable to connect to Discord with the provided token. It may be invalid or revoked. Do you want to start the bot anyway?',
-  'bot_offline_token_desc':
-      'Token invalid or missing. Enter a new Discord bot token to restore the connection.',
-  'cmd_offline_incomplete_warning':
-      'This command could not be fully loaded (offline or token invalid). Connect a valid token to edit.',
+  'bot_home_token_invalid_content': 'Unable to connect to Discord with the provided token. It may be invalid or revoked. Do you want to start the bot anyway?',
+  'bot_offline_token_desc': 'Token invalid or missing. Enter a new Discord bot token to restore the connection.',
+  'cmd_offline_incomplete_warning': 'This command could not be fully loaded (offline or token invalid). Connect a valid token to edit.',
   'bot_settings_token_mismatch_title': 'Different bot detected',
-  'bot_settings_token_mismatch_content':
-      'This token belongs to bot {newId}, but the current data is for bot {oldId}. Commands and settings may not match. Continue anyway?',
+  'bot_settings_token_mismatch_content': 'This token belongs to bot {newId}, but the current data is for bot {oldId}. Commands and settings may not match. Continue anyway?',
   'bot_settings_token_mismatch_confirm': 'Replace token anyway',
   'bot_settings_title': 'Application Settings',
   'bot_settings_workflow_docs': 'Documentation Center',
-  'bot_settings_workflow_docs_desc':
-      'Centralized documentation for commands, workflows, runtime variables, and execution behavior.',
+  'bot_settings_workflow_docs_desc': 'Centralized documentation for commands, workflows, runtime variables, and execution behavior.',
   'bot_settings_export_import': 'Export / Import',
-  'bot_settings_export_import_desc':
-      'Export or import your bot configuration as a ZIP file.',
+  'bot_settings_export_import_desc': 'Export or import your bot configuration as a ZIP file.',
   'bot_settings_app_flags': 'Application Flags',
   'bot_settings_gateway_intents': 'Gateway Intents Configuration',
-  'bot_settings_gateway_intents_desc':
-      'Select which intents your bot needs. Configure these in the Discord Developer Portal.',
+  'bot_settings_gateway_intents_desc': 'Select which intents your bot needs. Configure these in the Discord Developer Portal.',
   'bot_settings_token_title': 'Bot Token',
   'bot_settings_update_token': 'Update Bot Token',
   'bot_settings_token_hint': 'Enter your bot token here',
@@ -522,22 +469,17 @@ const Map<String, String> appStringsEn = {
   'bot_settings_save_token_only_btn': 'Save token',
   'bot_settings_save_intents_btn': 'Save intents',
   'bot_settings_save_profile_status_btn': 'Save profile and statuses',
-  'bot_settings_save_token_caption':
-      'Token changes are protected. Click "Edit token" first, then save.',
-  'bot_settings_save_intents_caption':
-      'This only updates gateway intents configuration.',
-  'bot_settings_save_profile_caption':
-      'This applies username/avatar instantly and saves status rotation.',
+  'bot_settings_save_token_caption': 'Token changes are protected. Click "Edit token" first, then save.',
+  'bot_settings_save_intents_caption': 'This only updates gateway intents configuration.',
+  'bot_settings_save_profile_caption': 'This applies username/avatar instantly and saves status rotation.',
   'bot_settings_token_saved': 'Token saved successfully',
   'bot_settings_intents_saved': 'Intents saved successfully',
   'bot_settings_profile_saved': 'Profile/statuses applied successfully',
   'bot_settings_edit_token_btn': 'Edit token',
   'bot_settings_cancel_token_edit_btn': 'Cancel token edit',
-  'bot_settings_token_hidden_desc':
-      'Token input is hidden by default for safety.',
+  'bot_settings_token_hidden_desc': 'Token input is hidden by default for safety.',
   'bot_settings_token_required': 'Bot token is required.',
-  'bot_settings_save_token_first':
-      'Please save the token first before applying profile/status changes.',
+  'bot_settings_save_token_first': 'Please save the token first before applying profile/status changes.',
   'bot_settings_profile_title': 'Bot Profile',
   'bot_settings_username_override': 'Username override',
   'bot_settings_username_hint': 'Leave empty to keep current username',
@@ -547,8 +489,7 @@ const Map<String, String> appStringsEn = {
   'bot_settings_avatar_selected_file': 'Selected file: {path}',
   'bot_settings_avatar_preview_label': 'Avatar preview',
   'bot_settings_avatar_preview_error': 'Unable to preview image',
-  'bot_settings_avatar_unsupported_format':
-      'Unsupported avatar format: {ext}. Supported formats: {formats}.',
+  'bot_settings_avatar_unsupported_format': 'Unsupported avatar format: {ext}. Supported formats: {formats}.',
   'bot_settings_avatar_clear_selection': 'Clear selection',
   'bot_settings_presence_status_title': 'Bot Presence Status',
   'bot_settings_presence_status_label': 'Presence',
@@ -557,8 +498,7 @@ const Map<String, String> appStringsEn = {
   'bot_settings_presence_dnd': 'Do Not Disturb',
   'bot_settings_presence_invisible': 'Invisible',
   'bot_settings_status_rotation_title': 'Activities Rotation',
-  'bot_settings_status_rotation_desc':
-      'Add one or more activities. Each activity needs a type, name, and min/max interval (seconds).',
+  'bot_settings_status_rotation_desc': 'Add one or more activities. Each activity needs a type, name, and min/max interval (seconds).',
   'bot_settings_add_status': 'Add activity',
   'bot_settings_status_item_title': 'Activity {index}',
   'bot_settings_remove_status': 'Remove activity',
@@ -596,15 +536,11 @@ const Map<String, String> appStringsEn = {
   'debug_replay_stop_capture': 'Disable capture',
   'debug_replay_clear': 'Clear replays',
   'debug_replay_clear_title': 'Clear replays',
-  'debug_replay_clear_confirm':
-      'All recorded replays will be deleted. Continue?',
-  'debug_replay_empty_capturing':
-      'Capturing… Run a command to record a replay.',
-  'debug_replay_empty_idle':
-      'Capture is off. Enable it and run a command to record a replay.',
+  'debug_replay_clear_confirm': 'All recorded replays will be deleted. Continue?',
+  'debug_replay_empty_capturing': 'Capturing… Run a command to record a replay.',
+  'debug_replay_empty_idle': 'Capture is off. Enable it and run a command to record a replay.',
   'debug_replay_premium_title': 'Visual Debugger Replay',
-  'debug_replay_premium_desc':
-      'Record and replay your command executions step by step. See exactly what each action did, how long it took, and where errors occurred.',
+  'debug_replay_premium_desc': 'Record and replay your command executions step by step. See exactly what each action did, how long it took, and where errors occurred.',
   'debug_replay_overview': 'Overview',
   'debug_replay_play': 'Play',
   'debug_replay_pause': 'Pause',
@@ -626,8 +562,7 @@ const Map<String, String> appStringsEn = {
   'bot_stats_storage': 'Bot storage (app data)',
   'bot_stats_source_runner_api': 'Source: Runner API',
   'bot_stats_source_local_hosting': 'Source: Local Hosting',
-  'bot_stats_notes':
-      'Notes: CPU available on Android/Linux. Storage = bot data files in the app.',
+  'bot_stats_notes': 'Notes: CPU available on Android/Linux. Storage = bot data files in the app.',
   'bot_stats_collecting': 'Collecting…',
   'commands_title': 'Commands',
   'commands_empty': 'No commands found',
@@ -641,30 +576,26 @@ const Map<String, String> appStringsEn = {
   'commands_create_folder': 'Create folder',
   'commands_rename_folder': 'Rename folder',
   'commands_delete_folder': 'Delete folder',
-  'commands_delete_folder_desc':
-      'The commands inside this folder will not be deleted, only un-foldered.',
+  'commands_delete_folder_desc': 'The commands inside this folder will not be deleted, only un-foldered.',
   'commands_reorder_title': 'Organize commands',
   'commands_no_folder': 'No folder',
   'export_import_title': 'Export / Import',
   'export_section_title': 'Export',
-  'export_section_desc':
-      'Export selected sections of your bot as a ZIP file. The bot token is never included.',
+  'export_section_desc': 'Export selected sections of your bot as a ZIP file. The bot token is never included.',
   'export_commands': 'Commands',
   'export_workflows': 'Workflows',
   'export_status': 'Status & Activities',
   'export_global_variables': 'Global Variables',
   'export_button': 'Export ZIP',
   'import_section_title': 'Import',
-  'import_section_desc':
-      'Import a previously exported ZIP file. Conflicts can be resolved per item.',
+  'import_section_desc': 'Import a previously exported ZIP file. Conflicts can be resolved per item.',
   'import_pick_file': 'Select ZIP file',
   'import_button': 'Import',
   'import_overwrite': 'Overwrite',
   'import_skip': 'Skip',
   'globals_title': 'Variables',
   'globals_empty': 'No global variables yet',
-  'globals_empty_subtitle':
-      'Add a variable to store persistent data accessible by all commands.',
+  'globals_empty_subtitle': 'Add a variable to store persistent data accessible by all commands.',
   'globals_add': 'Add Variable',
   'globals_add_global': 'Add Global Variable',
   'globals_add_scoped': 'Add Scoped Variable',
@@ -679,25 +610,19 @@ const Map<String, String> appStringsEn = {
   'globals_search': 'Search variables…',
   'globals_mode_global': 'Global',
   'globals_mode_scoped': 'Scoped',
-  'globals_help_global':
-      'Shared across all commands. Access via \$getVar[key].',
-  'globals_help_scoped':
-      'Stored per context (server, user, channel…). Each entry keeps a distinct value per Discord context.',
+  'globals_help_global': 'Shared across all commands. Access via \$getVar[key].',
+  'globals_help_scoped': 'Stored per context (server, user, channel…). Each entry keeps a distinct value per Discord context.',
   'globals_source_local': 'Local',
   'globals_source_runner': 'Runner: {name}',
-  'globals_value_auto_type_hint':
-      'Value is auto-typed (number, boolean, JSON).',
+  'globals_value_auto_type_hint': 'Value is auto-typed (number, boolean, JSON).',
   'globals_copy_value': 'Copy value',
   'globals_no_default': 'No default value',
-  'globals_dialog_global_desc':
-      'Global variables are shared across all commands and servers.',
-  'globals_dialog_scoped_desc':
-      'A scoped variable stores a separate value per {scope} context.',
+  'globals_dialog_global_desc': 'Global variables are shared across all commands and servers.',
+  'globals_dialog_scoped_desc': 'A scoped variable stores a separate value per {scope} context.',
   'globals_dialog_ref_preview': 'Usage: \$getVar[{ref}]',
   'scoped_title': 'Scoped Variables',
   'scoped_empty': 'No scoped variables defined',
-  'scoped_empty_subtitle':
-      'Scoped variables store a value per Discord context (user, server…). They are populated by the bot at runtime.',
+  'scoped_empty_subtitle': 'Scoped variables store a value per Discord context (user, server…). They are populated by the bot at runtime.',
   'scoped_delete_title': 'Delete Scoped Variable',
   'scoped_delete_confirm': 'Delete "{key}" and all its stored runtime data?',
   'scoped_default_value': 'Default value',
@@ -708,8 +633,7 @@ const Map<String, String> appStringsEn = {
   'scoped_ref_legacy': 'Legacy: {ref}',
   'scoped_runtime_title': 'Runtime data — "{key}"',
   'scoped_runtime_subtitle': 'Scope: {scope} · {count} context(s) found',
-  'scoped_runtime_empty':
-      'No runtime data.\nThis key will be populated by the bot at execution.',
+  'scoped_runtime_empty': 'No runtime data.\nThis key will be populated by the bot at execution.',
   'scoped_runtime_copy_all': 'Copy all',
   'scoped_runtime_search': 'Search by ID or name…',
   'scoped_explore_runtime': 'Explore runtime data',
@@ -731,8 +655,7 @@ const Map<String, String> appStringsEn = {
   'workflows_arg_name': 'Name',
   'workflows_arg_default': 'Default value',
   'workflows_arg_required_short': 'Req',
-  'workflows_arg_hint':
-      'Arguments become runtime variables as ((arg.name)) and ((workflow.arg.name)).',
+  'workflows_arg_hint': 'Arguments become runtime variables as ((arg.name)) and ((workflow.arg.name)).',
   'workflows_continue': 'Continue',
   'workflows_add_arg': 'Add argument',
   'workflows_docs_tooltip': 'Open documentation center',
@@ -742,17 +665,14 @@ const Map<String, String> appStringsEn = {
   'workflows_event_section': 'Event Workflows',
   'workflows_type_title': 'Workflow type',
   'workflows_type_general': 'General workflow',
-  'workflows_type_general_desc':
-      'Reusable logic called from commands, buttons, modals, or other workflows.',
+  'workflows_type_general_desc': 'Reusable logic called from commands, buttons, modals, or other workflows.',
   'workflows_type_event': 'Event workflow',
-  'workflows_type_event_desc':
-      'Automatically reacts when Discord emits an event.',
+  'workflows_type_event_desc': 'Automatically reacts when Discord emits an event.',
   'workflows_type_badge_general': 'General',
   'workflows_type_badge_event': 'Event',
   'workflows_listen_for': 'Listen for',
   'workflows_event_category': 'Event category',
-  'workflows_event_hint':
-      'Choose the Discord event that should trigger this workflow.',
+  'workflows_event_hint': 'Choose the Discord event that should trigger this workflow.',
   'workflows_event_preview': 'Listen for: {event}',
   'workflows_event_available_vars': 'Available variables',
   'workflows_event_category_messages': 'Messages',
@@ -760,47 +680,37 @@ const Map<String, String> appStringsEn = {
   'workflows_event_category_channels': 'Channels',
   'workflows_event_category_invites': 'Invites',
   'workflows_event_message_create': 'Message Create',
-  'workflows_event_message_create_desc':
-      'Triggered whenever a new message is created.',
+  'workflows_event_message_create_desc': 'Triggered whenever a new message is created.',
   'workflows_event_message_update': 'Message Update',
-  'workflows_event_message_update_desc':
-      'Triggered whenever an existing message is edited.',
+  'workflows_event_message_update_desc': 'Triggered whenever an existing message is edited.',
   'workflows_event_message_delete': 'Message Delete',
-  'workflows_event_message_delete_desc':
-      'Triggered whenever a message is deleted.',
+  'workflows_event_message_delete_desc': 'Triggered whenever a message is deleted.',
   'workflows_event_member_join': 'Member Join',
-  'workflows_event_member_join_desc':
-      'Triggered whenever a member joins the guild.',
+  'workflows_event_member_join_desc': 'Triggered whenever a member joins the guild.',
   'workflows_event_member_remove': 'Member Remove',
-  'workflows_event_member_remove_desc':
-      'Triggered whenever a member leaves or is removed from the guild.',
+  'workflows_event_member_remove_desc': 'Triggered whenever a member leaves or is removed from the guild.',
   'workflows_event_channel_update': 'Channel Update',
-  'workflows_event_channel_update_desc':
-      'Triggered whenever a channel is updated.',
+  'workflows_event_channel_update_desc': 'Triggered whenever a channel is updated.',
   'workflows_event_invite_create': 'Invite Create',
-  'workflows_event_invite_create_desc':
-      'Triggered whenever an invite is created.',
+  'workflows_event_invite_create_desc': 'Triggered whenever an invite is created.',
   'workflows_import_tooltip': 'Import workflows',
   'workflows_export_tooltip': 'Copy workflows',
   'workflows_copy_none': 'No workflows to copy.',
   'workflows_copy_done_json': 'Workflows copied as JSON.',
   'workflows_copy_done_base64': 'Workflows copied as Base64.',
   'workflows_delete_title': 'Delete workflow',
-  'workflows_delete_confirm':
-      'Are you sure you want to delete "{name}"? This action cannot be undone.',
+  'workflows_delete_confirm': 'Are you sure you want to delete "{name}"? This action cannot be undone.',
   'workflows_export_json': 'Copy as JSON',
   'workflows_export_json_desc': 'Readable and easy to edit.',
   'workflows_export_base64': 'Copy as Base64',
   'workflows_export_base64_desc': 'Convenient for compact sharing.',
   'workflows_import_title': 'Import workflows',
-  'workflows_import_desc':
-      'Paste a JSON payload or Base64(JSON) exported from Bot Creator.',
+  'workflows_import_desc': 'Paste a JSON payload or Base64(JSON) exported from Bot Creator.',
   'workflows_import_input_hint': 'Paste the JSON or Base64 here...',
   'workflows_import_overwrite': 'Replace when the name already exists',
   'workflows_import_action': 'Import',
   'workflows_import_empty': 'No data to import.',
-  'workflows_import_invalid_format':
-      'Invalid format. Use JSON or Base64(JSON).',
+  'workflows_import_invalid_format': 'Invalid format. Use JSON or Base64(JSON).',
   'workflows_import_no_valid': 'No valid workflow found.',
   'workflows_import_done': '{count} workflow(s) imported.',
   'workflows_move_to_folder': 'Move to folder',
@@ -816,74 +726,54 @@ const Map<String, String> appStringsEn = {
   'cmd_editor_mode_title': 'Editing mode',
   'cmd_editor_mode_simple': 'Simplified mode',
   'cmd_editor_mode_advanced': 'Advanced mode',
-  'cmd_editor_mode_simple_desc':
-      'Build a command quickly with guided options and preconfigured actions.',
-  'cmd_editor_mode_advanced_desc':
-      'Full editor with custom response, options, and action builder.',
+  'cmd_editor_mode_simple_desc': 'Build a command quickly with guided options and preconfigured actions.',
+  'cmd_editor_mode_advanced_desc': 'Full editor with custom response, options, and action builder.',
   'cmd_editor_mode_switch_adv': 'Switch to advanced mode',
   'cmd_editor_mode_switch_adv_title': 'Switch to advanced mode?',
-  'cmd_editor_mode_switch_adv_content':
-      'This switch is one-way for this command. You won’t be able to return to simplified mode.',
+  'cmd_editor_mode_switch_adv_content': 'This switch is one-way for this command. You won’t be able to return to simplified mode.',
   'cmd_editor_mode_switch_adv_confirm': 'Switch',
   'cmd_editor_mode_locked': 'Advanced mode is locked for this command.',
   'cmd_execution_mode_title': 'Execution mode',
-  'cmd_execution_mode_desc':
-      'Command metadata stays in the visual builder. Choose how the command body should run.',
+  'cmd_execution_mode_desc': 'Command metadata stays in the visual builder. Choose how the command body should run.',
   'cmd_execution_mode_workflow': 'Workflow mode',
-  'cmd_execution_mode_workflow_desc':
-      'Use the existing visual response and action builder.',
-  'cmd_execution_mode_workflow_note':
-      'Workflow mode is the current production path and remains fully supported.',
+  'cmd_execution_mode_workflow_desc': 'Use the existing visual response and action builder.',
+  'cmd_execution_mode_workflow_note': 'Workflow mode is the current production path and remains fully supported.',
   'cmd_execution_mode_bdfd': 'BDFD Script mode',
-  'cmd_execution_mode_bdfd_desc':
-      'Write the command body as BDFD-style script while keeping command definition visual.',
-  'cmd_execution_mode_bdfd_note':
-      'The script is compiled to internal actions. Diagnostics are shown while editing; invalid scripts fail when the command runs.',
+  'cmd_execution_mode_bdfd_desc': 'Write the command body as BDFD-style script while keeping command definition visual.',
+  'cmd_execution_mode_bdfd_note': 'The script is compiled to internal actions. Diagnostics are shown while editing; invalid scripts fail when the command runs.',
   'cmd_execution_mode_dart': 'Dart Direct mode',
-  'cmd_execution_mode_dart_desc':
-      'Write the command body directly in Dart with runtime diagnostics.',
-  'cmd_execution_mode_dart_note':
-      'Dart code is compiled at runtime through the sandboxed engine. Keep scripts deterministic and return a value when needed.',
+  'cmd_execution_mode_dart_desc': 'Write the command body directly in Dart with runtime diagnostics.',
+  'cmd_execution_mode_dart_note': 'Dart code is compiled at runtime through the sandboxed engine. Keep scripts deterministic and return a value when needed.',
   'cmd_bdfd_script_label': 'BDFD script body',
-  'cmd_bdfd_script_hint':
-      '\$nomention\\n\$if[\$hasPerms[\$authorID;administrator]==true]\\nHello from Bot Creator',
+  'cmd_bdfd_script_hint': '\$nomention\\n\$if[\$hasPerms[\$authorID;administrator]==true]\\nHello from Bot Creator',
   'cmd_bdfd_diagnostics_title': 'BDFD diagnostics',
   'cmd_bdfd_diagnostics_clean': 'No issue detected in the current script.',
   'cmd_bdfd_diagnostics_error': 'Error',
   'cmd_bdfd_diagnostics_warning': 'Warning',
   'cmd_bdfd_script_empty_error': 'BDFD script body cannot be empty.',
-  'cmd_bdfd_script_validation_error':
-      'This BDFD script still contains diagnostics:',
+  'cmd_bdfd_script_validation_error': 'This BDFD script still contains diagnostics:',
   'cmd_dart_script_label': 'Dart script body',
   'cmd_dart_script_hint': 'return "Hello from Dart Direct";',
   'cmd_dart_diagnostics_title': 'Dart diagnostics',
   'cmd_dart_diagnostics_clean': 'No issue detected in the current Dart script.',
   'cmd_dart_diagnostics_error': 'Error',
   'cmd_dart_diagnostics_warning': 'Warning',
-  'cmd_migrate_bdfd_to_dart_desc':
-      'Generate a Dart migration scaffold from your current BDFD script.',
+  'cmd_migrate_bdfd_to_dart_desc': 'Generate a Dart migration scaffold from your current BDFD script.',
   'cmd_migrate_bdfd_to_dart_action': 'Migrate',
   'cmd_bdfd_autocomplete_title': 'BDFD prefix autocomplete',
-  'cmd_bdfd_autocomplete_hint':
-      'Type \$ and start writing a function name to get quick script suggestions.',
+  'cmd_bdfd_autocomplete_hint': 'Type \$ and start writing a function name to get quick script suggestions.',
   'workflow_mode_title': 'Workflow mode',
-  'workflow_mode_desc':
-      'Choose between a visual action builder or a full BDFD scripting editor.',
+  'workflow_mode_desc': 'Choose between a visual action builder or a full BDFD scripting editor.',
   'workflow_mode_visual': 'Visual',
   'workflow_mode_bdfd': 'BDFD Script',
   'workflow_mode_dart': 'Dart Direct',
-  'workflow_mode_visual_note':
-      'Build your workflow visually by adding individual actions with the card editor.',
-  'workflow_mode_bdfd_note':
-      'Write your entire workflow as a single BDFD script. The script is compiled and validated in real time.',
-  'workflow_mode_dart_note':
-      'Write your workflow in Dart. Diagnostics are updated while editing to catch errors early.',
+  'workflow_mode_visual_note': 'Build your workflow visually by adding individual actions with the card editor.',
+  'workflow_mode_bdfd_note': 'Write your entire workflow as a single BDFD script. The script is compiled and validated in real time.',
+  'workflow_mode_dart_note': 'Write your workflow in Dart. Diagnostics are updated while editing to catch errors early.',
   'workflow_bdfd_editor_title': 'BDFD Script Editor',
-  'workflow_bdfd_editor_desc':
-      'Write the complete BDFD code for this workflow response. Diagnostics are displayed live.',
+  'workflow_bdfd_editor_desc': 'Write the complete BDFD code for this workflow response. Diagnostics are displayed live.',
   'workflow_dart_editor_title': 'Dart Script Editor',
-  'workflow_dart_editor_desc':
-      'Write full Dart code for this workflow response. Diagnostics are displayed live.',
+  'workflow_dart_editor_desc': 'Write full Dart code for this workflow response. Diagnostics are displayed live.',
   'bdfd_editor_title': 'BDFD Editor',
   'bdfd_editor_tap_hint': 'Tap to open editor',
   'bdfd_editor_wrap_toggle': 'Toggle line wrapping',
@@ -895,6 +785,47 @@ const Map<String, String> appStringsEn = {
   'bdfd_editor_docs': 'BDFD Functions Reference',
   'bdfd_docs_title': 'BDFD Docs',
   'bdfd_docs_search_hint': 'Search functions…',
+  'scratch_block_metadata': 'Metadata',
+  'scratch_block_required': 'Required',
+  'scratch_block_entry_point': 'Entry Point',
+  'scratch_entry_point_listen': 'Listen for',
+  'scratch_entry_interaction': 'Interaction',
+  'scratch_entry_message': 'Message',
+  'scratch_entry_point_label': 'Entry point name',
+  'scratch_execution_mode': 'Execution mode',
+  'scratch_mode_blocks': 'Blocks',
+  'scratch_mode_bdfd': 'BDFD',
+  'scratch_mode_dart': 'Dart',
+  'scratch_legacy_config': 'Legacy configuration',
+  'scratch_add_block': 'Add block',
+  'scratch_bdfd_script': 'BDFD Script',
+  'scratch_response_block': 'Response',
+  'scratch_response_components': 'Components',
+  'scratch_response_edit': 'Edit response',
+  'scratch_meta_name_hint': 'Command name',
+  'scratch_meta_desc_hint': 'Command description',
+  'scratch_meta_type_label': 'Command type',
+  'scratch_meta_type_slash': 'Slash command',
+  'scratch_meta_type_prefix': 'Prefix command',
+  'scratch_meta_type_user': 'User command',
+  'scratch_meta_type_message': 'Message command',
+  'scratch_meta_type_slash_desc': 'Triggered by typing / in Discord.',
+  'scratch_meta_type_prefix_desc': 'Triggered by a text prefix (e.g. !help).',
+  'scratch_meta_type_user_desc': 'Triggered from the user context menu.',
+  'scratch_meta_type_message_desc': 'Triggered from the message context menu.',
+  'scratch_meta_advanced': 'Advanced settings',
+  'scratch_workflow_metadata': 'Workflow Metadata',
+  'scratch_workflow_name': 'Workflow name',
+  'scratch_workflow_type': 'Workflow type',
+  'scratch_workflow_type_general': 'General',
+  'scratch_workflow_type_event': 'Event',
+  'scratch_workflow_arguments': 'Arguments',
+  'scratch_workflow_add_argument': 'Add argument',
+  'scratch_entry_event_trigger': 'Event trigger',
+  'scratch_entry_function': 'Function',
+  'scratch_event_category': 'Event category',
+  'scratch_event_name': 'Event name',
+  'scratch_event_variables': 'Event variables',
   'bdfd_docs_empty': 'No matching functions.',
   'bdfd_docs_syntax': 'SYNTAX',
   'bdfd_docs_parameters': 'PARAMETERS',
@@ -919,119 +850,77 @@ const Map<String, String> appStringsEn = {
   'bdfd_docs_category_leaderboards': 'Leaderboards',
   'bdfd_docs_category_tickets': 'Tickets',
   'bdfd_docs_category_misc': 'Other',
-  'bdfd_docs_desc_for':
-      'Bot Creator only — Repeats a block of code N times.\n\nSimple: \$for[5]...\$endfor → the body is repeated 5 times (max 100). You can use \$i for the current index (starting at 0) and \$loopCount for the total.\n\nC-style: \$for[i=0;i<10;i++]...\$endfor → classic for loop with init, condition and update. Supports ++, --, +=, -=, *=.\n\nIf the iteration count is dynamic (e.g. \$for[\$args[1]]), the loop runs at runtime instead of compile-time.',
-  'bdfd_docs_desc_loop':
-      'Bot Creator only — Alias for \$for. See \$for for details. Use \$endloop to close the block.',
-  'bdfd_docs_desc_callworkflow':
-      'Bot Creator only — Calls another workflow by name and passes arguments.\n\nSyntax: \$callWorkflow[myWorkflow;key1=value1;key2=value2]\n\nThe called workflow can read arguments and return a value via \$workflowResponse.',
-  'bdfd_docs_desc_workflowresponse':
-      'Bot Creator only — Returns the response from the last \$callWorkflow.\n\nUse \$workflowResponse[] for the full response, or \$workflowResponse[property] to access a specific field.',
-  'bdfd_docs_desc_eval':
-      'Executes a BDFD script string at runtime. The code passed as argument is re-compiled and executed dynamically. Useful for running user-provided or variable-based scripts.',
-  'bdfd_docs_desc_if':
-      'Conditional block. Supports nesting and rich operators: ==, !=, >=, <=, >, <, contains, startsWith, endsWith, notContains.\n\nUsage:\n\$if[\$authorID==123456]\n  Hello admin!\n\$elseif[\$hasRole[789]]\n  Hello member!\n\$else\n  Hello guest!\n\$endif',
-  'bdfd_docs_desc_elseif':
-      'Adds an alternative condition inside an \$if block. Must appear between \$if and \$else/\$endif.',
-  'bdfd_docs_desc_try':
-      'Wraps a block for error handling.\n\nUsage:\n\$try\n  \$httpGet[https://api.example.com/data]\n\$catch\n  Request failed!\n\$endtry\n\nIf any function in the \$try block fails, execution jumps to \$catch.',
-  'bdfd_docs_desc_stop':
-      'Immediately stops execution of the current script. No further actions after \$stop will run.',
-  'bdfd_docs_desc_suppresserrors':
-      'Prevents error messages from being sent to the user. If any action fails, the error is silently suppressed.',
-  'bdfd_docs_desc_embedsuppresserrors':
-      'Same as \$suppressErrors — suppresses all error messages silently.',
-  'bdfd_docs_desc_and':
-      'Logical AND — combines multiple conditions. All must be true.\n\nUsage: \$if[\$and[\$authorID==123;\$hasRole[456]]]',
-  'bdfd_docs_desc_or':
-      'Logical OR — combines multiple conditions. At least one must be true.\n\nUsage: \$if[\$or[\$authorID==123;\$authorID==456]]]',
-  'bdfd_docs_desc_awaitfunc':
-      'Registers a callback that waits for a user response.\n\nUsage: \$awaitFunc[name;userID (opt);channelID (opt)]\n\nThe awaited function is stored and triggered when the target user sends a message in the target channel.',
-  'bdfd_docs_desc_defer':
-      'Defers the interaction response, giving you more time to process. The user sees a "Bot is thinking…" message. Use before long operations like HTTP requests.',
-  'bdfd_docs_desc_ephemeral':
-      'Makes the response visible only to the user who triggered the command. Must be placed before any response content.',
-  'bdfd_docs_desc_jsonparse':
-      'Parses a JSON string into memory for manipulation. All JSON operations (\$jsonSet, \$json, etc.) operate on this parsed context.\n\nStatic JSON is resolved at compile-time for better performance.',
-  'bdfd_docs_desc_jsonset':
-      'Sets a value in the current JSON context. Supports dot-notation paths.\n\nUsage: \$jsonSet[user.name;John]\n\nThe change is applied in memory — use \$jsonStringify to get the result.',
-  'bdfd_docs_desc_jsonstringify':
-      'Converts the current JSON context back to a string. Use after \$jsonParse and \$jsonSet operations to output the result.',
-  'bdfd_docs_desc_httpget':
-      'Sends an HTTP GET request to the given URL. Use \$httpAddHeader before to set headers. Use \$httpResult to read the response.\n\nAll HTTP methods (GET, POST, PUT, PATCH, DELETE) follow the same pattern.',
-  'bdfd_docs_desc_httpaddheader':
-      'Adds a header to the next HTTP request. Headers are accumulated until the next \$httpGet/\$httpPost/etc.\n\nUsage: \$httpAddHeader[Authorization;Bearer token123]',
-  'bdfd_docs_desc_httpresult':
-      'Returns the body of the last HTTP response. Optionally pass a JSON path to extract a specific field.\n\nUsage: \$httpResult[] for the full body, or \$httpResult[data.name] for a nested field.',
+  'bdfd_docs_desc_for': 'Bot Creator only — Repeats a block of code N times.\n\nSimple: \$for[5]...\$endfor → the body is repeated 5 times (max 100). You can use \$i for the current index (starting at 0) and \$loopCount for the total.\n\nC-style: \$for[i=0;i<10;i++]...\$endfor → classic for loop with init, condition and update. Supports ++, --, +=, -=, *=.\n\nIf the iteration count is dynamic (e.g. \$for[\$args[1]]), the loop runs at runtime instead of compile-time.',
+  'bdfd_docs_desc_loop': 'Bot Creator only — Alias for \$for. See \$for for details. Use \$endloop to close the block.',
+  'bdfd_docs_desc_callworkflow': 'Bot Creator only — Calls another workflow by name and passes arguments.\n\nSyntax: \$callWorkflow[myWorkflow;key1=value1;key2=value2]\n\nThe called workflow can read arguments and return a value via \$workflowResponse.',
+  'bdfd_docs_desc_workflowresponse': 'Bot Creator only — Returns the response from the last \$callWorkflow.\n\nUse \$workflowResponse[] for the full response, or \$workflowResponse[property] to access a specific field.',
+  'bdfd_docs_desc_eval': 'Executes a BDFD script string at runtime. The code passed as argument is re-compiled and executed dynamically. Useful for running user-provided or variable-based scripts.',
+  'bdfd_docs_desc_if': 'Conditional block. Supports nesting and rich operators: ==, !=, >=, <=, >, <, contains, startsWith, endsWith, notContains.\n\nUsage:\n\$if[\$authorID==123456]\n  Hello admin!\n\$elseif[\$hasRole[789]]\n  Hello member!\n\$else\n  Hello guest!\n\$endif',
+  'bdfd_docs_desc_elseif': 'Adds an alternative condition inside an \$if block. Must appear between \$if and \$else/\$endif.',
+  'bdfd_docs_desc_try': 'Wraps a block for error handling.\n\nUsage:\n\$try\n  \$httpGet[https://api.example.com/data]\n\$catch\n  Request failed!\n\$endtry\n\nIf any function in the \$try block fails, execution jumps to \$catch.',
+  'bdfd_docs_desc_stop': 'Immediately stops execution of the current script. No further actions after \$stop will run.',
+  'bdfd_docs_desc_suppresserrors': 'Prevents error messages from being sent to the user. If any action fails, the error is silently suppressed.',
+  'bdfd_docs_desc_embedsuppresserrors': 'Same as \$suppressErrors — suppresses all error messages silently.',
+  'bdfd_docs_desc_and': 'Logical AND — combines multiple conditions. All must be true.\n\nUsage: \$if[\$and[\$authorID==123;\$hasRole[456]]]',
+  'bdfd_docs_desc_or': 'Logical OR — combines multiple conditions. At least one must be true.\n\nUsage: \$if[\$or[\$authorID==123;\$authorID==456]]]',
+  'bdfd_docs_desc_awaitfunc': 'Registers a callback that waits for a user response.\n\nUsage: \$awaitFunc[name;userID (opt);channelID (opt)]\n\nThe awaited function is stored and triggered when the target user sends a message in the target channel.',
+  'bdfd_docs_desc_defer': 'Defers the interaction response, giving you more time to process. The user sees a "Bot is thinking…" message. Use before long operations like HTTP requests.',
+  'bdfd_docs_desc_ephemeral': 'Makes the response visible only to the user who triggered the command. Must be placed before any response content.',
+  'bdfd_docs_desc_jsonparse': 'Parses a JSON string into memory for manipulation. All JSON operations (\$jsonSet, \$json, etc.) operate on this parsed context.\n\nStatic JSON is resolved at compile-time for better performance.',
+  'bdfd_docs_desc_jsonset': 'Sets a value in the current JSON context. Supports dot-notation paths.\n\nUsage: \$jsonSet[user.name;John]\n\nThe change is applied in memory — use \$jsonStringify to get the result.',
+  'bdfd_docs_desc_jsonstringify': 'Converts the current JSON context back to a string. Use after \$jsonParse and \$jsonSet operations to output the result.',
+  'bdfd_docs_desc_httpget': 'Sends an HTTP GET request to the given URL. Use \$httpAddHeader before to set headers. Use \$httpResult to read the response.\n\nAll HTTP methods (GET, POST, PUT, PATCH, DELETE) follow the same pattern.',
+  'bdfd_docs_desc_httpaddheader': 'Adds a header to the next HTTP request. Headers are accumulated until the next \$httpGet/\$httpPost/etc.\n\nUsage: \$httpAddHeader[Authorization;Bearer token123]',
+  'bdfd_docs_desc_httpresult': 'Returns the body of the last HTTP response. Optionally pass a JSON path to extract a specific field.\n\nUsage: \$httpResult[] for the full body, or \$httpResult[data.name] for a nested field.',
   'done': 'Done',
   'cmd_simple_actions_title': 'Simplified actions',
-  'cmd_simple_actions_desc':
-      'Select what this command should do. Options are generated automatically.',
+  'cmd_simple_actions_desc': 'Select what this command should do. Options are generated automatically.',
   'cmd_simple_group_moderation_title': 'Moderation',
-  'cmd_simple_group_moderation_desc':
-      'Member and moderation actions with guided options.',
+  'cmd_simple_group_moderation_desc': 'Member and moderation actions with guided options.',
   'cmd_simple_group_messages_title': 'Messages',
-  'cmd_simple_group_messages_desc':
-      'Message and channel actions that work in the current context.',
+  'cmd_simple_group_messages_desc': 'Message and channel actions that work in the current context.',
   'cmd_simple_group_utility_title': 'Utility',
   'cmd_simple_group_utility_desc': 'Helpful extras such as invites and polls.',
   'cmd_simple_action_delete': 'Delete messages',
-  'cmd_simple_action_delete_desc':
-      'Delete messages in the current channel (optional /count).',
+  'cmd_simple_action_delete_desc': 'Delete messages in the current channel (optional /count).',
   'cmd_simple_action_kick': 'Kick user',
   'cmd_simple_action_kick_desc': 'Kick the selected /user from the server.',
   'cmd_simple_action_ban': 'Ban user',
   'cmd_simple_action_ban_desc': 'Ban the selected /user from the server.',
   'cmd_simple_action_unban': 'Unban user',
-  'cmd_simple_action_unban_desc':
-      'Unban a user with a provided /user_id string.',
+  'cmd_simple_action_unban_desc': 'Unban a user with a provided /user_id string.',
   'cmd_simple_action_mute': 'Mute user',
   'cmd_simple_action_mute_desc': 'Temporarily mute the selected /user.',
   'cmd_simple_action_unmute': 'Unmute user',
-  'cmd_simple_action_unmute_desc':
-      'Remove the timeout from the selected /user.',
+  'cmd_simple_action_unmute_desc': 'Remove the timeout from the selected /user.',
   'cmd_simple_action_add_role': 'Add role',
-  'cmd_simple_action_add_role_desc':
-      'Give the selected /role to the selected /user.',
+  'cmd_simple_action_add_role_desc': 'Give the selected /role to the selected /user.',
   'cmd_simple_action_remove_role': 'Remove role',
-  'cmd_simple_action_remove_role_desc':
-      'Remove the selected /role from the selected /user.',
+  'cmd_simple_action_remove_role_desc': 'Remove the selected /role from the selected /user.',
   'cmd_simple_action_send_message': 'Send message',
-  'cmd_simple_action_send_message_desc':
-      'Send an additional message in the current channel.',
+  'cmd_simple_action_send_message_desc': 'Send an additional message in the current channel.',
   'cmd_simple_action_pin': 'Pin message',
-  'cmd_simple_action_pin_desc':
-      'Pin a message in the current channel using /message_id.',
+  'cmd_simple_action_pin_desc': 'Pin a message in the current channel using /message_id.',
   'cmd_simple_action_unpin': 'Unpin message',
-  'cmd_simple_action_unpin_desc':
-      'Unpin a message in the current channel using /message_id.',
+  'cmd_simple_action_unpin_desc': 'Unpin a message in the current channel using /message_id.',
   'cmd_simple_action_create_invite': 'Create invite',
-  'cmd_simple_action_create_invite_desc':
-      'Create an invite for the current channel or an optional /channel.',
+  'cmd_simple_action_create_invite_desc': 'Create an invite for the current channel or an optional /channel.',
   'cmd_simple_action_create_poll': 'Create poll',
-  'cmd_simple_action_create_poll_desc':
-      'Create a poll with a dynamic /question and fixed answer choices.',
+  'cmd_simple_action_create_poll_desc': 'Create a poll with a dynamic /question and fixed answer choices.',
   'cmd_simple_action_send_message_label': 'Action message',
-  'cmd_simple_action_send_message_hint':
-      'Message sent by the Send Message action',
+  'cmd_simple_action_send_message_hint': 'Message sent by the Send Message action',
   'cmd_simple_execution_title': 'Execution settings',
-  'cmd_simple_execution_desc':
-      'Fine-tune the generated actions without leaving simplified mode.',
+  'cmd_simple_execution_desc': 'Fine-tune the generated actions without leaving simplified mode.',
   'cmd_simple_action_reason_label': 'Audit log reason',
-  'cmd_simple_action_reason_hint':
-      'Optional reason shared by moderation actions',
+  'cmd_simple_action_reason_hint': 'Optional reason shared by moderation actions',
   'cmd_simple_action_delete_default_count_label': 'Default delete count',
-  'cmd_simple_action_delete_default_count_hint':
-      'Used when /count is not provided',
+  'cmd_simple_action_delete_default_count_hint': 'Used when /count is not provided',
   'cmd_simple_action_ban_delete_days_label': 'Ban delete message days',
-  'cmd_simple_action_ban_delete_days_hint':
-      '0 to 7 days of recent messages to delete',
+  'cmd_simple_action_ban_delete_days_hint': '0 to 7 days of recent messages to delete',
   'cmd_simple_action_mute_duration_label': 'Mute duration',
-  'cmd_simple_action_mute_duration_hint':
-      'Examples: 10m, 2h, 1d, or raw seconds',
+  'cmd_simple_action_mute_duration_hint': 'Examples: 10m, 2h, 1d, or raw seconds',
   'cmd_simple_generated_options': 'Generated command options',
-  'cmd_simple_generated_none':
-      'No options generated yet. Select at least one action.',
+  'cmd_simple_generated_none': 'No options generated yet. Select at least one action.',
   'cmd_simple_option_user': '/user (User)',
   'cmd_simple_option_role': '/role (Role)',
   'cmd_simple_option_count': '/count (Integer)',
@@ -1044,61 +933,44 @@ const Map<String, String> appStringsEn = {
   'cmd_simple_option_count_desc': 'Number of messages to delete',
   'cmd_simple_option_user_id_desc': 'User ID to unban',
   'cmd_simple_option_message_id_desc': 'Message ID to target',
-  'cmd_simple_option_channel_desc':
-      'Optional channel override for invite creation',
+  'cmd_simple_option_channel_desc': 'Optional channel override for invite creation',
   'cmd_simple_option_question_desc': 'Poll question',
   'cmd_simple_invite_settings_title': 'Invite settings',
-  'cmd_simple_invite_settings_desc':
-      'Defaults used by the generated Create Invite action.',
+  'cmd_simple_invite_settings_desc': 'Defaults used by the generated Create Invite action.',
   'cmd_simple_invite_max_age_label': 'Invite expiry (seconds)',
   'cmd_simple_invite_max_age_hint': '0 for no expiry, up to 604800',
   'cmd_simple_invite_max_uses_label': 'Max uses',
   'cmd_simple_invite_max_uses_hint': '0 for unlimited uses',
   'cmd_simple_invite_temporary_label': 'Temporary membership',
-  'cmd_simple_invite_temporary_desc':
-      'Members are removed if they leave before getting a role.',
+  'cmd_simple_invite_temporary_desc': 'Members are removed if they leave before getting a role.',
   'cmd_simple_invite_unique_label': 'Force unique invite',
-  'cmd_simple_invite_unique_desc':
-      'Always create a new invite instead of reusing an existing one.',
+  'cmd_simple_invite_unique_desc': 'Always create a new invite instead of reusing an existing one.',
   'cmd_simple_poll_settings_title': 'Poll settings',
-  'cmd_simple_poll_settings_desc':
-      'Defaults used by the generated Create Poll action.',
+  'cmd_simple_poll_settings_desc': 'Defaults used by the generated Create Poll action.',
   'cmd_simple_poll_answers_label': 'Poll answers',
-  'cmd_simple_poll_answers_hint':
-      'One answer per line, or use commas. Minimum 2, maximum 10.',
+  'cmd_simple_poll_answers_hint': 'One answer per line, or use commas. Minimum 2, maximum 10.',
   'cmd_simple_poll_duration_label': 'Poll duration (hours)',
   'cmd_simple_poll_duration_hint': 'From 1 to 168 hours',
   'cmd_simple_poll_multiselect_label': 'Allow multiple answers',
   'cmd_simple_poll_multiselect_desc': 'Users can select more than one choice.',
   'cmd_simple_response_title': 'Final response',
-  'cmd_simple_response_desc':
-      'Message sent back to the user after actions are executed.',
+  'cmd_simple_response_desc': 'Message sent back to the user after actions are executed.',
   'cmd_simple_response_visibility_label': 'Response visibility',
   'cmd_simple_response_visibility_public': 'Public',
   'cmd_simple_response_visibility_ephemeral': 'Ephemeral',
   'cmd_simple_response_hint': 'Done ✅',
   'cmd_simple_response_embeds_title': 'Response embeds',
-  'cmd_simple_response_embeds_desc':
-      'Optional embeds sent with the final response.',
-  'cmd_simple_conflict_ban_unban':
-      'Ban user and Unban user cannot be enabled together in simplified mode.',
-  'cmd_simple_conflict_mute_unmute':
-      'Mute user and Unmute user cannot be enabled together in simplified mode.',
-  'cmd_simple_conflict_pin_unpin':
-      'Pin message and Unpin message cannot be enabled together in simplified mode.',
-  'cmd_simple_invite_max_age_invalid':
-      'Invite expiry must be a number between 0 and 604800 seconds.',
-  'cmd_simple_invite_max_uses_invalid':
-      'Invite max uses must be a number between 0 and 1000000.',
-  'cmd_simple_poll_answers_invalid':
-      'Poll answers must contain between 2 and 10 non-empty choices.',
-  'cmd_simple_poll_duration_invalid':
-      'Poll duration must be a number between 1 and 168 hours.',
-  'cmd_simple_send_message_required':
-      'Please fill the action message before saving.',
+  'cmd_simple_response_embeds_desc': 'Optional embeds sent with the final response.',
+  'cmd_simple_conflict_ban_unban': 'Ban user and Unban user cannot be enabled together in simplified mode.',
+  'cmd_simple_conflict_mute_unmute': 'Mute user and Unmute user cannot be enabled together in simplified mode.',
+  'cmd_simple_conflict_pin_unpin': 'Pin message and Unpin message cannot be enabled together in simplified mode.',
+  'cmd_simple_invite_max_age_invalid': 'Invite expiry must be a number between 0 and 604800 seconds.',
+  'cmd_simple_invite_max_uses_invalid': 'Invite max uses must be a number between 0 and 1000000.',
+  'cmd_simple_poll_answers_invalid': 'Poll answers must contain between 2 and 10 non-empty choices.',
+  'cmd_simple_poll_duration_invalid': 'Poll duration must be a number between 1 and 168 hours.',
+  'cmd_simple_send_message_required': 'Please fill the action message before saving.',
   'support_card_title': 'Support & Community',
-  'support_card_desc':
-      'A question, a bug, a suggestion? Come chat with the team and the community.',
+  'support_card_desc': 'A question, a bug, a suggestion? Come chat with the team and the community.',
   'support_join_discord': 'Join the Discord server',
   'support_discord_badge': 'Official support',
   'home_empty_support_hint': 'Need help getting started?',
@@ -1108,8 +980,7 @@ const Map<String, String> appStringsEn = {
   'error_network_timeout': 'The action timed out. Please try again.',
   'error_delete_messages_failed': 'Failed to delete messages.',
   'doc_center_title': 'Documentation Center',
-  'doc_center_search_hint':
-      'Search commands, workflows, variables, actions, intents, or examples...',
+  'doc_center_search_hint': 'Search commands, workflows, variables, actions, intents, or examples...',
   'doc_center_clear_search': 'Clear search',
   'doc_center_empty': 'No documentation entry matches your search.',
   'doc_kind_all': 'All',
@@ -1124,233 +995,139 @@ const Map<String, String> appStringsEn = {
   'doc_common_section_important_notes': 'Important Notes',
   'doc_template_variables_title': 'Template Variables',
   'doc_template_variables_subtitle': 'How dynamic placeholders are resolved.',
-  'doc_template_variables_summary':
-      'Runtime resolves placeholders using current event/interaction context, workflow args, and global vars.',
+  'doc_template_variables_summary': 'Runtime resolves placeholders using current event/interaction context, workflow args, and global vars.',
   'doc_template_variables_section_sources_title': 'Variable Sources',
-  'doc_template_variables_section_sources_l1':
-      'Command variables: commandName, commandId, commandType, target.*, opts.*.',
-  'doc_template_variables_section_sources_l2':
-      'Event variables: event.*, message.*, reaction.*, voice.*, role.*, etc.',
-  'doc_template_variables_section_sources_l3':
-      'Workflow variables: workflow.name, workflow.entryPoint, arg.*, workflow.arg.*',
+  'doc_template_variables_section_sources_l1': 'Command variables: commandName, commandId, commandType, target.*, opts.*.',
+  'doc_template_variables_section_sources_l2': 'Event variables: event.*, message.*, reaction.*, voice.*, role.*, etc.',
+  'doc_template_variables_section_sources_l3': 'Workflow variables: workflow.name, workflow.entryPoint, arg.*, workflow.arg.*',
   'doc_template_variables_section_sources_l4': 'Global variables: global.<key>',
-  'doc_template_variables_section_sources_l5':
-      'Action outputs: action.<key> when available.',
+  'doc_template_variables_section_sources_l5': 'Action outputs: action.<key> when available.',
   'doc_template_variables_section_builtin_title': 'Built-in Command Variables',
   'doc_template_variables_section_types_title': 'Command Types',
-  'doc_template_variables_section_types_l1':
-      'Slash commands use commandType = chatInput and expose opts.<option> variables.',
-  'doc_template_variables_section_types_l2':
-      'User commands use commandType = user and expose target.user.* variables.',
-  'doc_template_variables_section_types_l3':
-      'Message commands use commandType = message and expose target.message.* variables.',
-  'doc_template_variables_section_types_l4':
-      'Subcommands still expose their arguments through opts.*.',
+  'doc_template_variables_section_types_l1': 'Slash commands use commandType = chatInput and expose opts.<option> variables.',
+  'doc_template_variables_section_types_l2': 'User commands use commandType = user and expose target.user.* variables.',
+  'doc_template_variables_section_types_l3': 'Message commands use commandType = message and expose target.message.* variables.',
+  'doc_template_variables_section_types_l4': 'Subcommands still expose their arguments through opts.*.',
   'doc_template_variables_section_fallbacks_title': 'Fallbacks and Paths',
-  'doc_template_variables_section_fallbacks_l1':
-      'Use ((opts.user|userName)) to fall back when an option is missing.',
-  'doc_template_variables_section_fallbacks_l2':
-      'Use JSONPath syntax on action outputs: ((myHttp.body.\$.data[0].id)); arrays and objects stay queryable.',
-  'doc_template_variables_section_fallbacks_l3':
-      'Functions like length(...), join(...), formatEach(...), and embedFields(...) are also supported; unknown variables still resolve to an empty string.',
-  'doc_template_variables_example':
-      'Hello ((target.user.username|userName))\nPlayers: ((join(scores.items.\$, ", ")))\nFields JSON: ((embedFields(scores.items.\$, "\'{name}\'", "\'{score}\'", true)))',
+  'doc_template_variables_section_fallbacks_l1': 'Use ((opts.user|userName)) to fall back when an option is missing.',
+  'doc_template_variables_section_fallbacks_l2': 'Use JSONPath syntax on action outputs: ((myHttp.body.\$.data[0].id)); arrays and objects stay queryable.',
+  'doc_template_variables_section_fallbacks_l3': 'Functions like length(...), join(...), formatEach(...), and embedFields(...) are also supported; unknown variables still resolve to an empty string.',
+  'doc_template_variables_example': 'Hello ((target.user.username|userName))\nPlayers: ((join(scores.items.\$, ", ")))\nFields JSON: ((embedFields(scores.items.\$, "\'{name}\'", "\'{score}\'", true)))',
   'doc_template_functions_title': 'Template Functions',
-  'doc_template_functions_subtitle':
-      'Transform and compare data inside ((...)) expressions.',
-  'doc_template_functions_summary':
-      'Use template functions to normalize text, inspect arrays, build output blocks, and add lightweight randomness.',
+  'doc_template_functions_subtitle': 'Transform and compare data inside ((...)) expressions.',
+  'doc_template_functions_summary': 'Use template functions to normalize text, inspect arrays, build output blocks, and add lightweight randomness.',
   'doc_template_functions_section_string_title': 'String Helpers',
-  'doc_template_functions_section_string_l1':
-      'lowercase(source) / lower(source): convert text to lowercase.',
-  'doc_template_functions_section_string_l2':
-      'uppercase(source) / upper(source): convert text to uppercase.',
-  'doc_template_functions_section_string_l3':
-      'trim(source): remove leading and trailing spaces.',
-  'doc_template_functions_section_string_l4':
-      'replace(source, search, replacement) and contains(source, needle) for substitutions and checks.',
+  'doc_template_functions_section_string_l1': 'lowercase(source) / lower(source): convert text to lowercase.',
+  'doc_template_functions_section_string_l2': 'uppercase(source) / upper(source): convert text to uppercase.',
+  'doc_template_functions_section_string_l3': 'trim(source): remove leading and trailing spaces.',
+  'doc_template_functions_section_string_l4': 'replace(source, search, replacement) and contains(source, needle) for substitutions and checks.',
   'doc_template_functions_section_array_title': 'Array and Aggregate Helpers',
-  'doc_template_functions_section_array_l1':
-      'length(source), at(source, index), first(source), last(source).',
-  'doc_template_functions_section_array_l2':
-      'slice(source, start, end?) and join(source, separator).',
-  'doc_template_functions_section_array_l3':
-      'sum(source): adds numeric items and ignores non-numeric values.',
-  'doc_template_functions_section_array_l4':
-      'formatEach(...) and embedFields(...) format object arrays for text and embeds.',
+  'doc_template_functions_section_array_l1': 'length(source), at(source, index), first(source), last(source).',
+  'doc_template_functions_section_array_l2': 'slice(source, start, end?) and join(source, separator).',
+  'doc_template_functions_section_array_l3': 'sum(source): adds numeric items and ignores non-numeric values.',
+  'doc_template_functions_section_array_l4': 'formatEach(...) and embedFields(...) format object arrays for text and embeds.',
   'doc_template_functions_section_random_title': 'Random Helpers',
-  'doc_template_functions_section_random_l1':
-      'coin() and random(): return "true" or "" for conditional branching.',
-  'doc_template_functions_section_random_l2':
-      'randomchoice(a, b, ...) and randomint(min, max).',
+  'doc_template_functions_section_random_l1': 'coin() and random(): return "true" or "" for conditional branching.',
+  'doc_template_functions_section_random_l2': 'randomchoice(a, b, ...) and randomint(min, max).',
   'doc_template_functions_section_notes_title': 'Important Notes',
-  'doc_template_functions_section_notes_l1':
-      'Function names are case-insensitive.',
-  'doc_template_functions_section_notes_l2':
-      'Unknown functions or invalid arguments resolve to an empty string.',
-  'doc_template_functions_section_notes_l3':
-      'Use fallback syntax with | at root level: ((replace(name, "_", " ")|Unknown)).',
-  'doc_template_functions_section_notes_l4':
-      'Arrays and objects returned by functions are serialized as JSON text.',
-  'doc_template_functions_example':
-      'Normalized: ((uppercase(trim(userName))))\nHas admin role: ((contains(userRole, "admin")))\nTop score: ((first(scores.\$)))\nTotal score: ((sum(scores.\$)))',
+  'doc_template_functions_section_notes_l1': 'Function names are case-insensitive.',
+  'doc_template_functions_section_notes_l2': 'Unknown functions or invalid arguments resolve to an empty string.',
+  'doc_template_functions_section_notes_l3': 'Use fallback syntax with | at root level: ((replace(name, "_", " ")|Unknown)).',
+  'doc_template_functions_section_notes_l4': 'Arrays and objects returned by functions are serialized as JSON text.',
+  'doc_template_functions_example': 'Normalized: ((uppercase(trim(userName))))\nHas admin role: ((contains(userRole, "admin")))\nTop score: ((first(scores.\$)))\nTotal score: ((sum(scores.\$)))',
   'doc_template_advanced_variables_title': 'Template Advanced Variables',
-  'doc_template_advanced_variables_subtitle':
-      'Additional runtime keys available in specific contexts.',
-  'doc_template_advanced_variables_summary':
-      'These keys are generated from interaction payloads and channel/guild/user runtime details, depending on the event or command type.',
-  'doc_template_advanced_variables_section_interaction_title':
-      'Interaction Metadata',
-  'doc_template_advanced_variables_section_interaction_l1':
-      'interaction.kind identifies the incoming interaction mode (button, select, modal, command, autocomplete).',
-  'doc_template_advanced_variables_section_interaction_l2':
-      'interaction.values and interaction.values.count are populated for select menus.',
-  'doc_template_advanced_variables_section_interaction_l3':
-      'interaction.command.name and interaction.command.id are useful for diagnostics and routing checks.',
-  'doc_template_advanced_variables_section_channel_guild_title':
-      'Channel and Guild Details',
-  'doc_template_advanced_variables_section_channel_guild_l1':
-      'channel.kind, channel.position, channel.bitrate, and channel.userLimit are context-dependent channel details.',
-  'doc_template_advanced_variables_section_channel_guild_l2':
-      'Thread contexts can expose channel.thread.* values (archived, locked, ownerId, autoArchiveDuration).',
-  'doc_template_advanced_variables_section_channel_guild_l3':
-      'guild.kind helps distinguish partial/full guild payloads in advanced workflows.',
-  'doc_template_advanced_variables_section_aliases_title':
-      'User and Member Aliases',
-  'doc_template_advanced_variables_section_aliases_l1':
-      'Structured user aliases (user.id, user.username, user.tag, user.avatar, user.banner) are available in many command contexts.',
-  'doc_template_advanced_variables_section_aliases_l2':
-      'member.id can be useful when both user and guild-member context are needed.',
-  'doc_template_advanced_variables_example':
-      'Kind: ((interaction.kind))\nSelected count: ((interaction.values.count|0))\nThread owner: ((channel.thread.ownerId|unknown))\nGuild payload kind: ((guild.kind|n/a))',
+  'doc_template_advanced_variables_subtitle': 'Additional runtime keys available in specific contexts.',
+  'doc_template_advanced_variables_summary': 'These keys are generated from interaction payloads and channel/guild/user runtime details, depending on the event or command type.',
+  'doc_template_advanced_variables_section_interaction_title': 'Interaction Metadata',
+  'doc_template_advanced_variables_section_interaction_l1': 'interaction.kind identifies the incoming interaction mode (button, select, modal, command, autocomplete).',
+  'doc_template_advanced_variables_section_interaction_l2': 'interaction.values and interaction.values.count are populated for select menus.',
+  'doc_template_advanced_variables_section_interaction_l3': 'interaction.command.name and interaction.command.id are useful for diagnostics and routing checks.',
+  'doc_template_advanced_variables_section_channel_guild_title': 'Channel and Guild Details',
+  'doc_template_advanced_variables_section_channel_guild_l1': 'channel.kind, channel.position, channel.bitrate, and channel.userLimit are context-dependent channel details.',
+  'doc_template_advanced_variables_section_channel_guild_l2': 'Thread contexts can expose channel.thread.* values (archived, locked, ownerId, autoArchiveDuration).',
+  'doc_template_advanced_variables_section_channel_guild_l3': 'guild.kind helps distinguish partial/full guild payloads in advanced workflows.',
+  'doc_template_advanced_variables_section_aliases_title': 'User and Member Aliases',
+  'doc_template_advanced_variables_section_aliases_l1': 'Structured user aliases (user.id, user.username, user.tag, user.avatar, user.banner) are available in many command contexts.',
+  'doc_template_advanced_variables_section_aliases_l2': 'member.id can be useful when both user and guild-member context are needed.',
+  'doc_template_advanced_variables_example': 'Kind: ((interaction.kind))\nSelected count: ((interaction.values.count|0))\nThread owner: ((channel.thread.ownerId|unknown))\nGuild payload kind: ((guild.kind|n/a))',
   'doc_runtime_action_outputs_title': 'Runtime Action Outputs',
-  'doc_runtime_action_outputs_subtitle':
-      'How action result keys are exposed as runtime variables.',
-  'doc_runtime_action_outputs_summary':
-      'Most actions write a primary result key and may also expose prefixed fields under action.<resultKey>.* depending on the executor.',
+  'doc_runtime_action_outputs_subtitle': 'How action result keys are exposed as runtime variables.',
+  'doc_runtime_action_outputs_summary': 'Most actions write a primary result key and may also expose prefixed fields under action.<resultKey>.* depending on the executor.',
   'doc_runtime_action_outputs_section_patterns_title': 'Output Patterns',
-  'doc_runtime_action_outputs_section_patterns_l1':
-      'Primary output is usually stored as <resultKey>.',
-  'doc_runtime_action_outputs_section_patterns_l2':
-      'Many executors also expose action.<resultKey>.* fields for clarity and namespacing.',
-  'doc_runtime_action_outputs_section_patterns_l3':
-      'Some fields are mirrored with and without the action. prefix.',
-  'doc_runtime_action_outputs_section_common_fields_title':
-      'Common Output Fields',
-  'doc_runtime_action_outputs_section_common_fields_l1':
-      'HTTP actions: status, body, jsonPath.',
-  'doc_runtime_action_outputs_section_common_fields_l2':
-      'Messaging/list actions: count, mode, deleteItself, deleteResponse.',
-  'doc_runtime_action_outputs_section_common_fields_l3':
-      'Array actions: items, length, removed, total.',
-  'doc_runtime_action_outputs_section_common_fields_l4':
-      'Other executors may expose result or messageId fields.',
+  'doc_runtime_action_outputs_section_patterns_l1': 'Primary output is usually stored as <resultKey>.',
+  'doc_runtime_action_outputs_section_patterns_l2': 'Many executors also expose action.<resultKey>.* fields for clarity and namespacing.',
+  'doc_runtime_action_outputs_section_patterns_l3': 'Some fields are mirrored with and without the action. prefix.',
+  'doc_runtime_action_outputs_section_common_fields_title': 'Common Output Fields',
+  'doc_runtime_action_outputs_section_common_fields_l1': 'HTTP actions: status, body, jsonPath.',
+  'doc_runtime_action_outputs_section_common_fields_l2': 'Messaging/list actions: count, mode, deleteItself, deleteResponse.',
+  'doc_runtime_action_outputs_section_common_fields_l3': 'Array actions: items, length, removed, total.',
+  'doc_runtime_action_outputs_section_common_fields_l4': 'Other executors may expose result or messageId fields.',
   'doc_runtime_action_outputs_section_caveats_title': 'Caveats',
-  'doc_runtime_action_outputs_section_caveats_l1':
-      'Not every action exposes every suffix; availability is executor-specific.',
-  'doc_runtime_action_outputs_section_caveats_l2':
-      'For portability, prefer fallback expressions when reading optional output fields.',
-  'doc_runtime_action_outputs_section_caveats_l3':
-      'If a key is missing, template resolution returns an empty string.',
-  'doc_runtime_action_outputs_example':
-      'Status: ((action.http.status|http.status|unknown))\nBody: ((action.http.body|http.body))\nDeleted: ((cleanup.count|0))\nTotal: ((page.total|0))',
+  'doc_runtime_action_outputs_section_caveats_l1': 'Not every action exposes every suffix; availability is executor-specific.',
+  'doc_runtime_action_outputs_section_caveats_l2': 'For portability, prefer fallback expressions when reading optional output fields.',
+  'doc_runtime_action_outputs_section_caveats_l3': 'If a key is missing, template resolution returns an empty string.',
+  'doc_runtime_action_outputs_example': 'Status: ((action.http.status|http.status|unknown))\nBody: ((action.http.body|http.body))\nDeleted: ((cleanup.count|0))\nTotal: ((page.total|0))',
   'doc_interaction_commands_title': 'Interaction Commands',
-  'doc_interaction_commands_subtitle':
-      'Slash, user and message command runtime behavior.',
-  'doc_interaction_commands_summary':
-      'Application commands are executed through a shared interaction path, with runtime variables depending on the Discord command type.',
+  'doc_interaction_commands_subtitle': 'Slash, user and message command runtime behavior.',
+  'doc_interaction_commands_summary': 'Application commands are executed through a shared interaction path, with runtime variables depending on the Discord command type.',
   'doc_interaction_commands_section_execution_title': 'Execution Model',
-  'doc_interaction_commands_section_execution_l1':
-      'Slash, user and message commands all enter the runner as application command interactions.',
-  'doc_interaction_commands_section_execution_l2':
-      'The runner matches commands by Discord command id, then validates stored type vs incoming type.',
-  'doc_interaction_commands_section_execution_l3':
-      'A type mismatch is logged as warning but does not hard-stop execution.',
+  'doc_interaction_commands_section_execution_l1': 'Slash, user and message commands all enter the runner as application command interactions.',
+  'doc_interaction_commands_section_execution_l2': 'The runner matches commands by Discord command id, then validates stored type vs incoming type.',
+  'doc_interaction_commands_section_execution_l3': 'A type mismatch is logged as warning but does not hard-stop execution.',
   'doc_interaction_commands_section_per_type_title': 'Per-Type Variables',
-  'doc_interaction_commands_section_per_type_l1':
-      'chatInput: opts.* for parameters and subcommands.',
-  'doc_interaction_commands_section_per_type_l2':
-      'user: target.user.* and target.member.* when available.',
-  'doc_interaction_commands_section_per_type_l3':
-      'message: target.message.* including content and author id when resolved.',
-  'doc_interaction_commands_section_builtin_title':
-      'Built-in Command Variables',
+  'doc_interaction_commands_section_per_type_l1': 'chatInput: opts.* for parameters and subcommands.',
+  'doc_interaction_commands_section_per_type_l2': 'user: target.user.* and target.member.* when available.',
+  'doc_interaction_commands_section_per_type_l3': 'message: target.message.* including content and author id when resolved.',
+  'doc_interaction_commands_section_builtin_title': 'Built-in Command Variables',
   'doc_interaction_commands_section_guidance_title': 'Authoring Guidance',
-  'doc_interaction_commands_section_guidance_l1':
-      'Write conditional logic against commandType or interaction.command.type.',
-  'doc_interaction_commands_section_guidance_l2':
-      'Prefer fallback syntax when sharing a template between slash and non-slash commands, and use autocomplete.query inside dedicated autocomplete workflows.',
-  'doc_interaction_commands_section_guidance_l3':
-      'Keep templates portable by avoiding event-only names inside command workflows; dynamic autocomplete requires a general workflow ending with respondWithAutocomplete.',
-  'doc_interaction_commands_example':
-      'Autocomplete workflow:\nquery = ((autocomplete.query))\nqueryArray -> items=((httpSearch.body))\nrespondWithAutocomplete -> label=\'{name}\' value=\'{id}\'',
+  'doc_interaction_commands_section_guidance_l1': 'Write conditional logic against commandType or interaction.command.type.',
+  'doc_interaction_commands_section_guidance_l2': 'Prefer fallback syntax when sharing a template between slash and non-slash commands, and use autocomplete.query inside dedicated autocomplete workflows.',
+  'doc_interaction_commands_section_guidance_l3': 'Keep templates portable by avoiding event-only names inside command workflows; dynamic autocomplete requires a general workflow ending with respondWithAutocomplete.',
+  'doc_interaction_commands_example': 'Autocomplete workflow:\nquery = ((autocomplete.query))\nqueryArray -> items=((httpSearch.body))\nrespondWithAutocomplete -> label=\'{name}\' value=\'{id}\'',
   'doc_event_message_create_title': 'Event: messageCreate',
-  'doc_event_message_create_subtitle':
-      'Triggered for each newly created message.',
-  'doc_event_message_create_summary':
-      'Use this event for moderation, keyword pipelines, auto-replies, command-style parsing, and analytics.',
+  'doc_event_message_create_subtitle': 'Triggered for each newly created message.',
+  'doc_event_message_create_summary': 'Use this event for moderation, keyword pipelines, auto-replies, command-style parsing, and analytics.',
   'doc_event_message_create_intent_1': 'Guild Messages',
   'doc_event_message_create_intent_2': 'Message Content',
-  'doc_event_message_create_best_use_l1':
-      'Detect commands typed without slash commands.',
-  'doc_event_message_create_best_use_l2':
-      'Apply anti-spam filters before answering.',
-  'doc_event_message_create_best_use_l3':
-      'Route to reusable workflows based on first word or mention.',
-  'doc_event_message_create_notes_l1':
-      'If Message Content intent is off, content-dependent conditions can fail.',
-  'doc_event_message_create_notes_l2':
-      'message.content[index] is word-based and capped by runtime extraction.',
+  'doc_event_message_create_best_use_l1': 'Detect commands typed without slash commands.',
+  'doc_event_message_create_best_use_l2': 'Apply anti-spam filters before answering.',
+  'doc_event_message_create_best_use_l3': 'Route to reusable workflows based on first word or mention.',
+  'doc_event_message_create_notes_l1': 'If Message Content intent is off, content-dependent conditions can fail.',
+  'doc_event_message_create_notes_l2': 'message.content[index] is word-based and capped by runtime extraction.',
   'doc_event_message_create_notes_l3': 'author.isBot can help avoid bot loops.',
-  'doc_event_message_create_example':
-      'Guard: ((message.isBot)) equals false\nGuard: ((message.content[0])) equals !ticket\nThen: runWorkflow -> ticket_manager entry=create',
+  'doc_event_message_create_example': 'Guard: ((message.isBot)) equals false\nGuard: ((message.content[0])) equals !ticket\nThen: runWorkflow -> ticket_manager entry=create',
   'doc_runtime_execution_flow_title': 'Runtime Execution Flow',
-  'doc_runtime_execution_flow_subtitle':
-      'How event workflows are selected and executed.',
-  'doc_runtime_execution_flow_summary':
-      'When an event arrives, runtime matches configured workflows by eventTrigger.event then executes actions with context variables.',
+  'doc_runtime_execution_flow_subtitle': 'How event workflows are selected and executed.',
+  'doc_runtime_execution_flow_summary': 'When an event arrives, runtime matches configured workflows by eventTrigger.event then executes actions with context variables.',
   'doc_runtime_execution_flow_section_pipeline_title': 'Pipeline',
   'doc_runtime_execution_flow_section_pipeline_l1': '1) Receive gateway event.',
-  'doc_runtime_execution_flow_section_pipeline_l2':
-      '2) Build context variables map.',
-  'doc_runtime_execution_flow_section_pipeline_l3':
-      '3) Match workflows by event name.',
-  'doc_runtime_execution_flow_section_pipeline_l4':
-      '4) Merge global variables.',
-  'doc_runtime_execution_flow_section_pipeline_l5':
-      '5) Execute actions sequentially with conditions.',
+  'doc_runtime_execution_flow_section_pipeline_l2': '2) Build context variables map.',
+  'doc_runtime_execution_flow_section_pipeline_l3': '3) Match workflows by event name.',
+  'doc_runtime_execution_flow_section_pipeline_l4': '4) Merge global variables.',
+  'doc_runtime_execution_flow_section_pipeline_l5': '5) Execute actions sequentially with conditions.',
   'doc_runtime_execution_flow_section_parity_title': 'Parity Rule',
-  'doc_runtime_execution_flow_section_parity_l1':
-      'Variables should be identical between local app runtime and runner runtime.',
-  'doc_runtime_execution_flow_section_parity_l2':
-      'Use same variable names in conditions to stay portable.',
+  'doc_runtime_execution_flow_section_parity_l1': 'Variables should be identical between local app runtime and runner runtime.',
+  'doc_runtime_execution_flow_section_parity_l2': 'Use same variable names in conditions to stay portable.',
   'template_gallery_title': 'Templates',
-  'template_gallery_subtitle':
-      'Quick-start your bot with a ready-made template.',
+  'template_gallery_subtitle': 'Quick-start your bot with a ready-made template.',
   'template_gallery_apply': 'Use this template',
-  'template_gallery_apply_success':
-      '{count} command(s) and {wCount} workflow(s) added from template.',
+  'template_gallery_apply_success': '{count} command(s) and {wCount} workflow(s) added from template.',
   'template_gallery_apply_error': 'Failed to apply template: {error}',
   'template_gallery_commands_count': '{count} command(s)',
   'template_gallery_workflows_count': '{count} workflow(s)',
   'template_gallery_empty': 'No templates available.',
-  'template_gallery_already_exists':
-      'Command "{name}" already exists and was skipped.',
-  'template_gallery_sync_warning':
-      'Commands saved locally. Start your bot to register them on Discord.',
+  'template_gallery_already_exists': 'Command "{name}" already exists and was skipped.',
+  'template_gallery_sync_warning': 'Commands saved locally. Start your bot to register them on Discord.',
   'template_welcome_name': 'Welcome Bot',
-  'template_welcome_description':
-      'Greet new members, say hello, and show server info.',
+  'template_welcome_description': 'Greet new members, say hello, and show server info.',
   'template_moderation_name': 'Moderation Bot',
-  'template_moderation_description':
-      'Ban, kick, mute members and clear messages.',
+  'template_moderation_description': 'Ban, kick, mute members and clear messages.',
   'template_utility_name': 'Utility Bot',
   'template_utility_description': 'Ping, avatar lookup, and bot-says commands.',
   'template_fun_name': 'Fun Bot',
   'template_fun_description': 'Coin flip, polls, and magic 8-ball.',
   'dashboard_title': 'Dashboard',
-  'dashboard_no_data':
-      'No command usage data yet. Run your bot to start tracking.',
+  'dashboard_no_data': 'No command usage data yet. Run your bot to start tracking.',
   'dashboard_total': 'Total commands',
   'dashboard_period_24h': 'Last 24h',
   'dashboard_period_7d': 'Last 7 days',
@@ -1363,18 +1140,15 @@ const Map<String, String> appStringsEn = {
   'dashboard_p50_latency': 'Latency p50',
   'dashboard_p95_latency': 'Latency p95',
   'dashboard_premium_analytics_title': 'Premium analytics',
-  'dashboard_premium_analytics_desc':
-      'Unlock error rate, latency percentiles, and locale insights.',
+  'dashboard_premium_analytics_desc': 'Unlock error rate, latency percentiles, and locale insights.',
   'dashboard_timeline': 'Usage over time',
   'dashboard_executions': '{count} executions',
   'dashboard_selected_period_total': '{count} in selected period',
   'dashboard_loading': 'Loading stats...',
   'dashboard_error': 'Could not load stats: {error}',
   'dashboard_refresh_sources_tooltip': 'Refresh execution servers',
-  'dashboard_requires_runner':
-      'Connect to a runner to see command usage stats.',
-  'dashboard_single_runner_notice':
-      'Stats shown are from the currently configured runner only. If you run bots on multiple runners, this view may be incomplete.',
+  'dashboard_requires_runner': 'Connect to a runner to see command usage stats.',
+  'dashboard_single_runner_notice': 'Stats shown are from the currently configured runner only. If you run bots on multiple runners, this view may be incomplete.',
   'runner_source_label': 'Runner: {name}',
   'runner_source_local': 'Local',
   'runner_source_all': 'All runners',
@@ -1385,16 +1159,14 @@ const Map<String, String> appStringsEn = {
   'settings_runner_version': 'Runner',
   'settings_runner_not_connected': 'Not connected',
   'premium_card_title': 'Remove Ads',
-  'premium_card_desc':
-      'Subscribe to remove all ads and start your bots instantly, without any popup.',
+  'premium_card_desc': 'Subscribe to remove all ads and start your bots instantly, without any popup.',
   'premium_card_button': 'See plans',
   'premium_active_title': 'Premium active',
   'premium_active_desc': 'Thank you for your support! All ads are disabled.',
   'subscription_title': 'Premium',
   'subscription_subtitle': 'Choose a plan to unlock all premium features.',
   'subscription_plan_label': 'Premium Basic',
-  'subscription_plan_desc':
-      'Remove ads and get access to all current and upcoming premium features.',
+  'subscription_plan_desc': 'Remove ads and get access to all current and upcoming premium features.',
   'subscription_success': 'Welcome to Premium! All ads have been removed.',
   'subscription_manage': 'Manage subscription',
   'subscription_active_label': 'Active plan:',
@@ -1405,29 +1177,21 @@ const Map<String, String> appStringsEn = {
   'subscription_benefit_support': 'Support independent development',
   'subscription_feature_coming_soon': 'Coming soon',
   'subscription_feature_no_ads_title': 'No ads',
-  'subscription_feature_no_ads_desc':
-      'Remove all ad placements across the app experience.',
+  'subscription_feature_no_ads_desc': 'Remove all ad placements across the app experience.',
   'subscription_feature_instant_start_title': 'Instant start',
-  'subscription_feature_instant_start_desc':
-      'Start bots immediately without rewarded ad interruption.',
+  'subscription_feature_instant_start_desc': 'Start bots immediately without rewarded ad interruption.',
   'subscription_feature_analytics_title': 'Advanced analytics',
-  'subscription_feature_analytics_desc':
-      'Access error rate, latency percentiles, and locale insights.',
+  'subscription_feature_analytics_desc': 'Access error rate, latency percentiles, and locale insights.',
   'subscription_feature_scheduler_title': 'Scheduler triggers',
-  'subscription_feature_scheduler_desc':
-      'Run workflows automatically every X minutes (up to 10 active).',
+  'subscription_feature_scheduler_desc': 'Run workflows automatically every X minutes (up to 10 active).',
   'subscription_feature_webhooks_title': 'Inbound webhooks',
-  'subscription_feature_webhooks_desc':
-      'Create secure webhook endpoints and route calls to workflows.',
+  'subscription_feature_webhooks_desc': 'Create secure webhook endpoints and route calls to workflows.',
   'subscription_feature_debug_replay_title': 'Visual debug replay',
-  'subscription_feature_debug_replay_desc':
-      'Record and replay command actions step by step for debugging.',
+  'subscription_feature_debug_replay_desc': 'Record and replay command actions step by step for debugging.',
   'subscription_feature_auto_sharding_title': 'Automatic sharding',
-  'subscription_feature_auto_sharding_desc':
-      'Scale large bots by distributing load across shard workers.',
+  'subscription_feature_auto_sharding_desc': 'Scale large bots by distributing load across shard workers.',
   'subscription_feature_auto_restart_title': 'Automatic restart',
-  'subscription_feature_auto_restart_desc':
-      'Restart the bot automatically when a full restart is required.',
+  'subscription_feature_auto_restart_desc': 'Restart the bot automatically when a full restart is required.',
   'subscription_annual_title': 'Annual',
   'subscription_monthly_title': 'Monthly',
   'subscription_per_year': 'per year',
@@ -1437,23 +1201,18 @@ const Map<String, String> appStringsEn = {
   'subscription_terms': 'Terms of use',
   'subscription_privacy': 'Privacy policy',
   'subscription_error': 'Purchase could not be completed. Please try again.',
-  'subscription_error_store_unavailable':
-      'The App Store is currently unavailable. Please try again in a moment.',
-  'subscription_error_product_unavailable':
-      'This plan is currently unavailable. Please try again later.',
-  'subscription_error_purchase_start_failed':
-      'Purchase could not be started. Please try again.',
+  'subscription_error_store_unavailable': 'The App Store is currently unavailable. Please try again in a moment.',
+  'subscription_error_product_unavailable': 'This plan is currently unavailable. Please try again later.',
+  'subscription_error_purchase_start_failed': 'Purchase could not be started. Please try again.',
   'subscription_restored': 'Subscription restored successfully!',
   'subscription_restore_not_found': 'No active subscription found.',
-  'subscription_not_available_on_platform':
-      'Subscriptions are currently available on mobile only.',
+  'subscription_not_available_on_platform': 'Subscriptions are currently available on mobile only.',
   'subscription_unavailable_platform': 'Not available on this platform.',
   'action_name_addThreadMember': 'Add Thread Member',
   'action_name_removeThreadMember': 'Remove Thread Member',
   'template_gallery_remove_title': 'Remove Template',
   'template_gallery_nothing_to_remove': 'Nothing to remove for {name}.',
-  'template_gallery_remove_confirm':
-      'Are you sure you want to remove all commands and workflows from this template?',
+  'template_gallery_remove_confirm': 'Are you sure you want to remove all commands and workflows from this template?',
   'template_gallery_removed': 'Template commands and workflows removed.',
   'common_cancel': 'Cancel',
   'common_ok': 'OK',
@@ -1489,129 +1248,80 @@ const Map<String, String> appStringsEn = {
   'common_static_options': 'Static Options',
   'common_manage_workflows': 'Manage Workflows',
   'doc_event_reaction_add_title': 'Event: messageReactionAdd',
-  'doc_event_reaction_add_subtitle':
-      'Triggered when a user adds a reaction to a message.',
-  'doc_event_reaction_add_summary':
-      'Ideal for button-like UX without components, vote systems, role menus, and lightweight approvals.',
+  'doc_event_reaction_add_subtitle': 'Triggered when a user adds a reaction to a message.',
+  'doc_event_reaction_add_summary': 'Ideal for button-like UX without components, vote systems, role menus, and lightweight approvals.',
   'doc_event_reaction_add_intent': 'Guild Message Reactions',
-  'doc_event_reaction_add_best_use_l1':
-      'Approve/reject flows with unicode emoji.',
-  'doc_event_reaction_add_best_use_l2':
-      'Multi-step polls using custom emoji IDs.',
-  'doc_event_reaction_add_best_use_l3':
-      'Quick moderation signals from staff channels.',
-  'doc_event_reaction_add_notes_l1':
-      'reaction.emoji.id can be empty for unicode emoji.',
-  'doc_event_reaction_add_notes_l2':
-      'Use reaction.emoji.name for generic matching.',
-  'doc_event_reaction_add_notes_l3':
-      'Use reaction.emoji.id for strict custom emoji matching.',
-  'doc_event_reaction_add_example':
-      'Guard: ((reaction.emoji.name)) equals ✅\nAction: addRole -> user=((userId)) role=((global.approvedRoleId))',
+  'doc_event_reaction_add_best_use_l1': 'Approve/reject flows with unicode emoji.',
+  'doc_event_reaction_add_best_use_l2': 'Multi-step polls using custom emoji IDs.',
+  'doc_event_reaction_add_best_use_l3': 'Quick moderation signals from staff channels.',
+  'doc_event_reaction_add_notes_l1': 'reaction.emoji.id can be empty for unicode emoji.',
+  'doc_event_reaction_add_notes_l2': 'Use reaction.emoji.name for generic matching.',
+  'doc_event_reaction_add_notes_l3': 'Use reaction.emoji.id for strict custom emoji matching.',
+  'doc_event_reaction_add_example': 'Guard: ((reaction.emoji.name)) equals ✅\nAction: addRole -> user=((userId)) role=((global.approvedRoleId))',
   'doc_event_poll_vote_add_title': 'Event: messagePollVoteAdd',
-  'doc_event_poll_vote_add_subtitle':
-      'Triggered when a user votes on a poll answer.',
-  'doc_event_poll_vote_add_summary':
-      'Useful for score tracking, role assignment by poll option, and survey processing.',
+  'doc_event_poll_vote_add_subtitle': 'Triggered when a user votes on a poll answer.',
+  'doc_event_poll_vote_add_summary': 'Useful for score tracking, role assignment by poll option, and survey processing.',
   'doc_event_poll_vote_add_intent': 'Guild Messages',
-  'doc_event_poll_vote_add_best_use_l1':
-      'Map each answer id to a different action branch.',
-  'doc_event_poll_vote_add_best_use_l2':
-      'Track poll participation per channel or user group.',
-  'doc_event_poll_vote_add_notes_l1':
-      'poll.answer.id is the most stable key for routing.',
-  'doc_event_poll_vote_add_notes_l2':
-      'poll.question is optional and may be empty depending on payload.',
+  'doc_event_poll_vote_add_best_use_l1': 'Map each answer id to a different action branch.',
+  'doc_event_poll_vote_add_best_use_l2': 'Track poll participation per channel or user group.',
+  'doc_event_poll_vote_add_notes_l1': 'poll.answer.id is the most stable key for routing.',
+  'doc_event_poll_vote_add_notes_l2': 'poll.question is optional and may be empty depending on payload.',
   'doc_event_voice_state_update_title': 'Event: voiceStateUpdate',
-  'doc_event_voice_state_update_subtitle':
-      'Triggered when voice state changes for a user.',
-  'doc_event_voice_state_update_summary':
-      'Use this for auto-moderation in voice channels, attendance checks, and voice automation.',
+  'doc_event_voice_state_update_subtitle': 'Triggered when voice state changes for a user.',
+  'doc_event_voice_state_update_summary': 'Use this for auto-moderation in voice channels, attendance checks, and voice automation.',
   'doc_event_voice_state_update_intent': 'Guilds',
   'doc_event_voice_state_update_section_title': 'Typical Automations',
-  'doc_event_voice_state_update_automations_l1':
-      'Detect self-mute/self-deafen policy violations.',
-  'doc_event_voice_state_update_automations_l2':
-      'Trigger welcome message on voice join for support channels.',
-  'doc_event_voice_state_update_automations_l3':
-      'Log leave/join patterns using channel changes.',
+  'doc_event_voice_state_update_automations_l1': 'Detect self-mute/self-deafen policy violations.',
+  'doc_event_voice_state_update_automations_l2': 'Trigger welcome message on voice join for support channels.',
+  'doc_event_voice_state_update_automations_l3': 'Log leave/join patterns using channel changes.',
   'doc_event_user_update_title': 'Event: userUpdate',
   'doc_event_user_update_subtitle': 'Triggered when user profile data changes.',
-  'doc_event_user_update_summary':
-      'Useful for profile-change auditing and username/avatar-driven triggers.',
-  'doc_event_user_update_notes_l1':
-      'No channel context for this event in most cases.',
-  'doc_event_user_update_notes_l2':
-      'Prefer logging + moderation alerts over direct user-facing replies.',
+  'doc_event_user_update_summary': 'Useful for profile-change auditing and username/avatar-driven triggers.',
+  'doc_event_user_update_notes_l1': 'No channel context for this event in most cases.',
+  'doc_event_user_update_notes_l2': 'Prefer logging + moderation alerts over direct user-facing replies.',
   'doc_event_audit_log_create_title': 'Event: guildAuditLogCreate',
-  'doc_event_audit_log_create_subtitle':
-      'Triggered when a new audit log entry is created.',
-  'doc_event_audit_log_create_summary':
-      'High-value event for administrative security monitoring.',
-  'doc_event_audit_log_create_best_use_l1':
-      'Alert staff on sensitive actions (role delete, webhook create, ban, etc.).',
-  'doc_event_audit_log_create_best_use_l2':
-      'Route specific action types to dedicated workflows.',
+  'doc_event_audit_log_create_subtitle': 'Triggered when a new audit log entry is created.',
+  'doc_event_audit_log_create_summary': 'High-value event for administrative security monitoring.',
+  'doc_event_audit_log_create_best_use_l1': 'Alert staff on sensitive actions (role delete, webhook create, ban, etc.).',
+  'doc_event_audit_log_create_best_use_l2': 'Route specific action types to dedicated workflows.',
   'doc_action_stop_unless_title': 'Action: stopUnless',
-  'doc_action_stop_unless_subtitle':
-      'Guard clause that stops workflow when condition fails.',
-  'doc_action_stop_unless_summary':
-      'Use it at the top of workflows to prevent unnecessary actions when context does not match.',
+  'doc_action_stop_unless_subtitle': 'Guard clause that stops workflow when condition fails.',
+  'doc_action_stop_unless_summary': 'Use it at the top of workflows to prevent unnecessary actions when context does not match.',
   'doc_action_stop_unless_section_operators': 'Supported Operators',
-  'doc_action_stop_unless_operators_l1':
-      'equals, notEquals, contains, notContains, startsWith, endsWith',
-  'doc_action_stop_unless_operators_l2':
-      'greaterThan, lessThan, greaterOrEqual, lessOrEqual',
+  'doc_action_stop_unless_operators_l1': 'equals, notEquals, contains, notContains, startsWith, endsWith',
+  'doc_action_stop_unless_operators_l2': 'greaterThan, lessThan, greaterOrEqual, lessOrEqual',
   'doc_action_stop_unless_operators_l3': 'isEmpty, isNotEmpty, matches',
   'doc_action_stop_unless_section_format': 'Condition Variable Format',
-  'doc_action_stop_unless_format_l1':
-      'You can use raw keys: message.content[0]',
-  'doc_action_stop_unless_format_l2':
-      'You can use wrapped variables: ((message.content[0]))',
+  'doc_action_stop_unless_format_l1': 'You can use raw keys: message.content[0]',
+  'doc_action_stop_unless_format_l2': 'You can use wrapped variables: ((message.content[0]))',
   'doc_action_stop_unless_format_l3': 'Both are resolved by runtime.',
-  'doc_action_stop_unless_example':
-      'condition.variable = ((reaction.emoji.name))\ncondition.operator = equals\ncondition.value = ✅',
+  'doc_action_stop_unless_example': 'condition.variable = ((reaction.emoji.name))\ncondition.operator = equals\ncondition.value = ✅',
   'doc_action_if_block_title': 'Action: ifBlock',
-  'doc_action_if_block_subtitle':
-      'Branch execution between THEN, ELSE IF and ELSE nested action lists.',
-  'doc_action_if_block_summary':
-      'Use this to keep a single workflow while handling several outcomes based on runtime state.',
+  'doc_action_if_block_subtitle': 'Branch execution between THEN, ELSE IF and ELSE nested action lists.',
+  'doc_action_if_block_summary': 'Use this to keep a single workflow while handling several outcomes based on runtime state.',
   'doc_action_if_block_section_execution': 'Execution Model',
   'doc_action_if_block_execution_l1': 'Condition is evaluated once.',
-  'doc_action_if_block_execution_l2':
-      'The first matching branch executes: THEN, then ELSE IF blocks in order, then ELSE.',
-  'doc_action_if_block_execution_l3':
-      'Nested actions can include runWorkflow, API calls, and interaction replies.',
+  'doc_action_if_block_execution_l2': 'The first matching branch executes: THEN, then ELSE IF blocks in order, then ELSE.',
+  'doc_action_if_block_execution_l3': 'Nested actions can include runWorkflow, API calls, and interaction replies.',
   'doc_action_run_workflow_title': 'Action: runWorkflow',
-  'doc_action_run_workflow_subtitle':
-      'Calls another workflow with entry point and arguments.',
-  'doc_action_run_workflow_summary':
-      'Core composition primitive to split business logic into reusable units.',
+  'doc_action_run_workflow_subtitle': 'Calls another workflow with entry point and arguments.',
+  'doc_action_run_workflow_summary': 'Core composition primitive to split business logic into reusable units.',
   'doc_action_run_workflow_section_practices': 'Best Practices',
-  'doc_action_run_workflow_practices_l1':
-      'Keep top-level workflow thin and delegate to domain workflows.',
-  'doc_action_run_workflow_practices_l2':
-      'Pass explicit arguments instead of relying on implicit globals.',
-  'doc_action_run_workflow_practices_l3':
-      'Use entry points to model sub-routines (create, close, assign, escalate).',
+  'doc_action_run_workflow_practices_l1': 'Keep top-level workflow thin and delegate to domain workflows.',
+  'doc_action_run_workflow_practices_l2': 'Pass explicit arguments instead of relying on implicit globals.',
+  'doc_action_run_workflow_practices_l3': 'Use entry points to model sub-routines (create, close, assign, escalate).',
   'doc_action_http_request_title': 'Action: httpRequest',
-  'doc_action_http_request_subtitle':
-      'Executes an external HTTP call inside a workflow.',
-  'doc_action_http_request_summary':
-      'Use this for webhooks, internal APIs, moderation services, AI endpoints, and integrations.',
+  'doc_action_http_request_subtitle': 'Executes an external HTTP call inside a workflow.',
+  'doc_action_http_request_summary': 'Use this for webhooks, internal APIs, moderation services, AI endpoints, and integrations.',
   'doc_action_http_request_section_checklist': 'Reliability Checklist',
-  'doc_action_http_request_checklist_l1':
-      'Set explicit timeout and retries in your service layer when possible.',
-  'doc_action_http_request_checklist_l2':
-      'Store API keys in globals or secure backend, never hardcode tokens.',
-  'doc_action_http_request_checklist_l3':
-      'Validate status code and response body before next actions.',
+  'doc_action_http_request_checklist_l1': 'Set explicit timeout and retries in your service layer when possible.',
+  'doc_action_http_request_checklist_l2': 'Store API keys in globals or secure backend, never hardcode tokens.',
+  'doc_action_http_request_checklist_l3': 'Validate status code and response body before next actions.',
   'embed_color_picker_title': 'Pick embed color',
   'embed_delete_title': 'Delete embed',
   'embed_delete_confirm': 'This embed will be removed. Continue?',
   'embed_field_delete_title': 'Delete field',
-  'embed_field_delete_confirm':
-      'This field will be removed from the embed. Continue?',
+  'embed_field_delete_confirm': 'This field will be removed from the embed. Continue?',
   'embed_response_header': 'Response Embeds ({count}/{max})',
   'embed_add_tooltip': 'Add embed',
   'embed_empty_message': 'No embeds. You can add up to {max} embeds.',
@@ -1636,8 +1346,7 @@ const Map<String, String> appStringsEn = {
   'embed_label_inline': 'Inline',
   'embed_label_dynamic_fields': 'Dynamic Fields Template',
   'component_remove_title': 'Remove component',
-  'component_remove_confirm':
-      'This component will be removed from the layout. Continue?',
+  'component_remove_confirm': 'This component will be removed from the layout. Continue?',
   'component_label': 'Label',
   'component_style': 'Style',
   'component_url': 'URL',
@@ -1676,10 +1385,8 @@ const Map<String, String> appStringsEn = {
   'workflow_arguments_section': 'Workflow Arguments',
   'hint_use_variables': 'Use variables/templates if needed',
   'autocomplete_dynamic': 'Dynamic Autocomplete',
-  'autocomplete_dynamic_desc':
-      'Resolve choices from a workflow instead of static values.',
-  'autocomplete_filter_hint':
-      'Suggestions are filtered by what the user types.',
+  'autocomplete_dynamic_desc': 'Resolve choices from a workflow instead of static values.',
+  'autocomplete_filter_hint': 'Suggestions are filtered by what the user types.',
   'option_delete_title': 'Delete option',
   'option_delete_confirm': 'This option will be removed. Continue?',
   'option_desc_required': 'Please enter a description for the option',
@@ -1695,8 +1402,7 @@ const Map<String, String> appStringsEn = {
   'option_add_localizations': 'Add Localizations',
   'option_select_language': 'Select Language',
   'option_delete_localization_title': 'Delete localization',
-  'option_delete_localization_confirm':
-      'This localization entry will be removed. Continue?',
+  'option_delete_localization_confirm': 'This localization entry will be removed. Continue?',
   'option_localized_name': 'Localized Name',
   'option_localized_description': 'Localized Description',
   'option_choice_number': 'Choice {index}',
@@ -1718,8 +1424,7 @@ const Map<String, String> appStringsEn = {
   'action_status_enabled': 'Enabled',
   'action_status_disabled': 'Disabled',
   'action_remove_title': 'Remove action',
-  'action_remove_confirm':
-      'This action will be removed from the workflow. Continue?',
+  'action_remove_confirm': 'This action will be removed from the workflow. Continue?',
   'action_store_results': 'Store results in global variables',
   'action_http_test_button': 'Send Test Request & Auto-Detect Routes',
   'action_http_test_title': 'Test Request Results',
@@ -1742,40 +1447,25 @@ const Map<String, String> appStringsEn = {
   'action_refresh_keys': 'Refresh keys',
   'action_manage_variable_keys': 'Manage Variable Keys',
   'validation_command_name_required': 'Please enter a command name',
-  'validation_awaited_callback_local_only':
-      'Awaited callbacks require a local-only Legacy Command.',
-  'validation_awaited_callback_length':
-      'Awaited callback trigger must be at most {max} characters long',
-  'validation_awaited_callback_format':
-      'Awaited callback must use \$awaitedCommand[name;filter] or \$awaitedCommandError[name].',
-  'validation_command_name_length':
-      'Command name must be at most {max} characters long',
+  'validation_awaited_callback_local_only': 'Awaited callbacks require a local-only Legacy Command.',
+  'validation_awaited_callback_length': 'Awaited callback trigger must be at most {max} characters long',
+  'validation_awaited_callback_format': 'Awaited callback must use \$awaitedCommand[name;filter] or \$awaitedCommandError[name].',
+  'validation_command_name_length': 'Command name must be at most {max} characters long',
   'validation_command_name_no_spaces': 'Command name cannot contain spaces',
-  'validation_command_name_invalid_chars':
-      'Command name can only contain letters, numbers, and underscores',
-  'validation_command_name_no_underscore':
-      'Command name cannot start with an underscore',
-  'validation_command_name_no_exclamation':
-      'Command name cannot start with an exclamation mark',
+  'validation_command_name_invalid_chars': 'Command name can only contain letters, numbers, and underscores',
+  'validation_command_name_no_underscore': 'Command name cannot start with an underscore',
+  'validation_command_name_no_exclamation': 'Command name cannot start with an exclamation mark',
   'validation_command_name_no_slash': 'Command name cannot start with a slash',
   'validation_command_name_no_hash': 'Command name cannot start with a hash',
   'validation_command_name_no_at': 'Command name cannot start with an at sign',
-  'validation_command_name_no_ampersand':
-      'Command name cannot start with an ampersand',
-  'validation_command_name_no_percent':
-      'Command name cannot start with a percent sign',
-  'validation_legacy_chat_input_only':
-      'Legacy mode is only available for chat input commands.',
-  'validation_modal_not_legacy':
-      'Modal responses are not supported in legacy command mode.',
-  'validation_legacy_only_requires_legacy':
-      'Legacy-only commands require legacy mode to be enabled.',
-  'validation_legacy_only_new_or_local':
-      'Legacy-only mode can only be used for new commands or existing local commands.',
-  'validation_invalid_permissions':
-      'Invalid default member permissions bitfield. Use a positive integer or leave empty.',
-  'scheduler_no_workflows':
-      'Create at least one workflow before adding a schedule.',
+  'validation_command_name_no_ampersand': 'Command name cannot start with an ampersand',
+  'validation_command_name_no_percent': 'Command name cannot start with a percent sign',
+  'validation_legacy_chat_input_only': 'Legacy mode is only available for chat input commands.',
+  'validation_modal_not_legacy': 'Modal responses are not supported in legacy command mode.',
+  'validation_legacy_only_requires_legacy': 'Legacy-only commands require legacy mode to be enabled.',
+  'validation_legacy_only_new_or_local': 'Legacy-only mode can only be used for new commands or existing local commands.',
+  'validation_invalid_permissions': 'Invalid default member permissions bitfield. Use a positive integer or leave empty.',
+  'scheduler_no_workflows': 'Create at least one workflow before adding a schedule.',
   'scheduler_add_title': 'Add schedule',
   'scheduler_edit_title': 'Edit schedule',
   'scheduler_label_hint': 'Optional display label',
@@ -1790,8 +1480,7 @@ const Map<String, String> appStringsEn = {
   'scheduler_add_trigger': 'Add trigger',
   'scheduler_triggers_count': 'Triggers: {count}{limit}',
   'scheduler_empty': 'No scheduled triggers yet.',
-  'webhooks_no_workflows':
-      'Create at least one workflow before adding an inbound webhook.',
+  'webhooks_no_workflows': 'Create at least one workflow before adding an inbound webhook.',
   'webhooks_add_title': 'Add inbound webhook',
   'webhooks_edit_title': 'Edit inbound webhook',
   'webhooks_path_label': 'Path',
@@ -1805,8 +1494,7 @@ const Map<String, String> appStringsEn = {
   'webhooks_delete_title': 'Delete inbound webhook?',
   'webhooks_delete_confirm': 'Delete "{label}"? This cannot be undone.',
   'webhooks_delete_confirm_no_label': 'This cannot be undone.',
-  'webhooks_runner_url_required':
-      'Configure a Runner URL first to copy the full webhook URL.',
+  'webhooks_runner_url_required': 'Configure a Runner URL first to copy the full webhook URL.',
   'webhooks_missing_data': 'Webhook path or secret is missing.',
   'webhooks_copied': 'Full webhook URL copied.',
   'webhooks_invalid_runner_url': 'Runner URL is invalid.',
@@ -1819,11 +1507,9 @@ const Map<String, String> appStringsEn = {
   'webhooks_copy_secret': 'Copy secret',
   'webhooks_actions': 'Actions',
   'command_legacy_mode_title': 'Enable legacy mode on this command',
-  'command_legacy_mode_subtitle':
-      'Uses positional options (example: !config #channel).',
+  'command_legacy_mode_subtitle': 'Uses positional options (example: !config #channel).',
   'command_legacy_prefix_title': 'Legacy Prefix Mode',
-  'command_legacy_prefix_desc':
-      'Handle commands from messageCreate using <prefix><command>.',
+  'command_legacy_prefix_desc': 'Handle commands from messageCreate using <prefix><command>.',
   'command_prefix_override_label': 'Prefix override (optional)',
   'command_prefix_override_hint': 'Example: ? or ((guild.prefix | !))',
   'command_legacy_response_label': 'Legacy response mode',
@@ -1846,8 +1532,7 @@ const Map<String, String> appStringsEn = {
   'actions_save_tooltip': 'Save Actions',
   'actions_key_label': 'Key: {key}',
   'modal_remove_field_title': 'Remove modal field',
-  'modal_remove_field_confirm':
-      'This field will be removed from the modal. Continue?',
+  'modal_remove_field_confirm': 'This field will be removed from the modal. Continue?',
   'modal_title_label': 'Modal Title',
   'modal_custom_id_label': 'Custom ID',
   'modal_custom_id_hint': 'Used to identify this modal',
@@ -1857,13 +1542,11 @@ const Map<String, String> appStringsEn = {
   'modal_style': 'Style:',
   'modal_default_value': 'Default value',
   'command_legacy_preset_title': 'Legacy preset',
-  'command_legacy_preset_desc':
-      'Generate an internal awaited callback trigger and switch this command to the required local legacy setup.',
+  'command_legacy_preset_desc': 'Generate an internal awaited callback trigger and switch this command to the required local legacy setup.',
   'command_awaited_preset_button': 'Use Awaited Callback Preset',
   'command_awaited_preset_active': 'Awaited callback preset',
   'command_edit_raw_name': 'Edit Raw Name',
-  'command_awaited_preset_desc':
-      'The command name is generated for you and saved as an internal legacy callback.',
+  'command_awaited_preset_desc': 'The command name is generated for you and saved as an internal legacy callback.',
   'command_awaited_success': 'Success',
   'command_awaited_error': 'Error',
   'command_awaited_name_label': 'Awaited callback name',
@@ -1885,8 +1568,7 @@ const Map<String, String> appStringsEn = {
   'command_context_bot_dm': 'Bot DM',
   'command_context_group_dm': 'Group DM / Other',
   'command_permissions_title': 'Select permissions',
-  'command_prefix_helper':
-      'Supports templates and scoped variables (bc_ optional). Example: ((guild.prefix | user.prefix | !))',
+  'command_prefix_helper': 'Supports templates and scoped variables (bc_ optional). Example: ((guild.prefix | user.prefix | !))',
   'actions_title': 'Actions',
   'actions_description': 'Build runtime actions for this command',
   'actions_active_route': 'Active route: {label}',
@@ -1942,15 +1624,12 @@ const Map<String, String> appStringsEn = {
   'edit_shell_local_draft': 'Local draft',
   'edit_shell_unsaved': 'Unsaved changes',
   'edit_shell_untitled_command': 'Untitled command',
-  'edit_shell_subtitle':
-      'Settings and inputs are at the top. Actions and reply follow below.',
+  'edit_shell_subtitle': 'Settings and inputs are at the top. Actions and reply follow below.',
   'edit_shell_routes_count': '{count} route(s)',
   'edit_shell_command_settings': 'Command settings',
-  'edit_shell_command_settings_desc':
-      'Metadata, availability, permissions, and folder placement.',
+  'edit_shell_command_settings_desc': 'Metadata, availability, permissions, and folder placement.',
   'edit_shell_trigger_inputs': 'Trigger & Inputs',
-  'edit_shell_trigger_inputs_desc':
-      'Adjust command options, trigger behavior, and execution mode.',
+  'edit_shell_trigger_inputs_desc': 'Adjust command options, trigger behavior, and execution mode.',
   'edit_shell_command_body': 'Command body',
   'edit_shell_type_legacy': 'Legacy command',
   'edit_shell_type_user': 'User command',
@@ -1978,10 +1657,8 @@ const Map<String, String> appStringsEn = {
   'wizard_save_command': 'Save command',
   'wizard_create_command': 'Create command',
   'wizard_reply_summary': 'Reply summary',
-  'wizard_legacy_options_subtitle':
-      'Legacy command options and local-only behavior',
-  'wizard_quick_start_subtitle':
-      'Use the legacy simple builder as a starting point, then apply it to the shared draft.',
+  'wizard_legacy_options_subtitle': 'Legacy command options and local-only behavior',
+  'wizard_quick_start_subtitle': 'Use the legacy simple builder as a starting point, then apply it to the shared draft.',
   'wizard_bdfd_mode_enabled': 'BDFD script mode enabled',
   'wizard_dart_mode_enabled': 'Dart script mode enabled',
   'wizard_visual_mode_enabled': 'Visual workflow mode enabled',
@@ -1995,48 +1672,36 @@ const Map<String, String> appStringsEn = {
   'response_interactive_components': 'interactive components',
   'command_options_title': 'Command Options',
   'command_options_slash_params': 'Slash-command parameters',
-  'command_options_legacy_params':
-      'Legacy positional parameters (ordered: required then optional)',
+  'command_options_legacy_params': 'Legacy positional parameters (ordered: required then optional)',
   'legacy_prefix_mode_title': 'Legacy Prefix Mode',
-  'legacy_prefix_mode_desc':
-      'Handle commands from messageCreate using <prefix><command>.',
-  'legacy_prefix_mode_subtitle':
-      'Uses positional options (example: !config #channel).',
+  'legacy_prefix_mode_desc': 'Handle commands from messageCreate using <prefix><command>.',
+  'legacy_prefix_mode_subtitle': 'Uses positional options (example: !config #channel).',
   'legacy_prefix_override_label': 'Prefix override (optional)',
   'legacy_prefix_override_hint': 'Example: ? or ((guild.prefix | !))',
   'legacy_response_mode_label': 'Legacy response mode',
   'command_type_locked': 'Command type cannot be changed after creation.',
   'local_command_title': 'Local Command (Do not register on Discord)',
-  'local_command_desc':
-      'Store command only in Bot Creator. You can dynamically register it on Specific Guilds using BDFD \$registerGuildCommands.',
-  'local_command_awaited_desc':
-      'Awaited callback presets stay local because they are internal runtime callbacks.',
+  'local_command_desc': 'Store command only in Bot Creator. You can dynamically register it on Specific Guilds using BDFD \$registerGuildCommands.',
+  'local_command_awaited_desc': 'Awaited callback presets stay local because they are internal runtime callbacks.',
   'command_integration_label': 'Where this command can be used',
   'command_scope_label': 'Scope of the command (Contexts)',
   'command_permissions_label': 'Default Member Permissions (optional)',
   'command_permissions_none': 'No selection (everyone can use command)',
   'command_permissions_count': '{count} permission(s) selected',
   'command_permissions_bitfield': 'Calculated Permission Bitfield',
-  'command_permissions_bitfield_helper':
-      'Automatically computed from selected permissions.',
-  'command_permissions_unknown_bits':
-      'Warning: unknown permission bits detected from saved data and preserved: {bits}',
-  'command_permissions_admin_warning':
-      'Administrator selected: this bypasses other permission checks.',
-  'command_permissions_tip':
-      'Tip: leave all unchecked to make the command available to everyone by default.',
+  'command_permissions_bitfield_helper': 'Automatically computed from selected permissions.',
+  'command_permissions_unknown_bits': 'Warning: unknown permission bits detected from saved data and preserved: {bits}',
+  'command_permissions_admin_warning': 'Administrator selected: this bypasses other permission checks.',
+  'command_permissions_tip': 'Tip: leave all unchecked to make the command available to everyone by default.',
   'workflow_saved_snackbar': 'Workflow "{name}" saved ({count} action(s)).',
   'reply_command_reply_title': 'Command Reply',
   'reply_choose_type': 'Choose the type of response to send',
-  'reply_mode_standard_desc':
-      'Text, embeds and optional buttons / select menus',
-  'reply_mode_layout_desc':
-      'Discord\'s rich layout system — containers, media, text & forms',
+  'reply_mode_standard_desc': 'Text, embeds and optional buttons / select menus',
+  'reply_mode_layout_desc': 'Discord\'s rich layout system — containers, media, text & forms',
   'reply_mode_modal_desc': 'Pop-up dialog with text input fields',
   'reply_response_workflow': 'Response Workflow',
   'reply_response_text_label': 'Response Text',
-  'reply_response_text_helper':
-      'Used as slash-command reply text. Supports ((variable)) syntax.',
+  'reply_response_text_helper': 'Used as slash-command reply text. Supports ((variable)) syntax.',
   'reply_buttons_desc': 'Add interactive buttons or dropdowns to this message',
   'reply_active_route': 'Active route: {label}',
   'workflow_visibility_ephemeral': 'Ephemeral',
@@ -2049,13 +1714,10 @@ const Map<String, String> appStringsEn = {
   'workflow_no_auto_defer': 'No auto defer',
   'workflow_condition_on_upper': 'Condition ON',
   'workflow_condition_off_upper': 'Condition OFF',
-  'actions_summary_bdfd':
-      'BDFD script | {lines} line(s) | {diagnostics} diagnostic(s)',
-  'actions_summary_dart':
-      'Dart script | {lines} line(s) | {diagnostics} diagnostic(s)',
+  'actions_summary_bdfd': 'BDFD script | {lines} line(s) | {diagnostics} diagnostic(s)',
+  'actions_summary_dart': 'Dart script | {lines} line(s) | {diagnostics} diagnostic(s)',
   'scratch_dart_script': 'Dart Script',
-  'actions_summary_routes':
-      '{count} action(s) on active route | {routes} route(s)',
+  'actions_summary_routes': '{count} action(s) on active route | {routes} route(s)',
   'actions_summary_configured': '{count} action(s) configured',
   'reply_editor_title': 'Reply Details',
   'bdfd_editor_ux_title': 'Editor UX',
@@ -2108,10 +1770,8 @@ const Map<String, String> appStringsEn = {
   'workflow_set_call_args': 'Set Call Arguments',
   'workflow_edit_call_args': 'Edit Call Arguments ({count})',
   'workflow_root_json_error': 'Root must be a JSON object',
-  'workflow_on_submit_info':
-      'On submit, workflow "{name}" will run (entry: {entry}, args: {args}).',
-  'workflow_no_workflow_note':
-      'Note: If no workflow is selected, submitting this modal will do nothing.',
+  'workflow_on_submit_info': 'On submit, workflow "{name}" will run (entry: {entry}, args: {args}).',
+  'workflow_no_workflow_note': 'Note: If no workflow is selected, submitting this modal will do nothing.',
   'workflow_hint_name': 'e.g. handle_form_submit',
   'action_position': 'Action {index}/{total}',
   'action_provide_valid_url': 'Please provide a valid URL.',
@@ -2130,15 +1790,13 @@ const Map<String, String> appStringsEn = {
   'action_no_items_tap_edit': 'No items - tap edit to add',
   'action_no_actions_yet': 'No actions in this branch yet.',
   'action_and_more': '… and {count} more',
-  'action_no_else_if_yet':
-      'No ELSE IF branches yet. Add one to test more conditions before ELSE.',
+  'action_no_else_if_yet': 'No ELSE IF branches yet. Add one to test more conditions before ELSE.',
   'action_no_headers_tap_edit': 'No headers - tap edit to add',
   'action_no_args_tap_edit': 'No arguments - tap edit to add',
   'action_no_properties_tap_edit': 'No properties - tap edit to configure',
   'action_http_headers_title': 'HTTP Headers (Key/Value pairs)',
   'action_bulk_import_hint': 'Bulk import (Paste headers like Key: Value)',
-  'action_json_editor_hint':
-      'JSON object editor (supports nested objects/arrays)',
+  'action_json_editor_hint': 'JSON object editor (supports nested objects/arrays)',
   'action_edit_raw_json': 'Edit Raw JSON',
   'action_preview_json': 'Preview Highlighted JSON',
   'action_cannot_format_json': 'Cannot format: Invalid JSON',
@@ -2149,8 +1807,7 @@ const Map<String, String> appStringsEn = {
   'action_dynamic_multiselect_hint': 'Dynamic value (supports ((...)))',
   'action_dynamic_id_hint': 'Dynamic {type} (supports ((...)))',
   'action_loading_keys': 'Loading keys...',
-  'action_no_saved_keys':
-      'No saved keys found. Keys are created automatically on first access.',
+  'action_no_saved_keys': 'No saved keys found. Keys are created automatically on first access.',
   'action_select_stored_key': 'Select a stored key (bc_ prefix is optional)',
   'action_select_saved_key': 'Select a saved key',
   'action_static_badge': '(static)',
@@ -2160,12 +1817,9 @@ const Map<String, String> appStringsEn = {
   'modal_input_index': 'Input {index}',
   'settings_legacy_prefix': 'Legacy command prefix',
   'settings_legacy_prefix_hint': '!, ? or ((guild.prefix | user.prefix | !))',
-  'settings_legacy_prefix_helper':
-      'Supports templates and scoped variables (bc_ optional). Example: ((guild.prefix | user.prefix | !))',
-  'settings_builtin_help_subtitle':
-      'Mandatory feature with explicit toggle. Disable it if you only want custom help behavior.',
-  'settings_status_remove_confirm':
-      'This status entry will be removed. Continue?',
+  'settings_legacy_prefix_helper': 'Supports templates and scoped variables (bc_ optional). Example: ((guild.prefix | user.prefix | !))',
+  'settings_builtin_help_subtitle': 'Mandatory feature with explicit toggle. Disable it if you only want custom help behavior.',
+  'settings_status_remove_confirm': 'This status entry will be removed. Continue?',
   'webhooks_count': 'Webhooks: {count}{limit}',
   'webhooks_path_copied': 'Path copied.',
   'webhooks_secret_copied': 'Secret copied.',
@@ -2177,22 +1831,17 @@ const Map<String, String> appStringsEn = {
   'import_summary_status_imported': 'status imported',
   'import_summary_variables_imported': 'variables imported',
   'command_subcommand_workflow_title': 'SubCommand Workflow',
-  'command_subcommand_workflow_desc':
-      'Choose which subcommand you are configuring.',
+  'command_subcommand_workflow_desc': 'Choose which subcommand you are configuring.',
   'command_sync_failed_local': 'Saved locally. Discord sync failed: {error}',
   'command_description_required': 'Please enter a command description',
-  'command_description_length':
-      'Command description must be at most 100 characters long',
+  'command_description_length': 'Command description must be at most 100 characters long',
   'response_workflow_deferred_reply': 'Deferred reply',
-  'response_workflow_auto_defer_desc':
-      'Acknowledge quickly, execute actions, then edit final response.',
+  'response_workflow_auto_defer_desc': 'Acknowledge quickly, execute actions, then edit final response.',
   'response_workflow_visibility': 'Visibility',
   'response_workflow_ephemeral_only_user': 'Ephemeral (only command user)',
-  'response_workflow_error_policy_desc':
-      'When an action fails, edit the deferred message with an error.',
+  'response_workflow_error_policy_desc': 'When an action fails, edit the deferred message with an error.',
   'response_workflow_conditional_title': 'Conditional response (MVP)',
-  'response_workflow_condition_desc':
-      'If variable exists and is not empty => use THEN text, otherwise ELSE text.',
+  'response_workflow_condition_desc': 'If variable exists and is not empty => use THEN text, otherwise ELSE text.',
   'response_workflow_variable_key': 'Variable key (ex: opts.userId)',
   'commands_search_hint': 'Search commands...',
   'commands_all_folders': 'All folders',
@@ -2215,44 +1864,28 @@ const Map<String, String> appStringsEn = {
   'option_type_unknown': 'Unknown',
   'option_name_required': 'Please enter a name for the option',
   'option_name_max_length': 'Option name must be at most 32 characters long',
-  'option_name_invalid_chars':
-      'Option name can only contain letters, numbers, and underscores',
-  'option_name_invalid_start':
-      'Option name starts with an unsupported character',
+  'option_name_invalid_chars': 'Option name can only contain letters, numbers, and underscores',
+  'option_name_invalid_start': 'Option name starts with an unsupported character',
   'option_name_duplicate': 'This name is already used at this level',
   'option_label_number': 'Label {index}',
   'option_value_number': 'Value {index}',
-  'validation_option_max_entries':
-      'Each option level supports at most 25 entries.',
-  'validation_option_no_mix_top_level':
-      'Top-level options cannot mix subcommands/groups with regular options.',
-  'validation_option_group_only_subcommands':
-      'A SubCommandGroup can only contain SubCommand options.',
-  'validation_option_subcommand_no_nested':
-      'A SubCommand cannot contain nested SubCommand or SubCommandGroup.',
+  'validation_option_max_entries': 'Each option level supports at most 25 entries.',
+  'validation_option_no_mix_top_level': 'Top-level options cannot mix subcommands/groups with regular options.',
+  'validation_option_group_only_subcommands': 'A SubCommandGroup can only contain SubCommand options.',
+  'validation_option_subcommand_no_nested': 'A SubCommand cannot contain nested SubCommand or SubCommandGroup.',
   'validation_option_name_required': 'Every option must have a name.',
-  'validation_option_name_duplicate':
-      'Duplicate option name "{name}" at the same level.',
-  'validation_option_description_required':
-      'Every option must have a description.',
-  'validation_option_leaf_no_nested':
-      'Regular options cannot contain nested options.',
-  'validation_option_hierarchy_not_required':
-      'SubCommand and SubCommandGroup cannot be marked as required.',
-  'validation_option_hierarchy_no_choices':
-      'SubCommand and SubCommandGroup cannot define choices.',
-  'validation_option_hierarchy_no_min_max':
-      'SubCommand and SubCommandGroup cannot define min/max values.',
-  'validation_option_group_top_level_only':
-      'SubCommandGroup is only allowed at the top level.',
-  'validation_option_subcommand_depth':
-      'SubCommand nesting depth exceeds Discord limits.',
+  'validation_option_name_duplicate': 'Duplicate option name "{name}" at the same level.',
+  'validation_option_description_required': 'Every option must have a description.',
+  'validation_option_leaf_no_nested': 'Regular options cannot contain nested options.',
+  'validation_option_hierarchy_not_required': 'SubCommand and SubCommandGroup cannot be marked as required.',
+  'validation_option_hierarchy_no_choices': 'SubCommand and SubCommandGroup cannot define choices.',
+  'validation_option_hierarchy_no_min_max': 'SubCommand and SubCommandGroup cannot define min/max values.',
+  'validation_option_group_top_level_only': 'SubCommandGroup is only allowed at the top level.',
+  'validation_option_subcommand_depth': 'SubCommand nesting depth exceeds Discord limits.',
   'bdfd_compile_error_simple': 'This BDFD script could not be compiled.',
-  'bdfd_compile_error_detailed':
-      'This BDFD script could not be compiled:\n{summary}',
+  'bdfd_compile_error_detailed': 'This BDFD script could not be compiled:\n{summary}',
   'command_not_found': 'Command not found',
-  'legacy_bdfd_run_failed':
-      'Failed to run BDFD script for command "{command}": {error}',
+  'legacy_bdfd_run_failed': 'Failed to run BDFD script for command "{command}": {error}',
   'component_empty_option': 'Empty',
   'component_unknown_component': 'Unknown component',
   'common_bot': 'Bot',
@@ -2261,10 +1894,8 @@ const Map<String, String> appStringsEn = {
   'component_default_option_label': 'Option',
   'component_default_choice_label': 'Choice',
   'command_execution_error': 'An error occurred while executing this command.',
-  'bdfd_runtime_execution_error':
-      'An error occurred while executing this BDFD script.',
-  'bdfd_compiled_no_actions':
-      'This BDFD script compiled successfully but did not produce any action.',
+  'bdfd_runtime_execution_error': 'An error occurred while executing this BDFD script.',
+  'bdfd_compiled_no_actions': 'This BDFD script compiled successfully but did not produce any action.',
   'embed_section_color': 'Color',
   'embed_section_timestamp': 'Timestamp',
   'embed_section_fields': 'Fields',
