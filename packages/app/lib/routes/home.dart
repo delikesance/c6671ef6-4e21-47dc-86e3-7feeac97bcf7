@@ -15,6 +15,8 @@ import 'package:bot_creator/utils/ad_consent_service.dart';
 import 'package:bot_creator/utils/premium_capabilities.dart';
 import 'package:bot_creator/utils/global.dart';
 import 'package:bot_creator/utils/app_theme.dart';
+import 'package:bot_creator/utils/main_api_client.dart';
+import 'package:bot_creator/utils/main_api_settings.dart';
 import 'package:bot_creator/utils/runner_settings.dart';
 import 'package:bot_creator/widgets/native_ad_slot.dart';
 import 'package:flutter/foundation.dart';
@@ -46,6 +48,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   final Map<String, AnimationController> _pulseControllers = {};
 
   bool get _supportsForegroundTask => Platform.isAndroid || Platform.isIOS;
+  bool get _supportsManagerRuntime => Platform.isAndroid || Platform.isIOS;
 
   // ── Lifecycle ──────────────────────────────────────────────────────────────
 
@@ -69,14 +72,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   Future<void> _initRunningState() async {
     final runningIds = <String>{};
-    final config = await RunnerSettings.getConfig();
-    final runnerClient = config?.createClient(
+    final remoteClient = await _createRemoteBotClient(
       getTimeout: const Duration(seconds: 30),
       postTimeout: const Duration(seconds: 90),
     );
-    if (runnerClient != null) {
+    if (remoteClient != null) {
       try {
-        final status = await runnerClient.getStatus();
+        final status = await remoteClient.getStatus();
         for (final bot in status.bots) {
           if (bot.isRunning) {
             runningIds.add(bot.botId);
@@ -85,10 +87,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       } catch (_) {}
 
       if (!mounted) return;
+      final activeRemoteLabel = await _activeRemoteLabel();
       setState(() {
         _runningBotIds = runningIds;
         _runnerModeEnabled = true;
-        _activeRunnerLabel = config!.name ?? config.url;
+        _activeRunnerLabel = activeRemoteLabel;
       });
       _syncPulse(runningIds);
       await _syncDiscordRpcPresence(runningIds);
@@ -181,15 +184,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     String? preferredBotName,
   }) async {
     try {
-      final config = await RunnerSettings.getConfig();
+      final remoteLabel = await _activeRemoteLabel();
       final botNamesById = await _loadBotNamesById();
       await DiscordRpcService.instance.syncBotRuntimeState(
         runningBotIds: runningBotIds,
         botNamesById: botNamesById,
-        runnerModeEnabled: config != null,
+        runnerModeEnabled: remoteLabel != null,
         preferredBotId: preferredBotId,
         preferredBotName: preferredBotName,
-        activeRunnerLabel: config?.name ?? config?.url,
+        activeRunnerLabel: remoteLabel,
       );
     } catch (error, stackTrace) {
       developer.log(
@@ -198,6 +201,57 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         stackTrace: stackTrace,
       );
     }
+  }
+
+  Future<dynamic> _createRemoteBotClient({
+    Duration getTimeout = const Duration(seconds: 30),
+    Duration postTimeout = const Duration(seconds: 90),
+  }) async {
+    final mainApiConfig = await MainApiSettingsStore.loadConfig();
+    final mainApiSession = await MainApiSettingsStore.loadSession();
+
+    if (_supportsManagerRuntime &&
+        mainApiConfig.isConfigured &&
+        mainApiSession != null &&
+        !mainApiSession.isExpired) {
+      return MainApiClient(
+        baseUrl: mainApiConfig.baseUrl,
+        accessToken: mainApiSession.accessToken,
+        timeout: postTimeout,
+      );
+    }
+
+    return RunnerSettings.createClient(
+      getTimeout: getTimeout,
+      postTimeout: postTimeout,
+    );
+  }
+
+  Future<bool> _hasRemoteBotClient() async {
+    final mainApiConfig = await MainApiSettingsStore.loadConfig();
+    final mainApiSession = await MainApiSettingsStore.loadSession();
+    if (_supportsManagerRuntime &&
+        mainApiConfig.isConfigured &&
+        mainApiSession != null &&
+        !mainApiSession.isExpired) {
+      return true;
+    }
+
+    return await RunnerSettings.getConfig() != null;
+  }
+
+  Future<String?> _activeRemoteLabel() async {
+    final mainApiConfig = await MainApiSettingsStore.loadConfig();
+    final mainApiSession = await MainApiSettingsStore.loadSession();
+    if (_supportsManagerRuntime &&
+        mainApiConfig.isConfigured &&
+        mainApiSession != null &&
+        !mainApiSession.isExpired) {
+      return mainApiConfig.baseUrl;
+    }
+
+    final runnerConfig = await RunnerSettings.getConfig();
+    return runnerConfig?.name ?? runnerConfig?.url;
   }
 
   // ── Démarrage / Arrêt du bot ───────────────────────────────────────────────
@@ -221,7 +275,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       // ── Fetch + validate token before anything else (only when starting) ──
       String? token;
       if (!isRunning) {
-        final usingRunner = await RunnerSettings.getConfig() != null;
+        final usingRunner = await _hasRemoteBotClient();
 
         if (!usingRunner) {
           final app = await appManager.getApp(botId);
@@ -235,23 +289,22 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             await getDiscordUser(token);
           } catch (_) {
             if (!mounted) return;
-            final proceed =
-                await AppTheme.showConfirmDialog(
-                  context,
-                  title: context.tr.bot_home_token_invalid_title,
-                  content: context.tr.bot_home_token_invalid_content,
-                  confirmLabel: context.tr.bot_home_start,
-                );
+            final proceed = await AppTheme.showConfirmDialog(
+              context,
+              title: context.tr.bot_home_token_invalid_title,
+              content: context.tr.bot_home_token_invalid_content,
+              confirmLabel: context.tr.bot_home_start,
+            );
             if (!proceed || !mounted) return;
           }
         }
 
-        await _maybeOfferRewardedAd();
+        await _maybeOfferRewardedAd(botId: botId);
         if (!mounted) return;
       }
 
       // ── Runner API (API only) ─────────────────────────────────────────────
-      final client = await RunnerSettings.createClient(
+      final client = await _createRemoteBotClient(
         getTimeout: const Duration(seconds: 30),
         postTimeout: const Duration(seconds: 90),
       );
@@ -271,6 +324,20 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           clearBotBaselineRss();
           appendBotLog('Bot start requested', botId: botId);
           final payload = await buildBotPayload(botId);
+          if (client is MainApiClient) {
+            final app = await appManager.getApp(botId);
+            final botToken = (app['token'] ?? '').toString().trim();
+            if (botToken.isNotEmpty) {
+              try {
+                await client.saveDiscordBotSnapshot(
+                  botToken: botToken,
+                  config: payload,
+                );
+              } catch (_) {
+                // Best-effort only: do not block start if save route fails.
+              }
+            }
+          }
           await client.syncBot(botId, botName, payload);
           await client.startBot(botId, botName: botName);
           setBotRuntimeActive(true);
@@ -392,12 +459,62 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     }
   }
 
-  Future<void> _maybeOfferRewardedAd() async {
+  Future<void> _claimMainApiAdRuntime(String botId) async {
+    final remoteClient = await _createRemoteBotClient(
+      getTimeout: const Duration(seconds: 10),
+      postTimeout: const Duration(seconds: 20),
+    );
+    if (remoteClient is! MainApiClient) {
+      return;
+    }
+
+    final now = DateTime.now().toUtc();
+    final claimKey = 'mobile-$botId-${now.microsecondsSinceEpoch}';
+    try {
+      final result = await remoteClient.claimBotAdRuntime(
+        botId: botId,
+        placement: 'admob_rewarded',
+        rewardId: claimKey,
+        idempotencyKey: claimKey,
+        occurredAt: now,
+      );
+      final granted =
+          (result['granted_minutes'] ?? result['grantedMinutes'] ?? 0)
+              .toString();
+      appendBotDebugLog('Ad runtime claimed for $botId (+$granted minutes).');
+    } catch (error) {
+      appendBotDebugLog('Failed to claim ad runtime for $botId: $error');
+    }
+  }
+
+  Future<bool> _isMainApiPremiumUser() async {
+    final remoteClient = await _createRemoteBotClient(
+      getTimeout: const Duration(seconds: 10),
+      postTimeout: const Duration(seconds: 20),
+    );
+    if (remoteClient is! MainApiClient) {
+      return false;
+    }
+
+    try {
+      final runtime = await remoteClient.getGatewayRuntime();
+      final plan = (runtime['plan'] ?? '').toString().toUpperCase();
+      return plan == 'PREMIUM';
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> _maybeOfferRewardedAd({required String botId}) async {
     if (!_supportsForegroundTask || !mounted) {
       return;
     }
 
     if (PremiumCapabilities.hasCapability(PremiumCapability.noAds)) {
+      return;
+    }
+
+    if (await _isMainApiPremiumUser()) {
       return;
     }
 
@@ -415,19 +532,18 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     }
 
     if (kDebugMode) {
-      final shouldWatch =
-            await AppTheme.showConfirmDialog(
-              context,
-              title: context.tr.rewarded_start_title,
-              content: context.tr.rewarded_start_message,
-              cancelLabel: context.tr.rewarded_start_skip,
-              confirmLabel: context.tr.rewarded_start_watch,
-            );
+      final shouldWatch = await AppTheme.showConfirmDialog(
+        context,
+        title: context.tr.rewarded_start_title,
+        content: context.tr.rewarded_start_message,
+        cancelLabel: context.tr.rewarded_start_skip,
+        confirmLabel: context.tr.rewarded_start_watch,
+      );
 
-        if (!shouldWatch || !mounted) {
-          return;
-        }
-      } else {
+      if (!shouldWatch || !mounted) {
+        return;
+      }
+    } else {
       await showDialog<void>(
         context: context,
         barrierDismissible: false,
@@ -445,7 +561,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       );
     }
 
-    AdRewardService.showRewardedAdNonBlocking();
+    AdRewardService.showRewardedAdNonBlocking(
+      onRewardEarned: () => _claimMainApiAdRuntime(botId),
+    );
     if (!mounted) {
       return;
     }
@@ -757,7 +875,9 @@ class _BotCard extends StatelessWidget {
                         ),
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+                          borderRadius: BorderRadius.circular(
+                            AppTheme.radiusPill,
+                          ),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -799,45 +919,54 @@ class _BotCard extends StatelessWidget {
                   children: [
                     // Avatar with glow ring when running
                     Container(
-                      decoration: isRunning
-                          ? BoxDecoration(
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppTheme.successAccent.withValues(alpha: 0.4),
-                                  blurRadius: 16,
-                                  spreadRadius: 2,
+                      decoration:
+                          isRunning
+                              ? BoxDecoration(
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppTheme.successAccent.withValues(
+                                      alpha: 0.4,
+                                    ),
+                                    blurRadius: 16,
+                                    spreadRadius: 2,
+                                  ),
+                                ],
+                              )
+                              : null,
+                      child:
+                          avatar != null && avatar!.isNotEmpty
+                              ? CircleAvatar(
+                                radius: avatarRadius,
+                                backgroundColor: Colors.white.withValues(
+                                  alpha: 0.1,
                                 ),
-                              ],
-                            )
-                          : null,
-                      child: avatar != null && avatar!.isNotEmpty
-                          ? CircleAvatar(
-                              radius: avatarRadius,
-                              backgroundColor: Colors.white.withValues(alpha: 0.1),
-                              child: ClipOval(
-                                child: Image.network(
-                                  avatar!,
-                                  width: avatarRadius * 2,
-                                  height: avatarRadius * 2,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (_, _, _) => Icon(
-                                    Icons.smart_toy_rounded,
-                                    size: avatarFallbackSize * 0.6,
-                                    color: Colors.white70,
+                                child: ClipOval(
+                                  child: Image.network(
+                                    avatar!,
+                                    width: avatarRadius * 2,
+                                    height: avatarRadius * 2,
+                                    fit: BoxFit.cover,
+                                    errorBuilder:
+                                        (_, _, _) => Icon(
+                                          Icons.smart_toy_rounded,
+                                          size: avatarFallbackSize * 0.6,
+                                          color: Colors.white70,
+                                        ),
                                   ),
                                 ),
+                              )
+                              : CircleAvatar(
+                                radius: avatarRadius,
+                                backgroundColor: Colors.white.withValues(
+                                  alpha: 0.1,
+                                ),
+                                child: Icon(
+                                  Icons.smart_toy_rounded,
+                                  size: avatarFallbackSize * 0.6,
+                                  color: Colors.white70,
+                                ),
                               ),
-                            )
-                          : CircleAvatar(
-                              radius: avatarRadius,
-                              backgroundColor: Colors.white.withValues(alpha: 0.1),
-                              child: Icon(
-                                Icons.smart_toy_rounded,
-                                size: avatarFallbackSize * 0.6,
-                                color: Colors.white70,
-                              ),
-                            ),
                     ),
 
                     SizedBox(height: compact ? 4 : 10),
@@ -888,7 +1017,9 @@ class _BotCard extends StatelessWidget {
                         ),
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+                          borderRadius: BorderRadius.circular(
+                            AppTheme.radiusPill,
+                          ),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -923,30 +1054,32 @@ class _BotCard extends StatelessWidget {
                 width: double.infinity,
                 child: FilledButton.icon(
                   onPressed: canToggle ? onToggle : null,
-                  icon: isTogglingThisBot
-                      ? const SizedBox(
-                          width: 14,
-                          height: 14,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
+                  icon:
+                      isTogglingThisBot
+                          ? const SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                          : Icon(
+                            isRunning
+                                ? Icons.stop_rounded
+                                : Icons.play_arrow_rounded,
+                            size: 16,
                           ),
-                        )
-                      : Icon(
-                          isRunning
-                              ? Icons.stop_rounded
-                              : Icons.play_arrow_rounded,
-                          size: 16,
-                        ),
                   label: Text(
                     isRunning ? context.tr.home_stop : context.tr.home_start,
                   ),
                   style: FilledButton.styleFrom(
-                    backgroundColor: isRunning
-                        ? AppTheme.error
-                        : AppTheme.success,
+                    backgroundColor:
+                        isRunning ? AppTheme.error : AppTheme.success,
                     foregroundColor: Colors.white,
-                    disabledBackgroundColor: Colors.white.withValues(alpha: 0.1),
+                    disabledBackgroundColor: Colors.white.withValues(
+                      alpha: 0.1,
+                    ),
                     disabledForegroundColor: Colors.white38,
                     textStyle: const TextStyle(fontWeight: FontWeight.bold),
                     padding: EdgeInsets.symmetric(
@@ -977,7 +1110,9 @@ class _BotCard extends StatelessWidget {
                           vertical: buttonVerticalPadding,
                         ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                          borderRadius: BorderRadius.circular(
+                            AppTheme.radiusMd,
+                          ),
                         ),
                       ),
                     ),
@@ -989,9 +1124,10 @@ class _BotCard extends StatelessWidget {
                     tooltip: context.tr.home_logs_tooltip,
                     style: IconButton.styleFrom(
                       backgroundColor: Colors.white.withValues(alpha: 0.1),
-                      foregroundColor: onLogs != null
-                          ? Colors.white.withValues(alpha: 0.8)
-                          : Colors.white.withValues(alpha: 0.3),
+                      foregroundColor:
+                          onLogs != null
+                              ? Colors.white.withValues(alpha: 0.8)
+                              : Colors.white.withValues(alpha: 0.3),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                       ),

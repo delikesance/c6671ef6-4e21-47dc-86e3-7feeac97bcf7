@@ -12,6 +12,8 @@ import 'package:bot_creator/utils/bot_payload_builder.dart';
 import 'package:bot_creator/utils/i18n.dart';
 import 'package:bot_creator/utils/ad_reward_service.dart';
 import 'package:bot_creator/utils/global.dart';
+import 'package:bot_creator/utils/main_api_client.dart';
+import 'package:bot_creator/utils/main_api_settings.dart';
 import 'package:bot_creator/utils/ad_consent_service.dart';
 import 'package:bot_creator/utils/external_link.dart';
 import 'package:bot_creator/utils/premium_capabilities.dart';
@@ -62,6 +64,7 @@ class _AppHomePageState extends State<AppHomePage>
   void Function(Object)? _taskDataCallback;
 
   bool get _supportsForegroundTask => Platform.isAndroid || Platform.isIOS;
+  bool get _supportsManagerRuntime => Platform.isAndroid || Platform.isIOS;
 
   bool _isDeadChannelError(Object error) {
     if (error is! PlatformException) return false;
@@ -139,6 +142,30 @@ class _AppHomePageState extends State<AppHomePage>
         allowWakeLock: true,
         allowWifiLock: true,
       ),
+    );
+  }
+
+  Future<dynamic> _createRemoteBotClient({
+    Duration getTimeout = const Duration(seconds: 30),
+    Duration postTimeout = const Duration(seconds: 90),
+  }) async {
+    final mainApiConfig = await MainApiSettingsStore.loadConfig();
+    final mainApiSession = await MainApiSettingsStore.loadSession();
+
+    if (_supportsManagerRuntime &&
+        mainApiConfig.isConfigured &&
+        mainApiSession != null &&
+        !mainApiSession.isExpired) {
+      return MainApiClient(
+        baseUrl: mainApiConfig.baseUrl,
+        accessToken: mainApiSession.accessToken,
+        timeout: postTimeout,
+      );
+    }
+
+    return RunnerSettings.createClient(
+      getTimeout: getTimeout,
+      postTimeout: postTimeout,
     );
   }
 
@@ -220,13 +247,13 @@ class _AppHomePageState extends State<AppHomePage>
     final botId = widget.client.user.id.toString();
     final app = await appManager.getApp(botId);
     var isRunning = false;
-    final runnerClient = await RunnerSettings.createClient(
+    final remoteClient = await _createRemoteBotClient(
       getTimeout: const Duration(seconds: 30),
       postTimeout: const Duration(seconds: 90),
     );
-    if (runnerClient != null) {
+    if (remoteClient != null) {
       try {
-        final status = await runnerClient.getStatus();
+        final status = await remoteClient.getStatus();
         isRunning = status.isBotRunning(botId);
       } catch (_) {
         isRunning = false;
@@ -383,13 +410,63 @@ class _AppHomePageState extends State<AppHomePage>
     }
   }
 
-  Future<void> _maybeOfferRewardedAd() async {
+  Future<void> _claimMainApiAdRuntime(String botId) async {
+    final remoteClient = await _createRemoteBotClient(
+      getTimeout: const Duration(seconds: 10),
+      postTimeout: const Duration(seconds: 20),
+    );
+    if (remoteClient is! MainApiClient) {
+      return;
+    }
+
+    final now = DateTime.now().toUtc();
+    final claimKey = 'mobile-$botId-${now.microsecondsSinceEpoch}';
+    try {
+      final result = await remoteClient.claimBotAdRuntime(
+        botId: botId,
+        placement: 'admob_rewarded',
+        rewardId: claimKey,
+        idempotencyKey: claimKey,
+        occurredAt: now,
+      );
+      final granted =
+          (result['granted_minutes'] ?? result['grantedMinutes'] ?? 0)
+              .toString();
+      appendBotDebugLog('Ad runtime claimed for $botId (+$granted minutes).');
+    } catch (error) {
+      appendBotDebugLog('Failed to claim ad runtime for $botId: $error');
+    }
+  }
+
+  Future<bool> _isMainApiPremiumUser() async {
+    final remoteClient = await _createRemoteBotClient(
+      getTimeout: const Duration(seconds: 10),
+      postTimeout: const Duration(seconds: 20),
+    );
+    if (remoteClient is! MainApiClient) {
+      return false;
+    }
+
+    try {
+      final runtime = await remoteClient.getGatewayRuntime();
+      final plan = (runtime['plan'] ?? '').toString().toUpperCase();
+      return plan == 'PREMIUM';
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> _maybeOfferRewardedAd({required String botId}) async {
     try {
       if (!_supportsForegroundTask || !mounted) {
         return;
       }
 
       if (PremiumCapabilities.hasCapability(PremiumCapability.noAds)) {
+        return;
+      }
+
+      if (await _isMainApiPremiumUser()) {
         return;
       }
 
@@ -443,7 +520,9 @@ class _AppHomePageState extends State<AppHomePage>
         );
       }
 
-      await AdRewardService.showRewardedAd();
+      await AdRewardService.showRewardedAd(
+        onRewardEarned: () => _claimMainApiAdRuntime(botId),
+      );
       if (!mounted) {
         return;
       }
@@ -718,12 +797,12 @@ class _AppHomePageState extends State<AppHomePage>
                                             );
                                         if (!proceed || !mounted) return;
                                       }
-                                      await _maybeOfferRewardedAd();
+                                      await _maybeOfferRewardedAd(botId: botId);
                                     }
 
                                     // ── Runner API (API only) ────────────────────────────
                                     final remoteClient =
-                                        await RunnerSettings.createClient(
+                                        await _createRemoteBotClient(
                                           getTimeout: const Duration(
                                             seconds: 30,
                                           ),
@@ -753,6 +832,20 @@ class _AppHomePageState extends State<AppHomePage>
                                         final payload = await buildBotPayload(
                                           botId,
                                         );
+                                        if (remoteClient is MainApiClient) {
+                                          final botToken = token.trim();
+                                          if (botToken.isNotEmpty) {
+                                            try {
+                                              await remoteClient
+                                                  .saveDiscordBotSnapshot(
+                                                    botToken: botToken,
+                                                    config: payload,
+                                                  );
+                                            } catch (_) {
+                                              // Best-effort only: do not block start if save route fails.
+                                            }
+                                          }
+                                        }
                                         await remoteClient.syncBot(
                                           botId,
                                           _appName,
