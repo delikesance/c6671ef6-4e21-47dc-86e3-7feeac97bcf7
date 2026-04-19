@@ -2,8 +2,9 @@ import 'package:bot_creator/utils/main_api_client.dart';
 import 'package:bot_creator/utils/main_api_settings.dart';
 import 'package:bot_creator/utils/runner_client.dart';
 import 'package:bot_creator/utils/runner_settings.dart';
-import 'package:bot_creator/utils/i18n.dart';
 import 'package:bot_creator/utils/runtime_preferences.dart';
+import 'package:bot_creator/utils/i18n.dart';
+import 'package:flutter/foundation.dart';
 
 class ResolvedRemoteRuntime {
   const ResolvedRemoteRuntime({
@@ -39,42 +40,7 @@ Future<ResolvedRemoteRuntime> resolveRemoteRuntime({
   Duration getTimeout = const Duration(seconds: 30),
   Duration postTimeout = const Duration(seconds: 90),
 }) async {
-  final mainApiConfig = await MainApiSettingsStore.loadConfig();
-  final mainApiSession = await MainApiSettingsStore.loadSession();
-  final mobileLocalHostingEnabled =
-      supportsManagerRuntime
-          ? await RuntimePreferences.isMobileLocalHostingEnabled()
-          : false;
-
-  if (supportsManagerRuntime &&
-      mainApiConfig.isConfigured &&
-      mainApiSession != null &&
-      !mainApiSession.isExpired) {
-    return ResolvedRemoteRuntime(
-      source: RemoteRuntimeSource.manager,
-      client: MainApiClient(
-        baseUrl: mainApiConfig.baseUrl,
-        accessToken: mainApiSession.accessToken,
-        timeout: postTimeout,
-      ),
-      detailLabel: mainApiConfig.baseUrl,
-    );
-  }
-
-  if (supportsManagerRuntime && !mobileLocalHostingEnabled) {
-    return ResolvedRemoteRuntime(
-      source: RemoteRuntimeSource.manager,
-      detailLabel: mainApiConfig.baseUrl,
-      unavailableReason: _runtimeCopy(
-        fr:
-            'Connectez-vous a Bot Creator dans les parametres pour recuperer vos bots et les demarrer sur les serveurs Bot Creator.',
-        en:
-            'Sign in to Bot Creator in Settings to recover your bots and run them on Bot Creator servers.',
-      ),
-    );
-  }
-
-  if (!supportsManagerRuntime) {
+  if (kIsWeb) {
     final runnerConfig = await RunnerSettings.getConfig();
     if (runnerConfig != null) {
       return ResolvedRemoteRuntime(
@@ -86,6 +52,91 @@ Future<ResolvedRemoteRuntime> resolveRemoteRuntime({
         detailLabel: runnerConfig.name ?? runnerConfig.url,
       );
     }
+    return const ResolvedRemoteRuntime(source: RemoteRuntimeSource.local);
+  }
+
+  final platform = defaultTargetPlatform;
+  final isIOS = platform == TargetPlatform.iOS;
+  final isAndroid = platform == TargetPlatform.android;
+  final isDesktop =
+      platform == TargetPlatform.windows ||
+      platform == TargetPlatform.linux ||
+      platform == TargetPlatform.macOS;
+
+  if (isDesktop || !supportsManagerRuntime) {
+    final runnerConfig = await RunnerSettings.getConfig();
+    if (runnerConfig != null) {
+      return ResolvedRemoteRuntime(
+        source: RemoteRuntimeSource.runner,
+        client: runnerConfig.createClient(
+          getTimeout: getTimeout,
+          postTimeout: postTimeout,
+        ),
+        detailLabel: runnerConfig.name ?? runnerConfig.url,
+      );
+    }
+    return const ResolvedRemoteRuntime(source: RemoteRuntimeSource.local);
+  }
+
+  if (isAndroid && await RuntimePreferences.isMobileLocalHostingEnabled()) {
+    return const ResolvedRemoteRuntime(source: RemoteRuntimeSource.local);
+  }
+
+  final mainApiConfig = await MainApiSettingsStore.loadConfig();
+  final mainApiSession = await MainApiSettingsStore.loadSession();
+
+  if (mainApiConfig.isConfigured) {
+    if (mainApiSession != null && !mainApiSession.isExpired) {
+      return ResolvedRemoteRuntime(
+        source: RemoteRuntimeSource.manager,
+        client: MainApiClient(
+          baseUrl: mainApiConfig.baseUrl,
+          accessToken: mainApiSession.accessToken,
+          timeout: postTimeout,
+        ),
+        detailLabel: mainApiConfig.baseUrl,
+      );
+    }
+
+    final unavailableReason =
+        mainApiSession == null
+            ? (isIOS
+                ? _runtimeCopy(
+                  fr:
+                      'Le mode local n\'est pas pris en charge sur iOS. Connectez-vous a Bot Creator dans les parametres avant de demarrer ce bot.',
+                  en:
+                      'Local mode is not supported on iOS. Sign in to Bot Creator in Settings before starting this bot.',
+                )
+                : _runtimeCopy(
+                  fr:
+                      'Connectez-vous a Bot Creator dans les parametres avant de demarrer ce bot.',
+                  en:
+                      'Sign in to Bot Creator in Settings before starting this bot.',
+                ))
+            : _runtimeCopy(
+              fr:
+                  'Votre session Bot Creator a expire. Reconnectez-vous dans les parametres pour demarrer ce bot.',
+              en:
+                  'Your Bot Creator session expired. Sign in again in Settings to start this bot.',
+            );
+
+    return ResolvedRemoteRuntime(
+      source: RemoteRuntimeSource.manager,
+      detailLabel: mainApiConfig.baseUrl,
+      unavailableReason: unavailableReason,
+    );
+  }
+
+  if (isIOS) {
+    return ResolvedRemoteRuntime(
+      source: RemoteRuntimeSource.manager,
+      unavailableReason: _runtimeCopy(
+        fr:
+            'Le mode local n\'est pas pris en charge sur iOS. Configurez Bot Creator pour demarrer ce bot.',
+        en:
+            'Local mode is not supported on iOS. Configure Bot Creator to start this bot.',
+      ),
+    );
   }
 
   return const ResolvedRemoteRuntime(source: RemoteRuntimeSource.local);
@@ -178,4 +229,33 @@ Future<String> describeManagerRuntimeFailure(
     fr: 'La requete vers les serveurs Bot Creator a echoue : $error',
     en: 'Request to Bot Creator servers failed: $error',
   );
+}
+
+bool isPendingFreeRuntimeCreditError(Object error) {
+  final normalized = error.toString().toLowerCase();
+  return normalized.contains('bot_free_time_required') ||
+      normalized.contains('free runtime credits before start');
+}
+
+Future<void> startManagerBotWithCreditRetry({
+  required MainApiClient client,
+  required String botId,
+  String? botName,
+  Duration timeout = const Duration(seconds: 15),
+  Duration retryDelay = const Duration(seconds: 1),
+}) async {
+  final deadline = DateTime.now().add(timeout);
+
+  while (true) {
+    try {
+      await client.startBot(botId, botName: botName);
+      return;
+    } catch (error) {
+      if (!isPendingFreeRuntimeCreditError(error) ||
+          DateTime.now().isAfter(deadline)) {
+        rethrow;
+      }
+      await Future<void>.delayed(retryDelay);
+    }
+  }
 }

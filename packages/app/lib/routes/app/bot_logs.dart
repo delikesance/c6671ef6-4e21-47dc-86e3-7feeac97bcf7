@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:async';
 
 import 'package:bot_creator/utils/bot.dart';
@@ -6,6 +5,7 @@ import 'package:bot_creator/utils/app_theme.dart';
 import 'package:bot_creator/utils/i18n.dart';
 import 'package:bot_creator/utils/remote_runtime.dart';
 import 'package:bot_creator/utils/runner_client.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -44,7 +44,7 @@ class _BotLogsPageState extends State<BotLogsPage> {
   String? _runtimeLabel;
   String? _runtimeUnavailableReason;
 
-  bool get _supportsManagerRuntime => Platform.isAndroid || Platform.isIOS;
+  bool get _supportsManagerRuntime => !kIsWeb;
 
   bool get _usingRemoteSource => _runtimeSource != RemoteRuntimeSource.local;
 

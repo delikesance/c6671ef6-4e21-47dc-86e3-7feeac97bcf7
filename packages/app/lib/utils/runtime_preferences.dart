@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RuntimePreferences {
@@ -6,13 +7,26 @@ class RuntimePreferences {
   static const String _mobileLocalHostingEnabledKey =
       'mobile_local_hosting_enabled';
 
+  static bool get supportsMobileLocalHosting {
+    if (kIsWeb) {
+      return false;
+    }
+    return defaultTargetPlatform == TargetPlatform.android;
+  }
+
   static Future<bool> isMobileLocalHostingEnabled() async {
+    if (!supportsMobileLocalHosting) {
+      return false;
+    }
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(_mobileLocalHostingEnabledKey) ?? false;
   }
 
   static Future<void> setMobileLocalHostingEnabled(bool enabled) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_mobileLocalHostingEnabledKey, enabled);
+    await prefs.setBool(
+      _mobileLocalHostingEnabledKey,
+      supportsMobileLocalHosting && enabled,
+    );
   }
 }

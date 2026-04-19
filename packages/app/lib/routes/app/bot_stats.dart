@@ -1,10 +1,10 @@
-import 'dart:io';
 import 'dart:async';
 
 import 'package:bot_creator/utils/bot.dart';
 import 'package:bot_creator/utils/i18n.dart';
 import 'package:bot_creator/utils/remote_runtime.dart';
 import 'package:bot_creator/utils/runner_client.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:bot_creator/utils/app_theme.dart';
 
@@ -44,7 +44,7 @@ class _BotStatsPageState extends State<BotStatsPage> {
   double? _cpuPercent;
   int? _storageBytes;
 
-  bool get _supportsManagerRuntime => Platform.isAndroid || Platform.isIOS;
+  bool get _supportsManagerRuntime => !kIsWeb;
 
   bool get _usingRemoteMetrics => _runtimeSource != RemoteRuntimeSource.local;
 
