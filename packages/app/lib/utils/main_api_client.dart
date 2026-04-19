@@ -194,6 +194,15 @@ class MainApiClient implements RemoteRuntimeClient {
     return _sessionFromAuthPayload(json);
   }
 
+  Future<MainApiSession> exchangeDiscordBotToken({
+    required String botToken,
+  }) async {
+    final json = await _post('/auth/discord/bot/exchange', <String, dynamic>{
+      'botToken': botToken,
+    }, includeAuth: false);
+    return _sessionFromAuthPayload(json);
+  }
+
   Future<MainApiSession> refreshSession({required String refreshToken}) async {
     final json = await _post('/auth/refresh', <String, dynamic>{
       'refreshToken': refreshToken,
@@ -276,6 +285,18 @@ class MainApiClient implements RemoteRuntimeClient {
       const <String>['/gateway/bots/discord/save', '/bots/discord/save'],
       <String, dynamic>{'bot_token': botToken, 'config': config},
     );
+  }
+
+  Future<Map<String, dynamic>> verifyBilling({
+    required String provider,
+    required String receipt,
+    String? transactionId,
+  }) async {
+    return _post('/billing/verify', <String, dynamic>{
+      'provider': provider,
+      'receipt': receipt,
+      if (_normalize(transactionId) case final value?) 'transaction_id': value,
+    });
   }
 
   @override

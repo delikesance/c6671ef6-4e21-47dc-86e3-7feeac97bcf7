@@ -7,6 +7,19 @@ import 'package:bot_creator/utils/premium_capabilities.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
+class AdRewardSsvContext {
+  const AdRewardSsvContext({this.userId, this.customData});
+
+  final String? userId;
+  final String? customData;
+
+  bool get hasValues {
+    final user = userId?.trim() ?? '';
+    final custom = customData?.trim() ?? '';
+    return user.isNotEmpty || custom.isNotEmpty;
+  }
+}
+
 class AdRewardService {
   AdRewardService._();
 
@@ -73,9 +86,12 @@ class AdRewardService {
     }
   }
 
-  static Future<bool> shouldOfferRewardedAd() async {
+  static Future<bool> shouldOfferRewardedAd({
+    bool checkPremiumCapability = true,
+  }) async {
     if (!_initialized || !_isSupportedPlatform) return false;
-    if (PremiumCapabilities.hasCapability(PremiumCapability.noAds)) {
+    if (checkPremiumCapability &&
+        PremiumCapabilities.hasCapability(PremiumCapability.noAds)) {
       return false;
     }
     if (_lastShownAt != null &&
@@ -89,6 +105,7 @@ class AdRewardService {
   /// is dismissed or fails to show. Returns `true` if the ad was shown
   /// successfully, `false` otherwise (no ad ready, already showing, failed).
   static Future<bool> showRewardedAd({
+    AdRewardSsvContext? ssvContext,
     Future<void> Function()? onRewardEarned,
   }) async {
     if (!_initialized || !_isSupportedPlatform) {
@@ -101,6 +118,14 @@ class AdRewardService {
 
     final ad = _rewardedAd;
     if (ad == null) {
+      _preloadRewardedAd();
+      return false;
+    }
+
+    final ssvConfigured = await _applySsvContext(ad, ssvContext);
+    if (!ssvConfigured) {
+      _rewardedAd = null;
+      ad.dispose();
       _preloadRewardedAd();
       return false;
     }
@@ -155,6 +180,43 @@ class AdRewardService {
         return false;
       },
     );
+  }
+
+  static String? _nonEmpty(String? value) {
+    final trimmed = value?.trim();
+    if (trimmed == null || trimmed.isEmpty) {
+      return null;
+    }
+    return trimmed;
+  }
+
+  static Future<bool> _applySsvContext(
+    RewardedAd ad,
+    AdRewardSsvContext? ssvContext,
+  ) async {
+    if (ssvContext == null || !ssvContext.hasValues) {
+      return true;
+    }
+
+    try {
+      await ad.setServerSideOptions(
+        ServerSideVerificationOptions(
+          userId: _nonEmpty(ssvContext.userId),
+          customData: _nonEmpty(ssvContext.customData),
+        ),
+      );
+      return true;
+    } catch (error, stack) {
+      unawaited(
+        AppDiagnostics.logError(
+          'Failed to configure rewarded ad server-side verification',
+          error,
+          stack,
+          fatal: false,
+        ),
+      );
+      return false;
+    }
   }
 
   static void showRewardedAdNonBlocking({

@@ -76,16 +76,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
   bool get _isRunnerMode => _source == _VariablesSource.runner;
   bool get _isManagerMode => _source == _VariablesSource.manager;
   bool get _supportsManagerRuntime {
-    if (kIsWeb) {
-      return false;
-    }
-    switch (defaultTargetPlatform) {
-      case TargetPlatform.android:
-      case TargetPlatform.iOS:
-        return true;
-      default:
-        return false;
-    }
+    return !kIsWeb;
   }
 
   Future<void> _init() async {

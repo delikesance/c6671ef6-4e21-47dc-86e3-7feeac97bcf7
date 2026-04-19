@@ -12,11 +12,12 @@ import 'package:bot_creator/utils/i18n.dart';
 import 'package:bot_creator/utils/ad_reward_service.dart';
 import 'package:bot_creator/utils/ads_placement_policy.dart';
 import 'package:bot_creator/utils/ad_consent_service.dart';
-import 'package:bot_creator/utils/premium_capabilities.dart';
 import 'package:bot_creator/utils/global.dart';
 import 'package:bot_creator/utils/app_theme.dart';
 import 'package:bot_creator/utils/main_api_client.dart';
+import 'package:bot_creator/utils/main_api_settings.dart';
 import 'package:bot_creator/utils/remote_runtime.dart';
+import 'package:bot_creator/utils/subscription_service.dart';
 import 'package:bot_creator/utils/runner_client.dart';
 import 'package:bot_creator/widgets/native_ad_slot.dart';
 import 'package:flutter/foundation.dart';
@@ -47,7 +48,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Map<String, int> _freeMinutesByBotId = <String, int>{};
 
   bool get _supportsForegroundTask => Platform.isAndroid || Platform.isIOS;
-  bool get _supportsManagerRuntime => Platform.isAndroid || Platform.isIOS;
+  bool get _supportsManagerRuntime => !kIsWeb;
 
   // ── Lifecycle ──────────────────────────────────────────────────────────────
 
@@ -76,6 +77,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       postTimeout: const Duration(seconds: 90),
     );
     final remoteClient = remoteRuntime.client;
+    unawaited(
+      SubscriptionService.resolveEffectivePremiumStatus(
+        client: remoteClient is MainApiClient ? remoteClient : null,
+        forceRefresh: true,
+      ),
+    );
     if (remoteClient != null) {
       try {
         final status = await remoteClient.getStatus();
@@ -158,6 +165,20 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       return raw;
     }
     return int.tryParse(raw.toString()) ?? 0;
+  }
+
+  bool _hasFreeRuntimeAvailable(Map<String, dynamic> runtime, int balance) {
+    final fundingMode =
+        (runtime['funding_mode'] ?? runtime['fundingMode'] ?? '')
+            .toString()
+            .trim()
+            .toLowerCase();
+    final sessionActiveRaw =
+        runtime['session_active'] ?? runtime['sessionActive'];
+    final sessionActive =
+        sessionActiveRaw == true ||
+        sessionActiveRaw?.toString().toLowerCase() == 'true';
+    return balance > 0 || fundingMode == 'free' || sessionActive;
   }
 
   Future<void> _refreshBotRuntimeBalances({Iterable<String>? botIds}) async {
@@ -299,6 +320,154 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
+  Future<String?> _resolveDiscordOwnerIdForBotStart({
+    required String botId,
+    required String? token,
+  }) async {
+    final trimmedToken = token?.trim() ?? '';
+    if (trimmedToken.isEmpty) {
+      appendBotDebugLog(
+        'Unable to resolve Discord owner for $botId: bot token is missing.',
+      );
+      return null;
+    }
+
+    try {
+      final ownerId =
+          (await getDiscordApplicationOwnerId(trimmedToken))?.trim();
+      if (ownerId == null || ownerId.isEmpty) {
+        appendBotDebugLog(
+          'Discord owner lookup via /applications/@me returned empty for $botId.',
+        );
+        return null;
+      }
+
+      appendBotDebugLog(
+        'Discord owner resolved via /applications/@me for $botId: $ownerId',
+      );
+      return ownerId;
+    } catch (error) {
+      appendBotDebugLog(
+        'Discord owner lookup via /applications/@me failed for $botId: $error',
+      );
+      return null;
+    }
+  }
+
+  Future<bool> _restoreMainApiSessionWithBotToken({
+    required String botId,
+    required String? botToken,
+    String? expectedOwnerId,
+  }) async {
+    final trimmedToken = botToken?.trim() ?? '';
+    if (trimmedToken.isEmpty) {
+      appendBotDebugLog(
+        'Manager session restore skipped for $botId: bot token is missing.',
+      );
+      return false;
+    }
+
+    try {
+      final config = await MainApiSettingsStore.loadConfig();
+      if (!config.isConfigured) {
+        appendBotDebugLog(
+          'Manager session restore skipped for $botId: manager base URL is not configured.',
+        );
+        return false;
+      }
+
+      final client = MainApiClient(baseUrl: config.baseUrl);
+      final session = await client.exchangeDiscordBotToken(
+        botToken: trimmedToken,
+      );
+
+      final normalizedExpectedOwner = expectedOwnerId?.trim() ?? '';
+      final normalizedSessionOwner = session.userId?.trim() ?? '';
+      if (normalizedExpectedOwner.isNotEmpty &&
+          normalizedSessionOwner.isNotEmpty &&
+          normalizedExpectedOwner != normalizedSessionOwner) {
+        appendBotDebugLog(
+          'Manager session restore rejected for $botId: owner mismatch expected=$normalizedExpectedOwner actual=$normalizedSessionOwner.',
+        );
+        return false;
+      }
+
+      await MainApiSettingsStore.saveSession(session);
+      appendBotDebugLog(
+        "Manager session restored from bot token for $botId (owner=${normalizedSessionOwner.isEmpty ? 'unknown' : normalizedSessionOwner}).",
+      );
+      return true;
+    } catch (error) {
+      appendBotDebugLog('Manager session restore failed for $botId: $error');
+      return false;
+    }
+  }
+
+  Future<MainApiClient?> _resolveMainApiClientForBot({
+    required String botId,
+    String? botToken,
+    bool attemptSessionRestore = true,
+  }) async {
+    var runtime = await _resolveRemoteRuntime(
+      getTimeout: const Duration(seconds: 10),
+      postTimeout: const Duration(seconds: 20),
+    );
+    var resolvedToken = botToken?.trim() ?? '';
+    if (resolvedToken.isEmpty) {
+      final app = await appManager.getApp(botId);
+      resolvedToken = (app['token'] ?? '').toString().trim();
+    }
+    final ownerId =
+        resolvedToken.isEmpty
+            ? null
+            : await _resolveDiscordOwnerIdForBotStart(
+              botId: botId,
+              token: resolvedToken,
+            );
+    final normalizedOwnerId = ownerId?.trim() ?? '';
+    final session = await MainApiSettingsStore.loadSession();
+    final sessionOwnerId = session?.userId?.trim() ?? '';
+    final directClient = runtime.client;
+    final hasMatchingManagerSession =
+        directClient is MainApiClient &&
+        session != null &&
+        !session.isExpired &&
+        (normalizedOwnerId.isEmpty || sessionOwnerId == normalizedOwnerId);
+    if (hasMatchingManagerSession) {
+      return directClient;
+    }
+
+    if (!attemptSessionRestore || resolvedToken.isEmpty) {
+      return normalizedOwnerId.isEmpty && directClient is MainApiClient
+          ? directClient
+          : null;
+    }
+
+    if (normalizedOwnerId.isNotEmpty &&
+        sessionOwnerId.isNotEmpty &&
+        sessionOwnerId != normalizedOwnerId) {
+      appendBotDebugLog(
+        'Manager session owner mismatch for $botId: expected=$normalizedOwnerId actual=$sessionOwnerId. Restoring from bot token.',
+      );
+    }
+
+    final restored = await _restoreMainApiSessionWithBotToken(
+      botId: botId,
+      botToken: resolvedToken,
+      expectedOwnerId: normalizedOwnerId,
+    );
+    if (!restored) {
+      return null;
+    }
+
+    runtime = await _resolveRemoteRuntime(
+      getTimeout: const Duration(seconds: 10),
+      postTimeout: const Duration(seconds: 20),
+    );
+    final refreshedClient = runtime.client;
+    return refreshedClient is MainApiClient ? refreshedClient : null;
+  }
+
   // ── Démarrage / Arrêt du bot ───────────────────────────────────────────────
 
   Future<void> _toggleBot({
@@ -310,6 +479,25 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
     try {
       final isRunning = _runningBotIds.contains(botId);
+
+      if (isRunning) {
+        final shouldStop = await AppTheme.showConfirmDialog(
+          context,
+          title: _uiCopy(fr: 'Arrêter le bot ?', en: 'Stop this bot?'),
+          content: _uiCopy(
+            fr:
+                'Si une session gratuite est en cours, le temps restant peut être perdu. Continuer ?',
+            en:
+                'If a free runtime session is active, remaining time may be lost. Continue?',
+          ),
+          confirmLabel: _uiCopy(fr: 'Arrêter', en: 'Stop'),
+          icon: Icons.warning_amber_rounded,
+        );
+        if (!shouldStop || !mounted) {
+          return;
+        }
+      }
+
       var runtime = await _resolveRemoteRuntime(
         getTimeout: const Duration(seconds: 30),
         postTimeout: const Duration(seconds: 90),
@@ -324,19 +512,45 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       // ── Fetch + validate token before anything else (only when starting) ──
       String? token;
       if (!isRunning) {
-        final usingRunner =
-            runtime.client != null || runtime.blocksLocalFallback;
+        var usingRunner = runtime.client != null || runtime.blocksLocalFallback;
 
         if (runtime.blocksLocalFallback) {
-          throw Exception(
-            runtime.unavailableReason ??
+          final app = await appManager.getApp(botId);
+          token = app['token']?.toString();
+          final ownerId = await _resolveDiscordOwnerIdForBotStart(
+            botId: botId,
+            token: token,
+          );
+
+          final sessionRestored = await _restoreMainApiSessionWithBotToken(
+            botId: botId,
+            botToken: token,
+            expectedOwnerId: ownerId,
+          );
+          if (sessionRestored) {
+            runtime = await _resolveRemoteRuntime(
+              getTimeout: const Duration(seconds: 30),
+              postTimeout: const Duration(seconds: 90),
+            );
+            usingRunner = runtime.client != null || runtime.blocksLocalFallback;
+          }
+
+          if (!sessionRestored || runtime.blocksLocalFallback) {
+            final baseMessage =
+                runtime.unavailableReason ??
                 _uiCopy(
                   fr:
                       'Connectez-vous a Bot Creator dans les parametres avant de demarrer ce bot.',
                   en:
                       'Sign in to Bot Creator in Settings before starting this bot.',
-                ),
-          );
+                );
+
+            final message =
+                ownerId == null || ownerId.isEmpty
+                    ? baseMessage
+                    : '$baseMessage\nDiscord owner: $ownerId';
+            throw Exception(message);
+          }
         }
 
         if (!usingRunner) {
@@ -361,7 +575,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           }
         }
 
-        await _maybeOfferRewardedAd(botId: botId);
+        final adUnlocked = await _maybeOfferRewardedAd(
+          botId: botId,
+          botToken: token,
+        );
+        if (!adUnlocked) {
+          return;
+        }
         if (!mounted) return;
       }
 
@@ -427,7 +647,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               }
             }
             await client.syncBot(botId, botName, payload);
-            await client.startBot(botId, botName: botName);
+            if (client is MainApiClient) {
+              await startManagerBotWithCreditRetry(
+                client: client,
+                botId: botId,
+                botName: botName,
+              );
+            } else {
+              await client.startBot(botId, botName: botName);
+            }
             setBotRuntimeActive(true);
             if (mounted) {
               setState(() {
@@ -555,89 +783,214 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     }
   }
 
-  Future<void> _claimMainApiAdRuntime(String botId) async {
+  Future<int?> _fetchMainApiRuntimeBalance(String botId) async {
     final remoteRuntime = await _resolveRemoteRuntime(
       getTimeout: const Duration(seconds: 10),
       postTimeout: const Duration(seconds: 20),
     );
     final remoteClient = remoteRuntime.client;
     if (remoteClient is! MainApiClient) {
-      return;
-    }
-
-    final now = DateTime.now().toUtc();
-    final claimKey = 'mobile-$botId-${now.microsecondsSinceEpoch}';
-    try {
-      final result = await remoteClient.claimBotAdRuntime(
-        botId: botId,
-        placement: 'admob_rewarded',
-        rewardId: claimKey,
-        idempotencyKey: claimKey,
-        occurredAt: now,
-      );
-      final granted =
-          (result['granted_minutes'] ?? result['grantedMinutes'] ?? 0)
-              .toString();
-      final balance = _extractFreeMinutes(
-        result['minutes_balance'] ?? result['minutesBalance'],
-      );
-      if (mounted) {
-        setState(() {
-          _freeMinutesByBotId = <String, int>{
-            ..._freeMinutesByBotId,
-            botId: balance,
-          };
-        });
-      }
-      appendBotDebugLog('Ad runtime claimed for $botId (+$granted minutes).');
-    } catch (error) {
-      appendBotDebugLog('Failed to claim ad runtime for $botId: $error');
-    }
-  }
-
-  Future<bool> _isMainApiPremiumUser() async {
-    final remoteRuntime = await _resolveRemoteRuntime(
-      getTimeout: const Duration(seconds: 10),
-      postTimeout: const Duration(seconds: 20),
-    );
-    final remoteClient = remoteRuntime.client;
-    if (remoteClient is! MainApiClient) {
-      return false;
+      return null;
     }
 
     try {
-      final runtime = await remoteClient.getGatewayRuntime();
-      final plan = (runtime['plan'] ?? '').toString().toUpperCase();
-      return plan == 'PREMIUM';
+      final runtime = await remoteClient.getBotRuntime(botId);
+      return _extractFreeMinutes(
+        runtime['free_minutes_balance'] ?? runtime['freeMinutesBalance'],
+      );
     } catch (_) {
+      return null;
+    }
+  }
+
+  Future<bool> _waitForMainApiRewardCredit({
+    required String botId,
+    required int? previousBalance,
+  }) async {
+    final remoteRuntime = await _resolveRemoteRuntime(
+      getTimeout: const Duration(seconds: 10),
+      postTimeout: const Duration(seconds: 20),
+    );
+    final remoteClient = remoteRuntime.client;
+    if (remoteClient is! MainApiClient) {
+      return true;
+    }
+
+    final deadline = DateTime.now().add(const Duration(seconds: 12));
+    while (DateTime.now().isBefore(deadline)) {
+      try {
+        final runtime = await remoteClient.getBotRuntime(botId);
+        final balance = _extractFreeMinutes(
+          runtime['free_minutes_balance'] ?? runtime['freeMinutesBalance'],
+        );
+
+        if (mounted) {
+          setState(() {
+            _freeMinutesByBotId = <String, int>{
+              ..._freeMinutesByBotId,
+              botId: balance,
+            };
+          });
+        }
+
+        if (previousBalance == null ||
+            balance > previousBalance ||
+            _hasFreeRuntimeAvailable(runtime, balance)) {
+          return true;
+        }
+      } catch (_) {
+        // Keep polling until timeout.
+      }
+
+      await Future<void>.delayed(const Duration(seconds: 1));
+    }
+
+    return false;
+  }
+
+  Future<bool> _ensureMainApiBotSnapshotForAd(String botId) async {
+    final app = await appManager.getApp(botId);
+    final botToken = (app['token'] ?? '').toString().trim();
+    if (botToken.isEmpty) {
+      return false;
+    }
+
+    final remoteClient = await _resolveMainApiClientForBot(
+      botId: botId,
+      botToken: botToken,
+      attemptSessionRestore: true,
+    );
+    if (remoteClient == null) {
+      appendBotDebugLog(
+        'Rewarded ad skipped for $botId: manager client unavailable before snapshot sync.',
+      );
+      return false;
+    }
+
+    final payload = await buildBotPayload(botId);
+    try {
+      await remoteClient.saveDiscordBotSnapshot(
+        botToken: botToken,
+        config: payload,
+      );
+      return true;
+    } catch (error) {
+      appendBotDebugLog(
+        'Rewarded ad skipped for $botId: manager snapshot sync failed: $error',
+      );
       return false;
     }
   }
 
-  Future<void> _maybeOfferRewardedAd({required String botId}) async {
+  Future<AdRewardSsvContext?> _buildMainApiAdSsvContext(String botId) async {
+    final app = await appManager.getApp(botId);
+    final botToken = (app['token'] ?? '').toString().trim();
+    if (botToken.isEmpty) {
+      return null;
+    }
+
+    final session = await MainApiSettingsStore.loadSession();
+    final ownerIdFromSession = (session?.userId ?? '').trim();
+    final ownerIdFromDiscord =
+        (await getDiscordApplicationOwnerId(botToken))?.trim() ?? '';
+
+    if (ownerIdFromSession.isNotEmpty &&
+        ownerIdFromDiscord.isNotEmpty &&
+        ownerIdFromSession != ownerIdFromDiscord) {
+      appendBotDebugLog(
+        'Owner mismatch for $botId: using discord application owner $ownerIdFromDiscord instead of manager session owner $ownerIdFromSession for ad mapping.',
+      );
+    }
+
+    final ownerId =
+        ownerIdFromDiscord.isNotEmpty ? ownerIdFromDiscord : ownerIdFromSession;
+    if (ownerId.isEmpty) {
+      return null;
+    }
+
+    return AdRewardSsvContext(
+      userId: ownerId,
+      customData:
+          Uri(
+            queryParameters: <String, String>{
+              'owner_id': ownerId,
+              'bot_id': botId,
+              'placement': 'admob_rewarded',
+              if (ownerIdFromDiscord.isNotEmpty)
+                'discord_owner_id': ownerIdFromDiscord,
+            },
+          ).query,
+    );
+  }
+
+  Future<bool> _isMainApiPremiumUser({
+    required String botId,
+    String? botToken,
+  }) async {
+    final remoteClient = await _resolveMainApiClientForBot(
+      botId: botId,
+      botToken: botToken,
+      attemptSessionRestore: true,
+    );
+    return SubscriptionService.canSkipRewardedAds(
+      client: remoteClient is MainApiClient ? remoteClient : null,
+      forceRefresh: true,
+      allowStoredManagerSession: false,
+    );
+  }
+
+  Future<bool> _maybeOfferRewardedAd({
+    required String botId,
+    String? botToken,
+  }) async {
     if (!_supportsForegroundTask || !mounted) {
-      return;
+      return true;
     }
 
-    if (PremiumCapabilities.hasCapability(PremiumCapability.noAds)) {
-      return;
-    }
-
-    if (await _isMainApiPremiumUser()) {
-      return;
-    }
-
-    if (!await AdRewardService.shouldOfferRewardedAd()) {
-      return;
+    if (await _isMainApiPremiumUser(botId: botId, botToken: botToken)) {
+      return true;
     }
 
     if (!AdRewardService.hasReadyRewardedAd) {
-      return;
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              context.tr.error_with_details(
+                'A reward ad is required before starting this bot.',
+              ),
+            ),
+          ),
+        );
+      }
+      return false;
+    }
+
+    final snapshotReady = await _ensureMainApiBotSnapshotForAd(botId);
+    if (!snapshotReady) {
+      appendBotDebugLog(
+        'Rewarded ad skipped for $botId: unable to sync bot snapshot (/applications/@me).',
+      );
+      return false;
+    }
+
+    final ssvContext = await _buildMainApiAdSsvContext(botId);
+    if (ssvContext == null) {
+      appendBotDebugLog(
+        'Rewarded ad skipped for $botId: unable to resolve Discord owner via /applications/@me.',
+      );
+      return false;
+    }
+
+    if (!await AdRewardService.shouldOfferRewardedAd(
+      checkPremiumCapability: false,
+    )) {
+      return false;
     }
 
     final consentGranted = await _ensureAdsConsent();
     if (!consentGranted || !mounted) {
-      return;
+      return false;
     }
 
     if (kDebugMode) {
@@ -650,7 +1003,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       );
 
       if (!shouldWatch || !mounted) {
-        return;
+        return false;
       }
     } else {
       await showDialog<void>(
@@ -670,16 +1023,52 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       );
     }
 
-    await AdRewardService.showRewardedAd(
-      onRewardEarned: () => _claimMainApiAdRuntime(botId),
+    final previousBalance = await _fetchMainApiRuntimeBalance(botId);
+
+    var rewardEarned = false;
+    final adShown = await AdRewardService.showRewardedAd(
+      ssvContext: ssvContext,
+      onRewardEarned: () async {
+        rewardEarned = true;
+      },
     );
-    await _refreshBotRuntimeBalances(botIds: <String>[botId]);
+    if (!adShown || !rewardEarned) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              context.tr.error_with_details(
+                'You must complete the rewarded ad to start this bot.',
+              ),
+            ),
+          ),
+        );
+      }
+      return false;
+    }
+
+    unawaited(() async {
+      final rewardCredited = await _waitForMainApiRewardCredit(
+        botId: botId,
+        previousBalance: previousBalance,
+      );
+      if (!rewardCredited) {
+        appendBotDebugLog(
+          'Reward credit still pending for $botId after ad completion; start flow continues with automatic manager retry.',
+        );
+        return;
+      }
+      await _refreshBotRuntimeBalances(botIds: <String>[botId]);
+    }());
+
+    await SubscriptionService.resolveEffectivePremiumStatus(forceRefresh: true);
     if (!mounted) {
-      return;
+      return false;
     }
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(context.tr.rewarded_start_thanks)));
+    return true;
   }
 
   Future<bool> _ensureAdsConsent() async {
