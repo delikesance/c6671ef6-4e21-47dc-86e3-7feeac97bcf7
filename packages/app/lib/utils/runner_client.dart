@@ -2,6 +2,36 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+enum RemoteRuntimeSource { local, runner, manager }
+
+abstract class RemoteRuntimeClient {
+  RemoteRuntimeSource get runtimeSource;
+
+  Future<bool> checkHealth();
+
+  Future<RunnerStatus> getStatus({String? botId});
+
+  Future<RunnerMetrics> getMetrics({String? botId});
+
+  Future<List<String>> getLogs({String? botId, int limit = 300});
+
+  Future<void> syncBot(
+    String botId,
+    String botName,
+    Map<String, dynamic> configJson,
+  );
+
+  Future<void> startBot(String botId, {String? botName});
+
+  Future<Map<String, dynamic>> stopBot(String botId);
+
+  Future<Map<String, dynamic>> getGatewayRuntime();
+
+  Future<Map<String, dynamic>> getBotRuntime(String botId);
+
+  Future<Map<String, dynamic>> getRunnerInfo();
+}
+
 class RunnerBotRuntime {
   const RunnerBotRuntime({
     required this.botId,
@@ -166,7 +196,7 @@ class RunnerDebugReplaySnapshot {
 /// **Single-runner limitation**: This client targets a single runner URL. There
 /// is no built-in multiplexing across runners. See
 /// `docs/single-runner-coupling.md` for the migration plan.
-class RunnerClient {
+class RunnerClient implements RemoteRuntimeClient {
   RunnerClient({
     required String baseUrl,
     String? apiToken,
@@ -190,6 +220,9 @@ class RunnerClient {
   final http.Client _http;
   final Duration _getTimeout;
   final Duration _postTimeout;
+
+  @override
+  RemoteRuntimeSource get runtimeSource => RemoteRuntimeSource.runner;
 
   Uri _uri(String path, {Map<String, String?>? query}) {
     final uri = Uri.parse('$_baseUrl$path');
@@ -260,6 +293,7 @@ class RunnerClient {
   }
 
   /// Checks that the runner is reachable and responding.
+  @override
   Future<bool> checkHealth() async {
     try {
       final json = await _get('/health', includeAuth: false);
@@ -283,6 +317,7 @@ class RunnerClient {
   ///
   /// If [botId] is provided, this calls `/bots/{botId}/status` and adapts
   /// the response shape to [RunnerStatus].
+  @override
   Future<RunnerStatus> getStatus({String? botId}) async {
     if (botId == null || botId.trim().isEmpty) {
       final json = await _get('/status');
@@ -305,6 +340,7 @@ class RunnerClient {
   /// Returns process/runtime metrics from the runner.
   ///
   /// If [botId] is provided, this calls `/bots/{botId}/metrics`.
+  @override
   Future<RunnerMetrics> getMetrics({String? botId}) async {
     final path =
         (botId == null || botId.trim().isEmpty)
@@ -312,6 +348,45 @@ class RunnerClient {
             : '/bots/${Uri.encodeComponent(botId.trim())}/metrics';
     final json = await _get(path);
     return RunnerMetrics.fromJson(json);
+  }
+
+  @override
+  Future<Map<String, dynamic>> getGatewayRuntime() async {
+    return <String, dynamic>{
+      'source': 'runner',
+      'healthy': await checkHealth(),
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> getBotRuntime(String botId) async {
+    final status = await getStatus(botId: botId);
+    final selectedBotId = botId.trim();
+    final bot = status.bots
+        .where((entry) => entry.botId == selectedBotId)
+        .cast<RunnerBotRuntime?>()
+        .firstWhere((entry) => entry != null, orElse: () => null);
+    return <String, dynamic>{
+      'bot_id': selectedBotId,
+      'session_active': bot?.isRunning == true,
+      'runtime_state': bot?.state ?? 'stopped',
+      'source': 'runner',
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> getRunnerInfo() async {
+    final status = await getStatus();
+    return <String, dynamic>{
+      'deployed': true,
+      'source': 'runner',
+      'healthy': status.running || await checkHealth(),
+      'runner': <String, dynamic>{
+        'state': 'READY',
+        'health_status':
+            (status.running || await checkHealth()) ? 'ok' : 'unknown',
+      },
+    };
   }
 
   /// Returns the list of bots that have been synced to this runner.
@@ -326,6 +401,7 @@ class RunnerClient {
   }
 
   /// Pushes a complete bot configuration to the runner and persists it.
+  @override
   Future<void> syncBot(
     String botId,
     String botName,
@@ -341,6 +417,7 @@ class RunnerClient {
   /// Starts the bot identified by [botId] on the runner.
   ///
   /// The bot must have been synced beforehand via [syncBot].
+  @override
   Future<RunnerStatus> startBot(String botId, {String? botName}) async {
     final json = await _post(
       '/bots/${Uri.encodeComponent(botId)}/start',
@@ -352,17 +429,17 @@ class RunnerClient {
   }
 
   /// Stops the bot identified by [botId] on the runner.
-  Future<RunnerStatus> stopBot(String botId) async {
+  @override
+  Future<Map<String, dynamic>> stopBot(String botId) async {
     final normalizedBotId = botId.trim();
     if (normalizedBotId.isEmpty) {
       throw const RunnerClientException('Missing botId for stopBot().');
     }
 
-    final json = await _post(
+    return await _post(
       '/bots/${Uri.encodeComponent(normalizedBotId)}/stop',
       const <String, dynamic>{},
     );
-    return RunnerStatus.fromJson(json);
   }
 
   /// Hot-reloads the bot config on the runner without disconnecting from Discord.
@@ -391,7 +468,8 @@ class RunnerClient {
   /// Fetches recent log lines from the runner.
   ///
   /// [limit] controls the maximum number of lines returned (default: 300).
-  Future<List<String>> getLogs({int limit = 300}) async {
+  @override
+  Future<List<String>> getLogs({String? botId, int limit = 300}) async {
     final json = await _get('/logs', query: {'limit': limit.toString()});
     final rawLines = json['lines'];
     if (rawLines is! List) return const [];

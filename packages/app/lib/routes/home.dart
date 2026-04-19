@@ -16,8 +16,8 @@ import 'package:bot_creator/utils/premium_capabilities.dart';
 import 'package:bot_creator/utils/global.dart';
 import 'package:bot_creator/utils/app_theme.dart';
 import 'package:bot_creator/utils/main_api_client.dart';
-import 'package:bot_creator/utils/main_api_settings.dart';
-import 'package:bot_creator/utils/runner_settings.dart';
+import 'package:bot_creator/utils/remote_runtime.dart';
+import 'package:bot_creator/utils/runner_client.dart';
 import 'package:bot_creator/widgets/native_ad_slot.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -36,16 +36,15 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   /// IDs des bots en cours d'exécution.
   Set<String> _runningBotIds = <String>{};
-  bool _runnerModeEnabled = false;
-
-  /// Label du runner actif (null si local).
-  String? _activeRunnerLabel;
+  RemoteRuntimeSource _runtimeSource = RemoteRuntimeSource.local;
+  String? _runtimeDetailLabel;
 
   /// Vrai pendant qu'un démarrage/arrêt est en cours.
   bool _isTogglingBot = false;
 
   /// Un AnimationController par carte (clé = bot id) pour l'effet pulse.
   final Map<String, AnimationController> _pulseControllers = {};
+  Map<String, int> _freeMinutesByBotId = <String, int>{};
 
   bool get _supportsForegroundTask => Platform.isAndroid || Platform.isIOS;
   bool get _supportsManagerRuntime => Platform.isAndroid || Platform.isIOS;
@@ -72,10 +71,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   Future<void> _initRunningState() async {
     final runningIds = <String>{};
-    final remoteClient = await _createRemoteBotClient(
+    final remoteRuntime = await _resolveRemoteRuntime(
       getTimeout: const Duration(seconds: 30),
       postTimeout: const Duration(seconds: 90),
     );
+    final remoteClient = remoteRuntime.client;
     if (remoteClient != null) {
       try {
         final status = await remoteClient.getStatus();
@@ -87,14 +87,27 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       } catch (_) {}
 
       if (!mounted) return;
-      final activeRemoteLabel = await _activeRemoteLabel();
       setState(() {
         _runningBotIds = runningIds;
-        _runnerModeEnabled = true;
-        _activeRunnerLabel = activeRemoteLabel;
+        _runtimeSource = remoteRuntime.source;
+        _runtimeDetailLabel = remoteRuntime.detailLabel;
       });
       _syncPulse(runningIds);
       await _syncDiscordRpcPresence(runningIds);
+      unawaited(_refreshBotRuntimeBalances());
+      return;
+    }
+
+    if (remoteRuntime.blocksLocalFallback) {
+      if (!mounted) return;
+      setState(() {
+        _runningBotIds = runningIds;
+        _runtimeSource = remoteRuntime.source;
+        _runtimeDetailLabel = remoteRuntime.detailLabel;
+      });
+      _syncPulse(runningIds);
+      await _syncDiscordRpcPresence(runningIds);
+      unawaited(_refreshBotRuntimeBalances());
       return;
     }
 
@@ -129,10 +142,65 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     if (!mounted) return;
     setState(() {
       _runningBotIds = runningIds;
-      _runnerModeEnabled = false;
+      _runtimeSource = RemoteRuntimeSource.local;
+      _runtimeDetailLabel = null;
     });
     _syncPulse(runningIds);
     await _syncDiscordRpcPresence(runningIds);
+    unawaited(_refreshBotRuntimeBalances());
+  }
+
+  int _extractFreeMinutes(dynamic raw) {
+    if (raw == null) {
+      return 0;
+    }
+    if (raw is int) {
+      return raw;
+    }
+    return int.tryParse(raw.toString()) ?? 0;
+  }
+
+  Future<void> _refreshBotRuntimeBalances({Iterable<String>? botIds}) async {
+    final remoteRuntime = await _resolveRemoteRuntime(
+      getTimeout: const Duration(seconds: 10),
+      postTimeout: const Duration(seconds: 20),
+    );
+    final remoteClient = remoteRuntime.client;
+    if (remoteClient is! MainApiClient) {
+      if (mounted && _freeMinutesByBotId.isNotEmpty) {
+        setState(() => _freeMinutesByBotId = <String, int>{});
+      }
+      return;
+    }
+
+    final ids = <String>{...?(botIds?.where((id) => id.trim().isNotEmpty))};
+    if (ids.isEmpty) {
+      final names = await _loadBotNamesById();
+      ids.addAll(names.keys.where((id) => id.trim().isNotEmpty));
+    }
+    if (ids.isEmpty) {
+      return;
+    }
+
+    final updated = <String, int>{..._freeMinutesByBotId};
+    for (final botId in ids) {
+      try {
+        final runtime = await remoteClient.getBotRuntime(botId);
+        final minutes = _extractFreeMinutes(
+          runtime['free_minutes_balance'] ?? runtime['freeMinutesBalance'],
+        );
+        updated[botId] = minutes;
+      } catch (_) {
+        // Best-effort refresh only.
+      }
+    }
+
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _freeMinutesByBotId = updated;
+    });
   }
 
   // ── Gestion des animations pulse ───────────────────────────────────────────
@@ -161,6 +229,24 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     }
   }
 
+  String _uiCopy({required String fr, required String en}) {
+    return Localizations.localeOf(context).languageCode == 'fr' ? fr : en;
+  }
+
+  String? _runtimeBadgeLabel() {
+    return switch (_runtimeSource) {
+      RemoteRuntimeSource.manager => _uiCopy(
+        fr: 'Bot Creator',
+        en: 'Bot Creator',
+      ),
+      RemoteRuntimeSource.runner => _uiCopy(
+        fr: 'Serveurs Bot Creator',
+        en: 'Bot Creator servers',
+      ),
+      RemoteRuntimeSource.local => null,
+    };
+  }
+
   Future<Map<String, String>> _loadBotNamesById() async {
     final apps = await appManager.getAllApps();
     final namesById = <String, String>{};
@@ -184,15 +270,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     String? preferredBotName,
   }) async {
     try {
-      final remoteLabel = await _activeRemoteLabel();
       final botNamesById = await _loadBotNamesById();
       await DiscordRpcService.instance.syncBotRuntimeState(
         runningBotIds: runningBotIds,
         botNamesById: botNamesById,
-        runnerModeEnabled: remoteLabel != null,
+        runtimeSource: _runtimeSource,
         preferredBotId: preferredBotId,
         preferredBotName: preferredBotName,
-        activeRunnerLabel: remoteLabel,
+        activeSourceLabel: _runtimeDetailLabel,
       );
     } catch (error, stackTrace) {
       developer.log(
@@ -203,55 +288,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     }
   }
 
-  Future<dynamic> _createRemoteBotClient({
+  Future<ResolvedRemoteRuntime> _resolveRemoteRuntime({
     Duration getTimeout = const Duration(seconds: 30),
     Duration postTimeout = const Duration(seconds: 90),
   }) async {
-    final mainApiConfig = await MainApiSettingsStore.loadConfig();
-    final mainApiSession = await MainApiSettingsStore.loadSession();
-
-    if (_supportsManagerRuntime &&
-        mainApiConfig.isConfigured &&
-        mainApiSession != null &&
-        !mainApiSession.isExpired) {
-      return MainApiClient(
-        baseUrl: mainApiConfig.baseUrl,
-        accessToken: mainApiSession.accessToken,
-        timeout: postTimeout,
-      );
-    }
-
-    return RunnerSettings.createClient(
+    return resolveRemoteRuntime(
+      supportsManagerRuntime: _supportsManagerRuntime,
       getTimeout: getTimeout,
       postTimeout: postTimeout,
     );
-  }
-
-  Future<bool> _hasRemoteBotClient() async {
-    final mainApiConfig = await MainApiSettingsStore.loadConfig();
-    final mainApiSession = await MainApiSettingsStore.loadSession();
-    if (_supportsManagerRuntime &&
-        mainApiConfig.isConfigured &&
-        mainApiSession != null &&
-        !mainApiSession.isExpired) {
-      return true;
-    }
-
-    return await RunnerSettings.getConfig() != null;
-  }
-
-  Future<String?> _activeRemoteLabel() async {
-    final mainApiConfig = await MainApiSettingsStore.loadConfig();
-    final mainApiSession = await MainApiSettingsStore.loadSession();
-    if (_supportsManagerRuntime &&
-        mainApiConfig.isConfigured &&
-        mainApiSession != null &&
-        !mainApiSession.isExpired) {
-      return mainApiConfig.baseUrl;
-    }
-
-    final runnerConfig = await RunnerSettings.getConfig();
-    return runnerConfig?.name ?? runnerConfig?.url;
   }
 
   // ── Démarrage / Arrêt du bot ───────────────────────────────────────────────
@@ -265,6 +310,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
     try {
       final isRunning = _runningBotIds.contains(botId);
+      var runtime = await _resolveRemoteRuntime(
+        getTimeout: const Duration(seconds: 30),
+        postTimeout: const Duration(seconds: 90),
+      );
 
       if (!isRunning && _runningBotIds.length >= 5) {
         throw Exception(
@@ -275,7 +324,20 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       // ── Fetch + validate token before anything else (only when starting) ──
       String? token;
       if (!isRunning) {
-        final usingRunner = await _hasRemoteBotClient();
+        final usingRunner =
+            runtime.client != null || runtime.blocksLocalFallback;
+
+        if (runtime.blocksLocalFallback) {
+          throw Exception(
+            runtime.unavailableReason ??
+                _uiCopy(
+                  fr:
+                      'Connectez-vous a Bot Creator dans les parametres avant de demarrer ce bot.',
+                  en:
+                      'Sign in to Bot Creator in Settings before starting this bot.',
+                ),
+          );
+        }
 
         if (!usingRunner) {
           final app = await appManager.getApp(botId);
@@ -304,48 +366,82 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       }
 
       // ── Runner API (API only) ─────────────────────────────────────────────
-      final client = await _createRemoteBotClient(
+      runtime = await _resolveRemoteRuntime(
         getTimeout: const Duration(seconds: 30),
         postTimeout: const Duration(seconds: 90),
       );
+      final client = runtime.client;
       if (client != null) {
-        if (isRunning) {
-          appendBotLog('Bot stop requested', botId: botId);
-          await client.stopBot(botId);
-          endBotLogSession(botId: botId);
-          if (mounted) {
-            setState(() {
-              _runningBotIds = <String>{..._runningBotIds}..remove(botId);
-            });
-          }
-          setBotRuntimeActive(_runningBotIds.isNotEmpty);
-        } else {
-          startBotLogSession(botId: botId);
-          clearBotBaselineRss();
-          appendBotLog('Bot start requested', botId: botId);
-          final payload = await buildBotPayload(botId);
-          if (client is MainApiClient) {
-            final app = await appManager.getApp(botId);
-            final botToken = (app['token'] ?? '').toString().trim();
-            if (botToken.isNotEmpty) {
-              try {
-                await client.saveDiscordBotSnapshot(
-                  botToken: botToken,
-                  config: payload,
-                );
-              } catch (_) {
-                // Best-effort only: do not block start if save route fails.
+        try {
+          if (isRunning) {
+            appendBotLog(
+              'Bot stop requested',
+              botId: botId,
+              source: runtime.source,
+            );
+            final stopResult = await client.stopBot(botId);
+
+            // Show warning if free time was lost
+            if (stopResult['free_time_lost'] == true && mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    stopResult['warning'] as String? ??
+                        context.tr.error_with_details(
+                          'Accumulated free runtime was discarded',
+                        ),
+                  ),
+                  duration: const Duration(seconds: 5),
+                ),
+              );
+            }
+
+            endBotLogSession(botId: botId, source: runtime.source);
+            if (mounted) {
+              setState(() {
+                _runningBotIds = <String>{..._runningBotIds}..remove(botId);
+              });
+            }
+            setBotRuntimeActive(_runningBotIds.isNotEmpty);
+          } else {
+            startBotLogSession(botId: botId, source: runtime.source);
+            clearBotBaselineRss();
+            appendBotLog(
+              'Bot start requested',
+              botId: botId,
+              source: runtime.source,
+            );
+            final payload = await buildBotPayload(botId);
+            if (client is MainApiClient) {
+              final app = await appManager.getApp(botId);
+              final botToken = (app['token'] ?? '').toString().trim();
+              if (botToken.isNotEmpty) {
+                try {
+                  await client.saveDiscordBotSnapshot(
+                    botToken: botToken,
+                    config: payload,
+                  );
+                } catch (_) {
+                  // Best-effort only: do not block start if save route fails.
+                }
               }
             }
+            await client.syncBot(botId, botName, payload);
+            await client.startBot(botId, botName: botName);
+            setBotRuntimeActive(true);
+            if (mounted) {
+              setState(() {
+                _runningBotIds = <String>{..._runningBotIds, botId};
+                _runtimeSource = runtime.source;
+                _runtimeDetailLabel = runtime.detailLabel;
+              });
+            }
           }
-          await client.syncBot(botId, botName, payload);
-          await client.startBot(botId, botName: botName);
-          setBotRuntimeActive(true);
-          if (mounted) {
-            setState(() {
-              _runningBotIds = <String>{..._runningBotIds, botId};
-            });
+        } catch (error) {
+          if (client is MainApiClient) {
+            throw Exception(await describeManagerRuntimeFailure(client, error));
           }
+          rethrow;
         }
         _syncPulse(_runningBotIds);
         await _syncDiscordRpcPresence(
@@ -460,10 +556,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   Future<void> _claimMainApiAdRuntime(String botId) async {
-    final remoteClient = await _createRemoteBotClient(
+    final remoteRuntime = await _resolveRemoteRuntime(
       getTimeout: const Duration(seconds: 10),
       postTimeout: const Duration(seconds: 20),
     );
+    final remoteClient = remoteRuntime.client;
     if (remoteClient is! MainApiClient) {
       return;
     }
@@ -481,6 +578,17 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       final granted =
           (result['granted_minutes'] ?? result['grantedMinutes'] ?? 0)
               .toString();
+      final balance = _extractFreeMinutes(
+        result['minutes_balance'] ?? result['minutesBalance'],
+      );
+      if (mounted) {
+        setState(() {
+          _freeMinutesByBotId = <String, int>{
+            ..._freeMinutesByBotId,
+            botId: balance,
+          };
+        });
+      }
       appendBotDebugLog('Ad runtime claimed for $botId (+$granted minutes).');
     } catch (error) {
       appendBotDebugLog('Failed to claim ad runtime for $botId: $error');
@@ -488,10 +596,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   Future<bool> _isMainApiPremiumUser() async {
-    final remoteClient = await _createRemoteBotClient(
+    final remoteRuntime = await _resolveRemoteRuntime(
       getTimeout: const Duration(seconds: 10),
       postTimeout: const Duration(seconds: 20),
     );
+    final remoteClient = remoteRuntime.client;
     if (remoteClient is! MainApiClient) {
       return false;
     }
@@ -561,9 +670,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       );
     }
 
-    AdRewardService.showRewardedAdNonBlocking(
+    await AdRewardService.showRewardedAd(
       onRewardEarned: () => _claimMainApiAdRuntime(botId),
     );
+    await _refreshBotRuntimeBalances(botIds: <String>[botId]);
     if (!mounted) {
       return;
     }
@@ -749,10 +859,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           isRunning: isRunning,
                           canToggle: canToggle,
                           isTogglingThisBot: _isTogglingBot && isRunning,
-                          runnerLabel:
-                              isRunning && _runnerModeEnabled
-                                  ? _activeRunnerLabel
-                                  : null,
+                          runtimeBadgeLabel:
+                              isRunning ? _runtimeBadgeLabel() : null,
+                          freeMinutes: _freeMinutesByBotId[id],
                           pulseController: pulseCtrl,
                           onManage:
                               () => Navigator.push(
@@ -805,7 +914,8 @@ class _BotCard extends StatelessWidget {
     required this.onManage,
     required this.onToggle,
     required this.onLogs,
-    this.runnerLabel,
+    this.runtimeBadgeLabel,
+    this.freeMinutes,
   });
 
   final String name;
@@ -816,7 +926,8 @@ class _BotCard extends StatelessWidget {
   final bool isRunning;
   final bool canToggle;
   final bool isTogglingThisBot;
-  final String? runnerLabel;
+  final String? runtimeBadgeLabel;
+  final int? freeMinutes;
   final AnimationController pulseController;
   final VoidCallback onManage;
   final VoidCallback onToggle;
@@ -1008,7 +1119,7 @@ class _BotCard extends StatelessWidget {
                     ),
 
                     // Runner badge (hidden in compact to save space)
-                    if (runnerLabel != null && !compact) ...[
+                    if (runtimeBadgeLabel != null && !compact) ...[
                       const SizedBox(height: 4),
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -1032,7 +1143,7 @@ class _BotCard extends StatelessWidget {
                             const SizedBox(width: 3),
                             Flexible(
                               child: Text(
-                                runnerLabel!,
+                                runtimeBadgeLabel!,
                                 style: TextStyle(
                                   fontSize: compact ? 9.0 : 9.5,
                                   color: Colors.white.withValues(alpha: 0.7),
@@ -1041,6 +1152,19 @@ class _BotCard extends StatelessWidget {
                               ),
                             ),
                           ],
+                        ),
+                      ),
+                    ],
+                    if (freeMinutes != null && !compact) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        'Temps restant: ${freeMinutes!} min',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: compact ? 10 : 11,
+                          color: Colors.white.withValues(alpha: 0.85),
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ],

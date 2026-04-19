@@ -16,15 +16,15 @@ class AdRewardService {
       'ca-app-pub-9146609240142753/2977961908';
 
   static const String _testRewardedUnitId =
-      'ca-app-pub-3940256099942544/5224354917';
+      'ca-app-pub-9146609240142753/6223806805';
 
   static bool _initialized = false;
   static bool _isLoading = false;
   static bool _isShowing = false;
   static RewardedAd? _rewardedAd;
 
-  /// Cooldown duration after showing a rewarded ad before offering another.
-  static const Duration _cooldown = Duration(minutes: 10);
+  /// Keep a short cooldown to prevent accidental rapid double taps.
+  static const Duration _cooldown = Duration(seconds: 15);
   static DateTime? _lastShownAt;
 
   static bool get _isSupportedPlatform {

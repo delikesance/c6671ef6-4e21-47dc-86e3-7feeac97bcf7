@@ -14,6 +14,7 @@ import 'package:bot_creator/utils/main_api_auth_service.dart';
 import 'package:bot_creator/utils/main_api_client.dart';
 import 'package:bot_creator/utils/main_api_settings.dart';
 import 'package:bot_creator/utils/premium_capabilities.dart';
+import 'package:bot_creator/utils/runtime_preferences.dart';
 import 'package:bot_creator/utils/subscription_service.dart';
 import 'package:bot_creator/widgets/subscription_page.dart';
 import 'package:bot_creator/utils/drive.dart';
@@ -54,7 +55,6 @@ class _SettingPageState extends State<SettingPage> {
       TextEditingController();
   bool _checkingRunner = false;
   bool _checkingMainApi = false;
-  bool _savingMainApi = false;
   bool _connectingMainApi = false;
   bool _disconnectingMainApi = false;
   String? _runnerStatusKey;
@@ -74,6 +74,16 @@ class _SettingPageState extends State<SettingPage> {
   bool _adPrivacyRequired = false;
   bool _discordSectionExpanded = false;
   bool _developerSectionExpanded = false;
+  bool _mobileLocalHostingEnabled = false;
+  bool _loadingMobileLocalHosting = true;
+  bool _refreshingMainApiOnResume = false;
+
+  void _mainApiDebug(String message) {
+    if (!kDebugMode) {
+      return;
+    }
+    debugPrint('[MainApi][Settings] $message');
+  }
 
   bool get _isDesktopPlatform {
     if (kIsWeb) {
@@ -82,6 +92,19 @@ class _SettingPageState extends State<SettingPage> {
     return defaultTargetPlatform == TargetPlatform.windows ||
         defaultTargetPlatform == TargetPlatform.linux ||
         defaultTargetPlatform == TargetPlatform.macOS;
+  }
+
+  bool get _isManagedMobilePlatform {
+    if (kIsWeb) {
+      return false;
+    }
+    return defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS;
+  }
+
+  String _localizedCopy({required String fr, required String en}) {
+    final languageCode = Localizations.localeOf(context).languageCode;
+    return languageCode == 'fr' ? fr : en;
   }
 
   Future<void> _runWithLoading(
@@ -130,17 +153,48 @@ class _SettingPageState extends State<SettingPage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(_settingsLifecycleObserver);
     _loadCachedSnapshotsFromCache();
     _loadRecoverySettings();
     _initializeDriveApi();
     _loadRunnerSettings();
     _loadMainApiSettings();
+    _loadRuntimePreferences();
     if (_isDesktopPlatform) {
       _loadDiscordRpcSettings();
     } else {
       _loadingDiscordRpc = false;
     }
     _loadAdPrivacyRequirement();
+  }
+
+  late final WidgetsBindingObserver _settingsLifecycleObserver =
+      _SettingsLifecycleObserver(onResumed: _handleAppResumed);
+
+  Future<void> _handleAppResumed() async {
+    if (!_isManagedMobilePlatform || _refreshingMainApiOnResume) {
+      return;
+    }
+    _mainApiDebug('App resumed on mobile, reloading main API session state');
+    _refreshingMainApiOnResume = true;
+    try {
+      await _loadMainApiSettings();
+    } finally {
+      _mainApiDebug('Resume refresh finished');
+      _refreshingMainApiOnResume = false;
+    }
+  }
+
+  Future<void> _loadRuntimePreferences() async {
+    final mobileLocalHostingEnabled =
+        await RuntimePreferences.isMobileLocalHostingEnabled();
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _mobileLocalHostingEnabled = mobileLocalHostingEnabled;
+      _loadingMobileLocalHosting = false;
+    });
   }
 
   Future<void> _loadCachedSnapshotsFromCache() async {
@@ -309,10 +363,12 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   Future<void> _loadMainApiSettings() async {
+    _mainApiDebug('Loading main API config + session from storage');
     final config = await MainApiSettingsStore.loadConfig();
     var session = await MainApiSettingsStore.loadSession();
 
     if (session != null && session.isExpired && session.refreshToken == null) {
+      _mainApiDebug('Stored session expired without refresh token, clearing');
       await MainApiSettingsStore.clearSession();
       session = null;
     }
@@ -324,12 +380,14 @@ class _SettingPageState extends State<SettingPage> {
     final resolvedBaseUrl =
         config.baseUrl.isEmpty ? defaultMainApiBaseUrl : config.baseUrl;
 
+    _mainApiDebug(
+      'Loaded baseUrl=$resolvedBaseUrl sessionPresent=${session != null} sessionExpired=${session?.isExpired ?? false}',
+    );
+
     setState(() {
       _mainApiUrlController.text = resolvedBaseUrl;
       _mainApiSession = session;
-      if (!config.isConfigured) {
-        _mainApiStatusKey = null;
-      } else if (session != null) {
+      if (session != null) {
         _mainApiStatusKey =
             session.isExpired
                 ? 'settings_main_api_session_expired'
@@ -339,76 +397,15 @@ class _SettingPageState extends State<SettingPage> {
       }
     });
 
-    if (config.isConfigured) {
-      await _checkMainApiConnection();
-    }
-  }
-
-  Future<void> _saveMainApiSettings({
-    bool showSnack = true,
-    bool autoCheck = true,
-  }) async {
-    final nextUrl = MainApiConfig.normalizeBaseUrl(_mainApiUrlController.text);
-    final previous = await MainApiSettingsStore.loadConfig();
-
-    if (!mounted) {
-      return;
-    }
-
-    setState(() {
-      _savingMainApi = true;
-    });
-
-    try {
-      if (nextUrl.isEmpty) {
-        await MainApiSettingsStore.clearAll();
-        if (!mounted) return;
-        setState(() {
-          _mainApiSession = null;
-          _mainApiStatusKey = null;
-        });
-        if (showSnack) {
-          _showSnack(AppStrings.t('settings_main_api_cleared'));
-        }
-        return;
-      }
-
-      await MainApiSettingsStore.saveConfig(MainApiConfig(baseUrl: nextUrl));
-
-      if (previous.baseUrl != nextUrl) {
-        await MainApiSettingsStore.clearSession();
-        if (mounted) {
-          setState(() {
-            _mainApiSession = null;
-          });
-        }
-      }
-
-      if (showSnack) {
-        _showSnack(AppStrings.t('settings_main_api_saved'));
-      }
-
-      if (autoCheck) {
-        await _checkMainApiConnection();
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _savingMainApi = false;
-        });
-      }
-    }
+    await _checkMainApiConnection();
   }
 
   Future<void> _checkMainApiConnection() async {
-    final url = MainApiConfig.normalizeBaseUrl(_mainApiUrlController.text);
-    if (url.isEmpty) {
-      if (!mounted) return;
-      setState(() {
-        _mainApiStatusKey = 'settings_main_api_not_configured';
-      });
-      return;
-    }
+    final config = await MainApiSettingsStore.loadConfig();
+    final url = config.baseUrl;
+    _mainApiDebug(
+      'Checking main API health url=$url sessionPresent=${_mainApiSession != null}',
+    );
 
     if (!mounted) {
       return;
@@ -422,6 +419,7 @@ class _SettingPageState extends State<SettingPage> {
     try {
       final publicClient = MainApiClient(baseUrl: url);
       final healthy = await publicClient.checkHealth();
+      _mainApiDebug('Health check result healthy=$healthy');
       if (!healthy) {
         if (!mounted) return;
         setState(() {
@@ -437,12 +435,15 @@ class _SettingPageState extends State<SettingPage> {
       if (nextSession != null) {
         var activeSession = nextSession;
         if (activeSession.expiresSoon() && activeSession.refreshToken != null) {
+          _mainApiDebug('Session expires soon, attempting refresh');
           try {
             activeSession = await publicClient.refreshSession(
               refreshToken: activeSession.refreshToken!,
             );
             await MainApiSettingsStore.saveSession(activeSession);
+            _mainApiDebug('Session refresh succeeded');
           } catch (_) {
+            _mainApiDebug('Session refresh failed, keeping previous session');
             // Keep existing session and validate it below.
           }
         }
@@ -457,10 +458,15 @@ class _SettingPageState extends State<SettingPage> {
           if (username.isNotEmpty && username != activeSession.username) {
             activeSession = activeSession.copyWith(username: username);
             await MainApiSettingsStore.saveSession(activeSession);
+            _mainApiDebug('Session username updated to $username');
           }
           nextSession = activeSession;
           statusKey = 'settings_main_api_session_connected';
+          _mainApiDebug('Session validated successfully (connected)');
         } on MainApiClientException catch (error) {
+          _mainApiDebug(
+            'Session validation failed statusCode=${error.statusCode}',
+          );
           if (error.statusCode == 401 || error.statusCode == 403) {
             statusKey = 'settings_main_api_auth_failed';
           }
@@ -473,7 +479,9 @@ class _SettingPageState extends State<SettingPage> {
         _mainApiStatusKey = statusKey;
         _checkingMainApi = false;
       });
+      _mainApiDebug('Main API status key set to $statusKey');
     } catch (_) {
+      _mainApiDebug('Main API check failed with unexpected error');
       if (!mounted) return;
       setState(() {
         _mainApiStatusKey = 'settings_main_api_unreachable';
@@ -483,13 +491,9 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   Future<void> _connectMainApiDiscord() async {
-    final url = MainApiConfig.normalizeBaseUrl(_mainApiUrlController.text);
-    if (url.isEmpty) {
-      _showSnack(AppStrings.t('settings_main_api_url_required'));
-      return;
-    }
-
-    await _saveMainApiSettings(showSnack: false, autoCheck: false);
+    final config = await MainApiSettingsStore.loadConfig();
+    final url = config.baseUrl;
+    _mainApiDebug('Starting Discord OAuth flow for url=$url');
 
     if (!mounted) return;
     setState(() {
@@ -500,6 +504,9 @@ class _SettingPageState extends State<SettingPage> {
       final client = MainApiClient(baseUrl: url);
       final session = await MainApiAuthService.connectWithDiscord(
         client: client,
+      );
+      _mainApiDebug(
+        'OAuth completed, saving session expiresAt=${session.expiresAt.toUtc().toIso8601String()} user=${session.username ?? ''}',
       );
       await MainApiSettingsStore.saveSession(session);
 
@@ -523,6 +530,7 @@ class _SettingPageState extends State<SettingPage> {
 
       await _checkMainApiConnection();
     } catch (error) {
+      _mainApiDebug('OAuth flow failed: $error');
       _showSnack(_formatErrorMessage(error));
     } finally {
       if (mounted) {
@@ -557,15 +565,26 @@ class _SettingPageState extends State<SettingPage> {
     }
   }
 
-  Future<void> _clearMainApiSettings() async {
-    await MainApiSettingsStore.clearAll();
-    if (!mounted) return;
+  Future<void> _setMobileLocalHostingEnabled(bool enabled) async {
+    await RuntimePreferences.setMobileLocalHostingEnabled(enabled);
+    if (!mounted) {
+      return;
+    }
     setState(() {
-      _mainApiUrlController.clear();
-      _mainApiSession = null;
-      _mainApiStatusKey = null;
+      _mobileLocalHostingEnabled = enabled;
     });
-    _showSnack(AppStrings.t('settings_main_api_cleared'));
+    _showSnack(
+      _localizedCopy(
+        fr:
+            enabled
+                ? 'Hébergement local mobile activé.'
+                : 'Les bots mobile utilisent maintenant les serveurs Bot Creator.',
+        en:
+            enabled
+                ? 'Mobile local hosting enabled.'
+                : 'Mobile bots now use Bot Creator servers.',
+      ),
+    );
   }
 
   Color? _mainApiStatusColor(String? statusKey) {
@@ -587,6 +606,7 @@ class _SettingPageState extends State<SettingPage> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(_settingsLifecycleObserver);
     _discordRpcSnapshotSubscription?.cancel();
     _discordRpcClientIdController.dispose();
     _mainApiUrlController.dispose();
@@ -974,22 +994,60 @@ class _SettingPageState extends State<SettingPage> {
     return 'settings_discord_rpc_connect';
   }
 
-  Widget _buildMainApiCard({required bool isMobile}) {
-    final normalizedUrl = MainApiConfig.normalizeBaseUrl(
-      _mainApiUrlController.text,
-    );
-    final hasUrl = normalizedUrl.isNotEmpty;
+  Widget _buildMainApiCard() {
     final statusKey = _mainApiStatusKey;
     final statusColor = _mainApiStatusColor(statusKey);
     final session = _mainApiSession;
     final hasSession = session != null && !session.isExpired;
     final sessionUser = (session?.username ?? '').trim();
+    final currentMainApiBaseUrl = _mainApiUrlController.text.trim();
+    final accountTitle =
+        _isManagedMobilePlatform
+            ? _localizedCopy(
+              fr: 'Compte Bot Creator',
+              en: 'Bot Creator account',
+            )
+            : AppStrings.t('settings_main_api_title');
+    final accountDescription =
+        _isManagedMobilePlatform
+            ? _localizedCopy(
+              fr:
+                  'Connectez-vous a votre compte Bot Creator pour retrouver vos bots, votre temps disponible et vos donnees precedentes sur cet appareil.',
+              en:
+                  'Sign in to your Bot Creator account to recover your bots, available time, and previous data on this device.',
+            )
+            : AppStrings.t('settings_main_api_desc');
+    final accountHint =
+        hasSession
+            ? _localizedCopy(
+              fr:
+                  'Compte connecte. Vos bots et vos donnees sont synchronises avec Bot Creator.',
+              en:
+                  'Account connected. Your bots and data are now synced with Bot Creator.',
+            )
+            : _localizedCopy(
+              fr:
+                  'Votre compte Bot Creator est cree automatiquement quand vous ajoutez un bot. Connectez-vous ensuite avec Discord pour recuperer vos bots sur cet appareil.',
+              en:
+                  'Your Bot Creator account is created automatically when you add a bot. Then sign in with Discord to recover your bots on this device.',
+            );
+    final connectButtonLabel = _localizedCopy(
+      fr: 'Se connecter a Bot Creator avec Discord',
+      en: 'Sign in to Bot Creator with Discord',
+    );
+    final disconnectButtonLabel = _localizedCopy(
+      fr: 'Se deconnecter',
+      en: 'Sign out',
+    );
+    final mobileStatusText =
+        hasSession
+            ? _localizedCopy(fr: 'Compte connecte', en: 'Account connected')
+            : _localizedCopy(fr: 'Compte non connecte', en: 'Not signed in');
+    final mobileStatusColor =
+        hasSession ? AppTheme.successLight : AppTheme.warning;
 
     final isBusy =
-        _checkingMainApi ||
-        _savingMainApi ||
-        _connectingMainApi ||
-        _disconnectingMainApi;
+        _checkingMainApi || _connectingMainApi || _disconnectingMainApi;
 
     return Card(
       child: ExpansionTile(
@@ -999,9 +1057,12 @@ class _SettingPageState extends State<SettingPage> {
             _mainApiSectionExpanded = expanded;
           });
         },
-        leading: const Icon(Icons.hub_outlined, size: 18),
+        leading: Icon(
+          _isManagedMobilePlatform ? Icons.person_outline : Icons.hub_outlined,
+          size: 18,
+        ),
         title: Text(
-          AppStrings.t('settings_main_api_title'),
+          accountTitle,
           style: Theme.of(
             context,
           ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
@@ -1010,64 +1071,96 @@ class _SettingPageState extends State<SettingPage> {
             statusKey == null
                 ? null
                 : Text(
-                  AppStrings.t(statusKey),
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: statusColor),
+                  _isManagedMobilePlatform
+                      ? mobileStatusText
+                      : AppStrings.t(statusKey),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color:
+                        _isManagedMobilePlatform
+                            ? mobileStatusColor
+                            : statusColor,
+                  ),
                 ),
         childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         children: [
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              AppStrings.t('settings_main_api_desc'),
+              accountDescription,
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _mainApiUrlController,
-            keyboardType: TextInputType.url,
-            autocorrect: false,
-            decoration: InputDecoration(
-              hintText: AppStrings.t('settings_main_api_url_hint'),
-              isDense: true,
-              border: const OutlineInputBorder(),
-              suffixIcon:
-                  (_checkingMainApi || _savingMainApi)
-                      ? const Padding(
-                        padding: EdgeInsets.all(10),
-                        child: SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                      )
-                      : (statusKey == null
-                          ? null
-                          : Icon(
-                            statusKey == 'settings_main_api_connected' ||
-                                    statusKey ==
-                                        'settings_main_api_session_connected'
-                                ? Icons.check_circle
-                                : Icons.error_outline,
-                            color: _mainApiStatusColor(statusKey),
-                            size: 18,
-                          )),
-            ),
-          ),
-          if (!_isDesktopPlatform) ...[
-            const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                AppStrings.t('settings_main_api_desktop_only'),
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: AppTheme.warning),
+          if (!_isManagedMobilePlatform) ...[
+            const SizedBox(height: 12),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                border: Border.all(color: Theme.of(context).dividerColor),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      currentMainApiBaseUrl,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ),
+                  if (_checkingMainApi)
+                    const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  else if (statusKey != null)
+                    Icon(
+                      statusKey == 'settings_main_api_connected' ||
+                              statusKey == 'settings_main_api_session_connected'
+                          ? Icons.check_circle
+                          : Icons.error_outline,
+                      color: _mainApiStatusColor(statusKey),
+                      size: 18,
+                    ),
+                ],
               ),
             ),
           ],
+          const SizedBox(height: 12),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color:
+                  hasSession
+                      ? AppTheme.successLight.withValues(alpha: 0.12)
+                      : AppTheme.warning.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color:
+                    hasSession
+                        ? AppTheme.successLight.withValues(alpha: 0.35)
+                        : AppTheme.warning.withValues(alpha: 0.35),
+              ),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  hasSession ? Icons.verified_user : Icons.info_outline,
+                  size: 18,
+                  color: hasSession ? AppTheme.successLight : AppTheme.warning,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    accountHint,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ),
+              ],
+            ),
+          ),
           if (hasSession) ...[
             const SizedBox(height: 10),
             Row(
@@ -1092,102 +1185,13 @@ class _SettingPageState extends State<SettingPage> {
             ),
           ],
           const SizedBox(height: 12),
-          if (isMobile) ...[
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: isBusy ? null : _saveMainApiSettings,
-                icon:
-                    _savingMainApi
-                        ? const SizedBox(
-                          width: 14,
-                          height: 14,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                        : const Icon(Icons.save_outlined, size: 18),
-                label: Text(AppStrings.t('settings_main_api_save')),
-              ),
-            ),
-            const SizedBox(height: 8),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: isBusy || !hasUrl ? null : _checkMainApiConnection,
-                icon:
-                    _checkingMainApi
-                        ? const SizedBox(
-                          width: 14,
-                          height: 14,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                        : const Icon(Icons.wifi_find, size: 18),
-                label: Text(AppStrings.t('settings_main_api_check')),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      Theme.of(context).colorScheme.secondaryContainer,
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: isBusy || !hasUrl ? null : _connectMainApiDiscord,
-                icon:
-                    _connectingMainApi
-                        ? const SizedBox(
-                          width: 14,
-                          height: 14,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                        : const Icon(Icons.login, size: 18),
-                label: Text(AppStrings.t('settings_main_api_connect_discord')),
-              ),
-            ),
-            const SizedBox(height: 8),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: isBusy || !hasSession ? null : _disconnectMainApi,
-                icon:
-                    _disconnectingMainApi
-                        ? const SizedBox(
-                          width: 14,
-                          height: 14,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                        : const Icon(Icons.logout, size: 18),
-                label: Text(AppStrings.t('settings_main_api_disconnect')),
-              ),
-            ),
-            const SizedBox(height: 8),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: isBusy ? null : _clearMainApiSettings,
-                icon: const Icon(Icons.clear, size: 18),
-                label: Text(AppStrings.t('settings_main_api_clear')),
-              ),
-            ),
-          ] else ...[
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              if (!_isManagedMobilePlatform)
                 ElevatedButton.icon(
-                  onPressed: isBusy ? null : _saveMainApiSettings,
-                  icon:
-                      _savingMainApi
-                          ? const SizedBox(
-                            width: 14,
-                            height: 14,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                          : const Icon(Icons.save_outlined, size: 18),
-                  label: Text(AppStrings.t('settings_main_api_save')),
-                ),
-                ElevatedButton.icon(
-                  onPressed: isBusy || !hasUrl ? null : _checkMainApiConnection,
+                  onPressed: isBusy ? null : _checkMainApiConnection,
                   icon:
                       _checkingMainApi
                           ? const SizedBox(
@@ -1202,41 +1206,135 @@ class _SettingPageState extends State<SettingPage> {
                         Theme.of(context).colorScheme.secondaryContainer,
                   ),
                 ),
-                ElevatedButton.icon(
-                  onPressed: isBusy || !hasUrl ? null : _connectMainApiDiscord,
-                  icon:
-                      _connectingMainApi
-                          ? const SizedBox(
-                            width: 14,
-                            height: 14,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                          : const Icon(Icons.login, size: 18),
-                  label: Text(
-                    AppStrings.t('settings_main_api_connect_discord'),
+              ElevatedButton.icon(
+                onPressed: isBusy ? null : _connectMainApiDiscord,
+                icon:
+                    _connectingMainApi
+                        ? const SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                        : const Icon(Icons.login, size: 18),
+                label: Text(connectButtonLabel),
+              ),
+              OutlinedButton.icon(
+                onPressed: isBusy || !hasSession ? null : _disconnectMainApi,
+                icon:
+                    _disconnectingMainApi
+                        ? const SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                        : const Icon(Icons.logout, size: 18),
+                label: Text(disconnectButtonLabel),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMobileLocalHostingCard() {
+    final title = _localizedCopy(
+      fr: 'Lancement des bots',
+      en: 'Bot startup mode',
+    );
+    final description = _localizedCopy(
+      fr:
+          'Choisissez si vos bots demarrent sur les serveurs Bot Creator ou en local sur cet appareil.',
+      en:
+          'Choose whether your bots start on Bot Creator servers or locally on this device.',
+    );
+    final useBotCreatorServers = !_mobileLocalHostingEnabled;
+    final switchTitle = _localizedCopy(
+      fr: 'Utiliser les serveurs Bot Creator',
+      en: 'Use Bot Creator servers',
+    );
+    final switchSubtitle =
+        useBotCreatorServers
+            ? _localizedCopy(
+              fr:
+                  'Recommande sur Android et iOS. Les logs, stats et demarrages passent par Bot Creator.',
+              en:
+                  'Recommended on Android and iOS. Logs, stats, and startup all go through Bot Creator.',
+            )
+            : _localizedCopy(
+              fr: 'Les bots demarrent maintenant en local sur cet appareil.',
+              en: 'Bots now start locally on this device.',
+            );
+    final warning = _localizedCopy(
+      fr:
+          'Le mode local est une option avancee reservee au debug ou a des besoins specifiques. Pour un usage normal, laissez les serveurs Bot Creator actifs.',
+      en:
+          'Local mode is an advanced option intended for debugging or specific needs. For normal use, keep Bot Creator servers enabled.',
+    );
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.phone_android, size: 18),
+                const SizedBox(width: 8),
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
                   ),
-                ),
-                OutlinedButton.icon(
-                  onPressed: isBusy || !hasSession ? null : _disconnectMainApi,
-                  icon:
-                      _disconnectingMainApi
-                          ? const SizedBox(
-                            width: 14,
-                            height: 14,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                          : const Icon(Icons.logout, size: 18),
-                  label: Text(AppStrings.t('settings_main_api_disconnect')),
-                ),
-                OutlinedButton.icon(
-                  onPressed: isBusy ? null : _clearMainApiSettings,
-                  icon: const Icon(Icons.clear, size: 18),
-                  label: Text(AppStrings.t('settings_main_api_clear')),
                 ),
               ],
             ),
+            const SizedBox(height: 10),
+            Text(description, style: Theme.of(context).textTheme.bodySmall),
+            const SizedBox(height: 8),
+            SwitchListTile.adaptive(
+              contentPadding: EdgeInsets.zero,
+              title: Text(switchTitle),
+              subtitle: Text(switchSubtitle),
+              value: useBotCreatorServers,
+              onChanged:
+                  _loadingMobileLocalHosting
+                      ? null
+                      : (value) => _setMobileLocalHostingEnabled(!value),
+            ),
+            if (!useBotCreatorServers)
+              Container(
+                width: double.infinity,
+                margin: const EdgeInsets.only(top: 8),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppTheme.warning.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: AppTheme.warning.withValues(alpha: 0.35),
+                  ),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(
+                      Icons.warning_amber_rounded,
+                      color: AppTheme.warning,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        warning,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
           ],
-        ],
+        ),
       ),
     );
   }
@@ -2299,202 +2397,162 @@ class _SettingPageState extends State<SettingPage> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  // Developer Mode Section
-                  Card(
-                    child: ExpansionTile(
-                      initiallyExpanded: _developerSectionExpanded,
-                      onExpansionChanged: (expanded) {
-                        setState(() {
-                          _developerSectionExpanded = expanded;
-                        });
-                      },
-                      leading: const Icon(Icons.developer_mode, size: 18),
-                      title: Text(
-                        context.tr.settings_runner_title,
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle:
-                          _runnerTemporarilyDisabled
-                              ? Text(
-                                context.tr.settings_runner_temporarily_disabled,
-                                style: Theme.of(context).textTheme.bodySmall
-                                    ?.copyWith(color: AppTheme.warning),
-                              )
-                              : _runnerStatusKey == null
-                              ? null
-                              : Text(
-                                AppStrings.t(_runnerStatusKey!),
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.bodySmall?.copyWith(
-                                  color:
-                                      _runnerStatusKey ==
-                                              'settings_runner_connected'
-                                          ? AppTheme.successLight
-                                          : AppTheme.errorLight,
+                  _buildMainApiCard(),
+                  const SizedBox(height: 16),
+                  if (_isManagedMobilePlatform) ...[
+                    _buildMobileLocalHostingCard(),
+                    const SizedBox(height: 16),
+                  ],
+                  if (!_isManagedMobilePlatform)
+                    Card(
+                      child: ExpansionTile(
+                        initiallyExpanded: _developerSectionExpanded,
+                        onExpansionChanged: (expanded) {
+                          setState(() {
+                            _developerSectionExpanded = expanded;
+                          });
+                        },
+                        leading: const Icon(Icons.developer_mode, size: 18),
+                        title: Text(
+                          context.tr.settings_runner_title,
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle:
+                            _runnerTemporarilyDisabled
+                                ? Text(
+                                  context
+                                      .tr
+                                      .settings_runner_temporarily_disabled,
+                                  style: Theme.of(context).textTheme.bodySmall
+                                      ?.copyWith(color: AppTheme.warning),
+                                )
+                                : _runnerStatusKey == null
+                                ? null
+                                : Text(
+                                  AppStrings.t(_runnerStatusKey!),
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.bodySmall?.copyWith(
+                                    color:
+                                        _runnerStatusKey ==
+                                                'settings_runner_connected'
+                                            ? AppTheme.successLight
+                                            : AppTheme.errorLight,
+                                  ),
                                 ),
-                              ),
-                      childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                      children: [
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            context.tr.settings_runner_desc,
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
+                        childrenPadding: const EdgeInsets.fromLTRB(
+                          16,
+                          0,
+                          16,
+                          16,
                         ),
-                        const SizedBox(height: 8),
-                        SwitchListTile.adaptive(
-                          contentPadding: EdgeInsets.zero,
-                          title: Text(context.tr.settings_runner_disable_temp),
-                          subtitle: Text(
-                            context.tr.settings_runner_disable_temp_desc,
-                          ),
-                          value: _runnerTemporarilyDisabled,
-                          onChanged:
-                              _isBusy ? null : _toggleRunnerTemporarilyDisabled,
-                        ),
-                        const SizedBox(height: 12),
-                        TextField(
-                          controller: _runnerUrlController,
-                          decoration: InputDecoration(
-                            hintText: context.tr.settings_runner_url_hint,
-                            isDense: true,
-                            border: const OutlineInputBorder(),
-                            suffixIcon:
-                                (_runnerTemporarilyDisabled || _checkingRunner)
-                                    ? const Padding(
-                                      padding: EdgeInsets.all(10),
-                                      child: SizedBox(
-                                        width: 16,
-                                        height: 16,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                        ),
-                                      ),
-                                    )
-                                    : (_runnerStatusKey == null
-                                        ? null
-                                        : Icon(
-                                          _runnerStatusKey ==
-                                                  'settings_runner_connected'
-                                              ? Icons.check_circle
-                                              : Icons.error_outline,
-                                          color:
-                                              _runnerStatusKey ==
-                                                      'settings_runner_connected'
-                                                  ? AppTheme.successLight
-                                                  : AppTheme.errorLight,
-                                          size: 18,
-                                        )),
-                          ),
-                          keyboardType: TextInputType.url,
-                          autocorrect: false,
-                        ),
-                        const SizedBox(height: 12),
-                        TextField(
-                          controller: _runnerApiTokenController,
-                          decoration: InputDecoration(
-                            labelText: context.tr.settings_runner_token_label,
-                            hintText: context.tr.settings_runner_token_hint,
-                            isDense: true,
-                            border: const OutlineInputBorder(),
-                            suffixIcon: IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  _runnerTokenObscured = !_runnerTokenObscured;
-                                });
-                              },
-                              icon: Icon(
-                                _runnerTokenObscured
-                                    ? Icons.visibility_off
-                                    : Icons.visibility,
-                                size: 18,
-                              ),
-                            ),
-                          ),
-                          autocorrect: false,
-                          obscureText: _runnerTokenObscured,
-                        ),
-                        const SizedBox(height: 12),
-                        if (isMobile) ...[
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton.icon(
-                              onPressed:
-                                  _isBusy ||
-                                          _checkingRunner ||
-                                          _runnerTemporarilyDisabled
-                                      ? null
-                                      : _saveRunnerSettings,
-                              icon: const Icon(Icons.save_outlined, size: 18),
-                              label: Text(context.tr.settings_runner_save),
+                        children: [
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              context.tr.settings_runner_desc,
+                              style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ),
                           const SizedBox(height: 8),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton.icon(
-                              onPressed:
-                                  _checkingRunner || _runnerTemporarilyDisabled
-                                      ? null
-                                      : _checkRunnerConnection,
-                              icon:
-                                  _checkingRunner
-                                      ? const SizedBox(
-                                        width: 14,
-                                        height: 14,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
+                          SwitchListTile.adaptive(
+                            contentPadding: EdgeInsets.zero,
+                            title: Text(
+                              context.tr.settings_runner_disable_temp,
+                            ),
+                            subtitle: Text(
+                              context.tr.settings_runner_disable_temp_desc,
+                            ),
+                            value: _runnerTemporarilyDisabled,
+                            onChanged:
+                                _isBusy
+                                    ? null
+                                    : _toggleRunnerTemporarilyDisabled,
+                          ),
+                          const SizedBox(height: 12),
+                          TextField(
+                            controller: _runnerUrlController,
+                            decoration: InputDecoration(
+                              hintText: context.tr.settings_runner_url_hint,
+                              isDense: true,
+                              border: const OutlineInputBorder(),
+                              suffixIcon:
+                                  (_runnerTemporarilyDisabled ||
+                                          _checkingRunner)
+                                      ? const Padding(
+                                        padding: EdgeInsets.all(10),
+                                        child: SizedBox(
+                                          width: 16,
+                                          height: 16,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
                                         ),
                                       )
-                                      : const Icon(Icons.wifi_find, size: 18),
-                              label: Text(context.tr.settings_runner_check),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    Theme.of(
-                                      context,
-                                    ).colorScheme.secondaryContainer,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          SizedBox(
-                            width: double.infinity,
-                            child: OutlinedButton.icon(
-                              onPressed:
-                                  _isBusy
-                                      ? null
-                                      : () {
-                                        _runnerUrlController.clear();
-                                        _runnerApiTokenController.clear();
-                                        _saveRunnerSettings();
-                                      },
-                              icon: const Icon(Icons.clear, size: 18),
-                              label: Text(context.tr.settings_runner_clear),
-                            ),
-                          ),
-                        ] else ...[
-                          Row(
-                            children: [
-                              Expanded(
-                                child: ElevatedButton.icon(
-                                  onPressed:
-                                      _isBusy ||
-                                              _checkingRunner ||
-                                              _runnerTemporarilyDisabled
+                                      : (_runnerStatusKey == null
                                           ? null
-                                          : _saveRunnerSettings,
-                                  icon: const Icon(
-                                    Icons.save_outlined,
-                                    size: 18,
-                                  ),
-                                  label: Text(context.tr.settings_runner_save),
+                                          : Icon(
+                                            _runnerStatusKey ==
+                                                    'settings_runner_connected'
+                                                ? Icons.check_circle
+                                                : Icons.error_outline,
+                                            color:
+                                                _runnerStatusKey ==
+                                                        'settings_runner_connected'
+                                                    ? AppTheme.successLight
+                                                    : AppTheme.errorLight,
+                                            size: 18,
+                                          )),
+                            ),
+                            keyboardType: TextInputType.url,
+                            autocorrect: false,
+                          ),
+                          const SizedBox(height: 12),
+                          TextField(
+                            controller: _runnerApiTokenController,
+                            decoration: InputDecoration(
+                              labelText: context.tr.settings_runner_token_label,
+                              hintText: context.tr.settings_runner_token_hint,
+                              isDense: true,
+                              border: const OutlineInputBorder(),
+                              suffixIcon: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _runnerTokenObscured =
+                                        !_runnerTokenObscured;
+                                  });
+                                },
+                                icon: Icon(
+                                  _runnerTokenObscured
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
+                                  size: 18,
                                 ),
                               ),
-                              const SizedBox(width: 8),
-                              ElevatedButton.icon(
+                            ),
+                            autocorrect: false,
+                            obscureText: _runnerTokenObscured,
+                          ),
+                          const SizedBox(height: 12),
+                          if (isMobile) ...[
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                onPressed:
+                                    _isBusy ||
+                                            _checkingRunner ||
+                                            _runnerTemporarilyDisabled
+                                        ? null
+                                        : _saveRunnerSettings,
+                                icon: const Icon(Icons.save_outlined, size: 18),
+                                label: Text(context.tr.settings_runner_save),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
                                 onPressed:
                                     _checkingRunner ||
                                             _runnerTemporarilyDisabled
@@ -2518,8 +2576,11 @@ class _SettingPageState extends State<SettingPage> {
                                       ).colorScheme.secondaryContainer,
                                 ),
                               ),
-                              const SizedBox(width: 8),
-                              IconButton(
+                            ),
+                            const SizedBox(height: 8),
+                            SizedBox(
+                              width: double.infinity,
+                              child: OutlinedButton.icon(
                                 onPressed:
                                     _isBusy
                                         ? null
@@ -2529,16 +2590,76 @@ class _SettingPageState extends State<SettingPage> {
                                           _saveRunnerSettings();
                                         },
                                 icon: const Icon(Icons.clear, size: 18),
-                                tooltip: context.tr.settings_runner_clear,
+                                label: Text(context.tr.settings_runner_clear),
                               ),
-                            ],
-                          ),
+                            ),
+                          ] else ...[
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: ElevatedButton.icon(
+                                    onPressed:
+                                        _isBusy ||
+                                                _checkingRunner ||
+                                                _runnerTemporarilyDisabled
+                                            ? null
+                                            : _saveRunnerSettings,
+                                    icon: const Icon(
+                                      Icons.save_outlined,
+                                      size: 18,
+                                    ),
+                                    label: Text(
+                                      context.tr.settings_runner_save,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                ElevatedButton.icon(
+                                  onPressed:
+                                      _checkingRunner ||
+                                              _runnerTemporarilyDisabled
+                                          ? null
+                                          : _checkRunnerConnection,
+                                  icon:
+                                      _checkingRunner
+                                          ? const SizedBox(
+                                            width: 14,
+                                            height: 14,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                            ),
+                                          )
+                                          : const Icon(
+                                            Icons.wifi_find,
+                                            size: 18,
+                                          ),
+                                  label: Text(context.tr.settings_runner_check),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        Theme.of(
+                                          context,
+                                        ).colorScheme.secondaryContainer,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                IconButton(
+                                  onPressed:
+                                      _isBusy
+                                          ? null
+                                          : () {
+                                            _runnerUrlController.clear();
+                                            _runnerApiTokenController.clear();
+                                            _saveRunnerSettings();
+                                          },
+                                  icon: const Icon(Icons.clear, size: 18),
+                                  tooltip: context.tr.settings_runner_clear,
+                                ),
+                              ],
+                            ),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 32),
-                  _buildMainApiCard(isMobile: isMobile),
                   const SizedBox(height: 16),
                   if (_isDesktopPlatform) ...[
                     _buildDiscordRpcCard(isMobile: isMobile),
@@ -3068,6 +3189,19 @@ class _SettingPageState extends State<SettingPage> {
         ),
       ),
     );
+  }
+}
+
+class _SettingsLifecycleObserver extends WidgetsBindingObserver {
+  _SettingsLifecycleObserver({required this.onResumed});
+
+  final Future<void> Function() onResumed;
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      unawaited(onResumed());
+    }
   }
 }
 

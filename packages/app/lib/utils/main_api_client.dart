@@ -29,7 +29,7 @@ class MainApiAuthorizationStart {
   final String state;
 }
 
-class MainApiClient {
+class MainApiClient implements RemoteRuntimeClient {
   MainApiClient({
     required String baseUrl,
     String? accessToken,
@@ -44,6 +44,9 @@ class MainApiClient {
   final String? _accessToken;
   final http.Client _http;
   final Duration _timeout;
+
+  @override
+  RemoteRuntimeSource get runtimeSource => RemoteRuntimeSource.manager;
 
   MainApiClient withAccessToken(String? token) {
     return MainApiClient(
@@ -131,11 +134,13 @@ class MainApiClient {
     return json;
   }
 
+  @override
   Future<bool> checkHealth() async {
     try {
       final json = await _getFirstAvailable(const <String>[
         '/healthz',
         '/health',
+        '/',
       ], includeAuth: false);
       if (json.isEmpty) {
         return true;
@@ -154,12 +159,12 @@ class MainApiClient {
   }) async {
     final json = await _post('/auth/discord/start', <String, dynamic>{
       'redirectUri': redirectUri,
-      'state': state,
     }, includeAuth: false);
 
     final authorizeUrl = _extractString(json, <String>[
       'authorizeUrl',
       'authorizationUrl',
+      'authorization_url',
       'url',
     ]);
     final returnedState = _extractString(json, <String>['state']) ?? state;
@@ -208,6 +213,7 @@ class MainApiClient {
     }
   }
 
+  @override
   Future<RunnerStatus> getStatus({String? botId}) async {
     if (botId == null || botId.trim().isEmpty) {
       final json = await _getFirstAvailable(const <String>[
@@ -232,6 +238,25 @@ class MainApiClient {
     return const RunnerStatus(running: false, bots: <RunnerBotRuntime>[]);
   }
 
+  @override
+  Future<RunnerMetrics> getMetrics({String? botId}) async {
+    if (botId == null || botId.trim().isEmpty) {
+      final json = await _getFirstAvailable(const <String>[
+        '/gateway/metrics',
+        '/metrics',
+      ]);
+      return RunnerMetrics.fromJson(json);
+    }
+
+    final encodedBotId = Uri.encodeComponent(botId.trim());
+    final json = await _getFirstAvailable(<String>[
+      '/gateway/bots/$encodedBotId/metrics',
+      '/bots/$encodedBotId/metrics',
+    ]);
+    return RunnerMetrics.fromJson(json);
+  }
+
+  @override
   Future<void> syncBot(
     String botId,
     String botName,
@@ -239,13 +264,7 @@ class MainApiClient {
   ) async {
     await _postFirstAvailable(
       const <String>['/gateway/bots/sync', '/bots/sync'],
-      <String, dynamic>{
-        'bot_id': botId,
-        'bot_name': botName,
-        'botId': botId,
-        'botName': botName,
-        'config': config,
-      },
+      <String, dynamic>{'botId': botId, 'botName': botName, 'config': config},
     );
   }
 
@@ -259,6 +278,7 @@ class MainApiClient {
     );
   }
 
+  @override
   Future<void> startBot(String botId, {String? botName}) async {
     final encodedBotId = Uri.encodeComponent(botId.trim());
     await _postFirstAvailable(
@@ -273,21 +293,46 @@ class MainApiClient {
     );
   }
 
-  Future<void> stopBot(String botId) async {
+  @override
+  Future<Map<String, dynamic>> stopBot(String botId) async {
     final encodedBotId = Uri.encodeComponent(botId.trim());
-    await _postFirstAvailable(<String>[
+    return await _postFirstAvailable(<String>[
       '/gateway/bots/$encodedBotId/stop',
       '/bots/$encodedBotId/stop',
     ], const <String, dynamic>{});
   }
 
+  @override
   Future<Map<String, dynamic>> getGatewayRuntime() async {
     return _get('/gateway/runtime');
   }
 
+  @override
   Future<Map<String, dynamic>> getBotRuntime(String botId) async {
     final encodedBotId = Uri.encodeComponent(botId.trim());
     return _get('/gateway/bots/$encodedBotId/runtime');
+  }
+
+  @override
+  Future<Map<String, dynamic>> getRunnerInfo() async {
+    return _get('/gateway/runner');
+  }
+
+  @override
+  Future<List<String>> getLogs({String? botId, int limit = 300}) async {
+    final path =
+        (botId == null || botId.trim().isEmpty)
+            ? '/gateway/logs'
+            : '/gateway/logs';
+    final json = await _get(
+      path,
+      query: <String, String?>{'limit': limit.toString()},
+    );
+    final rawLines = json['lines'];
+    if (rawLines is! List) {
+      return const <String>[];
+    }
+    return rawLines.map((entry) => entry.toString()).toList(growable: false);
   }
 
   Future<Map<String, dynamic>> claimBotAdRuntime({

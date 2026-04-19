@@ -6,6 +6,7 @@ import 'package:bot_creator/utils/app_diagnostics.dart';
 import 'package:bot_creator/utils/discord_rich_presence.dart';
 import 'package:bot_creator/utils/discord_rpc_client.dart';
 import 'package:bot_creator/utils/discord_rpc_settings.dart';
+import 'package:bot_creator/utils/runner_client.dart';
 import 'package:flutter/foundation.dart';
 
 enum DiscordRpcRuntimeState {
@@ -222,10 +223,10 @@ class DiscordRpcService {
   Future<DiscordRpcSnapshot> syncBotRuntimeState({
     required Set<String> runningBotIds,
     required Map<String, String> botNamesById,
-    required bool runnerModeEnabled,
+    required RemoteRuntimeSource runtimeSource,
     String? preferredBotId,
     String? preferredBotName,
-    String? activeRunnerLabel,
+    String? activeSourceLabel,
   }) {
     return _enqueue(() async {
       await initialize();
@@ -256,10 +257,10 @@ class DiscordRpcService {
       _lastPresence = buildBotCreatorRichPresence(
         runningBotIds: runningBotIds,
         botNamesById: botNamesById,
-        runnerModeEnabled: runnerModeEnabled,
+        runtimeSource: runtimeSource,
         preferredBotId: _controllingBotId,
         preferredBotName: _controllingBotName,
-        activeRunnerLabel: activeRunnerLabel,
+        activeSourceLabel: activeSourceLabel,
         startedAt: _presenceStartedAt,
       );
       final nextPresenceFingerprint = _presenceFingerprint(_lastPresence);
@@ -272,8 +273,8 @@ class DiscordRpcService {
             runningBotCount: runningBotIds.length,
             controllingBotId: _controllingBotId,
             controllingBotName: _controllingBotName,
-            runnerModeEnabled: runnerModeEnabled,
-            activeRunnerLabel: activeRunnerLabel,
+            runtimeSource: runtimeSource,
+            activeSourceLabel: activeSourceLabel,
           ),
         );
       }
@@ -598,7 +599,7 @@ DiscordRichPresence _defaultDiscordRichPresence() {
   return buildBotCreatorRichPresence(
     runningBotIds: const <String>{},
     botNamesById: const <String, String>{},
-    runnerModeEnabled: false,
+    runtimeSource: RemoteRuntimeSource.local,
   );
 }
 
@@ -649,8 +650,8 @@ Map<String, Object?> _presenceLogData(
   int? runningBotCount,
   String? controllingBotId,
   String? controllingBotName,
-  bool? runnerModeEnabled,
-  String? activeRunnerLabel,
+  RemoteRuntimeSource? runtimeSource,
+  String? activeSourceLabel,
 }) {
   return <String, Object?>{
     'hasPresence': presence != null,
@@ -659,8 +660,8 @@ Map<String, Object?> _presenceLogData(
       'controllingBotId': value,
     if (_normalize(controllingBotName) case final value?)
       'controllingBotName': value,
-    if (runnerModeEnabled != null) 'runnerModeEnabled': runnerModeEnabled,
-    if (_normalize(activeRunnerLabel) case final value?) 'runner': value,
+    if (runtimeSource != null) 'runtimeSource': runtimeSource.name,
+    if (_normalize(activeSourceLabel) case final value?) 'runtimeLabel': value,
     if (presence != null) ...<String, Object?>{
       'details': presence.details,
       if (_normalize(presence.state) case final value?) 'state': value,
