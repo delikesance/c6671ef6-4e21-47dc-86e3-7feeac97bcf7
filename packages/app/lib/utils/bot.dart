@@ -25,6 +25,7 @@ import 'package:bot_creator/utils/i18n.dart';
 import 'package:bot_creator_shared/utils/global.dart' as shared_global;
 import 'package:bot_creator/utils/mobile_sessions_orchestrator.dart';
 import 'package:bot_creator/utils/app_storage_directory.dart';
+import 'package:bot_creator/utils/runner_client.dart';
 import 'package:bot_creator/utils/template_resolver.dart';
 import 'package:bot_creator/utils/workflow_call.dart';
 import 'package:flutter/foundation.dart';
@@ -222,6 +223,7 @@ _botMetricsByBotController =
 List<String> _botLogs = <String>[];
 final Map<String, List<String>> _botLogsByBot = <String, List<String>>{};
 String? _activeBotLogBotId;
+RemoteRuntimeSource _activeBotLogSource = RemoteRuntimeSource.local;
 bool _debugBotLogsEnabled = false;
 const String _debugLogsEnabledDataKey = 'debugLogsEnabled';
 int? _botProcessRssBytes;

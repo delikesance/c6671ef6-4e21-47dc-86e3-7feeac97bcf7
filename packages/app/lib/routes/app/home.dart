@@ -13,11 +13,10 @@ import 'package:bot_creator/utils/i18n.dart';
 import 'package:bot_creator/utils/ad_reward_service.dart';
 import 'package:bot_creator/utils/global.dart';
 import 'package:bot_creator/utils/main_api_client.dart';
-import 'package:bot_creator/utils/main_api_settings.dart';
 import 'package:bot_creator/utils/ad_consent_service.dart';
 import 'package:bot_creator/utils/external_link.dart';
 import 'package:bot_creator/utils/premium_capabilities.dart';
-import 'package:bot_creator/utils/runner_settings.dart';
+import 'package:bot_creator/utils/remote_runtime.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
@@ -60,11 +59,17 @@ class _AppHomePageState extends State<AppHomePage>
   String avatar = "";
   bool _botLaunched = false;
   bool _botStarting = false;
+  int? _freeMinutesBalance;
+  bool _isAddingTime = false;
   bool _isSyncingApp = false;
   void Function(Object)? _taskDataCallback;
 
   bool get _supportsForegroundTask => Platform.isAndroid || Platform.isIOS;
   bool get _supportsManagerRuntime => Platform.isAndroid || Platform.isIOS;
+
+  String _uiCopy({required String fr, required String en}) {
+    return Localizations.localeOf(context).languageCode == 'fr' ? fr : en;
+  }
 
   bool _isDeadChannelError(Object error) {
     if (error is! PlatformException) return false;
@@ -145,25 +150,12 @@ class _AppHomePageState extends State<AppHomePage>
     );
   }
 
-  Future<dynamic> _createRemoteBotClient({
+  Future<ResolvedRemoteRuntime> _resolveRemoteRuntime({
     Duration getTimeout = const Duration(seconds: 30),
     Duration postTimeout = const Duration(seconds: 90),
   }) async {
-    final mainApiConfig = await MainApiSettingsStore.loadConfig();
-    final mainApiSession = await MainApiSettingsStore.loadSession();
-
-    if (_supportsManagerRuntime &&
-        mainApiConfig.isConfigured &&
-        mainApiSession != null &&
-        !mainApiSession.isExpired) {
-      return MainApiClient(
-        baseUrl: mainApiConfig.baseUrl,
-        accessToken: mainApiSession.accessToken,
-        timeout: postTimeout,
-      );
-    }
-
-    return RunnerSettings.createClient(
+    return resolveRemoteRuntime(
+      supportsManagerRuntime: _supportsManagerRuntime,
       getTimeout: getTimeout,
       postTimeout: postTimeout,
     );
@@ -247,10 +239,11 @@ class _AppHomePageState extends State<AppHomePage>
     final botId = widget.client.user.id.toString();
     final app = await appManager.getApp(botId);
     var isRunning = false;
-    final remoteClient = await _createRemoteBotClient(
+    final remoteRuntime = await _resolveRemoteRuntime(
       getTimeout: const Duration(seconds: 30),
       postTimeout: const Duration(seconds: 90),
     );
+    final remoteClient = remoteRuntime.client;
     if (remoteClient != null) {
       try {
         final status = await remoteClient.getStatus();
@@ -258,6 +251,8 @@ class _AppHomePageState extends State<AppHomePage>
       } catch (_) {
         isRunning = false;
       }
+    } else if (remoteRuntime.blocksLocalFallback) {
+      isRunning = false;
     } else {
       if (_supportsForegroundTask) {
         try {
@@ -303,7 +298,51 @@ class _AppHomePageState extends State<AppHomePage>
       avatar = app["avatar"] ?? "";
     });
 
+    unawaited(_refreshFreeRuntimeBalance());
     unawaited(_syncAppFromRemote(showSnack: false));
+  }
+
+  int _extractFreeMinutes(dynamic raw) {
+    if (raw == null) {
+      return 0;
+    }
+    if (raw is int) {
+      return raw;
+    }
+    return int.tryParse(raw.toString()) ?? 0;
+  }
+
+  Future<void> _refreshFreeRuntimeBalance() async {
+    final remoteRuntime = await _resolveRemoteRuntime(
+      getTimeout: const Duration(seconds: 10),
+      postTimeout: const Duration(seconds: 20),
+    );
+    final remoteClient = remoteRuntime.client;
+    if (remoteClient is! MainApiClient) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _freeMinutesBalance = null;
+      });
+      return;
+    }
+
+    final botId = widget.client.user.id.toString();
+    try {
+      final runtime = await remoteClient.getBotRuntime(botId);
+      final balance = _extractFreeMinutes(
+        runtime['free_minutes_balance'] ?? runtime['freeMinutesBalance'],
+      );
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _freeMinutesBalance = balance;
+      });
+    } catch (_) {
+      // Keep UI resilient if runtime endpoint is temporarily unavailable.
+    }
   }
 
   Future<void> _syncAppFromRemote({required bool showSnack}) async {
@@ -411,10 +450,11 @@ class _AppHomePageState extends State<AppHomePage>
   }
 
   Future<void> _claimMainApiAdRuntime(String botId) async {
-    final remoteClient = await _createRemoteBotClient(
+    final remoteRuntime = await _resolveRemoteRuntime(
       getTimeout: const Duration(seconds: 10),
       postTimeout: const Duration(seconds: 20),
     );
+    final remoteClient = remoteRuntime.client;
     if (remoteClient is! MainApiClient) {
       return;
     }
@@ -432,17 +472,48 @@ class _AppHomePageState extends State<AppHomePage>
       final granted =
           (result['granted_minutes'] ?? result['grantedMinutes'] ?? 0)
               .toString();
+      final balance = _extractFreeMinutes(
+        result['minutes_balance'] ?? result['minutesBalance'],
+      );
+      if (mounted) {
+        setState(() {
+          _freeMinutesBalance = balance;
+        });
+      }
       appendBotDebugLog('Ad runtime claimed for $botId (+$granted minutes).');
     } catch (error) {
       appendBotDebugLog('Failed to claim ad runtime for $botId: $error');
     }
   }
 
+  Future<void> _addRuntimeTime() async {
+    if (_isAddingTime || _botStarting) {
+      return;
+    }
+
+    final botId = widget.client.user.id.toString();
+    setState(() {
+      _isAddingTime = true;
+    });
+
+    try {
+      await _maybeOfferRewardedAd(botId: botId);
+      await _refreshFreeRuntimeBalance();
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isAddingTime = false;
+        });
+      }
+    }
+  }
+
   Future<bool> _isMainApiPremiumUser() async {
-    final remoteClient = await _createRemoteBotClient(
+    final remoteRuntime = await _resolveRemoteRuntime(
       getTimeout: const Duration(seconds: 10),
       postTimeout: const Duration(seconds: 20),
     );
+    final remoteClient = remoteRuntime.client;
     if (remoteClient is! MainApiClient) {
       return false;
     }
@@ -775,34 +846,8 @@ class _AppHomePageState extends State<AppHomePage>
 
                                     final botId =
                                         widget.client.user.id.toString();
-
-                                    if (!_botLaunched) {
-                                      try {
-                                        await getDiscordUser(token);
-                                      } catch (_) {
-                                        if (!mounted) return;
-                                        final proceed =
-                                            await AppTheme.showConfirmDialog(
-                                              context,
-                                              title:
-                                                  context
-                                                      .tr
-                                                      .bot_home_token_invalid_title,
-                                              content:
-                                                  context
-                                                      .tr
-                                                      .bot_home_token_invalid_content,
-                                              confirmLabel:
-                                                  context.tr.bot_home_start,
-                                            );
-                                        if (!proceed || !mounted) return;
-                                      }
-                                      await _maybeOfferRewardedAd(botId: botId);
-                                    }
-
-                                    // ── Runner API (API only) ────────────────────────────
-                                    final remoteClient =
-                                        await _createRemoteBotClient(
+                                    final remoteRuntime =
+                                        await _resolveRemoteRuntime(
                                           getTimeout: const Duration(
                                             seconds: 30,
                                           ),
@@ -810,55 +855,119 @@ class _AppHomePageState extends State<AppHomePage>
                                             seconds: 90,
                                           ),
                                         );
-                                    if (remoteClient != null) {
-                                      if (_botLaunched) {
-                                        appendBotLog(
-                                          'Bot stop requested',
-                                          botId: botId,
-                                        );
-                                        await remoteClient.stopBot(botId);
-                                        endBotLogSession(botId: botId);
-                                        setBotRuntimeActive(false);
-                                        if (mounted) {
-                                          setState(() => _botLaunched = false);
+
+                                    if (!_botLaunched &&
+                                        remoteRuntime.blocksLocalFallback) {
+                                      throw Exception(
+                                        remoteRuntime.unavailableReason ??
+                                            _uiCopy(
+                                              fr:
+                                                  'Connectez-vous a Bot Creator dans les parametres avant de demarrer ce bot.',
+                                              en:
+                                                  'Sign in to Bot Creator in Settings before starting this bot.',
+                                            ),
+                                      );
+                                    }
+
+                                    if (!_botLaunched) {
+                                      if (remoteRuntime.client == null) {
+                                        try {
+                                          await getDiscordUser(token);
+                                        } catch (_) {
+                                          if (!mounted) return;
+                                          final proceed =
+                                              await AppTheme.showConfirmDialog(
+                                                context,
+                                                title:
+                                                    context
+                                                        .tr
+                                                        .bot_home_token_invalid_title,
+                                                content:
+                                                    context
+                                                        .tr
+                                                        .bot_home_token_invalid_content,
+                                                confirmLabel:
+                                                    context.tr.bot_home_start,
+                                              );
+                                          if (!proceed || !mounted) return;
                                         }
-                                      } else {
-                                        startBotLogSession(botId: botId);
-                                        clearBotBaselineRss();
-                                        appendBotLog(
-                                          'Bot start requested',
-                                          botId: botId,
-                                        );
-                                        final payload = await buildBotPayload(
-                                          botId,
-                                        );
-                                        if (remoteClient is MainApiClient) {
-                                          final botToken = token.trim();
-                                          if (botToken.isNotEmpty) {
-                                            try {
-                                              await remoteClient
-                                                  .saveDiscordBotSnapshot(
-                                                    botToken: botToken,
-                                                    config: payload,
-                                                  );
-                                            } catch (_) {
-                                              // Best-effort only: do not block start if save route fails.
+                                      }
+                                      await _maybeOfferRewardedAd(botId: botId);
+                                    }
+
+                                    // ── Runner API (API only) ────────────────────────────
+                                    final remoteClient = remoteRuntime.client;
+                                    if (remoteClient != null) {
+                                      try {
+                                        if (_botLaunched) {
+                                          appendBotLog(
+                                            'Bot stop requested',
+                                            botId: botId,
+                                            source: remoteRuntime.source,
+                                          );
+                                          await remoteClient.stopBot(botId);
+                                          endBotLogSession(
+                                            botId: botId,
+                                            source: remoteRuntime.source,
+                                          );
+                                          setBotRuntimeActive(false);
+                                          if (mounted) {
+                                            setState(
+                                              () => _botLaunched = false,
+                                            );
+                                          }
+                                        } else {
+                                          startBotLogSession(
+                                            botId: botId,
+                                            source: remoteRuntime.source,
+                                          );
+                                          clearBotBaselineRss();
+                                          appendBotLog(
+                                            'Bot start requested',
+                                            botId: botId,
+                                            source: remoteRuntime.source,
+                                          );
+                                          final payload = await buildBotPayload(
+                                            botId,
+                                          );
+                                          if (remoteClient is MainApiClient) {
+                                            final botToken = token.trim();
+                                            if (botToken.isNotEmpty) {
+                                              try {
+                                                await remoteClient
+                                                    .saveDiscordBotSnapshot(
+                                                      botToken: botToken,
+                                                      config: payload,
+                                                    );
+                                              } catch (_) {
+                                                // Best-effort only: do not block start if save route fails.
+                                              }
                                             }
                                           }
+                                          await remoteClient.syncBot(
+                                            botId,
+                                            _appName,
+                                            payload,
+                                          );
+                                          await remoteClient.startBot(
+                                            botId,
+                                            botName: _appName,
+                                          );
+                                          setBotRuntimeActive(true);
+                                          if (mounted) {
+                                            setState(() => _botLaunched = true);
+                                          }
                                         }
-                                        await remoteClient.syncBot(
-                                          botId,
-                                          _appName,
-                                          payload,
-                                        );
-                                        await remoteClient.startBot(
-                                          botId,
-                                          botName: _appName,
-                                        );
-                                        setBotRuntimeActive(true);
-                                        if (mounted) {
-                                          setState(() => _botLaunched = true);
+                                      } catch (error) {
+                                        if (remoteClient is MainApiClient) {
+                                          throw Exception(
+                                            await describeManagerRuntimeFailure(
+                                              remoteClient,
+                                              error,
+                                            ),
+                                          );
                                         }
+                                        rethrow;
                                       }
                                       return;
                                     }
@@ -1035,6 +1144,53 @@ class _AppHomePageState extends State<AppHomePage>
                           ],
                         ),
                       ),
+                      if (_supportsManagerRuntime) ...[
+                        const SizedBox(height: AppTheme.spacingMd),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colorScheme.surfaceContainerLow,
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.radiusLg,
+                            ),
+                            border: Border.all(
+                              color: colorScheme.outlineVariant.withValues(
+                                alpha: 0.35,
+                              ),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Temps restant: ${_freeMinutesBalance ?? 0} min',
+                                  style: Theme.of(context).textTheme.bodyMedium
+                                      ?.copyWith(fontWeight: FontWeight.w600),
+                                ),
+                              ),
+                              FilledButton.tonalIcon(
+                                onPressed:
+                                    _isAddingTime ? null : _addRuntimeTime,
+                                icon:
+                                    _isAddingTime
+                                        ? const SizedBox(
+                                          width: 14,
+                                          height: 14,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                        : const Icon(Icons.add_circle_outline),
+                                label: const Text('Ajouter du temps'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                       const SizedBox(height: AppTheme.spacingXl),
                       // ── Quick access to secondary sections (mobile) ──
                       if (showQuickAccess &&

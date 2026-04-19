@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const String _defaultMainApiBaseUrlRaw =
-    kDebugMode ? 'http://localhost:8081' : 'https://api.bot-creator.fr';
+    kDebugMode ? 'https://dev.bot-creator.fr/' : 'https://api.bot-creator.fr';
 String get defaultMainApiBaseUrl =>
     MainApiConfig.normalizeBaseUrl(_defaultMainApiBaseUrlRaw);
 
@@ -117,9 +117,13 @@ class MainApiSettingsStore {
     final prefs = await SharedPreferences.getInstance();
     final json = _decodeJsonMap(prefs.getString(_configKey));
     if (json == null) {
-      return const MainApiConfig();
+      return MainApiConfig(baseUrl: defaultMainApiBaseUrl);
     }
-    return MainApiConfig.fromJson(json);
+    final config = MainApiConfig.fromJson(json);
+    if (!config.isConfigured) {
+      return MainApiConfig(baseUrl: defaultMainApiBaseUrl);
+    }
+    return config;
   }
 
   static Future<void> saveConfig(MainApiConfig config) async {
