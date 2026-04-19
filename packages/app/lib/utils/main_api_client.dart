@@ -354,6 +354,126 @@ class MainApiClient implements RemoteRuntimeClient {
     );
   }
 
+  Future<Map<String, dynamic>> getGlobalVariables(String botId) async {
+    final encodedBotId = Uri.encodeComponent(botId.trim());
+    final json = await _get('/gateway/bots/$encodedBotId/variables/global');
+    final raw = json['values'] ?? json['variables'];
+    if (raw is! Map) {
+      return const <String, dynamic>{};
+    }
+    return Map<String, dynamic>.from(raw);
+  }
+
+  Future<void> setGlobalVariable(
+    String botId,
+    String key,
+    dynamic value,
+  ) async {
+    final encodedBotId = Uri.encodeComponent(botId.trim());
+    await _post(
+      '/gateway/bots/$encodedBotId/variables/global/set',
+      <String, dynamic>{'key': key.trim(), 'value': value},
+    );
+  }
+
+  Future<void> removeGlobalVariable(String botId, String key) async {
+    final encodedBotId = Uri.encodeComponent(botId.trim());
+    await _post(
+      '/gateway/bots/$encodedBotId/variables/global/remove',
+      <String, dynamic>{'key': key.trim()},
+    );
+  }
+
+  Future<List<Map<String, dynamic>>> getScopedVariableDefinitions(
+    String botId,
+  ) async {
+    final encodedBotId = Uri.encodeComponent(botId.trim());
+    final json = await _get(
+      '/gateway/bots/$encodedBotId/variables/scoped-definitions',
+    );
+    final raw = json['definitions'];
+    if (raw is! List) {
+      return const <Map<String, dynamic>>[];
+    }
+    return raw
+        .whereType<Map>()
+        .map((entry) => Map<String, dynamic>.from(entry))
+        .toList(growable: false);
+  }
+
+  Future<void> setScopedVariableDefinition(
+    String botId,
+    String key,
+    String scope,
+    dynamic defaultValue, {
+    String valueType = 'string',
+  }) async {
+    final encodedBotId = Uri.encodeComponent(botId.trim());
+    await _post(
+      '/gateway/bots/$encodedBotId/variables/scoped-definitions/set',
+      <String, dynamic>{
+        'key': key.trim(),
+        'scope': scope.trim(),
+        'defaultValue': defaultValue,
+        'valueType': valueType,
+      },
+    );
+  }
+
+  Future<void> removeScopedVariableDefinition(
+    String botId,
+    String key, {
+    String? scope,
+    bool purgeStoredValues = false,
+  }) async {
+    final encodedBotId = Uri.encodeComponent(botId.trim());
+    await _post(
+      '/gateway/bots/$encodedBotId/variables/scoped-definitions/remove',
+      <String, dynamic>{
+        'key': key.trim(),
+        if (scope != null && scope.trim().isNotEmpty) 'scope': scope.trim(),
+        if (purgeStoredValues) 'purgeStoredValues': true,
+      },
+    );
+  }
+
+  Future<Map<String, dynamic>> listScopedValuesForKey(
+    String botId,
+    String scope,
+    String key,
+  ) async {
+    final encodedBotId = Uri.encodeComponent(botId.trim());
+    final normalizedScope = scope.trim();
+    final normalizedKey = key.trim();
+    final json = await _get(
+      '/gateway/bots/$encodedBotId/variables/scoped-values',
+      query: <String, String?>{'scope': normalizedScope, 'key': normalizedKey},
+    );
+    final raw = json['values'];
+    if (raw is Map) {
+      return Map<String, dynamic>.from(raw);
+    }
+    if (raw is! List) {
+      return const <String, dynamic>{};
+    }
+
+    final valuesByContext = <String, dynamic>{};
+    for (final entry in raw.whereType<Map>()) {
+      final item = Map<String, dynamic>.from(entry);
+      final scopeId = (item['scope_id'] ?? '').toString().trim();
+      if (scopeId.isEmpty) {
+        continue;
+      }
+      final scopeAuxId = (item['scope_aux_id'] ?? '').toString().trim();
+      final contextId =
+          normalizedScope == 'guildMember' && scopeAuxId.isNotEmpty
+              ? '$scopeId:$scopeAuxId'
+              : scopeId;
+      valuesByContext[contextId] = item['value'];
+    }
+    return valuesByContext;
+  }
+
   Future<Map<String, dynamic>> _getFirstAvailable(
     List<String> paths, {
     Map<String, String?>? query,
