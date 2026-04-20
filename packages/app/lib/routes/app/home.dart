@@ -56,8 +56,6 @@ class AppHomePage extends StatefulWidget {
 
 class _AppHomePageState extends State<AppHomePage>
     with TickerProviderStateMixin {
-  static const int _optimisticAdMinutes = 240;
-
   String _appName = "";
   NyxxRest? client; // Changez en nullable
   String avatar = "";
@@ -766,7 +764,6 @@ class _AppHomePageState extends State<AppHomePage>
     final previousBalance = _freeMinutesBalance;
     setState(() {
       _isAddingTime = true;
-      _freeMinutesBalance = (_freeMinutesBalance ?? 0) + _optimisticAdMinutes;
     });
 
     try {

@@ -165,4 +165,54 @@ void main() {
       expect(attempts, 3);
     },
   );
+
+  test('manager start uses only the gateway start endpoint', () async {
+    final requestedPaths = <String>[];
+    final client = MainApiClient(
+      baseUrl: 'https://api.example.com',
+      accessToken: 'token',
+      httpClient: MockClient((request) async {
+        requestedPaths.add(request.url.path);
+        if (request.url.path == '/gateway/bots/bot-1/start') {
+          return http.Response('{"ok":true}', 200);
+        }
+        return http.Response('{}', 404);
+      }),
+    );
+
+    await client.startBot('bot-1', botName: 'Test Bot');
+
+    expect(requestedPaths, <String>['/gateway/bots/bot-1/start']);
+  });
+
+  test('manager start retries while the runner is deploying', () async {
+    var attempts = 0;
+    final client = MainApiClient(
+      baseUrl: 'https://api.example.com',
+      accessToken: 'token',
+      httpClient: MockClient((request) async {
+        if (request.url.path == '/gateway/bots/bot-1/start') {
+          attempts += 1;
+          if (attempts < 3) {
+            return http.Response(
+              '{"code":"runner_not_deployed","message":"runner is not deployed for this owner"}',
+              404,
+            );
+          }
+          return http.Response('{"ok":true}', 200);
+        }
+        return http.Response('{}', 404);
+      }),
+    );
+
+    await startManagerBotWithCreditRetry(
+      client: client,
+      botId: 'bot-1',
+      botName: 'Test Bot',
+      timeout: const Duration(seconds: 1),
+      retryDelay: const Duration(milliseconds: 1),
+    );
+
+    expect(attempts, 3);
+  });
 }

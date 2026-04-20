@@ -302,16 +302,10 @@ class MainApiClient implements RemoteRuntimeClient {
   @override
   Future<void> startBot(String botId, {String? botName}) async {
     final encodedBotId = Uri.encodeComponent(botId.trim());
-    await _postFirstAvailable(
-      <String>[
-        '/gateway/bots/$encodedBotId/start',
-        '/bots/$encodedBotId/start',
-      ],
-      <String, dynamic>{
-        if (_normalize(botName) case final value?) 'bot_name': value,
-        if (_normalize(botName) case final value?) 'botName': value,
-      },
-    );
+    await _post('/gateway/bots/$encodedBotId/start', <String, dynamic>{
+      if (_normalize(botName) case final value?) 'bot_name': value,
+      if (_normalize(botName) case final value?) 'botName': value,
+    });
   }
 
   @override
