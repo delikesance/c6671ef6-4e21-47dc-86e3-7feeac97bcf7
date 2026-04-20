@@ -237,6 +237,14 @@ bool isPendingFreeRuntimeCreditError(Object error) {
       normalized.contains('free runtime credits before start');
 }
 
+bool isPendingManagerRunnerError(Object error) {
+  final normalized = error.toString().toLowerCase();
+  return normalized.contains('runner_not_deployed') ||
+      normalized.contains('runner is not deployed') ||
+      normalized.contains('runner_unreachable') ||
+      normalized.contains('runner is unreachable');
+}
+
 Future<void> startManagerBotWithCreditRetry({
   required MainApiClient client,
   required String botId,
@@ -251,7 +259,8 @@ Future<void> startManagerBotWithCreditRetry({
       await client.startBot(botId, botName: botName);
       return;
     } catch (error) {
-      if (!isPendingFreeRuntimeCreditError(error) ||
+      if (!isPendingFreeRuntimeCreditError(error) &&
+              !isPendingManagerRunnerError(error) ||
           DateTime.now().isAfter(deadline)) {
         rethrow;
       }
