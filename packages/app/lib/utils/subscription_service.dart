@@ -46,9 +46,6 @@ class SubscriptionService {
   // ── Prefs keys ─────────────────────────────────────────────────────────────
   static const String _activeKey = 'subscription_active';
   static const String _productIdKey = 'subscription_product_id';
-  static const String _expiresAtKey = 'subscription_expires_at';
-  static const String _lastSyncKey = 'subscription_last_sync_at';
-
 
   // ── State ──────────────────────────────────────────────────────────────────
   static bool _initialized = false;
@@ -168,27 +165,20 @@ class SubscriptionService {
       _prefs = await SharedPreferences.getInstance();
 
       // Read cached state immediately so the UI can render without delay.
+      // Read cached active state immediately so the UI can render without delay.
       _isSubscribed = _prefs?.getBool(_activeKey) ?? false;
       _activeProductId = _prefs?.getString(_productIdKey);
-      final expiresAtRaw = _prefs?.getString(_expiresAtKey);
-      _subscriptionExpiresAt =
-          expiresAtRaw == null
-              ? null
-              : DateTime.tryParse(expiresAtRaw)?.toUtc();
+      _subscriptionExpiresAt = null;
+      _lastSyncAt = null;
 
-      final lastSyncRaw = _prefs?.getString(_lastSyncKey);
-      _lastSyncAt =
-          lastSyncRaw == null ? null : DateTime.tryParse(lastSyncRaw)?.toUtc();
-
-      if (_isSubscribed && _subscriptionExpiresAt == null) {
-        await _markExpired();
-      } else if (_subscriptionExpiresAt != null &&
-          _subscriptionExpiresAt!.isBefore(DateTime.now().toUtc())) {
-        await _markExpired();
-      } else {
-        _scheduleExpirationTimer();
+      if (_isSubscribed) {
+        if (_subscriptionExpiresAt != null &&
+            _subscriptionExpiresAt!.isBefore(DateTime.now().toUtc())) {
+          await _markExpired();
+        } else {
+          _scheduleExpirationTimer();
+        }
       }
-
 
       final iap = InAppPurchase.instance;
       _storeAvailable = await iap.isAvailable();
@@ -418,6 +408,7 @@ class SubscriptionService {
         case PurchaseStatus.purchased:
         case PurchaseStatus.restored:
           await _verifyAndDeliver(purchase);
+          break;
         case PurchaseStatus.error:
           unawaited(
             AppDiagnostics.logInfo(
@@ -428,6 +419,7 @@ class SubscriptionService {
               },
             ),
           );
+          break;
         case PurchaseStatus.canceled:
           break;
         case PurchaseStatus.pending:
@@ -451,18 +443,22 @@ class SubscriptionService {
       _managerPremiumOverrideUpdatedAt = null;
       await _prefs?.setBool(_activeKey, true);
       await _prefs?.setString(_productIdKey, purchase.productID);
+
       final expiresAt = await _syncBillingEntitlement(purchase);
-      if (expiresAt == null || !expiresAt.isAfter(DateTime.now().toUtc())) {
-        await _markExpired();
-        return;
+      if (expiresAt != null) {
+        if (!expiresAt.isAfter(DateTime.now().toUtc())) {
+          await _markExpired();
+          return;
+        }
+        _subscriptionExpiresAt = expiresAt.toUtc();
+      } else {
+        // If we can't sync with the manager or it's not configured,
+        // we still trust the store purchase.
+        // If we previously had an expiry, we keep it, otherwise we keep it null
+        // (null means active without a fixed expiry timer).
       }
-      _subscriptionExpiresAt = expiresAt.toUtc();
-      _lastLocalValidationAt = DateTime.now().toUtc();
-      await _prefs?.setString(
-        _expiresAtKey,
-        _subscriptionExpiresAt!.toIso8601String(),
-      );
       _scheduleExpirationTimer();
+      _lastLocalValidationAt = DateTime.now().toUtc();
       unawaited(
         AppDiagnostics.logInfo(
           'Subscription activated',
@@ -532,7 +528,6 @@ class SubscriptionService {
     _lastLocalValidationAt = DateTime.now().toUtc();
     await _prefs?.setBool(_activeKey, false);
     await _prefs?.remove(_productIdKey);
-    await _prefs?.remove(_expiresAtKey);
   }
 
   static Future<bool> refreshManagerPremiumStatus({
@@ -631,7 +626,9 @@ class SubscriptionService {
     if (_usesNativeBillingSourceOfTruth) {
       _managerPremiumOverride = null;
       _managerPremiumOverrideUpdatedAt = null;
-      await refreshStatus();
+      if (!_hasFreshLocalValidation(forceRefresh: forceRefresh)) {
+        await refreshStatus();
+      }
       return _isLocalSubscriptionActive();
     }
     final config = await MainApiSettingsStore.loadConfig();
@@ -738,23 +735,18 @@ class SubscriptionService {
   static Future<void> refreshStatus() async {
     if (!_storeAvailable || !_isSupportedPlatform) return;
 
-    // Triggering restorePurchases will re-fire the purchaseStream with
-    // any still-active subscriptions. If none come back, the subscription
-    // has expired.
     final previouslySubscribed = _isSubscribed;
-    // Temporarily mark as not subscribed; will be re-set if restore finds
-    // an active subscription.
-    _isSubscribed = false;
-    _activeProductId = null;
+    final lastValidationBefore = _lastLocalValidationAt;
 
     await InAppPurchase.instance.restorePurchases();
 
     // Give the stream a moment to deliver restored purchases.
     await Future<void>.delayed(const Duration(seconds: 2));
-    _lastLocalValidationAt = DateTime.now().toUtc();
 
-    if (!_isSubscribed && previouslySubscribed) {
-      // No active subscription came back — mark as expired.
+    if (previouslySubscribed &&
+        (_lastLocalValidationAt == null ||
+            _lastLocalValidationAt == lastValidationBefore)) {
+      // No active subscription came back during the restore process — mark as expired.
       await _markExpired();
       unawaited(AppDiagnostics.logInfo('Subscription expired or revoked'));
     }
@@ -783,7 +775,6 @@ class SubscriptionService {
       await iap.restorePurchases();
 
       _lastSyncAt = now;
-      await _prefs?.setString(_lastSyncKey, now.toIso8601String());
 
       unawaited(
         AppDiagnostics.logInfo(
