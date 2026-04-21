@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:bot_creator/utils/analytics.dart';
@@ -58,6 +59,20 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
   bool _purchasing = false;
   String? _error;
 
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_refreshEffectivePremiumStatus());
+  }
+
+  Future<void> _refreshEffectivePremiumStatus() async {
+    await SubscriptionService.resolveEffectivePremiumStatus(forceRefresh: true);
+    if (!mounted) {
+      return;
+    }
+    setState(() {});
+  }
+
   Future<void> _buy({required bool annual}) async {
     setState(() {
       _purchasing = true;
@@ -97,6 +112,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
       await SubscriptionService.restorePurchases();
       // Wait a moment for the stream to deliver restored purchases.
       await Future<void>.delayed(const Duration(seconds: 2));
+      await _refreshEffectivePremiumStatus();
       if (mounted) {
         if (SubscriptionService.isSubscribed) {
           Navigator.of(context).pop();
@@ -337,7 +353,9 @@ class _BenefitRow extends StatelessWidget {
                             Theme.of(
                               context,
                             ).colorScheme.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+                        borderRadius: BorderRadius.circular(
+                          AppTheme.radiusPill,
+                        ),
                       ),
                       child: Text(
                         context.tr.subscription_feature_coming_soon,
@@ -421,7 +439,9 @@ class _PlanCard extends StatelessWidget {
                             ),
                             decoration: BoxDecoration(
                               color: AppTheme.premiumGold,
-                              borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+                              borderRadius: BorderRadius.circular(
+                                AppTheme.radiusPill,
+                              ),
                             ),
                             child: Text(
                               badge!,

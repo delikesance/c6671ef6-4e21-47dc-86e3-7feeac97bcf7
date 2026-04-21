@@ -7,6 +7,19 @@ import 'package:bot_creator/utils/premium_capabilities.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
+class AdRewardSsvContext {
+  const AdRewardSsvContext({this.userId, this.customData});
+
+  final String? userId;
+  final String? customData;
+
+  bool get hasValues {
+    final user = userId?.trim() ?? '';
+    final custom = customData?.trim() ?? '';
+    return user.isNotEmpty || custom.isNotEmpty;
+  }
+}
+
 class AdRewardService {
   AdRewardService._();
 
@@ -16,15 +29,15 @@ class AdRewardService {
       'ca-app-pub-9146609240142753/2977961908';
 
   static const String _testRewardedUnitId =
-      'ca-app-pub-3940256099942544/5224354917';
+      'ca-app-pub-9146609240142753/6223806805';
 
   static bool _initialized = false;
   static bool _isLoading = false;
   static bool _isShowing = false;
   static RewardedAd? _rewardedAd;
 
-  /// Cooldown duration after showing a rewarded ad before offering another.
-  static const Duration _cooldown = Duration(minutes: 10);
+  /// Keep a short cooldown to prevent accidental rapid double taps.
+  static const Duration _cooldown = Duration(seconds: 15);
   static DateTime? _lastShownAt;
 
   static bool get _isSupportedPlatform {
@@ -73,9 +86,12 @@ class AdRewardService {
     }
   }
 
-  static Future<bool> shouldOfferRewardedAd() async {
+  static Future<bool> shouldOfferRewardedAd({
+    bool checkPremiumCapability = true,
+  }) async {
     if (!_initialized || !_isSupportedPlatform) return false;
-    if (PremiumCapabilities.hasCapability(PremiumCapability.noAds)) {
+    if (checkPremiumCapability &&
+        PremiumCapabilities.hasCapability(PremiumCapability.noAds)) {
       return false;
     }
     if (_lastShownAt != null &&
@@ -88,7 +104,10 @@ class AdRewardService {
   /// Shows the rewarded ad and returns a [Future] that completes when the ad
   /// is dismissed or fails to show. Returns `true` if the ad was shown
   /// successfully, `false` otherwise (no ad ready, already showing, failed).
-  static Future<bool> showRewardedAd() async {
+  static Future<bool> showRewardedAd({
+    AdRewardSsvContext? ssvContext,
+    Future<void> Function()? onRewardEarned,
+  }) async {
     if (!_initialized || !_isSupportedPlatform) {
       return false;
     }
@@ -99,6 +118,14 @@ class AdRewardService {
 
     final ad = _rewardedAd;
     if (ad == null) {
+      _preloadRewardedAd();
+      return false;
+    }
+
+    final ssvConfigured = await _applySsvContext(ad, ssvContext);
+    if (!ssvConfigured) {
+      _rewardedAd = null;
+      ad.dispose();
       _preloadRewardedAd();
       return false;
     }
@@ -135,6 +162,7 @@ class AdRewardService {
 
     ad.show(
       onUserEarnedReward: (_, reward) {
+        _notifyRewardEarned(onRewardEarned);
         unawaited(
           AppDiagnostics.logInfo(
             'Reward earned from rewarded ad',
@@ -154,7 +182,46 @@ class AdRewardService {
     );
   }
 
-  static void showRewardedAdNonBlocking() {
+  static String? _nonEmpty(String? value) {
+    final trimmed = value?.trim();
+    if (trimmed == null || trimmed.isEmpty) {
+      return null;
+    }
+    return trimmed;
+  }
+
+  static Future<bool> _applySsvContext(
+    RewardedAd ad,
+    AdRewardSsvContext? ssvContext,
+  ) async {
+    if (ssvContext == null || !ssvContext.hasValues) {
+      return true;
+    }
+
+    try {
+      await ad.setServerSideOptions(
+        ServerSideVerificationOptions(
+          userId: _nonEmpty(ssvContext.userId),
+          customData: _nonEmpty(ssvContext.customData),
+        ),
+      );
+      return true;
+    } catch (error, stack) {
+      unawaited(
+        AppDiagnostics.logError(
+          'Failed to configure rewarded ad server-side verification',
+          error,
+          stack,
+          fatal: false,
+        ),
+      );
+      return false;
+    }
+  }
+
+  static void showRewardedAdNonBlocking({
+    Future<void> Function()? onRewardEarned,
+  }) {
     if (!_initialized || !_isSupportedPlatform) {
       return;
     }
@@ -197,6 +264,7 @@ class AdRewardService {
 
     ad.show(
       onUserEarnedReward: (_, reward) {
+        _notifyRewardEarned(onRewardEarned);
         unawaited(
           AppDiagnostics.logInfo(
             'Reward earned from rewarded ad',
@@ -212,6 +280,24 @@ class AdRewardService {
         _preloadRewardedAd();
       }
     });
+  }
+
+  static void _notifyRewardEarned(Future<void> Function()? callback) {
+    if (callback == null) {
+      return;
+    }
+    try {
+      unawaited(callback());
+    } catch (error, stack) {
+      unawaited(
+        AppDiagnostics.logError(
+          'Reward callback failed',
+          error,
+          stack,
+          fatal: false,
+        ),
+      );
+    }
   }
 
   static void _preloadRewardedAd() {

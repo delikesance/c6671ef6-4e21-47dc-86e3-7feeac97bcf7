@@ -155,8 +155,6 @@ const Map<String, String> appStringsFr = {
   'settings_runner_temporarily_disabled': 'Runner temporairement désactivé (mode local actif)',
   'settings_runner_temporarily_disabled_saved': 'Runner temporairement désactivé',
   'settings_runner_reenabled': 'Runner réactivé',
-<<<<<<< Updated upstream
-=======
   'settings_main_api_title': 'Main API',
   'settings_main_api_desc': 'Connectez Bot Creator à votre Main API puis connectez-vous avec Discord. Le client secret Discord doit rester côté backend.',
   'settings_main_api_url_hint': 'https://api.example.com',
@@ -179,8 +177,8 @@ const Map<String, String> appStringsFr = {
   'settings_main_api_connected_user': 'Connecté en tant que {user}',
   'settings_main_api_user_unknown': 'Utilisateur Discord',
   'settings_main_api_connected_discord': 'Compte Discord connecté',
->>>>>>> Stashed changes
   'settings_discord_rpc_title': 'Discord Rich Presence',
+
   'settings_discord_rpc_desc': 'Publie l’activité desktop de Bot Creator dans le client Discord local. Bot Creator utilise toujours l’application Discord intégrée et envoie SET_ACTIVITY directement via l’IPC local quand l’option est activée.',
   'settings_discord_rpc_enable': 'Activer Discord Rich Presence',
   'settings_discord_rpc_client_id_hint': '1350824555119382678',
@@ -438,6 +436,9 @@ const Map<String, String> appStringsFr = {
   'bot_home_view_logs': 'Voir les logs du bot',
   'bot_home_view_stats': 'Voir les stats du bot',
   'bot_home_view_replay': 'Voir les replays du débogueur',
+  'bot_home_section_monitoring': 'MONITORING',
+  'bot_home_section_tools': 'OUTILS',
+  'bot_home_section_danger': 'ZONE DE DANGER',
   'bot_home_sync': 'Synchroniser l’app',
   'bot_home_sync_success': 'Application synchronisée avec succès',
   'bot_home_invite': 'Inviter le bot',
@@ -745,12 +746,10 @@ const Map<String, String> appStringsFr = {
   'cmd_execution_mode_bdfd': 'Mode script BDFD',
   'cmd_execution_mode_bdfd_desc': 'Écrivez le corps de commande en script compatible BDFD tout en gardant la définition visuelle.',
   'cmd_execution_mode_bdfd_note': 'Le script est compilé en actions internes. Les diagnostics sont affichés pendant l’édition ; les scripts invalides échouent à l’exécution.',
-<<<<<<< Updated upstream
-=======
   'cmd_execution_mode_dart': 'Mode Dart Direct',
   'cmd_execution_mode_dart_desc': 'Écrivez directement le corps de commande en Dart avec diagnostics runtime.',
   'cmd_execution_mode_dart_note': 'Le code Dart est compilé au runtime via un moteur sandboxé. Gardez les scripts déterministes et retournez une valeur quand nécessaire.',
->>>>>>> Stashed changes
+
   'cmd_bdfd_script_label': 'Corps du script BDFD',
   'cmd_bdfd_script_hint': '\$nomention\\n\$if[\$hasPerms[\$authorID;administrator]==true]\\nHello from Bot Creator',
   'cmd_bdfd_diagnostics_title': 'Diagnostics BDFD',
@@ -759,8 +758,6 @@ const Map<String, String> appStringsFr = {
   'cmd_bdfd_diagnostics_warning': 'Avertissement',
   'cmd_bdfd_script_empty_error': 'Le corps du script BDFD ne peut pas être vide.',
   'cmd_bdfd_script_validation_error': 'Ce script BDFD contient encore des diagnostics :',
-<<<<<<< Updated upstream
-=======
   'cmd_dart_script_label': 'Corps du script Dart',
   'cmd_dart_script_hint': 'return "Hello from Dart Direct";',
   'cmd_dart_diagnostics_title': 'Diagnostics Dart',
@@ -769,19 +766,13 @@ const Map<String, String> appStringsFr = {
   'cmd_dart_diagnostics_warning': 'Avertissement',
   'cmd_migrate_bdfd_to_dart_desc': 'Générer un squelette de migration Dart à partir du script BDFD actuel.',
   'cmd_migrate_bdfd_to_dart_action': 'Migrer',
->>>>>>> Stashed changes
+
   'cmd_bdfd_autocomplete_title': 'Auto-complétion BDFD par préfixe',
   'cmd_bdfd_autocomplete_hint': 'Tapez \$ puis le début d’une fonction pour afficher des suggestions rapides.',
   'workflow_mode_title': 'Mode du workflow',
   'workflow_mode_desc': 'Choisissez entre un éditeur visuel d’actions ou un éditeur de script BDFD complet.',
   'workflow_mode_visual': 'Visuel',
   'workflow_mode_bdfd': 'Script BDFD',
-<<<<<<< Updated upstream
-  'workflow_mode_visual_note': 'Construisez votre workflow visuellement en ajoutant des actions individuelles avec l’éditeur de cartes.',
-  'workflow_mode_bdfd_note': 'Écrivez l’intégralité de votre workflow sous forme de script BDFD. Le script est compilé et validé en temps réel.',
-  'workflow_bdfd_editor_title': 'Éditeur de script BDFD',
-  'workflow_bdfd_editor_desc': 'Écrivez le code BDFD complet pour cette réponse workflow. Les diagnostics s’affichent en direct.',
-=======
   'workflow_mode_dart': 'Dart Direct',
   'workflow_mode_visual_note': 'Construisez votre workflow visuellement en ajoutant des actions individuelles avec l’éditeur de cartes.',
   'workflow_mode_bdfd_note': 'Écrivez l’intégralité de votre workflow sous forme de script BDFD. Le script est compilé et validé en temps réel.',
@@ -790,23 +781,19 @@ const Map<String, String> appStringsFr = {
   'workflow_bdfd_editor_desc': 'Écrivez le code BDFD complet pour cette réponse workflow. Les diagnostics s’affichent en direct.',
   'workflow_dart_editor_title': 'Éditeur de script Dart',
   'workflow_dart_editor_desc': 'Écrivez le code Dart complet pour cette réponse workflow. Les diagnostics s’affichent en direct.',
->>>>>>> Stashed changes
+
   'bdfd_editor_title': 'Éditeur BDFD',
   'bdfd_editor_tap_hint': 'Appuyez pour ouvrir l’éditeur',
   'bdfd_editor_wrap_toggle': 'Activer/désactiver le retour à la ligne',
   'bdfd_editor_diagnostics_toggle': 'Afficher/masquer le panneau de diagnostics',
   'bdfd_editor_empty': 'Script vide — commencez à écrire pour voir les diagnostics.',
-<<<<<<< Updated upstream
-  'bdfd_editor_docs': 'Référence des fonctions BDFD',
-  'bdfd_docs_title': 'Docs BDFD',
-  'bdfd_docs_search_hint': 'Rechercher une fonction…',
-=======
   'dart_editor_title': 'Éditeur Dart',
   'dart_editor_tap_hint': 'Appuyez pour ouvrir l’éditeur Dart',
   'dart_editor_empty': 'Script vide — commencez à écrire pour voir les diagnostics Dart.',
   'bdfd_editor_docs': 'Référence des fonctions BDFD',
   'bdfd_docs_title': 'Docs BDFD',
   'bdfd_docs_search_hint': 'Rechercher une fonction…',
+
   'scratch_block_metadata': 'Métadonnées',
   'scratch_block_required': 'Requis',
   'scratch_block_entry_point': 'Point d’entrée',
@@ -848,8 +835,8 @@ const Map<String, String> appStringsFr = {
   'scratch_event_category': 'Catégorie d’événement',
   'scratch_event_name': 'Nom de l’événement',
   'scratch_event_variables': 'Variables d’événement',
->>>>>>> Stashed changes
   'bdfd_docs_empty': 'Aucune fonction trouvée.',
+
   'bdfd_docs_syntax': 'SYNTAXE',
   'bdfd_docs_parameters': 'PARAMÈTRES',
   'bdfd_docs_no_params': 'Aucun paramètre — utiliser comme \$nomFonction',
@@ -1258,6 +1245,7 @@ const Map<String, String> appStringsFr = {
   'common_type': 'Type',
   'common_required': 'Requis',
   'common_description': 'Description',
+  'common_default': 'Défaut',
   'common_clear': 'Effacer',
   'common_all': 'Tout',
   'common_pick': 'Choisir',
@@ -1396,7 +1384,7 @@ const Map<String, String> appStringsFr = {
   'component_not_implemented': 'Éditeur pas encore implémenté',
   'component_choose_color': 'Choisir la couleur',
   'component_label_title': 'Titre du libellé',
-  'component_workflow_args_title': 'Arguments d\'appel du workflow (JSON)',
+  'component_workflow_args_title': 'Arguments d\'appel du workflow',
   'component_workflow_args_hint': 'Exemple : ticketId = ((opts.ticket))',
   'autocomplete_workflow_label': 'Workflow d\'autocomplétion',
   'autocomplete_loading': 'Chargement des workflows…',
@@ -1682,6 +1670,7 @@ const Map<String, String> appStringsFr = {
   'wizard_legacy_options_subtitle': 'Options de commande legacy et comportement local uniquement',
   'wizard_quick_start_subtitle': 'Utilisez le constructeur simple legacy comme point de départ, puis appliquez-le au brouillon partagé.',
   'wizard_bdfd_mode_enabled': 'Mode script BDFD activé',
+  'wizard_dart_mode_enabled': 'Mode script Dart activé',
   'wizard_visual_mode_enabled': 'Mode workflow visuel activé',
   'wizard_command_body': 'Corps de la commande',
   'response_mode_layout': 'Mode disposition',
@@ -1736,11 +1725,9 @@ const Map<String, String> appStringsFr = {
   'workflow_condition_on_upper': 'Condition ACTIVÉE',
   'workflow_condition_off_upper': 'Condition DÉSACTIVÉE',
   'actions_summary_bdfd': 'Script BDFD | {lines} ligne(s) | {diagnostics} diagnostic(s)',
-<<<<<<< Updated upstream
-=======
   'actions_summary_dart': 'Script Dart | {lines} ligne(s) | {diagnostics} diagnostic(s)',
   'scratch_dart_script': 'Script Dart',
->>>>>>> Stashed changes
+
   'actions_summary_routes': '{count} action(s) sur la route active | {routes} route(s)',
   'actions_summary_configured': '{count} action(s) configurée(s)',
   'reply_editor_title': 'Détails de la réponse',
@@ -1920,50 +1907,6 @@ const Map<String, String> appStringsFr = {
   'command_execution_error': 'Une erreur est survenue lors de l\'exécution de cette commande.',
   'bdfd_runtime_execution_error': 'Une erreur est survenue lors de l\'exécution de ce script BDFD.',
   'bdfd_compiled_no_actions': 'Ce script BDFD a été compilé avec succès mais n\'a produit aucune action.',
-<<<<<<< Updated upstream
-
-  // ── Scratch Block Editor ──────────────────────────────────────────────
-  'scratch_block_metadata': 'Métadonnées',
-  'scratch_block_required': 'Obligatoire',
-  'scratch_block_entry_point': 'Point d\'entrée',
-  'scratch_entry_point_listen': 'Écouter',
-  'scratch_entry_interaction': 'Interaction',
-  'scratch_entry_message': 'Message',
-  'scratch_entry_point_label': 'Nom du point d\'entrée',
-  'scratch_entry_event_trigger': 'Déclencheur d\'événement',
-  'scratch_entry_function': 'Fonction',
-  'scratch_event_category': 'Catégorie d\'événement',
-  'scratch_event_name': 'Nom de l\'événement',
-  'scratch_event_variables': 'Variables d\'événement',
-  'scratch_execution_mode': 'Mode d\'exécution',
-  'scratch_mode_blocks': 'Blocs',
-  'scratch_mode_bdfd': 'BDFD',
-  'scratch_add_block': 'Ajouter un bloc',
-  'scratch_bdfd_script': 'Script BDFD',
-  'scratch_response_block': 'Réponse',
-  'scratch_response_components': 'Composants',
-  'scratch_response_edit': 'Modifier la réponse',
-  'scratch_legacy_config': 'Configuration héritée',
-  'scratch_meta_name_hint': 'Nom de la commande',
-  'scratch_meta_desc_hint': 'Description de la commande',
-  'scratch_meta_type_label': 'Type de commande',
-  'scratch_meta_type_slash': 'Commande slash',
-  'scratch_meta_type_prefix': 'Commande préfixe',
-  'scratch_meta_type_user': 'Commande utilisateur',
-  'scratch_meta_type_message': 'Commande message',
-  'scratch_meta_type_slash_desc': 'Déclenchée en tapant / dans Discord.',
-  'scratch_meta_type_prefix_desc': 'Déclenchée par un préfixe texte (ex : !help).',
-  'scratch_meta_type_user_desc': 'Déclenchée depuis le menu contextuel utilisateur.',
-  'scratch_meta_type_message_desc': 'Déclenchée depuis le menu contextuel message.',
-  'scratch_meta_advanced': 'Paramètres avancés',
-  'scratch_workflow_metadata': 'Métadonnées du workflow',
-  'scratch_workflow_name': 'Nom du workflow',
-  'scratch_workflow_type': 'Type de workflow',
-  'scratch_workflow_type_general': 'Général',
-  'scratch_workflow_type_event': 'Événement',
-  'scratch_workflow_arguments': 'Arguments',
-  'scratch_workflow_add_argument': 'Ajouter un argument',
-=======
   'embed_section_color': 'Couleur',
   'embed_section_timestamp': 'Horodatage',
   'embed_section_fields': 'Champs',
@@ -1978,5 +1921,4 @@ const Map<String, String> appStringsFr = {
   'notion_create_workflow_from_query': 'Créer le workflow "{query}"',
   'commands_create_from_query': 'Créer la commande "{query}"',
   'commands_filter_type_label': 'Type',
->>>>>>> Stashed changes
 };

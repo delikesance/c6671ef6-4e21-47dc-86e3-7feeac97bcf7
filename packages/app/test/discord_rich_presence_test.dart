@@ -1,4 +1,5 @@
 import 'package:bot_creator/utils/discord_rich_presence.dart';
+import 'package:bot_creator/utils/runner_client.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -7,7 +8,7 @@ void main() {
       final presence = buildBotCreatorRichPresence(
         runningBotIds: const <String>{},
         botNamesById: const <String, String>{},
-        runnerModeEnabled: false,
+        runtimeSource: RemoteRuntimeSource.local,
       );
 
       expect(presence.details, 'Bot Creator open');
@@ -18,14 +19,14 @@ void main() {
       final presence = buildBotCreatorRichPresence(
         runningBotIds: const <String>{'bot-b', 'bot-a'},
         botNamesById: const <String, String>{'bot-a': 'Alpha', 'bot-b': 'Beta'},
-        runnerModeEnabled: true,
+        runtimeSource: RemoteRuntimeSource.runner,
         preferredBotId: 'bot-b',
         preferredBotName: 'Beta Override',
-        activeRunnerLabel: 'Local Runner',
+        activeSourceLabel: 'Local Runner',
       );
 
       expect(presence.details, 'Running Beta Override');
-      expect(presence.state, 'Runner Local Runner • 2 bots active');
+      expect(presence.state, 'Server Local Runner • 2 bots active');
     });
 
     test('serializes timestamps as unix seconds', () {

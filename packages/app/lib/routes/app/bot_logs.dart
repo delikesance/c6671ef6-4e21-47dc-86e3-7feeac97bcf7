@@ -3,8 +3,9 @@ import 'dart:async';
 import 'package:bot_creator/utils/bot.dart';
 import 'package:bot_creator/utils/app_theme.dart';
 import 'package:bot_creator/utils/i18n.dart';
+import 'package:bot_creator/utils/remote_runtime.dart';
 import 'package:bot_creator/utils/runner_client.dart';
-import 'package:bot_creator/utils/runner_settings.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -38,8 +39,35 @@ class _BotLogsPageState extends State<BotLogsPage> {
   Timer? _runnerPollTimer;
   List<String> _lastKnownRemoteLogs = const [];
 
-  // Runner source
-  String? _runnerLabel;
+  RemoteRuntimeClient? _runtimeClient;
+  RemoteRuntimeSource _runtimeSource = RemoteRuntimeSource.local;
+  String? _runtimeLabel;
+  String? _runtimeUnavailableReason;
+
+  bool get _supportsManagerRuntime => !kIsWeb;
+
+  bool get _usingRemoteSource => _runtimeSource != RemoteRuntimeSource.local;
+
+  String _uiCopy({required String fr, required String en}) {
+    return Localizations.localeOf(context).languageCode == 'fr' ? fr : en;
+  }
+
+  String _runtimeSourceLabel() {
+    return switch (_runtimeSource) {
+      RemoteRuntimeSource.manager => _uiCopy(
+        fr: 'Serveurs Bot Creator',
+        en: 'Bot Creator servers',
+      ),
+      RemoteRuntimeSource.runner =>
+        (_runtimeLabel?.trim().isNotEmpty ?? false)
+            ? context.tr.logs_runner_source(_runtimeLabel!)
+            : context.tr.bot_stats_source_runner_api,
+      RemoteRuntimeSource.local => _uiCopy(
+        fr: 'Local sur cet appareil',
+        en: 'Local on this device',
+      ),
+    };
+  }
 
   @override
   void initState() {
@@ -58,15 +86,22 @@ class _BotLogsPageState extends State<BotLogsPage> {
   }
 
   Future<void> _initRunnerPolling() async {
-    final config = await RunnerSettings.getConfig();
-    if (!mounted || config == null) return;
-    setState(() {
-      _runnerLabel = config.name ?? config.url;
-    });
-    final client = config.createClient(
+    final runtime = await resolveRemoteRuntime(
+      supportsManagerRuntime: _supportsManagerRuntime,
       getTimeout: const Duration(seconds: 30),
       postTimeout: const Duration(seconds: 90),
     );
+    _runtimeClient = runtime.client;
+    _runtimeSource = runtime.source;
+    if (!mounted) return;
+    setState(() {
+      _runtimeLabel = runtime.detailLabel;
+      _runtimeUnavailableReason = runtime.unavailableReason;
+    });
+    final client = _runtimeClient;
+    if (client == null) {
+      return;
+    }
     await _pollRunnerData(client);
     _runnerPollTimer = Timer.periodic(const Duration(milliseconds: 2500), (_) {
       if (mounted) {
@@ -75,16 +110,16 @@ class _BotLogsPageState extends State<BotLogsPage> {
     });
   }
 
-  Future<void> _pollRunnerData(RunnerClient client) async {
+  Future<void> _pollRunnerData(RemoteRuntimeClient client) async {
     await Future.wait<void>(<Future<void>>[
       _pollRunnerLogs(client),
       _pollRunnerMetrics(client),
     ]);
   }
 
-  Future<void> _pollRunnerLogs(RunnerClient client) async {
+  Future<void> _pollRunnerLogs(RemoteRuntimeClient client) async {
     try {
-      final lines = await client.getLogs(limit: 500);
+      final lines = await client.getLogs(botId: _selectedBotId, limit: 500);
       if (lines.isEmpty) {
         _lastKnownRemoteLogs = const [];
         return;
@@ -94,7 +129,7 @@ class _BotLogsPageState extends State<BotLogsPage> {
       if (overlap < lines.length) {
         final newLines = lines.sublist(overlap);
         for (final line in newLines) {
-          appendBotLog(line, botId: _selectedBotId);
+          appendBotLog(line, botId: _selectedBotId, source: _runtimeSource);
         }
       }
       _lastKnownRemoteLogs = List<String>.from(lines);
@@ -103,7 +138,7 @@ class _BotLogsPageState extends State<BotLogsPage> {
     }
   }
 
-  Future<void> _pollRunnerMetrics(RunnerClient client) async {
+  Future<void> _pollRunnerMetrics(RemoteRuntimeClient client) async {
     try {
       final metrics = await client.getMetrics(botId: _selectedBotId);
       final runtimeBotId = _selectedBotId ?? metrics.activeBotId;
@@ -116,6 +151,7 @@ class _BotLogsPageState extends State<BotLogsPage> {
       updateBotRuntimeMetricsFromRemote(
         running: isRunningForSelectedBot,
         botId: runtimeBotId,
+        source: _runtimeSource,
         rssBytes: metrics.rssBytes,
         estimatedRssBytes: metrics.botEstimatedRssBytes,
         cpuPercent: metrics.cpuPercent,
@@ -217,7 +253,10 @@ class _BotLogsPageState extends State<BotLogsPage> {
             tooltip: context.tr.copy,
             icon: const Icon(Icons.copy),
             onPressed: () async {
-              final logs = getBotLogsSnapshotForBot(_selectedBotId);
+              final logs = getBotLogsSnapshotForBotFromSource(
+                _selectedBotId,
+                source: _runtimeSource,
+              );
               await Clipboard.setData(ClipboardData(text: logs.join('\n')));
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -279,12 +318,24 @@ class _BotLogsPageState extends State<BotLogsPage> {
       body: SafeArea(
         top: false,
         child: StreamBuilder<int?>(
-          stream: getBotProcessRssStreamForBot(selectedBotId),
-          initialData: getBotProcessRssBytesForBot(selectedBotId),
+          stream: getBotProcessRssStreamForBotFromSource(
+            selectedBotId,
+            source: _runtimeSource,
+          ),
+          initialData: getBotProcessRssBytesForBotFromSource(
+            selectedBotId,
+            source: _runtimeSource,
+          ),
           builder: (context, metricsSnapshot) {
             return StreamBuilder<int?>(
-              stream: getBotEstimatedRssStreamForBot(selectedBotId),
-              initialData: getBotEstimatedRssBytesForBot(selectedBotId),
+              stream: getBotEstimatedRssStreamForBotFromSource(
+                selectedBotId,
+                source: _runtimeSource,
+              ),
+              initialData: getBotEstimatedRssBytesForBotFromSource(
+                selectedBotId,
+                source: _runtimeSource,
+              ),
               builder: (context, estimatedSnapshot) {
                 final memoryText = _formatMemory(metricsSnapshot.data);
                 final estimatedText = _formatMemory(estimatedSnapshot.data);
@@ -329,7 +380,9 @@ class _BotLogsPageState extends State<BotLogsPage> {
                         ),
                         decoration: BoxDecoration(
                           color: Theme.of(context).colorScheme.surfaceContainer,
-                          borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                          borderRadius: BorderRadius.circular(
+                            AppTheme.radiusSm,
+                          ),
                         ),
                         child: Row(
                           children: [
@@ -345,42 +398,86 @@ class _BotLogsPageState extends State<BotLogsPage> {
                         ),
                       ),
                     ),
-                    if (_runnerLabel != null)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color:
+                              _usingRemoteSource
+                                  ? Theme.of(context)
+                                      .colorScheme
+                                      .primaryContainer
+                                      .withValues(alpha: 0.4)
+                                  : Theme.of(
+                                    context,
+                                  ).colorScheme.surfaceContainer,
+                          borderRadius: BorderRadius.circular(
+                            AppTheme.radiusMd,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              _usingRemoteSource
+                                  ? Icons.dns_outlined
+                                  : Icons.lan,
+                              size: 16,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                _runtimeSourceLabel(),
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.bodySmall?.copyWith(
+                                  color:
+                                      _usingRemoteSource
+                                          ? Theme.of(
+                                            context,
+                                          ).colorScheme.onPrimaryContainer
+                                          : null,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    if (_runtimeUnavailableReason?.trim().isNotEmpty ?? false)
                       Padding(
                         padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
                         child: Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
-                          ),
+                          padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .primaryContainer
-                                .withValues(alpha: 0.4),
-                            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                            color: AppTheme.warning.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.radiusMd,
+                            ),
+                            border: Border.all(
+                              color: AppTheme.warning.withValues(alpha: 0.35),
+                            ),
                           ),
                           child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Icon(
-                                Icons.dns_outlined,
-                                size: 16,
-                                color: Theme.of(context).colorScheme.primary,
+                              const Icon(
+                                Icons.info_outline,
+                                color: AppTheme.warning,
+                                size: 18,
                               ),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
-                                  context.tr.logs_runner_source(_runnerLabel!),
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.bodySmall?.copyWith(
-                                    color:
-                                        Theme.of(
-                                          context,
-                                        ).colorScheme.onPrimaryContainer,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
+                                  _runtimeUnavailableReason!,
+                                  style: Theme.of(context).textTheme.bodySmall,
                                 ),
                               ),
                             ],
@@ -389,8 +486,14 @@ class _BotLogsPageState extends State<BotLogsPage> {
                       ),
                     Expanded(
                       child: StreamBuilder<List<String>>(
-                        stream: getBotLogsStreamForBot(selectedBotId),
-                        initialData: getBotLogsSnapshotForBot(selectedBotId),
+                        stream: getBotLogsStreamForBotFromSource(
+                          selectedBotId,
+                          source: _runtimeSource,
+                        ),
+                        initialData: getBotLogsSnapshotForBotFromSource(
+                          selectedBotId,
+                          source: _runtimeSource,
+                        ),
                         builder: (context, snapshot) {
                           final allLogs = snapshot.data ?? const <String>[];
                           if (allLogs.isEmpty) {
@@ -465,7 +568,9 @@ class _BotLogsPageState extends State<BotLogsPage> {
                                                       .colorScheme
                                                       .surfaceContainerHighest,
                                               borderRadius:
-                                                  BorderRadius.circular(AppTheme.radiusMd),
+                                                  BorderRadius.circular(
+                                                    AppTheme.radiusMd,
+                                                  ),
                                             ),
                                             child: Column(
                                               crossAxisAlignment:
@@ -597,7 +702,9 @@ class _BotLogsPageState extends State<BotLogsPage> {
                                       Theme.of(
                                         context,
                                       ).colorScheme.surfaceContainerHighest,
-                                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                                  borderRadius: BorderRadius.circular(
+                                    AppTheme.radiusMd,
+                                  ),
                                 ),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,

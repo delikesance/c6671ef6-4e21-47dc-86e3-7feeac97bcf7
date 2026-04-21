@@ -43,16 +43,34 @@ class BotRuntimeMetrics {
   }
 }
 
-String _resolveBotBucketKey(String? botId) {
+String _buildBotBucketKey(RemoteRuntimeSource source, String? botId) {
+  final normalizedBotId = botId?.trim() ?? '';
+  final bucketBotId =
+      normalizedBotId.isEmpty ? _globalBotBucketKey : normalizedBotId;
+  return '${source.name}::$bucketBotId';
+}
+
+String _bucketBotId(String key) {
+  final separatorIndex = key.indexOf('::');
+  if (separatorIndex == -1 || separatorIndex + 2 >= key.length) {
+    return key;
+  }
+  return key.substring(separatorIndex + 2);
+}
+
+String _resolveBotBucketKey(
+  String? botId, {
+  RemoteRuntimeSource source = RemoteRuntimeSource.local,
+}) {
   final trimmed = botId?.trim() ?? '';
   if (trimmed.isNotEmpty) {
-    return trimmed;
+    return _buildBotBucketKey(source, trimmed);
   }
   final active = _activeBotLogBotId?.trim() ?? '';
-  if (active.isNotEmpty) {
-    return active;
+  if (active.isNotEmpty && _activeBotLogSource == source) {
+    return _buildBotBucketKey(source, active);
   }
-  return _globalBotBucketKey;
+  return _buildBotBucketKey(source, null);
 }
 
 _CpuSample? _lastCpuSample;
@@ -224,9 +242,10 @@ void _updateBotMetrics({
   int? storageBytes,
   int? estimatedRssBytes,
   String? botId,
+  RemoteRuntimeSource source = RemoteRuntimeSource.local,
   bool overwriteNulls = false,
 }) {
-  final key = _resolveBotBucketKey(botId);
+  final key = _resolveBotBucketKey(botId, source: source);
   final previous = _botMetricsByBot[key] ?? const BotRuntimeMetrics();
 
   final nextRss =
@@ -265,7 +284,10 @@ void _updateBotMetrics({
     );
   }
 
-  final selectedKey = _resolveBotBucketKey(_activeBotLogBotId);
+  final selectedKey = _resolveBotBucketKey(
+    _activeBotLogBotId,
+    source: _activeBotLogSource,
+  );
   final selected =
       _botMetricsByBot[selectedKey] ??
       _botMetricsByBot[key] ??
@@ -290,7 +312,10 @@ void _updateBotMetrics({
   }
 }
 
-Future<void> _refreshBotMetrics({String? botId}) async {
+Future<void> _refreshBotMetrics({
+  String? botId,
+  RemoteRuntimeSource source = RemoteRuntimeSource.local,
+}) async {
   final rss = _readCurrentProcessRssBytes();
   final cpu = _readCurrentProcessCpuPercent();
   final storage = await _readBotStorageBytes(botId: botId);
@@ -299,11 +324,13 @@ Future<void> _refreshBotMetrics({String? botId}) async {
     cpuPercent: cpu,
     storageBytes: storage,
     botId: botId,
+    source: source,
   );
 }
 
 Future<void> refreshBotStatsNow({
   String? botId,
+  RemoteRuntimeSource source = RemoteRuntimeSource.local,
   bool captureBaseline = false,
 }) async {
   if (!isBotRuntimeActive) {
@@ -312,6 +339,7 @@ Future<void> refreshBotStatsNow({
       cpuPercent: null,
       storageBytes: null,
       botId: botId,
+      source: source,
       overwriteNulls: true,
     );
     return;
@@ -320,12 +348,13 @@ Future<void> refreshBotStatsNow({
   if (captureBaseline) {
     captureBotBaselineRss(force: true);
   }
-  await _refreshBotMetrics(botId: botId);
+  await _refreshBotMetrics(botId: botId, source: source);
 }
 
 void updateBotRuntimeMetricsFromRemote({
   required bool running,
   String? botId,
+  RemoteRuntimeSource source = RemoteRuntimeSource.runner,
   int? rssBytes,
   int? estimatedRssBytes,
   double? cpuPercent,
@@ -349,6 +378,7 @@ void updateBotRuntimeMetricsFromRemote({
     cpuPercent: cpuPercent,
     storageBytes: storageBytes,
     botId: botId,
+    source: source,
     overwriteNulls: true,
   );
 }
@@ -391,7 +421,10 @@ Future<void> _emitTaskMetricsToMain({String? botId}) async {
 }
 
 void _publishBotLogs() {
-  final selectedKey = _resolveBotBucketKey(_activeBotLogBotId);
+  final selectedKey = _resolveBotBucketKey(
+    _activeBotLogBotId,
+    source: _activeBotLogSource,
+  );
   _botLogs = List<String>.from(
     _botLogsByBot[selectedKey] ?? const <String>[],
     growable: false,
@@ -416,7 +449,17 @@ Stream<List<String>> getBotLogsStream() => _botLogsController.stream;
 List<String> getBotLogsSnapshot() => List<String>.unmodifiable(_botLogs);
 
 Stream<List<String>> getBotLogsStreamForBot(String? botId) {
-  final key = _resolveBotBucketKey(botId);
+  return getBotLogsStreamForBotFromSource(
+    botId,
+    source: RemoteRuntimeSource.local,
+  );
+}
+
+Stream<List<String>> getBotLogsStreamForBotFromSource(
+  String? botId, {
+  required RemoteRuntimeSource source,
+}) {
+  final key = _resolveBotBucketKey(botId, source: source);
   return _botLogsByBotController.stream.map(
     (logsByBot) =>
         List<String>.unmodifiable(logsByBot[key] ?? const <String>[]),
@@ -424,17 +467,31 @@ Stream<List<String>> getBotLogsStreamForBot(String? botId) {
 }
 
 List<String> getBotLogsSnapshotForBot(String? botId) {
-  final key = _resolveBotBucketKey(botId);
+  return getBotLogsSnapshotForBotFromSource(
+    botId,
+    source: RemoteRuntimeSource.local,
+  );
+}
+
+List<String> getBotLogsSnapshotForBotFromSource(
+  String? botId, {
+  required RemoteRuntimeSource source,
+}) {
+  final key = _resolveBotBucketKey(botId, source: source);
   final logs = _botLogsByBot[key] ?? const <String>[];
   return List<String>.unmodifiable(logs);
 }
 
 Set<String> getKnownBotLogIds() {
-  final ids = <String>{
-    ..._botLogsByBot.keys,
-    ...mobileRunningBotIds,
-    ..._botMetricsByBot.keys,
-  }..remove(_globalBotBucketKey);
+  final ids = <String>{...mobileRunningBotIds};
+  final bucketKeys = <String>{..._botLogsByBot.keys, ..._botMetricsByBot.keys};
+  for (final key in bucketKeys) {
+    final botId = _bucketBotId(key);
+    if (botId == _globalBotBucketKey) {
+      continue;
+    }
+    ids.add(botId);
+  }
   return ids;
 }
 
@@ -471,9 +528,14 @@ Future<Map<String, String>> getKnownBotNamesById() async {
   return Map<String, String>.unmodifiable(namesById);
 }
 
-void startBotLogSession({required String botId}) {
+void startBotLogSession({
+  required String botId,
+  RemoteRuntimeSource source = RemoteRuntimeSource.local,
+}) {
   _activeBotLogBotId = botId;
-  _botLogsByBot[botId] = <String>[];
+  _activeBotLogSource = source;
+  final key = _buildBotBucketKey(source, botId);
+  _botLogsByBot[key] = <String>[];
   _remoteMetricsBaselineInitialized = false;
   captureBotBaselineRss(force: true);
   _lastCpuSample = null;
@@ -482,24 +544,31 @@ void startBotLogSession({required String botId}) {
     cpuPercent: null,
     storageBytes: null,
     botId: botId,
+    source: source,
     overwriteNulls: true,
   );
-  appendBotLog('Log session started', botId: botId);
+  appendBotLog('Log session started', botId: botId, source: source);
 }
 
-void endBotLogSession({required String botId, bool clearLogs = true}) {
+void endBotLogSession({
+  required String botId,
+  RemoteRuntimeSource source = RemoteRuntimeSource.local,
+  bool clearLogs = true,
+}) {
   final key = botId.trim();
   if (key.isEmpty) {
     return;
   }
+  final bucketKey = _buildBotBucketKey(source, key);
 
   if (clearLogs) {
-    _botLogsByBot.remove(key);
+    _botLogsByBot.remove(bucketKey);
   }
-  _botMetricsByBot.remove(key);
+  _botMetricsByBot.remove(bucketKey);
 
-  if (_activeBotLogBotId == key) {
+  if (_activeBotLogBotId == key && _activeBotLogSource == source) {
     _activeBotLogBotId = null;
+    _activeBotLogSource = RemoteRuntimeSource.local;
   }
 
   _publishBotLogs();
@@ -510,7 +579,10 @@ void endBotLogSession({required String botId, bool clearLogs = true}) {
     );
   }
 
-  final selectedKey = _resolveBotBucketKey(_activeBotLogBotId);
+  final selectedKey = _resolveBotBucketKey(
+    _activeBotLogBotId,
+    source: _activeBotLogSource,
+  );
   final selected = _botMetricsByBot[selectedKey];
   _botProcessRssBytes = selected?.rssBytes;
   _botEstimatedRssBytes = selected?.estimatedRssBytes;
@@ -550,8 +622,12 @@ bool _startsWithTimestamp(String message) {
   return isoPattern.hasMatch(trimmed);
 }
 
-void appendBotLog(String message, {String? botId}) {
-  final key = _resolveBotBucketKey(botId);
+void appendBotLog(
+  String message, {
+  String? botId,
+  RemoteRuntimeSource source = RemoteRuntimeSource.local,
+}) {
+  final key = _resolveBotBucketKey(botId, source: source);
   final logs = _botLogsByBot.putIfAbsent(key, () => <String>[]);
   final line =
       _startsWithTimestamp(message) ? message : '[${_timestampNow()}] $message';
@@ -563,58 +639,142 @@ void appendBotLog(String message, {String? botId}) {
 }
 
 Stream<int?> getBotProcessRssStreamForBot(String? botId) {
-  final key = _resolveBotBucketKey(botId);
+  return getBotProcessRssStreamForBotFromSource(
+    botId,
+    source: RemoteRuntimeSource.local,
+  );
+}
+
+Stream<int?> getBotProcessRssStreamForBotFromSource(
+  String? botId, {
+  required RemoteRuntimeSource source,
+}) {
+  final key = _resolveBotBucketKey(botId, source: source);
   return _botMetricsByBotController.stream.map(
     (metricsByBot) => metricsByBot[key]?.rssBytes,
   );
 }
 
 int? getBotProcessRssBytesForBot(String? botId) {
-  final key = _resolveBotBucketKey(botId);
+  return getBotProcessRssBytesForBotFromSource(
+    botId,
+    source: RemoteRuntimeSource.local,
+  );
+}
+
+int? getBotProcessRssBytesForBotFromSource(
+  String? botId, {
+  required RemoteRuntimeSource source,
+}) {
+  final key = _resolveBotBucketKey(botId, source: source);
   return _botMetricsByBot[key]?.rssBytes;
 }
 
 Stream<int?> getBotEstimatedRssStreamForBot(String? botId) {
-  final key = _resolveBotBucketKey(botId);
+  return getBotEstimatedRssStreamForBotFromSource(
+    botId,
+    source: RemoteRuntimeSource.local,
+  );
+}
+
+Stream<int?> getBotEstimatedRssStreamForBotFromSource(
+  String? botId, {
+  required RemoteRuntimeSource source,
+}) {
+  final key = _resolveBotBucketKey(botId, source: source);
   return _botMetricsByBotController.stream.map(
     (metricsByBot) => metricsByBot[key]?.estimatedRssBytes,
   );
 }
 
 int? getBotEstimatedRssBytesForBot(String? botId) {
-  final key = _resolveBotBucketKey(botId);
+  return getBotEstimatedRssBytesForBotFromSource(
+    botId,
+    source: RemoteRuntimeSource.local,
+  );
+}
+
+int? getBotEstimatedRssBytesForBotFromSource(
+  String? botId, {
+  required RemoteRuntimeSource source,
+}) {
+  final key = _resolveBotBucketKey(botId, source: source);
   return _botMetricsByBot[key]?.estimatedRssBytes;
 }
 
 Stream<double?> getBotProcessCpuStreamForBot(String? botId) {
-  final key = _resolveBotBucketKey(botId);
+  return getBotProcessCpuStreamForBotFromSource(
+    botId,
+    source: RemoteRuntimeSource.local,
+  );
+}
+
+Stream<double?> getBotProcessCpuStreamForBotFromSource(
+  String? botId, {
+  required RemoteRuntimeSource source,
+}) {
+  final key = _resolveBotBucketKey(botId, source: source);
   return _botMetricsByBotController.stream.map(
     (metricsByBot) => metricsByBot[key]?.cpuPercent,
   );
 }
 
 double? getBotProcessCpuPercentForBot(String? botId) {
-  final key = _resolveBotBucketKey(botId);
+  return getBotProcessCpuPercentForBotFromSource(
+    botId,
+    source: RemoteRuntimeSource.local,
+  );
+}
+
+double? getBotProcessCpuPercentForBotFromSource(
+  String? botId, {
+  required RemoteRuntimeSource source,
+}) {
+  final key = _resolveBotBucketKey(botId, source: source);
   return _botMetricsByBot[key]?.cpuPercent;
 }
 
 Stream<int?> getBotProcessStorageStreamForBot(String? botId) {
-  final key = _resolveBotBucketKey(botId);
+  return getBotProcessStorageStreamForBotFromSource(
+    botId,
+    source: RemoteRuntimeSource.local,
+  );
+}
+
+Stream<int?> getBotProcessStorageStreamForBotFromSource(
+  String? botId, {
+  required RemoteRuntimeSource source,
+}) {
+  final key = _resolveBotBucketKey(botId, source: source);
   return _botMetricsByBotController.stream.map(
     (metricsByBot) => metricsByBot[key]?.storageBytes,
   );
 }
 
 int? getBotProcessStorageBytesForBot(String? botId) {
-  final key = _resolveBotBucketKey(botId);
+  return getBotProcessStorageBytesForBotFromSource(
+    botId,
+    source: RemoteRuntimeSource.local,
+  );
+}
+
+int? getBotProcessStorageBytesForBotFromSource(
+  String? botId, {
+  required RemoteRuntimeSource source,
+}) {
+  final key = _resolveBotBucketKey(botId, source: source);
   return _botMetricsByBot[key]?.storageBytes;
 }
 
-void appendBotDebugLog(String message, {String? botId}) {
+void appendBotDebugLog(
+  String message, {
+  String? botId,
+  RemoteRuntimeSource source = RemoteRuntimeSource.local,
+}) {
   if (!_debugBotLogsEnabled) {
     return;
   }
-  appendBotLog('DEBUG: $message', botId: botId);
+  appendBotLog('DEBUG: $message', botId: botId, source: source);
 }
 
 String _formatNyxxLogRecord(LogRecord record) {
