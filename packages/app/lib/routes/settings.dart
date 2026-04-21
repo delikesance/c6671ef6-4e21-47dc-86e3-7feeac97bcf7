@@ -224,6 +224,7 @@ class _SettingPageState extends State<SettingPage> {
   Future<void> _openAdPrivacyOptions() async {
     final opened = await AdConsentService.showPrivacyOptionsForm();
     await _loadAdPrivacyRequirement();
+    if (!mounted) return;
     _showSnack(
       opened
           ? context.tr.settings_ads_privacy_opened
@@ -518,14 +519,18 @@ class _SettingPageState extends State<SettingPage> {
 
       final username = (session.username ?? '').trim();
       if (username.isNotEmpty) {
-        _showSnack(
-          AppStrings.tr(
-            'settings_main_api_connected_user',
-            params: <String, String>{'user': username},
-          ),
-        );
+        if (mounted) {
+          _showSnack(
+            AppStrings.tr(
+              'settings_main_api_connected_user',
+              params: <String, String>{'user': username},
+            ),
+          );
+        }
       } else {
-        _showSnack(AppStrings.t('settings_main_api_connected_discord'));
+        if (mounted) {
+          _showSnack(AppStrings.t('settings_main_api_connected_discord'));
+        }
       }
 
       await _checkMainApiConnection();
@@ -637,6 +642,7 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   Future<void> _refreshSnapshots() async {
+    if (!mounted) return;
     if (driveApi == null) {
       await _loadCachedSnapshotsFromCache();
       return;
@@ -756,7 +762,13 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   String _formatErrorMessage(Object error) {
-    return context.tr.error_with_details(error.toString());
+    final msg = error.toString();
+    if (!mounted) return msg;
+    try {
+      return context.tr.error_with_details(msg);
+    } catch (_) {
+      return msg;
+    }
   }
 
   Future<void> _loadDiscordRpcSettings() async {
@@ -2780,18 +2792,22 @@ class _SettingPageState extends State<SettingPage> {
                                         () async {
                                           try {
                                             await _ensureDriveApiConnected();
+                                            if (!mounted) return;
                                             final message = await uploadAppData(
                                               driveApi!,
                                               appManager,
                                             );
                                             await _refreshSnapshots();
+                                            if (!mounted) return;
                                             _showSnack(message);
                                           } catch (e, st) {
                                             debugPrint(
                                               'Export App Data failed: $e',
                                             );
                                             debugPrintStack(stackTrace: st);
-                                            _showSnack(_formatErrorMessage(e));
+                                            if (mounted) {
+                                              _showSnack(_formatErrorMessage(e));
+                                            }
                                           }
                                         },
                                       );
@@ -2826,7 +2842,9 @@ class _SettingPageState extends State<SettingPage> {
                                               'Import App Data failed: $e',
                                             );
                                             debugPrintStack(stackTrace: st);
-                                            _showSnack(_formatErrorMessage(e));
+                                            if (mounted) {
+                                              _showSnack(_formatErrorMessage(e));
+                                            }
                                           }
                                         },
                                       );

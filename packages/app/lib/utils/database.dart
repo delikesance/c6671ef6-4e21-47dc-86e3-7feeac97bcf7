@@ -91,12 +91,6 @@ class AppManager implements BotDataStore {
       final path = await _path();
       final file = File("$path/apps/$botId.json");
       final allAppsFile = File("$path/apps/all_apps.json");
-      final avatarUri = makeAvatarUrl(
-        botId,
-        avatarId: avatarHash,
-        discriminator: discriminator,
-      );
-
       Map<String, dynamic> existingData = <String, dynamic>{};
       if (await file.exists()) {
         final existingContent = await file.readAsString();
@@ -106,6 +100,18 @@ class AppManager implements BotDataStore {
           );
         }
       }
+
+      final existingAvatar = existingData['avatar']?.toString();
+      final avatarUri = (avatarHash == null &&
+              discriminator == null &&
+              existingAvatar != null &&
+              existingAvatar.isNotEmpty)
+          ? existingAvatar
+          : makeAvatarUrl(
+            botId,
+            avatarId: avatarHash,
+            discriminator: discriminator,
+          );
 
       final data =
           Map<String, dynamic>.from(existingData)

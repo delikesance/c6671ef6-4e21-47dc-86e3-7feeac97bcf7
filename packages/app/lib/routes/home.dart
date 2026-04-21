@@ -75,7 +75,7 @@ class HomePageState extends State<HomePage>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      syncAllBotsFromManager();
+      syncAllBotsFromManager(silent: true);
     }
   }
 
@@ -235,47 +235,18 @@ class HomePageState extends State<HomePage>
     });
   }
 
-  Future<void> syncAllBotsFromManager() async {
+  Future<void> syncAllBotsFromManager({bool silent = false}) async {
     final remoteRuntime = await _resolveRemoteRuntime(
       getTimeout: const Duration(seconds: 15),
       postTimeout: const Duration(seconds: 30),
     );
     final remoteClient = remoteRuntime.client;
     if (remoteClient is! MainApiClient) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              _uiCopy(
-                fr: 'Veuillez configurer Main API pour synchroniser.',
-                en: 'Please configure Main API to synchronize.',
-              ),
-            ),
-          ),
-        );
-      }
       return;
     }
 
     try {
       final bots = await remoteClient.listBots();
-      if (bots.isEmpty) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                _uiCopy(
-                  fr: 'Aucun bot trouvé sur le Manager.',
-                  en: 'No bots found on Manager.',
-                ),
-              ),
-            ),
-          );
-        }
-        return;
-      }
-
-      int syncedCount = 0;
       for (final bot in bots) {
         try {
           final botId = bot['bot_id']?.toString() ?? '';
@@ -291,41 +262,28 @@ class HomePageState extends State<HomePage>
           await appManager.createOrUpdateApp(
             id: Snowflake.parse(botId),
             username: botName,
+            avatarHash: bot['avatar_hash']?.toString() ?? bot['avatar']?.toString(),
+            discriminator: bot['discriminator']?.toString(),
             token: token,
             intents: (config['intents'] as Map?)?.cast<String, bool>(),
             prefix: config['prefix']?.toString(),
           );
-
-          // We might also want to sync workflows and other data from 'config'
-          // For now, let's just save the main bot entry.
-          syncedCount++;
         } catch (e) {
           developer.log('Failed to sync bot ${bot['bot_id']}: $e');
         }
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              _uiCopy(
-                fr: '$syncedCount bots synchronisés (métadonnées).',
-                en: '$syncedCount bots synchronized (metadata).',
-              ),
-            ),
-          ),
-        );
         await _initRunningState();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Sync failed: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Sync failed: $e')));
       }
     }
   }
-
 
   // ── Gestion des animations pulse ───────────────────────────────────────────
 
@@ -1312,79 +1270,80 @@ class HomePageState extends State<HomePage>
                     ),
                   Expanded(
                     child: RefreshIndicator(
-                      onRefresh: syncAllBotsFromManager,
+                      onRefresh: () => syncAllBotsFromManager(silent: false),
                       child: GridView.builder(
-                      padding: const EdgeInsets.only(bottom: 80),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: crossAxisCount,
-                        crossAxisSpacing: 14,
-                        mainAxisSpacing: 14,
-                        childAspectRatio: childAspectRatio,
-                      ),
-                      itemCount: apps.length,
-                      itemBuilder: (context, index) {
-                        final app = apps[index];
-                        final name =
-                            app['name']?.toString() ??
-                            context.tr.home_unknown_app;
-                        final id = app['id']?.toString() ?? '';
-                        final avatar = app['avatar']?.toString();
-                        final guildCount = switch (app['guild_count']) {
-                          final int value => value,
-                          final String value => int.tryParse(value),
-                          _ => null,
-                        };
-                        final isRunning = _runningBotIds.contains(id);
-                        const runtimeToggleAllowed = true;
-                        // Multi-bot is allowed on runner, mobile foreground, and
-                        // local desktop runtimes. Disable only while a toggle
-                        // operation is currently in progress.
-                        final canToggle =
-                            runtimeToggleAllowed && !_isTogglingBot;
+                        padding: const EdgeInsets.only(bottom: 80),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                          crossAxisSpacing: 14,
+                          mainAxisSpacing: 14,
+                          childAspectRatio: childAspectRatio,
+                        ),
+                        itemCount: apps.length,
+                        itemBuilder: (context, index) {
+                          final app = apps[index];
+                          final name =
+                              app['name']?.toString() ??
+                              context.tr.home_unknown_app;
+                          final id = app['id']?.toString() ?? '';
+                          final avatar = app['avatar']?.toString();
+                          final guildCount = switch (app['guild_count']) {
+                            final int value => value,
+                            final String value => int.tryParse(value),
+                            _ => null,
+                          };
+                          final isRunning = _runningBotIds.contains(id);
+                          const runtimeToggleAllowed = true;
+                          // Multi-bot is allowed on runner, mobile foreground, and
+                          // local desktop runtimes. Disable only while a toggle
+                          // operation is currently in progress.
+                          final canToggle =
+                              runtimeToggleAllowed && !_isTogglingBot;
 
-                        final pulseCtrl = _getOrCreatePulseController(id);
+                          final pulseCtrl = _getOrCreatePulseController(id);
 
-                        return _BotCard(
-                          name: name,
-                          id: id,
-                          avatar: avatar,
-                          guildCount: guildCount,
-                          compact: width < 760,
-                          isRunning: isRunning,
-                          canToggle: canToggle,
-                          isTogglingThisBot: _isTogglingBot && isRunning,
-                          runtimeBadgeLabel:
-                              isRunning ? _runtimeBadgeLabel() : null,
-                          freeMinutes: _freeMinutesByBotId[id],
-                          pulseController: pulseCtrl,
-                          onManage:
-                              () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (_) => AppEditPage(
-                                        appName: name,
-                                        id: int.tryParse(id) ?? 0,
+                          return _BotCard(
+                            name: name,
+                            id: id,
+                            avatar: avatar,
+                            guildCount: guildCount,
+                            compact: width < 760,
+                            isRunning: isRunning,
+                            canToggle: canToggle,
+                            isTogglingThisBot: _isTogglingBot && isRunning,
+                            runtimeBadgeLabel:
+                                isRunning ? _runtimeBadgeLabel() : null,
+                            freeMinutes: _freeMinutesByBotId[id],
+                            pulseController: pulseCtrl,
+                            onManage:
+                                () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (_) => AppEditPage(
+                                          appName: name,
+                                          id: int.tryParse(id) ?? 0,
+                                        ),
+                                  ),
+                                ).then((_) => _initRunningState()),
+                            onToggle:
+                                () => _toggleBot(botId: id, botName: name),
+                            onLogs:
+                                isRunning
+                                    ? () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => BotLogsPage(botId: id),
                                       ),
-                                ),
-                              ).then((_) => _initRunningState()),
-                          onToggle: () => _toggleBot(botId: id, botName: name),
-                          onLogs:
-                              isRunning
-                                  ? () => Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => BotLogsPage(botId: id),
-                                    ),
-                                  )
-                                  : null,
-                        );
-                      },
+                                    )
+                                    : null,
+                          );
+                        },
+                      ),
                     ),
                   ),
-                ),
-              ],
-            );
+                ],
+              );
             },
           ),
         );
