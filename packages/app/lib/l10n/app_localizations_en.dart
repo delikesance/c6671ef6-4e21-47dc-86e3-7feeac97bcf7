@@ -180,6 +180,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get app_save => 'Save Changes';
 
   @override
+  String get app_sync_manager_title => 'Bot already managed';
+
+  @override
+  String get app_sync_manager_desc =>
+      'This bot is already stored on Bot Creator Manager. Connect with Discord to sync all your bots automatically?';
+
+  @override
+  String get app_sync_manager_manual => 'Keep local';
+
+  @override
+  String get app_sync_manager_connect => 'Connect Discord';
+
+  @override
   String get app_no_apps => 'No applications found';
 
   @override

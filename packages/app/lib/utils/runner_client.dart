@@ -2,6 +2,41 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+<<<<<<< Updated upstream
+=======
+enum RemoteRuntimeSource { local, runner, manager }
+
+abstract class RemoteRuntimeClient {
+  RemoteRuntimeSource get runtimeSource;
+
+  Future<bool> checkHealth();
+
+  Future<RunnerStatus> getStatus({String? botId});
+
+  Future<RunnerMetrics> getMetrics({String? botId});
+
+  Future<List<String>> getLogs({String? botId, int limit = 300});
+
+  Future<void> syncBot(
+    String botId,
+    String botName,
+    Map<String, dynamic> configJson,
+  );
+
+  Future<void> startBot(String botId, {String? botName});
+
+  Future<Map<String, dynamic>> stopBot(String botId);
+
+  Future<Map<String, dynamic>> getGatewayRuntime();
+
+  Future<Map<String, dynamic>> getBotRuntime(String botId);
+
+  Future<Map<String, dynamic>> getRunnerInfo();
+
+  Future<List<Map<String, dynamic>>> listBots();
+}
+
+>>>>>>> Stashed changes
 class RunnerBotRuntime {
   const RunnerBotRuntime({
     required this.botId,
@@ -315,13 +350,14 @@ class RunnerClient {
   }
 
   /// Returns the list of bots that have been synced to this runner.
-  Future<List<RunnerBotSummary>> listBots() async {
+  @override
+  Future<List<Map<String, dynamic>>> listBots() async {
     final json = await _get('/bots');
     final rawBots = json['bots'];
     if (rawBots is! List) return const [];
     return rawBots
         .whereType<Map>()
-        .map((e) => RunnerBotSummary.fromJson(Map<String, dynamic>.from(e)))
+        .map((e) => Map<String, dynamic>.from(e))
         .toList(growable: false);
   }
 

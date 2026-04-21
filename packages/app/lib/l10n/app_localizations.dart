@@ -410,6 +410,30 @@ abstract class AppLocalizations {
   /// **'Save Changes'**
   String get app_save;
 
+  /// No description provided for @app_sync_manager_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Bot already managed'**
+  String get app_sync_manager_title;
+
+  /// No description provided for @app_sync_manager_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'This bot is already stored on Bot Creator Manager. Connect with Discord to sync all your bots automatically?'**
+  String get app_sync_manager_desc;
+
+  /// No description provided for @app_sync_manager_manual.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep local'**
+  String get app_sync_manager_manual;
+
+  /// No description provided for @app_sync_manager_connect.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect Discord'**
+  String get app_sync_manager_connect;
+
   /// No description provided for @app_no_apps.
   ///
   /// In en, this message translates to:

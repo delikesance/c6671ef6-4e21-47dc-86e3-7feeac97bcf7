@@ -44,11 +44,26 @@ class SubscriptionService {
   // ── Prefs keys ─────────────────────────────────────────────────────────────
   static const String _activeKey = 'subscription_active';
   static const String _productIdKey = 'subscription_product_id';
+<<<<<<< Updated upstream
+=======
+  static const String _expiresAtKey = 'subscription_expires_at';
+  static const String _lastSyncKey = 'subscription_last_sync_at';
+>>>>>>> Stashed changes
 
   // ── State ──────────────────────────────────────────────────────────────────
   static bool _initialized = false;
   static bool _isSubscribed = false;
   static String? _activeProductId;
+<<<<<<< Updated upstream
+=======
+  static DateTime? _subscriptionExpiresAt;
+  static DateTime? _lastSyncAt;
+  static bool? _managerPremiumOverride;
+  static DateTime? _managerPremiumOverrideUpdatedAt;
+  static DateTime? _lastLocalValidationAt;
+  static bool? _debugForceNativeBillingSourceOfTruth;
+  static Timer? _expiryTimer;
+>>>>>>> Stashed changes
   static StreamSubscription<List<PurchaseDetails>>? _subscription;
   static SharedPreferences? _prefs;
 
@@ -83,6 +98,27 @@ class SubscriptionService {
       // Read cached state immediately so the UI can render without delay.
       _isSubscribed = _prefs?.getBool(_activeKey) ?? false;
       _activeProductId = _prefs?.getString(_productIdKey);
+<<<<<<< Updated upstream
+=======
+      final expiresAtRaw = _prefs?.getString(_expiresAtKey);
+      _subscriptionExpiresAt =
+          expiresAtRaw == null
+              ? null
+              : DateTime.tryParse(expiresAtRaw)?.toUtc();
+
+      final lastSyncRaw = _prefs?.getString(_lastSyncKey);
+      _lastSyncAt =
+          lastSyncRaw == null ? null : DateTime.tryParse(lastSyncRaw)?.toUtc();
+
+      if (_isSubscribed && _subscriptionExpiresAt == null) {
+        await _markExpired();
+      } else if (_subscriptionExpiresAt != null &&
+          _subscriptionExpiresAt!.isBefore(DateTime.now().toUtc())) {
+        await _markExpired();
+      } else {
+        _scheduleExpirationTimer();
+      }
+>>>>>>> Stashed changes
 
       final iap = InAppPurchase.instance;
       _storeAvailable = await iap.isAvailable();
@@ -152,6 +188,7 @@ class SubscriptionService {
       // Validate cached subscription against the store in the background.
       if (_isSubscribed) {
         unawaited(refreshStatus());
+        unawaited(syncStatusWithBackend());
       }
     } catch (error, stack) {
       _initialized = true;
@@ -382,6 +419,49 @@ class SubscriptionService {
       // No active subscription came back — mark as expired.
       await _markExpired();
       unawaited(AppDiagnostics.logInfo('Subscription expired or revoked'));
+    }
+  }
+
+  /// Syncs the local subscription status with the backend.
+  ///
+  /// By default, the sync is throttled to once every 24 hours to reduce API
+  /// load. Setting [force] to true bypasses this check.
+  static Future<void> syncStatusWithBackend({bool force = false}) async {
+    if (!_isSupportedPlatform) return;
+
+    final now = DateTime.now().toUtc();
+    final lastSync = _lastSyncAt;
+
+    if (!force &&
+        lastSync != null &&
+        now.difference(lastSync) < const Duration(hours: 24)) {
+      return;
+    }
+
+    try {
+      final iap = InAppPurchase.instance;
+      // Triggers purchase stream which eventually calls _syncBillingEntitlement.
+      // This is the cleanest way to ensure we have a fresh receipt and sync it.
+      await iap.restorePurchases();
+
+      _lastSyncAt = now;
+      await _prefs?.setString(_lastSyncKey, now.toIso8601String());
+
+      unawaited(
+        AppDiagnostics.logInfo(
+          'Subscription status sync requested',
+          data: {'force': force},
+        ),
+      );
+    } catch (error, stack) {
+      unawaited(
+        AppDiagnostics.logError(
+          'Failed to trigger subscription sync',
+          error,
+          stack,
+          fatal: false,
+        ),
+      );
     }
   }
 

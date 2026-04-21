@@ -54,6 +54,10 @@ const Map<String, String> appStringsEn = {
   'app_enter_token': 'Enter your bot token here',
   'app_note': 'Note: You need to create a new App in the Discord Developer Portal and get your bot token.',
   'app_save': 'Save Changes',
+  'app_sync_manager_title': 'Bot already managed',
+  'app_sync_manager_desc': 'This bot is already stored on Bot Creator Manager. Connect with Discord to sync all your bots automatically?',
+  'app_sync_manager_manual': 'Keep local',
+  'app_sync_manager_connect': 'Connect Discord',
   'app_no_apps': 'No applications found',
   'app_loading_error': 'Loading error',
   'app_create_button': 'Create a bot',
@@ -151,6 +155,31 @@ const Map<String, String> appStringsEn = {
   'settings_runner_temporarily_disabled': 'Runner temporarily disabled (local mode active)',
   'settings_runner_temporarily_disabled_saved': 'Runner temporarily disabled',
   'settings_runner_reenabled': 'Runner re-enabled',
+<<<<<<< Updated upstream
+=======
+  'settings_main_api_title': 'Main API',
+  'settings_main_api_desc': 'Connect Bot Creator to your Main API and sign in with Discord. The Discord client secret must stay on the backend.',
+  'settings_main_api_url_hint': 'https://api.example.com',
+  'settings_main_api_save': 'Save Main API',
+  'settings_main_api_clear': 'Clear',
+  'settings_main_api_saved': 'Main API settings saved',
+  'settings_main_api_cleared': 'Main API settings cleared',
+  'settings_main_api_check': 'Check Main API',
+  'settings_main_api_connected': 'Main API reachable ✓',
+  'settings_main_api_unreachable': 'Main API unreachable',
+  'settings_main_api_auth_failed': 'Main API session is invalid or expired',
+  'settings_main_api_connect_discord': 'Connect Discord account',
+  'settings_main_api_disconnect': 'Disconnect account',
+  'settings_main_api_desktop_only': 'Discord login via Main API is available on desktop only.',
+  'settings_main_api_not_configured': 'Main API URL required',
+  'settings_main_api_session_connected': 'Discord session active',
+  'settings_main_api_session_disconnected': 'Discord session disconnected',
+  'settings_main_api_session_expired': 'Discord session expired',
+  'settings_main_api_url_required': 'Main API URL required',
+  'settings_main_api_connected_user': 'Connected as {user}',
+  'settings_main_api_user_unknown': 'Discord user',
+  'settings_main_api_connected_discord': 'Discord account connected',
+>>>>>>> Stashed changes
   'settings_discord_rpc_title': 'Discord Rich Presence',
   'settings_discord_rpc_desc': 'Publish Bot Creator desktop activity to the local Discord client. Bot Creator always uses the built-in Discord application and sends SET_ACTIVITY directly over local IPC when enabled.',
   'settings_discord_rpc_enable': 'Enable Discord Rich Presence',
@@ -716,6 +745,12 @@ const Map<String, String> appStringsEn = {
   'cmd_execution_mode_bdfd': 'BDFD Script mode',
   'cmd_execution_mode_bdfd_desc': 'Write the command body as BDFD-style script while keeping command definition visual.',
   'cmd_execution_mode_bdfd_note': 'The script is compiled to internal actions. Diagnostics are shown while editing; invalid scripts fail when the command runs.',
+<<<<<<< Updated upstream
+=======
+  'cmd_execution_mode_dart': 'Dart Direct mode',
+  'cmd_execution_mode_dart_desc': 'Write the command body directly in Dart with runtime diagnostics.',
+  'cmd_execution_mode_dart_note': 'Dart code is compiled at runtime through the sandboxed engine. Keep scripts deterministic and return a value when needed.',
+>>>>>>> Stashed changes
   'cmd_bdfd_script_label': 'BDFD script body',
   'cmd_bdfd_script_hint': '\$nomention\\n\$if[\$hasPerms[\$authorID;administrator]==true]\\nHello from Bot Creator',
   'cmd_bdfd_diagnostics_title': 'BDFD diagnostics',
@@ -724,16 +759,38 @@ const Map<String, String> appStringsEn = {
   'cmd_bdfd_diagnostics_warning': 'Warning',
   'cmd_bdfd_script_empty_error': 'BDFD script body cannot be empty.',
   'cmd_bdfd_script_validation_error': 'This BDFD script still contains diagnostics:',
+<<<<<<< Updated upstream
+=======
+  'cmd_dart_script_label': 'Dart script body',
+  'cmd_dart_script_hint': 'return "Hello from Dart Direct";',
+  'cmd_dart_diagnostics_title': 'Dart diagnostics',
+  'cmd_dart_diagnostics_clean': 'No issue detected in the current Dart script.',
+  'cmd_dart_diagnostics_error': 'Error',
+  'cmd_dart_diagnostics_warning': 'Warning',
+  'cmd_migrate_bdfd_to_dart_desc': 'Generate a Dart migration scaffold from your current BDFD script.',
+  'cmd_migrate_bdfd_to_dart_action': 'Migrate',
+>>>>>>> Stashed changes
   'cmd_bdfd_autocomplete_title': 'BDFD prefix autocomplete',
   'cmd_bdfd_autocomplete_hint': 'Type \$ and start writing a function name to get quick script suggestions.',
   'workflow_mode_title': 'Workflow mode',
   'workflow_mode_desc': 'Choose between a visual action builder or a full BDFD scripting editor.',
   'workflow_mode_visual': 'Visual',
   'workflow_mode_bdfd': 'BDFD Script',
+<<<<<<< Updated upstream
   'workflow_mode_visual_note': 'Build your workflow visually by adding individual actions with the card editor.',
   'workflow_mode_bdfd_note': 'Write your entire workflow as a single BDFD script. The script is compiled and validated in real time.',
   'workflow_bdfd_editor_title': 'BDFD Script Editor',
   'workflow_bdfd_editor_desc': 'Write the complete BDFD code for this workflow response. Diagnostics are displayed live.',
+=======
+  'workflow_mode_dart': 'Dart Direct',
+  'workflow_mode_visual_note': 'Build your workflow visually by adding individual actions with the card editor.',
+  'workflow_mode_bdfd_note': 'Write your entire workflow as a single BDFD script. The script is compiled and validated in real time.',
+  'workflow_mode_dart_note': 'Write your workflow in Dart. Diagnostics are updated while editing to catch errors early.',
+  'workflow_bdfd_editor_title': 'BDFD Script Editor',
+  'workflow_bdfd_editor_desc': 'Write the complete BDFD code for this workflow response. Diagnostics are displayed live.',
+  'workflow_dart_editor_title': 'Dart Script Editor',
+  'workflow_dart_editor_desc': 'Write full Dart code for this workflow response. Diagnostics are displayed live.',
+>>>>>>> Stashed changes
   'bdfd_editor_title': 'BDFD Editor',
   'bdfd_editor_tap_hint': 'Tap to open editor',
   'bdfd_editor_wrap_toggle': 'Toggle line wrapping',
@@ -1629,6 +1686,11 @@ const Map<String, String> appStringsEn = {
   'workflow_condition_on_upper': 'Condition ON',
   'workflow_condition_off_upper': 'Condition OFF',
   'actions_summary_bdfd': 'BDFD script | {lines} line(s) | {diagnostics} diagnostic(s)',
+<<<<<<< Updated upstream
+=======
+  'actions_summary_dart': 'Dart script | {lines} line(s) | {diagnostics} diagnostic(s)',
+  'scratch_dart_script': 'Dart Script',
+>>>>>>> Stashed changes
   'actions_summary_routes': '{count} action(s) on active route | {routes} route(s)',
   'actions_summary_configured': '{count} action(s) configured',
   'reply_editor_title': 'Reply Details',
@@ -1808,6 +1870,7 @@ const Map<String, String> appStringsEn = {
   'command_execution_error': 'An error occurred while executing this command.',
   'bdfd_runtime_execution_error': 'An error occurred while executing this BDFD script.',
   'bdfd_compiled_no_actions': 'This BDFD script compiled successfully but did not produce any action.',
+<<<<<<< Updated upstream
 
   // ── Scratch Block Editor ──────────────────────────────────────────────
   'scratch_block_metadata': 'Metadata',
@@ -1850,4 +1913,20 @@ const Map<String, String> appStringsEn = {
   'scratch_workflow_type_event': 'Event',
   'scratch_workflow_arguments': 'Arguments',
   'scratch_workflow_add_argument': 'Add argument',
+=======
+  'embed_section_color': 'Color',
+  'embed_section_timestamp': 'Timestamp',
+  'embed_section_fields': 'Fields',
+  'embed_section_dynamic_fields': 'Dynamic Fields',
+  'embed_add_field': 'Add Field',
+  'embed_add_section': 'Add Section',
+  'common_add_section': 'Add Section',
+  'component_block_workflow': 'Workflow',
+  'component_block_label_style': 'Style',
+  'notion_filter_add': 'Add Filter',
+  'notion_filter_type': 'Type',
+  'notion_create_workflow_from_query': 'Create workflow "{query}"',
+  'commands_create_from_query': 'Create command "{query}"',
+  'commands_filter_type_label': 'Type',
+>>>>>>> Stashed changes
 };
