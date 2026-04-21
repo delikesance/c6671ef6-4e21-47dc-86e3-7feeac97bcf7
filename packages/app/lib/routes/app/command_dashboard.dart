@@ -3,13 +3,15 @@ import 'dart:async';
 import 'package:bot_creator/utils/database.dart';
 import 'package:bot_creator/utils/i18n.dart';
 import 'package:bot_creator/utils/premium_capabilities.dart';
+import 'package:bot_creator/utils/remote_runtime.dart';
 import 'package:bot_creator/utils/runner_client.dart';
 import 'package:bot_creator/utils/runner_settings.dart';
 import 'package:bot_creator/widgets/subscription_page.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:bot_creator/utils/app_theme.dart';
 
-enum _DashboardStatsSource { local, runner }
+enum _DashboardStatsSource { local, manager, runner }
 
 final AppManager _appManager = AppManager();
 
@@ -23,7 +25,7 @@ class CommandDashboardPage extends StatefulWidget {
 }
 
 class _CommandDashboardPageState extends State<CommandDashboardPage> {
-  RunnerClient? _client;
+  RemoteRuntimeClient? _client;
   bool _loading = true;
   bool _refreshingSources = false;
   String? _error;
@@ -42,6 +44,10 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
 
   List<RunnerConnectionConfig> _runners = const [];
   String? _activeRunnerId;
+  bool _hasManagerSource = false;
+  String? _managerUnavailableReason;
+
+  bool get _supportsManagerRuntime => !kIsWeb;
 
   @override
   void initState() {
@@ -50,43 +56,127 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
   }
 
   Future<void> _init() async {
-    await _refreshRunnerSources(refetchStats: false);
+    await _refreshSources(refetchStats: false, preserveSelection: false);
     await _fetchStats();
   }
 
-  Future<void> _refreshRunnerSources({bool refetchStats = true}) async {
+  String _uiCopy({required String fr, required String en}) {
+    return Localizations.localeOf(context).languageCode == 'fr' ? fr : en;
+  }
+
+  String _managerSourceLabel() {
+    return _uiCopy(fr: 'Serveurs Bot Creator', en: 'Bot Creator servers');
+  }
+
+  String _managerUnavailableMessage() {
+    return _managerUnavailableReason ??
+        _uiCopy(
+          fr:
+              'Connectez-vous a Bot Creator dans les parametres pour charger les stats depuis les serveurs Bot Creator.',
+          en:
+              'Sign in to Bot Creator in Settings to load stats from Bot Creator servers.',
+        );
+  }
+
+  Future<void> _refreshSources({
+    bool refetchStats = true,
+    bool preserveSelection = true,
+  }) async {
     setState(() {
       _refreshingSources = true;
     });
 
     final runners = await RunnerSettings.getRunners();
     final config = await RunnerSettings.getConfig();
+    final runtime = await resolveRemoteRuntime(
+      supportsManagerRuntime: _supportsManagerRuntime,
+    );
     if (!mounted) return;
 
+    final hasManagerSource = runtime.source == RemoteRuntimeSource.manager;
     var nextSource =
-        config == null
-            ? _DashboardStatsSource.local
-            : _DashboardStatsSource.runner;
-    var nextActiveRunnerId = config?.id;
+        preserveSelection
+            ? _source
+            : switch (runtime.source) {
+              RemoteRuntimeSource.manager => _DashboardStatsSource.manager,
+              RemoteRuntimeSource.runner => _DashboardStatsSource.runner,
+              RemoteRuntimeSource.local => _DashboardStatsSource.local,
+            };
+    var nextActiveRunnerId = preserveSelection ? _activeRunnerId : config?.id;
 
-    if (nextSource == _DashboardStatsSource.runner &&
-        nextActiveRunnerId != null &&
-        runners.every((r) => r.id != nextActiveRunnerId)) {
-      nextSource = _DashboardStatsSource.local;
-      nextActiveRunnerId = null;
+    if (nextSource == _DashboardStatsSource.manager && !hasManagerSource) {
+      nextSource =
+          config == null
+              ? _DashboardStatsSource.local
+              : _DashboardStatsSource.runner;
+      nextActiveRunnerId = config?.id;
+    }
+
+    if (nextSource == _DashboardStatsSource.runner) {
+      final selectedRunner =
+          runners
+              .where((runner) => runner.id == nextActiveRunnerId)
+              .firstOrNull;
+      if (selectedRunner == null) {
+        if (config != null && runners.any((runner) => runner.id == config.id)) {
+          nextActiveRunnerId = config.id;
+        } else if (hasManagerSource) {
+          nextSource = _DashboardStatsSource.manager;
+          nextActiveRunnerId = null;
+        } else {
+          nextSource = _DashboardStatsSource.local;
+          nextActiveRunnerId = null;
+        }
+      }
+    }
+
+    RemoteRuntimeClient? nextClient;
+    switch (nextSource) {
+      case _DashboardStatsSource.local:
+        nextClient = null;
+        break;
+      case _DashboardStatsSource.manager:
+        nextClient =
+            runtime.source == RemoteRuntimeSource.manager
+                ? runtime.client
+                : null;
+        break;
+      case _DashboardStatsSource.runner:
+        final runner =
+            runners
+                .where((candidate) => candidate.id == nextActiveRunnerId)
+                .firstOrNull ??
+            (config != null &&
+                    runners.any((candidate) => candidate.id == config.id)
+                ? config
+                : null);
+        if (runner == null) {
+          nextSource =
+              hasManagerSource
+                  ? _DashboardStatsSource.manager
+                  : _DashboardStatsSource.local;
+          nextActiveRunnerId = null;
+          nextClient =
+              nextSource == _DashboardStatsSource.manager
+                  ? runtime.client
+                  : null;
+        } else {
+          nextActiveRunnerId = runner.id;
+          nextClient = runner.createClient();
+        }
+        break;
     }
 
     setState(() {
       _runners = runners;
       _activeRunnerId = nextActiveRunnerId;
       _source = nextSource;
+      _hasManagerSource = hasManagerSource;
+      _managerUnavailableReason =
+          hasManagerSource ? runtime.unavailableReason : null;
       _refreshingSources = false;
     });
-
-    _client =
-        (nextSource == _DashboardStatsSource.runner && config != null)
-            ? config.createClient()
-            : null;
+    _client = nextClient;
 
     if (refetchStats) {
       await _fetchStats();
@@ -100,7 +190,18 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
         _loading = true;
         _error = null;
       });
-      await _fetchStats();
+      await _refreshSources();
+      return;
+    }
+
+    if (sourceId == 'manager') {
+      setState(() {
+        _source = _DashboardStatsSource.manager;
+        _activeRunnerId = null;
+        _loading = true;
+        _error = null;
+      });
+      await _refreshSources();
       return;
     }
 
@@ -114,7 +215,7 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
       _error = null;
     });
     _client = runner.createClient();
-    await _fetchStats();
+    await _refreshSources();
   }
 
   Future<void> _fetchStats() async {
@@ -133,7 +234,9 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
         final client = _client;
         if (client == null) {
           throw StateError(
-            'Runner source selected but no active runner client.',
+            _source == _DashboardStatsSource.manager
+                ? _managerUnavailableMessage()
+                : 'Runner source selected but no active runner client.',
           );
         }
         json = await client.getCommandStats(widget.botId, hours: _hours);
@@ -226,11 +329,13 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
       children: [
         // ── Runner source ──
         _StatsSourceBanner(
+          hasManagerSource: _hasManagerSource,
+          managerLabel: _managerSourceLabel(),
           runners: _runners,
           source: _source,
           activeRunnerId: _activeRunnerId,
           onSourceChanged: _switchSource,
-          onRefreshSources: _refreshingSources ? null : _refreshRunnerSources,
+          onRefreshSources: _refreshingSources ? null : _refreshSources,
         ),
         // ── Period selector ──
         Wrap(
@@ -658,6 +763,8 @@ class _TimelineChart extends StatelessWidget {
 
 class _StatsSourceBanner extends StatelessWidget {
   const _StatsSourceBanner({
+    required this.hasManagerSource,
+    required this.managerLabel,
     required this.runners,
     required this.source,
     required this.activeRunnerId,
@@ -665,6 +772,8 @@ class _StatsSourceBanner extends StatelessWidget {
     required this.onRefreshSources,
   });
 
+  final bool hasManagerSource;
+  final String managerLabel;
   final List<RunnerConnectionConfig> runners;
   final _DashboardStatsSource source;
   final String? activeRunnerId;
@@ -683,13 +792,17 @@ class _StatsSourceBanner extends StatelessWidget {
             : context.tr.runner_source_label(
               activeRunner.name ?? activeRunner.url,
             );
-    final selectedValue =
-        source == _DashboardStatsSource.local
-            ? 'local'
-            : (activeRunnerId ?? 'local');
-    final sourceLabel =
-        source == _DashboardStatsSource.local ? localLabel : activeRunnerLabel;
-    final hasMultipleChoices = runners.isNotEmpty;
+    final selectedValue = switch (source) {
+      _DashboardStatsSource.local => 'local',
+      _DashboardStatsSource.manager => 'manager',
+      _DashboardStatsSource.runner => activeRunnerId ?? 'local',
+    };
+    final sourceLabel = switch (source) {
+      _DashboardStatsSource.local => localLabel,
+      _DashboardStatsSource.manager => managerLabel,
+      _DashboardStatsSource.runner => activeRunnerLabel,
+    };
+    final hasMultipleChoices = hasManagerSource || runners.isNotEmpty;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -722,6 +835,14 @@ class _StatsSourceBanner extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
+                          if (hasManagerSource)
+                            DropdownMenuItem(
+                              value: 'manager',
+                              child: Text(
+                                managerLabel,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
                           for (final r in runners)
                             DropdownMenuItem(
                               value: r.id,

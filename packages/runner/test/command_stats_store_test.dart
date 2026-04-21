@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:bot_creator_runner/stores/command_stats_store.dart';
@@ -89,5 +90,73 @@ void main() {
       store.record(botId: 'b1', commandName: 'ping');
       expect(store.totalCount('b1'), equals(1));
     });
+
+    test(
+      'record syncs managed command stats when managed runner is configured',
+      () async {
+        final requests = <Map<String, dynamic>>[];
+        final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+        addTearDown(() async {
+          await server.close(force: true);
+        });
+        server.listen((request) async {
+          final body = await utf8.decoder.bind(request).join();
+          requests.add(<String, dynamic>{
+            'path': request.uri.path,
+            'authorization': request.headers.value(
+              HttpHeaders.authorizationHeader,
+            ),
+            'body': jsonDecode(body),
+          });
+          request.response.statusCode = HttpStatus.ok;
+          request.response.write('{"ok":true}');
+          await request.response.close();
+        });
+
+        final managedStore = CommandStatsStore(
+          tempDir.path,
+          managedBaseUrl:
+              'http://${server.address.address}:${server.port}/internal/runners/tenant-1',
+          managedToken: 'runner-token',
+        );
+        await managedStore.init();
+        addTearDown(managedStore.dispose);
+
+        managedStore.record(
+          botId: 'b1',
+          commandName: 'ping',
+          guildId: 'g1',
+          locale: 'fr',
+          guildLocale: 'en-us',
+          success: false,
+          latencyMs: 123,
+        );
+
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+
+        expect(requests, hasLength(1));
+        expect(
+          requests.first['path'],
+          '/internal/runners/tenant-1/command-stats',
+        );
+        expect(requests.first['authorization'], 'Bearer runner-token');
+
+        final body = Map<String, dynamic>.from(requests.first['body'] as Map);
+        final records = List<Map<String, dynamic>>.from(
+          (body['records'] as List).map(
+            (entry) => Map<String, dynamic>.from(entry as Map),
+          ),
+        );
+        expect(records, hasLength(1));
+        expect(records.first['bot_id'], 'b1');
+        expect(records.first['command_name'], 'ping');
+        expect(records.first['guild_id'], 'g1');
+        expect(records.first['locale'], 'fr');
+        expect(records.first['guild_locale'], 'en-us');
+        expect(records.first['success'], isFalse);
+        expect(records.first['latency_ms'], 123);
+        expect(records.first['executed_at'], isA<String>());
+      },
+    );
   });
 }
