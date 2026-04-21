@@ -191,10 +191,7 @@ void main() {
 
   group('backward-compatible save/setUrl/setApiToken', () {
     test('save creates a runner entry', () async {
-      await RunnerSettings.save(
-        url: 'http://myrunner',
-        apiToken: 'tok',
-      );
+      await RunnerSettings.save(url: 'http://myrunner', apiToken: 'tok');
 
       final runners = await RunnerSettings.getRunners();
       expect(runners, hasLength(1));
@@ -297,16 +294,19 @@ void main() {
   });
 
   group('edge cases', () {
-    test('getConfig falls back to first runner if active ID is stale', () async {
-      await RunnerSettings.addRunner(
-        const RunnerConnectionConfig(id: 'a', url: 'http://a'),
-      );
-      // Set a non-existent active ID
-      await RunnerSettings.setActiveRunner('nonexistent');
+    test(
+      'getConfig falls back to first runner if active ID is stale',
+      () async {
+        await RunnerSettings.addRunner(
+          const RunnerConnectionConfig(id: 'a', url: 'http://a'),
+        );
+        // Set a non-existent active ID
+        await RunnerSettings.setActiveRunner('nonexistent');
 
-      final config = await RunnerSettings.getConfig();
-      expect(config?.id, 'a');
-    });
+        final config = await RunnerSettings.getConfig();
+        expect(config?.id, 'a');
+      },
+    );
 
     test('corrupt registry JSON returns empty list', () async {
       final prefs = await SharedPreferences.getInstance();
@@ -329,6 +329,35 @@ void main() {
       final runners = await RunnerSettings.getRunners();
       expect(runners, hasLength(1));
       expect(runners.first.id, 'good');
+    });
+  });
+
+  group('temporary disable', () {
+    test(
+      'preserves stored runner config while disabling active usage',
+      () async {
+        await RunnerSettings.addRunner(
+          const RunnerConnectionConfig(id: 'a', url: 'http://runner'),
+        );
+
+        await RunnerSettings.setTemporarilyDisabled(true);
+
+        expect(await RunnerSettings.isTemporarilyDisabled(), isTrue);
+        expect(await RunnerSettings.getConfig(), isNull);
+        expect((await RunnerSettings.getStoredConfig())?.url, 'http://runner');
+      },
+    );
+
+    test('re-enabling restores the stored runner config', () async {
+      await RunnerSettings.addRunner(
+        const RunnerConnectionConfig(id: 'a', url: 'http://runner'),
+      );
+      await RunnerSettings.setTemporarilyDisabled(true);
+
+      await RunnerSettings.setTemporarilyDisabled(false);
+
+      expect(await RunnerSettings.isTemporarilyDisabled(), isFalse);
+      expect((await RunnerSettings.getConfig())?.url, 'http://runner');
     });
   });
 }

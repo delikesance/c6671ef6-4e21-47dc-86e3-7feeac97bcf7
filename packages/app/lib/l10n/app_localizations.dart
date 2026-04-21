@@ -992,6 +992,138 @@ abstract class AppLocalizations {
   /// **'Runner re-enabled'**
   String get settings_runner_reenabled;
 
+  /// No description provided for @settings_main_api_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Main API'**
+  String get settings_main_api_title;
+
+  /// No description provided for @settings_main_api_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect Bot Creator to your Main API and sign in with Discord. The Discord client secret must stay on the backend.'**
+  String get settings_main_api_desc;
+
+  /// No description provided for @settings_main_api_url_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'https://api.example.com'**
+  String get settings_main_api_url_hint;
+
+  /// No description provided for @settings_main_api_save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Main API'**
+  String get settings_main_api_save;
+
+  /// No description provided for @settings_main_api_clear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get settings_main_api_clear;
+
+  /// No description provided for @settings_main_api_saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Main API settings saved'**
+  String get settings_main_api_saved;
+
+  /// No description provided for @settings_main_api_cleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Main API settings cleared'**
+  String get settings_main_api_cleared;
+
+  /// No description provided for @settings_main_api_check.
+  ///
+  /// In en, this message translates to:
+  /// **'Check Main API'**
+  String get settings_main_api_check;
+
+  /// No description provided for @settings_main_api_connected.
+  ///
+  /// In en, this message translates to:
+  /// **'Main API reachable ✓'**
+  String get settings_main_api_connected;
+
+  /// No description provided for @settings_main_api_unreachable.
+  ///
+  /// In en, this message translates to:
+  /// **'Main API unreachable'**
+  String get settings_main_api_unreachable;
+
+  /// No description provided for @settings_main_api_auth_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Main API session is invalid or expired'**
+  String get settings_main_api_auth_failed;
+
+  /// No description provided for @settings_main_api_connect_discord.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect Discord account'**
+  String get settings_main_api_connect_discord;
+
+  /// No description provided for @settings_main_api_disconnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnect account'**
+  String get settings_main_api_disconnect;
+
+  /// No description provided for @settings_main_api_desktop_only.
+  ///
+  /// In en, this message translates to:
+  /// **'Discord login via Main API is available on desktop only.'**
+  String get settings_main_api_desktop_only;
+
+  /// No description provided for @settings_main_api_not_configured.
+  ///
+  /// In en, this message translates to:
+  /// **'Main API URL required'**
+  String get settings_main_api_not_configured;
+
+  /// No description provided for @settings_main_api_session_connected.
+  ///
+  /// In en, this message translates to:
+  /// **'Discord session active'**
+  String get settings_main_api_session_connected;
+
+  /// No description provided for @settings_main_api_session_disconnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Discord session disconnected'**
+  String get settings_main_api_session_disconnected;
+
+  /// No description provided for @settings_main_api_session_expired.
+  ///
+  /// In en, this message translates to:
+  /// **'Discord session expired'**
+  String get settings_main_api_session_expired;
+
+  /// No description provided for @settings_main_api_url_required.
+  ///
+  /// In en, this message translates to:
+  /// **'Main API URL required'**
+  String get settings_main_api_url_required;
+
+  /// No description provided for @settings_main_api_connected_user.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected as {user}'**
+  String settings_main_api_connected_user(String user);
+
+  /// No description provided for @settings_main_api_user_unknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Discord user'**
+  String get settings_main_api_user_unknown;
+
+  /// No description provided for @settings_main_api_connected_discord.
+  ///
+  /// In en, this message translates to:
+  /// **'Discord account connected'**
+  String get settings_main_api_connected_discord;
+
   /// No description provided for @settings_discord_rpc_title.
   ///
   /// In en, this message translates to:

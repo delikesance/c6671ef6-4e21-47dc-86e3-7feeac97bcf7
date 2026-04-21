@@ -1,3 +1,5 @@
+import 'package:bot_creator/utils/runner_client.dart';
+
 class DiscordRichPresence {
   const DiscordRichPresence({
     required this.details,
@@ -26,16 +28,20 @@ class DiscordRichPresence {
 DiscordRichPresence buildBotCreatorRichPresence({
   required Set<String> runningBotIds,
   required Map<String, String> botNamesById,
-  required bool runnerModeEnabled,
+  required RemoteRuntimeSource runtimeSource,
   String? preferredBotId,
   String? preferredBotName,
-  String? activeRunnerLabel,
+  String? activeSourceLabel,
   DateTime? startedAt,
 }) {
   if (runningBotIds.isEmpty) {
     return DiscordRichPresence(
       details: 'Bot Creator open',
-      state: runnerModeEnabled ? 'Runner mode ready' : 'Desktop ready',
+      state: switch (runtimeSource) {
+        RemoteRuntimeSource.manager => 'Bot Creator servers ready',
+        RemoteRuntimeSource.runner => 'Server mode ready',
+        RemoteRuntimeSource.local => 'Desktop ready',
+      },
     );
   }
 
@@ -52,12 +58,17 @@ DiscordRichPresence buildBotCreatorRichPresence({
     80,
   );
 
-  final modeState =
-      runnerModeEnabled
-          ? (activeRunnerLabel?.trim().isNotEmpty ?? false)
-              ? 'Runner ${_truncate(activeRunnerLabel!.trim(), 48)}'
-              : 'Runner mode'
-          : 'Local desktop runtime';
+  final modeState = switch (runtimeSource) {
+    RemoteRuntimeSource.manager =>
+      (activeSourceLabel?.trim().isNotEmpty ?? false)
+          ? 'Bot Creator ${_truncate(activeSourceLabel!.trim(), 48)}'
+          : 'Bot Creator servers',
+    RemoteRuntimeSource.runner =>
+      (activeSourceLabel?.trim().isNotEmpty ?? false)
+          ? 'Server ${_truncate(activeSourceLabel!.trim(), 48)}'
+          : 'Server mode',
+    RemoteRuntimeSource.local => 'Local desktop runtime',
+  };
 
   final botCountSuffix =
       runningBotIds.length > 1 ? ' • ${runningBotIds.length} bots active' : '';

@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:bot_creator/utils/app_diagnostics.dart';
+import 'package:bot_creator/utils/main_api_client.dart';
+import 'package:bot_creator/utils/main_api_settings.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
@@ -44,11 +46,18 @@ class SubscriptionService {
   // ── Prefs keys ─────────────────────────────────────────────────────────────
   static const String _activeKey = 'subscription_active';
   static const String _productIdKey = 'subscription_product_id';
+  static const String _expiresAtKey = 'subscription_expires_at';
 
   // ── State ──────────────────────────────────────────────────────────────────
   static bool _initialized = false;
   static bool _isSubscribed = false;
   static String? _activeProductId;
+  static DateTime? _subscriptionExpiresAt;
+  static bool? _managerPremiumOverride;
+  static DateTime? _managerPremiumOverrideUpdatedAt;
+  static DateTime? _lastLocalValidationAt;
+  static bool? _debugForceNativeBillingSourceOfTruth;
+  static Timer? _expiryTimer;
   static StreamSubscription<List<PurchaseDetails>>? _subscription;
   static SharedPreferences? _prefs;
 
@@ -58,14 +67,88 @@ class SubscriptionService {
   /// Whether the store is available.
   static bool _storeAvailable = false;
 
+  static const Duration _managerPremiumOverrideTtl = Duration(seconds: 20);
+  static const Duration _localValidationTtl = Duration(hours: 6);
+
+  static bool _isLocalSubscriptionActive() {
+    if (!_isSubscribed) {
+      return false;
+    }
+    final expiresAt = _subscriptionExpiresAt;
+    if (expiresAt == null) {
+      return true;
+    }
+    return expiresAt.isAfter(DateTime.now().toUtc());
+  }
+
+  static bool _hasFreshManagerOverride({bool forceRefresh = false}) {
+    if (forceRefresh) {
+      return false;
+    }
+    final updatedAt = _managerPremiumOverrideUpdatedAt;
+    if (_managerPremiumOverride == null || updatedAt == null) {
+      return false;
+    }
+    return DateTime.now().toUtc().difference(updatedAt) <=
+        _managerPremiumOverrideTtl;
+  }
+
+  static bool _hasFreshLocalValidation({bool forceRefresh = false}) {
+    if (forceRefresh) {
+      return false;
+    }
+    final validatedAt = _lastLocalValidationAt;
+    if (validatedAt == null) {
+      return false;
+    }
+    return DateTime.now().toUtc().difference(validatedAt) <=
+        _localValidationTtl;
+  }
+
+  static bool get _usesNativeBillingSourceOfTruth =>
+      _debugForceNativeBillingSourceOfTruth ?? supportsNativeBilling;
+
+  @visibleForTesting
+  static void debugSetNativeBillingSourceOfTruth(bool? value) {
+    _debugForceNativeBillingSourceOfTruth = value;
+  }
+
+  static bool? _isPremiumPlan(dynamic rawPlan) {
+    if (rawPlan == null) {
+      return null;
+    }
+    final normalized = rawPlan.toString().trim().toUpperCase();
+    if (normalized.isEmpty) {
+      return null;
+    }
+    if (normalized == 'PREMIUM') {
+      return true;
+    }
+    if (normalized == 'FREE') {
+      return false;
+    }
+    return null;
+  }
+
   /// Whether the user holds an active premium subscription.
-  static bool get isSubscribed => _isSubscribed;
+  static bool get isSubscribed {
+    if (_usesNativeBillingSourceOfTruth) {
+      return _isLocalSubscriptionActive();
+    }
+    if (_hasFreshManagerOverride()) {
+      return _managerPremiumOverride!;
+    }
+    return _isLocalSubscriptionActive();
+  }
 
   /// Whether native in-app subscriptions are available on this platform.
   static bool get supportsNativeBilling => _isSupportedPlatform;
 
   /// The active product ID (if subscribed).
   static String? get activeProductId => _activeProductId;
+
+  /// The verified subscription expiration time, if known.
+  static DateTime? get subscriptionExpiresAt => _subscriptionExpiresAt;
 
   static bool get _isSupportedPlatform {
     if (kIsWeb) return false;
@@ -83,6 +166,20 @@ class SubscriptionService {
       // Read cached state immediately so the UI can render without delay.
       _isSubscribed = _prefs?.getBool(_activeKey) ?? false;
       _activeProductId = _prefs?.getString(_productIdKey);
+      final expiresAtRaw = _prefs?.getString(_expiresAtKey);
+      _subscriptionExpiresAt =
+          expiresAtRaw == null
+              ? null
+              : DateTime.tryParse(expiresAtRaw)?.toUtc();
+
+      if (_isSubscribed && _subscriptionExpiresAt == null) {
+        await _markExpired();
+      } else if (_subscriptionExpiresAt != null &&
+          _subscriptionExpiresAt!.isBefore(DateTime.now().toUtc())) {
+        await _markExpired();
+      } else {
+        _scheduleExpirationTimer();
+      }
 
       final iap = InAppPurchase.instance;
       _storeAvailable = await iap.isAvailable();
@@ -150,9 +247,10 @@ class SubscriptionService {
       );
 
       // Validate cached subscription against the store in the background.
-      if (_isSubscribed) {
+      if (isSubscribed) {
         unawaited(refreshStatus());
       }
+      unawaited(resolveEffectivePremiumStatus(forceRefresh: true));
     } catch (error, stack) {
       _initialized = true;
       unawaited(
@@ -339,8 +437,22 @@ class SubscriptionService {
     if (_kSubscriptionIds.contains(purchase.productID)) {
       _isSubscribed = true;
       _activeProductId = purchase.productID;
+      _managerPremiumOverride = null;
+      _managerPremiumOverrideUpdatedAt = null;
       await _prefs?.setBool(_activeKey, true);
       await _prefs?.setString(_productIdKey, purchase.productID);
+      final expiresAt = await _syncBillingEntitlement(purchase);
+      if (expiresAt == null || !expiresAt.isAfter(DateTime.now().toUtc())) {
+        await _markExpired();
+        return;
+      }
+      _subscriptionExpiresAt = expiresAt.toUtc();
+      _lastLocalValidationAt = DateTime.now().toUtc();
+      await _prefs?.setString(
+        _expiresAtKey,
+        _subscriptionExpiresAt!.toIso8601String(),
+      );
+      _scheduleExpirationTimer();
       unawaited(
         AppDiagnostics.logInfo(
           'Subscription activated',
@@ -350,13 +462,265 @@ class SubscriptionService {
     }
   }
 
+  static Future<DateTime?> _syncBillingEntitlement(
+    PurchaseDetails purchase,
+  ) async {
+    final receipt = purchase.verificationData.serverVerificationData.trim();
+    if (receipt.isEmpty) {
+      return null;
+    }
+
+    try {
+      final config = await MainApiSettingsStore.loadConfig();
+      final session = await MainApiSettingsStore.loadSession();
+      if (!config.isConfigured || session == null || session.isExpired) {
+        return null;
+      }
+
+      final client = MainApiClient(
+        baseUrl: config.baseUrl,
+        accessToken: session.accessToken,
+      );
+      final provider = Platform.isIOS ? 'apple' : 'google';
+      final response = await client.verifyBilling(
+        provider: provider,
+        receipt: receipt,
+        transactionId: purchase.purchaseID,
+      );
+      final expiresAtRaw = response['expiresAt'] ?? response['expires_at'];
+      final expiresAt =
+          DateTime.tryParse(expiresAtRaw?.toString() ?? '')?.toUtc();
+      unawaited(
+        AppDiagnostics.logInfo(
+          'Subscription synced to main API',
+          data: {'product': purchase.productID, 'provider': provider},
+        ),
+      );
+      return expiresAt;
+    } catch (error, stack) {
+      unawaited(
+        AppDiagnostics.logError(
+          'Failed to sync subscription to main API',
+          error,
+          stack,
+          fatal: false,
+          reason: 'product=${purchase.productID}',
+        ),
+      );
+      return null;
+    }
+  }
+
   /// Called when a subscription expires or is revoked.
   /// The store will stop sending restored purchases and we reset local state.
   static Future<void> _markExpired() async {
+    _expiryTimer?.cancel();
+    _expiryTimer = null;
     _isSubscribed = false;
     _activeProductId = null;
+    _subscriptionExpiresAt = null;
+    _lastLocalValidationAt = DateTime.now().toUtc();
     await _prefs?.setBool(_activeKey, false);
     await _prefs?.remove(_productIdKey);
+    await _prefs?.remove(_expiresAtKey);
+  }
+
+  static Future<bool> refreshManagerPremiumStatus({
+    MainApiClient? client,
+    bool forceRefresh = false,
+    bool preferLocalOnFailure = true,
+  }) async {
+    if (_usesNativeBillingSourceOfTruth) {
+      return _isLocalSubscriptionActive();
+    }
+    final localPremium = _isLocalSubscriptionActive();
+    if (_hasFreshManagerOverride(forceRefresh: forceRefresh)) {
+      return _managerPremiumOverride!;
+    }
+
+    try {
+      final config = await MainApiSettingsStore.loadConfig();
+      final session = await MainApiSettingsStore.loadSession();
+      if (!config.isConfigured) {
+        _managerPremiumOverride = null;
+        _managerPremiumOverrideUpdatedAt = null;
+        return localPremium;
+      }
+
+      if (session == null || session.isExpired) {
+        if (!preferLocalOnFailure) {
+          _managerPremiumOverride = false;
+          _managerPremiumOverrideUpdatedAt = DateTime.now().toUtc();
+          return false;
+        }
+        _managerPremiumOverride = null;
+        _managerPremiumOverrideUpdatedAt = null;
+        return localPremium;
+      }
+
+      final gatewayClient =
+          client ??
+          MainApiClient(
+            baseUrl: config.baseUrl,
+            accessToken: session.accessToken,
+          );
+
+      final runtime = await gatewayClient.getGatewayRuntime();
+      final plan =
+          _isPremiumPlan(runtime['plan']) ??
+          _isPremiumPlan(runtime['account_plan']) ??
+          _isPremiumPlan(runtime['subscription_plan']);
+      if (plan == null) {
+        if (!preferLocalOnFailure) {
+          _managerPremiumOverride = false;
+          _managerPremiumOverrideUpdatedAt = DateTime.now().toUtc();
+          return false;
+        }
+        _managerPremiumOverride = null;
+        _managerPremiumOverrideUpdatedAt = null;
+        return localPremium;
+      }
+
+      _managerPremiumOverride = plan;
+      _managerPremiumOverrideUpdatedAt = DateTime.now().toUtc();
+      if (!plan && localPremium) {
+        await _markExpired();
+      }
+      return plan;
+    } catch (error, stack) {
+      unawaited(
+        AppDiagnostics.logError(
+          'Failed to refresh premium status from manager runtime',
+          error,
+          stack,
+          fatal: false,
+        ),
+      );
+      if (!preferLocalOnFailure) {
+        _managerPremiumOverride = false;
+        _managerPremiumOverrideUpdatedAt = DateTime.now().toUtc();
+        return false;
+      }
+      final managerOverride = _managerPremiumOverride;
+      if (managerOverride != null) {
+        return managerOverride;
+      }
+      return localPremium;
+    }
+  }
+
+  /// Returns the effective premium state used by the app.
+  ///
+  /// When a valid manager session exists, the manager becomes the
+  /// source of truth and local caches are refreshed against it before
+  /// granting premium-only behavior such as ad-free starts.
+  static Future<bool> resolveEffectivePremiumStatus({
+    MainApiClient? client,
+    bool forceRefresh = false,
+  }) async {
+    if (_usesNativeBillingSourceOfTruth) {
+      _managerPremiumOverride = null;
+      _managerPremiumOverrideUpdatedAt = null;
+      await refreshStatus();
+      return _isLocalSubscriptionActive();
+    }
+    final config = await MainApiSettingsStore.loadConfig();
+    if (!config.isConfigured) {
+      _managerPremiumOverride = null;
+      _managerPremiumOverrideUpdatedAt = null;
+      return isSubscribed;
+    }
+
+    final session = await MainApiSettingsStore.loadSession();
+    if (session == null || session.isExpired) {
+      _managerPremiumOverride = null;
+      _managerPremiumOverrideUpdatedAt = null;
+      return isSubscribed;
+    }
+
+    return refreshManagerPremiumStatus(
+      client: client,
+      forceRefresh: forceRefresh,
+      preferLocalOnFailure: false,
+    );
+  }
+
+  /// Returns whether rewarded ads can be skipped for bot starts.
+  ///
+  /// This path is intentionally stricter than the generic premium UI:
+  /// a valid manager session is authoritative, otherwise native billing
+  /// must be verifiable on-device before ad-free access is granted.
+  static Future<bool> canSkipRewardedAds({
+    MainApiClient? client,
+    bool forceRefresh = false,
+    bool allowStoredManagerSession = true,
+  }) async {
+    if (_usesNativeBillingSourceOfTruth) {
+      if (!_initialized) {
+        await initialize();
+      }
+      if (!_storeAvailable) {
+        return false;
+      }
+      if (!_hasFreshLocalValidation(forceRefresh: forceRefresh)) {
+        await refreshStatus();
+        _lastLocalValidationAt = DateTime.now().toUtc();
+      }
+      return _isLocalSubscriptionActive();
+    }
+
+    final config =
+        allowStoredManagerSession
+            ? await MainApiSettingsStore.loadConfig()
+            : null;
+    final session =
+        allowStoredManagerSession
+            ? await MainApiSettingsStore.loadSession()
+            : null;
+    if (client != null ||
+        (config?.isConfigured == true &&
+            session != null &&
+            !session.isExpired)) {
+      return refreshManagerPremiumStatus(
+        client: client,
+        forceRefresh: forceRefresh,
+        preferLocalOnFailure: false,
+      );
+    }
+
+    if (!_isSupportedPlatform) {
+      return false;
+    }
+    if (!_initialized) {
+      await initialize();
+    }
+    if (!_storeAvailable) {
+      return false;
+    }
+    if (!_hasFreshLocalValidation(forceRefresh: forceRefresh)) {
+      await refreshStatus();
+      _lastLocalValidationAt = DateTime.now().toUtc();
+    }
+    return _isLocalSubscriptionActive();
+  }
+
+  static void _scheduleExpirationTimer() {
+    _expiryTimer?.cancel();
+    final expiresAt = _subscriptionExpiresAt;
+    if (!_isSubscribed || expiresAt == null) {
+      _expiryTimer = null;
+      return;
+    }
+
+    final delay = expiresAt.difference(DateTime.now().toUtc());
+    if (delay.isNegative || delay == Duration.zero) {
+      unawaited(_markExpired());
+      return;
+    }
+
+    _expiryTimer = Timer(delay, () {
+      unawaited(_markExpired());
+    });
   }
 
   /// Re-validate subscription status against the store.
@@ -377,6 +741,7 @@ class SubscriptionService {
 
     // Give the stream a moment to deliver restored purchases.
     await Future<void>.delayed(const Duration(seconds: 2));
+    _lastLocalValidationAt = DateTime.now().toUtc();
 
     if (!_isSubscribed && previouslySubscribed) {
       // No active subscription came back — mark as expired.
@@ -386,8 +751,40 @@ class SubscriptionService {
   }
 
   static void dispose() {
+    _expiryTimer?.cancel();
+    _expiryTimer = null;
     _subscription?.cancel();
     _subscription = null;
+  }
+
+  @visibleForTesting
+  static Future<void> debugResetForTests() async {
+    dispose();
+    _initialized = false;
+    _isSubscribed = false;
+    _activeProductId = null;
+    _subscriptionExpiresAt = null;
+    _managerPremiumOverride = null;
+    _managerPremiumOverrideUpdatedAt = null;
+    _lastLocalValidationAt = null;
+    _debugForceNativeBillingSourceOfTruth = null;
+    _prefs = null;
+    products = <ProductDetails>[];
+    _storeAvailable = false;
+  }
+
+  @visibleForTesting
+  static void debugSetLocalSubscriptionForTests({
+    required bool active,
+    String? productId,
+    DateTime? expiresAt,
+  }) {
+    _isSubscribed = active;
+    _activeProductId = active ? productId : null;
+    _subscriptionExpiresAt = active ? expiresAt?.toUtc() : null;
+    _initialized = true;
+    _storeAvailable = true;
+    _lastLocalValidationAt = DateTime.now().toUtc();
   }
 }
 
@@ -396,6 +793,9 @@ class _SubscriptionLifecycleObserver extends WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       unawaited(SubscriptionService.refreshStatus());
+      unawaited(
+        SubscriptionService.resolveEffectivePremiumStatus(forceRefresh: true),
+      );
     }
   }
 }
