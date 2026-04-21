@@ -7,6 +7,7 @@ import 'package:bot_creator_shared/utils/workflow_call.dart';
 
 import 'package:bot_creator_shared/bot/json_variable_store.dart';
 import 'package:bot_creator_runner/stores/sqlite_cli_variable_store.dart';
+import 'package:bot_creator_runner/stores/managed_variable_store.dart';
 
 /// In-memory implementation of [BotDataStore] backed by a [BotConfig].
 ///
@@ -49,6 +50,12 @@ class RunnerDataStore implements BotDataStore {
   }
 
   Future<void> _initializePrimaryStore() async {
+    final managedApi = Platform.environment['BOT_CREATOR_MANAGED_RUNNER_API'];
+    final managedToken = Platform.environment['BOT_CREATOR_MANAGED_RUNNER_TOKEN'];
+    if (managedApi != null && managedApi.trim().isNotEmpty && managedToken != null && managedToken.trim().isNotEmpty) {
+      _sqliteStore = null;
+      return; 
+    }
     try {
       _sqliteStore = SqliteCliVariableStore(_variablesDir);
       await _sqliteStore!.init();
@@ -69,6 +76,16 @@ class RunnerDataStore implements BotDataStore {
   Future<VariableDatabase> _storeForBot(String botId) async {
     if (_initStoreFuture != null) {
       await _initStoreFuture;
+    }
+
+    final managedApi = Platform.environment['BOT_CREATOR_MANAGED_RUNNER_API'];
+    final managedToken = Platform.environment['BOT_CREATOR_MANAGED_RUNNER_TOKEN'];
+    if (managedApi != null && managedApi.trim().isNotEmpty && managedToken != null && managedToken.trim().isNotEmpty) {
+      return ManagedVariableStore(
+        _jsonFallbackStore,
+        baseUrl: managedApi.trim(),
+        token: managedToken.trim()
+      );
     }
 
     final sqlite = _sqliteStore;
