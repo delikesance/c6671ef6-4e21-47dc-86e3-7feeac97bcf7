@@ -104,4 +104,24 @@ void main() {
       expect(canSkipAds, isFalse);
     },
   );
+
+  test('monthly subscriptions estimate one calendar month from start', () {
+    final expiresAt =
+        SubscriptionService.debugEstimateSubscriptionExpiryForTests(
+          productId: kMonthlySubscriptionId,
+          startedAt: DateTime.utc(2026, 1, 31, 12),
+        );
+
+    expect(expiresAt, DateTime.utc(2026, 2, 28, 12));
+  });
+
+  test('annual subscriptions estimate one calendar year from start', () {
+    final expiresAt =
+        SubscriptionService.debugEstimateSubscriptionExpiryForTests(
+          productId: kAnnualSubscriptionId,
+          startedAt: DateTime.utc(2024, 2, 29, 8, 30),
+        );
+
+    expect(expiresAt, DateTime.utc(2025, 2, 28, 8, 30));
+  });
 }

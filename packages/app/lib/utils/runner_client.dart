@@ -15,6 +15,8 @@ abstract class RemoteRuntimeClient {
 
   Future<List<String>> getLogs({String? botId, int limit = 300});
 
+  Future<Map<String, dynamic>> getCommandStats(String botId, {int hours = 24});
+
   Future<void> syncBot(
     String botId,
     String botName,
@@ -482,6 +484,7 @@ class RunnerClient implements RemoteRuntimeClient {
   /// Fetches command usage statistics for [botId].
   ///
   /// [hours] controls the time window (default: 24).
+  @override
   Future<Map<String, dynamic>> getCommandStats(
     String botId, {
     int hours = 24,
