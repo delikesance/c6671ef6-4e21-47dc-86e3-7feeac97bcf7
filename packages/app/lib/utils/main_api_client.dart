@@ -196,9 +196,12 @@ class MainApiClient implements RemoteRuntimeClient {
 
   Future<MainApiSession> exchangeDiscordBotToken({
     required String botToken,
+    String? preferredOwnerId,
   }) async {
     final json = await _post('/auth/discord/bot/exchange', <String, dynamic>{
       'botToken': botToken,
+      if (_normalize(preferredOwnerId) case final value?)
+        'preferredOwnerId': value,
     }, includeAuth: false);
     return _sessionFromAuthPayload(json);
   }
@@ -361,6 +364,18 @@ class MainApiClient implements RemoteRuntimeClient {
       return const <String>[];
     }
     return rawLines.map((entry) => entry.toString()).toList(growable: false);
+  }
+
+  @override
+  Future<Map<String, dynamic>> getCommandStats(
+    String botId, {
+    int hours = 24,
+  }) async {
+    final encodedBotId = Uri.encodeComponent(botId.trim());
+    return _get(
+      '/gateway/bots/$encodedBotId/command-stats',
+      query: <String, String?>{'hours': hours.toString()},
+    );
   }
 
   Future<Map<String, dynamic>> claimBotAdRuntime({

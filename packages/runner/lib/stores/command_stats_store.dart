@@ -1,4 +1,8 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
+
+import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
 import 'package:sqlite3/sqlite3.dart' as sqlite3;
 
@@ -23,11 +27,29 @@ class CommandStatsStore {
   late sqlite3.Database _db;
   final List<_CommandExecutionRecord> _memoryRecords =
       <_CommandExecutionRecord>[];
+  final String? _managedBaseUrl;
+  final String? _managedToken;
+  final http.Client _httpClient;
+  final bool _ownsHttpClient;
   bool _sqliteAvailable = false;
   bool _initialized = false;
 
-  CommandStatsStore(String workDir)
-    : _dbPath = join(workDir, 'command_stats.db');
+  CommandStatsStore(
+    String workDir, {
+    String? managedBaseUrl,
+    String? managedToken,
+    http.Client? httpClient,
+  }) : _dbPath = join(workDir, 'command_stats.db'),
+       _managedBaseUrl = _normalizeManagedValue(
+         managedBaseUrl ??
+             Platform.environment['BOT_CREATOR_MANAGED_RUNNER_API'],
+       ),
+       _managedToken = _normalizeManagedValue(
+         managedToken ??
+             Platform.environment['BOT_CREATOR_MANAGED_RUNNER_TOKEN'],
+       ),
+       _httpClient = httpClient ?? http.Client(),
+       _ownsHttpClient = httpClient == null;
 
   Future<void> init() async {
     if (_initialized) return;
@@ -110,35 +132,37 @@ class CommandStatsStore {
   }) {
     if (!_initialized) return;
     final now = DateTime.now().millisecondsSinceEpoch;
-    if (!_sqliteAvailable) {
-      _memoryRecords.add(
-        _CommandExecutionRecord(
-          botId: botId,
-          commandName: commandName,
-          guildId: guildId,
-          locale: locale,
-          guildLocale: guildLocale,
-          success: success,
-          latencyMs: latencyMs,
-          executedAtMs: now,
-        ),
-      );
-      return;
-    }
-    _db.execute(
-      'INSERT INTO command_executions (bot_id, command_name, guild_id, locale, guild_locale, success, latency_ms, executed_at) '
-      'VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [
-        botId,
-        commandName,
-        guildId,
-        locale,
-        guildLocale,
-        success ? 1 : 0,
-        latencyMs < 0 ? 0 : latencyMs,
-        now,
-      ],
+    final record = _CommandExecutionRecord(
+      botId: botId,
+      commandName: commandName,
+      guildId: guildId,
+      locale: locale,
+      guildLocale: guildLocale,
+      success: success,
+      latencyMs: latencyMs < 0 ? 0 : latencyMs,
+      executedAtMs: now,
     );
+
+    if (!_sqliteAvailable) {
+      _memoryRecords.add(record);
+    } else {
+      _db.execute(
+        'INSERT INTO command_executions (bot_id, command_name, guild_id, locale, guild_locale, success, latency_ms, executed_at) '
+        'VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        [
+          record.botId,
+          record.commandName,
+          record.guildId,
+          record.locale,
+          record.guildLocale,
+          record.success ? 1 : 0,
+          record.latencyMs,
+          record.executedAtMs,
+        ],
+      );
+    }
+
+    _syncManagedRecord(record);
   }
 
   Map<String, dynamic> queryHealthMetrics(String botId, {int? sinceMs}) {
@@ -376,6 +400,65 @@ class CommandStatsStore {
       _sqliteAvailable = false;
       _initialized = false;
     }
+    if (_ownsHttpClient) {
+      _httpClient.close();
+    }
+  }
+
+  void _syncManagedRecord(_CommandExecutionRecord record) {
+    final baseUrl = _managedBaseUrl;
+    final token = _managedToken;
+    if (baseUrl == null || token == null) {
+      return;
+    }
+    unawaited(_postManagedRecord(baseUrl, token, record));
+  }
+
+  Future<void> _postManagedRecord(
+    String baseUrl,
+    String token,
+    _CommandExecutionRecord record,
+  ) async {
+    final url = Uri.parse(
+      '${baseUrl.endsWith('/') ? baseUrl.substring(0, baseUrl.length - 1) : baseUrl}/command-stats',
+    );
+    try {
+      final response = await _httpClient.post(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(<String, dynamic>{
+          'records': <Map<String, dynamic>>[
+            <String, dynamic>{
+              'bot_id': record.botId,
+              'command_name': record.commandName,
+              if (record.guildId.isNotEmpty) 'guild_id': record.guildId,
+              if (record.locale.isNotEmpty) 'locale': record.locale,
+              if (record.guildLocale.isNotEmpty)
+                'guild_locale': record.guildLocale,
+              'success': record.success,
+              'latency_ms': record.latencyMs,
+              'executed_at':
+                  DateTime.fromMillisecondsSinceEpoch(
+                    record.executedAtMs,
+                    isUtc: true,
+                  ).toIso8601String(),
+            },
+          ],
+        }),
+      );
+      if (response.statusCode >= 400) {
+        print(
+          '[CommandStatsStore] Failed to sync managed command stats: ${response.statusCode} - ${response.body}',
+        );
+      }
+    } catch (error) {
+      print(
+        '[CommandStatsStore] Network error syncing managed command stats: $error',
+      );
+    }
   }
 
   void _ensureColumnExists(String table, String column, String definition) {
@@ -404,6 +487,11 @@ class CommandStatsStore {
     final index = ((sorted.length - 1) * p).round();
     return sorted[index.clamp(0, sorted.length - 1)];
   }
+}
+
+String? _normalizeManagedValue(String? value) {
+  final trimmed = value?.trim() ?? '';
+  return trimmed.isEmpty ? null : trimmed;
 }
 
 class _CommandExecutionRecord {

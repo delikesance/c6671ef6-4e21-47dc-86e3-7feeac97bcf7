@@ -15,6 +15,63 @@ const List<String> supportedDiscordAvatarFormats = <String>[
   'gif',
 ];
 
+class DiscordApplicationOwnerMetadata {
+  const DiscordApplicationOwnerMetadata({
+    required this.ownerId,
+    required this.teamId,
+    required this.teamOwnerUserId,
+    required this.teamMemberUserIds,
+  });
+
+  final String ownerId;
+  final String teamId;
+  final String teamOwnerUserId;
+  final List<String> teamMemberUserIds;
+
+  List<String> get ownerCandidateIds {
+    final candidates = <String>[];
+    _appendUniqueDiscordOwnerId(candidates, ownerId);
+    _appendUniqueDiscordOwnerId(candidates, teamId);
+    _appendUniqueDiscordOwnerId(candidates, teamOwnerUserId);
+    for (final memberUserId in teamMemberUserIds) {
+      _appendUniqueDiscordOwnerId(candidates, memberUserId);
+    }
+    return candidates;
+  }
+
+  bool matchesOwnerId(String? rawOwnerId) {
+    final ownerId = rawOwnerId?.trim() ?? '';
+    if (ownerId.isEmpty) {
+      return false;
+    }
+    return ownerCandidateIds.contains(ownerId);
+  }
+
+  String? resolveOwnerId({String? preferredOwnerId}) {
+    final normalizedPreferredOwnerId = preferredOwnerId?.trim() ?? '';
+    if (normalizedPreferredOwnerId.isNotEmpty &&
+        matchesOwnerId(normalizedPreferredOwnerId)) {
+      return normalizedPreferredOwnerId;
+    }
+
+    final candidates = ownerCandidateIds;
+    if (candidates.isEmpty) {
+      return null;
+    }
+    return candidates.first;
+  }
+
+  String get candidatesLabel => ownerCandidateIds.join(', ');
+}
+
+void _appendUniqueDiscordOwnerId(List<String> candidates, String rawOwnerId) {
+  final ownerId = rawOwnerId.trim();
+  if (ownerId.isEmpty || candidates.contains(ownerId)) {
+    return;
+  }
+  candidates.add(ownerId);
+}
+
 String? avatarFileExtension(String path) {
   final index = path.lastIndexOf('.');
   if (index < 0 || index == path.length - 1) {
@@ -38,6 +95,13 @@ Future<User> getDiscordUser(String botToken) async {
 }
 
 Future<String?> getDiscordApplicationOwnerId(String botToken) async {
+  final metadata = await getDiscordApplicationOwnerMetadata(botToken);
+  return metadata?.resolveOwnerId();
+}
+
+Future<DiscordApplicationOwnerMetadata?> getDiscordApplicationOwnerMetadata(
+  String botToken,
+) async {
   final trimmedToken = botToken.trim();
   if (trimmedToken.isEmpty) {
     return null;
@@ -65,27 +129,54 @@ Future<String?> getDiscordApplicationOwnerId(String botToken) async {
     }
 
     final body = Map<String, dynamic>.from(decoded.cast<dynamic, dynamic>());
+    var ownerId = '';
     final owner = body['owner'];
     if (owner is Map) {
       final ownerMap = Map<String, dynamic>.from(
         owner.cast<dynamic, dynamic>(),
       );
-      final ownerId = (ownerMap['id'] ?? '').toString().trim();
-      if (ownerId.isNotEmpty) {
-        return ownerId;
-      }
+      ownerId = (ownerMap['id'] ?? '').toString().trim();
     }
 
+    var teamId = '';
+    var teamOwnerUserId = '';
+    final teamMemberUserIds = <String>[];
     final team = body['team'];
     if (team is Map) {
       final teamMap = Map<String, dynamic>.from(team.cast<dynamic, dynamic>());
-      final ownerId = (teamMap['owner_user_id'] ?? '').toString().trim();
-      if (ownerId.isNotEmpty) {
-        return ownerId;
+      teamId = (teamMap['id'] ?? '').toString().trim();
+      teamOwnerUserId = (teamMap['owner_user_id'] ?? '').toString().trim();
+      final members = teamMap['members'];
+      if (members is List) {
+        for (final member in members) {
+          if (member is! Map) {
+            continue;
+          }
+          final memberMap = Map<String, dynamic>.from(
+            member.cast<dynamic, dynamic>(),
+          );
+          final user = memberMap['user'];
+          if (user is! Map) {
+            continue;
+          }
+          final userMap = Map<String, dynamic>.from(
+            user.cast<dynamic, dynamic>(),
+          );
+          final memberUserId = (userMap['id'] ?? '').toString().trim();
+          if (memberUserId.isNotEmpty) {
+            _appendUniqueDiscordOwnerId(teamMemberUserIds, memberUserId);
+          }
+        }
       }
     }
 
-    return null;
+    final metadata = DiscordApplicationOwnerMetadata(
+      ownerId: ownerId,
+      teamId: teamId,
+      teamOwnerUserId: teamOwnerUserId,
+      teamMemberUserIds: teamMemberUserIds,
+    );
+    return metadata.ownerCandidateIds.isEmpty ? null : metadata;
   } finally {
     client.close(force: true);
   }

@@ -46,6 +46,7 @@ class SubscriptionService {
   // ── Prefs keys ─────────────────────────────────────────────────────────────
   static const String _activeKey = 'subscription_active';
   static const String _productIdKey = 'subscription_product_id';
+  static const String _expiresAtKey = 'subscription_expires_at';
 
   // ── State ──────────────────────────────────────────────────────────────────
   static bool _initialized = false;
@@ -168,8 +169,14 @@ class SubscriptionService {
       // Read cached active state immediately so the UI can render without delay.
       _isSubscribed = _prefs?.getBool(_activeKey) ?? false;
       _activeProductId = _prefs?.getString(_productIdKey);
-      _subscriptionExpiresAt = null;
+      _subscriptionExpiresAt = _parseStoredDateTime(
+        _prefs?.getString(_expiresAtKey),
+      );
       _lastSyncAt = null;
+
+      if (!_isSubscribed) {
+        _subscriptionExpiresAt = null;
+      }
 
       if (_isSubscribed) {
         if (_subscriptionExpiresAt != null &&
@@ -433,9 +440,9 @@ class SubscriptionService {
   }
 
   static Future<void> _verifyAndDeliver(PurchaseDetails purchase) async {
-    // For a "remove ads" feature with no server, client-side verification
-    // via the store receipt is sufficient. The store guarantees the purchase
-    // validity through the purchaseStream.
+    // Mobile native billing is the single source of truth for local premium
+    // access. Backend sync is best-effort only and must never change the local
+    // entitlement state.
     if (_kSubscriptionIds.contains(purchase.productID)) {
       _isSubscribed = true;
       _activeProductId = purchase.productID;
@@ -444,21 +451,24 @@ class SubscriptionService {
       await _prefs?.setBool(_activeKey, true);
       await _prefs?.setString(_productIdKey, purchase.productID);
 
-      final expiresAt = await _syncBillingEntitlement(purchase);
+      final estimatedExpiresAt = _estimateSubscriptionExpiryFromPurchase(
+        purchase,
+      );
+      final expiresAt = estimatedExpiresAt;
       if (expiresAt != null) {
         if (!expiresAt.isAfter(DateTime.now().toUtc())) {
           await _markExpired();
           return;
         }
-        _subscriptionExpiresAt = expiresAt.toUtc();
+        await _setSubscriptionExpiry(expiresAt);
       } else {
-        // If we can't sync with the manager or it's not configured,
-        // we still trust the store purchase.
-        // If we previously had an expiry, we keep it, otherwise we keep it null
-        // (null means active without a fixed expiry timer).
+        // If the product does not map to a known duration, keep the local
+        // premium state and clear any previously cached estimated expiry.
+        await _setSubscriptionExpiry(null);
       }
       _scheduleExpirationTimer();
       _lastLocalValidationAt = DateTime.now().toUtc();
+      unawaited(_syncBillingEntitlement(purchase));
       unawaited(
         AppDiagnostics.logInfo(
           'Subscription activated',
@@ -468,19 +478,17 @@ class SubscriptionService {
     }
   }
 
-  static Future<DateTime?> _syncBillingEntitlement(
-    PurchaseDetails purchase,
-  ) async {
+  static Future<void> _syncBillingEntitlement(PurchaseDetails purchase) async {
     final receipt = purchase.verificationData.serverVerificationData.trim();
     if (receipt.isEmpty) {
-      return null;
+      return;
     }
 
     try {
       final config = await MainApiSettingsStore.loadConfig();
       final session = await MainApiSettingsStore.loadSession();
       if (!config.isConfigured || session == null || session.isExpired) {
-        return null;
+        return;
       }
 
       final client = MainApiClient(
@@ -493,16 +501,16 @@ class SubscriptionService {
         receipt: receipt,
         transactionId: purchase.purchaseID,
       );
-      final expiresAtRaw = response['expiresAt'] ?? response['expires_at'];
-      final expiresAt =
-          DateTime.tryParse(expiresAtRaw?.toString() ?? '')?.toUtc();
       unawaited(
         AppDiagnostics.logInfo(
           'Subscription synced to main API',
-          data: {'product': purchase.productID, 'provider': provider},
+          data: {
+            'product': purchase.productID,
+            'provider': provider,
+            'status': response['status']?.toString() ?? '',
+          },
         ),
       );
-      return expiresAt;
     } catch (error, stack) {
       unawaited(
         AppDiagnostics.logError(
@@ -513,7 +521,6 @@ class SubscriptionService {
           reason: 'product=${purchase.productID}',
         ),
       );
-      return null;
     }
   }
 
@@ -524,10 +531,92 @@ class SubscriptionService {
     _expiryTimer = null;
     _isSubscribed = false;
     _activeProductId = null;
-    _subscriptionExpiresAt = null;
+    await _setSubscriptionExpiry(null);
     _lastLocalValidationAt = DateTime.now().toUtc();
     await _prefs?.setBool(_activeKey, false);
     await _prefs?.remove(_productIdKey);
+  }
+
+  static DateTime? _parseStoredDateTime(String? raw) {
+    final value = raw?.trim();
+    if (value == null || value.isEmpty) {
+      return null;
+    }
+    return DateTime.tryParse(value)?.toUtc();
+  }
+
+  static Future<void> _setSubscriptionExpiry(DateTime? expiresAt) async {
+    _subscriptionExpiresAt = expiresAt?.toUtc();
+    if (_subscriptionExpiresAt == null) {
+      await _prefs?.remove(_expiresAtKey);
+      return;
+    }
+    await _prefs?.setString(
+      _expiresAtKey,
+      _subscriptionExpiresAt!.toIso8601String(),
+    );
+  }
+
+  static DateTime? _estimateSubscriptionExpiryFromPurchase(
+    PurchaseDetails purchase,
+  ) {
+    return _estimateSubscriptionExpiry(
+      productId: purchase.productID,
+      startedAt: _parsePurchaseStartAt(purchase) ?? DateTime.now().toUtc(),
+    );
+  }
+
+  static DateTime? _estimateSubscriptionExpiry({
+    required String productId,
+    required DateTime startedAt,
+  }) {
+    final normalized = productId.trim().toLowerCase();
+    final subscriptionStart = startedAt.toUtc();
+    if (normalized.contains('annual') || normalized.contains('year')) {
+      return _addCalendarMonths(subscriptionStart, 12);
+    }
+    if (normalized.contains('monthly') || normalized.contains('month')) {
+      return _addCalendarMonths(subscriptionStart, 1);
+    }
+    return null;
+  }
+
+  static DateTime? _parsePurchaseStartAt(PurchaseDetails purchase) {
+    final raw = purchase.transactionDate?.trim();
+    if (raw == null || raw.isEmpty) {
+      return null;
+    }
+
+    final millis = int.tryParse(raw);
+    if (millis != null) {
+      return DateTime.fromMillisecondsSinceEpoch(millis, isUtc: true);
+    }
+
+    return DateTime.tryParse(raw)?.toUtc();
+  }
+
+  static DateTime _addCalendarMonths(DateTime source, int monthsToAdd) {
+    final totalMonths = source.month + monthsToAdd;
+    final year = source.year + ((totalMonths - 1) ~/ 12);
+    final month = ((totalMonths - 1) % 12) + 1;
+    final day = source.day.clamp(1, _daysInMonth(year, month));
+    return DateTime.utc(
+      year,
+      month,
+      day,
+      source.hour,
+      source.minute,
+      source.second,
+      source.millisecond,
+      source.microsecond,
+    );
+  }
+
+  static int _daysInMonth(int year, int month) {
+    if (month == DateTime.december) {
+      return DateTime.utc(year + 1).subtract(const Duration(days: 1)).day;
+    }
+    return DateTime.utc(year, month + 1).subtract(const Duration(days: 1)).day;
   }
 
   static Future<bool> refreshManagerPremiumStatus({
@@ -829,6 +918,17 @@ class SubscriptionService {
     _initialized = true;
     _storeAvailable = true;
     _lastLocalValidationAt = DateTime.now().toUtc();
+  }
+
+  @visibleForTesting
+  static DateTime? debugEstimateSubscriptionExpiryForTests({
+    required String productId,
+    required DateTime startedAt,
+  }) {
+    return _estimateSubscriptionExpiry(
+      productId: productId,
+      startedAt: startedAt,
+    );
   }
 }
 
