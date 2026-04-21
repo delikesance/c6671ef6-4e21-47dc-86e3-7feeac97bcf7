@@ -509,6 +509,78 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settings_runner_reenabled => 'Runner réactivé';
 
   @override
+  String get settings_main_api_title => 'Main API';
+
+  @override
+  String get settings_main_api_desc =>
+      'Connectez Bot Creator à votre Main API puis connectez-vous avec Discord. Le client secret Discord doit rester côté backend.';
+
+  @override
+  String get settings_main_api_url_hint => 'https://api.example.com';
+
+  @override
+  String get settings_main_api_save => 'Enregistrer Main API';
+
+  @override
+  String get settings_main_api_clear => 'Effacer';
+
+  @override
+  String get settings_main_api_saved => 'Paramètres Main API enregistrés';
+
+  @override
+  String get settings_main_api_cleared => 'Paramètres Main API effacés';
+
+  @override
+  String get settings_main_api_check => 'Tester Main API';
+
+  @override
+  String get settings_main_api_connected => 'Main API accessible ✓';
+
+  @override
+  String get settings_main_api_unreachable => 'Main API inaccessible';
+
+  @override
+  String get settings_main_api_auth_failed =>
+      'La session Main API est invalide ou expirée';
+
+  @override
+  String get settings_main_api_connect_discord => 'Connecter le compte Discord';
+
+  @override
+  String get settings_main_api_disconnect => 'Déconnecter le compte';
+
+  @override
+  String get settings_main_api_desktop_only =>
+      'La connexion Discord via Main API est disponible uniquement sur desktop.';
+
+  @override
+  String get settings_main_api_not_configured => 'URL Main API requise';
+
+  @override
+  String get settings_main_api_session_connected => 'Session Discord active';
+
+  @override
+  String get settings_main_api_session_disconnected =>
+      'Session Discord déconnectée';
+
+  @override
+  String get settings_main_api_session_expired => 'Session Discord expirée';
+
+  @override
+  String get settings_main_api_url_required => 'URL Main API requise';
+
+  @override
+  String settings_main_api_connected_user(String user) {
+    return 'Connecté en tant que $user';
+  }
+
+  @override
+  String get settings_main_api_user_unknown => 'Utilisateur Discord';
+
+  @override
+  String get settings_main_api_connected_discord => 'Compte Discord connecté';
+
+  @override
   String get settings_discord_rpc_title => 'Discord Rich Presence';
 
   @override

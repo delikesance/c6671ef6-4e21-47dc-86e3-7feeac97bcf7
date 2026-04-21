@@ -2,8 +2,9 @@ import 'dart:async';
 
 import 'package:bot_creator/utils/bot.dart';
 import 'package:bot_creator/utils/i18n.dart';
+import 'package:bot_creator/utils/remote_runtime.dart';
 import 'package:bot_creator/utils/runner_client.dart';
-import 'package:bot_creator/utils/runner_settings.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:bot_creator/utils/app_theme.dart';
 
@@ -32,15 +33,41 @@ class _BotStatsPageState extends State<BotStatsPage> {
   StreamSubscription<int?>? _storageSub;
   Timer? _statsPollTimer;
 
-  RunnerClient? _runnerClient;
+  RemoteRuntimeClient? _runtimeClient;
+  RemoteRuntimeSource _runtimeSource = RemoteRuntimeSource.local;
   bool _syncInFlight = false;
-  bool _usingRemoteMetrics = false;
-  String? _runnerLabel;
+  String? _runtimeLabel;
+  String? _runtimeUnavailableReason;
 
   int? _rssBytes;
   int? _rssEstimatedBytes;
   double? _cpuPercent;
   int? _storageBytes;
+
+  bool get _supportsManagerRuntime => !kIsWeb;
+
+  bool get _usingRemoteMetrics => _runtimeSource != RemoteRuntimeSource.local;
+
+  String _uiCopy({required String fr, required String en}) {
+    return Localizations.localeOf(context).languageCode == 'fr' ? fr : en;
+  }
+
+  String _runtimeSourceLabel() {
+    return switch (_runtimeSource) {
+      RemoteRuntimeSource.manager => _uiCopy(
+        fr: 'Serveurs Bot Creator',
+        en: 'Bot Creator servers',
+      ),
+      RemoteRuntimeSource.runner =>
+        (_runtimeLabel?.trim().isNotEmpty ?? false)
+            ? context.tr.runner_source_label(_runtimeLabel!)
+            : context.tr.bot_stats_source_runner_api,
+      RemoteRuntimeSource.local => _uiCopy(
+        fr: 'Local sur cet appareil',
+        en: 'Local on this device',
+      ),
+    };
+  }
 
   @override
   void initState() {
@@ -48,10 +75,22 @@ class _BotStatsPageState extends State<BotStatsPage> {
     _selectedBotId = widget.botId;
     unawaited(_loadBotNamesById());
     captureBotBaselineRss(force: false);
-    _rssBytes = getBotProcessRssBytesForBot(_selectedBotId);
-    _rssEstimatedBytes = getBotEstimatedRssBytesForBot(_selectedBotId);
-    _cpuPercent = getBotProcessCpuPercentForBot(_selectedBotId);
-    _storageBytes = getBotProcessStorageBytesForBot(_selectedBotId);
+    _rssBytes = getBotProcessRssBytesForBotFromSource(
+      _selectedBotId,
+      source: _runtimeSource,
+    );
+    _rssEstimatedBytes = getBotEstimatedRssBytesForBotFromSource(
+      _selectedBotId,
+      source: _runtimeSource,
+    );
+    _cpuPercent = getBotProcessCpuPercentForBotFromSource(
+      _selectedBotId,
+      source: _runtimeSource,
+    );
+    _storageBytes = getBotProcessStorageBytesForBotFromSource(
+      _selectedBotId,
+      source: _runtimeSource,
+    );
 
     unawaited(_initializeStatsSync());
 
@@ -74,24 +113,38 @@ class _BotStatsPageState extends State<BotStatsPage> {
   }
 
   Future<void> _initializeStatsSync() async {
-    final config = await RunnerSettings.getConfig();
-    _runnerClient = config?.createClient(
+    final runtime = await resolveRemoteRuntime(
+      supportsManagerRuntime: _supportsManagerRuntime,
       getTimeout: const Duration(seconds: 30),
       postTimeout: const Duration(seconds: 90),
     );
+    _runtimeClient = runtime.client;
+    _runtimeSource = runtime.source;
     if (!mounted) {
       return;
     }
 
-    if (config != null) {
-      setState(() {
-        _runnerLabel = config.name ?? config.url;
-      });
-    }
-
-    if (_runnerClient == null) {
-      _setMetricsSource(isRemote: false);
-    }
+    setState(() {
+      _runtimeLabel = runtime.detailLabel;
+      _runtimeUnavailableReason = runtime.unavailableReason;
+      _rssBytes = getBotProcessRssBytesForBotFromSource(
+        _selectedBotId,
+        source: _runtimeSource,
+      );
+      _rssEstimatedBytes = getBotEstimatedRssBytesForBotFromSource(
+        _selectedBotId,
+        source: _runtimeSource,
+      );
+      _cpuPercent = getBotProcessCpuPercentForBotFromSource(
+        _selectedBotId,
+        source: _runtimeSource,
+      );
+      _storageBytes = getBotProcessStorageBytesForBotFromSource(
+        _selectedBotId,
+        source: _runtimeSource,
+      );
+    });
+    _subscribeMetricStreams();
 
     await _syncMetricsTick();
     _statsPollTimer = Timer.periodic(const Duration(seconds: 3), (_) {
@@ -106,7 +159,7 @@ class _BotStatsPageState extends State<BotStatsPage> {
     _syncInFlight = true;
 
     try {
-      final client = _runnerClient;
+      final client = _runtimeClient;
       if (client != null) {
         try {
           final metrics = await client.getMetrics(botId: _selectedBotId);
@@ -117,10 +170,10 @@ class _BotStatsPageState extends State<BotStatsPage> {
                   : metrics.bots.any(
                     (bot) => bot.botId == runtimeBotId && bot.isRunning,
                   );
-          _setMetricsSource(isRemote: true);
           updateBotRuntimeMetricsFromRemote(
             running: isRunningForSelectedBot,
             botId: runtimeBotId,
+            source: _runtimeSource,
             rssBytes: metrics.rssBytes,
             estimatedRssBytes: metrics.botEstimatedRssBytes,
             cpuPercent: metrics.cpuPercent,
@@ -128,25 +181,18 @@ class _BotStatsPageState extends State<BotStatsPage> {
           );
           return;
         } catch (_) {
-          // API unavailable: continue with local metrics collection.
-          _setMetricsSource(isRemote: false);
+          return;
         }
       }
 
-      _setMetricsSource(isRemote: false);
-      await refreshBotStatsNow(botId: _selectedBotId);
+      if (_runtimeSource == RemoteRuntimeSource.manager) {
+        return;
+      }
+
+      await refreshBotStatsNow(botId: _selectedBotId, source: _runtimeSource);
     } finally {
       _syncInFlight = false;
     }
-  }
-
-  void _setMetricsSource({required bool isRemote}) {
-    if (_usingRemoteMetrics == isRemote || !mounted) {
-      return;
-    }
-    setState(() {
-      _usingRemoteMetrics = isRemote;
-    });
   }
 
   @override
@@ -175,7 +221,10 @@ class _BotStatsPageState extends State<BotStatsPage> {
     _cpuSub?.cancel();
     _storageSub?.cancel();
 
-    _rssSub = getBotProcessRssStreamForBot(_selectedBotId).listen((value) {
+    _rssSub = getBotProcessRssStreamForBotFromSource(
+      _selectedBotId,
+      source: _runtimeSource,
+    ).listen((value) {
       if (!mounted) return;
       setState(() {
         _rssBytes = value;
@@ -183,9 +232,10 @@ class _BotStatsPageState extends State<BotStatsPage> {
       });
     });
 
-    _rssEstimatedSub = getBotEstimatedRssStreamForBot(_selectedBotId).listen((
-      value,
-    ) {
+    _rssEstimatedSub = getBotEstimatedRssStreamForBotFromSource(
+      _selectedBotId,
+      source: _runtimeSource,
+    ).listen((value) {
       if (!mounted) return;
       setState(() {
         _rssEstimatedBytes = value;
@@ -193,7 +243,10 @@ class _BotStatsPageState extends State<BotStatsPage> {
       });
     });
 
-    _cpuSub = getBotProcessCpuStreamForBot(_selectedBotId).listen((value) {
+    _cpuSub = getBotProcessCpuStreamForBotFromSource(
+      _selectedBotId,
+      source: _runtimeSource,
+    ).listen((value) {
       if (!mounted) return;
       setState(() {
         _cpuPercent = value;
@@ -201,9 +254,10 @@ class _BotStatsPageState extends State<BotStatsPage> {
       });
     });
 
-    _storageSub = getBotProcessStorageStreamForBot(_selectedBotId).listen((
-      value,
-    ) {
+    _storageSub = getBotProcessStorageStreamForBotFromSource(
+      _selectedBotId,
+      source: _runtimeSource,
+    ).listen((value) {
       if (!mounted) return;
       setState(() {
         _storageBytes = value;
@@ -246,10 +300,23 @@ class _BotStatsPageState extends State<BotStatsPage> {
                     }
                     setState(() {
                       _selectedBotId = value;
-                      _rssBytes = getBotProcessRssBytesForBot(value);
-                      _rssEstimatedBytes = getBotEstimatedRssBytesForBot(value);
-                      _cpuPercent = getBotProcessCpuPercentForBot(value);
-                      _storageBytes = getBotProcessStorageBytesForBot(value);
+                      _rssBytes = getBotProcessRssBytesForBotFromSource(
+                        value,
+                        source: _runtimeSource,
+                      );
+                      _rssEstimatedBytes =
+                          getBotEstimatedRssBytesForBotFromSource(
+                            value,
+                            source: _runtimeSource,
+                          );
+                      _cpuPercent = getBotProcessCpuPercentForBotFromSource(
+                        value,
+                        source: _runtimeSource,
+                      );
+                      _storageBytes = getBotProcessStorageBytesForBotFromSource(
+                        value,
+                        source: _runtimeSource,
+                      );
                       _ramHistory.clear();
                       _ramEstimatedHistory.clear();
                       _cpuHistory.clear();
@@ -317,11 +384,7 @@ class _BotStatsPageState extends State<BotStatsPage> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      _usingRemoteMetrics && _runnerLabel != null
-                          ? context.tr.runner_source_label(_runnerLabel!)
-                          : _usingRemoteMetrics
-                          ? context.tr.bot_stats_source_runner_api
-                          : context.tr.bot_stats_source_local_hosting,
+                      _runtimeSourceLabel(),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color:
                             _usingRemoteMetrics
@@ -335,6 +398,36 @@ class _BotStatsPageState extends State<BotStatsPage> {
                 ],
               ),
             ),
+            if (_runtimeUnavailableReason?.trim().isNotEmpty ?? false) ...[
+              const SizedBox(height: 10),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppTheme.warning.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                  border: Border.all(
+                    color: AppTheme.warning.withValues(alpha: 0.35),
+                  ),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(
+                      Icons.info_outline,
+                      color: AppTheme.warning,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _runtimeUnavailableReason!,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             const SizedBox(height: 10),
             Text(
               context.tr.bot_stats_notes,
