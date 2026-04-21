@@ -294,7 +294,13 @@ class _AppHomePageState extends State<AppHomePage>
         throw Exception('Token not found');
       }
 
-      await appManager.createOrUpdateApp(user, token);
+      await appManager.createOrUpdateApp(
+        id: user.id,
+        username: user.username,
+        avatarHash: user.avatarHash,
+        discriminator: user.discriminator.toString(),
+        token: token,
+      );
 
       try {
         final remoteCommands = await widget.client.commands.list(
@@ -731,6 +737,96 @@ class _AppHomePageState extends State<AppHomePage>
                                             seconds: 90,
                                           ),
                                         );
+<<<<<<< Updated upstream
+=======
+
+                                    if (!_botLaunched &&
+                                        remoteRuntime.blocksLocalFallback) {
+                                      final ownerId =
+                                          await _resolveDiscordOwnerIdForBotStart(
+                                            botId: botId,
+                                            token: token,
+                                          );
+
+                                      final sessionRestored =
+                                          await _restoreMainApiSessionWithBotToken(
+                                            botId: botId,
+                                            botToken: token,
+                                            expectedOwnerId: ownerId,
+                                          );
+
+                                      if (sessionRestored) {
+                                        remoteRuntime =
+                                            await _resolveRemoteRuntime(
+                                              getTimeout: const Duration(
+                                                seconds: 30,
+                                              ),
+                                              postTimeout: const Duration(
+                                                seconds: 90,
+                                              ),
+                                            );
+                                      }
+
+                                      if (remoteRuntime.blocksLocalFallback) {
+                                        final baseMessage =
+                                            remoteRuntime.unavailableReason ??
+                                            _uiCopy(
+                                              fr:
+                                                  'Connectez-vous a Bot Creator dans les parametres avant de demarrer ce bot.',
+                                              en:
+                                                  'Sign in to Bot Creator in Settings before starting this bot.',
+                                            );
+
+                                        final message =
+                                            ownerId == null || ownerId.isEmpty
+                                                ? baseMessage
+                                                : '$baseMessage\nDiscord owner: $ownerId';
+
+                                        throw Exception(message);
+                                      }
+                                    }
+
+                                    if (!_botLaunched) {
+                                      if (remoteRuntime.client == null) {
+                                        try {
+                                          await getDiscordUser(token);
+                                        } catch (_) {
+                                          if (!mounted) return;
+                                          final proceed =
+                                              await AppTheme.showConfirmDialog(
+                                                context,
+                                                title:
+                                                    context
+                                                        .tr
+                                                        .bot_home_token_invalid_title,
+                                                content:
+                                                    context
+                                                        .tr
+                                                        .bot_home_token_invalid_content,
+                                                confirmLabel:
+                                                    context.tr.bot_home_start,
+                                              );
+                                          if (!proceed || !mounted) return;
+                                        }
+                                      }
+                                      if (SubscriptionService.isSubscribed) {
+                                        await SubscriptionService
+                                            .syncStatusWithBackend(force: true);
+                                      }
+
+                                      final adUnlocked =
+                                          await _maybeOfferRewardedAd(
+                                            botId: botId,
+                                            botToken: token,
+                                          );
+                                      if (!adUnlocked) {
+                                        return;
+                                      }
+                                    }
+
+                                    // ── Runner API (API only) ────────────────────────────
+                                    final remoteClient = remoteRuntime.client;
+>>>>>>> Stashed changes
                                     if (remoteClient != null) {
                                       if (_botLaunched) {
                                         appendBotLog(
@@ -942,6 +1038,56 @@ class _AppHomePageState extends State<AppHomePage>
                           ],
                         ),
                       ),
+<<<<<<< Updated upstream
+=======
+                      if (_supportsManagerRuntime && !SubscriptionService.isSubscribed) ...[
+                        const SizedBox(height: AppTheme.spacingMd),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colorScheme.surfaceContainerLow,
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.radiusLg,
+                            ),
+                            border: Border.all(
+                              color: colorScheme.outlineVariant.withValues(
+                                alpha: 0.35,
+                              ),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Temps restant: ${_freeMinutesBalance ?? 0} min',
+                                  style: Theme.of(context).textTheme.bodyMedium
+                                      ?.copyWith(fontWeight: FontWeight.w600),
+                                ),
+                              ),
+                              FilledButton.tonalIcon(
+                                onPressed:
+                                    _isAddingTime ? null : _addRuntimeTime,
+                                icon:
+                                    _isAddingTime
+                                        ? const SizedBox(
+                                          width: 14,
+                                          height: 14,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                        : const Icon(Icons.add_circle_outline),
+                                label: const Text('Ajouter du temps'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+>>>>>>> Stashed changes
                       const SizedBox(height: AppTheme.spacingXl),
                       // ── Quick access to secondary sections (mobile) ──
                       if (showQuickAccess &&

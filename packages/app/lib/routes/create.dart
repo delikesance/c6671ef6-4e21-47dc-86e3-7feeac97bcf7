@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:developer' as developer;
 import 'package:bot_creator/utils/app_theme.dart';
+import 'package:bot_creator/utils/main_api_client.dart';
+import 'package:bot_creator/utils/main_api_settings.dart';
 
 class AppCreatePage extends StatefulWidget {
   const AppCreatePage({super.key});
@@ -79,7 +81,64 @@ class _AppCreatePageState extends State<AppCreatePage> {
     try {
       final discordUser = await getDiscordUser(token);
 
-      await appManager.createOrUpdateApp(discordUser, token);
+      // Check if bot is already known to the manager.
+      final apiConfig = await MainApiSettingsStore.loadConfig();
+      if (apiConfig.isConfigured) {
+        final client = MainApiClient(baseUrl: apiConfig.baseUrl);
+        try {
+          final session = await client.exchangeDiscordBotToken(botToken: token);
+          final currentSession = await MainApiSettingsStore.loadSession();
+          final isDiscordSession = currentSession?.refreshToken != null;
+
+          if (!isDiscordSession) {
+            // Not logged in via Discord, but the bot is in the manager.
+            // We list bots just to confirm the manager has data for this owner.
+            await client.withAccessToken(session.accessToken).listBots();
+            if (mounted) {
+              final proceed = await showDialog<bool>(
+                context: context,
+                builder:
+                    (context) => AlertDialog(
+                      title: Text(context.tr.app_sync_manager_title),
+                      content: Text(context.tr.app_sync_manager_desc),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: Text(context.tr.app_sync_manager_manual),
+                        ),
+                        FilledButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: Text(context.tr.app_sync_manager_connect),
+                        ),
+                      ],
+                    ),
+              );
+
+              if (proceed == true) {
+                // Trigger Discord OAuth
+                if (mounted) {
+                  Navigator.pushNamed(
+                    context,
+                    '/settings',
+                    arguments: {'triggerDiscordAuth': true},
+                  );
+                  return;
+                }
+              }
+            }
+          }
+        } catch (_) {
+          // Manager doesn't know this bot or exchange failed, proceed normally.
+        }
+      }
+
+      await appManager.createOrUpdateApp(
+        id: discordUser.id,
+        username: discordUser.username,
+        avatarHash: discordUser.avatarHash,
+        discriminator: discordUser.discriminator,
+        token: token,
+      );
       await AppAnalytics.logEvent(
         name: "create_app",
         parameters: {
@@ -246,7 +305,9 @@ class _AppCreatePageState extends State<AppCreatePage> {
                               decoration: InputDecoration(
                                 labelText: context.tr.app_bot_token,
                                 border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+                                  borderRadius: BorderRadius.circular(
+                                    AppTheme.radiusLg,
+                                  ),
                                 ),
                                 contentPadding: const EdgeInsets.all(16),
                                 hintText: context.tr.app_enter_token,
@@ -286,7 +347,9 @@ class _AppCreatePageState extends State<AppCreatePage> {
                               padding: const EdgeInsets.all(14),
                               decoration: BoxDecoration(
                                 color: colorScheme.surfaceContainerHighest,
-                                borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+                                borderRadius: BorderRadius.circular(
+                                  AppTheme.radiusLg,
+                                ),
                                 border: Border.all(
                                   color: colorScheme.outlineVariant,
                                 ),
@@ -425,7 +488,9 @@ class _ExternalActionCard extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: colorScheme.secondaryContainer,
-                        borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+                        borderRadius: BorderRadius.circular(
+                          AppTheme.radiusPill,
+                        ),
                       ),
                       child: Text(
                         badgeLabel,

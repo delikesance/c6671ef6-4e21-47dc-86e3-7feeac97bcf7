@@ -225,13 +225,13 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
 
       final discordUser = await getDiscordUser(token);
       await appManager.createOrUpdateApp(
-        discordUser,
-        token,
+        id: discordUser.id,
+        username: discordUser.username,
+        avatarHash: discordUser.avatarHash,
+        discriminator: discordUser.discriminator.toString(),
+        token: token,
         intents: _intentsMap,
-        prefix:
-            _prefixController.text.trim().isEmpty
-                ? '!'
-                : _prefixController.text,
+        prefix: _prefixController.text.trim().isEmpty ? '!' : _prefixController.text,
       );
 
       final latestAppData = Map<String, dynamic>.from(
@@ -302,13 +302,13 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
           existingIntents.isEmpty ? _intentsMap : existingIntents;
 
       await appManager.createOrUpdateApp(
-        discordUser,
-        effectiveToken,
+        id: discordUser.id,
+        username: discordUser.username,
+        avatarHash: discordUser.avatarHash,
+        discriminator: discordUser.discriminator.toString(),
+        token: effectiveToken,
         intents: intentsToKeep,
-        prefix:
-            _prefixController.text.trim().isEmpty
-                ? '!'
-                : _prefixController.text,
+        prefix: _prefixController.text.trim().isEmpty ? '!' : _prefixController.text,
       );
 
       final appData = Map<String, dynamic>.from(
@@ -383,13 +383,13 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               const <String, bool>{},
         );
         await appManager.createOrUpdateApp(
-          discordUser,
-          token,
+          id: discordUser.id,
+          username: discordUser.username,
+          avatarHash: discordUser.avatarHash,
+          discriminator: discordUser.discriminator.toString(),
+          token: token,
           intents: intents,
-          prefix:
-              _prefixController.text.trim().isEmpty
-                  ? '!'
-                  : _prefixController.text,
+          prefix: _prefixController.text.trim().isEmpty ? '!' : _prefixController.text,
         );
       } else {
         discordUser = await getDiscordUser(token);

@@ -742,8 +742,11 @@ class _OfflineTokenPageState extends State<_OfflineTokenPage> {
             const <String, bool>{},
       );
       await appManager.createOrUpdateApp(
-        discordUser,
-        newToken,
+        id: discordUser.id,
+        username: discordUser.username,
+        avatarHash: discordUser.avatarHash,
+        discriminator: discordUser.discriminator.toString(),
+        token: newToken,
         intents: intents,
       );
       if (!mounted) return;

@@ -282,6 +282,8 @@ class MyMainPage extends StatefulWidget {
 }
 
 class _MyMainPageState extends State<MyMainPage> {
+  final GlobalKey<HomePageState> _homePageKey = GlobalKey<HomePageState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -290,6 +292,12 @@ class _MyMainPageState extends State<MyMainPage> {
         title: Text(widget.title),
         centerTitle: true,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.sync_rounded),
+            onPressed: () {
+              _homePageKey.currentState?.syncAllBotsFromManager();
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
@@ -301,7 +309,7 @@ class _MyMainPageState extends State<MyMainPage> {
           ),
         ],
       ),
-      body: const HomePage(),
+      body: HomePage(key: _homePageKey),
       floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {

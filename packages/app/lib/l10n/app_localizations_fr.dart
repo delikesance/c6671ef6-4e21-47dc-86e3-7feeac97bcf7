@@ -181,6 +181,19 @@ class AppLocalizationsFr extends AppLocalizations {
   String get app_save => 'Enregistrer les modifications';
 
   @override
+  String get app_sync_manager_title => 'Bot déjà géré';
+
+  @override
+  String get app_sync_manager_desc =>
+      'Ce bot est déjà enregistré sur Bot Creator Manager. Connectez-vous avec Discord pour synchroniser tous vos bots automatiquement ?';
+
+  @override
+  String get app_sync_manager_manual => 'Garder local';
+
+  @override
+  String get app_sync_manager_connect => 'Connecter Discord';
+
+  @override
   String get app_no_apps => 'Aucune application trouvée';
 
   @override

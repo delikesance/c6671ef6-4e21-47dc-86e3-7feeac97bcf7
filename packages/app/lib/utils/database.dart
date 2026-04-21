@@ -77,21 +77,24 @@ class AppManager implements BotDataStore {
     }
   }
 
-  Future<File> createOrUpdateApp(
-    User user,
-    String token, {
+  Future<File> createOrUpdateApp({
+    required Snowflake id,
+    required String username,
+    String? avatarHash,
+    String? discriminator,
+    required String token,
     Map<String, bool>? intents,
     String? prefix,
   }) async {
-    final botId = user.id.toString();
+    final botId = id.toString();
     return await _enqueueAppWrite(botId, () async {
       final path = await _path();
       final file = File("$path/apps/$botId.json");
       final allAppsFile = File("$path/apps/all_apps.json");
       final avatarUri = makeAvatarUrl(
         botId,
-        avatarId: user.avatarHash,
-        discriminator: user.discriminator,
+        avatarId: avatarHash,
+        discriminator: discriminator,
       );
 
       Map<String, dynamic> existingData = <String, dynamic>{};
@@ -106,7 +109,7 @@ class AppManager implements BotDataStore {
 
       final data =
           Map<String, dynamic>.from(existingData)
-            ..['name'] = user.username
+            ..['name'] = username
             ..['id'] = botId
             ..['avatar'] = avatarUri
             ..['token'] = token
@@ -165,10 +168,10 @@ class AppManager implements BotDataStore {
       final appsList = await getAllApps();
       final index = appsList.indexWhere((a) => a['id'] == botId);
       if (index >= 0) {
-        appsList[index]['name'] = user.username;
+        appsList[index]['name'] = username;
         appsList[index]['avatar'] = avatarUri;
       } else {
-        appsList.add({'name': user.username, 'avatar': avatarUri, 'id': botId});
+        appsList.add({'name': username, 'avatar': avatarUri, 'id': botId});
       }
 
       await allAppsFile.writeAsString(jsonEncode(appsList));

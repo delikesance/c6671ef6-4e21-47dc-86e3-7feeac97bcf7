@@ -22,16 +22,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:nyxx/nyxx.dart' hide Locale, Logger;
 import 'dart:developer' as developer;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<HomePage> createState() => HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
+class HomePageState extends State<HomePage>
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   /// IDs des bots en cours d'exécution.
   Set<String> _runningBotIds = <String>{};
   bool _runnerModeEnabled = false;
@@ -52,6 +54,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     AppAnalytics.logScreenView(screenName: 'HomePage', screenClass: 'HomePage');
     AppAnalytics.logEvent(name: 'home_page_opened');
     _initRunningState();
@@ -59,10 +62,18 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     for (final ctrl in _pulseControllers.values) {
       ctrl.dispose();
     }
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      syncAllBotsFromManager();
+    }
   }
 
   // ── Initialisation de l'état running ───────────────────────────────────────
@@ -130,6 +141,165 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     });
     _syncPulse(runningIds);
     await _syncDiscordRpcPresence(runningIds);
+<<<<<<< Updated upstream
+=======
+    unawaited(_refreshBotRuntimeBalances());
+  }
+
+  int _extractFreeMinutes(dynamic raw) {
+    if (raw == null) {
+      return 0;
+    }
+    if (raw is int) {
+      return raw;
+    }
+    return int.tryParse(raw.toString()) ?? 0;
+  }
+
+  bool _hasFreeRuntimeAvailable(Map<String, dynamic> runtime, int balance) {
+    final fundingMode =
+        (runtime['funding_mode'] ?? runtime['fundingMode'] ?? '')
+            .toString()
+            .trim()
+            .toLowerCase();
+    final sessionActiveRaw =
+        runtime['session_active'] ?? runtime['sessionActive'];
+    final sessionActive =
+        sessionActiveRaw == true ||
+        sessionActiveRaw?.toString().toLowerCase() == 'true';
+    return balance > 0 || fundingMode == 'free' || sessionActive;
+  }
+
+  Future<void> _refreshBotRuntimeBalances({Iterable<String>? botIds}) async {
+    final remoteRuntime = await _resolveRemoteRuntime(
+      getTimeout: const Duration(seconds: 10),
+      postTimeout: const Duration(seconds: 20),
+    );
+    final remoteClient = remoteRuntime.client;
+    if (remoteClient is! MainApiClient) {
+      if (mounted && _freeMinutesByBotId.isNotEmpty) {
+        setState(() => _freeMinutesByBotId = <String, int>{});
+      }
+      return;
+    }
+
+    final ids = <String>{...?(botIds?.where((id) => id.trim().isNotEmpty))};
+    if (ids.isEmpty) {
+      final names = await _loadBotNamesById();
+      ids.addAll(names.keys.where((id) => id.trim().isNotEmpty));
+    }
+    if (ids.isEmpty) {
+      return;
+    }
+
+    final updated = <String, int>{..._freeMinutesByBotId};
+    for (final botId in ids) {
+      try {
+        final runtime = await remoteClient.getBotRuntime(botId);
+        final minutes = _extractFreeMinutes(
+          runtime['free_minutes_balance'] ?? runtime['freeMinutesBalance'],
+        );
+        updated[botId] = minutes;
+      } catch (_) {
+        // Best-effort refresh only.
+      }
+    }
+
+    setState(() {
+      _freeMinutesByBotId = updated;
+    });
+>>>>>>> Stashed changes
+  }
+
+  Future<void> syncAllBotsFromManager() async {
+    final remoteRuntime = await _resolveRemoteRuntime(
+      getTimeout: const Duration(seconds: 15),
+      postTimeout: const Duration(seconds: 30),
+    );
+    final remoteClient = remoteRuntime.client;
+    if (remoteClient is! MainApiClient) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              _uiCopy(
+                fr: 'Veuillez configurer Main API pour synchroniser.',
+                en: 'Please configure Main API to synchronize.',
+              ),
+            ),
+          ),
+        );
+      }
+      return;
+    }
+
+    try {
+      final bots = await remoteClient.listBots();
+      if (bots.isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                _uiCopy(
+                  fr: 'Aucun bot trouvé sur le Manager.',
+                  en: 'No bots found on Manager.',
+                ),
+              ),
+            ),
+          );
+        }
+        return;
+      }
+
+      int syncedCount = 0;
+      for (final bot in bots) {
+        try {
+          final botId = bot['bot_id']?.toString() ?? '';
+          if (botId.isEmpty) continue;
+
+          final botName = bot['bot_name']?.toString() ?? 'Unnamed Bot';
+          final config = bot['config'] as Map<String, dynamic>? ?? {};
+
+          // We use the local token if we already have it, otherwise empty
+          final existing = await appManager.getApp(botId);
+          final token = (existing['token'] ?? '').toString();
+
+          await appManager.createOrUpdateApp(
+            id: Snowflake.parse(botId),
+            username: botName,
+            token: token,
+            intents: (config['intents'] as Map?)?.cast<String, bool>(),
+            prefix: config['prefix']?.toString(),
+          );
+
+          // We might also want to sync workflows and other data from 'config'
+          // For now, let's just save the main bot entry.
+          syncedCount++;
+        } catch (e) {
+          developer.log('Failed to sync bot ${bot['bot_id']}: $e');
+        }
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              _uiCopy(
+                fr: '$syncedCount bots synchronisés (métadonnées).',
+                en: '$syncedCount bots synchronized (metadata).',
+              ),
+            ),
+          ),
+        );
+        await _initRunningState();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Sync failed: $e')),
+        );
+      }
+    }
   }
 
   // ── Gestion des animations pulse ───────────────────────────────────────────
@@ -591,7 +761,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       margin: EdgeInsets.only(bottom: 12),
                     ),
                   Expanded(
-                    child: GridView.builder(
+                    child: RefreshIndicator(
+                      onRefresh: syncAllBotsFromManager,
+                      child: GridView.builder(
                       padding: const EdgeInsets.only(bottom: 80),
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: crossAxisCount,
@@ -661,8 +833,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       },
                     ),
                   ),
-                ],
-              );
+                ),
+              ],
+            );
             },
           ),
         );
