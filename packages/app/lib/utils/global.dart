@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:nyxx/nyxx.dart';
@@ -34,6 +35,60 @@ String supportedDiscordAvatarFormatsLabel() {
 Future<User> getDiscordUser(String botToken) async {
   final client = await Nyxx.connectRest(botToken);
   return await client.user.fetch();
+}
+
+Future<String?> getDiscordApplicationOwnerId(String botToken) async {
+  final trimmedToken = botToken.trim();
+  if (trimmedToken.isEmpty) {
+    return null;
+  }
+
+  final client = HttpClient();
+  try {
+    final request = await client.getUrl(
+      Uri.parse('$discordUrl/applications/@me'),
+    );
+    request.headers.set(HttpHeaders.authorizationHeader, 'Bot $trimmedToken');
+    request.headers.set(HttpHeaders.acceptHeader, 'application/json');
+
+    final response = await request.close();
+    final payload = await utf8.decodeStream(response);
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception(
+        'Discord applications endpoint failed with status ${response.statusCode}',
+      );
+    }
+
+    final decoded = jsonDecode(payload);
+    if (decoded is! Map) {
+      return null;
+    }
+
+    final body = Map<String, dynamic>.from(decoded.cast<dynamic, dynamic>());
+    final owner = body['owner'];
+    if (owner is Map) {
+      final ownerMap = Map<String, dynamic>.from(
+        owner.cast<dynamic, dynamic>(),
+      );
+      final ownerId = (ownerMap['id'] ?? '').toString().trim();
+      if (ownerId.isNotEmpty) {
+        return ownerId;
+      }
+    }
+
+    final team = body['team'];
+    if (team is Map) {
+      final teamMap = Map<String, dynamic>.from(team.cast<dynamic, dynamic>());
+      final ownerId = (teamMap['owner_user_id'] ?? '').toString().trim();
+      if (ownerId.isNotEmpty) {
+        return ownerId;
+      }
+    }
+
+    return null;
+  } finally {
+    client.close(force: true);
+  }
 }
 
 Future<User> updateDiscordBotProfile(

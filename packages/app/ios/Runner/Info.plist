@@ -47,6 +47,14 @@
           <string>com.googleusercontent.apps.777382167262-2clnpnd4ijkjp71gvmpp5u0rik446kn8</string>
         </array>
       </dict>
+      <dict>
+        <key>CFBundleTypeRole</key>
+        <string>Editor</string>
+        <key>CFBundleURLSchemes</key>
+        <array>
+          <string>botcreator</string>
+        </array>
+      </dict>
     </array>
     <key>GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_PERSONALIZATION_SIGNALS</key>
     <false />

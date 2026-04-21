@@ -4,8 +4,11 @@ import 'dart:convert';
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/utils/bot.dart';
 import 'package:bot_creator/utils/i18n.dart';
+import 'package:bot_creator/utils/main_api_client.dart';
+import 'package:bot_creator/utils/remote_runtime.dart';
 import 'package:bot_creator/utils/runner_client.dart';
 import 'package:bot_creator/utils/runner_settings.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nyxx/nyxx.dart' hide Builder;
@@ -13,7 +16,7 @@ import 'package:bot_creator/utils/app_theme.dart';
 
 enum _VariableMode { global, scoped }
 
-enum _VariablesSource { local, runner }
+enum _VariablesSource { local, runner, manager }
 
 class GlobalVariablesPage extends StatefulWidget {
   const GlobalVariablesPage({super.key, required this.botId});
@@ -43,6 +46,8 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
   List<RunnerConnectionConfig> _runners = const [];
   String? _activeRunnerId;
   RunnerClient? _runnerClient;
+  MainApiClient? _managerClient;
+  String? _managerDetailLabel;
   String? _error;
   bool _loading = true;
   String _searchQuery = '';
@@ -63,25 +68,74 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed && mounted) {
-      unawaited(_load());
+      unawaited(_refreshSourcesAndLoad(preserveSelection: true));
     }
   }
 
   bool get _isScopedMode => _mode == _VariableMode.scoped;
   bool get _isRunnerMode => _source == _VariablesSource.runner;
+  bool get _isManagerMode => _source == _VariablesSource.manager;
+  bool get _supportsManagerRuntime {
+    return !kIsWeb;
+  }
 
   Future<void> _init() async {
+    await _refreshSourcesAndLoad(preserveSelection: false);
+  }
+
+  Future<void> _refreshSourcesAndLoad({required bool preserveSelection}) async {
     final runners = await RunnerSettings.getRunners();
     final active = await RunnerSettings.getConfig();
+    final remoteRuntime = await resolveRemoteRuntime(
+      supportsManagerRuntime: _supportsManagerRuntime,
+      getTimeout: const Duration(seconds: 10),
+      postTimeout: const Duration(seconds: 30),
+    );
+    final managerClient =
+        remoteRuntime.client is MainApiClient
+            ? remoteRuntime.client as MainApiClient
+            : null;
+
     if (!mounted) return;
     setState(() {
       _runners = runners;
       _activeRunnerId = active?.id;
-      _source =
-          active == null ? _VariablesSource.local : _VariablesSource.runner;
       _runnerClient = active?.createClient();
+      _managerClient = managerClient;
+      _managerDetailLabel = remoteRuntime.detailLabel;
+      _source = _resolvePreferredSource(
+        preserveSelection: preserveSelection,
+        hasActiveRunner: active != null,
+        hasManager: managerClient != null,
+      );
     });
     await _load();
+  }
+
+  _VariablesSource _resolvePreferredSource({
+    required bool preserveSelection,
+    required bool hasActiveRunner,
+    required bool hasManager,
+  }) {
+    if (preserveSelection) {
+      if (_source == _VariablesSource.manager && hasManager) {
+        return _VariablesSource.manager;
+      }
+      if (_source == _VariablesSource.runner && hasActiveRunner) {
+        return _VariablesSource.runner;
+      }
+      if (_source == _VariablesSource.local) {
+        return _VariablesSource.local;
+      }
+    }
+
+    if (hasManager) {
+      return _VariablesSource.manager;
+    }
+    if (hasActiveRunner) {
+      return _VariablesSource.runner;
+    }
+    return _VariablesSource.local;
   }
 
   dynamic _parseLooseVariableValue(String raw) {
@@ -167,18 +221,10 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
       _error = null;
     });
     try {
-      final globalFuture =
-          _isRunnerMode
-              ? _requireRunnerClient().getGlobalVariables(widget.botId)
-              : appManager.getGlobalVariables(widget.botId);
-      final scopedFuture =
-          _isRunnerMode
-              ? _requireRunnerClient().getScopedVariableDefinitions(
-                widget.botId,
-              )
-              : appManager.getScopedVariableDefinitions(widget.botId);
-
-      final results = await Future.wait([globalFuture, scopedFuture]);
+      final results = await Future.wait([
+        _getSourceGlobalVariables(),
+        _getSourceScopedDefinitions(),
+      ]);
       if (!mounted) return;
       setState(() {
         _globalVariables = Map<String, dynamic>.from(
@@ -206,10 +252,159 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
     return client;
   }
 
+  MainApiClient _requireManagerClient() {
+    final client = _managerClient;
+    if (client == null) {
+      throw StateError(
+        'Source Bot Creator sélectionnée sans connexion active.',
+      );
+    }
+    return client;
+  }
+
+  Future<Map<String, dynamic>> _getSourceGlobalVariables() async {
+    if (_isManagerMode) {
+      return _requireManagerClient().getGlobalVariables(widget.botId);
+    }
+    if (_isRunnerMode) {
+      return _requireRunnerClient().getGlobalVariables(widget.botId);
+    }
+    return appManager.getGlobalVariables(widget.botId);
+  }
+
+  Future<List<Map<String, dynamic>>> _getSourceScopedDefinitions() async {
+    if (_isManagerMode) {
+      return _requireManagerClient().getScopedVariableDefinitions(widget.botId);
+    }
+    if (_isRunnerMode) {
+      return _requireRunnerClient().getScopedVariableDefinitions(widget.botId);
+    }
+    return appManager.getScopedVariableDefinitions(widget.botId);
+  }
+
+  Future<void> _setSourceGlobalVariable(String key, dynamic value) async {
+    if (_isManagerMode) {
+      await _requireManagerClient().setGlobalVariable(widget.botId, key, value);
+      return;
+    }
+    if (_isRunnerMode) {
+      await _requireRunnerClient().setGlobalVariable(widget.botId, key, value);
+      return;
+    }
+    await appManager.setGlobalVariable(widget.botId, key, value);
+  }
+
+  Future<void> _removeSourceGlobalVariable(String key) async {
+    if (_isManagerMode) {
+      await _requireManagerClient().removeGlobalVariable(widget.botId, key);
+      return;
+    }
+    if (_isRunnerMode) {
+      await _requireRunnerClient().removeGlobalVariable(widget.botId, key);
+      return;
+    }
+    await appManager.removeGlobalVariable(widget.botId, key);
+  }
+
+  Future<void> _setSourceScopedDefinition(
+    String key,
+    String scope,
+    dynamic defaultValue,
+  ) async {
+    if (_isManagerMode) {
+      await _requireManagerClient().setScopedVariableDefinition(
+        widget.botId,
+        key,
+        scope,
+        defaultValue,
+      );
+      return;
+    }
+    if (_isRunnerMode) {
+      await _requireRunnerClient().setScopedVariableDefinition(
+        widget.botId,
+        key,
+        scope,
+        defaultValue,
+      );
+      return;
+    }
+    await appManager.setScopedVariableDefinition(
+      widget.botId,
+      key,
+      scope,
+      defaultValue,
+    );
+  }
+
+  Future<void> _removeSourceScopedDefinition(
+    String key, {
+    String? scope,
+    bool purgeStoredValues = false,
+  }) async {
+    if (_isManagerMode) {
+      await _requireManagerClient().removeScopedVariableDefinition(
+        widget.botId,
+        key,
+        scope: scope,
+        purgeStoredValues: purgeStoredValues,
+      );
+      return;
+    }
+    if (_isRunnerMode) {
+      await _requireRunnerClient().removeScopedVariableDefinition(
+        widget.botId,
+        key,
+        scope: scope,
+        purgeStoredValues: purgeStoredValues,
+      );
+      return;
+    }
+    await appManager.removeScopedVariableDefinition(
+      widget.botId,
+      key,
+      scope: scope,
+      purgeStoredValues: purgeStoredValues,
+    );
+  }
+
+  Future<Map<String, dynamic>> _listSourceScopedValuesForKey(
+    String scope,
+    String key,
+  ) async {
+    if (_isManagerMode) {
+      return _requireManagerClient().listScopedValuesForKey(
+        widget.botId,
+        scope,
+        key,
+      );
+    }
+    if (_isRunnerMode) {
+      return _requireRunnerClient().listScopedValuesForKey(
+        widget.botId,
+        scope,
+        key,
+      );
+    }
+    return appManager.listScopedValuesForKey(widget.botId, scope, key);
+  }
+
   Future<void> _switchSource(String sourceId) async {
     if (sourceId == 'local') {
       setState(() {
         _source = _VariablesSource.local;
+        _error = null;
+      });
+      await _load();
+      return;
+    }
+
+    if (sourceId == 'manager') {
+      if (_managerClient == null) {
+        return;
+      }
+      setState(() {
+        _source = _VariablesSource.manager;
         _error = null;
       });
       await _load();
@@ -316,15 +511,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
     if (nextKey.isEmpty) return;
 
     final parsed = _parseLooseVariableValue(valueCtrl.text);
-    if (_isRunnerMode) {
-      await _requireRunnerClient().setGlobalVariable(
-        widget.botId,
-        nextKey,
-        parsed,
-      );
-    } else {
-      await appManager.setGlobalVariable(widget.botId, nextKey, parsed);
-    }
+    await _setSourceGlobalVariable(nextKey, parsed);
     await _load();
   }
 
@@ -340,11 +527,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
       return;
     }
 
-    if (_isRunnerMode) {
-      await _requireRunnerClient().removeGlobalVariable(widget.botId, key);
-    } else {
-      await appManager.removeGlobalVariable(widget.botId, key);
-    }
+    await _removeSourceGlobalVariable(key);
     await _load();
   }
 
@@ -472,7 +655,9 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                                   Theme.of(
                                     ctx,
                                   ).colorScheme.surfaceContainerHighest,
-                              borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                              borderRadius: BorderRadius.circular(
+                                AppTheme.radiusSm,
+                              ),
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -526,37 +711,14 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
 
     // If the key was renamed, delete the old entry first.
     if (oldKey != null && oldKey != newKey) {
-      if (_isRunnerMode) {
-        await _requireRunnerClient().removeScopedVariableDefinition(
-          widget.botId,
-          oldKey,
-          scope: existing?['scope']?.toString(),
-        );
-      } else {
-        await appManager.removeScopedVariableDefinition(
-          widget.botId,
-          oldKey,
-          scope: existing?['scope']?.toString(),
-        );
-      }
+      await _removeSourceScopedDefinition(
+        oldKey,
+        scope: existing?['scope']?.toString(),
+      );
     }
 
     final parsed = _parseLooseVariableValue(valueCtrl.text);
-    if (_isRunnerMode) {
-      await _requireRunnerClient().setScopedVariableDefinition(
-        widget.botId,
-        newKey,
-        scope,
-        parsed,
-      );
-    } else {
-      await appManager.setScopedVariableDefinition(
-        widget.botId,
-        newKey,
-        scope,
-        parsed,
-      );
-    }
+    await _setSourceScopedDefinition(newKey, scope, parsed);
     await _load();
   }
 
@@ -580,21 +742,11 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
               (entry?['scope'] ?? '').toString() == scope,
           orElse: () => null,
         );
-    if (_isRunnerMode) {
-      await _requireRunnerClient().removeScopedVariableDefinition(
-        widget.botId,
-        key,
-        scope: existing?['scope']?.toString() ?? scope,
-        purgeStoredValues: true,
-      );
-    } else {
-      await appManager.removeScopedVariableDefinition(
-        widget.botId,
-        key,
-        scope: existing?['scope']?.toString() ?? scope,
-        purgeStoredValues: true,
-      );
-    }
+    await _removeSourceScopedDefinition(
+      key,
+      scope: existing?['scope']?.toString() ?? scope,
+      purgeStoredValues: true,
+    );
     await _load();
   }
 
@@ -693,14 +845,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
   }
 
   Future<void> _exploreScopedKey(String key, String scope) async {
-    final values =
-        _isRunnerMode
-            ? await _requireRunnerClient().listScopedValuesForKey(
-              widget.botId,
-              scope,
-              key,
-            )
-            : await appManager.listScopedValuesForKey(widget.botId, scope, key);
+    final values = await _listSourceScopedValuesForKey(scope, key);
 
     if (!mounted) return;
 
@@ -911,6 +1056,13 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
   String get _sourceLabel {
     if (_source == _VariablesSource.local) {
       return context.tr.globals_source_local;
+    }
+    if (_source == _VariablesSource.manager) {
+      final detail = _managerDetailLabel?.trim();
+      if (detail == null || detail.isEmpty) {
+        return 'Bot Creator';
+      }
+      return 'Bot Creator • $detail';
     }
     final runner = _runners.where((r) => r.id == _activeRunnerId).firstOrNull;
     return context.tr.globals_source_runner(runner?.name ?? '?');
@@ -1492,14 +1644,16 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
 
   @override
   Widget build(BuildContext context) {
+    final hasManagerSource = _managerClient != null;
     final sourceActions = <Widget>[
-      if (_runners.isNotEmpty)
+      if (hasManagerSource || _runners.isNotEmpty)
         PopupMenuButton<String>(
           tooltip: _sourceLabel,
-          icon: Icon(
-            _isRunnerMode ? Icons.cloud_outlined : Icons.storage_outlined,
-            size: 22,
-          ),
+          icon: Icon(switch (_source) {
+            _VariablesSource.local => Icons.storage_outlined,
+            _VariablesSource.runner => Icons.cloud_outlined,
+            _VariablesSource.manager => Icons.hub_outlined,
+          }, size: 22),
           itemBuilder:
               (ctx) => [
                 PopupMenuItem<String>(
@@ -1509,9 +1663,31 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                     title: Text(context.tr.globals_source_local),
                     dense: true,
                     contentPadding: EdgeInsets.zero,
-                    selected: !_isRunnerMode,
+                    selected: _source == _VariablesSource.local,
                   ),
                 ),
+                if (hasManagerSource) const PopupMenuDivider(),
+                if (hasManagerSource)
+                  PopupMenuItem<String>(
+                    value: 'manager',
+                    child: ListTile(
+                      leading: const Icon(Icons.hub_outlined, size: 20),
+                      title: const Text('Bot Creator'),
+                      subtitle:
+                          (_managerDetailLabel?.trim().isNotEmpty ?? false)
+                              ? Text(
+                                _managerDetailLabel!,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              )
+                              : null,
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
+                      selected: _isManagerMode,
+                    ),
+                  ),
+                if (hasManagerSource && _runners.isNotEmpty)
+                  const PopupMenuDivider(),
                 ..._runners.map(
                   (runner) => PopupMenuItem<String>(
                     value: runner.id,
@@ -1542,7 +1718,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(context.tr.globals_title),
-            if (_runners.isNotEmpty)
+            if (hasManagerSource || _runners.isNotEmpty)
               Text(
                 _sourceLabel,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
