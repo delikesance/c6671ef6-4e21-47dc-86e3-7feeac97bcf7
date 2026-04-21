@@ -178,7 +178,6 @@ const Map<String, String> appStringsFr = {
   'settings_main_api_user_unknown': 'Utilisateur Discord',
   'settings_main_api_connected_discord': 'Compte Discord connecté',
   'settings_discord_rpc_title': 'Discord Rich Presence',
-
   'settings_discord_rpc_desc': 'Publie l’activité desktop de Bot Creator dans le client Discord local. Bot Creator utilise toujours l’application Discord intégrée et envoie SET_ACTIVITY directement via l’IPC local quand l’option est activée.',
   'settings_discord_rpc_enable': 'Activer Discord Rich Presence',
   'settings_discord_rpc_client_id_hint': '1350824555119382678',
@@ -749,7 +748,6 @@ const Map<String, String> appStringsFr = {
   'cmd_execution_mode_dart': 'Mode Dart Direct',
   'cmd_execution_mode_dart_desc': 'Écrivez directement le corps de commande en Dart avec diagnostics runtime.',
   'cmd_execution_mode_dart_note': 'Le code Dart est compilé au runtime via un moteur sandboxé. Gardez les scripts déterministes et retournez une valeur quand nécessaire.',
-
   'cmd_bdfd_script_label': 'Corps du script BDFD',
   'cmd_bdfd_script_hint': '\$nomention\\n\$if[\$hasPerms[\$authorID;administrator]==true]\\nHello from Bot Creator',
   'cmd_bdfd_diagnostics_title': 'Diagnostics BDFD',
@@ -766,7 +764,6 @@ const Map<String, String> appStringsFr = {
   'cmd_dart_diagnostics_warning': 'Avertissement',
   'cmd_migrate_bdfd_to_dart_desc': 'Générer un squelette de migration Dart à partir du script BDFD actuel.',
   'cmd_migrate_bdfd_to_dart_action': 'Migrer',
-
   'cmd_bdfd_autocomplete_title': 'Auto-complétion BDFD par préfixe',
   'cmd_bdfd_autocomplete_hint': 'Tapez \$ puis le début d’une fonction pour afficher des suggestions rapides.',
   'workflow_mode_title': 'Mode du workflow',
@@ -781,7 +778,6 @@ const Map<String, String> appStringsFr = {
   'workflow_bdfd_editor_desc': 'Écrivez le code BDFD complet pour cette réponse workflow. Les diagnostics s’affichent en direct.',
   'workflow_dart_editor_title': 'Éditeur de script Dart',
   'workflow_dart_editor_desc': 'Écrivez le code Dart complet pour cette réponse workflow. Les diagnostics s’affichent en direct.',
-
   'bdfd_editor_title': 'Éditeur BDFD',
   'bdfd_editor_tap_hint': 'Appuyez pour ouvrir l’éditeur',
   'bdfd_editor_wrap_toggle': 'Activer/désactiver le retour à la ligne',
@@ -793,7 +789,6 @@ const Map<String, String> appStringsFr = {
   'bdfd_editor_docs': 'Référence des fonctions BDFD',
   'bdfd_docs_title': 'Docs BDFD',
   'bdfd_docs_search_hint': 'Rechercher une fonction…',
-
   'scratch_block_metadata': 'Métadonnées',
   'scratch_block_required': 'Requis',
   'scratch_block_entry_point': 'Point d’entrée',
@@ -836,7 +831,6 @@ const Map<String, String> appStringsFr = {
   'scratch_event_name': 'Nom de l’événement',
   'scratch_event_variables': 'Variables d’événement',
   'bdfd_docs_empty': 'Aucune fonction trouvée.',
-
   'bdfd_docs_syntax': 'SYNTAXE',
   'bdfd_docs_parameters': 'PARAMÈTRES',
   'bdfd_docs_no_params': 'Aucun paramètre — utiliser comme \$nomFonction',
@@ -1727,7 +1721,6 @@ const Map<String, String> appStringsFr = {
   'actions_summary_bdfd': 'Script BDFD | {lines} ligne(s) | {diagnostics} diagnostic(s)',
   'actions_summary_dart': 'Script Dart | {lines} ligne(s) | {diagnostics} diagnostic(s)',
   'scratch_dart_script': 'Script Dart',
-
   'actions_summary_routes': '{count} action(s) sur la route active | {routes} route(s)',
   'actions_summary_configured': '{count} action(s) configurée(s)',
   'reply_editor_title': 'Détails de la réponse',
