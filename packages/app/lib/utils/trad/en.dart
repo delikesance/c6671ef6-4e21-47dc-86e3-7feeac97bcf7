@@ -177,7 +177,6 @@ const Map<String, String> appStringsEn = {
   'settings_main_api_connected_user': 'Connected as {user}',
   'settings_main_api_user_unknown': 'Discord user',
   'settings_main_api_connected_discord': 'Discord account connected',
-
   'settings_discord_rpc_title': 'Discord Rich Presence',
   'settings_discord_rpc_desc': 'Publish Bot Creator desktop activity to the local Discord client. Bot Creator always uses the built-in Discord application and sends SET_ACTIVITY directly over local IPC when enabled.',
   'settings_discord_rpc_enable': 'Enable Discord Rich Presence',
@@ -749,7 +748,6 @@ const Map<String, String> appStringsEn = {
   'cmd_execution_mode_dart': 'Dart Direct mode',
   'cmd_execution_mode_dart_desc': 'Write the command body directly in Dart with runtime diagnostics.',
   'cmd_execution_mode_dart_note': 'Dart code is compiled at runtime through the sandboxed engine. Keep scripts deterministic and return a value when needed.',
-
   'cmd_bdfd_script_label': 'BDFD script body',
   'cmd_bdfd_script_hint': '\$nomention\\n\$if[\$hasPerms[\$authorID;administrator]==true]\\nHello from Bot Creator',
   'cmd_bdfd_diagnostics_title': 'BDFD diagnostics',
@@ -766,7 +764,6 @@ const Map<String, String> appStringsEn = {
   'cmd_dart_diagnostics_warning': 'Warning',
   'cmd_migrate_bdfd_to_dart_desc': 'Generate a Dart migration scaffold from your current BDFD script.',
   'cmd_migrate_bdfd_to_dart_action': 'Migrate',
-
   'cmd_bdfd_autocomplete_title': 'BDFD prefix autocomplete',
   'cmd_bdfd_autocomplete_hint': 'Type \$ and start writing a function name to get quick script suggestions.',
   'workflow_mode_title': 'Workflow mode',
@@ -781,7 +778,6 @@ const Map<String, String> appStringsEn = {
   'workflow_bdfd_editor_desc': 'Write the complete BDFD code for this workflow response. Diagnostics are displayed live.',
   'workflow_dart_editor_title': 'Dart Script Editor',
   'workflow_dart_editor_desc': 'Write full Dart code for this workflow response. Diagnostics are displayed live.',
-
   'bdfd_editor_title': 'BDFD Editor',
   'bdfd_editor_tap_hint': 'Tap to open editor',
   'bdfd_editor_wrap_toggle': 'Toggle line wrapping',
@@ -1725,7 +1721,6 @@ const Map<String, String> appStringsEn = {
   'actions_summary_bdfd': 'BDFD script | {lines} line(s) | {diagnostics} diagnostic(s)',
   'actions_summary_dart': 'Dart script | {lines} line(s) | {diagnostics} diagnostic(s)',
   'scratch_dart_script': 'Dart Script',
-
   'actions_summary_routes': '{count} action(s) on active route | {routes} route(s)',
   'actions_summary_configured': '{count} action(s) configured',
   'reply_editor_title': 'Reply Details',
