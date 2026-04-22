@@ -255,9 +255,12 @@ class HomePageState extends State<HomePage>
           final botName = bot['bot_name']?.toString() ?? 'Unnamed Bot';
           final config = bot['config'] as Map<String, dynamic>? ?? {};
 
-          // We use the local token if we already have it, otherwise empty
-          final existing = await appManager.getApp(botId);
-          final token = (existing['token'] ?? '').toString();
+          // Prefer manager token if available, otherwise use local token
+          String token = bot['bot_token']?.toString() ?? '';
+          if (token.isEmpty) {
+            final existing = await appManager.getApp(botId);
+            token = (existing['token'] ?? '').toString();
+          }
 
           await appManager.createOrUpdateApp(
             id: Snowflake.parse(botId),
