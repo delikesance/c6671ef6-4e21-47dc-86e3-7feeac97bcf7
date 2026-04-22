@@ -25,7 +25,9 @@ class AdConsentService {
 
   /// Triggers Google's UMP consent flow when required and returns whether ads
   /// can be requested after the flow completes.
-  static Future<bool> ensureCanRequestAds() async {
+  static Future<bool> ensureCanRequestAds({
+    bool requestTrackingTransparency = true,
+  }) async {
     if (!_isSupportedPlatform) {
       return false;
     }
@@ -39,7 +41,9 @@ class AdConsentService {
     _inFlightRequest = completer.future;
 
     try {
-      await requestTrackingTransparencyIfNeeded();
+      if (requestTrackingTransparency) {
+        await requestTrackingTransparencyIfNeeded();
+      }
       await _requestConsentInfoUpdate();
       await _loadAndShowConsentFormIfRequired();
 

@@ -29,7 +29,7 @@
                 <data
                     android:scheme="botcreator"
                     android:host="oauth"
-                    android:pathPrefix="/oauth/main-api/discord" />
+                    android:pathPrefix="/main-api/discord" />
             </intent-filter>
 
             <intent-filter android:autoVerify="true">

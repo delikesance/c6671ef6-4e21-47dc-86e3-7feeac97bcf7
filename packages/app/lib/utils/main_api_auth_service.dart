@@ -15,7 +15,8 @@ class MainApiAuthService {
   static const String _mobileOAuthDomain = 'bot-creator.fr';
   static const String _mobileOAuthScheme = 'botcreator';
   static const String _mobileOAuthHost = 'oauth';
-  static const String _mobileOAuthPath = '/oauth/main-api/discord';
+  static const String _mobileOAuthUniversalLinkPath = '/oauth/main-api/discord';
+  static const String _mobileOAuthCustomSchemePath = '/main-api/discord';
 
   static void _oauthDebug(String message) {
     if (!kDebugMode) {
@@ -258,19 +259,19 @@ class MainApiAuthService {
     return Uri(
       scheme: 'https',
       host: _mobileOAuthDomain,
-      path: _mobileOAuthPath,
+      path: _mobileOAuthUniversalLinkPath,
     );
   }
 
   static bool _isExpectedMobileOAuthCallback(Uri uri) {
-    final pathMatches = uri.path == _mobileOAuthPath;
-    if (!pathMatches) {
-      return false;
-    }
     final isUniversalLink =
-        uri.scheme == 'https' && uri.host == _mobileOAuthDomain;
+        uri.scheme == 'https' &&
+        uri.host == _mobileOAuthDomain &&
+        uri.path == _mobileOAuthUniversalLinkPath;
     final isCustomScheme =
-        uri.scheme == _mobileOAuthScheme && uri.host == _mobileOAuthHost;
+        uri.scheme == _mobileOAuthScheme &&
+        uri.host == _mobileOAuthHost &&
+        uri.path == _mobileOAuthCustomSchemePath;
     return isUniversalLink || isCustomScheme;
   }
 
