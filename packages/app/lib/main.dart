@@ -193,7 +193,9 @@ Future<void> _warmUpServicesAfterLaunch() async {
     label: 'Ad consent flow',
     timeout: const Duration(seconds: 8),
     action: () async {
-      await AdConsentService.ensureCanRequestAds();
+      await AdConsentService.ensureCanRequestAds(
+        requestTrackingTransparency: false,
+      );
     },
   );
 
@@ -315,6 +317,16 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       navigatorKey: MyApp.navigatorKey,
       onGenerateTitle: (context) => context.tr.app_title,
+      onGenerateRoute: (settings) {
+        final name = settings.name;
+        if (_isOAuthCallbackRoute(name)) {
+          return MaterialPageRoute<void>(
+            settings: settings,
+            builder: (context) => MyMainPage(title: AppStrings.t('app_title')),
+          );
+        }
+        return null;
+      },
       locale: Locale(localeProvider.locale.code),
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -343,6 +355,20 @@ class _MyAppState extends State<MyApp> {
               : MyMainPage(title: AppStrings.t('app_title')),
       routes: {'/home': (context) => MyMainPage(title: context.tr.app_title)},
     );
+  }
+
+  bool _isOAuthCallbackRoute(String? routeName) {
+    if (routeName == null || routeName.isEmpty) {
+      return false;
+    }
+
+    final uri = Uri.tryParse(routeName);
+    if (uri == null) {
+      return false;
+    }
+
+    return uri.path == '/oauth/main-api/discord' ||
+        uri.path == '/main-api/discord';
   }
 }
 
