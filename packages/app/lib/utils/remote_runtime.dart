@@ -81,7 +81,12 @@ Future<ResolvedRemoteRuntime> resolveRemoteRuntime({
   final mainApiConfig = await MainApiSettingsStore.loadConfig();
   final mainApiSession = await MainApiSettingsStore.loadSession();
 
-  if (mainApiConfig.isConfigured) {
+  final isDesktop =
+      platform == TargetPlatform.windows ||
+      platform == TargetPlatform.linux ||
+      platform == TargetPlatform.macOS;
+
+  if (mainApiConfig.isConfigured && !isDesktop) {
     if (mainApiSession != null && !mainApiSession.isExpired) {
       return ResolvedRemoteRuntime(
         source: RemoteRuntimeSource.manager,
@@ -132,6 +137,18 @@ Future<ResolvedRemoteRuntime> resolveRemoteRuntime({
         en:
             'Local mode is not supported on iOS. Configure Bot Creator to start this bot.',
       ),
+    );
+  }
+
+  final runnerConfig = await RunnerSettings.getConfig();
+  if (runnerConfig != null) {
+    return ResolvedRemoteRuntime(
+      source: RemoteRuntimeSource.runner,
+      client: runnerConfig.createClient(
+        getTimeout: getTimeout,
+        postTimeout: postTimeout,
+      ),
+      detailLabel: runnerConfig.name ?? runnerConfig.url,
     );
   }
 

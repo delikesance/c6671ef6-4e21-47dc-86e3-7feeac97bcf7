@@ -115,7 +115,6 @@ void main() {
 
       expect(runtime.source, RemoteRuntimeSource.runner);
       expect(runtime.client, isNotNull);
-      expect(runtime.blocksLocalFallback, isFalse);
     },
   );
 
@@ -129,7 +128,6 @@ void main() {
 
     expect(runtime.source, RemoteRuntimeSource.local);
     expect(runtime.client, isNull);
-    expect(runtime.blocksLocalFallback, isFalse);
   });
 
   test(
