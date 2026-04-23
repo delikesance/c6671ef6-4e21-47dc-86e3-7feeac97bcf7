@@ -3085,10 +3085,7 @@ class DiscordRunner {
 
       if (shouldDefer) {
         int deferFlags = isEphemeral ? 64 : 0;
-        if (responseType == 'componentV2' ||
-            (useCondition &&
-                (whenTrueType == 'componentV2' ||
-                    whenFalseType == 'componentV2'))) {
+        if (requiresV2Flag(response)) {
           deferFlags |= 32768;
         }
 
@@ -3366,7 +3363,7 @@ class DiscordRunner {
     final text =
         errorMessage ?? 'An error occurred while executing this command.';
     try {
-      if (didDefer) {
+      if (didDefer || isInteractionAcknowledged(interaction)) {
         await interaction.updateOriginalResponse(
           MessageUpdateBuilder(content: text, embeds: const []),
         );
