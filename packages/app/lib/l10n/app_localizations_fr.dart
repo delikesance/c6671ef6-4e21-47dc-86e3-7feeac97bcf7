@@ -1389,17 +1389,31 @@ class AppLocalizationsFr extends AppLocalizations {
   String get home_start => 'Lancer';
 
   @override
+  String get home_start_ads => 'Regarder une pub pour lancer';
+
+  @override
+  String get home_start_premium => 'Lancer';
+
+  @override
+  String get home_add_time => 'Ajouter du temps';
+
+  @override
+  String home_hosting_time_left(String minutes) {
+    return 'Temps d\'hébergement restant : $minutes min';
+  }
+
+  @override
   String get home_manage => 'Gérer';
 
   @override
   String get home_logs_tooltip => 'Logs du bot';
 
   @override
-  String get rewarded_start_title => 'Soutenir Bot Creator';
+  String get rewarded_start_title => 'Pub requise';
 
   @override
   String get rewarded_start_message =>
-      'Cette pub sert simplement à financer l’application et ne peut s’afficher que lorsque vous appuyez sur démarrer. Si aucune pub ne peut être affichée, le bot démarre normalement.';
+      'Une publicité est requise pour lancer cette session d\'hébergement. Cela aide à financer le projet. Les utilisateurs Premium peuvent ignorer cela.';
 
   @override
   String get rewarded_start_watch => 'Regarder la pub';

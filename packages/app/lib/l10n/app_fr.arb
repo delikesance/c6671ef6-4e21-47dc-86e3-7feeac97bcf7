@@ -402,10 +402,21 @@
   "home_server_count_other": "{count} serveurs",
   "home_stop": "Arrêter",
   "home_start": "Lancer",
+  "home_start_ads": "Regarder une pub pour lancer",
+  "home_start_premium": "Lancer",
+  "home_add_time": "Ajouter du temps",
+  "home_hosting_time_left": "Temps d'hébergement restant : {minutes} min",
+  "@home_hosting_time_left": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
   "home_manage": "Gérer",
   "home_logs_tooltip": "Logs du bot",
-  "rewarded_start_title": "Soutenir Bot Creator",
-  "rewarded_start_message": "Cette pub sert simplement à financer l’application et ne peut s’afficher que lorsque vous appuyez sur démarrer. Si aucune pub ne peut être affichée, le bot démarre normalement.",
+  "rewarded_start_title": "Pub requise",
+  "rewarded_start_message": "Une publicité est requise pour lancer cette session d'hébergement. Cela aide à financer le projet. Les utilisateurs Premium peuvent ignorer cela.",
   "rewarded_start_watch": "Regarder la pub",
   "rewarded_start_continue": "Continuer",
   "rewarded_start_skip": "Ignorer",

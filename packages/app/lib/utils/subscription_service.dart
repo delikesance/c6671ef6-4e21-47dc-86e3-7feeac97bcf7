@@ -134,6 +134,8 @@ class SubscriptionService {
 
   /// Whether the user holds an active premium subscription.
   static bool get isSubscribed {
+    // Desktop platforms are premium by default.
+    if (_isDesktop) return true;
     if (_usesNativeBillingSourceOfTruth) {
       return _isLocalSubscriptionActive();
     }
@@ -627,6 +629,9 @@ class SubscriptionService {
     if (_usesNativeBillingSourceOfTruth) {
       return _isLocalSubscriptionActive();
     }
+    // Desktop platforms are locally premium by default and don't sync.
+    if (_isDesktop) return true;
+
     final localPremium = _isLocalSubscriptionActive();
     if (_hasFreshManagerOverride(forceRefresh: forceRefresh)) {
       return _managerPremiumOverride!;
@@ -712,6 +717,9 @@ class SubscriptionService {
     MainApiClient? client,
     bool forceRefresh = false,
   }) async {
+    // Desktop platforms are locally premium by default and don't sync.
+    if (_isDesktop) return true;
+
     if (_usesNativeBillingSourceOfTruth) {
       _managerPremiumOverride = null;
       _managerPremiumOverrideUpdatedAt = null;
@@ -751,6 +759,9 @@ class SubscriptionService {
     bool forceRefresh = false,
     bool allowStoredManagerSession = true,
   }) async {
+    // Desktop platforms are premium by default and don't show rewarded ads.
+    if (_isDesktop) return true;
+
     if (_usesNativeBillingSourceOfTruth) {
       if (!_initialized) {
         await initialize();
@@ -798,6 +809,12 @@ class SubscriptionService {
       _lastLocalValidationAt = DateTime.now().toUtc();
     }
     return _isLocalSubscriptionActive();
+  }
+
+  static bool get _isDesktop {
+    return defaultTargetPlatform == TargetPlatform.windows ||
+        defaultTargetPlatform == TargetPlatform.linux ||
+        defaultTargetPlatform == TargetPlatform.macOS;
   }
 
   static void _scheduleExpirationTimer() {
