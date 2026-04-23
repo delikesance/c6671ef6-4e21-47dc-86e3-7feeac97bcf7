@@ -439,16 +439,14 @@ Future<void> sendWorkflowResponse({
 
     String? responseMessageId;
 
-    if (didDefer) {
-      final isV2Type = activeResponseType == 'componentV2';
-      final isRichV2 = activeComponentDefinition?.isRichV2 ?? false;
-      final useV2Flag = isV2Type || isRichV2;
+    final useV2Flag = activeResponseType == 'componentV2';
 
+    if (didDefer) {
       final updateBuilder = MessageUpdateBuilder(
-        content: isV2Type ? null : (finalText.isEmpty ? null : finalText),
+        content: useV2Flag ? null : (finalText.isEmpty ? null : finalText),
         components: componentNodes,
       );
-      if (isV2Type) {
+      if (useV2Flag) {
         updateBuilder.embeds = [];
       } else {
         updateBuilder.embeds = embeds;
@@ -478,7 +476,6 @@ Future<void> sendWorkflowResponse({
       }
     } else {
       int flagValue = isEphemeral ? MessageFlags.ephemeral.value : 0;
-      final useV2Flag = activeResponseType == 'componentV2';
 
       if (useV2Flag) flagValue |= 32768; // IS_COMPONENTS_V2
 
@@ -486,8 +483,8 @@ Future<void> sendWorkflowResponse({
           interaction is ModalSubmitInteraction) {
         await (interaction as dynamic).respond(
           MessageBuilder(
-            content: isV2Type ? null : (finalText.isEmpty ? null : finalText),
-            embeds: isV2Type ? null : (embeds.isEmpty ? null : embeds),
+            content: useV2Flag ? null : (finalText.isEmpty ? null : finalText),
+            embeds: useV2Flag ? null : (embeds.isEmpty ? null : embeds),
             components: componentNodes,
             flags: flagValue > 0 ? MessageFlags(flagValue) : null,
           ),
@@ -502,8 +499,8 @@ Future<void> sendWorkflowResponse({
         try {
           await (interaction as dynamic).respond(
             MessageBuilder(
-              content: isV2Type ? null : (finalText.isEmpty ? null : finalText),
-              embeds: isV2Type ? null : (embeds.isEmpty ? null : embeds),
+              content: useV2Flag ? null : (finalText.isEmpty ? null : finalText),
+              embeds: useV2Flag ? null : (embeds.isEmpty ? null : embeds),
               components: componentNodes,
               flags: flagValue > 0 ? MessageFlags(flagValue) : null,
             ),
