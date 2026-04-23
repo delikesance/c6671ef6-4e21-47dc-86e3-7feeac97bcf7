@@ -134,6 +134,8 @@ class SubscriptionService {
 
   /// Whether the user holds an active premium subscription.
   static bool get isSubscribed {
+    // Desktop platforms are premium by default.
+    if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) return true;
     if (_usesNativeBillingSourceOfTruth) {
       return _isLocalSubscriptionActive();
     }
@@ -751,6 +753,9 @@ class SubscriptionService {
     bool forceRefresh = false,
     bool allowStoredManagerSession = true,
   }) async {
+    // Desktop platforms don't have rewarded ads and are premium by default.
+    if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) return true;
+
     if (_usesNativeBillingSourceOfTruth) {
       if (!_initialized) {
         await initialize();

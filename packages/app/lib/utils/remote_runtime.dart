@@ -58,12 +58,8 @@ Future<ResolvedRemoteRuntime> resolveRemoteRuntime({
   final platform = defaultTargetPlatform;
   final isIOS = platform == TargetPlatform.iOS;
   final isAndroid = platform == TargetPlatform.android;
-  final isDesktop =
-      platform == TargetPlatform.windows ||
-      platform == TargetPlatform.linux ||
-      platform == TargetPlatform.macOS;
 
-  if (isDesktop || !supportsManagerRuntime) {
+  if (!supportsManagerRuntime) {
     final runnerConfig = await RunnerSettings.getConfig();
     if (runnerConfig != null) {
       return ResolvedRemoteRuntime(
