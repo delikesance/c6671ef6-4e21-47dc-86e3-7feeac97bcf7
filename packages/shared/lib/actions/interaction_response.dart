@@ -10,6 +10,30 @@ import 'send_component_v2.dart';
 
 /// Shared logic to determine and send the final response of a workflow execution.
 /// Handles text, embeds, components, modals, and conditional logic.
+bool requiresV2Flag(Map<String, dynamic> response) {
+  final activeResponseType = (response['type'] ?? 'normal').toString();
+  if (activeResponseType == 'componentV2') return true;
+
+  final workflowConditional = Map<String, dynamic>.from(
+    (response['workflow']?['conditional'] as Map?)?.cast<String, dynamic>() ??
+        const {},
+  );
+  final useCondition = workflowConditional['enabled'] == true;
+
+  if (useCondition) {
+    if ((workflowConditional['whenTrueType'] ?? 'normal').toString() ==
+        'componentV2') {
+      return true;
+    }
+    if ((workflowConditional['whenFalseType'] ?? 'normal').toString() ==
+        'componentV2') {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 Future<void> sendWorkflowResponse({
   required Interaction interaction,
   required Map<String, dynamic> response,
@@ -378,7 +402,15 @@ Future<void> sendWorkflowResponse({
             definition: activeComponentDefinition,
             resolve: (s) => resolveTemplatePlaceholders(s, runtimeVariables),
           );
-          if (built.isNotEmpty) componentNodes = built;
+          if (built.isNotEmpty) {
+            if (activeResponseType == 'normal') {
+              // In 'normal' mode, we strictly ignore V2-only components
+              // (containers, sections, etc.) to ensure legacy compatibility.
+              componentNodes = built.whereType<ActionRowBuilder>().toList();
+            } else {
+              componentNodes = built;
+            }
+          }
         } catch (e) {
           onLog?.call('Components build error: $e', botId: botId);
         }
@@ -407,13 +439,14 @@ Future<void> sendWorkflowResponse({
 
     String? responseMessageId;
 
+    final useV2Flag = activeResponseType == 'componentV2';
+
     if (didDefer) {
-      final isV2 = activeResponseType == 'componentV2';
       final updateBuilder = MessageUpdateBuilder(
-        content: isV2 ? null : (finalText.isEmpty ? null : finalText),
+        content: useV2Flag ? null : (finalText.isEmpty ? null : finalText),
         components: componentNodes,
       );
-      if (isV2) {
+      if (useV2Flag) {
         updateBuilder.embeds = [];
       } else {
         updateBuilder.embeds = embeds;
@@ -443,15 +476,15 @@ Future<void> sendWorkflowResponse({
       }
     } else {
       int flagValue = isEphemeral ? MessageFlags.ephemeral.value : 0;
-      final isV2 = activeResponseType == 'componentV2';
-      if (isV2) flagValue |= 32768; // IS_COMPONENTS_V2
+
+      if (useV2Flag) flagValue |= 32768; // IS_COMPONENTS_V2
 
       if (interaction is MessageResponse ||
           interaction is ModalSubmitInteraction) {
         await (interaction as dynamic).respond(
           MessageBuilder(
-            content: isV2 ? null : (finalText.isEmpty ? null : finalText),
-            embeds: isV2 ? null : (embeds.isEmpty ? null : embeds),
+            content: useV2Flag ? null : (finalText.isEmpty ? null : finalText),
+            embeds: useV2Flag ? null : (embeds.isEmpty ? null : embeds),
             components: componentNodes,
             flags: flagValue > 0 ? MessageFlags(flagValue) : null,
           ),
@@ -466,8 +499,8 @@ Future<void> sendWorkflowResponse({
         try {
           await (interaction as dynamic).respond(
             MessageBuilder(
-              content: isV2 ? null : (finalText.isEmpty ? null : finalText),
-              embeds: isV2 ? null : (embeds.isEmpty ? null : embeds),
+              content: useV2Flag ? null : (finalText.isEmpty ? null : finalText),
+              embeds: useV2Flag ? null : (embeds.isEmpty ? null : embeds),
               components: componentNodes,
               flags: flagValue > 0 ? MessageFlags(flagValue) : null,
             ),
