@@ -42,8 +42,8 @@ class HomePageState extends State<HomePage>
   RemoteRuntimeSource _runtimeSource = RemoteRuntimeSource.local;
   String? _runtimeDetailLabel;
 
-  /// Vrai pendant qu'un démarrage/arrêt est en cours.
-  bool _isTogglingBot = false;
+  /// ID du bot en cours d'action (démarrage/arrêt/ajout de temps).
+  String? _botIdInAction;
 
   /// Un AnimationController par carte (clé = bot id) pour l'effet pulse.
   final Map<String, AnimationController> _pulseControllers = {};
@@ -61,6 +61,7 @@ class HomePageState extends State<HomePage>
     AppAnalytics.logScreenView(screenName: 'HomePage', screenClass: 'HomePage');
     AppAnalytics.logEvent(name: 'home_page_opened');
     _initRunningState();
+    unawaited(syncAllBotsFromManager(silent: true));
   }
 
   @override
@@ -83,17 +84,19 @@ class HomePageState extends State<HomePage>
 
   Future<void> _initRunningState() async {
     final runningIds = <String>{};
+    final remoteClient = await _resolveGlobalMainApiClient();
     final remoteRuntime = await _resolveRemoteRuntime(
       getTimeout: const Duration(seconds: 30),
       postTimeout: const Duration(seconds: 90),
     );
-    final remoteClient = remoteRuntime.client;
+
     unawaited(
       SubscriptionService.resolveEffectivePremiumStatus(
-        client: remoteClient is MainApiClient ? remoteClient : null,
+        client: remoteClient,
         forceRefresh: true,
       ),
     );
+
     if (remoteClient != null) {
       try {
         final status = await remoteClient.getStatus();
@@ -236,12 +239,8 @@ class HomePageState extends State<HomePage>
   }
 
   Future<void> syncAllBotsFromManager({bool silent = false}) async {
-    final remoteRuntime = await _resolveRemoteRuntime(
-      getTimeout: const Duration(seconds: 15),
-      postTimeout: const Duration(seconds: 30),
-    );
-    final remoteClient = remoteRuntime.client;
-    if (remoteClient is! MainApiClient) {
+    final remoteClient = await _resolveGlobalMainApiClient();
+    if (remoteClient == null) {
       return;
     }
 
@@ -546,14 +545,47 @@ class HomePageState extends State<HomePage>
     return refreshedClient is MainApiClient ? refreshedClient : null;
   }
 
+  Future<MainApiClient?> _resolveGlobalMainApiClient({
+    bool attemptRestore = true,
+  }) async {
+    var runtime = await _resolveRemoteRuntime(
+      getTimeout: const Duration(seconds: 15),
+      postTimeout: const Duration(seconds: 30),
+    );
+
+    if (runtime.source == RemoteRuntimeSource.manager &&
+        runtime.client == null &&
+        attemptRestore) {
+      final apps = await appManager.getAllApps();
+      for (final rawApp in apps) {
+        if (rawApp is! Map) continue;
+        final botId = (rawApp['id'] ?? '').toString();
+        final token = (rawApp['token'] ?? '').toString();
+        if (botId.isNotEmpty && token.isNotEmpty) {
+          final client = await _resolveMainApiClientForBot(
+            botId: botId,
+            botToken: token,
+            attemptSessionRestore: true,
+          );
+          if (client != null) {
+            return client;
+          }
+        }
+      }
+    }
+
+    final client = runtime.client;
+    return client is MainApiClient ? client : null;
+  }
+
   // ── Démarrage / Arrêt du bot ───────────────────────────────────────────────
 
   Future<void> _toggleBot({
     required String botId,
     required String botName,
   }) async {
-    if (_isTogglingBot) return;
-    setState(() => _isTogglingBot = true);
+    if (_botIdInAction != null) return;
+    setState(() => _botIdInAction = botId);
 
     try {
       final isRunning = _runningBotIds.contains(botId);
@@ -701,6 +733,7 @@ class HomePageState extends State<HomePage>
             }
 
             endBotLogSession(botId: botId, source: runtime.source);
+            unawaited(_refreshBotRuntimeBalances(botIds: [botId]));
             if (mounted) {
               setState(() {
                 _runningBotIds = <String>{..._runningBotIds}..remove(botId);
@@ -785,6 +818,7 @@ class HomePageState extends State<HomePage>
         if (isRunning) {
           appendBotLog('Bot stop requested', botId: botId);
           await stopMobileBotSession(botId: botId);
+          unawaited(_refreshBotRuntimeBalances(botIds: [botId]));
           endBotLogSession(botId: botId);
           if (mounted) {
             setState(() {
@@ -830,6 +864,7 @@ class HomePageState extends State<HomePage>
             botId: botId,
           );
           await stopDesktopBot(botId: botId);
+          unawaited(_refreshBotRuntimeBalances(botIds: [botId]));
           endBotLogSession(botId: botId);
           setBotRuntimeActive(
             isDesktopBotRunning || mobileRunningBotIds.isNotEmpty,
@@ -863,7 +898,7 @@ class HomePageState extends State<HomePage>
         );
       }
     } finally {
-      if (mounted) setState(() => _isTogglingBot = false);
+      if (mounted) setState(() => _botIdInAction = null);
     }
   }
 
@@ -1016,6 +1051,32 @@ class HomePageState extends State<HomePage>
     );
   }
 
+  Future<void> _addHostingTime(String botId) async {
+    if (_botIdInAction != null) return;
+    setState(() => _botIdInAction = botId);
+
+    try {
+      final app = await appManager.getApp(botId);
+      final botToken = (app['token'] ?? '').toString().trim();
+      final name = (app['name'] ?? '').toString().trim();
+
+      final rewarded = await _maybeOfferRewardedAd(
+        botId: botId,
+        botToken: botToken.isNotEmpty ? botToken : null,
+      );
+      if (rewarded && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Time added for $name')),
+        );
+        unawaited(_refreshBotRuntimeBalances(botIds: [botId]));
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _botIdInAction = null);
+      }
+    }
+  }
+
   Future<bool> _isMainApiPremiumUser({
     required String botId,
     String? botToken,
@@ -1086,36 +1147,6 @@ class HomePageState extends State<HomePage>
       return false;
     }
 
-    if (kDebugMode) {
-      final shouldWatch = await AppTheme.showConfirmDialog(
-        context,
-        title: context.tr.rewarded_start_title,
-        content: context.tr.rewarded_start_message,
-        cancelLabel: context.tr.rewarded_start_skip,
-        confirmLabel: context.tr.rewarded_start_watch,
-      );
-
-      if (!shouldWatch || !mounted) {
-        return false;
-      }
-    } else {
-      await showDialog<void>(
-        context: context,
-        barrierDismissible: false,
-        builder:
-            (dialogContext) => AlertDialog(
-              title: Text(context.tr.rewarded_start_title),
-              content: Text(context.tr.rewarded_start_message),
-              actions: [
-                FilledButton(
-                  onPressed: () => Navigator.of(dialogContext).pop(),
-                  child: Text(context.tr.rewarded_start_continue),
-                ),
-              ],
-            ),
-      );
-    }
-
     final previousBalance = await _fetchMainApiRuntimeBalance(botId);
 
     var rewardEarned = false;
@@ -1183,50 +1214,41 @@ class HomePageState extends State<HomePage>
         final width = constraints.maxWidth;
         final int crossAxisCount;
         final double horizontalPadding;
-        final double cardHeight;
 
         // Responsive grid based on screen width
         if (width < 420) {
           // Small phone - single column
           crossAxisCount = 1;
           horizontalPadding = 12.0;
-          cardHeight = 250.0;
         } else if (width < 600) {
           // Mobile - 2 columns
           crossAxisCount = 2;
           horizontalPadding = 12.0;
-          cardHeight = 260.0;
         } else if (width >= 1500) {
           // Extra large desktop - 5 columns
           crossAxisCount = 5;
           horizontalPadding = 24.0;
-          cardHeight = 282.0;
         } else if (width >= 1200) {
           // Large desktop - 4 columns
           crossAxisCount = 4;
           horizontalPadding = 24.0;
-          cardHeight = 285.0;
         } else if (width >= 900) {
           // Tablet - 3 columns
           crossAxisCount = 3;
           horizontalPadding = 20.0;
-          cardHeight = 276.0;
         } else if (width >= 760) {
           // Medium tablet - 3 columns
           crossAxisCount = 3;
           horizontalPadding = 16.0;
-          cardHeight = 272.0;
         } else {
           // Small tablet - 2 columns
           crossAxisCount = 2;
           horizontalPadding = 16.0;
-          cardHeight = 274.0;
         }
 
         final cardWidth =
             (width - (horizontalPadding * 2) - ((crossAxisCount - 1) * 12)) /
             crossAxisCount;
-        final childAspectRatio = cardWidth / cardHeight;
 
         return Padding(
           padding: EdgeInsets.all(horizontalPadding),
@@ -1247,50 +1269,8 @@ class HomePageState extends State<HomePage>
                 return const _EmptyStateWithSupport();
               }
 
-              final namesById = <String, String>{
-                for (final app in apps)
-                  (app['id']?.toString() ?? ''):
-                      (app['name']?.toString() ?? context.tr.home_unknown_app),
-              };
-              final activeSessionIds = _runningBotIds.toList(growable: false)
-                ..sort();
-
               return Column(
                 children: [
-                  if (_supportsForegroundTask && activeSessionIds.isNotEmpty)
-                    Container(
-                      width: double.infinity,
-                      margin: const EdgeInsets.only(bottom: 12),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color:
-                            Theme.of(
-                              context,
-                            ).colorScheme.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Sessions mobiles actives (${activeSessionIds.length})',
-                            style: Theme.of(context).textTheme.titleSmall,
-                          ),
-                          const SizedBox(height: 8),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: [
-                              for (final botId in activeSessionIds)
-                                Chip(
-                                  avatar: const Icon(Icons.smart_toy, size: 16),
-                                  label: Text(namesById[botId] ?? botId),
-                                ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
                   if (AdsPlacementPolicy.isPlacementEnabled(
                         NativeAdPlacement.homeBots,
                       ) &&
@@ -1303,74 +1283,88 @@ class HomePageState extends State<HomePage>
                   Expanded(
                     child: RefreshIndicator(
                       onRefresh: () => syncAllBotsFromManager(silent: false),
-                      child: GridView.builder(
-                        padding: const EdgeInsets.only(bottom: 80),
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: crossAxisCount,
-                          crossAxisSpacing: 14,
-                          mainAxisSpacing: 14,
-                          childAspectRatio: childAspectRatio,
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.only(
+                          bottom: 80,
+                          left: 14,
+                          right: 14,
                         ),
-                        itemCount: apps.length,
-                        itemBuilder: (context, index) {
-                          final app = apps[index];
-                          final name =
-                              app['name']?.toString() ??
-                              context.tr.home_unknown_app;
-                          final id = app['id']?.toString() ?? '';
-                          final avatar = app['avatar']?.toString();
-                          final guildCount = switch (app['guild_count']) {
-                            final int value => value,
-                            final String value => int.tryParse(value),
-                            _ => null,
-                          };
-                          final isRunning = _runningBotIds.contains(id);
-                          const runtimeToggleAllowed = true;
-                          // Multi-bot is allowed on runner, mobile foreground, and
-                          // local desktop runtimes. Disable only while a toggle
-                          // operation is currently in progress.
-                          final canToggle =
-                              runtimeToggleAllowed && !_isTogglingBot;
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: Align(
+                          alignment: Alignment.topCenter,
+                          child: Wrap(
+                            spacing: 14,
+                            runSpacing: 14,
+                            children: apps.map((app) {
+                              final name =
+                                  app['name']?.toString() ??
+                                  context.tr.home_unknown_app;
+                              final id = app['id']?.toString() ?? '';
+                              final avatar = app['avatar']?.toString();
+                              final guildCount = switch (app['guild_count']) {
+                                final int value => value,
+                                final String s => int.tryParse(s) ?? 0,
+                                _ => 0,
+                              };
 
-                          final pulseCtrl = _getOrCreatePulseController(id);
+                              final isRunning = _runningBotIds.contains(id);
 
-                          return _BotCard(
-                            name: name,
-                            id: id,
-                            avatar: avatar,
-                            guildCount: guildCount,
-                            compact: width < 760,
-                            isRunning: isRunning,
-                            canToggle: canToggle,
-                            isTogglingThisBot: _isTogglingBot && isRunning,
-                            runtimeBadgeLabel:
-                                isRunning ? _runtimeBadgeLabel() : null,
-                            freeMinutes: _freeMinutesByBotId[id],
-                            pulseController: pulseCtrl,
-                            onManage:
-                                () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder:
-                                        (_) => AppEditPage(
-                                          appName: name,
-                                          id: int.tryParse(id) ?? 0,
+                              const runtimeToggleAllowed = true;
+
+                              final canToggle =
+                                  runtimeToggleAllowed &&
+                                  _botIdInAction == null;
+
+                              final pulseCtrl = _getOrCreatePulseController(id);
+
+                              return SizedBox(
+                                width: cardWidth,
+                                child: _BotCard(
+                                  name: name,
+                                  id: id,
+                                  avatar: avatar,
+                                  guildCount: guildCount,
+                                  compact: width < 760,
+                                  isRunning: isRunning,
+                                  canToggle: canToggle,
+                                  isTogglingThisBot: _botIdInAction == id,
+                                  runtimeBadgeLabel:
+                                      isRunning ? _runtimeBadgeLabel() : null,
+                                  freeMinutes: _freeMinutesByBotId[id],
+                                  pulseController: pulseCtrl,
+                                  onManage:
+                                      () => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (_) => AppEditPage(
+                                                appName: name,
+                                                id: int.tryParse(id) ?? 0,
+                                              ),
                                         ),
-                                  ),
-                                ).then((_) => _initRunningState()),
-                            onToggle:
-                                () => _toggleBot(botId: id, botName: name),
-                            onLogs:
-                                isRunning
-                                    ? () => Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => BotLogsPage(botId: id),
+                                      ).then((_) => _initRunningState()),
+                                  onToggle:
+                                      () => _toggleBot(
+                                        botId: id,
+                                        botName: name,
                                       ),
-                                    )
-                                    : null,
-                          );
-                        },
+                                  onAddTime: () => _addHostingTime(id),
+                                  onLogs:
+                                      isRunning
+                                          ? () => Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (_) =>
+                                                      BotLogsPage(botId: id),
+                                            ),
+                                          )
+                                          : null,
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -1399,6 +1393,7 @@ class _BotCard extends StatelessWidget {
     required this.pulseController,
     required this.onManage,
     required this.onToggle,
+    required this.onAddTime,
     required this.onLogs,
     this.runtimeBadgeLabel,
     this.freeMinutes,
@@ -1417,6 +1412,7 @@ class _BotCard extends StatelessWidget {
   final AnimationController pulseController;
   final VoidCallback onManage;
   final VoidCallback onToggle;
+  final VoidCallback? onAddTime;
   final VoidCallback? onLogs;
 
   static const _onlineGradient = AppTheme.botCardOnlineGradient;
@@ -1510,10 +1506,11 @@ class _BotCard extends StatelessWidget {
               ),
 
               // ── Avatar + Identity ──────────────────────────────────────────
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  SizedBox(height: compact ? 8 : 12),
                     // Avatar with glow ring when running
                     Container(
                       decoration:
@@ -1641,10 +1638,10 @@ class _BotCard extends StatelessWidget {
                         ),
                       ),
                     ],
-                    if (freeMinutes != null && !compact) ...[
+                    if (freeMinutes != null) ...[
                       const SizedBox(height: 6),
                       Text(
-                        'Temps restant: ${freeMinutes!} min',
+                        AppStrings.tr('home_hosting_time_left', params: {'minutes': freeMinutes!.toString()}),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -1654,8 +1651,7 @@ class _BotCard extends StatelessWidget {
                         ),
                       ),
                     ],
-                  ],
-                ),
+                ],
               ),
 
               // ── Action buttons ─────────────────────────────────────────────
@@ -1681,11 +1677,17 @@ class _BotCard extends StatelessWidget {
                             size: 16,
                           ),
                   label: Text(
-                    isRunning ? context.tr.home_stop : context.tr.home_start,
+                    isRunning
+                        ? context.tr.home_stop
+                        : (SubscriptionService.isSubscribed
+                            ? AppStrings.tr('home_start_premium')
+                            : AppStrings.tr('home_start_ads')),
                   ),
                   style: FilledButton.styleFrom(
                     backgroundColor:
-                        isRunning ? AppTheme.error : AppTheme.success,
+                        isRunning
+                            ? Colors.white.withValues(alpha: 0.2)
+                            : AppTheme.success,
                     foregroundColor: Colors.white,
                     disabledBackgroundColor: Colors.white.withValues(
                       alpha: 0.1,
@@ -1701,6 +1703,39 @@ class _BotCard extends StatelessWidget {
                   ),
                 ),
               ),
+
+              if (isRunning && !SubscriptionService.isSubscribed) ...[
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: canToggle ? onAddTime : null,
+                    icon:
+                        isTogglingThisBot
+                            ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                            : const Icon(Icons.more_time_rounded, size: 16),
+                    label: Text(AppStrings.tr('home_add_time')),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppTheme.success,
+                      foregroundColor: Colors.white,
+                      textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                      padding: EdgeInsets.symmetric(
+                        vertical: buttonVerticalPadding,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
 
               SizedBox(height: compact ? 4 : 6),
 
