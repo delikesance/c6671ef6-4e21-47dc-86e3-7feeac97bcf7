@@ -1359,17 +1359,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get home_start => 'Start';
 
   @override
+  String get home_start_ads => 'Watch Ads to Start';
+
+  @override
+  String get home_start_premium => 'Start';
+
+  @override
+  String get home_add_time => 'Add Time';
+
+  @override
+  String home_hosting_time_left(String minutes) {
+    return 'Hosting Time left: $minutes min';
+  }
+
+  @override
   String get home_manage => 'Manage';
 
   @override
   String get home_logs_tooltip => 'Bot logs';
 
   @override
-  String get rewarded_start_title => 'Support Bot Creator';
+  String get rewarded_start_title => 'Ad Required';
 
   @override
   String get rewarded_start_message =>
-      'This ad helps fund the app and can only appear when you press Start. If no ad can be shown, the bot will still start normally.';
+      'An ad is required to start this hosting session. This helps fund the project. Premium users can skip this.';
 
   @override
   String get rewarded_start_watch => 'Watch ad';

@@ -2510,6 +2510,30 @@ abstract class AppLocalizations {
   /// **'Start'**
   String get home_start;
 
+  /// No description provided for @home_start_ads.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch Ads to Start'**
+  String get home_start_ads;
+
+  /// No description provided for @home_start_premium.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get home_start_premium;
+
+  /// No description provided for @home_add_time.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Time'**
+  String get home_add_time;
+
+  /// No description provided for @home_hosting_time_left.
+  ///
+  /// In en, this message translates to:
+  /// **'Hosting Time left: {minutes} min'**
+  String home_hosting_time_left(String minutes);
+
   /// No description provided for @home_manage.
   ///
   /// In en, this message translates to:
@@ -2525,13 +2549,13 @@ abstract class AppLocalizations {
   /// No description provided for @rewarded_start_title.
   ///
   /// In en, this message translates to:
-  /// **'Support Bot Creator'**
+  /// **'Ad Required'**
   String get rewarded_start_title;
 
   /// No description provided for @rewarded_start_message.
   ///
   /// In en, this message translates to:
-  /// **'This ad helps fund the app and can only appear when you press Start. If no ad can be shown, the bot will still start normally.'**
+  /// **'An ad is required to start this hosting session. This helps fund the project. Premium users can skip this.'**
   String get rewarded_start_message;
 
   /// No description provided for @rewarded_start_watch.
