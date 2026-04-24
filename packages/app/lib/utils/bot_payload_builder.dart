@@ -1,7 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
-import 'package:bot_creator/utils/app_storage_directory.dart';
 import 'package:bot_creator/utils/database.dart';
 import 'package:bot_creator/utils/premium_capabilities.dart';
 import 'package:bot_creator/utils/runner_client.dart';
@@ -20,6 +19,44 @@ bool get _isDesktopPlatform {
 
 final _appManager = AppManager();
 
+/// Debounces and throttles synchronization requests per bot.
+class _SyncBatcher {
+  final Map<String, Timer> _debounceTimers = {};
+  final Map<String, DateTime> _firstRequestTimes = {};
+
+  // X values: 3s debounce (idle), 15s max wait (throttle).
+  static const _debounceDuration = Duration(seconds: 3);
+  static const _maxThrottleDuration = Duration(seconds: 15);
+
+  void requestSync(String botId, Future<void> Function(String botId) syncTask) {
+    _debounceTimers[botId]?.cancel();
+
+    final now = DateTime.now();
+    final firstRequest = _firstRequestTimes[botId] ?? now;
+    _firstRequestTimes[botId] = firstRequest;
+
+    final elapsedSinceFirst = now.difference(firstRequest);
+
+    if (elapsedSinceFirst >= _maxThrottleDuration) {
+      // Throttle limit reached, sync immediately.
+      _debounceTimers.remove(botId);
+      _performSync(botId, syncTask);
+    } else {
+      // Debounce: wait for idle.
+      _debounceTimers[botId] = Timer(_debounceDuration, () {
+        _performSync(botId, syncTask);
+      });
+    }
+  }
+
+  void _performSync(String botId, Future<void> Function(String botId) syncTask) {
+    _firstRequestTimes.remove(botId);
+    unawaited(syncTask(botId));
+  }
+}
+
+final _batcher = _SyncBatcher();
+
 /// Registers the [AppManager.onAfterSave] hook so that any command or
 /// workflow save automatically pushes an updated config to the runner
 /// (if one is configured and the bot is currently running).
@@ -27,58 +64,62 @@ final _appManager = AppManager();
 /// Call this once during app initialisation.
 void initRunnerAutoReload() {
   AppManager.onAfterSave = (String botId) async {
-    try {
-      final payload = await buildBotPayload(botId);
-      final app = await _appManager.getApp(botId);
-      final botName = (app['username'] ?? app['name'] ?? '').toString().trim();
-      final botToken = (app['token'] ?? '').toString().trim();
+    _batcher.requestSync(botId, _executeSync);
+  };
+}
 
-      final futures = <Future<void>>[];
+Future<void> _executeSync(String botId) async {
+  try {
+    final payload = await buildBotPayload(botId);
+    final app = await _appManager.getApp(botId);
+    final botName = (app['username'] ?? app['name'] ?? '').toString().trim();
+    final botToken = (app['token'] ?? '').toString().trim();
 
-      // 1. Desktop Runner Sync (only on desktop platforms)
-      if (_isDesktopPlatform) {
-        futures.add(() async {
-          try {
-            final client = await RunnerSettings.createClient();
-            if (client != null) {
-              await client.reloadBot(botId, botName, payload);
-              debugPrint('[AutoReload] Reloaded bot $botId on runner.');
-            }
-          } catch (error) {
-            debugPrint('[AutoReload] Runner reload skipped for $botId: $error');
-          }
-        }());
-      }
+    final futures = <Future<void>>[];
 
-      // 2. Cloud Sync (Manager)
+    // 1. Desktop Runner Sync (only on desktop platforms)
+    if (_isDesktopPlatform) {
       futures.add(() async {
         try {
-          final config = await MainApiSettingsStore.loadConfig();
-          if (config.isConfigured) {
-            final session = await MainApiSettingsStore.loadSession();
-            if (session != null && !session.isExpired) {
-              final mainApiClient = MainApiClient(
-                baseUrl: config.baseUrl,
-                accessToken: session.accessToken,
-              );
-              await mainApiClient.saveDiscordBotSnapshot(
-                botToken: botToken,
-                config: payload,
-              );
-              await mainApiClient.syncBot(botId, botName, payload);
-              debugPrint('[AutoReload] Synced bot $botId to cloud.');
-            }
+          final client = await RunnerSettings.createClient();
+          if (client != null) {
+            await client.reloadBot(botId, botName, payload);
+            debugPrint('[AutoReload] Reloaded bot $botId on runner (batched).');
           }
         } catch (error) {
-          debugPrint('[AutoReload] Cloud sync failed for $botId: $error');
+          debugPrint('[AutoReload] Runner reload skipped for $botId: $error');
         }
       }());
-
-      await Future.wait(futures);
-    } catch (error) {
-      debugPrint('[AutoReload] Auto-reload failed for $botId: $error');
     }
-  };
+
+    // 2. Cloud Sync (Manager)
+    futures.add(() async {
+      try {
+        final config = await MainApiSettingsStore.loadConfig();
+        if (config.isConfigured) {
+          final session = await MainApiSettingsStore.loadSession();
+          if (session != null && !session.isExpired) {
+            final mainApiClient = MainApiClient(
+              baseUrl: config.baseUrl,
+              accessToken: session.accessToken,
+            );
+            await mainApiClient.saveDiscordBotSnapshot(
+              botToken: botToken,
+              config: payload,
+            );
+            await mainApiClient.syncBot(botId, botName, payload);
+            debugPrint('[AutoReload] Synced bot $botId to cloud (batched).');
+          }
+        }
+      } catch (error) {
+        debugPrint('[AutoReload] Cloud sync failed for $botId: $error');
+      }
+    }());
+
+    await Future.wait(futures);
+  } catch (error) {
+    debugPrint('[AutoReload] Auto-reload failed for $botId: $error');
+  }
 }
 
 /// Assembles a [BotConfig] JSON payload for a given bot by reading all data
@@ -97,6 +138,50 @@ Future<Map<String, dynamic>> buildBotPayload(String botId) async {
     throw StateError('Bot "$botId" has no token configured.');
   }
 
+  final scopedVariables = await _appManager.exportScopedVariables(botId);
+  final commands = await _appManager.listAppCommands(botId);
+
+  // Evaluate premium capabilities before passing to isolate
+  final inboundWebhooks = PremiumCapabilities.hasCapability(PremiumCapability.inboundWebhooks);
+  final autoSharding = PremiumCapabilities.hasCapability(PremiumCapability.autoSharding);
+  final autoRestart = PremiumCapabilities.hasCapability(PremiumCapability.autoRestart);
+
+  final payloadArgs = <String, dynamic>{
+    'appData': appData,
+    'token': token,
+    'scopedVariables': scopedVariables,
+    'commands': commands,
+    'inboundWebhooks': inboundWebhooks,
+    'autoSharding': autoSharding,
+    'autoRestart': autoRestart,
+  };
+
+  return await compute(_buildPayloadInBackground, payloadArgs);
+}
+
+/// Background worker to offload CPU-intensive JSON serialization
+Map<String, dynamic> _buildPayloadInBackground(Map<String, dynamic> args) {
+  final appData = args['appData'] as Map<String, dynamic>;
+  final token = args['token'] as String;
+  final scopedVariablesRaw = args['scopedVariables'] as Map;
+  final commandsRaw = args['commands'] as List;
+  final inboundWebhooks = args['inboundWebhooks'] as bool;
+  final autoSharding = args['autoSharding'] as bool;
+  final autoRestart = args['autoRestart'] as bool;
+
+  final scopedVariables = <String, Map<String, Map<String, dynamic>>>{};
+  for (final scopeEntry in scopedVariablesRaw.entries) {
+    final scopeKey = scopeEntry.key.toString();
+    final contextMapRaw = scopeEntry.value as Map;
+    final contextMap = <String, Map<String, dynamic>>{};
+    for (final contextEntry in contextMapRaw.entries) {
+      contextMap[contextEntry.key.toString()] = Map<String, dynamic>.from(contextEntry.value as Map);
+    }
+    scopedVariables[scopeKey] = contextMap;
+  }
+
+  final commands = List<Map<String, dynamic>>.from(commandsRaw);
+
   final intents = Map<String, bool>.from(
     (appData['intents'] as Map?)?.map(
           (k, v) => MapEntry(k.toString(), v == true),
@@ -110,7 +195,7 @@ Future<Map<String, dynamic>> buildBotPayload(String botId) async {
         ) ??
         const <String, dynamic>{},
   );
-  final scopedVariables = await _appManager.exportScopedVariables(botId);
+  
   final scopedVariableDefinitions = List<Map<String, dynamic>>.from(
     (appData['scopedVariableDefinitions'] as List?)?.whereType<Map>().map(
           (entry) => Map<String, dynamic>.from(entry),
@@ -146,20 +231,12 @@ Future<Map<String, dynamic>> buildBotPayload(String botId) async {
           .toList(growable: false) ??
       const <BotStatusConfig>[];
 
-  final commands = await _loadAllCommands(botId);
-
   final config = BotConfig(
     token: token,
     builtInLegacyHelpEnabled: appData['builtInLegacyHelpEnabled'] != false,
-    inboundWebhooks: PremiumCapabilities.hasCapability(
-      PremiumCapability.inboundWebhooks,
-    ),
-    autoSharding: PremiumCapabilities.hasCapability(
-      PremiumCapability.autoSharding,
-    ),
-    autoRestart: PremiumCapabilities.hasCapability(
-      PremiumCapability.autoRestart,
-    ),
+    inboundWebhooks: inboundWebhooks,
+    autoSharding: autoSharding,
+    autoRestart: autoRestart,
     username:
         (appData['username'] ?? '').toString().trim().isEmpty
             ? null
@@ -180,33 +257,6 @@ Future<Map<String, dynamic>> buildBotPayload(String botId) async {
   );
 
   config.validate();
-  return config.toJson();
-}
-
-/// Reads all command JSON files from the `apps/{botId}/` sub-directory.
-Future<List<Map<String, dynamic>>> _loadAllCommands(String botId) async {
-  final docsDir = await getAppStorageDirectory();
-  final commandDir = Directory('${docsDir.path}/apps/$botId');
-
-  if (!await commandDir.exists()) return const [];
-
-  final commands = <Map<String, dynamic>>[];
-
-  await for (final entity in commandDir.list()) {
-    if (entity is File && entity.path.endsWith('.json')) {
-      try {
-        final raw = await entity.readAsString();
-        if (raw.isNotEmpty) {
-          final decoded = jsonDecode(raw);
-          if (decoded is Map) {
-            commands.add(Map<String, dynamic>.from(decoded));
-          }
-        }
-      } catch (_) {
-        // Skip corrupt command files — the runner will just not register them.
-      }
-    }
-  }
-
-  return commands;
+  // Decode and re-encode to ensure the object is a clean, primitive Map that can cross isolates.
+  return jsonDecode(jsonEncode(config.toJson())) as Map<String, dynamic>;
 }
