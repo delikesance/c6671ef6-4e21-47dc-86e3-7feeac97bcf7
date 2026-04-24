@@ -1214,14 +1214,15 @@ class HomePageState extends State<HomePage>
         final width = constraints.maxWidth;
         final int crossAxisCount;
         final double horizontalPadding;
+        const double spacing = 12.0;
 
         // Responsive grid based on screen width
-        if (width < 420) {
-          // Small phone - single column
+        if (width < 480) {
+          // Phone - single column
           crossAxisCount = 1;
           horizontalPadding = 12.0;
-        } else if (width < 600) {
-          // Mobile - 2 columns
+        } else if (width < 760) {
+          // Large phone / small tablet - 2 columns
           crossAxisCount = 2;
           horizontalPadding = 12.0;
         } else if (width >= 1500) {
@@ -1236,18 +1237,14 @@ class HomePageState extends State<HomePage>
           // Tablet - 3 columns
           crossAxisCount = 3;
           horizontalPadding = 20.0;
-        } else if (width >= 760) {
+        } else {
           // Medium tablet - 3 columns
           crossAxisCount = 3;
-          horizontalPadding = 16.0;
-        } else {
-          // Small tablet - 2 columns
-          crossAxisCount = 2;
           horizontalPadding = 16.0;
         }
 
         final cardWidth =
-            (width - (horizontalPadding * 2) - ((crossAxisCount - 1) * 12)) /
+            (width - (horizontalPadding * 2) - ((crossAxisCount - 1) * spacing)) /
             crossAxisCount;
 
         return Padding(
@@ -1278,23 +1275,19 @@ class HomePageState extends State<HomePage>
                     const NativeAdSlot(
                       placement: NativeAdPlacement.homeBots,
                       height: 118,
-                      margin: EdgeInsets.only(bottom: 12),
+                      margin: EdgeInsets.only(bottom: spacing),
                     ),
                   Expanded(
                     child: RefreshIndicator(
                       onRefresh: () => syncAllBotsFromManager(silent: false),
                       child: SingleChildScrollView(
-                        padding: const EdgeInsets.only(
-                          bottom: 80,
-                          left: 14,
-                          right: 14,
-                        ),
+                        padding: const EdgeInsets.only(bottom: 80),
                         physics: const AlwaysScrollableScrollPhysics(),
                         child: Align(
                           alignment: Alignment.topCenter,
                           child: Wrap(
-                            spacing: 14,
-                            runSpacing: 14,
+                            spacing: spacing,
+                            runSpacing: spacing,
                             children: apps.map((app) {
                               final name =
                                   app['name']?.toString() ??
