@@ -1507,9 +1507,11 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         'data': commandData,
         if (_folder.isNotEmpty) 'folder': _folder,
       };
+
       if (!_isEditingExistingCommand) {
         localPayload['createdAt'] = DateTime.now().toIso8601String();
       }
+
       await appManager.saveAppCommand(botId, commandId, localPayload);
     }
 
@@ -1529,12 +1531,14 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
 
     try {
       if (_localOnlyCommand) {
-        final localCommandId =
-            existingStorageId ?? _generateLegacyOnlyCommandId();
+        final localCommandId = existingStorageId ?? _generateLegacyOnlyCommandId();
+
         await saveLocal(localCommandId);
+
         if (!mounted) {
           return;
         }
+
         Navigator.pop(context);
         return;
       }

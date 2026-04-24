@@ -6,8 +6,17 @@ import 'package:bot_creator/utils/database.dart';
 import 'package:bot_creator/utils/premium_capabilities.dart';
 import 'package:bot_creator/utils/runner_client.dart';
 import 'package:bot_creator/utils/runner_settings.dart';
+import 'package:bot_creator/utils/main_api_client.dart';
+import 'package:bot_creator/utils/main_api_settings.dart';
 import 'package:bot_creator_shared/bot/bot_config.dart';
 import 'package:flutter/foundation.dart';
+
+bool get _isDesktopPlatform {
+  if (kIsWeb) return false;
+  return defaultTargetPlatform == TargetPlatform.windows ||
+      defaultTargetPlatform == TargetPlatform.linux ||
+      defaultTargetPlatform == TargetPlatform.macOS;
+}
 
 final _appManager = AppManager();
 
@@ -19,16 +28,55 @@ final _appManager = AppManager();
 void initRunnerAutoReload() {
   AppManager.onAfterSave = (String botId) async {
     try {
-      final client = await RunnerSettings.createClient();
-      if (client == null) return;
       final payload = await buildBotPayload(botId);
       final app = await _appManager.getApp(botId);
       final botName = (app['username'] ?? app['name'] ?? '').toString().trim();
-      await client.reloadBot(botId, botName, payload);
-      debugPrint('[AutoReload] Reloaded bot $botId on runner.');
+      final botToken = (app['token'] ?? '').toString().trim();
+
+      final futures = <Future<void>>[];
+
+      // 1. Desktop Runner Sync (only on desktop platforms)
+      if (_isDesktopPlatform) {
+        futures.add(() async {
+          try {
+            final client = await RunnerSettings.createClient();
+            if (client != null) {
+              await client.reloadBot(botId, botName, payload);
+              debugPrint('[AutoReload] Reloaded bot $botId on runner.');
+            }
+          } catch (error) {
+            debugPrint('[AutoReload] Runner reload skipped for $botId: $error');
+          }
+        }());
+      }
+
+      // 2. Cloud Sync (Manager)
+      futures.add(() async {
+        try {
+          final config = await MainApiSettingsStore.loadConfig();
+          if (config.isConfigured) {
+            final session = await MainApiSettingsStore.loadSession();
+            if (session != null && !session.isExpired) {
+              final mainApiClient = MainApiClient(
+                baseUrl: config.baseUrl,
+                accessToken: session.accessToken,
+              );
+              await mainApiClient.saveDiscordBotSnapshot(
+                botToken: botToken,
+                config: payload,
+              );
+              await mainApiClient.syncBot(botId, botName, payload);
+              debugPrint('[AutoReload] Synced bot $botId to cloud.');
+            }
+          }
+        } catch (error) {
+          debugPrint('[AutoReload] Cloud sync failed for $botId: $error');
+        }
+      }());
+
+      await Future.wait(futures);
     } catch (error) {
-      // Silent best-effort: runner may be offline or bot may not be running.
-      debugPrint('[AutoReload] Runner reload skipped for $botId: $error');
+      debugPrint('[AutoReload] Auto-reload failed for $botId: $error');
     }
   };
 }

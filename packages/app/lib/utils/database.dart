@@ -2017,11 +2017,14 @@ class AppManager implements BotDataStore {
     String commandId,
     Map<String, dynamic> data,
   ) async {
-    _commandListCache.remove(id);
-    final path = await _path();
+    _commandListCache.remove(id); 
+
+    final path = await _path(); 
     final file = File("$path/apps/$id/$commandId.json");
+
     if (!await file.exists()) await file.create(recursive: true);
     await file.writeAsString(jsonEncode(normalizeCommandData(data)));
+
     unawaited((onAfterSave ?? (_) async {}).call(id));
   }
 
