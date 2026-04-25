@@ -11,9 +11,8 @@ import 'package:flutter/foundation.dart';
 
 final _appManager = AppManager();
 
-/// Registers the [AppManager.onAfterSave] hook so that any command or
-/// workflow save automatically pushes an updated config to the runner
-/// (if one is configured and the bot is currently running).
+/// Registers the runner sync hooks so that command saves use localized
+/// updates while broader bot saves still fall back to a full reload.
 ///
 /// Call this once during app initialisation.
 void initRunnerAutoReload() {
@@ -29,6 +28,66 @@ void initRunnerAutoReload() {
     } catch (error) {
       // Silent best-effort: runner may be offline or bot may not be running.
       debugPrint('[AutoReload] Runner reload skipped for $botId: $error');
+    }
+  };
+
+  AppManager.onAfterCommandSave = (
+    String botId,
+    String commandId,
+    Map<String, dynamic> command,
+  ) async {
+    try {
+      final client = await RunnerSettings.createClient();
+      if (client == null) return;
+      final app = await _appManager.getApp(botId);
+      final botName = (app['username'] ?? app['name'] ?? '').toString().trim();
+      await client.syncCommand(botId, botName, commandId, command);
+      debugPrint('[AutoReload] Synced command $commandId for bot $botId.');
+    } catch (error) {
+      try {
+        final client = await RunnerSettings.createClient();
+        if (client == null) return;
+        final payload = await buildBotPayload(botId);
+        final app = await _appManager.getApp(botId);
+        final botName =
+            (app['username'] ?? app['name'] ?? '').toString().trim();
+        await client.reloadBot(botId, botName, payload);
+        debugPrint(
+          '[AutoReload] Command sync fallback reloaded bot $botId on runner.',
+        );
+      } catch (fallbackError) {
+        debugPrint(
+          '[AutoReload] Command sync skipped for $botId/$commandId: $error | fallback: $fallbackError',
+        );
+      }
+    }
+  };
+
+  AppManager.onAfterCommandDelete = (String botId, String commandId) async {
+    try {
+      final client = await RunnerSettings.createClient();
+      if (client == null) return;
+      final app = await _appManager.getApp(botId);
+      final botName = (app['username'] ?? app['name'] ?? '').toString().trim();
+      await client.deleteCommand(botId, botName, commandId);
+      debugPrint('[AutoReload] Deleted command $commandId for bot $botId.');
+    } catch (error) {
+      try {
+        final client = await RunnerSettings.createClient();
+        if (client == null) return;
+        final payload = await buildBotPayload(botId);
+        final app = await _appManager.getApp(botId);
+        final botName =
+            (app['username'] ?? app['name'] ?? '').toString().trim();
+        await client.reloadBot(botId, botName, payload);
+        debugPrint(
+          '[AutoReload] Command delete fallback reloaded bot $botId on runner.',
+        );
+      } catch (fallbackError) {
+        debugPrint(
+          '[AutoReload] Command delete skipped for $botId/$commandId: $error | fallback: $fallbackError',
+        );
+      }
     }
   };
 }

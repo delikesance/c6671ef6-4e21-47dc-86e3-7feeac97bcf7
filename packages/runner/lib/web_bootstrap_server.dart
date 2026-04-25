@@ -73,6 +73,8 @@ String _resolveVersion() {
 /// GET  /bots                → [{id, name, syncedAt}]
 /// POST /bots/sync           → body: {botId, botName?, config: {...}}
 ///                           → {ok: true}
+/// POST /bots/{id}/commands/sync   → body: {commandId, command: {...}}
+/// POST /bots/{id}/commands/delete → body: {commandId}
 /// POST /bots/{id}/start     → status payload
 /// POST /bots/{id}/stop      → status payload
 /// POST /bots/{id}/reload    → hot-reload config: {ok, reloaded}
@@ -179,6 +181,14 @@ class RunnerWebBootstrapServer {
     final scopedStartBotId = _extractBotAction(path, action: 'start');
     final scopedStopBotId = _extractBotAction(path, action: 'stop');
     final scopedReloadBotId = _extractBotAction(path, action: 'reload');
+    final scopedCommandSyncBotId = _extractBotDeepAction(
+      path,
+      actionPath: 'commands/sync',
+    );
+    final scopedCommandDeleteBotId = _extractBotDeepAction(
+      path,
+      actionPath: 'commands/delete',
+    );
     final scopedStatusBotId = _extractBotAction(path, action: 'status');
     final scopedMetricsBotId = _extractBotAction(path, action: 'metrics');
     final scopedStatsBotId = _extractBotAction(path, action: 'command-stats');
@@ -299,6 +309,20 @@ class RunnerWebBootstrapServer {
         }
         if (scopedReloadBotId != null) {
           await _handleBotsReload(request, botIdFromPath: scopedReloadBotId);
+          return;
+        }
+        if (scopedCommandSyncBotId != null) {
+          await _handleCommandSync(
+            request,
+            botIdFromPath: scopedCommandSyncBotId,
+          );
+          return;
+        }
+        if (scopedCommandDeleteBotId != null) {
+          await _handleCommandDelete(
+            request,
+            botIdFromPath: scopedCommandDeleteBotId,
+          );
           return;
         }
         if (scopedSetGlobalBotId != null) {
@@ -507,6 +531,84 @@ class RunnerWebBootstrapServer {
     await _respondJson(request, <String, dynamic>{
       'ok': true,
       'reloaded': _runtimeController.isBotRunning(botId),
+    });
+  }
+
+  /// POST /bots/{id}/commands/sync — upsert a single command and keep the bot
+  /// running state intact when possible.
+  Future<void> _handleCommandSync(
+    HttpRequest request, {
+    String? botIdFromPath,
+  }) async {
+    final payload = await _readJsonBody(request);
+    final botId = (botIdFromPath ?? payload['botId'] ?? '').toString().trim();
+    final commandId = (payload['commandId'] ?? '').toString().trim();
+    final rawCommand = payload['command'];
+
+    if (botId.isEmpty || commandId.isEmpty) {
+      await _respondJson(request, <String, dynamic>{
+        'error': 'Missing botId or commandId.',
+      }, statusCode: HttpStatus.badRequest);
+      return;
+    }
+    if (rawCommand == null || rawCommand is! Map) {
+      await _respondJson(request, <String, dynamic>{
+        'error': 'Missing or invalid command payload.',
+      }, statusCode: HttpStatus.badRequest);
+      return;
+    }
+
+    final command = Map<String, dynamic>.from(rawCommand);
+    command['id'] = commandId;
+
+    try {
+      await _runtimeController.upsertCommand(botId, command);
+    } on StateError catch (error) {
+      await _respondJson(request, <String, dynamic>{
+        'error': error.message,
+      }, statusCode: HttpStatus.notFound);
+      return;
+    }
+
+    await _respondJson(request, <String, dynamic>{
+      'ok': true,
+      'botId': botId,
+      'commandId': commandId,
+      'running': _runtimeController.isBotRunning(botId),
+    });
+  }
+
+  /// POST /bots/{id}/commands/delete — delete a single command without
+  /// rebuilding the whole bot payload.
+  Future<void> _handleCommandDelete(
+    HttpRequest request, {
+    String? botIdFromPath,
+  }) async {
+    final payload = await _readJsonBody(request);
+    final botId = (botIdFromPath ?? payload['botId'] ?? '').toString().trim();
+    final commandId = (payload['commandId'] ?? '').toString().trim();
+
+    if (botId.isEmpty || commandId.isEmpty) {
+      await _respondJson(request, <String, dynamic>{
+        'error': 'Missing botId or commandId.',
+      }, statusCode: HttpStatus.badRequest);
+      return;
+    }
+
+    try {
+      await _runtimeController.deleteCommand(botId, commandId);
+    } on StateError catch (error) {
+      await _respondJson(request, <String, dynamic>{
+        'error': error.message,
+      }, statusCode: HttpStatus.notFound);
+      return;
+    }
+
+    await _respondJson(request, <String, dynamic>{
+      'ok': true,
+      'botId': botId,
+      'commandId': commandId,
+      'running': _runtimeController.isBotRunning(botId),
     });
   }
 
