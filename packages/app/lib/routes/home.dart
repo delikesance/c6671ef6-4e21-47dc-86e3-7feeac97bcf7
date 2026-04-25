@@ -1344,10 +1344,13 @@ class HomePageState extends State<HomePage>
         }
 
         final listHorizontalPadding = isIOS ? 8.0 : 14.0;
+        final contentWidth =
+            width - (horizontalPadding * 2) - (listHorizontalPadding * 2);
 
         final cardWidth =
-            (width - (horizontalPadding * 2) - ((crossAxisCount - 1) * 12)) /
-            crossAxisCount;
+            isIOS
+                ? contentWidth * 0.95
+                : (contentWidth - ((crossAxisCount - 1) * 12)) / crossAxisCount;
 
         return Padding(
           padding: EdgeInsets.all(horizontalPadding),
@@ -1934,7 +1937,6 @@ class _EmptyStateWithSupport extends StatelessWidget {
               ).textTheme.titleMedium?.copyWith(color: scheme.onSurfaceVariant),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 32),
             const Divider(),
             const SizedBox(height: 16),
             Text(
