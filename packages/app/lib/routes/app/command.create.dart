@@ -13,9 +13,13 @@ import 'package:bot_creator/types/action.dart' show BotCreatorActionType;
 import 'package:bot_creator/utils/analytics.dart';
 import 'package:bot_creator/utils/app_emoji_api.dart';
 import 'package:bot_creator/utils/bot.dart';
+import 'package:bot_creator/utils/bot_payload_builder.dart';
 import 'package:bot_creator/utils/command_variable_catalog.dart';
 import 'package:bot_creator/utils/embed_normalization.dart';
+import 'package:bot_creator/utils/global.dart';
 import 'package:bot_creator/utils/i18n.dart';
+import 'package:bot_creator/utils/main_api_client.dart';
+import 'package:bot_creator/utils/main_api_settings.dart';
 import 'package:bot_creator/utils/simple_mode.dart';
 import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 import 'package:bot_creator/widgets/bdfd_editor_page.dart';
@@ -32,6 +36,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:uuid/uuid.dart';
+import 'dart:developer' as developer;
 
 part 'command.create.variable_suggestions.dart';
 part 'command.create.serialization.dart';
@@ -957,6 +962,117 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     await _updateOrCreate();
   }
 
+  Future<MainApiClient?> _resolveMainApiClientForCloudSync({
+    required String botId,
+    required String botToken,
+  }) async {
+    final config = await MainApiSettingsStore.loadConfig();
+    if (!config.isConfigured) {
+      developer.log(
+        'Cloud sync skipped for $botId: Main API base URL is not configured.',
+        name: 'CommandCreatePage',
+      );
+      return null;
+    }
+
+    final session = await MainApiSettingsStore.loadSession();
+    if (session != null && !session.isExpired) {
+      return MainApiClient(
+        baseUrl: config.baseUrl,
+        accessToken: session.accessToken,
+      );
+    }
+
+    if (botToken.trim().isEmpty) {
+      developer.log(
+        'Cloud sync skipped for $botId: no valid Main API session and bot token is missing.',
+        name: 'CommandCreatePage',
+      );
+      return null;
+    }
+
+    try {
+      final ownerMetadata = await getDiscordApplicationOwnerMetadata(botToken);
+      final restoredSession = await MainApiClient(
+        baseUrl: config.baseUrl,
+      ).exchangeDiscordBotToken(
+        botToken: botToken,
+        preferredOwnerId: ownerMetadata?.resolveOwnerId(
+          preferredOwnerId: session?.userId,
+        ),
+      );
+
+      await MainApiSettingsStore.saveSession(restoredSession);
+      developer.log(
+        'Main API session restored for cloud sync (botId=$botId, owner=${restoredSession.userId ?? 'unknown'}).',
+        name: 'CommandCreatePage',
+      );
+
+      return MainApiClient(
+        baseUrl: config.baseUrl,
+        accessToken: restoredSession.accessToken,
+      );
+    } catch (error, stackTrace) {
+      developer.log(
+        'Failed to restore Main API session for cloud sync (botId=$botId): $error',
+        name: 'CommandCreatePage',
+        stackTrace: stackTrace,
+      );
+      return null;
+    }
+  }
+
+  Future<void> _syncCommandChangesToCloud({required String botId}) async {
+    try {
+      final app = await appManager.getApp(botId);
+      final botToken = (app['token'] ?? '').toString().trim();
+      final botName = (app['name'] ?? botId).toString().trim();
+
+      final mainApiClient = await _resolveMainApiClientForCloudSync(
+        botId: botId,
+        botToken: botToken,
+      );
+      if (mainApiClient == null) {
+        return;
+      }
+
+      final payload = await buildBotPayload(botId);
+      try {
+        await mainApiClient.syncBot(
+          botId,
+          botName.isEmpty ? botId : botName,
+          payload,
+        );
+        developer.log(
+          'Cloud sync succeeded after command update (botId=$botId).',
+          name: 'CommandCreatePage',
+        );
+      } catch (error, stackTrace) {
+        developer.log(
+          'Main API syncBot failed after command update (botId=$botId): $error',
+          name: 'CommandCreatePage',
+          stackTrace: stackTrace,
+        );
+        if (botToken.isNotEmpty) {
+          await mainApiClient.saveDiscordBotSnapshot(
+            botToken: botToken,
+            config: payload,
+          );
+          developer.log(
+            'Fallback cloud snapshot sync succeeded (botId=$botId).',
+            name: 'CommandCreatePage',
+          );
+        }
+      }
+    } catch (error, stackTrace) {
+      developer.log(
+        'Cloud sync after command update failed (botId=$botId): $error',
+        name: 'CommandCreatePage',
+        stackTrace: stackTrace,
+      );
+    }
+  }
+
   void _openDocumentationCenter() {
     Navigator.push(
       context,
@@ -1571,6 +1687,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           data: commandData,
           folder: _folder,
         );
+        await _syncCommandChangesToCloud(botId: botId);
         // Delete the old temp-ID file if this was a local-only command
         if (_isLocalOnlyCommand) {
           final previousId = existingStorageId;
@@ -1620,6 +1737,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           data: commandData,
           folder: _folder,
         );
+        await _syncCommandChangesToCloud(botId: botId);
       }
       Navigator.pop(context);
     } catch (e) {
@@ -1707,14 +1825,14 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                 icon: const Icon(Icons.delete),
                 tooltip: context.tr.cmd_delete_tooltip,
                 onPressed: () async {
-                  final shouldDelete =
-                      await AppTheme.showConfirmDialog(
-                        context,
-                        title: context.tr.cmd_delete_tooltip,
-                        content: 'This command will be deleted permanently. Continue?',
-                        confirmLabel: context.tr.delete,
-                        isDestructive: true,
-                      );
+                  final shouldDelete = await AppTheme.showConfirmDialog(
+                    context,
+                    title: context.tr.cmd_delete_tooltip,
+                    content:
+                        'This command will be deleted permanently. Continue?',
+                    confirmLabel: context.tr.delete,
+                    isDestructive: true,
+                  );
                   if (!shouldDelete) {
                     return;
                   }
@@ -1825,10 +1943,10 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                                   padding: const EdgeInsets.all(14),
                                   decoration: BoxDecoration(
                                     color: AppTheme.warning,
-                                    border: Border.all(
-                                      color: AppTheme.warning,
+                                    border: Border.all(color: AppTheme.warning),
+                                    borderRadius: BorderRadius.circular(
+                                      AppTheme.radiusMd,
                                     ),
-                                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                                   ),
                                   child: Row(
                                     children: [
