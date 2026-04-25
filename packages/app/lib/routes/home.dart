@@ -1308,6 +1308,7 @@ class HomePageState extends State<HomePage>
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
+        final isIOS = defaultTargetPlatform == TargetPlatform.iOS;
         final int crossAxisCount;
         final double horizontalPadding;
 
@@ -1315,11 +1316,11 @@ class HomePageState extends State<HomePage>
         if (width < 420) {
           // Small phone - single column
           crossAxisCount = 1;
-          horizontalPadding = 12.0;
+          horizontalPadding = isIOS ? 8.0 : 12.0;
         } else if (width < 600) {
           // Mobile - 2 columns
           crossAxisCount = 2;
-          horizontalPadding = 12.0;
+          horizontalPadding = isIOS ? 8.0 : 12.0;
         } else if (width >= 1500) {
           // Extra large desktop - 5 columns
           crossAxisCount = 5;
@@ -1339,8 +1340,10 @@ class HomePageState extends State<HomePage>
         } else {
           // Small tablet - 2 columns
           crossAxisCount = 2;
-          horizontalPadding = 16.0;
+          horizontalPadding = isIOS ? 12.0 : 16.0;
         }
+
+        final listHorizontalPadding = isIOS ? 8.0 : 14.0;
 
         final cardWidth =
             (width - (horizontalPadding * 2) - ((crossAxisCount - 1) * 12)) /
@@ -1380,10 +1383,10 @@ class HomePageState extends State<HomePage>
                     child: RefreshIndicator(
                       onRefresh: () => syncAllBotsFromManager(silent: false),
                       child: SingleChildScrollView(
-                        padding: const EdgeInsets.only(
+                        padding: EdgeInsets.only(
                           bottom: 80,
-                          left: 14,
-                          right: 14,
+                          left: listHorizontalPadding,
+                          right: listHorizontalPadding,
                         ),
                         physics: const AlwaysScrollableScrollPhysics(),
                         child: Align(
