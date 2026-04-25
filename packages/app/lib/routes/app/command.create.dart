@@ -976,10 +976,33 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     }
 
     final session = await MainApiSettingsStore.loadSession();
-    if (session != null && !session.isExpired) {
+    final ownerMetadata =
+        botToken.trim().isEmpty
+            ? null
+            : await getDiscordApplicationOwnerMetadata(botToken);
+    final ownerCandidates =
+        ownerMetadata?.ownerCandidateIds ?? const <String>[];
+    final sessionOwnerId = (session?.userId ?? '').trim();
+
+    final hasUsableSession =
+        session != null &&
+        !session.isExpired &&
+        (ownerCandidates.isEmpty || ownerCandidates.contains(sessionOwnerId));
+    if (hasUsableSession) {
+      developer.log(
+        'Using existing Main API session for cloud sync (botId=$botId, owner=${sessionOwnerId.isEmpty ? 'unknown' : sessionOwnerId}).',
+        name: 'CommandCreatePage',
+      );
       return MainApiClient(
         baseUrl: config.baseUrl,
         accessToken: session.accessToken,
+      );
+    }
+
+    if (session != null && !session.isExpired && ownerCandidates.isNotEmpty) {
+      developer.log(
+        'Existing Main API session owner mismatch for cloud sync (botId=$botId, sessionOwner=$sessionOwnerId, expectedOneOf=${ownerCandidates.join(',')}). Restoring session from bot token.',
+        name: 'CommandCreatePage',
       );
     }
 
@@ -992,7 +1015,6 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     }
 
     try {
-      final ownerMetadata = await getDiscordApplicationOwnerMetadata(botToken);
       final restoredSession = await MainApiClient(
         baseUrl: config.baseUrl,
       ).exchangeDiscordBotToken(
@@ -1001,6 +1023,17 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           preferredOwnerId: session?.userId,
         ),
       );
+
+      final restoredOwnerId = (restoredSession.userId ?? '').trim();
+      if (ownerCandidates.isNotEmpty &&
+          restoredOwnerId.isNotEmpty &&
+          !ownerCandidates.contains(restoredOwnerId)) {
+        developer.log(
+          'Restored Main API session owner mismatch for cloud sync (botId=$botId, restoredOwner=$restoredOwnerId, expectedOneOf=${ownerCandidates.join(',')}).',
+          name: 'CommandCreatePage',
+        );
+        return null;
+      }
 
       await MainApiSettingsStore.saveSession(restoredSession);
       developer.log(
@@ -1022,7 +1055,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     }
   }
 
-  Future<void> _syncCommandChangesToCloud({required String botId}) async {
+  Future<bool> _syncCommandChangesToCloud({required String botId}) async {
     try {
       final app = await appManager.getApp(botId);
       final botToken = (app['token'] ?? '').toString().trim();
@@ -1033,7 +1066,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         botToken: botToken,
       );
       if (mainApiClient == null) {
-        return;
+        return false;
       }
 
       final payload = await buildBotPayload(botId);
@@ -1047,6 +1080,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           'Cloud sync succeeded after command update (botId=$botId).',
           name: 'CommandCreatePage',
         );
+        return true;
       } catch (error, stackTrace) {
         developer.log(
           'Main API syncBot failed after command update (botId=$botId): $error',
@@ -1062,7 +1096,9 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
             'Fallback cloud snapshot sync succeeded (botId=$botId).',
             name: 'CommandCreatePage',
           );
+          return true;
         }
+        return false;
       }
     } catch (error, stackTrace) {
       developer.log(
@@ -1070,6 +1106,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         name: 'CommandCreatePage',
         stackTrace: stackTrace,
       );
+      return false;
     }
   }
 
@@ -1687,7 +1724,18 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           data: commandData,
           folder: _folder,
         );
-        await _syncCommandChangesToCloud(botId: botId);
+        final cloudSyncOk = await _syncCommandChangesToCloud(botId: botId);
+        if (!cloudSyncOk && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                context.tr.error_with_details(
+                  'Cloud sync failed. Your command is saved locally but not yet deployed to Bot Creator servers.',
+                ),
+              ),
+            ),
+          );
+        }
         // Delete the old temp-ID file if this was a local-only command
         if (_isLocalOnlyCommand) {
           final previousId = existingStorageId;
@@ -1737,7 +1785,18 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           data: commandData,
           folder: _folder,
         );
-        await _syncCommandChangesToCloud(botId: botId);
+        final cloudSyncOk = await _syncCommandChangesToCloud(botId: botId);
+        if (!cloudSyncOk && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                context.tr.error_with_details(
+                  'Cloud sync failed. Your command is saved locally but not yet deployed to Bot Creator servers.',
+                ),
+              ),
+            ),
+          );
+        }
       }
       Navigator.pop(context);
     } catch (e) {
