@@ -240,6 +240,90 @@ void main() {
       expect(legacyJson['values']['u2'], 'yes');
     });
 
+    test(
+      'syncs and deletes a single command without rebuilding payloads',
+      () async {
+        final port = await _allocatePort();
+        server = RunnerWebBootstrapServer(
+          host: '127.0.0.1',
+          port: port,
+          logStore: RunnerLogStore(),
+        );
+        await server!.start();
+
+        final base = Uri.parse('http://127.0.0.1:$port');
+        const botId = 'bot-command-sync';
+
+        final initial = await http.post(
+          base.resolve('/bots/sync'),
+          headers: const <String, String>{'content-type': 'application/json'},
+          body: jsonEncode(<String, dynamic>{
+            'botId': botId,
+            'botName': 'Command Bot',
+            'config': <String, dynamic>{
+              'token': 'abc',
+              'commands': <Map<String, dynamic>>[
+                <String, dynamic>{
+                  'id': 'cmd-1',
+                  'name': 'first',
+                  'type': 'chatInput',
+                  'data': <String, dynamic>{'version': 1},
+                },
+              ],
+            },
+          }),
+        );
+        expect(initial.statusCode, HttpStatus.ok);
+
+        final syncCommand = await http.post(
+          base.resolve('/bots/$botId/commands/sync'),
+          headers: const <String, String>{'content-type': 'application/json'},
+          body: jsonEncode(<String, dynamic>{
+            'botId': botId,
+            'commandId': 'cmd-2',
+            'command': <String, dynamic>{
+              'name': 'second',
+              'type': 'chatInput',
+              'data': <String, dynamic>{'version': 2},
+            },
+          }),
+        );
+        expect(syncCommand.statusCode, HttpStatus.ok);
+
+        final storedFile = File('${tempDir.path}/data/bots/$botId.json');
+        final storedAfterSync = Map<String, dynamic>.from(
+          jsonDecode(await storedFile.readAsString()) as Map,
+        );
+        final syncedCommands = List<Map<String, dynamic>>.from(
+          storedAfterSync['config']['commands'] as List,
+        );
+        expect(syncedCommands.map((entry) => entry['id']).toList(), [
+          'cmd-1',
+          'cmd-2',
+        ]);
+
+        final deleteCommand = await http.post(
+          base.resolve('/bots/$botId/commands/delete'),
+          headers: const <String, String>{'content-type': 'application/json'},
+          body: jsonEncode(<String, dynamic>{
+            'botId': botId,
+            'commandId': 'cmd-1',
+          }),
+        );
+        expect(deleteCommand.statusCode, HttpStatus.ok);
+
+        final storedAfterDelete = Map<String, dynamic>.from(
+          jsonDecode(await storedFile.readAsString()) as Map,
+        );
+        final remainingCommands = List<Map<String, dynamic>>.from(
+          storedAfterDelete['config']['commands'] as List,
+        );
+        expect(remainingCommands.map((entry) => entry['id']).toList(), [
+          'cmd-2',
+        ]);
+      },
+    );
+
     test('exposes inbound webhook endpoint contract', () async {
       final port = await _allocatePort();
       server = RunnerWebBootstrapServer(

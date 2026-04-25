@@ -470,6 +470,62 @@ class RunnerClient implements RemoteRuntimeClient {
     );
   }
 
+  /// Synchronizes a single command to the runner without rebuilding the
+  /// entire bot payload.
+  Future<void> syncCommand(
+    String botId,
+    String botName,
+    String commandId,
+    Map<String, dynamic> commandJson,
+  ) async {
+    final normalizedBotId = botId.trim();
+    final normalizedCommandId = commandId.trim();
+    if (normalizedBotId.isEmpty) {
+      throw const RunnerClientException('Missing botId for syncCommand().');
+    }
+    if (normalizedCommandId.isEmpty) {
+      throw const RunnerClientException('Missing commandId for syncCommand().');
+    }
+
+    await _post(
+      '/bots/${Uri.encodeComponent(normalizedBotId)}/commands/sync',
+      <String, dynamic>{
+        'botId': normalizedBotId,
+        if (botName.isNotEmpty) 'botName': botName,
+        'commandId': normalizedCommandId,
+        'command': commandJson,
+      },
+    );
+  }
+
+  /// Deletes a single command from the runner without rebuilding the entire
+  /// bot payload.
+  Future<void> deleteCommand(
+    String botId,
+    String botName,
+    String commandId,
+  ) async {
+    final normalizedBotId = botId.trim();
+    final normalizedCommandId = commandId.trim();
+    if (normalizedBotId.isEmpty) {
+      throw const RunnerClientException('Missing botId for deleteCommand().');
+    }
+    if (normalizedCommandId.isEmpty) {
+      throw const RunnerClientException(
+        'Missing commandId for deleteCommand().',
+      );
+    }
+
+    await _post(
+      '/bots/${Uri.encodeComponent(normalizedBotId)}/commands/delete',
+      <String, dynamic>{
+        'botId': normalizedBotId,
+        if (botName.isNotEmpty) 'botName': botName,
+        'commandId': normalizedCommandId,
+      },
+    );
+  }
+
   /// Fetches recent log lines from the runner.
   ///
   /// [limit] controls the maximum number of lines returned (default: 300).

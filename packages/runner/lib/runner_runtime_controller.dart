@@ -239,6 +239,73 @@ class RunnerRuntimeController {
     }
   }
 
+  Future<void> upsertCommand(String botId, Map<String, dynamic> command) async {
+    await _updateBotCommands(botId, (commands) {
+      final commandId = (command['id'] ?? '').toString().trim();
+      if (commandId.isEmpty) {
+        throw StateError('Missing command id for bot "$botId".');
+      }
+      final nextCommand = Map<String, dynamic>.from(command);
+      final index = commands.indexWhere(
+        (entry) => (entry['id'] ?? '').toString().trim() == commandId,
+      );
+      if (index >= 0) {
+        commands[index] = nextCommand;
+      } else {
+        commands.add(nextCommand);
+      }
+    });
+  }
+
+  Future<void> deleteCommand(String botId, String commandId) async {
+    final normalizedCommandId = commandId.trim();
+    if (normalizedCommandId.isEmpty) {
+      throw StateError('Missing command id for bot "$botId".');
+    }
+    await _updateBotCommands(botId, (commands) {
+      commands.removeWhere(
+        (entry) => (entry['id'] ?? '').toString().trim() == normalizedCommandId,
+      );
+    });
+  }
+
+  Future<void> _updateBotCommands(
+    String botId,
+    void Function(List<Map<String, dynamic>> commands) mutate,
+  ) async {
+    final entry = await _botStore.loadEntry(botId);
+    if (entry == null) {
+      throw StateError(
+        'Bot "$botId" not found in store. Sync from the app first.',
+      );
+    }
+
+    final nextCommands = entry.config.commands
+        .map((command) => Map<String, dynamic>.from(command))
+        .toList(growable: true);
+    mutate(nextCommands);
+
+    final nextConfig = entry.config.copyWith(commands: nextCommands);
+    await _botStore.save(botId, entry.name, nextConfig);
+
+    final runner = _runners[botId];
+    if (runner != null) {
+      if (shouldRebindEventWorkflowListeners(runner.config, nextConfig)) {
+        final requiresReconnect = await runner.reloadConfig(nextConfig);
+        if (requiresReconnect && nextConfig.autoRestart) {
+          await _restartRunningBotWithConfig(
+            botId,
+            name: entry.name,
+            config: nextConfig,
+          );
+        }
+      } else {
+        runner.config = nextConfig;
+      }
+      _lastSeenAtByBot[botId] = DateTime.now().toUtc();
+    }
+  }
+
   Future<void> triggerInboundWebhook(
     String botId, {
     required String workflowName,

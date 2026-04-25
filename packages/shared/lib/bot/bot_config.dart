@@ -133,6 +133,49 @@ class BotConfig {
     this.commands = const [],
   });
 
+  BotConfig copyWith({
+    String? token,
+    String? prefix,
+    bool? builtInLegacyHelpEnabled,
+    bool? inboundWebhooks,
+    bool? autoSharding,
+    bool? autoRestart,
+    String? username,
+    String? avatarPath,
+    Map<String, bool>? intents,
+    Map<String, dynamic>? globalVariables,
+    Map<String, Map<String, Map<String, dynamic>>>? scopedVariables,
+    List<Map<String, dynamic>>? scopedVariableDefinitions,
+    List<Map<String, dynamic>>? workflows,
+    List<Map<String, dynamic>>? scheduledTriggers,
+    List<Map<String, dynamic>>? inboundWebhookEndpoints,
+    List<BotStatusConfig>? statuses,
+    List<Map<String, dynamic>>? commands,
+  }) {
+    return BotConfig(
+      token: token ?? this.token,
+      prefix: prefix ?? this.prefix,
+      builtInLegacyHelpEnabled:
+          builtInLegacyHelpEnabled ?? this.builtInLegacyHelpEnabled,
+      inboundWebhooks: inboundWebhooks ?? this.inboundWebhooks,
+      autoSharding: autoSharding ?? this.autoSharding,
+      autoRestart: autoRestart ?? this.autoRestart,
+      username: username ?? this.username,
+      avatarPath: avatarPath ?? this.avatarPath,
+      intents: intents ?? this.intents,
+      globalVariables: globalVariables ?? this.globalVariables,
+      scopedVariables: scopedVariables ?? this.scopedVariables,
+      scopedVariableDefinitions:
+          scopedVariableDefinitions ?? this.scopedVariableDefinitions,
+      workflows: workflows ?? this.workflows,
+      scheduledTriggers: scheduledTriggers ?? this.scheduledTriggers,
+      inboundWebhookEndpoints:
+          inboundWebhookEndpoints ?? this.inboundWebhookEndpoints,
+      statuses: statuses ?? this.statuses,
+      commands: commands ?? this.commands,
+    );
+  }
+
   factory BotConfig.fromJson(Map<String, dynamic> json) {
     return BotConfig(
       token: (json['token'] ?? '').toString(),
