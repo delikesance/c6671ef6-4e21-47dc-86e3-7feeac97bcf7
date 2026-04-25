@@ -470,6 +470,190 @@ class RunnerClient implements RemoteRuntimeClient {
     );
   }
 
+  /// Synchronizes a single command to the runner without rebuilding the
+  /// entire bot payload.
+  Future<void> syncCommand(
+    String botId,
+    String botName,
+    String commandId,
+    Map<String, dynamic> commandJson,
+  ) async {
+    final normalizedBotId = botId.trim();
+    final normalizedCommandId = commandId.trim();
+    if (normalizedBotId.isEmpty) {
+      throw const RunnerClientException('Missing botId for syncCommand().');
+    }
+    if (normalizedCommandId.isEmpty) {
+      throw const RunnerClientException('Missing commandId for syncCommand().');
+    }
+
+    await _post(
+      '/bots/${Uri.encodeComponent(normalizedBotId)}/commands/sync',
+      <String, dynamic>{
+        'botId': normalizedBotId,
+        if (botName.isNotEmpty) 'botName': botName,
+        'commandId': normalizedCommandId,
+        'command': commandJson,
+      },
+    );
+  }
+
+  /// Deletes a single command from the runner without rebuilding the entire
+  /// bot payload.
+  Future<void> deleteCommand(
+    String botId,
+    String botName,
+    String commandId,
+  ) async {
+    final normalizedBotId = botId.trim();
+    final normalizedCommandId = commandId.trim();
+    if (normalizedBotId.isEmpty) {
+      throw const RunnerClientException('Missing botId for deleteCommand().');
+    }
+    if (normalizedCommandId.isEmpty) {
+      throw const RunnerClientException(
+        'Missing commandId for deleteCommand().',
+      );
+    }
+
+    await _post(
+      '/bots/${Uri.encodeComponent(normalizedBotId)}/commands/delete',
+      <String, dynamic>{
+        'botId': normalizedBotId,
+        if (botName.isNotEmpty) 'botName': botName,
+        'commandId': normalizedCommandId,
+      },
+    );
+  }
+
+  /// Synchronizes a single workflow to the runner without rebuilding the
+  /// entire bot payload.
+  Future<void> syncWorkflow(
+    String botId,
+    String botName,
+    String workflowName,
+    Map<String, dynamic> workflowJson,
+  ) async {
+    final normalizedBotId = botId.trim();
+    final normalizedWorkflowName = workflowName.trim();
+    if (normalizedBotId.isEmpty || normalizedWorkflowName.isEmpty) {
+      throw const RunnerClientException(
+        'Missing botId/workflowName for syncWorkflow().',
+      );
+    }
+
+    await _post(
+      '/bots/${Uri.encodeComponent(normalizedBotId)}/workflows/sync',
+      <String, dynamic>{
+        'botId': normalizedBotId,
+        if (botName.isNotEmpty) 'botName': botName,
+        'workflowName': normalizedWorkflowName,
+        'workflow': workflowJson,
+      },
+    );
+  }
+
+  /// Deletes a single workflow from the runner without rebuilding the
+  /// entire bot payload.
+  Future<void> deleteWorkflow(
+    String botId,
+    String botName,
+    String workflowName,
+  ) async {
+    final normalizedBotId = botId.trim();
+    final normalizedWorkflowName = workflowName.trim();
+    if (normalizedBotId.isEmpty || normalizedWorkflowName.isEmpty) {
+      throw const RunnerClientException(
+        'Missing botId/workflowName for deleteWorkflow().',
+      );
+    }
+
+    await _post(
+      '/bots/${Uri.encodeComponent(normalizedBotId)}/workflows/delete',
+      <String, dynamic>{
+        'botId': normalizedBotId,
+        if (botName.isNotEmpty) 'botName': botName,
+        'workflowName': normalizedWorkflowName,
+      },
+    );
+  }
+
+  /// Syncs a single scheduled trigger to the runner.
+  Future<void> syncScheduledTrigger(
+    String botId,
+    String triggerId,
+    Map<String, dynamic> triggerJson,
+  ) async {
+    final normalizedBotId = botId.trim();
+    if (normalizedBotId.isEmpty) {
+      throw const RunnerClientException(
+        'Missing botId for syncScheduledTrigger().',
+      );
+    }
+
+    await _post(
+      '/bots/${Uri.encodeComponent(normalizedBotId)}/scheduled-triggers/sync',
+      <String, dynamic>{
+        'botId': normalizedBotId,
+        'triggerId': triggerId,
+        'trigger': triggerJson,
+      },
+    );
+  }
+
+  /// Deletes a single scheduled trigger from the runner.
+  Future<void> deleteScheduledTrigger(String botId, String triggerId) async {
+    final normalizedBotId = botId.trim();
+    if (normalizedBotId.isEmpty) {
+      throw const RunnerClientException(
+        'Missing botId for deleteScheduledTrigger().',
+      );
+    }
+
+    await _post(
+      '/bots/${Uri.encodeComponent(normalizedBotId)}/scheduled-triggers/delete',
+      <String, dynamic>{'botId': normalizedBotId, 'triggerId': triggerId},
+    );
+  }
+
+  /// Syncs a single inbound webhook to the runner.
+  Future<void> syncInboundWebhook(
+    String botId,
+    String webhookId,
+    Map<String, dynamic> webhookJson,
+  ) async {
+    final normalizedBotId = botId.trim();
+    if (normalizedBotId.isEmpty) {
+      throw const RunnerClientException(
+        'Missing botId for syncInboundWebhook().',
+      );
+    }
+
+    await _post(
+      '/bots/${Uri.encodeComponent(normalizedBotId)}/inbound-webhooks/sync',
+      <String, dynamic>{
+        'botId': normalizedBotId,
+        'webhookId': webhookId,
+        'webhook': webhookJson,
+      },
+    );
+  }
+
+  /// Deletes a single inbound webhook from the runner.
+  Future<void> deleteInboundWebhook(String botId, String webhookId) async {
+    final normalizedBotId = botId.trim();
+    if (normalizedBotId.isEmpty) {
+      throw const RunnerClientException(
+        'Missing botId for deleteInboundWebhook().',
+      );
+    }
+
+    await _post(
+      '/bots/${Uri.encodeComponent(normalizedBotId)}/inbound-webhooks/delete',
+      <String, dynamic>{'botId': normalizedBotId, 'webhookId': webhookId},
+    );
+  }
+
   /// Fetches recent log lines from the runner.
   ///
   /// [limit] controls the maximum number of lines returned (default: 300).
@@ -581,6 +765,28 @@ class RunnerClient implements RemoteRuntimeClient {
     await _post(
       '/bots/${Uri.encodeComponent(normalizedBotId)}/variables/global/remove',
       <String, dynamic>{'key': normalizedKey},
+    );
+  }
+
+  Future<void> renameGlobalVariable(
+    String botId,
+    String oldKey,
+    String newKey,
+  ) async {
+    final normalizedBotId = botId.trim();
+    final normalizedOldKey = oldKey.trim();
+    final normalizedNewKey = newKey.trim();
+    if (normalizedBotId.isEmpty ||
+        normalizedOldKey.isEmpty ||
+        normalizedNewKey.isEmpty) {
+      throw const RunnerClientException(
+        'Missing botId/oldKey/newKey for renameGlobalVariable().',
+      );
+    }
+
+    await _post(
+      '/bots/${Uri.encodeComponent(normalizedBotId)}/variables/global/rename',
+      <String, dynamic>{'oldKey': normalizedOldKey, 'newKey': normalizedNewKey},
     );
   }
 

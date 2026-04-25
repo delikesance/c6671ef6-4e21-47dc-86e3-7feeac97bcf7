@@ -15,6 +15,7 @@ import 'package:bot_creator/utils/ad_consent_service.dart';
 import 'package:bot_creator/utils/global.dart';
 import 'package:bot_creator/utils/app_theme.dart';
 import 'package:bot_creator/utils/main_api_client.dart';
+import 'package:bot_creator/utils/main_api_owner_sync.dart';
 import 'package:bot_creator/utils/main_api_settings.dart';
 import 'package:bot_creator/utils/remote_runtime.dart';
 import 'package:bot_creator/utils/subscription_service.dart';
@@ -84,10 +85,23 @@ class HomePageState extends State<HomePage>
 
   Future<void> _initRunningState() async {
     final runningIds = <String>{};
+    appendBotDebugLog('[_initRunningState] Starting running-state refresh.');
     final remoteClient = await _resolveGlobalMainApiClient();
     final remoteRuntime = await _resolveRemoteRuntime(
       getTimeout: const Duration(seconds: 30),
       postTimeout: const Duration(seconds: 90),
+    );
+    appendBotDebugLog(
+      '[_initRunningState] Resolved runtime: source=${remoteRuntime.source}, hasClient=${remoteRuntime.client != null}, blocksLocalFallback=${remoteRuntime.blocksLocalFallback}, detail=${remoteRuntime.detailLabel ?? 'none'}.',
+    );
+    final apps = await appManager.getAllApps();
+    final localBotIds = apps
+        .whereType<Map>()
+        .map((raw) => (raw['id'] ?? '').toString().trim())
+        .where((id) => id.isNotEmpty)
+        .toList(growable: false);
+    appendBotDebugLog(
+      '[_initRunningState] Local bot ids loaded: count=${localBotIds.length}, ids=${localBotIds.join(',')}.',
     );
 
     unawaited(
@@ -98,14 +112,72 @@ class HomePageState extends State<HomePage>
     );
 
     if (remoteClient != null) {
+      appendBotDebugLog(
+        '[_initRunningState] Using remote client ${remoteClient.runtimeType} for running-state detection.',
+      );
       try {
-        final status = await remoteClient.getStatus();
-        for (final bot in status.bots) {
-          if (bot.isRunning) {
-            runningIds.add(bot.botId);
+        if (localBotIds.isEmpty) {
+          appendBotDebugLog(
+            '[_initRunningState] No local bot ids found. Falling back to global status list.',
+          );
+          final status = await remoteClient.getStatus();
+          appendBotDebugLog(
+            '[_initRunningState] Global status fetched: bots=${status.bots.length}, running=${status.running}.',
+          );
+          for (final bot in status.bots) {
+            if (bot.isRunning) {
+              runningIds.add(bot.botId);
+              appendBotDebugLog(
+                '[_initRunningState] Marked running (global): ${bot.botId}.',
+              );
+            }
+          }
+        } else {
+          appendBotDebugLog(
+            '[_initRunningState] Checking per-bot status with owner-aware client resolution.',
+          );
+          final runningChecks = localBotIds
+              .map((botId) async {
+                try {
+                  appendBotDebugLog(
+                    '[_initRunningState] Resolving client for bot $botId.',
+                  );
+                  final perBotClient = await _resolveMainApiClientForBot(
+                    botId: botId,
+                    attemptSessionRestore: true,
+                  );
+                  final statusClient = perBotClient ?? remoteClient;
+                  appendBotDebugLog(
+                    '[_initRunningState] Bot $botId status client: ${statusClient.runtimeType}, usedFallbackToGlobal=${perBotClient == null}.',
+                  );
+                  final status = await statusClient.getStatus(botId: botId);
+                  final isRunning = status.isBotRunning(botId);
+                  appendBotDebugLog(
+                    '[_initRunningState] Bot $botId status fetched: statusRunning=${status.running}, activeBotId=${status.activeBotId ?? 'none'}, botEntries=${status.bots.length}, isBotRunning=$isRunning.',
+                  );
+                  return isRunning ? botId : null;
+                } catch (error) {
+                  appendBotDebugLog(
+                    'Failed to sync running status for $botId: $error',
+                  );
+                  return null;
+                }
+              })
+              .toList(growable: false);
+
+          final resolvedRunningIds = await Future.wait(runningChecks);
+          for (final botId in resolvedRunningIds.whereType<String>()) {
+            runningIds.add(botId);
+            appendBotDebugLog(
+              '[_initRunningState] Marked running (per-bot): $botId.',
+            );
           }
         }
       } catch (_) {}
+
+      appendBotDebugLog(
+        '[_initRunningState] Remote detection completed. Running ids=${runningIds.join(',')}.',
+      );
 
       if (!mounted) return;
       setState(() {
@@ -120,6 +192,9 @@ class HomePageState extends State<HomePage>
     }
 
     if (remoteRuntime.blocksLocalFallback) {
+      appendBotDebugLog(
+        '[_initRunningState] No remote client and local fallback is blocked. Running set remains empty.',
+      );
       if (!mounted) return;
       setState(() {
         _runningBotIds = runningIds;
@@ -134,9 +209,18 @@ class HomePageState extends State<HomePage>
 
     if (_supportsForegroundTask) {
       try {
+        appendBotDebugLog(
+          '[_initRunningState] Falling back to foreground task running-state detection.',
+        );
         final running = await FlutterForegroundTask.isRunningService;
+        appendBotDebugLog(
+          '[_initRunningState] Foreground service running=$running.',
+        );
         if (running) {
           final configuredIds = await getConfiguredMobileBotIds();
+          appendBotDebugLog(
+            '[_initRunningState] Configured mobile bot ids: count=${configuredIds.length}, ids=${configuredIds.join(',')}.',
+          );
           if (configuredIds.isNotEmpty) {
             runningIds.addAll(configuredIds);
             for (final botId in configuredIds) {
@@ -151,14 +235,23 @@ class HomePageState extends State<HomePage>
             if (fallbackId != null && fallbackId.isNotEmpty) {
               runningIds.add(fallbackId);
               addMobileRunningBotId(fallbackId);
+              appendBotDebugLog(
+                '[_initRunningState] Added fallback running bot id from foreground task data: $fallbackId.',
+              );
             }
           }
         }
       } on MissingPluginException {
         // Plateforme non supportée.
+        appendBotDebugLog(
+          '[_initRunningState] Foreground plugin unavailable on this platform.',
+        );
       }
     } else {
       runningIds.addAll(desktopRunningBotIds);
+      appendBotDebugLog(
+        '[_initRunningState] Using desktop running ids fallback: ${desktopRunningBotIds.join(',')}.',
+      );
     }
     if (!mounted) return;
     setState(() {
@@ -169,6 +262,9 @@ class HomePageState extends State<HomePage>
     _syncPulse(runningIds);
     await _syncDiscordRpcPresence(runningIds);
     unawaited(_refreshBotRuntimeBalances());
+    appendBotDebugLog(
+      '[_initRunningState] Completed with local fallback. Running ids=${runningIds.join(',')}.',
+    );
   }
 
   int _extractFreeMinutes(dynamic raw) {
@@ -239,13 +335,85 @@ class HomePageState extends State<HomePage>
   }
 
   Future<void> syncAllBotsFromManager({bool silent = false}) async {
+    appendBotDebugLog(
+      '[syncAllBotsFromManager] Starting sync. silent=$silent.',
+    );
     final remoteClient = await _resolveGlobalMainApiClient();
     if (remoteClient == null) {
+      appendBotDebugLog(
+        '[syncAllBotsFromManager] Aborted: global manager client unavailable.',
+      );
       return;
     }
 
     try {
-      final bots = await remoteClient.listBots();
+      final botsById = <String, Map<String, dynamic>>{};
+
+      void mergeBots(List<Map<String, dynamic>> bots) {
+        appendBotDebugLog(
+          '[syncAllBotsFromManager] Merging bot payload batch size=${bots.length}.',
+        );
+        for (final bot in bots) {
+          final botId = (bot['bot_id'] ?? '').toString().trim();
+          if (botId.isEmpty) {
+            appendBotDebugLog(
+              '[syncAllBotsFromManager] Skipping bot payload with empty bot_id.',
+            );
+            continue;
+          }
+          botsById[botId] = bot;
+        }
+      }
+
+      mergeBots(await remoteClient.listBots());
+
+      final apps = await appManager.getAllApps();
+      appendBotDebugLog(
+        '[syncAllBotsFromManager] Local apps for owner expansion count=${apps.length}.',
+      );
+      final fetchedOwners = <String>{};
+      for (final rawApp in apps) {
+        if (rawApp is! Map) {
+          continue;
+        }
+        final app = Map<String, dynamic>.from(rawApp.cast<dynamic, dynamic>());
+        final botId = (app['id'] ?? '').toString().trim();
+        if (botId.isEmpty) {
+          continue;
+        }
+        final token = (app['token'] ?? '').toString();
+        final client = await _resolveMainApiClientForBot(
+          botId: botId,
+          botToken: token,
+          attemptSessionRestore: true,
+        );
+        if (client == null) {
+          appendBotDebugLog(
+            '[syncAllBotsFromManager] No manager client for local bot $botId during owner expansion.',
+          );
+          continue;
+        }
+
+        final session = await MainApiSettingsStore.loadSession();
+        final ownerKey = (session?.userId ?? '').trim();
+        final dedupeKey = ownerKey.isEmpty ? 'bot:$botId' : 'owner:$ownerKey';
+        if (fetchedOwners.contains(dedupeKey)) {
+          appendBotDebugLog(
+            '[syncAllBotsFromManager] Owner already fetched for dedupeKey=$dedupeKey, skipping duplicate listBots call.',
+          );
+          continue;
+        }
+        fetchedOwners.add(dedupeKey);
+        appendBotDebugLog(
+          '[syncAllBotsFromManager] Fetching listBots for dedupeKey=$dedupeKey using client=${client.runtimeType}.',
+        );
+        mergeBots(await client.listBots());
+      }
+
+      final bots = botsById.values.toList(growable: false);
+      appendBotDebugLog(
+        '[syncAllBotsFromManager] Total merged bot payloads=${bots.length}.',
+      );
       for (final bot in bots) {
         try {
           final botId = bot['bot_id']?.toString() ?? '';
@@ -261,6 +429,31 @@ class HomePageState extends State<HomePage>
             token = (existing['token'] ?? '').toString();
           }
 
+          final ownerContext = await _ownerSyncHelper.resolveOwnerContext(
+            botId: botId,
+            managerBotPayload: bot,
+            botToken: token,
+          );
+          appendBotDebugLog(
+            '[syncAllBotsFromManager] Bot $botId owner context: source=${ownerContext.source}, ownerCount=${ownerContext.ownerCandidates.length}, preferredOwner=${ownerContext.preferredOwnerId ?? 'none'}, tokenPresent=${token.trim().isNotEmpty}.',
+          );
+          if (ownerContext.hasOwner && token.trim().isNotEmpty) {
+            await _resolveMainApiClientForBot(
+              botId: botId,
+              botToken: token,
+              attemptSessionRestore: true,
+              ownerCandidatesOverride: ownerContext.ownerCandidates,
+              preferredOwnerIdOverride: ownerContext.preferredOwnerId,
+            );
+            appendBotDebugLog(
+              '[syncAllBotsFromManager] Bot $botId owner-aligned session check completed.',
+            );
+          } else {
+            appendBotDebugLog(
+              '[syncAllBotsFromManager] Bot $botId owner-aligned session skipped (hasOwner=${ownerContext.hasOwner}, tokenPresent=${token.trim().isNotEmpty}).',
+            );
+          }
+
           await appManager.createOrUpdateApp(
             id: Snowflake.parse(botId),
             username: botName,
@@ -271,15 +464,25 @@ class HomePageState extends State<HomePage>
             intents: (config['intents'] as Map?)?.cast<String, bool>(),
             prefix: config['prefix']?.toString(),
           );
+          appendBotDebugLog(
+            '[syncAllBotsFromManager] Bot $botId persisted locally (name=$botName).',
+          );
         } catch (e) {
           developer.log('Failed to sync bot ${bot['bot_id']}: $e');
+          appendBotDebugLog(
+            '[syncAllBotsFromManager] Failed to sync bot ${bot['bot_id']}: $e',
+          );
         }
       }
 
       if (mounted) {
+        appendBotDebugLog(
+          '[syncAllBotsFromManager] Triggering _initRunningState after bot sync.',
+        );
         await _initRunningState();
       }
     } catch (e) {
+      appendBotDebugLog('[syncAllBotsFromManager] Sync failed: $e');
       if (mounted) {
         ScaffoldMessenger.of(
           context,
@@ -384,38 +587,28 @@ class HomePageState extends State<HomePage>
     );
   }
 
+  MainApiOwnerSyncHelper get _ownerSyncHelper => MainApiOwnerSyncHelper(
+    resolveRuntime:
+        ({
+          getTimeout = const Duration(seconds: 30),
+          postTimeout = const Duration(seconds: 90),
+        }) => _resolveRemoteRuntime(
+          getTimeout: getTimeout,
+          postTimeout: postTimeout,
+        ),
+    loadLocalBotById: (botId) async => await appManager.getApp(botId),
+    log: appendBotDebugLog,
+  );
+
   Future<DiscordApplicationOwnerMetadata?>
   _resolveDiscordOwnerMetadataForBotStart({
     required String botId,
     required String? token,
   }) async {
-    final trimmedToken = token?.trim() ?? '';
-    if (trimmedToken.isEmpty) {
-      appendBotDebugLog(
-        'Unable to resolve Discord owner for $botId: bot token is missing.',
-      );
-      return null;
-    }
-
-    try {
-      final metadata = await getDiscordApplicationOwnerMetadata(trimmedToken);
-      if (metadata == null || metadata.ownerCandidateIds.isEmpty) {
-        appendBotDebugLog(
-          'Discord owner lookup via /applications/@me returned empty for $botId.',
-        );
-        return null;
-      }
-
-      appendBotDebugLog(
-        'Discord owner metadata resolved via /applications/@me for $botId: ${metadata.candidatesLabel}',
-      );
-      return metadata;
-    } catch (error) {
-      appendBotDebugLog(
-        'Discord owner lookup via /applications/@me failed for $botId: $error',
-      );
-      return null;
-    }
+    return _ownerSyncHelper.resolveDiscordOwnerMetadataForBotStart(
+      botId: botId,
+      token: token,
+    );
   }
 
   Future<bool> _restoreMainApiSessionWithBotToken({
@@ -424,125 +617,28 @@ class HomePageState extends State<HomePage>
     String? preferredOwnerId,
     Iterable<String> acceptableOwnerIds = const <String>[],
   }) async {
-    final trimmedToken = botToken?.trim() ?? '';
-    if (trimmedToken.isEmpty) {
-      appendBotDebugLog(
-        'Manager session restore skipped for $botId: bot token is missing.',
-      );
-      return false;
-    }
-
-    try {
-      final config = await MainApiSettingsStore.loadConfig();
-      if (!config.isConfigured) {
-        appendBotDebugLog(
-          'Manager session restore skipped for $botId: manager base URL is not configured.',
-        );
-        return false;
-      }
-
-      final client = MainApiClient(baseUrl: config.baseUrl);
-      final normalizedPreferredOwner = preferredOwnerId?.trim() ?? '';
-      final session = await client.exchangeDiscordBotToken(
-        botToken: trimmedToken,
-        preferredOwnerId:
-            normalizedPreferredOwner.isEmpty ? null : normalizedPreferredOwner,
-      );
-
-      final normalizedSessionOwner = session.userId?.trim() ?? '';
-      final normalizedAcceptableOwners =
-          acceptableOwnerIds
-              .map((ownerId) => ownerId.trim())
-              .where((ownerId) => ownerId.isNotEmpty)
-              .toSet();
-      if (normalizedAcceptableOwners.isNotEmpty &&
-          normalizedSessionOwner.isNotEmpty &&
-          !normalizedAcceptableOwners.contains(normalizedSessionOwner)) {
-        appendBotDebugLog(
-          'Manager session restore rejected for $botId: owner mismatch expected=${normalizedAcceptableOwners.join(',')} actual=$normalizedSessionOwner.',
-        );
-        return false;
-      }
-
-      await MainApiSettingsStore.saveSession(session);
-      appendBotDebugLog(
-        "Manager session restored from bot token for $botId (owner=${normalizedSessionOwner.isEmpty ? 'unknown' : normalizedSessionOwner}).",
-      );
-      return true;
-    } catch (error) {
-      appendBotDebugLog('Manager session restore failed for $botId: $error');
-      return false;
-    }
+    return _ownerSyncHelper.restoreMainApiSessionWithBotToken(
+      botId: botId,
+      botToken: botToken,
+      preferredOwnerId: preferredOwnerId,
+      acceptableOwnerIds: acceptableOwnerIds,
+    );
   }
 
   Future<MainApiClient?> _resolveMainApiClientForBot({
     required String botId,
     String? botToken,
     bool attemptSessionRestore = true,
+    Iterable<String> ownerCandidatesOverride = const <String>[],
+    String? preferredOwnerIdOverride,
   }) async {
-    var runtime = await _resolveRemoteRuntime(
-      getTimeout: const Duration(seconds: 10),
-      postTimeout: const Duration(seconds: 20),
-    );
-    var resolvedToken = botToken?.trim() ?? '';
-    if (resolvedToken.isEmpty) {
-      final app = await appManager.getApp(botId);
-      resolvedToken = (app['token'] ?? '').toString().trim();
-    }
-    final ownerMetadata =
-        resolvedToken.isEmpty
-            ? null
-            : await _resolveDiscordOwnerMetadataForBotStart(
-              botId: botId,
-              token: resolvedToken,
-            );
-    final ownerCandidates =
-        ownerMetadata?.ownerCandidateIds ?? const <String>[];
-    final session = await MainApiSettingsStore.loadSession();
-    final sessionOwnerId = session?.userId?.trim() ?? '';
-    final directClient = runtime.client;
-    final hasMatchingManagerSession =
-        directClient is MainApiClient &&
-        session != null &&
-        !session.isExpired &&
-        (ownerCandidates.isEmpty ||
-            ownerMetadata!.matchesOwnerId(sessionOwnerId));
-    if (hasMatchingManagerSession) {
-      return directClient;
-    }
-
-    if (!attemptSessionRestore || resolvedToken.isEmpty) {
-      return ownerCandidates.isEmpty && directClient is MainApiClient
-          ? directClient
-          : null;
-    }
-
-    if (ownerCandidates.isNotEmpty &&
-        sessionOwnerId.isNotEmpty &&
-        !ownerMetadata!.matchesOwnerId(sessionOwnerId)) {
-      appendBotDebugLog(
-        'Manager session owner mismatch for $botId: expected one of ${ownerCandidates.join(',')} actual=$sessionOwnerId. Restoring from bot token.',
-      );
-    }
-
-    final restored = await _restoreMainApiSessionWithBotToken(
+    return _ownerSyncHelper.resolveMainApiClientForBot(
       botId: botId,
-      botToken: resolvedToken,
-      preferredOwnerId: ownerMetadata?.resolveOwnerId(
-        preferredOwnerId: sessionOwnerId,
-      ),
-      acceptableOwnerIds: ownerCandidates,
+      botToken: botToken,
+      attemptSessionRestore: attemptSessionRestore,
+      ownerCandidatesOverride: ownerCandidatesOverride,
+      preferredOwnerIdOverride: preferredOwnerIdOverride,
     );
-    if (!restored) {
-      return null;
-    }
-
-    runtime = await _resolveRemoteRuntime(
-      getTimeout: const Duration(seconds: 10),
-      postTimeout: const Duration(seconds: 20),
-    );
-    final refreshedClient = runtime.client;
-    return refreshedClient is MainApiClient ? refreshedClient : null;
   }
 
   Future<MainApiClient?> _resolveGlobalMainApiClient({
@@ -1065,9 +1161,9 @@ class HomePageState extends State<HomePage>
         botToken: botToken.isNotEmpty ? botToken : null,
       );
       if (rewarded && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Time added for $name')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Time added for $name')));
         unawaited(_refreshBotRuntimeBalances(botIds: [botId]));
       }
     } finally {
@@ -1212,6 +1308,8 @@ class HomePageState extends State<HomePage>
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
+        final isIOS = defaultTargetPlatform == TargetPlatform.iOS;
+        final useIOSPhoneLayout = isIOS && width < 600;
         final int crossAxisCount;
         final double horizontalPadding;
 
@@ -1219,11 +1317,11 @@ class HomePageState extends State<HomePage>
         if (width < 420) {
           // Small phone - single column
           crossAxisCount = 1;
-          horizontalPadding = 12.0;
+          horizontalPadding = isIOS ? 8.0 : 12.0;
         } else if (width < 600) {
           // Mobile - 2 columns
           crossAxisCount = 2;
-          horizontalPadding = 12.0;
+          horizontalPadding = isIOS ? 8.0 : 12.0;
         } else if (width >= 1500) {
           // Extra large desktop - 5 columns
           crossAxisCount = 5;
@@ -1243,12 +1341,22 @@ class HomePageState extends State<HomePage>
         } else {
           // Small tablet - 2 columns
           crossAxisCount = 2;
-          horizontalPadding = 16.0;
+          horizontalPadding = isIOS ? 12.0 : 16.0;
         }
 
+        final effectiveCrossAxisCount = useIOSPhoneLayout ? 1 : crossAxisCount;
+        final listHorizontalPadding =
+            useIOSPhoneLayout
+                ? 6.0
+                : isIOS
+                ? 10.0
+                : 14.0;
+        final contentWidth =
+            width - (horizontalPadding * 2) - (listHorizontalPadding * 2);
+
         final cardWidth =
-            (width - (horizontalPadding * 2) - ((crossAxisCount - 1) * 12)) /
-            crossAxisCount;
+            (contentWidth - ((effectiveCrossAxisCount - 1) * 12)) /
+            effectiveCrossAxisCount;
 
         return Padding(
           padding: EdgeInsets.all(horizontalPadding),
@@ -1284,10 +1392,10 @@ class HomePageState extends State<HomePage>
                     child: RefreshIndicator(
                       onRefresh: () => syncAllBotsFromManager(silent: false),
                       child: SingleChildScrollView(
-                        padding: const EdgeInsets.only(
+                        padding: EdgeInsets.only(
                           bottom: 80,
-                          left: 14,
-                          right: 14,
+                          left: listHorizontalPadding,
+                          right: listHorizontalPadding,
                         ),
                         physics: const AlwaysScrollableScrollPhysics(),
                         child: Align(
@@ -1295,74 +1403,81 @@ class HomePageState extends State<HomePage>
                           child: Wrap(
                             spacing: 14,
                             runSpacing: 14,
-                            children: apps.map((app) {
-                              final name =
-                                  app['name']?.toString() ??
-                                  context.tr.home_unknown_app;
-                              final id = app['id']?.toString() ?? '';
-                              final avatar = app['avatar']?.toString();
-                              final guildCount = switch (app['guild_count']) {
-                                final int value => value,
-                                final String s => int.tryParse(s) ?? 0,
-                                _ => 0,
-                              };
+                            children:
+                                apps.map((app) {
+                                  final name =
+                                      app['name']?.toString() ??
+                                      context.tr.home_unknown_app;
+                                  final id = app['id']?.toString() ?? '';
+                                  final avatar = app['avatar']?.toString();
+                                  final guildCount =
+                                      switch (app['guild_count']) {
+                                        final int value => value,
+                                        final String s => int.tryParse(s) ?? 0,
+                                        _ => 0,
+                                      };
 
-                              final isRunning = _runningBotIds.contains(id);
+                                  final isRunning = _runningBotIds.contains(id);
 
-                              const runtimeToggleAllowed = true;
+                                  const runtimeToggleAllowed = true;
 
-                              final canToggle =
-                                  runtimeToggleAllowed &&
-                                  _botIdInAction == null;
+                                  final canToggle =
+                                      runtimeToggleAllowed &&
+                                      _botIdInAction == null;
 
-                              final pulseCtrl = _getOrCreatePulseController(id);
+                                  final pulseCtrl = _getOrCreatePulseController(
+                                    id,
+                                  );
 
-                              return SizedBox(
-                                width: cardWidth,
-                                child: _BotCard(
-                                  name: name,
-                                  id: id,
-                                  avatar: avatar,
-                                  guildCount: guildCount,
-                                  compact: width < 760,
-                                  isRunning: isRunning,
-                                  canToggle: canToggle,
-                                  isTogglingThisBot: _botIdInAction == id,
-                                  runtimeBadgeLabel:
-                                      isRunning ? _runtimeBadgeLabel() : null,
-                                  freeMinutes: _freeMinutesByBotId[id],
-                                  pulseController: pulseCtrl,
-                                  onManage:
-                                      () => Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder:
-                                              (_) => AppEditPage(
-                                                appName: name,
-                                                id: int.tryParse(id) ?? 0,
-                                              ),
-                                        ),
-                                      ).then((_) => _initRunningState()),
-                                  onToggle:
-                                      () => _toggleBot(
-                                        botId: id,
-                                        botName: name,
-                                      ),
-                                  onAddTime: () => _addHostingTime(id),
-                                  onLogs:
-                                      isRunning
-                                          ? () => Navigator.push(
+                                  return SizedBox(
+                                    width: cardWidth,
+                                    child: _BotCard(
+                                      name: name,
+                                      id: id,
+                                      avatar: avatar,
+                                      guildCount: guildCount,
+                                      compact: width < 760,
+                                      isRunning: isRunning,
+                                      canToggle: canToggle,
+                                      isTogglingThisBot: _botIdInAction == id,
+                                      runtimeBadgeLabel:
+                                          isRunning
+                                              ? _runtimeBadgeLabel()
+                                              : null,
+                                      freeMinutes: _freeMinutesByBotId[id],
+                                      pulseController: pulseCtrl,
+                                      onManage:
+                                          () => Navigator.push(
                                             context,
                                             MaterialPageRoute(
                                               builder:
-                                                  (_) =>
-                                                      BotLogsPage(botId: id),
+                                                  (_) => AppEditPage(
+                                                    appName: name,
+                                                    id: int.tryParse(id) ?? 0,
+                                                  ),
                                             ),
-                                          )
-                                          : null,
-                                ),
-                              );
-                            }).toList(),
+                                          ).then((_) => _initRunningState()),
+                                      onToggle:
+                                          () => _toggleBot(
+                                            botId: id,
+                                            botName: name,
+                                          ),
+                                      onAddTime: () => _addHostingTime(id),
+                                      onLogs:
+                                          isRunning
+                                              ? () => Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder:
+                                                      (_) => BotLogsPage(
+                                                        botId: id,
+                                                      ),
+                                                ),
+                                              )
+                                              : null,
+                                    ),
+                                  );
+                                }).toList(),
                           ),
                         ),
                       ),
@@ -1511,151 +1626,154 @@ class _BotCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   SizedBox(height: compact ? 8 : 12),
-                    // Avatar with glow ring when running
-                    Container(
-                      decoration:
-                          isRunning
-                              ? BoxDecoration(
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: AppTheme.successAccent.withValues(
-                                      alpha: 0.4,
-                                    ),
-                                    blurRadius: 16,
-                                    spreadRadius: 2,
+                  // Avatar with glow ring when running
+                  Container(
+                    decoration:
+                        isRunning
+                            ? BoxDecoration(
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppTheme.successAccent.withValues(
+                                    alpha: 0.4,
                                   ),
-                                ],
-                              )
-                              : null,
-                      child:
-                          avatar != null && avatar!.isNotEmpty
-                              ? CircleAvatar(
-                                radius: avatarRadius,
-                                backgroundColor: Colors.white.withValues(
-                                  alpha: 0.1,
+                                  blurRadius: 16,
+                                  spreadRadius: 2,
                                 ),
-                                child: ClipOval(
-                                  child: Image.network(
-                                    avatar!,
-                                    width: avatarRadius * 2,
-                                    height: avatarRadius * 2,
-                                    fit: BoxFit.cover,
-                                    errorBuilder:
-                                        (_, _, _) => Icon(
-                                          Icons.smart_toy_rounded,
-                                          size: avatarFallbackSize * 0.6,
-                                          color: Colors.white70,
-                                        ),
-                                  ),
-                                ),
-                              )
-                              : CircleAvatar(
-                                radius: avatarRadius,
-                                backgroundColor: Colors.white.withValues(
-                                  alpha: 0.1,
-                                ),
-                                child: Icon(
-                                  Icons.smart_toy_rounded,
-                                  size: avatarFallbackSize * 0.6,
-                                  color: Colors.white70,
+                              ],
+                            )
+                            : null,
+                    child:
+                        avatar != null && avatar!.isNotEmpty
+                            ? CircleAvatar(
+                              radius: avatarRadius,
+                              backgroundColor: Colors.white.withValues(
+                                alpha: 0.1,
+                              ),
+                              child: ClipOval(
+                                child: Image.network(
+                                  avatar!,
+                                  width: avatarRadius * 2,
+                                  height: avatarRadius * 2,
+                                  fit: BoxFit.cover,
+                                  errorBuilder:
+                                      (_, _, _) => Icon(
+                                        Icons.smart_toy_rounded,
+                                        size: avatarFallbackSize * 0.6,
+                                        color: Colors.white70,
+                                      ),
                                 ),
                               ),
+                            )
+                            : CircleAvatar(
+                              radius: avatarRadius,
+                              backgroundColor: Colors.white.withValues(
+                                alpha: 0.1,
+                              ),
+                              child: Icon(
+                                Icons.smart_toy_rounded,
+                                size: avatarFallbackSize * 0.6,
+                                color: Colors.white70,
+                              ),
+                            ),
+                  ),
+
+                  SizedBox(height: compact ? 8 : 14),
+
+                  // Name
+                  Text(
+                    name,
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: titleFontSize,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
+                  ),
 
-                    SizedBox(height: compact ? 4 : 10),
+                  const SizedBox(height: 2),
 
-                    // Name
+                  // Server count + runner label
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.groups_rounded,
+                        size: 14,
+                        color: Colors.white.withValues(alpha: 0.6),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        _serverCountLabel(),
+                        style: TextStyle(
+                          fontSize: compact ? 10.5 : 11.0,
+                          color: Colors.white.withValues(alpha: 0.6),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  // Runner badge (hidden in compact to save space)
+                  if (runtimeBadgeLabel != null && !compact) ...[
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(
+                          AppTheme.radiusPill,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.dns_outlined,
+                            size: 11,
+                            color: Colors.white.withValues(alpha: 0.7),
+                          ),
+                          const SizedBox(width: 3),
+                          Flexible(
+                            child: Text(
+                              runtimeBadgeLabel!,
+                              style: TextStyle(
+                                fontSize: compact ? 9.0 : 9.5,
+                                color: Colors.white.withValues(alpha: 0.7),
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  if (freeMinutes != null) ...[
+                    const SizedBox(height: 6),
                     Text(
-                      name,
-                      textAlign: TextAlign.center,
+                      AppStrings.tr(
+                        'home_hosting_time_left',
+                        params: {'minutes': freeMinutes!.toString()},
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontSize: titleFontSize,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        fontSize: compact ? 10 : 11,
+                        color: Colors.white.withValues(alpha: 0.85),
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-
-                    const SizedBox(height: 4),
-
-                    // Server count + runner label
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.groups_rounded,
-                          size: 14,
-                          color: Colors.white.withValues(alpha: 0.6),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          _serverCountLabel(),
-                          style: TextStyle(
-                            fontSize: compact ? 10.5 : 11.0,
-                            color: Colors.white.withValues(alpha: 0.6),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    // Runner badge (hidden in compact to save space)
-                    if (runtimeBadgeLabel != null && !compact) ...[
-                      const SizedBox(height: 4),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(
-                            AppTheme.radiusPill,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.dns_outlined,
-                              size: 11,
-                              color: Colors.white.withValues(alpha: 0.7),
-                            ),
-                            const SizedBox(width: 3),
-                            Flexible(
-                              child: Text(
-                                runtimeBadgeLabel!,
-                                style: TextStyle(
-                                  fontSize: compact ? 9.0 : 9.5,
-                                  color: Colors.white.withValues(alpha: 0.7),
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                    if (freeMinutes != null) ...[
-                      const SizedBox(height: 6),
-                      Text(
-                        AppStrings.tr('home_hosting_time_left', params: {'minutes': freeMinutes!.toString()}),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: compact ? 10 : 11,
-                          color: Colors.white.withValues(alpha: 0.85),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
+                  ],
                 ],
               ),
 
               // ── Action buttons ─────────────────────────────────────────────
-              SizedBox(height: compact ? 2 : 6),
+              SizedBox(height: compact ? 10 : 14),
               SizedBox(
                 width: double.infinity,
                 child: FilledButton.icon(
@@ -1705,7 +1823,7 @@ class _BotCard extends StatelessWidget {
               ),
 
               if (isRunning && !SubscriptionService.isSubscribed) ...[
-                const SizedBox(height: 8),
+                const SizedBox(height: 14),
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton.icon(
@@ -1825,7 +1943,6 @@ class _EmptyStateWithSupport extends StatelessWidget {
               ).textTheme.titleMedium?.copyWith(color: scheme.onSurfaceVariant),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 32),
             const Divider(),
             const SizedBox(height: 16),
             Text(
