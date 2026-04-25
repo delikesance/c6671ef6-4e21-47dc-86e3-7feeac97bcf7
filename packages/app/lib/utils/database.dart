@@ -1232,7 +1232,7 @@ class AppManager implements BotDataStore {
     });
     unawaited(
       (onAfterScopedVariableDefinitionSave ??
-              (_, __, ___, __, {valueType}) async {})
+              (String botId, String key, String scope, dynamic defaultValue, {String? valueType}) async {})
           .call(botId, normalizedKey, scope, defaultValue, valueType: valueType),
     );
   }
@@ -1285,7 +1285,7 @@ class AppManager implements BotDataStore {
       data['scopedVariableDefinitions'] = defs;
     });
     unawaited(
-      (onAfterScopedVariableDefinitionDelete ?? (_, _, {scope, purgeStoredValues}) async {})
+      (onAfterScopedVariableDefinitionDelete ?? (String botId, String key, {String? scope, bool purgeStoredValues = false}) async {})
           .call(
             botId,
             normalizedKey,
@@ -1688,7 +1688,7 @@ class AppManager implements BotDataStore {
     await saveApp(id, app);
 
     unawaited(
-      (onAfterScheduledTriggerSave ?? (_, __, ___) async {}).call(
+      (onAfterScheduledTriggerSave ?? (_, _, _) async {}).call(
         id,
         normalizedId,
         Map<String, dynamic>.from(payload),
@@ -1711,7 +1711,7 @@ class AppManager implements BotDataStore {
     await saveApp(id, app);
 
     unawaited(
-      (onAfterScheduledTriggerDelete ?? (_, __) async {}).call(id, triggerId),
+      (onAfterScheduledTriggerDelete ?? (_, _) async {}).call(id, triggerId),
     );
   }
 
@@ -1807,7 +1807,7 @@ class AppManager implements BotDataStore {
     await saveApp(id, app);
 
     unawaited(
-      (onAfterInboundWebhookSave ?? (_, __, ___) async {}).call(
+      (onAfterInboundWebhookSave ?? (_, _, _) async {}).call(
         id,
         webhookId ?? payload['id'],
         Map<String, dynamic>.from(payload),
@@ -1830,7 +1830,7 @@ class AppManager implements BotDataStore {
     await saveApp(id, app);
 
     unawaited(
-      (onAfterInboundWebhookDelete ?? (_, __) async {}).call(id, webhookId),
+      (onAfterInboundWebhookDelete ?? (_, _) async {}).call(id, webhookId),
     );
   }
 
@@ -1990,17 +1990,7 @@ class AppManager implements BotDataStore {
               rawList.map((entry) => entry.runtimeType.toString()).toList(),
           'normalizedPreview': normalized.take(20).toList(),
         });
-        unawaited(
-          (onAfterScopedVariableDefinitionSave ??
-                  (_, _, _, _, {String valueType = 'string'}) async {})
-              .call(
-                botId,
-                normalizedKey,
-                scope,
-                defaultValue,
-                valueType: valueType,
-              ),
-        );
+
       }
 
       final basePath = await _path();
@@ -2152,16 +2142,7 @@ class AppManager implements BotDataStore {
     });
     _commandListCache[id] = commands;
     return commands;
-    unawaited(
-      (onAfterScopedVariableDefinitionDelete ??
-              (_, _, {String? scope, bool purgeStoredValues = false}) async {})
-          .call(
-            botId,
-            normalizedKey,
-            scope: normalizedScope.isEmpty ? null : normalizedScope,
-            purgeStoredValues: purgeStoredValues,
-          ),
-    );
+
   }
 
   Future<void> saveAppCommand(
