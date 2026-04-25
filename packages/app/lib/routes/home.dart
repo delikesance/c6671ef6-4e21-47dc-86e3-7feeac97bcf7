@@ -136,38 +136,41 @@ class HomePageState extends State<HomePage>
           appendBotDebugLog(
             '[_initRunningState] Checking per-bot status with owner-aware client resolution.',
           );
-          for (final botId in localBotIds) {
-            try {
-              appendBotDebugLog(
-                '[_initRunningState] Resolving client for bot $botId.',
-              );
-              final perBotClient = await _resolveMainApiClientForBot(
-                botId: botId,
-                attemptSessionRestore: true,
-              );
-              final statusClient = perBotClient ?? remoteClient;
-              appendBotDebugLog(
-                '[_initRunningState] Bot $botId status client: ${statusClient.runtimeType}, usedFallbackToGlobal=${perBotClient == null}.',
-              );
-              final status = await statusClient.getStatus(botId: botId);
-              appendBotDebugLog(
-                '[_initRunningState] Bot $botId status fetched: statusRunning=${status.running}, activeBotId=${status.activeBotId ?? 'none'}, botEntries=${status.bots.length}.',
-              );
-              if (status.isBotRunning(botId)) {
-                runningIds.add(botId);
-                appendBotDebugLog(
-                  '[_initRunningState] Marked running (per-bot): $botId.',
-                );
-              } else {
-                appendBotDebugLog(
-                  '[_initRunningState] Bot $botId is NOT running according to status endpoint.',
-                );
-              }
-            } catch (error) {
-              appendBotDebugLog(
-                'Failed to sync running status for $botId: $error',
-              );
-            }
+          final runningChecks = localBotIds
+              .map((botId) async {
+                try {
+                  appendBotDebugLog(
+                    '[_initRunningState] Resolving client for bot $botId.',
+                  );
+                  final perBotClient = await _resolveMainApiClientForBot(
+                    botId: botId,
+                    attemptSessionRestore: true,
+                  );
+                  final statusClient = perBotClient ?? remoteClient;
+                  appendBotDebugLog(
+                    '[_initRunningState] Bot $botId status client: ${statusClient.runtimeType}, usedFallbackToGlobal=${perBotClient == null}.',
+                  );
+                  final status = await statusClient.getStatus(botId: botId);
+                  final isRunning = status.isBotRunning(botId);
+                  appendBotDebugLog(
+                    '[_initRunningState] Bot $botId status fetched: statusRunning=${status.running}, activeBotId=${status.activeBotId ?? 'none'}, botEntries=${status.bots.length}, isBotRunning=$isRunning.',
+                  );
+                  return isRunning ? botId : null;
+                } catch (error) {
+                  appendBotDebugLog(
+                    'Failed to sync running status for $botId: $error',
+                  );
+                  return null;
+                }
+              })
+              .toList(growable: false);
+
+          final resolvedRunningIds = await Future.wait(runningChecks);
+          for (final botId in resolvedRunningIds.whereType<String>()) {
+            runningIds.add(botId);
+            appendBotDebugLog(
+              '[_initRunningState] Marked running (per-bot): $botId.',
+            );
           }
         }
       } catch (_) {}

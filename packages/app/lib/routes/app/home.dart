@@ -310,9 +310,9 @@ class _AppHomePageState extends State<AppHomePage>
     if (remoteClient != null) {
       try {
         appendBotDebugLog(
-          '[AppHome._init] Fetching global status via ${remoteClient.runtimeType} for botId=$botId.',
+          '[AppHome._init] Fetching per-bot status via ${remoteClient.runtimeType} for botId=$botId.',
         );
-        final status = await remoteClient.getStatus();
+        final status = await remoteClient.getStatus(botId: botId);
         appendBotDebugLog(
           '[AppHome._init] Status fetched: running=${status.running}, activeBotId=${status.activeBotId ?? 'none'}, botEntries=${status.bots.length}.',
         );
