@@ -1678,7 +1678,7 @@ class _BotCard extends StatelessWidget {
                             ),
                   ),
 
-                  SizedBox(height: compact ? 4 : 10),
+                  SizedBox(height: compact ? 8 : 14),
 
                   // Name
                   Text(
@@ -1693,7 +1693,7 @@ class _BotCard extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
 
                   // Server count + runner label
                   Row(
@@ -1773,7 +1773,7 @@ class _BotCard extends StatelessWidget {
               ),
 
               // ── Action buttons ─────────────────────────────────────────────
-              SizedBox(height: compact ? 2 : 6),
+              SizedBox(height: compact ? 10 : 14),
               SizedBox(
                 width: double.infinity,
                 child: FilledButton.icon(
@@ -1823,7 +1823,7 @@ class _BotCard extends StatelessWidget {
               ),
 
               if (isRunning && !SubscriptionService.isSubscribed) ...[
-                const SizedBox(height: 8),
+                const SizedBox(height: 14),
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton.icon(
