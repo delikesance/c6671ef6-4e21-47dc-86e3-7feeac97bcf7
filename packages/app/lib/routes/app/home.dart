@@ -1057,12 +1057,14 @@ class _AppHomePageState extends State<AppHomePage>
         builder: (context, constraints) {
           final contentMaxWidth = constraints.maxWidth >= 900 ? 560.0 : 460.0;
           final showQuickAccess = constraints.maxWidth < 900;
+          final contentHorizontalPadding =
+              Platform.isIOS ? AppTheme.spacingMd : AppTheme.spacingLg;
           return SafeArea(
             child: Center(
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppTheme.spacingLg,
+                padding: EdgeInsets.symmetric(
+                  horizontal: contentHorizontalPadding,
                   vertical: AppTheme.spacingLg,
                 ),
                 child: ConstrainedBox(
