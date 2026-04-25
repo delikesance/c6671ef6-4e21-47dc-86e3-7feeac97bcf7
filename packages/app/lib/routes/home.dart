@@ -1309,6 +1309,7 @@ class HomePageState extends State<HomePage>
       builder: (context, constraints) {
         final width = constraints.maxWidth;
         final isIOS = defaultTargetPlatform == TargetPlatform.iOS;
+        final useIOSPhoneLayout = isIOS && width < 600;
         final int crossAxisCount;
         final double horizontalPadding;
 
@@ -1343,14 +1344,19 @@ class HomePageState extends State<HomePage>
           horizontalPadding = isIOS ? 12.0 : 16.0;
         }
 
-        final listHorizontalPadding = isIOS ? 8.0 : 14.0;
+        final effectiveCrossAxisCount = useIOSPhoneLayout ? 1 : crossAxisCount;
+        final listHorizontalPadding =
+            useIOSPhoneLayout
+                ? 6.0
+                : isIOS
+                ? 10.0
+                : 14.0;
         final contentWidth =
             width - (horizontalPadding * 2) - (listHorizontalPadding * 2);
 
         final cardWidth =
-            isIOS
-                ? contentWidth * 0.95
-                : (contentWidth - ((crossAxisCount - 1) * 12)) / crossAxisCount;
+            (contentWidth - ((effectiveCrossAxisCount - 1) * 12)) /
+            effectiveCrossAxisCount;
 
         return Padding(
           padding: EdgeInsets.all(horizontalPadding),
