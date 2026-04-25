@@ -35,6 +35,69 @@ class AppManager implements BotDataStore {
   static Future<void> Function(String botId, String commandId)?
   onAfterCommandDelete;
 
+  /// Optional hook called after a workflow save.
+  static Future<void> Function(
+    String botId,
+    String workflowName,
+    Map<String, dynamic> workflow,
+  )?
+  onAfterWorkflowSave;
+
+  /// Optional hook called after a workflow delete.
+  static Future<void> Function(String botId, String workflowName)?
+  onAfterWorkflowDelete;
+
+  /// Optional hook called after a global variable save or rename.
+  static Future<void> Function(String botId, String key, dynamic value)?
+  onAfterGlobalVariableSave;
+
+  /// Optional hook called after a global variable delete.
+  static Future<void> Function(String botId, String key)?
+  onAfterGlobalVariableDelete;
+
+  /// Optional hook called after a global variable rename.
+  static Future<void> Function(String botId, String oldKey, String newKey)?
+  onAfterGlobalVariableRename;
+
+  /// Optional hook called after a scoped variable definition save.
+  static Future<void> Function(
+    String botId,
+    String key,
+    String scope,
+    dynamic defaultValue, {
+    String valueType,
+  })?
+  onAfterScopedVariableDefinitionSave;
+
+  /// Optional hook called after a scoped variable definition delete.
+  static Future<void> Function(
+    String botId,
+    String key, {
+    String? scope,
+    bool purgeStoredValues,
+  })?
+  onAfterScopedVariableDefinitionDelete;
+
+  static Future<void> Function(
+    String botId,
+    String triggerId,
+    Map<String, dynamic> trigger,
+  )?
+  onAfterScheduledTriggerSave;
+
+  static Future<void> Function(String botId, String triggerId)?
+  onAfterScheduledTriggerDelete;
+
+  static Future<void> Function(
+    String botId,
+    String webhookId,
+    Map<String, dynamic> webhook,
+  )?
+  onAfterInboundWebhookSave;
+
+  static Future<void> Function(String botId, String webhookId)?
+  onAfterInboundWebhookDelete;
+
   final StreamController<List<dynamic>> _appsStreamController =
       StreamController<List<dynamic>>.broadcast();
   List<dynamic> _apps = [];
@@ -587,6 +650,9 @@ class AppManager implements BotDataStore {
       globals[key] = value;
       appData['globalVariables'] = globals;
     });
+    unawaited(
+      (onAfterGlobalVariableSave ?? (_, _, _) async {}).call(id, key, value),
+    );
   }
 
   @override
@@ -616,6 +682,13 @@ class AppManager implements BotDataStore {
       globals[newKey] = previous;
       appData['globalVariables'] = globals;
     });
+    unawaited(
+      (onAfterGlobalVariableRename ?? (_, _, _) async {}).call(
+        id,
+        oldKey,
+        newKey,
+      ),
+    );
   }
 
   @override
@@ -628,6 +701,7 @@ class AppManager implements BotDataStore {
       globals.remove(key);
       appData['globalVariables'] = globals;
     });
+    unawaited((onAfterGlobalVariableDelete ?? (_, _) async {}).call(id, key));
   }
 
   @override
@@ -1156,6 +1230,11 @@ class AppManager implements BotDataStore {
       }
       data['scopedVariableDefinitions'] = defs;
     });
+    unawaited(
+      (onAfterScopedVariableDefinitionSave ??
+              (_, __, ___, __, {valueType}) async {})
+          .call(botId, normalizedKey, scope, defaultValue, valueType: valueType),
+    );
   }
 
   /// Removes a scoped variable definition from the bot JSON.
@@ -1205,6 +1284,15 @@ class AppManager implements BotDataStore {
       );
       data['scopedVariableDefinitions'] = defs;
     });
+    unawaited(
+      (onAfterScopedVariableDefinitionDelete ?? (_, _, {scope, purgeStoredValues}) async {})
+          .call(
+            botId,
+            normalizedKey,
+            scope: normalizedScope.isEmpty ? null : normalizedScope,
+            purgeStoredValues: purgeStoredValues,
+          ),
+    );
   }
 
   Future<void> _removeAllScopedValuesForKey(
@@ -1497,7 +1585,13 @@ class AppManager implements BotDataStore {
 
     app['workflows'] = workflows;
     await saveApp(id, app);
-    unawaited((onAfterSave ?? (_) async {}).call(id));
+    unawaited(
+      (onAfterWorkflowSave ?? (_, _, _) async {}).call(
+        id,
+        normalizedName,
+        Map<String, dynamic>.from(payload),
+      ),
+    );
   }
 
   Future<void> deleteWorkflow(String id, String name) async {
@@ -1512,6 +1606,7 @@ class AppManager implements BotDataStore {
 
     app['workflows'] = workflows;
     await saveApp(id, app);
+    unawaited((onAfterWorkflowDelete ?? (_, _) async {}).call(id, name));
   }
 
   Future<List<Map<String, dynamic>>> getScheduledTriggers(String id) async {
@@ -1591,6 +1686,14 @@ class AppManager implements BotDataStore {
 
     app['scheduledTriggers'] = triggers;
     await saveApp(id, app);
+
+    unawaited(
+      (onAfterScheduledTriggerSave ?? (_, __, ___) async {}).call(
+        id,
+        normalizedId,
+        Map<String, dynamic>.from(payload),
+      ),
+    );
   }
 
   Future<void> deleteScheduledTrigger(String id, String triggerId) async {
@@ -1606,6 +1709,10 @@ class AppManager implements BotDataStore {
     );
     app['scheduledTriggers'] = triggers;
     await saveApp(id, app);
+
+    unawaited(
+      (onAfterScheduledTriggerDelete ?? (_, __) async {}).call(id, triggerId),
+    );
   }
 
   Future<List<Map<String, dynamic>>> getInboundWebhooks(String id) async {
@@ -1698,7 +1805,14 @@ class AppManager implements BotDataStore {
 
     app['inboundWebhooks'] = webhooks;
     await saveApp(id, app);
-    unawaited((onAfterSave ?? (_) async {}).call(id));
+
+    unawaited(
+      (onAfterInboundWebhookSave ?? (_, __, ___) async {}).call(
+        id,
+        webhookId ?? payload['id'],
+        Map<String, dynamic>.from(payload),
+      ),
+    );
   }
 
   Future<void> deleteInboundWebhook(String id, String webhookId) async {
@@ -1714,7 +1828,10 @@ class AppManager implements BotDataStore {
     );
     app['inboundWebhooks'] = webhooks;
     await saveApp(id, app);
-    unawaited((onAfterSave ?? (_) async {}).call(id));
+
+    unawaited(
+      (onAfterInboundWebhookDelete ?? (_, __) async {}).call(id, webhookId),
+    );
   }
 
   Map<String, dynamic> _normalizeScheduledTrigger(Map<String, dynamic> raw) {
@@ -1873,6 +1990,17 @@ class AppManager implements BotDataStore {
               rawList.map((entry) => entry.runtimeType.toString()).toList(),
           'normalizedPreview': normalized.take(20).toList(),
         });
+        unawaited(
+          (onAfterScopedVariableDefinitionSave ??
+                  (_, _, _, _, {String valueType = 'string'}) async {})
+              .call(
+                botId,
+                normalizedKey,
+                scope,
+                defaultValue,
+                valueType: valueType,
+              ),
+        );
       }
 
       final basePath = await _path();
@@ -2024,6 +2152,16 @@ class AppManager implements BotDataStore {
     });
     _commandListCache[id] = commands;
     return commands;
+    unawaited(
+      (onAfterScopedVariableDefinitionDelete ??
+              (_, _, {String? scope, bool purgeStoredValues = false}) async {})
+          .call(
+            botId,
+            normalizedKey,
+            scope: normalizedScope.isEmpty ? null : normalizedScope,
+            purgeStoredValues: purgeStoredValues,
+          ),
+    );
   }
 
   Future<void> saveAppCommand(
@@ -2037,7 +2175,7 @@ class AppManager implements BotDataStore {
     if (!await file.exists()) await file.create(recursive: true);
     await file.writeAsString(jsonEncode(normalizeCommandData(data)));
     unawaited(
-      (onAfterCommandSave ?? (_, __, ___) async {}).call(
+      (onAfterCommandSave ?? (_, _, _) async {}).call(
         id,
         commandId,
         Map<String, dynamic>.from(data),
@@ -2058,7 +2196,7 @@ class AppManager implements BotDataStore {
     final path = await _path();
     final file = File("$path/apps/$id/$commandId.json");
     if (await file.exists()) await file.delete();
-    unawaited((onAfterCommandDelete ?? (_, __) async {}).call(id, commandId));
+    unawaited((onAfterCommandDelete ?? (_, _) async {}).call(id, commandId));
   }
 
   Future<void> deleteAppCommands(String id) async {
