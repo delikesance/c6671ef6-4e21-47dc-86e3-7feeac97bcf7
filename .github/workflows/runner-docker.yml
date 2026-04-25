@@ -66,8 +66,6 @@ jobs:
           push: false
           tags: bot-creator-runner:ci
           platforms: ${{ env.SMOKE_PLATFORM }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
   publish:
     name: Publish image to registries
@@ -156,5 +154,3 @@ jobs:
             ${{ steps.meta-ghcr.outputs.tags }}
             ${{ steps.meta-dockerhub.outputs.tags }}
           labels: ${{ steps.meta-ghcr.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max

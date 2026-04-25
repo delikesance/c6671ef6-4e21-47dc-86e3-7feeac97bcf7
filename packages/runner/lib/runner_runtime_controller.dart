@@ -239,6 +239,346 @@ class RunnerRuntimeController {
     }
   }
 
+  Future<void> upsertWorkflow(
+    String botId,
+    Map<String, dynamic> workflow,
+  ) async {
+    await _updateBotConfig(botId, (config) {
+      final workflowName = (workflow['name'] ?? '').toString().trim();
+      if (workflowName.isEmpty) {
+        throw StateError('Missing workflow name for bot "$botId".');
+      }
+
+      final nextWorkflows = config.workflows
+          .map((entry) => Map<String, dynamic>.from(entry))
+          .toList(growable: true);
+      final nextWorkflow = Map<String, dynamic>.from(workflow)
+        ..['name'] = workflowName;
+      final index = nextWorkflows.indexWhere(
+        (entry) =>
+            (entry['name'] ?? '').toString().trim().toLowerCase() ==
+            workflowName.toLowerCase(),
+      );
+      if (index >= 0) {
+        nextWorkflows[index] = nextWorkflow;
+      } else {
+        nextWorkflows.add(nextWorkflow);
+      }
+      return config.copyWith(workflows: nextWorkflows);
+    }, reloadRunner: true);
+  }
+
+  Future<void> deleteWorkflow(String botId, String workflowName) async {
+    final normalizedWorkflowName = workflowName.trim();
+    if (normalizedWorkflowName.isEmpty) {
+      throw StateError('Missing workflow name for bot "$botId".');
+    }
+
+    await _updateBotConfig(botId, (config) {
+      final nextWorkflows = config.workflows
+          .map((entry) => Map<String, dynamic>.from(entry))
+          .toList(growable: true);
+      nextWorkflows.removeWhere(
+        (entry) =>
+            (entry['name'] ?? '').toString().trim().toLowerCase() ==
+            normalizedWorkflowName.toLowerCase(),
+      );
+      return config.copyWith(workflows: nextWorkflows);
+    }, reloadRunner: true);
+  }
+
+  Future<void> upsertGlobalVariable(
+    String botId,
+    String key,
+    dynamic value,
+  ) async {
+    final normalizedKey = key.trim();
+    if (normalizedKey.isEmpty) {
+      throw StateError('Missing variable key for bot "$botId".');
+    }
+
+    await _updateBotConfig(botId, (config) {
+      final nextGlobals = Map<String, dynamic>.from(config.globalVariables)
+        ..[normalizedKey] = value;
+      return config.copyWith(globalVariables: nextGlobals);
+    });
+  }
+
+  Future<void> removeGlobalVariable(String botId, String key) async {
+    final normalizedKey = key.trim();
+    if (normalizedKey.isEmpty) {
+      throw StateError('Missing variable key for bot "$botId".');
+    }
+
+    await _updateBotConfig(botId, (config) {
+      final nextGlobals = Map<String, dynamic>.from(config.globalVariables)
+        ..remove(normalizedKey);
+      return config.copyWith(globalVariables: nextGlobals);
+    });
+  }
+
+  Future<void> renameGlobalVariable(
+    String botId,
+    String oldKey,
+    String newKey,
+  ) async {
+    final normalizedOldKey = oldKey.trim();
+    final normalizedNewKey = newKey.trim();
+    if (normalizedOldKey.isEmpty || normalizedNewKey.isEmpty) {
+      throw StateError('Missing variable key for bot "$botId".');
+    }
+
+    await _updateBotConfig(botId, (config) {
+      final nextGlobals = Map<String, dynamic>.from(config.globalVariables);
+      if (!nextGlobals.containsKey(normalizedOldKey)) {
+        return config;
+      }
+      final value = nextGlobals.remove(normalizedOldKey);
+      nextGlobals[normalizedNewKey] = value;
+      return config.copyWith(globalVariables: nextGlobals);
+    });
+  }
+
+  Future<void> upsertScopedVariableDefinition(
+    String botId,
+    String key,
+    String scope,
+    dynamic defaultValue, {
+    String valueType = 'string',
+  }) async {
+    final normalizedKey = key.trim();
+    final normalizedScope = scope.trim();
+    if (normalizedKey.isEmpty || normalizedScope.isEmpty) {
+      throw StateError('Missing scoped variable definition for bot "$botId".');
+    }
+
+    await _updateBotConfig(botId, (config) {
+      final defs = config.scopedVariableDefinitions
+          .map((entry) => Map<String, dynamic>.from(entry))
+          .toList(growable: true);
+      final next = <String, dynamic>{
+        'key': normalizedKey,
+        'scope': normalizedScope,
+        'defaultValue': defaultValue,
+        'valueType': valueType,
+      };
+      final index = defs.indexWhere(
+        (entry) =>
+            (entry['key'] ?? '').toString().trim() == normalizedKey &&
+            (entry['scope'] ?? '').toString().trim() == normalizedScope,
+      );
+      if (index >= 0) {
+        defs[index] = next;
+      } else {
+        defs.add(next);
+      }
+      return config.copyWith(scopedVariableDefinitions: defs);
+    });
+  }
+
+  Future<void> deleteScopedVariableDefinition(
+    String botId,
+    String key, {
+    String? scope,
+    bool purgeStoredValues = false,
+  }) async {
+    final normalizedKey = key.trim();
+    final normalizedScope = scope?.trim() ?? '';
+    if (normalizedKey.isEmpty) {
+      throw StateError('Missing scoped variable key for bot "$botId".');
+    }
+
+    await _updateBotConfig(botId, (config) {
+      final defs = config.scopedVariableDefinitions
+          .map((entry) => Map<String, dynamic>.from(entry))
+          .toList(growable: true);
+      defs.removeWhere((entry) {
+        final matchesKey =
+            (entry['key'] ?? '').toString().trim() == normalizedKey;
+        if (!matchesKey) {
+          return false;
+        }
+        if (normalizedScope.isEmpty) {
+          return true;
+        }
+        return (entry['scope'] ?? '').toString().trim() == normalizedScope;
+      });
+      return config.copyWith(scopedVariableDefinitions: defs);
+    });
+
+    if (purgeStoredValues) {
+      // The runner web layer handles the variable-store purge for us.
+    }
+  }
+
+  Future<void> upsertCommand(String botId, Map<String, dynamic> command) async {
+    await _updateBotCommands(botId, (commands) {
+      final commandId = (command['id'] ?? '').toString().trim();
+      if (commandId.isEmpty) {
+        throw StateError('Missing command id for bot "$botId".');
+      }
+      final nextCommand = Map<String, dynamic>.from(command);
+      final index = commands.indexWhere(
+        (entry) => (entry['id'] ?? '').toString().trim() == commandId,
+      );
+      if (index >= 0) {
+        commands[index] = nextCommand;
+      } else {
+        commands.add(nextCommand);
+      }
+    });
+  }
+
+  Future<void> deleteCommand(String botId, String commandId) async {
+    final normalizedCommandId = commandId.trim();
+    if (normalizedCommandId.isEmpty) {
+      throw StateError('Missing command id for bot "$botId".');
+    }
+    await _updateBotCommands(botId, (commands) {
+      commands.removeWhere(
+        (entry) => (entry['id'] ?? '').toString().trim() == normalizedCommandId,
+      );
+    });
+  }
+
+  Future<void> upsertScheduledTrigger(
+    String botId,
+    String triggerId,
+    Map<String, dynamic> trigger,
+  ) async {
+    await _updateBotConfig(botId, (config) {
+      final nextTriggers = config.scheduledTriggers
+          .map((entry) => Map<String, dynamic>.from(entry))
+          .toList(growable: true);
+      final nextTrigger = Map<String, dynamic>.from(trigger)..['id'] = triggerId;
+      final index = nextTriggers.indexWhere(
+        (entry) => (entry['id'] ?? '').toString() == triggerId,
+      );
+      if (index >= 0) {
+        nextTriggers[index] = nextTrigger;
+      } else {
+        nextTriggers.add(nextTrigger);
+      }
+      return config.copyWith(scheduledTriggers: nextTriggers);
+    }, reloadRunner: true);
+  }
+
+  Future<void> deleteScheduledTrigger(String botId, String triggerId) async {
+    await _updateBotConfig(botId, (config) {
+      final nextTriggers = config.scheduledTriggers
+          .map((entry) => Map<String, dynamic>.from(entry))
+          .toList(growable: true);
+      nextTriggers.removeWhere(
+        (entry) => (entry['id'] ?? '').toString() == triggerId,
+      );
+      return config.copyWith(scheduledTriggers: nextTriggers);
+    }, reloadRunner: true);
+  }
+
+  Future<void> upsertInboundWebhook(
+    String botId,
+    String webhookId,
+    Map<String, dynamic> webhook,
+  ) async {
+    await _updateBotConfig(botId, (config) {
+      final nextWebhooks = config.inboundWebhookEndpoints
+          .map((entry) => Map<String, dynamic>.from(entry))
+          .toList(growable: true);
+      final nextWebhook = Map<String, dynamic>.from(webhook)..['id'] = webhookId;
+      final index = nextWebhooks.indexWhere(
+        (entry) => (entry['id'] ?? '').toString() == webhookId,
+      );
+      if (index >= 0) {
+        nextWebhooks[index] = nextWebhook;
+      } else {
+        nextWebhooks.add(nextWebhook);
+      }
+      return config.copyWith(inboundWebhookEndpoints: nextWebhooks);
+    }, reloadRunner: false);
+  }
+
+  Future<void> deleteInboundWebhook(String botId, String webhookId) async {
+    await _updateBotConfig(botId, (config) {
+      final nextWebhooks = config.inboundWebhookEndpoints
+          .map((entry) => Map<String, dynamic>.from(entry))
+          .toList(growable: true);
+      nextWebhooks.removeWhere(
+        (entry) => (entry['id'] ?? '').toString() == webhookId,
+      );
+      return config.copyWith(inboundWebhookEndpoints: nextWebhooks);
+    }, reloadRunner: false);
+  }
+
+  Future<void> _updateBotCommands(
+    String botId,
+    void Function(List<Map<String, dynamic>> commands) mutate,
+  ) async {
+    final entry = await _botStore.loadEntry(botId);
+    if (entry == null) {
+      throw StateError(
+        'Bot "$botId" not found in store. Sync from the app first.',
+      );
+    }
+
+    final nextCommands = entry.config.commands
+        .map((command) => Map<String, dynamic>.from(command))
+        .toList(growable: true);
+    mutate(nextCommands);
+
+    final nextConfig = entry.config.copyWith(commands: nextCommands);
+    await _botStore.save(botId, entry.name, nextConfig);
+
+    final runner = _runners[botId];
+    if (runner != null) {
+      if (shouldRebindEventWorkflowListeners(runner.config, nextConfig)) {
+        final requiresReconnect = await runner.reloadConfig(nextConfig);
+        if (requiresReconnect && nextConfig.autoRestart) {
+          await _restartRunningBotWithConfig(
+            botId,
+            name: entry.name,
+            config: nextConfig,
+          );
+        }
+      } else {
+        runner.config = nextConfig;
+      }
+      _lastSeenAtByBot[botId] = DateTime.now().toUtc();
+    }
+  }
+
+  Future<void> _updateBotConfig(
+    String botId,
+    BotConfig Function(BotConfig config) transform, {
+    bool reloadRunner = false,
+  }) async {
+    final entry = await _botStore.loadEntry(botId);
+    if (entry == null) {
+      throw StateError(
+        'Bot "$botId" not found in store. Sync from the app first.',
+      );
+    }
+
+    final nextConfig = transform(entry.config);
+    await _botStore.save(botId, entry.name, nextConfig);
+
+    final runner = _runners[botId];
+    if (runner != null) {
+      if (reloadRunner) {
+        final requiresReconnect = await runner.reloadConfig(nextConfig);
+        if (requiresReconnect && nextConfig.autoRestart) {
+          await _restartRunningBotWithConfig(
+            botId,
+            name: entry.name,
+            config: nextConfig,
+          );
+        }
+      } else {
+        runner.config = nextConfig;
+      }
+      _lastSeenAtByBot[botId] = DateTime.now().toUtc();
+    }
+  }
+
   Future<void> triggerInboundWebhook(
     String botId, {
     required String workflowName,
