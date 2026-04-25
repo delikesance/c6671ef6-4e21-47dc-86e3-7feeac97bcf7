@@ -290,6 +290,7 @@ class _AppHomePageState extends State<AppHomePage>
 
   Future<void> _init() async {
     final botId = widget.client.user.id.toString();
+    appendBotDebugLog('[AppHome._init] Starting init for botId=$botId.');
     final app = await appManager.getApp(botId);
     var isRunning = false;
     final remoteRuntime = await _resolveRemoteRuntime(
@@ -297,6 +298,9 @@ class _AppHomePageState extends State<AppHomePage>
       postTimeout: const Duration(seconds: 90),
     );
     final remoteClient = remoteRuntime.client;
+    appendBotDebugLog(
+      '[AppHome._init] Runtime resolved: source=${remoteRuntime.source}, hasClient=${remoteClient != null}, blocksLocalFallback=${remoteRuntime.blocksLocalFallback}, detail=${remoteRuntime.detailLabel ?? 'none'}.',
+    );
     unawaited(
       SubscriptionService.resolveEffectivePremiumStatus(
         client: remoteClient is MainApiClient ? remoteClient : null,
@@ -305,41 +309,84 @@ class _AppHomePageState extends State<AppHomePage>
     );
     if (remoteClient != null) {
       try {
+        appendBotDebugLog(
+          '[AppHome._init] Fetching global status via ${remoteClient.runtimeType} for botId=$botId.',
+        );
         final status = await remoteClient.getStatus();
+        appendBotDebugLog(
+          '[AppHome._init] Status fetched: running=${status.running}, activeBotId=${status.activeBotId ?? 'none'}, botEntries=${status.bots.length}.',
+        );
         isRunning = status.isBotRunning(botId);
+        appendBotDebugLog(
+          '[AppHome._init] Bot running evaluation from remote status: botId=$botId, isRunning=$isRunning.',
+        );
       } catch (_) {
+        appendBotDebugLog(
+          '[AppHome._init] Failed to fetch remote status; defaulting isRunning=false.',
+        );
         isRunning = false;
       }
     } else if (remoteRuntime.blocksLocalFallback) {
+      appendBotDebugLog(
+        '[AppHome._init] Local fallback blocked and no remote client available; forcing isRunning=false.',
+      );
       isRunning = false;
     } else {
       if (_supportsForegroundTask) {
         try {
+          appendBotDebugLog(
+            '[AppHome._init] Using foreground-task fallback for botId=$botId.',
+          );
           final readyIds = await getReadyMobileBotIds();
+          appendBotDebugLog(
+            '[AppHome._init] Ready mobile ids=${readyIds.join(',')}.',
+          );
           if (readyIds.contains(botId) || isMobileBotRunning(botId)) {
             isRunning = true;
+            appendBotDebugLog(
+              '[AppHome._init] Marked running from readyIds/isMobileBotRunning.',
+            );
           } else {
             final configuredIds = await getConfiguredMobileBotIds();
             final serviceRunning = await FlutterForegroundTask.isRunningService;
             // Fallback: if the bot is configured and the foreground service is
             // alive, keep Home state consistent when navigating between pages.
             isRunning = serviceRunning && configuredIds.contains(botId);
+            appendBotDebugLog(
+              '[AppHome._init] Foreground fallback computed isRunning=$isRunning (serviceRunning=$serviceRunning, configuredIds=${configuredIds.join(',')}).',
+            );
           }
         } on MissingPluginException {
+          appendBotDebugLog(
+            '[AppHome._init] Foreground plugin unavailable; forcing isRunning=false.',
+          );
           isRunning = false;
         } on PlatformException catch (error) {
           if (_isDeadChannelError(error)) {
+            appendBotDebugLog(
+              '[AppHome._init] Dead channel during foreground lookup; forcing isRunning=false. error=$error',
+            );
             isRunning = false;
           } else {
             rethrow;
           }
         } catch (_) {
+          appendBotDebugLog(
+            '[AppHome._init] Unexpected foreground fallback error; forcing isRunning=false.',
+          );
           isRunning = false;
         }
       } else {
         isRunning = isDesktopBotRunningId(botId);
+        appendBotDebugLog(
+          '[AppHome._init] Desktop fallback isRunning=$isRunning for botId=$botId.',
+        );
       }
     }
+
+    appendBotDebugLog(
+      '[AppHome._init] Final running decision for botId=$botId isRunning=$isRunning.',
+    );
 
     await AppAnalytics.logScreenView(
       screenName: "AppHomePage",
@@ -356,9 +403,13 @@ class _AppHomePageState extends State<AppHomePage>
       _appName = app["name"];
       avatar = app["avatar"] ?? "";
     });
+    appendBotDebugLog(
+      '[AppHome._init] State updated: botLaunched=$_botLaunched, appName=$_appName.',
+    );
 
     unawaited(_refreshFreeRuntimeBalance());
     unawaited(_syncAppFromRemote(showSnack: false));
+    appendBotDebugLog('[AppHome._init] Init completed for botId=$botId.');
   }
 
   int _extractFreeMinutes(dynamic raw) {

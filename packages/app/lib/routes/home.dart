@@ -85,10 +85,14 @@ class HomePageState extends State<HomePage>
 
   Future<void> _initRunningState() async {
     final runningIds = <String>{};
+    appendBotDebugLog('[_initRunningState] Starting running-state refresh.');
     final remoteClient = await _resolveGlobalMainApiClient();
     final remoteRuntime = await _resolveRemoteRuntime(
       getTimeout: const Duration(seconds: 30),
       postTimeout: const Duration(seconds: 90),
+    );
+    appendBotDebugLog(
+      '[_initRunningState] Resolved runtime: source=${remoteRuntime.source}, hasClient=${remoteRuntime.client != null}, blocksLocalFallback=${remoteRuntime.blocksLocalFallback}, detail=${remoteRuntime.detailLabel ?? 'none'}.',
     );
     final apps = await appManager.getAllApps();
     final localBotIds = apps
@@ -96,6 +100,9 @@ class HomePageState extends State<HomePage>
         .map((raw) => (raw['id'] ?? '').toString().trim())
         .where((id) => id.isNotEmpty)
         .toList(growable: false);
+    appendBotDebugLog(
+      '[_initRunningState] Local bot ids loaded: count=${localBotIds.length}, ids=${localBotIds.join(',')}.',
+    );
 
     unawaited(
       SubscriptionService.resolveEffectivePremiumStatus(
@@ -105,25 +112,56 @@ class HomePageState extends State<HomePage>
     );
 
     if (remoteClient != null) {
+      appendBotDebugLog(
+        '[_initRunningState] Using remote client ${remoteClient.runtimeType} for running-state detection.',
+      );
       try {
         if (localBotIds.isEmpty) {
+          appendBotDebugLog(
+            '[_initRunningState] No local bot ids found. Falling back to global status list.',
+          );
           final status = await remoteClient.getStatus();
+          appendBotDebugLog(
+            '[_initRunningState] Global status fetched: bots=${status.bots.length}, running=${status.running}.',
+          );
           for (final bot in status.bots) {
             if (bot.isRunning) {
               runningIds.add(bot.botId);
+              appendBotDebugLog(
+                '[_initRunningState] Marked running (global): ${bot.botId}.',
+              );
             }
           }
         } else {
+          appendBotDebugLog(
+            '[_initRunningState] Checking per-bot status with owner-aware client resolution.',
+          );
           for (final botId in localBotIds) {
             try {
+              appendBotDebugLog(
+                '[_initRunningState] Resolving client for bot $botId.',
+              );
               final perBotClient = await _resolveMainApiClientForBot(
                 botId: botId,
                 attemptSessionRestore: true,
               );
               final statusClient = perBotClient ?? remoteClient;
+              appendBotDebugLog(
+                '[_initRunningState] Bot $botId status client: ${statusClient.runtimeType}, usedFallbackToGlobal=${perBotClient == null}.',
+              );
               final status = await statusClient.getStatus(botId: botId);
+              appendBotDebugLog(
+                '[_initRunningState] Bot $botId status fetched: statusRunning=${status.running}, activeBotId=${status.activeBotId ?? 'none'}, botEntries=${status.bots.length}.',
+              );
               if (status.isBotRunning(botId)) {
                 runningIds.add(botId);
+                appendBotDebugLog(
+                  '[_initRunningState] Marked running (per-bot): $botId.',
+                );
+              } else {
+                appendBotDebugLog(
+                  '[_initRunningState] Bot $botId is NOT running according to status endpoint.',
+                );
               }
             } catch (error) {
               appendBotDebugLog(
@@ -133,6 +171,10 @@ class HomePageState extends State<HomePage>
           }
         }
       } catch (_) {}
+
+      appendBotDebugLog(
+        '[_initRunningState] Remote detection completed. Running ids=${runningIds.join(',')}.',
+      );
 
       if (!mounted) return;
       setState(() {
@@ -147,6 +189,9 @@ class HomePageState extends State<HomePage>
     }
 
     if (remoteRuntime.blocksLocalFallback) {
+      appendBotDebugLog(
+        '[_initRunningState] No remote client and local fallback is blocked. Running set remains empty.',
+      );
       if (!mounted) return;
       setState(() {
         _runningBotIds = runningIds;
@@ -161,9 +206,18 @@ class HomePageState extends State<HomePage>
 
     if (_supportsForegroundTask) {
       try {
+        appendBotDebugLog(
+          '[_initRunningState] Falling back to foreground task running-state detection.',
+        );
         final running = await FlutterForegroundTask.isRunningService;
+        appendBotDebugLog(
+          '[_initRunningState] Foreground service running=$running.',
+        );
         if (running) {
           final configuredIds = await getConfiguredMobileBotIds();
+          appendBotDebugLog(
+            '[_initRunningState] Configured mobile bot ids: count=${configuredIds.length}, ids=${configuredIds.join(',')}.',
+          );
           if (configuredIds.isNotEmpty) {
             runningIds.addAll(configuredIds);
             for (final botId in configuredIds) {
@@ -178,14 +232,23 @@ class HomePageState extends State<HomePage>
             if (fallbackId != null && fallbackId.isNotEmpty) {
               runningIds.add(fallbackId);
               addMobileRunningBotId(fallbackId);
+              appendBotDebugLog(
+                '[_initRunningState] Added fallback running bot id from foreground task data: $fallbackId.',
+              );
             }
           }
         }
       } on MissingPluginException {
         // Plateforme non supportée.
+        appendBotDebugLog(
+          '[_initRunningState] Foreground plugin unavailable on this platform.',
+        );
       }
     } else {
       runningIds.addAll(desktopRunningBotIds);
+      appendBotDebugLog(
+        '[_initRunningState] Using desktop running ids fallback: ${desktopRunningBotIds.join(',')}.',
+      );
     }
     if (!mounted) return;
     setState(() {
@@ -196,6 +259,9 @@ class HomePageState extends State<HomePage>
     _syncPulse(runningIds);
     await _syncDiscordRpcPresence(runningIds);
     unawaited(_refreshBotRuntimeBalances());
+    appendBotDebugLog(
+      '[_initRunningState] Completed with local fallback. Running ids=${runningIds.join(',')}.',
+    );
   }
 
   int _extractFreeMinutes(dynamic raw) {
@@ -266,8 +332,14 @@ class HomePageState extends State<HomePage>
   }
 
   Future<void> syncAllBotsFromManager({bool silent = false}) async {
+    appendBotDebugLog(
+      '[syncAllBotsFromManager] Starting sync. silent=$silent.',
+    );
     final remoteClient = await _resolveGlobalMainApiClient();
     if (remoteClient == null) {
+      appendBotDebugLog(
+        '[syncAllBotsFromManager] Aborted: global manager client unavailable.',
+      );
       return;
     }
 
@@ -275,9 +347,15 @@ class HomePageState extends State<HomePage>
       final botsById = <String, Map<String, dynamic>>{};
 
       void mergeBots(List<Map<String, dynamic>> bots) {
+        appendBotDebugLog(
+          '[syncAllBotsFromManager] Merging bot payload batch size=${bots.length}.',
+        );
         for (final bot in bots) {
           final botId = (bot['bot_id'] ?? '').toString().trim();
           if (botId.isEmpty) {
+            appendBotDebugLog(
+              '[syncAllBotsFromManager] Skipping bot payload with empty bot_id.',
+            );
             continue;
           }
           botsById[botId] = bot;
@@ -287,6 +365,9 @@ class HomePageState extends State<HomePage>
       mergeBots(await remoteClient.listBots());
 
       final apps = await appManager.getAllApps();
+      appendBotDebugLog(
+        '[syncAllBotsFromManager] Local apps for owner expansion count=${apps.length}.',
+      );
       final fetchedOwners = <String>{};
       for (final rawApp in apps) {
         if (rawApp is! Map) {
@@ -304,6 +385,9 @@ class HomePageState extends State<HomePage>
           attemptSessionRestore: true,
         );
         if (client == null) {
+          appendBotDebugLog(
+            '[syncAllBotsFromManager] No manager client for local bot $botId during owner expansion.',
+          );
           continue;
         }
 
@@ -311,13 +395,22 @@ class HomePageState extends State<HomePage>
         final ownerKey = (session?.userId ?? '').trim();
         final dedupeKey = ownerKey.isEmpty ? 'bot:$botId' : 'owner:$ownerKey';
         if (fetchedOwners.contains(dedupeKey)) {
+          appendBotDebugLog(
+            '[syncAllBotsFromManager] Owner already fetched for dedupeKey=$dedupeKey, skipping duplicate listBots call.',
+          );
           continue;
         }
         fetchedOwners.add(dedupeKey);
+        appendBotDebugLog(
+          '[syncAllBotsFromManager] Fetching listBots for dedupeKey=$dedupeKey using client=${client.runtimeType}.',
+        );
         mergeBots(await client.listBots());
       }
 
       final bots = botsById.values.toList(growable: false);
+      appendBotDebugLog(
+        '[syncAllBotsFromManager] Total merged bot payloads=${bots.length}.',
+      );
       for (final bot in bots) {
         try {
           final botId = bot['bot_id']?.toString() ?? '';
@@ -338,6 +431,9 @@ class HomePageState extends State<HomePage>
             managerBotPayload: bot,
             botToken: token,
           );
+          appendBotDebugLog(
+            '[syncAllBotsFromManager] Bot $botId owner context: source=${ownerContext.source}, ownerCount=${ownerContext.ownerCandidates.length}, preferredOwner=${ownerContext.preferredOwnerId ?? 'none'}, tokenPresent=${token.trim().isNotEmpty}.',
+          );
           if (ownerContext.hasOwner && token.trim().isNotEmpty) {
             await _resolveMainApiClientForBot(
               botId: botId,
@@ -345,6 +441,13 @@ class HomePageState extends State<HomePage>
               attemptSessionRestore: true,
               ownerCandidatesOverride: ownerContext.ownerCandidates,
               preferredOwnerIdOverride: ownerContext.preferredOwnerId,
+            );
+            appendBotDebugLog(
+              '[syncAllBotsFromManager] Bot $botId owner-aligned session check completed.',
+            );
+          } else {
+            appendBotDebugLog(
+              '[syncAllBotsFromManager] Bot $botId owner-aligned session skipped (hasOwner=${ownerContext.hasOwner}, tokenPresent=${token.trim().isNotEmpty}).',
             );
           }
 
@@ -358,15 +461,25 @@ class HomePageState extends State<HomePage>
             intents: (config['intents'] as Map?)?.cast<String, bool>(),
             prefix: config['prefix']?.toString(),
           );
+          appendBotDebugLog(
+            '[syncAllBotsFromManager] Bot $botId persisted locally (name=$botName).',
+          );
         } catch (e) {
           developer.log('Failed to sync bot ${bot['bot_id']}: $e');
+          appendBotDebugLog(
+            '[syncAllBotsFromManager] Failed to sync bot ${bot['bot_id']}: $e',
+          );
         }
       }
 
       if (mounted) {
+        appendBotDebugLog(
+          '[syncAllBotsFromManager] Triggering _initRunningState after bot sync.',
+        );
         await _initRunningState();
       }
     } catch (e) {
+      appendBotDebugLog('[syncAllBotsFromManager] Sync failed: $e');
       if (mounted) {
         ScaffoldMessenger.of(
           context,
