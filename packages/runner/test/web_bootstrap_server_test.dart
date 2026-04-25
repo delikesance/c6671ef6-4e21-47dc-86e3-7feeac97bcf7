@@ -262,6 +262,24 @@ void main() {
             'botName': 'Command Bot',
             'config': <String, dynamic>{
               'token': 'abc',
+              'globalVariables': <String, dynamic>{'old_key': 'old_value'},
+              'scopedVariableDefinitions': <Map<String, dynamic>>[
+                <String, dynamic>{
+                  'key': 'score',
+                  'scope': 'guild',
+                  'defaultValue': 1,
+                  'valueType': 'number',
+                },
+              ],
+              'workflows': <Map<String, dynamic>>[
+                <String, dynamic>{
+                  'name': 'cleanup',
+                  'workflowType': 'event',
+                  'entryPoint': 'workflow_cleanup',
+                  'arguments': <Map<String, dynamic>>[],
+                  'actions': <Map<String, dynamic>>[],
+                },
+              ],
               'commands': <Map<String, dynamic>>[
                 <String, dynamic>{
                   'id': 'cmd-1',
@@ -321,6 +339,76 @@ void main() {
         expect(remainingCommands.map((entry) => entry['id']).toList(), [
           'cmd-2',
         ]);
+
+        final workflowSync = await http.post(
+          base.resolve('/bots/$botId/workflows/sync'),
+          headers: const <String, String>{'content-type': 'application/json'},
+          body: jsonEncode(<String, dynamic>{
+            'botId': botId,
+            'workflowName': 'nightly-report',
+            'workflow': <String, dynamic>{
+              'workflowType': 'event',
+              'entryPoint': 'workflow_nightly_report',
+              'arguments': <Map<String, dynamic>>[],
+              'actions': <Map<String, dynamic>>[],
+            },
+          }),
+        );
+        expect(workflowSync.statusCode, HttpStatus.ok);
+
+        final workflowDelete = await http.post(
+          base.resolve('/bots/$botId/workflows/delete'),
+          headers: const <String, String>{'content-type': 'application/json'},
+          body: jsonEncode(<String, dynamic>{
+            'botId': botId,
+            'workflowName': 'cleanup',
+          }),
+        );
+        expect(workflowDelete.statusCode, HttpStatus.ok);
+
+        final renameGlobal = await http.post(
+          base.resolve('/bots/$botId/variables/global/rename'),
+          headers: const <String, String>{'content-type': 'application/json'},
+          body: jsonEncode(<String, dynamic>{
+            'botId': botId,
+            'oldKey': 'old_key',
+            'newKey': 'new_key',
+          }),
+        );
+        expect(renameGlobal.statusCode, HttpStatus.ok);
+
+        final removeScopedDef = await http.post(
+          base.resolve('/bots/$botId/variables/scoped-definitions/remove'),
+          headers: const <String, String>{'content-type': 'application/json'},
+          body: jsonEncode(<String, dynamic>{
+            'botId': botId,
+            'key': 'score',
+            'scope': 'guild',
+          }),
+        );
+        expect(removeScopedDef.statusCode, HttpStatus.ok);
+
+        final storedAfterConfigUpdates = Map<String, dynamic>.from(
+          jsonDecode(await storedFile.readAsString()) as Map,
+        );
+        final workflows = List<Map<String, dynamic>>.from(
+          storedAfterConfigUpdates['config']['workflows'] as List,
+        );
+        expect(workflows.map((entry) => entry['name']).toList(), [
+          'nightly-report',
+        ]);
+
+        final globals = Map<String, dynamic>.from(
+          storedAfterConfigUpdates['config']['globalVariables'] as Map,
+        );
+        expect(globals.containsKey('new_key'), isTrue);
+        expect(globals.containsKey('old_key'), isFalse);
+
+        final scopedDefs = List<Map<String, dynamic>>.from(
+          storedAfterConfigUpdates['config']['scopedVariableDefinitions']
+              as List,
+        );
+        expect(scopedDefs, isEmpty);
       },
     );
 

@@ -73,6 +73,8 @@ String _resolveVersion() {
 /// GET  /bots                → [{id, name, syncedAt}]
 /// POST /bots/sync           → body: {botId, botName?, config: {...}}
 ///                           → {ok: true}
+/// POST /bots/{id}/workflows/sync   → body: {workflowName, workflow: {...}}
+/// POST /bots/{id}/workflows/delete → body: {workflowName}
 /// POST /bots/{id}/commands/sync   → body: {commandId, command: {...}}
 /// POST /bots/{id}/commands/delete → body: {commandId}
 /// POST /bots/{id}/start     → status payload
@@ -189,6 +191,30 @@ class RunnerWebBootstrapServer {
       path,
       actionPath: 'commands/delete',
     );
+    final scopedWorkflowSyncBotId = _extractBotDeepAction(
+      path,
+      actionPath: 'workflows/sync',
+    );
+    final scopedWorkflowDeleteBotId = _extractBotDeepAction(
+      path,
+      actionPath: 'workflows/delete',
+    );
+    final scopedTriggerSyncBotId = _extractBotDeepAction(
+      path,
+      actionPath: 'scheduled-triggers/sync',
+    );
+    final scopedTriggerDeleteBotId = _extractBotDeepAction(
+      path,
+      actionPath: 'scheduled-triggers/delete',
+    );
+    final scopedInboundSyncBotId = _extractBotDeepAction(
+      path,
+      actionPath: 'inbound-webhooks/sync',
+    );
+    final scopedInboundDeleteBotId = _extractBotDeepAction(
+      path,
+      actionPath: 'inbound-webhooks/delete',
+    );
     final scopedStatusBotId = _extractBotAction(path, action: 'status');
     final scopedMetricsBotId = _extractBotAction(path, action: 'metrics');
     final scopedStatsBotId = _extractBotAction(path, action: 'command-stats');
@@ -215,6 +241,10 @@ class RunnerWebBootstrapServer {
     final scopedSetGlobalBotId = _extractBotDeepAction(
       path,
       actionPath: 'variables/global/set',
+    );
+    final scopedRenameGlobalBotId = _extractBotDeepAction(
+      path,
+      actionPath: 'variables/global/rename',
     );
     final scopedRemoveGlobalBotId = _extractBotDeepAction(
       path,
@@ -325,8 +355,33 @@ class RunnerWebBootstrapServer {
           );
           return;
         }
-        if (scopedSetGlobalBotId != null) {
+        if (scopedWorkflowSyncBotId != null) {
+          await _handleWorkflowSync(
+            request,
+            botIdFromPath: scopedWorkflowSyncBotId,
+          );
+          return;
+        } else if (scopedWorkflowDeleteBotId != null) {
+          await _handleWorkflowDelete(request, botIdFromPath: scopedWorkflowDeleteBotId);
+          return;
+        } else if (scopedTriggerSyncBotId != null) {
+          await _handleScheduledTriggerSync(request, botIdFromPath: scopedTriggerSyncBotId);
+          return;
+        } else if (scopedTriggerDeleteBotId != null) {
+          await _handleScheduledTriggerDelete(request, botIdFromPath: scopedTriggerDeleteBotId);
+          return;
+        } else if (scopedInboundSyncBotId != null) {
+          await _handleInboundWebhookSync(request, botIdFromPath: scopedInboundSyncBotId);
+          return;
+        } else if (scopedInboundDeleteBotId != null) {
+          await _handleInboundWebhookDelete(request, botIdFromPath: scopedInboundDeleteBotId);
+          return;
+        } else if (scopedSetGlobalBotId != null) {
           await _handleSetGlobalVariable(request, scopedSetGlobalBotId);
+          return;
+        }
+        if (scopedRenameGlobalBotId != null) {
+          await _handleRenameGlobalVariable(request, scopedRenameGlobalBotId);
           return;
         }
         if (scopedRemoveGlobalBotId != null) {
@@ -948,15 +1003,7 @@ class RunnerWebBootstrapServer {
       return;
     }
 
-    final nextGlobals = <String, dynamic>{
-      ...entry.config.globalVariables,
-      key: payload['value'],
-    };
-    final nextConfig = BotConfig.fromJson(<String, dynamic>{
-      ...entry.config.toJson(),
-      'globalVariables': nextGlobals,
-    });
-    await _runtimeController.botStore.save(botId, entry.name, nextConfig);
+    await _runtimeController.upsertGlobalVariable(botId, key, payload['value']);
 
     await _ensureVariableStoreInitialized();
     await _variableStore.setGlobalVariable(botId, key, payload['value']);
@@ -985,16 +1032,45 @@ class RunnerWebBootstrapServer {
       return;
     }
 
-    final nextGlobals = <String, dynamic>{...entry.config.globalVariables}
-      ..remove(key);
-    final nextConfig = BotConfig.fromJson(<String, dynamic>{
-      ...entry.config.toJson(),
-      'globalVariables': nextGlobals,
-    });
-    await _runtimeController.botStore.save(botId, entry.name, nextConfig);
+    await _runtimeController.removeGlobalVariable(botId, key);
 
     await _ensureVariableStoreInitialized();
     await _variableStore.removeGlobalVariable(botId, key);
+
+    await _respondJson(request, <String, dynamic>{'ok': true});
+  }
+
+  Future<void> _handleRenameGlobalVariable(
+    HttpRequest request,
+    String botId,
+  ) async {
+    final payload = await _readJsonBody(request);
+    final oldKey = (payload['oldKey'] ?? '').toString().trim();
+    final newKey = (payload['newKey'] ?? '').toString().trim();
+    if (oldKey.isEmpty || newKey.isEmpty) {
+      await _respondJson(request, <String, dynamic>{
+        'error': 'Missing oldKey or newKey.',
+      }, statusCode: HttpStatus.badRequest);
+      return;
+    }
+
+    final entry = await _runtimeController.botStore.loadEntry(botId);
+    if (entry == null) {
+      await _respondJson(request, <String, dynamic>{
+        'error': 'Bot "$botId" not found.',
+      }, statusCode: HttpStatus.notFound);
+      return;
+    }
+
+    await _runtimeController.renameGlobalVariable(botId, oldKey, newKey);
+
+    await _ensureVariableStoreInitialized();
+    final current = await _variableStore.getGlobalVariables(botId);
+    if (current.containsKey(oldKey)) {
+      final value = current[oldKey];
+      await _variableStore.removeGlobalVariable(botId, oldKey);
+      await _variableStore.setGlobalVariable(botId, newKey, value);
+    }
 
     await _respondJson(request, <String, dynamic>{'ok': true});
   }
@@ -1039,31 +1115,13 @@ class RunnerWebBootstrapServer {
       return;
     }
 
-    final defs = entry.config.scopedVariableDefinitions
-        .map((e) => Map<String, dynamic>.from(e))
-        .toList(growable: true);
-    final index = defs.indexWhere(
-      (e) =>
-          _normalizeScopedStorageKey((e['key'] ?? '').toString()) == key &&
-          (e['scope'] ?? '').toString().trim() == scope,
+    await _runtimeController.upsertScopedVariableDefinition(
+      botId,
+      key,
+      scope,
+      payload['defaultValue'],
+      valueType: (payload['valueType'] ?? 'string').toString(),
     );
-    final next = <String, dynamic>{
-      'key': key,
-      'scope': scope,
-      'defaultValue': payload['defaultValue'],
-      'valueType': (payload['valueType'] ?? 'string').toString(),
-    };
-    if (index >= 0) {
-      defs[index] = next;
-    } else {
-      defs.add(next);
-    }
-
-    final nextConfig = BotConfig.fromJson(<String, dynamic>{
-      ...entry.config.toJson(),
-      'scopedVariableDefinitions': defs,
-    });
-    await _runtimeController.botStore.save(botId, entry.name, nextConfig);
 
     await _respondJson(request, <String, dynamic>{'ok': true});
   }
@@ -1112,29 +1170,207 @@ class RunnerWebBootstrapServer {
             }
             : const <String>{};
 
-    final defs = entry.config.scopedVariableDefinitions
-        .map((e) => Map<String, dynamic>.from(e))
-        .toList(growable: true);
-    defs.removeWhere((e) {
-      final matchesKey =
-          _normalizeScopedStorageKey((e['key'] ?? '').toString()) == key;
-      if (!matchesKey) {
-        return false;
-      }
-      if (scope.isEmpty) {
-        return true;
-      }
-      return (e['scope'] ?? '').toString().trim() == scope;
-    });
-
-    final nextConfig = BotConfig.fromJson(<String, dynamic>{
-      ...entry.config.toJson(),
-      'scopedVariableDefinitions': defs,
-    });
-    await _runtimeController.botStore.save(botId, entry.name, nextConfig);
+    await _runtimeController.deleteScopedVariableDefinition(
+      botId,
+      key,
+      scope: scope.isEmpty ? null : scope,
+      purgeStoredValues: purgeStoredValues,
+    );
 
     for (final scopeName in scopesToPurge) {
       await _removeAllScopedValuesForKey(botId, scopeName, key);
+    }
+
+    await _respondJson(request, <String, dynamic>{'ok': true});
+  }
+
+  Future<void> _handleWorkflowSync(
+    HttpRequest request, {
+    String? botIdFromPath,
+  }) async {
+    final payload = await _readJsonBody(request);
+    final botId = (botIdFromPath ?? payload['botId'] ?? '').toString().trim();
+    final workflowName = (payload['workflowName'] ?? '').toString().trim();
+    final rawWorkflow = payload['workflow'];
+
+    if (botId.isEmpty || workflowName.isEmpty) {
+      await _respondJson(request, <String, dynamic>{
+        'error': 'Missing botId or workflowName.',
+      }, statusCode: HttpStatus.badRequest);
+      return;
+    }
+    if (rawWorkflow == null || rawWorkflow is! Map) {
+      await _respondJson(request, <String, dynamic>{
+        'error': 'Missing or invalid workflow payload.',
+      }, statusCode: HttpStatus.badRequest);
+      return;
+    }
+
+    final workflow = Map<String, dynamic>.from(rawWorkflow);
+    workflow['name'] = workflowName;
+
+    try {
+      await _runtimeController.upsertWorkflow(botId, workflow);
+    } on StateError catch (error) {
+      await _respondJson(request, <String, dynamic>{
+        'error': error.message,
+      }, statusCode: HttpStatus.notFound);
+      return;
+    }
+
+    await _respondJson(request, <String, dynamic>{
+      'ok': true,
+      'botId': botId,
+      'workflowName': workflowName,
+      'running': _runtimeController.isBotRunning(botId),
+    });
+  }
+
+  Future<void> _handleWorkflowDelete(
+    HttpRequest request, {
+    String? botIdFromPath,
+  }) async {
+    final payload = await _readJsonBody(request);
+    final botId = (botIdFromPath ?? payload['botId'] ?? '').toString().trim();
+    final workflowName = (payload['workflowName'] ?? '').toString().trim();
+
+    if (botId.isEmpty || workflowName.isEmpty) {
+      await _respondJson(request, <String, dynamic>{
+        'error': 'Missing botId or workflowName.',
+      }, statusCode: HttpStatus.badRequest);
+      return;
+    }
+
+    try {
+      await _runtimeController.deleteWorkflow(botId, workflowName);
+    } on StateError catch (error) {
+      await _respondJson(request, <String, dynamic>{
+        'error': error.message,
+      }, statusCode: HttpStatus.notFound);
+      return;
+    }
+
+    await _respondJson(request, <String, dynamic>{
+      'ok': true,
+      'botId': botId,
+      'workflowName': workflowName,
+      'running': _runtimeController.isBotRunning(botId),
+    });
+  }
+
+  Future<void> _handleScheduledTriggerSync(
+    HttpRequest request, {
+    String? botIdFromPath,
+  }) async {
+    final payload = await _readJsonBody(request);
+    final botId = (botIdFromPath ?? payload['botId'] ?? '').toString().trim();
+    final triggerId = (payload['triggerId'] ?? '').toString().trim();
+    final trigger = payload['trigger'];
+
+    if (botId.isEmpty || triggerId.isEmpty || trigger == null || trigger is! Map) {
+      await _respondJson(request, <String, dynamic>{
+        'error': 'Missing botId, triggerId or trigger payload.',
+      }, statusCode: HttpStatus.badRequest);
+      return;
+    }
+
+    try {
+      await _runtimeController.upsertScheduledTrigger(
+        botId,
+        triggerId,
+        Map<String, dynamic>.from(trigger),
+      );
+    } on StateError catch (error) {
+      await _respondJson(request, <String, dynamic>{
+        'error': error.message,
+      }, statusCode: HttpStatus.notFound);
+      return;
+    }
+
+    await _respondJson(request, <String, dynamic>{'ok': true});
+  }
+
+  Future<void> _handleScheduledTriggerDelete(
+    HttpRequest request, {
+    String? botIdFromPath,
+  }) async {
+    final payload = await _readJsonBody(request);
+    final botId = (botIdFromPath ?? payload['botId'] ?? '').toString().trim();
+    final triggerId = (payload['triggerId'] ?? '').toString().trim();
+
+    if (botId.isEmpty || triggerId.isEmpty) {
+      await _respondJson(request, <String, dynamic>{
+        'error': 'Missing botId or triggerId.',
+      }, statusCode: HttpStatus.badRequest);
+      return;
+    }
+
+    try {
+      await _runtimeController.deleteScheduledTrigger(botId, triggerId);
+    } on StateError catch (error) {
+      await _respondJson(request, <String, dynamic>{
+        'error': error.message,
+      }, statusCode: HttpStatus.notFound);
+      return;
+    }
+
+    await _respondJson(request, <String, dynamic>{'ok': true});
+  }
+
+  Future<void> _handleInboundWebhookSync(
+    HttpRequest request, {
+    String? botIdFromPath,
+  }) async {
+    final payload = await _readJsonBody(request);
+    final botId = (botIdFromPath ?? payload['botId'] ?? '').toString().trim();
+    final webhookId = (payload['webhookId'] ?? '').toString().trim();
+    final webhook = payload['webhook'];
+
+    if (botId.isEmpty || webhookId.isEmpty || webhook == null || webhook is! Map) {
+      await _respondJson(request, <String, dynamic>{
+        'error': 'Missing botId, webhookId or webhook payload.',
+      }, statusCode: HttpStatus.badRequest);
+      return;
+    }
+
+    try {
+      await _runtimeController.upsertInboundWebhook(
+        botId,
+        webhookId,
+        Map<String, dynamic>.from(webhook),
+      );
+    } on StateError catch (error) {
+      await _respondJson(request, <String, dynamic>{
+        'error': error.message,
+      }, statusCode: HttpStatus.notFound);
+      return;
+    }
+
+    await _respondJson(request, <String, dynamic>{'ok': true});
+  }
+
+  Future<void> _handleInboundWebhookDelete(
+    HttpRequest request, {
+    String? botIdFromPath,
+  }) async {
+    final payload = await _readJsonBody(request);
+    final botId = (botIdFromPath ?? payload['botId'] ?? '').toString().trim();
+    final webhookId = (payload['webhookId'] ?? '').toString().trim();
+
+    if (botId.isEmpty || webhookId.isEmpty) {
+      await _respondJson(request, <String, dynamic>{
+        'error': 'Missing botId or webhookId.',
+      }, statusCode: HttpStatus.badRequest);
+      return;
+    }
+
+    try {
+      await _runtimeController.deleteInboundWebhook(botId, webhookId);
+    } on StateError catch (error) {
+      await _respondJson(request, <String, dynamic>{
+        'error': error.message,
+      }, statusCode: HttpStatus.notFound);
+      return;
     }
 
     await _respondJson(request, <String, dynamic>{'ok': true});
