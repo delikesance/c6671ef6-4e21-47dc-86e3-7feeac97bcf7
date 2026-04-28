@@ -9,7 +9,6 @@ import 'package:bot_creator/utils/analytics.dart';
 import 'package:bot_creator/utils/ad_consent_service.dart';
 import 'package:bot_creator/utils/ad_mediation_debug.dart';
 import 'package:bot_creator/utils/app_diagnostics.dart';
-import 'package:bot_creator/utils/discord_rpc_service.dart';
 import 'package:bot_creator/utils/main_api_auth_service.dart';
 import 'package:bot_creator/utils/main_api_client.dart';
 import 'package:bot_creator/utils/main_api_settings.dart';
@@ -51,8 +50,6 @@ class _SettingPageState extends State<SettingPage> {
   final TextEditingController _runnerApiTokenController =
       TextEditingController();
   final TextEditingController _mainApiUrlController = TextEditingController();
-  final TextEditingController _discordRpcClientIdController =
-      TextEditingController();
   bool _checkingRunner = false;
   bool _checkingMainApi = false;
   bool _connectingMainApi = false;
@@ -63,16 +60,8 @@ class _SettingPageState extends State<SettingPage> {
   bool _runnerTemporarilyDisabled = false;
   bool _mainApiSectionExpanded = false;
   MainApiSession? _mainApiSession;
-  StreamSubscription<DiscordRpcSnapshot>? _discordRpcSnapshotSubscription;
-  DiscordRpcSnapshot? _discordRpcSnapshot;
-  bool _loadingDiscordRpc = true;
-  bool _savingDiscordRpc = false;
-  bool _connectingDiscordRpc = false;
-  bool _disconnectingDiscordRpc = false;
-  bool _discordRpcEnabled = false;
   bool _checkingAdPrivacy = false;
   bool _adPrivacyRequired = false;
-  bool _discordSectionExpanded = false;
   bool _developerSectionExpanded = false;
   bool _mobileLocalHostingEnabled = false;
   bool _loadingMobileLocalHosting = true;
@@ -83,15 +72,6 @@ class _SettingPageState extends State<SettingPage> {
       return;
     }
     debugPrint('[MainApi][Settings] $message');
-  }
-
-  bool get _isDesktopPlatform {
-    if (kIsWeb) {
-      return false;
-    }
-    return defaultTargetPlatform == TargetPlatform.windows ||
-        defaultTargetPlatform == TargetPlatform.linux ||
-        defaultTargetPlatform == TargetPlatform.macOS;
   }
 
   bool get _isManagedMobilePlatform {
@@ -160,11 +140,6 @@ class _SettingPageState extends State<SettingPage> {
     _loadRunnerSettings();
     _loadMainApiSettings();
     _loadRuntimePreferences();
-    if (_isDesktopPlatform) {
-      _loadDiscordRpcSettings();
-    } else {
-      _loadingDiscordRpc = false;
-    }
     _loadAdPrivacyRequirement();
   }
 
@@ -612,8 +587,6 @@ class _SettingPageState extends State<SettingPage> {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(_settingsLifecycleObserver);
-    _discordRpcSnapshotSubscription?.cancel();
-    _discordRpcClientIdController.dispose();
     _mainApiUrlController.dispose();
     _runnerUrlController.dispose();
     _runnerApiTokenController.dispose();
@@ -769,241 +742,6 @@ class _SettingPageState extends State<SettingPage> {
     } catch (_) {
       return msg;
     }
-  }
-
-  Future<void> _loadDiscordRpcSettings() async {
-    try {
-      final service = DiscordRpcService.instance;
-      final snapshot = await service.initialize();
-      final subscription = service.snapshots.listen((snapshot) {
-        if (!mounted) {
-          return;
-        }
-        setState(() {
-          _discordRpcSnapshot = snapshot;
-        });
-      });
-
-      if (!mounted) {
-        await subscription.cancel();
-        return;
-      }
-
-      _discordRpcSnapshotSubscription = subscription;
-      _discordRpcClientIdController.text = snapshot.config.clientId;
-      unawaited(
-        AppDiagnostics.logInfo(
-          'Discord RPC settings loaded in UI',
-          data: <String, Object?>{
-            'enabled': snapshot.config.enabled,
-            'hasClientId': snapshot.config.hasClientId,
-            'runtimeState': snapshot.runtimeState.name,
-          },
-        ),
-      );
-      setState(() {
-        _discordRpcSnapshot = snapshot;
-        _discordRpcEnabled = snapshot.config.enabled;
-        _loadingDiscordRpc = false;
-      });
-    } catch (error) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _loadingDiscordRpc = false;
-      });
-      _showSnack(_formatErrorMessage(error));
-    }
-  }
-
-  Future<DiscordRpcSnapshot?> _saveDiscordRpcSettings({
-    bool showSnack = true,
-  }) async {
-    if (_loadingDiscordRpc) {
-      return _discordRpcSnapshot;
-    }
-    if (!mounted) {
-      return _discordRpcSnapshot;
-    }
-
-    setState(() {
-      _savingDiscordRpc = true;
-    });
-
-    try {
-      await AppDiagnostics.logInfo(
-        'Discord RPC settings save requested from UI',
-        data: <String, Object?>{
-          'enabled': _discordRpcEnabled,
-          'applicationId': _discordRpcClientIdController.text.trim(),
-        },
-      );
-      final snapshot = await DiscordRpcService.instance.updateConfig(
-        enabled: _discordRpcEnabled,
-        clientId: _discordRpcClientIdController.text,
-        clientSecret: '',
-        brokerUrl: '',
-      );
-      if (!mounted) {
-        return snapshot;
-      }
-      setState(() {
-        _discordRpcSnapshot = snapshot;
-        _discordRpcEnabled = snapshot.config.enabled;
-      });
-      if (showSnack) {
-        _showSnack(context.tr.settings_discord_rpc_saved);
-      }
-      return snapshot;
-    } catch (error) {
-      _showSnack(_formatErrorMessage(error));
-      return null;
-    } finally {
-      if (mounted) {
-        setState(() {
-          _savingDiscordRpc = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _connectDiscordRpc() async {
-    final savedSnapshot = await _saveDiscordRpcSettings(showSnack: false);
-    if (!mounted || savedSnapshot == null) {
-      return;
-    }
-    if (!savedSnapshot.config.enabled) {
-      _showSnack(context.tr.settings_discord_rpc_enable_first);
-      return;
-    }
-
-    await AppDiagnostics.logInfo(
-      'Discord RPC refresh requested from UI',
-      data: <String, Object?>{
-        'applicationId': savedSnapshot.config.clientId,
-        'runtimeState': savedSnapshot.runtimeState.name,
-      },
-    );
-
-    setState(() {
-      _connectingDiscordRpc = true;
-    });
-
-    try {
-      final snapshot = await DiscordRpcService.instance.connectIfPossible();
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _discordRpcSnapshot = snapshot;
-      });
-      _showSnack(AppStrings.t(_discordRpcStatusKey(snapshot.runtimeState)));
-    } catch (error) {
-      _showSnack(_formatErrorMessage(error));
-    } finally {
-      if (mounted) {
-        setState(() {
-          _connectingDiscordRpc = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _disconnectDiscordRpc() async {
-    if (!mounted) {
-      return;
-    }
-
-    await AppDiagnostics.logInfo(
-      'Discord RPC disconnect requested from UI',
-      data: <String, Object?>{
-        'hasEndpoint': _discordRpcSnapshot?.connectedEndpoint != null,
-      },
-    );
-
-    setState(() {
-      _disconnectingDiscordRpc = true;
-    });
-
-    try {
-      final snapshot = await DiscordRpcService.instance.disconnect(
-        clearSession: true,
-      );
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _discordRpcSnapshot = snapshot;
-      });
-      _showSnack(context.tr.settings_discord_rpc_disconnected);
-    } catch (error) {
-      _showSnack(_formatErrorMessage(error));
-    } finally {
-      if (mounted) {
-        setState(() {
-          _disconnectingDiscordRpc = false;
-        });
-      }
-    }
-  }
-
-  String _discordRpcStatusKey(DiscordRpcRuntimeState state) {
-    switch (state) {
-      case DiscordRpcRuntimeState.disabled:
-        return 'settings_discord_rpc_disabled';
-      case DiscordRpcRuntimeState.unsupportedPlatform:
-        return 'settings_discord_rpc_platform_unsupported';
-      case DiscordRpcRuntimeState.transportUnsupported:
-        return 'settings_discord_rpc_transport_unsupported';
-      case DiscordRpcRuntimeState.notConfigured:
-        return 'settings_discord_rpc_not_configured';
-      case DiscordRpcRuntimeState.disconnected:
-        return 'settings_discord_rpc_disconnected';
-      case DiscordRpcRuntimeState.needsAuthorization:
-        return 'settings_discord_rpc_needs_authorization';
-      case DiscordRpcRuntimeState.authorizationCodePendingExchange:
-        return 'settings_discord_rpc_authorization_code_pending_exchange';
-      case DiscordRpcRuntimeState.connecting:
-        return 'settings_discord_rpc_connecting';
-      case DiscordRpcRuntimeState.authorizing:
-        return 'settings_discord_rpc_authorizing';
-      case DiscordRpcRuntimeState.exchangingCode:
-        return 'settings_discord_rpc_exchanging_code';
-      case DiscordRpcRuntimeState.authenticating:
-        return 'settings_discord_rpc_authenticating';
-      case DiscordRpcRuntimeState.connected:
-        return 'settings_discord_rpc_connected';
-      case DiscordRpcRuntimeState.error:
-        return 'settings_discord_rpc_error';
-    }
-  }
-
-  Color? _discordRpcStatusColor(DiscordRpcRuntimeState state) {
-    switch (state) {
-      case DiscordRpcRuntimeState.connected:
-        return AppTheme.successLight;
-      case DiscordRpcRuntimeState.error:
-        return AppTheme.errorLight;
-      case DiscordRpcRuntimeState.transportUnsupported:
-      case DiscordRpcRuntimeState.unsupportedPlatform:
-      case DiscordRpcRuntimeState.notConfigured:
-      case DiscordRpcRuntimeState.needsAuthorization:
-      case DiscordRpcRuntimeState.authorizationCodePendingExchange:
-        return AppTheme.warning;
-      case DiscordRpcRuntimeState.connecting:
-      case DiscordRpcRuntimeState.authorizing:
-      case DiscordRpcRuntimeState.exchangingCode:
-      case DiscordRpcRuntimeState.authenticating:
-        return Theme.of(context).colorScheme.primary;
-      case DiscordRpcRuntimeState.disabled:
-      case DiscordRpcRuntimeState.disconnected:
-        return null;
-    }
-  }
-
-  String _discordRpcPrimaryActionLabelKey() {
-    return 'settings_discord_rpc_connect';
   }
 
   Widget _buildMainApiCard() {
@@ -1415,211 +1153,6 @@ class _SettingPageState extends State<SettingPage> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildDiscordRpcCard({required bool isMobile}) {
-    final snapshot = _discordRpcSnapshot;
-    final runtimeState =
-        snapshot?.runtimeState ?? DiscordRpcRuntimeState.disabled;
-    final statusColor = _discordRpcStatusColor(runtimeState);
-    final isBusy =
-        _loadingDiscordRpc ||
-        _savingDiscordRpc ||
-        _connectingDiscordRpc ||
-        _disconnectingDiscordRpc;
-    final canDisconnect = snapshot?.connectedEndpoint != null;
-    final primaryActionLabelKey = _discordRpcPrimaryActionLabelKey();
-    final primaryActionDisabled = isBusy || !_discordRpcEnabled;
-
-    return Card(
-      child: ExpansionTile(
-        initiallyExpanded: _discordSectionExpanded,
-        onExpansionChanged: (expanded) {
-          setState(() {
-            _discordSectionExpanded = expanded;
-          });
-        },
-        leading: const Icon(Icons.chat_bubble_outline, size: 18),
-        title: Text(
-          context.tr.settings_discord_rpc_title,
-          style: Theme.of(
-            context,
-          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-        ),
-        subtitle:
-            snapshot == null
-                ? null
-                : Text(
-                  AppStrings.t(_discordRpcStatusKey(runtimeState)),
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: statusColor),
-                ),
-        childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              context.tr.settings_discord_rpc_desc,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ),
-          const SizedBox(height: 8),
-          if (_loadingDiscordRpc) ...[
-            const LinearProgressIndicator(),
-            const SizedBox(height: 12),
-          ],
-          SwitchListTile.adaptive(
-            contentPadding: EdgeInsets.zero,
-            title: Text(context.tr.settings_discord_rpc_enable),
-            value: _discordRpcEnabled,
-            onChanged:
-                isBusy
-                    ? null
-                    : (value) {
-                      setState(() {
-                        _discordRpcEnabled = value;
-                      });
-                    },
-          ),
-          if (snapshot?.connectedEndpoint != null) ...[
-            const SizedBox(height: 12),
-            const SizedBox(height: 4),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                context.tr.settings_discord_rpc_endpoint(
-                  snapshot!.connectedEndpoint!,
-                ),
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ),
-          ],
-          if (snapshot?.lastError?.trim().isNotEmpty ?? false) ...[
-            const SizedBox(height: 4),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                context.tr.settings_discord_rpc_last_error(
-                  snapshot!.lastError!,
-                ),
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: AppTheme.errorLight),
-              ),
-            ),
-          ],
-          const SizedBox(height: 12),
-          if (isMobile) ...[
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: isBusy ? null : _saveDiscordRpcSettings,
-                icon:
-                    _savingDiscordRpc
-                        ? const SizedBox(
-                          width: 14,
-                          height: 14,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                        : const Icon(Icons.save_outlined, size: 18),
-                label: Text(context.tr.settings_discord_rpc_save),
-              ),
-            ),
-            const SizedBox(height: 8),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: primaryActionDisabled ? null : _connectDiscordRpc,
-                icon:
-                    _connectingDiscordRpc
-                        ? const SizedBox(
-                          width: 14,
-                          height: 14,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                        : const Icon(Icons.link, size: 18),
-                label: Text(AppStrings.t(primaryActionLabelKey)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      Theme.of(context).colorScheme.secondaryContainer,
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed:
-                    isBusy || !canDisconnect ? null : _disconnectDiscordRpc,
-                icon:
-                    _disconnectingDiscordRpc
-                        ? const SizedBox(
-                          width: 14,
-                          height: 14,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                        : const Icon(Icons.link_off, size: 18),
-                label: Text(context.tr.settings_discord_rpc_disconnect),
-              ),
-            ),
-          ] else ...[
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: isBusy ? null : _saveDiscordRpcSettings,
-                    icon:
-                        _savingDiscordRpc
-                            ? const SizedBox(
-                              width: 14,
-                              height: 14,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                            : const Icon(Icons.save_outlined, size: 18),
-                    label: Text(context.tr.settings_discord_rpc_save),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed:
-                        primaryActionDisabled ? null : _connectDiscordRpc,
-                    icon:
-                        _connectingDiscordRpc
-                            ? const SizedBox(
-                              width: 14,
-                              height: 14,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                            : const Icon(Icons.link, size: 18),
-                    label: Text(AppStrings.t(primaryActionLabelKey)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          Theme.of(context).colorScheme.secondaryContainer,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                OutlinedButton.icon(
-                  onPressed:
-                      isBusy || !canDisconnect ? null : _disconnectDiscordRpc,
-                  icon:
-                      _disconnectingDiscordRpc
-                          ? const SizedBox(
-                            width: 14,
-                            height: 14,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                          : const Icon(Icons.link_off, size: 18),
-                  label: Text(context.tr.settings_discord_rpc_disconnect),
-                ),
-              ],
-            ),
-          ],
-        ],
       ),
     );
   }

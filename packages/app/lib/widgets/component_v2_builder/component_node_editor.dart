@@ -261,34 +261,51 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
   // ---------------------------------------------------------------------------
 
   Widget _buildEditorBody(BuildContext context) {
-    if (node is ActionRowNode)
+    if (node is ActionRowNode) {
       return _buildActionRowEditor(node as ActionRowNode, context);
-    if (node is ButtonNode)
+    }
+    if (node is ButtonNode) {
       return _buildButtonEditor(node as ButtonNode, context);
-    if (node is SelectMenuNode)
+    }
+    if (node is SelectMenuNode) {
       return _buildSelectMenuEditor(node as SelectMenuNode, context);
-    if (node is TextDisplayNode)
+    }
+    if (node is TextDisplayNode) {
       return _buildTextDisplayEditor(node as TextDisplayNode, context);
-    if (node is SeparatorNode)
+    }
+    if (node is SeparatorNode) {
       return _buildSeparatorEditor(node as SeparatorNode, context);
-    if (node is SectionNode)
+    }
+    if (node is SectionNode) {
       return _buildSectionEditor(node as SectionNode, context);
-    if (node is ContainerNode)
+    }
+    if (node is ContainerNode) {
       return _buildContainerEditor(node as ContainerNode, context);
-    if (node is LabelNode) return _buildLabelEditor(node as LabelNode, context);
-    if (node is CheckboxNode)
+    }
+    if (node is LabelNode) {
+      return _buildLabelEditor(node as LabelNode, context);
+    }
+    if (node is CheckboxNode) {
       return _buildCheckboxEditor(node as CheckboxNode, context);
-    if (node is RadioGroupNode)
+    }
+    if (node is RadioGroupNode) {
       return _buildRadioGroupEditor(node as RadioGroupNode, context);
-    if (node is CheckboxGroupNode)
+    }
+    if (node is CheckboxGroupNode) {
       return _buildCheckboxGroupEditor(node as CheckboxGroupNode, context);
-    if (node is FileUploadNode)
+    }
+    if (node is FileUploadNode) {
       return _buildFileUploadEditor(node as FileUploadNode, context);
-    if (node is FileNode) return _buildFileEditor(node as FileNode, context);
-    if (node is ThumbnailNode)
+    }
+    if (node is FileNode) {
+      return _buildFileEditor(node as FileNode, context);
+    }
+    if (node is ThumbnailNode) {
       return _buildThumbnailEditor(node as ThumbnailNode, context);
-    if (node is MediaGalleryNode)
+    }
+    if (node is MediaGalleryNode) {
       return _buildMediaGalleryEditor(node as MediaGalleryNode, context);
+    }
     return Text(context.tr.component_not_implemented);
   }
 
