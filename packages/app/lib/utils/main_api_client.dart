@@ -171,7 +171,7 @@ class MainApiClient implements RemoteRuntimeClient {
 
     if (authorizeUrl == null || authorizeUrl.isEmpty) {
       throw const MainApiClientException(
-        'Main API did not return an authorization URL.',
+        'Bot Creator Server did not return an authorization URL.',
       );
     }
 
@@ -574,7 +574,7 @@ class MainApiClient implements RemoteRuntimeClient {
         _extractString(json, <String>['accessToken', 'access_token', 'token']);
     if (accessToken == null || accessToken.isEmpty) {
       throw const MainApiClientException(
-        'Main API did not return an access token.',
+        'Bot Creator Server did not return an access token.',
       );
     }
 

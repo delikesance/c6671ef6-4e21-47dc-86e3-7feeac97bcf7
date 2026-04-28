@@ -109,8 +109,7 @@ class _EntryPointBlockState extends State<EntryPointBlock> {
           if (widget.onExecutionModeChanged != null) ...[
             Text(
               AppStrings.t('scratch_execution_mode'),
-              style:
-                  const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
             ),
             const SizedBox(height: 8),
             SegmentedButton<String>(
@@ -203,15 +202,11 @@ class _EntryPointBlockState extends State<EntryPointBlock> {
                 items: [
                   DropdownMenuItem(
                     value: 'reply',
-                    child: Text(
-                      AppStrings.t('command_response_mode_reply'),
-                    ),
+                    child: Text(AppStrings.t('command_response_mode_reply')),
                   ),
                   DropdownMenuItem(
                     value: 'channelSend',
-                    child: Text(
-                      AppStrings.t('command_response_mode_channel'),
-                    ),
+                    child: Text(AppStrings.t('command_response_mode_channel')),
                   ),
                 ],
                 onChanged: (value) {
@@ -277,9 +272,10 @@ class _WorkflowEntryPointBlockState extends State<WorkflowEntryPointBlock> {
 
     return ScratchBlock(
       color: getCategoryColor('EntryPoint'),
-      title: isEvent
-          ? AppStrings.t('scratch_entry_event_trigger')
-          : AppStrings.t('scratch_entry_function'),
+      title:
+          isEvent
+              ? AppStrings.t('scratch_entry_event_trigger')
+              : AppStrings.t('scratch_entry_function'),
       icon: isEvent ? Icons.flash_on : Icons.play_arrow,
       required: true,
       collapsed: _collapsed,
@@ -297,7 +293,7 @@ class _WorkflowEntryPointBlockState extends State<WorkflowEntryPointBlock> {
       initialValue: widget.entryPoint,
       decoration: InputDecoration(
         labelText: AppStrings.t('scratch_entry_point_label'),
-        hintText: 'main',
+        hintText: AppStrings.t('scratch_entry_point_hint'),
         border: const OutlineInputBorder(),
         isDense: true,
       ),
@@ -313,20 +309,24 @@ class _WorkflowEntryPointBlockState extends State<WorkflowEntryPointBlock> {
       children: [
         // ── Category dropdown ──
         DropdownButtonFormField<String>(
-          initialValue: widget.selectedCategory.isNotEmpty
-              ? widget.selectedCategory
-              : null,
+          initialValue:
+              widget.selectedCategory.isNotEmpty
+                  ? widget.selectedCategory
+                  : null,
           decoration: InputDecoration(
             labelText: AppStrings.t('scratch_event_category'),
             border: const OutlineInputBorder(),
             isDense: true,
           ),
-          items: widget.eventCategories.map((cat) {
-            final label = widget.eventCategoryLabel != null
-                ? widget.eventCategoryLabel!(cat)
-                : cat;
-            return DropdownMenuItem(value: cat, child: Text(label));
-          }).toList(growable: false),
+          items: widget.eventCategories
+              .map((cat) {
+                final label =
+                    widget.eventCategoryLabel != null
+                        ? widget.eventCategoryLabel!(cat)
+                        : cat;
+                return DropdownMenuItem(value: cat, child: Text(label));
+              })
+              .toList(growable: false),
           onChanged: (value) {
             if (value != null) widget.onCategoryChanged?.call(value);
           },
@@ -335,18 +335,21 @@ class _WorkflowEntryPointBlockState extends State<WorkflowEntryPointBlock> {
 
         // ── Event dropdown ──
         DropdownButtonFormField<String>(
-          initialValue: widget.selectedEvent.isNotEmpty ? widget.selectedEvent : null,
+          initialValue:
+              widget.selectedEvent.isNotEmpty ? widget.selectedEvent : null,
           decoration: InputDecoration(
             labelText: AppStrings.t('scratch_event_name'),
             border: const OutlineInputBorder(),
             isDense: true,
           ),
-          items: widget.eventDefinitions.map((def) {
-            return DropdownMenuItem(
-              value: def.event,
-              child: Text(def.label),
-            );
-          }).toList(growable: false),
+          items: widget.eventDefinitions
+              .map((def) {
+                return DropdownMenuItem(
+                  value: def.event,
+                  child: Text(def.label),
+                );
+              })
+              .toList(growable: false),
           onChanged: (value) {
             if (value != null) widget.onEventChanged?.call(value);
           },
@@ -375,8 +378,7 @@ class _WorkflowEntryPointBlockState extends State<WorkflowEntryPointBlock> {
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     visualDensity: VisualDensity.compact,
                     padding: EdgeInsets.zero,
-                    labelPadding:
-                        const EdgeInsets.symmetric(horizontal: 6),
+                    labelPadding: const EdgeInsets.symmetric(horizontal: 6),
                   ),
                 )
                 .toList(growable: false),
