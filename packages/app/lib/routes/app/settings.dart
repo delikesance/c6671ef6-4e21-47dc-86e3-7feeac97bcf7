@@ -582,249 +582,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
                       const SizedBox(height: 20),
-                      Card(
-                        child: ListTile(
-                          leading: const Icon(Icons.menu_book_outlined),
-                          title: Text(context.tr.bot_settings_workflow_docs),
-                          subtitle: Text(
-                            context.tr.bot_settings_workflow_docs_desc,
-                          ),
-                          trailing: const Icon(Icons.chevron_right),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (context) =>
-                                        const WorkflowDocumentationPage(),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Card(
-                        child: ListTile(
-                          leading: const Icon(Icons.import_export),
-                          title: Text(context.tr.bot_settings_export_import),
-                          subtitle: Text(
-                            context.tr.bot_settings_export_import_desc,
-                          ),
-                          trailing: const Icon(Icons.chevron_right),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (_) => BotExportImportPage(
-                                      botId:
-                                          widget.client.application.id
-                                              .toString(),
-                                    ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(14),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                context.tr.settings_version_title,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Row(
-                                children: [
-                                  const Icon(Icons.phone_android, size: 18),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    '${context.tr.settings_app_version}: $_appVersion',
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  const Icon(Icons.dns_outlined, size: 18),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    '${context.tr.settings_runner_version}: ${_runnerVersion ?? context.tr.settings_runner_not_connected}',
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        child: Text(
-                          context.tr.bot_settings_app_flags,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      if (app != null)
-                        ListView.separated(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: flagsMap.length,
-                          itemBuilder: (context, index) {
-                            final flagName = flagsMap.keys.elementAt(index);
-                            final flagValue = flagsMap[flagName];
-
-                            if (flagName == 'Hash Code') {
-                              return ListTile(
-                                title: Text(flagName),
-                                trailing: Text(flagValue.toString()),
-                              );
-                            }
-
-                            return CheckboxListTile(
-                              title: Text(flagName),
-                              value: flagValue,
-                              onChanged: null,
-                              controlAffinity: ListTileControlAffinity.trailing,
-                            );
-                          },
-                          separatorBuilder: (_, _) => const Divider(),
-                        ),
-
-                      const SizedBox(height: 30),
-                      // Intents Configuration Section
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        child: Text(
-                          context.tr.bot_settings_gateway_intents,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: Text(
-                          context.tr.bot_settings_gateway_intents_desc,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: AppTheme.grey,
-                          ),
-                        ),
-                      ),
-                      TextField(
-                        controller: _prefixController,
-                        decoration: InputDecoration(
-                          labelText: context.tr.settings_legacy_prefix,
-                          border: const OutlineInputBorder(),
-                          hintText: context.tr.settings_legacy_prefix_hint,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        context.tr.settings_legacy_prefix_helper,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppTheme.grey,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      SwitchListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(context.tr.settings_builtin_help),
-                        subtitle: Text(
-                          context.tr.settings_builtin_help_subtitle,
-                        ),
-                        value: _builtInLegacyHelpEnabled,
-                        onChanged: (value) {
-                          setState(() {
-                            _builtInLegacyHelpEnabled = value;
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 12),
-                      ListView.separated(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: _intentsMap.length,
-                        itemBuilder: (context, index) {
-                          final intentName = _intentsMap.keys.elementAt(index);
-                          final intentValue = _intentsMap[intentName] ?? false;
-
-                          return CheckboxListTile(
-                            title: Text(intentName),
-                            value: intentValue,
-                            onChanged: (newValue) {
-                              setState(() {
-                                _intentsMap[intentName] = newValue ?? false;
-                              });
-                            },
-                            controlAffinity: ListTileControlAffinity.trailing,
-                          );
-                        },
-                        separatorBuilder: (_, _) => const Divider(),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        context.tr.bot_settings_save_intents_caption,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppTheme.grey,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed:
-                              _isSavingIntents
-                                  ? null
-                                  : () async {
-                                    try {
-                                      await _saveIntentsOnly();
-                                    } catch (e) {
-                                      developer.log(
-                                        'Error saving intents: $e',
-                                        name: 'AppSettingsPage',
-                                      );
-                                      if (!mounted) return;
-                                      final dialog = AlertDialog(
-                                        title: Text(context.tr.error),
-                                        content: Text(e.toString()),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                            },
-                                            child: Text(context.tr.ok),
-                                          ),
-                                        ],
-                                      );
-                                      showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return dialog;
-                                        },
-                                      );
-                                    }
-                                  },
-                          icon: const Icon(Icons.tune),
-                          label: Text(context.tr.bot_settings_save_intents_btn),
-                        ),
-                      ),
-
-                      const SizedBox(height: 30),
+                      // Profile Section
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         child: Text(
@@ -989,6 +747,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       ],
 
                       const SizedBox(height: 30),
+                      // Presence Section
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         child: Text(
@@ -1028,6 +787,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       ),
 
                       const SizedBox(height: 30),
+                      // Status Rotation Section
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         child: Text(
@@ -1265,6 +1025,251 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                           label: Text(
                             context.tr.bot_settings_save_profile_status_btn,
                           ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 30),
+                      // Utility Cards
+                      Card(
+                        child: ListTile(
+                          leading: const Icon(Icons.menu_book_outlined),
+                          title: Text(context.tr.bot_settings_workflow_docs),
+                          subtitle: Text(
+                            context.tr.bot_settings_workflow_docs_desc,
+                          ),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) =>
+                                        const WorkflowDocumentationPage(),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Card(
+                        child: ListTile(
+                          leading: const Icon(Icons.import_export),
+                          title: Text(context.tr.bot_settings_export_import),
+                          subtitle: Text(
+                            context.tr.bot_settings_export_import_desc,
+                          ),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (_) => BotExportImportPage(
+                                      botId:
+                                          widget.client.application.id
+                                              .toString(),
+                                    ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(14),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                context.tr.settings_version_title,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  const Icon(Icons.phone_android, size: 18),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    '${context.tr.settings_app_version}: $_appVersion',
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  const Icon(Icons.dns_outlined, size: 18),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    '${context.tr.settings_runner_version}: ${_runnerVersion ?? context.tr.settings_runner_not_connected}',
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 30),
+                      // App Flags Section
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Text(
+                          context.tr.bot_settings_app_flags,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      if (app != null)
+                        ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: flagsMap.length,
+                          itemBuilder: (context, index) {
+                            final flagName = flagsMap.keys.elementAt(index);
+                            final flagValue = flagsMap[flagName];
+
+                            if (flagName == 'Hash Code') {
+                              return ListTile(
+                                title: Text(flagName),
+                                trailing: Text(flagValue.toString()),
+                              );
+                            }
+
+                            return CheckboxListTile(
+                              title: Text(flagName),
+                              value: flagValue,
+                              onChanged: null,
+                              controlAffinity: ListTileControlAffinity.trailing,
+                            );
+                          },
+                          separatorBuilder: (_, _) => const Divider(),
+                        ),
+
+                      const SizedBox(height: 30),
+                      // Intents Configuration Section
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Text(
+                          context.tr.bot_settings_gateway_intents,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Text(
+                          context.tr.bot_settings_gateway_intents_desc,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppTheme.grey,
+                          ),
+                        ),
+                      ),
+                      TextField(
+                        controller: _prefixController,
+                        decoration: InputDecoration(
+                          labelText: context.tr.settings_legacy_prefix,
+                          border: const OutlineInputBorder(),
+                          hintText: context.tr.settings_legacy_prefix_hint,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        context.tr.settings_legacy_prefix_helper,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppTheme.grey,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(context.tr.settings_builtin_help),
+                        subtitle: Text(
+                          context.tr.settings_builtin_help_subtitle,
+                        ),
+                        value: _builtInLegacyHelpEnabled,
+                        onChanged: (value) {
+                          setState(() {
+                            _builtInLegacyHelpEnabled = value;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: _intentsMap.length,
+                        itemBuilder: (context, index) {
+                          final intentName = _intentsMap.keys.elementAt(index);
+                          final intentValue = _intentsMap[intentName] ?? false;
+
+                          return CheckboxListTile(
+                            title: Text(intentName),
+                            value: intentValue,
+                            onChanged: (newValue) {
+                              setState(() {
+                                _intentsMap[intentName] = newValue ?? false;
+                              });
+                            },
+                            controlAffinity: ListTileControlAffinity.trailing,
+                          );
+                        },
+                        separatorBuilder: (_, _) => const Divider(),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        context.tr.bot_settings_save_intents_caption,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppTheme.grey,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed:
+                              _isSavingIntents
+                                  ? null
+                                  : () async {
+                                    try {
+                                      await _saveIntentsOnly();
+                                    } catch (e) {
+                                      developer.log(
+                                        'Error saving intents: $e',
+                                        name: 'AppSettingsPage',
+                                      );
+                                      if (!mounted) return;
+                                      final dialog = AlertDialog(
+                                        title: Text(context.tr.error),
+                                        content: Text(e.toString()),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: Text(context.tr.ok),
+                                          ),
+                                        ],
+                                      );
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return dialog;
+                                        },
+                                      );
+                                    }
+                                  },
+                          icon: const Icon(Icons.tune),
+                          label: Text(context.tr.bot_settings_save_intents_btn),
                         ),
                       ),
 
