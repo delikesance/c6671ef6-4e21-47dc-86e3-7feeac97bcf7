@@ -60,7 +60,8 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
   VoidCallback? get onMoveUp => widget.onMoveUp;
   VoidCallback? get onMoveDown => widget.onMoveDown;
   int get depth => widget.depth;
-  List<VariableSuggestion> get variableSuggestions => widget.variableSuggestions;
+  List<VariableSuggestion> get variableSuggestions =>
+      widget.variableSuggestions;
   String? get botIdForConfig => widget.botIdForConfig;
 
   @override
@@ -88,14 +89,13 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
   // ---------------------------------------------------------------------------
 
   Future<void> _confirmAndRemove(BuildContext context) async {
-    final shouldDelete =
-        await AppTheme.showConfirmDialog(
-          context,
-          title: context.tr.component_remove_title,
-          content: context.tr.component_remove_confirm,
-          confirmLabel: context.tr.common_remove,
-          isDestructive: true,
-        );
+    final shouldDelete = await AppTheme.showConfirmDialog(
+      context,
+      title: context.tr.component_remove_title,
+      content: context.tr.component_remove_confirm,
+      confirmLabel: context.tr.common_remove,
+      isDestructive: true,
+    );
     if (!shouldDelete) return;
     onRemove();
   }
@@ -159,7 +159,9 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                           ),
                           decoration: BoxDecoration(
                             color: accentColor.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(AppTheme.radiusXs),
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.radiusXs,
+                            ),
                           ),
                           child: Text(
                             'L$depth',
@@ -259,21 +261,34 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
   // ---------------------------------------------------------------------------
 
   Widget _buildEditorBody(BuildContext context) {
-    if (node is ActionRowNode) return _buildActionRowEditor(node as ActionRowNode, context);
-    if (node is ButtonNode) return _buildButtonEditor(node as ButtonNode, context);
-    if (node is SelectMenuNode) return _buildSelectMenuEditor(node as SelectMenuNode, context);
-    if (node is TextDisplayNode) return _buildTextDisplayEditor(node as TextDisplayNode, context);
-    if (node is SeparatorNode) return _buildSeparatorEditor(node as SeparatorNode, context);
-    if (node is SectionNode) return _buildSectionEditor(node as SectionNode, context);
-    if (node is ContainerNode) return _buildContainerEditor(node as ContainerNode, context);
+    if (node is ActionRowNode)
+      return _buildActionRowEditor(node as ActionRowNode, context);
+    if (node is ButtonNode)
+      return _buildButtonEditor(node as ButtonNode, context);
+    if (node is SelectMenuNode)
+      return _buildSelectMenuEditor(node as SelectMenuNode, context);
+    if (node is TextDisplayNode)
+      return _buildTextDisplayEditor(node as TextDisplayNode, context);
+    if (node is SeparatorNode)
+      return _buildSeparatorEditor(node as SeparatorNode, context);
+    if (node is SectionNode)
+      return _buildSectionEditor(node as SectionNode, context);
+    if (node is ContainerNode)
+      return _buildContainerEditor(node as ContainerNode, context);
     if (node is LabelNode) return _buildLabelEditor(node as LabelNode, context);
-    if (node is CheckboxNode) return _buildCheckboxEditor(node as CheckboxNode, context);
-    if (node is RadioGroupNode) return _buildRadioGroupEditor(node as RadioGroupNode, context);
-    if (node is CheckboxGroupNode) return _buildCheckboxGroupEditor(node as CheckboxGroupNode, context);
-    if (node is FileUploadNode) return _buildFileUploadEditor(node as FileUploadNode, context);
+    if (node is CheckboxNode)
+      return _buildCheckboxEditor(node as CheckboxNode, context);
+    if (node is RadioGroupNode)
+      return _buildRadioGroupEditor(node as RadioGroupNode, context);
+    if (node is CheckboxGroupNode)
+      return _buildCheckboxGroupEditor(node as CheckboxGroupNode, context);
+    if (node is FileUploadNode)
+      return _buildFileUploadEditor(node as FileUploadNode, context);
     if (node is FileNode) return _buildFileEditor(node as FileNode, context);
-    if (node is ThumbnailNode) return _buildThumbnailEditor(node as ThumbnailNode, context);
-    if (node is MediaGalleryNode) return _buildMediaGalleryEditor(node as MediaGalleryNode, context);
+    if (node is ThumbnailNode)
+      return _buildThumbnailEditor(node as ThumbnailNode, context);
+    if (node is MediaGalleryNode)
+      return _buildMediaGalleryEditor(node as MediaGalleryNode, context);
     return Text(context.tr.component_not_implemented);
   }
 
@@ -333,26 +348,28 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
               row.components = newChildren;
               onChanged(row);
             },
-            onMoveUp: idx == 0
-                ? null
-                : () {
-                    final list = List<ComponentNode>.from(row.components);
-                    final tmp = list[idx - 1];
-                    list[idx - 1] = list[idx];
-                    list[idx] = tmp;
-                    row.components = list;
-                    onChanged(row);
-                  },
-            onMoveDown: idx == row.components.length - 1
-                ? null
-                : () {
-                    final list = List<ComponentNode>.from(row.components);
-                    final tmp = list[idx + 1];
-                    list[idx + 1] = list[idx];
-                    list[idx] = tmp;
-                    row.components = list;
-                    onChanged(row);
-                  },
+            onMoveUp:
+                idx == 0
+                    ? null
+                    : () {
+                      final list = List<ComponentNode>.from(row.components);
+                      final tmp = list[idx - 1];
+                      list[idx - 1] = list[idx];
+                      list[idx] = tmp;
+                      row.components = list;
+                      onChanged(row);
+                    },
+            onMoveDown:
+                idx == row.components.length - 1
+                    ? null
+                    : () {
+                      final list = List<ComponentNode>.from(row.components);
+                      final tmp = list[idx + 1];
+                      list[idx + 1] = list[idx];
+                      list[idx] = tmp;
+                      row.components = list;
+                      onChanged(row);
+                    },
             variableSuggestions: variableSuggestions,
             botIdForConfig: botIdForConfig,
           );
@@ -400,7 +417,11 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
     final hasWorkflow = btn.workflowName.trim().isNotEmpty;
     final availableSections = <(String, IconData, String)>[
       if (!_isSectionVisible('btn_workflow', hasWorkflow))
-        ('btn_workflow', Icons.account_tree, context.tr.component_block_workflow),
+        (
+          'btn_workflow',
+          Icons.account_tree,
+          context.tr.component_block_workflow,
+        ),
     ];
 
     return Column(
@@ -428,9 +449,12 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                 border: const OutlineInputBorder(),
                 isDense: true,
               ),
-              items: BcButtonStyle.values
-                  .map((s) => DropdownMenuItem(value: s, child: Text(s.name)))
-                  .toList(),
+              items:
+                  BcButtonStyle.values
+                      .map(
+                        (s) => DropdownMenuItem(value: s, child: Text(s.name)),
+                      )
+                      .toList(),
               onChanged: (v) {
                 if (v != null) {
                   btn.style = v;
@@ -470,9 +494,11 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                 isDense: true,
               ),
               autovalidateMode: AutovalidateMode.onUserInteraction,
-              validator: (v) => v == null || v.trim().isEmpty
-                  ? context.tr.component_validation_required
-                  : null,
+              validator:
+                  (v) =>
+                      v == null || v.trim().isEmpty
+                          ? context.tr.component_validation_required
+                          : null,
               onChanged: (v) {
                 btn.customId = v;
                 onChanged(btn);
@@ -484,12 +510,13 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
           MiniBlockContainer(
             icon: Icons.account_tree,
             label: context.tr.component_block_workflow,
-            onRemove: () => _hideSection('btn_workflow', () {
-              btn.workflowName = '';
-              btn.workflowEntryPoint = '';
-              btn.workflowArguments = {};
-              onChanged(btn);
-            }),
+            onRemove:
+                () => _hideSection('btn_workflow', () {
+                  btn.workflowName = '';
+                  btn.workflowEntryPoint = '';
+                  btn.workflowArguments = {};
+                  onChanged(btn);
+                }),
             child: _WorkflowSelectorField(
               botIdForConfig: botIdForConfig,
               label: context.tr.component_workflow_optional,
@@ -531,7 +558,11 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
     final hasWorkflow = menu.workflowName.trim().isNotEmpty;
     final availableSections = <(String, IconData, String)>[
       if (!_isSectionVisible('sel_workflow', hasWorkflow))
-        ('sel_workflow', Icons.account_tree, context.tr.component_block_workflow),
+        (
+          'sel_workflow',
+          Icons.account_tree,
+          context.tr.component_block_workflow,
+        ),
     ];
 
     return Column(
@@ -573,12 +604,13 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
           MiniBlockContainer(
             icon: Icons.account_tree,
             label: context.tr.component_block_workflow,
-            onRemove: () => _hideSection('sel_workflow', () {
-              menu.workflowName = '';
-              menu.workflowEntryPoint = '';
-              menu.workflowArguments = {};
-              onChanged(menu);
-            }),
+            onRemove:
+                () => _hideSection('sel_workflow', () {
+                  menu.workflowName = '';
+                  menu.workflowEntryPoint = '';
+                  menu.workflowArguments = {};
+                  onChanged(menu);
+                }),
             child: _WorkflowSelectorField(
               botIdForConfig: botIdForConfig,
               label: context.tr.component_workflow_optional,
@@ -636,7 +668,11 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                               Align(
                                 alignment: Alignment.centerRight,
                                 child: IconButton(
-                                  icon: const Icon(Icons.remove_circle, size: 16, color: AppTheme.error),
+                                  icon: const Icon(
+                                    Icons.remove_circle,
+                                    size: 16,
+                                    color: AppTheme.error,
+                                  ),
                                   onPressed: () {
                                     menu.options.removeAt(idx);
                                     onChanged(menu);
@@ -676,7 +712,11 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                               ),
                             ),
                             IconButton(
-                              icon: const Icon(Icons.remove_circle, size: 16, color: AppTheme.error),
+                              icon: const Icon(
+                                Icons.remove_circle,
+                                size: 16,
+                                color: AppTheme.error,
+                              ),
                               onPressed: () {
                                 menu.options.removeAt(idx);
                                 onChanged(menu);
@@ -699,7 +739,10 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                     onChanged(menu);
                   },
                   icon: const Icon(Icons.add, size: 14),
-                  label: Text(context.tr.common_add_option, style: const TextStyle(fontSize: 12)),
+                  label: Text(
+                    context.tr.common_add_option,
+                    style: const TextStyle(fontSize: 12),
+                  ),
                 ),
               ],
             ),
@@ -750,8 +793,14 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
         DropdownButton<int>(
           value: node.spacing,
           items: [
-            DropdownMenuItem(value: 1, child: Text(context.tr.component_spacing_small)),
-            DropdownMenuItem(value: 2, child: Text(context.tr.component_spacing_large)),
+            DropdownMenuItem(
+              value: 1,
+              child: Text(context.tr.component_spacing_small),
+            ),
+            DropdownMenuItem(
+              value: 2,
+              child: Text(context.tr.component_spacing_large),
+            ),
           ],
           onChanged: (v) {
             if (v != null) {
@@ -772,7 +821,11 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
     final hasAccessory = node.accessory != null;
     final availableSections = <(String, IconData, String)>[
       if (!_isSectionVisible('sec_accessory', hasAccessory))
-        ('sec_accessory', Icons.extension, context.tr.component_section_accessory),
+        (
+          'sec_accessory',
+          Icons.extension,
+          context.tr.component_section_accessory,
+        ),
     ];
 
     return Column(
@@ -792,36 +845,46 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                   node: child,
                   depth: depth + 1,
                   onChanged: (updated) {
-                    final newChildren = List<TextDisplayNode>.from(node.components);
+                    final newChildren = List<TextDisplayNode>.from(
+                      node.components,
+                    );
                     newChildren[idx] = updated as TextDisplayNode;
                     node.components = newChildren;
                     onChanged(node);
                   },
                   onRemove: () {
-                    final newChildren = List<TextDisplayNode>.from(node.components)..removeAt(idx);
+                    final newChildren = List<TextDisplayNode>.from(
+                      node.components,
+                    )..removeAt(idx);
                     node.components = newChildren;
                     onChanged(node);
                   },
-                  onMoveUp: idx == 0
-                      ? null
-                      : () {
-                          final list = List<TextDisplayNode>.from(node.components);
-                          final tmp = list[idx - 1];
-                          list[idx - 1] = list[idx];
-                          list[idx] = tmp;
-                          node.components = list;
-                          onChanged(node);
-                        },
-                  onMoveDown: idx == node.components.length - 1
-                      ? null
-                      : () {
-                          final list = List<TextDisplayNode>.from(node.components);
-                          final tmp = list[idx + 1];
-                          list[idx + 1] = list[idx];
-                          list[idx] = tmp;
-                          node.components = list;
-                          onChanged(node);
-                        },
+                  onMoveUp:
+                      idx == 0
+                          ? null
+                          : () {
+                            final list = List<TextDisplayNode>.from(
+                              node.components,
+                            );
+                            final tmp = list[idx - 1];
+                            list[idx - 1] = list[idx];
+                            list[idx] = tmp;
+                            node.components = list;
+                            onChanged(node);
+                          },
+                  onMoveDown:
+                      idx == node.components.length - 1
+                          ? null
+                          : () {
+                            final list = List<TextDisplayNode>.from(
+                              node.components,
+                            );
+                            final tmp = list[idx + 1];
+                            list[idx + 1] = list[idx];
+                            list[idx] = tmp;
+                            node.components = list;
+                            onChanged(node);
+                          },
                   variableSuggestions: variableSuggestions,
                   botIdForConfig: botIdForConfig,
                 );
@@ -833,7 +896,10 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                   onChanged(node);
                 },
                 icon: const Icon(Icons.add, size: 14),
-                label: Text(context.tr.component_add_text_display, style: const TextStyle(fontSize: 12)),
+                label: Text(
+                  context.tr.component_add_text_display,
+                  style: const TextStyle(fontSize: 12),
+                ),
               ),
             ],
           ),
@@ -843,29 +909,38 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
           MiniBlockContainer(
             icon: Icons.extension,
             label: context.tr.component_section_accessory,
-            onRemove: () => _hideSection('sec_accessory', () {
-              node.accessory = null;
-              onChanged(node);
-            }),
-            child: node.accessory != null
-                ? ComponentNodeEditor(
-                    node: node.accessory!,
-                    depth: depth + 1,
-                    onChanged: (updated) {
-                      node.accessory = updated;
-                      onChanged(node);
-                    },
-                    onRemove: () {
-                      node.accessory = null;
-                      onChanged(node);
-                    },
-                    variableSuggestions: variableSuggestions,
-                    botIdForConfig: botIdForConfig,
-                  )
-                : _buildAddComponentDropdown(context, (newNode) {
-                    node.accessory = newNode;
-                    onChanged(node);
-                  }, allowedTypes: [ComponentV2Type.button, ComponentV2Type.thumbnail]),
+            onRemove:
+                () => _hideSection('sec_accessory', () {
+                  node.accessory = null;
+                  onChanged(node);
+                }),
+            child:
+                node.accessory != null
+                    ? ComponentNodeEditor(
+                      node: node.accessory!,
+                      depth: depth + 1,
+                      onChanged: (updated) {
+                        node.accessory = updated;
+                        onChanged(node);
+                      },
+                      onRemove: () {
+                        node.accessory = null;
+                        onChanged(node);
+                      },
+                      variableSuggestions: variableSuggestions,
+                      botIdForConfig: botIdForConfig,
+                    )
+                    : _buildAddComponentDropdown(
+                      context,
+                      (newNode) {
+                        node.accessory = newNode;
+                        onChanged(node);
+                      },
+                      allowedTypes: [
+                        ComponentV2Type.button,
+                        ComponentV2Type.thumbnail,
+                      ],
+                    ),
           ),
         if (availableSections.isNotEmpty)
           AddSectionMenu(
@@ -896,10 +971,11 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
           MiniBlockContainer(
             icon: Icons.palette,
             label: context.tr.component_accent_color,
-            onRemove: () => _hideSection('cnt_color', () {
-              node.accentColor = '';
-              onChanged(node);
-            }),
+            onRemove:
+                () => _hideSection('cnt_color', () {
+                  node.accentColor = '';
+                  onChanged(node);
+                }),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -934,35 +1010,37 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                     }
                     showDialog(
                       context: context,
-                      builder: (ctx) => AlertDialog(
-                        title: Text(context.tr.component_pick_accent_color),
-                        content: SingleChildScrollView(
-                          child: ColorPicker(
-                            pickerColor: currentColor,
-                            enableAlpha: false,
-                            hexInputBar: true,
-                            onColorChanged: (c) => currentColor = c,
+                      builder:
+                          (ctx) => AlertDialog(
+                            title: Text(context.tr.component_pick_accent_color),
+                            content: SingleChildScrollView(
+                              child: ColorPicker(
+                                pickerColor: currentColor,
+                                enableAlpha: false,
+                                hexInputBar: true,
+                                onColorChanged: (c) => currentColor = c,
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                child: Text(context.tr.common_cancel),
+                                onPressed: () => Navigator.of(ctx).pop(),
+                              ),
+                              TextButton(
+                                child: Text(context.tr.common_ok),
+                                onPressed: () {
+                                  node.accentColor =
+                                      currentColor
+                                          .toARGB32()
+                                          .toRadixString(16)
+                                          .substring(2)
+                                          .toUpperCase();
+                                  onChanged(node);
+                                  Navigator.of(ctx).pop();
+                                },
+                              ),
+                            ],
                           ),
-                        ),
-                        actions: [
-                          TextButton(
-                            child: Text(context.tr.common_cancel),
-                            onPressed: () => Navigator.of(ctx).pop(),
-                          ),
-                          TextButton(
-                            child: Text(context.tr.common_ok),
-                            onPressed: () {
-                              node.accentColor = currentColor
-                                  .toARGB32()
-                                  .toRadixString(16)
-                                  .substring(2)
-                                  .toUpperCase();
-                              onChanged(node);
-                              Navigator.of(ctx).pop();
-                            },
-                          ),
-                        ],
-                      ),
                     );
                   },
                 ),
@@ -983,30 +1061,33 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
               onChanged(node);
             },
             onRemove: () {
-              final newChildren = List<ComponentNode>.from(node.components)..removeAt(idx);
+              final newChildren = List<ComponentNode>.from(node.components)
+                ..removeAt(idx);
               node.components = newChildren;
               onChanged(node);
             },
-            onMoveUp: idx == 0
-                ? null
-                : () {
-                    final list = List<ComponentNode>.from(node.components);
-                    final tmp = list[idx - 1];
-                    list[idx - 1] = list[idx];
-                    list[idx] = tmp;
-                    node.components = list;
-                    onChanged(node);
-                  },
-            onMoveDown: idx == node.components.length - 1
-                ? null
-                : () {
-                    final list = List<ComponentNode>.from(node.components);
-                    final tmp = list[idx + 1];
-                    list[idx + 1] = list[idx];
-                    list[idx] = tmp;
-                    node.components = list;
-                    onChanged(node);
-                  },
+            onMoveUp:
+                idx == 0
+                    ? null
+                    : () {
+                      final list = List<ComponentNode>.from(node.components);
+                      final tmp = list[idx - 1];
+                      list[idx - 1] = list[idx];
+                      list[idx] = tmp;
+                      node.components = list;
+                      onChanged(node);
+                    },
+            onMoveDown:
+                idx == node.components.length - 1
+                    ? null
+                    : () {
+                      final list = List<ComponentNode>.from(node.components);
+                      final tmp = list[idx + 1];
+                      list[idx + 1] = list[idx];
+                      list[idx] = tmp;
+                      node.components = list;
+                      onChanged(node);
+                    },
             variableSuggestions: variableSuggestions,
             botIdForConfig: botIdForConfig,
           );
@@ -1048,7 +1129,11 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
     final hasComponent = node.component != null;
     final availableSections = <(String, IconData, String)>[
       if (!_isSectionVisible('lbl_component', hasComponent))
-        ('lbl_component', Icons.extension, context.tr.component_component_to_wrap),
+        (
+          'lbl_component',
+          Icons.extension,
+          context.tr.component_component_to_wrap,
+        ),
     ];
 
     return Column(
@@ -1087,43 +1172,45 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
           MiniBlockContainer(
             icon: Icons.extension,
             label: context.tr.component_component_to_wrap,
-            onRemove: () => _hideSection('lbl_component', () {
-              node.component = null;
-              onChanged(node);
-            }),
-            child: node.component != null
-                ? ComponentNodeEditor(
-                    node: node.component!,
-                    depth: depth + 1,
-                    onChanged: (updated) {
-                      node.component = updated;
-                      onChanged(node);
-                    },
-                    onRemove: () {
-                      node.component = null;
-                      onChanged(node);
-                    },
-                    variableSuggestions: variableSuggestions,
-                    botIdForConfig: botIdForConfig,
-                  )
-                : _buildAddComponentDropdown(
-                    context,
-                    (newNode) {
-                      node.component = newNode;
-                      onChanged(node);
-                    },
-                    allowedTypes: [
-                      ComponentV2Type.stringSelect,
-                      ComponentV2Type.userSelect,
-                      ComponentV2Type.roleSelect,
-                      ComponentV2Type.mentionableSelect,
-                      ComponentV2Type.channelSelect,
-                      ComponentV2Type.fileUpload,
-                      ComponentV2Type.radioGroup,
-                      ComponentV2Type.checkboxGroup,
-                      ComponentV2Type.checkbox,
-                    ],
-                  ),
+            onRemove:
+                () => _hideSection('lbl_component', () {
+                  node.component = null;
+                  onChanged(node);
+                }),
+            child:
+                node.component != null
+                    ? ComponentNodeEditor(
+                      node: node.component!,
+                      depth: depth + 1,
+                      onChanged: (updated) {
+                        node.component = updated;
+                        onChanged(node);
+                      },
+                      onRemove: () {
+                        node.component = null;
+                        onChanged(node);
+                      },
+                      variableSuggestions: variableSuggestions,
+                      botIdForConfig: botIdForConfig,
+                    )
+                    : _buildAddComponentDropdown(
+                      context,
+                      (newNode) {
+                        node.component = newNode;
+                        onChanged(node);
+                      },
+                      allowedTypes: [
+                        ComponentV2Type.stringSelect,
+                        ComponentV2Type.userSelect,
+                        ComponentV2Type.roleSelect,
+                        ComponentV2Type.mentionableSelect,
+                        ComponentV2Type.channelSelect,
+                        ComponentV2Type.fileUpload,
+                        ComponentV2Type.radioGroup,
+                        ComponentV2Type.checkboxGroup,
+                        ComponentV2Type.checkbox,
+                      ],
+                    ),
           ),
         if (availableSections.isNotEmpty)
           AddSectionMenu(
@@ -1198,7 +1285,10 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                 Expanded(
                   child: TextFormField(
                     initialValue: opt.label,
-                    decoration: InputDecoration(labelText: context.tr.common_label, isDense: true),
+                    decoration: InputDecoration(
+                      labelText: context.tr.common_label,
+                      isDense: true,
+                    ),
                     onChanged: (v) {
                       opt.label = v;
                       onChanged(node);
@@ -1209,7 +1299,10 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                 Expanded(
                   child: TextFormField(
                     initialValue: opt.value,
-                    decoration: InputDecoration(labelText: context.tr.common_value, isDense: true),
+                    decoration: InputDecoration(
+                      labelText: context.tr.common_value,
+                      isDense: true,
+                    ),
                     onChanged: (v) {
                       opt.value = v;
                       onChanged(node);
@@ -1217,7 +1310,11 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.remove_circle, size: 16, color: AppTheme.error),
+                  icon: const Icon(
+                    Icons.remove_circle,
+                    size: 16,
+                    color: AppTheme.error,
+                  ),
                   onPressed: () {
                     node.options.removeAt(idx);
                     onChanged(node);
@@ -1229,17 +1326,28 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
         }),
         TextButton.icon(
           onPressed: () {
-            node.options.add(RadioGroupOptionNode(label: context.tr.component_new_radio, value: 'value'));
+            node.options.add(
+              RadioGroupOptionNode(
+                label: context.tr.component_new_radio,
+                value: 'value',
+              ),
+            );
             onChanged(node);
           },
           icon: const Icon(Icons.add, size: 14),
-          label: Text(context.tr.component_add_radio_option, style: const TextStyle(fontSize: 12)),
+          label: Text(
+            context.tr.component_add_radio_option,
+            style: const TextStyle(fontSize: 12),
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildCheckboxGroupEditor(CheckboxGroupNode node, BuildContext context) {
+  Widget _buildCheckboxGroupEditor(
+    CheckboxGroupNode node,
+    BuildContext context,
+  ) {
     return Column(
       children: [
         TextFormField(
@@ -1269,7 +1377,10 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                 Expanded(
                   child: TextFormField(
                     initialValue: opt.label,
-                    decoration: InputDecoration(labelText: context.tr.common_label, isDense: true),
+                    decoration: InputDecoration(
+                      labelText: context.tr.common_label,
+                      isDense: true,
+                    ),
                     onChanged: (v) {
                       opt.value = v;
                       onChanged(node);
@@ -1277,7 +1388,11 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.remove_circle, size: 16, color: AppTheme.error),
+                  icon: const Icon(
+                    Icons.remove_circle,
+                    size: 16,
+                    color: AppTheme.error,
+                  ),
                   onPressed: () {
                     node.options.removeAt(idx);
                     onChanged(node);
@@ -1289,11 +1404,19 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
         }),
         TextButton.icon(
           onPressed: () {
-            node.options.add(CheckboxGroupOptionNode(label: context.tr.component_new_checkbox, value: 'value'));
+            node.options.add(
+              CheckboxGroupOptionNode(
+                label: context.tr.component_new_checkbox,
+                value: 'value',
+              ),
+            );
             onChanged(node);
           },
           icon: const Icon(Icons.add, size: 14),
-          label: Text(context.tr.component_add_checkbox_option, style: const TextStyle(fontSize: 12)),
+          label: Text(
+            context.tr.component_add_checkbox_option,
+            style: const TextStyle(fontSize: 12),
+          ),
         ),
       ],
     );
@@ -1361,7 +1484,10 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                 Expanded(
                   child: TextFormField(
                     initialValue: opt.media.url,
-                    decoration: InputDecoration(labelText: context.tr.component_media_url, isDense: true),
+                    decoration: InputDecoration(
+                      labelText: context.tr.component_media_url,
+                      isDense: true,
+                    ),
                     onChanged: (v) {
                       opt.media.url = v;
                       onChanged(node);
@@ -1369,7 +1495,11 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.remove_circle, size: 16, color: AppTheme.error),
+                  icon: const Icon(
+                    Icons.remove_circle,
+                    size: 16,
+                    color: AppTheme.error,
+                  ),
                   onPressed: () {
                     node.items.removeAt(idx);
                     onChanged(node);
@@ -1385,7 +1515,10 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
             onChanged(node);
           },
           icon: const Icon(Icons.add, size: 14),
-          label: Text(context.tr.component_add_media_item, style: const TextStyle(fontSize: 12)),
+          label: Text(
+            context.tr.component_add_media_item,
+            style: const TextStyle(fontSize: 12),
+          ),
         ),
       ],
     );
@@ -1409,7 +1542,12 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
             onSelected: (v) => onAdd(ComponentNodeFactory.create(v)),
             itemBuilder: (BuildContext context) {
               return types
-                  .map((t) => PopupMenuItem(value: t, child: Text(_getTitleForType(t))))
+                  .map(
+                    (t) => PopupMenuItem(
+                      value: t,
+                      child: Text(_getTitleForType(t)),
+                    ),
+                  )
                   .toList();
             },
             child: Container(
@@ -1424,7 +1562,11 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                   SizedBox(width: 8),
                   Text(
                     'Add Child Component',
-                    style: TextStyle(color: AppTheme.grey, fontWeight: FontWeight.bold, fontSize: 13),
+                    style: TextStyle(
+                      color: AppTheme.grey,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
                   ),
                 ],
               ),
@@ -1435,7 +1577,6 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
     );
   }
 }
-
 
 class _WorkflowSelectorField extends StatefulWidget {
   final String? botIdForConfig;
@@ -1532,10 +1673,14 @@ class _WorkflowSelectorFieldState extends State<_WorkflowSelectorField> {
       return;
     }
 
-    final generalWorkflows = workflows
-      .where((workflow) =>
-          normalizeWorkflowType(workflow['workflowType']) == workflowTypeGeneral)
-      .toList();
+    final generalWorkflows =
+        workflows
+            .where(
+              (workflow) =>
+                  normalizeWorkflowType(workflow['workflowType']) ==
+                  workflowTypeGeneral,
+            )
+            .toList();
 
     final names = generalWorkflows
       .map((workflow) => (workflow['name'] ?? '').toString().trim())
@@ -1583,11 +1728,7 @@ class _WorkflowSelectorFieldState extends State<_WorkflowSelectorField> {
       builder: (dialogContext) {
         return AlertDialog(
           shape: AppTheme.dialogShape,
-          icon: Icon(
-            Icons.data_object,
-            color: AppTheme.brandPrimary,
-            size: 32,
-          ),
+          icon: Icon(Icons.data_object, color: AppTheme.brandPrimary, size: 32),
           title: Text(
             context.tr.component_workflow_args_title,
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
@@ -1603,12 +1744,13 @@ class _WorkflowSelectorFieldState extends State<_WorkflowSelectorField> {
                       controller: controllers[def.name],
                       decoration: InputDecoration(
                         labelText: def.name + (def.required ? ' *' : ''),
-                        hintText: '((value))',
+                        hintText: AppStrings.tr('component_value_hint'),
                         border: const OutlineInputBorder(),
                         isDense: true,
-                        helperText: def.defaultValue.isNotEmpty
-                            ? '${context.tr.common_default}: ${def.defaultValue}'
-                            : null,
+                        helperText:
+                            def.defaultValue.isNotEmpty
+                                ? '${context.tr.common_default}: ${def.defaultValue}'
+                                : null,
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -1618,13 +1760,12 @@ class _WorkflowSelectorFieldState extends State<_WorkflowSelectorField> {
             ),
           ),
           actionsAlignment: MainAxisAlignment.center,
-          actionsPadding:
-              const EdgeInsets.fromLTRB(
-                AppTheme.spacingLg,
-                0,
-                AppTheme.spacingLg,
-                AppTheme.spacingLg,
-              ),
+          actionsPadding: const EdgeInsets.fromLTRB(
+            AppTheme.spacingLg,
+            0,
+            AppTheme.spacingLg,
+            AppTheme.spacingLg,
+          ),
           actions: [
             OutlinedButton(
               onPressed: () => Navigator.pop(dialogContext, false),
@@ -1695,17 +1836,18 @@ class _WorkflowSelectorFieldState extends State<_WorkflowSelectorField> {
                   ),
                 ),
                 actionsAlignment: MainAxisAlignment.center,
-                actionsPadding:
-                    const EdgeInsets.fromLTRB(
-                      AppTheme.spacingLg,
-                      0,
-                      AppTheme.spacingLg,
-                      AppTheme.spacingLg,
-                    ),
+                actionsPadding: const EdgeInsets.fromLTRB(
+                  AppTheme.spacingLg,
+                  0,
+                  AppTheme.spacingLg,
+                  AppTheme.spacingLg,
+                ),
                 actions: [
                   OutlinedButton(
                     onPressed: () => Navigator.pop(dialogContext),
-                    style: OutlinedButton.styleFrom(shape: AppTheme.buttonShape),
+                    style: OutlinedButton.styleFrom(
+                      shape: AppTheme.buttonShape,
+                    ),
                     child: Text(context.tr.common_cancel),
                   ),
                   FilledButton(

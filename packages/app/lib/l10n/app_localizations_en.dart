@@ -1474,6 +1474,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bot_home_view_replay => 'View debugger replays';
 
   @override
+  String get bot_home_section_getting_started => 'GETTING STARTED';
+
+  @override
+  String get bot_home_customize => 'Customize my bot';
+
+  @override
+  String get bot_home_create_command => 'Create my first command';
+
+  @override
   String get bot_home_section_monitoring => 'MONITORING';
 
   @override
@@ -1550,7 +1559,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bot_settings_token_mismatch_confirm => 'Replace token anyway';
 
   @override
-  String get bot_settings_title => 'Application Settings';
+  String get bot_settings_title => 'Customize Bot / Profile';
 
   @override
   String get bot_settings_workflow_docs => 'Documentation Center';
@@ -2666,28 +2675,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scratch_block_required => 'Required';
 
   @override
-  String get scratch_block_entry_point => 'Entry Point';
+  String get scratch_block_entry_point => 'Command Trigger';
 
   @override
-  String get scratch_entry_point_listen => 'Listen for';
+  String get scratch_entry_point_listen => 'When does this command run?';
 
   @override
-  String get scratch_entry_interaction => 'Interaction';
+  String get scratch_entry_interaction => 'Slash Command (/)';
 
   @override
-  String get scratch_entry_message => 'Message';
+  String get scratch_entry_message => 'Text Message';
 
   @override
   String get scratch_entry_point_label => 'Entry point name';
 
   @override
-  String get scratch_execution_mode => 'Execution mode';
+  String get scratch_execution_mode => 'How is the command built?';
 
   @override
-  String get scratch_mode_blocks => 'Blocks';
+  String get scratch_mode_blocks => 'Visual (Blocks)';
 
   @override
-  String get scratch_mode_bdfd => 'BDFD';
+  String get scratch_mode_bdfd => 'BDFD Code';
 
   @override
   String get scratch_mode_dart => 'Dart';
@@ -2751,22 +2760,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scratch_meta_advanced => 'Advanced settings';
 
   @override
-  String get scratch_workflow_metadata => 'Workflow Metadata';
+  String get scratch_workflow_metadata => 'Workflow Settings';
 
   @override
-  String get scratch_workflow_name => 'Workflow name';
+  String get scratch_workflow_name => 'Workflow Name';
 
   @override
-  String get scratch_workflow_type => 'Workflow type';
+  String get scratch_workflow_type => 'Workflow Type';
 
   @override
   String get scratch_workflow_type_general => 'General';
 
   @override
-  String get scratch_workflow_type_event => 'Event';
+  String get scratch_workflow_type_event => 'Event-driven';
 
   @override
-  String get scratch_workflow_arguments => 'Arguments';
+  String get scratch_workflow_arguments => 'Arguments (Variables)';
 
   @override
   String get scratch_workflow_add_argument => 'Add argument';

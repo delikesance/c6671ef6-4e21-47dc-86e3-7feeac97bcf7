@@ -37,6 +37,7 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
   late Map<String, dynamic> _onWorkflowArguments;
   late List<ModalTextInputDefinition> _inputs;
   List<String> _availableWorkflowNames = const [];
+
   /// Argument definitions per workflow name (loaded from saved workflows).
   Map<String, List<WorkflowArgumentDefinition>> _workflowArgDefs = const {};
   bool _loadingWorkflows = false;
@@ -171,10 +172,14 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
       return;
     }
 
-    final generalWorkflows = workflows
-      .where((workflow) =>
-          normalizeWorkflowType(workflow['workflowType']) == workflowTypeGeneral)
-      .toList();
+    final generalWorkflows =
+        workflows
+            .where(
+              (workflow) =>
+                  normalizeWorkflowType(workflow['workflowType']) ==
+                  workflowTypeGeneral,
+            )
+            .toList();
 
     final names = generalWorkflows
       .map((workflow) => (workflow['name'] ?? '').toString().trim())
@@ -225,11 +230,7 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
       builder: (dialogContext) {
         return AlertDialog(
           shape: AppTheme.dialogShape,
-          icon: Icon(
-            Icons.data_object,
-            color: AppTheme.brandPrimary,
-            size: 32,
-          ),
+          icon: Icon(Icons.data_object, color: AppTheme.brandPrimary, size: 32),
           title: Text(
             context.tr.component_workflow_args_title,
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
@@ -245,12 +246,13 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                       controller: controllers[def.name],
                       decoration: InputDecoration(
                         labelText: def.name + (def.required ? ' *' : ''),
-                        hintText: '((value))',
+                        hintText: AppStrings.tr('component_value_hint'),
                         border: const OutlineInputBorder(),
                         isDense: true,
-                        helperText: def.defaultValue.isNotEmpty
-                            ? '${context.tr.common_default}: ${def.defaultValue}'
-                            : null,
+                        helperText:
+                            def.defaultValue.isNotEmpty
+                                ? '${context.tr.common_default}: ${def.defaultValue}'
+                                : null,
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -260,13 +262,12 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
             ),
           ),
           actionsAlignment: MainAxisAlignment.center,
-          actionsPadding:
-              const EdgeInsets.fromLTRB(
-                AppTheme.spacingLg,
-                0,
-                AppTheme.spacingLg,
-                AppTheme.spacingLg,
-              ),
+          actionsPadding: const EdgeInsets.fromLTRB(
+            AppTheme.spacingLg,
+            0,
+            AppTheme.spacingLg,
+            AppTheme.spacingLg,
+          ),
           actions: [
             OutlinedButton(
               onPressed: () => Navigator.pop(dialogContext, false),
@@ -340,17 +341,18 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                   ),
                 ),
                 actionsAlignment: MainAxisAlignment.center,
-                actionsPadding:
-                    const EdgeInsets.fromLTRB(
-                      AppTheme.spacingLg,
-                      0,
-                      AppTheme.spacingLg,
-                      AppTheme.spacingLg,
-                    ),
+                actionsPadding: const EdgeInsets.fromLTRB(
+                  AppTheme.spacingLg,
+                  0,
+                  AppTheme.spacingLg,
+                  AppTheme.spacingLg,
+                ),
                 actions: [
                   OutlinedButton(
                     onPressed: () => Navigator.pop(dialogContext),
-                    style: OutlinedButton.styleFrom(shape: AppTheme.buttonShape),
+                    style: OutlinedButton.styleFrom(
+                      shape: AppTheme.buttonShape,
+                    ),
                     child: Text(context.tr.common_cancel),
                   ),
                   FilledButton(
@@ -452,11 +454,7 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
 
               return Row(
                 children: [
-                  const Icon(
-                    Icons.dynamic_form,
-                    color: Colors.white,
-                    size: 18,
-                  ),
+                  const Icon(Icons.dynamic_form, color: Colors.white, size: 18),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -470,10 +468,7 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                   ),
                   Text(
                     context.tr.modal_inputs_count(_inputs.length),
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 12,
-                    ),
+                    style: const TextStyle(color: Colors.white70, fontSize: 12),
                   ),
                 ],
               );
@@ -628,212 +623,235 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-              if (widget.botIdForConfig != null) ...[
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    final workflowSelector = DropdownButtonFormField<String>(
-                      initialValue:
-                          _onWorkflowCtrl.text.trim().isEmpty
-                              ? null
-                              : (_availableWorkflowNames.contains(
-                                    _onWorkflowCtrl.text.trim(),
-                                  )
-                                  ? _onWorkflowCtrl.text.trim()
-                                  : null),
-                      isExpanded: true,
-                      items:
-                          _availableWorkflowNames
-                              .map(
-                                (name) => DropdownMenuItem<String>(
-                                  value: name,
-                                  child: Text(name),
-                                ),
-                              )
-                              .toList(),
-                      onChanged:
-                          _loadingWorkflows
-                              ? null
-                              : (value) {
-                                setState(() {
-                                  _onWorkflowCtrl.text = (value ?? '').trim();
-                                });
+                          if (widget.botIdForConfig != null) ...[
+                            LayoutBuilder(
+                              builder: (context, constraints) {
+                                final workflowSelector = DropdownButtonFormField<
+                                  String
+                                >(
+                                  initialValue:
+                                      _onWorkflowCtrl.text.trim().isEmpty
+                                          ? null
+                                          : (_availableWorkflowNames.contains(
+                                                _onWorkflowCtrl.text.trim(),
+                                              )
+                                              ? _onWorkflowCtrl.text.trim()
+                                              : null),
+                                  isExpanded: true,
+                                  items:
+                                      _availableWorkflowNames
+                                          .map(
+                                            (name) => DropdownMenuItem<String>(
+                                              value: name,
+                                              child: Text(name),
+                                            ),
+                                          )
+                                          .toList(),
+                                  onChanged:
+                                      _loadingWorkflows
+                                          ? null
+                                          : (value) {
+                                            setState(() {
+                                              _onWorkflowCtrl.text =
+                                                  (value ?? '').trim();
+                                            });
+                                            _emit();
+                                          },
+                                  decoration: InputDecoration(
+                                    labelText: context.tr.modal_workflow_submit,
+                                    border: const OutlineInputBorder(),
+                                    isDense: true,
+                                    helperText:
+                                        _loadingWorkflows
+                                            ? context.tr.autocomplete_loading
+                                            : (_availableWorkflowNames.isEmpty
+                                                ? context
+                                                    .tr
+                                                    .autocomplete_no_workflows
+                                                : context
+                                                    .tr
+                                                    .autocomplete_select_workflow),
+                                  ),
+                                );
+
+                                final refreshButton = IconButton(
+                                  tooltip: context.tr.common_refresh_workflows,
+                                  onPressed:
+                                      _loadingWorkflows
+                                          ? null
+                                          : _loadAvailableWorkflows,
+                                  icon: const Icon(Icons.refresh),
+                                );
+
+                                if (constraints.maxWidth < 440) {
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      workflowSelector,
+                                      Align(
+                                        alignment: Alignment.centerRight,
+                                        child: refreshButton,
+                                      ),
+                                    ],
+                                  );
+                                }
+
+                                return Row(
+                                  children: [
+                                    Expanded(child: workflowSelector),
+                                    const SizedBox(width: 8),
+                                    refreshButton,
+                                  ],
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 6),
+                            TextFormField(
+                              key: ValueKey(
+                                'modal_manual_workflow_${widget.modal.customId}_${_onWorkflowCtrl.text.trim()}',
+                              ),
+                              initialValue: _onWorkflowCtrl.text.trim(),
+                              decoration: InputDecoration(
+                                labelText: context.tr.autocomplete_type_name,
+                                border: const OutlineInputBorder(),
+                                isDense: true,
+                              ),
+                              onChanged: (value) {
+                                _onWorkflowCtrl.text = value.trim();
                                 _emit();
                               },
-                      decoration: InputDecoration(
-                        labelText: context.tr.modal_workflow_submit,
-                        border: const OutlineInputBorder(),
-                        isDense: true,
-                        helperText:
-                            _loadingWorkflows
-                                ? context.tr.autocomplete_loading
-                                : (_availableWorkflowNames.isEmpty
-                                    ? context.tr.autocomplete_no_workflows
-                                    : context.tr.autocomplete_select_workflow),
-                      ),
-                    );
-
-                    final refreshButton = IconButton(
-                      tooltip: context.tr.common_refresh_workflows,
-                      onPressed:
-                          _loadingWorkflows ? null : _loadAvailableWorkflows,
-                      icon: const Icon(Icons.refresh),
-                    );
-
-                    if (constraints.maxWidth < 440) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          workflowSelector,
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: refreshButton,
+                            ),
+                          ] else ...[
+                            VariableTextField(
+                              label: context.tr.modal_workflow_submit,
+                              initialValue: widget.modal.onSubmitWorkflow ?? '',
+                              hint: context.tr.workflow_hint_name,
+                              suggestions: widget.variableSuggestions,
+                              onChanged: (v) {
+                                _onWorkflowCtrl.text = v;
+                                _emit();
+                              },
+                            ),
+                          ],
+                          const SizedBox(height: 8),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [
+                              OutlinedButton.icon(
+                                onPressed:
+                                    widget.botIdForConfig == null
+                                        ? null
+                                        : () async {
+                                          final botId = widget.botIdForConfig;
+                                          if (botId == null) {
+                                            return;
+                                          }
+                                          await Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (context) => WorkflowsPage(
+                                                    botId: botId,
+                                                  ),
+                                            ),
+                                          );
+                                          await _loadAvailableWorkflows();
+                                        },
+                                icon: const Icon(Icons.account_tree),
+                                label: Text(context.tr.common_manage_workflows),
+                              ),
+                            ],
                           ),
-                        ],
-                      );
-                    }
-
-                    return Row(
-                      children: [
-                        Expanded(child: workflowSelector),
-                        const SizedBox(width: 8),
-                        refreshButton,
-                      ],
-                    );
-                  },
-                ),
-                const SizedBox(height: 6),
-                TextFormField(
-                  key: ValueKey(
-                    'modal_manual_workflow_${widget.modal.customId}_${_onWorkflowCtrl.text.trim()}',
-                  ),
-                  initialValue: _onWorkflowCtrl.text.trim(),
-                  decoration: InputDecoration(
-                    labelText: context.tr.autocomplete_type_name,
-                    border: const OutlineInputBorder(),
-                    isDense: true,
-                  ),
-                  onChanged: (value) {
-                    _onWorkflowCtrl.text = value.trim();
-                    _emit();
-                  },
-                ),
-              ] else ...[
-                VariableTextField(
-                  label: context.tr.modal_workflow_submit,
-                  initialValue: widget.modal.onSubmitWorkflow ?? '',
-                  hint: context.tr.workflow_hint_name,
-                  suggestions: widget.variableSuggestions,
-                  onChanged: (v) {
-                    _onWorkflowCtrl.text = v;
-                    _emit();
-                  },
-                ),
-              ],
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  OutlinedButton.icon(
-                    onPressed:
-                        widget.botIdForConfig == null
-                            ? null
-                            : () async {
-                              final botId = widget.botIdForConfig;
-                              if (botId == null) {
-                                return;
-                              }
-                              await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) => WorkflowsPage(botId: botId),
+                          if (_onWorkflowCtrl.text.trim().isNotEmpty) ...[
+                            const SizedBox(height: 8),
+                            TextFormField(
+                              controller: _onWorkflowEntryPointCtrl,
+                              decoration: InputDecoration(
+                                labelText:
+                                    context.tr.workflow_entry_point_optional,
+                                border: const OutlineInputBorder(),
+                                isDense: true,
+                                helperText:
+                                    context.tr.workflow_entry_point_helper,
+                              ),
+                              onChanged: (_) => _emit(),
+                            ),
+                            const SizedBox(height: 8),
+                            OutlinedButton.icon(
+                              onPressed: _editOnSubmitArguments,
+                              icon: const Icon(Icons.data_object),
+                              label: Text(
+                                _onWorkflowArguments.isEmpty
+                                    ? context.tr.workflow_set_call_args
+                                    : context.tr.workflow_edit_call_args(
+                                      _onWorkflowArguments.length,
+                                    ),
+                              ),
+                            ),
+                          ],
+                          if (_onWorkflowCtrl.text.trim().isNotEmpty) ...[
+                            const SizedBox(height: 8),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: AppTheme.success.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(
+                                  AppTheme.radiusSm,
                                 ),
-                              );
-                              await _loadAvailableWorkflows();
-                            },
-                    icon: const Icon(Icons.account_tree),
-                    label: Text(context.tr.common_manage_workflows),
-                  ),
-                ],
-              ),
-              if (_onWorkflowCtrl.text.trim().isNotEmpty) ...[
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: _onWorkflowEntryPointCtrl,
-                  decoration: InputDecoration(
-                    labelText: context.tr.workflow_entry_point_optional,
-                    border: const OutlineInputBorder(),
-                    isDense: true,
-                    helperText: context.tr.workflow_entry_point_helper,
-                  ),
-                  onChanged: (_) => _emit(),
-                ),
-                const SizedBox(height: 8),
-                OutlinedButton.icon(
-                  onPressed: _editOnSubmitArguments,
-                  icon: const Icon(Icons.data_object),
-                  label: Text(
-                    _onWorkflowArguments.isEmpty
-                        ? context.tr.workflow_set_call_args
-                        : context.tr.workflow_edit_call_args(
-                          _onWorkflowArguments.length,
-                        ),
-                  ),
-                ),
-              ],
-              if (_onWorkflowCtrl.text.trim().isNotEmpty) ...[
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.success.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                    border: Border.all(
-                      color: AppTheme.success.withValues(alpha: 0.3),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.check_circle_outline,
-                        color: AppTheme.success,
-                        size: 16,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          context.tr.workflow_on_submit_info(
-                            _onWorkflowCtrl.text.trim(),
-                            _onWorkflowEntryPointCtrl.text.trim().isEmpty
-                                ? 'default'
-                                : _onWorkflowEntryPointCtrl.text.trim(),
-                            _onWorkflowArguments.length.toString(),
-                          ),
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppTheme.success,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ] else ...[
-                const SizedBox(height: 4),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Text(
-                    context.tr.workflow_no_workflow_note,
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: AppTheme.grey,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ),
-              ],
+                                border: Border.all(
+                                  color: AppTheme.success.withValues(
+                                    alpha: 0.3,
+                                  ),
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.check_circle_outline,
+                                    color: AppTheme.success,
+                                    size: 16,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      context.tr.workflow_on_submit_info(
+                                        _onWorkflowCtrl.text.trim(),
+                                        _onWorkflowEntryPointCtrl.text
+                                                .trim()
+                                                .isEmpty
+                                            ? 'default'
+                                            : _onWorkflowEntryPointCtrl.text
+                                                .trim(),
+                                        _onWorkflowArguments.length.toString(),
+                                      ),
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: AppTheme.success,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ] else ...[
+                            const SizedBox(height: 4),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 4,
+                              ),
+                              child: Text(
+                                context.tr.workflow_no_workflow_note,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: AppTheme.grey,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -992,8 +1010,9 @@ class _ModalTextInputTileState extends State<_ModalTextInputTile> {
           // ── Mini-block header (same style as embed mini-blocks) ──
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            color: theme.colorScheme.surfaceContainerHighest
-                .withValues(alpha: 0.5),
+            color: theme.colorScheme.surfaceContainerHighest.withValues(
+              alpha: 0.5,
+            ),
             child: Row(
               children: [
                 Icon(
