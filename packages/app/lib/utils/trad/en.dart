@@ -1727,6 +1727,7 @@ const Map<String, String> appStringsEn = {
   'workflow_condition_off_upper': 'Condition OFF',
   'actions_summary_bdfd': 'BDFD script | {lines} line(s) | {diagnostics} diagnostic(s)',
   'actions_summary_dart': 'Dart script | {lines} line(s) | {diagnostics} diagnostic(s)',
+  'scratch_dart_script': 'Dart Script',
   'actions_summary_routes': '{count} action(s) on active route | {routes} route(s)',
   'actions_summary_configured': '{count} action(s) configured',
   'reply_editor_title': 'Reply Details',
