@@ -825,7 +825,7 @@ class _AppHomePageState extends State<AppHomePage>
             SnackBar(
               content: Text(
                 context.tr.error_with_details(
-                  'A reward ad is required before starting this bot.',
+                  AppStrings.tr('rewarded_start_no_ad_available'),
                 ),
               ),
             ),
@@ -911,7 +911,7 @@ class _AppHomePageState extends State<AppHomePage>
             SnackBar(
               content: Text(
                 context.tr.error_with_details(
-                  'You must complete the rewarded ad to start this bot.',
+                  AppStrings.tr('rewarded_start_complete_ad'),
                 ),
               ),
             ),
@@ -1584,7 +1584,7 @@ class _AppHomePageState extends State<AppHomePage>
                           ],
                         ),
                       ),
-                      if (_supportsManagerRuntime) ...[
+                      if (_supportsForegroundTask) ...[
                         const SizedBox(height: AppTheme.spacingMd),
                         Container(
                           width: double.infinity,
@@ -1625,7 +1625,7 @@ class _AppHomePageState extends State<AppHomePage>
                                           ),
                                         )
                                         : const Icon(Icons.add_circle_outline),
-                                label: const Text('Ajouter du temps'),
+                                label: Text(context.tr.home_add_time),
                               ),
                             ],
                           ),
@@ -1633,6 +1633,27 @@ class _AppHomePageState extends State<AppHomePage>
                       ],
 
                       const SizedBox(height: AppTheme.spacingXl),
+                      // ── Premiers pas (Getting Started) ──────────────────────────
+                      if (widget.onNavigateToSection != null)
+                        _buildSection(
+                          icon: Icons.rocket_launch_outlined,
+                          title: AppStrings.tr('bot_home_section_getting_started'),
+                          children: [
+                            _buildActionTile(
+                              icon: Icons.tune,
+                              label: AppStrings.tr('bot_home_customize'),
+                              onTap: () => widget.onNavigateToSection!(8),
+                              iconColor: AppTheme.brandPrimary,
+                            ),
+                            _buildActionTile(
+                              icon: Icons.add_circle_outline,
+                              label: AppStrings.tr('bot_home_create_command'),
+                              onTap: () => widget.onNavigateToSection!(1),
+                              iconColor: AppTheme.success,
+                            ),
+                          ],
+                        ),
+                      const SizedBox(height: AppTheme.spacingMd),
                       // ── Quick access to secondary sections (mobile) ──
                       if (showQuickAccess &&
                           widget.secondarySections.isNotEmpty &&

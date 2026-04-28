@@ -484,9 +484,13 @@ class HomePageState extends State<HomePage>
     } catch (e) {
       appendBotDebugLog('[syncAllBotsFromManager] Sync failed: $e');
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Sync failed: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppStrings.tr('home_sync_failed', params: {'error': '$e'}),
+            ),
+          ),
+        );
       }
     }
   }
@@ -1161,9 +1165,13 @@ class HomePageState extends State<HomePage>
         botToken: botToken.isNotEmpty ? botToken : null,
       );
       if (rewarded && mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Time added for $name')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppStrings.tr('home_time_added', params: {'name': name}),
+            ),
+          ),
+        );
         unawaited(_refreshBotRuntimeBalances(botIds: [botId]));
       }
     } finally {
@@ -1207,12 +1215,23 @@ class HomePageState extends State<HomePage>
           SnackBar(
             content: Text(
               context.tr.error_with_details(
-                'A reward ad is required before starting this bot.',
+                AppStrings.tr('rewarded_start_no_ad_available'),
               ),
             ),
           ),
         );
       }
+      return false;
+    }
+
+    if (!await AdRewardService.shouldOfferRewardedAd(
+      checkPremiumCapability: false,
+    )) {
+      return false;
+    }
+
+    final consentGranted = await _ensureAdsConsent();
+    if (!consentGranted || !mounted) {
       return false;
     }
 
@@ -1232,19 +1251,6 @@ class HomePageState extends State<HomePage>
       return false;
     }
 
-    if (!await AdRewardService.shouldOfferRewardedAd(
-      checkPremiumCapability: false,
-    )) {
-      return false;
-    }
-
-    final consentGranted = await _ensureAdsConsent();
-    if (!consentGranted || !mounted) {
-      return false;
-    }
-
-    final previousBalance = await _fetchMainApiRuntimeBalance(botId);
-
     var rewardEarned = false;
     final adShown = await AdRewardService.showRewardedAd(
       ssvContext: ssvContext,
@@ -1252,13 +1258,13 @@ class HomePageState extends State<HomePage>
         rewardEarned = true;
       },
     );
-    if (!adShown || !rewardEarned) {
+    if (!adShown) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
               context.tr.error_with_details(
-                'You must complete the rewarded ad to start this bot.',
+                AppStrings.tr('rewarded_start_no_ad_available'),
               ),
             ),
           ),
@@ -1266,6 +1272,23 @@ class HomePageState extends State<HomePage>
       }
       return false;
     }
+
+    if (!rewardEarned) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              context.tr.error_with_details(
+                AppStrings.tr('rewarded_start_complete_ad'),
+              ),
+            ),
+          ),
+        );
+      }
+      return false;
+    }
+
+    final previousBalance = await _fetchMainApiRuntimeBalance(botId);
 
     unawaited(() async {
       final rewardCredited = await _waitForMainApiRewardCredit(
@@ -1462,7 +1485,10 @@ class HomePageState extends State<HomePage>
                                             botId: id,
                                             botName: name,
                                           ),
-                                      onAddTime: () => _addHostingTime(id),
+                                      onAddTime:
+                                          _supportsForegroundTask
+                                              ? () => _addHostingTime(id)
+                                              : null,
                                       onLogs:
                                           isRunning
                                               ? () => Navigator.push(
@@ -1753,7 +1779,7 @@ class _BotCard extends StatelessWidget {
                       ),
                     ),
                   ],
-                  if (freeMinutes != null) ...[
+                  if (freeMinutes != null && onAddTime != null) ...[
                     const SizedBox(height: 6),
                     Text(
                       AppStrings.tr(
@@ -1822,7 +1848,9 @@ class _BotCard extends StatelessWidget {
                 ),
               ),
 
-              if (isRunning && !SubscriptionService.isSubscribed) ...[
+              if (isRunning &&
+                  !SubscriptionService.isSubscribed &&
+                  onAddTime != null) ...[
                 const SizedBox(height: 14),
                 SizedBox(
                   width: double.infinity,
