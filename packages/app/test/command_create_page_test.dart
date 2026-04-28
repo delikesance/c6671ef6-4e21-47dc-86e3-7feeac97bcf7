@@ -41,7 +41,11 @@ void main() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(_pathProviderChannel, null);
     if (await documentsDir.exists()) {
-      await documentsDir.delete(recursive: true);
+      try {
+        await documentsDir.delete(recursive: true);
+      } catch (_) {
+        // Ignore PathAccessException on Windows caused by locked SQLite db files
+      }
     }
   });
 
@@ -257,7 +261,7 @@ void main() {
       await pumpCreatePage(tester, page: const CommandCreatePage());
 
       expect(find.text('Metadata'), findsOneWidget);
-      expect(find.text('Entry Point'), findsOneWidget);
+      expect(find.text('Command Trigger'), findsOneWidget);
       expect(find.text('Response'), findsOneWidget);
       expect(find.text('Add block'), findsOneWidget);
       expect(find.byTooltip('Import command'), findsOneWidget);
@@ -281,7 +285,7 @@ void main() {
       );
 
       expect(find.text('Metadata'), findsOneWidget);
-      expect(find.text('Entry Point'), findsOneWidget);
+      expect(find.text('Command Trigger'), findsOneWidget);
       expect(find.text('Response'), findsOneWidget);
       expect(find.text('All changes saved'), findsOneWidget);
       expect(find.byTooltip('Import command'), findsNothing);
@@ -304,7 +308,7 @@ void main() {
       );
 
       final metadataY = tester.getTopLeft(find.text('Metadata')).dy;
-      final entryPointY = tester.getTopLeft(find.text('Entry Point')).dy;
+      final entryPointY = tester.getTopLeft(find.text('Command Trigger')).dy;
       final responseY = tester.getTopLeft(find.text('Response')).dy;
 
       expect(metadataY, lessThan(entryPointY));
