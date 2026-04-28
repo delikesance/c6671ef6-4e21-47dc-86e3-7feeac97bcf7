@@ -232,7 +232,7 @@ Future<void> _warmUpServicesAfterLaunch() async {
   );
 
   await _runStartupTask(
-    label: 'Debug replay state load',
+    label: AppStrings.tr('debug_replay_state_load'),
     timeout: const Duration(seconds: 5),
     action: () async {
       await loadDebugReplayCapturingState();

@@ -1507,6 +1507,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get bot_home_view_replay => 'Voir les replays du débogueur';
 
   @override
+  String get bot_home_section_getting_started => 'PREMIERS PAS';
+
+  @override
+  String get bot_home_customize => 'Personnaliser mon bot';
+
+  @override
+  String get bot_home_create_command => 'Créer ma première commande';
+
+  @override
   String get bot_home_section_monitoring => 'MONITORING';
 
   @override
@@ -1585,7 +1594,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Remplacer le token quand même';
 
   @override
-  String get bot_settings_title => 'Paramètres de l’application';
+  String get bot_settings_title => 'Personnaliser le bot / Profil';
 
   @override
   String get bot_settings_workflow_docs => 'Centre de documentation';
@@ -2709,28 +2718,29 @@ class AppLocalizationsFr extends AppLocalizations {
   String get scratch_block_required => 'Requis';
 
   @override
-  String get scratch_block_entry_point => 'Point d’entrée';
+  String get scratch_block_entry_point => 'Point de départ (Déclencheur)';
 
   @override
-  String get scratch_entry_point_listen => 'Écouter';
+  String get scratch_entry_point_listen =>
+      'Quand est-ce que cette commande se lance ?';
 
   @override
-  String get scratch_entry_interaction => 'Interaction';
+  String get scratch_entry_interaction => 'Commande Slash (/)';
 
   @override
-  String get scratch_entry_message => 'Message';
+  String get scratch_entry_message => 'Message Texte';
 
   @override
   String get scratch_entry_point_label => 'Nom du point d’entrée';
 
   @override
-  String get scratch_execution_mode => 'Mode d’exécution';
+  String get scratch_execution_mode => 'Comment est construite la commande ?';
 
   @override
-  String get scratch_mode_blocks => 'Blocs';
+  String get scratch_mode_blocks => 'Visuel (Blocs)';
 
   @override
-  String get scratch_mode_bdfd => 'BDFD';
+  String get scratch_mode_bdfd => 'Code BDFD';
 
   @override
   String get scratch_mode_dart => 'Dart';
@@ -2794,7 +2804,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get scratch_meta_advanced => 'Paramètres avancés';
 
   @override
-  String get scratch_workflow_metadata => 'Métadonnées du workflow';
+  String get scratch_workflow_metadata => 'Paramètres du workflow';
 
   @override
   String get scratch_workflow_name => 'Nom du workflow';
@@ -2809,7 +2819,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get scratch_workflow_type_event => 'Événement';
 
   @override
-  String get scratch_workflow_arguments => 'Arguments';
+  String get scratch_workflow_arguments => 'Arguments (Variables)';
 
   @override
   String get scratch_workflow_add_argument => 'Ajouter un argument';

@@ -1060,9 +1060,9 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
     if (_source == _VariablesSource.manager) {
       final detail = _managerDetailLabel?.trim();
       if (detail == null || detail.isEmpty) {
-        return 'Bot Creator';
+        return context.tr.app_title;
       }
-      return 'Bot Creator • $detail';
+      return '${context.tr.app_title} • $detail';
     }
     final runner = _runners.where((r) => r.id == _activeRunnerId).firstOrNull;
     return context.tr.globals_source_runner(runner?.name ?? '?');
@@ -1672,7 +1672,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                     value: 'manager',
                     child: ListTile(
                       leading: const Icon(Icons.hub_outlined, size: 20),
-                      title: const Text('Bot Creator'),
+                      title: Text(context.tr.app_title),
                       subtitle:
                           (_managerDetailLabel?.trim().isNotEmpty ?? false)
                               ? Text(

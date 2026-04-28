@@ -2720,6 +2720,24 @@ abstract class AppLocalizations {
   /// **'View debugger replays'**
   String get bot_home_view_replay;
 
+  /// No description provided for @bot_home_section_getting_started.
+  ///
+  /// In en, this message translates to:
+  /// **'GETTING STARTED'**
+  String get bot_home_section_getting_started;
+
+  /// No description provided for @bot_home_customize.
+  ///
+  /// In en, this message translates to:
+  /// **'Customize my bot'**
+  String get bot_home_customize;
+
+  /// No description provided for @bot_home_create_command.
+  ///
+  /// In en, this message translates to:
+  /// **'Create my first command'**
+  String get bot_home_create_command;
+
   /// No description provided for @bot_home_section_monitoring.
   ///
   /// In en, this message translates to:
@@ -2855,7 +2873,7 @@ abstract class AppLocalizations {
   /// No description provided for @bot_settings_title.
   ///
   /// In en, this message translates to:
-  /// **'Application Settings'**
+  /// **'Customize Bot / Profile'**
   String get bot_settings_title;
 
   /// No description provided for @bot_settings_workflow_docs.
@@ -4859,25 +4877,25 @@ abstract class AppLocalizations {
   /// No description provided for @scratch_block_entry_point.
   ///
   /// In en, this message translates to:
-  /// **'Entry Point'**
+  /// **'Command Trigger'**
   String get scratch_block_entry_point;
 
   /// No description provided for @scratch_entry_point_listen.
   ///
   /// In en, this message translates to:
-  /// **'Listen for'**
+  /// **'When does this command run?'**
   String get scratch_entry_point_listen;
 
   /// No description provided for @scratch_entry_interaction.
   ///
   /// In en, this message translates to:
-  /// **'Interaction'**
+  /// **'Slash Command (/)'**
   String get scratch_entry_interaction;
 
   /// No description provided for @scratch_entry_message.
   ///
   /// In en, this message translates to:
-  /// **'Message'**
+  /// **'Text Message'**
   String get scratch_entry_message;
 
   /// No description provided for @scratch_entry_point_label.
@@ -4889,19 +4907,19 @@ abstract class AppLocalizations {
   /// No description provided for @scratch_execution_mode.
   ///
   /// In en, this message translates to:
-  /// **'Execution mode'**
+  /// **'How is the command built?'**
   String get scratch_execution_mode;
 
   /// No description provided for @scratch_mode_blocks.
   ///
   /// In en, this message translates to:
-  /// **'Blocks'**
+  /// **'Visual (Blocks)'**
   String get scratch_mode_blocks;
 
   /// No description provided for @scratch_mode_bdfd.
   ///
   /// In en, this message translates to:
-  /// **'BDFD'**
+  /// **'BDFD Code'**
   String get scratch_mode_bdfd;
 
   /// No description provided for @scratch_mode_dart.
@@ -5021,19 +5039,19 @@ abstract class AppLocalizations {
   /// No description provided for @scratch_workflow_metadata.
   ///
   /// In en, this message translates to:
-  /// **'Workflow Metadata'**
+  /// **'Workflow Settings'**
   String get scratch_workflow_metadata;
 
   /// No description provided for @scratch_workflow_name.
   ///
   /// In en, this message translates to:
-  /// **'Workflow name'**
+  /// **'Workflow Name'**
   String get scratch_workflow_name;
 
   /// No description provided for @scratch_workflow_type.
   ///
   /// In en, this message translates to:
-  /// **'Workflow type'**
+  /// **'Workflow Type'**
   String get scratch_workflow_type;
 
   /// No description provided for @scratch_workflow_type_general.
@@ -5045,13 +5063,13 @@ abstract class AppLocalizations {
   /// No description provided for @scratch_workflow_type_event.
   ///
   /// In en, this message translates to:
-  /// **'Event'**
+  /// **'Event-driven'**
   String get scratch_workflow_type_event;
 
   /// No description provided for @scratch_workflow_arguments.
   ///
   /// In en, this message translates to:
-  /// **'Arguments'**
+  /// **'Arguments (Variables)'**
   String get scratch_workflow_arguments;
 
   /// No description provided for @scratch_workflow_add_argument.

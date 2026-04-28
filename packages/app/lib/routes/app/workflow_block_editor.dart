@@ -47,7 +47,8 @@ class WorkflowBlockEditor extends StatefulWidget {
     required String workflowType,
     required List<WorkflowArgumentDefinition> argumentDefinitions,
     required Map<String, dynamic> eventTrigger,
-  }) buildVariableSuggestions;
+  })
+  buildVariableSuggestions;
 
   /// Convenience: externally provided full event list for lookup.
   final List<WorkflowEventItem> eventCatalog;
@@ -97,17 +98,11 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
     _workflowType = normalizeWorkflowType(
       widget.initialWorkflowType ?? normalized?['workflowType'],
     );
-    _eventTrigger = normalizeWorkflowEventTrigger(
-      normalized?['eventTrigger'],
-    );
-    _selectedCategory =
-        (_eventTrigger['category'] ?? 'messages').toString();
-    _selectedEvent =
-        (_eventTrigger['event'] ?? 'messageCreate').toString();
+    _eventTrigger = normalizeWorkflowEventTrigger(normalized?['eventTrigger']);
+    _selectedCategory = (_eventTrigger['category'] ?? 'messages').toString();
+    _selectedEvent = (_eventTrigger['event'] ?? 'messageCreate').toString();
 
-    final parsed = parseWorkflowArgumentDefinitions(
-      normalized?['arguments'],
-    );
+    final parsed = parseWorkflowArgumentDefinitions(normalized?['arguments']);
     _arguments =
         parsed
             .map(
@@ -149,28 +144,23 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
       _selectedCategory = cats.first;
     }
     final events = widget.eventsForCategory(_selectedCategory);
-    if (events.isNotEmpty &&
-        !events.any((e) => e.event == _selectedEvent)) {
+    if (events.isNotEmpty && !events.any((e) => e.event == _selectedEvent)) {
       _selectedEvent = events.first.event;
     }
-    _eventTrigger = {
-      'category': _selectedCategory,
-      'event': _selectedEvent,
-    };
+    _eventTrigger = {'category': _selectedCategory, 'event': _selectedEvent};
   }
 
   Future<void> _refreshVariableSuggestions() async {
-    final defs =
-        _arguments
-            .where((a) => a.name.trim().isNotEmpty)
-            .map(
-              (a) => WorkflowArgumentDefinition(
-                name: a.name.trim(),
-                required: a.required,
-                defaultValue: a.defaultValue,
-              ),
-            )
-            .toList(growable: false);
+    final defs = _arguments
+        .where((a) => a.name.trim().isNotEmpty)
+        .map(
+          (a) => WorkflowArgumentDefinition(
+            name: a.name.trim(),
+            required: a.required,
+            defaultValue: a.defaultValue,
+          ),
+        )
+        .toList(growable: false);
 
     final suggestions = await widget.buildVariableSuggestions(
       workflowType: _workflowType,
@@ -185,27 +175,24 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
   Future<void> _save() async {
     final name = _nameController.text.trim();
     if (name.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppStrings.t('workflows_name'))),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(AppStrings.t('workflows_name'))));
       return;
     }
     setState(() => _saving = true);
 
-    final entryPoint = normalizeWorkflowEntryPoint(
-      _entryPointController.text,
-    );
-    final argDefs =
-        _arguments
-            .where((a) => a.name.trim().isNotEmpty)
-            .map(
-              (a) => WorkflowArgumentDefinition(
-                name: a.name.trim(),
-                required: a.required,
-                defaultValue: a.defaultValue,
-              ),
-            )
-            .toList(growable: false);
+    final entryPoint = normalizeWorkflowEntryPoint(_entryPointController.text);
+    final argDefs = _arguments
+        .where((a) => a.name.trim().isNotEmpty)
+        .map(
+          (a) => WorkflowArgumentDefinition(
+            name: a.name.trim(),
+            required: a.required,
+            defaultValue: a.defaultValue,
+          ),
+        )
+        .toList(growable: false);
 
     await appManager.saveWorkflow(
       widget.botId,
@@ -214,8 +201,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
       entryPoint: entryPoint,
       arguments: serializeWorkflowArgumentDefinitions(argDefs),
       workflowType: _workflowType,
-      eventTrigger:
-          _workflowType == workflowTypeEvent ? _eventTrigger : null,
+      eventTrigger: _workflowType == workflowTypeEvent ? _eventTrigger : null,
       folder: _folderController.text.trim(),
     );
 
@@ -232,9 +218,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
       appBar: AppBar(
         backgroundColor: AppTheme.brandPrimary,
         title: Text(
-          _isEditing
-              ? context.tr.workflows_edit
-              : context.tr.workflows_create,
+          _isEditing ? context.tr.workflows_edit : context.tr.workflows_create,
         ),
         actions: [
           if (_saving)
@@ -423,7 +407,10 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                   child: TextFormField(
                     initialValue: _arguments[i].name,
                     decoration: InputDecoration(
-                      hintText: 'arg${i + 1}',
+                      hintText: AppStrings.tr(
+                        'workflow_argument_hint',
+                        params: {'index': '${i + 1}'},
+                      ),
                       border: const OutlineInputBorder(),
                       isDense: true,
                       suffixIcon:
@@ -453,9 +440,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                   selected: _arguments[i].required,
                   onSelected: (value) {
                     setState(() {
-                      _arguments[i] = _arguments[i].copyWith(
-                        required: value,
-                      );
+                      _arguments[i] = _arguments[i].copyWith(required: value);
                     });
                   },
                   visualDensity: VisualDensity.compact,
@@ -516,10 +501,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
   List<Widget> _buildActionBlocks() {
     final blocks = <Widget>[];
     for (var i = 0; i < _actions.length; i++) {
-      final action = ActionItem.fromJson(
-        _actions[i],
-        fallbackId: 'action_$i',
-      );
+      final action = ActionItem.fromJson(_actions[i], fallbackId: 'action_$i');
       blocks.add(
         ActionBlock(
           key: ValueKey('wf-action-${action.id}'),
@@ -532,22 +514,24 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
           onRemove: () {
             setState(() => _actions.removeAt(i));
           },
-          onMoveUp: i > 0
-              ? () {
-                  setState(() {
-                    final item = _actions.removeAt(i);
-                    _actions.insert(i - 1, item);
-                  });
-                }
-              : null,
-          onMoveDown: i < _actions.length - 1
-              ? () {
-                  setState(() {
-                    final item = _actions.removeAt(i);
-                    _actions.insert(i + 1, item);
-                  });
-                }
-              : null,
+          onMoveUp:
+              i > 0
+                  ? () {
+                    setState(() {
+                      final item = _actions.removeAt(i);
+                      _actions.insert(i - 1, item);
+                    });
+                  }
+                  : null,
+          onMoveDown:
+              i < _actions.length - 1
+                  ? () {
+                    setState(() {
+                      final item = _actions.removeAt(i);
+                      _actions.insert(i + 1, item);
+                    });
+                  }
+                  : null,
           onParameterChanged: (key, value) {
             setState(() {
               if (key == '__enabled__') {
@@ -583,16 +567,16 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
           },
           fieldRefreshVersionOf: (_) => 0,
           onEditNestedActions: (current, suggestions) async {
-            final result =
-                await Navigator.push<List<Map<String, dynamic>>>(
+            final result = await Navigator.push<List<Map<String, dynamic>>>(
               context,
               MaterialPageRoute<List<Map<String, dynamic>>>(
-                builder: (_) => ActionsBuilderPage(
-                  initialActions: current,
-                  variableSuggestions: suggestions,
-                  emojiSuggestions: widget.appEmojis,
-                  botIdForConfig: widget.botId,
-                ),
+                builder:
+                    (_) => ActionsBuilderPage(
+                      initialActions: current,
+                      variableSuggestions: suggestions,
+                      emojiSuggestions: widget.appEmojis,
+                      botIdForConfig: widget.botId,
+                    ),
               ),
             );
             return result;

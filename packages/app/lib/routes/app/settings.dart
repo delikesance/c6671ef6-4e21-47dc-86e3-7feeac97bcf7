@@ -231,7 +231,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
         discriminator: discordUser.discriminator.toString(),
         token: token,
         intents: _intentsMap,
-        prefix: _prefixController.text.trim().isEmpty ? '!' : _prefixController.text,
+        prefix:
+            _prefixController.text.trim().isEmpty
+                ? '!'
+                : _prefixController.text,
       );
 
       final latestAppData = Map<String, dynamic>.from(
@@ -276,16 +279,15 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       final newBotId = discordUser.id.toString();
       if (newBotId != localBotId) {
         if (!mounted) return;
-        final proceed =
-            await AppTheme.showConfirmDialog(
-              context,
-              title: context.tr.bot_settings_token_mismatch_title,
-              content: context.tr.bot_settings_token_mismatch_content(
-                newBotId,
-                localBotId,
-              ),
-              confirmLabel: context.tr.bot_settings_token_mismatch_confirm,
-            );
+        final proceed = await AppTheme.showConfirmDialog(
+          context,
+          title: context.tr.bot_settings_token_mismatch_title,
+          content: context.tr.bot_settings_token_mismatch_content(
+            newBotId,
+            localBotId,
+          ),
+          confirmLabel: context.tr.bot_settings_token_mismatch_confirm,
+        );
         if (!proceed || !mounted) return;
       }
 
@@ -308,7 +310,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
         discriminator: discordUser.discriminator.toString(),
         token: effectiveToken,
         intents: intentsToKeep,
-        prefix: _prefixController.text.trim().isEmpty ? '!' : _prefixController.text,
+        prefix:
+            _prefixController.text.trim().isEmpty
+                ? '!'
+                : _prefixController.text,
       );
 
       final appData = Map<String, dynamic>.from(
@@ -389,7 +394,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
           discriminator: discordUser.discriminator.toString(),
           token: token,
           intents: intents,
-          prefix: _prefixController.text.trim().isEmpty ? '!' : _prefixController.text,
+          prefix:
+              _prefixController.text.trim().isEmpty
+                  ? '!'
+                  : _prefixController.text,
         );
       } else {
         discordUser = await getDiscordUser(token);
@@ -865,7 +873,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
                             color: AppTheme.discordDarkBg,
-                            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.radiusMd,
+                            ),
                             border: Border.all(color: AppTheme.discordDarkerBg),
                           ),
                           child: Row(
@@ -908,7 +918,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                               .trim()
                                               .isNotEmpty)
                                           ? _usernameController.text.trim()
-                                          : 'Bot Creator',
+                                          : context.tr.app_title,
                                       overflow: TextOverflow.ellipsis,
                                       style: const TextStyle(
                                         color: Color(0xFFF2F3F5),
@@ -1083,9 +1093,16 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                                 final shouldDelete =
                                                     await AppTheme.showConfirmDialog(
                                                       context,
-                                                      title: context.tr.bot_settings_remove_status,
-                                                      content: context.tr.settings_status_remove_confirm,
-                                                      confirmLabel: context.tr.delete,
+                                                      title:
+                                                          context
+                                                              .tr
+                                                              .bot_settings_remove_status,
+                                                      content:
+                                                          context
+                                                              .tr
+                                                              .settings_status_remove_confirm,
+                                                      confirmLabel:
+                                                          context.tr.delete,
                                                       isDestructive: true,
                                                     );
                                                 if (!shouldDelete) {
