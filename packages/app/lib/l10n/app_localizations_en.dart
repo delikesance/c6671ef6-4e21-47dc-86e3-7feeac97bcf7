@@ -515,39 +515,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings_runner_reenabled => 'Runner re-enabled';
 
   @override
-  String get settings_main_api_title => 'Main API';
+  String get settings_main_api_title => 'Bot Creator Server';
 
   @override
   String get settings_main_api_desc =>
-      'Connect Bot Creator to your Main API and sign in with Discord. The Discord client secret must stay on the backend.';
+      'Connect Bot Creator to your Bot Creator Server and sign in with Discord. The Discord client secret must stay on the backend.';
 
   @override
   String get settings_main_api_url_hint => 'https://api.example.com';
 
   @override
-  String get settings_main_api_save => 'Save Main API';
+  String get settings_main_api_save => 'Save Bot Creator Server';
 
   @override
   String get settings_main_api_clear => 'Clear';
 
   @override
-  String get settings_main_api_saved => 'Main API settings saved';
+  String get settings_main_api_saved => 'Bot Creator Server settings saved';
 
   @override
-  String get settings_main_api_cleared => 'Main API settings cleared';
+  String get settings_main_api_cleared => 'Bot Creator Server settings cleared';
 
   @override
-  String get settings_main_api_check => 'Check Main API';
+  String get settings_main_api_check => 'Check Bot Creator Server';
 
   @override
-  String get settings_main_api_connected => 'Main API reachable ✓';
+  String get settings_main_api_connected => 'Bot Creator Server reachable ✓';
 
   @override
-  String get settings_main_api_unreachable => 'Main API unreachable';
+  String get settings_main_api_unreachable => 'Bot Creator Server unreachable';
 
   @override
   String get settings_main_api_auth_failed =>
-      'Main API session is invalid or expired';
+      'Bot Creator Server session is invalid or expired';
 
   @override
   String get settings_main_api_connect_discord => 'Connect Discord account';
@@ -557,10 +557,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settings_main_api_desktop_only =>
-      'Discord login via Main API is available on desktop only.';
+      'Discord login via Bot Creator Server is available on desktop only.';
 
   @override
-  String get settings_main_api_not_configured => 'Main API URL required';
+  String get settings_main_api_not_configured =>
+      'Bot Creator Server URL required';
 
   @override
   String get settings_main_api_session_connected => 'Discord session active';
@@ -573,7 +574,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings_main_api_session_expired => 'Discord session expired';
 
   @override
-  String get settings_main_api_url_required => 'Main API URL required';
+  String get settings_main_api_url_required =>
+      'Bot Creator Server URL required';
 
   @override
   String settings_main_api_connected_user(String user) {

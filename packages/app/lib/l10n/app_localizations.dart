@@ -1019,13 +1019,13 @@ abstract class AppLocalizations {
   /// No description provided for @settings_main_api_title.
   ///
   /// In en, this message translates to:
-  /// **'Main API'**
+  /// **'Bot Creator Server'**
   String get settings_main_api_title;
 
   /// No description provided for @settings_main_api_desc.
   ///
   /// In en, this message translates to:
-  /// **'Connect Bot Creator to your Main API and sign in with Discord. The Discord client secret must stay on the backend.'**
+  /// **'Connect Bot Creator to your Bot Creator Server and sign in with Discord. The Discord client secret must stay on the backend.'**
   String get settings_main_api_desc;
 
   /// No description provided for @settings_main_api_url_hint.
@@ -1037,7 +1037,7 @@ abstract class AppLocalizations {
   /// No description provided for @settings_main_api_save.
   ///
   /// In en, this message translates to:
-  /// **'Save Main API'**
+  /// **'Save Bot Creator Server'**
   String get settings_main_api_save;
 
   /// No description provided for @settings_main_api_clear.
@@ -1049,37 +1049,37 @@ abstract class AppLocalizations {
   /// No description provided for @settings_main_api_saved.
   ///
   /// In en, this message translates to:
-  /// **'Main API settings saved'**
+  /// **'Bot Creator Server settings saved'**
   String get settings_main_api_saved;
 
   /// No description provided for @settings_main_api_cleared.
   ///
   /// In en, this message translates to:
-  /// **'Main API settings cleared'**
+  /// **'Bot Creator Server settings cleared'**
   String get settings_main_api_cleared;
 
   /// No description provided for @settings_main_api_check.
   ///
   /// In en, this message translates to:
-  /// **'Check Main API'**
+  /// **'Check Bot Creator Server'**
   String get settings_main_api_check;
 
   /// No description provided for @settings_main_api_connected.
   ///
   /// In en, this message translates to:
-  /// **'Main API reachable ✓'**
+  /// **'Bot Creator Server reachable ✓'**
   String get settings_main_api_connected;
 
   /// No description provided for @settings_main_api_unreachable.
   ///
   /// In en, this message translates to:
-  /// **'Main API unreachable'**
+  /// **'Bot Creator Server unreachable'**
   String get settings_main_api_unreachable;
 
   /// No description provided for @settings_main_api_auth_failed.
   ///
   /// In en, this message translates to:
-  /// **'Main API session is invalid or expired'**
+  /// **'Bot Creator Server session is invalid or expired'**
   String get settings_main_api_auth_failed;
 
   /// No description provided for @settings_main_api_connect_discord.
@@ -1097,13 +1097,13 @@ abstract class AppLocalizations {
   /// No description provided for @settings_main_api_desktop_only.
   ///
   /// In en, this message translates to:
-  /// **'Discord login via Main API is available on desktop only.'**
+  /// **'Discord login via Bot Creator Server is available on desktop only.'**
   String get settings_main_api_desktop_only;
 
   /// No description provided for @settings_main_api_not_configured.
   ///
   /// In en, this message translates to:
-  /// **'Main API URL required'**
+  /// **'Bot Creator Server URL required'**
   String get settings_main_api_not_configured;
 
   /// No description provided for @settings_main_api_session_connected.
@@ -1127,7 +1127,7 @@ abstract class AppLocalizations {
   /// No description provided for @settings_main_api_url_required.
   ///
   /// In en, this message translates to:
-  /// **'Main API URL required'**
+  /// **'Bot Creator Server URL required'**
   String get settings_main_api_url_required;
 
   /// No description provided for @settings_main_api_connected_user.

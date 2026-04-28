@@ -1201,23 +1201,6 @@ class _SettingPageState extends State<SettingPage> {
             spacing: 8,
             runSpacing: 8,
             children: [
-              if (!_isManagedMobilePlatform)
-                ElevatedButton.icon(
-                  onPressed: isBusy ? null : _checkMainApiConnection,
-                  icon:
-                      _checkingMainApi
-                          ? const SizedBox(
-                            width: 14,
-                            height: 14,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                          : const Icon(Icons.wifi_find, size: 18),
-                  label: Text(AppStrings.t('settings_main_api_check')),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        Theme.of(context).colorScheme.secondaryContainer,
-                  ),
-                ),
               ElevatedButton.icon(
                 onPressed: isBusy ? null : _connectMainApiDiscord,
                 icon:
@@ -2763,10 +2746,6 @@ class _SettingPageState extends State<SettingPage> {
                     ),
                   if (!_isManagedMobilePlatform && !_runnerTemporarilyDisabled)
                     const SizedBox(height: 16),
-                  if (_isDesktopPlatform) ...[
-                    _buildDiscordRpcCard(isMobile: isMobile),
-                    const SizedBox(height: 16),
-                  ],
                   // Data Operations Section
                   Text(
                     context.tr.settings_data_operations_title,
@@ -2806,7 +2785,9 @@ class _SettingPageState extends State<SettingPage> {
                                             );
                                             debugPrintStack(stackTrace: st);
                                             if (mounted) {
-                                              _showSnack(_formatErrorMessage(e));
+                                              _showSnack(
+                                                _formatErrorMessage(e),
+                                              );
                                             }
                                           }
                                         },
@@ -2843,7 +2824,9 @@ class _SettingPageState extends State<SettingPage> {
                                             );
                                             debugPrintStack(stackTrace: st);
                                             if (mounted) {
-                                              _showSnack(_formatErrorMessage(e));
+                                              _showSnack(
+                                                _formatErrorMessage(e),
+                                              );
                                             }
                                           }
                                         },
