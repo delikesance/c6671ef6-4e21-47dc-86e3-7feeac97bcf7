@@ -1584,7 +1584,7 @@ class _AppHomePageState extends State<AppHomePage>
                           ],
                         ),
                       ),
-                      if (_supportsManagerRuntime) ...[
+                      if (_supportsForegroundTask) ...[
                         const SizedBox(height: AppTheme.spacingMd),
                         Container(
                           width: double.infinity,

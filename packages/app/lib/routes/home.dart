@@ -1462,7 +1462,10 @@ class HomePageState extends State<HomePage>
                                             botId: id,
                                             botName: name,
                                           ),
-                                      onAddTime: () => _addHostingTime(id),
+                                      onAddTime:
+                                          _supportsForegroundTask
+                                              ? () => _addHostingTime(id)
+                                              : null,
                                       onLogs:
                                           isRunning
                                               ? () => Navigator.push(
@@ -1753,7 +1756,7 @@ class _BotCard extends StatelessWidget {
                       ),
                     ),
                   ],
-                  if (freeMinutes != null) ...[
+                  if (freeMinutes != null && onAddTime != null) ...[
                     const SizedBox(height: 6),
                     Text(
                       AppStrings.tr(
@@ -1822,7 +1825,9 @@ class _BotCard extends StatelessWidget {
                 ),
               ),
 
-              if (isRunning && !SubscriptionService.isSubscribed) ...[
+              if (isRunning &&
+                  !SubscriptionService.isSubscribed &&
+                  onAddTime != null) ...[
                 const SizedBox(height: 14),
                 SizedBox(
                   width: double.infinity,

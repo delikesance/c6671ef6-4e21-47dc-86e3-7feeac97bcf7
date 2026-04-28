@@ -22,6 +22,8 @@ import 'utils/analytics.dart';
 import 'utils/ad_consent_service.dart';
 import 'utils/ad_native_service.dart';
 import 'utils/ad_reward_service.dart';
+import 'utils/main_api_client.dart';
+import 'utils/main_api_settings.dart';
 import 'utils/subscription_service.dart';
 import 'utils/i18n.dart';
 import 'utils/onboarding_manager.dart';
@@ -157,6 +159,12 @@ Future<void> _bootstrapAndRunApp() async {
 Future<void> _warmUpServicesAfterLaunch() async {
   await AppDiagnostics.logInfo('Post-launch service warm-up started');
 
+  await _runStartupTask(
+    label: 'Main API session restore',
+    timeout: const Duration(seconds: 8),
+    action: _restorePersistedMainApiSession,
+  );
+
   var firebaseReady = false;
   if (_isFirebaseSupported) {
     firebaseReady = await _runStartupTask(
@@ -240,6 +248,49 @@ Future<void> _warmUpServicesAfterLaunch() async {
   );
 
   await AppDiagnostics.logInfo('Post-launch service warm-up completed');
+}
+
+Future<void> _restorePersistedMainApiSession() async {
+  final config = await MainApiSettingsStore.loadConfig();
+  final session = await MainApiSettingsStore.loadSession();
+  if (session == null) {
+    return;
+  }
+
+  if (session.isExpired && session.refreshToken == null) {
+    await MainApiSettingsStore.clearSession();
+    return;
+  }
+
+  final refreshToken = session.refreshToken?.trim() ?? '';
+  if (refreshToken.isEmpty || !session.expiresSoon()) {
+    return;
+  }
+
+  final client = MainApiClient(
+    baseUrl: config.baseUrl,
+    timeout: const Duration(seconds: 6),
+  );
+  try {
+    final refreshedSession = await client.refreshSession(
+      refreshToken: refreshToken,
+    );
+    await MainApiSettingsStore.saveSession(refreshedSession);
+    await AppDiagnostics.logInfo(
+      'Main API session restored from refresh token on startup',
+      data: <String, Object?>{
+        'sessionExpired': session.isExpired,
+        'expiresAt': refreshedSession.expiresAt.toUtc().toIso8601String(),
+      },
+    );
+  } catch (error, stack) {
+    await AppDiagnostics.logError(
+      'Main API session restore failed on startup',
+      error,
+      stack,
+      fatal: false,
+    );
+  }
 }
 
 Future<bool> _runStartupTask({
