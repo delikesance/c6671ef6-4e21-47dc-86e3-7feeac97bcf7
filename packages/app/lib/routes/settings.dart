@@ -9,6 +9,7 @@ import 'package:bot_creator/utils/analytics.dart';
 import 'package:bot_creator/utils/ad_consent_service.dart';
 import 'package:bot_creator/utils/ad_mediation_debug.dart';
 import 'package:bot_creator/utils/app_diagnostics.dart';
+import 'package:bot_creator/utils/discord_rpc_service.dart';
 import 'package:bot_creator/utils/main_api_auth_service.dart';
 import 'package:bot_creator/utils/main_api_client.dart';
 import 'package:bot_creator/utils/main_api_settings.dart';
@@ -50,6 +51,8 @@ class _SettingPageState extends State<SettingPage> {
   final TextEditingController _runnerApiTokenController =
       TextEditingController();
   final TextEditingController _mainApiUrlController = TextEditingController();
+  final TextEditingController _discordRpcClientIdController =
+      TextEditingController();
   bool _checkingRunner = false;
   bool _checkingMainApi = false;
   bool _connectingMainApi = false;
@@ -60,6 +63,7 @@ class _SettingPageState extends State<SettingPage> {
   bool _runnerTemporarilyDisabled = false;
   bool _mainApiSectionExpanded = false;
   MainApiSession? _mainApiSession;
+  StreamSubscription<DiscordRpcSnapshot>? _discordRpcSnapshotSubscription;
   bool _checkingAdPrivacy = false;
   bool _adPrivacyRequired = false;
   bool _developerSectionExpanded = false;
@@ -72,6 +76,15 @@ class _SettingPageState extends State<SettingPage> {
       return;
     }
     debugPrint('[MainApi][Settings] $message');
+  }
+
+  bool get _isDesktopPlatform {
+    if (kIsWeb) {
+      return false;
+    }
+    return defaultTargetPlatform == TargetPlatform.windows ||
+        defaultTargetPlatform == TargetPlatform.linux ||
+        defaultTargetPlatform == TargetPlatform.macOS;
   }
 
   bool get _isManagedMobilePlatform {
@@ -140,6 +153,9 @@ class _SettingPageState extends State<SettingPage> {
     _loadRunnerSettings();
     _loadMainApiSettings();
     _loadRuntimePreferences();
+    if (_isDesktopPlatform) {
+      _loadDiscordRpcSettings();
+    } else {}
     _loadAdPrivacyRequirement();
   }
 
@@ -587,6 +603,8 @@ class _SettingPageState extends State<SettingPage> {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(_settingsLifecycleObserver);
+    _discordRpcSnapshotSubscription?.cancel();
+    _discordRpcClientIdController.dispose();
     _mainApiUrlController.dispose();
     _runnerUrlController.dispose();
     _runnerApiTokenController.dispose();
@@ -741,6 +759,44 @@ class _SettingPageState extends State<SettingPage> {
       return context.tr.error_with_details(msg);
     } catch (_) {
       return msg;
+    }
+  }
+
+  Future<void> _loadDiscordRpcSettings() async {
+    try {
+      final service = DiscordRpcService.instance;
+      final snapshot = await service.initialize();
+      final subscription = service.snapshots.listen((snapshot) {
+        if (!mounted) {
+          return;
+        }
+        setState(() {});
+      });
+
+      if (!mounted) {
+        await subscription.cancel();
+        return;
+      }
+
+      _discordRpcSnapshotSubscription = subscription;
+      _discordRpcClientIdController.text = snapshot.config.clientId;
+      unawaited(
+        AppDiagnostics.logInfo(
+          'Discord RPC settings loaded in UI',
+          data: <String, Object?>{
+            'enabled': snapshot.config.enabled,
+            'hasClientId': snapshot.config.hasClientId,
+            'runtimeState': snapshot.runtimeState.name,
+          },
+        ),
+      );
+      setState(() {});
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {});
+      _showSnack(_formatErrorMessage(error));
     }
   }
 
