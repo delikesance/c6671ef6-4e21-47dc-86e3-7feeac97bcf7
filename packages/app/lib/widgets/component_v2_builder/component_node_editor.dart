@@ -297,9 +297,7 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
     if (node is FileUploadNode) {
       return _buildFileUploadEditor(node as FileUploadNode, context);
     }
-    if (node is FileNode) {
-      return _buildFileEditor(node as FileNode, context);
-    }
+    if (node is FileNode) return _buildFileEditor(node as FileNode, context);
     if (node is ThumbnailNode) {
       return _buildThumbnailEditor(node as ThumbnailNode, context);
     }

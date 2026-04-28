@@ -12,6 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:nyxx/nyxx.dart'
     show CommandOptionBuilder, CommandOptionType, Snowflake;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 const MethodChannel _pathProviderChannel = MethodChannel(
   'plugins.flutter.io/path_provider',
@@ -23,6 +24,8 @@ void main() {
   late Directory documentsDir;
 
   setUpAll(() async {
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
     SharedPreferences.setMockInitialValues(const {});
     documentsDir = await Directory.systemTemp.createTemp(
       'command_create_page_test',
@@ -284,33 +287,29 @@ void main() {
       expect(find.byTooltip('Import command'), findsNothing);
     });
 
-    testWidgets(
-      'block editor shows metadata and entry point before response',
-      (tester) async {
-        const botId = 'bot-edit-order';
-        const commandId = 'local-edit-order';
-        await seedLocalCommand(
-          botId: botId,
-          commandId: commandId,
-          includeSubcommands: false,
-        );
+    testWidgets('block editor shows metadata and entry point before response', (
+      tester,
+    ) async {
+      const botId = 'bot-edit-order';
+      const commandId = 'local-edit-order';
+      await seedLocalCommand(
+        botId: botId,
+        commandId: commandId,
+        includeSubcommands: false,
+      );
 
-        await pumpCreatePage(
-          tester,
-          page: const CommandCreatePage(
-            botId: botId,
-            localCommandId: commandId,
-          ),
-        );
+      await pumpCreatePage(
+        tester,
+        page: const CommandCreatePage(botId: botId, localCommandId: commandId),
+      );
 
-        final metadataY = tester.getTopLeft(find.text('Metadata')).dy;
-        final entryPointY = tester.getTopLeft(find.text('Entry Point')).dy;
-        final responseY = tester.getTopLeft(find.text('Response')).dy;
+      final metadataY = tester.getTopLeft(find.text('Metadata')).dy;
+      final entryPointY = tester.getTopLeft(find.text('Entry Point')).dy;
+      final responseY = tester.getTopLeft(find.text('Response')).dy;
 
-        expect(metadataY, lessThan(entryPointY));
-        expect(entryPointY, lessThan(responseY));
-      },
-    );
+      expect(metadataY, lessThan(entryPointY));
+      expect(entryPointY, lessThan(responseY));
+    });
 
     testWidgets('edit mode hides create-only controls', (tester) async {
       const botId = 'bot-edit-hide';
@@ -409,10 +408,7 @@ void main() {
       );
 
       // Edit the command name to make the page dirty
-      await tester.enterText(
-        find.byType(TextFormField).first,
-        'updated-name',
-      );
+      await tester.enterText(find.byType(TextFormField).first, 'updated-name');
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
 
