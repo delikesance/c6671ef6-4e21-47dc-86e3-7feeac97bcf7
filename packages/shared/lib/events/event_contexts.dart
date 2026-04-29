@@ -68,12 +68,38 @@ Map<String, String> _threadExtra(dynamic thread) {
 Map<String, String> _roleExtra(dynamic role) => <String, String>{
   'role.id': _idString(role?.id),
   'role.name': (role?.name ?? '').toString(),
-  'role.color': (role?.colorValue ?? role?.color ?? '').toString(),
+  'role.color': _roleColorString(role),
   'role.permissions': (role?.permissions?.value ?? '').toString(),
   'role.position': (role?.position ?? '').toString(),
   'role.mentionable': ((role?.isMentionable ?? false) == true).toString(),
   'role.hoist': ((role?.isHoisted ?? false) == true).toString(),
 };
+
+String _roleColorString(dynamic role) {
+  try {
+    final dynamic colorValue = role?.colorValue;
+    if (colorValue != null) {
+      return colorValue.toString();
+    }
+  } catch (_) {}
+
+  try {
+    final dynamic color = role?.color;
+    if (color == null) {
+      return '';
+    }
+    if (color is num || color is String) {
+      return color.toString();
+    }
+    final dynamic value = color.value;
+    if (value != null) {
+      return value.toString();
+    }
+    return color.toString();
+  } catch (_) {
+    return '';
+  }
+}
 
 Map<String, String> _reactionEmojiExtra(dynamic raw, dynamic emoji) {
   bool animated = false;
