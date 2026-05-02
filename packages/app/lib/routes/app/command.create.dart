@@ -1789,9 +1789,11 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         'data': commandData,
         if (_folder.isNotEmpty) 'folder': _folder,
       };
+
       if (!_isEditingExistingCommand) {
         localPayload['createdAt'] = DateTime.now().toIso8601String();
       }
+
       await appManager.saveAppCommand(botId, commandId, localPayload);
       developer.log(
         '[saveLocal] saved OK commandId=$commandId botId=$botId',
@@ -1845,6 +1847,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         if (!mounted) {
           return;
         }
+
         Navigator.pop(context);
         return;
       }
