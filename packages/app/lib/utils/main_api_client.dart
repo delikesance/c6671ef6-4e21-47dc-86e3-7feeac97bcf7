@@ -627,8 +627,22 @@ class MainApiClient implements RemoteRuntimeClient {
             'global_name',
             'name',
             'tag',
+            'displayName',
+            'display_name',
+            'preferred_username',
           ]) ??
-          _extractString(json, <String>['username', 'name']),
+          _extractString(json, <String>[
+            'username',
+            'name',
+            'displayName',
+            'display_name',
+            'global_name',
+          ]) ??
+          _extractString(
+            _extractMap(user, <String>['discord', 'profile']) ??
+                _extractMap(json, <String>['discord', 'profile']),
+            <String>['username', 'global_name', 'name', 'display_name'],
+          ),
       scopes: scopes,
     );
   }
