@@ -240,6 +240,178 @@ void main() {
       expect(legacyJson['values']['u2'], 'yes');
     });
 
+    test(
+      'syncs and deletes a single command without rebuilding payloads',
+      () async {
+        final port = await _allocatePort();
+        server = RunnerWebBootstrapServer(
+          host: '127.0.0.1',
+          port: port,
+          logStore: RunnerLogStore(),
+        );
+        await server!.start();
+
+        final base = Uri.parse('http://127.0.0.1:$port');
+        const botId = 'bot-command-sync';
+
+        final initial = await http.post(
+          base.resolve('/bots/sync'),
+          headers: const <String, String>{'content-type': 'application/json'},
+          body: jsonEncode(<String, dynamic>{
+            'botId': botId,
+            'botName': 'Command Bot',
+            'config': <String, dynamic>{
+              'token': 'abc',
+              'globalVariables': <String, dynamic>{'old_key': 'old_value'},
+              'scopedVariableDefinitions': <Map<String, dynamic>>[
+                <String, dynamic>{
+                  'key': 'score',
+                  'scope': 'guild',
+                  'defaultValue': 1,
+                  'valueType': 'number',
+                },
+              ],
+              'workflows': <Map<String, dynamic>>[
+                <String, dynamic>{
+                  'name': 'cleanup',
+                  'workflowType': 'event',
+                  'entryPoint': 'workflow_cleanup',
+                  'arguments': <Map<String, dynamic>>[],
+                  'actions': <Map<String, dynamic>>[],
+                },
+              ],
+              'commands': <Map<String, dynamic>>[
+                <String, dynamic>{
+                  'id': 'cmd-1',
+                  'name': 'first',
+                  'type': 'chatInput',
+                  'data': <String, dynamic>{'version': 1},
+                },
+              ],
+            },
+          }),
+        );
+        expect(initial.statusCode, HttpStatus.ok);
+
+        final syncCommand = await http.post(
+          base.resolve('/bots/$botId/commands/sync'),
+          headers: const <String, String>{'content-type': 'application/json'},
+          body: jsonEncode(<String, dynamic>{
+            'botId': botId,
+            'commandId': 'cmd-2',
+            'command': <String, dynamic>{
+              'name': 'second',
+              'type': 'chatInput',
+              'data': <String, dynamic>{'version': 2},
+            },
+          }),
+        );
+        expect(syncCommand.statusCode, HttpStatus.ok);
+
+        final storedFile = File('${tempDir.path}/data/bots/$botId.json');
+        final storedAfterSync = Map<String, dynamic>.from(
+          jsonDecode(await storedFile.readAsString()) as Map,
+        );
+        final syncedCommands = List<Map<String, dynamic>>.from(
+          storedAfterSync['config']['commands'] as List,
+        );
+        expect(syncedCommands.map((entry) => entry['id']).toList(), [
+          'cmd-1',
+          'cmd-2',
+        ]);
+
+        final deleteCommand = await http.post(
+          base.resolve('/bots/$botId/commands/delete'),
+          headers: const <String, String>{'content-type': 'application/json'},
+          body: jsonEncode(<String, dynamic>{
+            'botId': botId,
+            'commandId': 'cmd-1',
+          }),
+        );
+        expect(deleteCommand.statusCode, HttpStatus.ok);
+
+        final storedAfterDelete = Map<String, dynamic>.from(
+          jsonDecode(await storedFile.readAsString()) as Map,
+        );
+        final remainingCommands = List<Map<String, dynamic>>.from(
+          storedAfterDelete['config']['commands'] as List,
+        );
+        expect(remainingCommands.map((entry) => entry['id']).toList(), [
+          'cmd-2',
+        ]);
+
+        final workflowSync = await http.post(
+          base.resolve('/bots/$botId/workflows/sync'),
+          headers: const <String, String>{'content-type': 'application/json'},
+          body: jsonEncode(<String, dynamic>{
+            'botId': botId,
+            'workflowName': 'nightly-report',
+            'workflow': <String, dynamic>{
+              'workflowType': 'event',
+              'entryPoint': 'workflow_nightly_report',
+              'arguments': <Map<String, dynamic>>[],
+              'actions': <Map<String, dynamic>>[],
+            },
+          }),
+        );
+        expect(workflowSync.statusCode, HttpStatus.ok);
+
+        final workflowDelete = await http.post(
+          base.resolve('/bots/$botId/workflows/delete'),
+          headers: const <String, String>{'content-type': 'application/json'},
+          body: jsonEncode(<String, dynamic>{
+            'botId': botId,
+            'workflowName': 'cleanup',
+          }),
+        );
+        expect(workflowDelete.statusCode, HttpStatus.ok);
+
+        final renameGlobal = await http.post(
+          base.resolve('/bots/$botId/variables/global/rename'),
+          headers: const <String, String>{'content-type': 'application/json'},
+          body: jsonEncode(<String, dynamic>{
+            'botId': botId,
+            'oldKey': 'old_key',
+            'newKey': 'new_key',
+          }),
+        );
+        expect(renameGlobal.statusCode, HttpStatus.ok);
+
+        final removeScopedDef = await http.post(
+          base.resolve('/bots/$botId/variables/scoped-definitions/remove'),
+          headers: const <String, String>{'content-type': 'application/json'},
+          body: jsonEncode(<String, dynamic>{
+            'botId': botId,
+            'key': 'score',
+            'scope': 'guild',
+          }),
+        );
+        expect(removeScopedDef.statusCode, HttpStatus.ok);
+
+        final storedAfterConfigUpdates = Map<String, dynamic>.from(
+          jsonDecode(await storedFile.readAsString()) as Map,
+        );
+        final workflows = List<Map<String, dynamic>>.from(
+          storedAfterConfigUpdates['config']['workflows'] as List,
+        );
+        expect(workflows.map((entry) => entry['name']).toList(), [
+          'nightly-report',
+        ]);
+
+        final globals = Map<String, dynamic>.from(
+          storedAfterConfigUpdates['config']['globalVariables'] as Map,
+        );
+        expect(globals.containsKey('new_key'), isTrue);
+        expect(globals.containsKey('old_key'), isFalse);
+
+        final scopedDefs = List<Map<String, dynamic>>.from(
+          storedAfterConfigUpdates['config']['scopedVariableDefinitions']
+              as List,
+        );
+        expect(scopedDefs, isEmpty);
+      },
+    );
+
     test('exposes inbound webhook endpoint contract', () async {
       final port = await _allocatePort();
       server = RunnerWebBootstrapServer(

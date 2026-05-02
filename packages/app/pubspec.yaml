@@ -17,7 +17,7 @@ resolution: workspace
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.7.2+40
+version: 1.7.4+42
 
 environment:
   sdk: ^3.7.2
@@ -51,7 +51,7 @@ dependencies:
   googleapis: ^16.0.0
   google_sign_in: ^7.2.0
   extension_google_sign_in_as_googleapis_auth: ^3.0.0
-  googleapis_auth: ^2.0.0
+  googleapis_auth: ^2.3.0
   url_launcher: ^6.3.1
   crypto: ^3.0.6
   path: ^1.9.1
@@ -62,7 +62,7 @@ dependencies:
   flutter_highlight: ^0.7.0
   highlight: ^0.7.0
   archive: ^4.0.9
-  google_fonts: ^8.0.2
+  google_fonts: ^8.1.0
   sqflite: ^2.3.4
   sqflite_common_ffi: ^2.3.4
   sqlite3: ^3.3.1
@@ -76,7 +76,7 @@ dependencies:
   app_tracking_transparency: ^2.0.6
   package_info_plus: ^9.0.1
   in_app_purchase: ^3.2.0
-  app_links: ^6.4.1
+  app_links: ^7.0.0
   uuid: ^4.5.1
   ffi: ^2.2.0
   win32: ^5.15.0
@@ -146,5 +146,5 @@ msix_config:
   store_id: 9P6T5WMBMZLR
   store: true
   install_certificate: false
-  msix_version: 1.1.8.0
+  msix_version: 1.7.4.0
   logo_path: assets/icon/icon.png

@@ -86,8 +86,10 @@ class OptionWidgetState extends State<OptionWidget> {
       final workflows = await appManager.getWorkflows(botId);
       if (!mounted) return;
       final names = workflows
-        .where((w) =>
-            normalizeWorkflowType(w['workflowType']) == workflowTypeGeneral)
+        .where(
+          (w) =>
+              normalizeWorkflowType(w['workflowType']) == workflowTypeGeneral,
+        )
         .map((w) => (w['name'] ?? '').toString().trim())
         .where((n) => n.isNotEmpty)
         .toList(growable: false)..sort();
@@ -743,13 +745,23 @@ class OptionWidgetState extends State<OptionWidget> {
                                                   tooltip:
                                                       context.tr.common_remove,
                                                   onPressed: () async {
-                                                    final shouldDelete = await AppTheme.showConfirmDialog(
-                                                      context,
-                                                      title: context.tr.option_delete_argument_title,
-                                                      content: context.tr.option_delete_argument_confirm,
-                                                      confirmLabel: context.tr.common_delete,
-                                                      isDestructive: true,
-                                                    );
+                                                    final shouldDelete =
+                                                        await AppTheme.showConfirmDialog(
+                                                          context,
+                                                          title:
+                                                              context
+                                                                  .tr
+                                                                  .option_delete_argument_title,
+                                                          content:
+                                                              context
+                                                                  .tr
+                                                                  .option_delete_argument_confirm,
+                                                          confirmLabel:
+                                                              context
+                                                                  .tr
+                                                                  .common_delete,
+                                                          isDestructive: true,
+                                                        );
                                                     if (!shouldDelete) {
                                                       return;
                                                     }
@@ -892,13 +904,21 @@ class OptionWidgetState extends State<OptionWidget> {
                                           ),
                                           tooltip: context.tr.common_remove,
                                           onPressed: () async {
-                                            final shouldDelete = await AppTheme.showConfirmDialog(
-                                              context,
-                                              title: context.tr.option_delete_title,
-                                              content: context.tr.option_choice_delete_confirm,
-                                              confirmLabel: context.tr.common_delete,
-                                              isDestructive: true,
-                                            );
+                                            final shouldDelete =
+                                                await AppTheme.showConfirmDialog(
+                                                  context,
+                                                  title:
+                                                      context
+                                                          .tr
+                                                          .option_delete_title,
+                                                  content:
+                                                      context
+                                                          .tr
+                                                          .option_choice_delete_confirm,
+                                                  confirmLabel:
+                                                      context.tr.common_delete,
+                                                  isDestructive: true,
+                                                );
                                             if (!shouldDelete) {
                                               return;
                                             }
@@ -1059,13 +1079,23 @@ class OptionWidgetState extends State<OptionWidget> {
                                               size: 20,
                                             ),
                                             onPressed: () async {
-                                              final shouldDelete = await AppTheme.showConfirmDialog(
-                                                context,
-                                                title: 'Delete localization',
-                                                content: 'This localization entry will be removed. Continue?',
-                                                confirmLabel: context.tr.common_delete,
-                                                isDestructive: true,
-                                              );
+                                              final shouldDelete =
+                                                  await AppTheme.showConfirmDialog(
+                                                    context,
+                                                    title:
+                                                        context
+                                                            .tr
+                                                            .option_delete_localization_title,
+                                                    content:
+                                                        context
+                                                            .tr
+                                                            .option_delete_localization_confirm,
+                                                    confirmLabel:
+                                                        context
+                                                            .tr
+                                                            .common_delete,
+                                                    isDestructive: true,
+                                                  );
                                               if (!shouldDelete) {
                                                 return;
                                               }
@@ -1145,13 +1175,21 @@ class OptionWidgetState extends State<OptionWidget> {
                                 trailing: IconButton(
                                   icon: const Icon(Icons.delete),
                                   onPressed: () async {
-                                    final shouldDelete = await AppTheme.showConfirmDialog(
-                                      context,
-                                      title: context.tr.option_choice_delete_title,
-                                      content: context.tr.option_choice_delete_confirm,
-                                      confirmLabel: context.tr.common_delete,
-                                      isDestructive: true,
-                                    );
+                                    final shouldDelete =
+                                        await AppTheme.showConfirmDialog(
+                                          context,
+                                          title:
+                                              context
+                                                  .tr
+                                                  .option_choice_delete_title,
+                                          content:
+                                              context
+                                                  .tr
+                                                  .option_choice_delete_confirm,
+                                          confirmLabel:
+                                              context.tr.common_delete,
+                                          isDestructive: true,
+                                        );
                                     if (!shouldDelete) {
                                       return;
                                     }
@@ -1259,7 +1297,9 @@ class OptionWidgetState extends State<OptionWidget> {
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
                             border: Border.all(color: AppTheme.grey),
-                            borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.radiusSm,
+                            ),
                           ),
                           child: _buildOptionsLevel(
                             option.options ?? <CommandOptionBuilder>[],
