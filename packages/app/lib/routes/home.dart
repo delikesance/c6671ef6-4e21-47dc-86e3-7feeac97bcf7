@@ -713,12 +713,6 @@ class HomePageState extends State<HomePage>
         postTimeout: const Duration(seconds: 90),
       );
 
-      if (!isRunning && _runningBotIds.length >= 5) {
-        throw Exception(
-          context.tr.error_with_details('Maximum active bots reached (5)'),
-        );
-      }
-
       // ── Fetch + validate token before anything else (only when starting) ──
       String? token;
       if (!isRunning) {
