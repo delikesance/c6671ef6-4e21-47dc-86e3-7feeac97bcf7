@@ -87,12 +87,29 @@ Future<ResolvedRemoteRuntime> resolveRemoteRuntime({
       platform == TargetPlatform.macOS;
 
   if (mainApiConfig.isConfigured && !isDesktop) {
-    if (mainApiSession != null && !mainApiSession.isExpired) {
+    var session = mainApiSession;
+    if (session != null && session.isExpired && session.refreshToken != null) {
+      try {
+        final client = MainApiClient(
+          baseUrl: mainApiConfig.baseUrl,
+          timeout: const Duration(seconds: 5), // short timeout — best effort
+        );
+        final newSession = await client.refreshSession(
+          refreshToken: session.refreshToken!,
+        );
+        await MainApiSettingsStore.saveSession(newSession);
+        session = newSession;
+      } catch (_) {
+        // Refresh failed, proceed to expired/null logic.
+      }
+    }
+
+    if (session != null && !session.isExpired) {
       return ResolvedRemoteRuntime(
         source: RemoteRuntimeSource.manager,
         client: MainApiClient(
           baseUrl: mainApiConfig.baseUrl,
-          accessToken: mainApiSession.accessToken,
+          accessToken: session.accessToken,
           timeout: postTimeout,
         ),
         detailLabel: mainApiConfig.baseUrl,

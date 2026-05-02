@@ -120,6 +120,7 @@ class HomePageState extends State<HomePage>
   @override
   void initState() {
     super.initState();
+    appendBotDebugLog('>>>> [BOT_DEBUG] HomePage.initState ENTERED <<<<');
     WidgetsBinding.instance.addObserver(this);
     AppAnalytics.logScreenView(screenName: 'HomePage', screenClass: 'HomePage');
     AppAnalytics.logEvent(name: 'home_page_opened');
@@ -783,6 +784,9 @@ class HomePageState extends State<HomePage>
   Future<MainApiClient?> _resolveGlobalMainApiClient({
     bool attemptRestore = true,
   }) async {
+    appendBotDebugLog(
+      '[_resolveGlobalMainApiClient] Resolving global client (attemptRestore=$attemptRestore).',
+    );
     var runtime = await _resolveRemoteRuntime(
       getTimeout: const Duration(seconds: 15),
       postTimeout: const Duration(seconds: 30),
@@ -792,25 +796,41 @@ class HomePageState extends State<HomePage>
         runtime.client == null &&
         attemptRestore) {
       final apps = await appManager.getAllApps();
+      appendBotDebugLog(
+        '[_resolveGlobalMainApiClient] Manager source detected but no client; trying restore from ${apps.length} local apps.',
+      );
       for (final rawApp in apps) {
         if (rawApp is! Map) continue;
         final botId = (rawApp['id'] ?? '').toString();
         final token = (rawApp['token'] ?? '').toString();
         if (botId.isNotEmpty && token.isNotEmpty) {
+          appendBotDebugLog(
+            '[_resolveGlobalMainApiClient] Trying restore with bot $botId.',
+          );
           final client = await _resolveMainApiClientForBot(
             botId: botId,
             botToken: token,
             attemptSessionRestore: true,
           );
           if (client != null) {
+            appendBotDebugLog(
+              '[_resolveGlobalMainApiClient] Success: global client restored from bot $botId.',
+            );
             return client;
           }
         }
       }
+      appendBotDebugLog(
+        '[_resolveGlobalMainApiClient] Failed to restore global client from any local app.',
+      );
     }
 
     final client = runtime.client;
-    return client is MainApiClient ? client : null;
+    final resolved = client is MainApiClient ? client : null;
+    appendBotDebugLog(
+      '[_resolveGlobalMainApiClient] Returning client: ${resolved?.runtimeType ?? 'null'}.',
+    );
+    return resolved;
   }
 
   // ── Démarrage / Arrêt du bot ───────────────────────────────────────────────

@@ -19,6 +19,7 @@ import 'package:bot_creator/utils/ad_consent_service.dart';
 import 'package:bot_creator/utils/external_link.dart';
 import 'package:bot_creator/utils/premium_capabilities.dart';
 import 'package:bot_creator/utils/remote_runtime.dart';
+import 'package:bot_creator/utils/runner_client.dart';
 import 'package:bot_creator/utils/subscription_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -351,11 +352,53 @@ class _AppHomePageState extends State<AppHomePage>
     appendBotDebugLog('[AppHome._init] Starting init for botId=$botId.');
     final app = await appManager.getApp(botId);
     var isRunning = false;
-    final remoteRuntime = await _resolveRemoteRuntime(
-      getTimeout: const Duration(seconds: 30),
-      postTimeout: const Duration(seconds: 90),
+
+    // Use a short timeout for the initial check — we don't want to block the
+    // UI for 30 s just to find out the session needs restoring.
+    var remoteRuntime = await _resolveRemoteRuntime(
+      getTimeout: const Duration(seconds: 5),
+      postTimeout: const Duration(seconds: 10),
     );
-    final remoteClient = remoteRuntime.client;
+    var remoteClient = remoteRuntime.client;
+
+    if (remoteClient == null &&
+        remoteRuntime.source == RemoteRuntimeSource.manager) {
+      final token = (app['token'] ?? '').toString().trim();
+      if (token.isNotEmpty) {
+        appendBotDebugLog(
+          '[AppHome._init] Manager client missing; restoring session directly via bot token.',
+        );
+        final restored = await _ownerSyncHelper
+            .restoreMainApiSessionWithBotToken(
+              botId: botId,
+              botToken: token,
+            )
+            .timeout(
+              const Duration(seconds: 8),
+              onTimeout: () {
+                appendBotDebugLog(
+                  '[AppHome._init] Session restore timed out (8s); continuing without manager.',
+                );
+                return false;
+              },
+            );
+        if (restored) {
+          appendBotDebugLog(
+            '[AppHome._init] Manager session restored successfully via bot token.',
+          );
+          remoteRuntime = await _resolveRemoteRuntime(
+            getTimeout: const Duration(seconds: 5),
+            postTimeout: const Duration(seconds: 10),
+          );
+          remoteClient = remoteRuntime.client;
+        } else {
+          appendBotDebugLog(
+            '[AppHome._init] Manager session restore failed.',
+          );
+        }
+      }
+    }
+
     appendBotDebugLog(
       '[AppHome._init] Runtime resolved: source=${remoteRuntime.source}, hasClient=${remoteClient != null}, blocksLocalFallback=${remoteRuntime.blocksLocalFallback}, detail=${remoteRuntime.detailLabel ?? 'none'}.',
     );
@@ -495,12 +538,15 @@ class _AppHomePageState extends State<AppHomePage>
   }
 
   Future<void> _refreshFreeRuntimeBalance() async {
+    final botId = widget.client.user.id.toString();
+    appendBotDebugLog('[_refreshFreeRuntimeBalance] Fetching runtime balance for botId=$botId.');
     final remoteRuntime = await _resolveRemoteRuntime(
       getTimeout: const Duration(seconds: 10),
       postTimeout: const Duration(seconds: 20),
     );
     final remoteClient = remoteRuntime.client;
     if (remoteClient is! MainApiClient) {
+      appendBotDebugLog('[_refreshFreeRuntimeBalance] No MainApiClient available (source=${remoteRuntime.source}); balance cleared.');
       if (!mounted) {
         return;
       }
@@ -510,11 +556,16 @@ class _AppHomePageState extends State<AppHomePage>
       return;
     }
 
-    final botId = widget.client.user.id.toString();
     try {
       final runtime = await remoteClient.getBotRuntime(botId);
       final balance = _extractFreeMinutes(
         runtime['free_minutes_balance'] ?? runtime['freeMinutesBalance'],
+      );
+      final sessionActive = runtime['session_active'] ?? runtime['sessionActive'];
+      final fundingMode = runtime['funding_mode'] ?? runtime['fundingMode'] ?? '';
+      appendBotDebugLog(
+        '[_refreshFreeRuntimeBalance] botId=$botId balance=$balance '
+        'session_active=$sessionActive funding_mode=$fundingMode.',
       );
       if (!mounted) {
         return;
@@ -522,7 +573,8 @@ class _AppHomePageState extends State<AppHomePage>
       setState(() {
         _freeMinutesBalance = balance;
       });
-    } catch (_) {
+    } catch (error) {
+      appendBotDebugLog('[_refreshFreeRuntimeBalance] getBotRuntime failed for botId=$botId: $error');
       // Keep UI resilient if runtime endpoint is temporarily unavailable.
     }
   }
@@ -638,21 +690,29 @@ class _AppHomePageState extends State<AppHomePage>
   }
 
   Future<int?> _fetchMainApiRuntimeBalance(String botId) async {
+    appendBotDebugLog('[_fetchMainApiRuntimeBalance] Fetching runtime balance for botId=$botId.');
     final remoteRuntime = await _resolveRemoteRuntime(
       getTimeout: const Duration(seconds: 10),
       postTimeout: const Duration(seconds: 20),
     );
     final remoteClient = remoteRuntime.client;
     if (remoteClient is! MainApiClient) {
+      appendBotDebugLog('[_fetchMainApiRuntimeBalance] No MainApiClient (source=${remoteRuntime.source}); returning null.');
       return null;
     }
 
     try {
       final runtime = await remoteClient.getBotRuntime(botId);
-      return _extractFreeMinutes(
+      final balance = _extractFreeMinutes(
         runtime['free_minutes_balance'] ?? runtime['freeMinutesBalance'],
       );
-    } catch (_) {
+      final sessionActive = runtime['session_active'] ?? runtime['sessionActive'];
+      appendBotDebugLog(
+        '[_fetchMainApiRuntimeBalance] botId=$botId balance=$balance session_active=$sessionActive.',
+      );
+      return balance;
+    } catch (error) {
+      appendBotDebugLog('[_fetchMainApiRuntimeBalance] getBotRuntime failed for botId=$botId: $error');
       return null;
     }
   }
@@ -661,21 +721,33 @@ class _AppHomePageState extends State<AppHomePage>
     required String botId,
     required int? previousBalance,
   }) async {
+    appendBotDebugLog(
+      '[_waitForMainApiRewardCredit] Starting poll for botId=$botId previousBalance=$previousBalance.',
+    );
     final remoteRuntime = await _resolveRemoteRuntime(
       getTimeout: const Duration(seconds: 10),
       postTimeout: const Duration(seconds: 20),
     );
     final remoteClient = remoteRuntime.client;
     if (remoteClient is! MainApiClient) {
+      appendBotDebugLog('[_waitForMainApiRewardCredit] No MainApiClient (source=${remoteRuntime.source}); skipping poll.');
       return true;
     }
 
     final deadline = DateTime.now().add(const Duration(seconds: 12));
+    var attempt = 0;
     while (DateTime.now().isBefore(deadline)) {
+      attempt++;
       try {
         final runtime = await remoteClient.getBotRuntime(botId);
         final balance = _extractFreeMinutes(
           runtime['free_minutes_balance'] ?? runtime['freeMinutesBalance'],
+        );
+        final sessionActive = runtime['session_active'] ?? runtime['sessionActive'];
+        final fundingMode = runtime['funding_mode'] ?? runtime['fundingMode'] ?? '';
+        appendBotDebugLog(
+          '[_waitForMainApiRewardCredit] attempt=$attempt botId=$botId '
+          'balance=$balance session_active=$sessionActive funding_mode=$fundingMode.',
         );
 
         if (mounted) {
@@ -686,15 +758,18 @@ class _AppHomePageState extends State<AppHomePage>
 
         if ((previousBalance != null && balance > previousBalance) ||
             _hasFreeRuntimeAvailable(runtime, balance)) {
+          appendBotDebugLog('[_waitForMainApiRewardCredit] Credit confirmed at attempt=$attempt for botId=$botId.');
           return true;
         }
-      } catch (_) {
+      } catch (error) {
+        appendBotDebugLog('[_waitForMainApiRewardCredit] getBotRuntime error at attempt=$attempt for botId=$botId: $error');
         // Keep polling until timeout.
       }
 
       await Future<void>.delayed(const Duration(seconds: 1));
     }
 
+    appendBotDebugLog('[_waitForMainApiRewardCredit] Timed out after $attempt attempts for botId=$botId.');
     return false;
   }
 

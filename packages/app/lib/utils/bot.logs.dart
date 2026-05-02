@@ -771,6 +771,7 @@ void appendBotDebugLog(
   String? botId,
   RemoteRuntimeSource source = RemoteRuntimeSource.local,
 }) {
+  developer.log(message, name: 'BotDebug');
   if (!_debugBotLogsEnabled) {
     return;
   }

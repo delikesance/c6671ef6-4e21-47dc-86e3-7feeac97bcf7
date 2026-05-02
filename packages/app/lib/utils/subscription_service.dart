@@ -481,8 +481,13 @@ class SubscriptionService {
   }
 
   static Future<void> _syncBillingEntitlement(PurchaseDetails purchase) async {
-    final receipt = purchase.verificationData.serverVerificationData.trim();
-    if (receipt.isEmpty) {
+    // On iOS the server needs the transactionId; on Android the purchaseToken.
+    final platform = Platform.isIOS ? 'ios' : 'android';
+    final serverVerificationData = Platform.isIOS
+        ? (purchase.purchaseID ?? '').trim()
+        : purchase.verificationData.serverVerificationData.trim();
+
+    if (serverVerificationData.isEmpty) {
       return;
     }
 
@@ -497,19 +502,19 @@ class SubscriptionService {
         baseUrl: config.baseUrl,
         accessToken: session.accessToken,
       );
-      final provider = Platform.isIOS ? 'apple' : 'google';
       final response = await client.verifyBilling(
-        provider: provider,
-        receipt: receipt,
-        transactionId: purchase.purchaseID,
+        platform: platform,
+        serverVerificationData: serverVerificationData,
+        productId: purchase.productID,
+        localTransactionId: purchase.purchaseID,
       );
       unawaited(
         AppDiagnostics.logInfo(
           'Subscription synced to main API',
           data: {
             'product': purchase.productID,
-            'provider': provider,
-            'status': response['status']?.toString() ?? '',
+            'platform': platform,
+            'active': response['active']?.toString() ?? '',
           },
         ),
       );

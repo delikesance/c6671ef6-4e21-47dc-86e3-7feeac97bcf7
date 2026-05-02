@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:bot_creator/utils/bot.dart';
 import 'package:bot_creator/utils/main_api_settings.dart';
 import 'package:bot_creator/utils/runner_client.dart';
 import 'package:http/http.dart' as http;
@@ -85,13 +86,18 @@ class MainApiClient implements RemoteRuntimeClient {
     Map<String, String?>? query,
     bool includeAuth = true,
   }) async {
-    final response = await _http
-        .get(
-          _uri(path, query: query),
-          headers: _headers(includeAuth: includeAuth),
-        )
-        .timeout(_timeout);
-    return _parseResponse(response);
+    final uri = _uri(path, query: query);
+    appendBotDebugLog('[MainApiClient] GET $uri');
+    try {
+      final response = await _http
+          .get(uri, headers: _headers(includeAuth: includeAuth))
+          .timeout(_timeout);
+      appendBotDebugLog('[MainApiClient] GET $uri responded with ${response.statusCode}');
+      return _parseResponse(response);
+    } catch (error) {
+      appendBotDebugLog('[MainApiClient] GET $uri failed: $error');
+      rethrow;
+    }
   }
 
   Future<Map<String, dynamic>> _post(
@@ -99,14 +105,23 @@ class MainApiClient implements RemoteRuntimeClient {
     Map<String, dynamic> body, {
     bool includeAuth = true,
   }) async {
-    final response = await _http
-        .post(
-          _uri(path),
-          headers: _headers(includeAuth: includeAuth),
-          body: jsonEncode(body),
-        )
-        .timeout(_timeout);
-    return _parseResponse(response);
+    final uri = _uri(path);
+    final encodedBody = jsonEncode(body);
+    appendBotDebugLog('[MainApiClient] POST $uri body=$encodedBody');
+    try {
+      final response = await _http
+          .post(
+            uri,
+            headers: _headers(includeAuth: includeAuth),
+            body: encodedBody,
+          )
+          .timeout(_timeout);
+      appendBotDebugLog('[MainApiClient] POST $uri responded with ${response.statusCode}');
+      return _parseResponse(response);
+    } catch (error) {
+      appendBotDebugLog('[MainApiClient] POST $uri failed: $error');
+      rethrow;
+    }
   }
 
   Map<String, dynamic> _parseResponse(http.Response response) {
@@ -304,14 +319,17 @@ class MainApiClient implements RemoteRuntimeClient {
   }
 
   Future<Map<String, dynamic>> verifyBilling({
-    required String provider,
-    required String receipt,
-    String? transactionId,
+    required String platform,
+    required String serverVerificationData,
+    required String productId,
+    String? localTransactionId,
   }) async {
     return _post('/billing/verify', <String, dynamic>{
-      'provider': provider,
-      'receipt': receipt,
-      if (_normalize(transactionId) case final value?) 'transaction_id': value,
+      'platform': platform,
+      'serverVerificationData': serverVerificationData,
+      'productId': productId,
+      if (_normalize(localTransactionId) case final value?)
+        'localTransactionId': value,
     });
   }
 
