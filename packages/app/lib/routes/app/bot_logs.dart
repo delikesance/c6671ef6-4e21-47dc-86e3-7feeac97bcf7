@@ -8,6 +8,8 @@ import 'package:bot_creator/utils/runner_client.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:bot_creator/main.dart';
+import 'package:bot_creator/utils/main_api_owner_sync.dart';
 
 class BotLogsPage extends StatefulWidget {
   const BotLogsPage({super.key, this.botId});
@@ -86,11 +88,52 @@ class _BotLogsPageState extends State<BotLogsPage> {
   }
 
   Future<void> _initRunnerPolling() async {
-    final runtime = await resolveRemoteRuntime(
+    var runtime = await resolveRemoteRuntime(
       supportsManagerRuntime: _supportsManagerRuntime,
-      getTimeout: const Duration(seconds: 30),
-      postTimeout: const Duration(seconds: 90),
+      getTimeout: const Duration(seconds: 5),
+      postTimeout: const Duration(seconds: 10),
     );
+
+    final botId = _selectedBotId;
+    if (runtime.client == null &&
+        runtime.source == RemoteRuntimeSource.manager &&
+        botId != null) {
+      final app = await appManager.getApp(botId);
+      final token = (app['token'] ?? '').toString().trim();
+      if (token.isNotEmpty) {
+        final helper = MainApiOwnerSyncHelper(
+          resolveRuntime:
+              ({
+                getTimeout = const Duration(seconds: 5),
+                postTimeout = const Duration(seconds: 10),
+              }) => resolveRemoteRuntime(
+                supportsManagerRuntime: _supportsManagerRuntime,
+                getTimeout: getTimeout,
+                postTimeout: postTimeout,
+              ),
+          loadLocalBotById: (id) async => await appManager.getApp(id),
+          log: appendBotDebugLog,
+        );
+
+        final restored = await helper
+            .restoreMainApiSessionWithBotToken(
+              botId: botId,
+              botToken: token,
+            )
+            .timeout(
+              const Duration(seconds: 8),
+              onTimeout: () => false,
+            );
+        if (restored) {
+          runtime = await resolveRemoteRuntime(
+            supportsManagerRuntime: _supportsManagerRuntime,
+            getTimeout: const Duration(seconds: 5),
+            postTimeout: const Duration(seconds: 10),
+          );
+        }
+      }
+    }
+
     _runtimeClient = runtime.client;
     _runtimeSource = runtime.source;
     if (!mounted) return;

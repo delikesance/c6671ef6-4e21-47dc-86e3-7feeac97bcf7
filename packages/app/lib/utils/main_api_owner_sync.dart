@@ -229,8 +229,8 @@ class MainApiOwnerSyncHelper {
       'resolveMainApiClientForBot($botId) called: tokenProvided=${botToken?.trim().isNotEmpty == true}, attemptSessionRestore=$attemptSessionRestore, ownerOverrideCount=${ownerCandidatesOverride.length}, preferredOwnerOverride=${preferredOwnerIdOverride?.trim().isNotEmpty == true ? preferredOwnerIdOverride!.trim() : 'none'}.',
     );
     var runtime = await resolveRuntime(
-      getTimeout: const Duration(seconds: 10),
-      postTimeout: const Duration(seconds: 20),
+      getTimeout: const Duration(seconds: 5),
+      postTimeout: const Duration(seconds: 8),
     );
     log(
       'resolveMainApiClientForBot($botId): initial runtime source=${runtime.source}, hasClient=${runtime.client != null}.',
@@ -254,6 +254,12 @@ class MainApiOwnerSyncHelper {
       ownerMetadata = await resolveDiscordOwnerMetadataForBotStart(
         botId: botId,
         token: resolvedToken,
+      ).timeout(
+        const Duration(seconds: 5),
+        onTimeout: () {
+          log('resolveMainApiClientForBot($botId): Discord owner lookup timed out; continuing without owner context.');
+          return null;
+        },
       );
       ownerCandidates = ownerMetadata?.ownerCandidateIds ?? const <String>[];
       log(
@@ -313,8 +319,8 @@ class MainApiOwnerSyncHelper {
     }
 
     runtime = await resolveRuntime(
-      getTimeout: const Duration(seconds: 10),
-      postTimeout: const Duration(seconds: 20),
+      getTimeout: const Duration(seconds: 5),
+      postTimeout: const Duration(seconds: 8),
     );
     final refreshedClient = runtime.client;
     log(
