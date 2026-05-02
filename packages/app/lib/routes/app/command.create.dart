@@ -13,9 +13,13 @@ import 'package:bot_creator/types/action.dart' show BotCreatorActionType;
 import 'package:bot_creator/utils/analytics.dart';
 import 'package:bot_creator/utils/app_emoji_api.dart';
 import 'package:bot_creator/utils/bot.dart';
+import 'package:bot_creator/utils/bot_payload_builder.dart';
 import 'package:bot_creator/utils/command_variable_catalog.dart';
 import 'package:bot_creator/utils/embed_normalization.dart';
+import 'package:bot_creator/utils/global.dart';
 import 'package:bot_creator/utils/i18n.dart';
+import 'package:bot_creator/utils/main_api_client.dart';
+import 'package:bot_creator/utils/main_api_settings.dart';
 import 'package:bot_creator/utils/simple_mode.dart';
 import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 import 'package:bot_creator/widgets/bdfd_editor_page.dart';
@@ -32,6 +36,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:uuid/uuid.dart';
+import 'dart:developer' as developer;
 
 part 'command.create.variable_suggestions.dart';
 part 'command.create.serialization.dart';
@@ -942,9 +947,21 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   }
 
   Future<void> _saveExistingCommand() async {
+    developer.log(
+      '[_saveExistingCommand] invoked — commandName="$_commandName" existingId=$_existingCommandStorageId isEditing=$_isEditingExistingCommand isDirty=$_isDirty',
+      name: 'CommandCreatePage',
+    );
     if (!_validateCommandInputs()) {
+      developer.log(
+        '[_saveExistingCommand] validation FAILED, aborting save.',
+        name: 'CommandCreatePage',
+      );
       return;
     }
+    developer.log(
+      '[_saveExistingCommand] validation passed, logging analytics and calling _updateOrCreate.',
+      name: 'CommandCreatePage',
+    );
     unawaited(
       AppAnalytics.logEvent(
         name: "update_command",
@@ -955,6 +972,244 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       ),
     );
     await _updateOrCreate();
+    developer.log(
+      '[_saveExistingCommand] _updateOrCreate completed.',
+      name: 'CommandCreatePage',
+    );
+  }
+
+  Future<MainApiClient?> _resolveMainApiClientForCloudSync({
+    required String botId,
+    required String botToken,
+  }) async {
+    developer.log(
+      '[_resolveMainApiClientForCloudSync] START botId=$botId tokenPresent=${botToken.isNotEmpty}',
+      name: 'CommandCreatePage',
+    );
+    final config = await MainApiSettingsStore.loadConfig();
+    developer.log(
+      '[_resolveMainApiClientForCloudSync] config loaded: isConfigured=${config.isConfigured} baseUrl=${config.isConfigured ? config.baseUrl : "(not set)"}',
+      name: 'CommandCreatePage',
+    );
+    if (!config.isConfigured) {
+      developer.log(
+        '[_resolveMainApiClientForCloudSync] SKIP botId=$botId: Main API base URL is not configured.',
+        name: 'CommandCreatePage',
+      );
+      return null;
+    }
+
+    developer.log(
+      '[_resolveMainApiClientForCloudSync] loading stored session for botId=$botId',
+      name: 'CommandCreatePage',
+    );
+    final session = await MainApiSettingsStore.loadSession();
+    developer.log(
+      '[_resolveMainApiClientForCloudSync] session: present=${session != null} expired=${session?.isExpired} userId=${session?.userId ?? "(none)"}',
+      name: 'CommandCreatePage',
+    );
+
+    developer.log(
+      '[_resolveMainApiClientForCloudSync] fetching Discord application owner metadata (tokenPresent=${botToken.isNotEmpty}) for botId=$botId',
+      name: 'CommandCreatePage',
+    );
+    final ownerMetadata =
+        botToken.trim().isEmpty
+            ? null
+            : await getDiscordApplicationOwnerMetadata(botToken);
+    final ownerCandidates =
+        ownerMetadata?.ownerCandidateIds ?? const <String>[];
+    final sessionOwnerId = (session?.userId ?? '').trim();
+    developer.log(
+      '[_resolveMainApiClientForCloudSync] ownerMetadata: present=${ownerMetadata != null} candidates=$ownerCandidates sessionOwnerId="$sessionOwnerId" for botId=$botId',
+      name: 'CommandCreatePage',
+    );
+
+    final hasUsableSession =
+        session != null &&
+        !session.isExpired &&
+        (ownerCandidates.isEmpty || ownerCandidates.contains(sessionOwnerId));
+    developer.log(
+      '[_resolveMainApiClientForCloudSync] hasUsableSession=$hasUsableSession (sessionPresent=${session != null} sessionExpired=${session?.isExpired} ownerMatch=${ownerCandidates.isEmpty || ownerCandidates.contains(sessionOwnerId)}) for botId=$botId',
+      name: 'CommandCreatePage',
+    );
+    if (hasUsableSession) {
+      developer.log(
+        '[_resolveMainApiClientForCloudSync] REUSING existing Main API session (botId=$botId owner=${sessionOwnerId.isEmpty ? "unknown" : sessionOwnerId}).',
+        name: 'CommandCreatePage',
+      );
+      return MainApiClient(
+        baseUrl: config.baseUrl,
+        accessToken: session.accessToken,
+      );
+    }
+
+    if (session != null && !session.isExpired && ownerCandidates.isNotEmpty) {
+      developer.log(
+        '[_resolveMainApiClientForCloudSync] OWNER MISMATCH on existing session (botId=$botId sessionOwner=$sessionOwnerId expectedOneOf=${ownerCandidates.join(",")}). Will restore session from bot token.',
+        name: 'CommandCreatePage',
+      );
+    }
+
+    if (botToken.trim().isEmpty) {
+      developer.log(
+        '[_resolveMainApiClientForCloudSync] SKIP botId=$botId: no usable session and bot token is missing — cannot restore.',
+        name: 'CommandCreatePage',
+      );
+      return null;
+    }
+
+    developer.log(
+      '[_resolveMainApiClientForCloudSync] attempting exchangeDiscordBotToken for botId=$botId preferredOwnerId=${ownerMetadata?.resolveOwnerId(preferredOwnerId: session?.userId)}',
+      name: 'CommandCreatePage',
+    );
+    try {
+      final restoredSession = await MainApiClient(
+        baseUrl: config.baseUrl,
+      ).exchangeDiscordBotToken(
+        botToken: botToken,
+        preferredOwnerId: ownerMetadata?.resolveOwnerId(
+          preferredOwnerId: session?.userId,
+        ),
+      );
+      developer.log(
+        '[_resolveMainApiClientForCloudSync] exchangeDiscordBotToken OK: restoredUserId=${restoredSession.userId} isExpired=${restoredSession.isExpired} for botId=$botId',
+        name: 'CommandCreatePage',
+      );
+
+      final restoredOwnerId = (restoredSession.userId ?? '').trim();
+      if (ownerCandidates.isNotEmpty &&
+          restoredOwnerId.isNotEmpty &&
+          !ownerCandidates.contains(restoredOwnerId)) {
+        developer.log(
+          '[_resolveMainApiClientForCloudSync] OWNER MISMATCH after token exchange (botId=$botId restoredOwner=$restoredOwnerId expectedOneOf=${ownerCandidates.join(",")}). Aborting.',
+          name: 'CommandCreatePage',
+        );
+        return null;
+      }
+
+      developer.log(
+        '[_resolveMainApiClientForCloudSync] saving restored session and returning client (botId=$botId owner=${restoredSession.userId ?? "unknown"}).',
+        name: 'CommandCreatePage',
+      );
+      await MainApiSettingsStore.saveSession(restoredSession);
+      developer.log(
+        '[_resolveMainApiClientForCloudSync] session saved OK for botId=$botId.',
+        name: 'CommandCreatePage',
+      );
+
+      return MainApiClient(
+        baseUrl: config.baseUrl,
+        accessToken: restoredSession.accessToken,
+      );
+    } catch (error, stackTrace) {
+      developer.log(
+        '[_resolveMainApiClientForCloudSync] EXCEPTION during token exchange for botId=$botId: $error',
+        name: 'CommandCreatePage',
+        stackTrace: stackTrace,
+      );
+      return null;
+    }
+  }
+
+  Future<bool> _syncCommandChangesToCloud({required String botId}) async {
+    developer.log(
+      '[_syncCommandChangesToCloud] START botId=$botId commandName="$_commandName"',
+      name: 'CommandCreatePage',
+    );
+    try {
+      developer.log(
+        '[_syncCommandChangesToCloud] fetching app data for botId=$botId',
+        name: 'CommandCreatePage',
+      );
+      final app = await appManager.getApp(botId);
+      final botToken = (app['token'] ?? '').toString().trim();
+      final botName = (app['name'] ?? botId).toString().trim();
+      developer.log(
+        '[_syncCommandChangesToCloud] app fetched — botName="$botName" tokenPresent=${botToken.isNotEmpty} tokenLength=${botToken.length}',
+        name: 'CommandCreatePage',
+      );
+
+      developer.log(
+        '[_syncCommandChangesToCloud] resolving Main API client for botId=$botId',
+        name: 'CommandCreatePage',
+      );
+      final mainApiClient = await _resolveMainApiClientForCloudSync(
+        botId: botId,
+        botToken: botToken,
+      );
+      if (mainApiClient == null) {
+        developer.log(
+          '[_syncCommandChangesToCloud] ABORT — could not resolve a Main API client (no config, no session, or owner mismatch) for botId=$botId',
+          name: 'CommandCreatePage',
+        );
+        return false;
+      }
+      developer.log(
+        '[_syncCommandChangesToCloud] Main API client resolved OK for botId=$botId',
+        name: 'CommandCreatePage',
+      );
+
+      developer.log(
+        '[_syncCommandChangesToCloud] building bot payload for botId=$botId',
+        name: 'CommandCreatePage',
+      );
+      final payload = await buildBotPayload(botId);
+      developer.log(
+        '[_syncCommandChangesToCloud] payload built — topLevelKeys=${payload.keys.toList()} for botId=$botId',
+        name: 'CommandCreatePage',
+      );
+
+      try {
+        developer.log(
+          '[_syncCommandChangesToCloud] calling syncBot botId=$botId botName="${botName.isEmpty ? botId : botName}"',
+          name: 'CommandCreatePage',
+        );
+        await mainApiClient.syncBot(
+          botId,
+          botName.isEmpty ? botId : botName,
+          payload,
+        );
+        developer.log(
+          '[_syncCommandChangesToCloud] syncBot SUCCESS botId=$botId',
+          name: 'CommandCreatePage',
+        );
+        return true;
+      } catch (error, stackTrace) {
+        developer.log(
+          '[_syncCommandChangesToCloud] syncBot FAILED for botId=$botId: $error — will attempt snapshot fallback=${botToken.isNotEmpty}',
+          name: 'CommandCreatePage',
+          stackTrace: stackTrace,
+        );
+        if (botToken.isNotEmpty) {
+          developer.log(
+            '[_syncCommandChangesToCloud] attempting saveDiscordBotSnapshot fallback for botId=$botId',
+            name: 'CommandCreatePage',
+          );
+          await mainApiClient.saveDiscordBotSnapshot(
+            botToken: botToken,
+            config: payload,
+          );
+          developer.log(
+            '[_syncCommandChangesToCloud] saveDiscordBotSnapshot fallback SUCCESS botId=$botId',
+            name: 'CommandCreatePage',
+          );
+          return true;
+        }
+        developer.log(
+          '[_syncCommandChangesToCloud] no bot token for fallback snapshot, giving up for botId=$botId',
+          name: 'CommandCreatePage',
+        );
+        return false;
+      }
+    } catch (error, stackTrace) {
+      developer.log(
+        '[_syncCommandChangesToCloud] EXCEPTION in cloud sync for botId=$botId: $error',
+        name: 'CommandCreatePage',
+        stackTrace: stackTrace,
+      );
+      return false;
+    }
   }
 
   void _openDocumentationCenter() {
@@ -1425,6 +1680,10 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   }
 
   Future<void> _updateOrCreate() async {
+    developer.log(
+      '[_updateOrCreate] START commandName="$_commandName" isEditing=$_isEditingExistingCommand isLocalOnly=$_localOnlyCommand isSimpleMode=$_isSimpleMode botId=$_botIdForConfig existingId=$_existingCommandStorageId commandType=$_commandType clientNull=${widget.client == null}',
+      name: 'CommandCreatePage',
+    );
     // check if any field is empty
     if (_commandName.isEmpty ||
         (_requiresCommandDescription && _commandDescription.isEmpty)) {
@@ -1468,19 +1727,38 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       return;
     }
 
+    developer.log(
+      '[_updateOrCreate] persisting active subcommand workflow state',
+      name: 'CommandCreatePage',
+    );
     _persistActiveSubcommandWorkflow();
 
     final effectiveOptions = _effectiveOptions;
     final effectiveActions = _effectiveActions;
-
+    developer.log(
+      '[_updateOrCreate] building command data payload (effectiveOptionsCount=${effectiveOptions.length} effectiveActionsCount=${effectiveActions.length})',
+      name: 'CommandCreatePage',
+    );
     final commandData = _buildCommandDataPayload(
       effectiveActions: effectiveActions,
+    );
+    developer.log(
+      '[_updateOrCreate] commandData built (topLevelKeys=${commandData.keys.toList()})',
+      name: 'CommandCreatePage',
     );
 
     final client = widget.client;
     final botId = _botIdForConfig;
     final existingStorageId = _existingCommandStorageId;
+    developer.log(
+      '[_updateOrCreate] resolved botId=$botId existingStorageId=$existingStorageId clientNull=${client == null}',
+      name: 'CommandCreatePage',
+    );
     if (botId == null) {
+      developer.log(
+        '[_updateOrCreate] ERROR botId is null — showing error dialog and aborting.',
+        name: 'CommandCreatePage',
+      );
       final dialog = AlertDialog(
         title: Text(context.tr.error),
         content: Text(context.tr.command_error_missing_bot_id),
@@ -1498,6 +1776,10 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     }
 
     Future<void> saveLocal(String commandId) async {
+      developer.log(
+        '[saveLocal] saving commandId=$commandId botId=$botId name="$_commandName" folder="$_folder" isEditing=$_isEditingExistingCommand',
+        name: 'CommandCreatePage',
+      );
       final localPayload = <String, dynamic>{
         'name': _commandName,
         'description': _effectiveCommandDescription,
@@ -1513,15 +1795,31 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       }
 
       await appManager.saveAppCommand(botId, commandId, localPayload);
+      developer.log(
+        '[saveLocal] saved OK commandId=$commandId botId=$botId',
+        name: 'CommandCreatePage',
+      );
     }
 
     if (client == null) {
+      developer.log(
+        '[_updateOrCreate] no Discord client — saving locally only (botId=$botId existingId=$existingStorageId localOnly=$_localOnlyCommand)',
+        name: 'CommandCreatePage',
+      );
       final localCommandId =
           existingStorageId ??
           (_localOnlyCommand
               ? _generateLegacyOnlyCommandId()
               : DateTime.now().microsecondsSinceEpoch.toString());
+      developer.log(
+        '[_updateOrCreate] saving local commandId=$localCommandId',
+        name: 'CommandCreatePage',
+      );
       await saveLocal(localCommandId);
+      developer.log(
+        '[_updateOrCreate] local save done, popping.',
+        name: 'CommandCreatePage',
+      );
       if (!mounted) {
         return;
       }
@@ -1531,10 +1829,21 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
 
     try {
       if (_localOnlyCommand) {
-        final localCommandId = existingStorageId ?? _generateLegacyOnlyCommandId();
-
+        developer.log(
+          '[_updateOrCreate] _localOnlyCommand=true, saving locally (botId=$botId existingId=$existingStorageId)',
+          name: 'CommandCreatePage',
+        );
+        final localCommandId =
+            existingStorageId ?? _generateLegacyOnlyCommandId();
+        developer.log(
+          '[_updateOrCreate] saving local commandId=$localCommandId',
+          name: 'CommandCreatePage',
+        );
         await saveLocal(localCommandId);
-
+        developer.log(
+          '[_updateOrCreate] local-only save done, popping.',
+          name: 'CommandCreatePage',
+        );
         if (!mounted) {
           return;
         }
@@ -1569,17 +1878,57 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         if (_contexts.isNotEmpty) {
           commandBuilder.contexts = _contexts;
         }
+        developer.log(
+          '[_updateOrCreate] calling createCommand on Discord (botId=$botId commandName="$_commandName" type=$_commandType folder="$_folder" optionsCount=${effectiveOptions.length})',
+          name: 'CommandCreatePage',
+        );
         await createCommand(
           client,
           commandBuilder,
           data: commandData,
           folder: _folder,
         );
+        developer.log(
+          '[_updateOrCreate] Discord createCommand succeeded (botId=$botId commandName="$_commandName")',
+          name: 'CommandCreatePage',
+        );
+        developer.log(
+          '[_updateOrCreate] triggering cloud sync after create (botId=$botId)',
+          name: 'CommandCreatePage',
+        );
+        final cloudSyncOk = await _syncCommandChangesToCloud(botId: botId);
+        developer.log(
+          '[_updateOrCreate] cloud sync after create result=$cloudSyncOk (botId=$botId)',
+          name: 'CommandCreatePage',
+        );
+        if (!cloudSyncOk && mounted) {
+          developer.log(
+            '[_updateOrCreate] showing cloud sync failure snackbar (create path, botId=$botId)',
+            name: 'CommandCreatePage',
+          );
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                context.tr.error_with_details(
+                  'Cloud sync failed. Your command is saved locally but not yet deployed to Bot Creator servers.',
+                ),
+              ),
+            ),
+          );
+        }
         // Delete the old temp-ID file if this was a local-only command
         if (_isLocalOnlyCommand) {
           final previousId = existingStorageId;
+          developer.log(
+            '[_updateOrCreate] cleaning up old local-only command file (previousId=$previousId botId=$botId)',
+            name: 'CommandCreatePage',
+          );
           if (previousId != null) {
             await appManager.deleteAppCommand(botId, previousId);
+            developer.log(
+              '[_updateOrCreate] deleted old local-only command file (previousId=$previousId botId=$botId)',
+              name: 'CommandCreatePage',
+            );
           }
         }
       } else {
@@ -1617,6 +1966,10 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           }
         }
 
+        developer.log(
+          '[_updateOrCreate] calling updateCommand on Discord (botId=$botId commandId=${widget.id} commandName="$_commandName" type=$_commandType folder="$_folder" optionsCount=${effectiveOptions.length})',
+          name: 'CommandCreatePage',
+        );
         await updateCommand(
           client,
           widget.id,
@@ -1624,11 +1977,51 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           data: commandData,
           folder: _folder,
         );
+        developer.log(
+          '[_updateOrCreate] Discord updateCommand succeeded (botId=$botId commandId=${widget.id})',
+          name: 'CommandCreatePage',
+        );
+        developer.log(
+          '[_updateOrCreate] triggering cloud sync after update (botId=$botId)',
+          name: 'CommandCreatePage',
+        );
+        final cloudSyncOk = await _syncCommandChangesToCloud(botId: botId);
+        developer.log(
+          '[_updateOrCreate] cloud sync after update result=$cloudSyncOk (botId=$botId)',
+          name: 'CommandCreatePage',
+        );
+        if (!cloudSyncOk && mounted) {
+          developer.log(
+            '[_updateOrCreate] showing cloud sync failure snackbar (update path, botId=$botId)',
+            name: 'CommandCreatePage',
+          );
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                context.tr.error_with_details(
+                  'Cloud sync failed. Your command is saved locally but not yet deployed to Bot Creator servers.',
+                ),
+              ),
+            ),
+          );
+        }
       }
+      developer.log(
+        '[_updateOrCreate] SUCCESS — popping (botId=$botId commandName="$_commandName")',
+        name: 'CommandCreatePage',
+      );
       Navigator.pop(context);
     } catch (e) {
+      developer.log(
+        '[_updateOrCreate] EXCEPTION caught — falling back to local save (botId=$botId commandName="$_commandName"): $e',
+        name: 'CommandCreatePage',
+      );
       final localCommandId =
           existingStorageId ?? DateTime.now().microsecondsSinceEpoch.toString();
+      developer.log(
+        '[_updateOrCreate] fallback local save commandId=$localCommandId',
+        name: 'CommandCreatePage',
+      );
       await saveLocal(localCommandId);
       final errorText = context.tr.command_sync_failed_local('$e');
       final dialog = AlertDialog(
@@ -1711,14 +2104,14 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                 icon: const Icon(Icons.delete),
                 tooltip: context.tr.cmd_delete_tooltip,
                 onPressed: () async {
-                  final shouldDelete =
-                      await AppTheme.showConfirmDialog(
-                        context,
-                        title: context.tr.cmd_delete_tooltip,
-                        content: 'This command will be deleted permanently. Continue?',
-                        confirmLabel: context.tr.delete,
-                        isDestructive: true,
-                      );
+                  final shouldDelete = await AppTheme.showConfirmDialog(
+                    context,
+                    title: context.tr.cmd_delete_tooltip,
+                    content:
+                        'This command will be deleted permanently. Continue?',
+                    confirmLabel: context.tr.delete,
+                    isDestructive: true,
+                  );
                   if (!shouldDelete) {
                     return;
                   }
@@ -1829,10 +2222,10 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                                   padding: const EdgeInsets.all(14),
                                   decoration: BoxDecoration(
                                     color: AppTheme.warning,
-                                    border: Border.all(
-                                      color: AppTheme.warning,
+                                    border: Border.all(color: AppTheme.warning),
+                                    borderRadius: BorderRadius.circular(
+                                      AppTheme.radiusMd,
                                     ),
-                                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                                   ),
                                   child: Row(
                                     children: [

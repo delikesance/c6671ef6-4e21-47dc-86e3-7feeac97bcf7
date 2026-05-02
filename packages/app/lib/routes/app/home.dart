@@ -13,6 +13,7 @@ import 'package:bot_creator/utils/i18n.dart';
 import 'package:bot_creator/utils/ad_reward_service.dart';
 import 'package:bot_creator/utils/global.dart';
 import 'package:bot_creator/utils/main_api_client.dart';
+import 'package:bot_creator/utils/main_api_owner_sync.dart';
 import 'package:bot_creator/utils/main_api_settings.dart';
 import 'package:bot_creator/utils/ad_consent_service.dart';
 import 'package:bot_creator/utils/external_link.dart';
@@ -163,38 +164,28 @@ class _AppHomePageState extends State<AppHomePage>
     );
   }
 
+  MainApiOwnerSyncHelper get _ownerSyncHelper => MainApiOwnerSyncHelper(
+    resolveRuntime:
+        ({
+          getTimeout = const Duration(seconds: 30),
+          postTimeout = const Duration(seconds: 90),
+        }) => _resolveRemoteRuntime(
+          getTimeout: getTimeout,
+          postTimeout: postTimeout,
+        ),
+    loadLocalBotById: (botId) async => await appManager.getApp(botId),
+    log: appendBotDebugLog,
+  );
+
   Future<DiscordApplicationOwnerMetadata?>
   _resolveDiscordOwnerMetadataForBotStart({
     required String botId,
     required String? token,
   }) async {
-    final trimmedToken = token?.trim() ?? '';
-    if (trimmedToken.isEmpty) {
-      appendBotDebugLog(
-        'Unable to resolve Discord owner for $botId: bot token is missing.',
-      );
-      return null;
-    }
-
-    try {
-      final metadata = await getDiscordApplicationOwnerMetadata(trimmedToken);
-      if (metadata == null || metadata.ownerCandidateIds.isEmpty) {
-        appendBotDebugLog(
-          'Discord owner lookup via /applications/@me returned empty for $botId.',
-        );
-        return null;
-      }
-
-      appendBotDebugLog(
-        'Discord owner metadata resolved via /applications/@me for $botId: ${metadata.candidatesLabel}',
-      );
-      return metadata;
-    } catch (error) {
-      appendBotDebugLog(
-        'Discord owner lookup via /applications/@me failed for $botId: $error',
-      );
-      return null;
-    }
+    return _ownerSyncHelper.resolveDiscordOwnerMetadataForBotStart(
+      botId: botId,
+      token: token,
+    );
   }
 
   Future<bool> _restoreMainApiSessionWithBotToken({
@@ -203,55 +194,12 @@ class _AppHomePageState extends State<AppHomePage>
     String? preferredOwnerId,
     Iterable<String> acceptableOwnerIds = const <String>[],
   }) async {
-    final trimmedToken = botToken?.trim() ?? '';
-    if (trimmedToken.isEmpty) {
-      appendBotDebugLog(
-        'Manager session restore skipped for $botId: bot token is missing.',
-      );
-      return false;
-    }
-
-    try {
-      final config = await MainApiSettingsStore.loadConfig();
-      if (!config.isConfigured) {
-        appendBotDebugLog(
-          'Manager session restore skipped for $botId: manager base URL is not configured.',
-        );
-        return false;
-      }
-
-      final client = MainApiClient(baseUrl: config.baseUrl);
-      final normalizedPreferredOwner = preferredOwnerId?.trim() ?? '';
-      final session = await client.exchangeDiscordBotToken(
-        botToken: trimmedToken,
-        preferredOwnerId:
-            normalizedPreferredOwner.isEmpty ? null : normalizedPreferredOwner,
-      );
-
-      final normalizedSessionOwner = session.userId?.trim() ?? '';
-      final normalizedAcceptableOwners =
-          acceptableOwnerIds
-              .map((ownerId) => ownerId.trim())
-              .where((ownerId) => ownerId.isNotEmpty)
-              .toSet();
-      if (normalizedAcceptableOwners.isNotEmpty &&
-          normalizedSessionOwner.isNotEmpty &&
-          !normalizedAcceptableOwners.contains(normalizedSessionOwner)) {
-        appendBotDebugLog(
-          'Manager session restore rejected for $botId: owner mismatch expected=${normalizedAcceptableOwners.join(',')} actual=$normalizedSessionOwner.',
-        );
-        return false;
-      }
-
-      await MainApiSettingsStore.saveSession(session);
-      appendBotDebugLog(
-        "Manager session restored from bot token for $botId (owner=${normalizedSessionOwner.isEmpty ? 'unknown' : normalizedSessionOwner}).",
-      );
-      return true;
-    } catch (error) {
-      appendBotDebugLog('Manager session restore failed for $botId: $error');
-      return false;
-    }
+    return _ownerSyncHelper.restoreMainApiSessionWithBotToken(
+      botId: botId,
+      botToken: botToken,
+      preferredOwnerId: preferredOwnerId,
+      acceptableOwnerIds: acceptableOwnerIds,
+    );
   }
 
   Future<MainApiClient?> _resolveMainApiClientForBot({
@@ -259,69 +207,11 @@ class _AppHomePageState extends State<AppHomePage>
     String? botToken,
     bool attemptSessionRestore = true,
   }) async {
-    var runtime = await _resolveRemoteRuntime(
-      getTimeout: const Duration(seconds: 10),
-      postTimeout: const Duration(seconds: 20),
-    );
-    var resolvedToken = botToken?.trim() ?? '';
-    if (resolvedToken.isEmpty) {
-      final app = await appManager.getApp(botId);
-      resolvedToken = (app['token'] ?? '').toString().trim();
-    }
-    final ownerMetadata =
-        resolvedToken.isEmpty
-            ? null
-            : await _resolveDiscordOwnerMetadataForBotStart(
-              botId: botId,
-              token: resolvedToken,
-            );
-    final ownerCandidates =
-        ownerMetadata?.ownerCandidateIds ?? const <String>[];
-    final session = await MainApiSettingsStore.loadSession();
-    final sessionOwnerId = session?.userId?.trim() ?? '';
-    final directClient = runtime.client;
-    final hasMatchingManagerSession =
-        directClient is MainApiClient &&
-        session != null &&
-        !session.isExpired &&
-        (ownerCandidates.isEmpty ||
-            ownerMetadata!.matchesOwnerId(sessionOwnerId));
-    if (hasMatchingManagerSession) {
-      return directClient;
-    }
-
-    if (!attemptSessionRestore || resolvedToken.isEmpty) {
-      return ownerCandidates.isEmpty && directClient is MainApiClient
-          ? directClient
-          : null;
-    }
-
-    if (ownerCandidates.isNotEmpty &&
-        sessionOwnerId.isNotEmpty &&
-        !ownerMetadata!.matchesOwnerId(sessionOwnerId)) {
-      appendBotDebugLog(
-        'Manager session owner mismatch for $botId: expected one of ${ownerCandidates.join(',')} actual=$sessionOwnerId. Restoring from bot token.',
-      );
-    }
-
-    final restored = await _restoreMainApiSessionWithBotToken(
+    return _ownerSyncHelper.resolveMainApiClientForBot(
       botId: botId,
-      botToken: resolvedToken,
-      preferredOwnerId: ownerMetadata?.resolveOwnerId(
-        preferredOwnerId: sessionOwnerId,
-      ),
-      acceptableOwnerIds: ownerCandidates,
+      botToken: botToken,
+      attemptSessionRestore: attemptSessionRestore,
     );
-    if (!restored) {
-      return null;
-    }
-
-    runtime = await _resolveRemoteRuntime(
-      getTimeout: const Duration(seconds: 10),
-      postTimeout: const Duration(seconds: 20),
-    );
-    final refreshedClient = runtime.client;
-    return refreshedClient is MainApiClient ? refreshedClient : null;
   }
 
   @override
@@ -400,6 +290,7 @@ class _AppHomePageState extends State<AppHomePage>
 
   Future<void> _init() async {
     final botId = widget.client.user.id.toString();
+    appendBotDebugLog('[AppHome._init] Starting init for botId=$botId.');
     final app = await appManager.getApp(botId);
     var isRunning = false;
     final remoteRuntime = await _resolveRemoteRuntime(
@@ -407,6 +298,9 @@ class _AppHomePageState extends State<AppHomePage>
       postTimeout: const Duration(seconds: 90),
     );
     final remoteClient = remoteRuntime.client;
+    appendBotDebugLog(
+      '[AppHome._init] Runtime resolved: source=${remoteRuntime.source}, hasClient=${remoteClient != null}, blocksLocalFallback=${remoteRuntime.blocksLocalFallback}, detail=${remoteRuntime.detailLabel ?? 'none'}.',
+    );
     unawaited(
       SubscriptionService.resolveEffectivePremiumStatus(
         client: remoteClient is MainApiClient ? remoteClient : null,
@@ -415,41 +309,84 @@ class _AppHomePageState extends State<AppHomePage>
     );
     if (remoteClient != null) {
       try {
-        final status = await remoteClient.getStatus();
+        appendBotDebugLog(
+          '[AppHome._init] Fetching per-bot status via ${remoteClient.runtimeType} for botId=$botId.',
+        );
+        final status = await remoteClient.getStatus(botId: botId);
+        appendBotDebugLog(
+          '[AppHome._init] Status fetched: running=${status.running}, activeBotId=${status.activeBotId ?? 'none'}, botEntries=${status.bots.length}.',
+        );
         isRunning = status.isBotRunning(botId);
+        appendBotDebugLog(
+          '[AppHome._init] Bot running evaluation from remote status: botId=$botId, isRunning=$isRunning.',
+        );
       } catch (_) {
+        appendBotDebugLog(
+          '[AppHome._init] Failed to fetch remote status; defaulting isRunning=false.',
+        );
         isRunning = false;
       }
     } else if (remoteRuntime.blocksLocalFallback) {
+      appendBotDebugLog(
+        '[AppHome._init] Local fallback blocked and no remote client available; forcing isRunning=false.',
+      );
       isRunning = false;
     } else {
       if (_supportsForegroundTask) {
         try {
+          appendBotDebugLog(
+            '[AppHome._init] Using foreground-task fallback for botId=$botId.',
+          );
           final readyIds = await getReadyMobileBotIds();
+          appendBotDebugLog(
+            '[AppHome._init] Ready mobile ids=${readyIds.join(',')}.',
+          );
           if (readyIds.contains(botId) || isMobileBotRunning(botId)) {
             isRunning = true;
+            appendBotDebugLog(
+              '[AppHome._init] Marked running from readyIds/isMobileBotRunning.',
+            );
           } else {
             final configuredIds = await getConfiguredMobileBotIds();
             final serviceRunning = await FlutterForegroundTask.isRunningService;
             // Fallback: if the bot is configured and the foreground service is
             // alive, keep Home state consistent when navigating between pages.
             isRunning = serviceRunning && configuredIds.contains(botId);
+            appendBotDebugLog(
+              '[AppHome._init] Foreground fallback computed isRunning=$isRunning (serviceRunning=$serviceRunning, configuredIds=${configuredIds.join(',')}).',
+            );
           }
         } on MissingPluginException {
+          appendBotDebugLog(
+            '[AppHome._init] Foreground plugin unavailable; forcing isRunning=false.',
+          );
           isRunning = false;
         } on PlatformException catch (error) {
           if (_isDeadChannelError(error)) {
+            appendBotDebugLog(
+              '[AppHome._init] Dead channel during foreground lookup; forcing isRunning=false. error=$error',
+            );
             isRunning = false;
           } else {
             rethrow;
           }
         } catch (_) {
+          appendBotDebugLog(
+            '[AppHome._init] Unexpected foreground fallback error; forcing isRunning=false.',
+          );
           isRunning = false;
         }
       } else {
         isRunning = isDesktopBotRunningId(botId);
+        appendBotDebugLog(
+          '[AppHome._init] Desktop fallback isRunning=$isRunning for botId=$botId.',
+        );
       }
     }
+
+    appendBotDebugLog(
+      '[AppHome._init] Final running decision for botId=$botId isRunning=$isRunning.',
+    );
 
     await AppAnalytics.logScreenView(
       screenName: "AppHomePage",
@@ -466,9 +403,13 @@ class _AppHomePageState extends State<AppHomePage>
       _appName = app["name"];
       avatar = app["avatar"] ?? "";
     });
+    appendBotDebugLog(
+      '[AppHome._init] State updated: botLaunched=$_botLaunched, appName=$_appName.',
+    );
 
     unawaited(_refreshFreeRuntimeBalance());
     unawaited(_syncAppFromRemote(showSnack: false));
+    appendBotDebugLog('[AppHome._init] Init completed for botId=$botId.');
   }
 
   int _extractFreeMinutes(dynamic raw) {
@@ -884,7 +825,7 @@ class _AppHomePageState extends State<AppHomePage>
             SnackBar(
               content: Text(
                 context.tr.error_with_details(
-                  'A reward ad is required before starting this bot.',
+                  AppStrings.tr('rewarded_start_no_ad_available'),
                 ),
               ),
             ),
@@ -970,7 +911,7 @@ class _AppHomePageState extends State<AppHomePage>
             SnackBar(
               content: Text(
                 context.tr.error_with_details(
-                  'You must complete the rewarded ad to start this bot.',
+                  AppStrings.tr('rewarded_start_complete_ad'),
                 ),
               ),
             ),
@@ -1643,7 +1584,7 @@ class _AppHomePageState extends State<AppHomePage>
                           ],
                         ),
                       ),
-                      if (_supportsManagerRuntime) ...[
+                      if (_supportsForegroundTask) ...[
                         const SizedBox(height: AppTheme.spacingMd),
                         Container(
                           width: double.infinity,
@@ -1684,7 +1625,7 @@ class _AppHomePageState extends State<AppHomePage>
                                           ),
                                         )
                                         : const Icon(Icons.add_circle_outline),
-                                label: const Text('Ajouter du temps'),
+                                label: Text(context.tr.home_add_time),
                               ),
                             ],
                           ),
@@ -1692,6 +1633,27 @@ class _AppHomePageState extends State<AppHomePage>
                       ],
 
                       const SizedBox(height: AppTheme.spacingXl),
+                      // ── Premiers pas (Getting Started) ──────────────────────────
+                      if (widget.onNavigateToSection != null)
+                        _buildSection(
+                          icon: Icons.rocket_launch_outlined,
+                          title: AppStrings.tr('bot_home_section_getting_started'),
+                          children: [
+                            _buildActionTile(
+                              icon: Icons.tune,
+                              label: AppStrings.tr('bot_home_customize'),
+                              onTap: () => widget.onNavigateToSection!(8),
+                              iconColor: AppTheme.brandPrimary,
+                            ),
+                            _buildActionTile(
+                              icon: Icons.add_circle_outline,
+                              label: AppStrings.tr('bot_home_create_command'),
+                              onTap: () => widget.onNavigateToSection!(1),
+                              iconColor: AppTheme.success,
+                            ),
+                          ],
+                        ),
+                      const SizedBox(height: AppTheme.spacingMd),
                       // ── Quick access to secondary sections (mobile) ──
                       if (showQuickAccess &&
                           widget.secondarySections.isNotEmpty &&

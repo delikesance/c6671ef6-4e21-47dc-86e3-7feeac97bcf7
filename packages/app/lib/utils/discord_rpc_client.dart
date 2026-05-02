@@ -34,7 +34,7 @@ List<String> buildDiscordUnixIpcCandidates({
   final candidates = <String>[];
   for (final directory in directories) {
     for (var index = 0; index < 10; index += 1) {
-      candidates.add(path.join(directory, 'discord-ipc-$index'));
+      candidates.add(path.posix.join(directory, 'discord-ipc-$index'));
     }
   }
   return candidates;

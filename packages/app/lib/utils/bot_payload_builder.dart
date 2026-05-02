@@ -57,14 +57,244 @@ class _SyncBatcher {
 
 final _batcher = _SyncBatcher();
 
-/// Registers the [AppManager.onAfterSave] hook so that any command or
-/// workflow save automatically pushes an updated config to the runner
-/// (if one is configured and the bot is currently running).
+/// Registers the runner sync hooks so that command saves use localized
+/// updates while broader bot saves still fall back to a full reload.
 ///
 /// Call this once during app initialisation.
 void initRunnerAutoReload() {
+  Future<String> resolveBotName(String botId) async {
+    final app = await _appManager.getApp(botId);
+    return (app['username'] ?? app['name'] ?? '').toString().trim();
+  }
+
+  Future<void> fallbackReload(
+    String botId,
+    String context,
+    Object error,
+  ) async {
+    try {
+      final client = await RunnerSettings.createClient();
+      if (client == null) return;
+      final payload = await buildBotPayload(botId);
+      final botName = await resolveBotName(botId);
+      await client.reloadBot(botId, botName, payload);
+      debugPrint(
+        '[AutoReload] $context fallback reloaded bot $botId on runner.',
+      );
+    } catch (fallbackError) {
+      debugPrint(
+        '[AutoReload] $context skipped for $botId: $error | fallback: $fallbackError',
+      );
+    }
+  }
+
   AppManager.onAfterSave = (String botId) async {
     _batcher.requestSync(botId, _executeSync);
+  };
+
+  AppManager.onAfterCommandSave = (
+    String botId,
+    String commandId,
+    Map<String, dynamic> command,
+  ) async {
+    try {
+      final client = await RunnerSettings.createClient();
+      if (client == null) return;
+      final botName = await resolveBotName(botId);
+      await client.syncCommand(botId, botName, commandId, command);
+      debugPrint('[AutoReload] Synced command $commandId for bot $botId.');
+    } catch (error) {
+      await fallbackReload(botId, 'Command sync', error);
+    }
+  };
+
+  AppManager.onAfterCommandDelete = (String botId, String commandId) async {
+    try {
+      final client = await RunnerSettings.createClient();
+      if (client == null) return;
+      final botName = await resolveBotName(botId);
+      await client.deleteCommand(botId, botName, commandId);
+      debugPrint('[AutoReload] Deleted command $commandId for bot $botId.');
+    } catch (error) {
+      await fallbackReload(botId, 'Command delete', error);
+    }
+  };
+
+  AppManager.onAfterWorkflowSave = (
+    String botId,
+    String workflowName,
+    Map<String, dynamic> workflow,
+  ) async {
+    try {
+      final client = await RunnerSettings.createClient();
+      if (client == null) return;
+      final botName = await resolveBotName(botId);
+      await client.syncWorkflow(botId, botName, workflowName, workflow);
+      debugPrint('[AutoReload] Synced workflow $workflowName for bot $botId.');
+    } catch (error) {
+      await fallbackReload(botId, 'Workflow sync', error);
+    }
+  };
+
+  AppManager.onAfterWorkflowDelete = (String botId, String workflowName) async {
+    try {
+      final client = await RunnerSettings.createClient();
+      if (client == null) return;
+      final botName = await resolveBotName(botId);
+      await client.deleteWorkflow(botId, botName, workflowName);
+      debugPrint('[AutoReload] Deleted workflow $workflowName for bot $botId.');
+    } catch (error) {
+      await fallbackReload(botId, 'Workflow delete', error);
+    }
+  };
+
+  AppManager.onAfterGlobalVariableSave = (
+    String botId,
+    String key,
+    dynamic value,
+  ) async {
+    try {
+      final client = await RunnerSettings.createClient();
+      if (client == null) return;
+      await client.setGlobalVariable(botId, key, value);
+      debugPrint('[AutoReload] Synced global variable $key for bot $botId.');
+    } catch (error) {
+      await fallbackReload(botId, 'Global variable save', error);
+    }
+  };
+
+  AppManager.onAfterGlobalVariableDelete = (String botId, String key) async {
+    try {
+      final client = await RunnerSettings.createClient();
+      if (client == null) return;
+      await client.removeGlobalVariable(botId, key);
+      debugPrint('[AutoReload] Removed global variable $key for bot $botId.');
+    } catch (error) {
+      await fallbackReload(botId, 'Global variable delete', error);
+    }
+  };
+
+  AppManager.onAfterGlobalVariableRename = (
+    String botId,
+    String oldKey,
+    String newKey,
+  ) async {
+    try {
+      final client = await RunnerSettings.createClient();
+      if (client == null) return;
+      await client.renameGlobalVariable(botId, oldKey, newKey);
+      debugPrint(
+        '[AutoReload] Renamed global variable $oldKey -> $newKey for bot $botId.',
+      );
+    } catch (error) {
+      await fallbackReload(botId, 'Global variable rename', error);
+    }
+  };
+
+  AppManager.onAfterScopedVariableDefinitionSave = (
+    String botId,
+    String key,
+    String scope,
+    dynamic defaultValue, {
+    String valueType = 'string',
+  }) async {
+    try {
+      final client = await RunnerSettings.createClient();
+      if (client == null) return;
+      await client.setScopedVariableDefinition(
+        botId,
+        key,
+        scope,
+        defaultValue,
+        valueType: valueType,
+      );
+      debugPrint(
+        '[AutoReload] Synced scoped definition $scope/$key for bot $botId.',
+      );
+    } catch (error) {
+      await fallbackReload(botId, 'Scoped definition save', error);
+    }
+  };
+
+  AppManager.onAfterScopedVariableDefinitionDelete = (
+    String botId,
+    String key, {
+    String? scope,
+    bool purgeStoredValues = false,
+  }) async {
+    try {
+      final client = await RunnerSettings.createClient();
+      if (client == null) return;
+      await client.removeScopedVariableDefinition(
+        botId,
+        key,
+        scope: scope,
+        purgeStoredValues: purgeStoredValues,
+      );
+      debugPrint(
+        '[AutoReload] Removed scoped definition ${scope ?? "*"}/$key for bot $botId.',
+      );
+    } catch (error) {
+      await fallbackReload(botId, 'Scoped definition delete', error);
+    }
+  };
+
+  AppManager.onAfterScheduledTriggerSave = (
+    String botId,
+    String triggerId,
+    Map<String, dynamic> trigger,
+  ) async {
+    try {
+      final client = await RunnerSettings.createClient();
+      if (client == null) return;
+      await client.syncScheduledTrigger(botId, triggerId, trigger);
+      debugPrint('[AutoReload] Synced trigger $triggerId for bot $botId.');
+    } catch (error) {
+      await fallbackReload(botId, 'Scheduled trigger save', error);
+    }
+  };
+
+  AppManager.onAfterScheduledTriggerDelete = (
+    String botId,
+    String triggerId,
+  ) async {
+    try {
+      final client = await RunnerSettings.createClient();
+      if (client == null) return;
+      await client.deleteScheduledTrigger(botId, triggerId);
+      debugPrint('[AutoReload] Deleted trigger $triggerId for bot $botId.');
+    } catch (error) {
+      await fallbackReload(botId, 'Scheduled trigger delete', error);
+    }
+  };
+
+  AppManager.onAfterInboundWebhookSave = (
+    String botId,
+    String webhookId,
+    Map<String, dynamic> webhook,
+  ) async {
+    try {
+      final client = await RunnerSettings.createClient();
+      if (client == null) return;
+      await client.syncInboundWebhook(botId, webhookId, webhook);
+      debugPrint('[AutoReload] Synced inbound webhook $webhookId for bot $botId.');
+    } catch (error) {
+      await fallbackReload(botId, 'Inbound webhook save', error);
+    }
+  };
+
+  AppManager.onAfterInboundWebhookDelete = (
+    String botId,
+    String webhookId,
+  ) async {
+    try {
+      final client = await RunnerSettings.createClient();
+      if (client == null) return;
+      await client.deleteInboundWebhook(botId, webhookId);
+      debugPrint('[AutoReload] Deleted inbound webhook $webhookId for bot $botId.');
+    } catch (error) {
+      await fallbackReload(botId, 'Inbound webhook delete', error);
+    }
   };
 }
 

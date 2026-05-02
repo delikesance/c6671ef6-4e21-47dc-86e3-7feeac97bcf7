@@ -62,7 +62,7 @@ class MainApiAuthService {
       final launchUri = Uri.tryParse(start.authorizeUrl);
       if (launchUri == null) {
         throw const MainApiClientException(
-          'Main API returned an invalid authorization URL.',
+          'Bot Creator Server returned an invalid authorization URL.',
         );
       }
 
@@ -142,7 +142,7 @@ class MainApiAuthService {
     );
     if (launchUri == null) {
       throw const MainApiClientException(
-        'Main API returned an invalid authorization URL.',
+        'Bot Creator Server returned an invalid authorization URL.',
       );
     }
 
