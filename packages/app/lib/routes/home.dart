@@ -1,20 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-
-import 'package:bot_creator/main.dart';
-import 'package:bot_creator/routes/app.dart';
-import 'package:bot_creator/routes/app/bot_logs.dart';
-import 'package:bot_creator/utils/analytics.dart';
-import 'package:bot_creator/utils/bot.dart';
-import 'package:bot_creator/utils/bot_payload_builder.dart';
-import 'package:bot_creator/utils/discord_rpc_service.dart';
-import 'package:bot_creator/utils/i18n.dart';
-import 'package:bot_creator/utils/ad_reward_service.dart';
-import 'package:bot_creator/utils/ads_placement_policy.dart';
-import 'package:bot_creator/utils/ad_consent_service.dart';
-import 'package:bot_creator/utils/global.dart';
-import 'package:bot_creator/utils/app_theme.dart';
-import 'package:bot_creator/utils/main_api_client.dart';
 import 'package:bot_creator/utils/main_api_owner_sync.dart';
 import 'package:bot_creator/utils/main_api_settings.dart';
 import 'package:bot_creator/utils/remote_runtime.dart';
@@ -28,6 +13,83 @@ import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:nyxx/nyxx.dart' hide Locale, Logger;
 import 'dart:developer' as developer;
+import 'package:bot_creator/main.dart';
+import 'package:bot_creator/utils/app_theme.dart';
+import 'package:bot_creator/utils/i18n.dart';
+import 'package:bot_creator/utils/analytics.dart';
+import 'package:bot_creator/utils/bot.dart';
+import 'package:bot_creator/utils/bot_payload_builder.dart';
+import 'package:bot_creator/utils/global.dart';
+import 'package:bot_creator/utils/main_api_client.dart';
+import 'package:bot_creator/utils/discord_rpc_service.dart';
+import 'package:bot_creator/utils/ad_reward_service.dart';
+import 'package:bot_creator/utils/ad_consent_service.dart';
+import 'package:bot_creator/utils/ads_placement_policy.dart';
+import 'package:bot_creator/routes/app.dart';
+import 'package:bot_creator/routes/app/bot_logs.dart';
+
+String _pluralUnit(
+  BuildContext context,
+  int value,
+  String singularFr,
+  String pluralFr,
+  String singularEn,
+  String pluralEn,
+) {
+  final languageCode = Localizations.localeOf(context).languageCode;
+  final isFrench = languageCode == 'fr';
+  final singular = isFrench ? singularFr : singularEn;
+  final plural = isFrench ? pluralFr : pluralEn;
+  return '$value ${value == 1 ? singular : plural}';
+}
+
+String _formatHostingDuration(BuildContext context, int totalMinutes) {
+  if (totalMinutes <= 0) {
+    return Localizations.localeOf(context).languageCode == 'fr'
+        ? '0 minute'
+        : '0 minutes';
+  }
+
+  const minutesPerHour = 60;
+  const minutesPerDay = minutesPerHour * 24;
+  const minutesPerMonth = minutesPerDay * 30;
+
+  var remaining = totalMinutes;
+  final months = remaining ~/ minutesPerMonth;
+  remaining %= minutesPerMonth;
+  final days = remaining ~/ minutesPerDay;
+  remaining %= minutesPerDay;
+  final hours = remaining ~/ minutesPerHour;
+  remaining %= minutesPerHour;
+  final minutes = remaining;
+
+  final parts = <String>[];
+  if (months > 0) {
+    parts.add(_pluralUnit(context, months, 'mois', 'mois', 'month', 'months'));
+  }
+  if (days > 0) {
+    parts.add(_pluralUnit(context, days, 'jour', 'jours', 'day', 'days'));
+  }
+  if (hours > 0) {
+    parts.add(_pluralUnit(context, hours, 'heure', 'heures', 'hour', 'hours'));
+  }
+  if (minutes > 0 || parts.isEmpty) {
+    parts.add(
+      _pluralUnit(context, minutes, 'minute', 'minutes', 'minute', 'minutes'),
+    );
+  }
+
+  return parts.join(', ');
+}
+
+Color _hostingTimeColor(BuildContext context, int minutes) {
+  const minutesPerDay = 60 * 24; // 1440
+  const minutesThreeDays = minutesPerDay * 3; // 4320
+
+  if (minutes < minutesPerDay) return AppTheme.error;
+  if (minutes < minutesThreeDays) return AppTheme.warning;
+  return AppTheme.successAccent;
+}
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -61,7 +123,6 @@ class HomePageState extends State<HomePage>
     WidgetsBinding.instance.addObserver(this);
     AppAnalytics.logScreenView(screenName: 'HomePage', screenClass: 'HomePage');
     AppAnalytics.logEvent(name: 'home_page_opened');
-    _initRunningState();
     unawaited(syncAllBotsFromManager(silent: true));
   }
 
@@ -334,11 +395,54 @@ class HomePageState extends State<HomePage>
     });
   }
 
+  Future<MainApiClient?> _resolveManagerClientForSync() async {
+    final remoteClient = await _resolveGlobalMainApiClient();
+    if (remoteClient != null) {
+      return remoteClient;
+    }
+
+    final apps = await appManager.getAllApps();
+    appendBotDebugLog(
+      '[_resolveManagerClientForSync] Global manager client unavailable. Trying local bot tokens from ${apps.length} apps.',
+    );
+    for (final rawApp in apps) {
+      if (rawApp is! Map) {
+        continue;
+      }
+      final app = Map<String, dynamic>.from(rawApp.cast<dynamic, dynamic>());
+      final botId = (app['id'] ?? '').toString().trim();
+      final token = (app['token'] ?? '').toString().trim();
+      if (botId.isEmpty || token.isEmpty) {
+        continue;
+      }
+
+      appendBotDebugLog(
+        '[_resolveManagerClientForSync] Attempting manager session restore from bot $botId.',
+      );
+      final client = await _resolveMainApiClientForBot(
+        botId: botId,
+        botToken: token,
+        attemptSessionRestore: true,
+      );
+      if (client != null) {
+        appendBotDebugLog(
+          '[_resolveManagerClientForSync] Restored manager client from bot $botId.',
+        );
+        return client;
+      }
+    }
+
+    appendBotDebugLog(
+      '[_resolveManagerClientForSync] Unable to restore a manager client from local bot tokens.',
+    );
+    return null;
+  }
+
   Future<void> syncAllBotsFromManager({bool silent = false}) async {
     appendBotDebugLog(
       '[syncAllBotsFromManager] Starting sync. silent=$silent.',
     );
-    final remoteClient = await _resolveGlobalMainApiClient();
+    final remoteClient = await _resolveManagerClientForSync();
     if (remoteClient == null) {
       appendBotDebugLog(
         '[syncAllBotsFromManager] Aborted: global manager client unavailable.',
@@ -437,6 +541,37 @@ class HomePageState extends State<HomePage>
           appendBotDebugLog(
             '[syncAllBotsFromManager] Bot $botId owner context: source=${ownerContext.source}, ownerCount=${ownerContext.ownerCandidates.length}, preferredOwner=${ownerContext.preferredOwnerId ?? 'none'}, tokenPresent=${token.trim().isNotEmpty}.',
           );
+
+          if (token.trim().isNotEmpty) {
+            try {
+              final snapshotClient = await _resolveMainApiClientForBot(
+                botId: botId,
+                botToken: token,
+                attemptSessionRestore: true,
+                ownerCandidatesOverride: ownerContext.ownerCandidates,
+                preferredOwnerIdOverride: ownerContext.preferredOwnerId,
+              );
+              if (snapshotClient != null) {
+                final payload = await buildBotPayload(botId);
+                await snapshotClient.saveDiscordBotSnapshot(
+                  botToken: token,
+                  config: payload,
+                );
+                appendBotDebugLog(
+                  '[syncAllBotsFromManager] Bot $botId snapshot synced before status refresh.',
+                );
+              } else {
+                appendBotDebugLog(
+                  '[syncAllBotsFromManager] Bot $botId snapshot sync skipped: manager client unavailable.',
+                );
+              }
+            } catch (error) {
+              appendBotDebugLog(
+                '[syncAllBotsFromManager] Bot $botId snapshot sync failed before status refresh: $error',
+              );
+            }
+          }
+
           if (ownerContext.hasOwner && token.trim().isNotEmpty) {
             await _resolveMainApiClientForBot(
               botId: botId,
@@ -1329,10 +1464,9 @@ class HomePageState extends State<HomePage>
         final useIOSPhoneLayout = isIOS && width < 600;
         final int crossAxisCount;
         final double horizontalPadding;
-
         // Responsive grid based on screen width
-        if (width < 420) {
-          // Small phone - single column
+        if (width < 480) {
+          // Phone - single column
           crossAxisCount = 1;
           horizontalPadding = isIOS ? 8.0 : 12.0;
         } else if (width < 600) {
@@ -1585,6 +1719,8 @@ class _BotCard extends StatelessWidget {
         child: Padding(
           padding: EdgeInsets.all(compact ? 10.0 : 14.0),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // ── Status badge pill ──────────────────────────────────────────
               Align(
@@ -1778,13 +1914,21 @@ class _BotCard extends StatelessWidget {
                     Text(
                       AppStrings.tr(
                         'home_hosting_time_left',
-                        params: {'minutes': freeMinutes!.toString()},
+                        params: {
+                          'minutes': _formatHostingDuration(
+                            context,
+                            freeMinutes!,
+                          ),
+                        },
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: compact ? 10 : 11,
-                        color: Colors.white.withValues(alpha: 0.85),
+                        color: _hostingTimeColor(
+                          context,
+                          freeMinutes!,
+                        ).withValues(alpha: 0.95),
                         fontWeight: FontWeight.w600,
                       ),
                     ),

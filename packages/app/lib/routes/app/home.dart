@@ -74,6 +74,64 @@ class _AppHomePageState extends State<AppHomePage>
     return Localizations.localeOf(context).languageCode == 'fr' ? fr : en;
   }
 
+  String _pluralUnit(
+    int value,
+    String singularFr,
+    String pluralFr,
+    String singularEn,
+    String pluralEn,
+  ) {
+    final languageCode = Localizations.localeOf(context).languageCode;
+    final isFrench = languageCode == 'fr';
+    final singular = isFrench ? singularFr : singularEn;
+    final plural = isFrench ? pluralFr : pluralEn;
+    return '$value ${value == 1 ? singular : plural}';
+  }
+
+  String _formatHostingDuration(int totalMinutes) {
+    if (totalMinutes <= 0) {
+      return _uiCopy(fr: '0 minute', en: '0 minutes');
+    }
+
+    const minutesPerHour = 60;
+    const minutesPerDay = minutesPerHour * 24;
+    const minutesPerMonth = minutesPerDay * 30;
+
+    var remaining = totalMinutes;
+    final months = remaining ~/ minutesPerMonth;
+    remaining %= minutesPerMonth;
+    final days = remaining ~/ minutesPerDay;
+    remaining %= minutesPerDay;
+    final hours = remaining ~/ minutesPerHour;
+    remaining %= minutesPerHour;
+    final minutes = remaining;
+
+    final parts = <String>[];
+    if (months > 0) {
+      parts.add(_pluralUnit(months, 'mois', 'mois', 'month', 'months'));
+    }
+    if (days > 0) {
+      parts.add(_pluralUnit(days, 'jour', 'jours', 'day', 'days'));
+    }
+    if (hours > 0) {
+      parts.add(_pluralUnit(hours, 'heure', 'heures', 'hour', 'hours'));
+    }
+    if (minutes > 0 || parts.isEmpty) {
+      parts.add(_pluralUnit(minutes, 'minute', 'minutes', 'minute', 'minutes'));
+    }
+
+    return parts.join(', ');
+  }
+
+  Color _hostingTimeColor(int minutes) {
+    const minutesPerDay = 60 * 24; // 1440
+    const minutesThreeDays = minutesPerDay * 3; // 4320
+
+    if (minutes < minutesPerDay) return AppTheme.error;
+    if (minutes < minutesThreeDays) return AppTheme.warning;
+    return AppTheme.successAccent;
+  }
+
   bool _isDeadChannelError(Object error) {
     if (error is! PlatformException) return false;
     final code = error.code.toLowerCase();
@@ -1607,9 +1665,22 @@ class _AppHomePageState extends State<AppHomePage>
                             children: [
                               Expanded(
                                 child: Text(
-                                  'Temps restant: ${_freeMinutesBalance ?? 0} min',
-                                  style: Theme.of(context).textTheme.bodyMedium
-                                      ?.copyWith(fontWeight: FontWeight.w600),
+                                  AppStrings.tr(
+                                    'home_hosting_time_left',
+                                    params: {
+                                      'minutes': _formatHostingDuration(
+                                        _freeMinutesBalance ?? 0,
+                                      ),
+                                    },
+                                  ),
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: _hostingTimeColor(
+                                      _freeMinutesBalance ?? 0,
+                                    ).withValues(alpha: 0.95),
+                                  ),
                                 ),
                               ),
                               FilledButton.tonalIcon(
@@ -1637,7 +1708,9 @@ class _AppHomePageState extends State<AppHomePage>
                       if (widget.onNavigateToSection != null)
                         _buildSection(
                           icon: Icons.rocket_launch_outlined,
-                          title: AppStrings.tr('bot_home_section_getting_started'),
+                          title: AppStrings.tr(
+                            'bot_home_section_getting_started',
+                          ),
                           children: [
                             _buildActionTile(
                               icon: Icons.tune,

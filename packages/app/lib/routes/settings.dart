@@ -975,15 +975,12 @@ class _SettingPageState extends State<SettingPage> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    AppStrings.tr(
-                      'settings_main_api_connected_user',
-                      params: <String, String>{
-                        'user':
-                            sessionUser.isEmpty
-                                ? AppStrings.t('settings_main_api_user_unknown')
-                                : sessionUser,
-                      },
-                    ),
+                    sessionUser.isEmpty
+                        ? AppStrings.t('settings_main_api_connected_discord')
+                        : AppStrings.tr(
+                          'settings_main_api_connected_user',
+                          params: <String, String>{'user': sessionUser},
+                        ),
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ),
