@@ -23,23 +23,33 @@ jobs:
       release_tag: ${{ steps.meta.outputs.release_tag }}
       release_name: ${{ steps.meta.outputs.release_name }}
       release_prerelease: ${{ steps.meta.outputs.release_prerelease }}
+      msix_only: ${{ steps.meta.outputs.msix_only }}
     steps:
       - name: Determine release target
         id: meta
         shell: bash
         run: |
-          if [ "${GITHUB_REF}" = "refs/heads/main" ]; then
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "publish_release=true" >> "$GITHUB_OUTPUT"
+            echo "release_tag=msix-pre-${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+            echo "release_name=MSIX Pre-release ${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+            echo "release_prerelease=true" >> "$GITHUB_OUTPUT"
+            echo "msix_only=true" >> "$GITHUB_OUTPUT"
+          elif [ "${GITHUB_REF}" = "refs/heads/main" ]; then
             echo "publish_release=true" >> "$GITHUB_OUTPUT"
             echo "release_tag=alpha-${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
             echo "release_name=Alpha Release ${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
             echo "release_prerelease=true" >> "$GITHUB_OUTPUT"
+            echo "msix_only=false" >> "$GITHUB_OUTPUT"
           elif [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
             echo "publish_release=true" >> "$GITHUB_OUTPUT"
             echo "release_tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
             echo "release_name=Release ${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
             echo "release_prerelease=false" >> "$GITHUB_OUTPUT"
+            echo "msix_only=false" >> "$GITHUB_OUTPUT"
           else
             echo "publish_release=false" >> "$GITHUB_OUTPUT"
+            echo "msix_only=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Create release shell
@@ -65,6 +75,8 @@ jobs:
   build_linux_release:
     runs-on: ubuntu-latest
     needs: prepare_release
+    # On ignore tout le job Linux si on a demandé que le MSIX
+    if: ${{ needs.prepare_release.outputs.msix_only != 'true' }}
     permissions:
       contents: write
     env:
@@ -130,7 +142,6 @@ jobs:
           mkdir -p "$STEAM_DIR"
           cp -a build/linux/x64/release/bundle "$STEAM_DIR/"
 
-          # Make the Linux Steam bundle self-contained by vendoring shared libs.
           BUNDLE_STEAM_DIR="$STEAM_DIR/bundle"
           LIB_DIR="$BUNDLE_STEAM_DIR/lib"
           mkdir -p "$LIB_DIR"
@@ -176,7 +187,6 @@ jobs:
           EOF
           chmod +x "$BUNDLE_STEAM_DIR/bot_creator"
 
-          # Ensure external links/OAuth open with system libs, not bundled ones.
           cat > "$BUNDLE_STEAM_DIR/xdg-open" <<'EOF'
           #!/usr/bin/env bash
           unset LD_LIBRARY_PATH
@@ -207,6 +217,8 @@ jobs:
   build_macos_release:
     runs-on: macos-latest
     needs: prepare_release
+    # On ignore tout le job macOS si on a demandé que le MSIX
+    if: ${{ needs.prepare_release.outputs.msix_only != 'true' }}
     permissions:
       contents: write
     env:
@@ -286,34 +298,39 @@ jobs:
       - name: Enable Windows Flutter Desktop
         run: flutter config --enable-windows-desktop
 
+      # Obligatoire : on build l'app Windows de base pour pouvoir l'empaqueter en MSIX ensuite
       - name: Build Windows release
         run: flutter build windows --release
 
+      # --- ÉTAPES IGNORÉES EN MODE MSIX ONLY ---
       - name: Package Windows Steam ZIP
+        if: ${{ needs.prepare_release.outputs.msix_only != 'true' }}
         shell: pwsh
         run: |
           Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath build/bot_creator-windows-x64-steam.zip -Force
 
       - name: Upload Windows Steam ZIP to release
-        if: ${{ env.PUBLISH_RELEASE == 'true' }}
+        if: ${{ env.PUBLISH_RELEASE == 'true' && needs.prepare_release.outputs.msix_only != 'true' }}
         shell: pwsh
         run: |
           gh release upload $env:RELEASE_TAG "build/bot_creator-windows-x64-steam.zip" --clobber -R $env:GH_REPO
 
       - name: Upload Windows EXE to release
-        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        if: ${{ startsWith(github.ref, 'refs/tags/v') && needs.prepare_release.outputs.msix_only != 'true' }}
         shell: pwsh
         run: |
           Get-ChildItem -Path build/windows/x64/runner/Release -Filter *.exe -File | ForEach-Object {
             gh release upload $env:RELEASE_TAG $_.FullName --clobber -R $env:GH_REPO
           }
 
+      # --- ÉTAPES MSIX (S'EXÉCUTENT SI TAG 'v*' OU 'msix_only') ---
       - name: Set Store-compatible MSIX version
-        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        if: ${{ startsWith(github.ref, 'refs/tags/v') || needs.prepare_release.outputs.msix_only == 'true' }}
         shell: pwsh
         run: |
           $pubspec = 'pubspec.yaml'
           $content = Get-Content -Raw $pubspec
+          # On lit la version depuis le pubspec.yaml, donc ça reste basé sur ton code !
           $versionMatch = [regex]::Match($content, '(?m)^version:\s*([0-9]+)\.([0-9]+)\.([0-9]+)\+[0-9]+\s*$')
           if (-not $versionMatch.Success) {
             throw 'Unable to parse app version from pubspec.yaml'
@@ -327,11 +344,11 @@ jobs:
           Write-Host "MSIX version set to $msixVersion"
 
       - name: Create MSIX package
-        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        if: ${{ startsWith(github.ref, 'refs/tags/v') || needs.prepare_release.outputs.msix_only == 'true' }}
         run: dart run msix:create
 
       - name: Upload Windows MSIX to release
-        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        if: ${{ startsWith(github.ref, 'refs/tags/v') || needs.prepare_release.outputs.msix_only == 'true' }}
         shell: pwsh
         run: |
           Get-ChildItem -Path build/windows/x64/runner/Release -Filter *.msix -File | ForEach-Object {
