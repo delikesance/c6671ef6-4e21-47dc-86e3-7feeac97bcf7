@@ -197,8 +197,10 @@ Future<void> sendWorkflowResponse({
 
         if (interaction is ApplicationCommandInteraction) {
           await interaction.respondModal(modalBuilder);
+          markInteractionAcknowledged(interaction);
         } else if (interaction is MessageComponentInteraction) {
           await interaction.respondModal(modalBuilder);
+          markInteractionAcknowledged(interaction);
         } else {
           onLog?.call(
             'Error: This interaction type does not support modals',
@@ -246,7 +248,11 @@ Future<void> sendWorkflowResponse({
 
         onLog?.call('Modal sent', botId: botId);
       } catch (e) {
-        onLog?.call('Modal build error: $e', botId: botId);
+        if (e.toString().contains('40060')) {
+          onDebugLog?.call('Modal response suppressed (already acknowledged)', botId: botId);
+        } else {
+          onLog?.call('Modal build error: $e', botId: botId);
+        }
       }
     }
   } else {
@@ -456,6 +462,7 @@ Future<void> sendWorkflowResponse({
           interaction is ModalSubmitInteraction) {
         final updatedMessage = await (interaction as dynamic)
             .updateOriginalResponse(updateBuilder);
+        markInteractionAcknowledged(interaction);
         responseMessageId = updatedMessage.id.toString();
         onLog?.call('Response edited after defer', botId: botId);
       } else {
@@ -489,6 +496,7 @@ Future<void> sendWorkflowResponse({
             flags: flagValue > 0 ? MessageFlags(flagValue) : null,
           ),
         );
+        markInteractionAcknowledged(interaction);
         try {
           final responseMessage =
               await (interaction as dynamic).fetchOriginalResponse();
@@ -505,6 +513,7 @@ Future<void> sendWorkflowResponse({
               flags: flagValue > 0 ? MessageFlags(flagValue) : null,
             ),
           );
+          markInteractionAcknowledged(interaction);
           onLog?.call(
             'Response sent (dynamic fallback) for ${interaction.runtimeType}',
             botId: botId,
@@ -514,6 +523,9 @@ Future<void> sendWorkflowResponse({
             'Failed to send response for ${interaction.runtimeType}: $e',
             botId: botId,
           );
+          if (e.toString().contains('40060')) {
+            markInteractionAcknowledged(interaction);
+          }
         }
       }
     }

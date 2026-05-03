@@ -1313,6 +1313,12 @@ class DiscordRunner {
     required EventExecutionContext context,
   }) async {
     final normalizedEventName = eventName.toLowerCase();
+    if (normalizedEventName == 'interactioncreate') {
+      final interaction = context.interaction;
+      if (interaction != null && isInteractionAcknowledged(interaction)) {
+        return;
+      }
+    }
 
     final botId = _gateway?.user.id.toString() ?? store.botId;
     final matching = _eventWorkflows
@@ -3345,12 +3351,17 @@ class DiscordRunner {
           flags: isEphemeral ? MessageFlags.ephemeral : null,
         ),
       );
+      markInteractionAcknowledged(interaction);
     } catch (e, st) {
-      _log.warning(
-        'Safe respond failed for ${interaction.runtimeType}: $e',
-        e,
-        st,
-      );
+      if (e.toString().contains('40060')) {
+        markInteractionAcknowledged(interaction);
+      } else {
+        _log.warning(
+          'Safe respond failed for ${interaction.runtimeType}: $e',
+          e,
+          st,
+        );
+      }
     }
   }
 
