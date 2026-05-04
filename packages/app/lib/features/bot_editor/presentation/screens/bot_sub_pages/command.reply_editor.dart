@@ -47,7 +47,10 @@ class _CommandReplyEditorPageState extends State<CommandReplyEditorPage> {
   @override
   void initState() {
     super.initState();
-    _responseType = widget.initialResponseType;
+    final mode = widget.initialResponseType;
+    _responseType = (mode == 'normal' || mode == 'text' || mode == 'message')
+        ? 'message'
+        : mode;
     _responseController = TextEditingController(
       text: widget.initialResponseText,
     );

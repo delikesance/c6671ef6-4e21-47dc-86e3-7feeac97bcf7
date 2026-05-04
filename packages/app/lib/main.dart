@@ -9,7 +9,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
-import 'package:nyxx/nyxx.dart' hide Locale;
+import 'package:nyxx/nyxx.dart' hide Locale, Builder;
 import 'package:bot_creator/features/home/presentation/home_page.dart';
 import 'package:bot_creator/features/settings/presentation/settings_page.dart';
 import 'package:provider/provider.dart';
@@ -375,7 +375,7 @@ class _MyAppState extends State<MyApp> {
         if (_isOAuthCallbackRoute(name)) {
           return MaterialPageRoute<void>(
             settings: settings,
-            builder: (context) => MyMainPage(title: context.tr.app_title),
+            builder: (context) => const MyMainPage(),
           );
         }
         return null;
@@ -405,8 +405,8 @@ class _MyAppState extends State<MyApp> {
                   }
                 },
               )
-              : MyMainPage(title: context.tr.app_title),
-      routes: {'/home': (context) => MyMainPage(title: context.tr.app_title)},
+              : const MyMainPage(),
+      routes: {'/home': (context) => const MyMainPage()},
     );
   }
 
@@ -426,8 +426,7 @@ class _MyAppState extends State<MyApp> {
 }
 
 class MyMainPage extends StatefulWidget {
-  const MyMainPage({super.key, required this.title});
-  final String title;
+  const MyMainPage({super.key});
 
   @override
   State<MyMainPage> createState() => _MyMainPageState();
@@ -441,7 +440,7 @@ class _MyMainPageState extends State<MyMainPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromRGBO(106, 15, 162, 1),
-        title: Text(widget.title),
+        title: Text(context.tr.app_title),
         centerTitle: true,
         actions: [
           IconButton(
@@ -544,7 +543,7 @@ class _StartupFailureAppState extends State<StartupFailureApp> {
     });
   }
 
-  Future<void> _copyDiagnostics() async {
+  Future<void> _copyDiagnostics(BuildContext context) async {
     setState(() {
       _copying = true;
     });
@@ -568,43 +567,50 @@ class _StartupFailureAppState extends State<StartupFailureApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: context.tr.app_title,
-      home: Scaffold(
-        appBar: AppBar(title: Text(context.tr.startup_error_title)),
-        body: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                context.tr.startup_failed_message,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 8),
-              Text(widget.error),
-              const SizedBox(height: 16),
-              Row(
+      title: 'Bot Creator',
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      home: Builder(
+        builder: (context) {
+          return Scaffold(
+            appBar: AppBar(title: Text(context.tr.startup_error_title)),
+            body: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ElevatedButton(
-                    onPressed: _copying ? null : _copyDiagnostics,
-                    child: Text(context.tr.startup_copy_diagnostics),
+                  Text(
+                    context.tr.startup_failed_message,
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
-                  const SizedBox(width: 8),
-                  OutlinedButton(
-                    onPressed: _loadDiagnostics,
-                    child: Text(context.tr.startup_refresh_diagnostics),
+                  const SizedBox(height: 8),
+                  Text(widget.error),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      ElevatedButton(
+                        onPressed:
+                            _copying ? null : () => _copyDiagnostics(context),
+                        child: Text(context.tr.startup_copy_diagnostics),
+                      ),
+                      const SizedBox(width: 8),
+                      OutlinedButton(
+                        onPressed: _loadDiagnostics,
+                        child: Text(context.tr.startup_refresh_diagnostics),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: SelectableText(_diagnostics),
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: SelectableText(_diagnostics),
-                ),
-              ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }

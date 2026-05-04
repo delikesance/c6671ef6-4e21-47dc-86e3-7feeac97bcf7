@@ -96,10 +96,6 @@ class _SettingPageState extends State<SettingPage> {
         defaultTargetPlatform == TargetPlatform.iOS;
   }
 
-  String _localizedCopy({required String fr, required String en}) {
-    final languageCode = Localizations.localeOf(context).languageCode;
-    return languageCode == 'fr' ? fr : en;
-  }
 
   Future<void> _runWithLoading(
     String message,
@@ -564,16 +560,9 @@ class _SettingPageState extends State<SettingPage> {
       _mobileLocalHostingEnabled = enabled;
     });
     _showSnack(
-      _localizedCopy(
-        fr:
-            enabled
-                ? 'Hébergement local mobile activé.'
-                : 'Les bots mobile utilisent maintenant les serveurs Bot Creator.',
-        en:
-            enabled
-                ? 'Mobile local hosting enabled.'
-                : 'Mobile bots now use Bot Creator servers.',
-      ),
+      enabled
+          ? context.tr.settings_local_hosting_enabled
+          : context.tr.settings_cloud_hosting_enabled,
     );
   }
 
@@ -800,49 +789,19 @@ class _SettingPageState extends State<SettingPage> {
     final session = _mainApiSession;
     final hasSession = session != null && !session.isExpired;
     final sessionUser = (session?.username ?? '').trim();
-    final currentMainApiBaseUrl = _mainApiUrlController.text.trim();
-    final accountTitle =
-        _isManagedMobilePlatform
-            ? _localizedCopy(
-              fr: 'Compte Bot Creator',
-              en: 'Bot Creator account',
-            )
-            : context.tr.settings_main_api_title;
-    final accountDescription =
-        _isManagedMobilePlatform
-            ? _localizedCopy(
-              fr:
-                  'Connectez-vous a votre compte Bot Creator pour retrouver vos bots, votre temps disponible et vos donnees precedentes sur cet appareil.',
-              en:
-                  'Sign in to your Bot Creator account to recover your bots, available time, and previous data on this device.',
-            )
-            : context.tr.settings_main_api_desc;
+    _mainApiUrlController.text.trim();
+    final accountTitle = context.tr.settings_main_api_title;
+    final accountDescription = context.tr.settings_main_api_desc;
     final accountHint =
         hasSession
-            ? _localizedCopy(
-              fr:
-                  'Compte connecte. Vos bots et vos donnees sont synchronises avec Bot Creator.',
-              en:
-                  'Account connected. Your bots and data are now synced with Bot Creator.',
-            )
-            : _localizedCopy(
-              fr:
-                  'Votre compte Bot Creator est cree automatiquement quand vous ajoutez un bot. Connectez-vous ensuite avec Discord pour recuperer vos bots sur cet appareil.',
-              en:
-                  'Your Bot Creator account is created automatically when you add a bot. Then sign in with Discord to recover your bots on this device.',
-            );
-    final connectButtonLabel = _localizedCopy(
-      fr: 'Se connecter a Bot Creator avec Discord',
-      en: 'Sign in to Bot Creator with Discord',
-    );
-    final disconnectButtonLabel = _localizedCopy(
-      fr: 'Se deconnecter',
-      en: 'Sign out',
-    );
+            ? context.tr.settings_account_connected_hint
+            : context.tr.settings_account_disconnected_hint;
+    final connectButtonLabel = context.tr.settings_account_connect_label;
+    final disconnectButtonLabel = context.tr.settings_account_disconnect_label;
     final mobileStatusText =
         hasSession
-            ? _localizedCopy(fr: 'Compte connecte', en: 'Account connected')
-            : _localizedCopy(fr: 'Compte non connecte', en: 'Not signed in');
+            ? context.tr.settings_account_status_connected
+            : context.tr.settings_account_status_disconnected;
     final mobileStatusColor =
         hasSession ? AppTheme.successLight : AppTheme.warning;
 
@@ -890,42 +849,6 @@ class _SettingPageState extends State<SettingPage> {
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ),
-          if (!_isManagedMobilePlatform) ...[
-            const SizedBox(height: 12),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              decoration: BoxDecoration(
-                border: Border.all(color: Theme.of(context).dividerColor),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      currentMainApiBaseUrl,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ),
-                  if (_checkingMainApi)
-                    const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  else if (statusKey != null)
-                    Icon(
-                      statusKey == 'settings_main_api_connected' ||
-                              statusKey == 'settings_main_api_session_connected'
-                          ? Icons.check_circle
-                          : Icons.error_outline,
-                      color: _mainApiStatusColor(statusKey),
-                      size: 18,
-                    ),
-                ],
-              ),
-            ),
-          ],
           const SizedBox(height: 12),
           Container(
             width: double.infinity,
@@ -1018,50 +941,20 @@ class _SettingPageState extends State<SettingPage> {
 
   Widget _buildMobileLocalHostingCard() {
     final supportsLocalHosting = RuntimePreferences.supportsMobileLocalHosting;
-    final title = _localizedCopy(
-      fr: 'Lancement des bots',
-      en: 'Bot startup mode',
-    );
-    final description = _localizedCopy(
-      fr:
-          'Choisissez si vos bots demarrent sur les serveurs Bot Creator ou en local sur cet appareil.',
-      en:
-          'Choose whether your bots start on Bot Creator servers or locally on this device.',
-    );
+    final title = context.tr.settings_startup_mode_title;
+    final description = context.tr.settings_startup_mode_desc;
     final useBotCreatorServers = !_mobileLocalHostingEnabled;
-    final switchTitle = _localizedCopy(
-      fr: 'Utiliser les serveurs Bot Creator',
-      en: 'Use Bot Creator servers',
-    );
+    final switchTitle = context.tr.settings_startup_mode_use_cloud;
     final switchSubtitle =
         !supportsLocalHosting
-            ? _localizedCopy(
-              fr:
-                  'Sur iOS, le mode local n\'est pas pris en charge. Les bots utilisent toujours les serveurs Bot Creator.',
-              en:
-                  'On iOS, local mode is not supported. Bots always use Bot Creator servers.',
-            )
+            ? context.tr.settings_startup_mode_ios_warning
             : useBotCreatorServers
-            ? _localizedCopy(
-              fr:
-                  'Recommande sur Android et iOS. Les logs, stats et demarrages passent par Bot Creator.',
-              en:
-                  'Recommended on Android and iOS. Logs, stats, and startup all go through Bot Creator.',
-            )
-            : _localizedCopy(
-              fr: 'Les bots demarrent maintenant en local sur cet appareil.',
-              en: 'Bots now start locally on this device.',
-            );
-    final warning = _localizedCopy(
-      fr:
-          !supportsLocalHosting
-              ? 'Le mode local reste indisponible sur iOS.'
-              : 'Le mode local est une option avancee reservee au debug ou a des besoins specifiques. Pour un usage normal, laissez les serveurs Bot Creator actifs.',
-      en:
-          !supportsLocalHosting
-              ? 'Local mode remains unavailable on iOS.'
-              : 'Local mode is an advanced option intended for debugging or specific needs. For normal use, keep Bot Creator servers enabled.',
-    );
+            ? context.tr.settings_startup_mode_cloud_desc
+            : context.tr.settings_startup_mode_local_desc;
+    final warning =
+        !supportsLocalHosting
+            ? context.tr.settings_startup_mode_ios_unavailable
+            : context.tr.settings_startup_mode_local_warning;
 
     return Card(
       child: Padding(
@@ -1131,40 +1024,17 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   Widget _buildDesktopRuntimeCard() {
-    final title = _localizedCopy(fr: 'Mode d\'execution', en: 'Execution mode');
-    final description = _localizedCopy(
-      fr:
-          'Sur cette plateforme, Bot Creator n\'heberge jamais vos bots. Vous pouvez utiliser votre runner self-hosted ou executer les bots localement.',
-      en:
-          'On this platform, Bot Creator never hosts your bots. You can use your self-hosted runner or execute bots locally.',
-    );
+    final title = context.tr.settings_execution_mode_title;
+    final description = context.tr.settings_execution_mode_desc;
     final useSelfHostedRunner = !_runnerTemporarilyDisabled;
     final hasStoredRunner = _runnerUrlController.text.trim().isNotEmpty;
-    final switchTitle = _localizedCopy(
-      fr: 'Utiliser un runner self-hosted',
-      en: 'Use a self-hosted runner',
-    );
+    final switchTitle = context.tr.settings_execution_mode_use_runner;
     final switchSubtitle =
         useSelfHostedRunner
             ? (hasStoredRunner
-                ? _localizedCopy(
-                  fr:
-                      'Le runner self-hosted est prioritaire. Si aucun runner n\'est configure, l\'application repasse en local.',
-                  en:
-                      'The self-hosted runner is preferred. If no runner is configured, the app falls back to local.',
-                )
-                : _localizedCopy(
-                  fr:
-                      'Aucun runner n\'est encore configure. L\'application restera en local tant que vous n\'en ajoutez pas un.',
-                  en:
-                      'No runner is configured yet. The app stays local until you add one.',
-                ))
-            : _localizedCopy(
-              fr:
-                  'Les bots demarrent maintenant en local. La configuration runner reste en memoire et peut etre reactivee a tout moment.',
-              en:
-                  'Bots now start locally. Runner settings stay stored and can be re-enabled anytime.',
-            );
+                ? context.tr.settings_execution_mode_runner_priority
+                : context.tr.settings_execution_mode_no_runner)
+            : context.tr.settings_execution_mode_local_active;
 
     return Card(
       child: Padding(

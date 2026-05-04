@@ -372,7 +372,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   Map<String, dynamic> _buildResponsePayloadFromEditor() {
     return {
       'mode': _responseType,
-      'type': 'normal',
+      'type': _responseType == 'componentV2' ? 'componentV2' : 'normal',
       'text': _responseController.text,
       'embeds': _cloneJsonListOfMaps(_responseEmbeds.take(10).toList()),
       'components': _cloneJsonMap(_responseComponents),
@@ -1539,9 +1539,16 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
             _editorMode = _editorModeAdvanced;
           }
           _applySimpleConfig(simpleConfig);
-          _responseType = (response['type'] ?? 'normal').toString();
+          final loadedMode =
+              (response['mode'] ?? response['type'] ?? 'message').toString();
+          _responseType =
+              (loadedMode == 'normal' ||
+                      loadedMode == 'text' ||
+                      loadedMode == 'message')
+                  ? 'message'
+                  : loadedMode;
           if (_legacyModeEnabled && _responseType == 'modal') {
-            _responseType = 'normal';
+            _responseType = 'message';
           }
           _response = (response["text"] ?? "").toString();
           _responseController.text = _response;

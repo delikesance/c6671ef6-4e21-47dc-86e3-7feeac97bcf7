@@ -264,7 +264,7 @@ void main() {
 
       final result = normalizeCommandData(command);
       expect(result['data']['response']['text'], 'plain text response');
-      expect(result['data']['response']['mode'], 'text');
+      expect(result['data']['response']['mode'], 'message');
     });
 
     test('normalizes command with no data at all', () {
@@ -312,7 +312,7 @@ void main() {
       final embeds = result['data']['response']['embeds'] as List;
       expect(embeds.length, 1);
       expect(embeds[0]['title'], 'My Title');
-      expect(result['data']['response']['mode'], 'embed');
+      expect(result['data']['response']['mode'], 'message');
     });
 
     test('limits embeds to 10', () {
@@ -539,7 +539,7 @@ void main() {
       final embeds = result['data']['response']['embeds'] as List;
       expect(embeds.length, 1);
       expect(embeds[0]['color'], '#FF0000');
-      expect(result['data']['response']['mode'], 'embed');
+      expect(result['data']['response']['mode'], 'message');
     });
 
     test('migrates legacy embed with only footer', () {
@@ -680,7 +680,7 @@ void main() {
       final result = normalizeCommandData(command);
       final embeds = result['data']['response']['embeds'] as List;
       expect(embeds, isEmpty);
-      expect(result['data']['response']['mode'], 'text');
+      expect(result['data']['response']['mode'], 'message');
     });
   });
 

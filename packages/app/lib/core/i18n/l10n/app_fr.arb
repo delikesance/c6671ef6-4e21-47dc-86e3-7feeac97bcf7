@@ -14,7 +14,7 @@
   "onboarding_command_title": "Étape 2: Ajouter une commande",
   "onboarding_command_desc": "Créez votre première commande",
   "onboarding_command_text": "Les commandes sont le cÅ“ur de votre bot. Elles permettent aux utilisateurs d'interagir avec votre bot via Discord.",
-  "onboarding_command_example": "Exemple:\n/hello â†’ Le bot répond \"Bonjour! ðŸ‘‹\"",
+  "onboarding_command_example": "Exemple:\n/hello †’ Le bot répond \"Bonjour! ðŸ‘‹\"",
   "onboarding_command_button": "Continuer",
   "onboarding_start_title": "Étape 3: Lancer le bot",
   "onboarding_start_desc": "Lancez votre bot!",
@@ -159,7 +159,7 @@
       }
     }
   },
-  "settings_snapshot_files_size": "Fichiers : {count} â€¢ Taille : {size}",
+  "settings_snapshot_files_size": "Fichiers : {count} • Taille : {size}",
   "@settings_snapshot_files_size": {
     "placeholders": {
       "count": {
@@ -180,19 +180,19 @@
   },
   "settings_snapshot_apps_list": "Apps dans ce snapshot",
   "settings_snapshot_no_metadata": "Aucune métadonnée d'application disponible.",
-  "settings_snapshot_delete_loading": "Suppression du snapshotâ€¦",
+  "settings_snapshot_delete_loading": "Suppression du snapshot€¦",
   "settings_snapshot_deleted": "Snapshot supprimé",
-  "settings_snapshot_restore_loading": "Restauration du snapshotâ€¦",
+  "settings_snapshot_restore_loading": "Restauration du snapshot€¦",
   "settings_restore_snapshot": "Restaurer ce snapshot",
   "settings_diagnostics_dialog_title": "Diagnostics de démarrage",
   "settings_diagnostics_copied": "Diagnostics copiés dans le presse-papiers",
   "settings_drive_title": "Connexion Google Drive",
   "settings_drive_desc": "Connectez votre compte Google Drive pour synchroniser vos données",
-  "settings_drive_connect_loading": "Connexion à Google Driveâ€¦",
+  "settings_drive_connect_loading": "Connexion à Google Drive€¦",
   "settings_drive_connected": "Connecté à Google Drive",
   "settings_drive_connect": "Connecter Google Drive",
   "settings_drive_status_connected": "Connecté",
-  "settings_drive_disconnect_loading": "Déconnexion en coursâ€¦",
+  "settings_drive_disconnect_loading": "Déconnexion en cours€¦",
   "settings_drive_disconnected": "Déconnecté de Google Drive",
   "settings_drive_disconnect": "Déconnecter",
   "settings_runner_title": "Runner API",
@@ -234,7 +234,7 @@
   "settings_main_api_saved": "Paramètres du serveur Bot Creator enregistrés",
   "settings_main_api_cleared": "Paramètres du serveur Bot Creator effacés",
   "settings_main_api_check": "Tester le serveur Bot Creator",
-  "settings_main_api_connected": "Serveur Bot Creator accessible âœ“",
+  "settings_main_api_connected": "Serveur Bot Creator accessible ✓",
   "settings_main_api_unreachable": "Serveur Bot Creator inaccessible",
   "settings_main_api_auth_failed": "La session du serveur Bot Creator est invalide ou expirée",
   "settings_main_api_connect_discord": "Connecter le compte Discord",
@@ -309,10 +309,10 @@
   "settings_discord_rpc_needs_authorization": "Autorisation requise",
   "settings_discord_rpc_authorization_code_pending_exchange": "Code d'autorisation en cache ; relancez pour terminer l'échange du token",
   "settings_discord_rpc_ipc_connected_auth_required": "IPC Discord local connecté ; aucune requête OAuth HTTP envoyée pour l'instant, authentification encore requise",
-  "settings_discord_rpc_connecting": "Connexion à Discordâ€¦",
-  "settings_discord_rpc_authorizing": "En attente de l'autorisation Discordâ€¦",
-  "settings_discord_rpc_exchanging_code": "Finalisation de l'échange OAuthâ€¦",
-  "settings_discord_rpc_authenticating": "Authentification auprès de Discordâ€¦",
+  "settings_discord_rpc_connecting": "Connexion à Discord€¦",
+  "settings_discord_rpc_authorizing": "En attente de l'autorisation Discord€¦",
+  "settings_discord_rpc_exchanging_code": "Finalisation de l'échange OAuth€¦",
+  "settings_discord_rpc_authenticating": "Authentification auprès de Discord€¦",
   "settings_discord_rpc_connected": "Présence envoyée à Discord",
   "settings_discord_rpc_error": "Erreur Discord RPC",
   "settings_data_operations_title": "Opérations de données",
@@ -320,8 +320,8 @@
   "settings_import": "Importer",
   "settings_export_app_data": "Exporter les données de l'app",
   "settings_import_app_data": "Importer les données de l'app",
-  "settings_export_loading": "Export en coursâ€¦",
-  "settings_import_loading": "Import en coursâ€¦",
+  "settings_export_loading": "Export en cours€¦",
+  "settings_import_loading": "Import en cours€¦",
   "settings_recovery_title": "Recovery Pro",
   "settings_enable_auto_backup": "Activer l'auto-sauvegarde",
   "settings_enable_auto_backup_desc": "Crée automatiquement des snapshots versionnés lorsque nécessaire.",
@@ -339,7 +339,7 @@
       }
     }
   },
-  "settings_snapshot_create_loading": "Création du snapshotâ€¦",
+  "settings_snapshot_create_loading": "Création du snapshot€¦",
   "settings_manual_snapshot_label": "Snapshot manuel",
   "settings_snapshot_created_message": "Snapshot créé : {id}",
   "@settings_snapshot_created_message": {
@@ -351,7 +351,7 @@
   },
   "settings_backup_now": "Sauvegarder maintenant",
   "settings_run_auto_backup_now": "Lancer l'auto-sauvegarde",
-  "settings_auto_backup_check_loading": "Vérification auto-sauvegardeâ€¦",
+  "settings_auto_backup_check_loading": "Vérification auto-sauvegarde€¦",
   "settings_snapshots_title": "Snapshots",
   "settings_snapshots_refresh": "Actualiser les snapshots",
   "settings_snapshots_delete_all": "Supprimer tous les snapshots",
@@ -364,7 +364,7 @@
       }
     }
   },
-  "settings_snapshots_delete_all_loading": "Suppression de tous les snapshotsâ€¦",
+  "settings_snapshots_delete_all_loading": "Suppression de tous les snapshots€¦",
   "settings_snapshots_delete_all_done": "{count} snapshot(s) supprimé(s).",
   "@settings_snapshots_delete_all_done": {
     "placeholders": {
@@ -384,7 +384,7 @@
       }
     }
   },
-  "settings_snapshots_refresh_loading": "Actualisation des snapshotsâ€¦",
+  "settings_snapshots_refresh_loading": "Actualisation des snapshots€¦",
   "settings_snapshots_empty": "Aucun snapshot trouvé pour le moment.",
   "backup_completed": "Sauvegarde terminée : {id}",
   "@backup_completed": {
@@ -402,7 +402,7 @@
       }
     }
   },
-  "settings_snapshot_list_entry": "{date} â€¢ {count} fichiers â€¢ {size}",
+  "settings_snapshot_list_entry": "{date} • {count} fichiers • {size}",
   "@settings_snapshot_list_entry": {
     "placeholders": {
       "date": {
@@ -649,9 +649,9 @@
     }
   },
   "home_stop": "Arrêter",
-  "home_start": "Lancer",
-  "home_start_ads": "Regarder une pub pour lancer",
-  "home_start_premium": "Lancer",
+  "home_start": "Démarrer",
+  "home_start_ads": "Démarrer (Voir Pub)",
+  "home_start_premium": "Démarrer (Premium)",
   "home_add_time": "Ajouter du temps",
   "home_hosting_time_left": "Temps d'hébergement restant : {time}",
   "@home_hosting_time_left": {
@@ -692,7 +692,7 @@
   "create": "Créer",
   "confirm": "Confirmer",
   "bot_home_start": "Lancer le bot",
-  "bot_home_starting": "Démarrageâ€¦",
+  "bot_home_starting": "Démarrage€¦",
   "bot_home_stop": "Arrêter le bot",
   "bot_home_ios_notice_title": "Contrainte iOS locale",
   "bot_home_ios_notice_content": "En mode local, iOS peut suspendre l'application en arrière-plan. Le bot peut démarrer, mais le maintien de la connexion Discord n'est pas garanti comme avec un Runner.",
@@ -870,7 +870,7 @@
   "debug_replay_clear": "Effacer les replays",
   "debug_replay_clear_title": "Effacer les replays",
   "debug_replay_clear_confirm": "Tous les replays enregistrés seront supprimés. Continuer ?",
-  "debug_replay_empty_capturing": "Capture en coursâ€¦ Lancez une commande pour enregistrer un replay.",
+  "debug_replay_empty_capturing": "Capture en cours€¦ Lancez une commande pour enregistrer un replay.",
   "debug_replay_empty_idle": "Capture désactivée. Activez-la et lancez une commande pour enregistrer un replay.",
   "debug_replay_premium_title": "Replay Débogueur Visuel",
   "debug_replay_premium_desc": "Enregistrez et rejouez vos exécutions de commandes étape par étape. Voyez exactement ce que chaque action a fait, combien de temps elle a pris et oÃ¹ les erreurs se sont produites.",
@@ -913,7 +913,7 @@
   "bot_stats_source_runner_api": "Source : API Runner",
   "bot_stats_source_local_hosting": "Source : hébergement local",
   "bot_stats_notes": "Notes : CPU disponible sur Android/Linux. Stockage = fichiers de données du bot dans l'application.",
-  "bot_stats_collecting": "Collecteâ€¦",
+  "bot_stats_collecting": "Collecte€¦",
   "commands_title": "Commandes",
   "commands_empty": "Aucune commande trouvée",
   "commands_error": "Erreur : {error}",
@@ -949,7 +949,7 @@
   "globals_key_hint": "ex. prefix, level, welcome_message",
   "globals_value": "Valeur",
   "globals_delete_title": "Supprimer la variable",
-  "globals_delete_confirm": "Supprimer Â« {key} Â» ?",
+  "globals_delete_confirm": "Supprimer « {key} » ?",
   "@globals_delete_confirm": {
     "placeholders": {
       "key": {
@@ -957,11 +957,11 @@
       }
     }
   },
-  "globals_search": "Rechercher des variablesâ€¦",
+  "globals_search": "Rechercher des variables€¦",
   "globals_mode_global": "Globale",
   "globals_mode_scoped": "Scopée",
   "globals_help_global": "Partagées entre toutes les commandes. Accessibles via $getVar[clé].",
-  "globals_help_scoped": "Stockées par contexte (serveur, utilisateur, salonâ€¦). Chaque entrée conserve une valeur distincte par contexte Discord.",
+  "globals_help_scoped": "Stockées par contexte (serveur, utilisateur, salon€¦). Chaque entrée conserve une valeur distincte par contexte Discord.",
   "globals_source_local": "Local",
   "globals_source_runner": "Runner : {name}",
   "@globals_source_runner": {
@@ -993,9 +993,9 @@
   },
   "scoped_title": "Variables scopées",
   "scoped_empty": "Aucune variable scopée définie",
-  "scoped_empty_subtitle": "Les variables scopées stockent une valeur par contexte Discord (utilisateur, serveurâ€¦). Elles sont peuplées par le bot à l'exécution.",
+  "scoped_empty_subtitle": "Les variables scopées stockent une valeur par contexte Discord (utilisateur, serveur€¦). Elles sont peuplées par le bot à l'exécution.",
   "scoped_delete_title": "Supprimer la variable scopée",
-  "scoped_delete_confirm": "Supprimer Â« {key} Â» et toutes ses données runtime stockées ?",
+  "scoped_delete_confirm": "Supprimer « {key} » et toutes ses données runtime stockées ?",
   "@scoped_delete_confirm": {
     "placeholders": {
       "key": {
@@ -1023,7 +1023,7 @@
       }
     }
   },
-  "scoped_runtime_title": "Données runtime â€” Â« {key} Â»",
+  "scoped_runtime_title": "Données runtime €” « {key} »",
   "@scoped_runtime_title": {
     "placeholders": {
       "key": {
@@ -1031,7 +1031,7 @@
       }
     }
   },
-  "scoped_runtime_subtitle": "Scope : {scope} Â· {count} contexte(s) trouvé(s)",
+  "scoped_runtime_subtitle": "Scope : {scope} · {count} contexte(s) trouvé(s)",
   "@scoped_runtime_subtitle": {
     "placeholders": {
       "scope": {
@@ -1044,7 +1044,7 @@
   },
   "scoped_runtime_empty": "Aucune donnée runtime.\nCette clé sera peuplée par le bot à l'exécution.",
   "scoped_runtime_copy_all": "Tout copier",
-  "scoped_runtime_search": "Rechercher par ID ou nomâ€¦",
+  "scoped_runtime_search": "Rechercher par ID ou nom€¦",
   "scoped_explore_runtime": "Explorer les données runtime",
   "globals_refresh": "Actualiser",
   "globals_retry": "Réessayer",
@@ -1068,7 +1068,7 @@
   "workflows_continue": "Continuer",
   "workflows_add_arg": "Ajouter un argument",
   "workflows_docs_tooltip": "Ouvrir le centre de documentation",
-  "workflows_subtitle": "{count} action(s) â€¢ entrée : {entry} â€¢ args : {args}",
+  "workflows_subtitle": "{count} action(s) €¢ entrée : {entry} €¢ args : {args}",
   "@workflows_subtitle": {
     "placeholders": {
       "count": {
@@ -1082,7 +1082,7 @@
       }
     }
   },
-  "workflows_event_subtitle": "{count} action(s) â€¢ Listen for : {event}",
+  "workflows_event_subtitle": "{count} action(s) €¢ Listen for : {event}",
   "@workflows_event_subtitle": {
     "placeholders": {
       "count": {
@@ -1196,7 +1196,7 @@
   "cmd_editor_mode_simple_desc": "Créez une commande rapidement avec des options guidées et des actions préconfigurées.",
   "cmd_editor_mode_advanced_desc": "Éditeur complet avec réponse personnalisée, options et builder d'actions.",
   "cmd_editor_mode_switch_adv": "Passer en mode avancé",
-  "cmd_editor_mode_switch_adv_title": "Passer en mode avancéÂ ?",
+  "cmd_editor_mode_switch_adv_title": "Passer en mode avancé ?",
   "cmd_editor_mode_switch_adv_content": "Ce changement est définitif pour cette commande. Vous ne pourrez plus revenir au mode simplifié.",
   "cmd_editor_mode_switch_adv_confirm": "Passer",
   "cmd_editor_mode_locked": "Le mode avancé est verrouillé pour cette commande.",
@@ -1245,13 +1245,13 @@
   "bdfd_editor_tap_hint": "Appuyez pour ouvrir l'éditeur",
   "bdfd_editor_wrap_toggle": "Activer/désactiver le retour à la ligne",
   "bdfd_editor_diagnostics_toggle": "Afficher/masquer le panneau de diagnostics",
-  "bdfd_editor_empty": "Script vide â€” commencez à écrire pour voir les diagnostics.",
+  "bdfd_editor_empty": "Script vide €” commencez à écrire pour voir les diagnostics.",
   "dart_editor_title": "Éditeur Dart",
   "dart_editor_tap_hint": "Appuyez pour ouvrir l'éditeur Dart",
-  "dart_editor_empty": "Script vide â€” commencez à écrire pour voir les diagnostics Dart.",
+  "dart_editor_empty": "Script vide €” commencez à écrire pour voir les diagnostics Dart.",
   "bdfd_editor_docs": "Référence des fonctions BDFD",
   "bdfd_docs_title": "Docs BDFD",
-  "bdfd_docs_search_hint": "Rechercher une fonctionâ€¦",
+  "bdfd_docs_search_hint": "Rechercher une fonction€¦",
   "scratch_block_metadata": "Métadonnées",
   "scratch_block_required": "Requis",
   "scratch_block_entry_point": "Point de départ (Déclencheur)",
@@ -1296,7 +1296,7 @@
   "bdfd_docs_empty": "Aucune fonction trouvée.",
   "bdfd_docs_syntax": "SYNTAXE",
   "bdfd_docs_parameters": "PARAMÃˆTRES",
-  "bdfd_docs_no_params": "Aucun paramètre â€” utiliser comme $nomFonction",
+  "bdfd_docs_no_params": "Aucun paramètre €” utiliser comme $nomFonction",
   "bdfd_docs_category_messages": "Messages & Contenu",
   "bdfd_docs_category_embeds": "Embeds",
   "bdfd_docs_category_components": "Composants",
@@ -1317,24 +1317,24 @@
   "bdfd_docs_category_leaderboards": "Classements",
   "bdfd_docs_category_tickets": "Tickets",
   "bdfd_docs_category_misc": "Autres",
-  "bdfd_docs_desc_for": "Bot Creator uniquement â€” Répète un bloc de code N fois.\n\nSimple : $for[5]...$endfor â†’ le corps est répété 5 fois (max 100). Utilisez $i pour l'index courant (à partir de 0) et $loopCount pour le total.\n\nStyle C : $for[i=0;i<10;i++]...$endfor â†’ boucle for classique avec init, condition et mise à jour. Supporte ++, --, +=, -=, *=.\n\nSi le nombre d'itérations est dynamique (ex : $for[$args[1]]), la boucle s'exécute au runtime.",
-  "bdfd_docs_desc_loop": "Bot Creator uniquement â€” Alias de $for. Voir $for pour les détails. Utilisez $endloop pour fermer le bloc.",
-  "bdfd_docs_desc_callworkflow": "Bot Creator uniquement â€” Appelle un autre workflow par nom et transmet des arguments.\n\nSyntaxe : $callWorkflow[monWorkflow;clé1=valeur1;clé2=valeur2]\n\nLe workflow appelé peut lire les arguments et retourner une valeur via $workflowResponse.",
-  "bdfd_docs_desc_workflowresponse": "Bot Creator uniquement â€” Retourne la réponse du dernier $callWorkflow.\n\nUtilisez $workflowResponse[] pour la réponse complète, ou $workflowResponse[propriété] pour un champ spécifique.",
+  "bdfd_docs_desc_for": "Bot Creator uniquement €” Répète un bloc de code N fois.\n\nSimple : $for[5]...$endfor †’ le corps est répété 5 fois (max 100). Utilisez $i pour l'index courant (à partir de 0) et $loopCount pour le total.\n\nStyle C : $for[i=0;i<10;i++]...$endfor †’ boucle for classique avec init, condition et mise à jour. Supporte ++, --, +=, -=, *=.\n\nSi le nombre d'itérations est dynamique (ex : $for[$args[1]]), la boucle s'exécute au runtime.",
+  "bdfd_docs_desc_loop": "Bot Creator uniquement €” Alias de $for. Voir $for pour les détails. Utilisez $endloop pour fermer le bloc.",
+  "bdfd_docs_desc_callworkflow": "Bot Creator uniquement €” Appelle un autre workflow par nom et transmet des arguments.\n\nSyntaxe : $callWorkflow[monWorkflow;clé1=valeur1;clé2=valeur2]\n\nLe workflow appelé peut lire les arguments et retourner une valeur via $workflowResponse.",
+  "bdfd_docs_desc_workflowresponse": "Bot Creator uniquement €” Retourne la réponse du dernier $callWorkflow.\n\nUtilisez $workflowResponse[] pour la réponse complète, ou $workflowResponse[propriété] pour un champ spécifique.",
   "bdfd_docs_desc_eval": "Exécute une chaîne de script BDFD au runtime. Le code passé en argument est recompilé et exécuté dynamiquement. Utile pour exécuter des scripts basés sur des variables.",
   "bdfd_docs_desc_if": "Bloc conditionnel. Supporte l'imbrication et des opérateurs riches : ==, !=, >=, <=, >, <, contains, startsWith, endsWith, notContains.\n\nUtilisation :\n$if[$authorID==123456]\n  Bonjour admin !\n$elseif[$hasRole[789]]\n  Bonjour membre !\n$else\n  Bonjour invité !\n$endif",
   "bdfd_docs_desc_elseif": "Ajoute une condition alternative dans un bloc $if. Doit apparaître entre $if et $else/$endif.",
   "bdfd_docs_desc_try": "Encadre un bloc pour la gestion d'erreurs.\n\nUtilisation :\n$try\n  $httpGet[https://api.example.com/data]\n$catch\n  La requête a échoué !\n$endtry\n\nSi une fonction du bloc $try échoue, l'exécution passe au $catch.",
   "bdfd_docs_desc_stop": "Arrête immédiatement l'exécution du script. Aucune action après $stop ne sera exécutée.",
   "bdfd_docs_desc_suppresserrors": "Empêche l'envoi des messages d'erreur à l'utilisateur. Si une action échoue, l'erreur est supprimée silencieusement.",
-  "bdfd_docs_desc_embedsuppresserrors": "Identique à $suppressErrors â€” supprime tous les messages d'erreur silencieusement.",
-  "bdfd_docs_desc_and": "ET logique â€” combine plusieurs conditions. Toutes doivent être vraies.\n\nUtilisation : $if[$and[$authorID==123;$hasRole[456]]]",
-  "bdfd_docs_desc_or": "OU logique â€” combine plusieurs conditions. Au moins une doit être vraie.\n\nUtilisation : $if[$or[$authorID==123;$authorID==456]]]",
+  "bdfd_docs_desc_embedsuppresserrors": "Identique à $suppressErrors €” supprime tous les messages d'erreur silencieusement.",
+  "bdfd_docs_desc_and": "ET logique €” combine plusieurs conditions. Toutes doivent être vraies.\n\nUtilisation : $if[$and[$authorID==123;$hasRole[456]]]",
+  "bdfd_docs_desc_or": "OU logique €” combine plusieurs conditions. Au moins une doit être vraie.\n\nUtilisation : $if[$or[$authorID==123;$authorID==456]]]",
   "bdfd_docs_desc_awaitfunc": "Enregistre un callback qui attend une réponse utilisateur.\n\nUtilisation : $awaitFunc[nom;userID (opt);channelID (opt)]\n\nLa fonction attendue est stockée et déclenchée quand l'utilisateur cible envoie un message dans le salon cible.",
-  "bdfd_docs_desc_defer": "Diffère la réponse à l'interaction, vous donnant plus de temps. L'utilisateur voit Â« Le bot réfléchitâ€¦ Â». Ã€ utiliser avant les opérations longues comme les requêtes HTTP.",
+  "bdfd_docs_desc_defer": "Diffère la réponse à l'interaction, vous donnant plus de temps. L'utilisateur voit « Le bot réfléchit€¦ ». Ã€ utiliser avant les opérations longues comme les requêtes HTTP.",
   "bdfd_docs_desc_ephemeral": "Rend la réponse visible uniquement pour l'utilisateur qui a déclenché la commande. Doit être placé avant tout contenu de réponse.",
   "bdfd_docs_desc_jsonparse": "Parse une chaîne JSON en mémoire pour manipulation. Toutes les opérations JSON ($jsonSet, $json, etc.) agissent sur ce contexte.\n\nLe JSON statique est résolu au compile-time pour de meilleures performances.",
-  "bdfd_docs_desc_jsonset": "Définit une valeur dans le contexte JSON courant. Supporte les chemins en notation pointée.\n\nUtilisation : $jsonSet[user.name;John]\n\nLa modification est en mémoire â€” utilisez $jsonStringify pour obtenir le résultat.",
+  "bdfd_docs_desc_jsonset": "Définit une valeur dans le contexte JSON courant. Supporte les chemins en notation pointée.\n\nUtilisation : $jsonSet[user.name;John]\n\nLa modification est en mémoire €” utilisez $jsonStringify pour obtenir le résultat.",
   "bdfd_docs_desc_jsonstringify": "Convertit le contexte JSON courant en chaîne de caractères. Ã€ utiliser après $jsonParse et $jsonSet pour obtenir le résultat.",
   "bdfd_docs_desc_httpget": "Envoie une requête HTTP GET à l'URL donnée. Utilisez $httpAddHeader avant pour définir les en-têtes. Utilisez $httpResult pour lire la réponse.\n\nToutes les méthodes HTTP (GET, POST, PUT, PATCH, DELETE) suivent le même schéma.",
   "bdfd_docs_desc_httpaddheader": "Ajoute un en-tête à la prochaine requête HTTP. Les en-têtes s'accumulent jusqu'au prochain $httpGet/$httpPost/etc.\n\nUtilisation : $httpAddHeader[Authorization;Bearer token123]",
@@ -1425,7 +1425,7 @@
   "cmd_simple_response_visibility_label": "Visibilité de la réponse",
   "cmd_simple_response_visibility_public": "Publique",
   "cmd_simple_response_visibility_ephemeral": "Éphémère",
-  "cmd_simple_response_hint": "Terminé âœ…",
+  "cmd_simple_response_hint": "Terminé œ…",
   "cmd_simple_response_embeds_title": "Embeds de réponse",
   "cmd_simple_response_embeds_desc": "Embeds optionnels envoyés avec la réponse finale.",
   "cmd_simple_conflict_ban_unban": "Bannir un utilisateur et Débannir un utilisateur ne peuvent pas être activés ensemble en mode simplifié.",
@@ -1437,10 +1437,10 @@
   "cmd_simple_poll_duration_invalid": "La durée du sondage doit être un nombre entre 1 et 168 heures.",
   "cmd_simple_send_message_required": "Veuillez renseigner le message de l'action avant de sauvegarder.",
   "support_card_title": "Support & Communauté",
-  "support_card_desc": "Une question, un bug, une suggestionÂ ? Venez discuter avec l'équipe et la communauté.",
+  "support_card_desc": "Une question, un bug, une suggestion ? Venez discuter avec l'équipe et la communauté.",
   "support_join_discord": "Rejoindre le serveur Discord",
   "support_discord_badge": "Support officiel",
-  "home_empty_support_hint": "Besoin d'aide pour commencerÂ ?",
+  "home_empty_support_hint": "Besoin d'aide pour commencer ?",
   "home_empty_support_btn": "Rejoindre notre Discord",
   "error_invalid_count": "Le nombre doit être supérieur à 0.",
   "error_invalid_channel_type": "Le salon n'est pas un salon textuel.",
@@ -1729,9 +1729,9 @@
   "subscription_plan_desc": "Supprime les pubs et accède à toutes les fonctionnalités premium actuelles et à venir.",
   "subscription_success": "Bienvenue dans Premium ! Toutes les publicités ont été supprimées.",
   "subscription_manage": "Gérer l'abonnement",
-  "subscription_active_label": "Offre activeÂ :",
-  "subscription_active_annual": "Premium â€” Annuel",
-  "subscription_active_monthly": "Premium â€” Mensuel",
+  "subscription_active_label": "Offre active :",
+  "subscription_active_annual": "Premium €” Annuel",
+  "subscription_active_monthly": "Premium €” Mensuel",
   "subscription_benefit_no_ads": "Aucune pub dans toute l'application",
   "subscription_benefit_fast_start": "Bots démarrent instantanément, sans pop-up",
   "subscription_benefit_support": "Soutenez le développement indépendant",
@@ -1824,7 +1824,7 @@
   "doc_event_reaction_add_notes_l1": "reaction.emoji.id peut être vide pour les emojis unicode.",
   "doc_event_reaction_add_notes_l2": "Utilisez reaction.emoji.name pour une correspondance générique.",
   "doc_event_reaction_add_notes_l3": "Utilisez reaction.emoji.id pour une correspondance stricte d'emojis personnalisés.",
-  "doc_event_reaction_add_example": "Guard : ((reaction.emoji.name)) equals âœ…\nAction : addRole -> user=((userId)) role=((global.approvedRoleId))",
+  "doc_event_reaction_add_example": "Guard : ((reaction.emoji.name)) equals œ…\nAction : addRole -> user=((userId)) role=((global.approvedRoleId))",
   "doc_event_poll_vote_add_title": "Événement : messagePollVoteAdd",
   "doc_event_poll_vote_add_subtitle": "Déclenché quand un utilisateur vote sur une réponse de sondage.",
   "doc_event_poll_vote_add_summary": "Utile pour le suivi des scores, l'attribution de rôles par option de sondage et le traitement des enquêtes.",
@@ -1862,7 +1862,7 @@
   "doc_action_stop_unless_format_l1": "Vous pouvez utiliser des clés brutes : message.content[0]",
   "doc_action_stop_unless_format_l2": "Vous pouvez utiliser des variables encapsulées : ((message.content[0]))",
   "doc_action_stop_unless_format_l3": "Les deux sont résolus par le runtime.",
-  "doc_action_stop_unless_example": "condition.variable = ((reaction.emoji.name))\ncondition.operator = equals\ncondition.value = âœ…",
+  "doc_action_stop_unless_example": "condition.variable = ((reaction.emoji.name))\ncondition.operator = equals\ncondition.value = œ…",
   "doc_action_if_block_title": "Action : ifBlock",
   "doc_action_if_block_subtitle": "Branche l'exécution entre les listes d'actions imbriquées THEN, ELSE IF et ELSE.",
   "doc_action_if_block_summary": "Utilisez ceci pour garder un seul workflow tout en gérant plusieurs résultats selon l'état d'exécution.",
@@ -1982,7 +1982,7 @@
   "component_workflow_args_title": "Arguments d'appel du workflow",
   "component_workflow_args_hint": "Exemple : ticketId = ((opts.ticket))",
   "autocomplete_workflow_label": "Workflow d'autocomplétion",
-  "autocomplete_loading": "Chargement des workflowsâ€¦",
+  "autocomplete_loading": "Chargement des workflows€¦",
   "autocomplete_no_workflows": "Aucun workflow sauvegardé trouvé",
   "autocomplete_select_workflow": "Sélectionnez un workflow sauvegardé",
   "autocomplete_type_name": "Ou tapez le nom du workflow",
@@ -2084,7 +2084,7 @@
   "action_remove_else_if": "Supprimer ELSE IF",
   "action_condition_variable": "Variable de condition",
   "action_condition_value": "Valeur de condition",
-  "action_else_if_label": "ELSE IF {index} â€” actions",
+  "action_else_if_label": "ELSE IF {index} €” actions",
   "@action_else_if_label": {
     "placeholders": {
       "index": {
@@ -2171,7 +2171,7 @@
     }
   },
   "scheduler_delete_title": "Supprimer le planning",
-  "scheduler_delete_confirm": "Supprimer le planning Â« {label} Â» ?",
+  "scheduler_delete_confirm": "Supprimer le planning « {label} » ?",
   "@scheduler_delete_confirm": {
     "placeholders": {
       "label": {
@@ -2219,7 +2219,7 @@
     }
   },
   "webhooks_delete_title": "Supprimer le webhook entrant ?",
-  "webhooks_delete_confirm": "Supprimer Â« {label} Â» ? Cette action est irréversible.",
+  "webhooks_delete_confirm": "Supprimer « {label} » ? Cette action est irréversible.",
   "@webhooks_delete_confirm": {
     "placeholders": {
       "label": {
@@ -2267,7 +2267,7 @@
   "actions_missing_field_title": "Champ requis manquant",
   "actions_no_matches": "Aucune action ne correspond à votre recherche.",
   "actions_add_new_title": "Ajouter une nouvelle action",
-  "actions_search_hint": "Rechercher des actionsâ€¦",
+  "actions_search_hint": "Rechercher des actions€¦",
   "actions_add_label": "Ajouter une action",
   "actions_builder_title": "Constructeur d'actions",
   "actions_save_tooltip": "Enregistrer les actions",
@@ -2546,7 +2546,7 @@
   "reply_command_reply_title": "Réponse de commande",
   "reply_choose_type": "Choisissez le type de réponse à envoyer",
   "reply_mode_standard_desc": "Texte, embeds et boutons / menus de sélection optionnels",
-  "reply_mode_layout_desc": "Système de mise en page riche de Discord â€” conteneurs, médias, texte et formulaires",
+  "reply_mode_layout_desc": "Système de mise en page riche de Discord €” conteneurs, médias, texte et formulaires",
   "reply_mode_modal_desc": "Fenêtre pop-up avec champs de saisie texte",
   "reply_response_workflow": "Workflow de réponse",
   "reply_response_text_label": "Texte de réponse",
@@ -2615,9 +2615,9 @@
   "reply_editor_title": "Détails de la réponse",
   "bdfd_editor_ux_title": "UX de l'éditeur",
   "bdfd_editor_includes": "Inclut :",
-  "bdfd_editor_auto_indent": "â€¢ Indentation automatique intelligente sur Entrée",
-  "bdfd_editor_indent_guides": "â€¢ Guides d'indentation en temps réel",
-  "bdfd_editor_quick_keys": "â€¢ Touches rapides mobiles pour les symboles BDFD",
+  "bdfd_editor_auto_indent": "€¢ Indentation automatique intelligente sur Entrée",
+  "bdfd_editor_indent_guides": "€¢ Guides d'indentation en temps réel",
+  "bdfd_editor_quick_keys": "€¢ Touches rapides mobiles pour les symboles BDFD",
   "bdfd_editor_toggle_indent": "Activer/désactiver les guides d'indentation",
   "startup_error_title": "Erreur de démarrage",
   "startup_failed_message": "Bot Creator n'a pas pu démarrer sur cet appareil.",
@@ -2754,7 +2754,7 @@
   },
   "action_no_items_tap_edit": "Aucun élément - appuyez sur modifier pour ajouter",
   "action_no_actions_yet": "Aucune action dans cette branche.",
-  "action_and_more": "â€¦ et {count} de plus",
+  "action_and_more": "€¦ et {count} de plus",
   "@action_and_more": {
     "placeholders": {
       "count": {
@@ -2826,7 +2826,7 @@
   },
   "webhooks_path_copied": "Chemin copié.",
   "webhooks_secret_copied": "Secret copié.",
-  "scheduler_subtitle": "Workflow : {workflow} â€¢ Toutes les {minutes} min",
+  "scheduler_subtitle": "Workflow : {workflow} €¢ Toutes les {minutes} min",
   "@scheduler_subtitle": {
     "placeholders": {
       "workflow": {
@@ -3064,10 +3064,6 @@
     }
   },
   "home_hosting_expired": "Hébergement expiré",
-  "home_stop": "Arrêter",
-  "home_start_premium": "Démarrer (Premium)",
-  "home_start_ads": "Démarrer (Voir Pub)",
-  "home_add_time": "Ajouter du temps",
   "home_manage": "Gérer",
   "home_logs_tooltip": "Voir les logs",
   "app_no_apps": "Vous n'avez pas encore d'applications.",
@@ -3139,5 +3135,27 @@
     "placeholders": {
       "count": { "type": "int" }
     }
-  }
+  },
+  "settings_local_hosting_enabled": "Hébergement local activé",
+  "settings_cloud_hosting_enabled": "Les bots mobile utilisent maintenant les serveurs Bot Creator.",
+  "settings_account_connected_hint": "Compte connecté. Vos bots et vos données sont synchronisés avec Bot Creator.",
+  "settings_account_disconnected_hint": "Votre compte Bot Creator est créé automatiquement quand vous ajoutez un bot. Connectez-vous ensuite avec Discord pour récupérer vos bots sur cet appareil.",
+  "settings_account_connect_label": "Se connecter à Bot Creator avec Discord",
+  "settings_account_disconnect_label": "Se déconnecter",
+  "settings_account_status_connected": "Compte connecté",
+  "settings_account_status_disconnected": "Compte non connecté",
+  "settings_startup_mode_title": "Lancement des bots",
+  "settings_startup_mode_desc": "Choisissez si vos bots démarrent sur les serveurs Bot Creator ou en local sur cet appareil.",
+  "settings_startup_mode_use_cloud": "Utiliser les serveurs Bot Creator",
+  "settings_startup_mode_ios_warning": "Sur iOS, le mode local n'est pas pris en charge. Les bots utilisent toujours les serveurs Bot Creator.",
+  "settings_startup_mode_cloud_desc": "Recommandé sur Android et iOS. Les logs, stats et démarrages passent par Bot Creator.",
+  "settings_startup_mode_local_desc": "Les bots démarrent maintenant en local sur cet appareil.",
+  "settings_startup_mode_local_warning": "Le mode local est une option avancée réservée au debug ou à des besoins spécifiques. Pour un usage normal, laissez les serveurs Bot Creator actifs.",
+  "settings_startup_mode_ios_unavailable": "Le mode local reste indisponible sur iOS.",
+  "settings_execution_mode_title": "Mode d'exécution",
+  "settings_execution_mode_desc": "Sur cette plateforme, Bot Creator n'héberge jamais vos bots. Vous pouvez utiliser votre runner self-hosted ou exécuter les bots localement.",
+  "settings_execution_mode_use_runner": "Utiliser un runner self-hosted",
+  "settings_execution_mode_runner_priority": "Le runner self-hosted est prioritaire. Si aucun runner n'est configuré, l'application repasse en local.",
+  "settings_execution_mode_no_runner": "Aucun runner n'est encore configuré. L'application restera en local tant que vous n'en ajoutez pas un.",
+  "settings_execution_mode_local_active": "Les bots démarrent maintenant en local. La configuration runner reste en mémoire et peut être réactivée à tout moment."
 }

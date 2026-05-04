@@ -11737,6 +11737,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =0{0 minutes} =1{1 minute} other{{count} minutes}}'**
   String unit_minute(int count);
+
+  /// No description provided for @settings_cloud_hosting_enabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile bots now use Bot Creator servers.'**
+  String get settings_cloud_hosting_enabled;
+
+  /// No description provided for @settings_local_hosting_enabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile bots now use your device for hosting.'**
+  String get settings_local_hosting_enabled;
+
+  /// No description provided for @settings_account_connected_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Account connected. Your bots and data are now synced with Bot Creator.'**
+  String get settings_account_connected_hint;
+
+  /// No description provided for @settings_account_disconnected_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Bot Creator account is created automatically when you add a bot. Then sign in with Discord to recover your bots on this device.'**
+  String get settings_account_disconnected_hint;
+
+  /// No description provided for @settings_account_connect_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to Bot Creator with Discord'**
+  String get settings_account_connect_label;
+
+  /// No description provided for @settings_account_disconnect_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get settings_account_disconnect_label;
+
+  /// No description provided for @settings_account_status_connected.
+  ///
+  /// In en, this message translates to:
+  /// **'Account connected'**
+  String get settings_account_status_connected;
+
+  /// No description provided for @settings_account_status_disconnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Not signed in'**
+  String get settings_account_status_disconnected;
+
+  /// No description provided for @settings_startup_mode_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Bot startup mode'**
+  String get settings_startup_mode_title;
+
+  /// No description provided for @settings_startup_mode_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose whether your bots start on Bot Creator servers or locally on this device.'**
+  String get settings_startup_mode_desc;
+
+  /// No description provided for @settings_startup_mode_use_cloud.
+  ///
+  /// In en, this message translates to:
+  /// **'Use Bot Creator servers'**
+  String get settings_startup_mode_use_cloud;
+
+  /// No description provided for @settings_startup_mode_ios_warning.
+  ///
+  /// In en, this message translates to:
+  /// **'On iOS, local mode is not supported. Bots always use Bot Creator servers.'**
+  String get settings_startup_mode_ios_warning;
+
+  /// No description provided for @settings_startup_mode_cloud_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended on Android and iOS. Logs, stats, and startup all go through Bot Creator.'**
+  String get settings_startup_mode_cloud_desc;
+
+  /// No description provided for @settings_startup_mode_local_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Bots now start locally on this device.'**
+  String get settings_startup_mode_local_desc;
+
+  /// No description provided for @settings_startup_mode_local_warning.
+  ///
+  /// In en, this message translates to:
+  /// **'Local mode is an advanced option intended for debugging or specific needs. For normal use, keep Bot Creator servers enabled.'**
+  String get settings_startup_mode_local_warning;
+
+  /// No description provided for @settings_startup_mode_ios_unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Local mode remains unavailable on iOS.'**
+  String get settings_startup_mode_ios_unavailable;
+
+  /// No description provided for @settings_execution_mode_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Execution mode'**
+  String get settings_execution_mode_title;
+
+  /// No description provided for @settings_execution_mode_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'On this platform, Bot Creator never hosts your bots. You can use your self-hosted runner or execute bots locally.'**
+  String get settings_execution_mode_desc;
+
+  /// No description provided for @settings_execution_mode_use_runner.
+  ///
+  /// In en, this message translates to:
+  /// **'Use a self-hosted runner'**
+  String get settings_execution_mode_use_runner;
+
+  /// No description provided for @settings_execution_mode_runner_priority.
+  ///
+  /// In en, this message translates to:
+  /// **'The self-hosted runner is preferred. If no runner is configured, the app falls back to local.'**
+  String get settings_execution_mode_runner_priority;
+
+  /// No description provided for @settings_execution_mode_no_runner.
+  ///
+  /// In en, this message translates to:
+  /// **'No runner is configured yet. The app stays local until you add one.'**
+  String get settings_execution_mode_no_runner;
+
+  /// No description provided for @settings_execution_mode_local_active.
+  ///
+  /// In en, this message translates to:
+  /// **'Bots now start locally. Runner settings stay stored and can be re-enabled anytime.'**
+  String get settings_execution_mode_local_active;
 }
 
 class _AppLocalizationsDelegate

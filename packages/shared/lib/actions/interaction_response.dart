@@ -14,6 +14,17 @@ bool requiresV2Flag(Map<String, dynamic> response) {
   final activeResponseType = (response['type'] ?? 'normal').toString();
   if (activeResponseType == 'componentV2') return true;
 
+  // Check if components map itself indicates V2 necessity by having rich nodes
+  final componentsJson = response['components'];
+  if (componentsJson is Map) {
+    try {
+      final def = ComponentV2Definition.fromJson(
+        Map<String, dynamic>.from(componentsJson),
+      );
+      if (def.isRichV2) return true;
+    } catch (_) {}
+  }
+
   final workflowConditional = Map<String, dynamic>.from(
     (response['workflow']?['conditional'] as Map?)?.cast<String, dynamic>() ??
         const {},
@@ -28,6 +39,26 @@ bool requiresV2Flag(Map<String, dynamic> response) {
     if ((workflowConditional['whenFalseType'] ?? 'normal').toString() ==
         'componentV2') {
       return true;
+    }
+
+    // Check conditional component definitions too
+    final trueComps = workflowConditional['whenTrueComponents'];
+    if (trueComps is Map) {
+      try {
+        final def = ComponentV2Definition.fromJson(
+          Map<String, dynamic>.from(trueComps),
+        );
+        if (def.isRichV2) return true;
+      } catch (_) {}
+    }
+    final falseComps = workflowConditional['whenFalseComponents'];
+    if (falseComps is Map) {
+      try {
+        final def = ComponentV2Definition.fromJson(
+          Map<String, dynamic>.from(falseComps),
+        );
+        if (def.isRichV2) return true;
+      } catch (_) {}
     }
   }
 
@@ -68,6 +99,23 @@ Future<void> sendWorkflowResponse({
   );
 
   var activeResponseType = (response['type'] ?? 'normal').toString();
+
+  void autoUpgradeType(Map<String, dynamic>? comps) {
+    if (activeResponseType != 'normal') return;
+    if (comps == null || comps.isEmpty) return;
+    try {
+      final def = ComponentV2Definition.fromJson(
+        Map<String, dynamic>.from(comps),
+      );
+      if (def.isRichV2) {
+        activeResponseType = 'componentV2';
+      }
+    } catch (_) {}
+  }
+
+  autoUpgradeType(
+    (response['components'] as Map?)?.cast<String, dynamic>(),
+  );
   var activeModalJson = Map<String, dynamic>.from(
     (response['modal'] as Map?)?.cast<String, dynamic>() ?? const {},
   );
@@ -137,6 +185,8 @@ Future<void> sendWorkflowResponse({
             const {},
       );
     }
+
+    autoUpgradeType(activeComponentsJson);
   }
 
   responseText = resolveTemplatePlaceholders(responseText, runtimeVariables);
@@ -439,16 +489,17 @@ Future<void> sendWorkflowResponse({
       return;
     }
 
-    final finalText =
-        responseText.isEmpty &&
-                embeds.isEmpty &&
-                (componentNodes?.isEmpty ?? true)
-            ? 'Workflow executed successfully.'
-            : responseText;
+    final useV2Flag = activeResponseType == 'componentV2';
 
     String? responseMessageId;
 
-    final useV2Flag = activeResponseType == 'componentV2';
+    final finalText =
+        responseText.isEmpty &&
+                embeds.isEmpty &&
+                (componentNodes?.isEmpty ?? true) &&
+                !useV2Flag // Don't add default text if in V2 mode
+            ? 'No response outputted.'
+            : responseText;
 
     if (didDefer) {
       final updateBuilder = MessageUpdateBuilder(
