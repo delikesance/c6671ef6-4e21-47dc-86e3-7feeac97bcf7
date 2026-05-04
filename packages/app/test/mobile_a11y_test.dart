@@ -43,18 +43,19 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: PopupMenuButton<String>(
-              itemBuilder: (context) => [
-                const PopupMenuItem<String>(
-                  value: 'edit',
-                  height: 48,
-                  child: Text('Edit'),
-                ),
-                const PopupMenuItem<String>(
-                  value: 'delete',
-                  height: 48,
-                  child: Text('Delete'),
-                ),
-              ],
+              itemBuilder:
+                  (context) => [
+                    const PopupMenuItem<String>(
+                      value: 'edit',
+                      height: 48,
+                      child: Text('Edit'),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: 'delete',
+                      height: 48,
+                      child: Text('Delete'),
+                    ),
+                  ],
             ),
           ),
         ),
@@ -76,7 +77,8 @@ void main() {
       const iconSize = 24.0;
       const spacing = 6.0;
       const approxTextHeight = 16.0;
-      final totalHeight = verticalPadding * 2 + iconSize + spacing + approxTextHeight;
+      final totalHeight =
+          verticalPadding * 2 + iconSize + spacing + approxTextHeight;
       expect(totalHeight, greaterThanOrEqualTo(48.0));
     });
 

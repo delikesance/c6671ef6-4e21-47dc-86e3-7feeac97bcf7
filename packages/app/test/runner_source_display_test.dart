@@ -1,4 +1,4 @@
-import 'package:bot_creator/utils/runner_settings.dart';
+import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

@@ -60,8 +60,10 @@ class DefaultFirebaseOptions {
     messagingSenderId: '777382167262',
     projectId: 'bot-creator-f884b',
     storageBucket: 'bot-creator-f884b.firebasestorage.app',
-    androidClientId: '777382167262-akm5kepn8uhq60vfautku47472vphvc9.apps.googleusercontent.com',
-    iosClientId: '777382167262-2clnpnd4ijkjp71gvmpp5u0rik446kn8.apps.googleusercontent.com',
+    androidClientId:
+        '777382167262-akm5kepn8uhq60vfautku47472vphvc9.apps.googleusercontent.com',
+    iosClientId:
+        '777382167262-2clnpnd4ijkjp71gvmpp5u0rik446kn8.apps.googleusercontent.com',
     iosBundleId: 'fr.botcreator.app',
   );
 
@@ -74,5 +76,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'bot-creator-f884b.firebasestorage.app',
     measurementId: 'G-M83RVGEH2C',
   );
-
 }

@@ -240,9 +240,10 @@ EventExecutionContext buildInteractionCreateEventContext(
     'interaction.id': interaction.id.toString(),
     'interaction.token': interaction.token,
     'interaction.applicationId': interaction.applicationId.toString(),
-    'interaction.data.type': (interaction is ModalSubmitInteraction)
-        ? ''
-        : _safeRead(data, () => data.type)?.toString() ?? '',
+    'interaction.data.type':
+        (interaction is ModalSubmitInteraction)
+            ? ''
+            : _safeRead(data, () => data.type)?.toString() ?? '',
   };
 
   // Enrich with member details when available (guild interactions).

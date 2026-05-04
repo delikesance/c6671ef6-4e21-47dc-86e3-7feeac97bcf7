@@ -1,0 +1,61 @@
+import 'package:nyxx/nyxx.dart';
+import 'package:bot_creator/features/bot_editor/logic/component_workflow_bindings.dart';
+import 'package:bot_creator/core/models/types/component.dart';
+import 'package:bot_creator/features/actions/bot_actions/send_component_v2.dart';
+
+/// Edit the original/deferred interaction response.
+/// Can update content, and/or components.
+Future<Map<String, dynamic>> editInteractionMessageAction(
+  Interaction<dynamic> interaction, {
+  required Map<String, dynamic> payload,
+  required String Function(String) resolve,
+  String? botId,
+}) async {
+  try {
+    if (interaction is! MessageResponse) {
+      return {'error': 'Interaction does not support message responses'};
+    }
+
+    final msgInteraction = interaction;
+    final content = resolve((payload['content'] ?? '').toString());
+    final clearComponents = payload['clearComponents'] == true;
+
+    // Build components if defined
+    List<ComponentBuilder>? actionRows;
+    ComponentV2Definition? definition;
+    final componentsDef = payload['components'];
+    if (clearComponents) {
+      actionRows = [];
+    } else if (componentsDef is Map && componentsDef.isNotEmpty) {
+      definition = ComponentV2Definition.fromJson(
+        Map<String, dynamic>.from(
+          componentsDef.map((k, v) => MapEntry(k.toString(), v)),
+        ),
+      );
+      actionRows = buildComponentNodes(
+        definition: definition,
+        resolve: resolve,
+      );
+    }
+
+    final builder = MessageUpdateBuilder(
+      content: content.isNotEmpty ? content : null,
+      components: actionRows,
+    );
+
+    final message = await msgInteraction.updateOriginalResponse(builder);
+    if (definition != null && botId != null && botId.trim().isNotEmpty) {
+      registerComponentWorkflowBindings(
+        definition: definition,
+        resolve: resolve,
+        botId: botId,
+        guildId: interaction.guildId?.toString(),
+        channelId: interaction.channelId?.toString(),
+        messageId: message.id.toString(),
+      );
+    }
+    return {'messageId': message.id.toString()};
+  } catch (e) {
+    return {'error': e.toString()};
+  }
+}

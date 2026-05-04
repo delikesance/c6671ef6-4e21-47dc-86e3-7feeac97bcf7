@@ -65,7 +65,7 @@ Map<String, String> _threadExtra(dynamic thread) {
   };
 }
 
-Map<String, String> _roleExtra(dynamic role) => <String, String>{
+Map<String, String> _roleExtRra(dynamic role) => <String, String>{
   'role.id': _idString(role?.id),
   'role.name': (role?.name ?? '').toString(),
   'role.color': _roleColorString(role),

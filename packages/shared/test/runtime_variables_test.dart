@@ -132,7 +132,8 @@ class _FakeBotDataStore implements BotDataStore {
   final List<Map<String, dynamic>> scopedDefinitions;
 
   @override
-  Future<List<Map<String, dynamic>>> getCommands(String botId) async => const [];
+  Future<List<Map<String, dynamic>>> getCommands(String botId) async =>
+      const [];
 
   @override
   Future<List<Map<String, dynamic>>> getScopedVariableDefinitions(

@@ -25,7 +25,9 @@ int _getGuildMemberCount(dynamic guild) {
   if (guild == null) return 0;
   try {
     // Prefer memberCount (full Guild object), fallback to approximateMemberCount (Preview/Partial)
-    return (guild as dynamic).memberCount ?? (guild as dynamic).approximateMemberCount ?? 0;
+    return (guild as dynamic).memberCount ??
+        (guild as dynamic).approximateMemberCount ??
+        0;
   } catch (_) {
     return 0;
   }
@@ -306,7 +308,9 @@ String makeAvatarUrl(
   String? discriminator,
 }) {
   if (avatarId == null || avatarId.isEmpty || avatarId == "0") {
-    if (discriminator != null && discriminator != "0" && discriminator != "0000") {
+    if (discriminator != null &&
+        discriminator != "0" &&
+        discriminator != "0000") {
       return "https://cdn.discordapp.com/embed/avatars/${int.parse(discriminator) % 5}.png";
     }
     // New default avatar logic for migrated accounts or missing discriminator
@@ -377,9 +381,18 @@ Map<String, String> extractChannelRuntimeDetails(dynamic channel) {
     () => ((channel.isLocked ?? false) == true).toString(),
   );
   trySet('channel.thread.ownerId', () => _asSnowflake(channel.ownerId));
-  trySet('channel.thread.autoArchiveDuration', () => channel.autoArchiveDuration);
-  trySet('channel.mention', () => channel is PartialChannel ? '<#${channel.id}>' : null);
-  trySet('channel.typeValue', () => (channel as dynamic).type?.value?.toString());
+  trySet(
+    'channel.thread.autoArchiveDuration',
+    () => channel.autoArchiveDuration,
+  );
+  trySet(
+    'channel.mention',
+    () => channel is PartialChannel ? '<#${channel.id}>' : null,
+  );
+  trySet(
+    'channel.typeValue',
+    () => (channel as dynamic).type?.value?.toString(),
+  );
 
   return details;
 }
@@ -427,11 +440,11 @@ Map<String, String> extractGuildRuntimeDetails(dynamic guild) {
   );
   details['guild.features'] = featureList.join(',');
   details['guild.features.count'] = featureList.length.toString();
-  
+
   final count = _getGuildMemberCount(guild);
   details['guild.memberCount'] = count.toString();
   details['guild.count'] = count.toString();
-  
+
   trySet('guild.systemChannelId', () => _asSnowflake(guild.systemChannelId));
   trySet('guild.rulesChannelId', () => _asSnowflake(guild.rulesChannelId));
   trySet('guild.afkChannelId', () => _asSnowflake(guild.afkChannelId));
@@ -439,7 +452,7 @@ Map<String, String> extractGuildRuntimeDetails(dynamic guild) {
   trySet('guild.splash', () => guild.splash?.url);
   trySet('guild.afkTimeout', () => guild.afkTimeout?.inSeconds);
   trySet('guild.icon', () => guild.icon?.url?.toString());
-  
+
   trySet('guild.roleCount', () {
     final dynamic dynGuild = guild;
     final roleList = dynGuild.roleList ?? dynGuild.roles;
@@ -1056,8 +1069,14 @@ Future<Map<String, String>> generateInteractionContextKeyValues(
     'channel.id': channelId?.toString() ?? '',
     'channel.type': channelType,
     'channel.mention': channelMention,
-    'user.mention': user != null ? '<@${user.id}>' : (member?.user != null ? '<@${member!.user!.id}>' : ''),
-    'author.mention': user != null ? '<@${user.id}>' : (member?.user != null ? '<@${member!.user!.id}>' : ''),
+    'user.mention':
+        user != null
+            ? '<@${user.id}>'
+            : (member?.user != null ? '<@${member!.user!.id}>' : ''),
+    'author.mention':
+        user != null
+            ? '<@${user.id}>'
+            : (member?.user != null ? '<@${member!.user!.id}>' : ''),
     'member.mention': member != null ? '<@${member.id}>' : '',
     'interaction.channel.name': channelName,
     'interaction.channel.id': channelId?.toString() ?? '',

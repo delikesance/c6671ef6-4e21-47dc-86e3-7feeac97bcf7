@@ -1,5 +1,5 @@
-import 'package:bot_creator/widgets/option_widget.dart';
-import 'package:bot_creator/l10n/app_localizations.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/option_widget.dart';
+import 'package:bot_creator/core/i18n/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nyxx/nyxx.dart' hide Builder;
