@@ -1,5 +1,5 @@
 import 'package:bot_creator/core/i18n/i18n.dart';
-import 'package:flutter/material.dart' show Icons, IconData;
+import 'package:flutter/material.dart' show Icons, IconData, BuildContext;
 import 'package:bot_creator/core/models/types/action.dart'
     show BotCreatorActionType;
 
@@ -7,7 +7,7 @@ import 'action_types.dart';
 
 // Extension pour obtenir les détails des actions
 extension BotCreatorActionTypeExtension on BotCreatorActionType {
-  String get displayName {
+  String displayName(BuildContext context) {
     switch (this) {
       case BotCreatorActionType.deleteMessages:
         return context.tr.action_name_deleteMessages;

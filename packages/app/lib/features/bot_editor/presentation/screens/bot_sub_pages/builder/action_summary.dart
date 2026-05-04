@@ -1,5 +1,6 @@
 import 'package:bot_creator/core/models/types/action.dart'
     show BotCreatorActionType;
+import 'package:flutter/widgets.dart';
 import 'action_type_extension.dart';
 import 'action_types.dart';
 
@@ -19,7 +20,7 @@ class ActionSummaryData {
   final List<String> meta;
 }
 
-ActionSummaryData summarizeActionItem(ActionItem action) {
+ActionSummaryData summarizeActionItem(BuildContext context, ActionItem action) {
   final params = action.parameters;
   final configuredKey = _valueOrEmpty(params['key']);
   final outputKey = configuredKey.isEmpty ? action.id : configuredKey;
@@ -32,7 +33,7 @@ ActionSummaryData summarizeActionItem(ActionItem action) {
               ? _valueOrEmpty(params['channelId'])
               : 'same channel';
       return ActionSummaryData(
-        title: action.type.displayName,
+        title: action.type.displayName(context),
         summary:
             content.isNotEmpty
                 ? 'Send to $channel: $content'
@@ -45,7 +46,7 @@ ActionSummaryData summarizeActionItem(ActionItem action) {
       final entryPoint = _valueOrEmpty(params['entryPoint']);
       final arguments = (params['arguments'] as Map?)?.length ?? 0;
       return ActionSummaryData(
-        title: action.type.displayName,
+        title: action.type.displayName(context),
         summary:
             workflow.isEmpty
                 ? 'Run a saved workflow'
@@ -58,7 +59,7 @@ ActionSummaryData summarizeActionItem(ActionItem action) {
       final workflow = _valueOrEmpty(params['workflowName']);
       final customId = _valueOrEmpty(params['customId']);
       return ActionSummaryData(
-        title: action.type.displayName,
+        title: action.type.displayName(context),
         summary:
             workflow.isEmpty
                 ? 'Listen for a button click'
@@ -71,7 +72,7 @@ ActionSummaryData summarizeActionItem(ActionItem action) {
       final workflow = _valueOrEmpty(params['workflowName']);
       final customId = _valueOrEmpty(params['customId']);
       return ActionSummaryData(
-        title: action.type.displayName,
+        title: action.type.displayName(context),
         summary:
             workflow.isEmpty
                 ? 'Listen for a select menu'
@@ -84,7 +85,7 @@ ActionSummaryData summarizeActionItem(ActionItem action) {
       final workflow = _valueOrEmpty(params['workflowName']);
       final customId = _valueOrEmpty(params['customId']);
       return ActionSummaryData(
-        title: action.type.displayName,
+        title: action.type.displayName(context),
         summary:
             workflow.isEmpty
                 ? 'Listen for a modal submit'
@@ -106,7 +107,7 @@ ActionSummaryData summarizeActionItem(ActionItem action) {
         if (compareValue.isNotEmpty) compareValue,
       ].join(' ');
       return ActionSummaryData(
-        title: action.type.displayName,
+        title: action.type.displayName(context),
         summary: condition.isEmpty ? 'Conditional branch' : 'If $condition',
         outputKey: outputKey,
         isEnabled: action.enabled,
@@ -126,7 +127,7 @@ ActionSummaryData summarizeActionItem(ActionItem action) {
         if (compareValue.isNotEmpty) compareValue,
       ].join(' ');
       return ActionSummaryData(
-        title: action.type.displayName,
+        title: action.type.displayName(context),
         summary:
             condition.isEmpty
                 ? 'Guard the workflow'
@@ -141,7 +142,7 @@ ActionSummaryData summarizeActionItem(ActionItem action) {
               : _valueOrEmpty(params['method']).toUpperCase();
       final url = _preview(params['url'], maxLength: 56);
       return ActionSummaryData(
-        title: action.type.displayName,
+        title: action.type.displayName(context),
         summary: url.isEmpty ? '$method request' : '$method $url',
         outputKey: outputKey,
         isEnabled: action.enabled,
@@ -162,10 +163,10 @@ ActionSummaryData summarizeActionItem(ActionItem action) {
         }
       }
       return ActionSummaryData(
-        title: action.type.displayName,
+        title: action.type.displayName(context),
         summary:
             nonEmptyFields.isEmpty
-                ? 'Configure ${action.type.displayName.toLowerCase()}'
+                ? 'Configure ${action.type.displayName(context).toLowerCase()}'
                 : nonEmptyFields.join(' | '),
         outputKey: outputKey,
         isEnabled: action.enabled,

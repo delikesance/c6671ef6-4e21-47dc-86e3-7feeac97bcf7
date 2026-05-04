@@ -437,7 +437,7 @@ abstract class AppLocalizations {
   /// No description provided for @app_no_apps.
   ///
   /// In en, this message translates to:
-  /// **'No applications found'**
+  /// **'You don\'t have any apps yet.'**
   String get app_no_apps;
 
   /// No description provided for @app_loading_error.
@@ -2555,13 +2555,13 @@ abstract class AppLocalizations {
   /// No description provided for @home_start_ads.
   ///
   /// In en, this message translates to:
-  /// **'Watch Ads to Start'**
+  /// **'Start (Watch Ad)'**
   String get home_start_ads;
 
   /// No description provided for @home_start_premium.
   ///
   /// In en, this message translates to:
-  /// **'Start'**
+  /// **'Start (Premium)'**
   String get home_start_premium;
 
   /// No description provided for @home_add_time.
@@ -2573,8 +2573,8 @@ abstract class AppLocalizations {
   /// No description provided for @home_hosting_time_left.
   ///
   /// In en, this message translates to:
-  /// **'Hosting Time left: {minutes} min'**
-  String home_hosting_time_left(int minutes);
+  /// **'Hosting left: {duration}'**
+  String home_hosting_time_left(String duration);
 
   /// No description provided for @home_manage.
   ///
@@ -2585,7 +2585,7 @@ abstract class AppLocalizations {
   /// No description provided for @home_logs_tooltip.
   ///
   /// In en, this message translates to:
-  /// **'Bot logs'**
+  /// **'View Logs'**
   String get home_logs_tooltip;
 
   /// No description provided for @rewarded_start_title.
@@ -6035,13 +6035,13 @@ abstract class AppLocalizations {
   /// No description provided for @home_empty_support_hint.
   ///
   /// In en, this message translates to:
-  /// **'Need help getting started?'**
+  /// **'Need help? Join our community!'**
   String get home_empty_support_hint;
 
   /// No description provided for @home_empty_support_btn.
   ///
   /// In en, this message translates to:
-  /// **'Join our Discord'**
+  /// **'Discord Support'**
   String get home_empty_support_btn;
 
   /// No description provided for @error_invalid_count.
@@ -9335,13 +9335,13 @@ abstract class AppLocalizations {
   /// No description provided for @actions_missing_field_title.
   ///
   /// In en, this message translates to:
-  /// **'Missing Required Field'**
+  /// **'Missing Field'**
   String get actions_missing_field_title;
 
   /// No description provided for @actions_no_matches.
   ///
   /// In en, this message translates to:
-  /// **'No actions match your search.'**
+  /// **'No matches found'**
   String get actions_no_matches;
 
   /// No description provided for @actions_add_new_title.
@@ -11273,25 +11273,25 @@ abstract class AppLocalizations {
   /// No description provided for @actions_search_sequence_hint.
   ///
   /// In en, this message translates to:
-  /// **'Search actions in this sequence...'**
+  /// **'Search sequence...'**
   String get actions_search_sequence_hint;
 
   /// No description provided for @actions_sequence_count.
   ///
   /// In en, this message translates to:
-  /// **'{count} action(s) in sequence'**
+  /// **'{count, plural, =0{No actions} =1{1 action} other{{count} actions}}'**
   String actions_sequence_count(int count);
 
   /// No description provided for @actions_save_count.
   ///
   /// In en, this message translates to:
-  /// **'Save {count} Actions'**
+  /// **'Save {count} actions'**
   String actions_save_count(int count);
 
   /// No description provided for @actions_step_label.
   ///
   /// In en, this message translates to:
-  /// **'Step {index}/{total}'**
+  /// **'Step {index} of {total}'**
   String actions_step_label(int index, int total);
 
   /// No description provided for @option_type_string.
@@ -11498,6 +11498,12 @@ abstract class AppLocalizations {
   /// **'This BDFD script could not be compiled:\n{summary}'**
   String bdfd_compile_error_detailed(String summary);
 
+  /// No description provided for @home_time_added.
+  ///
+  /// In en, this message translates to:
+  /// **'Succesfully added Time'**
+  String get home_time_added;
+
   /// No description provided for @command_not_found.
   ///
   /// In en, this message translates to:
@@ -11653,6 +11659,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Type'**
   String get commands_filter_type_label;
+
+  /// No description provided for @home_sync_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync failed'**
+  String get home_sync_failed;
+
+  /// No description provided for @workflow_argument_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Workflow argument (accessible via \$arg)'**
+  String get workflow_argument_hint;
+
+  /// No description provided for @scratch_entry_point_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Scratch entry point hint'**
+  String get scratch_entry_point_hint;
+
+  /// No description provided for @component_value_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Component value hint'**
+  String get component_value_hint;
+
+  /// No description provided for @rewarded_start_no_ad_available.
+  ///
+  /// In en, this message translates to:
+  /// **'No ad available right now. Please try again later.'**
+  String get rewarded_start_no_ad_available;
+
+  /// No description provided for @rewarded_start_complete_ad.
+  ///
+  /// In en, this message translates to:
+  /// **'Please watch the entire ad to start your hosting session.'**
+  String get rewarded_start_complete_ad;
+
+  /// No description provided for @settings_runner_disconnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Runner disconnected'**
+  String get settings_runner_disconnected;
+
+  /// No description provided for @home_hosting_expired.
+  ///
+  /// In en, this message translates to:
+  /// **'Hosting expired'**
+  String get home_hosting_expired;
+
+  /// No description provided for @common_none.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get common_none;
+
+  /// No description provided for @unit_month.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{0 months} =1{1 month} other{{count} months}}'**
+  String unit_month(int count);
+
+  /// No description provided for @unit_day.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{0 days} =1{1 day} other{{count} days}}'**
+  String unit_day(int count);
+
+  /// No description provided for @unit_hour.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{0 hours} =1{1 hour} other{{count} hours}}'**
+  String unit_hour(int count);
+
+  /// No description provided for @unit_minute.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{0 minutes} =1{1 minute} other{{count} minutes}}'**
+  String unit_minute(int count);
 }
 
 class _AppLocalizationsDelegate

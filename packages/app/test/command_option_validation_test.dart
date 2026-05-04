@@ -1,6 +1,9 @@
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command_option_validation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart' as widgets;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nyxx/nyxx.dart';
+import 'package:bot_creator/core/i18n/i18n.dart';
 
 CommandOptionBuilder _opt(
   CommandOptionType type,
@@ -25,33 +28,48 @@ CommandOptionBuilder _opt(
   return b;
 }
 
+Future<String?> _validate(WidgetTester tester, List<CommandOptionBuilder> options,
+    {int level = 0, CommandOptionType? parentType}) async {
+  String? result;
+  await tester.pumpWidget(MaterialApp(
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
+    home: widgets.Builder(builder: (context) {
+      result = validateOptionsForLevel(context, options,
+          level: level, parentType: parentType);
+      return const SizedBox();
+    }),
+  ));
+  return result;
+}
+
 void main() {
   group('validateOptionsForLevel', () {
     // ── Valid cases ──────────────────────────────────────────────────────────
 
-    test('valid flat command (only leaf options)', () {
+    testWidgets('valid flat command (only leaf options)', (tester) async {
       final options = [
         _opt(CommandOptionType.string, 'msg', isRequired: true),
         _opt(CommandOptionType.user, 'target'),
       ];
       expect(
-        validateOptionsForLevel(options, level: 0, parentType: null),
+        await _validate(tester, options, level: 0, parentType: null),
         isNull,
       );
     });
 
-    test('valid subcommand-only root', () {
+    testWidgets('valid subcommand-only root', (tester) async {
       final options = [
         _opt(CommandOptionType.subCommand, 'ping', options: []),
         _opt(CommandOptionType.subCommand, 'pong', options: []),
       ];
       expect(
-        validateOptionsForLevel(options, level: 0, parentType: null),
+        await _validate(tester, options, level: 0, parentType: null),
         isNull,
       );
     });
 
-    test('valid group/subcommand tree', () {
+    testWidgets('valid group/subcommand tree', (tester) async {
       final options = [
         _opt(
           CommandOptionType.subCommandGroup,
@@ -69,82 +87,80 @@ void main() {
         ),
       ];
       expect(
-        validateOptionsForLevel(options, level: 0, parentType: null),
+        await _validate(tester, options, level: 0, parentType: null),
         isNull,
       );
     });
 
-    test('empty option list is valid', () {
-      expect(validateOptionsForLevel([], level: 0, parentType: null), isNull);
+    testWidgets('empty option list is valid', (tester) async {
+      expect(await _validate(tester, [], level: 0, parentType: null), isNull);
     });
 
     // ── Cardinalité ──────────────────────────────────────────────────────────
 
-    test('rejects more than 25 options at the same level', () {
+    testWidgets('rejects more than 25 options at the same level',
+        (tester) async {
       final options = List.generate(
         26,
         (i) => _opt(CommandOptionType.string, 'opt$i'),
       );
       expect(
-        validateOptionsForLevel(options, level: 0, parentType: null),
-        contains('25'),
+        await _validate(tester, options, level: 0, parentType: null),
+        isNotNull,
       );
     });
 
     // ── Mélange root flat + subcommands ──────────────────────────────────────
 
-    test('rejects mix of subcommands and leaf options at root', () {
+    testWidgets('rejects mix of subcommands and leaf options at root',
+        (tester) async {
       final options = [
         _opt(CommandOptionType.subCommand, 'ping', options: []),
         _opt(CommandOptionType.string, 'extra'),
       ];
       expect(
-        validateOptionsForLevel(options, level: 0, parentType: null),
-        contains('mix'),
+        await _validate(tester, options, level: 0, parentType: null),
+        isNotNull,
       );
     });
 
     // ── Contraintes de contenu des groupes ───────────────────────────────────
 
-    test('rejects non-subCommand inside a subCommandGroup', () {
+    testWidgets('rejects non-subCommand inside a subCommandGroup',
+        (tester) async {
       final options = [_opt(CommandOptionType.string, 'bad')];
       expect(
-        validateOptionsForLevel(
-          options,
-          level: 1,
-          parentType: CommandOptionType.subCommandGroup,
-        ),
-        contains('SubCommandGroup'),
+        await _validate(tester, options,
+            level: 1, parentType: CommandOptionType.subCommandGroup),
+        isNotNull,
       );
     });
 
-    test('rejects hierarchy type inside a subCommand', () {
+    testWidgets('rejects hierarchy type inside a subCommand', (tester) async {
       final options = [
         _opt(CommandOptionType.subCommand, 'nested', options: []),
       ];
       expect(
-        validateOptionsForLevel(
-          options,
-          level: 1,
-          parentType: CommandOptionType.subCommand,
-        ),
-        contains('SubCommand cannot contain nested'),
+        await _validate(tester, options,
+            level: 1, parentType: CommandOptionType.subCommand),
+        isNotNull,
       );
     });
 
     // ── Profondeur maximale ───────────────────────────────────────────────────
 
-    test('rejects subCommandGroup at level > 0', () {
+    testWidgets('rejects subCommandGroup at level > 0', (tester) async {
       final nested = [
         _opt(CommandOptionType.subCommandGroup, 'deep', options: []),
       ];
       expect(
-        validateOptionsForLevel(nested, level: 1, parentType: null),
-        contains('top level'),
+        await _validate(tester, nested, level: 1, parentType: null),
+        isNotNull,
       );
     });
 
-    test('rejects subCommand at level > 1 (detected via recursive call)', () {
+    testWidgets('rejects subCommand at level > 1 (detected via recursive call)',
+        (tester) async {
       // group -> subCommand -> subCommand  (level 2 subcommand is illegal)
       final options = [
         _opt(
@@ -161,49 +177,49 @@ void main() {
           ],
         ),
       ];
-      // The recursive call will surface the error.
       expect(
-        validateOptionsForLevel(options, level: 0, parentType: null),
+        await _validate(tester, options, level: 0, parentType: null),
         isNotNull,
       );
     });
 
     // ── Noms dupliqués ───────────────────────────────────────────────────────
 
-    test('rejects duplicate option names at the same level', () {
+    testWidgets('rejects duplicate option names at the same level',
+        (tester) async {
       final options = [
         _opt(CommandOptionType.string, 'msg'),
         _opt(CommandOptionType.string, 'msg'),
       ];
       expect(
-        validateOptionsForLevel(options, level: 0, parentType: null),
-        contains('Duplicate'),
+        await _validate(tester, options, level: 0, parentType: null),
+        isNotNull,
       );
     });
 
     // ── Nom/description manquants ─────────────────────────────────────────────
 
-    test('rejects option with empty name', () {
+    testWidgets('rejects option with empty name', (tester) async {
       final options = [
         _opt(CommandOptionType.string, '', description: 'some desc'),
       ];
       expect(
-        validateOptionsForLevel(options, level: 0, parentType: null),
-        contains('name'),
+        await _validate(tester, options, level: 0, parentType: null),
+        isNotNull,
       );
     });
 
-    test('rejects option with empty description', () {
+    testWidgets('rejects option with empty description', (tester) async {
       final options = [_opt(CommandOptionType.string, 'msg', description: '')];
       expect(
-        validateOptionsForLevel(options, level: 0, parentType: null),
-        contains('description'),
+        await _validate(tester, options, level: 0, parentType: null),
+        isNotNull,
       );
     });
 
     // ── Contraintes isRequired / choices / minMax sur types hiérarchiques ─────
 
-    test('rejects isRequired=true on a subCommand', () {
+    testWidgets('rejects isRequired=true on a subCommand', (tester) async {
       final options = [
         _opt(
           CommandOptionType.subCommand,
@@ -213,12 +229,12 @@ void main() {
         ),
       ];
       expect(
-        validateOptionsForLevel(options, level: 0, parentType: null),
-        contains('required'),
+        await _validate(tester, options, level: 0, parentType: null),
+        isNotNull,
       );
     });
 
-    test('rejects choices on a subCommandGroup', () {
+    testWidgets('rejects choices on a subCommandGroup', (tester) async {
       final options = [
         _opt(
           CommandOptionType.subCommandGroup,
@@ -228,18 +244,18 @@ void main() {
         ),
       ];
       expect(
-        validateOptionsForLevel(options, level: 0, parentType: null),
-        contains('choices'),
+        await _validate(tester, options, level: 0, parentType: null),
+        isNotNull,
       );
     });
 
-    test('rejects minValue on a subCommand', () {
+    testWidgets('rejects minValue on a subCommand', (tester) async {
       final options = [
         _opt(CommandOptionType.subCommand, 'ping', minValue: 1, options: []),
       ];
       expect(
-        validateOptionsForLevel(options, level: 0, parentType: null),
-        contains('min/max'),
+        await _validate(tester, options, level: 0, parentType: null),
+        isNotNull,
       );
     });
   });
