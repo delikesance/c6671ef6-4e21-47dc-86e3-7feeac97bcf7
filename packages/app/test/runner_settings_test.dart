@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:bot_creator/utils/runner_settings.dart';
+import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

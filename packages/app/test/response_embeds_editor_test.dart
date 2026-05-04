@@ -1,6 +1,6 @@
-import 'package:bot_creator/types/variable_suggestion.dart';
-import 'package:bot_creator/widgets/response_embeds_editor.dart';
-import 'package:bot_creator/l10n/app_localizations.dart';
+import 'package:bot_creator/core/models/types/variable_suggestion.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/response_embeds_editor.dart';
+import 'package:bot_creator/core/i18n/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

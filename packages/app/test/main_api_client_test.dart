@@ -1,4 +1,4 @@
-import 'package:bot_creator/utils/main_api_client.dart';
+import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';

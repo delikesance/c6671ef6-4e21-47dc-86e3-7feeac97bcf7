@@ -1,6 +1,7 @@
-import 'package:bot_creator/routes/app/command.response_workflow.dart';
-import 'package:bot_creator/types/variable_suggestion.dart';
-import 'package:bot_creator/utils/i18n.dart';
+import 'package:bot_creator/core/i18n/i18n.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command.response_workflow.dart';
+import 'package:bot_creator/core/models/types/variable_suggestion.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

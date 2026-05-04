@@ -1,4 +1,4 @@
-import 'package:bot_creator/utils/discord_rpc_client.dart';
+import 'package:bot_creator/features/discord_rpc/logic/discord_rpc_client.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

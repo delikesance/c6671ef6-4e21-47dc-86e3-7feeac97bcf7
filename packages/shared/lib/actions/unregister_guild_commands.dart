@@ -11,20 +11,23 @@ Future<Map<String, String>> unregisterGuildCommandsAction(
   if (guildId == null) {
     return {'error': 'No guildId provided'};
   }
-  
-  final providedCommandNames = (payload['commandNames'] as List<dynamic>?)
-      ?.map((e) => e.toString().trim())
-      .where((s) => s.isNotEmpty)
-      .toList() ?? [];
+
+  final providedCommandNames =
+      (payload['commandNames'] as List<dynamic>?)
+          ?.map((e) => e.toString().trim())
+          .where((s) => s.isNotEmpty)
+          .toList() ??
+      [];
 
   try {
     final commandManager = client.guilds[guildId].commands;
     final currentCommands = await commandManager.list();
-    
+
     int unregisteredCount = 0;
-    
+
     for (final cmd in currentCommands) {
-      if (providedCommandNames.isEmpty || providedCommandNames.contains(cmd.name)) {
+      if (providedCommandNames.isEmpty ||
+          providedCommandNames.contains(cmd.name)) {
         await commandManager.delete(cmd.id);
         unregisteredCount++;
       }

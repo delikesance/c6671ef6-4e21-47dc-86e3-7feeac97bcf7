@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/main.dart';
-import 'package:bot_creator/routes/app/command.create.dart';
-import 'package:bot_creator/routes/app/command_option_serialization.dart';
-import 'package:bot_creator/utils/database.dart';
-import 'package:bot_creator/utils/i18n.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command.create.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command_option_serialization.dart';
+import 'package:bot_creator/core/storage/database.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';

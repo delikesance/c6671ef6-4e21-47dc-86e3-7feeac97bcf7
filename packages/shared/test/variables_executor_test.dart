@@ -1137,7 +1137,8 @@ class _MemoryBotDataStore implements BotDataStore {
   final Map<String, Map<String, Map<String, dynamic>>> scopedVariables;
 
   @override
-  Future<List<Map<String, dynamic>>> getCommands(String botId) async => const [];
+  Future<List<Map<String, dynamic>>> getCommands(String botId) async =>
+      const [];
 
   @override
   Future<List<Map<String, dynamic>>> getScopedVariableDefinitions(

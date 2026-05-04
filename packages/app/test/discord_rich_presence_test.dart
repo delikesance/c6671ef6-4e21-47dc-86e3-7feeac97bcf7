@@ -1,5 +1,5 @@
-import 'package:bot_creator/utils/discord_rich_presence.dart';
-import 'package:bot_creator/utils/runner_client.dart';
+import 'package:bot_creator/features/discord_rpc/logic/discord_rich_presence.dart';
+import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

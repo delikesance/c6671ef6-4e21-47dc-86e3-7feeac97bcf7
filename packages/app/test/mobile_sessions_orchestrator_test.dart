@@ -1,4 +1,4 @@
-import 'package:bot_creator/utils/mobile_sessions_orchestrator.dart';
+import 'package:bot_creator/core/network/mobile_sessions_orchestrator.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

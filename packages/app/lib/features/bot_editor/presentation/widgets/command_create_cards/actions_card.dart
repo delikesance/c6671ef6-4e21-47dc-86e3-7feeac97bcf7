@@ -1,0 +1,232 @@
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder.response.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/global.variables.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/workflows.page.dart';
+import 'package:bot_creator/main.dart';
+import 'package:bot_creator/core/models/types/app_emoji.dart';
+import 'package:flutter/material.dart';
+import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/core/i18n/i18n.dart';
+
+class ActionsCard extends StatelessWidget {
+  final List<Map<String, dynamic>> actions;
+  final ValueChanged<List<Map<String, dynamic>>> onActionsChanged;
+  final List<dynamic>
+  actionVariableSuggestions; // Defined as dynamic to avoid import issues if not public
+  final List<AppEmoji>? emojiSuggestions;
+  final String? botIdForConfig;
+  final String? activeRouteLabel;
+  final bool activeRouteIsGrouped;
+
+  const ActionsCard({
+    super.key,
+    required this.actions,
+    required this.onActionsChanged,
+    required this.actionVariableSuggestions,
+    this.emojiSuggestions,
+    this.botIdForConfig,
+    this.activeRouteLabel,
+    this.activeRouteIsGrouped = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final routeColor =
+        activeRouteIsGrouped
+            ? Theme.of(context).colorScheme.secondary
+            : Theme.of(context).colorScheme.primary;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              context.tr.actions_title,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              context.tr.actions_description,
+              style: TextStyle(fontSize: 12, color: AppTheme.grey),
+            ),
+            if (activeRouteLabel != null && activeRouteLabel!.trim().isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: routeColor.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+                    ),
+                    child: Text(
+                      context.tr.actions_active_route(activeRouteLabel!),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: routeColor,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            const SizedBox(height: 12),
+            FilledButton(
+              style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(44),
+              ),
+              onPressed: () async {
+                // Ignore type warning for actionVariableSuggestions here if type is different in ActionsBuilderPage
+                final nextActions =
+                    await Navigator.push<List<Map<String, dynamic>>>(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => ActionsBuilderPage(
+                              initialActions: actions,
+                              variableSuggestions:
+                                  actionVariableSuggestions as dynamic,
+                              emojiSuggestions: emojiSuggestions,
+                              botIdForConfig: botIdForConfig,
+                            ),
+                      ),
+                    );
+
+                if (nextActions != null) {
+                  onActionsChanged(nextActions);
+                }
+              },
+              child: Text(context.tr.actions_build_button(actions.length)),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                OutlinedButton.icon(
+                  onPressed:
+                      botIdForConfig == null || actions.isEmpty
+                          ? null
+                          : () async {
+                            final controller = TextEditingController();
+                            final workflowName = await showDialog<String>(
+                              context: context,
+                              builder:
+                                  (dialogContext) => AlertDialog(
+                                    title: Text(
+                                      context.tr.actions_save_workflow_title,
+                                    ),
+                                    content: TextField(
+                                      controller: controller,
+                                      decoration: InputDecoration(
+                                        labelText:
+                                            context
+                                                .tr
+                                                .actions_workflow_name_label,
+                                        border: const OutlineInputBorder(),
+                                      ),
+                                      autofocus: true,
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed:
+                                            () => Navigator.pop(dialogContext),
+                                        child: Text(context.tr.common_cancel),
+                                      ),
+                                      FilledButton(
+                                        onPressed: () {
+                                          final name = controller.text.trim();
+                                          if (name.isEmpty) {
+                                            return;
+                                          }
+                                          Navigator.pop(dialogContext, name);
+                                        },
+                                        child: Text(context.tr.common_save),
+                                      ),
+                                    ],
+                                  ),
+                            );
+
+                            if (workflowName == null ||
+                                workflowName.trim().isEmpty) {
+                              return;
+                            }
+
+                            await appManager.saveWorkflow(
+                              botIdForConfig!,
+                              name: workflowName.trim(),
+                              actions:
+                                  actions
+                                      .map(
+                                        (item) =>
+                                            Map<String, dynamic>.from(item),
+                                      )
+                                      .toList(),
+                            );
+
+                            if (!context.mounted) {
+                              return;
+                            }
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  context.tr.workflow_saved_snackbar(
+                                    workflowName,
+                                    actions.length,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                  icon: const Icon(Icons.save_as),
+                  label: Text(context.tr.actions_save_workflow_title),
+                ),
+                OutlinedButton.icon(
+                  onPressed:
+                      botIdForConfig == null
+                          ? null
+                          : () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) => GlobalVariablesPage(
+                                      botId: botIdForConfig!,
+                                    ),
+                              ),
+                            );
+                          },
+                  icon: const Icon(Icons.key),
+                  label: Text(context.tr.actions_global_variables),
+                ),
+                OutlinedButton.icon(
+                  onPressed:
+                      botIdForConfig == null
+                          ? null
+                          : () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) =>
+                                        WorkflowsPage(botId: botIdForConfig!),
+                              ),
+                            );
+                          },
+                  icon: const Icon(Icons.account_tree),
+                  label: Text(context.tr.actions_workflows),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

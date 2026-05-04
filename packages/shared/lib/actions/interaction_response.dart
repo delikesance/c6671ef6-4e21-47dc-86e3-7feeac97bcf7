@@ -249,7 +249,10 @@ Future<void> sendWorkflowResponse({
         onLog?.call('Modal sent', botId: botId);
       } catch (e) {
         if (e.toString().contains('40060')) {
-          onDebugLog?.call('Modal response suppressed (already acknowledged)', botId: botId);
+          onDebugLog?.call(
+            'Modal response suppressed (already acknowledged)',
+            botId: botId,
+          );
         } else {
           onLog?.call('Modal build error: $e', botId: botId);
         }
@@ -507,7 +510,8 @@ Future<void> sendWorkflowResponse({
         try {
           await (interaction as dynamic).respond(
             MessageBuilder(
-              content: useV2Flag ? null : (finalText.isEmpty ? null : finalText),
+              content:
+                  useV2Flag ? null : (finalText.isEmpty ? null : finalText),
               embeds: useV2Flag ? null : (embeds.isEmpty ? null : embeds),
               components: componentNodes,
               flags: flagValue > 0 ? MessageFlags(flagValue) : null,

@@ -1,11 +1,12 @@
+import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:bot_creator/main.dart';
-import 'package:bot_creator/utils/i18n.dart';
-import 'package:bot_creator/utils/onboarding_manager.dart';
+
+import 'package:bot_creator/features/onboarding/logic/onboarding_manager.dart';
 
 void main() {
   testWidgets('MyApp renders with required providers', (

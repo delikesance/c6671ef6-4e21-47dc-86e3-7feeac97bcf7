@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:bot_creator/utils/normalize_command_data.dart';
+import 'package:bot_creator/features/bot_editor/logic/normalize_command_data.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Helper: simulate save-then-reload by JSON round-tripping.

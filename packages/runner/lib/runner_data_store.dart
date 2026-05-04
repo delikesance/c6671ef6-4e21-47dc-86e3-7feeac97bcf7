@@ -51,10 +51,14 @@ class RunnerDataStore implements BotDataStore {
 
   Future<void> _initializePrimaryStore() async {
     final managedApi = Platform.environment['BOT_CREATOR_MANAGED_RUNNER_API'];
-    final managedToken = Platform.environment['BOT_CREATOR_MANAGED_RUNNER_TOKEN'];
-    if (managedApi != null && managedApi.trim().isNotEmpty && managedToken != null && managedToken.trim().isNotEmpty) {
+    final managedToken =
+        Platform.environment['BOT_CREATOR_MANAGED_RUNNER_TOKEN'];
+    if (managedApi != null &&
+        managedApi.trim().isNotEmpty &&
+        managedToken != null &&
+        managedToken.trim().isNotEmpty) {
       _sqliteStore = null;
-      return; 
+      return;
     }
     try {
       _sqliteStore = SqliteCliVariableStore(_variablesDir);
@@ -79,12 +83,16 @@ class RunnerDataStore implements BotDataStore {
     }
 
     final managedApi = Platform.environment['BOT_CREATOR_MANAGED_RUNNER_API'];
-    final managedToken = Platform.environment['BOT_CREATOR_MANAGED_RUNNER_TOKEN'];
-    if (managedApi != null && managedApi.trim().isNotEmpty && managedToken != null && managedToken.trim().isNotEmpty) {
+    final managedToken =
+        Platform.environment['BOT_CREATOR_MANAGED_RUNNER_TOKEN'];
+    if (managedApi != null &&
+        managedApi.trim().isNotEmpty &&
+        managedToken != null &&
+        managedToken.trim().isNotEmpty) {
       return ManagedVariableStore(
         _jsonFallbackStore,
         baseUrl: managedApi.trim(),
-        token: managedToken.trim()
+        token: managedToken.trim(),
       );
     }
 
@@ -140,7 +148,8 @@ class RunnerDataStore implements BotDataStore {
   }
 
   @override
-  Future<List<Map<String, dynamic>>> getCommands(String botId) async => const [];
+  Future<List<Map<String, dynamic>>> getCommands(String botId) async =>
+      const [];
 
   @override
   Future<List<Map<String, dynamic>>> getScopedVariableDefinitions(

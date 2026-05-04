@@ -1,0 +1,1059 @@
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
+import 'package:bot_creator/core/utils/hash_util.dart';
+
+import 'package:http/http.dart' as http;
+
+enum RemoteRuntimeSource { local, runner, manager }
+
+abstract class RemoteRuntimeClient {
+  RemoteRuntimeSource get runtimeSource;
+
+  Future<bool> checkHealth();
+
+  Future<RunnerStatus> getStatus({String? botId});
+
+  Future<RunnerMetrics> getMetrics({String? botId});
+
+  Future<List<String>> getLogs({String? botId, int limit = 300});
+
+  Future<Map<String, dynamic>> getCommandStats(String botId, {int hours = 24});
+
+  Future<void> syncBot(
+    String botId,
+    String botName,
+    Map<String, dynamic> configJson,
+  );
+
+  Future<void> startBot(String botId, {String? botName});
+
+  Future<Map<String, dynamic>> stopBot(String botId);
+
+  Future<Map<String, dynamic>> getGatewayRuntime();
+
+  Future<Map<String, dynamic>> getBotRuntime(String botId);
+
+  Future<Map<String, dynamic>> getRunnerInfo();
+
+  Future<List<Map<String, dynamic>>> listBots();
+
+  Future<void> reloadBot(
+    String botId,
+    String botName,
+    Map<String, dynamic> configJson, {
+    bool force = false,
+  });
+
+  Future<void> syncCommand(
+    String botId,
+    String botName,
+    String commandId,
+    Map<String, dynamic> commandJson,
+  );
+
+  Future<void> deleteCommand(String botId, String botName, String commandId);
+
+  Future<void> syncWorkflow(
+    String botId,
+    String botName,
+    String workflowName,
+    Map<String, dynamic> workflowJson,
+  );
+
+  Future<void> deleteWorkflow(String botId, String botName, String workflowName);
+
+  Future<void> setGlobalVariable(String botId, String key, dynamic value);
+
+  Future<void> removeGlobalVariable(String botId, String key);
+
+  Future<void> renameGlobalVariable(String botId, String oldKey, String newKey);
+
+  Future<void> setScopedVariableDefinition(
+    String botId,
+    String key,
+    String scope,
+    dynamic defaultValue, {
+    String valueType,
+  });
+
+  Future<void> removeScopedVariableDefinition(
+    String botId,
+    String key, {
+    String? scope,
+    bool purgeStoredValues,
+  });
+
+  Future<void> syncScheduledTrigger(
+    String botId,
+    String triggerId,
+    Map<String, dynamic> triggerJson,
+  );
+
+  Future<void> deleteScheduledTrigger(String botId, String triggerId);
+
+  Future<void> syncInboundWebhook(
+    String botId,
+    String webhookId,
+    Map<String, dynamic> webhookJson,
+  );
+
+  Future<void> deleteInboundWebhook(String botId, String webhookId);
+}
+
+class RunnerBotRuntime {
+  const RunnerBotRuntime({
+    required this.botId,
+    required this.botName,
+    required this.state,
+    this.lastSeenAt,
+    this.lastError,
+    this.baselineRssBytes,
+  });
+
+  final String botId;
+  final String botName;
+  final String state;
+  final DateTime? lastSeenAt;
+  final String? lastError;
+  final int? baselineRssBytes;
+
+  bool get isRunning => state == 'running';
+
+  factory RunnerBotRuntime.fromJson(Map<String, dynamic> json) {
+    final rawLastSeenAt = json['lastSeenAt']?.toString();
+    return RunnerBotRuntime(
+      botId: (json['botId'] ?? '').toString(),
+      botName:
+          ((json['botName'] ?? '').toString()).trim().isEmpty
+              ? (json['botId'] ?? '').toString()
+              : json['botName'].toString(),
+      state: (json['state'] ?? 'stopped').toString(),
+      lastSeenAt:
+          (rawLastSeenAt == null || rawLastSeenAt.isEmpty)
+              ? null
+              : DateTime.tryParse(rawLastSeenAt),
+      lastError: json['lastError']?.toString(),
+      baselineRssBytes: _asInt(json['baselineRssBytes']),
+    );
+  }
+}
+
+/// Status returned by the runner API.
+class RunnerStatus {
+  const RunnerStatus({
+    required this.running,
+    required this.bots,
+    this.activeBotId,
+    this.activeBotName,
+  });
+
+  final bool running;
+  final List<RunnerBotRuntime> bots;
+  final String? activeBotId;
+  final String? activeBotName;
+
+  bool isBotRunning(String botId) =>
+      bots.any((bot) => bot.botId == botId && bot.isRunning);
+
+  factory RunnerStatus.fromJson(Map<String, dynamic> json) {
+    final bots = _parseBotRuntimeList(json['bots']);
+    final firstRunning = bots
+        .where((bot) => bot.isRunning)
+        .cast<RunnerBotRuntime?>()
+        .firstWhere((bot) => bot != null, orElse: () => null);
+    return RunnerStatus(
+      running: (json['running'] as bool?) ?? bots.any((bot) => bot.isRunning),
+      bots: bots,
+      activeBotId: json['activeBotId']?.toString() ?? firstRunning?.botId,
+      activeBotName: json['activeBotName']?.toString() ?? firstRunning?.botName,
+    );
+  }
+}
+
+/// Runtime metrics returned by the runner API.
+class RunnerMetrics {
+  const RunnerMetrics({
+    required this.running,
+    required this.bots,
+    this.activeBotId,
+    this.rssBytes,
+    this.baselineRssBytes,
+    this.botEstimatedRssBytes,
+    this.cpuPercent,
+    this.storageBytes,
+  });
+
+  final bool running;
+  final List<RunnerBotRuntime> bots;
+  final String? activeBotId;
+  final int? rssBytes;
+  final int? baselineRssBytes;
+  final int? botEstimatedRssBytes;
+  final double? cpuPercent;
+  final int? storageBytes;
+
+  factory RunnerMetrics.fromJson(Map<String, dynamic> json) {
+    final bots = _parseBotRuntimeList(json['bots']);
+    final firstRunning = bots
+        .where((bot) => bot.isRunning)
+        .cast<RunnerBotRuntime?>()
+        .firstWhere((bot) => bot != null, orElse: () => null);
+    return RunnerMetrics(
+      running: json['running'] == true,
+      bots: bots,
+      activeBotId: json['activeBotId']?.toString() ?? firstRunning?.botId,
+      rssBytes: _asInt(json['rssBytes']),
+      baselineRssBytes: _asInt(json['baselineRssBytes']),
+      botEstimatedRssBytes: _asInt(json['botEstimatedRssBytes']),
+      cpuPercent: _asDouble(json['cpuPercent']),
+      storageBytes: _asInt(json['storageBytes']),
+    );
+  }
+}
+
+/// Summary of a bot that has been synced to the runner.
+class RunnerBotSummary {
+  const RunnerBotSummary({
+    required this.id,
+    required this.name,
+    required this.syncedAt,
+  });
+
+  final String id;
+  final String name;
+  final DateTime syncedAt;
+
+  factory RunnerBotSummary.fromJson(Map<String, dynamic> json) {
+    return RunnerBotSummary(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      syncedAt: DateTime.parse(json['syncedAt'] as String),
+    );
+  }
+}
+
+class RunnerDebugReplaySnapshot {
+  const RunnerDebugReplaySnapshot({
+    required this.capturing,
+    required this.replays,
+  });
+
+  final bool capturing;
+  final List<Map<String, dynamic>> replays;
+
+  factory RunnerDebugReplaySnapshot.fromJson(Map<String, dynamic> json) {
+    final rawReplays = json['replays'];
+    return RunnerDebugReplaySnapshot(
+      capturing: json['capturing'] == true,
+      replays:
+          (rawReplays is List)
+              ? rawReplays
+                  .whereType<Map>()
+                  .map((entry) => Map<String, dynamic>.from(entry))
+                  .toList(growable: false)
+              : const <Map<String, dynamic>>[],
+    );
+  }
+}
+
+/// HTTP client for the Bot Creator Runner REST API.
+///
+/// All methods throw a [RunnerClientException] if the server returns an error
+/// or if the request fails.
+///
+/// **Single-runner limitation**: This client targets a single runner URL. There
+/// is no built-in multiplexing across runners. See
+/// `docs/single-runner-coupling.md` for the migration plan.
+class RunnerClient implements RemoteRuntimeClient {
+  /// Internal cache of the last synced configuration hash per bot and runner.
+  /// Key format: "${baseUrl}:${botId}"
+  static final Map<String, String> _lastSyncedHashes = <String, String>{};
+
+  /// Clears the synchronization cache for a specific bot on this runner.
+  void resetSyncCache(String botId) {
+    _lastSyncedHashes.remove('$_baseUrl:$botId');
+  }
+
+  /// Clears all synchronization caches.
+  static void clearAllSyncCaches() {
+    _lastSyncedHashes.clear();
+  }
+
+  RunnerClient({
+    required String baseUrl,
+    String? apiToken,
+    http.Client? httpClient,
+    Duration? getTimeout,
+    Duration? postTimeout,
+  }) : _getTimeout = getTimeout ?? const Duration(seconds: 10),
+       _postTimeout = postTimeout ?? const Duration(seconds: 30),
+       _apiToken = _normalizeOptional(apiToken),
+       _baseUrl =
+           baseUrl.trimRight().endsWith('/')
+               ? baseUrl.trimRight().substring(
+                 0,
+                 baseUrl.trimRight().length - 1,
+               )
+               : baseUrl.trimRight(),
+       _http = httpClient ?? http.Client();
+
+  final String _baseUrl;
+  final String? _apiToken;
+  final http.Client _http;
+  final Duration _getTimeout;
+  final Duration _postTimeout;
+
+  @override
+  RemoteRuntimeSource get runtimeSource => RemoteRuntimeSource.runner;
+
+  Uri _uri(String path, {Map<String, String?>? query}) {
+    final uri = Uri.parse('$_baseUrl$path');
+    if (query == null) return uri;
+    final params = <String, String>{};
+    for (final entry in query.entries) {
+      if (entry.value != null) params[entry.key] = entry.value!;
+    }
+    return uri.replace(queryParameters: params);
+  }
+
+  Future<Map<String, dynamic>> _get(
+    String path, {
+    Map<String, String?>? query,
+    bool includeAuth = true,
+  }) async {
+    final response = await _http
+        .get(
+          _uri(path, query: query),
+          headers: _headers(includeAuth: includeAuth),
+        )
+        .timeout(_getTimeout);
+    return _parseResponse(response);
+  }
+
+  Future<Map<String, dynamic>> _post(
+    String path,
+    Map<String, dynamic> body, {
+    bool includeAuth = true,
+  }) async {
+    final response = await _http
+        .post(
+          _uri(path),
+          headers: _headers(includeAuth: includeAuth),
+          body: jsonEncode(body),
+        )
+        .timeout(_postTimeout);
+    return _parseResponse(response);
+  }
+
+  Map<String, String> _headers({required bool includeAuth}) {
+    final headers = <String, String>{'content-type': 'application/json'};
+    if (includeAuth && _apiToken != null) {
+      headers['authorization'] = 'Bearer $_apiToken';
+    }
+    return headers;
+  }
+
+  Map<String, dynamic> _parseResponse(http.Response response) {
+    Map<String, dynamic> json;
+    try {
+      final decoded = jsonDecode(response.body);
+      json =
+          decoded is Map
+              ? Map<String, dynamic>.from(decoded)
+              : <String, dynamic>{};
+    } catch (_) {
+      json = <String, dynamic>{};
+    }
+
+    if (response.statusCode >= 400) {
+      final error =
+          (json['error'] ?? response.reasonPhrase ?? 'Unknown error')
+              .toString();
+      throw RunnerClientException(error, statusCode: response.statusCode);
+    }
+    return json;
+  }
+
+  /// Checks that the runner is reachable and responding.
+  @override
+  Future<bool> checkHealth() async {
+    try {
+      final json = await _get('/health', includeAuth: false);
+      return json['ok'] == true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Returns the runner version string, or `null` if unreachable.
+  Future<String?> getRunnerVersion() async {
+    try {
+      final json = await _get('/', includeAuth: false);
+      return json['version'] as String?;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Returns the current runner status.
+  ///
+  /// If [botId] is provided, this calls `/bots/{botId}/status` and adapts
+  /// the response shape to [RunnerStatus].
+  @override
+  Future<RunnerStatus> getStatus({String? botId}) async {
+    if (botId == null || botId.trim().isEmpty) {
+      final json = await _get('/status');
+      return RunnerStatus.fromJson(json);
+    }
+
+    final json = await _get(
+      '/bots/${Uri.encodeComponent(botId.trim())}/status',
+    );
+    final bot = json['bot'];
+    if (bot is Map) {
+      return RunnerStatus.fromJson(<String, dynamic>{
+        'running': (bot['state'] ?? '').toString() == 'running',
+        'bots': <dynamic>[bot],
+      });
+    }
+    return const RunnerStatus(running: false, bots: <RunnerBotRuntime>[]);
+  }
+
+  /// Returns process/runtime metrics from the runner.
+  ///
+  /// If [botId] is provided, this calls `/bots/{botId}/metrics`.
+  @override
+  Future<RunnerMetrics> getMetrics({String? botId}) async {
+    final path =
+        (botId == null || botId.trim().isEmpty)
+            ? '/metrics'
+            : '/bots/${Uri.encodeComponent(botId.trim())}/metrics';
+    final json = await _get(path);
+    return RunnerMetrics.fromJson(json);
+  }
+
+  @override
+  Future<Map<String, dynamic>> getGatewayRuntime() async {
+    return <String, dynamic>{
+      'source': 'runner',
+      'healthy': await checkHealth(),
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> getBotRuntime(String botId) async {
+    final status = await getStatus(botId: botId);
+    final selectedBotId = botId.trim();
+    final bot = status.bots
+        .where((entry) => entry.botId == selectedBotId)
+        .cast<RunnerBotRuntime?>()
+        .firstWhere((entry) => entry != null, orElse: () => null);
+    return <String, dynamic>{
+      'bot_id': selectedBotId,
+      'session_active': bot?.isRunning == true,
+      'runtime_state': bot?.state ?? 'stopped',
+      'source': 'runner',
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> getRunnerInfo() async {
+    final status = await getStatus();
+    return <String, dynamic>{
+      'deployed': true,
+      'source': 'runner',
+      'healthy': status.running || await checkHealth(),
+      'runner': <String, dynamic>{
+        'state': 'READY',
+        'health_status':
+            (status.running || await checkHealth()) ? 'ok' : 'unknown',
+      },
+    };
+  }
+
+  /// Returns the list of bots that have been synced to this runner.
+  @override
+  Future<List<Map<String, dynamic>>> listBots() async {
+    final json = await _get('/bots');
+    final rawBots = json['bots'];
+    if (rawBots is! List) return const [];
+    return rawBots
+        .whereType<Map>()
+        .map((e) => Map<String, dynamic>.from(e))
+        .toList(growable: false);
+  }
+
+  /// Pushes a complete bot configuration to the runner and persists it.
+  ///
+  /// If [force] is true, the configuration is pushed even if it matches
+  /// the last successfully synced state.
+  @override
+  Future<void> syncBot(
+    String botId,
+    String botName,
+    Map<String, dynamic> configJson, {
+    bool force = false,
+  }) async {
+    final cacheKey = '$_baseUrl:$botId';
+    final currentHash = HashUtil.calculateHash(configJson);
+
+    if (!force && _lastSyncedHashes[cacheKey] == currentHash) {
+      debugPrint('[RunnerClient] Sync skipped for $botId (already current).');
+      return;
+    }
+
+    await _post('/bots/sync', <String, dynamic>{
+      'botId': botId,
+      'botName': botName,
+      'config': configJson,
+    });
+
+    _lastSyncedHashes[cacheKey] = currentHash;
+  }
+
+  /// Starts the bot identified by [botId] on the runner.
+  ///
+  /// The bot must have been synced beforehand via [syncBot].
+  @override
+  Future<RunnerStatus> startBot(String botId, {String? botName}) async {
+    final json = await _post(
+      '/bots/${Uri.encodeComponent(botId)}/start',
+      <String, dynamic>{
+        if (botName != null && botName.isNotEmpty) 'botName': botName,
+      },
+    );
+    return RunnerStatus.fromJson(json);
+  }
+
+  /// Stops the bot identified by [botId] on the runner.
+  @override
+  Future<Map<String, dynamic>> stopBot(String botId) async {
+    final normalizedBotId = botId.trim();
+    if (normalizedBotId.isEmpty) {
+      throw const RunnerClientException('Missing botId for stopBot().');
+    }
+
+    return await _post(
+      '/bots/${Uri.encodeComponent(normalizedBotId)}/stop',
+      const <String, dynamic>{},
+    );
+  }
+
+  /// Hot-reloads the bot config on the runner without disconnecting from Discord.
+  ///
+  /// Commands and workflows take effect immediately. If the bot is not currently
+  /// running the config is persisted for the next start.
+  ///
+  /// If [force] is true, the reload is executed even if the config matches
+  /// the last successfully synced state.
+  @override
+  Future<void> reloadBot(
+    String botId,
+    String botName,
+    Map<String, dynamic> configJson, {
+    bool force = false,
+  }) async {
+    final normalizedBotId = botId.trim();
+    if (normalizedBotId.isEmpty) {
+      throw const RunnerClientException('Missing botId for reloadBot().');
+    }
+
+    final cacheKey = '$_baseUrl:$normalizedBotId';
+    final currentHash = HashUtil.calculateHash(configJson);
+
+    if (!force && _lastSyncedHashes[cacheKey] == currentHash) {
+      debugPrint('[RunnerClient] Reload skipped for $botId (already current).');
+      return;
+    }
+
+    await _post(
+      '/bots/${Uri.encodeComponent(normalizedBotId)}/reload',
+      <String, dynamic>{
+        'botId': normalizedBotId,
+        if (botName.isNotEmpty) 'botName': botName,
+        'config': configJson,
+      },
+    );
+
+    _lastSyncedHashes[cacheKey] = currentHash;
+  }
+
+  /// Synchronizes a single command to the runner without rebuilding the
+  /// entire bot payload.
+  @override
+  Future<void> syncCommand(
+    String botId,
+    String botName,
+    String commandId,
+    Map<String, dynamic> commandJson,
+  ) async {
+    final normalizedBotId = botId.trim();
+    final normalizedCommandId = commandId.trim();
+    if (normalizedBotId.isEmpty) {
+      throw const RunnerClientException('Missing botId for syncCommand().');
+    }
+    if (normalizedCommandId.isEmpty) {
+      throw const RunnerClientException('Missing commandId for syncCommand().');
+    }
+
+    await _post(
+      '/bots/${Uri.encodeComponent(normalizedBotId)}/commands/sync',
+      <String, dynamic>{
+        'botId': normalizedBotId,
+        if (botName.isNotEmpty) 'botName': botName,
+        'commandId': normalizedCommandId,
+        'command': commandJson,
+      },
+    );
+  }
+
+  /// Deletes a single command from the runner without rebuilding the entire
+  /// bot payload.
+  @override
+  Future<void> deleteCommand(
+    String botId,
+    String botName,
+    String commandId,
+  ) async {
+    final normalizedBotId = botId.trim();
+    final normalizedCommandId = commandId.trim();
+    if (normalizedBotId.isEmpty) {
+      throw const RunnerClientException('Missing botId for deleteCommand().');
+    }
+    if (normalizedCommandId.isEmpty) {
+      throw const RunnerClientException(
+        'Missing commandId for deleteCommand().',
+      );
+    }
+
+    await _post(
+      '/bots/${Uri.encodeComponent(normalizedBotId)}/commands/delete',
+      <String, dynamic>{
+        'botId': normalizedBotId,
+        if (botName.isNotEmpty) 'botName': botName,
+        'commandId': normalizedCommandId,
+      },
+    );
+  }
+
+  /// Synchronizes a single workflow to the runner without rebuilding the
+  /// entire bot payload.
+  @override
+  Future<void> syncWorkflow(
+    String botId,
+    String botName,
+    String workflowName,
+    Map<String, dynamic> workflowJson,
+  ) async {
+    final normalizedBotId = botId.trim();
+    final normalizedWorkflowName = workflowName.trim();
+    if (normalizedBotId.isEmpty || normalizedWorkflowName.isEmpty) {
+      throw const RunnerClientException(
+        'Missing botId/workflowName for syncWorkflow().',
+      );
+    }
+
+    await _post(
+      '/bots/${Uri.encodeComponent(normalizedBotId)}/workflows/sync',
+      <String, dynamic>{
+        'botId': normalizedBotId,
+        if (botName.isNotEmpty) 'botName': botName,
+        'workflowName': normalizedWorkflowName,
+        'workflow': workflowJson,
+      },
+    );
+  }
+
+  /// Deletes a single workflow from the runner without rebuilding the
+  /// entire bot payload.
+  @override
+  Future<void> deleteWorkflow(
+    String botId,
+    String botName,
+    String workflowName,
+  ) async {
+    final normalizedBotId = botId.trim();
+    final normalizedWorkflowName = workflowName.trim();
+    if (normalizedBotId.isEmpty || normalizedWorkflowName.isEmpty) {
+      throw const RunnerClientException(
+        'Missing botId/workflowName for deleteWorkflow().',
+      );
+    }
+
+    await _post(
+      '/bots/${Uri.encodeComponent(normalizedBotId)}/workflows/delete',
+      <String, dynamic>{
+        'botId': normalizedBotId,
+        if (botName.isNotEmpty) 'botName': botName,
+        'workflowName': normalizedWorkflowName,
+      },
+    );
+  }
+
+  /// Syncs a single scheduled trigger to the runner.
+  @override
+  Future<void> syncScheduledTrigger(
+    String botId,
+    String triggerId,
+    Map<String, dynamic> triggerJson,
+  ) async {
+    final normalizedBotId = botId.trim();
+    if (normalizedBotId.isEmpty) {
+      throw const RunnerClientException(
+        'Missing botId for syncScheduledTrigger().',
+      );
+    }
+
+    await _post(
+      '/bots/${Uri.encodeComponent(normalizedBotId)}/scheduled-triggers/sync',
+      <String, dynamic>{
+        'botId': normalizedBotId,
+        'triggerId': triggerId,
+        'trigger': triggerJson,
+      },
+    );
+  }
+
+  /// Deletes a single scheduled trigger from the runner.
+  @override
+  Future<void> deleteScheduledTrigger(String botId, String triggerId) async {
+    final normalizedBotId = botId.trim();
+    if (normalizedBotId.isEmpty) {
+      throw const RunnerClientException(
+        'Missing botId for deleteScheduledTrigger().',
+      );
+    }
+
+    await _post(
+      '/bots/${Uri.encodeComponent(normalizedBotId)}/scheduled-triggers/delete',
+      <String, dynamic>{'botId': normalizedBotId, 'triggerId': triggerId},
+    );
+  }
+
+  /// Syncs a single inbound webhook to the runner.
+  @override
+  Future<void> syncInboundWebhook(
+    String botId,
+    String webhookId,
+    Map<String, dynamic> webhookJson,
+  ) async {
+    final normalizedBotId = botId.trim();
+    if (normalizedBotId.isEmpty) {
+      throw const RunnerClientException(
+        'Missing botId for syncInboundWebhook().',
+      );
+    }
+
+    await _post(
+      '/bots/${Uri.encodeComponent(normalizedBotId)}/inbound-webhooks/sync',
+      <String, dynamic>{
+        'botId': normalizedBotId,
+        'webhookId': webhookId,
+        'webhook': webhookJson,
+      },
+    );
+  }
+
+  /// Deletes a single inbound webhook from the runner.
+  @override
+  Future<void> deleteInboundWebhook(String botId, String webhookId) async {
+    final normalizedBotId = botId.trim();
+    if (normalizedBotId.isEmpty) {
+      throw const RunnerClientException(
+        'Missing botId for deleteInboundWebhook().',
+      );
+    }
+
+    await _post(
+      '/bots/${Uri.encodeComponent(normalizedBotId)}/inbound-webhooks/delete',
+      <String, dynamic>{'botId': normalizedBotId, 'webhookId': webhookId},
+    );
+  }
+
+  /// Fetches recent log lines from the runner.
+  ///
+  /// [limit] controls the maximum number of lines returned (default: 300).
+  @override
+  Future<List<String>> getLogs({String? botId, int limit = 300}) async {
+    final json = await _get('/logs', query: {'limit': limit.toString()});
+    final rawLines = json['lines'];
+    if (rawLines is! List) return const [];
+    return rawLines.map((e) => e.toString()).toList(growable: false);
+  }
+
+  /// Fetches command usage statistics for [botId].
+  ///
+  /// [hours] controls the time window (default: 24).
+  @override
+  Future<Map<String, dynamic>> getCommandStats(
+    String botId, {
+    int hours = 24,
+  }) async {
+    return _get(
+      '/bots/${Uri.encodeComponent(botId.trim())}/command-stats',
+      query: {'hours': hours.toString()},
+    );
+  }
+
+  Future<RunnerDebugReplaySnapshot> getDebugReplays(
+    String botId, {
+    int limit = 30,
+  }) async {
+    final normalizedBotId = botId.trim();
+    if (normalizedBotId.isEmpty) {
+      throw const RunnerClientException('Missing botId for getDebugReplays().');
+    }
+    final json = await _get(
+      '/bots/${Uri.encodeComponent(normalizedBotId)}/debug-replays',
+      query: {'limit': limit.toString()},
+    );
+    return RunnerDebugReplaySnapshot.fromJson(json);
+  }
+
+  Future<void> clearDebugReplays(String botId) async {
+    final normalizedBotId = botId.trim();
+    if (normalizedBotId.isEmpty) {
+      throw const RunnerClientException(
+        'Missing botId for clearDebugReplays().',
+      );
+    }
+    await _post(
+      '/bots/${Uri.encodeComponent(normalizedBotId)}/debug-replays/clear',
+      const <String, dynamic>{},
+    );
+  }
+
+  Future<bool> setDebugReplayCapturing(String botId, bool enabled) async {
+    final normalizedBotId = botId.trim();
+    if (normalizedBotId.isEmpty) {
+      throw const RunnerClientException(
+        'Missing botId for setDebugReplayCapturing().',
+      );
+    }
+    final json = await _post(
+      '/bots/${Uri.encodeComponent(normalizedBotId)}/debug-replays/capture',
+      <String, dynamic>{'enabled': enabled},
+    );
+    return json['capturing'] == true;
+  }
+
+  Future<Map<String, dynamic>> getGlobalVariables(String botId) async {
+    final normalizedBotId = botId.trim();
+    if (normalizedBotId.isEmpty) {
+      throw const RunnerClientException(
+        'Missing botId for getGlobalVariables().',
+      );
+    }
+    final json = await _get(
+      '/bots/${Uri.encodeComponent(normalizedBotId)}/variables/global',
+    );
+    final raw = json['variables'];
+    if (raw is! Map) return const <String, dynamic>{};
+    return Map<String, dynamic>.from(raw);
+  }
+
+  @override
+  Future<void> setGlobalVariable(
+    String botId,
+    String key,
+    dynamic value,
+  ) async {
+    final normalizedBotId = botId.trim();
+    final normalizedKey = key.trim();
+    if (normalizedBotId.isEmpty || normalizedKey.isEmpty) {
+      throw const RunnerClientException(
+        'Missing botId/key for setGlobalVariable().',
+      );
+    }
+    await _post(
+      '/bots/${Uri.encodeComponent(normalizedBotId)}/variables/global/set',
+      <String, dynamic>{'key': normalizedKey, 'value': value},
+    );
+  }
+
+  @override
+  Future<void> removeGlobalVariable(String botId, String key) async {
+    final normalizedBotId = botId.trim();
+    final normalizedKey = key.trim();
+    if (normalizedBotId.isEmpty || normalizedKey.isEmpty) {
+      throw const RunnerClientException(
+        'Missing botId/key for removeGlobalVariable().',
+      );
+    }
+    await _post(
+      '/bots/${Uri.encodeComponent(normalizedBotId)}/variables/global/remove',
+      <String, dynamic>{'key': normalizedKey},
+    );
+  }
+
+  @override
+  Future<void> renameGlobalVariable(
+    String botId,
+    String oldKey,
+    String newKey,
+  ) async {
+    final normalizedBotId = botId.trim();
+    final normalizedOldKey = oldKey.trim();
+    final normalizedNewKey = newKey.trim();
+    if (normalizedBotId.isEmpty ||
+        normalizedOldKey.isEmpty ||
+        normalizedNewKey.isEmpty) {
+      throw const RunnerClientException(
+        'Missing botId/oldKey/newKey for renameGlobalVariable().',
+      );
+    }
+
+    await _post(
+      '/bots/${Uri.encodeComponent(normalizedBotId)}/variables/global/rename',
+      <String, dynamic>{'oldKey': normalizedOldKey, 'newKey': normalizedNewKey},
+    );
+  }
+
+  Future<List<Map<String, dynamic>>> getScopedVariableDefinitions(
+    String botId,
+  ) async {
+    final normalizedBotId = botId.trim();
+    if (normalizedBotId.isEmpty) {
+      throw const RunnerClientException(
+        'Missing botId for getScopedVariableDefinitions().',
+      );
+    }
+    final json = await _get(
+      '/bots/${Uri.encodeComponent(normalizedBotId)}/variables/scoped-definitions',
+    );
+    final raw = json['definitions'];
+    if (raw is! List) {
+      return const <Map<String, dynamic>>[];
+    }
+    return raw
+        .whereType<Map>()
+        .map((entry) => Map<String, dynamic>.from(entry))
+        .toList(growable: false);
+  }
+
+  @override
+  Future<void> setScopedVariableDefinition(
+    String botId,
+    String key,
+    String scope,
+    dynamic defaultValue, {
+    String valueType = 'string',
+  }) async {
+    final normalizedBotId = botId.trim();
+    final normalizedKey = _normalizeScopedStorageKey(key);
+    final normalizedScope = scope.trim();
+    if (normalizedBotId.isEmpty ||
+        normalizedKey.isEmpty ||
+        normalizedScope.isEmpty) {
+      throw const RunnerClientException(
+        'Missing botId/scope/key for setScopedVariableDefinition().',
+      );
+    }
+    await _post(
+      '/bots/${Uri.encodeComponent(normalizedBotId)}/variables/scoped-definitions/set',
+      <String, dynamic>{
+        'key': normalizedKey,
+        'scope': normalizedScope,
+        'defaultValue': defaultValue,
+        'valueType': valueType,
+      },
+    );
+  }
+
+  @override
+  Future<void> removeScopedVariableDefinition(
+    String botId,
+    String key, {
+    String? scope,
+    bool purgeStoredValues = false,
+  }) async {
+    final normalizedBotId = botId.trim();
+    final normalizedKey = _normalizeScopedStorageKey(key);
+    if (normalizedBotId.isEmpty || normalizedKey.isEmpty) {
+      throw const RunnerClientException(
+        'Missing botId/key for removeScopedVariableDefinition().',
+      );
+    }
+    await _post(
+      '/bots/${Uri.encodeComponent(normalizedBotId)}/variables/scoped-definitions/remove',
+      <String, dynamic>{
+        'key': normalizedKey,
+        if (scope != null && scope.trim().isNotEmpty) 'scope': scope.trim(),
+        if (purgeStoredValues) 'purgeStoredValues': true,
+      },
+    );
+  }
+
+  Future<Map<String, dynamic>> listScopedValuesForKey(
+    String botId,
+    String scope,
+    String key,
+  ) async {
+    final normalizedBotId = botId.trim();
+    final normalizedScope = scope.trim();
+    final normalizedKey = _normalizeScopedStorageKey(key);
+    if (normalizedBotId.isEmpty ||
+        normalizedScope.isEmpty ||
+        normalizedKey.isEmpty) {
+      throw const RunnerClientException(
+        'Missing botId/scope/key for listScopedValuesForKey().',
+      );
+    }
+    final json = await _get(
+      '/bots/${Uri.encodeComponent(normalizedBotId)}/variables/scoped-values',
+      query: <String, String>{'scope': normalizedScope, 'key': normalizedKey},
+    );
+    final raw = json['values'];
+    if (raw is! Map) return const <String, dynamic>{};
+    return Map<String, dynamic>.from(raw);
+  }
+}
+
+/// Exception thrown by [RunnerClient] when the runner returns an error or
+/// when the request fails.
+class RunnerClientException implements Exception {
+  const RunnerClientException(this.message, {this.statusCode});
+
+  final String message;
+  final int? statusCode;
+
+  @override
+  String toString() =>
+      statusCode != null
+          ? 'RunnerClientException($statusCode): $message'
+          : 'RunnerClientException: $message';
+}
+
+int? _asInt(dynamic value) {
+  if (value is int) return value;
+  return int.tryParse((value ?? '').toString());
+}
+
+double? _asDouble(dynamic value) {
+  if (value is num) return value.toDouble();
+  return double.tryParse((value ?? '').toString());
+}
+
+List<RunnerBotRuntime> _parseBotRuntimeList(dynamic raw) {
+  if (raw is! List) return const [];
+  return raw
+      .whereType<Map>()
+      .map(
+        (entry) => RunnerBotRuntime.fromJson(Map<String, dynamic>.from(entry)),
+      )
+      .where((entry) => entry.botId.isNotEmpty)
+      .toList(growable: false);
+}
+
+String? _normalizeOptional(String? value) {
+  final normalized = value?.trim() ?? '';
+  return normalized.isEmpty ? null : normalized;
+}
+
+String _normalizeScopedStorageKey(String key) {
+  final trimmed = key.trim();
+  if (trimmed.startsWith('bc_') && trimmed.length > 3) {
+    return trimmed.substring(3);
+  }
+  return trimmed;
+}

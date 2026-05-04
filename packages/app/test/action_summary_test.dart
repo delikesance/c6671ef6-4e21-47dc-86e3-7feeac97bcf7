@@ -1,6 +1,6 @@
-import 'package:bot_creator/routes/app/builder/action_summary.dart';
-import 'package:bot_creator/routes/app/builder/action_types.dart';
-import 'package:bot_creator/types/action.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder/action_summary.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder/action_types.dart';
+import 'package:bot_creator/core/models/types/action.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 ActionItem _buildAction({
@@ -27,10 +27,7 @@ void main() {
           parameters: <String, dynamic>{
             'workflowName': 'nightly_sync',
             'entryPoint': 'bootstrap',
-            'arguments': <String, dynamic>{
-              'scope': 'guild',
-              'retry': '3',
-            },
+            'arguments': <String, dynamic>{'scope': 'guild', 'retry': '3'},
             'key': 'sync_result',
           },
         ),
