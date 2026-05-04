@@ -25,7 +25,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get onboarding_welcome_skip => 'Passer';
 
   @override
-  String get onboarding_create_title => 'Étape 1: Créer un bot';
+  String get onboarding_create_title => 'Ã‰tape 1: Créer un bot';
 
   @override
   String get onboarding_create_desc => 'Obtenez votre token Discord';
@@ -36,7 +36,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get onboarding_create_tip =>
-      '💡 Conseil: Ne partagez jamais votre token! Il donne accès complet à votre bot.';
+      'ðŸ’¡ Conseil: Ne partagez jamais votre token! Il donne accès complet à votre bot.';
 
   @override
   String get onboarding_create_tutorial => 'Tutoriel: Comment obtenir un token';
@@ -45,24 +45,24 @@ class AppLocalizationsFr extends AppLocalizations {
   String get onboarding_create_button => 'Continuer';
 
   @override
-  String get onboarding_command_title => 'Étape 2: Ajouter une commande';
+  String get onboarding_command_title => 'Ã‰tape 2: Ajouter une commande';
 
   @override
   String get onboarding_command_desc => 'Créez votre première commande';
 
   @override
   String get onboarding_command_text =>
-      'Les commandes sont le cœur de votre bot. Elles permettent aux utilisateurs d\'interagir avec votre bot via Discord.';
+      'Les commandes sont le cÅ“ur de votre bot. Elles permettent aux utilisateurs d\'interagir avec votre bot via Discord.';
 
   @override
   String get onboarding_command_example =>
-      'Exemple:\n/hello → Le bot répond \"Bonjour! 👋\"';
+      'Exemple:\n/hello â†’ Le bot répond \"Bonjour! ðŸ‘‹\"';
 
   @override
   String get onboarding_command_button => 'Continuer';
 
   @override
-  String get onboarding_start_title => 'Étape 3: Lancer le bot';
+  String get onboarding_start_title => 'Ã‰tape 3: Lancer le bot';
 
   @override
   String get onboarding_start_desc => 'Lancez votre bot!';
@@ -73,13 +73,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get onboarding_start_tip =>
-      '✨ Bravo! Vous avez créé votre premier bot Discord. Vous pouvez maintenant ajouter plus de commandes et le personnaliser!';
+      'âœ¨ Bravo! Vous avez créé votre premier bot Discord. Vous pouvez maintenant ajouter plus de commandes et le personnaliser!';
 
   @override
   String get onboarding_start_button => 'Continuer';
 
   @override
-  String get onboarding_success_title => 'Bravo! 🎉';
+  String get onboarding_success_title => 'Bravo! ðŸŽ‰';
 
   @override
   String get onboarding_success_desc =>
@@ -118,7 +118,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get app_resources_desc =>
-      'Ces actions ouvrent les pages officielles nécessaires avant d’enregistrer votre bot ici.';
+      'Ces actions ouvrent les pages officielles nécessaires avant dâ€™enregistrer votre bot ici.';
 
   @override
   String get app_open_discord_portal => 'Ouvrir Discord Developer Portal';
@@ -142,7 +142,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get app_token_section_desc =>
-      'Une fois le token copié, collez-le ci-dessous pour ajouter votre bot à l’application.';
+      'Une fois le token copié, collez-le ci-dessous pour ajouter votre bot à lâ€™application.';
 
   @override
   String get app_token_field_helper =>
@@ -162,7 +162,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get app_save_bot => 'Ajouter le bot';
 
   @override
-  String get app_open_link_error => 'Impossible d’ouvrir cette page externe.';
+  String get app_open_link_error => 'Impossible dâ€™ouvrir cette page externe.';
 
   @override
   String get app_how_to_create_token => 'Comment créer un token de bot ?';
@@ -194,7 +194,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get app_sync_manager_connect => 'Connecter Discord';
 
   @override
-  String get app_no_apps => 'Aucune application trouvée';
+  String get app_no_apps => 'Vous n\'avez pas encore d\'applications.';
 
   @override
   String get app_loading_error => 'Erreur de chargement';
@@ -287,21 +287,21 @@ class AppLocalizationsFr extends AppLocalizations {
   String get emojis_rename_hint => 'Nouveau nom';
 
   @override
-  String get emojis_loading_error => 'Échec du chargement des emojis';
+  String get emojis_loading_error => 'Ã‰chec du chargement des emojis';
 
   @override
   String emojis_upload_error(String error) {
-    return 'Échec de l\'upload : $error';
+    return 'Ã‰chec de l\'upload : $error';
   }
 
   @override
   String emojis_delete_error(String error) {
-    return 'Échec de la suppression : $error';
+    return 'Ã‰chec de la suppression : $error';
   }
 
   @override
   String emojis_rename_error(String error) {
-    return 'Échec du renommage : $error';
+    return 'Ã‰chec du renommage : $error';
   }
 
   @override
@@ -333,7 +333,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settings_language_desc =>
-      'Choisissez la langue utilisée par l’application.';
+      'Choisissez la langue utilisée par lâ€™application.';
 
   @override
   String get settings_language_system => 'Automatique (appareil)';
@@ -346,21 +346,21 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settings_debug_desc =>
-      'Réinitialise les préférences locales ou relance l’onboarding pour les tests.';
+      'Réinitialise les préférences locales ou relance lâ€™onboarding pour les tests.';
 
   @override
   String get settings_reset_preferences => 'Réinitialiser les préférences';
 
   @override
   String get settings_reset_preferences_desc =>
-      'Réinitialise le thème, la langue et la progression de l’onboarding.';
+      'Réinitialise le thème, la langue et la progression de lâ€™onboarding.';
 
   @override
-  String get settings_replay_onboarding => 'Relancer l’onboarding';
+  String get settings_replay_onboarding => 'Relancer lâ€™onboarding';
 
   @override
   String get settings_replay_onboarding_desc =>
-      'Réinitialise l’onboarding et le relance immédiatement.';
+      'Réinitialise lâ€™onboarding et le relance immédiatement.';
 
   @override
   String get settings_debug_premium_bypass => 'Bypass Premium';
@@ -399,7 +399,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String settings_snapshot_files_size(int count, String size) {
-    return 'Fichiers : $count • Taille : $size';
+    return 'Fichiers : $count â€¢ Taille : $size';
   }
 
   @override
@@ -412,16 +412,16 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settings_snapshot_no_metadata =>
-      'Aucune métadonnée d’application disponible.';
+      'Aucune métadonnée dâ€™application disponible.';
 
   @override
-  String get settings_snapshot_delete_loading => 'Suppression du snapshot…';
+  String get settings_snapshot_delete_loading => 'Suppression du snapshotâ€¦';
 
   @override
   String get settings_snapshot_deleted => 'Snapshot supprimé';
 
   @override
-  String get settings_snapshot_restore_loading => 'Restauration du snapshot…';
+  String get settings_snapshot_restore_loading => 'Restauration du snapshotâ€¦';
 
   @override
   String get settings_restore_snapshot => 'Restaurer ce snapshot';
@@ -441,7 +441,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Connectez votre compte Google Drive pour synchroniser vos données';
 
   @override
-  String get settings_drive_connect_loading => 'Connexion à Google Drive…';
+  String get settings_drive_connect_loading => 'Connexion à Google Driveâ€¦';
 
   @override
   String get settings_drive_connected => 'Connecté à Google Drive';
@@ -453,7 +453,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settings_drive_status_connected => 'Connecté';
 
   @override
-  String get settings_drive_disconnect_loading => 'Déconnexion en cours…';
+  String get settings_drive_disconnect_loading => 'Déconnexion en coursâ€¦';
 
   @override
   String get settings_drive_disconnected => 'Déconnecté de Google Drive';
@@ -506,7 +506,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settings_runner_check => 'Tester la connexion';
 
   @override
-  String get settings_runner_connected => 'Runner accessible ✓';
+  String get settings_runner_connected => 'Runner accessible âœ“';
 
   @override
   String get settings_runner_auth_failed => 'Le runner a refusé le jeton API';
@@ -515,7 +515,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settings_runner_unreachable => 'Runner inaccessible';
 
   @override
-  String get settings_runner_connecting => 'Vérification de la connexion…';
+  String get settings_runner_connecting => 'Vérification de la connexionâ€¦';
 
   @override
   String settings_runner_active(String url) {
@@ -528,7 +528,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settings_runner_disable_temp_desc =>
-      'Conserve la configuration du Runner mais force le mode local jusqu’à réactivation.';
+      'Conserve la configuration du Runner mais force le mode local jusquâ€™à réactivation.';
 
   @override
   String get settings_runner_temporarily_disabled =>
@@ -569,7 +569,8 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settings_main_api_check => 'Tester le serveur Bot Creator';
 
   @override
-  String get settings_main_api_connected => 'Serveur Bot Creator accessible ✓';
+  String get settings_main_api_connected =>
+      'Serveur Bot Creator accessible âœ“';
 
   @override
   String get settings_main_api_unreachable =>
@@ -623,7 +624,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settings_discord_rpc_desc =>
-      'Publie l’activité desktop de Bot Creator dans le client Discord local. Bot Creator utilise toujours l’application Discord intégrée et envoie SET_ACTIVITY directement via l’IPC local quand l’option est activée.';
+      'Publie lâ€™activité desktop de Bot Creator dans le client Discord local. Bot Creator utilise toujours lâ€™application Discord intégrée et envoie SET_ACTIVITY directement via lâ€™IPC local quand lâ€™option est activée.';
 
   @override
   String get settings_discord_rpc_enable => 'Activer Discord Rich Presence';
@@ -637,7 +638,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settings_discord_rpc_client_secret_label =>
-      'Client secret de l’application Discord (optionnel)';
+      'Client secret de lâ€™application Discord (optionnel)';
 
   @override
   String get settings_discord_rpc_client_secret_hint => 'Client secret';
@@ -668,20 +669,20 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settings_discord_rpc_complete_authorization =>
-      'Finaliser l’autorisation';
+      'Finaliser lâ€™autorisation';
 
   @override
   String get settings_discord_rpc_authorization_pending_exchange =>
-      'Code d’autorisation reçu';
+      'Code dâ€™autorisation reçu';
 
   @override
-  String get settings_discord_rpc_open_ipc => 'Ouvrir l’IPC local';
+  String get settings_discord_rpc_open_ipc => 'Ouvrir lâ€™IPC local';
 
   @override
   String get settings_discord_rpc_ipc_open => 'IPC local déjà ouvert';
 
   @override
-  String get settings_discord_rpc_disconnect => 'Fermer l’IPC';
+  String get settings_discord_rpc_disconnect => 'Fermer lâ€™IPC';
 
   @override
   String settings_discord_rpc_user(String user) {
@@ -700,7 +701,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settings_discord_rpc_enable_first =>
-      'Activez Discord Rich Presence d’abord';
+      'Activez Discord Rich Presence dâ€™abord';
 
   @override
   String get settings_discord_rpc_client_id_required =>
@@ -715,14 +716,14 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settings_discord_rpc_transport_unsupported =>
-      'Le transport Discord n’est pas encore pris en charge sur cette plateforme';
+      'Le transport Discord nâ€™est pas encore pris en charge sur cette plateforme';
 
   @override
   String get settings_discord_rpc_not_configured => 'Client ID requis';
 
   @override
   String get settings_discord_rpc_broker_required =>
-      'Le Client ID suffit pour le flow public client ; l’URL du broker et le client secret restent optionnels';
+      'Le Client ID suffit pour le flow public client ; lâ€™URL du broker et le client secret restent optionnels';
 
   @override
   String get settings_discord_rpc_disconnected => 'IPC fermé';
@@ -732,26 +733,26 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settings_discord_rpc_authorization_code_pending_exchange =>
-      'Code d’autorisation en cache ; relancez pour terminer l’échange du token';
+      'Code dâ€™autorisation en cache ; relancez pour terminer lâ€™échange du token';
 
   @override
   String get settings_discord_rpc_ipc_connected_auth_required =>
-      'IPC Discord local connecté ; aucune requête OAuth HTTP envoyée pour l’instant, authentification encore requise';
+      'IPC Discord local connecté ; aucune requête OAuth HTTP envoyée pour lâ€™instant, authentification encore requise';
 
   @override
-  String get settings_discord_rpc_connecting => 'Connexion à Discord…';
+  String get settings_discord_rpc_connecting => 'Connexion à Discordâ€¦';
 
   @override
   String get settings_discord_rpc_authorizing =>
-      'En attente de l’autorisation Discord…';
+      'En attente de lâ€™autorisation Discordâ€¦';
 
   @override
   String get settings_discord_rpc_exchanging_code =>
-      'Finalisation de l’échange OAuth…';
+      'Finalisation de lâ€™échange OAuthâ€¦';
 
   @override
   String get settings_discord_rpc_authenticating =>
-      'Authentification auprès de Discord…';
+      'Authentification auprès de Discordâ€¦';
 
   @override
   String get settings_discord_rpc_connected => 'Présence envoyée à Discord';
@@ -769,29 +770,29 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settings_import => 'Importer';
 
   @override
-  String get settings_export_app_data => 'Exporter les données de l’app';
+  String get settings_export_app_data => 'Exporter les données de lâ€™app';
 
   @override
-  String get settings_import_app_data => 'Importer les données de l’app';
+  String get settings_import_app_data => 'Importer les données de lâ€™app';
 
   @override
-  String get settings_export_loading => 'Export en cours…';
+  String get settings_export_loading => 'Export en coursâ€¦';
 
   @override
-  String get settings_import_loading => 'Import en cours…';
+  String get settings_import_loading => 'Import en coursâ€¦';
 
   @override
   String get settings_recovery_title => 'Recovery Pro';
 
   @override
-  String get settings_enable_auto_backup => 'Activer l’auto-sauvegarde';
+  String get settings_enable_auto_backup => 'Activer lâ€™auto-sauvegarde';
 
   @override
   String get settings_enable_auto_backup_desc =>
       'Crée automatiquement des snapshots versionnés lorsque nécessaire.';
 
   @override
-  String get settings_auto_backup_interval => 'Intervalle d’auto-sauvegarde';
+  String get settings_auto_backup_interval => 'Intervalle dâ€™auto-sauvegarde';
 
   @override
   String get settings_auto_backup_every_6h => 'Toutes les 6 h';
@@ -815,7 +816,7 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get settings_snapshot_create_loading => 'Création du snapshot…';
+  String get settings_snapshot_create_loading => 'Création du snapshotâ€¦';
 
   @override
   String get settings_manual_snapshot_label => 'Snapshot manuel';
@@ -829,11 +830,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settings_backup_now => 'Sauvegarder maintenant';
 
   @override
-  String get settings_run_auto_backup_now => 'Lancer l’auto-sauvegarde';
+  String get settings_run_auto_backup_now => 'Lancer lâ€™auto-sauvegarde';
 
   @override
   String get settings_auto_backup_check_loading =>
-      'Vérification auto-sauvegarde…';
+      'Vérification auto-sauvegardeâ€¦';
 
   @override
   String get settings_snapshots_title => 'Snapshots';
@@ -855,7 +856,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settings_snapshots_delete_all_loading =>
-      'Suppression de tous les snapshots…';
+      'Suppression de tous les snapshotsâ€¦';
 
   @override
   String settings_snapshots_delete_all_done(int count) {
@@ -880,7 +881,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settings_snapshots_refresh_loading =>
-      'Actualisation des snapshots…';
+      'Actualisation des snapshotsâ€¦';
 
   @override
   String get settings_snapshots_empty =>
@@ -893,23 +894,23 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String backup_failed(String error) {
-    return 'Sauvegarde terminée : $error';
+    return 'Sauvegarde échouée : $error';
   }
 
   @override
   String settings_snapshot_list_entry(String date, int count, String size) {
-    return '$date • $count fichiers • $size';
+    return '$date â€¢ $count fichiers â€¢ $size';
   }
 
   @override
   String get settings_diagnostics_section_title => 'Diagnostics';
 
   @override
-  String get settings_diagnostics_page_title => 'Logs de l’application';
+  String get settings_diagnostics_page_title => 'Logs de lâ€™application';
 
   @override
   String get settings_diagnostics_page_scope_note =>
-      'Affiche uniquement les logs de diagnostic de l’application (hors logs bot).';
+      'Affiche uniquement les logs de diagnostic de lâ€™application (hors logs bot).';
 
   @override
   String get settings_diagnostics_refresh => 'Actualiser les logs';
@@ -919,7 +920,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settings_diagnostics_empty =>
-      'Aucun log d’application disponible pour le moment.';
+      'Aucun log dâ€™application disponible pour le moment.';
 
   @override
   String get settings_view_startup_logs => 'Voir les logs de démarrage';
@@ -958,7 +959,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settings_compatibility_item_workflows_title =>
-      'Éditeur de workflows';
+      'Ã‰diteur de workflows';
 
   @override
   String get settings_compatibility_item_workflows_desc =>
@@ -1047,7 +1048,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settings_compatibility_functions_note =>
-      'Cette page reflète l’implémentation actuelle et évoluera au fil des mises à jour.';
+      'Cette page reflète lâ€™implémentation actuelle et évoluera au fil des mises à jour.';
 
   @override
   String get settings_compatibility_functions_matrix_note =>
@@ -1134,7 +1135,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settings_ads_privacy_open_error =>
-      'Impossible d’ouvrir les options de confidentialité pub';
+      'Impossible dâ€™ouvrir les options de confidentialité pub';
 
   @override
   String get action_name_deleteMessages => 'Supprimer des messages';
@@ -1185,7 +1186,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get action_name_removeRole => 'Retirer un rôle';
 
   @override
-  String get action_name_pinMessage => 'Épingler un message';
+  String get action_name_pinMessage => 'Ã‰pingler un message';
 
   @override
   String get action_name_updateAutoMod => 'Mettre à jour AutoMod';
@@ -1281,14 +1282,14 @@ class AppLocalizationsFr extends AppLocalizations {
       'Modifier le message d\'interaction';
 
   @override
-  String get action_name_listenForButtonClick => 'Écouter un clic bouton';
+  String get action_name_listenForButtonClick => 'Ã‰couter un clic bouton';
 
   @override
-  String get action_name_listenForSelectMenu => 'Écouter un menu de sélection';
+  String get action_name_listenForSelectMenu => 'Ã‰couter un menu de sélection';
 
   @override
   String get action_name_listenForModalSubmit =>
-      'Écouter une soumission de modal';
+      'Ã‰couter une soumission de modal';
 
   @override
   String get action_name_respondWithAutocomplete =>
@@ -1393,7 +1394,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get home_foreground_service_not_started =>
-      'Le service foreground n’a pas démarré.';
+      'Le service foreground nâ€™a pas démarré.';
 
   @override
   String get home_log_desktop_stop_requested => 'Arrêt du bot desktop demandé';
@@ -1424,24 +1425,24 @@ class AppLocalizationsFr extends AppLocalizations {
   String get home_start => 'Lancer';
 
   @override
-  String get home_start_ads => 'Regarder une pub pour lancer';
+  String get home_start_ads => 'Démarrer (Voir Pub)';
 
   @override
-  String get home_start_premium => 'Lancer';
+  String get home_start_premium => 'Démarrer (Premium)';
 
   @override
   String get home_add_time => 'Ajouter du temps';
 
   @override
-  String home_hosting_time_left(int minutes) {
-    return 'Temps d\'hébergement restant : $minutes min';
+  String home_hosting_time_left(String duration) {
+    return 'Hébergement restant : $duration';
   }
 
   @override
   String get home_manage => 'Gérer';
 
   @override
-  String get home_logs_tooltip => 'Logs du bot';
+  String get home_logs_tooltip => 'Voir les logs';
 
   @override
   String get rewarded_start_title => 'Pub requise';
@@ -1467,10 +1468,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get ads_consent_message =>
-      'Pour respecter le RGPD, nous avons besoin de votre consentement avant d’afficher des publicités. Vous pouvez continuer à utiliser l’application même en refusant.';
+      'Pour respecter le RGPD, nous avons besoin de votre consentement avant dâ€™afficher des publicités. Vous pouvez continuer à utiliser lâ€™application même en refusant.';
 
   @override
-  String get ads_consent_accept => 'J’accepte';
+  String get ads_consent_accept => 'Jâ€™accepte';
 
   @override
   String get ads_consent_refuse => 'Je refuse';
@@ -1515,7 +1516,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get bot_home_start => 'Lancer le bot';
 
   @override
-  String get bot_home_starting => 'Démarrage…';
+  String get bot_home_starting => 'Démarrageâ€¦';
 
   @override
   String get bot_home_stop => 'Arrêter le bot';
@@ -1525,7 +1526,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get bot_home_ios_notice_content =>
-      'En mode local, iOS peut suspendre l’application en arrière-plan. Le bot peut démarrer, mais le maintien de la connexion Discord n’est pas garanti comme avec un Runner.';
+      'En mode local, iOS peut suspendre lâ€™application en arrière-plan. Le bot peut démarrer, mais le maintien de la connexion Discord nâ€™est pas garanti comme avec un Runner.';
 
   @override
   String get bot_home_view_logs => 'Voir les logs du bot';
@@ -1555,7 +1556,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get bot_home_section_danger => 'ZONE DE DANGER';
 
   @override
-  String get bot_home_sync => 'Synchroniser l’app';
+  String get bot_home_sync => 'Synchroniser lâ€™app';
 
   @override
   String get bot_home_sync_success => 'Application synchronisée avec succès';
@@ -1565,14 +1566,14 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get bot_home_invite_error =>
-      'Impossible d’ouvrir le lien d’invitation';
+      'Impossible dâ€™ouvrir le lien dâ€™invitation';
 
   @override
-  String get bot_home_delete => 'Supprimer l’application';
+  String get bot_home_delete => 'Supprimer lâ€™application';
 
   @override
   String get bot_home_delete_confirm =>
-      'Êtes-vous sûr de vouloir supprimer cette application ?';
+      'ÃŠtes-vous sûr de vouloir supprimer cette application ?';
 
   @override
   String bot_home_start_error(String error) {
@@ -1594,7 +1595,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get bot_home_service_not_started =>
-      'Le service foreground n’a pas démarré.';
+      'Le service foreground nâ€™a pas démarré.';
 
   @override
   String get bot_home_token_invalid_title => 'Token apparemment invalide';
@@ -1631,7 +1632,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get bot_settings_workflow_docs_desc =>
-      'Documentation centralisée pour les commandes, workflows, variables runtime et comportement d’exécution.';
+      'Documentation centralisée pour les commandes, workflows, variables runtime et comportement dâ€™exécution.';
 
   @override
   String get bot_settings_export_import => 'Export / Import';
@@ -1641,7 +1642,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Exportez ou importez la configuration de votre bot sous forme de fichier ZIP.';
 
   @override
-  String get bot_settings_app_flags => 'Indicateurs de l’application';
+  String get bot_settings_app_flags => 'Indicateurs de lâ€™application';
 
   @override
   String get bot_settings_gateway_intents =>
@@ -1815,7 +1816,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get bot_settings_activity_state_label =>
-      'État de l\'activité (optionnel)';
+      'Ã‰tat de l\'activité (optionnel)';
 
   @override
   String get bot_settings_activity_url_label =>
@@ -1908,7 +1909,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get debug_replay_empty_capturing =>
-      'Capture en cours… Lancez une commande pour enregistrer un replay.';
+      'Capture en coursâ€¦ Lancez une commande pour enregistrer un replay.';
 
   @override
   String get debug_replay_empty_idle =>
@@ -1919,7 +1920,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get debug_replay_premium_desc =>
-      'Enregistrez et rejouez vos exécutions de commandes étape par étape. Voyez exactement ce que chaque action a fait, combien de temps elle a pris et où les erreurs se sont produites.';
+      'Enregistrez et rejouez vos exécutions de commandes étape par étape. Voyez exactement ce que chaque action a fait, combien de temps elle a pris et oÃ¹ les erreurs se sont produites.';
 
   @override
   String get debug_replay_overview => 'Vue d\'ensemble';
@@ -1937,16 +1938,16 @@ class AppLocalizationsFr extends AppLocalizations {
   String get debug_replay_step_last => 'Dernière étape';
 
   @override
-  String get debug_replay_step_back => 'Étape précédente';
+  String get debug_replay_step_back => 'Ã‰tape précédente';
 
   @override
-  String get debug_replay_step_forward => 'Étape suivante';
+  String get debug_replay_step_forward => 'Ã‰tape suivante';
 
   @override
-  String get debug_replay_duration_label => 'DURÉE';
+  String get debug_replay_duration_label => 'DURÃ‰E';
 
   @override
-  String get debug_replay_result_label => 'RÉSULTAT';
+  String get debug_replay_result_label => 'RÃ‰SULTAT';
 
   @override
   String get debug_replay_result_empty => '(aucun résultat)';
@@ -1990,10 +1991,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get bot_stats_notes =>
-      'Notes : CPU disponible sur Android/Linux. Stockage = fichiers de données du bot dans l’application.';
+      'Notes : CPU disponible sur Android/Linux. Stockage = fichiers de données du bot dans lâ€™application.';
 
   @override
-  String get bot_stats_collecting => 'Collecte…';
+  String get bot_stats_collecting => 'Collecteâ€¦';
 
   @override
   String get commands_title => 'Commandes';
@@ -2082,7 +2083,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get import_button => 'Importer';
 
   @override
-  String get import_overwrite => 'Écraser';
+  String get import_overwrite => 'Ã‰craser';
 
   @override
   String get import_skip => 'Ignorer';
@@ -2129,11 +2130,11 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String globals_delete_confirm(String key) {
-    return 'Supprimer « $key » ?';
+    return 'Supprimer Â« $key Â» ?';
   }
 
   @override
-  String get globals_search => 'Rechercher des variables…';
+  String get globals_search => 'Rechercher des variablesâ€¦';
 
   @override
   String get globals_mode_global => 'Globale';
@@ -2147,7 +2148,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get globals_help_scoped =>
-      'Stockées par contexte (serveur, utilisateur, salon…). Chaque entrée conserve une valeur distincte par contexte Discord.';
+      'Stockées par contexte (serveur, utilisateur, salonâ€¦). Chaque entrée conserve une valeur distincte par contexte Discord.';
 
   @override
   String get globals_source_local => 'Local';
@@ -2189,14 +2190,14 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get scoped_empty_subtitle =>
-      'Les variables scopées stockent une valeur par contexte Discord (utilisateur, serveur…). Elles sont peuplées par le bot à l\'exécution.';
+      'Les variables scopées stockent une valeur par contexte Discord (utilisateur, serveurâ€¦). Elles sont peuplées par le bot à l\'exécution.';
 
   @override
   String get scoped_delete_title => 'Supprimer la variable scopée';
 
   @override
   String scoped_delete_confirm(String key) {
-    return 'Supprimer « $key » et toutes ses données runtime stockées ?';
+    return 'Supprimer Â« $key Â» et toutes ses données runtime stockées ?';
   }
 
   @override
@@ -2224,12 +2225,12 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String scoped_runtime_title(String key) {
-    return 'Données runtime — « $key »';
+    return 'Données runtime â€” Â« $key Â»';
   }
 
   @override
   String scoped_runtime_subtitle(String scope, int count) {
-    return 'Scope : $scope · $count contexte(s) trouvé(s)';
+    return 'Scope : $scope Â· $count contexte(s) trouvé(s)';
   }
 
   @override
@@ -2240,7 +2241,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get scoped_runtime_copy_all => 'Tout copier';
 
   @override
-  String get scoped_runtime_search => 'Rechercher par ID ou nom…';
+  String get scoped_runtime_search => 'Rechercher par ID ou nomâ€¦';
 
   @override
   String get scoped_explore_runtime => 'Explorer les données runtime';
@@ -2282,11 +2283,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get workflows_name => 'Nom du workflow';
 
   @override
-  String get workflows_entry_point => 'Point d’entrée par défaut';
+  String get workflows_entry_point => 'Point dâ€™entrée par défaut';
 
   @override
   String get workflows_entry_point_hint =>
-      'Utilisé si l’appelant ne le remplace pas';
+      'Utilisé si lâ€™appelant ne le remplace pas';
 
   @override
   String get workflows_arguments => 'Arguments';
@@ -2315,12 +2316,12 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String workflows_subtitle(int count, String entry, String args) {
-    return '$count action(s) • entrée : $entry • args : $args';
+    return '$count action(s) â€¢ entrée : $entry â€¢ args : $args';
   }
 
   @override
   String workflows_event_subtitle(int count, String event) {
-    return '$count action(s) • Listen for : $event';
+    return '$count action(s) â€¢ Listen for : $event';
   }
 
   @override
@@ -2528,7 +2529,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get cmd_delete_tooltip => 'Supprimer la commande';
 
   @override
-  String get cmd_editor_mode_title => 'Mode d’édition';
+  String get cmd_editor_mode_title => 'Mode dâ€™édition';
 
   @override
   String get cmd_editor_mode_simple => 'Mode simplifié';
@@ -2542,13 +2543,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get cmd_editor_mode_advanced_desc =>
-      'Éditeur complet avec réponse personnalisée, options et builder d’actions.';
+      'Ã‰diteur complet avec réponse personnalisée, options et builder dâ€™actions.';
 
   @override
   String get cmd_editor_mode_switch_adv => 'Passer en mode avancé';
 
   @override
-  String get cmd_editor_mode_switch_adv_title => 'Passer en mode avancé ?';
+  String get cmd_editor_mode_switch_adv_title => 'Passer en mode avancéÂ ?';
 
   @override
   String get cmd_editor_mode_switch_adv_content =>
@@ -2562,7 +2563,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Le mode avancé est verrouillé pour cette commande.';
 
   @override
-  String get cmd_execution_mode_title => 'Mode d’exécution';
+  String get cmd_execution_mode_title => 'Mode dâ€™exécution';
 
   @override
   String get cmd_execution_mode_desc =>
@@ -2577,25 +2578,25 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get cmd_execution_mode_workflow_note =>
-      'Le mode workflow reste le chemin de production actuel et continue d’être totalement pris en charge.';
+      'Le mode workflow reste le chemin de production actuel et continue dâ€™être totalement pris en charge.';
 
   @override
   String get cmd_execution_mode_bdfd => 'Mode script BDFD';
 
   @override
   String get cmd_execution_mode_bdfd_desc =>
-      'Écrivez le corps de commande en script compatible BDFD tout en gardant la définition visuelle.';
+      'Ã‰crivez le corps de commande en script compatible BDFD tout en gardant la définition visuelle.';
 
   @override
   String get cmd_execution_mode_bdfd_note =>
-      'Le script est compilé en actions internes. Les diagnostics sont affichés pendant l’édition ; les scripts invalides échouent à l’exécution.';
+      'Le script est compilé en actions internes. Les diagnostics sont affichés pendant lâ€™édition ; les scripts invalides échouent à lâ€™exécution.';
 
   @override
   String get cmd_execution_mode_dart => 'Mode Dart Direct';
 
   @override
   String get cmd_execution_mode_dart_desc =>
-      'Écrivez directement le corps de commande en Dart avec diagnostics runtime.';
+      'Ã‰crivez directement le corps de commande en Dart avec diagnostics runtime.';
 
   @override
   String get cmd_execution_mode_dart_note =>
@@ -2660,14 +2661,14 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get cmd_bdfd_autocomplete_hint =>
-      'Tapez \$ puis le début d’une fonction pour afficher des suggestions rapides.';
+      'Tapez \$ puis le début dâ€™une fonction pour afficher des suggestions rapides.';
 
   @override
   String get workflow_mode_title => 'Mode du workflow';
 
   @override
   String get workflow_mode_desc =>
-      'Choisissez entre un éditeur visuel d’actions ou un éditeur de script BDFD complet.';
+      'Choisissez entre un éditeur visuel dâ€™actions ou un éditeur de script BDFD complet.';
 
   @override
   String get workflow_mode_visual => 'Visuel';
@@ -2680,35 +2681,35 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get workflow_mode_visual_note =>
-      'Construisez votre workflow visuellement en ajoutant des actions individuelles avec l’éditeur de cartes.';
+      'Construisez votre workflow visuellement en ajoutant des actions individuelles avec lâ€™éditeur de cartes.';
 
   @override
   String get workflow_mode_bdfd_note =>
-      'Écrivez l’intégralité de votre workflow sous forme de script BDFD. Le script est compilé et validé en temps réel.';
+      'Ã‰crivez lâ€™intégralité de votre workflow sous forme de script BDFD. Le script est compilé et validé en temps réel.';
 
   @override
   String get workflow_mode_dart_note =>
-      'Écrivez votre workflow en Dart. Les diagnostics sont mis à jour pendant l’édition pour détecter rapidement les erreurs.';
+      'Ã‰crivez votre workflow en Dart. Les diagnostics sont mis à jour pendant lâ€™édition pour détecter rapidement les erreurs.';
 
   @override
-  String get workflow_bdfd_editor_title => 'Éditeur de script BDFD';
+  String get workflow_bdfd_editor_title => 'Ã‰diteur de script BDFD';
 
   @override
   String get workflow_bdfd_editor_desc =>
-      'Écrivez le code BDFD complet pour cette réponse workflow. Les diagnostics s’affichent en direct.';
+      'Ã‰crivez le code BDFD complet pour cette réponse workflow. Les diagnostics sâ€™affichent en direct.';
 
   @override
-  String get workflow_dart_editor_title => 'Éditeur de script Dart';
+  String get workflow_dart_editor_title => 'Ã‰diteur de script Dart';
 
   @override
   String get workflow_dart_editor_desc =>
-      'Écrivez le code Dart complet pour cette réponse workflow. Les diagnostics s’affichent en direct.';
+      'Ã‰crivez le code Dart complet pour cette réponse workflow. Les diagnostics sâ€™affichent en direct.';
 
   @override
-  String get bdfd_editor_title => 'Éditeur BDFD';
+  String get bdfd_editor_title => 'Ã‰diteur BDFD';
 
   @override
-  String get bdfd_editor_tap_hint => 'Appuyez pour ouvrir l’éditeur';
+  String get bdfd_editor_tap_hint => 'Appuyez pour ouvrir lâ€™éditeur';
 
   @override
   String get bdfd_editor_wrap_toggle =>
@@ -2720,17 +2721,17 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get bdfd_editor_empty =>
-      'Script vide — commencez à écrire pour voir les diagnostics.';
+      'Script vide â€” commencez à écrire pour voir les diagnostics.';
 
   @override
-  String get dart_editor_title => 'Éditeur Dart';
+  String get dart_editor_title => 'Ã‰diteur Dart';
 
   @override
-  String get dart_editor_tap_hint => 'Appuyez pour ouvrir l’éditeur Dart';
+  String get dart_editor_tap_hint => 'Appuyez pour ouvrir lâ€™éditeur Dart';
 
   @override
   String get dart_editor_empty =>
-      'Script vide — commencez à écrire pour voir les diagnostics Dart.';
+      'Script vide â€” commencez à écrire pour voir les diagnostics Dart.';
 
   @override
   String get bdfd_editor_docs => 'Référence des fonctions BDFD';
@@ -2739,7 +2740,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get bdfd_docs_title => 'Docs BDFD';
 
   @override
-  String get bdfd_docs_search_hint => 'Rechercher une fonction…';
+  String get bdfd_docs_search_hint => 'Rechercher une fonctionâ€¦';
 
   @override
   String get scratch_block_metadata => 'Métadonnées';
@@ -2761,7 +2762,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get scratch_entry_message => 'Message Texte';
 
   @override
-  String get scratch_entry_point_label => 'Nom du point d’entrée';
+  String get scratch_entry_point_label => 'Nom du point dâ€™entrée';
 
   @override
   String get scratch_execution_mode => 'Comment est construite la commande ?';
@@ -2846,7 +2847,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get scratch_workflow_type_general => 'Général';
 
   @override
-  String get scratch_workflow_type_event => 'Événement';
+  String get scratch_workflow_type_event => 'Ã‰vénement';
 
   @override
   String get scratch_workflow_arguments => 'Arguments (Variables)';
@@ -2855,19 +2856,19 @@ class AppLocalizationsFr extends AppLocalizations {
   String get scratch_workflow_add_argument => 'Ajouter un argument';
 
   @override
-  String get scratch_entry_event_trigger => 'Déclencheur d’événement';
+  String get scratch_entry_event_trigger => 'Déclencheur dâ€™événement';
 
   @override
   String get scratch_entry_function => 'Fonction';
 
   @override
-  String get scratch_event_category => 'Catégorie d’événement';
+  String get scratch_event_category => 'Catégorie dâ€™événement';
 
   @override
-  String get scratch_event_name => 'Nom de l’événement';
+  String get scratch_event_name => 'Nom de lâ€™événement';
 
   @override
-  String get scratch_event_variables => 'Variables d’événement';
+  String get scratch_event_variables => 'Variables dâ€™événement';
 
   @override
   String get bdfd_docs_empty => 'Aucune fonction trouvée.';
@@ -2876,11 +2877,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get bdfd_docs_syntax => 'SYNTAXE';
 
   @override
-  String get bdfd_docs_parameters => 'PARAMÈTRES';
+  String get bdfd_docs_parameters => 'PARAMÃˆTRES';
 
   @override
   String get bdfd_docs_no_params =>
-      'Aucun paramètre — utiliser comme \$nomFonction';
+      'Aucun paramètre â€” utiliser comme \$nomFonction';
 
   @override
   String get bdfd_docs_category_messages => 'Messages & Contenu';
@@ -2944,19 +2945,19 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get bdfd_docs_desc_for =>
-      'Bot Creator uniquement — Répète un bloc de code N fois.\n\nSimple : \$for[5]...\$endfor → le corps est répété 5 fois (max 100). Utilisez \$i pour l\'index courant (à partir de 0) et \$loopCount pour le total.\n\nStyle C : \$for[i=0;i<10;i++]...\$endfor → boucle for classique avec init, condition et mise à jour. Supporte ++, --, +=, -=, *=.\n\nSi le nombre d\'itérations est dynamique (ex : \$for[\$args[1]]), la boucle s\'exécute au runtime.';
+      'Bot Creator uniquement â€” Répète un bloc de code N fois.\n\nSimple : \$for[5]...\$endfor â†’ le corps est répété 5 fois (max 100). Utilisez \$i pour l\'index courant (à partir de 0) et \$loopCount pour le total.\n\nStyle C : \$for[i=0;i<10;i++]...\$endfor â†’ boucle for classique avec init, condition et mise à jour. Supporte ++, --, +=, -=, *=.\n\nSi le nombre d\'itérations est dynamique (ex : \$for[\$args[1]]), la boucle s\'exécute au runtime.';
 
   @override
   String get bdfd_docs_desc_loop =>
-      'Bot Creator uniquement — Alias de \$for. Voir \$for pour les détails. Utilisez \$endloop pour fermer le bloc.';
+      'Bot Creator uniquement â€” Alias de \$for. Voir \$for pour les détails. Utilisez \$endloop pour fermer le bloc.';
 
   @override
   String get bdfd_docs_desc_callworkflow =>
-      'Bot Creator uniquement — Appelle un autre workflow par nom et transmet des arguments.\n\nSyntaxe : \$callWorkflow[monWorkflow;clé1=valeur1;clé2=valeur2]\n\nLe workflow appelé peut lire les arguments et retourner une valeur via \$workflowResponse.';
+      'Bot Creator uniquement â€” Appelle un autre workflow par nom et transmet des arguments.\n\nSyntaxe : \$callWorkflow[monWorkflow;clé1=valeur1;clé2=valeur2]\n\nLe workflow appelé peut lire les arguments et retourner une valeur via \$workflowResponse.';
 
   @override
   String get bdfd_docs_desc_workflowresponse =>
-      'Bot Creator uniquement — Retourne la réponse du dernier \$callWorkflow.\n\nUtilisez \$workflowResponse[] pour la réponse complète, ou \$workflowResponse[propriété] pour un champ spécifique.';
+      'Bot Creator uniquement â€” Retourne la réponse du dernier \$callWorkflow.\n\nUtilisez \$workflowResponse[] pour la réponse complète, ou \$workflowResponse[propriété] pour un champ spécifique.';
 
   @override
   String get bdfd_docs_desc_eval =>
@@ -2984,15 +2985,15 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get bdfd_docs_desc_embedsuppresserrors =>
-      'Identique à \$suppressErrors — supprime tous les messages d\'erreur silencieusement.';
+      'Identique à \$suppressErrors â€” supprime tous les messages d\'erreur silencieusement.';
 
   @override
   String get bdfd_docs_desc_and =>
-      'ET logique — combine plusieurs conditions. Toutes doivent être vraies.\n\nUtilisation : \$if[\$and[\$authorID==123;\$hasRole[456]]]';
+      'ET logique â€” combine plusieurs conditions. Toutes doivent être vraies.\n\nUtilisation : \$if[\$and[\$authorID==123;\$hasRole[456]]]';
 
   @override
   String get bdfd_docs_desc_or =>
-      'OU logique — combine plusieurs conditions. Au moins une doit être vraie.\n\nUtilisation : \$if[\$or[\$authorID==123;\$authorID==456]]]';
+      'OU logique â€” combine plusieurs conditions. Au moins une doit être vraie.\n\nUtilisation : \$if[\$or[\$authorID==123;\$authorID==456]]]';
 
   @override
   String get bdfd_docs_desc_awaitfunc =>
@@ -3000,7 +3001,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get bdfd_docs_desc_defer =>
-      'Diffère la réponse à l\'interaction, vous donnant plus de temps. L\'utilisateur voit « Le bot réfléchit… ». À utiliser avant les opérations longues comme les requêtes HTTP.';
+      'Diffère la réponse à l\'interaction, vous donnant plus de temps. L\'utilisateur voit Â« Le bot réfléchitâ€¦ Â». Ã€ utiliser avant les opérations longues comme les requêtes HTTP.';
 
   @override
   String get bdfd_docs_desc_ephemeral =>
@@ -3012,11 +3013,11 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get bdfd_docs_desc_jsonset =>
-      'Définit une valeur dans le contexte JSON courant. Supporte les chemins en notation pointée.\n\nUtilisation : \$jsonSet[user.name;John]\n\nLa modification est en mémoire — utilisez \$jsonStringify pour obtenir le résultat.';
+      'Définit une valeur dans le contexte JSON courant. Supporte les chemins en notation pointée.\n\nUtilisation : \$jsonSet[user.name;John]\n\nLa modification est en mémoire â€” utilisez \$jsonStringify pour obtenir le résultat.';
 
   @override
   String get bdfd_docs_desc_jsonstringify =>
-      'Convertit le contexte JSON courant en chaîne de caractères. À utiliser après \$jsonParse et \$jsonSet pour obtenir le résultat.';
+      'Convertit le contexte JSON courant en chaîne de caractères. Ã€ utiliser après \$jsonParse et \$jsonSet pour obtenir le résultat.';
 
   @override
   String get bdfd_docs_desc_httpget =>
@@ -3125,11 +3126,11 @@ class AppLocalizationsFr extends AppLocalizations {
       'Envoie un message supplémentaire dans le salon courant.';
 
   @override
-  String get cmd_simple_action_pin => 'Épingler un message';
+  String get cmd_simple_action_pin => 'Ã‰pingler un message';
 
   @override
   String get cmd_simple_action_pin_desc =>
-      'Épingle un message du salon courant via /message_id.';
+      'Ã‰pingle un message du salon courant via /message_id.';
 
   @override
   String get cmd_simple_action_unpin => 'Désépingler un message';
@@ -3153,21 +3154,21 @@ class AppLocalizationsFr extends AppLocalizations {
       'Crée un sondage avec une /question dynamique et des réponses fixes.';
 
   @override
-  String get cmd_simple_action_send_message_label => 'Message de l’action';
+  String get cmd_simple_action_send_message_label => 'Message de lâ€™action';
 
   @override
   String get cmd_simple_action_send_message_hint =>
-      'Message envoyé par l’action Send Message';
+      'Message envoyé par lâ€™action Send Message';
 
   @override
-  String get cmd_simple_execution_title => 'Réglages d’exécution';
+  String get cmd_simple_execution_title => 'Réglages dâ€™exécution';
 
   @override
   String get cmd_simple_execution_desc =>
       'Affinez les actions générées sans quitter le mode simplifié.';
 
   @override
-  String get cmd_simple_action_reason_label => 'Raison du log d’audit';
+  String get cmd_simple_action_reason_label => 'Raison du log dâ€™audit';
 
   @override
   String get cmd_simple_action_reason_hint =>
@@ -3179,7 +3180,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get cmd_simple_action_delete_default_count_hint =>
-      'Utilisé si /count n’est pas fourni';
+      'Utilisé si /count nâ€™est pas fourni';
 
   @override
   String get cmd_simple_action_ban_delete_days_label =>
@@ -3241,28 +3242,28 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get cmd_simple_option_channel_desc =>
-      'Salon optionnel pour créer l’invitation';
+      'Salon optionnel pour créer lâ€™invitation';
 
   @override
   String get cmd_simple_option_question_desc => 'Question du sondage';
 
   @override
-  String get cmd_simple_invite_settings_title => 'Réglages de l’invitation';
+  String get cmd_simple_invite_settings_title => 'Réglages de lâ€™invitation';
 
   @override
   String get cmd_simple_invite_settings_desc =>
-      'Valeurs par défaut utilisées par l’action Create Invite générée.';
+      'Valeurs par défaut utilisées par lâ€™action Create Invite générée.';
 
   @override
   String get cmd_simple_invite_max_age_label =>
-      'Expiration de l’invitation (secondes)';
+      'Expiration de lâ€™invitation (secondes)';
 
   @override
   String get cmd_simple_invite_max_age_hint =>
-      '0 pour aucune expiration, jusqu’à 604800';
+      '0 pour aucune expiration, jusquâ€™à 604800';
 
   @override
-  String get cmd_simple_invite_max_uses_label => 'Nombre max d’utilisations';
+  String get cmd_simple_invite_max_uses_label => 'Nombre max dâ€™utilisations';
 
   @override
   String get cmd_simple_invite_max_uses_hint => '0 pour illimité';
@@ -3272,21 +3273,21 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get cmd_simple_invite_temporary_desc =>
-      'Le membre est retiré s’il quitte avant de recevoir un rôle.';
+      'Le membre est retiré sâ€™il quitte avant de recevoir un rôle.';
 
   @override
   String get cmd_simple_invite_unique_label => 'Forcer une invitation unique';
 
   @override
   String get cmd_simple_invite_unique_desc =>
-      'Crée toujours une nouvelle invitation au lieu d’en réutiliser une.';
+      'Crée toujours une nouvelle invitation au lieu dâ€™en réutiliser une.';
 
   @override
   String get cmd_simple_poll_settings_title => 'Réglages du sondage';
 
   @override
   String get cmd_simple_poll_settings_desc =>
-      'Valeurs par défaut utilisées par l’action Create Poll générée.';
+      'Valeurs par défaut utilisées par lâ€™action Create Poll générée.';
 
   @override
   String get cmd_simple_poll_answers_label => 'Réponses du sondage';
@@ -3307,14 +3308,14 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get cmd_simple_poll_multiselect_desc =>
-      'Les utilisateurs peuvent sélectionner plus d’un choix.';
+      'Les utilisateurs peuvent sélectionner plus dâ€™un choix.';
 
   @override
   String get cmd_simple_response_title => 'Réponse finale';
 
   @override
   String get cmd_simple_response_desc =>
-      'Message renvoyé à l’utilisateur après l’exécution des actions.';
+      'Message renvoyé à lâ€™utilisateur après lâ€™exécution des actions.';
 
   @override
   String get cmd_simple_response_visibility_label => 'Visibilité de la réponse';
@@ -3323,10 +3324,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get cmd_simple_response_visibility_public => 'Publique';
 
   @override
-  String get cmd_simple_response_visibility_ephemeral => 'Éphémère';
+  String get cmd_simple_response_visibility_ephemeral => 'Ã‰phémère';
 
   @override
-  String get cmd_simple_response_hint => 'Terminé ✅';
+  String get cmd_simple_response_hint => 'Terminé âœ…';
 
   @override
   String get cmd_simple_response_embeds_title => 'Embeds de réponse';
@@ -3345,15 +3346,15 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get cmd_simple_conflict_pin_unpin =>
-      'Épingler un message et Désépingler un message ne peuvent pas être activés ensemble en mode simplifié.';
+      'Ã‰pingler un message et Désépingler un message ne peuvent pas être activés ensemble en mode simplifié.';
 
   @override
   String get cmd_simple_invite_max_age_invalid =>
-      'L’expiration de l’invitation doit être un nombre entre 0 et 604800 secondes.';
+      'Lâ€™expiration de lâ€™invitation doit être un nombre entre 0 et 604800 secondes.';
 
   @override
   String get cmd_simple_invite_max_uses_invalid =>
-      'Le nombre max d’utilisations doit être un nombre entre 0 et 1000000.';
+      'Le nombre max dâ€™utilisations doit être un nombre entre 0 et 1000000.';
 
   @override
   String get cmd_simple_poll_answers_invalid =>
@@ -3365,14 +3366,14 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get cmd_simple_send_message_required =>
-      'Veuillez renseigner le message de l’action avant de sauvegarder.';
+      'Veuillez renseigner le message de lâ€™action avant de sauvegarder.';
 
   @override
   String get support_card_title => 'Support & Communauté';
 
   @override
   String get support_card_desc =>
-      'Une question, un bug, une suggestion ? Venez discuter avec l’équipe et la communauté.';
+      'Une question, un bug, une suggestionÂ ? Venez discuter avec lâ€™équipe et la communauté.';
 
   @override
   String get support_join_discord => 'Rejoindre le serveur Discord';
@@ -3381,24 +3382,26 @@ class AppLocalizationsFr extends AppLocalizations {
   String get support_discord_badge => 'Support officiel';
 
   @override
-  String get home_empty_support_hint => 'Besoin d’aide pour commencer ?';
+  String get home_empty_support_hint =>
+      'Besoin d\'aide ? Rejoignez notre communauté !';
 
   @override
-  String get home_empty_support_btn => 'Rejoindre notre Discord';
+  String get home_empty_support_btn => 'Support Discord';
 
   @override
   String get error_invalid_count => 'Le nombre doit être supérieur à 0.';
 
   @override
   String get error_invalid_channel_type =>
-      'Le salon n’est pas un salon textuel.';
+      'Le salon nâ€™est pas un salon textuel.';
 
   @override
-  String get error_network_timeout => 'L’action a expiré. Veuillez réessayer.';
+  String get error_network_timeout =>
+      'Lâ€™action a expiré. Veuillez réessayer.';
 
   @override
   String get error_delete_messages_failed =>
-      'Échec de la suppression des messages.';
+      'Ã‰chec de la suppression des messages.';
 
   @override
   String get doc_center_title => 'Centre de documentation';
@@ -3418,7 +3421,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get doc_kind_all => 'Tout';
 
   @override
-  String get doc_kind_event => 'Événement';
+  String get doc_kind_event => 'Ã‰vénement';
 
   @override
   String get doc_kind_action => 'Action';
@@ -3439,7 +3442,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get doc_example => 'Exemple';
 
   @override
-  String get doc_common_section_best_use_cases => 'Cas d’usage recommandés';
+  String get doc_common_section_best_use_cases => 'Cas dâ€™usage recommandés';
 
   @override
   String get doc_common_section_important_notes => 'Points importants';
@@ -3465,7 +3468,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get doc_template_variables_section_sources_l2 =>
-      'Variables d’événement : event.*, message.*, reaction.*, voice.*, role.*, etc.';
+      'Variables dâ€™événement : event.*, message.*, reaction.*, voice.*, role.*, etc.';
 
   @override
   String get doc_template_variables_section_sources_l3 =>
@@ -3477,7 +3480,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get doc_template_variables_section_sources_l5 =>
-      'Sorties d’actions : action.<key> quand disponibles.';
+      'Sorties dâ€™actions : action.<key> quand disponibles.';
 
   @override
   String get doc_template_variables_section_builtin_title =>
@@ -3512,7 +3515,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get doc_template_variables_section_fallbacks_l2 =>
-      'Utilisez la syntaxe JSONPath sur les sorties d’actions : ((myHttp.body.\$.data[0].id)) ; les tableaux et objets restent manipulables.';
+      'Utilisez la syntaxe JSONPath sur les sorties dâ€™actions : ((myHttp.body.\$.data[0].id)) ; les tableaux et objets restent manipulables.';
 
   @override
   String get doc_template_variables_section_fallbacks_l3 =>
@@ -3532,7 +3535,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get doc_template_functions_summary =>
-      'Les fonctions de template servent à normaliser du texte, manipuler des tableaux, formater des sorties et ajouter un peu d’aléatoire.';
+      'Les fonctions de template servent à normaliser du texte, manipuler des tableaux, formater des sorties et ajouter un peu dâ€™aléatoire.';
 
   @override
   String get doc_template_functions_section_string_title => 'Helpers texte';
@@ -3571,7 +3574,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get doc_template_functions_section_array_l4 =>
-      'formatEach(...) et embedFields(...) formatent des tableaux d’objets pour texte et embeds.';
+      'formatEach(...) et embedFields(...) formatent des tableaux dâ€™objets pour texte et embeds.';
 
   @override
   String get doc_template_functions_section_random_title =>
@@ -3736,7 +3739,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Status : ((action.http.status|http.status|unknown))\nBody : ((action.http.body|http.body))\nSupprimes : ((cleanup.count|0))\nTotal : ((page.total|0))';
 
   @override
-  String get doc_interaction_commands_title => 'Commandes d’interaction';
+  String get doc_interaction_commands_title => 'Commandes dâ€™interaction';
 
   @override
   String get doc_interaction_commands_subtitle =>
@@ -3744,11 +3747,11 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get doc_interaction_commands_summary =>
-      'Les commandes applicatives sont exécutées via un chemin d’interaction commun, avec des variables runtime qui dépendent du type Discord.';
+      'Les commandes applicatives sont exécutées via un chemin dâ€™interaction commun, avec des variables runtime qui dépendent du type Discord.';
 
   @override
   String get doc_interaction_commands_section_execution_title =>
-      'Modèle d’exécution';
+      'Modèle dâ€™exécution';
 
   @override
   String get doc_interaction_commands_section_execution_l1 =>
@@ -3760,7 +3763,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get doc_interaction_commands_section_execution_l3 =>
-      'Un mismatch de type est loggé en warning mais ne bloque pas l’exécution.';
+      'Un mismatch de type est loggé en warning mais ne bloque pas lâ€™exécution.';
 
   @override
   String get doc_interaction_commands_section_per_type_title =>
@@ -3776,7 +3779,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get doc_interaction_commands_section_per_type_l3 =>
-      'message : target.message.* incluant le contenu et l’id auteur quand résolus.';
+      'message : target.message.* incluant le contenu et lâ€™id auteur quand résolus.';
 
   @override
   String get doc_interaction_commands_section_builtin_title =>
@@ -3784,27 +3787,27 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get doc_interaction_commands_section_guidance_title =>
-      'Recommandations d’écriture';
+      'Recommandations dâ€™écriture';
 
   @override
   String get doc_interaction_commands_section_guidance_l1 =>
-      'Écrivez vos conditions avec commandType ou interaction.command.type.';
+      'Ã‰crivez vos conditions avec commandType ou interaction.command.type.';
 
   @override
   String get doc_interaction_commands_section_guidance_l2 =>
-      'Préférez la syntaxe de fallback pour partager un template entre slash et non-slash, et utilisez autocomplete.query dans les workflows dédiés à l’auto-complete.';
+      'Préférez la syntaxe de fallback pour partager un template entre slash et non-slash, et utilisez autocomplete.query dans les workflows dédiés à lâ€™auto-complete.';
 
   @override
   String get doc_interaction_commands_section_guidance_l3 =>
-      'Gardez des templates portables en évitant les variables propres aux events dans les workflows de commande ; l’auto-complete dynamique doit finir par respondWithAutocomplete.';
+      'Gardez des templates portables en évitant les variables propres aux events dans les workflows de commande ; lâ€™auto-complete dynamique doit finir par respondWithAutocomplete.';
 
   @override
   String doc_interaction_commands_example(String name, String id) {
-    return 'Workflow d’auto-complete :\nquery = ((autocomplete.query))\nqueryArray -> items=((httpSearch.body))\nrespondWithAutocomplete -> label=\'$name\' value=\'$id\'';
+    return 'Workflow dâ€™auto-complete :\nquery = ((autocomplete.query))\nqueryArray -> items=((httpSearch.body))\nrespondWithAutocomplete -> label=\'$name\' value=\'$id\'';
   }
 
   @override
-  String get doc_event_message_create_title => 'Événement : messageCreate';
+  String get doc_event_message_create_title => 'Ã‰vénement : messageCreate';
 
   @override
   String get doc_event_message_create_subtitle =>
@@ -3812,7 +3815,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get doc_event_message_create_summary =>
-      'Utilisez cet événement pour la modération, les pipelines de mots-clés, les auto-réponses, le parsing style commande et l’analytics.';
+      'Utilisez cet événement pour la modération, les pipelines de mots-clés, les auto-réponses, le parsing style commande et lâ€™analytics.';
 
   @override
   String get doc_event_message_create_intent_1 => 'Guild Messages';
@@ -3834,11 +3837,11 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get doc_event_message_create_notes_l1 =>
-      'Si l’intent Message Content est désactivé, les conditions basées sur le contenu peuvent échouer.';
+      'Si lâ€™intent Message Content est désactivé, les conditions basées sur le contenu peuvent échouer.';
 
   @override
   String get doc_event_message_create_notes_l2 =>
-      'message.content[index] est basé sur les mots et limité par l’extraction runtime.';
+      'message.content[index] est basé sur les mots et limité par lâ€™extraction runtime.';
 
   @override
   String get doc_event_message_create_notes_l3 =>
@@ -3849,11 +3852,11 @@ class AppLocalizationsFr extends AppLocalizations {
       'Guard: ((message.isBot)) equals false\nGuard: ((message.content[0])) equals !ticket\nThen: runWorkflow -> ticket_manager entry=create';
 
   @override
-  String get doc_runtime_execution_flow_title => 'Flux d’exécution runtime';
+  String get doc_runtime_execution_flow_title => 'Flux dâ€™exécution runtime';
 
   @override
   String get doc_runtime_execution_flow_subtitle =>
-      'Comment les workflows d’événement sont sélectionnés et exécutés.';
+      'Comment les workflows dâ€™événement sont sélectionnés et exécutés.';
 
   @override
   String get doc_runtime_execution_flow_summary =>
@@ -3864,7 +3867,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get doc_runtime_execution_flow_section_pipeline_l1 =>
-      '1) Réception de l’événement gateway.';
+      '1) Réception de lâ€™événement gateway.';
 
   @override
   String get doc_runtime_execution_flow_section_pipeline_l2 =>
@@ -3872,7 +3875,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get doc_runtime_execution_flow_section_pipeline_l3 =>
-      '3) Matching des workflows par nom d’événement.';
+      '3) Matching des workflows par nom dâ€™événement.';
 
   @override
   String get doc_runtime_execution_flow_section_pipeline_l4 =>
@@ -3993,7 +3996,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get dashboard_execution_health_title => 'Santé des exécutions';
 
   @override
-  String get dashboard_failed_commands => 'Échecs';
+  String get dashboard_failed_commands => 'Ã‰checs';
 
   @override
   String get dashboard_error_rate => 'Taux d\'erreur';
@@ -4114,13 +4117,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get subscription_manage => 'Gérer l\'abonnement';
 
   @override
-  String get subscription_active_label => 'Offre active :';
+  String get subscription_active_label => 'Offre activeÂ :';
 
   @override
-  String get subscription_active_annual => 'Premium — Annuel';
+  String get subscription_active_annual => 'Premium â€” Annuel';
 
   @override
-  String get subscription_active_monthly => 'Premium — Mensuel';
+  String get subscription_active_monthly => 'Premium â€” Mensuel';
 
   @override
   String get subscription_benefit_no_ads =>
@@ -4371,7 +4374,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get common_manage_workflows => 'Gérer les workflows';
 
   @override
-  String get doc_event_reaction_add_title => 'Événement : messageReactionAdd';
+  String get doc_event_reaction_add_title => 'Ã‰vénement : messageReactionAdd';
 
   @override
   String get doc_event_reaction_add_subtitle =>
@@ -4410,10 +4413,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get doc_event_reaction_add_example =>
-      'Guard : ((reaction.emoji.name)) equals ✅\nAction : addRole -> user=((userId)) role=((global.approvedRoleId))';
+      'Guard : ((reaction.emoji.name)) equals âœ…\nAction : addRole -> user=((userId)) role=((global.approvedRoleId))';
 
   @override
-  String get doc_event_poll_vote_add_title => 'Événement : messagePollVoteAdd';
+  String get doc_event_poll_vote_add_title => 'Ã‰vénement : messagePollVoteAdd';
 
   @override
   String get doc_event_poll_vote_add_subtitle =>
@@ -4444,7 +4447,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get doc_event_voice_state_update_title =>
-      'Événement : voiceStateUpdate';
+      'Ã‰vénement : voiceStateUpdate';
 
   @override
   String get doc_event_voice_state_update_subtitle =>
@@ -4474,7 +4477,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Journaliser les patterns d\'arrivée/départ via les changements de salon.';
 
   @override
-  String get doc_event_user_update_title => 'Événement : userUpdate';
+  String get doc_event_user_update_title => 'Ã‰vénement : userUpdate';
 
   @override
   String get doc_event_user_update_subtitle =>
@@ -4494,7 +4497,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get doc_event_audit_log_create_title =>
-      'Événement : guildAuditLogCreate';
+      'Ã‰vénement : guildAuditLogCreate';
 
   @override
   String get doc_event_audit_log_create_subtitle =>
@@ -4502,7 +4505,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get doc_event_audit_log_create_summary =>
-      'Événement à haute valeur pour la surveillance de sécurité administrative.';
+      'Ã‰vénement à haute valeur pour la surveillance de sécurité administrative.';
 
   @override
   String get doc_event_audit_log_create_best_use_l1 =>
@@ -4556,7 +4559,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get doc_action_stop_unless_example =>
-      'condition.variable = ((reaction.emoji.name))\ncondition.operator = equals\ncondition.value = ✅';
+      'condition.variable = ((reaction.emoji.name))\ncondition.operator = equals\ncondition.value = âœ…';
 
   @override
   String get doc_action_if_block_title => 'Action : ifBlock';
@@ -4793,7 +4796,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get component_add_text_display => 'Ajouter un affichage texte';
 
   @override
-  String get component_section_accessory => 'Nœud accessoire (optionnel)';
+  String get component_section_accessory => 'NÅ“ud accessoire (optionnel)';
 
   @override
   String get component_accent_color =>
@@ -4816,7 +4819,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get component_add_media_item => 'Ajouter un élément média';
 
   @override
-  String get component_not_implemented => 'Éditeur pas encore implémenté';
+  String get component_not_implemented => 'Ã‰diteur pas encore implémenté';
 
   @override
   String get component_choose_color => 'Choisir la couleur';
@@ -4835,7 +4838,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get autocomplete_workflow_label => 'Workflow d\'autocomplétion';
 
   @override
-  String get autocomplete_loading => 'Chargement des workflows…';
+  String get autocomplete_loading => 'Chargement des workflowsâ€¦';
 
   @override
   String get autocomplete_no_workflows => 'Aucun workflow sauvegardé trouvé';
@@ -5042,7 +5045,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String action_else_if_label(int index) {
-    return 'ELSE IF $index — actions';
+    return 'ELSE IF $index â€” actions';
   }
 
   @override
@@ -5181,7 +5184,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String scheduler_save_failed(String error) {
-    return 'Échec de l\'enregistrement du planning : $error';
+    return 'Ã‰chec de l\'enregistrement du planning : $error';
   }
 
   @override
@@ -5189,7 +5192,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String scheduler_delete_confirm(String label) {
-    return 'Supprimer le planning « $label » ?';
+    return 'Supprimer le planning Â« $label Â» ?';
   }
 
   @override
@@ -5242,7 +5245,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String webhooks_save_failed(String error) {
-    return 'Échec de l\'enregistrement du webhook entrant : $error';
+    return 'Ã‰chec de l\'enregistrement du webhook entrant : $error';
   }
 
   @override
@@ -5250,7 +5253,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String webhooks_delete_confirm(String label) {
-    return 'Supprimer « $label » ? Cette action est irréversible.';
+    return 'Supprimer Â« $label Â» ? Cette action est irréversible.';
   }
 
   @override
@@ -5357,26 +5360,25 @@ class AppLocalizationsFr extends AppLocalizations {
   String get command_export_tooltip => 'Exporter le payload de la commande';
 
   @override
-  String get actions_missing_field_title => 'Champ requis manquant';
+  String get actions_missing_field_title => 'Champ Manquant';
 
   @override
-  String get actions_no_matches =>
-      'Aucune action ne correspond à votre recherche.';
+  String get actions_no_matches => 'Aucun résultat trouvé';
 
   @override
-  String get actions_add_new_title => 'Ajouter une nouvelle action';
+  String get actions_add_new_title => 'Ajouter une Nouvelle Action';
 
   @override
-  String get actions_search_hint => 'Rechercher des actions…';
+  String get actions_search_hint => 'Rechercher des actions...';
 
   @override
-  String get actions_add_label => 'Ajouter une action';
+  String get actions_add_label => 'Ajouter une Action';
 
   @override
-  String get actions_builder_title => 'Constructeur d\'actions';
+  String get actions_builder_title => 'Constructeur d\'Actions';
 
   @override
-  String get actions_save_tooltip => 'Enregistrer les actions';
+  String get actions_save_tooltip => 'Enregistrer les Actions';
 
   @override
   String actions_key_label(String key) {
@@ -5897,7 +5899,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get command_integration_label =>
-      'Où cette commande peut être utilisée';
+      'OÃ¹ cette commande peut être utilisée';
 
   @override
   String get command_scope_label => 'Portée de la commande (Contextes)';
@@ -5953,7 +5955,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get reply_mode_layout_desc =>
-      'Système de mise en page riche de Discord — conteneurs, médias, texte et formulaires';
+      'Système de mise en page riche de Discord â€” conteneurs, médias, texte et formulaires';
 
   @override
   String get reply_mode_modal_desc =>
@@ -5979,7 +5981,7 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get workflow_visibility_ephemeral => 'Éphémère';
+  String get workflow_visibility_ephemeral => 'Ã‰phémère';
 
   @override
   String get workflow_visibility_public => 'Public';
@@ -6003,10 +6005,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get workflow_no_auto_defer => 'Pas de différé auto';
 
   @override
-  String get workflow_condition_on_upper => 'Condition ACTIVÉE';
+  String get workflow_condition_on_upper => 'Condition ACTIVÃ‰E';
 
   @override
-  String get workflow_condition_off_upper => 'Condition DÉSACTIVÉE';
+  String get workflow_condition_off_upper => 'Condition DÃ‰SACTIVÃ‰E';
 
   @override
   String actions_summary_bdfd(int lines, int diagnostics) {
@@ -6042,15 +6044,15 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get bdfd_editor_auto_indent =>
-      '• Indentation automatique intelligente sur Entrée';
+      'â€¢ Indentation automatique intelligente sur Entrée';
 
   @override
   String get bdfd_editor_indent_guides =>
-      '• Guides d\'indentation en temps réel';
+      'â€¢ Guides d\'indentation en temps réel';
 
   @override
   String get bdfd_editor_quick_keys =>
-      '• Touches rapides mobiles pour les symboles BDFD';
+      'â€¢ Touches rapides mobiles pour les symboles BDFD';
 
   @override
   String get bdfd_editor_toggle_indent =>
@@ -6075,12 +6077,12 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String export_failed(String error) {
-    return 'Échec de l\'export : $error';
+    return 'Ã‰chec de l\'export : $error';
   }
 
   @override
   String import_parse_failed(String error) {
-    return 'Échec de l\'analyse du ZIP : $error';
+    return 'Ã‰chec de l\'analyse du ZIP : $error';
   }
 
   @override
@@ -6088,7 +6090,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String import_failed(String error) {
-    return 'Échec de l\'import : $error';
+    return 'Ã‰chec de l\'import : $error';
   }
 
   @override
@@ -6148,7 +6150,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get component_on_click_workflow => 'Au clic, le workflow';
 
   @override
-  String get component_on_select_workflow => 'À la sélection, le workflow';
+  String get component_on_select_workflow => 'Ã€ la sélection, le workflow';
 
   @override
   String get component_new_option => 'Nouvelle option';
@@ -6203,7 +6205,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String workflow_on_submit_info(String name, String entry, int args) {
-    return 'À la soumission, le workflow \"$name\" sera exécuté (entrée : $entry, args : $args).';
+    return 'Ã€ la soumission, le workflow \"$name\" sera exécuté (entrée : $entry, args : $args).';
   }
 
   @override
@@ -6273,7 +6275,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String action_and_more(int count) {
-    return '… et $count de plus';
+    return 'â€¦ et $count de plus';
   }
 
   @override
@@ -6301,7 +6303,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get action_json_editor_hint =>
-      'Éditeur d\'objet JSON (supporte les objets/tableaux imbriqués)';
+      'Ã‰diteur d\'objet JSON (supporte les objets/tableaux imbriqués)';
 
   @override
   String get action_edit_raw_json => 'Modifier le JSON brut';
@@ -6399,7 +6401,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String scheduler_subtitle(String workflow, int minutes) {
-    return 'Workflow : $workflow • Toutes les $minutes min';
+    return 'Workflow : $workflow â€¢ Toutes les $minutes min';
   }
 
   @override
@@ -6437,7 +6439,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String command_sync_failed_local(String error) {
-    return 'Enregistré localement. Échec de la synchronisation Discord : $error';
+    return 'Enregistré localement. Ã‰chec de la synchronisation Discord : $error';
   }
 
   @override
@@ -6460,7 +6462,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get response_workflow_ephemeral_only_user =>
-      'Éphémère (utilisateur de la commande uniquement)';
+      'Ã‰phémère (utilisateur de la commande uniquement)';
 
   @override
   String get response_workflow_error_policy_desc =>
@@ -6489,12 +6491,18 @@ class AppLocalizationsFr extends AppLocalizations {
       'Aucune commande ne correspond aux filtres actuels.';
 
   @override
-  String get actions_search_sequence_hint =>
-      'Rechercher des actions dans cette séquence...';
+  String get actions_search_sequence_hint => 'Rechercher une séquence...';
 
   @override
   String actions_sequence_count(int count) {
-    return '$count action(s) dans la séquence';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count actions',
+      one: '1 action',
+      zero: 'Aucune action',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -6504,7 +6512,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String actions_step_label(int index, int total) {
-    return 'Étape $index/$total';
+    return 'Étape $index sur $total';
   }
 
   @override
@@ -6577,52 +6585,52 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get validation_option_no_mix_top_level =>
-      'Les options de premier niveau ne peuvent pas mélanger sous-commandes/groupes et options normales.';
+      'Les options de premier niveau ne peuvent pas mélanger sous-commandes/groupes et options feuilles (chaîne, nombre, etc.).';
 
   @override
   String get validation_option_group_only_subcommands =>
-      'Un SubCommandGroup ne peut contenir que des options SubCommand.';
+      'Les groupes de sous-commandes ne peuvent contenir que des sous-commandes.';
 
   @override
   String get validation_option_subcommand_no_nested =>
-      'Un SubCommand ne peut pas contenir de SubCommand ou SubCommandGroup imbriqué.';
+      'Les sous-commandes ne peuvent pas contenir d\'autres sous-commandes ou groupes.';
 
   @override
   String get validation_option_name_required =>
-      'Chaque option doit avoir un nom.';
+      'Le nom de l\'option est requis.';
 
   @override
   String validation_option_name_duplicate(String name) {
-    return 'Nom d\'option dupliqué \"$name\" au même niveau.';
+    return 'Le nom de l\'option est déjà utilisé à ce niveau.';
   }
 
   @override
   String get validation_option_description_required =>
-      'Chaque option doit avoir une description.';
+      'La description de l\'option est requise.';
 
   @override
   String get validation_option_leaf_no_nested =>
-      'Les options normales ne peuvent pas contenir d\'options imbriquées.';
+      'Les options feuilles ne peuvent pas avoir d\'options imbriquées.';
 
   @override
   String get validation_option_hierarchy_not_required =>
-      'SubCommand et SubCommandGroup ne peuvent pas être marqués requis.';
+      'Les sous-commandes et groupes ne peuvent pas être marqués comme requis.';
 
   @override
   String get validation_option_hierarchy_no_choices =>
-      'SubCommand et SubCommandGroup ne peuvent pas définir de choix.';
+      'Les sous-commandes et groupes ne peuvent pas avoir de choix.';
 
   @override
   String get validation_option_hierarchy_no_min_max =>
-      'SubCommand et SubCommandGroup ne peuvent pas définir de min/max.';
+      'Les sous-commandes et groupes ne peuvent pas avoir de valeurs min/max.';
 
   @override
   String get validation_option_group_top_level_only =>
-      'SubCommandGroup est autorisé uniquement au premier niveau.';
+      'Les groupes de sous-commandes ne peuvent être qu\'au premier niveau.';
 
   @override
   String get validation_option_subcommand_depth =>
-      'La profondeur d\'imbrication des SubCommand dépasse les limites Discord.';
+      'Les sous-commandes ne peuvent pas être imbriquées à plus de 2 niveaux de profondeur.';
 
   @override
   String get bdfd_compile_error_simple =>
@@ -6634,11 +6642,14 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get home_time_added => 'Temps ajouté avec succès !';
+
+  @override
   String get command_not_found => 'Commande introuvable';
 
   @override
   String legacy_bdfd_run_failed(String command, String error) {
-    return 'Échec d\'exécution du script BDFD pour la commande \"$command\" : $error';
+    return 'Ã‰chec d\'exécution du script BDFD pour la commande \"$command\" : $error';
   }
 
   @override
@@ -6719,4 +6730,82 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get commands_filter_type_label => 'Type';
+
+  @override
+  String get home_sync_failed => 'Ã‰chec de la synchronisation';
+
+  @override
+  String get workflow_argument_hint =>
+      'Argument du workflow (accessible via \$arg)';
+
+  @override
+  String get scratch_entry_point_hint => 'Indice du point d\'entrée scratch';
+
+  @override
+  String get component_value_hint => 'Indice de la valeur du composant';
+
+  @override
+  String get rewarded_start_no_ad_available =>
+      'Aucune publicité disponible pour le moment. Veuillez réessayer plus tard.';
+
+  @override
+  String get rewarded_start_complete_ad =>
+      'Veuillez regarder la publicité en entier pour lancer votre session d\'hébergement.';
+
+  @override
+  String get settings_runner_disconnected => 'Runner déconnecté';
+
+  @override
+  String get home_hosting_expired => 'Hébergement expiré';
+
+  @override
+  String get common_none => 'Aucun';
+
+  @override
+  String unit_month(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count mois',
+      one: '1 mois',
+      zero: '0 mois',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unit_day(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count jours',
+      one: '1 jour',
+      zero: '0 jour',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unit_hour(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count heures',
+      one: '1 heure',
+      zero: '0 heure',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unit_minute(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count minutes',
+      one: '1 minute',
+      zero: '0 minute',
+    );
+    return '$_temp0';
+  }
 }

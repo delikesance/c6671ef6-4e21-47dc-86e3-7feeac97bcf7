@@ -1723,7 +1723,9 @@ class _AppHomePageState extends State<AppHomePage>
                             children: [
                               Expanded(
                                 child: Text(
-                                  context.tr.home_hosting_time_left,
+                                  context.tr.home_hosting_time_left(
+                                    formatDuration(_freeMinutesBalance ?? 0),
+                                  ),
                                   style: Theme.of(
                                     context,
                                   ).textTheme.bodyMedium?.copyWith(
@@ -1982,6 +1984,12 @@ class _AppHomePageState extends State<AppHomePage>
         },
       ),
     );
+  }
+  
+  String formatDuration(int i) {
+    final hours = i ~/ 60;
+    final minutes = i % 60;
+    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}';
   }
 }
 

@@ -213,7 +213,7 @@ class _ScratchBlockPaletteState extends State<ScratchBlockPalette> {
 
     for (final actionType in BotCreatorActionType.values) {
       if (_searchQuery.isNotEmpty &&
-          !actionType.displayName.toLowerCase().contains(
+          !actionType.displayName(context).toLowerCase().contains(
             _searchQuery.toLowerCase(),
           )) {
         continue;
@@ -224,7 +224,7 @@ class _ScratchBlockPaletteState extends State<ScratchBlockPalette> {
     }
 
     for (final entry in actionsByCategory.entries) {
-      entry.value.sort((a, b) => a.displayName.compareTo(b.displayName));
+      entry.value.sort((a, b) => a.displayName(context).compareTo(b.displayName(context)));
     }
 
     return Column(
@@ -322,7 +322,7 @@ class _CategorySection extends StatelessWidget {
               dense: true,
               leading: Icon(type.icon, size: 20, color: color),
               title: Text(
-                type.displayName,
+                type.displayName(context),
                 style: const TextStyle(fontSize: 13),
               ),
               onTap: () => onActionSelected(type),

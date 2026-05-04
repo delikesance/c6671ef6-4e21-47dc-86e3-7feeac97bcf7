@@ -119,7 +119,7 @@ class ActionCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          action.type.displayName,
+                          action.type.displayName(context),
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,

@@ -5,7 +5,7 @@ extension _CommandCreateValidation on _CommandCreatePageState {
     List<CommandOptionBuilder> options, {
     required int level,
     required CommandOptionType? parentType,
-  }) => validateOptionsForLevel(options, level: level, parentType: parentType);
+  }) => validateOptionsForLevel(context, options, level: level, parentType: parentType);
 
   String? _validateName(String? value) {
     final normalized = (value ?? '').trim();

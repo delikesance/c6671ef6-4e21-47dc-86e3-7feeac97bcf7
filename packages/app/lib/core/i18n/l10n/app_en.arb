@@ -652,11 +652,11 @@
   "home_start_ads": "Watch Ads to Start",
   "home_start_premium": "Start",
   "home_add_time": "Add Time",
-  "home_hosting_time_left": "Hosting Time left: {minutes} min",
+  "home_hosting_time_left": "Hosting Time left: {time}",
   "@home_hosting_time_left": {
     "placeholders": {
-      "minutes": {
-        "type": "int"
+      "time": {
+        "type": "String"
       }
     }
   },
@@ -2983,6 +2983,7 @@
       }
     }
   },
+  "home_time_added": "Succesfully added Time",
   "command_not_found": "Command not found",
   "legacy_bdfd_run_failed": "Failed to run BDFD script for command \"{command}\": {error}",
   "@legacy_bdfd_run_failed": {
@@ -3032,5 +3033,97 @@
       }
     }
   },
-  "commands_filter_type_label": "Type"
+  "commands_filter_type_label": "Type",
+  "home_sync_failed": "Sync failed",
+  "workflow_argument_hint": "Workflow argument (accessible via $arg)",
+  "scratch_entry_point_hint": "Scratch entry point hint",
+  "component_value_hint": "Component value hint",
+  "rewarded_start_no_ad_available": "No ad available right now. Please try again later.",
+  "rewarded_start_complete_ad": "Please watch the entire ad to start your hosting session.",
+  "settings_runner_disconnected": "Runner disconnected",
+  "home_hosting_time_left": "Hosting left: {duration}",
+  "@home_hosting_time_left": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "home_hosting_expired": "Hosting expired",
+  "home_stop": "Stop",
+  "home_start_premium": "Start (Premium)",
+  "home_start_ads": "Start (Watch Ad)",
+  "home_add_time": "Add Time",
+  "home_manage": "Manage",
+  "home_logs_tooltip": "View Logs",
+  "app_no_apps": "You don't have any apps yet.",
+  "home_empty_support_hint": "Need help? Join our community!",
+  "home_empty_support_btn": "Discord Support",
+  "common_none": "None",
+  "common_ok": "OK",
+  "common_close": "Close",
+  "common_cancel": "Cancel",
+  "common_enabled": "Enabled",
+  "common_disabled": "Disabled",
+  "actions_missing_field_title": "Missing Field",
+  "actions_builder_title": "Actions Builder",
+  "actions_save_tooltip": "Save Actions",
+  "actions_add_label": "Add Action",
+  "actions_add_new_title": "Add New Action",
+  "actions_search_hint": "Search actions...",
+  "actions_no_matches": "No matches found",
+  "actions_search_sequence_hint": "Search sequence...",
+  "actions_sequence_count": "{count, plural, =0{No actions} =1{1 action} other{{count} actions}}",
+  "@actions_sequence_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "actions_save_count": "Save {count} actions",
+  "@actions_save_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "actions_step_label": "Step {index} of {total}",
+  "@actions_step_label": {
+    "placeholders": {
+      "index": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "actions_key_label": "Key: {key}",
+  "@actions_key_label": {
+    "placeholders": {
+      "key": { "type": "String" }
+    }
+  },
+  "unit_month": "{count, plural, =0{0 months} =1{1 month} other{{count} months}}",
+  "@unit_month": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "unit_day": "{count, plural, =0{0 days} =1{1 day} other{{count} days}}",
+  "@unit_day": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "unit_hour": "{count, plural, =0{0 hours} =1{1 hour} other{{count} hours}}",
+  "@unit_hour": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "unit_minute": "{count, plural, =0{0 minutes} =1{1 minute} other{{count} minutes}}",
+  "@unit_minute": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  }
 }

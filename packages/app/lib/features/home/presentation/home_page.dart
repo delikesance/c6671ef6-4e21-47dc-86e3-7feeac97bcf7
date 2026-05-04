@@ -29,26 +29,9 @@ import 'package:bot_creator/features/ads/logic/ads_placement_policy.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/app_editor_page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/bot_logs.dart';
 
-String _pluralUnit(
-  BuildContext context,
-  int value,
-  String singularFr,
-  String pluralFr,
-  String singularEn,
-  String pluralEn,
-) {
-  final languageCode = Localizations.localeOf(context).languageCode;
-  final isFrench = languageCode == 'fr';
-  final singular = isFrench ? singularFr : singularEn;
-  final plural = isFrench ? pluralFr : pluralEn;
-  return '$value ${value == 1 ? singular : plural}';
-}
-
 String _formatHostingDuration(BuildContext context, int totalMinutes) {
   if (totalMinutes <= 0) {
-    return Localizations.localeOf(context).languageCode == 'fr'
-        ? '0 minute'
-        : '0 minutes';
+    return context.tr.unit_minute(0);
   }
 
   const minutesPerHour = 60;
@@ -66,18 +49,16 @@ String _formatHostingDuration(BuildContext context, int totalMinutes) {
 
   final parts = <String>[];
   if (months > 0) {
-    parts.add(_pluralUnit(context, months, 'mois', 'mois', 'month', 'months'));
+    parts.add(context.tr.unit_month(months));
   }
   if (days > 0) {
-    parts.add(_pluralUnit(context, days, 'jour', 'jours', 'day', 'days'));
+    parts.add(context.tr.unit_day(days));
   }
   if (hours > 0) {
-    parts.add(_pluralUnit(context, hours, 'heure', 'heures', 'hour', 'hours'));
+    parts.add(context.tr.unit_hour(hours));
   }
   if (minutes > 0 || parts.isEmpty) {
-    parts.add(
-      _pluralUnit(context, minutes, 'minute', 'minutes', 'minute', 'minutes'),
-    );
+    parts.add(context.tr.unit_minute(minutes));
   }
 
   return parts.join(', ');
@@ -1309,7 +1290,6 @@ class HomePageState extends State<HomePage>
     try {
       final app = await appManager.getApp(botId);
       final botToken = (app['token'] ?? '').toString().trim();
-      final name = (app['name'] ?? '').toString().trim();
 
       final rewarded = await _maybeOfferRewardedAd(
         botId: botId,
@@ -1704,8 +1684,8 @@ class _BotCard extends StatelessWidget {
 
   static const _onlineGradient = AppTheme.botCardOnlineGradient;
   static const _offlineGradient = AppTheme.botCardOfflineGradient;
-
-  String _serverCountLabel() {
+  
+  String _serverCountLabel(BuildContext context) {
     final count = guildCount ?? 0;
     return count > 1
         ? context.tr.home_server_count_other(count)
@@ -1882,7 +1862,7 @@ class _BotCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        _serverCountLabel(),
+                        _serverCountLabel(context),
                         style: TextStyle(
                           fontSize: compact ? 10.5 : 11.0,
                           color: Colors.white.withValues(alpha: 0.6),
@@ -1931,7 +1911,9 @@ class _BotCard extends StatelessWidget {
                   if (freeMinutes != null && onAddTime != null) ...[
                     const SizedBox(height: 6),
                     Text(
-                      context.tr.home_hosting_time_left,
+                      context.tr.home_hosting_time_left(
+                        _formatHostingDuration(context, freeMinutes!),
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(

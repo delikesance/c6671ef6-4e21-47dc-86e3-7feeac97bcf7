@@ -149,7 +149,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
                 (context) => AlertDialog(
                   title: Text(context.tr.actions_missing_field_title),
                   content: Text(
-                    '${action.type.displayName}: ${def.key} is required.',
+                    '${action.type.displayName(context)}: ${def.key} is required.',
                   ),
                   actions: [
                     TextButton(
@@ -448,7 +448,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
 
       for (final actionType in availableActionTypes) {
         if (searchQuery.isNotEmpty &&
-            !actionType.displayName.toLowerCase().contains(
+            !actionType.displayName(context).toLowerCase().contains(
               searchQuery.toLowerCase(),
             )) {
           continue;
@@ -459,7 +459,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
       }
 
       for (final entry in actionsByCategory.entries) {
-        entry.value.sort((a, b) => a.displayName.compareTo(b.displayName));
+        entry.value.sort((a, b) => a.displayName(context).compareTo(b.displayName(context)));
       }
 
       return Column(
@@ -687,7 +687,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
                 color: _getCategoryColor(categoryName),
               ),
               title: Text(
-                type.displayName,
+                type.displayName(context),
                 style: const TextStyle(fontSize: 14),
               ),
               subtitle: Text(
@@ -905,7 +905,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
     }
     return _actions
         .where((action) {
-          final summary = summarizeActionItem(action);
+          final summary = summarizeActionItem(context, action);
           return summary.title.toLowerCase().contains(query) ||
               summary.summary.toLowerCase().contains(query) ||
               summary.outputKey.toLowerCase().contains(query);
@@ -952,7 +952,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
       itemBuilder: (context, index) {
         final action = filtered[index];
         final absoluteIndex = _actions.indexOf(action);
-        final summary = summarizeActionItem(action);
+        final summary = summarizeActionItem(context, action);
 
         return Align(
           alignment: Alignment.topCenter,
@@ -1172,7 +1172,7 @@ class _ActionDetailPageState extends State<_ActionDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final summary = summarizeActionItem(widget.action);
+    final summary = summarizeActionItem(context, widget.action);
     return Scaffold(
       appBar: AppBar(title: Text(summary.title)),
       body: SafeArea(

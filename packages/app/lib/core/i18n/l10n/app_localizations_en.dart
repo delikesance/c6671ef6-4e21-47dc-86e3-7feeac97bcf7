@@ -193,7 +193,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get app_sync_manager_connect => 'Connect Discord';
 
   @override
-  String get app_no_apps => 'No applications found';
+  String get app_no_apps => 'You don\'t have any apps yet.';
 
   @override
   String get app_loading_error => 'Loading error';
@@ -1391,24 +1391,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get home_start => 'Start';
 
   @override
-  String get home_start_ads => 'Watch Ads to Start';
+  String get home_start_ads => 'Start (Watch Ad)';
 
   @override
-  String get home_start_premium => 'Start';
+  String get home_start_premium => 'Start (Premium)';
 
   @override
   String get home_add_time => 'Add Time';
 
   @override
-  String home_hosting_time_left(int minutes) {
-    return 'Hosting Time left: $minutes min';
+  String home_hosting_time_left(String duration) {
+    return 'Hosting left: $duration';
   }
 
   @override
   String get home_manage => 'Manage';
 
   @override
-  String get home_logs_tooltip => 'Bot logs';
+  String get home_logs_tooltip => 'View Logs';
 
   @override
   String get rewarded_start_title => 'Ad Required';
@@ -3333,10 +3333,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get support_discord_badge => 'Official support';
 
   @override
-  String get home_empty_support_hint => 'Need help getting started?';
+  String get home_empty_support_hint => 'Need help? Join our community!';
 
   @override
-  String get home_empty_support_btn => 'Join our Discord';
+  String get home_empty_support_btn => 'Discord Support';
 
   @override
   String get error_invalid_count => 'Count must be greater than 0.';
@@ -5281,10 +5281,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get command_export_tooltip => 'Export command payload';
 
   @override
-  String get actions_missing_field_title => 'Missing Required Field';
+  String get actions_missing_field_title => 'Missing Field';
 
   @override
-  String get actions_no_matches => 'No actions match your search.';
+  String get actions_no_matches => 'No matches found';
 
   @override
   String get actions_add_new_title => 'Add New Action';
@@ -6386,22 +6386,28 @@ class AppLocalizationsEn extends AppLocalizations {
       'No commands match the current filters.';
 
   @override
-  String get actions_search_sequence_hint =>
-      'Search actions in this sequence...';
+  String get actions_search_sequence_hint => 'Search sequence...';
 
   @override
   String actions_sequence_count(int count) {
-    return '$count action(s) in sequence';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count actions',
+      one: '1 action',
+      zero: 'No actions',
+    );
+    return '$_temp0';
   }
 
   @override
   String actions_save_count(int count) {
-    return 'Save $count Actions';
+    return 'Save $count actions';
   }
 
   @override
   String actions_step_label(int index, int total) {
-    return 'Step $index/$total';
+    return 'Step $index of $total';
   }
 
   @override
@@ -6531,6 +6537,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get home_time_added => 'Succesfully added Time';
+
+  @override
   String get command_not_found => 'Command not found';
 
   @override
@@ -6616,4 +6625,82 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get commands_filter_type_label => 'Type';
+
+  @override
+  String get home_sync_failed => 'Sync failed';
+
+  @override
+  String get workflow_argument_hint =>
+      'Workflow argument (accessible via \$arg)';
+
+  @override
+  String get scratch_entry_point_hint => 'Scratch entry point hint';
+
+  @override
+  String get component_value_hint => 'Component value hint';
+
+  @override
+  String get rewarded_start_no_ad_available =>
+      'No ad available right now. Please try again later.';
+
+  @override
+  String get rewarded_start_complete_ad =>
+      'Please watch the entire ad to start your hosting session.';
+
+  @override
+  String get settings_runner_disconnected => 'Runner disconnected';
+
+  @override
+  String get home_hosting_expired => 'Hosting expired';
+
+  @override
+  String get common_none => 'None';
+
+  @override
+  String unit_month(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count months',
+      one: '1 month',
+      zero: '0 months',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unit_day(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days',
+      one: '1 day',
+      zero: '0 days',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unit_hour(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count hours',
+      one: '1 hour',
+      zero: '0 hours',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unit_minute(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count minutes',
+      one: '1 minute',
+      zero: '0 minutes',
+    );
+    return '$_temp0';
+  }
 }

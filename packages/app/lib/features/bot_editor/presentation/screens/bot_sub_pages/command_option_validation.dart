@@ -1,4 +1,5 @@
 import 'package:bot_creator/core/i18n/i18n.dart';
+import 'package:flutter/widgets.dart';
 import 'package:nyxx/nyxx.dart';
 
 bool isHierarchyOptionType(CommandOptionType type) {
@@ -16,6 +17,7 @@ bool isLeafOptionType(CommandOptionType type) {
 /// Call with [level] = 0 and [parentType] = null for the root option list.
 /// Returns a human-readable error message string, or `null` if valid.
 String? validateOptionsForLevel(
+  BuildContext context,
   List<CommandOptionBuilder> options, {
   required int level,
   required CommandOptionType? parentType,
@@ -51,7 +53,7 @@ String? validateOptionsForLevel(
       return context.tr.validation_option_name_required;
     }
     if (!seenNames.add(optionName)) {
-      return context.tr.validation_option_name_duplicate;
+      return context.tr.validation_option_name_duplicate(optionName);
     }
     if (option.description.trim().isEmpty) {
       return context.tr.validation_option_description_required;
@@ -85,6 +87,7 @@ String? validateOptionsForLevel(
 
     if (option.type == CommandOptionType.subCommandGroup) {
       final nestedError = validateOptionsForLevel(
+        context,
         nestedOptions,
         level: level + 1,
         parentType: CommandOptionType.subCommandGroup,
@@ -92,6 +95,7 @@ String? validateOptionsForLevel(
       if (nestedError != null) return nestedError;
     } else if (option.type == CommandOptionType.subCommand) {
       final nestedError = validateOptionsForLevel(
+        context,
         nestedOptions,
         level: level + 1,
         parentType: CommandOptionType.subCommand,

@@ -63,7 +63,7 @@ class _ActionBlockState extends State<ActionBlock> {
 
     return ScratchBlock(
       color: color,
-      title: widget.action.type.displayName,
+      title: widget.action.type.displayName(context),
       icon: widget.action.type.icon,
       isFinal: finalBlock,
       collapsed: _collapsed,
