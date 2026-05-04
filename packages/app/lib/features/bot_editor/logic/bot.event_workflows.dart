@@ -698,7 +698,11 @@ Future<void> _executeLocalEventWorkflow(
             final fetched = await gateway.guilds.get(eventGuildId);
             eventGuild = fetched;
             runtimeVariables.addAll(
-              shared_global.extractGuildRuntimeDetails(fetched),
+              await shared_global.extractGuildRuntimeDetails(
+                fetched,
+                client: gateway,
+                guildId: eventGuildId,
+              ),
             );
           } catch (_) {}
         })(),

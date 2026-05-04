@@ -8,14 +8,14 @@ Future<bool> openExternalUrl(Uri uri) async {
     final env = Map<String, String>.from(Platform.environment)
       ..remove('LD_LIBRARY_PATH');
 
-    final xdg = await Process.run('/usr/bin/xdg-open', [
+    final xdg = await Process.run('xdg-open', [
       uri.toString(),
     ], environment: env);
     if (xdg.exitCode == 0) {
       return true;
     }
 
-    final gio = await Process.run('/usr/bin/gio', [
+    final gio = await Process.run('gio', [
       'open',
       uri.toString(),
     ], environment: env);

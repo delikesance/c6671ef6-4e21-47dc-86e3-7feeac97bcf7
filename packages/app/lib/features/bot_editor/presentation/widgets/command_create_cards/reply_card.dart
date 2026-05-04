@@ -180,7 +180,7 @@ class ReplyCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            if (responseType == 'message') ...[
+            if (responseType == 'message' || responseType == 'normal') ...[
               VariableTextField(
                 label: context.tr.reply_response_text_label,
                 controller: responseController,
@@ -219,6 +219,29 @@ class ReplyCard extends StatelessWidget {
                 onChanged: (def) => onModalChanged(def.toJson()),
                 variableSuggestions: variableSuggestions,
                 botIdForConfig: botIdForConfig,
+              ),
+            ] else ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                child: Center(
+                  child: Column(
+                    children: [
+                      const Icon(Icons.warning_amber_rounded,
+                          color: AppTheme.error, size: 32),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Mode inconnu: $responseType',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Veuillez sélectionner un mode ci-dessus.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 12, color: AppTheme.grey),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ],
           ],

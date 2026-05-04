@@ -2732,7 +2732,13 @@ class DiscordRunner {
               final fetched = await fetchGuildCached(_gateway!, eventGuildId);
               eventGuild = fetched;
               if (fetched != null) {
-                runtimeVariables.addAll(extractGuildRuntimeDetails(fetched));
+                runtimeVariables.addAll(
+                  await extractGuildRuntimeDetails(
+                    fetched,
+                    client: _gateway!,
+                    guildId: eventGuildId,
+                  ),
+                );
               }
             } catch (_) {}
           })(),

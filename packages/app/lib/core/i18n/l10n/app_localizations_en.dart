@@ -6703,4 +6703,85 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get settings_cloud_hosting_enabled =>
+      'Mobile bots now use Bot Creator servers.';
+
+  @override
+  String get settings_local_hosting_enabled =>
+      'Mobile bots now use your device for hosting.';
+
+  @override
+  String get settings_account_connected_hint =>
+      'Account connected. Your bots and data are now synced with Bot Creator.';
+
+  @override
+  String get settings_account_disconnected_hint =>
+      'Your Bot Creator account is created automatically when you add a bot. Then sign in with Discord to recover your bots on this device.';
+
+  @override
+  String get settings_account_connect_label =>
+      'Sign in to Bot Creator with Discord';
+
+  @override
+  String get settings_account_disconnect_label => 'Sign out';
+
+  @override
+  String get settings_account_status_connected => 'Account connected';
+
+  @override
+  String get settings_account_status_disconnected => 'Not signed in';
+
+  @override
+  String get settings_startup_mode_title => 'Bot startup mode';
+
+  @override
+  String get settings_startup_mode_desc =>
+      'Choose whether your bots start on Bot Creator servers or locally on this device.';
+
+  @override
+  String get settings_startup_mode_use_cloud => 'Use Bot Creator servers';
+
+  @override
+  String get settings_startup_mode_ios_warning =>
+      'On iOS, local mode is not supported. Bots always use Bot Creator servers.';
+
+  @override
+  String get settings_startup_mode_cloud_desc =>
+      'Recommended on Android and iOS. Logs, stats, and startup all go through Bot Creator.';
+
+  @override
+  String get settings_startup_mode_local_desc =>
+      'Bots now start locally on this device.';
+
+  @override
+  String get settings_startup_mode_local_warning =>
+      'Local mode is an advanced option intended for debugging or specific needs. For normal use, keep Bot Creator servers enabled.';
+
+  @override
+  String get settings_startup_mode_ios_unavailable =>
+      'Local mode remains unavailable on iOS.';
+
+  @override
+  String get settings_execution_mode_title => 'Execution mode';
+
+  @override
+  String get settings_execution_mode_desc =>
+      'On this platform, Bot Creator never hosts your bots. You can use your self-hosted runner or execute bots locally.';
+
+  @override
+  String get settings_execution_mode_use_runner => 'Use a self-hosted runner';
+
+  @override
+  String get settings_execution_mode_runner_priority =>
+      'The self-hosted runner is preferred. If no runner is configured, the app falls back to local.';
+
+  @override
+  String get settings_execution_mode_no_runner =>
+      'No runner is configured yet. The app stays local until you add one.';
+
+  @override
+  String get settings_execution_mode_local_active =>
+      'Bots now start locally. Runner settings stay stored and can be re-enabled anytime.';
 }

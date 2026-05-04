@@ -1615,6 +1615,7 @@ class HomePageState extends State<HomePage>
                                           _supportsForegroundTask
                                               ? () => _addHostingTime(id)
                                               : null,
+                                      showPremiumLabels: _supportsForegroundTask,
                                       onLogs:
                                           isRunning
                                               ? () => Navigator.push(
@@ -1662,6 +1663,7 @@ class _BotCard extends StatelessWidget {
     required this.onToggle,
     required this.onAddTime,
     required this.onLogs,
+    required this.showPremiumLabels,
     this.runtimeBadgeLabel,
     this.freeMinutes,
   });
@@ -1677,6 +1679,7 @@ class _BotCard extends StatelessWidget {
   final String? runtimeBadgeLabel;
   final int? freeMinutes;
   final AnimationController pulseController;
+  final bool showPremiumLabels;
   final VoidCallback onManage;
   final VoidCallback onToggle;
   final VoidCallback? onAddTime;
@@ -1954,9 +1957,11 @@ class _BotCard extends StatelessWidget {
                   label: Text(
                     isRunning
                         ? context.tr.home_stop
-                        : (SubscriptionService.isSubscribed
-                            ? context.tr.home_start_premium
-                            : context.tr.home_start_ads),
+                        : (!showPremiumLabels
+                            ? context.tr.home_start
+                            : (SubscriptionService.isSubscribed
+                                ? context.tr.home_start_premium
+                                : context.tr.home_start_ads)),
                   ),
                   style: FilledButton.styleFrom(
                     backgroundColor:

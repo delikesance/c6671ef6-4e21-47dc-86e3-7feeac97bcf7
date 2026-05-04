@@ -124,8 +124,8 @@ void main() {
   });
 
   group('extractGuildRuntimeDetails', () {
-    test('extracts advanced guild fields', () {
-      final details = extractGuildRuntimeDetails(
+    test('extracts advanced guild fields', () async {
+      final details = await extractGuildRuntimeDetails(
         _FakeGuild(
           ownerId: '42',
           description: 'Main guild',

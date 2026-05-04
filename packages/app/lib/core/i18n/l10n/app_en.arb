@@ -649,8 +649,8 @@
   },
   "home_stop": "Stop",
   "home_start": "Start",
-  "home_start_ads": "Watch Ads to Start",
-  "home_start_premium": "Start",
+  "home_start_ads": "Start (Watch Ad)",
+  "home_start_premium": "Start (Premium)",
   "home_add_time": "Add Time",
   "home_hosting_time_left": "Hosting Time left: {time}",
   "@home_hosting_time_left": {
@@ -3050,10 +3050,6 @@
     }
   },
   "home_hosting_expired": "Hosting expired",
-  "home_stop": "Stop",
-  "home_start_premium": "Start (Premium)",
-  "home_start_ads": "Start (Watch Ad)",
-  "home_add_time": "Add Time",
   "home_manage": "Manage",
   "home_logs_tooltip": "View Logs",
   "app_no_apps": "You don't have any apps yet.",
@@ -3125,5 +3121,27 @@
     "placeholders": {
       "count": { "type": "int" }
     }
-  }
+  },
+  "settings_cloud_hosting_enabled": "Mobile bots now use Bot Creator servers.",
+  "settings_local_hosting_enabled": "Mobile bots now use your device for hosting.",
+  "settings_account_connected_hint": "Account connected. Your bots and data are now synced with Bot Creator.",
+  "settings_account_disconnected_hint": "Your Bot Creator account is created automatically when you add a bot. Then sign in with Discord to recover your bots on this device.",
+  "settings_account_connect_label": "Sign in to Bot Creator with Discord",
+  "settings_account_disconnect_label": "Sign out",
+  "settings_account_status_connected": "Account connected",
+  "settings_account_status_disconnected": "Not signed in",
+  "settings_startup_mode_title": "Bot startup mode",
+  "settings_startup_mode_desc": "Choose whether your bots start on Bot Creator servers or locally on this device.",
+  "settings_startup_mode_use_cloud": "Use Bot Creator servers",
+  "settings_startup_mode_ios_warning": "On iOS, local mode is not supported. Bots always use Bot Creator servers.",
+  "settings_startup_mode_cloud_desc": "Recommended on Android and iOS. Logs, stats, and startup all go through Bot Creator.",
+  "settings_startup_mode_local_desc": "Bots now start locally on this device.",
+  "settings_startup_mode_local_warning": "Local mode is an advanced option intended for debugging or specific needs. For normal use, keep Bot Creator servers enabled.",
+  "settings_startup_mode_ios_unavailable": "Local mode remains unavailable on iOS.",
+  "settings_execution_mode_title": "Execution mode",
+  "settings_execution_mode_desc": "On this platform, Bot Creator never hosts your bots. You can use your self-hosted runner or execute bots locally.",
+  "settings_execution_mode_use_runner": "Use a self-hosted runner",
+  "settings_execution_mode_runner_priority": "The self-hosted runner is preferred. If no runner is configured, the app falls back to local.",
+  "settings_execution_mode_no_runner": "No runner is configured yet. The app stays local until you add one.",
+  "settings_execution_mode_local_active": "Bots now start locally. Runner settings stay stored and can be re-enabled anytime."
 }

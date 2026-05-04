@@ -56,15 +56,39 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
       'defaultMemberPermissions': _defaultMemberPermissions.trim(),
       if (_supportsCommandOptions && _effectiveOptions.isNotEmpty)
         'options': _serializeOptions(_effectiveOptions),
-      'response': responsePayload,
+      'response': _ensureCorrectResponseType(responsePayload),
       'actions': actionsPayload,
       if (hasSubcommandWorkflows)
-        'subcommandWorkflows': cloneSubcommandWorkflowPayloads(
+        'subcommandWorkflows': _serializeSubcommandWorkflows(
           subcommandWorkflows,
         ),
       if (hasSubcommandWorkflows)
         'activeSubcommandRoute': _activeSubcommandRoute,
     };
+  }
+
+  Map<String, dynamic> _ensureCorrectResponseType(Map<String, dynamic> response) {
+    final mode = (response['mode'] ?? response['type'] ?? 'message').toString();
+    final normalizedType = (mode == 'componentV2' || mode == 'layout')
+        ? 'componentV2'
+        : (mode == 'modal' ? 'modal' : 'normal');
+
+    return {
+      ...response,
+      'type': normalizedType,
+    };
+  }
+
+  Map<String, Map<String, dynamic>> _serializeSubcommandWorkflows(
+    Map<String, Map<String, dynamic>> workflows,
+  ) {
+    return workflows.map((route, payload) {
+      final response = Map<String, dynamic>.from(payload['response'] ?? {});
+      return MapEntry(route, {
+        ...payload,
+        'response': _ensureCorrectResponseType(response),
+      });
+    });
   }
 
   List<Map<String, dynamic>> _serializeOptions(
@@ -485,10 +509,14 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
               .toString()
               .trim();
 
+      final loadedMode =
+          (response['mode'] ?? response['type'] ?? 'message').toString();
       _responseType =
-          (response['type'] == 'normal' || response['type'] == 'message')
+          (loadedMode == 'normal' ||
+                  loadedMode == 'text' ||
+                  loadedMode == 'message')
               ? 'message'
-              : (response['type'] ?? 'message').toString();
+              : loadedMode;
       if (_legacyModeEnabled && _responseType == 'modal') {
         _responseType = 'message';
       }

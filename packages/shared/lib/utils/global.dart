@@ -21,16 +21,28 @@ Snowflake? _asSnowflake(dynamic value) {
   return Snowflake(parsed);
 }
 
-int _getGuildMemberCount(dynamic guild) {
+Future<int> _getGuildMemberCount(
+  dynamic guild, {
+  dynamic client,
+  Snowflake? guildId,
+}) async {
   if (guild == null) return 0;
   try {
-    // Prefer memberCount (full Guild object), fallback to approximateMemberCount (Preview/Partial)
-    return (guild as dynamic).memberCount ??
-        (guild as dynamic).approximateMemberCount ??
-        0;
-  } catch (_) {
-    return 0;
+    final dynamic dynGuild = guild;
+    // memberCount is standard for bots, approximateMemberCount is for with_counts=true
+    final count = dynGuild.memberCount ?? dynGuild.approximateMemberCount;
+    if (count != null && (count as int) > 0) return count;
+  } catch (_) {}
+
+  // If zero or missing, and we have the means to fetch, try a fresh API call with counts
+  if (client is NyxxRest && guildId != null) {
+    try {
+      final fetchedGuild = await client.guilds.fetch(guildId, withCounts: true);
+      return fetchedGuild.approximateMemberCount ?? 0;
+    } catch (_) {}
   }
+
+  return 0;
 }
 
 Future<User?> _fetchUserCached(dynamic client, Snowflake userId) async {
@@ -57,7 +69,15 @@ Future<Member?> _fetchMemberCached(
 
 Future<Guild?> fetchGuildCached(dynamic client, Snowflake guildId) async {
   try {
-    return await client.guilds.get(guildId);
+    // Try cache first
+    final cached = await client.guilds.get(guildId);
+    // Only return cached if it's a full Guild object AND has member count info
+    if (cached is Guild && (await _getGuildMemberCount(cached)) > 0) {
+      return cached;
+    }
+
+    // Fallback to fetch if not in cache, partial, or missing member count
+    return await client.guilds.fetch(guildId);
   } catch (_) {
     return null;
   }
@@ -74,6 +94,23 @@ Map<String, String> extractBotRuntimeDetails(NyxxRest client) {
     'bot.invite':
         'https://discord.com/oauth2/authorize?client_id=$botUserId&scope=bot+applications.commands',
   };
+
+  // Inject ping/latency if we have a gateway client
+  if (client is NyxxGateway) {
+    try {
+      final latencyMs = client.gateway.latency.inMilliseconds;
+      final ping = latencyMs < 0 ? '0' : latencyMs.toString();
+      details['bot.ping'] = ping;
+      details['ping'] = ping;
+    } catch (_) {
+      details['bot.ping'] = '0';
+      details['ping'] = '0';
+    }
+  } else {
+    // Fallback so expressions don't break
+    details['bot.ping'] = '0';
+    details['ping'] = '0';
+  }
 
   try {
     final cachedUser = client.users.cache[botUserId];
@@ -397,7 +434,11 @@ Map<String, String> extractChannelRuntimeDetails(dynamic channel) {
   return details;
 }
 
-Map<String, String> extractGuildRuntimeDetails(dynamic guild) {
+Future<Map<String, String>> extractGuildRuntimeDetails(
+  dynamic guild, {
+  dynamic client,
+  Snowflake? guildId,
+}) async {
   if (guild == null) {
     return const <String, String>{};
   }
@@ -441,7 +482,11 @@ Map<String, String> extractGuildRuntimeDetails(dynamic guild) {
   details['guild.features'] = featureList.join(',');
   details['guild.features.count'] = featureList.length.toString();
 
-  final count = _getGuildMemberCount(guild);
+  final count = await _getGuildMemberCount(
+    guild,
+    client: client,
+    guildId: guildId,
+  );
   details['guild.memberCount'] = count.toString();
   details['guild.count'] = count.toString();
 
@@ -486,7 +531,12 @@ Future<Map<String, String>> generateKeyValues(
 ) async {
   PartialGuild? guild = interaction.guild;
   final guildId = _asSnowflake((interaction as dynamic).guildId) ?? guild?.id;
-  if (guild is! Guild && guildId != null) {
+  final count = await _getGuildMemberCount(
+    guild,
+    client: interaction.manager.client,
+    guildId: guildId,
+  );
+  if (guildId != null && (guild == null || guild is! Guild || count <= 0)) {
     final fetched = await fetchGuildCached(interaction.manager.client, guildId);
     if (fetched != null) {
       guild = fetched;
@@ -525,7 +575,11 @@ Future<Map<String, String>> generateKeyValues(
   final channelIdText = channelId?.toString() ?? '';
   final guildName = (guild is Guild) ? guild.name : "DM";
   final userName = user?.user?.username ?? "Unknown User";
-  final guildCount = _getGuildMemberCount(guild);
+  final guildCount = await _getGuildMemberCount(
+    guild,
+    client: interaction.manager.client,
+    guildId: guildId,
+  );
   String channelName = getChannelName(channel);
   String channelType = channel is Channel ? channel.type.value.toString() : "0";
   String channelMention = channel is PartialChannel ? "<#${channel.id}>" : "";
@@ -634,7 +688,13 @@ Future<Map<String, String>> generateKeyValues(
     "member.mention": user != null ? "<@${user.id}>" : "",
   };
   listOfArgs.addAll(extractChannelRuntimeDetails(channel));
-  listOfArgs.addAll(extractGuildRuntimeDetails(guild));
+  listOfArgs.addAll(
+    await extractGuildRuntimeDetails(
+      guild,
+      client: interaction.manager.client,
+      guildId: guildId,
+    ),
+  );
   final invokingMemberDetails = extractMemberRuntimeDetails(
     member: user,
     guild: guild,
@@ -958,7 +1018,12 @@ Future<Map<String, String>> generateInteractionContextKeyValues(
   if (raw.guild is Guild) {
     guild = raw.guild as Guild;
   }
-  if (guild == null && guildId != null) {
+  final count = await _getGuildMemberCount(
+    guild,
+    client: interaction.manager.client,
+    guildId: guildId,
+  );
+  if (guildId != null && (guild == null || count <= 0)) {
     guild = await fetchGuildCached(interaction.manager.client, guildId);
   }
 
@@ -1055,10 +1120,10 @@ Future<Map<String, String>> generateInteractionContextKeyValues(
     'guildName': guildName,
     'guildId': guildId?.toString() ?? '',
     'guildIcon': guildIcon,
-    'guildCount': _getGuildMemberCount(guild).toString(),
+    'guildCount': count.toString(),
     'guild.name': guildName,
     'guild.id': guildId?.toString() ?? '',
-    'guild.count': _getGuildMemberCount(guild).toString(),
+    'guild.count': count.toString(),
     'interaction.guild.name': guildName,
     'interaction.guild.id': guildId?.toString() ?? '',
     'interaction.guild.icon': guildIcon,
@@ -1083,7 +1148,11 @@ Future<Map<String, String>> generateInteractionContextKeyValues(
     'interaction.channel.type': channelType,
     'interaction.channel.mention': channelMention,
     ...extractChannelRuntimeDetails(channel),
-    ...extractGuildRuntimeDetails(guild),
+    ...await extractGuildRuntimeDetails(
+      guild,
+      client: interaction.manager.client,
+      guildId: guildId,
+    ),
   };
 }
 
