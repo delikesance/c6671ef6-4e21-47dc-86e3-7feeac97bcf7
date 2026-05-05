@@ -85,6 +85,7 @@ Future<Map<String, String>> _executeCompiledActions({
 
     switch (action.type) {
       case BotCreatorActionType.respondWithMessage:
+      case BotCreatorActionType.sendMessage:
         final content = resolveValue(
           (action.payload['content'] ?? '').toString(),
         );

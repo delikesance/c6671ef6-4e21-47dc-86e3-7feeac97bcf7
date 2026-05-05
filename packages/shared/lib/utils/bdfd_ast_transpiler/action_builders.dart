@@ -602,6 +602,21 @@ extension _BdfdAstTranspilationScopeActionBuilders
     );
   }
 
+  /// Builds a [sendMessage] action that replies (Discords reply chain) to the
+  /// invoking message. Used by `$reply`.
+  Action _buildReplyAction(BdfdFunctionCallAst node) {
+    final content = _stringifyArgument(node, 0);
+    return Action(
+      type: BotCreatorActionType.sendMessage,
+      payload: <String, dynamic>{
+        'targetType': 'reply',
+        'channelId': '((channel.id))',
+        'messageId': '((message.id))',
+        'content': content,
+      },
+    );
+  }
+
   Action _buildReplyInAction(BdfdFunctionCallAst node) {
     final delay = _stringifyArgument(node, 0).trim();
     final content = _stringifyArgument(node, 1);

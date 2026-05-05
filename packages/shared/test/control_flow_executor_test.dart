@@ -416,7 +416,7 @@ void main() {
         );
         expect(bodyActions, hasLength(2));
         expect(bodyActions[0]['type'], 'setTemporaryVariable');
-        expect(bodyActions[1]['type'], 'respondWithMessage');
+        expect(bodyActions[1]['type'], 'sendMessage');
       },
     );
 

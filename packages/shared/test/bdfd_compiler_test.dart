@@ -37,10 +37,8 @@ void main() {
 
       expect(result.hasErrors, isFalse);
       expect(result.actions, hasLength(1));
-      expect(
-        result.actions.single.type,
-        BotCreatorActionType.respondWithMessage,
-      );
+      expect(result.actions.single.type, BotCreatorActionType.sendMessage);
+      expect(result.actions.single.payload['targetType'], 'reply');
       expect(
         result.actions.single.payload['content'],
         '((message.content[0]|opts.text))|((opts.text))|((last(split(message.content, " "))))',
@@ -52,10 +50,8 @@ void main() {
 
       expect(result.hasErrors, isFalse);
       expect(result.actions, hasLength(1));
-      expect(
-        result.actions.single.type,
-        BotCreatorActionType.respondWithMessage,
-      );
+      expect(result.actions.single.type, BotCreatorActionType.sendMessage);
+      expect(result.actions.single.payload['targetType'], 'reply');
       expect(result.actions.single.payload['content'], '((message.content))');
     });
 
@@ -64,10 +60,8 @@ void main() {
 
       expect(result.hasErrors, isFalse);
       expect(result.actions, hasLength(1));
-      expect(
-        result.actions.single.type,
-        BotCreatorActionType.respondWithMessage,
-      );
+      expect(result.actions.single.type, BotCreatorActionType.sendMessage);
+      expect(result.actions.single.payload['targetType'], 'reply');
       expect(
         result.actions.single.payload['content'],
         '((message.content[1]|args.2))',
@@ -153,10 +147,8 @@ void main() {
 
       expect(result.hasErrors, isFalse);
       expect(result.actions, hasLength(1));
-      expect(
-        result.actions.single.type,
-        BotCreatorActionType.respondWithMessage,
-      );
+      expect(result.actions.single.type, BotCreatorActionType.sendMessage);
+      expect(result.actions.single.payload['targetType'], 'reply');
       expect(
         result.actions.single.payload['content'],
         '((message.mentions[0]))|((message.mentions[0]|channel.id))',
@@ -209,10 +201,8 @@ void main() {
 
       expect(result.hasErrors, isFalse);
       expect(result.actions, hasLength(1));
-      expect(
-        result.actions.single.type,
-        BotCreatorActionType.respondWithMessage,
-      );
+      expect(result.actions.single.type, BotCreatorActionType.sendMessage);
+      expect(result.actions.single.payload['targetType'], 'reply');
       expect(result.actions.single.payload['content'], r'$test');
     });
 
@@ -322,10 +312,8 @@ void main() {
 
       expect(result.hasErrors, isFalse);
       expect(result.actions, hasLength(1));
-      expect(
-        result.actions.single.type,
-        BotCreatorActionType.respondWithMessage,
-      );
+      expect(result.actions.single.type, BotCreatorActionType.sendMessage);
+      expect(result.actions.single.payload['targetType'], 'reply');
       expect(result.actions.single.payload['content'], 'Count=3|Top=8');
     });
 
@@ -481,7 +469,8 @@ void main() {
       expect(result.actions[4].type, BotCreatorActionType.respondWithMessage);
       expect(result.actions[4].payload['content'], '((thread.lastId))');
       expect(result.actions[5].type, BotCreatorActionType.createThread);
-      expect(result.actions[6].type, BotCreatorActionType.respondWithMessage);
+      expect(result.actions[6].type, BotCreatorActionType.sendMessage);
+      expect(result.actions[6].payload['targetType'], 'reply');
       expect(
         result.actions[6].payload['content'],
         'Thread created: ((thread.lastId))',
@@ -551,7 +540,11 @@ void main() {
       );
       expect(elseActions, hasLength(2));
       expect(elseActions[0]['type'], 'runtimeJsonBlock');
-      expect(elseActions[1]['type'], 'respondWithMessage');
+      expect(elseActions[1]['type'], 'sendMessage');
+      expect(
+        (elseActions[1]['payload'] as Map<String, dynamic>)['targetType'],
+        'reply',
+      );
 
       final elseContent =
           (elseActions[1]['payload'] as Map<String, dynamic>)['content']
@@ -584,7 +577,11 @@ void main() {
         expect(thenActions, hasLength(3));
         expect(thenActions[0]['type'], 'runtimeJsonBlock');
         expect(thenActions[1]['type'], 'setTemporaryVariable');
-        expect(thenActions[2]['type'], 'respondWithMessage');
+        expect(thenActions[2]['type'], 'sendMessage');
+        expect(
+          (thenActions[2]['payload'] as Map<String, dynamic>)['targetType'],
+          'reply',
+        );
 
         final bodyJsonPayload = Map<String, dynamic>.from(
           thenActions[0]['payload'] as Map? ?? const <String, dynamic>{},
@@ -606,7 +603,11 @@ void main() {
           result.actions[1].payload['elseActions'] as List? ?? const [],
         );
         expect(elseActions, hasLength(1));
-        expect(elseActions.single['type'], 'respondWithMessage');
+        expect(elseActions.single['type'], 'sendMessage');
+        expect(
+          (elseActions.single['payload'] as Map<String, dynamic>)['targetType'],
+          'reply',
+        );
         expect(
           (elseActions.single['payload'] as Map<String, dynamic>)['content'],
           'fallback',
@@ -678,8 +679,10 @@ void main() {
 
       expect(result.hasErrors, isFalse);
       expect(result.actions, hasLength(2));
-      expect(result.actions[0].type, BotCreatorActionType.respondWithMessage);
-      expect(result.actions[1].type, BotCreatorActionType.respondWithMessage);
+      expect(result.actions[0].type, BotCreatorActionType.sendMessage);
+      expect(result.actions[0].payload['targetType'], 'reply');
+      expect(result.actions[1].type, BotCreatorActionType.sendMessage);
+      expect(result.actions[1].payload['targetType'], 'reply');
       expect(result.actions[0].payload['content'], 'Loop');
       expect(result.actions[1].payload['content'], 'Loop');
     });
@@ -1204,7 +1207,11 @@ void main() {
       );
       expect(bodyActions, hasLength(2));
       expect(bodyActions[0]['type'], 'setTemporaryVariable');
-      expect(bodyActions[1]['type'], 'respondWithMessage');
+      expect(bodyActions[1]['type'], 'sendMessage');
+      expect(
+        (bodyActions[1]['payload'] as Map<String, dynamic>)['targetType'],
+        'reply',
+      );
 
       final tempPayload = Map<String, dynamic>.from(
         bodyActions[0]['payload'] as Map? ?? const <String, dynamic>{},
@@ -1280,7 +1287,11 @@ void main() {
         );
         expect(thenActions, hasLength(2));
         expect(thenActions[0]['type'], 'runtimeJsonBlock');
-        expect(thenActions[1]['type'], 'respondWithMessage');
+        expect(thenActions[1]['type'], 'sendMessage');
+        expect(
+          (thenActions[1]['payload'] as Map<String, dynamic>)['targetType'],
+          'reply',
+        );
 
         final weightContent =
             (thenActions[1]['payload'] as Map<String, dynamic>)['content']
@@ -1414,7 +1425,7 @@ void main() {
 
         final winnerReply = Map<String, dynamic>.from(
           winnerThenActions.firstWhere(
-                    (action) => action['type'] == 'respondWithMessage',
+                    (action) => action['type'] == 'sendMessage',
                   )['payload']
                   as Map? ??
               const <String, dynamic>{},
@@ -2012,7 +2023,8 @@ void main() {
       expect(result.hasErrors, isFalse);
       expect(result.actions, hasLength(2));
       expect(result.actions[0].type, BotCreatorActionType.debugProfile);
-      expect(result.actions[1].type, BotCreatorActionType.respondWithMessage);
+      expect(result.actions[1].type, BotCreatorActionType.sendMessage);
+      expect(result.actions[1].payload['targetType'], 'reply');
     });
 
     test('carries compilation timing metadata', () {
