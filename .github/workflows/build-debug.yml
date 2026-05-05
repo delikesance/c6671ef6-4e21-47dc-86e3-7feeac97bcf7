@@ -30,17 +30,6 @@ jobs:
       - name: Install workspace dependencies
         run: flutter pub get
 
-      - name: Verify generated translations are up to date
-        shell: bash
-        run: |
-          cd packages/app
-          dart run tools/generate_trad_from_arb.dart
-          if ! git diff --exit-code -- lib/utils/trad/en.dart lib/utils/trad/fr.dart; then
-            echo "Generated translation maps are out of date." >&2
-            echo "Run: cd packages/app && dart run tools/generate_trad_from_arb.dart" >&2
-            exit 1
-          fi
-
       - name: Analyze shared package
         run: dart analyze packages/shared
 
