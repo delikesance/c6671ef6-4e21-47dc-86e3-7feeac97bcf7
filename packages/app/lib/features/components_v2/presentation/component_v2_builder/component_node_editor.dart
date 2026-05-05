@@ -430,12 +430,25 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
 
   Widget _buildButtonEditor(ButtonNode btn, BuildContext context) {
     final hasWorkflow = btn.workflowName.trim().isNotEmpty;
+    final hasEmoji = btn.emoji.trim().isNotEmpty;
     final availableSections = <(String, IconData, String)>[
       if (!_isSectionVisible('btn_workflow', hasWorkflow))
         (
           'btn_workflow',
           Icons.account_tree,
           context.tr.component_block_workflow,
+        ),
+      if (!_isSectionVisible('btn_emoji', hasEmoji))
+        (
+          'btn_emoji',
+          Icons.emoji_emotions,
+          context.tr.emojis_tab_short,
+        ),
+      if (!_isSectionVisible('btn_disabled', btn.disabled))
+        (
+          'btn_disabled',
+          Icons.block,
+          context.tr.common_disabled,
         ),
     ];
 
@@ -520,6 +533,47 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
               },
             ),
           ),
+        // Emoji (optional)
+        if (_isSectionVisible('btn_emoji', hasEmoji))
+          MiniBlockContainer(
+            icon: Icons.emoji_emotions,
+            label: context.tr.emojis_tab_short,
+            onRemove:
+                () => _hideSection('btn_emoji', () {
+                  btn.emoji = '';
+                  onChanged(btn);
+                }),
+            child: VariableTextField(
+              label: context.tr.emojis_tab_short,
+              initialValue: btn.emoji,
+              suggestions: variableSuggestions,
+              onChanged: (v) {
+                btn.emoji = v;
+                onChanged(btn);
+              },
+            ),
+          ),
+        // Disabled (optional)
+        if (_isSectionVisible('btn_disabled', btn.disabled))
+          MiniBlockContainer(
+            icon: Icons.block,
+            label: context.tr.common_disabled,
+            onRemove:
+                () => _hideSection('btn_disabled', () {
+                  btn.disabled = false;
+                  onChanged(btn);
+                }),
+            child: SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              dense: true,
+              title: Text(context.tr.common_disabled),
+              value: btn.disabled,
+              onChanged: (v) {
+                btn.disabled = v;
+                onChanged(btn);
+              },
+            ),
+          ),
         // Workflow (optional)
         if (_isSectionVisible('btn_workflow', hasWorkflow))
           MiniBlockContainer(
@@ -571,12 +625,25 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
 
   Widget _buildSelectMenuEditor(SelectMenuNode menu, BuildContext context) {
     final hasWorkflow = menu.workflowName.trim().isNotEmpty;
+    final hasRange = menu.minValues != 1 || menu.maxValues != 1;
     final availableSections = <(String, IconData, String)>[
       if (!_isSectionVisible('sel_workflow', hasWorkflow))
         (
           'sel_workflow',
           Icons.account_tree,
           context.tr.component_block_workflow,
+        ),
+      if (!_isSectionVisible('sel_range', hasRange))
+        (
+          'sel_range',
+          Icons.sync_alt,
+          context.tr.component_selection_range,
+        ),
+      if (!_isSectionVisible('sel_disabled', menu.disabled))
+        (
+          'sel_disabled',
+          Icons.block,
+          context.tr.common_disabled,
         ),
     ];
 
@@ -649,6 +716,67 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
               },
             ),
           ),
+        // Disabled (optional)
+        if (_isSectionVisible('sel_disabled', menu.disabled))
+          MiniBlockContainer(
+            icon: Icons.block,
+            label: context.tr.common_disabled,
+            onRemove:
+                () => _hideSection('sel_disabled', () {
+                  menu.disabled = false;
+                  onChanged(menu);
+                }),
+            child: SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              dense: true,
+              title: Text(context.tr.common_disabled),
+              value: menu.disabled,
+              onChanged: (v) {
+                menu.disabled = v;
+                onChanged(menu);
+              },
+            ),
+          ),
+        // Selection Range (optional)
+        if (_isSectionVisible('sel_range', hasRange))
+          MiniBlockContainer(
+            icon: Icons.sync_alt,
+            label: context.tr.component_selection_range,
+            onRemove:
+                () => _hideSection('sel_range', () {
+                  menu.minValues = 1;
+                  menu.maxValues = 1;
+                  onChanged(menu);
+                }),
+            child: _buildResponsiveTwoFieldRow(
+              first: TextFormField(
+                initialValue: menu.minValues.toString(),
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: context.tr.component_min_selections,
+                  border: const OutlineInputBorder(),
+                  isDense: true,
+                ),
+                onChanged: (v) {
+                  menu.minValues = int.tryParse(v) ?? 1;
+                  onChanged(menu);
+                },
+              ),
+              second: TextFormField(
+                initialValue: menu.maxValues.toString(),
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: context.tr.component_max_selections,
+                  border: const OutlineInputBorder(),
+                  isDense: true,
+                ),
+                onChanged: (v) {
+                  menu.maxValues = int.tryParse(v) ?? 1;
+                  onChanged(menu);
+                },
+              ),
+            ),
+          ),
         // Options (essential for stringSelect)
         if (menu.type == ComponentV2Type.stringSelect)
           MiniBlockContainer(
@@ -661,85 +789,101 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                   final idx = e.key;
                   final opt = e.value;
                   return Padding(
-                    padding: const EdgeInsets.only(top: 4.0),
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        final isNarrow = constraints.maxWidth < 540;
-                        if (isNarrow) {
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                    padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                    child: Container(
+                      padding: const EdgeInsets.all(8.0),
+                      decoration: BoxDecoration(
+                        color: Colors.black12,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.white10),
+                      ),
+                      child: Column(
+                        children: [
+                          Row(
                             children: [
-                              TextFormField(
-                                initialValue: opt.label,
-                                decoration: InputDecoration(
-                                  labelText: context.tr.common_label,
-                                  isDense: true,
+                              Expanded(
+                                child: _buildResponsiveTwoFieldRow(
+                                  first: TextFormField(
+                                    initialValue: opt.label,
+                                    decoration: InputDecoration(
+                                      labelText: context.tr.common_label,
+                                      isDense: true,
+                                    ),
+                                    onChanged: (v) {
+                                      opt.label = v;
+                                      onChanged(menu);
+                                    },
+                                  ),
+                                  second: TextFormField(
+                                    initialValue: opt.value,
+                                    decoration: InputDecoration(
+                                      labelText: context.tr.common_value,
+                                      isDense: true,
+                                    ),
+                                    onChanged: (v) {
+                                      opt.value = v;
+                                      onChanged(menu);
+                                    },
+                                  ),
                                 ),
-                                onChanged: (v) {
-                                  opt.value = v;
+                              ),
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.remove_circle,
+                                  size: 16,
+                                  color: AppTheme.error,
+                                ),
+                                onPressed: () {
+                                  menu.options.removeAt(idx);
                                   onChanged(menu);
                                 },
-                              ),
-                              Align(
-                                alignment: Alignment.centerRight,
-                                child: IconButton(
-                                  icon: const Icon(
-                                    Icons.remove_circle,
-                                    size: 16,
-                                    color: AppTheme.error,
-                                  ),
-                                  onPressed: () {
-                                    menu.options.removeAt(idx);
-                                    onChanged(menu);
-                                  },
-                                ),
                               ),
                             ],
-                          );
-                        }
-                        return Row(
-                          children: [
-                            Expanded(
-                              child: TextFormField(
-                                initialValue: opt.label,
-                                decoration: InputDecoration(
-                                  labelText: context.tr.common_label,
-                                  isDense: true,
-                                ),
-                                onChanged: (v) {
-                                  opt.label = v;
-                                  onChanged(menu);
-                                },
+                          ),
+                          const SizedBox(height: 8),
+                          _buildResponsiveTwoFieldRow(
+                            first: TextFormField(
+                              initialValue: opt.description,
+                              decoration: InputDecoration(
+                                labelText: context.tr.common_description,
+                                isDense: true,
+                                hintText: 'Optional description (max 100)',
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: TextFormField(
-                                initialValue: opt.value,
-                                decoration: InputDecoration(
-                                  labelText: context.tr.common_value,
-                                  isDense: true,
-                                ),
-                                onChanged: (v) {
-                                  opt.value = v;
-                                  onChanged(menu);
-                                },
-                              ),
-                            ),
-                            IconButton(
-                              icon: const Icon(
-                                Icons.remove_circle,
-                                size: 16,
-                                color: AppTheme.error,
-                              ),
-                              onPressed: () {
-                                menu.options.removeAt(idx);
+                              onChanged: (v) {
+                                opt.description = v;
                                 onChanged(menu);
                               },
                             ),
-                          ],
-                        );
-                      },
+                            second: TextFormField(
+                              initialValue: opt.emoji is String ? opt.emoji as String : '',
+                              decoration: InputDecoration(
+                                labelText: context.tr.emojis_tab_short,
+                                isDense: true,
+                                hintText: 'Emoji ID or :name:',
+                              ),
+                              onChanged: (v) {
+                                // Simplified: if it looks like JSON, we could parse it, 
+                                // but for now we store as string.
+                                opt.emoji = v;
+                                onChanged(menu);
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          SwitchListTile(
+                            contentPadding: EdgeInsets.zero,
+                            dense: true,
+                            title: Text(context.tr.common_default),
+                            value: opt.isDefault,
+                            onChanged: (v) {
+                              // Only one can be default? Discord allows multiple for some types?
+                              // Actually for String Select, it can be multiple if max_values > 1.
+                              opt.isDefault = v;
+                              onChanged(menu);
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 }),
@@ -1286,6 +1430,17 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
           },
         ),
         const SizedBox(height: 8),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          dense: true,
+          title: Text(context.tr.common_required),
+          value: node.isRequired,
+          onChanged: (v) {
+            node.isRequired = v;
+            onChanged(node);
+          },
+        ),
+        const SizedBox(height: 8),
         Text(
           context.tr.component_radio_options,
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
@@ -1298,30 +1453,29 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
             child: Row(
               children: [
                 Expanded(
-                  child: TextFormField(
-                    initialValue: opt.label,
-                    decoration: InputDecoration(
-                      labelText: context.tr.common_label,
-                      isDense: true,
+                  child: _buildResponsiveTwoFieldRow(
+                    first: TextFormField(
+                      initialValue: opt.label,
+                      decoration: InputDecoration(
+                        labelText: context.tr.common_label,
+                        isDense: true,
+                      ),
+                      onChanged: (v) {
+                        opt.label = v;
+                        onChanged(node);
+                      },
                     ),
-                    onChanged: (v) {
-                      opt.label = v;
-                      onChanged(node);
-                    },
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextFormField(
-                    initialValue: opt.value,
-                    decoration: InputDecoration(
-                      labelText: context.tr.common_value,
-                      isDense: true,
+                    second: TextFormField(
+                      initialValue: opt.value,
+                      decoration: InputDecoration(
+                        labelText: context.tr.common_value,
+                        isDense: true,
+                      ),
+                      onChanged: (v) {
+                        opt.value = v;
+                        onChanged(node);
+                      },
                     ),
-                    onChanged: (v) {
-                      opt.value = v;
-                      onChanged(node);
-                    },
                   ),
                 ),
                 IconButton(
@@ -1378,6 +1532,46 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
           },
         ),
         const SizedBox(height: 8),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          dense: true,
+          title: Text(context.tr.common_required),
+          value: node.isRequired,
+          onChanged: (v) {
+            node.isRequired = v;
+            onChanged(node);
+          },
+        ),
+        const SizedBox(height: 8),
+        _buildResponsiveTwoFieldRow(
+          first: TextFormField(
+            initialValue: node.minValues.toString(),
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              labelText: context.tr.component_min_selections,
+              border: const OutlineInputBorder(),
+              isDense: true,
+            ),
+            onChanged: (v) {
+              node.minValues = int.tryParse(v) ?? 1;
+              onChanged(node);
+            },
+          ),
+          second: TextFormField(
+            initialValue: node.maxValues.toString(),
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              labelText: context.tr.component_max_selections,
+              border: const OutlineInputBorder(),
+              isDense: true,
+            ),
+            onChanged: (v) {
+              node.maxValues = int.tryParse(v) ?? 1;
+              onChanged(node);
+            },
+          ),
+        ),
+        const SizedBox(height: 8),
         Text(
           context.tr.component_checkbox_options,
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
@@ -1390,16 +1584,29 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
             child: Row(
               children: [
                 Expanded(
-                  child: TextFormField(
-                    initialValue: opt.label,
-                    decoration: InputDecoration(
-                      labelText: context.tr.common_label,
-                      isDense: true,
+                  child: _buildResponsiveTwoFieldRow(
+                    first: TextFormField(
+                      initialValue: opt.label,
+                      decoration: InputDecoration(
+                        labelText: context.tr.common_label,
+                        isDense: true,
+                      ),
+                      onChanged: (v) {
+                        opt.label = v;
+                        onChanged(node);
+                      },
                     ),
-                    onChanged: (v) {
-                      opt.value = v;
-                      onChanged(node);
-                    },
+                    second: TextFormField(
+                      initialValue: opt.value,
+                      decoration: InputDecoration(
+                        labelText: context.tr.common_value,
+                        isDense: true,
+                      ),
+                      onChanged: (v) {
+                        opt.value = v;
+                        onChanged(node);
+                      },
+                    ),
                   ),
                 ),
                 IconButton(

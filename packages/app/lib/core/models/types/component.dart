@@ -179,13 +179,15 @@ class SelectMenuOption {
   String label;
   String value;
   String description;
-  String emoji;
+  dynamic emoji; // Can be a String (standard) or Map<String, dynamic> (id, name, animated)
+  bool isDefault;
 
   SelectMenuOption({
     this.label = '',
     this.value = '',
     this.description = '',
-    this.emoji = '',
+    this.emoji,
+    this.isDefault = false,
   });
 
   factory SelectMenuOption.fromJson(Map<String, dynamic> json) {
@@ -193,15 +195,17 @@ class SelectMenuOption {
       label: (json['label'] ?? '').toString(),
       value: (json['value'] ?? '').toString(),
       description: (json['description'] ?? '').toString(),
-      emoji: (json['emoji'] ?? '').toString(),
+      emoji: json['emoji'],
+      isDefault: json['default'] == true || json['isDefault'] == true,
     );
   }
 
   Map<String, dynamic> toJson() => {
     'label': label,
     'value': value,
-    'description': description,
-    'emoji': emoji,
+    if (description.isNotEmpty) 'description': description,
+    if (emoji != null) 'emoji': emoji,
+    if (isDefault) 'default': true,
   };
 }
 
