@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:bot_creator/utils/discord_rpc_client.dart';
-import 'package:bot_creator/utils/discord_rpc_service.dart';
-import 'package:bot_creator/utils/discord_rpc_settings.dart';
+import 'package:bot_creator/features/discord_rpc/logic/discord_rpc_client.dart';
+import 'package:bot_creator/features/discord_rpc/logic/discord_rpc_service.dart';
+import 'package:bot_creator/features/discord_rpc/logic/discord_rpc_settings.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

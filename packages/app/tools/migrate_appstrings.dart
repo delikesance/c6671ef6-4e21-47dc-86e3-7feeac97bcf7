@@ -186,8 +186,7 @@ void main() {
     }
   }
 
-  if (totalDoubleQuoted > 0) {
-  }
+  if (totalDoubleQuoted > 0) {}
 }
 
 /// Find the index of the closing brace matching the opening brace at [openIndex].

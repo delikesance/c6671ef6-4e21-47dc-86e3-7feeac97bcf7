@@ -1,0 +1,805 @@
+part of 'command.create.dart';
+
+extension _CommandCreateSimpleMode on _CommandCreatePageState {
+  SimpleModeConfig get _simpleModeConfig => SimpleModeConfig(
+    deleteMessages: _simpleDeleteMessages,
+    kickUser: _simpleKickUser,
+    banUser: _simpleBanUser,
+    unbanUser: _simpleUnbanUser,
+    muteUser: _simpleMuteUser,
+    unmuteUser: _simpleUnmuteUser,
+    addRole: _simpleAddRole,
+    removeRole: _simpleRemoveRole,
+    sendMessage: _simpleSendMessage,
+    pinMessage: _simplePinMessage,
+    unpinMessage: _simpleUnpinMessage,
+    createInvite: _simpleCreateInvite,
+    createPoll: _simpleCreatePoll,
+    sendMessageText: _simpleSendMessageController.text,
+    actionReason: _simpleActionReasonController.text,
+    muteDuration: _simpleMuteDurationController.text,
+    banDeleteMessageDays: _simpleBanDeleteDaysController.text,
+    deleteMessagesDefaultCount:
+        _simpleDeleteMessagesDefaultCountController.text,
+    inviteMaxAge: _simpleInviteMaxAgeController.text,
+    inviteMaxUses: _simpleInviteMaxUsesController.text,
+    inviteTemporary: _simpleInviteTemporary,
+    inviteUnique: _simpleInviteUnique,
+    pollAnswersText: _simplePollAnswersController.text,
+    pollDurationHours: _simplePollDurationHoursController.text,
+    pollAllowMultiselect: _simplePollAllowMultiselect,
+  );
+
+  Map<String, dynamic> _normalizeSimpleConfig(Map<String, dynamic> input) {
+    return normalizeSimpleModeConfigMap(input);
+  }
+
+  void _applySimpleConfig(Map<String, dynamic> config) {
+    final normalized = SimpleModeConfig.fromJson(
+      _normalizeSimpleConfig(config),
+    );
+    _simpleDeleteMessages = normalized.deleteMessages;
+    _simpleKickUser = normalized.kickUser;
+    _simpleBanUser = normalized.banUser;
+    _simpleUnbanUser = normalized.unbanUser;
+    _simpleMuteUser = normalized.muteUser;
+    _simpleUnmuteUser = normalized.unmuteUser;
+    _simpleAddRole = normalized.addRole;
+    _simpleRemoveRole = normalized.removeRole;
+    _simpleSendMessage = normalized.sendMessage;
+    _simplePinMessage = normalized.pinMessage;
+    _simpleUnpinMessage = normalized.unpinMessage;
+    _simpleCreateInvite = normalized.createInvite;
+    _simpleCreatePoll = normalized.createPoll;
+    _simpleSendMessageController.text = normalized.sendMessageText;
+    _simpleActionReasonController.text = normalized.actionReason;
+    _simpleMuteDurationController.text = normalized.muteDuration;
+    _simpleBanDeleteDaysController.text = normalized.banDeleteMessageDays;
+    _simpleDeleteMessagesDefaultCountController.text =
+        normalized.deleteMessagesDefaultCount;
+    _simpleInviteMaxAgeController.text = normalized.inviteMaxAge;
+    _simpleInviteMaxUsesController.text = normalized.inviteMaxUses;
+    _simpleInviteTemporary = normalized.inviteTemporary;
+    _simpleInviteUnique = normalized.inviteUnique;
+    _simplePollAnswersController.text = normalized.pollAnswersText;
+    _simplePollDurationHoursController.text = normalized.pollDurationHours;
+    _simplePollAllowMultiselect = normalized.pollAllowMultiselect;
+  }
+
+  Map<String, dynamic> _currentSimpleConfig() {
+    return _simpleModeConfig.toJson();
+  }
+
+  List<CommandOptionBuilder> _buildSimpleModeOptions() {
+    return buildSimpleModeOptions(_simpleModeConfig, translate: (key) => key);
+  }
+
+  List<Map<String, dynamic>> _buildSimpleModeActions() {
+    return buildSimpleModeActions(_simpleModeConfig);
+  }
+
+  void _applyQuickStartToDraft({bool syncRoutes = true}) {
+    _options = _buildSimpleModeOptions();
+    _actions = _buildSimpleModeActions();
+    _editorMode = _CommandCreatePageState._editorModeAdvanced;
+    if (syncRoutes) {
+      _syncSubcommandWorkflowRoutes();
+    }
+  }
+
+  void _hydrateLegacySimpleModeIntoDraft() {
+    _applyQuickStartToDraft(syncRoutes: false);
+  }
+
+  Widget _buildSimpleActionToggle({
+    required bool value,
+    required String title,
+    required String subtitle,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return CheckboxListTile(
+      value: value,
+      dense: true,
+      contentPadding: EdgeInsets.zero,
+      title: Text(title),
+      subtitle: Text(subtitle),
+      onChanged: (next) => onChanged(next == true),
+    );
+  }
+
+  Widget _buildExecutionModeCard({bool includeInlineEditor = true}) {
+    final isWorkflowMode = !_isBdfdScriptMode;
+
+    Widget buildModeTile({
+      required String value,
+      required String title,
+      required String subtitle,
+      required IconData icon,
+    }) {
+      return RadioListTile<String>(
+        value: value,
+        contentPadding: EdgeInsets.zero,
+        title: Row(
+          children: [
+            Icon(icon, size: 18),
+            const SizedBox(width: 8),
+            Expanded(child: Text(title)),
+          ],
+        ),
+        subtitle: Text(subtitle),
+      );
+    }
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              context.tr.cmd_execution_mode_title,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              context.tr.cmd_execution_mode_desc,
+              style: TextStyle(fontSize: 12, color: AppTheme.grey),
+            ),
+            const SizedBox(height: 12),
+            RadioGroup<String>(
+              groupValue: _executionMode,
+              onChanged: (next) {
+                if (next == null) return;
+                _applyStateUpdate(() {
+                  _executionMode = next;
+                  _bdfdCompileResult = _bdfdCompiler.compile(
+                    _bdfdScriptController.text,
+                  );
+                });
+              },
+              child: Column(
+                children: [
+                  buildModeTile(
+                    value: _CommandCreatePageState._executionModeWorkflow,
+                    title: context.tr.cmd_execution_mode_workflow,
+                    subtitle: context.tr.cmd_execution_mode_workflow_desc,
+                    icon: Icons.account_tree_outlined,
+                  ),
+                  buildModeTile(
+                    value: _CommandCreatePageState._executionModeBdfdScript,
+                    title: context.tr.cmd_execution_mode_bdfd,
+                    subtitle: context.tr.cmd_execution_mode_bdfd_desc,
+                    icon: Icons.code_outlined,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: isWorkflowMode ? AppTheme.grey : AppTheme.warning,
+                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                border: Border.all(
+                  color: isWorkflowMode ? AppTheme.grey : AppTheme.warning,
+                ),
+              ),
+              child: Text(
+                isWorkflowMode
+                    ? 'cmd_execution_mode_workflow_note'
+                    : 'cmd_execution_mode_bdfd_note',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isWorkflowMode ? AppTheme.grey : AppTheme.warning,
+                ),
+              ),
+            ),
+            if (includeInlineEditor && _isBdfdScriptMode) ...[
+              const SizedBox(height: 12),
+              _buildBdfdEditorTile(),
+              const SizedBox(height: 12),
+              _buildBdfdDiagnosticsPanel(),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBdfdEditorTile() {
+    final code = _bdfdScriptController.text;
+    final isEmpty = code.trim().isEmpty;
+    final preview =
+        isEmpty
+            ? context.tr.bdfd_editor_tap_hint
+            : code.length > 200
+            ? '${code.substring(0, 200)}…'
+            : code;
+
+    return GestureDetector(
+      onTap: () async {
+        final result = await Navigator.push<String>(
+          context,
+          MaterialPageRoute<String>(
+            builder:
+                (_) => BdfdEditorPage(
+                  initialCode: _bdfdScriptController.text,
+                  title: context.tr.workflow_bdfd_editor_title,
+                ),
+          ),
+        );
+        if (result != null && mounted) {
+          _bdfdScriptController.text = result;
+          _refreshBdfdCompileResult();
+        }
+      },
+      child: Container(
+        width: double.infinity,
+        constraints: const BoxConstraints(minHeight: 120),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppTheme.codeSurfaceVariant,
+          borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+          border: Border.all(color: AppTheme.grey),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.code, size: 16, color: Colors.white70),
+                const SizedBox(width: 8),
+                Text(
+                  context.tr.cmd_bdfd_script_label,
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const Spacer(),
+                Icon(Icons.open_in_new, size: 14, color: AppTheme.grey),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              preview,
+              style: TextStyle(
+                fontFamily: 'monospace',
+                fontSize: 12,
+                color: isEmpty ? AppTheme.grey : AppTheme.grey,
+              ),
+              maxLines: 8,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBdfdDiagnosticsPanel() {
+    final diagnostics = _bdfdDiagnostics;
+    if (diagnostics.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppTheme.success,
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+          border: Border.all(color: AppTheme.success),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(Icons.check_circle_outline, color: AppTheme.success),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.tr.cmd_bdfd_diagnostics_title,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    context.tr.cmd_bdfd_diagnostics_clean,
+                    style: TextStyle(fontSize: 12, color: AppTheme.success),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: _hasBdfdCompileErrors ? AppTheme.error : AppTheme.warning,
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        border: Border.all(
+          color: _hasBdfdCompileErrors ? AppTheme.error : AppTheme.warning,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            context.tr.cmd_bdfd_diagnostics_title,
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 8),
+          ...diagnostics.map((diagnostic) {
+            final isError =
+                diagnostic.severity == BdfdCompileDiagnosticSeverity.error;
+            final icon =
+                isError ? Icons.error_outline : Icons.warning_amber_rounded;
+            final label =
+                isError
+                    ? 'cmd_bdfd_diagnostics_error'
+                    : 'cmd_bdfd_diagnostics_warning';
+            final color = isError ? AppTheme.error : AppTheme.warning;
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(icon, size: 18, color: color),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      '$label: ${_formatBdfdDiagnostic(diagnostic)}',
+                      style: TextStyle(fontSize: 12, color: color),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSimpleActionSection({
+    required String title,
+    required String description,
+    required List<Widget> children,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+        const SizedBox(height: 4),
+        Text(description, style: TextStyle(fontSize: 12, color: AppTheme.grey)),
+        const SizedBox(height: 8),
+        ...children,
+      ],
+    );
+  }
+
+  Widget _buildSimpleActionsCard() {
+    final config = _simpleModeConfig;
+    final generatedOptionLabels = buildSimpleModeGeneratedOptionLabels(
+      config,
+      translate: (key) => key,
+    );
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              context.tr.cmd_simple_actions_title,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              context.tr.cmd_simple_actions_desc,
+              style: TextStyle(fontSize: 12, color: AppTheme.grey),
+            ),
+            const SizedBox(height: 12),
+            _buildSimpleActionSection(
+              title: context.tr.cmd_simple_group_moderation_title,
+              description: context.tr.cmd_simple_group_moderation_desc,
+              children: [
+                _buildSimpleActionToggle(
+                  value: _simpleDeleteMessages,
+                  title: context.tr.cmd_simple_action_delete,
+                  subtitle: context.tr.cmd_simple_action_delete_desc,
+                  onChanged: (value) {
+                    _applyStateUpdate(() {
+                      _simpleDeleteMessages = value;
+                    });
+                  },
+                ),
+                _buildSimpleActionToggle(
+                  value: _simpleKickUser,
+                  title: context.tr.cmd_simple_action_kick,
+                  subtitle: context.tr.cmd_simple_action_kick_desc,
+                  onChanged: (value) {
+                    _applyStateUpdate(() {
+                      _simpleKickUser = value;
+                    });
+                  },
+                ),
+                _buildSimpleActionToggle(
+                  value: _simpleBanUser,
+                  title: context.tr.cmd_simple_action_ban,
+                  subtitle: context.tr.cmd_simple_action_ban_desc,
+                  onChanged: (value) {
+                    _applyStateUpdate(() {
+                      _simpleBanUser = value;
+                    });
+                  },
+                ),
+                _buildSimpleActionToggle(
+                  value: _simpleUnbanUser,
+                  title: context.tr.cmd_simple_action_unban,
+                  subtitle: context.tr.cmd_simple_action_unban_desc,
+                  onChanged: (value) {
+                    _applyStateUpdate(() {
+                      _simpleUnbanUser = value;
+                    });
+                  },
+                ),
+                _buildSimpleActionToggle(
+                  value: _simpleMuteUser,
+                  title: context.tr.cmd_simple_action_mute,
+                  subtitle: context.tr.cmd_simple_action_mute_desc,
+                  onChanged: (value) {
+                    _applyStateUpdate(() {
+                      _simpleMuteUser = value;
+                    });
+                  },
+                ),
+                _buildSimpleActionToggle(
+                  value: _simpleUnmuteUser,
+                  title: context.tr.cmd_simple_action_unmute,
+                  subtitle: context.tr.cmd_simple_action_unmute_desc,
+                  onChanged: (value) {
+                    _applyStateUpdate(() {
+                      _simpleUnmuteUser = value;
+                    });
+                  },
+                ),
+                _buildSimpleActionToggle(
+                  value: _simpleAddRole,
+                  title: context.tr.cmd_simple_action_add_role,
+                  subtitle: context.tr.cmd_simple_action_add_role_desc,
+                  onChanged: (value) {
+                    _applyStateUpdate(() {
+                      _simpleAddRole = value;
+                    });
+                  },
+                ),
+                _buildSimpleActionToggle(
+                  value: _simpleRemoveRole,
+                  title: context.tr.cmd_simple_action_remove_role,
+                  subtitle: context.tr.cmd_simple_action_remove_role_desc,
+                  onChanged: (value) {
+                    _applyStateUpdate(() {
+                      _simpleRemoveRole = value;
+                    });
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            _buildSimpleActionSection(
+              title: context.tr.cmd_simple_group_messages_title,
+              description: context.tr.cmd_simple_group_messages_desc,
+              children: [
+                _buildSimpleActionToggle(
+                  value: _simpleSendMessage,
+                  title: context.tr.cmd_simple_action_send_message,
+                  subtitle: context.tr.cmd_simple_action_send_message_desc,
+                  onChanged: (value) {
+                    _applyStateUpdate(() {
+                      _simpleSendMessage = value;
+                    });
+                  },
+                ),
+                _buildSimpleActionToggle(
+                  value: _simplePinMessage,
+                  title: context.tr.cmd_simple_action_pin,
+                  subtitle: context.tr.cmd_simple_action_pin_desc,
+                  onChanged: (value) {
+                    _applyStateUpdate(() {
+                      _simplePinMessage = value;
+                    });
+                  },
+                ),
+                _buildSimpleActionToggle(
+                  value: _simpleUnpinMessage,
+                  title: context.tr.cmd_simple_action_unpin,
+                  subtitle: context.tr.cmd_simple_action_unpin_desc,
+                  onChanged: (value) {
+                    _applyStateUpdate(() {
+                      _simpleUnpinMessage = value;
+                    });
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            _buildSimpleActionSection(
+              title: context.tr.cmd_simple_group_utility_title,
+              description: context.tr.cmd_simple_group_utility_desc,
+              children: [
+                _buildSimpleActionToggle(
+                  value: _simpleCreateInvite,
+                  title: context.tr.cmd_simple_action_create_invite,
+                  subtitle: context.tr.cmd_simple_action_create_invite_desc,
+                  onChanged: (value) {
+                    _applyStateUpdate(() {
+                      _simpleCreateInvite = value;
+                    });
+                  },
+                ),
+                _buildSimpleActionToggle(
+                  value: _simpleCreatePoll,
+                  title: context.tr.cmd_simple_action_create_poll,
+                  subtitle: context.tr.cmd_simple_action_create_poll_desc,
+                  onChanged: (value) {
+                    _applyStateUpdate(() {
+                      _simpleCreatePoll = value;
+                    });
+                  },
+                ),
+              ],
+            ),
+            if (_simpleSendMessage) ...[
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _simpleSendMessageController,
+                minLines: 2,
+                maxLines: 4,
+                decoration: InputDecoration(
+                  labelText: context.tr.cmd_simple_action_send_message_label,
+                  hintText: context.tr.cmd_simple_action_send_message_hint,
+                  border: const OutlineInputBorder(),
+                ),
+                onChanged: (_) {
+                  if (mounted) {
+                    _applyStateUpdate(() {});
+                  }
+                },
+              ),
+            ],
+            if (config.hasAuditReasonAction) ...[
+              const SizedBox(height: 12),
+              Text(
+                context.tr.cmd_simple_execution_title,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                context.tr.cmd_simple_execution_desc,
+                style: TextStyle(fontSize: 12, color: AppTheme.grey),
+              ),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _simpleActionReasonController,
+                decoration: InputDecoration(
+                  labelText: context.tr.cmd_simple_action_reason_label,
+                  hintText: context.tr.cmd_simple_action_reason_hint,
+                  border: const OutlineInputBorder(),
+                ),
+                onChanged: (_) {
+                  if (mounted) {
+                    _applyStateUpdate(() {});
+                  }
+                },
+              ),
+            ],
+            if (config.deleteMessages) ...[
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _simpleDeleteMessagesDefaultCountController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText:
+                      context.tr.cmd_simple_action_delete_default_count_label,
+                  hintText:
+                      context.tr.cmd_simple_action_delete_default_count_hint,
+                  border: const OutlineInputBorder(),
+                ),
+                onChanged: (_) {
+                  if (mounted) {
+                    _applyStateUpdate(() {});
+                  }
+                },
+              ),
+            ],
+            if (config.banUser) ...[
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _simpleBanDeleteDaysController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: context.tr.cmd_simple_action_ban_delete_days_label,
+                  hintText: context.tr.cmd_simple_action_ban_delete_days_hint,
+                  border: const OutlineInputBorder(),
+                ),
+                onChanged: (_) {
+                  if (mounted) {
+                    _applyStateUpdate(() {});
+                  }
+                },
+              ),
+            ],
+            if (config.muteUser) ...[
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _simpleMuteDurationController,
+                decoration: InputDecoration(
+                  labelText: context.tr.cmd_simple_action_mute_duration_label,
+                  hintText: context.tr.cmd_simple_action_mute_duration_hint,
+                  border: const OutlineInputBorder(),
+                ),
+                onChanged: (_) {
+                  if (mounted) {
+                    _applyStateUpdate(() {});
+                  }
+                },
+              ),
+            ],
+            if (config.createInvite) ...[
+              const SizedBox(height: 12),
+              Text(
+                context.tr.cmd_simple_invite_settings_title,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                context.tr.cmd_simple_invite_settings_desc,
+                style: TextStyle(fontSize: 12, color: AppTheme.grey),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _simpleInviteMaxAgeController,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: context.tr.cmd_simple_invite_max_age_label,
+                        hintText: context.tr.cmd_simple_invite_max_age_hint,
+                        border: const OutlineInputBorder(),
+                      ),
+                      onChanged: (_) {
+                        if (mounted) {
+                          _applyStateUpdate(() {});
+                        }
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _simpleInviteMaxUsesController,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: context.tr.cmd_simple_invite_max_uses_label,
+                        hintText: context.tr.cmd_simple_invite_max_uses_hint,
+                        border: const OutlineInputBorder(),
+                      ),
+                      onChanged: (_) {
+                        if (mounted) {
+                          _applyStateUpdate(() {});
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(context.tr.cmd_simple_invite_temporary_label),
+                subtitle: Text(context.tr.cmd_simple_invite_temporary_desc),
+                value: _simpleInviteTemporary,
+                onChanged: (value) {
+                  _applyStateUpdate(() {
+                    _simpleInviteTemporary = value;
+                  });
+                },
+              ),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(context.tr.cmd_simple_invite_unique_label),
+                subtitle: Text(context.tr.cmd_simple_invite_unique_desc),
+                value: _simpleInviteUnique,
+                onChanged: (value) {
+                  _applyStateUpdate(() {
+                    _simpleInviteUnique = value;
+                  });
+                },
+              ),
+            ],
+            if (config.createPoll) ...[
+              const SizedBox(height: 12),
+              Text(
+                context.tr.cmd_simple_poll_settings_title,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                context.tr.cmd_simple_poll_settings_desc,
+                style: TextStyle(fontSize: 12, color: AppTheme.grey),
+              ),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _simplePollAnswersController,
+                minLines: 3,
+                maxLines: 6,
+                decoration: InputDecoration(
+                  labelText: context.tr.cmd_simple_poll_answers_label,
+                  hintText: context.tr.cmd_simple_poll_answers_hint,
+                  border: const OutlineInputBorder(),
+                ),
+                onChanged: (_) {
+                  if (mounted) {
+                    _applyStateUpdate(() {});
+                  }
+                },
+              ),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _simplePollDurationHoursController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: context.tr.cmd_simple_poll_duration_label,
+                  hintText: context.tr.cmd_simple_poll_duration_hint,
+                  border: const OutlineInputBorder(),
+                ),
+                onChanged: (_) {
+                  if (mounted) {
+                    _applyStateUpdate(() {});
+                  }
+                },
+              ),
+              const SizedBox(height: 8),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(context.tr.cmd_simple_poll_multiselect_label),
+                subtitle: Text(context.tr.cmd_simple_poll_multiselect_desc),
+                value: _simplePollAllowMultiselect,
+                onChanged: (value) {
+                  _applyStateUpdate(() {
+                    _simplePollAllowMultiselect = value;
+                  });
+                },
+              ),
+            ],
+            const SizedBox(height: 12),
+            Text(
+              context.tr.cmd_simple_generated_options,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            if (generatedOptionLabels.isEmpty)
+              Text(
+                context.tr.cmd_simple_generated_none,
+                style: TextStyle(color: AppTheme.grey),
+              )
+            else
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children:
+                    generatedOptionLabels
+                        .map((label) => Chip(label: Text(label)))
+                        .toList(),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}

@@ -1,33 +1,36 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:bot_creator/core/i18n/extensions.dart';
+import 'package:bot_creator/core/i18n/locale_provider.dart';
 import 'package:bot_creator/firebase_options.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
-import 'package:nyxx/nyxx.dart' hide Locale;
-import "routes/home.dart";
-import "routes/settings.dart";
+import 'package:nyxx/nyxx.dart' hide Locale, Builder;
+import 'package:bot_creator/features/home/presentation/home_page.dart';
+import 'package:bot_creator/features/settings/presentation/settings_page.dart';
 import 'package:provider/provider.dart';
-import 'routes/create.dart';
-import 'routes/onboarding.dart';
-import 'utils/app_diagnostics.dart';
-import 'utils/bot_payload_builder.dart';
-import 'utils/bot.dart';
-import 'utils/database.dart';
-import 'utils/discord_rpc_service.dart';
-import 'utils/analytics.dart';
-import 'utils/ad_consent_service.dart';
-import 'utils/ad_native_service.dart';
-import 'utils/ad_reward_service.dart';
-import 'utils/main_api_client.dart';
-import 'utils/main_api_settings.dart';
-import 'utils/subscription_service.dart';
-import 'utils/i18n.dart';
-import 'utils/onboarding_manager.dart';
-import 'package:bot_creator/utils/app_theme.dart';
+import 'package:bot_creator/features/bot_management/presentation/create_page.dart';
+import 'package:bot_creator/features/onboarding/presentation/onboarding_page.dart';
+import 'package:bot_creator/core/diagnostics/app_diagnostics.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot.dart';
+import 'package:bot_creator/core/storage/database.dart';
+import 'package:bot_creator/features/discord_rpc/logic/discord_rpc_service.dart';
+import 'package:bot_creator/core/analytics/analytics.dart';
+import 'package:bot_creator/features/ads/logic/ad_consent_service.dart';
+import 'package:bot_creator/features/ads/logic/ad_native_service.dart';
+import 'package:bot_creator/features/ads/logic/ad_reward_service.dart';
+import 'package:bot_creator/core/network/main_api_client.dart';
+import 'package:bot_creator/core/network/main_api_settings.dart';
+import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
+
+import 'package:bot_creator/features/onboarding/logic/onboarding_manager.dart';
+import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/core/utils/global.dart';
 
 @pragma('vm:entry-point')
 AppManager? _appManager;
@@ -37,9 +40,14 @@ AppManager get appManager => _appManager ??= AppManager();
 
 @pragma('vm:entry-point')
 set appManager(AppManager value) => _appManager = value;
-List<String> currentLogList = [];
+
+/// Thread-safe bounded log buffer to prevent unbounded memory growth.
+final LogBuffer currentLogList = LogBuffer(maxEntries: 5000);
+
+/// Registry of active gateway connections keyed by bot ID.
 @pragma('vm:entry-point')
-List<NyxxGateway> gateways = [];
+final Map<String, NyxxGateway> gateways = <String, NyxxGateway>{};
+
 FirebaseApp? firebaseApp;
 
 bool get _isFirebaseSupported {
@@ -232,7 +240,7 @@ Future<void> _warmUpServicesAfterLaunch() async {
   );
 
   await _runStartupTask(
-    label: AppStrings.tr('debug_replay_state_load'),
+    label: 'Debug replay state load',
     timeout: const Duration(seconds: 5),
     action: () async {
       await loadDebugReplayCapturingState();
@@ -373,7 +381,7 @@ class _MyAppState extends State<MyApp> {
         if (_isOAuthCallbackRoute(name)) {
           return MaterialPageRoute<void>(
             settings: settings,
-            builder: (context) => MyMainPage(title: AppStrings.t('app_title')),
+            builder: (context) => const MyMainPage(),
           );
         }
         return null;
@@ -403,8 +411,8 @@ class _MyAppState extends State<MyApp> {
                   }
                 },
               )
-              : MyMainPage(title: AppStrings.t('app_title')),
-      routes: {'/home': (context) => MyMainPage(title: context.tr.app_title)},
+              : const MyMainPage(),
+      routes: {'/home': (context) => const MyMainPage()},
     );
   }
 
@@ -424,8 +432,7 @@ class _MyAppState extends State<MyApp> {
 }
 
 class MyMainPage extends StatefulWidget {
-  const MyMainPage({super.key, required this.title});
-  final String title;
+  const MyMainPage({super.key});
 
   @override
   State<MyMainPage> createState() => _MyMainPageState();
@@ -439,7 +446,7 @@ class _MyMainPageState extends State<MyMainPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromRGBO(106, 15, 162, 1),
-        title: Text(widget.title),
+        title: Text(context.tr.app_title),
         centerTitle: true,
         actions: [
           IconButton(
@@ -542,7 +549,7 @@ class _StartupFailureAppState extends State<StartupFailureApp> {
     });
   }
 
-  Future<void> _copyDiagnostics() async {
+  Future<void> _copyDiagnostics(BuildContext context) async {
     setState(() {
       _copying = true;
     });
@@ -566,43 +573,50 @@ class _StartupFailureAppState extends State<StartupFailureApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: AppStrings.t('app_title'),
-      home: Scaffold(
-        appBar: AppBar(title: Text(context.tr.startup_error_title)),
-        body: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                context.tr.startup_failed_message,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 8),
-              Text(widget.error),
-              const SizedBox(height: 16),
-              Row(
+      title: 'Bot Creator',
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      home: Builder(
+        builder: (context) {
+          return Scaffold(
+            appBar: AppBar(title: Text(context.tr.startup_error_title)),
+            body: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ElevatedButton(
-                    onPressed: _copying ? null : _copyDiagnostics,
-                    child: Text(context.tr.startup_copy_diagnostics),
+                  Text(
+                    context.tr.startup_failed_message,
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
-                  const SizedBox(width: 8),
-                  OutlinedButton(
-                    onPressed: _loadDiagnostics,
-                    child: Text(context.tr.startup_refresh_diagnostics),
+                  const SizedBox(height: 8),
+                  Text(widget.error),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      ElevatedButton(
+                        onPressed:
+                            _copying ? null : () => _copyDiagnostics(context),
+                        child: Text(context.tr.startup_copy_diagnostics),
+                      ),
+                      const SizedBox(width: 8),
+                      OutlinedButton(
+                        onPressed: _loadDiagnostics,
+                        child: Text(context.tr.startup_refresh_diagnostics),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: SelectableText(_diagnostics),
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: SelectableText(_diagnostics),
-                ),
-              ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }

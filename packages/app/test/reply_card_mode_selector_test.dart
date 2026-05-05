@@ -1,9 +1,9 @@
-import 'package:bot_creator/types/component.dart';
-import 'package:bot_creator/widgets/command_create_cards/reply_card.dart';
-import 'package:bot_creator/widgets/component_v2_builder/component_v2_editor.dart';
-import 'package:bot_creator/widgets/component_v2_builder/normal_component_editor.dart';
-import 'package:bot_creator/widgets/component_v2_builder/modal_builder.dart';
-import 'package:bot_creator/l10n/app_localizations.dart';
+import 'package:bot_creator/core/models/types/component.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/command_create_cards/reply_card.dart';
+import 'package:bot_creator/features/components_v2/presentation/component_v2_builder/component_v2_editor.dart';
+import 'package:bot_creator/features/components_v2/presentation/component_v2_builder/normal_component_editor.dart';
+import 'package:bot_creator/features/components_v2/presentation/component_v2_builder/modal_builder.dart';
+import 'package:bot_creator/core/i18n/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -93,9 +93,7 @@ void main() {
   });
 
   group('ReplyCard – mode descriptions shown inline', () {
-    testWidgets('Standard Message chip shows description text', (
-      tester,
-    ) async {
+    testWidgets('Standard Message chip shows description text', (tester) async {
       await tester.pumpWidget(_buildReplyCard());
       await tester.pumpAndSettle();
 
@@ -105,9 +103,7 @@ void main() {
       );
     });
 
-    testWidgets('Layout Mode chip shows description text', (
-      tester,
-    ) async {
+    testWidgets('Layout Mode chip shows description text', (tester) async {
       await tester.pumpWidget(_buildReplyCard());
       await tester.pumpAndSettle();
 
@@ -123,10 +119,7 @@ void main() {
       await tester.pumpWidget(_buildReplyCard());
       await tester.pumpAndSettle();
 
-      expect(
-        find.text('Pop-up dialog with text input fields'),
-        findsOneWidget,
-      );
+      expect(find.text('Pop-up dialog with text input fields'), findsOneWidget);
     });
   });
 

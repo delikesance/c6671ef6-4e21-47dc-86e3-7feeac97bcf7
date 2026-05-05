@@ -602,6 +602,8 @@ extension _BdfdAstTranspilationScopeActionBuilders
     );
   }
 
+
+
   Action _buildReplyInAction(BdfdFunctionCallAst node) {
     final delay = _stringifyArgument(node, 0).trim();
     final content = _stringifyArgument(node, 1);
@@ -1371,11 +1373,12 @@ extension _BdfdAstTranspilationScopeActionBuilders
     }
 
     final commandNamesRaw = _stringifyArgument(node, 0);
-    final commandNames = commandNamesRaw
-        .split(';')
-        .map((e) => e.trim())
-        .where((e) => e.isNotEmpty)
-        .toList();
+    final commandNames =
+        commandNamesRaw
+            .split(';')
+            .map((e) => e.trim())
+            .where((e) => e.isNotEmpty)
+            .toList();
 
     return Action(
       type: BotCreatorActionType.registerGuildCommands,
@@ -1394,11 +1397,12 @@ extension _BdfdAstTranspilationScopeActionBuilders
     }
 
     final commandNamesRaw = _stringifyArgument(node, 0);
-    final commandNames = commandNamesRaw
-        .split(';')
-        .map((e) => e.trim())
-        .where((e) => e.isNotEmpty)
-        .toList();
+    final commandNames =
+        commandNamesRaw
+            .split(';')
+            .map((e) => e.trim())
+            .where((e) => e.isNotEmpty)
+            .toList();
 
     return Action(
       type: BotCreatorActionType.unregisterGuildCommands,
@@ -1408,5 +1412,3 @@ extension _BdfdAstTranspilationScopeActionBuilders
     );
   }
 }
-
-

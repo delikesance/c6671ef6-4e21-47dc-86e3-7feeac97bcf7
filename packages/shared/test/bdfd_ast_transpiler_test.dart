@@ -122,12 +122,8 @@ void main() {
                 <BdfdAstNode>[BdfdTextAst('3')],
               ],
             ),
-            BdfdFunctionCallAst(
-              name: r'$reply',
-              arguments: [
-                <BdfdAstNode>[BdfdTextAst('Ping')],
-              ],
-            ),
+            BdfdFunctionCallAst(name: r'$reply'),
+            BdfdTextAst('Ping'),
             BdfdFunctionCallAst(name: r'$endfor'),
           ],
         ),
@@ -135,12 +131,10 @@ void main() {
 
       expect(result.diagnostics, isEmpty);
       expect(result.actions, hasLength(3));
-      expect(
-        result.actions.every(
-          (action) => action.type == BotCreatorActionType.respondWithMessage,
-        ),
-        isTrue,
-      );
+      for (final action in result.actions) {
+        expect(action.type, BotCreatorActionType.sendMessage);
+        expect(action.payload['targetType'], 'reply');
+      }
       expect(result.actions[0].payload['content'], 'Ping');
       expect(result.actions[1].payload['content'], 'Ping');
       expect(result.actions[2].payload['content'], 'Ping');
@@ -162,12 +156,8 @@ void main() {
                 <BdfdAstNode>[BdfdTextAst('2')],
               ],
             ),
-            BdfdFunctionCallAst(
-              name: r'$reply',
-              arguments: [
-                <BdfdAstNode>[BdfdTextAst('Nested')],
-              ],
-            ),
+            BdfdFunctionCallAst(name: r'$reply'),
+            BdfdTextAst('Nested'),
             BdfdFunctionCallAst(name: r'$endloop'),
             BdfdFunctionCallAst(name: r'$endfor'),
           ],
@@ -197,7 +187,7 @@ void main() {
           nodes: [
             BdfdTextAst('Intro'),
             BdfdFunctionCallAst(
-              name: r'$reply',
+              name: r'$sendMessage',
               arguments: [
                 <BdfdAstNode>[BdfdTextAst('Immediate')],
               ],
@@ -980,19 +970,13 @@ void main() {
       final result = BdfdAstTranspiler().transpile(
         const BdfdScriptAst(
           nodes: [
+            BdfdFunctionCallAst(name: r'$reply'),
+            BdfdTextAst('Admin perms?: '),
             BdfdFunctionCallAst(
-              name: r'$reply',
+              name: r'$checkUserPerms',
               arguments: [
-                <BdfdAstNode>[
-                  BdfdTextAst('Admin perms?: '),
-                  BdfdFunctionCallAst(
-                    name: r'$checkUserPerms',
-                    arguments: [
-                      <BdfdAstNode>[BdfdTextAst('1234567890')],
-                      <BdfdAstNode>[BdfdTextAst('administrator')],
-                    ],
-                  ),
-                ],
+                <BdfdAstNode>[BdfdFunctionCallAst(name: r'$authorID')],
+                <BdfdAstNode>[BdfdTextAst('administrator')],
               ],
             ),
           ],
@@ -1003,7 +987,8 @@ void main() {
       expect(result.actions, hasLength(2));
 
       expect(result.actions[0].type, BotCreatorActionType.ifBlock);
-      expect(result.actions[1].type, BotCreatorActionType.respondWithMessage);
+      expect(result.actions[1].type, BotCreatorActionType.sendMessage);
+      expect(result.actions[1].payload['targetType'], 'reply');
 
       final content = result.actions[1].payload['content']?.toString() ?? '';
       expect(content, startsWith('Admin perms?: '));
@@ -1014,40 +999,34 @@ void main() {
       final result = BdfdAstTranspiler().transpile(
         const BdfdScriptAst(
           nodes: [
+            BdfdFunctionCallAst(name: r'$reply'),
+            BdfdTextAst('First='),
             BdfdFunctionCallAst(
-              name: r'$reply',
+              name: r'$message',
               arguments: [
-                <BdfdAstNode>[
-                  BdfdTextAst('First='),
-                  BdfdFunctionCallAst(
-                    name: r'$message',
-                    arguments: [
-                      <BdfdAstNode>[BdfdTextAst('1')],
-                    ],
-                  ),
-                  BdfdTextAst(', Last='),
-                  BdfdFunctionCallAst(
-                    name: r'$message',
-                    arguments: [
-                      <BdfdAstNode>[BdfdTextAst('>')],
-                    ],
-                  ),
-                  BdfdTextAst(', Slash='),
-                  BdfdFunctionCallAst(
-                    name: r'$message',
-                    arguments: [
-                      <BdfdAstNode>[BdfdTextAst('text')],
-                    ],
-                  ),
-                  BdfdTextAst(', Mixed='),
-                  BdfdFunctionCallAst(
-                    name: r'$message',
-                    arguments: [
-                      <BdfdAstNode>[BdfdTextAst('1')],
-                      <BdfdAstNode>[BdfdTextAst('text')],
-                    ],
-                  ),
-                ],
+                <BdfdAstNode>[BdfdTextAst('1')],
+              ],
+            ),
+            BdfdTextAst(', Last='),
+            BdfdFunctionCallAst(
+              name: r'$message',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('>')],
+              ],
+            ),
+            BdfdTextAst(', Slash='),
+            BdfdFunctionCallAst(
+              name: r'$message',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('text')],
+              ],
+            ),
+            BdfdTextAst(', Mixed='),
+            BdfdFunctionCallAst(
+              name: r'$message',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('1')],
+                <BdfdAstNode>[BdfdTextAst('text')],
               ],
             ),
           ],
@@ -1056,10 +1035,8 @@ void main() {
 
       expect(result.diagnostics, isEmpty);
       expect(result.actions, hasLength(1));
-      expect(
-        result.actions.single.type,
-        BotCreatorActionType.respondWithMessage,
-      );
+      expect(result.actions.single.type, BotCreatorActionType.sendMessage);
+      expect(result.actions.single.payload['targetType'], 'reply');
       expect(
         result.actions.single.payload['content'],
         'First=((message.content[0])), Last=((last(split(message.content, " ")))), Slash=((opts.text)), Mixed=((message.content[0]|opts.text))',
@@ -1070,25 +1047,17 @@ void main() {
       final result = BdfdAstTranspiler().transpile(
         const BdfdScriptAst(
           nodes: [
-            BdfdFunctionCallAst(
-              name: r'$reply',
-              arguments: [
-                <BdfdAstNode>[
-                  BdfdTextAst('Raw='),
-                  BdfdFunctionCallAst(name: r'$message'),
-                ],
-              ],
-            ),
+            BdfdFunctionCallAst(name: r'$reply'),
+            BdfdTextAst('Raw='),
+            BdfdFunctionCallAst(name: r'$message'),
           ],
         ),
       );
 
       expect(result.diagnostics, isEmpty);
       expect(result.actions, hasLength(1));
-      expect(
-        result.actions.single.type,
-        BotCreatorActionType.respondWithMessage,
-      );
+      expect(result.actions.single.type, BotCreatorActionType.sendMessage);
+      expect(result.actions.single.payload['targetType'], 'reply');
       expect(
         result.actions.single.payload['content'],
         'Raw=((message.content))',
@@ -1121,95 +1090,87 @@ void main() {
       final result = BdfdAstTranspiler().transpile(
         const BdfdScriptAst(
           nodes: [
+            BdfdFunctionCallAst(name: r'$reply'),
+            BdfdFunctionCallAst(name: r'$authorAvatar'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$authorID'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$authorOfMessage'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$creationDate'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$discriminator'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$displayName'),
+            BdfdTextAst('|'),
             BdfdFunctionCallAst(
-              name: r'$reply',
+              name: r'$displayName',
               arguments: [
-                <BdfdAstNode>[
-                  BdfdFunctionCallAst(name: r'$authorAvatar'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$authorID'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$authorOfMessage'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$creationDate'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$discriminator'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$displayName'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(
-                    name: r'$displayName',
-                    arguments: [
-                      <BdfdAstNode>[BdfdTextAst('123')],
-                    ],
-                  ),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$getUserStatus'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$getCustomStatus'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$isAdmin'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$isBooster'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$isBot'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$isUserDMEnabled'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$nickname'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(
-                    name: r'$nickname',
-                    arguments: [
-                      <BdfdAstNode>[BdfdTextAst('123')],
-                    ],
-                  ),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$userAvatar'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$userBadges'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$userBanner'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$userBannerColor'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$userExists'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$userID'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$userInfo'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$userJoined'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$userJoinedDiscord'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$username'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(
-                    name: r'$username',
-                    arguments: [
-                      <BdfdAstNode>[BdfdTextAst('123')],
-                    ],
-                  ),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$userPerms'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$userServerAvatar'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$findUser'),
-                ],
+                <BdfdAstNode>[BdfdTextAst('123')],
               ],
             ),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$getUserStatus'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$getCustomStatus'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$isAdmin'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$isBooster'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$isBot'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$isUserDMEnabled'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$nickname'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(
+              name: r'$nickname',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('123')],
+              ],
+            ),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$userAvatar'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$userBadges'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$userBanner'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$userBannerColor'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$userExists'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$userID'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$userInfo'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$userJoined'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$userJoinedDiscord'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$username'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(
+              name: r'$username',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('123')],
+              ],
+            ),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$userPerms'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$userServerAvatar'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$findUser'),
           ],
         ),
       );
 
       expect(result.diagnostics, isEmpty);
       expect(result.actions, hasLength(1));
-      expect(
-        result.actions.single.type,
-        BotCreatorActionType.respondWithMessage,
-      );
+      expect(result.actions.single.type, BotCreatorActionType.sendMessage);
+      expect(result.actions.single.payload['targetType'], 'reply');
       final content =
           result.actions.single.payload['content']?.toString() ?? '';
       expect(content, contains('((author.avatar))'));
@@ -1253,26 +1214,20 @@ void main() {
       final result = BdfdAstTranspiler().transpile(
         const BdfdScriptAst(
           nodes: [
+            BdfdFunctionCallAst(name: r'$reply'),
+            BdfdTextAst('Mention='),
             BdfdFunctionCallAst(
-              name: r'$reply',
+              name: r'$mentionedChannels',
               arguments: [
-                <BdfdAstNode>[
-                  BdfdTextAst('Mention='),
-                  BdfdFunctionCallAst(
-                    name: r'$mentionedChannels',
-                    arguments: [
-                      <BdfdAstNode>[BdfdTextAst('1')],
-                    ],
-                  ),
-                  BdfdTextAst(', Fallback='),
-                  BdfdFunctionCallAst(
-                    name: r'$mentionedChannels',
-                    arguments: [
-                      <BdfdAstNode>[BdfdTextAst('1')],
-                      <BdfdAstNode>[BdfdTextAst('yes')],
-                    ],
-                  ),
-                ],
+                <BdfdAstNode>[BdfdTextAst('1')],
+              ],
+            ),
+            BdfdTextAst(', Fallback='),
+            BdfdFunctionCallAst(
+              name: r'$mentionedChannels',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('1')],
+                <BdfdAstNode>[BdfdTextAst('yes')],
               ],
             ),
           ],
@@ -1281,10 +1236,8 @@ void main() {
 
       expect(result.diagnostics, isEmpty);
       expect(result.actions, hasLength(1));
-      expect(
-        result.actions.single.type,
-        BotCreatorActionType.respondWithMessage,
-      );
+      expect(result.actions.single.type, BotCreatorActionType.sendMessage);
+      expect(result.actions.single.payload['targetType'], 'reply');
       expect(
         result.actions.single.payload['content'],
         'Mention=((message.mentions[0])), Fallback=((message.mentions[0]|channel.id))',
@@ -2549,12 +2502,8 @@ void main() {
                 <BdfdAstNode>[BdfdFunctionCallAst(name: r'$jsonStringify')],
               ],
             ),
-            BdfdFunctionCallAst(
-              name: r'$reply',
-              arguments: [
-                <BdfdAstNode>[BdfdTextAst('ok')],
-              ],
-            ),
+            BdfdFunctionCallAst(name: r'$reply'),
+            BdfdTextAst('ok'),
           ],
         ),
       );
@@ -2611,18 +2560,12 @@ void main() {
                   <BdfdAstNode>[BdfdFunctionCallAst(name: r'$jsonStringify')],
                 ],
               ),
+              BdfdFunctionCallAst(name: r'$reply'),
+              BdfdTextAst('Pretty: '),
               BdfdFunctionCallAst(
-                name: r'$reply',
+                name: r'$jsonPretty',
                 arguments: [
-                  <BdfdAstNode>[
-                    BdfdTextAst('Pretty: '),
-                    BdfdFunctionCallAst(
-                      name: r'$jsonPretty',
-                      arguments: [
-                        <BdfdAstNode>[BdfdTextAst('1')],
-                      ],
-                    ),
-                  ],
+                  <BdfdAstNode>[BdfdTextAst('1')],
                 ],
               ),
             ],
@@ -2634,7 +2577,8 @@ void main() {
         expect(result.actions[0].type, BotCreatorActionType.runtimeJsonBlock);
         expect(result.actions[1].type, BotCreatorActionType.setScopedVariable);
         expect(result.actions[2].type, BotCreatorActionType.runtimeJsonBlock);
-        expect(result.actions[3].type, BotCreatorActionType.respondWithMessage);
+        expect(result.actions[3].type, BotCreatorActionType.sendMessage);
+        expect(result.actions[3].payload['targetType'], 'reply');
 
         final setValue = (result.actions[1].payload['value'] ?? '').toString();
         expect(setValue, contains('rtJson_'));
@@ -2700,38 +2644,28 @@ void main() {
                   BdfdTextAst('==-1'),
                 ],
                 <BdfdAstNode>[
-                  BdfdFunctionCallAst(
-                    name: r'$reply',
-                    arguments: [
-                      <BdfdAstNode>[BdfdTextAst('not found')],
-                    ],
-                  ),
+                  BdfdFunctionCallAst(name: r'$reply'),
+                  BdfdTextAst('not found'),
                 ],
                 <BdfdAstNode>[
+                  BdfdFunctionCallAst(name: r'$reply'),
+                  BdfdTextAst('found at '),
                   BdfdFunctionCallAst(
-                    name: r'$reply',
+                    name: r'$var',
                     arguments: [
+                      <BdfdAstNode>[BdfdTextAst('idx')],
+                    ],
+                  ),
+                  BdfdTextAst(': '),
+                  BdfdFunctionCallAst(
+                    name: r'$json',
+                    arguments: [
+                      <BdfdAstNode>[BdfdTextAst('items')],
                       <BdfdAstNode>[
-                        BdfdTextAst('found at '),
                         BdfdFunctionCallAst(
                           name: r'$var',
                           arguments: [
                             <BdfdAstNode>[BdfdTextAst('idx')],
-                          ],
-                        ),
-                        BdfdTextAst(': '),
-                        BdfdFunctionCallAst(
-                          name: r'$json',
-                          arguments: [
-                            <BdfdAstNode>[BdfdTextAst('items')],
-                            <BdfdAstNode>[
-                              BdfdFunctionCallAst(
-                                name: r'$var',
-                                arguments: [
-                                  <BdfdAstNode>[BdfdTextAst('idx')],
-                                ],
-                              ),
-                            ],
                           ],
                         ),
                       ],
@@ -2765,7 +2699,11 @@ void main() {
       );
       expect(elseActions, hasLength(2));
       expect(elseActions[0]['type'], 'runtimeJsonBlock');
-      expect(elseActions[1]['type'], 'respondWithMessage');
+      expect(elseActions[1]['type'], 'sendMessage');
+      expect(
+        (elseActions[1]['payload'] as Map<String, dynamic>)['targetType'],
+        'reply',
+      );
 
       final elseContent =
           (elseActions[1]['payload'] as Map<String, dynamic>)['content']
@@ -2814,26 +2752,16 @@ void main() {
                 ],
               ],
             ),
+            BdfdFunctionCallAst(name: r'$reply'),
             BdfdFunctionCallAst(
-              name: r'$reply',
+              name: r'$var',
               arguments: [
-                <BdfdAstNode>[
-                  BdfdFunctionCallAst(
-                    name: r'$var',
-                    arguments: [
-                      <BdfdAstNode>[BdfdTextAst('idx')],
-                    ],
-                  ),
-                ],
+                <BdfdAstNode>[BdfdTextAst('idx')],
               ],
             ),
             BdfdFunctionCallAst(name: r'$catch'),
-            BdfdFunctionCallAst(
-              name: r'$reply',
-              arguments: [
-                <BdfdAstNode>[BdfdTextAst('fallback')],
-              ],
-            ),
+            BdfdFunctionCallAst(name: r'$reply'),
+            BdfdTextAst('fallback'),
             BdfdFunctionCallAst(name: r'$endtry'),
           ],
         ),
@@ -2850,7 +2778,11 @@ void main() {
       expect(thenActions, hasLength(3));
       expect(thenActions[0]['type'], 'runtimeJsonBlock');
       expect(thenActions[1]['type'], 'setTemporaryVariable');
-      expect(thenActions[2]['type'], 'respondWithMessage');
+      expect(thenActions[2]['type'], 'sendMessage');
+      expect(
+        (thenActions[2]['payload'] as Map<String, dynamic>)['targetType'],
+        'reply',
+      );
 
       final bodyJsonPayload = Map<String, dynamic>.from(
         thenActions[0]['payload'] as Map? ?? const <String, dynamic>{},
@@ -2872,7 +2804,11 @@ void main() {
         result.actions[1].payload['elseActions'] as List? ?? const [],
       );
       expect(elseActions, hasLength(1));
-      expect(elseActions.single['type'], 'respondWithMessage');
+      expect(elseActions.single['type'], 'sendMessage');
+      expect(
+        (elseActions.single['payload'] as Map<String, dynamic>)['targetType'],
+        'reply',
+      );
     });
 
     test(r'runtime temp var is emitted before a runtime for loop', () {
@@ -2919,12 +2855,8 @@ void main() {
                 ],
               ],
             ),
-            BdfdFunctionCallAst(
-              name: r'$reply',
-              arguments: [
-                <BdfdAstNode>[BdfdFunctionCallAst(name: r'$i')],
-              ],
-            ),
+            BdfdFunctionCallAst(name: r'$reply'),
+            BdfdFunctionCallAst(name: r'$i'),
             BdfdFunctionCallAst(name: r'$endfor'),
           ],
         ),
@@ -2962,17 +2894,11 @@ void main() {
                 <BdfdAstNode>[BdfdFunctionCallAst(name: r'$i')],
               ],
             ),
+            BdfdFunctionCallAst(name: r'$reply'),
             BdfdFunctionCallAst(
-              name: r'$reply',
+              name: r'$var',
               arguments: [
-                <BdfdAstNode>[
-                  BdfdFunctionCallAst(
-                    name: r'$var',
-                    arguments: [
-                      <BdfdAstNode>[BdfdTextAst('current')],
-                    ],
-                  ),
-                ],
+                <BdfdAstNode>[BdfdTextAst('current')],
               ],
             ),
             BdfdFunctionCallAst(name: r'$endfor'),
@@ -2989,7 +2915,11 @@ void main() {
       );
       expect(bodyActions, hasLength(2));
       expect(bodyActions[0]['type'], 'setTemporaryVariable');
-      expect(bodyActions[1]['type'], 'respondWithMessage');
+      expect(bodyActions[1]['type'], 'sendMessage');
+      expect(
+        (bodyActions[1]['payload'] as Map<String, dynamic>)['targetType'],
+        'reply',
+      );
 
       final tempPayload = Map<String, dynamic>.from(
         bodyActions[0]['payload'] as Map? ?? const <String, dynamic>{},
@@ -3098,26 +3028,20 @@ void main() {
                   ],
                 ],
               ),
+              BdfdFunctionCallAst(name: r'$reply'),
               BdfdFunctionCallAst(
-                name: r'$reply',
+                name: r'$json',
                 arguments: [
                   <BdfdAstNode>[
                     BdfdFunctionCallAst(
-                      name: r'$json',
+                      name: r'$var',
                       arguments: [
-                        <BdfdAstNode>[
-                          BdfdFunctionCallAst(
-                            name: r'$var',
-                            arguments: [
-                              <BdfdAstNode>[BdfdTextAst('in')],
-                            ],
-                          ),
-                        ],
-                        <BdfdAstNode>[BdfdFunctionCallAst(name: r'$i')],
-                        <BdfdAstNode>[BdfdTextAst('weight')],
+                        <BdfdAstNode>[BdfdTextAst('in')],
                       ],
                     ),
                   ],
+                  <BdfdAstNode>[BdfdFunctionCallAst(name: r'$i')],
+                  <BdfdAstNode>[BdfdTextAst('weight')],
                 ],
               ),
               BdfdFunctionCallAst(name: r'$endif'),
@@ -3169,7 +3093,11 @@ void main() {
         );
         expect(thenActions, hasLength(2));
         expect(thenActions[0]['type'], 'runtimeJsonBlock');
-        expect(thenActions[1]['type'], 'respondWithMessage');
+        expect(thenActions[1]['type'], 'sendMessage');
+        expect(
+          (thenActions[1]['payload'] as Map<String, dynamic>)['targetType'],
+          'reply',
+        );
 
         final weightContent =
             (thenActions[1]['payload'] as Map<String, dynamic>)['content']
@@ -3285,42 +3213,36 @@ void main() {
                   ],
                 ],
               ),
+              BdfdFunctionCallAst(name: r'$reply'),
               BdfdFunctionCallAst(
-                name: r'$reply',
+                name: r'$json',
                 arguments: [
                   <BdfdAstNode>[
                     BdfdFunctionCallAst(
-                      name: r'$json',
+                      name: r'$var',
                       arguments: [
-                        <BdfdAstNode>[
-                          BdfdFunctionCallAst(
-                            name: r'$var',
-                            arguments: [
-                              <BdfdAstNode>[BdfdTextAst('in')],
-                            ],
-                          ),
-                        ],
-                        <BdfdAstNode>[BdfdFunctionCallAst(name: r'$i')],
-                        <BdfdAstNode>[BdfdTextAst('name')],
-                      ],
-                    ),
-                    BdfdTextAst(':'),
-                    BdfdFunctionCallAst(
-                      name: r'$json',
-                      arguments: [
-                        <BdfdAstNode>[
-                          BdfdFunctionCallAst(
-                            name: r'$var',
-                            arguments: [
-                              <BdfdAstNode>[BdfdTextAst('in')],
-                            ],
-                          ),
-                        ],
-                        <BdfdAstNode>[BdfdFunctionCallAst(name: r'$i')],
-                        <BdfdAstNode>[BdfdTextAst('weight')],
+                        <BdfdAstNode>[BdfdTextAst('in')],
                       ],
                     ),
                   ],
+                  <BdfdAstNode>[BdfdFunctionCallAst(name: r'$i')],
+                  <BdfdAstNode>[BdfdTextAst('name')],
+                ],
+              ),
+              BdfdTextAst(':'),
+              BdfdFunctionCallAst(
+                name: r'$json',
+                arguments: [
+                  <BdfdAstNode>[
+                    BdfdFunctionCallAst(
+                      name: r'$var',
+                      arguments: [
+                        <BdfdAstNode>[BdfdTextAst('in')],
+                      ],
+                    ),
+                  ],
+                  <BdfdAstNode>[BdfdFunctionCallAst(name: r'$i')],
+                  <BdfdAstNode>[BdfdTextAst('weight')],
                 ],
               ),
               BdfdFunctionCallAst(name: r'$endif'),
@@ -3379,7 +3301,12 @@ void main() {
         );
         expect(innerThenActions, hasLength(2));
         expect(innerThenActions[0]['type'], 'runtimeJsonBlock');
-        expect(innerThenActions[1]['type'], 'respondWithMessage');
+        expect(innerThenActions[1]['type'], 'sendMessage');
+        expect(
+          (innerThenActions[1]['payload']
+              as Map<String, dynamic>)['targetType'],
+          'reply',
+        );
 
         final nestedReply =
             (innerThenActions[1]['payload'] as Map<String, dynamic>)['content']
@@ -3442,20 +3369,12 @@ void main() {
                   BdfdTextAst('==true'),
                 ],
                 <BdfdAstNode>[
-                  BdfdFunctionCallAst(
-                    name: r'$reply',
-                    arguments: [
-                      <BdfdAstNode>[BdfdTextAst('enabled')],
-                    ],
-                  ),
+                  BdfdFunctionCallAst(name: r'$reply'),
+                  BdfdTextAst('enabled'),
                 ],
                 <BdfdAstNode>[
-                  BdfdFunctionCallAst(
-                    name: r'$reply',
-                    arguments: [
-                      <BdfdAstNode>[BdfdTextAst('disabled')],
-                    ],
-                  ),
+                  BdfdFunctionCallAst(name: r'$reply'),
+                  BdfdTextAst('disabled'),
                 ],
               ],
             ),

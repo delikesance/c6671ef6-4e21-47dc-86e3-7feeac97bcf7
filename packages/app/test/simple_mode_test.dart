@@ -1,4 +1,4 @@
-import 'package:bot_creator/utils/simple_mode.dart';
+import 'package:bot_creator/features/bot_editor/logic/simple_mode.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nyxx/nyxx.dart';
 

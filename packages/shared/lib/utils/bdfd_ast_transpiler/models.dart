@@ -12,6 +12,15 @@ class _PendingResponse {
   bool _allowRoleMentions = false;
   String? _currentSelectMenuId;
 
+  /// When non-null, the pending response should be sent as a Discord reply
+  /// (reply chain). The value is the target message ID to reply to.
+  /// `'((message.id))'` means reply to the invoking message (author).
+  String? _replyMessageId;
+
+  /// The channel ID where the target message lives.
+  /// Defaults to `'((channel.id))'` when replying to the author.
+  String? _replyChannelId;
+
   bool get hasPendingContent =>
       _content.toString().isNotEmpty ||
       _embed.isNotEmpty ||
@@ -76,6 +85,13 @@ class _PendingResponse {
 
   void clearComponents() {
     _components.clear();
+  }
+
+  /// Marks this pending response as a Discord reply to the given message.
+  /// Pass `null` for both to reply to the invoking message (author).
+  void markAsReply({String? channelId, String? messageId}) {
+    _replyChannelId = channelId ?? '((channel.id))';
+    _replyMessageId = messageId ?? '((message.id))';
   }
 
   void clearButtons() {
@@ -261,6 +277,8 @@ class _PendingResponse {
     final allowMentions = _allowMentions;
     final allowUserMentions = _allowUserMentions;
     final allowRoleMentions = _allowRoleMentions;
+    final replyMessageId = _replyMessageId;
+    final replyChannelId = _replyChannelId;
     _content.clear();
     _embed.clear();
     _components.clear();
@@ -270,6 +288,8 @@ class _PendingResponse {
     _allowMentions = true;
     _allowUserMentions = true;
     _allowRoleMentions = false;
+    _replyMessageId = null;
+    _replyChannelId = null;
 
     const richV2Types = {
       'container',
@@ -291,6 +311,31 @@ class _PendingResponse {
           'components': <String, dynamic>{'items': components},
           'ephemeral': ephemeral,
           if (channelId != null && channelId.isNotEmpty) 'channelId': channelId,
+        },
+      );
+    }
+
+    // When $reply (or $reply[channel;message]) was used as a response
+    // mutation, emit a sendMessage with targetType 'reply' instead of a plain
+    // respondWithMessage.
+    if (replyMessageId != null) {
+      return Action(
+        type: BotCreatorActionType.sendMessage,
+        payload: <String, dynamic>{
+          'targetType': 'reply',
+          'channelId': replyChannelId ?? '((channel.id))',
+          'messageId': replyMessageId,
+          'content': content,
+          'embeds': embeds,
+          'components':
+              components.isEmpty
+                  ? const <String, dynamic>{}
+                  : <String, dynamic>{'items': components},
+          'ephemeral': ephemeral,
+          if (tts) 'tts': true,
+          if (!allowMentions) 'allowMentions': false,
+          if (!allowUserMentions) 'allowUserMentions': false,
+          if (allowRoleMentions) 'allowRoleMentions': true,
         },
       );
     }
