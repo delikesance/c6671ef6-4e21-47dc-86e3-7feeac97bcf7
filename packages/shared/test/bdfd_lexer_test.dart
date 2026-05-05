@@ -235,5 +235,37 @@ void main() {
       expect(result.diagnostics, isEmpty);
       expect(summarizeTokens(result), [r'text:Hello \ World', 'eof:']);
     });
+
+    test('greedy prefix-matching for functions concatenated with text', () {
+      final result = BdfdLexer().tokenize(r'$replysfdsfsdf');
+
+      expect(result.diagnostics, isEmpty);
+      expect(summarizeTokens(result), [
+        r'function:$reply',
+        'text:sfdsfsdf',
+        'eof:',
+      ]);
+    });
+
+    test('greedy matching prefers longest valid function name', () {
+      final result = BdfdLexer().tokenize(r'$getBotInvitetext');
+
+      expect(result.diagnostics, isEmpty);
+      expect(summarizeTokens(result), [
+        r'function:$getBotInvite',
+        'text:text',
+        'eof:',
+      ]);
+    });
+
+    test('treats unknown identifiers as functions (for loop variables etc)', () {
+      final result = BdfdLexer().tokenize(r'$totallyFakeFunction');
+
+      expect(result.diagnostics, isEmpty);
+      expect(summarizeTokens(result), [
+        r'function:$totallyFakeFunction',
+        'eof:',
+      ]);
+    });
   });
 }

@@ -998,7 +998,7 @@ void main() {
           r'$var[r;$i]'
           r'$endif'
           r'$endfor'
-          r'$reply[$var[r]]',
+          r'$reply$var[r]',
         );
 
         expect(compileResult.hasErrors, isFalse);
@@ -1053,7 +1053,7 @@ void main() {
         final (_, replies) = await runScript(
           r'$jsonParse[$getServerVar[db]]'
           r'$jsonSet[currency;0;name;carrot]'
-          r'$reply[$jsonStringify]',
+          r'$reply$jsonStringify',
         );
         expect(replies, hasLength(1));
         final decoded = jsonDecode(replies.first) as Map<String, dynamic>;
@@ -1070,7 +1070,7 @@ void main() {
         final (_, replies) = await runScript(
           r'$jsonParse[$getServerVar[db]]'
           r'$jsonSet[currency;1;name;carrot]'
-          r'$reply[$jsonStringify]',
+          r'$reply$jsonStringify',
           vars: <String, String>{
             'guild.bc_db': '{"currency":[{"name":"bunbux"},{"name":"old"}]}',
           },
@@ -1088,7 +1088,7 @@ void main() {
         final (_, replies) = await runScript(
           r'$jsonParse[$getServerVar[db]]'
           r'$jsonSet[arr;2;x;1]'
-          r'$reply[$jsonStringify]',
+          r'$reply$jsonStringify',
           vars: <String, String>{'guild.bc_db': '{"arr":[]}'},
         );
         expect(replies, hasLength(1));

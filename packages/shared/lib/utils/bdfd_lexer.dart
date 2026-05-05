@@ -1,3 +1,5 @@
+import 'bdfd_functions.dart';
+
 enum BdfdTokenType { text, function, openBracket, closeBracket, semicolon, eof }
 
 class BdfdToken {
@@ -184,27 +186,78 @@ class _BdfdScanner {
 
   void _scanFunction() {
     final start = _index;
-    final line = _line;
-    final column = _column;
-    final buffer = StringBuffer();
+    final startLine = _line;
+    final startColumn = _column;
 
-    buffer.write(_advance());
+    _advance(); // Skip '$'
+
+    final identifierParts = <String>[];
     while (!_isAtEnd && _isIdentifierPart(_peek())) {
-      buffer.write(_advance());
+      identifierParts.add(_advance());
     }
 
-    final lexeme = buffer.toString();
-    _tokens.add(
-      BdfdToken(
-        type: BdfdTokenType.function,
-        lexeme: lexeme,
-        start: start,
-        end: _index,
-        line: line,
-        column: column,
-      ),
-    );
-    _mayOpenArgumentList = true;
+    final fullId = identifierParts.join('');
+    final normalized = fullId.toLowerCase();
+
+    // Longest match search
+    String? match;
+    for (var i = normalized.length; i > 0; i--) {
+      if (allBdfdFunctions.contains(normalized.substring(0, i))) {
+        match = fullId.substring(0, i);
+        break;
+      }
+    }
+
+    if (match != null) {
+      // Found a valid function! 
+      // If we overshot (greedy identifier scan), backtrack.
+      final overshot = fullId.length - match.length;
+      for (var i = 0; i < overshot; i++) {
+        _index--;
+        _column--;
+      }
+
+      _tokens.add(
+        BdfdToken(
+          type: BdfdTokenType.function,
+          lexeme: r'$' + match,
+          start: start,
+          end: _index,
+          line: startLine,
+          column: startColumn,
+        ),
+      );
+      _mayOpenArgumentList = true;
+    } else if (fullId.isNotEmpty) {
+      // No known function match, but we have an identifier.
+      // Tokenize the whole identifier as a function.
+      // This is necessary to support dynamic variables like loop indices ($i, $j)
+      // or custom variables that aren't in the global function list.
+      _tokens.add(
+        BdfdToken(
+          type: BdfdTokenType.function,
+          lexeme: r'$' + fullId,
+          start: start,
+          end: _index,
+          line: startLine,
+          column: startColumn,
+        ),
+      );
+      _mayOpenArgumentList = true;
+    } else {
+      // Not a known function and no identifier. Treat the '$' as literal text.
+      _tokens.add(
+        BdfdToken(
+          type: BdfdTokenType.text,
+          lexeme: r'$',
+          start: start,
+          end: _index,
+          line: startLine,
+          column: startColumn,
+        ),
+      );
+      _mayOpenArgumentList = false;
+    }
   }
 
   void _scanOpenBracket() {

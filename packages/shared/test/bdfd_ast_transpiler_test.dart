@@ -122,12 +122,8 @@ void main() {
                 <BdfdAstNode>[BdfdTextAst('3')],
               ],
             ),
-            BdfdFunctionCallAst(
-              name: r'$reply',
-              arguments: [
-                <BdfdAstNode>[BdfdTextAst('Ping')],
-              ],
-            ),
+            BdfdFunctionCallAst(name: r'$reply'),
+            BdfdTextAst('Ping'),
             BdfdFunctionCallAst(name: r'$endfor'),
           ],
         ),
@@ -160,12 +156,8 @@ void main() {
                 <BdfdAstNode>[BdfdTextAst('2')],
               ],
             ),
-            BdfdFunctionCallAst(
-              name: r'$reply',
-              arguments: [
-                <BdfdAstNode>[BdfdTextAst('Nested')],
-              ],
-            ),
+            BdfdFunctionCallAst(name: r'$reply'),
+            BdfdTextAst('Nested'),
             BdfdFunctionCallAst(name: r'$endloop'),
             BdfdFunctionCallAst(name: r'$endfor'),
           ],
@@ -195,7 +187,7 @@ void main() {
           nodes: [
             BdfdTextAst('Intro'),
             BdfdFunctionCallAst(
-              name: r'$reply',
+              name: r'$sendMessage',
               arguments: [
                 <BdfdAstNode>[BdfdTextAst('Immediate')],
               ],
@@ -978,19 +970,13 @@ void main() {
       final result = BdfdAstTranspiler().transpile(
         const BdfdScriptAst(
           nodes: [
+            BdfdFunctionCallAst(name: r'$reply'),
+            BdfdTextAst('Admin perms?: '),
             BdfdFunctionCallAst(
-              name: r'$reply',
+              name: r'$checkUserPerms',
               arguments: [
-                <BdfdAstNode>[
-                  BdfdTextAst('Admin perms?: '),
-                  BdfdFunctionCallAst(
-                    name: r'$checkUserPerms',
-                    arguments: [
-                      <BdfdAstNode>[BdfdTextAst('1234567890')],
-                      <BdfdAstNode>[BdfdTextAst('administrator')],
-                    ],
-                  ),
-                ],
+                <BdfdAstNode>[BdfdFunctionCallAst(name: r'$authorID')],
+                <BdfdAstNode>[BdfdTextAst('administrator')],
               ],
             ),
           ],
@@ -1013,40 +999,34 @@ void main() {
       final result = BdfdAstTranspiler().transpile(
         const BdfdScriptAst(
           nodes: [
+            BdfdFunctionCallAst(name: r'$reply'),
+            BdfdTextAst('First='),
             BdfdFunctionCallAst(
-              name: r'$reply',
+              name: r'$message',
               arguments: [
-                <BdfdAstNode>[
-                  BdfdTextAst('First='),
-                  BdfdFunctionCallAst(
-                    name: r'$message',
-                    arguments: [
-                      <BdfdAstNode>[BdfdTextAst('1')],
-                    ],
-                  ),
-                  BdfdTextAst(', Last='),
-                  BdfdFunctionCallAst(
-                    name: r'$message',
-                    arguments: [
-                      <BdfdAstNode>[BdfdTextAst('>')],
-                    ],
-                  ),
-                  BdfdTextAst(', Slash='),
-                  BdfdFunctionCallAst(
-                    name: r'$message',
-                    arguments: [
-                      <BdfdAstNode>[BdfdTextAst('text')],
-                    ],
-                  ),
-                  BdfdTextAst(', Mixed='),
-                  BdfdFunctionCallAst(
-                    name: r'$message',
-                    arguments: [
-                      <BdfdAstNode>[BdfdTextAst('1')],
-                      <BdfdAstNode>[BdfdTextAst('text')],
-                    ],
-                  ),
-                ],
+                <BdfdAstNode>[BdfdTextAst('1')],
+              ],
+            ),
+            BdfdTextAst(', Last='),
+            BdfdFunctionCallAst(
+              name: r'$message',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('>')],
+              ],
+            ),
+            BdfdTextAst(', Slash='),
+            BdfdFunctionCallAst(
+              name: r'$message',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('text')],
+              ],
+            ),
+            BdfdTextAst(', Mixed='),
+            BdfdFunctionCallAst(
+              name: r'$message',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('1')],
+                <BdfdAstNode>[BdfdTextAst('text')],
               ],
             ),
           ],
@@ -1067,15 +1047,9 @@ void main() {
       final result = BdfdAstTranspiler().transpile(
         const BdfdScriptAst(
           nodes: [
-            BdfdFunctionCallAst(
-              name: r'$reply',
-              arguments: [
-                <BdfdAstNode>[
-                  BdfdTextAst('Raw='),
-                  BdfdFunctionCallAst(name: r'$message'),
-                ],
-              ],
-            ),
+            BdfdFunctionCallAst(name: r'$reply'),
+            BdfdTextAst('Raw='),
+            BdfdFunctionCallAst(name: r'$message'),
           ],
         ),
       );
@@ -1116,85 +1090,79 @@ void main() {
       final result = BdfdAstTranspiler().transpile(
         const BdfdScriptAst(
           nodes: [
+            BdfdFunctionCallAst(name: r'$reply'),
+            BdfdFunctionCallAst(name: r'$authorAvatar'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$authorID'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$authorOfMessage'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$creationDate'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$discriminator'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$displayName'),
+            BdfdTextAst('|'),
             BdfdFunctionCallAst(
-              name: r'$reply',
+              name: r'$displayName',
               arguments: [
-                <BdfdAstNode>[
-                  BdfdFunctionCallAst(name: r'$authorAvatar'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$authorID'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$authorOfMessage'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$creationDate'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$discriminator'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$displayName'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(
-                    name: r'$displayName',
-                    arguments: [
-                      <BdfdAstNode>[BdfdTextAst('123')],
-                    ],
-                  ),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$getUserStatus'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$getCustomStatus'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$isAdmin'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$isBooster'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$isBot'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$isUserDMEnabled'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$nickname'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(
-                    name: r'$nickname',
-                    arguments: [
-                      <BdfdAstNode>[BdfdTextAst('123')],
-                    ],
-                  ),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$userAvatar'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$userBadges'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$userBanner'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$userBannerColor'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$userExists'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$userID'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$userInfo'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$userJoined'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$userJoinedDiscord'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$username'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(
-                    name: r'$username',
-                    arguments: [
-                      <BdfdAstNode>[BdfdTextAst('123')],
-                    ],
-                  ),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$userPerms'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$userServerAvatar'),
-                  BdfdTextAst('|'),
-                  BdfdFunctionCallAst(name: r'$findUser'),
-                ],
+                <BdfdAstNode>[BdfdTextAst('123')],
               ],
             ),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$getUserStatus'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$getCustomStatus'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$isAdmin'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$isBooster'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$isBot'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$isUserDMEnabled'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$nickname'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(
+              name: r'$nickname',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('123')],
+              ],
+            ),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$userAvatar'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$userBadges'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$userBanner'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$userBannerColor'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$userExists'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$userID'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$userInfo'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$userJoined'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$userJoinedDiscord'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$username'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(
+              name: r'$username',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('123')],
+              ],
+            ),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$userPerms'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$userServerAvatar'),
+            BdfdTextAst('|'),
+            BdfdFunctionCallAst(name: r'$findUser'),
           ],
         ),
       );
@@ -1246,26 +1214,20 @@ void main() {
       final result = BdfdAstTranspiler().transpile(
         const BdfdScriptAst(
           nodes: [
+            BdfdFunctionCallAst(name: r'$reply'),
+            BdfdTextAst('Mention='),
             BdfdFunctionCallAst(
-              name: r'$reply',
+              name: r'$mentionedChannels',
               arguments: [
-                <BdfdAstNode>[
-                  BdfdTextAst('Mention='),
-                  BdfdFunctionCallAst(
-                    name: r'$mentionedChannels',
-                    arguments: [
-                      <BdfdAstNode>[BdfdTextAst('1')],
-                    ],
-                  ),
-                  BdfdTextAst(', Fallback='),
-                  BdfdFunctionCallAst(
-                    name: r'$mentionedChannels',
-                    arguments: [
-                      <BdfdAstNode>[BdfdTextAst('1')],
-                      <BdfdAstNode>[BdfdTextAst('yes')],
-                    ],
-                  ),
-                ],
+                <BdfdAstNode>[BdfdTextAst('1')],
+              ],
+            ),
+            BdfdTextAst(', Fallback='),
+            BdfdFunctionCallAst(
+              name: r'$mentionedChannels',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('1')],
+                <BdfdAstNode>[BdfdTextAst('yes')],
               ],
             ),
           ],
@@ -2540,12 +2502,8 @@ void main() {
                 <BdfdAstNode>[BdfdFunctionCallAst(name: r'$jsonStringify')],
               ],
             ),
-            BdfdFunctionCallAst(
-              name: r'$reply',
-              arguments: [
-                <BdfdAstNode>[BdfdTextAst('ok')],
-              ],
-            ),
+            BdfdFunctionCallAst(name: r'$reply'),
+            BdfdTextAst('ok'),
           ],
         ),
       );
@@ -2602,18 +2560,12 @@ void main() {
                   <BdfdAstNode>[BdfdFunctionCallAst(name: r'$jsonStringify')],
                 ],
               ),
+              BdfdFunctionCallAst(name: r'$reply'),
+              BdfdTextAst('Pretty: '),
               BdfdFunctionCallAst(
-                name: r'$reply',
+                name: r'$jsonPretty',
                 arguments: [
-                  <BdfdAstNode>[
-                    BdfdTextAst('Pretty: '),
-                    BdfdFunctionCallAst(
-                      name: r'$jsonPretty',
-                      arguments: [
-                        <BdfdAstNode>[BdfdTextAst('1')],
-                      ],
-                    ),
-                  ],
+                  <BdfdAstNode>[BdfdTextAst('1')],
                 ],
               ),
             ],
@@ -2692,38 +2644,28 @@ void main() {
                   BdfdTextAst('==-1'),
                 ],
                 <BdfdAstNode>[
-                  BdfdFunctionCallAst(
-                    name: r'$reply',
-                    arguments: [
-                      <BdfdAstNode>[BdfdTextAst('not found')],
-                    ],
-                  ),
+                  BdfdFunctionCallAst(name: r'$reply'),
+                  BdfdTextAst('not found'),
                 ],
                 <BdfdAstNode>[
+                  BdfdFunctionCallAst(name: r'$reply'),
+                  BdfdTextAst('found at '),
                   BdfdFunctionCallAst(
-                    name: r'$reply',
+                    name: r'$var',
                     arguments: [
+                      <BdfdAstNode>[BdfdTextAst('idx')],
+                    ],
+                  ),
+                  BdfdTextAst(': '),
+                  BdfdFunctionCallAst(
+                    name: r'$json',
+                    arguments: [
+                      <BdfdAstNode>[BdfdTextAst('items')],
                       <BdfdAstNode>[
-                        BdfdTextAst('found at '),
                         BdfdFunctionCallAst(
                           name: r'$var',
                           arguments: [
                             <BdfdAstNode>[BdfdTextAst('idx')],
-                          ],
-                        ),
-                        BdfdTextAst(': '),
-                        BdfdFunctionCallAst(
-                          name: r'$json',
-                          arguments: [
-                            <BdfdAstNode>[BdfdTextAst('items')],
-                            <BdfdAstNode>[
-                              BdfdFunctionCallAst(
-                                name: r'$var',
-                                arguments: [
-                                  <BdfdAstNode>[BdfdTextAst('idx')],
-                                ],
-                              ),
-                            ],
                           ],
                         ),
                       ],
@@ -2810,26 +2752,16 @@ void main() {
                 ],
               ],
             ),
+            BdfdFunctionCallAst(name: r'$reply'),
             BdfdFunctionCallAst(
-              name: r'$reply',
+              name: r'$var',
               arguments: [
-                <BdfdAstNode>[
-                  BdfdFunctionCallAst(
-                    name: r'$var',
-                    arguments: [
-                      <BdfdAstNode>[BdfdTextAst('idx')],
-                    ],
-                  ),
-                ],
+                <BdfdAstNode>[BdfdTextAst('idx')],
               ],
             ),
             BdfdFunctionCallAst(name: r'$catch'),
-            BdfdFunctionCallAst(
-              name: r'$reply',
-              arguments: [
-                <BdfdAstNode>[BdfdTextAst('fallback')],
-              ],
-            ),
+            BdfdFunctionCallAst(name: r'$reply'),
+            BdfdTextAst('fallback'),
             BdfdFunctionCallAst(name: r'$endtry'),
           ],
         ),
@@ -2923,12 +2855,8 @@ void main() {
                 ],
               ],
             ),
-            BdfdFunctionCallAst(
-              name: r'$reply',
-              arguments: [
-                <BdfdAstNode>[BdfdFunctionCallAst(name: r'$i')],
-              ],
-            ),
+            BdfdFunctionCallAst(name: r'$reply'),
+            BdfdFunctionCallAst(name: r'$i'),
             BdfdFunctionCallAst(name: r'$endfor'),
           ],
         ),
@@ -2966,17 +2894,11 @@ void main() {
                 <BdfdAstNode>[BdfdFunctionCallAst(name: r'$i')],
               ],
             ),
+            BdfdFunctionCallAst(name: r'$reply'),
             BdfdFunctionCallAst(
-              name: r'$reply',
+              name: r'$var',
               arguments: [
-                <BdfdAstNode>[
-                  BdfdFunctionCallAst(
-                    name: r'$var',
-                    arguments: [
-                      <BdfdAstNode>[BdfdTextAst('current')],
-                    ],
-                  ),
-                ],
+                <BdfdAstNode>[BdfdTextAst('current')],
               ],
             ),
             BdfdFunctionCallAst(name: r'$endfor'),
@@ -3106,26 +3028,20 @@ void main() {
                   ],
                 ],
               ),
+              BdfdFunctionCallAst(name: r'$reply'),
               BdfdFunctionCallAst(
-                name: r'$reply',
+                name: r'$json',
                 arguments: [
                   <BdfdAstNode>[
                     BdfdFunctionCallAst(
-                      name: r'$json',
+                      name: r'$var',
                       arguments: [
-                        <BdfdAstNode>[
-                          BdfdFunctionCallAst(
-                            name: r'$var',
-                            arguments: [
-                              <BdfdAstNode>[BdfdTextAst('in')],
-                            ],
-                          ),
-                        ],
-                        <BdfdAstNode>[BdfdFunctionCallAst(name: r'$i')],
-                        <BdfdAstNode>[BdfdTextAst('weight')],
+                        <BdfdAstNode>[BdfdTextAst('in')],
                       ],
                     ),
                   ],
+                  <BdfdAstNode>[BdfdFunctionCallAst(name: r'$i')],
+                  <BdfdAstNode>[BdfdTextAst('weight')],
                 ],
               ),
               BdfdFunctionCallAst(name: r'$endif'),
@@ -3297,42 +3213,36 @@ void main() {
                   ],
                 ],
               ),
+              BdfdFunctionCallAst(name: r'$reply'),
               BdfdFunctionCallAst(
-                name: r'$reply',
+                name: r'$json',
                 arguments: [
                   <BdfdAstNode>[
                     BdfdFunctionCallAst(
-                      name: r'$json',
+                      name: r'$var',
                       arguments: [
-                        <BdfdAstNode>[
-                          BdfdFunctionCallAst(
-                            name: r'$var',
-                            arguments: [
-                              <BdfdAstNode>[BdfdTextAst('in')],
-                            ],
-                          ),
-                        ],
-                        <BdfdAstNode>[BdfdFunctionCallAst(name: r'$i')],
-                        <BdfdAstNode>[BdfdTextAst('name')],
-                      ],
-                    ),
-                    BdfdTextAst(':'),
-                    BdfdFunctionCallAst(
-                      name: r'$json',
-                      arguments: [
-                        <BdfdAstNode>[
-                          BdfdFunctionCallAst(
-                            name: r'$var',
-                            arguments: [
-                              <BdfdAstNode>[BdfdTextAst('in')],
-                            ],
-                          ),
-                        ],
-                        <BdfdAstNode>[BdfdFunctionCallAst(name: r'$i')],
-                        <BdfdAstNode>[BdfdTextAst('weight')],
+                        <BdfdAstNode>[BdfdTextAst('in')],
                       ],
                     ),
                   ],
+                  <BdfdAstNode>[BdfdFunctionCallAst(name: r'$i')],
+                  <BdfdAstNode>[BdfdTextAst('name')],
+                ],
+              ),
+              BdfdTextAst(':'),
+              BdfdFunctionCallAst(
+                name: r'$json',
+                arguments: [
+                  <BdfdAstNode>[
+                    BdfdFunctionCallAst(
+                      name: r'$var',
+                      arguments: [
+                        <BdfdAstNode>[BdfdTextAst('in')],
+                      ],
+                    ),
+                  ],
+                  <BdfdAstNode>[BdfdFunctionCallAst(name: r'$i')],
+                  <BdfdAstNode>[BdfdTextAst('weight')],
                 ],
               ),
               BdfdFunctionCallAst(name: r'$endif'),
@@ -3459,20 +3369,12 @@ void main() {
                   BdfdTextAst('==true'),
                 ],
                 <BdfdAstNode>[
-                  BdfdFunctionCallAst(
-                    name: r'$reply',
-                    arguments: [
-                      <BdfdAstNode>[BdfdTextAst('enabled')],
-                    ],
-                  ),
+                  BdfdFunctionCallAst(name: r'$reply'),
+                  BdfdTextAst('enabled'),
                 ],
                 <BdfdAstNode>[
-                  BdfdFunctionCallAst(
-                    name: r'$reply',
-                    arguments: [
-                      <BdfdAstNode>[BdfdTextAst('disabled')],
-                    ],
-                  ),
+                  BdfdFunctionCallAst(name: r'$reply'),
+                  BdfdTextAst('disabled'),
                 ],
               ],
             ),
