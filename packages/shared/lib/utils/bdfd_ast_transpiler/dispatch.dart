@@ -399,12 +399,12 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         return true;
       case 'reply':
         if (node.arguments.isEmpty) {
-          // $reply (0 args) → reply to the author's message.
+          // $reply (0 args) -> reply to the author's message.
           response.markAsReply();
           return true;
         }
         if (node.arguments.length == 2) {
-          // $reply[channelId;messageId] → reply to a specific message.
+          // $reply[channelId;messageId] -> reply to a specific message.
           final channelId = _stringifyArgument(node, 0).trim();
           final messageId = _stringifyArgument(node, 1).trim();
           if (channelId.isNotEmpty && messageId.isNotEmpty) {
@@ -487,8 +487,7 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
       case 'sendmessage':
         final content = _stringifyArgument(node, 0);
         return _buildRespondWithMessageAction(content: content);
-      case 'reply':
-        return _buildReplyAction(node);
+
       case 'channelsendmessage':
         return _buildChannelSendMessageAction(node);
       case 'changeusername':

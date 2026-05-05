@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder.response.dart';
 import 'package:bot_creator/core/models/types/app_emoji.dart';
 import 'package:bot_creator/core/models/types/action.dart'
@@ -207,6 +209,9 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
       eventTrigger: _workflowType == workflowTypeEvent ? _eventTrigger : null,
       folder: _folderController.text.trim(),
     );
+
+    // Dynamic Refresh: apply changes immediately to running bot.
+    unawaited(refreshBotRuntime(widget.botId));
 
     if (mounted) {
       Navigator.pop(context, true);

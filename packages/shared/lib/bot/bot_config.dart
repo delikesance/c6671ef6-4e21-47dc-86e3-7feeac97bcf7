@@ -108,6 +108,7 @@ class BotConfig {
   final List<Map<String, dynamic>> scheduledTriggers;
   final List<Map<String, dynamic>> inboundWebhookEndpoints;
   final List<BotStatusConfig> statuses;
+  final String presenceStatus;
 
   /// List of commands. Each entry looks like:
   /// { "id": "123456789", "name": "hello", "data": { "response": {...}, "actions": [...] } }
@@ -130,6 +131,7 @@ class BotConfig {
     this.scheduledTriggers = const [],
     this.inboundWebhookEndpoints = const [],
     this.statuses = const [],
+    this.presenceStatus = 'online',
     this.commands = const [],
   });
 
@@ -150,6 +152,7 @@ class BotConfig {
     List<Map<String, dynamic>>? scheduledTriggers,
     List<Map<String, dynamic>>? inboundWebhookEndpoints,
     List<BotStatusConfig>? statuses,
+    String? presenceStatus,
     List<Map<String, dynamic>>? commands,
   }) {
     return BotConfig(
@@ -172,6 +175,7 @@ class BotConfig {
       inboundWebhookEndpoints:
           inboundWebhookEndpoints ?? this.inboundWebhookEndpoints,
       statuses: statuses ?? this.statuses,
+      presenceStatus: presenceStatus ?? this.presenceStatus,
       commands: commands ?? this.commands,
     );
   }
@@ -230,6 +234,7 @@ class BotConfig {
             ) ??
             const [],
       ),
+      presenceStatus: (json['presenceStatus'] ?? 'online').toString(),
       commands: List<Map<String, dynamic>>.from(
         (json['commands'] as List?)?.whereType<Map>().map(
               (c) => Map<String, dynamic>.from(c),
@@ -256,6 +261,7 @@ class BotConfig {
     'scheduledTriggers': scheduledTriggers,
     'inboundWebhookEndpoints': inboundWebhookEndpoints,
     'statuses': statuses.map((s) => s.toJson()).toList(growable: false),
+    'presenceStatus': presenceStatus,
     'commands': commands,
   };
 

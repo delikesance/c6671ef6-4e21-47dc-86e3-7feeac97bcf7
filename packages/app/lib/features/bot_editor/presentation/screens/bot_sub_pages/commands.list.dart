@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command.create.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/template_gallery.dart';
 import 'package:bot_creator/main.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/features/ads/logic/ads_placement_policy.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
@@ -484,6 +486,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
       updated['folder'] = newName;
       await appManager.saveAppCommand(widget.botId, id, updated);
     }
+    unawaited(refreshBotRuntime(widget.botId));
     _emptyFolders.remove(oldName);
     await _load();
   }
@@ -507,6 +510,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
       final updated = Map<String, dynamic>.from(full)..remove('folder');
       await appManager.saveAppCommand(widget.botId, id, updated);
     }
+    unawaited(refreshBotRuntime(widget.botId));
     _emptyFolders.remove(folderName);
     await _load();
   }
@@ -552,6 +556,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
       }
       await appManager.saveAppCommand(widget.botId, commandId, updated);
     }
+    unawaited(refreshBotRuntime(widget.botId));
     setState(() {
       _isReorderMode = false;
       _reorderFolderMap = {};

@@ -1900,6 +1900,11 @@ class _AppHomePageState extends State<AppHomePage>
                                     ? null
                                     : () async {
                                       await _syncAppFromRemote(showSnack: true);
+                                      unawaited(
+                                        refreshBotRuntime(
+                                          widget.client.user.id.toString(),
+                                        ),
+                                      );
                                     },
                             trailing:
                                 _isSyncingApp

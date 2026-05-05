@@ -1,4 +1,4 @@
-﻿import 'package:nyxx/nyxx.dart';
+import 'package:nyxx/nyxx.dart';
 import 'package:bot_creator_shared/utils/global.dart';
 import '../types/component.dart';
 import '../utils/component_workflow_bindings.dart';
@@ -111,9 +111,13 @@ Future<Map<String, String>> sendMessageToChannel(
           if (description.isNotEmpty) embed.description = description;
           if (url.isNotEmpty) embed.url = Uri.tryParse(url);
 
-          final timestamp = DateTime.tryParse(
-            (embedJson['timestamp'] ?? '').toString(),
-          );
+          final timestampRaw = (embedJson['timestamp'] ?? '').toString();
+          DateTime? timestamp;
+          if (timestampRaw == 'now') {
+            timestamp = DateTime.now().toUtc();
+          } else {
+            timestamp = DateTime.tryParse(timestampRaw);
+          }
           if (timestamp != null) embed.timestamp = timestamp;
 
           final colorRaw = (embedJson['color'] ?? '').toString();
@@ -215,6 +219,8 @@ Future<Map<String, String>> sendMessageToChannel(
       };
     }
 
+    final replyId = targetType == 'reply' ? _toSnowflake(payload?['messageId']) : null;
+
     final message = await channel.sendMessage(
       MessageBuilder(
         content:
@@ -223,6 +229,7 @@ Future<Map<String, String>> sendMessageToChannel(
                 : (resolvedContent.isNotEmpty ? resolvedContent : null),
         embeds: embeds,
         components: components,
+        referencedMessage: replyId != null ? MessageReferenceBuilder.reply(messageId: replyId) : null,
         flags: isRichV2 ? MessageFlags(32768) : null,
       ),
     );

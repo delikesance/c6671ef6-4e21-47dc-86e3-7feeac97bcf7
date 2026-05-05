@@ -148,6 +148,9 @@ DateTime? _botStartedAt(String botId) {
 
 final Map<String, NyxxGateway> _desktopGatewaysByBotId =
     <String, NyxxGateway>{};
+final Map<String, List<StreamSubscription<dynamic>>>
+    _desktopEventSubscriptionsByBotId =
+    <String, List<StreamSubscription<dynamic>>>{};
 final Map<String, DateTime> _desktopStartedAtByBotId = <String, DateTime>{};
 final Map<String, String> _desktopCachedOwnerIdByBotId = <String, String>{};
 final Map<String, int> _desktopCachedCommandCountByBotId = <String, int>{};
@@ -266,6 +269,30 @@ void applyDesktopRuntimeSettings({
   }
 
   _startDesktopStatusRotation(botId, gateway, appData);
+
+  // Refresh event listeners
+  final oldSubs = _desktopEventSubscriptionsByBotId[botId];
+  if (oldSubs != null) {
+    for (final sub in oldSubs) {
+      unawaited(sub.cancel());
+    }
+  }
+  _registerLocalEventWorkflowListeners(
+    gateway,
+    manager: appManager,
+    botId: botId,
+    appData: appData,
+    onLog: (message) => appendBotLog(message, botId: botId),
+  ).then((newSubs) {
+    _desktopEventSubscriptionsByBotId[botId] = newSubs;
+  });
+}
+
+/// Centralized helper to refresh all runtime configurations (status, workflows, listeners)
+/// for a running desktop bot session.
+Future<void> refreshBotRuntime(String botId) async {
+  final appData = await appManager.getApp(botId);
+  applyDesktopRuntimeSettings(botId: botId, appData: appData);
 }
 
 void setBotDebugLogsEnabled(bool enabled) {
@@ -413,15 +440,16 @@ Future<void> startDesktopBot(String token) async {
     gateway.onInteractionCreate.listen((event) async {
       await handleLocalCommands(event, appManager);
     });
-    await _registerLocalEventWorkflowListeners(
-      gateway,
-      manager: appManager,
-      botId: botId,
-      appData: latestAppData,
-      onLog: (message) {
-        appendBotLog(message, botId: botId);
-      },
-    );
+    _desktopEventSubscriptionsByBotId[botId] =
+        await _registerLocalEventWorkflowListeners(
+          gateway,
+          manager: appManager,
+          botId: botId,
+          appData: latestAppData,
+          onLog: (message) {
+            appendBotLog(message, botId: botId);
+          },
+        );
   });
 }
 
@@ -440,6 +468,12 @@ Future<void> stopDesktopBot({String? botId}) async {
   _desktopStatusRotationTimersByBotId.remove(normalizedBotId)?.cancel();
 
   final gateway = _desktopGatewaysByBotId.remove(normalizedBotId);
+  final subs = _desktopEventSubscriptionsByBotId.remove(normalizedBotId);
+  if (subs != null) {
+    for (final sub in subs) {
+      unawaited(sub.cancel());
+    }
+  }
   _desktopStartedAtByBotId.remove(normalizedBotId);
   _desktopCachedOwnerIdByBotId.remove(normalizedBotId);
   _desktopCachedCommandCountByBotId.remove(normalizedBotId);
@@ -533,6 +567,9 @@ CurrentUserStatus _mapPresenceStatus(String statusString) {
       return CurrentUserStatus.idle;
     case 'dnd':
       return CurrentUserStatus.dnd;
+    case 'invisible':
+      return CurrentUserStatus.invisible;
+    case 'online':
     default:
       return CurrentUserStatus.online;
   }

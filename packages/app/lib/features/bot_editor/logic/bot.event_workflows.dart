@@ -1,12 +1,13 @@
 part of 'bot.dart';
 
-Future<void> _registerLocalEventWorkflowListeners(
+Future<List<StreamSubscription<dynamic>>> _registerLocalEventWorkflowListeners(
   NyxxGateway gateway, {
   required AppManager manager,
   required String botId,
   required Map<String, dynamic> appData,
   void Function(String message)? onLog,
 }) async {
+  final subscriptions = <StreamSubscription<dynamic>>[];
   final workflows = List<Map<String, dynamic>>.from(
         (appData['workflows'] as List?)?.whereType<Map>().map(
               (entry) => normalizeStoredWorkflowDefinition(
@@ -31,7 +32,7 @@ Future<void> _registerLocalEventWorkflowListeners(
     onLog?.call(
       'No event workflows or legacy commands found - listeners disabled.',
     );
-    return;
+    return const [];
   }
 
   if (workflows.isNotEmpty) {
@@ -278,7 +279,7 @@ Future<void> _registerLocalEventWorkflowListeners(
     String eventName, {
     EventExecutionContext Function(T event)? buildContext,
   }) {
-    stream.listen((event) async {
+    final sub = stream.listen((event) async {
       try {
         await dispatch(
           buildContext?.call(event) ??
@@ -299,6 +300,7 @@ Future<void> _registerLocalEventWorkflowListeners(
         onLog?.call('Event listener error for $eventName: $error');
       }
     });
+    subscriptions.add(sub);
   }
 
   registerEvent<MessageCreateEvent>(
@@ -613,6 +615,7 @@ Future<void> _registerLocalEventWorkflowListeners(
     'Runtime event listeners active (${workflows.length} workflow(s), '
     '${runtimeSupportedEvents.length} supported events).',
   );
+  return subscriptions;
 }
 
 EventExecutionContext _baseLocalEventContext({

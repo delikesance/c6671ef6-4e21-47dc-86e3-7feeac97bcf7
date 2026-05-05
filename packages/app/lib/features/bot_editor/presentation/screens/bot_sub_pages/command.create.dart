@@ -1956,6 +1956,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         name: 'CommandCreatePage',
       );
       await saveLocal(localCommandId);
+      unawaited(refreshBotRuntime(botId));
       developer.log(
         '[_updateOrCreate] local save done, popping.',
         name: 'CommandCreatePage',
@@ -1980,6 +1981,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           name: 'CommandCreatePage',
         );
         await saveLocal(localCommandId);
+        unawaited(refreshBotRuntime(botId));
         developer.log(
           '[_updateOrCreate] local-only save done, popping.',
           name: 'CommandCreatePage',
