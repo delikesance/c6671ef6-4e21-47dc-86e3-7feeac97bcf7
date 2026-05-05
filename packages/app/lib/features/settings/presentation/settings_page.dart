@@ -96,7 +96,6 @@ class _SettingPageState extends State<SettingPage> {
         defaultTargetPlatform == TargetPlatform.iOS;
   }
 
-
   Future<void> _runWithLoading(
     String message,
     Future<void> Function() action,
@@ -732,6 +731,27 @@ class _SettingPageState extends State<SettingPage> {
         return AppLocale.en.label;
       case AppLocalePreference.fr:
         return AppLocale.fr.label;
+      case AppLocalePreference.de:
+        return AppLocale.de.label;
+      case AppLocalePreference.pt:
+        return AppLocale.pt.label;
+      case AppLocalePreference.tr:
+        return AppLocale.tr.label;
+    }
+  }
+
+  static AppLocalePreference _localeToPreference(AppLocale locale) {
+    switch (locale) {
+      case AppLocale.en:
+        return AppLocalePreference.en;
+      case AppLocale.fr:
+        return AppLocalePreference.fr;
+      case AppLocale.de:
+        return AppLocalePreference.de;
+      case AppLocale.pt:
+        return AppLocalePreference.pt;
+      case AppLocale.tr:
+        return AppLocalePreference.tr;
     }
   }
 
@@ -1608,10 +1628,7 @@ class _SettingPageState extends State<SettingPage> {
                               ),
                               ...AppLocale.values.map(
                                 (locale) => DropdownMenuItem(
-                                  value:
-                                      locale == AppLocale.fr
-                                          ? AppLocalePreference.fr
-                                          : AppLocalePreference.en,
+                                  value: _localeToPreference(locale),
                                   child: _dropdownLabel(locale.label),
                                 ),
                               ),

@@ -36,6 +36,12 @@ class LocaleProvider extends ChangeNotifier {
     switch (preference) {
       case AppLocalePreference.fr:
         return AppLocale.fr;
+      case AppLocalePreference.de:
+        return AppLocale.de;
+      case AppLocalePreference.pt:
+        return AppLocale.pt;
+      case AppLocalePreference.tr:
+        return AppLocale.tr;
       case AppLocalePreference.en:
         return AppLocale.en;
       case AppLocalePreference.system:

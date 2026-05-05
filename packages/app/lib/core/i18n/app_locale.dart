@@ -17,7 +17,10 @@ enum AppLocale {
 enum AppLocalePreference {
   system('Automatic', 'system'),
   en('English', 'en'),
-  fr('Français', 'fr');
+  fr('Français', 'fr'),
+  de('Deutsch', 'de'),
+  pt('Português', 'pt'),
+  tr('Türkçe', 'tr');
 
   final String label;
   final String code;
