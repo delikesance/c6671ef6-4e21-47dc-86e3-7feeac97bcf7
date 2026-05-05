@@ -753,154 +753,156 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          decoration: BoxDecoration(
-            color: colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  context.tr.embed_response_header(
-                    _embeds.length,
-                    widget.maxEmbeds,
-                  ),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              FilledButton.tonalIcon(
-                onPressed:
-                    _embeds.length >= widget.maxEmbeds ? null : _addEmbed,
-                icon: const Icon(Icons.add, size: 18),
-                label: Text(context.tr.embed_add_tooltip),
-                style: FilledButton.styleFrom(
-                  visualDensity: VisualDensity.compact,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 8),
-        if (_embeds.isEmpty)
+    return RepaintBoundary(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
           Container(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              border: Border.all(
-                color: colorScheme.outlineVariant.withValues(alpha: 0.3),
-              ),
+              color: colorScheme.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(AppTheme.radiusSm),
             ),
-            child: Column(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Icon(
-                  Icons.dashboard_customize_outlined,
-                  size: 32,
-                  color: AppTheme.grey,
+                Expanded(
+                  child: Text(
+                    context.tr.embed_response_header(
+                      _embeds.length,
+                      widget.maxEmbeds,
+                    ),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  context.tr.embed_empty_message(widget.maxEmbeds),
-                  style: const TextStyle(color: AppTheme.grey),
-                  textAlign: TextAlign.center,
+                FilledButton.tonalIcon(
+                  onPressed:
+                      _embeds.length >= widget.maxEmbeds ? null : _addEmbed,
+                  icon: const Icon(Icons.add, size: 18),
+                  label: Text(context.tr.embed_add_tooltip),
+                  style: FilledButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                  ),
                 ),
               ],
             ),
-          )
-        else
-          ..._embeds.asMap().entries.map((entry) {
-            final index = entry.key;
-            final embed = _normalizeEmbed(entry.value);
-            final visible = _visibleBlocks(index);
-
-            return Container(
-              margin: const EdgeInsets.only(bottom: 12),
+          ),
+          const SizedBox(height: 8),
+          if (_embeds.isEmpty)
+            Container(
+              padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                 border: Border.all(
-                  color: colorScheme.outlineVariant.withValues(alpha: 0.4),
+                  color: colorScheme.outlineVariant.withValues(alpha: 0.3),
                 ),
               ),
-              clipBehavior: Clip.antiAlias,
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Gradient header
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          AppTheme.discord,
-                          AppTheme.discord.withValues(alpha: 0.7),
-                        ],
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            context.tr.embed_number(index + 1),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        InkWell(
-                          borderRadius: BorderRadius.circular(
-                            AppTheme.radiusSm,
-                          ),
-                          onTap: () => _removeEmbed(index),
-                          child: const Padding(
-                            padding: EdgeInsets.all(4),
-                            child: Icon(
-                              Icons.delete_outline,
-                              color: Colors.white70,
-                              size: 18,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                  Icon(
+                    Icons.dashboard_customize_outlined,
+                    size: 32,
+                    color: AppTheme.grey,
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        ...visible.map(
-                          (type) => _buildMiniBlock(
-                            type: type,
-                            embedIndex: index,
-                            child: _buildMiniBlockContent(type, index, embed),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        _buildAddBlockMenu(index),
-                      ],
-                    ),
+                  const SizedBox(height: 8),
+                  Text(
+                    context.tr.embed_empty_message(widget.maxEmbeds),
+                    style: const TextStyle(color: AppTheme.grey),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
-            );
-          }),
-      ],
+            )
+          else
+            ..._embeds.asMap().entries.map((entry) {
+              final index = entry.key;
+              final embed = _normalizeEmbed(entry.value);
+              final visible = _visibleBlocks(index);
+
+              return Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                  border: Border.all(
+                    color: colorScheme.outlineVariant.withValues(alpha: 0.4),
+                  ),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Gradient header
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            AppTheme.discord,
+                            AppTheme.discord.withValues(alpha: 0.7),
+                          ],
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              context.tr.embed_number(index + 1),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          InkWell(
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.radiusSm,
+                            ),
+                            onTap: () => _removeEmbed(index),
+                            child: const Padding(
+                              padding: EdgeInsets.all(4),
+                              child: Icon(
+                                Icons.delete_outline,
+                                color: Colors.white70,
+                                size: 18,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          ...visible.map(
+                            (type) => _buildMiniBlock(
+                              type: type,
+                              embedIndex: index,
+                              child: _buildMiniBlockContent(type, index, embed),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          _buildAddBlockMenu(index),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+        ],
+      ),
     );
   }
 }

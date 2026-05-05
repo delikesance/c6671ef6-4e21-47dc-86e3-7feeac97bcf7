@@ -293,3 +293,38 @@ InteractionOption? findFocusedOption(List<InteractionOption>? options) {
 String getChannelName(PartialChannel? channel) {
   return shared_global.getChannelName(channel);
 }
+
+/// A thread-safe, bounded log buffer that prevents unbounded memory growth.
+///
+/// When the buffer exceeds [maxEntries], the oldest entries are evicted.
+class LogBuffer {
+  LogBuffer({this.maxEntries = 5000});
+
+  final int maxEntries;
+  final List<String> _entries = <String>[];
+
+  List<String> get entries => List<String>.unmodifiable(_entries);
+
+  bool get isEmpty => _entries.isEmpty;
+  bool get isNotEmpty => _entries.isNotEmpty;
+  int get length => _entries.length;
+
+  void add(String entry) {
+    _entries.add(entry);
+    while (_entries.length > maxEntries) {
+      _entries.removeAt(0);
+    }
+  }
+
+  void addAll(Iterable<String> entries) {
+    _entries.addAll(entries);
+    while (_entries.length > maxEntries) {
+      _entries.removeAt(0);
+    }
+  }
+
+  void clear() => _entries.clear();
+
+  @override
+  String toString() => _entries.toString();
+}

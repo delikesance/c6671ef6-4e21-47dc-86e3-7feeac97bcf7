@@ -30,6 +30,7 @@ import 'package:bot_creator/features/subscriptions/logic/subscription_service.da
 
 import 'package:bot_creator/features/onboarding/logic/onboarding_manager.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/core/utils/global.dart';
 
 @pragma('vm:entry-point')
 AppManager? _appManager;
@@ -39,9 +40,14 @@ AppManager get appManager => _appManager ??= AppManager();
 
 @pragma('vm:entry-point')
 set appManager(AppManager value) => _appManager = value;
-List<String> currentLogList = [];
+
+/// Thread-safe bounded log buffer to prevent unbounded memory growth.
+final LogBuffer currentLogList = LogBuffer(maxEntries: 5000);
+
+/// Registry of active gateway connections keyed by bot ID.
 @pragma('vm:entry-point')
-List<NyxxGateway> gateways = [];
+final Map<String, NyxxGateway> gateways = <String, NyxxGateway>{};
+
 FirebaseApp? firebaseApp;
 
 bool get _isFirebaseSupported {

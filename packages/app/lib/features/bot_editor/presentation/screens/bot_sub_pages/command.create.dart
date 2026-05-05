@@ -35,9 +35,11 @@ import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blo
 import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/entry_point_block.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/action_block.dart';
 import 'package:bot_creator/core/models/types/variable_suggestion.dart';
+import 'package:bot_creator/features/bot_editor/logic/command_editor_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nyxx/nyxx.dart';
+import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import 'dart:developer' as developer;
 
@@ -49,6 +51,23 @@ part 'command.create.workflow.dart';
 part 'command.create.validation.dart';
 part 'command.create.wizard.dart';
 part 'command.create.block_editor.dart';
+
+/// Snapshot of editor body fields used by Selector for fine-grained rebuilds.
+class _EditorBodySnapshot {
+  const _EditorBodySnapshot({
+    required this.isLoading,
+    required this.isDataIncomplete,
+    required this.commandName,
+    required this.commandDescription,
+    required this.storageId,
+  });
+
+  final bool isLoading;
+  final bool isDataIncomplete;
+  final String commandName;
+  final String commandDescription;
+  final String? storageId;
+}
 
 class CommandCreatePage extends StatefulWidget {
   final NyxxRest? client;
@@ -86,6 +105,8 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     r'^\$awaitedcommanderror\[(.+?)\]$',
     caseSensitive: false,
   );
+
+  late final CommandEditorNotifier _editorNotifier;
 
   String _commandName = "";
   String _commandDescription = "";
@@ -835,6 +856,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   @override
   void initState() {
     super.initState();
+    _editorNotifier = CommandEditorNotifier();
     if (widget.prefillName != null && widget.prefillName!.isNotEmpty) {
       _applyPrefillName(widget.prefillName!);
     }
@@ -851,13 +873,14 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       }
     });
     _init();
-    // Initialize any necessary data or state
   }
 
   @override
   void dispose() {
+    _editorNotifier.dispose();
     _responseController.dispose();
     _bdfdScriptController.dispose();
+    _folderController.dispose();
     _simpleSendMessageController.dispose();
     _simpleActionReasonController.dispose();
     _simpleMuteDurationController.dispose();
@@ -891,6 +914,90 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       return;
     }
     setState(callback);
+  }
+
+  Widget _buildEditorBody({required double contentMaxWidth}) {
+    return Selector<CommandEditorNotifier, _EditorBodySnapshot>(
+      selector:
+          (_, notifier) => _EditorBodySnapshot(
+            isLoading: notifier.state.isLoading,
+            isDataIncomplete: notifier.state.isDataIncomplete,
+            commandName: notifier.state.commandName,
+            commandDescription: notifier.state.commandDescription,
+            storageId: _existingCommandStorageId,
+          ),
+      builder: (context, snap, _) {
+        if (snap.isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snap.isDataIncomplete) {
+          return _buildIncompleteDataView(snap, contentMaxWidth);
+        }
+        return _buildBlockEditor(contentMaxWidth: contentMaxWidth);
+      },
+    );
+  }
+
+  Widget _buildIncompleteDataView(_EditorBodySnapshot snap, double maxWidth) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: maxWidth),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: AppTheme.warning,
+                border: Border.all(color: AppTheme.warning),
+                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+              ),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.warning_amber_rounded,
+                    color: AppTheme.warning,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      context.tr.cmd_offline_incomplete_warning,
+                      style: const TextStyle(
+                        color: AppTheme.warning,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.terminal),
+                title: Text(
+                  snap.commandName.isNotEmpty
+                      ? snap.commandName
+                      : (snap.storageId ?? ''),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle:
+                    snap.commandDescription.isNotEmpty
+                        ? Text(snap.commandDescription)
+                        : null,
+                trailing: IconButton(
+                  icon: const Icon(Icons.menu_book_outlined),
+                  tooltip: context.tr.cmd_show_variables,
+                  onPressed: _openDocumentationCenter,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Map<String, Map<String, dynamic>> _buildSnapshotSubcommandWorkflows() {
@@ -2065,239 +2172,175 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         !_isLoading &&
         !_isDataIncomplete;
 
-    return PopScope(
-      canPop: !guardDiscardOnPop,
-      onPopInvokedWithResult: (didPop, _) async {
-        if (didPop || !guardDiscardOnPop) {
-          return;
-        }
-        if (await _confirmDiscardIfDirty()) {
-          if (mounted) {
-            Navigator.pop(context);
+    return ChangeNotifierProvider.value(
+      value: _editorNotifier,
+      child: PopScope(
+        canPop: !guardDiscardOnPop,
+        onPopInvokedWithResult: (didPop, _) async {
+          if (didPop || !guardDiscardOnPop) {
+            return;
           }
-        }
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: AppTheme.brandPrimary,
-          actions: [
-            if (!_isEditingExistingCommand)
+          if (await _confirmDiscardIfDirty()) {
+            if (mounted) {
+              Navigator.pop(context);
+            }
+          }
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: AppTheme.brandPrimary,
+            actions: [
+              if (!_isEditingExistingCommand)
+                IconButton(
+                  tooltip: context.tr.serialization_import_title,
+                  onPressed: _importCommandPayload,
+                  icon: const Icon(Icons.content_paste_go_outlined),
+                ),
               IconButton(
-                tooltip: context.tr.serialization_import_title,
-                onPressed: _importCommandPayload,
-                icon: const Icon(Icons.content_paste_go_outlined),
+                tooltip: context.tr.serialization_export_json_title,
+                onPressed: _showCommandExportOptions,
+                icon: const Icon(Icons.copy_all_outlined),
               ),
-            IconButton(
-              tooltip: context.tr.serialization_export_json_title,
-              onPressed: _showCommandExportOptions,
-              icon: const Icon(Icons.copy_all_outlined),
-            ),
-            IconButton(
-              onPressed: _openDocumentationCenter,
-              tooltip: context.tr.cmd_show_variables,
-              icon: const Icon(Icons.info_outline),
-            ),
-            if (!_isEditingExistingCommand && !_isDataIncomplete)
               IconButton(
-                icon: const Icon(Icons.add),
-                tooltip: context.tr.cmd_create_tooltip,
-                onPressed: () {
-                  if (_validateCommandInputs()) {
-                    _updateOrCreate();
-                  }
-                },
+                onPressed: _openDocumentationCenter,
+                tooltip: context.tr.cmd_show_variables,
+                icon: const Icon(Icons.info_outline),
               ),
-            if (!_isEditingExistingCommand && !_isDataIncomplete)
-              IconButton(
-                icon: const Icon(Icons.cancel),
-                tooltip: context.tr.cancel,
-                onPressed: () async {
-                  Navigator.pop(context);
-                },
-              ),
-            if (_isEditingExistingCommand)
-              IconButton(
-                icon: const Icon(Icons.delete),
-                tooltip: context.tr.cmd_delete_tooltip,
-                onPressed: () async {
-                  final shouldDelete = await AppTheme.showConfirmDialog(
-                    context,
-                    title: context.tr.cmd_delete_tooltip,
-                    content:
-                        'This command will be deleted permanently. Continue?',
-                    confirmLabel: context.tr.delete,
-                    isDestructive: true,
-                  );
-                  if (!shouldDelete) {
-                    return;
-                  }
+              if (!_isEditingExistingCommand && !_isDataIncomplete)
+                IconButton(
+                  icon: const Icon(Icons.add),
+                  tooltip: context.tr.cmd_create_tooltip,
+                  onPressed: () {
+                    if (_validateCommandInputs()) {
+                      _updateOrCreate();
+                    }
+                  },
+                ),
+              if (!_isEditingExistingCommand && !_isDataIncomplete)
+                IconButton(
+                  icon: const Icon(Icons.cancel),
+                  tooltip: context.tr.cancel,
+                  onPressed: () async {
+                    Navigator.pop(context);
+                  },
+                ),
+              if (_isEditingExistingCommand)
+                IconButton(
+                  icon: const Icon(Icons.delete),
+                  tooltip: context.tr.cmd_delete_tooltip,
+                  onPressed: () async {
+                    final shouldDelete = await AppTheme.showConfirmDialog(
+                      context,
+                      title: context.tr.cmd_delete_tooltip,
+                      content:
+                          'This command will be deleted permanently. Continue?',
+                      confirmLabel: context.tr.delete,
+                      isDestructive: true,
+                    );
+                    if (!shouldDelete) {
+                      return;
+                    }
 
-                  final botId = _botIdForConfig;
-                  final commandId = _existingCommandStorageId;
-                  if (botId == null) {
-                    return;
-                  }
-                  if (commandId == null) {
-                    return;
-                  }
+                    final botId = _botIdForConfig;
+                    final commandId = _existingCommandStorageId;
+                    if (botId == null) {
+                      return;
+                    }
+                    if (commandId == null) {
+                      return;
+                    }
 
-                  final remoteClient = widget.client;
-                  if (remoteClient != null && !widget.id.isZero) {
-                    try {
-                      await remoteClient.commands.delete(widget.id);
-                    } catch (e) {
-                      final message = e.toString();
-                      final alreadyDeleted =
-                          message.contains('10063') ||
-                          message.contains('Unknown application command') ||
-                          message.contains('404');
-                      if (!alreadyDeleted) {
-                        if (!mounted) {
-                          return;
-                        }
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Discord delete failed. Local delete applied. $e',
+                    final remoteClient = widget.client;
+                    if (remoteClient != null && !widget.id.isZero) {
+                      try {
+                        await remoteClient.commands.delete(widget.id);
+                      } catch (e) {
+                        final message = e.toString();
+                        final alreadyDeleted =
+                            message.contains('10063') ||
+                            message.contains('Unknown application command') ||
+                            message.contains('404');
+                        if (!alreadyDeleted) {
+                          if (!mounted) {
+                            return;
+                          }
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Discord delete failed. Local delete applied. $e',
+                              ),
                             ),
-                          ),
-                        );
+                          );
+                        }
                       }
                     }
-                  }
 
-                  await appManager.deleteAppCommand(botId, commandId);
-                  if (!mounted) {
-                    return;
-                  }
-                  Navigator.pop(context);
-                },
-              ),
-          ],
-        ),
-        bottomNavigationBar:
-            showStickyEditSave
-                ? SafeArea(
-                  top: false,
-                  child: Container(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).scaffoldBackgroundColor,
-                      border: Border(
-                        top: BorderSide(
-                          color: Theme.of(
-                            context,
-                          ).dividerColor.withValues(alpha: 0.2),
-                        ),
-                      ),
-                    ),
-                    child: SizedBox(
-                      height: 48,
-                      child: FilledButton.icon(
-                        onPressed: _isDirty ? _saveExistingCommand : null,
-                        icon: const Icon(Icons.save_outlined),
-                        label: Text(
-                          _isDirty
-                              ? context.tr.edit_shell_save_changes
-                              : context.tr.edit_shell_all_saved,
-                        ),
-                      ),
-                    ),
-                  ),
-                )
-                : null,
-        body: SafeArea(
-          top: false,
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final contentMaxWidth =
-                  constraints.maxWidth >= 1200
-                      ? 980.0
-                      : (constraints.maxWidth >= 900 ? 860.0 : 680.0);
-
-              return Center(
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  padding: EdgeInsets.fromLTRB(
-                    16,
-                    16,
-                    16,
-                    showStickyEditSave ? 116 : 16,
-                  ),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(maxWidth: contentMaxWidth),
-                    child:
-                        _isLoading
-                            ? const Center(child: CircularProgressIndicator())
-                            : _isDataIncomplete
-                            ? Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                const SizedBox(height: 12),
-                                Container(
-                                  padding: const EdgeInsets.all(14),
-                                  decoration: BoxDecoration(
-                                    color: AppTheme.warning,
-                                    border: Border.all(color: AppTheme.warning),
-                                    borderRadius: BorderRadius.circular(
-                                      AppTheme.radiusMd,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.warning_amber_rounded,
-                                        color: AppTheme.warning,
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Expanded(
-                                        child: Text(
-                                          context
-                                              .tr
-                                              .cmd_offline_incomplete_warning,
-                                          style: TextStyle(
-                                            color: AppTheme.warning,
-                                            fontSize: 13,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                Card(
-                                  child: ListTile(
-                                    leading: const Icon(Icons.terminal),
-                                    title: Text(
-                                      _commandName.isNotEmpty
-                                          ? _commandName
-                                          : (_existingCommandStorageId ?? ''),
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    subtitle:
-                                        _commandDescription.isNotEmpty
-                                            ? Text(_commandDescription)
-                                            : null,
-                                    trailing: IconButton(
-                                      icon: const Icon(
-                                        Icons.menu_book_outlined,
-                                      ),
-                                      tooltip: context.tr.cmd_show_variables,
-                                      onPressed: _openDocumentationCenter,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            )
-                            : _buildBlockEditor(
-                              contentMaxWidth: contentMaxWidth,
-                            ),
-                  ),
+                    await appManager.deleteAppCommand(botId, commandId);
+                    if (!mounted) {
+                      return;
+                    }
+                    Navigator.pop(context);
+                  },
                 ),
-              );
-            },
+            ],
+          ),
+          bottomNavigationBar:
+              showStickyEditSave
+                  ? SafeArea(
+                    top: false,
+                    child: Container(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).scaffoldBackgroundColor,
+                        border: Border(
+                          top: BorderSide(
+                            color: Theme.of(
+                              context,
+                            ).dividerColor.withValues(alpha: 0.2),
+                          ),
+                        ),
+                      ),
+                      child: SizedBox(
+                        height: 48,
+                        child: FilledButton.icon(
+                          onPressed: _isDirty ? _saveExistingCommand : null,
+                          icon: const Icon(Icons.save_outlined),
+                          label: Text(
+                            _isDirty
+                                ? context.tr.edit_shell_save_changes
+                                : context.tr.edit_shell_all_saved,
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                  : null,
+          body: SafeArea(
+            top: false,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final contentMaxWidth =
+                    constraints.maxWidth >= 1200
+                        ? 980.0
+                        : (constraints.maxWidth >= 900 ? 860.0 : 680.0);
+
+                return Center(
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: EdgeInsets.fromLTRB(
+                      16,
+                      16,
+                      16,
+                      showStickyEditSave ? 116 : 16,
+                    ),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: contentMaxWidth),
+                      child: _buildEditorBody(contentMaxWidth: contentMaxWidth),
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ),

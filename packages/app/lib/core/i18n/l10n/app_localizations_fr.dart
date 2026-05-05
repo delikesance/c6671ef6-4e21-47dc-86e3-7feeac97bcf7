@@ -52,11 +52,11 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get onboarding_command_text =>
-      'Les commandes sont le cÅ“ur de votre bot. Elles permettent aux utilisateurs d\'interagir avec votre bot via Discord.';
+      'Les commandes sont le cœur de votre bot. Elles permettent aux utilisateurs d\'interagir avec votre bot via Discord.';
 
   @override
   String get onboarding_command_example =>
-      'Exemple:\n/hello †’ Le bot répond \"Bonjour! ðŸ‘‹\"';
+      'Exemple:\n/hello → Le bot répond \"Bonjour! 👋\"';
 
   @override
   String get onboarding_command_button => 'Continuer';
@@ -1572,7 +1572,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get bot_home_delete_confirm =>
-      'ÃŠtes-vous sûr de vouloir supprimer cette application ?';
+      'Êtes-vous sûr de vouloir supprimer cette application ?';
 
   @override
   String bot_home_start_error(String error) {
@@ -1919,7 +1919,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get debug_replay_premium_desc =>
-      'Enregistrez et rejouez vos exécutions de commandes étape par étape. Voyez exactement ce que chaque action a fait, combien de temps elle a pris et oÃ¹ les erreurs se sont produites.';
+      'Enregistrez et rejouez vos exécutions de commandes étape par étape. Voyez exactement ce que chaque action a fait, combien de temps elle a pris et où les erreurs se sont produites.';
 
   @override
   String get debug_replay_overview => 'Vue d\'ensemble';
@@ -2224,7 +2224,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String scoped_runtime_title(String key) {
-    return 'Données runtime €” « $key »';
+    return 'Données runtime — « $key »';
   }
 
   @override
@@ -2720,7 +2720,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get bdfd_editor_empty =>
-      'Script vide €” commencez à écrire pour voir les diagnostics.';
+      'Script vide — commencez à écrire pour voir les diagnostics.';
 
   @override
   String get dart_editor_title => 'Éditeur Dart';
@@ -2730,7 +2730,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get dart_editor_empty =>
-      'Script vide €” commencez à écrire pour voir les diagnostics Dart.';
+      'Script vide — commencez à écrire pour voir les diagnostics Dart.';
 
   @override
   String get bdfd_editor_docs => 'Référence des fonctions BDFD';
@@ -2876,11 +2876,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get bdfd_docs_syntax => 'SYNTAXE';
 
   @override
-  String get bdfd_docs_parameters => 'PARAMÃˆTRES';
+  String get bdfd_docs_parameters => 'PARAMÈTRES';
 
   @override
   String get bdfd_docs_no_params =>
-      'Aucun paramètre €” utiliser comme \$nomFonction';
+      'Aucun paramètre — utiliser comme \$nomFonction';
 
   @override
   String get bdfd_docs_category_messages => 'Messages & Contenu';
@@ -2944,19 +2944,19 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get bdfd_docs_desc_for =>
-      'Bot Creator uniquement €” Répète un bloc de code N fois.\n\nSimple : \$for[5]...\$endfor †’ le corps est répété 5 fois (max 100). Utilisez \$i pour l\'index courant (à partir de 0) et \$loopCount pour le total.\n\nStyle C : \$for[i=0;i<10;i++]...\$endfor †’ boucle for classique avec init, condition et mise à jour. Supporte ++, --, +=, -=, *=.\n\nSi le nombre d\'itérations est dynamique (ex : \$for[\$args[1]]), la boucle s\'exécute au runtime.';
+      'Bot Creator uniquement — Répète un bloc de code N fois.\n\nSimple : \$for[5]...\$endfor → le corps est répété 5 fois (max 100). Utilisez \$i pour l\'index courant (à partir de 0) et \$loopCount pour le total.\n\nStyle C : \$for[i=0;i<10;i++]...\$endfor → boucle for classique avec init, condition et mise à jour. Supporte ++, --, +=, -=, *=.\n\nSi le nombre d\'itérations est dynamique (ex : \$for[\$args[1]]), la boucle s\'exécute au runtime.';
 
   @override
   String get bdfd_docs_desc_loop =>
-      'Bot Creator uniquement €” Alias de \$for. Voir \$for pour les détails. Utilisez \$endloop pour fermer le bloc.';
+      'Bot Creator uniquement — Alias de \$for. Voir \$for pour les détails. Utilisez \$endloop pour fermer le bloc.';
 
   @override
   String get bdfd_docs_desc_callworkflow =>
-      'Bot Creator uniquement €” Appelle un autre workflow par nom et transmet des arguments.\n\nSyntaxe : \$callWorkflow[monWorkflow;clé1=valeur1;clé2=valeur2]\n\nLe workflow appelé peut lire les arguments et retourner une valeur via \$workflowResponse.';
+      'Bot Creator uniquement — Appelle un autre workflow par nom et transmet des arguments.\n\nSyntaxe : \$callWorkflow[monWorkflow;clé1=valeur1;clé2=valeur2]\n\nLe workflow appelé peut lire les arguments et retourner une valeur via \$workflowResponse.';
 
   @override
   String get bdfd_docs_desc_workflowresponse =>
-      'Bot Creator uniquement €” Retourne la réponse du dernier \$callWorkflow.\n\nUtilisez \$workflowResponse[] pour la réponse complète, ou \$workflowResponse[propriété] pour un champ spécifique.';
+      'Bot Creator uniquement — Retourne la réponse du dernier \$callWorkflow.\n\nUtilisez \$workflowResponse[] pour la réponse complète, ou \$workflowResponse[propriété] pour un champ spécifique.';
 
   @override
   String get bdfd_docs_desc_eval =>
@@ -2984,15 +2984,15 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get bdfd_docs_desc_embedsuppresserrors =>
-      'Identique à \$suppressErrors €” supprime tous les messages d\'erreur silencieusement.';
+      'Identique à \$suppressErrors — supprime tous les messages d\'erreur silencieusement.';
 
   @override
   String get bdfd_docs_desc_and =>
-      'ET logique €” combine plusieurs conditions. Toutes doivent être vraies.\n\nUtilisation : \$if[\$and[\$authorID==123;\$hasRole[456]]]';
+      'ET logique — combine plusieurs conditions. Toutes doivent être vraies.\n\nUtilisation : \$if[\$and[\$authorID==123;\$hasRole[456]]]';
 
   @override
   String get bdfd_docs_desc_or =>
-      'OU logique €” combine plusieurs conditions. Au moins une doit être vraie.\n\nUtilisation : \$if[\$or[\$authorID==123;\$authorID==456]]]';
+      'OU logique — combine plusieurs conditions. Au moins une doit être vraie.\n\nUtilisation : \$if[\$or[\$authorID==123;\$authorID==456]]]';
 
   @override
   String get bdfd_docs_desc_awaitfunc =>
@@ -3000,7 +3000,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get bdfd_docs_desc_defer =>
-      'Diffère la réponse à l\'interaction, vous donnant plus de temps. L\'utilisateur voit « Le bot réfléchit€¦ ». Ã€ utiliser avant les opérations longues comme les requêtes HTTP.';
+      'Diffère la réponse à l\'interaction, vous donnant plus de temps. L\'utilisateur voit « Le bot réfléchit€¦ ». À utiliser avant les opérations longues comme les requêtes HTTP.';
 
   @override
   String get bdfd_docs_desc_ephemeral =>
@@ -3012,11 +3012,11 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get bdfd_docs_desc_jsonset =>
-      'Définit une valeur dans le contexte JSON courant. Supporte les chemins en notation pointée.\n\nUtilisation : \$jsonSet[user.name;John]\n\nLa modification est en mémoire €” utilisez \$jsonStringify pour obtenir le résultat.';
+      'Définit une valeur dans le contexte JSON courant. Supporte les chemins en notation pointée.\n\nUtilisation : \$jsonSet[user.name;John]\n\nLa modification est en mémoire — utilisez \$jsonStringify pour obtenir le résultat.';
 
   @override
   String get bdfd_docs_desc_jsonstringify =>
-      'Convertit le contexte JSON courant en chaîne de caractères. Ã€ utiliser après \$jsonParse et \$jsonSet pour obtenir le résultat.';
+      'Convertit le contexte JSON courant en chaîne de caractères. À utiliser après \$jsonParse et \$jsonSet pour obtenir le résultat.';
 
   @override
   String get bdfd_docs_desc_httpget =>
@@ -3326,7 +3326,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get cmd_simple_response_visibility_ephemeral => 'Éphémère';
 
   @override
-  String get cmd_simple_response_hint => 'Terminé œ…';
+  String get cmd_simple_response_hint => 'Terminé ✅';
 
   @override
   String get cmd_simple_response_embeds_title => 'Embeds de réponse';
@@ -4118,10 +4118,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get subscription_active_label => 'Offre active :';
 
   @override
-  String get subscription_active_annual => 'Premium €” Annuel';
+  String get subscription_active_annual => 'Premium — Annuel';
 
   @override
-  String get subscription_active_monthly => 'Premium €” Mensuel';
+  String get subscription_active_monthly => 'Premium — Mensuel';
 
   @override
   String get subscription_benefit_no_ads =>
@@ -4411,7 +4411,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get doc_event_reaction_add_example =>
-      'Guard : ((reaction.emoji.name)) equals œ…\nAction : addRole -> user=((userId)) role=((global.approvedRoleId))';
+      'Guard : ((reaction.emoji.name)) equals ✅\nAction : addRole -> user=((userId)) role=((global.approvedRoleId))';
 
   @override
   String get doc_event_poll_vote_add_title => 'Événement : messagePollVoteAdd';
@@ -4557,7 +4557,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get doc_action_stop_unless_example =>
-      'condition.variable = ((reaction.emoji.name))\ncondition.operator = equals\ncondition.value = œ…';
+      'condition.variable = ((reaction.emoji.name))\ncondition.operator = equals\ncondition.value = ✅';
 
   @override
   String get doc_action_if_block_title => 'Action : ifBlock';
@@ -4794,7 +4794,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get component_add_text_display => 'Ajouter un affichage texte';
 
   @override
-  String get component_section_accessory => 'NÅ“ud accessoire (optionnel)';
+  String get component_section_accessory => 'Nœud accessoire (optionnel)';
 
   @override
   String get component_accent_color =>
@@ -5043,7 +5043,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String action_else_if_label(int index) {
-    return 'ELSE IF $index €” actions';
+    return 'ELSE IF $index — actions';
   }
 
   @override
@@ -5897,7 +5897,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get command_integration_label =>
-      'OÃ¹ cette commande peut être utilisée';
+      'Où cette commande peut être utilisée';
 
   @override
   String get command_scope_label => 'Portée de la commande (Contextes)';
@@ -5953,7 +5953,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get reply_mode_layout_desc =>
-      'Système de mise en page riche de Discord €” conteneurs, médias, texte et formulaires';
+      'Système de mise en page riche de Discord — conteneurs, médias, texte et formulaires';
 
   @override
   String get reply_mode_modal_desc =>
@@ -6148,7 +6148,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get component_on_click_workflow => 'Au clic, le workflow';
 
   @override
-  String get component_on_select_workflow => 'Ã€ la sélection, le workflow';
+  String get component_on_select_workflow => 'À la sélection, le workflow';
 
   @override
   String get component_new_option => 'Nouvelle option';
@@ -6203,7 +6203,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String workflow_on_submit_info(String name, String entry, int args) {
-    return 'Ã€ la soumission, le workflow \"$name\" sera exécuté (entrée : $entry, args : $args).';
+    return 'À la soumission, le workflow \"$name\" sera exécuté (entrée : $entry, args : $args).';
   }
 
   @override
