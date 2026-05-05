@@ -32,7 +32,7 @@ void main() {
 
     test('compiles message[] helper for normal/slash fallback', () {
       final result = BdfdCompiler().compile(
-        r'$reply[$message[1;text]|$message[text]|$message[>]]',
+        r'$reply$message[1;text]|$message[text]|$message[>]',
       );
 
       expect(result.hasErrors, isFalse);
@@ -46,7 +46,7 @@ void main() {
     });
 
     test('compiles message helper without brackets', () {
-      final result = BdfdCompiler().compile(r'$reply[$message]');
+      final result = BdfdCompiler().compile(r'$reply$message');
 
       expect(result.hasErrors, isFalse);
       expect(result.actions, hasLength(1));
@@ -56,7 +56,7 @@ void main() {
     });
 
     test('compiles args helper with runtime args fallback', () {
-      final result = BdfdCompiler().compile(r'$reply[$args[2]]');
+      final result = BdfdCompiler().compile(r'$reply$args[2]');
 
       expect(result.hasErrors, isFalse);
       expect(result.actions, hasLength(1));
@@ -69,7 +69,7 @@ void main() {
     });
 
     test('compiles getTimestampMs as runtime placeholder', () {
-      final result = BdfdCompiler().compile(r'$reply[$getTimestampMs]');
+      final result = BdfdCompiler().compile(r'$reply$getTimestampMs');
 
       expect(result.hasErrors, isFalse);
       expect(result.actions, hasLength(1));
@@ -90,7 +90,7 @@ void main() {
       'resolves sub with getTimestampMs and messageTimestamp at runtime',
       () {
         final result = BdfdCompiler().compile(
-          r'$reply[Latency: $sub[$getTimestampMs;$messageTimestamp] ms]',
+          r'$reply$c[]Latency: $sub[$getTimestampMs;$messageTimestamp] ms',
         );
 
         expect(result.hasErrors, isFalse);
@@ -111,7 +111,7 @@ void main() {
     );
 
     test('resolves ping compiled to bot.ping at runtime', () {
-      final result = BdfdCompiler().compile(r'$reply[Ping: $ping ms]');
+      final result = BdfdCompiler().compile(r'$reply$c[]Ping: $ping ms');
 
       expect(result.hasErrors, isFalse);
       expect(result.actions, hasLength(1));
@@ -142,7 +142,7 @@ void main() {
 
     test('compiles mentionedChannels helper', () {
       final result = BdfdCompiler().compile(
-        r'$reply[$mentionedChannels[1]|$mentionedChannels[1;yes]]',
+        r'$reply$mentionedChannels[1]|$mentionedChannels[1;yes]',
       );
 
       expect(result.hasErrors, isFalse);
@@ -157,7 +157,7 @@ void main() {
 
     test('compiles user identity helper functions without diagnostics', () {
       final result = BdfdCompiler().compile(
-        r'$reply[$authorAvatar|$authorID|$authorOfMessage|$creationDate|$discriminator|$displayName|$displayName[123]|$getUserStatus|$getCustomStatus|$isAdmin|$isBooster|$isBot|$isUserDMEnabled|$nickname|$nickname[123]|$userAvatar|$userBadges|$userBanner|$userBannerColor|$userExists|$userID|$userInfo|$userJoined|$userJoinedDiscord|$username|$username[123]|$userPerms|$userServerAvatar|$findUser]',
+        r'$reply$authorAvatar|$authorID|$authorOfMessage|$creationDate|$discriminator|$displayName|$displayName[123]|$getUserStatus|$getCustomStatus|$isAdmin|$isBooster|$isBot|$isUserDMEnabled|$nickname|$nickname[123]|$userAvatar|$userBadges|$userBanner|$userBannerColor|$userExists|$userID|$userInfo|$userJoined|$userJoinedDiscord|$username|$username[123]|$userPerms|$userServerAvatar|$findUser',
       );
 
       expect(result.hasErrors, isFalse);
@@ -197,7 +197,7 @@ void main() {
     });
 
     test('treats unresolved no-arg dollar token as literal text', () {
-      final result = BdfdCompiler().compile(r'$reply[$test]');
+      final result = BdfdCompiler().compile(r'$reply$test');
 
       expect(result.hasErrors, isFalse);
       expect(result.actions, hasLength(1));
@@ -223,7 +223,7 @@ void main() {
       final result = BdfdCompiler().compile(
         r'$httpAddHeader[content-type;application/x-www-form-urlencoded]'
         r'$httpPost[https://pastebin.com/api/api_post.php;api_option=paste]'
-        r'$reply[$httpStatus|$httpResult]',
+        r'$reply$httpStatus|$httpResult',
       );
 
       expect(result.hasErrors, isFalse);
@@ -241,7 +241,7 @@ void main() {
     });
 
     test('surfaces httpStatus before request as compile error', () {
-      final result = BdfdCompiler().compile(r'$reply[$httpStatus]');
+      final result = BdfdCompiler().compile(r'$reply$httpStatus');
 
       expect(result.hasErrors, isTrue);
       expect(result.diagnostics, hasLength(1));
@@ -250,7 +250,7 @@ void main() {
 
     test('compiles awaitFunc to scoped awaited registration action', () {
       final result = BdfdCompiler().compile(
-        r'$reply[What do you want me to say?]$awaitFunc[say]',
+        r'$reply$c[]What do you want me to say?$awaitFunc[say]',
       );
 
       expect(result.hasErrors, isFalse);
@@ -307,7 +307,7 @@ void main() {
         r'$jsonArrayAppend[scores;5]'
         r'$jsonArrayAppend[scores;8]'
         r'$jsonArrayAppend[scores;10]'
-        r'$reply[Count=$jsonArrayCount[scores]|Top=$json[ scores;1 ]]',
+        r'$reply$c[]Count=$jsonArrayCount[scores]|Top=$json[ scores;1 ]',
       );
 
       expect(result.hasErrors, isFalse);
@@ -320,7 +320,7 @@ void main() {
     test('compiles jsonKeys to list all keys of root object', () {
       final result = BdfdCompiler().compile(
         r'$jsonParse[{"a":1,"b":2,"c":3}]'
-        r'$reply[$jsonKeys[]]',
+        r'$reply$jsonKeys[]',
       );
 
       expect(result.hasErrors, isFalse);
@@ -331,7 +331,7 @@ void main() {
     test('compiles jsonKeys with custom separator', () {
       final result = BdfdCompiler().compile(
         r'$jsonParse[{"x":1,"y":2}]'
-        r'$reply[$jsonKeys[;|]]',
+        r'$reply$jsonKeys[;|]',
       );
 
       expect(result.hasErrors, isFalse);
@@ -342,7 +342,7 @@ void main() {
     test('compiles jsonKeys at nested path', () {
       final result = BdfdCompiler().compile(
         r'$jsonParse[{"data":{"name":"test","value":42}}]'
-        r'$reply[$jsonKeys[data]]',
+        r'$reply$jsonKeys[data]',
       );
 
       expect(result.hasErrors, isFalse);
@@ -354,7 +354,7 @@ void main() {
       final result = BdfdCompiler().compile(
         r'$jsonParse[{"a":1,"b":2}]'
         r'$jsonForEach[]'
-        r'$reply[$jsonKey=$jsonValue]'
+        r'$reply$jsonKey=$jsonValue'
         r'$endJsonForEach',
       );
 
@@ -375,7 +375,7 @@ void main() {
       final result = BdfdCompiler().compile(
         r'$jsonParse[{"data":{"x":1,"y":2}}]'
         r'$jsonForEach[data]'
-        r'$reply[$jsonKey]'
+        r'$reply$jsonKey'
         r'$endJsonForEach',
       );
 
@@ -392,7 +392,7 @@ void main() {
       final result = BdfdCompiler().compile(
         r'$jsonParse[{"a":1}]'
         r'$jsonForEach[]'
-        r'$reply[$jsonIndex: $jsonKey=$jsonValue]'
+        r'$reply$jsonIndex: $jsonKey=$jsonValue'
         r'$endJsonForEach',
       );
 
@@ -416,7 +416,7 @@ void main() {
       final result = BdfdCompiler().compile(
         r'$jsonParse[{}]'
         r'$jsonForEach[]'
-        r'$reply[test]',
+        r'$reply$c[]test',
       );
 
       // Should still compile but with a diagnostic warning
@@ -429,7 +429,7 @@ void main() {
 
     test('emits diagnostic for standalone endJsonForEach', () {
       final result = BdfdCompiler().compile(
-        r'$reply[test]'
+        r'$reply$c[]test'
         r'$endJsonForEach',
       );
 
@@ -443,7 +443,7 @@ void main() {
     test('compiles invalid jsonParse without blocking diagnostics', () {
       final result = BdfdCompiler().compile(
         r'$jsonParse[{invalid}]'
-        r'$reply[Value=$json[user;name]]',
+        r'$reply$c[]Value=$json[user;name]',
       );
 
       expect(result.hasErrors, isFalse);
@@ -457,23 +457,21 @@ void main() {
         r'$editThread[12345;Cool Thread 😎;no;!unchanged;!unchanged;5]'
         r'$threadAddMember[12345;999]'
         r'$threadRemoveMember[12345;999]'
-        r'$reply[Thread created: $startThread[Second Thread;123;;60;yes]]',
+        r'$reply$c[]Thread created: $startThread[Second Thread;123;;60;yes]',
       );
 
       expect(result.hasErrors, isFalse);
-      expect(result.actions, hasLength(7));
+      expect(result.actions, hasLength(6));
       expect(result.actions[0].type, BotCreatorActionType.createThread);
       expect(result.actions[1].type, BotCreatorActionType.updateChannel);
       expect(result.actions[2].type, BotCreatorActionType.addThreadMember);
       expect(result.actions[3].type, BotCreatorActionType.removeThreadMember);
-      expect(result.actions[4].type, BotCreatorActionType.respondWithMessage);
-      expect(result.actions[4].payload['content'], '((thread.lastId))');
-      expect(result.actions[5].type, BotCreatorActionType.createThread);
-      expect(result.actions[6].type, BotCreatorActionType.sendMessage);
-      expect(result.actions[6].payload['targetType'], 'reply');
+      expect(result.actions[4].type, BotCreatorActionType.createThread);
+      expect(result.actions[5].type, BotCreatorActionType.sendMessage);
+      expect(result.actions[5].payload['targetType'], 'reply');
       expect(
-        result.actions[6].payload['content'],
-        'Thread created: ((thread.lastId))',
+        result.actions[5].payload['content'],
+        '((thread.lastId))Thread created: ((thread.lastId))',
       );
     });
 
@@ -485,7 +483,7 @@ void main() {
           r'$jsonParse[$getServerVar[items_db]]'
           r'$jsonArrayAppend[items;$args[2]]'
           r'$setServerVar[items_db;$jsonStringify]'
-          r'$reply[ok]',
+          r'$reply$c[]ok',
         );
 
         expect(result.hasErrors, isFalse);
@@ -516,7 +514,7 @@ void main() {
         r'$onlyIf[$argCount>0;usage]'
         r'$jsonParse[$getServerVar[items_db]]'
         r'$var[idx;$jsonArrayIndex[items;$args[2]]]'
-        r'$if[$var[idx]==-1;$reply[not found];$reply[found at $var[idx]: $json[items;$var[idx]]]]',
+        r'$if[$var[idx]==-1;$reply$c[]not found;$reply$c[]found at $var[idx]: $json[items;$var[idx]]]',
       );
 
       expect(result.hasErrors, isFalse);
@@ -560,9 +558,9 @@ void main() {
           r'$jsonParse[$getServerVar[items_db]]'
           r'$try'
           r'$var[idx;$jsonArrayIndex[items;$message[1]]]'
-          r'$reply[$var[idx]]'
+          r'$reply$var[idx]'
           r'$catch'
-          r'$reply[fallback]'
+          r'$reply$c[]fallback'
           r'$endtry',
         );
 
@@ -621,7 +619,7 @@ void main() {
         r'$jsonParse[$getServerVar[items_db]]'
         r'$jsonArrayAppend[items;$args[2]]'
         r'$setServerVar[items_db;teststorage]'
-        r'$reply[ok]',
+        r'$reply$c[]ok',
       );
 
       expect(result.hasErrors, isFalse);
@@ -673,7 +671,7 @@ void main() {
     test('compiles for loop blocks into repeated actions', () {
       final result = BdfdCompiler().compile(
         r'$for[2]'
-        r'$reply[Loop]'
+        r'$reply$c[]Loop'
         r'$endfor',
       );
 
@@ -874,7 +872,7 @@ void main() {
 
     test('supports userPerms with explicit user id placeholder', () {
       final result = BdfdCompiler().compile(
-        r'$reply[Perms: $userPerms[$authorID]]',
+        r'$reply$c[]Perms: $userPerms[$authorID]',
       );
 
       expect(result.hasErrors, isFalse);
@@ -889,7 +887,7 @@ void main() {
 
     test('resolves loop computed variables \$i and \$loopCount', () {
       final result = BdfdCompiler().compile(
-        r'$for[3]$reply[$i is $loopCount]$endfor',
+        r'$for[3]$reply$i is $loopCount$endfor',
       );
 
       expect(result.hasErrors, isFalse);
@@ -901,7 +899,7 @@ void main() {
 
     test('resolves \$loopIndex as alias for \$i', () {
       final result = BdfdCompiler().compile(
-        r'$for[2]$reply[index=$loopIndex]$endfor',
+        r'$for[2]$reply$c[]index=$loopIndex$endfor',
       );
 
       expect(result.hasErrors, isFalse);
@@ -912,7 +910,7 @@ void main() {
 
     test('restores loop index after nested loops', () {
       final result = BdfdCompiler().compile(
-        r'$for[2]$reply[outer=$i]$for[2]$reply[inner=$i]$endfor$endfor',
+        r'$for[2]$reply$c[]outer=$i$for[2]$reply$c[]inner=$i$endfor$endfor',
       );
 
       expect(result.hasErrors, isFalse);
@@ -967,7 +965,7 @@ void main() {
 
     test('C-style for loop with single variable', () {
       final result = BdfdCompiler().compile(
-        r'$for[i = 0; i < 5; i++]$reply[$i]$endfor',
+        r'$for[i = 0; i < 5; i++]$reply$i$endfor',
       );
 
       expect(result.hasErrors, isFalse);
@@ -979,7 +977,7 @@ void main() {
 
     test('C-style for loop with two variables', () {
       final result = BdfdCompiler().compile(
-        r'$for[i = 0, j = 10; i <= 3; i++, j--]$reply[$i-$j]$endfor',
+        r'$for[i = 0, j = 10; i <= 3; i++, j--]$reply$i-$j$endfor',
       );
 
       expect(result.hasErrors, isFalse);
@@ -992,7 +990,7 @@ void main() {
 
     test('C-style for loop with += and -= updates', () {
       final result = BdfdCompiler().compile(
-        r'$for[x = 0; x < 20; x += 5]$reply[$x]$endfor',
+        r'$for[x = 0; x < 20; x += 5]$reply$x$endfor',
       );
 
       expect(result.hasErrors, isFalse);
@@ -1005,7 +1003,7 @@ void main() {
 
     test('C-style for loop with decrement', () {
       final result = BdfdCompiler().compile(
-        r'$for[i = 5; i > 0; i--]$reply[$i]$endfor',
+        r'$for[i = 5; i > 0; i--]$reply$i$endfor',
       );
 
       expect(result.hasErrors, isFalse);
@@ -1017,7 +1015,7 @@ void main() {
 
     test('C-style for loop respects max iteration limit', () {
       final result = BdfdCompiler().compile(
-        r'$for[i = 0; i < 9999; i++]$reply[$i]$endfor',
+        r'$for[i = 0; i < 9999; i++]$reply$i$endfor',
       );
 
       expect(result.hasErrors, isFalse);
@@ -1046,7 +1044,7 @@ void main() {
 
     test('C-style for loop with condition comparing two variables', () {
       final result = BdfdCompiler().compile(
-        r'$for[i = 0, j = 3; i < j; i++]$reply[$i]$endfor',
+        r'$for[i = 0, j = 3; i < j; i++]$reply$i$endfor',
       );
 
       expect(result.hasErrors, isFalse);
@@ -1058,7 +1056,7 @@ void main() {
 
     test('C-style for loop reports diagnostic for invalid init', () {
       final result = BdfdCompiler().compile(
-        r'$for[badstuff; i < 5; i++]$reply[x]$endfor',
+        r'$for[badstuff; i < 5; i++]$reply$c[]x$endfor',
       );
 
       expect(result.hasErrors, isTrue);
@@ -1067,7 +1065,7 @@ void main() {
 
     test('nested C-style loop restores variables', () {
       final result = BdfdCompiler().compile(
-        r'$for[i = 0; i < 2; i++]$reply[outer=$i]$for[j = 10; j < 12; j++]$reply[inner=$j]$endfor$endfor',
+        r'$for[i = 0; i < 2; i++]$reply$c[]outer=$i$for[j = 10; j < 12; j++]$reply$c[]inner=$j$endfor$endfor',
       );
 
       expect(result.hasErrors, isFalse);
@@ -1082,7 +1080,7 @@ void main() {
 
     test('simple runtime loop emits forLoop action for dynamic iterations', () {
       final result = BdfdCompiler().compile(
-        r'$for[$args[2]]$reply[hello]$endfor',
+        r'$for[$args[2]]$reply$c[]hello$endfor',
       );
 
       expect(result.hasErrors, isFalse);
@@ -1098,7 +1096,7 @@ void main() {
       final result = BdfdCompiler().compile(
         r'$jsonParse[$getServerVar[$args[2]]]'
         r'$var[looping;$jsonArrayCount[currencies]]'
-        r'$for[$var[looping]]$reply[$i]$endfor',
+        r'$for[$var[looping]]$reply$i$endfor',
       );
 
       expect(result.hasErrors, isFalse);
@@ -1117,7 +1115,7 @@ void main() {
 
     test('simple runtime loop with \$loop alias', () {
       final result = BdfdCompiler().compile(
-        r'$loop[$args[1]]$reply[hi]$endloop',
+        r'$loop[$args[1]]$reply$c[]hi$endloop',
       );
 
       expect(result.hasErrors, isFalse);
@@ -1130,7 +1128,7 @@ void main() {
       'C-style runtime loop emits forLoop action when condition has placeholder',
       () {
         final result = BdfdCompiler().compile(
-          r'$for[i=0;i<$args[2];i++]$reply[$i]$endfor',
+          r'$for[i=0;i<$args[2];i++]$reply$i$endfor',
         );
 
         expect(result.hasErrors, isFalse);
@@ -1153,7 +1151,7 @@ void main() {
 
     test('C-style runtime loop with runtime init value', () {
       final result = BdfdCompiler().compile(
-        r'$for[i=$args[0];i<$args[2];i++]$reply[$i]$endfor',
+        r'$for[i=$args[0];i<$args[2];i++]$reply$i$endfor',
       );
 
       expect(result.hasErrors, isFalse);
@@ -1165,7 +1163,7 @@ void main() {
     });
 
     test('static loops still unrolled at compile-time (backward compat)', () {
-      final result = BdfdCompiler().compile(r'$for[3]$reply[x]$endfor');
+      final result = BdfdCompiler().compile(r'$for[3]$reply$c[]x$endfor');
 
       expect(result.hasErrors, isFalse);
       expect(result.actions, hasLength(3));
@@ -1179,7 +1177,7 @@ void main() {
       'runtime loop body uses ((_loop.index)) and ((_loop.count)) placeholders',
       () {
         final result = BdfdCompiler().compile(
-          r'$for[$args[0]]$reply[$i is $loopCount]$endfor',
+          r'$for[$args[0]]$reply$i is $loopCount$endfor',
         );
 
         expect(result.hasErrors, isFalse);
@@ -1195,7 +1193,7 @@ void main() {
 
     test('runtime loop body preserves temp variable actions', () {
       final result = BdfdCompiler().compile(
-        r'$for[$message[1]]$var[current;$i]$reply[$var[current]]$endfor',
+        r'$for[$message[1]]$var[current;$i]$reply$var[current]$endfor',
       );
 
       expect(result.hasErrors, isFalse);
@@ -1234,7 +1232,7 @@ void main() {
           r'$var[looping;$jsonArrayCount[$var[in]]]'
           r'$for[$var[looping]]'
           r'$if[$json[$var[in];$i;name]==$var[target]]'
-          r'$reply[$json[$var[in];$i;weight]]'
+          r'$reply$json[$var[in];$i;weight]'
           r'$endif'
           r'$endfor',
         );
@@ -1321,7 +1319,7 @@ void main() {
           r'$var[currentWeight;$calculate[$var[currentWeight]+$var[itemWeight]]]'
           r'$if[$var[roll]<=$var[currentWeight]]'
           r'$var[winner;$var[itemName]]'
-          r'$reply[$var[winner]]'
+          r'$reply$var[winner]'
           r'$endif'
           r'$endfor',
         );
@@ -1438,7 +1436,7 @@ void main() {
       final result = BdfdCompiler().compile(
         r'$jsonParse[$getServerVar[items_db]]'
         r'$var[in;items]'
-        r'$if[$json[$var[in];$message[1];enabled]==true;$reply[enabled];$reply[disabled]]',
+        r'$if[$json[$var[in];$message[1];enabled]==true;$reply$c[]enabled;$reply$c[]disabled]',
       );
 
       expect(result.hasErrors, isFalse);
@@ -1497,14 +1495,14 @@ void main() {
           r'$if[$var[winner]==]'
           r'$if[$var[roll]<=$var[currentWeight]]'
           r'$var[winner;$json[$var[in];$i;name]]'
-          r'$reply[$var[winner]]'
+          r'$reply$var[winner]'
           r'$stop'
           r'$endif'
           r'$endif'
           r'$endif'
           r'$endfor'
           r'$if[$var[winner]==]'
-          r'$reply[fallback_common]'
+          r'$reply$c[]fallback_common'
           r'$endif',
         );
 
@@ -1796,7 +1794,7 @@ void main() {
       'runtime uppercase keeps placeholder keys intact until resolution',
       () {
         final result = BdfdCompiler().compile(
-          r'$reply[$toUpperCase[$username]]',
+          r'$reply$toUpperCase[$username]',
         );
 
         expect(result.hasErrors, isFalse);
@@ -1979,7 +1977,7 @@ void main() {
     });
 
     test('eval with complex BDFD content', () {
-      final result = BdfdCompiler().compile(r'$eval[$reply[Hello $username]]');
+      final result = BdfdCompiler().compile(r'$eval[$reply$c[]Hello $username]');
       expect(result.hasErrors, isFalse);
       expect(result.actions, hasLength(1));
       expect(result.actions[0].type, BotCreatorActionType.runBdfdScript);
@@ -2018,7 +2016,7 @@ void main() {
       final result = BdfdCompiler().compile(
         r'$debug'
         '\n'
-        r'$reply[pong]',
+        r'$reply$c[]pong',
       );
       expect(result.hasErrors, isFalse);
       expect(result.actions, hasLength(2));
