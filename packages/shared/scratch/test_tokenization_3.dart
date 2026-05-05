@@ -1,8 +1,7 @@
 import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 
 void main() {
-  final result = BdfdCompiler().compile(r'$reply
-enabled');
+  final result = BdfdCompiler().compile(r'$reply' '\n' r'enabled');
   print('Has errors: ${result.hasErrors}');
   print('Actions: ${result.actions.length}');
   if (result.actions.isNotEmpty) {
