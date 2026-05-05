@@ -868,8 +868,8 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       if (!_isApplyingWorkflowPayload) {
         _persistActiveSubcommandWorkflow();
       }
-      if (mounted && !_isApplyingWorkflowPayload) {
-        setState(() {});
+      if (!_isApplyingWorkflowPayload) {
+        _applyStateUpdate(() {});
       }
     });
     _init();
@@ -909,12 +909,29 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     );
   }
 
+  void _syncNotifier() {
+    _editorNotifier.batchUpdate((s) => s.copyWith(
+          isLoading: _isLoading,
+          isDataIncomplete: _isDataIncomplete,
+          commandName: _commandName,
+          commandDescription: _commandDescription,
+          commandType: _commandType,
+          editorMode: _editorMode,
+          executionMode: _executionMode,
+          legacyModeEnabled: _legacyModeEnabled,
+          localOnlyCommand: _localOnlyCommand,
+          folder: _folder,
+        ));
+  }
+
   void _applyStateUpdate(VoidCallback callback) {
     if (!mounted) {
       return;
     }
     setState(callback);
+    _syncNotifier();
   }
+
 
   Widget _buildEditorBody({required double contentMaxWidth}) {
     return Selector<CommandEditorNotifier, _EditorBodySnapshot>(
@@ -1394,7 +1411,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         final token = (await appManager.getApp(bid))['token'] as String?;
         if (token != null && token.isNotEmpty) {
           final emojis = await AppEmojiApi.listEmojis(token, bid);
-          if (mounted) setState(() => _appEmojis = emojis);
+          _applyStateUpdate(() => _appEmojis = emojis);
         }
       }
     } catch (_) {}
@@ -1406,7 +1423,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         if (!mounted) {
           return;
         }
-        setState(() {
+        _applyStateUpdate(() {
           _isLoading = false;
         });
         return;
@@ -1420,7 +1437,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         return;
       }
       if (commandData.isEmpty) {
-        setState(() {
+        _applyStateUpdate(() {
           _isLoading = false;
           _isDataIncomplete = true;
         });
@@ -1459,7 +1476,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         legacySingleEmbed: response['embed'],
       );
 
-      setState(() {
+      _applyStateUpdate(() {
         _isLocalOnlyCommand = true;
         _commandName = (normalized['name'] ?? '').toString();
         _commandDescription = (normalized['description'] ?? '').toString();
@@ -1719,7 +1736,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         // If the data block exists, the command can be edited locally offline.
         final hasFullLocalData = data != null;
         if (!mounted) return;
-        setState(() {
+        _applyStateUpdate(() {
           _isLocalOnlyCommand = true;
           if (localName.isNotEmpty) {
             _commandName = localName;
@@ -1744,7 +1761,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
 
       final currentCommand = command;
       if (!mounted) return;
-      setState(() {
+      _applyStateUpdate(() {
         _commandName = currentCommand.name;
         _commandDescription = currentCommand.description;
         _commandType = currentCommand.type;
@@ -1796,7 +1813,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         _isLoading = false;
       });
     } else {
-      setState(() {
+      _applyStateUpdate(() {
         _isLoading = false;
       });
     }
