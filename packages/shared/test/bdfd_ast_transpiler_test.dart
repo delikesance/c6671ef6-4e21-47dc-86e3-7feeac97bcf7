@@ -135,12 +135,10 @@ void main() {
 
       expect(result.diagnostics, isEmpty);
       expect(result.actions, hasLength(3));
-      expect(
-        result.actions.every(
-          (action) => action.type == BotCreatorActionType.respondWithMessage,
-        ),
-        isTrue,
-      );
+      for (final action in result.actions) {
+        expect(action.type, BotCreatorActionType.sendMessage);
+        expect(action.payload['targetType'], 'reply');
+      }
       expect(result.actions[0].payload['content'], 'Ping');
       expect(result.actions[1].payload['content'], 'Ping');
       expect(result.actions[2].payload['content'], 'Ping');
@@ -1003,7 +1001,8 @@ void main() {
       expect(result.actions, hasLength(2));
 
       expect(result.actions[0].type, BotCreatorActionType.ifBlock);
-      expect(result.actions[1].type, BotCreatorActionType.respondWithMessage);
+      expect(result.actions[1].type, BotCreatorActionType.sendMessage);
+      expect(result.actions[1].payload['targetType'], 'reply');
 
       final content = result.actions[1].payload['content']?.toString() ?? '';
       expect(content, startsWith('Admin perms?: '));
@@ -1056,10 +1055,8 @@ void main() {
 
       expect(result.diagnostics, isEmpty);
       expect(result.actions, hasLength(1));
-      expect(
-        result.actions.single.type,
-        BotCreatorActionType.respondWithMessage,
-      );
+      expect(result.actions.single.type, BotCreatorActionType.sendMessage);
+      expect(result.actions.single.payload['targetType'], 'reply');
       expect(
         result.actions.single.payload['content'],
         'First=((message.content[0])), Last=((last(split(message.content, " ")))), Slash=((opts.text)), Mixed=((message.content[0]|opts.text))',
@@ -1085,10 +1082,8 @@ void main() {
 
       expect(result.diagnostics, isEmpty);
       expect(result.actions, hasLength(1));
-      expect(
-        result.actions.single.type,
-        BotCreatorActionType.respondWithMessage,
-      );
+      expect(result.actions.single.type, BotCreatorActionType.sendMessage);
+      expect(result.actions.single.payload['targetType'], 'reply');
       expect(
         result.actions.single.payload['content'],
         'Raw=((message.content))',
@@ -1206,10 +1201,8 @@ void main() {
 
       expect(result.diagnostics, isEmpty);
       expect(result.actions, hasLength(1));
-      expect(
-        result.actions.single.type,
-        BotCreatorActionType.respondWithMessage,
-      );
+      expect(result.actions.single.type, BotCreatorActionType.sendMessage);
+      expect(result.actions.single.payload['targetType'], 'reply');
       final content =
           result.actions.single.payload['content']?.toString() ?? '';
       expect(content, contains('((author.avatar))'));
@@ -1281,10 +1274,8 @@ void main() {
 
       expect(result.diagnostics, isEmpty);
       expect(result.actions, hasLength(1));
-      expect(
-        result.actions.single.type,
-        BotCreatorActionType.respondWithMessage,
-      );
+      expect(result.actions.single.type, BotCreatorActionType.sendMessage);
+      expect(result.actions.single.payload['targetType'], 'reply');
       expect(
         result.actions.single.payload['content'],
         'Mention=((message.mentions[0])), Fallback=((message.mentions[0]|channel.id))',
@@ -2634,7 +2625,8 @@ void main() {
         expect(result.actions[0].type, BotCreatorActionType.runtimeJsonBlock);
         expect(result.actions[1].type, BotCreatorActionType.setScopedVariable);
         expect(result.actions[2].type, BotCreatorActionType.runtimeJsonBlock);
-        expect(result.actions[3].type, BotCreatorActionType.respondWithMessage);
+        expect(result.actions[3].type, BotCreatorActionType.sendMessage);
+        expect(result.actions[3].payload['targetType'], 'reply');
 
         final setValue = (result.actions[1].payload['value'] ?? '').toString();
         expect(setValue, contains('rtJson_'));
@@ -2765,7 +2757,11 @@ void main() {
       );
       expect(elseActions, hasLength(2));
       expect(elseActions[0]['type'], 'runtimeJsonBlock');
-      expect(elseActions[1]['type'], 'respondWithMessage');
+      expect(elseActions[1]['type'], 'sendMessage');
+      expect(
+        (elseActions[1]['payload'] as Map<String, dynamic>)['targetType'],
+        'reply',
+      );
 
       final elseContent =
           (elseActions[1]['payload'] as Map<String, dynamic>)['content']
@@ -2850,7 +2846,11 @@ void main() {
       expect(thenActions, hasLength(3));
       expect(thenActions[0]['type'], 'runtimeJsonBlock');
       expect(thenActions[1]['type'], 'setTemporaryVariable');
-      expect(thenActions[2]['type'], 'respondWithMessage');
+      expect(thenActions[2]['type'], 'sendMessage');
+      expect(
+        (thenActions[2]['payload'] as Map<String, dynamic>)['targetType'],
+        'reply',
+      );
 
       final bodyJsonPayload = Map<String, dynamic>.from(
         thenActions[0]['payload'] as Map? ?? const <String, dynamic>{},
@@ -2872,7 +2872,11 @@ void main() {
         result.actions[1].payload['elseActions'] as List? ?? const [],
       );
       expect(elseActions, hasLength(1));
-      expect(elseActions.single['type'], 'respondWithMessage');
+      expect(elseActions.single['type'], 'sendMessage');
+      expect(
+        (elseActions.single['payload'] as Map<String, dynamic>)['targetType'],
+        'reply',
+      );
     });
 
     test(r'runtime temp var is emitted before a runtime for loop', () {
@@ -2989,7 +2993,11 @@ void main() {
       );
       expect(bodyActions, hasLength(2));
       expect(bodyActions[0]['type'], 'setTemporaryVariable');
-      expect(bodyActions[1]['type'], 'respondWithMessage');
+      expect(bodyActions[1]['type'], 'sendMessage');
+      expect(
+        (bodyActions[1]['payload'] as Map<String, dynamic>)['targetType'],
+        'reply',
+      );
 
       final tempPayload = Map<String, dynamic>.from(
         bodyActions[0]['payload'] as Map? ?? const <String, dynamic>{},
@@ -3169,7 +3177,11 @@ void main() {
         );
         expect(thenActions, hasLength(2));
         expect(thenActions[0]['type'], 'runtimeJsonBlock');
-        expect(thenActions[1]['type'], 'respondWithMessage');
+        expect(thenActions[1]['type'], 'sendMessage');
+        expect(
+          (thenActions[1]['payload'] as Map<String, dynamic>)['targetType'],
+          'reply',
+        );
 
         final weightContent =
             (thenActions[1]['payload'] as Map<String, dynamic>)['content']
@@ -3379,7 +3391,12 @@ void main() {
         );
         expect(innerThenActions, hasLength(2));
         expect(innerThenActions[0]['type'], 'runtimeJsonBlock');
-        expect(innerThenActions[1]['type'], 'respondWithMessage');
+        expect(innerThenActions[1]['type'], 'sendMessage');
+        expect(
+          (innerThenActions[1]['payload']
+              as Map<String, dynamic>)['targetType'],
+          'reply',
+        );
 
         final nestedReply =
             (innerThenActions[1]['payload'] as Map<String, dynamic>)['content']
