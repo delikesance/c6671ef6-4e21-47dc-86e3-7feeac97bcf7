@@ -44,11 +44,13 @@ class ScratchBlockCanvas extends StatelessWidget {
       }
     }
 
-    return SingleChildScrollView(
-      padding: padding,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: items,
+    return RepaintBoundary(
+      child: SingleChildScrollView(
+        padding: padding,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: items,
+        ),
       ),
     );
   }

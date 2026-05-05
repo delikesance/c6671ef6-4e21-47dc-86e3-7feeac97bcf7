@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
@@ -40,6 +42,83 @@ class MainApiClient implements RemoteRuntimeClient {
   /// Internal cache of the last saved snapshot hash per bot token.
   /// Key format: "${baseUrl}:snapshot:${botToken}"
   static final Map<String, String> _lastSavedSnapshots = <String, String>{};
+
+  /// Maximum number of entries in each hash cache before LRU eviction.
+  static const int _maxHashCacheEntries = 100;
+
+  /// TTL cache for health check results.
+  static final Map<String, _CachedHealth> _healthCache =
+      <String, _CachedHealth>{};
+  static const Duration _healthCacheTtl = Duration(seconds: 30);
+
+  /// Circuit breaker state per base URL.
+  static final Map<String, _CircuitState> _circuits = <String, _CircuitState>{};
+  static const int _circuitMaxFailures = 3;
+  static const Duration _circuitCooldown = Duration(seconds: 30);
+
+  /// Retry configuration.
+  static const int _maxRetries = 3;
+  static const Duration _baseRetryDelay = Duration(seconds: 1);
+  static const double _retryBackoffMultiplier = 2.0;
+
+  /// Cleans up the hash caches using LRU eviction when they exceed the max size.
+  static void _evictOldestHashEntries(Map<String, String> cache) {
+    if (cache.length <= _maxHashCacheEntries) return;
+    final keysToRemove =
+        cache.keys.take(cache.length - _maxHashCacheEntries).toList();
+    for (final key in keysToRemove) {
+      cache.remove(key);
+    }
+  }
+
+  /// Checks if the circuit is open (too many failures) for a given base URL.
+  static bool _isCircuitOpen(String baseUrl) {
+    final state = _circuits[baseUrl];
+    if (state == null) return false;
+    if (state.failureCount < _circuitMaxFailures) return false;
+    final elapsed = DateTime.now().difference(state.firstFailure);
+    if (elapsed >= _circuitCooldown) {
+      _circuits.remove(baseUrl);
+      return false;
+    }
+    return true;
+  }
+
+  /// Records a failure for circuit breaker tracking.
+  static void _recordCircuitFailure(String baseUrl) {
+    final now = DateTime.now();
+    final existing = _circuits[baseUrl];
+    if (existing != null &&
+        now.difference(existing.firstFailure) < _circuitCooldown) {
+      existing.failureCount++;
+    } else {
+      _circuits[baseUrl] = _CircuitState(firstFailure: now, failureCount: 1);
+    }
+  }
+
+  /// Records a success, resetting the circuit breaker.
+  static void _recordCircuitSuccess(String baseUrl) {
+    _circuits.remove(baseUrl);
+  }
+
+  /// Returns a cached health check result if still valid, null otherwise.
+  static bool? _getCachedHealth(String baseUrl) {
+    final cached = _healthCache[baseUrl];
+    if (cached == null) return null;
+    if (DateTime.now().difference(cached.timestamp) >= _healthCacheTtl) {
+      _healthCache.remove(baseUrl);
+      return null;
+    }
+    return cached.healthy;
+  }
+
+  /// Stores a health check result in the TTL cache.
+  static void _setCachedHealth(String baseUrl, bool healthy) {
+    _healthCache[baseUrl] = _CachedHealth(
+      healthy: healthy,
+      timestamp: DateTime.now(),
+    );
+  }
 
   MainApiClient({
     required String baseUrl,
@@ -96,20 +175,56 @@ class MainApiClient implements RemoteRuntimeClient {
     Map<String, String?>? query,
     bool includeAuth = true,
   }) async {
+    if (_isCircuitOpen(_baseUrl)) {
+      throw MainApiClientException(
+        'Circuit breaker open for $_baseUrl — too many failures.',
+      );
+    }
+
     final uri = _uri(path, query: query);
     appendBotDebugLog('[MainApiClient] GET $uri');
-    try {
-      final response = await _http
-          .get(uri, headers: _headers(includeAuth: includeAuth))
-          .timeout(_timeout);
-      appendBotDebugLog(
-        '[MainApiClient] GET $uri responded with ${response.statusCode}',
-      );
-      return _parseResponse(response);
-    } catch (error) {
-      appendBotDebugLog('[MainApiClient] GET $uri failed: $error');
-      rethrow;
+
+    Object? lastError;
+    for (var attempt = 0; attempt <= _maxRetries; attempt++) {
+      try {
+        final response = await _http
+            .get(uri, headers: _headers(includeAuth: includeAuth))
+            .timeout(_timeout);
+        appendBotDebugLog(
+          '[MainApiClient] GET $uri responded with ${response.statusCode}',
+        );
+        _recordCircuitSuccess(_baseUrl);
+        return _parseResponse(response);
+      } on MainApiClientException catch (error) {
+        lastError = error;
+        if (_isClientError(error) || attempt >= _maxRetries) {
+          _recordCircuitFailure(_baseUrl);
+          rethrow;
+        }
+        appendBotDebugLog(
+          '[MainApiClient] GET $uri attempt ${attempt + 1}/$_maxRetries failed: $error — retrying...',
+        );
+        await Future<void>.delayed(
+          _baseRetryDelay * pow(_retryBackoffMultiplier, attempt),
+        );
+      } catch (error) {
+        lastError = error;
+        if (attempt >= _maxRetries) {
+          _recordCircuitFailure(_baseUrl);
+          rethrow;
+        }
+        appendBotDebugLog(
+          '[MainApiClient] GET $uri attempt ${attempt + 1}/$_maxRetries failed: $error — retrying...',
+        );
+        await Future<void>.delayed(
+          _baseRetryDelay * pow(_retryBackoffMultiplier, attempt),
+        );
+      }
     }
+
+    _recordCircuitFailure(_baseUrl);
+    if (lastError is Exception) throw lastError;
+    throw const MainApiClientException('Request failed after retries.');
   }
 
   Future<Map<String, dynamic>> _post(
@@ -117,25 +232,61 @@ class MainApiClient implements RemoteRuntimeClient {
     Map<String, dynamic> body, {
     bool includeAuth = true,
   }) async {
+    if (_isCircuitOpen(_baseUrl)) {
+      throw MainApiClientException(
+        'Circuit breaker open for $_baseUrl — too many failures.',
+      );
+    }
+
     final uri = _uri(path);
     final encodedBody = jsonEncode(body);
     appendBotDebugLog('[MainApiClient] POST $uri body=$encodedBody');
-    try {
-      final response = await _http
-          .post(
-            uri,
-            headers: _headers(includeAuth: includeAuth),
-            body: encodedBody,
-          )
-          .timeout(_timeout);
-      appendBotDebugLog(
-        '[MainApiClient] POST $uri responded with ${response.statusCode}',
-      );
-      return _parseResponse(response);
-    } catch (error) {
-      appendBotDebugLog('[MainApiClient] POST $uri failed: $error');
-      rethrow;
+
+    Object? lastError;
+    for (var attempt = 0; attempt <= _maxRetries; attempt++) {
+      try {
+        final response = await _http
+            .post(
+              uri,
+              headers: _headers(includeAuth: includeAuth),
+              body: encodedBody,
+            )
+            .timeout(_timeout);
+        appendBotDebugLog(
+          '[MainApiClient] POST $uri responded with ${response.statusCode}',
+        );
+        _recordCircuitSuccess(_baseUrl);
+        return _parseResponse(response);
+      } on MainApiClientException catch (error) {
+        lastError = error;
+        if (_isClientError(error) || attempt >= _maxRetries) {
+          _recordCircuitFailure(_baseUrl);
+          rethrow;
+        }
+        appendBotDebugLog(
+          '[MainApiClient] POST $uri attempt ${attempt + 1}/$_maxRetries failed: $error — retrying...',
+        );
+        await Future<void>.delayed(
+          _baseRetryDelay * pow(_retryBackoffMultiplier, attempt),
+        );
+      } catch (error) {
+        lastError = error;
+        if (attempt >= _maxRetries) {
+          _recordCircuitFailure(_baseUrl);
+          rethrow;
+        }
+        appendBotDebugLog(
+          '[MainApiClient] POST $uri attempt ${attempt + 1}/$_maxRetries failed: $error — retrying...',
+        );
+        await Future<void>.delayed(
+          _baseRetryDelay * pow(_retryBackoffMultiplier, attempt),
+        );
+      }
     }
+
+    _recordCircuitFailure(_baseUrl);
+    if (lastError is Exception) throw lastError;
+    throw const MainApiClientException('Request failed after retries.');
   }
 
   Map<String, dynamic> _parseResponse(http.Response response) {
@@ -165,19 +316,26 @@ class MainApiClient implements RemoteRuntimeClient {
 
   @override
   Future<bool> checkHealth() async {
+    final cached = _getCachedHealth(_baseUrl);
+    if (cached != null) {
+      return cached;
+    }
+
     try {
       final json = await _getFirstAvailable(const <String>[
         '/healthz',
         '/health',
         '/',
       ], includeAuth: false);
-      if (json.isEmpty) {
-        return true;
-      }
-      return json['ok'] == true ||
+      final healthy =
+          json.isEmpty ||
+          json['ok'] == true ||
           json['healthy'] == true ||
           json['status'] == 'ok';
+      _setCachedHealth(_baseUrl, healthy);
+      return healthy;
     } catch (_) {
+      _setCachedHealth(_baseUrl, false);
       return false;
     }
   }
@@ -331,6 +489,7 @@ class MainApiClient implements RemoteRuntimeClient {
     );
 
     _lastSyncedHashes[cacheKey] = currentHash;
+    _evictOldestHashEntries(_lastSyncedHashes);
   }
 
   @override
@@ -367,11 +526,14 @@ class MainApiClient implements RemoteRuntimeClient {
     String commandId,
   ) async {
     final encodedBotId = Uri.encodeComponent(botId.trim());
-    await _post('/gateway/bots/$encodedBotId/commands/delete', <String, dynamic>{
-      'botId': botId,
-      'botName': botName,
-      'commandId': commandId,
-    });
+    await _post(
+      '/gateway/bots/$encodedBotId/commands/delete',
+      <String, dynamic>{
+        'botId': botId,
+        'botName': botName,
+        'commandId': commandId,
+      },
+    );
   }
 
   @override
@@ -397,11 +559,14 @@ class MainApiClient implements RemoteRuntimeClient {
     String workflowName,
   ) async {
     final encodedBotId = Uri.encodeComponent(botId.trim());
-    await _post('/gateway/bots/$encodedBotId/workflows/delete', <String, dynamic>{
-      'botId': botId,
-      'botName': botName,
-      'workflowName': workflowName,
-    });
+    await _post(
+      '/gateway/bots/$encodedBotId/workflows/delete',
+      <String, dynamic>{
+        'botId': botId,
+        'botName': botName,
+        'workflowName': workflowName,
+      },
+    );
   }
 
   Future<void> saveDiscordBotSnapshot({
@@ -423,6 +588,7 @@ class MainApiClient implements RemoteRuntimeClient {
     );
 
     _lastSavedSnapshots[cacheKey] = currentHash;
+    _evictOldestHashEntries(_lastSavedSnapshots);
   }
 
   Future<Map<String, dynamic>> verifyBilling({
@@ -836,6 +1002,27 @@ class MainApiClient implements RemoteRuntimeClient {
 
 bool _isNotFound(MainApiClientException error) {
   return error.statusCode == 404;
+}
+
+/// Returns true for client errors (4xx except 429) that should NOT be retried.
+bool _isClientError(MainApiClientException error) {
+  final code = error.statusCode;
+  if (code == null) return false;
+  return code >= 400 && code < 500 && code != 429;
+}
+
+/// Internal state for the circuit breaker.
+class _CircuitState {
+  _CircuitState({required this.firstFailure, required this.failureCount});
+  DateTime firstFailure;
+  int failureCount;
+}
+
+/// Cached health check result with timestamp.
+class _CachedHealth {
+  _CachedHealth({required this.healthy, required this.timestamp});
+  final bool healthy;
+  final DateTime timestamp;
 }
 
 String? _extractString(Map<String, dynamic>? source, List<String> keys) {

@@ -1,0 +1,2727 @@
+{
+  "@@locale": "pt",
+  "app_title": "Bot Creator",
+  "onboarding_welcome_title": "Bem-vindo ao Bot Creator",
+  "onboarding_welcome_desc": "Crie o seu primeiro bot do Discord em 3 passos simples. Vamos guiá-lo em cada etapa.",
+  "onboarding_welcome_start": "Começar",
+  "onboarding_welcome_skip": "Saltar",
+  "onboarding_create_title": "Passo 1: Criar um Bot",
+  "onboarding_create_desc": "Obtenha o seu token do Discord",
+  "onboarding_create_steps": "1. Vá ao Portal de Programadores do Discord\n2. Crie uma nova aplicação\n3. Copie o token do bot\n4. Cole-o abaixo",
+  "onboarding_create_tip": "💡 Dica: Nunca partilhe o seu token! Ele dá acesso total ao seu bot.",
+  "onboarding_create_tutorial": "Tutorial: Como obter um token",
+  "onboarding_create_button": "Continuar",
+  "onboarding_command_title": "Passo 2: Adicionar um Comando",
+  "onboarding_command_desc": "Crie o seu primeiro comando",
+  "onboarding_command_text": "Os comandos são o coração do seu bot. Eles permitem que os utilizadores interajam com o seu bot via Discord.",
+  "onboarding_command_example": "Exemplo:\n/hello → O bot responde \"Olá! 👋\"",
+  "onboarding_command_button": "Continuar",
+  "onboarding_start_title": "Passo 3: Iniciar o Bot",
+  "onboarding_start_desc": "Lance o seu bot!",
+  "onboarding_start_text": "Clique no botão \"Iniciar\" no cartão do seu bot. Depois teste o seu comando no Discord!",
+  "onboarding_start_tip": "✨ Fantástico! Criou o seu primeiro bot do Discord. Agora pode adicionar mais comandos e personalizá-lo!",
+  "onboarding_start_button": "Continuar",
+  "onboarding_success_title": "Parabéns! 🎉",
+  "onboarding_success_desc": "O seu bot do Discord está pronto a funcionar!",
+  "onboarding_success_whatsnext": "O que se segue?",
+  "onboarding_success_tip1": "Adicionar mais comandos",
+  "onboarding_success_tip2": "Criar fluxos de trabalho",
+  "onboarding_success_tip3": "Fazer cópia de segurança dos dados",
+  "onboarding_success_button": "Iniciar!",
+  "app_create_new": "Criar nova Aplicação",
+  "app_create_page_title": "Criar um bot",
+  "app_create_hero_title": "Ligue o seu bot do Discord",
+  "app_create_hero_desc": "Uma configuração guiada para abrir as páginas corretas, copiar o seu token e importar o bot com segurança.",
+  "app_resources_title": "Configuração guiada",
+  "app_resources_desc": "Estas ações abrem as páginas oficiais de que precisa antes de guardar o seu bot aqui.",
+  "app_open_discord_portal": "Abrir Portal de Programadores do Discord",
+  "app_open_discord_portal_desc": "Crie a sua aplicação e ative a secção de bot.",
+  "app_open_token_tutorial": "Ler o tutorial do token",
+  "app_open_token_tutorial_desc": "Um guia passo a passo para gerar e copiar o token do seu bot.",
+  "app_external_link_badge": "Link externo",
+  "app_token_section_title": "Cole o token do seu bot",
+  "app_token_section_desc": "Assim que o token for copiado, cole-o abaixo para adicionar o seu bot à app.",
+  "app_token_field_helper": "Cole o token exatamente como fornecido pelo Discord.",
+  "app_token_security_hint": "Mantenha este token privado. Qualquer pessoa com ele pode controlar o seu bot.",
+  "app_show_token": "Mostrar token",
+  "app_hide_token": "Ocultar token",
+  "app_save_bot": "Adicionar bot",
+  "app_open_link_error": "Não foi possível abrir esta página externa.",
+  "app_how_to_create_token": "Como criar um Token de Bot?",
+  "app_bot_token": "Token de Bot",
+  "app_enter_token": "Introduza o token do seu bot aqui",
+  "app_note": "Nota: Precisa de criar uma nova Aplicação no Portal de Programadores do Discord e obter o token do seu bot.",
+  "app_save": "Guardar Alterações",
+  "app_sync_manager_title": "Bot já gerido",
+  "app_sync_manager_desc": "Este bot já está armazenado no Bot Creator Manager. Ligar com o Discord para sincronizar todos os seus bots automaticamente?",
+  "app_sync_manager_manual": "Manter local",
+  "app_sync_manager_connect": "Ligar Discord",
+  "app_no_apps": "Nenhuma aplicação encontrada",
+  "app_loading_error": "Erro ao carregar",
+  "app_create_button": "Criar um bot",
+  "home_tab": "Início",
+  "commands_tab": "Comandos",
+  "commands_tab_short": "Cmd",
+  "globals_tab": "Globais",
+  "globals_tab_short": "Vars",
+  "workflows_tab": "Fluxos",
+  "workflows_tab_short": "Fluxo",
+  "scheduler_tab": "Agendador",
+  "scheduler_tab_short": "Agend",
+  "emojis_tab": "Emojis",
+  "emojis_tab_short": "Emoji",
+  "emojis_title": "Emojis da Aplicação",
+  "emojis_empty": "Ainda não existem emojis. Carregue um para começar.",
+  "emojis_upload": "Carregar Emoji",
+  "emojis_upload_name_hint": "Nome do emoji (letras, números, _)",
+  "emojis_upload_pick_image": "Escolher Imagem",
+  "emojis_delete_confirm_title": "Eliminar Emoji",
+  "emojis_delete_confirm_body": "Eliminar :{name}: ? Esta ação não pode ser desfeita.",
+  "@emojis_delete_confirm_body": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "download_completed": "Download concluído: {id}",
+  "@download_completed": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "download_failed": "Download falhou: {error}",
+  "@download_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "download_legacy_backup": "Download concluído (backup legado)",
+  "restore_completed": "Restauro concluído",
+  "restore_runtime_db_recommended": "Restauro concluído (SQLite restaurado, recomenda-se reiniciar)",
+  "emojis_rename_title": "Renomear Emoji",
+  "emojis_rename_hint": "Novo nome",
+  "emojis_loading_error": "Falha ao carregar emojis",
+  "emojis_upload_error": "Carregamento falhou: {error}",
+  "@emojis_upload_error": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "emojis_delete_error": "Eliminação falhou: {error}",
+  "@emojis_delete_error": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "emojis_rename_error": "Renomeação falhou: {error}",
+  "@emojis_rename_error": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_tab": "Definições",
+  "more_tab": "Mais",
+  "quick_access_title": "Acesso Rápido",
+  "more_options_title": "Mais Opções",
+  "no_more_options": "Nenhuma outra opção disponível",
+  "settings_theme_switch_light": "Mudar para modo claro",
+  "settings_theme_switch_dark": "Mudar para modo escuro",
+  "settings_appearance_title": "Aspeto e idioma",
+  "settings_language_title": "Idioma",
+  "settings_language_desc": "Escolha o idioma utilizado pela app.",
+  "settings_language_system": "Automático (dispositivo)",
+  "settings_language_updated": "Idioma atualizado",
+  "settings_debug_title": "Ferramentas de depuração",
+  "settings_debug_desc": "Repor preferências locais ou repetir a introdução para testes.",
+  "settings_reset_preferences": "Repor preferências",
+  "settings_reset_preferences_desc": "Repor tema, idioma e progresso da introdução.",
+  "settings_replay_onboarding": "Repetir introdução",
+  "settings_replay_onboarding_desc": "Repor introdução e lançá-la novamente agora.",
+  "settings_debug_premium_bypass": "Bypass Premium",
+  "settings_debug_premium_bypass_desc": "Desbloquear todas as funcionalidades Premium sem subscrição (apenas depuração).",
+  "settings_preferences_reset_done": "Preferências repostas",
+  "settings_backup_restore_title": "Cópia de Segurança e Restauro",
+  "settings_backup_restore_desc": "Gerir a sincronização de dados com o Google Drive",
+  "settings_snapshot_preview_title": "Pré-visualização do Snapshot",
+  "settings_snapshot_id": "ID: {id}",
+  "@settings_snapshot_id": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_snapshot_label": "Etiqueta: {label}",
+  "@settings_snapshot_label": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_snapshot_created_at": "Criado: {date}",
+  "@settings_snapshot_created_at": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_snapshot_files_size": "Ficheiros: {count} • Tamanho: {size}",
+  "@settings_snapshot_files_size": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_snapshot_apps_count": "Apps: {count}",
+  "@settings_snapshot_apps_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settings_snapshot_apps_list": "Apps neste snapshot",
+  "settings_snapshot_no_metadata": "Nenhum metadado de app disponível.",
+  "settings_snapshot_delete_loading": "A eliminar snapshot…",
+  "settings_snapshot_deleted": "Snapshot eliminado",
+  "settings_snapshot_restore_loading": "A restaurar snapshot…",
+  "settings_restore_snapshot": "Restaurar este Snapshot",
+  "settings_diagnostics_dialog_title": "Diagnóstico de Arranque",
+  "settings_diagnostics_copied": "Diagnósticos copiados para a área de transferência",
+  "settings_drive_title": "Ligação ao Google Drive",
+  "settings_drive_desc": "Ligue a sua conta Google Drive para sincronizar os seus dados",
+  "settings_drive_connect_loading": "A ligar ao Google Drive…",
+  "settings_drive_connected": "Ligado ao Google Drive",
+  "settings_drive_connect": "Ligar ao Google Drive",
+  "settings_drive_status_connected": "Ligado",
+  "settings_drive_disconnect_loading": "A desligar…",
+  "settings_drive_disconnected": "Desligado do Google Drive",
+  "settings_drive_disconnect": "Desligar",
+  "settings_runner_title": "API do Runner",
+  "settings_runner_desc": "Ligue a app a um Bot Creator Runner. Runners remotos devem permanecer em redes fidedignas e usar um token bearer.",
+  "settings_runner_url_hint": "http://192.168.1.x:8080",
+  "settings_runner_token_label": "Token da API do Runner",
+  "settings_runner_token_hint": "Token Bearer (opcional em localhost)",
+  "settings_runner_save": "Guardar definições",
+  "settings_runner_clear": "Limpar",
+  "settings_runner_saved": "Definições do Runner guardadas",
+  "settings_runner_cleared": "Definições do Runner limpas",
+  "settings_runner_url_save": "Guardar URL",
+  "settings_runner_url_clear": "Limpar",
+  "settings_runner_url_saved": "URL do Runner guardado",
+  "settings_runner_url_cleared": "URL do Runner limpo",
+  "settings_runner_check": "Verificar ligação",
+  "settings_runner_connected": "Runner acessível ✓",
+  "settings_runner_auth_failed": "Runner rejeitou o token da API",
+  "settings_runner_unreachable": "Runner inacessível",
+  "settings_runner_connecting": "A verificar ligação…",
+  "settings_runner_active": "API do Runner Ativa: {url}",
+  "@settings_runner_active": {
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_runner_disable_temp": "Desativar Runner temporariamente",
+  "settings_runner_disable_temp_desc": "Manter definições do Runner mas forçar modo local até ser reativado.",
+  "settings_runner_temporarily_disabled": "Runner desativado temporariamente (modo local ativo)",
+  "settings_runner_temporarily_disabled_saved": "Runner desativado temporariamente",
+  "settings_runner_reenabled": "Runner reativado",
+  "settings_main_api_title": "Servidor do Bot Creator",
+  "settings_main_api_desc": "Ligue o Bot Creator ao seu Servidor do Bot Creator e inicie sessão com o Discord. O secret do cliente Discord deve permanecer no backend.",
+  "settings_main_api_url_hint": "https://api.example.com",
+  "settings_main_api_save": "Guardar Servidor do Bot Creator",
+  "settings_main_api_clear": "Limpar",
+  "settings_main_api_saved": "Definições do Servidor do Bot Creator guardadas",
+  "settings_main_api_cleared": "Definições do Servidor do Bot Creator limpas",
+  "settings_main_api_check": "Verificar Servidor do Bot Creator",
+  "settings_main_api_connected": "Servidor do Bot Creator acessível ✓",
+  "settings_main_api_unreachable": "Servidor do Bot Creator inacessível",
+  "settings_main_api_auth_failed": "A sessão do Servidor do Bot Creator é inválida ou expirou",
+  "settings_main_api_connect_discord": "Ligar conta Discord",
+  "settings_main_api_disconnect": "Desligar conta",
+  "settings_main_api_desktop_only": "O início de sessão no Discord via Servidor do Bot Creator está disponível apenas no desktop.",
+  "settings_main_api_not_configured": "URL do Servidor do Bot Creator necessário",
+  "settings_main_api_session_connected": "Sessão Discord ativa",
+  "settings_main_api_session_disconnected": "Sessão Discord desligada",
+  "settings_main_api_session_expired": "Sessão Discord expirou",
+  "settings_main_api_url_required": "URL do Servidor do Bot Creator necessário",
+  "settings_main_api_connected_user": "Ligado como {user}",
+  "@settings_main_api_connected_user": {
+    "placeholders": {
+      "user": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_main_api_user_unknown": "Utilizador Discord",
+  "settings_main_api_connected_discord": "Conta Discord ligada",
+  "settings_discord_rpc_title": "Discord Rich Presence",
+  "settings_discord_rpc_desc": "Publique a atividade de desktop do Bot Creator no cliente local do Discord. O Bot Creator utiliza sempre a aplicação Discord integrada e envia SET_ACTIVITY diretamente via IPC local quando ativado.",
+  "settings_discord_rpc_enable": "Ativar Discord Rich Presence",
+  "settings_discord_rpc_client_id_hint": "1350824555119382678",
+  "settings_discord_rpc_client_id_helper": "Este ID é fixo no Bot Creator e não pode ser alterado nas definições.",
+  "settings_discord_rpc_client_secret_label": "Client secret da aplicação Discord (opcional)",
+  "settings_discord_rpc_client_secret_hint": "Client secret",
+  "settings_discord_rpc_client_secret_helper": "Fallback avançado opcional para um fluxo de cliente confidencial processado localmente.",
+  "settings_discord_rpc_broker_label": "URL do broker OAuth (avançado, opcional)",
+  "settings_discord_rpc_broker_hint": "https://auth.example.com",
+  "settings_discord_rpc_save": "Guardar definições",
+  "settings_discord_rpc_saved": "Definições de Discord Rich Presence guardadas",
+  "settings_discord_rpc_connect": "Atualizar presença",
+  "settings_discord_rpc_authorize": "Autorizar",
+  "settings_discord_rpc_complete_authorization": "Concluir autorização",
+  "settings_discord_rpc_authorization_pending_exchange": "Código de autorização recebido",
+  "settings_discord_rpc_open_ipc": "Abrir IPC local",
+  "settings_discord_rpc_ipc_open": "IPC local já aberto",
+  "settings_discord_rpc_disconnect": "Fechar IPC",
+  "settings_discord_rpc_user": "Utilizador autorizado: {user}",
+  "@settings_discord_rpc_user": {
+    "placeholders": {
+      "user": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_discord_rpc_endpoint": "Endpoint IPC: {endpoint}",
+  "@settings_discord_rpc_endpoint": {
+    "placeholders": {
+      "endpoint": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_discord_rpc_last_error": "Último erro: {error}",
+  "@settings_discord_rpc_last_error": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_discord_rpc_enable_first": "Ative primeiro o Discord Rich Presence",
+  "settings_discord_rpc_client_id_required": "ID de cliente da aplicação Discord necessário",
+  "settings_discord_rpc_disabled": "Desativado",
+  "settings_discord_rpc_platform_unsupported": "Discord Rich Presence está disponível apenas em desktop",
+  "settings_discord_rpc_transport_unsupported": "O transporte Discord ainda não é suportado nesta plataforma",
+  "settings_discord_rpc_not_configured": "ID de cliente necessário",
+  "settings_discord_rpc_broker_required": "O ID de cliente é suficiente para o fluxo de cliente público; URL do broker e client secret são fallbacks opcionais",
+  "settings_discord_rpc_disconnected": "IPC fechado",
+  "settings_discord_rpc_needs_authorization": "Autorização necessária",
+  "settings_discord_rpc_authorization_code_pending_exchange": "Código de autorização em cache; tente novamente para terminar a troca de token",
+  "settings_discord_rpc_ipc_connected_auth_required": "IPC local do Discord ligado; nenhum pedido HTTP OAuth enviado ainda, autenticação ainda necessária",
+  "settings_discord_rpc_connecting": "A ligar ao Discord…",
+  "settings_discord_rpc_authorizing": "A aguardar autorização do Discord…",
+  "settings_discord_rpc_exchanging_code": "A concluir troca OAuth…",
+  "settings_discord_rpc_authenticating": "A autenticar com o Discord…",
+  "settings_discord_rpc_connected": "Presença enviada para o Discord",
+  "settings_discord_rpc_error": "Erro de Discord RPC",
+  "settings_data_operations_title": "Operações de Dados",
+  "settings_export": "Exportar",
+  "settings_import": "Importar",
+  "settings_export_app_data": "Exportar Dados da App",
+  "settings_import_app_data": "Importar Dados da App",
+  "settings_export_loading": "A exportar…",
+  "settings_import_loading": "A importar…",
+  "settings_recovery_title": "Recovery Pro",
+  "settings_enable_auto_backup": "Ativar cópia de segurança automática",
+  "settings_enable_auto_backup_desc": "Crie snapshots versionados automaticamente quando devidos.",
+  "settings_auto_backup_interval": "Intervalo de cópia de segurança automática",
+  "settings_auto_backup_every_6h": "A cada 6h",
+  "settings_auto_backup_every_12h": "A cada 12h",
+  "settings_auto_backup_every_24h": "A cada 24h",
+  "settings_auto_backup_every_72h": "A cada 72h",
+  "settings_last_auto_backup_never": "Última cópia automática: nunca",
+  "settings_last_auto_backup_at": "Última cópia automática: {date}",
+  "@settings_last_auto_backup_at": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_snapshot_create_loading": "A criar snapshot…",
+  "settings_manual_snapshot_label": "Snapshot manual",
+  "settings_snapshot_created_message": "Snapshot criado: {id}",
+  "@settings_snapshot_created_message": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_backup_now": "Fazer cópia de segurança agora",
+  "settings_run_auto_backup_now": "Executar cópia automática agora",
+  "settings_auto_backup_check_loading": "A verificar cópia automática…",
+  "settings_snapshots_title": "Snapshots",
+  "settings_snapshots_refresh": "Atualizar snapshots",
+  "settings_snapshots_delete_all": "Eliminar todos os snapshots",
+  "settings_snapshots_delete_all_title": "Eliminar todos os snapshots",
+  "settings_snapshots_delete_all_confirm": "Eliminar permanentemente {count} snapshot(s)? Esta ação não pode ser desfeita.",
+  "@settings_snapshots_delete_all_confirm": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settings_snapshots_delete_all_loading": "A eliminar todos os snapshots…",
+  "settings_snapshots_delete_all_done": "{count} snapshot(s) eliminado(s).",
+  "@settings_snapshots_delete_all_done": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settings_snapshots_delete_select_tooltip": "Eliminar um snapshot selecionado",
+  "settings_snapshots_delete_select_title": "Eliminar um snapshot",
+  "settings_snapshots_delete_select_desc": "Selecione o snapshot a remover (mais antigo primeiro).",
+  "settings_snapshots_delete_one_confirm": "Eliminar permanentemente \"{label}\"? Esta ação não pode ser desfeita.",
+  "@settings_snapshots_delete_one_confirm": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_snapshots_refresh_loading": "A atualizar snapshots…",
+  "settings_snapshots_empty": "Ainda não foram encontrados snapshots.",
+  "backup_completed": "Cópia de segurança concluída: {id}",
+  "@backup_completed": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "backup_failed": "Cópia de segurança falhou: {error}",
+  "@backup_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_snapshot_list_entry": "{date} • {count} ficheiros • {size}",
+  "@settings_snapshot_list_entry": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_diagnostics_section_title": "Diagnósticos",
+  "settings_diagnostics_page_title": "Registos da Aplicação",
+  "settings_diagnostics_page_scope_note": "Mostra apenas registos de diagnóstico da app (registos do bot são excluídos).",
+  "settings_diagnostics_refresh": "Atualizar registos",
+  "settings_diagnostics_copy_all": "Copiar todos os registos",
+  "settings_diagnostics_empty": "Ainda não existem registos da aplicação.",
+  "settings_view_startup_logs": "Ver registos de arranque",
+  "settings_clear_logs": "Limpar registos",
+  "settings_logs_cleared": "Registo de diagnósticos limpo",
+  "settings_legal_title": "Legal",
+  "settings_legal_desc": "Reveja como os seus dados são tratados e armazenados.",
+  "settings_privacy_policy": "Política de Privacidade",
+  "settings_compatibility_title": "Snapshot de compatibilidade BDFD",
+  "settings_compatibility_desc": "Uma visão rápida da cobertura de funcionalidades para utilizadores que vêm do BDFD.",
+  "settings_compatibility_status_supported": "Suportado",
+  "settings_compatibility_status_partial": "Parcial",
+  "settings_compatibility_status_missing": "Em falta",
+  "settings_compatibility_item_workflows_title": "Construtor de fluxos",
+  "settings_compatibility_item_workflows_desc": "Fluxos de trabalho visuais de comando e resposta estão disponíveis.",
+  "settings_compatibility_item_variables_title": "Variáveis de runtime e templates",
+  "settings_compatibility_item_variables_desc": "Variáveis dinâmicas e ajudantes de template são suportados.",
+  "settings_compatibility_item_events_title": "Cobertura de eventos",
+  "settings_compatibility_item_events_desc": "A maioria dos eventos comuns é suportada, alguns são limitados pelo runtime.",
+  "settings_compatibility_item_runner_title": "Arquitetura do Runner",
+  "settings_compatibility_item_runner_desc": "O runner remoto está disponível, o suporte multi-runner está em curso.",
+  "settings_compatibility_item_bdscript_title": "Paridade de funções BDScript",
+  "settings_compatibility_item_bdscript_desc": "Cobertura total do catálogo de funções BDFD.",
+  "settings_compatibility_note": "Este snapshot é intencionalmente de alto nível e evoluirá com as versões.",
+  "settings_compatibility_open_functions": "Ver funções compatíveis",
+  "settings_compatibility_functions_title": "Funções BDFD Compatíveis",
+  "settings_compatibility_functions_subtitle": "Funções atualmente implementadas e utilizáveis no modo BDFD do Bot Creator.",
+  "settings_compatibility_functions_matrix_subtitle": "Vista de diferenças entre a implementação do Bot Creator e as funções de referência BDFD.",
+  "settings_compatibility_functions_count": "Funções compatíveis: {count}",
+  "@settings_compatibility_functions_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settings_compatibility_functions_count_bot_creator": "Suportadas pelo Bot Creator: {count}",
+  "@settings_compatibility_functions_count_bot_creator": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settings_compatibility_functions_count_bdfd": "Total de referência BDFD: {count}",
+  "@settings_compatibility_functions_count_bdfd": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settings_compatibility_functions_count_both": "Suportadas em ambos: {count}",
+  "@settings_compatibility_functions_count_both": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settings_compatibility_functions_count_missing": "Em falta no Bot Creator: {count}",
+  "@settings_compatibility_functions_count_missing": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settings_compatibility_functions_count_bot_only": "Apenas Bot Creator: {count}",
+  "@settings_compatibility_functions_count_bot_only": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settings_compatibility_functions_note": "Esta página é gerada a partir do âmbito de implementação atual e crescerá ao longo do tempo.",
+  "settings_compatibility_functions_matrix_note": "Entradas apenas BDFD são funções listadas no catálogo BDFD fornecido mas não implementadas atualmente no Bot Creator.",
+  "settings_compatibility_functions_search_hint": "Procurar uma função (exemplo: $userJoined)",
+  "settings_compatibility_functions_section_both": "Suportado no Bot Creator e BDFD",
+  "settings_compatibility_functions_section_bot_only": "Suportado apenas no Bot Creator",
+  "settings_compatibility_functions_section_bot_only_note": "Ajudantes de loop são atualmente específicos do Bot Creator.",
+  "settings_compatibility_functions_section_missing": "Disponível no BDFD mas em falta no Bot Creator",
+  "settings_compatibility_functions_empty": "Nenhuma função nesta secção.",
+  "settings_compatibility_functions_category_guards": "Guardas e permissões",
+  "settings_compatibility_functions_category_control": "Fluxo de controlo",
+  "settings_compatibility_functions_category_messages": "Mensagens",
+  "settings_compatibility_functions_category_embeds": "Embeds",
+  "settings_compatibility_functions_category_components": "Componentes / Interações",
+  "settings_compatibility_functions_category_logging": "Registo",
+  "settings_compatibility_functions_category_json": "Ajudantes JSON",
+  "settings_compatibility_functions_category_http": "Ajudantes HTTP",
+  "settings_compatibility_functions_category_variables": "Variáveis de âmbito",
+  "settings_compatibility_functions_category_threads": "Threads",
+  "settings_compatibility_functions_category_runtime": "Placeholders de runtime",
+  "settings_ads_privacy_manage": "Gerir escolhas de privacidade de anúncios",
+  "settings_ads_privacy_not_required": "Opções de privacidade de anúncios não são necessárias agora",
+  "settings_ads_privacy_loading": "A verificar definições de privacidade de anúncios...",
+  "settings_ads_privacy_opened": "Opções de privacidade de anúncios abertas",
+  "settings_ads_privacy_open_error": "Não foi possível abrir as opções de privacidade de anúncios",
+  "action_name_deleteMessages": "Eliminar Mensagens",
+  "action_name_createChannel": "Criar Canal",
+  "action_name_updateChannel": "Atualizar Canal",
+  "action_name_removeChannel": "Remover Canal",
+  "action_name_sendMessage": "Enviar Mensagem",
+  "action_name_editMessage": "Editar Mensagem",
+  "action_name_addReaction": "Adicionar Reação",
+  "action_name_removeReaction": "Remover Reação",
+  "action_name_clearAllReactions": "Limpar Todas as Reações",
+  "action_name_banUser": "Banir Utilizador",
+  "action_name_unbanUser": "Desbanir Utilizador",
+  "action_name_kickUser": "Expulsar Utilizador",
+  "action_name_muteUser": "Silenciar Utilizador",
+  "action_name_unmuteUser": "Reativar Som do Utilizador",
+  "action_name_addRole": "Adicionar Cargo",
+  "action_name_removeRole": "Remover Cargo",
+  "action_name_pinMessage": "Fixar Mensagem",
+  "action_name_updateAutoMod": "Atualizar AutoMod",
+  "action_name_updateGuild": "Atualizar Servidor",
+  "action_name_listMembers": "Listar Membros",
+  "action_name_getMember": "Obter Membro",
+  "action_name_sendComponentV2": "Enviar Componente V2",
+  "action_name_editComponentV2": "Editar Componente V2",
+  "action_name_sendWebhook": "Enviar Webhook",
+  "action_name_editWebhook": "Editar Webhook",
+  "action_name_deleteWebhook": "Eliminar Webhook",
+  "action_name_listWebhooks": "Listar Webhooks",
+  "action_name_getWebhook": "Obter Webhook",
+  "action_name_httpRequest": "Pedido HTTP",
+  "action_name_setGlobalVariable": "Definir Variável Global",
+  "action_name_getGlobalVariable": "Obter Variável Global",
+  "action_name_removeGlobalVariable": "Remover Variável Global",
+  "action_name_setScopedVariable": "Definir Variável de Âmbito",
+  "action_name_getScopedVariable": "Obter Variável de Âmbito",
+  "action_name_removeScopedVariable": "Remover Variável de Âmbito",
+  "action_name_renameScopedVariable": "Renomear Variável de Âmbito",
+  "action_name_listScopedVariableIndex": "Listar Índice de Variáveis de Âmbito",
+  "action_name_appendArrayElement": "Adicionar Elemento ao Array",
+  "action_name_removeArrayElement": "Remover Elemento do Array",
+  "action_name_queryArray": "Consultar Array",
+  "action_name_runWorkflow": "Executar Fluxo de Trabalho",
+  "action_name_runBdfdScript": "Executar Script BDFD",
+  "action_name_respondWithMessage": "Responder com Mensagem",
+  "action_name_respondWithComponentV2": "Responder com Componente V2",
+  "action_name_respondWithModal": "Responder com Modal",
+  "action_name_editInteractionMessage": "Editar Mensagem de Interação",
+  "action_name_listenForButtonClick": "Ouvir Clique de Botão",
+  "action_name_listenForSelectMenu": "Ouvir Menu de Seleção",
+  "action_name_listenForModalSubmit": "Ouvir Submissão de Modal",
+  "action_name_respondWithAutocomplete": "Responder com Autocomplete",
+  "action_name_stopUnless": "Parar a menos que a condição seja cumprida",
+  "action_name_ifBlock": "Bloco IF / ELSE",
+  "action_name_calculate": "Calcular",
+  "action_name_getMessage": "Obter Mensagem",
+  "action_name_unpinMessage": "Desafixar Mensagem",
+  "action_name_createPoll": "Criar Sondagem",
+  "action_name_endPoll": "Terminar Sondagem",
+  "action_name_createInvite": "Criar Convite",
+  "action_name_deleteInvite": "Eliminar Convite",
+  "action_name_getInvite": "Obter Convite",
+  "action_name_moveToVoiceChannel": "Mover para Canal de Voz",
+  "action_name_disconnectFromVoice": "Desligar da Voz",
+  "action_name_serverMuteMember": "Silenciar Membro no Servidor",
+  "action_name_serverDeafenMember": "Ensurdecer Membro no Servidor",
+  "action_name_createEmoji": "Criar Emoji",
+  "action_name_updateEmoji": "Atualizar Emoji",
+  "action_name_deleteEmoji": "Eliminar Emoji",
+  "action_name_createAutoModRule": "Criar Regra AutoMod",
+  "action_name_deleteAutoModRule": "Eliminar Regra AutoMod",
+  "action_name_listAutoModRules": "Listar Regras AutoMod",
+  "action_name_getGuildOnboarding": "Obter Introdução do Servidor",
+  "action_name_updateGuildOnboarding": "Atualizar Introdução do Servidor",
+  "action_name_updateSelfUser": "Atualizar Próprio Utilizador (Perfil do Bot)",
+  "action_name_createThread": "Criar Thread",
+  "action_name_editChannelPermissions": "Editar Permissões do Canal",
+  "action_name_deleteChannelPermission": "Eliminar Permissão do Canal",
+  "home_token_missing": "Token não encontrado para {botName}",
+  "@home_token_missing": {
+    "placeholders": {
+      "botName": {
+        "type": "String"
+      }
+    }
+  },
+  "home_log_start_requested": "Arranque do bot solicitado",
+  "home_log_stop_requested": "Paragem do bot solicitada",
+  "home_notification_permission_required": "A permissão de notificação é necessária para iniciar o bot.",
+  "home_foreground_service_not_started": "O serviço de primeiro plano não iniciou.",
+  "home_log_desktop_stop_requested": "Paragem do bot de desktop solicitada",
+  "home_unknown_app": "Desconhecido",
+  "home_status_online": "Online",
+  "home_status_offline": "Offline",
+  "home_server_count_one": "{count} servidor",
+  "@home_server_count_one": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "home_server_count_other": "{count} servidores",
+  "@home_server_count_other": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "home_stop": "Parar",
+  "home_start": "Iniciar",
+  "home_start_ads": "Iniciar (Ver Anúncio)",
+  "home_start_premium": "Iniciar (Premium)",
+  "home_add_time": "Adicionar Tempo",
+  "home_hosting_time_left": "Tempo de Alojamento restante: {duration}",
+  "@home_hosting_time_left": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "home_manage": "Gerir",
+  "home_logs_tooltip": "Registos do bot",
+  "rewarded_start_title": "Anúncio Necessário",
+  "rewarded_start_message": "É necessário um anúncio para iniciar esta sessão de alojamento. Isto ajuda a financiar o projeto. Utilizadores Premium podem saltar isto.",
+  "rewarded_start_watch": "Ver anúncio",
+  "rewarded_start_continue": "Continuar",
+  "rewarded_start_skip": "Saltar",
+  "rewarded_start_thanks": "Obrigado pelo seu apoio!",
+  "ads_consent_title": "Consentimento de anúncios",
+  "ads_consent_message": "Para cumprir o RGPD, precisamos do seu consentimento antes de mostrar anúncios. Pode continuar a usar a app mesmo que recuse.",
+  "ads_consent_accept": "Eu aceito",
+  "ads_consent_refuse": "Eu recuso",
+  "ads_consent_refused_info": "Consentimento de anúncios recusado. O bot iniciará normalmente.",
+  "error": "Erro",
+  "error_with_details": "Erro: {error}",
+  "@error_with_details": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "ok": "OK",
+  "close": "Fechar",
+  "copy": "Copiar",
+  "delete": "Eliminar",
+  "cancel": "Cancelar",
+  "save": "Guardar",
+  "create": "Criar",
+  "confirm": "Confirmar",
+  "bot_home_start": "Iniciar Bot",
+  "bot_home_starting": "A iniciar…",
+  "bot_home_stop": "Parar Bot",
+  "bot_home_ios_notice_title": "Restrição local do iOS",
+  "bot_home_ios_notice_content": "No modo local, o iOS pode suspender a app em segundo plano. O bot pode iniciar, mas manter a ligação ao Discord ativa não é garantido como acontece com um Runner.",
+  "bot_home_view_logs": "Ver registos do bot",
+  "bot_home_view_stats": "Ver estatísticas do bot",
+  "bot_home_view_replay": "Ver replays do depurador",
+  "bot_home_section_getting_started": "INTRODUÇÃO",
+  "bot_home_customize": "Personalizar o meu bot",
+  "bot_home_create_command": "Criar o meu primeiro comando",
+  "bot_home_section_monitoring": "MONITORIZAÇÃO",
+  "bot_home_section_tools": "FERRAMENTAS",
+  "bot_home_section_danger": "ZONA DE PERIGO",
+  "bot_home_sync": "Sincronizar App",
+  "bot_home_sync_success": "App sincronizada com sucesso",
+  "bot_home_invite": "Convidar Bot",
+  "bot_home_invite_error": "Não foi possível abrir o link de convite",
+  "bot_home_delete": "Eliminar App",
+  "bot_home_delete_confirm": "Tem a certeza que deseja eliminar esta app?",
+  "bot_home_start_error": "Não foi possível iniciar: {error}",
+  "@bot_home_start_error": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "bot_home_log_start": "Arranque do bot solicitado",
+  "bot_home_log_stop": "Paragem do bot solicitada",
+  "bot_home_log_desktop_stop": "Paragem do bot de desktop solicitada",
+  "bot_home_notif_required": "A permissão de notificação é necessária para iniciar o serviço do bot.",
+  "bot_home_service_not_started": "O serviço de primeiro plano não iniciou.",
+  "bot_home_token_invalid_title": "O token parece inválido",
+  "bot_home_token_invalid_content": "Não foi possível ligar ao Discord com o token fornecido. Pode ser inválido ou ter sido revogado. Deseja iniciar o bot de qualquer forma?",
+  "bot_offline_token_desc": "Token inválido ou em falta. Introduza um novo token de bot do Discord para restaurar a ligação.",
+  "cmd_offline_incomplete_warning": "Este comando não pôde ser totalmente carregado (offline ou token inválido). Ligue um token válido para editar.",
+  "bot_settings_token_mismatch_title": "Diferente bot detetado",
+  "bot_settings_token_mismatch_content": "Este token pertence ao bot {newId}, mas os dados atuais são para o bot {oldId}. Comandos e definições podem não corresponder. Continuar de qualquer forma?",
+  "@bot_settings_token_mismatch_content": {
+    "placeholders": {
+      "newId": {
+        "type": "String"
+      },
+      "oldId": {
+        "type": "String"
+      }
+    }
+  },
+  "bot_settings_token_mismatch_confirm": "Substituir token de qualquer forma",
+  "bot_settings_title": "Personalizar Bot / Perfil",
+  "bot_settings_workflow_docs": "Centro de Documentação",
+  "bot_settings_workflow_docs_desc": "Documentação centralizada para comandos, fluxos de trabalho, variáveis de runtime e comportamento de execução.",
+  "bot_settings_export_import": "Exportar / Importar",
+  "bot_settings_export_import_desc": "Exporte ou importe a configuração do seu bot como um ficheiro ZIP.",
+  "bot_settings_app_flags": "Flags da Aplicação",
+  "bot_settings_gateway_intents": "Configuração de Gateway Intents",
+  "bot_settings_gateway_intents_desc": "Selecione quais os intents que o seu bot precisa. Configure-os no Portal de Programadores do Discord.",
+  "bot_settings_token_title": "Token do Bot",
+  "bot_settings_update_token": "Atualizar Token do Bot",
+  "bot_settings_token_hint": "Introduza o token do seu bot aqui",
+  "bot_settings_save_success": "Definições guardadas com sucesso",
+  "bot_settings_save_token_btn": "Guardar token e intents",
+  "bot_settings_save_token_only_btn": "Guardar token",
+  "bot_settings_save_intents_btn": "Guardar intents",
+  "bot_settings_save_profile_status_btn": "Guardar perfil e estados",
+  "bot_settings_save_token_caption": "Alterações de token estão protegidas. Clique primeiro em \"Editar token\", depois guarde.",
+  "bot_settings_save_intents_caption": "Isto apenas atualiza a configuração de gateway intents.",
+  "bot_settings_save_profile_caption": "Isto aplica o nome de utilizador/avatar instantaneamente e guarda a rotação de estados.",
+  "bot_settings_token_saved": "Token guardado com sucesso",
+  "bot_settings_intents_saved": "Intents guardados com sucesso",
+  "bot_settings_profile_saved": "Perfil/estados aplicados com sucesso",
+  "bot_settings_edit_token_btn": "Editar token",
+  "bot_settings_cancel_token_edit_btn": "Cancelar edição de token",
+  "bot_settings_token_hidden_desc": "A entrada de token está oculta por padrão por segurança.",
+  "bot_settings_token_required": "O token do bot é obrigatório.",
+  "bot_settings_save_token_first": "Por favor, guarde primeiro o token antes de aplicar alterações de perfil/estado.",
+  "bot_settings_profile_title": "Perfil do Bot",
+  "bot_settings_username_override": "Substituição de nome de utilizador",
+  "bot_settings_username_hint": "Deixe vazio para manter o nome atual",
+  "bot_settings_avatar_local_path": "Caminho do ficheiro local do avatar",
+  "bot_settings_avatar_path_hint": "/caminho/absoluto/para/avatar.png",
+  "bot_settings_browse": "Procurar",
+  "bot_settings_avatar_selected_file": "Ficheiro selecionado: {path}",
+  "@bot_settings_avatar_selected_file": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "bot_settings_avatar_preview_label": "Pré-visualização do avatar",
+  "bot_settings_avatar_preview_error": "Não foi possível pré-visualizar a imagem",
+  "bot_settings_avatar_unsupported_format": "Formato de avatar não suportado: {ext}. Formatos suportados: {formats}.",
+  "@bot_settings_avatar_unsupported_format": {
+    "placeholders": {
+      "ext": {
+        "type": "String"
+      },
+      "formats": {
+        "type": "String"
+      }
+    }
+  },
+  "bot_settings_avatar_clear_selection": "Limpar seleção",
+  "bot_settings_presence_status_title": "Estado de Presença do Bot",
+  "bot_settings_presence_status_label": "Presença",
+  "bot_settings_presence_online": "Online",
+  "bot_settings_presence_idle": "Ausente",
+  "bot_settings_presence_dnd": "Não Perturbar",
+  "bot_settings_presence_invisible": "Invisível",
+  "bot_settings_status_rotation_title": "Rotação de Atividades",
+  "bot_settings_status_rotation_desc": "Adicione uma ou mais atividades. Cada atividade precisa de um tipo, nome e intervalo mín/máx (segundos).",
+  "bot_settings_add_status": "Adicionar atividade",
+  "bot_settings_status_item_title": "Atividade {index}",
+  "@bot_settings_status_item_title": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "bot_settings_remove_status": "Remover atividade",
+  "bot_settings_status_type_label": "Tipo",
+  "bot_settings_status_type_playing": "A jogar",
+  "bot_settings_status_type_streaming": "A transmitir",
+  "bot_settings_status_type_listening": "A ouvir",
+  "bot_settings_status_type_watching": "A ver",
+  "bot_settings_status_type_competing": "A competir",
+  "bot_settings_status_text_label": "Nome da atividade",
+  "bot_settings_activity_state_label": "Estado da atividade (opcional)",
+  "bot_settings_activity_url_label": "URL da stream (para streaming)",
+  "bot_settings_status_min_interval": "Intervalo mín (s)",
+  "bot_settings_status_max_interval": "Intervalo máx (s)",
+  "bot_logs_title": "Logs do Bot",
+  "bot_logs_disable_debug": "Desativar logs de debug",
+  "bot_logs_enable_debug": "Ativar logs de debug",
+  "bot_logs_copied": "Logs copiados",
+  "bot_logs_oldest_first": "Mostrar mais antigos primeiro",
+  "bot_logs_newest_first": "Mostrar mais recentes primeiro",
+  "bot_logs_filter_count": "Número de logs exibidos",
+  "bot_logs_show_n": "Mostrar {count} logs",
+  "@bot_logs_show_n": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bot_logs_show_all": "Mostrar tudo",
+  "bot_logs_empty": "Ainda não há logs",
+  "bot_logs_show_more": "Mostrar mais",
+  "bot_logs_show_less": "Mostrar menos",
+  "bot_logs_ram": "RAM do processo do bot: {memory}",
+  "@bot_logs_ram": {
+    "placeholders": {
+      "memory": {
+        "type": "String"
+      }
+    }
+  },
+  "bot_logs_ram_estimated": "RAM estimada do bot: {memory}",
+  "@bot_logs_ram_estimated": {
+    "placeholders": {
+      "memory": {
+        "type": "String"
+      }
+    }
+  },
+  "bot_logs_go_to_latest": "Ir para o log mais recente",
+  "bot_logs_go_to_bottom": "Ir para o fim",
+  "bot_logs_raw_mode": "Logs brutos compactos",
+  "bot_logs_rich_mode": "Logs formatados",
+  "debug_replay_title": "Debugger Replay",
+  "debug_replay_start_capture": "Ativar captura",
+  "debug_replay_stop_capture": "Desativar captura",
+  "debug_replay_clear": "Limpar replays",
+  "debug_replay_clear_title": "Limpar replays",
+  "debug_replay_clear_confirm": "Todos os replays gravados serão apagados. Continuar?",
+  "debug_replay_empty_capturing": "A capturar… Execute um comando para gravar um replay.",
+  "debug_replay_empty_idle": "Captura desligada. Ative-a e execute um comando para gravar um replay.",
+  "debug_replay_premium_title": "Visual Debugger Replay",
+  "debug_replay_premium_desc": "Grave e reproduza as execuções dos seus comandos passo a passo. Veja exatamente o que cada ação fez, quanto tempo levou e onde ocorreram erros.",
+  "debug_replay_overview": "Visão geral",
+  "debug_replay_play": "Reproduzir",
+  "debug_replay_pause": "Pausa",
+  "debug_replay_step_first": "Primeiro passo",
+  "debug_replay_step_last": "Último passo",
+  "debug_replay_step_back": "Passo anterior",
+  "debug_replay_step_forward": "Próximo passo",
+  "debug_replay_duration_label": "DURAÇÃO",
+  "debug_replay_result_label": "RESULTADO",
+  "debug_replay_result_empty": "(sem resultado)",
+  "debug_replay_start_offset": "+{ms} ms desde o início",
+  "@debug_replay_start_offset": {
+    "placeholders": {
+      "ms": {
+        "type": "int"
+      }
+    }
+  },
+  "debug_replay_loop_info": "Profundidade do loop {depth}, iteração {iteration}",
+  "@debug_replay_loop_info": {
+    "placeholders": {
+      "depth": {
+        "type": "int"
+      },
+      "iteration": {
+        "type": "int"
+      }
+    }
+  },
+  "debug_replay_variables_label": "VARIÁVEIS",
+  "debug_replay_variables_empty": "(sem variáveis)",
+  "bot_stats_title": "Estatísticas do Bot",
+  "bot_stats_ram_process": "RAM do processo do Bot",
+  "bot_stats_ram_estimated": "RAM apenas do Bot (estimada)",
+  "bot_stats_cpu": "CPU do processo do Bot",
+  "bot_stats_storage": "Armazenamento do Bot (dados da app)",
+  "bot_stats_source_runner_api": "Origem: Runner API",
+  "bot_stats_source_local_hosting": "Origem: Alojamento Local",
+  "bot_stats_notes": "Notas: CPU disponível em Android/Linux. Armazenamento = ficheiros de dados do bot na app.",
+  "bot_stats_collecting": "A recolher…",
+  "commands_title": "Comandos",
+  "commands_empty": "Nenhum comando encontrado",
+  "commands_error": "Erro: {error}",
+  "@commands_error": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "commands_create_button": "Criar comando",
+  "commands_move_to_folder": "Mover para pasta",
+  "commands_remove_from_folder": "Remover da pasta",
+  "commands_new_folder_hint": "Nome da nova pasta",
+  "commands_folder_label": "Pasta",
+  "commands_folder_hint": "Nome da pasta opcional",
+  "commands_create_folder": "Criar pasta",
+  "commands_rename_folder": "Renomear pasta",
+  "commands_delete_folder": "Apagar pasta",
+  "commands_delete_folder_desc": "Os comandos dentro desta pasta não serão apagados, apenas removidos da pasta.",
+  "commands_reorder_title": "Organizar comandos",
+  "commands_no_folder": "Sem pasta",
+  "export_import_title": "Exportar / Importar",
+  "export_section_title": "Exportar",
+  "export_section_desc": "Exporte secções selecionadas do seu bot como um ficheiro ZIP. O token do bot nunca é incluído.",
+  "export_commands": "Comandos",
+  "export_workflows": "Workflows",
+  "export_status": "Status & Atividades",
+  "export_global_variables": "Variáveis Globais",
+  "export_button": "Exportar ZIP",
+  "import_section_title": "Importar",
+  "import_section_desc": "Importe um ficheiro ZIP exportado anteriormente. Conflitos podem ser resolvidos por item.",
+  "import_pick_file": "Selecionar ficheiro ZIP",
+  "import_button": "Importar",
+  "import_overwrite": "Substituir",
+  "import_skip": "Ignorar",
+  "globals_title": "Variáveis",
+  "globals_empty": "Ainda não há variáveis globais",
+  "globals_empty_subtitle": "Adicione uma variável para armazenar dados persistentes acessíveis por todos os comandos.",
+  "globals_add": "Adicionar Variável",
+  "globals_add_global": "Adicionar Variável Global",
+  "globals_add_scoped": "Adicionar Variável Scoped",
+  "globals_edit": "Editar Variável",
+  "globals_edit_global": "Editar Variável Global",
+  "globals_edit_scoped": "Editar Variável Scoped",
+  "globals_key": "Chave",
+  "globals_key_hint": "ex: prefixo, nivel, mensagem_boas_vindas",
+  "globals_value": "Valor",
+  "globals_delete_title": "Apagar Variável",
+  "globals_delete_confirm": "Apagar \"{key}\"?",
+  "@globals_delete_confirm": {
+    "placeholders": {
+      "key": {
+        "type": "String"
+      }
+    }
+  },
+  "globals_search": "Procurar variáveis…",
+  "globals_mode_global": "Global",
+  "globals_mode_scoped": "Scoped",
+  "globals_help_global": "Partilhada entre todos os comandos. Aceda via $getVar[chave].",
+  "globals_help_scoped": "Armazenada por contexto (servidor, utilizador, canal…). Cada entrada mantém um valor distinto por contexto do Discord.",
+  "globals_source_local": "Local",
+  "globals_source_runner": "Runner: {name}",
+  "@globals_source_runner": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "globals_value_auto_type_hint": "O valor é tipado automaticamente (número, booleano, JSON).",
+  "globals_copy_value": "Copiar valor",
+  "globals_no_default": "Sem valor padrão",
+  "globals_dialog_global_desc": "Variáveis globais são partilhadas entre todos os comandos e servidores.",
+  "globals_dialog_scoped_desc": "Uma variável scoped armazena um valor separado por contexto de {scope}.",
+  "@globals_dialog_scoped_desc": {
+    "placeholders": {
+      "scope": {
+        "type": "String"
+      }
+    }
+  },
+  "globals_dialog_ref_preview": "Uso: $getVar[{ref}]",
+  "@globals_dialog_ref_preview": {
+    "placeholders": {
+      "ref": {
+        "type": "String"
+      }
+    }
+  },
+  "scoped_title": "Variáveis Scoped",
+  "scoped_empty": "Nenhuma variável scoped definida",
+  "scoped_empty_subtitle": "Variáveis scoped armazenam um valor por contexto do Discord (utilizador, servidor…). São preenchidas pelo bot em execução.",
+  "scoped_delete_title": "Apagar Variável Scoped",
+  "scoped_delete_confirm": "Apagar \"{key}\" e todos os seus dados de execução armazenados?",
+  "@scoped_delete_confirm": {
+    "placeholders": {
+      "key": {
+        "type": "String"
+      }
+    }
+  },
+  "scoped_default_value": "Valor padrão",
+  "scoped_default_value_hint": "Opcional",
+  "scoped_scope": "Escopo",
+  "scoped_scope_help": "O nível da entidade em que a variável é armazenada.",
+  "scoped_ref": "Referência: {ref}",
+  "@scoped_ref": {
+    "placeholders": {
+      "ref": {
+        "type": "String"
+      }
+    }
+  },
+  "scoped_ref_legacy": "Legado: {ref}",
+  "@scoped_ref_legacy": {
+    "placeholders": {
+      "ref": {
+        "type": "String"
+      }
+    }
+  },
+  "scoped_runtime_title": "Dados de execução — \"{key}\"",
+  "@scoped_runtime_title": {
+    "placeholders": {
+      "key": {
+        "type": "String"
+      }
+    }
+  },
+  "scoped_runtime_subtitle": "Escopo: {scope} · {count} contexto(s) encontrado(s)",
+  "@scoped_runtime_subtitle": {
+    "placeholders": {
+      "scope": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "scoped_runtime_empty": "Sem dados de execução.\nEsta chave será preenchida pelo bot durante a execução.",
+  "scoped_runtime_copy_all": "Copiar tudo",
+  "scoped_runtime_search": "Procurar por ID ou nome…",
+  "scoped_explore_runtime": "Explorar dados de execução",
+  "globals_refresh": "Atualizar",
+  "globals_retry": "Tentar novamente",
+  "globals_scope_guild": "servidor",
+  "globals_scope_user": "utilizador",
+  "globals_scope_channel": "canal",
+  "globals_scope_guildMember": "membro_servidor",
+  "globals_scope_message": "mensagem",
+  "workflows_title": "Workflows",
+  "workflows_empty": "Ainda não há workflows",
+  "workflows_create": "Criar Workflow",
+  "workflows_edit": "Editar Workflow",
+  "workflows_name": "Nome do Workflow",
+  "workflows_entry_point": "Ponto de Entrada Padrão",
+  "workflows_entry_point_hint": "Usado se quem chama não o substituir",
+  "workflows_arguments": "Argumentos",
+  "workflows_arg_name": "Nome",
+  "workflows_arg_default": "Valor padrão",
+  "workflows_arg_required_short": "Req",
+  "workflows_arg_hint": "Argumentos tornam-se variáveis de execução como ((arg.name)) e ((workflow.arg.name)).",
+  "workflows_continue": "Continuar",
+  "workflows_add_arg": "Adicionar argumento",
+  "workflows_docs_tooltip": "Abrir centro de documentação",
+  "workflows_subtitle": "{count} ação(ões) • entrada: {entry} • args: {args}",
+  "@workflows_subtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "entry": {
+        "type": "String"
+      },
+      "args": {
+        "type": "String"
+      }
+    }
+  },
+  "workflows_event_subtitle": "{count} ação(ões) • Ouvir por: {event}",
+  "@workflows_event_subtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "event": {
+        "type": "String"
+      }
+    }
+  },
+  "workflows_general_section": "Workflows Gerais",
+  "workflows_event_section": "Workflows de Eventos",
+  "workflows_type_title": "Tipo de Workflow",
+  "workflows_type_general": "Workflow geral",
+  "workflows_type_general_desc": "Lógica reutilizável chamada por comandos, botões, modais ou outros workflows.",
+  "workflows_type_event": "Workflow de evento",
+  "workflows_type_event_desc": "Reage automaticamente quando o Discord emite um evento.",
+  "workflows_type_badge_general": "Geral",
+  "workflows_type_badge_event": "Evento",
+  "workflows_listen_for": "Ouvir por",
+  "workflows_event_category": "Categoria do evento",
+  "workflows_event_hint": "Escolha o evento do Discord que deve ativar este workflow.",
+  "workflows_event_preview": "Ouvir por: {event}",
+  "@workflows_event_preview": {
+    "placeholders": {
+      "event": {
+        "type": "String"
+      }
+    }
+  },
+  "workflows_event_available_vars": "Variáveis disponíveis",
+  "workflows_event_category_messages": "Mensagens",
+  "workflows_event_category_members": "Membros",
+  "workflows_event_category_channels": "Canais",
+  "workflows_event_category_invites": "Convites",
+  "workflows_event_message_create": "Mensagem Criada",
+  "workflows_event_message_create_desc": "Ativado sempre que uma nova mensagem é criada.",
+  "workflows_event_message_update": "Mensagem Atualizada",
+  "workflows_event_message_update_desc": "Ativado sempre que uma mensagem existente é editada.",
+  "workflows_event_message_delete": "Mensagem Apagada",
+  "workflows_event_message_delete_desc": "Ativado sempre que uma mensagem é apagada.",
+  "workflows_event_member_join": "Membro Entrou",
+  "workflows_event_member_join_desc": "Ativado sempre que um membro entra no servidor.",
+  "workflows_event_member_remove": "Membro Saiu",
+  "workflows_event_member_remove_desc": "Ativado sempre que um membro sai ou é removido do servidor.",
+  "workflows_event_channel_update": "Canal Atualizado",
+  "workflows_event_channel_update_desc": "Ativado sempre que um canal é atualizado.",
+  "workflows_event_invite_create": "Convite Criado",
+  "workflows_event_invite_create_desc": "Ativado sempre que um convite é criado.",
+  "workflows_import_tooltip": "Importar workflows",
+  "workflows_export_tooltip": "Copiar workflows",
+  "workflows_copy_none": "Nenhum workflow para copiar.",
+  "workflows_copy_done_json": "Workflows copiados como JSON.",
+  "workflows_copy_done_base64": "Workflows copiados como Base64.",
+  "workflows_delete_title": "Apagar workflow",
+  "workflows_delete_confirm": "Tem a certeza que deseja apagar \"{name}\"? Esta ação não pode ser desfeita.",
+  "@workflows_delete_confirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "workflows_export_json": "Copiar como JSON",
+  "workflows_export_json_desc": "Legível e fácil de editar.",
+  "workflows_export_base64": "Copiar como Base64",
+  "workflows_export_base64_desc": "Conveniente para partilha compacta.",
+  "workflows_import_title": "Importar workflows",
+  "workflows_import_desc": "Cole um payload JSON ou Base64(JSON) exportado do Bot Creator.",
+  "workflows_import_input_hint": "Cole o JSON ou Base64 aqui...",
+  "workflows_import_overwrite": "Substituir quando o nome já existir",
+  "workflows_import_action": "Importar",
+  "workflows_import_empty": "Sem dados para importar.",
+  "workflows_import_invalid_format": "Formato inválido. Use JSON ou Base64(JSON).",
+  "workflows_import_no_valid": "Nenhum workflow válido encontrado.",
+  "workflows_import_done": "{count} workflow(s) importado(s).",
+  "@workflows_import_done": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "workflows_move_to_folder": "Mover para pasta",
+  "workflows_remove_from_folder": "Remover da pasta",
+  "workflows_new_folder_hint": "Nome da nova pasta",
+  "workflows_folder_label": "Pasta",
+  "workflows_folder_hint": "Nome da pasta opcional",
+  "cmd_error_fill_fields": "Por favor, preencha todos os campos",
+  "cmd_variables_title": "Variáveis de Comando",
+  "cmd_show_variables": "Abrir documentação de variáveis",
+  "cmd_create_tooltip": "Criar comando",
+  "cmd_delete_tooltip": "Apagar comando",
+  "cmd_editor_mode_title": "Modo de edição",
+  "cmd_editor_mode_simple": "Modo simplificado",
+  "cmd_editor_mode_advanced": "Modo avançado",
+  "cmd_editor_mode_simple_desc": "Construa um comando rapidamente com opções guiadas e ações pré-configuradas.",
+  "cmd_editor_mode_advanced_desc": "Editor completo com resposta personalizada, opções e construtor de ações.",
+  "cmd_editor_mode_switch_adv": "Mudar para modo avançado",
+  "cmd_editor_mode_switch_adv_title": "Mudar para modo avançado?",
+  "cmd_editor_mode_switch_adv_content": "Esta mudança é permanente para este comando. Não poderá voltar ao modo simplificado.",
+  "cmd_editor_mode_switch_adv_confirm": "Mudar",
+  "cmd_editor_mode_locked": "O modo avançado está bloqueado para este comando.",
+  "cmd_execution_mode_title": "Modo de execução",
+  "cmd_execution_mode_desc": "Os metadados do comando ficam no construtor visual. Escolha como o corpo do comando deve ser executado.",
+  "cmd_execution_mode_workflow": "Modo Workflow",
+  "cmd_execution_mode_workflow_desc": "Use a resposta visual existente e o construtor de ações.",
+  "cmd_execution_mode_workflow_note": "O modo Workflow é o caminho de produção atual e continua totalmente suportado.",
+  "cmd_execution_mode_bdfd": "Modo Script BDFD",
+  "cmd_execution_mode_bdfd_desc": "Escreva o corpo do comando como um script estilo BDFD enquanto mantém a definição do comando visual.",
+  "cmd_execution_mode_bdfd_note": "O script é compilado para ações internas. Diagnósticos são mostrados durante a edição; scripts inválidos falham quando o comando é executado.",
+  "cmd_execution_mode_dart": "Modo Dart Direto",
+  "cmd_execution_mode_dart_desc": "Escreva o corpo do comando diretamente em Dart com diagnósticos em tempo de execução.",
+  "cmd_execution_mode_dart_note": "O código Dart é compilado em execução através do motor sandbox. Mantenha os scripts determinísticos e retorne um valor quando necessário.",
+  "cmd_bdfd_script_label": "Corpo do script BDFD",
+  "cmd_bdfd_script_hint": "$nomention\\n$if[$hasPerms[$authorID;administrator]==true]\\nOlá do Bot Creator",
+  "cmd_bdfd_diagnostics_title": "Diagnósticos BDFD",
+  "cmd_bdfd_diagnostics_clean": "Nenhum problema detetado no script atual.",
+  "cmd_bdfd_diagnostics_error": "Erro",
+  "cmd_bdfd_diagnostics_warning": "Aviso",
+  "cmd_bdfd_script_empty_error": "O corpo do script BDFD não pode estar vazio.",
+  "cmd_bdfd_script_validation_error": "Este script BDFD ainda contém diagnósticos:",
+  "cmd_dart_script_label": "Corpo do script Dart",
+  "cmd_dart_script_hint": "return \"Olá do Dart Direto\";",
+  "cmd_dart_diagnostics_title": "Diagnósticos Dart",
+  "cmd_dart_diagnostics_clean": "Nenhum problema detetado no script Dart atual.",
+  "cmd_dart_diagnostics_error": "Erro",
+  "cmd_dart_diagnostics_warning": "Aviso",
+  "cmd_migrate_bdfd_to_dart_desc": "Gere um esqueleto de migração Dart a partir do seu script BDFD atual.",
+  "cmd_migrate_bdfd_to_dart_action": "Migrar",
+  "cmd_bdfd_autocomplete_title": "Autocompletar prefixo BDFD",
+  "cmd_bdfd_autocomplete_hint": "Escreva $ e comece a escrever o nome de uma função para obter sugestões rápidas.",
+  "workflow_mode_title": "Modo Workflow",
+  "workflow_mode_desc": "Escolha entre um construtor de ações visual ou um editor de script BDFD completo.",
+  "workflow_mode_visual": "Visual",
+  "workflow_mode_bdfd": "Script BDFD",
+  "workflow_mode_dart": "Dart Direto",
+  "workflow_mode_visual_note": "Construa o seu workflow visualmente adicionando ações individuais com o editor de cartões.",
+  "workflow_mode_bdfd_note": "Escreva todo o seu workflow como um único script BDFD. O script é compilado e validado em tempo real.",
+  "workflow_mode_dart_note": "Escreva o seu workflow em Dart. Os diagnósticos são atualizados durante a edição para detetar erros precocemente.",
+  "workflow_bdfd_editor_title": "Editor de Script BDFD",
+  "workflow_bdfd_editor_desc": "Escreva o código BDFD completo para a resposta deste workflow. Os diagnósticos são exibidos ao vivo.",
+  "workflow_dart_editor_title": "Editor de Script Dart",
+  "workflow_dart_editor_desc": "Escreva código Dart completo para a resposta deste workflow. Os diagnósticos são exibidos ao vivo.",
+  "bdfd_editor_title": "Editor BDFD",
+  "bdfd_editor_tap_hint": "Toque para abrir o editor",
+  "bdfd_editor_wrap_toggle": "Alternar quebra de linha",
+  "bdfd_editor_diagnostics_toggle": "Alternar painel de diagnósticos",
+  "bdfd_editor_empty": "Script vazio — comece a escrever para ver os diagnósticos.",
+  "dart_editor_title": "Editor Dart",
+  "dart_editor_tap_hint": "Toque para abrir o editor Dart",
+  "dart_editor_empty": "Script vazio — comece a escrever para ver os diagnósticos Dart.",
+  "bdfd_editor_docs": "Referência de Funções BDFD",
+  "bdfd_docs_title": "Documentação BDFD",
+  "bdfd_docs_search_hint": "Procurar funções…",
+  "scratch_block_metadata": "Metadados",
+  "scratch_block_required": "Obrigatório",
+  "scratch_block_entry_point": "Gatilho do Comando",
+  "scratch_entry_point_listen": "Quando é que este comando é executado?",
+  "scratch_entry_interaction": "Comando de Barra (/)",
+  "scratch_entry_message": "Mensagem de Texto",
+  "scratch_entry_point_label": "Nome do ponto de entrada",
+  "scratch_execution_mode": "Como é que o comando é construído?",
+  "scratch_mode_blocks": "Visual (Blocos)",
+  "scratch_mode_bdfd": "Código BDFD",
+  "scratch_mode_dart": "Dart",
+  "scratch_legacy_config": "Configuração legada",
+  "scratch_add_block": "Adicionar bloco",
+  "scratch_bdfd_script": "Script BDFD",
+  "scratch_response_block": "Resposta",
+  "scratch_response_components": "Componentes",
+  "scratch_response_edit": "Editar resposta",
+  "scratch_meta_name_hint": "Nome do comando",
+  "scratch_meta_desc_hint": "Descrição do comando",
+  "scratch_meta_type_label": "Tipo de comando",
+  "scratch_meta_type_slash": "Comando de barra",
+  "scratch_meta_type_prefix": "Comando de prefixo",
+  "scratch_meta_type_user": "Comando de utilizador",
+  "scratch_meta_type_message": "Comando de mensagem",
+  "scratch_meta_type_slash_desc": "Ativado ao escrever / no Discord.",
+  "scratch_meta_type_prefix_desc": "Ativado por um prefixo de texto (ex: !ajuda).",
+  "scratch_meta_type_user_desc": "Ativado a partir do menu de contexto do utilizador.",
+  "scratch_meta_type_message_desc": "Ativado a partir do menu de contexto da mensagem.",
+  "scratch_meta_advanced": "Definições avançadas",
+  "scratch_workflow_metadata": "Definições do Workflow",
+  "scratch_workflow_name": "Nome do Workflow",
+  "scratch_workflow_type": "Tipo de Workflow",
+  "scratch_workflow_type_general": "Geral",
+  "scratch_workflow_type_event": "Baseado em eventos",
+  "scratch_workflow_arguments": "Argumentos (Variáveis)",
+  "scratch_workflow_add_argument": "Adicionar argumento",
+  "scratch_entry_event_trigger": "Gatilho de evento",
+  "scratch_entry_function": "Função",
+  "scratch_event_category": "Categoria do evento",
+  "scratch_event_name": "Nome do evento",
+  "scratch_event_variables": "Variáveis do evento",
+  "bdfd_docs_empty": "Nenhuma função correspondente.",
+  "bdfd_docs_syntax": "SINTAXE",
+  "bdfd_docs_parameters": "PARÂMETROS",
+  "bdfd_docs_no_params": "Sem parâmetros — use como $nomeFuncao",
+  "bdfd_docs_category_messages": "Mensagens & Conteúdo",
+  "bdfd_docs_category_embeds": "Embeds",
+  "bdfd_docs_category_components": "Componentes",
+  "bdfd_docs_category_modals": "Modais",
+  "bdfd_docs_category_control": "Fluxo de Controlo",
+  "bdfd_docs_category_guards": "Guardas & Permissões",
+  "bdfd_docs_category_moderation": "Moderação",
+  "bdfd_docs_category_variables": "Variáveis",
+  "bdfd_docs_category_json": "JSON",
+  "bdfd_docs_category_http": "Requisições HTTP",
+  "bdfd_docs_category_math": "Matemática",
+  "bdfd_docs_category_text": "Texto & Strings",
+  "bdfd_docs_category_channels": "Canais & Tópicos",
+  "bdfd_docs_category_roles": "Cargos",
+  "bdfd_docs_category_reactions": "Reações",
+  "bdfd_docs_category_cooldowns": "Cooldowns",
+  "bdfd_docs_category_webhooks": "Webhooks",
+  "bdfd_docs_category_leaderboards": "Leaderboards",
+  "bdfd_docs_category_tickets": "Tickets",
+  "bdfd_docs_category_misc": "Outros",
+  "bdfd_docs_desc_for": "Apenas Bot Creator — Repete um bloco de código N vezes.\n\nSimples: $for[5]...$endfor → o corpo é repetido 5 vezes (máx 100). Pode usar $i para o índice atual (começando em 0) e $loopCount para o total.\n\nEstilo C: $for[i=0;i<10;i++]...$endfor → loop for clássico com inicialização, condição e atualização. Suporta ++, --, +=, -=, *=.\n\nSe a contagem de iterações for dinâmica (ex: $for[$args[1]]), o loop é executado em tempo de execução.",
+  "bdfd_docs_desc_loop": "Apenas Bot Creator — Alias para $for. Veja $for para detalhes. Use $endloop para fechar o bloco.",
+  "bdfd_docs_desc_callworkflow": "Apenas Bot Creator — Chama outro workflow pelo nome e passa argumentos.\n\nSintaxe: $callWorkflow[meuWorkflow;chave1=valor1;chave2=valor2]\n\nO workflow chamado pode ler argumentos e retornar um valor via $workflowResponse.",
+  "bdfd_docs_desc_workflowresponse": "Apenas Bot Creator — Retorna a resposta do último $callWorkflow.\n\nUse $workflowResponse[] para a resposta completa, ou $workflowResponse[propriedade] para aceder a um campo específico.",
+  "bdfd_docs_desc_eval": "Executa uma string de script BDFD em tempo de execução. O código passado como argumento é recompilado e executado dinamicamente. Útil para executar scripts fornecidos pelo utilizador ou baseados em variáveis.",
+  "bdfd_docs_desc_if": "Bloco condicional. Suporta aninhamento e operadores ricos: ==, !=, >=, <=, >, <, contains, startsWith, endsWith, notContains.\n\nUso:\n$if[$authorID==123456]\n  Olá admin!\n$elseif[$hasRole[789]]\n  Olá membro!\n$else\n  Olá convidado!\n$endif",
+  "bdfd_docs_desc_elseif": "Adiciona uma condição alternativa dentro de um bloco $if. Deve aparecer entre $if e $else/$endif.",
+  "bdfd_docs_desc_try": "Envolve um bloco para tratamento de erros.\n\nUso:\n$try\n  $httpGet[https://api.example.com/data]\n$catch\n  A requisição falhou!\n$endtry\n\nSe qualquer função no bloco $try falhar, a execução salta para o $catch.",
+  "bdfd_docs_desc_stop": "Para imediatamente a execução do script atual. Nenhuma ação após o $stop será executada.",
+  "bdfd_docs_desc_suppresserrors": "Impede que mensagens de erro sejam enviadas ao utilizador. Se qualquer ação falhar, o erro é silenciado.",
+  "bdfd_docs_desc_embedsuppresserrors": "O mesmo que $suppressErrors — silencia todas as mensagens de erro.",
+  "bdfd_docs_desc_and": "E lógico — combina múltiplas condições. Todas devem ser verdadeiras.\n\nUso: $if[$and[$authorID==123;$hasRole[456]]]",
+  "bdfd_docs_desc_or": "OU lógico — combina múltiplas condições. Pelo menos uma deve ser verdadeira.\n\nUso: $if[$or[$authorID==123;$authorID==456]]]",
+  "bdfd_docs_desc_awaitfunc": "Regista um callback que espera por uma resposta do utilizador.\n\nUso: $awaitFunc[nome;userID (opt);channelID (opt)]\n\nA função aguardada é armazenada e ativada quando o utilizador alvo envia uma mensagem no canal alvo.",
+  "bdfd_docs_desc_defer": "Adia a resposta da interação, dando-lhe mais tempo para processar. O utilizador vê uma mensagem \"O bot está a pensar…\". Use antes de operações longas como requisições HTTP.",
+  "bdfd_docs_desc_ephemeral": "Torna a resposta visível apenas para o utilizador que ativou o comando. Deve ser colocado antes de qualquer conteúdo de resposta.",
+  "bdfd_docs_desc_jsonparse": "Analisa uma string JSON na memória para manipulação. Todas as operações JSON ($jsonSet, $json, etc.) operam neste contexto analisado.\n\nJSON estático é resolvido em tempo de compilação para melhor desempenho.",
+  "bdfd_docs_desc_jsonset": "Define um valor no contexto JSON atual. Suporta caminhos com notação de ponto.\n\nUso: $jsonSet[utilizador.nome;João]\n\nA alteração é aplicada na memória — use $jsonStringify para obter o resultado.",
+  "bdfd_docs_desc_jsonstringify": "Converte o contexto JSON atual de volta para uma string. Use após operações $jsonParse e $jsonSet para produzir o resultado.",
+  "bdfd_docs_desc_httpget": "Envia uma requisição HTTP GET para o URL fornecido. Use $httpAddHeader antes para definir cabeçalhos. Use $httpResult para ler a resposta.\n\nTodos os métodos HTTP (GET, POST, PUT, PATCH, DELETE) seguem o mesmo padrão.",
+  "bdfd_docs_desc_httpaddheader": "Adiciona um cabeçalho à próxima requisição HTTP. Os cabeçalhos são acumulados até ao próximo $httpGet/$httpPost/etc.\n\nUso: $httpAddHeader[Authorization;Bearer token123]",
+  "bdfd_docs_desc_httpresult": "Retorna o corpo da última resposta HTTP. Opcionalmente, passe um caminho JSON para extrair um campo específico.\n\nUso: $httpResult[] para o corpo completo, ou $httpResult[data.nome] para um campo aninhado.",
+  "done": "Concluído",
+  "cmd_simple_actions_title": "Ações simplificadas",
+  "cmd_simple_actions_desc": "Selecione o que este comando deve fazer. As opções são geradas automaticamente.",
+  "cmd_simple_group_moderation_title": "Moderação",
+  "cmd_simple_group_moderation_desc": "Ações de membros e moderação com opções guiadas.",
+  "cmd_simple_group_messages_title": "Mensagens",
+  "cmd_simple_group_messages_desc": "Ações de mensagens e canais que funcionam no contexto atual.",
+  "cmd_simple_group_utility_title": "Utilidade",
+  "cmd_simple_group_utility_desc": "Extras úteis como convites e sondagens.",
+  "cmd_simple_action_delete": "Apagar mensagens",
+  "cmd_simple_action_delete_desc": "Apagar mensagens no canal atual (opcional /contagem).",
+  "cmd_simple_action_kick": "Expulsar utilizador",
+  "cmd_simple_action_kick_desc": "Expulsar o /utilizador selecionado do servidor.",
+  "cmd_simple_action_ban": "Banir utilizador",
+  "cmd_simple_action_ban_desc": "Banir o /utilizador selecionado do servidor.",
+  "cmd_simple_action_unban": "Desbanir utilizador",
+  "cmd_simple_action_unban_desc": "Desbanir um utilizador com um ID de /utilizador fornecido.",
+  "cmd_simple_action_mute": "Silenciar utilizador",
+  "cmd_simple_action_mute_desc": "Silenciar temporariamente o /utilizador selecionado.",
+  "cmd_simple_action_unmute": "Dessilenciar utilizador",
+  "cmd_simple_action_unmute_desc": "Remover o castigo do /utilizador selecionado.",
+  "cmd_simple_action_add_role": "Adicionar cargo",
+  "cmd_simple_action_add_role_desc": "Dar o /cargo selecionado ao /utilizador selecionado.",
+  "cmd_simple_action_remove_role": "Remover cargo",
+  "cmd_simple_action_remove_role_desc": "Remover o /cargo selecionado do /utilizador selecionado.",
+  "cmd_simple_action_send_message": "Enviar mensagem",
+  "cmd_simple_action_send_message_desc": "Enviar uma mensagem adicional no canal atual.",
+  "cmd_simple_action_pin": "Fixar mensagem",
+  "cmd_simple_action_pin_desc": "Fixar uma mensagem no canal atual usando /id_mensagem.",
+  "cmd_simple_action_unpin": "Desafixar mensagem",
+  "cmd_simple_action_unpin_desc": "Desafixar uma mensagem no canal atual usando /id_mensagem.",
+  "cmd_simple_action_create_invite": "Criar convite",
+  "cmd_simple_action_create_invite_desc": "Criar um convite para o canal atual ou um /canal opcional.",
+  "cmd_simple_action_create_poll": "Criar sondagem",
+  "cmd_simple_action_create_poll_desc": "Criar uma sondagem com uma /pergunta dinâmica e escolhas de resposta fixas.",
+  "cmd_simple_action_send_message_label": "Mensagem da ação",
+  "cmd_simple_action_send_message_hint": "Mensagem enviada pela ação Enviar Mensagem",
+  "cmd_simple_execution_title": "Definições de execução",
+  "cmd_simple_execution_desc": "Ajuste fino das ações geradas sem sair do modo simplificado.",
+  "cmd_simple_action_reason_label": "Razão do log de auditoria",
+  "cmd_simple_action_reason_hint": "Razão opcional partilhada pelas ações de moderação",
+  "cmd_simple_action_delete_default_count_label": "Contagem padrão de eliminação",
+  "cmd_simple_action_delete_default_count_hint": "Usada quando /contagem não é fornecida",
+  "cmd_simple_action_ban_delete_days_label": "Dias de mensagens a apagar ao banir",
+  "cmd_simple_action_ban_delete_days_hint": "0 a 7 dias de mensagens recentes a apagar",
+  "cmd_simple_action_mute_duration_label": "Duração do silenciamento",
+  "cmd_simple_action_mute_duration_hint": "Exemplos: 10m, 2h, 1d, ou segundos brutos",
+  "cmd_simple_generated_options": "Opções de comando geradas",
+  "cmd_simple_generated_none": "Nenhuma opção gerada ainda. Selecione pelo menos uma ação.",
+  "cmd_simple_option_user": "/utilizador (Utilizador)",
+  "cmd_simple_option_role": "/cargo (Cargo)",
+  "cmd_simple_option_count": "/contagem (Inteiro)",
+  "cmd_simple_option_user_id": "/id_utilizador (Texto)",
+  "cmd_simple_option_message_id": "/id_mensagem (Texto)",
+  "cmd_simple_option_channel": "/canal (Canal)",
+  "cmd_simple_option_question": "/pergunta (Texto)",
+  "cmd_simple_option_user_desc": "Utilizador alvo",
+  "cmd_simple_option_role_desc": "Cargo alvo",
+  "cmd_simple_option_count_desc": "Número de mensagens a apagar",
+  "cmd_simple_option_user_id_desc": "ID do utilizador a desbanir",
+  "cmd_simple_option_message_id_desc": "ID da mensagem alvo",
+  "cmd_simple_option_channel_desc": "Substituição opcional de canal para criação de convite",
+  "cmd_simple_option_question_desc": "Pergunta da sondagem",
+  "cmd_simple_invite_settings_title": "Definições de convite",
+  "cmd_simple_invite_settings_desc": "Padrões usados pela ação Criar Convite gerada.",
+  "cmd_simple_invite_max_age_label": "Expiração do convite (segundos)",
+  "cmd_simple_invite_max_age_hint": "0 para não expirar, até 604800",
+  "cmd_simple_invite_max_uses_label": "Máximo de usos",
+  "cmd_simple_invite_max_uses_hint": "0 para usos ilimitados",
+  "cmd_simple_invite_temporary_label": "Associação temporária",
+  "cmd_simple_invite_temporary_desc": "Os membros são removidos se saírem antes de obter um cargo.",
+  "cmd_simple_invite_unique_label": "Forçar convite único",
+  "cmd_simple_invite_unique_desc": "Criar sempre um novo convite em vez de reutilizar um existente.",
+  "cmd_simple_poll_settings_title": "Definições de sondagem",
+  "cmd_simple_poll_settings_desc": "Padrões usados pela ação Criar Sondagem gerada.",
+  "cmd_simple_poll_answers_label": "Respostas da sondagem",
+  "cmd_simple_poll_answers_hint": "Uma resposta por linha, ou use vírgulas. Mínimo 2, máximo 10.",
+  "cmd_simple_poll_duration_label": "Duração da sondagem (horas)",
+  "cmd_simple_poll_duration_hint": "De 1 a 168 horas",
+  "cmd_simple_poll_multiselect_label": "Permitir múltiplas respostas",
+  "cmd_simple_poll_multiselect_desc": "Os utilizadores podem selecionar mais do que uma escolha.",
+  "cmd_simple_response_title": "Resposta final",
+  "cmd_simple_response_desc": "Mensagem enviada de volta ao utilizador após as ações serem executadas.",
+  "cmd_simple_response_visibility_label": "Visibilidade da resposta",
+  "cmd_simple_response_visibility_public": "Público",
+  "cmd_simple_response_visibility_ephemeral": "Efémero",
+  "cmd_simple_response_hint": "Concluído ✅",
+  "cmd_simple_response_embeds_title": "Embeds da resposta",
+  "cmd_simple_response_embeds_desc": "Embeds opcionais enviados com a resposta final.",
+  "cmd_simple_conflict_ban_unban": "Banir utilizador e Desbanir utilizador não podem ser ativados juntos no modo simplificado.",
+  "cmd_simple_conflict_mute_unmute": "Silenciar utilizador e Dessilenciar utilizador não podem ser ativados juntos no modo simplificado.",
+  "cmd_simple_conflict_pin_unpin": "Fixar mensagem e Desafixar mensagem não podem ser ativados juntos no modo simplificado.",
+  "cmd_simple_invite_max_age_invalid": "A expiração do convite deve ser um número entre 0 e 604800 segundos.",
+  "cmd_simple_invite_max_uses_invalid": "O máximo de usos do convite deve ser um número entre 0 e 1000000.",
+  "cmd_simple_poll_answers_invalid": "As respostas da sondagem devem conter entre 2 e 10 escolhas não vazias.",
+  "cmd_simple_poll_duration_invalid": "A duração da sondagem deve ser um número entre 1 e 168 horas.",
+  "cmd_simple_send_message_required": "Por favor, preencha a mensagem da ação antes de guardar.",
+  "support_card_title": "Suporte & Comunidade",
+  "support_card_desc": "Uma dúvida, um bug, uma sugestão? Venha conversar com a equipa e a comunidade.",
+  "support_join_discord": "Juntar-se ao servidor de Discord",
+  "support_discord_badge": "Suporte oficial",
+  "home_empty_support_hint": "Precisa de ajuda para começar?",
+  "home_empty_support_btn": "Junte-se ao nosso Discord",
+  "error_invalid_count": "A contagem deve ser superior a 0.",
+  "error_invalid_channel_type": "O canal não é um canal de texto.",
+  "error_network_timeout": "A ação expirou. Por favor, tente novamente.",
+  "error_delete_messages_failed": "Falha ao apagar mensagens.",
+  "doc_center_title": "Centro de Documentação",
+  "doc_center_search_hint": "Procurar comandos, workflows, variáveis, ações, intents ou exemplos...",
+  "doc_center_clear_search": "Limpar pesquisa",
+  "doc_center_empty": "Nenhuma entrada de documentação corresponde à sua pesquisa.",
+  "doc_kind_all": "Tudo",
+  "doc_kind_event": "Evento",
+  "doc_kind_action": "Ação",
+  "doc_kind_template": "Modelo",
+  "doc_kind_runtime": "Runtime",
+  "doc_required_intents": "Intents Obrigatórios",
+  "doc_available_variables": "Variáveis Disponíveis",
+  "doc_example": "Exemplo",
+  "doc_common_section_best_use_cases": "Melhores Casos de Uso",
+  "doc_common_section_important_notes": "Notas Importantes",
+  "doc_template_variables_title": "Variáveis de Modelo",
+  "doc_template_variables_subtitle": "Como os placeholders dinâmicos são resolvidos.",
+  "doc_template_variables_summary": "O runtime resolve placeholders usando o contexto atual de evento/interação, argumentos de workflow e variáveis globais.",
+  "doc_template_variables_section_sources_title": "Origens de Variáveis",
+  "doc_template_variables_section_sources_l1": "Variáveis de comando: commandName, commandId, commandType, target.*, opts.*.",
+  "doc_template_variables_section_sources_l2": "Variáveis de evento: event.*, message.*, reaction.*, voice.*, role.*, etc.",
+  "doc_template_variables_section_sources_l3": "Variáveis de workflow: workflow.name, workflow.entryPoint, arg.*, workflow.arg.*",
+  "doc_template_variables_section_sources_l4": "Variáveis globais: global.<chave>",
+  "doc_template_variables_section_sources_l5": "Saídas de ação: action.<chave> quando disponível.",
+  "doc_template_variables_section_builtin_title": "Variáveis de Comando Integradas",
+  "doc_template_variables_section_types_title": "Tipos de Comando",
+  "doc_template_variables_section_types_l1": "Comandos de barra usam commandType = chatInput e expõem variáveis opts.<opcao>.",
+  "doc_template_variables_section_types_l2": "Comandos de utilizador usam commandType = user e expõem variáveis target.user.*.",
+  "doc_template_variables_section_types_l3": "Comandos de mensagem usam commandType = message e expõem variáveis target.message.*.",
+  "doc_template_variables_section_types_l4": "Subcomandos ainda expõem os seus argumentos através de opts.*.",
+  "doc_template_variables_section_fallbacks_title": "Fallbacks e Caminhos",
+  "doc_template_variables_section_fallbacks_l1": "Use ((opts.utilizador|nomeUtilizador)) para falhar quando uma opção estiver ausente.",
+  "doc_template_variables_section_fallbacks_l2": "Use a sintaxe JSONPath nas saídas de ação: ((meuHttp.body.$.data[0].id)); arrays e objetos permanecem consultáveis.",
+  "doc_template_variables_section_fallbacks_l3": "Funções como length(...), join(...), formatEach(...) e embedFields(...) também são suportadas; variáveis desconhecidas resolvem para uma string vazia.",
+  "doc_template_variables_example": "Olá ((target.user.username|nomeUtilizador))\nJogadores: ((join(scores.items.$, \", \")))\nCampos JSON: ((embedFields(scores.items.$, \"'{name}'\", \"'{score}'\", true)))",
+  "@doc_template_variables_example": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "doc_template_functions_title": "Funções de Modelo",
+  "doc_template_functions_subtitle": "Transforme e compare dados dentro de expressões ((...)).",
+  "doc_template_functions_summary": "Use funções de modelo para normalizar texto, inspecionar arrays, construir blocos de saída e adicionar aleatoriedade leve.",
+  "doc_template_functions_section_string_title": "Ajudantes de String",
+  "doc_template_functions_section_string_l1": "lowercase(fonte) / lower(fonte): converte texto para minúsculas.",
+  "doc_template_functions_section_string_l2": "uppercase(fonte) / upper(fonte): converte texto para maiúsculas.",
+  "doc_template_functions_section_string_l3": "trim(fonte): remove espaços iniciais e finais.",
+  "doc_template_functions_section_string_l4": "replace(fonte, busca, substituto) e contains(fonte, agulha) para substituições e verificações.",
+  "doc_template_functions_section_array_title": "Ajudantes de Array e Agregados",
+  "doc_template_functions_section_array_l1": "length(fonte), at(fonte, indice), first(fonte), last(fonte).",
+  "doc_template_functions_section_array_l2": "slice(fonte, inicio, fim?) e join(fonte, separador).",
+  "doc_template_functions_section_array_l3": "sum(fonte): soma itens numéricos e ignora valores não numéricos.",
+  "doc_template_functions_section_array_l4": "formatEach(...) e embedFields(...) formatam arrays de objetos para texto e embeds.",
+  "doc_template_functions_section_random_title": "Ajudantes Aleatórios",
+  "doc_template_functions_section_random_l1": "coin() e random(): retornam \"true\" ou \"\" para ramificação condicional.",
+  "doc_template_functions_section_random_l2": "randomchoice(a, b, ...) e randomint(min, max).",
+  "doc_template_functions_section_notes_title": "Notas Importantes",
+  "doc_template_functions_section_notes_l1": "Os nomes das funções não distinguem maiúsculas de minúsculas.",
+  "doc_template_functions_section_notes_l2": "Funções desconhecidas ou argumentos inválidos resolvem para uma string vazia.",
+  "doc_template_functions_section_notes_l3": "Use sintaxe de fallback com | no nível raiz: ((replace(nome, \"_\", \" \")|Desconhecido)).",
+  "doc_template_functions_section_notes_l4": "Arrays e objetos retornados por funções são serializados como texto JSON.",
+  "doc_template_functions_example": "Normalizado: ((uppercase(trim(nomeUtilizador))))\nTem cargo admin: ((contains(cargoUtilizador, \"admin\")))\nMaior pontuação: ((first(scores.$)))\nPontuação total: ((sum(scores.$)))",
+  "doc_template_advanced_variables_title": "Variáveis Avançadas de Modelo",
+  "doc_template_advanced_variables_subtitle": "Chaves de execução adicionais disponíveis em contextos específicos.",
+  "doc_template_advanced_variables_summary": "Estas chaves são geradas a partir de payloads de interação e detalhes de execução de canal/servidor/utilizador, dependendo do evento ou tipo de comando.",
+  "doc_template_advanced_variables_section_interaction_title": "Metadados de Interação",
+  "doc_template_advanced_variables_section_interaction_l1": "interaction.kind identifica o modo de interação recebido (button, select, modal, command, autocomplete).",
+  "doc_template_advanced_variables_section_interaction_l2": "interaction.values e interaction.values.count são preenchidos para menus de seleção.",
+  "doc_template_advanced_variables_section_interaction_l3": "interaction.command.name e interaction.command.id são úteis para diagnósticos e verificações de roteamento.",
+  "doc_template_advanced_variables_section_channel_guild_title": "Detalhes de Canal e Servidor",
+  "doc_template_advanced_variables_section_channel_guild_l1": "channel.kind, channel.position, channel.bitrate e channel.userLimit são detalhes de canal dependentes do contexto.",
+  "doc_template_advanced_variables_section_channel_guild_l2": "Contextos de tópico podem expor valores channel.thread.* (arquivado, bloqueado, ownerId, autoArchiveDuration).",
+  "doc_template_advanced_variables_section_channel_guild_l3": "guild.kind ajuda a distinguir payloads parciais/completos de servidor em workflows avançados.",
+  "doc_template_advanced_variables_section_aliases_title": "Aliases de Utilizador e Membro",
+  "doc_template_advanced_variables_section_aliases_l1": "Aliases de utilizador estruturados (user.id, user.username, user.tag, user.avatar, user.banner) estão disponíveis em muitos contextos de comando.",
+  "doc_template_advanced_variables_section_aliases_l2": "member.id pode ser útil quando ambos os contextos de utilizador e membro do servidor são necessários.",
+  "doc_template_advanced_variables_example": "Tipo: ((interaction.kind))\nContagem selecionada: ((interaction.values.count|0))\nDono do tópico: ((channel.thread.ownerId|desconhecido))\nTipo de payload do servidor: ((guild.kind|n/a))",
+  "doc_runtime_action_outputs_title": "Saídas de Ação em Tempo de Execução",
+  "doc_runtime_action_outputs_subtitle": "Como as chaves de resultado da ação são expostas como variáveis.",
+  "doc_runtime_action_outputs_summary": "A maioria das ações escreve uma chave de resultado primária e também pode expor campos prefixados sob action.<chaveResultado>.* dependendo do executor.",
+  "doc_runtime_action_outputs_section_patterns_title": "Padrões de Saída",
+  "doc_runtime_action_outputs_section_patterns_l1": "A saída primária é geralmente armazenada como <chaveResultado>.",
+  "doc_runtime_action_outputs_section_patterns_l2": "Muitos executores também expõem campos action.<chaveResultado>.* para clareza e organização.",
+  "doc_runtime_action_outputs_section_patterns_l3": "Alguns campos são espelhados com e sem o prefixo action..",
+  "doc_runtime_action_outputs_section_common_fields_title": "Campos de Saída Comuns",
+  "doc_runtime_action_outputs_section_common_fields_l1": "Ações HTTP: status, body, jsonPath.",
+  "doc_runtime_action_outputs_section_common_fields_l2": "Ações de mensagem/lista: count, mode, deleteItself, deleteResponse.",
+  "doc_runtime_action_outputs_section_common_fields_l3": "Ações de array: items, length, removed, total.",
+  "doc_runtime_action_outputs_section_common_fields_l4": "Outros executores podem expor campos result ou messageId.",
+  "doc_runtime_action_outputs_section_caveats_title": "Advertências",
+  "doc_runtime_action_outputs_section_caveats_l1": "Nem todas as ações expõem todos os sufixos; a disponibilidade depende do executor.",
+  "doc_runtime_action_outputs_section_caveats_l2": "Para portabilidade, prefira expressões de fallback ao ler campos de saída opcionais.",
+  "doc_runtime_action_outputs_section_caveats_l3": "Se uma chave estiver ausente, a resolução do modelo retorna uma string vazia.",
+  "doc_runtime_action_outputs_example": "Status: ((action.http.status|http.status|desconhecido))\nCorpo: ((action.http.body|http.body))\nApagados: ((cleanup.count|0))\nTotal: ((page.total|0))",
+  "doc_interaction_commands_title": "Comandos de Interação",
+  "doc_interaction_commands_subtitle": "Comportamento de execução de comandos de barra, utilizador e mensagem.",
+  "doc_interaction_commands_summary": "Os comandos da aplicação são executados através de um caminho de interação partilhado, com variáveis de execução dependentes do tipo de comando do Discord.",
+  "doc_interaction_commands_section_execution_title": "Modelo de Execução",
+  "doc_interaction_commands_section_execution_l1": "Comandos de barra, utilizador e mensagem entram no runner como interações de comando de aplicação.",
+  "doc_interaction_commands_section_execution_l2": "O runner faz a correspondência dos comandos pelo ID do comando do Discord e valida o tipo armazenado vs o tipo recebido.",
+  "doc_interaction_commands_section_execution_l3": "Uma incompatibilidade de tipo é registada como aviso, mas não interrompe a execução.",
+  "doc_interaction_commands_section_per_type_title": "Variáveis por Tipo",
+  "doc_interaction_commands_section_per_type_l1": "chatInput: opts.* para parâmetros e subcomandos.",
+  "doc_interaction_commands_section_per_type_l2": "user: target.user.* e target.member.* quando disponíveis.",
+  "doc_interaction_commands_section_per_type_l3": "message: target.message.* incluindo conteúdo e ID do autor quando resolvido.",
+  "doc_interaction_commands_section_builtin_title": "Variáveis de Comando Integradas",
+  "doc_interaction_commands_section_guidance_title": "Orientações de Criação",
+  "doc_interaction_commands_section_guidance_l1": "Escreva lógica condicional contra commandType ou interaction.command.type.",
+  "doc_interaction_commands_section_guidance_l2": "Prefira a sintaxe de fallback ao partilhar um modelo entre comandos de barra e outros, e use autocomplete.query dentro de workflows de autocompletar dedicados.",
+  "doc_interaction_commands_section_guidance_l3": "Mantenha os modelos portáteis evitando nomes apenas de eventos dentro de workflows de comandos; o autocompletar dinâmico requer um workflow geral terminando com respondWithAutocomplete.",
+  "doc_interaction_commands_example": "Workflow de autocompletar:\nquery = ((autocomplete.query))\nqueryArray -> items=((httpSearch.body))\nrespondWithAutocomplete -> label='{name}' value='{id}'",
+  "@doc_interaction_commands_example": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "doc_event_message_create_title": "Evento: messageCreate",
+  "doc_event_message_create_subtitle": "Ativado para cada nova mensagem criada.",
+  "doc_event_message_create_summary": "Use este evento para moderação, pipelines de palavras-chave, respostas automáticas, análise de estilo de comando e estatísticas.",
+  "doc_event_message_create_intent_1": "Guild Messages",
+  "doc_event_message_create_intent_2": "Message Content",
+  "doc_event_message_create_best_use_l1": "Detetar comandos escritos sem comandos de barra.",
+  "doc_event_message_create_best_use_l2": "Aplicar filtros anti-spam antes de responder.",
+  "doc_event_message_create_best_use_l3": "Encaminhar para workflows reutilizáveis com base na primeira palavra ou menção.",
+  "doc_event_message_create_notes_l1": "Se o intent Message Content estiver desligado, condições dependentes do conteúdo podem falhar.",
+  "doc_event_message_create_notes_l2": "message.content[index] é baseado em palavras e limitado pela extração em tempo de execução.",
+  "doc_event_message_create_notes_l3": "author.isBot pode ajudar a evitar loops de bots.",
+  "doc_event_message_create_example": "Guarda: ((message.isBot)) equals false\nGuarda: ((message.content[0])) equals !ticket\nDepois: runWorkflow -> ticket_manager entrada=create",
+  "doc_runtime_execution_flow_title": "Fluxo de Execução em Tempo de Real",
+  "doc_runtime_execution_flow_subtitle": "Como os workflows de eventos são selecionados e executados.",
+  "doc_runtime_execution_flow_summary": "Quando um evento chega, o runtime faz a correspondência dos workflows configurados por eventTrigger.event e executa as ações com as variáveis de contexto.",
+  "doc_runtime_execution_flow_section_pipeline_title": "Pipeline",
+  "doc_runtime_execution_flow_section_pipeline_l1": "1) Receber evento do gateway.",
+  "doc_runtime_execution_flow_section_pipeline_l2": "2) Construir mapa de variáveis de contexto.",
+  "doc_runtime_execution_flow_section_pipeline_l3": "3) Corresponder workflows pelo nome do evento.",
+  "doc_runtime_execution_flow_section_pipeline_l4": "4) Fundir variáveis globais.",
+  "doc_runtime_execution_flow_section_pipeline_l5": "5) Executar ações sequencialmente com condições.",
+  "doc_runtime_execution_flow_section_parity_title": "Regra de Paridade",
+"doc_runtime_execution_flow_section_parity_l1": "As variáveis devem ser idênticas entre o runtime da app local e o runtime do runner.",
+  "doc_runtime_execution_flow_section_parity_l2": "Use os mesmos nomes de variáveis em condições para manter a portabilidade.",
+  "template_gallery_title": "Modelos",
+  "template_gallery_subtitle": "Comece rapidamente o seu bot com um modelo pronto a usar.",
+  "template_gallery_apply": "Usar este modelo",
+  "template_gallery_apply_success": "Aplicados {count} comando(s) e {wCount} fluxo(s) de trabalho do modelo.",
+  "@template_gallery_apply_success": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "wCount": {
+        "type": "int"
+      }
+    }
+  },
+  "template_gallery_apply_error": "Falha ao aplicar o modelo: {error}",
+  "@template_gallery_apply_error": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "template_gallery_commands_count": "{count} comando(s)",
+  "@template_gallery_commands_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "template_gallery_workflows_count": "{count} fluxo(s) de trabalho",
+  "@template_gallery_workflows_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "template_gallery_empty": "Nenhum modelo disponível.",
+  "template_gallery_already_exists": "O comando \"{name}\" já existe e foi ignorado.",
+  "@template_gallery_already_exists": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "template_gallery_sync_warning": "Comandos salvos localmente. Inicie seu bot para registrá-los no Discord.",
+  "template_welcome_name": "Bot de Boas-vindas",
+  "template_welcome_description": "Cumprimente novos membros, diga olá e mostre informações do servidor.",
+  "template_moderation_name": "Bot de Moderação",
+  "template_moderation_description": "Banir, expulsar, silenciar membros e limpar mensagens.",
+  "template_utility_name": "Bot Utilitário",
+  "template_utility_description": "Ping, busca de avatar e comandos de fala do bot.",
+  "template_fun_name": "Bot de Diversão",
+  "template_fun_description": "Cara ou coroa, enquetes e bola 8 mágica.",
+  "subscription_benefit_support": "Apoie o desenvolvimento independente",
+  "subscription_feature_coming_soon": "Em breve",
+  "subscription_feature_no_ads_title": "Sem anúncios",
+  "subscription_feature_no_ads_desc": "Remova todas as inserções de anúncios em toda a experiência do aplicativo.",
+  "subscription_feature_instant_start_title": "Início instantâneo",
+  "subscription_feature_instant_start_desc": "Inicie os bots imediatamente sem interrupção de anúncio premiado.",
+  "subscription_feature_analytics_title": "Análises avançadas",
+  "subscription_feature_analytics_desc": "Acesse taxa de erro, percentis de latência e insights de localidade.",
+  "subscription_feature_scheduler_title": "Gatilhos de agendamento",
+  "subscription_feature_scheduler_desc": "Execute fluxos de trabalho automaticamente a cada X minutos (até 10 ativos).",
+  "subscription_feature_webhooks_title": "Webhooks de entrada",
+  "subscription_feature_webhooks_desc": "Crie endpoints de webhook seguros e direcione chamadas para fluxos de trabalho.",
+  "subscription_feature_debug_replay_title": "Replay visual de depuração",
+  "subscription_feature_debug_replay_desc": "Grave e reproduza ações de comando passo a passo para depuração.",
+  "subscription_feature_auto_sharding_title": "Sharding automático",
+  "subscription_feature_auto_sharding_desc": "Dimensione bots grandes distribuindo a carga entre shard workers.",
+  "subscription_feature_auto_restart_title": "Reinício automático",
+  "subscription_feature_auto_restart_desc": "Reinicie o bot automaticamente quando um reinício completo for necessário.",
+  "subscription_annual_title": "Anual",
+  "subscription_monthly_title": "Mensal",
+  "subscription_per_year": "por ano",
+  "subscription_per_month": "por mês",
+  "subscription_save_badge": "ECONOMIZE 67%",
+  "subscription_restore": "Restaurar compras",
+  "subscription_terms": "Termos de uso",
+  "subscription_privacy": "Política de privacidade",
+  "subscription_error": "A compra não pôde ser concluída. Por favor, tente novamente.",
+  "subscription_error_store_unavailable": "A App Store está indisponível no momento. Por favor, tente novamente em um momento.",
+  "subscription_error_product_unavailable": "Este plano está indisponível no momento. Por favor, tente novamente mais tarde.",
+  "subscription_error_purchase_start_failed": "A compra não pôde ser iniciada. Por favor, tente novamente.",
+  "subscription_restored": "Assinatura restaurada com sucesso!",
+  "subscription_restore_not_found": "Nenhuma assinatura ativa encontrada.",
+  "subscription_not_available_on_platform": "As assinaturas estão disponíveis no momento apenas para dispositivos móveis.",
+  "subscription_unavailable_platform": "Não disponível nesta plataforma.",
+  "action_name_addThreadMember": "Adicionar Membro da Thread",
+  "action_name_removeThreadMember": "Remover Membro da Thread",
+  "template_gallery_remove_title": "Remover Modelo",
+  "template_gallery_nothing_to_remove": "Nada a remover para {name}.",
+  "@template_gallery_nothing_to_remove": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "template_gallery_remove_confirm": "Tem certeza de que deseja remover todos os comandos e fluxos de trabalho deste modelo?",
+  "template_gallery_removed": "Comandos e fluxos de trabalho do modelo removidos.",
+  "common_cancel": "Cancelar",
+  "common_ok": "OK",
+  "common_save": "Salvar",
+  "common_remove": "Remover",
+  "common_delete": "Excluir",
+  "common_edit": "Editar",
+  "common_apply": "Aplicar",
+  "common_close": "Fechar",
+  "common_back": "Voltar",
+  "common_next": "Próximo",
+  "common_enabled": "Ativado",
+  "common_import": "Importar",
+  "common_retry": "Tentar novamente",
+  "common_move_up": "Mover para cima",
+  "common_move_down": "Mover para baixo",
+  "common_name": "Nome",
+  "common_value": "Valor",
+  "common_key": "Chave",
+  "common_type": "Tipo",
+  "common_required": "Obrigatório",
+  "common_description": "Descrição",
+  "common_default": "Padrão",
+  "common_clear": "Limpar",
+  "common_all": "Todos",
+  "common_pick": "Escolher",
+  "common_add_argument": "Adicionar Argumento",
+  "common_add_option": "Adicionar Opção",
+  "common_refresh": "Atualizar",
+  "common_refresh_workflows": "Atualizar fluxos",
+  "common_search": "Buscar",
+  "common_workflow": "Fluxo de trabalho",
+  "common_static_options": "Opções Estáticas",
+  "common_manage_workflows": "Gerenciar Fluxos",
+  "doc_event_reaction_add_title": "Evento: messageReactionAdd",
+  "doc_event_reaction_add_subtitle": "Acionado quando um usuário adiciona uma reação a uma mensagem.",
+  "doc_event_reaction_add_summary": "Ideal para UX tipo botão sem componentes, sistemas de votação, menus de cargos e aprovações leves.",
+  "doc_event_reaction_add_intent": "Guild Message Reactions",
+  "doc_event_reaction_add_best_use_l1": "Fluxos de aprovação/rejeição com emoji unicode.",
+  "doc_event_reaction_add_best_use_l2": "Enquetes de várias etapas usando IDs de emojis personalizados.",
+  "doc_event_reaction_add_best_use_l3": "Sinais de moderação rápida de canais de equipe.",
+  "doc_event_reaction_add_notes_l1": "reaction.emoji.id pode estar vazio para emojis unicode.",
+  "doc_event_reaction_add_notes_l2": "Use reaction.emoji.name para correspondência genérica.",
+  "doc_event_reaction_add_notes_l3": "Use reaction.emoji.id para correspondência estrita de emojis personalizados.",
+  "doc_event_reaction_add_example": "Guarda: ((reaction.emoji.name)) equals ✅\nAção: addRole -> user=((userId)) role=((global.approvedRoleId))",
+  "doc_event_poll_vote_add_title": "Evento: messagePollVoteAdd",
+  "doc_event_poll_vote_add_subtitle": "Acionado quando um usuário vota em uma resposta de enquete.",
+  "doc_event_poll_vote_add_summary": "Útil para rastreamento de pontuação, atribuição de cargos por opção de enquete e processamento de pesquisas.",
+  "doc_event_poll_vote_add_intent": "Guild Messages",
+  "doc_event_poll_vote_add_best_use_l1": "Mapeie cada ID de resposta para um ramo de ação diferente.",
+  "doc_event_poll_vote_add_best_use_l2": "Rastreie a participação na enquete por canal ou grupo de usuários.",
+  "doc_event_poll_vote_add_notes_l1": "poll.answer.id é a chave mais estável para roteamento.",
+  "doc_event_poll_vote_add_notes_l2": "poll.question é opcional e pode estar vazio dependendo do payload.",
+  "doc_event_voice_state_update_title": "Evento: voiceStateUpdate",
+  "doc_event_voice_state_update_subtitle": "Acionado quando o estado de voz muda para um usuário.",
+  "doc_event_voice_state_update_summary": "Use isso para automoderação em canais de voz, verificações de presença e automação de voz.",
+  "doc_event_voice_state_update_intent": "Guilds",
+  "doc_event_voice_state_update_section_title": "Automações Típicas",
+  "doc_event_voice_state_update_automations_l1": "Detectar violações de política de silenciamento/ensurdecimento próprio.",
+  "doc_event_voice_state_update_automations_l2": "Acionar mensagem de boas-vindas ao entrar na voz para canais de suporte.",
+  "doc_event_voice_state_update_automations_l3": "Registrar padrões de saída/entrada usando mudanças de canal.",
+  "doc_event_user_update_title": "Evento: userUpdate",
+  "doc_event_user_update_subtitle": "Acionado quando os dados do perfil do usuário mudam.",
+  "doc_event_user_update_summary": "Útil para auditoria de mudança de perfil e gatilhos baseados em nome de usuário/avatar.",
+  "doc_event_user_update_notes_l1": "Sem contexto de canal para este evento na maioria dos casos.",
+  "doc_event_user_update_notes_l2": "Prefira logs + alertas de moderação em vez de respostas diretas ao usuário.",
+  "doc_event_audit_log_create_title": "Evento: guildAuditLogCreate",
+  "doc_event_audit_log_create_subtitle": "Acionado quando uma nova entrada de log de auditoria é criada.",
+  "doc_event_audit_log_create_summary": "Evento de alto valor para monitoramento de segurança administrativa.",
+  "doc_event_audit_log_create_best_use_l1": "Alertar a equipe sobre ações sensíveis (exclusão de cargo, criação de webhook, banimento, etc.).",
+  "doc_event_audit_log_create_best_use_l2": "Direcionar tipos de ação específicos para fluxos de trabalho dedicados.",
+  "doc_action_stop_unless_title": "Ação: stopUnless",
+  "doc_action_stop_unless_subtitle": "Cláusula guarda que interrompe o fluxo quando a condição falha.",
+  "doc_action_stop_unless_summary": "Use-o no topo dos fluxos de trabalho para evitar ações desnecessárias quando o contexto não corresponder.",
+  "doc_action_stop_unless_section_operators": "Operadores Suportados",
+  "doc_action_stop_unless_operators_l1": "equals, notEquals, contains, notContains, startsWith, endsWith",
+  "doc_action_stop_unless_operators_l2": "greaterThan, lessThan, greaterOrEqual, lessOrEqual",
+  "doc_action_stop_unless_operators_l3": "isEmpty, isNotEmpty, matches",
+  "doc_action_stop_unless_section_format": "Formato da Variável de Condição",
+  "doc_action_stop_unless_format_l1": "Você pode usar chaves brutas: message.content[0]",
+  "doc_action_stop_unless_format_l2": "Você pode usar variáveis envolvidas: ((message.content[0]))",
+  "doc_action_stop_unless_format_l3": "Ambos são resolvidos pelo tempo de execução.",
+  "doc_action_stop_unless_example": "condition.variable = ((reaction.emoji.name))\ncondition.operator = equals\ncondition.value = ✅",
+  "doc_action_if_block_title": "Ação: ifBlock",
+  "doc_action_if_block_subtitle": "Ramifique a execução entre listas de ações aninhadas THEN, ELSE IF e ELSE.",
+  "doc_action_if_block_summary": "Use isso para manter um único fluxo de trabalho enquanto lida com vários resultados baseados no estado de execução.",
+  "doc_action_if_block_section_execution": "Modelo de Execução",
+  "doc_action_if_block_execution_l1": "A condição é avaliada uma vez.",
+  "doc_action_if_block_execution_l2": "O primeiro ramo correspondente é executado: THEN, depois os blocos ELSE IF em ordem, depois ELSE.",
+  "doc_action_if_block_execution_l3": "Ações aninhadas podem incluir runWorkflow, chamadas de API e respostas de interação.",
+  "doc_action_run_workflow_title": "Ação: runWorkflow",
+  "doc_action_run_workflow_subtitle": "Chama outro fluxo de trabalho com ponto de entrada e argumentos.",
+  "doc_action_run_workflow_summary": "Primitiva de composição central para dividir a lógica de negócios em unidades reutilizáveis.",
+  "doc_action_run_workflow_section_practices": "Melhores Práticas",
+  "doc_action_run_workflow_practices_l1": "Mantenha o fluxo de nível superior simples e delegue para fluxos de domínio.",
+  "doc_action_run_workflow_practices_l2": "Passe argumentos explícitos em vez de confiar em globais implícitos.",
+  "doc_action_run_workflow_practices_l3": "Use pontos de entrada para modelar sub-rotinas (create, close, assign, escalate).",
+  "doc_action_http_request_title": "Ação: httpRequest",
+  "doc_action_http_request_subtitle": "Executa uma chamada HTTP externa dentro de um fluxo de trabalho.",
+  "doc_action_http_request_summary": "Use isso para webhooks, APIs internas, serviços de moderação, endpoints de IA e integrações.",
+  "doc_action_http_request_section_checklist": "Checklist de Confiabilidade",
+  "doc_action_http_request_checklist_l1": "Defina timeout e tentativas explícitas em sua camada de serviço quando possível.",
+  "doc_action_http_request_checklist_l2": "Armazene chaves de API em globais ou backend seguro, nunca codifique tokens rigidamente.",
+  "doc_action_http_request_checklist_l3": "Valide o código de status e o corpo da resposta antes das próximas ações.",
+  "embed_color_picker_title": "Escolher cor do embed",
+  "embed_delete_title": "Excluir embed",
+  "embed_delete_confirm": "Este embed será removido. Continuar?",
+  "embed_field_delete_title": "Excluir campo",
+  "embed_field_delete_confirm": "Este campo será removido do embed. Continuar?",
+  "embed_response_header": "Embeds de Resposta ({count}/{max})",
+  "@embed_response_header": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "embed_add_tooltip": "Adicionar embed",
+  "embed_empty_message": "Sem embeds. Você pode adicionar até {max} embeds.",
+  "@embed_empty_message": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "embed_number": "Embed #{index}",
+  "@embed_number": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "embed_label_title": "Título",
+  "embed_label_url": "URL",
+  "embed_label_timestamp": "Timestamp (ISO8601)",
+  "embed_label_color": "Cor (int ou #hex)",
+  "embed_section_footer": "Rodapé",
+  "embed_label_footer_text": "Texto do Rodapé",
+  "embed_label_footer_icon": "URL do Ícone do Rodapé",
+  "embed_section_author": "Autor",
+  "embed_label_author_name": "Nome do Autor",
+  "embed_label_author_url": "URL do Autor",
+  "embed_label_author_icon": "URL do Ícone do Autor",
+  "embed_section_media": "Mídia",
+  "embed_label_image_url": "URL da Imagem",
+  "embed_label_thumbnail_url": "URL da Miniatura",
+  "embed_fields_header": "Campos ({count}/25)",
+  "@embed_fields_header": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "embed_fields_empty": "Nenhum campo ainda.",
+  "embed_field_number": "Campo #{index}",
+  "@embed_field_number": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "embed_label_inline": "Em linha",
+  "embed_label_dynamic_fields": "Modelo de Campos Dinâmicos",
+  "component_remove_title": "Remover componente",
+  "component_remove_confirm": "Este componente será removido do layout. Continuar?",
+  "component_label": "Rótulo",
+  "component_style": "Estilo",
+  "component_url": "URL",
+  "component_custom_id_required": "ID Personalizado *",
+  "component_validation_required": "Obrigatório",
+  "component_workflow_optional": "Chamar Fluxo (opcional)",
+  "component_workflow_click_hint": "Nome do fluxo salvo para executar ao clicar",
+  "component_workflow_select_hint": "Nome do fluxo salvo para executar na seleção",
+  "component_custom_id": "ID Personalizado",
+  "component_placeholder": "Espaço reservado",
+  "component_options": "Opções",
+  "component_markdown_content": "Conteúdo Markdown",
+  "component_visible_divider": "Linha Divisória Visível",
+  "component_spacing_small": "Espaçamento Pequeno",
+  "component_spacing_large": "Espaçamento Grande",
+  "component_section_text_displays": "Exibições de Texto",
+  "component_add_text_display": "Adicionar Exibição de Texto",
+  "component_section_accessory": "Nó Acessório (Opcional)",
+  "component_accent_color": "Cor de Destaque (Hex, ex: FF0000)",
+  "component_pick_accent_color": "Escolher Cor de Destaque",
+  "component_add_child": "Adicionar Componente Filho",
+  "component_checked_by_default": "Marcado por padrão",
+  "component_add_radio_option": "Adicionar Opção de Rádio",
+  "component_add_media_item": "Adicionar Item de Mídia",
+  "component_not_implemented": "Editor ainda não implementado",
+  "component_choose_color": "Escolher Cor",
+  "component_label_title": "Título do Rótulo",
+  "component_workflow_args_title": "Argumentos da Chamada de Fluxo",
+  "component_workflow_args_hint": "Exemplo: ticketId = ((opts.ticket))",
+  "autocomplete_workflow_label": "Fluxo de Autocompletar",
+  "autocomplete_loading": "Carregando fluxos…",
+  "autocomplete_no_workflows": "Nenhum fluxo salvo encontrado",
+  "autocomplete_select_workflow": "Selecione um fluxo salvo",
+  "autocomplete_type_name": "Ou digite o nome do fluxo",
+  "workflow_entry_point": "Ponto de Entrada",
+  "workflow_arguments_section": "Argumentos do Fluxo",
+  "hint_use_variables": "Use variáveis/modelos se necessário",
+  "autocomplete_dynamic": "Autocompletar Dinâmico",
+  "autocomplete_dynamic_desc": "Resolva as escolhas de um fluxo em vez de valores estáticos.",
+  "autocomplete_filter_hint": "As sugestões são filtradas pelo que o usuário digita.",
+  "option_delete_title": "Excluir opção",
+  "option_delete_confirm": "Esta opção será removida. Continuar?",
+  "option_desc_required": "Por favor, insira uma descrição para a opção",
+  "option_delete_argument_title": "Excluir argumento",
+  "option_delete_argument_confirm": "Este argumento será removido. Continuar?",
+  "option_static_label_n": "Rótulo {index}",
+  "@option_static_label_n": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "option_static_value_n": "Valor {index}",
+  "@option_static_value_n": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "option_delete_choice_title": "Excluir opção",
+  "option_delete_choice_confirm": "Esta escolha será removida. Continuar?",
+  "option_default_name": "Opção {index}",
+  "@option_default_name": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "option_min_value": "Valor Mínimo",
+  "option_max_value": "Valor Máximo",
+  "option_add_localizations": "Adicionar Localizações",
+  "option_select_language": "Selecionar Idioma",
+  "option_delete_localization_title": "Excluir localização",
+  "option_delete_localization_confirm": "Esta entrada de localização será removida. Continuar?",
+  "option_localized_name": "Nome Localizado",
+  "option_localized_description": "Descrição Localizada",
+  "option_choice_number": "Escolha {index}",
+  "@option_choice_number": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "option_choice_delete_title": "Excluir escolha",
+  "option_choice_delete_confirm": "Esta escolha será removida. Continuar?",
+  "option_choice_name": "Nome da Escolha",
+  "option_choice_value": "Valor da Escolha",
+  "option_add_choice": "Adicionar Escolha",
+  "option_subcommands": "Subcomandos",
+  "option_subcommand_options": "Opções do Subcomando",
+  "action_options_tooltip": "Opções de ação",
+  "action_remove_menu": "Remover ação",
+  "action_order_tip": "Dica: use as setas para alterar a ordem das ações.",
+  "action_key_field": "Chave da Ação",
+  "action_on_error": "Em caso de erro",
+  "action_error_stop": "Parar",
+  "action_error_continue": "Continuar",
+  "action_advanced_settings": "Configurações avançadas",
+  "action_status_enabled": "Ativado",
+  "action_status_disabled": "Desativado",
+  "action_remove_title": "Remover ação",
+  "action_remove_confirm": "Esta ação será removida do fluxo de trabalho. Continuar?",
+  "action_store_results": "Armazenar resultados em variáveis globais",
+  "action_http_test_button": "Enviar Requisição de Teste e Detectar Rotas",
+  "action_http_test_title": "Resultados da Requisição de Teste",
+  "action_http_status": "Status: {status}",
+  "@action_http_status": {
+    "placeholders": {
+      "status": {
+        "type": "int"
+      }
+    }
+  },
+  "action_http_paths_parsed": "{count} caminhos analisados",
+  "@action_http_paths_parsed": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "action_http_response_body": "Corpo da Resposta (Bruto):",
+  "action_literal": "Literal",
+  "action_dynamic": "Dinâmico",
+  "action_add_else_if": "Adicionar ELSE IF",
+  "action_remove_else_if": "Remover ELSE IF",
+  "action_condition_variable": "Variável de Condição",
+  "action_condition_value": "Valor da Condição",
+  "action_else_if_label": "ELSE IF {index} — ações",
+  "@action_else_if_label": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "action_expression": "Expressão",
+  "action_edit_param": "Editar {name}",
+  "@action_edit_param": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "action_choose_param": "Escolher {name}",
+  "@action_choose_param": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "action_format_json": "Formatar JSON",
+  "action_add_header": "Adicionar cabeçalho",
+  "action_clear_all": "Limpar tudo",
+  "action_refresh_keys": "Atualizar chaves",
+  "action_manage_variable_keys": "Gerenciar Chaves de Variáveis",
+  "validation_command_name_required": "Por favor, insira um nome para o comando",
+  "validation_awaited_callback_local_only": "Retornos de chamada aguardados requerem um Comando Legado apenas local.",
+  "validation_awaited_callback_length": "O gatilho de retorno de chamada aguardado deve ter no máximo {max} caracteres",
+  "@validation_awaited_callback_length": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validation_awaited_callback_format": "O retorno de chamada aguardado deve usar $awaitedCommand[nome;filtro] ou $awaitedCommandError[nome].",
+  "validation_command_name_length": "O nome do comando deve ter no máximo {max} caracteres",
+  "@validation_command_name_length": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validation_command_name_no_spaces": "O nome do comando não pode conter espaços",
+  "validation_command_name_invalid_chars": "O nome do comando pode conter apenas letras, números e sublinhados",
+  "validation_command_name_no_underscore": "O nome do comando não pode começar com um sublinhado",
+  "validation_command_name_no_exclamation": "O nome do comando não pode começar com um ponto de exclamação",
+  "validation_command_name_no_slash": "O nome do comando não pode começar com uma barra",
+  "validation_command_name_no_hash": "O nome do comando não pode começar com um cerquilha (#)",
+  "validation_command_name_no_at": "O nome do comando não pode começar com uma arroba (@)",
+  "validation_command_name_no_ampersand": "O nome do comando não pode começar com um e comercial (&)",
+  "validation_command_name_no_percent": "O nome do comando não pode começar com um sinal de porcentagem",
+  "validation_legacy_chat_input_only": "O modo legado está disponível apenas para comandos de entrada de chat.",
+  "validation_modal_not_legacy": "Respostas de modal não são suportadas no modo de comando legado.",
+  "validation_legacy_only_requires_legacy": "Comandos apenas legados requerem que o modo legado esteja ativado.",
+  "validation_legacy_only_new_or_local": "O modo apenas legado só pode ser usado para novos comandos ou comandos locais existentes.",
+  "validation_invalid_permissions": "Bitfield de permissões de membro padrão inválido. Use um número inteiro positivo ou deixe vazio.",
+  "scheduler_no_workflows": "Crie pelo menos um fluxo de trabalho antes de adicionar um agendamento.",
+  "scheduler_add_title": "Adicionar agendamento",
+  "scheduler_edit_title": "Editar agendamento",
+  "scheduler_label_hint": "Rótulo de exibição opcional",
+  "scheduler_label_field": "Rótulo",
+  "scheduler_every_minutes": "A cada (minutos)",
+  "scheduler_invalid_minutes": "Os minutos devem ser maiores que 0.",
+  "scheduler_limit_reached": "Limite do agendador atingido ({limit}).",
+  "@scheduler_limit_reached": {
+    "placeholders": {
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "scheduler_save_failed": "Falha ao salvar o agendamento: {error}",
+  "@scheduler_save_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "scheduler_delete_title": "Excluir agendamento",
+  "scheduler_delete_confirm": "Excluir agendamento \"{label}\"?",
+  "@scheduler_delete_confirm": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "scheduler_page_title": "Agendador",
+  "scheduler_add_trigger": "Adicionar gatilho",
+  "scheduler_triggers_count": "Gatilhos: {count}{limit}",
+  "@scheduler_triggers_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "scheduler_empty": "Nenhum gatilho agendado ainda.",
+  "webhooks_no_workflows": "Crie pelo menos um fluxo de trabalho antes de adicionar um webhook de entrada.",
+  "webhooks_add_title": "Adicionar webhook de entrada",
+  "webhooks_edit_title": "Editar webhook de entrada",
+  "webhooks_path_label": "Caminho",
+  "webhooks_path_hint": "pedidos/novo",
+  "webhooks_target_label": "Alvo do fluxo de trabalho",
+  "webhooks_secret_label": "Segredo do Webhook",
+  "webhooks_generate": "Gerar",
+  "webhooks_limit_reached": "Limite de webhooks de entrada atingido ({limit}).",
+  "@webhooks_limit_reached": {
+    "placeholders": {
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "webhooks_path_exists": "Este caminho já existe. Escolha outro.",
+  "webhooks_save_failed": "Falha ao salvar o webhook de entrada: {error}",
+  "@webhooks_save_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "webhooks_delete_title": "Excluir webhook de entrada?",
+  "webhooks_delete_confirm": "Excluir \"{label}\"? Isso não pode ser desfeito.",
+  "@webhooks_delete_confirm": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "webhooks_delete_confirm_no_label": "Isso não pode ser desfeito.",
+  "webhooks_runner_url_required": "Configure uma URL do Runner primeiro para copiar a URL completa do webhook.",
+  "webhooks_missing_data": "O caminho ou o segredo do webhook está faltando.",
+  "webhooks_copied": "URL completa do webhook copiada.",
+  "webhooks_invalid_runner_url": "A URL do Runner é inválida.",
+  "webhooks_page_title": "Webhooks de Entrada",
+  "webhooks_add_action": "Adicionar webhook",
+  "webhooks_empty": "Nenhum webhook de entrada ainda.",
+  "webhooks_workflow_subtitle": "Fluxo: {workflow}",
+  "@webhooks_workflow_subtitle": {
+    "placeholders": {
+      "workflow": {
+        "type": "String"
+      }
+    }
+  },
+  "webhooks_copy_url": "Copiar URL",
+  "webhooks_copy_path": "Copiar caminho",
+  "webhooks_copy_secret": "Copiar segredo",
+  "webhooks_actions": "Ações",
+  "command_legacy_mode_title": "Ativar modo legado neste comando",
+  "command_legacy_mode_subtitle": "Usa opções posicionais (exemplo: !config #canal).",
+  "command_legacy_prefix_title": "Modo de Prefixo Legado",
+  "command_legacy_prefix_desc": "Lida com comandos de messageCreate usando <prefixo><comando>.",
+  "command_prefix_override_label": "Substituição de prefixo (opcional)",
+  "command_prefix_override_hint": "Exemplo: ? ou ((guild.prefix | !))",
+  "command_legacy_response_label": "Modo de resposta legado",
+  "command_response_mode_reply": "message.reply",
+  "command_response_mode_channel": "message.channel.send",
+  "command_modal_disabled_legacy": "Modais estão desativados no modo legado.",
+  "command_target_subcommand": "Subcomando alvo",
+  "command_unsaved_title": "Alterações não salvas",
+  "command_unsaved_confirm": "Você tem alterações não salvas. Descartá-las?",
+  "command_unsaved_keep": "Continuar editando",
+  "command_error_missing_bot_id": "ID do bot ausente para salvamento de comando local.",
+  "command_import_tooltip": "Importar payload do comando",
+  "command_export_tooltip": "Exportar payload do comando",
+  "actions_missing_field_title": "Campo Obrigatório Ausente",
+  "actions_no_matches": "Nenhuma ação corresponde à sua busca.",
+  "actions_add_new_title": "Adicionar Nova Ação",
+  "actions_search_hint": "Buscar ações...",
+  "actions_add_label": "Adicionar Ação",
+  "actions_builder_title": "Construtor de Ações",
+  "actions_save_tooltip": "Salvar Ações",
+  "actions_key_label": "Chave: {key}",
+  "@actions_key_label": {
+    "placeholders": {
+      "key": {
+        "type": "String"
+      }
+    }
+  },
+  "modal_remove_field_title": "Remover campo do modal",
+  "modal_remove_field_confirm": "Este campo será removido do modal. Continuar?",
+  "modal_title_label": "Título do Modal",
+  "modal_custom_id_label": "ID Personalizado",
+  "modal_custom_id_hint": "Usado para identificar este modal",
+  "modal_workflow_submit": "Fluxo de trabalho para executar no envio (opcional)",
+  "modal_add_text_input": "Adicionar Entrada de Texto",
+  "modal_field_default_label": "Campo {index}",
+  "@modal_field_default_label": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "modal_style": "Estilo:",
+  "modal_default_value": "Valor padrão",
+  "command_legacy_preset_title": "Predefinição legada",
+  "command_legacy_preset_desc": "Gere um gatilho de retorno de chamada aguardado interno e mude este comando para a configuração legada local obrigatória.",
+  "command_awaited_preset_button": "Usar Predefinição de Retorno de Chamada Aguardado",
+  "command_awaited_preset_active": "Predefinição de retorno de chamada aguardado ativa",
+  "command_edit_raw_name": "Editar Nome Bruto",
+  "command_awaited_preset_desc": "O nome do comando é gerado para você e salvo como um retorno de chamada legado interno.",
+  "command_awaited_success": "Sucesso",
+  "command_awaited_error": "Erro",
+  "command_awaited_name_label": "Nome do retorno de chamada aguardado",
+  "command_awaited_name_hint": "Exemplo: falar",
+  "command_awaited_filter_label": "Filtro (opcional)",
+  "command_awaited_filter_hint": "Exemplo: <numeric> ou <yes/no/cancel>",
+  "command_info_title": "Informações do Comando",
+  "command_info_desc": "Metadados básicos e disponibilidade",
+  "command_name_label": "Nome",
+  "command_name_generated": "Gerado pela predefinição de retorno de chamada aguardado.",
+  "command_type_label": "Tipo de Comando",
+  "command_type_slash": "Comando de Barra",
+  "command_type_legacy": "Comando Legado",
+  "command_type_user": "Comando de Usuário",
+  "command_type_message": "Comando de Mensagem",
+  "command_integration_guild": "Instalação em Servidor",
+  "command_integration_user": "Instalação em Usuário",
+  "command_context_guild": "Servidor",
+  "command_context_bot_dm": "DM do Bot",
+  "command_context_group_dm": "DM de Grupo / Outro",
+  "command_permissions_title": "Selecionar permissões",
+  "command_prefix_helper": "Suporta modelos e variáveis de escopo (bc_ opcional). Exemplo: ((guild.prefix | user.prefix | !))",
+  "actions_title": "Ações",
+  "actions_description": "Construa ações de tempo de execução para este comando",
+  "actions_active_route": "Rota ativa: {label}",
+  "@actions_active_route": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "actions_build_button": "Construir Ações ({count})",
+  "@actions_build_button": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "actions_save_workflow_title": "Salvar como Fluxo",
+  "actions_workflow_name_label": "Nome do fluxo",
+  "actions_global_variables": "Variáveis Globais",
+  "actions_workflows": "Fluxos de trabalho",
+  "wizard_quick_start_applied": "Início rápido aplicado ao rascunho do comando.",
+  "wizard_advanced_trigger": "Configurações de gatilho avançadas",
+  "wizard_edit_reply": "Editar detalhes da resposta",
+  "wizard_quick_starts": "Inícios rápidos",
+  "wizard_apply_quick_start": "Aplicar início rápido ao rascunho",
+  "wizard_code_advanced": "Código / Avançado",
+  "serialization_export_json_title": "Exportar comando como JSON",
+  "serialization_export_json_subtitle": "Copiar JSON legível para a área de transferência",
+  "serialization_export_base64_title": "Exportar comando como Base64",
+  "serialization_import_title": "Importar comando",
+  "serialization_import_desc": "Cole um payload de comando (JSON ou Base64).",
+  "serialization_invalid_format": "Formato de payload de comando inválido.",
+  "serialization_invalid_structure": "Estrutura de payload de comando inválida.",
+  "serialization_imported": "Comando importado para o editor.",
+  "response_workflow_title": "Fluxo de Resposta",
+  "response_workflow_auto_defer": "Adiar automaticamente se houver ações",
+  "response_workflow_public": "Público",
+  "response_workflow_error_policy": "Política de erro",
+  "response_workflow_enable_condition": "Ativar condição",
+  "response_workflow_mode_normal": "Normal",
+  "response_workflow_mode_component": "Componente",
+  "response_workflow_mode_modal": "Modal",
+  "response_workflow_revert_tooltip": "Reverter todas as alterações",
+  "response_workflow_then_text": "Texto de resposta THEN (opcional)",
+  "response_workflow_else_text": "Texto de resposta ELSE (opcional)",
+  "recovery_label": "Recuperação",
+  "recovery_title": "Modo de recuperação",
+  "recovery_retry_discord": "Tentar novamente conexão com Discord",
+  "recovery_delete_bot": "Excluir bot localmente",
+  "nav_webhooks": "Webhooks",
+  "nav_webhooks_compact": "Hooks",
+  "reply_configure_workflow": "Configurar Fluxo de Resposta",
+  "reply_buttons_optional": "Botões e Menus de Seleção (opcional)",
+  "reply_mode_standard": "Mensagem Padrão",
+  "reply_mode_layout": "Modo Layout",
+  "reply_mode_modal": "Formulário Modal",
+  "emojis_rename_tooltip": "Renomear",
+  "emojis_delete_tooltip": "Excluir",
+  "component_remove_row_title": "Remover linha de ação",
+  "component_add_tooltip": "Adicionar Componente",
+  "component_add_root": "Adicionar Componente Raiz",
+  "edit_shell_save_changes": "Salvar alterações",
+  "edit_shell_all_saved": "Todas as alterações salvas",
+  "edit_shell_local_only": "Apenas local",
+  "edit_shell_local_draft": "Rascunho local",
+  "edit_shell_unsaved": "Alterações não salvas",
+  "edit_shell_untitled_command": "Comando sem título",
+  "edit_shell_subtitle": "Configurações e entradas estão no topo. Ações e resposta seguem abaixo.",
+  "edit_shell_routes_count": "{count} rota(s)",
+  "@edit_shell_routes_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reply_modal_enable_condition": "Ativar condição de envio",
+  "reply_condition_always": "Sempre (padrão)",
+  "reply_condition_never": "Nunca",
+  "reply_condition_user_input": "Apenas com entradas de formulário",
+  "edit_shell_action_tooltip": "Abrir editor de ações",
+  "edit_shell_reply_tooltip": "Abrir editor de resposta",
+  "edit_shell_no_action_blocks": "Nenhum bloco de ação disponível.",
+  "edit_shell_no_reply_blocks": "Nenhum bloco de resposta disponível.",
+  "edit_shell_action_blocks": "Blocos de Ação",
+  "edit_shell_reply_blocks": "Blocos de Resposta",
+  "edit_shell_run_label": "Executar",
+  "edit_shell_help_command_title": "Ajuda do Comando",
+  "edit_shell_help_command_desc": "Configure a mensagem de ajuda do comando (gerada automaticamente se não estiver definida).",
+  "edit_shell_help_command_auto": "Usar mensagem gerada automaticamente",
+  "edit_shell_help_command_custom": "Usar mensagem personalizada",
+  "edit_shell_help_command_text": "Texto de ajuda personalizado",
+  "edit_shell_help_command_text_hint": "Quando não fornecida, a mensagem de ajuda será gerada automaticamente com base na descrição do comando.",
+  "edit_shell_help_text_example": "Exemplo: \"Ajuda para o comando /ping\"",
+  "dashboard_title": "Painel",
+  "dashboard_no_data": "Ainda não há dados de uso do comando. Execute seu bot para começar a rastrear.",
+  "dashboard_total": "Total de comandos",
+  "dashboard_period_24h": "Últimas 24h",
+  "dashboard_period_7d": "Últimos 7 dias",
+  "dashboard_period_30d": "Últimos 30 dias",
+  "dashboard_top_commands": "Principais comandos",
+  "dashboard_top_locales": "Principais idiomas",
+  "dashboard_execution_health_title": "Saúde da execução",
+  "dashboard_failed_commands": "Falhas",
+  "dashboard_error_rate": "Taxa de erro",
+  "dashboard_p50_latency": "Latência p50",
+  "dashboard_p95_latency": "Latência p95",
+  "dashboard_premium_analytics_title": "Análises Premium",
+  "dashboard_premium_analytics_desc": "Desbloqueie taxa de erro, percentis de latência e insights de idioma.",
+  "dashboard_timeline": "Uso ao longo do tempo",
+  "dashboard_executions": "{count} execuções",
+  "dashboard_selected_period_total": "{count} no período selecionado",
+  "dashboard_loading": "Carregando estatísticas...",
+  "dashboard_error": "Não foi possível carregar as estatísticas: {error}",
+  "dashboard_refresh_sources_tooltip": "Atualizar servidores de execução",
+  "dashboard_requires_runner": "Conecte-se a um runner para ver as estatísticas de uso do comando.",
+  "dashboard_single_runner_notice": "As estatísticas mostradas são apenas do runner configurado no momento. Se você executar bots em vários runners, esta visualização pode estar incompleta.",
+  "runner_source_label": "Runner: {name}",
+  "runner_source_local": "Local",
+  "runner_source_all": "Todos os runners",
+  "runner_select_source": "Selecionar runner",
+  "logs_runner_source": "Logs de: {name}",
+  "settings_version_title": "Versão",
+  "settings_app_version": "App",
+  "settings_runner_version": "Runner",
+  "settings_runner_not_connected": "Não conectado",
+  "premium_card_title": "Remover Anúncios",
+  "premium_card_desc": "Assine para remover todos os anúncios e iniciar seus bots instantaneamente, sem nenhum pop-up.",
+  "premium_card_button": "Ver planos",
+  "premium_active_title": "Premium ativo",
+  "premium_active_desc": "Obrigado pelo seu apoio! Todos os anúncios estão desativados.",
+  "subscription_title": "Premium",
+  "subscription_subtitle": "Escolha um plano para desbloquear todos os recursos premium.",
+  "subscription_plan_label": "Premium Básico",
+  "subscription_plan_desc": "Remova anúncios e tenha acesso a todos os recursos premium atuais e futuros.",
+  "subscription_success": "Bem-vindo ao Premium! Todos os anúncios foram removidos.",
+  "subscription_manage": "Gerenciar assinatura",
+  "subscription_active_label": "Plano ativo:",
+  "subscription_active_annual": "Premium — Anual",
+  "subscription_active_monthly": "Premium — Mensal",
+  "subscription_benefit_no_ads": "Sem anúncios em lugar nenhum do app",
+  "subscription_benefit_fast_start": "Bots iniciam instantaneamente, sem pop-up",
+  "edit_shell_command_settings": "Configurações do comando",
+  "edit_shell_command_settings_desc": "Metadados, disponibilidade, permissões e posicionamento em pastas.",
+  "edit_shell_trigger_inputs": "Gatilho e Entradas",
+  "edit_shell_trigger_inputs_desc": "Ajuste as opções do comando, comportamento do gatilho e modo de execução.",
+  "edit_shell_command_body": "Corpo do comando",
+  "edit_shell_type_legacy": "Comando legado",
+  "edit_shell_type_user": "Comando de usuário",
+  "edit_shell_type_message": "Comando de mensagem",
+  "edit_shell_type_slash": "Comando de barra",
+  "edit_shell_type_command": "Comando",
+  "wizard_step_infos": "Informações",
+  "wizard_step_trigger_inputs": "Gatilho e Entradas",
+  "wizard_step_reply": "Resposta",
+  "wizard_step_actions": "Ações",
+  "wizard_step_review": "Revisar",
+  "review_info_title": "Informações",
+  "review_name_untitled": "(sem título)",
+  "review_name_line": "Nome: {name}",
+  "review_type_line": "Tipo: {type}",
+  "review_description_line": "Descrição: {desc}",
+  "review_folder_line": "Pasta: {folder}",
+  "review_options_count": "{count} opção(ões)",
+  "review_subcommand_routes": "{count} rota(s) de subcomando",
+  "review_legacy_mode": "Modo legado ativado",
+  "review_local_only": "Comando apenas local",
+  "review_trigger_inputs_title": "Gatilho e Entradas",
+  "review_reply_title": "Resposta",
+  "review_actions_title": "Ações",
+  "wizard_save_command": "Salvar comando",
+  "wizard_create_command": "Criar comando",
+  "wizard_reply_summary": "Resumo da resposta",
+  "wizard_legacy_options_subtitle": "Opções de comando legado e comportamento apenas local",
+  "wizard_quick_start_subtitle": "Use o construtor simples legado como ponto de partida e aplique-o ao rascunho compartilhado.",
+  "wizard_bdfd_mode_enabled": "Modo de script BDFD ativado",
+  "wizard_dart_mode_enabled": "Modo de script Dart ativado",
+  "wizard_visual_mode_enabled": "Modo de fluxo visual ativado",
+  "wizard_command_body": "Corpo do comando",
+  "response_mode_layout": "Modo de layout",
+  "response_mode_modal": "Formulário modal",
+  "response_mode_standard": "Mensagem padrão",
+  "response_visibility_ephemeral": "efêmero",
+  "response_visibility_public": "público",
+  "response_embeds_count": "{count} embed(s)",
+  "response_interactive_components": "componentes interativos",
+  "command_options_title": "Opções do Comando",
+  "command_options_slash_params": "Parâmetros do comando de barra",
+  "command_options_legacy_params": "Parâmetros posicionais legados (ordenados: obrigatórios, depois opcionais)",
+  "legacy_prefix_mode_title": "Modo de Prefixo Legado",
+  "legacy_prefix_mode_desc": "Lida com comandos de messageCreate usando <prefixo><comando>.",
+  "legacy_prefix_mode_subtitle": "Usa opções posicionais (exemplo: !config #canal).",
+  "legacy_prefix_override_label": "Substituição de prefixo (opcional)",
+  "legacy_prefix_override_hint": "Exemplo: ? ou ((guild.prefix | !))",
+  "legacy_response_mode_label": "Modo de resposta legado",
+  "command_type_locked": "O tipo de comando não pode ser alterado após a criação.",
+  "local_command_title": "Comando Local (Não registrar no Discord)",
+  "local_command_desc": "Armazene o comando apenas no Bot Creator. Você pode registrá-lo dinamicamente em Servidores Específicos usando BDFD $registerGuildCommands.",
+  "local_command_awaited_desc": "Presets de callback aguardados permanecem locais porque são callbacks internos de tempo de execução.",
+  "command_integration_label": "Onde este comando pode ser usado",
+  "command_scope_label": "Escopo do comando (Contextos)",
+  "command_permissions_label": "Permissões padrão de membros (opcional)",
+  "command_permissions_none": "Nenhuma seleção (todos podem usar o comando)",
+  "command_permissions_count": "{count} permissão(ões) selecionada(s)",
+  "command_permissions_bitfield": "Bitfield de permissão calculado",
+  "command_permissions_bitfield_helper": "Calculado automaticamente a partir das permissões selecionadas.",
+  "command_permissions_unknown_bits": "Aviso: bits de permissão desconhecidos detectados nos dados salvos e preservados: {bits}",
+  "command_permissions_admin_warning": "Administrador selecionado: isso ignora outras verificações de permissão.",
+  "command_permissions_tip": "Dica: deixe todos desmarcados para tornar o comando disponível para todos por padrão.",
+  "workflow_saved_snackbar": "Workflow \"{name}\" salvo ({count} ação(ões)).",
+  "reply_command_reply_title": "Resposta do Comando",
+  "reply_choose_type": "Escolha o tipo de resposta a enviar",
+  "reply_mode_standard_desc": "Texto, embeds e botões / menus de seleção opcionais",
+  "reply_mode_layout_desc": "Sistema de layout rico do Discord — contêineres, mídia, texto e formulários",
+  "reply_mode_modal_desc": "Diálogo pop-up com campos de entrada de texto",
+  "reply_response_workflow": "Workflow de Resposta",
+  "reply_response_text_label": "Texto da Resposta",
+  "reply_response_text_helper": "Usado como texto de resposta do comando de barra. Suporta a sintaxe ((variável)).",
+  "reply_buttons_desc": "Adicione botões interativos ou menus suspensos a esta mensagem",
+  "reply_active_route": "Rota ativa: {label}",
+  "workflow_visibility_ephemeral": "Efêmero",
+  "workflow_visibility_public": "Público",
+  "workflow_auto_defer": "Auto deferir",
+  "workflow_manual": "Manual",
+  "workflow_condition_on": "Condição ativada",
+  "workflow_condition_off": "Condição desativada",
+  "workflow_auto_defer_actions": "Auto deferir se houver ações",
+  "workflow_no_auto_defer": "Não auto deferir",
+  "workflow_condition_on_upper": "CONDIÇÃO ATIVADA",
+  "workflow_condition_off_upper": "CONDIÇÃO DESATIVADA",
+  "actions_summary_bdfd": "Script BDFD | {lines} linha(s) | {diagnostics} diagnóstico(s)",
+  "actions_summary_dart": "Script Dart | {lines} linha(s) | {diagnostics} diagnóstico(s)",
+  "scratch_dart_script": "Script Dart",
+  "actions_summary_routes": "{count} ação(ões) na rota ativa | {routes} rota(s)",
+  "actions_summary_configured": "{count} ação(ões) configurada(s)",
+  "reply_editor_title": "Detalhes da Resposta",
+  "bdfd_editor_ux_title": "UX do Editor",
+  "bdfd_editor_includes": "Inclui:",
+  "bdfd_editor_auto_indent": "• Recuo automático inteligente ao pressionar Enter",
+  "bdfd_editor_indent_guides": "• Guias de recuo ao vivo",
+  "bdfd_editor_quick_keys": "• Teclas rápidas móveis para símbolos BDFD",
+  "bdfd_editor_toggle_indent": "Alternar guias de recuo",
+  "startup_error_title": "Erro de Inicialização",
+  "startup_failed_message": "O Bot Creator falhou ao iniciar neste dispositivo.",
+  "startup_copy_diagnostics": "Copiar diagnósticos",
+  "startup_refresh_diagnostics": "Atualizar diagnósticos",
+  "startup_diagnostics_copied": "Diagnósticos copiados para a área de transferência",
+  "export_failed": "Falha na exportação: {error}",
+  "import_parse_failed": "Falha ao analisar ZIP: {error}",
+  "import_nothing": "Nada importado.",
+  "import_failed": "Falha na importação: {error}",
+  "workflows_no_match": "Nenhum workflow corresponde aos filtros atuais.",
+  "settings_run_diagnostics": "Executar Diagnósticos",
+  "settings_open_ad_inspector": "Abrir Inspetor de Anúncios",
+  "settings_builtin_help": "Comando !help legado integrado",
+  "drive_manual_backup": "Backup manual",
+  "drive_legacy_snapshot": "Snapshot legado",
+  "commands_filter_template": "Template",
+  "commands_filter_legacy_local": "Legado local",
+  "workflows_no_matches": "Nenhum workflow corresponde aos filtros atuais.",
+  "common_disabled": "Desativado",
+  "common_label": "Rótulo",
+  "common_custom_id": "ID Personalizado",
+  "common_custom_id_required": "ID Personalizado *",
+  "common_placeholder": "Espaço reservado",
+  "common_style": "Estilo",
+  "common_url": "URL",
+  "common_operator": "Operador",
+  "component_on_click_workflow": "Ao clicar, o workflow",
+  "component_on_select_workflow": "Ao selecionar, o workflow",
+  "component_new_option": "Nova Opção",
+  "component_component_to_wrap": "Componente para envolver:",
+  "component_radio_options": "Opções de Rádio",
+  "component_checkbox_options": "Opções de Checkbox",
+  "component_add_checkbox_option": "Adicionar Opção de Checkbox",
+  "component_new_radio": "Novo Rádio",
+  "component_new_checkbox": "Novo Checkbox",
+  "component_file_url": "URL do Arquivo",
+  "component_thumbnail_url": "URL da Miniatura",
+  "component_media_url": "URL de Imagem / Vídeo",
+  "component_media_urls": "URLs de Mídia",
+  "workflow_entry_point_optional": "Ponto de Entrada (opcional)",
+  "workflow_entry_point_helper": "Padroniza para o ponto de entrada do workflow quando vazio",
+  "workflow_set_call_args": "Definir Argumentos de Chamada",
+  "workflow_edit_call_args": "Editar Argumentos de Chamada ({count})",
+  "workflow_root_json_error": "A raiz deve ser um objeto JSON",
+  "workflow_on_submit_info": "Ao enviar, o workflow \"{name}\" será executado (entrada: {entry}, args: {args}).",
+  "workflow_no_workflow_note": "Nota: Se nenhum workflow for selecionado, o envio deste modal não fará nada.",
+  "workflow_hint_name": "ex: handle_form_submit",
+  "action_position": "Ação {index}/{total}",
+  "action_provide_valid_url": "Por favor, forneça uma URL válida.",
+  "action_hint_duration": "ex: 5m, 1h, 30s",
+  "action_hint_enter_type": "Digite {type}",
+  "action_hint_emoji": "Digite o emoji ou :nome:",
+  "action_hint_color": "#FFFFFF ou rgb(255,255,255)",
+  "action_hint_workflow": "Nome do workflow salvo",
+  "action_hint_variable_key": "Selecionar chave de variável",
+  "action_hint_condition_var": "Use ((nomeVariavel)) ou um valor de tempo de execução",
+  "action_hint_condition_value": "Valor para comparar",
+  "action_add_new_item": "Adicionar novo item",
+  "action_key_value_pairs": "Pares Chave / Valor",
+  "action_edit_nested": "Editar {count}",
+  "action_edit_nested_parens": "Editar ({count})",
+  "action_no_items_tap_edit": "Sem itens - toque em editar para adicionar",
+  "action_no_actions_yet": "Nenhuma ação neste ramo ainda.",
+  "action_and_more": "… e mais {count}",
+  "action_no_else_if_yet": "Nenhum ramo ELSE IF ainda. Adicione um para testar mais condições antes do ELSE.",
+  "action_no_headers_tap_edit": "Sem cabeçalhos - toque em editar para adicionar",
+  "action_no_args_tap_edit": "Sem argumentos - toque em editar para adicionar",
+  "action_no_properties_tap_edit": "Sem propriedades - toque em editar para configurar",
+  "action_http_headers_title": "Cabeçalhos HTTP (Pares Chave/Valor)",
+  "action_bulk_import_hint": "Importação em massa (Cole cabeçalhos como Chave: Valor)",
+  "action_json_editor_hint": "Editor de objeto JSON (suporta objetos/arrays aninhados)",
+  "action_edit_raw_json": "Editar JSON Bruto",
+  "action_preview_json": "Visualizar JSON Destacado",
+  "action_cannot_format_json": "Não é possível formatar: JSON Inválido",
+  "action_root_must_json": "A raiz deve ser um objeto JSON",
+  "action_dynamic_numeric": "Sugestões numéricas dinâmicas",
+  "action_dynamic_variable": "Sugestões de variáveis dinâmicas",
+  "action_dynamic_bool_hint": "true/false ou ((variável))",
+  "action_dynamic_multiselect_hint": "Valor dinâmico (suporta ((...)))",
+  "action_dynamic_id_hint": "{type} dinâmico (suporta ((...)))",
+  "action_loading_keys": "Carregando chaves...",
+  "action_no_saved_keys": "Nenhuma chave salva encontrada. As chaves são criadas automaticamente no primeiro acesso.",
+  "action_select_stored_key": "Selecione uma chave armazenada (o prefixo bc_ é opcional)",
+  "action_select_saved_key": "Selecione uma chave salva",
+  "action_static_badge": "(estático)",
+  "action_or_type_workflow": "Ou digite o nome do workflow",
+  "modal_builder_title": "Construtor de Modal",
+  "modal_inputs_count": "{count}/5 entradas",
+  "modal_input_index": "Entrada {index}",
+  "settings_legacy_prefix": "Prefixo de comando legado",
+  "settings_legacy_prefix_hint": "!, ? ou ((guild.prefix | user.prefix | !))",
+  "settings_legacy_prefix_helper": "Suporta templates e variáveis de escopo (bc_ opcional). Exemplo: ((guild.prefix | user.prefix | !))",
+  "settings_builtin_help_subtitle": "Recurso obrigatório com alternância explícita. Desative-o se desejar apenas um comportamento de ajuda personalizado.",
+  "settings_status_remove_confirm": "Esta entrada de status será removida. Continuar?",
+  "webhooks_count": "Webhooks: {count}{limit}",
+  "webhooks_path_copied": "Caminho copiado.",
+  "webhooks_secret_copied": "Segredo copiado.",
+  "scheduler_subtitle": "Workflow: {workflow} • A cada {minutes} min",
+  "import_summary_commands_imported": "{count} comando(s) importado(s)",
+  "import_summary_commands_skipped": "{count} comando(s) ignorado(s)",
+  "import_summary_workflows_imported": "{count} workflow(s) importado(s)",
+  "import_summary_workflows_skipped": "{count} workflow(s) ignorado(s)",
+  "import_summary_status_imported": "status importado",
+  "import_summary_variables_imported": "variáveis importadas",
+  "command_subcommand_workflow_title": "Workflow de Subcomando",
+  "command_subcommand_workflow_desc": "Escolha qual subcomando você está configurando.",
+  "command_sync_failed_local": "Salvo localmente. Falha na sincronização com o Discord: {error}",
+  "command_description_required": "Por favor, insira uma descrição para o comando",
+  "command_description_length": "A descrição do comando deve ter no máximo 100 caracteres",
+  "response_workflow_deferred_reply": "Resposta adiada",
+  "response_workflow_auto_defer_desc": "Reconheça rapidamente, execute ações e edite a resposta final.",
+  "response_workflow_visibility": "Visibilidade",
+  "response_workflow_ephemeral_only_user": "Efêmero (apenas o usuário do comando)",
+  "response_workflow_error_policy_desc": "Quando uma ação falha, edite a mensagem adiada com um erro.",
+  "response_workflow_conditional_title": "Resposta condicional (MVP)",
+  "response_workflow_condition_desc": "Se a variável existir e não estiver vazia => use o texto ENTÃO, caso contrário use o texto SENÃO.",
+  "response_workflow_variable_key": "Chave da variável (ex: opts.userId)",
+  "commands_search_hint": "Pesquisar comandos...",
+  "commands_all_folders": "Todas as pastas",
+  "commands_no_match_filters": "Nenhum comando corresponde aos filtros atuais.",
+  "actions_search_sequence_hint": "Pesquisar sequência...",
+  "actions_sequence_count": "{count, plural, =0{Nenhuma ação} =1{1 ação} other{{count} ações}}",
+  "actions_save_count": "Salvar {count} ações",
+  "actions_step_label": "Passo {index} de {total}",
+  "option_type_string": "String",
+  "option_type_integer": "Inteiro",
+  "option_type_boolean": "Booleano",
+  "option_type_user": "Usuário",
+  "option_type_channel": "Canal",
+  "option_type_role": "Cargo",
+  "option_type_mentionable": "Mencionável",
+  "option_type_number": "Número",
+  "option_type_attachment": "Anexo",
+  "option_type_subcommand": "Subcomando",
+  "option_type_subcommand_group": "Grupo de Subcomandos",
+  "option_type_unknown": "Desconhecido",
+  "option_name_required": "Por favor, insira um nome para a opção",
+  "option_name_max_length": "O nome da opção deve ter no máximo 32 caracteres",
+  "option_name_invalid_chars": "O nome da opção só pode conter letras, números e sublinhados",
+  "option_name_invalid_start": "O nome da opção começa com um caractere não suportado" ,
+  "option_name_duplicate": "Este nome já está sendo usado neste nível",
+  "option_label_number": "Rótulo {index}",
+  "option_value_number": "Valor {index}",
+  "validation_option_max_entries": "Cada nível de opção suporta no máximo 25 entradas.",
+  "validation_option_no_mix_top_level": "Opções de nível superior não podem misturar subcomandos/grupos com opções regulares.",
+  "validation_option_group_only_subcommands": "Um SubCommandGroup só pode conter opções de Subcomando.",
+  "validation_option_subcommand_no_nested": "Um Subcomando não pode conter Subcomandos ou Grupos de Subcomandos aninhados.",
+  "validation_option_name_required": "Toda opção deve ter um nome.",
+  "validation_option_name_duplicate": "Nome de opção duplicado \"{name}\" no mesmo nível.",
+  "validation_option_description_required": "Toda opção deve ter uma descrição.",
+  "validation_option_leaf_no_nested": "Opções regulares não podem conter opções aninhadas.",
+  "validation_option_hierarchy_not_required": "Subcomando e Grupo de Subcomandos não podem ser marcados como obrigatórios.",
+  "validation_option_hierarchy_no_choices": "Subcomando e Grupo de Subcomandos não podem definir escolhas.",
+  "validation_option_hierarchy_no_min_max": "Subcomando e Grupo de Subcomandos não podem definir valores mínimos/máximos.",
+  "validation_option_group_top_level_only": "SubCommandGroup só é permitido no nível superior.",
+  "validation_option_subcommand_depth": "A profundidade de aninhamento do subcomando excede os limites do Discord.",
+  "bdfd_compile_error_simple": "Este script BDFD não pôde ser compilado.",
+  "bdfd_compile_error_detailed": "Este script BDFD não pôde ser compilado:\n{summary}",
+  "home_time_added": "Tempo adicionado com sucesso",
+  "command_not_found": "Comando não encontrado",
+  "legacy_bdfd_run_failed": "Falha ao executar o script BDFD para o comando \"{command}\": {error}",
+  "component_empty_option": "Vazio",
+  "component_unknown_component": "Componente desconhecido",
+  "common_bot": "Bot",
+  "command_payload_hint": "Payload do comando",
+  "workflows_search_hint": "Pesquisar workflows...",
+  "component_default_option_label": "Opção",
+  "component_default_choice_label": "Escolha",
+  "command_execution_error": "Ocorreu um erro ao executar este comando.",
+  "bdfd_runtime_execution_error": "Ocorreu um erro ao executar este script BDFD.",
+  "bdfd_compiled_no_actions": "Este script BDFD foi compilado com sucesso, mas não produziu nenhuma ação.",
+  "embed_section_color": "Cor",
+  "embed_section_timestamp": "Timestamp",
+  "embed_section_fields": "Campos",
+  "embed_section_dynamic_fields": "Campos Dinâmicos",
+  "embed_add_field": "Adicionar Campo",
+  "embed_add_section": "Adicionar Seção",
+  "common_add_section": "Adicionar Seção",
+  "component_block_workflow": "Workflow",
+  "component_block_label_style": "Estilo",
+  "notion_filter_add": "Adicionar Filtro",
+  "notion_filter_type": "Tipo",
+  "notion_create_workflow_from_query": "Criar workflow \"{query}\"",
+  "commands_create_from_query": "Criar comando \"{query}\"",
+  "commands_filter_type_label": "Tipo",
+  "home_sync_failed": "Falha na sincronização",
+  "workflow_argument_hint": "Argumento do workflow (acessível via $arg)",
+  "scratch_entry_point_hint": "Dica de ponto de entrada scratch",
+  "component_value_hint": "Dica de valor do componente",
+  "rewarded_start_no_ad_available": "Nenhum anúncio disponível no momento. Por favor, tente novamente mais tarde.",
+  "rewarded_start_complete_ad": "Por favor, assista ao anúncio completo para iniciar sua sessão de hospedagem.",
+  "settings_runner_disconnected": "Runner desconectado",
+  "home_hosting_expired": "Hospedagem expirada",
+  "common_none": "Nenhum",
+  "unit_month": "{count, plural, =0{0 meses} =1{1 mês} other{{count} meses}}",
+  "@unit_month": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "unit_day": "{count, plural, =0{0 dias} =1{1 dia} other{{count} dias}}",
+  "@unit_day": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "unit_hour": "{count, plural, =0{0 horas} =1{1 hora} other{{count} horas}}",
+  "@unit_hour": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "unit_minute": "{count, plural, =0{0 minutos} =1{1 minuto} other{{count} minutos}}",
+  "@unit_minute": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "settings_cloud_hosting_enabled": "Bots móveis agora usam os servidores do Bot Creator.",
+  "settings_local_hosting_enabled": "Bots móveis agora usam seu dispositivo para hospedagem.",
+  "settings_account_connected_hint": "Conta conectada. Seus bots e dados estão agora sincronizados com o Bot Creator.",
+  "settings_account_disconnected_hint": "Sua conta do Bot Creator é criada automaticamente quando você adiciona um bot. Em seguida, faça login com o Discord para recuperar seus bots neste dispositivo.",
+  "settings_account_connect_label": "Entrar no Bot Creator com Discord",
+  "settings_account_disconnect_label": "Sair",
+  "settings_account_status_connected": "Conta conectada",
+  "settings_account_status_disconnected": "Não logado",
+  "settings_startup_mode_title": "Bot startup mode",
+  "settings_startup_mode_desc": "Escolha se seus bots iniciam nos servidores do Bot Creator ou localmente neste dispositivo.",
+  "settings_startup_mode_use_cloud": "Usar servidores do Bot Creator",
+  "settings_startup_mode_ios_warning": "No iOS, o modo local não é suportado. Os bots sempre usam os servidores do Bot Creator.",
+  "settings_startup_mode_cloud_desc": "Recomendado no Android e iOS. Logs, estatísticas e inicialização passam pelo Bot Creator.",
+  "settings_startup_mode_local_desc": "Os bots agora iniciam localmente neste dispositivo.",
+  "settings_startup_mode_local_warning": "O modo local é uma opção avançada destinada a depuração ou necessidades específicas. Para uso normal, mantenha os servidores do Bot Creator ativados.",
+  "settings_startup_mode_ios_unavailable": "O modo local permanece indisponível no iOS.",
+  "settings_execution_mode_title": "Execution mode",
+  "settings_execution_mode_desc": "Nesta plataforma, o Bot Creator nunca hospeda seus bots. Você pode usar seu runner auto-hospedado ou executar os bots localmente.",
+  "settings_execution_mode_use_runner": "Use a self-hosted runner",
+  "settings_execution_mode_runner_priority": "O runner auto-hospedado é preferido. Se nenhum runner estiver configurado, o app volta para o local.",
+  "settings_execution_mode_no_runner": "Nenhum runner configurado ainda. O app permanece local até que você adicione um.",
+  "settings_execution_mode_local_active": "Os bots agora iniciam localmente. As configurações do runner permanecem armazenadas e podem ser reativadas a qualquer momento."
+}
