@@ -146,7 +146,7 @@ Future<bool> executeMessagingAction({
     case BotCreatorActionType.sendMessage:
       final targetType =
           (payload['targetType'] ?? 'channel').toString().trim().toLowerCase();
-      final channelId = _toSnowflake(payload['channelId']) ?? fallbackChannelId;
+      final channelId = _toSnowflake(resolveValue((payload['channelId'] ?? '').toString())) ?? fallbackChannelId;
 
       if (targetType != 'user' && guildId != null) {
         final permError = await checkBotGuildPermission(
@@ -171,6 +171,13 @@ Future<bool> executeMessagingAction({
       if (targetType == 'user') {
         resolvedSendPayload['userId'] = resolveValue(
           (payload['userId'] ?? '').toString(),
+        );
+      }
+      
+      // Resolve messageId if present (important for replies)
+      if (payload.containsKey('messageId')) {
+        resolvedSendPayload['messageId'] = resolveValue(
+          (payload['messageId'] ?? '').toString(),
         );
       }
 

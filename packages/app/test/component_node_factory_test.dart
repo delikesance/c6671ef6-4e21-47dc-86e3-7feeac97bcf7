@@ -1,5 +1,5 @@
-import 'package:bot_creator/types/component.dart';
-import 'package:bot_creator/widgets/component_v2_builder/component_node_factory.dart';
+import 'package:bot_creator/core/models/types/component.dart';
+import 'package:bot_creator/features/components_v2/presentation/component_v2_builder/component_node_factory.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

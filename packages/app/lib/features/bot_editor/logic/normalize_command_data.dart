@@ -1,0 +1,243 @@
+import 'dart:convert';
+
+import 'package:bot_creator/features/bot_editor/logic/embed_normalization.dart';
+import 'package:bot_creator/features/bot_editor/logic/simple_mode.dart';
+
+Map<String, dynamic> normalizeCommandData(Map<String, dynamic> command) {
+  final normalized = Map<String, dynamic>.from(command);
+  final rawData = Map<String, dynamic>.from(
+    (normalized['data'] as Map?)?.cast<String, dynamic>() ?? const {},
+  );
+  final rawCommandType =
+      (rawData['commandType'] ?? normalized['type'] ?? 'chatInput')
+          .toString()
+          .trim()
+          .toLowerCase();
+  final commandType =
+      (rawCommandType == 'user' ||
+              rawCommandType == 'usercommand' ||
+              rawCommandType == 'user_command')
+          ? 'user'
+          : (rawCommandType == 'message' ||
+              rawCommandType == 'messagecommand' ||
+              rawCommandType == 'message_command')
+          ? 'message'
+          : 'chatInput';
+
+  final legacyResponse = rawData['response'];
+  final response = Map<String, dynamic>.from(
+    (legacyResponse is Map)
+        ? legacyResponse.cast<String, dynamic>()
+        : {
+          'mode': 'message',
+          'text': legacyResponse?.toString() ?? '',
+          'embeds': <Map<String, dynamic>>[],
+        },
+  );
+
+  final embeds = normalizeResponseEmbedsPayload(
+    response['embeds'],
+    legacySingleEmbed: response['embed'],
+    deepNormalize: false,
+  );
+
+  final actions =
+      (rawData['actions'] is List)
+          ? List<Map<String, dynamic>>.from(
+            (rawData['actions'] as List).whereType<Map>().map(
+              (action) => Map<String, dynamic>.from(action),
+            ),
+          )
+          : <Map<String, dynamic>>[];
+
+  final options =
+      (rawData['options'] is List)
+          ? List<Map<String, dynamic>>.from(
+            (rawData['options'] as List).whereType<Map>().map(
+              (option) => Map<String, dynamic>.from(
+                jsonDecode(jsonEncode(option)) as Map,
+              ),
+            ),
+          )
+          : <Map<String, dynamic>>[];
+
+  final normalizedSubcommandWorkflows = <String, Map<String, dynamic>>{};
+  final rawSubcommandWorkflows = rawData['subcommandWorkflows'];
+  if (rawSubcommandWorkflows is Map) {
+    rawSubcommandWorkflows.forEach((route, payload) {
+      if (payload is! Map) {
+        return;
+      }
+      final routeKey = route.toString().trim();
+      if (routeKey.isEmpty) {
+        return;
+      }
+      normalizedSubcommandWorkflows[routeKey] = Map<String, dynamic>.from(
+        (jsonDecode(jsonEncode(payload)) as Map).cast<String, dynamic>(),
+      );
+    });
+  }
+
+  final requestedActiveSubcommandRoute =
+      (rawData['activeSubcommandRoute'] ?? '').toString().trim();
+  final normalizedActiveSubcommandRoute =
+      normalizedSubcommandWorkflows.containsKey(requestedActiveSubcommandRoute)
+          ? requestedActiveSubcommandRoute
+          : (normalizedSubcommandWorkflows.isNotEmpty
+              ? normalizedSubcommandWorkflows.keys.first
+              : '');
+
+  final rawEditorMode =
+      (rawData['editorMode'] ?? 'advanced').toString().toLowerCase();
+  final editorMode = rawEditorMode == 'simple' ? 'simple' : 'advanced';
+  final rawExecutionMode =
+      (rawData['executionMode'] ?? 'workflow').toString().toLowerCase();
+  final executionMode =
+      rawExecutionMode == 'bdfd_script' ? 'bdfd_script' : 'workflow';
+  final bdfdScriptContent = (rawData['bdfdScriptContent'] ?? '').toString();
+  final legacyModeEnabled = rawData['legacyModeEnabled'] == true;
+  final legacyLocalOnly = rawData['legacyLocalOnly'] == true;
+  final legacyPrefixOverride =
+      (rawData['legacyPrefixOverride'] ?? '').toString().trim();
+  final rawLegacyResponseTarget =
+      (rawData['legacyResponseTarget'] ?? 'reply').toString().trim();
+  final legacyResponseTarget =
+      rawLegacyResponseTarget == 'channelSend' ? 'channelSend' : 'reply';
+
+  final simpleConfigRaw = Map<String, dynamic>.from(
+    (rawData['simpleConfig'] as Map?)?.cast<String, dynamic>() ?? const {},
+  );
+  final simpleConfig = normalizeSimpleModeConfigMap(simpleConfigRaw);
+
+  final rawWorkflow = Map<String, dynamic>.from(
+    (response['workflow'] as Map?)?.cast<String, dynamic>() ?? const {},
+  );
+  final rawConditional = Map<String, dynamic>.from(
+    (rawWorkflow['conditional'] as Map?)?.cast<String, dynamic>() ?? const {},
+  );
+
+  final normalizedWorkflow = <String, dynamic>{
+    'autoDeferIfActions': rawWorkflow['autoDeferIfActions'] != false,
+    'visibility':
+        (rawWorkflow['visibility']?.toString().toLowerCase() == 'ephemeral')
+            ? 'ephemeral'
+            : 'public',
+    'onError': 'edit_error',
+    'conditional': {
+      'enabled': rawConditional['enabled'] == true,
+      'variable': (rawConditional['variable'] ?? '').toString(),
+      'whenTrueType': (rawConditional['whenTrueType'] ?? 'message').toString(),
+      'whenFalseType': (rawConditional['whenFalseType'] ?? 'message').toString(),
+      'whenTrueText': (rawConditional['whenTrueText'] ?? '').toString(),
+      'whenFalseText': (rawConditional['whenFalseText'] ?? '').toString(),
+      'whenTrueEmbeds':
+          (rawConditional['whenTrueEmbeds'] as List? ?? [])
+              .whereType<Map>()
+              .map((e) => Map<String, dynamic>.from(e))
+              .toList(),
+      'whenFalseEmbeds':
+          (rawConditional['whenFalseEmbeds'] as List? ?? [])
+              .whereType<Map>()
+              .map((e) => Map<String, dynamic>.from(e))
+              .toList(),
+      'whenTrueNormalComponents': Map<String, dynamic>.from(
+        (rawConditional['whenTrueNormalComponents'] as Map?)
+                ?.cast<String, dynamic>() ??
+            const {},
+      ),
+      'whenFalseNormalComponents': Map<String, dynamic>.from(
+        (rawConditional['whenFalseNormalComponents'] as Map?)
+                ?.cast<String, dynamic>() ??
+            const {},
+      ),
+      'whenTrueComponents': Map<String, dynamic>.from(
+        (rawConditional['whenTrueComponents'] as Map?)
+                ?.cast<String, dynamic>() ??
+            const {},
+      ),
+      'whenFalseComponents': Map<String, dynamic>.from(
+        (rawConditional['whenFalseComponents'] as Map?)
+                ?.cast<String, dynamic>() ??
+            const {},
+      ),
+      'whenTrueModal': Map<String, dynamic>.from(
+        (rawConditional['whenTrueModal'] as Map?)?.cast<String, dynamic>() ??
+            const {},
+      ),
+      'whenFalseModal': Map<String, dynamic>.from(
+        (rawConditional['whenFalseModal'] as Map?)?.cast<String, dynamic>() ??
+            const {},
+      ),
+    },
+  };
+
+  // Preserve folder at root level (empty string = uncategorized).
+  final folder = (normalized['folder'] ?? '').toString().trim();
+
+  normalized['type'] = commandType;
+  if (folder.isNotEmpty) normalized['folder'] = folder;
+  normalized['data'] = {
+    'version': 1,
+    'commandType': commandType,
+    'editorMode': editorMode,
+    'executionMode': executionMode,
+    'bdfdScriptContent': bdfdScriptContent,
+    'legacyModeEnabled': legacyModeEnabled,
+    'legacyLocalOnly': legacyLocalOnly,
+    'legacyPrefixOverride': legacyPrefixOverride,
+    'legacyResponseTarget': legacyResponseTarget,
+    'simpleConfig': simpleConfig,
+    'defaultMemberPermissions':
+        (rawData['defaultMemberPermissions'] ?? '').toString().trim(),
+    'response': _normalizeResponseStrict({
+      'mode':
+          ((response['mode'] == 'text' ||
+                  response['mode'] == 'normal' ||
+                  response['mode'] == 'embed')
+              ? 'message'
+              : (response['mode'] ?? 'message')),
+      'text': (response['text'] ?? '').toString(),
+      'type': 'normal',
+      'embeds': embeds.take(10).toList(),
+      'components': Map<String, dynamic>.from(
+        (response['components'] as Map?)?.cast<String, dynamic>() ?? const {},
+      ),
+      'modal': Map<String, dynamic>.from(
+        (response['modal'] as Map?)?.cast<String, dynamic>() ?? const {},
+      ),
+      'workflow': normalizedWorkflow,
+    }),
+    'actions': actions,
+    if (options.isNotEmpty) 'options': options,
+    if (normalizedSubcommandWorkflows.isNotEmpty)
+      'subcommandWorkflows': normalizedSubcommandWorkflows,
+    if (normalizedSubcommandWorkflows.isNotEmpty)
+      'activeSubcommandRoute': normalizedActiveSubcommandRoute,
+  };
+
+  return normalized;
+}
+
+/// Enforces strict response mode partitioning by purging irrelevant parameters.
+/// This ensures that Message, ComponentV2, and Modal payloads are mutually exclusive.
+Map<String, dynamic> _normalizeResponseStrict(Map<String, dynamic> response) {
+  final mode = (response['mode'] ?? 'message').toString();
+  final type = (response['type'] ?? 'normal').toString();
+  final result = Map<String, dynamic>.from(response);
+
+  if (mode == 'modal') {
+    // Pure Modal: Clear all message/component fields
+    result.remove('text');
+    result.remove('embeds');
+    result.remove('components');
+  } else if (mode == 'componentV2' || type == 'componentV2') {
+    // ComponentV2 Mode: Clear embeds and modal, keep text (as content) and components
+    result.remove('embeds');
+    result.remove('modal');
+  } else {
+    // Normal Message Mode: Clear modal, keep text, embeds, and components
+    result.remove('modal');
+  }
+
+  return result;
+}

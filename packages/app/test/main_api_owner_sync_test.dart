@@ -1,4 +1,4 @@
-import 'package:bot_creator/utils/main_api_owner_sync.dart';
+import 'package:bot_creator/core/network/main_api_owner_sync.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

@@ -286,7 +286,7 @@ const Map<String, List<String>> bdfdSignatureHints = <String, List<String>>{
   'pinmessage': ['messageID (opt)'],
   'publishmessage': ['messageID (opt)'],
   'unpinmessage': ['messageID'],
-  'reply': ['messageID (opt)'],
+  'reply': ['Channel ID (opt)', 'Message ID (opt)'],
   'replyin': ['seconds'],
   'repeatmessage': ['times', 'message'],
   'sendmessage': ['channelID', 'message', 'returnMessageID (opt)'],

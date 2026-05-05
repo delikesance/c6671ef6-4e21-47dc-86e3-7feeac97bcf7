@@ -1,9 +1,9 @@
-import 'package:bot_creator/utils/main_api_client.dart';
-import 'package:bot_creator/utils/main_api_settings.dart';
-import 'package:bot_creator/utils/remote_runtime.dart';
-import 'package:bot_creator/utils/runner_client.dart';
-import 'package:bot_creator/utils/runner_settings.dart';
-import 'package:bot_creator/utils/runtime_preferences.dart';
+import 'package:bot_creator/core/network/main_api_client.dart';
+import 'package:bot_creator/core/network/main_api_settings.dart';
+import 'package:bot_creator/core/network/remote_runtime.dart';
+import 'package:bot_creator/core/network/runner_client.dart';
+import 'package:bot_creator/core/network/runner_settings.dart';
+import 'package:bot_creator/core/storage/runtime_preferences.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;

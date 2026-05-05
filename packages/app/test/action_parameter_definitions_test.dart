@@ -1,6 +1,6 @@
-import 'package:bot_creator/routes/app/builder/action_type_extension.dart';
-import 'package:bot_creator/routes/app/builder/action_types.dart';
-import 'package:bot_creator/types/action.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder/action_type_extension.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder/action_types.dart';
+import 'package:bot_creator/core/models/types/action.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 ParameterDefinition _findByKey(List<ParameterDefinition> defs, String key) {

@@ -1313,6 +1313,12 @@ class DiscordRunner {
     required EventExecutionContext context,
   }) async {
     final normalizedEventName = eventName.toLowerCase();
+    if (normalizedEventName == 'interactioncreate') {
+      final interaction = context.interaction;
+      if (interaction != null && isInteractionAcknowledged(interaction)) {
+        return;
+      }
+    }
 
     final botId = _gateway?.user.id.toString() ?? store.botId;
     final matching = _eventWorkflows
@@ -2726,7 +2732,13 @@ class DiscordRunner {
               final fetched = await fetchGuildCached(_gateway!, eventGuildId);
               eventGuild = fetched;
               if (fetched != null) {
-                runtimeVariables.addAll(extractGuildRuntimeDetails(fetched));
+                runtimeVariables.addAll(
+                  await extractGuildRuntimeDetails(
+                    fetched,
+                    client: _gateway!,
+                    guildId: eventGuildId,
+                  ),
+                );
               }
             } catch (_) {}
           })(),
@@ -3345,12 +3357,17 @@ class DiscordRunner {
           flags: isEphemeral ? MessageFlags.ephemeral : null,
         ),
       );
+      markInteractionAcknowledged(interaction);
     } catch (e, st) {
-      _log.warning(
-        'Safe respond failed for ${interaction.runtimeType}: $e',
-        e,
-        st,
-      );
+      if (e.toString().contains('40060')) {
+        markInteractionAcknowledged(interaction);
+      } else {
+        _log.warning(
+          'Safe respond failed for ${interaction.runtimeType}: $e',
+          e,
+          st,
+        );
+      }
     }
   }
 
@@ -3553,7 +3570,7 @@ class DiscordRunner {
     try {
       client.updatePresence(
         PresenceBuilder(
-          status: CurrentUserStatus.online,
+          status: _mapPresenceStatus(config.presenceStatus),
           isAfk: false,
           activities: <ActivityBuilder>[
             ActivityBuilder(
@@ -3639,5 +3656,19 @@ class DiscordRunner {
       return null;
     }
     return parsed;
+  }
+
+  CurrentUserStatus _mapPresenceStatus(String statusString) {
+    switch (statusString.trim().toLowerCase()) {
+      case 'idle':
+        return CurrentUserStatus.idle;
+      case 'dnd':
+        return CurrentUserStatus.dnd;
+      case 'invisible':
+        return CurrentUserStatus.invisible;
+      case 'online':
+      default:
+        return CurrentUserStatus.online;
+    }
   }
 }

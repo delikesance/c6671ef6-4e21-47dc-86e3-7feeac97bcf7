@@ -1,5 +1,5 @@
-import 'package:bot_creator/routes/app/builder.response.dart';
-import 'package:bot_creator/l10n/app_localizations.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder.response.dart';
+import 'package:bot_creator/core/i18n/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

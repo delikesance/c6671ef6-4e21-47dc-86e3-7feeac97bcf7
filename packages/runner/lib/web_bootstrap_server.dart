@@ -362,19 +362,34 @@ class RunnerWebBootstrapServer {
           );
           return;
         } else if (scopedWorkflowDeleteBotId != null) {
-          await _handleWorkflowDelete(request, botIdFromPath: scopedWorkflowDeleteBotId);
+          await _handleWorkflowDelete(
+            request,
+            botIdFromPath: scopedWorkflowDeleteBotId,
+          );
           return;
         } else if (scopedTriggerSyncBotId != null) {
-          await _handleScheduledTriggerSync(request, botIdFromPath: scopedTriggerSyncBotId);
+          await _handleScheduledTriggerSync(
+            request,
+            botIdFromPath: scopedTriggerSyncBotId,
+          );
           return;
         } else if (scopedTriggerDeleteBotId != null) {
-          await _handleScheduledTriggerDelete(request, botIdFromPath: scopedTriggerDeleteBotId);
+          await _handleScheduledTriggerDelete(
+            request,
+            botIdFromPath: scopedTriggerDeleteBotId,
+          );
           return;
         } else if (scopedInboundSyncBotId != null) {
-          await _handleInboundWebhookSync(request, botIdFromPath: scopedInboundSyncBotId);
+          await _handleInboundWebhookSync(
+            request,
+            botIdFromPath: scopedInboundSyncBotId,
+          );
           return;
         } else if (scopedInboundDeleteBotId != null) {
-          await _handleInboundWebhookDelete(request, botIdFromPath: scopedInboundDeleteBotId);
+          await _handleInboundWebhookDelete(
+            request,
+            botIdFromPath: scopedInboundDeleteBotId,
+          );
           return;
         } else if (scopedSetGlobalBotId != null) {
           await _handleSetGlobalVariable(request, scopedSetGlobalBotId);
@@ -1267,7 +1282,10 @@ class RunnerWebBootstrapServer {
     final triggerId = (payload['triggerId'] ?? '').toString().trim();
     final trigger = payload['trigger'];
 
-    if (botId.isEmpty || triggerId.isEmpty || trigger == null || trigger is! Map) {
+    if (botId.isEmpty ||
+        triggerId.isEmpty ||
+        trigger == null ||
+        trigger is! Map) {
       await _respondJson(request, <String, dynamic>{
         'error': 'Missing botId, triggerId or trigger payload.',
       }, statusCode: HttpStatus.badRequest);
@@ -1326,7 +1344,10 @@ class RunnerWebBootstrapServer {
     final webhookId = (payload['webhookId'] ?? '').toString().trim();
     final webhook = payload['webhook'];
 
-    if (botId.isEmpty || webhookId.isEmpty || webhook == null || webhook is! Map) {
+    if (botId.isEmpty ||
+        webhookId.isEmpty ||
+        webhook == null ||
+        webhook is! Map) {
       await _respondJson(request, <String, dynamic>{
         'error': 'Missing botId, webhookId or webhook payload.',
       }, statusCode: HttpStatus.badRequest);

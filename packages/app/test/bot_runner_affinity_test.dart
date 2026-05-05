@@ -34,13 +34,11 @@ void main() {
       // Mirrors: runnerLabel: isRunning && _runnerModeEnabled ? _activeRunnerLabel : null
       final activeRunnerLabel = 'Dev Server';
 
-      final label =
-          activeRunnerLabel;
+      final label = activeRunnerLabel;
       expect(label, 'Dev Server');
 
       // Stopped bot should not show runner label
-      final stoppedLabel =
-          null;
+      final stoppedLabel = null;
       expect(stoppedLabel, isNull);
 
       // Local mode should not show runner label

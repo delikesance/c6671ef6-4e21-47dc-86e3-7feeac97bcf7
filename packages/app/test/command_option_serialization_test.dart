@@ -1,4 +1,4 @@
-import 'package:bot_creator/routes/app/command_option_serialization.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command_option_serialization.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nyxx/nyxx.dart';
 

@@ -226,14 +226,14 @@ void main() {
                 r'$if[$var[winner]==]'
                 r'$if[$var[roll]<=$var[currentWeight]]'
                 r'$var[winner;$json[$var[in];$i;name]]'
-                r'$reply[$var[winner]]'
+                r'$reply$var[winner]'
                 r'$stop'
                 r'$endif'
                 r'$endif'
                 r'$endif'
                 r'$endfor'
                 r'$if[$var[winner]==]'
-                r'$reply[fallback_common]'
+                r'$reply$c[]fallback_common'
                 r'$endif',
           },
           resultKey: 'bdfd',
@@ -391,7 +391,7 @@ void main() {
           type: BotCreatorActionType.runBdfdScript,
           payload: <String, dynamic>{
             'scriptContent':
-                r'$for[$message[1]]$var[current;$i]$reply[$var[current]]$endfor',
+                r'$for[$message[1]]$var[current;$i]$reply$var[current]$endfor',
           },
           resultKey: 'bdfd',
           results: results,
@@ -416,7 +416,7 @@ void main() {
         );
         expect(bodyActions, hasLength(2));
         expect(bodyActions[0]['type'], 'setTemporaryVariable');
-        expect(bodyActions[1]['type'], 'respondWithMessage');
+        expect(bodyActions[1]['type'], 'sendMessage');
       },
     );
 
@@ -436,7 +436,7 @@ void main() {
                 r'$var[looping;$jsonArrayCount[$var[in]]]'
                 r'$for[$var[looping]]'
                 r'$if[$json[$var[in];$i;name]==$var[target]]'
-                r'$reply[$json[$var[in];$i;weight]]'
+                r'$reply$json[$var[in];$i;weight]'
                 r'$endif'
                 r'$endfor',
           },
@@ -493,7 +493,7 @@ void main() {
                 r'$var[currentWeight;$calculate[$var[currentWeight]+$var[itemWeight]]]'
                 r'$if[$var[roll]<=$var[currentWeight]]'
                 r'$var[winner;$var[itemName]]'
-                r'$reply[$var[winner]]'
+                r'$reply$var[winner]'
                 r'$endif'
                 r'$endfor',
           },

@@ -1,4 +1,4 @@
-﻿import 'package:nyxx/nyxx.dart';
+import 'package:nyxx/nyxx.dart';
 
 import 'command_autocomplete.dart';
 
@@ -19,6 +19,30 @@ Snowflake? _asSnowflake(dynamic value) {
     return null;
   }
   return Snowflake(parsed);
+}
+
+Future<int> _getGuildMemberCount(
+  dynamic guild, {
+  dynamic client,
+  Snowflake? guildId,
+}) async {
+  if (guild == null) return 0;
+  try {
+    final dynamic dynGuild = guild;
+    // memberCount is standard for bots, approximateMemberCount is for with_counts=true
+    final count = dynGuild.memberCount ?? dynGuild.approximateMemberCount;
+    if (count != null && (count as int) > 0) return count;
+  } catch (_) {}
+
+  // If zero or missing, and we have the means to fetch, try a fresh API call with counts
+  if (client is NyxxRest && guildId != null) {
+    try {
+      final fetchedGuild = await client.guilds.fetch(guildId, withCounts: true);
+      return fetchedGuild.approximateMemberCount ?? 0;
+    } catch (_) {}
+  }
+
+  return 0;
 }
 
 Future<User?> _fetchUserCached(dynamic client, Snowflake userId) async {
@@ -45,7 +69,15 @@ Future<Member?> _fetchMemberCached(
 
 Future<Guild?> fetchGuildCached(dynamic client, Snowflake guildId) async {
   try {
-    return await client.guilds.get(guildId);
+    // Try cache first
+    final cached = await client.guilds.get(guildId);
+    // Only return cached if it's a full Guild object AND has member count info
+    if (cached is Guild && (await _getGuildMemberCount(cached)) > 0) {
+      return cached;
+    }
+
+    // Fallback to fetch if not in cache, partial, or missing member count
+    return await client.guilds.fetch(guildId);
   } catch (_) {
     return null;
   }
@@ -62,6 +94,23 @@ Map<String, String> extractBotRuntimeDetails(NyxxRest client) {
     'bot.invite':
         'https://discord.com/oauth2/authorize?client_id=$botUserId&scope=bot+applications.commands',
   };
+
+  // Inject ping/latency if we have a gateway client
+  if (client is NyxxGateway) {
+    try {
+      final latencyMs = client.gateway.latency.inMilliseconds;
+      final ping = latencyMs < 0 ? '0' : latencyMs.toString();
+      details['bot.ping'] = ping;
+      details['ping'] = ping;
+    } catch (_) {
+      details['bot.ping'] = '0';
+      details['ping'] = '0';
+    }
+  } else {
+    // Fallback so expressions don't break
+    details['bot.ping'] = '0';
+    details['ping'] = '0';
+  }
 
   try {
     final cachedUser = client.users.cache[botUserId];
@@ -295,21 +344,14 @@ String makeAvatarUrl(
   String legacyFormat = "webp",
   String? discriminator,
 }) {
-  if (avatarId == null || avatarId.isEmpty) {
-    if (discriminator != null) {
+  if (avatarId == null || avatarId.isEmpty || avatarId == "0") {
+    if (discriminator != null &&
+        discriminator != "0" &&
+        discriminator != "0000") {
       return "https://cdn.discordapp.com/embed/avatars/${int.parse(discriminator) % 5}.png";
     }
-    return "https://cdn.discordapp.com/embed/avatars/${(int.parse(userId) >> 22) % 6}.png";
-  }
-  if (isAnimated && legacyFormat == "gif") {
-    return "https://cdn.discordapp.com/avatars/$userId/$avatarId.gif?size=1024";
-  }
-
-  if (avatarId == "0") {
-    if (discriminator != null) {
-      return "https://cdn.discordapp.com/embed/avatars/${int.parse(discriminator) % 5}.png";
-    }
-    return "https://cdn.discordapp.com/embed/avatars/${(int.parse(userId) >> 22) % 6}.png";
+    // New default avatar logic for migrated accounts or missing discriminator
+    return "https://cdn.discordapp.com/embed/avatars/${(BigInt.parse(userId) >> 22).toInt() % 6}.png";
   }
   return "https://cdn.discordapp.com/avatars/$userId/$avatarId.$legacyFormat?size=1024";
 }
@@ -380,11 +422,23 @@ Map<String, String> extractChannelRuntimeDetails(dynamic channel) {
     'channel.thread.autoArchiveDuration',
     () => channel.autoArchiveDuration,
   );
+  trySet(
+    'channel.mention',
+    () => channel is PartialChannel ? '<#${channel.id}>' : null,
+  );
+  trySet(
+    'channel.typeValue',
+    () => (channel as dynamic).type?.value?.toString(),
+  );
 
   return details;
 }
 
-Map<String, String> extractGuildRuntimeDetails(dynamic guild) {
+Future<Map<String, String>> extractGuildRuntimeDetails(
+  dynamic guild, {
+  dynamic client,
+  Snowflake? guildId,
+}) async {
   if (guild == null) {
     return const <String, String>{};
   }
@@ -427,22 +481,31 @@ Map<String, String> extractGuildRuntimeDetails(dynamic guild) {
   );
   details['guild.features'] = featureList.join(',');
   details['guild.features.count'] = featureList.length.toString();
-  trySet(
-    'guild.memberCount',
-    () => guild.memberCount ?? guild.approximateMemberCount,
+
+  final count = await _getGuildMemberCount(
+    guild,
+    client: client,
+    guildId: guildId,
   );
+  details['guild.memberCount'] = count.toString();
+  details['guild.count'] = count.toString();
+
   trySet('guild.systemChannelId', () => _asSnowflake(guild.systemChannelId));
   trySet('guild.rulesChannelId', () => _asSnowflake(guild.rulesChannelId));
   trySet('guild.afkChannelId', () => _asSnowflake(guild.afkChannelId));
   trySet('guild.banner', () => guild.banner?.url);
   trySet('guild.splash', () => guild.splash?.url);
   trySet('guild.afkTimeout', () => guild.afkTimeout?.inSeconds);
+  trySet('guild.icon', () => guild.icon?.url?.toString());
+
   trySet('guild.roleCount', () {
-    final roleList = guild.roleList;
+    final dynamic dynGuild = guild;
+    final roleList = dynGuild.roleList ?? dynGuild.roles;
     return roleList is Iterable ? roleList.length : null;
   });
   trySet('guild.roleNames', () {
-    final roleList = guild.roleList;
+    final dynamic dynGuild = guild;
+    final roleList = dynGuild.roleList ?? dynGuild.roles;
     if (roleList is Iterable) {
       return roleList
           .map((role) => (role as dynamic).name.toString())
@@ -468,7 +531,12 @@ Future<Map<String, String>> generateKeyValues(
 ) async {
   PartialGuild? guild = interaction.guild;
   final guildId = _asSnowflake((interaction as dynamic).guildId) ?? guild?.id;
-  if (guild is! Guild && guildId != null) {
+  final count = await _getGuildMemberCount(
+    guild,
+    client: interaction.manager.client,
+    guildId: guildId,
+  );
+  if (guildId != null && (guild == null || guild is! Guild || count <= 0)) {
     final fetched = await fetchGuildCached(interaction.manager.client, guildId);
     if (fetched != null) {
       guild = fetched;
@@ -507,9 +575,14 @@ Future<Map<String, String>> generateKeyValues(
   final channelIdText = channelId?.toString() ?? '';
   final guildName = (guild is Guild) ? guild.name : "DM";
   final userName = user?.user?.username ?? "Unknown User";
-  final guildCount = (guild is Guild) ? guild.approximateMemberCount : 0;
+  final guildCount = await _getGuildMemberCount(
+    guild,
+    client: interaction.manager.client,
+    guildId: guildId,
+  );
   String channelName = getChannelName(channel);
-  String channelType = channel is Channel ? channel.type.toString() : "DM";
+  String channelType = channel is Channel ? channel.type.value.toString() : "0";
+  String channelMention = channel is PartialChannel ? "<#${channel.id}>" : "";
 
   String userAvatarUrl = "https://cdn.discordapp.com/embed/avatars/0.png";
   String userBannerUrl = '';
@@ -589,6 +662,7 @@ Future<Map<String, String>> generateKeyValues(
     "channel.name": channelName,
     "channelType": channelType,
     "channel.type": channelType,
+    "channel.mention": channelMention,
     "guildIcon": makeGuildIcon(
       guild?.id.toString() ?? "DM",
       (guild is Guild) ? guild.icon?.hash : null,
@@ -608,9 +682,19 @@ Future<Map<String, String>> generateKeyValues(
     "interaction.channel.id": channelIdText,
     "interaction.channel.name": channelName,
     "interaction.channel.type": channelType,
+    "interaction.channel.mention": channelMention,
+    "user.mention": user?.user != null ? "<@${user!.user!.id}>" : "",
+    "author.mention": user?.user != null ? "<@${user!.user!.id}>" : "",
+    "member.mention": user != null ? "<@${user.id}>" : "",
   };
   listOfArgs.addAll(extractChannelRuntimeDetails(channel));
-  listOfArgs.addAll(extractGuildRuntimeDetails(guild));
+  listOfArgs.addAll(
+    await extractGuildRuntimeDetails(
+      guild,
+      client: interaction.manager.client,
+      guildId: guildId,
+    ),
+  );
   final invokingMemberDetails = extractMemberRuntimeDetails(
     member: user,
     guild: guild,
@@ -934,7 +1018,12 @@ Future<Map<String, String>> generateInteractionContextKeyValues(
   if (raw.guild is Guild) {
     guild = raw.guild as Guild;
   }
-  if (guild == null && guildId != null) {
+  final count = await _getGuildMemberCount(
+    guild,
+    client: interaction.manager.client,
+    guildId: guildId,
+  );
+  if (guildId != null && (guild == null || count <= 0)) {
     guild = await fetchGuildCached(interaction.manager.client, guildId);
   }
 
@@ -993,7 +1082,8 @@ Future<Map<String, String>> generateInteractionContextKeyValues(
     guild?.icon?.hash,
   );
   final channelName = getChannelName(channel);
-  final channelType = channel?.type.toString() ?? 'DM';
+  final channelType = channel?.type.value.toString() ?? '0';
+  final channelMention = channel != null ? '<#${channel.id}>' : '';
 
   return <String, String>{
     'interaction.guildId': guildId?.toString() ?? '',
@@ -1030,10 +1120,10 @@ Future<Map<String, String>> generateInteractionContextKeyValues(
     'guildName': guildName,
     'guildId': guildId?.toString() ?? '',
     'guildIcon': guildIcon,
-    'guildCount': (guild?.approximateMemberCount ?? 0).toString(),
+    'guildCount': count.toString(),
     'guild.name': guildName,
     'guild.id': guildId?.toString() ?? '',
-    'guild.count': (guild?.approximateMemberCount ?? 0).toString(),
+    'guild.count': count.toString(),
     'interaction.guild.name': guildName,
     'interaction.guild.id': guildId?.toString() ?? '',
     'interaction.guild.icon': guildIcon,
@@ -1043,11 +1133,26 @@ Future<Map<String, String>> generateInteractionContextKeyValues(
     'channel.name': channelName,
     'channel.id': channelId?.toString() ?? '',
     'channel.type': channelType,
+    'channel.mention': channelMention,
+    'user.mention':
+        user != null
+            ? '<@${user.id}>'
+            : (member?.user != null ? '<@${member!.user!.id}>' : ''),
+    'author.mention':
+        user != null
+            ? '<@${user.id}>'
+            : (member?.user != null ? '<@${member!.user!.id}>' : ''),
+    'member.mention': member != null ? '<@${member.id}>' : '',
     'interaction.channel.name': channelName,
     'interaction.channel.id': channelId?.toString() ?? '',
     'interaction.channel.type': channelType,
+    'interaction.channel.mention': channelMention,
     ...extractChannelRuntimeDetails(channel),
-    ...extractGuildRuntimeDetails(guild),
+    ...await extractGuildRuntimeDetails(
+      guild,
+      client: interaction.manager.client,
+      guildId: guildId,
+    ),
   };
 }
 

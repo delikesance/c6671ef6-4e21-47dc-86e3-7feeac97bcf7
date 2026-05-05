@@ -9,6 +9,6 @@ EventExecutionContext buildGuildRoleUpdateEventContext(
     guildId: _asSnowflake(raw.guildId),
     channelId: null,
     userId: null,
-    extra: _roleExtra(raw.role),
+    extra: _roleExtRra(raw.role),
   );
 }

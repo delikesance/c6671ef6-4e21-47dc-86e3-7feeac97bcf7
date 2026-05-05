@@ -450,7 +450,8 @@ class RunnerRuntimeController {
       final nextTriggers = config.scheduledTriggers
           .map((entry) => Map<String, dynamic>.from(entry))
           .toList(growable: true);
-      final nextTrigger = Map<String, dynamic>.from(trigger)..['id'] = triggerId;
+      final nextTrigger = Map<String, dynamic>.from(trigger)
+        ..['id'] = triggerId;
       final index = nextTriggers.indexWhere(
         (entry) => (entry['id'] ?? '').toString() == triggerId,
       );
@@ -484,7 +485,8 @@ class RunnerRuntimeController {
       final nextWebhooks = config.inboundWebhookEndpoints
           .map((entry) => Map<String, dynamic>.from(entry))
           .toList(growable: true);
-      final nextWebhook = Map<String, dynamic>.from(webhook)..['id'] = webhookId;
+      final nextWebhook = Map<String, dynamic>.from(webhook)
+        ..['id'] = webhookId;
       final index = nextWebhooks.indexWhere(
         (entry) => (entry['id'] ?? '').toString() == webhookId,
       );

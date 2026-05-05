@@ -1,0 +1,1462 @@
+import 'dart:io';
+
+import 'package:bot_creator/main.dart';
+import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/export_import.page.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/workflow_docs.page.dart';
+import 'package:bot_creator/core/analytics/analytics.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot.dart';
+import 'package:bot_creator/core/utils/global.dart';
+import 'package:bot_creator/core/i18n/i18n.dart';
+
+import 'package:bot_creator/core/network/runner_settings.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
+import 'package:nyxx/nyxx.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'dart:developer' as developer;
+
+class AppSettingsPage extends StatefulWidget {
+  final NyxxRest client;
+  const AppSettingsPage({super.key, required this.client});
+
+  @override
+  State<AppSettingsPage> createState() => _AppSettingsPageState();
+}
+
+class _AppSettingsPageState extends State<AppSettingsPage> {
+  Application? app;
+  bool _isSavingToken = false;
+  bool _isSavingIntents = false;
+  bool _isSavingProfile = false;
+  bool _isEditingToken = false;
+  String _savedToken = '';
+  late Map<String, bool> _intentsMap;
+  final TextEditingController _tokenController = TextEditingController();
+  final TextEditingController _prefixController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
+  String? _selectedAvatarPath;
+  bool _builtInLegacyHelpEnabled = true;
+  final List<_StatusDraft> _statusDrafts = <_StatusDraft>[];
+  String _presenceStatus = 'online';
+  String _appVersion = '';
+  String? _runnerVersion;
+
+  static const List<String> _statusTypes = <String>[
+    'playing',
+    'streaming',
+    'listening',
+    'watching',
+    'competing',
+  ];
+
+  static const List<String> _presenceStatuses = <String>[
+    'online',
+    'idle',
+    'dnd',
+    'invisible',
+  ];
+
+  String _statusTypeLabel(String type) {
+    switch (type) {
+      case 'streaming':
+        return context.tr.bot_settings_status_type_streaming;
+      case 'listening':
+        return context.tr.bot_settings_status_type_listening;
+      case 'watching':
+        return context.tr.bot_settings_status_type_watching;
+      case 'competing':
+        return context.tr.bot_settings_status_type_competing;
+      case 'playing':
+      default:
+        return context.tr.bot_settings_status_type_playing;
+    }
+  }
+
+  String _presenceStatusLabel(String status) {
+    switch (status) {
+      case 'idle':
+        return context.tr.bot_settings_presence_idle;
+      case 'dnd':
+        return context.tr.bot_settings_presence_dnd;
+      case 'invisible':
+        return context.tr.bot_settings_presence_invisible;
+      case 'online':
+      default:
+        return context.tr.bot_settings_presence_online;
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    AppAnalytics.logScreenView(
+      screenName: "AppSettingsPage",
+      screenClass: "AppSettingsPage",
+      parameters: {"app_id": widget.client.application.id.toString()},
+    );
+    _initIntents();
+    _init();
+    _loadVersions();
+  }
+
+  void _initIntents() {
+    _intentsMap = {
+      'Guild Presence': false,
+      'Guild Members': false,
+      'Message Content': true,
+      'Direct Messages': true,
+      'Guilds': true,
+      'Guild Messages': true,
+      'Guild Message Reactions': false,
+      'Direct Message Reactions': false,
+      'Guild Message Typing': false,
+      'Direct Message Typing': false,
+      'Guild Scheduled Events': false,
+      'Auto Moderation Configuration': false,
+      'Auto Moderation Execution': false,
+      'Guild Moderation': false,
+      'Guild Expressions': false,
+      'Guild Integrations': false,
+      'Guild Webhooks': false,
+      'Guild Invites': false,
+      'Guild Voice States': false,
+      'Guild Message Polls': false,
+      'Direct Message Polls': false,
+    };
+  }
+
+  @override
+  void dispose() {
+    _tokenController.dispose();
+    _prefixController.dispose();
+    _usernameController.dispose();
+    for (final status in _statusDrafts) {
+      status.dispose();
+    }
+    super.dispose();
+  }
+
+  Future<void> _init() async {
+    final fetchedApp =
+        await widget.client.applications.fetchCurrentApplication();
+    final persistedApp = await appManager.getApp(
+      widget.client.user.id.toString(),
+    );
+    final persistedIntents = Map<String, bool>.from(
+      (persistedApp['intents'] as Map?)?.map(
+            (key, value) => MapEntry(key.toString(), value == true),
+          ) ??
+          const <String, bool>{},
+    );
+
+    for (final entry in persistedIntents.entries) {
+      if (_intentsMap.containsKey(entry.key)) {
+        _intentsMap[entry.key] = entry.value;
+      }
+    }
+
+    final persistedActivities = List<Map<String, dynamic>>.from(
+      ((persistedApp['activities'] ?? persistedApp['statuses']) as List?)
+              ?.whereType<Map>()
+              .map((item) => Map<String, dynamic>.from(item)) ??
+          const <Map<String, dynamic>>[],
+    );
+
+    // Charger le statut de présence sauvegardé
+    final presenceStatus =
+        (persistedApp['presenceStatus'] as String?) ?? 'online';
+    if (_presenceStatuses.contains(presenceStatus)) {
+      _presenceStatus = presenceStatus;
+    }
+    _builtInLegacyHelpEnabled =
+        persistedApp['builtInLegacyHelpEnabled'] != false;
+
+    for (final status in _statusDrafts) {
+      status.dispose();
+    }
+    _statusDrafts.clear();
+
+    if (persistedActivities.isEmpty) {
+      _statusDrafts.add(_StatusDraft.empty());
+    } else {
+      for (final status in persistedActivities) {
+        _statusDrafts.add(_StatusDraft.fromMap(status));
+      }
+    }
+
+    if (!mounted) return;
+    setState(() {
+      app = fetchedApp;
+      _savedToken = (persistedApp['token'] ?? '').toString().trim();
+      _tokenController.text = _savedToken;
+      _prefixController.text =
+          (persistedApp['prefix'] ?? '!').toString().trim().isEmpty
+              ? '!'
+              : (persistedApp['prefix'] ?? '!').toString();
+      _usernameController.text = '';
+      _selectedAvatarPath = null;
+    });
+  }
+
+  Future<void> _loadVersions() async {
+    final info = await PackageInfo.fromPlatform();
+    final client = await RunnerSettings.createClient();
+    final rv = await client?.getRunnerVersion();
+    if (!mounted) return;
+    setState(() {
+      _appVersion = '${info.version}+${info.buildNumber}';
+      _runnerVersion = rv;
+    });
+  }
+
+  Future<void> _saveIntentsOnly() async {
+    setState(() {
+      _isSavingIntents = true;
+    });
+
+    try {
+      final appData = Map<String, dynamic>.from(
+        await appManager.getApp(widget.client.user.id.toString()),
+      );
+      final token = (appData['token'] ?? _savedToken).toString().trim();
+      if (token.isEmpty) {
+        throw Exception(context.tr.bot_settings_save_token_first);
+      }
+
+      final discordUser = await getDiscordUser(token);
+      await appManager.createOrUpdateApp(
+        id: discordUser.id,
+        username: discordUser.username,
+        avatarHash: discordUser.avatarHash,
+        discriminator: discordUser.discriminator.toString(),
+        token: token,
+        intents: _intentsMap,
+        prefix:
+            _prefixController.text.trim().isEmpty
+                ? '!'
+                : _prefixController.text,
+      );
+
+      final latestAppData = Map<String, dynamic>.from(
+        await appManager.getApp(discordUser.id.toString()),
+      );
+      latestAppData['builtInLegacyHelpEnabled'] = _builtInLegacyHelpEnabled;
+      latestAppData.remove('username');
+      latestAppData.remove('avatarPath');
+      await appManager.saveApp(discordUser.id.toString(), latestAppData);
+
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.tr.bot_settings_intents_saved)),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSavingIntents = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _saveTokenOnly() async {
+    setState(() {
+      _isSavingToken = true;
+    });
+
+    try {
+      final effectiveToken = _tokenController.text.trim();
+      if (effectiveToken.isEmpty) {
+        throw Exception(context.tr.bot_settings_token_required);
+      }
+
+      final discordUser = await getDiscordUser(effectiveToken);
+
+      // ── Bot ID mismatch check ─────────────────────────────────────────────
+      final localBotId = widget.client.user.id.toString();
+      final newBotId = discordUser.id.toString();
+      if (newBotId != localBotId) {
+        if (!mounted) return;
+        final proceed = await AppTheme.showConfirmDialog(
+          context,
+          title: context.tr.bot_settings_token_mismatch_title,
+          content: context.tr.bot_settings_token_mismatch_content(
+            newBotId,
+            localBotId,
+          ),
+          confirmLabel: context.tr.bot_settings_token_mismatch_confirm,
+        );
+        if (!proceed || !mounted) return;
+      }
+
+      final existingAppData = Map<String, dynamic>.from(
+        await appManager.getApp(widget.client.user.id.toString()),
+      );
+      final existingIntents = Map<String, bool>.from(
+        (existingAppData['intents'] as Map?)?.map(
+              (key, value) => MapEntry(key.toString(), value == true),
+            ) ??
+            const <String, bool>{},
+      );
+      final intentsToKeep =
+          existingIntents.isEmpty ? _intentsMap : existingIntents;
+
+      await appManager.createOrUpdateApp(
+        id: discordUser.id,
+        username: discordUser.username,
+        avatarHash: discordUser.avatarHash,
+        discriminator: discordUser.discriminator.toString(),
+        token: effectiveToken,
+        intents: intentsToKeep,
+        prefix:
+            _prefixController.text.trim().isEmpty
+                ? '!'
+                : _prefixController.text,
+      );
+
+      final appData = Map<String, dynamic>.from(
+        await appManager.getApp(discordUser.id.toString()),
+      );
+      appData['builtInLegacyHelpEnabled'] = _builtInLegacyHelpEnabled;
+      appData.remove('username');
+      appData.remove('avatarPath');
+      await appManager.saveApp(discordUser.id.toString(), appData);
+
+      _savedToken = effectiveToken;
+      _isEditingToken = false;
+
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.tr.bot_settings_token_saved)),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSavingToken = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _saveProfileAndStatuses() async {
+    setState(() {
+      _isSavingProfile = true;
+    });
+
+    try {
+      final activities = _collectActivities();
+      final appData = Map<String, dynamic>.from(
+        await appManager.getApp(widget.client.user.id.toString()),
+      );
+      final token = (appData['token'] ?? _savedToken).toString().trim();
+      if (token.isEmpty) {
+        throw Exception(context.tr.bot_settings_save_token_first);
+      }
+
+      final trimmedUsername = _usernameController.text.trim();
+      final trimmedAvatarPath = (_selectedAvatarPath ?? '').trim();
+      if (trimmedAvatarPath.isNotEmpty &&
+          !isSupportedDiscordAvatarPath(trimmedAvatarPath)) {
+        final ext = avatarFileExtension(trimmedAvatarPath) ?? 'unknown';
+        throw Exception(
+          context.tr.bot_settings_avatar_unsupported_format(
+            ext,
+            supportedDiscordAvatarFormatsLabel(),
+          ),
+        );
+      }
+      final shouldUpdateProfile =
+          trimmedUsername.isNotEmpty || trimmedAvatarPath.isNotEmpty;
+
+      User discordUser;
+      if (shouldUpdateProfile) {
+        discordUser = await updateDiscordBotProfile(
+          token,
+          username: trimmedUsername.isNotEmpty ? trimmedUsername : null,
+          avatarPath: trimmedAvatarPath.isNotEmpty ? trimmedAvatarPath : null,
+        );
+
+        final intents = Map<String, bool>.from(
+          (appData['intents'] as Map?)?.map(
+                (key, value) => MapEntry(key.toString(), value == true),
+              ) ??
+              const <String, bool>{},
+        );
+        await appManager.createOrUpdateApp(
+          id: discordUser.id,
+          username: discordUser.username,
+          avatarHash: discordUser.avatarHash,
+          discriminator: discordUser.discriminator.toString(),
+          token: token,
+          intents: intents,
+          prefix:
+              _prefixController.text.trim().isEmpty
+                  ? '!'
+                  : _prefixController.text,
+        );
+      } else {
+        discordUser = await getDiscordUser(token);
+      }
+
+      final latestAppData = Map<String, dynamic>.from(
+        await appManager.getApp(discordUser.id.toString()),
+      );
+      latestAppData['activities'] = activities;
+      latestAppData['statuses'] = activities
+          .map(
+            (activity) => {
+              'type': activity['type'],
+              'text': activity['name'],
+              'minIntervalSeconds': activity['minIntervalSeconds'],
+              'maxIntervalSeconds': activity['maxIntervalSeconds'],
+            },
+          )
+          .toList(growable: false);
+      latestAppData['presenceStatus'] = _presenceStatus;
+      latestAppData['builtInLegacyHelpEnabled'] = _builtInLegacyHelpEnabled;
+      latestAppData.remove('username');
+      latestAppData.remove('avatarPath');
+
+      await appManager.saveApp(discordUser.id.toString(), latestAppData);
+
+      applyDesktopRuntimeSettings(
+        botId: discordUser.id.toString(),
+        appData: latestAppData,
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.tr.bot_settings_profile_saved)),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSavingProfile = false;
+        });
+      }
+    }
+  }
+
+  List<Map<String, dynamic>> _collectActivities() {
+    final normalized = <Map<String, dynamic>>[];
+
+    for (var i = 0; i < _statusDrafts.length; i++) {
+      final draft = _statusDrafts[i];
+      final name = draft.textController.text.trim();
+      final state = draft.stateController.text.trim();
+      final url = draft.urlController.text.trim();
+      final min = int.tryParse(draft.minController.text.trim()) ?? 60;
+      final max = int.tryParse(draft.maxController.text.trim()) ?? min;
+
+      if (name.isEmpty) {
+        throw FormatException('Activity #${i + 1}: name is required.');
+      }
+      if (min <= 0 || max <= 0) {
+        throw FormatException(
+          'Activity #${i + 1}: min/max interval must be > 0.',
+        );
+      }
+      if (max < min) {
+        throw FormatException(
+          'Activity #${i + 1}: max interval must be >= min interval.',
+        );
+      }
+      if (draft.type == 'streaming') {
+        if (url.isEmpty) {
+          throw FormatException(
+            'Activity #${i + 1}: stream URL is required for streaming type.',
+          );
+        }
+        final parsed = Uri.tryParse(url);
+        final isValid =
+            parsed != null &&
+            (parsed.scheme == 'http' || parsed.scheme == 'https') &&
+            (parsed.host.isNotEmpty);
+        if (!isValid) {
+          throw FormatException(
+            'Activity #${i + 1}: stream URL must be a valid http/https URL.',
+          );
+        }
+      }
+
+      normalized.add({
+        'type': draft.type,
+        'name': name,
+        'text': name,
+        'state': state,
+        'url': url,
+        'minIntervalSeconds': min,
+        'maxIntervalSeconds': max,
+      });
+    }
+
+    return normalized;
+  }
+
+  Future<void> _pickAvatarFile() async {
+    final picked = await FilePicker.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: supportedDiscordAvatarFormats,
+      allowMultiple: false,
+    );
+
+    if (picked == null || picked.files.isEmpty) {
+      return;
+    }
+
+    final path = picked.files.single.path;
+    if (path == null || path.isEmpty) {
+      return;
+    }
+
+    if (!isSupportedDiscordAvatarPath(path)) {
+      if (!mounted) {
+        return;
+      }
+      final ext = avatarFileExtension(path) ?? 'unknown';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            context.tr.bot_settings_avatar_unsupported_format(
+              ext,
+              supportedDiscordAvatarFormatsLabel(),
+            ),
+          ),
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _selectedAvatarPath = path;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Map<String, dynamic> flagsMap = {
+      'Application Command Badge':
+          app?.flags.hasApplicationCommandBadge ?? false,
+      'Guild Member Intents': app?.flags.hasGatewayGuildMembers ?? false,
+      'Guild Member Intents Limited':
+          app?.flags.hasGatewayGuildMembersLimited ?? false,
+      'Message Content Intents': app?.flags.hasGatewayMessageContent ?? false,
+      'Message Content Intents Limited':
+          app?.flags.hasGatewayMessageContentLimited ?? false,
+      'Presence Intents': app?.flags.hasGatewayPresence ?? false,
+      'Presence Intents Limited': app?.flags.hasGatewayPresenceLimited ?? false,
+      'Embedded App': app?.flags.isEmbedded ?? false,
+      'Verification Pending Guild Limit':
+          app?.flags.isVerificationPendingGuildLimit ?? false,
+      'Auto Moderation Rule Create Badge':
+          app?.flags.usesApplicationAutoModerationRuleCreateBadge ?? false,
+      'Hash Code': app?.flags.hashCode ?? 0,
+    };
+
+    return Scaffold(
+      appBar: AppBar(title: Text(context.tr.bot_settings_title)),
+      body: SafeArea(
+        top: false,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final contentMaxWidth = constraints.maxWidth >= 900 ? 760.0 : 640.0;
+            return Center(
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 16,
+                ),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: contentMaxWidth),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      const SizedBox(height: 20),
+                      // Profile Section
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Text(
+                          context.tr.bot_settings_profile_title,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      TextField(
+                        decoration: InputDecoration(
+                          labelText: context.tr.bot_settings_username_override,
+                          border: const OutlineInputBorder(),
+                          contentPadding: const EdgeInsets.all(8),
+                          hintText: context.tr.bot_settings_username_hint,
+                        ),
+                        controller: _usernameController,
+                        onChanged: (_) {
+                          setState(() {});
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: OutlinedButton.icon(
+                          onPressed: _pickAvatarFile,
+                          icon: const Icon(Icons.folder_open),
+                          label: Text(context.tr.bot_settings_browse),
+                        ),
+                      ),
+                      if (_selectedAvatarPath != null) ...[
+                        const SizedBox(height: 10),
+                        Text(
+                          context.tr.bot_settings_avatar_selected_file(
+                            _selectedAvatarPath!,
+                          ),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppTheme.grey,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: AppTheme.discordDarkBg,
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.radiusMd,
+                            ),
+                            border: Border.all(color: AppTheme.discordDarkerBg),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 56,
+                                height: 56,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: AppTheme.discordDarkerBg,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: ClipOval(
+                                  child: Image.file(
+                                    File(_selectedAvatarPath!),
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (_, _, _) {
+                                      return Container(
+                                        color: AppTheme.discordBorder,
+                                        alignment: Alignment.center,
+                                        child: const Icon(
+                                          Icons.broken_image_outlined,
+                                          color: AppTheme.discordText,
+                                          size: 20,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      (_usernameController.text
+                                              .trim()
+                                              .isNotEmpty)
+                                          ? _usernameController.text.trim()
+                                          : context.tr.app_title,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        color: Color(0xFFF2F3F5),
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Row(
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 6,
+                                            vertical: 2,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: AppTheme.discord,
+                                            borderRadius: BorderRadius.circular(
+                                              6,
+                                            ),
+                                          ),
+                                          child: const Text(
+                                            'APP',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w700,
+                                              letterSpacing: 0.3,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            context
+                                                .tr
+                                                .bot_settings_avatar_preview_label,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                              color: AppTheme.discordText,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: TextButton.icon(
+                            onPressed: () {
+                              setState(() {
+                                _selectedAvatarPath = null;
+                              });
+                            },
+                            icon: const Icon(Icons.clear),
+                            label: Text(
+                              context.tr.bot_settings_avatar_clear_selection,
+                            ),
+                          ),
+                        ),
+                      ],
+
+                      const SizedBox(height: 30),
+                      // Presence Section
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Text(
+                          context.tr.bot_settings_presence_status_title,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: DropdownButtonFormField<String>(
+                          initialValue: _presenceStatus,
+                          decoration: InputDecoration(
+                            labelText:
+                                context.tr.bot_settings_presence_status_label,
+                            border: const OutlineInputBorder(),
+                          ),
+                          items: _presenceStatuses
+                              .map(
+                                (status) => DropdownMenuItem<String>(
+                                  value: status,
+                                  child: Text(_presenceStatusLabel(status)),
+                                ),
+                              )
+                              .toList(growable: false),
+                          onChanged: (value) {
+                            if (value == null) {
+                              return;
+                            }
+                            setState(() {
+                              _presenceStatus = value;
+                            });
+                          },
+                        ),
+                      ),
+
+                      const SizedBox(height: 30),
+                      // Status Rotation Section
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Text(
+                          context.tr.bot_settings_status_rotation_title,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Text(
+                          context.tr.bot_settings_status_rotation_desc,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppTheme.grey,
+                          ),
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            setState(() {
+                              _statusDrafts.add(_StatusDraft.empty());
+                            });
+                          },
+                          icon: const Icon(Icons.add),
+                          label: Text(context.tr.bot_settings_add_status),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      ...List.generate(_statusDrafts.length, (index) {
+                        final draft = _statusDrafts[index];
+                        return Card(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        context.tr
+                                            .bot_settings_status_item_title(
+                                              index + 1,
+                                            ),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                    IconButton(
+                                      tooltip:
+                                          context.tr.bot_settings_remove_status,
+                                      onPressed:
+                                          _statusDrafts.length <= 1
+                                              ? null
+                                              : () async {
+                                                final shouldDelete =
+                                                    await AppTheme.showConfirmDialog(
+                                                      context,
+                                                      title:
+                                                          context
+                                                              .tr
+                                                              .bot_settings_remove_status,
+                                                      content:
+                                                          context
+                                                              .tr
+                                                              .settings_status_remove_confirm,
+                                                      confirmLabel:
+                                                          context.tr.delete,
+                                                      isDestructive: true,
+                                                    );
+                                                if (!shouldDelete) {
+                                                  return;
+                                                }
+                                                setState(() {
+                                                  final removed = _statusDrafts
+                                                      .removeAt(index);
+                                                  removed.dispose();
+                                                });
+                                              },
+                                      icon: const Icon(Icons.delete_outline),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                DropdownButtonFormField<String>(
+                                  initialValue: draft.type,
+                                  decoration: InputDecoration(
+                                    labelText:
+                                        context
+                                            .tr
+                                            .bot_settings_status_type_label,
+                                    border: const OutlineInputBorder(),
+                                  ),
+                                  items: _statusTypes
+                                      .map(
+                                        (type) => DropdownMenuItem<String>(
+                                          value: type,
+                                          child: Text(_statusTypeLabel(type)),
+                                        ),
+                                      )
+                                      .toList(growable: false),
+                                  onChanged: (value) {
+                                    if (value == null) {
+                                      return;
+                                    }
+                                    setState(() {
+                                      draft.type = value;
+                                    });
+                                  },
+                                ),
+                                const SizedBox(height: 8),
+                                TextField(
+                                  controller: draft.textController,
+                                  decoration: InputDecoration(
+                                    labelText:
+                                        context
+                                            .tr
+                                            .bot_settings_status_text_label,
+                                    border: const OutlineInputBorder(),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                TextField(
+                                  controller: draft.stateController,
+                                  decoration: InputDecoration(
+                                    labelText:
+                                        context
+                                            .tr
+                                            .bot_settings_activity_state_label,
+                                    border: const OutlineInputBorder(),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                TextField(
+                                  controller: draft.urlController,
+                                  decoration: InputDecoration(
+                                    labelText:
+                                        context
+                                            .tr
+                                            .bot_settings_activity_url_label,
+                                    border: const OutlineInputBorder(),
+                                  ),
+                                  keyboardType: TextInputType.url,
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: TextField(
+                                        controller: draft.minController,
+                                        keyboardType: TextInputType.number,
+                                        decoration: InputDecoration(
+                                          labelText:
+                                              context
+                                                  .tr
+                                                  .bot_settings_status_min_interval,
+                                          border: const OutlineInputBorder(),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: TextField(
+                                        controller: draft.maxController,
+                                        keyboardType: TextInputType.number,
+                                        decoration: InputDecoration(
+                                          labelText:
+                                              context
+                                                  .tr
+                                                  .bot_settings_status_max_interval,
+                                          border: const OutlineInputBorder(),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }),
+
+                      const SizedBox(height: 12),
+                      Text(
+                        context.tr.bot_settings_save_profile_caption,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppTheme.grey,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed:
+                              _isSavingProfile
+                                  ? null
+                                  : () async {
+                                    try {
+                                      await _saveProfileAndStatuses();
+                                    } catch (e) {
+                                      developer.log(
+                                        'Error saving profile/statuses: $e',
+                                        name: 'AppSettingsPage',
+                                      );
+                                      if (!mounted) return;
+                                      final dialog = AlertDialog(
+                                        title: Text(context.tr.error),
+                                        content: Text(e.toString()),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: Text(context.tr.ok),
+                                          ),
+                                        ],
+                                      );
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return dialog;
+                                        },
+                                      );
+                                    }
+                                  },
+                          icon: const Icon(Icons.save_outlined),
+                          label: Text(
+                            context.tr.bot_settings_save_profile_status_btn,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 30),
+                      // Utility Cards
+                      Card(
+                        child: ListTile(
+                          leading: const Icon(Icons.menu_book_outlined),
+                          title: Text(context.tr.bot_settings_workflow_docs),
+                          subtitle: Text(
+                            context.tr.bot_settings_workflow_docs_desc,
+                          ),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) =>
+                                        const WorkflowDocumentationPage(),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Card(
+                        child: ListTile(
+                          leading: const Icon(Icons.import_export),
+                          title: Text(context.tr.bot_settings_export_import),
+                          subtitle: Text(
+                            context.tr.bot_settings_export_import_desc,
+                          ),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (_) => BotExportImportPage(
+                                      botId:
+                                          widget.client.application.id
+                                              .toString(),
+                                    ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(14),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                context.tr.settings_version_title,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  const Icon(Icons.phone_android, size: 18),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    '${context.tr.settings_app_version}: $_appVersion',
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  const Icon(Icons.dns_outlined, size: 18),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    '${context.tr.settings_runner_version}: ${_runnerVersion ?? context.tr.settings_runner_not_connected}',
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 30),
+                      // App Flags Section
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Text(
+                          context.tr.bot_settings_app_flags,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      if (app != null)
+                        ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: flagsMap.length,
+                          itemBuilder: (context, index) {
+                            final flagName = flagsMap.keys.elementAt(index);
+                            final flagValue = flagsMap[flagName];
+
+                            if (flagName == 'Hash Code') {
+                              return ListTile(
+                                title: Text(flagName),
+                                trailing: Text(flagValue.toString()),
+                              );
+                            }
+
+                            return CheckboxListTile(
+                              title: Text(flagName),
+                              value: flagValue,
+                              onChanged: null,
+                              controlAffinity: ListTileControlAffinity.trailing,
+                            );
+                          },
+                          separatorBuilder: (_, _) => const Divider(),
+                        ),
+
+                      const SizedBox(height: 30),
+                      // Intents Configuration Section
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Text(
+                          context.tr.bot_settings_gateway_intents,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Text(
+                          context.tr.bot_settings_gateway_intents_desc,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppTheme.grey,
+                          ),
+                        ),
+                      ),
+                      TextField(
+                        controller: _prefixController,
+                        decoration: InputDecoration(
+                          labelText: context.tr.settings_legacy_prefix,
+                          border: const OutlineInputBorder(),
+                          hintText: context.tr.settings_legacy_prefix_hint,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        context.tr.settings_legacy_prefix_helper,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppTheme.grey,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(context.tr.settings_builtin_help),
+                        subtitle: Text(
+                          context.tr.settings_builtin_help_subtitle,
+                        ),
+                        value: _builtInLegacyHelpEnabled,
+                        onChanged: (value) {
+                          setState(() {
+                            _builtInLegacyHelpEnabled = value;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: _intentsMap.length,
+                        itemBuilder: (context, index) {
+                          final intentName = _intentsMap.keys.elementAt(index);
+                          final intentValue = _intentsMap[intentName] ?? false;
+
+                          return CheckboxListTile(
+                            title: Text(intentName),
+                            value: intentValue,
+                            onChanged: (newValue) {
+                              setState(() {
+                                _intentsMap[intentName] = newValue ?? false;
+                              });
+                            },
+                            controlAffinity: ListTileControlAffinity.trailing,
+                          );
+                        },
+                        separatorBuilder: (_, _) => const Divider(),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        context.tr.bot_settings_save_intents_caption,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppTheme.grey,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed:
+                              _isSavingIntents
+                                  ? null
+                                  : () async {
+                                    try {
+                                      await _saveIntentsOnly();
+                                    } catch (e) {
+                                      developer.log(
+                                        'Error saving intents: $e',
+                                        name: 'AppSettingsPage',
+                                      );
+                                      if (!mounted) return;
+                                      final dialog = AlertDialog(
+                                        title: Text(context.tr.error),
+                                        content: Text(e.toString()),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: Text(context.tr.ok),
+                                          ),
+                                        ],
+                                      );
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return dialog;
+                                        },
+                                      );
+                                    }
+                                  },
+                          icon: const Icon(Icons.tune),
+                          label: Text(context.tr.bot_settings_save_intents_btn),
+                        ),
+                      ),
+
+                      const SizedBox(height: 30),
+                      // Token Update Section
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Text(
+                          context.tr.bot_settings_token_title,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      if (!_isEditingToken) ...[
+                        Text(
+                          context.tr.bot_settings_token_hidden_desc,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppTheme.grey,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              setState(() {
+                                _tokenController.text = _savedToken;
+                                _isEditingToken = true;
+                              });
+                            },
+                            icon: const Icon(Icons.edit_outlined),
+                            label: Text(context.tr.bot_settings_edit_token_btn),
+                          ),
+                        ),
+                      ] else ...[
+                        TextField(
+                          controller: _tokenController,
+                          decoration: InputDecoration(
+                            labelText: context.tr.bot_settings_update_token,
+                            border: const OutlineInputBorder(),
+                            contentPadding: const EdgeInsets.all(8),
+                            hintText: context.tr.bot_settings_token_hint,
+                          ),
+                          obscureText: true,
+                        ),
+                        const SizedBox(height: 8),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed:
+                                _isSavingToken
+                                    ? null
+                                    : () {
+                                      setState(() {
+                                        _tokenController.text = _savedToken;
+                                        _isEditingToken = false;
+                                      });
+                                    },
+                            icon: const Icon(Icons.close),
+                            label: Text(
+                              context.tr.bot_settings_cancel_token_edit_btn,
+                            ),
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 12),
+                      Text(
+                        context.tr.bot_settings_save_token_caption,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppTheme.grey,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed:
+                              (_isSavingToken || !_isEditingToken)
+                                  ? null
+                                  : () async {
+                                    try {
+                                      await _saveTokenOnly();
+                                    } catch (e) {
+                                      developer.log(
+                                        'Error saving token: $e',
+                                        name: 'AppSettingsPage',
+                                      );
+                                      if (!mounted) return;
+                                      final dialog = AlertDialog(
+                                        title: Text(context.tr.error),
+                                        content: Text(e.toString()),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: Text(context.tr.ok),
+                                          ),
+                                        ],
+                                      );
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return dialog;
+                                        },
+                                      );
+                                    }
+                                  },
+                          icon: const Icon(Icons.vpn_key_outlined),
+                          label: Text(
+                            context.tr.bot_settings_save_token_only_btn,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _StatusDraft {
+  String type;
+  final TextEditingController textController;
+  final TextEditingController stateController;
+  final TextEditingController urlController;
+  final TextEditingController minController;
+  final TextEditingController maxController;
+
+  _StatusDraft({
+    required this.type,
+    required this.textController,
+    required this.stateController,
+    required this.urlController,
+    required this.minController,
+    required this.maxController,
+  });
+
+  factory _StatusDraft.empty() {
+    return _StatusDraft(
+      type: 'playing',
+      textController: TextEditingController(),
+      stateController: TextEditingController(),
+      urlController: TextEditingController(),
+      minController: TextEditingController(text: '60'),
+      maxController: TextEditingController(text: '60'),
+    );
+  }
+
+  factory _StatusDraft.fromMap(Map<String, dynamic> map) {
+    final min =
+        int.tryParse((map['minIntervalSeconds'] ?? '').toString()) ?? 60;
+    final maxRaw =
+        int.tryParse((map['maxIntervalSeconds'] ?? '').toString()) ?? min;
+    final max = maxRaw < min ? min : maxRaw;
+
+    final type = (map['type'] ?? 'playing').toString().trim().toLowerCase();
+    return _StatusDraft(
+      type:
+          _AppSettingsPageState._statusTypes.contains(type) ? type : 'playing',
+      textController: TextEditingController(
+        text: ((map['name'] ?? map['text']) ?? '').toString(),
+      ),
+      stateController: TextEditingController(
+        text: (map['state'] ?? '').toString(),
+      ),
+      urlController: TextEditingController(text: (map['url'] ?? '').toString()),
+      minController: TextEditingController(text: '$min'),
+      maxController: TextEditingController(text: '$max'),
+    );
+  }
+
+  void dispose() {
+    textController.dispose();
+    stateController.dispose();
+    urlController.dispose();
+    minController.dispose();
+    maxController.dispose();
+  }
+}

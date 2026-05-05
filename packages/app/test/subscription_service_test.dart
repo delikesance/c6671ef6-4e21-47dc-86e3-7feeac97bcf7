@@ -1,5 +1,5 @@
-import 'package:bot_creator/utils/main_api_settings.dart';
-import 'package:bot_creator/utils/subscription_service.dart';
+import 'package:bot_creator/core/network/main_api_settings.dart';
+import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
