@@ -3570,7 +3570,7 @@ class DiscordRunner {
     try {
       client.updatePresence(
         PresenceBuilder(
-          status: CurrentUserStatus.online,
+          status: _mapPresenceStatus(config.presenceStatus),
           isAfk: false,
           activities: <ActivityBuilder>[
             ActivityBuilder(
@@ -3656,5 +3656,19 @@ class DiscordRunner {
       return null;
     }
     return parsed;
+  }
+
+  CurrentUserStatus _mapPresenceStatus(String statusString) {
+    switch (statusString.trim().toLowerCase()) {
+      case 'idle':
+        return CurrentUserStatus.idle;
+      case 'dnd':
+        return CurrentUserStatus.dnd;
+      case 'invisible':
+        return CurrentUserStatus.invisible;
+      case 'online':
+      default:
+        return CurrentUserStatus.online;
+    }
   }
 }
