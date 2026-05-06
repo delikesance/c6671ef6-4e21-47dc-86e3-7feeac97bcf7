@@ -270,7 +270,17 @@ class _PendingResponse {
             : <Map<String, dynamic>>[];
     final components =
         hasComponents
-            ? List<Map<String, dynamic>>.from(_components.map(_cloneMap))
+            ? List<Map<String, dynamic>>.from(
+              _components
+                  .where((c) {
+                    if (c['type']?.toString() == 'actionRow') {
+                      final children = c['components'] as List?;
+                      return children != null && children.isNotEmpty;
+                    }
+                    return true;
+                  })
+                  .map(_cloneMap),
+            )
             : <Map<String, dynamic>>[];
     final ephemeral = _ephemeral;
     final tts = _tts;
