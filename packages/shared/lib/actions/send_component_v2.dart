@@ -260,7 +260,9 @@ List<ComponentBuilder> buildComponentNodes({
   for (final node in definition.components) {
     if (node is ActionRowNode) {
       flushActionRow();
-      result.add(buildComponentNode(node, resolve));
+      if (node.components.isNotEmpty) {
+        result.add(buildComponentNode(node, resolve));
+      }
     } else if (node is ButtonNode || node is CheckboxNode) {
       currentRowComponents.add(buildComponentNode(node, resolve));
       if (currentRowComponents.length >= 5) {
