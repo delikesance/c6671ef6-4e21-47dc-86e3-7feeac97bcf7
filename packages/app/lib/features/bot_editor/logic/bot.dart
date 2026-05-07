@@ -32,8 +32,6 @@ import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/features/bot_editor/logic/template_resolver.dart';
 import 'package:bot_creator/features/bot_editor/logic/workflow_call.dart';
 import 'package:flutter/foundation.dart';
-import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
-import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter/services.dart';
 import 'package:logging/logging.dart';
@@ -45,13 +43,6 @@ part 'bot.template.dart';
 part 'bot.mobile_service.dart';
 part 'bot.commands.dart';
 part 'bot.event_workflows.dart';
-
-bool get _isDesktopPlatform {
-  if (kIsWeb) return false;
-  return defaultTargetPlatform == TargetPlatform.windows ||
-      defaultTargetPlatform == TargetPlatform.linux ||
-      defaultTargetPlatform == TargetPlatform.macOS;
-}
 
 String _formatBdfdRuntimeDiagnostics(List<BdfdCompileDiagnostic> diagnostics) {
   if (diagnostics.isEmpty) {
@@ -297,30 +288,15 @@ void applyDesktopRuntimeSettings({
   });
 }
 
+/// A callback registered by the synchronization engine (bot_payload_builder)
+/// to handle runtime refresh requests.
+Future<void> Function(String botId, {bool immediate})? onRefreshBotRuntime;
+
 /// Centralized helper to refresh all runtime configurations (status, workflows, listeners)
-/// for a running desktop bot session.
+/// for a running bot session (Desktop, Mobile, or Remote).
 Future<void> refreshBotRuntime(String botId) async {
-  final appData = await appManager.getApp(botId);
-  applyDesktopRuntimeSettings(botId: botId, appData: appData);
-
-  if (!_isDesktopPlatform) {
-    unawaited(syncMobileBotConfigWithService(botId));
-  }
-
-  // Trigger remote reload if applicable for cloud-managed bots
-  try {
-    final client = await RunnerSettings.createClientForBot(botId);
-    if (client != null) {
-      final app = await appManager.getApp(botId);
-      final botName = (app['username'] ?? app['name'] ?? '').toString().trim();
-      final payload = await buildBotPayload(botId);
-      await client.reloadBot(botId, botName, payload);
-      debugPrint('[refreshBotRuntime] Remote reload triggered for $botId.');
-    }
-  } catch (error) {
-    debugPrint(
-      '[refreshBotRuntime] Remote reload skipped/failed for $botId: $error',
-    );
+  if (onRefreshBotRuntime != null) {
+    await onRefreshBotRuntime!(botId, immediate: true);
   }
 }
 

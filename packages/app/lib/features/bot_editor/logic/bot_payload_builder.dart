@@ -29,8 +29,19 @@ class _SyncBatcher {
   static const _debounceDuration = Duration(seconds: 3);
   static const _maxThrottleDuration = Duration(seconds: 15);
 
-  void requestSync(String botId, Future<void> Function(String botId) syncTask) {
+  void requestSync(
+    String botId,
+    Future<void> Function(String botId) syncTask, {
+    bool immediate = false,
+  }) {
     _debounceTimers[botId]?.cancel();
+
+    if (immediate) {
+      _debounceTimers.remove(botId);
+      _firstRequestTimes.remove(botId);
+      _performSync(botId, syncTask);
+      return;
+    }
 
     final now = DateTime.now();
     final firstRequest = _firstRequestTimes[botId] ?? now;
@@ -94,6 +105,10 @@ void initRunnerAutoReload() {
 
   AppManager.onAfterSave = (String botId) async {
     _batcher.requestSync(botId, _executeSync);
+  };
+
+  onRefreshBotRuntime = (String botId, {bool immediate = false}) async {
+    _batcher.requestSync(botId, _executeSync, immediate: immediate);
   };
 
   AppManager.onAfterCommandSave = (
@@ -314,6 +329,11 @@ Future<void> _executeSync(String botId) async {
     final botToken = (app['token'] ?? '').toString().trim();
 
     final futures = <Future<void>>[];
+
+    // 0. Local Desktop Runtime Sync (internal session)
+    if (_isDesktopPlatform) {
+      applyDesktopRuntimeSettings(botId: botId, appData: app);
+    }
 
     // 1. Desktop Runner Sync (only on desktop platforms)
     if (_isDesktopPlatform) {
