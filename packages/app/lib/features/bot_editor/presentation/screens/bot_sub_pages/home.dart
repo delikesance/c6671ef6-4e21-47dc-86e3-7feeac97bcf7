@@ -77,7 +77,19 @@ class _AppHomePageState extends State<AppHomePage>
     return Localizations.localeOf(context).languageCode == 'fr' ? fr : en;
   }
 
-
+  String _resolveQuickAccessLabel(BuildContext context, String labelKey) {
+    final tr = context.tr;
+    switch (labelKey) {
+      case 'emojis_tab':
+        return tr.emojis_tab;
+      case 'dashboard_title':
+        return tr.dashboard_title;
+      case 'settings_tab':
+        return tr.settings_tab;
+      default:
+        return labelKey;
+    }
+  }
 
   Color _hostingTimeColor(int minutes) {
     const minutesPerDay = 60 * 24; // 1440
@@ -1822,8 +1834,10 @@ class _AppHomePageState extends State<AppHomePage>
                                   )
                                     _QuickAccessChip(
                                       icon: widget.secondarySections[i].icon,
-                                      label:
-                                          widget.secondarySections[i].labelKey,
+                                      label: _resolveQuickAccessLabel(
+                                        context,
+                                        widget.secondarySections[i].labelKey,
+                                      ),
                                       onTap:
                                           () => widget.onNavigateToSection!(
                                             widget.secondarySections[i].index,
@@ -1990,7 +2004,7 @@ class _AppHomePageState extends State<AppHomePage>
       ),
     );
   }
-  
+
   String formatDuration(int i) {
     final hours = i ~/ 60;
     final minutes = i % 60;

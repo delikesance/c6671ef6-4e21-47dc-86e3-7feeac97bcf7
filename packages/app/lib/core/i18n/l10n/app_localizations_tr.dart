@@ -1226,6 +1226,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get bot_settings_remove_status => 'Etkinliği kaldır';
 
   @override
+  String get bot_settings_no_activities => 'Yapılandırılmış etkinlik yok';
+
+  @override
   String get bot_settings_save_intents_btn => 'Intent\'leri kaydet';
 
   @override
@@ -1342,6 +1345,27 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get bot_settings_workflow_docs_desc =>
       'Komutlar, iş akışları, çalışma zamanı değişkenleri ve yürütme davranışı için merkezi belgeler.';
+
+  @override
+  String get bot_settings_danger_zone => 'Tehlikeli Bölge';
+
+  @override
+  String get bot_settings_delete_bot => 'Botu Sil';
+
+  @override
+  String get bot_settings_delete_bot_desc =>
+      'Bu işlem geri alınamaz. Tüm yerel veriler ve uzak yapılandırmalar kalıcı olarak kaldırılacaktır.';
+
+  @override
+  String get bot_settings_delete_bot_btn => 'Kalıcı Olarak Sil';
+
+  @override
+  String get bot_settings_delete_title => 'Silme İşlemini Onayla';
+
+  @override
+  String bot_settings_delete_desc(String id) {
+    return '$id botunu silmek istediğinizden emin misiniz? Tüm veriler kaybolacak.';
+  }
 
   @override
   String get bot_stats_collecting => 'Toplanıyor…';

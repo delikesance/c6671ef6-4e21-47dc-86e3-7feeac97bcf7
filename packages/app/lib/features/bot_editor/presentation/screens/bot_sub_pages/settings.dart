@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:async';
 
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
@@ -13,6 +14,8 @@ import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:nyxx/nyxx.dart';
+import 'package:bot_creator/core/network/main_api_settings.dart';
+import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'dart:developer' as developer;
 
@@ -28,6 +31,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   Application? app;
   bool _isSavingToken = false;
   bool _isSavingIntents = false;
+  bool _isSavingPrefix = false;
   bool _isSavingProfile = false;
   bool _isEditingToken = false;
   String _savedToken = '';
@@ -177,12 +181,8 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     }
     _statusDrafts.clear();
 
-    if (persistedActivities.isEmpty) {
-      _statusDrafts.add(_StatusDraft.empty());
-    } else {
-      for (final status in persistedActivities) {
-        _statusDrafts.add(_StatusDraft.fromMap(status));
-      }
+    for (final status in persistedActivities) {
+      _statusDrafts.add(_StatusDraft.fromMap(status));
     }
 
     if (!mounted) return;
@@ -224,27 +224,12 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
         throw Exception(context.tr.bot_settings_save_token_first);
       }
 
-      final discordUser = await getDiscordUser(token);
-      await appManager.createOrUpdateApp(
-        id: discordUser.id,
-        username: discordUser.username,
-        avatarHash: discordUser.avatarHash,
-        discriminator: discordUser.discriminator.toString(),
-        token: token,
-        intents: _intentsMap,
-        prefix:
-            _prefixController.text.trim().isEmpty
-                ? '!'
-                : _prefixController.text,
-      );
-
-      final latestAppData = Map<String, dynamic>.from(
-        await appManager.getApp(discordUser.id.toString()),
-      );
-      latestAppData['builtInLegacyHelpEnabled'] = _builtInLegacyHelpEnabled;
+      final latestAppData = Map<String, dynamic>.from(appData);
+      latestAppData['token'] = token;
+      latestAppData['intents'] = Map<String, bool>.from(_intentsMap);
       latestAppData.remove('username');
       latestAppData.remove('avatarPath');
-      await appManager.saveApp(discordUser.id.toString(), latestAppData);
+      await appManager.saveApp(widget.client.user.id.toString(), latestAppData);
 
       if (!mounted) {
         return;
@@ -253,10 +238,72 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(context.tr.bot_settings_intents_saved)),
       );
+      unawaited(refreshBotRuntime(widget.client.user.id.toString()));
     } finally {
       if (mounted) {
         setState(() {
           _isSavingIntents = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _savePrefixOnly() async {
+    setState(() {
+      _isSavingPrefix = true;
+    });
+
+    try {
+      final botId = widget.client.user.id.toString();
+      final appData = Map<String, dynamic>.from(await appManager.getApp(botId));
+      final token = (appData['token'] ?? _savedToken).toString().trim();
+      if (token.isEmpty) {
+        throw Exception(context.tr.bot_settings_save_token_first);
+      }
+
+      final latestAppData = Map<String, dynamic>.from(appData);
+      latestAppData['token'] = token;
+      latestAppData['prefix'] =
+          _prefixController.text.trim().isEmpty
+              ? '!'
+              : _prefixController.text.trim();
+      latestAppData['builtInLegacyHelpEnabled'] = _builtInLegacyHelpEnabled;
+      latestAppData.remove('username');
+      latestAppData.remove('avatarPath');
+
+      await appManager.saveApp(botId, latestAppData);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.tr.bot_settings_save_success)),
+      );
+      unawaited(refreshBotRuntime(botId));
+    } catch (e) {
+      developer.log('Error saving prefix: $e', name: 'AppSettingsPage');
+      if (!mounted) return;
+      final dialog = AlertDialog(
+        title: Text(context.tr.error),
+        content: Text(e.toString()),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text(context.tr.ok),
+          ),
+        ],
+      );
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return dialog;
+        },
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSavingPrefix = false;
         });
       }
     }
@@ -335,6 +382,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(context.tr.bot_settings_token_saved)),
       );
+      unawaited(refreshBotRuntime(discordUser.id.toString()));
     } finally {
       if (mounted) {
         setState(() {
@@ -374,13 +422,14 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       final shouldUpdateProfile =
           trimmedUsername.isNotEmpty || trimmedAvatarPath.isNotEmpty;
 
-      User discordUser;
+      String botId = widget.client.user.id.toString();
       if (shouldUpdateProfile) {
-        discordUser = await updateDiscordBotProfile(
+        final discordUser = await updateDiscordBotProfile(
           token,
           username: trimmedUsername.isNotEmpty ? trimmedUsername : null,
           avatarPath: trimmedAvatarPath.isNotEmpty ? trimmedAvatarPath : null,
         );
+        botId = discordUser.id.toString();
 
         final intents = Map<String, bool>.from(
           (appData['intents'] as Map?)?.map(
@@ -400,12 +449,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                   ? '!'
                   : _prefixController.text,
         );
-      } else {
-        discordUser = await getDiscordUser(token);
       }
 
       final latestAppData = Map<String, dynamic>.from(
-        await appManager.getApp(discordUser.id.toString()),
+        await appManager.getApp(botId),
       );
       latestAppData['activities'] = activities;
       latestAppData['statuses'] = activities
@@ -423,12 +470,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       latestAppData.remove('username');
       latestAppData.remove('avatarPath');
 
-      await appManager.saveApp(discordUser.id.toString(), latestAppData);
+      await appManager.saveApp(botId, latestAppData);
 
-      applyDesktopRuntimeSettings(
-        botId: discordUser.id.toString(),
-        appData: latestAppData,
-      );
+      applyDesktopRuntimeSettings(botId: botId, appData: latestAppData);
 
       if (!mounted) {
         return;
@@ -437,6 +481,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(context.tr.bot_settings_profile_saved)),
       );
+      unawaited(refreshBotRuntime(botId));
     } finally {
       if (mounted) {
         setState(() {
@@ -500,6 +545,75 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     }
 
     return normalized;
+  }
+
+  bool _isDeletingBot = false;
+
+  Future<void> _deleteBot() async {
+    final botId = widget.client.user.id.toString();
+    final confirm = await AppTheme.showConfirmDialog(
+      context,
+      title: context.tr.bot_settings_delete_title,
+      content: context.tr.bot_settings_delete_desc(botId),
+      confirmLabel: context.tr.delete,
+      isDestructive: true,
+    );
+
+    if (confirm != true || !mounted) return;
+
+    setState(() {
+      _isDeletingBot = true;
+    });
+
+    try {
+      // 1. API Delete (Remote Teardown)
+      try {
+        final config = await MainApiSettingsStore.loadConfig();
+        if (config.isConfigured) {
+          final session = await MainApiSettingsStore.loadSession();
+          if (session != null && !session.isExpired) {
+            final mainApiClient = MainApiClient(
+              baseUrl: config.baseUrl,
+              accessToken: session.accessToken,
+            );
+            await mainApiClient.deleteBot(botId);
+            developer.log('[Settings] Bot $botId deleted from cloud.');
+          }
+        }
+      } catch (e) {
+        developer.log('[Settings] Cloud bot deletion failed (skipping): $e');
+      }
+
+      // 2. Local Delete (Database & Files)
+      await appManager.deleteApp(botId);
+
+      if (!mounted) return;
+
+      // 3. Navigate home and sync
+      Navigator.of(context).popUntil((route) => route.isFirst);
+
+      // Trigger a sync of all bots to refresh the home page UI
+      // We use the global navigator context or a small delay to ensure home page is ready
+      unawaited(
+        Future.delayed(const Duration(milliseconds: 300), () async {
+          final homeState = homeKey.currentState;
+          if (homeState != null) {
+            await homeState.syncAllBotsFromManager();
+          }
+        }),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('${context.tr.error}: $e')));
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isDeletingBot = false;
+        });
+      }
+    }
   }
 
   Future<void> _pickAvatarFile() async {
@@ -582,6 +696,68 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
+                      _buildProfilePreviewCard(),
+
+                      // Prefix Management Section
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Text(
+                          context.tr.settings_legacy_prefix,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      TextField(
+                        controller: _prefixController,
+                        decoration: InputDecoration(
+                          labelText: context.tr.settings_legacy_prefix,
+                          border: const OutlineInputBorder(),
+                          hintText: context.tr.settings_legacy_prefix_hint,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        context.tr.settings_legacy_prefix_helper,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppTheme.grey,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(context.tr.settings_builtin_help),
+                        subtitle: Text(
+                          context.tr.settings_builtin_help_subtitle,
+                        ),
+                        value: _builtInLegacyHelpEnabled,
+                        onChanged: (value) {
+                          setState(() {
+                            _builtInLegacyHelpEnabled = value;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: _isSavingPrefix ? null : _savePrefixOnly,
+                          icon:
+                              _isSavingPrefix
+                                  ? const SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                  : const Icon(Icons.save_outlined),
+                          label: Text(context.tr.save),
+                        ),
+                      ),
+
                       const SizedBox(height: 20),
                       // Profile Section
                       Padding(
@@ -609,128 +785,13 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       const SizedBox(height: 12),
                       Align(
                         alignment: Alignment.centerLeft,
-                        child: OutlinedButton.icon(
+                        child: TextButton.icon(
                           onPressed: _pickAvatarFile,
-                          icon: const Icon(Icons.folder_open),
+                          icon: const Icon(Icons.add_photo_alternate_outlined),
                           label: Text(context.tr.bot_settings_browse),
                         ),
                       ),
-                      if (_selectedAvatarPath != null) ...[
-                        const SizedBox(height: 10),
-                        Text(
-                          context.tr.bot_settings_avatar_selected_file(
-                            _selectedAvatarPath!,
-                          ),
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: AppTheme.grey,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(14),
-                          decoration: BoxDecoration(
-                            color: AppTheme.discordDarkBg,
-                            borderRadius: BorderRadius.circular(
-                              AppTheme.radiusMd,
-                            ),
-                            border: Border.all(color: AppTheme.discordDarkerBg),
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 56,
-                                height: 56,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: AppTheme.discordDarkerBg,
-                                    width: 2,
-                                  ),
-                                ),
-                                child: ClipOval(
-                                  child: Image.file(
-                                    File(_selectedAvatarPath!),
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (_, _, _) {
-                                      return Container(
-                                        color: AppTheme.discordBorder,
-                                        alignment: Alignment.center,
-                                        child: const Icon(
-                                          Icons.broken_image_outlined,
-                                          color: AppTheme.discordText,
-                                          size: 20,
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      (_usernameController.text
-                                              .trim()
-                                              .isNotEmpty)
-                                          ? _usernameController.text.trim()
-                                          : context.tr.app_title,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        color: Color(0xFFF2F3F5),
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Row(
-                                      children: [
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 6,
-                                            vertical: 2,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: AppTheme.discord,
-                                            borderRadius: BorderRadius.circular(
-                                              6,
-                                            ),
-                                          ),
-                                          child: const Text(
-                                            'APP',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.w700,
-                                              letterSpacing: 0.3,
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            context
-                                                .tr
-                                                .bot_settings_avatar_preview_label,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: const TextStyle(
-                                              color: AppTheme.discordText,
-                                              fontSize: 12,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 6),
+                      if (_selectedAvatarPath != null)
                         Align(
                           alignment: Alignment.centerLeft,
                           child: TextButton.icon(
@@ -739,13 +800,15 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                 _selectedAvatarPath = null;
                               });
                             },
+                            style: TextButton.styleFrom(
+                              foregroundColor: AppTheme.error,
+                            ),
                             icon: const Icon(Icons.clear),
                             label: Text(
                               context.tr.bot_settings_avatar_clear_selection,
                             ),
                           ),
                         ),
-                      ],
 
                       const SizedBox(height: 30),
                       // Presence Section
@@ -822,6 +885,26 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                         ),
                       ),
                       const SizedBox(height: 8),
+                      if (_statusDrafts.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 20),
+                          child: Center(
+                            child: Column(
+                              children: [
+                                Icon(
+                                  Icons.info_outline,
+                                  color: AppTheme.grey.withValues(alpha: 0.5),
+                                  size: 48,
+                                ),
+                                const SizedBox(height: 12),
+                                Text(
+                                  context.tr.bot_settings_no_activities,
+                                  style: const TextStyle(color: AppTheme.grey),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ...List.generate(_statusDrafts.length, (index) {
                         final draft = _statusDrafts[index];
                         return Card(
@@ -847,10 +930,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                     IconButton(
                                       tooltip:
                                           context.tr.bot_settings_remove_status,
-                                      onPressed:
-                                          _statusDrafts.length <= 1
-                                              ? null
-                                              : () async {
+                                      onPressed: () async {
                                                 final shouldDelete =
                                                     await AppTheme.showConfirmDialog(
                                                       context,
@@ -1173,37 +1253,6 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                           ),
                         ),
                       ),
-                      TextField(
-                        controller: _prefixController,
-                        decoration: InputDecoration(
-                          labelText: context.tr.settings_legacy_prefix,
-                          border: const OutlineInputBorder(),
-                          hintText: context.tr.settings_legacy_prefix_hint,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        context.tr.settings_legacy_prefix_helper,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppTheme.grey,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      SwitchListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(context.tr.settings_builtin_help),
-                        subtitle: Text(
-                          context.tr.settings_builtin_help_subtitle,
-                        ),
-                        value: _builtInLegacyHelpEnabled,
-                        onChanged: (value) {
-                          setState(() {
-                            _builtInLegacyHelpEnabled = value;
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 12),
                       ListView.separated(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
@@ -1389,6 +1438,80 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                           ),
                         ),
                       ),
+
+                      const SizedBox(height: 50),
+                      // Danger Zone
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Text(
+                          context.tr.bot_settings_danger_zone,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.error,
+                          ),
+                        ),
+                      ),
+                      Card(
+                        color: AppTheme.error.withValues(alpha: 0.05),
+                        shape: RoundedRectangleBorder(
+                          side: BorderSide(
+                            color: AppTheme.error.withValues(alpha: 0.2),
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                context.tr.bot_settings_delete_bot,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.error,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                context.tr.bot_settings_delete_bot_desc,
+                                style: const TextStyle(fontSize: 13),
+                              ),
+                              const SizedBox(height: 16),
+                              SizedBox(
+                                width: double.infinity,
+                                child: OutlinedButton.icon(
+                                  onPressed: _isDeletingBot ? null : _deleteBot,
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: AppTheme.error,
+                                    side: const BorderSide(
+                                      color: AppTheme.error,
+                                    ),
+                                  ),
+                                  icon:
+                                      _isDeletingBot
+                                          ? const SizedBox(
+                                            width: 18,
+                                            height: 18,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              valueColor:
+                                                  AlwaysStoppedAnimation<Color>(
+                                                    AppTheme.error,
+                                                  ),
+                                            ),
+                                          )
+                                          : const Icon(Icons.delete_forever),
+                                  label: Text(
+                                    context.tr.bot_settings_delete_bot_btn,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 40),
                     ],
                   ),
                 ),
@@ -1396,6 +1519,310 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
             );
           },
         ),
+      ),
+    );
+  }
+
+  Widget _buildProfilePreviewCard() {
+    final user = widget.client.user as User;
+    final botName =
+        _usernameController.text.trim().isNotEmpty
+            ? _usernameController.text.trim()
+            : user.username;
+
+    // Discord Status Colors
+    Color statusColor;
+    switch (_presenceStatus) {
+      case 'idle':
+        statusColor = const Color(0xFFF0B232);
+        break;
+      case 'dnd':
+        statusColor = const Color(0xFFF23F43);
+        break;
+      case 'invisible':
+      case 'offline':
+        statusColor = const Color(0xFF80848E);
+        break;
+      case 'online':
+      default:
+        statusColor = const Color(0xFF23A55A);
+        break;
+    }
+
+    // Activity preview
+    String? activityTypeLabel;
+    String? activityText;
+    String? activityState;
+    String? activityUrl;
+    bool isStreaming = false;
+
+    if (_statusDrafts.isNotEmpty) {
+      final first = _statusDrafts.first;
+      activityText = first.textController.text.trim();
+      activityState = first.stateController.text.trim();
+      activityUrl = first.urlController.text.trim();
+      isStreaming = first.type == 'streaming';
+      activityTypeLabel = _statusTypeLabel(first.type).toUpperCase();
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 24),
+      decoration: BoxDecoration(
+        color: AppTheme.discordDarkerBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppTheme.discordBorder.withValues(alpha: 0.5),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Banner
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                height: 80,
+                decoration: const BoxDecoration(
+                  color: AppTheme.discord,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
+                ),
+              ),
+              Positioned(
+                top: 40,
+                left: 16,
+                child: GestureDetector(
+                  onTap: _pickAvatarFile,
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: Stack(
+                      children: [
+                        Container(
+                          width: 90,
+                          height: 90,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: AppTheme.discordDarkerBg,
+                            border: Border.all(
+                              color: AppTheme.discordDarkerBg,
+                              width: 6,
+                            ),
+                          ),
+                          child: Stack(
+                            children: [
+                              Positioned.fill(
+                                child: ClipOval(
+                                  child:
+                                      _selectedAvatarPath != null
+                                          ? Image.file(
+                                            File(_selectedAvatarPath!),
+                                            fit: BoxFit.cover,
+                                          )
+                                          : Image.network(
+                                            user.avatar.url.toString(),
+                                            fit: BoxFit.cover,
+                                            errorBuilder:
+                                                (_, _, _) => Container(
+                                                  color: AppTheme.discordBorder,
+                                                  child: const Icon(
+                                                    Icons.person,
+                                                    color: Colors.white,
+                                                    size: 40,
+                                                  ),
+                                                ),
+                                          ),
+                                ),
+                              ),
+                              // Edit Overlay
+                              Positioned.fill(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withValues(alpha: 0.3),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Center(
+                                    child: Icon(
+                                      Icons.camera_alt_outlined,
+                                      color: Colors.white,
+                                      size: 28,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Positioned(
+                          right: 4,
+                          bottom: 4,
+                          child: Container(
+                            width: 22,
+                            height: 22,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: AppTheme.discordDarkerBg,
+                              border: Border.all(
+                                color: AppTheme.discordDarkerBg,
+                                width: 3,
+                              ),
+                            ),
+                            child: Center(
+                              child: Container(
+                                width: 14,
+                                height: 14,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: statusColor,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 55),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        botName,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppTheme.discord,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: const Text(
+                        'APP',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Text(
+                  "${botName.toLowerCase().replaceAll(' ', '')}#${user.discriminator}",
+                  style: const TextStyle(
+                    color: AppTheme.discordText,
+                    fontSize: 14,
+                  ),
+                ),
+                if (activityText != null && activityText.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  const Divider(color: AppTheme.discordBorder, height: 1),
+                  const SizedBox(height: 16),
+                  Text(
+                    isStreaming ? "EN DIRECT" : activityTypeLabel ?? "ACTIVITÉ",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Icon(
+                        isStreaming
+                            ? Icons.videocam_outlined
+                            : Icons.videogame_asset_outlined,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              activityTypeLabel ?? "",
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              activityText,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                              ),
+                            ),
+                            if (activityState != null &&
+                                activityState.isNotEmpty)
+                              Text(
+                                activityState,
+                                style: const TextStyle(
+                                  color: AppTheme.discordText,
+                                  fontSize: 13,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (isStreaming &&
+                      activityUrl != null &&
+                      activityUrl.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton(
+                        onPressed: () {},
+                        style: FilledButton.styleFrom(
+                          backgroundColor: AppTheme.discordDarkBg,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                        ),
+                        child: Text(
+                          context.tr.bot_settings_status_type_streaming,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+                const SizedBox(height: 8),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

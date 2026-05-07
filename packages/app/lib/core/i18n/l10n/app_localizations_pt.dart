@@ -1241,6 +1241,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get bot_settings_remove_status => 'Remover atividade';
 
   @override
+  String get bot_settings_no_activities => 'Nenhuma atividade configurada';
+
+  @override
   String get bot_settings_save_intents_btn => 'Guardar intents';
 
   @override
@@ -1358,6 +1361,27 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get bot_settings_workflow_docs_desc =>
       'Documentação centralizada para comandos, fluxos de trabalho, variáveis de runtime e comportamento de execução.';
+
+  @override
+  String get bot_settings_danger_zone => 'Zona de Perigo';
+
+  @override
+  String get bot_settings_delete_bot => 'Excluir Bot';
+
+  @override
+  String get bot_settings_delete_bot_desc =>
+      'Esta ação é irreversível. Todos os dados locais e configurações remotas serão removidos permanentemente.';
+
+  @override
+  String get bot_settings_delete_bot_btn => 'Excluir Permanentemente';
+
+  @override
+  String get bot_settings_delete_title => 'Confirmar Exclusão';
+
+  @override
+  String bot_settings_delete_desc(String id) {
+    return 'Tem certeza de que deseja excluir o bot $id? Todos os dados serão perdidos.';
+  }
 
   @override
   String get bot_stats_collecting => 'A recolher…';

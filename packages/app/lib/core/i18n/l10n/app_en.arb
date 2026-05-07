@@ -1608,6 +1608,10 @@
   "@bot_settings_remove_status": {
     "description": "Remove activity"
   },
+  "bot_settings_no_activities": "No activities configured",
+  "@bot_settings_no_activities": {
+    "description": "Message shown when no activities are configured for the bot"
+  },
   "bot_settings_save_intents_btn": "Save intents",
   "@bot_settings_save_intents_btn": {
     "description": "Save intents"
@@ -1760,6 +1764,35 @@
   "bot_settings_workflow_docs_desc": "Centralized documentation for commands, workflows, runtime variables, and execution behavior.",
   "@bot_settings_workflow_docs_desc": {
     "description": "Centralized documentation for commands, workflows, runtime variables, and execution behavior."
+  },
+  "bot_settings_danger_zone": "Danger Zone",
+  "@bot_settings_danger_zone": {
+    "description": "Danger zone title"
+  },
+  "bot_settings_delete_bot": "Delete Bot",
+  "@bot_settings_delete_bot": {
+    "description": "Delete bot title"
+  },
+  "bot_settings_delete_bot_desc": "This action is irreversible. All local data and remote configurations will be permanently removed.",
+  "@bot_settings_delete_bot_desc": {
+    "description": "Delete bot description"
+  },
+  "bot_settings_delete_bot_btn": "Delete Permanently",
+  "@bot_settings_delete_bot_btn": {
+    "description": "Delete bot button label"
+  },
+  "bot_settings_delete_title": "Confirm Deletion",
+  "@bot_settings_delete_title": {
+    "description": "Confirmation title for deletion"
+  },
+  "bot_settings_delete_desc": "Are you sure you want to delete bot {id}? All data will be lost.",
+  "@bot_settings_delete_desc": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    },
+    "description": "Confirmation description for deletion"
   },
   "bot_stats_collecting": "Collecting…",
   "@bot_stats_collecting": {

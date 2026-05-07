@@ -468,10 +468,7 @@ class DiscordRunner {
         previousConfig.token.trim() != newConfig.token.trim() ||
         !_sameIntents(previousConfig.intents, newConfig.intents) ||
         previousConfig.autoSharding != newConfig.autoSharding;
-    final listenerModeChanged = shouldRebindEventWorkflowListeners(
-      previousConfig,
-      newConfig,
-    );
+    shouldRebindEventWorkflowListeners(previousConfig, newConfig);
 
     config = newConfig;
     store.updateWorkflows(newConfig.workflows);
@@ -479,8 +476,12 @@ class DiscordRunner {
     _scheduledWorkflowTimer = null;
     _scheduledLastRun.clear();
     _startScheduledWorkflowLoop();
-    if (_gateway != null && listenerModeChanged) {
+    if (_gateway != null) {
       await _rebindEventWorkflowListeners();
+    }
+    if (_gateway != null) {
+      _startStatusRotation(_gateway!);
+      unawaited(_reconcileCurrentBotProfile(_gateway!));
     }
     _log.info(
       'Config reloaded (live): ${newConfig.commands.length} command(s), '
@@ -3522,7 +3523,18 @@ class DiscordRunner {
     _statusRotationTimer = null;
 
     if (config.statuses.isEmpty) {
-      _log.info('No statuses configured, skipping rotation.');
+      _log.info('No statuses configured, applying presence only.');
+      try {
+        client.updatePresence(
+          PresenceBuilder(
+            status: _mapPresenceStatus(config.presenceStatus),
+            isAfk: false,
+            activities: const [],
+          ),
+        );
+      } catch (error) {
+        _log.warning('Presence only update failed: $error');
+      }
       return;
     }
 
