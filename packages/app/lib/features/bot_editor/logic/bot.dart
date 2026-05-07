@@ -149,7 +149,7 @@ DateTime? _botStartedAt(String botId) {
 final Map<String, NyxxGateway> _desktopGatewaysByBotId =
     <String, NyxxGateway>{};
 final Map<String, List<StreamSubscription<dynamic>>>
-    _desktopEventSubscriptionsByBotId =
+_desktopEventSubscriptionsByBotId =
     <String, List<StreamSubscription<dynamic>>>{};
 final Map<String, DateTime> _desktopStartedAtByBotId = <String, DateTime>{};
 final Map<String, String> _desktopCachedOwnerIdByBotId = <String, String>{};
@@ -288,11 +288,16 @@ void applyDesktopRuntimeSettings({
   });
 }
 
+/// A callback registered by the synchronization engine (bot_payload_builder)
+/// to handle runtime refresh requests.
+Future<void> Function(String botId, {bool immediate})? onRefreshBotRuntime;
+
 /// Centralized helper to refresh all runtime configurations (status, workflows, listeners)
-/// for a running desktop bot session.
+/// for a running bot session (Desktop, Mobile, or Remote).
 Future<void> refreshBotRuntime(String botId) async {
-  final appData = await appManager.getApp(botId);
-  applyDesktopRuntimeSettings(botId: botId, appData: appData);
+  if (onRefreshBotRuntime != null) {
+    await onRefreshBotRuntime!(botId, immediate: true);
+  }
 }
 
 void setBotDebugLogsEnabled(bool enabled) {
@@ -436,7 +441,6 @@ Future<void> startDesktopBot(String token) async {
     );
     final latestAppData = await appManager.getApp(botId);
     _startDesktopStatusRotation(botId, gateway, latestAppData);
-    appManager = AppManager();
     gateway.onInteractionCreate.listen((event) async {
       await handleLocalCommands(event, appManager);
     });
@@ -508,11 +512,23 @@ void _startDesktopStatusRotation(
   final statuses = _normalizeStatuses(
     appData['activities'] ?? appData['statuses'],
   );
+  final presenceStatus = (appData['presenceStatus'] as String?) ?? 'online';
+
   if (statuses.isEmpty) {
+    try {
+      gateway.updatePresence(
+        PresenceBuilder(
+          status: _mapPresenceStatus(presenceStatus),
+          isAfk: false,
+          activities: [],
+        ),
+      );
+    } catch (error) {
+      appendBotDebugLog('Presence update failed (no activities): $error');
+    }
     return;
   }
 
-  final presenceStatus = (appData['presenceStatus'] as String?) ?? 'online';
   unawaited(
     _applyDesktopInitialStatusThenRotate(
       botId,

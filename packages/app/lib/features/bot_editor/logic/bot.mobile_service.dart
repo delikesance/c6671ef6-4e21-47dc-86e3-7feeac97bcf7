@@ -6,6 +6,7 @@ const String _mobileCommandTypeKey = 'type';
 const String _mobileCommandAddSession = 'mobile_session_add';
 const String _mobileCommandRemoveSession = 'mobile_session_remove';
 const String _mobileCommandSyncSessions = 'mobile_sessions_sync';
+const String _mobileCommandReloadBot = 'mobile_bot_reload';
 const String _mobileCommandSyncFlags = 'mobile_flags_sync';
 const Duration _mobileSessionSyncRetryDelay = Duration(milliseconds: 250);
 const int _mobileSessionSyncRetryCount = 6;
@@ -334,6 +335,25 @@ Future<void> syncMobileDebugFlagsWithService() async {
   } catch (_) {}
 }
 
+Future<void> syncMobileBotConfigWithService(String botId) async {
+  try {
+    final running = await _safeIsRunningForegroundService();
+    if (!running) {
+      return;
+    }
+    FlutterForegroundTask.sendDataToTask(<String, dynamic>{
+      _mobileCommandTypeKey: _mobileCommandReloadBot,
+      'botId': botId,
+    });
+  } on MissingPluginException {
+    // Ignore when foreground task plugin is unavailable on this platform.
+  } on PlatformException catch (error) {
+    if (!_isDeadChannelError(error)) {
+      rethrow;
+    }
+  } catch (_) {}
+}
+
 Future<void> initForegroundService({int eventIntervalMs = 5000}) async {
   final safeIntervalMs = eventIntervalMs.clamp(1000, 60000);
   FlutterForegroundTask.init(
@@ -427,17 +447,34 @@ class DiscordBotTaskHandler extends TaskHandler {
     final statuses = _normalizeStatuses(
       appData['activities'] ?? appData['statuses'],
     );
+    final presenceStatus = (appData['presenceStatus'] as String?) ?? 'online';
+
     if (statuses.isEmpty) {
-      unawaited(
-        _emitTaskLogToMain(
-          'No configured status for mobile presence',
-          botId: botId,
-        ),
-      );
+      try {
+        gateway.updatePresence(
+          PresenceBuilder(
+            status: _mapMobilePresenceStatus(presenceStatus),
+            isAfk: false,
+            activities: [],
+          ),
+        );
+        unawaited(
+          _emitTaskLogToMain(
+            'Cleared activities, presence set to $presenceStatus',
+            botId: botId,
+          ),
+        );
+      } catch (error) {
+        unawaited(
+          _emitTaskDebugLogToMain(
+            'Mobile presence update failed (no activities): $error',
+            botId: botId,
+          ),
+        );
+      }
       return;
     }
 
-    final presenceStatus = (appData['presenceStatus'] as String?) ?? 'online';
     unawaited(
       _applyMobileInitialStatusThenRotate(
         botId,
@@ -796,6 +833,15 @@ class DiscordBotTaskHandler extends TaskHandler {
     if (type == _mobileCommandSyncSessions) {
       final sessions = _normalizeMobileSessionsMap(payload['sessions']);
       await _syncSessions(sessions);
+      return;
+    }
+    if (type == _mobileCommandReloadBot) {
+      final botId = (payload['botId'] ?? '').toString().trim();
+      if (botId.isEmpty) return;
+      final gateway = _clients[botId];
+      if (gateway == null) return;
+      final appData = await _manager!.getApp(botId);
+      _startMobileStatusRotation(botId, gateway, appData);
       return;
     }
     if (type == _mobileCommandSyncFlags) {
