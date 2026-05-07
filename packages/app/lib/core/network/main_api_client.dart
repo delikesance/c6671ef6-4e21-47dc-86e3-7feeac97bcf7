@@ -289,6 +289,63 @@ class MainApiClient implements RemoteRuntimeClient {
     throw const MainApiClientException('Request failed after retries.');
   }
 
+  Future<Map<String, dynamic>> _delete(
+    String path, {
+    Map<String, String?>? query,
+    bool includeAuth = true,
+  }) async {
+    if (_isCircuitOpen(_baseUrl)) {
+      throw MainApiClientException(
+        'Circuit breaker open for $_baseUrl — too many failures.',
+      );
+    }
+
+    final uri = _uri(path, query: query);
+    appendBotDebugLog('[MainApiClient] DELETE $uri');
+
+    Object? lastError;
+    for (var attempt = 0; attempt <= _maxRetries; attempt++) {
+      try {
+        final response = await _http
+            .delete(uri, headers: _headers(includeAuth: includeAuth))
+            .timeout(_timeout);
+        appendBotDebugLog(
+          '[MainApiClient] DELETE $uri responded with ${response.statusCode}',
+        );
+        _recordCircuitSuccess(_baseUrl);
+        return _parseResponse(response);
+      } on MainApiClientException catch (error) {
+        lastError = error;
+        if (_isClientError(error) || attempt >= _maxRetries) {
+          _recordCircuitFailure(_baseUrl);
+          rethrow;
+        }
+        appendBotDebugLog(
+          '[MainApiClient] DELETE $uri attempt ${attempt + 1}/$_maxRetries failed: $error — retrying...',
+        );
+        await Future<void>.delayed(
+          _baseRetryDelay * pow(_retryBackoffMultiplier, attempt),
+        );
+      } catch (error) {
+        lastError = error;
+        if (attempt >= _maxRetries) {
+          _recordCircuitFailure(_baseUrl);
+          rethrow;
+        }
+        appendBotDebugLog(
+          '[MainApiClient] DELETE $uri attempt ${attempt + 1}/$_maxRetries failed: $error — retrying...',
+        );
+        await Future<void>.delayed(
+          _baseRetryDelay * pow(_retryBackoffMultiplier, attempt),
+        );
+      }
+    }
+
+    _recordCircuitFailure(_baseUrl);
+    if (lastError is Exception) throw lastError;
+    throw const MainApiClientException('Request failed after retries.');
+  }
+
   Map<String, dynamic> _parseResponse(http.Response response) {
     Map<String, dynamic> json;
     try {
@@ -423,6 +480,11 @@ class MainApiClient implements RemoteRuntimeClient {
         .whereType<Map>()
         .map((entry) => Map<String, dynamic>.from(entry))
         .toList(growable: false);
+  }
+
+  Future<void> deleteBot(String botId) async {
+    final encodedBotId = Uri.encodeComponent(botId.trim());
+    await _delete('/gateway/bots/$encodedBotId');
   }
 
   @override

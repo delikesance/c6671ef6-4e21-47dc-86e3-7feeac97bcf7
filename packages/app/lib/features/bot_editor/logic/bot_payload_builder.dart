@@ -368,6 +368,11 @@ Future<void> _executeSync(String botId) async {
       }
     }());
 
+    // 3. Mobile Service Sync (only on mobile)
+    if (!_isDesktopPlatform) {
+      futures.add(syncMobileBotConfigWithService(botId));
+    }
+
     await Future.wait(futures);
   } catch (error) {
     debugPrint('[AutoReload] Auto-reload failed for $botId: $error');
@@ -505,6 +510,8 @@ Map<String, dynamic> _buildPayloadInBackground(Map<String, dynamic> args) {
         (appData['avatar'] ?? '').toString().trim().isEmpty
             ? null
             : appData['avatar'].toString().trim(),
+    prefix: (appData['prefix'] ?? '!').toString(),
+    presenceStatus: (appData['presenceStatus'] ?? 'online').toString(),
     intents: intents,
     globalVariables: globalVariables,
     scopedVariables: scopedVariables,

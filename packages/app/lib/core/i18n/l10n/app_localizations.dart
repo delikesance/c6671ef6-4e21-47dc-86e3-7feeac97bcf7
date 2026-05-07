@@ -2315,6 +2315,12 @@ abstract class AppLocalizations {
   /// **'Remove activity'**
   String get bot_settings_remove_status;
 
+  /// Message shown when no activities are configured for the bot
+  ///
+  /// In en, this message translates to:
+  /// **'No activities configured'**
+  String get bot_settings_no_activities;
+
   /// Save intents
   ///
   /// In en, this message translates to:
@@ -2524,6 +2530,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Centralized documentation for commands, workflows, runtime variables, and execution behavior.'**
   String get bot_settings_workflow_docs_desc;
+
+  /// Danger zone title
+  ///
+  /// In en, this message translates to:
+  /// **'Danger Zone'**
+  String get bot_settings_danger_zone;
+
+  /// Delete bot title
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Bot'**
+  String get bot_settings_delete_bot;
+
+  /// Delete bot description
+  ///
+  /// In en, this message translates to:
+  /// **'This action is irreversible. All local data and remote configurations will be permanently removed.'**
+  String get bot_settings_delete_bot_desc;
+
+  /// Delete bot button label
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Permanently'**
+  String get bot_settings_delete_bot_btn;
+
+  /// Confirmation title for deletion
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Deletion'**
+  String get bot_settings_delete_title;
+
+  /// Confirmation description for deletion
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete bot {id}? All data will be lost.'**
+  String bot_settings_delete_desc(String id);
 
   /// Collecting…
   ///

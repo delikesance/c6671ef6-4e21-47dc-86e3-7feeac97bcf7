@@ -32,6 +32,8 @@ import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/features/bot_editor/logic/template_resolver.dart';
 import 'package:bot_creator/features/bot_editor/logic/workflow_call.dart';
 import 'package:flutter/foundation.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
+import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter/services.dart';
 import 'package:logging/logging.dart';
@@ -43,6 +45,13 @@ part 'bot.template.dart';
 part 'bot.mobile_service.dart';
 part 'bot.commands.dart';
 part 'bot.event_workflows.dart';
+
+bool get _isDesktopPlatform {
+  if (kIsWeb) return false;
+  return defaultTargetPlatform == TargetPlatform.windows ||
+      defaultTargetPlatform == TargetPlatform.linux ||
+      defaultTargetPlatform == TargetPlatform.macOS;
+}
 
 String _formatBdfdRuntimeDiagnostics(List<BdfdCompileDiagnostic> diagnostics) {
   if (diagnostics.isEmpty) {
@@ -149,7 +158,7 @@ DateTime? _botStartedAt(String botId) {
 final Map<String, NyxxGateway> _desktopGatewaysByBotId =
     <String, NyxxGateway>{};
 final Map<String, List<StreamSubscription<dynamic>>>
-    _desktopEventSubscriptionsByBotId =
+_desktopEventSubscriptionsByBotId =
     <String, List<StreamSubscription<dynamic>>>{};
 final Map<String, DateTime> _desktopStartedAtByBotId = <String, DateTime>{};
 final Map<String, String> _desktopCachedOwnerIdByBotId = <String, String>{};
@@ -293,6 +302,26 @@ void applyDesktopRuntimeSettings({
 Future<void> refreshBotRuntime(String botId) async {
   final appData = await appManager.getApp(botId);
   applyDesktopRuntimeSettings(botId: botId, appData: appData);
+
+  if (!_isDesktopPlatform) {
+    unawaited(syncMobileBotConfigWithService(botId));
+  }
+
+  // Trigger remote reload if applicable for cloud-managed bots
+  try {
+    final client = await RunnerSettings.createClientForBot(botId);
+    if (client != null) {
+      final app = await appManager.getApp(botId);
+      final botName = (app['username'] ?? app['name'] ?? '').toString().trim();
+      final payload = await buildBotPayload(botId);
+      await client.reloadBot(botId, botName, payload);
+      debugPrint('[refreshBotRuntime] Remote reload triggered for $botId.');
+    }
+  } catch (error) {
+    debugPrint(
+      '[refreshBotRuntime] Remote reload skipped/failed for $botId: $error',
+    );
+  }
 }
 
 void setBotDebugLogsEnabled(bool enabled) {
@@ -436,7 +465,6 @@ Future<void> startDesktopBot(String token) async {
     );
     final latestAppData = await appManager.getApp(botId);
     _startDesktopStatusRotation(botId, gateway, latestAppData);
-    appManager = AppManager();
     gateway.onInteractionCreate.listen((event) async {
       await handleLocalCommands(event, appManager);
     });
@@ -508,11 +536,23 @@ void _startDesktopStatusRotation(
   final statuses = _normalizeStatuses(
     appData['activities'] ?? appData['statuses'],
   );
+  final presenceStatus = (appData['presenceStatus'] as String?) ?? 'online';
+
   if (statuses.isEmpty) {
+    try {
+      gateway.updatePresence(
+        PresenceBuilder(
+          status: _mapPresenceStatus(presenceStatus),
+          isAfk: false,
+          activities: [],
+        ),
+      );
+    } catch (error) {
+      appendBotDebugLog('Presence update failed (no activities): $error');
+    }
     return;
   }
 
-  final presenceStatus = (appData['presenceStatus'] as String?) ?? 'online';
   unawaited(
     _applyDesktopInitialStatusThenRotate(
       botId,

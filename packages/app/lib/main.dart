@@ -48,6 +48,9 @@ final LogBuffer currentLogList = LogBuffer(maxEntries: 5000);
 @pragma('vm:entry-point')
 final Map<String, NyxxGateway> gateways = <String, NyxxGateway>{};
 
+/// Global key to access and refresh the Home Page state.
+final GlobalKey<HomePageState> homeKey = GlobalKey<HomePageState>();
+
 FirebaseApp? firebaseApp;
 
 bool get _isFirebaseSupported {
@@ -439,7 +442,6 @@ class MyMainPage extends StatefulWidget {
 }
 
 class _MyMainPageState extends State<MyMainPage> {
-  final GlobalKey<HomePageState> _homePageKey = GlobalKey<HomePageState>();
 
   @override
   Widget build(BuildContext context) {
@@ -452,7 +454,7 @@ class _MyMainPageState extends State<MyMainPage> {
           IconButton(
             icon: const Icon(Icons.sync_rounded),
             onPressed: () {
-              _homePageKey.currentState?.syncAllBotsFromManager();
+              homeKey.currentState?.syncAllBotsFromManager();
             },
           ),
           IconButton(
@@ -466,7 +468,7 @@ class _MyMainPageState extends State<MyMainPage> {
           ),
         ],
       ),
-      body: HomePage(key: _homePageKey),
+      body: HomePage(key: homeKey),
       floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {

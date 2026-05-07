@@ -261,6 +261,7 @@ class AppManager implements BotDataStore {
       await allAppsFile.writeAsString(jsonEncode(appsList));
       _apps = appsList;
       _appsStreamController.add(appsList);
+      unawaited((onAfterSave ?? (_) async {}).call(botId));
       return file;
     });
   }
@@ -398,6 +399,7 @@ class AppManager implements BotDataStore {
 
   Future<void> saveApp(String id, Map<String, dynamic> data) async {
     await _enqueueAppWrite(id, () => _writeAppToDisk(id, data));
+    unawaited((onAfterSave ?? (_) async {}).call(id));
   }
 
   Future<void> _writeAppToDisk(String id, Map<String, dynamic> data) async {
