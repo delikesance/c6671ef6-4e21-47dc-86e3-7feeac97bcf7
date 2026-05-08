@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command_dashboard.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/commands.list.dart';
@@ -15,6 +17,7 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/utils/responsive.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:nyxx/nyxx.dart';
 
@@ -33,6 +36,7 @@ class _AppEditPageState extends State<AppEditPage>
   int _selectedIndex = 0;
   bool _isLoading = true;
   String? _degradedReason;
+  String? _currentToken;
 
   static const List<QuickAccessSection> _mobileQuickAccessSections = [
     QuickAccessSection(
@@ -93,7 +97,16 @@ class _AppEditPageState extends State<AppEditPage>
     );
     try {
       final app = await appManager.getApp(widget.id.toString());
-      final token = (app["token"] ?? '').toString().trim();
+      final token = (app["token"] ?? '').toString().replaceAll(
+        RegExp(r'[\s\u200B-\u200D\uFEFF]'),
+        '',
+      );
+
+      if (mounted) {
+        setState(() {
+          _currentToken = token;
+        });
+      }
 
       if (token.isEmpty) {
         if (!mounted) {
@@ -108,8 +121,15 @@ class _AppEditPageState extends State<AppEditPage>
 
       try {
         client = await Nyxx.connectRest(token);
-      } catch (_) {
+      } catch (e, stack) {
         client = null;
+        _degradedReason = 'Discord connection failed: $e';
+        developer.log(
+          'Failed to connect to Discord REST',
+          error: e,
+          stackTrace: stack,
+          name: 'AppEditPage',
+        );
       }
 
       if (!mounted) {
@@ -117,7 +137,7 @@ class _AppEditPageState extends State<AppEditPage>
       }
       setState(() {
         if (client == null) {
-          _degradedReason =
+          _degradedReason ??=
               'Token invalid or network unavailable. Local edit mode enabled.';
         }
         _isLoading = false;
@@ -144,6 +164,7 @@ class _AppEditPageState extends State<AppEditPage>
           compactLabel: context.tr.recovery_label,
           page: _OfflineRecoveryPage(
             reason: _degradedReason,
+            token: _currentToken,
             onRetry: _init,
             onDeleteLocal: () async {
               final shouldDelete = await AppTheme.showConfirmDialog(
@@ -828,19 +849,30 @@ class _OfflineTokenPageState extends State<_OfflineTokenPage> {
   }
 }
 
-class _OfflineRecoveryPage extends StatelessWidget {
+class _OfflineRecoveryPage extends StatefulWidget {
   final String? reason;
+  final String? token;
   final Future<void> Function() onRetry;
   final Future<void> Function() onDeleteLocal;
 
   const _OfflineRecoveryPage({
     required this.reason,
+    this.token,
     required this.onRetry,
     required this.onDeleteLocal,
   });
 
   @override
+  State<_OfflineRecoveryPage> createState() => _OfflineRecoveryPageState();
+}
+
+class _OfflineRecoveryPageState extends State<_OfflineRecoveryPage> {
+  bool _showToken = false;
+
+  @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(title: Text(context.tr.recovery_title)),
       body: Padding(
@@ -848,7 +880,10 @@ class _OfflineRecoveryPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(reason ?? 'Discord connection unavailable.'),
+            Text(
+              widget.reason ?? 'Discord connection unavailable.',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 12),
             const Text(
               'Offline features available: commands, globals, workflows.',
@@ -856,15 +891,92 @@ class _OfflineRecoveryPage extends StatelessWidget {
             const Text(
               'Unavailable while offline: start bot, profile (username/avatar).',
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
+            if (widget.token != null && widget.token!.isNotEmpty) ...[
+              Text(
+                'Debug: Current Memory Token',
+                style: Theme.of(
+                  context,
+                ).textTheme.labelMedium?.copyWith(color: colorScheme.primary),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: colorScheme.outlineVariant),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        _showToken ? widget.token! : '••••••••••••••••',
+                        style: const TextStyle(fontFamily: 'monospace'),
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        _showToken ? Icons.visibility_off : Icons.visibility,
+                        size: 20,
+                      ),
+                      tooltip: _showToken ? 'Hide token' : 'Show token',
+                      onPressed: () => setState(() => _showToken = !_showToken),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.copy, size: 20),
+                      tooltip: 'Copy token',
+                      onPressed: () {
+                        Clipboard.setData(ClipboardData(text: widget.token!));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Token copied to clipboard'),
+                          ),
+                        );
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.bug_report_outlined, size: 20),
+                      tooltip: 'Show error details',
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder:
+                              (context) => AlertDialog(
+                                title: const Text('Connection Error Details'),
+                                content: SingleChildScrollView(
+                                  child: Text(
+                                    widget.reason ??
+                                        'No detailed error captured.',
+                                    style: const TextStyle(
+                                      fontFamily: 'monospace',
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text('Close'),
+                                  ),
+                                ],
+                              ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+            ],
             FilledButton.icon(
-              onPressed: onRetry,
+              onPressed: widget.onRetry,
               icon: const Icon(Icons.refresh),
               label: Text(context.tr.recovery_retry_discord),
             ),
             const SizedBox(height: 8),
             OutlinedButton.icon(
-              onPressed: onDeleteLocal,
+              onPressed: widget.onDeleteLocal,
               icon: const Icon(Icons.delete),
               label: Text(context.tr.recovery_delete_bot),
             ),

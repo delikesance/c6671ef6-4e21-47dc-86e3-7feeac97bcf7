@@ -18,77 +18,82 @@ const _usageHeader =
     '  dart run packages/runner/bin/runner.dart --web-host 0.0.0.0 --web-port 8080 --api-token changeme\n';
 
 Future<void> main(List<String> args) async {
-  final parser =
-      ArgParser()
-        ..addOption(
-          'web-host',
-          help: 'Host/interface used by API mode.',
-          valueHelp: '127.0.0.1',
-          defaultsTo:
-              Platform.environment['BOT_CREATOR_WEB_HOST'] ?? '127.0.0.1',
-        )
-        ..addOption(
-          'web-port',
-          help: 'Port used by API mode.',
-          valueHelp: '8080',
-          defaultsTo: Platform.environment['BOT_CREATOR_WEB_PORT'] ?? '8080',
-        )
-        ..addOption(
-          'api-token',
-          help: 'Bearer token required by protected API endpoints.',
-          valueHelp: 'secret-token',
-          defaultsTo: Platform.environment['BOT_CREATOR_API_TOKEN'] ?? '',
-        )
-        ..addFlag('help', abbr: 'h', negatable: false, help: 'Show help.');
+  runZonedGuarded(() async {
+    final parser =
+        ArgParser()
+          ..addOption(
+            'web-host',
+            help: 'Host/interface used by API mode.',
+            valueHelp: '127.0.0.1',
+            defaultsTo:
+                Platform.environment['BOT_CREATOR_WEB_HOST'] ?? '127.0.0.1',
+          )
+          ..addOption(
+            'web-port',
+            help: 'Port used by API mode.',
+            valueHelp: '8080',
+            defaultsTo: Platform.environment['BOT_CREATOR_WEB_PORT'] ?? '8080',
+          )
+          ..addOption(
+            'api-token',
+            help: 'Bearer token required by protected API endpoints.',
+            valueHelp: 'secret-token',
+            defaultsTo: Platform.environment['BOT_CREATOR_API_TOKEN'] ?? '',
+          )
+          ..addFlag('help', abbr: 'h', negatable: false, help: 'Show help.');
 
-  late final ArgResults results;
-  try {
-    results = parser.parse(args);
-  } catch (e) {
-    stderr.writeln('Invalid arguments: $e');
-    _printUsage(parser);
-    exitCode = 64;
-    return;
-  }
+    late final ArgResults results;
+    try {
+      results = parser.parse(args);
+    } catch (e) {
+      stderr.writeln('Invalid arguments: $e');
+      _printUsage(parser);
+      exitCode = 64;
+      return;
+    }
 
-  if (results.flag('help')) {
-    _printUsage(parser);
-    return;
-  }
+    if (results.flag('help')) {
+      _printUsage(parser);
+      return;
+    }
 
-  final webHost = (results.option('web-host') ?? '').trim();
-  final webPortRaw = (results.option('web-port') ?? '').trim();
-  final apiToken = normalizeRunnerApiToken(results.option('api-token'));
-  if (results.rest.isNotEmpty) {
-    stderr.writeln(
-      'Unexpected positional arguments: ${results.rest.join(' ')}',
+    final webHost = (results.option('web-host') ?? '').trim();
+    final webPortRaw = (results.option('web-port') ?? '').trim();
+    final apiToken = normalizeRunnerApiToken(results.option('api-token'));
+    if (results.rest.isNotEmpty) {
+      stderr.writeln(
+        'Unexpected positional arguments: ${results.rest.join(' ')}',
+      );
+      _printUsage(parser);
+      exitCode = 64;
+      return;
+    }
+
+    final webPort = int.tryParse(webPortRaw);
+    if (webHost.isEmpty || webPort == null || webPort <= 0 || webPort > 65535) {
+      stderr.writeln('Invalid API options: --web-host or --web-port.');
+      _printUsage(parser);
+      exitCode = 64;
+      return;
+    }
+
+    final configError = validateRunnerWebConfiguration(
+      host: webHost,
+      apiToken: apiToken,
     );
-    _printUsage(parser);
-    exitCode = 64;
-    return;
-  }
+    if (configError != null) {
+      stderr.writeln(configError);
+      _printUsage(parser);
+      exitCode = 64;
+      return;
+    }
 
-  final webPort = int.tryParse(webPortRaw);
-  if (webHost.isEmpty || webPort == null || webPort <= 0 || webPort > 65535) {
-    stderr.writeln('Invalid API options: --web-host or --web-port.');
-    _printUsage(parser);
-    exitCode = 64;
-    return;
-  }
-
-  final configError = validateRunnerWebConfiguration(
-    host: webHost,
-    apiToken: apiToken,
-  );
-  if (configError != null) {
-    stderr.writeln(configError);
-    _printUsage(parser);
-    exitCode = 64;
-    return;
-  }
-
-  Logger.root.level = Level.INFO;
-  await _runWebMode(host: webHost, port: webPort, apiToken: apiToken);
+    Logger.root.level = Level.INFO;
+    await _runWebMode(host: webHost, port: webPort, apiToken: apiToken);
+  }, (error, stack) {
+    stderr.writeln('[FATAL] Unhandled error in runner zone: $error');
+    stderr.writeln(stack);
+  });
 }
 
 void _printUsage(ArgParser parser) {

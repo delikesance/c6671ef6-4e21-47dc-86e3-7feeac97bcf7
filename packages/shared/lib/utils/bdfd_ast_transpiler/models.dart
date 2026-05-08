@@ -557,6 +557,7 @@ const int _maxSupportedLoopIterations = 100;
 
 const Map<String, String> _inlineRuntimeVariables = <String, String>{
   // ── User / author info ── (resolved via generateKeyValues / _messageContentExtra / buildInteractionCreateEventContext)
+  'user': '<@((user.id))>',
   'userid': '((user.id))',
   'username': '((user.username))',
   'usertag': '((user.tag))',
@@ -569,7 +570,7 @@ const Map<String, String> _inlineRuntimeVariables = <String, String>{
   'authoravatar': '((author.avatar))',
   'authorbanner': '((author.banner))',
   'discriminator': '((author.tag))',
-  'displayname': '((member.nick|author.username))',
+  'displayname': '((member.nick|author.globalName))',
   'isadmin': '((member.isAdmin))',
   'isbot': '((author.isBot))',
   'nickname': '((member.nick))',
