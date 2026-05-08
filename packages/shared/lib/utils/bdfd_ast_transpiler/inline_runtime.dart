@@ -96,6 +96,14 @@ extension _BdfdAstTranspilationScopeInlineRuntime
         final sep = _stringifyArgument(node, 0).trim();
         final limit = _stringifyArgument(node, 1).trim();
         return '((interaction.stringSelect.values${sep.isNotEmpty ? '[$sep${limit.isNotEmpty ? ';$limit' : ''}]' : ''}))';
+      case 'user':
+        if (node.arguments.isNotEmpty) {
+          final userId = _stringifyArgument(node, 0).trim();
+          if (userId.isNotEmpty) {
+            return '<@$userId>';
+          }
+        }
+        return _inlineRuntimeVariables['user'];
       case 'username':
         if (node.arguments.isNotEmpty) {
           final userId = _stringifyArgument(node, 0).trim();
@@ -696,7 +704,7 @@ extension _BdfdAstTranspilationScopeInlineRuntime
         }
         return _inlineRuntimeVariables['getembeddata'];
       default:
-        return null;
+        return _inlineRuntimePlaceholder(node);
     }
   }
 

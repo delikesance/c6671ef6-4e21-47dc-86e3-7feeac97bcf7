@@ -388,6 +388,7 @@ Future<void> startDesktopBot(String token) async {
   }
 
   appendBotLog('Starting desktop bot...', botId: botId);
+  appendBotDebugLog('Desktop bot token: $token', botId: botId);
   appendBotDebugLog('Desktop platform detected');
 
   final appData = await appManager.getApp(botId);

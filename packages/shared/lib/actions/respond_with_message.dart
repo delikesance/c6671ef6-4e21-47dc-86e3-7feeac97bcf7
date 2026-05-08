@@ -56,9 +56,19 @@ Future<Map<String, dynamic>> respondWithMessageAction(
       if (description.isNotEmpty) embed.description = description;
       if (url.isNotEmpty) embed.url = Uri.tryParse(url);
 
-      final timestamp = DateTime.tryParse(
-        (embedJson['timestamp'] ?? '').toString(),
-      );
+      final timestampRaw = (embedJson['timestamp'] ?? '').toString();
+      DateTime? timestamp;
+      if (timestampRaw == 'now') {
+        timestamp = DateTime.now().toUtc();
+      } else {
+        timestamp = DateTime.tryParse(timestampRaw);
+        if (timestamp == null) {
+          final ms = int.tryParse(timestampRaw);
+          if (ms != null) {
+            timestamp = DateTime.fromMillisecondsSinceEpoch(ms, isUtc: true);
+          }
+        }
+      }
       if (timestamp != null) {
         embed.timestamp = timestamp;
       }
