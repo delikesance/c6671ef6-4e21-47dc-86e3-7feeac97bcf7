@@ -1,0 +1,312 @@
+Resolving dependencies in `/home/jeremy/Code/bc/bot-creator`...
+Downloading packages...
+  _fe_analyzer_shared 91.0.0 (100.0.0 available)
+  analyzer 8.4.1 (13.0.0 available)
+  async 2.13.0 (2.13.1 available)
+  cli_util 0.4.2 (0.5.1 available)
+  dart_style 3.1.3 (3.1.9 available)
+  directed_graph 0.4.5 (0.5.5 available)
+  flutter_plugin_android_lifecycle 2.0.33 (2.0.34 available)
+  google_sign_in_android 7.2.9 (7.2.10 available)
+  gtk 2.1.0 (2.2.0 available)
+  hooks 1.0.2 (1.0.3 available)
+  matcher 0.12.19 (0.12.20 available)
+  meta 1.17.0 (1.18.2 available)
+  native_toolchain_c 0.17.6 (0.18.0 available)
+  package_info_plus 9.0.1 (10.1.0 available)
+  package_info_plus_platform_interface 3.2.1 (4.1.0 available)
+  path_provider_android 2.2.22 (2.3.1 available)
+  shared_preferences_android 2.4.21 (2.4.23 available)
+  shared_preferences_platform_interface 2.4.1 (2.4.2 available)
+  sqflite 2.4.2 (2.4.2+1 available)
+  sqflite_common 2.5.6 (2.5.7 available)
+  sqflite_common_ffi 2.4.0+2 (2.4.0+3 available)
+  synchronized 3.4.0 (3.4.0+1 available)
+  test 1.30.0 (1.31.1 available)
+  test_api 0.7.10 (0.7.12 available)
+  test_core 0.6.16 (0.6.18 available)
+  url_launcher_android 6.3.28 (6.3.29 available)
+  url_launcher_web 2.4.2 (2.4.3 available)
+  vector_math 2.2.0 (2.3.0 available)
+  vm_service 15.0.2 (15.2.0 available)
+  webview_flutter_android 4.10.13 (4.12.0 available)
+  webview_flutter_platform_interface 2.14.0 (2.15.1 available)
+  webview_flutter_wkwebview 3.24.1 (3.25.1 available)
+  win32 5.15.0 (6.2.0 available)
+  xml 6.6.1 (7.0.1 available)
+Got dependencies in `/home/jeremy/Code/bc/bot-creator`!
+34 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+00:00 +0: loading /home/jeremy/Code/bc/bot-creator/packages/app/test/runner_source_display_test.dart
+00:00 +0: /home/jeremy/Code/bc/bot-creator/packages/app/test/runner_source_display_test.dart: Runner source display logic RunnerConnectionConfig label prefers name over url
+00:00 +1: /home/jeremy/Code/bc/bot-creator/packages/app/test/runner_source_display_test.dart: Runner source display logic RunnerConnectionConfig label falls back to url
+00:00 +2: /home/jeremy/Code/bc/bot-creator/packages/app/test/runner_source_display_test.dart: Runner source display logic multiple runners can be identified by id
+00:00 +3: /home/jeremy/Code/bc/bot-creator/packages/app/test/runner_source_display_test.dart: Runner source display logic firstOrNull returns null for unknown id
+00:00 +4: /home/jeremy/Code/bc/bot-creator/packages/app/test/runner_source_display_test.dart: Runner source display logic createClient produces a client from config
+00:00 +5: /home/jeremy/Code/bc/bot-creator/packages/app/test/reply_card_mode_selector_test.dart: ReplyCard – mode selector labels shows "Standard Message" chip instead of "Normal Reply"
+00:00 +6: /home/jeremy/Code/bc/bot-creator/packages/app/test/reply_card_mode_selector_test.dart: ReplyCard – mode selector labels shows "Standard Message" chip instead of "Normal Reply"
+00:00 +7: /home/jeremy/Code/bc/bot-creator/packages/app/test/reply_card_mode_selector_test.dart: ReplyCard – mode selector labels shows "Standard Message" chip instead of "Normal Reply"
+00:00 +8: /home/jeremy/Code/bc/bot-creator/packages/app/test/reply_card_mode_selector_test.dart: ReplyCard – mode selector labels shows "Standard Message" chip instead of "Normal Reply"
+00:00 +9: /home/jeremy/Code/bc/bot-creator/packages/app/test/reply_card_mode_selector_test.dart: ReplyCard – mode selector labels shows "Standard Message" chip instead of "Normal Reply"
+00:00 +10: /home/jeremy/Code/bc/bot-creator/packages/app/test/reply_card_mode_selector_test.dart: ReplyCard – mode selector labels shows "Standard Message" chip instead of "Normal Reply"
+00:00 +11: /home/jeremy/Code/bc/bot-creator/packages/app/test/reply_card_mode_selector_test.dart: ReplyCard – mode selector labels shows "Standard Message" chip instead of "Normal Reply"
+00:00 +12: /home/jeremy/Code/bc/bot-creator/packages/app/test/reply_card_mode_selector_test.dart: ReplyCard – mode selector labels shows "Standard Message" chip instead of "Normal Reply"
+00:00 +13: /home/jeremy/Code/bc/bot-creator/packages/app/test/reply_card_mode_selector_test.dart: ReplyCard – mode selector labels shows "Standard Message" chip instead of "Normal Reply"
+00:00 +14: /home/jeremy/Code/bc/bot-creator/packages/app/test/reply_card_mode_selector_test.dart: ReplyCard – mode selector labels shows "Standard Message" chip instead of "Normal Reply"
+00:00 +15: /home/jeremy/Code/bc/bot-creator/packages/app/test/reply_card_mode_selector_test.dart: ReplyCard – mode selector labels shows "Standard Message" chip instead of "Normal Reply"
+00:00 +16: /home/jeremy/Code/bc/bot-creator/packages/app/test/reply_card_mode_selector_test.dart: ReplyCard – mode selector labels shows "Standard Message" chip instead of "Normal Reply"
+00:00 +17: /home/jeremy/Code/bc/bot-creator/packages/app/test/reply_card_mode_selector_test.dart: ReplyCard – mode selector labels shows "Standard Message" chip instead of "Normal Reply"
+00:00 +18: /home/jeremy/Code/bc/bot-creator/packages/app/test/reply_card_mode_selector_test.dart: ReplyCard – mode selector labels shows "Standard Message" chip instead of "Normal Reply"
+00:01 +19: /home/jeremy/Code/bc/bot-creator/packages/app/test/reply_card_mode_selector_test.dart: ReplyCard – mode selector labels shows "Standard Message" chip instead of "Normal Reply"
+00:01 +20: /home/jeremy/Code/bc/bot-creator/packages/app/test/reply_card_mode_selector_test.dart: ReplyCard – mode selector labels shows "Standard Message" chip instead of "Normal Reply"
+00:01 +21: /home/jeremy/Code/bc/bot-creator/packages/app/test/reply_card_mode_selector_test.dart: ReplyCard – mode selector labels shows "Standard Message" chip instead of "Normal Reply"
+00:01 +22: /home/jeremy/Code/bc/bot-creator/packages/app/test/reply_card_mode_selector_test.dart: ReplyCard – mode selector labels shows "Standard Message" chip instead of "Normal Reply"
+00:01 +23: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +24: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +25: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +26: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +27: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +28: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +29: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +30: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +31: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +32: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +33: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +34: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +35: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +36: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +37: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +38: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +39: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +40: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +41: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +42: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +43: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +44: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +45: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +46: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +47: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +48: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +49: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +50: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +51: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +52: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +53: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +54: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +55: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +56: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +57: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +58: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +59: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +60: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +61: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +62: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +63: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +64: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +65: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +65: /home/jeremy/Code/bc/bot-creator/packages/app/test/discord_rpc_service_test.dart: uses built-in application ID and sends SET_ACTIVITY without OAuth
+[2026-05-09T01:42:25.932097] INFO: Discord RPC service initialized | enabled=false, hasClientId=true, clientId=...2678, exchangeMode=presence_only, hadLegacySession=false, hasPresence=true, runtimeState=disabled
+[2026-05-09T01:42:25.936720] INFO: Discord RPC config updated | enabled=true, hasClientId=true, clientId=...2678, exchangeMode=presence_only, legacyFieldsIgnored={clientId: ...9999, clientSecret: ignored, brokerUrl: ignored}
+[2026-05-09T01:42:25.941806] INFO: Discord RPC presence connect started | runtimeState=disconnected, enabled=true, hasClientId=true, clientId=...2678, exchangeMode=presence_only
+[2026-05-09T01:42:25.942755] INFO: Discord RPC opening IPC client connection | clientId=...2678
+[2026-05-09T01:42:25.943109] INFO: Discord RPC IPC client connected | endpoint=/tmp/discord-ipc-0
+[2026-05-09T01:42:25.943522] INFO: Discord RPC local IPC ready for SET_ACTIVITY | endpoint=/tmp/discord-ipc-0, applicationId=1350824555119382678
+[2026-05-09T01:42:25.944158] INFO: Discord RPC pushing rich presence | hasPresence=true, details=Bot Creator open, state=Desktop ready, hasStartTime=false
+[2026-05-09T01:42:25.945581] INFO: Discord RPC presence connect started | runtimeState=connected, enabled=true, hasClientId=true, clientId=...2678, exchangeMode=presence_only
+[2026-05-09T01:42:25.945946] INFO: Discord RPC reusing connected IPC client | endpoint=/tmp/discord-ipc-0
+[2026-05-09T01:42:25.946198] INFO: Discord RPC local IPC ready for SET_ACTIVITY | endpoint=/tmp/discord-ipc-0, applicationId=1350824555119382678
+[2026-05-09T01:42:25.946450] INFO: Discord RPC pushing rich presence | hasPresence=true, details=Bot Creator open, state=Desktop ready, hasStartTime=false
+[2026-05-09T01:42:25.951426] INFO: Discord RPC disconnect requested | clearSession=false, hasSession=false, hasClient=true
+[2026-05-09T01:42:25.952029] INFO: Discord RPC closing IPC client | endpoint=/tmp/discord-ipc-0
+00:01 +66: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:01 +67: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:02 +68: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:02 +69: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:02 +70: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:02 +71: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:02 +72: /home/jeremy/Code/bc/bot-creator/packages/app/test/response_embeds_editor_test.dart: normalizes legacy embed payloads on narrow screens
+00:02 +73: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_option_validation_test.dart: validateOptionsForLevel valid flat command (only leaf options)
+00:02 +74: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_option_validation_test.dart: validateOptionsForLevel valid flat command (only leaf options)
+00:02 +75: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_option_validation_test.dart: validateOptionsForLevel valid flat command (only leaf options)
+00:02 +76: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_option_validation_test.dart: validateOptionsForLevel valid flat command (only leaf options)
+00:02 +77: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_option_validation_test.dart: validateOptionsForLevel valid flat command (only leaf options)
+00:02 +78: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_option_validation_test.dart: validateOptionsForLevel valid flat command (only leaf options)
+00:02 +79: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_option_validation_test.dart: validateOptionsForLevel valid flat command (only leaf options)
+00:02 +80: /home/jeremy/Code/bc/bot-creator/packages/app/test/mobile_workflow_args_test.dart: OptionWidget – mobile responsive layout uses Switch instead of CheckboxListTile for required
+00:02 +81: /home/jeremy/Code/bc/bot-creator/packages/app/test/mobile_workflow_args_test.dart: OptionWidget – mobile responsive layout uses Switch instead of CheckboxListTile for required
+00:02 +82: /home/jeremy/Code/bc/bot-creator/packages/app/test/mobile_workflow_args_test.dart: OptionWidget – mobile responsive layout uses Switch instead of CheckboxListTile for required
+00:02 +83: /home/jeremy/Code/bc/bot-creator/packages/app/test/mobile_workflow_args_test.dart: OptionWidget – mobile responsive layout uses Switch instead of CheckboxListTile for required
+00:02 +84: /home/jeremy/Code/bc/bot-creator/packages/app/test/mobile_workflow_args_test.dart: OptionWidget – mobile responsive layout uses Switch instead of CheckboxListTile for required
+00:02 +85: /home/jeremy/Code/bc/bot-creator/packages/app/test/mobile_workflow_args_test.dart: OptionWidget – mobile responsive layout uses Switch instead of CheckboxListTile for required
+00:02 +86: /home/jeremy/Code/bc/bot-creator/packages/app/test/mobile_workflow_args_test.dart: OptionWidget – mobile responsive layout uses Switch instead of CheckboxListTile for required
+00:02 +87: /home/jeremy/Code/bc/bot-creator/packages/app/test/mobile_workflow_args_test.dart: OptionWidget – mobile responsive layout uses Switch instead of CheckboxListTile for required
+00:02 +88: /home/jeremy/Code/bc/bot-creator/packages/app/test/mobile_workflow_args_test.dart: OptionWidget – mobile responsive layout uses Switch instead of CheckboxListTile for required
+00:02 +89: /home/jeremy/Code/bc/bot-creator/packages/app/test/mobile_workflow_args_test.dart: OptionWidget – mobile responsive layout uses Switch instead of CheckboxListTile for required
+00:02 +90: /home/jeremy/Code/bc/bot-creator/packages/app/test/mobile_workflow_args_test.dart: OptionWidget – mobile responsive layout uses Switch instead of CheckboxListTile for required
+00:02 +91: /home/jeremy/Code/bc/bot-creator/packages/app/test/mobile_workflow_args_test.dart: OptionWidget – mobile responsive layout uses Switch instead of CheckboxListTile for required
+00:02 +92: /home/jeremy/Code/bc/bot-creator/packages/app/test/mobile_workflow_args_test.dart: OptionWidget – mobile responsive layout uses Switch instead of CheckboxListTile for required
+00:02 +93: /home/jeremy/Code/bc/bot-creator/packages/app/test/mobile_workflow_args_test.dart: OptionWidget – mobile responsive layout uses Switch instead of CheckboxListTile for required
+00:02 +94: /home/jeremy/Code/bc/bot-creator/packages/app/test/mobile_workflow_args_test.dart: OptionWidget – mobile responsive layout uses Switch instead of CheckboxListTile for required
+00:03 +95: /home/jeremy/Code/bc/bot-creator/packages/app/test/mobile_workflow_args_test.dart: OptionWidget – mobile responsive layout uses Switch instead of CheckboxListTile for required
+00:03 +96: /home/jeremy/Code/bc/bot-creator/packages/app/test/mobile_workflow_args_test.dart: OptionWidget – mobile responsive layout uses Switch instead of CheckboxListTile for required
+00:03 +97: /home/jeremy/Code/bc/bot-creator/packages/app/test/mobile_workflow_args_test.dart: OptionWidget – mobile responsive layout uses Switch instead of CheckboxListTile for required
+00:03 +98: /home/jeremy/Code/bc/bot-creator/packages/app/test/mobile_workflow_args_test.dart: OptionWidget – mobile responsive layout uses Switch instead of CheckboxListTile for required
+00:03 +99: /home/jeremy/Code/bc/bot-creator/packages/app/test/mobile_workflow_args_test.dart: OptionWidget – mobile responsive layout uses Switch instead of CheckboxListTile for required
+00:03 +100: /home/jeremy/Code/bc/bot-creator/packages/app/test/mobile_workflow_args_test.dart: OptionWidget – mobile responsive layout uses Switch instead of CheckboxListTile for required
+00:03 +101: /home/jeremy/Code/bc/bot-creator/packages/app/test/dirty_state_revert_test.dart: CommandResponseWorkflowPage – dirty state title has no dirty indicator initially
+00:03 +102: /home/jeremy/Code/bc/bot-creator/packages/app/test/dirty_state_revert_test.dart: CommandResponseWorkflowPage – dirty state title has no dirty indicator initially
+00:03 +103: /home/jeremy/Code/bc/bot-creator/packages/app/test/dirty_state_revert_test.dart: CommandResponseWorkflowPage – dirty state title has no dirty indicator initially
+00:03 +104: /home/jeremy/Code/bc/bot-creator/packages/app/test/dirty_state_revert_test.dart: CommandResponseWorkflowPage – dirty state title has no dirty indicator initially
+00:03 +105: /home/jeremy/Code/bc/bot-creator/packages/app/test/dirty_state_revert_test.dart: CommandResponseWorkflowPage – dirty state title has no dirty indicator initially
+00:04 +106: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_response_workflow_mobile_test.dart: uses compact save action on small screens
+00:04 +107: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_response_workflow_mobile_test.dart: uses compact save action on small screens
+00:04 +108: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_response_workflow_mobile_test.dart: uses compact save action on small screens
+00:04 +109: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_response_workflow_mobile_test.dart: uses compact save action on small screens
+00:04 +110: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_response_workflow_mobile_test.dart: uses compact save action on small screens
+00:04 +111: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_response_workflow_mobile_test.dart: uses compact save action on small screens
+00:04 +112: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_response_workflow_mobile_test.dart: uses compact save action on small screens
+00:04 +113: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_response_workflow_mobile_test.dart: uses compact save action on small screens
+00:04 +114: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_response_workflow_mobile_test.dart: uses compact save action on small screens
+00:04 +115: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_response_workflow_mobile_test.dart: uses compact save action on small screens
+00:04 +116: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_response_workflow_mobile_test.dart: uses compact save action on small screens
+00:04 +117: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_response_workflow_mobile_test.dart: uses compact save action on small screens
+00:04 +118: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_response_workflow_mobile_test.dart: uses compact save action on small screens
+00:04 +119: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_response_workflow_mobile_test.dart: uses compact save action on small screens
+00:04 +120: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_response_workflow_mobile_test.dart: uses compact save action on small screens
+00:04 +121: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_response_workflow_mobile_test.dart: uses compact save action on small screens
+00:04 +122: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_response_workflow_mobile_test.dart: uses compact save action on small screens
+00:04 +123: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_response_workflow_mobile_test.dart: uses compact save action on small screens
+00:04 +124: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_response_workflow_mobile_test.dart: uses compact save action on small screens
+00:04 +125: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_response_workflow_mobile_test.dart: uses compact save action on small screens
+00:04 +126: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_response_workflow_mobile_test.dart: uses compact save action on small screens
+00:04 +127: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_response_workflow_mobile_test.dart: uses compact save action on small screens
+00:04 +128: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_response_workflow_mobile_test.dart: uses compact save action on small screens
+00:04 +129: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_response_workflow_mobile_test.dart: uses compact save action on small screens
+00:04 +130: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_response_workflow_mobile_test.dart: uses compact save action on small screens
+00:04 +131: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_response_workflow_mobile_test.dart: uses compact save action on small screens
+00:04 +132: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_response_workflow_mobile_test.dart: uses compact save action on small screens
+00:04 +133: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_response_workflow_mobile_test.dart: uses compact save action on small screens
+00:04 +134: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_response_workflow_mobile_test.dart: uses compact save action on small screens
+00:04 +135: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_response_workflow_mobile_test.dart: uses compact save action on small screens
+00:04 +136: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_response_workflow_mobile_test.dart: uses compact save action on small screens
+00:04 +137: /home/jeremy/Code/bc/bot-creator/packages/app/test/actions_builder_page_test.dart: action detail page keeps its content inside a SafeArea
+00:04 +138: /home/jeremy/Code/bc/bot-creator/packages/app/test/actions_builder_page_test.dart: action detail page keeps its content inside a SafeArea
+00:04 +139: /home/jeremy/Code/bc/bot-creator/packages/app/test/actions_builder_page_test.dart: action detail page keeps its content inside a SafeArea
+00:04 +140: /home/jeremy/Code/bc/bot-creator/packages/app/test/actions_builder_page_test.dart: action detail page keeps its content inside a SafeArea
+00:04 +141: /home/jeremy/Code/bc/bot-creator/packages/app/test/actions_builder_page_test.dart: action detail page keeps its content inside a SafeArea
+00:04 +142: /home/jeremy/Code/bc/bot-creator/packages/app/test/actions_builder_page_test.dart: action detail page keeps its content inside a SafeArea
+00:04 +143: /home/jeremy/Code/bc/bot-creator/packages/app/test/actions_builder_page_test.dart: action detail page keeps its content inside a SafeArea
+00:04 +144: /home/jeremy/Code/bc/bot-creator/packages/app/test/actions_builder_page_test.dart: action detail page keeps its content inside a SafeArea
+00:04 +145: /home/jeremy/Code/bc/bot-creator/packages/app/test/actions_builder_page_test.dart: action detail page keeps its content inside a SafeArea
+00:04 +146: /home/jeremy/Code/bc/bot-creator/packages/app/test/actions_builder_page_test.dart: action detail page keeps its content inside a SafeArea
+00:04 +147: /home/jeremy/Code/bc/bot-creator/packages/app/test/actions_builder_page_test.dart: action detail page keeps its content inside a SafeArea
+00:05 +148: /home/jeremy/Code/bc/bot-creator/packages/app/test/actions_builder_page_test.dart: action detail page keeps its content inside a SafeArea
+00:05 +149: /home/jeremy/Code/bc/bot-creator/packages/app/test/actions_builder_page_test.dart: action detail page keeps its content inside a SafeArea
+00:05 +150: /home/jeremy/Code/bc/bot-creator/packages/app/test/actions_builder_page_test.dart: action detail page keeps its content inside a SafeArea
+00:05 +151: /home/jeremy/Code/bc/bot-creator/packages/app/test/actions_builder_page_test.dart: action detail page keeps its content inside a SafeArea
+00:05 +152: /home/jeremy/Code/bc/bot-creator/packages/app/test/actions_builder_page_test.dart: action detail page keeps its content inside a SafeArea
+00:05 +153: /home/jeremy/Code/bc/bot-creator/packages/app/test/actions_builder_page_test.dart: action detail page keeps its content inside a SafeArea
+00:05 +154: /home/jeremy/Code/bc/bot-creator/packages/app/test/dirty_state_revert_test.dart: CommandResponseWorkflowPage – discard confirmation back on dirty state shows discard dialog
+00:05 +155: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: (setUpAll)
+00:05 +155: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage new command shows block editor
+00:05 +156: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage new command shows block editor
+00:05 +157: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage new command shows block editor
+00:05 +158: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage new command shows block editor
+00:05 +159: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage new command shows block editor
+00:05 +160: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage new command shows block editor
+00:05 +161: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage new command shows block editor
+00:05 +162: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage new command shows block editor
+00:06 +163: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage new command shows block editor
+00:06 +164: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage new command shows block editor
+00:06 +165: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage new command shows block editor
+00:06 +166: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage new command shows block editor
+00:06 +167: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage new command shows block editor
+00:06 +168: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage new command shows block editor
+00:06 +169: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage new command shows block editor
+00:06 +170: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage new command shows block editor
+00:06 +171: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage new command shows block editor
+00:06 +172: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage new command shows block editor
+00:06 +173: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage new command shows block editor
+00:06 +174: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage new command shows block editor
+00:06 +175: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage new command shows block editor
+00:06 +176: /home/jeremy/Code/bc/bot-creator/packages/app/test/widget_test.dart: MyApp renders with required providers
+00:06 +177: /home/jeremy/Code/bc/bot-creator/packages/app/test/widget_test.dart: MyApp renders with required providers
+00:06 +178: /home/jeremy/Code/bc/bot-creator/packages/app/test/normalize_command_data_test.dart: normalizeCommandData – subcommandWorkflows preservation preserves subcommandWorkflows through normalization
+00:06 +179: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +180: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +181: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +182: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +183: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +184: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +185: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +186: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +187: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +188: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +189: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +190: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +191: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +192: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +193: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +194: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +195: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +196: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +197: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +198: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +199: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +200: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +201: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +202: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +203: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +204: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +205: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +206: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +207: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +208: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +209: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +210: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +211: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +212: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +213: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +214: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +215: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +216: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +217: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +218: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:06 +219: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:07 +220: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:07 +221: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:07 +222: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:07 +223: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:07 +224: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:07 +225: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:07 +226: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:07 +227: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:07 +228: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:07 +229: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:07 +230: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:07 +231: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:07 +232: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:07 +233: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:07 +234: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage existing local command renders block editor with save bar
+00:07 +235: /home/jeremy/Code/bc/bot-creator/packages/app/test/component_node_editor_hierarchy_test.dart: ComponentNodeEditor – remove tooltip remove button has "Remove" tooltip
+00:07 +236: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage block editor shows metadata and entry point before response
+00:07 +237: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage block editor shows metadata and entry point before response
+00:07 +238: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage block editor shows metadata and entry point before response
+00:07 +239: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage block editor shows metadata and entry point before response
+00:07 +240: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage block editor shows metadata and entry point before response
+00:07 +241: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage block editor shows metadata and entry point before response
+00:07 +242: /home/jeremy/Code/bc/bot-creator/packages/app/test/action_card_else_if_test.dart: ActionCard ELSE IF editor adds, edits and removes ELSE IF branches
+00:08 +243: /home/jeremy/Code/bc/bot-creator/packages/app/test/action_card_else_if_test.dart: ActionCard ELSE IF editor adds, edits and removes ELSE IF branches
+00:08 +244: /home/jeremy/Code/bc/bot-creator/packages/app/test/action_card_else_if_test.dart: ActionCard ELSE IF editor adds, edits and removes ELSE IF branches
+00:08 +245: /home/jeremy/Code/bc/bot-creator/packages/app/test/action_card_else_if_test.dart: ActionCard ELSE IF editor adds, edits and removes ELSE IF branches
+00:08 +246: /home/jeremy/Code/bc/bot-creator/packages/app/test/action_card_else_if_test.dart: ActionCard ELSE IF editor adds, edits and removes ELSE IF branches
+00:08 +247: /home/jeremy/Code/bc/bot-creator/packages/app/test/action_card_else_if_test.dart: ActionCard ELSE IF editor adds, edits and removes ELSE IF branches
+00:08 +248: /home/jeremy/Code/bc/bot-creator/packages/app/test/action_card_else_if_test.dart: ActionCard ELSE IF editor adds, edits and removes ELSE IF branches
+00:09 +249: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage subcommand route switching updates reply and action context
+00:09 +250: /home/jeremy/Code/bc/bot-creator/packages/app/test/action_card_else_if_test.dart: ActionCard ELSE IF editor edits ELSE IF nested actions through callback
+00:09 +251: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage back navigation from dirty edit state prompts for discard
+00:09 +252: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage saving an existing local command keeps its identity
+00:10 +253: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage awaited callback legacy commands can be created locally without a description
+00:11 +254: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: CommandCreatePage awaited callback preset generates the trigger syntax automatically
+00:11 +255: /home/jeremy/Code/bc/bot-creator/packages/app/test/command_create_page_test.dart: (tearDownAll)
+00:11 +255: All tests passed!
