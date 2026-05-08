@@ -7,6 +7,12 @@ allprojects {
         maven {
             url = uri("https://android-sdk.is.com/")
         }
+        maven {
+            url = uri("https://unity3d.jfrog.io/artifactory/unity-ads-android-master/")
+        }
+        maven {
+            url = uri("https://jitpack.io")
+        }
     }
 }
 
