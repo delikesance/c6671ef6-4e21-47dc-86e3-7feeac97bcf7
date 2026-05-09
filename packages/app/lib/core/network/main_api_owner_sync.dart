@@ -39,12 +39,12 @@ MainApiOwnerResolution resolveOwnerFromManagerBotPayload(
   final owner = _asMap(bot['owner']);
   final team = _asMap(bot['team']);
 
+  _appendUniqueOwnerId(ownerIds, team['owner_user_id']);
+  _appendUniqueOwnerId(ownerIds, team['ownerUserId']);
   _appendUniqueOwnerId(ownerIds, bot['owner_id']);
   _appendUniqueOwnerId(ownerIds, bot['ownerId']);
   _appendUniqueOwnerId(ownerIds, owner['id']);
   _appendUniqueOwnerId(ownerIds, owner['owner_id']);
-  _appendUniqueOwnerId(ownerIds, team['owner_user_id']);
-  _appendUniqueOwnerId(ownerIds, team['ownerUserId']);
 
   final preferred = ownerIds.isEmpty ? null : ownerIds.first;
   return MainApiOwnerResolution(

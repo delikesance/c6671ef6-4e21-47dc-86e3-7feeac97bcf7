@@ -3,9 +3,6 @@ name: CI Tests
 on:
   pull_request:
     branches: ["master", "main"]
-  push:
-    branches: ["master", "main"]
-  workflow_dispatch:
 
 env:
   FLUTTER_VERSION: "3.41.2"
