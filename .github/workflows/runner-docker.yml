@@ -34,39 +34,8 @@ env:
 
 jobs:
   build:
-    name: Build image
+    name: Build and Publish
     runs-on: vps01
-    permissions:
-      contents: read
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Setup QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build local image (AOT Dockerfile)
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./Dockerfile
-          load: true
-          push: false
-          tags: bot-creator-runner:ci
-          platforms: ${{ env.SMOKE_PLATFORM }}
-
-  publish:
-    name: Publish image to registries
-    needs: build
-    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.publish == 'true') }}
-    runs-on: vps01
-    env:
-      DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
-      HAS_DOCKERHUB_TOKEN: ${{ secrets.DOCKER_TOKEN != '' }}
     permissions:
       contents: read
       packages: write
@@ -77,13 +46,16 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Resolve latest version tag
-        id: latest-tag
+      - name: Set build configuration
+        id: config
         run: |
-          TAG=$(git tag --list 'v*' --sort=-v:refname | head -n1)
-          TAG=${TAG:-0.0.0}
-          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
-          echo "Resolved version: ${TAG#v}"
+          SHOULD_PUSH="${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.publish == 'true') }}"
+          echo "push=$SHOULD_PUSH" >> "$GITHUB_OUTPUT"
+          if [ "$SHOULD_PUSH" = "true" ]; then
+            echo "platforms=${{ env.PUBLISH_PLATFORMS }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "platforms=${{ env.SMOKE_PLATFORM }}" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v3
@@ -91,7 +63,17 @@ jobs:
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Resolve latest version tag
+        if: steps.config.outputs.push == 'true'
+        id: latest-tag
+        run: |
+          TAG=$(git tag --list 'v*' --sort=-v:refname | head -n1)
+          TAG=${TAG:-0.0.0}
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+          echo "Resolved version: ${TAG#v}"
+
       - name: Login to GHCR
+        if: steps.config.outputs.push == 'true'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.GHCR_REGISTRY }}
@@ -99,50 +81,35 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Login to Docker Hub
-        if: env.HAS_DOCKERHUB_TOKEN == 'true'
+        if: steps.config.outputs.push == 'true' && secrets.DOCKER_TOKEN != ''
         uses: docker/login-action@v3
         with:
           registry: ${{ env.DOCKERHUB_REGISTRY }}
           username: garder500
-          password: ${{ env.DOCKER_TOKEN }}
+          password: ${{ secrets.DOCKER_TOKEN }}
 
-      - name: Extract GHCR Docker metadata
-        id: meta-ghcr
+      - name: Extract Docker metadata
+        id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_IMAGE_NAME }}
+          images: |
+            ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_IMAGE_NAME }}
+            ${{ env.DOCKERHUB_REGISTRY }}/${{ env.DOCKERHUB_IMAGE_NAME }}
           tags: |
             type=ref,event=branch
-            type=semver,pattern={{version}},value=v${{ steps.latest-tag.outputs.version }}
-            type=semver,pattern={{major}}.{{minor}},value=v${{ steps.latest-tag.outputs.version }}
-            type=semver,pattern={{major}},value=v${{ steps.latest-tag.outputs.version }}
-            type=raw,value=stable,enable=${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) || startsWith(github.ref, 'refs/tags/v') }}
+            type=semver,pattern={{version}},value=v${{ steps.latest-tag.outputs.version }},enable=${{ steps.config.outputs.push == 'true' }}
+            type=semver,pattern={{major}}.{{minor}},value=v${{ steps.latest-tag.outputs.version }},enable=${{ steps.config.outputs.push == 'true' }}
             type=sha,prefix=sha-
             type=raw,value=latest,enable={{is_default_branch}}
-
-      - name: Extract Docker Hub metadata
-        if: env.HAS_DOCKERHUB_TOKEN == 'true'
-        id: meta-dockerhub
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.DOCKERHUB_REGISTRY }}/${{ env.DOCKERHUB_IMAGE_NAME }}
-          tags: |
-            type=ref,event=branch
-            type=semver,pattern={{version}},value=v${{ steps.latest-tag.outputs.version }}
-            type=semver,pattern={{major}}.{{minor}},value=v${{ steps.latest-tag.outputs.version }}
-            type=semver,pattern={{major}},value=v${{ steps.latest-tag.outputs.version }}
             type=raw,value=stable,enable=${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) || startsWith(github.ref, 'refs/tags/v') }}
-            type=sha,prefix=sha-
-            type=raw,value=latest,enable={{is_default_branch}}
 
-      - name: Build and push multi-arch image
+      - name: Build and push
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
-          push: true
-          platforms: ${{ env.PUBLISH_PLATFORMS }}
-          tags: |
-            ${{ steps.meta-ghcr.outputs.tags }}
-            ${{ steps.meta-dockerhub.outputs.tags }}
-          labels: ${{ steps.meta-ghcr.outputs.labels }}
+          push: ${{ steps.config.outputs.push == 'true' }}
+          load: ${{ steps.config.outputs.push != 'true' }}
+          platforms: ${{ steps.config.outputs.platforms }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
