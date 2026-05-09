@@ -13,7 +13,7 @@ env:
 
 jobs:
   analyze_and_test:
-    runs-on: ubuntu-latest
+    runs-on: orangepi
 
     steps:
       - name: Checkout code
