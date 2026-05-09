@@ -1393,11 +1393,17 @@ class DiscordRunner {
   }
 
   List<String> _splitLegacyTokens(String input) {
-    final trimmed = input.trim();
-    if (trimmed.isEmpty) {
-      return const <String>[];
+    final tokens = <String>[];
+    final regex = RegExp(r'"([^"]*)"|(\S+)');
+    final matches = regex.allMatches(input);
+    for (final match in matches) {
+      if (match.group(1) != null) {
+        tokens.add(match.group(1)!);
+      } else if (match.group(2) != null) {
+        tokens.add(match.group(2)!);
+      }
     }
-    return trimmed.split(RegExp(r'\s+')).where((t) => t.isNotEmpty).toList();
+    return tokens;
   }
 
   String _effectiveLegacyResponseTarget(Map<String, dynamic> value) {
@@ -1941,9 +1947,20 @@ class DiscordRunner {
         continue;
       }
 
-      final token = args[argIndex];
+      final isLastOption = option == optionMaps.last;
+      final rawType = (option['type'] ?? 'string').toString().toLowerCase();
+
+      String token;
+      if (isLastOption && (rawType == 'string' || rawType == 'text')) {
+        token = args.sublist(argIndex).join(' ');
+        argIndex = args.length;
+      } else {
+        token = args[argIndex];
+        argIndex++;
+      }
+
       final parsed = await _parseLegacyOptionValue(
-        rawType: (option['type'] ?? 'string').toString(),
+        rawType: rawType,
         token: token,
         context: context,
       );
