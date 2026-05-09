@@ -1,14 +1,6 @@
 name: Runner Docker
 
 on:
-  pull_request:
-    branches: ["master", "main"]
-    paths:
-      - "Dockerfile"
-      - "pubspec.yaml"
-      - "packages/runner/**"
-      - "packages/shared/**"
-      - ".github/workflows/runner-docker.yml"
   push:
     branches: ["master", "main"]
     tags:

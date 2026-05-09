@@ -30,9 +30,9 @@ class DiscordApplicationOwnerMetadata {
 
   List<String> get ownerCandidateIds {
     final candidates = <String>[];
+    _appendUniqueDiscordOwnerId(candidates, teamOwnerUserId);
     _appendUniqueDiscordOwnerId(candidates, ownerId);
     _appendUniqueDiscordOwnerId(candidates, teamId);
-    _appendUniqueDiscordOwnerId(candidates, teamOwnerUserId);
     for (final memberUserId in teamMemberUserIds) {
       _appendUniqueDiscordOwnerId(candidates, memberUserId);
     }

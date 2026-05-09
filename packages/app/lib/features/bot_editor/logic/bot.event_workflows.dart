@@ -1375,6 +1375,20 @@ String _buildLocalLegacyHelpMessage({
   return text;
 }
 
+List<String> _splitLocalLegacyTokens(String input) {
+  final tokens = <String>[];
+  final regex = RegExp(r'"([^"]*)"|(\S+)');
+  final matches = regex.allMatches(input);
+  for (final match in matches) {
+    if (match.group(1) != null) {
+      tokens.add(match.group(1)!);
+    } else if (match.group(2) != null) {
+      tokens.add(match.group(2)!);
+    }
+  }
+  return tokens;
+}
+
 Future<bool> _tryExecuteBuiltInLocalLegacyHelp(
   NyxxGateway gateway, {
   required EventExecutionContext context,
@@ -1429,10 +1443,7 @@ Future<bool> _tryExecuteBuiltInLocalLegacyHelp(
       continue;
     }
     final remainder = content.substring(prefix.length).trimLeft();
-    final tokens = remainder
-        .split(RegExp(r'\s+'))
-        .where((token) => token.isNotEmpty)
-        .toList(growable: false);
+    final tokens = _splitLocalLegacyTokens(remainder);
     if (tokens.isEmpty || tokens.first.toLowerCase() != 'help') {
       continue;
     }
@@ -1694,10 +1705,21 @@ Future<String?> _bindLocalLegacyPositionalOptions(
       continue;
     }
 
-    final token = args[argIndex];
+    final isLastOption = option == options.last;
+    final rawType = (option['type'] ?? 'string').toString().toLowerCase();
+
+    String token;
+    if (isLastOption && (rawType == 'string' || rawType == 'text')) {
+      token = args.sublist(argIndex).join(' ');
+      argIndex = args.length;
+    } else {
+      token = args[argIndex];
+      argIndex++;
+    }
+
     final parsed = await _parseLocalLegacyOptionValue(
       gateway,
-      rawType: (option['type'] ?? 'string').toString(),
+      rawType: rawType,
       token: token,
       context: context,
     );
@@ -1716,7 +1738,7 @@ Future<String?> _bindLocalLegacyPositionalOptions(
       runtimeVariables['opts.$name.${entry.key}'] = entry.value;
     }
 
-    argIndex++;
+    // argIndex already incremented/advanced above
   }
 
   runtimeVariables['args.count'] = args.length.toString();
@@ -2120,10 +2142,7 @@ Future<bool> _tryExecuteLocalLegacyCommand(
       continue;
     }
 
-    final tokens = remainder
-        .split(RegExp(r'\s+'))
-        .where((token) => token.isNotEmpty)
-        .toList(growable: false);
+    final tokens = _splitLocalLegacyTokens(remainder);
     if (tokens.isEmpty) {
       continue;
     }
