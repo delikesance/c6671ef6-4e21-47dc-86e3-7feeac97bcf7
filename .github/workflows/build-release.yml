@@ -15,7 +15,7 @@ env:
 
 jobs:
   prepare_release:
-    runs-on: ubuntu-latest
+    runs-on: vps01
     permissions:
       contents: write
     env:
@@ -75,7 +75,7 @@ jobs:
           gh release create "$RELEASE_TAG" -R "$GH_REPO" "${args[@]}"
 
   build_linux_release:
-    runs-on: ubuntu-latest
+    runs-on: vps01
     needs: prepare_release
     # On ignore tout le job Linux si on a demandé que le MSIX
     if: ${{ needs.prepare_release.outputs.msix_only != 'true' }}
