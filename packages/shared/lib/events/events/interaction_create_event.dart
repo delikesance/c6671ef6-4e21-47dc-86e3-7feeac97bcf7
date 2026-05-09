@@ -266,12 +266,14 @@ EventExecutionContext buildInteractionCreateEventContext(
   if (user != null) {
     extra['user.id'] = user.id.toString();
     extra['user.username'] = user.username;
+    extra['user.globalName'] = user.globalName ?? user.username;
     extra['user.tag'] = user.discriminator;
     extra['user.avatar'] = user.avatar.url.toString();
     extra['user.banner'] = user.banner?.url.toString() ?? '';
     extra['user.createdAt'] = user.id.timestamp.toIso8601String();
     extra['author.id'] = user.id.toString();
     extra['author.username'] = user.username;
+    extra['author.globalName'] = user.globalName ?? user.username;
     extra['author.tag'] = user.discriminator;
     extra['author.avatar'] = user.avatar.url.toString();
     extra['author.banner'] = user.banner?.url.toString() ?? '';
