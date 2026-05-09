@@ -1176,7 +1176,7 @@ void main() {
       expect(content, contains('((author.avatar))'));
       expect(content, contains('((author.id))'));
       expect(content, contains('((target.message.author.id|author.id))'));
-      expect(content, contains('((member.nick|author.username))'));
+      expect(content, contains('((member.nick|author.globalName))'));
       expect(content, contains('((member.permissions))'));
       expect(content, contains('((member.avatar))'));
       expect(content, contains('((user.id))'));
@@ -2031,7 +2031,7 @@ void main() {
       final embeds = List<Map<String, dynamic>>.from(
         result.actions.single.payload['embeds'] as List,
       );
-      expect(embeds.single['description'], '((member.nick|author.username))');
+      expect(embeds.single['description'], '((member.nick|author.globalName))');
     });
 
     test(r'$displayName[userID] resolves to targeted fallback', () {
