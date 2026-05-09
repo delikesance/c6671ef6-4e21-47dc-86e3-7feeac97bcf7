@@ -13,7 +13,7 @@ env:
 
 jobs:
   analyze_and_test:
-    runs-on: orangepi
+    runs-on: vps01
 
     steps:
       - name: Checkout code
