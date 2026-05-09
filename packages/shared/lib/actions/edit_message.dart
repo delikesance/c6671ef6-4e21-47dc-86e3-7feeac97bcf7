@@ -1,4 +1,4 @@
-﻿import 'package:nyxx/nyxx.dart';
+import 'package:nyxx/nyxx.dart';
 import 'package:bot_creator_shared/utils/global.dart';
 import '../types/component.dart';
 import '../utils/component_workflow_bindings.dart';
@@ -69,10 +69,21 @@ Future<Map<String, String>> editMessageAction(
         if (description.isNotEmpty) embed.description = description;
         if (url.isNotEmpty) embed.url = Uri.tryParse(url);
 
-        final timestamp = DateTime.tryParse(
-          resolve?.call((embedJson['timestamp'] ?? '').toString()) ??
-              (embedJson['timestamp'] ?? '').toString(),
-        );
+        final timestampRaw =
+            resolve?.call((embedJson['timestamp'] ?? '').toString()) ??
+            (embedJson['timestamp'] ?? '').toString();
+        DateTime? timestamp;
+        if (timestampRaw == 'now') {
+          timestamp = DateTime.now().toUtc();
+        } else {
+          timestamp = DateTime.tryParse(timestampRaw);
+          if (timestamp == null) {
+            final ms = int.tryParse(timestampRaw);
+            if (ms != null) {
+              timestamp = DateTime.fromMillisecondsSinceEpoch(ms, isUtc: true);
+            }
+          }
+        }
         if (timestamp != null) {
           embed.timestamp = timestamp;
         }

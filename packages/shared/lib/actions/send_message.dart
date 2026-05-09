@@ -117,6 +117,12 @@ Future<Map<String, String>> sendMessageToChannel(
             timestamp = DateTime.now().toUtc();
           } else {
             timestamp = DateTime.tryParse(timestampRaw);
+            if (timestamp == null) {
+              final ms = int.tryParse(timestampRaw);
+              if (ms != null) {
+                timestamp = DateTime.fromMillisecondsSinceEpoch(ms, isUtc: true);
+              }
+            }
           }
           if (timestamp != null) embed.timestamp = timestamp;
 

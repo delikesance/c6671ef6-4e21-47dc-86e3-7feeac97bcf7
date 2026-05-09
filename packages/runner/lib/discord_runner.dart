@@ -432,7 +432,11 @@ class DiscordRunner {
     });
 
     _gateway!.onInteractionCreate.listen((event) async {
-      await _handleInteraction(event);
+      try {
+        await _handleInteraction(event);
+      } catch (error, stack) {
+        _log.severe('Top-level interaction error: $error', error, stack);
+      }
     });
 
     _registerEventWorkflowListeners();
@@ -837,9 +841,9 @@ class DiscordRunner {
           interaction: interaction,
           commandData: commandData,
         );
-      } catch (_) {
+      } catch (e, st) {
         success = false;
-        rethrow;
+        _log.severe('Error handling command: $e', e, st);
       } finally {
         stopwatch.stop();
 
@@ -958,17 +962,25 @@ class DiscordRunner {
       EventExecutionContext Function(T event)? buildContext,
     }) {
       final subscription = stream.listen((event) async {
-        await _dispatchEventWorkflows(
-          eventName: eventName,
-          context:
-              buildContext?.call(event) ??
-              _baseEventContext(
-                eventName: eventName,
-                guildId: null,
-                channelId: null,
-                userId: null,
-              ),
-        );
+        try {
+          await _dispatchEventWorkflows(
+            eventName: eventName,
+            context:
+                buildContext?.call(event) ??
+                _baseEventContext(
+                  eventName: eventName,
+                  guildId: null,
+                  channelId: null,
+                  userId: null,
+                ),
+          );
+        } catch (error, stack) {
+          _log.warning(
+            'Error in event workflow listener ($eventName): $error',
+            error,
+            stack,
+          );
+        }
       });
       _eventWorkflowSubscriptions.add(subscription);
     }
@@ -3026,25 +3038,29 @@ class DiscordRunner {
           e,
           st,
         );
-        await sendWorkflowResponse(
-          interaction: interaction,
-          response: {
-            'type': 'normal',
-            'text': 'An error occurred while executing this BDFD script.',
-            'embeds': const <Map<String, dynamic>>[],
-            'components': const <String, dynamic>{},
-            'modal': const <String, dynamic>{},
-            'workflow': const {
-              'visibility': 'ephemeral',
-              'conditional': {'enabled': false},
+        try {
+          await sendWorkflowResponse(
+            interaction: interaction,
+            response: {
+              'type': 'normal',
+              'text': 'An error occurred while executing this BDFD script.',
+              'embeds': const <Map<String, dynamic>>[],
+              'components': const <String, dynamic>{},
+              'modal': const <String, dynamic>{},
+              'workflow': const {
+                'visibility': 'ephemeral',
+                'conditional': {'enabled': false},
+              },
             },
-          },
-          runtimeVariables: runtimeVariables,
-          botId: botId,
-          isEphemeral: true,
-          onLog: (msg, {required botId}) async => _log.info(msg),
-          onDebugLog: (msg, {required botId}) async => _log.fine(msg),
-        );
+            runtimeVariables: runtimeVariables,
+            botId: botId,
+            isEphemeral: true,
+            onLog: (msg, {required botId}) async => _log.info(msg),
+            onDebugLog: (msg, {required botId}) async => _log.fine(msg),
+          );
+        } catch (innerError) {
+          _log.warning('Could not send error response: $innerError');
+        }
       }
       return;
     }

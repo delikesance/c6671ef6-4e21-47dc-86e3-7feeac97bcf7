@@ -673,6 +673,10 @@ class DiscordBotTaskHandler extends TaskHandler {
         'Connecting for $trimmedBotId',
         botId: trimmedBotId,
       );
+      await _emitTaskDebugLogToMain(
+        'Connecting with token: $trimmedToken',
+        botId: trimmedBotId,
+      );
       final botUser = await getDiscordUser(trimmedToken);
       final resolvedBotId = botUser.id.toString();
       if (_clients.containsKey(resolvedBotId)) {
