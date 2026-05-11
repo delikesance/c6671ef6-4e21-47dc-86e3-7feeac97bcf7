@@ -174,7 +174,7 @@ class RunnerWebBootstrapServer {
     _app.post('/bots/:id/debug-replays/capture', _handleSetDebugReplayCapture);
 
     // Inbound Webhooks (Dynamic Path)
-    _app.post('/bots/:id/inbound/:pathKey*', _handleInboundWebhook);
+    _app.post('/bots/:id/inbound/:pathKey', _handleInboundWebhook);
   }
 
   Future<void> start() async {
