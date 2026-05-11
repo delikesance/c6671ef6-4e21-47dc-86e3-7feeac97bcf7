@@ -823,23 +823,6 @@ class HomePageState extends State<HomePage>
     try {
       final isRunning = _runningBotIds.contains(botId);
 
-      if (isRunning) {
-        final shouldStop = await AppTheme.showConfirmDialog(
-          context,
-          title: _uiCopy(fr: 'Arrêter le bot ?', en: 'Stop this bot?'),
-          content: _uiCopy(
-            fr:
-                'Si une session gratuite est en cours, le temps restant peut être perdu. Continuer ?',
-            en:
-                'If a free runtime session is active, remaining time may be lost. Continue?',
-          ),
-          confirmLabel: _uiCopy(fr: 'Arrêter', en: 'Stop'),
-          icon: Icons.warning_amber_rounded,
-        );
-        if (!shouldStop || !mounted) {
-          return;
-        }
-      }
 
       var runtime = await _resolveRemoteRuntime(
         getTimeout: const Duration(seconds: 30),
@@ -942,22 +925,7 @@ class HomePageState extends State<HomePage>
               botId: botId,
               source: runtime.source,
             );
-            final stopResult = await client.stopBot(botId);
-
-            // Show warning if free time was lost
-            if (stopResult['free_time_lost'] == true && mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    stopResult['warning'] as String? ??
-                        context.tr.error_with_details(
-                          'Accumulated free runtime was discarded',
-                        ),
-                  ),
-                  duration: const Duration(seconds: 5),
-                ),
-              );
-            }
+            await client.stopBot(botId);
 
             endBotLogSession(botId: botId, source: runtime.source);
             unawaited(_refreshBotRuntimeBalances(botIds: [botId]));
@@ -1333,6 +1301,10 @@ class HomePageState extends State<HomePage>
     }
 
     if (await _isMainApiPremiumUser(botId: botId, botToken: botToken)) {
+      return true;
+    }
+
+    if ((_freeMinutesByBotId[botId] ?? 0) > 0) {
       return true;
     }
 
@@ -1958,10 +1930,12 @@ class _BotCard extends StatelessWidget {
                     isRunning
                         ? context.tr.home_stop
                         : (!showPremiumLabels
-                            ? context.tr.home_start
+                            ? context.tr.bot_home_start
                             : (SubscriptionService.isSubscribed
                                 ? context.tr.home_start_premium
-                                : context.tr.home_start_ads)),
+                                : ((freeMinutes ?? 0) > 0
+                                    ? context.tr.bot_home_start
+                                    : context.tr.home_start_ads))),
                   ),
                   style: FilledButton.styleFrom(
                     backgroundColor:
