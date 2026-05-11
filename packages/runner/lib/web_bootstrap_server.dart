@@ -117,6 +117,8 @@ class RunnerWebBootstrapServer {
     _app.get('/logs', _handleLogs);
 
     // Bot Management
+    _app.get('/health', (req, res) => {'status': 'ok'});
+
     _app.get('/bots', (req, res) async {
       final entries = await _runtimeController.botStore.listAll();
       return {
