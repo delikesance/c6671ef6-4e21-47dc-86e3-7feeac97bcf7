@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:nyxx/nyxx.dart';
 
+part 'events/channel_create_event.dart';
+part 'events/channel_delete_event.dart';
 part 'events/channel_pins_update_event.dart';
 part 'events/channel_update_event.dart';
 part 'events/guild_audit_log_create_event.dart';

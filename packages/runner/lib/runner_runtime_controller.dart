@@ -129,8 +129,8 @@ class RunnerRuntimeController {
 
     final baseline = _readCurrentProcessRssBytes();
 
-    final config = await _botStore.load(botId);
-    if (config == null) {
+    final entry = await _botStore.loadEntry(botId);
+    if (entry == null) {
       _busyBots.remove(botId);
       throw StateError(
         'Bot "$botId" not found in store. Sync from the app first.',
@@ -138,11 +138,12 @@ class RunnerRuntimeController {
     }
 
     await startBotWithConfig(
-      config,
+      entry.config,
       botId: botId,
-      botName: botName,
+      botName: botName ?? entry.name,
       baselineRssBytes: baseline,
     );
+    await _botStore.setRunning(botId, true);
   }
 
   /// Starts a bot directly from a [BotConfig] (used when syncing and starting
@@ -195,6 +196,7 @@ class RunnerRuntimeController {
 
     final runner = _runners[botId];
     if (runner == null) {
+      await _botStore.setRunning(botId, false);
       return;
     }
 
@@ -203,6 +205,7 @@ class RunnerRuntimeController {
       await runner.stop();
       _runners.remove(botId);
       _lastSeenAtByBot[botId] = DateTime.now().toUtc();
+      await _botStore.setRunning(botId, false);
     } finally {
       _busyBots.remove(botId);
     }
@@ -212,6 +215,27 @@ class RunnerRuntimeController {
     final ids = _runners.keys.toList(growable: false);
     for (final botId in ids) {
       await stopBot(botId);
+    }
+  }
+
+  /// Automatically resumes all bots that were marked as running in the store.
+  Future<void> selfHeal() async {
+    final entries = await _botStore.listAll();
+    final toStart = entries.where((e) => e.running).toList();
+    if (toStart.isEmpty) return;
+
+    stdout.writeln(
+      '[Self-Healing] Resuming ${toStart.length} bot(s) previously running...',
+    );
+    for (final entry in toStart) {
+      try {
+        await startBot(botId: entry.id, botName: entry.name);
+        stdout.writeln('[Self-Healing] Bot "${entry.name}" (${entry.id}) resumed.');
+      } catch (e) {
+        stderr.writeln(
+          '[Self-Healing] Failed to resume bot "${entry.name}" (${entry.id}): $e',
+        );
+      }
     }
   }
 

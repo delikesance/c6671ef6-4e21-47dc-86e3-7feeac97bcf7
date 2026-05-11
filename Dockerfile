@@ -29,12 +29,12 @@ COPY --from=builder /out/bundle /opt/runner
 COPY --from=builder /workspace/packages/runner/pubspec.yaml /opt/runner/pubspec.yaml
 
 # Persistent runtime data (synced bot configs + logs)
-ENV BOT_CREATOR_DATA_DIR=/data/bots
+ENV BOT_CREATOR_DATA_DIR=/bots
 ENV BOT_CREATOR_RUNNER_LOG_FILE=/data/logs/runner.log
 ENV BOT_CREATOR_WEB_HOST=127.0.0.1
 ENV BOT_CREATOR_WEB_PORT=8080
 
-VOLUME ["/data"]
+VOLUME ["/bots", "/data"]
 EXPOSE 8080
 
 # Default mode: runner REST API.
