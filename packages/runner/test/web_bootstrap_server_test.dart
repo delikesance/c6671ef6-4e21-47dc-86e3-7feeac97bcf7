@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:bot_creator_shared/bot/json_variable_store.dart';
+import 'package:bot_creator_runner/runner_bot_store.dart';
 import 'package:bot_creator_runner/web_bootstrap_server.dart';
 import 'package:bot_creator_runner/web_log_store.dart';
 import 'package:http/http.dart' as http;
@@ -9,19 +10,15 @@ import 'package:test/test.dart';
 
 void main() {
   group('RunnerWebBootstrapServer', () {
-    late Directory tempDir;
-    late String originalCwd;
     RunnerWebBootstrapServer? server;
+    late Directory tempDir;
 
     setUp(() async {
-      originalCwd = Directory.current.path;
       tempDir = await Directory.systemTemp.createTemp('runner-web-server-');
-      Directory.current = tempDir.path;
     });
 
     tearDown(() async {
       await server?.stop();
-      Directory.current = originalCwd;
       if (await tempDir.exists()) {
         await tempDir.delete(recursive: true);
       }
@@ -35,6 +32,7 @@ void main() {
           host: '127.0.0.1',
           port: port,
           logStore: RunnerLogStore(),
+          dataDir: tempDir.path,
         );
         await server!.start();
 
@@ -59,6 +57,7 @@ void main() {
           port: port,
           apiToken: 'secret-token',
           logStore: RunnerLogStore(),
+          dataDir: tempDir.path,
         );
         await server!.start();
 
@@ -93,6 +92,7 @@ void main() {
         port: port,
         logStore: RunnerLogStore(),
         variableStore: variableStore,
+        dataDir: tempDir.path,
       );
       await server!.start();
 
@@ -248,6 +248,7 @@ void main() {
           host: '127.0.0.1',
           port: port,
           logStore: RunnerLogStore(),
+          dataDir: tempDir.path,
         );
         await server!.start();
 
@@ -308,13 +309,11 @@ void main() {
         );
         expect(syncCommand.statusCode, HttpStatus.ok);
 
-        final storedFile = File('${tempDir.path}/data/bots/$botId.json');
-        final storedAfterSync = Map<String, dynamic>.from(
-          jsonDecode(await storedFile.readAsString()) as Map,
-        );
-        final syncedCommands = List<Map<String, dynamic>>.from(
-          storedAfterSync['config']['commands'] as List,
-        );
+        final syncedEntry = await RunnerBotStore(
+          dataDir: tempDir.path,
+        ).loadEntry(botId);
+        expect(syncedEntry, isNotNull);
+        final syncedCommands = syncedEntry!.config.commands;
         expect(syncedCommands.map((entry) => entry['id']).toList(), [
           'cmd-1',
           'cmd-2',
@@ -330,12 +329,11 @@ void main() {
         );
         expect(deleteCommand.statusCode, HttpStatus.ok);
 
-        final storedAfterDelete = Map<String, dynamic>.from(
-          jsonDecode(await storedFile.readAsString()) as Map,
-        );
-        final remainingCommands = List<Map<String, dynamic>>.from(
-          storedAfterDelete['config']['commands'] as List,
-        );
+        final deletedEntry = await RunnerBotStore(
+          dataDir: tempDir.path,
+        ).loadEntry(botId);
+        expect(deletedEntry, isNotNull);
+        final remainingCommands = deletedEntry!.config.commands;
         expect(remainingCommands.map((entry) => entry['id']).toList(), [
           'cmd-2',
         ]);
@@ -388,26 +386,20 @@ void main() {
         );
         expect(removeScopedDef.statusCode, HttpStatus.ok);
 
-        final storedAfterConfigUpdates = Map<String, dynamic>.from(
-          jsonDecode(await storedFile.readAsString()) as Map,
-        );
-        final workflows = List<Map<String, dynamic>>.from(
-          storedAfterConfigUpdates['config']['workflows'] as List,
-        );
+        final configUpdatesEntry = await RunnerBotStore(
+          dataDir: tempDir.path,
+        ).loadEntry(botId);
+        expect(configUpdatesEntry, isNotNull);
+        final workflows = configUpdatesEntry!.config.workflows;
         expect(workflows.map((entry) => entry['name']).toList(), [
           'nightly-report',
         ]);
 
-        final globals = Map<String, dynamic>.from(
-          storedAfterConfigUpdates['config']['globalVariables'] as Map,
-        );
+        final globals = configUpdatesEntry.config.globalVariables;
         expect(globals.containsKey('new_key'), isTrue);
         expect(globals.containsKey('old_key'), isFalse);
 
-        final scopedDefs = List<Map<String, dynamic>>.from(
-          storedAfterConfigUpdates['config']['scopedVariableDefinitions']
-              as List,
-        );
+        final scopedDefs = configUpdatesEntry.config.scopedVariableDefinitions;
         expect(scopedDefs, isEmpty);
       },
     );
@@ -418,6 +410,7 @@ void main() {
         host: '127.0.0.1',
         port: port,
         logStore: RunnerLogStore(),
+        dataDir: tempDir.path,
       );
       await server!.start();
 
@@ -436,7 +429,7 @@ void main() {
             'inboundWebhookEndpoints': <Map<String, dynamic>>[
               <String, dynamic>{
                 'id': 'wh_1',
-                'path': 'incoming/orders',
+                'path': 'orders',
                 'workflowName': 'incoming',
                 'secret': 'top-secret',
                 'enabled': true,
@@ -456,14 +449,14 @@ void main() {
       expect(sync.statusCode, HttpStatus.ok);
 
       final noSecret = await http.post(
-        base.resolve('/bots/$botId/inbound/incoming/orders'),
+        base.resolve('/bots/$botId/inbound/orders'),
         headers: const <String, String>{'content-type': 'application/json'},
         body: jsonEncode(<String, dynamic>{'hello': 'world'}),
       );
       expect(noSecret.statusCode, HttpStatus.unauthorized);
 
       final response = await http.post(
-        base.resolve('/bots/$botId/inbound/incoming/orders'),
+        base.resolve('/bots/$botId/inbound/orders'),
         headers: const <String, String>{
           'content-type': 'application/json',
           'x-bot-webhook-secret': 'top-secret',
