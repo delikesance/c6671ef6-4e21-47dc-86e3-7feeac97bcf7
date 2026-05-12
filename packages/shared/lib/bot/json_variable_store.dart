@@ -95,11 +95,17 @@ class JsonVariableStore implements VariableDatabase {
     }
     final value = _globalVariables.remove(oldKey);
     _globalVariables[newKey] = value;
+
+    final expiration = _globalExpirations.remove(oldKey);
+    if (expiration != null) {
+      _globalExpirations[newKey] = expiration;
+    }
   }
 
   @override
   Future<void> removeGlobalVariable(String botId, String key) async {
     _globalVariables.remove(key);
+    _globalExpirations.remove(key);
   }
 
   @override
@@ -222,6 +228,16 @@ class JsonVariableStore implements VariableDatabase {
     }
     final value = byId.remove(oldKey);
     byId[newKey] = value;
+
+    final expiration = _scopedExpirations[scope]?[contextId]?.remove(oldKey);
+    if (expiration != null) {
+      final expByScope = _scopedExpirations.putIfAbsent(
+        scope,
+        () => <String, Map<String, int>>{},
+      );
+      final expById = expByScope.putIfAbsent(contextId, () => <String, int>{});
+      expById[newKey] = expiration;
+    }
   }
 
   @override
@@ -237,6 +253,7 @@ class JsonVariableStore implements VariableDatabase {
       return;
     }
     byId.remove(key);
+    _scopedExpirations[scope]?[contextId]?.remove(key);
   }
 
   @override
