@@ -90,7 +90,6 @@ class RunnerDataStore implements BotDataStore {
         managedToken != null &&
         managedToken.trim().isNotEmpty) {
       return ManagedVariableStore(
-        _jsonFallbackStore,
         baseUrl: managedApi.trim(),
         token: managedToken.trim(),
       );

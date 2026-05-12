@@ -71,6 +71,29 @@ Map<String, String> _threadExtra(dynamic thread) {
   };
 }
 
+Future<Map<String, String>> _guildExtra(
+  dynamic guild, {
+  String prefix = 'guild',
+  required Nyxx? client,
+}) async {
+  if (guild == null) return <String, String>{};
+  
+  final count = await getGuildMemberCount(
+    guild,
+    client: client,
+    guildId: guild.id,
+  );
+
+  return <String, String>{
+    '$prefix.id': _idString(guild.id),
+    '$prefix.name': (guild.name ?? '').toString(),
+    '$prefix.memberCount': count.toString(),
+    '$prefix.systemChannelId': _idString(guild.systemChannelId),
+    '$prefix.ownerId': _idString(guild.ownerId),
+    '$prefix.preferredLocale': (guild.preferredLocale ?? '').toString(),
+  };
+}
+
 Map<String, String> _roleExtRra(dynamic role) => <String, String>{
   'role.id': _idString(role?.id),
   'role.name': (role?.name ?? '').toString(),

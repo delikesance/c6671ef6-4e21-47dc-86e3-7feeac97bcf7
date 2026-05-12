@@ -35,6 +35,9 @@ Duration? parseBdfdDuration(String text) {
     case 'year':
     case 'years':
       return Duration(days: value * 365);
+    case 'ms':
+    case 'milliseconds':
+      return Duration(milliseconds: value);
     default:
       // Default to seconds if no unit provided
       return Duration(seconds: value);

@@ -1,9 +1,50 @@
 import 'dart:convert';
 
+import 'package:bot_creator_shared/utils/bdfd_duration_parser.dart';
+
 import '../../types/action.dart';
 import '../../utils/bdfd_compiler.dart';
-import '../../utils/bdfd_duration_parser.dart';
 import '../../utils/workflow_call.dart';
+
+class ControlFlowExecutor {
+  static final Map<String, int> _runtimeCooldowns = {};
+
+  static String _getCooldownKey(
+    String botId,
+    String scope,
+    String varKey,
+    Map<String, String> variables,
+  ) {
+    final effectiveBotId = botId.isNotEmpty ? botId : (variables['bot.id'] ?? variables['botId'] ?? '');
+    final userId = variables['user.id'] ?? variables['author.id'] ?? variables['userId'] ?? '';
+    final guildId = variables['guild.id'] ?? variables['guildId'] ?? '';
+    return '$effectiveBotId:$scope:$varKey:$userId:$guildId';
+  }
+
+  static void setRuntimeCooldown(
+    String botId,
+    String scope,
+    String varKey,
+    Map<String, String> variables,
+    String durationStr,
+  ) {
+    final duration = parseBdfdDuration(durationStr);
+    if (duration == null) return;
+
+    final key = _getCooldownKey(botId, scope, varKey, variables);
+    _runtimeCooldowns[key] = DateTime.now().millisecondsSinceEpoch + duration.inMilliseconds;
+  }
+
+  static void removeRuntimeCooldown(
+    String botId,
+    String scope,
+    String varKey,
+    Map<String, String> variables,
+  ) {
+    final key = _getCooldownKey(botId, scope, varKey, variables);
+    _runtimeCooldowns.remove(key);
+  }
+}
 
 bool _evaluateCondition({
   required String leftValue,
@@ -65,7 +106,8 @@ Future<bool> _evaluateConditionFromPayload({
   required Map<String, dynamic> payload,
   required Map<String, String> variables,
   required String Function(String input) resolveValue,
-  required Future<int?> Function(String scope, String key)? getScopedVariableTtl,
+  required Future<int?> Function(String scope, String key)?
+  getScopedVariableTtl,
 }) async {
   final rawGroup =
       (payload['condition.group'] ?? payload['group'] ?? '').toString().trim();
@@ -126,24 +168,41 @@ Future<bool> _evaluateConditionFromPayload({
   );
 
   // Special handling for cooldown placeholders like %time%
-  // If the condition failed and it's an "isEmpty" check on a cooldown variable,
-  // we fetch the TTL and inject it into variables.
   if (!passed &&
       conditionOperator.toLowerCase() == 'isempty' &&
-      rawConditionVariable.contains('.bc_cooldown_') &&
-      getScopedVariableTtl != null) {
-    // rawConditionVariable is likely "((scope.bc_cooldown_...))"
-    final match = RegExp(r'^\(\(([^.]+)\.([^)]+)\)\)$').firstMatch(
-      rawConditionVariable.trim(),
-    );
-    if (match != null) {
-      final scope = match.group(1)!;
-      final key = match.group(2)!;
-      final ttl = await getScopedVariableTtl(scope, key);
-      if (ttl != null) {
-        variables['cooldown.time'] = formatBdfdDuration(
-          Duration(milliseconds: ttl),
+      rawConditionVariable.contains('.bc_cooldown_')) {
+    final trimmed = rawConditionVariable.trim();
+    final contentMatch = RegExp(r'^\(\((.+)\)\)$').firstMatch(trimmed);
+    if (contentMatch != null) {
+      final content = contentMatch.group(1)!;
+      final firstExpression = content.split('|').first.trim();
+      final scopeMatch = RegExp(r'^([^.]+)\.(.+)$').firstMatch(firstExpression);
+      if (scopeMatch != null) {
+        final scope = scopeMatch.group(1)!;
+        final key = scopeMatch.group(2)!;
+        final botId = variables['bot.id'] ?? '';
+
+        final storageKey = key.startsWith('bc_') ? key.substring(3) : key;
+        final mapKey = ControlFlowExecutor._getCooldownKey(
+          botId,
+          scope,
+          storageKey,
+          variables,
         );
+        final expiresAt = ControlFlowExecutor._runtimeCooldowns[mapKey];
+
+        if (expiresAt != null) {
+          final remaining = expiresAt - DateTime.now().millisecondsSinceEpoch;
+          if (remaining > 0) {
+            final unixTimestampSeconds = (expiresAt / 1000).floor();
+            final discordTimestamp = '<t:$unixTimestampSeconds:R>';
+            variables['cooldown.time'] = discordTimestamp;
+            variables['time'] = discordTimestamp;
+          } else {
+            // Expired, clean up
+            ControlFlowExecutor._runtimeCooldowns.remove(mapKey);
+          }
+        }
       }
     }
   }
@@ -168,17 +227,45 @@ String _resolveConditionLeftValue(
   final wrappedMatch = RegExp(r'^\(\((.+)\)\)$').firstMatch(raw);
   if (wrappedMatch != null) {
     final wrappedKey = (wrappedMatch.group(1) ?? '').trim();
-    if (wrappedKey.isNotEmpty && variables.containsKey(wrappedKey)) {
-      return variables[wrappedKey] ?? '';
+    final expressions = wrappedKey.split('|').map((e) => e.trim()).toList();
+
+    for (final expr in expressions) {
+      if (expr.contains('.bc_cooldown_')) {
+        final scopeMatch = RegExp(r'^([^.]+)\.(.+)$').firstMatch(expr);
+        if (scopeMatch != null) {
+          final scope = scopeMatch.group(1)!;
+          final key = scopeMatch.group(2)!;
+          final botId = variables['bot.id'] ?? '';
+          final storageKey = key.startsWith('bc_') ? key.substring(3) : key;
+
+          final mapKey = ControlFlowExecutor._getCooldownKey(
+            botId,
+            scope,
+            storageKey,
+            variables,
+          );
+          final expiresAt = ControlFlowExecutor._runtimeCooldowns[mapKey];
+          if (expiresAt != null) {
+            final remaining = expiresAt - DateTime.now().millisecondsSinceEpoch;
+            if (remaining > 0) {
+              return 'cooldown_active';
+            } else {
+              ControlFlowExecutor._runtimeCooldowns.remove(mapKey);
+            }
+          }
+          // Cooldown is NOT active in RAM, so return empty even if it exists in 'variables'
+          return '';
+        }
+      }
+
+      final value = variables[expr];
+      if (value != null) {
+        return value;
+      }
     }
   }
 
-  final resolved = resolveValue(raw).trim();
-  if (variables.containsKey(resolved)) {
-    return variables[resolved] ?? '';
-  }
-
-  return resolved;
+  return resolveValue(rawConditionVariable);
 }
 
 List<Action> _decodeActionList(dynamic branchRaw) {
@@ -323,22 +410,6 @@ Future<bool> executeControlFlowAction({
       return true;
 
     case BotCreatorActionType.stopUnless:
-      final rawConditionVariable =
-          (payload['condition.variable'] ?? '').toString();
-      final conditionVariable = resolveValue(rawConditionVariable).trim();
-      final conditionOperator =
-          resolveValue(
-            (payload['condition.operator'] ?? 'equals').toString(),
-          ).trim();
-      final conditionValue = resolveValue(
-        (payload['condition.value'] ?? '').toString(),
-      );
-
-      final leftValue = _resolveConditionLeftValue(
-        rawConditionVariable,
-        variables,
-        resolveValue,
-      );
       final conditionPassed = await _evaluateConditionFromPayload(
         payload: payload,
         variables: variables,
@@ -347,9 +418,6 @@ Future<bool> executeControlFlowAction({
       );
       results[resultKey] = conditionPassed ? 'PASSED' : 'STOPPED';
       if (!conditionPassed) {
-        onLog?.call(
-          'Action $resultKey stopped workflow: "$conditionVariable" $conditionOperator "$conditionValue" failed (actual: "$leftValue")',
-        );
         results['__stopped__'] = 'true';
       }
       return true;

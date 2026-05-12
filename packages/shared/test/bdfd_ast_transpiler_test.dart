@@ -75,6 +75,56 @@ void main() {
       },
     );
 
+    test('preserves icon_urls when footericon and authoricon precede footer and author', () {
+      final result = BdfdAstTranspiler().transpile(
+        const BdfdScriptAst(
+          nodes: [
+            BdfdFunctionCallAst(
+              name: r'$footericon',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('https://footer.icon')],
+              ],
+            ),
+            BdfdFunctionCallAst(
+              name: r'$footer',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('My Footer')],
+              ],
+            ),
+            BdfdFunctionCallAst(
+              name: r'$authoricon',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('https://author.icon')],
+              ],
+            ),
+            BdfdFunctionCallAst(
+              name: r'$author',
+              arguments: [
+                <BdfdAstNode>[BdfdTextAst('My Author')],
+              ],
+            ),
+          ],
+        ),
+      );
+
+      expect(result.diagnostics, isEmpty);
+      expect(result.actions, hasLength(1));
+
+      final action = result.actions.single;
+      final embeds = List<Map<String, dynamic>>.from(
+        action.payload['embeds'] as List,
+      );
+      expect(embeds, hasLength(1));
+      
+      final footer = embeds.single['footer'] as Map<String, dynamic>;
+      expect(footer['text'], 'My Footer');
+      expect(footer['icon_url'], 'https://footer.icon');
+
+      final author = embeds.single['author'] as Map<String, dynamic>;
+      expect(author['name'], 'My Author');
+      expect(author['icon_url'], 'https://author.icon');
+    });
+
     test('transpiles if blocks to ifBlock actions with nested branches', () {
       final result = BdfdAstTranspiler().transpile(
         const BdfdScriptAst(

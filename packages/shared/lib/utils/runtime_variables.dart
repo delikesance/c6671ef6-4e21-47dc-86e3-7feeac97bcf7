@@ -175,6 +175,7 @@ Future<void> hydrateRuntimeVariables({
   String? userContextId,
   String? messageContextId,
 }) async {
+  runtimeVariables['bot.id'] = botId;
   List<Map<String, dynamic>> scopedDefinitions = const <Map<String, dynamic>>[];
   try {
     scopedDefinitions = await store.getScopedVariableDefinitions(botId);
