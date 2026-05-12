@@ -2,14 +2,17 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:bot_creator_shared/bot/variable_database.dart';
 
+/// An implementation of [VariableDatabase] that communicates directly with the
+/// Manager API via HTTP, without any local caching.
+///
+/// This ensures that the runner always has the most up-to-date values, even if
+/// they are modified by external systems (e.g., the Admin Dashboard).
 class ManagedVariableStore implements VariableDatabase {
-  final VariableDatabase _cache;
   final String _baseUrl;
   final String _token;
   final http.Client _httpClient = http.Client();
 
-  ManagedVariableStore(
-    this._cache, {
+  ManagedVariableStore({
     required String baseUrl,
     required String token,
   }) : _baseUrl =
@@ -22,7 +25,7 @@ class ManagedVariableStore implements VariableDatabase {
     _httpClient.close();
   }
 
-  Future<void> _post(
+  Future<dynamic> _post(
     String botId,
     String suffix,
     Map<String, dynamic> body,
@@ -40,113 +43,71 @@ class ManagedVariableStore implements VariableDatabase {
         body: jsonEncode(body),
       );
       if (response.statusCode >= 400) {
-        print(
-          '[ManagedVariableStore] Failed to sync variable mutation: ${response.statusCode} - ${response.body}',
+        throw StateError(
+          '[ManagedVariableStore] API error ($suffix): ${response.statusCode} - ${response.body}',
         );
       }
+      if (response.body.isNotEmpty) {
+        return jsonDecode(response.body);
+      }
+      return null;
     } catch (e) {
-      print(
-        '[ManagedVariableStore] Network error syncing variable mutation: $e',
-      );
+      throw StateError('[ManagedVariableStore] Network error ($suffix): $e');
     }
   }
 
-  // ===== READS (delegated entirely to cache) =====
-
-  @override
-  Future<Map<String, dynamic>> getGlobalVariables(String botId) =>
-      _cache.getGlobalVariables(botId);
-
-  @override
-  Future<dynamic> getGlobalVariable(String botId, String key) =>
-      _cache.getGlobalVariable(botId, key);
-
-  @override
-  Future<Map<String, dynamic>> getScopedVariables(
+  Future<dynamic> _get(
     String botId,
-    String scope,
-    String contextId,
-  ) => _cache.getScopedVariables(botId, scope, contextId);
+    String suffix,
+    Map<String, String> queryParameters,
+  ) async {
+    final url = Uri.parse(
+      '$_baseUrl/bots/${Uri.encodeComponent(botId)}/variables$suffix',
+    ).replace(queryParameters: queryParameters);
+
+    try {
+      final response = await _httpClient.get(
+        url,
+        headers: {'Authorization': 'Bearer $_token'},
+      );
+      if (response.statusCode == 404) {
+        return null;
+      }
+      if (response.statusCode >= 400) {
+        throw StateError(
+          '[ManagedVariableStore] API error ($suffix): ${response.statusCode} - ${response.body}',
+        );
+      }
+      if (response.body.isEmpty) {
+        return null;
+      }
+      return jsonDecode(response.body);
+    } catch (e) {
+      throw StateError('[ManagedVariableStore] Network error ($suffix): $e');
+    }
+  }
+
+  (String, String) _splitContextId(String scope, String contextId) {
+    if (scope == 'guildMember') {
+      final parts = contextId.split(':');
+      if (parts.length >= 2) return (parts[0], parts[1]);
+      return (parts.isNotEmpty ? parts[0] : '', '');
+    }
+    return (contextId, '');
+  }
+
+  // ===== GLOBAL VARIABLES =====
 
   @override
-  Future<dynamic> getScopedVariable(
-    String botId,
-    String scope,
-    String contextId,
-    String key,
-  ) => _cache.getScopedVariable(botId, scope, contextId, key);
+  Future<Map<String, dynamic>> getGlobalVariables(String botId) async {
+    final response = await _get(botId, '/global/list', {});
+    return Map<String, dynamic>.from(response ?? {});
+  }
 
   @override
-  Future<List<String>> listContextIds(
-    String botId,
-    String scope, {
-    String? searchKey,
-  }) => _cache.listContextIds(botId, scope, searchKey: searchKey);
-
-  @override
-  Future<Map<String, dynamic>> queryScopedVariableIndex(
-    String botId,
-    String scope,
-    String key, {
-    int offset = 0,
-    int limit = 25,
-    bool descending = true,
-  }) => _cache.queryScopedVariableIndex(
-    botId,
-    scope,
-    key,
-    offset: offset,
-    limit: limit,
-    descending: descending,
-  );
-
-  @override
-  Future<dynamic> getScopedArrayElement(
-    String botId,
-    String scope,
-    String contextId,
-    String key,
-    int index,
-  ) => _cache.getScopedArrayElement(botId, scope, contextId, key, index);
-
-  @override
-  Future<int> getScopedArrayLength(
-    String botId,
-    String scope,
-    String contextId,
-    String key,
-  ) => _cache.getScopedArrayLength(botId, scope, contextId, key);
-
-  @override
-  Future<int?> getScopedVariableTtl(
-    String botId,
-    String scope,
-    String contextId,
-    String key,
-  ) => _cache.getScopedVariableTtl(botId, scope, contextId, key);
-
-  @override
-  Future<Map<String, dynamic>> queryScopedArray(
-    String botId,
-    String scope,
-    String contextId,
-    String key, {
-    int offset = 0,
-    int limit = 25,
-    bool descending = true,
-    String? filter,
-  }) => _cache.queryScopedArray(
-    botId,
-    scope,
-    contextId,
-    key,
-    offset: offset,
-    limit: limit,
-    descending: descending,
-    filter: filter,
-  );
-
-  // ===== WRITES (delegated to cache + HTTP push) =====
+  Future<dynamic> getGlobalVariable(String botId, String key) async {
+    return await _get(botId, '/global/get', {'key': key});
+  }
 
   @override
   Future<void> setGlobalVariable(
@@ -155,7 +116,6 @@ class ManagedVariableStore implements VariableDatabase {
     dynamic value, {
     String? ttl,
   }) async {
-    await _cache.setGlobalVariable(botId, key, value, ttl: ttl);
     await _post(botId, '/global/set', {
       'key': key,
       'value': value,
@@ -169,28 +129,45 @@ class ManagedVariableStore implements VariableDatabase {
     String oldKey,
     String newKey,
   ) async {
-    // Manager API doesn't support 'rename' directly, so we emulate it.
-    final value = await _cache.getGlobalVariable(botId, oldKey);
-    await _cache.renameGlobalVariable(botId, oldKey, newKey);
-    if (value != null) {
-      await setGlobalVariable(botId, newKey, value);
-      await removeGlobalVariable(botId, oldKey);
-    }
+    await _post(botId, '/global/rename', {'oldKey': oldKey, 'newKey': newKey});
   }
 
   @override
   Future<void> removeGlobalVariable(String botId, String key) async {
-    await _cache.removeGlobalVariable(botId, key);
     await _post(botId, '/global/remove', {'key': key});
   }
 
-  (String, String) _splitContextId(String scope, String contextId) {
-    if (scope == 'guildMember') {
-      final parts = contextId.split(':');
-      if (parts.length >= 2) return (parts[0], parts[1]);
-      return (parts.isNotEmpty ? parts[0] : '', '');
-    }
-    return (contextId, '');
+  // ===== SCOPED VARIABLES =====
+
+  @override
+  Future<Map<String, dynamic>> getScopedVariables(
+    String botId,
+    String scope,
+    String contextId,
+  ) async {
+    final (id, auxId) = _splitContextId(scope, contextId);
+    final response = await _get(botId, '/scoped/list', {
+      'scope': scope,
+      'scope_id': id,
+      'scope_aux_id': auxId,
+    });
+    return Map<String, dynamic>.from(response ?? {});
+  }
+
+  @override
+  Future<dynamic> getScopedVariable(
+    String botId,
+    String scope,
+    String contextId,
+    String key,
+  ) async {
+    final (id, auxId) = _splitContextId(scope, contextId);
+    return await _get(botId, '/scoped/get', {
+      'scope': scope,
+      'scope_id': id,
+      'scope_aux_id': auxId,
+      'key': key,
+    });
   }
 
   @override
@@ -202,13 +179,12 @@ class ManagedVariableStore implements VariableDatabase {
     dynamic value, {
     String? ttl,
   }) async {
-    await _cache.setScopedVariable(botId, scope, contextId, key, value, ttl: ttl);
-    final (scopeId, scopeAuxId) = _splitContextId(scope, contextId);
-    await _post(botId, '/scoped-values/set', {
+    final (id, auxId) = _splitContextId(scope, contextId);
+    await _post(botId, '/scoped/set', {
       'scope': scope,
+      'scope_id': id,
+      'scope_aux_id': auxId,
       'key': key,
-      'scope_id': scopeId,
-      'scope_aux_id': scopeAuxId,
       'value': value,
       if (ttl != null) 'ttl': ttl,
     });
@@ -222,17 +198,14 @@ class ManagedVariableStore implements VariableDatabase {
     String oldKey,
     String newKey,
   ) async {
-    final value = await _cache.getScopedVariable(
-      botId,
-      scope,
-      contextId,
-      oldKey,
-    );
-    await _cache.renameScopedVariable(botId, scope, contextId, oldKey, newKey);
-    if (value != null) {
-      await setScopedVariable(botId, scope, contextId, newKey, value);
-      await removeScopedVariable(botId, scope, contextId, oldKey);
-    }
+    final (id, auxId) = _splitContextId(scope, contextId);
+    await _post(botId, '/scoped/rename', {
+      'scope': scope,
+      'scope_id': id,
+      'scope_aux_id': auxId,
+      'oldKey': oldKey,
+      'newKey': newKey,
+    });
   }
 
   @override
@@ -242,14 +215,99 @@ class ManagedVariableStore implements VariableDatabase {
     String contextId,
     String key,
   ) async {
-    await _cache.removeScopedVariable(botId, scope, contextId, key);
-    final (scopeId, scopeAuxId) = _splitContextId(scope, contextId);
-    await _post(botId, '/scoped-values/remove', {
+    final (id, auxId) = _splitContextId(scope, contextId);
+    await _post(botId, '/scoped/remove', {
+      'scope': scope,
+      'scope_id': id,
+      'scope_aux_id': auxId,
+      'key': key,
+    });
+  }
+
+  @override
+  Future<List<String>> listContextIds(
+    String botId,
+    String scope, {
+    String? searchKey,
+  }) async {
+    final response = await _get(botId, '/scoped/list-contexts', {
+      'scope': scope,
+      if (searchKey != null) 'search_key': searchKey,
+    });
+    return List<String>.from(response ?? []);
+  }
+
+  @override
+  Future<Map<String, dynamic>> queryScopedVariableIndex(
+    String botId,
+    String scope,
+    String key, {
+    int offset = 0,
+    int limit = 25,
+    bool descending = true,
+  }) async {
+    final response = await _get(botId, '/scoped/query-index', {
       'scope': scope,
       'key': key,
-      'scope_id': scopeId,
-      'scope_aux_id': scopeAuxId,
+      'offset': offset.toString(),
+      'limit': limit.toString(),
+      'descending': descending.toString(),
     });
+    return Map<String, dynamic>.from(response ?? {});
+  }
+
+  @override
+  Future<int?> getScopedVariableTtl(
+    String botId,
+    String scope,
+    String contextId,
+    String key,
+  ) async {
+    final (id, auxId) = _splitContextId(scope, contextId);
+    final response = await _get(botId, '/scoped/ttl', {
+      'scope': scope,
+      'scope_id': id,
+      'scope_aux_id': auxId,
+      'key': key,
+    });
+    return response as int?;
+  }
+
+  // ===== SCOPED ARRAYS =====
+
+  @override
+  Future<dynamic> getScopedArrayElement(
+    String botId,
+    String scope,
+    String contextId,
+    String key,
+    int index,
+  ) async {
+    final (id, auxId) = _splitContextId(scope, contextId);
+    return await _get(botId, '/scoped/array/get-element', {
+      'scope': scope,
+      'scope_id': id,
+      'scope_aux_id': auxId,
+      'key': key,
+      'index': index.toString(),
+    });
+  }
+
+  @override
+  Future<int> getScopedArrayLength(
+    String botId,
+    String scope,
+    String contextId,
+    String key,
+  ) async {
+    final (id, auxId) = _splitContextId(scope, contextId);
+    final response = await _get(botId, '/scoped/array/length', {
+      'scope': scope,
+      'scope_id': id,
+      'scope_aux_id': auxId,
+      'key': key,
+    });
+    return response as int? ?? 0;
   }
 
   @override
@@ -260,14 +318,14 @@ class ManagedVariableStore implements VariableDatabase {
     String key,
     dynamic element,
   ) async {
-    await _cache.pushScopedArrayElement(botId, scope, contextId, key, element);
-    final newValue = await _cache.getScopedVariable(
-      botId,
-      scope,
-      contextId,
-      key,
-    );
-    await setScopedVariable(botId, scope, contextId, key, newValue);
+    final (id, auxId) = _splitContextId(scope, contextId);
+    await _post(botId, '/scoped/array/push', {
+      'scope': scope,
+      'scope_id': id,
+      'scope_aux_id': auxId,
+      'key': key,
+      'element': element,
+    });
   }
 
   @override
@@ -277,25 +335,13 @@ class ManagedVariableStore implements VariableDatabase {
     String contextId,
     String key,
   ) async {
-    final popped = await _cache.popScopedArrayElement(
-      botId,
-      scope,
-      contextId,
-      key,
-    );
-    final newValue = await _cache.getScopedVariable(
-      botId,
-      scope,
-      contextId,
-      key,
-    );
-    if (newValue != null) {
-      await setScopedVariable(botId, scope, contextId, key, newValue);
-    } else {
-      // Array became empty and variable unlinked? Or null array.
-      await removeScopedVariable(botId, scope, contextId, key);
-    }
-    return popped;
+    final (id, auxId) = _splitContextId(scope, contextId);
+    return await _post(botId, '/scoped/array/pop', {
+      'scope': scope,
+      'scope_id': id,
+      'scope_aux_id': auxId,
+      'key': key,
+    });
   }
 
   @override
@@ -306,31 +352,43 @@ class ManagedVariableStore implements VariableDatabase {
     String key,
     int index,
   ) async {
-    final removed = await _cache.removeScopedArrayElement(
-      botId,
-      scope,
-      contextId,
-      key,
-      index,
-    );
-    final newValue = await _cache.getScopedVariable(
-      botId,
-      scope,
-      contextId,
-      key,
-    );
-    if (newValue != null) {
-      await setScopedVariable(botId, scope, contextId, key, newValue);
-    } else {
-      await removeScopedVariable(botId, scope, contextId, key);
-    }
-    return removed;
+    final (id, auxId) = _splitContextId(scope, contextId);
+    return await _post(botId, '/scoped/array/remove-element', {
+      'scope': scope,
+      'scope_id': id,
+      'scope_aux_id': auxId,
+      'key': key,
+      'index': index,
+    });
+  }
+
+  @override
+  Future<Map<String, dynamic>> queryScopedArray(
+    String botId,
+    String scope,
+    String contextId,
+    String key, {
+    int offset = 0,
+    int limit = 25,
+    bool descending = true,
+    String? filter,
+  }) async {
+    final (id, auxId) = _splitContextId(scope, contextId);
+    final response = await _get(botId, '/scoped/array/query', {
+      'scope': scope,
+      'scope_id': id,
+      'scope_aux_id': auxId,
+      'key': key,
+      'offset': offset.toString(),
+      'limit': limit.toString(),
+      'descending': descending.toString(),
+      if (filter != null) 'filter': filter,
+    });
+    return Map<String, dynamic>.from(response ?? {});
   }
 
   @override
   Future<void> deleteAllForBot(String botId) async {
-    // Usually never called from Bot Execution contexts (only on total purge).
-    // Not safely proxyable right now without a global purge route.
-    await _cache.deleteAllForBot(botId);
+    await _post(botId, '/all/delete', {});
   }
 }

@@ -566,13 +566,19 @@ class SqliteCliVariableStore implements VariableDatabase {
     final safeOffset = offset < 0 ? 0 : offset;
     final safeLimit = limit.clamp(1, 25);
 
+    final now = DateTime.now().millisecondsSinceEpoch;
     final stmt = _db.prepare(
-      'SELECT context_id_1, context_id_2, key, value_raw, value_type FROM variables WHERE bot_id = ? AND scope = ? AND key = ?',
+      'SELECT context_id_1, context_id_2, key, value_raw, value_type, expires_at FROM variables WHERE bot_id = ? AND scope = ? AND key = ?',
     );
     final rows = stmt.select([botId, scope, key]);
     stmt.close();
 
     final items = rows
+      .where((row) {
+        final expiresAt = row['expires_at'] as int?;
+        if (expiresAt != null && expiresAt < now) return false;
+        return true;
+      })
       .map((row) {
         final contextId =
             scope == 'guildMember'
