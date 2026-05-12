@@ -410,6 +410,7 @@ void main() {
         host: '127.0.0.1',
         port: port,
         logStore: RunnerLogStore(),
+        dataDir: tempDir.path,
       );
       await server!.start();
 
