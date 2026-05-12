@@ -263,11 +263,7 @@ class DiscordRunner {
       store: store,
       botId: botId,
       variables: runtimeVariables,
-      resolveTemplate:
-          (input) => resolveTemplatePlaceholders(
-            input,
-            Map<String, String>.from(runtimeVariables),
-          ),
+      resolveTemplate: (input) => resolveTemplatePlaceholders(input, runtimeVariables),
       fallbackChannelId: fallbackChannelId,
       fallbackGuildId: fallbackGuildId,
       onLog: (msg) => _log.info(msg),

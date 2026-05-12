@@ -393,6 +393,22 @@ Future<Map<String, String>> handleActions(
             getWorkflowByName:
                 (workflowName) =>
                     manager.getWorkflowByName(botId, workflowName),
+            getScopedVariableTtl: (scope, key) async {
+              final contextId = _resolveScopeContextId(
+                scope: scope,
+                variables: variables,
+                guildId: guildId,
+                channelId: resolvedFallbackChannelId,
+                interaction: interaction,
+              );
+              if (contextId == null) return null;
+              return await manager.getScopedVariableTtl(
+                botId,
+                scope,
+                contextId,
+                key,
+              );
+            },
             executeActions: (nestedSharedActions) async {
               final nestedAppActions =
                   nestedSharedActions

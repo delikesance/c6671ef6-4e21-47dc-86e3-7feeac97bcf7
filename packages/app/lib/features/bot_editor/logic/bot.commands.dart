@@ -59,6 +59,7 @@ Future<void> handleLocalCommands(
       );
       final listOfArgs = await generateKeyValues(interaction);
       final runtimeVariables = <String, String>{...listOfArgs};
+      runtimeVariables['bot.id'] = clientId;
       _injectLocalGatewayBotVariables(
         event.gateway.client,
         runtimeVariables,
@@ -679,6 +680,7 @@ Future<void> _handleLocalCommandAutocomplete(
     final focusedOption = findFocusedOption(interaction.data.options);
     final runtimeVariables = <String, String>{
       ...await generateKeyValues(interaction),
+      'bot.id': clientId,
       'command.type': 'chatInput',
       'interaction.command.type': 'chatInput',
       'config.command.type': 'chatInput',
