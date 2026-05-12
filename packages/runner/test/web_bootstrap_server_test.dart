@@ -11,9 +11,17 @@ import 'package:test/test.dart';
 void main() {
   group('RunnerWebBootstrapServer', () {
     RunnerWebBootstrapServer? server;
+    late Directory tempDir;
+
+    setUp(() async {
+      tempDir = await Directory.systemTemp.createTemp('runner-web-server-');
+    });
 
     tearDown(() async {
       await server?.stop();
+      if (await tempDir.exists()) {
+        await tempDir.delete(recursive: true);
+      }
     });
 
     test(
@@ -24,6 +32,7 @@ void main() {
           host: '127.0.0.1',
           port: port,
           logStore: RunnerLogStore(),
+          dataDir: tempDir.path,
         );
         await server!.start();
 
@@ -48,6 +57,7 @@ void main() {
           port: port,
           apiToken: 'secret-token',
           logStore: RunnerLogStore(),
+          dataDir: tempDir.path,
         );
         await server!.start();
 
@@ -82,6 +92,7 @@ void main() {
         port: port,
         logStore: RunnerLogStore(),
         variableStore: variableStore,
+        dataDir: tempDir.path,
       );
       await server!.start();
 
@@ -237,6 +248,7 @@ void main() {
           host: '127.0.0.1',
           port: port,
           logStore: RunnerLogStore(),
+          dataDir: tempDir.path,
         );
         await server!.start();
 
@@ -297,7 +309,9 @@ void main() {
         );
         expect(syncCommand.statusCode, HttpStatus.ok);
 
-        final syncedEntry = await RunnerBotStore().loadEntry(botId);
+        final syncedEntry = await RunnerBotStore(
+          dataDir: tempDir.path,
+        ).loadEntry(botId);
         expect(syncedEntry, isNotNull);
         final syncedCommands = syncedEntry!.config.commands;
         expect(syncedCommands.map((entry) => entry['id']).toList(), [
@@ -315,7 +329,9 @@ void main() {
         );
         expect(deleteCommand.statusCode, HttpStatus.ok);
 
-        final deletedEntry = await RunnerBotStore().loadEntry(botId);
+        final deletedEntry = await RunnerBotStore(
+          dataDir: tempDir.path,
+        ).loadEntry(botId);
         expect(deletedEntry, isNotNull);
         final remainingCommands = deletedEntry!.config.commands;
         expect(remainingCommands.map((entry) => entry['id']).toList(), [
@@ -370,7 +386,9 @@ void main() {
         );
         expect(removeScopedDef.statusCode, HttpStatus.ok);
 
-        final configUpdatesEntry = await RunnerBotStore().loadEntry(botId);
+        final configUpdatesEntry = await RunnerBotStore(
+          dataDir: tempDir.path,
+        ).loadEntry(botId);
         expect(configUpdatesEntry, isNotNull);
         final workflows = configUpdatesEntry!.config.workflows;
         expect(workflows.map((entry) => entry['name']).toList(), [

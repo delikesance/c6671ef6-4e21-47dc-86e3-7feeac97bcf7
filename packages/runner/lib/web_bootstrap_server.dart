@@ -50,13 +50,17 @@ class RunnerWebBootstrapServer {
     String? apiToken,
     required this.logStore,
     VariableDatabase? variableStore,
+    String? dataDir,
   }) : _apiToken = normalizeRunnerApiToken(apiToken),
-       _runtimeController = RunnerRuntimeController(),
-       _injectedVariableStore = variableStore {
+       _runtimeController = RunnerRuntimeController(dataDir: dataDir),
+       _injectedVariableStore = variableStore,
+       _dataDir = dataDir {
     if (_injectedVariableStore != null) {
       _variableStore = _injectedVariableStore;
     } else {
-      _sqliteVariableStore = SqliteCliVariableStore(_resolveRunnerVariablesDir());
+      _sqliteVariableStore = SqliteCliVariableStore(
+        _resolveRunnerVariablesDir(_dataDir),
+      );
       _variableStore = _sqliteVariableStore!;
     }
 
@@ -68,6 +72,7 @@ class RunnerWebBootstrapServer {
   final String _apiToken;
   final RunnerLogStore logStore;
   final VariableDatabase? _injectedVariableStore;
+  final String? _dataDir;
 
   final RunnerRuntimeController _runtimeController;
   _CpuSample? _lastCpuSample;
@@ -88,9 +93,12 @@ class RunnerWebBootstrapServer {
     _app.all('*', (req, res) {
       res.headers.set('access-control-allow-origin', '*');
       res.headers.set('access-control-allow-methods', 'GET, POST, OPTIONS');
-      res.headers.set('access-control-allow-headers', 'content-type, authorization, x-bot-webhook-secret, x-webhook-secret');
+      res.headers.set(
+        'access-control-allow-headers',
+        'content-type, authorization, x-bot-webhook-secret, x-webhook-secret',
+      );
       res.headers.set('cache-control', 'no-store');
-      
+
       if (req.method == 'OPTIONS') {
         res.statusCode = HttpStatus.noContent;
         return res.close();
@@ -102,13 +110,21 @@ class RunnerWebBootstrapServer {
       if (!_requiresAuthentication(req.uri.path, req.method)) return;
 
       if (!_isAuthorized(req)) {
-        res.headers.set(HttpHeaders.wwwAuthenticateHeader, 'Bearer realm="bot-creator-runner"');
-        throw AlfredException(HttpStatus.unauthorized, {'error': 'Missing or invalid bearer token.'});
+        res.headers.set(
+          HttpHeaders.wwwAuthenticateHeader,
+          'Bearer realm="bot-creator-runner"',
+        );
+        throw AlfredException(HttpStatus.unauthorized, {
+          'error': 'Missing or invalid bearer token.',
+        });
       }
     });
 
     // Public Routes
-    _app.get('/', (req, res) => {'name': 'Bot Creator Runner', 'version': runnerVersion});
+    _app.get(
+      '/',
+      (req, res) => {'name': 'Bot Creator Runner', 'version': runnerVersion},
+    );
     _app.get('/health', (req, res) => {'ok': true});
 
     // System Status & Logs
@@ -116,15 +132,19 @@ class RunnerWebBootstrapServer {
     _app.get('/metrics', (req, res) => _handleMetrics());
     _app.get('/logs', _handleLogs);
 
-
     _app.get('/bots', (req, res) async {
       final entries = await _runtimeController.botStore.listAll();
       return {
-        'bots': entries.map((e) => {
-          'id': e.id,
-          'name': e.name,
-          'syncedAt': e.syncedAt.toUtc().toIso8601String(),
-        }).toList()
+        'bots':
+            entries
+                .map(
+                  (e) => {
+                    'id': e.id,
+                    'name': e.name,
+                    'syncedAt': e.syncedAt.toUtc().toIso8601String(),
+                  },
+                )
+                .toList(),
       };
     });
 
@@ -133,15 +153,15 @@ class RunnerWebBootstrapServer {
     // Scoped Bot Actions
     _app.get('/bots/:id/status', (req, res) {
       final botId = req.params['id'];
-      return {
-        'apiVersion': 2,
-        'bot': _buildBotStatePayload(botId),
-      };
+      return {'apiVersion': 2, 'bot': _buildBotStatePayload(botId)};
     });
 
-    _app.get('/bots/:id/metrics', (req, res) => _handleMetrics(botId: req.params['id']));
+    _app.get(
+      '/bots/:id/metrics',
+      (req, res) => _handleMetrics(botId: req.params['id']),
+    );
     _app.get('/bots/:id/command-stats', _handleCommandStats);
-    
+
     _app.post('/bots/:id/start', _handleRunnerStart);
     _app.post('/bots/:id/stop', _handleRunnerStop);
     _app.post('/bots/:id/reload', _handleBotsReload);
@@ -152,7 +172,10 @@ class RunnerWebBootstrapServer {
     _app.post('/bots/:id/commands/sync', _handleCommandSync);
     _app.post('/bots/:id/commands/delete', _handleCommandDelete);
     _app.post('/bots/:id/scheduled-triggers/sync', _handleScheduledTriggerSync);
-    _app.post('/bots/:id/scheduled-triggers/delete', _handleScheduledTriggerDelete);
+    _app.post(
+      '/bots/:id/scheduled-triggers/delete',
+      _handleScheduledTriggerDelete,
+    );
     _app.post('/bots/:id/inbound-webhooks/sync', _handleInboundWebhookSync);
     _app.post('/bots/:id/inbound-webhooks/delete', _handleInboundWebhookDelete);
 
@@ -161,11 +184,20 @@ class RunnerWebBootstrapServer {
     _app.post('/bots/:id/variables/global/set', _handleSetGlobalVariable);
     _app.post('/bots/:id/variables/global/rename', _handleRenameGlobalVariable);
     _app.post('/bots/:id/variables/global/remove', _handleRemoveGlobalVariable);
-    
-    _app.get('/bots/:id/variables/scoped-definitions', _handleGetScopedDefinitions);
-    _app.post('/bots/:id/variables/scoped-definitions/set', _handleSetScopedDefinition);
-    _app.post('/bots/:id/variables/scoped-definitions/remove', _handleRemoveScopedDefinition);
-    
+
+    _app.get(
+      '/bots/:id/variables/scoped-definitions',
+      _handleGetScopedDefinitions,
+    );
+    _app.post(
+      '/bots/:id/variables/scoped-definitions/set',
+      _handleSetScopedDefinition,
+    );
+    _app.post(
+      '/bots/:id/variables/scoped-definitions/remove',
+      _handleRemoveScopedDefinition,
+    );
+
     _app.get('/bots/:id/variables/scoped-values', _handleGetScopedValues);
 
     // Debug Replays
@@ -189,7 +221,8 @@ class RunnerWebBootstrapServer {
     await _runtimeController.dispose();
     _sqliteVariableStore?.dispose();
     final activeStore = _variableStore;
-    if (activeStore is SqliteCliVariableStore && !identical(activeStore, _sqliteVariableStore)) {
+    if (activeStore is SqliteCliVariableStore &&
+        !identical(activeStore, _sqliteVariableStore)) {
       activeStore.dispose();
     }
     await _app.close();
@@ -205,18 +238,28 @@ class RunnerWebBootstrapServer {
     final botId = (payload['botId'] ?? '').toString().trim();
     final botName = (payload['botName'] ?? '').toString().trim();
 
-    if (botId.isEmpty) throw AlfredException(HttpStatus.badRequest, {'error': 'Missing botId.'});
+    if (botId.isEmpty)
+      throw AlfredException(HttpStatus.badRequest, {'error': 'Missing botId.'});
 
     final rawConfig = payload['config'];
-    if (rawConfig == null || rawConfig is! Map) throw AlfredException(HttpStatus.badRequest, {'error': 'Missing or invalid config payload.'});
+    if (rawConfig == null || rawConfig is! Map)
+      throw AlfredException(HttpStatus.badRequest, {
+        'error': 'Missing or invalid config payload.',
+      });
 
     try {
       final config = BotConfig.fromJson(Map<String, dynamic>.from(rawConfig));
       config.validate();
-      await _runtimeController.botStore.save(botId, botName.isEmpty ? botId : botName, config);
+      await _runtimeController.botStore.save(
+        botId,
+        botName.isEmpty ? botId : botName,
+        config,
+      );
       return res.json({'ok': true});
     } catch (e) {
-      throw AlfredException(HttpStatus.badRequest, {'error': 'Invalid config: $e'});
+      throw AlfredException(HttpStatus.badRequest, {
+        'error': 'Invalid config: $e',
+      });
     }
   }
 
@@ -226,7 +269,10 @@ class RunnerWebBootstrapServer {
     final botName = (payload['botName'] ?? '').toString().trim();
 
     try {
-      await _runtimeController.startBot(botId: botId, botName: botName.isEmpty ? null : botName);
+      await _runtimeController.startBot(
+        botId: botId,
+        botName: botName.isEmpty ? null : botName,
+      );
       return res.json(_buildStatusPayload());
     } on StateError catch (e) {
       throw AlfredException(HttpStatus.conflict, {'error': e.message});
@@ -244,7 +290,10 @@ class RunnerWebBootstrapServer {
     final payload = await req.bodyAsJsonMap;
     final rawConfig = payload['config'];
 
-    if (rawConfig == null || rawConfig is! Map) throw AlfredException(HttpStatus.badRequest, {'error': 'Missing or invalid config payload.'});
+    if (rawConfig == null || rawConfig is! Map)
+      throw AlfredException(HttpStatus.badRequest, {
+        'error': 'Missing or invalid config payload.',
+      });
 
     try {
       final config = BotConfig.fromJson(Map<String, dynamic>.from(rawConfig));
@@ -255,7 +304,9 @@ class RunnerWebBootstrapServer {
         'reloaded': _runtimeController.isBotRunning(botId),
       });
     } catch (e) {
-      throw AlfredException(HttpStatus.badRequest, {'error': 'Invalid config: $e'});
+      throw AlfredException(HttpStatus.badRequest, {
+        'error': 'Invalid config: $e',
+      });
     }
   }
 
@@ -265,8 +316,14 @@ class RunnerWebBootstrapServer {
     final commandId = (payload['commandId'] ?? '').toString().trim();
     final rawCommand = payload['command'];
 
-    if (commandId.isEmpty) throw AlfredException(HttpStatus.badRequest, {'error': 'Missing commandId.'});
-    if (rawCommand == null || rawCommand is! Map) throw AlfredException(HttpStatus.badRequest, {'error': 'Missing or invalid command payload.'});
+    if (commandId.isEmpty)
+      throw AlfredException(HttpStatus.badRequest, {
+        'error': 'Missing commandId.',
+      });
+    if (rawCommand == null || rawCommand is! Map)
+      throw AlfredException(HttpStatus.badRequest, {
+        'error': 'Missing or invalid command payload.',
+      });
 
     final command = Map<String, dynamic>.from(rawCommand)..['id'] = commandId;
 
@@ -288,7 +345,10 @@ class RunnerWebBootstrapServer {
     final payload = await req.bodyAsJsonMap;
     final commandId = (payload['commandId'] ?? '').toString().trim();
 
-    if (commandId.isEmpty) throw AlfredException(HttpStatus.badRequest, {'error': 'Missing commandId.'});
+    if (commandId.isEmpty)
+      throw AlfredException(HttpStatus.badRequest, {
+        'error': 'Missing commandId.',
+      });
 
     try {
       await _runtimeController.deleteCommand(botId, commandId);
@@ -309,10 +369,17 @@ class RunnerWebBootstrapServer {
     final workflowName = (payload['workflowName'] ?? '').toString().trim();
     final rawWorkflow = payload['workflow'];
 
-    if (workflowName.isEmpty) throw AlfredException(HttpStatus.badRequest, {'error': 'Missing workflowName.'});
-    if (rawWorkflow == null || rawWorkflow is! Map) throw AlfredException(HttpStatus.badRequest, {'error': 'Missing or invalid workflow payload.'});
+    if (workflowName.isEmpty)
+      throw AlfredException(HttpStatus.badRequest, {
+        'error': 'Missing workflowName.',
+      });
+    if (rawWorkflow == null || rawWorkflow is! Map)
+      throw AlfredException(HttpStatus.badRequest, {
+        'error': 'Missing or invalid workflow payload.',
+      });
 
-    final workflow = Map<String, dynamic>.from(rawWorkflow)..['name'] = workflowName;
+    final workflow = Map<String, dynamic>.from(rawWorkflow)
+      ..['name'] = workflowName;
 
     try {
       await _runtimeController.upsertWorkflow(botId, workflow);
@@ -332,7 +399,10 @@ class RunnerWebBootstrapServer {
     final payload = await req.bodyAsJsonMap;
     final workflowName = (payload['workflowName'] ?? '').toString().trim();
 
-    if (workflowName.isEmpty) throw AlfredException(HttpStatus.badRequest, {'error': 'Missing workflowName.'});
+    if (workflowName.isEmpty)
+      throw AlfredException(HttpStatus.badRequest, {
+        'error': 'Missing workflowName.',
+      });
 
     try {
       await _runtimeController.deleteWorkflow(botId, workflowName);
@@ -347,28 +417,44 @@ class RunnerWebBootstrapServer {
     }
   }
 
-  Future<void> _handleScheduledTriggerSync(HttpRequest req, HttpResponse res) async {
+  Future<void> _handleScheduledTriggerSync(
+    HttpRequest req,
+    HttpResponse res,
+  ) async {
     final botId = req.params['id'];
     final payload = await req.bodyAsJsonMap;
     final triggerId = (payload['triggerId'] ?? '').toString().trim();
     final trigger = payload['trigger'];
 
-    if (triggerId.isEmpty || trigger == null || trigger is! Map) throw AlfredException(HttpStatus.badRequest, {'error': 'Missing triggerId or trigger payload.'});
+    if (triggerId.isEmpty || trigger == null || trigger is! Map)
+      throw AlfredException(HttpStatus.badRequest, {
+        'error': 'Missing triggerId or trigger payload.',
+      });
 
     try {
-      await _runtimeController.upsertScheduledTrigger(botId, triggerId, Map<String, dynamic>.from(trigger));
+      await _runtimeController.upsertScheduledTrigger(
+        botId,
+        triggerId,
+        Map<String, dynamic>.from(trigger),
+      );
       return res.json({'ok': true});
     } on StateError catch (e) {
       throw AlfredException(HttpStatus.notFound, {'error': e.message});
     }
   }
 
-  Future<void> _handleScheduledTriggerDelete(HttpRequest req, HttpResponse res) async {
+  Future<void> _handleScheduledTriggerDelete(
+    HttpRequest req,
+    HttpResponse res,
+  ) async {
     final botId = req.params['id'];
     final payload = await req.bodyAsJsonMap;
     final triggerId = (payload['triggerId'] ?? '').toString().trim();
 
-    if (triggerId.isEmpty) throw AlfredException(HttpStatus.badRequest, {'error': 'Missing triggerId.'});
+    if (triggerId.isEmpty)
+      throw AlfredException(HttpStatus.badRequest, {
+        'error': 'Missing triggerId.',
+      });
 
     try {
       await _runtimeController.deleteScheduledTrigger(botId, triggerId);
@@ -378,28 +464,44 @@ class RunnerWebBootstrapServer {
     }
   }
 
-  Future<void> _handleInboundWebhookSync(HttpRequest req, HttpResponse res) async {
+  Future<void> _handleInboundWebhookSync(
+    HttpRequest req,
+    HttpResponse res,
+  ) async {
     final botId = req.params['id'];
     final payload = await req.bodyAsJsonMap;
     final webhookId = (payload['webhookId'] ?? '').toString().trim();
     final webhook = payload['webhook'];
 
-    if (webhookId.isEmpty || webhook == null || webhook is! Map) throw AlfredException(HttpStatus.badRequest, {'error': 'Missing webhookId or webhook payload.'});
+    if (webhookId.isEmpty || webhook == null || webhook is! Map)
+      throw AlfredException(HttpStatus.badRequest, {
+        'error': 'Missing webhookId or webhook payload.',
+      });
 
     try {
-      await _runtimeController.upsertInboundWebhook(botId, webhookId, Map<String, dynamic>.from(webhook));
+      await _runtimeController.upsertInboundWebhook(
+        botId,
+        webhookId,
+        Map<String, dynamic>.from(webhook),
+      );
       return res.json({'ok': true});
     } on StateError catch (e) {
       throw AlfredException(HttpStatus.notFound, {'error': e.message});
     }
   }
 
-  Future<void> _handleInboundWebhookDelete(HttpRequest req, HttpResponse res) async {
+  Future<void> _handleInboundWebhookDelete(
+    HttpRequest req,
+    HttpResponse res,
+  ) async {
     final botId = req.params['id'];
     final payload = await req.bodyAsJsonMap;
     final webhookId = (payload['webhookId'] ?? '').toString().trim();
 
-    if (webhookId.isEmpty) throw AlfredException(HttpStatus.badRequest, {'error': 'Missing webhookId.'});
+    if (webhookId.isEmpty)
+      throw AlfredException(HttpStatus.badRequest, {
+        'error': 'Missing webhookId.',
+      });
 
     try {
       await _runtimeController.deleteInboundWebhook(botId, webhookId);
@@ -409,10 +511,16 @@ class RunnerWebBootstrapServer {
     }
   }
 
-  Future<Map<String, dynamic>> _handleGetGlobalVariables(HttpRequest req, HttpResponse res) async {
+  Future<Map<String, dynamic>> _handleGetGlobalVariables(
+    HttpRequest req,
+    HttpResponse res,
+  ) async {
     final botId = req.params['id'];
     final entry = await _runtimeController.botStore.loadEntry(botId);
-    if (entry == null) throw AlfredException(HttpStatus.notFound, {'error': 'Bot "$botId" not found.'});
+    if (entry == null)
+      throw AlfredException(HttpStatus.notFound, {
+        'error': 'Bot "$botId" not found.',
+      });
 
     await _ensureVariableStoreInitialized();
     final runtime = await _variableStore.getGlobalVariables(botId);
@@ -422,14 +530,21 @@ class RunnerWebBootstrapServer {
     };
   }
 
-  Future<void> _handleSetGlobalVariable(HttpRequest req, HttpResponse res) async {
+  Future<void> _handleSetGlobalVariable(
+    HttpRequest req,
+    HttpResponse res,
+  ) async {
     final botId = req.params['id'];
     final payload = await req.bodyAsJsonMap;
     final key = (payload['key'] ?? '').toString().trim();
-    if (key.isEmpty) throw AlfredException(HttpStatus.badRequest, {'error': 'Missing key.'});
+    if (key.isEmpty)
+      throw AlfredException(HttpStatus.badRequest, {'error': 'Missing key.'});
 
     final entry = await _runtimeController.botStore.loadEntry(botId);
-    if (entry == null) throw AlfredException(HttpStatus.notFound, {'error': 'Bot "$botId" not found.'});
+    if (entry == null)
+      throw AlfredException(HttpStatus.notFound, {
+        'error': 'Bot "$botId" not found.',
+      });
 
     await _runtimeController.upsertGlobalVariable(botId, key, payload['value']);
     await _ensureVariableStoreInitialized();
@@ -438,15 +553,24 @@ class RunnerWebBootstrapServer {
     return res.json({'ok': true});
   }
 
-  Future<void> _handleRenameGlobalVariable(HttpRequest req, HttpResponse res) async {
+  Future<void> _handleRenameGlobalVariable(
+    HttpRequest req,
+    HttpResponse res,
+  ) async {
     final botId = req.params['id'];
     final payload = await req.bodyAsJsonMap;
     final oldKey = (payload['oldKey'] ?? '').toString().trim();
     final newKey = (payload['newKey'] ?? '').toString().trim();
-    if (oldKey.isEmpty || newKey.isEmpty) throw AlfredException(HttpStatus.badRequest, {'error': 'Missing oldKey or newKey.'});
+    if (oldKey.isEmpty || newKey.isEmpty)
+      throw AlfredException(HttpStatus.badRequest, {
+        'error': 'Missing oldKey or newKey.',
+      });
 
     final entry = await _runtimeController.botStore.loadEntry(botId);
-    if (entry == null) throw AlfredException(HttpStatus.notFound, {'error': 'Bot "$botId" not found.'});
+    if (entry == null)
+      throw AlfredException(HttpStatus.notFound, {
+        'error': 'Bot "$botId" not found.',
+      });
 
     await _runtimeController.renameGlobalVariable(botId, oldKey, newKey);
     await _ensureVariableStoreInitialized();
@@ -459,14 +583,21 @@ class RunnerWebBootstrapServer {
     return res.json({'ok': true});
   }
 
-  Future<void> _handleRemoveGlobalVariable(HttpRequest req, HttpResponse res) async {
+  Future<void> _handleRemoveGlobalVariable(
+    HttpRequest req,
+    HttpResponse res,
+  ) async {
     final botId = req.params['id'];
     final payload = await req.bodyAsJsonMap;
     final key = (payload['key'] ?? '').toString().trim();
-    if (key.isEmpty) throw AlfredException(HttpStatus.badRequest, {'error': 'Missing key.'});
+    if (key.isEmpty)
+      throw AlfredException(HttpStatus.badRequest, {'error': 'Missing key.'});
 
     final entry = await _runtimeController.botStore.loadEntry(botId);
-    if (entry == null) throw AlfredException(HttpStatus.notFound, {'error': 'Bot "$botId" not found.'});
+    if (entry == null)
+      throw AlfredException(HttpStatus.notFound, {
+        'error': 'Bot "$botId" not found.',
+      });
 
     await _runtimeController.removeGlobalVariable(botId, key);
     await _ensureVariableStoreInitialized();
@@ -474,10 +605,16 @@ class RunnerWebBootstrapServer {
     return res.json({'ok': true});
   }
 
-  Future<Map<String, dynamic>> _handleGetScopedDefinitions(HttpRequest req, HttpResponse res) async {
+  Future<Map<String, dynamic>> _handleGetScopedDefinitions(
+    HttpRequest req,
+    HttpResponse res,
+  ) async {
     final botId = req.params['id'];
     final entry = await _runtimeController.botStore.loadEntry(botId);
-    if (entry == null) throw AlfredException(HttpStatus.notFound, {'error': 'Bot "$botId" not found.'});
+    if (entry == null)
+      throw AlfredException(HttpStatus.notFound, {
+        'error': 'Bot "$botId" not found.',
+      });
 
     return {
       'botId': botId,
@@ -485,73 +622,131 @@ class RunnerWebBootstrapServer {
     };
   }
 
-  Future<void> _handleSetScopedDefinition(HttpRequest req, HttpResponse res) async {
+  Future<void> _handleSetScopedDefinition(
+    HttpRequest req,
+    HttpResponse res,
+  ) async {
     final botId = req.params['id'];
     final payload = await req.bodyAsJsonMap;
     final scope = (payload['scope'] ?? '').toString().trim();
     final key = _normalizeScopedStorageKey((payload['key'] ?? '').toString());
-    if (scope.isEmpty || key.isEmpty) throw AlfredException(HttpStatus.badRequest, {'error': 'Missing scope or key.'});
+    if (scope.isEmpty || key.isEmpty)
+      throw AlfredException(HttpStatus.badRequest, {
+        'error': 'Missing scope or key.',
+      });
 
     final entry = await _runtimeController.botStore.loadEntry(botId);
-    if (entry == null) throw AlfredException(HttpStatus.notFound, {'error': 'Bot "$botId" not found.'});
+    if (entry == null)
+      throw AlfredException(HttpStatus.notFound, {
+        'error': 'Bot "$botId" not found.',
+      });
 
     await _runtimeController.upsertScopedVariableDefinition(
-      botId, key, scope, payload['defaultValue'],
+      botId,
+      key,
+      scope,
+      payload['defaultValue'],
       valueType: (payload['valueType'] ?? 'string').toString(),
     );
     return res.json({'ok': true});
   }
 
-  Future<void> _handleRemoveScopedDefinition(HttpRequest req, HttpResponse res) async {
+  Future<void> _handleRemoveScopedDefinition(
+    HttpRequest req,
+    HttpResponse res,
+  ) async {
     final botId = req.params['id'];
     final payload = await req.bodyAsJsonMap;
     final key = _normalizeScopedStorageKey((payload['key'] ?? '').toString());
     final scope = (payload['scope'] ?? '').toString().trim();
     final purgeStoredValues = payload['purgeStoredValues'] == true;
-    if (key.isEmpty) throw AlfredException(HttpStatus.badRequest, {'error': 'Missing key.'});
+    if (key.isEmpty)
+      throw AlfredException(HttpStatus.badRequest, {'error': 'Missing key.'});
 
     final entry = await _runtimeController.botStore.loadEntry(botId);
-    if (entry == null) throw AlfredException(HttpStatus.notFound, {'error': 'Bot "$botId" not found.'});
+    if (entry == null)
+      throw AlfredException(HttpStatus.notFound, {
+        'error': 'Bot "$botId" not found.',
+      });
 
-    final scopesToPurge = purgeStoredValues ? <String>{
-      if (scope.isNotEmpty) scope,
-      if (scope.isEmpty) ...entry.config.scopedVariableDefinitions
-          .where((d) => _normalizeScopedStorageKey((d['key'] ?? '').toString()) == key)
-          .map((d) => (d['scope'] ?? '').toString().trim())
-          .where((v) => v.isNotEmpty),
-    } : const <String>{};
+    final scopesToPurge =
+        purgeStoredValues
+            ? <String>{
+              if (scope.isNotEmpty) scope,
+              if (scope.isEmpty)
+                ...entry.config.scopedVariableDefinitions
+                    .where(
+                      (d) =>
+                          _normalizeScopedStorageKey(
+                            (d['key'] ?? '').toString(),
+                          ) ==
+                          key,
+                    )
+                    .map((d) => (d['scope'] ?? '').toString().trim())
+                    .where((v) => v.isNotEmpty),
+            }
+            : const <String>{};
 
-    await _runtimeController.deleteScopedVariableDefinition(botId, key, scope: scope.isEmpty ? null : scope, purgeStoredValues: purgeStoredValues);
+    await _runtimeController.deleteScopedVariableDefinition(
+      botId,
+      key,
+      scope: scope.isEmpty ? null : scope,
+      purgeStoredValues: purgeStoredValues,
+    );
     for (final scopeName in scopesToPurge) {
       await _removeAllScopedValuesForKey(botId, scopeName, key);
     }
     return res.json({'ok': true});
   }
 
-  Future<Map<String, dynamic>> _handleGetScopedValues(HttpRequest req, HttpResponse res) async {
+  Future<Map<String, dynamic>> _handleGetScopedValues(
+    HttpRequest req,
+    HttpResponse res,
+  ) async {
     final botId = req.params['id'];
     final entry = await _runtimeController.botStore.loadEntry(botId);
-    if (entry == null) throw AlfredException(HttpStatus.notFound, {'error': 'Bot "$botId" not found.'});
+    if (entry == null)
+      throw AlfredException(HttpStatus.notFound, {
+        'error': 'Bot "$botId" not found.',
+      });
 
     final scope = (req.uri.queryParameters['scope'] ?? '').trim();
     final keyRaw = (req.uri.queryParameters['key'] ?? '').trim();
-    if (scope.isEmpty || keyRaw.isEmpty) throw AlfredException(HttpStatus.badRequest, {'error': 'Missing scope or key query parameter.'});
+    if (scope.isEmpty || keyRaw.isEmpty)
+      throw AlfredException(HttpStatus.badRequest, {
+        'error': 'Missing scope or key query parameter.',
+      });
 
     final storageKey = _normalizeScopedStorageKey(keyRaw);
     final legacyKey = _toScopedReferenceKey(storageKey);
 
     await _ensureVariableStoreInitialized();
-    final contextIds = List<String>.from(await _variableStore.listContextIds(botId, scope, searchKey: storageKey), growable: true);
+    final contextIds = List<String>.from(
+      await _variableStore.listContextIds(botId, scope, searchKey: storageKey),
+      growable: true,
+    );
     if (legacyKey != storageKey) {
-      contextIds.addAll(await _variableStore.listContextIds(botId, scope, searchKey: legacyKey));
+      contextIds.addAll(
+        await _variableStore.listContextIds(botId, scope, searchKey: legacyKey),
+      );
     }
     final uniqueContextIds = contextIds.toSet().toList()..sort();
 
     final values = <String, dynamic>{};
     for (final contextId in uniqueContextIds) {
-      var value = await _variableStore.getScopedVariable(botId, scope, contextId, storageKey);
+      var value = await _variableStore.getScopedVariable(
+        botId,
+        scope,
+        contextId,
+        storageKey,
+      );
       if (value == null && legacyKey != storageKey) {
-        value = await _variableStore.getScopedVariable(botId, scope, contextId, legacyKey);
+        value = await _variableStore.getScopedVariable(
+          botId,
+          scope,
+          contextId,
+          legacyKey,
+        );
       }
       if (value != null) values[contextId] = value;
     }
@@ -564,7 +759,10 @@ class RunnerWebBootstrapServer {
     };
   }
 
-  Future<Map<String, dynamic>> _handleDebugReplays(HttpRequest req, HttpResponse res) async {
+  Future<Map<String, dynamic>> _handleDebugReplays(
+    HttpRequest req,
+    HttpResponse res,
+  ) async {
     final botId = req.params['id'];
     final limit = int.tryParse(req.uri.queryParameters['limit'] ?? '30') ?? 30;
     try {
@@ -579,7 +777,10 @@ class RunnerWebBootstrapServer {
     }
   }
 
-  Future<Map<String, bool>> _handleClearDebugReplays(HttpRequest req, HttpResponse res) async {
+  Future<Map<String, bool>> _handleClearDebugReplays(
+    HttpRequest req,
+    HttpResponse res,
+  ) async {
     final botId = req.params['id'];
     try {
       _runtimeController.clearDebugReplays(botId);
@@ -589,7 +790,10 @@ class RunnerWebBootstrapServer {
     }
   }
 
-  Future<Map<String, bool>> _handleSetDebugReplayCapture(HttpRequest req, HttpResponse res) async {
+  Future<Map<String, bool>> _handleSetDebugReplayCapture(
+    HttpRequest req,
+    HttpResponse res,
+  ) async {
     final botId = req.params['id'];
     final payload = await req.bodyAsJsonMap;
     final enabled = payload['enabled'] == true;
@@ -604,31 +808,58 @@ class RunnerWebBootstrapServer {
     }
   }
 
-  Future<Map<String, dynamic>> _handleInboundWebhook(HttpRequest req, HttpResponse res) async {
+  Future<Map<String, dynamic>> _handleInboundWebhook(
+    HttpRequest req,
+    HttpResponse res,
+  ) async {
     final botId = req.params['id'];
     final pathKey = req.params['pathKey'];
     final payload = await req.bodyAsJsonMap;
 
     final entry = await _runtimeController.botStore.loadEntry(botId);
-    if (entry == null) throw AlfredException(HttpStatus.notFound, {'error': 'Bot "$botId" not found.'});
-    if (!entry.config.inboundWebhooks) throw AlfredException(HttpStatus.forbidden, {'error': 'Inbound webhooks are disabled for bot "$botId".'});
+    if (entry == null)
+      throw AlfredException(HttpStatus.notFound, {
+        'error': 'Bot "$botId" not found.',
+      });
+    if (!entry.config.inboundWebhooks)
+      throw AlfredException(HttpStatus.forbidden, {
+        'error': 'Inbound webhooks are disabled for bot "$botId".',
+      });
 
-    final endpoint = entry.config.inboundWebhookEndpoints.whereType<Map>().map((raw) => Map<String, dynamic>.from(raw)).firstWhere((candidate) {
-      final configuredPath = (candidate['path'] ?? '').toString().trim().toLowerCase();
-      return configuredPath == pathKey.trim().toLowerCase() && candidate['enabled'] != false;
-    }, orElse: () => const <String, dynamic>{});
+    final endpoint = entry.config.inboundWebhookEndpoints
+        .whereType<Map>()
+        .map((raw) => Map<String, dynamic>.from(raw))
+        .firstWhere((candidate) {
+          final configuredPath =
+              (candidate['path'] ?? '').toString().trim().toLowerCase();
+          return configuredPath == pathKey.trim().toLowerCase() &&
+              candidate['enabled'] != false;
+        }, orElse: () => const <String, dynamic>{});
 
-    if (endpoint.isEmpty) throw AlfredException(HttpStatus.notFound, {'error': 'Inbound webhook path not found.'});
+    if (endpoint.isEmpty)
+      throw AlfredException(HttpStatus.notFound, {
+        'error': 'Inbound webhook path not found.',
+      });
 
     final expectedSecret = (endpoint['secret'] ?? '').toString().trim();
-    final providedSecret = (req.headers.value('x-bot-webhook-secret') ?? req.headers.value('x-webhook-secret') ?? req.uri.queryParameters['secret'] ?? '').trim();
-    
+    final providedSecret =
+        (req.headers.value('x-bot-webhook-secret') ??
+                req.headers.value('x-webhook-secret') ??
+                req.uri.queryParameters['secret'] ??
+                '')
+            .trim();
+
     if (expectedSecret.isNotEmpty && providedSecret != expectedSecret) {
-      throw AlfredException(HttpStatus.unauthorized, {'error': 'Invalid webhook secret.'});
+      throw AlfredException(HttpStatus.unauthorized, {
+        'error': 'Invalid webhook secret.',
+      });
     }
 
     final workflowName = (endpoint['workflowName'] ?? '').toString().trim();
-    if (workflowName.isEmpty) throw AlfredException(HttpStatus.badRequest, {'error': 'Inbound webhook misconfigured.'});
+    if (workflowName.isEmpty)
+      throw AlfredException(HttpStatus.badRequest, {
+        'error': 'Inbound webhook misconfigured.',
+      });
 
     final headers = <String, String>{};
     req.headers.forEach((name, values) {
@@ -637,7 +868,10 @@ class RunnerWebBootstrapServer {
 
     try {
       await _runtimeController.triggerInboundWebhook(
-        botId, workflowName: workflowName, payload: payload, headers: headers,
+        botId,
+        workflowName: workflowName,
+        payload: payload,
+        headers: headers,
         requestId: req.headers.value('x-request-id'),
         sourceIp: req.connectionInfo?.remoteAddress.address ?? 'unknown',
       );
@@ -652,7 +886,10 @@ class RunnerWebBootstrapServer {
     }
   }
 
-  Future<Map<String, dynamic>> _handleCommandStats(HttpRequest req, HttpResponse res) async {
+  Future<Map<String, dynamic>> _handleCommandStats(
+    HttpRequest req,
+    HttpResponse res,
+  ) async {
     final botId = req.params['id'];
     final hours = int.tryParse(req.uri.queryParameters['hours'] ?? '24') ?? 24;
     final sinceMs = hours * 3600000;
@@ -677,14 +914,22 @@ class RunnerWebBootstrapServer {
       'runningCount': _runtimeController.runningCount,
       'rssBytes': running ? ProcessInfo.currentRss : null,
       'cpuPercent': running ? _readCurrentProcessCpuPercent() : null,
-      'bots': botId == null 
-          ? _runtimeController.listRuntimeStates().map(_runtimeStateToPayload).toList()
-          : [_buildBotStatePayload(botId)],
+      'bots':
+          botId == null
+              ? _runtimeController
+                  .listRuntimeStates()
+                  .map(_runtimeStateToPayload)
+                  .toList()
+              : [_buildBotStatePayload(botId)],
     };
   }
 
-  Future<Map<String, dynamic>> _handleLogs(HttpRequest req, HttpResponse res) async {
-    final limit = int.tryParse(req.uri.queryParameters['limit'] ?? '200') ?? 200;
+  Future<Map<String, dynamic>> _handleLogs(
+    HttpRequest req,
+    HttpResponse res,
+  ) async {
+    final limit =
+        int.tryParse(req.uri.queryParameters['limit'] ?? '200') ?? 200;
     return {'lines': logStore.tail(limit: limit)};
   }
 
@@ -692,11 +937,15 @@ class RunnerWebBootstrapServer {
 
   Future<void> _ensureVariableStoreInitialized() {
     if (_sqliteVariableStore == null) return Future.value();
-    _variableStoreInitFuture ??= _initializeSqliteStoreWithFallback(_sqliteVariableStore!);
+    _variableStoreInitFuture ??= _initializeSqliteStoreWithFallback(
+      _sqliteVariableStore!,
+    );
     return _variableStoreInitFuture!;
   }
 
-  Future<void> _initializeSqliteStoreWithFallback(SqliteCliVariableStore sqlite) async {
+  Future<void> _initializeSqliteStoreWithFallback(
+    SqliteCliVariableStore sqlite,
+  ) async {
     try {
       await sqlite.init();
     } catch (_) {
@@ -711,7 +960,11 @@ class RunnerWebBootstrapServer {
       'apiVersion': 2,
       'running': _runtimeController.isRunning,
       'runningCount': _runtimeController.runningCount,
-      'bots': _runtimeController.listRuntimeStates().map(_runtimeStateToPayload).toList(),
+      'bots':
+          _runtimeController
+              .listRuntimeStates()
+              .map(_runtimeStateToPayload)
+              .toList(),
     };
   }
 
@@ -744,30 +997,50 @@ class RunnerWebBootstrapServer {
 
   String _normalizeScopedStorageKey(String key) {
     final trimmed = key.trim();
-    return (trimmed.startsWith('bc_') && trimmed.length > 3) ? trimmed.substring(3) : trimmed;
+    return (trimmed.startsWith('bc_') && trimmed.length > 3)
+        ? trimmed.substring(3)
+        : trimmed;
   }
 
   String _toScopedReferenceKey(String key) {
     final trimmed = key.trim();
-    return (trimmed.isEmpty || trimmed.startsWith('bc_')) ? trimmed : 'bc_$trimmed';
+    return (trimmed.isEmpty || trimmed.startsWith('bc_'))
+        ? trimmed
+        : 'bc_$trimmed';
   }
 
-  static String _resolveRunnerVariablesDir() {
-    final configured = (Platform.environment['BOT_CREATOR_DATA_DIR'] ?? '').trim();
+  static String _resolveRunnerVariablesDir(String? dataDir) {
+    if (dataDir != null && dataDir.isNotEmpty) {
+      return '$dataDir/variables';
+    }
+    final configured =
+        (Platform.environment['BOT_CREATOR_DATA_DIR'] ?? '').trim();
     return configured.isNotEmpty ? '$configured/variables' : './data/variables';
   }
 
-  Future<void> _removeAllScopedValuesForKey(String botId, String scope, String key) async {
+  Future<void> _removeAllScopedValuesForKey(
+    String botId,
+    String scope,
+    String key,
+  ) async {
     final storageKey = _normalizeScopedStorageKey(key);
     final legacyKey = _toScopedReferenceKey(storageKey);
     await _ensureVariableStoreInitialized();
-    final contextIds = (await _variableStore.listContextIds(botId, scope, searchKey: storageKey)).toSet();
+    final contextIds =
+        (await _variableStore.listContextIds(
+          botId,
+          scope,
+          searchKey: storageKey,
+        )).toSet();
     if (legacyKey != storageKey) {
-      contextIds.addAll(await _variableStore.listContextIds(botId, scope, searchKey: legacyKey));
+      contextIds.addAll(
+        await _variableStore.listContextIds(botId, scope, searchKey: legacyKey),
+      );
     }
     for (final cid in contextIds) {
       await _variableStore.removeScopedVariable(botId, scope, cid, storageKey);
-      if (legacyKey != storageKey) await _variableStore.removeScopedVariable(botId, scope, cid, legacyKey);
+      if (legacyKey != storageKey)
+        await _variableStore.removeScopedVariable(botId, scope, cid, legacyKey);
     }
   }
 
@@ -782,7 +1055,11 @@ class RunnerWebBootstrapServer {
     final deltaJiffies = jiffies - prev.jiffies;
     final deltaMs = nowMs - prev.timestampMs;
     if (deltaJiffies <= 0 || deltaMs <= 0) return 0.0;
-    final percent = (deltaJiffies / 100.0) / (deltaMs / 1000.0) * 100.0 / Platform.numberOfProcessors.clamp(1, 64);
+    final percent =
+        (deltaJiffies / 100.0) /
+        (deltaMs / 1000.0) *
+        100.0 /
+        Platform.numberOfProcessors.clamp(1, 64);
     return percent.clamp(0.0, 100.0);
   }
 
@@ -793,6 +1070,8 @@ class RunnerWebBootstrapServer {
       final lastParen = stat.lastIndexOf(')');
       final fields = stat.substring(lastParen + 2).trim().split(RegExp(r'\s+'));
       return int.parse(fields[10]) + int.parse(fields[11]);
-    } catch (_) { return null; }
+    } catch (_) {
+      return null;
+    }
   }
 }
