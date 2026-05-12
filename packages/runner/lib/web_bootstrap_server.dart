@@ -238,14 +238,16 @@ class RunnerWebBootstrapServer {
     final botId = (payload['botId'] ?? '').toString().trim();
     final botName = (payload['botName'] ?? '').toString().trim();
 
-    if (botId.isEmpty)
+    if (botId.isEmpty) {
       throw AlfredException(HttpStatus.badRequest, {'error': 'Missing botId.'});
+    }
 
     final rawConfig = payload['config'];
-    if (rawConfig == null || rawConfig is! Map)
+    if (rawConfig == null || rawConfig is! Map) {
       throw AlfredException(HttpStatus.badRequest, {
         'error': 'Missing or invalid config payload.',
       });
+    }
 
     try {
       final config = BotConfig.fromJson(Map<String, dynamic>.from(rawConfig));
@@ -290,10 +292,11 @@ class RunnerWebBootstrapServer {
     final payload = await req.bodyAsJsonMap;
     final rawConfig = payload['config'];
 
-    if (rawConfig == null || rawConfig is! Map)
+    if (rawConfig == null || rawConfig is! Map) {
       throw AlfredException(HttpStatus.badRequest, {
         'error': 'Missing or invalid config payload.',
       });
+    }
 
     try {
       final config = BotConfig.fromJson(Map<String, dynamic>.from(rawConfig));
@@ -316,14 +319,16 @@ class RunnerWebBootstrapServer {
     final commandId = (payload['commandId'] ?? '').toString().trim();
     final rawCommand = payload['command'];
 
-    if (commandId.isEmpty)
+    if (commandId.isEmpty) {
       throw AlfredException(HttpStatus.badRequest, {
         'error': 'Missing commandId.',
       });
-    if (rawCommand == null || rawCommand is! Map)
+    }
+    if (rawCommand == null || rawCommand is! Map) {
       throw AlfredException(HttpStatus.badRequest, {
         'error': 'Missing or invalid command payload.',
       });
+    }
 
     final command = Map<String, dynamic>.from(rawCommand)..['id'] = commandId;
 
@@ -345,10 +350,11 @@ class RunnerWebBootstrapServer {
     final payload = await req.bodyAsJsonMap;
     final commandId = (payload['commandId'] ?? '').toString().trim();
 
-    if (commandId.isEmpty)
+    if (commandId.isEmpty) {
       throw AlfredException(HttpStatus.badRequest, {
         'error': 'Missing commandId.',
       });
+    }
 
     try {
       await _runtimeController.deleteCommand(botId, commandId);
@@ -369,14 +375,16 @@ class RunnerWebBootstrapServer {
     final workflowName = (payload['workflowName'] ?? '').toString().trim();
     final rawWorkflow = payload['workflow'];
 
-    if (workflowName.isEmpty)
+    if (workflowName.isEmpty) {
       throw AlfredException(HttpStatus.badRequest, {
         'error': 'Missing workflowName.',
       });
-    if (rawWorkflow == null || rawWorkflow is! Map)
+    }
+    if (rawWorkflow == null || rawWorkflow is! Map) {
       throw AlfredException(HttpStatus.badRequest, {
         'error': 'Missing or invalid workflow payload.',
       });
+    }
 
     final workflow = Map<String, dynamic>.from(rawWorkflow)
       ..['name'] = workflowName;
@@ -399,10 +407,11 @@ class RunnerWebBootstrapServer {
     final payload = await req.bodyAsJsonMap;
     final workflowName = (payload['workflowName'] ?? '').toString().trim();
 
-    if (workflowName.isEmpty)
+    if (workflowName.isEmpty) {
       throw AlfredException(HttpStatus.badRequest, {
         'error': 'Missing workflowName.',
       });
+    }
 
     try {
       await _runtimeController.deleteWorkflow(botId, workflowName);
@@ -426,10 +435,11 @@ class RunnerWebBootstrapServer {
     final triggerId = (payload['triggerId'] ?? '').toString().trim();
     final trigger = payload['trigger'];
 
-    if (triggerId.isEmpty || trigger == null || trigger is! Map)
+    if (triggerId.isEmpty || trigger == null || trigger is! Map) {
       throw AlfredException(HttpStatus.badRequest, {
         'error': 'Missing triggerId or trigger payload.',
       });
+    }
 
     try {
       await _runtimeController.upsertScheduledTrigger(
@@ -451,10 +461,11 @@ class RunnerWebBootstrapServer {
     final payload = await req.bodyAsJsonMap;
     final triggerId = (payload['triggerId'] ?? '').toString().trim();
 
-    if (triggerId.isEmpty)
+    if (triggerId.isEmpty) {
       throw AlfredException(HttpStatus.badRequest, {
         'error': 'Missing triggerId.',
       });
+    }
 
     try {
       await _runtimeController.deleteScheduledTrigger(botId, triggerId);
@@ -473,10 +484,11 @@ class RunnerWebBootstrapServer {
     final webhookId = (payload['webhookId'] ?? '').toString().trim();
     final webhook = payload['webhook'];
 
-    if (webhookId.isEmpty || webhook == null || webhook is! Map)
+    if (webhookId.isEmpty || webhook == null || webhook is! Map) {
       throw AlfredException(HttpStatus.badRequest, {
         'error': 'Missing webhookId or webhook payload.',
       });
+    }
 
     try {
       await _runtimeController.upsertInboundWebhook(
@@ -498,10 +510,11 @@ class RunnerWebBootstrapServer {
     final payload = await req.bodyAsJsonMap;
     final webhookId = (payload['webhookId'] ?? '').toString().trim();
 
-    if (webhookId.isEmpty)
+    if (webhookId.isEmpty) {
       throw AlfredException(HttpStatus.badRequest, {
         'error': 'Missing webhookId.',
       });
+    }
 
     try {
       await _runtimeController.deleteInboundWebhook(botId, webhookId);
@@ -517,10 +530,11 @@ class RunnerWebBootstrapServer {
   ) async {
     final botId = req.params['id'];
     final entry = await _runtimeController.botStore.loadEntry(botId);
-    if (entry == null)
+    if (entry == null) {
       throw AlfredException(HttpStatus.notFound, {
         'error': 'Bot "$botId" not found.',
       });
+    }
 
     await _ensureVariableStoreInitialized();
     final runtime = await _variableStore.getGlobalVariables(botId);
@@ -537,14 +551,16 @@ class RunnerWebBootstrapServer {
     final botId = req.params['id'];
     final payload = await req.bodyAsJsonMap;
     final key = (payload['key'] ?? '').toString().trim();
-    if (key.isEmpty)
+    if (key.isEmpty) {
       throw AlfredException(HttpStatus.badRequest, {'error': 'Missing key.'});
+    }
 
     final entry = await _runtimeController.botStore.loadEntry(botId);
-    if (entry == null)
+    if (entry == null) {
       throw AlfredException(HttpStatus.notFound, {
         'error': 'Bot "$botId" not found.',
       });
+    }
 
     await _runtimeController.upsertGlobalVariable(botId, key, payload['value']);
     await _ensureVariableStoreInitialized();
@@ -561,16 +577,18 @@ class RunnerWebBootstrapServer {
     final payload = await req.bodyAsJsonMap;
     final oldKey = (payload['oldKey'] ?? '').toString().trim();
     final newKey = (payload['newKey'] ?? '').toString().trim();
-    if (oldKey.isEmpty || newKey.isEmpty)
+    if (oldKey.isEmpty || newKey.isEmpty) {
       throw AlfredException(HttpStatus.badRequest, {
         'error': 'Missing oldKey or newKey.',
       });
+    }
 
     final entry = await _runtimeController.botStore.loadEntry(botId);
-    if (entry == null)
+    if (entry == null) {
       throw AlfredException(HttpStatus.notFound, {
         'error': 'Bot "$botId" not found.',
       });
+    }
 
     await _runtimeController.renameGlobalVariable(botId, oldKey, newKey);
     await _ensureVariableStoreInitialized();
@@ -590,14 +608,16 @@ class RunnerWebBootstrapServer {
     final botId = req.params['id'];
     final payload = await req.bodyAsJsonMap;
     final key = (payload['key'] ?? '').toString().trim();
-    if (key.isEmpty)
+    if (key.isEmpty) {
       throw AlfredException(HttpStatus.badRequest, {'error': 'Missing key.'});
+    }
 
     final entry = await _runtimeController.botStore.loadEntry(botId);
-    if (entry == null)
+    if (entry == null) {
       throw AlfredException(HttpStatus.notFound, {
         'error': 'Bot "$botId" not found.',
       });
+    }
 
     await _runtimeController.removeGlobalVariable(botId, key);
     await _ensureVariableStoreInitialized();
@@ -611,10 +631,11 @@ class RunnerWebBootstrapServer {
   ) async {
     final botId = req.params['id'];
     final entry = await _runtimeController.botStore.loadEntry(botId);
-    if (entry == null)
+    if (entry == null) {
       throw AlfredException(HttpStatus.notFound, {
         'error': 'Bot "$botId" not found.',
       });
+    }
 
     return {
       'botId': botId,
@@ -630,16 +651,18 @@ class RunnerWebBootstrapServer {
     final payload = await req.bodyAsJsonMap;
     final scope = (payload['scope'] ?? '').toString().trim();
     final key = _normalizeScopedStorageKey((payload['key'] ?? '').toString());
-    if (scope.isEmpty || key.isEmpty)
+    if (scope.isEmpty || key.isEmpty) {
       throw AlfredException(HttpStatus.badRequest, {
         'error': 'Missing scope or key.',
       });
+    }
 
     final entry = await _runtimeController.botStore.loadEntry(botId);
-    if (entry == null)
+    if (entry == null) {
       throw AlfredException(HttpStatus.notFound, {
         'error': 'Bot "$botId" not found.',
       });
+    }
 
     await _runtimeController.upsertScopedVariableDefinition(
       botId,
@@ -660,14 +683,16 @@ class RunnerWebBootstrapServer {
     final key = _normalizeScopedStorageKey((payload['key'] ?? '').toString());
     final scope = (payload['scope'] ?? '').toString().trim();
     final purgeStoredValues = payload['purgeStoredValues'] == true;
-    if (key.isEmpty)
+    if (key.isEmpty) {
       throw AlfredException(HttpStatus.badRequest, {'error': 'Missing key.'});
+    }
 
     final entry = await _runtimeController.botStore.loadEntry(botId);
-    if (entry == null)
+    if (entry == null) {
       throw AlfredException(HttpStatus.notFound, {
         'error': 'Bot "$botId" not found.',
       });
+    }
 
     final scopesToPurge =
         purgeStoredValues
@@ -705,17 +730,19 @@ class RunnerWebBootstrapServer {
   ) async {
     final botId = req.params['id'];
     final entry = await _runtimeController.botStore.loadEntry(botId);
-    if (entry == null)
+    if (entry == null) {
       throw AlfredException(HttpStatus.notFound, {
         'error': 'Bot "$botId" not found.',
       });
+    }
 
     final scope = (req.uri.queryParameters['scope'] ?? '').trim();
     final keyRaw = (req.uri.queryParameters['key'] ?? '').trim();
-    if (scope.isEmpty || keyRaw.isEmpty)
+    if (scope.isEmpty || keyRaw.isEmpty) {
       throw AlfredException(HttpStatus.badRequest, {
         'error': 'Missing scope or key query parameter.',
       });
+    }
 
     final storageKey = _normalizeScopedStorageKey(keyRaw);
     final legacyKey = _toScopedReferenceKey(storageKey);
@@ -817,14 +844,16 @@ class RunnerWebBootstrapServer {
     final payload = await req.bodyAsJsonMap;
 
     final entry = await _runtimeController.botStore.loadEntry(botId);
-    if (entry == null)
+    if (entry == null) {
       throw AlfredException(HttpStatus.notFound, {
         'error': 'Bot "$botId" not found.',
       });
-    if (!entry.config.inboundWebhooks)
+    }
+    if (!entry.config.inboundWebhooks) {
       throw AlfredException(HttpStatus.forbidden, {
         'error': 'Inbound webhooks are disabled for bot "$botId".',
       });
+    }
 
     final endpoint = entry.config.inboundWebhookEndpoints
         .whereType<Map>()
@@ -836,10 +865,11 @@ class RunnerWebBootstrapServer {
               candidate['enabled'] != false;
         }, orElse: () => const <String, dynamic>{});
 
-    if (endpoint.isEmpty)
+    if (endpoint.isEmpty) {
       throw AlfredException(HttpStatus.notFound, {
         'error': 'Inbound webhook path not found.',
       });
+    }
 
     final expectedSecret = (endpoint['secret'] ?? '').toString().trim();
     final providedSecret =
@@ -856,10 +886,11 @@ class RunnerWebBootstrapServer {
     }
 
     final workflowName = (endpoint['workflowName'] ?? '').toString().trim();
-    if (workflowName.isEmpty)
+    if (workflowName.isEmpty) {
       throw AlfredException(HttpStatus.badRequest, {
         'error': 'Inbound webhook misconfigured.',
       });
+    }
 
     final headers = <String, String>{};
     req.headers.forEach((name, values) {
@@ -1039,8 +1070,9 @@ class RunnerWebBootstrapServer {
     }
     for (final cid in contextIds) {
       await _variableStore.removeScopedVariable(botId, scope, cid, storageKey);
-      if (legacyKey != storageKey)
+      if (legacyKey != storageKey) {
         await _variableStore.removeScopedVariable(botId, scope, cid, legacyKey);
+      }
     }
   }
 

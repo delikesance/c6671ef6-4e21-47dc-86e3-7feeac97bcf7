@@ -129,10 +129,12 @@ extension DiscordRunnerEventsExtension on DiscordRunner {
     registerEvent<ThreadMemberUpdateEvent>(
       gateway.onThreadMemberUpdate,
       'threadMemberUpdate',
+      buildContext: buildThreadMemberUpdateEventContext,
     );
     registerEvent<ThreadMembersUpdateEvent>(
       gateway.onThreadMembersUpdate,
       'threadMembersUpdate',
+      buildContext: buildThreadMembersUpdateEventContext,
     );
 
     // Channel events
@@ -161,9 +163,18 @@ extension DiscordRunnerEventsExtension on DiscordRunner {
     registerEvent<GuildCreateEvent>(
       gateway.onGuildCreate.cast<GuildCreateEvent>(),
       'guildCreate',
+      buildContext: buildGuildCreateEventContext,
     );
-    registerEvent<GuildUpdateEvent>(gateway.onGuildUpdate, 'guildUpdate');
-    registerEvent<GuildDeleteEvent>(gateway.onGuildDelete, 'guildDelete');
+    registerEvent<GuildUpdateEvent>(
+      gateway.onGuildUpdate,
+      'guildUpdate',
+      buildContext: buildGuildUpdateEventContext,
+    );
+    registerEvent<GuildDeleteEvent>(
+      gateway.onGuildDelete,
+      'guildDelete',
+      buildContext: buildGuildDeleteEventContext,
+    );
     registerEvent<GuildAuditLogCreateEvent>(
       gateway.onGuildAuditLogCreate,
       'guildAuditLogCreate',
