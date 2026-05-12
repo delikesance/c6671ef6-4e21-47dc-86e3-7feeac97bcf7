@@ -24,13 +24,12 @@ class RunnerBotRuntimeState {
 }
 
 class RunnerRuntimeController {
-  RunnerRuntimeController({RunnerBotStore? botStore})
-    : _botStore = botStore ?? RunnerBotStore();
+  RunnerRuntimeController({RunnerBotStore? botStore, String? dataDir})
+    : _botStore = botStore ?? RunnerBotStore(dataDir: dataDir),
+      _commandStatsStore = CommandStatsStore(dataDir ?? _resolveDataDir());
 
   final RunnerBotStore _botStore;
-  final CommandStatsStore _commandStatsStore = CommandStatsStore(
-    _resolveDataDir(),
-  );
+  final CommandStatsStore _commandStatsStore;
   bool _statsInitialized = false;
 
   static String _resolveDataDir() {
@@ -230,7 +229,9 @@ class RunnerRuntimeController {
     for (final entry in toStart) {
       try {
         await startBot(botId: entry.id, botName: entry.name);
-        stdout.writeln('[Self-Healing] Bot "${entry.name}" (${entry.id}) resumed.');
+        stdout.writeln(
+          '[Self-Healing] Bot "${entry.name}" (${entry.id}) resumed.',
+        );
       } catch (e) {
         stderr.writeln(
           '[Self-Healing] Failed to resume bot "${entry.name}" (${entry.id}): $e',
