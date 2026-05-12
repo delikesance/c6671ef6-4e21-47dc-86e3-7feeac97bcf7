@@ -56,7 +56,7 @@ class SqliteVariableStore implements VariableDatabase {
 
     _db = await openDatabase(
       dbPath,
-      version: 4,
+      version: 5,
       onCreate: (db, version) async {
         await _createSchema(db);
       },
@@ -70,12 +70,29 @@ class SqliteVariableStore implements VariableDatabase {
         if (oldVersion < 4) {
           await _migrateExpiresAtColumn(db);
         }
+        if (oldVersion < 5) {
+          await _migrateExpiresAtColumn(db);
+        }
       },
     );
 
     await _ensureSecondaryIndexes(_db);
+    await _ensureExpiresAtColumn(_db);
 
     _initialized = true;
+  }
+
+  Future<void> _ensureExpiresAtColumn(DatabaseExecutor db) async {
+    try {
+      final rows = await db.rawQuery(
+        "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'variables' LIMIT 1",
+      );
+      if (rows.isEmpty) return;
+      final sql = (rows.first['sql'] as String?) ?? '';
+      if (sql.contains('expires_at')) return;
+
+      await db.execute('ALTER TABLE variables ADD COLUMN expires_at INTEGER');
+    } catch (_) {}
   }
 
   Future<void> _createSchema(DatabaseExecutor db) async {
@@ -517,6 +534,7 @@ class SqliteVariableStore implements VariableDatabase {
     final safeOffset = offset < 0 ? 0 : offset;
     final safeLimit = limit.clamp(1, 25);
 
+    final now = DateTime.now().millisecondsSinceEpoch;
     final rows = await _db.query(
       'variables',
       columns: [
@@ -525,12 +543,18 @@ class SqliteVariableStore implements VariableDatabase {
         'key',
         'value_raw',
         'value_type',
+        'expires_at',
       ],
       where: 'bot_id = ? AND scope = ? AND key = ?',
       whereArgs: [botId, scope, key],
     );
 
     final items = rows
+        .where((row) {
+          final expiresAt = row['expires_at'] as int?;
+          if (expiresAt != null && expiresAt < now) return false;
+          return true;
+        })
         .map((row) {
           final contextId =
               scope == 'guildMember'

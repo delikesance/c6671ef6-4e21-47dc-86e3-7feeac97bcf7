@@ -12,14 +12,12 @@ class ManagedVariableStore implements VariableDatabase {
   final String _token;
   final http.Client _httpClient = http.Client();
 
-  ManagedVariableStore({
-    required String baseUrl,
-    required String token,
-  }) : _baseUrl =
-           baseUrl.endsWith('/')
-               ? baseUrl.substring(0, baseUrl.length - 1)
-               : baseUrl,
-       _token = token;
+  ManagedVariableStore({required String baseUrl, required String token})
+    : _baseUrl =
+          baseUrl.endsWith('/')
+              ? baseUrl.substring(0, baseUrl.length - 1)
+              : baseUrl,
+      _token = token;
 
   void dispose() {
     _httpClient.close();
@@ -68,7 +66,10 @@ class ManagedVariableStore implements VariableDatabase {
     try {
       final response = await _httpClient.get(
         url,
-        headers: {'Authorization': 'Bearer $_token'},
+        headers: {
+          'Authorization': 'Bearer $_token',
+          'Cache-Control': 'no-cache',
+        },
       );
       if (response.statusCode == 404) {
         return null;
@@ -101,12 +102,28 @@ class ManagedVariableStore implements VariableDatabase {
   @override
   Future<Map<String, dynamic>> getGlobalVariables(String botId) async {
     final response = await _get(botId, '/global/list', {});
-    return Map<String, dynamic>.from(response ?? {});
+    if (response is List) {
+      final result = <String, dynamic>{};
+      for (final item in response) {
+        if (item is Map && item.containsKey('key')) {
+          result[item['key'].toString()] = item['value'];
+        }
+      }
+      return result;
+    }
+    if (response is Map) {
+      return Map<String, dynamic>.from(response);
+    }
+    return {};
   }
 
   @override
   Future<dynamic> getGlobalVariable(String botId, String key) async {
-    return await _get(botId, '/global/get', {'key': key});
+    final response = await _get(botId, '/global/get', {'key': key});
+    if (response is Map<String, dynamic>) {
+      return response['value'];
+    }
+    return response;
   }
 
   @override
@@ -116,10 +133,14 @@ class ManagedVariableStore implements VariableDatabase {
     dynamic value, {
     String? ttl,
   }) async {
+    int? ttlMs;
+    if (ttl != null) {
+      ttlMs = _parseBdfdTtl(ttl);
+    }
     await _post(botId, '/global/set', {
       'key': key,
       'value': value,
-      if (ttl != null) 'ttl': ttl,
+      if (ttlMs != null) 'ttl': ttlMs,
     });
   }
 
@@ -151,7 +172,19 @@ class ManagedVariableStore implements VariableDatabase {
       'scope_id': id,
       'scope_aux_id': auxId,
     });
-    return Map<String, dynamic>.from(response ?? {});
+    if (response is List) {
+      final result = <String, dynamic>{};
+      for (final item in response) {
+        if (item is Map && item.containsKey('key')) {
+          result[item['key'].toString()] = item['value'];
+        }
+      }
+      return result;
+    }
+    if (response is Map) {
+      return Map<String, dynamic>.from(response);
+    }
+    return {};
   }
 
   @override
@@ -162,12 +195,16 @@ class ManagedVariableStore implements VariableDatabase {
     String key,
   ) async {
     final (id, auxId) = _splitContextId(scope, contextId);
-    return await _get(botId, '/scoped/get', {
+    final response = await _get(botId, '/scoped/get', {
       'scope': scope,
       'scope_id': id,
       'scope_aux_id': auxId,
       'key': key,
     });
+    if (response is Map<String, dynamic>) {
+      return response['value'];
+    }
+    return response;
   }
 
   @override
@@ -180,14 +217,44 @@ class ManagedVariableStore implements VariableDatabase {
     String? ttl,
   }) async {
     final (id, auxId) = _splitContextId(scope, contextId);
+    int? ttlMs;
+    if (ttl != null) {
+      ttlMs = _parseBdfdTtl(ttl);
+    }
+
     await _post(botId, '/scoped/set', {
       'scope': scope,
       'scope_id': id,
       'scope_aux_id': auxId,
       'key': key,
       'value': value,
-      if (ttl != null) 'ttl': ttl,
+      if (ttlMs != null) 'ttl': ttlMs,
     });
+  }
+
+  int? _parseBdfdTtl(String ttl) {
+    final trimmed = ttl.trim().toLowerCase();
+    if (trimmed.isEmpty) return null;
+
+    final match = RegExp(r'^(\d+)([smhd]?)$').firstMatch(trimmed);
+    if (match == null) return null;
+
+    final value = int.tryParse(match.group(1)!);
+    if (value == null) return null;
+
+    final unit = match.group(2);
+    switch (unit) {
+      case 's':
+        return value * 1000;
+      case 'm':
+        return value * 1000 * 60;
+      case 'h':
+        return value * 1000 * 60 * 60;
+      case 'd':
+        return value * 1000 * 60 * 60 * 24;
+      default:
+        return value * 1000; // Default to seconds
+    }
   }
 
   @override
@@ -254,23 +321,6 @@ class ManagedVariableStore implements VariableDatabase {
       'descending': descending.toString(),
     });
     return Map<String, dynamic>.from(response ?? {});
-  }
-
-  @override
-  Future<int?> getScopedVariableTtl(
-    String botId,
-    String scope,
-    String contextId,
-    String key,
-  ) async {
-    final (id, auxId) = _splitContextId(scope, contextId);
-    final response = await _get(botId, '/scoped/ttl', {
-      'scope': scope,
-      'scope_id': id,
-      'scope_aux_id': auxId,
-      'key': key,
-    });
-    return response as int?;
   }
 
   // ===== SCOPED ARRAYS =====
@@ -385,6 +435,29 @@ class ManagedVariableStore implements VariableDatabase {
       if (filter != null) 'filter': filter,
     });
     return Map<String, dynamic>.from(response ?? {});
+  }
+
+  @override
+  Future<int?> getScopedVariableTtl(
+    String botId,
+    String scope,
+    String contextId,
+    String key,
+  ) async {
+    final (id, auxId) = _splitContextId(scope, contextId);
+    final response = await _get(botId, '/scoped/ttl', {
+      'scope': scope,
+      'scope_id': id,
+      'scope_aux_id': auxId,
+      'key': key,
+    });
+    if (response is int) {
+      return response;
+    }
+    if (response is Map<String, dynamic>) {
+      return response['ttl'] as int?;
+    }
+    return null;
   }
 
   @override

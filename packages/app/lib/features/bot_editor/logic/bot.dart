@@ -121,6 +121,7 @@ void _injectLocalGatewayBotVariables(
 
   // ── Bot info variables (always resolved) ──
   final resolvedBotId = botId ?? '';
+  variables['bot.id'] = resolvedBotId;
   variables['bot.ownerId'] = _desktopCachedOwnerIdByBotId[resolvedBotId] ?? '';
   final commandCount =
       _desktopCachedCommandCountByBotId[resolvedBotId]?.toString() ?? '0';

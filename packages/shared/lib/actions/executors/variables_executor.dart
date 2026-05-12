@@ -6,6 +6,7 @@ import 'package:bot_creator_shared/utils/template_resolver.dart';
 import 'package:nyxx/nyxx.dart';
 
 import '../../types/action.dart';
+import 'control_flow_executor.dart';
 
 const _supportedVariableScopes = <String>{
   'guild',
@@ -981,52 +982,75 @@ Future<bool> executeVariablesAction({
       final resolvedByResolver = resolvedWrite.resolvedByResolver;
       final fallbackResolved = resolvedWrite.fallbackResolved;
       final directFallbackResolved = resolvedWrite.directFallbackResolved;
-      await store.setScopedVariable(botId, scope, contextId, storageKey, value);
-      dynamic persisted = await store.getScopedVariable(
-        botId,
-        scope,
-        contextId,
-        storageKey,
-      );
-      final expectedRuntimeValue = _stringifyRuntimeValue(value);
-      if ((_stringifyRuntimeValue(persisted).isEmpty) &&
-          expectedRuntimeValue.isNotEmpty) {
+      final isCooldown = storageKey.startsWith('cooldown_');
+      final ttl = payload['ttl']?.toString();
+
+      if (!isCooldown) {
         await store.setScopedVariable(
           botId,
           scope,
           contextId,
           storageKey,
-          expectedRuntimeValue,
+          value,
+          ttl: ttl,
         );
-        persisted = await store.getScopedVariable(
+      } else if (ttl != null) {
+        ControlFlowExecutor.setRuntimeCooldown(
+          variables['bot.id'] ?? botId,
+          scope,
+          storageKey,
+          variables,
+          ttl,
+        );
+      }
+      if (!isCooldown) {
+        dynamic persisted = await store.getScopedVariable(
           botId,
           scope,
           contextId,
           storageKey,
         );
+        final expectedRuntimeValue = _stringifyRuntimeValue(value);
+        if ((_stringifyRuntimeValue(persisted).isEmpty) &&
+            expectedRuntimeValue.isNotEmpty) {
+          await store.setScopedVariable(
+            botId,
+            scope,
+            contextId,
+            storageKey,
+            expectedRuntimeValue,
+            ttl: ttl,
+          );
+          persisted = await store.getScopedVariable(
+            botId,
+            scope,
+            contextId,
+            storageKey,
+          );
+        }
+        await _ensureScopedDefinitionExists(
+          store: store,
+          botId: botId,
+          scope: scope,
+          storageKey: storageKey,
+          defaultValue: value,
+        );
+        final runtimeValue = _stringifyRuntimeValue(
+          persisted ?? expectedRuntimeValue,
+        );
+        variables['$scope.$referenceKey'] = runtimeValue;
+        if (rawKey.isNotEmpty && rawKey != referenceKey) {
+          variables['$scope.$rawKey'] = runtimeValue;
+        }
+        variables['$resultKey.value'] = runtimeValue;
+        variables['$resultKey.persisted'] = runtimeValue;
+        variables['$resultKey.sourceRaw'] = rawValueSource;
+        variables['$resultKey.resolved'] = resolvedByResolver;
+        variables['$resultKey.fallback'] = fallbackResolved;
+        variables['$resultKey.directFallback'] = directFallbackResolved;
+        variables['$resultKey.scope'] = scope;
+        variables['$resultKey.key'] = referenceKey;
       }
-      await _ensureScopedDefinitionExists(
-        store: store,
-        botId: botId,
-        scope: scope,
-        storageKey: storageKey,
-        defaultValue: value,
-      );
-      final runtimeValue = _stringifyRuntimeValue(
-        persisted ?? expectedRuntimeValue,
-      );
-      variables['$scope.$referenceKey'] = runtimeValue;
-      if (rawKey.isNotEmpty && rawKey != referenceKey) {
-        variables['$scope.$rawKey'] = runtimeValue;
-      }
-      variables['$resultKey.value'] = runtimeValue;
-      variables['$resultKey.persisted'] = runtimeValue;
-      variables['$resultKey.sourceRaw'] = rawValueSource;
-      variables['$resultKey.resolved'] = resolvedByResolver;
-      variables['$resultKey.fallback'] = fallbackResolved;
-      variables['$resultKey.directFallback'] = directFallbackResolved;
-      variables['$resultKey.scope'] = scope;
-      variables['$resultKey.key'] = referenceKey;
       results[resultKey] = 'OK';
       return true;
 
@@ -1173,15 +1197,35 @@ Future<bool> executeVariablesAction({
         throw Exception('Unable to resolve context ID for scope "$scope"');
       }
 
-      await store.removeScopedVariable(botId, scope, contextId, storageKey);
-      if (referenceKey != storageKey) {
-        await store.removeScopedVariable(botId, scope, contextId, referenceKey);
+      final isCooldown = storageKey.startsWith('cooldown_');
+      if (!isCooldown) {
+        await store.removeScopedVariable(botId, scope, contextId, storageKey);
+        if (referenceKey != storageKey) {
+          await store.removeScopedVariable(
+            botId,
+            scope,
+            contextId,
+            referenceKey,
+          );
+        }
+      } else {
+        ControlFlowExecutor.removeRuntimeCooldown(
+          variables['bot.id'] ?? botId,
+          scope,
+          storageKey,
+          variables,
+        );
       }
-      variables.remove('$scope.$referenceKey');
-      if (rawKey.isNotEmpty && rawKey != referenceKey) {
-        variables.remove('$scope.$rawKey');
+
+      if (!isCooldown) {
+        variables.remove('$scope.$referenceKey');
+        if (rawKey.isNotEmpty && rawKey != referenceKey) {
+          variables.remove('$scope.$rawKey');
+        }
       }
+
       results[resultKey] = 'REMOVED';
+
       return true;
 
     case BotCreatorActionType.renameScopedVariable:
@@ -1648,7 +1692,12 @@ Future<bool> executeVariablesAction({
           value = latestJson;
         }
       }
-      await store.setGlobalVariable(botId, key, value);
+      await store.setGlobalVariable(
+        botId,
+        key,
+        value,
+        ttl: payload['ttl']?.toString(),
+      );
       dynamic persisted = await store.getGlobalVariable(botId, key);
       final expectedRuntimeValue = _stringifyRuntimeValue(value);
       if ((_stringifyRuntimeValue(persisted).isEmpty) &&
