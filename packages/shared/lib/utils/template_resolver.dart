@@ -755,6 +755,26 @@ dynamic _applyBdfdBracketFunction(
         total += numeric;
       }
       return foundNumeric ? _normalizeNumericResult(total) : null;
+    case 'random':
+      if (resolvedArgs.length < 2) {
+        return _random.nextBool() ? 'true' : '';
+      }
+      final min = _coerceInt(resolvedArgs[0]);
+      final max = _coerceInt(resolvedArgs[1]);
+      if (min == null || max == null || max < min) {
+        return null;
+      }
+      return min + _random.nextInt(max - min + 1);
+    case 'randomtext':
+      if (resolvedArgs.isEmpty) {
+        return '';
+      }
+      return _stringifyResolvedValue(resolvedArgs[_random.nextInt(resolvedArgs.length)]);
+    case 'date':
+      final now = DateTime.now().toUtc();
+      return '${now.year}-'
+          '${now.month.toString().padLeft(2, '0')}-'
+          '${now.day.toString().padLeft(2, '0')}';
     default:
       return null;
   }

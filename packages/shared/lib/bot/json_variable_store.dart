@@ -1,13 +1,16 @@
 import 'dart:convert';
 
 import 'variable_database.dart';
+import '../utils/bdfd_duration_parser.dart';
 
 /// In-memory implementation of [VariableDatabase] backed by Dart Maps.
 /// No persistence — used for runtime or fallback storage.
 /// Suitable for: CLI runner (ZIP config source), app fallback when SQLite unavailable.
 class JsonVariableStore implements VariableDatabase {
   final Map<String, dynamic> _globalVariables = {};
+  final Map<String, int> _globalExpirations = {};
   final Map<String, Map<String, Map<String, dynamic>>> _scopedVariables = {};
+  final Map<String, Map<String, Map<String, int>>> _scopedExpirations = {};
 
   JsonVariableStore();
 
@@ -35,16 +38,31 @@ class JsonVariableStore implements VariableDatabase {
       Map<String, dynamic>.from(_globalVariables);
 
   @override
-  Future<dynamic> getGlobalVariable(String botId, String key) async =>
-      _globalVariables[key];
+  Future<dynamic> getGlobalVariable(String botId, String key) async {
+    final expiresAt = _globalExpirations[key];
+    if (expiresAt != null && expiresAt < DateTime.now().millisecondsSinceEpoch) {
+      _globalVariables.remove(key);
+      _globalExpirations.remove(key);
+      return null;
+    }
+    return _globalVariables[key];
+  }
 
   @override
   Future<void> setGlobalVariable(
     String botId,
     String key,
-    dynamic value,
-  ) async {
+    dynamic value, {
+    String? ttl,
+  }) async {
     _globalVariables[key] = _normalizeVariableValue(value);
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final expiresAt = _parseTtl(ttl, now);
+    if (expiresAt != null) {
+      _globalExpirations[key] = expiresAt;
+    } else {
+      _globalExpirations.remove(key);
+    }
   }
 
   @override
@@ -84,6 +102,14 @@ class JsonVariableStore implements VariableDatabase {
     String contextId,
     String key,
   ) async {
+    final byScope = _scopedExpirations[scope];
+    final byId = byScope?[contextId];
+    final expiresAt = byId?[key];
+    if (expiresAt != null && expiresAt < DateTime.now().millisecondsSinceEpoch) {
+      removeScopedVariable(botId, scope, contextId, key);
+      return null;
+    }
+
     final values = await getScopedVariables(botId, scope, contextId);
     return values[key];
   }
@@ -94,14 +120,51 @@ class JsonVariableStore implements VariableDatabase {
     String scope,
     String contextId,
     String key,
-    dynamic value,
-  ) async {
+    dynamic value, {
+    String? ttl,
+  }) async {
     final byScope = _scopedVariables.putIfAbsent(
       scope,
       () => <String, Map<String, dynamic>>{},
     );
     final byId = byScope.putIfAbsent(contextId, () => <String, dynamic>{});
     byId[key] = _normalizeVariableValue(value);
+
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final expiresAt = _parseTtl(ttl, now);
+    if (expiresAt != null) {
+      final expByScope = _scopedExpirations.putIfAbsent(
+        scope,
+        () => <String, Map<String, int>>{},
+      );
+      final expById = expByScope.putIfAbsent(contextId, () => <String, int>{});
+      expById[key] = expiresAt;
+    } else {
+      _scopedExpirations[scope]?[contextId]?.remove(key);
+    }
+  }
+
+  int? _parseTtl(String? ttl, int now) {
+    if (ttl == null || ttl.trim().isEmpty) return null;
+    final duration = parseBdfdDuration(ttl);
+    if (duration == null) return null;
+    return now + duration.inMilliseconds;
+  }
+
+  @override
+  Future<int?> getScopedVariableTtl(
+    String botId,
+    String scope,
+    String contextId,
+    String key,
+  ) async {
+    final byScope = _scopedExpirations[scope];
+    final byId = byScope?[contextId];
+    final expiresAt = byId?[key];
+    if (expiresAt == null) return null;
+
+    final remaining = expiresAt - DateTime.now().millisecondsSinceEpoch;
+    return remaining > 0 ? remaining : 0;
   }
 
   @override

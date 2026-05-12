@@ -1169,8 +1169,9 @@ class _MemoryBotDataStore implements BotDataStore {
   Future<void> setGlobalVariable(
     String botId,
     String key,
-    dynamic value,
-  ) async {
+    dynamic value, {
+    String? ttl,
+  }) async {
     globalVariables[key] = value;
   }
 
@@ -1218,11 +1219,22 @@ class _MemoryBotDataStore implements BotDataStore {
     String scope,
     String contextId,
     String key,
-    dynamic value,
-  ) async {
+    dynamic value, {
+    String? ttl,
+  }) async {
     scopedVariables.putIfAbsent(scope, () => <String, Map<String, dynamic>>{});
     scopedVariables[scope]!.putIfAbsent(contextId, () => <String, dynamic>{});
     scopedVariables[scope]![contextId]![key] = value;
+  }
+
+  @override
+  Future<int?> getScopedVariableTtl(
+    String botId,
+    String scope,
+    String contextId,
+    String key,
+  ) async {
+    throw UnsupportedError('Not used in these tests');
   }
 
   @override
