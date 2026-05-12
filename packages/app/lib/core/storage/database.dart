@@ -644,13 +644,20 @@ class AppManager implements BotDataStore {
   }
 
   @override
-  Future<void> setGlobalVariable(String id, String key, dynamic value) async {
+  Future<void> setGlobalVariable(
+    String id,
+    String key,
+    dynamic value, {
+    String? ttl,
+  }) async {
     await _mutateApp(id, (appData) {
       final globals = Map<String, dynamic>.from(
         (appData['globalVariables'] as Map?)?.cast<String, dynamic>() ??
             const <String, dynamic>{},
       );
       globals[key] = value;
+      // Note: JSON-based global variables in AppManager don't currently support TTL persistence
+      // as they are stored in a simple Map. For full TTL support, use SQLite.
       appData['globalVariables'] = globals;
     });
     unawaited(
@@ -739,15 +746,36 @@ class AppManager implements BotDataStore {
     String scope,
     String contextId,
     String key,
-    dynamic value,
-  ) async {
+    dynamic value, {
+    String? ttl,
+  }) async {
     if (_sqliteAvailable) {
-      await _variableStore.setScopedVariable(id, scope, contextId, key, value);
+      await _variableStore.setScopedVariable(
+        id,
+        scope,
+        contextId,
+        key,
+        value,
+        ttl: ttl,
+      );
       return;
     }
     await _mutateScopedContextInJson(id, scope, contextId, (contextMap) {
       contextMap[key] = value;
     });
+  }
+
+  @override
+  Future<int?> getScopedVariableTtl(
+    String id,
+    String scope,
+    String contextId,
+    String key,
+  ) async {
+    if (_sqliteAvailable) {
+      return await _variableStore.getScopedVariableTtl(id, scope, contextId, key);
+    }
+    return null;
   }
 
   @override

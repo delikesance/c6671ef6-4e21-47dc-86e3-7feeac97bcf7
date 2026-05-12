@@ -9,7 +9,12 @@ abstract class VariableDatabase {
   Future<dynamic> getGlobalVariable(String botId, String key);
 
   /// Persists or updates a global variable.
-  Future<void> setGlobalVariable(String botId, String key, dynamic value);
+  Future<void> setGlobalVariable(
+    String botId,
+    String key,
+    dynamic value, {
+    String? ttl,
+  });
 
   /// Renames a global variable key.
   Future<void> renameGlobalVariable(String botId, String oldKey, String newKey);
@@ -42,8 +47,9 @@ abstract class VariableDatabase {
     String scope,
     String contextId,
     String key,
-    dynamic value,
-  );
+    dynamic value, {
+    String? ttl,
+  });
 
   /// Renames a scoped variable key.
   /// For guildMember scope, [contextId] is "{guildId}:{userId}" format.
@@ -167,4 +173,13 @@ abstract class VariableDatabase {
     bool descending = true,
     String? filter,
   });
+
+  /// Returns the remaining TTL of a scoped variable in milliseconds,
+  /// or null if the variable does not exist or has no TTL.
+  Future<int?> getScopedVariableTtl(
+    String botId,
+    String scope,
+    String contextId,
+    String key,
+  );
 }

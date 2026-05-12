@@ -521,6 +521,9 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             type: ParameterType.string,
             defaultValue: '',
             hint: 'Message content',
+            visibleWhen: <String, List<String>>{
+              'messageMode': <String>['message'],
+            },
           ),
           ParameterDefinition(
             key: 'embeds',
@@ -570,28 +573,47 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             required: true,
           ),
           ParameterDefinition(
+            key: 'editMode',
+            type: ParameterType.multiSelect,
+            defaultValue: 'message',
+            hint: 'Edit standard message or Component V2 layout',
+            options: ['message', 'componentV2'],
+          ),
+          ParameterDefinition(
             key: 'content',
             type: ParameterType.string,
             defaultValue: '',
             hint: 'New message content',
+            visibleWhen: <String, List<String>>{
+              'editMode': <String>['message'],
+            },
           ),
           ParameterDefinition(
             key: 'embeds',
             type: ParameterType.embeds,
             defaultValue: null,
             hint: 'Optional embeds to replace the current message embeds',
+            visibleWhen: <String, List<String>>{
+              'editMode': <String>['message'],
+            },
           ),
           ParameterDefinition(
             key: 'clearEmbeds',
             type: ParameterType.boolean,
             defaultValue: false,
             hint: 'Remove all embeds from the message',
+            visibleWhen: <String, List<String>>{
+              'editMode': <String>['message'],
+            },
           ),
           ParameterDefinition(
             key: 'componentV2',
             type: ParameterType.componentV2,
             defaultValue: null,
             hint: 'Edit Component V2 interactive elements (optional)',
+            visibleWhen: <String, List<String>>{
+              'editMode': <String>['componentV2'],
+            },
           ),
         ];
       case BotCreatorActionType.banUser:
@@ -1726,10 +1748,10 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
       case BotCreatorActionType.respondWithComponentV2:
         return [
           ParameterDefinition(
-            key: 'content',
-            type: ParameterType.string,
+            key: 'channelId',
+            type: ParameterType.channelId,
             defaultValue: '',
-            hint: 'Optional text above the components',
+            hint: 'Channel (optional: current channel or interaction context)',
           ),
           ParameterDefinition(
             key: 'components',
@@ -1741,7 +1763,7 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             key: 'ephemeral',
             type: ParameterType.boolean,
             defaultValue: false,
-            hint: 'Only visible to command author',
+            hint: 'Only visible to command author (Interaction ONLY)',
           ),
         ];
       case BotCreatorActionType.respondWithModal:
@@ -1757,34 +1779,56 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
       case BotCreatorActionType.editInteractionMessage:
         return [
           ParameterDefinition(
+            key: 'editMode',
+            type: ParameterType.multiSelect,
+            defaultValue: 'message',
+            hint: 'Edit standard message or Component V2 layout',
+            options: ['message', 'componentV2'],
+          ),
+          ParameterDefinition(
             key: 'content',
             type: ParameterType.string,
             defaultValue: '',
             hint: 'New text content (leave empty to keep current)',
+            visibleWhen: <String, List<String>>{
+              'editMode': <String>['message'],
+            },
           ),
           ParameterDefinition(
             key: 'embeds',
             type: ParameterType.embeds,
             defaultValue: null,
             hint: 'Optional embeds to replace the current interaction embeds',
+            visibleWhen: <String, List<String>>{
+              'editMode': <String>['message'],
+            },
           ),
           ParameterDefinition(
             key: 'clearEmbeds',
             type: ParameterType.boolean,
             defaultValue: false,
             hint: 'Remove all embeds from the interaction message',
+            visibleWhen: <String, List<String>>{
+              'editMode': <String>['message'],
+            },
           ),
           ParameterDefinition(
             key: 'components',
             type: ParameterType.componentV2,
             defaultValue: <String, dynamic>{},
             hint: 'New component layout (leave empty to keep current)',
+            visibleWhen: <String, List<String>>{
+              'editMode': <String>['componentV2'],
+            },
           ),
           ParameterDefinition(
             key: 'clearComponents',
             type: ParameterType.boolean,
             defaultValue: false,
             hint: 'Remove all components from the message',
+            visibleWhen: <String, List<String>>{
+              'editMode': <String>['componentV2'],
+            },
           ),
         ];
       case BotCreatorActionType.listenForButtonClick:

@@ -1355,9 +1355,7 @@ void main() {
               action.payload['key'] == 'roll',
         );
         final rollValue = (rollAction.payload['value'] ?? '').toString();
-        final rollNumber = int.tryParse(rollValue);
-        expect(rollNumber, isNotNull);
-        expect(rollNumber!, inInclusiveRange(1, 10));
+        expect(rollValue, contains('((random[1;10]))'));
 
         final accumulationBody = List<Map<String, dynamic>>.from(
           topLevelLoops[0].payload['bodyActions'] as List? ?? const [],

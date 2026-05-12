@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:path/path.dart';
 import 'package:bot_creator_shared/bot/variable_database.dart';
 import 'package:sqlite3/sqlite3.dart' as sqlite3;
+import 'package:bot_creator_shared/utils/bdfd_duration_parser.dart';
 
 /// SQLite implementation of [VariableDatabase] using sqlite3 (CLI runner).
 /// Lightweight pure Dart implementation, works on all platforms (Windows, Mac, Linux, etc.).
@@ -59,6 +60,7 @@ class SqliteCliVariableStore implements VariableDatabase {
         value_type TEXT NOT NULL,
         created_at INTEGER NOT NULL,
         updated_at INTEGER NOT NULL,
+        expires_at INTEGER,
         UNIQUE(bot_id, scope, context_id_1, context_id_2, key),
         CHECK(scope IN ('_global_', 'guild', 'user', 'channel', 'guildMember', 'message'))
       )
@@ -76,7 +78,23 @@ class SqliteCliVariableStore implements VariableDatabase {
 
     await _migrateScopeConstraintIfNeeded();
 
+    await _migrateExpiresAtColumnIfNeeded();
     _initialized = true;
+  }
+
+  Future<void> _migrateExpiresAtColumnIfNeeded() async {
+    final stmt = _db.prepare(
+      "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'variables' LIMIT 1",
+    );
+    final rows = stmt.select();
+    stmt.close();
+
+    if (rows.isEmpty) return;
+
+    final sql = (rows.first['sql'] as String?) ?? '';
+    if (sql.contains('expires_at')) return;
+
+    _db.execute('ALTER TABLE variables ADD COLUMN expires_at INTEGER');
   }
 
   Future<void> _migrateScopeConstraintIfNeeded() async {
@@ -142,13 +160,17 @@ class SqliteCliVariableStore implements VariableDatabase {
   Future<Map<String, dynamic>> getGlobalVariables(String botId) async {
     await init();
     final result = <String, dynamic>{};
+    final now = DateTime.now().millisecondsSinceEpoch;
 
     final stmt = _db.prepare(
-      'SELECT key, value_raw, value_type FROM variables WHERE bot_id = ? AND scope = ? ORDER BY updated_at ASC, id ASC',
+      'SELECT key, value_raw, value_type, expires_at FROM variables WHERE bot_id = ? AND scope = ? ORDER BY updated_at ASC, id ASC',
     );
     final rows = stmt.select([botId, '_global_']);
 
     for (final row in rows) {
+      final expiresAt = row['expires_at'] as int?;
+      if (expiresAt != null && expiresAt < now) continue;
+
       final key = row['key'] as String;
       final value = _deserializeValue(
         row['value_raw'] as String,
@@ -164,9 +186,10 @@ class SqliteCliVariableStore implements VariableDatabase {
   @override
   Future<dynamic> getGlobalVariable(String botId, String key) async {
     await init();
+    final now = DateTime.now().millisecondsSinceEpoch;
 
     final stmt = _db.prepare(
-      'SELECT value_raw, value_type FROM variables WHERE bot_id = ? AND scope = ? AND context_id_1 = ? AND key = ? ORDER BY updated_at DESC, id DESC LIMIT 1',
+      'SELECT value_raw, value_type, expires_at FROM variables WHERE bot_id = ? AND scope = ? AND context_id_1 = ? AND key = ? ORDER BY updated_at DESC, id DESC LIMIT 1',
     );
     final rows = stmt.select([botId, '_global_', '', key]);
 
@@ -176,6 +199,14 @@ class SqliteCliVariableStore implements VariableDatabase {
     }
 
     final row = rows[0];
+    final expiresAt = row['expires_at'] as int?;
+    if (expiresAt != null && expiresAt < now) {
+      stmt.close();
+      // Optionally delete expired row
+      removeGlobalVariable(botId, key);
+      return null;
+    }
+
     final value = _deserializeValue(
       row['value_raw'] as String,
       row['value_type'] as String,
@@ -189,19 +220,22 @@ class SqliteCliVariableStore implements VariableDatabase {
   Future<void> setGlobalVariable(
     String botId,
     String key,
-    dynamic value,
-  ) async {
+    dynamic value, {
+    String? ttl,
+  }) async {
     await init();
     final (valueRaw, valueType) = _serializeValue(value);
     final now = DateTime.now().millisecondsSinceEpoch;
+    final expiresAt = _parseTtl(ttl, now);
 
     final stmt = _db.prepare('''
-      INSERT INTO variables (bot_id, scope, context_id_1, context_id_2, key, value_raw, value_type, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO variables (bot_id, scope, context_id_1, context_id_2, key, value_raw, value_type, created_at, updated_at, expires_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(bot_id, scope, context_id_1, context_id_2, key) DO UPDATE SET
         value_raw = excluded.value_raw,
         value_type = excluded.value_type,
-        updated_at = excluded.updated_at
+        updated_at = excluded.updated_at,
+        expires_at = excluded.expires_at
     ''');
     stmt.execute([
       botId,
@@ -213,6 +247,7 @@ class SqliteCliVariableStore implements VariableDatabase {
       valueType,
       now,
       now,
+      expiresAt,
     ]);
     stmt.close();
   }
@@ -253,9 +288,10 @@ class SqliteCliVariableStore implements VariableDatabase {
     await init();
     final (ctx1, ctx2) = _parseContextId(scope, contextId);
     final result = <String, dynamic>{};
+    final now = DateTime.now().millisecondsSinceEpoch;
 
     final stmt = _db.prepare(
-      'SELECT key, value_raw, value_type FROM variables WHERE ${_scopedContextWhereClause(includeKey: false)} ORDER BY updated_at ASC, id ASC',
+      'SELECT key, value_raw, value_type, expires_at FROM variables WHERE ${_scopedContextWhereClause(includeKey: false)} ORDER BY updated_at ASC, id ASC',
     );
     final rows = stmt.select(
       _scopedContextWhereArgs(
@@ -267,6 +303,9 @@ class SqliteCliVariableStore implements VariableDatabase {
     );
 
     for (final row in rows) {
+      final expiresAt = row['expires_at'] as int?;
+      if (expiresAt != null && expiresAt < now) continue;
+
       final key = row['key'] as String;
       final value = _deserializeValue(
         row['value_raw'] as String,
@@ -288,9 +327,10 @@ class SqliteCliVariableStore implements VariableDatabase {
   ) async {
     await init();
     final (ctx1, ctx2) = _parseContextId(scope, contextId);
+    final now = DateTime.now().millisecondsSinceEpoch;
 
     final stmt = _db.prepare(
-      'SELECT value_raw, value_type FROM variables WHERE ${_scopedContextWhereClause(includeKey: true)} ORDER BY updated_at DESC, id DESC LIMIT 1',
+      'SELECT value_raw, value_type, expires_at FROM variables WHERE ${_scopedContextWhereClause(includeKey: true)} ORDER BY updated_at DESC, id DESC LIMIT 1',
     );
     final rows = stmt.select(
       _scopedContextWhereArgs(
@@ -308,6 +348,13 @@ class SqliteCliVariableStore implements VariableDatabase {
     }
 
     final row = rows[0];
+    final expiresAt = row['expires_at'] as int?;
+    if (expiresAt != null && expiresAt < now) {
+      stmt.close();
+      removeScopedVariable(botId, scope, contextId, key);
+      return null;
+    }
+
     final value = _deserializeValue(
       row['value_raw'] as String,
       row['value_type'] as String,
@@ -323,20 +370,23 @@ class SqliteCliVariableStore implements VariableDatabase {
     String scope,
     String contextId,
     String key,
-    dynamic value,
-  ) async {
+    dynamic value, {
+    String? ttl,
+  }) async {
     await init();
     final (ctx1, ctx2) = _parseContextId(scope, contextId);
     final (valueRaw, valueType) = _serializeValue(value);
     final now = DateTime.now().millisecondsSinceEpoch;
+    final expiresAt = _parseTtl(ttl, now);
 
     final stmt = _db.prepare('''
-      INSERT INTO variables (bot_id, scope, context_id_1, context_id_2, key, value_raw, value_type, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO variables (bot_id, scope, context_id_1, context_id_2, key, value_raw, value_type, created_at, updated_at, expires_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(bot_id, scope, context_id_1, context_id_2, key) DO UPDATE SET
         value_raw = excluded.value_raw,
         value_type = excluded.value_type,
-        updated_at = excluded.updated_at
+        updated_at = excluded.updated_at,
+        expires_at = excluded.expires_at
     ''');
     stmt.execute([
       botId,
@@ -348,8 +398,43 @@ class SqliteCliVariableStore implements VariableDatabase {
       valueType,
       now,
       now,
+      expiresAt,
     ]);
     stmt.close();
+  }
+
+  int? _parseTtl(String? ttl, int now) {
+    if (ttl == null || ttl.trim().isEmpty) return null;
+    final duration = parseBdfdDuration(ttl);
+    if (duration == null) return null;
+    return now + duration.inMilliseconds;
+  }
+
+  @override
+  Future<int?> getScopedVariableTtl(
+    String botId,
+    String scope,
+    String contextId,
+    String key,
+  ) async {
+    final (ctx1, ctx2) = _parseContextId(scope, contextId);
+    final row = _db.select(
+      'SELECT expires_at FROM variables WHERE ${_scopedContextWhereClause(includeKey: true)} LIMIT 1',
+      _scopedContextWhereArgs(
+        botId: botId,
+        scope: scope,
+        ctx1: ctx1,
+        ctx2: ctx2,
+        key: key,
+      ),
+    );
+
+    if (row.isEmpty) return null;
+    final expiresAt = row.first['expires_at'] as int?;
+    if (expiresAt == null) return null;
+
+    final remaining = expiresAt - DateTime.now().millisecondsSinceEpoch;
+    return remaining > 0 ? remaining : 0;
   }
 
   @override

@@ -209,9 +209,15 @@ class RunnerDataStore implements BotDataStore {
   Future<void> setGlobalVariable(
     String botId,
     String key,
-    dynamic value,
-  ) async {
-    await (await _storeForBot(botId)).setGlobalVariable(botId, key, value);
+    dynamic value, {
+    String? ttl,
+  }) async {
+    await (await _storeForBot(botId)).setGlobalVariable(
+      botId,
+      key,
+      value,
+      ttl: ttl,
+    );
   }
 
   @override
@@ -259,11 +265,17 @@ class RunnerDataStore implements BotDataStore {
     String scope,
     String contextId,
     String key,
-    dynamic value,
-  ) async {
-    await (await _storeForBot(
+    dynamic value, {
+    String? ttl,
+  }) async {
+    await (await _storeForBot(botId)).setScopedVariable(
       botId,
-    )).setScopedVariable(botId, scope, contextId, key, value);
+      scope,
+      contextId,
+      key,
+      value,
+      ttl: ttl,
+    );
   }
 
   @override
@@ -393,6 +405,21 @@ class RunnerDataStore implements BotDataStore {
       offset: offset,
       limit: limit,
       descending: descending,
+    );
+  }
+
+  @override
+  Future<int?> getScopedVariableTtl(
+    String botId,
+    String scope,
+    String contextId,
+    String key,
+  ) async {
+    return await (await _storeForBot(botId)).getScopedVariableTtl(
+      botId,
+      scope,
+      contextId,
+      key,
     );
   }
 

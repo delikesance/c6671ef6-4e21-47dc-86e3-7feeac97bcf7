@@ -17,7 +17,8 @@ Map<String, dynamic> purgeActionPayloadStrict(
       // Keep content, embeds, components (normal), attachments
       payload.remove('componentV2');
     } else if (mode == 'componentV2') {
-      // Keep content, componentV2, attachments
+      // Only keep componentV2, attachments
+      payload.remove('content');
       payload.remove('embeds');
       payload.remove('components');
     }
@@ -37,7 +38,7 @@ Map<String, dynamic> purgeActionPayloadStrict(
   } else if (type == BotCreatorActionType.respondWithComponentV2) {
     // Only keep componentV2 related fields
     final keysToKeep = {
-      'content',
+      'channelId',
       'components',
       'attachments',
       'ephemeral',
@@ -54,8 +55,17 @@ Map<String, dynamic> purgeActionPayloadStrict(
     if (mode == 'message' || mode == 'normal') {
       payload.remove('componentV2');
     } else if (mode == 'componentV2') {
+      payload.remove('content');
       payload.remove('embeds');
       payload.remove('components');
+    }
+  } else if (type == BotCreatorActionType.editMessage) {
+    final mode = (payload['editMode'] ?? 'message').toString();
+    if (mode == 'message' || mode == 'normal') {
+      payload.remove('componentV2');
+    } else if (mode == 'componentV2') {
+      payload.remove('content');
+      payload.remove('embeds');
     }
   }
 
