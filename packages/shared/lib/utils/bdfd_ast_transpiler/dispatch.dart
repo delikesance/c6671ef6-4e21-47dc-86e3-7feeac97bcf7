@@ -19,12 +19,15 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         response.ensureEmbed()['color'] = _stringifyArgument(node, 0);
         return true;
       case 'footer':
-        final footer = <String, dynamic>{'text': _stringifyArgument(node, 0)};
+        final embed = response.ensureEmbed();
+        final footer =
+            (embed['footer'] as Map<String, dynamic>?) ?? <String, dynamic>{};
+        footer['text'] = _stringifyArgument(node, 0);
         final iconUrl = _stringifyArgument(node, 1);
         if (iconUrl.isNotEmpty) {
           footer['icon_url'] = iconUrl;
         }
-        response.ensureEmbed()['footer'] = footer;
+        embed['footer'] = footer;
         return true;
       case 'thumbnail':
         response.ensureEmbed()['thumbnail'] = <String, dynamic>{
@@ -37,16 +40,19 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         };
         return true;
       case 'author':
-        final author = <String, dynamic>{'name': _stringifyArgument(node, 0)};
-        final iconUrl = _stringifyArgument(node, 1);
+        final embed = response.ensureEmbed();
+        final author =
+            (embed['author'] as Map<String, dynamic>?) ?? <String, dynamic>{};
+        author['name'] = _stringifyArgument(node, 0);
+        final authorIconUrl = _stringifyArgument(node, 1);
         final url = _stringifyArgument(node, 2);
-        if (iconUrl.isNotEmpty) {
-          author['icon_url'] = iconUrl;
+        if (authorIconUrl.isNotEmpty) {
+          author['icon_url'] = authorIconUrl;
         }
         if (url.isNotEmpty) {
           author['url'] = url;
         }
-        response.ensureEmbed()['author'] = author;
+        embed['author'] = author;
         return true;
       case 'addfield':
         final field = <String, dynamic>{
