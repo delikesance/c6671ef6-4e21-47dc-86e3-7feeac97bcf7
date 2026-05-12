@@ -368,13 +368,33 @@ Future<Map<String, dynamic>> sendComponentV2Action(
 
 /// Respond to an interaction with a ComponentV2 message.
 /// If already acknowledged (deferred), updates the response.
+/// If interaction is null, falls back to sendComponentV2Action.
 Future<Map<String, dynamic>> respondWithComponentV2Action(
-  Interaction interaction, {
+  Interaction? interaction, {
   required Map<String, dynamic> payload,
+  NyxxGateway? client,
+  Snowflake? fallbackChannelId,
   String Function(String)? resolve,
   String? botId,
+  String? guildId,
 }) async {
   resolve ??= (s) => s;
+  if (interaction == null) {
+    if (client == null) {
+      return {
+        'error':
+            'respondWithComponentV2 requires either an interaction or a client for fallback',
+      };
+    }
+    return sendComponentV2Action(
+      client,
+      payload: payload,
+      fallbackChannelId: fallbackChannelId,
+      resolve: resolve,
+      botId: botId,
+      guildId: guildId,
+    );
+  }
   try {
     final definition = _componentDefinitionFromPayload(payload);
 

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import '../../types/action.dart';
 import '../../utils/bdfd_compiler.dart';
+import '../../utils/bdfd_duration_parser.dart';
 import '../../utils/workflow_call.dart';
 
 bool _evaluateCondition({
@@ -60,11 +61,12 @@ bool _parseBooleanFlag(dynamic value) {
       normalized == 'on';
 }
 
-bool _evaluateConditionFromPayload({
+Future<bool> _evaluateConditionFromPayload({
   required Map<String, dynamic> payload,
   required Map<String, String> variables,
   required String Function(String input) resolveValue,
-}) {
+  required Future<int?> Function(String scope, String key)? getScopedVariableTtl,
+}) async {
   final rawGroup =
       (payload['condition.group'] ?? payload['group'] ?? '').toString().trim();
   if (rawGroup.isNotEmpty) {
@@ -82,10 +84,11 @@ bool _evaluateConditionFromPayload({
 
     var groupResult = group == 'and';
     for (final condition in conditionList) {
-      final passed = _evaluateConditionFromPayload(
+      final passed = await _evaluateConditionFromPayload(
         payload: condition,
         variables: variables,
         resolveValue: resolveValue,
+        getScopedVariableTtl: getScopedVariableTtl,
       );
       if (group == 'and') {
         groupResult = groupResult && passed;
@@ -116,11 +119,36 @@ bool _evaluateConditionFromPayload({
     resolveValue,
   );
 
-  return _evaluateCondition(
+  final passed = _evaluateCondition(
     leftValue: leftValue,
     operator: conditionOperator,
     rightValue: conditionValue,
   );
+
+  // Special handling for cooldown placeholders like %time%
+  // If the condition failed and it's an "isEmpty" check on a cooldown variable,
+  // we fetch the TTL and inject it into variables.
+  if (!passed &&
+      conditionOperator.toLowerCase() == 'isempty' &&
+      rawConditionVariable.contains('.bc_cooldown_') &&
+      getScopedVariableTtl != null) {
+    // rawConditionVariable is likely "((scope.bc_cooldown_...))"
+    final match = RegExp(r'^\(\(([^.]+)\.([^)]+)\)\)$').firstMatch(
+      rawConditionVariable.trim(),
+    );
+    if (match != null) {
+      final scope = match.group(1)!;
+      final key = match.group(2)!;
+      final ttl = await getScopedVariableTtl(scope, key);
+      if (ttl != null) {
+        variables['cooldown.time'] = formatBdfdDuration(
+          Duration(milliseconds: ttl),
+        );
+      }
+    }
+  }
+
+  return passed;
 }
 
 String _resolveConditionLeftValue(
@@ -186,6 +214,9 @@ Future<bool> executeControlFlowAction({
   /// passed to [executeActions] in [runBdfdScript] and [runWorkflow]. Used by
   /// Legacy command handlers to adapt actions for messageCreate context.
   List<Action> Function(List<Action>)? nestedActionsPreprocessor,
+
+  /// Optional provider for variable TTLs, used for cooldown resolution.
+  Future<int?> Function(String scope, String key)? getScopedVariableTtl,
 }) async {
   switch (type) {
     case BotCreatorActionType.runBdfdScript:
@@ -308,10 +339,11 @@ Future<bool> executeControlFlowAction({
         variables,
         resolveValue,
       );
-      final conditionPassed = _evaluateCondition(
-        leftValue: leftValue,
-        operator: conditionOperator,
-        rightValue: conditionValue,
+      final conditionPassed = await _evaluateConditionFromPayload(
+        payload: payload,
+        variables: variables,
+        resolveValue: resolveValue,
+        getScopedVariableTtl: getScopedVariableTtl,
       );
       results[resultKey] = conditionPassed ? 'PASSED' : 'STOPPED';
       if (!conditionPassed) {
@@ -323,10 +355,11 @@ Future<bool> executeControlFlowAction({
       return true;
 
     case BotCreatorActionType.ifBlock:
-      final conditionPassed = _evaluateConditionFromPayload(
+      final conditionPassed = await _evaluateConditionFromPayload(
         payload: payload,
         variables: variables,
         resolveValue: resolveValue,
+        getScopedVariableTtl: getScopedVariableTtl,
       );
 
       final rawThen = payload['thenActions'];
@@ -347,10 +380,11 @@ Future<bool> executeControlFlowAction({
             }
 
             final elseIf = Map<String, dynamic>.from(entry);
-            final elseIfPassed = _evaluateConditionFromPayload(
+            final elseIfPassed = await _evaluateConditionFromPayload(
               payload: elseIf,
               variables: variables,
               resolveValue: resolveValue,
+              getScopedVariableTtl: getScopedVariableTtl,
             );
             if (!elseIfPassed) {
               continue;

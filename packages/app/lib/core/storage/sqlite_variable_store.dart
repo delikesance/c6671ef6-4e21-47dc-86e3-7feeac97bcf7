@@ -5,6 +5,7 @@ import 'package:bot_creator/core/storage/app_storage_directory.dart';
 import 'package:path/path.dart';
 import 'package:flutter/foundation.dart';
 import 'package:bot_creator_shared/bot/variable_database.dart';
+import 'package:bot_creator_shared/utils/bdfd_duration_parser.dart';
 
 /// SQLite implementation of [VariableDatabase] using sqflite (Flutter apps).
 /// Supports Windows, Mac, Linux, iOS, Android.
@@ -55,7 +56,7 @@ class SqliteVariableStore implements VariableDatabase {
 
     _db = await openDatabase(
       dbPath,
-      version: 3,
+      version: 4,
       onCreate: (db, version) async {
         await _createSchema(db);
       },
@@ -65,6 +66,9 @@ class SqliteVariableStore implements VariableDatabase {
         }
         if (oldVersion < 3) {
           await _ensureSecondaryIndexes(db);
+        }
+        if (oldVersion < 4) {
+          await _migrateExpiresAtColumn(db);
         }
       },
     );
@@ -87,6 +91,7 @@ class SqliteVariableStore implements VariableDatabase {
         value_type TEXT NOT NULL,
         created_at INTEGER NOT NULL,
         updated_at INTEGER NOT NULL,
+        expires_at INTEGER,
         UNIQUE(bot_id, scope, context_id_1, context_id_2, key),
         CHECK(scope IN ('_global_', 'guild', 'user', 'channel', 'guildMember', 'message'))
       )
@@ -138,9 +143,18 @@ class SqliteVariableStore implements VariableDatabase {
     );
   }
 
+  Future<void> _migrateExpiresAtColumn(DatabaseExecutor db) async {
+    try {
+      await db.execute('ALTER TABLE variables ADD COLUMN expires_at INTEGER');
+    } catch (_) {
+      // Column might already exist from a failed migration attempt or different branch
+    }
+  }
+
   @override
   Future<Map<String, dynamic>> getGlobalVariables(String botId) async {
     await init();
+    final now = DateTime.now().millisecondsSinceEpoch;
     final rows = await _db.query(
       'variables',
       where: 'bot_id = ? AND scope = ?',
@@ -150,6 +164,9 @@ class SqliteVariableStore implements VariableDatabase {
 
     final result = <String, dynamic>{};
     for (final row in rows) {
+      final expiresAt = row['expires_at'] as int?;
+      if (expiresAt != null && expiresAt < now) continue;
+
       final key = row['key'] as String;
       final value = _deserializeValue(
         row['value_raw'] as String,
@@ -163,6 +180,7 @@ class SqliteVariableStore implements VariableDatabase {
   @override
   Future<dynamic> getGlobalVariable(String botId, String key) async {
     await init();
+    final now = DateTime.now().millisecondsSinceEpoch;
     final rows = await _db.query(
       'variables',
       where: 'bot_id = ? AND scope = ? AND context_id_1 = ? AND key = ?',
@@ -172,9 +190,17 @@ class SqliteVariableStore implements VariableDatabase {
     );
 
     if (rows.isEmpty) return null;
+
+    final row = rows[0];
+    final expiresAt = row['expires_at'] as int?;
+    if (expiresAt != null && expiresAt < now) {
+      removeGlobalVariable(botId, key);
+      return null;
+    }
+
     return _deserializeValue(
-      rows[0]['value_raw'] as String,
-      rows[0]['value_type'] as String,
+      row['value_raw'] as String,
+      row['value_type'] as String,
     );
   }
 
@@ -182,11 +208,13 @@ class SqliteVariableStore implements VariableDatabase {
   Future<void> setGlobalVariable(
     String botId,
     String key,
-    dynamic value,
-  ) async {
+    dynamic value, {
+    String? ttl,
+  }) async {
     await init();
     final (valueRaw, valueType) = _serializeValue(value);
     final now = DateTime.now().millisecondsSinceEpoch;
+    final expiresAt = _parseTtl(ttl, now);
 
     await _db.insert('variables', {
       'bot_id': botId,
@@ -198,6 +226,7 @@ class SqliteVariableStore implements VariableDatabase {
       'value_type': valueType,
       'created_at': now,
       'updated_at': now,
+      'expires_at': expiresAt,
     }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
@@ -244,6 +273,7 @@ class SqliteVariableStore implements VariableDatabase {
   ) async {
     await init();
     final (ctx1, ctx2) = _parseContextId(scope, contextId);
+    final now = DateTime.now().millisecondsSinceEpoch;
 
     final rows = await _db.query(
       'variables',
@@ -259,6 +289,9 @@ class SqliteVariableStore implements VariableDatabase {
 
     final result = <String, dynamic>{};
     for (final row in rows) {
+      final expiresAt = row['expires_at'] as int?;
+      if (expiresAt != null && expiresAt < now) continue;
+
       final key = row['key'] as String;
       final value = _deserializeValue(
         row['value_raw'] as String,
@@ -278,6 +311,7 @@ class SqliteVariableStore implements VariableDatabase {
   ) async {
     await init();
     final (ctx1, ctx2) = _parseContextId(scope, contextId);
+    final now = DateTime.now().millisecondsSinceEpoch;
 
     final rows = await _db.query(
       'variables',
@@ -294,9 +328,17 @@ class SqliteVariableStore implements VariableDatabase {
     );
 
     if (rows.isEmpty) return null;
+
+    final row = rows[0];
+    final expiresAt = row['expires_at'] as int?;
+    if (expiresAt != null && expiresAt < now) {
+      removeScopedVariable(botId, scope, contextId, key);
+      return null;
+    }
+
     return _deserializeValue(
-      rows[0]['value_raw'] as String,
-      rows[0]['value_type'] as String,
+      row['value_raw'] as String,
+      row['value_type'] as String,
     );
   }
 
@@ -306,12 +348,14 @@ class SqliteVariableStore implements VariableDatabase {
     String scope,
     String contextId,
     String key,
-    dynamic value,
-  ) async {
+    dynamic value, {
+    String? ttl,
+  }) async {
     await init();
     final (ctx1, ctx2) = _parseContextId(scope, contextId);
     final (valueRaw, valueType) = _serializeValue(value);
     final now = DateTime.now().millisecondsSinceEpoch;
+    final expiresAt = _parseTtl(ttl, now);
 
     await _db.insert('variables', {
       'bot_id': botId,
@@ -323,7 +367,47 @@ class SqliteVariableStore implements VariableDatabase {
       'value_type': valueType,
       'created_at': now,
       'updated_at': now,
+      'expires_at': expiresAt,
     }, conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
+  int? _parseTtl(String? ttl, int now) {
+    if (ttl == null || ttl.trim().isEmpty) return null;
+    final duration = parseBdfdDuration(ttl);
+    if (duration == null) return null;
+    return now + duration.inMilliseconds;
+  }
+
+  @override
+  Future<int?> getScopedVariableTtl(
+    String botId,
+    String scope,
+    String contextId,
+    String key,
+  ) async {
+    await init();
+    final (ctx1, ctx2) = _parseContextId(scope, contextId);
+
+    final rows = await _db.query(
+      'variables',
+      columns: ['expires_at'],
+      where: _scopedContextWhereClause(includeKey: true),
+      whereArgs: _scopedContextWhereArgs(
+        botId: botId,
+        scope: scope,
+        ctx1: ctx1,
+        ctx2: ctx2,
+        key: key,
+      ),
+      limit: 1,
+    );
+
+    if (rows.isEmpty) return null;
+    final expiresAt = rows[0]['expires_at'] as int?;
+    if (expiresAt == null) return null;
+
+    final remaining = expiresAt - DateTime.now().millisecondsSinceEpoch;
+    return remaining > 0 ? remaining : 0;
   }
 
   @override

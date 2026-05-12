@@ -435,9 +435,9 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
   void _showAddActionDialog() {
     final mediaQuery = MediaQuery.of(context);
     final isMobile = mediaQuery.size.width < 700;
-    final availableActionTypes = BotCreatorActionType.values.toList(
-      growable: false,
-    );
+    final availableActionTypes = BotCreatorActionType.values
+        .where((type) => type != BotCreatorActionType.sendComponentV2)
+        .toList(growable: false);
     String searchQuery = '';
 
     Widget selectorContent(

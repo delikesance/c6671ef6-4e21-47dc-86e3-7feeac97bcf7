@@ -33,7 +33,12 @@ abstract class BotDataStore {
   Future<dynamic> getGlobalVariable(String botId, String key);
 
   /// Persists or updates a global variable.
-  Future<void> setGlobalVariable(String botId, String key, dynamic value);
+  Future<void> setGlobalVariable(
+    String botId,
+    String key,
+    dynamic value, {
+    String? ttl,
+  });
 
   /// Renames a global variable key.
   Future<void> renameGlobalVariable(String botId, String oldKey, String newKey);
@@ -62,8 +67,9 @@ abstract class BotDataStore {
     String scope,
     String contextId,
     String key,
-    dynamic value,
-  );
+    dynamic value, {
+    String? ttl,
+  });
 
   /// Renames a scoped variable key.
   Future<void> renameScopedVariable(
@@ -151,4 +157,13 @@ abstract class BotDataStore {
 
   /// Finds a workflow by name (case-insensitive), or null if not found.
   Future<Map<String, dynamic>?> getWorkflowByName(String botId, String name);
+
+  /// Returns the remaining TTL of a scoped variable in milliseconds,
+  /// or null if the variable does not exist or has no TTL.
+  Future<int?> getScopedVariableTtl(
+    String botId,
+    String scope,
+    String contextId,
+    String key,
+  );
 }

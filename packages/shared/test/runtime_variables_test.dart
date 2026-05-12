@@ -302,7 +302,12 @@ class _FakeBotDataStore implements BotDataStore {
   }
 
   @override
-  Future<void> setGlobalVariable(String botId, String key, value) {
+  Future<void> setGlobalVariable(
+    String botId,
+    String key,
+    dynamic value, {
+    String? ttl,
+  }) {
     throw UnsupportedError('Not used in this test');
   }
 
@@ -312,10 +317,21 @@ class _FakeBotDataStore implements BotDataStore {
     String scope,
     String contextId,
     String key,
-    value,
-  ) async {
+    dynamic value, {
+    String? ttl,
+  }) async {
     scopedVariables.putIfAbsent(scope, () => <String, Map<String, dynamic>>{});
     scopedVariables[scope]!.putIfAbsent(contextId, () => <String, dynamic>{});
     scopedVariables[scope]![contextId]![key] = value;
+  }
+
+  @override
+  Future<int?> getScopedVariableTtl(
+    String botId,
+    String scope,
+    String contextId,
+    String key,
+  ) {
+    throw UnsupportedError('Not used in this test');
   }
 }

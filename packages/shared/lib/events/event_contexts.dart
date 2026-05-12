@@ -1,17 +1,21 @@
 import 'dart:convert';
 
 import 'package:nyxx/nyxx.dart';
+import '../utils/global.dart';
 
 part 'events/channel_create_event.dart';
 part 'events/channel_delete_event.dart';
 part 'events/channel_pins_update_event.dart';
 part 'events/channel_update_event.dart';
 part 'events/guild_audit_log_create_event.dart';
+part 'events/guild_create_event.dart';
+part 'events/guild_delete_event.dart';
 part 'events/guild_member_add_event.dart';
 part 'events/guild_member_remove_event.dart';
 part 'events/guild_role_create_event.dart';
 part 'events/guild_role_delete_event.dart';
 part 'events/guild_role_update_event.dart';
+part 'events/guild_update_event.dart';
 part 'events/invite_create_event.dart';
 part 'events/invite_delete_event.dart';
 part 'events/interaction_create_event.dart';

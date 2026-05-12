@@ -174,6 +174,7 @@ Future<Map<String, String>> handleActions(
       results: results,
       fallbackChannelId: resolvedFallbackChannelId,
       guildId: guildId,
+      resolveValue: resolveValue,
       permissionCache: permCache,
     );
     if (handledByReactionsExecutor) {
@@ -188,6 +189,7 @@ Future<Map<String, String>> handleActions(
       payload: action.payload,
       resultKey: resultKey,
       results: results,
+      resolveValue: resolveValue,
     );
     if (handledByModerationRolesExecutor) {
       recordTrace();
@@ -277,6 +279,20 @@ Future<Map<String, String>> handleActions(
       getWorkflowByName:
           (workflowName) => store.getWorkflowByName(botId, workflowName),
       nestedActionsPreprocessor: nestedActionsPreprocessor,
+      getScopedVariableTtl:
+          (scope, key) async => await store.getScopedVariableTtl(
+            botId,
+            scope,
+            resolveScopeContextId(
+              scope: scope,
+              variables: variables,
+              interaction: interaction,
+              guildId: guildId,
+              channelId: resolvedFallbackChannelId,
+            ) ??
+            '',
+            key,
+          ),
       executeActions:
           (nestedActions) => handleActions(
             client,
@@ -412,10 +428,16 @@ Future<Map<String, String>> handleActions(
           results[resultKey] = result['messageId'] ?? '';
           break;
         case BotCreatorActionType.updateAutoMod:
+          final resolvedPayload = Map<String, dynamic>.from(action.payload);
+          if (action.payload.containsKey('ruleId')) {
+            resolvedPayload['ruleId'] = resolveValue(
+              action.payload['ruleId'].toString(),
+            );
+          }
           final result = await updateAutoModAction(
             client,
             guildId: guildId,
-            payload: action.payload,
+            payload: resolvedPayload,
           );
           if (result['error'] != null) {
             throw Exception(result['error']);
@@ -435,10 +457,26 @@ Future<Map<String, String>> handleActions(
           results[resultKey] = result['guildId'] ?? '';
           break;
         case BotCreatorActionType.listMembers:
+          final resolvedPayload = Map<String, dynamic>.from(action.payload);
+          if (action.payload.containsKey('limit')) {
+            resolvedPayload['limit'] = resolveValue(
+              action.payload['limit'].toString(),
+            );
+          }
+          if (action.payload.containsKey('after')) {
+            resolvedPayload['after'] = resolveValue(
+              action.payload['after'].toString(),
+            );
+          }
+          if (action.payload.containsKey('query')) {
+            resolvedPayload['query'] = resolveValue(
+              action.payload['query'].toString(),
+            );
+          }
           final result = await listMembersAction(
             client,
             guildId: guildId,
-            payload: action.payload,
+            payload: resolvedPayload,
           );
           if (result['error'] != null) {
             throw Exception(result['error']);
@@ -446,10 +484,21 @@ Future<Map<String, String>> handleActions(
           results[resultKey] = result['members'] ?? '[]';
           break;
         case BotCreatorActionType.getMember:
+          final resolvedPayload = Map<String, dynamic>.from(action.payload);
+          if (action.payload.containsKey('userId')) {
+            resolvedPayload['userId'] = resolveValue(
+              action.payload['userId'].toString(),
+            );
+          }
+          if (action.payload.containsKey('memberId')) {
+            resolvedPayload['memberId'] = resolveValue(
+              action.payload['memberId'].toString(),
+            );
+          }
           final result = await getMemberAction(
             client,
             guildId: guildId,
-            payload: action.payload,
+            payload: resolvedPayload,
           );
           if (result['error'] != null) {
             throw Exception(result['error']);

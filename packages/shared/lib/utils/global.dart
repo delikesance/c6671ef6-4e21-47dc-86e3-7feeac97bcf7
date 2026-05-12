@@ -21,7 +21,7 @@ Snowflake? _asSnowflake(dynamic value) {
   return Snowflake(parsed);
 }
 
-Future<int> _getGuildMemberCount(
+Future<int> getGuildMemberCount(
   dynamic guild, {
   dynamic client,
   Snowflake? guildId,
@@ -72,7 +72,7 @@ Future<Guild?> fetchGuildCached(dynamic client, Snowflake guildId) async {
     // Try cache first
     final cached = await client.guilds.get(guildId);
     // Only return cached if it's a full Guild object AND has member count info
-    if (cached is Guild && (await _getGuildMemberCount(cached)) > 0) {
+    if (cached is Guild && (await getGuildMemberCount(cached)) > 0) {
       return cached;
     }
 
@@ -482,7 +482,7 @@ Future<Map<String, String>> extractGuildRuntimeDetails(
   details['guild.features'] = featureList.join(',');
   details['guild.features.count'] = featureList.length.toString();
 
-  final count = await _getGuildMemberCount(
+  final count = await getGuildMemberCount(
     guild,
     client: client,
     guildId: guildId,
@@ -531,7 +531,7 @@ Future<Map<String, String>> generateKeyValues(
 ) async {
   PartialGuild? guild = interaction.guild;
   final guildId = _asSnowflake((interaction as dynamic).guildId) ?? guild?.id;
-  final count = await _getGuildMemberCount(
+  final count = await getGuildMemberCount(
     guild,
     client: interaction.manager.client,
     guildId: guildId,
@@ -575,7 +575,7 @@ Future<Map<String, String>> generateKeyValues(
   final channelIdText = channelId?.toString() ?? '';
   final guildName = (guild is Guild) ? guild.name : "DM";
   final userName = user?.user?.username ?? "Unknown User";
-  final guildCount = await _getGuildMemberCount(
+  final guildCount = await getGuildMemberCount(
     guild,
     client: interaction.manager.client,
     guildId: guildId,
@@ -1018,7 +1018,7 @@ Future<Map<String, String>> generateInteractionContextKeyValues(
   if (raw.guild is Guild) {
     guild = raw.guild as Guild;
   }
-  final count = await _getGuildMemberCount(
+  final count = await getGuildMemberCount(
     guild,
     client: interaction.manager.client,
     guildId: guildId,
