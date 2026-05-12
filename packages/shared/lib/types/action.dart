@@ -20,6 +20,7 @@ enum BotCreatorActionType {
   updateGuild,
   listMembers,
   getMember,
+  /// Deprecated: use [respondWithComponentV2] instead.
   sendComponentV2,
   editComponentV2,
   sendWebhook,

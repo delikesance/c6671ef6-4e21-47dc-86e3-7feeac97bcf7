@@ -83,12 +83,17 @@ class ActionItem {
 
     final rawId = (json['id'] ?? '').toString().trim();
 
+    BotCreatorActionType mappedType = BotCreatorActionType.values.firstWhere(
+      (e) => e.name == json['type'],
+      orElse: () => BotCreatorActionType.sendMessage,
+    );
+    if (mappedType == BotCreatorActionType.sendComponentV2) {
+      mappedType = BotCreatorActionType.respondWithComponentV2;
+    }
+
     return ActionItem(
       id: rawId.isNotEmpty ? rawId : (fallbackId ?? ''),
-      type: BotCreatorActionType.values.firstWhere(
-        (e) => e.name == json['type'],
-        orElse: () => BotCreatorActionType.sendMessage,
-      ),
+      type: mappedType,
       enabled: json['enabled'] as bool? ?? true,
       onErrorMode:
           (Map<String, dynamic>.from(

@@ -63,9 +63,10 @@ Future<bool> executeComponentsInteractionsAction({
 }) async {
   switch (type) {
     case BotCreatorActionType.sendComponentV2:
-      final result = await sendComponentV2Action(
-        client!,
+      final result = await respondWithComponentV2Action(
+        interaction,
         payload: payload,
+        client: client,
         fallbackChannelId: fallbackChannelId,
         resolve: resolveValue,
         botId: botId,
@@ -93,16 +94,14 @@ Future<bool> executeComponentsInteractionsAction({
       return true;
 
     case BotCreatorActionType.respondWithComponentV2:
-      if (interaction == null) {
-        results[resultKey] =
-            'Error: respondWithComponentV2 requires an interaction context';
-        return true;
-      }
       final respResult = await respondWithComponentV2Action(
         interaction,
         payload: payload,
+        client: client,
+        fallbackChannelId: fallbackChannelId,
         resolve: resolveValue,
         botId: botId,
+        guildId: guildId?.toString(),
       );
       if (respResult['error'] != null) {
         throw Exception(respResult['error']);
