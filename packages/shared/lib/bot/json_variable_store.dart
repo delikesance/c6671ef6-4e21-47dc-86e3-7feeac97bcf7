@@ -34,8 +34,27 @@ class JsonVariableStore implements VariableDatabase {
   }
 
   @override
-  Future<Map<String, dynamic>> getGlobalVariables(String botId) async =>
-      Map<String, dynamic>.from(_globalVariables);
+  Future<Map<String, dynamic>> getGlobalVariables(String botId) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final result = <String, dynamic>{};
+    final expiredKeys = <String>[];
+
+    for (final entry in _globalVariables.entries) {
+      final expiresAt = _globalExpirations[entry.key];
+      if (expiresAt != null && expiresAt < now) {
+        expiredKeys.add(entry.key);
+        continue;
+      }
+      result[entry.key] = entry.value;
+    }
+
+    for (final key in expiredKeys) {
+      _globalVariables.remove(key);
+      _globalExpirations.remove(key);
+    }
+
+    return result;
+  }
 
   @override
   Future<dynamic> getGlobalVariable(String botId, String key) async {
@@ -89,10 +108,31 @@ class JsonVariableStore implements VariableDatabase {
     String scope,
     String contextId,
   ) async {
-    final byScope =
-        _scopedVariables[scope] ?? const <String, Map<String, dynamic>>{};
-    final values = byScope[contextId] ?? const <String, dynamic>{};
-    return Map<String, dynamic>.from(values);
+    final byScope = _scopedVariables[scope] ?? {};
+    final values = byScope[contextId] ?? {};
+    final expirations = _scopedExpirations[scope]?[contextId] ?? {};
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    final result = <String, dynamic>{};
+    final expiredKeys = <String>[];
+
+    for (final entry in values.entries) {
+      final expiresAt = expirations[entry.key];
+      if (expiresAt != null && expiresAt < now) {
+        expiredKeys.add(entry.key);
+        continue;
+      }
+      result[entry.key] = entry.value;
+    }
+
+    if (expiredKeys.isNotEmpty) {
+      for (final key in expiredKeys) {
+        removeScopedVariable(botId, scope, contextId, key);
+        _scopedExpirations[scope]?[contextId]?.remove(key);
+      }
+    }
+
+    return result;
   }
 
   @override
@@ -236,10 +276,19 @@ class JsonVariableStore implements VariableDatabase {
         _scopedVariables[scope] ?? const <String, Map<String, dynamic>>{};
 
     final items = <Map<String, dynamic>>[];
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final expByScope = _scopedExpirations[scope] ?? {};
+
     for (final entry in byScope.entries) {
       if (!entry.value.containsKey(key)) {
         continue;
       }
+
+      final expiresAt = expByScope[entry.key]?[key];
+      if (expiresAt != null && expiresAt < now) {
+        continue;
+      }
+
       items.add(<String, dynamic>{
         'contextId': entry.key,
         'key': key,
