@@ -412,15 +412,11 @@ extension _BdfdAstTranspilationScopeInlineHelpers
   // ── Random helpers ──────────────────────────────────────────
 
   String _inlineRandom(BdfdFunctionCallAst node) {
-    final minRaw = _stringifyArgument(node, 0).trim();
-    final maxRaw = _stringifyArgument(node, 1).trim();
-    final minVal = int.tryParse(minRaw) ?? 0;
-    final maxVal = int.tryParse(maxRaw) ?? 100;
-    if (minVal >= maxVal) {
-      return minVal.toString();
-    }
-    final random = math.Random();
-    return (minVal + random.nextInt(maxVal - minVal + 1)).toString();
+    final args = List.generate(
+      node.arguments.length,
+      (i) => _stringifyArgument(node, i),
+    ).join(';');
+    return '((random[$args]))';
   }
 
   String _inlineRandomString(BdfdFunctionCallAst node) {
@@ -440,21 +436,17 @@ extension _BdfdAstTranspilationScopeInlineHelpers
   }
 
   String _inlineRandomText(BdfdFunctionCallAst node) {
-    if (node.arguments.isEmpty) {
-      return '';
-    }
-    final random = math.Random();
-    final index = random.nextInt(node.arguments.length);
-    return _stringifyArgument(node, index);
+    final args = List.generate(
+      node.arguments.length,
+      (i) => _stringifyArgument(node, i),
+    ).join(';');
+    return '((randomtext[$args]))';
   }
 
   // ── Date helper ──────────────────────────────────────────
 
   String _inlineDate() {
-    final now = DateTime.now().toUtc();
-    return '${now.year}-'
-        '${now.month.toString().padLeft(2, '0')}-'
-        '${now.day.toString().padLeft(2, '0')}';
+    return '((date))';
   }
 
   // ── getMessage helper ──────────────────────────────────────

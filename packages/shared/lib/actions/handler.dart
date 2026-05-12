@@ -279,6 +279,20 @@ Future<Map<String, String>> handleActions(
       getWorkflowByName:
           (workflowName) => store.getWorkflowByName(botId, workflowName),
       nestedActionsPreprocessor: nestedActionsPreprocessor,
+      getScopedVariableTtl:
+          (scope, key) async => await store.getScopedVariableTtl(
+            botId,
+            scope,
+            resolveScopeContextId(
+              scope: scope,
+              variables: variables,
+              interaction: interaction,
+              guildId: guildId,
+              channelId: resolvedFallbackChannelId,
+            ) ??
+            '',
+            key,
+          ),
       executeActions:
           (nestedActions) => handleActions(
             client,

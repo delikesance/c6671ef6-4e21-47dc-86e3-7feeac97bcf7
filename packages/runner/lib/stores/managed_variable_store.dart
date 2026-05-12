@@ -118,6 +118,14 @@ class ManagedVariableStore implements VariableDatabase {
   ) => _cache.getScopedArrayLength(botId, scope, contextId, key);
 
   @override
+  Future<int?> getScopedVariableTtl(
+    String botId,
+    String scope,
+    String contextId,
+    String key,
+  ) => _cache.getScopedVariableTtl(botId, scope, contextId, key);
+
+  @override
   Future<Map<String, dynamic>> queryScopedArray(
     String botId,
     String scope,
@@ -144,10 +152,15 @@ class ManagedVariableStore implements VariableDatabase {
   Future<void> setGlobalVariable(
     String botId,
     String key,
-    dynamic value,
-  ) async {
-    await _cache.setGlobalVariable(botId, key, value);
-    await _post(botId, '/global/set', {'key': key, 'value': value});
+    dynamic value, {
+    String? ttl,
+  }) async {
+    await _cache.setGlobalVariable(botId, key, value, ttl: ttl);
+    await _post(botId, '/global/set', {
+      'key': key,
+      'value': value,
+      if (ttl != null) 'ttl': ttl,
+    });
   }
 
   @override
@@ -186,9 +199,10 @@ class ManagedVariableStore implements VariableDatabase {
     String scope,
     String contextId,
     String key,
-    dynamic value,
-  ) async {
-    await _cache.setScopedVariable(botId, scope, contextId, key, value);
+    dynamic value, {
+    String? ttl,
+  }) async {
+    await _cache.setScopedVariable(botId, scope, contextId, key, value, ttl: ttl);
     final (scopeId, scopeAuxId) = _splitContextId(scope, contextId);
     await _post(botId, '/scoped-values/set', {
       'scope': scope,
@@ -196,6 +210,7 @@ class ManagedVariableStore implements VariableDatabase {
       'scope_id': scopeId,
       'scope_aux_id': scopeAuxId,
       'value': value,
+      if (ttl != null) 'ttl': ttl,
     });
   }
 

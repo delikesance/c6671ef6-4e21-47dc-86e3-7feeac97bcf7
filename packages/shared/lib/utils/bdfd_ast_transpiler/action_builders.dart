@@ -1002,7 +1002,7 @@ extension _BdfdAstTranspilationScopeActionBuilders
     required String scope,
   }) {
     final duration = _stringifyArgument(node, 0).trim();
-    final errorMessage = _stringifyArgument(node, 1);
+    final errorMessage = _stringifyArgument(node, 1).replaceAll('%time%', '((cooldown.time))');
     final cooldownKey = 'cooldown_${scope}_${node.normalizedName}';
 
     final checkCondition = _ParsedCondition(

@@ -369,7 +369,7 @@ bool _isInvalidContextId(String? value) {
       normalized == 'dm';
 }
 
-String? _resolveScopeContextId({
+String? resolveScopeContextId({
   required String scope,
   required Map<String, String> variables,
   Snowflake? guildId,
@@ -538,7 +538,7 @@ _resolveScopedBinding({
   final rawKey = resolveValue((payload['key'] ?? '').toString()).trim();
   final storageKey = _scopedStorageKey(rawKey);
   final referenceKey = _scopedReferenceKey(rawKey);
-  final contextId = _resolveScopeContextId(
+  final contextId = resolveScopeContextId(
     scope: scope,
     variables: variables,
     guildId: guildId,
@@ -959,7 +959,7 @@ Future<bool> executeVariablesAction({
       final rawKey = resolveValue((payload['key'] ?? '').toString()).trim();
       final storageKey = _scopedStorageKey(rawKey);
       final referenceKey = _scopedReferenceKey(rawKey);
-      final contextId = _resolveScopeContextId(
+      final contextId = resolveScopeContextId(
         scope: scope,
         variables: variables,
         guildId: guildId,
@@ -1041,7 +1041,7 @@ Future<bool> executeVariablesAction({
       final rawKey = resolveValue((payload['key'] ?? '').toString()).trim();
       final storageKey = _scopedStorageKey(rawKey);
       final referenceKey = _scopedReferenceKey(rawKey);
-      final contextId = _resolveScopeContextId(
+      final contextId = resolveScopeContextId(
         scope: scope,
         variables: variables,
         guildId: guildId,
@@ -1162,7 +1162,7 @@ Future<bool> executeVariablesAction({
       final rawKey = resolveValue((payload['key'] ?? '').toString()).trim();
       final storageKey = _scopedStorageKey(rawKey);
       final referenceKey = _scopedReferenceKey(rawKey);
-      final contextId = _resolveScopeContextId(
+      final contextId = resolveScopeContextId(
         scope: scope,
         variables: variables,
         guildId: guildId,
@@ -1200,7 +1200,7 @@ Future<bool> executeVariablesAction({
       final newStorageKey = _scopedStorageKey(newRawKey);
       final oldReferenceKey = _scopedReferenceKey(oldRawKey);
       final newReferenceKey = _scopedReferenceKey(newRawKey);
-      final contextId = _resolveScopeContextId(
+      final contextId = resolveScopeContextId(
         scope: scope,
         variables: variables,
         guildId: guildId,
