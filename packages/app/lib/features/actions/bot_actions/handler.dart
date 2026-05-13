@@ -387,6 +387,7 @@ Future<Map<String, String>> handleActions(
             resultKey: resultKey,
             results: results,
             variables: variables,
+            botId: botId,
             resolveValue: resolveValue,
             onLog: onLog,
             activeWorkflowStack: activeWorkflowStack,

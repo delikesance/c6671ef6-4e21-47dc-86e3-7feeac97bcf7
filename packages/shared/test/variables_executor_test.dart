@@ -61,6 +61,7 @@ Future<Map<String, String>> _executeCompiledActions({
       resultKey: resultKey,
       results: localResults,
       variables: variables,
+      botId: 'bot-1',
       resolveValue: resolveValue,
       onLog: null,
       activeWorkflowStack: <String>{},

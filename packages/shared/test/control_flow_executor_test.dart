@@ -35,6 +35,7 @@ void main() {
             executed.addAll(actions.map((action) => action.type.name));
             return <String, String>{'nested': 'ok'};
           },
+          botId: 'test-bot',
         );
 
         expect(handled, isTrue);
@@ -94,6 +95,7 @@ void main() {
         resultKey: 'branch',
         results: results,
         variables: <String, String>{'score': '82'},
+        botId: 'test_bot',
         resolveValue: (input) => input,
         onLog: null,
         activeWorkflowStack: <String>{},
@@ -143,6 +145,7 @@ void main() {
         resultKey: 'branch',
         results: results,
         variables: <String, String>{'score': '50'},
+        botId: 'test_bot',
         resolveValue: (input) => input,
         onLog: null,
         activeWorkflowStack: <String>{},
@@ -172,6 +175,7 @@ void main() {
         resultKey: 'bdfd',
         results: results,
         variables: Map<String, String>.of(variables),
+        botId: 'test_bot',
         resolveValue: (input) => input,
         onLog: null,
         activeWorkflowStack: <String>{},
@@ -247,6 +251,7 @@ void main() {
             capturedActions = List<Action>.from(actions);
             return <String, String>{};
           },
+          botId: 'test-bot',
         );
 
         expect(handled, isTrue);
@@ -404,6 +409,7 @@ void main() {
             capturedActions = List<Action>.from(actions);
             return <String, String>{};
           },
+          botId: 'test-bot',
         );
 
         expect(handled, isTrue);
@@ -451,6 +457,7 @@ void main() {
             capturedActions = List<Action>.from(actions);
             return <String, String>{};
           },
+          botId: 'test-bot',
         );
 
         expect(handled, isTrue);
@@ -508,6 +515,7 @@ void main() {
             capturedActions = List<Action>.from(actions);
             return <String, String>{};
           },
+          botId: 'test-bot',
         );
 
         expect(handled, isTrue);
@@ -541,6 +549,7 @@ void main() {
         resultKey: 'bdfd',
         results: results,
         variables: <String, String>{},
+        botId: 'test_bot',
         resolveValue: (input) => input,
         onLog: null,
         activeWorkflowStack: <String>{},
@@ -569,6 +578,7 @@ void main() {
         resultKey: 'loop',
         results: results,
         variables: Map<String, String>.of(variables),
+        botId: 'test_bot',
         resolveValue: resolveValue ?? (input) => input,
         onLog: null,
         activeWorkflowStack: <String>{},
@@ -783,6 +793,7 @@ void main() {
         resultKey: 'loop',
         results: results,
         variables: <String, String>{},
+        botId: 'test_bot',
         resolveValue: (input) => input,
         onLog: null,
         activeWorkflowStack: <String>{},
@@ -833,6 +844,7 @@ void main() {
                                 : a,
                       )
                       .toList(),
+          botId: 'test-bot',
         );
 
         expect(handled, isTrue);
@@ -891,6 +903,7 @@ void main() {
             }
             return <String, String>{};
           },
+          botId: 'test-bot',
         );
 
         expect(handled, isTrue);
@@ -941,6 +954,7 @@ void main() {
           }
           return <String, String>{};
         },
+        botId: 'test-bot',
       );
 
       expect(handled, isTrue);

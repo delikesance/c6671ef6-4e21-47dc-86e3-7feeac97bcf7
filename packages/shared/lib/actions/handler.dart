@@ -273,6 +273,7 @@ Future<Map<String, String>> handleActions(
       resultKey: resultKey,
       results: results,
       variables: variables,
+      botId: botId,
       resolveValue: resolveValue,
       onLog: onLog,
       activeWorkflowStack: activeWorkflowStack,
@@ -397,6 +398,7 @@ Future<Map<String, String>> handleActions(
         case BotCreatorActionType.stopUnless:
         case BotCreatorActionType.ifBlock:
         case BotCreatorActionType.forLoop:
+        case BotCreatorActionType.cooldown:
         case BotCreatorActionType.calculate:
         case BotCreatorActionType.debugProfile:
         case BotCreatorActionType.log:

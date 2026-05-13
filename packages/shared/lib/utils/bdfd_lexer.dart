@@ -296,18 +296,22 @@ class _BdfdScanner {
     _advance();
 
     if (_bracketStack.isEmpty) {
-      _diagnostics.add(
-        BdfdLexerDiagnostic(
-          message: 'Unexpected closing bracket.',
+      // Outside of function arguments, brackets are literal text.
+      _tokens.add(
+        BdfdToken(
+          type: BdfdTokenType.text,
+          lexeme: ']',
           start: start,
           end: _index,
           line: line,
           column: column,
         ),
       );
-    } else {
-      _bracketStack.removeLast();
+      _mayOpenArgumentList = false;
+      return;
     }
+    
+    _bracketStack.removeLast();
 
     _tokens.add(
       BdfdToken(

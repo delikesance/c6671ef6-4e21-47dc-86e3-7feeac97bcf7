@@ -289,6 +289,7 @@ Future<bool> executeControlFlowAction({
   required String resultKey,
   required Map<String, String> results,
   required Map<String, String> variables,
+  required String botId,
   required String Function(String input) resolveValue,
   required void Function(String message)? onLog,
   required Set<String> activeWorkflowStack,
@@ -632,6 +633,57 @@ Future<bool> executeControlFlowAction({
       variables.remove('_loop.index');
       variables.remove('_loop.count');
       results[resultKey] = 'JSONFE_$capped2';
+      return true;
+
+    case BotCreatorActionType.cooldown:
+      final scope = resolveValue((payload['scope'] ?? 'user').toString()).trim();
+      final durationStr =
+          resolveValue((payload['duration'] ?? '0s').toString()).trim();
+      final varKey =
+          resolveValue((payload['key'] ?? 'default').toString()).trim();
+      final errorMessage =
+          resolveValue((payload['errorMessage'] ?? '').toString());
+
+      final key = ControlFlowExecutor._getCooldownKey(botId, scope, varKey, variables);
+      final expiresAt = ControlFlowExecutor._runtimeCooldowns[key];
+      final now = DateTime.now().millisecondsSinceEpoch;
+
+      if (expiresAt != null && expiresAt > now) {
+        // Cooldown is active
+        results[resultKey] = 'ACTIVE';
+        results['__stopped__'] = 'true';
+
+        if (errorMessage.isNotEmpty) {
+          final unixTimestampSeconds = (expiresAt / 1000).floor();
+          final discordTimestamp = '<t:$unixTimestampSeconds:R>';
+
+          variables['cooldown.time'] = discordTimestamp;
+          variables['time'] = discordTimestamp;
+
+          final resolvedMessage = errorMessage.replaceAll(
+            '%time%',
+            discordTimestamp,
+          );
+          results['cooldown.error'] = resolvedMessage;
+
+          // Send the message automatically using the shared executeActions logic.
+          await executeActions([
+            Action(
+              type: BotCreatorActionType.sendMessage,
+              payload: <String, dynamic>{'content': resolvedMessage},
+            ),
+          ]);
+        }
+        return true;
+      }
+
+      // No active cooldown, set a new one
+      final duration = parseBdfdDuration(durationStr);
+      if (duration != null && duration.inMilliseconds > 0) {
+        ControlFlowExecutor._runtimeCooldowns[key] = now + duration.inMilliseconds;
+      }
+
+      results[resultKey] = 'SET';
       return true;
 
     default:

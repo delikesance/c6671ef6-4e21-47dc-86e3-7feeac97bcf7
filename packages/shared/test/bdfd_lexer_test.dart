@@ -67,18 +67,14 @@ void main() {
       ]);
     });
 
-    test('reports unexpected closing brackets', () {
+    test('tokenizes standalone closing brackets outside functions as text', () {
       final result = BdfdLexer().tokenize('Hello ]');
-
+      
+      expect(result.diagnostics, isEmpty);
       expect(summarizeTokens(result), [
-        'text:Hello ',
-        'closeBracket:]',
+        'text:Hello ]',
         'eof:',
       ]);
-      expect(result.diagnostics, hasLength(1));
-      expect(result.diagnostics.first.message, 'Unexpected closing bracket.');
-      expect(result.diagnostics.first.line, 1);
-      expect(result.diagnostics.first.column, 7);
     });
 
     test('reports unclosed bracket diagnostics at the opening location', () {
@@ -168,11 +164,24 @@ void main() {
       ]);
     });
 
-    test('still reports unexpected ] outside function brackets', () {
+    test('tokenizes lone brackets as text outside function brackets', () {
       final result = BdfdLexer().tokenize('text ] more');
 
-      expect(result.diagnostics, hasLength(1));
-      expect(result.diagnostics.first.message, 'Unexpected closing bracket.');
+      expect(result.diagnostics, isEmpty);
+      expect(summarizeTokens(result), [
+        'text:text ] more',
+        'eof:',
+      ]);
+    });
+    
+    test('supports bracketed context IDs in variable names', () {
+      final result = BdfdLexer().tokenize('user[123].test');
+
+      expect(result.diagnostics, isEmpty);
+      expect(summarizeTokens(result), [
+        'text:user[123].test',
+        'eof:',
+      ]);
     });
 
     // ── Escape sequences ─────────────────────────────────────────────────
