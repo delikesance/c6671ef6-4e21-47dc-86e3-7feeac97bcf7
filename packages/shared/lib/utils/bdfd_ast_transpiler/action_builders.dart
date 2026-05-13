@@ -1002,41 +1002,16 @@ extension _BdfdAstTranspilationScopeActionBuilders
     required String scope,
   }) {
     final duration = _stringifyArgument(node, 0).trim();
-    final errorMessage = _stringifyArgument(node, 1).replaceAll('%time%', '((cooldown.time))');
-    final cooldownKey = 'cooldown_${scope}_${node.normalizedName}';
-
-    final checkCondition = _ParsedCondition(
-      left: '(($scope.bc_$cooldownKey))',
-      operator: 'isEmpty',
-      right: '',
-    );
-
-    final setAction = Action(
-      type: BotCreatorActionType.setScopedVariable,
-      payload: <String, dynamic>{
-        'scope': scope == 'global' ? 'user' : scope,
-        'key': cooldownKey,
-        'valueType': 'string',
-        'value': duration,
-        'ttl': duration,
-      },
-    );
-
-    final failureActions =
-        errorMessage.trim().isEmpty
-            ? <Action>[_buildForcedStopAction()]
-            : <Action>[
-              _buildRespondWithMessageAction(content: errorMessage),
-              _buildForcedStopAction(),
-            ];
+    final errorMessage = _stringifyArgument(node, 1);
+    final cooldownKey = '${scope}_${node.normalizedName}';
 
     return Action(
-      type: BotCreatorActionType.ifBlock,
+      type: BotCreatorActionType.cooldown,
       payload: <String, dynamic>{
-        ...checkCondition.toPayload(prefix: 'condition.'),
-        'thenActions': <Map<String, dynamic>>[setAction.toJson()],
-        'elseIfConditions': const <Map<String, dynamic>>[],
-        'elseActions': failureActions.map((action) => action.toJson()).toList(),
+        'scope': scope == 'global' ? 'user' : scope,
+        'duration': duration,
+        'key': cooldownKey,
+        'errorMessage': errorMessage,
       },
     );
   }

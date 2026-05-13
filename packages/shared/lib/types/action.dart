@@ -101,6 +101,7 @@ enum BotCreatorActionType {
   // Guild Commands
   registerGuildCommands,
   unregisterGuildCommands,
+  cooldown,
 }
 
 enum ActionOnErrorMode { stop, continueMode }
