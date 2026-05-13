@@ -141,9 +141,13 @@ dynamic decodeJsonStringIfNeeded(dynamic value) {
 }
 
 String? _lookupVariableValue(String key, Map<String, String> updates) {
-  if (updates.containsKey(key)) {
-    return updates[key];
+  final val = updates[key];
+  if (val != null) {
+    return val;
   }
+  
+  print('DEBUG: Variable lookup failed for key: "$key"');
+  print('DEBUG: First 5 keys in updates: ${updates.keys.take(5).toList()}');
 
   final loweredKey = key.toLowerCase();
   for (final entry in updates.entries) {

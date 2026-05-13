@@ -457,6 +457,10 @@ extension DiscordRunnerLegacyExtension on DiscordRunner {
       );
     }
 
+    if (_bdfdCompileCache.containsKey(source)) {
+      return _bdfdCompileCache[source]!;
+    }
+
     final compileResult = BdfdCompiler().compile(source);
     if (compileResult.hasErrors) {
       final diagnostics = _formatRunnerBdfdDiagnostics(
@@ -468,9 +472,11 @@ extension DiscordRunnerLegacyExtension on DiscordRunner {
       throw StateError('BDFD compile error: $diagnostics');
     }
 
-    return compileResult.actions
+    final actions = compileResult.actions
         .map((action) => action.toJson())
         .toList(growable: false);
+    _bdfdCompileCache[source] = actions;
+    return actions;
   }
 
   Future<void> _sendLegacyWorkflowResponse({
@@ -646,13 +652,16 @@ extension DiscordRunnerLegacyExtension on DiscordRunner {
     await (channel as dynamic).sendMessage(builder);
   }
 
-  Future<bool> _tryExecuteLegacyCommand(EventExecutionContext context) async {
+  Future<bool> _tryExecuteLegacyCommand(
+    EventExecutionContext context, {
+    required Map<String, String> sharedVariables,
+  }) async {
     final gateway = _gateway;
     if (gateway == null) {
       return false;
     }
 
-    final content = (context.variables['message.content'] ?? '').trim();
+    final content = (sharedVariables['message.content'] ?? '').trim();
     if (content.isEmpty) {
       return false;
     }
@@ -674,61 +683,6 @@ extension DiscordRunnerLegacyExtension on DiscordRunner {
       return true;
     }
 
-    final defaultPrefix =
-        config.prefix.trim().isEmpty ? '!' : config.prefix.trim();
-    var hasDynamicPrefix = false;
-    var matchesStaticPrefix = false;
-    for (final command in legacyCommands) {
-      if (_parseAwaitedLegacyTrigger((command['name'] ?? '').toString()) !=
-          null) {
-        continue;
-      }
-
-      final data = Map<String, dynamic>.from(
-        (command['data'] as Map?)?.cast<String, dynamic>() ?? const {},
-      );
-      final value = Map<String, dynamic>.from(
-        (data['data'] as Map?)?.cast<String, dynamic>() ?? data,
-      );
-      final commandOverride =
-          (value['legacyPrefixOverride'] ?? '').toString().trim();
-      final rawPrefix =
-          commandOverride.isNotEmpty ? commandOverride : defaultPrefix;
-      if (rawPrefix.contains('((')) {
-        hasDynamicPrefix = true;
-        continue;
-      }
-
-      final staticPrefix = rawPrefix.trim();
-      if (staticPrefix.isNotEmpty && content.startsWith(staticPrefix)) {
-        matchesStaticPrefix = true;
-        break;
-      }
-    }
-
-    // Fast-path for regular chat traffic: skip hydration when no prefix can match.
-    if (!hasDynamicPrefix && !matchesStaticPrefix) {
-      return false;
-    }
-
-    final baseRuntimeVariables = <String, String>{
-      ...context.variables,
-      'workflow.type': 'command',
-    };
-    _injectGatewayBotVariables(baseRuntimeVariables);
-    await hydrateRuntimeVariables(
-      store: store,
-      botId: botId,
-      runtimeVariables: baseRuntimeVariables,
-      guildContextId:
-          context.variables['guildId'] ?? context.guildId?.toString(),
-      channelContextId:
-          context.variables['channelId'] ?? context.channelId?.toString(),
-      userContextId:
-          context.variables['userId'] ?? context.variables['author.id'],
-      messageContextId:
-          context.variables['messageId'] ?? context.variables['message.id'],
-    );
 
     final handledBuiltInHelp = await _tryExecuteBuiltInLegacyHelp(
       context,
@@ -736,7 +690,7 @@ extension DiscordRunnerLegacyExtension on DiscordRunner {
       botId: botId,
       builtInLegacyHelpEnabled: config.builtInLegacyHelpEnabled,
       legacyCommands: legacyCommands,
-      runtimeVariables: baseRuntimeVariables,
+      runtimeVariables: sharedVariables,
     );
     if (handledBuiltInHelp) {
       return true;
@@ -753,7 +707,7 @@ extension DiscordRunnerLegacyExtension on DiscordRunner {
       final value = Map<String, dynamic>.from(
         (data['data'] as Map?)?.cast<String, dynamic>() ?? data,
       );
-      final runtimeVariables = <String, String>{...baseRuntimeVariables};
+      final runtimeVariables = <String, String>{...sharedVariables};
 
       final prefix = await _resolveLegacyPrefix(
         value: value,

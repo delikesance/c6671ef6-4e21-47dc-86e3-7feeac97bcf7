@@ -765,6 +765,13 @@ Future<void> _executeLocalEventWorkflow(
           ? context.interaction
           : null;
 
+  await hydrateActionPlaceholders(
+    store: manager,
+    botId: botId,
+    actions: actions,
+    variables: runtimeVariables,
+  );
+  
   final actionResults = await handleActions(
     gateway,
     effectiveInteraction,
@@ -2269,6 +2276,13 @@ Future<bool> _tryExecuteLocalLegacyCommand(
     var replayCapturedByActions = false;
 
     if (actions.isNotEmpty) {
+      await hydrateActionPlaceholders(
+        store: manager,
+        botId: botId,
+        actions: actions,
+        variables: runtimeVariables,
+      );
+
       final actionResults = await handleActions(
         gateway,
         null,
