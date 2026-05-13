@@ -1341,17 +1341,19 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
     if (key.isEmpty) {
       return '';
     }
-
-    final hasContextId = contextId != null && contextId.isNotEmpty;
-    final contextPart = hasContextId ? '[$contextId]' : '';
-
     if (scope == 'temp') {
       return '((temp.$key))';
     }
-    if (_containsRuntimePlaceholder(trimmedKey)) {
-      return '(($scope$contextPart.bc_$trimmedKey|$scope$contextPart.$trimmedKey))';
+
+    final id = contextId?.trim();
+    if (id != null && id.isNotEmpty) {
+      return '(($scope[$id].bc_$key))';
     }
-    return '(($scope$contextPart.bc_$key))';
+
+    if (_containsRuntimePlaceholder(trimmedKey)) {
+      return '(($scope.bc_$trimmedKey|$scope.$trimmedKey))';
+    }
+    return '(($scope.bc_$key))';
   }
 
   bool _containsRuntimePlaceholder(String value) {

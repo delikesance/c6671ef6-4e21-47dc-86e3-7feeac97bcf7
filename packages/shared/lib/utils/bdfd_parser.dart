@@ -84,6 +84,13 @@ class _BdfdTokenParser {
       return _parseFunctionCall(_previous);
     }
 
+    if (_match(BdfdTokenType.openBracket) ||
+        _match(BdfdTokenType.closeBracket) ||
+        _match(BdfdTokenType.semicolon)) {
+      final token = _previous;
+      return BdfdTextAst(token.lexeme, start: token.start, end: token.end);
+    }
+
     return null;
   }
 

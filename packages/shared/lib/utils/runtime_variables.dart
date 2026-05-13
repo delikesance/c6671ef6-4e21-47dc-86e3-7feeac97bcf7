@@ -1,6 +1,8 @@
 import 'dart:convert';
 
-import 'package:bot_creator_shared/bot/bot_data_store.dart';
+import '../bot/bot_data_store.dart';
+import '../types/action.dart';
+import 'template_resolver.dart';
 
 bool _isInvalidContextId(String? value) {
   final normalized = (value ?? '').trim().toLowerCase();
@@ -163,6 +165,11 @@ Future<void> injectScopedRuntimeVariables({
 
     runtimeVariables['$scope.$canonicalKey'] = value;
     runtimeVariables['$scope.$rawKey'] = value;
+    
+    if (normalizedContextId != null) {
+      runtimeVariables['$scope[$normalizedContextId].$canonicalKey'] = value;
+      runtimeVariables['$scope[$normalizedContextId].$rawKey'] = value;
+    }
   }
 }
 
@@ -262,7 +269,9 @@ Future<void> hydrateSpecificScopedVariables({
 
   for (final entry in values.entries) {
     final rawKey = entry.key.toString().trim();
-    if (rawKey.isEmpty) continue;
+    if (rawKey.isEmpty) {
+      continue;
+    }
 
     final canonicalKey = rawKey.startsWith('bc_') ? rawKey : 'bc_$rawKey';
     final value = stringifyRuntimeVariableValue(entry.value);
@@ -270,4 +279,81 @@ Future<void> hydrateSpecificScopedVariables({
     runtimeVariables['$scope[$normalizedContextId].$canonicalKey'] = value;
     runtimeVariables['$scope[$normalizedContextId].$rawKey'] = value;
   }
+}
+
+Future<void> hydrateActionPlaceholders({
+  required BotDataStore store,
+  required String botId,
+  required List<dynamic> actions,
+  required Map<String, String> variables,
+}) async {
+  final placeholderPattern = RegExp(r'\(\(([a-z]+)\[([^\]]+)\]\.bc_');
+  final bdfdFunctionPattern = RegExp(r'\$(?:get(?:User|Guild|Channel|Message)Var)\[[^;]+;([^\]\s]+)\]');
+  
+  final contextsToFetch = <(String scope, String contextId)>{};
+
+  void scan(dynamic obj) {
+    if (obj is String) {
+      // 1. Scan for internal placeholders ((user[ID].bc_var))
+      for (final match in placeholderPattern.allMatches(obj)) {
+        final scope = match.group(1)!;
+        var contextId = match.group(2)!;
+        if (contextId.contains('((')) {
+          contextId = resolveTemplatePlaceholders(contextId, variables);
+        }
+        if (contextId.isNotEmpty && contextId != 'unknown user' && contextId != 'dm') {
+          contextsToFetch.add((scope, contextId));
+        }
+      }
+      
+      // 2. Scan for BDFD functions $getUserVar[name;ID]
+      for (final match in bdfdFunctionPattern.allMatches(obj)) {
+        final raw = match.group(0)!;
+        final scope = raw.contains('User') ? 'user' : (raw.contains('Guild') ? 'guild' : (raw.contains('Channel') ? 'channel' : 'message'));
+        var contextId = match.group(1)!;
+        if (contextId.contains('((')) {
+          contextId = resolveTemplatePlaceholders(contextId, variables);
+        }
+        if (contextId.isNotEmpty && contextId != 'unknown user' && contextId != 'dm') {
+          contextsToFetch.add((scope, contextId));
+        }
+      }
+    } else if (obj is Map) {
+      for (final value in obj.values) {
+        scan(value);
+      }
+    } else if (obj is List) {
+      for (final item in obj) {
+        scan(item);
+      }
+    }
+  }
+
+  // Scan variables first (important for $eval[$message])
+  for (final value in variables.values) {
+    scan(value);
+  }
+
+  for (final action in actions) {
+    if (action is Map && action.containsKey('payload')) {
+      scan(action['payload']);
+    } else if (action is Action) {
+      scan(action.payload);
+    }
+  }
+
+  if (contextsToFetch.isEmpty) {
+    return;
+  }
+  await Future.wait(
+    contextsToFetch.map(
+      (m) => hydrateSpecificScopedVariables(
+        store: store,
+        botId: botId,
+        scope: m.$1,
+        contextId: m.$2,
+        runtimeVariables: variables,
+      ),
+    ),
+  );
 }

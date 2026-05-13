@@ -367,6 +367,14 @@ extension _BdfdAstTranspilationScopeInlineRuntime
         final gvVarName = _stringifyArgument(node, 0);
         final gvUserId =
             node.arguments.length > 1 ? _stringifyArgument(node, 1).trim() : '';
+        final gvGuildId =
+            node.arguments.length > 2 ? _stringifyArgument(node, 2).trim() : '';
+
+        if (gvGuildId.isNotEmpty) {
+          final contextId =
+              gvUserId.isEmpty ? '((author.id))-$gvGuildId' : '$gvUserId-$gvGuildId';
+          return _scopedVariablePlaceholder('guildMember', gvVarName, contextId);
+        }
         return _scopedVariablePlaceholder('user', gvVarName, gvUserId);
       case 'getservervar':
       case 'getguildvar':
@@ -400,17 +408,19 @@ extension _BdfdAstTranspilationScopeInlineRuntime
         );
       case 'getvar':
         // BDFD wiki: $getVar[Variable name;(User ID)]
+        final gvVarName = _stringifyArgument(node, 0);
         final gvUserId =
             node.arguments.length > 1 ? _stringifyArgument(node, 1).trim() : '';
         if (gvUserId.isNotEmpty) {
           return _scopedVariablePlaceholder(
             'user',
-            _stringifyArgument(node, 0),
+            gvVarName,
+            gvUserId,
           );
         }
         return _scopedVariablePlaceholder(
           'global',
-          _stringifyArgument(node, 0),
+          gvVarName,
         );
       case 'var':
         if (node.arguments.length >= 2) {

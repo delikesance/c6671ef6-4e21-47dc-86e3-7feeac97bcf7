@@ -98,7 +98,7 @@ class _BdfdScanner {
         continue;
       }
 
-      if (char == ']') {
+      if (char == ']' && _bracketStack.isNotEmpty) {
         _scanCloseBracket();
         continue;
       }
@@ -373,9 +373,8 @@ class _BdfdScanner {
         continue;
       }
 
-      if (char == ']') {
-        if (_bracketStack.isNotEmpty &&
-            _bracketStack.last.literalBracketDepth > 0) {
+      if (char == ']' && _bracketStack.isNotEmpty) {
+        if (_bracketStack.last.literalBracketDepth > 0) {
           _bracketStack.last.literalBracketDepth -= 1;
           buffer.write(_advance());
           continue;

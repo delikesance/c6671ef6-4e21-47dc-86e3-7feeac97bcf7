@@ -204,6 +204,7 @@ class DiscordRunner {
   final List<StreamSubscription<dynamic>> _eventWorkflowSubscriptions =
       <StreamSubscription<dynamic>>[];
   final Random _random = Random();
+  final Map<String, List<Map<String, dynamic>>> _bdfdCompileCache = {};
   bool _debugReplayCapturing = true;
   final List<Map<String, dynamic>> _debugReplays = <Map<String, dynamic>>[];
 

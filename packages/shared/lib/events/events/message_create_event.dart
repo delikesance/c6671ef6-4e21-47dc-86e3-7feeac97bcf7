@@ -16,6 +16,7 @@ EventExecutionContext buildMessageCreateEventContext(MessageCreateEvent event) {
     guildId: guildId,
     channelId: message.channelId,
     userId: message.author.id,
+    member: event.member,
     extra: extra,
   );
 }

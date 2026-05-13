@@ -48,6 +48,7 @@ class EventExecutionContext {
     required this.channelId,
     required this.userId,
     this.interaction,
+    this.member,
   });
 
   final String eventName;
@@ -56,6 +57,7 @@ class EventExecutionContext {
   final Snowflake? channelId;
   final Snowflake? userId;
   final Interaction? interaction;
+  final PartialMember? member;
 }
 
 Map<String, String> _threadExtra(dynamic thread) {
@@ -291,6 +293,7 @@ EventExecutionContext _baseEventContext({
   required Snowflake? channelId,
   required Snowflake? userId,
   Interaction? interaction,
+  PartialMember? member,
   Map<String, String> extra = const <String, String>{},
 }) {
   final now = DateTime.now();
@@ -300,6 +303,7 @@ EventExecutionContext _baseEventContext({
     channelId: channelId,
     userId: userId,
     interaction: interaction,
+    member: member,
     variables: <String, String>{
       'event.name': eventName,
       'timestamp': now.millisecondsSinceEpoch.toString(),
