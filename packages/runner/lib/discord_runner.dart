@@ -258,6 +258,11 @@ class DiscordRunner {
     List<Action> Function(List<Action>)? nestedActionsPreprocessor,
   }) async {
     var replayCapturedByActions = false;
+    await _hydratePlaceholdersWithContexts(
+      actions: actions,
+      variables: runtimeVariables,
+      botId: botId,
+    );
     return handleActions(
       client,
       interaction,

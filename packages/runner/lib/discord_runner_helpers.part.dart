@@ -181,4 +181,56 @@ extension DiscordRunnerHelpersExtension on DiscordRunner {
 
     return raw;
   }
+
+  Future<void> _hydratePlaceholdersWithContexts({
+    required List<Action> actions,
+    required Map<String, String> variables,
+    required String botId,
+  }) async {
+    final pattern = RegExp(r'\(\(([a-z]+)\[([^\]]+)\]\.bc_');
+
+    final contextsToFetch = <(String scope, String contextId)>{};
+
+    void scan(dynamic obj) {
+      if (obj is String) {
+        for (final match in pattern.allMatches(obj)) {
+          final scope = match.group(1)!;
+          var contextId = match.group(2)!;
+
+          // If the contextId itself contains placeholders, resolve it.
+          if (contextId.contains('((')) {
+            contextId = resolveTemplatePlaceholders(contextId, variables);
+          }
+
+          if (contextId.isNotEmpty &&
+              contextId != 'unknown user' &&
+              contextId != 'dm') {
+            contextsToFetch.add((scope, contextId));
+          }
+        }
+      } else if (obj is Map) {
+        for (final value in obj.values) scan(value);
+      } else if (obj is List) {
+        for (final item in obj) scan(item);
+      }
+    }
+
+    for (final action in actions) {
+      scan(action.payload);
+    }
+
+    if (contextsToFetch.isEmpty) return;
+
+    await Future.wait(
+      contextsToFetch.map(
+        (m) => hydrateSpecificScopedVariables(
+          store: store,
+          botId: botId,
+          scope: m.$1,
+          contextId: m.$2,
+          runtimeVariables: variables,
+        ),
+      ),
+    );
+  }
 }
