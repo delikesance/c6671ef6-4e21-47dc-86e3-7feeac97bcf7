@@ -166,7 +166,7 @@ class RunnerRuntimeController {
       throw StateError('Bot "$botId" is already running.');
     }
 
-    final runner = DiscordRunner(config, statsStore: _commandStatsStore);
+    final runner = DiscordRunner(botId, config, statsStore: _commandStatsStore);
     try {
       if (!_statsInitialized) {
         await _commandStatsStore.init();
@@ -387,9 +387,13 @@ class RunnerRuntimeController {
         'defaultValue': defaultValue,
         'valueType': valueType,
       };
+      final normalizedRefKey = BotConfig.normalizeScopedVariableKey(normalizedKey);
       final index = defs.indexWhere(
         (entry) =>
-            (entry['key'] ?? '').toString().trim() == normalizedKey &&
+            BotConfig.normalizeScopedVariableKey(
+              (entry['key'] ?? '').toString(),
+            ) ==
+            normalizedRefKey &&
             (entry['scope'] ?? '').toString().trim() == normalizedScope,
       );
       if (index >= 0) {
@@ -417,9 +421,13 @@ class RunnerRuntimeController {
       final defs = config.scopedVariableDefinitions
           .map((entry) => Map<String, dynamic>.from(entry))
           .toList(growable: true);
+      final normalizedRefKey = BotConfig.normalizeScopedVariableKey(normalizedKey);
       defs.removeWhere((entry) {
         final matchesKey =
-            (entry['key'] ?? '').toString().trim() == normalizedKey;
+            BotConfig.normalizeScopedVariableKey(
+              (entry['key'] ?? '').toString(),
+            ) ==
+            normalizedRefKey;
         if (!matchesKey) {
           return false;
         }
@@ -567,7 +575,7 @@ class RunnerRuntimeController {
           );
         }
       } else {
-        runner.config = nextConfig;
+        await runner.reloadConfig(nextConfig);
       }
       _lastSeenAtByBot[botId] = DateTime.now().toUtc();
     }
@@ -600,7 +608,7 @@ class RunnerRuntimeController {
           );
         }
       } else {
-        runner.config = nextConfig;
+        await runner.reloadConfig(nextConfig);
       }
       _lastSeenAtByBot[botId] = DateTime.now().toUtc();
     }
@@ -645,7 +653,7 @@ class RunnerRuntimeController {
     await existing.stop();
     _runners.remove(botId);
 
-    final replacement = DiscordRunner(config, statsStore: _commandStatsStore);
+    final replacement = DiscordRunner(botId, config, statsStore: _commandStatsStore);
     try {
       await replacement.start();
       _runners[botId] = replacement;

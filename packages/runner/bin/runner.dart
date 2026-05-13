@@ -109,6 +109,11 @@ Future<void> _runWebMode({
 }) async {
   final logStore = RunnerLogStore();
   final logSubscription = Logger.root.onRecord.listen((record) {
+    String? botId;
+    if (record.loggerName.startsWith('bot:')) {
+      botId = record.loggerName.substring(4);
+    }
+
     final errorPart = record.error == null ? '' : ' | ${record.error}';
     stdout.writeln(
       '[${record.level.name}] ${record.loggerName}: ${record.message}$errorPart',
@@ -116,7 +121,7 @@ Future<void> _runWebMode({
     if (record.stackTrace != null) {
       stdout.writeln(record.stackTrace);
     }
-    logStore.add(record);
+    logStore.add(record, botId: botId);
   });
 
   final server = RunnerWebBootstrapServer(

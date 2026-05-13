@@ -775,7 +775,11 @@ class RunnerClient implements RemoteRuntimeClient {
   /// [limit] controls the maximum number of lines returned (default: 300).
   @override
   Future<List<String>> getLogs({String? botId, int limit = 300}) async {
-    final json = await _get('/logs', query: {'limit': limit.toString()});
+    final path =
+        (botId == null || botId.trim().isEmpty)
+            ? '/logs'
+            : '/bots/${Uri.encodeComponent(botId.trim())}/logs';
+    final json = await _get(path, query: {'limit': limit.toString()});
     final rawLines = json['lines'];
     if (rawLines is! List) return const [];
     return rawLines.map((e) => e.toString()).toList(growable: false);

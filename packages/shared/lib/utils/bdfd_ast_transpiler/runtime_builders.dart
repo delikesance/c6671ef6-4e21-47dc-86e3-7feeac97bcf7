@@ -1039,6 +1039,9 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
   }) {
     final key = _normalizeScopedVariableKey(_stringifyArgument(node, 0));
     final value = _stringifyArgument(node, 1);
+    final contextId =
+        node.arguments.length > 2 ? _stringifyArgument(node, 2).trim() : '';
+
     if (key.isEmpty) {
       _diagnostics.add(
         BdfdTranspileDiagnostic(
@@ -1057,6 +1060,7 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
         'key': key,
         'valueType': 'string',
         'value': value,
+        if (contextId.isNotEmpty) 'contextId': contextId,
       },
     );
   }
@@ -1327,19 +1331,27 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
     return lowered.replaceAll(RegExp(r'[^a-z0-9_]'), '_');
   }
 
-  String _scopedVariablePlaceholder(String scope, String rawKey) {
+  String _scopedVariablePlaceholder(
+    String scope,
+    String rawKey, [
+    String? contextId,
+  ]) {
     final trimmedKey = rawKey.trim();
     final key = _normalizeScopedVariableKey(trimmedKey);
     if (key.isEmpty) {
       return '';
     }
+
+    final hasContextId = contextId != null && contextId.isNotEmpty;
+    final contextPart = hasContextId ? '[$contextId]' : '';
+
     if (scope == 'temp') {
       return '((temp.$key))';
     }
     if (_containsRuntimePlaceholder(trimmedKey)) {
-      return '(($scope.bc_$trimmedKey|$scope.$trimmedKey))';
+      return '(($scope$contextPart.bc_$trimmedKey|$scope$contextPart.$trimmedKey))';
     }
-    return '(($scope.bc_$key))';
+    return '(($scope$contextPart.bc_$key))';
   }
 
   bool _containsRuntimePlaceholder(String value) {

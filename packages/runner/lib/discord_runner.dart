@@ -29,7 +29,7 @@ part 'discord_runner_interactions.part.dart';
 part 'discord_runner_helpers.part.dart';
 part 'discord_runner_profile.part.dart';
 
-final _log = Logger('BotRunner');
+// No longer a static logger. Each runner has its own.
 
 class _AwaitedLegacyTrigger {
   const _AwaitedLegacyTrigger({
@@ -189,9 +189,11 @@ bool shouldRebindEventWorkflowListeners(
 /// Connects to Discord via nyxx, registers command listeners, and dispatches
 /// interactions to the shared action handlers — matching commands by their Discord ID.
 class DiscordRunner {
+  final String botId;
   BotConfig config;
   final RunnerDataStore store;
   final CommandStatsStore? statsStore;
+  final Logger _log;
 
   NyxxGateway? _gateway;
   DateTime? _startedAt;
@@ -256,6 +258,11 @@ class DiscordRunner {
     List<Action> Function(List<Action>)? nestedActionsPreprocessor,
   }) async {
     var replayCapturedByActions = false;
+    await _hydratePlaceholdersWithContexts(
+      actions: actions,
+      variables: runtimeVariables,
+      botId: botId,
+    );
     return handleActions(
       client,
       interaction,
@@ -304,8 +311,9 @@ class DiscordRunner {
     });
   }
 
-  DiscordRunner(this.config, {this.statsStore})
-    : store = RunnerDataStore(config);
+  DiscordRunner(this.botId, this.config, {this.statsStore})
+    : store = RunnerDataStore(config),
+      _log = Logger('bot:$botId');
 
   Future<void> start() async {
     _log.info('Starting runner with ${config.commands.length} command(s)...');

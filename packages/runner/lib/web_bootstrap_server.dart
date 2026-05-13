@@ -161,6 +161,7 @@ class RunnerWebBootstrapServer {
       (req, res) => _handleMetrics(botId: req.params['id']),
     );
     _app.get('/bots/:id/command-stats', _handleCommandStats);
+    _app.get('/bots/:id/logs', _handleBotLogs);
 
     _app.post('/bots/:id/start', _handleRunnerStart);
     _app.post('/bots/:id/stop', _handleRunnerStop);
@@ -962,6 +963,16 @@ class RunnerWebBootstrapServer {
     final limit =
         int.tryParse(req.uri.queryParameters['limit'] ?? '200') ?? 200;
     return {'lines': logStore.tail(limit: limit)};
+  }
+
+  Future<Map<String, dynamic>> _handleBotLogs(
+    HttpRequest req,
+    HttpResponse res,
+  ) async {
+    final botId = req.params['id'];
+    final limit =
+        int.tryParse(req.uri.queryParameters['limit'] ?? '200') ?? 200;
+    return {'lines': logStore.tail(botId: botId, limit: limit)};
   }
 
   // --- Helpers ---

@@ -364,25 +364,39 @@ extension _BdfdAstTranspilationScopeInlineRuntime
         return _latestHttpResultPlaceholder(node);
       // Variable getters
       case 'getuservar':
-        return _scopedVariablePlaceholder('user', _stringifyArgument(node, 0));
+        final gvVarName = _stringifyArgument(node, 0);
+        final gvUserId =
+            node.arguments.length > 1 ? _stringifyArgument(node, 1).trim() : '';
+        return _scopedVariablePlaceholder('user', gvVarName, gvUserId);
       case 'getservervar':
       case 'getguildvar':
-        return _scopedVariablePlaceholder('guild', _stringifyArgument(node, 0));
+        final gsvVarName = _stringifyArgument(node, 0);
+        final gsvGuildId =
+            node.arguments.length > 1 ? _stringifyArgument(node, 1).trim() : '';
+        return _scopedVariablePlaceholder('guild', gsvVarName, gsvGuildId);
       case 'getchannelvar':
-        return _scopedVariablePlaceholder(
-          'channel',
-          _stringifyArgument(node, 0),
-        );
+        final gcvVarName = _stringifyArgument(node, 0);
+        final gcvChannelId =
+            node.arguments.length > 1 ? _stringifyArgument(node, 1).trim() : '';
+        return _scopedVariablePlaceholder('channel', gcvVarName, gcvChannelId);
       case 'getmembervar':
       case 'getguildmembervar':
+        final gmvVarName = _stringifyArgument(node, 0);
+        final gmvContextId =
+            node.arguments.length > 1 ? _stringifyArgument(node, 1).trim() : '';
         return _scopedVariablePlaceholder(
           'guildMember',
-          _stringifyArgument(node, 0),
+          gmvVarName,
+          gmvContextId,
         );
       case 'getmessagevar':
+        final gmvVarName = _stringifyArgument(node, 0);
+        final gmvMessageId =
+            node.arguments.length > 1 ? _stringifyArgument(node, 1).trim() : '';
         return _scopedVariablePlaceholder(
           'message',
-          _stringifyArgument(node, 0),
+          gmvVarName,
+          gmvMessageId,
         );
       case 'getvar':
         // BDFD wiki: $getVar[Variable name;(User ID)]
