@@ -707,7 +707,7 @@ class MainApiClient implements RemoteRuntimeClient {
     final path =
         (botId == null || botId.trim().isEmpty)
             ? '/gateway/logs'
-            : '/gateway/logs';
+            : '/gateway/bots/${Uri.encodeComponent(botId.trim())}/logs';
     final json = await _get(
       path,
       query: <String, String?>{'limit': limit.toString()},

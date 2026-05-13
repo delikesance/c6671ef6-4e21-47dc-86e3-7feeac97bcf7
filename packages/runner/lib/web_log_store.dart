@@ -3,63 +3,72 @@ import 'dart:io';
 import 'package:logging/logging.dart';
 
 class RunnerLogStore {
-  RunnerLogStore({this.maxEntries = 500, String? filePath})
-    : _filePath =
-          (filePath ??
-                  Platform.environment['BOT_CREATOR_RUNNER_LOG_FILE'] ??
-                  '/data/logs/runner.log')
-              .trim() {
-    _initializeFile();
+  RunnerLogStore({this.maxEntries = 500, String? dataDir})
+      : _dataDir = (dataDir ??
+                Platform.environment['BOT_CREATOR_DATA_DIR'] ??
+                './data')
+            .trim() {
+    _initializeFiles();
   }
 
   final int maxEntries;
-  final String _filePath;
-  final List<String> _entries = <String>[];
-  File? _file;
+  final String _dataDir;
+  final Map<String, List<String>> _buckets = {};
+  final List<String> _systemEntries = [];
+  final Map<String, File> _files = {};
+  File? _systemFile;
 
-  List<String> tail({int limit = 200}) {
+  List<String> tail({String? botId, int limit = 200}) {
     final safeLimit = limit <= 0 ? 1 : limit;
-    if (_entries.length <= safeLimit) {
-      return List<String>.from(_entries);
+    final entries = botId == null ? _systemEntries : (_buckets[botId] ?? []);
+
+    if (entries.length <= safeLimit) {
+      return List<String>.from(entries);
     }
-    return List<String>.from(_entries.sublist(_entries.length - safeLimit));
+    return List<String>.from(entries.sublist(entries.length - safeLimit));
   }
 
-  void add(LogRecord record) {
+  void add(LogRecord record, {String? botId}) {
     final timestamp = record.time.toUtc().toIso8601String();
     final errorPart = record.error == null ? '' : ' | ${record.error}';
     final line =
         '[$timestamp] [${record.level.name}] ${record.loggerName}: ${record.message}$errorPart';
 
-    _entries.add(line);
-    if (_entries.length > maxEntries) {
-      _entries.removeAt(0);
+    if (botId != null) {
+      final bucket = _buckets.putIfAbsent(botId, () => []);
+      bucket.add(line);
+      if (bucket.length > maxEntries) {
+        bucket.removeAt(0);
+      }
+      _writeToFile(botId, line);
+    } else {
+      _systemEntries.add(line);
+      if (_systemEntries.length > maxEntries) {
+        _systemEntries.removeAt(0);
+      }
+      _writeToSystemFile(line);
     }
+  }
 
-    final file = _file;
-    if (file == null) {
-      return;
-    }
-
+  void _writeToFile(String botId, String line) {
     try {
+      final file = _files.putIfAbsent(botId, () {
+        final f = File('$_dataDir/logs/bot_$botId.log');
+        f.parent.createSync(recursive: true);
+        return f;
+      });
       file.writeAsStringSync('$line\n', mode: FileMode.append, flush: false);
     } catch (_) {}
   }
 
-  void _initializeFile() {
-    if (_filePath.isEmpty) {
-      return;
-    }
-
+  void _writeToSystemFile(String line) {
     try {
-      final file = File(_filePath);
-      file.parent.createSync(recursive: true);
-      if (!file.existsSync()) {
-        file.createSync(recursive: true);
-      }
-      _file = file;
-    } catch (_) {
-      _file = null;
-    }
+      _systemFile ??= File('$_dataDir/logs/runner.log')..parent.createSync(recursive: true);
+      _systemFile?.writeAsStringSync('$line\n', mode: FileMode.append, flush: false);
+    } catch (_) {}
+  }
+
+  void _initializeFiles() {
+    // Files are created lazily in _writeToFile and _writeToSystemFile
   }
 }
