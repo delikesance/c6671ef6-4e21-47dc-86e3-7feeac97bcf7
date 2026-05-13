@@ -75,6 +75,13 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
 
   bool get _isScopedMode => _mode == _VariableMode.scoped;
   bool get _isRunnerMode => _source == _VariablesSource.runner;
+
+  bool get _isMobile {
+    if (kIsWeb) return false;
+    return defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS;
+  }
+
   bool get _isManagerMode => _source == _VariablesSource.manager;
   bool get _supportsManagerRuntime {
     return !kIsWeb;
@@ -1687,9 +1694,10 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                       selected: _isManagerMode,
                     ),
                   ),
-                if (hasManagerSource && _runners.isNotEmpty)
+                if (hasManagerSource && _runners.isNotEmpty && !_isMobile)
                   const PopupMenuDivider(),
-                ..._runners.map(
+                if (!_isMobile)
+                  ..._runners.map(
                   (runner) => PopupMenuItem<String>(
                     value: runner.id,
                     child: ListTile(
@@ -1719,7 +1727,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(context.tr.globals_title),
-            if (hasManagerSource || _runners.isNotEmpty)
+            if (hasManagerSource || (_runners.isNotEmpty && !_isMobile))
               Text(
                 _sourceLabel,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(

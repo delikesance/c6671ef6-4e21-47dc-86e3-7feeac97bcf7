@@ -107,8 +107,16 @@ class BotConfig {
   final List<Map<String, dynamic>> workflows;
   final List<Map<String, dynamic>> scheduledTriggers;
   final List<Map<String, dynamic>> inboundWebhookEndpoints;
-  final List<BotStatusConfig> statuses;
   final String presenceStatus;
+  final List<BotStatusConfig> statuses;
+
+  static String normalizeScopedVariableKey(String rawKey) {
+    final trimmed = rawKey.trim();
+    if (trimmed.startsWith('bc_') && trimmed.length > 3) {
+      return trimmed.substring(3);
+    }
+    return trimmed;
+  }
 
   /// List of commands. Each entry looks like:
   /// { "id": "123456789", "name": "hello", "data": { "response": {...}, "actions": [...] } }

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
+import 'package:bot_creator_shared/bot/bot_config.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/core/utils/hash_util.dart';
@@ -820,11 +821,12 @@ class MainApiClient implements RemoteRuntimeClient {
     dynamic defaultValue, {
     String valueType = 'string',
   }) async {
+    final normalizedKey = BotConfig.normalizeScopedVariableKey(key);
     final encodedBotId = Uri.encodeComponent(botId.trim());
     await _post(
       '/gateway/bots/$encodedBotId/variables/scoped-definitions/set',
       <String, dynamic>{
-        'key': key.trim(),
+        'key': normalizedKey,
         'scope': scope.trim(),
         'defaultValue': defaultValue,
         'valueType': valueType,
@@ -839,11 +841,12 @@ class MainApiClient implements RemoteRuntimeClient {
     String? scope,
     bool purgeStoredValues = false,
   }) async {
+    final normalizedKey = BotConfig.normalizeScopedVariableKey(key);
     final encodedBotId = Uri.encodeComponent(botId.trim());
     await _post(
       '/gateway/bots/$encodedBotId/variables/scoped-definitions/remove',
       <String, dynamic>{
-        'key': key.trim(),
+        'key': normalizedKey,
         if (scope != null && scope.trim().isNotEmpty) 'scope': scope.trim(),
         if (purgeStoredValues) 'purgeStoredValues': true,
       },
