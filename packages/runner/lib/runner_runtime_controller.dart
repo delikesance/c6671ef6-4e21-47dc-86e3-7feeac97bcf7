@@ -387,9 +387,13 @@ class RunnerRuntimeController {
         'defaultValue': defaultValue,
         'valueType': valueType,
       };
+      final normalizedRefKey = BotConfig.normalizeScopedVariableKey(normalizedKey);
       final index = defs.indexWhere(
         (entry) =>
-            (entry['key'] ?? '').toString().trim() == normalizedKey &&
+            BotConfig.normalizeScopedVariableKey(
+              (entry['key'] ?? '').toString(),
+            ) ==
+            normalizedRefKey &&
             (entry['scope'] ?? '').toString().trim() == normalizedScope,
       );
       if (index >= 0) {
@@ -417,9 +421,13 @@ class RunnerRuntimeController {
       final defs = config.scopedVariableDefinitions
           .map((entry) => Map<String, dynamic>.from(entry))
           .toList(growable: true);
+      final normalizedRefKey = BotConfig.normalizeScopedVariableKey(normalizedKey);
       defs.removeWhere((entry) {
         final matchesKey =
-            (entry['key'] ?? '').toString().trim() == normalizedKey;
+            BotConfig.normalizeScopedVariableKey(
+              (entry['key'] ?? '').toString(),
+            ) ==
+            normalizedRefKey;
         if (!matchesKey) {
           return false;
         }
