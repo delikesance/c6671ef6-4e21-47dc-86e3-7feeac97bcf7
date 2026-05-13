@@ -1,6 +1,7 @@
 import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:bot_creator/core/i18n/i18n.dart';
 
 /// Centralized premium capability matrix used to gate paid features.
 enum PremiumCapability {
@@ -21,15 +22,15 @@ class PremiumFeatureDefinition {
   const PremiumFeatureDefinition({
     required this.capability,
     required this.icon,
-    required this.titleKey,
-    required this.descriptionKey,
+    required this.title,
+    required this.description,
     this.coreBenefit = false,
   });
 
   final PremiumCapability capability;
   final IconData icon;
-  final String titleKey;
-  final String descriptionKey;
+  final String Function(AppLocalizations tr) title;
+  final String Function(AppLocalizations tr) description;
 
   /// Core benefits are always shown in the subscription list.
   final bool coreBenefit;
@@ -38,56 +39,56 @@ class PremiumFeatureDefinition {
 class PremiumCapabilities {
   PremiumCapabilities._();
 
-  static const List<PremiumFeatureDefinition> _featureDefinitions = [
+  static final List<PremiumFeatureDefinition> _featureDefinitions = [
     PremiumFeatureDefinition(
       capability: PremiumCapability.noAds,
       icon: Icons.block_rounded,
-      titleKey: 'subscription_feature_no_ads_title',
-      descriptionKey: 'subscription_feature_no_ads_desc',
+      title: (tr) => tr.subscription_feature_no_ads_title,
+      description: (tr) => tr.subscription_feature_no_ads_desc,
       coreBenefit: true,
     ),
     PremiumFeatureDefinition(
       capability: PremiumCapability.instantStart,
       icon: Icons.flash_on_rounded,
-      titleKey: 'subscription_feature_instant_start_title',
-      descriptionKey: 'subscription_feature_instant_start_desc',
+      title: (tr) => tr.subscription_feature_instant_start_title,
+      description: (tr) => tr.subscription_feature_instant_start_desc,
       coreBenefit: true,
     ),
     PremiumFeatureDefinition(
       capability: PremiumCapability.analyticsExpanded,
       icon: Icons.insights_rounded,
-      titleKey: 'subscription_feature_analytics_title',
-      descriptionKey: 'subscription_feature_analytics_desc',
+      title: (tr) => tr.subscription_feature_analytics_title,
+      description: (tr) => tr.subscription_feature_analytics_desc,
     ),
     PremiumFeatureDefinition(
       capability: PremiumCapability.schedulerTriggers,
       icon: Icons.schedule_rounded,
-      titleKey: 'subscription_feature_scheduler_title',
-      descriptionKey: 'subscription_feature_scheduler_desc',
+      title: (tr) => tr.subscription_feature_scheduler_title,
+      description: (tr) => tr.subscription_feature_scheduler_desc,
     ),
     PremiumFeatureDefinition(
       capability: PremiumCapability.inboundWebhooks,
       icon: Icons.hub_rounded,
-      titleKey: 'subscription_feature_webhooks_title',
-      descriptionKey: 'subscription_feature_webhooks_desc',
+      title: (tr) => tr.subscription_feature_webhooks_title,
+      description: (tr) => tr.subscription_feature_webhooks_desc,
     ),
     PremiumFeatureDefinition(
       capability: PremiumCapability.visualDebuggerReplay,
       icon: Icons.play_circle_outline_rounded,
-      titleKey: 'subscription_feature_debug_replay_title',
-      descriptionKey: 'subscription_feature_debug_replay_desc',
+      title: (tr) => tr.subscription_feature_debug_replay_title,
+      description: (tr) => tr.subscription_feature_debug_replay_desc,
     ),
     PremiumFeatureDefinition(
       capability: PremiumCapability.autoSharding,
       icon: Icons.account_tree_rounded,
-      titleKey: 'subscription_feature_auto_sharding_title',
-      descriptionKey: 'subscription_feature_auto_sharding_desc',
+      title: (tr) => tr.subscription_feature_auto_sharding_title,
+      description: (tr) => tr.subscription_feature_auto_sharding_desc,
     ),
     PremiumFeatureDefinition(
       capability: PremiumCapability.autoRestart,
       icon: Icons.autorenew_rounded,
-      titleKey: 'subscription_feature_auto_restart_title',
-      descriptionKey: 'subscription_feature_auto_restart_desc',
+      title: (tr) => tr.subscription_feature_auto_restart_title,
+      description: (tr) => tr.subscription_feature_auto_restart_desc,
     ),
   ];
 

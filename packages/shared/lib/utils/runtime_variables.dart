@@ -247,3 +247,27 @@ Future<void> hydrateRuntimeVariables({
     ),
   ]);
 }
+Future<void> hydrateSpecificScopedVariables({
+  required BotDataStore store,
+  required String botId,
+  required String scope,
+  required String contextId,
+  required Map<String, String> runtimeVariables,
+}) async {
+  final normalizedContextId = _normalizeContextId(contextId);
+  if (normalizedContextId == null) return;
+
+  final values = await store.getScopedVariables(botId, scope, normalizedContextId);
+  if (values.isEmpty) return;
+
+  for (final entry in values.entries) {
+    final rawKey = entry.key.toString().trim();
+    if (rawKey.isEmpty) continue;
+
+    final canonicalKey = rawKey.startsWith('bc_') ? rawKey : 'bc_$rawKey';
+    final value = stringifyRuntimeVariableValue(entry.value);
+
+    runtimeVariables['$scope[$normalizedContextId].$canonicalKey'] = value;
+    runtimeVariables['$scope[$normalizedContextId].$rawKey'] = value;
+  }
+}

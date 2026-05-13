@@ -51,7 +51,7 @@ class BotSubprocessRunner {
     );
 
     try {
-      _runner = DiscordRunner(entry.config);
+      _runner = DiscordRunner(botId, entry.config);
       await _runner!.start();
       _running = true;
       _startedAt = DateTime.now().toUtc();

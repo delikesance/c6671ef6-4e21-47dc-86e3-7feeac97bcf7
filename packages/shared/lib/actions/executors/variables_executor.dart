@@ -539,13 +539,18 @@ _resolveScopedBinding({
   final rawKey = resolveValue((payload['key'] ?? '').toString()).trim();
   final storageKey = _scopedStorageKey(rawKey);
   final referenceKey = _scopedReferenceKey(rawKey);
-  final contextId = resolveScopeContextId(
-    scope: scope,
-    variables: variables,
-    guildId: guildId,
-    channelId: fallbackChannelId,
-    interaction: interaction,
-  );
+  final explicitContextId =
+      resolveValue((payload['contextId'] ?? '').toString()).trim();
+  final contextId =
+      explicitContextId.isNotEmpty
+          ? explicitContextId
+          : resolveScopeContextId(
+            scope: scope,
+            variables: variables,
+            guildId: guildId,
+            channelId: fallbackChannelId,
+            interaction: interaction,
+          );
   if (contextId == null || contextId.trim().isEmpty) {
     throw Exception('Unable to resolve context ID for scope "$scope"');
   }
@@ -960,13 +965,18 @@ Future<bool> executeVariablesAction({
       final rawKey = resolveValue((payload['key'] ?? '').toString()).trim();
       final storageKey = _scopedStorageKey(rawKey);
       final referenceKey = _scopedReferenceKey(rawKey);
-      final contextId = resolveScopeContextId(
-        scope: scope,
-        variables: variables,
-        guildId: guildId,
-        channelId: fallbackChannelId,
-        interaction: interaction,
-      );
+      final explicitContextId =
+          resolveValue((payload['contextId'] ?? '').toString()).trim();
+      final contextId =
+          explicitContextId.isNotEmpty
+              ? explicitContextId
+              : resolveScopeContextId(
+                scope: scope,
+                variables: variables,
+                guildId: guildId,
+                channelId: fallbackChannelId,
+                interaction: interaction,
+              );
       if (contextId == null || contextId.trim().isEmpty) {
         throw Exception('Unable to resolve context ID for scope "$scope"');
       }
@@ -1065,13 +1075,18 @@ Future<bool> executeVariablesAction({
       final rawKey = resolveValue((payload['key'] ?? '').toString()).trim();
       final storageKey = _scopedStorageKey(rawKey);
       final referenceKey = _scopedReferenceKey(rawKey);
-      final contextId = resolveScopeContextId(
-        scope: scope,
-        variables: variables,
-        guildId: guildId,
-        channelId: fallbackChannelId,
-        interaction: interaction,
-      );
+      final explicitContextId =
+          resolveValue((payload['contextId'] ?? '').toString()).trim();
+      final contextId =
+          explicitContextId.isNotEmpty
+              ? explicitContextId
+              : resolveScopeContextId(
+                scope: scope,
+                variables: variables,
+                guildId: guildId,
+                channelId: fallbackChannelId,
+                interaction: interaction,
+              );
       if (contextId == null || contextId.trim().isEmpty) {
         throw Exception('Unable to resolve context ID for scope "$scope"');
       }
@@ -1186,13 +1201,18 @@ Future<bool> executeVariablesAction({
       final rawKey = resolveValue((payload['key'] ?? '').toString()).trim();
       final storageKey = _scopedStorageKey(rawKey);
       final referenceKey = _scopedReferenceKey(rawKey);
-      final contextId = resolveScopeContextId(
-        scope: scope,
-        variables: variables,
-        guildId: guildId,
-        channelId: fallbackChannelId,
-        interaction: interaction,
-      );
+      final explicitContextId =
+          resolveValue((payload['contextId'] ?? '').toString()).trim();
+      final contextId =
+          explicitContextId.isNotEmpty
+              ? explicitContextId
+              : resolveScopeContextId(
+                scope: scope,
+                variables: variables,
+                guildId: guildId,
+                channelId: fallbackChannelId,
+                interaction: interaction,
+              );
       if (contextId == null || contextId.trim().isEmpty) {
         throw Exception('Unable to resolve context ID for scope "$scope"');
       }
@@ -1236,21 +1256,32 @@ Future<bool> executeVariablesAction({
         );
       }
 
-      final oldRawKey =
-          resolveValue((payload['oldKey'] ?? '').toString()).trim();
-      final newRawKey =
-          resolveValue((payload['newKey'] ?? '').toString()).trim();
-      final oldStorageKey = _scopedStorageKey(oldRawKey);
-      final newStorageKey = _scopedStorageKey(newRawKey);
-      final oldReferenceKey = _scopedReferenceKey(oldRawKey);
-      final newReferenceKey = _scopedReferenceKey(newRawKey);
-      final contextId = resolveScopeContextId(
-        scope: scope,
-        variables: variables,
-        guildId: guildId,
-        channelId: fallbackChannelId,
-        interaction: interaction,
-      );
+      final fromKey = resolveValue(
+        (payload['from'] ?? payload['oldKey'] ?? '').toString(),
+      ).trim();
+      final toKey = resolveValue(
+        (payload['to'] ?? payload['newKey'] ?? '').toString(),
+      ).trim();
+
+      if (fromKey.isEmpty || toKey.isEmpty) {
+        throw Exception('Both from (oldKey) and to (newKey) are required');
+      }
+
+      final fromStorageKey = _scopedStorageKey(fromKey);
+      final toStorageKey = _scopedStorageKey(toKey);
+      final explicitContextId =
+          resolveValue((payload['contextId'] ?? '').toString()).trim();
+      final contextId =
+          explicitContextId.isNotEmpty
+              ? explicitContextId
+              : resolveScopeContextId(
+                scope: scope,
+                variables: variables,
+                guildId: guildId,
+                channelId: fallbackChannelId,
+                interaction: interaction,
+              );
+
       if (contextId == null || contextId.trim().isEmpty) {
         throw Exception('Unable to resolve context ID for scope "$scope"');
       }
@@ -1259,46 +1290,53 @@ Future<bool> executeVariablesAction({
         botId,
         scope,
         contextId,
-        oldStorageKey,
-        newStorageKey,
+        fromStorageKey,
+        toStorageKey,
       );
-      if (oldReferenceKey != oldStorageKey) {
+
+      // Handle legacy key rename if applicable
+      final fromReferenceKey = _scopedReferenceKey(fromKey);
+      final toReferenceKey = _scopedReferenceKey(toKey);
+      if (fromReferenceKey != fromStorageKey) {
         final legacyValue = await store.getScopedVariable(
           botId,
           scope,
           contextId,
-          oldReferenceKey,
+          fromReferenceKey,
         );
         if (legacyValue != null) {
           await store.setScopedVariable(
             botId,
             scope,
             contextId,
-            newStorageKey,
+            toStorageKey,
             legacyValue,
           );
           await store.removeScopedVariable(
             botId,
             scope,
             contextId,
-            oldReferenceKey,
+            fromReferenceKey,
           );
         }
       }
-      final oldRuntimeKey = '$scope.$oldReferenceKey';
-      final newRuntimeKey = '$scope.$newReferenceKey';
-      if (variables.containsKey(oldRuntimeKey)) {
-        final runtimeValue = variables.remove(oldRuntimeKey);
+
+      // Update runtime variables
+      final fromRuntimeKey = '$scope.$fromReferenceKey';
+      final toRuntimeKey = '$scope.$toReferenceKey';
+      if (variables.containsKey(fromRuntimeKey)) {
+        final runtimeValue = variables.remove(fromRuntimeKey);
         if (runtimeValue != null) {
-          variables[newRuntimeKey] = runtimeValue;
-          if (oldRawKey.isNotEmpty && oldRawKey != oldReferenceKey) {
-            variables.remove('$scope.$oldRawKey');
+          variables[toRuntimeKey] = runtimeValue;
+          if (fromKey != fromReferenceKey) {
+            variables.remove('$scope.$fromKey');
           }
-          if (newRawKey.isNotEmpty && newRawKey != newReferenceKey) {
-            variables['$scope.$newRawKey'] = runtimeValue;
+          if (toKey != toReferenceKey) {
+            variables['$scope.$toKey'] = runtimeValue;
           }
         }
       }
+
       results[resultKey] = 'RENAMED';
       return true;
 

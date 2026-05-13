@@ -209,8 +209,8 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                   ),
                   child: _BenefitRow(
                     icon: feature.icon,
-                    text: feature.titleKey,
-                    subtitle: feature.descriptionKey,
+                    text: feature.title(context.tr),
+                    subtitle: feature.description(context.tr),
                     comingSoon: comingSoon,
                   ),
                 );
