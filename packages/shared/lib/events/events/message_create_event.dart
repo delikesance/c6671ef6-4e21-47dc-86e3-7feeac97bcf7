@@ -3,7 +3,7 @@ part of '../event_contexts.dart';
 EventExecutionContext buildMessageCreateEventContext(MessageCreateEvent event) {
   final message = event.message;
   final guildId = event.guildId;
-  final extra = _messageContentExtra(message);
+  final extra = _messageContentExtra(message, member: event.member);
   if (guildId != null) {
     extra['message.url'] =
         'https://discord.com/channels/$guildId/${message.channelId}/${message.id}';
@@ -16,6 +16,7 @@ EventExecutionContext buildMessageCreateEventContext(MessageCreateEvent event) {
     guildId: guildId,
     channelId: message.channelId,
     userId: message.author.id,
+    messageId: message.id,
     member: event.member,
     extra: extra,
   );

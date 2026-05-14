@@ -1,4 +1,4 @@
-import 'package:bot_creator_runner/command_workflow_routing.dart';
+import 'package:bot_creator_shared/utils/command_workflow_routing.dart';
 import 'package:test/test.dart';
 
 void main() {

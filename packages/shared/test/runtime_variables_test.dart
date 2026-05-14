@@ -183,8 +183,11 @@ class _FakeBotDataStore implements BotDataStore {
   }
 
   @override
-  Future<Map<String, dynamic>?> getWorkflowByName(String botId, String name) {
-    throw UnsupportedError('Not used in this test');
+  Future<Map<String, dynamic>?> getWorkflowByName(
+    String botId,
+    String name,
+  ) async {
+    throw UnsupportedError('Not used in these tests');
   }
 
   @override
@@ -334,4 +337,25 @@ class _FakeBotDataStore implements BotDataStore {
   ) {
     throw UnsupportedError('Not used in this test');
   }
+
+  @override
+  Future<Map<String, dynamic>> getApp(String botId) async => throw UnsupportedError('Not used');
+
+  @override
+  Future<List<Map<String, dynamic>>> getWorkflows(String botId) async => throw UnsupportedError('Not used');
+
+  @override
+  Future<List<Map<String, dynamic>>> listAppCommands(String botId, {bool forceRefresh = false}) async => throw UnsupportedError('Not used');
+
+  @override
+  Future<void> saveAppCommand(String botId, String commandId, Map<String, dynamic> data) async => throw UnsupportedError('Not used');
+
+  @override
+  Future<void> updateGuildCount(String botId, int count) async => throw UnsupportedError('Not used');
+
+  @override
+  Future<void> recordCommandExecution(String botId, String commandName) async => throw UnsupportedError('Not used');
+
+  @override
+  Map<String, dynamic> normalizeCommandData(Map<String, dynamic> raw) => raw;
 }

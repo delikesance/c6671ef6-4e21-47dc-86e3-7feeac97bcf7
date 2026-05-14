@@ -461,7 +461,7 @@ void main() {
       final elseActions = List<Map<String, dynamic>>.from(
         payload['elseActions'] as List,
       );
-      expect(elseActions.single['type'], 'stopUnless');
+      expect(elseActions.single['type'], 'stop');
     });
 
     test('supports json parse/get/set/unset/stringify helpers', () {
@@ -747,7 +747,7 @@ void main() {
       );
       expect(onlyIfElse, hasLength(2));
       expect(onlyIfElse[0]['type'], 'respondWithMessage');
-      expect(onlyIfElse[1]['type'], 'stopUnless');
+      expect(onlyIfElse[1]['type'], 'stop');
 
       final onlyForUsersPayload = result.actions[1].payload;
       expect(onlyForUsersPayload['condition.group'], 'or');
@@ -775,7 +775,7 @@ void main() {
         ignoreThen[0]['payload']['content'],
         "❌ That command can't be used in this channel!",
       );
-      expect(ignoreThen[1]['type'], 'stopUnless');
+      expect(ignoreThen[1]['type'], 'stop');
 
       final onlyNsfwPayload = result.actions[4].payload;
       expect(onlyNsfwPayload['condition.variable'], '((channel.nsfw))');

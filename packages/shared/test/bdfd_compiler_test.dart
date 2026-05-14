@@ -290,14 +290,11 @@ void main() {
       expect(elseIfConditions.single['condition.operator'], 'equals');
     });
 
-    test('compiles stop to stopUnless action', () {
+    test('compiles stop to stop action', () {
       final result = BdfdCompiler().compile(r'$stop');
-
       expect(result.hasErrors, isFalse);
       expect(result.actions, hasLength(1));
-      expect(result.actions.single.type, BotCreatorActionType.stopUnless);
-      expect(result.actions.single.payload['condition.variable'], '1');
-      expect(result.actions.single.payload['condition.value'], '0');
+      expect(result.actions.single.type, BotCreatorActionType.stop);
     });
 
     test('compiles json helper workflow without diagnostics', () {
@@ -1596,7 +1593,7 @@ void main() {
           isTrue,
         );
         expect(
-          winnerThen.any((action) => action['type'] == 'stopUnless'),
+          winnerThen.any((action) => action['type'] == 'stop'),
           isTrue,
         );
       },

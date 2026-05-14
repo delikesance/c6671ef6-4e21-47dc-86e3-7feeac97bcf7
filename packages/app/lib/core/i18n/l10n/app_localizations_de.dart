@@ -34,6 +34,39 @@ class AppLocalizationsDe extends AppLocalizations {
       'Formatieren nicht möglich: Ungültiges JSON';
 
   @override
+  String get action_category_channels => 'Kanäle';
+
+  @override
+  String get action_category_components => 'Komponenten';
+
+  @override
+  String get action_category_guild_members => 'Server & Mitglieder';
+
+  @override
+  String get action_category_http_variables => 'HTTP & Variablen';
+
+  @override
+  String get action_category_interactions => 'Interaktionen';
+
+  @override
+  String get action_category_logic_flow => 'Logik & Ablauf';
+
+  @override
+  String get action_category_messages => 'Nachrichten';
+
+  @override
+  String get action_category_moderation => 'Moderation';
+
+  @override
+  String get action_category_reactions => 'Reaktionen';
+
+  @override
+  String get action_category_webhooks => 'Webhooks';
+
+  @override
+  String get action_category_workflows => 'Workflows';
+
+  @override
   String action_choose_param(String name) {
     return '$name wählen';
   }
@@ -46,6 +79,78 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get action_condition_variable => 'Bedingungsvariable';
+
+  @override
+  String get action_description_addReaction =>
+      'Add an emoji reaction to a message';
+
+  @override
+  String get action_description_addRole => 'Assign a role to a member';
+
+  @override
+  String get action_description_banUser =>
+      'Permanently ban a user from the guild';
+
+  @override
+  String get action_description_clearAllReactions =>
+      'Clear all reactions from a message';
+
+  @override
+  String get action_description_cooldown =>
+      'Apply a cooldown to the user or server';
+
+  @override
+  String get action_description_deleteMessages => 'Delete one or more messages';
+
+  @override
+  String get action_description_deleteTrigger =>
+      'Delete the message that triggered this command';
+
+  @override
+  String get action_description_editMessage => 'Edit an existing message';
+
+  @override
+  String get action_description_kickUser => 'Remove a member from the guild';
+
+  @override
+  String get action_description_muteUser => 'Temporarily timeout a member';
+
+  @override
+  String get action_description_randomChoice =>
+      'Pick a random item from a list';
+
+  @override
+  String get action_description_removeReaction =>
+      'Remove a reaction from a message';
+
+  @override
+  String get action_description_removeRole => 'Remove a role from a member';
+
+  @override
+  String get action_description_sendDm => 'Send a direct message to a user';
+
+  @override
+  String get action_description_sendMessage => 'Send a message to a channel';
+
+  @override
+  String get action_description_setNickname => 'Change a member\'s nickname';
+
+  @override
+  String get action_description_slowmode =>
+      'Set slowmode duration for a channel';
+
+  @override
+  String get action_description_stop => 'Stop the current workflow execution';
+
+  @override
+  String get action_description_unbanUser => 'Revoke a user\'s ban';
+
+  @override
+  String get action_description_unmuteUser => 'Remove timeout from a member';
+
+  @override
+  String get action_description_wait =>
+      'Pause execution for a specific duration';
 
   @override
   String get action_dynamic => 'Dynamisch';
@@ -114,9 +219,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Verwenden Sie ((variableName)) oder einen Laufzeitwert';
 
   @override
-  String get action_hint_duration => 'z. B. 5m, 1h, 30s';
-
-  @override
   String get action_hint_cooldown_error =>
       'Benutzerdefinierte Fehlermeldung (unterstützt %time%)';
 
@@ -124,10 +226,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get action_hint_cooldown_time => 'Zeit (z. B. 10s, 1m)';
 
   @override
-  String get action_hint_random_choices => 'List of choices (separated by ;)';
-
-  @override
-  String get action_hint_random_var => 'Variable name to store the result';
+  String get action_hint_duration => 'z. B. 5m, 1h, 30s';
 
   @override
   String get action_hint_emoji => 'Emoji oder :name: eingeben';
@@ -136,6 +235,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String action_hint_enter_type(String type) {
     return '$type eingeben';
   }
+
+  @override
+  String get action_hint_random_choices => 'List of choices (separated by ;)';
+
+  @override
+  String get action_hint_random_var => 'Variable name to store the result';
 
   @override
   String get action_hint_variable_key => 'Variablenschlüssel auswählen';
@@ -237,13 +342,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get action_name_deleteEmoji => 'Emoji löschen';
 
   @override
-  String get action_name_deleteTrigger => 'Trigger löschen';
-
-  @override
   String get action_name_deleteInvite => 'Einladung löschen';
 
   @override
   String get action_name_deleteMessages => 'Nachrichten löschen';
+
+  @override
+  String get action_name_deleteTrigger => 'Trigger löschen';
 
   @override
   String get action_name_deleteWebhook => 'Webhook löschen';
@@ -338,6 +443,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get action_name_queryArray => 'Array abfragen';
 
   @override
+  String get action_name_randomChoice => 'Zufällige Auswahl';
+
+  @override
   String get action_name_removeArrayElement => 'Array-Element entfernen';
 
   @override
@@ -368,9 +476,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Mit Autocomplete antworten';
 
   @override
-  String get action_name_randomChoice => 'Zufällige Auswahl';
-
-  @override
   String get action_name_respondWithComponentV2 =>
       'Mit Komponente V2 antworten';
 
@@ -390,13 +495,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get action_name_sendComponentV2 => 'Komponente V2 senden';
 
   @override
+  String get action_name_sendDm => 'DM senden';
+
+  @override
   String get action_name_sendMessage => 'Nachricht senden';
 
   @override
   String get action_name_sendWebhook => 'Webhook senden';
-
-  @override
-  String get action_name_sendDm => 'DM senden';
 
   @override
   String get action_name_serverDeafenMember => 'Server-Taubschaltung Mitglied';
@@ -408,19 +513,19 @@ class AppLocalizationsDe extends AppLocalizations {
   String get action_name_setGlobalVariable => 'Globale Variable setzen';
 
   @override
+  String get action_name_setNickname => 'Nickname setzen';
+
+  @override
   String get action_name_setScopedVariable => 'Geltungsbereichsvariable setzen';
 
   @override
-  String get action_name_stopUnless => 'Stoppen außer Bedingung erfüllt';
+  String get action_name_slowmode => 'Slowmode';
 
   @override
   String get action_name_stop => 'Stoppen';
 
   @override
-  String get action_name_setNickname => 'Nickname setzen';
-
-  @override
-  String get action_name_slowmode => 'Slowmode';
+  String get action_name_stopUnless => 'Stoppen außer Bedingung erfüllt';
 
   @override
   String get action_name_unbanUser => 'Benutzer entbannen';
@@ -453,111 +558,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get action_name_wait => 'Warten';
-
-  @override
-  String get action_category_messages => 'Nachrichten';
-
-  @override
-  String get action_category_reactions => 'Reaktionen';
-
-  @override
-  String get action_category_channels => 'Kanäle';
-
-  @override
-  String get action_category_moderation => 'Moderation';
-
-  @override
-  String get action_category_components => 'Komponenten';
-
-  @override
-  String get action_category_webhooks => 'Webhooks';
-
-  @override
-  String get action_category_guild_members => 'Server & Mitglieder';
-
-  @override
-  String get action_category_http_variables => 'HTTP & Variablen';
-
-  @override
-  String get action_category_workflows => 'Workflows';
-
-  @override
-  String get action_category_logic_flow => 'Logik & Ablauf';
-
-  @override
-  String get action_category_interactions => 'Interaktionen';
-
-  @override
-  String get action_description_wait =>
-      'Pause execution for a specific duration';
-
-  @override
-  String get action_description_deleteTrigger =>
-      'Delete the message that triggered this command';
-
-  @override
-  String get action_description_sendDm => 'Send a direct message to a user';
-
-  @override
-  String get action_description_setNickname => 'Change a member\'s nickname';
-
-  @override
-  String get action_description_slowmode =>
-      'Set slowmode duration for a channel';
-
-  @override
-  String get action_description_stop => 'Stop the current workflow execution';
-
-  @override
-  String get action_description_randomChoice =>
-      'Pick a random item from a list';
-
-  @override
-  String get action_description_cooldown =>
-      'Apply a cooldown to the user or server';
-
-  @override
-  String get action_description_sendMessage => 'Send a message to a channel';
-
-  @override
-  String get action_description_editMessage => 'Edit an existing message';
-
-  @override
-  String get action_description_deleteMessages => 'Delete one or more messages';
-
-  @override
-  String get action_description_addReaction =>
-      'Add an emoji reaction to a message';
-
-  @override
-  String get action_description_removeReaction =>
-      'Remove a reaction from a message';
-
-  @override
-  String get action_description_clearAllReactions =>
-      'Clear all reactions from a message';
-
-  @override
-  String get action_description_banUser =>
-      'Permanently ban a user from the guild';
-
-  @override
-  String get action_description_unbanUser => 'Revoke a user\'s ban';
-
-  @override
-  String get action_description_kickUser => 'Remove a member from the guild';
-
-  @override
-  String get action_description_muteUser => 'Temporarily timeout a member';
-
-  @override
-  String get action_description_unmuteUser => 'Remove timeout from a member';
-
-  @override
-  String get action_description_addRole => 'Assign a role to a member';
-
-  @override
-  String get action_description_removeRole => 'Remove a role from a member';
 
   @override
   String get action_no_actions_yet => 'Noch keine Aktionen in diesem Zweig.';
@@ -1333,6 +1333,27 @@ class AppLocalizationsDe extends AppLocalizations {
       'Token-Bearbeitung abbrechen';
 
   @override
+  String get bot_settings_danger_zone => 'Gefahrenzone';
+
+  @override
+  String get bot_settings_delete_bot => 'Bot löschen';
+
+  @override
+  String get bot_settings_delete_bot_btn => 'Endgültig löschen';
+
+  @override
+  String get bot_settings_delete_bot_desc =>
+      'Diese Aktion kann nicht rückgängig gemacht werden. Alle lokalen Daten und remote Konfigurationen werden dauerhaft entfernt.';
+
+  @override
+  String bot_settings_delete_desc(String id) {
+    return 'Sind Sie sicher, dass Sie den Bot $id löschen möchten? Alle Daten gehen verloren.';
+  }
+
+  @override
+  String get bot_settings_delete_title => 'Löschen bestätigen';
+
+  @override
   String get bot_settings_edit_token_btn => 'Token bearbeiten';
 
   @override
@@ -1351,6 +1372,9 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get bot_settings_intents_saved => 'Intents erfolgreich gespeichert';
+
+  @override
+  String get bot_settings_no_activities => 'Keine Aktivitäten konfiguriert';
 
   @override
   String get bot_settings_presence_dnd => 'Bitte nicht stören';
@@ -1379,9 +1403,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get bot_settings_remove_status => 'Aktivität entfernen';
-
-  @override
-  String get bot_settings_no_activities => 'Keine Aktivitäten konfiguriert';
 
   @override
   String get bot_settings_save_intents_btn => 'Intents speichern';
@@ -1501,27 +1522,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get bot_settings_workflow_docs_desc =>
       'Zentrale Dokumentation für Befehle, Workflows, Laufzeitvariablen und Ausführungsverhalten.';
-
-  @override
-  String get bot_settings_danger_zone => 'Gefahrenzone';
-
-  @override
-  String get bot_settings_delete_bot => 'Bot löschen';
-
-  @override
-  String get bot_settings_delete_bot_desc =>
-      'Diese Aktion kann nicht rückgängig gemacht werden. Alle lokalen Daten und remote Konfigurationen werden dauerhaft entfernt.';
-
-  @override
-  String get bot_settings_delete_bot_btn => 'Endgültig löschen';
-
-  @override
-  String get bot_settings_delete_title => 'Löschen bestätigen';
-
-  @override
-  String bot_settings_delete_desc(String id) {
-    return 'Sind Sie sicher, dass Sie den Bot $id löschen möchten? Alle Daten gehen verloren.';
-  }
 
   @override
   String get bot_stats_collecting => 'Wird gesammelt…';

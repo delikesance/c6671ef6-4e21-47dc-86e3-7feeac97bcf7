@@ -318,7 +318,7 @@ void main() {
           rollGate['thenActions'] as List? ?? const [],
         );
         expect(
-          winnerThen.any((action) => action['type'] == 'stopUnless'),
+          winnerThen.any((action) => action['type'] == 'stop'),
           isTrue,
         );
       },
