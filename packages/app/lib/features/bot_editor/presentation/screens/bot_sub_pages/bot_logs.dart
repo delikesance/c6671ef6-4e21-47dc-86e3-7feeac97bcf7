@@ -11,7 +11,6 @@ import 'package:flutter/services.dart';
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/core/network/main_api_owner_sync.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
-import 'dart:developer' as developer;
 
 class BotLogsPage extends StatefulWidget {
   const BotLogsPage({super.key, this.botId});
