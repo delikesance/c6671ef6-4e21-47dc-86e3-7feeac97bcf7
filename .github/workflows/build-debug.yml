@@ -16,6 +16,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
+      - name: Remove dependency overrides
+        run: |
+          sed -i '/dependency_overrides:/,$d' pubspec.yaml
+          # Swap SSH for HTTPS to avoid SSH key issues in CI
+          sed -i 's/git@github.com:/https:\/\/github.com\//g' packages/app/pubspec.yaml
+          sed -i 's/git@github.com:/https:\/\/github.com\//g' packages/runner/pubspec.yaml
+
+
+
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
