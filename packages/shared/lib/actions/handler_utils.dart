@@ -1,4 +1,4 @@
-﻿import 'package:nyxx/nyxx.dart';
+import 'package:nyxx/nyxx.dart';
 
 /// Helper pour exÃ©cuter une action simple et rÃ©cupÃ©rer un rÃ©sultat
 Future<Map<String, String>> executeSimpleAction(
@@ -55,4 +55,13 @@ extension ActionResultExtension on Map<String, String> {
   bool get hasError => containsKey('error');
   String? get error => this['error'];
   String getOrEmpty(String key) => this[key] ?? '';
+}
+
+Snowflake? parseSnowflake(dynamic value) {
+  if (value == null) return null;
+  final s = value.toString().trim();
+  if (s.isEmpty) return null;
+  final parsed = int.tryParse(s);
+  if (parsed == null) return null;
+  return Snowflake(parsed);
 }

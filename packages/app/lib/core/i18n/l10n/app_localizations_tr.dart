@@ -123,6 +123,12 @@ class AppLocalizationsTr extends AppLocalizations {
   String get action_hint_cooldown_time => 'Süre (ör. 10s, 1m)';
 
   @override
+  String get action_hint_random_choices => 'List of choices (separated by ;)';
+
+  @override
+  String get action_hint_random_var => 'Variable name to store the result';
+
+  @override
   String get action_hint_emoji => 'Emoji veya :ad: girin';
 
   @override
@@ -229,6 +235,9 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get action_name_deleteEmoji => 'Emoji Sil';
+
+  @override
+  String get action_name_deleteTrigger => 'Tetikleyiciyi Sil';
 
   @override
   String get action_name_deleteInvite => 'Daveti Sil';
@@ -354,6 +363,9 @@ class AppLocalizationsTr extends AppLocalizations {
       'Otomatik Tamamlama ile Yanıtla';
 
   @override
+  String get action_name_randomChoice => 'Rastgele Seçim';
+
+  @override
   String get action_name_respondWithComponentV2 => 'Bileşen V2 ile Yanıtla';
 
   @override
@@ -378,6 +390,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get action_name_sendWebhook => 'Webhook Gönder';
 
   @override
+  String get action_name_sendDm => 'DM Gönder';
+
+  @override
   String get action_name_serverDeafenMember => 'Sunucuda Üyeyi Sağırlaştır';
 
   @override
@@ -391,6 +406,15 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get action_name_stopUnless => 'Koşul Sağlanmadıkça Durdur';
+
+  @override
+  String get action_name_stop => 'Durdur';
+
+  @override
+  String get action_name_setNickname => 'Takma Ad Belirle';
+
+  @override
+  String get action_name_slowmode => 'Yavaş Mod';
 
   @override
   String get action_name_unbanUser => 'Kullanıcı Yasağını Kaldır';
@@ -418,6 +442,114 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get action_name_updateSelfUser => 'Kendini Güncelle (Bot Profili)';
+
+  @override
+  String get action_name_wait => 'Bekle';
+
+  @override
+  String get action_category_messages => 'Mesajlar';
+
+  @override
+  String get action_category_reactions => 'Tepkiler';
+
+  @override
+  String get action_category_channels => 'Kanallar';
+
+  @override
+  String get action_category_moderation => 'Moderasyon';
+
+  @override
+  String get action_category_components => 'Bileşenler';
+
+  @override
+  String get action_category_webhooks => 'Webhooks';
+
+  @override
+  String get action_category_guild_members => 'Sunucu ve Üyeler';
+
+  @override
+  String get action_category_http_variables => 'HTTP ve Değişkenler';
+
+  @override
+  String get action_category_workflows => 'İş Akışları';
+
+  @override
+  String get action_category_logic_flow => 'Mantık ve Akış';
+
+  @override
+  String get action_category_interactions => 'Etkileşimler';
+
+  @override
+  String get action_description_wait =>
+      'Pause execution for a specific duration';
+
+  @override
+  String get action_description_deleteTrigger =>
+      'Delete the message that triggered this command';
+
+  @override
+  String get action_description_sendDm => 'Send a direct message to a user';
+
+  @override
+  String get action_description_setNickname => 'Change a member\'s nickname';
+
+  @override
+  String get action_description_slowmode =>
+      'Set slowmode duration for a channel';
+
+  @override
+  String get action_description_stop => 'Stop the current workflow execution';
+
+  @override
+  String get action_description_randomChoice =>
+      'Pick a random item from a list';
+
+  @override
+  String get action_description_cooldown =>
+      'Apply a cooldown to the user or server';
+
+  @override
+  String get action_description_sendMessage => 'Send a message to a channel';
+
+  @override
+  String get action_description_editMessage => 'Edit an existing message';
+
+  @override
+  String get action_description_deleteMessages => 'Delete one or more messages';
+
+  @override
+  String get action_description_addReaction =>
+      'Add an emoji reaction to a message';
+
+  @override
+  String get action_description_removeReaction =>
+      'Remove a reaction from a message';
+
+  @override
+  String get action_description_clearAllReactions =>
+      'Clear all reactions from a message';
+
+  @override
+  String get action_description_banUser =>
+      'Permanently ban a user from the guild';
+
+  @override
+  String get action_description_unbanUser => 'Revoke a user\'s ban';
+
+  @override
+  String get action_description_kickUser => 'Remove a member from the guild';
+
+  @override
+  String get action_description_muteUser => 'Temporarily timeout a member';
+
+  @override
+  String get action_description_unmuteUser => 'Remove timeout from a member';
+
+  @override
+  String get action_description_addRole => 'Assign a role to a member';
+
+  @override
+  String get action_description_removeRole => 'Remove a role from a member';
 
   @override
   String get action_no_actions_yet => 'Bu dalda henüz eylem yok.';

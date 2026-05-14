@@ -559,10 +559,29 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
 
   String _getCategoryForAction(BotCreatorActionType type) {
     switch (type) {
+      case BotCreatorActionType.wait:
+      case BotCreatorActionType.stop:
+      case BotCreatorActionType.randomChoice:
+        return 'Logic & Flow';
+      case BotCreatorActionType.respondWithMessage:
+      case BotCreatorActionType.respondWithComponentV2:
+      case BotCreatorActionType.respondWithModal:
+      case BotCreatorActionType.editInteractionMessage:
+      case BotCreatorActionType.listenForButtonClick:
+      case BotCreatorActionType.listenForSelectMenu:
+      case BotCreatorActionType.listenForModalSubmit:
+      case BotCreatorActionType.respondWithAutocomplete:
+      case BotCreatorActionType.sendDm:
+        return 'Interactions';
       case BotCreatorActionType.sendMessage:
       case BotCreatorActionType.editMessage:
       case BotCreatorActionType.deleteMessages:
       case BotCreatorActionType.pinMessage:
+      case BotCreatorActionType.unpinMessage:
+      case BotCreatorActionType.getMessage:
+      case BotCreatorActionType.deleteTrigger:
+      case BotCreatorActionType.createPoll:
+      case BotCreatorActionType.endPoll:
         return 'Messages';
       case BotCreatorActionType.addReaction:
       case BotCreatorActionType.removeReaction:
@@ -571,6 +590,14 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
       case BotCreatorActionType.createChannel:
       case BotCreatorActionType.updateChannel:
       case BotCreatorActionType.removeChannel:
+      case BotCreatorActionType.createInvite:
+      case BotCreatorActionType.deleteInvite:
+      case BotCreatorActionType.getInvite:
+      case BotCreatorActionType.createThread:
+      case BotCreatorActionType.addThreadMember:
+      case BotCreatorActionType.removeThreadMember:
+      case BotCreatorActionType.editChannelPermissions:
+      case BotCreatorActionType.deleteChannelPermission:
         return 'Channels';
       case BotCreatorActionType.banUser:
       case BotCreatorActionType.unbanUser:
@@ -579,6 +606,12 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
       case BotCreatorActionType.unmuteUser:
       case BotCreatorActionType.addRole:
       case BotCreatorActionType.removeRole:
+      case BotCreatorActionType.setNickname:
+      case BotCreatorActionType.slowmode:
+      case BotCreatorActionType.moveToVoiceChannel:
+      case BotCreatorActionType.disconnectFromVoice:
+      case BotCreatorActionType.serverMuteMember:
+      case BotCreatorActionType.serverDeafenMember:
         return 'Moderation';
       case BotCreatorActionType.sendComponentV2:
       case BotCreatorActionType.editComponentV2:
@@ -593,6 +626,15 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
       case BotCreatorActionType.updateAutoMod:
       case BotCreatorActionType.listMembers:
       case BotCreatorActionType.getMember:
+      case BotCreatorActionType.createEmoji:
+      case BotCreatorActionType.updateEmoji:
+      case BotCreatorActionType.deleteEmoji:
+      case BotCreatorActionType.createAutoModRule:
+      case BotCreatorActionType.deleteAutoModRule:
+      case BotCreatorActionType.listAutoModRules:
+      case BotCreatorActionType.getGuildOnboarding:
+      case BotCreatorActionType.updateGuildOnboarding:
+      case BotCreatorActionType.updateSelfUser:
         return 'Guild & Members';
       case BotCreatorActionType.httpRequest:
       case BotCreatorActionType.setGlobalVariable:
@@ -612,51 +654,10 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
         return 'Workflows';
       case BotCreatorActionType.stopUnless:
       case BotCreatorActionType.ifBlock:
+      case BotCreatorActionType.calculate:
       case BotCreatorActionType.cooldown:
         return 'Logic & Flow';
-      // ── Interactions ──
-      case BotCreatorActionType.respondWithMessage:
-      case BotCreatorActionType.respondWithComponentV2:
-      case BotCreatorActionType.editInteractionMessage:
-        return 'Interactions';
-      case BotCreatorActionType.respondWithModal:
-      case BotCreatorActionType.listenForButtonClick:
-      case BotCreatorActionType.listenForSelectMenu:
-      case BotCreatorActionType.listenForModalSubmit:
-      case BotCreatorActionType.respondWithAutocomplete:
-        return 'Interactions';
-      case BotCreatorActionType.calculate:
-        return 'Logic & Flow';
-      case BotCreatorActionType.getMessage:
-      case BotCreatorActionType.unpinMessage:
-      case BotCreatorActionType.createPoll:
-      case BotCreatorActionType.endPoll:
-        return 'Messages';
-      case BotCreatorActionType.createInvite:
-      case BotCreatorActionType.deleteInvite:
-      case BotCreatorActionType.getInvite:
-      case BotCreatorActionType.createThread:
-      case BotCreatorActionType.addThreadMember:
-      case BotCreatorActionType.removeThreadMember:
-      case BotCreatorActionType.editChannelPermissions:
-      case BotCreatorActionType.deleteChannelPermission:
-        return 'Channels';
-      case BotCreatorActionType.moveToVoiceChannel:
-      case BotCreatorActionType.disconnectFromVoice:
-      case BotCreatorActionType.serverMuteMember:
-      case BotCreatorActionType.serverDeafenMember:
-      case BotCreatorActionType.createAutoModRule:
-      case BotCreatorActionType.deleteAutoModRule:
-      case BotCreatorActionType.listAutoModRules:
-        return 'Moderation';
-      case BotCreatorActionType.createEmoji:
-      case BotCreatorActionType.updateEmoji:
-      case BotCreatorActionType.deleteEmoji:
-      case BotCreatorActionType.getGuildOnboarding:
-      case BotCreatorActionType.updateGuildOnboarding:
-      case BotCreatorActionType.updateSelfUser:
-        return 'Guild & Members';
-    }
+      }
   }
 
   Widget _buildActionCategory(
@@ -667,13 +668,13 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          padding: const EdgeInsets.symmetric(vertical: 8),
           child: Text(
-            categoryName,
-            style: const TextStyle(
+            _localizeCategory(categoryName),
+            style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: AppTheme.info,
+              color: _getCategoryColor(categoryName),
             ),
           ),
         ),
@@ -738,62 +739,91 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
     }
   }
 
+  String _localizeCategory(String category) {
+    switch (category) {
+      case 'Messages':
+        return context.tr.action_category_messages;
+      case 'Reactions':
+        return context.tr.action_category_reactions;
+      case 'Channels':
+        return context.tr.action_category_channels;
+      case 'Moderation':
+        return context.tr.action_category_moderation;
+      case 'Components':
+        return context.tr.action_category_components;
+      case 'Webhooks':
+        return context.tr.action_category_webhooks;
+      case 'Guild & Members':
+        return context.tr.action_category_guild_members;
+      case 'HTTP & Variables':
+        return context.tr.action_category_http_variables;
+      case 'Workflows':
+        return context.tr.action_category_workflows;
+      case 'Logic & Flow':
+        return context.tr.action_category_logic_flow;
+      case 'Interactions':
+        return context.tr.action_category_interactions;
+      default:
+        return category;
+    }
+  }
+
   String _getActionDescription(BotCreatorActionType type) {
     switch (type) {
       case BotCreatorActionType.sendMessage:
-        return 'Send a message to a channel';
+        return context.tr.action_description_sendMessage;
       case BotCreatorActionType.editMessage:
-        return 'Edit an existing message';
+        return context.tr.action_description_editMessage;
       case BotCreatorActionType.deleteMessages:
-        return 'Delete multiple messages';
+        return context.tr.action_description_deleteMessages;
+      case BotCreatorActionType.addReaction:
+        return context.tr.action_description_addReaction;
+      case BotCreatorActionType.removeReaction:
+        return context.tr.action_description_removeReaction;
+      case BotCreatorActionType.clearAllReactions:
+        return context.tr.action_description_clearAllReactions;
+      case BotCreatorActionType.banUser:
+        return context.tr.action_description_banUser;
+      case BotCreatorActionType.unbanUser:
+        return context.tr.action_description_unbanUser;
+      case BotCreatorActionType.kickUser:
+        return context.tr.action_description_kickUser;
+      case BotCreatorActionType.muteUser:
+        return context.tr.action_description_muteUser;
+      case BotCreatorActionType.unmuteUser:
+        return context.tr.action_description_unmuteUser;
+      case BotCreatorActionType.addRole:
+        return context.tr.action_description_addRole;
+      case BotCreatorActionType.removeRole:
+        return context.tr.action_description_removeRole;
+      case BotCreatorActionType.cooldown:
+        return context.tr.action_description_cooldown;
+      case BotCreatorActionType.wait:
+        return context.tr.action_description_wait;
+      case BotCreatorActionType.deleteTrigger:
+        return context.tr.action_description_deleteTrigger;
+      case BotCreatorActionType.sendDm:
+        return context.tr.action_description_sendDm;
+      case BotCreatorActionType.setNickname:
+        return context.tr.action_description_setNickname;
+      case BotCreatorActionType.slowmode:
+        return context.tr.action_description_slowmode;
+      case BotCreatorActionType.stop:
+        return context.tr.action_description_stop;
+      case BotCreatorActionType.randomChoice:
+        return context.tr.action_description_randomChoice;
       case BotCreatorActionType.pinMessage:
         return 'Pin a message in a channel';
-      case BotCreatorActionType.addReaction:
-        return 'Add emoji reaction to message';
-      case BotCreatorActionType.removeReaction:
-        return 'Remove specific reaction';
-      case BotCreatorActionType.clearAllReactions:
-        return 'Clear all reactions from message';
-      case BotCreatorActionType.createChannel:
-        return 'Create a new channel';
-      case BotCreatorActionType.updateChannel:
-        return 'Update channel settings';
-      case BotCreatorActionType.removeChannel:
-        return 'Delete a channel';
-      case BotCreatorActionType.banUser:
-        return 'Ban user from server';
-      case BotCreatorActionType.unbanUser:
-        return 'Remove ban from user';
-      case BotCreatorActionType.kickUser:
-        return 'Kick user from server';
-      case BotCreatorActionType.muteUser:
-        return 'Temporarily mute user';
-      case BotCreatorActionType.unmuteUser:
-        return 'Remove mute from user';
-      case BotCreatorActionType.addRole:
-        return 'Add a role to a user';
-      case BotCreatorActionType.removeRole:
-        return 'Remove a role from a user';
-      case BotCreatorActionType.sendComponentV2:
-        return 'Send interactive components';
-      case BotCreatorActionType.editComponentV2:
-        return 'Edit existing components';
-      case BotCreatorActionType.sendWebhook:
-        return 'Send message via webhook';
-      case BotCreatorActionType.editWebhook:
-        return 'Modify webhook settings';
-      case BotCreatorActionType.deleteWebhook:
-        return 'Delete a webhook';
-      case BotCreatorActionType.listWebhooks:
-        return 'List all webhooks';
-      case BotCreatorActionType.getWebhook:
-        return 'Get webhook information';
-      case BotCreatorActionType.updateGuild:
-        return 'Update server settings';
-      case BotCreatorActionType.updateAutoMod:
-        return 'Configure auto-moderation';
       case BotCreatorActionType.listMembers:
-        return 'List server members';
+        return 'List members in a guild with options';
+      case BotCreatorActionType.sendWebhook:
+        return 'Send message via Webhook';
+      case BotCreatorActionType.editWebhook:
+        return 'Edit an existing Webhook';
+      case BotCreatorActionType.listWebhooks:
+        return 'List all Webhooks in a channel or guild';
+      case BotCreatorActionType.getWebhook:
+        return 'Get Webhook information by ID';
       case BotCreatorActionType.getMember:
         return 'Get member information';
       case BotCreatorActionType.httpRequest:
@@ -844,8 +874,6 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
         return 'Stop the workflow if a condition is not met (guard/filter)';
       case BotCreatorActionType.ifBlock:
         return 'Conditional branching: run different actions based on a condition';
-      case BotCreatorActionType.cooldown:
-        return 'Apply a command cooldown for the user or server';
       case BotCreatorActionType.calculate:
         return 'Perform math operations and store result';
       case BotCreatorActionType.getMessage:
@@ -898,6 +926,22 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
         return 'Create or update channel permission overwrites';
       case BotCreatorActionType.deleteChannelPermission:
         return 'Delete a channel permission overwrite';
+      case BotCreatorActionType.sendComponentV2:
+        return 'Send interactive components';
+      case BotCreatorActionType.editComponentV2:
+        return 'Edit existing components';
+      case BotCreatorActionType.createChannel:
+        return 'Create a new channel';
+      case BotCreatorActionType.updateChannel:
+        return 'Update channel settings';
+      case BotCreatorActionType.removeChannel:
+        return 'Delete a channel';
+      case BotCreatorActionType.updateAutoMod:
+        return 'Update auto-moderation settings';
+      case BotCreatorActionType.updateGuild:
+        return 'Update guild settings';
+      case BotCreatorActionType.deleteWebhook:
+        return 'Delete a webhook';
     }
   }
 

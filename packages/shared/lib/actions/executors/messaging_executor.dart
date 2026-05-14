@@ -236,6 +236,58 @@ Future<bool> executeMessagingAction({
       }
       return true;
 
+    case BotCreatorActionType.deleteTrigger:
+      // Try to find the trigger message ID from variables or interaction
+      final triggerMessageIdRaw = variables['message.id'] ?? variables['author.message.id'] ?? '';
+      final triggerChannelIdRaw = variables['channel.id'] ?? '';
+      final triggerMessageId = _toSnowflake(triggerMessageIdRaw);
+      final triggerChannelId = _toSnowflake(triggerChannelIdRaw) ?? fallbackChannelId;
+
+      if (triggerMessageId != null && triggerChannelId != null) {
+        try {
+          final channel = client.channels[triggerChannelId];
+          if (channel is PartialTextChannel) {
+            await channel.messages[triggerMessageId].delete();
+            results[resultKey] = triggerMessageId.toString();
+          } else {
+            results[resultKey] = 'INVALID_CHANNEL';
+          }
+        } catch (e) {
+          results[resultKey] = 'ERROR';
+          // Skip error to avoid stopping workflow if message was already deleted or perms missing
+        }
+      } else {
+        results[resultKey] = 'NOT_FOUND';
+      }
+      return true;
+    case BotCreatorActionType.sendDm:
+      final userId = resolveValue((payload['userId'] ?? '').toString());
+      final content = resolveValue((payload['content'] ?? '').toString());
+      if (userId.isEmpty) {
+        throw Exception('Missing userId for sendDm');
+      }
+
+      final dmPayload = Map<String, dynamic>.from(payload)
+        ..['targetType'] = 'user'
+        ..['userId'] = userId
+        ..['content'] = content;
+
+      final result = await sendMessageToChannel(
+        client,
+        null,
+        content: content,
+        payload: dmPayload,
+        resolve: resolveValue,
+        botId: botId,
+        guildId: guildId?.toString(),
+      );
+      if (result['error'] != null) {
+        throw Exception(result['error']);
+      }
+      results[resultKey] = result['messageId'] ?? '';
+      variables['$resultKey.messageId'] = result['messageId'] ?? '';
+      return true;
+
     default:
       return false;
   }

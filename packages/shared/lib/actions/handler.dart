@@ -405,6 +405,13 @@ Future<Map<String, String>> handleActions(
         case BotCreatorActionType.runtimeJsonBlock:
         case BotCreatorActionType.setTemporaryVariable:
         case BotCreatorActionType.jsonForEachLoop:
+        case BotCreatorActionType.wait:
+        case BotCreatorActionType.deleteTrigger:
+        case BotCreatorActionType.sendDm:
+        case BotCreatorActionType.setNickname:
+        case BotCreatorActionType.slowmode:
+        case BotCreatorActionType.stop:
+        case BotCreatorActionType.randomChoice:
           throw StateError(
             'Action ${action.type.name} should have been handled by an executor before switch dispatch.',
           );

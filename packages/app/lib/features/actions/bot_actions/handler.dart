@@ -1402,6 +1402,13 @@ Future<Map<String, String>> handleActions(
         case BotCreatorActionType.editChannelPermissions:
         case BotCreatorActionType.cooldown:
         case BotCreatorActionType.deleteChannelPermission:
+        case BotCreatorActionType.wait:
+        case BotCreatorActionType.deleteTrigger:
+        case BotCreatorActionType.sendDm:
+        case BotCreatorActionType.setNickname:
+        case BotCreatorActionType.slowmode:
+        case BotCreatorActionType.stop:
+        case BotCreatorActionType.randomChoice:
           final delegated = await shared_handler.handleActions(
             client,
             interaction,

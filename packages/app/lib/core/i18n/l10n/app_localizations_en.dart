@@ -123,6 +123,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get action_hint_cooldown_time => 'Duration (e.g. 10s, 5m)';
 
   @override
+  String get action_hint_random_choices => 'List of choices (separated by ;)';
+
+  @override
+  String get action_hint_random_var => 'Variable name to store the result';
+
+  @override
   String get action_hint_emoji => 'Enter emoji or :name:';
 
   @override
@@ -228,6 +234,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get action_name_deleteEmoji => 'Delete Emoji';
+
+  @override
+  String get action_name_deleteTrigger => 'Delete Trigger Message';
 
   @override
   String get action_name_deleteInvite => 'Delete Invite';
@@ -351,6 +360,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get action_name_respondWithAutocomplete => 'Respond with Autocomplete';
 
   @override
+  String get action_name_randomChoice => 'Random Choice';
+
+  @override
   String get action_name_respondWithComponentV2 => 'Respond with Component V2';
 
   @override
@@ -375,6 +387,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get action_name_sendWebhook => 'Send Webhook';
 
   @override
+  String get action_name_sendDm => 'Send Direct Message';
+
+  @override
   String get action_name_serverDeafenMember => 'Server Deafen Member';
 
   @override
@@ -388,6 +403,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get action_name_stopUnless => 'Stop Unless Condition';
+
+  @override
+  String get action_name_stop => 'Stop Execution';
+
+  @override
+  String get action_name_setNickname => 'Set Nickname';
+
+  @override
+  String get action_name_slowmode => 'Slowmode';
 
   @override
   String get action_name_unbanUser => 'Unban User';
@@ -415,6 +439,120 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get action_name_updateSelfUser => 'Update Self User (Bot Profile)';
+
+  @override
+  String get action_name_wait => 'Wait';
+
+  @override
+  String get action_category_messages => 'Messages';
+
+  @override
+  String get action_category_reactions => 'Reactions';
+
+  @override
+  String get action_category_channels => 'Channels';
+
+  @override
+  String get action_category_moderation => 'Moderation';
+
+  @override
+  String get action_category_components => 'Components';
+
+  @override
+  String get action_category_webhooks => 'Webhooks';
+
+  @override
+  String get action_category_guild_members => 'Guild & Members';
+
+  @override
+  String get action_category_http_variables => 'HTTP & Variables';
+
+  @override
+  String get action_category_workflows => 'Workflows';
+
+  @override
+  String get action_category_logic_flow => 'Logic & Flow';
+
+  @override
+  String get action_category_interactions => 'Interactions';
+
+  @override
+  String get action_description_wait =>
+      'Pause the workflow execution for a specific duration';
+
+  @override
+  String get action_description_deleteTrigger =>
+      'Delete the message that triggered this command';
+
+  @override
+  String get action_description_sendDm =>
+      'Send a private message to a specific user';
+
+  @override
+  String get action_description_setNickname =>
+      'Change a server member\'s nickname';
+
+  @override
+  String get action_description_slowmode =>
+      'Set the slowmode duration for a channel';
+
+  @override
+  String get action_description_stop =>
+      'Immediately stop the execution of the current workflow';
+
+  @override
+  String get action_description_randomChoice =>
+      'Pick a random item from a list and store it in a variable';
+
+  @override
+  String get action_description_cooldown =>
+      'Apply a command cooldown for the user or server';
+
+  @override
+  String get action_description_sendMessage =>
+      'Send a message to a specific channel';
+
+  @override
+  String get action_description_editMessage => 'Edit an existing message';
+
+  @override
+  String get action_description_deleteMessages => 'Delete one or more messages';
+
+  @override
+  String get action_description_addReaction =>
+      'Add an emoji reaction to a message';
+
+  @override
+  String get action_description_removeReaction =>
+      'Remove a reaction from a message';
+
+  @override
+  String get action_description_clearAllReactions =>
+      'Remove all reactions from a message';
+
+  @override
+  String get action_description_banUser =>
+      'Permanently ban a user from the server';
+
+  @override
+  String get action_description_unbanUser => 'Revoke a user\'s ban';
+
+  @override
+  String get action_description_kickUser => 'Kick a member from the server';
+
+  @override
+  String get action_description_muteUser =>
+      'Temporarily exclude (timeout) a member';
+
+  @override
+  String get action_description_unmuteUser =>
+      'Remove temporary exclusion from a member';
+
+  @override
+  String get action_description_addRole => 'Assign a role to a member';
+
+  @override
+  String get action_description_removeRole => 'Remove a role from a member';
 
   @override
   String get action_no_actions_yet => 'No actions in this branch yet.';

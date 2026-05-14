@@ -685,7 +685,18 @@ Future<bool> executeControlFlowAction({
 
       results[resultKey] = 'SET';
       return true;
-
+    case BotCreatorActionType.wait:
+      final durationStr = resolveValue((payload['duration'] ?? '0s').toString()).trim();
+      final duration = parseBdfdDuration(durationStr);
+      if (duration != null && duration.inMilliseconds > 0) {
+        await Future.delayed(duration);
+      }
+      results[resultKey] = 'WAITED';
+      return true;
+    case BotCreatorActionType.stop:
+      results[resultKey] = 'STOPPED';
+      results['__stopped__'] = 'true';
+      return true;
     default:
       return false;
   }
