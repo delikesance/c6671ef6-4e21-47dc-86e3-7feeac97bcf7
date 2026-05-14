@@ -16,6 +16,8 @@ extension _AppHomePageAds on _AppHomePageState {
       final unlocked = await _maybeOfferRewardedAd(
         botId: botId,
         previousBalance: previousBalance,
+        force: true,
+        successMessage: context.tr.home_time_added,
       );
       if (!unlocked) {
         if (mounted) {
@@ -68,6 +70,8 @@ extension _AppHomePageAds on _AppHomePageState {
     required String botId,
     String? botToken,
     int? previousBalance,
+    bool force = false,
+    String? successMessage,
   }) async {
     try {
       if (!_supportsForegroundTask || !mounted) {
@@ -79,7 +83,7 @@ extension _AppHomePageAds on _AppHomePageState {
       }
 
       // If we already have a positive balance in state, we can skip the ad.
-      if (_freeMinutesBalance != null && _freeMinutesBalance! > 0) {
+      if (!force && _freeMinutesBalance != null && _freeMinutesBalance! > 0) {
         return true;
       }
 
@@ -217,7 +221,7 @@ extension _AppHomePageAds on _AppHomePageState {
       }
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(context.tr.rewarded_start_thanks)));
+      ).showSnackBar(SnackBar(content: Text(successMessage ?? context.tr.rewarded_start_thanks)));
       return true;
     } catch (error) {
       appendBotDebugLog('Rewarded ad flow skipped due to error: $error');

@@ -243,6 +243,14 @@ Future<void> _warmUpServicesAfterLaunch() async {
   );
 
   await _runStartupTask(
+    label: 'Main API client hashes load',
+    timeout: const Duration(seconds: 5),
+    action: () async {
+      await MainApiClient.initialize();
+    },
+  );
+
+  await _runStartupTask(
     label: 'Debug replay state load',
     timeout: const Duration(seconds: 5),
     action: () async {

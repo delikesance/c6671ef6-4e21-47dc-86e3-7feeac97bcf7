@@ -405,6 +405,11 @@ Future<void> _executeSync(String botId) async {
 ///
 /// This payload can be pushed to the runner via [RunnerClient.syncBot].
 Future<Map<String, dynamic>> buildBotPayload(String botId) async {
+  final cached = await _appManager.getCachedPayload(botId);
+  if (cached != null) {
+    return cached;
+  }
+
   final appData = await _appManager.getApp(botId);
   if (appData.isEmpty) {
     throw StateError('Bot "$botId" not found in local storage.');
@@ -439,7 +444,9 @@ Future<Map<String, dynamic>> buildBotPayload(String botId) async {
     'autoRestart': autoRestart,
   };
 
-  return await compute(_buildPayloadInBackground, payloadArgs);
+  final payload = await compute(_buildPayloadInBackground, payloadArgs);
+  await _appManager.saveCachedPayload(botId, payload);
+  return payload;
 }
 
 /// Background worker to offload CPU-intensive JSON serialization

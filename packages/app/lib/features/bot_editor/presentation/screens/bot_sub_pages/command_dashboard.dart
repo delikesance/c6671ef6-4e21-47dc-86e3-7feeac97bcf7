@@ -91,6 +91,7 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
     final config = await RunnerSettings.getConfig();
     final runtime = await resolveRemoteRuntime(
       supportsManagerRuntime: _supportsManagerRuntime,
+      botId: widget.botId,
     );
     if (!mounted) return;
 

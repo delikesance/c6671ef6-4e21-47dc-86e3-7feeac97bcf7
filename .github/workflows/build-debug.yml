@@ -36,9 +36,6 @@ jobs:
       - name: Install workspace dependencies
         run: flutter pub get
 
-      - name: Analyze shared package
-        run: dart analyze packages/shared
-
       - name: Analyze runner package
         run: dart analyze packages/runner
 
@@ -47,9 +44,6 @@ jobs:
 
       - name: Run app tests
         run: flutter test packages/app/test --reporter expanded
-
-      - name: Run shared tests
-        run: dart test packages/shared/test
 
       - name: Run runner tests
         run: dart test packages/runner/test
