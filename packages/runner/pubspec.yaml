@@ -9,7 +9,8 @@ environment:
 
 dependencies:
   bot_creator_shared:
-    path: ../shared
+    git:
+      url: git@github.com:ketsuna-org/bot-creator-shared.git
   archive: ^4.0.9
   args: ^2.5.0
   http: ^1.6.0
@@ -21,3 +22,6 @@ dependencies:
 
 dev_dependencies:
   test: ^1.25.8
+
+
+
