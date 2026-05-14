@@ -135,6 +135,14 @@ ActionSummaryData summarizeActionItem(BuildContext context, ActionItem action) {
         outputKey: outputKey,
         isEnabled: action.enabled,
       );
+    case BotCreatorActionType.cooldown:
+      final time = _valueOrEmpty(params['time']);
+      return ActionSummaryData(
+        title: action.type.displayName(context),
+        summary: time.isEmpty ? 'Apply a cooldown' : 'Duration: $time',
+        outputKey: outputKey,
+        isEnabled: action.enabled,
+      );
     case BotCreatorActionType.httpRequest:
       final method =
           _valueOrEmpty(params['method']).isEmpty

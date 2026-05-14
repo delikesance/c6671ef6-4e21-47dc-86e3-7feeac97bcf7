@@ -612,6 +612,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
         return 'Workflows';
       case BotCreatorActionType.stopUnless:
       case BotCreatorActionType.ifBlock:
+      case BotCreatorActionType.cooldown:
         return 'Logic & Flow';
       // ── Interactions ──
       case BotCreatorActionType.respondWithMessage:
@@ -843,6 +844,8 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
         return 'Stop the workflow if a condition is not met (guard/filter)';
       case BotCreatorActionType.ifBlock:
         return 'Conditional branching: run different actions based on a condition';
+      case BotCreatorActionType.cooldown:
+        return 'Apply a command cooldown for the user or server';
       case BotCreatorActionType.calculate:
         return 'Perform math operations and store result';
       case BotCreatorActionType.getMessage:

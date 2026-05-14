@@ -151,6 +151,14 @@
   "@action_hint_condition_var": {
     "description": "Use ((variableName)) or a runtime value"
   },
+  "action_hint_cooldown_error": "Özel hata mesajı (%time% destekler)",
+  "@action_hint_cooldown_error": {
+    "description": "Custom error message (supports %time%)"
+  },
+  "action_hint_cooldown_time": "Süre (ör. 10s, 1m)",
+  "@action_hint_cooldown_time": {
+    "description": "Time (e.g. 10s, 1m)"
+  },
   "action_hint_duration": "örn. 5m, 1sa, 30sn",
   "@action_hint_duration": {
     "description": "e.g., 5m, 1h, 30s"
@@ -261,6 +269,10 @@
   "action_name_clearAllReactions": "Tüm Tepkileri Temizle",
   "@action_name_clearAllReactions": {
     "description": "Clear All Reactions"
+  },
+  "action_name_cooldown": "Bekleme Süresi",
+  "@action_name_cooldown": {
+    "description": "Cooldown"
   },
   "action_name_createAutoModRule": "AutoMod Kuralı Oluştur",
   "@action_name_createAutoModRule": {

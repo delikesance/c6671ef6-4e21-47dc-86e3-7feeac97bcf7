@@ -116,6 +116,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get action_hint_duration => 'e.g., 5m, 1h, 30s';
 
   @override
+  String get action_hint_cooldown_error =>
+      'Message to send if on cooldown (supports %time%)';
+
+  @override
+  String get action_hint_cooldown_time => 'Duration (e.g. 10s, 5m)';
+
+  @override
   String get action_hint_emoji => 'Enter emoji or :name:';
 
   @override
@@ -191,6 +198,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get action_name_clearAllReactions => 'Clear All Reactions';
+
+  @override
+  String get action_name_cooldown => 'Cooldown';
 
   @override
   String get action_name_createAutoModRule => 'Create AutoMod Rule';

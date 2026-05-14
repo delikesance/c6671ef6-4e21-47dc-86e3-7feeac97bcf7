@@ -116,6 +116,13 @@ class AppLocalizationsTr extends AppLocalizations {
   String get action_hint_duration => 'örn. 5m, 1sa, 30sn';
 
   @override
+  String get action_hint_cooldown_error =>
+      'Özel hata mesajı (%time% destekler)';
+
+  @override
+  String get action_hint_cooldown_time => 'Süre (ör. 10s, 1m)';
+
+  @override
   String get action_hint_emoji => 'Emoji veya :ad: girin';
 
   @override
@@ -192,6 +199,9 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get action_name_clearAllReactions => 'Tüm Tepkileri Temizle';
+
+  @override
+  String get action_name_cooldown => 'Bekleme Süresi';
 
   @override
   String get action_name_createAutoModRule => 'AutoMod Kuralı Oluştur';

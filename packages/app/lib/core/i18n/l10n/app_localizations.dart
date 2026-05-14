@@ -284,6 +284,18 @@ abstract class AppLocalizations {
   /// **'e.g., 5m, 1h, 30s'**
   String get action_hint_duration;
 
+  /// Message to send if on cooldown (supports %time%)
+  ///
+  /// In en, this message translates to:
+  /// **'Message to send if on cooldown (supports %time%)'**
+  String get action_hint_cooldown_error;
+
+  /// Duration (e.g. 10s, 5m)
+  ///
+  /// In en, this message translates to:
+  /// **'Duration (e.g. 10s, 5m)'**
+  String get action_hint_cooldown_time;
+
   /// Enter emoji or :name:
   ///
   /// In en, this message translates to:
@@ -421,6 +433,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Clear All Reactions'**
   String get action_name_clearAllReactions;
+
+  /// Cooldown
+  ///
+  /// In en, this message translates to:
+  /// **'Cooldown'**
+  String get action_name_cooldown;
 
   /// Create AutoMod Rule
   ///

@@ -117,6 +117,13 @@ class AppLocalizationsPt extends AppLocalizations {
   String get action_hint_duration => 'ex: 5m, 1h, 30s';
 
   @override
+  String get action_hint_cooldown_error =>
+      'Mensagem de erro personalizada (suporta %time%)';
+
+  @override
+  String get action_hint_cooldown_time => 'Tempo (ex: 10s, 1m)';
+
+  @override
   String get action_hint_emoji => 'Digite o emoji ou :nome:';
 
   @override
@@ -192,6 +199,9 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get action_name_clearAllReactions => 'Limpar Todas as Reações';
+
+  @override
+  String get action_name_cooldown => 'Cooldown';
 
   @override
   String get action_name_createAutoModRule => 'Criar Regra AutoMod';

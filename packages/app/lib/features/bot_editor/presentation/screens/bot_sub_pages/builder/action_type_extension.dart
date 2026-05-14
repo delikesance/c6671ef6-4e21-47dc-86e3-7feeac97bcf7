@@ -165,6 +165,8 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
         return context.tr.action_name_editChannelPermissions;
       case BotCreatorActionType.deleteChannelPermission:
         return context.tr.action_name_deleteChannelPermission;
+      case BotCreatorActionType.cooldown:
+        return context.tr.action_name_cooldown;
     }
   }
 
@@ -319,6 +321,8 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
         return Icons.lock_open;
       case BotCreatorActionType.deleteChannelPermission:
         return Icons.lock_reset;
+      case BotCreatorActionType.cooldown:
+        return Icons.timer_outlined;
     }
   }
 
@@ -2750,6 +2754,22 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             type: ParameterType.string,
             defaultValue: '',
             hint: 'Audit log reason',
+          ),
+        ];
+      case BotCreatorActionType.cooldown:
+        return [
+          ParameterDefinition(
+            key: 'time',
+            type: ParameterType.duration,
+            defaultValue: '10s',
+            hint: 'Duration (e.g. 10s, 1m)',
+            required: true,
+          ),
+          ParameterDefinition(
+            key: 'error',
+            type: ParameterType.string,
+            defaultValue: 'You are on cooldown! Please wait %time%.',
+            hint: 'Custom error message (supports %time%)',
           ),
         ];
     }
