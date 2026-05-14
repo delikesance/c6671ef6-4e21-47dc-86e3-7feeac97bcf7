@@ -46,6 +46,18 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Remove dependency overrides
+        run: |
+          sed -i '/dependency_overrides:/,$d' pubspec.yaml
+          # Also remove local shared from Dockerfile workspace to force git pull
+          sed -i 's/- packages\/shared//g' Dockerfile
+          # Remove the copy of shared package as it is now external
+          sed -i '/COPY packages\/shared/d' Dockerfile
+          # Swap SSH for HTTPS in runner pubspec
+          sed -i 's/git@github.com:/https:\/\/github.com\//g' packages/runner/pubspec.yaml
+
+
+
       - name: Set build configuration
         id: config
         env:
