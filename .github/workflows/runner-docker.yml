@@ -8,7 +8,6 @@ on:
       - "runner-v*"
     paths:
       - "Dockerfile"
-      - "pubspec.yaml"
       - "packages/runner/**"
   workflow_dispatch:
     inputs:
