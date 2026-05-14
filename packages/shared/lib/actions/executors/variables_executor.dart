@@ -1618,7 +1618,38 @@ Future<bool> executeVariablesAction({
       }
       results[resultKey] = jsonEncode(page);
       return true;
+    case BotCreatorActionType.randomChoice:
+      final rawChoices = resolveValue((payload['choices'] ?? '').toString());
+      final variableName = resolveValue((payload['variableName'] ?? 'random_choice').toString()).trim();
+      
+      List<String> choices;
+      if (rawChoices.trim().startsWith('[') && rawChoices.trim().endsWith(']')) {
+        try {
+          final decoded = jsonDecode(rawChoices);
+          if (decoded is List) {
+            choices = decoded.map((e) => e.toString()).toList();
+          } else {
+            choices = rawChoices.split(';').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+          }
+        } catch (_) {
+          choices = rawChoices.split(';').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+        }
+      } else {
+        choices = rawChoices.split(';').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+      }
 
+      if (choices.isEmpty) {
+        variables[variableName] = '';
+        results[resultKey] = '';
+        return true;
+      }
+
+      final random = (DateTime.now().millisecondsSinceEpoch % choices.length);
+      final picked = choices[random];
+      
+      variables[variableName] = picked;
+      results[resultKey] = picked;
+      return true;
     case BotCreatorActionType.respondWithAutocomplete:
       if (interaction is! ApplicationCommandAutocompleteInteraction) {
         throw Exception(

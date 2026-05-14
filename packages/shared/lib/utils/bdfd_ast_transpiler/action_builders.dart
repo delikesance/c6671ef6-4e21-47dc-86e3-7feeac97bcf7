@@ -506,9 +506,8 @@ extension _BdfdAstTranspilationScopeActionBuilders
     final contentArg = _stringifyArgument(node, 1);
     final isContentOnlyMode = userIdArg.isEmpty || node.arguments.isEmpty;
     return Action(
-      type: BotCreatorActionType.sendMessage,
+      type: BotCreatorActionType.sendDm,
       payload: <String, dynamic>{
-        'targetType': 'dm',
         'userId': isContentOnlyMode ? '((author.id))' : userIdArg,
         'content': isContentOnlyMode ? '' : contentArg,
       },
@@ -818,11 +817,40 @@ extension _BdfdAstTranspilationScopeActionBuilders
     final channelId = _stringifyArgument(node, 0).trim();
     final seconds = _stringifyArgument(node, 1).trim();
     return Action(
-      type: BotCreatorActionType.updateChannel,
+      type: BotCreatorActionType.slowmode,
       payload: <String, dynamic>{
         'channelId': channelId.isEmpty ? '((channel.id))' : channelId,
-        'rateLimitPerUser': int.tryParse(seconds) ?? 0,
+        'duration': '${seconds.isEmpty ? '0' : seconds}s',
       },
+    );
+  }
+
+  Action _buildWaitAction(BdfdFunctionCallAst node) {
+    final duration = _stringifyArgument(node, 0).trim();
+    return Action(
+      type: BotCreatorActionType.wait,
+      payload: <String, dynamic>{
+        'duration': duration.isEmpty ? '1s' : duration,
+      },
+    );
+  }
+
+  Action _buildSetNicknameAction(BdfdFunctionCallAst node) {
+    final nickname = _stringifyArgument(node, 0).trim();
+    final userId = _stringifyArgument(node, 1).trim();
+    return Action(
+      type: BotCreatorActionType.setNickname,
+      payload: <String, dynamic>{
+        'userId': userId.isEmpty ? '((author.id))' : userId,
+        'nickname': nickname,
+      },
+    );
+  }
+
+  Action _buildDeleteTriggerAction(BdfdFunctionCallAst node) {
+    return Action(
+      type: BotCreatorActionType.deleteTrigger,
+      payload: const <String, dynamic>{},
     );
   }
 

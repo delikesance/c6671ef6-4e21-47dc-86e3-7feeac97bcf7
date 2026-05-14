@@ -296,6 +296,18 @@ abstract class AppLocalizations {
   /// **'Duration (e.g. 10s, 5m)'**
   String get action_hint_cooldown_time;
 
+  /// List of choices (separated by ;)
+  ///
+  /// In en, this message translates to:
+  /// **'List of choices (separated by ;)'**
+  String get action_hint_random_choices;
+
+  /// Variable name to store the result
+  ///
+  /// In en, this message translates to:
+  /// **'Variable name to store the result'**
+  String get action_hint_random_var;
+
   /// Enter emoji or :name:
   ///
   /// In en, this message translates to:
@@ -493,6 +505,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete Emoji'**
   String get action_name_deleteEmoji;
+
+  /// Delete Trigger Message
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Trigger Message'**
+  String get action_name_deleteTrigger;
 
   /// Delete Invite
   ///
@@ -734,6 +752,12 @@ abstract class AppLocalizations {
   /// **'Respond with Autocomplete'**
   String get action_name_respondWithAutocomplete;
 
+  /// Random Choice
+  ///
+  /// In en, this message translates to:
+  /// **'Random Choice'**
+  String get action_name_randomChoice;
+
   /// Respond with Component V2
   ///
   /// In en, this message translates to:
@@ -782,6 +806,12 @@ abstract class AppLocalizations {
   /// **'Send Webhook'**
   String get action_name_sendWebhook;
 
+  /// Send Direct Message
+  ///
+  /// In en, this message translates to:
+  /// **'Send Direct Message'**
+  String get action_name_sendDm;
+
   /// Server Deafen Member
   ///
   /// In en, this message translates to:
@@ -811,6 +841,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stop Unless Condition'**
   String get action_name_stopUnless;
+
+  /// Stop Execution
+  ///
+  /// In en, this message translates to:
+  /// **'Stop Execution'**
+  String get action_name_stop;
+
+  /// Set Nickname
+  ///
+  /// In en, this message translates to:
+  /// **'Set Nickname'**
+  String get action_name_setNickname;
+
+  /// Slowmode
+  ///
+  /// In en, this message translates to:
+  /// **'Slowmode'**
+  String get action_name_slowmode;
 
   /// Unban User
   ///
@@ -865,6 +913,204 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Update Self User (Bot Profile)'**
   String get action_name_updateSelfUser;
+
+  /// Wait
+  ///
+  /// In en, this message translates to:
+  /// **'Wait'**
+  String get action_name_wait;
+
+  /// No description provided for @action_category_messages.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages'**
+  String get action_category_messages;
+
+  /// No description provided for @action_category_reactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactions'**
+  String get action_category_reactions;
+
+  /// No description provided for @action_category_channels.
+  ///
+  /// In en, this message translates to:
+  /// **'Channels'**
+  String get action_category_channels;
+
+  /// No description provided for @action_category_moderation.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderation'**
+  String get action_category_moderation;
+
+  /// No description provided for @action_category_components.
+  ///
+  /// In en, this message translates to:
+  /// **'Components'**
+  String get action_category_components;
+
+  /// No description provided for @action_category_webhooks.
+  ///
+  /// In en, this message translates to:
+  /// **'Webhooks'**
+  String get action_category_webhooks;
+
+  /// No description provided for @action_category_guild_members.
+  ///
+  /// In en, this message translates to:
+  /// **'Guild & Members'**
+  String get action_category_guild_members;
+
+  /// No description provided for @action_category_http_variables.
+  ///
+  /// In en, this message translates to:
+  /// **'HTTP & Variables'**
+  String get action_category_http_variables;
+
+  /// No description provided for @action_category_workflows.
+  ///
+  /// In en, this message translates to:
+  /// **'Workflows'**
+  String get action_category_workflows;
+
+  /// No description provided for @action_category_logic_flow.
+  ///
+  /// In en, this message translates to:
+  /// **'Logic & Flow'**
+  String get action_category_logic_flow;
+
+  /// No description provided for @action_category_interactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Interactions'**
+  String get action_category_interactions;
+
+  /// No description provided for @action_description_wait.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause the workflow execution for a specific duration'**
+  String get action_description_wait;
+
+  /// No description provided for @action_description_deleteTrigger.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete the message that triggered this command'**
+  String get action_description_deleteTrigger;
+
+  /// No description provided for @action_description_sendDm.
+  ///
+  /// In en, this message translates to:
+  /// **'Send a private message to a specific user'**
+  String get action_description_sendDm;
+
+  /// No description provided for @action_description_setNickname.
+  ///
+  /// In en, this message translates to:
+  /// **'Change a server member\'s nickname'**
+  String get action_description_setNickname;
+
+  /// No description provided for @action_description_slowmode.
+  ///
+  /// In en, this message translates to:
+  /// **'Set the slowmode duration for a channel'**
+  String get action_description_slowmode;
+
+  /// No description provided for @action_description_stop.
+  ///
+  /// In en, this message translates to:
+  /// **'Immediately stop the execution of the current workflow'**
+  String get action_description_stop;
+
+  /// No description provided for @action_description_randomChoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a random item from a list and store it in a variable'**
+  String get action_description_randomChoice;
+
+  /// No description provided for @action_description_cooldown.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply a command cooldown for the user or server'**
+  String get action_description_cooldown;
+
+  /// No description provided for @action_description_sendMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Send a message to a specific channel'**
+  String get action_description_sendMessage;
+
+  /// No description provided for @action_description_editMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit an existing message'**
+  String get action_description_editMessage;
+
+  /// No description provided for @action_description_deleteMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete one or more messages'**
+  String get action_description_deleteMessages;
+
+  /// No description provided for @action_description_addReaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an emoji reaction to a message'**
+  String get action_description_addReaction;
+
+  /// No description provided for @action_description_removeReaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove a reaction from a message'**
+  String get action_description_removeReaction;
+
+  /// No description provided for @action_description_clearAllReactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove all reactions from a message'**
+  String get action_description_clearAllReactions;
+
+  /// No description provided for @action_description_banUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanently ban a user from the server'**
+  String get action_description_banUser;
+
+  /// No description provided for @action_description_unbanUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke a user\'s ban'**
+  String get action_description_unbanUser;
+
+  /// No description provided for @action_description_kickUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Kick a member from the server'**
+  String get action_description_kickUser;
+
+  /// No description provided for @action_description_muteUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Temporarily exclude (timeout) a member'**
+  String get action_description_muteUser;
+
+  /// No description provided for @action_description_unmuteUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove temporary exclusion from a member'**
+  String get action_description_unmuteUser;
+
+  /// No description provided for @action_description_addRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Assign a role to a member'**
+  String get action_description_addRole;
+
+  /// No description provided for @action_description_removeRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove a role from a member'**
+  String get action_description_removeRole;
 
   /// No actions in this branch yet.
   ///

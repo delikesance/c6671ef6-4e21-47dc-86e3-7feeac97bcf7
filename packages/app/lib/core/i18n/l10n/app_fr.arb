@@ -159,11 +159,19 @@
   "@action_hint_cooldown_error": {
     "description": "Message to send if on cooldown (supports %time%)"
   },
-  "action_hint_cooldown_time": "Durée (ex. 10s, 5m)",
+  "action_hint_cooldown_time": "Durée (ex: 10s, 5m)",
   "@action_hint_cooldown_time": {
-    "description": "Duration (e.g. 10s, 5m)"
+    "description": "Durée (ex: 10s, 5m)"
   },
-  "action_hint_emoji": "Saisir un emoji ou :nom:",
+  "action_hint_random_choices": "Liste de choix (séparés par ;)",
+  "@action_hint_random_choices": {
+    "description": "Liste de choix (séparés par ;)"
+  },
+  "action_hint_random_var": "Nom de la variable pour stocker le résultat",
+  "@action_hint_random_var": {
+    "description": "Nom de la variable pour stocker le résultat"
+  },
+  "action_hint_emoji": "Entrez un emoji ou :nom:",
   "@action_hint_emoji": {
     "description": "Enter emoji or :name:"
   },
@@ -306,9 +314,13 @@
   "@action_name_deleteChannelPermission": {
     "description": "Delete Channel Permission"
   },
-  "action_name_deleteEmoji": "Supprimer un emoji",
+  "action_name_deleteEmoji": "Supprimer l'émoji",
   "@action_name_deleteEmoji": {
-    "description": "Delete Emoji"
+    "description": "Supprimer l'émoji"
+  },
+  "action_name_deleteTrigger": "Supprimer le message déclencheur",
+  "@action_name_deleteTrigger": {
+    "description": "Supprimer le message déclencheur"
   },
   "action_name_deleteInvite": "Supprimer une invitation",
   "@action_name_deleteInvite": {
@@ -466,9 +478,13 @@
   "@action_name_renameScopedVariable": {
     "description": "Rename Scoped Variable"
   },
-  "action_name_respondWithAutocomplete": "Répondre avec un auto-complete",
+  "action_name_respondWithAutocomplete": "Répondre avec l'autocomplétion",
   "@action_name_respondWithAutocomplete": {
-    "description": "Respond with Autocomplete"
+    "description": "Répondre avec l'autocomplétion"
+  },
+  "action_name_randomChoice": "Choix aléatoire",
+  "@action_name_randomChoice": {
+    "description": "Choix aléatoire"
   },
   "action_name_respondWithComponentV2": "Répondre avec un composant V2",
   "@action_name_respondWithComponentV2": {
@@ -498,9 +514,13 @@
   "@action_name_sendMessage": {
     "description": "Send Message"
   },
-  "action_name_sendWebhook": "Envoyer via webhook",
+  "action_name_sendWebhook": "Envoyer un Webhook",
   "@action_name_sendWebhook": {
-    "description": "Send Webhook"
+    "description": "Envoyer un Webhook"
+  },
+  "action_name_sendDm": "Envoyer un message privé (MP)",
+  "@action_name_sendDm": {
+    "description": "Envoyer un message privé (MP)"
   },
   "action_name_serverDeafenMember": "Assourdir côté serveur",
   "@action_name_serverDeafenMember": {
@@ -520,7 +540,19 @@
   },
   "action_name_stopUnless": "Arrêter sauf si condition",
   "@action_name_stopUnless": {
-    "description": "Stop Unless Condition"
+    "description": "Arrêter sauf si condition"
+  },
+  "action_name_stop": "Arrêter l'exécution",
+  "@action_name_stop": {
+    "description": "Arrêter l'exécution"
+  },
+  "action_name_setNickname": "Changer le surnom",
+  "@action_name_setNickname": {
+    "description": "Changer le surnom"
+  },
+  "action_name_slowmode": "Mode lent",
+  "@action_name_slowmode": {
+    "description": "Mode lent"
   },
   "action_name_unbanUser": "Débannir un utilisateur",
   "@action_name_unbanUser": {
@@ -554,10 +586,46 @@
   "@action_name_updateGuildOnboarding": {
     "description": "Update Guild Onboarding"
   },
-  "action_name_updateSelfUser": "Mettre à jour le profil du bot",
+  "action_name_updateSelfUser": "Modifier le profil du bot",
   "@action_name_updateSelfUser": {
-    "description": "Update Self User (Bot Profile)"
+    "description": "Modifier le profil du bot"
   },
+  "action_name_wait": "Attendre",
+  "@action_name_wait": {
+    "description": "Attendre"
+  },
+  "action_category_messages": "Messages",
+  "action_category_reactions": "Réactions",
+  "action_category_channels": "Salons",
+  "action_category_moderation": "Modération",
+  "action_category_components": "Composants",
+  "action_category_webhooks": "Webhooks",
+  "action_category_guild_members": "Serveur & Membres",
+  "action_category_http_variables": "HTTP & Variables",
+  "action_category_workflows": "Workflows",
+  "action_category_logic_flow": "Logique & Flux",
+  "action_category_interactions": "Interactions",
+  "action_description_wait": "Met en pause l'exécution pour une durée précise",
+  "action_description_deleteTrigger": "Supprime le message qui a déclenché cette commande",
+  "action_description_sendDm": "Envoie un message privé à un utilisateur spécifique",
+  "action_description_setNickname": "Change le surnom d'un membre du serveur",
+  "action_description_slowmode": "Définit la durée du mode lent pour un salon",
+  "action_description_stop": "Arrête immédiatement l'exécution du workflow actuel",
+  "action_description_randomChoice": "Choisit un élément aléatoire dans une liste et le stocke dans une variable",
+  "action_description_cooldown": "Applique un délai d'attente pour l'utilisateur ou le serveur",
+  "action_description_sendMessage": "Envoyer un message dans un salon spécifique",
+  "action_description_editMessage": "Modifier un message existant",
+  "action_description_deleteMessages": "Supprimer un ou plusieurs messages",
+  "action_description_addReaction": "Ajouter un emoji en réaction à un message",
+  "action_description_removeReaction": "Retirer une réaction d'un message",
+  "action_description_clearAllReactions": "Supprimer toutes les réactions d'un message",
+  "action_description_banUser": "Bannir définitivement un utilisateur du serveur",
+  "action_description_unbanUser": "Révoquer le bannissement d'un utilisateur",
+  "action_description_kickUser": "Expulser un membre du serveur",
+  "action_description_muteUser": "Exclure temporairement (timeout) un membre",
+  "action_description_unmuteUser": "Retirer l'exclusion temporaire d'un membre",
+  "action_description_addRole": "Attribuer un rôle à un membre",
+  "action_description_removeRole": "Retirer un rôle à un membre",
   "action_no_actions_yet": "Aucune action dans cette branche.",
   "@action_no_actions_yet": {
     "description": "No actions in this branch yet."

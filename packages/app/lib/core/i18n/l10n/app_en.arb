@@ -163,6 +163,14 @@
   "@action_hint_cooldown_time": {
     "description": "Duration (e.g. 10s, 5m)"
   },
+  "action_hint_random_choices": "List of choices (separated by ;)",
+  "@action_hint_random_choices": {
+    "description": "List of choices (separated by ;)"
+  },
+  "action_hint_random_var": "Variable name to store the result",
+  "@action_hint_random_var": {
+    "description": "Variable name to store the result"
+  },
   "action_hint_emoji": "Enter emoji or :name:",
   "@action_hint_emoji": {
     "description": "Enter emoji or :name:"
@@ -309,6 +317,10 @@
   "action_name_deleteEmoji": "Delete Emoji",
   "@action_name_deleteEmoji": {
     "description": "Delete Emoji"
+  },
+  "action_name_deleteTrigger": "Delete Trigger Message",
+  "@action_name_deleteTrigger": {
+    "description": "Delete Trigger Message"
   },
   "action_name_deleteInvite": "Delete Invite",
   "@action_name_deleteInvite": {
@@ -470,6 +482,10 @@
   "@action_name_respondWithAutocomplete": {
     "description": "Respond with Autocomplete"
   },
+  "action_name_randomChoice": "Random Choice",
+  "@action_name_randomChoice": {
+    "description": "Random Choice"
+  },
   "action_name_respondWithComponentV2": "Respond with Component V2",
   "@action_name_respondWithComponentV2": {
     "description": "Respond with Component V2"
@@ -502,6 +518,10 @@
   "@action_name_sendWebhook": {
     "description": "Send Webhook"
   },
+  "action_name_sendDm": "Send Direct Message",
+  "@action_name_sendDm": {
+    "description": "Send Direct Message"
+  },
   "action_name_serverDeafenMember": "Server Deafen Member",
   "@action_name_serverDeafenMember": {
     "description": "Server Deafen Member"
@@ -521,6 +541,18 @@
   "action_name_stopUnless": "Stop Unless Condition",
   "@action_name_stopUnless": {
     "description": "Stop Unless Condition"
+  },
+  "action_name_stop": "Stop Execution",
+  "@action_name_stop": {
+    "description": "Stop Execution"
+  },
+  "action_name_setNickname": "Set Nickname",
+  "@action_name_setNickname": {
+    "description": "Set Nickname"
+  },
+  "action_name_slowmode": "Slowmode",
+  "@action_name_slowmode": {
+    "description": "Slowmode"
   },
   "action_name_unbanUser": "Unban User",
   "@action_name_unbanUser": {
@@ -558,6 +590,42 @@
   "@action_name_updateSelfUser": {
     "description": "Update Self User (Bot Profile)"
   },
+  "action_name_wait": "Wait",
+  "@action_name_wait": {
+    "description": "Wait"
+  },
+  "action_category_messages": "Messages",
+  "action_category_reactions": "Reactions",
+  "action_category_channels": "Channels",
+  "action_category_moderation": "Moderation",
+  "action_category_components": "Components",
+  "action_category_webhooks": "Webhooks",
+  "action_category_guild_members": "Guild & Members",
+  "action_category_http_variables": "HTTP & Variables",
+  "action_category_workflows": "Workflows",
+  "action_category_logic_flow": "Logic & Flow",
+  "action_category_interactions": "Interactions",
+  "action_description_wait": "Pause the workflow execution for a specific duration",
+  "action_description_deleteTrigger": "Delete the message that triggered this command",
+  "action_description_sendDm": "Send a private message to a specific user",
+  "action_description_setNickname": "Change a server member's nickname",
+  "action_description_slowmode": "Set the slowmode duration for a channel",
+  "action_description_stop": "Immediately stop the execution of the current workflow",
+  "action_description_randomChoice": "Pick a random item from a list and store it in a variable",
+  "action_description_cooldown": "Apply a command cooldown for the user or server",
+  "action_description_sendMessage": "Send a message to a specific channel",
+  "action_description_editMessage": "Edit an existing message",
+  "action_description_deleteMessages": "Delete one or more messages",
+  "action_description_addReaction": "Add an emoji reaction to a message",
+  "action_description_removeReaction": "Remove a reaction from a message",
+  "action_description_clearAllReactions": "Remove all reactions from a message",
+  "action_description_banUser": "Permanently ban a user from the server",
+  "action_description_unbanUser": "Revoke a user's ban",
+  "action_description_kickUser": "Kick a member from the server",
+  "action_description_muteUser": "Temporarily exclude (timeout) a member",
+  "action_description_unmuteUser": "Remove temporary exclusion from a member",
+  "action_description_addRole": "Assign a role to a member",
+  "action_description_removeRole": "Remove a role from a member",
   "action_no_actions_yet": "No actions in this branch yet.",
   "@action_no_actions_yet": {
     "description": "No actions in this branch yet."

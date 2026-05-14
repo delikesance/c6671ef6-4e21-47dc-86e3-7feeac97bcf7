@@ -4,6 +4,7 @@ import '../../types/action.dart';
 import '../create_channel.dart';
 import '../permission_checks.dart';
 import '../remove_channel.dart';
+import '../slowmode.dart';
 import '../update_channel.dart';
 
 Snowflake? _toSnowflake(dynamic value) {
@@ -88,6 +89,22 @@ Future<bool> executeChannelsAction({
       }
 
       final result = await removeChannel(client, channelId);
+      if (result['error'] != null) {
+        throw Exception(result['error']);
+      }
+      results[resultKey] = result['channelId'] ?? '';
+      return true;
+
+    case BotCreatorActionType.slowmode:
+      if (guildId == null) {
+        throw Exception('This action requires a guild context');
+      }
+      final result = await slowmodeAction(
+        client,
+        guildId: guildId,
+        payload: payload,
+        resolve: resolveValue,
+      );
       if (result['error'] != null) {
         throw Exception(result['error']);
       }

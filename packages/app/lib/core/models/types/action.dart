@@ -90,6 +90,13 @@ enum BotCreatorActionType {
   editChannelPermissions,
   deleteChannelPermission,
   cooldown,
+  wait,
+  deleteTrigger,
+  sendDm,
+  setNickname,
+  slowmode,
+  stop,
+  randomChoice,
 }
 
 enum ActionOnErrorMode { stop, continueMode }

@@ -143,6 +143,61 @@ ActionSummaryData summarizeActionItem(BuildContext context, ActionItem action) {
         outputKey: outputKey,
         isEnabled: action.enabled,
       );
+    case BotCreatorActionType.wait:
+      final duration = _valueOrEmpty(params['duration']);
+      return ActionSummaryData(
+        title: action.type.displayName(context),
+        summary: 'Wait $duration',
+        outputKey: outputKey,
+        isEnabled: action.enabled,
+      );
+    case BotCreatorActionType.deleteTrigger:
+      return ActionSummaryData(
+        title: action.type.displayName(context),
+        summary: 'Delete trigger message',
+        outputKey: outputKey,
+        isEnabled: action.enabled,
+      );
+    case BotCreatorActionType.sendDm:
+      final userId = _valueOrEmpty(params['userId']);
+      return ActionSummaryData(
+        title: action.type.displayName(context),
+        summary: 'Send DM to user $userId',
+        outputKey: outputKey,
+        isEnabled: action.enabled,
+      );
+    case BotCreatorActionType.setNickname:
+      final userId = _valueOrEmpty(params['userId']);
+      final nickname = _valueOrEmpty(params['nickname']);
+      return ActionSummaryData(
+        title: action.type.displayName(context),
+        summary: 'Set nickname of $userId to "$nickname"',
+        outputKey: outputKey,
+        isEnabled: action.enabled,
+      );
+    case BotCreatorActionType.slowmode:
+      final duration = _valueOrEmpty(params['duration']);
+      final channelId = _valueOrEmpty(params['channelId']);
+      return ActionSummaryData(
+        title: action.type.displayName(context),
+        summary: 'Slowmode: $duration in $channelId',
+        outputKey: outputKey,
+        isEnabled: action.enabled,
+      );
+    case BotCreatorActionType.stop:
+      return ActionSummaryData(
+        title: action.type.displayName(context),
+        summary: 'Stop execution',
+        outputKey: outputKey,
+        isEnabled: action.enabled,
+      );
+    case BotCreatorActionType.randomChoice:
+      return ActionSummaryData(
+        title: action.type.displayName(context),
+        summary: 'Randomly pick from choices',
+        outputKey: outputKey,
+        isEnabled: action.enabled,
+      );
     case BotCreatorActionType.httpRequest:
       final method =
           _valueOrEmpty(params['method']).isEmpty

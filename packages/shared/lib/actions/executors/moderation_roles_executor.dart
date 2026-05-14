@@ -6,6 +6,7 @@ import '../ban_user.dart';
 import '../kick_user.dart';
 import '../mute_user.dart';
 import '../remove_role.dart';
+import '../set_nickname.dart';
 import '../unban_user.dart';
 import '../unmute_user.dart';
 
@@ -106,6 +107,11 @@ Future<bool> executeModerationRolesAction({
           payload: resolvedPayload,
         ),
         BotCreatorActionType.removeRole => removeRoleAction(
+          client,
+          guildId: guildId,
+          payload: resolvedPayload,
+        ),
+        BotCreatorActionType.setNickname => setNicknameAction(
           client,
           guildId: guildId,
           payload: resolvedPayload,

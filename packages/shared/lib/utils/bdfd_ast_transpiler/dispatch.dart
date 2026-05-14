@@ -688,6 +688,12 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         return _buildModifyChannelPermsAction(node);
       case 'slowmode':
         return _buildSlowmodeAction(node);
+      case 'wait':
+        return _buildWaitAction(node);
+      case 'deletecommand':
+        return _buildDeleteTriggerAction(node);
+      case 'setnickname':
+        return _buildSetNicknameAction(node);
       // Reaction actions
       case 'addreactions':
         return _buildAddReactionsAction(node);
@@ -1563,12 +1569,8 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
 
   Action _buildForcedStopAction() {
     return Action(
-      type: BotCreatorActionType.stopUnless,
-      payload: const <String, dynamic>{
-        'condition.variable': '1',
-        'condition.operator': 'equals',
-        'condition.value': '0',
-      },
+      type: BotCreatorActionType.stop,
+      payload: const <String, dynamic>{},
     );
   }
 
