@@ -10,8 +10,6 @@ on:
       - "Dockerfile"
       - "pubspec.yaml"
       - "packages/runner/**"
-      - "packages/shared/**"
-      - ".github/workflows/runner-docker.yml"
   workflow_dispatch:
     inputs:
       publish:
