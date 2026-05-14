@@ -146,6 +146,72 @@ abstract class AppLocalizations {
   /// **'Cannot format: Invalid JSON'**
   String get action_cannot_format_json;
 
+  /// Channels
+  ///
+  /// In en, this message translates to:
+  /// **'Channels'**
+  String get action_category_channels;
+
+  /// Components
+  ///
+  /// In en, this message translates to:
+  /// **'Components'**
+  String get action_category_components;
+
+  /// Guild & Members
+  ///
+  /// In en, this message translates to:
+  /// **'Guild & Members'**
+  String get action_category_guild_members;
+
+  /// HTTP & Variables
+  ///
+  /// In en, this message translates to:
+  /// **'HTTP & Variables'**
+  String get action_category_http_variables;
+
+  /// Interactions
+  ///
+  /// In en, this message translates to:
+  /// **'Interactions'**
+  String get action_category_interactions;
+
+  /// Logic & Flow
+  ///
+  /// In en, this message translates to:
+  /// **'Logic & Flow'**
+  String get action_category_logic_flow;
+
+  /// Messages
+  ///
+  /// In en, this message translates to:
+  /// **'Messages'**
+  String get action_category_messages;
+
+  /// Moderation
+  ///
+  /// In en, this message translates to:
+  /// **'Moderation'**
+  String get action_category_moderation;
+
+  /// Reactions
+  ///
+  /// In en, this message translates to:
+  /// **'Reactions'**
+  String get action_category_reactions;
+
+  /// Webhooks
+  ///
+  /// In en, this message translates to:
+  /// **'Webhooks'**
+  String get action_category_webhooks;
+
+  /// Workflows
+  ///
+  /// In en, this message translates to:
+  /// **'Workflows'**
+  String get action_category_workflows;
+
   /// Choose {name}
   ///
   /// In en, this message translates to:
@@ -169,6 +235,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Condition Variable'**
   String get action_condition_variable;
+
+  /// Add an emoji reaction to a message
+  ///
+  /// In en, this message translates to:
+  /// **'Add an emoji reaction to a message'**
+  String get action_description_addReaction;
+
+  /// Assign a role to a member
+  ///
+  /// In en, this message translates to:
+  /// **'Assign a role to a member'**
+  String get action_description_addRole;
+
+  /// Permanently ban a user from the server
+  ///
+  /// In en, this message translates to:
+  /// **'Permanently ban a user from the server'**
+  String get action_description_banUser;
+
+  /// Remove all reactions from a message
+  ///
+  /// In en, this message translates to:
+  /// **'Remove all reactions from a message'**
+  String get action_description_clearAllReactions;
+
+  /// Apply a command cooldown for the user or server
+  ///
+  /// In en, this message translates to:
+  /// **'Apply a command cooldown for the user or server'**
+  String get action_description_cooldown;
+
+  /// Delete one or more messages
+  ///
+  /// In en, this message translates to:
+  /// **'Delete one or more messages'**
+  String get action_description_deleteMessages;
+
+  /// Delete the message that triggered this command
+  ///
+  /// In en, this message translates to:
+  /// **'Delete the message that triggered this command'**
+  String get action_description_deleteTrigger;
+
+  /// Edit an existing message
+  ///
+  /// In en, this message translates to:
+  /// **'Edit an existing message'**
+  String get action_description_editMessage;
+
+  /// Kick a member from the server
+  ///
+  /// In en, this message translates to:
+  /// **'Kick a member from the server'**
+  String get action_description_kickUser;
+
+  /// Temporarily exclude (timeout) a member
+  ///
+  /// In en, this message translates to:
+  /// **'Temporarily exclude (timeout) a member'**
+  String get action_description_muteUser;
+
+  /// Pick a random item from a list and store it in a variable
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a random item from a list and store it in a variable'**
+  String get action_description_randomChoice;
+
+  /// Remove a reaction from a message
+  ///
+  /// In en, this message translates to:
+  /// **'Remove a reaction from a message'**
+  String get action_description_removeReaction;
+
+  /// Remove a role from a member
+  ///
+  /// In en, this message translates to:
+  /// **'Remove a role from a member'**
+  String get action_description_removeRole;
+
+  /// Send a private message to a specific user
+  ///
+  /// In en, this message translates to:
+  /// **'Send a private message to a specific user'**
+  String get action_description_sendDm;
+
+  /// Send a message to a specific channel
+  ///
+  /// In en, this message translates to:
+  /// **'Send a message to a specific channel'**
+  String get action_description_sendMessage;
+
+  /// Change a server member's nickname
+  ///
+  /// In en, this message translates to:
+  /// **'Change a server member\'s nickname'**
+  String get action_description_setNickname;
+
+  /// Set the slowmode duration for a channel
+  ///
+  /// In en, this message translates to:
+  /// **'Set the slowmode duration for a channel'**
+  String get action_description_slowmode;
+
+  /// Immediately stop the execution of the current workflow
+  ///
+  /// In en, this message translates to:
+  /// **'Immediately stop the execution of the current workflow'**
+  String get action_description_stop;
+
+  /// Revoke a user's ban
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke a user\'s ban'**
+  String get action_description_unbanUser;
+
+  /// Remove temporary exclusion from a member
+  ///
+  /// In en, this message translates to:
+  /// **'Remove temporary exclusion from a member'**
+  String get action_description_unmuteUser;
+
+  /// Pause the workflow execution for a specific duration
+  ///
+  /// In en, this message translates to:
+  /// **'Pause the workflow execution for a specific duration'**
+  String get action_description_wait;
 
   /// Dynamic
   ///
@@ -278,6 +470,18 @@ abstract class AppLocalizations {
   /// **'Use ((variableName)) or a runtime value'**
   String get action_hint_condition_var;
 
+  /// Message to send if on cooldown (supports %time%)
+  ///
+  /// In en, this message translates to:
+  /// **'Message to send if on cooldown (supports %time%)'**
+  String get action_hint_cooldown_error;
+
+  /// Duration (e.g. 10s, 5m)
+  ///
+  /// In en, this message translates to:
+  /// **'Duration (e.g. 10s, 5m)'**
+  String get action_hint_cooldown_time;
+
   /// e.g., 5m, 1h, 30s
   ///
   /// In en, this message translates to:
@@ -295,6 +499,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter {type}'**
   String action_hint_enter_type(String type);
+
+  /// List of choices (separated by ;)
+  ///
+  /// In en, this message translates to:
+  /// **'List of choices (separated by ;)'**
+  String get action_hint_random_choices;
+
+  /// Variable name to store the result
+  ///
+  /// In en, this message translates to:
+  /// **'Variable name to store the result'**
+  String get action_hint_random_var;
 
   /// Select variable key
   ///
@@ -422,6 +638,12 @@ abstract class AppLocalizations {
   /// **'Clear All Reactions'**
   String get action_name_clearAllReactions;
 
+  /// Cooldown
+  ///
+  /// In en, this message translates to:
+  /// **'Cooldown'**
+  String get action_name_cooldown;
+
   /// Create AutoMod Rule
   ///
   /// In en, this message translates to:
@@ -487,6 +709,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete Messages'**
   String get action_name_deleteMessages;
+
+  /// Delete Trigger Message
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Trigger Message'**
+  String get action_name_deleteTrigger;
 
   /// Delete Webhook
   ///
@@ -662,6 +890,12 @@ abstract class AppLocalizations {
   /// **'Query Array'**
   String get action_name_queryArray;
 
+  /// Random Choice
+  ///
+  /// In en, this message translates to:
+  /// **'Random Choice'**
+  String get action_name_randomChoice;
+
   /// Remove Array Element
   ///
   /// In en, this message translates to:
@@ -752,6 +986,12 @@ abstract class AppLocalizations {
   /// **'Send Component V2'**
   String get action_name_sendComponentV2;
 
+  /// Send Direct Message
+  ///
+  /// In en, this message translates to:
+  /// **'Send Direct Message'**
+  String get action_name_sendDm;
+
   /// Send Message
   ///
   /// In en, this message translates to:
@@ -782,11 +1022,29 @@ abstract class AppLocalizations {
   /// **'Set Global Variable'**
   String get action_name_setGlobalVariable;
 
+  /// Set Nickname
+  ///
+  /// In en, this message translates to:
+  /// **'Set Nickname'**
+  String get action_name_setNickname;
+
   /// Set Scoped Variable
   ///
   /// In en, this message translates to:
   /// **'Set Scoped Variable'**
   String get action_name_setScopedVariable;
+
+  /// Slowmode
+  ///
+  /// In en, this message translates to:
+  /// **'Slowmode'**
+  String get action_name_slowmode;
+
+  /// Stop Execution
+  ///
+  /// In en, this message translates to:
+  /// **'Stop Execution'**
+  String get action_name_stop;
 
   /// Stop Unless Condition
   ///
@@ -847,6 +1105,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Update Self User (Bot Profile)'**
   String get action_name_updateSelfUser;
+
+  /// Wait
+  ///
+  /// In en, this message translates to:
+  /// **'Wait'**
+  String get action_name_wait;
 
   /// No actions in this branch yet.
   ///
@@ -2225,6 +2489,42 @@ abstract class AppLocalizations {
   /// **'Cancel token edit'**
   String get bot_settings_cancel_token_edit_btn;
 
+  /// Danger zone title
+  ///
+  /// In en, this message translates to:
+  /// **'Danger Zone'**
+  String get bot_settings_danger_zone;
+
+  /// Delete bot title
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Bot'**
+  String get bot_settings_delete_bot;
+
+  /// Delete bot button label
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Permanently'**
+  String get bot_settings_delete_bot_btn;
+
+  /// Delete bot description
+  ///
+  /// In en, this message translates to:
+  /// **'This action is irreversible. All local data and remote configurations will be permanently removed.'**
+  String get bot_settings_delete_bot_desc;
+
+  /// Confirmation description for deletion
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete bot {id}? All data will be lost.'**
+  String bot_settings_delete_desc(String id);
+
+  /// Confirmation title for deletion
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Deletion'**
+  String get bot_settings_delete_title;
+
   /// Edit token
   ///
   /// In en, this message translates to:
@@ -2260,6 +2560,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Intents saved successfully'**
   String get bot_settings_intents_saved;
+
+  /// Message shown when no activities are configured for the bot
+  ///
+  /// In en, this message translates to:
+  /// **'No activities configured'**
+  String get bot_settings_no_activities;
 
   /// Do Not Disturb
   ///
@@ -2314,12 +2620,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remove activity'**
   String get bot_settings_remove_status;
-
-  /// Message shown when no activities are configured for the bot
-  ///
-  /// In en, this message translates to:
-  /// **'No activities configured'**
-  String get bot_settings_no_activities;
 
   /// Save intents
   ///
@@ -2530,42 +2830,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Centralized documentation for commands, workflows, runtime variables, and execution behavior.'**
   String get bot_settings_workflow_docs_desc;
-
-  /// Danger zone title
-  ///
-  /// In en, this message translates to:
-  /// **'Danger Zone'**
-  String get bot_settings_danger_zone;
-
-  /// Delete bot title
-  ///
-  /// In en, this message translates to:
-  /// **'Delete Bot'**
-  String get bot_settings_delete_bot;
-
-  /// Delete bot description
-  ///
-  /// In en, this message translates to:
-  /// **'This action is irreversible. All local data and remote configurations will be permanently removed.'**
-  String get bot_settings_delete_bot_desc;
-
-  /// Delete bot button label
-  ///
-  /// In en, this message translates to:
-  /// **'Delete Permanently'**
-  String get bot_settings_delete_bot_btn;
-
-  /// Confirmation title for deletion
-  ///
-  /// In en, this message translates to:
-  /// **'Confirm Deletion'**
-  String get bot_settings_delete_title;
-
-  /// Confirmation description for deletion
-  ///
-  /// In en, this message translates to:
-  /// **'Are you sure you want to delete bot {id}? All data will be lost.'**
-  String bot_settings_delete_desc(String id);
 
   /// Collecting…
   ///

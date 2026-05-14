@@ -904,6 +904,7 @@ class HomePageState extends State<HomePage>
         final adUnlocked = await _maybeOfferRewardedAd(
           botId: botId,
           botToken: token,
+          successMessage: context.tr.rewarded_start_thanks,
         );
         if (!adUnlocked) {
           return;
@@ -1262,11 +1263,10 @@ class HomePageState extends State<HomePage>
       final rewarded = await _maybeOfferRewardedAd(
         botId: botId,
         botToken: botToken.isNotEmpty ? botToken : null,
+        force: true,
+        successMessage: context.tr.home_time_added,
       );
       if (rewarded && mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(context.tr.home_time_added)));
         unawaited(_refreshBotRuntimeBalances(botIds: [botId]));
       }
     } finally {
@@ -1295,6 +1295,8 @@ class HomePageState extends State<HomePage>
   Future<bool> _maybeOfferRewardedAd({
     required String botId,
     String? botToken,
+    bool force = false,
+    String? successMessage,
   }) async {
     if (!_supportsForegroundTask || !mounted) {
       return true;
@@ -1304,7 +1306,7 @@ class HomePageState extends State<HomePage>
       return true;
     }
 
-    if ((_freeMinutesByBotId[botId] ?? 0) > 0) {
+    if (!force && (_freeMinutesByBotId[botId] ?? 0) > 0) {
       return true;
     }
 
@@ -1409,7 +1411,7 @@ class HomePageState extends State<HomePage>
     }
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text(context.tr.rewarded_start_thanks)));
+    ).showSnackBar(SnackBar(content: Text(successMessage ?? context.tr.rewarded_start_thanks)));
     return true;
   }
 

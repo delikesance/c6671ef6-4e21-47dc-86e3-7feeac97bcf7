@@ -116,6 +116,7 @@ class _BotStatsPageState extends State<BotStatsPage> {
   Future<void> _initializeStatsSync() async {
     final runtime = await resolveRemoteRuntime(
       supportsManagerRuntime: _supportsManagerRuntime,
+      botId: _selectedBotId,
       getTimeout: const Duration(seconds: 30),
       postTimeout: const Duration(seconds: 90),
     );

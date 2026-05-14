@@ -40,7 +40,8 @@ dependencies:
   cupertino_icons: ^1.0.9
   provider: ^6.1.5
   bot_creator_shared:
-    path: ../shared
+    git:
+      url: git@github.com:ketsuna-org/bot-creator-shared.git
   path_provider: ^2.1.5
   http: ^1.6.0
   nyxx: ^6.9.0
@@ -147,3 +148,6 @@ msix_config:
   install_certificate: false
   msix_version: 1.8.2.0
   logo_path: assets/icon/icon.png
+
+
+

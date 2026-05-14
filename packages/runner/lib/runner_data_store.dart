@@ -8,6 +8,7 @@ import 'package:bot_creator_shared/utils/workflow_call.dart';
 import 'package:bot_creator_shared/bot/json_variable_store.dart';
 import 'package:bot_creator_runner/stores/sqlite_cli_variable_store.dart';
 import 'package:bot_creator_runner/stores/managed_variable_store.dart';
+import 'package:bot_creator_runner/stores/command_stats_store.dart';
 
 /// In-memory implementation of [BotDataStore] backed by a [BotConfig].
 ///
@@ -25,10 +26,12 @@ class RunnerDataStore implements BotDataStore {
   final String _variablesDir;
   late JsonVariableStore _jsonFallbackStore;
   SqliteCliVariableStore? _sqliteStore;
+  final CommandStatsStore? statsStore;
   Future<void>? _initStoreFuture;
   final Set<String> _seededBotIds = <String>{};
+  final BotConfig _config;
 
-  RunnerDataStore(BotConfig config)
+  RunnerDataStore(BotConfig config, {this.statsStore})
     : botId = 'runner',
       _workflows = List<Map<String, dynamic>>.from(config.workflows),
       _seedGlobalVariables = Map<String, dynamic>.from(config.globalVariables),
@@ -36,6 +39,7 @@ class RunnerDataStore implements BotDataStore {
       _scopedVariableDefinitions = List<Map<String, dynamic>>.from(
         config.scopedVariableDefinitions,
       ),
+      _config = config,
       _variablesDir = _resolveRunnerVariablesDirStatic() {
     // JSON fallback remains available if SQLite fails to initialize.
     _jsonFallbackStore = _fallbackStoresByDir.putIfAbsent(
@@ -148,7 +152,7 @@ class RunnerDataStore implements BotDataStore {
 
   @override
   Future<List<Map<String, dynamic>>> getCommands(String botId) async =>
-      const [];
+      _config.commands;
 
   @override
   Future<List<Map<String, dynamic>>> getScopedVariableDefinitions(
@@ -448,6 +452,49 @@ class RunnerDataStore implements BotDataStore {
 
   Map<String, dynamic> _normalizeWorkflow(Map<String, dynamic> w) {
     return normalizeStoredWorkflowDefinition(w);
+  }
+
+  @override
+  Future<Map<String, dynamic>> getApp(String botId) async {
+    return _config.toJson();
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> getWorkflows(String botId) async {
+    return _workflows;
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> listAppCommands(
+    String botId, {
+    bool forceRefresh = false,
+  }) async {
+    return _config.commands;
+  }
+
+  @override
+  Future<void> saveAppCommand(
+    String botId,
+    String commandId,
+    Map<String, dynamic> data,
+  ) async {
+    // Runner is typically read-only for config.
+  }
+
+  @override
+  Future<void> updateGuildCount(String botId, int count) async {
+    // Runner doesn't persist guild count back to config.
+  }
+
+  @override
+  Future<void> recordCommandExecution(String botId, String commandName) async {
+    statsStore?.record(botId: botId, commandName: commandName);
+  }
+
+  @override
+  Map<String, dynamic> normalizeCommandData(Map<String, dynamic> raw) {
+    // Runner receives already normalized data from config.
+    return raw;
   }
 }
 

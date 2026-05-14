@@ -33,6 +33,50 @@
   "@action_cannot_format_json": {
     "description": "Cannot format: Invalid JSON"
   },
+  "action_category_channels": "Kanallar",
+  "@action_category_channels": {
+    "description": "Channels"
+  },
+  "action_category_components": "Bileşenler",
+  "@action_category_components": {
+    "description": "Components"
+  },
+  "action_category_guild_members": "Sunucu ve Üyeler",
+  "@action_category_guild_members": {
+    "description": "Guild & Members"
+  },
+  "action_category_http_variables": "HTTP ve Değişkenler",
+  "@action_category_http_variables": {
+    "description": "HTTP & Variables"
+  },
+  "action_category_interactions": "Etkileşimler",
+  "@action_category_interactions": {
+    "description": "Interactions"
+  },
+  "action_category_logic_flow": "Mantık ve Akış",
+  "@action_category_logic_flow": {
+    "description": "Logic & Flow"
+  },
+  "action_category_messages": "Mesajlar",
+  "@action_category_messages": {
+    "description": "Messages"
+  },
+  "action_category_moderation": "Moderasyon",
+  "@action_category_moderation": {
+    "description": "Moderation"
+  },
+  "action_category_reactions": "Tepkiler",
+  "@action_category_reactions": {
+    "description": "Reactions"
+  },
+  "action_category_webhooks": "Webhooks",
+  "@action_category_webhooks": {
+    "description": "Webhooks"
+  },
+  "action_category_workflows": "İş Akışları",
+  "@action_category_workflows": {
+    "description": "Workflows"
+  },
   "action_choose_param": "{name} Seç",
   "@action_choose_param": {
     "placeholders": {
@@ -53,6 +97,90 @@
   "action_condition_variable": "Koşul Değişkeni",
   "@action_condition_variable": {
     "description": "Condition Variable"
+  },
+  "action_description_addReaction": "Add an emoji reaction to a message",
+  "@action_description_addReaction": {
+    "description": "Add an emoji reaction to a message"
+  },
+  "action_description_addRole": "Assign a role to a member",
+  "@action_description_addRole": {
+    "description": "Assign a role to a member"
+  },
+  "action_description_banUser": "Permanently ban a user from the guild",
+  "@action_description_banUser": {
+    "description": "Permanently ban a user from the server"
+  },
+  "action_description_clearAllReactions": "Clear all reactions from a message",
+  "@action_description_clearAllReactions": {
+    "description": "Remove all reactions from a message"
+  },
+  "action_description_cooldown": "Apply a cooldown to the user or server",
+  "@action_description_cooldown": {
+    "description": "Apply a command cooldown for the user or server"
+  },
+  "action_description_deleteMessages": "Delete one or more messages",
+  "@action_description_deleteMessages": {
+    "description": "Delete one or more messages"
+  },
+  "action_description_deleteTrigger": "Delete the message that triggered this command",
+  "@action_description_deleteTrigger": {
+    "description": "Delete the message that triggered this command"
+  },
+  "action_description_editMessage": "Edit an existing message",
+  "@action_description_editMessage": {
+    "description": "Edit an existing message"
+  },
+  "action_description_kickUser": "Remove a member from the guild",
+  "@action_description_kickUser": {
+    "description": "Kick a member from the server"
+  },
+  "action_description_muteUser": "Temporarily timeout a member",
+  "@action_description_muteUser": {
+    "description": "Temporarily exclude (timeout) a member"
+  },
+  "action_description_randomChoice": "Pick a random item from a list",
+  "@action_description_randomChoice": {
+    "description": "Pick a random item from a list and store it in a variable"
+  },
+  "action_description_removeReaction": "Remove a reaction from a message",
+  "@action_description_removeReaction": {
+    "description": "Remove a reaction from a message"
+  },
+  "action_description_removeRole": "Remove a role from a member",
+  "@action_description_removeRole": {
+    "description": "Remove a role from a member"
+  },
+  "action_description_sendDm": "Send a direct message to a user",
+  "@action_description_sendDm": {
+    "description": "Send a private message to a specific user"
+  },
+  "action_description_sendMessage": "Send a message to a channel",
+  "@action_description_sendMessage": {
+    "description": "Send a message to a specific channel"
+  },
+  "action_description_setNickname": "Change a member's nickname",
+  "@action_description_setNickname": {
+    "description": "Change a server member's nickname"
+  },
+  "action_description_slowmode": "Set slowmode duration for a channel",
+  "@action_description_slowmode": {
+    "description": "Set the slowmode duration for a channel"
+  },
+  "action_description_stop": "Stop the current workflow execution",
+  "@action_description_stop": {
+    "description": "Immediately stop the execution of the current workflow"
+  },
+  "action_description_unbanUser": "Revoke a user's ban",
+  "@action_description_unbanUser": {
+    "description": "Revoke a user's ban"
+  },
+  "action_description_unmuteUser": "Remove timeout from a member",
+  "@action_description_unmuteUser": {
+    "description": "Remove temporary exclusion from a member"
+  },
+  "action_description_wait": "Pause execution for a specific duration",
+  "@action_description_wait": {
+    "description": "Pause the workflow execution for a specific duration"
   },
   "action_dynamic": "Dinamik",
   "@action_dynamic": {
@@ -151,6 +279,14 @@
   "@action_hint_condition_var": {
     "description": "Use ((variableName)) or a runtime value"
   },
+  "action_hint_cooldown_error": "Özel hata mesajı (%time% destekler)",
+  "@action_hint_cooldown_error": {
+    "description": "Message to send if on cooldown (supports %time%)"
+  },
+  "action_hint_cooldown_time": "Süre (ör. 10s, 1m)",
+  "@action_hint_cooldown_time": {
+    "description": "Duration (e.g. 10s, 5m)"
+  },
   "action_hint_duration": "örn. 5m, 1sa, 30sn",
   "@action_hint_duration": {
     "description": "e.g., 5m, 1h, 30s"
@@ -167,6 +303,14 @@
       }
     },
     "description": "Enter {type}"
+  },
+  "action_hint_random_choices": "List of choices (separated by ;)",
+  "@action_hint_random_choices": {
+    "description": "List of choices (separated by ;)"
+  },
+  "action_hint_random_var": "Variable name to store the result",
+  "@action_hint_random_var": {
+    "description": "Variable name to store the result"
   },
   "action_hint_variable_key": "Değişken anahtarını seçin",
   "@action_hint_variable_key": {
@@ -262,6 +406,10 @@
   "@action_name_clearAllReactions": {
     "description": "Clear All Reactions"
   },
+  "action_name_cooldown": "Bekleme Süresi",
+  "@action_name_cooldown": {
+    "description": "Cooldown"
+  },
   "action_name_createAutoModRule": "AutoMod Kuralı Oluştur",
   "@action_name_createAutoModRule": {
     "description": "Create AutoMod Rule"
@@ -305,6 +453,10 @@
   "action_name_deleteMessages": "Mesajları Sil",
   "@action_name_deleteMessages": {
     "description": "Delete Messages"
+  },
+  "action_name_deleteTrigger": "Tetikleyiciyi Sil",
+  "@action_name_deleteTrigger": {
+    "description": "Delete Trigger Message"
   },
   "action_name_deleteWebhook": "Webhook Sil",
   "@action_name_deleteWebhook": {
@@ -422,6 +574,10 @@
   "@action_name_queryArray": {
     "description": "Query Array"
   },
+  "action_name_randomChoice": "Rastgele Seçim",
+  "@action_name_randomChoice": {
+    "description": "Random Choice"
+  },
   "action_name_removeArrayElement": "Dizi Öğesini Kaldır",
   "@action_name_removeArrayElement": {
     "description": "Remove Array Element"
@@ -482,6 +638,10 @@
   "@action_name_sendComponentV2": {
     "description": "Send Component V2"
   },
+  "action_name_sendDm": "DM Gönder",
+  "@action_name_sendDm": {
+    "description": "Send Direct Message"
+  },
   "action_name_sendMessage": "Mesaj Gönder",
   "@action_name_sendMessage": {
     "description": "Send Message"
@@ -502,9 +662,21 @@
   "@action_name_setGlobalVariable": {
     "description": "Set Global Variable"
   },
+  "action_name_setNickname": "Takma Ad Belirle",
+  "@action_name_setNickname": {
+    "description": "Set Nickname"
+  },
   "action_name_setScopedVariable": "Kapsamlı Değişken Ata",
   "@action_name_setScopedVariable": {
     "description": "Set Scoped Variable"
+  },
+  "action_name_slowmode": "Yavaş Mod",
+  "@action_name_slowmode": {
+    "description": "Slowmode"
+  },
+  "action_name_stop": "Durdur",
+  "@action_name_stop": {
+    "description": "Stop Execution"
   },
   "action_name_stopUnless": "Koşul Sağlanmadıkça Durdur",
   "@action_name_stopUnless": {
@@ -545,6 +717,10 @@
   "action_name_updateSelfUser": "Kendini Güncelle (Bot Profili)",
   "@action_name_updateSelfUser": {
     "description": "Update Self User (Bot Profile)"
+  },
+  "action_name_wait": "Bekle",
+  "@action_name_wait": {
+    "description": "Wait"
   },
   "action_no_actions_yet": "Bu dalda henüz eylem yok.",
   "@action_no_actions_yet": {
@@ -1548,6 +1724,35 @@
   "@bot_settings_cancel_token_edit_btn": {
     "description": "Cancel token edit"
   },
+  "bot_settings_danger_zone": "Tehlikeli Bölge",
+  "@bot_settings_danger_zone": {
+    "description": "Danger zone title"
+  },
+  "bot_settings_delete_bot": "Botu Sil",
+  "@bot_settings_delete_bot": {
+    "description": "Delete bot title"
+  },
+  "bot_settings_delete_bot_btn": "Kalıcı Olarak Sil",
+  "@bot_settings_delete_bot_btn": {
+    "description": "Delete bot button label"
+  },
+  "bot_settings_delete_bot_desc": "Bu işlem geri alınamaz. Tüm yerel veriler ve uzak yapılandırmalar kalıcı olarak kaldırılacaktır.",
+  "@bot_settings_delete_bot_desc": {
+    "description": "Delete bot description"
+  },
+  "bot_settings_delete_desc": "{id} botunu silmek istediğinizden emin misiniz? Tüm veriler kaybolacak.",
+  "@bot_settings_delete_desc": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    },
+    "description": "Confirmation description for deletion"
+  },
+  "bot_settings_delete_title": "Silme İşlemini Onayla",
+  "@bot_settings_delete_title": {
+    "description": "Confirmation title for deletion"
+  },
   "bot_settings_edit_token_btn": "Jetonu düzenle",
   "@bot_settings_edit_token_btn": {
     "description": "Edit token"
@@ -1571,6 +1776,10 @@
   "bot_settings_intents_saved": "Intent'ler başarıyla kaydedildi",
   "@bot_settings_intents_saved": {
     "description": "Intents saved successfully"
+  },
+  "bot_settings_no_activities": "Yapılandırılmış etkinlik yok",
+  "@bot_settings_no_activities": {
+    "description": "Message shown when no activities are configured for the bot"
   },
   "bot_settings_presence_dnd": "Rahatsız Etmeyin",
   "@bot_settings_presence_dnd": {
@@ -1607,10 +1816,6 @@
   "bot_settings_remove_status": "Etkinliği kaldır",
   "@bot_settings_remove_status": {
     "description": "Remove activity"
-  },
-  "bot_settings_no_activities": "Yapılandırılmış etkinlik yok",
-  "@bot_settings_no_activities": {
-    "description": "Message shown when no activities are configured for the bot"
   },
   "bot_settings_save_intents_btn": "Intent'leri kaydet",
   "@bot_settings_save_intents_btn": {
@@ -1764,35 +1969,6 @@
   "bot_settings_workflow_docs_desc": "Komutlar, iş akışları, çalışma zamanı değişkenleri ve yürütme davranışı için merkezi belgeler.",
   "@bot_settings_workflow_docs_desc": {
     "description": "Centralized documentation for commands, workflows, runtime variables, and execution behavior."
-  },
-  "bot_settings_danger_zone": "Tehlikeli Bölge",
-  "@bot_settings_danger_zone": {
-    "description": "Danger zone title"
-  },
-  "bot_settings_delete_bot": "Botu Sil",
-  "@bot_settings_delete_bot": {
-    "description": "Delete bot title"
-  },
-  "bot_settings_delete_bot_desc": "Bu işlem geri alınamaz. Tüm yerel veriler ve uzak yapılandırmalar kalıcı olarak kaldırılacaktır.",
-  "@bot_settings_delete_bot_desc": {
-    "description": "Delete bot description"
-  },
-  "bot_settings_delete_bot_btn": "Kalıcı Olarak Sil",
-  "@bot_settings_delete_bot_btn": {
-    "description": "Delete bot button label"
-  },
-  "bot_settings_delete_title": "Silme İşlemini Onayla",
-  "@bot_settings_delete_title": {
-    "description": "Confirmation title for deletion"
-  },
-  "bot_settings_delete_desc": "{id} botunu silmek istediğinizden emin misiniz? Tüm veriler kaybolacak.",
-  "@bot_settings_delete_desc": {
-    "placeholders": {
-      "id": {
-        "type": "String"
-      }
-    },
-    "description": "Confirmation description for deletion"
   },
   "bot_stats_collecting": "Toplanıyor…",
   "@bot_stats_collecting": {

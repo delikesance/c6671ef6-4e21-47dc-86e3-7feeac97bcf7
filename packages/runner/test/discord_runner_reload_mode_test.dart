@@ -1,7 +1,8 @@
-import 'package:bot_creator_runner/discord_runner.dart';
 import 'package:bot_creator_shared/bot/bot_config.dart';
-import 'package:bot_creator_shared/utils/workflow_call.dart';
+import 'package:bot_creator_runner/runner_runtime_controller.dart';
 import 'package:test/test.dart';
+
+const String workflowTypeEvent = 'event';
 
 void main() {
   group('resolveEventWorkflowListenerMode', () {

@@ -673,3 +673,36 @@ class RunnerRuntimeController {
     }
   }
 }
+
+enum EventWorkflowListenerMode { none, messageCreateOnly, full }
+
+EventWorkflowListenerMode resolveEventWorkflowListenerMode(BotConfig config) {
+  final hasEventWorkflows =
+      config.workflows.any((w) => w['workflowType'] == 'event');
+  if (hasEventWorkflows) return EventWorkflowListenerMode.full;
+
+  final hasLegacyCommands =
+      config.commands.any(isLegacyCommandEnabledInConfigEntry);
+  if (hasLegacyCommands) return EventWorkflowListenerMode.messageCreateOnly;
+
+  return EventWorkflowListenerMode.none;
+}
+
+bool shouldRebindEventWorkflowListeners(
+  BotConfig previous,
+  BotConfig next,
+) {
+  final prevMode = resolveEventWorkflowListenerMode(previous);
+  final nextMode = resolveEventWorkflowListenerMode(next);
+  return prevMode != nextMode;
+}
+
+bool isLegacyCommandEnabledInConfigEntry(Map<String, dynamic> entry) {
+  final data = entry['data'] as Map?;
+  if (data == null) return false;
+  final legacyMode = data['legacyModeEnabled'] == true;
+  if (!legacyMode) return false;
+
+  final type = (entry['type'] ?? data['commandType'] ?? '').toString();
+  return type == 'chatInput' || type.isEmpty;
+}

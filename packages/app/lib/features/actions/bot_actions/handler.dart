@@ -387,6 +387,7 @@ Future<Map<String, String>> handleActions(
             resultKey: resultKey,
             results: results,
             variables: variables,
+            botId: botId,
             resolveValue: resolveValue,
             onLog: onLog,
             activeWorkflowStack: activeWorkflowStack,
@@ -1399,7 +1400,15 @@ Future<Map<String, String>> handleActions(
         case BotCreatorActionType.addThreadMember:
         case BotCreatorActionType.removeThreadMember:
         case BotCreatorActionType.editChannelPermissions:
+        case BotCreatorActionType.cooldown:
         case BotCreatorActionType.deleteChannelPermission:
+        case BotCreatorActionType.wait:
+        case BotCreatorActionType.deleteTrigger:
+        case BotCreatorActionType.sendDm:
+        case BotCreatorActionType.setNickname:
+        case BotCreatorActionType.slowmode:
+        case BotCreatorActionType.stop:
+        case BotCreatorActionType.randomChoice:
           final delegated = await shared_handler.handleActions(
             client,
             interaction,

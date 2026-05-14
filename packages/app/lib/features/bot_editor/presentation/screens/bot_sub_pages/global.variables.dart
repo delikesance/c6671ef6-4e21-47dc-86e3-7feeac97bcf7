@@ -96,6 +96,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
     final active = await RunnerSettings.getConfig();
     final remoteRuntime = await resolveRemoteRuntime(
       supportsManagerRuntime: _supportsManagerRuntime,
+      botId: widget.botId,
       getTimeout: const Duration(seconds: 10),
       postTimeout: const Duration(seconds: 30),
     );
