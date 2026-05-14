@@ -248,7 +248,7 @@ EventExecutionContext buildInteractionCreateEventContext(
 
   // Enrich with member details when available (guild interactions).
   final member = interaction.member;
-  if (member != null) {
+  if (member is Member) {
     extra['member.id'] = member.id.toString();
     extra['member.nick'] = member.nick ?? '';
     extra['member.avatar'] = member.avatar?.url.toString() ?? '';

@@ -172,11 +172,4 @@ void clearDebugReplays() {
 
 // ─── Service-isolate → main-isolate bridge ───────────────────────────────────
 
-Future<void> _emitReplayToMain(DebugReplayRecord record) async {
-  try {
-    FlutterForegroundTask.sendDataToMain(<String, dynamic>{
-      'type': 'debug_replay',
-      ...record.toJson(),
-    });
-  } catch (_) {}
-}
+

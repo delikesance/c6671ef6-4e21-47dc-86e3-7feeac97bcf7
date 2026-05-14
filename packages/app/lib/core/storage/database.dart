@@ -388,6 +388,7 @@ class AppManager implements BotDataStore {
     }
   }
 
+  @override
   Future<Map<String, dynamic>> getApp(String id) async {
     final path = await _path();
     final file = File("$path/apps/$id.json");
@@ -445,6 +446,7 @@ class AppManager implements BotDataStore {
     });
   }
 
+  @override
   Future<void> updateGuildCount(String id, int count) async {
     final path = await _path();
     final appFile = File("$path/apps/$id.json");
@@ -471,6 +473,7 @@ class AppManager implements BotDataStore {
     return File("$path/apps/$botId.command_stats.json");
   }
 
+  @override
   Future<void> recordCommandExecution(
     String botId,
     String commandName, {
@@ -1560,6 +1563,7 @@ class AppManager implements BotDataStore {
     return exported;
   }
 
+  @override
   Future<List<Map<String, dynamic>>> getWorkflows(String id) async {
     final app = await getApp(id);
     final rawWorkflows = _coerceWorkflowList(app['workflows']);
@@ -2139,6 +2143,7 @@ class AppManager implements BotDataStore {
     return normalized;
   }
 
+  @override
   Future<List<Map<String, dynamic>>> listAppCommands(
     String id, {
     bool forceRefresh = false,
@@ -2192,6 +2197,7 @@ class AppManager implements BotDataStore {
     return commands;
   }
 
+  @override
   Future<void> saveAppCommand(
     String id,
     String commandId,
@@ -2213,6 +2219,7 @@ class AppManager implements BotDataStore {
     );
   }
 
+  @override
   Map<String, dynamic> normalizeCommandData(Map<String, dynamic> command) {
     return normalize_lib.normalizeCommandData(command);
   }

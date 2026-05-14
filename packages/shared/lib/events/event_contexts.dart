@@ -47,6 +47,7 @@ class EventExecutionContext {
     required this.guildId,
     required this.channelId,
     required this.userId,
+    this.messageId,
     this.interaction,
     this.member,
   });
@@ -56,6 +57,7 @@ class EventExecutionContext {
   final Snowflake? guildId;
   final Snowflake? channelId;
   final Snowflake? userId;
+  final Snowflake? messageId;
   final Interaction? interaction;
   final PartialMember? member;
 }
@@ -174,7 +176,7 @@ Map<String, String> _pollVoteExtra({
   'poll.answer.id': answerId.toString(),
 };
 
-Map<String, String> _messageContentExtra(Message message) {
+Map<String, String> _messageContentExtra(Message message, {PartialMember? member}) {
   final author = message.author;
   final content = message.content;
   final words = content.trim().split(RegExp(r'\s+'));
@@ -246,6 +248,17 @@ Map<String, String> _messageContentExtra(Message message) {
     'interaction.user.username': authorName,
     'interaction.user.tag': authorTag,
     'interaction.user.avatar': authorAvatar,
+    if (member is Member) ...{
+      'member.id': member.id.toString(),
+      'member.nick': member.nick ?? '',
+      'member.avatar': member.avatar?.url.toString() ?? '',
+      'member.joinedAt': member.joinedAt.toIso8601String(),
+      'member.roles': member.roleIds.map((id) => id.toString()).join(','),
+      'member.isBooster': (member.premiumSince != null).toString(),
+      'member.isAdmin': member.permissions?.has(Permissions.administrator) == true
+          ? 'true'
+          : 'false',
+    },
   };
 
   if (message.editedTimestamp != null) {
@@ -292,6 +305,7 @@ EventExecutionContext _baseEventContext({
   required Snowflake? guildId,
   required Snowflake? channelId,
   required Snowflake? userId,
+  Snowflake? messageId,
   Interaction? interaction,
   PartialMember? member,
   Map<String, String> extra = const <String, String>{},
@@ -302,6 +316,7 @@ EventExecutionContext _baseEventContext({
     guildId: guildId,
     channelId: channelId,
     userId: userId,
+    messageId: messageId,
     interaction: interaction,
     member: member,
     variables: <String, String>{

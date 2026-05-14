@@ -286,36 +286,60 @@ Future<void> hydrateActionPlaceholders({
   required String botId,
   required List<dynamic> actions,
   required Map<String, String> variables,
+  Future<void> Function(
+    String scope,
+    String contextId,
+    Map<String, String> variables,
+  )?
+  discordFetcher,
 }) async {
-  final placeholderPattern = RegExp(r'\(\(([a-z]+)\[([^\]]+)\]\.bc_');
-  final bdfdFunctionPattern = RegExp(r'\$(?:get(?:User|Guild|Channel|Message)Var)\[[^;]+;([^\]\s]+)\]');
-  
-  final contextsToFetch = <(String scope, String contextId)>{};
+  final placeholderPattern = RegExp(r'\(\(([a-z]+)\[([^\]]+)\]\.([a-zA-Z_]+)');
+  final bdfdFunctionPattern = RegExp(
+    r'\$(?:get(?:User|Guild|Channel|Message)Var)\[[^;]+;([^\]\s]+)\]',
+  );
+
+  final scopedContextsToFetch = <(String scope, String contextId)>{};
+  final discordContextsToFetch = <(String scope, String contextId)>{};
 
   void scan(dynamic obj) {
     if (obj is String) {
-      // 1. Scan for internal placeholders ((user[ID].bc_var))
+      // 1. Scan for internal placeholders ((user[ID].username)) or ((user[ID].bc_var))
       for (final match in placeholderPattern.allMatches(obj)) {
         final scope = match.group(1)!;
         var contextId = match.group(2)!;
+        final property = match.group(3)!;
+
         if (contextId.contains('((')) {
           contextId = resolveTemplatePlaceholders(contextId, variables);
         }
-        if (contextId.isNotEmpty && contextId != 'unknown user' && contextId != 'dm') {
-          contextsToFetch.add((scope, contextId));
+        if (contextId.isNotEmpty &&
+            contextId != 'unknown user' &&
+            contextId != 'dm') {
+          if (property.startsWith('bc_')) {
+            scopedContextsToFetch.add((scope, contextId));
+          } else {
+            discordContextsToFetch.add((scope, contextId));
+          }
         }
       }
-      
+
       // 2. Scan for BDFD functions $getUserVar[name;ID]
       for (final match in bdfdFunctionPattern.allMatches(obj)) {
         final raw = match.group(0)!;
-        final scope = raw.contains('User') ? 'user' : (raw.contains('Guild') ? 'guild' : (raw.contains('Channel') ? 'channel' : 'message'));
+        final scope =
+            raw.contains('User')
+                ? 'user'
+                : (raw.contains('Guild')
+                    ? 'guild'
+                    : (raw.contains('Channel') ? 'channel' : 'message'));
         var contextId = match.group(1)!;
         if (contextId.contains('((')) {
           contextId = resolveTemplatePlaceholders(contextId, variables);
         }
-        if (contextId.isNotEmpty && contextId != 'unknown user' && contextId != 'dm') {
-          contextsToFetch.add((scope, contextId));
+        if (contextId.isNotEmpty &&
+            contextId != 'unknown user' &&
+            contextId != 'dm') {
+          scopedContextsToFetch.add((scope, contextId));
         }
       }
     } else if (obj is Map) {
@@ -342,18 +366,32 @@ Future<void> hydrateActionPlaceholders({
     }
   }
 
-  if (contextsToFetch.isEmpty) {
+  final futures = <Future<void>>[];
+
+  if (scopedContextsToFetch.isNotEmpty) {
+    futures.addAll(
+      scopedContextsToFetch.map(
+        (m) => hydrateSpecificScopedVariables(
+          store: store,
+          botId: botId,
+          scope: m.$1,
+          contextId: m.$2,
+          runtimeVariables: variables,
+        ),
+      ),
+    );
+  }
+
+  if (discordContextsToFetch.isNotEmpty && discordFetcher != null) {
+    futures.addAll(
+      discordContextsToFetch.map(
+        (m) => discordFetcher(m.$1, m.$2, variables),
+      ),
+    );
+  }
+
+  if (futures.isEmpty) {
     return;
   }
-  await Future.wait(
-    contextsToFetch.map(
-      (m) => hydrateSpecificScopedVariables(
-        store: store,
-        botId: botId,
-        scope: m.$1,
-        contextId: m.$2,
-        runtimeVariables: variables,
-      ),
-    ),
-  );
+  await Future.wait(futures);
 }

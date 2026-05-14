@@ -1349,4 +1349,25 @@ class _MemoryBotDataStore implements BotDataStore {
   ) async {
     throw UnsupportedError('Not used in these tests');
   }
+
+  @override
+  Future<Map<String, dynamic>> getApp(String botId) async => throw UnsupportedError('Not used');
+
+  @override
+  Future<List<Map<String, dynamic>>> getWorkflows(String botId) async => throw UnsupportedError('Not used');
+
+  @override
+  Future<List<Map<String, dynamic>>> listAppCommands(String botId, {bool forceRefresh = false}) async => throw UnsupportedError('Not used');
+
+  @override
+  Future<void> saveAppCommand(String botId, String commandId, Map<String, dynamic> data) async => throw UnsupportedError('Not used');
+
+  @override
+  Future<void> updateGuildCount(String botId, int count) async => throw UnsupportedError('Not used');
+
+  @override
+  Future<void> recordCommandExecution(String botId, String commandName) async => throw UnsupportedError('Not used');
+
+  @override
+  Map<String, dynamic> normalizeCommandData(Map<String, dynamic> raw) => raw;
 }

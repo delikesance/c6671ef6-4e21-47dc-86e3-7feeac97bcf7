@@ -166,4 +166,32 @@ abstract class BotDataStore {
     String contextId,
     String key,
   );
+
+  /// Returns the full application data for [botId].
+  Future<Map<String, dynamic>> getApp(String botId);
+
+  /// Returns all workflows defined for [botId].
+  Future<List<Map<String, dynamic>>> getWorkflows(String botId);
+
+  /// Returns a list of all commands for [botId].
+  Future<List<Map<String, dynamic>>> listAppCommands(
+    String botId, {
+    bool forceRefresh = false,
+  });
+
+  /// Persists or updates a command for [botId].
+  Future<void> saveAppCommand(
+    String botId,
+    String commandId,
+    Map<String, dynamic> data,
+  );
+
+  /// Updates the guild count metric for [botId].
+  Future<void> updateGuildCount(String botId, int count);
+
+  /// Records a command execution event for metrics.
+  Future<void> recordCommandExecution(String botId, String commandName);
+
+  /// Normalizes raw command data structure for execution.
+  Map<String, dynamic> normalizeCommandData(Map<String, dynamic> raw);
 }
