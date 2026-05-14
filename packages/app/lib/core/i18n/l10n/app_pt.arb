@@ -33,6 +33,50 @@
   "@action_cannot_format_json": {
     "description": "Cannot format: Invalid JSON"
   },
+  "action_category_channels": "Canais",
+  "@action_category_channels": {
+    "description": "Channels"
+  },
+  "action_category_components": "Componentes",
+  "@action_category_components": {
+    "description": "Components"
+  },
+  "action_category_guild_members": "Servidor & Membros",
+  "@action_category_guild_members": {
+    "description": "Guild & Members"
+  },
+  "action_category_http_variables": "HTTP & Variáveis",
+  "@action_category_http_variables": {
+    "description": "HTTP & Variables"
+  },
+  "action_category_interactions": "Interações",
+  "@action_category_interactions": {
+    "description": "Interactions"
+  },
+  "action_category_logic_flow": "Lógica & Fluxo",
+  "@action_category_logic_flow": {
+    "description": "Logic & Flow"
+  },
+  "action_category_messages": "Mensagens",
+  "@action_category_messages": {
+    "description": "Messages"
+  },
+  "action_category_moderation": "Moderação",
+  "@action_category_moderation": {
+    "description": "Moderation"
+  },
+  "action_category_reactions": "Reações",
+  "@action_category_reactions": {
+    "description": "Reactions"
+  },
+  "action_category_webhooks": "Webhooks",
+  "@action_category_webhooks": {
+    "description": "Webhooks"
+  },
+  "action_category_workflows": "Workflows",
+  "@action_category_workflows": {
+    "description": "Workflows"
+  },
   "action_choose_param": "Escolher {name}",
   "@action_choose_param": {
     "placeholders": {
@@ -53,6 +97,90 @@
   "action_condition_variable": "Variável de Condição",
   "@action_condition_variable": {
     "description": "Condition Variable"
+  },
+  "action_description_addReaction": "Adiciona uma reação de emoji a uma mensagem",
+  "@action_description_addReaction": {
+    "description": "Add an emoji reaction to a message"
+  },
+  "action_description_addRole": "Atribui um cargo a um membro",
+  "@action_description_addRole": {
+    "description": "Assign a role to a member"
+  },
+  "action_description_banUser": "Bane permanentemente um usuário do servidor",
+  "@action_description_banUser": {
+    "description": "Permanently ban a user from the server"
+  },
+  "action_description_clearAllReactions": "Remove todas as reações de uma mensagem",
+  "@action_description_clearAllReactions": {
+    "description": "Remove all reactions from a message"
+  },
+  "action_description_cooldown": "Aplica um tempo de espera para o usuário ou servidor",
+  "@action_description_cooldown": {
+    "description": "Apply a command cooldown for the user or server"
+  },
+  "action_description_deleteMessages": "Apaga uma ou mais mensagens",
+  "@action_description_deleteMessages": {
+    "description": "Delete one or more messages"
+  },
+  "action_description_deleteTrigger": "Apaga a mensagem que acionou este comando",
+  "@action_description_deleteTrigger": {
+    "description": "Delete the message that triggered this command"
+  },
+  "action_description_editMessage": "Edita uma mensagem existente",
+  "@action_description_editMessage": {
+    "description": "Edit an existing message"
+  },
+  "action_description_kickUser": "Expulsa um membro do servidor",
+  "@action_description_kickUser": {
+    "description": "Kick a member from the server"
+  },
+  "action_description_muteUser": "Exclui temporariamente (timeout) um membro",
+  "@action_description_muteUser": {
+    "description": "Temporarily exclude (timeout) a member"
+  },
+  "action_description_randomChoice": "Escolhe um item aleatório de uma lista e armazena em uma variável",
+  "@action_description_randomChoice": {
+    "description": "Pick a random item from a list and store it in a variable"
+  },
+  "action_description_removeReaction": "Remove uma reação de uma mensagem",
+  "@action_description_removeReaction": {
+    "description": "Remove a reaction from a message"
+  },
+  "action_description_removeRole": "Remove um cargo de um membro",
+  "@action_description_removeRole": {
+    "description": "Remove a role from a member"
+  },
+  "action_description_sendDm": "Envia uma mensagem privada para um usuário específico",
+  "@action_description_sendDm": {
+    "description": "Send a private message to a specific user"
+  },
+  "action_description_sendMessage": "Envia uma mensagem para um canal específico",
+  "@action_description_sendMessage": {
+    "description": "Send a message to a specific channel"
+  },
+  "action_description_setNickname": "Altera o apelido de um membro do servidor",
+  "@action_description_setNickname": {
+    "description": "Change a server member's nickname"
+  },
+  "action_description_slowmode": "Define a duração do modo lento para um canal",
+  "@action_description_slowmode": {
+    "description": "Set the slowmode duration for a channel"
+  },
+  "action_description_stop": "Para imediatamente a execução do fluxo atual",
+  "@action_description_stop": {
+    "description": "Immediately stop the execution of the current workflow"
+  },
+  "action_description_unbanUser": "Revoga o banimento de um usuário",
+  "@action_description_unbanUser": {
+    "description": "Revoke a user's ban"
+  },
+  "action_description_unmuteUser": "Remove a exclusão temporária de um membro",
+  "@action_description_unmuteUser": {
+    "description": "Remove temporary exclusion from a member"
+  },
+  "action_description_wait": "Pausa a execução do fluxo por uma duração específica",
+  "@action_description_wait": {
+    "description": "Pause the workflow execution for a specific duration"
   },
   "action_dynamic": "Dinâmico",
   "@action_dynamic": {
@@ -151,6 +279,14 @@
   "@action_hint_condition_var": {
     "description": "Use ((variableName)) or a runtime value"
   },
+  "action_hint_cooldown_error": "Mensagem de erro personalizada (suporta %time%)",
+  "@action_hint_cooldown_error": {
+    "description": "Message to send if on cooldown (supports %time%)"
+  },
+  "action_hint_cooldown_time": "Tempo (ex: 10s, 1m)",
+  "@action_hint_cooldown_time": {
+    "description": "Duration (e.g. 10s, 5m)"
+  },
   "action_hint_duration": "ex: 5m, 1h, 30s",
   "@action_hint_duration": {
     "description": "e.g., 5m, 1h, 30s"
@@ -167,6 +303,14 @@
       }
     },
     "description": "Enter {type}"
+  },
+  "action_hint_random_choices": "Lista de escolhas (separadas por ;)",
+  "@action_hint_random_choices": {
+    "description": "List of choices (separated by ;)"
+  },
+  "action_hint_random_var": "Nome da variável para armazenar o resultado",
+  "@action_hint_random_var": {
+    "description": "Variable name to store the result"
   },
   "action_hint_variable_key": "Selecionar chave de variável",
   "@action_hint_variable_key": {
@@ -262,6 +406,10 @@
   "@action_name_clearAllReactions": {
     "description": "Clear All Reactions"
   },
+  "action_name_cooldown": "Cooldown",
+  "@action_name_cooldown": {
+    "description": "Cooldown"
+  },
   "action_name_createAutoModRule": "Criar Regra AutoMod",
   "@action_name_createAutoModRule": {
     "description": "Create AutoMod Rule"
@@ -305,6 +453,10 @@
   "action_name_deleteMessages": "Eliminar Mensagens",
   "@action_name_deleteMessages": {
     "description": "Delete Messages"
+  },
+  "action_name_deleteTrigger": "Apagar Gatilho",
+  "@action_name_deleteTrigger": {
+    "description": "Delete Trigger Message"
   },
   "action_name_deleteWebhook": "Eliminar Webhook",
   "@action_name_deleteWebhook": {
@@ -422,6 +574,10 @@
   "@action_name_queryArray": {
     "description": "Query Array"
   },
+  "action_name_randomChoice": "Escolha Aleatória",
+  "@action_name_randomChoice": {
+    "description": "Random Choice"
+  },
   "action_name_removeArrayElement": "Remover Elemento do Array",
   "@action_name_removeArrayElement": {
     "description": "Remove Array Element"
@@ -482,6 +638,10 @@
   "@action_name_sendComponentV2": {
     "description": "Send Component V2"
   },
+  "action_name_sendDm": "Enviar MP",
+  "@action_name_sendDm": {
+    "description": "Send Direct Message"
+  },
   "action_name_sendMessage": "Enviar Mensagem",
   "@action_name_sendMessage": {
     "description": "Send Message"
@@ -502,9 +662,21 @@
   "@action_name_setGlobalVariable": {
     "description": "Set Global Variable"
   },
+  "action_name_setNickname": "Definir Apelido",
+  "@action_name_setNickname": {
+    "description": "Set Nickname"
+  },
   "action_name_setScopedVariable": "Definir Variável de Âmbito",
   "@action_name_setScopedVariable": {
     "description": "Set Scoped Variable"
+  },
+  "action_name_slowmode": "Modo Lento",
+  "@action_name_slowmode": {
+    "description": "Slowmode"
+  },
+  "action_name_stop": "Parar",
+  "@action_name_stop": {
+    "description": "Stop Execution"
   },
   "action_name_stopUnless": "Parar a menos que a condição seja cumprida",
   "@action_name_stopUnless": {
@@ -545,6 +717,10 @@
   "action_name_updateSelfUser": "Atualizar Próprio Utilizador (Perfil do Bot)",
   "@action_name_updateSelfUser": {
     "description": "Update Self User (Bot Profile)"
+  },
+  "action_name_wait": "Aguardar",
+  "@action_name_wait": {
+    "description": "Wait"
   },
   "action_no_actions_yet": "Nenhuma ação neste ramo ainda.",
   "@action_no_actions_yet": {
@@ -1548,6 +1724,35 @@
   "@bot_settings_cancel_token_edit_btn": {
     "description": "Cancel token edit"
   },
+  "bot_settings_danger_zone": "Zona de Perigo",
+  "@bot_settings_danger_zone": {
+    "description": "Danger zone title"
+  },
+  "bot_settings_delete_bot": "Excluir Bot",
+  "@bot_settings_delete_bot": {
+    "description": "Delete bot title"
+  },
+  "bot_settings_delete_bot_btn": "Excluir Permanentemente",
+  "@bot_settings_delete_bot_btn": {
+    "description": "Delete bot button label"
+  },
+  "bot_settings_delete_bot_desc": "Esta ação é irreversível. Todos os dados locais e configurações remotas serão removidos permanentemente.",
+  "@bot_settings_delete_bot_desc": {
+    "description": "Delete bot description"
+  },
+  "bot_settings_delete_desc": "Tem certeza de que deseja excluir o bot {id}? Todos os dados serão perdidos.",
+  "@bot_settings_delete_desc": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    },
+    "description": "Confirmation description for deletion"
+  },
+  "bot_settings_delete_title": "Confirmar Exclusão",
+  "@bot_settings_delete_title": {
+    "description": "Confirmation title for deletion"
+  },
   "bot_settings_edit_token_btn": "Editar token",
   "@bot_settings_edit_token_btn": {
     "description": "Edit token"
@@ -1571,6 +1776,10 @@
   "bot_settings_intents_saved": "Intents guardados com sucesso",
   "@bot_settings_intents_saved": {
     "description": "Intents saved successfully"
+  },
+  "bot_settings_no_activities": "Nenhuma atividade configurada",
+  "@bot_settings_no_activities": {
+    "description": "Message shown when no activities are configured for the bot"
   },
   "bot_settings_presence_dnd": "Não Perturbar",
   "@bot_settings_presence_dnd": {
@@ -1607,10 +1816,6 @@
   "bot_settings_remove_status": "Remover atividade",
   "@bot_settings_remove_status": {
     "description": "Remove activity"
-  },
-  "bot_settings_no_activities": "Nenhuma atividade configurada",
-  "@bot_settings_no_activities": {
-    "description": "Message shown when no activities are configured for the bot"
   },
   "bot_settings_save_intents_btn": "Guardar intents",
   "@bot_settings_save_intents_btn": {
@@ -1764,35 +1969,6 @@
   "bot_settings_workflow_docs_desc": "Documentação centralizada para comandos, fluxos de trabalho, variáveis de runtime e comportamento de execução.",
   "@bot_settings_workflow_docs_desc": {
     "description": "Centralized documentation for commands, workflows, runtime variables, and execution behavior."
-  },
-  "bot_settings_danger_zone": "Zona de Perigo",
-  "@bot_settings_danger_zone": {
-    "description": "Danger zone title"
-  },
-  "bot_settings_delete_bot": "Excluir Bot",
-  "@bot_settings_delete_bot": {
-    "description": "Delete bot title"
-  },
-  "bot_settings_delete_bot_desc": "Esta ação é irreversível. Todos os dados locais e configurações remotas serão removidos permanentemente.",
-  "@bot_settings_delete_bot_desc": {
-    "description": "Delete bot description"
-  },
-  "bot_settings_delete_bot_btn": "Excluir Permanentemente",
-  "@bot_settings_delete_bot_btn": {
-    "description": "Delete bot button label"
-  },
-  "bot_settings_delete_title": "Confirmar Exclusão",
-  "@bot_settings_delete_title": {
-    "description": "Confirmation title for deletion"
-  },
-  "bot_settings_delete_desc": "Tem certeza de que deseja excluir o bot {id}? Todos os dados serão perdidos.",
-  "@bot_settings_delete_desc": {
-    "placeholders": {
-      "id": {
-        "type": "String"
-      }
-    },
-    "description": "Confirmation description for deletion"
   },
   "bot_stats_collecting": "A recolher…",
   "@bot_stats_collecting": {

@@ -3176,6 +3176,11 @@ class ActionCard extends StatelessWidget {
       }
     }
 
+    if (action.type == BotCreatorActionType.cooldown) {
+      if (key == 'time') return 'Duration';
+      if (key == 'error') return 'Error Message';
+    }
+
     return key
         .replaceAllMapped(RegExp(r'([A-Z])'), (match) => ' ${match.group(1)}')
         .split(' ')
@@ -3241,6 +3246,65 @@ class ActionCard extends StatelessWidget {
       'Component V2 layout builder': 'Constructeur de layout Component V2',
       'Enable or disable guild onboarding':
           'Activer ou désactiver l\'onboarding serveur',
+      'Duration (e.g. 10s, 1m)': 'Durée (ex: 10s, 1m)',
+      'Duration (e.g. 5s, 1m)': 'Durée (ex: 5s, 1m)',
+      'Custom error message (supports %time%)':
+          'Message d\'erreur personnalisé (supporte %time%)',
+      'User to send DM to': 'Utilisateur à qui envoyer le MP',
+      'User whose nickname to change': 'Utilisateur dont le surnom doit changer',
+      'New nickname': 'Nouveau surnom',
+      'Channel to set slowmode for': 'Salon où activer le mode lent',
+      'Slowmode duration (e.g. 5s, 0 to disable)':
+          'Durée du mode lent (ex: 5s, 0 pour désactiver)',
+      'List of choices (separated by ;)': 'Liste de choix (séparés par ;)',
+      'Variable name to store the result':
+          'Nom de la variable pour stocker le résultat',
+      'Optional: target channel (uses current channel if empty)':
+          'Optionnel : salon cible (utilise le salon actuel si vide)',
+      'Number of messages to delete': 'Nombre de messages à supprimer',
+      'Optional: only delete messages from this user':
+          'Optionnel : supprimer uniquement les messages de cet utilisateur',
+      'Optional: delete messages posted before the given message ID':
+          'Optionnel : supprimer les messages postés avant l\'ID donné',
+      'Reason for deletion': 'Raison de la suppression',
+      'Only delete bot messages': 'Supprimer uniquement les messages de bots',
+      'Only delete user messages': 'Supprimer uniquement les messages d\'utilisateurs',
+      'Channel to remove': 'Salon à supprimer',
+      'Channel name': 'Nom du salon',
+      'Channel type': 'Type de salon',
+      'Parent category': 'Catégorie parente',
+      'Channel topic/description': 'Sujet/description du salon',
+      'Age-restricted channel': 'Salon réservé aux adultes (NSFW)',
+      'Slowmode duration': 'Durée du mode lent',
+      'New channel name': 'Nouveau nom du salon',
+      'New channel topic/description': 'Nouveau sujet/description du salon',
+      'Toggle NSFW status': 'Basculer le statut NSFW',
+      'New slowmode duration': 'Nouvelle durée du mode lent',
+      'Send to a channel or directly to a user (DM)':
+          'Envoyer dans un salon ou directement à un utilisateur (MP)',
+      'Target channel (required when targetType=channel; leave empty for current channel)':
+          'Salon cible (requis si targetType=channel ; laisser vide pour le salon actuel)',
+      'User to DM (required when targetType=user)':
+          'Utilisateur à qui envoyer le MP (requis si targetType=user)',
+      'Normal message (embeds, buttons/selects) or Component V2':
+          'Message normal (embeds, boutons) ou Composant V2',
+      'Optional embeds (same format as normal command reply)':
+          'Embeds optionnels (même format que la réponse de commande)',
+      'Optional message components (buttons/select menus only)':
+          'Composants de message optionnels (boutons/menus de sélection)',
+      'Component V2 interactive elements': 'Éléments interactifs Composant V2',
+      'Users/roles to mention': 'Utilisateurs/rôles à mentionner',
+      'Text-to-speech': 'Synthèse vocale (TTS)',
+      'Channel containing message': 'Salon contenant le message',
+      'Message to edit': 'Message à modifier',
+      'Edit standard message or Component V2 layout':
+          'Modifier un message standard ou un layout Composant V2',
+      'New message content': 'Nouveau contenu du message',
+      'Optional embeds to replace the current message embeds':
+          'Embeds optionnels pour remplacer les embeds actuels',
+      'Remove all embeds from the message': 'Supprimer tous les embeds du message',
+      'Edit Component V2 interactive elements (optional)':
+          'Modifier les éléments interactifs Composant V2 (optionnel)',
     };
 
     final directValue = direct[raw];

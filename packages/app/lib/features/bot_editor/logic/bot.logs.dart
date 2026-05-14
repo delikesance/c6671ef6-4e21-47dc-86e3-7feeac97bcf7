@@ -76,14 +76,6 @@ String _resolveBotBucketKey(
 _CpuSample? _lastCpuSample;
 bool _remoteMetricsBaselineInitialized = false;
 
-Future<void> _persistDebugLogsEnabled(bool enabled) async {
-  try {
-    await FlutterForegroundTask.saveData(
-      key: _debugLogsEnabledDataKey,
-      value: enabled,
-    );
-  } catch (_) {}
-}
 
 int? _readCurrentProcessRssBytes() {
   try {
@@ -195,7 +187,7 @@ double? _readCurrentProcessCpuPercent() {
 
 Future<int?> _readBotStorageBytes({String? botId}) async {
   try {
-    final docsDir = await getAppStorageDirectory();
+    final docsDir = await storage_utils.getAppStorageDirectory();
     final basePath = docsDir.path;
     final appsDir = Directory('$basePath/apps');
     if (!await appsDir.exists()) {
@@ -404,21 +396,7 @@ Stream<int?> getBotProcessStorageStream() =>
 
 int? getBotProcessStorageBytes() => _botProcessStorageBytes;
 
-Future<void> _emitTaskMetricsToMain({String? botId}) async {
-  final rssBytes = _readCurrentProcessRssBytes();
-  final cpuPercent = _readCurrentProcessCpuPercent();
-  final storageBytes = await _readBotStorageBytes(botId: botId);
-  try {
-    FlutterForegroundTask.sendDataToMain(<String, dynamic>{
-      'type': 'bot_metrics',
-      'botId': botId,
-      'rssBytes': rssBytes,
-      'cpuPercent': cpuPercent,
-      'storageBytes': storageBytes,
-      'ts': DateTime.now().millisecondsSinceEpoch,
-    });
-  } catch (_) {}
-}
+
 
 void _publishBotLogs() {
   final selectedKey = _resolveBotBucketKey(
@@ -434,13 +412,7 @@ void _publishBotLogs() {
     _botLogsController.add(List<String>.unmodifiable(_botLogs));
   }
   if (!_botLogsByBotController.isClosed) {
-    _botLogsByBotController.add(
-      Map<String, List<String>>.unmodifiable(
-        _botLogsByBot.map(
-          (key, value) => MapEntry(key, List<String>.unmodifiable(value)),
-        ),
-      ),
-    );
+    _botLogsByBotController.add(Map<String, List<String>>.unmodifiable(_botLogsByBot));
   }
 }
 
@@ -487,10 +459,9 @@ Set<String> getKnownBotLogIds() {
   final bucketKeys = <String>{..._botLogsByBot.keys, ..._botMetricsByBot.keys};
   for (final key in bucketKeys) {
     final botId = _bucketBotId(key);
-    if (botId == _globalBotBucketKey) {
-      continue;
+    if (botId != _globalBotBucketKey) {
+      ids.add(botId);
     }
-    ids.add(botId);
   }
   return ids;
 }
@@ -632,6 +603,9 @@ void appendBotLog(
   final line =
       _startsWithTimestamp(message) ? message : '[${_timestampNow()}] $message';
   logs.add(line);
+  if (kDebugMode && source != RemoteRuntimeSource.local) {
+    developer.log('New remote log appended: $line', name: 'BotLogs');
+  }
   if (logs.length > _maxBotLogLines) {
     _botLogsByBot[key] = logs.sublist(logs.length - _maxBotLogLines);
   }
@@ -788,17 +762,7 @@ String _formatNyxxLogRecord(LogRecord record) {
   return buffer.toString();
 }
 
-void _bindDesktopNyxxLogs({String? botId}) {
-  _desktopNyxxLogsSubscription?.cancel();
-  Logger.root.level = Level.ALL;
-  _desktopNyxxLogsSubscription = Logger.root.onRecord.listen((record) {
-    final name = record.loggerName;
-    if (!name.startsWith('CardiaKexa')) {
-      return;
-    }
-    appendBotDebugLog(_formatNyxxLogRecord(record), botId: botId);
-  });
-}
+
 
 void consumeForegroundTaskDataForBotLogs(Object data) {
   if (data is! Map) {
@@ -872,60 +836,8 @@ void consumeForegroundTaskDataForBotLogs(Object data) {
   appendBotLog(message, botId: botId);
 }
 
-Future<void> _emitTaskLifecycleToMain(String state, {String? botId}) async {
-  final trimmedBotId = botId?.trim() ?? '';
-  if (trimmedBotId.isNotEmpty) {
-    try {
-      final existing = await FlutterForegroundTask.getData<dynamic>(
-        key: _mobileReadyBotIdsDataKey,
-      );
-      final next = <String>{};
-      if (existing is Iterable) {
-        for (final value in existing) {
-          final normalized = value.toString().trim();
-          if (normalized.isNotEmpty) {
-            next.add(normalized);
-          }
-        }
-      }
 
-      if (state == 'started') {
-        next.add(trimmedBotId);
-      } else if (state == 'stopped') {
-        next.remove(trimmedBotId);
-      }
 
-      await FlutterForegroundTask.saveData(
-        key: _mobileReadyBotIdsDataKey,
-        value: next.toList(growable: false),
-      );
-    } catch (_) {}
-  }
 
-  try {
-    FlutterForegroundTask.sendDataToMain(<String, dynamic>{
-      'type': 'bot_lifecycle',
-      'state': state,
-      'botId': botId,
-      'ts': DateTime.now().millisecondsSinceEpoch,
-    });
-  } catch (_) {}
-}
 
-Future<void> _emitTaskLogToMain(String message, {String? botId}) async {
-  try {
-    FlutterForegroundTask.sendDataToMain(<String, dynamic>{
-      'type': 'bot_log',
-      'botId': botId,
-      'message': message,
-      'ts': DateTime.now().millisecondsSinceEpoch,
-    });
-  } catch (_) {}
-}
 
-Future<void> _emitTaskDebugLogToMain(String message, {String? botId}) async {
-  if (!_debugBotLogsEnabled) {
-    return;
-  }
-  await _emitTaskLogToMain('DEBUG: $message', botId: botId);
-}

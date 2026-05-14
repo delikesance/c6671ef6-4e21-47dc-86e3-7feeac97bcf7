@@ -1,36 +1,41 @@
 library;
 
 import 'dart:async';
-import 'dart:convert';
+
 import 'dart:developer' as developer;
 import 'dart:io';
-import 'dart:math';
+
 import 'dart:ui' as ui;
 
 import 'package:bot_creator/main.dart';
-import 'package:bot_creator_shared/actions/handler.dart';
-import 'package:bot_creator_shared/utils/command_workflow_routing.dart';
-import 'package:bot_creator_shared/actions/handle_component_interaction.dart';
-import 'package:bot_creator_shared/actions/interaction_response.dart';
-import 'package:bot_creator_shared/events/event_contexts.dart';
-import 'package:bot_creator_shared/utils/interaction_ack_state.dart';
-import 'package:bot_creator_shared/utils/interaction_listener_registry.dart';
-import 'package:bot_creator_shared/types/action.dart';
-import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
-import 'package:bot_creator_shared/utils/command_autocomplete.dart';
-import 'package:bot_creator_shared/utils/runtime_variables.dart';
-import 'package:bot_creator/core/storage/database.dart';
-import 'package:bot_creator/core/utils/global.dart';
-import 'package:bot_creator/core/i18n/app_locale.dart';
-import 'package:bot_creator/core/i18n/l10n/app_localizations.dart'
-    show lookupAppLocalizations;
-
+import 'package:bot_creator_shared/bot_creator_shared.dart' hide 
+  BotRuntimeMetrics, 
+  getDiscordUser, 
+  generateKeyValues, 
+  findFocusedOption, 
+  normalizeStoredWorkflowDefinition, 
+  normalizeWorkflowType, 
+  workflowTypeGeneral, 
+  workflowTypeEvent,
+  normalizeWorkflowEventTrigger,
+  resolveWorkflowCallArguments,
+  applyWorkflowInvocationContext,
+  normalizeWorkflowEntryPoint,
+  parseWorkflowArgumentDefinitions,
+  getChannelName,
+  makeAvatarUrl;
 import 'package:bot_creator_shared/utils/global.dart' as shared_global;
+import 'package:bot_creator/core/storage/database.dart';
+
+
+
+
+
 import 'package:bot_creator/core/network/mobile_sessions_orchestrator.dart';
-import 'package:bot_creator/core/storage/app_storage_directory.dart';
+import 'package:bot_creator/core/storage/app_storage_directory.dart' as storage_utils;
 import 'package:bot_creator/core/network/runner_client.dart';
-import 'package:bot_creator/features/bot_editor/logic/template_resolver.dart';
-import 'package:bot_creator/features/bot_editor/logic/workflow_call.dart';
+
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter/services.dart';
@@ -41,140 +46,44 @@ part 'bot.logs.dart';
 part 'bot.debug_replay.dart';
 part 'bot.template.dart';
 part 'bot.mobile_service.dart';
-part 'bot.commands.dart';
-part 'bot.event_workflows.dart';
 
-String _formatBdfdRuntimeDiagnostics(List<BdfdCompileDiagnostic> diagnostics) {
-  if (diagnostics.isEmpty) {
-    return lookupAppLocalizations(
-      ui.PlatformDispatcher.instance.locale,
-    ).bdfd_compile_error_simple;
-  }
 
-  final summary = diagnostics
-      .take(5)
-      .map((diagnostic) {
-        final location =
-            (diagnostic.line != null && diagnostic.column != null)
-                ? 'L${diagnostic.line}:C${diagnostic.column} '
-                : '';
-        return '- $location${diagnostic.message}';
-      })
-      .join('\n');
-  return lookupAppLocalizations(
-    ui.PlatformDispatcher.instance.locale,
-  ).bdfd_compile_error_detailed(summary);
-}
+/// The central bot execution engine for the desktop app.
+final BotEngine _engine = BotEngine(
+  store: appManager,
+  callbacks: BotEngineCallbacks(
+    onLog: (msg, {required botId}) => appendBotLog(msg, botId: botId),
+    onDebugLog: (msg, {botId}) => appendBotLog(msg, botId: botId),
+    onLifecycleChange: (event, {required botId}) {
+      if (event == 'started') {
+        _botRuntimeActive = true;
+      } else if (event == 'stopped' && _engine.runningBotIds.isEmpty) {
+        _botRuntimeActive = false;
+      }
+      setBotRuntimeActive(_botRuntimeActive || mobileRunningBotIds.isNotEmpty);
+    },
+    onMetrics: (metrics, {required botId}) {
+      // Local metrics are updated elsewhere via getters for now.
+    },
+  ),
+);
 
-AppLocale _discordLocaleForInteraction(dynamic interaction) {
-  String raw = '';
-  try {
-    raw = (interaction.locale?.toString() ?? '').trim();
-  } catch (_) {}
-  if (raw.isEmpty) {
-    try {
-      raw = (interaction.guildLocale?.toString() ?? '').trim();
-    } catch (_) {}
-  }
 
-  final normalized = raw.toLowerCase();
-  if (normalized.startsWith('fr')) {
-    return AppLocale.fr;
-  }
-  return AppLocale.en;
-}
 
-String _interactionT(dynamic interaction, String key) {
-  final locale = _discordLocaleForInteraction(interaction);
-  final loc = lookupAppLocalizations(ui.Locale(locale.code));
-  switch (key) {
-    case 'bdfd_compiled_no_actions':
-      return loc.bdfd_compiled_no_actions;
-    case 'command_execution_error':
-      return loc.command_execution_error;
-    case 'command_not_found':
-      return loc.command_not_found;
-    default:
-      return key;
-  }
-}
 
-/// Injects gateway-only bot variables (ping, uptime, shardId) and
-/// bot info variables (ownerId, commands count, nodeVersion, execution time)
-/// into a runtime variables map.  Works for both desktop and mobile sessions.
-void _injectLocalGatewayBotVariables(
-  NyxxGateway gateway,
-  Map<String, String> variables, {
-  DateTime? startedAt,
-  String? botId,
-}) {
-  try {
-    variables['bot.ping'] = gateway.gateway.latency.inMilliseconds.toString();
-  } catch (_) {}
-  try {
-    variables['bot.shardId'] = gateway.gateway.shardIds.join(',');
-  } catch (_) {}
-  if (startedAt != null) {
-    variables['bot.uptime'] =
-        DateTime.now().difference(startedAt).inSeconds.toString();
-  }
 
-  // ── Bot info variables (always resolved) ──
-  final resolvedBotId = botId ?? '';
-  variables['bot.id'] = resolvedBotId;
-  variables['bot.ownerId'] = _desktopCachedOwnerIdByBotId[resolvedBotId] ?? '';
-  final commandCount =
-      _desktopCachedCommandCountByBotId[resolvedBotId]?.toString() ?? '0';
-  variables['bot.commands'] = commandCount;
-  variables['bot.commandsCount'] = commandCount;
-  variables['bot.slashCommandsCount'] = commandCount;
-  variables['bot.nodeVersion'] = 'Dart ${Platform.version.split(' ').first}';
-  if (!variables.containsKey('execution.time')) {
-    variables['execution.time'] = '0ms';
-  }
-}
 
-/// Returns the [DateTime] at which the given bot session was started,
-/// checking desktop first, then the mobile sessions map.
-DateTime? _botStartedAt(String botId) {
-  final desktopStartedAt = _desktopStartedAtByBotId[botId];
-  if (desktopStartedAt != null) {
-    return desktopStartedAt;
-  }
-  // Mobile sessions are tracked in DiscordBotTaskHandler._mobileStartedAt
-  // but that instance is not directly accessible from here.  We only have
-  // local desktop started-at tracking in this file for the desktop path.
-  return null;
-}
 
-final Map<String, NyxxGateway> _desktopGatewaysByBotId =
-    <String, NyxxGateway>{};
-final Map<String, List<StreamSubscription<dynamic>>>
-_desktopEventSubscriptionsByBotId =
-    <String, List<StreamSubscription<dynamic>>>{};
-final Map<String, DateTime> _desktopStartedAtByBotId = <String, DateTime>{};
-final Map<String, String> _desktopCachedOwnerIdByBotId = <String, String>{};
-final Map<String, int> _desktopCachedCommandCountByBotId = <String, int>{};
-StreamSubscription<LogRecord>? _desktopNyxxLogsSubscription;
-final Map<String, Timer> _desktopMetricsTimersByBotId = <String, Timer>{};
-final Map<String, Timer> _desktopStatusRotationTimersByBotId =
-    <String, Timer>{};
 String? get desktopRunningBotId {
-  if (_desktopGatewaysByBotId.isEmpty) {
-    return null;
-  }
-  return _desktopGatewaysByBotId.keys.first;
+  if (_engine.runningBotIds.isEmpty) return null;
+  return _engine.runningBotIds.first;
 }
 
-Set<String> get desktopRunningBotIds =>
-    Set<String>.unmodifiable(_desktopGatewaysByBotId.keys);
-bool isDesktopBotRunningId(String botId) =>
-    _desktopGatewaysByBotId.containsKey(botId.trim());
+Set<String> get desktopRunningBotIds => _engine.runningBotIds;
 
-/// Returns the [NyxxGateway] for a running desktop bot, or `null` when the
-/// bot is not running on desktop.
-NyxxGateway? desktopGatewayForBot(String botId) =>
-    _desktopGatewaysByBotId[botId.trim()];
+bool isDesktopBotRunningId(String botId) => _engine.runningBotIds.contains(botId.trim());
+
+NyxxGateway? desktopGatewayForBot(String botId) => _engine.getSession(botId.trim())?.gateway;
 
 String? _mobileRunningBotId;
 final Set<String> _mobileRunningBotIds = <String>{};
@@ -254,9 +163,9 @@ int? _botProcessStorageBytes;
 final Map<String, BotRuntimeMetrics> _botMetricsByBot =
     <String, BotRuntimeMetrics>{};
 bool _botRuntimeActive = false;
-final Random _desktopStatusRandom = Random();
 
-bool get isDesktopBotRunning => _desktopGatewaysByBotId.isNotEmpty;
+
+bool get isDesktopBotRunning => _engine.isRunning;
 bool get isBotDebugLogsEnabled => _debugBotLogsEnabled;
 bool get isBotRuntimeActive => _botRuntimeActive;
 
@@ -264,29 +173,7 @@ void applyDesktopRuntimeSettings({
   required String botId,
   required Map<String, dynamic> appData,
 }) {
-  final gateway = _desktopGatewaysByBotId[botId];
-  if (gateway == null) {
-    return;
-  }
-
-  _startDesktopStatusRotation(botId, gateway, appData);
-
-  // Refresh event listeners
-  final oldSubs = _desktopEventSubscriptionsByBotId[botId];
-  if (oldSubs != null) {
-    for (final sub in oldSubs) {
-      unawaited(sub.cancel());
-    }
-  }
-  _registerLocalEventWorkflowListeners(
-    gateway,
-    manager: appManager,
-    botId: botId,
-    appData: appData,
-    onLog: (message) => appendBotLog(message, botId: botId),
-  ).then((newSubs) {
-    _desktopEventSubscriptionsByBotId[botId] = newSubs;
-  });
+  unawaited(_engine.reload(botId));
 }
 
 /// A callback registered by the synchronization engine (bot_payload_builder)
@@ -299,6 +186,15 @@ Future<void> refreshBotRuntime(String botId) async {
   if (onRefreshBotRuntime != null) {
     await onRefreshBotRuntime!(botId, immediate: true);
   }
+}
+
+Future<void> _persistDebugLogsEnabled(bool enabled) async {
+  try {
+    await FlutterForegroundTask.saveData(
+      key: _debugLogsEnabledDataKey,
+      value: enabled,
+    );
+  } catch (_) {}
 }
 
 void setBotDebugLogsEnabled(bool enabled) {
@@ -314,12 +210,7 @@ String _timestampNow() {
   return '${_two(now.hour)}:${_two(now.minute)}:${_two(now.second)}';
 }
 
-List<String> _enabledIntentNames(Map<String, bool> intentsMap) {
-  return intentsMap.entries
-    .where((entry) => entry.value)
-    .map((entry) => entry.key)
-    .toList(growable: false)..sort();
-}
+
 
 /// Convert the intents configuration map to GatewayIntents
 Flags<GatewayIntents> buildGatewayIntents(Map<String, bool>? intentsMap) {
@@ -381,359 +272,25 @@ Future<void> startDesktopBot(String token) async {
     throw Exception('Desktop bot mode is only available on desktop platforms.');
   }
 
-  final botUser = await getDiscordUser(token);
+  final botUser = await shared_global.getDiscordUser(token);
   final botId = botUser.id.toString();
-  if (_desktopGatewaysByBotId.containsKey(botId)) {
-    appendBotLog('Desktop bot "$botId" is already running', botId: botId);
-    return;
-  }
-
-  appendBotLog('Starting desktop bot...', botId: botId);
-  appendBotDebugLog('Desktop bot token: $token', botId: botId);
-  appendBotDebugLog('Desktop platform detected');
-
-  final appData = await appManager.getApp(botId);
-  final intentsMap = Map<String, bool>.from(appData['intents'] as Map? ?? {});
-  final intents = buildGatewayIntents(intentsMap);
-  final enabledIntentNames = _enabledIntentNames(intentsMap);
-  _bindDesktopNyxxLogs();
-  appendBotLog(
-    'Active runtime intents (${enabledIntentNames.length}): '
-    '${enabledIntentNames.isEmpty ? 'none' : enabledIntentNames.join(', ')}',
-    botId: botId,
-  );
-
-  final gateway = await Nyxx.connectGateway(
-    token,
-    intents,
-    options: GatewayClientOptions(
-      loggerName: 'CardiaKexaDesktop',
-      plugins: [Logging(logLevel: Level.ALL)],
-    ),
-  );
-  _desktopStartedAtByBotId[botId] = DateTime.now();
-  _desktopGatewaysByBotId[botId] = gateway;
-  setBotRuntimeActive(true);
-
-  gateway.onReady.listen((event) async {
-    setBotRuntimeActive(true);
-    appendBotLog('Desktop bot connected and ready', botId: botId);
-
-    // Cache the application owner ID for $botOwnerID resolution.
-    try {
-      final app =
-          await event.gateway.client.applications.fetchCurrentApplication();
-      _desktopCachedOwnerIdByBotId[botId] = app.owner?.id.toString() ?? '';
-    } catch (_) {}
-
-    // Cache command count for $commandsCount / $slashCommandsCount.
-    try {
-      final commands = await appManager.listAppCommands(botId);
-      _desktopCachedCommandCountByBotId[botId] = commands.length;
-    } catch (_) {}
-
-    unawaited(appManager.updateGuildCount(botId, event.guilds.length));
-    unawaited(_refreshBotMetrics(botId: botId));
-    _desktopMetricsTimersByBotId[botId]?.cancel();
-    _desktopMetricsTimersByBotId[botId] = Timer.periodic(
-      const Duration(seconds: 5),
-      (_) {
-        unawaited(_refreshBotMetrics(botId: botId));
-      },
-    );
-    final latestAppData = await appManager.getApp(botId);
-    _startDesktopStatusRotation(botId, gateway, latestAppData);
-    gateway.onInteractionCreate.listen((event) async {
-      await handleLocalCommands(event, appManager);
-    });
-    _desktopEventSubscriptionsByBotId[botId] =
-        await _registerLocalEventWorkflowListeners(
-          gateway,
-          manager: appManager,
-          botId: botId,
-          appData: latestAppData,
-          onLog: (message) {
-            appendBotLog(message, botId: botId);
-          },
-        );
-  });
+  
+  await _engine.startWithId(botId, token);
 }
 
 Future<void> stopDesktopBot({String? botId}) async {
-  final normalizedBotId = (botId ?? '').trim();
-  if (normalizedBotId.isEmpty) {
-    final runningIds = _desktopGatewaysByBotId.keys.toList(growable: false);
-    for (final id in runningIds) {
-      await stopDesktopBot(botId: id);
-    }
+  if (botId == null) {
+    await _engine.stopAll();
     return;
   }
 
-  appendBotLog('Desktop bot shutdown requested', botId: normalizedBotId);
-  _desktopMetricsTimersByBotId.remove(normalizedBotId)?.cancel();
-  _desktopStatusRotationTimersByBotId.remove(normalizedBotId)?.cancel();
+  final normalizedBotId = botId.trim();
+  if (normalizedBotId.isEmpty) return;
 
-  final gateway = _desktopGatewaysByBotId.remove(normalizedBotId);
-  final subs = _desktopEventSubscriptionsByBotId.remove(normalizedBotId);
-  if (subs != null) {
-    for (final sub in subs) {
-      unawaited(sub.cancel());
-    }
-  }
-  _desktopStartedAtByBotId.remove(normalizedBotId);
-  _desktopCachedOwnerIdByBotId.remove(normalizedBotId);
-  _desktopCachedCommandCountByBotId.remove(normalizedBotId);
-  if (gateway != null) {
-    await gateway.close();
-  }
-
-  if (_desktopGatewaysByBotId.isEmpty) {
-    await _desktopNyxxLogsSubscription?.cancel();
-    _desktopNyxxLogsSubscription = null;
-    _updateBotMetrics(
-      rssBytes: null,
-      cpuPercent: null,
-      storageBytes: null,
-      overwriteNulls: true,
-    );
-  }
-
-  setBotRuntimeActive(
-    _desktopGatewaysByBotId.isNotEmpty || mobileRunningBotIds.isNotEmpty,
-  );
+  await _engine.stop(normalizedBotId);
+  setBotRuntimeActive(_engine.isRunning || mobileRunningBotIds.isNotEmpty);
 }
 
-void _startDesktopStatusRotation(
-  String botId,
-  NyxxGateway gateway,
-  Map<String, dynamic> appData,
-) {
-  _desktopStatusRotationTimersByBotId[botId]?.cancel();
-  _desktopStatusRotationTimersByBotId.remove(botId);
-
-  final statuses = _normalizeStatuses(
-    appData['activities'] ?? appData['statuses'],
-  );
-  final presenceStatus = (appData['presenceStatus'] as String?) ?? 'online';
-
-  if (statuses.isEmpty) {
-    try {
-      gateway.updatePresence(
-        PresenceBuilder(
-          status: _mapPresenceStatus(presenceStatus),
-          isAfk: false,
-          activities: [],
-        ),
-      );
-    } catch (error) {
-      appendBotDebugLog('Presence update failed (no activities): $error');
-    }
-    return;
-  }
-
-  unawaited(
-    _applyDesktopInitialStatusThenRotate(
-      botId,
-      gateway,
-      statuses,
-      presenceStatus,
-    ),
-  );
-}
-
-Future<void> _applyDesktopInitialStatusThenRotate(
-  String botId,
-  NyxxGateway gateway,
-  List<Map<String, dynamic>> statuses,
-  String presenceStatus,
-) async {
-  if (statuses.isEmpty) {
-    return;
-  }
-
-  final firstStatus = statuses.first;
-  await _applyDesktopStatus(botId, gateway, firstStatus, presenceStatus);
-
-  // Re-send once after READY to avoid occasional dropped first presence frame.
-  Timer(const Duration(seconds: 3), () {
-    unawaited(_applyDesktopStatus(botId, gateway, firstStatus, presenceStatus));
-  });
-
-  if (statuses.length == 1) {
-    return;
-  }
-
-  final min = (firstStatus['minIntervalSeconds'] as int?) ?? 60;
-  final max = (firstStatus['maxIntervalSeconds'] as int?) ?? min;
-  final delaySeconds =
-      max <= min ? min : min + _desktopStatusRandom.nextInt(max - min + 1);
-
-  _desktopStatusRotationTimersByBotId[botId]?.cancel();
-  _desktopStatusRotationTimersByBotId[botId] = Timer(
-    Duration(seconds: delaySeconds),
-    () {
-      unawaited(
-        _applyDesktopRandomStatus(botId, gateway, statuses, presenceStatus),
-      );
-    },
-  );
-}
-
-CurrentUserStatus _mapPresenceStatus(String statusString) {
-  switch (statusString) {
-    case 'idle':
-      return CurrentUserStatus.idle;
-    case 'dnd':
-      return CurrentUserStatus.dnd;
-    case 'invisible':
-      return CurrentUserStatus.invisible;
-    case 'online':
-    default:
-      return CurrentUserStatus.online;
-  }
-}
-
-Future<void> _applyDesktopStatus(
-  String botId,
-  NyxxGateway gateway,
-  Map<String, dynamic> status,
-  String presenceStatus,
-) async {
-  final type = (status['type'] ?? 'playing').toString();
-  final streamUrl = _parseStreamingUrl((status['url'] ?? '').toString());
-  final text = _sanitizeDesktopActivityText(
-    ((status['name'] ?? status['text']) ?? '').toString(),
-  );
-
-  if (text.isEmpty) {
-    return;
-  }
-
-  try {
-    gateway.updatePresence(
-      PresenceBuilder(
-        status: _mapPresenceStatus(presenceStatus),
-        isAfk: false,
-        activities: <ActivityBuilder>[
-          ActivityBuilder(
-            name: text,
-            type: _mapDesktopActivityType(type, streamUrl: streamUrl),
-            url: streamUrl,
-          ),
-        ],
-      ),
-    );
-    appendBotLog('Desktop presence applied: $type $text', botId: botId);
-  } catch (error) {
-    appendBotDebugLog('Status rotation update failed: $error');
-  }
-}
-
-Future<void> _applyDesktopRandomStatus(
-  String botId,
-  NyxxGateway gateway,
-  List<Map<String, dynamic>> statuses,
-  String presenceStatus,
-) async {
-  if (statuses.isEmpty) {
-    return;
-  }
-
-  final picked = statuses[_desktopStatusRandom.nextInt(statuses.length)];
-  final min = (picked['minIntervalSeconds'] as int?) ?? 60;
-  final max = (picked['maxIntervalSeconds'] as int?) ?? min;
-
-  await _applyDesktopStatus(botId, gateway, picked, presenceStatus);
-
-  final delaySeconds =
-      max <= min ? min : min + _desktopStatusRandom.nextInt(max - min + 1);
-  _desktopStatusRotationTimersByBotId[botId]?.cancel();
-  _desktopStatusRotationTimersByBotId[botId] = Timer(
-    Duration(seconds: delaySeconds),
-    () {
-      unawaited(
-        _applyDesktopRandomStatus(botId, gateway, statuses, presenceStatus),
-      );
-    },
-  );
-}
-
-List<Map<String, dynamic>> _normalizeStatuses(dynamic raw) {
-  if (raw is! List) {
-    return const <Map<String, dynamic>>[];
-  }
-
-  final normalized = <Map<String, dynamic>>[];
-  for (final entry in raw.whereType<Map>()) {
-    final map = Map<String, dynamic>.from(entry);
-    final text = ((map['name'] ?? map['text']) ?? '').toString().trim();
-    if (text.isEmpty) {
-      continue;
-    }
-    final min =
-        int.tryParse((map['minIntervalSeconds'] ?? '').toString()) ?? 60;
-    final maxRaw =
-        int.tryParse((map['maxIntervalSeconds'] ?? '').toString()) ?? min;
-    final max = maxRaw < min ? min : maxRaw;
-    normalized.add({
-      'type': (map['type'] ?? 'playing').toString().trim().toLowerCase(),
-      'name': text,
-      'text': text,
-      'state': (map['state'] ?? '').toString(),
-      'url': (map['url'] ?? '').toString(),
-      'minIntervalSeconds': min > 0 ? min : 60,
-      'maxIntervalSeconds': max > 0 ? max : 60,
-    });
-  }
-
-  return normalized;
-}
-
-ActivityType _mapDesktopActivityType(
-  String rawType, {
-  required Uri? streamUrl,
-}) {
-  switch (rawType.trim().toLowerCase()) {
-    case 'streaming':
-      return streamUrl != null ? ActivityType.streaming : ActivityType.game;
-    case 'listening':
-      return ActivityType.listening;
-    case 'watching':
-      return ActivityType.watching;
-    case 'competing':
-      return ActivityType.competing;
-    case 'playing':
-    default:
-      return ActivityType.game;
-  }
-}
-
-Uri? _parseStreamingUrl(String raw) {
-  final trimmed = raw.trim();
-  if (trimmed.isEmpty) {
-    return null;
-  }
-  final parsed = Uri.tryParse(trimmed);
-  if (parsed == null) {
-    return null;
-  }
-  if ((parsed.scheme != 'http' && parsed.scheme != 'https') ||
-      parsed.host.isEmpty) {
-    return null;
-  }
-  return parsed;
-}
-
-String _sanitizeDesktopActivityText(String raw) {
-  final trimmed = raw.trim();
-  if (trimmed.isEmpty) {
-    return '';
-  }
-  if (trimmed.length > 120) {
-    return trimmed.substring(0, 120);
-  }
-  return trimmed;
-}
 
 Future<void> createCommand(
   NyxxRest client,

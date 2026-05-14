@@ -1,4 +1,4 @@
-import 'package:bot_creator/core/i18n/extensions.dart';
+ import 'package:bot_creator/core/i18n/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:bot_creator/core/models/types/action.dart'
     show BotCreatorActionType;
@@ -44,6 +44,7 @@ String getCategoryForAction(BotCreatorActionType type) {
     case BotCreatorActionType.unpinMessage:
     case BotCreatorActionType.createPoll:
     case BotCreatorActionType.endPoll:
+    case BotCreatorActionType.deleteTrigger:
       return 'Messages';
     case BotCreatorActionType.addReaction:
     case BotCreatorActionType.removeReaction:
@@ -75,6 +76,8 @@ String getCategoryForAction(BotCreatorActionType type) {
     case BotCreatorActionType.createAutoModRule:
     case BotCreatorActionType.deleteAutoModRule:
     case BotCreatorActionType.listAutoModRules:
+    case BotCreatorActionType.setNickname:
+    case BotCreatorActionType.slowmode:
       return 'Moderation';
     case BotCreatorActionType.sendComponentV2:
     case BotCreatorActionType.editComponentV2:
@@ -115,6 +118,10 @@ String getCategoryForAction(BotCreatorActionType type) {
     case BotCreatorActionType.stopUnless:
     case BotCreatorActionType.ifBlock:
     case BotCreatorActionType.calculate:
+    case BotCreatorActionType.cooldown:
+    case BotCreatorActionType.wait:
+    case BotCreatorActionType.stop:
+    case BotCreatorActionType.randomChoice:
       return 'Logic & Flow';
     case BotCreatorActionType.respondWithMessage:
     case BotCreatorActionType.respondWithComponentV2:
@@ -124,7 +131,38 @@ String getCategoryForAction(BotCreatorActionType type) {
     case BotCreatorActionType.listenForSelectMenu:
     case BotCreatorActionType.listenForModalSubmit:
     case BotCreatorActionType.respondWithAutocomplete:
+    case BotCreatorActionType.sendDm:
       return 'Interactions';
+  }
+}
+
+/// Localizes a category name for display.
+String localizeCategory(BuildContext context, String category) {
+  switch (category) {
+    case 'Messages':
+      return context.tr.action_category_messages;
+    case 'Reactions':
+      return context.tr.action_category_reactions;
+    case 'Channels':
+      return context.tr.action_category_channels;
+    case 'Moderation':
+      return context.tr.action_category_moderation;
+    case 'Components':
+      return context.tr.action_category_components;
+    case 'Webhooks':
+      return context.tr.action_category_webhooks;
+    case 'Guild & Members':
+      return context.tr.action_category_guild_members;
+    case 'HTTP & Variables':
+      return context.tr.action_category_http_variables;
+    case 'Workflows':
+      return context.tr.action_category_workflows;
+    case 'Logic & Flow':
+      return context.tr.action_category_logic_flow;
+    case 'Interactions':
+      return context.tr.action_category_interactions;
+    default:
+      return category;
   }
 }
 
@@ -305,7 +343,7 @@ class _CategorySection extends StatelessWidget {
               Icon(icon, size: 16, color: color),
               const SizedBox(width: 6),
               Text(
-                category,
+                localizeCategory(context, category),
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,

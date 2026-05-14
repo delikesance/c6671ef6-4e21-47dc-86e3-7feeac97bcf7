@@ -165,6 +165,22 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
         return context.tr.action_name_editChannelPermissions;
       case BotCreatorActionType.deleteChannelPermission:
         return context.tr.action_name_deleteChannelPermission;
+      case BotCreatorActionType.cooldown:
+        return context.tr.action_name_cooldown;
+      case BotCreatorActionType.wait:
+        return context.tr.action_name_wait;
+      case BotCreatorActionType.deleteTrigger:
+        return context.tr.action_name_deleteTrigger;
+      case BotCreatorActionType.sendDm:
+        return context.tr.action_name_sendDm;
+      case BotCreatorActionType.setNickname:
+        return context.tr.action_name_setNickname;
+      case BotCreatorActionType.slowmode:
+        return context.tr.action_name_slowmode;
+      case BotCreatorActionType.stop:
+        return context.tr.action_name_stop;
+      case BotCreatorActionType.randomChoice:
+        return context.tr.action_name_randomChoice;
     }
   }
 
@@ -319,6 +335,22 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
         return Icons.lock_open;
       case BotCreatorActionType.deleteChannelPermission:
         return Icons.lock_reset;
+      case BotCreatorActionType.cooldown:
+        return Icons.timer_outlined;
+      case BotCreatorActionType.wait:
+        return Icons.hourglass_empty;
+      case BotCreatorActionType.deleteTrigger:
+        return Icons.delete_forever;
+      case BotCreatorActionType.sendDm:
+        return Icons.maps_ugc;
+      case BotCreatorActionType.setNickname:
+        return Icons.badge;
+      case BotCreatorActionType.slowmode:
+        return Icons.speed;
+      case BotCreatorActionType.stop:
+        return Icons.stop_circle_outlined;
+      case BotCreatorActionType.randomChoice:
+        return Icons.shuffle;
     }
   }
 
@@ -2750,6 +2782,116 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             type: ParameterType.string,
             defaultValue: '',
             hint: 'Audit log reason',
+          ),
+        ];
+      case BotCreatorActionType.cooldown:
+        return [
+          ParameterDefinition(
+            key: 'time',
+            type: ParameterType.duration,
+            defaultValue: '10s',
+            hint: 'Duration (e.g. 10s, 1m)',
+            required: true,
+          ),
+          ParameterDefinition(
+            key: 'error',
+            type: ParameterType.string,
+            defaultValue: 'You are on cooldown! Please wait %time%.',
+            hint: 'Custom error message (supports %time%)',
+          ),
+        ];
+      case BotCreatorActionType.wait:
+        return [
+          ParameterDefinition(
+            key: 'duration',
+            type: ParameterType.duration,
+            defaultValue: '5s',
+            hint: 'Duration (e.g. 5s, 1m)',
+            required: true,
+          ),
+        ];
+      case BotCreatorActionType.deleteTrigger:
+        return [];
+      case BotCreatorActionType.sendDm:
+        return [
+          ParameterDefinition(
+            key: 'userId',
+            type: ParameterType.userId,
+            defaultValue: '',
+            hint: 'User to send DM to',
+            required: true,
+          ),
+          ParameterDefinition(
+            key: 'content',
+            type: ParameterType.string,
+            defaultValue: '',
+            hint: 'Message content',
+            required: true,
+          ),
+        ];
+      case BotCreatorActionType.setNickname:
+        return [
+          ParameterDefinition(
+            key: 'userId',
+            type: ParameterType.userId,
+            defaultValue: '',
+            hint: 'User whose nickname to change',
+            required: true,
+          ),
+          ParameterDefinition(
+            key: 'nickname',
+            type: ParameterType.string,
+            defaultValue: '',
+            hint: 'New nickname',
+            required: true,
+          ),
+          ParameterDefinition(
+            key: 'reason',
+            type: ParameterType.string,
+            defaultValue: '',
+            hint: 'Audit log reason',
+          ),
+        ];
+      case BotCreatorActionType.slowmode:
+        return [
+          ParameterDefinition(
+            key: 'channelId',
+            type: ParameterType.channelId,
+            defaultValue: '',
+            hint: 'Channel to set slowmode for',
+            required: true,
+          ),
+          ParameterDefinition(
+            key: 'duration',
+            type: ParameterType.duration,
+            defaultValue: '5s',
+            hint: 'Slowmode duration (e.g. 5s, 0 to disable)',
+            required: true,
+          ),
+          ParameterDefinition(
+            key: 'reason',
+            type: ParameterType.string,
+            defaultValue: '',
+            hint: 'Audit log reason',
+          ),
+        ];
+      case BotCreatorActionType.stop:
+        return [];
+      case BotCreatorActionType.randomChoice:
+        return [
+          ParameterDefinition(
+            key: 'choices',
+            type: ParameterType.string,
+            defaultValue: '',
+            hint: 'List of choices (separated by ;)',
+            required: true,
+          ),
+          ParameterDefinition(
+            key: 'variableName',
+            type: ParameterType.string,
+            defaultValue: 'random_choice',
+            hint: 'Variable name to store the result',
+            required: true,
           ),
         ];
     }

@@ -7,6 +7,7 @@ extension _AppHomePageSync on _AppHomePageState {
   }) async {
     return resolveRemoteRuntime(
       supportsManagerRuntime: _supportsManagerRuntime,
+      botId: widget.client.user.id.toString(),
       getTimeout: getTimeout,
       postTimeout: postTimeout,
     );

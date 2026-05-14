@@ -33,6 +33,39 @@ class AppLocalizationsTr extends AppLocalizations {
   String get action_cannot_format_json => 'Formatlanamıyor: Geçersiz JSON';
 
   @override
+  String get action_category_channels => 'Kanallar';
+
+  @override
+  String get action_category_components => 'Bileşenler';
+
+  @override
+  String get action_category_guild_members => 'Sunucu ve Üyeler';
+
+  @override
+  String get action_category_http_variables => 'HTTP ve Değişkenler';
+
+  @override
+  String get action_category_interactions => 'Etkileşimler';
+
+  @override
+  String get action_category_logic_flow => 'Mantık ve Akış';
+
+  @override
+  String get action_category_messages => 'Mesajlar';
+
+  @override
+  String get action_category_moderation => 'Moderasyon';
+
+  @override
+  String get action_category_reactions => 'Tepkiler';
+
+  @override
+  String get action_category_webhooks => 'Webhooks';
+
+  @override
+  String get action_category_workflows => 'İş Akışları';
+
+  @override
   String action_choose_param(String name) {
     return '$name Seç';
   }
@@ -45,6 +78,78 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get action_condition_variable => 'Koşul Değişkeni';
+
+  @override
+  String get action_description_addReaction =>
+      'Add an emoji reaction to a message';
+
+  @override
+  String get action_description_addRole => 'Assign a role to a member';
+
+  @override
+  String get action_description_banUser =>
+      'Permanently ban a user from the guild';
+
+  @override
+  String get action_description_clearAllReactions =>
+      'Clear all reactions from a message';
+
+  @override
+  String get action_description_cooldown =>
+      'Apply a cooldown to the user or server';
+
+  @override
+  String get action_description_deleteMessages => 'Delete one or more messages';
+
+  @override
+  String get action_description_deleteTrigger =>
+      'Delete the message that triggered this command';
+
+  @override
+  String get action_description_editMessage => 'Edit an existing message';
+
+  @override
+  String get action_description_kickUser => 'Remove a member from the guild';
+
+  @override
+  String get action_description_muteUser => 'Temporarily timeout a member';
+
+  @override
+  String get action_description_randomChoice =>
+      'Pick a random item from a list';
+
+  @override
+  String get action_description_removeReaction =>
+      'Remove a reaction from a message';
+
+  @override
+  String get action_description_removeRole => 'Remove a role from a member';
+
+  @override
+  String get action_description_sendDm => 'Send a direct message to a user';
+
+  @override
+  String get action_description_sendMessage => 'Send a message to a channel';
+
+  @override
+  String get action_description_setNickname => 'Change a member\'s nickname';
+
+  @override
+  String get action_description_slowmode =>
+      'Set slowmode duration for a channel';
+
+  @override
+  String get action_description_stop => 'Stop the current workflow execution';
+
+  @override
+  String get action_description_unbanUser => 'Revoke a user\'s ban';
+
+  @override
+  String get action_description_unmuteUser => 'Remove timeout from a member';
+
+  @override
+  String get action_description_wait =>
+      'Pause execution for a specific duration';
 
   @override
   String get action_dynamic => 'Dinamik';
@@ -113,6 +218,13 @@ class AppLocalizationsTr extends AppLocalizations {
       '((degiskenAdi)) veya bir çalışma zamanı değeri kullanın';
 
   @override
+  String get action_hint_cooldown_error =>
+      'Özel hata mesajı (%time% destekler)';
+
+  @override
+  String get action_hint_cooldown_time => 'Süre (ör. 10s, 1m)';
+
+  @override
   String get action_hint_duration => 'örn. 5m, 1sa, 30sn';
 
   @override
@@ -122,6 +234,12 @@ class AppLocalizationsTr extends AppLocalizations {
   String action_hint_enter_type(String type) {
     return '$type girin';
   }
+
+  @override
+  String get action_hint_random_choices => 'List of choices (separated by ;)';
+
+  @override
+  String get action_hint_random_var => 'Variable name to store the result';
 
   @override
   String get action_hint_variable_key => 'Değişken anahtarını seçin';
@@ -194,6 +312,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get action_name_clearAllReactions => 'Tüm Tepkileri Temizle';
 
   @override
+  String get action_name_cooldown => 'Bekleme Süresi';
+
+  @override
   String get action_name_createAutoModRule => 'AutoMod Kuralı Oluştur';
 
   @override
@@ -225,6 +346,9 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get action_name_deleteMessages => 'Mesajları Sil';
+
+  @override
+  String get action_name_deleteTrigger => 'Tetikleyiciyi Sil';
 
   @override
   String get action_name_deleteWebhook => 'Webhook Sil';
@@ -315,6 +439,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get action_name_queryArray => 'Sorgu Dizisi';
 
   @override
+  String get action_name_randomChoice => 'Rastgele Seçim';
+
+  @override
   String get action_name_removeArrayElement => 'Dizi Öğesini Kaldır';
 
   @override
@@ -362,6 +489,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get action_name_sendComponentV2 => 'Bileşen V2 Gönder';
 
   @override
+  String get action_name_sendDm => 'DM Gönder';
+
+  @override
   String get action_name_sendMessage => 'Mesaj Gönder';
 
   @override
@@ -377,7 +507,16 @@ class AppLocalizationsTr extends AppLocalizations {
   String get action_name_setGlobalVariable => 'Genel Değişken Ata';
 
   @override
+  String get action_name_setNickname => 'Takma Ad Belirle';
+
+  @override
   String get action_name_setScopedVariable => 'Kapsamlı Değişken Ata';
+
+  @override
+  String get action_name_slowmode => 'Yavaş Mod';
+
+  @override
+  String get action_name_stop => 'Durdur';
 
   @override
   String get action_name_stopUnless => 'Koşul Sağlanmadıkça Durdur';
@@ -408,6 +547,9 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get action_name_updateSelfUser => 'Kendini Güncelle (Bot Profili)';
+
+  @override
+  String get action_name_wait => 'Bekle';
 
   @override
   String get action_no_actions_yet => 'Bu dalda henüz eylem yok.';
@@ -1178,6 +1320,27 @@ class AppLocalizationsTr extends AppLocalizations {
   String get bot_settings_cancel_token_edit_btn => 'Jeton düzenlemeyi iptal et';
 
   @override
+  String get bot_settings_danger_zone => 'Tehlikeli Bölge';
+
+  @override
+  String get bot_settings_delete_bot => 'Botu Sil';
+
+  @override
+  String get bot_settings_delete_bot_btn => 'Kalıcı Olarak Sil';
+
+  @override
+  String get bot_settings_delete_bot_desc =>
+      'Bu işlem geri alınamaz. Tüm yerel veriler ve uzak yapılandırmalar kalıcı olarak kaldırılacaktır.';
+
+  @override
+  String bot_settings_delete_desc(String id) {
+    return '$id botunu silmek istediğinizden emin misiniz? Tüm veriler kaybolacak.';
+  }
+
+  @override
+  String get bot_settings_delete_title => 'Silme İşlemini Onayla';
+
+  @override
   String get bot_settings_edit_token_btn => 'Jetonu düzenle';
 
   @override
@@ -1196,6 +1359,9 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get bot_settings_intents_saved => 'Intent\'ler başarıyla kaydedildi';
+
+  @override
+  String get bot_settings_no_activities => 'Yapılandırılmış etkinlik yok';
 
   @override
   String get bot_settings_presence_dnd => 'Rahatsız Etmeyin';
@@ -1224,9 +1390,6 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get bot_settings_remove_status => 'Etkinliği kaldır';
-
-  @override
-  String get bot_settings_no_activities => 'Yapılandırılmış etkinlik yok';
 
   @override
   String get bot_settings_save_intents_btn => 'Intent\'leri kaydet';
@@ -1345,27 +1508,6 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get bot_settings_workflow_docs_desc =>
       'Komutlar, iş akışları, çalışma zamanı değişkenleri ve yürütme davranışı için merkezi belgeler.';
-
-  @override
-  String get bot_settings_danger_zone => 'Tehlikeli Bölge';
-
-  @override
-  String get bot_settings_delete_bot => 'Botu Sil';
-
-  @override
-  String get bot_settings_delete_bot_desc =>
-      'Bu işlem geri alınamaz. Tüm yerel veriler ve uzak yapılandırmalar kalıcı olarak kaldırılacaktır.';
-
-  @override
-  String get bot_settings_delete_bot_btn => 'Kalıcı Olarak Sil';
-
-  @override
-  String get bot_settings_delete_title => 'Silme İşlemini Onayla';
-
-  @override
-  String bot_settings_delete_desc(String id) {
-    return '$id botunu silmek istediğinizden emin misiniz? Tüm veriler kaybolacak.';
-  }
 
   @override
   String get bot_stats_collecting => 'Toplanıyor…';

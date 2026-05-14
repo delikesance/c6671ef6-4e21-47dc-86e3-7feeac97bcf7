@@ -38,6 +38,7 @@ String _runtimeCopy({required String fr, required String en}) {
 
 Future<ResolvedRemoteRuntime> resolveRemoteRuntime({
   required bool supportsManagerRuntime,
+  String? botId,
   Duration getTimeout = const Duration(seconds: 30),
   Duration postTimeout = const Duration(seconds: 90),
 }) async {
@@ -59,6 +60,43 @@ Future<ResolvedRemoteRuntime> resolveRemoteRuntime({
   final platform = defaultTargetPlatform;
   final isIOS = platform == TargetPlatform.iOS;
   final isAndroid = platform == TargetPlatform.android;
+
+  // 1. Check for explicit bot association first (overrides global preferences)
+  if (botId != null) {
+    final associatedId = RunnerSettings.getAssociatedRunnerId(botId);
+    if (associatedId == 'manager' && supportsManagerRuntime) {
+      final mainApiConfig = await MainApiSettingsStore.loadConfig();
+      final mainApiSession = await MainApiSettingsStore.loadSession();
+
+      if (mainApiConfig.isConfigured &&
+          mainApiSession != null &&
+          !mainApiSession.isExpired) {
+        return ResolvedRemoteRuntime(
+          source: RemoteRuntimeSource.manager,
+          client: MainApiClient(
+            baseUrl: mainApiConfig.baseUrl,
+            accessToken: mainApiSession.accessToken,
+            timeout: postTimeout,
+          ),
+          detailLabel: mainApiConfig.baseUrl,
+        );
+      }
+    } else if (associatedId != null && associatedId != 'local') {
+      final runners = await RunnerSettings.getRunners();
+      final match = runners.where((r) => r.id == associatedId);
+      if (match.isNotEmpty) {
+        final config = match.first;
+        return ResolvedRemoteRuntime(
+          source: RemoteRuntimeSource.runner,
+          client: config.createClient(
+            getTimeout: getTimeout,
+            postTimeout: postTimeout,
+          ),
+          detailLabel: config.name ?? config.url,
+        );
+      }
+    }
+  }
 
   if (!supportsManagerRuntime) {
     final runnerConfig = await RunnerSettings.getConfig();

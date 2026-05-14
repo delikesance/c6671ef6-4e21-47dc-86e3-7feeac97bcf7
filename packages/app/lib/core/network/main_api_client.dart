@@ -9,6 +9,7 @@ import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/core/utils/hash_util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MainApiClientException implements Exception {
   const MainApiClientException(this.message, {this.statusCode});
@@ -46,6 +47,45 @@ class MainApiClient implements RemoteRuntimeClient {
 
   /// Maximum number of entries in each hash cache before LRU eviction.
   static const int _maxHashCacheEntries = 100;
+
+  static const String _lastSyncedHashesKey = 'main_api_last_synced_hashes';
+  static const String _lastSavedSnapshotsKey = 'main_api_last_saved_snapshots';
+
+  /// Initializes the client by loading persisted hashes from disk.
+  static Future<void> initialize() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      
+      final syncedHashesJson = prefs.getString(_lastSyncedHashesKey);
+      if (syncedHashesJson != null) {
+        final decoded = jsonDecode(syncedHashesJson);
+        if (decoded is Map) {
+          _lastSyncedHashes.addAll(decoded.cast<String, String>());
+        }
+      }
+
+      final snapshotHashesJson = prefs.getString(_lastSavedSnapshotsKey);
+      if (snapshotHashesJson != null) {
+        final decoded = jsonDecode(snapshotHashesJson);
+        if (decoded is Map) {
+          _lastSavedSnapshots.addAll(decoded.cast<String, String>());
+        }
+      }
+      
+      debugPrint('[MainApiClient] Initialized with ${_lastSyncedHashes.length} synced hashes and ${_lastSavedSnapshots.length} snapshot hashes.');
+    } catch (e) {
+      debugPrint('[MainApiClient] Failed to load persisted hashes: $e');
+    }
+  }
+
+  static Future<void> _persistHashes(String key, Map<String, String> cache) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(key, jsonEncode(cache));
+    } catch (e) {
+      debugPrint('[MainApiClient] Failed to persist hashes for $key: $e');
+    }
+  }
 
   /// TTL cache for health check results.
   static final Map<String, _CachedHealth> _healthCache =
@@ -553,6 +593,8 @@ class MainApiClient implements RemoteRuntimeClient {
 
     _lastSyncedHashes[cacheKey] = currentHash;
     _evictOldestHashEntries(_lastSyncedHashes);
+    unawaited(_persistHashes(_lastSyncedHashesKey, _lastSyncedHashes));
+    return;
   }
 
   @override
@@ -652,6 +694,7 @@ class MainApiClient implements RemoteRuntimeClient {
 
     _lastSavedSnapshots[cacheKey] = currentHash;
     _evictOldestHashEntries(_lastSavedSnapshots);
+    unawaited(_persistHashes(_lastSavedSnapshotsKey, _lastSavedSnapshots));
   }
 
   Future<Map<String, dynamic>> verifyBilling({
@@ -705,14 +748,22 @@ class MainApiClient implements RemoteRuntimeClient {
 
   @override
   Future<List<String>> getLogs({String? botId, int limit = 300}) async {
-    final path =
-        (botId == null || botId.trim().isEmpty)
-            ? '/gateway/logs'
-            : '/gateway/bots/${Uri.encodeComponent(botId.trim())}/logs';
-    final json = await _get(
-      path,
+    final List<String> paths;
+    if (botId == null || botId.trim().isEmpty) {
+      paths = const <String>['/gateway/logs', '/logs'];
+    } else {
+      final encodedBotId = Uri.encodeComponent(botId.trim());
+      paths = <String>[
+        '/gateway/bots/$encodedBotId/logs',
+        '/bots/$encodedBotId/logs',
+      ];
+    }
+
+    final json = await _getFirstAvailable(
+      paths,
       query: <String, String?>{'limit': limit.toString()},
     );
+
     final rawLines = json['lines'];
     if (rawLines is! List) {
       return const <String>[];
