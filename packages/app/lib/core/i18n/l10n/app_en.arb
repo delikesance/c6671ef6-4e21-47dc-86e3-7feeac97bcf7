@@ -155,6 +155,14 @@
   "@action_hint_duration": {
     "description": "e.g., 5m, 1h, 30s"
   },
+  "action_hint_cooldown_error": "Message to send if on cooldown (supports %time%)",
+  "@action_hint_cooldown_error": {
+    "description": "Message to send if on cooldown (supports %time%)"
+  },
+  "action_hint_cooldown_time": "Duration (e.g. 10s, 5m)",
+  "@action_hint_cooldown_time": {
+    "description": "Duration (e.g. 10s, 5m)"
+  },
   "action_hint_emoji": "Enter emoji or :name:",
   "@action_hint_emoji": {
     "description": "Enter emoji or :name:"
@@ -261,6 +269,10 @@
   "action_name_clearAllReactions": "Clear All Reactions",
   "@action_name_clearAllReactions": {
     "description": "Clear All Reactions"
+  },
+  "action_name_cooldown": "Cooldown",
+  "@action_name_cooldown": {
+    "description": "Cooldown"
   },
   "action_name_createAutoModRule": "Create AutoMod Rule",
   "@action_name_createAutoModRule": {

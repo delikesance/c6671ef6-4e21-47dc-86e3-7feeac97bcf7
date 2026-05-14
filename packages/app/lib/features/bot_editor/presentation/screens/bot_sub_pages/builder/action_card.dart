@@ -3176,6 +3176,11 @@ class ActionCard extends StatelessWidget {
       }
     }
 
+    if (action.type == BotCreatorActionType.cooldown) {
+      if (key == 'time') return 'Duration';
+      if (key == 'error') return 'Error Message';
+    }
+
     return key
         .replaceAllMapped(RegExp(r'([A-Z])'), (match) => ' ${match.group(1)}')
         .split(' ')
@@ -3241,6 +3246,9 @@ class ActionCard extends StatelessWidget {
       'Component V2 layout builder': 'Constructeur de layout Component V2',
       'Enable or disable guild onboarding':
           'Activer ou désactiver l\'onboarding serveur',
+      'Duration (e.g. 10s, 1m)': 'Durée (ex: 10s, 1m)',
+      'Custom error message (supports %time%)':
+          'Message d\'erreur personnalisé (supporte %time%)',
     };
 
     final directValue = direct[raw];

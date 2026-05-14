@@ -1,4 +1,4 @@
-import 'package:bot_creator/core/i18n/extensions.dart';
+ import 'package:bot_creator/core/i18n/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:bot_creator/core/models/types/action.dart'
     show BotCreatorActionType;
@@ -115,6 +115,7 @@ String getCategoryForAction(BotCreatorActionType type) {
     case BotCreatorActionType.stopUnless:
     case BotCreatorActionType.ifBlock:
     case BotCreatorActionType.calculate:
+    case BotCreatorActionType.cooldown:
       return 'Logic & Flow';
     case BotCreatorActionType.respondWithMessage:
     case BotCreatorActionType.respondWithComponentV2:
