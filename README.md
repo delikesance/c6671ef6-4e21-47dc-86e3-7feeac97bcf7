@@ -146,6 +146,13 @@ Desktop supports `--dart-define` overrides for OAuth values (e.g., client id/sec
 * Persistence: `lib/utils/database.dart`
 * Drive sync: `lib/utils/drive.dart`
 
+Inside `pubspec.yaml` add : 
+```yaml
+dependency_overrides:
+  bot_creator_shared:
+    path: packages/shared
+```
+
 ## License
 
 This repository is proprietary and subject to the restrictive terms in the
