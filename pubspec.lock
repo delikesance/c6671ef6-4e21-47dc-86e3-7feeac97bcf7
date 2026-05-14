@@ -114,11 +114,13 @@ packages:
     source: hosted
     version: "2.1.2"
   bot_creator_shared:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
-      path: "packages/shared"
-      relative: true
-    source: path
+      path: "."
+      ref: HEAD
+      resolved-ref: a4b76a668c6a304c4d496fd8c3a14f5acbc14ca1
+      url: "git@github.com:ketsuna-org/bot-creator-shared.git"
+    source: git
     version: "0.0.0"
   change_case:
     dependency: transitive
