@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/core/network/main_api_owner_sync.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
+import 'dart:developer' as developer;
 
 class BotLogsPage extends StatefulWidget {
   const BotLogsPage({super.key, this.botId});
@@ -89,16 +90,27 @@ class _BotLogsPageState extends State<BotLogsPage> {
   }
 
   Future<void> _initRunnerPolling() async {
-    var runtime = await resolveRemoteRuntime(
-      supportsManagerRuntime: _supportsManagerRuntime,
-      getTimeout: const Duration(seconds: 5),
-      postTimeout: const Duration(seconds: 10),
-    );
+    debugPrint('[BotLogs] Starting _initRunnerPolling for botId: $_selectedBotId');
+    
+    ResolvedRemoteRuntime runtime;
+    try {
+      runtime = await resolveRemoteRuntime(
+        supportsManagerRuntime: _supportsManagerRuntime,
+        botId: _selectedBotId,
+        getTimeout: const Duration(seconds: 5),
+        postTimeout: const Duration(seconds: 10),
+      ).timeout(const Duration(seconds: 8));
+      debugPrint('[BotLogs] Runtime resolved: source=${runtime.source}, hasClient=${runtime.client != null}');
+    } catch (e) {
+      debugPrint('[BotLogs] Runtime resolution failed/timed out: $e');
+      runtime = const ResolvedRemoteRuntime(source: RemoteRuntimeSource.local);
+    }
 
     final botId = _selectedBotId;
     if (runtime.client == null &&
         runtime.source == RemoteRuntimeSource.manager &&
         botId != null) {
+      debugPrint('[BotLogs] Manager client missing; attempting session restore for botId: $botId');
       final app = await appManager.getApp(botId);
       final token = (app['token'] ?? '').toString().trim();
       if (token.isNotEmpty) {
@@ -109,22 +121,27 @@ class _BotLogsPageState extends State<BotLogsPage> {
                 postTimeout = const Duration(seconds: 10),
               }) => resolveRemoteRuntime(
                 supportsManagerRuntime: _supportsManagerRuntime,
+                botId: botId,
                 getTimeout: getTimeout,
                 postTimeout: postTimeout,
               ),
           loadLocalBotById: (id) async => await appManager.getApp(id),
-          log: appendBotDebugLog,
+          log: (msg) => debugPrint('[BotLogs.Sync] $msg'),
         );
 
         final restored = await helper
             .restoreMainApiSessionWithBotToken(botId: botId, botToken: token)
             .timeout(const Duration(seconds: 8), onTimeout: () => false);
+        debugPrint('[BotLogs] Session restore result: $restored');
+
         if (restored) {
           runtime = await resolveRemoteRuntime(
             supportsManagerRuntime: _supportsManagerRuntime,
+            botId: _selectedBotId,
             getTimeout: const Duration(seconds: 5),
             postTimeout: const Duration(seconds: 10),
           );
+          debugPrint('[BotLogs] Runtime re-resolved: source=${runtime.source}, hasClient=${runtime.client != null}');
         }
       }
     }
@@ -132,20 +149,32 @@ class _BotLogsPageState extends State<BotLogsPage> {
     _runtimeClient = runtime.client;
     _runtimeSource = runtime.source;
     if (!mounted) return;
+
     setState(() {
       _runtimeLabel = runtime.detailLabel;
       _runtimeUnavailableReason = runtime.unavailableReason;
     });
+
     final client = _runtimeClient;
     if (client == null) {
+      debugPrint('[BotLogs] No runtime client available; polling will not start.');
       return;
     }
+
+    debugPrint('[BotLogs] Starting poll loop...');
     await _pollRunnerData(client);
     _runnerPollTimer = Timer.periodic(const Duration(milliseconds: 2500), (_) {
       if (mounted) {
         unawaited(_pollRunnerData(client));
       }
     });
+  }
+
+  Future<void> _restartPolling() async {
+    _runnerPollTimer?.cancel();
+    _runnerPollTimer = null;
+    _lastKnownRemoteLogs = const [];
+    await _initRunnerPolling();
   }
 
   Future<void> _pollRunnerData(RemoteRuntimeClient client) async {
@@ -157,7 +186,10 @@ class _BotLogsPageState extends State<BotLogsPage> {
 
   Future<void> _pollRunnerLogs(RemoteRuntimeClient client) async {
     try {
+      debugPrint('[BotLogs] Polling logs for botId: $_selectedBotId');
       final lines = await client.getLogs(botId: _selectedBotId, limit: 500);
+      debugPrint('[BotLogs] Received ${lines.length} log lines');
+      
       if (lines.isEmpty) {
         _lastKnownRemoteLogs = const [];
         return;
@@ -171,8 +203,8 @@ class _BotLogsPageState extends State<BotLogsPage> {
         }
       }
       _lastKnownRemoteLogs = List<String>.from(lines);
-    } catch (_) {
-      // Polling errors are silently ignored to avoid UI noise.
+    } catch (e) {
+      debugPrint('[BotLogs] Error polling logs: $e');
     }
   }
 
@@ -195,8 +227,8 @@ class _BotLogsPageState extends State<BotLogsPage> {
         cpuPercent: metrics.cpuPercent,
         storageBytes: metrics.storageBytes,
       );
-    } catch (_) {
-      // Polling errors are silently ignored to avoid UI noise.
+    } catch (e) {
+      debugPrint('[BotLogs] Error polling metrics: $e');
     }
   }
 
@@ -402,9 +434,9 @@ class _BotLogsPageState extends State<BotLogsPage> {
                             }
                             setState(() {
                               _selectedBotId = value;
-                              _lastKnownRemoteLogs = const [];
                               _expandedLogs.clear();
                             });
+                            unawaited(_restartPolling());
                           },
                         ),
                       ),
@@ -524,11 +556,11 @@ class _BotLogsPageState extends State<BotLogsPage> {
                       ),
                     Expanded(
                       child: StreamBuilder<List<String>>(
-                        stream: getBotLogsStreamForBotFromSource(
+                        initialData: getBotLogsSnapshotForBotFromSource(
                           selectedBotId,
                           source: _runtimeSource,
                         ),
-                        initialData: getBotLogsSnapshotForBotFromSource(
+                        stream: getBotLogsStreamForBotFromSource(
                           selectedBotId,
                           source: _runtimeSource,
                         ),

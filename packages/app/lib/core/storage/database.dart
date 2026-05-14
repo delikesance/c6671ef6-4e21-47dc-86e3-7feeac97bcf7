@@ -107,6 +107,8 @@ class AppManager implements BotDataStore {
   final Map<String, Future<void>> _appWriteChains = <String, Future<void>>{};
   final Map<String, List<Map<String, dynamic>>> _commandListCache =
       <String, List<Map<String, dynamic>>>{};
+  final Map<String, Map<String, dynamic>> _payloadCache =
+      <String, Map<String, dynamic>>{};
 
   AppManager._internal() {
     unawaited(_init());
@@ -261,6 +263,7 @@ class AppManager implements BotDataStore {
       await allAppsFile.writeAsString(jsonEncode(appsList));
       _apps = appsList;
       _appsStreamController.add(appsList);
+      invalidatePayloadCache(botId);
       unawaited((onAfterSave ?? (_) async {}).call(botId));
       return file;
     });
@@ -280,6 +283,7 @@ class AppManager implements BotDataStore {
     if (await appDirectory.exists()) {
       await appDirectory.delete(recursive: true);
     }
+    invalidatePayloadCache(id);
     final allAppsFile = File("$path/apps/all_apps.json");
     if (!await allAppsFile.exists()) return;
 
@@ -398,8 +402,55 @@ class AppManager implements BotDataStore {
     return data.isNotEmpty ? jsonDecode(data) : {};
   }
 
+  Future<Map<String, dynamic>?> getCachedPayload(String botId) async {
+    if (_payloadCache.containsKey(botId)) {
+      return _payloadCache[botId];
+    }
+
+    try {
+      final path = await _path();
+      final file = File("$path/apps/$botId.payload.json");
+      if (await file.exists()) {
+        final content = await file.readAsString();
+        if (content.isNotEmpty) {
+          final decoded = jsonDecode(content);
+          if (decoded is Map) {
+            final payload = Map<String, dynamic>.from(decoded);
+            _payloadCache[botId] = payload;
+            return payload;
+          }
+        }
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  Future<void> saveCachedPayload(
+    String botId,
+    Map<String, dynamic> payload,
+  ) async {
+    _payloadCache[botId] = payload;
+    try {
+      final path = await _path();
+      final file = File("$path/apps/$botId.payload.json");
+      await file.writeAsString(jsonEncode(payload));
+    } catch (_) {}
+  }
+
+  void invalidatePayloadCache(String botId) {
+    _payloadCache.remove(botId);
+    _commandListCache.remove(botId);
+    _path().then((path) {
+      final file = File("$path/apps/$botId.payload.json");
+      if (file.existsSync()) {
+        file.deleteSync();
+      }
+    }).catchError((_) {});
+  }
+
   Future<void> saveApp(String id, Map<String, dynamic> data) async {
     await _enqueueAppWrite(id, () => _writeAppToDisk(id, data));
+    invalidatePayloadCache(id);
     unawaited((onAfterSave ?? (_) async {}).call(id));
   }
 
@@ -663,6 +714,7 @@ class AppManager implements BotDataStore {
       // as they are stored in a simple Map. For full TTL support, use SQLite.
       appData['globalVariables'] = globals;
     });
+    invalidatePayloadCache(id);
     unawaited(
       (onAfterGlobalVariableSave ?? (_, _, _) async {}).call(id, key, value),
     );
@@ -766,6 +818,7 @@ class AppManager implements BotDataStore {
     await _mutateScopedContextInJson(id, scope, contextId, (contextMap) {
       contextMap[key] = value;
     });
+    invalidatePayloadCache(id);
   }
 
   @override
@@ -806,6 +859,7 @@ class AppManager implements BotDataStore {
       final value = contextMap.remove(oldKey);
       contextMap[newKey] = value;
     });
+    invalidatePayloadCache(id);
   }
 
   @override
@@ -822,6 +876,7 @@ class AppManager implements BotDataStore {
     await _mutateScopedContextInJson(id, scope, contextId, (contextMap) {
       contextMap.remove(key);
     });
+    invalidatePayloadCache(id);
   }
 
   @override
@@ -849,6 +904,7 @@ class AppManager implements BotDataStore {
       list.add(element);
       contextMap[key] = list;
     });
+    invalidatePayloadCache(id);
   }
 
   @override
@@ -878,6 +934,7 @@ class AppManager implements BotDataStore {
       removed = list.removeLast();
       contextMap[key] = list;
     });
+    invalidatePayloadCache(id);
     return removed;
   }
 
@@ -914,6 +971,7 @@ class AppManager implements BotDataStore {
       removed = list.removeAt(index);
       contextMap[key] = list;
     });
+    invalidatePayloadCache(id);
     return removed;
   }
 
@@ -1565,6 +1623,17 @@ class AppManager implements BotDataStore {
 
   @override
   Future<List<Map<String, dynamic>>> getWorkflows(String id) async {
+    final cached = await getCachedPayload(id);
+    if (cached != null) {
+      final workflows = cached['workflows'];
+      if (workflows is List) {
+        return workflows
+            .whereType<Map>()
+            .map((w) => Map<String, dynamic>.from(w))
+            .toList(growable: false);
+      }
+    }
+
     final app = await getApp(id);
     final rawWorkflows = _coerceWorkflowList(app['workflows']);
     return rawWorkflows
@@ -2149,8 +2218,21 @@ class AppManager implements BotDataStore {
     bool forceRefresh = false,
   }) async {
     if (!forceRefresh) {
-      final cached = _commandListCache[id];
-      if (cached != null) return cached;
+      final cachedMemory = _commandListCache[id];
+      if (cachedMemory != null) return cachedMemory;
+
+      final cachedPayload = await getCachedPayload(id);
+      if (cachedPayload != null) {
+        final commands = cachedPayload['commands'];
+        if (commands is List) {
+          final list = commands
+              .whereType<Map>()
+              .map((c) => Map<String, dynamic>.from(c))
+              .toList(growable: false);
+          _commandListCache[id] = list;
+          return list;
+        }
+      }
     }
 
     final path = await _path();
@@ -2210,6 +2292,7 @@ class AppManager implements BotDataStore {
 
     if (!await file.exists()) await file.create(recursive: true);
     await file.writeAsString(jsonEncode(normalizeCommandData(data)));
+    invalidatePayloadCache(id);
     unawaited(
       (onAfterCommandSave ?? (_, _, _) async {}).call(
         id,
@@ -2233,6 +2316,7 @@ class AppManager implements BotDataStore {
     final path = await _path();
     final file = File("$path/apps/$id/$commandId.json");
     if (await file.exists()) await file.delete();
+    invalidatePayloadCache(id);
     unawaited((onAfterCommandDelete ?? (_, _) async {}).call(id, commandId));
   }
 
@@ -2248,6 +2332,7 @@ class AppManager implements BotDataStore {
         await file.delete();
       }
     }
+    invalidatePayloadCache(id);
   }
 
   Future<List<FileSystemEntity>> getAllAppDirectory() async {

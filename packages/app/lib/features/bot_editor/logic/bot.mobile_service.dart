@@ -554,7 +554,7 @@ class DiscordBotTaskHandler extends TaskHandler {
 
   Future<void> _emitTaskLogToMain(String message, {String? botId}) async {
     FlutterForegroundTask.sendDataToMain({
-      'type': 'log',
+      'type': 'bot_log',
       'botId': botId,
       'message': message,
     });
@@ -563,17 +563,17 @@ class DiscordBotTaskHandler extends TaskHandler {
   Future<void> _emitTaskDebugLogToMain(String message, {String? botId}) async {
     if (!_debugBotLogsEnabled) return;
     FlutterForegroundTask.sendDataToMain({
-      'type': 'debugLog',
+      'type': 'bot_log',
       'botId': botId,
-      'message': message,
+      'message': 'DEBUG: $message',
     });
   }
 
   Future<void> _emitTaskLifecycleToMain(String event, {required String botId}) async {
     FlutterForegroundTask.sendDataToMain({
-      'type': 'lifecycle',
+      'type': 'bot_lifecycle',
       'botId': botId,
-      'event': event,
+      'state': event,
     });
 
     final ready = event == 'started';
@@ -590,9 +590,16 @@ class DiscordBotTaskHandler extends TaskHandler {
   }
 
   Future<void> _emitTaskMetricsToMain({required String botId}) async {
+    final rss = _readCurrentProcessRssBytes();
+    final cpu = _readCurrentProcessCpuPercent();
+    final storage = await _readBotStorageBytes(botId: botId);
+
     FlutterForegroundTask.sendDataToMain({
-      'type': 'metrics',
+      'type': 'bot_metrics',
       'botId': botId,
+      'rssBytes': rss,
+      'cpuPercent': cpu,
+      'storageBytes': storage,
     });
   }
 }

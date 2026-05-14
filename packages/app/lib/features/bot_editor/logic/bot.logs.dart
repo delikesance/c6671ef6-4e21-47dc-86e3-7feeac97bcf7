@@ -412,13 +412,7 @@ void _publishBotLogs() {
     _botLogsController.add(List<String>.unmodifiable(_botLogs));
   }
   if (!_botLogsByBotController.isClosed) {
-    _botLogsByBotController.add(
-      Map<String, List<String>>.unmodifiable(
-        _botLogsByBot.map(
-          (key, value) => MapEntry(key, List<String>.unmodifiable(value)),
-        ),
-      ),
-    );
+    _botLogsByBotController.add(Map<String, List<String>>.unmodifiable(_botLogsByBot));
   }
 }
 
@@ -465,10 +459,9 @@ Set<String> getKnownBotLogIds() {
   final bucketKeys = <String>{..._botLogsByBot.keys, ..._botMetricsByBot.keys};
   for (final key in bucketKeys) {
     final botId = _bucketBotId(key);
-    if (botId == _globalBotBucketKey) {
-      continue;
+    if (botId != _globalBotBucketKey) {
+      ids.add(botId);
     }
-    ids.add(botId);
   }
   return ids;
 }
@@ -610,6 +603,9 @@ void appendBotLog(
   final line =
       _startsWithTimestamp(message) ? message : '[${_timestampNow()}] $message';
   logs.add(line);
+  if (kDebugMode && source != RemoteRuntimeSource.local) {
+    developer.log('New remote log appended: $line', name: 'BotLogs');
+  }
   if (logs.length > _maxBotLogLines) {
     _botLogsByBot[key] = logs.sublist(logs.length - _maxBotLogLines);
   }
