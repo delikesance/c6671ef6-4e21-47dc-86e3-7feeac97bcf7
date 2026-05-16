@@ -109,7 +109,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
     try {
       await SubscriptionService.restorePurchases();
       // Wait a moment for the stream to deliver restored purchases.
-      await Future<void>.delayed(const Duration(seconds: 2));
+      await Future<void>.delayed(const Duration(seconds: 5));
       await _refreshEffectivePremiumStatus();
       if (mounted) {
         if (SubscriptionService.isSubscribed) {
