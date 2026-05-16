@@ -9,6 +9,8 @@ import 'package:bot_creator_runner/runner_runtime_controller.dart';
 import 'package:bot_creator_runner/stores/sqlite_cli_variable_store.dart';
 import 'package:bot_creator_runner/web_log_store.dart';
 import 'package:bot_creator_runner/web_runtime_config.dart';
+import 'package:bot_creator_runner/web_api_spec.dart';
+import 'package:openapi_spec/openapi_spec.dart';
 
 class _CpuSample {
   const _CpuSample({required this.jiffies, required this.timestampMs});
@@ -64,6 +66,7 @@ class RunnerWebBootstrapServer {
       _variableStore = _sqliteVariableStore!;
     }
 
+    _apiSpec = RunnerApiSpec(version: runnerVersion);
     _setupRoutes();
   }
 
@@ -82,6 +85,7 @@ class RunnerWebBootstrapServer {
   Future<void>? _variableStoreInitFuture;
 
   late final Alfred _app;
+  late final RunnerApiSpec _apiSpec;
   final Completer<void> _lifecycleCompleter = Completer<void>();
 
   String get listenUrl => 'http://$host:$port';
@@ -120,19 +124,65 @@ class RunnerWebBootstrapServer {
       }
     });
 
+    // Documentation
+    _get(
+      '/swagger.json',
+      (req, res) => _apiSpec.generateJson(),
+      summary: 'OpenAPI Specification',
+      requiresAuth: false,
+    );
+    _get('/swagger', (req, res) {
+      res.headers.contentType = ContentType.html;
+      return _apiSpec.generateHtml();
+    }, summary: 'Swagger UI', requiresAuth: false);
+
     // Public Routes
-    _app.get(
+    _get(
       '/',
       (req, res) => {'name': 'Bot Creator Runner', 'version': runnerVersion},
+      summary: 'Runner Information',
+      requiresAuth: false,
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Runner Information', {
+          'name': Schema.string(),
+          'version': Schema.string(),
+        }),
+      },
     );
-    _app.get('/health', (req, res) => {'ok': true});
+    _get(
+      '/health',
+      (req, res) => {'ok': true},
+      summary: 'Health Check',
+      requiresAuth: false,
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Health Status', {
+          'ok': Schema.boolean(),
+        }),
+      },
+    );
 
     // System Status & Logs
-    _app.get('/status', (req, res) => _buildStatusPayload());
-    _app.get('/metrics', (req, res) => _handleMetrics());
-    _app.get('/logs', _handleLogs);
+    _get(
+      '/status',
+      (req, res) => _buildStatusPayload(),
+      summary: 'System Status',
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('System Status Payload', {
+          'apiVersion': Schema.integer(),
+          'running': Schema.boolean(),
+          'runningCount': Schema.integer(),
+          'bots': Schema.array(items: Schema.object(properties: {
+            'botId': Schema.string(),
+            'botName': Schema.string(),
+            'state': Schema.string(),
+          })),
+        }),
+      },
+    );
+    _get('/metrics', (req, res) => _handleMetrics(), summary: 'System Metrics');
+    _get('/logs', _handleLogs, summary: 'Runner Logs');
 
-    _app.get('/bots', (req, res) async {
+    _get('/bots', (req, res) async {
       final entries = await _runtimeController.botStore.listAll();
       return {
         'bots':
@@ -146,68 +196,431 @@ class RunnerWebBootstrapServer {
                 )
                 .toList(),
       };
-    });
+    }, summary: 'List All Bots');
 
-    _app.post('/bots/sync', _handleBotsSync);
+    _post(
+      '/bots/sync',
+      _handleBotsSync,
+      summary: 'Sync Bot Configuration',
+      requestBody: RunnerApiSpec.jsonRequest({
+        'botId': Schema.string(),
+        'botName': Schema.string(),
+        'config': Schema.object(properties: {
+          'name': Schema.string(),
+          'description': Schema.string(),
+        }, description: 'Full BotConfig JSON object'),
+      }),
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Sync Result', {
+          'ok': Schema.boolean(),
+        }),
+      },
+    );
 
     // Scoped Bot Actions
-    _app.get('/bots/:id/status', (req, res) {
+    _get('/bots/:id/status', (req, res) {
       final botId = req.params['id'];
       return {'apiVersion': 2, 'bot': _buildBotStatePayload(botId)};
+    }, summary: 'Get Bot Status', responses: {
+      '200': RunnerApiSpec.jsonResponse('Bot Status', {
+        'apiVersion': Schema.integer(),
+        'bot': Schema.object(properties: {
+          'botId': Schema.string(),
+          'state': Schema.string(),
+        }),
+      }),
     });
 
-    _app.get(
+    _get(
       '/bots/:id/metrics',
       (req, res) => _handleMetrics(botId: req.params['id']),
+      summary: 'Get Bot Metrics',
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Bot Metrics', {
+          'apiVersion': Schema.integer(),
+          'running': Schema.boolean(),
+          'rssBytes': Schema.integer(),
+          'cpuPercent': Schema.number(),
+        }),
+      },
     );
-    _app.get('/bots/:id/command-stats', _handleCommandStats);
-    _app.get('/bots/:id/logs', _handleBotLogs);
+    _get('/bots/:id/command-stats', _handleCommandStats, summary: 'Get Bot Command Statistics', responses: {
+      '200': RunnerApiSpec.jsonResponse('Command Statistics', {
+        'botId': Schema.string(),
+        'totalAllTime': Schema.integer(),
+        'commands': Schema.array(items: Schema.object(properties: {})),
+      }),
+    });
+    _get('/bots/:id/logs', _handleBotLogs, summary: 'Get Bot Logs', responses: {
+      '200': RunnerApiSpec.jsonResponse('Bot Logs', {
+        'lines': Schema.array(items: Schema.string()),
+      }),
+    });
 
-    _app.post('/bots/:id/start', _handleRunnerStart);
-    _app.post('/bots/:id/stop', _handleRunnerStop);
-    _app.post('/bots/:id/reload', _handleBotsReload);
+    _post(
+      '/bots/:id/start',
+      _handleRunnerStart,
+      summary: 'Start Bot',
+      requestBody: RunnerApiSpec.jsonRequest({
+        'botName': Schema.string(),
+      }, required: false),
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Bot Status', {
+          'apiVersion': Schema.integer(),
+          'running': Schema.boolean(),
+          'bots': Schema.array(items: Schema.object(properties: {
+            'botId': Schema.string(),
+            'state': Schema.string(),
+          })),
+        }),
+      },
+    );
+    _post(
+      '/bots/:id/stop',
+      _handleRunnerStop,
+      summary: 'Stop Bot',
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Bot Status', {
+          'apiVersion': Schema.integer(),
+          'running': Schema.boolean(),
+        }),
+      },
+    );
+    _post(
+      '/bots/:id/reload',
+      _handleBotsReload,
+      summary: 'Reload Bot Configuration',
+      requestBody: RunnerApiSpec.jsonRequest({
+        'config': Schema.object(properties: {}, description: 'Full BotConfig JSON object'),
+      }),
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Reload Result', {
+          'ok': Schema.boolean(),
+          'reloaded': Schema.boolean(),
+        }),
+      },
+    );
 
     // Workflows & Commands
-    _app.post('/bots/:id/workflows/sync', _handleWorkflowSync);
-    _app.post('/bots/:id/workflows/delete', _handleWorkflowDelete);
-    _app.post('/bots/:id/commands/sync', _handleCommandSync);
-    _app.post('/bots/:id/commands/delete', _handleCommandDelete);
-    _app.post('/bots/:id/scheduled-triggers/sync', _handleScheduledTriggerSync);
-    _app.post(
+    _post(
+      '/bots/:id/workflows/sync',
+      _handleWorkflowSync,
+      summary: 'Sync Workflow',
+      requestBody: RunnerApiSpec.jsonRequest({
+        'workflowName': Schema.string(),
+        'workflow': Schema.object(properties: {}, description: 'Workflow definition Map'),
+      }),
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Sync Result', {
+          'ok': Schema.boolean(),
+          'workflowName': Schema.string(),
+          'running': Schema.boolean(),
+        }),
+      },
+    );
+    _post(
+      '/bots/:id/workflows/delete',
+      _handleWorkflowDelete,
+      summary: 'Delete Workflow',
+      requestBody: RunnerApiSpec.jsonRequest({
+        'workflowName': Schema.string(),
+      }),
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Delete Result', {
+          'ok': Schema.boolean(),
+          'workflowName': Schema.string(),
+        }),
+      },
+    );
+    _post(
+      '/bots/:id/commands/sync',
+      _handleCommandSync,
+      summary: 'Sync Command',
+      requestBody: RunnerApiSpec.jsonRequest({
+        'commandId': Schema.string(),
+        'command': Schema.object(properties: {}, description: 'Command definition Map'),
+      }),
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Sync Result', {
+          'ok': Schema.boolean(),
+          'commandId': Schema.string(),
+          'running': Schema.boolean(),
+        }),
+      },
+    );
+    _post(
+      '/bots/:id/commands/delete',
+      _handleCommandDelete,
+      summary: 'Delete Command',
+      requestBody: RunnerApiSpec.jsonRequest({
+        'commandId': Schema.string(),
+      }),
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Delete Result', {
+          'ok': Schema.boolean(),
+          'commandId': Schema.string(),
+        }),
+      },
+    );
+    _post(
+      '/bots/:id/scheduled-triggers/sync',
+      _handleScheduledTriggerSync,
+      summary: 'Sync Scheduled Trigger',
+      requestBody: RunnerApiSpec.jsonRequest({
+        'triggerId': Schema.string(),
+        'trigger': Schema.object(properties: {}, description: 'Trigger definition Map'),
+      }),
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Sync Result', {
+          'ok': Schema.boolean(),
+        }),
+      },
+    );
+    _post(
       '/bots/:id/scheduled-triggers/delete',
       _handleScheduledTriggerDelete,
+      summary: 'Delete Scheduled Trigger',
+      requestBody: RunnerApiSpec.jsonRequest({
+        'triggerId': Schema.string(),
+      }),
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Delete Result', {
+          'ok': Schema.boolean(),
+        }),
+      },
     );
-    _app.post('/bots/:id/inbound-webhooks/sync', _handleInboundWebhookSync);
-    _app.post('/bots/:id/inbound-webhooks/delete', _handleInboundWebhookDelete);
+    _post(
+      '/bots/:id/inbound-webhooks/sync',
+      _handleInboundWebhookSync,
+      summary: 'Sync Inbound Webhook',
+      requestBody: RunnerApiSpec.jsonRequest({
+        'webhookId': Schema.string(),
+        'webhook': Schema.object(properties: {}, description: 'Webhook definition Map'),
+      }),
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Sync Result', {
+          'ok': Schema.boolean(),
+        }),
+      },
+    );
+    _post(
+      '/bots/:id/inbound-webhooks/delete',
+      _handleInboundWebhookDelete,
+      summary: 'Delete Inbound Webhook',
+      requestBody: RunnerApiSpec.jsonRequest({
+        'webhookId': Schema.string(),
+      }),
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Delete Result', {
+          'ok': Schema.boolean(),
+        }),
+      },
+    );
 
     // Variables
-    _app.get('/bots/:id/variables/global', _handleGetGlobalVariables);
-    _app.post('/bots/:id/variables/global/set', _handleSetGlobalVariable);
-    _app.post('/bots/:id/variables/global/rename', _handleRenameGlobalVariable);
-    _app.post('/bots/:id/variables/global/remove', _handleRemoveGlobalVariable);
+    _get(
+      '/bots/:id/variables/global',
+      _handleGetGlobalVariables,
+      summary: 'Get Global Variables',
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Global Variables', {
+          'botId': Schema.string(),
+          'variables': Schema.object(properties: {}, description: 'Key-value map of global variables'),
+        }),
+      },
+    );
+    _post(
+      '/bots/:id/variables/global/set',
+      _handleSetGlobalVariable,
+      summary: 'Set Global Variable',
+      requestBody: RunnerApiSpec.jsonRequest({
+        'key': Schema.string(),
+        'value': Schema.object(properties: {}, description: 'Any JSON value'),
+      }),
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Set Result', {
+          'ok': Schema.boolean(),
+        }),
+      },
+    );
+    _post(
+      '/bots/:id/variables/global/rename',
+      _handleRenameGlobalVariable,
+      summary: 'Rename Global Variable',
+      requestBody: RunnerApiSpec.jsonRequest({
+        'oldKey': Schema.string(),
+        'newKey': Schema.string(),
+      }),
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Rename Result', {
+          'ok': Schema.boolean(),
+        }),
+      },
+    );
+    _post(
+      '/bots/:id/variables/global/remove',
+      _handleRemoveGlobalVariable,
+      summary: 'Remove Global Variable',
+      requestBody: RunnerApiSpec.jsonRequest({
+        'key': Schema.string(),
+      }),
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Remove Result', {
+          'ok': Schema.boolean(),
+        }),
+      },
+    );
 
-    _app.get(
+    _get(
       '/bots/:id/variables/scoped-definitions',
       _handleGetScopedDefinitions,
+      summary: 'Get Scoped Variable Definitions',
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Scoped Definitions', {
+          'botId': Schema.string(),
+          'definitions': Schema.array(items: Schema.object(properties: {
+            'key': Schema.string(),
+            'scope': Schema.string(),
+            'defaultValue': Schema.object(properties: {}),
+            'valueType': Schema.string(),
+          })),
+        }),
+      },
     );
-    _app.post(
+    _post(
       '/bots/:id/variables/scoped-definitions/set',
       _handleSetScopedDefinition,
+      summary: 'Set Scoped Variable Definition',
+      requestBody: RunnerApiSpec.jsonRequest({
+        'scope': Schema.string(),
+        'key': Schema.string(),
+        'defaultValue': Schema.object(properties: {}),
+        'valueType': Schema.string(),
+      }),
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Set Result', {
+          'ok': Schema.boolean(),
+        }),
+      },
     );
-    _app.post(
+    _post(
       '/bots/:id/variables/scoped-definitions/remove',
       _handleRemoveScopedDefinition,
+      summary: 'Remove Scoped Variable Definition',
+      requestBody: RunnerApiSpec.jsonRequest({
+        'key': Schema.string(),
+        'scope': Schema.string(),
+        'purgeStoredValues': Schema.boolean(),
+      }),
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Remove Result', {
+          'ok': Schema.boolean(),
+        }),
+      },
     );
 
-    _app.get('/bots/:id/variables/scoped-values', _handleGetScopedValues);
+    _get(
+      '/bots/:id/variables/scoped-values',
+      _handleGetScopedValues,
+      summary: 'Get Scoped Variable Values',
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Scoped Values', {
+          'botId': Schema.string(),
+          'scope': Schema.string(),
+          'key': Schema.string(),
+          'values': Schema.object(properties: {}, description: 'Map of contextId to value'),
+        }),
+      },
+    );
 
     // Debug Replays
-    _app.get('/bots/:id/debug-replays', _handleDebugReplays);
-    _app.post('/bots/:id/debug-replays/clear', _handleClearDebugReplays);
-    _app.post('/bots/:id/debug-replays/capture', _handleSetDebugReplayCapture);
+    _get(
+      '/bots/:id/debug-replays',
+      _handleDebugReplays,
+      summary: 'Get Debug Replays',
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Debug Replays', {
+          'botId': Schema.string(),
+          'capturing': Schema.boolean(),
+          'replays': Schema.array(items: Schema.object(properties: {})),
+        }),
+      },
+    );
+    _post(
+      '/bots/:id/debug-replays/clear',
+      _handleClearDebugReplays,
+      summary: 'Clear Debug Replays',
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Clear Result', {
+          'ok': Schema.boolean(),
+        }),
+      },
+    );
+    _post(
+      '/bots/:id/debug-replays/capture',
+      _handleSetDebugReplayCapture,
+      summary: 'Set Debug Replay Capture State',
+      requestBody: RunnerApiSpec.jsonRequest({
+        'enabled': Schema.boolean(),
+      }),
+    );
 
     // Inbound Webhooks (Dynamic Path)
-    _app.post('/bots/:id/inbound/:pathKey', _handleInboundWebhook);
+    _post(
+      '/bots/:id/inbound/:pathKey',
+      _handleInboundWebhook,
+      summary: 'Trigger Inbound Webhook',
+      requiresAuth: false,
+      requestBody: RunnerApiSpec.jsonRequest({}, description: 'Any JSON payload'),
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Trigger Result', {
+          'ok': Schema.boolean(),
+          'botId': Schema.string(),
+          'path': Schema.string(),
+          'workflow': Schema.string(),
+        }),
+      },
+    );
+  }
+
+  void _get(
+    String path,
+    dynamic handler, {
+    String? summary,
+    String? description,
+    bool requiresAuth = true,
+    Map<String, Response>? responses,
+  }) {
+    _app.get(path, handler);
+    _apiSpec.addRoute(
+      path: path,
+      method: 'get',
+      summary: summary,
+      description: description,
+      requiresAuth: requiresAuth,
+      responses: responses,
+    );
+  }
+
+  void _post(
+    String path,
+    dynamic handler, {
+    String? summary,
+    String? description,
+    bool requiresAuth = true,
+    RequestBody? requestBody,
+    Map<String, Response>? responses,
+  }) {
+    _app.post(path, handler);
+    _apiSpec.addRoute(
+      path: path,
+      method: 'post',
+      summary: summary,
+      description: description,
+      requiresAuth: requiresAuth,
+      requestBody: requestBody,
+      responses: responses,
+    );
   }
 
   Future<void> start() async {
@@ -1028,6 +1441,7 @@ class RunnerWebBootstrapServer {
   bool _requiresAuthentication(String path, String method) {
     if (_apiToken.isEmpty) return false;
     if (path.contains('/inbound/') && method == 'POST') return false;
+    if (path == '/swagger' || path == '/swagger.json') return false;
     return !(method == 'GET' && (path == '/health' || path == '/'));
   }
 
