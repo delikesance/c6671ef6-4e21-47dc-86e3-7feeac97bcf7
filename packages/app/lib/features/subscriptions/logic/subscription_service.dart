@@ -847,21 +847,13 @@ class SubscriptionService {
   static Future<void> refreshStatus() async {
     if (!_storeAvailable || !_isSupportedPlatform) return;
 
-    final previouslySubscribed = _isSubscribed;
-    final lastValidationBefore = _lastLocalValidationAt;
-
     await InAppPurchase.instance.restorePurchases();
 
     // Give the stream a moment to deliver restored purchases.
-    await Future<void>.delayed(const Duration(seconds: 2));
+    // We wait long enough to handle slower network responses on iOS/Android.
+    await Future<void>.delayed(const Duration(seconds: 5));
 
-    if (previouslySubscribed &&
-        (_lastLocalValidationAt == null ||
-            _lastLocalValidationAt == lastValidationBefore)) {
-      // No active subscription came back during the restore process — mark as expired.
-      await _markExpired();
-      unawaited(AppDiagnostics.logInfo('Subscription expired or revoked'));
-    }
+    _lastLocalValidationAt = DateTime.now().toUtc();
   }
 
   /// Syncs the local subscription status with the backend.
