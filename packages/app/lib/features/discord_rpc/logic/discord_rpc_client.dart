@@ -334,26 +334,26 @@ class DiscordRpcClient {
     );
   }
 
-  int _openWindowsPipeHandle(String candidate) {
+  HANDLE _openWindowsPipeHandle(String candidate) {
     final pipeName = candidate.toNativeUtf16();
     try {
-      final handle = CreateFile(
-        pipeName,
+      final result = CreateFile(
+        PCWSTR(pipeName),
         GENERIC_READ | GENERIC_WRITE,
-        0,
+        FILE_SHARE_MODE(0),
         nullptr,
-        OPEN_EXISTING,
-        FILE_ATTRIBUTE_NORMAL,
-        0,
+        FILE_CREATION_DISPOSITION(OPEN_EXISTING),
+        FILE_FLAGS_AND_ATTRIBUTES(FILE_ATTRIBUTE_NORMAL),
+        HANDLE(nullptr),
       );
+      final handle = result.value;
       if (handle != INVALID_HANDLE_VALUE) {
         return handle;
       }
 
-      final errorCode = GetLastError();
       throw _DiscordRpcWindowsPipeException(
         'CreateFile failed for $candidate',
-        errorCode,
+        result.error,
       );
     } finally {
       calloc.free(pipeName);
@@ -642,7 +642,7 @@ class _DiscordRpcWindowsPipeTransport implements _DiscordRpcTransport {
 
   static const int _maxReadChunkSize = 64 * 1024;
 
-  final int _handle;
+  final HANDLE _handle;
   final Duration pollInterval;
   final StreamController<Uint8List> _streamController =
       StreamController<Uint8List>.broadcast();
@@ -677,11 +677,10 @@ class _DiscordRpcWindowsPipeTransport implements _DiscordRpcTransport {
         bytesWritten,
         nullptr,
       );
-      if (result == 0 || bytesWritten.value != bytes.length) {
-        final errorCode = GetLastError();
+      if (!result.value || bytesWritten.value != bytes.length) {
         throw _DiscordRpcWindowsPipeException(
           'WriteFile failed for $endpoint',
-          errorCode,
+          result.error,
         );
       }
     } finally {
@@ -730,11 +729,10 @@ class _DiscordRpcWindowsPipeTransport implements _DiscordRpcTransport {
         bytesAvailable,
         nullptr,
       );
-      if (result == 0) {
-        final errorCode = GetLastError();
+      if (!result.value) {
         throw _DiscordRpcWindowsPipeException(
           'PeekNamedPipe failed for $endpoint',
-          errorCode,
+          result.error,
         );
       }
       return bytesAvailable.value;
@@ -750,8 +748,8 @@ class _DiscordRpcWindowsPipeTransport implements _DiscordRpcTransport {
     final bytesRead = calloc<Uint32>();
     try {
       final result = ReadFile(_handle, buffer, bytesToRead, bytesRead, nullptr);
-      if (result == 0) {
-        final errorCode = GetLastError();
+      if (!result.value) {
+        final errorCode = result.error;
         if (errorCode == ERROR_MORE_DATA && bytesRead.value > 0) {
           return Uint8List.fromList(buffer.asTypedList(bytesRead.value));
         }
