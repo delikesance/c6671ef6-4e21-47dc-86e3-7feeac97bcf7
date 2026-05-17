@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'dart:async';
+import 'dart:convert';
+
 
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
@@ -29,6 +31,7 @@ class AppSettingsPage extends StatefulWidget {
 
 class _AppSettingsPageState extends State<AppSettingsPage> {
   Application? app;
+  DiscordApplicationOwnerMetadata? _ownerMetadata;
   bool _isSavingToken = false;
   bool _isSavingIntents = false;
   bool _isSavingPrefix = false;
@@ -185,9 +188,21 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       _statusDrafts.add(_StatusDraft.fromMap(status));
     }
 
+    // Fetch Discord Application Owner Metadata if we have a token
+    final token = (persistedApp['token'] ?? '').toString().trim();
+    DiscordApplicationOwnerMetadata? ownerMetadata;
+    if (token.isNotEmpty) {
+      try {
+        ownerMetadata = await getDiscordApplicationOwnerMetadata(token);
+      } catch (e) {
+        developer.log('Error fetching owner metadata: $e', name: 'AppSettingsPage');
+      }
+    }
+
     if (!mounted) return;
     setState(() {
       app = fetchedApp;
+      _ownerMetadata = ownerMetadata;
       _savedToken = (persistedApp['token'] ?? '').toString().trim();
       _tokenController.text = _savedToken;
       _prefixController.text =
@@ -697,6 +712,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
                       _buildProfilePreviewCard(),
+                      _buildTeamOwnershipSection(),
 
                       // Prefix Management Section
                       Padding(
@@ -1819,6 +1835,358 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                   ],
                 ],
                 const SizedBox(height: 8),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTeamOwnershipSection() {
+    if (_ownerMetadata == null) {
+      return const SizedBox.shrink();
+    }
+
+    final meta = _ownerMetadata!;
+    final hasTeam = meta.teamId.isNotEmpty;
+
+    // Pretty-printed raw JSON string
+    String prettyJson = '';
+    try {
+      prettyJson = const JsonEncoder.withIndent('  ').convert(meta.rawJson);
+    } catch (_) {
+      prettyJson = meta.rawJson.toString();
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 24),
+      decoration: BoxDecoration(
+        color: AppTheme.discordDarkerBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppTheme.discordBorder.withValues(alpha: 0.5),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Header
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: const BoxDecoration(
+              color: AppTheme.discordDarkBg,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  hasTeam ? Icons.groups_outlined : Icons.person_outline,
+                  color: AppTheme.discord,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    hasTeam ? 'Propriété de l\'équipe (Team)' : 'Propriété personnelle',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: (hasTeam ? AppTheme.discord : AppTheme.success).withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: (hasTeam ? AppTheme.discord : AppTheme.success).withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Text(
+                    hasTeam ? 'TEAM' : 'SOLO',
+                    style: TextStyle(
+                      color: hasTeam ? AppTheme.discord : AppTheme.success,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 10,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Visual Content
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (hasTeam) ...[
+                  // Team Name
+                  Row(
+                    children: [
+                      const Text(
+                        'Nom de l\'équipe : ',
+                        style: TextStyle(color: AppTheme.discordText, fontSize: 13),
+                      ),
+                      Text(
+                        meta.teamName,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Text(
+                        'ID de l\'équipe : ',
+                        style: TextStyle(color: AppTheme.discordText, fontSize: 13),
+                      ),
+                      SelectableText(
+                        meta.teamId,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontFamily: 'monospace',
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Team Owner
+                  const Text(
+                    'Chef d\'équipe (Owner)',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                      color: AppTheme.discordText,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: AppTheme.discordDarkBg,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.stars, color: Colors.amber, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                meta.teamOwnerUsername.isNotEmpty
+                                    ? meta.teamOwnerUsername
+                                    : 'Propriétaire',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SelectableText(
+                                meta.teamOwnerUserId,
+                                style: const TextStyle(
+                                  fontFamily: 'monospace',
+                                  fontSize: 11,
+                                  color: AppTheme.discordText,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.amber.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: const Text(
+                            'OWNER',
+                            style: TextStyle(
+                              color: Colors.amber,
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Team Members
+                  Text(
+                    'Membres de l\'équipe (${meta.teamMembersInfo.length})',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                      color: AppTheme.discordText,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: meta.teamMembersInfo.length,
+                    separatorBuilder: (_, _) => const SizedBox(height: 6),
+                    itemBuilder: (context, idx) {
+                      final member = meta.teamMembersInfo[idx];
+                      final isOwner = member['id'] == meta.teamOwnerUserId;
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: AppTheme.discordDarkBg.withValues(alpha: 0.6),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 12,
+                              backgroundColor: AppTheme.discord,
+                              backgroundImage: member['avatar'] != null && member['avatar'].toString().isNotEmpty
+                                  ? NetworkImage(makeAvatarUrl(member['id'].toString(), avatarId: member['avatar'].toString()))
+                                  : null,
+                              child: member['avatar'] == null || member['avatar'].toString().isEmpty
+                                  ? const Icon(Icons.person, size: 14, color: Colors.white)
+                                  : null,
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    member['username']?.toString() ?? '',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                  SelectableText(
+                                    member['id']?.toString() ?? '',
+                                    style: const TextStyle(
+                                      fontFamily: 'monospace',
+                                      fontSize: 10,
+                                      color: AppTheme.discordText,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: (isOwner ? Colors.amber : AppTheme.discord).withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                isOwner ? 'OWNER' : member['role']?.toString().toUpperCase() ?? 'MEMBRE',
+                                style: TextStyle(
+                                  color: isOwner ? Colors.amber : AppTheme.discord,
+                                  fontSize: 8,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ] else ...[
+                  // Personal Owner info
+                  Row(
+                    children: [
+                      const Text(
+                        'Propriétaire : ',
+                        style: TextStyle(color: AppTheme.discordText, fontSize: 13),
+                      ),
+                      Text(
+                        meta.ownerUsername.isNotEmpty ? meta.ownerUsername : 'Utilisateur personnel',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Text(
+                        'ID Propriétaire : ',
+                        style: TextStyle(color: AppTheme.discordText, fontSize: 13),
+                      ),
+                      SelectableText(
+                        meta.ownerId,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontFamily: 'monospace',
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+
+          // Collapsible JSON View
+          Theme(
+            data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+            child: ExpansionTile(
+              title: const Text(
+                'Voir le JSON Brut (RAW JSON)',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.discordText,
+                ),
+              ),
+              leading: const Icon(Icons.code, size: 20, color: AppTheme.discordText),
+              childrenPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              expandedAlignment: Alignment.topLeft,
+              children: [
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.discordDarkBg,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: AppTheme.discordBorder.withValues(alpha: 0.4),
+                    ),
+                  ),
+                  child: SelectableText(
+                    prettyJson,
+                    style: const TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 11,
+                      color: Colors.lightGreenAccent,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),

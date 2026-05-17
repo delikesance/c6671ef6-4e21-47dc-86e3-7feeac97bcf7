@@ -529,26 +529,36 @@ class MainApiClient implements RemoteRuntimeClient {
   @override
   Future<RunnerStatus> getStatus({String? botId}) async {
     if (botId == null || botId.trim().isEmpty) {
-      final json = await _getFirstAvailable(const <String>[
-        '/gateway/status',
-        '/status',
-      ]);
-      return RunnerStatus.fromJson(json);
+      final json = await _get('/gateway/runtime');
+      var isRunning = false;
+      for (final value in json.values) {
+        if (value is Map) {
+          final running = value['bots_running'] as int? ?? 0;
+          if (running > 0) {
+            isRunning = true;
+            break;
+          }
+        }
+      }
+          return RunnerStatus(
+        running: isRunning,
+        bots: const <RunnerBotRuntime>[],
+      );
     }
 
     final encodedBotId = Uri.encodeComponent(botId.trim());
-    final json = await _getFirstAvailable(<String>[
-      '/gateway/bots/$encodedBotId/status',
-      '/bots/$encodedBotId/status',
-    ]);
-    final bot = json['bot'];
-    if (bot is Map) {
-      return RunnerStatus.fromJson(<String, dynamic>{
-        'running': (bot['state'] ?? '').toString() == 'running',
-        'bots': <dynamic>[bot],
-      });
-    }
-    return const RunnerStatus(running: false, bots: <RunnerBotRuntime>[]);
+    final json = await _get('/gateway/bots/$encodedBotId/runtime');
+    final running = json['session_active'] == true;
+    return RunnerStatus(
+      running: running,
+      bots: <RunnerBotRuntime>[
+        RunnerBotRuntime(
+          botId: botId.trim(),
+          botName: '',
+          state: running ? 'running' : 'stopped',
+        ),
+      ],
+    );
   }
 
   @override
