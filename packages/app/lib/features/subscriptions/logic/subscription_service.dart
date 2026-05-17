@@ -817,6 +817,24 @@ class SubscriptionService {
     return _isLocalSubscriptionActive();
   }
 
+  /// Centralized helper to check if a user is Premium and can skip ads with a safety timeout.
+  static Future<bool> canSkipRewardedAdsWithTimeout({
+    MainApiClient? client,
+    bool forceRefresh = false,
+    bool allowStoredManagerSession = true,
+    Duration timeout = const Duration(seconds: 4),
+  }) async {
+    try {
+      return await canSkipRewardedAds(
+        client: client,
+        forceRefresh: forceRefresh,
+        allowStoredManagerSession: allowStoredManagerSession,
+      ).timeout(timeout, onTimeout: () => false);
+    } catch (_) {
+      return false;
+    }
+  }
+
   static bool get _isDesktop {
     return defaultTargetPlatform == TargetPlatform.windows ||
         defaultTargetPlatform == TargetPlatform.linux ||

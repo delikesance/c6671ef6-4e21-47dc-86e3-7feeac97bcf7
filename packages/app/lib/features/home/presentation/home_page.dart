@@ -776,7 +776,6 @@ class HomePageState extends State<HomePage>
     try {
       final isRunning = _runningBotIds.contains(botId);
 
-
       var runtime = await _resolveRemoteRuntime(
         getTimeout: const Duration(seconds: 30),
         postTimeout: const Duration(seconds: 90),
@@ -1193,16 +1192,21 @@ class HomePageState extends State<HomePage>
     required String botId,
     String? botToken,
   }) async {
-    final remoteClient = await _resolveMainApiClientForBot(
-      botId: botId,
-      botToken: botToken,
-      attemptSessionRestore: true,
-    );
-    return SubscriptionService.canSkipRewardedAds(
-      client: remoteClient is MainApiClient ? remoteClient : null,
-      forceRefresh: true,
-      allowStoredManagerSession: false,
-    );
+    try {
+      final remoteClient = await _resolveMainApiClientForBot(
+        botId: botId,
+        botToken: botToken,
+        attemptSessionRestore: true,
+      ).timeout(const Duration(seconds: 4), onTimeout: () => null);
+
+      return await SubscriptionService.canSkipRewardedAdsWithTimeout(
+        client: remoteClient is MainApiClient ? remoteClient : null,
+        forceRefresh: true,
+        allowStoredManagerSession: false,
+      );
+    } catch (_) {
+      return false;
+    }
   }
 
   Future<bool> _maybeOfferRewardedAd({
@@ -1224,12 +1228,37 @@ class HomePageState extends State<HomePage>
     }
 
     if (!AdRewardService.hasReadyRewardedAd) {
+      // Try to load an ad on-demand and wait up to 4 seconds
+      final loaded = await AdRewardService.ensureAdLoaded(
+        timeout: const Duration(seconds: 4),
+      );
+      if (!loaded) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                context.tr.error_with_details(
+                  context.tr.rewarded_start_no_ad_available,
+                ),
+              ),
+            ),
+          );
+        }
+        return false;
+      }
+    }
+
+    if (!await AdRewardService.shouldOfferRewardedAd(
+      checkPremiumCapability: false,
+    )) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              context.tr.error_with_details(
-                context.tr.rewarded_start_no_ad_available,
+              _uiCopy(
+                fr:
+                    "Limite de visionnage ou cooldown actif. Veuillez réessayer plus tard.",
+                en: "Ad cooldown or limit is active. Please try again later.",
               ),
             ),
           ),
@@ -1238,19 +1267,29 @@ class HomePageState extends State<HomePage>
       return false;
     }
 
-    if (!await AdRewardService.shouldOfferRewardedAd(
-      checkPremiumCapability: false,
-    )) {
+    final consentGranted = await _ensureAdsConsent();
+    if (!consentGranted && kReleaseMode) {
       return false;
     }
-
-    final consentGranted = await _ensureAdsConsent();
-    if (!consentGranted || !mounted) {
+    if (!mounted) {
       return false;
     }
 
     final snapshotReady = await _ensureMainApiBotSnapshotForAd(botId);
     if (!snapshotReady) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              _uiCopy(
+                fr:
+                    "Impossible de synchroniser la configuration du bot avec l'API principale.",
+                en: "Failed to sync bot configuration with the main API.",
+              ),
+            ),
+          ),
+        );
+      }
       appendBotDebugLog(
         'Rewarded ad skipped for $botId: unable to sync bot snapshot (/applications/@me).',
       );
@@ -1259,6 +1298,20 @@ class HomePageState extends State<HomePage>
 
     final ssvContext = await _buildMainApiAdSsvContext(botId);
     if (ssvContext == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              _uiCopy(
+                fr:
+                    "Impossible de générer le contexte publicitaire (compte non connecté ou token manquant).",
+                en:
+                    "Failed to build ad context. Please ensure you are signed in and your bot token is set.",
+              ),
+            ),
+          ),
+        );
+      }
       appendBotDebugLog(
         'Rewarded ad skipped for $botId: unable to resolve Discord owner via /applications/@me.',
       );
@@ -1322,9 +1375,11 @@ class HomePageState extends State<HomePage>
     if (!mounted) {
       return false;
     }
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(successMessage ?? context.tr.rewarded_start_thanks)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(successMessage ?? context.tr.rewarded_start_thanks),
+      ),
+    );
     return true;
   }
 
@@ -1502,7 +1557,8 @@ class HomePageState extends State<HomePage>
                                           _supportsForegroundTask
                                               ? () => _addHostingTime(id)
                                               : null,
-                                      showPremiumLabels: _supportsForegroundTask,
+                                      showPremiumLabels:
+                                          _supportsForegroundTask,
                                       onLogs:
                                           isRunning
                                               ? () => Navigator.push(
@@ -1574,7 +1630,7 @@ class _BotCard extends StatelessWidget {
 
   static const _onlineGradient = AppTheme.botCardOnlineGradient;
   static const _offlineGradient = AppTheme.botCardOfflineGradient;
-  
+
   String _serverCountLabel(BuildContext context) {
     final count = guildCount ?? 0;
     return count > 1
