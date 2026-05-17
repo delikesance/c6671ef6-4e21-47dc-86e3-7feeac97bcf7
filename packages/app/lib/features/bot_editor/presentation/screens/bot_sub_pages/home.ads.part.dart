@@ -13,8 +13,12 @@ extension _AppHomePageAds on _AppHomePageState {
     });
 
     try {
+      final app = await appManager.getApp(botId);
+      final botToken = (app['token'] ?? '').toString().trim();
+
       final unlocked = await _maybeOfferRewardedAd(
         botId: botId,
+        botToken: botToken.isNotEmpty ? botToken : null,
         previousBalance: previousBalance,
         force: true,
         successMessage: context.tr.home_time_added,
@@ -59,6 +63,16 @@ extension _AppHomePageAds on _AppHomePageState {
               ),
         );
       }
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              context.tr.error_with_details(error.toString()),
+            ),
+          ),
+        );
+      }
     } finally {
       _setState(() {
         _isAddingTime = false;
@@ -78,46 +92,75 @@ extension _AppHomePageAds on _AppHomePageState {
         return true;
       }
 
-      if (await _isMainApiPremiumUser(botId: botId, botToken: botToken)) {
+      final isPremium = await _isMainApiPremiumUser(
+        botId: botId,
+        botToken: botToken,
+      );
+      if (isPremium) {
         return true;
       }
 
-      // If we already have a positive balance in state, we can skip the ad.
       if (!force && _freeMinutesBalance != null && _freeMinutesBalance! > 0) {
         return true;
       }
 
-      // Check the manager side for existing time/session before offering an ad.
-      final remoteRuntime = await _resolveRemoteRuntime(
-        getTimeout: const Duration(seconds: 4),
-      );
-      final remoteClient = remoteRuntime.client;
-      if (remoteClient is MainApiClient) {
-        try {
-          final runtime = await remoteClient.getBotRuntime(botId);
+      try {
+        final remoteRuntime = await _resolveRemoteRuntime(
+          getTimeout: const Duration(seconds: 4),
+        );
+        final remoteClient = remoteRuntime.client;
+        if (remoteClient is MainApiClient) {
+          final runtime = await remoteClient.getBotRuntime(botId).timeout(
+            const Duration(seconds: 4),
+          );
           final balance = _extractFreeMinutes(
             runtime['free_minutes_balance'] ?? runtime['freeMinutesBalance'],
           );
 
-          // Update state with fresh balance
           _setState(() {
             _freeMinutesBalance = balance;
           });
 
-          if (_hasFreeRuntimeAvailable(runtime, balance)) {
+          if (!force && _hasFreeRuntimeAvailable(runtime, balance)) {
             return true;
           }
-        } catch (e) {
-          appendBotDebugLog('Failed to check runtime balance before ad: $e');
+        }
+      } catch (_) {}
+
+      if (!AdRewardService.hasReadyRewardedAd) {
+        final loaded = await AdRewardService.ensureAdLoaded(
+          timeout: const Duration(seconds: 4),
+        );
+        if (!loaded) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  context.tr.error_with_details(
+                    context.tr.rewarded_start_no_ad_available,
+                  ),
+                ),
+              ),
+            );
+          }
+          return false;
         }
       }
 
-      if (!AdRewardService.hasReadyRewardedAd) {
+      final snapshotReady = await _ensureMainApiBotSnapshotForAd(botId).timeout(
+        const Duration(seconds: 4),
+        onTimeout: () => false,
+      );
+      if (!snapshotReady) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                context.tr.error_with_details('rewarded_start_no_ad_available'),
+                _uiCopy(
+                  fr:
+                      "Impossible de synchroniser la configuration du bot avec l'API principale.",
+                  en: "Failed to sync bot configuration with the main API.",
+                ),
               ),
             ),
           );
@@ -125,13 +168,25 @@ extension _AppHomePageAds on _AppHomePageState {
         return false;
       }
 
-      final snapshotReady = await _ensureMainApiBotSnapshotForAd(botId);
-      if (!snapshotReady) {
-        return false;
-      }
-
-      final ssvContext = await _buildMainApiAdSsvContext(botId);
+      final ssvContext = await _buildMainApiAdSsvContext(botId).timeout(
+        const Duration(seconds: 4),
+        onTimeout: () => null,
+      );
       if (ssvContext == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                _uiCopy(
+                  fr:
+                      "Impossible de générer le contexte publicitaire (compte non connecté ou token manquant).",
+                  en:
+                      "Failed to build ad context. Please ensure you are signed in and your bot token is set.",
+                ),
+              ),
+            ),
+          );
+        }
         return false;
       }
 
@@ -139,6 +194,19 @@ extension _AppHomePageAds on _AppHomePageState {
         checkPremiumCapability: false,
       ).timeout(const Duration(seconds: 2), onTimeout: () => false);
       if (!shouldOffer) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                _uiCopy(
+                  fr:
+                      "Limite de visionnage ou cooldown actif. Veuillez réessayer plus tard.",
+                  en: "Ad cooldown or limit is active. Please try again later.",
+                ),
+              ),
+            ),
+          );
+        }
         return false;
       }
 
@@ -146,42 +214,19 @@ extension _AppHomePageAds on _AppHomePageState {
         const Duration(seconds: 4),
         onTimeout: () => false,
       );
-      if (!consentGranted || !mounted) {
+      if (!consentGranted && kReleaseMode) {
+        return false;
+      }
+      if (!mounted) {
         return false;
       }
 
-      if (kDebugMode) {
-        final shouldWatch = await AppTheme.showConfirmDialog(
-          context,
-          title: context.tr.rewarded_start_title,
-          content: context.tr.rewarded_start_message,
-          cancelLabel: context.tr.rewarded_start_skip,
-          confirmLabel: context.tr.rewarded_start_watch,
-        );
-
-        if (!shouldWatch || !mounted) {
-          return false;
-        }
-      } else {
-        await showDialog<void>(
-          context: context,
-          barrierDismissible: false,
-          builder:
-              (dialogContext) => AlertDialog(
-                title: Text(context.tr.rewarded_start_title),
-                content: Text(context.tr.rewarded_start_message),
-                actions: [
-                  FilledButton(
-                    onPressed: () => Navigator.of(dialogContext).pop(),
-                    child: Text(context.tr.rewarded_start_continue),
-                  ),
-                ],
-              ),
-        );
-      }
-
       final effectivePreviousBalance =
-          previousBalance ?? await _fetchMainApiRuntimeBalance(botId);
+          previousBalance ??
+          await _fetchMainApiRuntimeBalance(botId).timeout(
+            const Duration(seconds: 4),
+            onTimeout: () => 0,
+          );
 
       var rewardEarned = false;
       final adShown = await AdRewardService.showRewardedAd(
@@ -195,7 +240,9 @@ extension _AppHomePageAds on _AppHomePageState {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                context.tr.error_with_details('rewarded_start_complete_ad'),
+                context.tr.error_with_details(
+                  context.tr.rewarded_start_complete_ad,
+                ),
               ),
             ),
           );
@@ -214,14 +261,16 @@ extension _AppHomePageAds on _AppHomePageState {
 
       await SubscriptionService.resolveEffectivePremiumStatus(
         forceRefresh: true,
-      );
+      ).timeout(const Duration(seconds: 4), onTimeout: () => false);
 
       if (!mounted) {
         return false;
       }
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(successMessage ?? context.tr.rewarded_start_thanks)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(successMessage ?? context.tr.rewarded_start_thanks),
+        ),
+      );
       return true;
     } catch (error) {
       appendBotDebugLog('Rewarded ad flow skipped due to error: $error');
@@ -233,16 +282,21 @@ extension _AppHomePageAds on _AppHomePageState {
     required String botId,
     String? botToken,
   }) async {
-    final remoteClient = await _resolveMainApiClientForBot(
-      botId: botId,
-      botToken: botToken,
-      attemptSessionRestore: true,
-    );
-    return SubscriptionService.canSkipRewardedAds(
-      client: remoteClient is MainApiClient ? remoteClient : null,
-      forceRefresh: true,
-      allowStoredManagerSession: false,
-    );
+    try {
+      final remoteClient = await _resolveMainApiClientForBot(
+        botId: botId,
+        botToken: botToken,
+        attemptSessionRestore: true,
+      ).timeout(const Duration(seconds: 4), onTimeout: () => null);
+
+      return await SubscriptionService.canSkipRewardedAdsWithTimeout(
+        client: remoteClient is MainApiClient ? remoteClient : null,
+        forceRefresh: true,
+        allowStoredManagerSession: false,
+      );
+    } catch (_) {
+      return false;
+    }
   }
 
   Future<bool> _ensureMainApiBotSnapshotForAd(String botId) async {

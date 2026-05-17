@@ -516,23 +516,12 @@ class HomePageState extends State<HomePage>
             token = (existing['token'] ?? '').toString();
           }
 
-          final ownerContext = await _ownerSyncHelper.resolveOwnerContext(
-            botId: botId,
-            managerBotPayload: bot,
-            botToken: token,
-          );
-          appendBotDebugLog(
-            '[syncAllBotsFromManager] Bot $botId owner context: source=${ownerContext.source}, ownerCount=${ownerContext.ownerCandidates.length}, preferredOwner=${ownerContext.preferredOwnerId ?? 'none'}, tokenPresent=${token.trim().isNotEmpty}.',
-          );
-
           if (token.trim().isNotEmpty) {
             try {
               final snapshotClient = await _resolveMainApiClientForBot(
                 botId: botId,
                 botToken: token,
                 attemptSessionRestore: true,
-                ownerCandidatesOverride: ownerContext.ownerCandidates,
-                preferredOwnerIdOverride: ownerContext.preferredOwnerId,
               );
               if (snapshotClient != null) {
                 final payload = await buildBotPayload(botId);
@@ -553,23 +542,6 @@ class HomePageState extends State<HomePage>
                 '[syncAllBotsFromManager] Bot $botId snapshot sync failed before status refresh: $error',
               );
             }
-          }
-
-          if (ownerContext.hasOwner && token.trim().isNotEmpty) {
-            await _resolveMainApiClientForBot(
-              botId: botId,
-              botToken: token,
-              attemptSessionRestore: true,
-              ownerCandidatesOverride: ownerContext.ownerCandidates,
-              preferredOwnerIdOverride: ownerContext.preferredOwnerId,
-            );
-            appendBotDebugLog(
-              '[syncAllBotsFromManager] Bot $botId owner-aligned session check completed.',
-            );
-          } else {
-            appendBotDebugLog(
-              '[syncAllBotsFromManager] Bot $botId owner-aligned session skipped (hasOwner=${ownerContext.hasOwner}, tokenPresent=${token.trim().isNotEmpty}).',
-            );
           }
 
           await appManager.createOrUpdateApp(
@@ -718,28 +690,13 @@ class HomePageState extends State<HomePage>
     log: appendBotDebugLog,
   );
 
-  Future<DiscordApplicationOwnerMetadata?>
-  _resolveDiscordOwnerMetadataForBotStart({
-    required String botId,
-    required String? token,
-  }) async {
-    return _ownerSyncHelper.resolveDiscordOwnerMetadataForBotStart(
-      botId: botId,
-      token: token,
-    );
-  }
-
   Future<bool> _restoreMainApiSessionWithBotToken({
     required String botId,
     required String? botToken,
-    String? preferredOwnerId,
-    Iterable<String> acceptableOwnerIds = const <String>[],
   }) async {
     return _ownerSyncHelper.restoreMainApiSessionWithBotToken(
       botId: botId,
       botToken: botToken,
-      preferredOwnerId: preferredOwnerId,
-      acceptableOwnerIds: acceptableOwnerIds,
     );
   }
 
@@ -747,15 +704,11 @@ class HomePageState extends State<HomePage>
     required String botId,
     String? botToken,
     bool attemptSessionRestore = true,
-    Iterable<String> ownerCandidatesOverride = const <String>[],
-    String? preferredOwnerIdOverride,
   }) async {
     return _ownerSyncHelper.resolveMainApiClientForBot(
       botId: botId,
       botToken: botToken,
       attemptSessionRestore: attemptSessionRestore,
-      ownerCandidatesOverride: ownerCandidatesOverride,
-      preferredOwnerIdOverride: preferredOwnerIdOverride,
     );
   }
 
@@ -823,7 +776,6 @@ class HomePageState extends State<HomePage>
     try {
       final isRunning = _runningBotIds.contains(botId);
 
-
       var runtime = await _resolveRemoteRuntime(
         getTimeout: const Duration(seconds: 30),
         postTimeout: const Duration(seconds: 90),
@@ -837,21 +789,10 @@ class HomePageState extends State<HomePage>
         if (runtime.blocksLocalFallback) {
           final app = await appManager.getApp(botId);
           token = app['token']?.toString();
-          final ownerMetadata = await _resolveDiscordOwnerMetadataForBotStart(
-            botId: botId,
-            token: token,
-          );
-          final session = await MainApiSettingsStore.loadSession();
-          final preferredOwnerId = ownerMetadata?.resolveOwnerId(
-            preferredOwnerId: session?.userId,
-          );
 
           final sessionRestored = await _restoreMainApiSessionWithBotToken(
             botId: botId,
             botToken: token,
-            preferredOwnerId: preferredOwnerId,
-            acceptableOwnerIds:
-                ownerMetadata?.ownerCandidateIds ?? const <String>[],
           );
           if (sessionRestored) {
             runtime = await _resolveRemoteRuntime(
@@ -862,7 +803,7 @@ class HomePageState extends State<HomePage>
           }
 
           if (!sessionRestored || runtime.blocksLocalFallback) {
-            final baseMessage =
+            final message =
                 runtime.unavailableReason ??
                 _uiCopy(
                   fr:
@@ -870,11 +811,6 @@ class HomePageState extends State<HomePage>
                   en:
                       'Sign in to Bot Creator in Settings before starting this bot.',
                 );
-
-            final message =
-                ownerMetadata == null || ownerMetadata.ownerCandidateIds.isEmpty
-                    ? baseMessage
-                    : '$baseMessage\nDiscord owners: ${ownerMetadata.candidatesLabel}';
             throw Exception(message);
           }
         }
@@ -1210,29 +1146,7 @@ class HomePageState extends State<HomePage>
     }
 
     final session = await MainApiSettingsStore.loadSession();
-    final ownerIdFromSession = (session?.userId ?? '').trim();
-    final ownerMetadata = await getDiscordApplicationOwnerMetadata(botToken);
-    final ownerIdFromDiscord = ownerMetadata?.resolveOwnerId() ?? '';
-
-    if (ownerMetadata != null &&
-        ownerMetadata.matchesOwnerId(ownerIdFromSession)) {
-      if (ownerIdFromSession.isNotEmpty &&
-          ownerIdFromSession != ownerIdFromDiscord) {
-        appendBotDebugLog(
-          'Owner reconciliation for $botId: keeping manager session owner $ownerIdFromSession because it is a valid Discord team owner/member.',
-        );
-      }
-    } else if (ownerIdFromSession.isNotEmpty &&
-        ownerIdFromDiscord.isNotEmpty &&
-        ownerIdFromSession != ownerIdFromDiscord) {
-      appendBotDebugLog(
-        'Owner mismatch for $botId: using discord application owner $ownerIdFromDiscord instead of manager session owner $ownerIdFromSession for ad mapping.',
-      );
-    }
-
-    final ownerId =
-        ownerMetadata?.resolveOwnerId(preferredOwnerId: ownerIdFromSession) ??
-        ownerIdFromSession;
+    final ownerId = (session?.userId ?? '').trim();
     if (ownerId.isEmpty) {
       return null;
     }
@@ -1245,8 +1159,6 @@ class HomePageState extends State<HomePage>
               'owner_id': ownerId,
               'bot_id': botId,
               'placement': 'admob_rewarded',
-              if (ownerIdFromDiscord.isNotEmpty)
-                'discord_owner_id': ownerIdFromDiscord,
             },
           ).query,
     );
@@ -1280,16 +1192,21 @@ class HomePageState extends State<HomePage>
     required String botId,
     String? botToken,
   }) async {
-    final remoteClient = await _resolveMainApiClientForBot(
-      botId: botId,
-      botToken: botToken,
-      attemptSessionRestore: true,
-    );
-    return SubscriptionService.canSkipRewardedAds(
-      client: remoteClient is MainApiClient ? remoteClient : null,
-      forceRefresh: true,
-      allowStoredManagerSession: false,
-    );
+    try {
+      final remoteClient = await _resolveMainApiClientForBot(
+        botId: botId,
+        botToken: botToken,
+        attemptSessionRestore: true,
+      ).timeout(const Duration(seconds: 4), onTimeout: () => null);
+
+      return await SubscriptionService.canSkipRewardedAdsWithTimeout(
+        client: remoteClient is MainApiClient ? remoteClient : null,
+        forceRefresh: true,
+        allowStoredManagerSession: false,
+      );
+    } catch (_) {
+      return false;
+    }
   }
 
   Future<bool> _maybeOfferRewardedAd({
@@ -1311,12 +1228,37 @@ class HomePageState extends State<HomePage>
     }
 
     if (!AdRewardService.hasReadyRewardedAd) {
+      // Try to load an ad on-demand and wait up to 4 seconds
+      final loaded = await AdRewardService.ensureAdLoaded(
+        timeout: const Duration(seconds: 4),
+      );
+      if (!loaded) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                context.tr.error_with_details(
+                  context.tr.rewarded_start_no_ad_available,
+                ),
+              ),
+            ),
+          );
+        }
+        return false;
+      }
+    }
+
+    if (!await AdRewardService.shouldOfferRewardedAd(
+      checkPremiumCapability: false,
+    )) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              context.tr.error_with_details(
-                context.tr.rewarded_start_no_ad_available,
+              _uiCopy(
+                fr:
+                    "Limite de visionnage ou cooldown actif. Veuillez réessayer plus tard.",
+                en: "Ad cooldown or limit is active. Please try again later.",
               ),
             ),
           ),
@@ -1325,19 +1267,29 @@ class HomePageState extends State<HomePage>
       return false;
     }
 
-    if (!await AdRewardService.shouldOfferRewardedAd(
-      checkPremiumCapability: false,
-    )) {
+    final consentGranted = await _ensureAdsConsent();
+    if (!consentGranted && kReleaseMode) {
       return false;
     }
-
-    final consentGranted = await _ensureAdsConsent();
-    if (!consentGranted || !mounted) {
+    if (!mounted) {
       return false;
     }
 
     final snapshotReady = await _ensureMainApiBotSnapshotForAd(botId);
     if (!snapshotReady) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              _uiCopy(
+                fr:
+                    "Impossible de synchroniser la configuration du bot avec l'API principale.",
+                en: "Failed to sync bot configuration with the main API.",
+              ),
+            ),
+          ),
+        );
+      }
       appendBotDebugLog(
         'Rewarded ad skipped for $botId: unable to sync bot snapshot (/applications/@me).',
       );
@@ -1346,6 +1298,20 @@ class HomePageState extends State<HomePage>
 
     final ssvContext = await _buildMainApiAdSsvContext(botId);
     if (ssvContext == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              _uiCopy(
+                fr:
+                    "Impossible de générer le contexte publicitaire (compte non connecté ou token manquant).",
+                en:
+                    "Failed to build ad context. Please ensure you are signed in and your bot token is set.",
+              ),
+            ),
+          ),
+        );
+      }
       appendBotDebugLog(
         'Rewarded ad skipped for $botId: unable to resolve Discord owner via /applications/@me.',
       );
@@ -1409,9 +1375,11 @@ class HomePageState extends State<HomePage>
     if (!mounted) {
       return false;
     }
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(successMessage ?? context.tr.rewarded_start_thanks)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(successMessage ?? context.tr.rewarded_start_thanks),
+      ),
+    );
     return true;
   }
 
@@ -1589,7 +1557,8 @@ class HomePageState extends State<HomePage>
                                           _supportsForegroundTask
                                               ? () => _addHostingTime(id)
                                               : null,
-                                      showPremiumLabels: _supportsForegroundTask,
+                                      showPremiumLabels:
+                                          _supportsForegroundTask,
                                       onLogs:
                                           isRunning
                                               ? () => Navigator.push(
@@ -1661,7 +1630,7 @@ class _BotCard extends StatelessWidget {
 
   static const _onlineGradient = AppTheme.botCardOnlineGradient;
   static const _offlineGradient = AppTheme.botCardOfflineGradient;
-  
+
   String _serverCountLabel(BuildContext context) {
     final count = guildCount ?? 0;
     return count > 1

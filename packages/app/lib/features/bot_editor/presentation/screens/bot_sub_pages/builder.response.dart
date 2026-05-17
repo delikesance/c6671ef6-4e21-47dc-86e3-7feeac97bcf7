@@ -55,11 +55,13 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
 
   void _addAction(BotCreatorActionType type) {
     setState(() {
+      final newId = 'action_${_actionCounter++}';
       _actions.add(
         ActionItem(
-          id: 'action_${_actionCounter++}',
+          id: newId,
           type: type,
           parameters: Map.from(type.defaultParameters),
+          actionKey: newId,
         ),
       );
     });
@@ -111,6 +113,11 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
         if (key == '__onErrorMode__') {
           _actions[actionIndex].onErrorMode =
               value == 'continue' ? 'continue' : 'stop';
+          return;
+        }
+
+        if (key == '__actionKey__') {
+          _actions[actionIndex].actionKey = value.toString();
           return;
         }
 
@@ -172,7 +179,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
   }
 
   String _resolvedActionResultKey(ActionItem action) {
-    final raw = (action.parameters['key'] ?? action.id).toString().trim();
+    final raw = action.actionKey.trim();
     if (raw.isNotEmpty) {
       return raw;
     }
