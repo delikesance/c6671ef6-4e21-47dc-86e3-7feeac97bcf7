@@ -62,12 +62,14 @@ class ActionItem {
   final BotCreatorActionType type;
   bool enabled;
   String onErrorMode;
+  String actionKey;
   final Map<String, dynamic> parameters;
 
   ActionItem({
     required this.id,
     required this.type,
     required this.parameters,
+    required this.actionKey,
     this.enabled = true,
     this.onErrorMode = 'stop',
   });
@@ -77,9 +79,7 @@ class ActionItem {
       (json['payload'] as Map?)?.cast<String, dynamic>() ?? const {},
     );
     final persistedKey = (json['key'] ?? '').toString().trim();
-    if (persistedKey.isNotEmpty) {
-      parameters['key'] = persistedKey;
-    }
+    final actionKey = persistedKey.isNotEmpty ? persistedKey : (fallbackId ?? json['id'] ?? '');
 
     final rawId = (json['id'] ?? '').toString().trim();
 
@@ -103,12 +103,11 @@ class ActionItem {
                   'stop')
               .toString(),
       parameters: parameters,
+      actionKey: actionKey,
     );
   }
 
   Map<String, dynamic> toJson() {
-    final actionKey = (parameters['key'] ?? id).toString();
-
     // Strict response mode partitioning using centralized utility
     final purgedPayload = purgeActionPayloadStrict(type, parameters);
 
