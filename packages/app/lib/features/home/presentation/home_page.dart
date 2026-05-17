@@ -516,23 +516,12 @@ class HomePageState extends State<HomePage>
             token = (existing['token'] ?? '').toString();
           }
 
-          final ownerContext = await _ownerSyncHelper.resolveOwnerContext(
-            botId: botId,
-            managerBotPayload: bot,
-            botToken: token,
-          );
-          appendBotDebugLog(
-            '[syncAllBotsFromManager] Bot $botId owner context: source=${ownerContext.source}, ownerCount=${ownerContext.ownerCandidates.length}, preferredOwner=${ownerContext.preferredOwnerId ?? 'none'}, tokenPresent=${token.trim().isNotEmpty}.',
-          );
-
           if (token.trim().isNotEmpty) {
             try {
               final snapshotClient = await _resolveMainApiClientForBot(
                 botId: botId,
                 botToken: token,
                 attemptSessionRestore: true,
-                ownerCandidatesOverride: ownerContext.ownerCandidates,
-                preferredOwnerIdOverride: ownerContext.preferredOwnerId,
               );
               if (snapshotClient != null) {
                 final payload = await buildBotPayload(botId);
@@ -553,23 +542,6 @@ class HomePageState extends State<HomePage>
                 '[syncAllBotsFromManager] Bot $botId snapshot sync failed before status refresh: $error',
               );
             }
-          }
-
-          if (ownerContext.hasOwner && token.trim().isNotEmpty) {
-            await _resolveMainApiClientForBot(
-              botId: botId,
-              botToken: token,
-              attemptSessionRestore: true,
-              ownerCandidatesOverride: ownerContext.ownerCandidates,
-              preferredOwnerIdOverride: ownerContext.preferredOwnerId,
-            );
-            appendBotDebugLog(
-              '[syncAllBotsFromManager] Bot $botId owner-aligned session check completed.',
-            );
-          } else {
-            appendBotDebugLog(
-              '[syncAllBotsFromManager] Bot $botId owner-aligned session skipped (hasOwner=${ownerContext.hasOwner}, tokenPresent=${token.trim().isNotEmpty}).',
-            );
           }
 
           await appManager.createOrUpdateApp(
@@ -718,28 +690,13 @@ class HomePageState extends State<HomePage>
     log: appendBotDebugLog,
   );
 
-  Future<DiscordApplicationOwnerMetadata?>
-  _resolveDiscordOwnerMetadataForBotStart({
-    required String botId,
-    required String? token,
-  }) async {
-    return _ownerSyncHelper.resolveDiscordOwnerMetadataForBotStart(
-      botId: botId,
-      token: token,
-    );
-  }
-
   Future<bool> _restoreMainApiSessionWithBotToken({
     required String botId,
     required String? botToken,
-    String? preferredOwnerId,
-    Iterable<String> acceptableOwnerIds = const <String>[],
   }) async {
     return _ownerSyncHelper.restoreMainApiSessionWithBotToken(
       botId: botId,
       botToken: botToken,
-      preferredOwnerId: preferredOwnerId,
-      acceptableOwnerIds: acceptableOwnerIds,
     );
   }
 
@@ -747,15 +704,11 @@ class HomePageState extends State<HomePage>
     required String botId,
     String? botToken,
     bool attemptSessionRestore = true,
-    Iterable<String> ownerCandidatesOverride = const <String>[],
-    String? preferredOwnerIdOverride,
   }) async {
     return _ownerSyncHelper.resolveMainApiClientForBot(
       botId: botId,
       botToken: botToken,
       attemptSessionRestore: attemptSessionRestore,
-      ownerCandidatesOverride: ownerCandidatesOverride,
-      preferredOwnerIdOverride: preferredOwnerIdOverride,
     );
   }
 
@@ -837,21 +790,10 @@ class HomePageState extends State<HomePage>
         if (runtime.blocksLocalFallback) {
           final app = await appManager.getApp(botId);
           token = app['token']?.toString();
-          final ownerMetadata = await _resolveDiscordOwnerMetadataForBotStart(
-            botId: botId,
-            token: token,
-          );
-          final session = await MainApiSettingsStore.loadSession();
-          final preferredOwnerId = ownerMetadata?.resolveOwnerId(
-            preferredOwnerId: session?.userId,
-          );
 
           final sessionRestored = await _restoreMainApiSessionWithBotToken(
             botId: botId,
             botToken: token,
-            preferredOwnerId: preferredOwnerId,
-            acceptableOwnerIds:
-                ownerMetadata?.ownerCandidateIds ?? const <String>[],
           );
           if (sessionRestored) {
             runtime = await _resolveRemoteRuntime(
@@ -862,7 +804,7 @@ class HomePageState extends State<HomePage>
           }
 
           if (!sessionRestored || runtime.blocksLocalFallback) {
-            final baseMessage =
+            final message =
                 runtime.unavailableReason ??
                 _uiCopy(
                   fr:
@@ -870,11 +812,6 @@ class HomePageState extends State<HomePage>
                   en:
                       'Sign in to Bot Creator in Settings before starting this bot.',
                 );
-
-            final message =
-                ownerMetadata == null || ownerMetadata.ownerCandidateIds.isEmpty
-                    ? baseMessage
-                    : '$baseMessage\nDiscord owners: ${ownerMetadata.candidatesLabel}';
             throw Exception(message);
           }
         }
@@ -1210,29 +1147,7 @@ class HomePageState extends State<HomePage>
     }
 
     final session = await MainApiSettingsStore.loadSession();
-    final ownerIdFromSession = (session?.userId ?? '').trim();
-    final ownerMetadata = await getDiscordApplicationOwnerMetadata(botToken);
-    final ownerIdFromDiscord = ownerMetadata?.resolveOwnerId() ?? '';
-
-    if (ownerMetadata != null &&
-        ownerMetadata.matchesOwnerId(ownerIdFromSession)) {
-      if (ownerIdFromSession.isNotEmpty &&
-          ownerIdFromSession != ownerIdFromDiscord) {
-        appendBotDebugLog(
-          'Owner reconciliation for $botId: keeping manager session owner $ownerIdFromSession because it is a valid Discord team owner/member.',
-        );
-      }
-    } else if (ownerIdFromSession.isNotEmpty &&
-        ownerIdFromDiscord.isNotEmpty &&
-        ownerIdFromSession != ownerIdFromDiscord) {
-      appendBotDebugLog(
-        'Owner mismatch for $botId: using discord application owner $ownerIdFromDiscord instead of manager session owner $ownerIdFromSession for ad mapping.',
-      );
-    }
-
-    final ownerId =
-        ownerMetadata?.resolveOwnerId(preferredOwnerId: ownerIdFromSession) ??
-        ownerIdFromSession;
+    final ownerId = (session?.userId ?? '').trim();
     if (ownerId.isEmpty) {
       return null;
     }
@@ -1245,8 +1160,6 @@ class HomePageState extends State<HomePage>
               'owner_id': ownerId,
               'bot_id': botId,
               'placement': 'admob_rewarded',
-              if (ownerIdFromDiscord.isNotEmpty)
-                'discord_owner_id': ownerIdFromDiscord,
             },
           ).query,
     );

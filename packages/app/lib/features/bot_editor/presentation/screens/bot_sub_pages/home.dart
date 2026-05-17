@@ -340,27 +340,10 @@ class _AppHomePageState extends State<AppHomePage>
 
                                     if (!_botLaunched &&
                                         remoteRuntime.blocksLocalFallback) {
-                                      final ownerMetadata =
-                                          await _resolveDiscordOwnerMetadataForBotStart(
-                                            botId: botId,
-                                            token: token,
-                                          );
-                                      final session =
-                                          await MainApiSettingsStore.loadSession();
-                                      final preferredOwnerId = ownerMetadata
-                                          ?.resolveOwnerId(
-                                            preferredOwnerId: session?.userId,
-                                          );
-
                                       final sessionRestored =
                                           await _restoreMainApiSessionWithBotToken(
                                             botId: botId,
                                             botToken: token,
-                                            preferredOwnerId: preferredOwnerId,
-                                            acceptableOwnerIds:
-                                                ownerMetadata
-                                                    ?.ownerCandidateIds ??
-                                                const <String>[],
                                           );
 
                                       if (sessionRestored) {
@@ -376,7 +359,7 @@ class _AppHomePageState extends State<AppHomePage>
                                       }
 
                                       if (remoteRuntime.blocksLocalFallback) {
-                                        final baseMessage =
+                                        final message =
                                             remoteRuntime.unavailableReason ??
                                             _uiCopy(
                                               fr:
@@ -384,14 +367,6 @@ class _AppHomePageState extends State<AppHomePage>
                                               en:
                                                   'Sign in to Bot Creator in Settings before starting this bot.',
                                             );
-
-                                        final message =
-                                            ownerMetadata == null ||
-                                                    ownerMetadata
-                                                        .ownerCandidateIds
-                                                        .isEmpty
-                                                ? baseMessage
-                                                : '$baseMessage\nDiscord owners: ${ownerMetadata.candidatesLabel}';
 
                                         throw Exception(message);
                                       }

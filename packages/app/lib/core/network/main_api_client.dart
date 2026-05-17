@@ -443,13 +443,14 @@ class MainApiClient implements RemoteRuntimeClient {
     required String state,
   }) async {
     final json = await _post('/auth/discord/start', <String, dynamic>{
-      'redirectUri': redirectUri,
+      'redirect_uri': redirectUri,
+      'state': state,
     }, includeAuth: false);
 
     final authorizeUrl = _extractString(json, <String>[
-      'authorizeUrl',
-      'authorizationUrl',
       'authorization_url',
+      'authorizationUrl',
+      'authorizeUrl',
       'url',
     ]);
     final returnedState = _extractString(json, <String>['state']) ?? state;
@@ -474,19 +475,16 @@ class MainApiClient implements RemoteRuntimeClient {
     final json = await _post('/auth/discord/exchange', <String, dynamic>{
       'code': code,
       'state': state,
-      'redirectUri': redirectUri,
+      'redirect_uri': redirectUri,
     }, includeAuth: false);
     return _sessionFromAuthPayload(json);
   }
 
   Future<MainApiSession> exchangeDiscordBotToken({
     required String botToken,
-    String? preferredOwnerId,
   }) async {
     final json = await _post('/auth/discord/bot/exchange', <String, dynamic>{
-      'botToken': botToken,
-      if (_normalize(preferredOwnerId) case final value?)
-        'preferredOwnerId': value,
+      'bot_token': botToken,
     }, includeAuth: false);
     return _sessionFromAuthPayload(json);
   }

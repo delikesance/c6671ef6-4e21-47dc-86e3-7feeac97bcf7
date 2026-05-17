@@ -1,6 +1,10 @@
 import 'dart:convert';
 
 import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
+import 'package:bot_creator/core/network/remote_runtime.dart';
+import 'package:bot_creator/core/network/runner_client.dart';
+import 'package:bot_creator/core/network/main_api_client.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:bot_creator/features/bot_editor/presentation/screens/bdfd_editor_page.dart';
 import 'package:flutter_highlight/flutter_highlight.dart';
 import 'package:flutter_highlight/themes/darcula.dart';
@@ -268,7 +272,7 @@ class ActionCard extends StatelessWidget {
         labelText: context.tr.action_key_field,
         border: const OutlineInputBorder(),
       ),
-      onChanged: (newValue) => onParameterChanged('key', newValue),
+      onChanged: (newValue) => onParameterChanged('__actionKey__', newValue),
     );
   }
 
@@ -3438,30 +3442,84 @@ class _VariableKeyParameterFieldState
       _loading = true;
     });
 
-    List<String> keys;
-    if (widget.scoped) {
-      final defs = await appManager.getScopedVariableDefinitions(widget.botId);
-      final scope = widget.scope.trim();
-      keys = defs
-          .where(
-            (def) =>
-                scope.isEmpty ||
-                (def['scope'] ?? '').toString().trim() == scope,
-          )
-          .map((def) => (def['key'] ?? '').toString().trim())
-          .where((k) => k.isNotEmpty)
-          .toSet()
-          .toList(growable: false);
-    } else {
-      final globals = await appManager.getGlobalVariables(widget.botId);
-      keys = globals.keys
-          .map((k) => k.toString().trim())
-          .where((k) => k.isNotEmpty)
-          .toSet()
-          .toList(growable: false);
+    List<String> keys = const [];
+    try {
+      final remoteRuntime = await resolveRemoteRuntime(
+        supportsManagerRuntime: !kIsWeb,
+        botId: widget.botId,
+        getTimeout: const Duration(seconds: 4),
+      );
+
+      if (widget.scoped) {
+        List<Map<String, dynamic>> defs;
+        if (remoteRuntime.isManager && remoteRuntime.client is MainApiClient) {
+          defs = await (remoteRuntime.client as MainApiClient)
+              .getScopedVariableDefinitions(widget.botId);
+        } else if (remoteRuntime.isRunner &&
+            remoteRuntime.client is RunnerClient) {
+          defs = await (remoteRuntime.client as RunnerClient)
+              .getScopedVariableDefinitions(widget.botId);
+        } else {
+          defs = await appManager.getScopedVariableDefinitions(widget.botId);
+        }
+
+        final scope = widget.scope.trim();
+        keys = defs
+            .where(
+              (def) =>
+                  scope.isEmpty ||
+                  (def['scope'] ?? '').toString().trim() == scope,
+            )
+            .map((def) => (def['key'] ?? '').toString().trim())
+            .where((k) => k.isNotEmpty)
+            .toSet()
+            .toList(growable: false);
+      } else {
+        Map<String, dynamic> globals;
+        if (remoteRuntime.isManager && remoteRuntime.client is MainApiClient) {
+          globals = await (remoteRuntime.client as MainApiClient)
+              .getGlobalVariables(widget.botId);
+        } else if (remoteRuntime.isRunner &&
+            remoteRuntime.client is RunnerClient) {
+          globals = await (remoteRuntime.client as RunnerClient)
+              .getGlobalVariables(widget.botId);
+        } else {
+          globals = await appManager.getGlobalVariables(widget.botId);
+        }
+
+        keys = globals.keys
+            .map((k) => k.toString().trim())
+            .where((k) => k.isNotEmpty)
+            .toSet()
+            .toList(growable: false);
+      }
+    } catch (e) {
+      // Fallback to local SQLite if remote loading fails/times out
+      if (widget.scoped) {
+        final defs =
+            await appManager.getScopedVariableDefinitions(widget.botId);
+        final scope = widget.scope.trim();
+        keys = defs
+            .where(
+              (def) =>
+                  scope.isEmpty ||
+                  (def['scope'] ?? '').toString().trim() == scope,
+            )
+            .map((def) => (def['key'] ?? '').toString().trim())
+            .where((k) => k.isNotEmpty)
+            .toSet()
+            .toList(growable: false);
+      } else {
+        final globals = await appManager.getGlobalVariables(widget.botId);
+        keys = globals.keys
+            .map((k) => k.toString().trim())
+            .where((k) => k.isNotEmpty)
+            .toSet()
+            .toList(growable: false);
+      }
     }
 
-    keys.sort();
+    keys = keys.toList()..sort();
     if (!mounted) {
       return;
     }

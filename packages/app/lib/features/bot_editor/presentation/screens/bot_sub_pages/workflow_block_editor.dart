@@ -552,6 +552,10 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                 _actions[i]['error'] = error;
                 return;
               }
+              if (key == '__actionKey__') {
+                _actions[i]['key'] = value.toString();
+                return;
+              }
               final payload = Map<String, dynamic>.from(
                 (_actions[i]['payload'] as Map?)?.cast<String, dynamic>() ??
                     const {},

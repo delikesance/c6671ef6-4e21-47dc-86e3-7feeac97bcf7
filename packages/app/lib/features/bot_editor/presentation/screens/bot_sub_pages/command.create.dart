@@ -1198,9 +1198,6 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         baseUrl: config.baseUrl,
       ).exchangeDiscordBotToken(
         botToken: botToken,
-        preferredOwnerId: ownerMetadata?.resolveOwnerId(
-          preferredOwnerId: session?.userId,
-        ),
       );
       developer.log(
         '[_resolveMainApiClientForCloudSync] exchangeDiscordBotToken OK: restoredUserId=${restoredSession.userId} isExpired=${restoredSession.isExpired} for botId=$botId',
