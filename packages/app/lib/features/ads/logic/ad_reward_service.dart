@@ -300,6 +300,39 @@ class AdRewardService {
     }
   }
 
+  static void preload() {
+    _preloadRewardedAd();
+  }
+
+  static Future<bool> ensureAdLoaded({
+    Duration timeout = const Duration(seconds: 5),
+  }) async {
+    if (!_initialized || !_isSupportedPlatform) return false;
+    if (hasReadyRewardedAd) return true;
+    _preloadRewardedAd();
+
+    final completer = Completer<bool>();
+    final timer = Timer.periodic(const Duration(milliseconds: 200), (t) {
+      if (hasReadyRewardedAd) {
+        t.cancel();
+        if (!completer.isCompleted) completer.complete(true);
+      }
+    });
+
+    try {
+      return await completer.future.timeout(
+        timeout,
+        onTimeout: () {
+          timer.cancel();
+          return hasReadyRewardedAd;
+        },
+      );
+    } catch (_) {
+      timer.cancel();
+      return hasReadyRewardedAd;
+    }
+  }
+
   static void _preloadRewardedAd() {
     if (!_initialized || _isLoading || _rewardedAd != null) {
       return;
@@ -328,6 +361,10 @@ class AdRewardService {
               data: {'error': error.message, 'code': error.code},
             ),
           );
+          // Auto-retry in 15 seconds to ensure we recover from transient failures
+          Future<void>.delayed(const Duration(seconds: 15), () {
+            _preloadRewardedAd();
+          });
         },
       ),
     );

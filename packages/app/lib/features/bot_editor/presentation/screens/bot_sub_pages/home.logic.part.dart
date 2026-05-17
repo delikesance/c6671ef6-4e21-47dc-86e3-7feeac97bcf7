@@ -237,4 +237,253 @@ extension _AppHomePageLogic on _AppHomePageState {
         details.contains('dead channel') ||
         details.contains('unable to establish connection on channel');
   }
+
+  Future<void> _toggleBotLaunchState() async {
+    if (_botStarting) return;
+    _setState(() {
+      _botStarting = true;
+    });
+    bool keepsStartingStateActive = false;
+    try {
+      final app = await appManager.getApp(
+        widget.client.user.id.toString(),
+      );
+      final token = app["token"]?.toString();
+      if (token == null || token.trim().isEmpty) {
+        throw Exception("Token not found");
+      }
+
+      final botId = widget.client.user.id.toString();
+
+      var remoteRuntime = await _resolveRemoteRuntime(
+        getTimeout: const Duration(seconds: 30),
+        postTimeout: const Duration(seconds: 90),
+      );
+
+      if (!_botLaunched && remoteRuntime.blocksLocalFallback) {
+        final sessionRestored = await _restoreMainApiSessionWithBotToken(
+          botId: botId,
+          botToken: token,
+        );
+
+        if (sessionRestored) {
+          remoteRuntime = await _resolveRemoteRuntime(
+            getTimeout: const Duration(seconds: 30),
+            postTimeout: const Duration(seconds: 90),
+          );
+        }
+
+        if (remoteRuntime.blocksLocalFallback) {
+          final message =
+              remoteRuntime.unavailableReason ??
+              _uiCopy(
+                fr:
+                    'Connectez-vous a Bot Creator dans les parametres avant de demarrer ce bot.',
+                en:
+                    'Sign in to Bot Creator in Settings before starting this bot.',
+              );
+
+          throw Exception(message);
+        }
+      }
+
+      if (!_botLaunched) {
+        if (remoteRuntime.client == null) {
+          try {
+            await getDiscordUser(token);
+          } catch (_) {
+            if (!mounted) return;
+            final proceed = await AppTheme.showConfirmDialog(
+              context,
+              title: context.tr.bot_home_token_invalid_title,
+              content: context.tr.bot_home_token_invalid_content,
+              confirmLabel: context.tr.bot_home_start,
+            );
+            if (!proceed || !mounted) return;
+          }
+        }
+        if (SubscriptionService.isSubscribed) {
+          await SubscriptionService.syncStatusWithBackend(force: true);
+        }
+
+        final adUnlocked = await _maybeOfferRewardedAd(
+          botId: botId,
+          botToken: token,
+        );
+        if (!adUnlocked) {
+          return;
+        }
+      }
+
+      final remoteClient = remoteRuntime.client;
+
+      if (remoteClient != null) {
+        try {
+          if (_botLaunched) {
+            appendBotLog(
+              'Bot stop requested',
+              botId: botId,
+              source: remoteRuntime.source,
+            );
+            await remoteClient.stopBot(botId);
+            endBotLogSession(
+              botId: botId,
+              source: remoteRuntime.source,
+            );
+            setBotRuntimeActive(false);
+            _setState(() => _botLaunched = false);
+          } else {
+            startBotLogSession(
+              botId: botId,
+              source: remoteRuntime.source,
+            );
+            clearBotBaselineRss();
+            appendBotLog(
+              'Bot start requested',
+              botId: botId,
+              source: remoteRuntime.source,
+            );
+            final payload = await buildBotPayload(botId);
+            if (remoteClient is MainApiClient) {
+              final botToken = token.trim();
+              if (botToken.isNotEmpty) {
+                try {
+                  await remoteClient.saveDiscordBotSnapshot(
+                    botToken: botToken,
+                    config: payload,
+                  );
+                } catch (_) {}
+              }
+            }
+            await remoteClient.syncBot(botId, _appName, payload);
+            if (remoteClient is MainApiClient) {
+              await startManagerBotWithCreditRetry(
+                client: remoteClient,
+                botId: botId,
+                botName: _appName,
+              );
+              RunnerSettings.associateBotWithRunner(botId, 'manager');
+            } else {
+              await remoteClient.startBot(botId, botName: _appName);
+              final runnerConfig = await RunnerSettings.getConfig();
+              if (runnerConfig != null) {
+                RunnerSettings.associateBotWithRunner(
+                  botId,
+                  runnerConfig.id,
+                );
+              }
+            }
+            setBotRuntimeActive(true);
+            _setState(() => _botLaunched = true);
+          }
+        } catch (error) {
+          if (remoteClient is MainApiClient) {
+            throw Exception(
+              await describeManagerRuntimeFailure(remoteClient, error),
+            );
+          }
+          rethrow;
+        }
+        return;
+      }
+
+      if (!_botLaunched) {
+        clearBotBaselineRss();
+        startBotLogSession(botId: botId);
+        appendBotLog('Bot start requested', botId: botId);
+      }
+
+      if (_supportsForegroundTask) {
+        if (_botLaunched) {
+          appendBotLog('Bot stop requested', botId: botId);
+          await stopMobileBotSession(botId: botId);
+          endBotLogSession(botId: botId);
+          setBotRuntimeActive(
+            isDesktopBotRunning || mobileRunningBotIds.isNotEmpty,
+          );
+          _setState(() {
+            _botLaunched = false;
+            _botStarting = false;
+          });
+          return;
+        }
+
+        final permissionGranted = await _requestPermissions();
+        if (!permissionGranted) {
+          throw Exception(context.tr.bot_home_notif_required);
+        }
+        await _initService();
+
+        await startMobileBotSession(botId: botId, token: token);
+        developer.log(
+          'Token saved, starting foreground service',
+          name: 'AppHomePage',
+        );
+
+        final running = await FlutterForegroundTask.isRunningService;
+        if (!running) {
+          throw Exception(context.tr.bot_home_service_not_started);
+        }
+
+        _setState(() {
+          _botLaunched = false;
+          _botStarting = true;
+        });
+        keepsStartingStateActive = true;
+      } else {
+        if (_botLaunched) {
+          appendBotLog(context.tr.bot_home_log_desktop_stop, botId: botId);
+          await stopDesktopBot(botId: botId);
+          endBotLogSession(botId: botId);
+          setBotRuntimeActive(
+            isDesktopBotRunning || mobileRunningBotIds.isNotEmpty,
+          );
+          clearBotBaselineRss();
+          _setState(() {
+            _botLaunched = false;
+            _botStarting = false;
+          });
+          return;
+        }
+
+        await startDesktopBot(token);
+      }
+
+      _setState(() {
+        _botLaunched = !_supportsForegroundTask;
+        _botStarting = false;
+      });
+    } on PlatformException catch (error) {
+      _setState(() {
+        _botStarting = false;
+      });
+      final deadChannel = _isDeadChannelError(error);
+      final display =
+          deadChannel
+              ? 'Foreground service channel unavailable. Please reopen the app and try again.'
+              : error.toString();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(context.tr.bot_home_start_error(display)),
+          ),
+        );
+      }
+    } catch (e) {
+      _setState(() {
+        _botStarting = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.tr.bot_home_start_error(e.toString()))),
+        );
+      }
+    } finally {
+      if (!keepsStartingStateActive) {
+        _setState(() {
+          _botStarting = false;
+        });
+      }
+    }
+  }
 }

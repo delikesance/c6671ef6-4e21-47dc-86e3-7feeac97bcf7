@@ -76,7 +76,7 @@ class _ActionBlockState extends State<ActionBlock> {
         action: widget.action,
         index: widget.index,
         totalCount: widget.totalCount,
-        actionKey: widget.action.id,
+        actionKey: widget.action.actionKey,
         onRemove: widget.onRemove,
         onMoveUp: widget.onMoveUp,
         onMoveDown: widget.onMoveDown,

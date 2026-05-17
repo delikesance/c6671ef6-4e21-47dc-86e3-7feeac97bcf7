@@ -73,6 +73,11 @@ extension _CommandBlockEditor on _CommandCreatePageState {
                   _actions[i]['error'] = error;
                   return;
                 }
+                if (key == '__actionKey__') {
+                  _actions[i]['key'] = value.toString();
+                  _persistActiveSubcommandWorkflow();
+                  return;
+                }
                 final payload = Map<String, dynamic>.from(
                   (_actions[i]['payload'] as Map?)?.cast<String, dynamic>() ??
                       const {},

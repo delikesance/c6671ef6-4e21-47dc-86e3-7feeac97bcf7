@@ -21,12 +21,24 @@ class DiscordApplicationOwnerMetadata {
     required this.teamId,
     required this.teamOwnerUserId,
     required this.teamMemberUserIds,
+    this.rawJson = const <String, dynamic>{},
+    this.teamName = '',
+    this.ownerUsername = '',
+    this.ownerAvatar = '',
+    this.teamOwnerUsername = '',
+    this.teamMembersInfo = const <Map<String, dynamic>>[],
   });
 
   final String ownerId;
   final String teamId;
   final String teamOwnerUserId;
   final List<String> teamMemberUserIds;
+  final Map<String, dynamic> rawJson;
+  final String teamName;
+  final String ownerUsername;
+  final String ownerAvatar;
+  final String teamOwnerUsername;
+  final List<Map<String, dynamic>> teamMembersInfo;
 
   List<String> get ownerCandidateIds {
     final candidates = <String>[];
@@ -130,22 +142,30 @@ Future<DiscordApplicationOwnerMetadata?> getDiscordApplicationOwnerMetadata(
 
     final body = Map<String, dynamic>.from(decoded.cast<dynamic, dynamic>());
     var ownerId = '';
+    var ownerUsername = '';
+    var ownerAvatar = '';
     final owner = body['owner'];
     if (owner is Map) {
       final ownerMap = Map<String, dynamic>.from(
         owner.cast<dynamic, dynamic>(),
       );
       ownerId = (ownerMap['id'] ?? '').toString().trim();
+      ownerUsername = (ownerMap['username'] ?? '').toString().trim();
+      ownerAvatar = (ownerMap['avatar'] ?? '').toString().trim();
     }
 
     var teamId = '';
     var teamOwnerUserId = '';
+    var teamName = '';
+    var teamOwnerUsername = '';
     final teamMemberUserIds = <String>[];
+    final teamMembersInfo = <Map<String, dynamic>>[];
     final team = body['team'];
     if (team is Map) {
       final teamMap = Map<String, dynamic>.from(team.cast<dynamic, dynamic>());
       teamId = (teamMap['id'] ?? '').toString().trim();
       teamOwnerUserId = (teamMap['owner_user_id'] ?? '').toString().trim();
+      teamName = (teamMap['name'] ?? '').toString().trim();
       final members = teamMap['members'];
       if (members is List) {
         for (final member in members) {
@@ -163,8 +183,21 @@ Future<DiscordApplicationOwnerMetadata?> getDiscordApplicationOwnerMetadata(
             user.cast<dynamic, dynamic>(),
           );
           final memberUserId = (userMap['id'] ?? '').toString().trim();
+          final memberUsername = (userMap['username'] ?? '').toString().trim();
+          final memberAvatar = (userMap['avatar'] ?? '').toString().trim();
+          final memberRole = (memberMap['role'] ?? 'member').toString().trim();
+
           if (memberUserId.isNotEmpty) {
             _appendUniqueDiscordOwnerId(teamMemberUserIds, memberUserId);
+            teamMembersInfo.add(<String, dynamic>{
+              'id': memberUserId,
+              'username': memberUsername,
+              'avatar': memberAvatar,
+              'role': memberRole,
+            });
+            if (memberUserId == teamOwnerUserId) {
+              teamOwnerUsername = memberUsername;
+            }
           }
         }
       }
@@ -175,6 +208,12 @@ Future<DiscordApplicationOwnerMetadata?> getDiscordApplicationOwnerMetadata(
       teamId: teamId,
       teamOwnerUserId: teamOwnerUserId,
       teamMemberUserIds: teamMemberUserIds,
+      rawJson: body,
+      teamName: teamName,
+      ownerUsername: ownerUsername,
+      ownerAvatar: ownerAvatar,
+      teamOwnerUsername: teamOwnerUsername,
+      teamMembersInfo: teamMembersInfo,
     );
     return metadata.ownerCandidateIds.isEmpty ? null : metadata;
   } finally {

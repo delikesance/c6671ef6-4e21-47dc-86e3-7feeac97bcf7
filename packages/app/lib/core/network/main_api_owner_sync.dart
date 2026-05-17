@@ -1,4 +1,3 @@
-import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/network/remote_runtime.dart';
@@ -69,57 +68,36 @@ class MainApiOwnerSyncHelper {
   final Future<Map<String, dynamic>> Function(String botId) loadLocalBotById;
   final void Function(String message) log;
 
-  Future<DiscordApplicationOwnerMetadata?>
-  resolveDiscordOwnerMetadataForBotStart({
+  Future<MainApiOwnerResolution> resolveOwnerContext({
     required String botId,
-    required String? token,
+    required Map<String, dynamic> managerBotPayload,
+    required String? botToken,
   }) async {
-    final trimmedToken = token?.trim() ?? '';
     log(
-      'resolveDiscordOwnerMetadataForBotStart($botId) called: tokenPresent=${trimmedToken.isNotEmpty}.',
+      'resolveOwnerContext($botId) called: managerPayloadKeys=${managerBotPayload.keys.join(',')}, tokenPresent=${botToken?.trim().isNotEmpty == true}.',
     );
-    if (trimmedToken.isEmpty) {
-      log('Unable to resolve Discord owner for $botId: bot token is missing.');
-      return null;
+    final managerOwner = resolveOwnerFromManagerBotPayload(managerBotPayload);
+    if (managerOwner.hasOwner) {
+      log(
+        'Owner context resolved from manager payload for $botId: ${managerOwner.ownerCandidates.join(',')}',
+      );
+      return managerOwner;
     }
 
-    try {
-      final metadata = await getDiscordApplicationOwnerMetadata(trimmedToken);
-      if (metadata == null || metadata.ownerCandidateIds.isEmpty) {
-        log(
-          'Discord owner lookup via /applications/@me returned empty for $botId.',
-        );
-        return null;
-      }
-
-      log(
-        'Discord owner metadata resolved via /applications/@me for $botId: ${metadata.candidatesLabel}',
-      );
-      return metadata;
-    } catch (error) {
-      log(
-        'Discord owner lookup via /applications/@me failed for $botId: $error',
-      );
-      return null;
-    } finally {
-      log('resolveDiscordOwnerMetadataForBotStart($botId) completed.');
-    }
+    return const MainApiOwnerResolution(
+      ownerCandidates: <String>[],
+      preferredOwnerId: null,
+      source: 'none',
+    );
   }
 
   Future<bool> restoreMainApiSessionWithBotToken({
     required String botId,
     required String? botToken,
-    String? preferredOwnerId,
-    Iterable<String> acceptableOwnerIds = const <String>[],
   }) async {
     final trimmedToken = botToken?.trim() ?? '';
-    final normalizedAcceptableOwners =
-        acceptableOwnerIds
-            .map((ownerId) => ownerId.trim())
-            .where((ownerId) => ownerId.isNotEmpty)
-            .toSet();
     log(
-      'restoreMainApiSessionWithBotToken($botId) called: tokenPresent=${trimmedToken.isNotEmpty}, preferredOwnerId=${preferredOwnerId?.trim().isNotEmpty == true ? preferredOwnerId!.trim() : 'none'}, acceptableOwnerCount=${normalizedAcceptableOwners.length}.',
+      'restoreMainApiSessionWithBotToken($botId) called: tokenPresent=${trimmedToken.isNotEmpty}.',
     );
     if (trimmedToken.isEmpty) {
       log('Manager session restore skipped for $botId: bot token is missing.');
@@ -136,26 +114,13 @@ class MainApiOwnerSyncHelper {
       }
 
       final client = MainApiClient(baseUrl: config.baseUrl);
-      final normalizedPreferredOwner = preferredOwnerId?.trim() ?? '';
       final session = await client.exchangeDiscordBotToken(
         botToken: trimmedToken,
-        preferredOwnerId:
-            normalizedPreferredOwner.isEmpty ? null : normalizedPreferredOwner,
       );
-
-      final normalizedSessionOwner = session.userId?.trim() ?? '';
-      if (normalizedAcceptableOwners.isNotEmpty &&
-          normalizedSessionOwner.isNotEmpty &&
-          !normalizedAcceptableOwners.contains(normalizedSessionOwner)) {
-        log(
-          'Manager session restore rejected for $botId: owner mismatch expected=${normalizedAcceptableOwners.join(',')} actual=$normalizedSessionOwner.',
-        );
-        return false;
-      }
 
       await MainApiSettingsStore.saveSession(session);
       log(
-        'Manager session restored from bot token for $botId (owner=${normalizedSessionOwner.isEmpty ? 'unknown' : normalizedSessionOwner}).',
+        'Manager session restored from bot token for $botId.',
       );
       return true;
     } catch (error) {
@@ -166,67 +131,13 @@ class MainApiOwnerSyncHelper {
     }
   }
 
-  Future<MainApiOwnerResolution> resolveOwnerContext({
-    required String botId,
-    required Map<String, dynamic> managerBotPayload,
-    String? botToken,
-  }) async {
-    log(
-      'resolveOwnerContext($botId) called: managerPayloadKeys=${managerBotPayload.keys.join(',')}, tokenPresent=${botToken?.trim().isNotEmpty == true}.',
-    );
-    final managerOwner = resolveOwnerFromManagerBotPayload(managerBotPayload);
-    if (managerOwner.hasOwner) {
-      log(
-        'Owner context resolved from manager payload for $botId: ${managerOwner.ownerCandidates.join(',')}',
-      );
-      return managerOwner;
-    }
-
-    final trimmedToken = botToken?.trim() ?? '';
-    if (trimmedToken.isEmpty) {
-      log(
-        'Owner context missing for $botId: no manager owner and no token fallback.',
-      );
-      return const MainApiOwnerResolution(
-        ownerCandidates: <String>[],
-        preferredOwnerId: null,
-        source: 'none',
-      );
-    }
-
-    final metadata = await resolveDiscordOwnerMetadataForBotStart(
-      botId: botId,
-      token: trimmedToken,
-    );
-    final ownerCandidates = metadata?.ownerCandidateIds ?? const <String>[];
-    final preferredOwnerId = metadata?.resolveOwnerId();
-    if (ownerCandidates.isNotEmpty) {
-      log(
-        'Owner context resolved from /applications/@me for $botId: ${ownerCandidates.join(',')}',
-      );
-    } else {
-      log('Owner context unresolved for $botId after token fallback.');
-    }
-    final resolution = MainApiOwnerResolution(
-      ownerCandidates: ownerCandidates,
-      preferredOwnerId: preferredOwnerId,
-      source: ownerCandidates.isEmpty ? 'none' : 'token_fallback',
-    );
-    log(
-      'resolveOwnerContext($botId) completed: source=${resolution.source}, ownerCount=${resolution.ownerCandidates.length}, preferredOwnerId=${resolution.preferredOwnerId ?? 'none'}.',
-    );
-    return resolution;
-  }
-
   Future<MainApiClient?> resolveMainApiClientForBot({
     required String botId,
     String? botToken,
     bool attemptSessionRestore = true,
-    Iterable<String> ownerCandidatesOverride = const <String>[],
-    String? preferredOwnerIdOverride,
   }) async {
     log(
-      'resolveMainApiClientForBot($botId) called: tokenProvided=${botToken?.trim().isNotEmpty == true}, attemptSessionRestore=$attemptSessionRestore, ownerOverrideCount=${ownerCandidatesOverride.length}, preferredOwnerOverride=${preferredOwnerIdOverride?.trim().isNotEmpty == true ? preferredOwnerIdOverride!.trim() : 'none'}.',
+      'resolveMainApiClientForBot($botId) called: tokenProvided=${botToken?.trim().isNotEmpty == true}, attemptSessionRestore=$attemptSessionRestore.',
     );
     var runtime = await resolveRuntime(
       getTimeout: const Duration(seconds: 5),
@@ -244,41 +155,14 @@ class MainApiOwnerSyncHelper {
       );
     }
 
-    DiscordApplicationOwnerMetadata? ownerMetadata;
-    var ownerCandidates = ownerCandidatesOverride
-        .map((ownerId) => ownerId.trim())
-        .where((ownerId) => ownerId.isNotEmpty)
-        .toList(growable: false);
-
-    if (ownerCandidates.isEmpty && resolvedToken.isNotEmpty) {
-      ownerMetadata = await resolveDiscordOwnerMetadataForBotStart(
-        botId: botId,
-        token: resolvedToken,
-      ).timeout(
-        const Duration(seconds: 5),
-        onTimeout: () {
-          log(
-            'resolveMainApiClientForBot($botId): Discord owner lookup timed out; continuing without owner context.',
-          );
-          return null;
-        },
-      );
-      ownerCandidates = ownerMetadata?.ownerCandidateIds ?? const <String>[];
-      log(
-        'resolveMainApiClientForBot($botId): owner candidates resolved from token fallback count=${ownerCandidates.length}.',
-      );
-    }
-
     final session = await MainApiSettingsStore.loadSession();
-    final sessionOwnerId = session?.userId?.trim() ?? '';
     final directClient = runtime.client;
     final hasMatchingManagerSession =
         directClient is MainApiClient &&
         session != null &&
-        !session.isExpired &&
-        (ownerCandidates.isEmpty || ownerCandidates.contains(sessionOwnerId));
+        !session.isExpired;
     log(
-      'resolveMainApiClientForBot($botId): sessionOwner=${sessionOwnerId.isEmpty ? 'none' : sessionOwnerId}, sessionExpired=${session?.isExpired ?? true}, hasMatchingManagerSession=$hasMatchingManagerSession, directClientType=${directClient.runtimeType}.',
+      'resolveMainApiClientForBot($botId): sessionExpired=${session?.isExpired ?? true}, hasMatchingManagerSession=$hasMatchingManagerSession, directClientType=${directClient.runtimeType}.',
     );
     if (hasMatchingManagerSession) {
       log(
@@ -289,31 +173,14 @@ class MainApiOwnerSyncHelper {
 
     if (!attemptSessionRestore || resolvedToken.isEmpty) {
       log(
-        'resolveMainApiClientForBot($botId): skipping restore (attemptSessionRestore=$attemptSessionRestore, tokenPresent=${resolvedToken.isNotEmpty}). Returning direct client only if owner unconstrained.',
+        'resolveMainApiClientForBot($botId): skipping restore (attemptSessionRestore=$attemptSessionRestore, tokenPresent=${resolvedToken.isNotEmpty}).',
       );
-      return ownerCandidates.isEmpty && directClient is MainApiClient
-          ? directClient
-          : null;
+      return directClient is MainApiClient ? directClient : null;
     }
-
-    if (ownerCandidates.isNotEmpty &&
-        sessionOwnerId.isNotEmpty &&
-        !ownerCandidates.contains(sessionOwnerId)) {
-      log(
-        'Manager session owner mismatch for $botId: expected one of ${ownerCandidates.join(',')} actual=$sessionOwnerId. Restoring from bot token.',
-      );
-    }
-
-    final preferredOwnerId =
-        preferredOwnerIdOverride?.trim().isNotEmpty == true
-            ? preferredOwnerIdOverride?.trim()
-            : ownerMetadata?.resolveOwnerId(preferredOwnerId: sessionOwnerId);
 
     final restored = await restoreMainApiSessionWithBotToken(
       botId: botId,
       botToken: resolvedToken,
-      preferredOwnerId: preferredOwnerId,
-      acceptableOwnerIds: ownerCandidates,
     );
     if (!restored) {
       log('resolveMainApiClientForBot($botId): session restore failed.');

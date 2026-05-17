@@ -443,13 +443,14 @@ class MainApiClient implements RemoteRuntimeClient {
     required String state,
   }) async {
     final json = await _post('/auth/discord/start', <String, dynamic>{
-      'redirectUri': redirectUri,
+      'redirect_uri': redirectUri,
+      'state': state,
     }, includeAuth: false);
 
     final authorizeUrl = _extractString(json, <String>[
-      'authorizeUrl',
-      'authorizationUrl',
       'authorization_url',
+      'authorizationUrl',
+      'authorizeUrl',
       'url',
     ]);
     final returnedState = _extractString(json, <String>['state']) ?? state;
@@ -474,19 +475,16 @@ class MainApiClient implements RemoteRuntimeClient {
     final json = await _post('/auth/discord/exchange', <String, dynamic>{
       'code': code,
       'state': state,
-      'redirectUri': redirectUri,
+      'redirect_uri': redirectUri,
     }, includeAuth: false);
     return _sessionFromAuthPayload(json);
   }
 
   Future<MainApiSession> exchangeDiscordBotToken({
     required String botToken,
-    String? preferredOwnerId,
   }) async {
     final json = await _post('/auth/discord/bot/exchange', <String, dynamic>{
-      'botToken': botToken,
-      if (_normalize(preferredOwnerId) case final value?)
-        'preferredOwnerId': value,
+      'bot_token': botToken,
     }, includeAuth: false);
     return _sessionFromAuthPayload(json);
   }
@@ -531,26 +529,36 @@ class MainApiClient implements RemoteRuntimeClient {
   @override
   Future<RunnerStatus> getStatus({String? botId}) async {
     if (botId == null || botId.trim().isEmpty) {
-      final json = await _getFirstAvailable(const <String>[
-        '/gateway/status',
-        '/status',
-      ]);
-      return RunnerStatus.fromJson(json);
+      final json = await _get('/gateway/runtime');
+      var isRunning = false;
+      for (final value in json.values) {
+        if (value is Map) {
+          final running = value['bots_running'] as int? ?? 0;
+          if (running > 0) {
+            isRunning = true;
+            break;
+          }
+        }
+      }
+          return RunnerStatus(
+        running: isRunning,
+        bots: const <RunnerBotRuntime>[],
+      );
     }
 
     final encodedBotId = Uri.encodeComponent(botId.trim());
-    final json = await _getFirstAvailable(<String>[
-      '/gateway/bots/$encodedBotId/status',
-      '/bots/$encodedBotId/status',
-    ]);
-    final bot = json['bot'];
-    if (bot is Map) {
-      return RunnerStatus.fromJson(<String, dynamic>{
-        'running': (bot['state'] ?? '').toString() == 'running',
-        'bots': <dynamic>[bot],
-      });
-    }
-    return const RunnerStatus(running: false, bots: <RunnerBotRuntime>[]);
+    final json = await _get('/gateway/bots/$encodedBotId/runtime');
+    final running = json['session_active'] == true;
+    return RunnerStatus(
+      running: running,
+      bots: <RunnerBotRuntime>[
+        RunnerBotRuntime(
+          botId: botId.trim(),
+          botName: '',
+          state: running ? 'running' : 'stopped',
+        ),
+      ],
+    );
   }
 
   @override

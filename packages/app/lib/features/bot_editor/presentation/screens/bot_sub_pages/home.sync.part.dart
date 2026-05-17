@@ -26,28 +26,13 @@ extension _AppHomePageSync on _AppHomePageState {
     log: appendBotDebugLog,
   );
 
-  Future<DiscordApplicationOwnerMetadata?>
-  _resolveDiscordOwnerMetadataForBotStart({
-    required String botId,
-    required String? token,
-  }) async {
-    return _ownerSyncHelper.resolveDiscordOwnerMetadataForBotStart(
-      botId: botId,
-      token: token,
-    );
-  }
-
   Future<bool> _restoreMainApiSessionWithBotToken({
     required String botId,
     required String? botToken,
-    String? preferredOwnerId,
-    Iterable<String> acceptableOwnerIds = const <String>[],
   }) async {
     return _ownerSyncHelper.restoreMainApiSessionWithBotToken(
       botId: botId,
       botToken: botToken,
-      preferredOwnerId: preferredOwnerId,
-      acceptableOwnerIds: acceptableOwnerIds,
     );
   }
 
