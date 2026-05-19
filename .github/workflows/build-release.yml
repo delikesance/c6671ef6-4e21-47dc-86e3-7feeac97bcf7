@@ -114,7 +114,9 @@ jobs:
           pub-cache: false
 
       - name: Get dependencies
-        run: flutter pub get
+        run: |
+          flutter pub get
+          dart pub upgrade bot_creator_shared
 
       - name: Enable Linux Flutter Desktop
         run: flutter config --enable-linux-desktop
@@ -259,7 +261,9 @@ jobs:
           pub-cache: false
 
       - name: Get dependencies
-        run: flutter pub get
+        run: |
+          flutter pub get
+          dart pub upgrade bot_creator_shared
 
       - name: Enable macOS Flutter Desktop
         run: flutter config --enable-macos-desktop
@@ -318,7 +322,9 @@ jobs:
           pub-cache: false
 
       - name: Get dependencies
-        run: flutter pub get
+        run: |
+          flutter pub get
+          dart pub upgrade bot_creator_shared
 
       - name: Enable Windows Flutter Desktop
         run: flutter config --enable-windows-desktop

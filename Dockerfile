@@ -12,7 +12,7 @@ RUN printf "name: bot_creator_runner_workspace\ndescription: Docker build worksp
 
 # Resolve dependencies for the runner (workspace-aware)
 # Run from workspace root to ensure proper workspace initialization
-RUN dart pub get
+RUN dart pub get && dart pub upgrade bot_creator_shared
 
 # Build a native CLI bundle (binary + native assets)
 WORKDIR /workspace/packages/runner
