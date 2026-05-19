@@ -34,7 +34,9 @@ jobs:
           pub-cache: false
 
       - name: Install workspace dependencies
-        run: flutter pub get
+        run: |
+          flutter pub get
+          dart pub upgrade bot_creator_shared
 
       - name: Analyze runner package
         run: dart analyze packages/runner
