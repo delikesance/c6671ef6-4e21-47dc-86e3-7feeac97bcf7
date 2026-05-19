@@ -30,6 +30,10 @@ class DiscordRunner {
         onDebugLog: (msg, {botId}) => _log.fine(msg),
         onLifecycleChange: (event, {required botId}) =>
             _log.info('Lifecycle change: $event'),
+        onReplayCaptured: (botId, label, frames, totalMs) {
+          _engine.saveDebugReplay(botId, label, frames, totalMs);
+        },
+        isDebugReplayCapturing: (botId) => _engine.isDebugReplayCapturing(botId),
       ),
     );
   }

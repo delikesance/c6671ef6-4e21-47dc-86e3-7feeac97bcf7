@@ -218,7 +218,7 @@ class RunnerWebBootstrapServer {
     );
 
     // Scoped Bot Actions
-    _get('/bots/:id/status', (req, res) {
+    _get('/bots/:id/status', (HttpRequest req, HttpResponse res) {
       final botId = req.params['id'];
       return {'apiVersion': 2, 'bot': _buildBotStatePayload(botId)};
     }, summary: 'Get Bot Status', responses: {
@@ -233,7 +233,7 @@ class RunnerWebBootstrapServer {
 
     _get(
       '/bots/:id/metrics',
-      (req, res) => _handleMetrics(botId: req.params['id']),
+      (HttpRequest req, HttpResponse res) => _handleMetrics(botId: req.params['id']),
       summary: 'Get Bot Metrics',
       responses: {
         '200': RunnerApiSpec.jsonResponse('Bot Metrics', {

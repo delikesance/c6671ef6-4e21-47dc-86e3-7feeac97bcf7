@@ -56,3 +56,4 @@ app.*.map.json
 /packages/app/build
 /build
 /packages/shared/
+/data

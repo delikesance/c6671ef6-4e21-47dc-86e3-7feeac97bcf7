@@ -65,6 +65,18 @@ final BotEngine _engine = BotEngine(
     onMetrics: (metrics, {required botId}) {
       // Local metrics are updated elsewhere via getters for now.
     },
+    onReplayCaptured: (botId, label, frames, totalMs) {
+      _engine.saveDebugReplay(botId, label, frames, totalMs);
+      appendDebugReplay(DebugReplayRecord(
+        botId: botId,
+        commandLabel: label,
+        triggeredAt: DateTime.now(),
+        frames: frames.map(DebugActionFrame.fromJson).toList(),
+        totalMs: totalMs,
+      ));
+    },
+    isDebugReplayCapturing: (botId) =>
+        _engine.isDebugReplayCapturing(botId) || isDebugReplayCapturing,
   ),
 );
 
