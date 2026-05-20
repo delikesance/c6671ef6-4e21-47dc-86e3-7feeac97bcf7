@@ -722,6 +722,12 @@ abstract class AppLocalizations {
   /// **'Delete Webhook'**
   String get action_name_deleteWebhook;
 
+  /// Debug Profile
+  ///
+  /// In en, this message translates to:
+  /// **'Debug Profile'**
+  String get action_name_debugProfile;
+
   /// Disconnect from Voice
   ///
   /// In en, this message translates to:
@@ -763,6 +769,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'End Poll'**
   String get action_name_endPoll;
+
+  /// For Loop
+  ///
+  /// In en, this message translates to:
+  /// **'For Loop'**
+  String get action_name_forLoop;
 
   /// Get Global Variable
   ///
@@ -818,6 +830,12 @@ abstract class AppLocalizations {
   /// **'IF / ELSE Block'**
   String get action_name_ifBlock;
 
+  /// JSON For Each Loop
+  ///
+  /// In en, this message translates to:
+  /// **'JSON For Each Loop'**
+  String get action_name_jsonForEachLoop;
+
   /// Kick User
   ///
   /// In en, this message translates to:
@@ -866,6 +884,12 @@ abstract class AppLocalizations {
   /// **'Listen for Select Menu'**
   String get action_name_listenForSelectMenu;
 
+  /// Log Message
+  ///
+  /// In en, this message translates to:
+  /// **'Log Message'**
+  String get action_name_log;
+
   /// Move to Voice Channel
   ///
   /// In en, this message translates to:
@@ -895,6 +919,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Random Choice'**
   String get action_name_randomChoice;
+
+  /// Register Guild Commands
+  ///
+  /// In en, this message translates to:
+  /// **'Register Guild Commands'**
+  String get action_name_registerGuildCommands;
 
   /// Remove Array Element
   ///
@@ -974,6 +1004,12 @@ abstract class AppLocalizations {
   /// **'Run BDFD Script'**
   String get action_name_runBdfdScript;
 
+  /// Execute JSON Operations
+  ///
+  /// In en, this message translates to:
+  /// **'Execute JSON Operations'**
+  String get action_name_runtimeJsonBlock;
+
   /// Run Workflow
   ///
   /// In en, this message translates to:
@@ -1034,6 +1070,12 @@ abstract class AppLocalizations {
   /// **'Set Scoped Variable'**
   String get action_name_setScopedVariable;
 
+  /// Set Temporary Variable
+  ///
+  /// In en, this message translates to:
+  /// **'Set Temporary Variable'**
+  String get action_name_setTemporaryVariable;
+
   /// Slowmode
   ///
   /// In en, this message translates to:
@@ -1069,6 +1111,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unpin Message'**
   String get action_name_unpinMessage;
+
+  /// Unregister Guild Commands
+  ///
+  /// In en, this message translates to:
+  /// **'Unregister Guild Commands'**
+  String get action_name_unregisterGuildCommands;
 
   /// Update AutoMod
   ///
@@ -12274,6 +12322,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Workflow type'**
   String get workflows_type_title;
+
+  /// Team Ownership
+  ///
+  /// In en, this message translates to:
+  /// **'Team Ownership'**
+  String get settings_team_ownership;
+
+  /// Personal Ownership
+  ///
+  /// In en, this message translates to:
+  /// **'Personal Ownership'**
+  String get settings_personal_ownership;
+
+  /// TEAM
+  ///
+  /// In en, this message translates to:
+  /// **'TEAM'**
+  String get settings_team_pill;
+
+  /// SOLO
+  ///
+  /// In en, this message translates to:
+  /// **'SOLO'**
+  String get settings_solo_pill;
+
+  /// Team Name:
+  ///
+  /// In en, this message translates to:
+  /// **'Team Name: '**
+  String get settings_team_name_label;
+
+  /// Team ID:
+  ///
+  /// In en, this message translates to:
+  /// **'Team ID: '**
+  String get settings_team_id_label;
+
+  /// Team Leader
+  ///
+  /// In en, this message translates to:
+  /// **'Team Leader'**
+  String get settings_team_owner_label;
+
+  /// Owner
+  ///
+  /// In en, this message translates to:
+  /// **'Owner'**
+  String get settings_owner_fallback;
+
+  /// OWNER
+  ///
+  /// In en, this message translates to:
+  /// **'OWNER'**
+  String get settings_owner_badge;
+
+  /// Number of team members
+  ///
+  /// In en, this message translates to:
+  /// **'Team Members ({count})'**
+  String settings_team_members_label(int count);
+
+  /// Owner:
+  ///
+  /// In en, this message translates to:
+  /// **'Owner: '**
+  String get settings_personal_owner_label;
+
+  /// Personal User
+  ///
+  /// In en, this message translates to:
+  /// **'Personal User'**
+  String get settings_personal_owner_fallback;
+
+  /// Owner ID:
+  ///
+  /// In en, this message translates to:
+  /// **'Owner ID: '**
+  String get settings_personal_owner_id_label;
+
+  /// View Raw JSON (RAW JSON)
+  ///
+  /// In en, this message translates to:
+  /// **'View Raw JSON (RAW JSON)'**
+  String get settings_raw_json_tile;
+
+  /// MEMBER
+  ///
+  /// In en, this message translates to:
+  /// **'MEMBER'**
+  String get settings_member_badge;
 }
 
 class _AppLocalizationsDelegate

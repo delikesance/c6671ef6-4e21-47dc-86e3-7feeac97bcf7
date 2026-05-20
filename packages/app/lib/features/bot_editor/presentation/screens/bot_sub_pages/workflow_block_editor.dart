@@ -4,8 +4,7 @@ import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder.response.dart';
 import 'package:bot_creator/core/models/types/app_emoji.dart';
-import 'package:bot_creator/core/models/types/action.dart'
-    show BotCreatorActionType;
+import 'package:bot_creator_shared/types/action.dart' show BotCreatorActionType;
 
 import 'package:bot_creator/features/bot_editor/logic/workflow_call.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/action_block.dart';
@@ -575,7 +574,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
             });
           },
           fieldRefreshVersionOf: (_) => 0,
-          onEditNestedActions: (current, suggestions) async {
+          onEditNestedActions: (current, suggestions, blockName, {onChanged}) async {
             final result = await Navigator.push<List<Map<String, dynamic>>>(
               context,
               MaterialPageRoute<List<Map<String, dynamic>>>(
@@ -585,6 +584,8 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                       variableSuggestions: suggestions,
                       emojiSuggestions: widget.appEmojis,
                       botIdForConfig: widget.botId,
+                      editPath: ['Racine', blockName],
+                      onChanged: onChanged,
                     ),
               ),
             );

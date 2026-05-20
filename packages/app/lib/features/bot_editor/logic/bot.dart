@@ -63,7 +63,7 @@ final BotEngine _engine = BotEngine(
       setBotRuntimeActive(_botRuntimeActive || mobileRunningBotIds.isNotEmpty);
     },
     onMetrics: (metrics, {required botId}) {
-      // Local metrics are updated elsewhere via getters for now.
+      appManager.updateGuildCount(botId, metrics.guildCount);
     },
     onReplayCaptured: (botId, label, frames, totalMs) {
       _engine.saveDebugReplay(botId, label, frames, totalMs);

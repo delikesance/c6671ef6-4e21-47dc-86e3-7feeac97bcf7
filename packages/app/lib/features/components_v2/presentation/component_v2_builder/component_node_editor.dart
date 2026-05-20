@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/workflows.page.dart';
-import 'package:bot_creator/core/models/types/component.dart';
+import 'package:bot_creator_shared/types/component.dart';
 import 'package:bot_creator/core/models/types/variable_suggestion.dart';
 import 'package:bot_creator/features/bot_editor/logic/workflow_call.dart';
 import 'dart:convert';
@@ -439,17 +439,9 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
           context.tr.component_block_workflow,
         ),
       if (!_isSectionVisible('btn_emoji', hasEmoji))
-        (
-          'btn_emoji',
-          Icons.emoji_emotions,
-          context.tr.emojis_tab_short,
-        ),
+        ('btn_emoji', Icons.emoji_emotions, context.tr.emojis_tab_short),
       if (!_isSectionVisible('btn_disabled', btn.disabled))
-        (
-          'btn_disabled',
-          Icons.block,
-          context.tr.common_disabled,
-        ),
+        ('btn_disabled', Icons.block, context.tr.common_disabled),
     ];
 
     return Column(
@@ -634,17 +626,9 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
           context.tr.component_block_workflow,
         ),
       if (!_isSectionVisible('sel_range', hasRange))
-        (
-          'sel_range',
-          Icons.sync_alt,
-          context.tr.component_selection_range,
-        ),
+        ('sel_range', Icons.sync_alt, context.tr.component_selection_range),
       if (!_isSectionVisible('sel_disabled', menu.disabled))
-        (
-          'sel_disabled',
-          Icons.block,
-          context.tr.common_disabled,
-        ),
+        ('sel_disabled', Icons.block, context.tr.common_disabled),
     ];
 
     return Column(
@@ -855,14 +839,17 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                               },
                             ),
                             second: TextFormField(
-                              initialValue: opt.emoji is String ? opt.emoji as String : '',
+                              initialValue:
+                                  opt.emoji is String
+                                      ? opt.emoji as String
+                                      : '',
                               decoration: InputDecoration(
                                 labelText: context.tr.emojis_tab_short,
                                 isDense: true,
                                 hintText: 'Emoji ID or :name:',
                               ),
                               onChanged: (v) {
-                                // Simplified: if it looks like JSON, we could parse it, 
+                                // Simplified: if it looks like JSON, we could parse it,
                                 // but for now we store as string.
                                 opt.emoji = v;
                                 onChanged(menu);

@@ -462,6 +462,10 @@
   "@action_name_deleteWebhook": {
     "description": "Delete Webhook"
   },
+  "action_name_debugProfile": "Perfil de Depuração",
+  "@action_name_debugProfile": {
+    "description": "Perfil de Depuração"
+  },
   "action_name_disconnectFromVoice": "Desligar da Voz",
   "@action_name_disconnectFromVoice": {
     "description": "Disconnect from Voice"
@@ -489,6 +493,10 @@
   "action_name_endPoll": "Terminar Sondagem",
   "@action_name_endPoll": {
     "description": "End Poll"
+  },
+  "action_name_forLoop": "Loop For",
+  "@action_name_forLoop": {
+    "description": "For Loop"
   },
   "action_name_getGlobalVariable": "Obter Variável Global",
   "@action_name_getGlobalVariable": {
@@ -526,6 +534,10 @@
   "@action_name_ifBlock": {
     "description": "IF / ELSE Block"
   },
+  "action_name_jsonForEachLoop": "Loop For Each JSON",
+  "@action_name_jsonForEachLoop": {
+    "description": "JSON For Each Loop"
+  },
   "action_name_kickUser": "Expulsar Utilizador",
   "@action_name_kickUser": {
     "description": "Kick User"
@@ -558,6 +570,10 @@
   "@action_name_listenForSelectMenu": {
     "description": "Listen for Select Menu"
   },
+  "action_name_log": "Registrar Mensagem",
+  "@action_name_log": {
+    "description": "Registrar Mensagem"
+  },
   "action_name_moveToVoiceChannel": "Mover para Canal de Voz",
   "@action_name_moveToVoiceChannel": {
     "description": "Move to Voice Channel"
@@ -577,6 +593,10 @@
   "action_name_randomChoice": "Escolha Aleatória",
   "@action_name_randomChoice": {
     "description": "Random Choice"
+  },
+  "action_name_registerGuildCommands": "Registrar Comandos de Servidor",
+  "@action_name_registerGuildCommands": {
+    "description": "Registrar Comandos de Servidor"
   },
   "action_name_removeArrayElement": "Remover Elemento do Array",
   "@action_name_removeArrayElement": {
@@ -630,6 +650,10 @@
   "@action_name_runBdfdScript": {
     "description": "Run BDFD Script"
   },
+  "action_name_runtimeJsonBlock": "Executar Operações JSON",
+  "@action_name_runtimeJsonBlock": {
+    "description": "Executar Operações JSON"
+  },
   "action_name_runWorkflow": "Executar Fluxo de Trabalho",
   "@action_name_runWorkflow": {
     "description": "Run Workflow"
@@ -670,6 +694,10 @@
   "@action_name_setScopedVariable": {
     "description": "Set Scoped Variable"
   },
+  "action_name_setTemporaryVariable": "Definir Variável Temporária",
+  "@action_name_setTemporaryVariable": {
+    "description": "Set Temporary Variable"
+  },
   "action_name_slowmode": "Modo Lento",
   "@action_name_slowmode": {
     "description": "Slowmode"
@@ -693,6 +721,10 @@
   "action_name_unpinMessage": "Desafixar Mensagem",
   "@action_name_unpinMessage": {
     "description": "Unpin Message"
+  },
+  "action_name_unregisterGuildCommands": "Cancelar Registro de Comandos de Servidor",
+  "@action_name_unregisterGuildCommands": {
+    "description": "Cancelar Registro de Comandos de Servidor"
   },
   "action_name_updateAutoMod": "Atualizar AutoMod",
   "@action_name_updateAutoMod": {
@@ -8901,5 +8933,28 @@
   "workflows_type_title": "Tipo de Workflow",
   "@workflows_type_title": {
     "description": "Workflow type"
-  }
+  },
+  "settings_team_ownership": "Propriedade da Equipe",
+  "settings_personal_ownership": "Propriedade Pessoal",
+  "settings_team_pill": "EQUIPE",
+  "settings_solo_pill": "SOLO",
+  "settings_team_name_label": "Nome da equipe: ",
+  "settings_team_id_label": "ID da equipe: ",
+  "settings_team_owner_label": "Líder da Equipe",
+  "settings_owner_fallback": "Proprietário",
+  "settings_owner_badge": "PROPRIETÁRIO",
+  "settings_team_members_label": "Membros da Equipe ({count})",
+  "@settings_team_members_label": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "Number of team members"
+  },
+  "settings_personal_owner_label": "Proprietário: ",
+  "settings_personal_owner_fallback": "Usuário Pessoal",
+  "settings_personal_owner_id_label": "ID do Proprietário: ",
+  "settings_raw_json_tile": "Ver JSON bruto (RAW JSON)",
+  "settings_member_badge": "MEMBRO"
 }

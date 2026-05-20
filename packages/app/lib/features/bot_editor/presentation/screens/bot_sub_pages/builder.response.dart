@@ -1,16 +1,18 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:bot_creator/core/models/types/action.dart'
-    show BotCreatorActionType;
+import 'package:bot_creator_shared/types/action.dart' show BotCreatorActionType;
 import 'package:bot_creator/core/models/types/app_emoji.dart';
 import 'builder/action_types.dart';
 import 'builder/action_type_extension.dart';
-import 'builder/action_card.dart';
 import 'builder/action_summary.dart';
 
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/models/types/variable_suggestion.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
+
+import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/action_block.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/scratch_block_canvas.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/scratch_block_palette.dart';
 
 export 'builder/action_types.dart';
 export 'builder/action_type_extension.dart';
@@ -21,6 +23,8 @@ class ActionsBuilderPage extends StatefulWidget {
   final List<VariableSuggestion> variableSuggestions;
   final List<AppEmoji>? emojiSuggestions;
   final String? botIdForConfig;
+  final List<String> editPath;
+  final ValueChanged<List<Map<String, dynamic>>>? onChanged;
 
   const ActionsBuilderPage({
     super.key,
@@ -28,6 +32,8 @@ class ActionsBuilderPage extends StatefulWidget {
     this.variableSuggestions = const [],
     this.emojiSuggestions,
     this.botIdForConfig,
+    this.editPath = const [],
+    this.onChanged,
   });
 
   @override
@@ -53,6 +59,13 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
     }
   }
 
+  void _triggerOnChanged() {
+    if (widget.onChanged != null) {
+      final payload = _actions.map((action) => action.toJson()).toList();
+      widget.onChanged!(payload);
+    }
+  }
+
   void _addAction(BotCreatorActionType type) {
     setState(() {
       final newId = 'action_${_actionCounter++}';
@@ -65,6 +78,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
         ),
       );
     });
+    _triggerOnChanged();
   }
 
   void _removeAction(String actionId) {
@@ -77,6 +91,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
         (compositeKey, _) => compositeKey.startsWith('$actionId::'),
       );
     });
+    _triggerOnChanged();
   }
 
   void _moveAction(int fromIndex, int toIndex) {
@@ -92,6 +107,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
       final action = _actions.removeAt(fromIndex);
       _actions.insert(toIndex, action);
     });
+    _triggerOnChanged();
   }
 
   void _updateActionParameter(
@@ -139,6 +155,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
         }
       }
     });
+    _triggerOnChanged();
   }
 
   void _saveActions() {
@@ -384,60 +401,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
     return merged.values.toList(growable: false);
   }
 
-  Future<void> _openActionDetails(ActionItem action, int index) async {
-    final mergedVariableSuggestions = _buildMergedVariableSuggestions();
-    final wasDeleted = await Navigator.push<bool>(
-      context,
-      MaterialPageRoute<bool>(
-        builder:
-            (_) => _ActionDetailPage(
-              action: action,
-              index: index,
-              totalCount: _actions.length,
-              actionKey: _resolvedActionResultKey(action),
-              variableSuggestions: mergedVariableSuggestions,
-              emojiSuggestions: widget.emojiSuggestions,
-              botIdForConfig: widget.botIdForConfig,
-              fieldRefreshVersionOf:
-                  (paramKey) =>
-                      _fieldRefreshVersions['${action.id}::$paramKey'] ?? 0,
-              onSuggestionSelected:
-                  (key, value) => _updateActionParameter(
-                    action.id,
-                    key,
-                    value,
-                    forceFieldRefresh: true,
-                  ),
-              onParameterChanged:
-                  (key, value) => _updateActionParameter(action.id, key, value),
-              onMoveUp: index > 0 ? () => _moveAction(index, index - 1) : null,
-              onMoveDown:
-                  index < _actions.length - 1
-                      ? () => _moveAction(index, index + 1)
-                      : null,
-              onRemove: () => _removeAction(action.id),
-              onEditNestedActions: (current, suggestions) async {
-                return await Navigator.push<List<Map<String, dynamic>>>(
-                  context,
-                  MaterialPageRoute(
-                    builder:
-                        (_) => ActionsBuilderPage(
-                          initialActions: current,
-                          variableSuggestions: suggestions,
-                          emojiSuggestions: widget.emojiSuggestions,
-                          botIdForConfig: widget.botIdForConfig,
-                        ),
-                  ),
-                );
-              },
-            ),
-      ),
-    );
 
-    if (wasDeleted == true && mounted) {
-      setState(() {});
-    }
-  }
 
   void _showAddActionDialog() {
     final mediaQuery = MediaQuery.of(context);
@@ -455,9 +419,10 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
 
       for (final actionType in availableActionTypes) {
         if (searchQuery.isNotEmpty &&
-            !actionType.displayName(context).toLowerCase().contains(
-              searchQuery.toLowerCase(),
-            )) {
+            !actionType
+                .displayName(context)
+                .toLowerCase()
+                .contains(searchQuery.toLowerCase())) {
           continue;
         }
         final category = _getCategoryForAction(actionType);
@@ -466,7 +431,9 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
       }
 
       for (final entry in actionsByCategory.entries) {
-        entry.value.sort((a, b) => a.displayName(context).compareTo(b.displayName(context)));
+        entry.value.sort(
+          (a, b) => a.displayName(context).compareTo(b.displayName(context)),
+        );
       }
 
       return Column(
@@ -655,16 +622,24 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
       case BotCreatorActionType.appendArrayElement:
       case BotCreatorActionType.removeArrayElement:
       case BotCreatorActionType.queryArray:
+      case BotCreatorActionType.setTemporaryVariable:
         return 'HTTP & Variables';
       case BotCreatorActionType.runWorkflow:
       case BotCreatorActionType.runBdfdScript:
+      case BotCreatorActionType.debugProfile:
+      case BotCreatorActionType.log:
+      case BotCreatorActionType.runtimeJsonBlock:
+      case BotCreatorActionType.registerGuildCommands:
+      case BotCreatorActionType.unregisterGuildCommands:
         return 'Workflows';
       case BotCreatorActionType.stopUnless:
       case BotCreatorActionType.ifBlock:
+      case BotCreatorActionType.forLoop:
+      case BotCreatorActionType.jsonForEachLoop:
       case BotCreatorActionType.calculate:
       case BotCreatorActionType.cooldown:
         return 'Logic & Flow';
-      }
+    }
   }
 
   Widget _buildActionCategory(
@@ -843,6 +818,8 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
         return 'Delete a global variable';
       case BotCreatorActionType.setScopedVariable:
         return 'Create or update a scoped variable (guild/user/channel/guildMember/message)';
+      case BotCreatorActionType.setTemporaryVariable:
+        return 'Create or update a temporary variable in local execution';
       case BotCreatorActionType.getScopedVariable:
         return 'Read a scoped variable and inject into runtime variables';
       case BotCreatorActionType.removeScopedVariable:
@@ -949,6 +926,20 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
         return 'Update guild settings';
       case BotCreatorActionType.deleteWebhook:
         return 'Delete a webhook';
+      case BotCreatorActionType.forLoop:
+        return 'Loop through a range of numbers (for loop)';
+      case BotCreatorActionType.jsonForEachLoop:
+        return 'Loop through each element of a JSON array or object (forEach)';
+      case BotCreatorActionType.debugProfile:
+        return 'Generate execution profile and diagnostics info';
+      case BotCreatorActionType.log:
+        return 'Print or store diagnostic message to action logs';
+      case BotCreatorActionType.runtimeJsonBlock:
+        return 'Run block of JSON processing actions';
+      case BotCreatorActionType.registerGuildCommands:
+        return 'Register application commands to a guild';
+      case BotCreatorActionType.unregisterGuildCommands:
+        return 'Unregister application commands from a guild';
     }
   }
 
@@ -988,6 +979,23 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
     );
   }
 
+  Widget _buildAddBlockButton() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: OutlinedButton.icon(
+        onPressed: _showAddActionDialog,
+        icon: const Icon(Icons.add),
+        label: Text(context.tr.scratch_add_block),
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size(double.infinity, 48),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildActionSequence({
     required EdgeInsetsGeometry padding,
     required double maxContentWidth,
@@ -1000,75 +1008,77 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
       return Center(child: Text(context.tr.actions_no_matches));
     }
 
-    return ListView.builder(
-      padding: padding,
-      itemCount: filtered.length,
-      itemBuilder: (context, index) {
-        final action = filtered[index];
-        final absoluteIndex = _actions.indexOf(action);
-        final summary = summarizeActionItem(context, action);
+    final mergedVariableSuggestions = _buildMergedVariableSuggestions();
 
-        return Align(
-          alignment: Alignment.topCenter,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: maxContentWidth),
-            child: Card(
-              margin: const EdgeInsets.only(bottom: 12),
-              child: ListTile(
-                onTap: () => _openActionDetails(action, absoluteIndex),
-                leading: CircleAvatar(
-                  backgroundColor: Theme.of(
-                    context,
-                  ).colorScheme.primaryContainer.withValues(alpha: 0.8),
-                  child: Icon(action.type.icon),
-                ),
-                title: Text(
-                  '${absoluteIndex + 1}. ${summary.title}',
-                  style: const TextStyle(fontWeight: FontWeight.w700),
-                ),
-                subtitle: Padding(
-                  padding: const EdgeInsets.only(top: 6),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(summary.summary),
-                      const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          _SequenceMetaChip(
-                            label:
-                                summary.isEnabled
-                                    ? context.tr.common_enabled
-                                    : context.tr.common_disabled,
-                            color:
-                                summary.isEnabled
-                                    ? AppTheme.success
-                                    : AppTheme.warning,
-                          ),
-                          _SequenceMetaChip(
-                            label: context.tr.actions_key_label(
-                              summary.outputKey,
-                            ),
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                          for (final meta in summary.meta)
-                            _SequenceMetaChip(
-                              label: meta,
-                              color: Theme.of(context).colorScheme.secondary,
-                            ),
-                        ],
-                      ),
-                    ],
+    final skipConnectorAfterIndices = <int>{};
+    for (int i = 0; i < filtered.length; i++) {
+      if (isFinalAction(filtered[i].type)) {
+        skipConnectorAfterIndices.add(i);
+      }
+    }
+
+    final children = <Widget>[
+      for (int i = 0; i < filtered.length; i++) ...[
+        Builder(
+          builder: (context) {
+            final action = filtered[i];
+            final absoluteIndex = _actions.indexOf(action);
+            return ActionBlock(
+              key: ValueKey('builder-action-${action.id}'),
+              action: action,
+              index: absoluteIndex,
+              totalCount: _actions.length,
+              variableSuggestions: mergedVariableSuggestions,
+              emojiSuggestions: widget.emojiSuggestions,
+              botIdForConfig: widget.botIdForConfig,
+              onRemove: () async {
+                final shouldDelete = await AppTheme.showConfirmDialog(
+                  context,
+                  title: context.tr.action_remove_title,
+                  content: context.tr.action_remove_confirm,
+                  confirmLabel: context.tr.common_remove,
+                  isDestructive: true,
+                );
+                if (shouldDelete) {
+                  _removeAction(action.id);
+                }
+              },
+              onMoveUp: absoluteIndex > 0 ? () => _moveAction(absoluteIndex, absoluteIndex - 1) : null,
+              onMoveDown: absoluteIndex < _actions.length - 1 ? () => _moveAction(absoluteIndex, absoluteIndex + 1) : null,
+              onParameterChanged: (key, value) => _updateActionParameter(action.id, key, value),
+              onSuggestionSelected: (key, value) => _updateActionParameter(action.id, key, value, forceFieldRefresh: true),
+              fieldRefreshVersionOf: (paramKey) => _fieldRefreshVersions['${action.id}::$paramKey'] ?? 0,
+              onEditNestedActions: (current, suggestions, blockName, {onChanged}) async {
+                return await Navigator.push<List<Map<String, dynamic>>>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ActionsBuilderPage(
+                      initialActions: current,
+                      variableSuggestions: suggestions,
+                      emojiSuggestions: widget.emojiSuggestions,
+                      botIdForConfig: widget.botIdForConfig,
+                      editPath: [...widget.editPath, blockName],
+                      onChanged: onChanged,
+                    ),
                   ),
-                ),
-                trailing: const Icon(Icons.chevron_right),
-              ),
-            ),
-          ),
-        );
-      },
+                );
+              },
+            );
+          },
+        ),
+      ],
+      _buildAddBlockButton(),
+    ];
+
+    return Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: maxContentWidth),
+        child: ScratchBlockCanvas(
+          padding: padding as EdgeInsets,
+          skipConnectorAfterIndices: skipConnectorAfterIndices,
+          children: children,
+        ),
+      ),
     );
   }
 
@@ -1114,6 +1124,118 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
     );
   }
 
+  Widget _buildBreadcrumbsHeader(BuildContext context) {
+    if (widget.editPath.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final crumbs = [context.tr.actions_builder_title, ...widget.editPath];
+    final allItems = <String>[];
+    for (final crumb in crumbs) {
+      if (crumb.contains(' > ')) {
+        allItems.addAll(crumb.split(' > '));
+      } else {
+        allItems.add(crumb);
+      }
+    }
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Theme.of(
+          context,
+        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.25),
+        border: Border(
+          bottom: BorderSide(
+            color: Theme.of(context).dividerColor.withValues(alpha: 0.08),
+          ),
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        child: Row(
+          children: [
+            for (int i = 0; i < allItems.length; i++) ...[
+              if (i > 0)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  child: Icon(
+                    Icons.chevron_right,
+                    size: 14,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+                  ),
+                ),
+              _buildBreadcrumbItem(
+                context,
+                allItems[i],
+                i == allItems.length - 1,
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBreadcrumbItem(
+    BuildContext context,
+    String path,
+    bool isActive,
+  ) {
+    final theme = Theme.of(context);
+
+    Color? badgeColor;
+    String upper = path.toUpperCase();
+    if (upper.contains('THEN') || upper.contains('ALORS')) {
+      badgeColor = AppTheme.success;
+    } else if (upper.contains('ELSE') || upper.contains('SINON')) {
+      badgeColor = AppTheme.warning;
+    } else if (upper.contains('ELSE IF') || upper.contains('SINON SI')) {
+      badgeColor = AppTheme.premiumGold;
+    }
+
+    if (badgeColor != null) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration: BoxDecoration(
+          color: badgeColor.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+          border: Border.all(
+            color: badgeColor.withValues(alpha: 0.25),
+            width: 1,
+          ),
+        ),
+        child: Text(
+          path,
+          style: TextStyle(
+            color: badgeColor,
+            fontWeight: FontWeight.w600,
+            fontSize: 11,
+          ),
+        ),
+      );
+    }
+
+    final textColor =
+        isActive
+            ? theme.colorScheme.primary
+            : theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7);
+    final fontWeight = isActive ? FontWeight.w600 : FontWeight.bold;
+
+    return Text(
+      path,
+      style: TextStyle(
+        color: textColor,
+        fontWeight: fontWeight,
+        fontSize: 12.5,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     Widget saveButton() {
@@ -1131,19 +1253,25 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(context.tr.actions_builder_title),
+        title: Text(
+          widget.editPath.isNotEmpty
+              ? widget.editPath.last.split(' > ').last
+              : context.tr.actions_builder_title,
+        ),
         actions: [
-          IconButton(
-            onPressed: _saveActions,
-            icon: const Icon(Icons.save),
-            tooltip: context.tr.actions_save_tooltip,
-          ),
+          if (widget.editPath.isEmpty)
+            IconButton(
+              onPressed: _saveActions,
+              icon: const Icon(Icons.save),
+              tooltip: context.tr.actions_save_tooltip,
+            ),
         ],
       ),
       body: SafeArea(
         top: false,
         child: Column(
           children: [
+            _buildBreadcrumbsHeader(context),
             _buildSequenceHeader(),
             Expanded(
               child: _buildActionSequence(
@@ -1154,154 +1282,22 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
             if (_actions.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                child: SizedBox(width: double.infinity, child: saveButton()),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ActionDetailPage extends StatefulWidget {
-  const _ActionDetailPage({
-    required this.action,
-    required this.index,
-    required this.totalCount,
-    required this.actionKey,
-    required this.variableSuggestions,
-    required this.fieldRefreshVersionOf,
-    required this.onSuggestionSelected,
-    required this.onParameterChanged,
-    required this.onRemove,
-    required this.onEditNestedActions,
-    this.emojiSuggestions,
-    this.botIdForConfig,
-    this.onMoveUp,
-    this.onMoveDown,
-  });
-
-  final ActionItem action;
-  final int index;
-  final int totalCount;
-  final String actionKey;
-  final List<VariableSuggestion> variableSuggestions;
-  final List<AppEmoji>? emojiSuggestions;
-  final String? botIdForConfig;
-  final int Function(String paramKey) fieldRefreshVersionOf;
-  final Function(String key, dynamic value) onSuggestionSelected;
-  final Function(String key, dynamic value) onParameterChanged;
-  final VoidCallback onRemove;
-  final VoidCallback? onMoveUp;
-  final VoidCallback? onMoveDown;
-  final Future<List<Map<String, dynamic>>?> Function(
-    List<Map<String, dynamic>> current,
-    List<VariableSuggestion> suggestions,
-  )?
-  onEditNestedActions;
-
-  @override
-  State<_ActionDetailPage> createState() => _ActionDetailPageState();
-}
-
-class _ActionDetailPageState extends State<_ActionDetailPage> {
-  void _handleParameterChanged(String key, dynamic value) {
-    widget.onParameterChanged(key, value);
-    if (mounted) {
-      setState(() {});
-    }
-  }
-
-  void _handleSuggestionSelected(String key, dynamic value) {
-    widget.onSuggestionSelected(key, value);
-    if (mounted) {
-      setState(() {});
-    }
-  }
-
-  void _handleRemove() {
-    widget.onRemove();
-    Navigator.pop(context, true);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final summary = summarizeActionItem(context, widget.action);
-    return Scaffold(
-      appBar: AppBar(title: Text(summary.title)),
-      body: SafeArea(
-        top: false,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      summary.summary,
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        _SequenceMetaChip(
-                          label: context.tr.actions_step_label(
-                            widget.index + 1,
-                            widget.totalCount,
+                child: SizedBox(
+                  width: double.infinity,
+                  child: widget.editPath.isNotEmpty
+                      ? ElevatedButton.icon(
+                          onPressed: () => Navigator.pop(context),
+                          icon: const Icon(Icons.check),
+                          label: Text(context.tr.common_ok),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            backgroundColor: Theme.of(context).colorScheme.primary,
+                            foregroundColor: Colors.white,
                           ),
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        _SequenceMetaChip(
-                          label: context.tr.actions_key_label(
-                            summary.outputKey,
-                          ),
-                          color: Theme.of(context).colorScheme.secondary,
-                        ),
-                        _SequenceMetaChip(
-                          label:
-                              summary.isEnabled
-                                  ? context.tr.common_enabled
-                                  : context.tr.common_disabled,
-                          color:
-                              summary.isEnabled
-                                  ? AppTheme.success
-                                  : AppTheme.warning,
-                        ),
-                        for (final meta in summary.meta)
-                          _SequenceMetaChip(
-                            label: meta,
-                            color: Theme.of(context).colorScheme.tertiary,
-                          ),
-                      ],
-                    ),
-                  ],
+                        )
+                      : saveButton(),
                 ),
               ),
-            ),
-            const SizedBox(height: 12),
-            ActionCard(
-              action: widget.action,
-              index: widget.index,
-              totalCount: widget.totalCount,
-              actionKey: widget.actionKey,
-              onRemove: _handleRemove,
-              onMoveUp: widget.onMoveUp,
-              onMoveDown: widget.onMoveDown,
-              onParameterChanged: _handleParameterChanged,
-              onSuggestionSelected: _handleSuggestionSelected,
-              fieldRefreshVersionOf: widget.fieldRefreshVersionOf,
-              variableSuggestions: widget.variableSuggestions,
-              emojiSuggestions: widget.emojiSuggestions,
-              botIdForConfig: widget.botIdForConfig,
-              onEditNestedActions: widget.onEditNestedActions,
-              showPositionLabel: false,
-              collapseActionSettings: true,
-            ),
           ],
         ),
       ),
@@ -1309,28 +1305,3 @@ class _ActionDetailPageState extends State<_ActionDetailPage> {
   }
 }
 
-class _SequenceMetaChip extends StatelessWidget {
-  const _SequenceMetaChip({required this.label, required this.color});
-
-  final String label;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppTheme.radiusPill),
-        color: color.withValues(alpha: 0.12),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          color: color,
-        ),
-      ),
-    );
-  }
-}

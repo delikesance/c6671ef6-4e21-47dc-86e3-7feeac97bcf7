@@ -359,6 +359,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get action_name_deleteWebhook => 'Delete Webhook';
 
   @override
+  String get action_name_debugProfile => 'Debug Profile';
+
+  @override
   String get action_name_disconnectFromVoice => 'Disconnect from Voice';
 
   @override
@@ -378,6 +381,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get action_name_endPoll => 'End Poll';
+
+  @override
+  String get action_name_forLoop => 'For Loop';
 
   @override
   String get action_name_getGlobalVariable => 'Get Global Variable';
@@ -407,6 +413,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get action_name_ifBlock => 'IF / ELSE Block';
 
   @override
+  String get action_name_jsonForEachLoop => 'JSON For Each Loop';
+
+  @override
   String get action_name_kickUser => 'Kick User';
 
   @override
@@ -432,6 +441,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get action_name_listenForSelectMenu => 'Listen for Select Menu';
 
   @override
+  String get action_name_log => 'Log Message';
+
+  @override
   String get action_name_moveToVoiceChannel => 'Move to Voice Channel';
 
   @override
@@ -445,6 +457,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get action_name_randomChoice => 'Random Choice';
+
+  @override
+  String get action_name_registerGuildCommands => 'Register Guild Commands';
 
   @override
   String get action_name_removeArrayElement => 'Remove Array Element';
@@ -486,6 +501,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get action_name_runBdfdScript => 'Run BDFD Script';
 
   @override
+  String get action_name_runtimeJsonBlock => 'Execute JSON Operations';
+
+  @override
   String get action_name_runWorkflow => 'Run Workflow';
 
   @override
@@ -516,6 +534,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get action_name_setScopedVariable => 'Set Scoped Variable';
 
   @override
+  String get action_name_setTemporaryVariable => 'Set Temporary Variable';
+
+  @override
   String get action_name_slowmode => 'Slowmode';
 
   @override
@@ -532,6 +553,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get action_name_unpinMessage => 'Unpin Message';
+
+  @override
+  String get action_name_unregisterGuildCommands => 'Unregister Guild Commands';
 
   @override
   String get action_name_updateAutoMod => 'Update AutoMod';
@@ -6965,4 +6989,51 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get workflows_type_title => 'Workflow type';
+
+  @override
+  String get settings_team_ownership => 'Team Ownership';
+
+  @override
+  String get settings_personal_ownership => 'Personal Ownership';
+
+  @override
+  String get settings_team_pill => 'TEAM';
+
+  @override
+  String get settings_solo_pill => 'SOLO';
+
+  @override
+  String get settings_team_name_label => 'Team Name: ';
+
+  @override
+  String get settings_team_id_label => 'Team ID: ';
+
+  @override
+  String get settings_team_owner_label => 'Team Leader';
+
+  @override
+  String get settings_owner_fallback => 'Owner';
+
+  @override
+  String get settings_owner_badge => 'OWNER';
+
+  @override
+  String settings_team_members_label(int count) {
+    return 'Team Members ($count)';
+  }
+
+  @override
+  String get settings_personal_owner_label => 'Owner: ';
+
+  @override
+  String get settings_personal_owner_fallback => 'Personal User';
+
+  @override
+  String get settings_personal_owner_id_label => 'Owner ID: ';
+
+  @override
+  String get settings_raw_json_tile => 'View Raw JSON (RAW JSON)';
+
+  @override
+  String get settings_member_badge => 'MEMBER';
 }

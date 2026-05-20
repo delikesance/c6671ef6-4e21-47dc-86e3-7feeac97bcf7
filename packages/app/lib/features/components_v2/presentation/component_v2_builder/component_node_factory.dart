@@ -1,7 +1,7 @@
 import 'dart:ui' as ui;
 import 'package:bot_creator/core/i18n/l10n/app_localizations.dart'
     show lookupAppLocalizations;
-import 'package:bot_creator/core/models/types/component.dart';
+import 'package:bot_creator_shared/types/component.dart';
 
 /// Shared factory for creating [ComponentNode] instances by their [ComponentV2Type].
 ///

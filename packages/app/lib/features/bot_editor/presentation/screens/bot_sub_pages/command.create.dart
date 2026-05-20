@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ui' as ui;
 
 import 'package:bot_creator/main.dart';
+import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder.response.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command.reply_editor.dart';
@@ -9,8 +11,7 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pag
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command_option_validation.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/workflow_docs.page.dart';
 import 'package:bot_creator/core/models/types/app_emoji.dart';
-import 'package:bot_creator/core/models/types/action.dart'
-    show BotCreatorActionType;
+import 'package:bot_creator_shared/types/action.dart' show BotCreatorActionType;
 import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/features/bot_editor/logic/app_emoji_api.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
@@ -910,18 +911,20 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   }
 
   void _syncNotifier() {
-    _editorNotifier.batchUpdate((s) => s.copyWith(
-          isLoading: _isLoading,
-          isDataIncomplete: _isDataIncomplete,
-          commandName: _commandName,
-          commandDescription: _commandDescription,
-          commandType: _commandType,
-          editorMode: _editorMode,
-          executionMode: _executionMode,
-          legacyModeEnabled: _legacyModeEnabled,
-          localOnlyCommand: _localOnlyCommand,
-          folder: _folder,
-        ));
+    _editorNotifier.batchUpdate(
+      (s) => s.copyWith(
+        isLoading: _isLoading,
+        isDataIncomplete: _isDataIncomplete,
+        commandName: _commandName,
+        commandDescription: _commandDescription,
+        commandType: _commandType,
+        editorMode: _editorMode,
+        executionMode: _executionMode,
+        legacyModeEnabled: _legacyModeEnabled,
+        localOnlyCommand: _localOnlyCommand,
+        folder: _folder,
+      ),
+    );
   }
 
   void _applyStateUpdate(VoidCallback callback) {
@@ -931,7 +934,6 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     setState(callback);
     _syncNotifier();
   }
-
 
   Widget _buildEditorBody({required double contentMaxWidth}) {
     return Selector<CommandEditorNotifier, _EditorBodySnapshot>(
@@ -1196,9 +1198,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     try {
       final restoredSession = await MainApiClient(
         baseUrl: config.baseUrl,
-      ).exchangeDiscordBotToken(
-        botToken: botToken,
-      );
+      ).exchangeDiscordBotToken(botToken: botToken);
       developer.log(
         '[_resolveMainApiClientForCloudSync] exchangeDiscordBotToken OK: restoredUserId=${restoredSession.userId} isExpired=${restoredSession.isExpired} for botId=$botId',
         name: 'CommandCreatePage',
@@ -1938,245 +1938,195 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       );
     }
 
-    if (client == null) {
-      developer.log(
-        '[_updateOrCreate] no Discord client — saving locally only (botId=$botId existingId=$existingStorageId localOnly=$_localOnlyCommand)',
-        name: 'CommandCreatePage',
-      );
-      final localCommandId =
-          existingStorageId ??
-          (_localOnlyCommand
-              ? _generateLegacyOnlyCommandId()
-              : DateTime.now().microsecondsSinceEpoch.toString());
-      developer.log(
-        '[_updateOrCreate] saving local commandId=$localCommandId',
-        name: 'CommandCreatePage',
-      );
-      await saveLocal(localCommandId);
-      unawaited(refreshBotRuntime(botId));
-      developer.log(
-        '[_updateOrCreate] local save done, popping.',
-        name: 'CommandCreatePage',
-      );
-      if (!mounted) {
-        return;
-      }
-      Navigator.pop(context);
-      return;
-    }
+    Future<void> performSave(
+      void Function(String status) updateStatus,
+      Completer<Future<void> Function()> reloadCompleter,
+    ) async {
+      final originalHook = AppManager.onAfterCommandSave;
+      AppManager.onAfterCommandSave = (bId, cId, cmd) async {
+        if (!reloadCompleter.isCompleted) {
+          reloadCompleter.complete(() async {
+            if (originalHook != null) {
+              await originalHook(bId, cId, cmd);
+            }
+          });
+        }
+      };
 
-    try {
-      if (_localOnlyCommand) {
-        developer.log(
-          '[_updateOrCreate] _localOnlyCommand=true, saving locally (botId=$botId existingId=$existingStorageId)',
-          name: 'CommandCreatePage',
-        );
-        final localCommandId =
-            existingStorageId ?? _generateLegacyOnlyCommandId();
-        developer.log(
-          '[_updateOrCreate] saving local commandId=$localCommandId',
-          name: 'CommandCreatePage',
-        );
-        await saveLocal(localCommandId);
-        unawaited(refreshBotRuntime(botId));
-        developer.log(
-          '[_updateOrCreate] local-only save done, popping.',
-          name: 'CommandCreatePage',
-        );
-        if (!mounted) {
+      try {
+        if (client == null || _localOnlyCommand) {
+          updateStatus('local_save');
+          final localCommandId =
+              existingStorageId ??
+              (_localOnlyCommand
+                  ? _generateLegacyOnlyCommandId()
+                  : DateTime.now().microsecondsSinceEpoch.toString());
+          await saveLocal(localCommandId);
+
+          updateStatus('reload_runtime');
+          await refreshBotRuntime(botId);
           return;
         }
 
-        Navigator.pop(context);
-        return;
-      }
-
-      if (!_isEditingExistingCommand || _isLocalOnlyCommand) {
-        // Create a new command on Discord
-        final ApplicationCommandBuilder commandBuilder;
-        if (_commandType == ApplicationCommandType.user) {
-          commandBuilder = ApplicationCommandBuilder.user(name: _commandName);
-        } else if (_commandType == ApplicationCommandType.message) {
-          commandBuilder = ApplicationCommandBuilder.message(
-            name: _commandName,
-          );
-        } else {
-          commandBuilder = ApplicationCommandBuilder.chatInput(
-            name: _commandName,
-            description: _commandDescription,
-            options: effectiveOptions,
-          );
-        }
-
-        final parsedPermissions = _parseDefaultMemberPermissions(
-          _defaultMemberPermissions,
-        );
-        commandBuilder.defaultMemberPermissions = parsedPermissions;
-
-        commandBuilder.integrationTypes = _integrationTypes;
-        if (_contexts.isNotEmpty) {
-          commandBuilder.contexts = _contexts;
-        }
-        developer.log(
-          '[_updateOrCreate] calling createCommand on Discord (botId=$botId commandName="$_commandName" type=$_commandType folder="$_folder" optionsCount=${effectiveOptions.length})',
-          name: 'CommandCreatePage',
-        );
-        await createCommand(
-          client,
-          commandBuilder,
-          data: commandData,
-          folder: _folder,
-        );
-        developer.log(
-          '[_updateOrCreate] Discord createCommand succeeded (botId=$botId commandName="$_commandName")',
-          name: 'CommandCreatePage',
-        );
-        developer.log(
-          '[_updateOrCreate] triggering cloud sync after create (botId=$botId)',
-          name: 'CommandCreatePage',
-        );
-        final cloudSyncOk = await _syncCommandChangesToCloud(botId: botId);
-        developer.log(
-          '[_updateOrCreate] cloud sync after create result=$cloudSyncOk (botId=$botId)',
-          name: 'CommandCreatePage',
-        );
-        if (!cloudSyncOk && mounted) {
-          developer.log(
-            '[_updateOrCreate] showing cloud sync failure snackbar (create path, botId=$botId)',
-            name: 'CommandCreatePage',
-          );
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                context.tr.error_with_details(
-                  'Cloud sync failed. Your command is saved locally but not yet deployed to Bot Creator servers.',
-                ),
-              ),
-            ),
-          );
-        }
-        // Delete the old temp-ID file if this was a local-only command
-        if (_isLocalOnlyCommand) {
-          final previousId = existingStorageId;
-          developer.log(
-            '[_updateOrCreate] cleaning up old local-only command file (previousId=$previousId botId=$botId)',
-            name: 'CommandCreatePage',
-          );
-          if (previousId != null) {
-            await appManager.deleteAppCommand(botId, previousId);
-            developer.log(
-              '[_updateOrCreate] deleted old local-only command file (previousId=$previousId botId=$botId)',
-              name: 'CommandCreatePage',
+        // Online Discord Flow
+        updateStatus('discord_sync');
+        if (!_isEditingExistingCommand || _isLocalOnlyCommand) {
+          // Create a new command on Discord
+          final ApplicationCommandBuilder commandBuilder;
+          if (_commandType == ApplicationCommandType.user) {
+            commandBuilder = ApplicationCommandBuilder.user(name: _commandName);
+          } else if (_commandType == ApplicationCommandType.message) {
+            commandBuilder = ApplicationCommandBuilder.message(
+              name: _commandName,
+            );
+          } else {
+            commandBuilder = ApplicationCommandBuilder.chatInput(
+              name: _commandName,
+              description: _commandDescription,
+              options: effectiveOptions,
             );
           }
-        }
-      } else {
-        // Update the existing command
-        final ApplicationCommandUpdateBuilder commandBuilder;
-        if (_commandType == ApplicationCommandType.user) {
-          commandBuilder = ApplicationCommandUpdateBuilder.user(
-            name: _commandName,
-          );
-        } else if (_commandType == ApplicationCommandType.message) {
-          commandBuilder = ApplicationCommandUpdateBuilder.message(
-            name: _commandName,
-          );
-        } else {
-          commandBuilder = ApplicationCommandUpdateBuilder.chatInput(
-            name: _commandName,
-            description: _commandDescription,
-          );
-        }
-        final parsedPermissions = _parseDefaultMemberPermissions(
-          _defaultMemberPermissions,
-        );
-        commandBuilder.defaultMemberPermissions = parsedPermissions;
-        commandBuilder.integrationTypes = _integrationTypes;
-        if (_contexts.isNotEmpty) {
-          commandBuilder.contexts = _contexts;
-        } else {
-          commandBuilder.contexts = [];
-        }
-        if (_commandType == ApplicationCommandType.chatInput) {
-          if (effectiveOptions.isNotEmpty) {
-            commandBuilder.options = effectiveOptions;
-          } else {
-            commandBuilder.options = [];
-          }
-        }
 
-        developer.log(
-          '[_updateOrCreate] calling updateCommand on Discord (botId=$botId commandId=${widget.id} commandName="$_commandName" type=$_commandType folder="$_folder" optionsCount=${effectiveOptions.length})',
-          name: 'CommandCreatePage',
-        );
-        await updateCommand(
-          client,
-          widget.id,
-          commandBuilder: commandBuilder,
-          data: commandData,
-          folder: _folder,
-        );
-        developer.log(
-          '[_updateOrCreate] Discord updateCommand succeeded (botId=$botId commandId=${widget.id})',
-          name: 'CommandCreatePage',
-        );
-        developer.log(
-          '[_updateOrCreate] triggering cloud sync after update (botId=$botId)',
-          name: 'CommandCreatePage',
-        );
-        final cloudSyncOk = await _syncCommandChangesToCloud(botId: botId);
-        developer.log(
-          '[_updateOrCreate] cloud sync after update result=$cloudSyncOk (botId=$botId)',
-          name: 'CommandCreatePage',
-        );
-        if (!cloudSyncOk && mounted) {
+          final parsedPermissions = _parseDefaultMemberPermissions(
+            _defaultMemberPermissions,
+          );
+          commandBuilder.defaultMemberPermissions = parsedPermissions;
+
+          commandBuilder.integrationTypes = _integrationTypes;
+          if (_contexts.isNotEmpty) {
+            commandBuilder.contexts = _contexts;
+          }
           developer.log(
-            '[_updateOrCreate] showing cloud sync failure snackbar (update path, botId=$botId)',
+            '[_updateOrCreate] calling createCommand on Discord (botId=$botId commandName="$_commandName" type=$_commandType folder="$_folder" optionsCount=${effectiveOptions.length})',
             name: 'CommandCreatePage',
           );
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                context.tr.error_with_details(
-                  'Cloud sync failed. Your command is saved locally but not yet deployed to Bot Creator servers.',
-                ),
-              ),
-            ),
+          await createCommand(
+            client,
+            commandBuilder,
+            data: commandData,
+            folder: _folder,
           );
+          developer.log(
+            '[_updateOrCreate] Discord createCommand succeeded (botId=$botId commandName="$_commandName")',
+            name: 'CommandCreatePage',
+          );
+          developer.log(
+            '[_updateOrCreate] triggering cloud sync after create (botId=$botId)',
+            name: 'CommandCreatePage',
+          );
+
+          updateStatus('cloud_sync');
+          final cloudSyncOk = await _syncCommandChangesToCloud(botId: botId);
+          developer.log(
+            '[_updateOrCreate] cloud sync after create result=$cloudSyncOk (botId=$botId)',
+            name: 'CommandCreatePage',
+          );
+          if (!cloudSyncOk) {
+            throw Exception('Cloud sync failed.');
+          }
+          // Delete the old temp-ID file if this was a local-only command
+          if (_isLocalOnlyCommand) {
+            final previousId = existingStorageId;
+            developer.log(
+              '[_updateOrCreate] cleaning up old local-only command file (previousId=$previousId botId=$botId)',
+              name: 'CommandCreatePage',
+            );
+            if (previousId != null) {
+              await appManager.deleteAppCommand(botId, previousId);
+              developer.log(
+                '[_updateOrCreate] deleted old local-only command file (previousId=$previousId botId=$botId)',
+                name: 'CommandCreatePage',
+              );
+            }
+          }
+        } else {
+          // Update the existing command
+          final ApplicationCommandUpdateBuilder commandBuilder;
+          if (_commandType == ApplicationCommandType.user) {
+            commandBuilder = ApplicationCommandUpdateBuilder.user(
+              name: _commandName,
+            );
+          } else if (_commandType == ApplicationCommandType.message) {
+            commandBuilder = ApplicationCommandUpdateBuilder.message(
+              name: _commandName,
+            );
+          } else {
+            commandBuilder = ApplicationCommandUpdateBuilder.chatInput(
+              name: _commandName,
+              description: _commandDescription,
+            );
+          }
+          final parsedPermissions = _parseDefaultMemberPermissions(
+            _defaultMemberPermissions,
+          );
+          commandBuilder.defaultMemberPermissions = parsedPermissions;
+          commandBuilder.integrationTypes = _integrationTypes;
+          if (_contexts.isNotEmpty) {
+            commandBuilder.contexts = _contexts;
+          } else {
+            commandBuilder.contexts = [];
+          }
+          if (_commandType == ApplicationCommandType.chatInput) {
+            if (effectiveOptions.isNotEmpty) {
+              commandBuilder.options = effectiveOptions;
+            } else {
+              commandBuilder.options = [];
+            }
+          }
+
+          developer.log(
+            '[_updateOrCreate] calling updateCommand on Discord (botId=$botId commandId=${widget.id} commandName="$_commandName" type=$_commandType folder="$_folder" optionsCount=${effectiveOptions.length})',
+            name: 'CommandCreatePage',
+          );
+          await updateCommand(
+            client,
+            widget.id,
+            commandBuilder: commandBuilder,
+            data: commandData,
+            folder: _folder,
+          );
+          developer.log(
+            '[_updateOrCreate] Discord updateCommand succeeded (botId=$botId commandId=${widget.id})',
+            name: 'CommandCreatePage',
+          );
+          developer.log(
+            '[_updateOrCreate] triggering cloud sync after update (botId=$botId)',
+            name: 'CommandCreatePage',
+          );
+
+          updateStatus('cloud_sync');
+          final cloudSyncOk = await _syncCommandChangesToCloud(botId: botId);
+          developer.log(
+            '[_updateOrCreate] cloud sync after update result=$cloudSyncOk (botId=$botId)',
+            name: 'CommandCreatePage',
+          );
+          if (!cloudSyncOk) {
+            throw Exception('Cloud sync failed.');
+          }
         }
+      } finally {
+        AppManager.onAfterCommandSave = originalHook;
       }
-      developer.log(
-        '[_updateOrCreate] SUCCESS — popping (botId=$botId commandName="$_commandName")',
-        name: 'CommandCreatePage',
-      );
-      Navigator.pop(context);
-    } catch (e) {
-      developer.log(
-        '[_updateOrCreate] EXCEPTION caught — falling back to local save (botId=$botId commandName="$_commandName"): $e',
-        name: 'CommandCreatePage',
-      );
-      final localCommandId =
-          existingStorageId ?? DateTime.now().microsecondsSinceEpoch.toString();
-      developer.log(
-        '[_updateOrCreate] fallback local save commandId=$localCommandId',
-        name: 'CommandCreatePage',
-      );
-      await saveLocal(localCommandId);
-      final errorText = context.tr.command_sync_failed_local('$e');
-      final dialog = AlertDialog(
-        title: Text(context.tr.error),
-        content: Text(errorText),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text(context.tr.ok),
-          ),
-        ],
-      );
-      showDialog(context: context, builder: (context) => dialog);
     }
+
+    if (!mounted) return;
+
+    await showGeneralDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black.withValues(alpha: 0.65),
+      transitionDuration: const Duration(milliseconds: 250),
+      pageBuilder: (dialogContext, anim1, anim2) {
+        return _DeploymentProgressOverlay(
+          botId: botId,
+          commandName: _commandName,
+          isEditing: _isEditingExistingCommand,
+          isLocalOnly: _localOnlyCommand,
+          client: client,
+          onSave: performSave,
+        );
+      },
+    );
   }
 
   @override
@@ -2359,6 +2309,587 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// DEPLOYMENT & SYNC PROGRESS OVERLAY
+// ═══════════════════════════════════════════════════════════════════════════════
+
+enum SyncStepState { pending, active, success, error }
+
+class _SyncStepData {
+  final String id;
+  final String title;
+  final String subtitle;
+  SyncStepState state = SyncStepState.pending;
+  String? error;
+
+  _SyncStepData({
+    required this.id,
+    required this.title,
+    required this.subtitle,
+  });
+}
+
+class _DeploymentProgressOverlay extends StatefulWidget {
+  final String? botId;
+  final String commandName;
+  final bool isEditing;
+  final bool isLocalOnly;
+  final NyxxRest? client;
+  final Future<void> Function(
+    void Function(String status) updateStatus,
+    Completer<Future<void> Function()> reloadCompleter,
+  )
+  onSave;
+
+  const _DeploymentProgressOverlay({
+    required this.botId,
+    required this.commandName,
+    required this.isEditing,
+    required this.isLocalOnly,
+    required this.client,
+    required this.onSave,
+  });
+
+  @override
+  State<_DeploymentProgressOverlay> createState() =>
+      _DeploymentProgressOverlayState();
+}
+
+class _DeploymentProgressOverlayState
+    extends State<_DeploymentProgressOverlay> {
+  late List<_SyncStepData> _steps;
+  bool _hasError = false;
+  bool _isSuccess = false;
+  Completer<Future<void> Function()>? _reloadCompleter;
+
+  @override
+  void initState() {
+    super.initState();
+    _initSteps();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startDeployment();
+    });
+  }
+
+  void _initSteps() {
+    if (widget.isLocalOnly || widget.client == null) {
+      _steps = [
+        _SyncStepData(
+          id: 'local_save',
+          title: 'Sauvegarde locale',
+          subtitle: 'Enregistrement de la commande sur l\'appareil',
+        ),
+        _SyncStepData(
+          id: 'reload_runtime',
+          title: 'Rechargement du Bot',
+          subtitle: 'Application à chaud de la configuration',
+        ),
+      ];
+    } else {
+      _steps = [
+        _SyncStepData(
+          id: 'discord_sync',
+          title: 'Synchronisation Discord',
+          subtitle: 'Publication de la commande sur l\'API Discord',
+        ),
+        _SyncStepData(
+          id: 'cloud_sync',
+          title: 'Sauvegarde Cloud',
+          subtitle: 'Synchronisation sécurisée dans votre espace en ligne',
+        ),
+        _SyncStepData(
+          id: 'reload_runtime',
+          title: 'Rechargement à chaud',
+          subtitle: 'Mise à jour instantanée du runner de votre bot',
+        ),
+      ];
+    }
+    _hasError = false;
+    _isSuccess = false;
+  }
+
+  void _updateStepState(String stepId, SyncStepState state) {
+    if (!mounted) return;
+    setState(() {
+      for (var step in _steps) {
+        if (step.id == stepId) {
+          step.state = state;
+        }
+      }
+    });
+  }
+
+  void _autoSuccessPreviousSteps(String activeStepId) {
+    if (!mounted) return;
+    setState(() {
+      bool foundActive = false;
+      for (var step in _steps) {
+        if (step.id == activeStepId) {
+          foundActive = true;
+        }
+        if (!foundActive) {
+          step.state = SyncStepState.success;
+        }
+      }
+    });
+  }
+
+  Future<void> _startDeployment() async {
+    setState(() {
+      _hasError = false;
+      for (var step in _steps) {
+        step.state = SyncStepState.pending;
+        step.error = null;
+      }
+    });
+
+    _reloadCompleter = Completer<Future<void> Function()>();
+
+    try {
+      // 1. Run performSave from parent
+      await widget.onSave((status) {
+        _updateStepState(status, SyncStepState.active);
+        _autoSuccessPreviousSteps(status);
+      }, _reloadCompleter!);
+
+      // 2. Wait for reload completer
+      if (!widget.isLocalOnly && widget.client != null) {
+        _updateStepState('cloud_sync', SyncStepState.success);
+        _updateStepState('reload_runtime', SyncStepState.active);
+
+        if (_reloadCompleter!.isCompleted) {
+          final reloadAction = await _reloadCompleter!.future;
+          await reloadAction();
+        } else {
+          if (widget.botId != null) {
+            await refreshBotRuntime(widget.botId!);
+          }
+        }
+      }
+
+      // Mark all steps successful
+      setState(() {
+        for (var step in _steps) {
+          step.state = SyncStepState.success;
+        }
+        _isSuccess = true;
+      });
+
+      // Show beautiful checkmark and auto-pop after a brief delay
+      await Future.delayed(const Duration(milliseconds: 1500));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Commande "${widget.commandName}" déployée et active !',
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: AppTheme.success,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+        Navigator.of(context).pop(); // Pops overlay
+        Navigator.of(context).pop(); // Pops command create page
+      }
+    } catch (e, stack) {
+      developer.log(
+        'Deployment failed: $e',
+        name: 'DeploymentProgressOverlay',
+        error: e,
+        stackTrace: stack,
+      );
+
+      setState(() {
+        _hasError = true;
+        for (var step in _steps) {
+          if (step.state == SyncStepState.active) {
+            step.state = SyncStepState.error;
+            step.error = e.toString();
+          }
+        }
+      });
+    }
+  }
+
+  Widget _buildStepIcon(SyncStepState state) {
+    switch (state) {
+      case SyncStepState.pending:
+        return Container(
+          width: 24,
+          height: 24,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: Theme.of(context).disabledColor.withValues(alpha: 0.4),
+              width: 2,
+            ),
+          ),
+        );
+      case SyncStepState.active:
+        return const SizedBox(
+          width: 24,
+          height: 24,
+          child: CircularProgressIndicator(
+            strokeWidth: 2.5,
+            valueColor: AlwaysStoppedAnimation<Color>(AppTheme.brandSecondary),
+          ),
+        );
+      case SyncStepState.success:
+        return Container(
+          width: 24,
+          height: 24,
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            color: AppTheme.success,
+          ),
+          child: const Icon(Icons.check, color: Colors.white, size: 16),
+        );
+      case SyncStepState.error:
+        return Container(
+          width: 24,
+          height: 24,
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            color: AppTheme.error,
+          ),
+          child: const Icon(Icons.close, color: Colors.white, size: 16),
+        );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg =
+        isDark
+            ? const Color(0xFF1E1F22).withValues(alpha: 0.85)
+            : Colors.white.withValues(alpha: 0.9);
+    final borderColor =
+        isDark
+            ? Colors.white.withValues(alpha: 0.1)
+            : Colors.black.withValues(alpha: 0.08);
+
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: Stack(
+        children: [
+          // Glassmorphic background blur
+          Positioned.fill(
+            child: BackdropFilter(
+              filter: ui.ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
+              child: Container(color: Colors.black.withValues(alpha: 0.65)),
+            ),
+          ),
+          // Dialog container
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 460),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: cardBg,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: borderColor, width: 1.5),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.25),
+                        blurRadius: 30,
+                        offset: const Offset(0, 15),
+                      ),
+                    ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(28.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Animated pulsing visual status indicator
+                        if (_isSuccess)
+                          TweenAnimationBuilder<double>(
+                            duration: const Duration(milliseconds: 500),
+                            tween: Tween(begin: 0.0, end: 1.0),
+                            curve: Curves.elasticOut,
+                            builder: (context, val, child) {
+                              return Transform.scale(
+                                scale: val,
+                                child: Container(
+                                  width: 72,
+                                  height: 72,
+                                  decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: AppTheme.success,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: AppTheme.successLight,
+                                        blurRadius: 15,
+                                        spreadRadius: 2,
+                                      ),
+                                    ],
+                                  ),
+                                  child: const Icon(
+                                    Icons.check,
+                                    color: Colors.white,
+                                    size: 40,
+                                  ),
+                                ),
+                              );
+                            },
+                          )
+                        else if (_hasError)
+                          Container(
+                            width: 72,
+                            height: 72,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: AppTheme.error,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppTheme.errorLight,
+                                  blurRadius: 15,
+                                  spreadRadius: 2,
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.close,
+                              color: Colors.white,
+                              size: 40,
+                            ),
+                          )
+                        else
+                          Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              const SizedBox(
+                                width: 72,
+                                height: 72,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 3.5,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    AppTheme.brandSecondary,
+                                  ),
+                                ),
+                              ),
+                              TweenAnimationBuilder<double>(
+                                duration: const Duration(seconds: 2),
+                                tween: Tween(begin: 0.0, end: 1.0),
+                                builder: (context, val, child) {
+                                  return Opacity(
+                                    opacity: 0.7 + 0.3 * (val - 0.5).abs() * 2,
+                                    child: child,
+                                  );
+                                },
+                                child: const Icon(
+                                  Icons.sync,
+                                  size: 32,
+                                  color: AppTheme.brandSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        const SizedBox(height: 24),
+                        // Title
+                        Text(
+                          _isSuccess
+                              ? 'Déploiement réussi !'
+                              : (_hasError
+                                  ? 'Échec du déploiement'
+                                  : 'Déploiement en cours...'),
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color:
+                                Theme.of(context).textTheme.titleLarge?.color,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 6),
+                        // Subtitle
+                        Text(
+                          'Configuration de /${widget.commandName}',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Theme.of(context).textTheme.bodyMedium?.color
+                                ?.withValues(alpha: 0.7),
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 28),
+                        // Steps List
+                        Column(
+                          children:
+                              _steps.map((step) {
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 10.0,
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                          top: 2.0,
+                                        ),
+                                        child: _buildStepIcon(step.state),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              step.title,
+                                              style: TextStyle(
+                                                fontWeight:
+                                                    step.state ==
+                                                            SyncStepState.active
+                                                        ? FontWeight.bold
+                                                        : FontWeight.w600,
+                                                color:
+                                                    step.state ==
+                                                            SyncStepState
+                                                                .pending
+                                                        ? Theme.of(
+                                                          context,
+                                                        ).disabledColor
+                                                        : Theme.of(context)
+                                                            .textTheme
+                                                            .bodyLarge
+                                                            ?.color,
+                                                fontSize: 14.5,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              step.subtitle,
+                                              style: TextStyle(
+                                                fontSize: 12.0,
+                                                color:
+                                                    step.state ==
+                                                            SyncStepState
+                                                                .pending
+                                                        ? Theme.of(context)
+                                                            .disabledColor
+                                                            .withValues(
+                                                              alpha: 0.6,
+                                                            )
+                                                        : Theme.of(context)
+                                                            .textTheme
+                                                            .bodyMedium
+                                                            ?.color
+                                                            ?.withValues(
+                                                              alpha: 0.65,
+                                                            ),
+                                              ),
+                                            ),
+                                            if (step.state ==
+                                                    SyncStepState.error &&
+                                                step.error != null) ...[
+                                              const SizedBox(height: 8),
+                                              Container(
+                                                width: double.infinity,
+                                                padding: const EdgeInsets.all(
+                                                  10,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: AppTheme.error
+                                                      .withValues(alpha: 0.08),
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                  border: Border.all(
+                                                    color: AppTheme.error
+                                                        .withValues(
+                                                          alpha: 0.15,
+                                                        ),
+                                                  ),
+                                                ),
+                                                child: Text(
+                                                  step.error!,
+                                                  style: const TextStyle(
+                                                    color: AppTheme.error,
+                                                    fontSize: 11,
+                                                    fontFamily: 'monospace',
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
+                        ),
+                        // Error buttons
+                        if (_hasError) ...[
+                          const SizedBox(height: 28),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: OutlinedButton(
+                                  onPressed: () {
+                                    Navigator.of(
+                                      context,
+                                    ).pop(); // Close overlay only
+                                  },
+                                  style: OutlinedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 14,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  child: const Text('Fermer'),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: FilledButton(
+                                  onPressed: _startDeployment,
+                                  style: FilledButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 14,
+                                    ),
+                                    backgroundColor: AppTheme.brandPrimary,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  child: const Text('Réessayer'),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

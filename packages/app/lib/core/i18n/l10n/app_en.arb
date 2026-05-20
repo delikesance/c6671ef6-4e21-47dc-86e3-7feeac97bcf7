@@ -462,6 +462,10 @@
   "@action_name_deleteWebhook": {
     "description": "Delete Webhook"
   },
+  "action_name_debugProfile": "Debug Profile",
+  "@action_name_debugProfile": {
+    "description": "Debug Profile"
+  },
   "action_name_disconnectFromVoice": "Disconnect from Voice",
   "@action_name_disconnectFromVoice": {
     "description": "Disconnect from Voice"
@@ -489,6 +493,10 @@
   "action_name_endPoll": "End Poll",
   "@action_name_endPoll": {
     "description": "End Poll"
+  },
+  "action_name_forLoop": "For Loop",
+  "@action_name_forLoop": {
+    "description": "For Loop"
   },
   "action_name_getGlobalVariable": "Get Global Variable",
   "@action_name_getGlobalVariable": {
@@ -526,6 +534,10 @@
   "@action_name_ifBlock": {
     "description": "IF / ELSE Block"
   },
+  "action_name_jsonForEachLoop": "JSON For Each Loop",
+  "@action_name_jsonForEachLoop": {
+    "description": "JSON For Each Loop"
+  },
   "action_name_kickUser": "Kick User",
   "@action_name_kickUser": {
     "description": "Kick User"
@@ -558,6 +570,10 @@
   "@action_name_listenForSelectMenu": {
     "description": "Listen for Select Menu"
   },
+  "action_name_log": "Log Message",
+  "@action_name_log": {
+    "description": "Log Message"
+  },
   "action_name_moveToVoiceChannel": "Move to Voice Channel",
   "@action_name_moveToVoiceChannel": {
     "description": "Move to Voice Channel"
@@ -577,6 +593,10 @@
   "action_name_randomChoice": "Random Choice",
   "@action_name_randomChoice": {
     "description": "Random Choice"
+  },
+  "action_name_registerGuildCommands": "Register Guild Commands",
+  "@action_name_registerGuildCommands": {
+    "description": "Register Guild Commands"
   },
   "action_name_removeArrayElement": "Remove Array Element",
   "@action_name_removeArrayElement": {
@@ -630,6 +650,10 @@
   "@action_name_runBdfdScript": {
     "description": "Run BDFD Script"
   },
+  "action_name_runtimeJsonBlock": "Execute JSON Operations",
+  "@action_name_runtimeJsonBlock": {
+    "description": "Execute JSON Operations"
+  },
   "action_name_runWorkflow": "Run Workflow",
   "@action_name_runWorkflow": {
     "description": "Run Workflow"
@@ -670,6 +694,10 @@
   "@action_name_setScopedVariable": {
     "description": "Set Scoped Variable"
   },
+  "action_name_setTemporaryVariable": "Set Temporary Variable",
+  "@action_name_setTemporaryVariable": {
+    "description": "Set Temporary Variable"
+  },
   "action_name_slowmode": "Slowmode",
   "@action_name_slowmode": {
     "description": "Slowmode"
@@ -693,6 +721,10 @@
   "action_name_unpinMessage": "Unpin Message",
   "@action_name_unpinMessage": {
     "description": "Unpin Message"
+  },
+  "action_name_unregisterGuildCommands": "Unregister Guild Commands",
+  "@action_name_unregisterGuildCommands": {
+    "description": "Unregister Guild Commands"
   },
   "action_name_updateAutoMod": "Update AutoMod",
   "@action_name_updateAutoMod": {
@@ -8901,5 +8933,70 @@
   "workflows_type_title": "Workflow type",
   "@workflows_type_title": {
     "description": "Workflow type"
+  },
+  "settings_team_ownership": "Team Ownership",
+  "@settings_team_ownership": {
+    "description": "Team Ownership"
+  },
+  "settings_personal_ownership": "Personal Ownership",
+  "@settings_personal_ownership": {
+    "description": "Personal Ownership"
+  },
+  "settings_team_pill": "TEAM",
+  "@settings_team_pill": {
+    "description": "TEAM"
+  },
+  "settings_solo_pill": "SOLO",
+  "@settings_solo_pill": {
+    "description": "SOLO"
+  },
+  "settings_team_name_label": "Team Name: ",
+  "@settings_team_name_label": {
+    "description": "Team Name: "
+  },
+  "settings_team_id_label": "Team ID: ",
+  "@settings_team_id_label": {
+    "description": "Team ID: "
+  },
+  "settings_team_owner_label": "Team Leader",
+  "@settings_team_owner_label": {
+    "description": "Team Leader"
+  },
+  "settings_owner_fallback": "Owner",
+  "@settings_owner_fallback": {
+    "description": "Owner"
+  },
+  "settings_owner_badge": "OWNER",
+  "@settings_owner_badge": {
+    "description": "OWNER"
+  },
+  "settings_team_members_label": "Team Members ({count})",
+  "@settings_team_members_label": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "Number of team members"
+  },
+  "settings_personal_owner_label": "Owner: ",
+  "@settings_personal_owner_label": {
+    "description": "Owner: "
+  },
+  "settings_personal_owner_fallback": "Personal User",
+  "@settings_personal_owner_fallback": {
+    "description": "Personal User"
+  },
+  "settings_personal_owner_id_label": "Owner ID: ",
+  "@settings_personal_owner_id_label": {
+    "description": "Owner ID: "
+  },
+  "settings_raw_json_tile": "View Raw JSON (RAW JSON)",
+  "@settings_raw_json_tile": {
+    "description": "View Raw JSON (RAW JSON)"
+  },
+  "settings_member_badge": "MEMBER",
+  "@settings_member_badge": {
+    "description": "MEMBER"
   }
 }
