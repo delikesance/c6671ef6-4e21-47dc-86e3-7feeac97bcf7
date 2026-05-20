@@ -291,9 +291,9 @@
   "@action_hint_duration": {
     "description": "e.g., 5m, 1h, 30s"
   },
-  "action_hint_emoji": "Enter emoji or :name:",
+  "action_hint_emoji": "Emoji (e.g. 🪜) or <:name:id>",
   "@action_hint_emoji": {
-    "description": "Enter emoji or :name:"
+    "description": "Emoji (e.g. 🪜) or <:name:id>"
   },
   "action_hint_enter_type": "Enter {type}",
   "@action_hint_enter_type": {
@@ -8998,5 +8998,83 @@
   "settings_member_badge": "MEMBER",
   "@settings_member_badge": {
     "description": "MEMBER"
+  },
+  "cmd_deploy_local_save_title": "Local Save",
+  "@cmd_deploy_local_save_title": {
+    "description": "Local Save"
+  },
+  "cmd_deploy_local_save_subtitle": "Saving command to device",
+  "@cmd_deploy_local_save_subtitle": {
+    "description": "Saving command to device"
+  },
+  "cmd_deploy_reload_bot_title": "Reloading Bot",
+  "@cmd_deploy_reload_bot_title": {
+    "description": "Reloading Bot"
+  },
+  "cmd_deploy_reload_bot_subtitle": "Applying hot reload configuration",
+  "@cmd_deploy_reload_bot_subtitle": {
+    "description": "Applying hot reload configuration"
+  },
+  "cmd_deploy_discord_sync_title": "Discord Sync",
+  "@cmd_deploy_discord_sync_title": {
+    "description": "Discord Sync"
+  },
+  "cmd_deploy_discord_sync_subtitle": "Publishing command to Discord API",
+  "@cmd_deploy_discord_sync_subtitle": {
+    "description": "Publishing command to Discord API"
+  },
+  "cmd_deploy_cloud_sync_title": "Cloud Backup",
+  "@cmd_deploy_cloud_sync_title": {
+    "description": "Cloud Backup"
+  },
+  "cmd_deploy_cloud_sync_subtitle": "Secure synchronization with your online space",
+  "@cmd_deploy_cloud_sync_subtitle": {
+    "description": "Secure synchronization with your online space"
+  },
+  "cmd_deploy_hot_reload_title": "Hot Reload",
+  "@cmd_deploy_hot_reload_title": {
+    "description": "Hot Reload"
+  },
+  "cmd_deploy_hot_reload_subtitle": "Instant update of your bot runner",
+  "@cmd_deploy_hot_reload_subtitle": {
+    "description": "Instant update of your bot runner"
+  },
+  "cmd_deploy_success_toast": "Command \"{name}\" deployed and active!",
+  "@cmd_deploy_success_toast": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    },
+    "description": "Success message shown when command deployed successfully"
+  },
+  "cmd_deploy_success_title": "Deployment successful!",
+  "@cmd_deploy_success_title": {
+    "description": "Deployment successful!"
+  },
+  "cmd_deploy_failed_title": "Deployment failed",
+  "@cmd_deploy_failed_title": {
+    "description": "Deployment failed"
+  },
+  "cmd_deploy_in_progress_title": "Deployment in progress...",
+  "@cmd_deploy_in_progress_title": {
+    "description": "Deployment in progress..."
+  },
+  "cmd_deploy_config_subtitle": "Configuration of /{name}",
+  "@cmd_deploy_config_subtitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    },
+    "description": "Subtitle showing command name under configuration"
+  },
+  "cmd_deploy_close_button": "Close",
+  "@cmd_deploy_close_button": {
+    "description": "Close"
+  },
+  "cmd_deploy_retry_button": "Retry",
+  "@cmd_deploy_retry_button": {
+    "description": "Retry"
   }
 }

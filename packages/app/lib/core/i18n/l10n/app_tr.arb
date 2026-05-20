@@ -291,9 +291,9 @@
   "@action_hint_duration": {
     "description": "e.g., 5m, 1h, 30s"
   },
-  "action_hint_emoji": "Emoji veya :ad: girin",
+  "action_hint_emoji": "Emoji (örn. 🪜) veya <:ad:kimlik>",
   "@action_hint_emoji": {
-    "description": "Enter emoji or :name:"
+    "description": "Emoji (e.g. 🪜) or <:name:id>"
   },
   "action_hint_enter_type": "{type} girin",
   "@action_hint_enter_type": {
@@ -8956,5 +8956,38 @@
   "settings_personal_owner_fallback": "Kişisel Kullanıcı",
   "settings_personal_owner_id_label": "Sahip Kimliği: ",
   "settings_raw_json_tile": "Ham JSON Görüntüle (RAW JSON)",
-  "settings_member_badge": "ÜYE"
+  "settings_member_badge": "ÜYE",
+  "cmd_deploy_local_save_title": "Yerel Kaydetme",
+  "cmd_deploy_local_save_subtitle": "Komut cihaza kaydediliyor",
+  "cmd_deploy_reload_bot_title": "Bot Yeniden Yükleniyor",
+  "cmd_deploy_reload_bot_subtitle": "Sıcak yükleme yapılandırması uygulanıyor",
+  "cmd_deploy_discord_sync_title": "Discord Senkronizasyonu",
+  "cmd_deploy_discord_sync_subtitle": "Komut Discord API'sine yayınlanıyor",
+  "cmd_deploy_cloud_sync_title": "Bulut Yedekleme",
+  "cmd_deploy_cloud_sync_subtitle": "Çevrimiçi alanınızla güvenli senkronizasyon",
+  "cmd_deploy_hot_reload_title": "Sıcak Yeniden Yükleme",
+  "cmd_deploy_hot_reload_subtitle": "Bot çalıştırıcınızın anında güncellenmesi",
+  "cmd_deploy_success_toast": "\"{name}\" komutu dağıtıldı ve aktif!",
+  "@cmd_deploy_success_toast": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    },
+    "description": "Success message shown when command deployed successfully"
+  },
+  "cmd_deploy_success_title": "Dağıtım başarılı!",
+  "cmd_deploy_failed_title": "Dağıtım başarısız",
+  "cmd_deploy_in_progress_title": "Dağıtım devam ediyor...",
+  "cmd_deploy_config_subtitle": "/{name} yapılandırması",
+  "@cmd_deploy_config_subtitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    },
+    "description": "Subtitle showing command name under configuration"
+  },
+  "cmd_deploy_close_button": "Kapat",
+  "cmd_deploy_retry_button": "Yeniden Dene"
 }

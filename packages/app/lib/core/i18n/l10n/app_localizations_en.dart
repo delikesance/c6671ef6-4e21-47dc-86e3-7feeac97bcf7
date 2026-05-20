@@ -234,7 +234,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get action_hint_duration => 'e.g., 5m, 1h, 30s';
 
   @override
-  String get action_hint_emoji => 'Enter emoji or :name:';
+  String get action_hint_emoji => 'Emoji (e.g. 🪜) or <:name:id>';
 
   @override
   String action_hint_enter_type(String type) {
@@ -7036,4 +7036,63 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settings_member_badge => 'MEMBER';
+
+  @override
+  String get cmd_deploy_local_save_title => 'Local Save';
+
+  @override
+  String get cmd_deploy_local_save_subtitle => 'Saving command to device';
+
+  @override
+  String get cmd_deploy_reload_bot_title => 'Reloading Bot';
+
+  @override
+  String get cmd_deploy_reload_bot_subtitle =>
+      'Applying hot reload configuration';
+
+  @override
+  String get cmd_deploy_discord_sync_title => 'Discord Sync';
+
+  @override
+  String get cmd_deploy_discord_sync_subtitle =>
+      'Publishing command to Discord API';
+
+  @override
+  String get cmd_deploy_cloud_sync_title => 'Cloud Backup';
+
+  @override
+  String get cmd_deploy_cloud_sync_subtitle =>
+      'Secure synchronization with your online space';
+
+  @override
+  String get cmd_deploy_hot_reload_title => 'Hot Reload';
+
+  @override
+  String get cmd_deploy_hot_reload_subtitle =>
+      'Instant update of your bot runner';
+
+  @override
+  String cmd_deploy_success_toast(String name) {
+    return 'Command \"$name\" deployed and active!';
+  }
+
+  @override
+  String get cmd_deploy_success_title => 'Deployment successful!';
+
+  @override
+  String get cmd_deploy_failed_title => 'Deployment failed';
+
+  @override
+  String get cmd_deploy_in_progress_title => 'Deployment in progress...';
+
+  @override
+  String cmd_deploy_config_subtitle(String name) {
+    return 'Configuration of /$name';
+  }
+
+  @override
+  String get cmd_deploy_close_button => 'Close';
+
+  @override
+  String get cmd_deploy_retry_button => 'Retry';
 }

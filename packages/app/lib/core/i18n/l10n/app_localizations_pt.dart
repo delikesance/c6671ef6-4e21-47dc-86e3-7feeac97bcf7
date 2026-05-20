@@ -235,7 +235,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get action_hint_duration => 'ex: 5m, 1h, 30s';
 
   @override
-  String get action_hint_emoji => 'Digite o emoji ou :nome:';
+  String get action_hint_emoji => 'Emoji (ex. 🪜) ou <:nome:id>';
 
   @override
   String action_hint_enter_type(String type) {
@@ -7123,4 +7123,64 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get settings_member_badge => 'MEMBRO';
+
+  @override
+  String get cmd_deploy_local_save_title => 'Salvamento Local';
+
+  @override
+  String get cmd_deploy_local_save_subtitle =>
+      'Salvando comando no dispositivo';
+
+  @override
+  String get cmd_deploy_reload_bot_title => 'Recarregando Bot';
+
+  @override
+  String get cmd_deploy_reload_bot_subtitle =>
+      'Aplicando configuração de hot-reload';
+
+  @override
+  String get cmd_deploy_discord_sync_title => 'Sincronização com Discord';
+
+  @override
+  String get cmd_deploy_discord_sync_subtitle =>
+      'Publicando comando na API do Discord';
+
+  @override
+  String get cmd_deploy_cloud_sync_title => 'Backup na Nuvem';
+
+  @override
+  String get cmd_deploy_cloud_sync_subtitle =>
+      'Sincronização segura com o seu espaço online';
+
+  @override
+  String get cmd_deploy_hot_reload_title => 'Recarregamento Rápido';
+
+  @override
+  String get cmd_deploy_hot_reload_subtitle =>
+      'Atualização instantânea do runner do seu bot';
+
+  @override
+  String cmd_deploy_success_toast(String name) {
+    return 'Comando \"$name\" implantado e ativo!';
+  }
+
+  @override
+  String get cmd_deploy_success_title => 'Implantação bem-sucedida!';
+
+  @override
+  String get cmd_deploy_failed_title => 'Falha na implantação';
+
+  @override
+  String get cmd_deploy_in_progress_title => 'Implantação em andamento...';
+
+  @override
+  String cmd_deploy_config_subtitle(String name) {
+    return 'Configuração de /$name';
+  }
+
+  @override
+  String get cmd_deploy_close_button => 'Fechar';
+
+  @override
+  String get cmd_deploy_retry_button => 'Tentar Novamente';
 }

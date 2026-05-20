@@ -59,13 +59,13 @@ Emoji? _parseEmoji(dynamic emojiData, String Function(String) resolve) {
 
   if (emojiText.isEmpty) return null;
 
-  // Custom emoji format: <a:name:id> or <:name:id>
-  final customMatch = RegExp(r'^<a?:([^:>]+):(\d+)>$').firstMatch(emojiText);
+  // Custom emoji format: <:name:id>, <a:name:id>, :name:id, a:name:id, :a:name:id
+  final customMatch = RegExp(r'^<?:?(a?):([^:>]+):(\d+)>?$').firstMatch(emojiText);
   if (customMatch != null) {
-    final name = customMatch.group(1)!;
-    final idString = customMatch.group(2)!;
+    final isAnimated = customMatch.group(1) == 'a';
+    final name = customMatch.group(2)!;
+    final idString = customMatch.group(3)!;
     final id = int.tryParse(idString);
-    final isAnimated = emojiText.startsWith('<a:');
     if (id != null) {
       return _FakeEmoji(
         id: Snowflake(id),
@@ -78,6 +78,7 @@ Emoji? _parseEmoji(dynamic emojiData, String Function(String) resolve) {
   // Unicode
   return _FakeEmoji(id: Snowflake.zero, name: emojiText);
 }
+
 
 ComponentBuilder buildComponentNode(
   ComponentNode node,
