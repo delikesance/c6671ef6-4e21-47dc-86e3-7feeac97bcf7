@@ -7199,6 +7199,10 @@
   "@settings_legal_title": {
     "description": "Legal"
   },
+  "settings_oss_licenses": "Licenças Open Source",
+  "@settings_oss_licenses": {
+    "description": "Button label to view open source licenses"
+  },
   "settings_local_hosting_enabled": "Bots móveis agora usam seu dispositivo para hospedagem.",
   "@settings_local_hosting_enabled": {
     "description": "Mobile bots now use your device for hosting."

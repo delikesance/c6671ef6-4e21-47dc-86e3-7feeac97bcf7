@@ -10055,6 +10055,12 @@ abstract class AppLocalizations {
   /// **'Legal'**
   String get settings_legal_title;
 
+  /// Button label to view open source licenses
+  ///
+  /// In en, this message translates to:
+  /// **'Open Source Licenses'**
+  String get settings_oss_licenses;
+
   /// Mobile bots now use your device for hosting.
   ///
   /// In en, this message translates to:

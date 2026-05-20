@@ -5714,6 +5714,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get settings_legal_title => 'Legal';
 
   @override
+  String get settings_oss_licenses => 'Licenças Open Source';
+
+  @override
   String get settings_local_hosting_enabled =>
       'Bots móveis agora usam seu dispositivo para hospedagem.';
 
