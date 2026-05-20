@@ -26,6 +26,7 @@ import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:googleapis/drive/v3.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -2837,6 +2838,32 @@ class _PrivacyPolicyCard extends StatelessWidget {
                           ? context.tr.settings_ads_privacy_manage
                           : context.tr.settings_ads_privacy_not_required),
                 ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () async {
+                  final info = await PackageInfo.fromPlatform();
+                  if (context.mounted) {
+                    showLicensePage(
+                      context: context,
+                      applicationName: info.appName,
+                      applicationVersion: info.version,
+                      applicationIcon: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Icon(
+                          Icons.smart_toy_outlined,
+                          size: 48,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                    );
+                  }
+                },
+                icon: const Icon(Icons.description_outlined),
+                label: Text(context.tr.settings_oss_licenses),
               ),
             ),
           ],

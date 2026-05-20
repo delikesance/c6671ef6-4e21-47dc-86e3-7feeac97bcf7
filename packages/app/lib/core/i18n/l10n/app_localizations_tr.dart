@@ -5681,6 +5681,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settings_legal_title => 'Yasal';
 
   @override
+  String get settings_oss_licenses => 'Açık Kaynak Lisansları';
+
+  @override
   String get settings_local_hosting_enabled =>
       'Mobil botlar artık barındırma için cihazınızı kullanıyor.';
 

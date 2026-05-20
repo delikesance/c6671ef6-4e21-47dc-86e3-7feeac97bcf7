@@ -5729,6 +5729,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settings_legal_title => 'Légal';
 
   @override
+  String get settings_oss_licenses => 'Licences Open Source';
+
+  @override
   String get settings_local_hosting_enabled => 'Hébergement local activé';
 
   @override
