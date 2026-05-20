@@ -16,7 +16,7 @@
   "@action_advanced_settings": {
     "description": "Advanced settings"
   },
-  "action_and_more": "€¦ et {count} de plus",
+  "action_and_more": "... et {count} de plus",
   "@action_and_more": {
     "placeholders": {
       "count": {
@@ -462,6 +462,10 @@
   "@action_name_deleteWebhook": {
     "description": "Delete Webhook"
   },
+  "action_name_debugProfile": "Profil de débogage",
+  "@action_name_debugProfile": {
+    "description": "Debug Profile"
+  },
   "action_name_disconnectFromVoice": "Déconnecter du vocal",
   "@action_name_disconnectFromVoice": {
     "description": "Disconnect from Voice"
@@ -489,6 +493,10 @@
   "action_name_endPoll": "Clôturer un sondage",
   "@action_name_endPoll": {
     "description": "End Poll"
+  },
+  "action_name_forLoop": "Boucle Pour",
+  "@action_name_forLoop": {
+    "description": "For Loop"
   },
   "action_name_getGlobalVariable": "Lire une variable globale",
   "@action_name_getGlobalVariable": {
@@ -526,6 +534,10 @@
   "@action_name_ifBlock": {
     "description": "IF / ELSE Block"
   },
+  "action_name_jsonForEachLoop": "Boucle Pour Chaque JSON",
+  "@action_name_jsonForEachLoop": {
+    "description": "JSON For Each Loop"
+  },
   "action_name_kickUser": "Expulser un utilisateur",
   "@action_name_kickUser": {
     "description": "Kick User"
@@ -558,6 +570,10 @@
   "@action_name_listenForSelectMenu": {
     "description": "Listen for Select Menu"
   },
+  "action_name_log": "Log",
+  "@action_name_log": {
+    "description": "Log"
+  },
   "action_name_moveToVoiceChannel": "Déplacer vers un vocal",
   "@action_name_moveToVoiceChannel": {
     "description": "Move to Voice Channel"
@@ -577,6 +593,10 @@
   "action_name_randomChoice": "Choix aléatoire",
   "@action_name_randomChoice": {
     "description": "Random Choice"
+  },
+  "action_name_registerGuildCommands": "Enregistrer les commandes",
+  "@action_name_registerGuildCommands": {
+    "description": "Register Guild Commands"
   },
   "action_name_removeArrayElement": "Retirer un élément de tableau",
   "@action_name_removeArrayElement": {
@@ -634,6 +654,10 @@
   "@action_name_runWorkflow": {
     "description": "Run Workflow"
   },
+  "action_name_runtimeJsonBlock": "Bloc JSON d'exécution",
+  "@action_name_runtimeJsonBlock": {
+    "description": "Runtime JSON Block"
+  },
   "action_name_sendComponentV2": "Envoyer un composant V2",
   "@action_name_sendComponentV2": {
     "description": "Send Component V2"
@@ -670,6 +694,10 @@
   "@action_name_setScopedVariable": {
     "description": "Set Scoped Variable"
   },
+  "action_name_setTemporaryVariable": "Définir une variable temporaire",
+  "@action_name_setTemporaryVariable": {
+    "description": "Set Temporary Variable"
+  },
   "action_name_slowmode": "Mode lent",
   "@action_name_slowmode": {
     "description": "Slowmode"
@@ -693,6 +721,10 @@
   "action_name_unpinMessage": "Désépingler un message",
   "@action_name_unpinMessage": {
     "description": "Unpin Message"
+  },
+  "action_name_unregisterGuildCommands": "Désenregistrer les commandes",
+  "@action_name_unregisterGuildCommands": {
+    "description": "Unregister Guild Commands"
   },
   "action_name_updateAutoMod": "Mettre à jour AutoMod",
   "@action_name_updateAutoMod": {
@@ -906,7 +938,7 @@
   "@actions_save_workflow_title": {
     "description": "Save as Workflow"
   },
-  "actions_search_hint": "Rechercher des actions€¦",
+  "actions_search_hint": "Rechercher des actions...",
   "@actions_search_hint": {
     "description": "Search actions..."
   },
@@ -1152,7 +1184,7 @@
   "@autocomplete_filter_hint": {
     "description": "Suggestions are filtered by what the user types."
   },
-  "autocomplete_loading": "Chargement des workflows€¦",
+  "autocomplete_loading": "Chargement des workflows...",
   "@autocomplete_loading": {
     "description": "Loading workflows…"
   },
@@ -1299,7 +1331,7 @@
   "@bdfd_docs_desc_callworkflow": {
     "description": "Bot Creator only — Calls another workflow by name and passes arguments.\n\nSyntax: $callWorkflow[myWorkflow;key1=value1;key2=value2]\n\nThe called workflow can read arguments and return a value via $workflowResponse."
   },
-  "bdfd_docs_desc_defer": "Diffère la réponse à l'interaction, vous donnant plus de temps. L'utilisateur voit « Le bot réfléchit€¦ ». À utiliser avant les opérations longues comme les requêtes HTTP.",
+  "bdfd_docs_desc_defer": "Diffère la réponse à l'interaction, vous donnant plus de temps. L'utilisateur voit « Le bot réfléchit... ». À utiliser avant les opérations longues comme les requêtes HTTP.",
   "@bdfd_docs_desc_defer": {
     "description": "Defers the interaction response, giving you more time to process. The user sees a \"Bot is thinking…\" message. Use before long operations like HTTP requests."
   },
@@ -1387,7 +1419,7 @@
   "@bdfd_docs_parameters": {
     "description": "PARAMETERS"
   },
-  "bdfd_docs_search_hint": "Rechercher une fonction€¦",
+  "bdfd_docs_search_hint": "Rechercher une fonction...",
   "@bdfd_docs_search_hint": {
     "description": "Search functions…"
   },
@@ -1532,7 +1564,7 @@
     },
     "description": "Could not start: {error}"
   },
-  "bot_home_starting": "Démarrage€¦",
+  "bot_home_starting": "Démarrage...",
   "@bot_home_starting": {
     "description": "Starting…"
   },
@@ -1970,7 +2002,7 @@
   "@bot_settings_workflow_docs_desc": {
     "description": "Centralized documentation for commands, workflows, runtime variables, and execution behavior."
   },
-  "bot_stats_collecting": "Collecte€¦",
+  "bot_stats_collecting": "Collecte...",
   "@bot_stats_collecting": {
     "description": "Collecting…"
   },
@@ -3518,7 +3550,7 @@
   "@debug_replay_duration_label": {
     "description": "DURATION"
   },
-  "debug_replay_empty_capturing": "Capture en cours€¦ Lancez une commande pour enregistrer un replay.",
+  "debug_replay_empty_capturing": "Capture en cours... Lancez une commande pour enregistrer un replay.",
   "@debug_replay_empty_capturing": {
     "description": "Capturing… Run a command to record a replay."
   },
@@ -4935,7 +4967,7 @@
   "@globals_help_global": {
     "description": "Shared across all commands. Access via $getVar[key]."
   },
-  "globals_help_scoped": "Stockées par contexte (serveur, utilisateur, salon€¦). Chaque entrée conserve une valeur distincte par contexte Discord.",
+  "globals_help_scoped": "Stockées par contexte (serveur, utilisateur, salon...). Chaque entrée conserve une valeur distincte par contexte Discord.",
   "@globals_help_scoped": {
     "description": "Stored per context (server, user, channel…). Each entry keeps a distinct value per Discord context."
   },
@@ -4987,7 +5019,7 @@
   "@globals_scope_user": {
     "description": "user"
   },
-  "globals_search": "Rechercher des variables€¦",
+  "globals_search": "Rechercher des variables...",
   "@globals_search": {
     "description": "Search variables…"
   },
@@ -6214,7 +6246,7 @@
   "@scoped_empty": {
     "description": "No scoped variables defined"
   },
-  "scoped_empty_subtitle": "Les variables scopées stockent une valeur par contexte Discord (utilisateur, serveur€¦). Elles sont peuplées par le bot à l'exécution.",
+  "scoped_empty_subtitle": "Les variables scopées stockent une valeur par contexte Discord (utilisateur, serveur...). Elles sont peuplées par le bot à l'exécution.",
   "@scoped_empty_subtitle": {
     "description": "Scoped variables store a value per Discord context (user, server…). They are populated by the bot at runtime."
   },
@@ -6248,7 +6280,7 @@
   "@scoped_runtime_empty": {
     "description": "No runtime data.\nThis key will be populated by the bot at execution."
   },
-  "scoped_runtime_search": "Rechercher par ID ou nom€¦",
+  "scoped_runtime_search": "Rechercher par ID ou nom...",
   "@scoped_runtime_search": {
     "description": "Search by ID or name…"
   },
@@ -6541,7 +6573,7 @@
   "@settings_appearance_title": {
     "description": "Appearance & language"
   },
-  "settings_auto_backup_check_loading": "Vérification auto-sauvegarde€¦",
+  "settings_auto_backup_check_loading": "Vérification auto-sauvegarde...",
   "@settings_auto_backup_check_loading": {
     "description": "Auto-backup check…"
   },
@@ -6855,7 +6887,7 @@
   "@settings_diagnostics_section_title": {
     "description": "Diagnostics"
   },
-  "settings_discord_rpc_authenticating": "Authentification auprès de Discord€¦",
+  "settings_discord_rpc_authenticating": "Authentification auprès de Discord...",
   "@settings_discord_rpc_authenticating": {
     "description": "Authenticating with Discord…"
   },
@@ -6871,7 +6903,7 @@
   "@settings_discord_rpc_authorize": {
     "description": "Authorize"
   },
-  "settings_discord_rpc_authorizing": "En attente de l'autorisation Discord€¦",
+  "settings_discord_rpc_authorizing": "En attente de l'autorisation Discord...",
   "@settings_discord_rpc_authorizing": {
     "description": "Waiting for Discord authorization…"
   },
@@ -6923,7 +6955,7 @@
   "@settings_discord_rpc_connected": {
     "description": "Presence sent to Discord"
   },
-  "settings_discord_rpc_connecting": "Connexion à Discord€¦",
+  "settings_discord_rpc_connecting": "Connexion à Discord...",
   "@settings_discord_rpc_connecting": {
     "description": "Connecting to Discord…"
   },
@@ -6964,7 +6996,7 @@
   "@settings_discord_rpc_error": {
     "description": "Discord RPC error"
   },
-  "settings_discord_rpc_exchanging_code": "Finalisation de l'échange OAuth€¦",
+  "settings_discord_rpc_exchanging_code": "Finalisation de l'échange OAuth...",
   "@settings_discord_rpc_exchanging_code": {
     "description": "Completing OAuth exchange…"
   },
@@ -7030,7 +7062,7 @@
   "@settings_drive_connect": {
     "description": "Connect to Google Drive"
   },
-  "settings_drive_connect_loading": "Connexion à Google Drive€¦",
+  "settings_drive_connect_loading": "Connexion à Google Drive...",
   "@settings_drive_connect_loading": {
     "description": "Connecting to Google Drive…"
   },
@@ -7046,7 +7078,7 @@
   "@settings_drive_disconnect": {
     "description": "Disconnect"
   },
-  "settings_drive_disconnect_loading": "Déconnexion en cours€¦",
+  "settings_drive_disconnect_loading": "Déconnexion en cours...",
   "@settings_drive_disconnect_loading": {
     "description": "Disconnecting…"
   },
@@ -7102,7 +7134,7 @@
   "@settings_export_app_data": {
     "description": "Export App Data"
   },
-  "settings_export_loading": "Export en cours€¦",
+  "settings_export_loading": "Export en cours...",
   "@settings_export_loading": {
     "description": "Exporting…"
   },
@@ -7114,7 +7146,7 @@
   "@settings_import_app_data": {
     "description": "Import App Data"
   },
-  "settings_import_loading": "Import en cours€¦",
+  "settings_import_loading": "Import en cours...",
   "@settings_import_loading": {
     "description": "Importing…"
   },
@@ -7442,7 +7474,7 @@
   "@settings_snapshot_apps_list": {
     "description": "Apps in this snapshot"
   },
-  "settings_snapshot_create_loading": "Création du snapshot€¦",
+  "settings_snapshot_create_loading": "Création du snapshot...",
   "@settings_snapshot_create_loading": {
     "description": "Creating snapshot…"
   },
@@ -7464,7 +7496,7 @@
     },
     "description": "Snapshot created: {id}"
   },
-  "settings_snapshot_delete_loading": "Suppression du snapshot€¦",
+  "settings_snapshot_delete_loading": "Suppression du snapshot...",
   "@settings_snapshot_delete_loading": {
     "description": "Deleting snapshot…"
   },
@@ -7525,7 +7557,7 @@
   "@settings_snapshot_preview_title": {
     "description": "Snapshot Preview"
   },
-  "settings_snapshot_restore_loading": "Restauration du snapshot€¦",
+  "settings_snapshot_restore_loading": "Restauration du snapshot...",
   "@settings_snapshot_restore_loading": {
     "description": "Restoring snapshot…"
   },
@@ -7551,7 +7583,7 @@
     },
     "description": "{count} snapshot(s) deleted."
   },
-  "settings_snapshots_delete_all_loading": "Suppression de tous les snapshots€¦",
+  "settings_snapshots_delete_all_loading": "Suppression de tous les snapshots...",
   "@settings_snapshots_delete_all_loading": {
     "description": "Deleting all snapshots…"
   },
@@ -7588,7 +7620,7 @@
   "@settings_snapshots_refresh": {
     "description": "Refresh snapshots"
   },
-  "settings_snapshots_refresh_loading": "Actualisation des snapshots€¦",
+  "settings_snapshots_refresh_loading": "Actualisation des snapshots...",
   "@settings_snapshots_refresh_loading": {
     "description": "Refreshing snapshots…"
   },
@@ -8901,5 +8933,28 @@
   "workflows_type_title": "Type de workflow",
   "@workflows_type_title": {
     "description": "Workflow type"
-  }
+  },
+  "settings_team_ownership": "Propriété de l'équipe",
+  "settings_personal_ownership": "Propriété personnelle",
+  "settings_team_pill": "ÉQUIPE",
+  "settings_solo_pill": "SOLO",
+  "settings_team_name_label": "Nom de l'équipe : ",
+  "settings_team_id_label": "ID de l'équipe : ",
+  "settings_team_owner_label": "Chef d'équipe",
+  "settings_owner_fallback": "Propriétaire",
+  "settings_owner_badge": "OWNER",
+  "settings_team_members_label": "Membres de l'équipe ({count})",
+  "@settings_team_members_label": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "Number of team members"
+  },
+  "settings_personal_owner_label": "Propriétaire : ",
+  "settings_personal_owner_fallback": "Utilisateur personnel",
+  "settings_personal_owner_id_label": "ID Propriétaire : ",
+  "settings_raw_json_tile": "Voir le JSON Brut (RAW JSON)",
+  "settings_member_badge": "MEMBRE"
 }

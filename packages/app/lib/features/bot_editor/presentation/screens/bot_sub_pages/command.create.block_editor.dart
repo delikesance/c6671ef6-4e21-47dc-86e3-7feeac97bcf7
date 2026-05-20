@@ -98,7 +98,7 @@ extension _CommandBlockEditor on _CommandCreatePageState {
               });
             },
             fieldRefreshVersionOf: (_) => 0,
-            onEditNestedActions: (current, suggestions) async {
+            onEditNestedActions: (current, suggestions, blockName, {onChanged}) async {
               final result = await Navigator.push<List<Map<String, dynamic>>>(
                 context,
                 MaterialPageRoute<List<Map<String, dynamic>>>(
@@ -108,6 +108,8 @@ extension _CommandBlockEditor on _CommandCreatePageState {
                         variableSuggestions: suggestions,
                         emojiSuggestions: _appEmojis,
                         botIdForConfig: _botIdForConfig,
+                        editPath: ['Racine', blockName],
+                        onChanged: onChanged,
                       ),
                 ),
               );

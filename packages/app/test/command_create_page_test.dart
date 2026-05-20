@@ -458,13 +458,16 @@ void main() {
         saveButton.onPressed?.call();
         final deadline = DateTime.now().add(const Duration(seconds: 2));
         while (DateTime.now().isBefore(deadline)) {
-          final saved = await readLocalCommand(
-            botId: botId,
-            commandId: commandId,
-          );
-          if (saved.containsKey('updatedAt')) {
-            return;
-          }
+          await tester.pump();
+          try {
+            final saved = await readLocalCommand(
+              botId: botId,
+              commandId: commandId,
+            );
+            if (saved.containsKey('updatedAt')) {
+              return;
+            }
+          } catch (_) {}
           await Future<void>.delayed(const Duration(milliseconds: 50));
         }
       });
@@ -521,10 +524,13 @@ void main() {
           createButton.onPressed?.call();
           final deadline = DateTime.now().add(const Duration(seconds: 2));
           while (DateTime.now().isBefore(deadline)) {
-            final savedCommands = readAllLocalCommands(botId);
-            if (savedCommands.isNotEmpty) {
-              return;
-            }
+            await tester.pump();
+            try {
+              final savedCommands = readAllLocalCommands(botId);
+              if (savedCommands.isNotEmpty) {
+                return;
+              }
+            } catch (_) {}
             await Future<void>.delayed(const Duration(milliseconds: 50));
           }
         });
@@ -594,10 +600,13 @@ void main() {
           createButton.onPressed?.call();
           final deadline = DateTime.now().add(const Duration(seconds: 2));
           while (DateTime.now().isBefore(deadline)) {
-            final savedCommands = readAllLocalCommands(botId);
-            if (savedCommands.isNotEmpty) {
-              return;
-            }
+            await tester.pump();
+            try {
+              final savedCommands = readAllLocalCommands(botId);
+              if (savedCommands.isNotEmpty) {
+                return;
+              }
+            } catch (_) {}
             await Future<void>.delayed(const Duration(milliseconds: 50));
           }
         });

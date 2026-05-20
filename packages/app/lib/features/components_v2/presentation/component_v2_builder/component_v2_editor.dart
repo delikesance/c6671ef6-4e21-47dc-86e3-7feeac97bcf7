@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:bot_creator/core/models/types/component.dart';
+import 'package:bot_creator_shared/types/component.dart';
 import 'package:bot_creator/core/models/types/variable_suggestion.dart';
 import 'package:bot_creator/features/components_v2/presentation/component_v2_builder/component_node_editor.dart';
 import 'package:bot_creator/features/components_v2/presentation/component_v2_builder/component_node_factory.dart';

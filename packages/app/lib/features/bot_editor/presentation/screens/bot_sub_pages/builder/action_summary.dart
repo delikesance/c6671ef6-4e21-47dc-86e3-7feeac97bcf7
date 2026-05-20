@@ -1,5 +1,4 @@
-import 'package:bot_creator/core/models/types/action.dart'
-    show BotCreatorActionType;
+import 'package:bot_creator_shared/types/action.dart' show BotCreatorActionType;
 import 'package:flutter/widgets.dart';
 import 'action_type_extension.dart';
 import 'action_types.dart';

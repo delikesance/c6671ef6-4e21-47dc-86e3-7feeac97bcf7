@@ -303,6 +303,13 @@ class HomePageState extends State<HomePage>
       _runtimeSource = RemoteRuntimeSource.local;
       _runtimeDetailLabel = null;
     });
+
+    for (final botId in desktopRunningBotIds) {
+      final guildCount = desktopGatewayForBot(botId)?.guilds.cache.length;
+      if (guildCount != null) {
+        appManager.updateGuildCount(botId, guildCount);
+      }
+    }
     _syncPulse(runningIds);
     await _syncDiscordRpcPresence(runningIds);
     unawaited(_refreshBotRuntimeBalances());

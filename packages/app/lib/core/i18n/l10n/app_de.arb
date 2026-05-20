@@ -462,6 +462,10 @@
   "@action_name_deleteWebhook": {
     "description": "Delete Webhook"
   },
+  "action_name_debugProfile": "Debug-Profil",
+  "@action_name_debugProfile": {
+    "description": "Debug Profile"
+  },
   "action_name_disconnectFromVoice": "Von Sprache trennen",
   "@action_name_disconnectFromVoice": {
     "description": "Disconnect from Voice"
@@ -489,6 +493,10 @@
   "action_name_endPoll": "Umfrage beenden",
   "@action_name_endPoll": {
     "description": "End Poll"
+  },
+  "action_name_forLoop": "For-Schleife",
+  "@action_name_forLoop": {
+    "description": "For Loop"
   },
   "action_name_getGlobalVariable": "Globale Variable abrufen",
   "@action_name_getGlobalVariable": {
@@ -526,6 +534,10 @@
   "@action_name_ifBlock": {
     "description": "IF / ELSE Block"
   },
+  "action_name_jsonForEachLoop": "JSON Für Jedes Schleife",
+  "@action_name_jsonForEachLoop": {
+    "description": "JSON For Each Loop"
+  },
   "action_name_kickUser": "Benutzer kicken",
   "@action_name_kickUser": {
     "description": "Kick User"
@@ -558,6 +570,10 @@
   "@action_name_listenForSelectMenu": {
     "description": "Listen for Select Menu"
   },
+  "action_name_log": "Nachricht protokollieren",
+  "@action_name_log": {
+    "description": "Nachricht protokollieren"
+  },
   "action_name_moveToVoiceChannel": "In Sprachkanal verschieben",
   "@action_name_moveToVoiceChannel": {
     "description": "Move to Voice Channel"
@@ -577,6 +593,10 @@
   "action_name_randomChoice": "Zufällige Auswahl",
   "@action_name_randomChoice": {
     "description": "Random Choice"
+  },
+  "action_name_registerGuildCommands": "Server-Befehle registrieren",
+  "@action_name_registerGuildCommands": {
+    "description": "Server-Befehle registrieren"
   },
   "action_name_removeArrayElement": "Array-Element entfernen",
   "@action_name_removeArrayElement": {
@@ -634,6 +654,10 @@
   "@action_name_runWorkflow": {
     "description": "Run Workflow"
   },
+  "action_name_runtimeJsonBlock": "JSON-Operationen ausführen",
+  "@action_name_runtimeJsonBlock": {
+    "description": "JSON-Operationen ausführen"
+  },
   "action_name_sendComponentV2": "Komponente V2 senden",
   "@action_name_sendComponentV2": {
     "description": "Send Component V2"
@@ -670,6 +694,10 @@
   "@action_name_setScopedVariable": {
     "description": "Set Scoped Variable"
   },
+  "action_name_setTemporaryVariable": "Temporäre Variable setzen",
+  "@action_name_setTemporaryVariable": {
+    "description": "Set Temporary Variable"
+  },
   "action_name_slowmode": "Slowmode",
   "@action_name_slowmode": {
     "description": "Slowmode"
@@ -693,6 +721,10 @@
   "action_name_unpinMessage": "Nachricht lospinnen",
   "@action_name_unpinMessage": {
     "description": "Unpin Message"
+  },
+  "action_name_unregisterGuildCommands": "Server-Befehle deregistrieren",
+  "@action_name_unregisterGuildCommands": {
+    "description": "Server-Befehle deregistrieren"
   },
   "action_name_updateAutoMod": "AutoMod aktualisieren",
   "@action_name_updateAutoMod": {
@@ -8901,5 +8933,28 @@
   "workflows_type_title": "Workflow-Typ",
   "@workflows_type_title": {
     "description": "Workflow type"
-  }
+  },
+  "settings_team_ownership": "Teambesitz",
+  "settings_personal_ownership": "Persönlicher Besitz",
+  "settings_team_pill": "TEAM",
+  "settings_solo_pill": "SOLO",
+  "settings_team_name_label": "Teamname: ",
+  "settings_team_id_label": "Team-ID: ",
+  "settings_team_owner_label": "Teamleiter",
+  "settings_owner_fallback": "Besitzer",
+  "settings_owner_badge": "BESITZER",
+  "settings_team_members_label": "Teammitglieder ({count})",
+  "@settings_team_members_label": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "Number of team members"
+  },
+  "settings_personal_owner_label": "Besitzer: ",
+  "settings_personal_owner_fallback": "Persönlicher Benutzer",
+  "settings_personal_owner_id_label": "Besitzer-ID: ",
+  "settings_raw_json_tile": "Rohes JSON anzeigen (RAW JSON)",
+  "settings_member_badge": "MITGLIED"
 }

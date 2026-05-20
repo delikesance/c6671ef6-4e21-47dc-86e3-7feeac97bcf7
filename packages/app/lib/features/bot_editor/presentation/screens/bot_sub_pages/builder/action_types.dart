@@ -1,5 +1,4 @@
-import 'package:bot_creator/core/models/types/action.dart'
-    show BotCreatorActionType;
+import 'package:bot_creator_shared/types/action.dart' show BotCreatorActionType;
 import 'package:bot_creator/features/bot_editor/logic/action_normalization.dart';
 
 // Enum pour les types de paramètres
@@ -58,6 +57,8 @@ class ParameterDefinition {
 
 // Modèle pour représenter une action
 class ActionItem {
+  static int _globalCounter = 0;
+  final String runtimeId;
   final String id;
   final BotCreatorActionType type;
   bool enabled;
@@ -72,14 +73,20 @@ class ActionItem {
     required this.actionKey,
     this.enabled = true,
     this.onErrorMode = 'stop',
-  });
+    String? runtimeId,
+  }) : runtimeId =
+           runtimeId ??
+           'action_${DateTime.now().microsecondsSinceEpoch}_${_globalCounter++}';
 
   factory ActionItem.fromJson(Map<String, dynamic> json, {String? fallbackId}) {
     final parameters = Map<String, dynamic>.from(
       (json['payload'] as Map?)?.cast<String, dynamic>() ?? const {},
     );
     final persistedKey = (json['key'] ?? '').toString().trim();
-    final actionKey = persistedKey.isNotEmpty ? persistedKey : (fallbackId ?? json['id'] ?? '');
+    final actionKey =
+        persistedKey.isNotEmpty
+            ? persistedKey
+            : (fallbackId ?? json['id'] ?? '');
 
     final rawId = (json['id'] ?? '').toString().trim();
 

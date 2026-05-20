@@ -9,9 +9,8 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/bdfd_editor
 import 'package:flutter_highlight/flutter_highlight.dart';
 import 'package:flutter_highlight/themes/darcula.dart';
 import 'package:flutter/material.dart';
-import 'package:bot_creator/core/models/types/action.dart'
-    show BotCreatorActionType;
-import 'package:bot_creator/core/models/types/component.dart';
+import 'package:bot_creator_shared/types/action.dart' show BotCreatorActionType;
+import 'package:bot_creator_shared/types/component.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/workflows.page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/global.variables.dart';
 import 'package:bot_creator/main.dart';
@@ -68,7 +67,9 @@ class ActionCard extends StatelessWidget {
   final Future<List<Map<String, dynamic>>?> Function(
     List<Map<String, dynamic>> current,
     List<VariableSuggestion> suggestions,
-  )?
+    String blockName, {
+    void Function(List<Map<String, dynamic>>)? onChanged,
+  })?
   onEditNestedActions;
   final bool showHeader;
   final bool showPositionLabel;
@@ -99,7 +100,7 @@ class ActionCard extends StatelessWidget {
 
   Key _parameterInputKey(String paramKey) {
     final version = fieldRefreshVersionOf(paramKey);
-    return ValueKey('param-input-${action.id}-$paramKey-v$version');
+    return ValueKey('param-input-${action.runtimeId}-$paramKey-v$version');
   }
 
   @override
@@ -266,7 +267,7 @@ class ActionCard extends StatelessWidget {
 
   Widget _buildActionKeyField(BuildContext context) {
     return TextFormField(
-      key: ValueKey('action-key-${action.id}'),
+      key: ValueKey('action-key-${action.runtimeId}'),
       initialValue: actionKey,
       decoration: InputDecoration(
         labelText: context.tr.action_key_field,
@@ -1313,6 +1314,10 @@ class ActionCard extends StatelessWidget {
           final result = await onEditNestedActions!(
             nestedList,
             variableSuggestions,
+            '${action.type.displayName(context)} > $blockLabel',
+            onChanged: (newActions) {
+              onParameterChanged(paramDef.key, newActions);
+            },
           );
           if (result != null) {
             onParameterChanged(paramDef.key, result);
@@ -1723,7 +1728,9 @@ class ActionCard extends StatelessWidget {
             builder: (context, constraints) {
               final isCompact = constraints.maxWidth < 760;
               final variableField = VariableTextField(
-                key: ValueKey('elseif-$actionKey-$branchIndex-variable'),
+                key: ValueKey(
+                  'elseif-${action.runtimeId}-$branchIndex-variable',
+                ),
                 label: context.tr.action_condition_variable,
                 initialValue: variableValue,
                 hint: context.tr.action_hint_condition_var,
@@ -1737,7 +1744,9 @@ class ActionCard extends StatelessWidget {
               final operatorField = SizedBox(
                 width: isCompact ? double.infinity : 170,
                 child: DropdownButtonFormField<String>(
-                  key: ValueKey('elseif-$actionKey-$branchIndex-operator'),
+                  key: ValueKey(
+                    'elseif-${action.runtimeId}-$branchIndex-operator',
+                  ),
                   initialValue:
                       _conditionOperators.contains(operatorValue)
                           ? operatorValue
@@ -1765,7 +1774,7 @@ class ActionCard extends StatelessWidget {
                 ),
               );
               final valueField = VariableTextField(
-                key: ValueKey('elseif-$actionKey-$branchIndex-value'),
+                key: ValueKey('elseif-${action.runtimeId}-$branchIndex-value'),
                 label: context.tr.action_condition_value,
                 initialValue: conditionValue,
                 hint: context.tr.action_hint_condition_value,
@@ -1815,6 +1824,12 @@ class ActionCard extends StatelessWidget {
               final result = await onEditNestedActions!(
                 nestedActions,
                 variableSuggestions,
+                '${action.type.displayName(context)} > ${context.tr.action_else_if_label(branchIndex + 1)}',
+                onChanged: (newActions) {
+                  final updated = _cloneElseIfBranches(branches);
+                  updated[branchIndex]['actions'] = newActions;
+                  onParameterChanged(paramKey, updated);
+                },
               );
               if (result == null) {
                 return;
@@ -3255,7 +3270,8 @@ class ActionCard extends StatelessWidget {
       'Custom error message (supports %time%)':
           'Message d\'erreur personnalisé (supporte %time%)',
       'User to send DM to': 'Utilisateur à qui envoyer le MP',
-      'User whose nickname to change': 'Utilisateur dont le surnom doit changer',
+      'User whose nickname to change':
+          'Utilisateur dont le surnom doit changer',
       'New nickname': 'Nouveau surnom',
       'Channel to set slowmode for': 'Salon où activer le mode lent',
       'Slowmode duration (e.g. 5s, 0 to disable)':
@@ -3272,7 +3288,8 @@ class ActionCard extends StatelessWidget {
           'Optionnel : supprimer les messages postés avant l\'ID donné',
       'Reason for deletion': 'Raison de la suppression',
       'Only delete bot messages': 'Supprimer uniquement les messages de bots',
-      'Only delete user messages': 'Supprimer uniquement les messages d\'utilisateurs',
+      'Only delete user messages':
+          'Supprimer uniquement les messages d\'utilisateurs',
       'Channel to remove': 'Salon à supprimer',
       'Channel name': 'Nom du salon',
       'Channel type': 'Type de salon',
@@ -3306,7 +3323,8 @@ class ActionCard extends StatelessWidget {
       'New message content': 'Nouveau contenu du message',
       'Optional embeds to replace the current message embeds':
           'Embeds optionnels pour remplacer les embeds actuels',
-      'Remove all embeds from the message': 'Supprimer tous les embeds du message',
+      'Remove all embeds from the message':
+          'Supprimer tous les embeds du message',
       'Edit Component V2 interactive elements (optional)':
           'Modifier les éléments interactifs Composant V2 (optionnel)',
     };
@@ -3496,8 +3514,9 @@ class _VariableKeyParameterFieldState
     } catch (e) {
       // Fallback to local SQLite if remote loading fails/times out
       if (widget.scoped) {
-        final defs =
-            await appManager.getScopedVariableDefinitions(widget.botId);
+        final defs = await appManager.getScopedVariableDefinitions(
+          widget.botId,
+        );
         final scope = widget.scope.trim();
         keys = defs
             .where(
