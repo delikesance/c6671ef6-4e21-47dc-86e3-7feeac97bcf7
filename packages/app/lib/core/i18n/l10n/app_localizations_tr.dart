@@ -228,7 +228,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get action_hint_duration => 'örn. 5m, 1sa, 30sn';
 
   @override
-  String get action_hint_emoji => 'Emoji veya :ad: girin';
+  String get action_hint_emoji => 'Emoji (örn. 🪜) veya <:ad:kimlik>';
 
   @override
   String action_hint_enter_type(String type) {
@@ -7087,4 +7087,63 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get settings_member_badge => 'ÜYE';
+
+  @override
+  String get cmd_deploy_local_save_title => 'Yerel Kaydetme';
+
+  @override
+  String get cmd_deploy_local_save_subtitle => 'Komut cihaza kaydediliyor';
+
+  @override
+  String get cmd_deploy_reload_bot_title => 'Bot Yeniden Yükleniyor';
+
+  @override
+  String get cmd_deploy_reload_bot_subtitle =>
+      'Sıcak yükleme yapılandırması uygulanıyor';
+
+  @override
+  String get cmd_deploy_discord_sync_title => 'Discord Senkronizasyonu';
+
+  @override
+  String get cmd_deploy_discord_sync_subtitle =>
+      'Komut Discord API\'sine yayınlanıyor';
+
+  @override
+  String get cmd_deploy_cloud_sync_title => 'Bulut Yedekleme';
+
+  @override
+  String get cmd_deploy_cloud_sync_subtitle =>
+      'Çevrimiçi alanınızla güvenli senkronizasyon';
+
+  @override
+  String get cmd_deploy_hot_reload_title => 'Sıcak Yeniden Yükleme';
+
+  @override
+  String get cmd_deploy_hot_reload_subtitle =>
+      'Bot çalıştırıcınızın anında güncellenmesi';
+
+  @override
+  String cmd_deploy_success_toast(String name) {
+    return '\"$name\" komutu dağıtıldı ve aktif!';
+  }
+
+  @override
+  String get cmd_deploy_success_title => 'Dağıtım başarılı!';
+
+  @override
+  String get cmd_deploy_failed_title => 'Dağıtım başarısız';
+
+  @override
+  String get cmd_deploy_in_progress_title => 'Dağıtım devam ediyor...';
+
+  @override
+  String cmd_deploy_config_subtitle(String name) {
+    return '/$name yapılandırması';
+  }
+
+  @override
+  String get cmd_deploy_close_button => 'Kapat';
+
+  @override
+  String get cmd_deploy_retry_button => 'Yeniden Dene';
 }

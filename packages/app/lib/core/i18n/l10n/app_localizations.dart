@@ -488,10 +488,10 @@ abstract class AppLocalizations {
   /// **'e.g., 5m, 1h, 30s'**
   String get action_hint_duration;
 
-  /// Enter emoji or :name:
+  /// Emoji (e.g. 🪜) or <:name:id>
   ///
   /// In en, this message translates to:
-  /// **'Enter emoji or :name:'**
+  /// **'Emoji (e.g. 🪜) or <:name:id>'**
   String get action_hint_emoji;
 
   /// Enter {type}
@@ -12412,6 +12412,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'MEMBER'**
   String get settings_member_badge;
+
+  /// Local Save
+  ///
+  /// In en, this message translates to:
+  /// **'Local Save'**
+  String get cmd_deploy_local_save_title;
+
+  /// Saving command to device
+  ///
+  /// In en, this message translates to:
+  /// **'Saving command to device'**
+  String get cmd_deploy_local_save_subtitle;
+
+  /// Reloading Bot
+  ///
+  /// In en, this message translates to:
+  /// **'Reloading Bot'**
+  String get cmd_deploy_reload_bot_title;
+
+  /// Applying hot reload configuration
+  ///
+  /// In en, this message translates to:
+  /// **'Applying hot reload configuration'**
+  String get cmd_deploy_reload_bot_subtitle;
+
+  /// Discord Sync
+  ///
+  /// In en, this message translates to:
+  /// **'Discord Sync'**
+  String get cmd_deploy_discord_sync_title;
+
+  /// Publishing command to Discord API
+  ///
+  /// In en, this message translates to:
+  /// **'Publishing command to Discord API'**
+  String get cmd_deploy_discord_sync_subtitle;
+
+  /// Cloud Backup
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud Backup'**
+  String get cmd_deploy_cloud_sync_title;
+
+  /// Secure synchronization with your online space
+  ///
+  /// In en, this message translates to:
+  /// **'Secure synchronization with your online space'**
+  String get cmd_deploy_cloud_sync_subtitle;
+
+  /// Hot Reload
+  ///
+  /// In en, this message translates to:
+  /// **'Hot Reload'**
+  String get cmd_deploy_hot_reload_title;
+
+  /// Instant update of your bot runner
+  ///
+  /// In en, this message translates to:
+  /// **'Instant update of your bot runner'**
+  String get cmd_deploy_hot_reload_subtitle;
+
+  /// Success message shown when command deployed successfully
+  ///
+  /// In en, this message translates to:
+  /// **'Command \"{name}\" deployed and active!'**
+  String cmd_deploy_success_toast(String name);
+
+  /// Deployment successful!
+  ///
+  /// In en, this message translates to:
+  /// **'Deployment successful!'**
+  String get cmd_deploy_success_title;
+
+  /// Deployment failed
+  ///
+  /// In en, this message translates to:
+  /// **'Deployment failed'**
+  String get cmd_deploy_failed_title;
+
+  /// Deployment in progress...
+  ///
+  /// In en, this message translates to:
+  /// **'Deployment in progress...'**
+  String get cmd_deploy_in_progress_title;
+
+  /// Subtitle showing command name under configuration
+  ///
+  /// In en, this message translates to:
+  /// **'Configuration of /{name}'**
+  String cmd_deploy_config_subtitle(String name);
+
+  /// Close
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get cmd_deploy_close_button;
+
+  /// Retry
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get cmd_deploy_retry_button;
 }
 
 class _AppLocalizationsDelegate

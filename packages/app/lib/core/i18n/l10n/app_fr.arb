@@ -291,9 +291,9 @@
   "@action_hint_duration": {
     "description": "e.g., 5m, 1h, 30s"
   },
-  "action_hint_emoji": "Entrez un emoji ou :nom:",
+  "action_hint_emoji": "Émoji (ex. 🪜) ou <:nom:id>",
   "@action_hint_emoji": {
-    "description": "Enter emoji or :name:"
+    "description": "Emoji (e.g. 🪜) or <:name:id>"
   },
   "action_hint_enter_type": "Saisir {type}",
   "@action_hint_enter_type": {
@@ -8956,5 +8956,38 @@
   "settings_personal_owner_fallback": "Utilisateur personnel",
   "settings_personal_owner_id_label": "ID Propriétaire : ",
   "settings_raw_json_tile": "Voir le JSON Brut (RAW JSON)",
-  "settings_member_badge": "MEMBRE"
+  "settings_member_badge": "MEMBRE",
+  "cmd_deploy_local_save_title": "Sauvegarde locale",
+  "cmd_deploy_local_save_subtitle": "Enregistrement de la commande sur l'appareil",
+  "cmd_deploy_reload_bot_title": "Rechargement du Bot",
+  "cmd_deploy_reload_bot_subtitle": "Application à chaud de la configuration",
+  "cmd_deploy_discord_sync_title": "Synchronisation Discord",
+  "cmd_deploy_discord_sync_subtitle": "Publication de la commande sur l'API Discord",
+  "cmd_deploy_cloud_sync_title": "Sauvegarde Cloud",
+  "cmd_deploy_cloud_sync_subtitle": "Synchronisation sécurisée dans votre espace en ligne",
+  "cmd_deploy_hot_reload_title": "Rechargement à chaud",
+  "cmd_deploy_hot_reload_subtitle": "Mise à jour instantanée du runner de votre bot",
+  "cmd_deploy_success_toast": "Commande \"{name}\" déployée et active !",
+  "@cmd_deploy_success_toast": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    },
+    "description": "Success message shown when command deployed successfully"
+  },
+  "cmd_deploy_success_title": "Déploiement réussi !",
+  "cmd_deploy_failed_title": "Échec du déploiement",
+  "cmd_deploy_in_progress_title": "Déploiement en cours...",
+  "cmd_deploy_config_subtitle": "Configuration de /{name}",
+  "@cmd_deploy_config_subtitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    },
+    "description": "Subtitle showing command name under configuration"
+  },
+  "cmd_deploy_close_button": "Fermer",
+  "cmd_deploy_retry_button": "Réessayer"
 }

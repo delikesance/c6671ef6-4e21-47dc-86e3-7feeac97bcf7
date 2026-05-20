@@ -229,7 +229,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get action_hint_duration => 'z. B. 5m, 1h, 30s';
 
   @override
-  String get action_hint_emoji => 'Emoji oder :name: eingeben';
+  String get action_hint_emoji => 'Emoji (z. B. 🪜) oder <:name:id>';
 
   @override
   String action_hint_enter_type(String type) {
@@ -7122,4 +7122,63 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settings_member_badge => 'MITGLIED';
+
+  @override
+  String get cmd_deploy_local_save_title => 'Lokale Speicherung';
+
+  @override
+  String get cmd_deploy_local_save_subtitle => 'Befehl auf dem Gerät speichern';
+
+  @override
+  String get cmd_deploy_reload_bot_title => 'Bot neu laden';
+
+  @override
+  String get cmd_deploy_reload_bot_subtitle =>
+      'Hot-Reload-Konfiguration anwenden';
+
+  @override
+  String get cmd_deploy_discord_sync_title => 'Discord-Synchronisation';
+
+  @override
+  String get cmd_deploy_discord_sync_subtitle =>
+      'Befehl in der Discord-API veröffentlichen';
+
+  @override
+  String get cmd_deploy_cloud_sync_title => 'Cloud-Backup';
+
+  @override
+  String get cmd_deploy_cloud_sync_subtitle =>
+      'Sichere Synchronisierung mit Ihrem Online-Speicher';
+
+  @override
+  String get cmd_deploy_hot_reload_title => 'Hot Reload';
+
+  @override
+  String get cmd_deploy_hot_reload_subtitle =>
+      'Sofortige Aktualisierung Ihres Bot-Runners';
+
+  @override
+  String cmd_deploy_success_toast(String name) {
+    return 'Befehl \"$name\" bereitgestellt und aktiv!';
+  }
+
+  @override
+  String get cmd_deploy_success_title => 'Bereitstellung erfolgreich!';
+
+  @override
+  String get cmd_deploy_failed_title => 'Bereitstellung fehlgeschlagen';
+
+  @override
+  String get cmd_deploy_in_progress_title => 'Bereitstellung läuft...';
+
+  @override
+  String cmd_deploy_config_subtitle(String name) {
+    return 'Konfiguration von /$name';
+  }
+
+  @override
+  String get cmd_deploy_close_button => 'Schließen';
+
+  @override
+  String get cmd_deploy_retry_button => 'Wiederholen';
 }

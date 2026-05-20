@@ -291,9 +291,9 @@
   "@action_hint_duration": {
     "description": "e.g., 5m, 1h, 30s"
   },
-  "action_hint_emoji": "Emoji oder :name: eingeben",
+  "action_hint_emoji": "Emoji (z. B. 🪜) oder <:name:id>",
   "@action_hint_emoji": {
-    "description": "Enter emoji or :name:"
+    "description": "Emoji (e.g. 🪜) or <:name:id>"
   },
   "action_hint_enter_type": "{type} eingeben",
   "@action_hint_enter_type": {
@@ -8956,5 +8956,38 @@
   "settings_personal_owner_fallback": "Persönlicher Benutzer",
   "settings_personal_owner_id_label": "Besitzer-ID: ",
   "settings_raw_json_tile": "Rohes JSON anzeigen (RAW JSON)",
-  "settings_member_badge": "MITGLIED"
+  "settings_member_badge": "MITGLIED",
+  "cmd_deploy_local_save_title": "Lokale Speicherung",
+  "cmd_deploy_local_save_subtitle": "Befehl auf dem Gerät speichern",
+  "cmd_deploy_reload_bot_title": "Bot neu laden",
+  "cmd_deploy_reload_bot_subtitle": "Hot-Reload-Konfiguration anwenden",
+  "cmd_deploy_discord_sync_title": "Discord-Synchronisation",
+  "cmd_deploy_discord_sync_subtitle": "Befehl in der Discord-API veröffentlichen",
+  "cmd_deploy_cloud_sync_title": "Cloud-Backup",
+  "cmd_deploy_cloud_sync_subtitle": "Sichere Synchronisierung mit Ihrem Online-Speicher",
+  "cmd_deploy_hot_reload_title": "Hot Reload",
+  "cmd_deploy_hot_reload_subtitle": "Sofortige Aktualisierung Ihres Bot-Runners",
+  "cmd_deploy_success_toast": "Befehl \"{name}\" bereitgestellt und aktiv!",
+  "@cmd_deploy_success_toast": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    },
+    "description": "Success message shown when command deployed successfully"
+  },
+  "cmd_deploy_success_title": "Bereitstellung erfolgreich!",
+  "cmd_deploy_failed_title": "Bereitstellung fehlgeschlagen",
+  "cmd_deploy_in_progress_title": "Bereitstellung läuft...",
+  "cmd_deploy_config_subtitle": "Konfiguration von /{name}",
+  "@cmd_deploy_config_subtitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    },
+    "description": "Subtitle showing command name under configuration"
+  },
+  "cmd_deploy_close_button": "Schließen",
+  "cmd_deploy_retry_button": "Wiederholen"
 }

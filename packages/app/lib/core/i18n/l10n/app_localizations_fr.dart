@@ -237,7 +237,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get action_hint_duration => 'ex. 5m, 1h, 30s';
 
   @override
-  String get action_hint_emoji => 'Entrez un emoji ou :nom:';
+  String get action_hint_emoji => 'Émoji (ex. 🪜) ou <:nom:id>';
 
   @override
   String action_hint_enter_type(String type) {
@@ -7140,4 +7140,64 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settings_member_badge => 'MEMBRE';
+
+  @override
+  String get cmd_deploy_local_save_title => 'Sauvegarde locale';
+
+  @override
+  String get cmd_deploy_local_save_subtitle =>
+      'Enregistrement de la commande sur l\'appareil';
+
+  @override
+  String get cmd_deploy_reload_bot_title => 'Rechargement du Bot';
+
+  @override
+  String get cmd_deploy_reload_bot_subtitle =>
+      'Application à chaud de la configuration';
+
+  @override
+  String get cmd_deploy_discord_sync_title => 'Synchronisation Discord';
+
+  @override
+  String get cmd_deploy_discord_sync_subtitle =>
+      'Publication de la commande sur l\'API Discord';
+
+  @override
+  String get cmd_deploy_cloud_sync_title => 'Sauvegarde Cloud';
+
+  @override
+  String get cmd_deploy_cloud_sync_subtitle =>
+      'Synchronisation sécurisée dans votre espace en ligne';
+
+  @override
+  String get cmd_deploy_hot_reload_title => 'Rechargement à chaud';
+
+  @override
+  String get cmd_deploy_hot_reload_subtitle =>
+      'Mise à jour instantanée du runner de votre bot';
+
+  @override
+  String cmd_deploy_success_toast(String name) {
+    return 'Commande \"$name\" déployée et active !';
+  }
+
+  @override
+  String get cmd_deploy_success_title => 'Déploiement réussi !';
+
+  @override
+  String get cmd_deploy_failed_title => 'Échec du déploiement';
+
+  @override
+  String get cmd_deploy_in_progress_title => 'Déploiement en cours...';
+
+  @override
+  String cmd_deploy_config_subtitle(String name) {
+    return 'Configuration de /$name';
+  }
+
+  @override
+  String get cmd_deploy_close_button => 'Fermer';
+
+  @override
+  String get cmd_deploy_retry_button => 'Réessayer';
 }

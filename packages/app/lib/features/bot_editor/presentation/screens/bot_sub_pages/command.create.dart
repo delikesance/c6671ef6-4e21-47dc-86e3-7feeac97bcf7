@@ -2491,7 +2491,7 @@ class _DeploymentProgressOverlayState
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Commande "${widget.commandName}" déployée et active !',
+                    context.tr.cmd_deploy_success_toast(widget.commandName),
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                 ),
@@ -2570,6 +2570,40 @@ class _DeploymentProgressOverlayState
           ),
           child: const Icon(Icons.close, color: Colors.white, size: 16),
         );
+    }
+  }
+
+  String _getStepTitle(BuildContext context, String id) {
+    switch (id) {
+      case 'local_save':
+        return context.tr.cmd_deploy_local_save_title;
+      case 'reload_runtime':
+        return widget.isLocalOnly || widget.client == null
+            ? context.tr.cmd_deploy_reload_bot_title
+            : context.tr.cmd_deploy_hot_reload_title;
+      case 'discord_sync':
+        return context.tr.cmd_deploy_discord_sync_title;
+      case 'cloud_sync':
+        return context.tr.cmd_deploy_cloud_sync_title;
+      default:
+        return '';
+    }
+  }
+
+  String _getStepSubtitle(BuildContext context, String id) {
+    switch (id) {
+      case 'local_save':
+        return context.tr.cmd_deploy_local_save_subtitle;
+      case 'reload_runtime':
+        return widget.isLocalOnly || widget.client == null
+            ? context.tr.cmd_deploy_reload_bot_subtitle
+            : context.tr.cmd_deploy_hot_reload_subtitle;
+      case 'discord_sync':
+        return context.tr.cmd_deploy_discord_sync_subtitle;
+      case 'cloud_sync':
+        return context.tr.cmd_deploy_cloud_sync_subtitle;
+      default:
+        return '';
     }
   }
 
@@ -2677,211 +2711,211 @@ class _DeploymentProgressOverlayState
                           Stack(
                             alignment: Alignment.center,
                             children: [
-                              const SizedBox(
-                                width: 72,
-                                height: 72,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 3.5,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    AppTheme.brandSecondary,
+                                const SizedBox(
+                                  width: 72,
+                                  height: 72,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 3.5,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      AppTheme.brandSecondary,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              TweenAnimationBuilder<double>(
-                                duration: const Duration(seconds: 2),
-                                tween: Tween(begin: 0.0, end: 1.0),
-                                builder: (context, val, child) {
-                                  return Opacity(
-                                    opacity: 0.7 + 0.3 * (val - 0.5).abs() * 2,
-                                    child: child,
-                                  );
-                                },
-                                child: const Icon(
-                                  Icons.sync,
-                                  size: 32,
-                                  color: AppTheme.brandSecondary,
-                                ),
-                              ),
-                            ],
-                          ),
-                        const SizedBox(height: 24),
-                        // Title
-                        Text(
-                          _isSuccess
-                              ? 'Déploiement réussi !'
-                              : (_hasError
-                                  ? 'Échec du déploiement'
-                                  : 'Déploiement en cours...'),
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color:
-                                Theme.of(context).textTheme.titleLarge?.color,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 6),
-                        // Subtitle
-                        Text(
-                          'Configuration de /${widget.commandName}',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Theme.of(context).textTheme.bodyMedium?.color
-                                ?.withValues(alpha: 0.7),
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 28),
-                        // Steps List
-                        Column(
-                          children:
-                              _steps.map((step) {
-                                return Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 10.0,
-                                  ),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                          top: 2.0,
-                                        ),
-                                        child: _buildStepIcon(step.state),
-                                      ),
-                                      const SizedBox(width: 16),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              step.title,
-                                              style: TextStyle(
-                                                fontWeight:
-                                                    step.state ==
-                                                            SyncStepState.active
-                                                        ? FontWeight.bold
-                                                        : FontWeight.w600,
-                                                color:
-                                                    step.state ==
-                                                            SyncStepState
-                                                                .pending
-                                                        ? Theme.of(
-                                                          context,
-                                                        ).disabledColor
-                                                        : Theme.of(context)
-                                                            .textTheme
-                                                            .bodyLarge
-                                                            ?.color,
-                                                fontSize: 14.5,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 2),
-                                            Text(
-                                              step.subtitle,
-                                              style: TextStyle(
-                                                fontSize: 12.0,
-                                                color:
-                                                    step.state ==
-                                                            SyncStepState
-                                                                .pending
-                                                        ? Theme.of(context)
-                                                            .disabledColor
-                                                            .withValues(
-                                                              alpha: 0.6,
-                                                            )
-                                                        : Theme.of(context)
-                                                            .textTheme
-                                                            .bodyMedium
-                                                            ?.color
-                                                            ?.withValues(
-                                                              alpha: 0.65,
-                                                            ),
-                                              ),
-                                            ),
-                                            if (step.state ==
-                                                    SyncStepState.error &&
-                                                step.error != null) ...[
-                                              const SizedBox(height: 8),
-                                              Container(
-                                                width: double.infinity,
-                                                padding: const EdgeInsets.all(
-                                                  10,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  color: AppTheme.error
-                                                      .withValues(alpha: 0.08),
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
-                                                  border: Border.all(
-                                                    color: AppTheme.error
-                                                        .withValues(
-                                                          alpha: 0.15,
-                                                        ),
-                                                  ),
-                                                ),
-                                                child: Text(
-                                                  step.error!,
-                                                  style: const TextStyle(
-                                                    color: AppTheme.error,
-                                                    fontSize: 11,
-                                                    fontFamily: 'monospace',
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              }).toList(),
-                        ),
-                        // Error buttons
-                        if (_hasError) ...[
-                          const SizedBox(height: 28),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: OutlinedButton(
-                                  onPressed: () {
-                                    Navigator.of(
-                                      context,
-                                    ).pop(); // Close overlay only
+                                TweenAnimationBuilder<double>(
+                                  duration: const Duration(seconds: 2),
+                                  tween: Tween(begin: 0.0, end: 1.0),
+                                  builder: (context, val, child) {
+                                    return Opacity(
+                                      opacity: 0.7 + 0.3 * (val - 0.5).abs() * 2,
+                                      child: child,
+                                    );
                                   },
-                                  style: OutlinedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 14,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
+                                  child: const Icon(
+                                    Icons.sync,
+                                    size: 32,
+                                    color: AppTheme.brandSecondary,
                                   ),
-                                  child: const Text('Fermer'),
                                 ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: FilledButton(
-                                  onPressed: _startDeployment,
-                                  style: FilledButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 14,
-                                    ),
-                                    backgroundColor: AppTheme.brandPrimary,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                  child: const Text('Réessayer'),
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
+                          const SizedBox(height: 24),
+                          // Title
+                          Text(
+                            _isSuccess
+                                ? context.tr.cmd_deploy_success_title
+                                : (_hasError
+                                    ? context.tr.cmd_deploy_failed_title
+                                    : context.tr.cmd_deploy_in_progress_title),
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color:
+                                  Theme.of(context).textTheme.titleLarge?.color,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
-                        ],
+                          const SizedBox(height: 6),
+                          // Subtitle
+                          Text(
+                            context.tr.cmd_deploy_config_subtitle(widget.commandName),
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Theme.of(context).textTheme.bodyMedium?.color
+                                  ?.withValues(alpha: 0.7),
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 28),
+                          // Steps List
+                          Column(
+                            children:
+                                _steps.map((step) {
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 10.0,
+                                    ),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            top: 2.0,
+                                          ),
+                                          child: _buildStepIcon(step.state),
+                                        ),
+                                        const SizedBox(width: 16),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                _getStepTitle(context, step.id),
+                                                style: TextStyle(
+                                                  fontWeight:
+                                                      step.state ==
+                                                              SyncStepState.active
+                                                          ? FontWeight.bold
+                                                          : FontWeight.w600,
+                                                  color:
+                                                      step.state ==
+                                                              SyncStepState
+                                                                  .pending
+                                                          ? Theme.of(
+                                                            context,
+                                                          ).disabledColor
+                                                          : Theme.of(context)
+                                                              .textTheme
+                                                              .bodyLarge
+                                                              ?.color,
+                                                  fontSize: 14.5,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 2),
+                                              Text(
+                                                _getStepSubtitle(context, step.id),
+                                                style: TextStyle(
+                                                  fontSize: 12.0,
+                                                  color:
+                                                      step.state ==
+                                                              SyncStepState
+                                                                  .pending
+                                                          ? Theme.of(context)
+                                                              .disabledColor
+                                                              .withValues(
+                                                                alpha: 0.6,
+                                                              )
+                                                          : Theme.of(context)
+                                                              .textTheme
+                                                              .bodyMedium
+                                                              ?.color
+                                                              ?.withValues(
+                                                                alpha: 0.65,
+                                                              ),
+                                                ),
+                                              ),
+                                              if (step.state ==
+                                                      SyncStepState.error &&
+                                                  step.error != null) ...[
+                                                const SizedBox(height: 8),
+                                                Container(
+                                                  width: double.infinity,
+                                                  padding: const EdgeInsets.all(
+                                                    10,
+                                                  ),
+                                                  decoration: BoxDecoration(
+                                                    color: AppTheme.error
+                                                        .withValues(alpha: 0.08),
+                                                    borderRadius:
+                                                        BorderRadius.circular(8),
+                                                    border: Border.all(
+                                                      color: AppTheme.error
+                                                          .withValues(
+                                                            alpha: 0.15,
+                                                          ),
+                                                    ),
+                                                  ),
+                                                  child: Text(
+                                                    step.error!,
+                                                    style: const TextStyle(
+                                                      color: AppTheme.error,
+                                                      fontSize: 11,
+                                                      fontFamily: 'monospace',
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }).toList(),
+                          ),
+                          // Error buttons
+                          if (_hasError) ...[
+                            const SizedBox(height: 28),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: OutlinedButton(
+                                    onPressed: () {
+                                      Navigator.of(
+                                        context,
+                                      ).pop(); // Close overlay only
+                                    },
+                                    style: OutlinedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 14,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                    child: Text(context.tr.cmd_deploy_close_button),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: FilledButton(
+                                    onPressed: _startDeployment,
+                                    style: FilledButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 14,
+                                      ),
+                                      backgroundColor: AppTheme.brandPrimary,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                    child: Text(context.tr.cmd_deploy_retry_button),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                       ],
                     ),
                   ),

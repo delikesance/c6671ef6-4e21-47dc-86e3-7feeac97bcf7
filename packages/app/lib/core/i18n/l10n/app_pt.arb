@@ -291,9 +291,9 @@
   "@action_hint_duration": {
     "description": "e.g., 5m, 1h, 30s"
   },
-  "action_hint_emoji": "Digite o emoji ou :nome:",
+  "action_hint_emoji": "Emoji (ex. 🪜) ou <:nome:id>",
   "@action_hint_emoji": {
-    "description": "Enter emoji or :name:"
+    "description": "Emoji (e.g. 🪜) or <:name:id>"
   },
   "action_hint_enter_type": "Digite {type}",
   "@action_hint_enter_type": {
@@ -8956,5 +8956,38 @@
   "settings_personal_owner_fallback": "Usuário Pessoal",
   "settings_personal_owner_id_label": "ID do Proprietário: ",
   "settings_raw_json_tile": "Ver JSON bruto (RAW JSON)",
-  "settings_member_badge": "MEMBRO"
+  "settings_member_badge": "MEMBRO",
+  "cmd_deploy_local_save_title": "Salvamento Local",
+  "cmd_deploy_local_save_subtitle": "Salvando comando no dispositivo",
+  "cmd_deploy_reload_bot_title": "Recarregando Bot",
+  "cmd_deploy_reload_bot_subtitle": "Aplicando configuração de hot-reload",
+  "cmd_deploy_discord_sync_title": "Sincronização com Discord",
+  "cmd_deploy_discord_sync_subtitle": "Publicando comando na API do Discord",
+  "cmd_deploy_cloud_sync_title": "Backup na Nuvem",
+  "cmd_deploy_cloud_sync_subtitle": "Sincronização segura com o seu espaço online",
+  "cmd_deploy_hot_reload_title": "Recarregamento Rápido",
+  "cmd_deploy_hot_reload_subtitle": "Atualização instantânea do runner do seu bot",
+  "cmd_deploy_success_toast": "Comando \"{name}\" implantado e ativo!",
+  "@cmd_deploy_success_toast": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    },
+    "description": "Success message shown when command deployed successfully"
+  },
+  "cmd_deploy_success_title": "Implantação bem-sucedida!",
+  "cmd_deploy_failed_title": "Falha na implantação",
+  "cmd_deploy_in_progress_title": "Implantação em andamento...",
+  "cmd_deploy_config_subtitle": "Configuração de /{name}",
+  "@cmd_deploy_config_subtitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    },
+    "description": "Subtitle showing command name under configuration"
+  },
+  "cmd_deploy_close_button": "Fechar",
+  "cmd_deploy_retry_button": "Tentar Novamente"
 }

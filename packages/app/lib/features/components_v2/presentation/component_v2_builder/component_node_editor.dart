@@ -537,6 +537,7 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                 }),
             child: VariableTextField(
               label: context.tr.emojis_tab_short,
+              hint: context.tr.action_hint_emoji,
               initialValue: btn.emoji,
               suggestions: variableSuggestions,
               onChanged: (v) {
@@ -846,7 +847,7 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                               decoration: InputDecoration(
                                 labelText: context.tr.emojis_tab_short,
                                 isDense: true,
-                                hintText: 'Emoji ID or :name:',
+                                hintText: context.tr.action_hint_emoji,
                               ),
                               onChanged: (v) {
                                 // Simplified: if it looks like JSON, we could parse it,
