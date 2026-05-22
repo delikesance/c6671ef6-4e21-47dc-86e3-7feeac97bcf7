@@ -89,6 +89,25 @@ class ActionItem {
             : (fallbackId ?? json['id'] ?? '');
 
     final rawId = (json['id'] ?? '').toString().trim();
+    final id = rawId.isNotEmpty ? rawId : (fallbackId ?? '');
+    String runtimeId = (json['runtimeId'] ?? '').toString().trim();
+
+    if (runtimeId.isEmpty) {
+      if (id.isNotEmpty) {
+        runtimeId = id;
+      } else {
+        runtimeId = 'action_${DateTime.now().microsecondsSinceEpoch}_${_globalCounter++}';
+      }
+      try {
+        json['runtimeId'] = runtimeId;
+      } catch (_) {}
+    }
+
+    if (json['id'] == null || json['id'].toString().trim().isEmpty) {
+      try {
+        json['id'] = id;
+      } catch (_) {}
+    }
 
     BotCreatorActionType mappedType = BotCreatorActionType.values.firstWhere(
       (e) => e.name == json['type'],
@@ -99,7 +118,7 @@ class ActionItem {
     }
 
     return ActionItem(
-      id: rawId.isNotEmpty ? rawId : (fallbackId ?? ''),
+      id: id,
       type: mappedType,
       enabled: json['enabled'] as bool? ?? true,
       onErrorMode:
@@ -111,6 +130,7 @@ class ActionItem {
               .toString(),
       parameters: parameters,
       actionKey: actionKey,
+      runtimeId: runtimeId,
     );
   }
 
@@ -126,6 +146,7 @@ class ActionItem {
       'depend_on': <String>[],
       'error': {'mode': onErrorMode},
       'payload': purgedPayload,
+      'runtimeId': runtimeId,
     };
   }
 }
