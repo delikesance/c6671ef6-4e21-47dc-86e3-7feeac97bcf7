@@ -94,7 +94,7 @@ Si l'événement fournit un ID de serveur (`guildId`), de salon (`channelId`) ou
 - `((member.id))` : ID du membre concerné.
 - `((member.nick))` : Surnom sur le serveur.
 - `((member.displayName))` : Surnom si défini, sinon nom d'affichage global ou username.
-- `((member.avatar))` : URL de l'avatar personnalisé sur le serveur (si défini).
+- `((member.avatar))` : URL de l'avatar du membre sur ce serveur. Si aucun avatar personnalisé n'est configuré pour le serveur, la variable bascule automatiquement (fallback) sur son avatar global (`((user.avatar))`), puis sur l'avatar par défaut de Discord.
 - `((member.joinedAt))` : Date et heure d'arrivée sur le serveur (ISO8601).
 - `((member.roles))` : IDs de rôles possédés (séparés par des virgules).
 - `((member.isBooster))` : `true` si le membre booste le serveur, sinon `false`.
