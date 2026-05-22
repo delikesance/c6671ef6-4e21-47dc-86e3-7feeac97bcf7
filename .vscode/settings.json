@@ -3,5 +3,6 @@
         "flutter": true
     },
     "C_Cpp.default.compileCommands": "${workspaceFolder}/packages/app/build/linux/x64/debug/compile_commands.json",
-    "cmake.ignoreCMakeListsMissing": true
+    "cmake.ignoreCMakeListsMissing": true,
+    "java.configuration.updateBuildConfiguration": "interactive"
 }
