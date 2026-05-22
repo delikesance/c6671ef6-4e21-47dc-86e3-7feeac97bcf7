@@ -348,7 +348,8 @@ class _AppHomePageState extends State<AppHomePage>
                           ],
                         ),
                       ),
-                      if (_supportsForegroundTask) ...[
+                      if (_supportsForegroundTask &&
+                          !SubscriptionService.isSubscribed) ...[
                         const SizedBox(height: AppTheme.spacingMd),
                         Container(
                           width: double.infinity,

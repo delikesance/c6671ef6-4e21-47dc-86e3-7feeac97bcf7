@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:nyxx/nyxx.dart';
 
 import 'package:bot_creator/core/models/types/app_emoji.dart';
-import 'package:bot_creator/features/bot_editor/logic/simple_mode.dart';
 import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 
 /// Immutable state for the command editor.
@@ -38,7 +37,7 @@ class CommandEditorState {
     this.integrationTypes = const [ApplicationIntegrationType.guildInstall],
     this.contexts = const [InteractionContextType.guild],
     this.defaultMemberPermissions = '',
-    this.editorMode = 'simple',
+    this.editorMode = 'advanced',
     this.executionMode = 'workflow',
     this.bdfdScriptContent = '',
     this.bdfdCompileResult,
@@ -47,31 +46,6 @@ class CommandEditorState {
     this.folder = '',
     this.legacyPrefixOverride = '',
     this.legacyResponseTarget = 'reply',
-    this.simpleDeleteMessages = false,
-    this.simpleKickUser = false,
-    this.simpleBanUser = false,
-    this.simpleUnbanUser = false,
-    this.simpleMuteUser = false,
-    this.simpleUnmuteUser = false,
-    this.simpleAddRole = false,
-    this.simpleRemoveRole = false,
-    this.simpleSendMessage = false,
-    this.simplePinMessage = false,
-    this.simpleUnpinMessage = false,
-    this.simpleCreateInvite = false,
-    this.simpleCreatePoll = false,
-    this.simpleSendMessageText = '',
-    this.simpleActionReason = '',
-    this.simpleMuteDuration = '10m',
-    this.simpleBanDeleteDays = '0',
-    this.simpleDeleteMessagesDefaultCount = '1',
-    this.simpleInviteMaxAge = '86400',
-    this.simpleInviteMaxUses = '0',
-    this.simpleInviteTemporary = false,
-    this.simpleInviteUnique = false,
-    this.simplePollAnswersText = 'Yes\nNo',
-    this.simplePollDurationHours = '24',
-    this.simplePollAllowMultiselect = false,
     this.subcommandWorkflows = const {},
     this.activeSubcommandRoute = '__root__',
     this.isApplyingWorkflowPayload = false,
@@ -121,33 +95,6 @@ class CommandEditorState {
   final String legacyPrefixOverride;
   final String legacyResponseTarget;
 
-  // ── Simple mode toggles ──
-  final bool simpleDeleteMessages;
-  final bool simpleKickUser;
-  final bool simpleBanUser;
-  final bool simpleUnbanUser;
-  final bool simpleMuteUser;
-  final bool simpleUnmuteUser;
-  final bool simpleAddRole;
-  final bool simpleRemoveRole;
-  final bool simpleSendMessage;
-  final bool simplePinMessage;
-  final bool simpleUnpinMessage;
-  final bool simpleCreateInvite;
-  final bool simpleCreatePoll;
-  final String simpleSendMessageText;
-  final String simpleActionReason;
-  final String simpleMuteDuration;
-  final String simpleBanDeleteDays;
-  final String simpleDeleteMessagesDefaultCount;
-  final String simpleInviteMaxAge;
-  final String simpleInviteMaxUses;
-  final bool simpleInviteTemporary;
-  final bool simpleInviteUnique;
-  final String simplePollAnswersText;
-  final String simplePollDurationHours;
-  final bool simplePollAllowMultiselect;
-
   // ── Subcommand workflows ──
   final Map<String, Map<String, dynamic>> subcommandWorkflows;
   final String activeSubcommandRoute;
@@ -160,7 +107,7 @@ class CommandEditorState {
 
   // ── Derived getters ──
 
-  bool get isSimpleMode => editorMode == 'simple';
+  bool get isSimpleMode => false;
   bool get isBdfdScriptMode => executionMode == 'bdfd_script';
 
   List<BdfdCompileDiagnostic> get bdfdDiagnostics =>
@@ -176,8 +123,7 @@ class CommandEditorState {
   bool get supportsCommandOptions =>
       commandType == ApplicationCommandType.chatInput;
 
-  bool get supportsSimpleMode =>
-      commandType == ApplicationCommandType.chatInput;
+  bool get supportsSimpleMode => false;
 
   bool get allowModalResponses => !legacyModeEnabled;
 
@@ -202,34 +148,6 @@ class CommandEditorState {
     if (!showEditShell || initialEditSnapshot.isEmpty) return false;
     return true; // Computed externally via _buildEditSnapshot
   }
-
-  SimpleModeConfig get simpleModeConfig => SimpleModeConfig(
-    deleteMessages: simpleDeleteMessages,
-    kickUser: simpleKickUser,
-    banUser: simpleBanUser,
-    unbanUser: simpleUnbanUser,
-    muteUser: simpleMuteUser,
-    unmuteUser: simpleUnmuteUser,
-    addRole: simpleAddRole,
-    removeRole: simpleRemoveRole,
-    sendMessage: simpleSendMessage,
-    pinMessage: simplePinMessage,
-    unpinMessage: simpleUnpinMessage,
-    createInvite: simpleCreateInvite,
-    createPoll: simpleCreatePoll,
-    sendMessageText: simpleSendMessageText,
-    actionReason: simpleActionReason,
-    muteDuration: simpleMuteDuration,
-    banDeleteMessageDays: simpleBanDeleteDays,
-    deleteMessagesDefaultCount: simpleDeleteMessagesDefaultCount,
-    inviteMaxAge: simpleInviteMaxAge,
-    inviteMaxUses: simpleInviteMaxUses,
-    inviteTemporary: simpleInviteTemporary,
-    inviteUnique: simpleInviteUnique,
-    pollAnswersText: simplePollAnswersText,
-    pollDurationHours: simplePollDurationHours,
-    pollAllowMultiselect: simplePollAllowMultiselect,
-  );
 
   CommandEditorState copyWith({
     String? commandName,
@@ -261,31 +179,6 @@ class CommandEditorState {
     String? folder,
     String? legacyPrefixOverride,
     String? legacyResponseTarget,
-    bool? simpleDeleteMessages,
-    bool? simpleKickUser,
-    bool? simpleBanUser,
-    bool? simpleUnbanUser,
-    bool? simpleMuteUser,
-    bool? simpleUnmuteUser,
-    bool? simpleAddRole,
-    bool? simpleRemoveRole,
-    bool? simpleSendMessage,
-    bool? simplePinMessage,
-    bool? simpleUnpinMessage,
-    bool? simpleCreateInvite,
-    bool? simpleCreatePoll,
-    String? simpleSendMessageText,
-    String? simpleActionReason,
-    String? simpleMuteDuration,
-    String? simpleBanDeleteDays,
-    String? simpleDeleteMessagesDefaultCount,
-    String? simpleInviteMaxAge,
-    String? simpleInviteMaxUses,
-    bool? simpleInviteTemporary,
-    bool? simpleInviteUnique,
-    String? simplePollAnswersText,
-    String? simplePollDurationHours,
-    bool? simplePollAllowMultiselect,
     Map<String, Map<String, dynamic>>? subcommandWorkflows,
     String? activeSubcommandRoute,
     bool? isApplyingWorkflowPayload,
@@ -326,38 +219,6 @@ class CommandEditorState {
       folder: folder ?? this.folder,
       legacyPrefixOverride: legacyPrefixOverride ?? this.legacyPrefixOverride,
       legacyResponseTarget: legacyResponseTarget ?? this.legacyResponseTarget,
-      simpleDeleteMessages: simpleDeleteMessages ?? this.simpleDeleteMessages,
-      simpleKickUser: simpleKickUser ?? this.simpleKickUser,
-      simpleBanUser: simpleBanUser ?? this.simpleBanUser,
-      simpleUnbanUser: simpleUnbanUser ?? this.simpleUnbanUser,
-      simpleMuteUser: simpleMuteUser ?? this.simpleMuteUser,
-      simpleUnmuteUser: simpleUnmuteUser ?? this.simpleUnmuteUser,
-      simpleAddRole: simpleAddRole ?? this.simpleAddRole,
-      simpleRemoveRole: simpleRemoveRole ?? this.simpleRemoveRole,
-      simpleSendMessage: simpleSendMessage ?? this.simpleSendMessage,
-      simplePinMessage: simplePinMessage ?? this.simplePinMessage,
-      simpleUnpinMessage: simpleUnpinMessage ?? this.simpleUnpinMessage,
-      simpleCreateInvite: simpleCreateInvite ?? this.simpleCreateInvite,
-      simpleCreatePoll: simpleCreatePoll ?? this.simpleCreatePoll,
-      simpleSendMessageText:
-          simpleSendMessageText ?? this.simpleSendMessageText,
-      simpleActionReason: simpleActionReason ?? this.simpleActionReason,
-      simpleMuteDuration: simpleMuteDuration ?? this.simpleMuteDuration,
-      simpleBanDeleteDays: simpleBanDeleteDays ?? this.simpleBanDeleteDays,
-      simpleDeleteMessagesDefaultCount:
-          simpleDeleteMessagesDefaultCount ??
-          this.simpleDeleteMessagesDefaultCount,
-      simpleInviteMaxAge: simpleInviteMaxAge ?? this.simpleInviteMaxAge,
-      simpleInviteMaxUses: simpleInviteMaxUses ?? this.simpleInviteMaxUses,
-      simpleInviteTemporary:
-          simpleInviteTemporary ?? this.simpleInviteTemporary,
-      simpleInviteUnique: simpleInviteUnique ?? this.simpleInviteUnique,
-      simplePollAnswersText:
-          simplePollAnswersText ?? this.simplePollAnswersText,
-      simplePollDurationHours:
-          simplePollDurationHours ?? this.simplePollDurationHours,
-      simplePollAllowMultiselect:
-          simplePollAllowMultiselect ?? this.simplePollAllowMultiselect,
       subcommandWorkflows: subcommandWorkflows ?? this.subcommandWorkflows,
       activeSubcommandRoute:
           activeSubcommandRoute ?? this.activeSubcommandRoute,

@@ -52,7 +52,7 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
       'legacyLocalOnly': _localOnlyCommand,
       'legacyPrefixOverride': _legacyPrefixOverride.trim(),
       'legacyResponseTarget': _legacyResponseTarget,
-      'simpleConfig': _currentSimpleConfig(),
+      'simpleConfig': const <String, dynamic>{},
       'defaultMemberPermissions': _defaultMemberPermissions.trim(),
       if (_supportsCommandOptions && _effectiveOptions.isNotEmpty)
         'options': _serializeOptions(_effectiveOptions),
@@ -495,14 +495,7 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
               ? 'channelSend'
               : 'reply';
 
-      final simpleConfig = _normalizeSimpleConfig(
-        Map<String, dynamic>.from(
-          (normalizedPayload['simpleConfig'] as Map?)
-                  ?.cast<String, dynamic>() ??
-              const {},
-        ),
-      );
-      _applySimpleConfig(simpleConfig);
+
 
       _defaultMemberPermissions =
           (normalizedPayload['defaultMemberPermissions'] ?? '')

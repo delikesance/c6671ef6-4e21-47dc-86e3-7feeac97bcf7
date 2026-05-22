@@ -530,6 +530,7 @@ class HomePageState extends State<HomePage>
             token = (existing['token'] ?? '').toString();
           }
 
+          int? fetchedApproxGuildCount;
           if (token.trim().isNotEmpty) {
             try {
               final snapshotClient = await _resolveMainApiClientForBot(
@@ -556,6 +557,23 @@ class HomePageState extends State<HomePage>
                 '[syncAllBotsFromManager] Bot $botId snapshot sync failed before status refresh: $error',
               );
             }
+
+            try {
+              final ownerMetadata =
+                  await getDiscordApplicationOwnerMetadata(token);
+              if (ownerMetadata != null) {
+                final approx = ownerMetadata.rawJson['approximate_guild_count'];
+                if (approx is int) {
+                  fetchedApproxGuildCount = approx;
+                } else if (approx != null) {
+                  fetchedApproxGuildCount = int.tryParse(approx.toString());
+                }
+              }
+            } catch (error) {
+              appendBotDebugLog(
+                '[syncAllBotsFromManager] Failed to fetch Discord application owner metadata for $botId: $error',
+              );
+            }
           }
 
           await appManager.createOrUpdateApp(
@@ -567,6 +585,7 @@ class HomePageState extends State<HomePage>
             token: token,
             intents: (config['intents'] as Map?)?.cast<String, bool>(),
             prefix: config['prefix']?.toString(),
+            approximateGuildCount: fetchedApproxGuildCount,
           );
           appendBotDebugLog(
             '[syncAllBotsFromManager] Bot $botId persisted locally (name=$botName).',
@@ -1548,7 +1567,8 @@ class HomePageState extends State<HomePage>
                                   final id = app['id']?.toString() ?? '';
                                   final avatar = app['avatar']?.toString();
                                   final guildCount =
-                                      switch (app['guild_count']) {
+                                      switch (app['approximate_guild_count'] ??
+                                          app['guild_count']) {
                                         final int value => value,
                                         final String s => int.tryParse(s) ?? 0,
                                         _ => 0,
@@ -1900,7 +1920,9 @@ class _BotCard extends StatelessWidget {
                       ),
                     ),
                   ],
-                  if (freeMinutes != null && onAddTime != null) ...[
+                  if (!SubscriptionService.isSubscribed &&
+                      freeMinutes != null &&
+                      onAddTime != null) ...[
                     const SizedBox(height: 6),
                     Text(
                       context.tr.home_hosting_time_left(
