@@ -59,7 +59,7 @@ class DiscordRunner {
         previousConfig.autoSharding != newConfig.autoSharding;
 
     config = newConfig;
-    store.updateWorkflows(newConfig.workflows);
+    store.updateConfig(newConfig);
     
     await _engine.reload(botId);
     
