@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import '../tools/hardcoded_string_guard.dart';
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('flags hardcoded UI literal', () {
