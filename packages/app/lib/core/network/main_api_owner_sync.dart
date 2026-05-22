@@ -139,13 +139,42 @@ class MainApiOwnerSyncHelper {
     log(
       'resolveMainApiClientForBot($botId) called: tokenProvided=${botToken?.trim().isNotEmpty == true}, attemptSessionRestore=$attemptSessionRestore.',
     );
-    var runtime = await resolveRuntime(
-      getTimeout: const Duration(seconds: 5),
-      postTimeout: const Duration(seconds: 8),
-    );
-    log(
-      'resolveMainApiClientForBot($botId): initial runtime source=${runtime.source}, hasClient=${runtime.client != null}.',
-    );
+
+    final config = await MainApiSettingsStore.loadConfig();
+    if (!config.isConfigured) {
+      log('resolveMainApiClientForBot($botId): Manager not configured, returning null.');
+      return null;
+    }
+
+    var session = await MainApiSettingsStore.loadSession();
+    if (session != null && session.isExpired && session.refreshToken != null) {
+      try {
+        log('resolveMainApiClientForBot($botId): session expired, attempting to refresh.');
+        final client = MainApiClient(
+          baseUrl: config.baseUrl,
+          timeout: const Duration(seconds: 5),
+        );
+        final newSession = await client.refreshSession(
+          refreshToken: session.refreshToken!,
+        );
+        await MainApiSettingsStore.saveSession(newSession);
+        session = newSession;
+        log('resolveMainApiClientForBot($botId): session refreshed successfully.');
+      } catch (error) {
+        log('resolveMainApiClientForBot($botId): session refresh failed: $error');
+      }
+    }
+
+    if (session != null && !session.isExpired) {
+      log(
+        'resolveMainApiClientForBot($botId): using active manager session directly.',
+      );
+      return MainApiClient(
+        baseUrl: config.baseUrl,
+        accessToken: session.accessToken,
+      );
+    }
+
     var resolvedToken = botToken?.trim() ?? '';
     if (resolvedToken.isEmpty) {
       final app = await loadLocalBotById(botId);
@@ -155,27 +184,11 @@ class MainApiOwnerSyncHelper {
       );
     }
 
-    final session = await MainApiSettingsStore.loadSession();
-    final directClient = runtime.client;
-    final hasMatchingManagerSession =
-        directClient is MainApiClient &&
-        session != null &&
-        !session.isExpired;
-    log(
-      'resolveMainApiClientForBot($botId): sessionExpired=${session?.isExpired ?? true}, hasMatchingManagerSession=$hasMatchingManagerSession, directClientType=${directClient.runtimeType}.',
-    );
-    if (hasMatchingManagerSession) {
-      log(
-        'resolveMainApiClientForBot($botId): using direct manager client without restore.',
-      );
-      return directClient;
-    }
-
     if (!attemptSessionRestore || resolvedToken.isEmpty) {
       log(
         'resolveMainApiClientForBot($botId): skipping restore (attemptSessionRestore=$attemptSessionRestore, tokenPresent=${resolvedToken.isNotEmpty}).',
       );
-      return directClient is MainApiClient ? directClient : null;
+      return null;
     }
 
     final restored = await restoreMainApiSessionWithBotToken(
@@ -187,14 +200,17 @@ class MainApiOwnerSyncHelper {
       return null;
     }
 
-    runtime = await resolveRuntime(
-      getTimeout: const Duration(seconds: 5),
-      postTimeout: const Duration(seconds: 8),
-    );
-    final refreshedClient = runtime.client;
-    log(
-      'resolveMainApiClientForBot($botId) completed: refreshed runtime source=${runtime.source}, hasClient=${refreshedClient != null}, clientType=${refreshedClient.runtimeType}.',
-    );
-    return refreshedClient is MainApiClient ? refreshedClient : null;
+    session = await MainApiSettingsStore.loadSession();
+    if (session != null && !session.isExpired) {
+      log(
+        'resolveMainApiClientForBot($botId) completed: restored manager client successfully.',
+      );
+      return MainApiClient(
+        baseUrl: config.baseUrl,
+        accessToken: session.accessToken,
+      );
+    }
+
+    return null;
   }
 }

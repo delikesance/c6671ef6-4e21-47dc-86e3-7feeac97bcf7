@@ -228,7 +228,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get action_hint_duration => 'örn. 5m, 1sa, 30sn';
 
   @override
-  String get action_hint_emoji => 'Emoji veya :ad: girin';
+  String get action_hint_emoji => 'Emoji (örn. 🪜) veya <:ad:kimlik>';
 
   @override
   String action_hint_enter_type(String type) {
@@ -354,6 +354,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get action_name_deleteWebhook => 'Webhook Sil';
 
   @override
+  String get action_name_debugProfile => 'Hata Ayıklama Profili';
+
+  @override
   String get action_name_disconnectFromVoice => 'Sesten Bağlantıyı Kes';
 
   @override
@@ -373,6 +376,9 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get action_name_endPoll => 'Anketi Bitir';
+
+  @override
+  String get action_name_forLoop => 'For Döngüsü';
 
   @override
   String get action_name_getGlobalVariable => 'Genel Değişkeni Al';
@@ -402,6 +408,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get action_name_ifBlock => 'IF / ELSE Bloğu';
 
   @override
+  String get action_name_jsonForEachLoop => 'JSON For Each Döngüsü';
+
+  @override
   String get action_name_kickUser => 'Kullanıcıyı At';
 
   @override
@@ -427,6 +436,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get action_name_listenForSelectMenu => 'Seçim Menüsünü Dinle';
 
   @override
+  String get action_name_log => 'Mesajı Günlüğe Kaydet';
+
+  @override
   String get action_name_moveToVoiceChannel => 'Ses Kanalına Taşı';
 
   @override
@@ -440,6 +452,9 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get action_name_randomChoice => 'Rastgele Seçim';
+
+  @override
+  String get action_name_registerGuildCommands => 'Sunucu Komutlarını Kaydet';
 
   @override
   String get action_name_removeArrayElement => 'Dizi Öğesini Kaldır';
@@ -483,6 +498,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get action_name_runBdfdScript => 'BDFD Betiği Çalıştır';
 
   @override
+  String get action_name_runtimeJsonBlock => 'JSON İşlemlerini Çalıştır';
+
+  @override
   String get action_name_runWorkflow => 'İş Akışını Çalıştır';
 
   @override
@@ -513,6 +531,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get action_name_setScopedVariable => 'Kapsamlı Değişken Ata';
 
   @override
+  String get action_name_setTemporaryVariable => 'Geçici Değişken Ata';
+
+  @override
   String get action_name_slowmode => 'Yavaş Mod';
 
   @override
@@ -529,6 +550,10 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get action_name_unpinMessage => 'Mesaj Sabitlemesini Kaldır';
+
+  @override
+  String get action_name_unregisterGuildCommands =>
+      'Sunucu Komutlarının Kaydını Sil';
 
   @override
   String get action_name_updateAutoMod => 'AutoMod\'u Güncelle';
@@ -5656,6 +5681,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settings_legal_title => 'Yasal';
 
   @override
+  String get settings_oss_licenses => 'Açık Kaynak Lisansları';
+
+  @override
   String get settings_local_hosting_enabled =>
       'Mobil botlar artık barındırma için cihazınızı kullanıyor.';
 
@@ -7015,4 +7043,110 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get workflows_type_title => 'İş akışı türü';
+
+  @override
+  String get settings_team_ownership => 'Ekip Sahipliği';
+
+  @override
+  String get settings_personal_ownership => 'Kişisel Sahiplik';
+
+  @override
+  String get settings_team_pill => 'EKİP';
+
+  @override
+  String get settings_solo_pill => 'SOLO';
+
+  @override
+  String get settings_team_name_label => 'Ekip Adı: ';
+
+  @override
+  String get settings_team_id_label => 'Ekip Kimliği: ';
+
+  @override
+  String get settings_team_owner_label => 'Ekip Lideri';
+
+  @override
+  String get settings_owner_fallback => 'Sahip';
+
+  @override
+  String get settings_owner_badge => 'SAHİP';
+
+  @override
+  String settings_team_members_label(int count) {
+    return 'Ekip Üyeleri ($count)';
+  }
+
+  @override
+  String get settings_personal_owner_label => 'Sahip: ';
+
+  @override
+  String get settings_personal_owner_fallback => 'Kişisel Kullanıcı';
+
+  @override
+  String get settings_personal_owner_id_label => 'Sahip Kimliği: ';
+
+  @override
+  String get settings_raw_json_tile => 'Ham JSON Görüntüle (RAW JSON)';
+
+  @override
+  String get settings_member_badge => 'ÜYE';
+
+  @override
+  String get cmd_deploy_local_save_title => 'Yerel Kaydetme';
+
+  @override
+  String get cmd_deploy_local_save_subtitle => 'Komut cihaza kaydediliyor';
+
+  @override
+  String get cmd_deploy_reload_bot_title => 'Bot Yeniden Yükleniyor';
+
+  @override
+  String get cmd_deploy_reload_bot_subtitle =>
+      'Sıcak yükleme yapılandırması uygulanıyor';
+
+  @override
+  String get cmd_deploy_discord_sync_title => 'Discord Senkronizasyonu';
+
+  @override
+  String get cmd_deploy_discord_sync_subtitle =>
+      'Komut Discord API\'sine yayınlanıyor';
+
+  @override
+  String get cmd_deploy_cloud_sync_title => 'Bulut Yedekleme';
+
+  @override
+  String get cmd_deploy_cloud_sync_subtitle =>
+      'Çevrimiçi alanınızla güvenli senkronizasyon';
+
+  @override
+  String get cmd_deploy_hot_reload_title => 'Sıcak Yeniden Yükleme';
+
+  @override
+  String get cmd_deploy_hot_reload_subtitle =>
+      'Bot çalıştırıcınızın anında güncellenmesi';
+
+  @override
+  String cmd_deploy_success_toast(String name) {
+    return '\"$name\" komutu dağıtıldı ve aktif!';
+  }
+
+  @override
+  String get cmd_deploy_success_title => 'Dağıtım başarılı!';
+
+  @override
+  String get cmd_deploy_failed_title => 'Dağıtım başarısız';
+
+  @override
+  String get cmd_deploy_in_progress_title => 'Dağıtım devam ediyor...';
+
+  @override
+  String cmd_deploy_config_subtitle(String name) {
+    return '/$name yapılandırması';
+  }
+
+  @override
+  String get cmd_deploy_close_button => 'Kapat';
+
+  @override
+  String get cmd_deploy_retry_button => 'Yeniden Dene';
 }

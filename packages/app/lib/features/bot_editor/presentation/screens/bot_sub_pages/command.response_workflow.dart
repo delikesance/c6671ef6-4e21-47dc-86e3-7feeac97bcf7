@@ -9,7 +9,7 @@ import 'package:bot_creator/features/components_v2/presentation/component_v2_bui
 import 'package:bot_creator/features/components_v2/presentation/component_v2_builder/normal_component_editor.dart';
 import 'package:bot_creator/features/components_v2/presentation/component_v2_builder/modal_builder.dart';
 import 'package:bot_creator/core/widgets/variable_text_field.dart';
-import 'package:bot_creator/core/models/types/component.dart';
+import 'package:bot_creator_shared/types/component.dart';
 import 'package:bot_creator/core/models/types/variable_suggestion.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bdfd_editor_page.dart';
 import 'package:bot_creator_shared/utils/bdfd_compiler.dart';

@@ -106,7 +106,14 @@ class HomePageState extends State<HomePage>
     WidgetsBinding.instance.addObserver(this);
     AppAnalytics.logScreenView(screenName: 'HomePage', screenClass: 'HomePage');
     AppAnalytics.logEvent(name: 'home_page_opened');
-    unawaited(syncAllBotsFromManager(silent: true));
+    unawaited(() async {
+      try {
+        if (warmUpFuture != null) {
+          await warmUpFuture;
+        }
+      } catch (_) {}
+      await syncAllBotsFromManager(silent: true);
+    }());
   }
 
   @override
@@ -303,6 +310,13 @@ class HomePageState extends State<HomePage>
       _runtimeSource = RemoteRuntimeSource.local;
       _runtimeDetailLabel = null;
     });
+
+    for (final botId in desktopRunningBotIds) {
+      final guildCount = desktopGatewayForBot(botId)?.guilds.cache.length;
+      if (guildCount != null) {
+        appManager.updateGuildCount(botId, guildCount);
+      }
+    }
     _syncPulse(runningIds);
     await _syncDiscordRpcPresence(runningIds);
     unawaited(_refreshBotRuntimeBalances());
@@ -718,17 +732,54 @@ class HomePageState extends State<HomePage>
     appendBotDebugLog(
       '[_resolveGlobalMainApiClient] Resolving global client (attemptRestore=$attemptRestore).',
     );
-    var runtime = await _resolveRemoteRuntime(
-      getTimeout: const Duration(seconds: 15),
-      postTimeout: const Duration(seconds: 30),
-    );
 
-    if (runtime.source == RemoteRuntimeSource.manager &&
-        runtime.client == null &&
-        attemptRestore) {
+    final config = await MainApiSettingsStore.loadConfig();
+    if (!config.isConfigured) {
+      appendBotDebugLog(
+        '[_resolveGlobalMainApiClient] Manager is not configured. Returning null.',
+      );
+      return null;
+    }
+
+    var session = await MainApiSettingsStore.loadSession();
+    if (session != null && session.isExpired && session.refreshToken != null) {
+      try {
+        appendBotDebugLog(
+          '[_resolveGlobalMainApiClient] Global session expired; attempting to refresh.',
+        );
+        final client = MainApiClient(
+          baseUrl: config.baseUrl,
+          timeout: const Duration(seconds: 5),
+        );
+        final newSession = await client.refreshSession(
+          refreshToken: session.refreshToken!,
+        );
+        await MainApiSettingsStore.saveSession(newSession);
+        session = newSession;
+        appendBotDebugLog(
+          '[_resolveGlobalMainApiClient] Global session refreshed successfully.',
+        );
+      } catch (error) {
+        appendBotDebugLog(
+          '[_resolveGlobalMainApiClient] Global session refresh failed: $error.',
+        );
+      }
+    }
+
+    if (session != null && !session.isExpired) {
+      appendBotDebugLog(
+        '[_resolveGlobalMainApiClient] Active global session found. Returning MainApiClient.',
+      );
+      return MainApiClient(
+        baseUrl: config.baseUrl,
+        accessToken: session.accessToken,
+      );
+    }
+
+    if (attemptRestore) {
       final apps = await appManager.getAllApps();
       appendBotDebugLog(
-        '[_resolveGlobalMainApiClient] Manager source detected but no client; trying restore from ${apps.length} local apps.',
+        '[_resolveGlobalMainApiClient] Global manager client unavailable; trying restore from ${apps.length} local apps.',
       );
       for (final rawApp in apps) {
         if (rawApp is! Map) continue;
@@ -756,12 +807,7 @@ class HomePageState extends State<HomePage>
       );
     }
 
-    final client = runtime.client;
-    final resolved = client is MainApiClient ? client : null;
-    appendBotDebugLog(
-      '[_resolveGlobalMainApiClient] Returning client: ${resolved?.runtimeType ?? 'null'}.',
-    );
-    return resolved;
+    return null;
   }
 
   // ── Démarrage / Arrêt du bot ───────────────────────────────────────────────

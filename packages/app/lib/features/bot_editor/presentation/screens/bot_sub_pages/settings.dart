@@ -1894,7 +1894,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    hasTeam ? 'Propriété de l\'équipe (Team)' : 'Propriété personnelle',
+                    hasTeam ? context.tr.settings_team_ownership : context.tr.settings_personal_ownership,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 15,
@@ -1912,7 +1912,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     ),
                   ),
                   child: Text(
-                    hasTeam ? 'TEAM' : 'SOLO',
+                    hasTeam ? context.tr.settings_team_pill : context.tr.settings_solo_pill,
                     style: TextStyle(
                       color: hasTeam ? AppTheme.discord : AppTheme.success,
                       fontWeight: FontWeight.bold,
@@ -1934,9 +1934,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                   // Team Name
                   Row(
                     children: [
-                      const Text(
-                        'Nom de l\'équipe : ',
-                        style: TextStyle(color: AppTheme.discordText, fontSize: 13),
+                      Text(
+                        context.tr.settings_team_name_label,
+                        style: const TextStyle(color: AppTheme.discordText, fontSize: 13),
                       ),
                       Text(
                         meta.teamName,
@@ -1951,9 +1951,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      const Text(
-                        'ID de l\'équipe : ',
-                        style: TextStyle(color: AppTheme.discordText, fontSize: 13),
+                      Text(
+                        context.tr.settings_team_id_label,
+                        style: const TextStyle(color: AppTheme.discordText, fontSize: 13),
                       ),
                       SelectableText(
                         meta.teamId,
@@ -1968,9 +1968,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                   const SizedBox(height: 16),
 
                   // Team Owner
-                  const Text(
-                    'Chef d\'équipe (Owner)',
-                    style: TextStyle(
+                  Text(
+                    context.tr.settings_team_owner_label,
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
                       color: AppTheme.discordText,
@@ -1994,7 +1994,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                               Text(
                                 meta.teamOwnerUsername.isNotEmpty
                                     ? meta.teamOwnerUsername
-                                    : 'Propriétaire',
+                                    : context.tr.settings_owner_fallback,
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
@@ -2017,9 +2017,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                             color: Colors.amber.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          child: const Text(
-                            'OWNER',
-                            style: TextStyle(
+                          child: Text(
+                            context.tr.settings_owner_badge,
+                            style: const TextStyle(
                               color: Colors.amber,
                               fontSize: 9,
                               fontWeight: FontWeight.bold,
@@ -2034,7 +2034,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
 
                   // Team Members
                   Text(
-                    'Membres de l\'équipe (${meta.teamMembersInfo.length})',
+                    context.tr.settings_team_members_label(meta.teamMembersInfo.length),
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
@@ -2099,7 +2099,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
-                                isOwner ? 'OWNER' : member['role']?.toString().toUpperCase() ?? 'MEMBRE',
+                                isOwner ? context.tr.settings_owner_badge : member['role']?.toString().toUpperCase() ?? context.tr.settings_member_badge,
                                 style: TextStyle(
                                   color: isOwner ? Colors.amber : AppTheme.discord,
                                   fontSize: 8,
@@ -2116,12 +2116,12 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                   // Personal Owner info
                   Row(
                     children: [
-                      const Text(
-                        'Propriétaire : ',
-                        style: TextStyle(color: AppTheme.discordText, fontSize: 13),
+                      Text(
+                        context.tr.settings_personal_owner_label,
+                        style: const TextStyle(color: AppTheme.discordText, fontSize: 13),
                       ),
                       Text(
-                        meta.ownerUsername.isNotEmpty ? meta.ownerUsername : 'Utilisateur personnel',
+                        meta.ownerUsername.isNotEmpty ? meta.ownerUsername : context.tr.settings_personal_owner_fallback,
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -2133,9 +2133,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      const Text(
-                        'ID Propriétaire : ',
-                        style: TextStyle(color: AppTheme.discordText, fontSize: 13),
+                      Text(
+                        context.tr.settings_personal_owner_id_label,
+                        style: const TextStyle(color: AppTheme.discordText, fontSize: 13),
                       ),
                       SelectableText(
                         meta.ownerId,
@@ -2156,9 +2156,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
           Theme(
             data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
             child: ExpansionTile(
-              title: const Text(
-                'Voir le JSON Brut (RAW JSON)',
-                style: TextStyle(
+              title: Text(
+                context.tr.settings_raw_json_tile,
+                style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: AppTheme.discordText,

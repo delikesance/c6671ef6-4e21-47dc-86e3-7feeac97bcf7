@@ -43,7 +43,7 @@ import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/features/bot_editor/logic/interaction_listener_registry.dart';
 import 'package:bot_creator/features/bot_editor/logic/workflow_call.dart';
 import 'package:nyxx/nyxx.dart';
-import 'package:bot_creator/core/models/types/action.dart';
+import 'package:bot_creator_shared/types/action.dart';
 import 'handler_utils.dart';
 
 Snowflake? _toSnowflake(dynamic value) {
@@ -1330,6 +1330,12 @@ Future<Map<String, String>> handleActions(
         case BotCreatorActionType.runBdfdScript:
         case BotCreatorActionType.stopUnless:
         case BotCreatorActionType.ifBlock:
+        case BotCreatorActionType.setTemporaryVariable:
+        case BotCreatorActionType.forLoop:
+        case BotCreatorActionType.jsonForEachLoop:
+        case BotCreatorActionType.debugProfile:
+        case BotCreatorActionType.log:
+        case BotCreatorActionType.runtimeJsonBlock:
           throw StateError(
             'Action ${action.type.name} should have been handled by an executor before switch dispatch.',
           );
@@ -1409,6 +1415,8 @@ Future<Map<String, String>> handleActions(
         case BotCreatorActionType.slowmode:
         case BotCreatorActionType.stop:
         case BotCreatorActionType.randomChoice:
+        case BotCreatorActionType.registerGuildCommands:
+        case BotCreatorActionType.unregisterGuildCommands:
           final delegated = await shared_handler.handleActions(
             client,
             interaction,

@@ -229,7 +229,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get action_hint_duration => 'z. B. 5m, 1h, 30s';
 
   @override
-  String get action_hint_emoji => 'Emoji oder :name: eingeben';
+  String get action_hint_emoji => 'Emoji (z. B. 🪜) oder <:name:id>';
 
   @override
   String action_hint_enter_type(String type) {
@@ -354,6 +354,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get action_name_deleteWebhook => 'Webhook löschen';
 
   @override
+  String get action_name_debugProfile => 'Debug-Profil';
+
+  @override
   String get action_name_disconnectFromVoice => 'Von Sprache trennen';
 
   @override
@@ -375,6 +378,9 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get action_name_endPoll => 'Umfrage beenden';
+
+  @override
+  String get action_name_forLoop => 'For-Schleife';
 
   @override
   String get action_name_getGlobalVariable => 'Globale Variable abrufen';
@@ -405,6 +411,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get action_name_ifBlock => 'IF / ELSE Block';
 
   @override
+  String get action_name_jsonForEachLoop => 'JSON Für Jedes Schleife';
+
+  @override
   String get action_name_kickUser => 'Benutzer kicken';
 
   @override
@@ -431,6 +440,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get action_name_listenForSelectMenu => 'Auf Auswahlmenü warten';
 
   @override
+  String get action_name_log => 'Nachricht protokollieren';
+
+  @override
   String get action_name_moveToVoiceChannel => 'In Sprachkanal verschieben';
 
   @override
@@ -444,6 +456,9 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get action_name_randomChoice => 'Zufällige Auswahl';
+
+  @override
+  String get action_name_registerGuildCommands => 'Server-Befehle registrieren';
 
   @override
   String get action_name_removeArrayElement => 'Array-Element entfernen';
@@ -489,6 +504,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get action_name_runBdfdScript => 'BDFD-Skript ausführen';
 
   @override
+  String get action_name_runtimeJsonBlock => 'JSON-Operationen ausführen';
+
+  @override
   String get action_name_runWorkflow => 'Workflow ausführen';
 
   @override
@@ -519,6 +537,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get action_name_setScopedVariable => 'Geltungsbereichsvariable setzen';
 
   @override
+  String get action_name_setTemporaryVariable => 'Temporäre Variable setzen';
+
+  @override
   String get action_name_slowmode => 'Slowmode';
 
   @override
@@ -535,6 +556,10 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get action_name_unpinMessage => 'Nachricht lospinnen';
+
+  @override
+  String get action_name_unregisterGuildCommands =>
+      'Server-Befehle deregistrieren';
 
   @override
   String get action_name_updateAutoMod => 'AutoMod aktualisieren';
@@ -5684,6 +5709,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settings_legal_title => 'Rechtliches';
 
   @override
+  String get settings_oss_licenses => 'Open-Source-Lizenzen';
+
+  @override
   String get settings_local_hosting_enabled =>
       'Mobile Bots nutzen jetzt Ihr Gerät für das Hosting.';
 
@@ -7050,4 +7078,110 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get workflows_type_title => 'Workflow-Typ';
+
+  @override
+  String get settings_team_ownership => 'Teambesitz';
+
+  @override
+  String get settings_personal_ownership => 'Persönlicher Besitz';
+
+  @override
+  String get settings_team_pill => 'TEAM';
+
+  @override
+  String get settings_solo_pill => 'SOLO';
+
+  @override
+  String get settings_team_name_label => 'Teamname: ';
+
+  @override
+  String get settings_team_id_label => 'Team-ID: ';
+
+  @override
+  String get settings_team_owner_label => 'Teamleiter';
+
+  @override
+  String get settings_owner_fallback => 'Besitzer';
+
+  @override
+  String get settings_owner_badge => 'BESITZER';
+
+  @override
+  String settings_team_members_label(int count) {
+    return 'Teammitglieder ($count)';
+  }
+
+  @override
+  String get settings_personal_owner_label => 'Besitzer: ';
+
+  @override
+  String get settings_personal_owner_fallback => 'Persönlicher Benutzer';
+
+  @override
+  String get settings_personal_owner_id_label => 'Besitzer-ID: ';
+
+  @override
+  String get settings_raw_json_tile => 'Rohes JSON anzeigen (RAW JSON)';
+
+  @override
+  String get settings_member_badge => 'MITGLIED';
+
+  @override
+  String get cmd_deploy_local_save_title => 'Lokale Speicherung';
+
+  @override
+  String get cmd_deploy_local_save_subtitle => 'Befehl auf dem Gerät speichern';
+
+  @override
+  String get cmd_deploy_reload_bot_title => 'Bot neu laden';
+
+  @override
+  String get cmd_deploy_reload_bot_subtitle =>
+      'Hot-Reload-Konfiguration anwenden';
+
+  @override
+  String get cmd_deploy_discord_sync_title => 'Discord-Synchronisation';
+
+  @override
+  String get cmd_deploy_discord_sync_subtitle =>
+      'Befehl in der Discord-API veröffentlichen';
+
+  @override
+  String get cmd_deploy_cloud_sync_title => 'Cloud-Backup';
+
+  @override
+  String get cmd_deploy_cloud_sync_subtitle =>
+      'Sichere Synchronisierung mit Ihrem Online-Speicher';
+
+  @override
+  String get cmd_deploy_hot_reload_title => 'Hot Reload';
+
+  @override
+  String get cmd_deploy_hot_reload_subtitle =>
+      'Sofortige Aktualisierung Ihres Bot-Runners';
+
+  @override
+  String cmd_deploy_success_toast(String name) {
+    return 'Befehl \"$name\" bereitgestellt und aktiv!';
+  }
+
+  @override
+  String get cmd_deploy_success_title => 'Bereitstellung erfolgreich!';
+
+  @override
+  String get cmd_deploy_failed_title => 'Bereitstellung fehlgeschlagen';
+
+  @override
+  String get cmd_deploy_in_progress_title => 'Bereitstellung läuft...';
+
+  @override
+  String cmd_deploy_config_subtitle(String name) {
+    return 'Konfiguration von /$name';
+  }
+
+  @override
+  String get cmd_deploy_close_button => 'Schließen';
+
+  @override
+  String get cmd_deploy_retry_button => 'Wiederholen';
 }

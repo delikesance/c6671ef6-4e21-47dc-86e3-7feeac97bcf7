@@ -1,4 +1,4 @@
-import 'package:bot_creator/core/models/types/action.dart' show BotCreatorActionType;
+import 'package:bot_creator_shared/types/action.dart' show BotCreatorActionType;
 
 /// Purges irrelevant parameters from an action payload based on its type and mode.
 /// This ensures strict separation between response modes (Message, ComponentV2, Modal).
@@ -32,7 +32,7 @@ Map<String, dynamic> purgeActionPayloadStrict(
       'attachments',
       'ephemeral',
       'visibility',
-      'key'
+      'key',
     };
     payload.removeWhere((key, value) => !keysToKeep.contains(key));
   } else if (type == BotCreatorActionType.respondWithComponentV2) {
@@ -43,7 +43,7 @@ Map<String, dynamic> purgeActionPayloadStrict(
       'attachments',
       'ephemeral',
       'visibility',
-      'key'
+      'key',
     };
     payload.removeWhere((key, value) => !keysToKeep.contains(key));
   } else if (type == BotCreatorActionType.respondWithModal) {

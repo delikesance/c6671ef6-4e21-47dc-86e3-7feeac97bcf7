@@ -235,7 +235,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get action_hint_duration => 'ex: 5m, 1h, 30s';
 
   @override
-  String get action_hint_emoji => 'Digite o emoji ou :nome:';
+  String get action_hint_emoji => 'Emoji (ex. 🪜) ou <:nome:id>';
 
   @override
   String action_hint_enter_type(String type) {
@@ -363,6 +363,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get action_name_deleteWebhook => 'Eliminar Webhook';
 
   @override
+  String get action_name_debugProfile => 'Perfil de Depuração';
+
+  @override
   String get action_name_disconnectFromVoice => 'Desligar da Voz';
 
   @override
@@ -383,6 +386,9 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get action_name_endPoll => 'Terminar Sondagem';
+
+  @override
+  String get action_name_forLoop => 'Loop For';
 
   @override
   String get action_name_getGlobalVariable => 'Obter Variável Global';
@@ -412,6 +418,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get action_name_ifBlock => 'Bloco IF / ELSE';
 
   @override
+  String get action_name_jsonForEachLoop => 'Loop For Each JSON';
+
+  @override
   String get action_name_kickUser => 'Expulsar Utilizador';
 
   @override
@@ -437,6 +446,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get action_name_listenForSelectMenu => 'Ouvir Menu de Seleção';
 
   @override
+  String get action_name_log => 'Registrar Mensagem';
+
+  @override
   String get action_name_moveToVoiceChannel => 'Mover para Canal de Voz';
 
   @override
@@ -450,6 +462,10 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get action_name_randomChoice => 'Escolha Aleatória';
+
+  @override
+  String get action_name_registerGuildCommands =>
+      'Registrar Comandos de Servidor';
 
   @override
   String get action_name_removeArrayElement => 'Remover Elemento do Array';
@@ -493,6 +509,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get action_name_runBdfdScript => 'Executar Script BDFD';
 
   @override
+  String get action_name_runtimeJsonBlock => 'Executar Operações JSON';
+
+  @override
   String get action_name_runWorkflow => 'Executar Fluxo de Trabalho';
 
   @override
@@ -523,6 +542,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get action_name_setScopedVariable => 'Definir Variável de Âmbito';
 
   @override
+  String get action_name_setTemporaryVariable => 'Definir Variável Temporária';
+
+  @override
   String get action_name_slowmode => 'Modo Lento';
 
   @override
@@ -540,6 +562,10 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get action_name_unpinMessage => 'Desafixar Mensagem';
+
+  @override
+  String get action_name_unregisterGuildCommands =>
+      'Cancelar Registro de Comandos de Servidor';
 
   @override
   String get action_name_updateAutoMod => 'Atualizar AutoMod';
@@ -5688,6 +5714,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get settings_legal_title => 'Legal';
 
   @override
+  String get settings_oss_licenses => 'Licenças Open Source';
+
+  @override
   String get settings_local_hosting_enabled =>
       'Bots móveis agora usam seu dispositivo para hospedagem.';
 
@@ -7050,4 +7079,111 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get workflows_type_title => 'Tipo de Workflow';
+
+  @override
+  String get settings_team_ownership => 'Propriedade da Equipe';
+
+  @override
+  String get settings_personal_ownership => 'Propriedade Pessoal';
+
+  @override
+  String get settings_team_pill => 'EQUIPE';
+
+  @override
+  String get settings_solo_pill => 'SOLO';
+
+  @override
+  String get settings_team_name_label => 'Nome da equipe: ';
+
+  @override
+  String get settings_team_id_label => 'ID da equipe: ';
+
+  @override
+  String get settings_team_owner_label => 'Líder da Equipe';
+
+  @override
+  String get settings_owner_fallback => 'Proprietário';
+
+  @override
+  String get settings_owner_badge => 'PROPRIETÁRIO';
+
+  @override
+  String settings_team_members_label(int count) {
+    return 'Membros da Equipe ($count)';
+  }
+
+  @override
+  String get settings_personal_owner_label => 'Proprietário: ';
+
+  @override
+  String get settings_personal_owner_fallback => 'Usuário Pessoal';
+
+  @override
+  String get settings_personal_owner_id_label => 'ID do Proprietário: ';
+
+  @override
+  String get settings_raw_json_tile => 'Ver JSON bruto (RAW JSON)';
+
+  @override
+  String get settings_member_badge => 'MEMBRO';
+
+  @override
+  String get cmd_deploy_local_save_title => 'Salvamento Local';
+
+  @override
+  String get cmd_deploy_local_save_subtitle =>
+      'Salvando comando no dispositivo';
+
+  @override
+  String get cmd_deploy_reload_bot_title => 'Recarregando Bot';
+
+  @override
+  String get cmd_deploy_reload_bot_subtitle =>
+      'Aplicando configuração de hot-reload';
+
+  @override
+  String get cmd_deploy_discord_sync_title => 'Sincronização com Discord';
+
+  @override
+  String get cmd_deploy_discord_sync_subtitle =>
+      'Publicando comando na API do Discord';
+
+  @override
+  String get cmd_deploy_cloud_sync_title => 'Backup na Nuvem';
+
+  @override
+  String get cmd_deploy_cloud_sync_subtitle =>
+      'Sincronização segura com o seu espaço online';
+
+  @override
+  String get cmd_deploy_hot_reload_title => 'Recarregamento Rápido';
+
+  @override
+  String get cmd_deploy_hot_reload_subtitle =>
+      'Atualização instantânea do runner do seu bot';
+
+  @override
+  String cmd_deploy_success_toast(String name) {
+    return 'Comando \"$name\" implantado e ativo!';
+  }
+
+  @override
+  String get cmd_deploy_success_title => 'Implantação bem-sucedida!';
+
+  @override
+  String get cmd_deploy_failed_title => 'Falha na implantação';
+
+  @override
+  String get cmd_deploy_in_progress_title => 'Implantação em andamento...';
+
+  @override
+  String cmd_deploy_config_subtitle(String name) {
+    return 'Configuração de /$name';
+  }
+
+  @override
+  String get cmd_deploy_close_button => 'Fechar';
+
+  @override
+  String get cmd_deploy_retry_button => 'Tentar Novamente';
 }

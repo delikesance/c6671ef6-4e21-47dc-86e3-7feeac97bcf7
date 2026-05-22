@@ -808,6 +808,17 @@ void consumeForegroundTaskDataForBotLogs(Object data) {
         (storageRaw is int)
             ? storageRaw
             : int.tryParse((storageRaw ?? '').toString());
+    
+    final guildCountRaw = map['guildCount'];
+    if (guildCountRaw != null && botId != null && botId.isNotEmpty) {
+      final guildCountAsInt = (guildCountRaw is int)
+          ? guildCountRaw
+          : int.tryParse(guildCountRaw.toString());
+      if (guildCountAsInt != null) {
+        appManager.updateGuildCount(botId, guildCountAsInt);
+      }
+    }
+
     _updateBotMetrics(
       rssBytes: rssAsInt,
       cpuPercent: cpuAsDouble,

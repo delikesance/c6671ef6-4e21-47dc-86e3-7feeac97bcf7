@@ -1,7 +1,6 @@
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:flutter/material.dart' show Icons, IconData, BuildContext;
-import 'package:bot_creator/core/models/types/action.dart'
-    show BotCreatorActionType;
+import 'package:bot_creator_shared/types/action.dart' show BotCreatorActionType;
 
 import 'action_types.dart';
 
@@ -75,6 +74,8 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
         return context.tr.action_name_removeGlobalVariable;
       case BotCreatorActionType.setScopedVariable:
         return context.tr.action_name_setScopedVariable;
+      case BotCreatorActionType.setTemporaryVariable:
+        return context.tr.action_name_setTemporaryVariable;
       case BotCreatorActionType.getScopedVariable:
         return context.tr.action_name_getScopedVariable;
       case BotCreatorActionType.removeScopedVariable:
@@ -113,6 +114,10 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
         return context.tr.action_name_stopUnless;
       case BotCreatorActionType.ifBlock:
         return context.tr.action_name_ifBlock;
+      case BotCreatorActionType.forLoop:
+        return context.tr.action_name_forLoop;
+      case BotCreatorActionType.jsonForEachLoop:
+        return context.tr.action_name_jsonForEachLoop;
       case BotCreatorActionType.calculate:
         return context.tr.action_name_calculate;
       case BotCreatorActionType.getMessage:
@@ -181,6 +186,16 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
         return context.tr.action_name_stop;
       case BotCreatorActionType.randomChoice:
         return context.tr.action_name_randomChoice;
+      case BotCreatorActionType.debugProfile:
+        return context.tr.action_name_debugProfile;
+      case BotCreatorActionType.log:
+        return context.tr.action_name_log;
+      case BotCreatorActionType.runtimeJsonBlock:
+        return context.tr.action_name_runtimeJsonBlock;
+      case BotCreatorActionType.registerGuildCommands:
+        return context.tr.action_name_registerGuildCommands;
+      case BotCreatorActionType.unregisterGuildCommands:
+        return context.tr.action_name_unregisterGuildCommands;
     }
   }
 
@@ -251,6 +266,7 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
       case BotCreatorActionType.removeGlobalVariable:
         return Icons.key_off;
       case BotCreatorActionType.setScopedVariable:
+      case BotCreatorActionType.setTemporaryVariable:
       case BotCreatorActionType.getScopedVariable:
       case BotCreatorActionType.removeScopedVariable:
       case BotCreatorActionType.renameScopedVariable:
@@ -283,6 +299,9 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
         return Icons.filter_alt;
       case BotCreatorActionType.ifBlock:
         return Icons.account_tree;
+      case BotCreatorActionType.forLoop:
+      case BotCreatorActionType.jsonForEachLoop:
+        return Icons.loop;
       case BotCreatorActionType.calculate:
         return Icons.calculate;
       case BotCreatorActionType.getMessage:
@@ -351,6 +370,16 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
         return Icons.stop_circle_outlined;
       case BotCreatorActionType.randomChoice:
         return Icons.shuffle;
+      case BotCreatorActionType.debugProfile:
+        return Icons.query_stats;
+      case BotCreatorActionType.log:
+        return Icons.notes;
+      case BotCreatorActionType.runtimeJsonBlock:
+        return Icons.code;
+      case BotCreatorActionType.registerGuildCommands:
+        return Icons.playlist_add;
+      case BotCreatorActionType.unregisterGuildCommands:
+        return Icons.playlist_remove;
     }
   }
 
@@ -1284,6 +1313,12 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             required: true,
           ),
           ParameterDefinition(
+            key: 'ttl',
+            type: ParameterType.string,
+            defaultValue: '',
+            hint: 'Optional TTL (ex: 1h, 30m, 1d)',
+          ),
+          ParameterDefinition(
             key: 'valueType',
             type: ParameterType.multiSelect,
             defaultValue: 'string',
@@ -1353,6 +1388,59 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             required: true,
           ),
         ];
+      case BotCreatorActionType.setTemporaryVariable:
+        return [
+          ParameterDefinition(
+            key: 'key',
+            type: ParameterType.string,
+            defaultValue: '',
+            hint: 'Temporary variable key',
+            required: true,
+          ),
+          ParameterDefinition(
+            key: 'valueType',
+            type: ParameterType.multiSelect,
+            defaultValue: 'string',
+            hint: 'Value type: string, number, boolean or json',
+            options: ['string', 'number', 'boolean', 'json'],
+          ),
+          ParameterDefinition(
+            key: 'value',
+            type: ParameterType.string,
+            defaultValue: '',
+            hint: 'String value (supports placeholders ((...)))',
+            visibleWhen: <String, List<String>>{
+              'valueType': <String>['string'],
+            },
+          ),
+          ParameterDefinition(
+            key: 'numberValue',
+            type: ParameterType.number,
+            defaultValue: 0,
+            hint: 'Numeric value when valueType=number',
+            visibleWhen: <String, List<String>>{
+              'valueType': <String>['number'],
+            },
+          ),
+          ParameterDefinition(
+            key: 'boolValue',
+            type: ParameterType.boolean,
+            defaultValue: false,
+            hint: 'Boolean value when valueType=boolean',
+            visibleWhen: <String, List<String>>{
+              'valueType': <String>['boolean'],
+            },
+          ),
+          ParameterDefinition(
+            key: 'jsonValue',
+            type: ParameterType.string,
+            defaultValue: '',
+            hint: 'JSON value when valueType=json (array/object)',
+            visibleWhen: <String, List<String>>{
+              'valueType': <String>['json'],
+            },
+          ),
+        ];
       case BotCreatorActionType.setScopedVariable:
         return [
           ParameterDefinition(
@@ -1364,11 +1452,24 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             required: true,
           ),
           ParameterDefinition(
+            key: 'contextId',
+            type: ParameterType.string,
+            defaultValue: '',
+            hint:
+                'Optional: target ID (user ID, channel ID, etc. - uses current context if empty)',
+          ),
+          ParameterDefinition(
             key: 'key',
             type: ParameterType.string,
             defaultValue: '',
             hint: 'Scoped variable key (bc_ optional)',
             required: true,
+          ),
+          ParameterDefinition(
+            key: 'ttl',
+            type: ParameterType.string,
+            defaultValue: '',
+            hint: 'Optional TTL (ex: 1h, 30m, 1d)',
           ),
           ParameterDefinition(
             key: 'valueType',
@@ -1425,6 +1526,13 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             required: true,
           ),
           ParameterDefinition(
+            key: 'contextId',
+            type: ParameterType.string,
+            defaultValue: '',
+            hint:
+                'Optional: target ID (user ID, channel ID, etc. - uses current context if empty)',
+          ),
+          ParameterDefinition(
             key: 'key',
             type: ParameterType.string,
             defaultValue: '',
@@ -1449,6 +1557,13 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             required: true,
           ),
           ParameterDefinition(
+            key: 'contextId',
+            type: ParameterType.string,
+            defaultValue: '',
+            hint:
+                'Optional: target ID (user ID, channel ID, etc. - uses current context if empty)',
+          ),
+          ParameterDefinition(
             key: 'key',
             type: ParameterType.string,
             defaultValue: '',
@@ -1465,6 +1580,13 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             hint: 'Scope: guild, user, channel, guildMember, message',
             options: ['guild', 'user', 'channel', 'guildMember', 'message'],
             required: true,
+          ),
+          ParameterDefinition(
+            key: 'contextId',
+            type: ParameterType.string,
+            defaultValue: '',
+            hint:
+                'Optional: target ID (user ID, channel ID, etc. - uses current context if empty)',
           ),
           ParameterDefinition(
             key: 'oldKey',
@@ -1546,6 +1668,15 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             options: ['guild', 'user', 'channel', 'guildMember', 'message'],
           ),
           ParameterDefinition(
+            key: 'contextId',
+            type: ParameterType.string,
+            defaultValue: '',
+            hint: 'Optional: target ID (uses current context if empty)',
+            visibleWhen: <String, List<String>>{
+              'target': <String>['scoped'],
+            },
+          ),
+          ParameterDefinition(
             key: 'key',
             type: ParameterType.string,
             defaultValue: '',
@@ -1617,6 +1748,15 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             defaultValue: 'guild',
             hint: 'Scope when target=scoped',
             options: ['guild', 'user', 'channel', 'guildMember', 'message'],
+          ),
+          ParameterDefinition(
+            key: 'contextId',
+            type: ParameterType.string,
+            defaultValue: '',
+            hint: 'Optional: target ID (uses current context if empty)',
+            visibleWhen: <String, List<String>>{
+              'target': <String>['scoped'],
+            },
           ),
           ParameterDefinition(
             key: 'key',
@@ -2087,6 +2227,94 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             type: ParameterType.nestedActions,
             defaultValue: <Map<String, dynamic>>[],
             hint: 'ELSE — actions to run when condition is FALSE',
+          ),
+        ];
+      case BotCreatorActionType.forLoop:
+        return [
+          ParameterDefinition(
+            key: 'mode',
+            type: ParameterType.multiSelect,
+            defaultValue: 'simple',
+            hint: 'Loop mode: simple (iterations based) or cstyle (condition based)',
+            options: ['simple', 'cstyle'],
+            required: true,
+          ),
+          ParameterDefinition(
+            key: 'iterations',
+            type: ParameterType.string,
+            defaultValue: '5',
+            hint: 'Number of iterations for simple mode',
+            visibleWhen: <String, List<String>>{
+              'mode': <String>['simple'],
+            },
+          ),
+          ParameterDefinition(
+            key: 'maxIterations',
+            type: ParameterType.number,
+            defaultValue: 100,
+            hint: 'Safety limit for maximum iterations allowed',
+            minValue: 1,
+          ),
+          ParameterDefinition(
+            key: 'init',
+            type: ParameterType.string,
+            defaultValue: 'i=0',
+            hint: 'Initializer for C-style loop (e.g. i=0, j=10)',
+            visibleWhen: <String, List<String>>{
+              'mode': <String>['cstyle'],
+            },
+          ),
+          ParameterDefinition(
+            key: 'condition',
+            type: ParameterType.string,
+            defaultValue: 'i < 10',
+            hint: 'Loop continuation condition for C-style loop (e.g. i < 10)',
+            visibleWhen: <String, List<String>>{
+              'mode': <String>['cstyle'],
+            },
+          ),
+          ParameterDefinition(
+            key: 'update',
+            type: ParameterType.string,
+            defaultValue: 'i = i + 1',
+            hint: 'Loop variable update expression (e.g. i = i + 1)',
+            visibleWhen: <String, List<String>>{
+              'mode': <String>['cstyle'],
+            },
+          ),
+          ParameterDefinition(
+            key: 'bodyActions',
+            type: ParameterType.nestedActions,
+            defaultValue: <Map<String, dynamic>>[],
+            hint: 'Actions to execute inside the loop body',
+          ),
+        ];
+      case BotCreatorActionType.jsonForEachLoop:
+        return [
+          ParameterDefinition(
+            key: 'source',
+            type: ParameterType.string,
+            defaultValue: '',
+            hint: 'JSON string source (can be empty if preceding runtimeJsonBlock provides it)',
+          ),
+          ParameterDefinition(
+            key: 'path',
+            type: ParameterType.list,
+            defaultValue: <String>[],
+            hint: 'Optional JSON path navigation segments',
+          ),
+          ParameterDefinition(
+            key: 'maxIterations',
+            type: ParameterType.number,
+            defaultValue: 100,
+            hint: 'Safety limit for maximum loop iterations',
+            minValue: 1,
+          ),
+          ParameterDefinition(
+            key: 'bodyActions',
+            type: ParameterType.nestedActions,
+            defaultValue: <Map<String, dynamic>>[],
+            hint: 'Actions to execute on each key-value pair of the JSON object',
           ),
         ];
 
@@ -2891,6 +3119,39 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             type: ParameterType.string,
             defaultValue: 'random_choice',
             hint: 'Variable name to store the result',
+            required: true,
+          ),
+        ];
+      case BotCreatorActionType.debugProfile:
+      case BotCreatorActionType.runtimeJsonBlock:
+        return [];
+      case BotCreatorActionType.log:
+        return [
+          ParameterDefinition(
+            key: 'message',
+            type: ParameterType.string,
+            defaultValue: '',
+            hint: 'Message to log',
+            required: true,
+          ),
+        ];
+      case BotCreatorActionType.registerGuildCommands:
+        return [
+          ParameterDefinition(
+            key: 'commandNames',
+            type: ParameterType.list,
+            defaultValue: <String>[],
+            hint: 'Command names to register',
+            required: true,
+          ),
+        ];
+      case BotCreatorActionType.unregisterGuildCommands:
+        return [
+          ParameterDefinition(
+            key: 'commandNames',
+            type: ParameterType.list,
+            defaultValue: <String>[],
+            hint: 'Command names to unregister',
             required: true,
           ),
         ];

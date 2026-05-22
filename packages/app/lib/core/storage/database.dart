@@ -499,6 +499,16 @@ class AppManager implements BotDataStore {
 
   @override
   Future<void> updateGuildCount(String id, int count) async {
+    final index = _apps.indexWhere((a) => a['id'] == id);
+    if (index >= 0) {
+      if (_apps[index]['guild_count'] == count) {
+        return;
+      }
+      _apps[index]['guild_count'] = count;
+    } else {
+      return;
+    }
+
     final path = await _path();
     final appFile = File("$path/apps/$id.json");
     if (await appFile.exists()) {
@@ -509,15 +519,12 @@ class AppManager implements BotDataStore {
         await appFile.writeAsString(jsonEncode(data));
       }
     }
-    final index = _apps.indexWhere((a) => a['id'] == id);
-    if (index >= 0) {
-      _apps[index]['guild_count'] = count;
-      final allAppsFile = File("$path/apps/all_apps.json");
-      if (await allAppsFile.exists()) {
-        await allAppsFile.writeAsString(jsonEncode(_apps));
-      }
-      _appsStreamController.add(List<dynamic>.from(_apps));
+    
+    final allAppsFile = File("$path/apps/all_apps.json");
+    if (await allAppsFile.exists()) {
+      await allAppsFile.writeAsString(jsonEncode(_apps));
     }
+    _appsStreamController.add(List<dynamic>.from(_apps));
   }
 
   File _commandStatsFileAtPath(String path, String botId) {
