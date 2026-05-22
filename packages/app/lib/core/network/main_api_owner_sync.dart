@@ -147,6 +147,24 @@ class MainApiOwnerSyncHelper {
     }
 
     var session = await MainApiSettingsStore.loadSession();
+    if (session != null && session.isExpired && session.refreshToken != null) {
+      try {
+        log('resolveMainApiClientForBot($botId): session expired, attempting to refresh.');
+        final client = MainApiClient(
+          baseUrl: config.baseUrl,
+          timeout: const Duration(seconds: 5),
+        );
+        final newSession = await client.refreshSession(
+          refreshToken: session.refreshToken!,
+        );
+        await MainApiSettingsStore.saveSession(newSession);
+        session = newSession;
+        log('resolveMainApiClientForBot($botId): session refreshed successfully.');
+      } catch (error) {
+        log('resolveMainApiClientForBot($botId): session refresh failed: $error');
+      }
+    }
+
     if (session != null && !session.isExpired) {
       log(
         'resolveMainApiClientForBot($botId): using active manager session directly.',
