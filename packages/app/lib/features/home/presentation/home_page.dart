@@ -734,7 +734,31 @@ class HomePageState extends State<HomePage>
       return null;
     }
 
-    final session = await MainApiSettingsStore.loadSession();
+    var session = await MainApiSettingsStore.loadSession();
+    if (session != null && session.isExpired && session.refreshToken != null) {
+      try {
+        appendBotDebugLog(
+          '[_resolveGlobalMainApiClient] Global session expired; attempting to refresh.',
+        );
+        final client = MainApiClient(
+          baseUrl: config.baseUrl,
+          timeout: const Duration(seconds: 5),
+        );
+        final newSession = await client.refreshSession(
+          refreshToken: session.refreshToken!,
+        );
+        await MainApiSettingsStore.saveSession(newSession);
+        session = newSession;
+        appendBotDebugLog(
+          '[_resolveGlobalMainApiClient] Global session refreshed successfully.',
+        );
+      } catch (error) {
+        appendBotDebugLog(
+          '[_resolveGlobalMainApiClient] Global session refresh failed: $error.',
+        );
+      }
+    }
+
     if (session != null && !session.isExpired) {
       appendBotDebugLog(
         '[_resolveGlobalMainApiClient] Active global session found. Returning MainApiClient.',
