@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:bot_creator/features/bot_editor/logic/embed_normalization.dart';
-import 'package:bot_creator/features/bot_editor/logic/simple_mode.dart';
 
 Map<String, dynamic> normalizeCommandData(Map<String, dynamic> command) {
   final normalized = Map<String, dynamic>.from(command);
@@ -87,9 +86,7 @@ Map<String, dynamic> normalizeCommandData(Map<String, dynamic> command) {
               ? normalizedSubcommandWorkflows.keys.first
               : '');
 
-  final rawEditorMode =
-      (rawData['editorMode'] ?? 'advanced').toString().toLowerCase();
-  final editorMode = rawEditorMode == 'simple' ? 'simple' : 'advanced';
+  const editorMode = 'advanced';
   final rawExecutionMode =
       (rawData['executionMode'] ?? 'workflow').toString().toLowerCase();
   final executionMode =
@@ -104,10 +101,7 @@ Map<String, dynamic> normalizeCommandData(Map<String, dynamic> command) {
   final legacyResponseTarget =
       rawLegacyResponseTarget == 'channelSend' ? 'channelSend' : 'reply';
 
-  final simpleConfigRaw = Map<String, dynamic>.from(
-    (rawData['simpleConfig'] as Map?)?.cast<String, dynamic>() ?? const {},
-  );
-  final simpleConfig = normalizeSimpleModeConfigMap(simpleConfigRaw);
+  final simpleConfig = <String, dynamic>{};
 
   final rawWorkflow = Map<String, dynamic>.from(
     (response['workflow'] as Map?)?.cast<String, dynamic>() ?? const {},

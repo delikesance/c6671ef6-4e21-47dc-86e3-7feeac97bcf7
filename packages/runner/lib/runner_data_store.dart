@@ -29,7 +29,7 @@ class RunnerDataStore implements BotDataStore {
   final CommandStatsStore? statsStore;
   Future<void>? _initStoreFuture;
   final Set<String> _seededBotIds = <String>{};
-  final BotConfig _config;
+  BotConfig _config;
 
   RunnerDataStore(BotConfig config, {this.statsStore})
     : botId = 'runner',
@@ -424,6 +424,20 @@ class RunnerDataStore implements BotDataStore {
       contextId,
       key,
     );
+  }
+
+  /// Replaces the configuration and in-memory workflows/definitions without recreating the store.
+  ///
+  /// Called by [DiscordRunner.reloadConfig] so that lookups
+  /// immediately use the updated configuration.
+  void updateConfig(BotConfig newConfig) {
+    _config = newConfig;
+    _workflows
+      ..clear()
+      ..addAll(newConfig.workflows);
+    _scopedVariableDefinitions
+      ..clear()
+      ..addAll(newConfig.scopedVariableDefinitions);
   }
 
   /// Replaces the in-memory workflow list without recreating the store.

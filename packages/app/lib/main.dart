@@ -462,12 +462,6 @@ class _MyMainPageState extends State<MyMainPage> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.sync_rounded),
-            onPressed: () {
-              homeKey.currentState?.syncAllBotsFromManager();
-            },
-          ),
-          IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
               Navigator.push(

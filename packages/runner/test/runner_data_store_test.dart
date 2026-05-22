@@ -57,6 +57,43 @@ void main() {
       expect(await secondStore.getGlobalVariable('runner', 'count'), 42);
       expect(await secondStore.getGlobalVariable('runner', 'enabled'), isTrue);
     });
+
+    test('updateConfig replaces configuration, commands, and workflows', () async {
+      final initialConfig = BotConfig(
+        token: 'token-1',
+        commands: [
+          {'id': 'cmd-1', 'name': 'help'}
+        ],
+        workflows: [
+          {'name': 'wf-1'}
+        ],
+      );
+      final store = RunnerDataStore(initialConfig);
+      addTearDown(store.dispose);
+
+      expect(await store.getCommands('runner'), hasLength(1));
+      expect((await store.getCommands('runner'))[0]['name'], 'help');
+      expect(await store.getWorkflows('runner'), hasLength(1));
+
+      final updatedConfig = BotConfig(
+        token: 'token-2',
+        commands: [
+          {'id': 'cmd-1', 'name': 'help'},
+          {'id': 'cmd-2', 'name': 'settings'}
+        ],
+        workflows: [
+          {'name': 'wf-1'},
+          {'name': 'wf-2'}
+        ],
+      );
+
+      store.updateConfig(updatedConfig);
+
+      expect(await store.getCommands('runner'), hasLength(2));
+      expect((await store.getCommands('runner'))[1]['name'], 'settings');
+      expect(await store.getWorkflows('runner'), hasLength(2));
+      expect((await store.getApp('runner'))['token'], 'token-2');
+    });
   });
 }
 

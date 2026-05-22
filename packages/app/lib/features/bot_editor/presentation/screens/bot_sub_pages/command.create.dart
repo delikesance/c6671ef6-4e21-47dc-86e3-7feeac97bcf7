@@ -23,7 +23,6 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
-import 'package:bot_creator/features/bot_editor/logic/simple_mode.dart';
 import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bdfd_editor_page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/option_widget.dart';
@@ -46,12 +45,12 @@ import 'dart:developer' as developer;
 
 part 'command.create.variable_suggestions.dart';
 part 'command.create.serialization.dart';
-part 'command.create.simple_mode.dart';
 part 'command.create.edit_shell.dart';
 part 'command.create.workflow.dart';
 part 'command.create.validation.dart';
 part 'command.create.wizard.dart';
 part 'command.create.block_editor.dart';
+part 'command.create.bdfd.dart';
 
 /// Snapshot of editor body fields used by Selector for fine-grained rebuilds.
 class _EditorBodySnapshot {
@@ -156,46 +155,11 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   final TextEditingController _folderController = TextEditingController();
   String _legacyPrefixOverride = '';
   String _legacyResponseTarget = 'reply';
-  bool _simpleDeleteMessages = false;
-  bool _simpleKickUser = false;
-  bool _simpleBanUser = false;
-  bool _simpleUnbanUser = false;
-  bool _simpleMuteUser = false;
-  bool _simpleUnmuteUser = false;
-  bool _simpleAddRole = false;
-  bool _simpleRemoveRole = false;
-  bool _simpleSendMessage = false;
-  bool _simplePinMessage = false;
-  bool _simpleUnpinMessage = false;
-  bool _simpleCreateInvite = false;
-  bool _simpleCreatePoll = false;
-  final TextEditingController _simpleSendMessageController =
-      TextEditingController();
-  final TextEditingController _simpleActionReasonController =
-      TextEditingController();
-  final TextEditingController _simpleMuteDurationController =
-      TextEditingController(text: '10m');
-  final TextEditingController _simpleBanDeleteDaysController =
-      TextEditingController(text: '0');
-  final TextEditingController _simpleDeleteMessagesDefaultCountController =
-      TextEditingController(text: '1');
-  final TextEditingController _simpleInviteMaxAgeController =
-      TextEditingController(text: '86400');
-  final TextEditingController _simpleInviteMaxUsesController =
-      TextEditingController(text: '0');
-  final TextEditingController _simplePollAnswersController =
-      TextEditingController(text: 'Yes\nNo');
-  final TextEditingController _simplePollDurationHoursController =
-      TextEditingController(text: '24');
-  bool _simpleInviteTemporary = false;
-  bool _simpleInviteUnique = false;
-  bool _simplePollAllowMultiselect = false;
   Map<String, Map<String, dynamic>> _subcommandWorkflows =
       <String, Map<String, dynamic>>{};
   String _activeSubcommandRoute = _rootWorkflowRoute;
   bool _isApplyingWorkflowPayload = false;
   int _currentEditorStep = 0;
-  bool _showQuickStartBuilder = false;
   String _initialEditSnapshot = '';
 
   static Map<String, dynamic> _defaultWorkflow() {
@@ -224,7 +188,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     };
   }
 
-  bool get _isSimpleMode => _editorMode == _editorModeSimple;
+  bool get _isSimpleMode => false;
 
   bool get _isBdfdScriptMode => _executionMode == _executionModeBdfdScript;
 
@@ -244,9 +208,6 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   }
 
   void _promoteSimpleModeDraftIfNeeded(String persistedEditorMode) {
-    if (persistedEditorMode == _editorModeSimple) {
-      _hydrateLegacySimpleModeIntoDraft();
-    }
     _editorMode = _editorModeAdvanced;
   }
 
@@ -290,8 +251,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   bool get _supportsCommandOptions =>
       _commandType == ApplicationCommandType.chatInput;
 
-  bool get _supportsSimpleMode =>
-      _commandType == ApplicationCommandType.chatInput;
+  bool get _supportsSimpleMode => false;
 
   bool get _allowModalResponses => !_legacyModeEnabled;
 
@@ -882,15 +842,6 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     _responseController.dispose();
     _bdfdScriptController.dispose();
     _folderController.dispose();
-    _simpleSendMessageController.dispose();
-    _simpleActionReasonController.dispose();
-    _simpleMuteDurationController.dispose();
-    _simpleBanDeleteDaysController.dispose();
-    _simpleDeleteMessagesDefaultCountController.dispose();
-    _simpleInviteMaxAgeController.dispose();
-    _simpleInviteMaxUsesController.dispose();
-    _simplePollAnswersController.dispose();
-    _simplePollDurationHoursController.dispose();
     super.dispose();
   }
 
@@ -1458,12 +1409,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           persistedEditorMode == _editorModeSimple
               ? _editorModeSimple
               : _editorModeAdvanced;
-      final simpleConfig = _normalizeSimpleConfig(
-        Map<String, dynamic>.from(
-          (normalizedData['simpleConfig'] as Map?)?.cast<String, dynamic>() ??
-              const {},
-        ),
-      );
+
       final response = Map<String, dynamic>.from(
         (normalizedData['response'] as Map?)?.cast<String, dynamic>() ??
             const {},
@@ -1505,7 +1451,6 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         if (!_supportsSimpleMode) {
           _editorMode = _editorModeAdvanced;
         }
-        _applySimpleConfig(simpleConfig);
         _responseType =
             (response['type'] == 'normal' || response['type'] == 'message')
                 ? 'message'
@@ -1614,12 +1559,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
             persistedEditorMode == _editorModeSimple
                 ? _editorModeSimple
                 : _editorModeAdvanced;
-        final simpleConfig = _normalizeSimpleConfig(
-          Map<String, dynamic>.from(
-            (normalizedData['simpleConfig'] as Map?)?.cast<String, dynamic>() ??
-                const {},
-          ),
-        );
+
         final response = Map<String, dynamic>.from(
           (normalizedData["response"] as Map?)?.cast<String, dynamic>() ??
               const {},
@@ -1659,7 +1599,6 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           if (!_supportsSimpleMode) {
             _editorMode = _editorModeAdvanced;
           }
-          _applySimpleConfig(simpleConfig);
           final loadedMode =
               (response['mode'] ?? response['type'] ?? 'message').toString();
           _responseType =
@@ -1840,13 +1779,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       return;
     }
 
-    final simpleValidationError =
-        _isSimpleMode
-            ? validateSimpleModeConfig(
-              _simpleModeConfig,
-              translate: (key) => key,
-            )
-            : null;
+    final simpleValidationError = null;
     if (simpleValidationError != null) {
       final dialog = AlertDialog(
         title: Text(context.tr.error),

@@ -118,7 +118,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "6f93564d1f42a15630a007ad78a01d80b26be13b"
+      resolved-ref: c552afa95045355e62e21f246cc8cbe94eca3558
       url: "https://github.com/ketsuna-org/bot-creator-shared.git"
     source: git
     version: "0.0.1"
