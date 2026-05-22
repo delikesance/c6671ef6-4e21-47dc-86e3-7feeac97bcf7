@@ -431,7 +431,7 @@ class _TemplateCardState extends State<_TemplateCard> {
         SnackBar(
           content: Text(
             context.tr.template_gallery_nothing_to_remove(
-              widget.template.nameKey,
+              widget.template.name,
             ),
           ),
         ),
@@ -537,14 +537,14 @@ class _TemplateCardState extends State<_TemplateCard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      template.nameKey,
+                      template.name,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      template.descriptionKey,
+                      template.description,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                       ),
@@ -661,7 +661,7 @@ class _TemplatePreviewDialog extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    template.nameKey,
+                    template.name,
                     style: textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: colorScheme.onPrimaryContainer,
@@ -690,7 +690,7 @@ class _TemplatePreviewDialog extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                template.descriptionKey,
+                template.description,
                 style: textTheme.bodyMedium?.copyWith(
                   color: colorScheme.onSurfaceVariant,
                 ),
