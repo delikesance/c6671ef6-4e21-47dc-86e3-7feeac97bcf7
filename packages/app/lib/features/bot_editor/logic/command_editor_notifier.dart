@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 
 import 'package:bot_creator/core/models/types/app_emoji.dart';
 import 'package:bot_creator/features/bot_editor/logic/command_editor_state.dart';
-import 'package:bot_creator/features/bot_editor/logic/simple_mode.dart';
 import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 import 'package:nyxx/nyxx.dart';
 
@@ -275,71 +274,6 @@ class CommandEditorNotifier extends ChangeNotifier {
 
   void updateInitialEditSnapshot(String snapshot) {
     _state = _state.copyWith(initialEditSnapshot: snapshot);
-    notifyListeners();
-  }
-
-  // ── Simple mode updates ──
-
-  void updateSimpleConfig(SimpleModeConfig config) {
-    _state = _state.copyWith(
-      simpleDeleteMessages: config.deleteMessages,
-      simpleKickUser: config.kickUser,
-      simpleBanUser: config.banUser,
-      simpleUnbanUser: config.unbanUser,
-      simpleMuteUser: config.muteUser,
-      simpleUnmuteUser: config.unmuteUser,
-      simpleAddRole: config.addRole,
-      simpleRemoveRole: config.removeRole,
-      simpleSendMessage: config.sendMessage,
-      simplePinMessage: config.pinMessage,
-      simpleUnpinMessage: config.unpinMessage,
-      simpleCreateInvite: config.createInvite,
-      simpleCreatePoll: config.createPoll,
-      simpleSendMessageText: config.sendMessageText,
-      simpleActionReason: config.actionReason,
-      simpleMuteDuration: config.muteDuration,
-      simpleBanDeleteDays: config.banDeleteMessageDays,
-      simpleDeleteMessagesDefaultCount: config.deleteMessagesDefaultCount,
-      simpleInviteMaxAge: config.inviteMaxAge,
-      simpleInviteMaxUses: config.inviteMaxUses,
-      simpleInviteTemporary: config.inviteTemporary,
-      simpleInviteUnique: config.inviteUnique,
-      simplePollAnswersText: config.pollAnswersText,
-      simplePollDurationHours: config.pollDurationHours,
-      simplePollAllowMultiselect: config.pollAllowMultiselect,
-    );
-    notifyListeners();
-  }
-
-  void updateSimpleToggle(String key, bool value) {
-    switch (key) {
-      case 'deleteMessages':
-        _state = _state.copyWith(simpleDeleteMessages: value);
-      case 'kickUser':
-        _state = _state.copyWith(simpleKickUser: value);
-      case 'banUser':
-        _state = _state.copyWith(simpleBanUser: value);
-      case 'unbanUser':
-        _state = _state.copyWith(simpleUnbanUser: value);
-      case 'muteUser':
-        _state = _state.copyWith(simpleMuteUser: value);
-      case 'unmuteUser':
-        _state = _state.copyWith(simpleUnmuteUser: value);
-      case 'addRole':
-        _state = _state.copyWith(simpleAddRole: value);
-      case 'removeRole':
-        _state = _state.copyWith(simpleRemoveRole: value);
-      case 'sendMessage':
-        _state = _state.copyWith(simpleSendMessage: value);
-      case 'pinMessage':
-        _state = _state.copyWith(simplePinMessage: value);
-      case 'unpinMessage':
-        _state = _state.copyWith(simpleUnpinMessage: value);
-      case 'createInvite':
-        _state = _state.copyWith(simpleCreateInvite: value);
-      case 'createPoll':
-        _state = _state.copyWith(simpleCreatePoll: value);
-    }
     notifyListeners();
   }
 

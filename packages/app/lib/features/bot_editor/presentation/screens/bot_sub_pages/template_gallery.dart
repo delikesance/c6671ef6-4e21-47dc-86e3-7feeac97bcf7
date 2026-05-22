@@ -1,11 +1,14 @@
 import 'dart:math';
+import 'dart:convert';
+import 'dart:io';
+import 'dart:developer' as developer;
 
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 
 import 'package:bot_creator_shared/bot/bot_template.dart';
-import 'package:bot_creator_shared/bot/builtin_templates.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/material.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
@@ -20,13 +23,97 @@ const Map<String, IconData> _templateIcons = {
   'fun': Icons.casino,
 };
 
-/// Gallery page that displays built-in bot templates and lets the user apply
-/// them to the current bot.
-class TemplateGalleryPage extends StatelessWidget {
+/// Gallery page that displays bot templates loaded dynamically from GitHub
+/// and lets the user apply them to the current bot.
+class TemplateGalleryPage extends StatefulWidget {
   final String botId;
   final NyxxRest? client;
 
   const TemplateGalleryPage({super.key, required this.botId, this.client});
+
+  @override
+  State<TemplateGalleryPage> createState() => _TemplateGalleryPageState();
+}
+
+class _TemplateGalleryPageState extends State<TemplateGalleryPage> {
+  List<BotTemplate>? _templates;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchTemplates();
+  }
+
+  Future<void> _fetchTemplates() async {
+    if (!mounted) return;
+    setState(() {
+      _isLoading = true;
+    });
+
+    final client = HttpClient();
+    try {
+      final request = await client.getUrl(
+        Uri.parse(
+          'https://raw.githubusercontent.com/ketsuna-org/bot-creator-shared/refs/heads/main/template.json',
+        ),
+      );
+      final response = await request.close().timeout(const Duration(seconds: 8));
+      final payload = await utf8.decodeStream(response);
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        throw Exception('HTTP ${response.statusCode}');
+      }
+
+      final decoded = jsonDecode(payload);
+      if (decoded is List) {
+        final parsed = loadTemplatesFromJsonList(decoded);
+        if (mounted) {
+          setState(() {
+            _templates = parsed;
+            _isLoading = false;
+          });
+        }
+      } else {
+        throw Exception('Invalid template JSON format');
+      }
+    } catch (e) {
+      developer.log('Error fetching templates: $e', name: 'TemplateGallery');
+      if (mounted) {
+        // Robust offline fallback to local template asset JSON
+        try {
+          final localAsset = await rootBundle.loadString('assets/template.json');
+          final decoded = jsonDecode(localAsset);
+          if (decoded is List) {
+            final parsed = loadTemplatesFromJsonList(decoded);
+            setState(() {
+              _templates = parsed;
+              _isLoading = false;
+            });
+          } else {
+            throw Exception('Invalid asset format');
+          }
+        } catch (assetError) {
+          developer.log('Error reading fallback template asset: $assetError', name: 'TemplateGallery');
+          setState(() {
+            _templates = const [];
+            _isLoading = false;
+          });
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Failed to fetch templates from GitHub. Loading offline templates.',
+            ),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
+    } finally {
+      client.close(force: true);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,32 +125,57 @@ class TemplateGalleryPage extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: Text(context.tr.template_gallery_title)),
+      appBar: AppBar(
+        title: Text(context.tr.template_gallery_title),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _isLoading ? null : _fetchTemplates,
+            tooltip: 'Refresh',
+          ),
+        ],
+      ),
       body: SafeArea(
-        child:
-            builtInTemplates.isEmpty
-                ? Center(child: Text(context.tr.template_gallery_empty))
-                : ListView(
-                  padding: const EdgeInsets.all(16),
+        child: _isLoading
+            ? const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: Text(
-                        context.tr.template_gallery_subtitle,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ),
-                    ...builtInTemplates.map(
-                      (template) => _TemplateCard(
-                        template: template,
-                        botId: botId,
-                        client: client,
-                      ),
-                    ),
+                    CircularProgressIndicator(),
+                    SizedBox(height: 16),
+                    Text('Loading templates from GitHub...'),
                   ],
                 ),
+              )
+            : (_templates == null || _templates!.isEmpty)
+                ? Center(child: Text(context.tr.template_gallery_empty))
+                : RefreshIndicator(
+                    onRefresh: _fetchTemplates,
+                    child: ListView(
+                      padding: const EdgeInsets.all(16),
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: Text(
+                            context.tr.template_gallery_subtitle,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                          ),
+                        ),
+                        ..._templates!.map(
+                          (template) => _TemplateCard(
+                            template: template,
+                            botId: widget.botId,
+                            client: widget.client,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
       ),
     );
   }

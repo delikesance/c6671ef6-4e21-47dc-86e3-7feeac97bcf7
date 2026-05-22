@@ -87,15 +87,7 @@ extension _CommandCreateWizard on _CommandCreatePageState {
     });
   }
 
-  void _applyQuickStartPreset() {
-    _applyStateUpdate(() {
-      _applyQuickStartToDraft();
-      _persistActiveSubcommandWorkflow();
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(context.tr.wizard_quick_start_applied)),
-    );
-  }
+
 
   String _responseModeLabel() {
     switch (_responseType) {
@@ -440,35 +432,7 @@ extension _CommandCreateWizard on _CommandCreatePageState {
       key: const ValueKey('step-actions'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (_supportsSimpleMode && !_isBdfdScriptMode)
-          ExpansionTile(
-            initiallyExpanded: _showQuickStartBuilder,
-            onExpansionChanged: (expanded) {
-              _applyStateUpdate(() {
-                _showQuickStartBuilder = expanded;
-              });
-            },
-            title: Text(context.tr.wizard_quick_starts),
-            subtitle: Text(
-              context.tr.wizard_quick_start_subtitle,
-              style: TextStyle(fontSize: 12, color: AppTheme.grey),
-            ),
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: _buildSimpleActionsCard(),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                child: FilledButton.tonalIcon(
-                  onPressed: _applyQuickStartPreset,
-                  icon: const Icon(Icons.bolt_outlined),
-                  label: Text(context.tr.wizard_apply_quick_start),
-                ),
-              ),
-            ],
-          ),
-        const SizedBox(height: 12),
+
         ExpansionTile(
           title: Text(context.tr.wizard_code_advanced),
           subtitle: Text(

@@ -164,6 +164,7 @@ class AppManager implements BotDataStore {
     required String token,
     Map<String, bool>? intents,
     String? prefix,
+    int? approximateGuildCount,
   }) async {
     final botId = id.toString();
     return await _enqueueAppWrite(botId, () async {
@@ -207,6 +208,11 @@ class AppManager implements BotDataStore {
             ..['createdAt'] =
                 existingData['createdAt'] ?? DateTime.now().toIso8601String()
             ..['intents'] = intents ?? existingData['intents'] ?? {}
+            ..['approximate_guild_count'] = approximateGuildCount ??
+                existingData['approximate_guild_count']
+            ..['guild_count'] = approximateGuildCount ??
+                existingData['guild_count'] ??
+                existingData['approximate_guild_count']
             ..['globalVariables'] = Map<String, dynamic>.from(
               (existingData['globalVariables'] as Map?)
                       ?.cast<String, dynamic>() ??
@@ -256,8 +262,20 @@ class AppManager implements BotDataStore {
       if (index >= 0) {
         appsList[index]['name'] = username;
         appsList[index]['avatar'] = avatarUri;
+        if (approximateGuildCount != null) {
+          appsList[index]['approximate_guild_count'] = approximateGuildCount;
+          appsList[index]['guild_count'] = approximateGuildCount;
+        }
       } else {
-        appsList.add({'name': username, 'avatar': avatarUri, 'id': botId});
+        appsList.add({
+          'name': username,
+          'avatar': avatarUri,
+          'id': botId,
+          if (approximateGuildCount != null)
+            'approximate_guild_count': approximateGuildCount,
+          if (approximateGuildCount != null)
+            'guild_count': approximateGuildCount,
+        });
       }
 
       await allAppsFile.writeAsString(jsonEncode(appsList));
@@ -328,6 +346,8 @@ class AppManager implements BotDataStore {
           'name': (app['name'] ?? 'Unknown').toString(),
           'avatar': (app['avatar'] ?? '').toString(),
           if (app['guild_count'] != null) 'guild_count': app['guild_count'],
+          if (app['approximate_guild_count'] != null)
+            'approximate_guild_count': app['approximate_guild_count'],
         });
       } catch (_) {}
     }
