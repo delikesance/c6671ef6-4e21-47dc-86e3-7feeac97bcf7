@@ -151,6 +151,7 @@ extension _CommandBlockEditor on _CommandCreatePageState {
         onLegacyCommandChanged:
             (value) => _applyStateUpdate(() {
               _legacyModeEnabled = value;
+              _localOnlyCommand = value;
               if (_legacyModeEnabled && _responseType == 'modal') {
                 _responseType = 'normal';
               }
@@ -194,8 +195,10 @@ extension _CommandBlockEditor on _CommandCreatePageState {
             (value) => _applyStateUpdate(() {
               if (value == CommandEntryPointType.message) {
                 _legacyModeEnabled = true;
+                _localOnlyCommand = true;
               } else {
                 _legacyModeEnabled = false;
+                _localOnlyCommand = false;
               }
             }),
         legacyModeEnabled: _legacyModeEnabled,
@@ -203,6 +206,7 @@ extension _CommandBlockEditor on _CommandCreatePageState {
             _supportsCommandOptions
                 ? (value) => _applyStateUpdate(() {
                   _legacyModeEnabled = value;
+                  _localOnlyCommand = value;
                   if (_legacyModeEnabled && _responseType == 'modal') {
                     _responseType = 'normal';
                   }

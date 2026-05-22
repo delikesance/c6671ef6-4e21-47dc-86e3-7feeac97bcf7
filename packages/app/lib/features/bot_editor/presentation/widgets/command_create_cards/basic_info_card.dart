@@ -623,7 +623,7 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                       ),
                       value: widget.localOnlyCommand,
                       onChanged:
-                          _awaitedPresetEnabled
+                          _awaitedPresetEnabled || widget.isLegacyCommand
                               ? null
                               : widget.onLocalOnlyCommandChanged,
                     ),
