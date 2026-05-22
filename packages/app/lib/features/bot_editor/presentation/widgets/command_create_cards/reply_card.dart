@@ -7,7 +7,7 @@ import 'package:bot_creator/features/bot_editor/presentation/widgets/response_em
 import 'package:bot_creator/features/components_v2/presentation/component_v2_builder/component_v2_editor.dart';
 import 'package:bot_creator/features/components_v2/presentation/component_v2_builder/normal_component_editor.dart';
 import 'package:bot_creator/features/components_v2/presentation/component_v2_builder/modal_builder.dart';
-import 'package:bot_creator/core/models/types/component.dart';
+import 'package:bot_creator_shared/types/component.dart';
 
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
@@ -222,12 +222,18 @@ class ReplyCard extends StatelessWidget {
               ),
             ] else ...[
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 24,
+                  horizontal: 16,
+                ),
                 child: Center(
                   child: Column(
                     children: [
-                      const Icon(Icons.warning_amber_rounded,
-                          color: AppTheme.error, size: 32),
+                      const Icon(
+                        Icons.warning_amber_rounded,
+                        color: AppTheme.error,
+                        size: 32,
+                      ),
                       const SizedBox(height: 12),
                       Text(
                         'Mode inconnu: $responseType',

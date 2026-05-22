@@ -1,4 +1,4 @@
-import 'package:bot_creator/core/models/types/component.dart';
+import 'package:bot_creator_shared/types/component.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/command_create_cards/reply_card.dart';
 import 'package:bot_creator/features/components_v2/presentation/component_v2_builder/component_v2_editor.dart';
 import 'package:bot_creator/features/components_v2/presentation/component_v2_builder/normal_component_editor.dart';

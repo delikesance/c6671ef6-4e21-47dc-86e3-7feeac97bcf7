@@ -488,10 +488,10 @@ abstract class AppLocalizations {
   /// **'e.g., 5m, 1h, 30s'**
   String get action_hint_duration;
 
-  /// Enter emoji or :name:
+  /// Emoji (e.g. 🪜) or <:name:id>
   ///
   /// In en, this message translates to:
-  /// **'Enter emoji or :name:'**
+  /// **'Emoji (e.g. 🪜) or <:name:id>'**
   String get action_hint_emoji;
 
   /// Enter {type}
@@ -722,6 +722,12 @@ abstract class AppLocalizations {
   /// **'Delete Webhook'**
   String get action_name_deleteWebhook;
 
+  /// Debug Profile
+  ///
+  /// In en, this message translates to:
+  /// **'Debug Profile'**
+  String get action_name_debugProfile;
+
   /// Disconnect from Voice
   ///
   /// In en, this message translates to:
@@ -763,6 +769,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'End Poll'**
   String get action_name_endPoll;
+
+  /// For Loop
+  ///
+  /// In en, this message translates to:
+  /// **'For Loop'**
+  String get action_name_forLoop;
 
   /// Get Global Variable
   ///
@@ -818,6 +830,12 @@ abstract class AppLocalizations {
   /// **'IF / ELSE Block'**
   String get action_name_ifBlock;
 
+  /// JSON For Each Loop
+  ///
+  /// In en, this message translates to:
+  /// **'JSON For Each Loop'**
+  String get action_name_jsonForEachLoop;
+
   /// Kick User
   ///
   /// In en, this message translates to:
@@ -866,6 +884,12 @@ abstract class AppLocalizations {
   /// **'Listen for Select Menu'**
   String get action_name_listenForSelectMenu;
 
+  /// Log Message
+  ///
+  /// In en, this message translates to:
+  /// **'Log Message'**
+  String get action_name_log;
+
   /// Move to Voice Channel
   ///
   /// In en, this message translates to:
@@ -895,6 +919,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Random Choice'**
   String get action_name_randomChoice;
+
+  /// Register Guild Commands
+  ///
+  /// In en, this message translates to:
+  /// **'Register Guild Commands'**
+  String get action_name_registerGuildCommands;
 
   /// Remove Array Element
   ///
@@ -974,6 +1004,12 @@ abstract class AppLocalizations {
   /// **'Run BDFD Script'**
   String get action_name_runBdfdScript;
 
+  /// Execute JSON Operations
+  ///
+  /// In en, this message translates to:
+  /// **'Execute JSON Operations'**
+  String get action_name_runtimeJsonBlock;
+
   /// Run Workflow
   ///
   /// In en, this message translates to:
@@ -1034,6 +1070,12 @@ abstract class AppLocalizations {
   /// **'Set Scoped Variable'**
   String get action_name_setScopedVariable;
 
+  /// Set Temporary Variable
+  ///
+  /// In en, this message translates to:
+  /// **'Set Temporary Variable'**
+  String get action_name_setTemporaryVariable;
+
   /// Slowmode
   ///
   /// In en, this message translates to:
@@ -1069,6 +1111,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unpin Message'**
   String get action_name_unpinMessage;
+
+  /// Unregister Guild Commands
+  ///
+  /// In en, this message translates to:
+  /// **'Unregister Guild Commands'**
+  String get action_name_unregisterGuildCommands;
 
   /// Update AutoMod
   ///
@@ -10007,6 +10055,12 @@ abstract class AppLocalizations {
   /// **'Legal'**
   String get settings_legal_title;
 
+  /// Button label to view open source licenses
+  ///
+  /// In en, this message translates to:
+  /// **'Open Source Licenses'**
+  String get settings_oss_licenses;
+
   /// Mobile bots now use your device for hosting.
   ///
   /// In en, this message translates to:
@@ -12274,6 +12328,198 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Workflow type'**
   String get workflows_type_title;
+
+  /// Team Ownership
+  ///
+  /// In en, this message translates to:
+  /// **'Team Ownership'**
+  String get settings_team_ownership;
+
+  /// Personal Ownership
+  ///
+  /// In en, this message translates to:
+  /// **'Personal Ownership'**
+  String get settings_personal_ownership;
+
+  /// TEAM
+  ///
+  /// In en, this message translates to:
+  /// **'TEAM'**
+  String get settings_team_pill;
+
+  /// SOLO
+  ///
+  /// In en, this message translates to:
+  /// **'SOLO'**
+  String get settings_solo_pill;
+
+  /// Team Name:
+  ///
+  /// In en, this message translates to:
+  /// **'Team Name: '**
+  String get settings_team_name_label;
+
+  /// Team ID:
+  ///
+  /// In en, this message translates to:
+  /// **'Team ID: '**
+  String get settings_team_id_label;
+
+  /// Team Leader
+  ///
+  /// In en, this message translates to:
+  /// **'Team Leader'**
+  String get settings_team_owner_label;
+
+  /// Owner
+  ///
+  /// In en, this message translates to:
+  /// **'Owner'**
+  String get settings_owner_fallback;
+
+  /// OWNER
+  ///
+  /// In en, this message translates to:
+  /// **'OWNER'**
+  String get settings_owner_badge;
+
+  /// Number of team members
+  ///
+  /// In en, this message translates to:
+  /// **'Team Members ({count})'**
+  String settings_team_members_label(int count);
+
+  /// Owner:
+  ///
+  /// In en, this message translates to:
+  /// **'Owner: '**
+  String get settings_personal_owner_label;
+
+  /// Personal User
+  ///
+  /// In en, this message translates to:
+  /// **'Personal User'**
+  String get settings_personal_owner_fallback;
+
+  /// Owner ID:
+  ///
+  /// In en, this message translates to:
+  /// **'Owner ID: '**
+  String get settings_personal_owner_id_label;
+
+  /// View Raw JSON (RAW JSON)
+  ///
+  /// In en, this message translates to:
+  /// **'View Raw JSON (RAW JSON)'**
+  String get settings_raw_json_tile;
+
+  /// MEMBER
+  ///
+  /// In en, this message translates to:
+  /// **'MEMBER'**
+  String get settings_member_badge;
+
+  /// Local Save
+  ///
+  /// In en, this message translates to:
+  /// **'Local Save'**
+  String get cmd_deploy_local_save_title;
+
+  /// Saving command to device
+  ///
+  /// In en, this message translates to:
+  /// **'Saving command to device'**
+  String get cmd_deploy_local_save_subtitle;
+
+  /// Reloading Bot
+  ///
+  /// In en, this message translates to:
+  /// **'Reloading Bot'**
+  String get cmd_deploy_reload_bot_title;
+
+  /// Applying hot reload configuration
+  ///
+  /// In en, this message translates to:
+  /// **'Applying hot reload configuration'**
+  String get cmd_deploy_reload_bot_subtitle;
+
+  /// Discord Sync
+  ///
+  /// In en, this message translates to:
+  /// **'Discord Sync'**
+  String get cmd_deploy_discord_sync_title;
+
+  /// Publishing command to Discord API
+  ///
+  /// In en, this message translates to:
+  /// **'Publishing command to Discord API'**
+  String get cmd_deploy_discord_sync_subtitle;
+
+  /// Cloud Backup
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud Backup'**
+  String get cmd_deploy_cloud_sync_title;
+
+  /// Secure synchronization with your online space
+  ///
+  /// In en, this message translates to:
+  /// **'Secure synchronization with your online space'**
+  String get cmd_deploy_cloud_sync_subtitle;
+
+  /// Hot Reload
+  ///
+  /// In en, this message translates to:
+  /// **'Hot Reload'**
+  String get cmd_deploy_hot_reload_title;
+
+  /// Instant update of your bot runner
+  ///
+  /// In en, this message translates to:
+  /// **'Instant update of your bot runner'**
+  String get cmd_deploy_hot_reload_subtitle;
+
+  /// Success message shown when command deployed successfully
+  ///
+  /// In en, this message translates to:
+  /// **'Command \"{name}\" deployed and active!'**
+  String cmd_deploy_success_toast(String name);
+
+  /// Deployment successful!
+  ///
+  /// In en, this message translates to:
+  /// **'Deployment successful!'**
+  String get cmd_deploy_success_title;
+
+  /// Deployment failed
+  ///
+  /// In en, this message translates to:
+  /// **'Deployment failed'**
+  String get cmd_deploy_failed_title;
+
+  /// Deployment in progress...
+  ///
+  /// In en, this message translates to:
+  /// **'Deployment in progress...'**
+  String get cmd_deploy_in_progress_title;
+
+  /// Subtitle showing command name under configuration
+  ///
+  /// In en, this message translates to:
+  /// **'Configuration of /{name}'**
+  String cmd_deploy_config_subtitle(String name);
+
+  /// Close
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get cmd_deploy_close_button;
+
+  /// Retry
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get cmd_deploy_retry_button;
 }
 
 class _AppLocalizationsDelegate

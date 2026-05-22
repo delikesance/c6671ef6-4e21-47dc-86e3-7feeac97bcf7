@@ -593,6 +593,8 @@ class DiscordBotTaskHandler extends TaskHandler {
     final rss = _readCurrentProcessRssBytes();
     final cpu = _readCurrentProcessCpuPercent();
     final storage = await _readBotStorageBytes(botId: botId);
+    final session = _engine.getSession(botId);
+    final guildCount = session?.gateway?.guilds.cache.length;
 
     FlutterForegroundTask.sendDataToMain({
       'type': 'bot_metrics',
@@ -600,6 +602,7 @@ class DiscordBotTaskHandler extends TaskHandler {
       'rssBytes': rss,
       'cpuPercent': cpu,
       'storageBytes': storage,
+      'guildCount': guildCount,
     });
   }
 }

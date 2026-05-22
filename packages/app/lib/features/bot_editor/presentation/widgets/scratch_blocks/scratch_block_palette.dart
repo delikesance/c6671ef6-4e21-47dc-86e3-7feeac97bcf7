@@ -1,7 +1,6 @@
- import 'package:bot_creator/core/i18n/extensions.dart';
+import 'package:bot_creator/core/i18n/extensions.dart';
 import 'package:flutter/material.dart';
-import 'package:bot_creator/core/models/types/action.dart'
-    show BotCreatorActionType;
+import 'package:bot_creator_shared/types/action.dart' show BotCreatorActionType;
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder/action_type_extension.dart';
 
 import 'package:bot_creator/core/theme/app_theme.dart';
@@ -104,6 +103,7 @@ String getCategoryForAction(BotCreatorActionType type) {
     case BotCreatorActionType.getGlobalVariable:
     case BotCreatorActionType.removeGlobalVariable:
     case BotCreatorActionType.setScopedVariable:
+    case BotCreatorActionType.setTemporaryVariable:
     case BotCreatorActionType.getScopedVariable:
     case BotCreatorActionType.removeScopedVariable:
     case BotCreatorActionType.renameScopedVariable:
@@ -114,9 +114,16 @@ String getCategoryForAction(BotCreatorActionType type) {
       return 'HTTP & Variables';
     case BotCreatorActionType.runWorkflow:
     case BotCreatorActionType.runBdfdScript:
+    case BotCreatorActionType.debugProfile:
+    case BotCreatorActionType.log:
+    case BotCreatorActionType.runtimeJsonBlock:
+    case BotCreatorActionType.registerGuildCommands:
+    case BotCreatorActionType.unregisterGuildCommands:
       return 'Workflows';
     case BotCreatorActionType.stopUnless:
     case BotCreatorActionType.ifBlock:
+    case BotCreatorActionType.forLoop:
+    case BotCreatorActionType.jsonForEachLoop:
     case BotCreatorActionType.calculate:
     case BotCreatorActionType.cooldown:
     case BotCreatorActionType.wait:
@@ -251,9 +258,10 @@ class _ScratchBlockPaletteState extends State<ScratchBlockPalette> {
 
     for (final actionType in BotCreatorActionType.values) {
       if (_searchQuery.isNotEmpty &&
-          !actionType.displayName(context).toLowerCase().contains(
-            _searchQuery.toLowerCase(),
-          )) {
+          !actionType
+              .displayName(context)
+              .toLowerCase()
+              .contains(_searchQuery.toLowerCase())) {
         continue;
       }
       final category = getCategoryForAction(actionType);
@@ -262,7 +270,9 @@ class _ScratchBlockPaletteState extends State<ScratchBlockPalette> {
     }
 
     for (final entry in actionsByCategory.entries) {
-      entry.value.sort((a, b) => a.displayName(context).compareTo(b.displayName(context)));
+      entry.value.sort(
+        (a, b) => a.displayName(context).compareTo(b.displayName(context)),
+      );
     }
 
     return Column(

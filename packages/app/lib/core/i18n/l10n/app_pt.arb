@@ -291,9 +291,9 @@
   "@action_hint_duration": {
     "description": "e.g., 5m, 1h, 30s"
   },
-  "action_hint_emoji": "Digite o emoji ou :nome:",
+  "action_hint_emoji": "Emoji (ex. 🪜) ou <:nome:id>",
   "@action_hint_emoji": {
-    "description": "Enter emoji or :name:"
+    "description": "Emoji (e.g. 🪜) or <:name:id>"
   },
   "action_hint_enter_type": "Digite {type}",
   "@action_hint_enter_type": {
@@ -462,6 +462,10 @@
   "@action_name_deleteWebhook": {
     "description": "Delete Webhook"
   },
+  "action_name_debugProfile": "Perfil de Depuração",
+  "@action_name_debugProfile": {
+    "description": "Perfil de Depuração"
+  },
   "action_name_disconnectFromVoice": "Desligar da Voz",
   "@action_name_disconnectFromVoice": {
     "description": "Disconnect from Voice"
@@ -489,6 +493,10 @@
   "action_name_endPoll": "Terminar Sondagem",
   "@action_name_endPoll": {
     "description": "End Poll"
+  },
+  "action_name_forLoop": "Loop For",
+  "@action_name_forLoop": {
+    "description": "For Loop"
   },
   "action_name_getGlobalVariable": "Obter Variável Global",
   "@action_name_getGlobalVariable": {
@@ -526,6 +534,10 @@
   "@action_name_ifBlock": {
     "description": "IF / ELSE Block"
   },
+  "action_name_jsonForEachLoop": "Loop For Each JSON",
+  "@action_name_jsonForEachLoop": {
+    "description": "JSON For Each Loop"
+  },
   "action_name_kickUser": "Expulsar Utilizador",
   "@action_name_kickUser": {
     "description": "Kick User"
@@ -558,6 +570,10 @@
   "@action_name_listenForSelectMenu": {
     "description": "Listen for Select Menu"
   },
+  "action_name_log": "Registrar Mensagem",
+  "@action_name_log": {
+    "description": "Registrar Mensagem"
+  },
   "action_name_moveToVoiceChannel": "Mover para Canal de Voz",
   "@action_name_moveToVoiceChannel": {
     "description": "Move to Voice Channel"
@@ -577,6 +593,10 @@
   "action_name_randomChoice": "Escolha Aleatória",
   "@action_name_randomChoice": {
     "description": "Random Choice"
+  },
+  "action_name_registerGuildCommands": "Registrar Comandos de Servidor",
+  "@action_name_registerGuildCommands": {
+    "description": "Registrar Comandos de Servidor"
   },
   "action_name_removeArrayElement": "Remover Elemento do Array",
   "@action_name_removeArrayElement": {
@@ -630,6 +650,10 @@
   "@action_name_runBdfdScript": {
     "description": "Run BDFD Script"
   },
+  "action_name_runtimeJsonBlock": "Executar Operações JSON",
+  "@action_name_runtimeJsonBlock": {
+    "description": "Executar Operações JSON"
+  },
   "action_name_runWorkflow": "Executar Fluxo de Trabalho",
   "@action_name_runWorkflow": {
     "description": "Run Workflow"
@@ -670,6 +694,10 @@
   "@action_name_setScopedVariable": {
     "description": "Set Scoped Variable"
   },
+  "action_name_setTemporaryVariable": "Definir Variável Temporária",
+  "@action_name_setTemporaryVariable": {
+    "description": "Set Temporary Variable"
+  },
   "action_name_slowmode": "Modo Lento",
   "@action_name_slowmode": {
     "description": "Slowmode"
@@ -693,6 +721,10 @@
   "action_name_unpinMessage": "Desafixar Mensagem",
   "@action_name_unpinMessage": {
     "description": "Unpin Message"
+  },
+  "action_name_unregisterGuildCommands": "Cancelar Registro de Comandos de Servidor",
+  "@action_name_unregisterGuildCommands": {
+    "description": "Cancelar Registro de Comandos de Servidor"
   },
   "action_name_updateAutoMod": "Atualizar AutoMod",
   "@action_name_updateAutoMod": {
@@ -7167,6 +7199,10 @@
   "@settings_legal_title": {
     "description": "Legal"
   },
+  "settings_oss_licenses": "Licenças Open Source",
+  "@settings_oss_licenses": {
+    "description": "Button label to view open source licenses"
+  },
   "settings_local_hosting_enabled": "Bots móveis agora usam seu dispositivo para hospedagem.",
   "@settings_local_hosting_enabled": {
     "description": "Mobile bots now use your device for hosting."
@@ -8901,5 +8937,61 @@
   "workflows_type_title": "Tipo de Workflow",
   "@workflows_type_title": {
     "description": "Workflow type"
-  }
+  },
+  "settings_team_ownership": "Propriedade da Equipe",
+  "settings_personal_ownership": "Propriedade Pessoal",
+  "settings_team_pill": "EQUIPE",
+  "settings_solo_pill": "SOLO",
+  "settings_team_name_label": "Nome da equipe: ",
+  "settings_team_id_label": "ID da equipe: ",
+  "settings_team_owner_label": "Líder da Equipe",
+  "settings_owner_fallback": "Proprietário",
+  "settings_owner_badge": "PROPRIETÁRIO",
+  "settings_team_members_label": "Membros da Equipe ({count})",
+  "@settings_team_members_label": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "Number of team members"
+  },
+  "settings_personal_owner_label": "Proprietário: ",
+  "settings_personal_owner_fallback": "Usuário Pessoal",
+  "settings_personal_owner_id_label": "ID do Proprietário: ",
+  "settings_raw_json_tile": "Ver JSON bruto (RAW JSON)",
+  "settings_member_badge": "MEMBRO",
+  "cmd_deploy_local_save_title": "Salvamento Local",
+  "cmd_deploy_local_save_subtitle": "Salvando comando no dispositivo",
+  "cmd_deploy_reload_bot_title": "Recarregando Bot",
+  "cmd_deploy_reload_bot_subtitle": "Aplicando configuração de hot-reload",
+  "cmd_deploy_discord_sync_title": "Sincronização com Discord",
+  "cmd_deploy_discord_sync_subtitle": "Publicando comando na API do Discord",
+  "cmd_deploy_cloud_sync_title": "Backup na Nuvem",
+  "cmd_deploy_cloud_sync_subtitle": "Sincronização segura com o seu espaço online",
+  "cmd_deploy_hot_reload_title": "Recarregamento Rápido",
+  "cmd_deploy_hot_reload_subtitle": "Atualização instantânea do runner do seu bot",
+  "cmd_deploy_success_toast": "Comando \"{name}\" implantado e ativo!",
+  "@cmd_deploy_success_toast": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    },
+    "description": "Success message shown when command deployed successfully"
+  },
+  "cmd_deploy_success_title": "Implantação bem-sucedida!",
+  "cmd_deploy_failed_title": "Falha na implantação",
+  "cmd_deploy_in_progress_title": "Implantação em andamento...",
+  "cmd_deploy_config_subtitle": "Configuração de /{name}",
+  "@cmd_deploy_config_subtitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    },
+    "description": "Subtitle showing command name under configuration"
+  },
+  "cmd_deploy_close_button": "Fechar",
+  "cmd_deploy_retry_button": "Tentar Novamente"
 }

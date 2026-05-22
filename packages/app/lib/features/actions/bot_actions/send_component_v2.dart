@@ -1,5 +1,5 @@
 import 'package:nyxx/nyxx.dart';
-import 'package:bot_creator/core/models/types/component.dart';
+import 'package:bot_creator_shared/types/component.dart';
 import 'package:bot_creator/features/bot_editor/logic/component_workflow_bindings.dart';
 
 class CustomSectionBuilder extends ComponentBuilder<SectionComponent> {
@@ -19,6 +19,67 @@ class CustomSectionBuilder extends ComponentBuilder<SectionComponent> {
   };
 }
 
+/// A fake [GuildEmoji] used to pass emoji data to nyxx builders without needing a real manager.
+class _FakeEmoji implements GuildEmoji {
+  @override
+  final Snowflake id;
+  @override
+  final String? name;
+  @override
+  final bool? isAnimated;
+
+  const _FakeEmoji({required this.id, this.name, this.isAnimated});
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+Emoji? _parseEmoji(dynamic emojiData, String Function(String) resolve) {
+  if (emojiData == null) return null;
+
+  String? emojiText;
+  if (emojiData is Map) {
+    final id = resolve((emojiData['id'] ?? '').toString());
+    final name = resolve((emojiData['name'] ?? '').toString());
+    final animated = emojiData['animated'] == true;
+    if (id.isNotEmpty) {
+      final parsedId = int.tryParse(id);
+      if (parsedId != null) {
+        return _FakeEmoji(
+          id: Snowflake(parsedId),
+          name: name,
+          isAnimated: animated,
+        );
+      }
+    }
+    emojiText = name;
+  } else {
+    emojiText = resolve(emojiData.toString()).trim();
+  }
+
+  if (emojiText.isEmpty) return null;
+
+  // Custom emoji format: <:name:id>, <a:name:id>, :name:id, a:name:id, :a:name:id
+  final customMatch = RegExp(r'^<?:?(a?):([^:>]+):(\d+)>?$').firstMatch(emojiText);
+  if (customMatch != null) {
+    final isAnimated = customMatch.group(1) == 'a';
+    final name = customMatch.group(2)!;
+    final idString = customMatch.group(3)!;
+    final id = int.tryParse(idString);
+    if (id != null) {
+      return _FakeEmoji(
+        id: Snowflake(id),
+        name: name,
+        isAnimated: isAnimated,
+      );
+    }
+  }
+
+  // Unicode
+  return _FakeEmoji(id: Snowflake.zero, name: emojiText);
+}
+
+
 ComponentBuilder buildComponentNode(
   ComponentNode node,
   String Function(String) resolve,
@@ -36,6 +97,7 @@ ComponentBuilder buildComponentNode(
         label: label.isNotEmpty ? label : null,
         url: url ?? Uri.parse('https://example.com'),
         isDisabled: node.disabled ? true : null,
+        emoji: _parseEmoji(node.emoji, resolve),
       );
     }
     final label = resolve(node.label);
@@ -50,6 +112,7 @@ ComponentBuilder buildComponentNode(
       label: label.isNotEmpty ? label : null,
       customId: resolve(node.customId),
       isDisabled: node.disabled ? true : null,
+      emoji: _parseEmoji(node.emoji, resolve),
     );
   } else if (node is SelectMenuNode) {
     final customId = resolve(node.customId);
@@ -98,6 +161,7 @@ ComponentBuilder buildComponentNode(
                 label: resolve(opt.label),
                 value: resolve(opt.value),
                 description: desc.isNotEmpty ? desc : null,
+                emoji: _parseEmoji(opt.emoji, resolve),
               );
             }).toList();
         return SelectMenuBuilder.stringSelect(

@@ -22,7 +22,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String action_and_more(int count) {
-    return '€¦ et $count de plus';
+    return '... et $count de plus';
   }
 
   @override
@@ -237,7 +237,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get action_hint_duration => 'ex. 5m, 1h, 30s';
 
   @override
-  String get action_hint_emoji => 'Entrez un emoji ou :nom:';
+  String get action_hint_emoji => 'Émoji (ex. 🪜) ou <:nom:id>';
 
   @override
   String action_hint_enter_type(String type) {
@@ -365,6 +365,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get action_name_deleteWebhook => 'Supprimer un webhook';
 
   @override
+  String get action_name_debugProfile => 'Profil de débogage';
+
+  @override
   String get action_name_disconnectFromVoice => 'Déconnecter du vocal';
 
   @override
@@ -386,6 +389,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get action_name_endPoll => 'Clôturer un sondage';
+
+  @override
+  String get action_name_forLoop => 'Boucle Pour';
 
   @override
   String get action_name_getGlobalVariable => 'Lire une variable globale';
@@ -416,6 +422,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get action_name_ifBlock => 'Bloc SI / SINON';
 
   @override
+  String get action_name_jsonForEachLoop => 'Boucle Pour Chaque JSON';
+
+  @override
   String get action_name_kickUser => 'Expulser un utilisateur';
 
   @override
@@ -442,6 +451,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get action_name_listenForSelectMenu => 'Écouter un menu de sélection';
 
   @override
+  String get action_name_log => 'Log';
+
+  @override
   String get action_name_moveToVoiceChannel => 'Déplacer vers un vocal';
 
   @override
@@ -455,6 +467,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get action_name_randomChoice => 'Choix aléatoire';
+
+  @override
+  String get action_name_registerGuildCommands => 'Enregistrer les commandes';
 
   @override
   String get action_name_removeArrayElement => 'Retirer un élément de tableau';
@@ -500,6 +515,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get action_name_runBdfdScript => 'Exécuter un script BDFD';
 
   @override
+  String get action_name_runtimeJsonBlock => 'Bloc JSON d\'exécution';
+
+  @override
   String get action_name_runWorkflow => 'Exécuter un workflow';
 
   @override
@@ -530,6 +548,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get action_name_setScopedVariable => 'Définir une variable scopée';
 
   @override
+  String get action_name_setTemporaryVariable =>
+      'Définir une variable temporaire';
+
+  @override
   String get action_name_slowmode => 'Mode lent';
 
   @override
@@ -546,6 +568,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get action_name_unpinMessage => 'Désépingler un message';
+
+  @override
+  String get action_name_unregisterGuildCommands =>
+      'Désenregistrer les commandes';
 
   @override
   String get action_name_updateAutoMod => 'Mettre à jour AutoMod';
@@ -709,7 +735,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get actions_save_workflow_title => 'Enregistrer comme workflow';
 
   @override
-  String get actions_search_hint => 'Rechercher des actions€¦';
+  String get actions_search_hint => 'Rechercher des actions...';
 
   @override
   String get actions_search_sequence_hint =>
@@ -888,7 +914,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Les suggestions sont filtrées selon ce que l\'utilisateur tape.';
 
   @override
-  String get autocomplete_loading => 'Chargement des workflows€¦';
+  String get autocomplete_loading => 'Chargement des workflows...';
 
   @override
   String get autocomplete_no_workflows => 'Aucun workflow sauvegardé trouvé';
@@ -1000,7 +1026,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get bdfd_docs_desc_defer =>
-      'Diffère la réponse à l\'interaction, vous donnant plus de temps. L\'utilisateur voit « Le bot réfléchit€¦ ». À utiliser avant les opérations longues comme les requêtes HTTP.';
+      'Diffère la réponse à l\'interaction, vous donnant plus de temps. L\'utilisateur voit « Le bot réfléchit... ». À utiliser avant les opérations longues comme les requêtes HTTP.';
 
   @override
   String get bdfd_docs_desc_elseif =>
@@ -1085,7 +1111,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get bdfd_docs_parameters => 'PARAMÈTRES';
 
   @override
-  String get bdfd_docs_search_hint => 'Rechercher une fonction€¦';
+  String get bdfd_docs_search_hint => 'Rechercher une fonction...';
 
   @override
   String get bdfd_docs_syntax => 'SYNTAXE';
@@ -1205,7 +1231,7 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get bot_home_starting => 'Démarrage€¦';
+  String get bot_home_starting => 'Démarrage...';
 
   @override
   String get bot_home_stop => 'Arrêter le bot';
@@ -1537,7 +1563,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Documentation centralisée pour les commandes, workflows, variables runtime et comportement d\'exécution.';
 
   @override
-  String get bot_stats_collecting => 'Collecte€¦';
+  String get bot_stats_collecting => 'Collecte...';
 
   @override
   String get bot_stats_cpu => 'CPU du processus bot';
@@ -2793,7 +2819,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get debug_replay_empty_capturing =>
-      'Capture en cours€¦ Lancez une commande pour enregistrer un replay.';
+      'Capture en cours... Lancez une commande pour enregistrer un replay.';
 
   @override
   String get debug_replay_empty_idle =>
@@ -3986,7 +4012,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get globals_help_scoped =>
-      'Stockées par contexte (serveur, utilisateur, salon€¦). Chaque entrée conserve une valeur distincte par contexte Discord.';
+      'Stockées par contexte (serveur, utilisateur, salon...). Chaque entrée conserve une valeur distincte par contexte Discord.';
 
   @override
   String get globals_key => 'Clé';
@@ -4025,7 +4051,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get globals_scope_user => 'user';
 
   @override
-  String get globals_search => 'Rechercher des variables€¦';
+  String get globals_search => 'Rechercher des variables...';
 
   @override
   String get globals_source_local => 'Local';
@@ -4927,7 +4953,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get scoped_empty_subtitle =>
-      'Les variables scopées stockent une valeur par contexte Discord (utilisateur, serveur€¦). Elles sont peuplées par le bot à l\'exécution.';
+      'Les variables scopées stockent une valeur par contexte Discord (utilisateur, serveur...). Elles sont peuplées par le bot à l\'exécution.';
 
   @override
   String get scoped_explore_runtime => 'Explorer les données runtime';
@@ -4950,7 +4976,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Aucune donnée runtime.\nCette clé sera peuplée par le bot à l\'exécution.';
 
   @override
-  String get scoped_runtime_search => 'Rechercher par ID ou nom€¦';
+  String get scoped_runtime_search => 'Rechercher par ID ou nom...';
 
   @override
   String scoped_runtime_subtitle(String scope, int count) {
@@ -5184,7 +5210,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settings_auto_backup_check_loading =>
-      'Vérification auto-sauvegarde€¦';
+      'Vérification auto-sauvegarde...';
 
   @override
   String get settings_auto_backup_every_12h => 'Toutes les 12 h';
@@ -5447,7 +5473,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settings_discord_rpc_authenticating =>
-      'Authentification auprès de Discord€¦';
+      'Authentification auprès de Discord...';
 
   @override
   String get settings_discord_rpc_authorization_code_pending_exchange =>
@@ -5462,7 +5488,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settings_discord_rpc_authorizing =>
-      'En attente de l\'autorisation Discord€¦';
+      'En attente de l\'autorisation Discord...';
 
   @override
   String get settings_discord_rpc_broker_hint => 'https://auth.example.com';
@@ -5508,7 +5534,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settings_discord_rpc_connected => 'Présence envoyée à Discord';
 
   @override
-  String get settings_discord_rpc_connecting => 'Connexion à Discord€¦';
+  String get settings_discord_rpc_connecting => 'Connexion à Discord...';
 
   @override
   String get settings_discord_rpc_desc =>
@@ -5540,7 +5566,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settings_discord_rpc_exchanging_code =>
-      'Finalisation de l\'échange OAuth€¦';
+      'Finalisation de l\'échange OAuth...';
 
   @override
   String get settings_discord_rpc_ipc_connected_auth_required =>
@@ -5590,7 +5616,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settings_drive_connect => 'Connecter Google Drive';
 
   @override
-  String get settings_drive_connect_loading => 'Connexion à Google Drive€¦';
+  String get settings_drive_connect_loading => 'Connexion à Google Drive...';
 
   @override
   String get settings_drive_connected => 'Connecté à Google Drive';
@@ -5603,7 +5629,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settings_drive_disconnect => 'Déconnecter';
 
   @override
-  String get settings_drive_disconnect_loading => 'Déconnexion en cours€¦';
+  String get settings_drive_disconnect_loading => 'Déconnexion en cours...';
 
   @override
   String get settings_drive_disconnected => 'Déconnecté de Google Drive';
@@ -5651,7 +5677,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settings_export_app_data => 'Exporter les données de l\'app';
 
   @override
-  String get settings_export_loading => 'Export en cours€¦';
+  String get settings_export_loading => 'Export en cours...';
 
   @override
   String get settings_import => 'Importer';
@@ -5660,7 +5686,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settings_import_app_data => 'Importer les données de l\'app';
 
   @override
-  String get settings_import_loading => 'Import en cours€¦';
+  String get settings_import_loading => 'Import en cours...';
 
   @override
   String get settings_language_desc =>
@@ -5701,6 +5727,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settings_legal_title => 'Légal';
+
+  @override
+  String get settings_oss_licenses => 'Licences Open Source';
 
   @override
   String get settings_local_hosting_enabled => 'Hébergement local activé';
@@ -5921,7 +5950,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settings_snapshot_apps_list => 'Apps dans ce snapshot';
 
   @override
-  String get settings_snapshot_create_loading => 'Création du snapshot€¦';
+  String get settings_snapshot_create_loading => 'Création du snapshot...';
 
   @override
   String settings_snapshot_created_at(String date) {
@@ -5934,7 +5963,7 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get settings_snapshot_delete_loading => 'Suppression du snapshot€¦';
+  String get settings_snapshot_delete_loading => 'Suppression du snapshot...';
 
   @override
   String get settings_snapshot_deleted => 'Snapshot supprimé';
@@ -5967,7 +5996,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settings_snapshot_preview_title => 'Aperçu du snapshot';
 
   @override
-  String get settings_snapshot_restore_loading => 'Restauration du snapshot€¦';
+  String get settings_snapshot_restore_loading => 'Restauration du snapshot...';
 
   @override
   String get settings_snapshots_delete_all => 'Supprimer tous les snapshots';
@@ -5984,7 +6013,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settings_snapshots_delete_all_loading =>
-      'Suppression de tous les snapshots€¦';
+      'Suppression de tous les snapshots...';
 
   @override
   String get settings_snapshots_delete_all_title =>
@@ -6015,7 +6044,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settings_snapshots_refresh_loading =>
-      'Actualisation des snapshots€¦';
+      'Actualisation des snapshots...';
 
   @override
   String get settings_snapshots_title => 'Snapshots';
@@ -7067,4 +7096,111 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get workflows_type_title => 'Type de workflow';
+
+  @override
+  String get settings_team_ownership => 'Propriété de l\'équipe';
+
+  @override
+  String get settings_personal_ownership => 'Propriété personnelle';
+
+  @override
+  String get settings_team_pill => 'ÉQUIPE';
+
+  @override
+  String get settings_solo_pill => 'SOLO';
+
+  @override
+  String get settings_team_name_label => 'Nom de l\'équipe : ';
+
+  @override
+  String get settings_team_id_label => 'ID de l\'équipe : ';
+
+  @override
+  String get settings_team_owner_label => 'Chef d\'équipe';
+
+  @override
+  String get settings_owner_fallback => 'Propriétaire';
+
+  @override
+  String get settings_owner_badge => 'OWNER';
+
+  @override
+  String settings_team_members_label(int count) {
+    return 'Membres de l\'équipe ($count)';
+  }
+
+  @override
+  String get settings_personal_owner_label => 'Propriétaire : ';
+
+  @override
+  String get settings_personal_owner_fallback => 'Utilisateur personnel';
+
+  @override
+  String get settings_personal_owner_id_label => 'ID Propriétaire : ';
+
+  @override
+  String get settings_raw_json_tile => 'Voir le JSON Brut (RAW JSON)';
+
+  @override
+  String get settings_member_badge => 'MEMBRE';
+
+  @override
+  String get cmd_deploy_local_save_title => 'Sauvegarde locale';
+
+  @override
+  String get cmd_deploy_local_save_subtitle =>
+      'Enregistrement de la commande sur l\'appareil';
+
+  @override
+  String get cmd_deploy_reload_bot_title => 'Rechargement du Bot';
+
+  @override
+  String get cmd_deploy_reload_bot_subtitle =>
+      'Application à chaud de la configuration';
+
+  @override
+  String get cmd_deploy_discord_sync_title => 'Synchronisation Discord';
+
+  @override
+  String get cmd_deploy_discord_sync_subtitle =>
+      'Publication de la commande sur l\'API Discord';
+
+  @override
+  String get cmd_deploy_cloud_sync_title => 'Sauvegarde Cloud';
+
+  @override
+  String get cmd_deploy_cloud_sync_subtitle =>
+      'Synchronisation sécurisée dans votre espace en ligne';
+
+  @override
+  String get cmd_deploy_hot_reload_title => 'Rechargement à chaud';
+
+  @override
+  String get cmd_deploy_hot_reload_subtitle =>
+      'Mise à jour instantanée du runner de votre bot';
+
+  @override
+  String cmd_deploy_success_toast(String name) {
+    return 'Commande \"$name\" déployée et active !';
+  }
+
+  @override
+  String get cmd_deploy_success_title => 'Déploiement réussi !';
+
+  @override
+  String get cmd_deploy_failed_title => 'Échec du déploiement';
+
+  @override
+  String get cmd_deploy_in_progress_title => 'Déploiement en cours...';
+
+  @override
+  String cmd_deploy_config_subtitle(String name) {
+    return 'Configuration de /$name';
+  }
+
+  @override
+  String get cmd_deploy_close_button => 'Fermer';
+
+  @override
+  String get cmd_deploy_retry_button => 'Réessayer';
 }

@@ -291,9 +291,9 @@
   "@action_hint_duration": {
     "description": "e.g., 5m, 1h, 30s"
   },
-  "action_hint_emoji": "Emoji veya :ad: girin",
+  "action_hint_emoji": "Emoji (örn. 🪜) veya <:ad:kimlik>",
   "@action_hint_emoji": {
-    "description": "Enter emoji or :name:"
+    "description": "Emoji (e.g. 🪜) or <:name:id>"
   },
   "action_hint_enter_type": "{type} girin",
   "@action_hint_enter_type": {
@@ -462,6 +462,10 @@
   "@action_name_deleteWebhook": {
     "description": "Delete Webhook"
   },
+  "action_name_debugProfile": "Hata Ayıklama Profili",
+  "@action_name_debugProfile": {
+    "description": "Debug Profile"
+  },
   "action_name_disconnectFromVoice": "Sesten Bağlantıyı Kes",
   "@action_name_disconnectFromVoice": {
     "description": "Disconnect from Voice"
@@ -489,6 +493,10 @@
   "action_name_endPoll": "Anketi Bitir",
   "@action_name_endPoll": {
     "description": "End Poll"
+  },
+  "action_name_forLoop": "For Döngüsü",
+  "@action_name_forLoop": {
+    "description": "For Loop"
   },
   "action_name_getGlobalVariable": "Genel Değişkeni Al",
   "@action_name_getGlobalVariable": {
@@ -526,6 +534,10 @@
   "@action_name_ifBlock": {
     "description": "IF / ELSE Block"
   },
+  "action_name_jsonForEachLoop": "JSON For Each Döngüsü",
+  "@action_name_jsonForEachLoop": {
+    "description": "JSON For Each Loop"
+  },
   "action_name_kickUser": "Kullanıcıyı At",
   "@action_name_kickUser": {
     "description": "Kick User"
@@ -558,6 +570,10 @@
   "@action_name_listenForSelectMenu": {
     "description": "Listen for Select Menu"
   },
+  "action_name_log": "Mesajı Günlüğe Kaydet",
+  "@action_name_log": {
+    "description": "Log Message"
+  },
   "action_name_moveToVoiceChannel": "Ses Kanalına Taşı",
   "@action_name_moveToVoiceChannel": {
     "description": "Move to Voice Channel"
@@ -577,6 +593,10 @@
   "action_name_randomChoice": "Rastgele Seçim",
   "@action_name_randomChoice": {
     "description": "Random Choice"
+  },
+  "action_name_registerGuildCommands": "Sunucu Komutlarını Kaydet",
+  "@action_name_registerGuildCommands": {
+    "description": "Register Guild Commands"
   },
   "action_name_removeArrayElement": "Dizi Öğesini Kaldır",
   "@action_name_removeArrayElement": {
@@ -630,6 +650,10 @@
   "@action_name_runBdfdScript": {
     "description": "Run BDFD Script"
   },
+  "action_name_runtimeJsonBlock": "JSON İşlemlerini Çalıştır",
+  "@action_name_runtimeJsonBlock": {
+    "description": "Execute JSON Operations"
+  },
   "action_name_runWorkflow": "İş Akışını Çalıştır",
   "@action_name_runWorkflow": {
     "description": "Run Workflow"
@@ -670,6 +694,10 @@
   "@action_name_setScopedVariable": {
     "description": "Set Scoped Variable"
   },
+  "action_name_setTemporaryVariable": "Geçici Değişken Ata",
+  "@action_name_setTemporaryVariable": {
+    "description": "Set Temporary Variable"
+  },
   "action_name_slowmode": "Yavaş Mod",
   "@action_name_slowmode": {
     "description": "Slowmode"
@@ -693,6 +721,10 @@
   "action_name_unpinMessage": "Mesaj Sabitlemesini Kaldır",
   "@action_name_unpinMessage": {
     "description": "Unpin Message"
+  },
+  "action_name_unregisterGuildCommands": "Sunucu Komutlarının Kaydını Sil",
+  "@action_name_unregisterGuildCommands": {
+    "description": "Unregister Guild Commands"
   },
   "action_name_updateAutoMod": "AutoMod'u Güncelle",
   "@action_name_updateAutoMod": {
@@ -7167,6 +7199,10 @@
   "@settings_legal_title": {
     "description": "Legal"
   },
+  "settings_oss_licenses": "Açık Kaynak Lisansları",
+  "@settings_oss_licenses": {
+    "description": "Button label to view open source licenses"
+  },
   "settings_local_hosting_enabled": "Mobil botlar artık barındırma için cihazınızı kullanıyor.",
   "@settings_local_hosting_enabled": {
     "description": "Mobile bots now use your device for hosting."
@@ -8901,5 +8937,61 @@
   "workflows_type_title": "İş akışı türü",
   "@workflows_type_title": {
     "description": "Workflow type"
-  }
+  },
+  "settings_team_ownership": "Ekip Sahipliği",
+  "settings_personal_ownership": "Kişisel Sahiplik",
+  "settings_team_pill": "EKİP",
+  "settings_solo_pill": "SOLO",
+  "settings_team_name_label": "Ekip Adı: ",
+  "settings_team_id_label": "Ekip Kimliği: ",
+  "settings_team_owner_label": "Ekip Lideri",
+  "settings_owner_fallback": "Sahip",
+  "settings_owner_badge": "SAHİP",
+  "settings_team_members_label": "Ekip Üyeleri ({count})",
+  "@settings_team_members_label": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "Number of team members"
+  },
+  "settings_personal_owner_label": "Sahip: ",
+  "settings_personal_owner_fallback": "Kişisel Kullanıcı",
+  "settings_personal_owner_id_label": "Sahip Kimliği: ",
+  "settings_raw_json_tile": "Ham JSON Görüntüle (RAW JSON)",
+  "settings_member_badge": "ÜYE",
+  "cmd_deploy_local_save_title": "Yerel Kaydetme",
+  "cmd_deploy_local_save_subtitle": "Komut cihaza kaydediliyor",
+  "cmd_deploy_reload_bot_title": "Bot Yeniden Yükleniyor",
+  "cmd_deploy_reload_bot_subtitle": "Sıcak yükleme yapılandırması uygulanıyor",
+  "cmd_deploy_discord_sync_title": "Discord Senkronizasyonu",
+  "cmd_deploy_discord_sync_subtitle": "Komut Discord API'sine yayınlanıyor",
+  "cmd_deploy_cloud_sync_title": "Bulut Yedekleme",
+  "cmd_deploy_cloud_sync_subtitle": "Çevrimiçi alanınızla güvenli senkronizasyon",
+  "cmd_deploy_hot_reload_title": "Sıcak Yeniden Yükleme",
+  "cmd_deploy_hot_reload_subtitle": "Bot çalıştırıcınızın anında güncellenmesi",
+  "cmd_deploy_success_toast": "\"{name}\" komutu dağıtıldı ve aktif!",
+  "@cmd_deploy_success_toast": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    },
+    "description": "Success message shown when command deployed successfully"
+  },
+  "cmd_deploy_success_title": "Dağıtım başarılı!",
+  "cmd_deploy_failed_title": "Dağıtım başarısız",
+  "cmd_deploy_in_progress_title": "Dağıtım devam ediyor...",
+  "cmd_deploy_config_subtitle": "/{name} yapılandırması",
+  "@cmd_deploy_config_subtitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    },
+    "description": "Subtitle showing command name under configuration"
+  },
+  "cmd_deploy_close_button": "Kapat",
+  "cmd_deploy_retry_button": "Yeniden Dene"
 }

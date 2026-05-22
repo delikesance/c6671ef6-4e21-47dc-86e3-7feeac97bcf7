@@ -45,7 +45,9 @@ class ActionBlock extends StatefulWidget {
   final Future<List<Map<String, dynamic>>?> Function(
     List<Map<String, dynamic>> current,
     List<VariableSuggestion> suggestions,
-  )?
+    String blockName, {
+    void Function(List<Map<String, dynamic>>)? onChanged,
+  })?
   onEditNestedActions;
 
   @override

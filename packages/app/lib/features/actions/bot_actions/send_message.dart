@@ -1,6 +1,6 @@
 import 'package:nyxx/nyxx.dart';
 import 'package:bot_creator_shared/utils/embed_fields.dart';
-import 'package:bot_creator/core/models/types/component.dart';
+import 'package:bot_creator_shared/types/component.dart';
 import 'package:bot_creator/features/bot_editor/logic/component_workflow_bindings.dart';
 import 'send_component_v2.dart';
 

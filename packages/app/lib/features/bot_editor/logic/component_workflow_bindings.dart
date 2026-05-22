@@ -1,4 +1,4 @@
-import 'package:bot_creator/core/models/types/component.dart';
+import 'package:bot_creator_shared/types/component.dart';
 import 'package:bot_creator/features/bot_editor/logic/interaction_listener_registry.dart';
 import 'package:bot_creator/features/bot_editor/logic/workflow_call.dart';
 

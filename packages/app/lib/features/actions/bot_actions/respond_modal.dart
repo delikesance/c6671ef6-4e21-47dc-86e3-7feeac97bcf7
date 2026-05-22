@@ -1,5 +1,5 @@
 import 'package:nyxx/nyxx.dart';
-import 'package:bot_creator/core/models/types/component.dart' as bc;
+import 'package:bot_creator_shared/types/component.dart' as bc;
 
 /// Respond to an interaction with a Modal dialog.
 /// NOTE: Modals can only be sent as the FIRST response (not after defer).

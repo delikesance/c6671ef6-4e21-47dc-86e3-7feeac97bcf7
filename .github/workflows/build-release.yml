@@ -115,6 +115,7 @@ jobs:
 
       - name: Get dependencies
         run: |
+          find ../.. -name ".dart_tool" -type d -exec rm -rf {} +
           flutter pub get
           dart pub upgrade bot_creator_shared
 
@@ -262,6 +263,7 @@ jobs:
 
       - name: Get dependencies
         run: |
+          find ../.. -name ".dart_tool" -type d -exec rm -rf {} +
           flutter pub get
           dart pub upgrade bot_creator_shared
 
@@ -322,7 +324,9 @@ jobs:
           pub-cache: false
 
       - name: Get dependencies
+        shell: bash
         run: |
+          find ../.. -name ".dart_tool" -type d -exec rm -rf {} +
           flutter pub get
           dart pub upgrade bot_creator_shared
 

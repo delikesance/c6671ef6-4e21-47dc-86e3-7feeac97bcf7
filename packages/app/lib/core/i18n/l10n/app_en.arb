@@ -291,9 +291,9 @@
   "@action_hint_duration": {
     "description": "e.g., 5m, 1h, 30s"
   },
-  "action_hint_emoji": "Enter emoji or :name:",
+  "action_hint_emoji": "Emoji (e.g. 🪜) or <:name:id>",
   "@action_hint_emoji": {
-    "description": "Enter emoji or :name:"
+    "description": "Emoji (e.g. 🪜) or <:name:id>"
   },
   "action_hint_enter_type": "Enter {type}",
   "@action_hint_enter_type": {
@@ -462,6 +462,10 @@
   "@action_name_deleteWebhook": {
     "description": "Delete Webhook"
   },
+  "action_name_debugProfile": "Debug Profile",
+  "@action_name_debugProfile": {
+    "description": "Debug Profile"
+  },
   "action_name_disconnectFromVoice": "Disconnect from Voice",
   "@action_name_disconnectFromVoice": {
     "description": "Disconnect from Voice"
@@ -489,6 +493,10 @@
   "action_name_endPoll": "End Poll",
   "@action_name_endPoll": {
     "description": "End Poll"
+  },
+  "action_name_forLoop": "For Loop",
+  "@action_name_forLoop": {
+    "description": "For Loop"
   },
   "action_name_getGlobalVariable": "Get Global Variable",
   "@action_name_getGlobalVariable": {
@@ -526,6 +534,10 @@
   "@action_name_ifBlock": {
     "description": "IF / ELSE Block"
   },
+  "action_name_jsonForEachLoop": "JSON For Each Loop",
+  "@action_name_jsonForEachLoop": {
+    "description": "JSON For Each Loop"
+  },
   "action_name_kickUser": "Kick User",
   "@action_name_kickUser": {
     "description": "Kick User"
@@ -558,6 +570,10 @@
   "@action_name_listenForSelectMenu": {
     "description": "Listen for Select Menu"
   },
+  "action_name_log": "Log Message",
+  "@action_name_log": {
+    "description": "Log Message"
+  },
   "action_name_moveToVoiceChannel": "Move to Voice Channel",
   "@action_name_moveToVoiceChannel": {
     "description": "Move to Voice Channel"
@@ -577,6 +593,10 @@
   "action_name_randomChoice": "Random Choice",
   "@action_name_randomChoice": {
     "description": "Random Choice"
+  },
+  "action_name_registerGuildCommands": "Register Guild Commands",
+  "@action_name_registerGuildCommands": {
+    "description": "Register Guild Commands"
   },
   "action_name_removeArrayElement": "Remove Array Element",
   "@action_name_removeArrayElement": {
@@ -630,6 +650,10 @@
   "@action_name_runBdfdScript": {
     "description": "Run BDFD Script"
   },
+  "action_name_runtimeJsonBlock": "Execute JSON Operations",
+  "@action_name_runtimeJsonBlock": {
+    "description": "Execute JSON Operations"
+  },
   "action_name_runWorkflow": "Run Workflow",
   "@action_name_runWorkflow": {
     "description": "Run Workflow"
@@ -670,6 +694,10 @@
   "@action_name_setScopedVariable": {
     "description": "Set Scoped Variable"
   },
+  "action_name_setTemporaryVariable": "Set Temporary Variable",
+  "@action_name_setTemporaryVariable": {
+    "description": "Set Temporary Variable"
+  },
   "action_name_slowmode": "Slowmode",
   "@action_name_slowmode": {
     "description": "Slowmode"
@@ -693,6 +721,10 @@
   "action_name_unpinMessage": "Unpin Message",
   "@action_name_unpinMessage": {
     "description": "Unpin Message"
+  },
+  "action_name_unregisterGuildCommands": "Unregister Guild Commands",
+  "@action_name_unregisterGuildCommands": {
+    "description": "Unregister Guild Commands"
   },
   "action_name_updateAutoMod": "Update AutoMod",
   "@action_name_updateAutoMod": {
@@ -7167,6 +7199,10 @@
   "@settings_legal_title": {
     "description": "Legal"
   },
+  "settings_oss_licenses": "Open Source Licenses",
+  "@settings_oss_licenses": {
+    "description": "Button label to view open source licenses"
+  },
   "settings_local_hosting_enabled": "Mobile bots now use your device for hosting.",
   "@settings_local_hosting_enabled": {
     "description": "Mobile bots now use your device for hosting."
@@ -8901,5 +8937,148 @@
   "workflows_type_title": "Workflow type",
   "@workflows_type_title": {
     "description": "Workflow type"
+  },
+  "settings_team_ownership": "Team Ownership",
+  "@settings_team_ownership": {
+    "description": "Team Ownership"
+  },
+  "settings_personal_ownership": "Personal Ownership",
+  "@settings_personal_ownership": {
+    "description": "Personal Ownership"
+  },
+  "settings_team_pill": "TEAM",
+  "@settings_team_pill": {
+    "description": "TEAM"
+  },
+  "settings_solo_pill": "SOLO",
+  "@settings_solo_pill": {
+    "description": "SOLO"
+  },
+  "settings_team_name_label": "Team Name: ",
+  "@settings_team_name_label": {
+    "description": "Team Name: "
+  },
+  "settings_team_id_label": "Team ID: ",
+  "@settings_team_id_label": {
+    "description": "Team ID: "
+  },
+  "settings_team_owner_label": "Team Leader",
+  "@settings_team_owner_label": {
+    "description": "Team Leader"
+  },
+  "settings_owner_fallback": "Owner",
+  "@settings_owner_fallback": {
+    "description": "Owner"
+  },
+  "settings_owner_badge": "OWNER",
+  "@settings_owner_badge": {
+    "description": "OWNER"
+  },
+  "settings_team_members_label": "Team Members ({count})",
+  "@settings_team_members_label": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "Number of team members"
+  },
+  "settings_personal_owner_label": "Owner: ",
+  "@settings_personal_owner_label": {
+    "description": "Owner: "
+  },
+  "settings_personal_owner_fallback": "Personal User",
+  "@settings_personal_owner_fallback": {
+    "description": "Personal User"
+  },
+  "settings_personal_owner_id_label": "Owner ID: ",
+  "@settings_personal_owner_id_label": {
+    "description": "Owner ID: "
+  },
+  "settings_raw_json_tile": "View Raw JSON (RAW JSON)",
+  "@settings_raw_json_tile": {
+    "description": "View Raw JSON (RAW JSON)"
+  },
+  "settings_member_badge": "MEMBER",
+  "@settings_member_badge": {
+    "description": "MEMBER"
+  },
+  "cmd_deploy_local_save_title": "Local Save",
+  "@cmd_deploy_local_save_title": {
+    "description": "Local Save"
+  },
+  "cmd_deploy_local_save_subtitle": "Saving command to device",
+  "@cmd_deploy_local_save_subtitle": {
+    "description": "Saving command to device"
+  },
+  "cmd_deploy_reload_bot_title": "Reloading Bot",
+  "@cmd_deploy_reload_bot_title": {
+    "description": "Reloading Bot"
+  },
+  "cmd_deploy_reload_bot_subtitle": "Applying hot reload configuration",
+  "@cmd_deploy_reload_bot_subtitle": {
+    "description": "Applying hot reload configuration"
+  },
+  "cmd_deploy_discord_sync_title": "Discord Sync",
+  "@cmd_deploy_discord_sync_title": {
+    "description": "Discord Sync"
+  },
+  "cmd_deploy_discord_sync_subtitle": "Publishing command to Discord API",
+  "@cmd_deploy_discord_sync_subtitle": {
+    "description": "Publishing command to Discord API"
+  },
+  "cmd_deploy_cloud_sync_title": "Cloud Backup",
+  "@cmd_deploy_cloud_sync_title": {
+    "description": "Cloud Backup"
+  },
+  "cmd_deploy_cloud_sync_subtitle": "Secure synchronization with your online space",
+  "@cmd_deploy_cloud_sync_subtitle": {
+    "description": "Secure synchronization with your online space"
+  },
+  "cmd_deploy_hot_reload_title": "Hot Reload",
+  "@cmd_deploy_hot_reload_title": {
+    "description": "Hot Reload"
+  },
+  "cmd_deploy_hot_reload_subtitle": "Instant update of your bot runner",
+  "@cmd_deploy_hot_reload_subtitle": {
+    "description": "Instant update of your bot runner"
+  },
+  "cmd_deploy_success_toast": "Command \"{name}\" deployed and active!",
+  "@cmd_deploy_success_toast": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    },
+    "description": "Success message shown when command deployed successfully"
+  },
+  "cmd_deploy_success_title": "Deployment successful!",
+  "@cmd_deploy_success_title": {
+    "description": "Deployment successful!"
+  },
+  "cmd_deploy_failed_title": "Deployment failed",
+  "@cmd_deploy_failed_title": {
+    "description": "Deployment failed"
+  },
+  "cmd_deploy_in_progress_title": "Deployment in progress...",
+  "@cmd_deploy_in_progress_title": {
+    "description": "Deployment in progress..."
+  },
+  "cmd_deploy_config_subtitle": "Configuration of /{name}",
+  "@cmd_deploy_config_subtitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    },
+    "description": "Subtitle showing command name under configuration"
+  },
+  "cmd_deploy_close_button": "Close",
+  "@cmd_deploy_close_button": {
+    "description": "Close"
+  },
+  "cmd_deploy_retry_button": "Retry",
+  "@cmd_deploy_retry_button": {
+    "description": "Retry"
   }
 }
