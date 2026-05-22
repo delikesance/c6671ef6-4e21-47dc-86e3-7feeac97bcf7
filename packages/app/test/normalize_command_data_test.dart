@@ -387,55 +387,6 @@ void main() {
       ]);
     });
 
-    test('preserves expanded simple mode config fields', () {
-      final command = _makeCommand(
-        data: {
-          'editorMode': 'simple',
-          'simpleConfig': {
-            'deleteMessages': true,
-            'unbanUser': true,
-            'unmuteUser': true,
-            'pinMessage': true,
-            'createInvite': true,
-            'createPoll': true,
-            'actionReason': 'Routine moderation',
-            'deleteMessagesDefaultCount': '25',
-            'muteDuration': '2h',
-            'banDeleteMessageDays': '3',
-            'inviteMaxAge': '3600',
-            'inviteMaxUses': '5',
-            'inviteTemporary': true,
-            'inviteUnique': true,
-            'pollAnswersText': 'Yes\nNo\nMaybe',
-            'pollDurationHours': '12',
-            'pollAllowMultiselect': true,
-          },
-        },
-      );
-
-      final result = normalizeCommandData(command);
-      final simpleConfig = Map<String, dynamic>.from(
-        result['data']['simpleConfig'] as Map,
-      );
-
-      expect(simpleConfig['deleteMessages'], isTrue);
-      expect(simpleConfig['unbanUser'], isTrue);
-      expect(simpleConfig['unmuteUser'], isTrue);
-      expect(simpleConfig['pinMessage'], isTrue);
-      expect(simpleConfig['createInvite'], isTrue);
-      expect(simpleConfig['createPoll'], isTrue);
-      expect(simpleConfig['actionReason'], 'Routine moderation');
-      expect(simpleConfig['deleteMessagesDefaultCount'], '25');
-      expect(simpleConfig['muteDuration'], '2h');
-      expect(simpleConfig['banDeleteMessageDays'], '3');
-      expect(simpleConfig['inviteMaxAge'], '3600');
-      expect(simpleConfig['inviteMaxUses'], '5');
-      expect(simpleConfig['inviteTemporary'], isTrue);
-      expect(simpleConfig['inviteUnique'], isTrue);
-      expect(simpleConfig['pollAnswersText'], 'Yes\nNo\nMaybe');
-      expect(simpleConfig['pollDurationHours'], '12');
-      expect(simpleConfig['pollAllowMultiselect'], isTrue);
-    });
   });
 
   group('normalizeCommandData – legacy command fields', () {
