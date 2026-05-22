@@ -1894,6 +1894,24 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
               (_localOnlyCommand
                   ? _generateLegacyOnlyCommandId()
                   : DateTime.now().microsecondsSinceEpoch.toString());
+
+          // If transitioning from a Discord-registered command to local-only/legacy,
+          // remove the slash command from Discord so it doesn't linger.
+          if (client != null && !widget.id.isZero) {
+            try {
+              developer.log(
+                '[performSave] Transitioning to local-only/legacy. Deleting command from Discord (id=${widget.id})',
+                name: 'CommandCreatePage',
+              );
+              await client.commands.delete(widget.id);
+            } catch (e) {
+              developer.log(
+                '[performSave] Discord deletion failed (may already be deleted): $e',
+                name: 'CommandCreatePage',
+              );
+            }
+          }
+
           await saveLocal(localCommandId);
 
           updateStatus('reload_runtime');
