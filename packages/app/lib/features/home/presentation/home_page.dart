@@ -106,7 +106,14 @@ class HomePageState extends State<HomePage>
     WidgetsBinding.instance.addObserver(this);
     AppAnalytics.logScreenView(screenName: 'HomePage', screenClass: 'HomePage');
     AppAnalytics.logEvent(name: 'home_page_opened');
-    unawaited(syncAllBotsFromManager(silent: true));
+    unawaited(() async {
+      try {
+        if (warmUpFuture != null) {
+          await warmUpFuture;
+        }
+      } catch (_) {}
+      await syncAllBotsFromManager(silent: true);
+    }());
   }
 
   @override

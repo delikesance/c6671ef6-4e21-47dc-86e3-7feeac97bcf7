@@ -52,6 +52,7 @@ final Map<String, NyxxGateway> gateways = <String, NyxxGateway>{};
 final GlobalKey<HomePageState> homeKey = GlobalKey<HomePageState>();
 
 FirebaseApp? firebaseApp;
+Future<void>? warmUpFuture;
 
 bool get _isFirebaseSupported {
   if (kIsWeb) {
@@ -155,7 +156,8 @@ Future<void> _bootstrapAndRunApp() async {
       ),
     );
 
-    unawaited(_warmUpServicesAfterLaunch());
+    warmUpFuture = _warmUpServicesAfterLaunch();
+    unawaited(warmUpFuture!);
   } catch (error, stack) {
     await AppDiagnostics.logError(
       'Fatal startup error before runApp',
