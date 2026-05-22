@@ -115,7 +115,10 @@ jobs:
 
       - name: Get dependencies
         run: |
-          find ../.. -name ".dart_tool" -type d -exec rm -rf {} +
+          rm -rf "${{ github.workspace }}/.dart_tool"
+          rm -rf "${{ github.workspace }}/packages/app/.dart_tool"
+          rm -rf "${{ github.workspace }}/packages/runner/.dart_tool"
+          rm -rf "${{ github.workspace }}/packages/shared/.dart_tool"
           flutter pub get
           dart pub upgrade bot_creator_shared
 
@@ -263,7 +266,10 @@ jobs:
 
       - name: Get dependencies
         run: |
-          find ../.. -name ".dart_tool" -type d -exec rm -rf {} +
+          rm -rf "${{ github.workspace }}/.dart_tool"
+          rm -rf "${{ github.workspace }}/packages/app/.dart_tool"
+          rm -rf "${{ github.workspace }}/packages/runner/.dart_tool"
+          rm -rf "${{ github.workspace }}/packages/shared/.dart_tool"
           flutter pub get
           dart pub upgrade bot_creator_shared
 
@@ -326,7 +332,10 @@ jobs:
       - name: Get dependencies
         shell: bash
         run: |
-          find ../.. -name ".dart_tool" -type d -exec rm -rf {} +
+          rm -rf "${{ github.workspace }}/.dart_tool"
+          rm -rf "${{ github.workspace }}/packages/app/.dart_tool"
+          rm -rf "${{ github.workspace }}/packages/runner/.dart_tool"
+          rm -rf "${{ github.workspace }}/packages/shared/.dart_tool"
           flutter pub get
           dart pub upgrade bot_creator_shared
 
