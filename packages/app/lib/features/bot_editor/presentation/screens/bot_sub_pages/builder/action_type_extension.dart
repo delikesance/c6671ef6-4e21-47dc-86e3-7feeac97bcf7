@@ -117,6 +117,8 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
         return context.tr.action_name_listenForModalSubmit;
       case BotCreatorActionType.respondWithAutocomplete:
         return context.tr.action_name_respondWithAutocomplete;
+      case BotCreatorActionType.deferInteraction:
+        return 'Defer Interaction';
       case BotCreatorActionType.stopUnless:
         return context.tr.action_name_stopUnless;
       case BotCreatorActionType.ifBlock:
@@ -304,6 +306,8 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
         return Icons.dynamic_form;
       case BotCreatorActionType.respondWithAutocomplete:
         return Icons.tune;
+      case BotCreatorActionType.deferInteraction:
+        return Icons.hourglass_top;
       case BotCreatorActionType.stopUnless:
         return Icons.filter_alt;
       case BotCreatorActionType.ifBlock:
@@ -2174,6 +2178,8 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             hint: 'Rendered value for each autocomplete choice',
           ),
         ];
+      case BotCreatorActionType.deferInteraction:
+        return [];
       case BotCreatorActionType.stopUnless:
         return [
           ParameterDefinition(

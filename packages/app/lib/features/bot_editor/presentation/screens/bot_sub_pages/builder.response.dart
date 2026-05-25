@@ -545,6 +545,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
       case BotCreatorActionType.listenForSelectMenu:
       case BotCreatorActionType.listenForModalSubmit:
       case BotCreatorActionType.respondWithAutocomplete:
+      case BotCreatorActionType.deferInteraction:
       case BotCreatorActionType.sendDm:
         return 'Interactions';
       case BotCreatorActionType.sendMessage:
@@ -855,6 +856,8 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
         return 'Register a workflow to run when a modal is submitted';
       case BotCreatorActionType.respondWithAutocomplete:
         return 'Reply to a Discord autocomplete interaction with up to 25 dynamic choices';
+      case BotCreatorActionType.deferInteraction:
+        return 'Defer the interaction response to prevent Discord timeout';
       case BotCreatorActionType.stopUnless:
         return 'Stop the workflow if a condition is not met (guard/filter)';
       case BotCreatorActionType.ifBlock:

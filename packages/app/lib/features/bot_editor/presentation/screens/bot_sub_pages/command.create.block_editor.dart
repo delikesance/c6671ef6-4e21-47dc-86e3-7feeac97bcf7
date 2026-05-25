@@ -243,16 +243,11 @@ extension _CommandBlockEditor on _CommandCreatePageState {
 
       // ── Add block button ──
       if (!isBdfdMode) _buildAddBlockButton(),
-
-      // ── Response (final) block ──
-      _buildResponseBlock(),
     ];
 
     // Compute indices of final (cap) blocks so the canvas skips connectors
     // after them.
     final skipConnectorAfter = <int>{};
-    // The response block is always the last child and is always a final block.
-    skipConnectorAfter.add(canvasChildren.length - 1);
 
     if (!isBdfdMode) {
       // Offset: MetadataBlock + EntryPointBlock + optional subcommand + optional bdfd
@@ -444,89 +439,6 @@ extension _CommandBlockEditor on _CommandCreatePageState {
             borderRadius: BorderRadius.circular(AppTheme.radiusMd),
           ),
         ),
-      ),
-    );
-  }
-
-  // ── Response (final) block ──
-
-  Widget _buildResponseBlock() {
-    final responseMode = _responseModeLabel();
-    final visibility =
-        _responseWorkflow['visibility'] == 'ephemeral'
-            ? context.tr.response_visibility_ephemeral
-            : context.tr.response_visibility_public;
-    final preview = _responseController.text.trim();
-    final embedCount = _responseEmbeds.length;
-    final hasComponents = _responseComponents.isNotEmpty;
-
-    return ScratchBlock(
-      color: AppTheme.premiumGold,
-      title: context.tr.scratch_response_block,
-      icon: Icons.reply,
-      required: true,
-      isFinal: true,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Response mode + visibility chips
-          Wrap(
-            spacing: 8,
-            runSpacing: 6,
-            children: [
-              Chip(
-                avatar: const Icon(Icons.chat_bubble_outline, size: 16),
-                label: Text(responseMode),
-              ),
-              Chip(
-                avatar: Icon(
-                  _responseWorkflow['visibility'] == 'ephemeral'
-                      ? Icons.visibility_off
-                      : Icons.visibility,
-                  size: 16,
-                ),
-                label: Text(visibility),
-              ),
-              if (embedCount > 0)
-                Chip(
-                  avatar: const Icon(Icons.dashboard, size: 16),
-                  label: Text('$embedCount embed${embedCount > 1 ? 's' : ''}'),
-                ),
-              if (hasComponents)
-                Chip(
-                  avatar: const Icon(Icons.widgets_outlined, size: 16),
-                  label: Text(context.tr.scratch_response_components),
-                ),
-            ],
-          ),
-          if (preview.isNotEmpty) ...[
-            const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-              ),
-              child: Text(
-                preview.length > 200
-                    ? '${preview.substring(0, 199)}…'
-                    : preview,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-                maxLines: 4,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-          const SizedBox(height: 12),
-          FilledButton.tonalIcon(
-            onPressed: _openReplyEditor,
-            icon: const Icon(Icons.edit_outlined),
-            label: Text(context.tr.scratch_response_edit),
-          ),
-        ],
       ),
     );
   }

@@ -6,7 +6,6 @@ import 'package:bot_creator/main.dart';
 import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder.response.dart';
-import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command.reply_editor.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command_option_serialization.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command_option_validation.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/workflow_docs.page.dart';
@@ -253,8 +252,6 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       _commandType == ApplicationCommandType.chatInput;
 
   bool get _supportsSimpleMode => false;
-
-  bool get _allowModalResponses => !_legacyModeEnabled;
 
   bool get _allowsInternalLegacyCallbackNames =>
       _commandType == ApplicationCommandType.chatInput &&
