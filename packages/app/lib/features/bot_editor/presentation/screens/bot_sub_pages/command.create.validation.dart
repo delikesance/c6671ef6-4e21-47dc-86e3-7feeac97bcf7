@@ -62,7 +62,7 @@ extension _CommandCreateValidation on _CommandCreatePageState {
     return null;
   }
 
-  bool _validateCommandInputs() {
+  Future<bool> _validateCommandInputs() async {
     final nameError = _validateName(_commandName);
     if (nameError != null) {
       showDialog(
@@ -144,6 +144,47 @@ extension _CommandCreateValidation on _CommandCreatePageState {
               ),
         );
         return false;
+      }
+    }
+
+    // Interaction commands (chatInput / user) that are not legacy must have
+    // at least one respond action after migration.  A missing response will
+    // cause a Discord interaction timeout, so we warn the user.
+    if (!_legacyModeEnabled &&
+        !_localOnlyCommand &&
+        _commandType != ApplicationCommandType.message) {
+      final hasRespondAction = _actions.any((a) {
+        final type = (a['type'] ?? '').toString();
+        return type == 'respondWithMessage' ||
+            type == 'respondWithComponentV2' ||
+            type == 'respondWithModal';
+      });
+      // Also check if the response block has content that would be migrated.
+      final hasResponseContent =
+          (_responseController.text.trim().isNotEmpty) ||
+          (_responseEmbeds.isNotEmpty) ||
+          (_responseComponents.isNotEmpty) ||
+          (_responseModal.isNotEmpty);
+      if (!hasRespondAction && !hasResponseContent) {
+        final proceed = await showDialog<bool>(
+          context: context,
+          builder:
+              (context) => AlertDialog(
+                title: Text(context.tr.validation_interaction_no_response_short),
+                content: Text(context.tr.validation_interaction_no_response),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: Text(context.tr.cancel),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    child: Text(context.tr.save),
+                  ),
+                ],
+              ),
+        );
+        if (proceed != true) return false;
       }
     }
 

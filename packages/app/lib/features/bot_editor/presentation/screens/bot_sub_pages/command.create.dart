@@ -24,6 +24,7 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
+import 'package:bot_creator_shared/utils/command_migration.dart' show migrateCommandDataResponsePermanently;
 import 'package:bot_creator/features/bot_editor/presentation/screens/bdfd_editor_page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/option_widget.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/command_create_cards/basic_info_card.dart';
@@ -1034,7 +1035,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       '[_saveExistingCommand] invoked — commandName="$_commandName" existingId=$_existingCommandStorageId isEditing=$_isEditingExistingCommand isDirty=$_isDirty',
       name: 'CommandCreatePage',
     );
-    if (!_validateCommandInputs()) {
+    if (!await _validateCommandInputs()) {
       developer.log(
         '[_saveExistingCommand] validation FAILED, aborting save.',
         name: 'CommandCreatePage',
@@ -2127,8 +2128,8 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                 IconButton(
                   icon: const Icon(Icons.add),
                   tooltip: context.tr.cmd_create_tooltip,
-                  onPressed: () {
-                    if (_validateCommandInputs()) {
+                  onPressed: () async {
+                    if (await _validateCommandInputs()) {
                       _updateOrCreate();
                     }
                   },

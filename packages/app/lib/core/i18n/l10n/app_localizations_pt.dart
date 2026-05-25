@@ -4250,6 +4250,30 @@ class AppLocalizationsPt extends AppLocalizations {
   String get legacy_response_banner_dismiss => 'Dispensar';
 
   @override
+  String get legacy_response_banner_migrate => 'Migrar tudo';
+
+  @override
+  String legacy_response_banner_migrated(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count comandos migrados',
+      one: '1 comando migrado',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get legacy_response_banner_migrated_none =>
+      'Nenhum comando para migrar';
+
+  @override
+  String get legacy_response_banner_migrate_failed => 'Falha na migração';
+
+  @override
+  String get legacy_response_banner_migrating => 'Migrando...';
+
+  @override
   String get legacy_response_banner_short_body =>
       'Abra e salve novamente seus comandos para migrar para o novo formato.';
 
@@ -6481,6 +6505,14 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get validation_command_name_required =>
       'Por favor, insira um nome para o comando';
+
+  @override
+  String get validation_interaction_no_response =>
+      'Comandos de interação devem incluir pelo menos uma ação de resposta (Responder com mensagem, Componente V2 ou Modal).';
+
+  @override
+  String get validation_interaction_no_response_short =>
+      'Nenhuma ação de resposta';
 
   @override
   String get validation_invalid_permissions =>

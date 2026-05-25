@@ -29,6 +29,7 @@ import 'package:bot_creator/features/ads/logic/ads_placement_policy.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/app_editor_page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/bot_logs.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:bot_creator_shared/utils/command_migration.dart' show migrateCommandDataResponsePermanently;
 
 String _formatHostingDuration(BuildContext context, int totalMinutes) {
   if (totalMinutes <= 0) {
@@ -89,6 +90,7 @@ class HomePageState extends State<HomePage>
   /// True when at least one command uses the legacy `data.response` format.
   bool _hasLegacyCommands = false;
   bool _legacyBannerDismissed = false;
+  bool _isMigrating = false;
   RemoteRuntimeSource _runtimeSource = RemoteRuntimeSource.local;
   String? _runtimeDetailLabel;
 
@@ -715,6 +717,35 @@ class HomePageState extends State<HomePage>
         (embeds is List && embeds.isNotEmpty) ||
         (modal is Map && modal.isNotEmpty) ||
         (conditional is Map && conditional['enabled'] == true);
+  }
+
+  /// Permanently migrates all legacy commands across all bots.
+  /// Returns the count of commands migrated.
+  Future<int> _migrateAllLegacyCommands() async {
+    int migratedCount = 0;
+    try {
+      final apps = await appManager.getAllApps();
+      for (final rawApp in apps) {
+        if (rawApp is! Map) continue;
+        final botId = (rawApp['id'] ?? '').toString();
+        if (botId.isEmpty) continue;
+        final commands = await appManager.getCommands(botId);
+        for (final cmd in commands) {
+          final data = cmd['data'];
+          if (data is! Map) continue;
+          final dataMap = Map<String, dynamic>.from(data.cast<String, dynamic>());
+          final didMigrate = migrateCommandDataResponsePermanently(dataMap);
+          if (didMigrate) {
+            migratedCount++;
+            final cmdId = (cmd['id'] ?? '').toString();
+            await appManager.saveAppCommand(botId, cmdId, dataMap);
+          }
+        }
+      }
+    } catch (_) {
+      // Non-blocking — best effort.
+    }
+    return migratedCount;
   }
 
   String _uiCopy({required String fr, required String en}) {
@@ -1620,6 +1651,56 @@ class HomePageState extends State<HomePage>
                         final prefs = await SharedPreferences.getInstance();
                         await prefs.setBool(_kLegacyBannerDismissedKey, true);
                       },
+                      onMigrate: () async {
+                        setState(() => _isMigrating = true);
+                        try {
+                          final count = await _migrateAllLegacyCommands();
+                          if (!mounted) return;
+                          if (count > 0) {
+                            // Clear dismiss flag so the banner disappears naturally.
+                            setState(() {
+                              _hasLegacyCommands = false;
+                              _legacyBannerDismissed = false;
+                              _isMigrating = false;
+                            });
+                            final prefs = await SharedPreferences.getInstance();
+                            await prefs.remove(_kLegacyBannerDismissedKey);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  context.tr.legacy_response_banner_migrated(count),
+                                ),
+                                duration: const Duration(seconds: 3),
+                              ),
+                            );
+                          } else {
+                            setState(() {
+                              _hasLegacyCommands = false;
+                              _isMigrating = false;
+                            });
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  context.tr.legacy_response_banner_migrated_none,
+                                ),
+                                duration: const Duration(seconds: 2),
+                              ),
+                            );
+                          }
+                        } catch (_) {
+                          if (!mounted) return;
+                          setState(() => _isMigrating = false);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                context.tr.legacy_response_banner_migrate_failed,
+                              ),
+                              duration: const Duration(seconds: 3),
+                            ),
+                          );
+                        }
+                      },
+                      isMigrating: _isMigrating,
                     ),
                   if (AdsPlacementPolicy.isPlacementEnabled(
                         NativeAdPlacement.homeBots,
@@ -2236,9 +2317,15 @@ class _EmptyStateWithSupport extends StatelessWidget {
 // ── Deprecation banner for legacy command response format ─────────────────────
 
 class _LegacyCommandsDeprecationBanner extends StatelessWidget {
-  const _LegacyCommandsDeprecationBanner({required this.onDismiss});
+  const _LegacyCommandsDeprecationBanner({
+    required this.onDismiss,
+    required this.onMigrate,
+    this.isMigrating = false,
+  });
 
   final VoidCallback onDismiss;
+  final VoidCallback onMigrate;
+  final bool isMigrating;
 
   @override
   Widget build(BuildContext context) {
@@ -2287,6 +2374,36 @@ class _LegacyCommandsDeprecationBanner extends StatelessWidget {
                       fontSize: 11.5,
                       color: Color(0xFF78350F),
                       height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  FilledButton.tonalIcon(
+                    onPressed: isMigrating ? null : onMigrate,
+                    icon: isMigrating
+                        ? SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: const Color(0xFF92400E),
+                            ),
+                          )
+                        : const Icon(Icons.auto_fix_high_rounded, size: 14),
+                    label: Text(
+                      isMigrating
+                          ? context.tr.legacy_response_banner_migrating
+                          : context.tr.legacy_response_banner_migrate,
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: const Color(0xFFFFCC02),
+                      foregroundColor: const Color(0xFF92400E),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                   ),
                 ],

@@ -204,8 +204,8 @@ extension _CommandCreateWizard on _CommandCreatePageState {
           child:
               isReview
                   ? FilledButton.icon(
-                    onPressed: () {
-                      if (_validateCommandInputs()) {
+                    onPressed: () async {
+                      if (await _validateCommandInputs()) {
                         _updateOrCreate();
                       }
                     },
