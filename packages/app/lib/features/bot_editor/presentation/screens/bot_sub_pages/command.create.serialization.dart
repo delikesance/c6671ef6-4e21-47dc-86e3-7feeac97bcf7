@@ -42,7 +42,7 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
             )
             : effectiveActions;
 
-    return {
+    final data = <String, dynamic>{
       'version': 1,
       'commandType': _commandTypeToText(_commandType),
       'editorMode': _CommandCreatePageState._editorModeAdvanced,
@@ -65,6 +65,10 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
       if (hasSubcommandWorkflows)
         'activeSubcommandRoute': _activeSubcommandRoute,
     };
+
+    migrateCommandDataResponsePermanently(data);
+
+    return data;
   }
 
   Map<String, dynamic> _ensureCorrectResponseType(Map<String, dynamic> response) {

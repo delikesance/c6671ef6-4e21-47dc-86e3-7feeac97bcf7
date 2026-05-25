@@ -5314,6 +5314,31 @@
   "@legacy_response_banner_dismiss": {
     "description": "Tooltip for the dismiss button on the legacy response deprecation banner"
   },
+  "legacy_response_banner_migrate": "Hepsini geçir",
+  "@legacy_response_banner_migrate": {
+    "description": "Button label to migrate all legacy commands"
+  },
+  "legacy_response_banner_migrated": "{count, plural, =1{1 komut geçirildi} other{{count} komut geçirildi}}",
+  "@legacy_response_banner_migrated": {
+    "description": "Message showing how many commands were migrated",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "legacy_response_banner_migrated_none": "Geçirilecek komut yok",
+  "@legacy_response_banner_migrated_none": {
+    "description": "Message shown when no commands need migration"
+  },
+  "legacy_response_banner_migrate_failed": "Geçirme başarısız",
+  "@legacy_response_banner_migrate_failed": {
+    "description": "Error message when migration fails"
+  },
+  "legacy_response_banner_migrating": "Geçiriliyor...",
+  "@legacy_response_banner_migrating": {
+    "description": "Loading state while migrating commands"
+  },
   "legacy_response_banner_short_body": "Yeni biçime geçmek için komutlarınızı açın ve yeniden kaydedin.",
   "@legacy_response_banner_short_body": {
     "description": "Short body text for the legacy response deprecation banner (small screens)"
@@ -8146,6 +8171,14 @@
   "validation_command_name_required": "Lütfen bir komut adı girin",
   "@validation_command_name_required": {
     "description": "Please enter a command name"
+  },
+  "validation_interaction_no_response": "Etkileşim komutları en az bir yanıt eylemi içermelidir (Mesajla yanıtla, Bileşen V2 veya Modal).",
+  "@validation_interaction_no_response": {
+    "description": "Interaction commands must include at least one response action (Respond with Message, Component V2, or Modal)."
+  },
+  "validation_interaction_no_response_short": "Yanıt eylemi yok",
+  "@validation_interaction_no_response_short": {
+    "description": "Short version: no response action"
   },
   "validation_invalid_permissions": "Geçersiz varsayılan üye izinleri bit alanı. Pozitif bir tam sayı kullanın veya boş bırakın.",
   "@validation_invalid_permissions": {

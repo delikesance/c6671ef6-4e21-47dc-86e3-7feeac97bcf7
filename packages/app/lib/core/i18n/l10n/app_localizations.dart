@@ -7536,6 +7536,36 @@ abstract class AppLocalizations {
   /// **'Dismiss'**
   String get legacy_response_banner_dismiss;
 
+  /// Button label to migrate all legacy commands
+  ///
+  /// In en, this message translates to:
+  /// **'Migrate all'**
+  String get legacy_response_banner_migrate;
+
+  /// Message showing how many commands were migrated
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 command migrated} other{{count} commands migrated}}'**
+  String legacy_response_banner_migrated(int count);
+
+  /// Message shown when no commands need migration
+  ///
+  /// In en, this message translates to:
+  /// **'No commands need migration'**
+  String get legacy_response_banner_migrated_none;
+
+  /// Error message when migration fails
+  ///
+  /// In en, this message translates to:
+  /// **'Migration failed'**
+  String get legacy_response_banner_migrate_failed;
+
+  /// Loading state while migrating commands
+  ///
+  /// In en, this message translates to:
+  /// **'Migrating...'**
+  String get legacy_response_banner_migrating;
+
   /// Short body text for the legacy response deprecation banner (small screens)
   ///
   /// In en, this message translates to:
@@ -11278,6 +11308,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please enter a command name'**
   String get validation_command_name_required;
+
+  /// Interaction commands must include at least one response action (Respond with Message, Component V2, or Modal).
+  ///
+  /// In en, this message translates to:
+  /// **'Interaction commands must include at least one response action (Respond with Message, Component V2, or Modal).'**
+  String get validation_interaction_no_response;
+
+  /// Short version: no response action
+  ///
+  /// In en, this message translates to:
+  /// **'No response action'**
+  String get validation_interaction_no_response_short;
 
   /// Invalid default member permissions bitfield. Use a positive integer or leave empty.
   ///

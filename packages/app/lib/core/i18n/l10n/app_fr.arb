@@ -5314,6 +5314,31 @@
   "@legacy_response_banner_dismiss": {
     "description": "Tooltip for the dismiss button on the legacy response deprecation banner"
   },
+  "legacy_response_banner_migrate": "Tout migrer",
+  "@legacy_response_banner_migrate": {
+    "description": "Button label to migrate all legacy commands"
+  },
+  "legacy_response_banner_migrated": "{count, plural, =1{1 commande migrée} other{{count} commandes migrées}}",
+  "@legacy_response_banner_migrated": {
+    "description": "Message showing how many commands were migrated",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "legacy_response_banner_migrated_none": "Aucune commande à migrer",
+  "@legacy_response_banner_migrated_none": {
+    "description": "Message shown when no commands need migration"
+  },
+  "legacy_response_banner_migrate_failed": "Échec de la migration",
+  "@legacy_response_banner_migrate_failed": {
+    "description": "Error message when migration fails"
+  },
+  "legacy_response_banner_migrating": "Migration en cours...",
+  "@legacy_response_banner_migrating": {
+    "description": "Loading state while migrating commands"
+  },
   "legacy_response_banner_short_body": "Ouvrez et re-sauvegardez vos commandes pour migrer vers le nouveau format.",
   "@legacy_response_banner_short_body": {
     "description": "Short body text for the legacy response deprecation banner (small screens)"
@@ -8146,6 +8171,14 @@
   "validation_command_name_required": "Veuillez entrer un nom de commande",
   "@validation_command_name_required": {
     "description": "Please enter a command name"
+  },
+  "validation_interaction_no_response": "Les commandes d'interaction doivent inclure au moins une action de réponse (Répondre avec un message, Composant V2 ou Modal).",
+  "@validation_interaction_no_response": {
+    "description": "Interaction commands must include at least one response action (Respond with Message, Component V2, or Modal)."
+  },
+  "validation_interaction_no_response_short": "Aucune action de réponse",
+  "@validation_interaction_no_response_short": {
+    "description": "Short version: no response action"
   },
   "validation_invalid_permissions": "Champ de bits de permissions par défaut invalide. Utilisez un entier positif ou laissez vide.",
   "@validation_invalid_permissions": {
