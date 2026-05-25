@@ -1,5 +1,5 @@
 import 'package:bot_creator/core/i18n/i18n.dart';
-import 'package:flutter/material.dart' show Icons, IconData, BuildContext;
+import 'package:flutter/material.dart' show Icons, IconData, BuildContext, Localizations;
 import 'package:bot_creator_shared/types/action.dart' show BotCreatorActionType;
 
 import 'action_types.dart';
@@ -46,6 +46,13 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
         return context.tr.action_name_updateAutoMod;
       case BotCreatorActionType.updateGuild:
         return context.tr.action_name_updateGuild;
+      case BotCreatorActionType.leaveGuild:
+        final languageCode = Localizations.localeOf(context).languageCode;
+        if (languageCode == 'fr') return 'Faire quitter le serveur';
+        if (languageCode == 'pt') return 'Sair do Servidor';
+        if (languageCode == 'de') return 'Server verlassen';
+        if (languageCode == 'tr') return 'Sunucudan Ayrıl';
+        return 'Leave Server';
       case BotCreatorActionType.listMembers:
         return context.tr.action_name_listMembers;
       case BotCreatorActionType.getMember:
@@ -239,6 +246,8 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
         return Icons.security;
       case BotCreatorActionType.updateGuild:
         return Icons.settings;
+      case BotCreatorActionType.leaveGuild:
+        return Icons.exit_to_app;
       case BotCreatorActionType.listMembers:
         return Icons.group;
       case BotCreatorActionType.getMember:
@@ -980,6 +989,8 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             hint: 'Update reason',
           ),
         ];
+      case BotCreatorActionType.leaveGuild:
+        return const [];
       case BotCreatorActionType.listMembers:
         return [
           ParameterDefinition(

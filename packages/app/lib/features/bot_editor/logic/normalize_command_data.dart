@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:bot_creator/features/bot_editor/logic/embed_normalization.dart';
+import 'package:bot_creator_shared/utils/command_migration.dart' as migration;
 
 Map<String, dynamic> normalizeCommandData(Map<String, dynamic> command) {
   final normalized = Map<String, dynamic>.from(command);
@@ -208,6 +209,12 @@ Map<String, dynamic> normalizeCommandData(Map<String, dynamic> command) {
     if (normalizedSubcommandWorkflows.isNotEmpty)
       'activeSubcommandRoute': normalizedActiveSubcommandRoute,
   };
+
+  // Transparently migrate legacy response blocks into inline actions.
+  final normalizedData = normalized['data'];
+  if (normalizedData is Map<String, dynamic>) {
+    migration.migrateCommandDataResponse(normalizedData);
+  }
 
   return normalized;
 }

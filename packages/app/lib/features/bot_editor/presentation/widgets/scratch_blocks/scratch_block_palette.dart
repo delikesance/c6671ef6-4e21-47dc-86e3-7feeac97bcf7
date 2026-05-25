@@ -88,6 +88,7 @@ String getCategoryForAction(BotCreatorActionType type) {
     case BotCreatorActionType.getWebhook:
       return 'Webhooks';
     case BotCreatorActionType.updateGuild:
+    case BotCreatorActionType.leaveGuild:
     case BotCreatorActionType.updateAutoMod:
     case BotCreatorActionType.listMembers:
     case BotCreatorActionType.getMember:
