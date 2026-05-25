@@ -1,12 +1,11 @@
 part of 'command.create.dart';
 
-const int _commandCreateStepCount = 5;
+const int _commandCreateStepCount = 4;
 
 extension _CommandCreateStepTitles on _CommandCreatePageState {
   List<String> get _commandCreateStepTitles => <String>[
     context.tr.wizard_step_infos,
     context.tr.wizard_step_trigger_inputs,
-    context.tr.wizard_step_reply,
     context.tr.wizard_step_actions,
     context.tr.wizard_step_review,
   ];
@@ -20,104 +19,15 @@ extension _CommandCreateWizard on _CommandCreatePageState {
       case 1:
         return Icons.tune;
       case 2:
-        return Icons.reply_outlined;
-      case 3:
         return Icons.account_tree_outlined;
-      case 4:
+      case 3:
         return Icons.fact_check_outlined;
       default:
         return Icons.circle_outlined;
     }
   }
 
-  Future<void> _openReplyEditor() async {
-    final result = await Navigator.push<Map<String, dynamic>>(
-      context,
-      MaterialPageRoute<Map<String, dynamic>>(
-        builder:
-            (_) => CommandReplyEditorPage(
-              initialResponseType: _responseType,
-              initialResponseText: _responseController.text,
-              initialEmbeds: _responseEmbeds,
-              initialComponents: _responseComponents,
-              initialModal: _responseModal,
-              initialWorkflow: _responseWorkflow,
-              normalizeWorkflow: _normalizeWorkflow,
-              variableSuggestions: _actionVariableSuggestions,
-              emojiSuggestions: _appEmojis,
-              botIdForConfig: _botIdForConfig,
-              allowModal: _allowModalResponses,
-            ),
-      ),
-    );
 
-    if (result == null || !mounted) {
-      return;
-    }
-
-    _applyStateUpdate(() {
-      _responseType =
-          (result['responseType'] == 'normal' ||
-                  result['responseType'] == 'message')
-              ? 'message'
-              : (result['responseType'] ?? 'message').toString();
-      _response = (result['responseText'] ?? '').toString();
-      _responseController.text = _response;
-      _responseEmbeds = List<Map<String, dynamic>>.from(
-        (result['responseEmbeds'] as List?)?.whereType<Map>().map(
-              (item) => Map<String, dynamic>.from(item),
-            ) ??
-            const <Map<String, dynamic>>[],
-      );
-      _responseComponents = Map<String, dynamic>.from(
-        (result['responseComponents'] as Map?)?.cast<String, dynamic>() ??
-            const <String, dynamic>{},
-      );
-      _responseModal = Map<String, dynamic>.from(
-        (result['responseModal'] as Map?)?.cast<String, dynamic>() ??
-            const <String, dynamic>{},
-      );
-      _responseWorkflow = _normalizeWorkflow(
-        Map<String, dynamic>.from(
-          (result['responseWorkflow'] as Map?)?.cast<String, dynamic>() ??
-              _CommandCreatePageState._defaultWorkflow(),
-        ),
-      );
-      _persistActiveSubcommandWorkflow();
-    });
-  }
-
-
-
-  String _responseModeLabel() {
-    switch (_responseType) {
-      case 'componentV2':
-        return context.tr.response_mode_layout;
-      case 'modal':
-        return context.tr.response_mode_modal;
-      default:
-        return context.tr.response_mode_standard;
-    }
-  }
-
-  String _responseSummaryLine() {
-    final preview = _responseController.text.trim();
-    final embeds = _responseEmbeds.length;
-    final hasComponents = _responseComponents.isNotEmpty;
-    final visibility =
-        _responseWorkflow['visibility'] == 'ephemeral'
-            ? context.tr.response_visibility_ephemeral
-            : context.tr.response_visibility_public;
-    final parts = <String>[
-      _responseModeLabel(),
-      visibility,
-      if (preview.isNotEmpty)
-        preview.length > 80 ? '${preview.substring(0, 79)}...' : preview,
-      if (embeds > 0) context.tr.response_embeds_count(embeds),
-      if (hasComponents) context.tr.response_interactive_components,
-    ];
-    return parts.join(' | ');
-  }
 
   String _actionsSummaryLine() {
     if (_isBdfdScriptMode) {
@@ -237,10 +147,8 @@ extension _CommandCreateWizard on _CommandCreatePageState {
       case 1:
         return _buildTriggerAndInputsStep();
       case 2:
-        return _buildReplyStep();
-      case 3:
         return _buildActionsStep(contentMaxWidth);
-      case 4:
+      case 3:
       default:
         return _buildReviewStep();
     }
@@ -373,59 +281,7 @@ extension _CommandCreateWizard on _CommandCreatePageState {
     );
   }
 
-  Widget _buildReplyStep() {
-    final activeRouteLabel =
-        _subcommandWorkflows.isNotEmpty
-            ? _workflowRouteLabel(_activeSubcommandRoute)
-            : null;
-    return Column(
-      key: const ValueKey('step-reply'),
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  context.tr.wizard_reply_summary,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  _responseSummaryLine(),
-                  style: TextStyle(color: AppTheme.grey),
-                ),
-                if (activeRouteLabel != null) ...[
-                  const SizedBox(height: 10),
-                  Wrap(
-                    spacing: 8,
-                    children: [
-                      Chip(label: Text(activeRouteLabel)),
-                      Chip(label: Text(_workflowSummary())),
-                    ],
-                  ),
-                ] else ...[
-                  const SizedBox(height: 10),
-                  Chip(label: Text(_workflowSummary())),
-                ],
-                const SizedBox(height: 12),
-                FilledButton.tonalIcon(
-                  onPressed: _openReplyEditor,
-                  icon: const Icon(Icons.edit_outlined),
-                  label: Text(context.tr.wizard_edit_reply),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+
 
   Widget _buildActionsStep(double contentMaxWidth) {
     return Column(
@@ -537,12 +393,6 @@ extension _CommandCreateWizard on _CommandCreatePageState {
             if (_legacyModeEnabled) context.tr.review_legacy_mode,
             if (_localOnlyCommand) context.tr.review_local_only,
           ],
-        ),
-        const SizedBox(height: 12),
-        _ReviewCard(
-          title: context.tr.review_reply_title,
-          icon: Icons.reply_outlined,
-          lines: <String>[_responseSummaryLine(), _workflowSummary()],
         ),
         const SizedBox(height: 12),
         _ReviewCard(

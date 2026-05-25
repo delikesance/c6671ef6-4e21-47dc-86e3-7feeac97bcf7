@@ -1429,6 +1429,7 @@ Future<Map<String, String>> handleActions(
         case BotCreatorActionType.randomChoice:
         case BotCreatorActionType.registerGuildCommands:
         case BotCreatorActionType.unregisterGuildCommands:
+        case BotCreatorActionType.deferInteraction:
           final delegated = await shared_handler.handleActions(
             client,
             interaction,

@@ -26,6 +26,7 @@ bool isFinalAction(BotCreatorActionType type) {
     case BotCreatorActionType.respondWithComponentV2:
     case BotCreatorActionType.respondWithModal:
     case BotCreatorActionType.respondWithAutocomplete:
+    case BotCreatorActionType.deferInteraction:
       return true;
     default:
       return false;
@@ -139,6 +140,7 @@ String getCategoryForAction(BotCreatorActionType type) {
     case BotCreatorActionType.listenForSelectMenu:
     case BotCreatorActionType.listenForModalSubmit:
     case BotCreatorActionType.respondWithAutocomplete:
+    case BotCreatorActionType.deferInteraction:
     case BotCreatorActionType.sendDm:
       return 'Interactions';
   }
@@ -239,16 +241,7 @@ IconData getCategoryIcon(String category) {
   }
 }
 
-/// A bottom sheet / dialog that lists all available action block types grouped
-/// by category. The user taps one to add it to the canvas.
-class ScratchBlockPalette extends StatefulWidget {
-  const ScratchBlockPalette({super.key, required this.onActionSelected});
 
-  final ValueChanged<BotCreatorActionType> onActionSelected;
-
-  @override
-  State<ScratchBlockPalette> createState() => _ScratchBlockPaletteState();
-}
 
 class _ScratchBlockPaletteState extends State<ScratchBlockPalette> {
   String _searchQuery = '';

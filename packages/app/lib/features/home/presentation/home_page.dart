@@ -738,7 +738,9 @@ class HomePageState extends State<HomePage>
           if (didMigrate) {
             migratedCount++;
             final cmdId = (cmd['id'] ?? '').toString();
-            await appManager.saveAppCommand(botId, cmdId, dataMap);
+            final updatedCmd = Map<String, dynamic>.from(cmd);
+            updatedCmd['data'] = dataMap;
+            await appManager.saveAppCommand(botId, cmdId, updatedCmd);
           }
         }
       }
