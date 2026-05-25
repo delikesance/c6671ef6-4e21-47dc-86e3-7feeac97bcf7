@@ -84,6 +84,10 @@ class HomePageState extends State<HomePage>
     with TickerProviderStateMixin, WidgetsBindingObserver {
   /// IDs des bots en cours d'exécution.
   Set<String> _runningBotIds = <String>{};
+
+  /// True when at least one command uses the legacy `data.response` format.
+  bool _hasLegacyCommands = false;
+  bool _legacyBannerDismissed = false;
   RemoteRuntimeSource _runtimeSource = RemoteRuntimeSource.local;
   String? _runtimeDetailLabel;
 
@@ -114,6 +118,7 @@ class HomePageState extends State<HomePage>
       } catch (_) {}
       await syncAllBotsFromManager(silent: true);
     }());
+    unawaited(_checkLegacyCommands());
   }
 
   @override
@@ -637,6 +642,49 @@ class HomePageState extends State<HomePage>
           ..stop()
           ..value = 0;
       }
+    }
+  }
+
+  /// Scans all bot commands once and sets [_hasLegacyCommands] if any still
+  /// use the old `data.response` block (i.e. without `_migrated` sentinel).
+  Future<void> _checkLegacyCommands() async {
+    try {
+      final apps = await appManager.getAllApps();
+      for (final rawApp in apps) {
+        if (rawApp is! Map) continue;
+        final botId = (rawApp['id'] ?? '').toString();
+        if (botId.isEmpty) continue;
+        final commands = await appManager.getCommands(botId);
+        for (final cmd in commands) {
+          final data = cmd['data'];
+          if (data is! Map) continue;
+          final response = data['response'];
+          if (response is! Map) continue;
+          // Not yet migrated in memory — the sentinel is only set at runtime.
+          // We detect legacy format by checking for non-empty text/embeds/modal
+          // or an enabled conditional without the _migrated marker.
+          if (response['_migrated'] == true) continue;
+          final text = (response['text'] ?? '').toString().trim();
+          final embeds = response['embeds'];
+          final modal = response['modal'];
+          final workflow = response['workflow'];
+          final conditional =
+              workflow is Map ? workflow['conditional'] : null;
+          final hasContent =
+              text.isNotEmpty ||
+              (embeds is List && embeds.isNotEmpty) ||
+              (modal is Map && modal.isNotEmpty) ||
+              (conditional is Map && conditional['enabled'] == true);
+          if (hasContent) {
+            if (mounted) {
+              setState(() => _hasLegacyCommands = true);
+            }
+            return;
+          }
+        }
+      }
+    } catch (_) {
+      // Non-blocking — ignore any errors.
     }
   }
 
@@ -1535,6 +1583,14 @@ class HomePageState extends State<HomePage>
 
               return Column(
                 children: [
+                  // ── Deprecation notice for legacy response format ───────────
+                  if (_hasLegacyCommands && !_legacyBannerDismissed)
+                    _LegacyCommandsDeprecationBanner(
+                      onDismiss:
+                          () => setState(
+                            () => _legacyBannerDismissed = true,
+                          ),
+                    ),
                   if (AdsPlacementPolicy.isPlacementEnabled(
                         NativeAdPlacement.homeBots,
                       ) &&
@@ -2139,6 +2195,82 @@ class _EmptyStateWithSupport extends StatelessWidget {
                 foregroundColor: Colors.white,
                 textStyle: const TextStyle(fontWeight: FontWeight.w600),
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Deprecation banner for legacy command response format ─────────────────────
+
+class _LegacyCommandsDeprecationBanner extends StatelessWidget {
+  const _LegacyCommandsDeprecationBanner({required this.onDismiss});
+
+  final VoidCallback onDismiss;
+
+  @override
+  Widget build(BuildContext context) {
+    final isSmall = MediaQuery.sizeOf(context).width < 480;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF8E1),
+        border: Border.all(color: const Color(0xFFFFCC02), width: 1),
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Padding(
+              padding: EdgeInsets.only(top: 1),
+              child: Icon(
+                Icons.info_outline_rounded,
+                size: 18,
+                color: Color(0xFFF59E0B),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    isSmall
+                        ? 'Mise à jour des commandes disponible'
+                        : 'Mise à jour du format de réponse des commandes',
+                    style: const TextStyle(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF92400E),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    isSmall
+                        ? 'Ouvrez et re-sauvegardez vos commandes pour migrer vers le nouveau format.'
+                        : 'Certaines commandes utilisent encore l\'ancien format de réponse. '
+                            'Ouvrez-les dans l\'éditeur et re-sauvegardez-les pour activer le nouveau format.',
+                    style: const TextStyle(
+                      fontSize: 11.5,
+                      color: Color(0xFF78350F),
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 6),
+            IconButton(
+              onPressed: onDismiss,
+              icon: const Icon(Icons.close_rounded, size: 16),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
+              color: const Color(0xFF92400E),
+              tooltip: 'Ignorer',
             ),
           ],
         ),

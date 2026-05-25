@@ -597,6 +597,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
       case BotCreatorActionType.getWebhook:
         return 'Webhooks';
       case BotCreatorActionType.updateGuild:
+      case BotCreatorActionType.leaveGuild:
       case BotCreatorActionType.updateAutoMod:
       case BotCreatorActionType.listMembers:
       case BotCreatorActionType.getMember:
@@ -924,6 +925,8 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
         return 'Update auto-moderation settings';
       case BotCreatorActionType.updateGuild:
         return 'Update guild settings';
+      case BotCreatorActionType.leaveGuild:
+        return 'Make the bot leave the guild/server';
       case BotCreatorActionType.deleteWebhook:
         return 'Delete a webhook';
       case BotCreatorActionType.forLoop:
