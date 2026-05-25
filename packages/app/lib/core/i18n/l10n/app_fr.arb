@@ -5306,6 +5306,26 @@
   "@legacy_response_mode_label": {
     "description": "Legacy response mode"
   },
+  "legacy_response_banner_body": "Certaines commandes utilisent encore l'ancien format de réponse. Ouvrez-les dans l'éditeur et re-sauvegardez-les pour activer le nouveau format.",
+  "@legacy_response_banner_body": {
+    "description": "Body text for the legacy response deprecation banner (full size)"
+  },
+  "legacy_response_banner_dismiss": "Ignorer",
+  "@legacy_response_banner_dismiss": {
+    "description": "Tooltip for the dismiss button on the legacy response deprecation banner"
+  },
+  "legacy_response_banner_short_body": "Ouvrez et re-sauvegardez vos commandes pour migrer vers le nouveau format.",
+  "@legacy_response_banner_short_body": {
+    "description": "Short body text for the legacy response deprecation banner (small screens)"
+  },
+  "legacy_response_banner_short_title": "Mise à jour des commandes disponible",
+  "@legacy_response_banner_short_title": {
+    "description": "Short title for the legacy response deprecation banner (small screens)"
+  },
+  "legacy_response_banner_title": "Mise à jour du format de réponse des commandes",
+  "@legacy_response_banner_title": {
+    "description": "Full title for the legacy response deprecation banner"
+  },
   "local_command_awaited_desc": "Les presets de callback awaités restent locaux car ce sont des callbacks internes au runtime.",
   "@local_command_awaited_desc": {
     "description": "Awaited callback presets stay local because they are internal runtime callbacks."
