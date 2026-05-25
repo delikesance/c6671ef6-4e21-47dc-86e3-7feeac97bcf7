@@ -5306,6 +5306,26 @@
   "@legacy_response_mode_label": {
     "description": "Legacy response mode"
   },
+  "legacy_response_banner_body": "Einige Befehle verwenden noch das alte Antwortformat. Öffnen Sie sie im Editor und speichern Sie sie erneut, um das neue Format zu aktivieren.",
+  "@legacy_response_banner_body": {
+    "description": "Body text for the legacy response deprecation banner (full size)"
+  },
+  "legacy_response_banner_dismiss": "Schließen",
+  "@legacy_response_banner_dismiss": {
+    "description": "Tooltip for the dismiss button on the legacy response deprecation banner"
+  },
+  "legacy_response_banner_short_body": "Öffnen und speichern Sie Ihre Befehle erneut, um zum neuen Format zu migrieren.",
+  "@legacy_response_banner_short_body": {
+    "description": "Short body text for the legacy response deprecation banner (small screens)"
+  },
+  "legacy_response_banner_short_title": "Befehlsaktualisierung verfügbar",
+  "@legacy_response_banner_short_title": {
+    "description": "Short title for the legacy response deprecation banner (small screens)"
+  },
+  "legacy_response_banner_title": "Aktualisierung des Befehlsantwortformats",
+  "@legacy_response_banner_title": {
+    "description": "Full title for the legacy response deprecation banner"
+  },
   "local_command_awaited_desc": "Voreinstellungen für erwartete Callbacks bleiben lokal, da es sich um interne Laufzeit-Callbacks handelt.",
   "@local_command_awaited_desc": {
     "description": "Awaited callback presets stay local because they are internal runtime callbacks."

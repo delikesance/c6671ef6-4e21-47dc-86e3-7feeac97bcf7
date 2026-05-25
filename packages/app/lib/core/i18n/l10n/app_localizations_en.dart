@@ -4191,6 +4191,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get legacy_response_mode_label => 'Legacy response mode';
 
   @override
+  String get legacy_response_banner_body =>
+      'Some commands still use the old response format. Open them in the editor and re-save to activate the new format.';
+
+  @override
+  String get legacy_response_banner_dismiss => 'Dismiss';
+
+  @override
+  String get legacy_response_banner_short_body =>
+      'Open and re-save your commands to migrate to the new format.';
+
+  @override
+  String get legacy_response_banner_short_title => 'Command update available';
+
+  @override
+  String get legacy_response_banner_title => 'Command response format update';
+
+  @override
   String get local_command_awaited_desc =>
       'Awaited callback presets stay local because they are internal runtime callbacks.';
 

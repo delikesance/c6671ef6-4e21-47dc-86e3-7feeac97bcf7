@@ -28,6 +28,7 @@ import 'package:bot_creator/features/ads/logic/ad_consent_service.dart';
 import 'package:bot_creator/features/ads/logic/ads_placement_policy.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/app_editor_page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/bot_logs.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 String _formatHostingDuration(BuildContext context, int totalMinutes) {
   if (totalMinutes <= 0) {
@@ -645,10 +646,21 @@ class HomePageState extends State<HomePage>
     }
   }
 
+  /// Preference key for persisting the legacy-banner dismiss state.
+  static const _kLegacyBannerDismissedKey = 'legacy_response_notice_dismissed';
+
   /// Scans all bot commands once and sets [_hasLegacyCommands] if any still
   /// use the old `data.response` block (i.e. without `_migrated` sentinel).
+  /// Also restores the persisted dismiss state from SharedPreferences.
   Future<void> _checkLegacyCommands() async {
     try {
+      // Restore persisted dismiss state.
+      final prefs = await SharedPreferences.getInstance();
+      final wasDismissed = prefs.getBool(_kLegacyBannerDismissedKey) ?? false;
+      if (wasDismissed && !_legacyBannerDismissed) {
+        _legacyBannerDismissed = true;
+      }
+
       final apps = await appManager.getAllApps();
       for (final rawApp in apps) {
         if (rawApp is! Map) continue;
@@ -658,34 +670,51 @@ class HomePageState extends State<HomePage>
         for (final cmd in commands) {
           final data = cmd['data'];
           if (data is! Map) continue;
-          final response = data['response'];
-          if (response is! Map) continue;
-          // Not yet migrated in memory — the sentinel is only set at runtime.
-          // We detect legacy format by checking for non-empty text/embeds/modal
-          // or an enabled conditional without the _migrated marker.
-          if (response['_migrated'] == true) continue;
-          final text = (response['text'] ?? '').toString().trim();
-          final embeds = response['embeds'];
-          final modal = response['modal'];
-          final workflow = response['workflow'];
-          final conditional =
-              workflow is Map ? workflow['conditional'] : null;
-          final hasContent =
-              text.isNotEmpty ||
-              (embeds is List && embeds.isNotEmpty) ||
-              (modal is Map && modal.isNotEmpty) ||
-              (conditional is Map && conditional['enabled'] == true);
-          if (hasContent) {
+
+          // Check root command response.
+          if (_isLegacyResponse(data['response'])) {
             if (mounted) {
               setState(() => _hasLegacyCommands = true);
             }
             return;
+          }
+
+          // Check subcommand workflow responses.
+          final subWorkflows = data['subcommandWorkflows'];
+          if (subWorkflows is Map) {
+            for (final payload in subWorkflows.values) {
+              if (payload is! Map) continue;
+              if (_isLegacyResponse(payload['response'])) {
+                if (mounted) {
+                  setState(() => _hasLegacyCommands = true);
+                }
+                return;
+              }
+            }
           }
         }
       }
     } catch (_) {
       // Non-blocking — ignore any errors.
     }
+  }
+
+  /// Returns true if [rawResponse] is a legacy (unmigrated) response block
+  /// with non-empty content.
+  static bool _isLegacyResponse(dynamic rawResponse) {
+    if (rawResponse is! Map) return false;
+    final response = rawResponse;
+    if (response['_migrated'] == true) return false;
+    final text = (response['text'] ?? '').toString().trim();
+    final embeds = response['embeds'];
+    final modal = response['modal'];
+    final workflow = response['workflow'];
+    final conditional =
+        workflow is Map ? workflow['conditional'] : null;
+    return text.isNotEmpty ||
+        (embeds is List && embeds.isNotEmpty) ||
+        (modal is Map && modal.isNotEmpty) ||
+        (conditional is Map && conditional['enabled'] == true);
   }
 
   String _uiCopy({required String fr, required String en}) {
@@ -1586,10 +1615,11 @@ class HomePageState extends State<HomePage>
                   // ── Deprecation notice for legacy response format ───────────
                   if (_hasLegacyCommands && !_legacyBannerDismissed)
                     _LegacyCommandsDeprecationBanner(
-                      onDismiss:
-                          () => setState(
-                            () => _legacyBannerDismissed = true,
-                          ),
+                      onDismiss: () async {
+                        setState(() => _legacyBannerDismissed = true);
+                        final prefs = await SharedPreferences.getInstance();
+                        await prefs.setBool(_kLegacyBannerDismissedKey, true);
+                      },
                     ),
                   if (AdsPlacementPolicy.isPlacementEnabled(
                         NativeAdPlacement.homeBots,
@@ -2240,8 +2270,8 @@ class _LegacyCommandsDeprecationBanner extends StatelessWidget {
                 children: [
                   Text(
                     isSmall
-                        ? 'Mise à jour des commandes disponible'
-                        : 'Mise à jour du format de réponse des commandes',
+                        ? context.tr.legacy_response_banner_short_title
+                        : context.tr.legacy_response_banner_title,
                     style: const TextStyle(
                       fontSize: 12.5,
                       fontWeight: FontWeight.w700,
@@ -2251,9 +2281,8 @@ class _LegacyCommandsDeprecationBanner extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     isSmall
-                        ? 'Ouvrez et re-sauvegardez vos commandes pour migrer vers le nouveau format.'
-                        : 'Certaines commandes utilisent encore l\'ancien format de réponse. '
-                            'Ouvrez-les dans l\'éditeur et re-sauvegardez-les pour activer le nouveau format.',
+                        ? context.tr.legacy_response_banner_short_body
+                        : context.tr.legacy_response_banner_body,
                     style: const TextStyle(
                       fontSize: 11.5,
                       color: Color(0xFF78350F),
@@ -2270,7 +2299,7 @@ class _LegacyCommandsDeprecationBanner extends StatelessWidget {
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
               color: const Color(0xFF92400E),
-              tooltip: 'Ignorer',
+              tooltip: context.tr.legacy_response_banner_dismiss,
             ),
           ],
         ),

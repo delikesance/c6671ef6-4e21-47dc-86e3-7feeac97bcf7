@@ -4210,6 +4210,23 @@ class AppLocalizationsTr extends AppLocalizations {
   String get legacy_response_mode_label => 'Eski yanıt modu';
 
   @override
+  String get legacy_response_banner_body =>
+      'Bazı komutlar hâlâ eski yanıt biçimini kullanıyor. Yeni biçimi etkinleştirmek için düzenleyicide açın ve yeniden kaydedin.';
+
+  @override
+  String get legacy_response_banner_dismiss => 'Kapat';
+
+  @override
+  String get legacy_response_banner_short_body =>
+      'Yeni biçime geçmek için komutlarınızı açın ve yeniden kaydedin.';
+
+  @override
+  String get legacy_response_banner_short_title => 'Komut güncellemesi mevcut';
+
+  @override
+  String get legacy_response_banner_title => 'Komut yanıt biçimi güncellemesi';
+
+  @override
   String get local_command_awaited_desc =>
       'Beklenen geri arama ön ayarları, dahili çalışma zamanı geri aramaları oldukları için yerel kalır.';
 

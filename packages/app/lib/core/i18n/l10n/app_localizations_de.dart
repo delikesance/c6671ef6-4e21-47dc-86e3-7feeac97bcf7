@@ -4237,6 +4237,25 @@ class AppLocalizationsDe extends AppLocalizations {
   String get legacy_response_mode_label => 'Legacy-Antwortmodus';
 
   @override
+  String get legacy_response_banner_body =>
+      'Einige Befehle verwenden noch das alte Antwortformat. Öffnen Sie sie im Editor und speichern Sie sie erneut, um das neue Format zu aktivieren.';
+
+  @override
+  String get legacy_response_banner_dismiss => 'Schließen';
+
+  @override
+  String get legacy_response_banner_short_body =>
+      'Öffnen und speichern Sie Ihre Befehle erneut, um zum neuen Format zu migrieren.';
+
+  @override
+  String get legacy_response_banner_short_title =>
+      'Befehlsaktualisierung verfügbar';
+
+  @override
+  String get legacy_response_banner_title =>
+      'Aktualisierung des Befehlsantwortformats';
+
+  @override
   String get local_command_awaited_desc =>
       'Voreinstellungen für erwartete Callbacks bleiben lokal, da es sich um interne Laufzeit-Callbacks handelt.';
 

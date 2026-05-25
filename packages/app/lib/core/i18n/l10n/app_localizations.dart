@@ -7524,6 +7524,36 @@ abstract class AppLocalizations {
   /// **'Legacy response mode'**
   String get legacy_response_mode_label;
 
+  /// Body text for the legacy response deprecation banner (full size)
+  ///
+  /// In en, this message translates to:
+  /// **'Some commands still use the old response format. Open them in the editor and re-save to activate the new format.'**
+  String get legacy_response_banner_body;
+
+  /// Tooltip for the dismiss button on the legacy response deprecation banner
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get legacy_response_banner_dismiss;
+
+  /// Short body text for the legacy response deprecation banner (small screens)
+  ///
+  /// In en, this message translates to:
+  /// **'Open and re-save your commands to migrate to the new format.'**
+  String get legacy_response_banner_short_body;
+
+  /// Short title for the legacy response deprecation banner (small screens)
+  ///
+  /// In en, this message translates to:
+  /// **'Command update available'**
+  String get legacy_response_banner_short_title;
+
+  /// Full title for the legacy response deprecation banner
+  ///
+  /// In en, this message translates to:
+  /// **'Command response format update'**
+  String get legacy_response_banner_title;
+
   /// Awaited callback presets stay local because they are internal runtime callbacks.
   ///
   /// In en, this message translates to:
