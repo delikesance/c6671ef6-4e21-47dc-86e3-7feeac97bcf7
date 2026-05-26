@@ -1,0 +1,21 @@
+"AppBuild"
+{
+	"AppID" "4597050"
+	"Desc" "Bot Creator For Discord - Linux"
+	"BuildOutput" "steam_output_linux"
+	"ContentRoot" "content_linux"
+	"SetPassword" ""
+	
+	"Depots"
+	{
+		"4597052"
+		{
+			"FileMapping"
+			{
+				"LocalPath" "*"
+				"DepotPath" "."
+				"recursive" "1"
+			}
+		}
+	}
+}
