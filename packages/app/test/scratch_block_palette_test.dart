@@ -7,7 +7,10 @@ void main() {
     test('correctly identifies interaction-only actions', () {
       expect(isInteractionOnlyAction(BotCreatorActionType.respondWithModal), isTrue);
       expect(isInteractionOnlyAction(BotCreatorActionType.deferInteraction), isTrue);
-      expect(isInteractionOnlyAction(BotCreatorActionType.respondWithMessage), isTrue);
+      expect(isInteractionOnlyAction(BotCreatorActionType.editInteractionMessage), isTrue);
+      // respondWithMessage is NOT interaction-only: it falls back to a plain
+      // channel send when no interaction is present, so it works in all contexts.
+      expect(isInteractionOnlyAction(BotCreatorActionType.respondWithMessage), isFalse);
       expect(isInteractionOnlyAction(BotCreatorActionType.sendMessage), isFalse);
       expect(isInteractionOnlyAction(BotCreatorActionType.wait), isFalse);
     });
