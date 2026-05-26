@@ -21,8 +21,8 @@ executors:
 
   macos-ci:
     macos:
-      xcode: "16.0.0"
-    resource_class: macos.m4.pro.medium
+      xcode: "16.4.0"
+    resource_class: m4pro.medium
     working_directory: ~/project
 
   windows-ci:
@@ -85,8 +85,8 @@ commands:
           shell: bash.exe
           command: |
             FLUTTER_ARCHIVE="flutter_windows_${FLUTTER_VERSION}-stable.zip"
-            curl -sL "https://storage.googleapis.com/flutter_infra_release/releases/stable/windows/${FLUTTER_ARCHIVE}" -o "C:\\${FLUTTER_ARCHIVE}"
-            unzip -q "C:\\${FLUTTER_ARCHIVE}" -d C:\\
+            curl -sL "https://storage.googleapis.com/flutter_infra_release/releases/stable/windows/${FLUTTER_ARCHIVE}" -o "/c/${FLUTTER_ARCHIVE}"
+            unzip -q "/c/${FLUTTER_ARCHIVE}" -d /c/
             echo 'export PATH=/c/flutter/bin:$PATH' >> $BASH_ENV
 
   get_flutter_deps:
