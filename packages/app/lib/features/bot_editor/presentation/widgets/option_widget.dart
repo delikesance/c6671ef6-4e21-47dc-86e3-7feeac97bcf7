@@ -721,6 +721,7 @@ class OptionWidgetState extends State<OptionWidget> {
                                                   ),
                                                   label:
                                                       context.tr.common_value,
+                                                  useLabelText: true,
                                                   initialValue: v,
                                                   suggestions:
                                                       widget

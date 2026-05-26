@@ -89,7 +89,9 @@ class ActionItem {
             : (fallbackId ?? json['id'] ?? '');
 
     final rawId = (json['id'] ?? '').toString().trim();
-    final id = rawId.isNotEmpty ? rawId : (fallbackId ?? '');
+    final id = rawId.isNotEmpty
+        ? rawId
+        : 'action_${DateTime.now().microsecondsSinceEpoch}_${_globalCounter++}';
     String runtimeId = (json['runtimeId'] ?? '').toString().trim();
 
     if (runtimeId.isEmpty) {

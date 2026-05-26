@@ -2759,6 +2759,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashboard_total => 'Total commands';
 
   @override
+  String get dashboard_analysis_period => 'Analysis Period';
+
+  @override
   String get debug_replay_clear => 'Clear replays';
 
   @override
@@ -4191,6 +4194,47 @@ class AppLocalizationsEn extends AppLocalizations {
   String get legacy_response_mode_label => 'Legacy response mode';
 
   @override
+  String get legacy_response_banner_body =>
+      'Some commands still use the old response format. Open them in the editor and re-save to activate the new format.';
+
+  @override
+  String get legacy_response_banner_dismiss => 'Dismiss';
+
+  @override
+  String get legacy_response_banner_migrate => 'Migrate all';
+
+  @override
+  String legacy_response_banner_migrated(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count commands migrated',
+      one: '1 command migrated',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get legacy_response_banner_migrated_none =>
+      'No commands need migration';
+
+  @override
+  String get legacy_response_banner_migrate_failed => 'Migration failed';
+
+  @override
+  String get legacy_response_banner_migrating => 'Migrating...';
+
+  @override
+  String get legacy_response_banner_short_body =>
+      'Open and re-save your commands to migrate to the new format.';
+
+  @override
+  String get legacy_response_banner_short_title => 'Command update available';
+
+  @override
+  String get legacy_response_banner_title => 'Command response format update';
+
+  @override
   String get local_command_awaited_desc =>
       'Awaited callback presets stay local because they are internal runtime callbacks.';
 
@@ -4794,6 +4838,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get runner_source_local => 'Local';
+
+  @override
+  String get runner_source_manager => 'Bot Creator servers';
+
+  @override
+  String get runner_source_manager_unavailable =>
+      'Sign in to Bot Creator in Settings to load stats from Bot Creator servers.';
 
   @override
   String get save => 'Save';
@@ -6377,6 +6428,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get validation_command_name_required => 'Please enter a command name';
+
+  @override
+  String get validation_interaction_no_response =>
+      'Interaction commands must include at least one response action (Respond with Message, Component V2, or Modal).';
+
+  @override
+  String get validation_interaction_no_response_short => 'No response action';
 
   @override
   String get validation_invalid_permissions =>

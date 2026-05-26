@@ -1,9 +1,28 @@
 import 'dart:convert';
 
 import 'package:bot_creator/features/bot_editor/logic/embed_normalization.dart';
+import 'package:bot_creator_shared/utils/command_migration.dart' as migration;
 
 Map<String, dynamic> normalizeCommandData(Map<String, dynamic> command) {
-  final normalized = Map<String, dynamic>.from(command);
+  var normalized = Map<String, dynamic>.from(command);
+
+  // Auto-heal: If the file was corrupted by a buggy migration (missing the root 'data' sub-map
+  // but containing actions or response blocks), we nest the root keys under 'data' and
+  // attempt to recover the name and other metadata fields.
+  if (normalized['data'] == null &&
+      (normalized['actions'] != null ||
+          normalized['response'] != null ||
+          normalized['legacyPrefixOverride'] != null)) {
+    final healedData = Map<String, dynamic>.from(normalized);
+    normalized.clear();
+    normalized['data'] = healedData;
+
+    final prefixOverride = (healedData['legacyPrefixOverride'] ?? '').toString().trim();
+    if (prefixOverride.isNotEmpty) {
+      normalized['name'] = prefixOverride;
+    }
+  }
+
   final rawData = Map<String, dynamic>.from(
     (normalized['data'] as Map?)?.cast<String, dynamic>() ?? const {},
   );
@@ -208,6 +227,12 @@ Map<String, dynamic> normalizeCommandData(Map<String, dynamic> command) {
     if (normalizedSubcommandWorkflows.isNotEmpty)
       'activeSubcommandRoute': normalizedActiveSubcommandRoute,
   };
+
+  // Transparently migrate legacy response blocks into inline actions.
+  final normalizedData = normalized['data'];
+  if (normalizedData is Map<String, dynamic>) {
+    migration.migrateCommandDataResponse(normalizedData);
+  }
 
   return normalized;
 }

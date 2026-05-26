@@ -54,6 +54,7 @@ void main() {
     required String botId,
     required String commandId,
     required bool includeSubcommands,
+    bool legacyModeEnabled = false,
   }) async {
     final options =
         includeSubcommands
@@ -105,6 +106,7 @@ void main() {
         'commandType': 'chatInput',
         'editorMode': 'advanced',
         'executionMode': 'workflow',
+        'legacyModeEnabled': legacyModeEnabled,
         'defaultMemberPermissions': '',
         'options': options,
         'response': <String, dynamic>{
@@ -263,7 +265,7 @@ void main() {
 
       expect(find.text('Metadata'), findsOneWidget);
       expect(find.text('Command Trigger'), findsOneWidget);
-      expect(find.text('Response'), findsOneWidget);
+      expect(find.text('Response'), findsNothing);
       expect(find.text('Add block'), findsOneWidget);
       expect(find.byTooltip('Import command'), findsOneWidget);
       expect(find.text('Save changes'), findsNothing);
@@ -278,6 +280,7 @@ void main() {
         botId: botId,
         commandId: commandId,
         includeSubcommands: false,
+        legacyModeEnabled: true,
       );
 
       await pumpCreatePage(
@@ -287,12 +290,12 @@ void main() {
 
       expect(find.text('Metadata'), findsOneWidget);
       expect(find.text('Command Trigger'), findsOneWidget);
-      expect(find.text('Response'), findsOneWidget);
+      expect(find.text('Response'), findsNothing);
       expect(find.text('All changes saved'), findsOneWidget);
       expect(find.byTooltip('Import command'), findsNothing);
     });
 
-    testWidgets('block editor shows metadata and entry point before response', (
+    testWidgets('block editor shows metadata and entry point in order', (
       tester,
     ) async {
       const botId = 'bot-edit-order';
@@ -301,6 +304,7 @@ void main() {
         botId: botId,
         commandId: commandId,
         includeSubcommands: false,
+        legacyModeEnabled: true,
       );
 
       await pumpCreatePage(
@@ -310,10 +314,8 @@ void main() {
 
       final metadataY = tester.getTopLeft(find.text('Metadata')).dy;
       final entryPointY = tester.getTopLeft(find.text('Command Trigger')).dy;
-      final responseY = tester.getTopLeft(find.text('Response')).dy;
 
       expect(metadataY, lessThan(entryPointY));
-      expect(entryPointY, lessThan(responseY));
     });
 
     testWidgets('edit mode hides create-only controls', (tester) async {

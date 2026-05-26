@@ -307,6 +307,24 @@ extension _CommandCreateVariableSuggestions on _CommandCreatePageState {
         );
       }
 
+      if (type == 'deleteMessages') {
+        addSuggestion(
+          'action.$actionKey.count',
+          kind: VariableSuggestionKind.numeric,
+        );
+        addSuggestion('$actionKey.count', kind: VariableSuggestionKind.numeric);
+        addSuggestion(
+          'action.$actionKey.deleteItself',
+          kind: VariableSuggestionKind.nonNumeric,
+        );
+        addSuggestion('$actionKey.deleteItself', kind: VariableSuggestionKind.nonNumeric);
+        addSuggestion(
+          'action.$actionKey.deleteResponse',
+          kind: VariableSuggestionKind.nonNumeric,
+        );
+        addSuggestion('$actionKey.deleteResponse', kind: VariableSuggestionKind.nonNumeric);
+      }
+
       if (type == 'appendArrayElement') {
         addSuggestion(
           'action.$actionKey.items',

@@ -26,6 +26,7 @@ bool isFinalAction(BotCreatorActionType type) {
     case BotCreatorActionType.respondWithComponentV2:
     case BotCreatorActionType.respondWithModal:
     case BotCreatorActionType.respondWithAutocomplete:
+    case BotCreatorActionType.deferInteraction:
       return true;
     default:
       return false;
@@ -88,6 +89,7 @@ String getCategoryForAction(BotCreatorActionType type) {
     case BotCreatorActionType.getWebhook:
       return 'Webhooks';
     case BotCreatorActionType.updateGuild:
+    case BotCreatorActionType.leaveGuild:
     case BotCreatorActionType.updateAutoMod:
     case BotCreatorActionType.listMembers:
     case BotCreatorActionType.getMember:
@@ -138,6 +140,7 @@ String getCategoryForAction(BotCreatorActionType type) {
     case BotCreatorActionType.listenForSelectMenu:
     case BotCreatorActionType.listenForModalSubmit:
     case BotCreatorActionType.respondWithAutocomplete:
+    case BotCreatorActionType.deferInteraction:
     case BotCreatorActionType.sendDm:
       return 'Interactions';
   }
@@ -237,13 +240,58 @@ IconData getCategoryIcon(String category) {
       return Icons.extension;
   }
 }
+/// Returns true for actions that are ONLY meaningful with a Discord
+/// interaction (slash command / component callback). These are hidden
+/// from prefix-command and event-workflow editors.
+///
+/// Note: [respondWithMessage] and [respondWithComponentV2] are intentionally
+/// NOT in this list — they fall back to a plain channel send when no
+/// interaction is present and therefore work in all contexts.
+bool isInteractionOnlyAction(BotCreatorActionType type) {
+  switch (type) {
+    case BotCreatorActionType.respondWithModal:
+    case BotCreatorActionType.deferInteraction:
+    case BotCreatorActionType.editInteractionMessage:
+      return true;
+    default:
+      return false;
+  }
+}
+
+/// Returns true for actions that only make sense inside an autocomplete handler.
+bool isAutocompleteOnlyAction(BotCreatorActionType type) {
+  return type == BotCreatorActionType.respondWithAutocomplete;
+}
+
+bool isListenerAction(BotCreatorActionType type) {
+  switch (type) {
+    case BotCreatorActionType.listenForButtonClick:
+    case BotCreatorActionType.listenForSelectMenu:
+    case BotCreatorActionType.listenForModalSubmit:
+      return true;
+    default:
+      return false;
+  }
+}
 
 /// A bottom sheet / dialog that lists all available action block types grouped
 /// by category. The user taps one to add it to the canvas.
 class ScratchBlockPalette extends StatefulWidget {
-  const ScratchBlockPalette({super.key, required this.onActionSelected});
+  const ScratchBlockPalette({
+    super.key,
+    required this.onActionSelected,
+    this.isInteraction = true,
+    this.isWorkflow = false,
+    this.isAutocompleteContext = false,
+  });
 
   final ValueChanged<BotCreatorActionType> onActionSelected;
+  final bool isInteraction;
+  final bool isWorkflow;
+
+  /// When true, shows the "Respond with autocomplete" action (only valid
+  /// inside an autocomplete handler workflow).
+  final bool isAutocompleteContext;
 
   @override
   State<ScratchBlockPalette> createState() => _ScratchBlockPaletteState();
@@ -262,6 +310,16 @@ class _ScratchBlockPaletteState extends State<ScratchBlockPalette> {
               .displayName(context)
               .toLowerCase()
               .contains(_searchQuery.toLowerCase())) {
+        continue;
+      }
+      if (!widget.isWorkflow && isListenerAction(actionType)) {
+        continue;
+      }
+      if (!widget.isInteraction && isInteractionOnlyAction(actionType)) {
+        continue;
+      }
+      // Autocomplete response is only valid inside an autocomplete handler.
+      if (!widget.isAutocompleteContext && isAutocompleteOnlyAction(actionType)) {
         continue;
       }
       final category = getCategoryForAction(actionType);
@@ -297,30 +355,33 @@ class _ScratchBlockPaletteState extends State<ScratchBlockPalette> {
         ),
         // ── Categories ──
         Expanded(
-          child:
-              actionsByCategory.isEmpty
-                  ? Center(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            children: [
+              if (actionsByCategory.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 60),
+                  child: Center(
                     child: Text(
                       context.tr.actions_no_matches,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
-                  )
-                  : ListView(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                    children: [
-                      for (final entry in actionsByCategory.entries)
-                        _CategorySection(
-                          category: entry.key,
-                          actions: entry.value,
-                          onActionSelected: (type) {
-                            widget.onActionSelected(type);
-                            Navigator.pop(context);
-                          },
-                        ),
-                    ],
                   ),
+                )
+              else
+                for (final entry in actionsByCategory.entries)
+                  _CategorySection(
+                    category: entry.key,
+                    actions: entry.value,
+                    onActionSelected: (type) {
+                      widget.onActionSelected(type);
+                      Navigator.pop(context);
+                    },
+                  ),
+            ],
+          ),
         ),
       ],
     );
@@ -387,6 +448,9 @@ class _CategorySection extends StatelessWidget {
 void showBlockPalette(
   BuildContext context, {
   required ValueChanged<BotCreatorActionType> onActionSelected,
+  bool isInteraction = true,
+  bool isWorkflow = false,
+  bool isAutocompleteContext = false,
 }) {
   final isMobile = MediaQuery.of(context).size.width < 600;
 
@@ -400,7 +464,12 @@ void showBlockPalette(
           heightFactor: 0.85,
           child: SafeArea(
             top: false,
-            child: ScratchBlockPalette(onActionSelected: onActionSelected),
+            child: ScratchBlockPalette(
+              onActionSelected: onActionSelected,
+              isInteraction: isInteraction,
+              isWorkflow: isWorkflow,
+              isAutocompleteContext: isAutocompleteContext,
+            ),
           ),
         );
       },
@@ -415,7 +484,12 @@ void showBlockPalette(
           content: SizedBox(
             width: 500,
             height: maxHeight,
-            child: ScratchBlockPalette(onActionSelected: onActionSelected),
+            child: ScratchBlockPalette(
+              onActionSelected: onActionSelected,
+              isInteraction: isInteraction,
+              isWorkflow: isWorkflow,
+              isAutocompleteContext: isAutocompleteContext,
+            ),
           ),
         );
       },

@@ -172,7 +172,7 @@ class MainApiClient implements RemoteRuntimeClient {
        _timeout = timeout ?? const Duration(seconds: 30);
 
   final String _baseUrl;
-  final String? _accessToken;
+  String? _accessToken;
   final http.Client _http;
   final Duration _timeout;
 
@@ -238,6 +238,13 @@ class MainApiClient implements RemoteRuntimeClient {
         return _parseResponse(response);
       } on MainApiClientException catch (error) {
         lastError = error;
+        if ((error.statusCode == 401 || error.statusCode == 403) && includeAuth) {
+          final newTokens = await _tryRefreshSession();
+          if (newTokens != null) {
+            _accessToken = newTokens;
+            continue;
+          }
+        }
         if (_isClientError(error) || attempt >= _maxRetries) {
           _recordCircuitFailure(_baseUrl);
           rethrow;
@@ -300,6 +307,13 @@ class MainApiClient implements RemoteRuntimeClient {
         return _parseResponse(response);
       } on MainApiClientException catch (error) {
         lastError = error;
+        if ((error.statusCode == 401 || error.statusCode == 403) && includeAuth) {
+          final newTokens = await _tryRefreshSession();
+          if (newTokens != null) {
+            _accessToken = newTokens;
+            continue;
+          }
+        }
         if (_isClientError(error) || attempt >= _maxRetries) {
           _recordCircuitFailure(_baseUrl);
           rethrow;
@@ -357,6 +371,13 @@ class MainApiClient implements RemoteRuntimeClient {
         return _parseResponse(response);
       } on MainApiClientException catch (error) {
         lastError = error;
+        if ((error.statusCode == 401 || error.statusCode == 403) && includeAuth) {
+          final newTokens = await _tryRefreshSession();
+          if (newTokens != null) {
+            _accessToken = newTokens;
+            continue;
+          }
+        }
         if (_isClientError(error) || attempt >= _maxRetries) {
           _recordCircuitFailure(_baseUrl);
           rethrow;
@@ -410,6 +431,29 @@ class MainApiClient implements RemoteRuntimeClient {
     }
 
     return json;
+  }
+
+  Future<String?> _tryRefreshSession() async {
+    try {
+      final session = await MainApiSettingsStore.loadSession();
+      final refreshToken = session?.refreshToken?.trim() ?? '';
+      if (refreshToken.isEmpty) {
+        return null;
+      }
+      debugPrint('[MainApiClient] Access token expired or invalid (401/403). Attempting to refresh session...');
+      final publicClient = MainApiClient(baseUrl: _baseUrl, httpClient: _http, timeout: _timeout);
+      final newSession = await publicClient.refreshSession(refreshToken: refreshToken);
+      await MainApiSettingsStore.saveSession(newSession);
+      debugPrint('[MainApiClient] Session refreshed successfully.');
+      return newSession.accessToken;
+    } catch (e) {
+      debugPrint('[MainApiClient] Failed to refresh session: $e');
+      if (e is MainApiClientException && (e.statusCode == 401 || e.statusCode == 403)) {
+        debugPrint('[MainApiClient] Refresh token rejected. Clearing session.');
+        await MainApiSettingsStore.clearSession();
+      }
+      return null;
+    }
   }
 
   @override

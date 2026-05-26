@@ -2795,6 +2795,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get dashboard_total => 'Befehle gesamt';
 
   @override
+  String get dashboard_analysis_period => 'Analysezeitraum';
+
+  @override
   String get debug_replay_clear => 'Replays löschen';
 
   @override
@@ -4237,6 +4240,50 @@ class AppLocalizationsDe extends AppLocalizations {
   String get legacy_response_mode_label => 'Legacy-Antwortmodus';
 
   @override
+  String get legacy_response_banner_body =>
+      'Einige Befehle verwenden noch das alte Antwortformat. Öffnen Sie sie im Editor und speichern Sie sie erneut, um das neue Format zu aktivieren.';
+
+  @override
+  String get legacy_response_banner_dismiss => 'Schließen';
+
+  @override
+  String get legacy_response_banner_migrate => 'Alle migrieren';
+
+  @override
+  String legacy_response_banner_migrated(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Befehle migriert',
+      one: '1 Befehl migriert',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get legacy_response_banner_migrated_none =>
+      'Keine Befehle zu migrieren';
+
+  @override
+  String get legacy_response_banner_migrate_failed =>
+      'Migration fehlgeschlagen';
+
+  @override
+  String get legacy_response_banner_migrating => 'Wird migriert...';
+
+  @override
+  String get legacy_response_banner_short_body =>
+      'Öffnen und speichern Sie Ihre Befehle erneut, um zum neuen Format zu migrieren.';
+
+  @override
+  String get legacy_response_banner_short_title =>
+      'Befehlsaktualisierung verfügbar';
+
+  @override
+  String get legacy_response_banner_title =>
+      'Aktualisierung des Befehlsantwortformats';
+
+  @override
   String get local_command_awaited_desc =>
       'Voreinstellungen für erwartete Callbacks bleiben lokal, da es sich um interne Laufzeit-Callbacks handelt.';
 
@@ -4847,6 +4894,13 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get runner_source_local => 'Lokal';
+
+  @override
+  String get runner_source_manager => 'Bot Creator Server';
+
+  @override
+  String get runner_source_manager_unavailable =>
+      'Melden Sie sich in den Einstellungen bei Bot Creator an, um Statistiken von den Bot Creator-Servern zu laden.';
 
   @override
   String get save => 'Speichern';
@@ -6459,6 +6513,13 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get validation_command_name_required =>
       'Bitte geben Sie einen Befehlsnamen ein';
+
+  @override
+  String get validation_interaction_no_response =>
+      'Interaktionsbefehle müssen mindestens eine Antwortaktion enthalten (Mit Nachricht antworten, Komponente V2 oder Modal).';
+
+  @override
+  String get validation_interaction_no_response_short => 'Keine Antwortaktion';
 
   @override
   String get validation_invalid_permissions =>

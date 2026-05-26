@@ -19,6 +19,7 @@ class VariableTextField extends StatefulWidget {
   final String? Function(String?)? validator;
   final List<String>? options; // For autocomplete if needed
   final List<AppEmoji>? emojiSuggestions;
+  final bool useLabelText;
 
   const VariableTextField({
     super.key,
@@ -36,6 +37,7 @@ class VariableTextField extends StatefulWidget {
     this.validator,
     this.options,
     this.emojiSuggestions,
+    this.useLabelText = false,
   });
 
   @override
@@ -174,29 +176,32 @@ class _VariableTextFieldState extends State<VariableTextField> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Text(
-              widget.label,
-              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
-            ),
-            if (widget.required)
-              const Text(
-                ' *',
-                style: TextStyle(
-                  color: AppTheme.error,
-                  fontWeight: FontWeight.bold,
-                ),
+        if (!widget.useLabelText) ...[
+          Row(
+            children: [
+              Text(
+                widget.label,
+                style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
               ),
-          ],
-        ),
-        const SizedBox(height: 6),
+              if (widget.required)
+                const Text(
+                  ' *',
+                  style: TextStyle(
+                    color: AppTheme.error,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 6),
+        ],
         TextFormField(
           controller: _effectiveController,
           focusNode: _focusNode,
           maxLines: widget.maxLines,
           maxLength: widget.maxLength,
           decoration: InputDecoration(
+            labelText: widget.useLabelText ? widget.label : null,
             hintText: widget.hint,
             helperText: widget.helperText,
             border: const OutlineInputBorder(),

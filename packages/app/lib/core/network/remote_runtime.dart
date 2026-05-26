@@ -60,11 +60,16 @@ Future<ResolvedRemoteRuntime> resolveRemoteRuntime({
   final platform = defaultTargetPlatform;
   final isIOS = platform == TargetPlatform.iOS;
   final isAndroid = platform == TargetPlatform.android;
+  final isDesktop =
+      platform == TargetPlatform.windows ||
+      platform == TargetPlatform.linux ||
+      platform == TargetPlatform.macOS;
+  final effectiveSupportsManagerRuntime = supportsManagerRuntime && !isDesktop;
 
   // 1. Check for explicit bot association first (overrides global preferences)
   if (botId != null) {
     final associatedId = RunnerSettings.getAssociatedRunnerId(botId);
-    if (associatedId == 'manager' && supportsManagerRuntime) {
+    if (associatedId == 'manager' && effectiveSupportsManagerRuntime) {
       final mainApiConfig = await MainApiSettingsStore.loadConfig();
       final mainApiSession = await MainApiSettingsStore.loadSession();
 
@@ -98,7 +103,7 @@ Future<ResolvedRemoteRuntime> resolveRemoteRuntime({
     }
   }
 
-  if (!supportsManagerRuntime) {
+  if (!effectiveSupportsManagerRuntime) {
     final runnerConfig = await RunnerSettings.getConfig();
     if (runnerConfig != null) {
       return ResolvedRemoteRuntime(
@@ -119,11 +124,6 @@ Future<ResolvedRemoteRuntime> resolveRemoteRuntime({
 
   final mainApiConfig = await MainApiSettingsStore.loadConfig();
   final mainApiSession = await MainApiSettingsStore.loadSession();
-
-  final isDesktop =
-      platform == TargetPlatform.windows ||
-      platform == TargetPlatform.linux ||
-      platform == TargetPlatform.macOS;
 
   if (mainApiConfig.isConfigured && !isDesktop) {
     var session = mainApiSession;
