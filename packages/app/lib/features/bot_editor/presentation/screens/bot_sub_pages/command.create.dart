@@ -89,6 +89,11 @@ class CommandCreatePage extends StatefulWidget {
   State<CommandCreatePage> createState() => _CommandCreatePageState();
 }
 
+bool get _isDesktop => !kIsWeb &&
+    (defaultTargetPlatform == TargetPlatform.windows ||
+     defaultTargetPlatform == TargetPlatform.linux ||
+     defaultTargetPlatform == TargetPlatform.macOS);
+
 class _CommandCreatePageState extends State<CommandCreatePage> {
   static const Uuid _uuid = Uuid();
   static const String _editorModeSimple = 'simple';
@@ -1064,11 +1069,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     required String botId,
     required String botToken,
   }) async {
-    final isDesktop = !kIsWeb &&
-        (defaultTargetPlatform == TargetPlatform.windows ||
-         defaultTargetPlatform == TargetPlatform.linux ||
-         defaultTargetPlatform == TargetPlatform.macOS);
-    if (isDesktop) {
+    if (_isDesktop) {
       return null;
     }
     developer.log(
@@ -1197,11 +1198,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   }
 
   Future<bool> _syncCommandChangesToCloud({required String botId}) async {
-    final isDesktop = !kIsWeb &&
-        (defaultTargetPlatform == TargetPlatform.windows ||
-         defaultTargetPlatform == TargetPlatform.linux ||
-         defaultTargetPlatform == TargetPlatform.macOS);
-    if (isDesktop) {
+    if (_isDesktop) {
       return false;
     }
     developer.log(
@@ -1974,19 +1971,22 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
             '[_updateOrCreate] Discord createCommand succeeded (botId=$botId commandName="$_commandName")',
             name: 'CommandCreatePage',
           );
-          developer.log(
-            '[_updateOrCreate] triggering cloud sync after create (botId=$botId)',
-            name: 'CommandCreatePage',
-          );
+          // Cloud sync is not supported on Desktop platforms
+          if (!_isDesktop) {
+            developer.log(
+              '[_updateOrCreate] triggering cloud sync after create (botId=$botId)',
+              name: 'CommandCreatePage',
+            );
 
-          updateStatus('cloud_sync');
-          final cloudSyncOk = await _syncCommandChangesToCloud(botId: botId);
-          developer.log(
-            '[_updateOrCreate] cloud sync after create result=$cloudSyncOk (botId=$botId)',
-            name: 'CommandCreatePage',
-          );
-          if (!cloudSyncOk) {
-            throw Exception('Cloud sync failed.');
+            updateStatus('cloud_sync');
+            final cloudSyncOk = await _syncCommandChangesToCloud(botId: botId);
+            developer.log(
+              '[_updateOrCreate] cloud sync after create result=$cloudSyncOk (botId=$botId)',
+              name: 'CommandCreatePage',
+            );
+            if (!cloudSyncOk) {
+              throw Exception('Cloud sync failed.');
+            }
           }
           // Delete the old temp-ID file if this was a local-only command
           if (_isLocalOnlyCommand) {
@@ -2053,19 +2053,22 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
             '[_updateOrCreate] Discord updateCommand succeeded (botId=$botId commandId=${widget.id})',
             name: 'CommandCreatePage',
           );
-          developer.log(
-            '[_updateOrCreate] triggering cloud sync after update (botId=$botId)',
-            name: 'CommandCreatePage',
-          );
+          // Cloud sync is not supported on Desktop platforms
+          if (!_isDesktop) {
+            developer.log(
+              '[_updateOrCreate] triggering cloud sync after update (botId=$botId)',
+              name: 'CommandCreatePage',
+            );
 
-          updateStatus('cloud_sync');
-          final cloudSyncOk = await _syncCommandChangesToCloud(botId: botId);
-          developer.log(
-            '[_updateOrCreate] cloud sync after update result=$cloudSyncOk (botId=$botId)',
-            name: 'CommandCreatePage',
-          );
-          if (!cloudSyncOk) {
-            throw Exception('Cloud sync failed.');
+            updateStatus('cloud_sync');
+            final cloudSyncOk = await _syncCommandChangesToCloud(botId: botId);
+            developer.log(
+              '[_updateOrCreate] cloud sync after update result=$cloudSyncOk (botId=$botId)',
+              name: 'CommandCreatePage',
+            );
+            if (!cloudSyncOk) {
+              throw Exception('Cloud sync failed.');
+            }
           }
         }
       } finally {
@@ -2354,6 +2357,20 @@ class _DeploymentProgressOverlayState
           subtitle: 'Application à chaud de la configuration',
         ),
       ];
+    } else if (_isDesktop) {
+      // Cloud sync is not supported on Desktop platforms
+      _steps = [
+        _SyncStepData(
+          id: 'discord_sync',
+          title: 'Synchronisation Discord',
+          subtitle: 'Publication de la commande sur l\'API Discord',
+        ),
+        _SyncStepData(
+          id: 'reload_runtime',
+          title: 'Rechargement à chaud',
+          subtitle: 'Mise à jour instantanée du runner de votre bot',
+        ),
+      ];
     } else {
       _steps = [
         _SyncStepData(
@@ -2423,7 +2440,9 @@ class _DeploymentProgressOverlayState
 
       // 2. Wait for reload completer
       if (!widget.isLocalOnly && widget.client != null) {
-        _updateStepState('cloud_sync', SyncStepState.success);
+        if (!_isDesktop) {
+          _updateStepState('cloud_sync', SyncStepState.success);
+        }
         _updateStepState('reload_runtime', SyncStepState.active);
 
         if (_reloadCompleter!.isCompleted) {
