@@ -126,7 +126,7 @@ jobs:
   build_linux:
     executor: linux-ci
     environment:
-      \<<: *env-common
+      <<: *env-common
     steps:
       - checkout_and_prepare
       - run:
@@ -217,7 +217,7 @@ jobs:
   build_macos:
     executor: macos-ci
     environment:
-      \<<: *env-common
+      <<: *env-common
     steps:
       - checkout_and_prepare
       - install_flutter_macos
@@ -246,7 +246,7 @@ jobs:
   build_windows:
     executor: windows-ci
     environment:
-      \<<: *env-common
+      <<: *env-common
     steps:
       - checkout_and_prepare_windows
       - install_flutter_windows
@@ -312,7 +312,7 @@ jobs:
 workflows:
   release:
     when:
-      not: \<< pipeline.parameters.msix_only >>
+      not: << pipeline.parameters.msix_only >>
     jobs:
       - build_linux:
           filters:
@@ -336,6 +336,6 @@ workflows:
               only: /^v.*/
 
   msix_only:
-    when: \<< pipeline.parameters.msix_only >>
+    when: << pipeline.parameters.msix_only >>
     jobs:
       - build_windows
