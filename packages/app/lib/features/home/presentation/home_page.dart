@@ -93,6 +93,8 @@ class HomePageState extends State<HomePage>
   bool _isMigrating = false;
   RemoteRuntimeSource _runtimeSource = RemoteRuntimeSource.local;
   String? _runtimeDetailLabel;
+  final Map<String, RemoteRuntimeSource> _runtimeSourceByBotId = {};
+  final Map<String, String?> _runtimeDetailLabelByBotId = {};
 
   /// ID du bot en cours d'action (démarrage/arrêt/ajout de temps).
   String? _botIdInAction;
@@ -100,9 +102,11 @@ class HomePageState extends State<HomePage>
   /// Un AnimationController par carte (clé = bot id) pour l'effet pulse.
   final Map<String, AnimationController> _pulseControllers = {};
   Map<String, int> _freeMinutesByBotId = <String, int>{};
+  Timer? _statusRefreshTimer;
 
   bool get _supportsForegroundTask => Platform.isAndroid || Platform.isIOS;
-  bool get _supportsManagerRuntime => !kIsWeb;
+  bool get _isDesktop => Platform.isWindows || Platform.isLinux || Platform.isMacOS;
+  bool get _supportsManagerRuntime => !kIsWeb && !_isDesktop;
 
   // ── Lifecycle ──────────────────────────────────────────────────────────────
 
@@ -122,11 +126,17 @@ class HomePageState extends State<HomePage>
       await syncAllBotsFromManager(silent: true);
     }());
     unawaited(_checkLegacyCommands());
+    _statusRefreshTimer = Timer.periodic(const Duration(seconds: 15), (_) {
+      if (mounted) {
+        _initRunningState();
+      }
+    });
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _statusRefreshTimer?.cancel();
     for (final ctrl in _pulseControllers.values) {
       ctrl.dispose();
     }
@@ -144,6 +154,8 @@ class HomePageState extends State<HomePage>
 
   Future<void> _initRunningState() async {
     final runningIds = <String>{};
+    _runtimeSourceByBotId.clear();
+    _runtimeDetailLabelByBotId.clear();
     appendBotDebugLog('[_initRunningState] Starting running-state refresh.');
     final remoteClient = await _resolveGlobalMainApiClient();
     final remoteRuntime = await _resolveRemoteRuntime(
@@ -170,25 +182,29 @@ class HomePageState extends State<HomePage>
       ),
     );
 
-    if (remoteClient != null) {
+    final hasActiveRemote = remoteClient != null || remoteRuntime.client != null;
+    if (hasActiveRemote || localBotIds.isNotEmpty) {
       appendBotDebugLog(
-        '[_initRunningState] Using remote client ${remoteClient.runtimeType} for running-state detection.',
+        '[_initRunningState] Performing running-state detection (remoteClient=${remoteClient?.runtimeType}, remoteRuntime=${remoteRuntime.client?.runtimeType}, localBotIds=${localBotIds.length}).',
       );
       try {
         if (localBotIds.isEmpty) {
           appendBotDebugLog(
             '[_initRunningState] No local bot ids found. Falling back to global status list.',
           );
-          final status = await remoteClient.getStatus();
-          appendBotDebugLog(
-            '[_initRunningState] Global status fetched: bots=${status.bots.length}, running=${status.running}.',
-          );
-          for (final bot in status.bots) {
-            if (bot.isRunning) {
-              runningIds.add(bot.botId);
-              appendBotDebugLog(
-                '[_initRunningState] Marked running (global): ${bot.botId}.',
-              );
+          final statusClient = remoteClient ?? remoteRuntime.client;
+          if (statusClient != null) {
+            final status = await statusClient.getStatus();
+            appendBotDebugLog(
+              '[_initRunningState] Global status fetched: bots=${status.bots.length}, running=${status.running}.',
+            );
+            for (final bot in status.bots) {
+              if (bot.isRunning) {
+                runningIds.add(bot.botId);
+                appendBotDebugLog(
+                  '[_initRunningState] Marked running (global): ${bot.botId}.',
+                );
+              }
             }
           }
         } else {
@@ -201,14 +217,51 @@ class HomePageState extends State<HomePage>
                   appendBotDebugLog(
                     '[_initRunningState] Resolving client for bot $botId.',
                   );
-                  final perBotClient = await _resolveMainApiClientForBot(
+
+                  // Check local in-app running state first!
+                  final isInternalRunning = _supportsForegroundTask
+                      ? isMobileBotRunning(botId)
+                      : desktopRunningBotIds.contains(botId);
+                  if (isInternalRunning) {
+                    appendBotDebugLog(
+                      '[_initRunningState] Bot $botId is running internally in-app.',
+                    );
+                    if (mounted) {
+                      setState(() {
+                        _runtimeSourceByBotId[botId] = RemoteRuntimeSource.local;
+                        _runtimeDetailLabelByBotId[botId] = null;
+                      });
+                    }
+                    return botId;
+                  }
+
+                   final perBotClient = await _resolveMainApiClientForBot(
                     botId: botId,
                     attemptSessionRestore: true,
                   );
-                  final statusClient = perBotClient ?? remoteClient;
+                  final botRuntime = await _resolveRemoteRuntime(botId: botId);
+                  
+                  final associatedId = RunnerSettings.getAssociatedRunnerId(botId);
+                  final isManagerBot = associatedId == 'manager' || (associatedId == null && perBotClient != null);
+                  
+                  final source = isManagerBot ? RemoteRuntimeSource.manager : botRuntime.source;
+                  final detailLabel = isManagerBot ? (remoteRuntime.detailLabel ?? 'Bot Creator servers') : botRuntime.detailLabel;
+
+                  if (mounted) {
+                    setState(() {
+                      _runtimeSourceByBotId[botId] = source;
+                      _runtimeDetailLabelByBotId[botId] = detailLabel;
+                    });
+                  }
+                  final statusClient = isManagerBot 
+                      ? (perBotClient ?? remoteClient) 
+                      : (botRuntime.client ?? perBotClient ?? remoteClient);
                   appendBotDebugLog(
-                    '[_initRunningState] Bot $botId status client: ${statusClient.runtimeType}, usedFallbackToGlobal=${perBotClient == null}.',
+                    '[_initRunningState] Bot $botId status client: ${statusClient.runtimeType}, resolvedSource=$source, usedFallbackToGlobal=${!isManagerBot && botRuntime.client == null}.',
                   );
+                  if (statusClient == null) {
+                    return null;
+                  }
                   final status = await statusClient.getStatus(botId: botId);
                   final isRunning = status.isBotRunning(botId);
                   appendBotDebugLog(
@@ -450,8 +503,11 @@ class HomePageState extends State<HomePage>
     final remoteClient = await _resolveManagerClientForSync();
     if (remoteClient == null) {
       appendBotDebugLog(
-        '[syncAllBotsFromManager] Aborted: global manager client unavailable.',
+        '[syncAllBotsFromManager] Aborted: global manager client unavailable. Fetching running states directly.',
       );
+      if (mounted) {
+        await _initRunningState();
+      }
       return;
     }
 
@@ -754,15 +810,17 @@ class HomePageState extends State<HomePage>
     return Localizations.localeOf(context).languageCode == 'fr' ? fr : en;
   }
 
-  String? _runtimeBadgeLabel() {
-    return switch (_runtimeSource) {
+  String? _runtimeBadgeLabel(String botId) {
+    final source = _runtimeSourceByBotId[botId] ?? _runtimeSource;
+    final detailLabel = _runtimeDetailLabelByBotId[botId] ?? _runtimeDetailLabel;
+    return switch (source) {
       RemoteRuntimeSource.manager => _uiCopy(
         fr: 'Serveurs Bot Creator',
         en: 'Bot Creator servers',
       ),
       RemoteRuntimeSource.runner =>
-        (_runtimeDetailLabel?.trim().isNotEmpty ?? false)
-            ? context.tr.runner_source_label(_runtimeDetailLabel!)
+        (detailLabel?.trim().isNotEmpty ?? false)
+            ? context.tr.runner_source_label(detailLabel!)
             : _uiCopy(fr: 'Runner', en: 'Runner'),
       RemoteRuntimeSource.local => null,
     };
@@ -810,11 +868,13 @@ class HomePageState extends State<HomePage>
   }
 
   Future<ResolvedRemoteRuntime> _resolveRemoteRuntime({
+    String? botId,
     Duration getTimeout = const Duration(seconds: 30),
     Duration postTimeout = const Duration(seconds: 90),
   }) async {
     return resolveRemoteRuntime(
       supportsManagerRuntime: _supportsManagerRuntime,
+      botId: botId,
       getTimeout: getTimeout,
       postTimeout: postTimeout,
     );
@@ -848,6 +908,9 @@ class HomePageState extends State<HomePage>
     String? botToken,
     bool attemptSessionRestore = true,
   }) async {
+    if (!_supportsManagerRuntime) {
+      return null;
+    }
     return _ownerSyncHelper.resolveMainApiClientForBot(
       botId: botId,
       botToken: botToken,
@@ -858,6 +921,9 @@ class HomePageState extends State<HomePage>
   Future<MainApiClient?> _resolveGlobalMainApiClient({
     bool attemptRestore = true,
   }) async {
+    if (!_supportsManagerRuntime) {
+      return null;
+    }
     appendBotDebugLog(
       '[_resolveGlobalMainApiClient] Resolving global client (attemptRestore=$attemptRestore).',
     );
@@ -1645,65 +1711,7 @@ class HomePageState extends State<HomePage>
 
               return Column(
                 children: [
-                  // ── Deprecation notice for legacy response format ───────────
-                  if (_hasLegacyCommands && !_legacyBannerDismissed)
-                    _LegacyCommandsDeprecationBanner(
-                      onDismiss: () async {
-                        setState(() => _legacyBannerDismissed = true);
-                        final prefs = await SharedPreferences.getInstance();
-                        await prefs.setBool(_kLegacyBannerDismissedKey, true);
-                      },
-                      onMigrate: () async {
-                        setState(() => _isMigrating = true);
-                        try {
-                          final count = await _migrateAllLegacyCommands();
-                          if (!mounted) return;
-                          if (count > 0) {
-                            // Clear dismiss flag so the banner disappears naturally.
-                            setState(() {
-                              _hasLegacyCommands = false;
-                              _legacyBannerDismissed = false;
-                              _isMigrating = false;
-                            });
-                            final prefs = await SharedPreferences.getInstance();
-                            await prefs.remove(_kLegacyBannerDismissedKey);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  context.tr.legacy_response_banner_migrated(count),
-                                ),
-                                duration: const Duration(seconds: 3),
-                              ),
-                            );
-                          } else {
-                            setState(() {
-                              _hasLegacyCommands = false;
-                              _isMigrating = false;
-                            });
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  context.tr.legacy_response_banner_migrated_none,
-                                ),
-                                duration: const Duration(seconds: 2),
-                              ),
-                            );
-                          }
-                        } catch (_) {
-                          if (!mounted) return;
-                          setState(() => _isMigrating = false);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                context.tr.legacy_response_banner_migrate_failed,
-                              ),
-                              duration: const Duration(seconds: 3),
-                            ),
-                          );
-                        }
-                      },
-                      isMigrating: _isMigrating,
-                    ),
+
                   if (AdsPlacementPolicy.isPlacementEnabled(
                         NativeAdPlacement.homeBots,
                       ) &&
@@ -1768,7 +1776,7 @@ class HomePageState extends State<HomePage>
                                       isTogglingThisBot: _botIdInAction == id,
                                       runtimeBadgeLabel:
                                           isRunning
-                                              ? _runtimeBadgeLabel()
+                                              ? _runtimeBadgeLabel(id)
                                               : null,
                                       freeMinutes: _freeMinutesByBotId[id],
                                       pulseController: pulseCtrl,

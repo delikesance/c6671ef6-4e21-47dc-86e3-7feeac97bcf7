@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ui' as ui;
+import 'package:flutter/foundation.dart';
 
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/core/storage/database.dart';
@@ -1063,6 +1064,13 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     required String botId,
     required String botToken,
   }) async {
+    final isDesktop = !kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.windows ||
+         defaultTargetPlatform == TargetPlatform.linux ||
+         defaultTargetPlatform == TargetPlatform.macOS);
+    if (isDesktop) {
+      return null;
+    }
     developer.log(
       '[_resolveMainApiClientForCloudSync] START botId=$botId tokenPresent=${botToken.isNotEmpty}',
       name: 'CommandCreatePage',
@@ -1189,6 +1197,13 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   }
 
   Future<bool> _syncCommandChangesToCloud({required String botId}) async {
+    final isDesktop = !kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.windows ||
+         defaultTargetPlatform == TargetPlatform.linux ||
+         defaultTargetPlatform == TargetPlatform.macOS);
+    if (isDesktop) {
+      return false;
+    }
     developer.log(
       '[_syncCommandChangesToCloud] START botId=$botId commandName="$_commandName"',
       name: 'CommandCreatePage',

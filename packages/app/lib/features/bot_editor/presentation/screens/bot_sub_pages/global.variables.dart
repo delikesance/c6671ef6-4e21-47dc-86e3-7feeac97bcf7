@@ -84,7 +84,10 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
 
   bool get _isManagerMode => _source == _VariablesSource.manager;
   bool get _supportsManagerRuntime {
-    return !kIsWeb;
+    return !kIsWeb &&
+        defaultTargetPlatform != TargetPlatform.windows &&
+        defaultTargetPlatform != TargetPlatform.linux &&
+        defaultTargetPlatform != TargetPlatform.macOS;
   }
 
   Future<void> _init() async {

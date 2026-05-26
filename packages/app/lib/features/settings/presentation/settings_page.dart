@@ -349,6 +349,9 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   Future<void> _loadMainApiSettings() async {
+    if (_isDesktopPlatform) {
+      return;
+    }
     _mainApiDebug('Loading main API config + session from storage');
     final config = await MainApiSettingsStore.loadConfig();
     var session = await MainApiSettingsStore.loadSession();
@@ -439,6 +442,12 @@ class _SettingPageState extends State<SettingPage> {
               await publicClient
                   .withAccessToken(activeSession.accessToken)
                   .getCurrentUser();
+          
+          final refreshedFromStore = await MainApiSettingsStore.loadSession();
+          if (refreshedFromStore != null) {
+            activeSession = refreshedFromStore;
+          }
+
           final username =
               (profile['username'] ?? profile['name'] ?? '').toString().trim();
           if (username.isNotEmpty && username != activeSession.username) {
@@ -455,6 +464,7 @@ class _SettingPageState extends State<SettingPage> {
           );
           if (error.statusCode == 401 || error.statusCode == 403) {
             statusKey = 'settings_main_api_auth_failed';
+            nextSession = await MainApiSettingsStore.loadSession();
           }
         }
       }
@@ -1934,9 +1944,11 @@ class _SettingPageState extends State<SettingPage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  _buildMainApiCard(),
-                  const SizedBox(height: 16),
+                  if (!_isDesktopPlatform) ...[
+                    const SizedBox(height: 24),
+                    _buildMainApiCard(),
+                    const SizedBox(height: 16),
+                  ],
                   if (_isManagedMobilePlatform) ...[
                     _buildMobileLocalHostingCard(),
                     const SizedBox(height: 16),
