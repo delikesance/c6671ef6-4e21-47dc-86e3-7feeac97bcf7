@@ -3534,6 +3534,10 @@
   "@dashboard_total": {
     "description": "Total commands"
   },
+  "dashboard_analysis_period": "Analysezeitraum",
+  "@dashboard_analysis_period": {
+    "description": "Analysis Period"
+  },
   "debug_replay_clear": "Replays löschen",
   "@debug_replay_clear": {
     "description": "Clear replays"
@@ -6158,6 +6162,14 @@
   "runner_source_local": "Lokal",
   "@runner_source_local": {
     "description": "Local"
+  },
+  "runner_source_manager": "Bot Creator Server",
+  "@runner_source_manager": {
+    "description": "Bot Creator servers"
+  },
+  "runner_source_manager_unavailable": "Melden Sie sich in den Einstellungen bei Bot Creator an, um Statistiken von den Bot Creator-Servern zu laden.",
+  "@runner_source_manager_unavailable": {
+    "description": "Sign in to Bot Creator in Settings to load stats from Bot Creator servers."
   },
   "save": "Speichern",
   "@save": {

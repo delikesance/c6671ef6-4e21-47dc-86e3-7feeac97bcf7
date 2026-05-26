@@ -2768,6 +2768,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get dashboard_total => 'Toplam komut';
 
   @override
+  String get dashboard_analysis_period => 'Analiz dönemi';
+
+  @override
   String get debug_replay_clear => 'Tekrarları temizle';
 
   @override
@@ -4857,6 +4860,13 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get runner_source_local => 'Yerel';
+
+  @override
+  String get runner_source_manager => 'Bot Creator sunucuları';
+
+  @override
+  String get runner_source_manager_unavailable =>
+      'Bot Creator sunucularından istatistikleri yüklemek için Ayarlar\'da Bot Creator\'a giriş yapın.';
 
   @override
   String get save => 'Kaydet';

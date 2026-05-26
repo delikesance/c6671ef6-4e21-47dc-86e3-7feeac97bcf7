@@ -2799,6 +2799,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get dashboard_total => 'Total de comandos';
 
   @override
+  String get dashboard_analysis_period => 'Período de análise';
+
+  @override
   String get debug_replay_clear => 'Limpar replays';
 
   @override
@@ -4894,6 +4897,13 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get runner_source_local => 'Local';
+
+  @override
+  String get runner_source_manager => 'Servidores Bot Creator';
+
+  @override
+  String get runner_source_manager_unavailable =>
+      'Inicie sessão no Bot Creator nas Configurações para carregar estatísticas dos servidores do Bot Creator.';
 
   @override
   String get save => 'Guardar';

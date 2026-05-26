@@ -5117,6 +5117,12 @@ abstract class AppLocalizations {
   /// **'Total commands'**
   String get dashboard_total;
 
+  /// Analysis Period
+  ///
+  /// In en, this message translates to:
+  /// **'Analysis Period'**
+  String get dashboard_analysis_period;
+
   /// Clear replays
   ///
   /// In en, this message translates to:
@@ -8649,6 +8655,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Local'**
   String get runner_source_local;
+
+  /// Bot Creator servers
+  ///
+  /// In en, this message translates to:
+  /// **'Bot Creator servers'**
+  String get runner_source_manager;
+
+  /// Sign in to Bot Creator in Settings to load stats from Bot Creator servers.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to Bot Creator in Settings to load stats from Bot Creator servers.'**
+  String get runner_source_manager_unavailable;
 
   /// Save
   ///
