@@ -131,7 +131,7 @@ jobs:
           name: Install Linux build dependencies
           command: |
             sudo apt-get update
-            sudo apt-get install -y clang cmake curl git ninja-build pkg-config zip xz-utils libgtk-3-dev liblzma-dev libstdc++-12-dev lld oathtool
+            sudo apt-get install -y clang cmake curl git ninja-build pkg-config zip xz-utils libgtk-3-dev liblzma-dev libstdc++-12-dev lld
       - install_flutter_linux
       - get_flutter_deps
       - run:
@@ -212,26 +212,6 @@ jobs:
           path: ~/project/packages/app/build/appimage/bot_creator-linux-x86_64.AppImage
           destination: bot_creator-linux-x86_64.AppImage
 
-      # ── Steam Pipe upload (tagged releases only, Linux depot 4597052) ──
-      - run:
-          name: Prepare Linux content for Steam
-          command: |
-            if [ -z "${CIRCLE_TAG:-}" ]; then echo "Not a tagged release, skipping Steam upload."; exit 0; fi
-            cd ~/project
-            STEAM_CONTENT="packaging/steam/content_linux"
-            rm -rf "$STEAM_CONTENT"
-            mkdir -p "$STEAM_CONTENT"
-            cp -a packages/app/build/linux/x64/release/bundle/. "$STEAM_CONTENT/"
-      - run:
-          name: Install steamcmd and upload to Steam (Linux)
-          command: |
-            if [ -z "${CIRCLE_TAG:-}" ]; then echo "Not a tagged release, skipping Steam upload."; exit 0; fi
-            STEAM_GUARD_CODE=$(oathtool --base32 --totp "${STEAM_TOTP_SECRET}")
-            mkdir -p $HOME/.steam/steamcmd
-            curl -sL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar xz -C $HOME/.steam/steamcmd
-            cd ~/project/packaging/steam
-            $HOME/.steam/steamcmd/steamcmd.sh +login "${STEAM_USERNAME}" "${STEAM_PASSWORD}" "${STEAM_GUARD_CODE}" +app_build build_linux.vdf +quit
-
   build_macos:
     executor: macos-ci
     environment:
@@ -260,31 +240,6 @@ jobs:
       - store_artifacts:
           path: ~/project/packages/app/build/bot_creator-macos-universal-steam.zip
           destination: bot_creator-macos-universal-steam.zip
-
-      # ── Steam Pipe upload (tagged releases only, macOS depot 4597053) ──
-      - run:
-          name: Prepare macOS content for Steam
-          command: |
-            if [ -z "${CIRCLE_TAG:-}" ]; then echo "Not a tagged release, skipping Steam upload."; exit 0; fi
-            cd ~/project
-            STEAM_CONTENT="packaging/steam/content_mac"
-            rm -rf "$STEAM_CONTENT"
-            mkdir -p "$STEAM_CONTENT"
-            APP_PATH=$(find packages/app/build/macos/Build/Products/Release -maxdepth 1 -name '*.app' -print -quit)
-            if [ -z "$APP_PATH" ]; then
-              echo "No macOS app bundle found for Steam upload." >&2; exit 1
-            fi
-            cp -a "$APP_PATH" "$STEAM_CONTENT/"
-      - run:
-          name: Install steamcmd and upload to Steam (macOS)
-          command: |
-            if [ -z "${CIRCLE_TAG:-}" ]; then echo "Not a tagged release, skipping Steam upload."; exit 0; fi
-            brew install oath-toolkit
-            STEAM_GUARD_CODE=$(oathtool --base32 --totp "${STEAM_TOTP_SECRET}")
-            mkdir -p $HOME/.steam/steamcmd
-            curl -sL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_osx.tar.gz" | tar xz -C $HOME/.steam/steamcmd
-            cd ~/project/packaging/steam
-            $HOME/.steam/steamcmd/steamcmd.sh +login "${STEAM_USERNAME}" "${STEAM_PASSWORD}" "${STEAM_GUARD_CODE}" +app_build build_mac.vdf +quit
 
   build_windows:
     executor: windows-ci
@@ -351,38 +306,11 @@ jobs:
           destination: windows-release
           # Le MSIX et l'EXE seront dans ce répertoire
 
-      # ── Steam Pipe upload (tagged releases only, Windows depot 4597051) ──
-      - run:
-          name: Prepare Windows content for Steam
-          shell: bash.exe
-          command: |
-            if [ -z "${CIRCLE_TAG:-}" ]; then echo "Not a tagged release, skipping Steam upload."; exit 0; fi
-            cd ~/project
-            STEAM_CONTENT="packaging/steam/content_win"
-            rm -rf "$STEAM_CONTENT"
-            mkdir -p "$STEAM_CONTENT"
-            cp -a packages/app/build/windows/x64/runner/Release/. "$STEAM_CONTENT/"
-      - run:
-          name: Install steamcmd and upload to Steam (Windows)
-          shell: powershell.exe
-          command: |
-            if (-not $env:CIRCLE_TAG) { Write-Host 'Not a tagged release, skipping Steam upload.'; exit 0 }
-            # Generate TOTP code using Python (pyotp)
-            pip install pyotp --quiet
-            $steamGuardCode = python -c "import pyotp; print(pyotp.TOTP($env:STEAM_TOTP_SECRET).now())"
-            $steamcmdDir = "$env:USERPROFILE\steamcmd"
-            New-Item -ItemType Directory -Force -Path $steamcmdDir | Out-Null
-            Invoke-WebRequest -Uri "https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip" -OutFile "$steamcmdDir\steamcmd.zip"
-            Expand-Archive -Path "$steamcmdDir\steamcmd.zip" -DestinationPath $steamcmdDir -Force
-            Set-Location "$env:USERPROFILE\project\packaging\steam"
-            & "$steamcmdDir\steamcmd.exe" +login $env:STEAM_USERNAME $env:STEAM_PASSWORD $steamGuardCode +app_build build_win.vdf +quit
-
 # ── Workflows ─────────────────────────────────────────────────────────────
 workflows:
   release:
     jobs:
       - build_linux:
-          context: steam-deploy
           filters:
             branches:
               ignore: /.*/
@@ -390,7 +318,6 @@ workflows:
               only: /^v[0-9]+\.[0-9]+\.[0-9]+.*/
 
       - build_macos:
-          context: steam-deploy
           filters:
             branches:
               ignore: /.*/
@@ -398,7 +325,6 @@ workflows:
               only: /^v[0-9]+\.[0-9]+\.[0-9]+.*/
 
       - build_windows:
-          context: steam-deploy
           filters:
             branches:
               ignore: /.*/
