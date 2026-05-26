@@ -6,7 +6,7 @@ parameters:
     type: boolean
     default: false
 
-# ── Environnement global ─────────────────────────────────────────────────
+# ── Environment global ──────────────────────────────────────────────────
 environment: &env-common
   FLUTTER_VERSION: "3.41.2"
   APP_DIR: packages/app
@@ -31,7 +31,7 @@ executors:
     resource_class: windows.medium
     working_directory: ~/project
 
-# ── Commands réutilisables ───────────────────────────────────────────────
+# ── Reusable commands ───────────────────────────────────────────────────
 commands:
   checkout_and_prepare:
     description: "Checkout, strip overrides, fix SSH→HTTPS"
@@ -131,7 +131,7 @@ jobs:
           name: Install Linux build dependencies
           command: |
             sudo apt-get update
-            sudo apt-get install -y clang cmake curl git ninja-build pkg-config zip xz-utils libgtk-3-dev liblzma-dev libstdc++-12-dev lld
+            sudo apt-get install -y clang cmake curl git ninja-build pkg-config zip xz-utils libgtk-3-dev liblzma-dev libstdc++-12-dev lld awscli
       - install_flutter_linux
       - get_flutter_deps
       - run:
@@ -156,7 +156,7 @@ jobs:
             fi
             chmod +x "$BINARY_PATH"
       - run:
-          name: Package Linux Steam bundle
+          name: Package Linux bundle
           command: |
             cd ~/project/packages/app
             STEAM_DIR="build/linux/x64/release/bot_creator-linux-x64-steam"
@@ -170,7 +170,7 @@ jobs:
 
             collect_deps() {
               local target="$1"
-              ldd "$target" | awk '/=> \/[^ ]+/ { print $3 } /^\// { print $1 }' | while read -r dep; do
+              ldd "$target" | awk '/=> \//[^ ]+/ { print $3 } /^\// { print $1 }' | while read -r dep; do
                 [ -f "$dep" ] || continue
                 case "$(basename "$dep")" in
                   linux-vdso.so.*|ld-linux*.so.*|libc.so.*|libm.so.*|libpthread.so.*|libdl.so.*|librt.so.*|libresolv.so.*|libnss_*.so.*|libcrypt.so.*) continue ;;
@@ -212,24 +212,16 @@ jobs:
           path: ~/project/packages/app/build/appimage/bot_creator-linux-x86_64.AppImage
           destination: bot_creator-linux-x86_64.AppImage
 
-      # ── Steam Pipe upload (tagged releases only, Linux depot 4597052) ──
+      # ── S3 upload (tagged releases only) ──
       - run:
-          name: Prepare Linux content for Steam
+          name: Upload Linux artifacts to R2
           command: |
-            if [ -z "${CIRCLE_TAG:-}" ]; then echo "Not a tagged release, skipping Steam upload."; exit 0; fi
-            cd ~/project
-            STEAM_CONTENT="packaging/steam/content_linux"
-            rm -rf "$STEAM_CONTENT"
-            mkdir -p "$STEAM_CONTENT"
-            cp -a packages/app/build/linux/x64/release/bundle/. "$STEAM_CONTENT/"
-      - run:
-          name: Install steamcmd and upload to Steam (Linux)
-          command: |
-            if [ -z "${CIRCLE_TAG:-}" ]; then echo "Not a tagged release, skipping Steam upload."; exit 0; fi
-            mkdir -p $HOME/.steam/steamcmd
-            curl -sL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar xz -C $HOME/.steam/steamcmd
-            cd ~/project/packaging/steam
-            $HOME/.steam/steamcmd/steamcmd.sh +login "${STEAM_USERNAME}" "${STEAM_PASSWORD}" +app_build build_linux.vdf +quit
+            if [ -z "${CIRCLE_TAG:-}" ]; then echo "Not a tagged release, skipping R2 upload."; exit 0; fi
+            cd ~/project/packages/app
+            aws s3 cp build/bot_creator-linux-x64-steam.zip "s3://${R2_BUCKET}/releases/${CIRCLE_TAG}/bot_creator-linux-x64-steam.zip" --endpoint-url "${R2_ENDPOINT}" --no-progress
+            if [ -f build/appimage/bot_creator-linux-x86_64.AppImage ]; then
+              aws s3 cp build/appimage/bot_creator-linux-x86_64.AppImage "s3://${R2_BUCKET}/releases/${CIRCLE_TAG}/bot_creator-linux-x86_64.AppImage" --endpoint-url "${R2_ENDPOINT}" --no-progress
+            fi
 
   build_macos:
     executor: macos-ci
@@ -248,7 +240,7 @@ jobs:
             cd ~/project/packages/app
             flutter build macos --release
       - run:
-          name: Package macOS Steam app bundle
+          name: Package macOS app bundle
           command: |
             cd ~/project/packages/app
             APP_PATH=$(find build/macos/Build/Products/Release -maxdepth 1 -name '*.app' -print -quit)
@@ -256,32 +248,19 @@ jobs:
               echo "No macOS app bundle found." >&2; exit 1
             fi
             ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" build/bot_creator-macos-universal-steam.zip
+
       - store_artifacts:
           path: ~/project/packages/app/build/bot_creator-macos-universal-steam.zip
           destination: bot_creator-macos-universal-steam.zip
 
-      # ── Steam Pipe upload (tagged releases only, macOS depot 4597053) ──
+      # ── S3 upload (tagged releases only) ──
       - run:
-          name: Prepare macOS content for Steam
+          name: Install awscli and upload macOS artifacts to R2
           command: |
-            if [ -z "${CIRCLE_TAG:-}" ]; then echo "Not a tagged release, skipping Steam upload."; exit 0; fi
-            cd ~/project
-            STEAM_CONTENT="packaging/steam/content_mac"
-            rm -rf "$STEAM_CONTENT"
-            mkdir -p "$STEAM_CONTENT"
-            APP_PATH=$(find packages/app/build/macos/Build/Products/Release -maxdepth 1 -name '*.app' -print -quit)
-            if [ -z "$APP_PATH" ]; then
-              echo "No macOS app bundle found for Steam upload." >&2; exit 1
-            fi
-            cp -a "$APP_PATH" "$STEAM_CONTENT/"
-      - run:
-          name: Install steamcmd and upload to Steam (macOS)
-          command: |
-            if [ -z "${CIRCLE_TAG:-}" ]; then echo "Not a tagged release, skipping Steam upload."; exit 0; fi
-            mkdir -p $HOME/.steam/steamcmd
-            curl -sL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_osx.tar.gz" | tar xz -C $HOME/.steam/steamcmd
-            cd ~/project/packaging/steam
-            $HOME/.steam/steamcmd/steamcmd.sh +login "${STEAM_USERNAME}" "${STEAM_PASSWORD}" +app_build build_mac.vdf +quit
+            if [ -z "${CIRCLE_TAG:-}" ]; then echo "Not a tagged release, skipping R2 upload."; exit 0; fi
+            brew install awscli
+            cd ~/project/packages/app
+            aws s3 cp build/bot_creator-macos-universal-steam.zip "s3://${R2_BUCKET}/releases/${CIRCLE_TAG}/bot_creator-macos-universal-steam.zip" --endpoint-url "${R2_ENDPOINT}" --no-progress
 
   build_windows:
     executor: windows-ci
@@ -301,9 +280,9 @@ jobs:
             cd ~/project/packages/app
             flutter build windows --release
 
-      # ── Steam ZIP (skipped if msix_only) ──
+      # ── ZIP (skipped if msix_only) ──
       - run:
-          name: Package Windows Steam ZIP
+          name: Package Windows ZIP
           shell: powershell.exe
           command: |
             if ($env:MSIX_ONLY -eq 'true') { exit 0 }
@@ -346,37 +325,25 @@ jobs:
       - store_artifacts:
           path: ~/project/packages/app/build/windows/x64/runner/Release
           destination: windows-release
-          # Le MSIX et l'EXE seront dans ce répertoire
 
-      # ── Steam Pipe upload (tagged releases only, Windows depot 4597051) ──
+      # ── S3 upload (tagged releases only) ──
       - run:
-          name: Prepare Windows content for Steam
+          name: Upload Windows artifacts to R2
           shell: bash.exe
           command: |
-            if [ -z "${CIRCLE_TAG:-}" ]; then echo "Not a tagged release, skipping Steam upload."; exit 0; fi
-            cd ~/project
-            STEAM_CONTENT="packaging/steam/content_win"
-            rm -rf "$STEAM_CONTENT"
-            mkdir -p "$STEAM_CONTENT"
-            cp -a packages/app/build/windows/x64/runner/Release/. "$STEAM_CONTENT/"
-      - run:
-          name: Install steamcmd and upload to Steam (Windows)
-          shell: powershell.exe
-          command: |
-            if (-not $env:CIRCLE_TAG) { Write-Host 'Not a tagged release, skipping Steam upload.'; exit 0 }
-            $steamcmdDir = "$env:USERPROFILE\steamcmd"
-            New-Item -ItemType Directory -Force -Path $steamcmdDir | Out-Null
-            Invoke-WebRequest -Uri "https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip" -OutFile "$steamcmdDir\steamcmd.zip"
-            Expand-Archive -Path "$steamcmdDir\steamcmd.zip" -DestinationPath $steamcmdDir -Force
-            Set-Location "$env:USERPROFILE\project\packaging\steam"
-            & "$steamcmdDir\steamcmd.exe" +login $env:STEAM_USERNAME $env:STEAM_PASSWORD +app_build build_win.vdf +quit
+            if [ -z "${CIRCLE_TAG:-}" ]; then echo "Not a tagged release, skipping R2 upload."; exit 0; fi
+            cd ~/project/packages/app
+            aws s3 cp build/bot_creator-windows-x64-steam.zip "s3://${R2_BUCKET}/releases/${CIRCLE_TAG}/bot_creator-windows-x64-steam.zip" --endpoint-url "${R2_ENDPOINT}" --no-progress
+            if [ -f build/windows/x64/runner/Release/bot_creator.msix ]; then
+              aws s3 cp "build/windows/x64/runner/Release/bot_creator.msix" "s3://${R2_BUCKET}/releases/${CIRCLE_TAG}/bot_creator.msix" --endpoint-url "${R2_ENDPOINT}" --no-progress
+            fi
 
 # ── Workflows ─────────────────────────────────────────────────────────────
 workflows:
   release:
     jobs:
       - build_linux:
-          context: steam-deploy
+          context: r2-deploy
           filters:
             branches:
               ignore: /.*/
@@ -384,7 +351,7 @@ workflows:
               only: /^v[0-9]+\.[0-9]+\.[0-9]+.*/
 
       - build_macos:
-          context: steam-deploy
+          context: r2-deploy
           filters:
             branches:
               ignore: /.*/
@@ -392,7 +359,7 @@ workflows:
               only: /^v[0-9]+\.[0-9]+\.[0-9]+.*/
 
       - build_windows:
-          context: steam-deploy
+          context: r2-deploy
           filters:
             branches:
               ignore: /.*/
