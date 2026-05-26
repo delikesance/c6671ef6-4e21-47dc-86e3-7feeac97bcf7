@@ -64,8 +64,7 @@ commands:
           name: Install Flutter
           command: |
             FLUTTER_ARCHIVE="flutter_linux_${FLUTTER_VERSION}-stable.tar.xz"
-            curl -sL "https://storage.googleapis.com/flutter_infra_release/releases/stable/${FLUTTER_ARCHIVE}" -o "/tmp/${FLUTTER_ARCHIVE}"
-            sudo mkdir -p /opt/flutter
+            curl -sL "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/${FLUTTER_ARCHIVE}" -o "/tmp/${FLUTTER_ARCHIVE}"
             sudo tar xf "/tmp/${FLUTTER_ARCHIVE}" -C /opt/
             echo 'export PATH=/opt/flutter/bin:$PATH' >> $BASH_ENV
 
@@ -75,8 +74,7 @@ commands:
           name: Install Flutter
           command: |
             FLUTTER_ARCHIVE="flutter_macos_${FLUTTER_VERSION}-stable.zip"
-            curl -sL "https://storage.googleapis.com/flutter_infra_release/releases/stable/${FLUTTER_ARCHIVE}" -o "/tmp/${FLUTTER_ARCHIVE}"
-            sudo mkdir -p /opt/flutter
+            curl -sL "https://storage.googleapis.com/flutter_infra_release/releases/stable/macos/${FLUTTER_ARCHIVE}" -o "/tmp/${FLUTTER_ARCHIVE}"
             sudo unzip -q "/tmp/${FLUTTER_ARCHIVE}" -d /opt/
             echo 'export PATH=/opt/flutter/bin:$PATH' >> $BASH_ENV
 
@@ -87,8 +85,8 @@ commands:
           shell: bash.exe
           command: |
             FLUTTER_ARCHIVE="flutter_windows_${FLUTTER_VERSION}-stable.zip"
-            curl -sL "https://storage.googleapis.com/flutter_infra_release/releases/stable/${FLUTTER_ARCHIVE}" -o "/tmp/${FLUTTER_ARCHIVE}"
-            unzip -q "/tmp/${FLUTTER_ARCHIVE}" -d /c/
+            curl -sL "https://storage.googleapis.com/flutter_infra_release/releases/stable/windows/${FLUTTER_ARCHIVE}" -o "C:\\${FLUTTER_ARCHIVE}"
+            unzip -q "C:\\${FLUTTER_ARCHIVE}" -d C:\\
             echo 'export PATH=/c/flutter/bin:$PATH' >> $BASH_ENV
 
   get_flutter_deps:
@@ -133,7 +131,7 @@ jobs:
           name: Install Linux build dependencies
           command: |
             sudo apt-get update
-            sudo apt-get install -y clang cmake curl git ninja-build pkg-config zip libgtk-3-dev liblzma-dev libstdc++-12-dev
+            sudo apt-get install -y clang cmake curl git ninja-build pkg-config zip xz-utils libgtk-3-dev liblzma-dev libstdc++-12-dev
       - install_flutter_linux
       - get_flutter_deps
       - run:
