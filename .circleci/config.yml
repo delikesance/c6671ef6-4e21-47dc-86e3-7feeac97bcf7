@@ -73,7 +73,7 @@ commands:
       - run:
           name: Install Flutter
           command: |
-            FLUTTER_ARCHIVE="flutter_macos_${FLUTTER_VERSION}-stable.zip"
+            FLUTTER_ARCHIVE="flutter_macos_arm64_${FLUTTER_VERSION}-stable.zip"
             curl -sL "https://storage.googleapis.com/flutter_infra_release/releases/stable/macos/${FLUTTER_ARCHIVE}" -o "/tmp/${FLUTTER_ARCHIVE}"
             unzip -q "/tmp/${FLUTTER_ARCHIVE}" -d $HOME/
             echo 'export PATH=$HOME/flutter/bin:$PATH' >> $BASH_ENV
