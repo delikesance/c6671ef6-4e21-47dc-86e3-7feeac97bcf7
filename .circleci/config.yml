@@ -41,9 +41,9 @@ commands:
           name: Remove dependency overrides & fix git URLs
           command: |
             cd ~/project
-            sed -i '/dependency_overrides:/,$d' pubspec.yaml
-            sed -i 's|git@github.com:|https://github.com/|g' packages/app/pubspec.yaml
-            sed -i 's|git@github.com:|https://github.com/|g' packages/runner/pubspec.yaml
+            sed -i.bak '/dependency_overrides:/,$d' pubspec.yaml && rm -f pubspec.yaml.bak
+            sed -i.bak 's|git@github.com:|https://github.com/|g' packages/app/pubspec.yaml && rm -f packages/app/pubspec.yaml.bak
+            sed -i.bak 's|git@github.com:|https://github.com/|g' packages/runner/pubspec.yaml && rm -f packages/runner/pubspec.yaml.bak
 
   checkout_and_prepare_windows:
     description: "Checkout, strip overrides, fix SSH→HTTPS (Windows bash)"
