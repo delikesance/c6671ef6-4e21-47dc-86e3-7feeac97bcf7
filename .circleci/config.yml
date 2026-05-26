@@ -198,20 +198,12 @@ jobs:
 
             (cd build/linux/x64/release && zip -r "$OLDPWD/build/bot_creator-linux-x64-steam.zip" bot_creator-linux-x64-steam)
 
-      - store_artifacts:
-          path: ~/project/packages/app/build/bot_creator-linux-x64-steam.zip
-          destination: bot_creator-linux-x64-steam.zip
-
       - run:
           name: Build AppImage (tagged releases only)
           command: |
             if [ -z "${CIRCLE_TAG:-}" ]; then echo "Not a tagged release, skipping AppImage."; exit 0; fi
             cd ~/project/packages/app
             bash packaging/linux/appimage/build_appimage.sh
-
-      - store_artifacts:
-          path: ~/project/packages/app/build/appimage/bot_creator-linux-x86_64.AppImage
-          destination: bot_creator-linux-x86_64.AppImage
 
       # ── S3 upload (tagged releases only) ──
       - run:
@@ -250,10 +242,6 @@ jobs:
             fi
             ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" build/bot_creator-macos-universal-steam.zip
 
-      - store_artifacts:
-          path: ~/project/packages/app/build/bot_creator-macos-universal-steam.zip
-          destination: bot_creator-macos-universal-steam.zip
-
       # ── S3 upload (tagged releases only) ──
       - run:
           name: Install awscli and upload macOS artifacts to R2
@@ -290,10 +278,6 @@ jobs:
             cd $env:APP_DIR
             Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath build\bot_creator-windows-x64-steam.zip -Force
 
-      - store_artifacts:
-          path: ~/project/packages/app/build/bot_creator-windows-x64-steam.zip
-          destination: bot_creator-windows-x64-steam.zip
-
       # ── MSIX (tagged releases or msix_only parameter) ──
       - run:
           name: Set Store-compatible MSIX version
@@ -322,10 +306,6 @@ jobs:
             if [ -z "${CIRCLE_TAG:-}" ] && [ "${MSIX_ONLY:-}" != "true" ]; then exit 0; fi
             cd ~/project/packages/app
             dart run msix:create
-
-      - store_artifacts:
-          path: ~/project/packages/app/build/windows/x64/runner/Release
-          destination: windows-release
 
       # ── S3 upload (tagged releases only) ──
       - run:
