@@ -3534,6 +3534,10 @@
   "@dashboard_total": {
     "description": "Total commands"
   },
+  "dashboard_analysis_period": "Analiz dönemi",
+  "@dashboard_analysis_period": {
+    "description": "Analysis Period"
+  },
   "debug_replay_clear": "Tekrarları temizle",
   "@debug_replay_clear": {
     "description": "Clear replays"
@@ -6158,6 +6162,14 @@
   "runner_source_local": "Yerel",
   "@runner_source_local": {
     "description": "Local"
+  },
+  "runner_source_manager": "Bot Creator sunucuları",
+  "@runner_source_manager": {
+    "description": "Bot Creator servers"
+  },
+  "runner_source_manager_unavailable": "Bot Creator sunucularından istatistikleri yüklemek için Ayarlar'da Bot Creator'a giriş yapın.",
+  "@runner_source_manager_unavailable": {
+    "description": "Sign in to Bot Creator in Settings to load stats from Bot Creator servers."
   },
   "save": "Kaydet",
   "@save": {

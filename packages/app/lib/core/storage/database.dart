@@ -616,6 +616,8 @@ class AppManager implements BotDataStore {
   Future<Map<String, dynamic>> getLocalCommandStats(
     String botId, {
     int hours = 24,
+    DateTime? startDate,
+    DateTime? endDate,
   }) async {
     final safeHours = hours <= 0 ? 24 : hours;
     final path = await _path();
@@ -648,7 +650,12 @@ class AppManager implements BotDataStore {
     } catch (_) {}
 
     final nowMs = DateTime.now().toUtc().millisecondsSinceEpoch;
-    final sinceMs = nowMs - (safeHours * 3600000);
+    final sinceMs = startDate != null
+        ? startDate.toUtc().millisecondsSinceEpoch
+        : nowMs - (safeHours * 3600000);
+    final untilMs = endDate != null
+        ? endDate.toUtc().millisecondsSinceEpoch
+        : nowMs;
     var totalAllTime = 0;
     final countsByCommand = <String, int>{};
     final countsByHourBucket = <int, int>{};
@@ -665,7 +672,7 @@ class AppManager implements BotDataStore {
       }
 
       totalAllTime += 1;
-      if (timestamp < sinceMs) {
+      if (timestamp < sinceMs || timestamp > untilMs) {
         continue;
       }
 
