@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:bot_creator/core/network/runner_client.dart';
@@ -63,6 +64,7 @@ class RunnerSettings {
   static const _keyRegistry = 'runner_registry';
   static const _keyActiveId = 'runner_active_id';
   static const _keyTemporarilyDisabled = 'runner_temporarily_disabled';
+  static const _keyBotAssociations = 'runner_bot_associations';
 
   /// In-memory association of botId to runnerId.
   static final Map<String, String> _botRunnerAssociation = <String, String>{};
@@ -70,11 +72,33 @@ class RunnerSettings {
   /// Associates a bot with a specific runner ID.
   static void associateBotWithRunner(String botId, String runnerId) {
     _botRunnerAssociation[botId] = runnerId;
+    unawaited(_saveAssociations());
   }
 
   /// Returns the runner ID associated with a bot, if known.
   static String? getAssociatedRunnerId(String botId) {
     return _botRunnerAssociation[botId];
+  }
+
+  static Future<void> _saveAssociations() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_keyBotAssociations, jsonEncode(_botRunnerAssociation));
+    } catch (_) {}
+  }
+
+  static Future<void> loadAssociations() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final raw = prefs.getString(_keyBotAssociations);
+      if (raw != null) {
+        final decoded = jsonDecode(raw) as Map;
+        _botRunnerAssociation.clear();
+        for (final entry in decoded.entries) {
+          _botRunnerAssociation[entry.key.toString()] = entry.value.toString();
+        }
+      }
+    } catch (_) {}
   }
 
   /// Returns true if runner usage is temporarily disabled.

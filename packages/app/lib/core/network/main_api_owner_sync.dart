@@ -1,6 +1,14 @@
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/network/remote_runtime.dart';
+import 'package:flutter/foundation.dart';
+
+bool get _isDesktopPlatform {
+  if (kIsWeb) return false;
+  return defaultTargetPlatform == TargetPlatform.windows ||
+      defaultTargetPlatform == TargetPlatform.linux ||
+      defaultTargetPlatform == TargetPlatform.macOS;
+}
 
 class MainApiOwnerResolution {
   const MainApiOwnerResolution({
@@ -95,6 +103,10 @@ class MainApiOwnerSyncHelper {
     required String botId,
     required String? botToken,
   }) async {
+    if (_isDesktopPlatform) {
+      log('Manager session restore skipped for $botId: unsupported on Desktop.');
+      return false;
+    }
     final trimmedToken = botToken?.trim() ?? '';
     log(
       'restoreMainApiSessionWithBotToken($botId) called: tokenPresent=${trimmedToken.isNotEmpty}.',
@@ -136,6 +148,10 @@ class MainApiOwnerSyncHelper {
     String? botToken,
     bool attemptSessionRestore = true,
   }) async {
+    if (_isDesktopPlatform) {
+      log('resolveMainApiClientForBot($botId): bypassed on Desktop.');
+      return null;
+    }
     log(
       'resolveMainApiClientForBot($botId) called: tokenProvided=${botToken?.trim().isNotEmpty == true}, attemptSessionRestore=$attemptSessionRestore.',
     );

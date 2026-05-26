@@ -48,7 +48,11 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
   bool _hasManagerSource = false;
   String? _managerUnavailableReason;
 
-  bool get _supportsManagerRuntime => !kIsWeb;
+  bool get _supportsManagerRuntime =>
+      !kIsWeb &&
+      defaultTargetPlatform != TargetPlatform.windows &&
+      defaultTargetPlatform != TargetPlatform.linux &&
+      defaultTargetPlatform != TargetPlatform.macOS;
 
   @override
   void initState() {

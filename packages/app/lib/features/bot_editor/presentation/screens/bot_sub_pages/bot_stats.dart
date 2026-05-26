@@ -45,7 +45,11 @@ class _BotStatsPageState extends State<BotStatsPage> {
   double? _cpuPercent;
   int? _storageBytes;
 
-  bool get _supportsManagerRuntime => !kIsWeb;
+  bool get _supportsManagerRuntime =>
+      !kIsWeb &&
+      defaultTargetPlatform != TargetPlatform.windows &&
+      defaultTargetPlatform != TargetPlatform.linux &&
+      defaultTargetPlatform != TargetPlatform.macOS;
 
   bool get _usingRemoteMetrics => _runtimeSource != RemoteRuntimeSource.local;
 
