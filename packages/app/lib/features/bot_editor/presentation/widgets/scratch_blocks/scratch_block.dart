@@ -169,40 +169,7 @@ class ScratchBlock extends StatelessWidget {
               padding: const EdgeInsets.all(AppTheme.spacingMd),
               child: child,
             ),
-          // ── Final / cap block indicator ──
-          if (isFinal)
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 6),
-              decoration: BoxDecoration(
-                color: Color.alphaBlend(
-                  colorScheme.error.withAlpha(isDark ? 40 : 25),
-                  colorScheme.surface,
-                ),
-                border: Border(
-                  top: BorderSide(color: colorScheme.error.withAlpha(60)),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.block,
-                    size: 14,
-                    color: colorScheme.error.withAlpha(180),
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    'END',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 1.2,
-                      color: colorScheme.error.withAlpha(180),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+
         ],
       ),
     );

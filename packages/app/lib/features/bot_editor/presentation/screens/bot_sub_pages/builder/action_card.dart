@@ -1561,43 +1561,25 @@ class ActionCard extends StatelessWidget {
           );
         }
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(
-                  _formatParameterName(paramDef.key),
-                  style: const TextStyle(fontWeight: FontWeight.w500),
-                ),
-                if (paramDef.required)
-                  const Text(
-                    ' *',
-                    style: TextStyle(
-                      color: AppTheme.error,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            TextFormField(
-              key: _parameterInputKey(paramDef.key),
-              initialValue: (currentValue ?? paramDef.defaultValue).toString(),
-              maxLines: paramDef.key.toLowerCase().contains('content') ? 3 : 1,
-              decoration: InputDecoration(
-                hintText: _localizeHint(paramDef.hint),
-                border: const OutlineInputBorder(),
-                isDense: true,
+        return _TextParameterField(
+          paramDef: paramDef,
+          currentValue: currentValue,
+          onParameterChanged: onParameterChanged,
+          onSuggestionSelected: onSuggestionSelected,
+          variableSuggestions: variableSuggestions,
+          paramKey: paramDef.key,
+          buildVariableSuggestions: ({
+            required String paramKey,
+            required dynamic value,
+          }) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: _buildVariableSuggestionsForParam(
+                paramKey: paramKey,
+                value: value,
               ),
-              onChanged:
-                  (newValue) => onParameterChanged(paramDef.key, newValue),
-            ),
-            ..._buildVariableSuggestionsForParam(
-              paramKey: paramDef.key,
-              value: currentValue,
-            ),
-          ],
+            );
+          },
         );
     }
   }
@@ -4062,6 +4044,170 @@ class _NumberParameterFieldState extends State<_NumberParameterField> {
     }
 
     return '$beforeStart(($variableName))';
+  }
+}
+
+// Widget stateful pour les champs texte avec support de l'auto-complétion variable
+class _TextParameterField extends StatefulWidget {
+  final ParameterDefinition paramDef;
+  final dynamic currentValue;
+  final Function(String key, dynamic value) onParameterChanged;
+  final Function(String key, dynamic value) onSuggestionSelected;
+  final List<VariableSuggestion> variableSuggestions;
+  final String paramKey;
+  final Widget Function({
+    required String paramKey,
+    required dynamic value,
+  }) buildVariableSuggestions;
+
+  const _TextParameterField({
+    required this.paramDef,
+    required this.currentValue,
+    required this.onParameterChanged,
+    required this.onSuggestionSelected,
+    required this.variableSuggestions,
+    required this.paramKey,
+    required this.buildVariableSuggestions,
+  });
+
+  @override
+  State<_TextParameterField> createState() => _TextParameterFieldState();
+}
+
+class _TextParameterFieldState extends State<_TextParameterField> {
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(
+      text: (widget.currentValue ?? widget.paramDef.defaultValue).toString(),
+    );
+  }
+
+  @override
+  void didUpdateWidget(_TextParameterField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.currentValue != widget.currentValue) {
+      final newText = (widget.currentValue ?? widget.paramDef.defaultValue).toString();
+      if (_controller.text != newText) {
+        _controller.text = newText;
+        _controller.selection = TextSelection.fromPosition(
+          TextPosition(offset: _controller.text.length),
+        );
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  String? _localizeHint(String? hint) {
+    final raw = (hint ?? '').trim();
+    if (raw.isEmpty) {
+      return null;
+    }
+    if (WidgetsBinding.instance.platformDispatcher.locale.languageCode !=
+        'fr') {
+      return raw;
+    }
+
+    const direct = <String, String>{
+      'Math operation to perform': 'Opération mathématique à effectuer',
+      'Comparison operator': 'Opérateur de comparaison',
+      'Message content': 'Contenu du message',
+      'Audit log reason': 'Raison du journal d\'audit',
+      'Global variable key': 'Clé de variable globale',
+      'Variable scope': 'Portée de la variable',
+      'Channel to slowmode': 'Salon à ralentir',
+      'Slowmode duration': 'Durée du mode lent',
+      'Stop execution immediately': 'Arrêter l\'exécution immédiatement',
+      'Response type': 'Type de réponse',
+      'Modal custom ID': 'ID personnalisé de la modale',
+      'Modal title': 'Titre de la modale',
+      'Text input custom ID': 'ID personnalisé du champ texte',
+      'Text input label': 'Libellé du champ texte',
+      'Text input style': 'Style du champ texte',
+      'Placeholder text': 'Texte d\'espace réservé',
+      'Minimum length': 'Longueur minimale',
+      'Maximum length': 'Longueur maximale',
+      'Is required': 'Est requis',
+      'Default value': 'Valeur par défaut',
+      'Embed description': 'Description de l\'embed',
+      'Embed title': 'Titre de l\'embed',
+      'Embed color': 'Couleur de l\'embed',
+      'Embed footer': 'Pied de page de l\'embed',
+      'Embed image': 'Image de l\'embed',
+      'Embed thumbnail': 'Miniature de l\'embed',
+      'Embed author': 'Auteur de l\'embed',
+      'Field name': 'Nom du champ',
+      'Field value': 'Valeur du champ',
+      'Field inline': 'Alignement du champ',
+      'Webhook URL': 'URL du webhook',
+      'Payload data': 'Données utiles',
+      'Variable key': 'Clé de la variable',
+      'Variable value': 'Valeur de la variable',
+      'Array items': 'Éléments du tableau',
+      'Interaction custom ID': 'ID personnalisé de l\'interaction',
+      'Interaction deferred': 'Interaction différée',
+      'Interaction ephemeral': 'Interaction éphémère',
+    };
+
+    return direct[raw] ?? raw;
+  }
+
+  String _formatParameterName(String key) {
+    return key
+        .replaceAllMapped(RegExp(r'([A-Z])'), (match) => ' ${match.group(1)}')
+        .trim()
+        .split(' ')
+        .map((word) => word[0].toUpperCase() + word.substring(1))
+        .join(' ');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              _formatParameterName(widget.paramKey),
+              style: const TextStyle(fontWeight: FontWeight.w500),
+            ),
+            if (widget.paramDef.required)
+              const Text(
+                ' *',
+                style: TextStyle(
+                  color: AppTheme.error,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        TextFormField(
+          controller: _controller,
+          maxLines: widget.paramKey.toLowerCase().contains('content') ? 3 : 1,
+          decoration: InputDecoration(
+            hintText: _localizeHint(widget.paramDef.hint),
+            border: const OutlineInputBorder(),
+            isDense: true,
+          ),
+          onChanged: (newValue) {
+            widget.onParameterChanged(widget.paramKey, newValue);
+          },
+        ),
+        widget.buildVariableSuggestions(
+          paramKey: widget.paramKey,
+          value: widget.currentValue,
+        ),
+      ],
+    );
   }
 }
 

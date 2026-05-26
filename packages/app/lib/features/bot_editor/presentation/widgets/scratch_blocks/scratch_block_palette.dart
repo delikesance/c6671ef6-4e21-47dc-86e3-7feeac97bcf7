@@ -240,8 +240,48 @@ IconData getCategoryIcon(String category) {
       return Icons.extension;
   }
 }
+bool isInteractionOnlyAction(BotCreatorActionType type) {
+  switch (type) {
+    case BotCreatorActionType.respondWithMessage:
+    case BotCreatorActionType.respondWithComponentV2:
+    case BotCreatorActionType.respondWithModal:
+    case BotCreatorActionType.respondWithAutocomplete:
+    case BotCreatorActionType.deferInteraction:
+    case BotCreatorActionType.editInteractionMessage:
+      return true;
+    default:
+      return false;
+  }
+}
 
+bool isListenerAction(BotCreatorActionType type) {
+  switch (type) {
+    case BotCreatorActionType.listenForButtonClick:
+    case BotCreatorActionType.listenForSelectMenu:
+    case BotCreatorActionType.listenForModalSubmit:
+      return true;
+    default:
+      return false;
+  }
+}
 
+/// A bottom sheet / dialog that lists all available action block types grouped
+/// by category. The user taps one to add it to the canvas.
+class ScratchBlockPalette extends StatefulWidget {
+  const ScratchBlockPalette({
+    super.key,
+    required this.onActionSelected,
+    this.isInteraction = true,
+    this.isWorkflow = false,
+  });
+
+  final ValueChanged<BotCreatorActionType> onActionSelected;
+  final bool isInteraction;
+  final bool isWorkflow;
+
+  @override
+  State<ScratchBlockPalette> createState() => _ScratchBlockPaletteState();
+}
 
 class _ScratchBlockPaletteState extends State<ScratchBlockPalette> {
   String _searchQuery = '';
@@ -256,6 +296,12 @@ class _ScratchBlockPaletteState extends State<ScratchBlockPalette> {
               .displayName(context)
               .toLowerCase()
               .contains(_searchQuery.toLowerCase())) {
+        continue;
+      }
+      if (!widget.isWorkflow && isListenerAction(actionType)) {
+        continue;
+      }
+      if (!widget.isInteraction && isInteractionOnlyAction(actionType)) {
         continue;
       }
       final category = getCategoryForAction(actionType);
@@ -291,30 +337,33 @@ class _ScratchBlockPaletteState extends State<ScratchBlockPalette> {
         ),
         // ── Categories ──
         Expanded(
-          child:
-              actionsByCategory.isEmpty
-                  ? Center(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            children: [
+              if (actionsByCategory.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 60),
+                  child: Center(
                     child: Text(
                       context.tr.actions_no_matches,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
-                  )
-                  : ListView(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                    children: [
-                      for (final entry in actionsByCategory.entries)
-                        _CategorySection(
-                          category: entry.key,
-                          actions: entry.value,
-                          onActionSelected: (type) {
-                            widget.onActionSelected(type);
-                            Navigator.pop(context);
-                          },
-                        ),
-                    ],
                   ),
+                )
+              else
+                for (final entry in actionsByCategory.entries)
+                  _CategorySection(
+                    category: entry.key,
+                    actions: entry.value,
+                    onActionSelected: (type) {
+                      widget.onActionSelected(type);
+                      Navigator.pop(context);
+                    },
+                  ),
+            ],
+          ),
         ),
       ],
     );
@@ -381,6 +430,8 @@ class _CategorySection extends StatelessWidget {
 void showBlockPalette(
   BuildContext context, {
   required ValueChanged<BotCreatorActionType> onActionSelected,
+  bool isInteraction = true,
+  bool isWorkflow = false,
 }) {
   final isMobile = MediaQuery.of(context).size.width < 600;
 
@@ -394,7 +445,11 @@ void showBlockPalette(
           heightFactor: 0.85,
           child: SafeArea(
             top: false,
-            child: ScratchBlockPalette(onActionSelected: onActionSelected),
+            child: ScratchBlockPalette(
+              onActionSelected: onActionSelected,
+              isInteraction: isInteraction,
+              isWorkflow: isWorkflow,
+            ),
           ),
         );
       },
@@ -409,7 +464,11 @@ void showBlockPalette(
           content: SizedBox(
             width: 500,
             height: maxHeight,
-            child: ScratchBlockPalette(onActionSelected: onActionSelected),
+            child: ScratchBlockPalette(
+              onActionSelected: onActionSelected,
+              isInteraction: isInteraction,
+              isWorkflow: isWorkflow,
+            ),
           ),
         );
       },
