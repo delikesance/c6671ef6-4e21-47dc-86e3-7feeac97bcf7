@@ -236,8 +236,6 @@ extension _CommandCreateEditShell on _CommandCreatePageState {
                 _subcommandWorkflows.isNotEmpty &&
                 _activeSubcommandRoute.contains('/'),
           ),
-        const SizedBox(height: 12),
-        _buildReplyStep(),
       ],
     );
   }

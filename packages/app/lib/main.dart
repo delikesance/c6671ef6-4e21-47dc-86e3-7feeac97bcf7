@@ -26,6 +26,7 @@ import 'package:bot_creator/features/ads/logic/ad_native_service.dart';
 import 'package:bot_creator/features/ads/logic/ad_reward_service.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
+import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
 
 import 'package:bot_creator/features/onboarding/logic/onboarding_manager.dart';
@@ -268,10 +269,21 @@ Future<void> _warmUpServicesAfterLaunch() async {
     },
   );
 
+  await _runStartupTask(
+    label: 'Runner associations load',
+    timeout: const Duration(seconds: 5),
+    action: () async {
+      await RunnerSettings.loadAssociations();
+    },
+  );
+
   await AppDiagnostics.logInfo('Post-launch service warm-up completed');
 }
 
 Future<void> _restorePersistedMainApiSession() async {
+  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+    return;
+  }
   final config = await MainApiSettingsStore.loadConfig();
   final session = await MainApiSettingsStore.loadSession();
   if (session == null) {

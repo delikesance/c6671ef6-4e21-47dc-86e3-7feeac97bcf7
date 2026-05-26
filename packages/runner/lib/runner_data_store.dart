@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:bot_creator_shared/bot/bot_config.dart';
 import 'package:bot_creator_shared/bot/bot_data_store.dart';
 import 'package:bot_creator_shared/bot/variable_database.dart';
+import 'package:bot_creator_shared/utils/command_migration.dart';
 import 'package:bot_creator_shared/utils/workflow_call.dart';
 
 import 'package:bot_creator_shared/bot/json_variable_store.dart';
@@ -507,7 +508,11 @@ class RunnerDataStore implements BotDataStore {
 
   @override
   Map<String, dynamic> normalizeCommandData(Map<String, dynamic> raw) {
-    // Runner receives already normalized data from config.
+    // Apply transparent migration of legacy response blocks into inline actions.
+    final data = raw['data'];
+    if (data is Map<String, dynamic>) {
+      migrateCommandDataResponse(data);
+    }
     return raw;
   }
 }

@@ -3,6 +3,7 @@ import 'package:bot_creator_shared/types/component.dart';
 import 'package:bot_creator/features/actions/bot_actions/send_component_v2.dart';
 import 'package:bot_creator/features/bot_editor/logic/component_workflow_bindings.dart';
 import 'package:bot_creator_shared/utils/embed_fields.dart';
+import 'package:bot_creator_shared/utils/interaction_ack_state.dart';
 
 Future<Map<String, dynamic>> respondWithMessageAction(
   Interaction interaction, {
@@ -186,6 +187,7 @@ Future<Map<String, dynamic>> respondWithMessageAction(
           components: componentNodes.isEmpty ? null : componentNodes,
         ),
       );
+      markInteractionAcknowledged(interaction);
       registerComponentWorkflowBindings(
         definition: definition,
         resolve: resolve,
@@ -207,6 +209,7 @@ Future<Map<String, dynamic>> respondWithMessageAction(
         flags: flags > 0 ? MessageFlags(flags) : null,
       ),
     );
+    markInteractionAcknowledged(interaction);
     String? messageId;
     try {
       final responseMessage = await dynInteraction.fetchOriginalResponse();

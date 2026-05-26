@@ -121,8 +121,9 @@ class RunnerBotRuntime {
 
   factory RunnerBotRuntime.fromJson(Map<String, dynamic> json) {
     final rawLastSeenAt = json['lastSeenAt']?.toString();
+    final parsedBotId = (json['botId'] ?? json['bot_id'] ?? json['id'] ?? '').toString().trim();
     return RunnerBotRuntime(
-      botId: (json['botId'] ?? '').toString(),
+      botId: parsedBotId,
       botName:
           ((json['botName'] ?? '').toString()).trim().isEmpty
               ? (json['botId'] ?? '').toString()
@@ -152,8 +153,16 @@ class RunnerStatus {
   final String? activeBotId;
   final String? activeBotName;
 
-  bool isBotRunning(String botId) =>
-      bots.any((bot) => bot.botId == botId && bot.isRunning);
+  bool isBotRunning(String botId) {
+    final normalized = botId.trim();
+    if (bots.any((bot) => bot.botId == normalized && bot.isRunning)) {
+      return true;
+    }
+    if (running && (activeBotId == normalized || bots.length == 1)) {
+      return true;
+    }
+    return false;
+  }
 
   factory RunnerStatus.fromJson(Map<String, dynamic> json) {
     final bots = _parseBotRuntimeList(json['bots']);

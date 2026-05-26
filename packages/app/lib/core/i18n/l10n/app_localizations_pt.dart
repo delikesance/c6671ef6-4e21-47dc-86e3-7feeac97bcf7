@@ -2799,6 +2799,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get dashboard_total => 'Total de comandos';
 
   @override
+  String get dashboard_analysis_period => 'Período de análise';
+
+  @override
   String get debug_replay_clear => 'Limpar replays';
 
   @override
@@ -4243,6 +4246,49 @@ class AppLocalizationsPt extends AppLocalizations {
   String get legacy_response_mode_label => 'Modo de resposta legado';
 
   @override
+  String get legacy_response_banner_body =>
+      'Alguns comandos ainda usam o formato de resposta antigo. Abra-os no editor e salve novamente para ativar o novo formato.';
+
+  @override
+  String get legacy_response_banner_dismiss => 'Dispensar';
+
+  @override
+  String get legacy_response_banner_migrate => 'Migrar tudo';
+
+  @override
+  String legacy_response_banner_migrated(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count comandos migrados',
+      one: '1 comando migrado',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get legacy_response_banner_migrated_none =>
+      'Nenhum comando para migrar';
+
+  @override
+  String get legacy_response_banner_migrate_failed => 'Falha na migração';
+
+  @override
+  String get legacy_response_banner_migrating => 'Migrando...';
+
+  @override
+  String get legacy_response_banner_short_body =>
+      'Abra e salve novamente seus comandos para migrar para o novo formato.';
+
+  @override
+  String get legacy_response_banner_short_title =>
+      'Atualização de comandos disponível';
+
+  @override
+  String get legacy_response_banner_title =>
+      'Atualização do formato de resposta dos comandos';
+
+  @override
   String get local_command_awaited_desc =>
       'Presets de callback aguardados permanecem locais porque são callbacks internos de tempo de execução.';
 
@@ -4851,6 +4897,13 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get runner_source_local => 'Local';
+
+  @override
+  String get runner_source_manager => 'Servidores Bot Creator';
+
+  @override
+  String get runner_source_manager_unavailable =>
+      'Inicie sessão no Bot Creator nas Configurações para carregar estatísticas dos servidores do Bot Creator.';
 
   @override
   String get save => 'Guardar';
@@ -6462,6 +6515,14 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get validation_command_name_required =>
       'Por favor, insira um nome para o comando';
+
+  @override
+  String get validation_interaction_no_response =>
+      'Comandos de interação devem incluir pelo menos uma ação de resposta (Responder com mensagem, Componente V2 ou Modal).';
+
+  @override
+  String get validation_interaction_no_response_short =>
+      'Nenhuma ação de resposta';
 
   @override
   String get validation_invalid_permissions =>

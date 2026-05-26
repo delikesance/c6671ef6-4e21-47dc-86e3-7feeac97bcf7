@@ -586,6 +586,8 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                       botIdForConfig: widget.botId,
                       editPath: ['Racine', blockName],
                       onChanged: onChanged,
+                      isInteraction: false,
+                      isWorkflow: true,
                     ),
               ),
             );
@@ -606,13 +608,16 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
         onPressed: () {
           showBlockPalette(
             context,
+            isInteraction: false,
+            isWorkflow: true,
             onActionSelected: (type) {
               setState(() {
+                final uniqueId = 'action_${DateTime.now().microsecondsSinceEpoch}';
                 _actions.add(<String, dynamic>{
-                  'id': 'action_${_actions.length}',
+                  'id': uniqueId,
                   'type': type.name,
                   'enabled': true,
-                  'key': 'action_${_actions.length}',
+                  'key': uniqueId,
                   'depend_on': <String>[],
                   'error': {'mode': 'stop'},
                   'payload': Map<String, dynamic>.from(type.defaultParameters),

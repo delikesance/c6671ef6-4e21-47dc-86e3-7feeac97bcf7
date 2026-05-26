@@ -1,6 +1,7 @@
 import 'package:nyxx/nyxx.dart';
 import 'package:bot_creator_shared/types/component.dart';
 import 'package:bot_creator/features/bot_editor/logic/component_workflow_bindings.dart';
+import 'package:bot_creator_shared/utils/interaction_ack_state.dart';
 
 class CustomSectionBuilder extends ComponentBuilder<SectionComponent> {
   final List<TextDisplayComponentBuilder> sectionComponents;
@@ -32,6 +33,30 @@ class _FakeEmoji implements GuildEmoji {
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _SelectMenuOptionBuilderWithEmojiFix extends SelectMenuOptionBuilder {
+  _SelectMenuOptionBuilderWithEmojiFix({
+    required super.label,
+    required super.value,
+    super.description,
+    super.emoji,
+  });
+
+  @override
+  Map<String, Object?> build() {
+    final base = super.build();
+    if (emoji != null && emoji!.id == Snowflake.zero) {
+      final emojiMap = base['emoji'] as Map<String, Object?>?;
+      if (emojiMap != null) {
+        final newEmojiMap = Map<String, Object?>.from(emojiMap);
+        newEmojiMap.remove('id');
+        newEmojiMap.remove('animated');
+        base['emoji'] = newEmojiMap;
+      }
+    }
+    return base;
+  }
 }
 
 Emoji? _parseEmoji(dynamic emojiData, String Function(String) resolve) {
@@ -157,7 +182,7 @@ ComponentBuilder buildComponentNode(
         final options =
             node.options.map((opt) {
               final desc = resolve(opt.description);
-              return SelectMenuOptionBuilder(
+              return _SelectMenuOptionBuilderWithEmojiFix(
                 label: resolve(opt.label),
                 value: resolve(opt.value),
                 description: desc.isNotEmpty ? desc : null,
@@ -169,7 +194,7 @@ ComponentBuilder buildComponentNode(
           options:
               options.isEmpty
                   ? [
-                    SelectMenuOptionBuilder(
+                    _SelectMenuOptionBuilderWithEmojiFix(
                       label: resolve('component_empty_option'),
                       value: 'empty',
                     ),
@@ -471,6 +496,7 @@ Future<Map<String, dynamic>> respondWithComponentV2Action(
             components: nodes,
           );
           final message = await dynInt.updateOriginalResponse(builder);
+          markInteractionAcknowledged(interaction);
           if (botId != null && botId.trim().isNotEmpty) {
             registerComponentWorkflowBindings(
               definition: definition,
@@ -489,6 +515,7 @@ Future<Map<String, dynamic>> respondWithComponentV2Action(
             flags: MessageFlags(flagsOpt),
           );
           await dynInt.respond(builder);
+          markInteractionAcknowledged(interaction);
           String? messageId;
           try {
             final responseMessage = await dynInt.fetchOriginalResponse();

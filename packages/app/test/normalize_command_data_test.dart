@@ -717,5 +717,29 @@ void main() {
       // description should fall back to whatever was in the spread
       expect(result['description'], 'My description');
     });
+
+    test('auto-healing wraps root fields when data is missing but actions or response are present', () {
+      final corrupted = <String, dynamic>{
+        'legacyPrefixOverride': 'healed_name',
+        'legacyModeEnabled': true,
+        'actions': [
+          {'type': 'respondWithMessage', 'payload': {'content': 'Hello'}}
+        ],
+        'response': {
+          'mode': 'message',
+          'text': 'Healed text',
+        }
+      };
+
+      final healed = normalizeCommandData(corrupted);
+
+      expect(healed['name'], 'healed_name');
+      expect(healed['data'], isNotNull);
+      final data = healed['data'] as Map<String, dynamic>;
+      expect(data['legacyPrefixOverride'], 'healed_name');
+      expect(data['legacyModeEnabled'], isTrue);
+      expect(data['actions'], isNotEmpty);
+      expect(data['actions'][0]['type'], 'respondWithMessage');
+    });
   });
 }

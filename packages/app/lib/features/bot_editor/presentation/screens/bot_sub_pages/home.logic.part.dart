@@ -2,7 +2,11 @@ part of 'home.dart';
 
 extension _AppHomePageLogic on _AppHomePageState {
   bool get _supportsForegroundTask => Platform.isAndroid || Platform.isIOS;
-  bool get _supportsManagerRuntime => !kIsWeb;
+  bool get _supportsManagerRuntime =>
+      !kIsWeb &&
+      defaultTargetPlatform != TargetPlatform.windows &&
+      defaultTargetPlatform != TargetPlatform.linux &&
+      defaultTargetPlatform != TargetPlatform.macOS;
 
   Future<bool> _requestPermissions() async {
     if (!_supportsForegroundTask) {

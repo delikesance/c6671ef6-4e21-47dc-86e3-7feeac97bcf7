@@ -25,6 +25,8 @@ class ActionsBuilderPage extends StatefulWidget {
   final String? botIdForConfig;
   final List<String> editPath;
   final ValueChanged<List<Map<String, dynamic>>>? onChanged;
+  final bool isInteraction;
+  final bool isWorkflow;
 
   const ActionsBuilderPage({
     super.key,
@@ -34,6 +36,8 @@ class ActionsBuilderPage extends StatefulWidget {
     this.botIdForConfig,
     this.editPath = const [],
     this.onChanged,
+    this.isInteraction = true,
+    this.isWorkflow = false,
   });
 
   @override
@@ -408,6 +412,14 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
     final isMobile = mediaQuery.size.width < 700;
     final availableActionTypes = BotCreatorActionType.values
         .where((type) => type != BotCreatorActionType.sendComponentV2)
+        .where((type) {
+          if (!widget.isInteraction) {
+            return !isInteractionOnlyAction(type);
+          }
+          return true;
+        })
+        // Autocomplete response is only valid inside an autocomplete handler.
+        .where((type) => !isAutocompleteOnlyAction(type))
         .toList(growable: false);
     String searchQuery = '';
 
@@ -453,20 +465,25 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
           ),
           const SizedBox(height: 16),
           Expanded(
-            child:
-                actionsByCategory.isEmpty
-                    ? Center(child: Text(context.tr.actions_no_matches))
-                    : SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ...actionsByCategory.entries.map(
-                            (entry) =>
-                                _buildActionCategory(entry.key, entry.value),
-                          ),
-                        ],
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (actionsByCategory.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 60),
+                      child: Center(
+                        child: Text(context.tr.actions_no_matches),
                       ),
+                    )
+                  else
+                    ...actionsByCategory.entries.map(
+                      (entry) =>
+                          _buildActionCategory(entry.key, entry.value),
                     ),
+                ],
+              ),
+            ),
           ),
           const SizedBox(height: 12),
           if (isMobile)
@@ -545,6 +562,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
       case BotCreatorActionType.listenForSelectMenu:
       case BotCreatorActionType.listenForModalSubmit:
       case BotCreatorActionType.respondWithAutocomplete:
+      case BotCreatorActionType.deferInteraction:
       case BotCreatorActionType.sendDm:
         return 'Interactions';
       case BotCreatorActionType.sendMessage:
@@ -597,6 +615,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
       case BotCreatorActionType.getWebhook:
         return 'Webhooks';
       case BotCreatorActionType.updateGuild:
+      case BotCreatorActionType.leaveGuild:
       case BotCreatorActionType.updateAutoMod:
       case BotCreatorActionType.listMembers:
       case BotCreatorActionType.getMember:
@@ -854,6 +873,8 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
         return 'Register a workflow to run when a modal is submitted';
       case BotCreatorActionType.respondWithAutocomplete:
         return 'Reply to a Discord autocomplete interaction with up to 25 dynamic choices';
+      case BotCreatorActionType.deferInteraction:
+        return 'Defer the interaction response to prevent Discord timeout';
       case BotCreatorActionType.stopUnless:
         return 'Stop the workflow if a condition is not met (guard/filter)';
       case BotCreatorActionType.ifBlock:
@@ -924,6 +945,8 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
         return 'Update auto-moderation settings';
       case BotCreatorActionType.updateGuild:
         return 'Update guild settings';
+      case BotCreatorActionType.leaveGuild:
+        return 'Make the bot leave the guild/server';
       case BotCreatorActionType.deleteWebhook:
         return 'Delete a webhook';
       case BotCreatorActionType.forLoop:
@@ -1059,6 +1082,8 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
                       botIdForConfig: widget.botIdForConfig,
                       editPath: [...widget.editPath, blockName],
                       onChanged: onChanged,
+                      isInteraction: widget.isInteraction,
+                      isWorkflow: widget.isWorkflow,
                     ),
                   ),
                 );

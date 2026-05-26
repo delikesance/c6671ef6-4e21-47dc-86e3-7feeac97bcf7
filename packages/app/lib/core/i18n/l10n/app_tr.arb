@@ -3534,6 +3534,10 @@
   "@dashboard_total": {
     "description": "Total commands"
   },
+  "dashboard_analysis_period": "Analiz dönemi",
+  "@dashboard_analysis_period": {
+    "description": "Analysis Period"
+  },
   "debug_replay_clear": "Tekrarları temizle",
   "@debug_replay_clear": {
     "description": "Clear replays"
@@ -5306,6 +5310,51 @@
   "@legacy_response_mode_label": {
     "description": "Legacy response mode"
   },
+  "legacy_response_banner_body": "Bazı komutlar hâlâ eski yanıt biçimini kullanıyor. Yeni biçimi etkinleştirmek için düzenleyicide açın ve yeniden kaydedin.",
+  "@legacy_response_banner_body": {
+    "description": "Body text for the legacy response deprecation banner (full size)"
+  },
+  "legacy_response_banner_dismiss": "Kapat",
+  "@legacy_response_banner_dismiss": {
+    "description": "Tooltip for the dismiss button on the legacy response deprecation banner"
+  },
+  "legacy_response_banner_migrate": "Hepsini geçir",
+  "@legacy_response_banner_migrate": {
+    "description": "Button label to migrate all legacy commands"
+  },
+  "legacy_response_banner_migrated": "{count, plural, =1{1 komut geçirildi} other{{count} komut geçirildi}}",
+  "@legacy_response_banner_migrated": {
+    "description": "Message showing how many commands were migrated",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "legacy_response_banner_migrated_none": "Geçirilecek komut yok",
+  "@legacy_response_banner_migrated_none": {
+    "description": "Message shown when no commands need migration"
+  },
+  "legacy_response_banner_migrate_failed": "Geçirme başarısız",
+  "@legacy_response_banner_migrate_failed": {
+    "description": "Error message when migration fails"
+  },
+  "legacy_response_banner_migrating": "Geçiriliyor...",
+  "@legacy_response_banner_migrating": {
+    "description": "Loading state while migrating commands"
+  },
+  "legacy_response_banner_short_body": "Yeni biçime geçmek için komutlarınızı açın ve yeniden kaydedin.",
+  "@legacy_response_banner_short_body": {
+    "description": "Short body text for the legacy response deprecation banner (small screens)"
+  },
+  "legacy_response_banner_short_title": "Komut güncellemesi mevcut",
+  "@legacy_response_banner_short_title": {
+    "description": "Short title for the legacy response deprecation banner (small screens)"
+  },
+  "legacy_response_banner_title": "Komut yanıt biçimi güncellemesi",
+  "@legacy_response_banner_title": {
+    "description": "Full title for the legacy response deprecation banner"
+  },
   "local_command_awaited_desc": "Beklenen geri arama ön ayarları, dahili çalışma zamanı geri aramaları oldukları için yerel kalır.",
   "@local_command_awaited_desc": {
     "description": "Awaited callback presets stay local because they are internal runtime callbacks."
@@ -6113,6 +6162,14 @@
   "runner_source_local": "Yerel",
   "@runner_source_local": {
     "description": "Local"
+  },
+  "runner_source_manager": "Bot Creator sunucuları",
+  "@runner_source_manager": {
+    "description": "Bot Creator servers"
+  },
+  "runner_source_manager_unavailable": "Bot Creator sunucularından istatistikleri yüklemek için Ayarlar'da Bot Creator'a giriş yapın.",
+  "@runner_source_manager_unavailable": {
+    "description": "Sign in to Bot Creator in Settings to load stats from Bot Creator servers."
   },
   "save": "Kaydet",
   "@save": {
@@ -8126,6 +8183,14 @@
   "validation_command_name_required": "Lütfen bir komut adı girin",
   "@validation_command_name_required": {
     "description": "Please enter a command name"
+  },
+  "validation_interaction_no_response": "Etkileşim komutları en az bir yanıt eylemi içermelidir (Mesajla yanıtla, Bileşen V2 veya Modal).",
+  "@validation_interaction_no_response": {
+    "description": "Interaction commands must include at least one response action (Respond with Message, Component V2, or Modal)."
+  },
+  "validation_interaction_no_response_short": "Yanıt eylemi yok",
+  "@validation_interaction_no_response_short": {
+    "description": "Short version: no response action"
   },
   "validation_invalid_permissions": "Geçersiz varsayılan üye izinleri bit alanı. Pozitif bir tam sayı kullanın veya boş bırakın.",
   "@validation_invalid_permissions": {

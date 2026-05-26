@@ -362,31 +362,33 @@ Future<void> _executeSync(String botId) async {
       }());
     }
 
-    // 2. Cloud Sync (Manager)
-    futures.add(() async {
-      try {
-        final config = await MainApiSettingsStore.loadConfig();
-        if (config.isConfigured) {
-          final session = await MainApiSettingsStore.loadSession();
-          if (session != null && !session.isExpired) {
-            final mainApiClient = MainApiClient(
-              baseUrl: config.baseUrl,
-              accessToken: session.accessToken,
-            );
-            // Note: saveDiscordBotSnapshot and syncBot now benefit from 
-            // internal caching if implemented in MainApiClient or similar.
-            await mainApiClient.saveDiscordBotSnapshot(
-              botToken: botToken,
-              config: payload,
-            );
-            await mainApiClient.syncBot(botId, botName, payload);
-            debugPrint('[AutoReload] Synced bot $botId to cloud (batched).');
+    // 2. Cloud Sync (Manager) (Bypassed on Desktop)
+    if (!_isDesktopPlatform) {
+      futures.add(() async {
+        try {
+          final config = await MainApiSettingsStore.loadConfig();
+          if (config.isConfigured) {
+            final session = await MainApiSettingsStore.loadSession();
+            if (session != null && !session.isExpired) {
+              final mainApiClient = MainApiClient(
+                baseUrl: config.baseUrl,
+                accessToken: session.accessToken,
+              );
+              // Note: saveDiscordBotSnapshot and syncBot now benefit from 
+              // internal caching if implemented in MainApiClient or similar.
+              await mainApiClient.saveDiscordBotSnapshot(
+                botToken: botToken,
+                config: payload,
+              );
+              await mainApiClient.syncBot(botId, botName, payload);
+              debugPrint('[AutoReload] Synced bot $botId to cloud (batched).');
+            }
           }
+        } catch (error) {
+          debugPrint('[AutoReload] Cloud sync failed for $botId: $error');
         }
-      } catch (error) {
-        debugPrint('[AutoReload] Cloud sync failed for $botId: $error');
-      }
-    }());
+      }());
+    }
 
     // 3. Mobile Service Sync (only on mobile)
     if (!_isDesktopPlatform) {

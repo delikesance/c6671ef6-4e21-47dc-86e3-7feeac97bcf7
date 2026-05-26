@@ -3534,6 +3534,10 @@
   "@dashboard_total": {
     "description": "Total commands"
   },
+  "dashboard_analysis_period": "Analysezeitraum",
+  "@dashboard_analysis_period": {
+    "description": "Analysis Period"
+  },
   "debug_replay_clear": "Replays löschen",
   "@debug_replay_clear": {
     "description": "Clear replays"
@@ -5306,6 +5310,51 @@
   "@legacy_response_mode_label": {
     "description": "Legacy response mode"
   },
+  "legacy_response_banner_body": "Einige Befehle verwenden noch das alte Antwortformat. Öffnen Sie sie im Editor und speichern Sie sie erneut, um das neue Format zu aktivieren.",
+  "@legacy_response_banner_body": {
+    "description": "Body text for the legacy response deprecation banner (full size)"
+  },
+  "legacy_response_banner_dismiss": "Schließen",
+  "@legacy_response_banner_dismiss": {
+    "description": "Tooltip for the dismiss button on the legacy response deprecation banner"
+  },
+  "legacy_response_banner_migrate": "Alle migrieren",
+  "@legacy_response_banner_migrate": {
+    "description": "Button label to migrate all legacy commands"
+  },
+  "legacy_response_banner_migrated": "{count, plural, =1{1 Befehl migriert} other{{count} Befehle migriert}}",
+  "@legacy_response_banner_migrated": {
+    "description": "Message showing how many commands were migrated",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "legacy_response_banner_migrated_none": "Keine Befehle zu migrieren",
+  "@legacy_response_banner_migrated_none": {
+    "description": "Message shown when no commands need migration"
+  },
+  "legacy_response_banner_migrate_failed": "Migration fehlgeschlagen",
+  "@legacy_response_banner_migrate_failed": {
+    "description": "Error message when migration fails"
+  },
+  "legacy_response_banner_migrating": "Wird migriert...",
+  "@legacy_response_banner_migrating": {
+    "description": "Loading state while migrating commands"
+  },
+  "legacy_response_banner_short_body": "Öffnen und speichern Sie Ihre Befehle erneut, um zum neuen Format zu migrieren.",
+  "@legacy_response_banner_short_body": {
+    "description": "Short body text for the legacy response deprecation banner (small screens)"
+  },
+  "legacy_response_banner_short_title": "Befehlsaktualisierung verfügbar",
+  "@legacy_response_banner_short_title": {
+    "description": "Short title for the legacy response deprecation banner (small screens)"
+  },
+  "legacy_response_banner_title": "Aktualisierung des Befehlsantwortformats",
+  "@legacy_response_banner_title": {
+    "description": "Full title for the legacy response deprecation banner"
+  },
   "local_command_awaited_desc": "Voreinstellungen für erwartete Callbacks bleiben lokal, da es sich um interne Laufzeit-Callbacks handelt.",
   "@local_command_awaited_desc": {
     "description": "Awaited callback presets stay local because they are internal runtime callbacks."
@@ -6113,6 +6162,14 @@
   "runner_source_local": "Lokal",
   "@runner_source_local": {
     "description": "Local"
+  },
+  "runner_source_manager": "Bot Creator Server",
+  "@runner_source_manager": {
+    "description": "Bot Creator servers"
+  },
+  "runner_source_manager_unavailable": "Melden Sie sich in den Einstellungen bei Bot Creator an, um Statistiken von den Bot Creator-Servern zu laden.",
+  "@runner_source_manager_unavailable": {
+    "description": "Sign in to Bot Creator in Settings to load stats from Bot Creator servers."
   },
   "save": "Speichern",
   "@save": {
@@ -8126,6 +8183,14 @@
   "validation_command_name_required": "Bitte geben Sie einen Befehlsnamen ein",
   "@validation_command_name_required": {
     "description": "Please enter a command name"
+  },
+  "validation_interaction_no_response": "Interaktionsbefehle müssen mindestens eine Antwortaktion enthalten (Mit Nachricht antworten, Komponente V2 oder Modal).",
+  "@validation_interaction_no_response": {
+    "description": "Interaction commands must include at least one response action (Respond with Message, Component V2, or Modal)."
+  },
+  "validation_interaction_no_response_short": "Keine Antwortaktion",
+  "@validation_interaction_no_response_short": {
+    "description": "Short version: no response action"
   },
   "validation_invalid_permissions": "Ungültiges Bitfeld für Standard-Mitgliedsberechtigungen. Verwenden Sie eine positive Ganzzahl oder lassen Sie es leer.",
   "@validation_invalid_permissions": {

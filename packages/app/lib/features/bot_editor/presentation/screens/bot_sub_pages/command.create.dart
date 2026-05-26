@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ui' as ui;
+import 'package:flutter/foundation.dart';
 
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder.response.dart';
-import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command.reply_editor.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command_option_serialization.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command_option_validation.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/workflow_docs.page.dart';
@@ -24,6 +24,7 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
+import 'package:bot_creator_shared/utils/command_migration.dart' show migrateCommandDataResponsePermanently;
 import 'package:bot_creator/features/bot_editor/presentation/screens/bdfd_editor_page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/option_widget.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/command_create_cards/basic_info_card.dart';
@@ -87,6 +88,11 @@ class CommandCreatePage extends StatefulWidget {
   @override
   State<CommandCreatePage> createState() => _CommandCreatePageState();
 }
+
+bool get _isDesktop => !kIsWeb &&
+    (defaultTargetPlatform == TargetPlatform.windows ||
+     defaultTargetPlatform == TargetPlatform.linux ||
+     defaultTargetPlatform == TargetPlatform.macOS);
 
 class _CommandCreatePageState extends State<CommandCreatePage> {
   static const Uuid _uuid = Uuid();
@@ -252,8 +258,6 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       _commandType == ApplicationCommandType.chatInput;
 
   bool get _supportsSimpleMode => false;
-
-  bool get _allowModalResponses => !_legacyModeEnabled;
 
   bool get _allowsInternalLegacyCallbackNames =>
       _commandType == ApplicationCommandType.chatInput &&
@@ -1034,7 +1038,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       '[_saveExistingCommand] invoked — commandName="$_commandName" existingId=$_existingCommandStorageId isEditing=$_isEditingExistingCommand isDirty=$_isDirty',
       name: 'CommandCreatePage',
     );
-    if (!_validateCommandInputs()) {
+    if (!await _validateCommandInputs()) {
       developer.log(
         '[_saveExistingCommand] validation FAILED, aborting save.',
         name: 'CommandCreatePage',
@@ -1065,6 +1069,9 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     required String botId,
     required String botToken,
   }) async {
+    if (_isDesktop) {
+      return null;
+    }
     developer.log(
       '[_resolveMainApiClientForCloudSync] START botId=$botId tokenPresent=${botToken.isNotEmpty}',
       name: 'CommandCreatePage',
@@ -1191,6 +1198,9 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   }
 
   Future<bool> _syncCommandChangesToCloud({required String botId}) async {
+    if (_isDesktop) {
+      return false;
+    }
     developer.log(
       '[_syncCommandChangesToCloud] START botId=$botId commandName="$_commandName"',
       name: 'CommandCreatePage',
@@ -1961,19 +1971,22 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
             '[_updateOrCreate] Discord createCommand succeeded (botId=$botId commandName="$_commandName")',
             name: 'CommandCreatePage',
           );
-          developer.log(
-            '[_updateOrCreate] triggering cloud sync after create (botId=$botId)',
-            name: 'CommandCreatePage',
-          );
+          // Cloud sync is not supported on Desktop platforms
+          if (!_isDesktop) {
+            developer.log(
+              '[_updateOrCreate] triggering cloud sync after create (botId=$botId)',
+              name: 'CommandCreatePage',
+            );
 
-          updateStatus('cloud_sync');
-          final cloudSyncOk = await _syncCommandChangesToCloud(botId: botId);
-          developer.log(
-            '[_updateOrCreate] cloud sync after create result=$cloudSyncOk (botId=$botId)',
-            name: 'CommandCreatePage',
-          );
-          if (!cloudSyncOk) {
-            throw Exception('Cloud sync failed.');
+            updateStatus('cloud_sync');
+            final cloudSyncOk = await _syncCommandChangesToCloud(botId: botId);
+            developer.log(
+              '[_updateOrCreate] cloud sync after create result=$cloudSyncOk (botId=$botId)',
+              name: 'CommandCreatePage',
+            );
+            if (!cloudSyncOk) {
+              throw Exception('Cloud sync failed.');
+            }
           }
           // Delete the old temp-ID file if this was a local-only command
           if (_isLocalOnlyCommand) {
@@ -2040,19 +2053,22 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
             '[_updateOrCreate] Discord updateCommand succeeded (botId=$botId commandId=${widget.id})',
             name: 'CommandCreatePage',
           );
-          developer.log(
-            '[_updateOrCreate] triggering cloud sync after update (botId=$botId)',
-            name: 'CommandCreatePage',
-          );
+          // Cloud sync is not supported on Desktop platforms
+          if (!_isDesktop) {
+            developer.log(
+              '[_updateOrCreate] triggering cloud sync after update (botId=$botId)',
+              name: 'CommandCreatePage',
+            );
 
-          updateStatus('cloud_sync');
-          final cloudSyncOk = await _syncCommandChangesToCloud(botId: botId);
-          developer.log(
-            '[_updateOrCreate] cloud sync after update result=$cloudSyncOk (botId=$botId)',
-            name: 'CommandCreatePage',
-          );
-          if (!cloudSyncOk) {
-            throw Exception('Cloud sync failed.');
+            updateStatus('cloud_sync');
+            final cloudSyncOk = await _syncCommandChangesToCloud(botId: botId);
+            developer.log(
+              '[_updateOrCreate] cloud sync after update result=$cloudSyncOk (botId=$botId)',
+              name: 'CommandCreatePage',
+            );
+            if (!cloudSyncOk) {
+              throw Exception('Cloud sync failed.');
+            }
           }
         }
       } finally {
@@ -2127,8 +2143,8 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                 IconButton(
                   icon: const Icon(Icons.add),
                   tooltip: context.tr.cmd_create_tooltip,
-                  onPressed: () {
-                    if (_validateCommandInputs()) {
+                  onPressed: () async {
+                    if (await _validateCommandInputs()) {
                       _updateOrCreate();
                     }
                   },
@@ -2341,6 +2357,20 @@ class _DeploymentProgressOverlayState
           subtitle: 'Application à chaud de la configuration',
         ),
       ];
+    } else if (_isDesktop) {
+      // Cloud sync is not supported on Desktop platforms
+      _steps = [
+        _SyncStepData(
+          id: 'discord_sync',
+          title: 'Synchronisation Discord',
+          subtitle: 'Publication de la commande sur l\'API Discord',
+        ),
+        _SyncStepData(
+          id: 'reload_runtime',
+          title: 'Rechargement à chaud',
+          subtitle: 'Mise à jour instantanée du runner de votre bot',
+        ),
+      ];
     } else {
       _steps = [
         _SyncStepData(
@@ -2410,7 +2440,9 @@ class _DeploymentProgressOverlayState
 
       // 2. Wait for reload completer
       if (!widget.isLocalOnly && widget.client != null) {
-        _updateStepState('cloud_sync', SyncStepState.success);
+        if (!_isDesktop) {
+          _updateStepState('cloud_sync', SyncStepState.success);
+        }
         _updateStepState('reload_runtime', SyncStepState.active);
 
         if (_reloadCompleter!.isCompleted) {
