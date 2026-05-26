@@ -110,6 +110,7 @@ extension _CommandBlockEditor on _CommandCreatePageState {
                         botIdForConfig: _botIdForConfig,
                         editPath: ['Racine', blockName],
                         onChanged: onChanged,
+                        isInteraction: !_legacyModeEnabled,
                       ),
                 ),
               );
@@ -414,13 +415,15 @@ extension _CommandBlockEditor on _CommandCreatePageState {
         onPressed: () {
           showBlockPalette(
             context,
+            isInteraction: !_legacyModeEnabled,
             onActionSelected: (type) {
               _applyStateUpdate(() {
+                final uniqueId = 'action_${DateTime.now().microsecondsSinceEpoch}';
                 final newAction = <String, dynamic>{
-                  'id': 'action_${_actions.length}',
+                  'id': uniqueId,
                   'type': type.name,
                   'enabled': true,
-                  'key': 'action_${_actions.length}',
+                  'key': uniqueId,
                   'depend_on': <String>[],
                   'error': {'mode': 'stop'},
                   'payload': Map<String, dynamic>.from(type.defaultParameters),
