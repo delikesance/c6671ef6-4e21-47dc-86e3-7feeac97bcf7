@@ -126,7 +126,7 @@ jobs:
   build_linux:
     executor: linux-ci
     environment:
-      <<: *env-common
+      \<<: *env-common
     steps:
       - checkout_and_prepare
       - run:
@@ -191,21 +191,10 @@ jobs:
             collect_deps "$BUNDLE_STEAM_DIR/bot_creator.bin"
             [ -f "$LIB_DIR/libflutter_linux_gtk.so" ] && collect_deps "$LIB_DIR/libflutter_linux_gtk.so"
 
-            cat > "$BUNDLE_STEAM_DIR/bot_creator" <<'WRAPPER'
-            #!/usr/bin/env bash
-            set -euo pipefail
-            HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-            export LD_LIBRARY_PATH="$HERE/lib:${LD_LIBRARY_PATH:-}"
-            export PATH="$HERE:${PATH:-}"
-            exec "$HERE/bot_creator.bin" "$@"
-            WRAPPER
+            printf '#!/usr/bin/env bash\nset -euo pipefail\nHERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"\nexport LD_LIBRARY_PATH="$HERE/lib:${LD_LIBRARY_PATH:-}"\nexport PATH="$HERE:${PATH:-}"\nexec "$HERE/bot_creator.bin" "$@"\n' > "$BUNDLE_STEAM_DIR/bot_creator"
             chmod +x "$BUNDLE_STEAM_DIR/bot_creator"
 
-            cat > "$BUNDLE_STEAM_DIR/xdg-open" <<'XDG'
-            #!/usr/bin/env bash
-            unset LD_LIBRARY_PATH
-            exec /usr/bin/xdg-open "$@"
-            XDG
+            printf '#!/usr/bin/env bash\nunset LD_LIBRARY_PATH\nexec /usr/bin/xdg-open "$@"\n' > "$BUNDLE_STEAM_DIR/xdg-open"
             chmod +x "$BUNDLE_STEAM_DIR/xdg-open"
 
             (cd build/linux/x64/release && zip -r "$OLDPWD/build/bot_creator-linux-x64-steam.zip" bot_creator-linux-x64-steam)
@@ -228,7 +217,7 @@ jobs:
   build_macos:
     executor: macos-ci
     environment:
-      <<: *env-common
+      \<<: *env-common
     steps:
       - checkout_and_prepare
       - install_flutter_macos
@@ -257,7 +246,7 @@ jobs:
   build_windows:
     executor: windows-ci
     environment:
-      <<: *env-common
+      \<<: *env-common
     steps:
       - checkout_and_prepare_windows
       - install_flutter_windows
@@ -323,7 +312,7 @@ jobs:
 workflows:
   release:
     when:
-      not: << pipeline.parameters.msix_only >>
+      not: \<< pipeline.parameters.msix_only >>
     jobs:
       - build_linux:
           filters:
@@ -347,6 +336,6 @@ workflows:
               only: /^v.*/
 
   msix_only:
-    when: << pipeline.parameters.msix_only >>
+    when: \<< pipeline.parameters.msix_only >>
     jobs:
       - build_windows
