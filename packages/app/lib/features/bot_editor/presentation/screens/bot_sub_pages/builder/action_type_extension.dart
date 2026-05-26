@@ -1929,7 +1929,13 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             key: 'ephemeral',
             type: ParameterType.boolean,
             defaultValue: false,
-            hint: 'Only visible to command author',
+            hint: 'Only visible to command author (interaction only)',
+          ),
+          ParameterDefinition(
+            key: 'replyToMessage',
+            type: ParameterType.boolean,
+            defaultValue: false,
+            hint: 'Reply to the triggering message (prefix commands: uses message reference)',
           ),
         ];
       case BotCreatorActionType.respondWithComponentV2:

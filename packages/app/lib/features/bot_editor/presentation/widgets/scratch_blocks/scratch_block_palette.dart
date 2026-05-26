@@ -240,18 +240,27 @@ IconData getCategoryIcon(String category) {
       return Icons.extension;
   }
 }
+/// Returns true for actions that are ONLY meaningful with a Discord
+/// interaction (slash command / component callback). These are hidden
+/// from prefix-command and event-workflow editors.
+///
+/// Note: [respondWithMessage] and [respondWithComponentV2] are intentionally
+/// NOT in this list — they fall back to a plain channel send when no
+/// interaction is present and therefore work in all contexts.
 bool isInteractionOnlyAction(BotCreatorActionType type) {
   switch (type) {
-    case BotCreatorActionType.respondWithMessage:
-    case BotCreatorActionType.respondWithComponentV2:
     case BotCreatorActionType.respondWithModal:
-    case BotCreatorActionType.respondWithAutocomplete:
     case BotCreatorActionType.deferInteraction:
     case BotCreatorActionType.editInteractionMessage:
       return true;
     default:
       return false;
   }
+}
+
+/// Returns true for actions that only make sense inside an autocomplete handler.
+bool isAutocompleteOnlyAction(BotCreatorActionType type) {
+  return type == BotCreatorActionType.respondWithAutocomplete;
 }
 
 bool isListenerAction(BotCreatorActionType type) {
@@ -273,11 +282,16 @@ class ScratchBlockPalette extends StatefulWidget {
     required this.onActionSelected,
     this.isInteraction = true,
     this.isWorkflow = false,
+    this.isAutocompleteContext = false,
   });
 
   final ValueChanged<BotCreatorActionType> onActionSelected;
   final bool isInteraction;
   final bool isWorkflow;
+
+  /// When true, shows the "Respond with autocomplete" action (only valid
+  /// inside an autocomplete handler workflow).
+  final bool isAutocompleteContext;
 
   @override
   State<ScratchBlockPalette> createState() => _ScratchBlockPaletteState();
@@ -302,6 +316,10 @@ class _ScratchBlockPaletteState extends State<ScratchBlockPalette> {
         continue;
       }
       if (!widget.isInteraction && isInteractionOnlyAction(actionType)) {
+        continue;
+      }
+      // Autocomplete response is only valid inside an autocomplete handler.
+      if (!widget.isAutocompleteContext && isAutocompleteOnlyAction(actionType)) {
         continue;
       }
       final category = getCategoryForAction(actionType);
@@ -432,6 +450,7 @@ void showBlockPalette(
   required ValueChanged<BotCreatorActionType> onActionSelected,
   bool isInteraction = true,
   bool isWorkflow = false,
+  bool isAutocompleteContext = false,
 }) {
   final isMobile = MediaQuery.of(context).size.width < 600;
 
@@ -449,6 +468,7 @@ void showBlockPalette(
               onActionSelected: onActionSelected,
               isInteraction: isInteraction,
               isWorkflow: isWorkflow,
+              isAutocompleteContext: isAutocompleteContext,
             ),
           ),
         );
@@ -468,6 +488,7 @@ void showBlockPalette(
               onActionSelected: onActionSelected,
               isInteraction: isInteraction,
               isWorkflow: isWorkflow,
+              isAutocompleteContext: isAutocompleteContext,
             ),
           ),
         );

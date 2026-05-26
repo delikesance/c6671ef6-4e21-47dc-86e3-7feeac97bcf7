@@ -418,6 +418,8 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
           }
           return true;
         })
+        // Autocomplete response is only valid inside an autocomplete handler.
+        .where((type) => !isAutocompleteOnlyAction(type))
         .toList(growable: false);
     String searchQuery = '';
 
