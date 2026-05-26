@@ -1,31 +1,352 @@
-# Use the latest 2.1 version of CircleCI pipeline process engine.
-# See: https://circleci.com/docs/reference/configuration-reference
 version: 2.1
 
-# Define a job to be invoked later in a workflow.
-# See: https://circleci.com/docs/guides/orchestrate/jobs-steps/#jobs-overview & https://circleci.com/docs/reference/configuration-reference/#jobs
-jobs:
-  say-hello:
-    # Specify the execution environment. You can specify an image from Docker Hub or use one of our convenience images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/guides/execution-managed/executor-intro/ & https://circleci.com/docs/reference/configuration-reference/#executor-job
-    docker:
-      # Specify the version you desire here
-      # See: https://circleci.com/developer/images/image/cimg/base
-      - image: cimg/base:current
+# ── Parameters ────────────────────────────────────────────────────────────
+parameters:
+  msix_only:
+    type: boolean
+    default: false
 
-    # Add steps to the job
-    # See: https://circleci.com/docs/guides/orchestrate/jobs-steps/#steps-overview & https://circleci.com/docs/reference/configuration-reference/#steps
+# ── Environnement global ─────────────────────────────────────────────────
+environment: &env-common
+  FLUTTER_VERSION: "3.41.2"
+  APP_DIR: packages/app
+
+# ── Executors ────────────────────────────────────────────────────────────
+executors:
+  linux-ci:
+    docker:
+      - image: cimg/base:current
+    resource_class: medium+
+    working_directory: ~/project
+
+  macos-ci:
+    macos:
+      xcode: "16.0.0"
+    resource_class: macos.m4.pro.medium
+    working_directory: ~/project
+
+  windows-ci:
+    machine:
+      image: windows-server-2022-gui:current
+    resource_class: windows.medium
+    working_directory: ~/project
+
+# ── Commands réutilisables ───────────────────────────────────────────────
+commands:
+  checkout_and_prepare:
+    description: "Checkout, strip overrides, fix SSH→HTTPS"
     steps:
-      # Checkout the code as the first step.
       - checkout
       - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
+          name: Remove dependency overrides & fix git URLs
+          command: |
+            cd ~/project
+            sed -i '/dependency_overrides:/,$d' pubspec.yaml
+            sed -i 's|git@github.com:|https://github.com/|g' packages/app/pubspec.yaml
+            sed -i 's|git@github.com:|https://github.com/|g' packages/runner/pubspec.yaml
 
-# Orchestrate jobs using workflows
-# See: https://circleci.com/docs/guides/orchestrate/workflows/ & https://circleci.com/docs/reference/configuration-reference/#workflows
+  checkout_and_prepare_windows:
+    description: "Checkout, strip overrides, fix SSH→HTTPS (Windows bash)"
+    steps:
+      - checkout
+      - run:
+          name: Remove dependency overrides & fix git URLs
+          shell: bash.exe
+          command: |
+            cd ~/project
+            sed -i '/dependency_overrides:/,$d' pubspec.yaml
+            sed -i 's|git@github.com:|https://github.com/|g' packages/app/pubspec.yaml
+            sed -i 's|git@github.com:|https://github.com/|g' packages/runner/pubspec.yaml
+
+  install_flutter_linux:
+    steps:
+      - run:
+          name: Install Flutter
+          command: |
+            FLUTTER_ARCHIVE="flutter_linux_${FLUTTER_VERSION}-stable.tar.xz"
+            curl -sL "https://storage.googleapis.com/flutter_infra_release/releases/stable/${FLUTTER_ARCHIVE}" -o "/tmp/${FLUTTER_ARCHIVE}"
+            sudo mkdir -p /opt/flutter
+            sudo tar xf "/tmp/${FLUTTER_ARCHIVE}" -C /opt/
+            echo 'export PATH=/opt/flutter/bin:$PATH' >> $BASH_ENV
+
+  install_flutter_macos:
+    steps:
+      - run:
+          name: Install Flutter
+          command: |
+            FLUTTER_ARCHIVE="flutter_macos_${FLUTTER_VERSION}-stable.zip"
+            curl -sL "https://storage.googleapis.com/flutter_infra_release/releases/stable/${FLUTTER_ARCHIVE}" -o "/tmp/${FLUTTER_ARCHIVE}"
+            sudo mkdir -p /opt/flutter
+            sudo unzip -q "/tmp/${FLUTTER_ARCHIVE}" -d /opt/
+            echo 'export PATH=/opt/flutter/bin:$PATH' >> $BASH_ENV
+
+  install_flutter_windows:
+    steps:
+      - run:
+          name: Install Flutter
+          shell: bash.exe
+          command: |
+            FLUTTER_ARCHIVE="flutter_windows_${FLUTTER_VERSION}-stable.zip"
+            curl -sL "https://storage.googleapis.com/flutter_infra_release/releases/stable/${FLUTTER_ARCHIVE}" -o "/tmp/${FLUTTER_ARCHIVE}"
+            unzip -q "/tmp/${FLUTTER_ARCHIVE}" -d /c/
+            echo 'export PATH=/c/flutter/bin:$PATH' >> $BASH_ENV
+
+  get_flutter_deps:
+    steps:
+      - run:
+          name: Clean stale caches
+          command: |
+            cd ~/project
+            rm -rf .dart_tool packages/app/.dart_tool packages/runner/.dart_tool
+      - run:
+          name: Get dependencies
+          command: |
+            cd ~/project/packages/app
+            flutter pub get
+            dart pub upgrade bot_creator_shared
+
+  get_flutter_deps_windows:
+    steps:
+      - run:
+          name: Clean stale caches
+          shell: bash.exe
+          command: |
+            cd ~/project
+            rm -rf .dart_tool packages/app/.dart_tool packages/runner/.dart_tool
+      - run:
+          name: Get dependencies
+          shell: bash.exe
+          command: |
+            cd ~/project/packages/app
+            flutter pub get
+            dart pub upgrade bot_creator_shared
+
+# ── Jobs ──────────────────────────────────────────────────────────────────
+jobs:
+  build_linux:
+    executor: linux-ci
+    environment:
+      <<: *env-common
+    steps:
+      - checkout_and_prepare
+      - run:
+          name: Install Linux build dependencies
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y clang cmake curl git ninja-build pkg-config zip libgtk-3-dev liblzma-dev libstdc++-12-dev
+      - install_flutter_linux
+      - get_flutter_deps
+      - run:
+          name: Enable Linux desktop
+          command: flutter config --enable-linux-desktop
+      - run:
+          name: Build Linux release
+          command: |
+            cd ~/project/packages/app
+            flutter build linux --release
+      - run:
+          name: Verify Linux bundle
+          command: |
+            cd ~/project/packages/app
+            BUNDLE_DIR="build/linux/x64/release/bundle"
+            BINARY_PATH="$BUNDLE_DIR/bot_creator"
+            if [ ! -d "$BUNDLE_DIR" ]; then
+              echo "Linux bundle directory not found: $BUNDLE_DIR" >&2; exit 1
+            fi
+            if [ ! -f "$BINARY_PATH" ]; then
+              echo "Linux executable not found: $BINARY_PATH" >&2; exit 1
+            fi
+            chmod +x "$BINARY_PATH"
+      - run:
+          name: Package Linux Steam bundle
+          command: |
+            cd ~/project/packages/app
+            STEAM_DIR="build/linux/x64/release/bot_creator-linux-x64-steam"
+            rm -rf "$STEAM_DIR"
+            mkdir -p "$STEAM_DIR"
+            cp -a build/linux/x64/release/bundle "$STEAM_DIR/"
+
+            BUNDLE_STEAM_DIR="$STEAM_DIR/bundle"
+            LIB_DIR="$BUNDLE_STEAM_DIR/lib"
+            mkdir -p "$LIB_DIR"
+
+            collect_deps() {
+              local target="$1"
+              ldd "$target" | awk '/=> \/[^ ]+/ { print $3 } /^\// { print $1 }' | while read -r dep; do
+                [ -f "$dep" ] || continue
+                case "$(basename "$dep")" in
+                  linux-vdso.so.*|ld-linux*.so.*|libc.so.*|libm.so.*|libpthread.so.*|libdl.so.*|librt.so.*|libresolv.so.*|libnss_*.so.*|libcrypt.so.*) continue ;;
+                esac
+                local dep_name
+                dep_name="$(basename "$dep")"
+                [ -f "$LIB_DIR/$dep_name" ] && continue
+                cp -L "$dep" "$LIB_DIR/$dep_name"
+                collect_deps "$dep"
+              done
+            }
+
+            if [ -f "$BUNDLE_STEAM_DIR/bot_creator" ]; then
+              mv "$BUNDLE_STEAM_DIR/bot_creator" "$BUNDLE_STEAM_DIR/bot_creator.bin"
+            fi
+            collect_deps "$BUNDLE_STEAM_DIR/bot_creator.bin"
+            [ -f "$LIB_DIR/libflutter_linux_gtk.so" ] && collect_deps "$LIB_DIR/libflutter_linux_gtk.so"
+
+            cat > "$BUNDLE_STEAM_DIR/bot_creator" <<'WRAPPER'
+            #!/usr/bin/env bash
+            set -euo pipefail
+            HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+            export LD_LIBRARY_PATH="$HERE/lib:${LD_LIBRARY_PATH:-}"
+            export PATH="$HERE:${PATH:-}"
+            exec "$HERE/bot_creator.bin" "$@"
+            WRAPPER
+            chmod +x "$BUNDLE_STEAM_DIR/bot_creator"
+
+            cat > "$BUNDLE_STEAM_DIR/xdg-open" <<'XDG'
+            #!/usr/bin/env bash
+            unset LD_LIBRARY_PATH
+            exec /usr/bin/xdg-open "$@"
+            XDG
+            chmod +x "$BUNDLE_STEAM_DIR/xdg-open"
+
+            (cd build/linux/x64/release && zip -r "$OLDPWD/build/bot_creator-linux-x64-steam.zip" bot_creator-linux-x64-steam)
+
+      - store_artifacts:
+          path: ~/project/packages/app/build/bot_creator-linux-x64-steam.zip
+          destination: bot_creator-linux-x64-steam.zip
+
+      - run:
+          name: Build AppImage (tagged releases only)
+          command: |
+            if [ -z "${CIRCLE_TAG:-}" ]; then echo "Not a tagged release, skipping AppImage."; exit 0; fi
+            cd ~/project/packages/app
+            bash packaging/linux/appimage/build_appimage.sh
+
+      - store_artifacts:
+          path: ~/project/packages/app/build/appimage/bot_creator-linux-x86_64.AppImage
+          destination: bot_creator-linux-x86_64.AppImage
+
+  build_macos:
+    executor: macos-ci
+    environment:
+      <<: *env-common
+    steps:
+      - checkout_and_prepare
+      - install_flutter_macos
+      - get_flutter_deps
+      - run:
+          name: Enable macOS desktop
+          command: flutter config --enable-macos-desktop
+      - run:
+          name: Build macOS release
+          command: |
+            cd ~/project/packages/app
+            flutter build macos --release
+      - run:
+          name: Package macOS Steam app bundle
+          command: |
+            cd ~/project/packages/app
+            APP_PATH=$(find build/macos/Build/Products/Release -maxdepth 1 -name '*.app' -print -quit)
+            if [ -z "$APP_PATH" ]; then
+              echo "No macOS app bundle found." >&2; exit 1
+            fi
+            ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" build/bot_creator-macos-universal-steam.zip
+      - store_artifacts:
+          path: ~/project/packages/app/build/bot_creator-macos-universal-steam.zip
+          destination: bot_creator-macos-universal-steam.zip
+
+  build_windows:
+    executor: windows-ci
+    environment:
+      <<: *env-common
+    steps:
+      - checkout_and_prepare_windows
+      - install_flutter_windows
+      - get_flutter_deps_windows
+      - run:
+          name: Enable Windows desktop
+          command: flutter config --enable-windows-desktop
+      - run:
+          name: Build Windows release
+          shell: bash.exe
+          command: |
+            cd ~/project/packages/app
+            flutter build windows --release
+
+      # ── Steam ZIP (skipped if msix_only) ──
+      - run:
+          name: Package Windows Steam ZIP
+          shell: powershell.exe
+          command: |
+            if ($env:MSIX_ONLY -eq 'true') { exit 0 }
+            cd $env:APP_DIR
+            Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath build\bot_creator-windows-x64-steam.zip -Force
+
+      - store_artifacts:
+          path: ~/project/packages/app/build/bot_creator-windows-x64-steam.zip
+          destination: bot_creator-windows-x64-steam.zip
+
+      # ── MSIX (tagged releases or msix_only parameter) ──
+      - run:
+          name: Set Store-compatible MSIX version
+          shell: powershell.exe
+          command: |
+            if (-not ($env:CIRCLE_TAG -or $env:MSIX_ONLY -eq 'true')) { exit 0 }
+            cd $env:APP_DIR
+            $pubspec = 'pubspec.yaml'
+            $content = Get-Content -Raw $pubspec
+            $versionMatch = [regex]::Match($content, '(?m)^version:\s*([0-9]+)\.([0-9]+)\.([0-9]+)\+[0-9]+\s*$')
+            if (-not $versionMatch.Success) {
+              throw 'Unable to parse app version from pubspec.yaml'
+            }
+            $msixVersion = "$($versionMatch.Groups[1].Value).$($versionMatch.Groups[2].Value).$($versionMatch.Groups[3].Value).0"
+            $updated = [regex]::Replace($content, '(?m)^\s*msix_version:\s*[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\s*$', "  msix_version: $msixVersion")
+            if ($updated -eq $content) {
+              throw 'Unable to update msix_version in pubspec.yaml'
+            }
+            Set-Content -Path $pubspec -Value $updated -NoNewline
+            Write-Host "MSIX version set to $msixVersion"
+
+      - run:
+          name: Create MSIX package
+          shell: bash.exe
+          command: |
+            if [ -z "${CIRCLE_TAG:-}" ] && [ "${MSIX_ONLY:-}" != "true" ]; then exit 0; fi
+            cd ~/project/packages/app
+            dart run msix:create
+
+      - store_artifacts:
+          path: ~/project/packages/app/build/windows/x64/runner/Release
+          destination: windows-release
+          # Le MSIX et l'EXE seront dans ce répertoire
+
+# ── Workflows ─────────────────────────────────────────────────────────────
 workflows:
-  say-hello-workflow: # This is the name of the workflow, feel free to change it to better match your workflow.
-    # Inside the workflow, you define the jobs you want to run.
+  release:
+    when:
+      not: << pipeline.parameters.msix_only >>
     jobs:
-      - say-hello
+      - build_linux:
+          filters:
+            branches:
+              only: main
+            tags:
+              only: /^v.*/
+
+      - build_macos:
+          filters:
+            branches:
+              only: main
+            tags:
+              only: /^v.*/
+
+      - build_windows:
+          filters:
+            branches:
+              only: main
+            tags:
+              only: /^v.*/
+
+  msix_only:
+    when: << pipeline.parameters.msix_only >>
+    jobs:
+      - build_windows
