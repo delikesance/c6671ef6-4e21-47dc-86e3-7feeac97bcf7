@@ -1,0 +1,2705 @@
+{
+  "summary": {
+    "totalOfficialFunctions": 379,
+    "botCreatorSupportedOfficial": 374,
+    "missingCount": 5,
+    "mismatchCount": 171,
+    "matchCount": 203,
+    "extraInBotCreatorCount": 120
+  },
+  "missingInBotCreator": [
+    {
+      "name": "and",
+      "wiki": {
+        "fileName": "and.md",
+        "rawSyntax": "$and[Conditions;...]",
+        "parameters": [
+          "Conditions",
+          "..."
+        ]
+      }
+    },
+    {
+      "name": "channeldfromname",
+      "wiki": {
+        "fileName": "channelIDFromName.md",
+        "rawSyntax": "$channelIDFromName[Channel name]",
+        "parameters": [
+          "Channel name"
+        ]
+      }
+    },
+    {
+      "name": "listvar",
+      "wiki": {
+        "fileName": "listVar.md",
+        "rawSyntax": "$listVar[(Separator)]",
+        "parameters": [
+          "Separator"
+        ]
+      }
+    },
+    {
+      "name": "or",
+      "wiki": {
+        "fileName": "or.md",
+        "rawSyntax": "$or[Conditions;...]",
+        "parameters": [
+          "Conditions",
+          "..."
+        ]
+      }
+    },
+    {
+      "name": "variablescount",
+      "wiki": {
+        "fileName": "variablesCount.md",
+        "rawSyntax": "$variablesCount[Type]",
+        "parameters": [
+          "Type"
+        ]
+      }
+    }
+  ],
+  "signatureMismatches": [
+    {
+      "name": "addcmdreactions",
+      "reason": "Parameter count mismatch: Wiki says 2 (Emojis; ...), Bot Creator says 3 (emoji1; emoji2 (opt); ...)",
+      "wiki": {
+        "fileName": "addCmdReactions.md",
+        "rawSyntax": "$addCmdReactions[Emojis;...]",
+        "parameters": [
+          "Emojis",
+          "..."
+        ]
+      },
+      "botCreator": [
+        "emoji1",
+        "emoji2 (opt)",
+        "..."
+      ]
+    },
+    {
+      "name": "addemoji",
+      "reason": "Parameter count mismatch: Wiki says 3 (Name; Image URL; Return emoji?), Bot Creator says 2 (name; imageURL)",
+      "wiki": {
+        "fileName": "addEmoji.md",
+        "rawSyntax": "$addEmoji[Name;Image URL;Return emoji?]",
+        "parameters": [
+          "Name",
+          "Image URL",
+          "Return emoji?"
+        ]
+      },
+      "botCreator": [
+        "name",
+        "imageURL"
+      ]
+    },
+    {
+      "name": "addfield",
+      "reason": "Parameter count mismatch: Wiki says 4 (Name; Value; Inline?; Index), Bot Creator says 3 (title; value; inline (opt))",
+      "wiki": {
+        "fileName": "addField.md",
+        "rawSyntax": "$addField[Name;Value;(Inline?;Index)]",
+        "parameters": [
+          "Name",
+          "Value",
+          "Inline?",
+          "Index"
+        ]
+      },
+      "botCreator": [
+        "title",
+        "value",
+        "inline (opt)"
+      ]
+    },
+    {
+      "name": "addreactions",
+      "reason": "Parameter count mismatch: Wiki says 2 (Emojis; ...), Bot Creator says 3 (emoji1; emoji2 (opt); ...)",
+      "wiki": {
+        "fileName": "addReactions.md",
+        "rawSyntax": "$addReactions[Emojis;...]",
+        "parameters": [
+          "Emojis",
+          "..."
+        ]
+      },
+      "botCreator": [
+        "emoji1",
+        "emoji2 (opt)",
+        "..."
+      ]
+    },
+    {
+      "name": "afktimeout",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Guild ID]",
+      "wiki": {
+        "fileName": "afkTimeout.md",
+        "rawSyntax": "$afkTimeout[(Guild ID)]",
+        "parameters": [
+          "Guild ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "allowmention",
+      "reason": "Parameter count mismatch: Wiki says 0 (), Bot Creator says 1 (userOrRole)",
+      "wiki": {
+        "fileName": "allowMention.md",
+        "rawSyntax": "$allowMention",
+        "parameters": []
+      },
+      "botCreator": [
+        "userOrRole"
+      ]
+    },
+    {
+      "name": "allowrolementions",
+      "reason": "Parameter count mismatch: Wiki says 2 (Role IDs; ...), Bot Creator says 3 (roleID1; roleID2 (opt); ...)",
+      "wiki": {
+        "fileName": "allowRoleMentions.md",
+        "rawSyntax": "$allowRoleMentions[Role IDs;...]",
+        "parameters": [
+          "Role IDs",
+          "..."
+        ]
+      },
+      "botCreator": [
+        "roleID1",
+        "roleID2 (opt)",
+        "..."
+      ]
+    },
+    {
+      "name": "allowusermentions",
+      "reason": "Parameter count mismatch: Wiki says 2 (User IDs; ...), Bot Creator says 3 (userID1; userID2 (opt); ...)",
+      "wiki": {
+        "fileName": "allowUserMentions.md",
+        "rawSyntax": "$allowUserMentions[User IDs;...]",
+        "parameters": [
+          "User IDs",
+          "..."
+        ]
+      },
+      "botCreator": [
+        "userID1",
+        "userID2 (opt)",
+        "..."
+      ]
+    },
+    {
+      "name": "argcount",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Text]",
+      "wiki": {
+        "fileName": "argCount.md",
+        "rawSyntax": "$argCount[Text]",
+        "parameters": [
+          "Text"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "author",
+      "reason": "Parameter count mismatch: Wiki says 2 (Text; Index), Bot Creator says 3 (text; iconURL (opt); hyperlink (opt))",
+      "wiki": {
+        "fileName": "author.md",
+        "rawSyntax": "$author[Text;(Index)]",
+        "parameters": [
+          "Text",
+          "Index"
+        ]
+      },
+      "botCreator": [
+        "text",
+        "iconURL (opt)",
+        "hyperlink (opt)"
+      ]
+    },
+    {
+      "name": "authoricon",
+      "reason": "Parameter count mismatch: Wiki says 2 (Image URL; Index), Bot Creator says 1 (url)",
+      "wiki": {
+        "fileName": "authorIcon.md",
+        "rawSyntax": "$authorIcon[Image URL;(Index)]",
+        "parameters": [
+          "Image URL",
+          "Index"
+        ]
+      },
+      "botCreator": [
+        "url"
+      ]
+    },
+    {
+      "name": "authorofmessage",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 2 parameters: [Channel ID; Message ID]",
+      "wiki": {
+        "fileName": "authorOfMessage.md",
+        "rawSyntax": "$authorOfMessage[Channel ID;Message ID]",
+        "parameters": [
+          "Channel ID",
+          "Message ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "authorurl",
+      "reason": "Parameter count mismatch: Wiki says 2 (URL; Index), Bot Creator says 1 (url)",
+      "wiki": {
+        "fileName": "authorURL.md",
+        "rawSyntax": "$authorURL[URL;(Index)]",
+        "parameters": [
+          "URL",
+          "Index"
+        ]
+      },
+      "botCreator": [
+        "url"
+      ]
+    },
+    {
+      "name": "ban",
+      "reason": "Parameter count mismatch: Wiki says 1 (Reason), Bot Creator says 2 (userID; reason (opt))",
+      "wiki": {
+        "fileName": "banComplex.md",
+        "rawSyntax": "$ban[Reason]",
+        "parameters": [
+          "Reason"
+        ]
+      },
+      "botCreator": [
+        "userID",
+        "reason (opt)"
+      ]
+    },
+    {
+      "name": "boostcount",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Guild ID]",
+      "wiki": {
+        "fileName": "boostCountComplex.md",
+        "rawSyntax": "$boostCount[Guild ID]",
+        "parameters": [
+          "Guild ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "botcommands",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Separator]",
+      "wiki": {
+        "fileName": "botCommands.md",
+        "rawSyntax": "$botCommands[Separator]",
+        "parameters": [
+          "Separator"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "botleave",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Guild ID]",
+      "wiki": {
+        "fileName": "botLeaveComplex.md",
+        "rawSyntax": "$botLeave[Guild ID]",
+        "parameters": [
+          "Guild ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "botlistdescription",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Text]",
+      "wiki": {
+        "fileName": "botListDescription.md",
+        "rawSyntax": "$botListDescription[Text]",
+        "parameters": [
+          "Text"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "bottyping",
+      "reason": "Parameter count mismatch: Wiki says 0 (), Bot Creator says 1 (duration (opt))",
+      "wiki": {
+        "fileName": "botTyping.md",
+        "rawSyntax": "$botTyping",
+        "parameters": []
+      },
+      "botCreator": [
+        "duration (opt)"
+      ]
+    },
+    {
+      "name": "c",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Comment]",
+      "wiki": {
+        "fileName": "c.md",
+        "rawSyntax": "$c[Comment]",
+        "parameters": [
+          "Comment"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "categorychannels",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 3 parameters: [Category ID; Separator; Option]",
+      "wiki": {
+        "fileName": "categoryChannels.md",
+        "rawSyntax": "$categoryChannels[Category ID;Separator;(Option)]",
+        "parameters": [
+          "Category ID",
+          "Separator",
+          "Option"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "categorycount",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Guild ID]",
+      "wiki": {
+        "fileName": "categoryCountComplex.md",
+        "rawSyntax": "$categoryCount[Guild ID]",
+        "parameters": [
+          "Guild ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "categoryid",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Category name]",
+      "wiki": {
+        "fileName": "categoryID.md",
+        "rawSyntax": "$categoryID[Category name]",
+        "parameters": [
+          "Category name"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "changecooldowntime",
+      "reason": "Parameter count mismatch: Wiki says 4 (Days; Hours; Minutes; Seconds), Bot Creator says 3 (type; commandName; duration)",
+      "wiki": {
+        "fileName": "changeCooldownTime.md",
+        "rawSyntax": "$changeCooldownTime[Days;Hours;Minutes;Seconds]",
+        "parameters": [
+          "Days",
+          "Hours",
+          "Minutes",
+          "Seconds"
+        ]
+      },
+      "botCreator": [
+        "type",
+        "commandName",
+        "duration"
+      ]
+    },
+    {
+      "name": "channelid",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Channel name]",
+      "wiki": {
+        "fileName": "channelIDComplex.md",
+        "rawSyntax": "$channelID[Channel name]",
+        "parameters": [
+          "Channel name"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "channelname",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Channel ID]",
+      "wiki": {
+        "fileName": "channelName.md",
+        "rawSyntax": "$channelName[Channel ID]",
+        "parameters": [
+          "Channel ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "channelnames",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 2 parameters: [Separator; Guild ID]",
+      "wiki": {
+        "fileName": "channelNames.md",
+        "rawSyntax": "$channelNames[Separator;(Guild ID)]",
+        "parameters": [
+          "Separator",
+          "Guild ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "channelposition",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Channel ID]",
+      "wiki": {
+        "fileName": "channelPositionComplex.md",
+        "rawSyntax": "$channelPosition[Channel ID]",
+        "parameters": [
+          "Channel ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "channelsendmessage",
+      "reason": "Parameter count mismatch: Wiki says 2 (Channel ID; Message), Bot Creator says 3 (channelID; message; returnMessageID (opt))",
+      "wiki": {
+        "fileName": "channelSendMessage.md",
+        "rawSyntax": "$channelSendMessage[Channel ID;Message]",
+        "parameters": [
+          "Channel ID",
+          "Message"
+        ]
+      },
+      "botCreator": [
+        "channelID",
+        "message",
+        "returnMessageID (opt)"
+      ]
+    },
+    {
+      "name": "channeltopic",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Channel ID]",
+      "wiki": {
+        "fileName": "channelTopicComplex.md",
+        "rawSyntax": "$channelTopic[Channel ID]",
+        "parameters": [
+          "Channel ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "channeltype",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Channel ID]",
+      "wiki": {
+        "fileName": "channelType.md",
+        "rawSyntax": "$channelType[Channel ID]",
+        "parameters": [
+          "Channel ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "checkcondition",
+      "reason": "Parameter count mismatch: Wiki says 1 (Condition), Bot Creator says 3 (condition; trueValue; falseValue)",
+      "wiki": {
+        "fileName": "checkCondition.md",
+        "rawSyntax": "$checkCondition[Condition]",
+        "parameters": [
+          "Condition"
+        ]
+      },
+      "botCreator": [
+        "condition",
+        "trueValue",
+        "falseValue"
+      ]
+    },
+    {
+      "name": "checkcontains",
+      "reason": "Parameter count mismatch: Wiki says 3 (Text; Phrases; ...), Bot Creator says 4 (text; value1; value2 (opt); ...)",
+      "wiki": {
+        "fileName": "checkContains.md",
+        "rawSyntax": "$checkContains[Text;Phrases;...]",
+        "parameters": [
+          "Text",
+          "Phrases",
+          "..."
+        ]
+      },
+      "botCreator": [
+        "text",
+        "value1",
+        "value2 (opt)",
+        "..."
+      ]
+    },
+    {
+      "name": "clear",
+      "reason": "Parameter count mismatch: Wiki says 3 (Amount; User ID; Remove pinned messages?), Bot Creator says 1 (count)",
+      "wiki": {
+        "fileName": "clearComplex.md",
+        "rawSyntax": "$clear[Amount;(User ID;Remove pinned messages?)]",
+        "parameters": [
+          "Amount",
+          "User ID",
+          "Remove pinned messages?"
+        ]
+      },
+      "botCreator": [
+        "count"
+      ]
+    },
+    {
+      "name": "clearreactions",
+      "reason": "Parameter count mismatch: Wiki says 3 (Channel ID; Message ID; Emoji), Bot Creator says 2 (messageID (opt); emoji (opt))",
+      "wiki": {
+        "fileName": "clearReactions.md",
+        "rawSyntax": "$clearReactions[Channel ID;Message ID;Emoji]",
+        "parameters": [
+          "Channel ID",
+          "Message ID",
+          "Emoji"
+        ]
+      },
+      "botCreator": [
+        "messageID (opt)",
+        "emoji (opt)"
+      ]
+    },
+    {
+      "name": "closeticket",
+      "reason": "Parameter count mismatch: Wiki says 1 (Error message), Bot Creator says 0 ()",
+      "wiki": {
+        "fileName": "closeTicket.md",
+        "rawSyntax": "$closeTicket[Error message]",
+        "parameters": [
+          "Error message"
+        ]
+      },
+      "botCreator": []
+    },
+    {
+      "name": "color",
+      "reason": "Parameter count mismatch: Wiki says 2 (Color hex; Index), Bot Creator says 1 (hexColor)",
+      "wiki": {
+        "fileName": "color.md",
+        "rawSyntax": "$color[Color hex;(Index)]",
+        "parameters": [
+          "Color hex",
+          "Index"
+        ]
+      },
+      "botCreator": [
+        "hexColor"
+      ]
+    },
+    {
+      "name": "colorrole",
+      "reason": "Parameter count mismatch: Wiki says 1 (Color hex), Bot Creator says 2 (roleID; hexColor)",
+      "wiki": {
+        "fileName": "colorRole.md",
+        "rawSyntax": "$colorRole[Color hex]",
+        "parameters": [
+          "Color hex"
+        ]
+      },
+      "botCreator": [
+        "roleID",
+        "hexColor"
+      ]
+    },
+    {
+      "name": "createrole",
+      "reason": "Parameter count mismatch: Wiki says 4 (Role name; Color hex; Display role?; Mentionable?), Bot Creator says 5 (name; color (opt); hoisted (opt); mentionable (opt); position (opt))",
+      "wiki": {
+        "fileName": "createRole.md",
+        "rawSyntax": "$createRole[Role name;Color hex;(Display role?;Mentionable?)]",
+        "parameters": [
+          "Role name",
+          "Color hex",
+          "Display role?",
+          "Mentionable?"
+        ]
+      },
+      "botCreator": [
+        "name",
+        "color (opt)",
+        "hoisted (opt)",
+        "mentionable (opt)",
+        "position (opt)"
+      ]
+    },
+    {
+      "name": "date",
+      "reason": "Parameter count mismatch: Wiki says 0 (), Bot Creator says 2 (format (opt); timezone (opt))",
+      "wiki": {
+        "fileName": "date.md",
+        "rawSyntax": "$date",
+        "parameters": []
+      },
+      "botCreator": [
+        "format (opt)",
+        "timezone (opt)"
+      ]
+    },
+    {
+      "name": "defer",
+      "reason": "Parameter count mismatch: Wiki says 0 (), Bot Creator says 1 (ephemeral (opt))",
+      "wiki": {
+        "fileName": "defer.md",
+        "rawSyntax": "$defer",
+        "parameters": []
+      },
+      "botCreator": [
+        "ephemeral (opt)"
+      ]
+    },
+    {
+      "name": "deletechannels",
+      "reason": "Parameter count mismatch: Wiki says 2 (Channel IDs; ...), Bot Creator says 3 (channelID1; channelID2 (opt); ...)",
+      "wiki": {
+        "fileName": "deleteChannels.md",
+        "rawSyntax": "$deleteChannels[Channel IDs;...]",
+        "parameters": [
+          "Channel IDs",
+          "..."
+        ]
+      },
+      "botCreator": [
+        "channelID1",
+        "channelID2 (opt)",
+        "..."
+      ]
+    },
+    {
+      "name": "deletechannelsbyname",
+      "reason": "Parameter count mismatch: Wiki says 2 (Channel name; ...), Bot Creator says 1 (name)",
+      "wiki": {
+        "fileName": "deleteChannelsByName.md",
+        "rawSyntax": "$deleteChannelsByName[Channel name;...]",
+        "parameters": [
+          "Channel name",
+          "..."
+        ]
+      },
+      "botCreator": [
+        "name"
+      ]
+    },
+    {
+      "name": "deletemessage",
+      "reason": "Parameter count mismatch: Wiki says 2 (Channel ID; Message ID), Bot Creator says 1 (messageID)",
+      "wiki": {
+        "fileName": "deleteMessage.md",
+        "rawSyntax": "$deleteMessage[Channel ID;Message ID]",
+        "parameters": [
+          "Channel ID",
+          "Message ID"
+        ]
+      },
+      "botCreator": [
+        "messageID"
+      ]
+    },
+    {
+      "name": "description",
+      "reason": "Parameter count mismatch: Wiki says 2 (Message; Index), Bot Creator says 1 (text)",
+      "wiki": {
+        "fileName": "description.md",
+        "rawSyntax": "$description[Message;(Index)]",
+        "parameters": [
+          "Message",
+          "Index"
+        ]
+      },
+      "botCreator": [
+        "text"
+      ]
+    },
+    {
+      "name": "discriminator",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [User ID]",
+      "wiki": {
+        "fileName": "discriminator.md",
+        "rawSyntax": "$discriminator[User ID]",
+        "parameters": [
+          "User ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "dmchannelid",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [User ID]",
+      "wiki": {
+        "fileName": "dmChannelID.md",
+        "rawSyntax": "$dmChannelID[User ID]",
+        "parameters": [
+          "User ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "editchannelperms",
+      "reason": "Parameter count mismatch: Wiki says 4 (Channel ID; User/Role ID; Permission; ...), Bot Creator says 3 (channelID; permissions; roleOrUserID)",
+      "wiki": {
+        "fileName": "editChannelPerms.md",
+        "rawSyntax": "$editChannelPerms[Channel ID;User/Role ID;Permission;...]",
+        "parameters": [
+          "Channel ID",
+          "User/Role ID",
+          "Permission",
+          "..."
+        ]
+      },
+      "botCreator": [
+        "channelID",
+        "permissions",
+        "roleOrUserID"
+      ]
+    },
+    {
+      "name": "editembedin",
+      "reason": "Parameter count mismatch: Wiki says 5 (Time; Title; Description; Footer; Color hex), Bot Creator says 3 (channelID; messageID; content)",
+      "wiki": {
+        "fileName": "editEmbedIn.md",
+        "rawSyntax": "$editEmbedIn[Time;(Title;Description;Footer;Color hex)]",
+        "parameters": [
+          "Time",
+          "Title",
+          "Description",
+          "Footer",
+          "Color hex"
+        ]
+      },
+      "botCreator": [
+        "channelID",
+        "messageID",
+        "content"
+      ]
+    },
+    {
+      "name": "editin",
+      "reason": "Parameter count mismatch: Wiki says 2 (Time; New message), Bot Creator says 3 (channelID; messageID; content)",
+      "wiki": {
+        "fileName": "editIn.md",
+        "rawSyntax": "$editIn[Time;New message]",
+        "parameters": [
+          "Time",
+          "New message"
+        ]
+      },
+      "botCreator": [
+        "channelID",
+        "messageID",
+        "content"
+      ]
+    },
+    {
+      "name": "editmessage",
+      "reason": "Parameter count mismatch: Wiki says 7 (Channel ID; Message ID; Content; Title; Description; Color hex; Footer), Bot Creator says 2 (messageID; content)",
+      "wiki": {
+        "fileName": "editMessage.md",
+        "rawSyntax": "$editMessage[Channel ID;Message ID;Content;(Title;Description;Color hex;Footer)]",
+        "parameters": [
+          "Channel ID",
+          "Message ID",
+          "Content",
+          "Title",
+          "Description",
+          "Color hex",
+          "Footer"
+        ]
+      },
+      "botCreator": [
+        "messageID",
+        "content"
+      ]
+    },
+    {
+      "name": "editthread",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 6 parameters: [Thread ID; Name; Archived; Archive duration; Locked; Slowmode]",
+      "wiki": {
+        "fileName": "editThread.md",
+        "rawSyntax": "$editThread[Thread ID;(Name;Archived;Archive duration;Locked;Slowmode)]",
+        "parameters": [
+          "Thread ID",
+          "Name",
+          "Archived",
+          "Archive duration",
+          "Locked",
+          "Slowmode"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "embeddedurl",
+      "reason": "Parameter count mismatch: Wiki says 2 (Link; Index), Bot Creator says 1 (url)",
+      "wiki": {
+        "fileName": "embeddedURL.md",
+        "rawSyntax": "$embeddedURL[Link;(Index)]",
+        "parameters": [
+          "Link",
+          "Index"
+        ]
+      },
+      "botCreator": [
+        "url"
+      ]
+    },
+    {
+      "name": "embedsuppresserrors",
+      "reason": "Parameter count mismatch: Wiki says 6 (Title; Description; Color hex; Author; Footer; Footer icon), Bot Creator says 1 (message (opt))",
+      "wiki": {
+        "fileName": "embedSuppressErrors.md",
+        "rawSyntax": "$embedSuppressErrors[Title;Description;(Color hex;Author;Footer;Footer icon)]",
+        "parameters": [
+          "Title",
+          "Description",
+          "Color hex",
+          "Author",
+          "Footer",
+          "Footer icon"
+        ]
+      },
+      "botCreator": [
+        "message (opt)"
+      ]
+    },
+    {
+      "name": "emotecount",
+      "reason": "Parameter count mismatch: Wiki says 0 (), Bot Creator says 1 (guildID (opt))",
+      "wiki": {
+        "fileName": "emoteCount.md",
+        "rawSyntax": "$emoteCount",
+        "parameters": []
+      },
+      "botCreator": [
+        "guildID (opt)"
+      ]
+    },
+    {
+      "name": "enabled",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 2 parameters: [Enabled; Error message]",
+      "wiki": {
+        "fileName": "enabled.md",
+        "rawSyntax": "$enabled[Enabled;Error message]",
+        "parameters": [
+          "Enabled",
+          "Error message"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "enabledecimals",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Enable?]",
+      "wiki": {
+        "fileName": "enableDecimals.md",
+        "rawSyntax": "$enableDecimals[Enable?]",
+        "parameters": [
+          "Enable?"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "error",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Type]",
+      "wiki": {
+        "fileName": "error.md",
+        "rawSyntax": "$error[Type]",
+        "parameters": [
+          "Type"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "finduser",
+      "reason": "Parameter count mismatch: Wiki says 2 (User; Return author ID?), Bot Creator says 1 (nameOrID)",
+      "wiki": {
+        "fileName": "findUser.md",
+        "rawSyntax": "$findUser[User;(Return author ID?)]",
+        "parameters": [
+          "User",
+          "Return author ID?"
+        ]
+      },
+      "botCreator": [
+        "nameOrID"
+      ]
+    },
+    {
+      "name": "footericon",
+      "reason": "Parameter count mismatch: Wiki says 2 (Icon URL; Index), Bot Creator says 1 (url)",
+      "wiki": {
+        "fileName": "footerIcon.md",
+        "rawSyntax": "$footerIcon[Icon URL;(Index)]",
+        "parameters": [
+          "Icon URL",
+          "Index"
+        ]
+      },
+      "botCreator": [
+        "url"
+      ]
+    },
+    {
+      "name": "getbanreason",
+      "reason": "Parameter count mismatch: Wiki says 2 (User ID; Guild ID), Bot Creator says 1 (userID)",
+      "wiki": {
+        "fileName": "getBanReason.md",
+        "rawSyntax": "$getBanReason[User ID;(Guild ID)]",
+        "parameters": [
+          "User ID",
+          "Guild ID"
+        ]
+      },
+      "botCreator": [
+        "userID"
+      ]
+    },
+    {
+      "name": "getcooldown",
+      "reason": "Parameter count mismatch: Wiki says 1 (Cooldown type), Bot Creator says 2 (type; commandName)",
+      "wiki": {
+        "fileName": "getCooldown.md",
+        "rawSyntax": "$getCooldown[Cooldown type]",
+        "parameters": [
+          "Cooldown type"
+        ]
+      },
+      "botCreator": [
+        "type",
+        "commandName"
+      ]
+    },
+    {
+      "name": "getcustomstatus",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [User ID]",
+      "wiki": {
+        "fileName": "getCustomStatus.md",
+        "rawSyntax": "$getCustomStatus[User ID]",
+        "parameters": [
+          "User ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "getembeddata",
+      "reason": "Parameter count mismatch: Wiki says 4 (Channel ID; Message ID; Embed index; Embed property title/description/footer/color/image/timestamp), Bot Creator says 2 (messageID; field)",
+      "wiki": {
+        "fileName": "getEmbedData.md",
+        "rawSyntax": "$getEmbedData[Channel ID;Message ID;Embed index;Embed property (title/description/footer/color/image/timestamp)]",
+        "parameters": [
+          "Channel ID",
+          "Message ID",
+          "Embed index",
+          "Embed property title/description/footer/color/image/timestamp"
+        ]
+      },
+      "botCreator": [
+        "messageID",
+        "field"
+      ]
+    },
+    {
+      "name": "getleaderboardposition",
+      "reason": "Parameter count mismatch: Wiki says 4 (Variable type; Variable name; Sort type; User ID), Bot Creator says 3 (varName; userID (opt); type (opt))",
+      "wiki": {
+        "fileName": "getLeaderboardPosition.md",
+        "rawSyntax": "$getLeaderboardPosition[Variable type;Variable name;Sort type;(User ID)]",
+        "parameters": [
+          "Variable type",
+          "Variable name",
+          "Sort type",
+          "User ID"
+        ]
+      },
+      "botCreator": [
+        "varName",
+        "userID (opt)",
+        "type (opt)"
+      ]
+    },
+    {
+      "name": "getleaderboardvalue",
+      "reason": "Parameter count mismatch: Wiki says 5 (Variable type; Variable name; Sort type; Position; Return type), Bot Creator says 3 (varName; position; type (opt))",
+      "wiki": {
+        "fileName": "getLeaderboardValue.md",
+        "rawSyntax": "$getLeaderboardValue[Variable type;Variable name;Sort type;Position;(Return type)]",
+        "parameters": [
+          "Variable type",
+          "Variable name",
+          "Sort type",
+          "Position",
+          "Return type"
+        ]
+      },
+      "botCreator": [
+        "varName",
+        "position",
+        "type (opt)"
+      ]
+    },
+    {
+      "name": "getmessage",
+      "reason": "Parameter count mismatch: Wiki says 3 (Channel ID; Message ID; Property), Bot Creator says 2 (channelID; messageID)",
+      "wiki": {
+        "fileName": "getMessage.md",
+        "rawSyntax": "$getMessage[Channel ID;Message ID;(Property)]",
+        "parameters": [
+          "Channel ID",
+          "Message ID",
+          "Property"
+        ]
+      },
+      "botCreator": [
+        "channelID",
+        "messageID"
+      ]
+    },
+    {
+      "name": "getreactions",
+      "reason": "Parameter count mismatch: Wiki says 4 (Channel ID; Message ID; Separator; Emoji), Bot Creator says 3 (channelID; messageID; emoji)",
+      "wiki": {
+        "fileName": "getReactions.md",
+        "rawSyntax": "$getReactions[Channel ID;Message ID;Separator;Emoji]",
+        "parameters": [
+          "Channel ID",
+          "Message ID",
+          "Separator",
+          "Emoji"
+        ]
+      },
+      "botCreator": [
+        "channelID",
+        "messageID",
+        "emoji"
+      ]
+    },
+    {
+      "name": "getslowmode",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Channel ID]",
+      "wiki": {
+        "fileName": "getSlowmode.md",
+        "rawSyntax": "$getSlowmode[(Channel ID)]",
+        "parameters": [
+          "Channel ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "gettimestamp",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Time unit]",
+      "wiki": {
+        "fileName": "getTimestampComplex.md",
+        "rawSyntax": "$getTimestamp[Time unit]",
+        "parameters": [
+          "Time unit"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "getuserstatus",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [User ID]",
+      "wiki": {
+        "fileName": "getUserStatus.md",
+        "rawSyntax": "$getUserStatus[User ID]",
+        "parameters": [
+          "User ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "getuservar",
+      "reason": "Parameter count mismatch: Wiki says 3 (Variable name; User ID; Guild ID), Bot Creator says 2 (name; userID (opt))",
+      "wiki": {
+        "fileName": "getUserVar.md",
+        "rawSyntax": "$getUserVar[Variable name;(User ID;Guild ID)]",
+        "parameters": [
+          "Variable name",
+          "User ID",
+          "Guild ID"
+        ]
+      },
+      "botCreator": [
+        "name",
+        "userID (opt)"
+      ]
+    },
+    {
+      "name": "getvar",
+      "reason": "Parameter count mismatch: Wiki says 2 (Variable name; User ID), Bot Creator says 1 (name)",
+      "wiki": {
+        "fileName": "getVar.md",
+        "rawSyntax": "$getVar[Variable name;(User ID)]",
+        "parameters": [
+          "Variable name",
+          "User ID"
+        ]
+      },
+      "botCreator": [
+        "name"
+      ]
+    },
+    {
+      "name": "globaluserleaderboard",
+      "reason": "Parameter count mismatch: Wiki says 2 (Variable name; Sort type asc/desc), Bot Creator says 4 (varName; type (opt); page (opt); separator (opt))",
+      "wiki": {
+        "fileName": "globalUserLeaderboard.md",
+        "rawSyntax": "$globalUserLeaderboard[Variable name;Sort type (asc/desc)]",
+        "parameters": [
+          "Variable name",
+          "Sort type asc/desc"
+        ]
+      },
+      "botCreator": [
+        "varName",
+        "type (opt)",
+        "page (opt)",
+        "separator (opt)"
+      ]
+    },
+    {
+      "name": "guildbanner",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Guild ID]",
+      "wiki": {
+        "fileName": "guildBanner.md",
+        "rawSyntax": "$guildBanner[(Guild ID)]",
+        "parameters": [
+          "Guild ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "guildid",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Server name]",
+      "wiki": {
+        "fileName": "guildIDComplex.md",
+        "rawSyntax": "$guildID[Server name]",
+        "parameters": [
+          "Server name"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "hasrole",
+      "reason": "Parameter count mismatch: Wiki says 2 (User ID; Role ID), Bot Creator says 1 (roleID)",
+      "wiki": {
+        "fileName": "hasRole.md",
+        "rawSyntax": "$hasRole[User ID;Role ID]",
+        "parameters": [
+          "User ID",
+          "Role ID"
+        ]
+      },
+      "botCreator": [
+        "roleID"
+      ]
+    },
+    {
+      "name": "highestrole",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [User ID]",
+      "wiki": {
+        "fileName": "highestRoleComplex.md",
+        "rawSyntax": "$highestRole[User ID]",
+        "parameters": [
+          "User ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "highestrolewithperms",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Permissions]",
+      "wiki": {
+        "fileName": "highestRoleWithPerms.md",
+        "rawSyntax": "$highestRoleWithPerms[Permissions]",
+        "parameters": [
+          "Permissions"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "hypesquad",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [User ID]",
+      "wiki": {
+        "fileName": "hypesquad.md",
+        "rawSyntax": "$hypesquad[User ID]",
+        "parameters": [
+          "User ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "image",
+      "reason": "Parameter count mismatch: Wiki says 2 (Image URL; Index), Bot Creator says 1 (url)",
+      "wiki": {
+        "fileName": "image.md",
+        "rawSyntax": "$image[Image URL;(Index)]",
+        "parameters": [
+          "Image URL",
+          "Index"
+        ]
+      },
+      "botCreator": [
+        "url"
+      ]
+    },
+    {
+      "name": "isadmin",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [User ID]",
+      "wiki": {
+        "fileName": "isAdmin.md",
+        "rawSyntax": "$isAdmin[User ID]",
+        "parameters": [
+          "User ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "isbooster",
+      "reason": "Parameter count mismatch: Wiki says 2 (User ID; Guild ID), Bot Creator says 1 (userID (opt))",
+      "wiki": {
+        "fileName": "isBooster.md",
+        "rawSyntax": "$isBooster[(User ID;Guild ID)]",
+        "parameters": [
+          "User ID",
+          "Guild ID"
+        ]
+      },
+      "botCreator": [
+        "userID (opt)"
+      ]
+    },
+    {
+      "name": "isticket",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Channel ID]",
+      "wiki": {
+        "fileName": "isTicket.md",
+        "rawSyntax": "$isTicket[(Channel ID)]",
+        "parameters": [
+          "Channel ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "isuserdmenabled",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [User ID]",
+      "wiki": {
+        "fileName": "isUserDMEnabled.md",
+        "rawSyntax": "$isUserDMEnabled[User ID]",
+        "parameters": [
+          "User ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "lowestrole",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [User ID]",
+      "wiki": {
+        "fileName": "lowestRoleComplex.md",
+        "rawSyntax": "$lowestRole[User ID]",
+        "parameters": [
+          "User ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "lowestrolewithperms",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 2 parameters: [Permissions; ...]",
+      "wiki": {
+        "fileName": "lowestRoleWithPerms.md",
+        "rawSyntax": "$lowestRoleWithPerms[Permissions;...]",
+        "parameters": [
+          "Permissions",
+          "..."
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "max",
+      "reason": "Parameter count mismatch: Wiki says 3 (A; B; ...), Bot Creator says 2 (num1; num2)",
+      "wiki": {
+        "fileName": "max.md",
+        "rawSyntax": "$max[A;B;...]",
+        "parameters": [
+          "A",
+          "B",
+          "..."
+        ]
+      },
+      "botCreator": [
+        "num1",
+        "num2"
+      ]
+    },
+    {
+      "name": "memberscount",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Presence]",
+      "wiki": {
+        "fileName": "membersCountComplex.md",
+        "rawSyntax": "$membersCount[Presence]",
+        "parameters": [
+          "Presence"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "mentionedchannels",
+      "reason": "Parameter count mismatch: Wiki says 2 (Mention number; Return current?), Bot Creator says 1 (index)",
+      "wiki": {
+        "fileName": "mentionedChannels.md",
+        "rawSyntax": "$mentionedChannels[Mention number;(Return current?)]",
+        "parameters": [
+          "Mention number",
+          "Return current?"
+        ]
+      },
+      "botCreator": [
+        "index"
+      ]
+    },
+    {
+      "name": "mentionedroles",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Mention number]",
+      "wiki": {
+        "fileName": "mentionedRoles.md",
+        "rawSyntax": "$mentionedRoles[Mention number]",
+        "parameters": [
+          "Mention number"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "message",
+      "reason": "Parameter count mismatch: Wiki says 2 (Argument number; Argument name), Bot Creator says 1 (index (opt))",
+      "wiki": {
+        "fileName": "messageComplex.md",
+        "rawSyntax": "$message[Argument number;(Argument name)]",
+        "parameters": [
+          "Argument number",
+          "Argument name"
+        ]
+      },
+      "botCreator": [
+        "index (opt)"
+      ]
+    },
+    {
+      "name": "messageeditedtimestamp",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 2 parameters: [Channel ID; Message ID]",
+      "wiki": {
+        "fileName": "messageEditedTimestamp.md",
+        "rawSyntax": "$messageEditedTimestamp[Channel ID;Message ID]",
+        "parameters": [
+          "Channel ID",
+          "Message ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "min",
+      "reason": "Parameter count mismatch: Wiki says 3 (A; B; ...), Bot Creator says 2 (num1; num2)",
+      "wiki": {
+        "fileName": "min.md",
+        "rawSyntax": "$min[A;B;...]",
+        "parameters": [
+          "A",
+          "B",
+          "..."
+        ]
+      },
+      "botCreator": [
+        "num1",
+        "num2"
+      ]
+    },
+    {
+      "name": "modifychannelperms",
+      "reason": "Parameter count mismatch: Wiki says 3 (Channel ID; Permissions; User/Role ID), Bot Creator says 4 (channelID; allow; deny; roleOrUserID)",
+      "wiki": {
+        "fileName": "modifyChannelPerms.md",
+        "rawSyntax": "$modifyChannelPerms[Channel ID;Permissions;User/Role ID]",
+        "parameters": [
+          "Channel ID",
+          "Permissions",
+          "User/Role ID"
+        ]
+      },
+      "botCreator": [
+        "channelID",
+        "allow",
+        "deny",
+        "roleOrUserID"
+      ]
+    },
+    {
+      "name": "modifyrole",
+      "reason": "Parameter count mismatch: Wiki says 5 (Role ID; Role name; Color hex; Hoisted?; Mentionable?), Bot Creator says 6 (roleID; name (opt); color (opt); hoisted (opt); mentionable (opt); position (opt))",
+      "wiki": {
+        "fileName": "modifyRole.md",
+        "rawSyntax": "$modifyRole[Role ID;(Role name;Color hex;Hoisted?;Mentionable?)]",
+        "parameters": [
+          "Role ID",
+          "Role name",
+          "Color hex",
+          "Hoisted?",
+          "Mentionable?"
+        ]
+      },
+      "botCreator": [
+        "roleID",
+        "name (opt)",
+        "color (opt)",
+        "hoisted (opt)",
+        "mentionable (opt)",
+        "position (opt)"
+      ]
+    },
+    {
+      "name": "modifyroleperms",
+      "reason": "Parameter count mismatch: Wiki says 3 (Role ID; Permissions; ...), Bot Creator says 2 (roleID; permissions)",
+      "wiki": {
+        "fileName": "modifyRolePerms.md",
+        "rawSyntax": "$modifyRolePerms[Role ID;Permissions;...]",
+        "parameters": [
+          "Role ID",
+          "Permissions",
+          "..."
+        ]
+      },
+      "botCreator": [
+        "roleID",
+        "permissions"
+      ]
+    },
+    {
+      "name": "mute",
+      "reason": "Parameter count mismatch: Wiki says 1 (Muted Role Name), Bot Creator says 3 (userID; duration; reason (opt))",
+      "wiki": {
+        "fileName": "mute.md",
+        "rawSyntax": "$mute[Muted Role Name]",
+        "parameters": [
+          "Muted Role Name"
+        ]
+      },
+      "botCreator": [
+        "userID",
+        "duration",
+        "reason (opt)"
+      ]
+    },
+    {
+      "name": "newticket",
+      "reason": "Parameter count mismatch: Wiki says 7 (Category ID/Name; No question message; In ticket message; Message to user; Error message; Ticket number; Return ID of the ticket message?), Bot Creator says 2 (subject (opt); channelName (opt))",
+      "wiki": {
+        "fileName": "newTicket.md",
+        "rawSyntax": "$newTicket[Category ID/Name;No question message;In ticket message;Message to user;Error message;(Ticket number;Return ID of the ticket message?)]",
+        "parameters": [
+          "Category ID/Name",
+          "No question message",
+          "In ticket message",
+          "Message to user",
+          "Error message",
+          "Ticket number",
+          "Return ID of the ticket message?"
+        ]
+      },
+      "botCreator": [
+        "subject (opt)",
+        "channelName (opt)"
+      ]
+    },
+    {
+      "name": "nickname",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [User ID]",
+      "wiki": {
+        "fileName": "nicknameComplex.md",
+        "rawSyntax": "$nickname[User ID]",
+        "parameters": [
+          "User ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "nodeversion",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Node Number]",
+      "wiki": {
+        "fileName": "nodeVersionComplex.md",
+        "rawSyntax": "$nodeVersion[Node Number]",
+        "parameters": [
+          "Node Number"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "nomentionmessage",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Argument number]",
+      "wiki": {
+        "fileName": "noMentionMessageComplex.md",
+        "rawSyntax": "$noMentionMessage[Argument number]",
+        "parameters": [
+          "Argument number"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "onlybotchannelperms",
+      "reason": "Parameter count mismatch: Wiki says 4 (Channel ID; Permissions; ...; Error message), Bot Creator says 2 (permission; errorMessage (opt))",
+      "wiki": {
+        "fileName": "onlyBotChannelPerms.md",
+        "rawSyntax": "$onlyBotChannelPerms[Channel ID;Permissions;...;Error message]",
+        "parameters": [
+          "Channel ID",
+          "Permissions",
+          "...",
+          "Error message"
+        ]
+      },
+      "botCreator": [
+        "permission",
+        "errorMessage (opt)"
+      ]
+    },
+    {
+      "name": "onlybotperms",
+      "reason": "Parameter count mismatch: Wiki says 3 (Permissions; ...; Error message), Bot Creator says 2 (permission; errorMessage (opt))",
+      "wiki": {
+        "fileName": "onlyBotPerms.md",
+        "rawSyntax": "$onlyBotPerms[Permissions;...;Error message]",
+        "parameters": [
+          "Permissions",
+          "...",
+          "Error message"
+        ]
+      },
+      "botCreator": [
+        "permission",
+        "errorMessage (opt)"
+      ]
+    },
+    {
+      "name": "onlyif",
+      "reason": "Parameter count mismatch: Wiki says 2 (Condition; Error message), Bot Creator says 4 (value1; operator; value2; errorMessage (opt))",
+      "wiki": {
+        "fileName": "onlyIf.md",
+        "rawSyntax": "$onlyIf[Condition;Error message]",
+        "parameters": [
+          "Condition",
+          "Error message"
+        ]
+      },
+      "botCreator": [
+        "value1",
+        "operator",
+        "value2",
+        "errorMessage (opt)"
+      ]
+    },
+    {
+      "name": "onlyifmessagecontains",
+      "reason": "Parameter count mismatch: Wiki says 4 (Message; Word; ...; Error message), Bot Creator says 2 (substring; errorMessage (opt))",
+      "wiki": {
+        "fileName": "onlyIfMessageContains.md",
+        "rawSyntax": "$onlyIfMessageContains[Message;Word;...;Error message]",
+        "parameters": [
+          "Message",
+          "Word",
+          "...",
+          "Error message"
+        ]
+      },
+      "botCreator": [
+        "substring",
+        "errorMessage (opt)"
+      ]
+    },
+    {
+      "name": "onlyperms",
+      "reason": "Parameter count mismatch: Wiki says 3 (Permissions; ...; Error message), Bot Creator says 2 (permission; errorMessage (opt))",
+      "wiki": {
+        "fileName": "onlyPerms.md",
+        "rawSyntax": "$onlyPerms[Permissions;...;Error message]",
+        "parameters": [
+          "Permissions",
+          "...",
+          "Error message"
+        ]
+      },
+      "botCreator": [
+        "permission",
+        "errorMessage (opt)"
+      ]
+    },
+    {
+      "name": "optoff",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Functions to be executed]",
+      "wiki": {
+        "fileName": "optOff.md",
+        "rawSyntax": "$optOff[Functions to be executed]",
+        "parameters": [
+          "Functions to be executed"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "parentid",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Channel ID]",
+      "wiki": {
+        "fileName": "parentIDComplex.md",
+        "rawSyntax": "$parentID[Channel ID]",
+        "parameters": [
+          "Channel ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "pinmessage",
+      "reason": "Parameter count mismatch: Wiki says 2 (Channel ID; Message ID), Bot Creator says 1 (messageID (opt))",
+      "wiki": {
+        "fileName": "pinMessageComplex.md",
+        "rawSyntax": "$pinMessage[Channel ID;Message ID]",
+        "parameters": [
+          "Channel ID",
+          "Message ID"
+        ]
+      },
+      "botCreator": [
+        "messageID (opt)"
+      ]
+    },
+    {
+      "name": "premiumexpiretime",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Return unix timestamp?]",
+      "wiki": {
+        "fileName": "premiumExpireTime.md",
+        "rawSyntax": "$premiumExpireTime[(Return unix timestamp?)]",
+        "parameters": [
+          "Return unix timestamp?"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "publishmessage",
+      "reason": "Parameter count mismatch: Wiki says 2 (channel ID; message ID), Bot Creator says 1 (messageID (opt))",
+      "wiki": {
+        "fileName": "publishMessage.md",
+        "rawSyntax": "$publishMessage[channel ID;message ID]",
+        "parameters": [
+          "channel ID",
+          "message ID"
+        ]
+      },
+      "botCreator": [
+        "messageID (opt)"
+      ]
+    },
+    {
+      "name": "randomcategoryid",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Guild ID]",
+      "wiki": {
+        "fileName": "randomCategoryID.md",
+        "rawSyntax": "$randomCategoryID[(Guild ID)]",
+        "parameters": [
+          "Guild ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "randomroleid",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Guild ID]",
+      "wiki": {
+        "fileName": "randomRoleID.md",
+        "rawSyntax": "$randomRoleID[(Guild ID)]",
+        "parameters": [
+          "Guild ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "randomtext",
+      "reason": "Parameter count mismatch: Wiki says 2 (Text; ...), Bot Creator says 3 (option1; option2; ...)",
+      "wiki": {
+        "fileName": "randomText.md",
+        "rawSyntax": "$randomText[Text;...]",
+        "parameters": [
+          "Text",
+          "..."
+        ]
+      },
+      "botCreator": [
+        "option1",
+        "option2",
+        "..."
+      ]
+    },
+    {
+      "name": "registerguildcommands",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 2 parameters: [Slash command name; ...]",
+      "wiki": {
+        "fileName": "registerGuildCommandsComplex.md",
+        "rawSyntax": "$registerGuildCommands[Slash command name;...]",
+        "parameters": [
+          "Slash command name",
+          "..."
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "removeallcomponents",
+      "reason": "Parameter count mismatch: Wiki says 1 (Message ID), Bot Creator says 0 ()",
+      "wiki": {
+        "fileName": "removeAllComponentsComplex.md",
+        "rawSyntax": "$removeAllComponents[Message ID]",
+        "parameters": [
+          "Message ID"
+        ]
+      },
+      "botCreator": []
+    },
+    {
+      "name": "removebuttons",
+      "reason": "Parameter count mismatch: Wiki says 1 (Message ID), Bot Creator says 0 ()",
+      "wiki": {
+        "fileName": "removeButtonsComplex.md",
+        "rawSyntax": "$removeButtons[Message ID]",
+        "parameters": [
+          "Message ID"
+        ]
+      },
+      "botCreator": []
+    },
+    {
+      "name": "removecomponent",
+      "reason": "Parameter count mismatch: Wiki says 2 (Custom ID; Message ID), Bot Creator says 1 (id)",
+      "wiki": {
+        "fileName": "removeComponent.md",
+        "rawSyntax": "$removeComponent[Custom ID;(Message ID)]",
+        "parameters": [
+          "Custom ID",
+          "Message ID"
+        ]
+      },
+      "botCreator": [
+        "id"
+      ]
+    },
+    {
+      "name": "removecontains",
+      "reason": "Parameter count mismatch: Wiki says 3 (Word; ...; Amount), Bot Creator says 2 (text; substring)",
+      "wiki": {
+        "fileName": "removeContains.md",
+        "rawSyntax": "$removeContains[Word;...;Amount]",
+        "parameters": [
+          "Word",
+          "...",
+          "Amount"
+        ]
+      },
+      "botCreator": [
+        "text",
+        "substring"
+      ]
+    },
+    {
+      "name": "replacetext",
+      "reason": "Parameter count mismatch: Wiki says 4 (Text; Sample; New; Amount), Bot Creator says 3 (text; search; replacement)",
+      "wiki": {
+        "fileName": "replaceText.md",
+        "rawSyntax": "$replaceText[Text;Sample;New;(Amount)]",
+        "parameters": [
+          "Text",
+          "Sample",
+          "New",
+          "Amount"
+        ]
+      },
+      "botCreator": [
+        "text",
+        "search",
+        "replacement"
+      ]
+    },
+    {
+      "name": "repliedmessageid",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 2 parameters: [Channel ID; Message ID]",
+      "wiki": {
+        "fileName": "repliedMessageIDComplex.md",
+        "rawSyntax": "$repliedMessageID[Channel ID;Message ID]",
+        "parameters": [
+          "Channel ID",
+          "Message ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "resetchannelvar",
+      "reason": "Parameter count mismatch: Wiki says 1 (Variable name), Bot Creator says 2 (name; channelID (opt))",
+      "wiki": {
+        "fileName": "resetChannelVar.md",
+        "rawSyntax": "$resetChannelVar[Variable name]",
+        "parameters": [
+          "Variable name"
+        ]
+      },
+      "botCreator": [
+        "name",
+        "channelID (opt)"
+      ]
+    },
+    {
+      "name": "resetservervar",
+      "reason": "Parameter count mismatch: Wiki says 1 (Variable name), Bot Creator says 2 (name; serverID (opt))",
+      "wiki": {
+        "fileName": "resetServerVar.md",
+        "rawSyntax": "$resetServerVar[Variable name]",
+        "parameters": [
+          "Variable name"
+        ]
+      },
+      "botCreator": [
+        "name",
+        "serverID (opt)"
+      ]
+    },
+    {
+      "name": "roleperms",
+      "reason": "Parameter count mismatch: Wiki says 3 (Guild ID; Role ID; Separator), Bot Creator says 1 (roleID)",
+      "wiki": {
+        "fileName": "rolePerms.md",
+        "rawSyntax": "$rolePerms[Guild ID;Role ID;(Separator)]",
+        "parameters": [
+          "Guild ID",
+          "Role ID",
+          "Separator"
+        ]
+      },
+      "botCreator": [
+        "roleID"
+      ]
+    },
+    {
+      "name": "round",
+      "reason": "Parameter count mismatch: Wiki says 2 (Number; Decimal place), Bot Creator says 1 (number)",
+      "wiki": {
+        "fileName": "round.md",
+        "rawSyntax": "$round[Number;(Decimal place)]",
+        "parameters": [
+          "Number",
+          "Decimal place"
+        ]
+      },
+      "botCreator": [
+        "number"
+      ]
+    },
+    {
+      "name": "ruleschannelid",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Guild ID]",
+      "wiki": {
+        "fileName": "rulesChannelID.md",
+        "rawSyntax": "$rulesChannelID[(Guild ID)]",
+        "parameters": [
+          "Guild ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "sendembedmessage",
+      "reason": "Parameter count mismatch: Wiki says 14 (Channel ID; Content; Title; Title URL; Description; Color hex; Author; Author icon; Footer; Footer icon; Thumbnail; Image; Add timestamp?; Return ID?), Bot Creator says 2 (channelID; content)",
+      "wiki": {
+        "fileName": "sendEmbedMessage.md",
+        "rawSyntax": "$sendEmbedMessage[Channel ID;Content;(Title;Title URL;Description;Color hex;Author;Author icon;Footer;Footer icon;Thumbnail;Image;Add timestamp?;Return ID?)]",
+        "parameters": [
+          "Channel ID",
+          "Content",
+          "Title",
+          "Title URL",
+          "Description",
+          "Color hex",
+          "Author",
+          "Author icon",
+          "Footer",
+          "Footer icon",
+          "Thumbnail",
+          "Image",
+          "Add timestamp?",
+          "Return ID?"
+        ]
+      },
+      "botCreator": [
+        "channelID",
+        "content"
+      ]
+    },
+    {
+      "name": "sendmessage",
+      "reason": "Parameter count mismatch: Wiki says 2 (Text; Return message ID?), Bot Creator says 3 (channelID; message; returnMessageID (opt))",
+      "wiki": {
+        "fileName": "sendMessage.md",
+        "rawSyntax": "$sendMessage[Text;(Return message ID?)]",
+        "parameters": [
+          "Text",
+          "Return message ID?"
+        ]
+      },
+      "botCreator": [
+        "channelID",
+        "message",
+        "returnMessageID (opt)"
+      ]
+    },
+    {
+      "name": "serverchannelexists",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Channel]",
+      "wiki": {
+        "fileName": "serverChannelExists.md",
+        "rawSyntax": "$serverChannelExists[Channel]",
+        "parameters": [
+          "Channel"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "serverdescription",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Guild ID]",
+      "wiki": {
+        "fileName": "serverDescriptionComplex.md",
+        "rawSyntax": "$serverDescription[Guild ID]",
+        "parameters": [
+          "Guild ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "serveremojis",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 2 parameters: [Guild ID; Separator]",
+      "wiki": {
+        "fileName": "serverEmojis.md",
+        "rawSyntax": "$serverEmojis[Guild ID;Separator]",
+        "parameters": [
+          "Guild ID",
+          "Separator"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "servericon",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Server ID]",
+      "wiki": {
+        "fileName": "serverIconComplex.md",
+        "rawSyntax": "$serverIcon[Server ID]",
+        "parameters": [
+          "Server ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "serverleaderboard",
+      "reason": "Parameter count mismatch: Wiki says 2 (Variable name; Sort type), Bot Creator says 4 (varName; type (opt); page (opt); separator (opt))",
+      "wiki": {
+        "fileName": "serverLeaderboard.md",
+        "rawSyntax": "$serverLeaderboard[Variable name;(Sort type)]",
+        "parameters": [
+          "Variable name",
+          "Sort type"
+        ]
+      },
+      "botCreator": [
+        "varName",
+        "type (opt)",
+        "page (opt)",
+        "separator (opt)"
+      ]
+    },
+    {
+      "name": "servername",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Guild ID]",
+      "wiki": {
+        "fileName": "serverName.md",
+        "rawSyntax": "$serverName[Guild ID]",
+        "parameters": [
+          "Guild ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "servernames",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 2 parameters: [Amount; Separator]",
+      "wiki": {
+        "fileName": "serverNamesComplex.md",
+        "rawSyntax": "$serverNames[Amount;Separator]",
+        "parameters": [
+          "Amount",
+          "Separator"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "serverowner",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Guild ID]",
+      "wiki": {
+        "fileName": "serverOwnerComplex.md",
+        "rawSyntax": "$serverOwner[Guild ID]",
+        "parameters": [
+          "Guild ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "setuservar",
+      "reason": "Parameter count mismatch: Wiki says 4 (Variable name; New value; User ID; Guild ID), Bot Creator says 3 (name; value; userID (opt))",
+      "wiki": {
+        "fileName": "setUserVar.md",
+        "rawSyntax": "$setUserVar[Variable name;New value;(User ID;Guild ID)]",
+        "parameters": [
+          "Variable name",
+          "New value",
+          "User ID",
+          "Guild ID"
+        ]
+      },
+      "botCreator": [
+        "name",
+        "value",
+        "userID (opt)"
+      ]
+    },
+    {
+      "name": "setvar",
+      "reason": "Parameter count mismatch: Wiki says 3 (Variable name; New value; User ID), Bot Creator says 2 (name; value)",
+      "wiki": {
+        "fileName": "setVar.md",
+        "rawSyntax": "$setVar[Variable name;New value;(User ID)]",
+        "parameters": [
+          "Variable name",
+          "New value",
+          "User ID"
+        ]
+      },
+      "botCreator": [
+        "name",
+        "value"
+      ]
+    },
+    {
+      "name": "shardid",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Guild ID]",
+      "wiki": {
+        "fileName": "shardIDComplex.md",
+        "rawSyntax": "$shardID[Guild ID]",
+        "parameters": [
+          "Guild ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "slashid",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Slash command name]",
+      "wiki": {
+        "fileName": "slashIDComplex.md",
+        "rawSyntax": "$slashID[Slash command name]",
+        "parameters": [
+          "Slash command name"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "slowmode",
+      "reason": "Parameter count mismatch: Wiki says 2 (Channel ID; Slowmode time), Bot Creator says 1 (seconds)",
+      "wiki": {
+        "fileName": "slowmode.md",
+        "rawSyntax": "$slowmode[Channel ID;Slowmode time]",
+        "parameters": [
+          "Channel ID",
+          "Slowmode time"
+        ]
+      },
+      "botCreator": [
+        "seconds"
+      ]
+    },
+    {
+      "name": "sort",
+      "reason": "Parameter count mismatch: Wiki says 5 (Numbers; ...; Direction; Return amount; Separator), Bot Creator says 2 (values; order (opt))",
+      "wiki": {
+        "fileName": "sort.md",
+        "rawSyntax": "$sort[Numbers;...;Direction;Return amount;Separator]",
+        "parameters": [
+          "Numbers",
+          "...",
+          "Direction",
+          "Return amount",
+          "Separator"
+        ]
+      },
+      "botCreator": [
+        "values",
+        "order (opt)"
+      ]
+    },
+    {
+      "name": "thumbnail",
+      "reason": "Parameter count mismatch: Wiki says 2 (Image URL; Index), Bot Creator says 1 (url)",
+      "wiki": {
+        "fileName": "thumbnail.md",
+        "rawSyntax": "$thumbnail[Image URL;(Index)]",
+        "parameters": [
+          "Image URL",
+          "Index"
+        ]
+      },
+      "botCreator": [
+        "url"
+      ]
+    },
+    {
+      "name": "time",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Timezone]",
+      "wiki": {
+        "fileName": "time.md",
+        "rawSyntax": "$time[Timezone]",
+        "parameters": [
+          "Timezone"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "timeout",
+      "reason": "Parameter count mismatch: Wiki says 2 (Duration; User ID), Bot Creator says 3 (userID; duration; reason (opt))",
+      "wiki": {
+        "fileName": "timeout.md",
+        "rawSyntax": "$timeout[Duration;(User ID)]",
+        "parameters": [
+          "Duration",
+          "User ID"
+        ]
+      },
+      "botCreator": [
+        "userID",
+        "duration",
+        "reason (opt)"
+      ]
+    },
+    {
+      "name": "tts",
+      "reason": "Parameter count mismatch: Wiki says 0 (), Bot Creator says 1 (enabled)",
+      "wiki": {
+        "fileName": "tts.md",
+        "rawSyntax": "$tts",
+        "parameters": []
+      },
+      "botCreator": [
+        "enabled"
+      ]
+    },
+    {
+      "name": "unban",
+      "reason": "Parameter count mismatch: Wiki says 0 (), Bot Creator says 1 (userID)",
+      "wiki": {
+        "fileName": "unban.md",
+        "rawSyntax": "$unban",
+        "parameters": []
+      },
+      "botCreator": [
+        "userID"
+      ]
+    },
+    {
+      "name": "unpinmessage",
+      "reason": "Parameter count mismatch: Wiki says 2 (Channel ID; Message ID), Bot Creator says 1 (messageID)",
+      "wiki": {
+        "fileName": "unpinMessage.md",
+        "rawSyntax": "$unpinMessage[Channel ID;Message ID]",
+        "parameters": [
+          "Channel ID",
+          "Message ID"
+        ]
+      },
+      "botCreator": [
+        "messageID"
+      ]
+    },
+    {
+      "name": "unregisterguildcommands",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 2 parameters: [Slash command name; ...]",
+      "wiki": {
+        "fileName": "unregisterGuildCommandsComplex.md",
+        "rawSyntax": "$unregisterGuildCommands[Slash command name;...]",
+        "parameters": [
+          "Slash command name",
+          "..."
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "url",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 2 parameters: [Mode; Text]",
+      "wiki": {
+        "fileName": "url.md",
+        "rawSyntax": "$url[Mode;Text]",
+        "parameters": [
+          "Mode",
+          "Text"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "useravatar",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [User ID]",
+      "wiki": {
+        "fileName": "userAvatar.md",
+        "rawSyntax": "$userAvatar[User ID]",
+        "parameters": [
+          "User ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "userbadges",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 2 parameters: [User ID; Separator]",
+      "wiki": {
+        "fileName": "userBadges.md",
+        "rawSyntax": "$userBadges[User ID;(Separator)]",
+        "parameters": [
+          "User ID",
+          "Separator"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "userbanner",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [User ID]",
+      "wiki": {
+        "fileName": "userBanner.md",
+        "rawSyntax": "$userBanner[User ID]",
+        "parameters": [
+          "User ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "userbannercolor",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [User ID]",
+      "wiki": {
+        "fileName": "userBannerColor.md",
+        "rawSyntax": "$userBannerColor[User ID]",
+        "parameters": [
+          "User ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "userid",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [Username#Discriminator / Username]",
+      "wiki": {
+        "fileName": "userID.md",
+        "rawSyntax": "$userID[Username#Discriminator / Username]",
+        "parameters": [
+          "Username#Discriminator / Username"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "userinfo",
+      "reason": "Parameter count mismatch: Wiki says 1 (Message), Bot Creator says 2 (userID (opt); field)",
+      "wiki": {
+        "fileName": "userInfo.md",
+        "rawSyntax": "$userInfo[Message]",
+        "parameters": [
+          "Message"
+        ]
+      },
+      "botCreator": [
+        "userID (opt)",
+        "field"
+      ]
+    },
+    {
+      "name": "userleaderboard",
+      "reason": "Parameter count mismatch: Wiki says 2 (Variable name; Sort), Bot Creator says 4 (varName; type (opt); page (opt); separator (opt))",
+      "wiki": {
+        "fileName": "userLeaderboard.md",
+        "rawSyntax": "$userLeaderboard[Variable name;(Sort)]",
+        "parameters": [
+          "Variable name",
+          "Sort"
+        ]
+      },
+      "botCreator": [
+        "varName",
+        "type (opt)",
+        "page (opt)",
+        "separator (opt)"
+      ]
+    },
+    {
+      "name": "username",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [User ID]",
+      "wiki": {
+        "fileName": "usernameComplex.md",
+        "rawSyntax": "$username[User ID]",
+        "parameters": [
+          "User ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "userperms",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 3 parameters: [User ID; Return amount; Separator]",
+      "wiki": {
+        "fileName": "userPerms.md",
+        "rawSyntax": "$userPerms[User ID;Return amount;Separator]",
+        "parameters": [
+          "User ID",
+          "Return amount",
+          "Separator"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "userreacted",
+      "reason": "Parameter count mismatch: Wiki says 4 (Channel ID; Message ID; User ID; Emoji), Bot Creator says 3 (channelID; messageID; emoji)",
+      "wiki": {
+        "fileName": "userReacted.md",
+        "rawSyntax": "$userReacted[Channel ID;Message ID;User ID;Emoji]",
+        "parameters": [
+          "Channel ID",
+          "Message ID",
+          "User ID",
+          "Emoji"
+        ]
+      },
+      "botCreator": [
+        "channelID",
+        "messageID",
+        "emoji"
+      ]
+    },
+    {
+      "name": "userroles",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [User ID]",
+      "wiki": {
+        "fileName": "userRoles.md",
+        "rawSyntax": "$userRoles[User ID]",
+        "parameters": [
+          "User ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "userserveravatar",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 1 parameters: [User ID]",
+      "wiki": {
+        "fileName": "userServerAvatar.md",
+        "rawSyntax": "$userServerAvatar[User ID]",
+        "parameters": [
+          "User ID"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "varexisterror",
+      "reason": "Bot Creator has no signature hint, but Wiki documents 2 parameters: [Name; Error message]",
+      "wiki": {
+        "fileName": "varExistError.md",
+        "rawSyntax": "$varExistError[Name;Error message]",
+        "parameters": [
+          "Name",
+          "Error message"
+        ]
+      },
+      "botCreator": null
+    },
+    {
+      "name": "webhookavatarurl",
+      "reason": "Parameter count mismatch: Wiki says 2 (Webhook URL; New avatar URL), Bot Creator says 1 (webhookID)",
+      "wiki": {
+        "fileName": "webhookAvatarURL.md",
+        "rawSyntax": "$webhookAvatarURL[Webhook URL;New avatar URL]",
+        "parameters": [
+          "Webhook URL",
+          "New avatar URL"
+        ]
+      },
+      "botCreator": [
+        "webhookID"
+      ]
+    },
+    {
+      "name": "webhookcolor",
+      "reason": "Parameter count mismatch: Wiki says 2 (Webhook URL; Color hex), Bot Creator says 1 (hexColor)",
+      "wiki": {
+        "fileName": "webhookColor.md",
+        "rawSyntax": "$webhookColor[Webhook URL;Color hex]",
+        "parameters": [
+          "Webhook URL",
+          "Color hex"
+        ]
+      },
+      "botCreator": [
+        "hexColor"
+      ]
+    },
+    {
+      "name": "webhookcontent",
+      "reason": "Parameter count mismatch: Wiki says 2 (Webhook URL; Text), Bot Creator says 1 (text)",
+      "wiki": {
+        "fileName": "webhookContent.md",
+        "rawSyntax": "$webhookContent[Webhook URL;Text]",
+        "parameters": [
+          "Webhook URL",
+          "Text"
+        ]
+      },
+      "botCreator": [
+        "text"
+      ]
+    },
+    {
+      "name": "webhookdescription",
+      "reason": "Parameter count mismatch: Wiki says 2 (Webhook URL; Text), Bot Creator says 1 (text)",
+      "wiki": {
+        "fileName": "webhookDescription.md",
+        "rawSyntax": "$webhookDescription[Webhook URL;Text]",
+        "parameters": [
+          "Webhook URL",
+          "Text"
+        ]
+      },
+      "botCreator": [
+        "text"
+      ]
+    },
+    {
+      "name": "webhooksend",
+      "reason": "Parameter count mismatch: Wiki says 13 (Webhook URL; Content; Title; Title URL; Description; Color hex; Author; Author icon URL; Footer; Footer icon URL; Thumbnail URL; Image URL; Add timestamp?), Bot Creator says 2 (webhookID; content)",
+      "wiki": {
+        "fileName": "webhookSend.md",
+        "rawSyntax": "$webhookSend[Webhook URL;(Content;Title;Title URL;Description;Color hex;Author;Author icon URL;Footer;Footer icon URL;Thumbnail URL;Image URL;Add timestamp?)]",
+        "parameters": [
+          "Webhook URL",
+          "Content",
+          "Title",
+          "Title URL",
+          "Description",
+          "Color hex",
+          "Author",
+          "Author icon URL",
+          "Footer",
+          "Footer icon URL",
+          "Thumbnail URL",
+          "Image URL",
+          "Add timestamp?"
+        ]
+      },
+      "botCreator": [
+        "webhookID",
+        "content"
+      ]
+    },
+    {
+      "name": "webhooktitle",
+      "reason": "Parameter count mismatch: Wiki says 2 (Webhook URL; Text), Bot Creator says 1 (text)",
+      "wiki": {
+        "fileName": "webhookTitle.md",
+        "rawSyntax": "$webhookTitle[Webhook URL;Text]",
+        "parameters": [
+          "Webhook URL",
+          "Text"
+        ]
+      },
+      "botCreator": [
+        "text"
+      ]
+    },
+    {
+      "name": "webhookusername",
+      "reason": "Parameter count mismatch: Wiki says 2 (Webhook URL; New username), Bot Creator says 1 (name)",
+      "wiki": {
+        "fileName": "webhookUsername.md",
+        "rawSyntax": "$webhookUsername[Webhook URL;New username]",
+        "parameters": [
+          "Webhook URL",
+          "New username"
+        ]
+      },
+      "botCreator": [
+        "name"
+      ]
+    }
+  ],
+  "extraInBotCreator": [
+    "addactionrow",
+    "addbuttoncv2",
+    "addchannelselect",
+    "addmediagallery",
+    "addmediagalleryitem",
+    "addmentionableselect",
+    "addroleselect",
+    "addstringselect",
+    "addstringselectoption",
+    "adduserselect",
+    "args",
+    "authorbanner",
+    "authorperms",
+    "authortag",
+    "authorusername",
+    "blacklistroleids",
+    "botcount",
+    "botname",
+    "callworkflow",
+    "channelcategoryid",
+    "channelidfromname",
+    "channelnsfw",
+    "checkusersperms",
+    "commandtype",
+    "debug",
+    "emojicount",
+    "endfor",
+    "endjsonforeach",
+    "endloop",
+    "for",
+    "getchannelselectchannelid",
+    "getchannelselectchannelids",
+    "getguildmembervar",
+    "getguildvar",
+    "getmemberscount",
+    "getmembervar",
+    "getmentionableselectuserid",
+    "getmentionableselectuserids",
+    "getmessagevar",
+    "getrole",
+    "getroleselectroleid",
+    "getroleselectroleids",
+    "getstringselectvalue",
+    "getstringselectvalues",
+    "gettimestampms",
+    "getuserselectuserid",
+    "getuserselectuserids",
+    "giveroles",
+    "guildcount",
+    "guildicon",
+    "guildname",
+    "hasperms",
+    "httpaddheader",
+    "httpdelete",
+    "httpget",
+    "httppatch",
+    "httppost",
+    "httpput",
+    "httpresult",
+    "httpstatus",
+    "i",
+    "json",
+    "jsonarray",
+    "jsonarrayappend",
+    "jsonarraycount",
+    "jsonarrayindex",
+    "jsonarraypop",
+    "jsonarrayreverse",
+    "jsonarrayshift",
+    "jsonarraysort",
+    "jsonarrayunshift",
+    "jsonclear",
+    "jsonexists",
+    "jsonforeach",
+    "jsonindex",
+    "jsonjoinarray",
+    "jsonkey",
+    "jsonkeys",
+    "jsonparse",
+    "jsonpretty",
+    "jsonset",
+    "jsonsetstring",
+    "jsonstringify",
+    "jsonunset",
+    "jsonvalue",
+    "log",
+    "logquota",
+    "loop",
+    "loopcount",
+    "loopindex",
+    "loopiteration",
+    "membercount",
+    "memberid",
+    "membernick",
+    "memberperms",
+    "mentions",
+    "messagetimestamp",
+    "messagetype",
+    "messageurl",
+    "onlinemembers",
+    "resetguildmembervar",
+    "resetguildvar",
+    "resetmembervar",
+    "serverbanner",
+    "serverboostcount",
+    "serverfeatures",
+    "serverid",
+    "serversplash",
+    "servervanityurl",
+    "serververificationlevel",
+    "setguildmembervar",
+    "setguildvar",
+    "setmembervar",
+    "setmessagevar",
+    "stickercount",
+    "suppresserrorlogging",
+    "takeroles",
+    "userswithrole",
+    "usertag",
+    "workflowresponse"
+  ]
+}

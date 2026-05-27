@@ -413,7 +413,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
     final availableActionTypes = BotCreatorActionType.values
         .where((type) => type != BotCreatorActionType.sendComponentV2)
         .where((type) {
-          if (!widget.isInteraction) {
+          if (!widget.isInteraction && !widget.isWorkflow) {
             return !isInteractionOnlyAction(type);
           }
           return true;
@@ -561,6 +561,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
       case BotCreatorActionType.listenForButtonClick:
       case BotCreatorActionType.listenForSelectMenu:
       case BotCreatorActionType.listenForModalSubmit:
+      case BotCreatorActionType.listenAndExecute:
       case BotCreatorActionType.respondWithAutocomplete:
       case BotCreatorActionType.deferInteraction:
       case BotCreatorActionType.sendDm:
@@ -871,6 +872,8 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
         return 'Register a workflow to run when a select menu is used';
       case BotCreatorActionType.listenForModalSubmit:
         return 'Register a workflow to run when a modal is submitted';
+      case BotCreatorActionType.listenAndExecute:
+        return 'Register a workflow to run when a button is clicked, select menu is used, or modal is submitted';
       case BotCreatorActionType.respondWithAutocomplete:
         return 'Reply to a Discord autocomplete interaction with up to 25 dynamic choices';
       case BotCreatorActionType.deferInteraction:
