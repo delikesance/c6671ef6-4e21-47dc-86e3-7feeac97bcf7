@@ -139,10 +139,19 @@ jobs:
       build_latest:
         type: boolean
         default: false
+      enabled:
+        type: boolean
+        default: true
     environment:
       <<: *env-common
       BUILD_LATEST: << parameters.build_latest >>
     steps:
+      - run:
+          name: Check if enabled
+          command: |
+            if [ "<< parameters.enabled >>" = "false" ]; then
+              circleci-agent step halt
+            fi
       - checkout_and_prepare
       - run:
           name: Install Linux build dependencies
@@ -241,10 +250,19 @@ jobs:
       build_latest:
         type: boolean
         default: false
+      enabled:
+        type: boolean
+        default: true
     environment:
       <<: *env-common
       BUILD_LATEST: << parameters.build_latest >>
     steps:
+      - run:
+          name: Check if enabled
+          command: |
+            if [ "<< parameters.enabled >>" = "false" ]; then
+              circleci-agent step halt
+            fi
       - checkout_and_prepare
       - install_flutter_macos
       - get_flutter_deps
@@ -283,10 +301,20 @@ jobs:
       build_latest:
         type: boolean
         default: false
+      enabled:
+        type: boolean
+        default: true
     environment:
       <<: *env-common
       BUILD_LATEST: << parameters.build_latest >>
     steps:
+      - run:
+          name: Check if enabled
+          shell: bash.exe
+          command: |
+            if [ "<< parameters.enabled >>" = "false" ]; then
+              circleci-agent step halt
+            fi
       - checkout_and_prepare_windows
       - install_flutter_windows
       - get_flutter_deps_windows
@@ -399,21 +427,15 @@ workflows:
   build_latest:
     when: << pipeline.parameters.build_latest >>
     jobs:
-      - when:
-          condition: << pipeline.parameters.build_linux >>
-          jobs:
-            - build_linux:
-                context: r2-deploy
-                build_latest: true
-      - when:
-          condition: << pipeline.parameters.build_macos >>
-          jobs:
-            - build_macos:
-                context: r2-deploy
-                build_latest: true
-      - when:
-          condition: << pipeline.parameters.build_windows >>
-          jobs:
-            - build_windows:
-                context: r2-deploy
-                build_latest: true
+      - build_linux:
+          context: r2-deploy
+          build_latest: true
+          enabled: << pipeline.parameters.build_linux >>
+      - build_macos:
+          context: r2-deploy
+          build_latest: true
+          enabled: << pipeline.parameters.build_macos >>
+      - build_windows:
+          context: r2-deploy
+          build_latest: true
+          enabled: << pipeline.parameters.build_windows >>
