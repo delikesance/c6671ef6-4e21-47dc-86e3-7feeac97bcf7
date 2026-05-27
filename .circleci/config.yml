@@ -5,6 +5,9 @@ parameters:
   msix_only:
     type: boolean
     default: false
+  build_latest:
+    type: boolean
+    default: false
 
 # ── Environment global ──────────────────────────────────────────────────
 environment: &env-common
@@ -123,8 +126,13 @@ commands:
 jobs:
   build_linux:
     executor: linux-ci
+    parameters:
+      build_latest:
+        type: boolean
+        default: false
     environment:
       <<: *env-common
+      BUILD_LATEST: << parameters.build_latest >>
     steps:
       - checkout_and_prepare
       - run:
@@ -205,21 +213,28 @@ jobs:
             cd ~/project/packages/app
             bash packaging/linux/appimage/build_appimage.sh
 
-      # ── S3 upload (tagged releases only) ──
+      # ── S3 upload (tagged releases or latest) ──
       - run:
           name: Upload Linux artifacts to R2
           command: |
-            if [ -z "${CIRCLE_TAG:-}" ]; then echo "Not a tagged release, skipping R2 upload."; exit 0; fi
+            EFFECTIVE_TAG="${CIRCLE_TAG:-}"
+            if [ -z "$EFFECTIVE_TAG" ] && [ "${BUILD_LATEST:-}" = "true" ]; then EFFECTIVE_TAG="latest"; fi
+            if [ -z "$EFFECTIVE_TAG" ]; then echo "Not a tagged release and not a latest build, skipping R2 upload."; exit 0; fi
             cd ~/project/packages/app
-            aws s3 cp build/bot_creator-linux-x64-steam.zip "s3://${R2_BUCKET}/releases/${CIRCLE_TAG}/bot_creator-linux-x64-steam.zip" --endpoint-url "${R2_ENDPOINT}" --no-progress
+            aws s3 cp build/bot_creator-linux-x64-steam.zip "s3://${R2_BUCKET}/releases/${EFFECTIVE_TAG}/bot_creator-linux-x64-steam.zip" --endpoint-url "${R2_ENDPOINT}" --no-progress
             if [ -f build/appimage/bot_creator-linux-x86_64.AppImage ]; then
-              aws s3 cp build/appimage/bot_creator-linux-x86_64.AppImage "s3://${R2_BUCKET}/releases/${CIRCLE_TAG}/bot_creator-linux-x86_64.AppImage" --endpoint-url "${R2_ENDPOINT}" --no-progress
+              aws s3 cp build/appimage/bot_creator-linux-x86_64.AppImage "s3://${R2_BUCKET}/releases/${EFFECTIVE_TAG}/bot_creator-linux-x86_64.AppImage" --endpoint-url "${R2_ENDPOINT}" --no-progress
             fi
 
   build_macos:
     executor: macos-ci
+    parameters:
+      build_latest:
+        type: boolean
+        default: false
     environment:
       <<: *env-common
+      BUILD_LATEST: << parameters.build_latest >>
     steps:
       - checkout_and_prepare
       - install_flutter_macos
@@ -242,19 +257,26 @@ jobs:
             fi
             ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" build/bot_creator-macos-universal-steam.zip
 
-      # ── S3 upload (tagged releases only) ──
+      # ── S3 upload (tagged releases or latest) ──
       - run:
           name: Install awscli and upload macOS artifacts to R2
           command: |
-            if [ -z "${CIRCLE_TAG:-}" ]; then echo "Not a tagged release, skipping R2 upload."; exit 0; fi
+            EFFECTIVE_TAG="${CIRCLE_TAG:-}"
+            if [ -z "$EFFECTIVE_TAG" ] && [ "${BUILD_LATEST:-}" = "true" ]; then EFFECTIVE_TAG="latest"; fi
+            if [ -z "$EFFECTIVE_TAG" ]; then echo "Not a tagged release and not a latest build, skipping R2 upload."; exit 0; fi
             brew install awscli
             cd ~/project/packages/app
-            aws s3 cp build/bot_creator-macos-universal-steam.zip "s3://${R2_BUCKET}/releases/${CIRCLE_TAG}/bot_creator-macos-universal-steam.zip" --endpoint-url "${R2_ENDPOINT}" --no-progress
+            aws s3 cp build/bot_creator-macos-universal-steam.zip "s3://${R2_BUCKET}/releases/${EFFECTIVE_TAG}/bot_creator-macos-universal-steam.zip" --endpoint-url "${R2_ENDPOINT}" --no-progress
 
   build_windows:
     executor: windows-ci
+    parameters:
+      build_latest:
+        type: boolean
+        default: false
     environment:
       <<: *env-common
+      BUILD_LATEST: << parameters.build_latest >>
     steps:
       - checkout_and_prepare_windows
       - install_flutter_windows
@@ -272,18 +294,18 @@ jobs:
       # ── ZIP (skipped if msix_only) ──
       - run:
           name: Package Windows ZIP
-          shell: powershell.exe
+          shell: bash.exe
           command: |
-            if ($env:MSIX_ONLY -eq 'true') { exit 0 }
-            cd $env:APP_DIR
-            Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath build\bot_creator-windows-x64-steam.zip -Force
+            if [ "${MSIX_ONLY:-}" = "true" ]; then exit 0; fi
+            cd ~/project/packages/app
+            (cd build/windows/x64/runner && zip -r "$OLDPWD/build/bot_creator-windows-x64-steam.zip" Release --exclude "Release/*.pdb")
 
       # ── MSIX (tagged releases or msix_only parameter) ──
       - run:
           name: Set Store-compatible MSIX version
           shell: powershell.exe
           command: |
-            if (-not ($env:CIRCLE_TAG -or $env:MSIX_ONLY -eq 'true')) { exit 0 }
+            if (-not ($env:CIRCLE_TAG -or $env:MSIX_ONLY -eq 'true' -or $env:BUILD_LATEST -eq 'true')) { exit 0 }
             cd $env:APP_DIR
             $pubspec = 'pubspec.yaml'
             $content = Get-Content -Raw $pubspec
@@ -303,20 +325,23 @@ jobs:
           name: Create MSIX package
           shell: bash.exe
           command: |
-            if [ -z "${CIRCLE_TAG:-}" ] && [ "${MSIX_ONLY:-}" != "true" ]; then exit 0; fi
+            if [ -z "${CIRCLE_TAG:-}" ] && [ "${MSIX_ONLY:-}" != "true" ] && [ "${BUILD_LATEST:-}" != "true" ]; then exit 0; fi
             cd ~/project/packages/app
             dart run msix:create
 
-      # ── S3 upload (tagged releases only) ──
+      # ── S3 upload (tagged releases or latest) ──
       - run:
-          name: Upload Windows artifacts to R2
+          name: Install awscli and upload Windows artifacts to R2
           shell: bash.exe
           command: |
-            if [ -z "${CIRCLE_TAG:-}" ]; then echo "Not a tagged release, skipping R2 upload."; exit 0; fi
+            EFFECTIVE_TAG="${CIRCLE_TAG:-}"
+            if [ -z "$EFFECTIVE_TAG" ] && [ "${BUILD_LATEST:-}" = "true" ]; then EFFECTIVE_TAG="latest"; fi
+            if [ -z "$EFFECTIVE_TAG" ]; then echo "Not a tagged release and not a latest build, skipping R2 upload."; exit 0; fi
+            pip install --quiet awscli
             cd ~/project/packages/app
-            aws s3 cp build/bot_creator-windows-x64-steam.zip "s3://${R2_BUCKET}/releases/${CIRCLE_TAG}/bot_creator-windows-x64-steam.zip" --endpoint-url "${R2_ENDPOINT}" --no-progress
+            aws s3 cp build/bot_creator-windows-x64-steam.zip "s3://${R2_BUCKET}/releases/${EFFECTIVE_TAG}/bot_creator-windows-x64-steam.zip" --endpoint-url "${R2_ENDPOINT}" --no-progress
             if [ -f build/windows/x64/runner/Release/bot_creator.msix ]; then
-              aws s3 cp "build/windows/x64/runner/Release/bot_creator.msix" "s3://${R2_BUCKET}/releases/${CIRCLE_TAG}/bot_creator.msix" --endpoint-url "${R2_ENDPOINT}" --no-progress
+              aws s3 cp "build/windows/x64/runner/Release/bot_creator.msix" "s3://${R2_BUCKET}/releases/${EFFECTIVE_TAG}/bot_creator.msix" --endpoint-url "${R2_ENDPOINT}" --no-progress
             fi
 
 # ── Workflows ─────────────────────────────────────────────────────────────
@@ -351,3 +376,16 @@ workflows:
     when: << pipeline.parameters.msix_only >>
     jobs:
       - build_windows
+
+  build_latest:
+    when: << pipeline.parameters.build_latest >>
+    jobs:
+      - build_linux:
+          context: r2-deploy
+          build_latest: true
+      - build_macos:
+          context: r2-deploy
+          build_latest: true
+      - build_windows:
+          context: r2-deploy
+          build_latest: true
