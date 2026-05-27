@@ -139,6 +139,7 @@ String getCategoryForAction(BotCreatorActionType type) {
     case BotCreatorActionType.listenForButtonClick:
     case BotCreatorActionType.listenForSelectMenu:
     case BotCreatorActionType.listenForModalSubmit:
+    case BotCreatorActionType.listenAndExecute:
     case BotCreatorActionType.respondWithAutocomplete:
     case BotCreatorActionType.deferInteraction:
     case BotCreatorActionType.sendDm:
@@ -268,6 +269,7 @@ bool isListenerAction(BotCreatorActionType type) {
     case BotCreatorActionType.listenForButtonClick:
     case BotCreatorActionType.listenForSelectMenu:
     case BotCreatorActionType.listenForModalSubmit:
+    case BotCreatorActionType.listenAndExecute:
       return true;
     default:
       return false;
@@ -305,6 +307,7 @@ class _ScratchBlockPaletteState extends State<ScratchBlockPalette> {
     final actionsByCategory = <String, List<BotCreatorActionType>>{};
 
     for (final actionType in BotCreatorActionType.values) {
+
       if (_searchQuery.isNotEmpty &&
           !actionType
               .displayName(context)
@@ -315,7 +318,7 @@ class _ScratchBlockPaletteState extends State<ScratchBlockPalette> {
       if (!widget.isWorkflow && isListenerAction(actionType)) {
         continue;
       }
-      if (!widget.isInteraction && isInteractionOnlyAction(actionType)) {
+      if (!widget.isInteraction && !widget.isWorkflow && isInteractionOnlyAction(actionType)) {
         continue;
       }
       // Autocomplete response is only valid inside an autocomplete handler.

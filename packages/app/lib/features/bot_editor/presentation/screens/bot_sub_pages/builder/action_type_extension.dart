@@ -115,6 +115,13 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
         return context.tr.action_name_listenForSelectMenu;
       case BotCreatorActionType.listenForModalSubmit:
         return context.tr.action_name_listenForModalSubmit;
+      case BotCreatorActionType.listenAndExecute:
+        final languageCode = Localizations.localeOf(context).languageCode;
+        if (languageCode == 'fr') return 'Écouter et exécuter';
+        if (languageCode == 'pt') return 'Ouvir e Executar';
+        if (languageCode == 'de') return 'Zuhören und Ausführen';
+        if (languageCode == 'tr') return 'Dinle ve Yürüt';
+        return 'Listen and Execute';
       case BotCreatorActionType.respondWithAutocomplete:
         return context.tr.action_name_respondWithAutocomplete;
       case BotCreatorActionType.deferInteraction:
@@ -304,6 +311,8 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
         return Icons.list_alt;
       case BotCreatorActionType.listenForModalSubmit:
         return Icons.dynamic_form;
+      case BotCreatorActionType.listenAndExecute:
+        return Icons.hearing;
       case BotCreatorActionType.respondWithAutocomplete:
         return Icons.tune;
       case BotCreatorActionType.deferInteraction:
@@ -2146,6 +2155,56 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             type: ParameterType.map,
             defaultValue: <String, dynamic>{},
             hint: 'Optional key/value arguments for workflow call',
+          ),
+          ParameterDefinition(
+            key: 'ttlMinutes',
+            type: ParameterType.number,
+            defaultValue: 60,
+            hint: 'Listener TTL in minutes (max 60)',
+            minValue: 1,
+            maxValue: 60,
+          ),
+        ];
+      case BotCreatorActionType.listenAndExecute:
+        return [
+          ParameterDefinition(
+            key: 'customId',
+            type: ParameterType.string,
+            defaultValue: '',
+            hint: 'Component custom ID to listen for (supports ((variables)))',
+            required: true,
+          ),
+          ParameterDefinition(
+            key: 'messageId',
+            type: ParameterType.messageId,
+            defaultValue: '',
+            hint:
+                'Optional message scope. Recommended to avoid collisions when the same customId exists on multiple messages.',
+          ),
+          ParameterDefinition(
+            key: 'actions',
+            type: ParameterType.nestedActions,
+            defaultValue: <Map<String, dynamic>>[],
+            hint: 'Actions to execute when the interaction is triggered',
+          ),
+          ParameterDefinition(
+            key: 'workflowName',
+            type: ParameterType.string,
+            defaultValue: '',
+            hint: 'Legacy: Workflow to run (only if Actions is empty)',
+            required: false,
+          ),
+          ParameterDefinition(
+            key: 'entryPoint',
+            type: ParameterType.string,
+            defaultValue: '',
+            hint: 'Legacy: Optional entry point override',
+          ),
+          ParameterDefinition(
+            key: 'arguments',
+            type: ParameterType.map,
+            defaultValue: <String, dynamic>{},
+            hint: 'Legacy: Optional key/value arguments for workflow call',
           ),
           ParameterDefinition(
             key: 'ttlMinutes',

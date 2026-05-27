@@ -1004,6 +1004,110 @@ Future<Map<String, String>> handleActions(
           );
           results[resultKey] = 'listening:$customId';
           break;
+        case BotCreatorActionType.listenAndExecute:
+          final customId = resolveValue(
+            (action.payload['customId'] ?? '').toString(),
+          );
+          if (customId.isEmpty) {
+            throw Exception('customId is required for ${action.type.name}');
+          }
+          final rawActions = action.payload['actions'];
+          final inlineActions = <Action>[];
+          if (rawActions is List) {
+            for (final item in rawActions) {
+              if (item is Map) {
+                inlineActions.add(Action.fromJson(Map<String, dynamic>.from(item)));
+              }
+            }
+          }
+
+          final workflowName = resolveValue(
+            (action.payload['workflowName'] ?? '').toString(),
+          );
+          final workflowEntryPoint =
+              resolveValue(
+                (action.payload['entryPoint'] ?? '').toString(),
+              ).trim();
+          final workflowArguments = resolveWorkflowCallArguments(
+            action.payload['arguments'],
+            resolveValue,
+          );
+
+          final ttlRaw = action.payload['ttlMinutes'];
+          final ttlMinutes = (ttlRaw is num
+                  ? ttlRaw.toInt()
+                  : int.tryParse(ttlRaw?.toString() ?? '') ?? 60)
+              .clamp(1, 60);
+
+          // Button
+          InteractionListenerRegistry.instance.register(
+            customId,
+            ListenerEntry(
+              botId: botId,
+              inlineActions: inlineActions.isNotEmpty ? inlineActions : null,
+              workflowName: workflowName,
+              workflowEntryPoint: workflowEntryPoint.isNotEmpty ? workflowEntryPoint : 'main',
+              workflowArguments: workflowArguments,
+              expiresAt: DateTime.now().add(Duration(minutes: ttlMinutes)),
+              type: 'button',
+              oneShot: false,
+              guildId: guildId?.toString(),
+              channelId: resolvedFallbackChannelId?.toString(),
+              messageId: _resolveListenerMessageId(
+                payload: action.payload,
+                variables: variables,
+                resolveValue: resolveValue,
+                interaction: interaction,
+              ),
+            ),
+          );
+
+          // Select
+          InteractionListenerRegistry.instance.register(
+            customId,
+            ListenerEntry(
+              botId: botId,
+              inlineActions: inlineActions.isNotEmpty ? inlineActions : null,
+              workflowName: workflowName,
+              workflowEntryPoint: workflowEntryPoint.isNotEmpty ? workflowEntryPoint : 'main',
+              workflowArguments: workflowArguments,
+              expiresAt: DateTime.now().add(Duration(minutes: ttlMinutes)),
+              type: 'select',
+              oneShot: false,
+              guildId: guildId?.toString(),
+              channelId: resolvedFallbackChannelId?.toString(),
+              messageId: _resolveListenerMessageId(
+                payload: action.payload,
+                variables: variables,
+                resolveValue: resolveValue,
+                interaction: interaction,
+              ),
+            ),
+          );
+
+          // Modal
+          InteractionListenerRegistry.instance.register(
+            customId,
+            ListenerEntry(
+              botId: botId,
+              inlineActions: inlineActions.isNotEmpty ? inlineActions : null,
+              workflowName: workflowName,
+              workflowEntryPoint: workflowEntryPoint.isNotEmpty ? workflowEntryPoint : 'main',
+              workflowArguments: workflowArguments,
+              expiresAt: DateTime.now().add(Duration(minutes: ttlMinutes)),
+              type: 'modal',
+              oneShot: true,
+              guildId: guildId?.toString(),
+              channelId: resolvedFallbackChannelId?.toString(),
+              messageId: _resolveExplicitListenerMessageId(
+                action.payload,
+                resolveValue,
+              ),
+            ),
+          );
+
+          results[resultKey] = 'listening:$customId';
+          break;
         case BotCreatorActionType.sendWebhook:
         case BotCreatorActionType.editWebhook:
         case BotCreatorActionType.deleteWebhook:
