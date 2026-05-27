@@ -351,7 +351,8 @@ jobs:
         if: ${{ needs.prepare_release.outputs.msix_only != 'true' }}
         shell: bash
         run: |
-          (cd build/windows/x64/runner && zip -r "$GITHUB_WORKSPACE/$APP_DIR/build/bot_creator-windows-x64-steam.zip" Release --exclude "Release/*.pdb")
+          cd build/windows/x64/runner/Release
+          7z a -tzip "$GITHUB_WORKSPACE/$APP_DIR/build/bot_creator-windows-x64-steam.zip" . -xr'!*.pdb'
 
       - name: Upload Windows Steam ZIP to release
         if: ${{ env.PUBLISH_RELEASE == 'true' && needs.prepare_release.outputs.msix_only != 'true' }}
