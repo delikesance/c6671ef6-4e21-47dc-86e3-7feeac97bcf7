@@ -351,17 +351,17 @@ jobs:
         if: ${{ needs.prepare_release.outputs.msix_only != 'true' }}
         shell: bash
         run: |
-          python -c "
+          python -c '
 import zipfile, os, sys
 src, dst = sys.argv[1], sys.argv[2]
-with zipfile.ZipFile(dst, 'w', zipfile.ZIP_DEFLATED) as zf:
+with zipfile.ZipFile(dst, "w", zipfile.ZIP_DEFLATED) as zf:
     for root, dirs, files in os.walk(src):
         for f in files:
-            if f.endswith('.pdb'): continue
+            if f.endswith(".pdb"): continue
             p = os.path.join(root, f)
             zf.write(p, os.path.relpath(p, src).replace(chr(92), chr(47)))
-print('Created:', dst)
-" build/windows/x64/runner/Release "$GITHUB_WORKSPACE/$APP_DIR/build/bot_creator-windows-x64-steam.zip"
+print("Created:", dst)
+' build/windows/x64/runner/Release "$GITHUB_WORKSPACE/$APP_DIR/build/bot_creator-windows-x64-steam.zip"
 
       - name: Upload Windows Steam ZIP to release
         if: ${{ env.PUBLISH_RELEASE == 'true' && needs.prepare_release.outputs.msix_only != 'true' }}
