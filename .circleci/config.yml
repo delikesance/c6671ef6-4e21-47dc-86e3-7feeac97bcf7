@@ -8,6 +8,15 @@ parameters:
   build_latest:
     type: boolean
     default: false
+  build_linux:
+    type: boolean
+    default: true
+  build_macos:
+    type: boolean
+    default: true
+  build_windows:
+    type: boolean
+    default: true
 
 # ── Environment global ──────────────────────────────────────────────────
 environment: &env-common
@@ -390,12 +399,21 @@ workflows:
   build_latest:
     when: << pipeline.parameters.build_latest >>
     jobs:
-      - build_linux:
-          context: r2-deploy
-          build_latest: true
-      - build_macos:
-          context: r2-deploy
-          build_latest: true
-      - build_windows:
-          context: r2-deploy
-          build_latest: true
+      - when:
+          condition: << pipeline.parameters.build_linux >>
+          jobs:
+            - build_linux:
+                context: r2-deploy
+                build_latest: true
+      - when:
+          condition: << pipeline.parameters.build_macos >>
+          jobs:
+            - build_macos:
+                context: r2-deploy
+                build_latest: true
+      - when:
+          condition: << pipeline.parameters.build_windows >>
+          jobs:
+            - build_windows:
+                context: r2-deploy
+                build_latest: true
