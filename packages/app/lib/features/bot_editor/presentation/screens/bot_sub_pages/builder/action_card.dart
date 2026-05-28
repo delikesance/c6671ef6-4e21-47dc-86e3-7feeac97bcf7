@@ -251,6 +251,7 @@ class ActionCard extends StatelessWidget {
                   .map((paramDef) {
                     final currentValue = action.parameters[paramDef.key];
                     return Padding(
+                      key: ValueKey('param-padding-${action.runtimeId}-${paramDef.key}'),
                       padding: const EdgeInsets.only(bottom: 12),
                       child: _buildParameterField(
                         context,
@@ -682,6 +683,7 @@ class ActionCard extends StatelessWidget {
       if (pd == null) return const SizedBox.shrink();
       final currentValue = action.parameters[pd.key];
       return Padding(
+        key: ValueKey('param-padding-${action.runtimeId}-${pd.key}'),
         padding: const EdgeInsets.only(bottom: 12),
         child: _buildParameterField(context, pd, currentValue),
       );
@@ -1283,6 +1285,7 @@ class ActionCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             ResponseEmbedsEditor(
+              key: _parameterInputKey(paramDef.key),
               embeds: embeds,
               variableSuggestions: variableSuggestions,
               emojiSuggestions: emojiSuggestions,
@@ -1355,6 +1358,7 @@ class ActionCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             ComponentV2EditorWidget(
+              key: _parameterInputKey(paramDef.key),
               definition: compDef,
               variableSuggestions: variableSuggestions,
               botIdForConfig: botIdForConfig,
@@ -1385,6 +1389,7 @@ class ActionCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             NormalComponentEditorWidget(
+              key: _parameterInputKey(paramDef.key),
               definition: compDef,
               variableSuggestions: variableSuggestions,
               botIdForConfig: botIdForConfig,
@@ -1415,6 +1420,7 @@ class ActionCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             ModalBuilderWidget(
+              key: _parameterInputKey(paramDef.key),
               modal: modalDef,
               variableSuggestions: variableSuggestions,
               botIdForConfig: botIdForConfig,
@@ -1427,6 +1433,7 @@ class ActionCard extends StatelessWidget {
 
       case ParameterType.bdfdScript:
         return _BdfdScriptParameterField(
+          key: _parameterInputKey(paramDef.key),
           currentValue: (currentValue ?? paramDef.defaultValue).toString(),
           hint: _localizeHint(paramDef.hint),
           onChanged: (newValue) => onParameterChanged(paramDef.key, newValue),
@@ -1438,6 +1445,7 @@ class ActionCard extends StatelessWidget {
             botIdForConfig != null &&
             botIdForConfig!.trim().isNotEmpty) {
           return _WorkflowNameParameterField(
+            key: _parameterInputKey(paramDef.key),
             label: _formatParameterName(paramDef.key),
             currentValue:
                 (currentValue ?? paramDef.defaultValue).toString().trim(),
@@ -1449,7 +1457,6 @@ class ActionCard extends StatelessWidget {
             },
           );
         }
-
         if (botIdForConfig != null &&
             botIdForConfig!.trim().isNotEmpty &&
             _isVariableKeyParameter(action.type, paramDef.key)) {
@@ -1462,8 +1469,9 @@ class ActionCard extends StatelessWidget {
               action.type == BotCreatorActionType.listScopedVariableIndex ||
               action.type == BotCreatorActionType.appendArrayElement ||
               action.type == BotCreatorActionType.removeArrayElement;
-
+ 
           return _VariableKeyParameterField(
+            key: _parameterInputKey(paramDef.key),
             label: _formatParameterName(paramDef.key),
             currentValue: (currentValue ?? paramDef.defaultValue).toString(),
             hint:
@@ -1562,6 +1570,7 @@ class ActionCard extends StatelessWidget {
         }
 
         return _TextParameterField(
+          key: _parameterInputKey(paramDef.key),
           paramDef: paramDef,
           currentValue: currentValue,
           onParameterChanged: onParameterChanged,
@@ -3383,6 +3392,7 @@ class _VariableKeyParameterField extends StatefulWidget {
   final ValueChanged<String> onChanged;
 
   const _VariableKeyParameterField({
+    super.key,
     required this.label,
     required this.currentValue,
     required this.hint,
@@ -3642,6 +3652,7 @@ class _WorkflowNameParameterField extends StatefulWidget {
   final ValueChanged<String> onChanged;
 
   const _WorkflowNameParameterField({
+    super.key,
     required this.label,
     required this.currentValue,
     required this.hint,
@@ -4061,6 +4072,7 @@ class _TextParameterField extends StatefulWidget {
   }) buildVariableSuggestions;
 
   const _TextParameterField({
+    super.key,
     required this.paramDef,
     required this.currentValue,
     required this.onParameterChanged,
@@ -4213,6 +4225,7 @@ class _TextParameterFieldState extends State<_TextParameterField> {
 
 class _BdfdScriptParameterField extends StatefulWidget {
   const _BdfdScriptParameterField({
+    super.key,
     required this.currentValue,
     required this.onChanged,
     this.hint,

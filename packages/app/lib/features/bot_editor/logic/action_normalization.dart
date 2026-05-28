@@ -57,7 +57,6 @@ Map<String, dynamic> purgeActionPayloadStrict(
     } else if (mode == 'componentV2') {
       payload.remove('content');
       payload.remove('embeds');
-      payload.remove('components');
     }
   } else if (type == BotCreatorActionType.editMessage) {
     final mode = (payload['editMode'] ?? 'message').toString();

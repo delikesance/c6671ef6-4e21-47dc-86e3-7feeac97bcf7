@@ -23,7 +23,7 @@ Future<Map<String, dynamic>> editInteractionMessageAction(
     // Build components if defined
     List<ComponentBuilder>? actionRows;
     ComponentV2Definition? definition;
-    final componentsDef = payload['components'];
+    final componentsDef = payload['components'] ?? payload['componentV2'];
     if (clearComponents) {
       actionRows = [];
     } else if (componentsDef is Map && componentsDef.isNotEmpty) {
