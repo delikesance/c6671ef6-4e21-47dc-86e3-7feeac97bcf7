@@ -690,12 +690,30 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             },
           ),
           ParameterDefinition(
+            key: 'components',
+            type: ParameterType.normalComponents,
+            defaultValue: <String, dynamic>{},
+            hint: 'Optional message components (buttons/select menus only)',
+            visibleWhen: <String, List<String>>{
+              'editMode': <String>['message'],
+            },
+          ),
+          ParameterDefinition(
             key: 'componentV2',
             type: ParameterType.componentV2,
             defaultValue: null,
             hint: 'Edit Component V2 interactive elements (optional)',
             visibleWhen: <String, List<String>>{
               'editMode': <String>['componentV2'],
+            },
+          ),
+          ParameterDefinition(
+            key: 'clearComponents',
+            type: ParameterType.boolean,
+            defaultValue: false,
+            hint: 'Remove all components from the message',
+            visibleWhen: <String, List<String>>{
+              'editMode': <String>['message', 'componentV2'],
             },
           ),
         ];
@@ -2016,6 +2034,15 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
           ),
           ParameterDefinition(
             key: 'components',
+            type: ParameterType.normalComponents,
+            defaultValue: <String, dynamic>{},
+            hint: 'Optional message components (buttons/select menus only)',
+            visibleWhen: <String, List<String>>{
+              'editMode': <String>['message'],
+            },
+          ),
+          ParameterDefinition(
+            key: 'components',
             type: ParameterType.componentV2,
             defaultValue: <String, dynamic>{},
             hint: 'New component layout (leave empty to keep current)',
@@ -2029,7 +2056,7 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             defaultValue: false,
             hint: 'Remove all components from the message',
             visibleWhen: <String, List<String>>{
-              'editMode': <String>['componentV2'],
+              'editMode': <String>['message', 'componentV2'],
             },
           ),
         ];
