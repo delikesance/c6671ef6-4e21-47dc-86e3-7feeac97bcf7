@@ -268,7 +268,7 @@ void main() {
       expect(find.text('Response'), findsNothing);
       expect(find.text('Add block'), findsOneWidget);
       expect(find.byTooltip('Import command'), findsOneWidget);
-      expect(find.text('Save changes'), findsNothing);
+      expect(find.byTooltip('Save changes'), findsNothing);
     });
 
     testWidgets('existing local command renders block editor with save bar', (
@@ -291,7 +291,7 @@ void main() {
       expect(find.text('Metadata'), findsOneWidget);
       expect(find.text('Command Trigger'), findsOneWidget);
       expect(find.text('Response'), findsNothing);
-      expect(find.text('All changes saved'), findsOneWidget);
+      expect(find.byTooltip('All changes saved'), findsOneWidget);
       expect(find.byTooltip('Import command'), findsNothing);
     });
 
@@ -454,8 +454,8 @@ void main() {
 
       // Trigger save inside runAsync so async I/O can complete
       await tester.runAsync(() async {
-        final saveButton = tester.widget<FilledButton>(
-          find.widgetWithText(FilledButton, 'Save changes'),
+        final saveButton = tester.widget<FloatingActionButton>(
+          find.byType(FloatingActionButton),
         );
         saveButton.onPressed?.call();
         final deadline = DateTime.now().add(const Duration(seconds: 2));

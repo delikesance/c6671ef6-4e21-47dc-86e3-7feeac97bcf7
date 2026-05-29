@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 
@@ -159,6 +160,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   bool _localOnlyCommand = false;
   String _folder = '';
   final TextEditingController _folderController = TextEditingController();
+  List<String> _existingFolders = const <String>[];
   String _legacyPrefixOverride = '';
   String _legacyResponseTarget = 'reply';
   Map<String, Map<String, dynamic>> _subcommandWorkflows =
@@ -850,17 +852,102 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   }
 
   Widget _buildFolderField() {
-    return TextField(
-      controller: _folderController,
-      decoration: InputDecoration(
-        labelText: context.tr.commands_folder_label,
-        hintText: context.tr.commands_folder_hint,
-        prefixIcon: const Icon(Icons.folder_outlined),
-        border: const OutlineInputBorder(),
-        isDense: true,
-      ),
-      onChanged: (val) {
-        _folder = val.trim();
+    return Autocomplete<String>(
+      optionsBuilder: (TextEditingValue textEditingValue) {
+        if (_existingFolders.isEmpty) {
+          return const Iterable<String>.empty();
+        }
+        if (textEditingValue.text.isEmpty) {
+          return _existingFolders;
+        }
+        final query = textEditingValue.text.toLowerCase();
+        return _existingFolders.where((String option) {
+          return option.toLowerCase().contains(query);
+        });
+      },
+      onSelected: (String selection) {
+        setState(() {
+          _folder = selection;
+          _folderController.text = selection;
+        });
+      },
+      optionsViewBuilder: (BuildContext context, AutocompleteOnSelected<String> onSelected, Iterable<String> options) {
+        return Align(
+          alignment: Alignment.topLeft,
+          child: Material(
+            elevation: 4.0,
+            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+            color: Theme.of(context).colorScheme.surface,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 200, maxWidth: 300),
+              child: ListView.builder(
+                padding: EdgeInsets.zero,
+                shrinkWrap: true,
+                itemCount: options.length,
+                itemBuilder: (BuildContext context, int index) {
+                  final String option = options.elementAt(index);
+                  return InkWell(
+                    onTap: () => onSelected(option),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                      child: Row(
+                        children: [
+                          Icon(Icons.folder_outlined, size: 18, color: Theme.of(context).colorScheme.primary),
+                          const SizedBox(width: 10),
+                          Text(option, style: const TextStyle(fontSize: 14)),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        );
+      },
+      fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+        if (controller.text != _folderController.text) {
+          controller.text = _folderController.text;
+        }
+        controller.addListener(() {
+          if (_folderController.text != controller.text) {
+            _folderController.text = controller.text;
+            _folder = controller.text.trim();
+          }
+        });
+        return TextField(
+          controller: controller,
+          focusNode: focusNode,
+          decoration: InputDecoration(
+            labelText: context.tr.commands_folder_label,
+            hintText: context.tr.commands_folder_hint,
+            prefixIcon: const Icon(Icons.folder_outlined),
+            suffixIcon: _existingFolders.isNotEmpty
+                ? PopupMenuButton<String>(
+                    icon: const Icon(Icons.folder_open),
+                    tooltip: 'Dossiers existants',
+                    onSelected: (String selection) {
+                      setState(() {
+                        controller.text = selection;
+                        _folderController.text = selection;
+                        _folder = selection;
+                      });
+                    },
+                    itemBuilder: (BuildContext context) {
+                      return _existingFolders.map((String folder) {
+                        return PopupMenuItem<String>(
+                          value: folder,
+                          child: Text(folder),
+                        );
+                      }).toList();
+                    },
+                  )
+                : null,
+            border: const OutlineInputBorder(),
+            isDense: true,
+          ),
+          onSubmitted: (_) => onFieldSubmitted(),
+        );
       },
     );
   }
@@ -1361,6 +1448,21 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     );
 
     await _refreshPersistedVariableNames();
+
+    final botId = _botIdForConfig;
+    if (botId != null) {
+      try {
+        final commands = await appManager.listAppCommands(botId);
+        final folders = commands
+            .map((c) => (c['folder'] ?? '').toString().trim())
+            .where((f) => f.isNotEmpty)
+            .toSet()
+            .toList()..sort();
+        _applyStateUpdate(() {
+          _existingFolders = folders;
+        });
+      } catch (_) {}
+    }
 
     // Load application emojis silently for autocomplete
     try {
@@ -2217,37 +2319,21 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                 ),
             ],
           ),
-          bottomNavigationBar:
-              showStickyEditSave
-                  ? SafeArea(
-                    top: false,
-                    child: Container(
-                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).scaffoldBackgroundColor,
-                        border: Border(
-                          top: BorderSide(
-                            color: Theme.of(
-                              context,
-                            ).dividerColor.withValues(alpha: 0.2),
-                          ),
-                        ),
-                      ),
-                      child: SizedBox(
-                        height: 48,
-                        child: FilledButton.icon(
-                          onPressed: _isDirty ? _saveExistingCommand : null,
-                          icon: const Icon(Icons.save_outlined),
-                          label: Text(
-                            _isDirty
-                                ? context.tr.edit_shell_save_changes
-                                : context.tr.edit_shell_all_saved,
-                          ),
-                        ),
-                      ),
-                    ),
-                  )
-                  : null,
+          floatingActionButton: showStickyEditSave
+              ? FloatingActionButton(
+                  onPressed: _isDirty ? _saveExistingCommand : null,
+                  backgroundColor: _isDirty
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.surfaceContainerHighest,
+                  foregroundColor: _isDirty
+                      ? Colors.white
+                      : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.38),
+                  tooltip: _isDirty
+                      ? context.tr.edit_shell_save_changes
+                      : context.tr.edit_shell_all_saved,
+                  child: Icon(_isDirty ? Icons.save : Icons.check),
+                )
+              : null,
           body: SafeArea(
             top: false,
             child: LayoutBuilder(
@@ -2256,6 +2342,13 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                     constraints.maxWidth >= 1200
                         ? 980.0
                         : (constraints.maxWidth >= 900 ? 860.0 : 680.0);
+
+                final isBdfdMode =
+                    _executionMode == _CommandCreatePageState._executionModeBdfdScript;
+
+                if (!isBdfdMode) {
+                  return _buildEditorBody(contentMaxWidth: contentMaxWidth);
+                }
 
                 return Center(
                   child: SingleChildScrollView(

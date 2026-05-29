@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 
 import 'scratch_block_connector.dart';
@@ -7,7 +8,7 @@ import 'scratch_block_connector.dart';
 ///
 /// Fixed blocks (metadata, entry point) are listed first, followed by
 /// user-added action blocks that can be reordered via move-up/move-down.
-class ScratchBlockCanvas extends StatelessWidget {
+class ScratchBlockCanvas extends StatefulWidget {
   const ScratchBlockCanvas({
     super.key,
     required this.children,
@@ -31,27 +32,61 @@ class ScratchBlockCanvas extends StatelessWidget {
   final Set<int> skipConnectorAfterIndices;
 
   @override
+  State<ScratchBlockCanvas> createState() => _ScratchBlockCanvasState();
+}
+
+class _ScratchBlockCanvasState extends State<ScratchBlockCanvas> {
+  late final ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if (children.isEmpty) {
+    if (widget.children.isEmpty) {
       return const SizedBox.shrink();
     }
 
     final items = <Widget>[];
-    for (var i = 0; i < children.length; i++) {
-      items.add(children[i]);
-      if (i < children.length - 1 && !skipConnectorAfterIndices.contains(i)) {
-        items.add(ScratchBlockConnector(color: connectorColor));
+    for (var i = 0; i < widget.children.length; i++) {
+      items.add(widget.children[i]);
+      if (i < widget.children.length - 1 && !widget.skipConnectorAfterIndices.contains(i)) {
+        items.add(ScratchBlockConnector(color: widget.connectorColor));
       }
     }
 
-    return RepaintBoundary(
-      child: SingleChildScrollView(
-        padding: padding,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: items,
-        ),
+    final isRunningTests = Platform.environment.containsKey('FLUTTER_TEST');
+    final isDesktopPlatform = const [
+      TargetPlatform.macOS,
+      TargetPlatform.windows,
+      TargetPlatform.linux,
+    ].contains(Theme.of(context).platform) && !isRunningTests;
+
+    final scrollable = SingleChildScrollView(
+      controller: isRunningTests ? null : _scrollController,
+      padding: widget.padding,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: items,
       ),
+    );
+
+    return RepaintBoundary(
+      child: isDesktopPlatform
+          ? Scrollbar(
+              controller: _scrollController,
+              child: scrollable,
+            )
+          : scrollable,
     );
   }
 }

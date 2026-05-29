@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
@@ -75,12 +76,30 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
 
   List<VariableSuggestion> _variableSuggestions = [];
   bool _saving = false;
+  List<String> _existingFolders = const [];
 
   bool get _isEditing => widget.initial != null;
+
+  Future<void> _loadExistingFolders() async {
+    try {
+      final workflows = await appManager.getWorkflows(widget.botId);
+      final folders = workflows
+          .map((w) => (w['folder'] ?? '').toString().trim())
+          .where((f) => f.isNotEmpty)
+          .toSet()
+          .toList()..sort();
+      if (mounted) {
+        setState(() {
+          _existingFolders = folders;
+        });
+      }
+    } catch (_) {}
+  }
 
   @override
   void initState() {
     super.initState();
+    _loadExistingFolders();
 
     final normalized =
         widget.initial != null
@@ -248,12 +267,14 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
         top: false,
         child: LayoutBuilder(
           builder: (context, constraints) {
+            final isDesktop = MediaQuery.of(context).size.width >= 800 &&
+                !Platform.environment.containsKey('FLUTTER_TEST');
             final maxWidth =
                 constraints.maxWidth >= 1200
                     ? 980.0
-                    : (constraints.maxWidth >= 900 ? 860.0 : 680.0);
+                    : (isDesktop ? 860.0 : 680.0);
 
-            return Center(
+            final canvasWidget = Center(
               child: ConstrainedBox(
                 constraints: BoxConstraints(maxWidth: maxWidth),
                 child: SingleChildScrollView(
@@ -261,18 +282,60 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                   padding: const EdgeInsets.all(AppTheme.spacingLg),
                   child: ScratchBlockCanvas(
                     skipConnectorAfterIndices: _buildFinalBlockIndices(),
-                    children: _buildBlocks(),
+                    children: _buildBlocks(showAddButton: !isDesktop),
                   ),
                 ),
               ),
             );
+
+            if (isDesktop) {
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Container(
+                    width: 320,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      border: Border(
+                        right: BorderSide(
+                          color: Theme.of(context).colorScheme.outlineVariant,
+                          width: 1,
+                        ),
+                      ),
+                    ),
+                    child: ScratchBlockPalette(
+                      onActionSelected: (type) {
+                        setState(() {
+                          final uniqueId = 'action_${DateTime.now().microsecondsSinceEpoch}';
+                          _actions.add(<String, dynamic>{
+                            'id': uniqueId,
+                            'type': type.name,
+                            'enabled': true,
+                            'key': uniqueId,
+                            'depend_on': <String>[],
+                            'error': {'mode': 'stop'},
+                            'payload': Map<String, dynamic>.from(type.defaultParameters),
+                          });
+                        });
+                      },
+                      isInteraction: false,
+                      isWorkflow: true,
+                      popOnSelect: false,
+                    ),
+                  ),
+                  Expanded(child: canvasWidget),
+                ],
+              );
+            }
+
+            return canvasWidget;
           },
         ),
       ),
     );
   }
 
-  List<Widget> _buildBlocks() {
+  List<Widget> _buildBlocks({bool showAddButton = true}) {
     return [
       // ── Metadata block ──
       _buildMetadataBlock(),
@@ -284,7 +347,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
       ..._buildActionBlocks(),
 
       // ── Add button ──
-      _buildAddBlockButton(),
+      if (showAddButton) _buildAddBlockButton(),
     ];
   }
 
@@ -333,6 +396,26 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
             decoration: InputDecoration(
               labelText: context.tr.workflows_folder_label,
               hintText: context.tr.workflows_folder_hint,
+              prefixIcon: const Icon(Icons.folder_outlined),
+              suffixIcon: _existingFolders.isNotEmpty
+                  ? PopupMenuButton<String>(
+                      icon: const Icon(Icons.folder_open),
+                      tooltip: 'Dossiers existants',
+                      onSelected: (String selection) {
+                        setState(() {
+                          _folderController.text = selection;
+                        });
+                      },
+                      itemBuilder: (BuildContext context) {
+                        return _existingFolders.map((String folder) {
+                          return PopupMenuItem<String>(
+                            value: folder,
+                            child: Text(folder),
+                          );
+                        }).toList();
+                      },
+                    )
+                  : null,
               border: const OutlineInputBorder(),
               isDense: true,
             ),

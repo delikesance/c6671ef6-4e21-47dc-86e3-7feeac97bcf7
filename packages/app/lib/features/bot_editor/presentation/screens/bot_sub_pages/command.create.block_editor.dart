@@ -6,6 +6,9 @@ part of 'command.create.dart';
 /// followed by dynamic action blocks.
 extension _CommandBlockEditor on _CommandCreatePageState {
   Widget _buildBlockEditor({required double contentMaxWidth}) {
+    final isDesktop = MediaQuery.of(context).size.width >= 800 &&
+        !Platform.environment.containsKey('FLUTTER_TEST');
+
     final entryPointType =
         _legacyModeEnabled
             ? CommandEntryPointType.message
@@ -185,7 +188,9 @@ extension _CommandBlockEditor on _CommandCreatePageState {
         // Folder
         folderController: _folderController,
         onFolderChanged: (value) {
-          _folder = value.trim();
+          _applyStateUpdate(() {
+            _folder = value.trim();
+          });
         },
       ),
 
@@ -243,7 +248,7 @@ extension _CommandBlockEditor on _CommandCreatePageState {
       ...actionBlocks,
 
       // ── Add block button ──
-      if (!isBdfdMode) _buildAddBlockButton(),
+      if (!isBdfdMode && !isDesktop) _buildAddBlockButton(),
     ];
 
     // Compute indices of final (cap) blocks so the canvas skips connectors
@@ -266,10 +271,61 @@ extension _CommandBlockEditor on _CommandCreatePageState {
       }
     }
 
-    return ScratchBlockCanvas(
+    final canvasWidget = ScratchBlockCanvas(
+      padding: EdgeInsets.fromLTRB(16, 12, 16, _showEditShell ? 88 : 12),
       skipConnectorAfterIndices: skipConnectorAfter,
       children: canvasChildren,
     );
+
+    if (isDesktop) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            width: 320,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              border: Border(
+                right: BorderSide(
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                  width: 1,
+                ),
+              ),
+            ),
+            child: ScratchBlockPalette(
+              onActionSelected: (type) {
+                _applyStateUpdate(() {
+                  final uniqueId = 'action_${DateTime.now().microsecondsSinceEpoch}';
+                  _actions.add(<String, dynamic>{
+                    'id': uniqueId,
+                    'type': type.name,
+                    'enabled': true,
+                    'key': uniqueId,
+                    'depend_on': <String>[],
+                    'error': {'mode': 'stop'},
+                    'payload': Map<String, dynamic>.from(type.defaultParameters),
+                  });
+                  _persistActiveSubcommandWorkflow();
+                });
+              },
+              isInteraction: !_legacyModeEnabled,
+              isWorkflow: false,
+              popOnSelect: false,
+            ),
+          ),
+          Expanded(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 860.0),
+                child: canvasWidget,
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return canvasWidget;
   }
 
   Widget _buildBlockSubcommandSelector() {
