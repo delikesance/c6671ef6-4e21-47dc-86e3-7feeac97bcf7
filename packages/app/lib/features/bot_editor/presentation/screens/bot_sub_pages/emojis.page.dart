@@ -93,17 +93,16 @@ class _EmojisPageState extends State<EmojisPage> {
                       pickedFileName ?? context.tr.emojis_upload_pick_image,
                     ),
                     onPressed: () async {
-                      final result = await FilePicker.pickFiles(
+                      final result = await FilePicker.pickFile(
                         type: FileType.image,
-                        allowMultiple: false,
                       );
-                      if (result != null && result.files.isNotEmpty) {
+                      if (result != null) {
                         setDialogState(() {
-                          pickedFilePath = result.files.first.path;
-                          pickedFileName = result.files.first.name;
+                          pickedFilePath = result.path;
+                          pickedFileName = result.name;
                           // Pre-fill name if empty
                           if (nameController.text.isEmpty) {
-                            final baseName = result.files.first.name
+                            final baseName = result.name
                                 .replaceAll(RegExp(r'\.[^.]+$'), '')
                                 .replaceAll(RegExp(r'[^a-zA-Z0-9_]'), '_');
                             nameController.text = baseName;

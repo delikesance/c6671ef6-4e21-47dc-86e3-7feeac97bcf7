@@ -112,15 +112,14 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
   }
 
   Future<void> _pickAndParseZip() async {
-    final result = await FilePicker.pickFiles(
+    final result = await FilePicker.pickFile(
       type: FileType.custom,
       allowedExtensions: ['zip'],
-      withData: true,
     );
-    if (result == null || result.files.isEmpty) return;
+    if (result == null) return;
 
-    final bytes = result.files.single.bytes;
-    if (bytes == null || bytes.isEmpty) return;
+    final bytes = await result.readAsBytes();
+    if (bytes.isEmpty) return;
 
     try {
       final preview = parseExportZip(bytes);
