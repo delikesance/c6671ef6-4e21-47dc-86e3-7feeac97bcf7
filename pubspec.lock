@@ -514,10 +514,10 @@ packages:
     dependency: transitive
     description:
       name: gma_mediation_unity
-      sha256: "768985bdfaaff1d4ae293e6b94718365e5318fc6ca9bf7d3b1c77758a1e9c4c9"
+      sha256: f2326489fa598d4ff0744509df303664f87a6f5f46ab8dfbed81b4c823100df2
       url: "https://pub.dev"
     source: hosted
-    version: "1.7.0"
+    version: "1.8.0"
   google_cloud:
     dependency: transitive
     description:
