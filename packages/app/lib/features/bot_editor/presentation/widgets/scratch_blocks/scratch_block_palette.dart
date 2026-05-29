@@ -285,6 +285,7 @@ class ScratchBlockPalette extends StatefulWidget {
     this.isInteraction = true,
     this.isWorkflow = false,
     this.isAutocompleteContext = false,
+    this.popOnSelect = true,
   });
 
   final ValueChanged<BotCreatorActionType> onActionSelected;
@@ -294,6 +295,9 @@ class ScratchBlockPalette extends StatefulWidget {
   /// When true, shows the "Respond with autocomplete" action (only valid
   /// inside an autocomplete handler workflow).
   final bool isAutocompleteContext;
+
+  /// When true, Navigator.pop(context) is called automatically when an action is selected.
+  final bool popOnSelect;
 
   @override
   State<ScratchBlockPalette> createState() => _ScratchBlockPaletteState();
@@ -380,7 +384,9 @@ class _ScratchBlockPaletteState extends State<ScratchBlockPalette> {
                     actions: entry.value,
                     onActionSelected: (type) {
                       widget.onActionSelected(type);
-                      Navigator.pop(context);
+                      if (widget.popOnSelect) {
+                        Navigator.pop(context);
+                      }
                     },
                   ),
             ],

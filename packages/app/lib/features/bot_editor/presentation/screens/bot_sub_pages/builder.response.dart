@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:bot_creator_shared/types/action.dart' show BotCreatorActionType;
@@ -1025,6 +1026,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
   Widget _buildActionSequence({
     required EdgeInsetsGeometry padding,
     required double maxContentWidth,
+    bool showAddButton = true,
   }) {
     if (_actions.isEmpty) {
       return _buildEmptyState();
@@ -1095,7 +1097,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
           },
         ),
       ],
-      _buildAddBlockButton(),
+      if (showAddButton) _buildAddBlockButton(),
     ];
 
     return Center(
@@ -1266,19 +1268,6 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
 
   @override
   Widget build(BuildContext context) {
-    Widget saveButton() {
-      return ElevatedButton.icon(
-        onPressed: _saveActions,
-        icon: const Icon(Icons.save),
-        label: Text(context.tr.actions_save_count(_actions.length)),
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          backgroundColor: AppTheme.success,
-          foregroundColor: Colors.white,
-        ),
-      );
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -1287,14 +1276,28 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
               : context.tr.actions_builder_title,
         ),
         actions: [
-          if (widget.editPath.isEmpty)
-            IconButton(
-              onPressed: _saveActions,
-              icon: const Icon(Icons.save),
-              tooltip: context.tr.actions_save_tooltip,
-            ),
+          IconButton(
+            onPressed: _saveActions,
+            icon: Icon(widget.editPath.isNotEmpty ? Icons.check : Icons.save),
+            tooltip: widget.editPath.isNotEmpty
+                ? context.tr.common_ok
+                : context.tr.actions_save_tooltip,
+          ),
         ],
       ),
+      floatingActionButton: _actions.isNotEmpty
+          ? FloatingActionButton.extended(
+              onPressed: _saveActions,
+              icon: Icon(widget.editPath.isNotEmpty ? Icons.check : Icons.save),
+              label: Text(widget.editPath.isNotEmpty
+                  ? context.tr.common_ok
+                  : context.tr.actions_save_count(_actions.length)),
+              backgroundColor: widget.editPath.isNotEmpty
+                  ? Theme.of(context).colorScheme.primary
+                  : AppTheme.success,
+              foregroundColor: Colors.white,
+            )
+          : null,
       body: SafeArea(
         top: false,
         child: Column(
@@ -1302,30 +1305,48 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
             _buildBreadcrumbsHeader(context),
             _buildSequenceHeader(),
             Expanded(
-              child: _buildActionSequence(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                maxContentWidth: 980,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final isDesktop = MediaQuery.of(context).size.width >= 800 &&
+                      !Platform.environment.containsKey('FLUTTER_TEST');
+
+                  final canvasWidget = _buildActionSequence(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 88),
+                    maxContentWidth: 980,
+                    showAddButton: !isDesktop,
+                  );
+
+                  if (isDesktop) {
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Container(
+                          width: 320,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.surface,
+                            border: Border(
+                              right: BorderSide(
+                                color: Theme.of(context).colorScheme.outlineVariant,
+                                width: 1,
+                              ),
+                            ),
+                          ),
+                          child: ScratchBlockPalette(
+                            onActionSelected: _addAction,
+                            isInteraction: widget.isInteraction,
+                            isWorkflow: widget.isWorkflow,
+                            popOnSelect: false,
+                          ),
+                        ),
+                        Expanded(child: canvasWidget),
+                      ],
+                    );
+                  }
+
+                  return canvasWidget;
+                },
               ),
             ),
-            if (_actions.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: widget.editPath.isNotEmpty
-                      ? ElevatedButton.icon(
-                          onPressed: () => Navigator.pop(context),
-                          icon: const Icon(Icons.check),
-                          label: Text(context.tr.common_ok),
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            backgroundColor: Theme.of(context).colorScheme.primary,
-                            foregroundColor: Colors.white,
-                          ),
-                        )
-                      : saveButton(),
-                ),
-              ),
           ],
         ),
       ),

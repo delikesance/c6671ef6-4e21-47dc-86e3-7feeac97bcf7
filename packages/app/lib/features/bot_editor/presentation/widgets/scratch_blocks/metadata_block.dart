@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:nyxx/nyxx.dart';
 
 import 'package:bot_creator/core/models/types/variable_suggestion.dart';
+import 'package:bot_creator/main.dart';
 
 import 'package:bot_creator/features/bot_editor/presentation/widgets/command_create_cards/basic_info_card.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/option_widget.dart';
@@ -91,11 +92,32 @@ class _MetadataBlockState extends State<MetadataBlock> {
   bool _optionsExpanded = false;
 
   late final TextEditingController _nameController;
+  List<String> _existingFolders = const <String>[];
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.commandName);
+    _loadExistingFolders();
+  }
+
+  Future<void> _loadExistingFolders() async {
+    final botId = widget.botIdForConfig;
+    if (botId != null) {
+      try {
+        final commands = await appManager.listAppCommands(botId);
+        final folders = commands
+            .map((c) => (c['folder'] ?? '').toString().trim())
+            .where((f) => f.isNotEmpty)
+            .toSet()
+            .toList()..sort();
+        if (mounted) {
+          setState(() {
+            _existingFolders = folders;
+          });
+        }
+      } catch (_) {}
+    }
   }
 
   @override
@@ -291,16 +313,110 @@ class _MetadataBlockState extends State<MetadataBlock> {
           // ── Folder ──
           if (widget.folderController != null) ...[
             const SizedBox(height: 12),
-            TextField(
-              controller: widget.folderController,
-              decoration: InputDecoration(
-                labelText: context.tr.commands_folder_label,
-                hintText: context.tr.commands_folder_hint,
-                prefixIcon: const Icon(Icons.folder_outlined),
-                border: const OutlineInputBorder(),
-                isDense: true,
-              ),
-              onChanged: widget.onFolderChanged,
+            Autocomplete<String>(
+              optionsBuilder: (TextEditingValue textEditingValue) {
+                if (_existingFolders.isEmpty) {
+                  return const Iterable<String>.empty();
+                }
+                if (textEditingValue.text.isEmpty) {
+                  return _existingFolders;
+                }
+                final query = textEditingValue.text.toLowerCase();
+                return _existingFolders.where((String option) {
+                  return option.toLowerCase().contains(query);
+                });
+              },
+              onSelected: (String selection) {
+                widget.folderController?.text = selection;
+                if (widget.onFolderChanged != null) {
+                  widget.onFolderChanged!(selection);
+                }
+              },
+              optionsViewBuilder: (BuildContext context, AutocompleteOnSelected<String> onSelected, Iterable<String> options) {
+                return Align(
+                  alignment: Alignment.topLeft,
+                  child: Material(
+                    elevation: 4.0,
+                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                    color: Theme.of(context).colorScheme.surface,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxHeight: 200, maxWidth: 300),
+                      child: ListView.builder(
+                        padding: EdgeInsets.zero,
+                        shrinkWrap: true,
+                        itemCount: options.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          final String option = options.elementAt(index);
+                          return InkWell(
+                            onTap: () => onSelected(option),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.folder_outlined, size: 18, color: Theme.of(context).colorScheme.primary),
+                                  const SizedBox(width: 10),
+                                  Text(option, style: const TextStyle(fontSize: 14)),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                );
+              },
+              fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+                final folderController = widget.folderController;
+                if (folderController != null && controller.text != folderController.text) {
+                  controller.text = folderController.text;
+                }
+                controller.addListener(() {
+                  if (folderController != null && folderController.text != controller.text) {
+                    folderController.text = controller.text;
+                    if (widget.onFolderChanged != null) {
+                      widget.onFolderChanged!(controller.text.trim());
+                    }
+                  }
+                });
+                return TextField(
+                  controller: controller,
+                  focusNode: focusNode,
+                  decoration: InputDecoration(
+                    labelText: context.tr.commands_folder_label,
+                    hintText: context.tr.commands_folder_hint,
+                    prefixIcon: const Icon(Icons.folder_outlined),
+                    suffixIcon: _existingFolders.isNotEmpty
+                        ? PopupMenuButton<String>(
+                            icon: const Icon(Icons.folder_open),
+                            tooltip: 'Dossiers existants',
+                            onSelected: (String selection) {
+                              setState(() {
+                                controller.text = selection;
+                                if (folderController != null) {
+                                  folderController.text = selection;
+                                }
+                              });
+                              if (widget.onFolderChanged != null) {
+                                widget.onFolderChanged!(selection);
+                              }
+                            },
+                            itemBuilder: (BuildContext context) {
+                              return _existingFolders.map((String folder) {
+                                return PopupMenuItem<String>(
+                                  value: folder,
+                                  child: Text(folder),
+                                );
+                              }).toList();
+                            },
+                          )
+                        : null,
+                    border: const OutlineInputBorder(),
+                    isDense: true,
+                  ),
+                  onSubmitted: (_) => onFieldSubmitted(),
+                );
+              },
             ),
           ],
 

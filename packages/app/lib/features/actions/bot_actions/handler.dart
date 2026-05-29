@@ -1236,7 +1236,33 @@ Future<Map<String, String>> handleActions(
               referenceKey,
             );
           }
-          value ??= '';
+          if (value == null) {
+            dynamic defaultValue = '';
+            try {
+              final definitions =
+                  await manager.getScopedVariableDefinitions(botId);
+              final def = definitions.firstWhere(
+                (entry) {
+                  final entryScope = (entry['scope'] ?? '').toString().trim();
+                  final entryKeyRaw = (entry['key'] ?? '').toString().trim();
+                  return entryScope == scope &&
+                      _scopedStorageKey(entryKeyRaw) == storageKey;
+                },
+                orElse: () => const <String, dynamic>{},
+              );
+              if (def.containsKey('defaultValue')) {
+                defaultValue = def['defaultValue'];
+              }
+            } catch (_) {}
+            value = defaultValue;
+            await manager.setScopedVariable(
+              botId,
+              scope,
+              contextId,
+              storageKey,
+              value,
+            );
+          }
           final runtimeValue = _stringifyRuntimeValue(value);
           final storeAs =
               resolveValue(

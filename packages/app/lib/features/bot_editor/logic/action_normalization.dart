@@ -32,6 +32,7 @@ Map<String, dynamic> purgeActionPayloadStrict(
       'attachments',
       'ephemeral',
       'visibility',
+      'replyToMessage',
       'key',
     };
     payload.removeWhere((key, value) => !keysToKeep.contains(key));

@@ -90,75 +90,77 @@ class ScratchBlock extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // ── Header ──
-          InkWell(
-            onTap: onToggleCollapse,
-            child: Container(
-              color: headerColor,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              child: Row(
-                children: [
-                  // Color strip indicator
-                  Container(
-                    width: 4,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      color: color,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Icon(icon, color: color, size: 20),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Row(
-                      children: [
-                        Flexible(
-                          child: Text(
-                            title,
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                              color: colorScheme.onSurface,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        if (badge != null) ...[
-                          const SizedBox(width: 6),
-                          badge!,
-                        ],
-                      ],
-                    ),
-                  ),
-                  if (trailing != null) trailing!,
-                  // Reorder buttons (only for non-required blocks)
-                  if (onMoveUp != null || onMoveDown != null) ...[
-                    if (onMoveUp != null)
-                      _HeaderIconButton(
-                        icon: Icons.arrow_upward,
-                        onPressed: onMoveUp!,
-                        color: colorScheme.onSurfaceVariant,
+          Material(
+            color: headerColor,
+            child: InkWell(
+              onTap: onToggleCollapse,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                child: Row(
+                  children: [
+                    // Color strip indicator
+                    Container(
+                      width: 4,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: color,
+                        borderRadius: BorderRadius.circular(2),
                       ),
-                    if (onMoveDown != null)
+                    ),
+                    const SizedBox(width: 8),
+                    Icon(icon, color: color, size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              title,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                                color: colorScheme.onSurface,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          if (badge != null) ...[
+                            const SizedBox(width: 6),
+                            badge!,
+                          ],
+                        ],
+                      ),
+                    ),
+                    if (trailing != null) trailing!,
+                    // Reorder buttons (only for non-required blocks)
+                    if (onMoveUp != null || onMoveDown != null) ...[
+                      if (onMoveUp != null)
+                        _HeaderIconButton(
+                          icon: Icons.arrow_upward,
+                          onPressed: onMoveUp!,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      if (onMoveDown != null)
+                        _HeaderIconButton(
+                          icon: Icons.arrow_downward,
+                          onPressed: onMoveDown!,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                    ],
+                    if (!required && onDelete != null)
                       _HeaderIconButton(
-                        icon: Icons.arrow_downward,
-                        onPressed: onMoveDown!,
+                        icon: Icons.close,
+                        onPressed: onDelete!,
+                        color: colorScheme.error,
+                      ),
+                    if (onToggleCollapse != null)
+                      Icon(
+                        collapsed ? Icons.expand_more : Icons.expand_less,
                         color: colorScheme.onSurfaceVariant,
+                        size: 20,
                       ),
                   ],
-                  if (!required && onDelete != null)
-                    _HeaderIconButton(
-                      icon: Icons.close,
-                      onPressed: onDelete!,
-                      color: colorScheme.error,
-                    ),
-                  if (onToggleCollapse != null)
-                    Icon(
-                      collapsed ? Icons.expand_more : Icons.expand_less,
-                      color: colorScheme.onSurfaceVariant,
-                      size: 20,
-                    ),
-                ],
+                ),
               ),
             ),
           ),
