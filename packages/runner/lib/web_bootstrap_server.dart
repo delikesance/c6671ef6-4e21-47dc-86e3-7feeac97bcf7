@@ -1174,6 +1174,33 @@ class RunnerWebBootstrapServer {
     final uniqueContextIds = contextIds.toSet().toList()..sort();
 
     final values = <String, dynamic>{};
+
+    // Look up the definition's default value so we can replace empty stored
+    // values with it — mirroring what injectScopedRuntimeVariables does at
+    // runtime and what AppManager.listScopedValuesForKey does in the app.
+    final definitions = entry.config.scopedVariableDefinitions;
+    dynamic defaultValueFor(String scope, String storageKey) {
+      for (final def in definitions) {
+        final defKey = _normalizeScopedStorageKey(
+          (def['key'] ?? '').toString(),
+        );
+        final defScope = (def['scope'] ?? '').toString().trim();
+        if (defKey == storageKey && defScope == scope.trim()) {
+          final dv = def['defaultValue'];
+          if (dv != null && !(dv is String && dv.trim().isEmpty)) {
+            return dv;
+          }
+          return null;
+        }
+      }
+      return null;
+    }
+    bool isMissingOrEmpty(dynamic v) {
+      if (v == null) return true;
+      if (v is String) return v.trim().isEmpty;
+      return false;
+    }
+
     for (final contextId in uniqueContextIds) {
       var value = await _variableStore.getScopedVariable(
         botId,
@@ -1188,6 +1215,12 @@ class RunnerWebBootstrapServer {
           contextId,
           legacyKey,
         );
+      }
+      // If the stored value is missing or empty but the definition
+      // specifies a non-trivial default, use the default instead.
+      if (isMissingOrEmpty(value)) {
+        final dv = defaultValueFor(scope, storageKey);
+        if (dv != null) value = dv;
       }
       if (value != null) values[contextId] = value;
     }
