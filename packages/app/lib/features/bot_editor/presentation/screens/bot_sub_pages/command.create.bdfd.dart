@@ -111,6 +111,7 @@ extension _CommandCreateBdfd on _CommandCreatePageState {
             : code;
 
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: () async {
         final result = await Navigator.push<String>(
           context,

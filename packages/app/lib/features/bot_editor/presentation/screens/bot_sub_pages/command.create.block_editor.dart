@@ -385,6 +385,7 @@ extension _CommandBlockEditor on _CommandCreatePageState {
         children: [
           // ── Preview / tap-to-edit ──
           GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: () async {
               final result = await Navigator.push<String>(
                 context,
