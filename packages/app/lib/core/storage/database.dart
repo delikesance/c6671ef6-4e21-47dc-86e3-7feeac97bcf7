@@ -1114,6 +1114,40 @@ class AppManager implements BotDataStore {
     return trimmed;
   }
 
+  /// Returns true when [value] should be treated as "not set" — i.e. null
+  /// or an empty/whitespace-only string.  Mirrors the same logic used by
+  /// injectScopedRuntimeVariables in the shared package.
+  bool _isMissingOrEmptyValue(dynamic value) {
+    if (value == null) return true;
+    if (value is String) return value.trim().isEmpty;
+    return false;
+  }
+
+  /// Looks up the default value from [definitions] for the given [scope]
+  /// and normalized [storageKey].  Returns null when no matching definition
+  /// exists or when the default itself is missing / empty.
+  dynamic _defaultValueFor(
+    List<Map<String, dynamic>> definitions,
+    String scope,
+    String storageKey,
+  ) {
+    for (final def in definitions) {
+      final defKey = _normalizeScopedStorageKey(
+        (def['key'] ?? '').toString(),
+      );
+      final defScope = (def['scope'] ?? '').toString().trim();
+      if (defKey == storageKey && defScope == scope.trim()) {
+        final dv = def['defaultValue'];
+        // Only return non-trivial defaults (skip null / empty-string).
+        if (dv != null && !(dv is String && dv.trim().isEmpty)) {
+          return dv;
+        }
+        return null;
+      }
+    }
+    return null;
+  }
+
   String _toScopedReferenceKey(String key) {
     final trimmed = key.trim();
     if (trimmed.isEmpty) {
@@ -1604,11 +1638,22 @@ class AppManager implements BotDataStore {
     final dedupedContextIds = contextIds.toSet().toList(growable: false);
     dedupedContextIds.sort();
 
+    // Look up the definition's default value so we can replace empty
+    // stored values with it — mirroring what injectScopedRuntimeVariables
+    // does at runtime.
+    final definitions = await getScopedVariableDefinitions(id);
+    final defaultValue = _defaultValueFor(definitions, scope, storageKey);
+
     final result = <String, dynamic>{};
     for (final contextId in dedupedContextIds) {
       var value = await getScopedVariable(id, scope, contextId, storageKey);
       if (value == null && legacyKey != storageKey) {
         value = await getScopedVariable(id, scope, contextId, legacyKey);
+      }
+      // If the stored value is missing or empty but the definition
+      // specifies a non-trivial default, use the default instead.
+      if (_isMissingOrEmptyValue(value) && defaultValue != null) {
+        value = defaultValue;
       }
       if (value != null) {
         result[contextId] = value;

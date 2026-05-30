@@ -307,6 +307,34 @@ String _stringifyRuntimeValue(dynamic value) {
   return value.toString();
 }
 
+bool _isMissingOrEmptyValue(dynamic value) {
+  if (value == null) return true;
+  if (value is String) return value.trim().isEmpty;
+  return false;
+}
+
+/// Looks up the default value from [definitions] for the given [scope]
+/// and normalized [storageKey].  Returns null when no matching definition
+/// exists or when the default itself is missing / empty.
+dynamic _defaultValueFor(
+  List<Map<String, dynamic>> definitions,
+  String scope,
+  String storageKey,
+) {
+  for (final def in definitions) {
+    final defKey = _scopedStorageKey((def['key'] ?? '').toString());
+    final defScope = (def['scope'] ?? '').toString().trim();
+    if (defKey == storageKey && defScope == scope.trim()) {
+      final dv = def['defaultValue'];
+      if (dv != null && !(dv is String && dv.trim().isEmpty)) {
+        return dv;
+      }
+      return null;
+    }
+  }
+  return null;
+}
+
 String _scopedStorageKey(String rawKey) {
   final key = rawKey.trim();
   if (key.isEmpty) {
@@ -1179,10 +1207,24 @@ Future<Map<String, String>> handleActions(
             throw Exception('Unable to resolve context ID for scope "$scope"');
           }
 
-          final value = _resolveVariableValuePayload(
+          var value = _resolveVariableValuePayload(
             action.payload,
             resolveValue,
           );
+          // If the resolved value is empty/null but the definition specifies a
+          // non-trivial default, use the default instead — this prevents
+          // storing "" when the real intent was "reset to default".
+          if (_isMissingOrEmptyValue(value)) {
+            try {
+              final defs = await manager.getScopedVariableDefinitions(botId);
+              final defaultValue = _defaultValueFor(defs, scope, storageKey);
+              if (defaultValue != null) {
+                value = defaultValue;
+              }
+            } catch (_) {
+              // Definitions may not be available in all contexts; ignore.
+            }
+          }
           final runtimeValue = _stringifyRuntimeValue(value);
           await manager.setScopedVariable(
             botId,
