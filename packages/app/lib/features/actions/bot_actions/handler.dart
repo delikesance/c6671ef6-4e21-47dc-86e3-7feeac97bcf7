@@ -1236,8 +1236,16 @@ Future<Map<String, String>> handleActions(
               referenceKey,
             );
           }
-          if (value == null) {
-            dynamic defaultValue = '';
+
+          // Treat stored empty-string values as unset when a definition
+          // provides a non-trivial default.  Without this, `$getUserVar[cash]`
+          // would return "" instead of the configured default (e.g. 0),
+          // and the empty string would be persisted / displayed as the value.
+          final bool valueIsEffectivelyEmpty =
+              value == null || (value is String && value.trim().isEmpty);
+
+          if (valueIsEffectivelyEmpty) {
+            dynamic defaultValue;
             try {
               final definitions =
                   await manager.getScopedVariableDefinitions(botId);
@@ -1254,7 +1262,21 @@ Future<Map<String, String>> handleActions(
                 defaultValue = def['defaultValue'];
               }
             } catch (_) {}
-            value = defaultValue;
+
+            // Only replace the stored value when the definition provides a
+            // meaningful (non-empty-string) default.  If no definition exists
+            // or the default is itself an empty string, keep the original
+            // behaviour of using an empty string.
+            final bool defaultIsMeaningful = defaultValue != null &&
+                !(defaultValue is String && defaultValue.trim().isEmpty);
+            if (defaultIsMeaningful) {
+              value = defaultValue;
+            } else if (value == null) {
+              // No definition with a meaningful default – fall back to empty
+              // string for backwards compatibility.
+              value = defaultValue ?? '';
+            }
+
             await manager.setScopedVariable(
               botId,
               scope,
