@@ -278,6 +278,15 @@ extension _CommandBlockEditor on _CommandCreatePageState {
     );
 
     if (isDesktop) {
+      if (isBdfdMode) {
+        return Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 860.0),
+            child: canvasWidget,
+          ),
+        );
+      }
+
       return Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
