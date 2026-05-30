@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_export_import.dart';
 
@@ -118,7 +120,9 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
     );
     if (result == null) return;
 
-    final bytes = await result.readAsBytes();
+    // Use dart:io File like the rest of the codebase (drive.dart, emojis.page.dart).
+    // result.path is always available on Android/iOS/Desktop.
+    final bytes = await File(result.path!).readAsBytes();
     if (bytes.isEmpty) return;
 
     try {
