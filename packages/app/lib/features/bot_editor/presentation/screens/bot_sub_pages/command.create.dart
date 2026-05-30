@@ -2343,28 +2343,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                         ? 980.0
                         : (constraints.maxWidth >= 900 ? 860.0 : 680.0);
 
-                final isBdfdMode =
-                    _executionMode == _CommandCreatePageState._executionModeBdfdScript;
-
-                if (!isBdfdMode) {
-                  return _buildEditorBody(contentMaxWidth: contentMaxWidth);
-                }
-
-                return Center(
-                  child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    padding: EdgeInsets.fromLTRB(
-                      16,
-                      16,
-                      16,
-                      showStickyEditSave ? 116 : 16,
-                    ),
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: contentMaxWidth),
-                      child: _buildEditorBody(contentMaxWidth: contentMaxWidth),
-                    ),
-                  ),
-                );
+                return _buildEditorBody(contentMaxWidth: contentMaxWidth);
               },
             ),
           ),
