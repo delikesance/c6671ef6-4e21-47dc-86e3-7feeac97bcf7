@@ -4311,6 +4311,7 @@ class _BdfdScriptParameterFieldState extends State<_BdfdScriptParameterField> {
         ),
         const SizedBox(height: 4),
         GestureDetector(
+          behavior: HitTestBehavior.opaque,
           onTap: () async {
             final result = await Navigator.push<String>(
               context,
