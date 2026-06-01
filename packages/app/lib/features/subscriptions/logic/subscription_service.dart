@@ -371,7 +371,7 @@ class SubscriptionService {
       }
 
       final purchaseParam = PurchaseParam(productDetails: product);
-      final started = await iap.buyNonConsumable(purchaseParam: purchaseParam);
+      final started = await iap.buySubscription(purchaseParam: purchaseParam);
       if (!started) {
         unawaited(
           AppDiagnostics.logInfo(
