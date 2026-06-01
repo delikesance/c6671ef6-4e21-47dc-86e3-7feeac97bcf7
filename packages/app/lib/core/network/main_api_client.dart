@@ -95,7 +95,7 @@ class MainApiClient implements RemoteRuntimeClient {
   /// Circuit breaker state per base URL.
   static final Map<String, _CircuitState> _circuits = <String, _CircuitState>{};
   static const int _circuitMaxFailures = 3;
-  static const Duration _circuitCooldown = Duration(seconds: 30);
+  static const Duration _circuitCooldown = Duration(seconds: 60);
 
   /// Retry configuration.
   static const int _maxRetries = 3;
