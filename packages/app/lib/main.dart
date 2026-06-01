@@ -213,7 +213,7 @@ Future<void> _warmUpServicesAfterLaunch() async {
 
   await _runStartupTask(
     label: 'Ad consent flow',
-    timeout: const Duration(seconds: 8),
+    timeout: const Duration(seconds: 15),
     action: () async {
       await AdConsentService.ensureCanRequestAds(
         requestTrackingTransparency: false,
@@ -223,7 +223,7 @@ Future<void> _warmUpServicesAfterLaunch() async {
 
   await _runStartupTask(
     label: 'Rewarded ads initialization',
-    timeout: const Duration(seconds: 8),
+    timeout: const Duration(seconds: 15),
     action: () async {
       await AdRewardService.initialize();
     },
@@ -231,7 +231,7 @@ Future<void> _warmUpServicesAfterLaunch() async {
 
   await _runStartupTask(
     label: 'Native ads initialization',
-    timeout: const Duration(seconds: 8),
+    timeout: const Duration(seconds: 15),
     action: () async {
       await AdNativeService.initialize();
     },
@@ -239,7 +239,7 @@ Future<void> _warmUpServicesAfterLaunch() async {
 
   await _runStartupTask(
     label: 'Subscription service initialization',
-    timeout: const Duration(seconds: 8),
+    timeout: const Duration(seconds: 15),
     action: () async {
       await SubscriptionService.initialize();
     },
