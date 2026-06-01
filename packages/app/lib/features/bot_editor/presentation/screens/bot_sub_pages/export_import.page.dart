@@ -114,14 +114,28 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
   }
 
   Future<void> _pickAndParseZip() async {
-    final result = await FilePicker.pickFile(
-      type: FileType.custom,
-      allowedExtensions: ['zip'],
-    );
-    if (result == null) return;
+    PlatformFile? result;
+    try {
+      result = await FilePicker.pickFile(
+        type: FileType.custom,
+        allowedExtensions: ['zip'],
+      );
+    } catch (e) {
+      // Handle file picker already active error gracefully
+      if (e.toString().contains('already_active')) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('File picker is already active. Please wait and try again.')),
+        );
+        return;
+      }
+      rethrow;
+    }
+
+    if (result == null || result.path == null || result.path!.isEmpty) return;
 
     // Use dart:io File like the rest of the codebase (drive.dart, emojis.page.dart).
-    // result.path is always available on Android/iOS/Desktop.
+    // Avoid using result.readAsBytes() which can fail with "file data is not available"
     final bytes = await File(result.path!).readAsBytes();
     if (bytes.isEmpty) return;
 
