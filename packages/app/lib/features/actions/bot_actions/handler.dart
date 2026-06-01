@@ -1311,13 +1311,9 @@ Future<Map<String, String>> handleActions(
             // behaviour of using an empty string.
             final bool defaultIsMeaningful = defaultValue != null &&
                 !(defaultValue is String && defaultValue.trim().isEmpty);
-            if (defaultIsMeaningful) {
-              value = defaultValue;
-            } else if (value == null) {
-              // No definition with a meaningful default – fall back to empty
-              // string for backwards compatibility.
-              value = defaultValue ?? '';
-            }
+            value = defaultIsMeaningful
+                ? defaultValue
+                : (value ?? defaultValue ?? '');
 
             await manager.setScopedVariable(
               botId,
