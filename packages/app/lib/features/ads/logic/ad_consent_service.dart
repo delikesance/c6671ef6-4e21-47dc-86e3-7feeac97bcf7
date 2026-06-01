@@ -12,9 +12,9 @@ class AdConsentService {
   AdConsentService._();
 
   static Future<bool>? _inFlightRequest;
-  static const Duration _consentInfoTimeout = Duration(seconds: 8);
-  static const Duration _consentFormTimeout = Duration(seconds: 12);
-  static const Duration _privacyOptionsTimeout = Duration(seconds: 12);
+  static const Duration _consentInfoTimeout = Duration(seconds: 15);
+  static const Duration _consentFormTimeout = Duration(seconds: 20);
+  static const Duration _privacyOptionsTimeout = Duration(seconds: 20);
 
   static bool get _isSupportedPlatform {
     if (kIsWeb) {
@@ -130,21 +130,37 @@ class AdConsentService {
       ),
       () => completer.complete(),
       (formError) {
-        completer.completeError(
-          StateError(
+        // Log error but don't fail hard - allow app to continue with default consent
+        unawaited(
+          AppDiagnostics.logError(
             'requestConsentInfoUpdate failed (${formError.errorCode}): ${formError.message}',
+            StateError(
+              'requestConsentInfoUpdate failed (${formError.errorCode}): ${formError.message}',
+            ),
+            StackTrace.current,
+            fatal: false,
           ),
         );
+        completer.complete();
       },
     );
 
     return completer.future.timeout(
       _consentInfoTimeout,
-      onTimeout:
-          () =>
-              throw TimeoutException(
-                'requestConsentInfoUpdate timed out after ${_consentInfoTimeout.inSeconds} seconds',
-              ),
+      onTimeout: () {
+        // Log timeout but complete successfully to allow app to continue
+        unawaited(
+          AppDiagnostics.logError(
+            'requestConsentInfoUpdate timed out after ${_consentInfoTimeout.inSeconds} seconds',
+            TimeoutException(
+              'requestConsentInfoUpdate timed out after ${_consentInfoTimeout.inSeconds} seconds',
+            ),
+            StackTrace.current,
+            fatal: false,
+          ),
+        );
+        completer.complete();
+      },
     );
   }
 
@@ -165,11 +181,20 @@ class AdConsentService {
 
     return completer.future.timeout(
       _consentFormTimeout,
-      onTimeout:
-          () =>
-              throw TimeoutException(
-                'loadAndShowConsentFormIfRequired timed out after ${_consentFormTimeout.inSeconds} seconds',
-              ),
+      onTimeout: () {
+        // Log timeout but complete successfully to allow app to continue
+        unawaited(
+          AppDiagnostics.logError(
+            'loadAndShowConsentFormIfRequired timed out after ${_consentFormTimeout.inSeconds} seconds',
+            TimeoutException(
+              'loadAndShowConsentFormIfRequired timed out after ${_consentFormTimeout.inSeconds} seconds',
+            ),
+            StackTrace.current,
+            fatal: false,
+          ),
+        );
+        completer.complete();
+      },
     );
   }
 
