@@ -696,6 +696,11 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
       case BotCreatorActionType.log:
       case BotCreatorActionType.runtimeJsonBlock:
       case BotCreatorActionType.runtimeImageBlock:
+      case BotCreatorActionType.canvasCreateBlock:
+      case BotCreatorActionType.canvasLoadImageBlock:
+      case BotCreatorActionType.canvasDrawTextBlock:
+      case BotCreatorActionType.canvasDrawCircleBlock:
+      case BotCreatorActionType.canvasDrawRectBlock:
       case BotCreatorActionType.registerGuildCommands:
       case BotCreatorActionType.unregisterGuildCommands:
         return 'Workflows';
@@ -1011,6 +1016,16 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
         return 'Run block of JSON processing actions';
       case BotCreatorActionType.runtimeImageBlock:
         return 'Run block of image canvas processing actions';
+      case BotCreatorActionType.canvasCreateBlock:
+        return 'Create a blank canvas with background color';
+      case BotCreatorActionType.canvasLoadImageBlock:
+        return 'Load image from URL, data URL, or local file';
+      case BotCreatorActionType.canvasDrawTextBlock:
+        return 'Draw text at specific coordinates';
+      case BotCreatorActionType.canvasDrawCircleBlock:
+        return 'Draw a filled or outlined circle';
+      case BotCreatorActionType.canvasDrawRectBlock:
+        return 'Draw a filled or outlined rectangle';
       case BotCreatorActionType.registerGuildCommands:
         return 'Register application commands to a guild';
       case BotCreatorActionType.unregisterGuildCommands:
