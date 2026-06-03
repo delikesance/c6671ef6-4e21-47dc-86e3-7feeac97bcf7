@@ -7206,4 +7206,47 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get cmd_deploy_retry_button => 'Yeniden Dene';
+
+  @override
+  String get variable_category_context => 'Bağlam';
+
+  @override
+  String get variable_category_interaction => 'Etkileşim';
+
+  @override
+  String get variable_category_bot => 'Bot';
+
+  @override
+  String get variable_category_guild => 'Sunucu';
+
+  @override
+  String get variable_category_channel => 'Kanal';
+
+  @override
+  String get variable_category_member => 'Üye';
+
+  @override
+  String get variable_category_message => 'Mesaj';
+
+  @override
+  String get variable_category_author => 'Yazar';
+
+  @override
+  String get variable_category_user => 'Kullanıcı';
+
+  @override
+  String get variable_category_temp => 'Geçici';
+
+  @override
+  String get variable_category_functions => 'Fonksiyonlar';
+
+  @override
+  String get variable_category_other => 'Diğer';
+
+  @override
+  String get variable_autocomplete_title =>
+      'Kullanılabilir değişkenler — eklemek için dokunun';
+
+  @override
+  String get variable_autocomplete_numeric_title => 'Dinamik sayısal öneriler';
 }

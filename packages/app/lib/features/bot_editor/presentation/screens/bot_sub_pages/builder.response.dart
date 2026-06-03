@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:bot_creator_shared/types/action.dart' show BotCreatorActionType;
 import 'package:bot_creator/core/models/types/app_emoji.dart';
+import 'package:bot_creator_shared/types/variable_suggestion.dart' as shared;
+import 'package:bot_creator_shared/utils/variable_catalog.dart' show inferCategory;
 import 'builder/action_types.dart';
 import 'builder/action_type_extension.dart';
 import 'builder/action_summary.dart';
@@ -211,15 +213,26 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
   void _addSuggestionIfMissing(
     Map<String, VariableSuggestion> bucket,
     String name,
-    VariableSuggestionKind kind,
-  ) {
+    VariableSuggestionKind kind, {
+    shared.VariableCategory category = shared.VariableCategory.other,
+  }) {
     final trimmed = name.trim();
     if (trimmed.isEmpty) {
       return;
     }
     bucket.putIfAbsent(
       trimmed,
-      () => VariableSuggestion(name: trimmed, kind: kind),
+      () {
+        // Infer category from name prefix when none explicitly set.
+        final effectiveCategory = category != shared.VariableCategory.other
+            ? category
+            : inferCategory(trimmed);
+        return VariableSuggestion(
+          name: trimmed,
+          kind: kind,
+          category: effectiveCategory,
+        );
+      },
     );
   }
 
@@ -373,6 +386,29 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
         );
       }
     }
+
+    // Temporary variables: when a setTemporaryVariable action is present,
+    // expose its key as temp.<key> so it appears in autocomplete for
+    // downstream blocks.
+    if (type == BotCreatorActionType.setTemporaryVariable) {
+      // Read key the same way the runtime executor does:
+      // from the serialized payload, not from parameters.
+      final serialized = action.toJson();
+      final payload = serialized['payload'] as Map<String, dynamic>? ?? const {};
+      final rawKey = (payload['key'] ?? '').toString().trim();
+      if (rawKey.isNotEmpty) {
+        // Strip bc_ prefix if present (matching runtime storage convention).
+        final normalizedKey = rawKey.startsWith('bc_') && rawKey.length > 3
+            ? rawKey.substring(3)
+            : rawKey;
+        _addSuggestionIfMissing(
+          bucket,
+          'temp.$normalizedKey',
+          VariableSuggestionKind.unknown,
+          category: shared.VariableCategory.temp,
+        );
+      }
+    }
   }
 
   List<VariableSuggestion> _buildMergedVariableSuggestions() {
@@ -384,7 +420,16 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
       }
       merged.putIfAbsent(
         normalizedName,
-        () => VariableSuggestion(name: normalizedName, kind: item.kind),
+        () {
+          final cat = item.category != shared.VariableCategory.other
+              ? item.category
+              : inferCategory(normalizedName);
+          return VariableSuggestion(
+            name: normalizedName,
+            kind: item.kind,
+            category: cat,
+          );
+        },
       );
     }
 

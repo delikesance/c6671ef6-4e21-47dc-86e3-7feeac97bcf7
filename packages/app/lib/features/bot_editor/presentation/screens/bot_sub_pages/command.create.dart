@@ -16,7 +16,7 @@ import 'package:bot_creator_shared/types/action.dart' show BotCreatorActionType;
 import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/features/bot_editor/logic/app_emoji_api.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
-import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
+  import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
 import 'package:bot_creator/features/bot_editor/logic/command_variable_catalog.dart';
 import 'package:bot_creator/features/bot_editor/logic/embed_normalization.dart';
 import 'package:bot_creator/core/utils/global.dart';
@@ -37,6 +37,7 @@ import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blo
 import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/entry_point_block.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/action_block.dart';
 import 'package:bot_creator/core/models/types/variable_suggestion.dart';
+import 'package:bot_creator_shared/utils/variable_catalog.dart' show inferCategory;
 import 'package:bot_creator/features/bot_editor/logic/command_editor_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

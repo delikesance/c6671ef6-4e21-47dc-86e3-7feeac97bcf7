@@ -9058,5 +9058,61 @@
     "description": "Subtitle showing command name under configuration"
   },
   "cmd_deploy_close_button": "Schließen",
-  "cmd_deploy_retry_button": "Wiederholen"
+  "cmd_deploy_retry_button": "Wiederholen",
+  "variable_category_context": "Kontext",
+  "@variable_category_context": {
+    "description": "Kontext"
+  },
+  "variable_category_interaction": "Interaktion",
+  "@variable_category_interaction": {
+    "description": "Interaktion"
+  },
+  "variable_category_bot": "Bot",
+  "@variable_category_bot": {
+    "description": "Bot"
+  },
+  "variable_category_guild": "Server",
+  "@variable_category_guild": {
+    "description": "Server"
+  },
+  "variable_category_channel": "Kanal",
+  "@variable_category_channel": {
+    "description": "Kanal"
+  },
+  "variable_category_member": "Mitglied",
+  "@variable_category_member": {
+    "description": "Mitglied"
+  },
+  "variable_category_message": "Nachricht",
+  "@variable_category_message": {
+    "description": "Nachricht"
+  },
+  "variable_category_author": "Autor",
+  "@variable_category_author": {
+    "description": "Autor"
+  },
+  "variable_category_user": "Benutzer",
+  "@variable_category_user": {
+    "description": "Benutzer"
+  },
+  "variable_category_temp": "Temporär",
+  "@variable_category_temp": {
+    "description": "Temporär"
+  },
+  "variable_category_functions": "Funktionen",
+  "@variable_category_functions": {
+    "description": "Funktionen"
+  },
+  "variable_category_other": "Andere",
+  "@variable_category_other": {
+    "description": "Andere"
+  },
+  "variable_autocomplete_title": "Verfügbare Variablen — zum Einfügen tippen",
+  "@variable_autocomplete_title": {
+    "description": "Verfügbare Variablen — zum Einfügen tippen"
+  },
+  "variable_autocomplete_numeric_title": "Dynamische numerische Vorschläge",
+  "@variable_autocomplete_numeric_title": {
+    "description": "Dynamische numerische Vorschläge"
+  }
 }

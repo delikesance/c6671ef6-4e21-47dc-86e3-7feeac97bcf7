@@ -215,7 +215,11 @@ class AppDiagnostics {
   }
 
   static Future<void> _appendLine(String line) async {
-    debugPrint(line);
+    // Suppress Discord RPC spam — these fire on every presence update and
+    // fill the diagnostics file with noise that is never read.
+    if (line.contains('Discord RPC')) {
+      return;
+    }
     if (_logFile == null) {
       return;
     }
