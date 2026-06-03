@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 import 'package:bot_creator/core/network/remote_runtime.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
@@ -1068,18 +1070,47 @@ class ActionCard extends StatelessWidget {
               style: const TextStyle(fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 4),
-            TextFormField(
-              key: _parameterInputKey(paramDef.key),
-              initialValue: (currentValue ?? paramDef.defaultValue).toString(),
-              keyboardType: TextInputType.url,
-              decoration: InputDecoration(
-                hintText: _localizeHint(paramDef.hint) ?? 'https://example.com',
-                border: const OutlineInputBorder(),
-                isDense: true,
-                prefixIcon: const Icon(Icons.link, size: 20),
-              ),
-              onChanged:
-                  (newValue) => onParameterChanged(paramDef.key, newValue),
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    key: _parameterInputKey(paramDef.key),
+                    initialValue:
+                        (currentValue ?? paramDef.defaultValue).toString(),
+                    keyboardType: TextInputType.url,
+                    decoration: InputDecoration(
+                      hintText: _localizeHint(paramDef.hint) ??
+                          'https://example.com',
+                      border: const OutlineInputBorder(),
+                      isDense: true,
+                      prefixIcon: const Icon(Icons.link, size: 20),
+                    ),
+                    onChanged: (newValue) =>
+                        onParameterChanged(paramDef.key, newValue),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(Icons.image_outlined),
+                  tooltip: 'Pick local image',
+                  onPressed: () async {
+                    try {
+                      final file = await FilePicker.pickFile(
+                        type: FileType.image,
+                      );
+                      if (file == null || file.path == null) return;
+                      final bytes = await File(file.path!).readAsBytes();
+                      if (bytes.isEmpty) return;
+                      final base64 = base64Encode(bytes);
+                      const mime = 'image/png';
+                      final dataUrl = 'data:$mime;base64,$base64';
+                      onParameterChanged(paramDef.key, dataUrl);
+                    } catch (_) {
+                      // File picker cancelled or error — ignore
+                    }
+                  },
+                ),
+              ],
             ),
             ..._buildVariableSuggestionsForParam(
               paramKey: paramDef.key,
