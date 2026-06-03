@@ -7263,4 +7263,48 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get cmd_deploy_retry_button => 'Réessayer';
+
+  @override
+  String get variable_category_context => 'Contexte';
+
+  @override
+  String get variable_category_interaction => 'Interaction';
+
+  @override
+  String get variable_category_bot => 'Bot';
+
+  @override
+  String get variable_category_guild => 'Serveur';
+
+  @override
+  String get variable_category_channel => 'Salon';
+
+  @override
+  String get variable_category_member => 'Membre';
+
+  @override
+  String get variable_category_message => 'Message';
+
+  @override
+  String get variable_category_author => 'Auteur';
+
+  @override
+  String get variable_category_user => 'Utilisateur';
+
+  @override
+  String get variable_category_temp => 'Temporaire';
+
+  @override
+  String get variable_category_functions => 'Fonctions';
+
+  @override
+  String get variable_category_other => 'Autre';
+
+  @override
+  String get variable_autocomplete_title =>
+      'Variables disponibles — appuyez pour insérer';
+
+  @override
+  String get variable_autocomplete_numeric_title =>
+      'Suggestions numériques dynamiques';
 }

@@ -12610,6 +12610,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Retry'**
   String get cmd_deploy_retry_button;
+
+  /// Context
+  ///
+  /// In en, this message translates to:
+  /// **'Context'**
+  String get variable_category_context;
+
+  /// Interaction
+  ///
+  /// In en, this message translates to:
+  /// **'Interaction'**
+  String get variable_category_interaction;
+
+  /// Bot
+  ///
+  /// In en, this message translates to:
+  /// **'Bot'**
+  String get variable_category_bot;
+
+  /// Server
+  ///
+  /// In en, this message translates to:
+  /// **'Server'**
+  String get variable_category_guild;
+
+  /// Channel
+  ///
+  /// In en, this message translates to:
+  /// **'Channel'**
+  String get variable_category_channel;
+
+  /// Member
+  ///
+  /// In en, this message translates to:
+  /// **'Member'**
+  String get variable_category_member;
+
+  /// Message
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get variable_category_message;
+
+  /// Author
+  ///
+  /// In en, this message translates to:
+  /// **'Author'**
+  String get variable_category_author;
+
+  /// User
+  ///
+  /// In en, this message translates to:
+  /// **'User'**
+  String get variable_category_user;
+
+  /// Temporary
+  ///
+  /// In en, this message translates to:
+  /// **'Temporary'**
+  String get variable_category_temp;
+
+  /// Functions
+  ///
+  /// In en, this message translates to:
+  /// **'Functions'**
+  String get variable_category_functions;
+
+  /// Other
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get variable_category_other;
+
+  /// Available variables — tap to insert
+  ///
+  /// In en, this message translates to:
+  /// **'Available variables — tap to insert'**
+  String get variable_autocomplete_title;
+
+  /// Dynamic numeric suggestions
+  ///
+  /// In en, this message translates to:
+  /// **'Dynamic numeric suggestions'**
+  String get variable_autocomplete_numeric_title;
 }
 
 class _AppLocalizationsDelegate

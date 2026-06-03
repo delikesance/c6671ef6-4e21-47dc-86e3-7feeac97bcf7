@@ -188,10 +188,11 @@ extension _CommandCreateVariableSuggestions on _CommandCreatePageState {
   List<VariableSuggestion> get _actionVariableSuggestions {
     final suggestionsByName = <String, VariableSuggestion>{};
 
-    void addSuggestion(String name, {required VariableSuggestionKind kind}) {
+    void addSuggestion(String name, {required VariableSuggestionKind kind, VariableCategory category = VariableCategory.other}) {
       final existing = suggestionsByName[name];
       if (existing == null) {
-        suggestionsByName[name] = VariableSuggestion(name: name, kind: kind);
+        final cat = category != VariableCategory.other ? category : inferCategory(name);
+        suggestionsByName[name] = VariableSuggestion(name: name, kind: kind, category: cat);
         return;
       }
 
@@ -201,12 +202,12 @@ extension _CommandCreateVariableSuggestions on _CommandCreatePageState {
       }
 
       if (kind == VariableSuggestionKind.numeric) {
-        suggestionsByName[name] = VariableSuggestion(name: name, kind: kind);
+        suggestionsByName[name] = VariableSuggestion(name: name, kind: kind, category: category);
       }
     }
 
     for (final suggestion in builtinCommandVariableSuggestions) {
-      addSuggestion(suggestion.name, kind: suggestion.kind);
+      addSuggestion(suggestion.name, kind: suggestion.kind, category: suggestion.category);
     }
 
     for (final option in _effectiveOptions) {
@@ -386,6 +387,30 @@ extension _CommandCreateVariableSuggestions on _CommandCreatePageState {
       final storeAlias = _resolveActionStoreAlias(action);
       if (storeAlias.isNotEmpty) {
         addSuggestion(storeAlias, kind: VariableSuggestionKind.unknown);
+      }
+
+      // Temporary variables: expose setTemporaryVariable keys as temp.<key>
+      // Read from payload['key'] directly to avoid collision with
+      // the action's own top-level 'key' field (the auto-generated action key).
+      if (type == 'setTemporaryVariable') {
+        final payload = Map<String, dynamic>.from(
+          (action['payload'] as Map?)?.cast<String, dynamic>() ?? const {},
+        );
+        var rawKey = (payload['key'] ?? '').toString().trim();
+        if (rawKey.isEmpty) {
+          // Fall back to _readActionStringParameter for edge cases
+          rawKey = _readActionStringParameter(action, 'key');
+        }
+        if (rawKey.isNotEmpty) {
+          final normalizedKey = rawKey.startsWith('bc_') && rawKey.length > 3
+              ? rawKey.substring(3)
+              : rawKey;
+          addSuggestion(
+            'temp.$normalizedKey',
+            kind: VariableSuggestionKind.unknown,
+            category: VariableCategory.temp,
+          );
+        }
       }
     }
 

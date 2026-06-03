@@ -9058,5 +9058,61 @@
     "description": "Subtitle showing command name under configuration"
   },
   "cmd_deploy_close_button": "Fermer",
-  "cmd_deploy_retry_button": "Réessayer"
+  "cmd_deploy_retry_button": "Réessayer",
+  "variable_category_context": "Contexte",
+  "@variable_category_context": {
+    "description": "Contexte"
+  },
+  "variable_category_interaction": "Interaction",
+  "@variable_category_interaction": {
+    "description": "Interaction"
+  },
+  "variable_category_bot": "Bot",
+  "@variable_category_bot": {
+    "description": "Bot"
+  },
+  "variable_category_guild": "Serveur",
+  "@variable_category_guild": {
+    "description": "Serveur"
+  },
+  "variable_category_channel": "Salon",
+  "@variable_category_channel": {
+    "description": "Salon"
+  },
+  "variable_category_member": "Membre",
+  "@variable_category_member": {
+    "description": "Membre"
+  },
+  "variable_category_message": "Message",
+  "@variable_category_message": {
+    "description": "Message"
+  },
+  "variable_category_author": "Auteur",
+  "@variable_category_author": {
+    "description": "Auteur"
+  },
+  "variable_category_user": "Utilisateur",
+  "@variable_category_user": {
+    "description": "Utilisateur"
+  },
+  "variable_category_temp": "Temporaire",
+  "@variable_category_temp": {
+    "description": "Temporaire"
+  },
+  "variable_category_functions": "Fonctions",
+  "@variable_category_functions": {
+    "description": "Fonctions"
+  },
+  "variable_category_other": "Autre",
+  "@variable_category_other": {
+    "description": "Autre"
+  },
+  "variable_autocomplete_title": "Variables disponibles — appuyez pour insérer",
+  "@variable_autocomplete_title": {
+    "description": "Variables disponibles — appuyez pour insérer"
+  },
+  "variable_autocomplete_numeric_title": "Suggestions numériques dynamiques",
+  "@variable_autocomplete_numeric_title": {
+    "description": "Suggestions numériques dynamiques"
+  }
 }

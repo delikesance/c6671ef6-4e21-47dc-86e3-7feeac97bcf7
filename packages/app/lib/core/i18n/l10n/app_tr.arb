@@ -9058,5 +9058,61 @@
     "description": "Subtitle showing command name under configuration"
   },
   "cmd_deploy_close_button": "Kapat",
-  "cmd_deploy_retry_button": "Yeniden Dene"
+  "cmd_deploy_retry_button": "Yeniden Dene",
+  "variable_category_context": "Bağlam",
+  "@variable_category_context": {
+    "description": "Bağlam"
+  },
+  "variable_category_interaction": "Etkileşim",
+  "@variable_category_interaction": {
+    "description": "Etkileşim"
+  },
+  "variable_category_bot": "Bot",
+  "@variable_category_bot": {
+    "description": "Bot"
+  },
+  "variable_category_guild": "Sunucu",
+  "@variable_category_guild": {
+    "description": "Sunucu"
+  },
+  "variable_category_channel": "Kanal",
+  "@variable_category_channel": {
+    "description": "Kanal"
+  },
+  "variable_category_member": "Üye",
+  "@variable_category_member": {
+    "description": "Üye"
+  },
+  "variable_category_message": "Mesaj",
+  "@variable_category_message": {
+    "description": "Mesaj"
+  },
+  "variable_category_author": "Yazar",
+  "@variable_category_author": {
+    "description": "Yazar"
+  },
+  "variable_category_user": "Kullanıcı",
+  "@variable_category_user": {
+    "description": "Kullanıcı"
+  },
+  "variable_category_temp": "Geçici",
+  "@variable_category_temp": {
+    "description": "Geçici"
+  },
+  "variable_category_functions": "Fonksiyonlar",
+  "@variable_category_functions": {
+    "description": "Fonksiyonlar"
+  },
+  "variable_category_other": "Diğer",
+  "@variable_category_other": {
+    "description": "Diğer"
+  },
+  "variable_autocomplete_title": "Kullanılabilir değişkenler — eklemek için dokunun",
+  "@variable_autocomplete_title": {
+    "description": "Kullanılabilir değişkenler — eklemek için dokunun"
+  },
+  "variable_autocomplete_numeric_title": "Dinamik sayısal öneriler",
+  "@variable_autocomplete_numeric_title": {
+    "description": "Dinamik sayısal öneriler"
+  }
 }

@@ -6,6 +6,7 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pag
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/workflow_docs.page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/entry_point_block.dart';
 import 'package:bot_creator/core/models/types/app_emoji.dart';
+import 'package:bot_creator_shared/utils/variable_catalog.dart' show inferCategory;
 import 'package:bot_creator/features/bot_editor/logic/app_emoji_api.dart';
 import 'package:bot_creator/features/ads/logic/ads_placement_policy.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
@@ -194,6 +195,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
             kind: entry.value is num
                 ? VariableSuggestionKind.numeric
                 : VariableSuggestionKind.unknown,
+            category: inferCategory('global.$key'),
           ),
         );
       }
@@ -207,13 +209,15 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
         if (scope.isEmpty || storageKey.isEmpty) {
           continue;
         }
+        final name = '$scope.${_toScopedReferenceName(storageKey)}';
         suggestions.add(
           VariableSuggestion(
-            name: '$scope.${_toScopedReferenceName(storageKey)}',
+            name: name,
             kind: (definition['valueType']?.toString() == 'number' ||
                     definition['defaultValue'] is num)
                 ? VariableSuggestionKind.numeric
                 : VariableSuggestionKind.unknown,
+            category: inferCategory(name),
           ),
         );
       }
