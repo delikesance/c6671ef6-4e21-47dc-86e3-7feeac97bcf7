@@ -658,6 +658,10 @@
   "@action_name_runtimeJsonBlock": {
     "description": "JSON-Operationen ausführen"
   },
+  "action_name_runtimeImageBlock": "Bildoperationen ausführen",
+  "@action_name_runtimeImageBlock": {
+    "description": "Bildoperationen ausführen"
+  },
   "action_name_sendComponentV2": "Komponente V2 senden",
   "@action_name_sendComponentV2": {
     "description": "Send Component V2"

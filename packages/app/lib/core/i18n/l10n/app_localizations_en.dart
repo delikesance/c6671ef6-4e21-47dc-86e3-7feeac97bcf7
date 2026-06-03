@@ -504,6 +504,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get action_name_runtimeJsonBlock => 'Execute JSON Operations';
 
   @override
+  String get action_name_runtimeImageBlock => 'Execute Image Canvas';
+
+  @override
   String get action_name_runWorkflow => 'Run Workflow';
 
   @override

@@ -518,6 +518,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get action_name_runtimeJsonBlock => 'Bloc JSON d\'exécution';
 
   @override
+  String get action_name_runtimeImageBlock => 'Bloc Image d\'exécution';
+
+  @override
   String get action_name_runWorkflow => 'Exécuter un workflow';
 
   @override

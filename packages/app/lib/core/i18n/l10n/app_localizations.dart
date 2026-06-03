@@ -1010,6 +1010,12 @@ abstract class AppLocalizations {
   /// **'Execute JSON Operations'**
   String get action_name_runtimeJsonBlock;
 
+  /// Execute Image Canvas
+  ///
+  /// In en, this message translates to:
+  /// **'Execute Image Canvas'**
+  String get action_name_runtimeImageBlock;
+
   /// Run Workflow
   ///
   /// In en, this message translates to:

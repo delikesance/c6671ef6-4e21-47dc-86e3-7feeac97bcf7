@@ -654,6 +654,10 @@
   "@action_name_runtimeJsonBlock": {
     "description": "Execute JSON Operations"
   },
+  "action_name_runtimeImageBlock": "Execute Image Canvas",
+  "@action_name_runtimeImageBlock": {
+    "description": "Execute Image Canvas"
+  },
   "action_name_runWorkflow": "Run Workflow",
   "@action_name_runWorkflow": {
     "description": "Run Workflow"

@@ -658,6 +658,10 @@
   "@action_name_runtimeJsonBlock": {
     "description": "Runtime JSON Block"
   },
+  "action_name_runtimeImageBlock": "Bloc Image d'exécution",
+  "@action_name_runtimeImageBlock": {
+    "description": "Runtime Image Block"
+  },
   "action_name_sendComponentV2": "Envoyer un composant V2",
   "@action_name_sendComponentV2": {
     "description": "Send Component V2"

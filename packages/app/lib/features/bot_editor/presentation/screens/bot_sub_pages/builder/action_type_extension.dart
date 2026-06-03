@@ -208,6 +208,8 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
         return context.tr.action_name_log;
       case BotCreatorActionType.runtimeJsonBlock:
         return context.tr.action_name_runtimeJsonBlock;
+      case BotCreatorActionType.runtimeImageBlock:
+        return context.tr.action_name_runtimeImageBlock;
       case BotCreatorActionType.registerGuildCommands:
         return context.tr.action_name_registerGuildCommands;
       case BotCreatorActionType.unregisterGuildCommands:
@@ -398,6 +400,8 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
         return Icons.notes;
       case BotCreatorActionType.runtimeJsonBlock:
         return Icons.code;
+      case BotCreatorActionType.runtimeImageBlock:
+        return Icons.image;
       case BotCreatorActionType.registerGuildCommands:
         return Icons.playlist_add;
       case BotCreatorActionType.unregisterGuildCommands:
@@ -3233,6 +3237,7 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
         ];
       case BotCreatorActionType.debugProfile:
       case BotCreatorActionType.runtimeJsonBlock:
+      case BotCreatorActionType.runtimeImageBlock:
         return [];
       case BotCreatorActionType.log:
         return [

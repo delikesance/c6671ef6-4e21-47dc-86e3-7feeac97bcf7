@@ -695,6 +695,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
       case BotCreatorActionType.debugProfile:
       case BotCreatorActionType.log:
       case BotCreatorActionType.runtimeJsonBlock:
+      case BotCreatorActionType.runtimeImageBlock:
       case BotCreatorActionType.registerGuildCommands:
       case BotCreatorActionType.unregisterGuildCommands:
         return 'Workflows';
@@ -1008,6 +1009,8 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
         return 'Print or store diagnostic message to action logs';
       case BotCreatorActionType.runtimeJsonBlock:
         return 'Run block of JSON processing actions';
+      case BotCreatorActionType.runtimeImageBlock:
+        return 'Run block of image canvas processing actions';
       case BotCreatorActionType.registerGuildCommands:
         return 'Register application commands to a guild';
       case BotCreatorActionType.unregisterGuildCommands:

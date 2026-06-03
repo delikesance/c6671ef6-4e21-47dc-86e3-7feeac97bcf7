@@ -501,6 +501,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get action_name_runtimeJsonBlock => 'JSON İşlemlerini Çalıştır';
 
   @override
+  String get action_name_runtimeImageBlock => 'Görüntü İşlemlerini Çalıştır';
+
+  @override
   String get action_name_runWorkflow => 'İş Akışını Çalıştır';
 
   @override
