@@ -654,6 +654,10 @@
   "@action_name_runtimeJsonBlock": {
     "description": "Executar Operações JSON"
   },
+  "action_name_runtimeImageBlock": "Executar Operações de Imagem",
+  "@action_name_runtimeImageBlock": {
+    "description": "Executar Operações de Imagem"
+  },
   "action_name_runWorkflow": "Executar Fluxo de Trabalho",
   "@action_name_runWorkflow": {
     "description": "Run Workflow"

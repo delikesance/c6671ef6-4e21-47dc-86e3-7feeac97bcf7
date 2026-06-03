@@ -512,6 +512,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get action_name_runtimeJsonBlock => 'Executar Operações JSON';
 
   @override
+  String get action_name_runtimeImageBlock => 'Executar Operações de Imagem';
+
+  @override
   String get action_name_runWorkflow => 'Executar Fluxo de Trabalho';
 
   @override
