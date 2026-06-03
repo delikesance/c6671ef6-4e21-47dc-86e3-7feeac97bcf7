@@ -317,6 +317,21 @@ class AppLocalizationsPt extends AppLocalizations {
   String get action_name_calculate => 'Calcular';
 
   @override
+  String get action_name_canvasCreateBlock => 'Criar Tela';
+
+  @override
+  String get action_name_canvasDrawCircleBlock => 'Desenhar Círculo';
+
+  @override
+  String get action_name_canvasDrawRectBlock => 'Desenhar Retângulo';
+
+  @override
+  String get action_name_canvasDrawTextBlock => 'Desenhar Texto';
+
+  @override
+  String get action_name_canvasLoadImageBlock => 'Carregar Imagem';
+
+  @override
   String get action_name_clearAllReactions => 'Limpar Todas as Reações';
 
   @override

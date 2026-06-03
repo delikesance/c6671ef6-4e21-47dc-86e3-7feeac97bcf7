@@ -402,6 +402,26 @@
   "@action_name_calculate": {
     "description": "Calculate"
   },
+  "action_name_canvasCreateBlock": "Create Canvas",
+  "@action_name_canvasCreateBlock": {
+    "description": "Create Canvas"
+  },
+  "action_name_canvasDrawCircleBlock": "Draw Circle",
+  "@action_name_canvasDrawCircleBlock": {
+    "description": "Draw Circle"
+  },
+  "action_name_canvasDrawRectBlock": "Draw Rectangle",
+  "@action_name_canvasDrawRectBlock": {
+    "description": "Draw Rectangle"
+  },
+  "action_name_canvasDrawTextBlock": "Draw Text",
+  "@action_name_canvasDrawTextBlock": {
+    "description": "Draw Text"
+  },
+  "action_name_canvasLoadImageBlock": "Load Image",
+  "@action_name_canvasLoadImageBlock": {
+    "description": "Load Image"
+  },
   "action_name_clearAllReactions": "Clear All Reactions",
   "@action_name_clearAllReactions": {
     "description": "Clear All Reactions"

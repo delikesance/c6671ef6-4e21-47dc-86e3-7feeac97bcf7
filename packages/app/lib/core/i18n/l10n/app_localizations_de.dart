@@ -309,6 +309,21 @@ class AppLocalizationsDe extends AppLocalizations {
   String get action_name_calculate => 'Berechnen';
 
   @override
+  String get action_name_canvasCreateBlock => 'Leinwand erstellen';
+
+  @override
+  String get action_name_canvasDrawCircleBlock => 'Kreis zeichnen';
+
+  @override
+  String get action_name_canvasDrawRectBlock => 'Rechteck zeichnen';
+
+  @override
+  String get action_name_canvasDrawTextBlock => 'Text zeichnen';
+
+  @override
+  String get action_name_canvasLoadImageBlock => 'Bild laden';
+
+  @override
   String get action_name_clearAllReactions => 'Alle Reaktionen löschen';
 
   @override
