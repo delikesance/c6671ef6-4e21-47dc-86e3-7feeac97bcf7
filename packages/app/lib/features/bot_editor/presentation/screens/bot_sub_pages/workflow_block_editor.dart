@@ -14,6 +14,7 @@ import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blo
 import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/scratch_block_canvas.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/scratch_block_palette.dart';
 import 'package:bot_creator/core/models/types/variable_suggestion.dart';
+import 'package:bot_creator_shared/types/variable_suggestion.dart' as shared;
 import 'package:flutter/material.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
@@ -190,8 +191,39 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
       argumentDefinitions: defs,
       eventTrigger: _eventTrigger,
     );
+
+    // Scan workflow actions for setTemporaryVariable blocks and expose
+    // their keys as temp.<key> suggestions so they appear in autocomplete
+    // for downstream blocks.
+    final deduped = <String, VariableSuggestion>{};
+    for (final s in suggestions) {
+      deduped[s.name] = s;
+    }
+    for (final action in _actions) {
+      final type = (action['type'] ?? '').toString();
+      if (type != 'setTemporaryVariable') continue;
+
+      final payload = Map<String, dynamic>.from(
+        (action['payload'] as Map?)?.cast<String, dynamic>() ?? const {},
+      );
+      final rawKey = (payload['key'] ?? '').toString().trim();
+      if (rawKey.isEmpty) continue;
+
+      final normalizedKey = rawKey.startsWith('bc_') && rawKey.length > 3
+          ? rawKey.substring(3)
+          : rawKey;
+      final name = 'temp.$normalizedKey';
+      if (deduped.containsKey(name)) continue;
+
+      deduped[name] = VariableSuggestion(
+        name: name,
+        kind: VariableSuggestionKind.unknown,
+        category: shared.VariableCategory.temp,
+      );
+    }
+
     if (mounted) {
-      setState(() => _variableSuggestions = suggestions);
+      setState(() => _variableSuggestions = deduped.values.toList(growable: false));
     }
   }
 
@@ -645,6 +677,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
               payload[key] = value;
               _actions[i]['payload'] = payload;
             });
+            _refreshVariableSuggestions();
           },
           onSuggestionSelected: (key, value) {
             setState(() {
@@ -655,6 +688,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
               payload[key] = value;
               _actions[i]['payload'] = payload;
             });
+            _refreshVariableSuggestions();
           },
           fieldRefreshVersionOf: (_) => 0,
           onEditNestedActions: (current, suggestions, blockName, {onChanged}) async {

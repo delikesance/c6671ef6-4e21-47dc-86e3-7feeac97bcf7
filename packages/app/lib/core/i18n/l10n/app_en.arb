@@ -9145,5 +9145,61 @@
   "cmd_deploy_retry_button": "Retry",
   "@cmd_deploy_retry_button": {
     "description": "Retry"
+  },
+  "variable_category_context": "Context",
+  "@variable_category_context": {
+    "description": "Context"
+  },
+  "variable_category_interaction": "Interaction",
+  "@variable_category_interaction": {
+    "description": "Interaction"
+  },
+  "variable_category_bot": "Bot",
+  "@variable_category_bot": {
+    "description": "Bot"
+  },
+  "variable_category_guild": "Server",
+  "@variable_category_guild": {
+    "description": "Server"
+  },
+  "variable_category_channel": "Channel",
+  "@variable_category_channel": {
+    "description": "Channel"
+  },
+  "variable_category_member": "Member",
+  "@variable_category_member": {
+    "description": "Member"
+  },
+  "variable_category_message": "Message",
+  "@variable_category_message": {
+    "description": "Message"
+  },
+  "variable_category_author": "Author",
+  "@variable_category_author": {
+    "description": "Author"
+  },
+  "variable_category_user": "User",
+  "@variable_category_user": {
+    "description": "User"
+  },
+  "variable_category_temp": "Temporary",
+  "@variable_category_temp": {
+    "description": "Temporary"
+  },
+  "variable_category_functions": "Functions",
+  "@variable_category_functions": {
+    "description": "Functions"
+  },
+  "variable_category_other": "Other",
+  "@variable_category_other": {
+    "description": "Other"
+  },
+  "variable_autocomplete_title": "Available variables — tap to insert",
+  "@variable_autocomplete_title": {
+    "description": "Available variables — tap to insert"
+  },
+  "variable_autocomplete_numeric_title": "Dynamic numeric suggestions",
+  "@variable_autocomplete_numeric_title": {
+    "description": "Dynamic numeric suggestions"
   }
 }

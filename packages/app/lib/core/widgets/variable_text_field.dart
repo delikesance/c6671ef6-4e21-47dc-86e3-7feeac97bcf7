@@ -3,7 +3,15 @@ import 'package:flutter/scheduler.dart';
 import 'package:bot_creator/core/models/types/app_emoji.dart';
 import 'package:bot_creator/core/models/types/variable_suggestion.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator_shared/types/variable_suggestion.dart' as shared;
+import 'package:bot_creator_shared/utils/variable_catalog.dart' show variableDescription;
+import 'package:bot_creator/core/i18n/i18n.dart';
 
+/// A text field that shows autocomplete suggestions when the user types `((`
+/// for dynamic variables, or `<` for emoji names.
+///
+/// Suggestions are grouped by category and show descriptions for commonly
+/// used variables.
 class VariableTextField extends StatefulWidget {
   final String? initialValue;
   final TextEditingController? controller;
@@ -17,7 +25,7 @@ class VariableTextField extends StatefulWidget {
   final bool required;
   final String? helperText;
   final String? Function(String?)? validator;
-  final List<String>? options; // For autocomplete if needed
+  final List<String>? options;
   final List<AppEmoji>? emojiSuggestions;
   final bool useLabelText;
 
@@ -112,9 +120,7 @@ class _VariableTextFieldState extends State<VariableTextField> {
   }
 
   void _handleControllerChange() {
-    if (_suppressControllerNotifications) {
-      return;
-    }
+    if (_suppressControllerNotifications) return;
 
     final current = _effectiveController.text;
     if (current != _lastDispatchedValue) {
@@ -136,21 +142,15 @@ class _VariableTextFieldState extends State<VariableTextField> {
   }
 
   void _markNeedsRebuild() {
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) return;
 
     if (SchedulerBinding.instance.schedulerPhase ==
         SchedulerPhase.persistentCallbacks) {
-      if (_rebuildScheduled) {
-        return;
-      }
+      if (_rebuildScheduled) return;
       _rebuildScheduled = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _rebuildScheduled = false;
-        if (mounted) {
-          setState(() {});
-        }
+        if (mounted) setState(() {});
       });
       return;
     }
@@ -159,9 +159,7 @@ class _VariableTextFieldState extends State<VariableTextField> {
   }
 
   int _safeCursor(String text, int rawOffset) {
-    if (rawOffset < 0 || rawOffset > text.length) {
-      return text.length;
-    }
+    if (rawOffset < 0 || rawOffset > text.length) return text.length;
     return rawOffset;
   }
 
@@ -181,7 +179,8 @@ class _VariableTextFieldState extends State<VariableTextField> {
             children: [
               Text(
                 widget.label,
-                style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
+                style:
+                    const TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
               ),
               if (widget.required)
                 const Text(
@@ -211,15 +210,15 @@ class _VariableTextFieldState extends State<VariableTextField> {
               vertical: 12,
             ),
           ),
-          onTap: () {
-            setState(() {});
-          },
+          onTap: () => setState(() {}),
           validator: widget.validator,
         ),
         ..._buildSuggestions(currentText, cursor),
       ],
     );
   }
+
+  // ── Suggestion UI ────────────────────────────────────────────────────────
 
   List<Widget> _buildSuggestions(String currentValue, int cursor) {
     // Emoji suggestions — shown when user types `<`
@@ -228,42 +227,35 @@ class _VariableTextFieldState extends State<VariableTextField> {
       final emojiQuery = _extractEmojiQuery(currentValue, cursor);
       if (emojiQuery != null) {
         final q = emojiQuery.toLowerCase();
-        final filteredEmojis =
-            widget.emojiSuggestions!
-                .where((e) => q.isEmpty || e.name.toLowerCase().contains(q))
-                .take(12)
-                .toList();
+        final filteredEmojis = widget.emojiSuggestions!
+            .where((e) => q.isEmpty || e.name.toLowerCase().contains(q))
+            .take(12)
+            .toList();
         if (filteredEmojis.isNotEmpty) {
           return [
             const SizedBox(height: 8),
-            Text(
-              'Emoji suggestions',
-              style: TextStyle(fontSize: 11, color: AppTheme.grey),
-            ),
+            Text('Emoji suggestions',
+                style: TextStyle(fontSize: 11, color: AppTheme.grey)),
             const SizedBox(height: 6),
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children:
-                  filteredEmojis.map((emoji) {
-                    return ActionChip(
-                      avatar: Image.network(
-                        emoji.imageUrl,
-                        width: 20,
-                        height: 20,
-                        errorBuilder:
-                            (context, error, stackTrace) =>
-                                const Icon(Icons.emoji_emotions, size: 16),
-                      ),
-                      label: Text(
-                        ':${emoji.name}:',
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                      padding: EdgeInsets.zero,
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      onPressed: () => _insertEmoji(emoji),
-                    );
-                  }).toList(),
+              children: filteredEmojis.map((emoji) {
+                return ActionChip(
+                  avatar: Image.network(
+                    emoji.imageUrl,
+                    width: 20,
+                    height: 20,
+                    errorBuilder: (context, error, stackTrace) =>
+                        const Icon(Icons.emoji_emotions, size: 16),
+                  ),
+                  label: Text(':${emoji.name}:',
+                      style: const TextStyle(fontSize: 12)),
+                  padding: EdgeInsets.zero,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  onPressed: () => _insertEmoji(emoji),
+                );
+              }).toList(),
             ),
           ];
         }
@@ -274,70 +266,231 @@ class _VariableTextFieldState extends State<VariableTextField> {
     final query = _extractPlaceholderQuery(currentValue, cursor);
     if (query == null) return [];
 
-    final safeCursor = _safeCursor(currentValue, cursor);
-    final start = currentValue.lastIndexOf('((', safeCursor);
-    final inFallbackMode =
-        start != -1 &&
-        safeCursor >= start + 2 &&
-        currentValue.substring(start + 2, safeCursor).contains('|');
-
     final normalizedQuery = query.trim().toLowerCase();
-    final filteredByKind =
-        widget.isNumericField
-            ? widget.suggestions.where(
-              (item) => item.isNumeric || item.isUnknown,
-            )
-            : widget.suggestions;
 
-    final filtered =
-        filteredByKind
-            .where(
-              (item) =>
-                  normalizedQuery.isEmpty ||
-                  item.name.toLowerCase().contains(normalizedQuery),
-            )
-            .take(8)
-            .toList();
+    // Filter and deduplicate by name (keep first occurrence)
+    final seen = <String>{};
+    final filtered = <VariableSuggestion>[];
+    for (final item in widget.suggestions) {
+      if (widget.isNumericField && !item.isNumeric && !item.isUnknown) {
+        continue;
+      }
+      if (normalizedQuery.isNotEmpty &&
+          !item.name.toLowerCase().contains(normalizedQuery)) {
+        continue;
+      }
+      if (seen.add(item.name)) {
+        filtered.add(item);
+      }
+    }
 
     if (filtered.isEmpty) return [];
+
+    // Group by category
+    final grouped = _groupByCategory(filtered);
+    final categoryOrder = _orderedCategories(grouped.keys.toList());
 
     return [
       const SizedBox(height: 8),
       Text(
         widget.isNumericField
             ? 'Dynamic numeric suggestions'
-            : 'Dynamic variable suggestions',
+            : 'Available variables — tap to insert',
         style: TextStyle(fontSize: 11, color: AppTheme.grey),
       ),
-      if (inFallbackMode)
-        Padding(
-          padding: const EdgeInsets.only(top: 4),
-          child: Text(
-            'Fallback mode enabled (using |)',
-            style: TextStyle(fontSize: 11, color: AppTheme.grey),
-          ),
-        ),
       const SizedBox(height: 6),
-      Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children:
-            filtered.map((item) {
-              return ActionChip(
-                label: Text(
-                  '((${item.name}))',
-                  style: const TextStyle(fontSize: 12),
-                ),
-                padding: EdgeInsets.zero,
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                onPressed: () {
-                  _insertVariable(item.name);
-                },
-              );
-            }).toList(),
+      SizedBox(
+        // Mobile-friendly constrained height with scrolling
+        height: 220,
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            for (final cat in categoryOrder)
+              if (grouped.containsKey(cat)) ...[
+                _buildCategoryHeader(cat, grouped[cat]!.length),
+                ...grouped[cat]!.map(_buildSuggestionChip),
+                const SizedBox(height: 4),
+              ],
+          ],
+        ),
       ),
     ];
   }
+
+  Map<shared.VariableCategory, List<VariableSuggestion>> _groupByCategory(
+    List<VariableSuggestion> items,
+  ) {
+    final map = <shared.VariableCategory, List<VariableSuggestion>>{};
+    for (final item in items) {
+      final cat = item.category;
+      map.putIfAbsent(cat, () => []).add(item);
+    }
+    return map;
+  }
+
+  /// Display order: most relevant first.
+  List<shared.VariableCategory> _orderedCategories(
+    List<shared.VariableCategory> cats,
+  ) {
+    const order = [
+      shared.VariableCategory.context_,
+      shared.VariableCategory.interaction,
+      shared.VariableCategory.author,
+      shared.VariableCategory.member,
+      shared.VariableCategory.message,
+      shared.VariableCategory.channel,
+      shared.VariableCategory.guild,
+      shared.VariableCategory.user,
+      shared.VariableCategory.bot,
+      shared.VariableCategory.temp,
+      shared.VariableCategory.function_,
+      shared.VariableCategory.other,
+    ];
+    cats.sort((a, b) => order.indexOf(a).compareTo(order.indexOf(b)));
+    return cats;
+  }
+
+  Widget _buildCategoryHeader(shared.VariableCategory cat, int count) {
+    final label = _categoryLabel(context, cat);
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 4, left: 4),
+      child: Row(
+        children: [
+          Icon(_categoryIcon(cat), size: 14, color: AppTheme.grey),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.grey,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Text('$count', style: TextStyle(fontSize: 10, color: AppTheme.grey)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSuggestionChip(VariableSuggestion item) {
+    final desc = variableDescription(item.name);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: () => _insertVariable(item.name),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          child: Row(
+            children: [
+              // Kind badge
+              Container(
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: item.isNumeric
+                      ? Colors.orange
+                      : item.isUnknown
+                          ? Colors.purple
+                          : Colors.green,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '((${item.name}))',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontFamily: 'monospace',
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    if (desc != null)
+                      Text(
+                        desc,
+                        style: TextStyle(fontSize: 11, color: AppTheme.grey),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right, size: 16, color: AppTheme.grey),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ── Category icons / labels ──────────────────────────────────────────────
+
+  IconData _categoryIcon(shared.VariableCategory cat) {
+    switch (cat) {
+      case shared.VariableCategory.context_:
+        return Icons.play_circle_outline;
+      case shared.VariableCategory.interaction:
+        return Icons.alternate_email;
+      case shared.VariableCategory.bot:
+        return Icons.smart_toy_outlined;
+      case shared.VariableCategory.guild:
+        return Icons.dns_outlined;
+      case shared.VariableCategory.channel:
+        return Icons.tag;
+      case shared.VariableCategory.member:
+        return Icons.person_outline;
+      case shared.VariableCategory.message:
+        return Icons.message_outlined;
+      case shared.VariableCategory.author:
+        return Icons.edit_note;
+      case shared.VariableCategory.user:
+        return Icons.account_circle_outlined;
+      case shared.VariableCategory.temp:
+        return Icons.schedule;
+      case shared.VariableCategory.function_:
+        return Icons.functions;
+      case shared.VariableCategory.other:
+        return Icons.more_horiz;
+    }
+  }
+
+  // Category labels using i18n
+  String _categoryLabel(BuildContext context, shared.VariableCategory cat) {
+    final tr = context.tr;
+    switch (cat) {
+      case shared.VariableCategory.context_:
+        return tr.variable_category_context;
+      case shared.VariableCategory.interaction:
+        return tr.variable_category_interaction;
+      case shared.VariableCategory.bot:
+        return tr.variable_category_bot;
+      case shared.VariableCategory.guild:
+        return tr.variable_category_guild;
+      case shared.VariableCategory.channel:
+        return tr.variable_category_channel;
+      case shared.VariableCategory.member:
+        return tr.variable_category_member;
+      case shared.VariableCategory.message:
+        return tr.variable_category_message;
+      case shared.VariableCategory.author:
+        return tr.variable_category_author;
+      case shared.VariableCategory.user:
+        return tr.variable_category_user;
+      case shared.VariableCategory.temp:
+        return tr.variable_category_temp;
+      case shared.VariableCategory.function_:
+        return tr.variable_category_functions;
+      case shared.VariableCategory.other:
+        return tr.variable_category_other;
+    }
+  }
+
+  // ── Emoji extraction ─────────────────────────────────────────────────────
 
   String? _extractEmojiQuery(String input, int cursor) {
     final safeCursor = _safeCursor(input, cursor);
@@ -345,17 +498,13 @@ class _VariableTextFieldState extends State<VariableTextField> {
     final start = input.lastIndexOf('<', safeCursor - 1);
     if (start == -1) return null;
     final between = input.substring(start + 1, safeCursor);
-    // Cancel if the bracket is already closed or contains whitespace
     if (between.contains('>') || between.contains(' ')) return null;
     return between;
   }
 
   void _insertEmoji(AppEmoji emoji) {
     final input = _effectiveController.text;
-    final cursor = _safeCursor(
-      input,
-      _effectiveController.selection.baseOffset,
-    );
+    final cursor = _safeCursor(input, _effectiveController.selection.baseOffset);
     final start = cursor > 0 ? input.lastIndexOf('<', cursor - 1) : -1;
     if (start == -1) return;
     final mention = emoji.mention;
@@ -367,19 +516,16 @@ class _VariableTextFieldState extends State<VariableTextField> {
     );
   }
 
+  // ── Variable placeholder extraction / insertion ──────────────────────────
+
   String? _extractPlaceholderQuery(String input, int cursor) {
     final safeCursor = _safeCursor(input, cursor);
     final start = input.lastIndexOf('((', safeCursor);
     if (start == -1) return null;
-    if (safeCursor < start + 2) {
-      // Cursor is before the placeholder body: do not attempt substring.
-      return '';
-    }
+    if (safeCursor < start + 2) return '';
 
     final closing = input.indexOf('))', start + 2);
-    if (closing != -1 && closing < safeCursor) {
-      return null;
-    }
+    if (closing != -1 && closing < safeCursor) return null;
 
     final afterStart = input.substring(start + 2, safeCursor);
     final parts = afterStart.split('|');
@@ -388,10 +534,7 @@ class _VariableTextFieldState extends State<VariableTextField> {
 
   void _insertVariable(String variableName) {
     final input = _effectiveController.text;
-    final cursor = _safeCursor(
-      input,
-      _effectiveController.selection.baseOffset,
-    );
+    final cursor = _safeCursor(input, _effectiveController.selection.baseOffset);
     final start = input.lastIndexOf('((', cursor);
 
     if (start == -1) {
@@ -421,8 +564,10 @@ class _VariableTextFieldState extends State<VariableTextField> {
     final parts = rawInner.split('|');
     final prefixParts =
         parts.length > 1 ? parts.sublist(0, parts.length - 1) : <String>[];
-    final previous =
-        prefixParts.map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+    final previous = prefixParts
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
     final inner = [...previous, variableName].join(' | ');
     final replacement = '(($inner))';
 

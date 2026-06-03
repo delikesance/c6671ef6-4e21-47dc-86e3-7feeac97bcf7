@@ -7156,4 +7156,48 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cmd_deploy_retry_button => 'Retry';
+
+  @override
+  String get variable_category_context => 'Context';
+
+  @override
+  String get variable_category_interaction => 'Interaction';
+
+  @override
+  String get variable_category_bot => 'Bot';
+
+  @override
+  String get variable_category_guild => 'Server';
+
+  @override
+  String get variable_category_channel => 'Channel';
+
+  @override
+  String get variable_category_member => 'Member';
+
+  @override
+  String get variable_category_message => 'Message';
+
+  @override
+  String get variable_category_author => 'Author';
+
+  @override
+  String get variable_category_user => 'User';
+
+  @override
+  String get variable_category_temp => 'Temporary';
+
+  @override
+  String get variable_category_functions => 'Functions';
+
+  @override
+  String get variable_category_other => 'Other';
+
+  @override
+  String get variable_autocomplete_title =>
+      'Available variables — tap to insert';
+
+  @override
+  String get variable_autocomplete_numeric_title =>
+      'Dynamic numeric suggestions';
 }

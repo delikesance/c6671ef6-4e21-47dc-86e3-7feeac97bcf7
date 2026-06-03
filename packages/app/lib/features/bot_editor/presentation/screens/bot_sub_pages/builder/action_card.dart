@@ -25,6 +25,8 @@ import 'package:bot_creator/core/models/types/app_emoji.dart';
 import 'package:bot_creator/core/widgets/variable_text_field.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/response_embeds_editor.dart';
 import 'package:bot_creator/core/models/types/variable_suggestion.dart';
+import 'package:bot_creator_shared/utils/variable_catalog.dart' show variableDescription;
+import 'package:bot_creator_shared/types/variable_suggestion.dart' as shared;
 import 'action_types.dart';
 import 'action_type_extension.dart';
 import 'package:http/http.dart' as http;
@@ -2073,7 +2075,11 @@ class ActionCard extends StatelessWidget {
       }
       dedupedByName.putIfAbsent(
         normalizedName,
-        () => VariableSuggestion(name: normalizedName, kind: item.kind),
+        () => VariableSuggestion(
+          name: normalizedName,
+          kind: item.kind,
+          category: item.category,
+        ),
       );
     }
 
@@ -2099,41 +2105,220 @@ class ActionCard extends StatelessWidget {
     for (final item in suggestions) {
       uniqueSuggestions[item.name] = item;
     }
-    final topSuggestions = uniqueSuggestions.values.take(8).toList();
+    final topSuggestions = uniqueSuggestions.values.toList();
 
     if (topSuggestions.isEmpty) {
       return const [];
     }
+
+    // Group by category for a mobile-friendly scrollable list with descriptions.
+    final grouped = _groupByCategoryStatic(topSuggestions);
+    final categoryOrder = _orderedCategoriesStatic(grouped.keys.toList());
 
     return [
       const SizedBox(height: 8),
       Text(
         isNumericField
             ? 'Dynamic numeric suggestions'
-            : 'Dynamic variable suggestions',
+            : 'Available variables',
         style: TextStyle(fontSize: 11, color: AppTheme.grey),
       ),
-      const SizedBox(height: 6),
-      Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children:
-            topSuggestions
-                .map(
-                  (item) => ActionChip(
-                    label: Text('((${item.name}))'),
-                    onPressed: () {
-                      final nextValue = _insertVariableInOpenPlaceholder(
-                        rawValue,
-                        item.name,
-                      );
-                      onSuggestionSelected(paramKey, nextValue);
-                    },
-                  ),
-                )
-                .toList(),
+      const SizedBox(height: 4),
+      SizedBox(
+        height: 200,
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            for (final cat in categoryOrder)
+              if (grouped.containsKey(cat)) ...[
+                _buildSuggestionCategoryHeaderStatic(cat, grouped[cat]!.length),
+                ...grouped[cat]!.map((item) => _buildSuggestionListTileStatic(
+                      item,
+                      onTap: () {
+                        final nextValue = _insertVariableInOpenPlaceholder(
+                          rawValue,
+                          item.name,
+                        );
+                        onSuggestionSelected(paramKey, nextValue);
+                      },
+                    )),
+                const SizedBox(height: 4),
+              ],
+          ],
+        ),
       ),
     ];
+  }
+
+  // ── Grouped suggestion helpers (static so they can be shared) ────────────
+
+  static Map<shared.VariableCategory, List<VariableSuggestion>> _groupByCategoryStatic(
+    List<VariableSuggestion> items,
+  ) {
+    final map = <shared.VariableCategory, List<VariableSuggestion>>{};
+    for (final item in items) {
+      final cat = item.category;
+      map.putIfAbsent(cat, () => []).add(item);
+    }
+    return map;
+  }
+
+  static List<shared.VariableCategory> _orderedCategoriesStatic(
+    List<shared.VariableCategory> cats,
+  ) {
+    const order = [
+      shared.VariableCategory.context_,
+      shared.VariableCategory.interaction,
+      shared.VariableCategory.author,
+      shared.VariableCategory.member,
+      shared.VariableCategory.message,
+      shared.VariableCategory.channel,
+      shared.VariableCategory.guild,
+      shared.VariableCategory.user,
+      shared.VariableCategory.bot,
+      shared.VariableCategory.temp,
+      shared.VariableCategory.function_,
+      shared.VariableCategory.other,
+    ];
+    cats.sort((a, b) => order.indexOf(a).compareTo(order.indexOf(b)));
+    return cats;
+  }
+
+  static Widget _buildSuggestionCategoryHeaderStatic(shared.VariableCategory cat, int count) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 4, left: 4),
+      child: Row(
+        children: [
+          Icon(_categoryIconStatic(cat), size: 14, color: AppTheme.grey),
+          const SizedBox(width: 4),
+          Text(
+            _categoryLabel(cat),
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.grey,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Text('$count', style: TextStyle(fontSize: 10, color: AppTheme.grey)),
+        ],
+      ),
+    );
+  }
+
+  static Widget _buildSuggestionListTileStatic(
+    VariableSuggestion item, {
+    required VoidCallback onTap,
+  }) {
+    final desc = variableDescription(item.name);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          child: Row(
+            children: [
+              Container(
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: item.isNumeric
+                      ? Colors.orange
+                      : item.isUnknown
+                          ? Colors.purple
+                          : Colors.green,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '((${item.name}))',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontFamily: 'monospace',
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    if (desc != null)
+                      Text(
+                        desc,
+                        style: TextStyle(fontSize: 11, color: AppTheme.grey),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right, size: 16, color: AppTheme.grey),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  static IconData _categoryIconStatic(shared.VariableCategory cat) {
+    switch (cat) {
+      case shared.VariableCategory.context_:
+        return Icons.play_circle_outline;
+      case shared.VariableCategory.interaction:
+        return Icons.alternate_email;
+      case shared.VariableCategory.bot:
+        return Icons.smart_toy_outlined;
+      case shared.VariableCategory.guild:
+        return Icons.dns_outlined;
+      case shared.VariableCategory.channel:
+        return Icons.tag;
+      case shared.VariableCategory.member:
+        return Icons.person_outline;
+      case shared.VariableCategory.message:
+        return Icons.message_outlined;
+      case shared.VariableCategory.author:
+        return Icons.edit_note;
+      case shared.VariableCategory.user:
+        return Icons.account_circle_outlined;
+      case shared.VariableCategory.temp:
+        return Icons.schedule;
+      case shared.VariableCategory.function_:
+        return Icons.functions;
+      case shared.VariableCategory.other:
+        return Icons.more_horiz;
+    }
+  }
+
+  static String _categoryLabel(shared.VariableCategory cat) {
+    switch (cat) {
+      case shared.VariableCategory.context_:
+        return 'Context';
+      case shared.VariableCategory.interaction:
+        return 'Interaction';
+      case shared.VariableCategory.bot:
+        return 'Bot';
+      case shared.VariableCategory.guild:
+        return 'Server';
+      case shared.VariableCategory.channel:
+        return 'Channel';
+      case shared.VariableCategory.member:
+        return 'Member';
+      case shared.VariableCategory.message:
+        return 'Message';
+      case shared.VariableCategory.author:
+        return 'Author';
+      case shared.VariableCategory.user:
+        return 'User';
+      case shared.VariableCategory.temp:
+        return 'Temporary';
+      case shared.VariableCategory.function_:
+        return 'Functions';
+      case shared.VariableCategory.other:
+        return 'Other';
+    }
   }
 
   List<VariableSuggestion> _buildContextualArraySuggestions({
@@ -3979,49 +4164,70 @@ class _NumberParameterFieldState extends State<_NumberParameterField> {
             )
             : widget.variableSuggestions;
 
+    final dedupedByName = <String, VariableSuggestion>{};
+    for (final item in filteredByKind) {
+      final normalizedName2 = item.name.trim();
+      if (normalizedName2.isEmpty) continue;
+      dedupedByName.putIfAbsent(
+        normalizedName2,
+        () => VariableSuggestion(
+          name: normalizedName2,
+          kind: item.kind,
+          category: item.category,
+        ),
+      );
+    }
+
     final suggestions =
-        filteredByKind
+        dedupedByName.values
             .where(
               (item) =>
                   normalizedQuery.isEmpty ||
                   item.name.toLowerCase().contains(normalizedQuery),
             )
-            .take(8)
             .toList();
 
     if (suggestions.isEmpty) {
       return const [];
     }
 
+    // Group by category for a mobile-friendly scrollable list with descriptions.
+    final grouped = ActionCard._groupByCategoryStatic(suggestions);
+    final categoryOrder = ActionCard._orderedCategoriesStatic(grouped.keys.toList());
+
     return [
       const SizedBox(height: 8),
       Text(
         isNumericField
             ? 'Dynamic numeric suggestions'
-            : 'Dynamic variable suggestions',
+            : 'Available variables',
         style: TextStyle(fontSize: 11, color: AppTheme.grey),
       ),
-      const SizedBox(height: 6),
-      Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children:
-            suggestions
-                .map(
-                  (item) => ActionChip(
-                    label: Text('((${item.name}))'),
-                    onPressed: () {
-                      final nextValue = _insertVariableInOpenPlaceholder(
-                        rawValue,
-                        item.name,
-                      );
-                      _controller.text = nextValue;
-                      widget.onParameterChanged(widget.paramKey, nextValue);
-                      setState(() {});
-                    },
-                  ),
-                )
-                .toList(),
+      const SizedBox(height: 4),
+      SizedBox(
+        height: 200,
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            for (final cat in categoryOrder)
+              if (grouped.containsKey(cat)) ...[
+                ActionCard._buildSuggestionCategoryHeaderStatic(cat, grouped[cat]!.length),
+                ...grouped[cat]!.map((item) => ActionCard._buildSuggestionListTileStatic(
+                      item,
+                      onTap: () {
+                        final nextValue = _insertVariableInOpenPlaceholder(
+                          rawValue,
+                          item.name,
+                        );
+                        _controller.text = nextValue;
+                        widget.onParameterChanged(widget.paramKey, nextValue);
+                        setState(() {});
+                      },
+                    )),
+                const SizedBox(height: 4),
+              ],
+          ],
+        ),
       ),
     ];
   }
@@ -4216,7 +4422,7 @@ class _TextParameterFieldState extends State<_TextParameterField> {
         ),
         widget.buildVariableSuggestions(
           paramKey: widget.paramKey,
-          value: widget.currentValue,
+          value: _controller.text,
         ),
       ],
     );
