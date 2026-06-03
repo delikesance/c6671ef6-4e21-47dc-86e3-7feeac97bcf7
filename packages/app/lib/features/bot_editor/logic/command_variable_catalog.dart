@@ -1,4 +1,5 @@
 import 'package:bot_creator/core/models/types/variable_suggestion.dart';
+import 'package:bot_creator_shared/utils/variable_catalog.dart' show inferCategory;
 
 class CommandVariableCatalogEntry {
   const CommandVariableCatalogEntry({
@@ -379,5 +380,9 @@ List<String> get commandBuiltinVariableDocumentationLines =>
 
 List<VariableSuggestion> get builtinCommandVariableSuggestions =>
     commandBuiltinVariableCatalog
-        .map((entry) => VariableSuggestion(name: entry.name, kind: entry.kind))
+        .map((entry) => VariableSuggestion(
+              name: entry.name,
+              kind: entry.kind,
+              category: inferCategory(entry.name),
+            ))
         .toList(growable: false);
