@@ -565,7 +565,14 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
         Widget content = customPaint;
 
         if (!interactive) {
-          return Center(child: _wrapScrollable(content, zoomedW, zoomedH));
+          return Center(
+            child: ClipRect(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: SingleChildScrollView(child: content),
+              ),
+            ),
+          );
         }
 
         content = GestureDetector(
@@ -573,33 +580,15 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
           onPanStart: (d) => _onPanStart(d, Size(zoomedW, zoomedH)),
           onPanUpdate: (d) => _onPanUpdate(d, Size(zoomedW, zoomedH)),
           onPanEnd: _onPanEnd,
-            onTapUp: (details) {
-              final canvasPos = _widgetToCanvas(details.localPosition);
-              final hitIndex = _hitTest(canvasPos);
-              widget.onElementSelected?.call(hitIndex);
-            },
-            child: customPaint,
-          );
-
-        return Center(child: _wrapScrollable(content, zoomedW, zoomedH));
-      },
-    );
-  }
-
-  /// Wraps [child] in a scroll view when it exceeds the available space.
-  Widget _wrapScrollable(Widget child, double contentW, double contentH) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final needsHScroll = contentW > constraints.maxWidth;
-        final needsVScroll = contentH > constraints.maxHeight;
-        if (!needsHScroll && !needsVScroll) return child;
-        return SingleChildScrollView(
-          scrollDirection:
-              needsHScroll ? Axis.horizontal : Axis.vertical,
-          child: needsHScroll && needsVScroll
-              ? SingleChildScrollView(child: child)
-              : child,
+          onTapUp: (details) {
+            final canvasPos = _widgetToCanvas(details.localPosition);
+            final hitIndex = _hitTest(canvasPos);
+            widget.onElementSelected?.call(hitIndex);
+          },
+          child: customPaint,
         );
+
+        return Center(child: content);
       },
     );
   }
