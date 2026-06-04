@@ -778,24 +778,62 @@ class ActionCard extends StatelessWidget {
     return true;
   }
 
-  String _inputModeKey(String parameterKey) => '${parameterKey}InputMode';
+  /// Shows a dialog with a [VariableTextField] pre-populated with `((`
+  /// so autocomplete suggestions appear immediately. On accept, inserts
+  /// the selected variable into the parameter field.
+  void _showVariablePickerDialog(BuildContext context, String paramKey, dynamic currentValue) {
+    final vc = TextEditingController(
+      text: (currentValue ?? '').toString(),
+    );
+    // If the current value is empty, pre-populate with (( for autocomplete.
+    if (vc.text.isEmpty) {
+      vc.text = '((';
+      vc.selection = TextSelection.collapsed(offset: 2);
+    }
 
-  bool _supportsDynamicInputMode(ParameterType type) {
-    return type == ParameterType.multiSelect ||
-        type == ParameterType.boolean ||
-        type == ParameterType.userId ||
-        type == ParameterType.channelId ||
-        type == ParameterType.messageId ||
-        type == ParameterType.roleId;
+    showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Insert Variable'),
+        content: SizedBox(
+          width: 420,
+          child: VariableTextField(
+            label: 'Expression',
+            hint: 'Type (( to see variable suggestions',
+            suggestions: variableSuggestions,
+            controller: vc,
+            onChanged: (_) {},
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(context.tr.common_cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, vc.text.trim()),
+            child: const Text('Insert'),
+          ),
+        ],
+      ),
+    ).then((result) {
+      if (result != null && result.isNotEmpty) {
+        onParameterChanged(paramKey, result);
+      }
+    });
   }
 
-  String _resolveInputMode(ParameterDefinition paramDef) {
-    final stored =
-        (action.parameters[_inputModeKey(paramDef.key)] ?? '')
-            .toString()
-            .trim()
-            .toLowerCase();
-    return stored == 'dynamic' ? 'dynamic' : 'literal';
+  /// Returns a compact [IconButton] for inserting variables via the
+  /// [VariableTextField] dialog. Returns null when no suggestions are
+  /// available.
+  Widget? _buildVariableIcon(BuildContext context, String paramKey, dynamic currentValue) {
+    if (variableSuggestions.isEmpty) return null;
+    return IconButton(
+      icon: const Icon(Icons.data_object, size: 18),
+      tooltip: 'Insert variable',
+      visualDensity: VisualDensity.compact,
+      onPressed: () => _showVariablePickerDialog(context, paramKey, currentValue),
+    );
   }
 
   bool _coerceBoolValue(dynamic value, bool fallback) {
@@ -812,77 +850,16 @@ class ActionCard extends StatelessWidget {
     return fallback;
   }
 
-  Widget _buildInputModeToggle(
-    BuildContext context,
-    ParameterDefinition paramDef,
-    String currentMode,
-  ) {
-    if (!_supportsDynamicInputMode(paramDef.type)) {
-      return const SizedBox.shrink();
-    }
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Wrap(
-        spacing: 8,
-        children: [
-          ChoiceChip(
-            label: Text(context.tr.action_literal),
-            selected: currentMode == 'literal',
-            onSelected:
-                (_) =>
-                    onParameterChanged(_inputModeKey(paramDef.key), 'literal'),
-          ),
-          ChoiceChip(
-            label: Text(context.tr.action_dynamic),
-            selected: currentMode == 'dynamic',
-            onSelected:
-                (_) =>
-                    onParameterChanged(_inputModeKey(paramDef.key), 'dynamic'),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildParameterField(
     BuildContext context,
     ParameterDefinition paramDef,
     dynamic currentValue,
   ) {
-    final inputMode = _resolveInputMode(paramDef);
-    final useDynamicInput =
-        _supportsDynamicInputMode(paramDef.type) && inputMode == 'dynamic';
-
     switch (paramDef.type) {
       case ParameterType.boolean:
-        if (useDynamicInput) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                _formatParameterName(paramDef.key),
-                style: const TextStyle(fontWeight: FontWeight.w500),
-              ),
-              _buildInputModeToggle(context, paramDef, inputMode),
-              VariableTextField(
-                key: _parameterInputKey(paramDef.key),
-                label: context.tr.action_expression,
-                initialValue:
-                    (currentValue ?? paramDef.defaultValue).toString(),
-                hint:
-                    _localizeHint(paramDef.hint) ??
-                    context.tr.action_dynamic_bool_hint,
-                suggestions: variableSuggestions,
-                onChanged:
-                    (newValue) => onParameterChanged(paramDef.key, newValue),
-              ),
-            ],
-          );
-        }
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildInputModeToggle(context, paramDef, inputMode),
             Row(
               children: [
                 Expanded(
@@ -891,6 +868,7 @@ class ActionCard extends StatelessWidget {
                     style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
                 ),
+                if (_buildVariableIcon(context, paramDef.key, currentValue) case final icon?) icon,
                 Switch(
                   value: _coerceBoolValue(
                     currentValue,
@@ -911,6 +889,7 @@ class ActionCard extends StatelessWidget {
           onParameterChanged: onParameterChanged,
           variableSuggestions: variableSuggestions,
           paramKey: paramDef.key,
+          variableIcon: _buildVariableIcon(context, paramDef.key, currentValue),
         );
 
       case ParameterType.list:
@@ -968,30 +947,6 @@ class ActionCard extends StatelessWidget {
         return _buildElseIfBranchesField(context, paramDef, currentValue);
 
       case ParameterType.multiSelect:
-        if (useDynamicInput) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                _formatParameterName(paramDef.key),
-                style: const TextStyle(fontWeight: FontWeight.w500),
-              ),
-              _buildInputModeToggle(context, paramDef, inputMode),
-              VariableTextField(
-                key: _parameterInputKey(paramDef.key),
-                label: context.tr.action_expression,
-                initialValue:
-                    (currentValue ?? paramDef.defaultValue).toString(),
-                hint:
-                    _localizeHint(paramDef.hint) ??
-                    context.tr.action_dynamic_multiselect_hint,
-                suggestions: variableSuggestions,
-                onChanged:
-                    (newValue) => onParameterChanged(paramDef.key, newValue),
-              ),
-            ],
-          );
-        }
         final options = paramDef.options ?? const <String>[];
         final rawValue = (currentValue ?? paramDef.defaultValue).toString();
         final selectedValue =
@@ -1001,11 +956,17 @@ class ActionCard extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              _formatParameterName(paramDef.key),
-              style: const TextStyle(fontWeight: FontWeight.w500),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    _formatParameterName(paramDef.key),
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                ),
+                if (_buildVariableIcon(context, paramDef.key, currentValue) case final icon?) icon,
+              ],
             ),
-            _buildInputModeToggle(context, paramDef, inputMode),
             const SizedBox(height: 4),
             DropdownButtonFormField<String>(
               initialValue: selectedValue,
@@ -1036,9 +997,16 @@ class ActionCard extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              _formatParameterName(paramDef.key),
-              style: const TextStyle(fontWeight: FontWeight.w500),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    _formatParameterName(paramDef.key),
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                ),
+                if (_buildVariableIcon(context, paramDef.key, currentValue) case final icon?) icon,
+              ],
             ),
             const SizedBox(height: 4),
             TextFormField(
@@ -1111,6 +1079,7 @@ class ActionCard extends StatelessWidget {
                     }
                   },
                 ),
+                if (_buildVariableIcon(context, paramDef.key, currentValue) case final icon?) icon,
               ],
             ),
             ..._buildVariableSuggestionsForParam(
@@ -1124,38 +1093,20 @@ class ActionCard extends StatelessWidget {
       case ParameterType.channelId:
       case ParameterType.messageId:
       case ParameterType.roleId:
-        if (useDynamicInput) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                _formatParameterName(paramDef.key),
-                style: const TextStyle(fontWeight: FontWeight.w500),
-              ),
-              _buildInputModeToggle(context, paramDef, inputMode),
-              VariableTextField(
-                key: _parameterInputKey(paramDef.key),
-                label: context.tr.action_expression,
-                initialValue:
-                    (currentValue ?? paramDef.defaultValue).toString(),
-                hint:
-                    _localizeHint(paramDef.hint) ??
-                    context.tr.action_dynamic_id_hint(paramDef.type.name),
-                suggestions: variableSuggestions,
-                onChanged:
-                    (newValue) => onParameterChanged(paramDef.key, newValue),
-              ),
-            ],
-          );
-        }
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              _formatParameterName(paramDef.key),
-              style: const TextStyle(fontWeight: FontWeight.w500),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    _formatParameterName(paramDef.key),
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                ),
+                if (_buildVariableIcon(context, paramDef.key, currentValue) case final icon?) icon,
+              ],
             ),
-            _buildInputModeToggle(context, paramDef, inputMode),
             const SizedBox(height: 4),
             TextFormField(
               key: _parameterInputKey(paramDef.key),
@@ -1228,9 +1179,16 @@ class ActionCard extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              _formatParameterName(paramDef.key),
-              style: const TextStyle(fontWeight: FontWeight.w500),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    _formatParameterName(paramDef.key),
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                ),
+                if (_buildVariableIcon(context, paramDef.key, currentValue) case final icon?) icon,
+              ],
             ),
             const SizedBox(height: 4),
             Row(
@@ -1254,7 +1212,8 @@ class ActionCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                GestureDetector(
+                InkWell(
+                  borderRadius: BorderRadius.circular(AppTheme.radiusXs),
                   onTap:
                       () => _showColorPicker(context, paramDef, currentValue),
                   child: Container(
@@ -1288,6 +1247,7 @@ class ActionCard extends StatelessWidget {
                     style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
                 ),
+                if (_buildVariableIcon(context, paramDef.key, currentValue) case final icon?) icon,
                 IconButton(
                   icon: const Icon(Icons.edit, size: 20),
                   onPressed:
@@ -4185,6 +4145,7 @@ class _NumberParameterField extends StatefulWidget {
   final Function(String key, dynamic value) onParameterChanged;
   final List<VariableSuggestion> variableSuggestions;
   final String paramKey;
+  final Widget? variableIcon;
 
   const _NumberParameterField({
     required this.paramDef,
@@ -4192,6 +4153,7 @@ class _NumberParameterField extends StatefulWidget {
     required this.onParameterChanged,
     required this.variableSuggestions,
     required this.paramKey,
+    this.variableIcon,
   });
 
   @override
@@ -4257,6 +4219,7 @@ class _NumberParameterFieldState extends State<_NumberParameterField> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+            if (widget.variableIcon != null) widget.variableIcon!,
           ],
         ),
         const SizedBox(height: 4),
