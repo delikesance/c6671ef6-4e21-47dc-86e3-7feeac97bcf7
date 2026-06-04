@@ -537,6 +537,12 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
 
         _scale = w / _canvasWidth;
 
+        // Apply user zoom — scales both the rendered size and the paint scale.
+        final zoom = (widget.zoom ?? 1.0).clamp(0.25, 3.0);
+        _scale *= zoom;
+        final zoomedW = w * zoom;
+        final zoomedH = h * zoom;
+
         final painter = _CanvasPreviewPainter(
           operations: widget.operations,
           selectedIndex: widget.selectedIndex,
@@ -550,29 +556,49 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
         );
 
         final customPaint = CustomPaint(
-          size: Size(w, h),
+          size: Size(zoomedW, zoomedH),
           painter: painter,
           isComplex: true,
           willChange: true,
         );
 
+        Widget content = customPaint;
+
         if (!interactive) {
-          return Center(child: customPaint);
+          return Center(child: _wrapScrollable(content, zoomedW, zoomedH));
         }
 
-        return Center(
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onPanStart: (d) => _onPanStart(d, Size(w, h)),
-            onPanUpdate: (d) => _onPanUpdate(d, Size(w, h)),
-            onPanEnd: _onPanEnd,
+        content = GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onPanStart: (d) => _onPanStart(d, Size(zoomedW, zoomedH)),
+          onPanUpdate: (d) => _onPanUpdate(d, Size(zoomedW, zoomedH)),
+          onPanEnd: _onPanEnd,
             onTapUp: (details) {
               final canvasPos = _widgetToCanvas(details.localPosition);
               final hitIndex = _hitTest(canvasPos);
               widget.onElementSelected?.call(hitIndex);
             },
             child: customPaint,
-          ),
+          );
+
+        return Center(child: _wrapScrollable(content, zoomedW, zoomedH));
+      },
+    );
+  }
+
+  /// Wraps [child] in a scroll view when it exceeds the available space.
+  Widget _wrapScrollable(Widget child, double contentW, double contentH) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final needsHScroll = contentW > constraints.maxWidth;
+        final needsVScroll = contentH > constraints.maxHeight;
+        if (!needsHScroll && !needsVScroll) return child;
+        return SingleChildScrollView(
+          scrollDirection:
+              needsHScroll ? Axis.horizontal : Axis.vertical,
+          child: needsHScroll && needsVScroll
+              ? SingleChildScrollView(child: child)
+              : child,
         );
       },
     );
