@@ -632,6 +632,36 @@ abstract class AppLocalizations {
   /// **'Calculate'**
   String get action_name_calculate;
 
+  /// Create Canvas
+  ///
+  /// In en, this message translates to:
+  /// **'Create Canvas'**
+  String get action_name_canvasCreateBlock;
+
+  /// Draw Circle
+  ///
+  /// In en, this message translates to:
+  /// **'Draw Circle'**
+  String get action_name_canvasDrawCircleBlock;
+
+  /// Draw Rectangle
+  ///
+  /// In en, this message translates to:
+  /// **'Draw Rectangle'**
+  String get action_name_canvasDrawRectBlock;
+
+  /// Draw Text
+  ///
+  /// In en, this message translates to:
+  /// **'Draw Text'**
+  String get action_name_canvasDrawTextBlock;
+
+  /// Load Image
+  ///
+  /// In en, this message translates to:
+  /// **'Load Image'**
+  String get action_name_canvasLoadImageBlock;
+
   /// Clear All Reactions
   ///
   /// In en, this message translates to:
@@ -1009,6 +1039,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Execute JSON Operations'**
   String get action_name_runtimeJsonBlock;
+
+  /// Execute Image Canvas
+  ///
+  /// In en, this message translates to:
+  /// **'Execute Image Canvas'**
+  String get action_name_runtimeImageBlock;
 
   /// Run Workflow
   ///

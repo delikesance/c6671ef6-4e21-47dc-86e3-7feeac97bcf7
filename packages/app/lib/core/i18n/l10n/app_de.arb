@@ -402,6 +402,26 @@
   "@action_name_calculate": {
     "description": "Calculate"
   },
+  "action_name_canvasCreateBlock": "Leinwand erstellen",
+  "@action_name_canvasCreateBlock": {
+    "description": "Create Canvas"
+  },
+  "action_name_canvasDrawCircleBlock": "Kreis zeichnen",
+  "@action_name_canvasDrawCircleBlock": {
+    "description": "Draw Circle"
+  },
+  "action_name_canvasDrawRectBlock": "Rechteck zeichnen",
+  "@action_name_canvasDrawRectBlock": {
+    "description": "Draw Rectangle"
+  },
+  "action_name_canvasDrawTextBlock": "Text zeichnen",
+  "@action_name_canvasDrawTextBlock": {
+    "description": "Draw Text"
+  },
+  "action_name_canvasLoadImageBlock": "Bild laden",
+  "@action_name_canvasLoadImageBlock": {
+    "description": "Load Image"
+  },
   "action_name_clearAllReactions": "Alle Reaktionen löschen",
   "@action_name_clearAllReactions": {
     "description": "Clear All Reactions"
@@ -657,6 +677,10 @@
   "action_name_runtimeJsonBlock": "JSON-Operationen ausführen",
   "@action_name_runtimeJsonBlock": {
     "description": "JSON-Operationen ausführen"
+  },
+  "action_name_runtimeImageBlock": "Bildoperationen ausführen",
+  "@action_name_runtimeImageBlock": {
+    "description": "Bildoperationen ausführen"
   },
   "action_name_sendComponentV2": "Komponente V2 senden",
   "@action_name_sendComponentV2": {

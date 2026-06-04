@@ -309,6 +309,21 @@ class AppLocalizationsTr extends AppLocalizations {
   String get action_name_calculate => 'Hesapla';
 
   @override
+  String get action_name_canvasCreateBlock => 'Tuval Oluştur';
+
+  @override
+  String get action_name_canvasDrawCircleBlock => 'Daire Çiz';
+
+  @override
+  String get action_name_canvasDrawRectBlock => 'Dikdörtgen Çiz';
+
+  @override
+  String get action_name_canvasDrawTextBlock => 'Metin Çiz';
+
+  @override
+  String get action_name_canvasLoadImageBlock => 'Resim Yükle';
+
+  @override
   String get action_name_clearAllReactions => 'Tüm Tepkileri Temizle';
 
   @override
@@ -499,6 +514,9 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get action_name_runtimeJsonBlock => 'JSON İşlemlerini Çalıştır';
+
+  @override
+  String get action_name_runtimeImageBlock => 'Görüntü İşlemlerini Çalıştır';
 
   @override
   String get action_name_runWorkflow => 'İş Akışını Çalıştır';

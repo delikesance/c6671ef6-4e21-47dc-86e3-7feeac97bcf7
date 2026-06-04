@@ -1,5 +1,14 @@
 import 'package:bot_creator_shared/types/action.dart' show BotCreatorActionType;
 
+/// Mapping from visual canvas block types to their runtime operation names.
+const _canvasBlockToOp = <BotCreatorActionType, String>{
+  BotCreatorActionType.canvasCreateBlock: 'create',
+  BotCreatorActionType.canvasLoadImageBlock: 'loadImage',
+  BotCreatorActionType.canvasDrawTextBlock: 'drawText',
+  BotCreatorActionType.canvasDrawCircleBlock: 'drawCircle',
+  BotCreatorActionType.canvasDrawRectBlock: 'drawRect',
+};
+
 /// Purges irrelevant parameters from an action payload based on its type and mode.
 /// This ensures strict separation between response modes (Message, ComponentV2, Modal).
 Map<String, dynamic> purgeActionPayloadStrict(
@@ -66,6 +75,83 @@ Map<String, dynamic> purgeActionPayloadStrict(
     } else if (mode == 'componentV2') {
       payload.remove('content');
       payload.remove('embeds');
+    }
+  }
+
+  // ── Image Manipulation Block: collapse nested canvas actions into runtime operations ──
+  if (type == BotCreatorActionType.runtimeImageBlock) {
+    final nestedRaw = payload['operations'];
+    if (nestedRaw is List && nestedRaw.isNotEmpty) {
+      final runtimeOps = <Map<String, dynamic>>[];
+      for (final item in nestedRaw) {
+        if (item is! Map) continue;
+        final itemType = (item['type'] ?? '').toString();
+        final itemPayload =
+            Map<String, dynamic>.from(
+              (item['payload'] as Map?)?.cast<String, dynamic>() ?? const {},
+            );
+
+        // Find matching canvas block type
+        BotCreatorActionType? canvasType;
+        for (final entry in _canvasBlockToOp.entries) {
+          if (entry.key.name == itemType) {
+            canvasType = entry.key;
+            break;
+          }
+        }
+        if (canvasType == null) continue;
+
+        final opName = _canvasBlockToOp[canvasType]!;
+        final op = <String, dynamic>{'op': opName};
+
+        // Copy relevant parameters based on operation type
+        switch (canvasType) {
+          case BotCreatorActionType.canvasCreateBlock:
+            op['width'] = (itemPayload['width'] ?? '400').toString();
+            op['height'] = (itemPayload['height'] ?? '300').toString();
+            op['color'] = (itemPayload['color'] ?? '#ffffff').toString();
+            break;
+          case BotCreatorActionType.canvasLoadImageBlock:
+            op['url'] = (itemPayload['url'] ?? '').toString();
+            // targetWidth/targetHeight → compositeImage width/height if positive
+            final tw = (itemPayload['targetWidth'] ?? '-1').toString();
+            final th = (itemPayload['targetHeight'] ?? '-1').toString();
+            if (tw != '-1' || th != '-1') {
+              op['width'] = tw;
+              op['height'] = th;
+            }
+            break;
+          case BotCreatorActionType.canvasDrawTextBlock:
+            op['text'] = (itemPayload['text'] ?? '').toString();
+            op['x'] = (itemPayload['x'] ?? '0').toString();
+            op['y'] = (itemPayload['y'] ?? '0').toString();
+            op['fontSize'] = (itemPayload['fontSize'] ?? '14').toString();
+            op['color'] = (itemPayload['color'] ?? '#ffffff').toString();
+            break;
+          case BotCreatorActionType.canvasDrawCircleBlock:
+            op['x'] = (itemPayload['x'] ?? '0').toString();
+            op['y'] = (itemPayload['y'] ?? '0').toString();
+            op['radius'] = (itemPayload['radius'] ?? '50').toString();
+            op['color'] = (itemPayload['color'] ?? '#ffffff').toString();
+            op['fill'] = (itemPayload['fill'] ?? true).toString();
+            break;
+          case BotCreatorActionType.canvasDrawRectBlock:
+            op['x'] = (itemPayload['x'] ?? '0').toString();
+            op['y'] = (itemPayload['y'] ?? '0').toString();
+            op['width'] = (itemPayload['width'] ?? '100').toString();
+            op['height'] = (itemPayload['height'] ?? '50').toString();
+            op['color'] = (itemPayload['color'] ?? '#ffffff').toString();
+            op['fill'] = (itemPayload['fill'] ?? true).toString();
+            break;
+          default:
+            continue;
+        }
+        runtimeOps.add(op);
+      }
+      payload['operations'] = runtimeOps;
+    } else {
+      // No nested actions — keep operations as-is or empty
+      payload['operations'] = <Map<String, dynamic>>[];
     }
   }
 

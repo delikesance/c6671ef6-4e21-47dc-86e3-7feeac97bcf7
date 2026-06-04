@@ -119,6 +119,12 @@ String getCategoryForAction(BotCreatorActionType type) {
     case BotCreatorActionType.debugProfile:
     case BotCreatorActionType.log:
     case BotCreatorActionType.runtimeJsonBlock:
+    case BotCreatorActionType.runtimeImageBlock:
+    case BotCreatorActionType.canvasCreateBlock:
+    case BotCreatorActionType.canvasLoadImageBlock:
+    case BotCreatorActionType.canvasDrawTextBlock:
+    case BotCreatorActionType.canvasDrawCircleBlock:
+    case BotCreatorActionType.canvasDrawRectBlock:
     case BotCreatorActionType.registerGuildCommands:
     case BotCreatorActionType.unregisterGuildCommands:
       return 'Workflows';
