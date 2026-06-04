@@ -3250,6 +3250,12 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
       case BotCreatorActionType.runtimeImageBlock:
         return [
           ParameterDefinition(
+            key: 'imageName',
+            type: ParameterType.string,
+            defaultValue: '',
+            hint: 'Name to reference this image (used with Attach Image action)',
+          ),
+          ParameterDefinition(
             key: 'operations',
             type: ParameterType.nestedActions,
             defaultValue: <Map<String, dynamic>>[],
