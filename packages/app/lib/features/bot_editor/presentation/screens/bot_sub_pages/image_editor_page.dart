@@ -15,9 +15,11 @@
 ///
 /// ## Variable Support
 ///
-/// Text fields (drawText.text, loadImage.url) show a variable insertion
-/// button that opens a popup listing available dynamic variables. Inserted
-/// placeholders are rendered as colored badges on the canvas preview.
+/// All property fields support a Literal / Dynamic toggle. In Dynamic
+/// mode a [VariableTextField] with autocomplete replaces the standard
+/// input field, allowing `((variable))` placeholders. The mode is
+/// stored per-field as `${key}InputMode` in the operation map so it
+/// survives navigation.
 ///
 /// ## Entry Point
 ///
@@ -38,6 +40,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import '../../widgets/canvas_preview_widget.dart';
+import '../../../../../core/widgets/variable_text_field.dart';
 
 // ─── Page Entry Point ──────────────────────────────────────────────────────
 
@@ -171,15 +174,8 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
         ),
         actions: [
           _buildUndoRedoActions(),
-          const SizedBox(width: 8),
-          FilledButton.icon(
-            onPressed: () => Navigator.pop(context, _operations),
-            icon: const Icon(Icons.check, size: 18),
-            label: const Text('Save'),
-            style: FilledButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            ),
-          ),
+          const SizedBox(width: 4),
+          _buildSaveButton(),
           const SizedBox(width: 8),
         ],
       ),
@@ -199,35 +195,38 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
 
   Widget _buildToolbar() {
     final cs = Theme.of(context).colorScheme;
-    return Container(
-      height: 44,
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
-      child: Row(
-        children: [
-          PopupMenuButton<String>(
-            onSelected: (opType) => _addOperation(opType),
-            tooltip: 'Add operation',
-            offset: const Offset(0, 40),
-            itemBuilder: (context) => [
-              const PopupMenuItem(value: 'create', child: Text('Create Canvas')),
-              const PopupMenuItem(value: 'loadImage', child: Text('Load Image')),
-              const PopupMenuItem(value: 'drawText', child: Text('Draw Text')),
-              const PopupMenuItem(value: 'drawRect', child: Text('Draw Rectangle')),
-              const PopupMenuItem(value: 'drawCircle', child: Text('Draw Circle')),
-              const PopupMenuItem(value: 'drawLine', child: Text('Draw Line')),
-            ],
-            child: TextButton.icon(
-              onPressed: null,
-              icon: const Icon(Icons.add, size: 18),
-              label: const Text('Add Layer'),
-              style: TextButton.styleFrom(
-                foregroundColor: cs.onSurface,
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-              ),
-            ),
+    final isWide = MediaQuery.of(context).size.width >= 720;
+    const controlSpacing = SizedBox(width: 4);
+
+    Widget buildAddLayerButton() {
+      return PopupMenuButton<String>(
+        onSelected: (opType) => _addOperation(opType),
+        tooltip: 'Add operation',
+        offset: const Offset(0, 40),
+        itemBuilder: (context) => [
+          const PopupMenuItem(value: 'create', child: Text('Create Canvas')),
+          const PopupMenuItem(value: 'loadImage', child: Text('Load Image')),
+          const PopupMenuItem(value: 'drawText', child: Text('Draw Text')),
+          const PopupMenuItem(value: 'drawRect', child: Text('Draw Rectangle')),
+          const PopupMenuItem(value: 'drawCircle', child: Text('Draw Circle')),
+          const PopupMenuItem(value: 'drawLine', child: Text('Draw Line')),
+        ],
+        child: TextButton.icon(
+          onPressed: null,
+          icon: const Icon(Icons.add, size: 18),
+          label: const Text('Add Layer'),
+          style: TextButton.styleFrom(
+            foregroundColor: cs.onSurface,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
           ),
-          const VerticalDivider(width: 1, indent: 10, endIndent: 10),
+        ),
+      );
+    }
+
+    Widget buildZoomControls() {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
           IconButton(
             onPressed: _zoom > 0.25 ? _zoomOut : null,
             icon: const Icon(Icons.zoom_out, size: 20),
@@ -235,6 +234,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
           ),
+          controlSpacing,
           GestureDetector(
             onTap: _zoomToFit,
             child: Container(
@@ -247,6 +247,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
                   style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
             ),
           ),
+          controlSpacing,
           IconButton(
             onPressed: _zoom < 3.0 ? _zoomIn : null,
             icon: const Icon(Icons.zoom_in, size: 20),
@@ -254,6 +255,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
           ),
+          controlSpacing,
           IconButton(
             onPressed: _zoomToFit,
             icon: const Icon(Icons.fit_screen, size: 18),
@@ -261,7 +263,34 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
           ),
-          const Spacer(),
+        ],
+      );
+    }
+
+    return Container(
+      height: 44,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
+      child: Row(
+        children: [
+          // ── Add Layer (always visible, left-aligned) ──
+          buildAddLayerButton(),
+          // ── Zoom controls (right-aligned on wide, scrollable on narrow) ──
+          if (isWide) ...[
+            const Spacer(),
+            buildZoomControls(),
+          ] else
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    const VerticalDivider(width: 1, indent: 10, endIndent: 10),
+                    buildZoomControls(),
+                  ],
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -288,6 +317,29 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
           constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
         ),
       ],
+    );
+  }
+
+  // ── Save Button (adaptive for narrow screens) ─────────────────────────
+
+  Widget _buildSaveButton() {
+    final isNarrow = MediaQuery.of(context).size.width < 360;
+    if (isNarrow) {
+      return IconButton(
+        onPressed: () => Navigator.pop(context, _operations),
+        icon: const Icon(Icons.check, size: 20),
+        tooltip: 'Save',
+        padding: EdgeInsets.zero,
+        constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+      );
+    }
+    return FilledButton.icon(
+      onPressed: () => Navigator.pop(context, _operations),
+      icon: const Icon(Icons.check, size: 18),
+      label: const Text('Save'),
+      style: FilledButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      ),
     );
   }
 
@@ -536,9 +588,9 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
           padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
           child: Row(
             children: [
-              Text('Operations',
-                  style: Theme.of(context).textTheme.titleSmall),
-              const Spacer(),
+              Flexible(child: Text('Operations',
+                  style: Theme.of(context).textTheme.titleSmall)),
+              const SizedBox(width: 8),
               Text('${_operations.length}',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context).colorScheme.outline,
@@ -857,64 +909,137 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
   List<Widget> _buildPropertyFields(
       String opType, Map<String, dynamic> op, int index) {
     final fields = <Widget>[];
+    final hasVars = widget.variableSuggestions.isNotEmpty;
+
+    /// Resolves the input mode ('literal' or 'dynamic') for a field.
+    /// Stored in the operation map as `${key}InputMode` so it survives
+    /// navigation (matching the action_card.dart convention).
+    String _resolveInputMode(String key) {
+      final stored =
+          (op['${key}InputMode'] ?? '').toString().trim().toLowerCase();
+      return stored == 'dynamic' ? 'dynamic' : 'literal';
+    }
+
+    /// Builds a ChoiceChip toggle (Literal / Dynamic) for a field.
+    Widget _buildToggle(String key) {
+      final inputMode = _resolveInputMode(key);
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 6),
+        child: Wrap(
+          spacing: 8,
+          children: [
+            ChoiceChip(
+              label: const Text('Literal'),
+              selected: inputMode == 'literal',
+              onSelected: (_) {
+                setState(() {
+                  op.remove('${key}InputMode');
+                  // Clear any lingering prop controller so the next build
+                  // reinitialises it with the current value.
+                  _propControllers.remove('$index.$key');
+                });
+              },
+            ),
+            ChoiceChip(
+              label: const Text('Dynamic'),
+              selected: inputMode == 'dynamic',
+              onSelected: (_) {
+                setState(() {
+                  op['${key}InputMode'] = 'dynamic';
+                  _propControllers.remove('$index.$key');
+                });
+              },
+            ),
+          ],
+        ),
+      );
+    }
 
     void addField(String label, String key,
         {String? hint, TextInputType? keyboardType, bool isColor = false, bool isUrl = false}) {
-      final isTextLike = key == 'text' || key == 'url';
-      final hasVars = widget.variableSuggestions.isNotEmpty;
+      final inputMode = _resolveInputMode(key);
+      final isDynamic = hasVars && inputMode == 'dynamic';
 
+      // ── Toggle row (only when variables are available) ──────────────────
+      final toggle = hasVars ? _buildToggle(key) : null;
+
+      // ── Dynamic mode — VariableTextField with autocomplete ──────────────
+      if (isDynamic) {
+        fields.add(Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w500, fontSize: 12)),
+              const SizedBox(height: 4),
+              toggle!,
+              VariableTextField(
+                label: 'Expression',
+                initialValue: (op[key] ?? '').toString(),
+                hint: keyboardType == TextInputType.number
+                    ? 'e.g. ((temp.myVar))'
+                    : null,
+                suggestions: widget.variableSuggestions,
+                onChanged: (newValue) {
+                  setState(() {
+                    if (newValue.isEmpty) {
+                      op.remove(key);
+                    } else {
+                      op[key] = newValue;
+                    }
+                  });
+                },
+              ),
+            ],
+          ),
+        ));
+        return;
+      }
+
+      // ── Literal mode — standard field with optional helpers ─────────────
       Widget? suffix;
       if (isColor) {
-        suffix = _buildColorPreview(op[key]);
+        final colorPreview = _buildColorPreview(op[key]);
+        suffix = colorPreview;
       } else if (isUrl) {
-        suffix = Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (isTextLike && hasVars)
-              IconButton(
-                icon: const Icon(Icons.data_object, size: 18),
-                onPressed: () => _showVariableInsertPopup(key, index),
-                tooltip: 'Insert variable',
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-              ),
-            IconButton(
-              icon: const Icon(Icons.image, size: 20),
-              onPressed: () => _pickImage(key),
-              tooltip: 'Pick image file',
-            ),
-          ],
-        );
-      } else if (isTextLike && hasVars) {
         suffix = IconButton(
-          icon: const Icon(Icons.data_object, size: 18),
-          onPressed: () => _showVariableInsertPopup(key, index),
-          tooltip: 'Insert variable',
+          icon: const Icon(Icons.image, size: 20),
+          onPressed: () => _pickImage(key),
+          tooltip: 'Pick image file',
         );
       }
 
       fields.add(Padding(
         padding: const EdgeInsets.only(bottom: 12),
-        child: TextFormField(
-          key: ValueKey('${index}_$key'),
-          controller: _getPropController(index, key, (op[key] ?? '').toString()),
-          decoration: InputDecoration(
-            labelText: label,
-            hintText: hint,
-            border: const OutlineInputBorder(),
-            isDense: true,
-            suffixIcon: suffix,
-          ),
-          keyboardType: keyboardType,
-          onChanged: (value) {
-            setState(() {
-              if (value.isEmpty) {
-                op.remove(key);
-              } else {
-                op[key] = value;
-              }
-            });
-          },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (toggle != null) toggle,
+            TextFormField(
+              key: ValueKey('${index}_$key'),
+              controller: _getPropController(
+                  index, key, (op[key] ?? '').toString()),
+              decoration: InputDecoration(
+                labelText: label,
+                hintText: hint,
+                border: const OutlineInputBorder(),
+                isDense: true,
+                suffixIcon: suffix,
+              ),
+              keyboardType: keyboardType,
+              onChanged: (value) {
+                setState(() {
+                  if (value.isEmpty) {
+                    op.remove(key);
+                  } else {
+                    op[key] = value;
+                  }
+                });
+              },
+            ),
+          ],
         ),
       ));
     }
@@ -1121,125 +1246,6 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
       _pushHistory();
     } catch (_) {
       // File picker error — silently ignore
-    }
-  }
-
-  // ── Variable Insertion ──────────────────────────────────────────────────
-
-  /// Shows a popup overlay listing available variables for insertion into
-  /// a text field. When the user taps a variable, `((varName))` is inserted
-  /// at the current cursor position.
-  void _showVariableInsertPopup(String key, int index) {
-    final controller = _getPropController(
-        index, key, _operations[index][key]?.toString() ?? '');
-    final suggestions = widget.variableSuggestions;
-
-    if (suggestions.isEmpty) return;
-
-    // Group suggestions by category
-    final grouped = <VariableCategory, List<VariableSuggestion>>{};
-    for (final s in suggestions) {
-      grouped.putIfAbsent(s.category, () => []).add(s);
-    }
-
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Insert Variable'),
-        content: SizedBox(
-          width: 280,
-          height: 400,
-          child: ListView(
-            children: grouped.entries.expand((entry) {
-              final header = _categoryHeader(entry.key);
-              final items = entry.value.map((s) => ListTile(
-                dense: true,
-                leading: Icon(Icons.code, size: 16,
-                    color: _categorySwatch(entry.key)),
-                title: Text(s.name,
-                    style: const TextStyle(
-                        fontSize: 13, fontFamily: 'monospace')),
-                subtitle: s.description != null
-                    ? Text(s.description!,
-                        style: const TextStyle(fontSize: 11))
-                    : null,
-                onTap: () {
-                  final placeholder = '((${s.name}))';
-                  final text = controller.text;
-                  final cursorPos = controller.selection.baseOffset;
-                  final newText = cursorPos >= 0 && cursorPos <= text.length
-                      ? '${text.substring(0, cursorPos)}$placeholder${text.substring(cursorPos)}'
-                      : '$text$placeholder';
-                  controller.text = newText;
-                  setState(() {
-                    _operations[index][key] = newText;
-                  });
-                  Navigator.pop(dialogContext);
-                },
-              ));
-              return [header, ...items];
-            }).toList(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Returns a category header widget for the variable popup.
-  Widget _categoryHeader(VariableCategory category) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-      child: Text(
-        _categoryLabel(category),
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-          color: Theme.of(context).colorScheme.outline,
-          letterSpacing: 0.5,
-        ),
-      ),
-    );
-  }
-
-  /// Maps a variable category to a human-readable label.
-  String _categoryLabel(VariableCategory category) {
-    switch (category) {
-      case VariableCategory.author: return 'Author';
-      case VariableCategory.user: return 'User';
-      case VariableCategory.member: return 'Member';
-      case VariableCategory.guild: return 'Server';
-      case VariableCategory.channel: return 'Channel';
-      case VariableCategory.message: return 'Message';
-      case VariableCategory.bot: return 'Bot';
-      case VariableCategory.temp: return 'Temporary';
-      case VariableCategory.context_: return 'Context';
-      case VariableCategory.interaction: return 'Interaction';
-      case VariableCategory.function_: return 'Functions';
-      case VariableCategory.other: return 'Other';
-    }
-  }
-
-  /// Returns a color swatch for the variable category icon.
-  Color _categorySwatch(VariableCategory category) {
-    switch (category) {
-      case VariableCategory.author: return Colors.deepPurple;
-      case VariableCategory.user: return Colors.blue;
-      case VariableCategory.member: return Colors.lightBlue;
-      case VariableCategory.guild: return Colors.green;
-      case VariableCategory.channel: return Colors.lightGreen;
-      case VariableCategory.message: return Colors.amber;
-      case VariableCategory.bot: return Colors.purple;
-      case VariableCategory.temp: return Colors.deepOrange;
-      case VariableCategory.context_: return Colors.blueGrey;
-      case VariableCategory.interaction: return Colors.cyan;
-      case VariableCategory.function_: return Colors.teal;
-      case VariableCategory.other: return Colors.grey;
     }
   }
 
