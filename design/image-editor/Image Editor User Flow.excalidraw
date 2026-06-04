@@ -1,0 +1,232 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "hermes-agent",
+  "elements": [
+    {
+      "type": "rectangle",
+      "id": "bg1",
+      "x": 100, "y": 20, "width": 1100, "height": 60,
+      "fillStyle": "solid", "backgroundColor": "#d0bfff",
+      "boundElements": [{"id": "t_bg1", "type": "text"}]
+    },
+    {
+      "type": "text",
+      "id": "t_bg1", "x": 350, "y": 30, "width": 600, "height": 40,
+      "text": "Image Editor — User Flow & Architecture",
+      "fontSize": 28, "fontFamily": 1, "strokeColor": "#1e1e1e",
+      "textAlign": "center", "verticalAlign": "middle",
+      "containerId": "bg1", "originalText": "Image Editor — User Flow & Architecture", "autoResize": true
+    },
+    {
+      "type": "rectangle",
+      "id": "entry_block", "x": 440, "y": 120, "width": 280, "height": 70,
+      "fillStyle": "solid", "backgroundColor": "#a5d8ff",
+      "roundness": {"type": 3},
+      "boundElements": [{"id": "t_entry", "type": "text"}]
+    },
+    {
+      "type": "text",
+      "id": "t_entry", "x": 450, "y": 128, "width": 260, "height": 50,
+      "text": "runtimeImageBlock\n(Workflow Action)",
+      "fontSize": 16, "fontFamily": 1, "strokeColor": "#1e1e1e",
+      "textAlign": "center", "verticalAlign": "middle",
+      "containerId": "entry_block", "originalText": "runtimeImageBlock\n(Workflow Action)", "autoResize": true
+    },
+    {
+      "type": "diamond",
+      "id": "choice", "x": 430, "y": 240, "width": 300, "height": 100,
+      "fillStyle": "solid", "backgroundColor": "#fff3bf",
+      "boundElements": [{"id": "t_choice", "type": "text"}]
+    },
+    {
+      "type": "text",
+      "id": "t_choice", "x": 468, "y": 270, "width": 224, "height": 40,
+      "text": "Edit Mode?\nBlock Params / Visual Editor",
+      "fontSize": 14, "fontFamily": 1, "strokeColor": "#1e1e1e",
+      "textAlign": "center", "verticalAlign": "middle",
+      "containerId": "choice", "originalText": "Edit Mode?\nBlock Params / Visual Editor", "autoResize": true
+    },
+    {
+      "type": "arrow",
+      "id": "a_entry_choice", "x": 580, "y": 190, "width": 0, "height": 50,
+      "points": [[0,0],[0,50]], "endArrowhead": "arrow"
+    },
+    {
+      "type": "rectangle",
+      "id": "block_mode", "x": 880, "y": 240, "width": 280, "height": 100,
+      "fillStyle": "solid", "backgroundColor": "#ffc9c9",
+      "roundness": {"type": 3},
+      "boundElements": [{"id": "t_block_mode", "type": "text"}]
+    },
+    {
+      "type": "text",
+      "id": "t_block_mode", "x": 890, "y": 255, "width": 260, "height": 70,
+      "text": "Block Parameters\n(current mode)\n- URL, size, position fields",
+      "fontSize": 14, "fontFamily": 1, "strokeColor": "#1e1e1e",
+      "textAlign": "center", "verticalAlign": "middle",
+      "containerId": "block_mode", "originalText": "Block Parameters\n(current mode)\n- URL, size, position fields", "autoResize": true
+    },
+    {
+      "type": "arrow",
+      "id": "a_choice_block", "x": 730, "y": 290, "width": 150, "height": 0,
+      "points": [[0,0],[150,0]], "endArrowhead": "arrow",
+      "boundElements": [{"id": "t_label_block", "type": "text"}]
+    },
+    {
+      "type": "text",
+      "id": "t_label_block", "x": 760, "y": 280, "width": 96, "height": 20,
+      "text": "block params",
+      "fontSize": 14, "fontFamily": 1, "strokeColor": "#757575",
+      "textAlign": "center", "verticalAlign": "middle",
+      "containerId": "a_choice_block", "originalText": "block params", "autoResize": true
+    },
+    {
+      "type": "rectangle",
+      "id": "visual_editor", "x": 100, "y": 240, "width": 280, "height": 100,
+      "fillStyle": "solid", "backgroundColor": "#b2f2bb",
+      "roundness": {"type": 3},
+      "boundElements": [{"id": "t_visual", "type": "text"}]
+    },
+    {
+      "type": "text",
+      "id": "t_visual", "x": 110, "y": 252, "width": 260, "height": 76,
+      "text": "Visual Editor (NEW)\nOperations-based editor\nRead-only preview canvas",
+      "fontSize": 14, "fontFamily": 1, "strokeColor": "#1e1e1e",
+      "textAlign": "center", "verticalAlign": "middle",
+      "containerId": "visual_editor", "originalText": "Visual Editor (NEW)\nOperations-based editor\nRead-only preview canvas","autoResize": true
+    },
+    {
+      "type": "arrow",
+      "id": "a_choice_visual", "x": 380, "y": 290, "width": 50, "height": 0,
+      "points": [[0,0],[50,0]], "endArrowhead": "arrow",
+      "boundElements": [{"id": "t_label_visual", "type": "text"}]
+    },
+    {
+      "type": "text",
+      "id": "t_label_visual", "x": 390, "y": 280, "width": 36, "height": 20,
+      "text": "visual",
+      "fontSize": 14, "fontFamily": 1, "strokeColor": "#757575",
+      "textAlign": "center", "verticalAlign": "middle",
+      "containerId": "a_choice_visual", "originalText": "visual", "autoResize": true
+    },
+    {
+      "type": "rectangle",
+      "id": "screen_layout", "x": 60, "y": 400, "width": 1160, "height": 340,
+      "fillStyle": "solid", "backgroundColor": "#c3fae8",
+      "roundness": {"type": 3},
+      "boundElements": [{"id": "t_screen", "type": "text"}]
+    },
+    {
+      "type": "text",
+      "id": "t_screen", "x": 80, "y": 408, "width": 1120, "height": 22,
+      "text": "Visual Editor Screen Layout — 3-zone design: Toolbar (top) | Operations Panel (left) | Preview Canvas (center) | Property Inspector (right)",
+      "fontSize": 16, "fontFamily": 1, "strokeColor": "#1e1e1e",
+      "textAlign": "left", "verticalAlign": "middle",
+      "containerId": "screen_layout", "originalText": "Visual Editor Screen Layout — Operations-based", "autoResize": true
+    },
+    {
+      "type": "rectangle",
+      "id": "toolbar", "x": 80, "y": 440, "width": 1120, "height": 50,
+      "fillStyle": "solid", "backgroundColor": "#6A0FA2",
+      "opacity": 45, "boundElements": [{"id": "t_toolbar", "type": "text"}]
+    },
+    {
+      "type": "text",
+      "id": "t_toolbar", "x": 400, "y": 447, "width": 480, "height": 36,
+      "text": "TOOLBAR: Canvas | Image | Text | Circle | Rectangle | Zoom -/+ | Preview",
+      "fontSize": 16, "fontFamily": 1, "strokeColor": "#ffffff",
+      "textAlign": "center", "verticalAlign": "middle",
+      "containerId": "toolbar", "originalText": "TOOLBAR: Canvas | Image | Text | Circle | Rectangle | Zoom | Preview", "autoResize": true
+    },
+    {
+      "type": "rectangle",
+      "id": "layer_panel", "x": 80, "y": 495, "width": 200, "height": 235,
+      "fillStyle": "solid", "backgroundColor": "#3A3A4A",
+      "opacity": 70, "boundElements": [{"id": "t_layers", "type": "text"}]
+    },
+    {
+      "type": "text",
+      "id": "t_layers", "x": 90, "y": 505, "width": 180, "height": 215,
+      "text": "OPERATIONS (ordered)\n─────────────────────\n#1  Create Canvas  800x600\n#2  Load Image  bg.jpg\n#3  Draw Text  \"Welcome...\"\n#4  Draw Circle  r=45\n#5  Draw Rect  150x40\n\n drag to reorder\n x delete operation\n+ add operation",
+      "fontSize": 14, "fontFamily": 1, "strokeColor": "#B5BAC1",
+      "textAlign": "left", "verticalAlign": "top",
+      "containerId": "layer_panel", "originalText": "OPERATIONS (ordered)", "autoResize": false
+    },
+    {
+      "type": "rectangle",
+      "id": "canvas_area", "x": 290, "y": 495, "width": 580, "height": 235,
+      "fillStyle": "hachure", "backgroundColor": "#ffffff",
+      "strokeStyle": "dashed",
+      "boundElements": [{"id": "t_canvas", "type": "text"}]
+    },
+    {
+      "type": "text",
+      "id": "t_canvas", "x": 490, "y": 590, "width": 180, "height": 45,
+      "text": "PREVIEW CANVAS 800x600\n(read-only — no drag/resize)\nPinch-to-zoom on mobile",
+      "fontSize": 16, "fontFamily": 1, "strokeColor": "#9E9E9E",
+      "textAlign": "center", "verticalAlign": "middle",
+      "containerId": "canvas_area", "originalText": "READ-ONLY CANVAS 800x600 (checkerboard bg) Pinch-to-zoom on mobile", "autoResize": true
+    },
+    {
+      "type": "rectangle",
+      "id": "properties", "x": 880, "y": 495, "width": 320, "height": 235,
+      "fillStyle": "solid", "backgroundColor": "#2C2C3A",
+      "opacity": 70, "boundElements": [{"id": "t_props", "type": "text"}]
+    },
+    {
+      "type": "text",
+      "id": "t_props", "x": 895, "y": 502, "width": 290, "height": 222,
+      "text": "PROPERTIES (selected op)\n───────────────────────\nType: Draw Text\n\nText:  Welcome #{user.name}!\nX:  20   Y:  20\nFont: 24   Color: #ffffff\n\nParameters set via fields\nNo mouse dragging on canvas\nValues update preview instantly\n\n#{var} supported in all fields",
+      "fontSize": 14, "fontFamily": 1, "strokeColor": "#B5BAC1",
+      "textAlign": "left", "verticalAlign": "top",
+      "containerId": "properties", "originalText": "PROPERTIES (selected op)", "autoResize": false
+    },
+    {
+      "type": "arrow",
+      "id": "a_visual_to_layout", "x": 230, "y": 340, "width": 0, "height": 60,
+      "points": [[0,0],[0,60]], "endArrowhead": "arrow"
+    },
+    {
+      "type": "rectangle",
+      "id": "variable_box", "x": 100, "y": 770, "width": 1100, "height": 90,
+      "fillStyle": "solid", "backgroundColor": "#ffd8a8",
+      "roundness": {"type": 3},
+      "boundElements": [{"id": "t_vars", "type": "text"}]
+    },
+    {
+      "type": "text",
+      "id": "t_vars", "x": 120, "y": 778, "width": 1060, "height": 74,
+      "text": "DYNAMIC VARIABLE PLACEHOLDERS\nAny text/number/URL field supports #{variable} interpolation.\nImage URL  #{user.avatar_url}   |   Text  #{user.name}   |   Position  #{config.x}   |   Color  #{accent}\nPlaceholders rendered in real-time preview; orange underline on unresolved variables during editing.",
+      "fontSize": 16, "fontFamily": 1, "strokeColor": "#1e1e1e",
+      "textAlign": "left", "verticalAlign": "middle",
+      "containerId": "variable_box", "originalText": "DYNAMIC VARIABLE PLACEHOLDERS (supports #{var} and ((placeholder)))", "autoResize": false
+    },
+    {
+      "type": "arrow",
+      "id": "a_layout_vars", "x": 630, "y": 740, "width": 0, "height": 30,
+      "points": [[0,0],[0,30]], "endArrowhead": "arrow"
+    },
+    {
+      "type": "rectangle",
+      "id": "states_box", "x": 100, "y": 900, "width": 1100, "height": 130,
+      "fillStyle": "solid", "backgroundColor": "#e0e0e0",
+      "roundness": {"type": 3},
+      "boundElements": [{"id": "t_states", "type": "text"}]
+    },
+    {
+      "type": "text",
+      "id": "t_states", "x": 120, "y": 908, "width": 1060, "height": 114,
+      "text": "KEY STATES & EDGE CASES\nEMPTY: 'Start by adding a canvas' guide + quick actions (Create Canvas 400x300, 800x600, 1200x630)\nLOADING: Skeleton canvas frame with pulsing placeholder\nERROR: Image URL broken - red border on operation + 'Image failed to load' badge with retry button\nUNSAVED: 'Leave editor? Unsaved changes will be lost' guard dialog\nMOBILE: Toolbar collapses to bottom sheet; operations/properties panels slide in from sides; canvas fills screen",
+      "fontSize": 16, "fontFamily": 1, "strokeColor": "#1e1e1e",
+      "textAlign": "left", "verticalAlign": "middle",
+      "containerId": "states_box", "originalText": "KEY STATES & EDGE CASES", "autoResize": false
+    },
+    {
+      "type": "arrow",
+      "id": "a_vars_states", "x": 630, "y": 860, "width": 0, "height": 40,
+      "points": [[0,0],[0,40]], "endArrowhead": "arrow"
+    }
+  ],
+  "appState": {"viewBackgroundColor": "#ffffff"}
+}
