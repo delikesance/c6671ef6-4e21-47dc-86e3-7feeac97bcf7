@@ -303,6 +303,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get action_name_appendArrayElement => 'Array-Element anhängen';
 
   @override
+  String get action_name_attachImage => 'Bild anhängen';
+
+  @override
   String get action_name_banUser => 'Benutzer bannen';
 
   @override

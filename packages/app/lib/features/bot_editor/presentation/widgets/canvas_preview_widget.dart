@@ -27,10 +27,12 @@
 /// ```
 library;
 
+import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:bot_creator/core/models/types/variable_suggestion.dart';
 import 'package:bot_creator_shared/types/variable_suggestion.dart' as shared;
 
@@ -164,10 +166,28 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
   // Accumulator for pan deltas (to avoid jitter from gesture resolution).
   Offset _dragAccumulator = Offset.zero;
 
+  // ─── Image cache ───────────────────────────────────────────────────────
+
+  /// Loaded [ui.Image] objects keyed by their source URL.
+  final Map<String, ui.Image> _loadedImages = {};
+
+  /// URLs currently being loaded (to avoid duplicate requests).
+  final Set<String> _loadingUrls = {};
+
   @override
   void initState() {
     super.initState();
     _parseCanvasSize();
+    _loadImages();
+  }
+
+  @override
+  void dispose() {
+    for (final image in _loadedImages.values) {
+      image.dispose();
+    }
+    _loadedImages.clear();
+    super.dispose();
   }
 
   @override
@@ -176,6 +196,13 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
     if (oldWidget.operations != widget.operations) {
       _parseCanvasSize();
     }
+    // Always scan for new images on every update. The operations list may
+    // be mutated in-place (e.g. URL field updated by the image picker)
+    // without changing the list reference, so identity comparison alone
+    // is insufficient. _loadImages() has internal dedup via
+    // _loadedImages.containsKey() / _loadingUrls.contains(), so repeated
+    // calls for already-loaded images are a cheap no-op.
+    _loadImages();
   }
 
   void _parseCanvasSize() {
@@ -184,6 +211,71 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
         _canvasWidth = int.tryParse(op['width']?.toString() ?? '') ?? 400;
         _canvasHeight = int.tryParse(op['height']?.toString() ?? '') ?? 300;
         return;
+      }
+    }
+  }
+
+  // ─── Image loading ─────────────────────────────────────────────────────
+
+  /// Detects [loadImage] / [compositeImage] operations with a viable URL,
+  /// decodes the image data, and stores the resulting [ui.Image] in
+  /// [_loadedImages]. Triggers a repaint when each image finishes loading.
+  void _loadImages() {
+    for (final op in widget.operations) {
+      final opType = (op['op'] ?? '').toString();
+      if (opType != 'loadImage' && opType != 'compositeImage') continue;
+
+      final url = op['url']?.toString() ?? '';
+      if (url.isEmpty) continue;
+
+      // Don't reload if already cached or currently loading
+      if (_loadedImages.containsKey(url)) continue;
+      if (_loadingUrls.contains(url)) continue;
+
+      // Skip URLs that contain unresolved template placeholders
+      if (url.contains('((') || url.contains('#{')) continue;
+
+      _loadingUrls.add(url);
+      _decodeImageFromUrl(url);
+    }
+  }
+
+  /// Decodes an image from a data URL (base64) or HTTP URL into a [ui.Image].
+  Future<void> _decodeImageFromUrl(String url) async {
+    try {
+      late final Uint8List bytes;
+      if (url.startsWith('data:')) {
+        // Decode base64 data URL
+        final commaIndex = url.indexOf(',');
+        if (commaIndex == -1) {
+          _loadingUrls.remove(url);
+          return;
+        }
+        bytes = const Base64Decoder()
+            .convert(url.substring(commaIndex + 1));
+      } else {
+        // Fetch from HTTP URL
+        final response = await NetworkAssetBundle(
+          Uri.parse(url),
+        ).load(url);
+        bytes = response.buffer.asUint8List();
+      }
+
+      final codec = await ui.instantiateImageCodec(bytes);
+      final frame = await codec.getNextFrame();
+      final image = frame.image;
+
+      if (mounted) {
+        setState(() {
+          _loadedImages[url] = image;
+          _loadingUrls.remove(url);
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _loadingUrls.remove(url);
+        });
       }
     }
   }
@@ -454,6 +546,7 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
           getBoundingBox: _getBoundingBox,
           hiddenIndices: widget.hiddenIndices,
           variableSuggestions: widget.variableSuggestions,
+          loadedImages: _loadedImages,
         );
 
         final customPaint = CustomPaint(
@@ -497,6 +590,8 @@ class _CanvasPreviewPainter extends CustomPainter {
   final Rect? Function(Map<String, dynamic> op) getBoundingBox;
   final Set<int> hiddenIndices;
   final List<VariableSuggestion> variableSuggestions;
+  /// Pre-loaded images keyed by their source URL.
+  final Map<String, ui.Image> loadedImages;
 
   _CanvasPreviewPainter({
     required this.operations,
@@ -507,6 +602,7 @@ class _CanvasPreviewPainter extends CustomPainter {
     required this.getBoundingBox,
     this.hiddenIndices = const {},
     this.variableSuggestions = const [],
+    this.loadedImages = const {},
   });
 
   @override
@@ -652,6 +748,16 @@ class _CanvasPreviewPainter extends CustomPainter {
   }
 
   void _paintImagePlaceholder(Canvas canvas, Map<String, dynamic> op) {
+    final url = op['url']?.toString() ?? '';
+
+    // Try to render the actual image if it's been loaded
+    final loadedImage = loadedImages[url];
+    if (loadedImage != null) {
+      _paintImage(canvas, op, loadedImage);
+      return;
+    }
+
+    // ─── Placeholder rendering (no image loaded yet) ─────────────────────
     final x = _parseDouble(op, 'x');
     final y = _parseDouble(op, 'y');
     final w = _parseDouble(op, 'width', 50);
@@ -679,6 +785,64 @@ class _CanvasPreviewPainter extends CustomPainter {
     );
     canvas.drawCircle(Offset(cx - s * 0.3, cy - s * 0.3), s * 0.15,
         Paint()..color = const ui.Color(0x66FFFFFF));
+
+    // Show a subtle loading indicator for URLs actively being fetched
+    // (vs empty URLs that don't trigger loading at all)
+    if (url.isNotEmpty && !url.contains('((') && !url.contains('#{')) {
+      _paintLoadingIndicator(canvas, rect);
+    }
+  }
+
+  /// Draws the loaded [ui.Image] onto the canvas.
+  ///
+  /// If [op] has a width/height, the image is scaled to fit those dimensions;
+  /// otherwise it's drawn at its native size (clipped to canvas bounds).
+  void _paintImage(Canvas canvas, Map<String, dynamic> op, ui.Image image) {
+    final x = _parseDouble(op, 'x');
+    final y = _parseDouble(op, 'y');
+    final specifiedW = _parseDouble(op, 'width', -1);
+    final specifiedH = _parseDouble(op, 'height', -1);
+
+    final src = Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble());
+
+    Rect dst;
+    if (specifiedW > 0 && specifiedH > 0) {
+      // Explicit dimensions — scale to them
+      dst = Rect.fromLTWH(x, y, specifiedW, specifiedH);
+    } else if (specifiedW > 0) {
+      // Width specified, preserve aspect ratio
+      final ratio = image.height / image.width;
+      dst = Rect.fromLTWH(x, y, specifiedW, specifiedW * ratio);
+    } else if (specifiedH > 0) {
+      // Height specified, preserve aspect ratio
+      final ratio = image.width / image.height;
+      dst = Rect.fromLTWH(x, y, specifiedH * ratio, specifiedH);
+    } else {
+      // No size specified — draw at native size
+      dst = Rect.fromLTWH(
+        x,
+        y,
+        image.width.toDouble(),
+        image.height.toDouble(),
+      );
+    }
+
+    canvas.drawImageRect(image, src, dst, Paint());
+  }
+
+  /// Draws a small animated dots indicator inside the placeholder rect
+  /// to signal that image data is being fetched.
+  void _paintLoadingIndicator(Canvas canvas, Rect rect) {
+    final cx = rect.center.dx;
+    final bottom = rect.bottom - 10;
+    const dotRadius = 2.0;
+    const spacing = 8.0;
+    final dotPaint = Paint()..color = const ui.Color(0x88FFFFFF);
+
+    // Three dots: left, center, right
+    canvas.drawCircle(Offset(cx - spacing, bottom), dotRadius, dotPaint);
+    canvas.drawCircle(Offset(cx, bottom), dotRadius, dotPaint);
+    canvas.drawCircle(Offset(cx + spacing, bottom), dotRadius, dotPaint);
   }
 
   /// Renders a text string containing variable placeholders as interactive badges.
@@ -934,7 +1098,19 @@ class _CanvasPreviewPainter extends CustomPainter {
         oldDelegate.canvasWidth != canvasWidth ||
         oldDelegate.canvasHeight != canvasHeight ||
         oldDelegate.variableSuggestions != variableSuggestions ||
-        oldDelegate.hiddenIndices != hiddenIndices;
+        oldDelegate.hiddenIndices != hiddenIndices ||
+        !_mapsIdentical(oldDelegate.loadedImages, loadedImages);
+  }
+
+  /// Quick identity check: same number of entries with the same keys
+  /// implies no new images were loaded since the last paint.
+  bool _mapsIdentical(Map<String, ui.Image> a, Map<String, ui.Image> b) {
+    if (identical(a, b)) return true;
+    if (a.length != b.length) return false;
+    for (final key in a.keys) {
+      if (!b.containsKey(key)) return false;
+    }
+    return true;
   }
 
   // ─── Helpers ──────────────────────────────────────────────────────────

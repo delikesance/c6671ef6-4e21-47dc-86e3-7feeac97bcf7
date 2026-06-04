@@ -313,6 +313,9 @@ class AppLocalizationsFr extends AppLocalizations {
       'Ajouter un élément à un tableau';
 
   @override
+  String get action_name_attachImage => 'Joindre une image';
+
+  @override
   String get action_name_banUser => 'Bannir un utilisateur';
 
   @override
