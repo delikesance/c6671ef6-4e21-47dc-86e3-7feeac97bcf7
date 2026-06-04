@@ -494,7 +494,16 @@ extension _CommandBlockEditor on _CommandCreatePageState {
                   'error': {'mode': 'stop'},
                   'payload': Map<String, dynamic>.from(type.defaultParameters),
                 };
-                _actions.add(newAction);
+                // Defensive: ensure _actions is a growable list. Some code paths
+                // (e.g. import, builder round-trip) may produce a fixed-length list
+                // via const [] or List.unmodifiable, causing a runtime crash.
+                try {
+                  _actions.add(newAction);
+                } on UnsupportedError {
+                  // Fixed-length list — replace with a growable copy and retry.
+                  _actions = List<Map<String, dynamic>>.from(_actions);
+                  _actions.add(newAction);
+                }
                 _persistActiveSubcommandWorkflow();
               });
             },

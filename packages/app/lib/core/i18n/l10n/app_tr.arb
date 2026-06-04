@@ -402,6 +402,26 @@
   "@action_name_calculate": {
     "description": "Calculate"
   },
+  "action_name_canvasCreateBlock": "Tuval Oluştur",
+  "@action_name_canvasCreateBlock": {
+    "description": "Create Canvas"
+  },
+  "action_name_canvasDrawCircleBlock": "Daire Çiz",
+  "@action_name_canvasDrawCircleBlock": {
+    "description": "Draw Circle"
+  },
+  "action_name_canvasDrawRectBlock": "Dikdörtgen Çiz",
+  "@action_name_canvasDrawRectBlock": {
+    "description": "Draw Rectangle"
+  },
+  "action_name_canvasDrawTextBlock": "Metin Çiz",
+  "@action_name_canvasDrawTextBlock": {
+    "description": "Draw Text"
+  },
+  "action_name_canvasLoadImageBlock": "Resim Yükle",
+  "@action_name_canvasLoadImageBlock": {
+    "description": "Load Image"
+  },
   "action_name_clearAllReactions": "Tüm Tepkileri Temizle",
   "@action_name_clearAllReactions": {
     "description": "Clear All Reactions"
@@ -653,6 +673,10 @@
   "action_name_runtimeJsonBlock": "JSON İşlemlerini Çalıştır",
   "@action_name_runtimeJsonBlock": {
     "description": "Execute JSON Operations"
+  },
+  "action_name_runtimeImageBlock": "Görüntü İşlemlerini Çalıştır",
+  "@action_name_runtimeImageBlock": {
+    "description": "Execute Image Operations"
   },
   "action_name_runWorkflow": "İş Akışını Çalıştır",
   "@action_name_runWorkflow": {

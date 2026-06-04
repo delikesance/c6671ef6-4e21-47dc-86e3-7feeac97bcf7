@@ -523,7 +523,17 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
     if (nextKey.isEmpty) return;
 
     final parsed = _parseLooseVariableValue(valueCtrl.text);
-    await _setSourceGlobalVariable(nextKey, parsed);
+    try {
+      await _setSourceGlobalVariable(nextKey, parsed);
+    } on MainApiClientException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to sync variable: ${e.message}'),
+        ),
+      );
+      return;
+    }
     await _load();
   }
 

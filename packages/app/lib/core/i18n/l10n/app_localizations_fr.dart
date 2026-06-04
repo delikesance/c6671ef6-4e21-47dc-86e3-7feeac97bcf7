@@ -319,6 +319,21 @@ class AppLocalizationsFr extends AppLocalizations {
   String get action_name_calculate => 'Calculer';
 
   @override
+  String get action_name_canvasCreateBlock => 'Créer un canevas';
+
+  @override
+  String get action_name_canvasDrawCircleBlock => 'Dessiner un cercle';
+
+  @override
+  String get action_name_canvasDrawRectBlock => 'Dessiner un rectangle';
+
+  @override
+  String get action_name_canvasDrawTextBlock => 'Dessiner du texte';
+
+  @override
+  String get action_name_canvasLoadImageBlock => 'Charger une image';
+
+  @override
   String get action_name_clearAllReactions => 'Retirer toutes les réactions';
 
   @override
@@ -516,6 +531,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get action_name_runtimeJsonBlock => 'Bloc JSON d\'exécution';
+
+  @override
+  String get action_name_runtimeImageBlock => 'Bloc Image d\'exécution';
 
   @override
   String get action_name_runWorkflow => 'Exécuter un workflow';

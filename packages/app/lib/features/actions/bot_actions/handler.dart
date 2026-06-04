@@ -1620,6 +1620,12 @@ Future<Map<String, String>> handleActions(
         case BotCreatorActionType.registerGuildCommands:
         case BotCreatorActionType.unregisterGuildCommands:
         case BotCreatorActionType.deferInteraction:
+        case BotCreatorActionType.runtimeImageBlock:
+        case BotCreatorActionType.canvasCreateBlock:
+        case BotCreatorActionType.canvasLoadImageBlock:
+        case BotCreatorActionType.canvasDrawTextBlock:
+        case BotCreatorActionType.canvasDrawCircleBlock:
+        case BotCreatorActionType.canvasDrawRectBlock:
           final delegated = await shared_handler.handleActions(
             client,
             interaction,

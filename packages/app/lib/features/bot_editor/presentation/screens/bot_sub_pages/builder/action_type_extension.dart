@@ -208,6 +208,18 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
         return context.tr.action_name_log;
       case BotCreatorActionType.runtimeJsonBlock:
         return context.tr.action_name_runtimeJsonBlock;
+      case BotCreatorActionType.runtimeImageBlock:
+        return context.tr.action_name_runtimeImageBlock;
+      case BotCreatorActionType.canvasCreateBlock:
+        return context.tr.action_name_canvasCreateBlock;
+      case BotCreatorActionType.canvasLoadImageBlock:
+        return context.tr.action_name_canvasLoadImageBlock;
+      case BotCreatorActionType.canvasDrawTextBlock:
+        return context.tr.action_name_canvasDrawTextBlock;
+      case BotCreatorActionType.canvasDrawCircleBlock:
+        return context.tr.action_name_canvasDrawCircleBlock;
+      case BotCreatorActionType.canvasDrawRectBlock:
+        return context.tr.action_name_canvasDrawRectBlock;
       case BotCreatorActionType.registerGuildCommands:
         return context.tr.action_name_registerGuildCommands;
       case BotCreatorActionType.unregisterGuildCommands:
@@ -398,6 +410,18 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
         return Icons.notes;
       case BotCreatorActionType.runtimeJsonBlock:
         return Icons.code;
+      case BotCreatorActionType.runtimeImageBlock:
+        return Icons.image;
+      case BotCreatorActionType.canvasCreateBlock:
+        return Icons.add_photo_alternate;
+      case BotCreatorActionType.canvasLoadImageBlock:
+        return Icons.file_upload;
+      case BotCreatorActionType.canvasDrawTextBlock:
+        return Icons.text_fields;
+      case BotCreatorActionType.canvasDrawCircleBlock:
+        return Icons.circle_outlined;
+      case BotCreatorActionType.canvasDrawRectBlock:
+        return Icons.crop_square;
       case BotCreatorActionType.registerGuildCommands:
         return Icons.playlist_add;
       case BotCreatorActionType.unregisterGuildCommands:
@@ -3234,6 +3258,126 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
       case BotCreatorActionType.debugProfile:
       case BotCreatorActionType.runtimeJsonBlock:
         return [];
+
+      case BotCreatorActionType.runtimeImageBlock:
+        return [
+          ParameterDefinition(
+            key: 'operations',
+            type: ParameterType.nestedActions,
+            defaultValue: <Map<String, dynamic>>[],
+            hint: 'Canvas operations (Create, Load Image, Draw Text, Shapes...)',
+          ),
+        ];
+
+      // ── Image Canvas Sub-Actions ─────────────────────────────────────────
+      case BotCreatorActionType.canvasCreateBlock:
+        return [
+          ParameterDefinition(
+            key: 'width', type: ParameterType.number, defaultValue: 400,
+            hint: 'Canvas width in pixels', required: true,
+          ),
+          ParameterDefinition(
+            key: 'height', type: ParameterType.number, defaultValue: 300,
+            hint: 'Canvas height in pixels', required: true,
+          ),
+          ParameterDefinition(
+            key: 'color', type: ParameterType.string, defaultValue: '#ffffff',
+            hint: 'Background color (hex or name)',
+          ),
+        ];
+
+      case BotCreatorActionType.canvasLoadImageBlock:
+        return [
+          ParameterDefinition(
+            key: 'url', type: ParameterType.url, defaultValue: '',
+            hint: 'Image URL, data URL, or select local file', required: true,
+          ),
+          ParameterDefinition(
+            key: 'targetWidth', type: ParameterType.number, defaultValue: -1,
+            hint: 'Resize width (-1 = original)',
+          ),
+          ParameterDefinition(
+            key: 'targetHeight', type: ParameterType.number, defaultValue: -1,
+            hint: 'Resize height (-1 = original)',
+          ),
+        ];
+
+      case BotCreatorActionType.canvasDrawTextBlock:
+        return [
+          ParameterDefinition(
+            key: 'text', type: ParameterType.string, defaultValue: '',
+            hint: 'Text to draw', required: true,
+          ),
+          ParameterDefinition(
+            key: 'x', type: ParameterType.number, defaultValue: 0,
+            hint: 'X position', required: true,
+          ),
+          ParameterDefinition(
+            key: 'y', type: ParameterType.number, defaultValue: 0,
+            hint: 'Y position', required: true,
+          ),
+          ParameterDefinition(
+            key: 'fontSize', type: ParameterType.number, defaultValue: 14,
+            hint: 'Font size (14, 24, or 48)',
+          ),
+          ParameterDefinition(
+            key: 'color', type: ParameterType.string, defaultValue: '#ffffff',
+            hint: 'Text color (hex or name)',
+          ),
+        ];
+
+      case BotCreatorActionType.canvasDrawCircleBlock:
+        return [
+          ParameterDefinition(
+            key: 'x', type: ParameterType.number, defaultValue: 0,
+            hint: 'Center X position', required: true,
+          ),
+          ParameterDefinition(
+            key: 'y', type: ParameterType.number, defaultValue: 0,
+            hint: 'Center Y position', required: true,
+          ),
+          ParameterDefinition(
+            key: 'radius', type: ParameterType.number, defaultValue: 50,
+            hint: 'Radius', required: true,
+          ),
+          ParameterDefinition(
+            key: 'color', type: ParameterType.string, defaultValue: '#ffffff',
+            hint: 'Color (hex or name)',
+          ),
+          ParameterDefinition(
+            key: 'fill', type: ParameterType.boolean, defaultValue: true,
+            hint: 'Fill the circle (yes/no)',
+          ),
+        ];
+
+      case BotCreatorActionType.canvasDrawRectBlock:
+        return [
+          ParameterDefinition(
+            key: 'x', type: ParameterType.number, defaultValue: 0,
+            hint: 'X position', required: true,
+          ),
+          ParameterDefinition(
+            key: 'y', type: ParameterType.number, defaultValue: 0,
+            hint: 'Y position', required: true,
+          ),
+          ParameterDefinition(
+            key: 'width', type: ParameterType.number, defaultValue: 100,
+            hint: 'Width', required: true,
+          ),
+          ParameterDefinition(
+            key: 'height', type: ParameterType.number, defaultValue: 50,
+            hint: 'Height', required: true,
+          ),
+          ParameterDefinition(
+            key: 'color', type: ParameterType.string, defaultValue: '#ffffff',
+            hint: 'Color (hex or name)',
+          ),
+          ParameterDefinition(
+            key: 'fill', type: ParameterType.boolean, defaultValue: true,
+            hint: 'Fill the rectangle (yes/no)',
+          ),
+        ];
+
       case BotCreatorActionType.log:
         return [
           ParameterDefinition(
