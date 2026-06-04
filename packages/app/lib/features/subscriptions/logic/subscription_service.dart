@@ -519,14 +519,16 @@ class SubscriptionService {
           },
         ),
       );
-    } catch (error, stack) {
+    } catch (error) {
+      // Backend sync is best-effort only (see comment above). Don't pollute
+      // Crashlytics with transient network/circuit-breaker errors.
       unawaited(
-        AppDiagnostics.logError(
-          'Failed to sync subscription to main API',
-          error,
-          stack,
-          fatal: false,
-          reason: 'product=${purchase.productID}',
+        AppDiagnostics.logInfo(
+          'Subscription sync to main API skipped (best-effort)',
+          data: {
+            'product': purchase.productID,
+            'reason': error.toString(),
+          },
         ),
       );
     }
