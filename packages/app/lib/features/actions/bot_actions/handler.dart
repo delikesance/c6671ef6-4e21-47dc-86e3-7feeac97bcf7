@@ -1626,6 +1626,7 @@ Future<Map<String, String>> handleActions(
         case BotCreatorActionType.canvasDrawTextBlock:
         case BotCreatorActionType.canvasDrawCircleBlock:
         case BotCreatorActionType.canvasDrawRectBlock:
+        case BotCreatorActionType.canvasDrawLineBlock:
           final delegated = await shared_handler.handleActions(
             client,
             interaction,

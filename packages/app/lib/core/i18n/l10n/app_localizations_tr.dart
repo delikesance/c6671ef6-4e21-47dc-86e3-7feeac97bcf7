@@ -4204,6 +4204,20 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String get image_editor_create => 'Oluştur';
+
+  @override
+  String get image_editor_create_canvas => 'Görüntü Tuvali Oluştur';
+
+  @override
+  String image_editor_edit_canvas(int count) {
+    return 'Tuvali Düzenle ($count işlem)';
+  }
+
+  @override
+  String get image_editor_open => 'Düzenleyiciyi Aç';
+
+  @override
   String legacy_bdfd_run_failed(String command, String error) {
     return '\"$command\" komutu için BDFD betiği çalıştırılamadı: $error';
   }

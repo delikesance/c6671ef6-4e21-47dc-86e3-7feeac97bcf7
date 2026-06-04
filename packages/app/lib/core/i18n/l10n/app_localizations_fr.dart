@@ -4247,6 +4247,20 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get image_editor_create => 'Créer';
+
+  @override
+  String get image_editor_create_canvas => 'Créer un canvas d\'image';
+
+  @override
+  String image_editor_edit_canvas(int count) {
+    return 'Éditer le canvas ($count opérations)';
+  }
+
+  @override
+  String get image_editor_open => 'Ouvrir l\'éditeur';
+
+  @override
   String legacy_bdfd_run_failed(String command, String error) {
     return 'échec d\'exécution du script BDFD pour la commande \"$command\" : $error';
   }
