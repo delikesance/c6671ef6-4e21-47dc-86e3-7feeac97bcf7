@@ -315,6 +315,7 @@ void main() {
     testWidgets('tap on empty canvas fires callback with result', (
       tester,
     ) async {
+      bool callbackFired = false;
       int? selected;
       await tester.pumpWidget(
         _wrap(
@@ -322,14 +323,18 @@ void main() {
             operations: _fullComposition(),
             maxWidth: 800,
             maxHeight: 600,
-            onElementSelected: (i) => selected = i,
+            onElementSelected: (i) {
+              callbackFired = true;
+              selected = i;
+            },
           ),
         ),
       );
 
       await tester.tap(find.byType(GestureDetector));
       await tester.pump();
-      // Callback was called (value depends on exact tap position)
+      expect(callbackFired, isTrue);
+      expect(selected, isNull);
     });
 
     testWidgets('non-interactive mode skips GestureDetector', (tester) async {
@@ -409,8 +414,8 @@ void main() {
       );
 
       final topLeft = tester.getTopLeft(find.byType(GestureDetector));
-      // Tap near the rectangle area (x:10, y:10 in canvas space; scaled to widget)
-      final startPos = topLeft + const Offset(5, 5);
+      // Tap inside the rectangle area (x:10, y:10 in canvas space; scaled to widget)
+      final startPos = topLeft + const Offset(15, 15);
       final gesture = await tester.startGesture(startPos);
       await tester.pump();
       await gesture.moveBy(const Offset(20, 10));
@@ -419,6 +424,7 @@ void main() {
       await tester.pump();
       await gesture.up();
       await tester.pump();
+      expect(draggedIndex, 1);
     });
   });
 
@@ -742,7 +748,7 @@ void main() {
     });
 
     testWidgets('mobile layout has TabBar', (tester) async {
-      tester.view.physicalSize = const Size(375, 812 * 2);
+      tester.view.physicalSize = const Size(375 * 2, 812 * 2);
       tester.view.devicePixelRatio = 2.0;
       addTearDown(() {
         tester.view.resetPhysicalSize();
@@ -953,7 +959,7 @@ void main() {
       tester,
     ) async {
       // Fixed by SingleChildScrollView wrapper in toolbar
-      tester.view.physicalSize = const Size(320, 568 * 2); // iPhone SE size
+      tester.view.physicalSize = const Size(320 * 2, 568 * 2); // iPhone SE size
       tester.view.devicePixelRatio = 2.0;
       addTearDown(() {
         tester.view.resetPhysicalSize();
