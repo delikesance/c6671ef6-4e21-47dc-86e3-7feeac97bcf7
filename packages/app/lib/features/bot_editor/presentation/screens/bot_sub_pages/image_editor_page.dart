@@ -15,11 +15,13 @@
 ///
 /// ## Variable Support
 ///
-/// All property fields support a Literal / Dynamic toggle. In Dynamic
-/// mode a [VariableTextField] with autocomplete replaces the standard
-/// input field, allowing `((variable))` placeholders. The mode is
-/// stored per-field as `${key}InputMode` in the operation map so it
-/// survives navigation.
+/// Every property field shows a small variable icon (Icons.data_object)
+/// in its suffix when variable suggestions are available. Tapping the
+/// icon opens a dialog with a [VariableTextField] pre-populated with
+/// `((` so autocomplete suggestions appear immediately. Selecting a
+/// variable inserts the `((variableName))` placeholder into the field.
+/// Fields support both literal values and `((variable))` placeholders
+/// natively — no mode toggle needed.
 ///
 /// ## Entry Point
 ///
@@ -911,135 +913,108 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
     final fields = <Widget>[];
     final hasVars = widget.variableSuggestions.isNotEmpty;
 
-    /// Resolves the input mode ('literal' or 'dynamic') for a field.
-    /// Stored in the operation map as `${key}InputMode` so it survives
-    /// navigation (matching the action_card.dart convention).
-    String _resolveInputMode(String key) {
-      final stored =
-          (op['${key}InputMode'] ?? '').toString().trim().toLowerCase();
-      return stored == 'dynamic' ? 'dynamic' : 'literal';
-    }
+    /// Shows a dialog with a [VariableTextField] pre-populated with `((`
+    /// so autocomplete suggestions appear immediately. On accept, inserts
+    /// the selected variable into the operation map and syncs the prop controller.
+    void showVariablePicker(String key) {
+      // Pre-populate with (( so suggestions appear immediately.
+      final vc = TextEditingController(text: '((');
+      // Place cursor after (( so the suggestions picker activates.
+      vc.selection = TextSelection.collapsed(offset: 2);
 
-    /// Builds a ChoiceChip toggle (Literal / Dynamic) for a field.
-    Widget _buildToggle(String key) {
-      final inputMode = _resolveInputMode(key);
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 6),
-        child: Wrap(
-          spacing: 8,
-          children: [
-            ChoiceChip(
-              label: const Text('Literal'),
-              selected: inputMode == 'literal',
-              onSelected: (_) {
-                setState(() {
-                  op.remove('${key}InputMode');
-                  // Clear any lingering prop controller so the next build
-                  // reinitialises it with the current value.
-                  _propControllers.remove('$index.$key');
-                });
-              },
+      showDialog<String>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Insert Variable'),
+          content: SizedBox(
+            width: 420,
+            child: VariableTextField(
+              label: 'Variable',
+              hint: 'Type to filter or tap a suggestion below',
+              suggestions: widget.variableSuggestions,
+              controller: vc,
+              onChanged: (_) {},
             ),
-            ChoiceChip(
-              label: const Text('Dynamic'),
-              selected: inputMode == 'dynamic',
-              onSelected: (_) {
-                setState(() {
-                  op['${key}InputMode'] = 'dynamic';
-                  _propControllers.remove('$index.$key');
-                });
-              },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, vc.text.trim()),
+              child: const Text('Insert'),
             ),
           ],
         ),
+      ).then((result) {
+        if (result != null && result.isNotEmpty) {
+          setState(() {
+            op[key] = result;
+            final ck = '$index.$key';
+            final c = _propControllers[ck];
+            if (c != null) {
+              c.text = result;
+            }
+          });
+        }
+      });
+    }
+
+    /// Builds the suffix icon row for a field. When variable suggestions
+    /// are available, the Icons.data_object icon appears alongside any
+    /// type-specific icon (color preview or image picker).
+    Widget? buildSuffix(String fieldKey, bool isColor, bool isUrl) {
+      if (!hasVars && !isColor && !isUrl) return null;
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (isColor) _buildColorPreview(op[fieldKey]) ?? const SizedBox.shrink(),
+          if (isUrl)
+            IconButton(
+              icon: const Icon(Icons.image, size: 20),
+              onPressed: () => _pickImage(fieldKey),
+              tooltip: 'Pick image file',
+              visualDensity: VisualDensity.compact,
+            ),
+          if (hasVars)
+            IconButton(
+              icon: const Icon(Icons.data_object, size: 18),
+              onPressed: () => showVariablePicker(fieldKey),
+              tooltip: 'Insert variable',
+              visualDensity: VisualDensity.compact,
+            ),
+        ],
       );
     }
 
     void addField(String label, String key,
         {String? hint, TextInputType? keyboardType, bool isColor = false, bool isUrl = false}) {
-      final inputMode = _resolveInputMode(key);
-      final isDynamic = hasVars && inputMode == 'dynamic';
-
-      // ── Toggle row (only when variables are available) ──────────────────
-      final toggle = hasVars ? _buildToggle(key) : null;
-
-      // ── Dynamic mode — VariableTextField with autocomplete ──────────────
-      if (isDynamic) {
-        fields.add(Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(label,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w500, fontSize: 12)),
-              const SizedBox(height: 4),
-              toggle!,
-              VariableTextField(
-                label: 'Expression',
-                initialValue: (op[key] ?? '').toString(),
-                hint: keyboardType == TextInputType.number
-                    ? 'e.g. ((temp.myVar))'
-                    : null,
-                suggestions: widget.variableSuggestions,
-                onChanged: (newValue) {
-                  setState(() {
-                    if (newValue.isEmpty) {
-                      op.remove(key);
-                    } else {
-                      op[key] = newValue;
-                    }
-                  });
-                },
-              ),
-            ],
-          ),
-        ));
-        return;
-      }
-
-      // ── Literal mode — standard field with optional helpers ─────────────
-      Widget? suffix;
-      if (isColor) {
-        final colorPreview = _buildColorPreview(op[key]);
-        suffix = colorPreview;
-      } else if (isUrl) {
-        suffix = IconButton(
-          icon: const Icon(Icons.image, size: 20),
-          onPressed: () => _pickImage(key),
-          tooltip: 'Pick image file',
-        );
-      }
+      final suffix = buildSuffix(key, isColor, isUrl);
 
       fields.add(Padding(
         padding: const EdgeInsets.only(bottom: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (toggle != null) toggle,
-            TextFormField(
-              key: ValueKey('${index}_$key'),
-              controller: _getPropController(
-                  index, key, (op[key] ?? '').toString()),
-              decoration: InputDecoration(
-                labelText: label,
-                hintText: hint,
-                border: const OutlineInputBorder(),
-                isDense: true,
-                suffixIcon: suffix,
-              ),
-              keyboardType: keyboardType,
-              onChanged: (value) {
-                setState(() {
-                  if (value.isEmpty) {
-                    op.remove(key);
-                  } else {
-                    op[key] = value;
-                  }
-                });
-              },
-            ),
-          ],
+        child: TextFormField(
+          key: ValueKey('${index}_$key'),
+          controller:
+              _getPropController(index, key, (op[key] ?? '').toString()),
+          decoration: InputDecoration(
+            labelText: label,
+            hintText: hint,
+            border: const OutlineInputBorder(),
+            isDense: true,
+            suffixIcon: suffix,
+          ),
+          keyboardType: keyboardType,
+          onChanged: (value) {
+            setState(() {
+              if (value.isEmpty) {
+                op.remove(key);
+              } else {
+                op[key] = value;
+              }
+            });
+          },
         ),
       ));
     }
