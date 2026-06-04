@@ -390,7 +390,20 @@ Future<Map<String, String>> handleActions(
       fallbackGuildId ?? (interaction as dynamic)?.guildId as Snowflake?;
   final activeWorkflowStack = workflowStack ?? <String>{};
 
-  String resolveValue(String value) => resolveTemplate(value);
+  String resolveValue(String value) {
+    // Try template resolution first (variables, interaction context, etc.)
+    final resolved = resolveTemplate(value);
+    if (resolved != value) return resolved;
+    // Fall back to local action results (e.g. ((action_message)) from respondWithMessage)
+    final match = RegExp(r'^\(\((.+)\)\)$').firstMatch(value.trim());
+    if (match != null) {
+      final key = match.group(1)!;
+      if (results.containsKey(key)) {
+        return results[key]!;
+      }
+    }
+    return resolved;
+  }
 
   for (var i = 0; i < actions.length; i++) {
     final action = actions[i];
@@ -670,9 +683,17 @@ Future<Map<String, String>> handleActions(
           final content = resolveValue(
             (action.payload['content'] ?? '').toString(),
           );
+          // Resolve variable references in messageId and channelId (e.g. ((action_message)))
+          final resolvedPayload = Map<String, dynamic>.from(action.payload);
+          resolvedPayload['messageId'] = resolveValue(
+            (action.payload['messageId'] ?? '').toString(),
+          );
+          resolvedPayload['channelId'] = resolveValue(
+            (action.payload['channelId'] ?? '').toString(),
+          );
           final result = await editMessageAction(
             client,
-            payload: action.payload,
+            payload: resolvedPayload,
             fallbackChannelId: resolvedFallbackChannelId,
             content: content,
             resolve: resolveValue,
