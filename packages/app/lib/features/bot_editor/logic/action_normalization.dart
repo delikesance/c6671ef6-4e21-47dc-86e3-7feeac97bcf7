@@ -7,6 +7,7 @@ const _canvasBlockToOp = <BotCreatorActionType, String>{
   BotCreatorActionType.canvasDrawTextBlock: 'drawText',
   BotCreatorActionType.canvasDrawCircleBlock: 'drawCircle',
   BotCreatorActionType.canvasDrawRectBlock: 'drawRect',
+  BotCreatorActionType.canvasDrawLineBlock: 'drawLine',
 };
 
 /// Purges irrelevant parameters from an action payload based on its type and mode.
@@ -142,6 +143,14 @@ Map<String, dynamic> purgeActionPayloadStrict(
             op['height'] = (itemPayload['height'] ?? '50').toString();
             op['color'] = (itemPayload['color'] ?? '#ffffff').toString();
             op['fill'] = (itemPayload['fill'] ?? true).toString();
+            break;
+          case BotCreatorActionType.canvasDrawLineBlock:
+            op['x1'] = (itemPayload['x1'] ?? '0').toString();
+            op['y1'] = (itemPayload['y1'] ?? '0').toString();
+            op['x2'] = (itemPayload['x2'] ?? '100').toString();
+            op['y2'] = (itemPayload['y2'] ?? '100').toString();
+            op['color'] = (itemPayload['color'] ?? '#ffffff').toString();
+            op['thickness'] = (itemPayload['thickness'] ?? '1').toString();
             break;
           default:
             continue;

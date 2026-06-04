@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bot Creator — Image Editor Prototype v2</title>
+<style>
+  :root {
+    --brand-primary: #6A0FA2;
+    --brand-secondary: #9B30FF;
+    --grey: #9E9E9E;
+    --success: #2E7D32;
+    --error: #E53935;
+    --warning: #FFA726;
+    --info: #1976D2;
+    --discord-dark: #2B2D31;
+    --discord-darker: #1E1F22;
+    --discord-border: #404249;
+    --discord-text: #B5BAC1;
+    --dark-surface: #2C2C3A;
+    --dark-surface-variant: #3A3A4A;
+    --code-surface: #1E1E1E;
+    --white: #FFFFFF;
+    --radius-xs: 4px;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-pill: 999px;
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 12px;
+    --spacing-lg: 16px;
+    --spacing-xl: 20px;
+    --spacing-xxl: 24px;
+    --font-mono: 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', monospace;
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --elevation-low: 0 1px 3px rgba(0,0,0,0.12);
+    --elevation-medium: 0 4px 12px rgba(0,0,0,0.18);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--font-sans);
+    background: var(--discord-darker);
+    color: var(--discord-text);
+    display: flex; flex-direction: column; height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ── Header ── */
+  .app-header {
+    background: var(--brand-primary);
+    color: var(--white);
+    padding: 0 var(--spacing-lg);
+    height: 48px; display: flex; align-items: center; gap: var(--spacing-md);
+    flex-shrink: 0;
+    font-size: 14px; font-weight: 600;
+  }
+  .app-header .back-btn {
+    cursor: pointer; opacity: 0.85; font-size: 18px; line-height: 1;
+  }
+  .app-header .back-btn:hover { opacity: 1; }
+  .app-header .title { flex: 1; }
+  .app-header .mode-badge {
+    background: rgba(255,255,255,0.2); padding: 2px 10px;
+    border-radius: var(--radius-pill); font-size: 12px;
+  }
+
+  /* ── Toolbar ── */
+  .toolbar {
+    background: var(--dark-surface);
+    border-bottom: 1px solid var(--discord-border);
+    height: 44px; display: flex; align-items: center; padding: 0 var(--spacing-sm);
+    gap: var(--spacing-xs); flex-shrink: 0; overflow-x: auto;
+  }
+  .toolbar .sep { width: 1px; height: 24px; background: var(--discord-border); margin: 0 4px; }
+  .tool-btn {
+    background: transparent; border: none; color: var(--discord-text);
+    width: 36px; height: 36px; border-radius: var(--radius-sm);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 16px; transition: background 0.15s; flex-shrink: 0;
+  }
+  .tool-btn:hover { background: var(--dark-surface-variant); }
+  .tool-btn.active { background: var(--brand-primary); color: var(--white); }
+  .tool-btn.primary { background: var(--brand-primary); color: var(--white); }
+  .tool-btn.primary:hover { background: var(--brand-secondary); }
+  .tool-btn.add-op {
+    width: auto; padding: 0 12px; font-size: 13px; gap: 4px; font-weight: 600;
+  }
+
+  /* ── Main Layout ── */
+  .editor-body {
+    display: flex; flex: 1; overflow: hidden;
+  }
+
+  /* ── Operations Panel (Left) ── */
+  .ops-panel {
+    width: 260px; min-width: 260px;
+    background: var(--dark-surface);
+    border-right: 1px solid var(--discord-border);
+    display: flex; flex-direction: column; flex-shrink: 0;
+  }
+  .ops-panel-header {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 12px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.5px; color: var(--grey);
+    border-bottom: 1px solid var(--discord-border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .ops-panel-header .count { color: var(--discord-text); font-size: 11px; }
+  .add-op-btn-inline {
+    background: var(--dark-surface-variant); border: 1px solid var(--discord-border);
+    color: var(--discord-text); height: 28px; border-radius: var(--radius-xs);
+    cursor: pointer; font-size: 18px; line-height: 1; padding: 0 8px;
+    display: flex; align-items: center; gap: 2px; font-size: 13px;
+  }
+  .add-op-btn-inline:hover { background: var(--brand-primary); color: var(--white); border-color: var(--brand-primary); }
+  .ops-list { flex: 1; overflow-y: auto; padding: var(--spacing-xs) 0; }
+  .op-item {
+    padding: var(--spacing-sm) var(--spacing-md);
+    cursor: pointer; display: flex; align-items: center; gap: var(--spacing-sm);
+    border-left: 3px solid transparent; font-size: 13px; transition: background 0.1s;
+    min-height: 40px;
+  }
+  .op-item:hover { background: rgba(255,255,255,0.04); }
+  .op-item.selected {
+    background: rgba(106,15,162,0.25);
+    border-left-color: var(--brand-primary);
+  }
+  .op-item .op-index {
+    color: var(--grey); font-size: 11px; font-family: var(--font-mono);
+    width: 20px; text-align: right; flex-shrink: 0;
+  }
+  .op-item .op-icon { font-size: 14px; width: 20px; text-align: center; flex-shrink: 0; }
+  .op-item .op-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .op-item .op-summary {
+    font-size: 11px; color: var(--grey); font-family: var(--font-mono);
+    max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .op-item .drag-handle { color: var(--grey); font-size: 12px; cursor: grab; flex-shrink: 0; }
+  .op-item .op-delete {
+    color: var(--grey); cursor: pointer; font-size: 14px; width: 20px;
+    text-align: center; flex-shrink: 0; visibility: hidden; border-radius: var(--radius-xs);
+  }
+  .op-item:hover .op-delete { visibility: visible; }
+  .op-item .op-delete:hover { color: var(--error); background: rgba(229,57,53,0.15); }
+  .empty-ops-hint {
+    padding: var(--spacing-xl); text-align: center; color: var(--grey); font-size: 13px;
+  }
+
+  /* ── Canvas Area (Center) ── */
+  .canvas-container {
+    flex: 1; overflow: hidden; position: relative;
+    display: flex; align-items: center; justify-content: center;
+    background: repeating-conic-gradient(#2C2C3A 0% 25%, transparent 0% 50%) 0 0 / 20px 20px;
+  }
+  .canvas-frame {
+    background: var(--white); box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    position: relative; overflow: hidden;
+  }
+  /* Canvas elements are READ-ONLY — no dragging, no resize handles */
+  .canvas-element {
+    position: absolute; user-select: none; pointer-events: none;
+  }
+  .canvas-element img { display: block; }
+  .canvas-element.selected-op {
+    outline: 2px dashed var(--brand-secondary);
+    outline-offset: 1px;
+  }
+  .zoom-indicator {
+    position: absolute; bottom: 12px; right: 16px;
+    background: rgba(0,0,0,0.7); color: var(--white);
+    padding: 4px 10px; border-radius: var(--radius-pill); font-size: 12px;
+    pointer-events: none;
+  }
+
+  /* ── Empty State ── */
+  .empty-state {
+    text-align: center; max-width: 380px;
+  }
+  .empty-state .icon { font-size: 64px; margin-bottom: var(--spacing-lg); opacity: 0.5; }
+  .empty-state h3 { color: var(--white); margin-bottom: var(--spacing-sm); font-size: 18px; }
+  .empty-state p { color: var(--grey); margin-bottom: var(--spacing-xl); font-size: 14px; line-height: 1.5; }
+  .quick-sizes { display: flex; gap: var(--spacing-sm); justify-content: center; flex-wrap: wrap; }
+  .quick-size-btn {
+    background: var(--dark-surface-variant); color: var(--discord-text);
+    border: 1px solid var(--discord-border); border-radius: var(--radius-md);
+    padding: var(--spacing-md) var(--spacing-lg); cursor: pointer;
+    font-size: 13px; text-align: center; transition: all 0.15s;
+    min-width: 110px;
+  }
+  .quick-size-btn:hover { background: var(--brand-primary); color: var(--white); border-color: var(--brand-primary); }
+  .custom-size-row { display: flex; gap: var(--spacing-sm); align-items: center; margin-top: var(--spacing-md); }
+  .custom-size-row input {
+    width: 80px; background: var(--code-surface); border: 1px solid var(--discord-border);
+    border-radius: var(--radius-sm); color: var(--discord-text);
+    padding: 8px 10px; font-size: 13px; text-align: center; font-family: var(--font-mono);
+  }
+  .custom-size-row input:focus { outline: none; border-color: var(--brand-primary); }
+  .custom-size-row button {
+    background: var(--brand-primary); color: var(--white); border: none;
+    border-radius: var(--radius-sm); padding: 8px 16px; cursor: pointer; font-size: 13px; font-weight: 600;
+  }
+
+  /* ── Loading State ── */
+  .loading-canvas {
+    width: 800px; height: 600px; background: var(--dark-surface);
+    display: flex; align-items: center; justify-content: center;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 0.9; }
+  }
+
+  /* ── Property Panel (Right) ── */
+  .property-panel {
+    width: 280px; min-width: 280px;
+    background: var(--dark-surface);
+    border-left: 1px solid var(--discord-border);
+    display: flex; flex-direction: column; flex-shrink: 0;
+  }
+  .property-header {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 12px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.5px; color: var(--grey);
+    border-bottom: 1px solid var(--discord-border);
+  }
+  .property-body { flex: 1; overflow-y: auto; padding: var(--spacing-md); }
+  .prop-group { margin-bottom: var(--spacing-lg); }
+  .prop-group-title {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.5px; color: var(--grey); margin-bottom: var(--spacing-sm);
+  }
+  .prop-row { display: flex; gap: var(--spacing-sm); margin-bottom: var(--spacing-sm); align-items: center; }
+  .prop-row label {
+    font-size: 12px; color: var(--grey); width: 72px; min-width: 72px;
+    line-height: 32px;
+  }
+  .prop-input {
+    flex: 1; background: var(--code-surface); border: 1px solid var(--discord-border);
+    border-radius: var(--radius-sm); color: var(--discord-text);
+    padding: 6px 10px; font-size: 13px; font-family: var(--font-mono);
+    transition: border-color 0.15s; width: 0;
+  }
+  .prop-input:focus {
+    outline: none; border-color: var(--brand-primary);
+    box-shadow: 0 0 0 2px rgba(106,15,162,0.25);
+  }
+  .prop-input.var {
+    color: var(--warning); border-color: var(--warning);
+    background: rgba(255,167,38,0.08);
+  }
+  .prop-input.var:focus {
+    border-color: var(--warning);
+    box-shadow: 0 0 0 2px rgba(255,167,38,0.25);
+  }
+  .prop-select {
+    flex: 1; background: var(--code-surface); border: 1px solid var(--discord-border);
+    border-radius: var(--radius-sm); color: var(--discord-text);
+    padding: 6px 10px; font-size: 13px; cursor: pointer;
+  }
+  .prop-check-row {
+    display: flex; align-items: center; gap: var(--spacing-sm);
+  }
+  .prop-check-row input[type="checkbox"] { accent-color: var(--brand-primary); }
+  .prop-check-row label { font-size: 13px; color: var(--discord-text); cursor: pointer; }
+  .prop-hint {
+    font-size: 11px; color: var(--grey); margin-top: var(--spacing-xs);
+  }
+  .var-badge {
+    display: inline-block; background: rgba(255,167,38,0.15); color: var(--warning);
+    padding: 2px 8px; border-radius: var(--radius-pill); font-size: 11px;
+    font-family: var(--font-mono); margin-top: var(--spacing-xs);
+  }
+  .prop-action-row {
+    display: flex; gap: var(--spacing-sm); margin-top: var(--spacing-md);
+  }
+  .btn-delete-op {
+    background: transparent; border: 1px solid var(--error); color: var(--error);
+    border-radius: var(--radius-sm); padding: 6px 14px; cursor: pointer;
+    font-size: 12px; font-weight: 600;
+  }
+  .btn-delete-op:hover { background: var(--error); color: var(--white); }
+  .insert-op-hint {
+    margin-top: var(--spacing-lg); padding-top: var(--spacing-md);
+    border-top: 1px solid var(--discord-border);
+  }
+  .insert-op-btn {
+    display: block; width: 100%; background: var(--dark-surface-variant);
+    border: 1px dashed var(--discord-border); color: var(--grey);
+    border-radius: var(--radius-sm); padding: 8px; cursor: pointer;
+    font-size: 12px; text-align: center; margin-bottom: var(--spacing-xs);
+    transition: all 0.15s;
+  }
+  .insert-op-btn:hover { background: var(--brand-primary); color: var(--white); border-color: var(--brand-primary); border-style: solid; }
+
+  /* ── Error Banner ── */
+  .error-banner {
+    background: var(--error); color: var(--white);
+    padding: var(--spacing-sm) var(--spacing-md); font-size: 13px;
+    display: flex; align-items: center; gap: var(--spacing-sm);
+    flex-shrink: 0;
+  }
+  .error-banner button {
+    background: rgba(255,255,255,0.2); border: none; color: var(--white);
+    padding: 4px 12px; border-radius: var(--radius-pill);
+    cursor: pointer; font-size: 12px; font-weight: 600;
+  }
+
+  /* ── Bottom Bar ── */
+  .bottom-bar {
+    background: var(--dark-surface);
+    border-top: 1px solid var(--discord-border);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0; font-size: 13px;
+  }
+  .bottom-bar .dims { color: var(--grey); font-family: var(--font-mono); }
+  .bottom-bar .actions { display: flex; gap: var(--spacing-sm); }
+  .bottom-bar button {
+    border: none; border-radius: var(--radius-sm);
+    padding: 8px 18px; cursor: pointer; font-size: 13px; font-weight: 600;
+  }
+  .btn-secondary { background: var(--dark-surface-variant); color: var(--discord-text); }
+  .btn-secondary:hover { background: #4A4A5A; }
+  .btn-primary { background: var(--brand-primary); color: var(--white); }
+  .btn-primary:hover { background: var(--brand-secondary); }
+
+  /* ── Mobile ── */
+  .mobile-only { display: none; }
+  @media (max-width: 850px) {
+    .desktop-only { display: none !important; }
+    .mobile-only { display: flex; }
+    .ops-panel { display: none; }
+    .ops-panel.mobile-open {
+      display: flex; position: absolute; left: 0; top: 92px; bottom: 44px; z-index: 20;
+      width: 280px; box-shadow: var(--elevation-medium);
+    }
+    .property-panel { display: none; }
+    .property-panel.mobile-open {
+      display: flex; position: absolute; right: 0; top: 92px; bottom: 44px; z-index: 20;
+      width: 280px; box-shadow: var(--elevation-medium);
+    }
+    .toolbar {
+      position: fixed; bottom: 44px; left: 0; right: 0; z-index: 15;
+      border-top: 1px solid var(--discord-border); border-bottom: none;
+      justify-content: center; flex-wrap: wrap; height: auto; padding: 6px;
+    }
+    .editor-body { flex-direction: column; }
+    .canvas-container { flex: 1; }
+    .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 16; }
+    .mobile-tab-bar {
+      display: flex; background: var(--dark-surface);
+      border-bottom: 1px solid var(--discord-border);
+      height: 40px; flex-shrink: 0;
+    }
+    .mobile-tab {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      font-size: 13px; color: var(--grey); cursor: pointer;
+      border-bottom: 2px solid transparent; transition: all 0.15s;
+    }
+    .mobile-tab.active { color: var(--brand-primary); border-bottom-color: var(--brand-primary); }
+  }
+
+  /* State visibility */
+  #state-empty, #state-editing, #state-loading { display: none; }
+  #state-empty.active, #state-editing.active, #state-loading.active { display: flex; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="app-header">
+  <span class="back-btn" title="Back" onclick="if(confirm('Leave editor? Unsaved changes will be lost.')) location.reload()">←</span>
+  <span class="title">Image Editor — Welcome Card</span>
+  <span class="mode-badge">Visual Mode</span>
+</div>
+
+<!-- Toolbar -->
+<div class="toolbar desktop-only" id="toolbarDesk">
+  <button class="tool-btn add-op primary" onclick="addOperation('canvasCreateBlock')" title="Create Canvas">🎨 Canvas</button>
+  <div class="sep"></div>
+  <button class="tool-btn add-op" onclick="addOperation('canvasLoadImageBlock')" title="Load Image">🖼️ Image</button>
+  <button class="tool-btn add-op" onclick="addOperation('canvasDrawTextBlock')" title="Draw Text">🅰️ Text</button>
+  <button class="tool-btn add-op" onclick="addOperation('canvasDrawCircleBlock')" title="Draw Circle">◯ Circle</button>
+  <button class="tool-btn add-op" onclick="addOperation('canvasDrawRectBlock')" title="Draw Rectangle">▭ Rect</button>
+  <div class="sep"></div>
+  <button class="tool-btn" onclick="zoom(-0.1)" title="Zoom Out">🔍−</button>
+  <button class="tool-btn" onclick="zoom(0)" title="Reset Zoom">100%</button>
+  <button class="tool-btn" onclick="zoom(0.1)" title="Zoom In">🔍+</button>
+</div>
+
+<!-- Editor Body -->
+<div class="editor-body">
+  <!-- Operations Panel (Left) -->
+  <div class="ops-panel desktop-only" id="opsPanel">
+    <div class="ops-panel-header">
+      Operations <span class="count" id="opCount">0</span>
+      <button class="add-op-btn-inline" onclick="showAddOpMenu()" title="Add operation">+ Add</button>
+    </div>
+    <div class="ops-list" id="opsList"></div>
+  </div>
+
+  <!-- Canvas + States (Center) -->
+  <div class="canvas-container" id="canvasContainer">
+    <!-- EMPTY STATE -->
+    <div class="empty-state active" id="state-empty">
+      <div class="icon">🎨</div>
+      <h3>Start creating your image</h3>
+      <p>Compose images by adding operations — each one draws a layer. Set positions and sizes via numeric fields (no mouse dragging). All values support #{variable} interpolation.</p>
+      <div class="quick-sizes">
+        <button class="quick-size-btn" onclick="quickStart(400,300)">400 × 300<br><small>Compact</small></button>
+        <button class="quick-size-btn" onclick="quickStart(800,600)">800 × 600<br><small>Standard</small></button>
+        <button class="quick-size-btn" onclick="quickStart(1200,630)">1200 × 630<br><small>OG Image</small></button>
+      </div>
+      <div class="custom-size-row">
+        <input type="number" id="customW" value="800" min="1" max="4096" placeholder="Width">
+        <span style="color:var(--grey)">×</span>
+        <input type="number" id="customH" value="600" min="1" max="4096" placeholder="Height">
+        <button onclick="quickStart(parseInt(document.getElementById('customW').value)||800, parseInt(document.getElementById('customH').value)||600)">Create</button>
+      </div>
+    </div>
+
+    <!-- LOADING STATE -->
+    <div class="loading-canvas" id="state-loading" style="display:none">
+      <span style="color:var(--white);font-size:18px">Rendering preview…</span>
+    </div>
+
+    <!-- EDITING STATE -->
+    <div id="state-editing" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center" onclick="deselectOp()">
+      <div class="canvas-frame" id="canvasFrame"></div>
+      <div class="zoom-indicator" id="zoomLabel">100%</div>
+    </div>
+  </div>
+
+  <!-- Property Panel (Right) -->
+  <div class="property-panel desktop-only" id="propertyPanel">
+    <div class="property-header" id="propHeader">Properties</div>
+    <div class="property-body" id="propertyBody">
+      <p style="color:var(--grey);font-size:13px;text-align:center;padding:40px 0;">
+        Select an operation to edit<br>its properties
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom Bar -->
+<div class="bottom-bar">
+  <span class="dims" id="bottomDims">No canvas</span>
+  <span style="color:var(--grey);font-family:var(--font-mono)">
+    variables: <span style="color:var(--warning)" id="varCount">0</span>
+  </span>
+  <div class="actions">
+    <span style="color:var(--grey);font-size:11px;line-height:34px">Auto-preview</span>
+    <button class="btn-primary" onclick="saveAndClose()">Save & Close</button>
+  </div>
+</div>
+
+<!-- Mobile Tab Bar -->
+<div class="mobile-tab-bar mobile-only">
+  <div class="mobile-tab active" onclick="switchMobileTab('canvas',this)">Preview</div>
+  <div class="mobile-tab" onclick="switchMobileTab('ops',this)">Operations</div>
+  <div class="mobile-tab" onclick="switchMobileTab('props',this)">Properties</div>
+</div>
+
+<!-- Mobile Toolbar -->
+<div class="toolbar mobile-only" style="bottom:44px">
+  <button class="tool-btn" onclick="addOperation('canvasLoadImageBlock')">🖼️</button>
+  <button class="tool-btn" onclick="addOperation('canvasDrawTextBlock')">🅰️</button>
+  <button class="tool-btn" onclick="addOperation('canvasDrawCircleBlock')">◯</button>
+  <button class="tool-btn" onclick="addOperation('canvasDrawRectBlock')">▭</button>
+  <div class="sep"></div>
+  <button class="tool-btn" onclick="zoom(-0.1)">−</button>
+  <button class="tool-btn" onclick="zoom(0)">100%</button>
+  <button class="tool-btn" onclick="zoom(0.1)">+</button>
+</div>
+
+<script>
+// ── State ──
+let ops = [];                 // Array of operation objects
+let selectedOpIndex = -1;     // -1 = canvas properties
+let zoomLevel = 1.0;
+let canvasWidth = 0;
+let canvasHeight = 0;
+let canvasColor = '#ffffff';
+
+// Operation type definitions (matching real parameterDefinitions)
+const OP_DEFS = {
+  canvasCreateBlock: {
+    name: 'Create Canvas', icon: '\u{1F3A8}',
+    params: [
+      {key:'width', label:'Width', type:'number', default:400, required:true},
+      {key:'height', label:'Height', type:'number', default:300, required:true},
+      {key:'color', label:'Color', type:'color', default:'#ffffff'},
+    ],
+    summary: o => `${o.width}\u00D7${o.height}`,
+  },
+  canvasLoadImageBlock: {
+    name: 'Load Image', icon: '\u{1F5BC}\uFE0F',
+    params: [
+      {key:'url', label:'URL', type:'url', default:'', required:true},
+      {key:'targetWidth', label:'Resize W', type:'number', default:-1, hint:'-1 = original'},
+      {key:'targetHeight', label:'Resize H', type:'number', default:-1, hint:'-1 = original'},
+    ],
+    summary: o => (o.url||'').substring(0,24)||'(empty)',
+  },
+  canvasDrawTextBlock: {
+    name: 'Draw Text', icon: '\u{1F170}\uFE0F',
+    params: [
+      {key:'text', label:'Text', type:'string', default:'', required:true},
+      {key:'x', label:'X', type:'number', default:0, required:true},
+      {key:'y', label:'Y', type:'number', default:0, required:true},
+      {key:'fontSize', label:'Font', type:'number', default:14},
+      {key:'color', label:'Color', type:'color', default:'#ffffff'},
+    ],
+    summary: o => `"${(o.text||'').substring(0,16)}" at (${o.x},${o.y})`,
+  },
+  canvasDrawCircleBlock: {
+    name: 'Draw Circle', icon: '\u25EF',
+    params: [
+      {key:'x', label:'X', type:'number', default:0, required:true},
+      {key:'y', label:'Y', type:'number', default:0, required:true},
+      {key:'radius', label:'Radius', type:'number', default:50, required:true},
+      {key:'color', label:'Color', type:'color', default:'#ffffff'},
+      {key:'fill', label:'Fill', type:'boolean', default:true},
+    ],
+    summary: o => `r=${o.radius} at (${o.x},${o.y})`,
+  },
+  canvasDrawRectBlock: {
+    name: 'Draw Rectangle', icon: '\u25AD',
+    params: [
+      {key:'x', label:'X', type:'number', default:0, required:true},
+      {key:'y', label:'Y', type:'number', default:0, required:true},
+      {key:'width', label:'Width', type:'number', default:100, required:true},
+      {key:'height', label:'Height', type:'number', default:50, required:true},
+      {key:'color', label:'Color', type:'color', default:'#ffffff'},
+      {key:'fill', label:'Fill', type:'boolean', default:true},
+    ],
+    summary: o => `${o.width}\u00D7${o.height} at (${o.x},${o.y})`,
+  },
+};
+
+// ── State Display ──
+function showState(s) {
+  ['empty','loading','editing'].forEach(x => {
+    const el = document.getElementById('state-'+x);
+    if (el) el.style.display = x===s ? 'flex' : 'none';
+    if (el) { if(x===s) el.classList.add('active'); else el.classList.remove('active'); }
+  });
+}
+
+// ── Quick Start ──
+function quickStart(w, h) {
+  canvasWidth = w; canvasHeight = h; canvasColor = '#2C2C3A';
+  ops = [{type:'canvasCreateBlock', width:w, height:h, color:canvasColor}];
+  selectedOpIndex = 0;
+  showState('loading');
+  setTimeout(() => {
+    // Add sample operations for demo
+    ops.push({type:'canvasLoadImageBlock', url:'https://placehold.co/'+w+'x'+h+'/1E1F22/B5BAC1?text=Background', targetWidth:-1, targetHeight:-1});
+    ops.push({type:'canvasDrawTextBlock', text:'Welcome #{user.name}!', x:20, y:20, fontSize:24, color:'#ffffff'});
+    ops.push({type:'canvasDrawCircleBlock', x:Math.round(w/2), y:Math.round(h/2), radius:45, color:'#9B30FF', fill:true});
+    ops.push({type:'canvasDrawRectBlock', x:w-160, y:h-50, width:150, height:40, color:'#FFA726', fill:true});
+    selectedOpIndex = 2;
+    refreshAll();
+    showState('editing');
+  }, 400);
+}
+
+// ── Add Operation ──
+function addOperation(type) {
+  if (type !== 'canvasCreateBlock' && (ops.length === 0 || ops[0].type !== 'canvasCreateBlock')) {
+    // Auto-create canvas first
+    if (canvasWidth === 0) { canvasWidth = 800; canvasHeight = 600; }
+    ops.unshift({type:'canvasCreateBlock', width:canvasWidth, height:canvasHeight, color:canvasColor});
+  }
+
+  const def = OP_DEFS[type];
+  const newOp = {type};
+  def.params.forEach(p => {
+    newOp[p.key] = p.default;
+  });
+  // Smart default: center on canvas for draw ops
+  if (type === 'canvasDrawTextBlock' || type === 'canvasDrawCircleBlock' || type === 'canvasDrawRectBlock') {
+    if (newOp.x === 0 && newOp.y === 0) {
+      newOp.x = Math.round(canvasWidth / 2 - (newOp.width||newOp.radius*2||100) / 2);
+      newOp.y = Math.round(canvasHeight / 2 - (newOp.height||newOp.radius*2||50) / 2);
+    }
+  }
+  if (type === 'canvasDrawTextBlock' && !newOp.text) {
+    newOp.text = 'Hello World';
+  }
+
+  ops.push(newOp);
+  selectedOpIndex = ops.length - 1;
+  refreshAll();
+  showState('editing');
+}
+
+function showAddOpMenu() {
+  addOperation('canvasDrawTextBlock');
+}
+
+// ── Delete Operation ──
+function deleteOperation(index) {
+  if (ops[index] && ops[index].type === 'canvasCreateBlock' && ops.filter(o=>o.type==='canvasCreateBlock').length <= 1) {
+    alert('Cannot delete the canvas \u2014 at least one Create Canvas operation is required.');
+    return;
+  }
+  ops.splice(index, 1);
+  if (selectedOpIndex >= ops.length) selectedOpIndex = ops.length - 1;
+  refreshAll();
+}
+
+// ── Move Operation ──
+function moveOperation(from, to) {
+  if (to < 0 || to >= ops.length) return;
+  if (ops[from].type==='canvasCreateBlock' && to > 0) return;
+  if (ops[to].type==='canvasCreateBlock' && from > 0) return;
+  const item = ops.splice(from, 1)[0];
+  ops.splice(to, 0, item);
+  selectedOpIndex = to;
+  refreshAll();
+}
+
+// ── Update Property ──
+function updateProp(key, val, index) {
+  const i = index !== undefined ? index : selectedOpIndex;
+  if (i < 0 || i >= ops.length) return;
+  const op = ops[i];
+  const def = OP_DEFS[op.type];
+  const param = def ? def.params.find(p => p.key === key) : null;
+  if (param) {
+    if (param.type === 'number') {
+      op[key] = parseInt(val) || 0;
+    } else if (param.type === 'boolean') {
+      op[key] = val === true || val === 'true';
+    } else {
+      op[key] = val;
+    }
+  } else {
+    op[key] = val;
+  }
+  if (op.type === 'canvasCreateBlock') {
+    if (key === 'width') canvasWidth = op.width;
+    if (key === 'height') canvasHeight = op.height;
+    if (key === 'color') canvasColor = op.color;
+  }
+  refreshAll();
+}
+
+// ── Render Canvas Preview (READ-ONLY) ──
+function renderCanvas() {
+  const frame = document.getElementById('canvasFrame');
+  if (!frame) return;
+  frame.style.width = canvasWidth + 'px';
+  frame.style.height = canvasHeight + 'px';
+  frame.style.background = canvasColor;
+  frame.innerHTML = '';
+
+  ops.forEach((op, i) => {
+    if (op.type === 'canvasCreateBlock') return;
+    const el = document.createElement('div');
+    el.className = 'canvas-element';
+    if (i === selectedOpIndex) el.classList.add('selected-op');
+
+    if (op.type === 'canvasLoadImageBlock') {
+      el.style.left = '0px'; el.style.top = '0px';
+      el.style.width = canvasWidth+'px'; el.style.height = canvasHeight+'px';
+      if (op.url) {
+        const img = document.createElement('img');
+        img.src = op.url; img.draggable = false;
+        const tw = (op.targetWidth > 0) ? op.targetWidth : canvasWidth;
+        const th = (op.targetHeight > 0) ? op.targetHeight : canvasHeight;
+        img.style.width = tw+'px'; img.style.height = th+'px';
+        img.style.objectFit = 'cover';
+        el.appendChild(img);
+      } else {
+        el.style.background = 'rgba(255,167,38,0.1)';
+        el.style.border = '1px dashed var(--warning)';
+        const lbl = document.createElement('span');
+        lbl.textContent = '\u2205 Image URL not set';
+        lbl.style.cssText = 'color:var(--warning);font-size:12px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);';
+        el.appendChild(lbl);
+      }
+    } else if (op.type === 'canvasDrawTextBlock') {
+      el.style.left = (parseInt(op.x)||0)+'px'; el.style.top = (parseInt(op.y)||0)+'px';
+      const span = document.createElement('span');
+      span.textContent = op.text || '(empty)';
+      span.style.cssText = `color:${op.color||'#ffffff'};font-size:${op.fontSize||14}px;font-weight:700;text-shadow:1px 1px 3px rgba(0,0,0,0.8);white-space:nowrap;`;
+      el.appendChild(span);
+    } else if (op.type === 'canvasDrawCircleBlock') {
+      const x = parseInt(op.x)||0, y = parseInt(op.y)||0, r = parseInt(op.radius)||50;
+      el.style.left = (x-r)+'px'; el.style.top = (y-r)+'px';
+      const c = document.createElement('div');
+      const diam = r*2;
+      c.style.width = diam+'px'; c.style.height = diam+'px';
+      c.style.borderRadius = '50%';
+      c.style.background = op.fill ? (op.color||'#9B30FF') : 'transparent';
+      c.style.border = '3px solid ' + (op.color||'#9B30FF');
+      el.appendChild(c);
+    } else if (op.type === 'canvasDrawRectBlock') {
+      el.style.left = (parseInt(op.x)||0)+'px'; el.style.top = (parseInt(op.y)||0)+'px';
+      const r = document.createElement('div');
+      r.style.width = (op.width||100)+'px'; r.style.height = (op.height||50)+'px';
+      r.style.background = op.fill ? (op.color||'#9B30FF') : 'transparent';
+      r.style.border = '3px solid ' + (op.color||'#9B30FF');
+      el.appendChild(r);
+    }
+    frame.appendChild(el);
+  });
+}
+
+// ── Render Operations List ──
+function renderOpsList() {
+  const list = document.getElementById('opsList');
+  const countEl = document.getElementById('opCount');
+  if (!list) return;
+
+  if (ops.length === 0) {
+    list.innerHTML = '<div class="empty-ops-hint">No operations yet.<br>Add one from the toolbar above.</div>';
+    if (countEl) countEl.textContent = '0';
+    return;
+  }
+
+  if (countEl) countEl.textContent = ops.length;
+
+  list.innerHTML = ops.map((op, i) => {
+    const def = OP_DEFS[op.type];
+    if (!def) return '';
+    const isCanvas = op.type==='canvasCreateBlock';
+    return `<div class="op-item ${i===selectedOpIndex?'selected':''}" onclick="selectOp(${i})">
+      <span class="op-index">#${i+1}</span>
+      <span class="drag-handle" title="Drag to reorder"
+        draggable="${!isCanvas}"
+        ondragstart="dragOp(event,${i})"
+        ondragover="event.preventDefault()"
+        ondrop="dropOp(event,${i})"
+        style="${isCanvas?'visibility:hidden':''}">\u282F</span>
+      <span class="op-icon">${def.icon}</span>
+      <span class="op-label">${def.name}</span>
+      <span class="op-summary" title="${def.summary(op)}">${def.summary(op)}</span>
+      <span class="op-delete" onclick="event.stopPropagation();deleteOperation(${i})" title="Delete">\u00D7</span>
+    </div>`;
+  }).join('');
+}
+
+// ── Drag & Drop (Operations List only) ──
+let dragFromIndex = -1;
+function dragOp(e, i) {
+  dragFromIndex = i;
+  e.dataTransfer.effectAllowed = 'move';
+}
+function dropOp(e, to) {
+  e.preventDefault();
+  if (dragFromIndex >= 0 && dragFromIndex !== to) {
+    moveOperation(dragFromIndex, to);
+  }
+  dragFromIndex = -1;
+}
+
+// ── Select Operation ──
+function selectOp(i) {
+  selectedOpIndex = i;
+  refreshAll();
+}
+
+function deselectOp() {
+  selectedOpIndex = -1;
+  refreshAll();
+}
+
+// ── Property Panel ──
+function updatePropertyPanel() {
+  const body = document.getElementById('propertyBody');
+  const header = document.getElementById('propHeader');
+  if (!body) return;
+
+  if (selectedOpIndex < 0 || ops.length === 0) {
+    if (header) header.textContent = 'Canvas Properties';
+    if (canvasWidth > 0) {
+      body.innerHTML = `<div class="prop-group">
+        <div class="prop-group-title">Canvas</div>
+        <div class="prop-row"><label>Width</label><input class="prop-input" type="number" value="${canvasWidth}" readonly></div>
+        <div class="prop-row"><label>Height</label><input class="prop-input" type="number" value="${canvasHeight}" readonly></div>
+        <div class="prop-row"><label>Color</label>
+          <span style="display:flex;align-items:center;gap:8px;flex:1">
+            <span style="width:24px;height:24px;border-radius:4px;background:${canvasColor};border:1px solid var(--discord-border)"></span>
+            <span style="font-family:var(--font-mono);font-size:13px">${canvasColor}</span>
+          </span>
+        </div>
+        <div class="prop-hint">Edit the <b>Create Canvas</b> operation to change dimensions.</div>
+      </div>
+      <div style="margin-top:12px;color:var(--grey);font-size:12px">\u{1F4A1} Click any operation in the left panel to edit its parameters.</div>`;
+    } else {
+      body.innerHTML = '<p style="color:var(--grey);font-size:13px;text-align:center;padding:40px 0">Create a canvas to get started.</p>';
+    }
+    return;
+  }
+
+  const op = ops[selectedOpIndex];
+  const def = OP_DEFS[op.type];
+  if (!def) return;
+
+  if (header) header.textContent = def.name + ' Properties';
+
+  let html = '';
+
+  def.params.forEach(p => {
+    const val = op[p.key] !== undefined ? op[p.key] : p.default;
+    const isVar = typeof val === 'string' && (val.includes('{') || val.includes('#{') || val.includes('(('));
+
+    html += `<div class="prop-row"><label>${p.label}</label>`;
+
+    if (p.type === 'boolean') {
+      html += `<div class="prop-check-row">
+        <input type="checkbox" ${val ? 'checked' : ''} onchange="updateProp('${p.key}',this.checked,${selectedOpIndex})" id="chk_${p.key}">
+        <label for="chk_${p.key}">${val ? 'Yes (filled)' : 'No (outline)'}</label>
+      </div>`;
+    } else if (p.type === 'color') {
+      html += `<span style="display:flex;align-items:center;gap:8px;flex:1">
+        <span style="width:24px;height:24px;border-radius:4px;background:${val};border:1px solid var(--discord-border)"></span>
+        <input class="prop-input ${isVar?'var':''}" value="${val}" onchange="updateProp('${p.key}',this.value,${selectedOpIndex})" style="font-family:var(--font-mono)">
+      </span>`;
+    } else {
+      html += `<input class="prop-input ${isVar?'var':''}" type="${p.type==='number'?'number':'text'}" value="${val}" onchange="updateProp('${p.key}',this.value,${selectedOpIndex})">`;
+    }
+
+    html += `</div>`;
+    if (p.hint) html += `<div class="prop-hint">${p.hint}</div>`;
+    if (isVar) {
+      html += `<div class="var-badge">\u{1F517} ${val}</div>`;
+    }
+  });
+
+  if (op.type !== 'canvasCreateBlock') {
+    html += `<div class="prop-action-row">
+      <button class="btn-delete-op" onclick="deleteOperation(${selectedOpIndex})">\u{1F5D1} Delete</button>
+    </div>`;
+  }
+
+  html += `<div class="insert-op-hint">
+    <div style="font-size:11px;color:var(--grey);margin-bottom:8px">Insert after this operation:</div>
+    <button class="insert-op-btn" onclick="insertAfter(${selectedOpIndex},'canvasLoadImageBlock')">\u{1F5BC}\uFE0F Load Image</button>
+    <button class="insert-op-btn" onclick="insertAfter(${selectedOpIndex},'canvasDrawTextBlock')">\u{1F170}\uFE0F Draw Text</button>
+    <button class="insert-op-btn" onclick="insertAfter(${selectedOpIndex},'canvasDrawCircleBlock')">\u25EF Draw Circle</button>
+    <button class="insert-op-btn" onclick="insertAfter(${selectedOpIndex},'canvasDrawRectBlock')">\u25AD Draw Rectangle</button>
+  </div>`;
+
+  html += `<div style="background:rgba(255,167,38,0.06);border-radius:var(--radius-sm);padding:var(--spacing-sm);margin-top:var(--spacing-md)">
+    <div style="font-size:11px;color:var(--warning);margin-bottom:4px">\u{1F4A1} Any field supports #{variable} interpolation</div>
+    <div style="font-size:11px;color:var(--grey)">Variables resolve at runtime: #{user.name}, #{guild.icon}, etc.</div>
+  </div>`;
+
+  body.innerHTML = html;
+}
+
+function insertAfter(index, type) {
+  const def = OP_DEFS[type];
+  const newOp = {type};
+  def.params.forEach(p => {
+    newOp[p.key] = p.default;
+  });
+  if (type === 'canvasDrawTextBlock' && !newOp.text) newOp.text = 'Hello World';
+  ops.splice(index + 1, 0, newOp);
+  selectedOpIndex = index + 1;
+  refreshAll();
+}
+
+// ── Zoom ──
+function zoom(delta) {
+  if (delta === 0) { zoomLevel = 1.0; }
+  else { zoomLevel = Math.max(0.25, Math.min(3, zoomLevel + delta)); }
+  const label = document.getElementById('zoomLabel');
+  const frame = document.getElementById('canvasFrame');
+  if (label) label.textContent = Math.round(zoomLevel*100)+'%';
+  if (frame) frame.style.transform = `scale(${zoomLevel})`;
+}
+
+// ── Variable Count ──
+function countVars() {
+  let c = 0;
+  ops.forEach(op => {
+    Object.values(op).forEach(v => {
+      if (typeof v === 'string' && (v.includes('{') || v.includes('#{') || v.includes('(('))) c++;
+    });
+  });
+  document.getElementById('varCount').textContent = c;
+}
+
+// ── Refresh All ──
+function refreshAll() {
+  renderOpsList();
+  renderCanvas();
+  updatePropertyPanel();
+  countVars();
+  const dims = document.getElementById('bottomDims');
+  if (dims) dims.textContent = canvasWidth > 0 ? `${canvasWidth} \u00D7 ${canvasHeight} px` : 'No canvas';
+}
+
+// ── Save ──
+function saveAndClose() {
+  if (ops.length === 0) {
+    alert('Nothing to save. Create a canvas first.');
+    return;
+  }
+  const operations = ops.map(op => {
+    const rtOp = {type: op.type, payload: {}};
+    const def = OP_DEFS[op.type];
+    if (def) {
+      def.params.forEach(p => {
+        rtOp.payload[p.key] = op[p.key];
+      });
+    }
+    return rtOp;
+  });
+  console.log('Saved operations:', JSON.stringify(operations, null, 2));
+  alert('\u2713 Saved to runtimeImageBlock!\n\n' + operations.length + ' operation(s) serialized.\n\nCheck browser console (F12) for the JSON output.');
+}
+
+// ── Mobile Tab ──
+function switchMobileTab(tab, el) {
+  document.querySelectorAll('.mobile-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  const opsPanel = document.getElementById('opsPanel');
+  const propsPanel = document.getElementById('propertyPanel');
+  if (opsPanel) opsPanel.classList.toggle('mobile-open', tab==='ops');
+  if (propsPanel) propsPanel.classList.toggle('mobile-open', tab==='props');
+}
+
+// ── Init ──
+showState('empty');
+</script>
+</body>
+</html>

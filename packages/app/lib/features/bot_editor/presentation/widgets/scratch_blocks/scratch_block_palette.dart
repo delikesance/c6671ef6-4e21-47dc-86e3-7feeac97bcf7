@@ -45,6 +45,7 @@ String getCategoryForAction(BotCreatorActionType type) {
     case BotCreatorActionType.createPoll:
     case BotCreatorActionType.endPoll:
     case BotCreatorActionType.deleteTrigger:
+    case BotCreatorActionType.attachImage:
       return 'Messages';
     case BotCreatorActionType.addReaction:
     case BotCreatorActionType.removeReaction:
@@ -125,6 +126,7 @@ String getCategoryForAction(BotCreatorActionType type) {
     case BotCreatorActionType.canvasDrawTextBlock:
     case BotCreatorActionType.canvasDrawCircleBlock:
     case BotCreatorActionType.canvasDrawRectBlock:
+    case BotCreatorActionType.canvasDrawLineBlock:
     case BotCreatorActionType.registerGuildCommands:
     case BotCreatorActionType.unregisterGuildCommands:
       return 'Workflows';
@@ -282,6 +284,22 @@ bool isListenerAction(BotCreatorActionType type) {
   }
 }
 
+/// Returns true for deprecated canvas visual block types that should
+/// no longer appear in the scratch block palette.
+bool _isCanvasAction(BotCreatorActionType type) {
+  switch (type) {
+    case BotCreatorActionType.canvasCreateBlock:
+    case BotCreatorActionType.canvasLoadImageBlock:
+    case BotCreatorActionType.canvasDrawTextBlock:
+    case BotCreatorActionType.canvasDrawCircleBlock:
+    case BotCreatorActionType.canvasDrawRectBlock:
+    case BotCreatorActionType.canvasDrawLineBlock:
+      return true;
+    default:
+      return false;
+  }
+}
+
 /// A bottom sheet / dialog that lists all available action block types grouped
 /// by category. The user taps one to add it to the canvas.
 class ScratchBlockPalette extends StatefulWidget {
@@ -335,7 +353,12 @@ class _ScratchBlockPaletteState extends State<ScratchBlockPalette> {
       if (!widget.isAutocompleteContext && isAutocompleteOnlyAction(actionType)) {
         continue;
       }
+      // Skip deprecated canvas visual blocks.
+      if (_isCanvasAction(actionType)) {
+        continue;
+      }
       final category = getCategoryForAction(actionType);
+
       actionsByCategory.putIfAbsent(category, () => <BotCreatorActionType>[]);
       actionsByCategory[category]!.add(actionType);
     }

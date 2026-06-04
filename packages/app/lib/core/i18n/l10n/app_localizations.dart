@@ -620,6 +620,12 @@ abstract class AppLocalizations {
   /// **'Append Array Element'**
   String get action_name_appendArrayElement;
 
+  /// Attach Image
+  ///
+  /// In en, this message translates to:
+  /// **'Attach Image'**
+  String get action_name_attachImage;
+
   /// Ban User
   ///
   /// In en, this message translates to:
@@ -7523,6 +7529,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} workflow(s) skipped'**
   String import_summary_workflows_skipped(int count);
+
+  /// Button label to create a new image canvas
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get image_editor_create;
+
+  /// Prompt shown when no canvas operations exist yet
+  ///
+  /// In en, this message translates to:
+  /// **'Create Image Canvas'**
+  String get image_editor_create_canvas;
+
+  /// Button label to edit existing canvas operations (count)
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Canvas ({count} ops)'**
+  String image_editor_edit_canvas(int count);
+
+  /// Button label to open the image editor for existing canvas
+  ///
+  /// In en, this message translates to:
+  /// **'Open Editor'**
+  String get image_editor_open;
 
   /// Failed to run BDFD script for command "{command}": {error}
   ///

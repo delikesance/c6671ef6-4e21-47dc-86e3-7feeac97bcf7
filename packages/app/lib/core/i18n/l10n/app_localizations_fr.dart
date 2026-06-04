@@ -313,6 +313,9 @@ class AppLocalizationsFr extends AppLocalizations {
       'Ajouter un élément à un tableau';
 
   @override
+  String get action_name_attachImage => 'Joindre une image';
+
+  @override
   String get action_name_banUser => 'Bannir un utilisateur';
 
   @override
@@ -4245,6 +4248,20 @@ class AppLocalizationsFr extends AppLocalizations {
   String import_summary_workflows_skipped(int count) {
     return '$count workflow(s) ignoré(s)';
   }
+
+  @override
+  String get image_editor_create => 'Créer';
+
+  @override
+  String get image_editor_create_canvas => 'Créer un canvas d\'image';
+
+  @override
+  String image_editor_edit_canvas(int count) {
+    return 'Éditer le canvas ($count opérations)';
+  }
+
+  @override
+  String get image_editor_open => 'Ouvrir l\'éditeur';
 
   @override
   String legacy_bdfd_run_failed(String command, String error) {

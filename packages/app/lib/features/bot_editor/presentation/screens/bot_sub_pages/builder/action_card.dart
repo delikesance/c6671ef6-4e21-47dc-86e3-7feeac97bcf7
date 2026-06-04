@@ -8,6 +8,7 @@ import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:bot_creator/features/bot_editor/presentation/screens/bdfd_editor_page.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/image_editor_page.dart';
 import 'package:flutter_highlight/flutter_highlight.dart';
 import 'package:flutter_highlight/themes/darcula.dart';
 import 'package:flutter/material.dart';
@@ -777,24 +778,62 @@ class ActionCard extends StatelessWidget {
     return true;
   }
 
-  String _inputModeKey(String parameterKey) => '${parameterKey}InputMode';
+  /// Shows a dialog with a [VariableTextField] pre-populated with `((`
+  /// so autocomplete suggestions appear immediately. On accept, inserts
+  /// the selected variable into the parameter field.
+  void _showVariablePickerDialog(BuildContext context, String paramKey, dynamic currentValue) {
+    final vc = TextEditingController(
+      text: (currentValue ?? '').toString(),
+    );
+    // If the current value is empty, pre-populate with (( for autocomplete.
+    if (vc.text.isEmpty) {
+      vc.text = '((';
+      vc.selection = TextSelection.collapsed(offset: 2);
+    }
 
-  bool _supportsDynamicInputMode(ParameterType type) {
-    return type == ParameterType.multiSelect ||
-        type == ParameterType.boolean ||
-        type == ParameterType.userId ||
-        type == ParameterType.channelId ||
-        type == ParameterType.messageId ||
-        type == ParameterType.roleId;
+    showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Insert Variable'),
+        content: SizedBox(
+          width: 420,
+          child: VariableTextField(
+            label: 'Expression',
+            hint: 'Type (( to see variable suggestions',
+            suggestions: variableSuggestions,
+            controller: vc,
+            onChanged: (_) {},
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(context.tr.common_cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, vc.text.trim()),
+            child: const Text('Insert'),
+          ),
+        ],
+      ),
+    ).then((result) {
+      if (result != null && result.isNotEmpty) {
+        onParameterChanged(paramKey, result);
+      }
+    });
   }
 
-  String _resolveInputMode(ParameterDefinition paramDef) {
-    final stored =
-        (action.parameters[_inputModeKey(paramDef.key)] ?? '')
-            .toString()
-            .trim()
-            .toLowerCase();
-    return stored == 'dynamic' ? 'dynamic' : 'literal';
+  /// Returns a compact [IconButton] for inserting variables via the
+  /// [VariableTextField] dialog. Returns null when no suggestions are
+  /// available.
+  Widget? _buildVariableIcon(BuildContext context, String paramKey, dynamic currentValue) {
+    if (variableSuggestions.isEmpty) return null;
+    return IconButton(
+      icon: const Icon(Icons.data_object, size: 18),
+      tooltip: 'Insert variable',
+      visualDensity: VisualDensity.compact,
+      onPressed: () => _showVariablePickerDialog(context, paramKey, currentValue),
+    );
   }
 
   bool _coerceBoolValue(dynamic value, bool fallback) {
@@ -811,77 +850,16 @@ class ActionCard extends StatelessWidget {
     return fallback;
   }
 
-  Widget _buildInputModeToggle(
-    BuildContext context,
-    ParameterDefinition paramDef,
-    String currentMode,
-  ) {
-    if (!_supportsDynamicInputMode(paramDef.type)) {
-      return const SizedBox.shrink();
-    }
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Wrap(
-        spacing: 8,
-        children: [
-          ChoiceChip(
-            label: Text(context.tr.action_literal),
-            selected: currentMode == 'literal',
-            onSelected:
-                (_) =>
-                    onParameterChanged(_inputModeKey(paramDef.key), 'literal'),
-          ),
-          ChoiceChip(
-            label: Text(context.tr.action_dynamic),
-            selected: currentMode == 'dynamic',
-            onSelected:
-                (_) =>
-                    onParameterChanged(_inputModeKey(paramDef.key), 'dynamic'),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildParameterField(
     BuildContext context,
     ParameterDefinition paramDef,
     dynamic currentValue,
   ) {
-    final inputMode = _resolveInputMode(paramDef);
-    final useDynamicInput =
-        _supportsDynamicInputMode(paramDef.type) && inputMode == 'dynamic';
-
     switch (paramDef.type) {
       case ParameterType.boolean:
-        if (useDynamicInput) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                _formatParameterName(paramDef.key),
-                style: const TextStyle(fontWeight: FontWeight.w500),
-              ),
-              _buildInputModeToggle(context, paramDef, inputMode),
-              VariableTextField(
-                key: _parameterInputKey(paramDef.key),
-                label: context.tr.action_expression,
-                initialValue:
-                    (currentValue ?? paramDef.defaultValue).toString(),
-                hint:
-                    _localizeHint(paramDef.hint) ??
-                    context.tr.action_dynamic_bool_hint,
-                suggestions: variableSuggestions,
-                onChanged:
-                    (newValue) => onParameterChanged(paramDef.key, newValue),
-              ),
-            ],
-          );
-        }
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildInputModeToggle(context, paramDef, inputMode),
             Row(
               children: [
                 Expanded(
@@ -890,6 +868,7 @@ class ActionCard extends StatelessWidget {
                     style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
                 ),
+                if (_buildVariableIcon(context, paramDef.key, currentValue) case final icon?) icon,
                 Switch(
                   value: _coerceBoolValue(
                     currentValue,
@@ -910,6 +889,7 @@ class ActionCard extends StatelessWidget {
           onParameterChanged: onParameterChanged,
           variableSuggestions: variableSuggestions,
           paramKey: paramDef.key,
+          variableIcon: _buildVariableIcon(context, paramDef.key, currentValue),
         );
 
       case ParameterType.list:
@@ -967,30 +947,6 @@ class ActionCard extends StatelessWidget {
         return _buildElseIfBranchesField(context, paramDef, currentValue);
 
       case ParameterType.multiSelect:
-        if (useDynamicInput) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                _formatParameterName(paramDef.key),
-                style: const TextStyle(fontWeight: FontWeight.w500),
-              ),
-              _buildInputModeToggle(context, paramDef, inputMode),
-              VariableTextField(
-                key: _parameterInputKey(paramDef.key),
-                label: context.tr.action_expression,
-                initialValue:
-                    (currentValue ?? paramDef.defaultValue).toString(),
-                hint:
-                    _localizeHint(paramDef.hint) ??
-                    context.tr.action_dynamic_multiselect_hint,
-                suggestions: variableSuggestions,
-                onChanged:
-                    (newValue) => onParameterChanged(paramDef.key, newValue),
-              ),
-            ],
-          );
-        }
         final options = paramDef.options ?? const <String>[];
         final rawValue = (currentValue ?? paramDef.defaultValue).toString();
         final selectedValue =
@@ -1000,11 +956,17 @@ class ActionCard extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              _formatParameterName(paramDef.key),
-              style: const TextStyle(fontWeight: FontWeight.w500),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    _formatParameterName(paramDef.key),
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                ),
+                if (_buildVariableIcon(context, paramDef.key, currentValue) case final icon?) icon,
+              ],
             ),
-            _buildInputModeToggle(context, paramDef, inputMode),
             const SizedBox(height: 4),
             DropdownButtonFormField<String>(
               initialValue: selectedValue,
@@ -1035,9 +997,16 @@ class ActionCard extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              _formatParameterName(paramDef.key),
-              style: const TextStyle(fontWeight: FontWeight.w500),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    _formatParameterName(paramDef.key),
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                ),
+                if (_buildVariableIcon(context, paramDef.key, currentValue) case final icon?) icon,
+              ],
             ),
             const SizedBox(height: 4),
             TextFormField(
@@ -1110,6 +1079,7 @@ class ActionCard extends StatelessWidget {
                     }
                   },
                 ),
+                if (_buildVariableIcon(context, paramDef.key, currentValue) case final icon?) icon,
               ],
             ),
             ..._buildVariableSuggestionsForParam(
@@ -1123,38 +1093,20 @@ class ActionCard extends StatelessWidget {
       case ParameterType.channelId:
       case ParameterType.messageId:
       case ParameterType.roleId:
-        if (useDynamicInput) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                _formatParameterName(paramDef.key),
-                style: const TextStyle(fontWeight: FontWeight.w500),
-              ),
-              _buildInputModeToggle(context, paramDef, inputMode),
-              VariableTextField(
-                key: _parameterInputKey(paramDef.key),
-                label: context.tr.action_expression,
-                initialValue:
-                    (currentValue ?? paramDef.defaultValue).toString(),
-                hint:
-                    _localizeHint(paramDef.hint) ??
-                    context.tr.action_dynamic_id_hint(paramDef.type.name),
-                suggestions: variableSuggestions,
-                onChanged:
-                    (newValue) => onParameterChanged(paramDef.key, newValue),
-              ),
-            ],
-          );
-        }
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              _formatParameterName(paramDef.key),
-              style: const TextStyle(fontWeight: FontWeight.w500),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    _formatParameterName(paramDef.key),
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                ),
+                if (_buildVariableIcon(context, paramDef.key, currentValue) case final icon?) icon,
+              ],
             ),
-            _buildInputModeToggle(context, paramDef, inputMode),
             const SizedBox(height: 4),
             TextFormField(
               key: _parameterInputKey(paramDef.key),
@@ -1227,9 +1179,16 @@ class ActionCard extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              _formatParameterName(paramDef.key),
-              style: const TextStyle(fontWeight: FontWeight.w500),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    _formatParameterName(paramDef.key),
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                ),
+                if (_buildVariableIcon(context, paramDef.key, currentValue) case final icon?) icon,
+              ],
             ),
             const SizedBox(height: 4),
             Row(
@@ -1253,7 +1212,8 @@ class ActionCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                GestureDetector(
+                InkWell(
+                  borderRadius: BorderRadius.circular(AppTheme.radiusXs),
                   onTap:
                       () => _showColorPicker(context, paramDef, currentValue),
                   child: Container(
@@ -1287,6 +1247,7 @@ class ActionCard extends StatelessWidget {
                     style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
                 ),
+                if (_buildVariableIcon(context, paramDef.key, currentValue) case final icon?) icon,
                 IconButton(
                   icon: const Icon(Icons.edit, size: 20),
                   onPressed:
@@ -1342,7 +1303,36 @@ class ActionCard extends StatelessWidget {
         final blockColor =
             paramDef.key == 'thenActions' ? AppTheme.success : AppTheme.warning;
 
-        Future<void> openNestedEditor() async {
+        // ── Image Editor entry point ──────────────────────────────────────
+        final isImageBlock =
+            action.type == BotCreatorActionType.runtimeImageBlock;
+
+        Future<void> openEditor() async {
+          if (isImageBlock) {
+            // Open the specialized image editor for canvas operations
+            final result = await Navigator.push<List<Map<String, dynamic>>>(
+              context,
+              MaterialPageRoute<List<Map<String, dynamic>>>(
+                builder: (_) => ImageEditorPage(
+                  operations: nestedList,
+                  variableSuggestions: variableSuggestions
+                      .map((s) => shared.VariableSuggestion(
+                            name: s.name,
+                            kind: shared.VariableSuggestionKind.unknown,
+                            category: s.category,
+                            description: s.description,
+                          ))
+                      .toList(),
+                ),
+              ),
+            );
+            if (result != null) {
+              onParameterChanged(paramDef.key, result);
+            }
+            return;
+          }
+
+          // Generic nested actions editor for all other action types
           if (onEditNestedActions == null) {
             return;
           }
@@ -1360,6 +1350,15 @@ class ActionCard extends StatelessWidget {
           }
         }
 
+        // ── Button label for image editor ─────────────────────────────────
+        if (isImageBlock) {
+          return _buildImageEditorEntry(
+            context,
+            nestedList: nestedList,
+            onEdit: openEditor,
+          );
+        }
+
         return _buildNestedActionsEditor(
           nestedList: nestedList,
           blockLabel: blockLabel,
@@ -1368,7 +1367,7 @@ class ActionCard extends StatelessWidget {
               paramDef.key == 'thenActions'
                   ? Icons.check_circle_outline
                   : Icons.cancel_outlined,
-          onEdit: openNestedEditor,
+          onEdit: openEditor,
         );
 
       case ParameterType.componentV2:
@@ -2027,6 +2026,133 @@ class ActionCard extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  /// Renders the image editor entry point for [BotCreatorActionType.runtimeImageBlock].
+  ///
+  /// Shows a prominent button that opens the specialized [ImageEditorPage]
+  /// instead of the generic nested actions editor.
+  Widget _buildImageEditorEntry(
+    BuildContext context, {
+    required List<Map<String, dynamic>> nestedList,
+    required Future<void> Function() onEdit,
+  }) {
+    final color = Theme.of(context).colorScheme.primary;
+    final hasOps = nestedList.isNotEmpty;
+
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+      child: InkWell(
+        onTap: onEdit,
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        child: Ink(
+          decoration: BoxDecoration(
+            border: Border.all(color: color.withValues(alpha: 0.5)),
+            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+            color: color.withValues(alpha: 0.05),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.photo_library_outlined,
+                        color: color, size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        hasOps
+                            ? context.tr.image_editor_edit_canvas(nestedList.length)
+                            : context.tr.image_editor_create_canvas,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: color,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                    FilledButton.tonalIcon(
+                      onPressed: onEdit,
+                      icon: Icon(
+                        hasOps ? Icons.edit : Icons.add,
+                        size: 16,
+                      ),
+                      label: Text(
+                        hasOps
+                            ? context.tr.image_editor_open
+                            : context.tr.image_editor_create,
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: color.withValues(alpha: 0.16),
+                        foregroundColor: color,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 6),
+                      ),
+                    ),
+                  ],
+                ),
+                if (hasOps) ...[
+                  const SizedBox(height: 8),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 8),
+                    decoration: BoxDecoration(
+                      borderRadius:
+                          BorderRadius.circular(AppTheme.radiusSm),
+                      color: color.withValues(alpha: 0.08),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ...nestedList.take(3).map((a) => Padding(
+                              padding:
+                                  const EdgeInsets.only(bottom: 4),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.arrow_right,
+                                      size: 16,
+                                      color: AppTheme.grey),
+                                  const SizedBox(width: 4),
+                                  Expanded(
+                                    child: Text(
+                                      a['op']?.toString() ?? '?',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                          fontSize: 12,
+                                          color: AppTheme.grey),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )),
+                        if (nestedList.length > 3)
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(left: 20),
+                            child: Text(
+                              context.tr.action_and_more(
+                                  nestedList.length - 3),
+                              style: const TextStyle(
+                                  fontSize: 11,
+                                  color: AppTheme.grey),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -4019,6 +4145,7 @@ class _NumberParameterField extends StatefulWidget {
   final Function(String key, dynamic value) onParameterChanged;
   final List<VariableSuggestion> variableSuggestions;
   final String paramKey;
+  final Widget? variableIcon;
 
   const _NumberParameterField({
     required this.paramDef,
@@ -4026,6 +4153,7 @@ class _NumberParameterField extends StatefulWidget {
     required this.onParameterChanged,
     required this.variableSuggestions,
     required this.paramKey,
+    this.variableIcon,
   });
 
   @override
@@ -4091,6 +4219,7 @@ class _NumberParameterFieldState extends State<_NumberParameterField> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+            if (widget.variableIcon != null) widget.variableIcon!,
           ],
         ),
         const SizedBox(height: 4),

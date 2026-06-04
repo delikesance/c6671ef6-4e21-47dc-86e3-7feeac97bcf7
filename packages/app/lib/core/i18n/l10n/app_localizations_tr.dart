@@ -303,6 +303,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get action_name_appendArrayElement => 'Dizi Öğesi Ekle';
 
   @override
+  String get action_name_attachImage => 'Resim Ekle';
+
+  @override
   String get action_name_banUser => 'Kullanıcıyı Yasakla';
 
   @override
@@ -4202,6 +4205,20 @@ class AppLocalizationsTr extends AppLocalizations {
   String import_summary_workflows_skipped(int count) {
     return '$count iş akışı atlandı';
   }
+
+  @override
+  String get image_editor_create => 'Oluştur';
+
+  @override
+  String get image_editor_create_canvas => 'Görüntü Tuvali Oluştur';
+
+  @override
+  String image_editor_edit_canvas(int count) {
+    return 'Tuvali Düzenle ($count işlem)';
+  }
+
+  @override
+  String get image_editor_open => 'Düzenleyiciyi Aç';
 
   @override
   String legacy_bdfd_run_failed(String command, String error) {
