@@ -159,6 +159,10 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
   // Cached canvas dimensions from the 'create' operation.
   int _canvasWidth = 400;
   int _canvasHeight = 300;
+  /// Render area may be larger than the canvas to accommodate elements
+  /// that extend beyond the canvas boundary (e.g. after resize).
+  int _renderWidth = 400;
+  int _renderHeight = 300;
   double _scale = 1.0;
 
   // Track the operation index being dragged (null = not dragging).
@@ -182,27 +186,20 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
   }
 
   @override
+  void didUpdateWidget(covariant _CanvasPreview oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _parseCanvasSize();
+    _updateRenderBounds();
+    _loadImages();
+  }
+
+  @override
   void dispose() {
     for (final image in _loadedImages.values) {
       image.dispose();
     }
     _loadedImages.clear();
     super.dispose();
-  }
-
-  @override
-  void didUpdateWidget(covariant _CanvasPreview oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // Always re-parse canvas size — operations are mutated in-place
-    // by the image editor so identity comparison is insufficient.
-    _parseCanvasSize();
-    // Always scan for new images on every update. The operations list may
-    // be mutated in-place (e.g. URL field updated by the image picker)
-    // without changing the list reference, so identity comparison alone
-    // is insufficient. _loadImages() has internal dedup via
-    // _loadedImages.containsKey() / _loadingUrls.contains(), so repeated
-    // calls for already-loaded images are a cheap no-op.
-    _loadImages();
   }
 
   void _parseCanvasSize() {
@@ -212,7 +209,22 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
             (int.tryParse(op['width']?.toString() ?? '') ?? 400).clamp(1, 10000);
         _canvasHeight =
             (int.tryParse(op['height']?.toString() ?? '') ?? 300).clamp(1, 10000);
+        _updateRenderBounds();
         return;
+      }
+    }
+  }
+
+  /// Expands the render area to include all elements that may extend
+  /// beyond the canvas boundary (e.g. after the canvas was resized smaller).
+  void _updateRenderBounds() {
+    _renderWidth = _canvasWidth;
+    _renderHeight = _canvasHeight;
+    for (final op in widget.operations) {
+      final bounds = _getBoundingBox(op);
+      if (bounds != null) {
+        if (bounds.right > _renderWidth) _renderWidth = bounds.right.ceil();
+        if (bounds.bottom > _renderHeight) _renderHeight = bounds.bottom.ceil();
       }
     }
   }
@@ -524,10 +536,10 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
     return LayoutBuilder(
       builder: (context, constraints) {
         // Compute scale to fit canvas within constraints
-        final maxW = constraints.maxWidth.isFinite ? constraints.maxWidth : 400.0;
-        final maxH = constraints.maxHeight.isFinite ? constraints.maxHeight : 300.0;
+        final maxW = constraints.maxWidth.isFinite ? constraints.maxWidth : 800.0;
+        final maxH = constraints.maxHeight.isFinite ? constraints.maxHeight : 600.0;
         if (maxW <= 0 || maxH <= 0) return const SizedBox.shrink();
-        final aspect = _canvasWidth / _canvasHeight;
+        final aspect = _renderWidth / _renderHeight;
 
         double w, h;
         if (maxW / maxH > aspect) {
@@ -538,7 +550,7 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
           h = w / aspect;
         }
 
-        _scale = w / _canvasWidth;
+        _scale = w / _renderWidth;
 
         // Apply user zoom — scales both the rendered size and the paint scale.
         final zoom = (widget.zoom ?? 1.0).clamp(0.25, 3.0);
@@ -551,6 +563,8 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
           selectedIndex: widget.selectedIndex,
           canvasWidth: _canvasWidth,
           canvasHeight: _canvasHeight,
+          renderWidth: _renderWidth,
+          renderHeight: _renderHeight,
           scale: _scale,
           getBoundingBox: _getBoundingBox,
           hiddenIndices: widget.hiddenIndices,
@@ -604,6 +618,9 @@ class _CanvasPreviewPainter extends CustomPainter {
   final int? selectedIndex;
   final int canvasWidth;
   final int canvasHeight;
+  /// Render area may be larger than the canvas to include out-of-bounds elements.
+  final int renderWidth;
+  final int renderHeight;
   final double scale;
   final Rect? Function(Map<String, dynamic> op) getBoundingBox;
   final Set<int> hiddenIndices;
@@ -616,6 +633,8 @@ class _CanvasPreviewPainter extends CustomPainter {
     required this.selectedIndex,
     required this.canvasWidth,
     required this.canvasHeight,
+    required this.renderWidth,
+    required this.renderHeight,
     required this.scale,
     required this.getBoundingBox,
     this.hiddenIndices = const {},
