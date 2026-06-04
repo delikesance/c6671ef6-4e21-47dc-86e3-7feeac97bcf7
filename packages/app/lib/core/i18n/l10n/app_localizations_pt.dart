@@ -311,6 +311,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get action_name_appendArrayElement => 'Adicionar Elemento ao Array';
 
   @override
+  String get action_name_attachImage => 'Anexar Imagem';
+
+  @override
   String get action_name_banUser => 'Banir Utilizador';
 
   @override

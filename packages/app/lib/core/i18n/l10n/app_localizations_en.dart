@@ -308,6 +308,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get action_name_appendArrayElement => 'Append Array Element';
 
   @override
+  String get action_name_attachImage => 'Attach Image';
+
+  @override
   String get action_name_banUser => 'Ban User';
 
   @override

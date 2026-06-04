@@ -619,6 +619,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
       case BotCreatorActionType.unpinMessage:
       case BotCreatorActionType.getMessage:
       case BotCreatorActionType.deleteTrigger:
+      case BotCreatorActionType.attachImage:
       case BotCreatorActionType.createPoll:
       case BotCreatorActionType.endPoll:
         return 'Messages';
@@ -1013,6 +1014,8 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
         return 'Run block of JSON processing actions';
       case BotCreatorActionType.runtimeImageBlock:
         return 'Run block of image canvas processing actions';
+      case BotCreatorActionType.attachImage:
+        return 'Attach an image file to the message response (URL, data URL, or base64)';
       case BotCreatorActionType.registerGuildCommands:
         return 'Register application commands to a guild';
       case BotCreatorActionType.unregisterGuildCommands:

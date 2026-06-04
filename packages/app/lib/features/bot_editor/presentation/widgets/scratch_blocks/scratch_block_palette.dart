@@ -45,6 +45,7 @@ String getCategoryForAction(BotCreatorActionType type) {
     case BotCreatorActionType.createPoll:
     case BotCreatorActionType.endPoll:
     case BotCreatorActionType.deleteTrigger:
+    case BotCreatorActionType.attachImage:
       return 'Messages';
     case BotCreatorActionType.addReaction:
     case BotCreatorActionType.removeReaction:

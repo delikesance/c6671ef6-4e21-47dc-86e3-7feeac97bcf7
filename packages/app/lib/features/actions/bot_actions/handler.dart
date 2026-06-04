@@ -1621,6 +1621,7 @@ Future<Map<String, String>> handleActions(
         case BotCreatorActionType.unregisterGuildCommands:
         case BotCreatorActionType.deferInteraction:
         case BotCreatorActionType.runtimeImageBlock:
+        case BotCreatorActionType.attachImage:
         case BotCreatorActionType.canvasCreateBlock:
         case BotCreatorActionType.canvasLoadImageBlock:
         case BotCreatorActionType.canvasDrawTextBlock:

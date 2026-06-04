@@ -394,6 +394,10 @@
   "@action_name_appendArrayElement": {
     "description": "Append Array Element"
   },
+  "action_name_attachImage": "Anexar Imagem",
+  "@action_name_attachImage": {
+    "description": "Anexar Imagem"
+  },
   "action_name_banUser": "Banir Utilizador",
   "@action_name_banUser": {
     "description": "Ban User"

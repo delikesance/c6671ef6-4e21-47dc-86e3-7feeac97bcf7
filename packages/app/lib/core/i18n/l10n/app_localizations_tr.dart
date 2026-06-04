@@ -303,6 +303,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get action_name_appendArrayElement => 'Dizi Öğesi Ekle';
 
   @override
+  String get action_name_attachImage => 'Resim Ekle';
+
+  @override
   String get action_name_banUser => 'Kullanıcıyı Yasakla';
 
   @override

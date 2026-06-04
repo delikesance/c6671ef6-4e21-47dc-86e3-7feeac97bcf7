@@ -210,6 +210,8 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
         return context.tr.action_name_runtimeJsonBlock;
       case BotCreatorActionType.runtimeImageBlock:
         return context.tr.action_name_runtimeImageBlock;
+      case BotCreatorActionType.attachImage:
+        return context.tr.action_name_attachImage;
       case BotCreatorActionType.registerGuildCommands:
         return context.tr.action_name_registerGuildCommands;
       case BotCreatorActionType.unregisterGuildCommands:
@@ -404,6 +406,8 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
         return Icons.code;
       case BotCreatorActionType.runtimeImageBlock:
         return Icons.image;
+      case BotCreatorActionType.attachImage:
+        return Icons.image_outlined;
       case BotCreatorActionType.registerGuildCommands:
         return Icons.playlist_add;
       case BotCreatorActionType.unregisterGuildCommands:
@@ -3254,6 +3258,30 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
         ];
 
       // ── Image Canvas Sub-Actions removed (deprecated visual blocks) ──────
+
+      case BotCreatorActionType.attachImage:
+        return [
+          ParameterDefinition(
+            key: 'imageName',
+            type: ParameterType.string,
+            defaultValue: '',
+            hint: 'Attachment name (used with attachment://name.png in embeds)',
+            required: true,
+          ),
+          ParameterDefinition(
+            key: 'imageSource',
+            type: ParameterType.url,
+            defaultValue: '',
+            hint: 'Image URL, data URL, or base64 string',
+            required: true,
+          ),
+          ParameterDefinition(
+            key: 'altText',
+            type: ParameterType.string,
+            defaultValue: '',
+            hint: 'Alternative text for the image',
+          ),
+        ];
 
       case BotCreatorActionType.log:
         return [

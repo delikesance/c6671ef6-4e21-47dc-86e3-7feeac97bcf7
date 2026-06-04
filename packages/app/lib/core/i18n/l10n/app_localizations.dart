@@ -620,6 +620,12 @@ abstract class AppLocalizations {
   /// **'Append Array Element'**
   String get action_name_appendArrayElement;
 
+  /// Attach Image
+  ///
+  /// In en, this message translates to:
+  /// **'Attach Image'**
+  String get action_name_attachImage;
+
   /// Ban User
   ///
   /// In en, this message translates to:
