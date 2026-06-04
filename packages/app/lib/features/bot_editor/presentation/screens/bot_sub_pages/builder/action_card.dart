@@ -8,6 +8,7 @@ import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:bot_creator/features/bot_editor/presentation/screens/bdfd_editor_page.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/image_editor_page.dart';
 import 'package:flutter_highlight/flutter_highlight.dart';
 import 'package:flutter_highlight/themes/darcula.dart';
 import 'package:flutter/material.dart';
@@ -1342,7 +1343,36 @@ class ActionCard extends StatelessWidget {
         final blockColor =
             paramDef.key == 'thenActions' ? AppTheme.success : AppTheme.warning;
 
-        Future<void> openNestedEditor() async {
+        // ── Image Editor entry point ──────────────────────────────────────
+        final isImageBlock =
+            action.type == BotCreatorActionType.runtimeImageBlock;
+
+        Future<void> openEditor() async {
+          if (isImageBlock) {
+            // Open the specialized image editor for canvas operations
+            final result = await Navigator.push<List<Map<String, dynamic>>>(
+              context,
+              MaterialPageRoute<List<Map<String, dynamic>>>(
+                builder: (_) => ImageEditorPage(
+                  operations: nestedList,
+                  variableSuggestions: variableSuggestions
+                      .map((s) => shared.VariableSuggestion(
+                            name: s.name,
+                            kind: shared.VariableSuggestionKind.unknown,
+                            category: s.category,
+                            description: s.description,
+                          ))
+                      .toList(),
+                ),
+              ),
+            );
+            if (result != null) {
+              onParameterChanged(paramDef.key, result);
+            }
+            return;
+          }
+
+          // Generic nested actions editor for all other action types
           if (onEditNestedActions == null) {
             return;
           }
@@ -1360,6 +1390,15 @@ class ActionCard extends StatelessWidget {
           }
         }
 
+        // ── Button label for image editor ─────────────────────────────────
+        if (isImageBlock) {
+          return _buildImageEditorEntry(
+            context,
+            nestedList: nestedList,
+            onEdit: openEditor,
+          );
+        }
+
         return _buildNestedActionsEditor(
           nestedList: nestedList,
           blockLabel: blockLabel,
@@ -1368,7 +1407,7 @@ class ActionCard extends StatelessWidget {
               paramDef.key == 'thenActions'
                   ? Icons.check_circle_outline
                   : Icons.cancel_outlined,
-          onEdit: openNestedEditor,
+          onEdit: openEditor,
         );
 
       case ParameterType.componentV2:
@@ -2027,6 +2066,133 @@ class ActionCard extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  /// Renders the image editor entry point for [BotCreatorActionType.runtimeImageBlock].
+  ///
+  /// Shows a prominent button that opens the specialized [ImageEditorPage]
+  /// instead of the generic nested actions editor.
+  Widget _buildImageEditorEntry(
+    BuildContext context, {
+    required List<Map<String, dynamic>> nestedList,
+    required Future<void> Function() onEdit,
+  }) {
+    final color = Theme.of(context).colorScheme.primary;
+    final hasOps = nestedList.isNotEmpty;
+
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+      child: InkWell(
+        onTap: onEdit,
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        child: Ink(
+          decoration: BoxDecoration(
+            border: Border.all(color: color.withValues(alpha: 0.5)),
+            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+            color: color.withValues(alpha: 0.05),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.photo_library_outlined,
+                        color: color, size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        hasOps
+                            ? context.tr.image_editor_edit_canvas(nestedList.length)
+                            : context.tr.image_editor_create_canvas,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: color,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                    FilledButton.tonalIcon(
+                      onPressed: onEdit,
+                      icon: Icon(
+                        hasOps ? Icons.edit : Icons.add,
+                        size: 16,
+                      ),
+                      label: Text(
+                        hasOps
+                            ? context.tr.image_editor_open
+                            : context.tr.image_editor_create,
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: color.withValues(alpha: 0.16),
+                        foregroundColor: color,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 6),
+                      ),
+                    ),
+                  ],
+                ),
+                if (hasOps) ...[
+                  const SizedBox(height: 8),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 8),
+                    decoration: BoxDecoration(
+                      borderRadius:
+                          BorderRadius.circular(AppTheme.radiusSm),
+                      color: color.withValues(alpha: 0.08),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ...nestedList.take(3).map((a) => Padding(
+                              padding:
+                                  const EdgeInsets.only(bottom: 4),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.arrow_right,
+                                      size: 16,
+                                      color: AppTheme.grey),
+                                  const SizedBox(width: 4),
+                                  Expanded(
+                                    child: Text(
+                                      a['op']?.toString() ?? '?',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                          fontSize: 12,
+                                          color: AppTheme.grey),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )),
+                        if (nestedList.length > 3)
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(left: 20),
+                            child: Text(
+                              context.tr.action_and_more(
+                                  nestedList.length - 3),
+                              style: const TextStyle(
+                                  fontSize: 11,
+                                  color: AppTheme.grey),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
