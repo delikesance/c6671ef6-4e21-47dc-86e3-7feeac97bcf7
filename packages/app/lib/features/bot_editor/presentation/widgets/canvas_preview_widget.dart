@@ -208,8 +208,10 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
   void _parseCanvasSize() {
     for (final op in widget.operations) {
       if ((op['op'] ?? '') == 'create') {
-        _canvasWidth = int.tryParse(op['width']?.toString() ?? '') ?? 400;
-        _canvasHeight = int.tryParse(op['height']?.toString() ?? '') ?? 300;
+        _canvasWidth =
+            (int.tryParse(op['width']?.toString() ?? '') ?? 400).clamp(1, 10000);
+        _canvasHeight =
+            (int.tryParse(op['height']?.toString() ?? '') ?? 300).clamp(1, 10000);
         return;
       }
     }
@@ -522,8 +524,9 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
     return LayoutBuilder(
       builder: (context, constraints) {
         // Compute scale to fit canvas within constraints
-        final maxW = constraints.maxWidth;
-        final maxH = constraints.maxHeight;
+        final maxW = constraints.maxWidth.isFinite ? constraints.maxWidth : 400.0;
+        final maxH = constraints.maxHeight.isFinite ? constraints.maxHeight : 300.0;
+        if (maxW <= 0 || maxH <= 0) return const SizedBox.shrink();
         final aspect = _canvasWidth / _canvasHeight;
 
         double w, h;
