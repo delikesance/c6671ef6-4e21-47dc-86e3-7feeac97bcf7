@@ -560,6 +560,19 @@ class _VariableTextFieldState extends State<VariableTextField> {
       return;
     }
 
+    // Guard: cursor may be inside the '(( ' prefix on some IMEs/keyboards
+    // (e.g. cursor=7 when (( starts at index 7, so start+2=9 > cursor).
+    if (cursor < start + 2) {
+      final replacement = '(($variableName))';
+      final nextText = input.replaceRange(cursor, cursor, replacement);
+      final nextCursor = cursor + replacement.length;
+      _effectiveController.value = TextEditingValue(
+        text: nextText,
+        selection: TextSelection.collapsed(offset: nextCursor),
+      );
+      return;
+    }
+
     final rawInner = input.substring(start + 2, cursor);
     final parts = rawInner.split('|');
     final prefixParts =

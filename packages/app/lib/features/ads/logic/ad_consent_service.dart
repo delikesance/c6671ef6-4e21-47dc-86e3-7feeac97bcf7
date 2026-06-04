@@ -128,38 +128,34 @@ class AdConsentService {
                   testIdentifiers: const ['2214CFDBCFAD5ACC7D062BE23959B7B1'],
                 ),
       ),
-      () => completer.complete(),
+      () {
+        if (!completer.isCompleted) completer.complete();
+      },
       (formError) {
-        // Log error but don't fail hard - allow app to continue with default consent
+        // Log error but don't fail hard - allow app to continue with default consent.
+        // Use logInfo (NOT logError) — UMP SDK errors are expected on some devices.
         unawaited(
-          AppDiagnostics.logError(
-            'requestConsentInfoUpdate failed (${formError.errorCode}): ${formError.message}',
-            StateError(
-              'requestConsentInfoUpdate failed (${formError.errorCode}): ${formError.message}',
-            ),
-            StackTrace.current,
-            fatal: false,
+          AppDiagnostics.logInfo(
+            'requestConsentInfoUpdate SDK error (${formError.errorCode}): ${formError.message}',
+            data: {'errorCode': formError.errorCode, 'message': formError.message},
           ),
         );
-        completer.complete();
+        if (!completer.isCompleted) completer.complete();
       },
     );
 
     return completer.future.timeout(
       _consentInfoTimeout,
       onTimeout: () {
-        // Log timeout but complete successfully to allow app to continue
+        // Log timeout but complete successfully to allow app to continue.
+        // Use logInfo (NOT logError) — slow networks are expected, not crashes.
         unawaited(
-          AppDiagnostics.logError(
-            'requestConsentInfoUpdate timed out after ${_consentInfoTimeout.inSeconds} seconds',
-            TimeoutException(
-              'requestConsentInfoUpdate timed out after ${_consentInfoTimeout.inSeconds} seconds',
-            ),
-            StackTrace.current,
-            fatal: false,
+          AppDiagnostics.logInfo(
+            'requestConsentInfoUpdate did not complete within ${_consentInfoTimeout.inSeconds}s',
+            data: {'timeoutSeconds': _consentInfoTimeout.inSeconds},
           ),
         );
-        completer.complete();
+        if (!completer.isCompleted) completer.complete();
       },
     );
   }
@@ -176,24 +172,21 @@ class AdConsentService {
           ),
         );
       }
-      completer.complete();
+      if (!completer.isCompleted) completer.complete();
     });
 
     return completer.future.timeout(
       _consentFormTimeout,
       onTimeout: () {
-        // Log timeout but complete successfully to allow app to continue
+        // Log timeout but complete successfully to allow app to continue.
+        // Use logInfo (NOT logError) — slow networks are expected, not crashes.
         unawaited(
-          AppDiagnostics.logError(
-            'loadAndShowConsentFormIfRequired timed out after ${_consentFormTimeout.inSeconds} seconds',
-            TimeoutException(
-              'loadAndShowConsentFormIfRequired timed out after ${_consentFormTimeout.inSeconds} seconds',
-            ),
-            StackTrace.current,
-            fatal: false,
+          AppDiagnostics.logInfo(
+            'loadAndShowConsentFormIfRequired did not complete within ${_consentFormTimeout.inSeconds}s',
+            data: {'timeoutSeconds': _consentFormTimeout.inSeconds},
           ),
         );
-        completer.complete();
+        if (!completer.isCompleted) completer.complete();
       },
     );
   }
