@@ -303,6 +303,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get action_name_appendArrayElement => 'Array-Element anhängen';
 
   @override
+  String get action_name_attachImage => 'Bild anhängen';
+
+  @override
   String get action_name_banUser => 'Benutzer bannen';
 
   @override
@@ -4230,6 +4233,20 @@ class AppLocalizationsDe extends AppLocalizations {
   String import_summary_workflows_skipped(int count) {
     return '$count Workflow(s) übersprungen';
   }
+
+  @override
+  String get image_editor_create => 'Erstellen';
+
+  @override
+  String get image_editor_create_canvas => 'Bild-Leinwand erstellen';
+
+  @override
+  String image_editor_edit_canvas(int count) {
+    return 'Leinwand bearbeiten ($count Ops)';
+  }
+
+  @override
+  String get image_editor_open => 'Editor öffnen';
 
   @override
   String legacy_bdfd_run_failed(String command, String error) {

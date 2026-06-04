@@ -394,6 +394,10 @@
   "@action_name_appendArrayElement": {
     "description": "Append Array Element"
   },
+  "action_name_attachImage": "Bild anhängen",
+  "@action_name_attachImage": {
+    "description": "Bild anhängen"
+  },
   "action_name_banUser": "Benutzer bannen",
   "@action_name_banUser": {
     "description": "Ban User"
@@ -5297,6 +5301,27 @@
       }
     },
     "description": "{count} workflow(s) skipped"
+  },
+  "image_editor_create": "Erstellen",
+  "@image_editor_create": {
+    "description": "Button label to create a new image canvas"
+  },
+  "image_editor_create_canvas": "Bild-Leinwand erstellen",
+  "@image_editor_create_canvas": {
+    "description": "Prompt shown when no canvas operations exist yet"
+  },
+  "image_editor_edit_canvas": "Leinwand bearbeiten ({count} Ops)",
+  "@image_editor_edit_canvas": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "Button label to edit existing canvas operations (count)"
+  },
+  "image_editor_open": "Editor öffnen",
+  "@image_editor_open": {
+    "description": "Button label to open the image editor for existing canvas"
   },
   "legacy_bdfd_run_failed": "Fehler beim Ausführen des BDFD-Skripts für den Befehl \"{command}\": {error}",
   "@legacy_bdfd_run_failed": {

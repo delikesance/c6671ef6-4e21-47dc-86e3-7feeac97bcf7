@@ -13,6 +13,7 @@ Vue d'ensemble de la documentation technique interne du projet.
 | [template-syntax.md](./template-syntax.md) | Syntaxe du moteur de templates (fallback, JSONPath, URLs) |
 | [bdfd-supported-functions.md](./bdfd-supported-functions.md) | Etat de support des fonctions BDFD dans Bot Creator |
 | [runner-docker.md](./runner-docker.md) | Exécution du Runner Docker en mode API only (sync/start/stop bots) |
+| [attach-image.md](./attach-image.md) | Action "Attach Image" — attacher une image à la réponse Discord |
 
 ---
 
