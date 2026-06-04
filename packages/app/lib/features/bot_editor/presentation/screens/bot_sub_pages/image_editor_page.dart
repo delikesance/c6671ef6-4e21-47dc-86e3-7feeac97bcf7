@@ -1027,6 +1027,10 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
         break;
       case 'loadImage':
         addField('Image URL', 'url', hint: 'https://... or data:image/...', isUrl: true);
+        addField('X', 'x', hint: '0', keyboardType: TextInputType.number);
+        addField('Y', 'y', hint: '0', keyboardType: TextInputType.number);
+        addField('Width', 'width', hint: 'auto (native size)', keyboardType: TextInputType.number);
+        addField('Height', 'height', hint: 'auto (native size)', keyboardType: TextInputType.number);
         break;
       case 'drawText':
         addField('Text', 'text', hint: 'Hello World');
@@ -1129,7 +1133,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
         _canvasError = null;
         break;
       case 'loadImage':
-        defaults.addAll({'op': 'loadImage', 'url': ''});
+        defaults.addAll({'op': 'loadImage', 'url': '', 'x': '0', 'y': '0', 'width': '', 'height': ''});
         break;
       case 'drawText':
         defaults.addAll({'op': 'drawText', 'text': 'Hello', 'x': '50', 'y': '200', 'fontSize': '48', 'color': 'white'});
@@ -1253,8 +1257,12 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
         return 'Create Canvas ($w×$h)';
       case 'loadImage':
         final url = (op['url'] ?? '').toString();
-        final label = url.length > 30 ? '${url.substring(0, 30)}…' : url;
-        return 'Load Image: $label';
+        final label = url.isNotEmpty
+            ? (url.length > 30 ? '${url.substring(0, 30)}…' : url)
+            : 'no URL';
+        final x = op['x'] ?? '0';
+        final y = op['y'] ?? '0';
+        return 'Load Image: $label ($x,$y)';
       case 'drawText':
         final text = (op['text'] ?? '').toString();
         final label = text.length > 20 ? '${text.substring(0, 20)}…' : text;
