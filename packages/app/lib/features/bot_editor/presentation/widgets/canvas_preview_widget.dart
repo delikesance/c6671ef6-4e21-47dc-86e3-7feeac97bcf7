@@ -193,9 +193,9 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
   @override
   void didUpdateWidget(covariant _CanvasPreview oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.operations != widget.operations) {
-      _parseCanvasSize();
-    }
+    // Always re-parse canvas size — operations are mutated in-place
+    // by the image editor so identity comparison is insufficient.
+    _parseCanvasSize();
     // Always scan for new images on every update. The operations list may
     // be mutated in-place (e.g. URL field updated by the image picker)
     // without changing the list reference, so identity comparison alone
@@ -797,37 +797,75 @@ class _CanvasPreviewPainter extends CustomPainter {
   ///
   /// If [op] has a width/height, the image is scaled to fit those dimensions;
   /// otherwise it's drawn at its native size (clipped to canvas bounds).
+  ///
+  /// Shape clipping: if [op] has a `shape` key, the image is clipped to:
+  /// - `circle` / `round` / `oval` / `ellipse` → circular mask
+  /// - `rounded:N` / `roundrect:N` → rounded rectangle with radius N
+  /// - `triangle` → triangular clip
   void _paintImage(Canvas canvas, Map<String, dynamic> op, ui.Image image) {
     final x = _parseDouble(op, 'x');
     final y = _parseDouble(op, 'y');
     final specifiedW = _parseDouble(op, 'width', -1);
     final specifiedH = _parseDouble(op, 'height', -1);
+    final shape = (op['shape'] ?? '').toString().toLowerCase().trim();
 
     final src = Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble());
 
     Rect dst;
     if (specifiedW > 0 && specifiedH > 0) {
-      // Explicit dimensions — scale to them
       dst = Rect.fromLTWH(x, y, specifiedW, specifiedH);
     } else if (specifiedW > 0) {
-      // Width specified, preserve aspect ratio
       final ratio = image.height / image.width;
       dst = Rect.fromLTWH(x, y, specifiedW, specifiedW * ratio);
     } else if (specifiedH > 0) {
-      // Height specified, preserve aspect ratio
       final ratio = image.width / image.height;
       dst = Rect.fromLTWH(x, y, specifiedH * ratio, specifiedH);
     } else {
-      // No size specified — draw at native size
-      dst = Rect.fromLTWH(
-        x,
-        y,
-        image.width.toDouble(),
-        image.height.toDouble(),
-      );
+      dst = Rect.fromLTWH(x, y, image.width.toDouble(), image.height.toDouble());
     }
 
-    canvas.drawImageRect(image, src, dst, Paint());
+    final needsClip = shape.isNotEmpty && shape != 'none';
+
+    if (needsClip) {
+      final path = _shapeClipPath(shape, dst);
+      canvas.saveLayer(dst, Paint());
+      canvas.clipPath(path);
+      canvas.drawImageRect(image, src, dst, Paint());
+      canvas.restore();
+    } else {
+      canvas.drawImageRect(image, src, dst, Paint());
+    }
+  }
+
+  /// Builds a clip [Path] for the given shape inside [rect].
+  Path _shapeClipPath(String shape, Rect rect) {
+    if (shape == 'circle' || shape == 'round' ||
+        shape == 'oval' || shape == 'ellipse') {
+      return Path()..addOval(rect);
+    }
+    if (shape.startsWith('rounded') || shape.startsWith('roundrect')) {
+      var radius = 20.0;
+      final parts = shape.split(':');
+      if (parts.length > 1) {
+        radius = double.tryParse(parts[1]) ?? 20.0;
+      } else {
+        final numStr = shape.replaceAll(RegExp(r'[^0-9.]'), '');
+        if (numStr.isNotEmpty) {
+          radius = double.tryParse(numStr) ?? 20.0;
+        }
+      }
+      return Path()
+        ..addRRect(RRect.fromRectAndRadius(rect, Radius.circular(radius)));
+    }
+    if (shape == 'triangle') {
+      return Path()
+        ..moveTo(rect.center.dx, rect.top)
+        ..lineTo(rect.right, rect.bottom)
+        ..lineTo(rect.left, rect.bottom)
+        ..close();
+    }
+    // Unknown shape — no clip
+    return Path()..addRect(rect);
   }
 
   /// Draws a small animated dots indicator inside the placeholder rect
@@ -1093,23 +1131,10 @@ class _CanvasPreviewPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _CanvasPreviewPainter oldDelegate) {
-    return oldDelegate.operations != operations ||
-        oldDelegate.selectedIndex != selectedIndex ||
-        oldDelegate.canvasWidth != canvasWidth ||
-        oldDelegate.canvasHeight != canvasHeight ||
-        oldDelegate.variableSuggestions != variableSuggestions ||
-        oldDelegate.hiddenIndices != hiddenIndices ||
-        !_mapsIdentical(oldDelegate.loadedImages, loadedImages);
-  }
-
-  /// Quick identity check: same number of entries with the same keys
-  /// implies no new images were loaded since the last paint.
-  bool _mapsIdentical(Map<String, ui.Image> a, Map<String, ui.Image> b) {
-    if (identical(a, b)) return true;
-    if (a.length != b.length) return false;
-    for (final key in a.keys) {
-      if (!b.containsKey(key)) return false;
-    }
+    // Always repaint — operations are mutated in-place by the editor,
+    // so identity comparison is insufficient. The CustomPainter is only
+    // rebuilt when the parent calls setState (on every property change),
+    // making per-property diffing unnecessary for an editor context.
     return true;
   }
 

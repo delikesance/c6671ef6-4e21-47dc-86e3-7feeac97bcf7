@@ -212,6 +212,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
           const PopupMenuItem(value: 'drawRect', child: Text('Draw Rectangle')),
           const PopupMenuItem(value: 'drawCircle', child: Text('Draw Circle')),
           const PopupMenuItem(value: 'drawLine', child: Text('Draw Line')),
+          const PopupMenuItem(value: 'compositeImage', child: Text('Composite Image')),
         ],
         child: TextButton.icon(
           onPressed: null,
@@ -1063,6 +1064,15 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
         addField('Color', 'color', hint: 'white', isColor: true);
         addField('Thickness', 'thickness', hint: '1', keyboardType: TextInputType.number);
         break;
+      case 'compositeImage':
+        addField('Image URL', 'url', hint: 'https://... or data:image/...', isUrl: true);
+        addField('X', 'x', hint: '0', keyboardType: TextInputType.number);
+        addField('Y', 'y', hint: '0', keyboardType: TextInputType.number);
+        addField('Width', 'width', hint: '100', keyboardType: TextInputType.number);
+        addField('Height', 'height', hint: '100', keyboardType: TextInputType.number);
+        addField('Shape', 'shape', hint: 'circle, rounded:20, triangle, or empty');
+        addField('Blend', 'blend', hint: 'overlay, multiply, screen, or empty');
+        break;
     }
 
     return fields;
@@ -1146,6 +1156,9 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
         break;
       case 'drawLine':
         defaults.addAll({'op': 'drawLine', 'x1': '0', 'y1': '0', 'x2': '100', 'y2': '100', 'color': 'white', 'thickness': '1'});
+        break;
+      case 'compositeImage':
+        defaults.addAll({'op': 'compositeImage', 'url': '', 'x': '0', 'y': '0', 'width': '100', 'height': '100', 'shape': '', 'blend': ''});
         break;
     }
     _pushHistory();
@@ -1244,6 +1257,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
       case 'drawRect': return Icons.crop_square;
       case 'drawCircle': return Icons.circle_outlined;
       case 'drawLine': return Icons.show_chart;
+      case 'compositeImage': return Icons.layers;
       default: return Icons.help_outline;
     }
   }
@@ -1273,6 +1287,12 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
         return 'Draw Circle';
       case 'drawLine':
         return 'Draw Line';
+      case 'compositeImage':
+        final url = (op['url'] ?? '').toString();
+        final label = url.isNotEmpty
+            ? (url.length > 25 ? '${url.substring(0, 25)}…' : url)
+            : 'no URL';
+        return 'Composite Image: $label';
       default:
         return 'Unknown ($opType)';
     }
