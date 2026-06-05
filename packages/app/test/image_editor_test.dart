@@ -747,7 +747,7 @@ void main() {
       expect(find.byType(TabBar), findsNothing);
     });
 
-    testWidgets('mobile layout has TabBar', (tester) async {
+    testWidgets('mobile layout does not have TabBar but shows operations list', (tester) async {
       tester.view.physicalSize = const Size(375 * 2, 812 * 2);
       tester.view.devicePixelRatio = 2.0;
       addTearDown(() {
@@ -764,7 +764,8 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.byType(TabBar), findsOneWidget);
+      expect(find.byType(TabBar), findsNothing);
+      expect(find.text('Operations'), findsAtLeastNWidgets(1));
     });
 
     testWidgets('operations panel shows operation count', (tester) async {
