@@ -2509,7 +2509,7 @@ class _DeploymentProgressOverlayState
       await widget.onSave((status) {
         _updateStepState(status, SyncStepState.active);
         _autoSuccessPreviousSteps(status);
-      }, _reloadCompleter!);
+      }, _reloadCompleter);
 
       // 2. Wait for reload completer
       if (!widget.isLocalOnly && widget.client != null) {
@@ -2518,12 +2518,14 @@ class _DeploymentProgressOverlayState
         }
         _updateStepState('reload_runtime', SyncStepState.active);
 
-        if (_reloadCompleter!.isCompleted) {
-          final reloadAction = await _reloadCompleter!.future;
+        final reloadCompleter = _reloadCompleter;
+        if (reloadCompleter != null && reloadCompleter.isCompleted) {
+          final reloadAction = await reloadCompleter.future;
           await reloadAction();
         } else {
-          if (widget.botId != null) {
-            await refreshBotRuntime(widget.botId!);
+          final botId = widget.botId;
+          if (botId != null) {
+            await refreshBotRuntime(botId);
           }
         }
       }

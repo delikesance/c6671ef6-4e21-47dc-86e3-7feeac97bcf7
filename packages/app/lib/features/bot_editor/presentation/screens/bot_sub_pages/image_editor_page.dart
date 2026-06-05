@@ -461,27 +461,32 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
         ),
         const Divider(height: 1),
         // Bottom: tabs for Operations and Properties
+        // SafeArea ensures the list never hides behind the native phone
+        // navigation bar/gesture handle, even with many layers.
         Expanded(
           flex: 2,
-          child: DefaultTabController(
-            length: 2,
-            child: Column(
-              children: [
-                const TabBar(
-                  tabs: [
-                    Tab(text: 'Operations'),
-                    Tab(text: 'Properties'),
-                  ],
-                ),
-                Expanded(
-                  child: TabBarView(
-                    children: [
-                      _buildOperationsPanel(),
-                      _buildPropertiesPanel(),
+          child: SafeArea(
+            top: false,
+            child: DefaultTabController(
+              length: 2,
+              child: Column(
+                children: [
+                  const TabBar(
+                    tabs: [
+                      Tab(text: 'Operations'),
+                      Tab(text: 'Properties'),
                     ],
                   ),
-                ),
-              ],
+                  Expanded(
+                    child: TabBarView(
+                      children: [
+                        _buildOperationsPanel(),
+                        _buildPropertiesPanel(),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
