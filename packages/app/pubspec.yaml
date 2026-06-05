@@ -48,7 +48,7 @@ dependencies:
   flutter_foreground_task: ^9.2.2
   rename_app: ^1.6.6
   flutter_launcher_icons: ^0.14.3
-  firebase_core: ^4.7.0
+  firebase_core: ^4.10.0
   googleapis: ^16.0.0
   google_sign_in: ^7.2.0
   extension_google_sign_in_as_googleapis_auth: ^3.0.0
