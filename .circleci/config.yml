@@ -278,6 +278,7 @@ jobs:
           name: Install CocoaPods dependencies
           command: |
             cd ~/project/packages/app/macos
+            rm -f Podfile.lock
             pod install --repo-update
       - run:
           name: Build macOS release
