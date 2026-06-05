@@ -269,11 +269,26 @@ jobs:
       - run:
           name: Enable macOS desktop
           command: flutter config --enable-macos-desktop
+      - restore_cache:
+          name: Restore CocoaPods cache
+          keys:
+            - cocoapods-v1-{{ checksum "packages/app/macos/Podfile.lock" }}
+            - cocoapods-v1-
+      - run:
+          name: Update CocoaPods repo
+          command: pod repo update
       - run:
           name: Build macOS release
           command: |
             cd ~/project/packages/app
             flutter build macos --release
+      - save_cache:
+          name: Save CocoaPods cache
+          key: cocoapods-v1-{{ checksum "packages/app/macos/Podfile.lock" }}
+          paths:
+            - ~/.cocoapods
+            - ~/Library/Caches/CocoaPods
+            - packages/app/macos/Pods
       - run:
           name: Package macOS app bundle
           command: |
@@ -361,10 +376,11 @@ jobs:
               throw 'Unable to parse app version from pubspec.yaml'
             }
             $msixVersion = "$($versionMatch.Groups[1].Value).$($versionMatch.Groups[2].Value).$($versionMatch.Groups[3].Value).0"
-            $updated = [regex]::Replace($content, '(?m)^\s*msix_version:\s*[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\s*$', "  msix_version: $msixVersion")
-            if ($updated -eq $content) {
-              throw 'Unable to update msix_version in pubspec.yaml'
+            $regex = [regex]'(?m)^\s*msix_version:\s*[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\s*$'
+            if (-not $regex.IsMatch($content)) {
+              throw 'Unable to find msix_version in pubspec.yaml'
             }
+            $updated = $regex.Replace($content, "  msix_version: $msixVersion")
             Set-Content -Path $pubspec -Value $updated -NoNewline
             Write-Host "MSIX version set to $msixVersion"
 
