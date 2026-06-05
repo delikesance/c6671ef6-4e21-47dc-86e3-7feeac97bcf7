@@ -275,8 +275,10 @@ jobs:
             - cocoapods-v1-{{ checksum "packages/app/macos/Podfile.lock" }}
             - cocoapods-v1-
       - run:
-          name: Update CocoaPods repo
-          command: pod repo update
+          name: Install CocoaPods dependencies
+          command: |
+            cd ~/project/packages/app/macos
+            pod install --repo-update
       - run:
           name: Build macOS release
           command: |
