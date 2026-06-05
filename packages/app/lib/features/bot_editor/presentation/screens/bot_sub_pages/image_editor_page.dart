@@ -186,7 +186,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
           _buildToolbar(),
           const Divider(height: 1),
           Expanded(
-            child: isWide ? _buildDesktopLayout() : _buildMobileTabs(),
+            child: isWide ? _buildDesktopLayout() : _buildMobileLayout(),
           ),
         ],
       ),
@@ -214,13 +214,18 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
           const PopupMenuItem(value: 'drawLine', child: Text('Draw Line')),
           const PopupMenuItem(value: 'compositeImage', child: Text('Composite Image')),
         ],
-        child: TextButton.icon(
-          onPressed: null,
-          icon: const Icon(Icons.add, size: 18),
-          label: const Text('Add Layer'),
-          style: TextButton.styleFrom(
-            foregroundColor: cs.onSurface,
-            padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.add, size: 18, color: cs.onSurface),
+              const SizedBox(width: 6),
+              Text(
+                'Add Layer',
+                style: TextStyle(color: cs.onSurface, fontSize: 14),
+              ),
+            ],
           ),
         ),
       );
@@ -451,43 +456,24 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
 
   // ── Mobile: tab-based layout ───────────────────────────────────────────
 
-  Widget _buildMobileTabs() {
+  /// Mobile layout: canvas on top, operations list always visible below.
+  /// Tapping a layer tile opens the properties bottom sheet directly.
+  Widget _buildMobileLayout() {
     return Column(
       children: [
-        // Canvas preview (always visible on mobile)
+        // Canvas preview — takes the majority of the screen height.
         Expanded(
           flex: 3,
           child: _buildCanvasPanel(),
         ),
         const Divider(height: 1),
-        // Bottom: tabs for Operations and Properties
-        // SafeArea ensures the list never hides behind the native phone
-        // navigation bar/gesture handle, even with many layers.
+        // Operations list — always visible, no tabs overhead.
+        // SafeArea keeps it above the native navigation bar / gesture handle.
         Expanded(
           flex: 2,
           child: SafeArea(
             top: false,
-            child: DefaultTabController(
-              length: 2,
-              child: Column(
-                children: [
-                  const TabBar(
-                    tabs: [
-                      Tab(text: 'Operations'),
-                      Tab(text: 'Properties'),
-                    ],
-                  ),
-                  Expanded(
-                    child: TabBarView(
-                      children: [
-                        _buildOperationsPanel(),
-                        _buildPropertiesPanel(),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            child: _buildOperationsPanel(isMobile: true),
           ),
         ),
       ],
@@ -588,12 +574,12 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
 
   // ── Operations Panel ───────────────────────────────────────────────────
 
-  Widget _buildOperationsPanel() {
+  Widget _buildOperationsPanel({bool isMobile = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
           child: Row(
             children: [
               Flexible(child: Text('Operations',
@@ -603,6 +589,16 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context).colorScheme.outline,
                       )),
+              if (isMobile) ...[
+                const Spacer(),
+                Text(
+                  'Tap to edit',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.outline,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
             ],
           ),
         ),
@@ -619,14 +615,14 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
                   buildDefaultDragHandles: false,
                   padding: const EdgeInsets.symmetric(vertical: 4),
                   itemBuilder: (context, index) =>
-                      _buildOperationTile(index),
+                      _buildOperationTile(index, isMobile: isMobile),
                 ),
         ),
       ],
     );
   }
 
-  Widget _buildOperationTile(int index) {
+  Widget _buildOperationTile(int index, {bool isMobile = false}) {
     final op = _operations[index];
     final opType = (op['op'] ?? '').toString();
     final isSelected = _selectedIndex == index;
@@ -650,7 +646,10 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
         ),
       ),
       child: InkWell(
-        onTap: () => setState(() => _selectedIndex = index),
+        onTap: () {
+          setState(() => _selectedIndex = index);
+          if (isMobile) _showPropertiesBottomSheet(index);
+        },
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
           child: Row(
@@ -902,6 +901,205 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
     );
   }
 
+  // ── Mobile Properties Bottom Sheet ─────────────────────────────────────
+
+  /// Opens a modal bottom sheet with the properties of the layer at [index].
+  ///
+  /// A [StatefulBuilder] is used so that interactive controls (sliders,
+  /// switches, text fields) visually update inside the sheet in real time
+  /// while [setState] simultaneously refreshes the canvas preview.
+  void _showPropertiesBottomSheet(int index) {
+    if (index < 0 || index >= _operations.length) return;
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetCtx) => StatefulBuilder(
+        builder: (ctx, setSheetState) {
+          // Calls both parent setState (canvas preview) and sheet setState
+          // (sheet UI) so all controls stay in sync.
+          void combinedSet(VoidCallback fn) {
+            if (mounted) setState(fn);
+            setSheetState(fn);
+          }
+          void closeSheet() => Navigator.pop(sheetCtx);
+          return _buildPropertiesSheetContent(ctx, index, combinedSet, closeSheet);
+        },
+      ),
+    );
+  }
+
+  /// Builds the content of the properties bottom sheet for the layer at [index].
+  Widget _buildPropertiesSheetContent(
+    BuildContext sheetContext,
+    int index,
+    void Function(VoidCallback) combinedSet,
+    VoidCallback closeSheet,
+  ) {
+    if (index < 0 || index >= _operations.length) {
+      return const SizedBox.shrink();
+    }
+    final op = _operations[index];
+    final opType = (op['op'] ?? '').toString();
+    final cs = Theme.of(context).colorScheme;
+    final isHidden = _hiddenIndices.contains(index);
+
+    return SafeArea(
+      top: false,
+      child: Padding(
+        // Slide content above the software keyboard when it opens.
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // ── Drag handle ───────────────────────────────────────────────
+            Center(
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: 10),
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: cs.outlineVariant,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            // ── Header: icon + label + duplicate + delete ─────────────────
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  Icon(_opIcon(opType), size: 20, color: cs.primary),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      _opLabel(op),
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w600),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      _pushHistory();
+                      combinedSet(() {
+                        _operations.insert(
+                            index + 1, Map<String, dynamic>.from(op));
+                        _selectedIndex = index + 1;
+                      });
+                      closeSheet();
+                    },
+                    icon: const Icon(Icons.copy_outlined, size: 20),
+                    tooltip: 'Duplicate',
+                    padding: EdgeInsets.zero,
+                    constraints:
+                        const BoxConstraints(minWidth: 36, minHeight: 36),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      _pushHistory();
+                      setState(() {
+                        _operations.removeAt(index);
+                        _hiddenIndices.remove(index);
+                        final newHidden = <int>{};
+                        for (final h in _hiddenIndices) {
+                          newHidden.add(h > index ? h - 1 : h);
+                        }
+                        _hiddenIndices.clear();
+                        _hiddenIndices.addAll(newHidden);
+                        _selectedIndex = null;
+                      });
+                      closeSheet();
+                    },
+                    icon: Icon(Icons.delete_outline, color: cs.error, size: 20),
+                    tooltip: 'Delete',
+                    padding: EdgeInsets.zero,
+                    constraints:
+                        const BoxConstraints(minWidth: 36, minHeight: 36),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1),
+            // ── Scrollable property fields ─────────────────────────────────
+            Flexible(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SwitchListTile(
+                      title: const Text('Visible'),
+                      value: !isHidden,
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
+                      onChanged: (v) {
+                        combinedSet(() {
+                          if (v) {
+                            _hiddenIndices.remove(index);
+                          } else {
+                            _hiddenIndices.add(index);
+                          }
+                        });
+                      },
+                    ),
+                    if (opType != 'create') ...[
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const SizedBox(
+                            width: 72,
+                            child: Text('Opacity',
+                                style: TextStyle(fontSize: 13)),
+                          ),
+                          Expanded(
+                            child: Slider(
+                              value: (double.tryParse(
+                                          (op['opacity'] ?? '1').toString()) ??
+                                      1.0)
+                                  .clamp(0.0, 1.0),
+                              min: 0.0,
+                              max: 1.0,
+                              divisions: 20,
+                              label:
+                                  '${((double.tryParse((op['opacity'] ?? '1').toString()) ?? 1.0) * 100).round()}%',
+                              onChanged: (v) {
+                                combinedSet(() {
+                                  if (v >= 1.0) {
+                                    op.remove('opacity');
+                                  } else {
+                                    op['opacity'] = v.toStringAsFixed(2);
+                                  }
+                                });
+                              },
+                              onChangeEnd: (_) => _pushHistory(),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                    ],
+                    const Divider(),
+                    const SizedBox(height: 12),
+                    ..._buildPropertyFields(opType, op, index,
+                        combinedSet: combinedSet),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildReadOnlyField(String label, String value) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
@@ -915,9 +1113,13 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
   }
 
   List<Widget> _buildPropertyFields(
-      String opType, Map<String, dynamic> op, int index) {
+      String opType, Map<String, dynamic> op, int index,
+      {void Function(VoidCallback)? combinedSet}) {
     final fields = <Widget>[];
     final hasVars = widget.variableSuggestions.isNotEmpty;
+    // When called from the bottom sheet, combinedSet updates both the sheet
+    // UI and the parent canvas; otherwise falls back to the parent setState.
+    final mutate = combinedSet ?? setState;
 
     /// Shows a dialog with a [VariableTextField] pre-populated with `((`
     /// so autocomplete suggestions appear immediately. On accept, inserts
@@ -955,7 +1157,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
         ),
       ).then((result) {
         if (result != null && result.isNotEmpty) {
-          setState(() {
+          mutate(() {
             op[key] = result;
             final ck = '$index.$key';
             final c = _propControllers[ck];
@@ -1013,7 +1215,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
           ),
           keyboardType: keyboardType,
           onChanged: (value) {
-            setState(() {
+            mutate(() {
               if (value.isEmpty) {
                 op.remove(key);
               } else {
@@ -1052,14 +1254,14 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
         addField('Height', 'height', hint: '100', keyboardType: TextInputType.number);
         addField('Color', 'color', hint: 'white', isColor: true);
         // Fill toggle
-        fields.add(_buildCheckbox(op, 'fill', 'Fill', defaultValue: true));
+        fields.add(_buildCheckbox(op, 'fill', 'Fill', defaultValue: true, mutate: mutate));
         break;
       case 'drawCircle':
         addField('X', 'x', hint: '200', keyboardType: TextInputType.number);
         addField('Y', 'y', hint: '200', keyboardType: TextInputType.number);
         addField('Radius', 'radius', hint: '50', keyboardType: TextInputType.number);
         addField('Color', 'color', hint: 'white', isColor: true);
-        fields.add(_buildCheckbox(op, 'fill', 'Fill', defaultValue: true));
+        fields.add(_buildCheckbox(op, 'fill', 'Fill', defaultValue: true, mutate: mutate));
         break;
       case 'drawLine':
         addField('X1', 'x1', hint: '0', keyboardType: TextInputType.number);
@@ -1085,10 +1287,11 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
 
   Widget _buildCheckbox(
       Map<String, dynamic> op, String key, String label,
-      {bool defaultValue = false}) {
+      {bool defaultValue = false, void Function(VoidCallback)? mutate}) {
     final current = op[key]?.toString().toLowerCase().trim();
     final isChecked = current == 'true' || current == 'yes' || current == '1' ||
         (current == null && defaultValue);
+    final doSet = mutate ?? setState;
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: SwitchListTile(
@@ -1097,7 +1300,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
         dense: true,
         contentPadding: EdgeInsets.zero,
         onChanged: (v) {
-          setState(() {
+          doSet(() {
             op[key] = v.toString();
           });
         },

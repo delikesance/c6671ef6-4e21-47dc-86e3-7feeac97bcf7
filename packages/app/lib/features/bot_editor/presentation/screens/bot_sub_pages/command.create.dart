@@ -2502,14 +2502,15 @@ class _DeploymentProgressOverlayState
       }
     });
 
-    _reloadCompleter = Completer<Future<void> Function()>();
+    final reloadCompleter = Completer<Future<void> Function()>();
+    _reloadCompleter = reloadCompleter;
 
     try {
       // 1. Run performSave from parent
       await widget.onSave((status) {
         _updateStepState(status, SyncStepState.active);
         _autoSuccessPreviousSteps(status);
-      }, _reloadCompleter);
+      }, reloadCompleter);
 
       // 2. Wait for reload completer
       if (!widget.isLocalOnly && widget.client != null) {
