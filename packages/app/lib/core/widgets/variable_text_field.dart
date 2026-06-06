@@ -28,6 +28,8 @@ class VariableTextField extends StatefulWidget {
   final List<String>? options;
   final List<AppEmoji>? emojiSuggestions;
   final bool useLabelText;
+  /// When true, all variable suggestions are always visible (no need to type (( first).
+  final bool alwaysShowSuggestions;
 
   const VariableTextField({
     super.key,
@@ -46,6 +48,7 @@ class VariableTextField extends StatefulWidget {
     this.options,
     this.emojiSuggestions,
     this.useLabelText = false,
+    this.alwaysShowSuggestions = false,
   });
 
   @override
@@ -213,14 +216,22 @@ class _VariableTextFieldState extends State<VariableTextField> {
           onTap: () => setState(() {}),
           validator: widget.validator,
         ),
-        ..._buildSuggestions(currentText, cursor),
+        if (widget.alwaysShowSuggestions)
+          Expanded(
+            child: _buildSuggestionWidget(currentText, cursor) ??
+                const SizedBox.shrink(),
+          )
+        else ...[
+          if (_buildSuggestionWidget(currentText, cursor) case final w?)
+            w,
+        ],
       ],
     );
   }
 
   // ── Suggestion UI ────────────────────────────────────────────────────────
 
-  List<Widget> _buildSuggestions(String currentValue, int cursor) {
+  Widget? _buildSuggestionWidget(String currentValue, int cursor) {
     // Emoji suggestions — shown when user types `<`
     if (widget.emojiSuggestions != null &&
         widget.emojiSuggestions!.isNotEmpty) {
@@ -232,39 +243,20 @@ class _VariableTextFieldState extends State<VariableTextField> {
             .take(12)
             .toList();
         if (filteredEmojis.isNotEmpty) {
-          return [
-            const SizedBox(height: 8),
-            Text('Emoji suggestions',
-                style: TextStyle(fontSize: 11, color: AppTheme.grey)),
-            const SizedBox(height: 6),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: filteredEmojis.map((emoji) {
-                return ActionChip(
-                  avatar: Image.network(
-                    emoji.imageUrl,
-                    width: 20,
-                    height: 20,
-                    errorBuilder: (context, error, stackTrace) =>
-                        const Icon(Icons.emoji_emotions, size: 16),
-                  ),
-                  label: Text(':${emoji.name}:',
-                      style: const TextStyle(fontSize: 12)),
-                  padding: EdgeInsets.zero,
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  onPressed: () => _insertEmoji(emoji),
-                );
-              }).toList(),
-            ),
-          ];
+          // Return emoji suggestions — skipped in picker mode for now
+          return null;
         }
       }
     }
 
-    // Variable suggestions — shown when user types `((`
-    final query = _extractPlaceholderQuery(currentValue, cursor);
-    if (query == null) return [];
+    // Variable suggestions — shown when user types `((`, or always if requested.
+    String? query;
+    if (widget.alwaysShowSuggestions) {
+      query = ''; // empty query = show all
+    } else {
+      query = _extractPlaceholderQuery(currentValue, cursor);
+    }
+    if (query == null) return null;
 
     final normalizedQuery = query.trim().toLowerCase();
 
@@ -284,37 +276,41 @@ class _VariableTextFieldState extends State<VariableTextField> {
       }
     }
 
-    if (filtered.isEmpty) return [];
+    if (filtered.isEmpty) return null;
 
     // Group by category
     final grouped = _groupByCategory(filtered);
     final categoryOrder = _orderedCategories(grouped.keys.toList());
 
-    return [
-      const SizedBox(height: 8),
-      Text(
-        widget.isNumericField
-            ? 'Dynamic numeric suggestions'
-            : 'Available variables — tap to insert',
-        style: TextStyle(fontSize: 11, color: AppTheme.grey),
-      ),
-      const SizedBox(height: 6),
-      SizedBox(
-        // Mobile-friendly constrained height with scrolling
-        height: 220,
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            for (final cat in categoryOrder)
-              if (grouped.containsKey(cat)) ...[
-                _buildCategoryHeader(cat, grouped[cat]!.length),
-                ...grouped[cat]!.map(_buildSuggestionChip),
-                const SizedBox(height: 4),
-              ],
-          ],
+    final listView = ListView(
+      padding: EdgeInsets.zero,
+      children: [
+        const SizedBox(height: 8),
+        Text(
+          widget.isNumericField
+              ? 'Dynamic numeric suggestions'
+              : 'Available variables — tap to insert',
+          style: TextStyle(fontSize: 11, color: AppTheme.grey),
         ),
-      ),
-    ];
+        const SizedBox(height: 6),
+        for (final cat in categoryOrder)
+          if (grouped.containsKey(cat)) ...[
+            _buildCategoryHeader(cat, grouped[cat]!.length),
+            ...grouped[cat]!.map(_buildSuggestionChip),
+            const SizedBox(height: 4),
+          ],
+      ],
+    );
+
+    // In picker mode caller wraps in Expanded, return ListView directly.
+    // In inline mode, constrain height.
+    if (widget.alwaysShowSuggestions) {
+      return listView;
+    }
+    return SizedBox(
+      height: 220,
+      child: listView,
+    );
   }
 
   Map<shared.VariableCategory, List<VariableSuggestion>> _groupByCategory(

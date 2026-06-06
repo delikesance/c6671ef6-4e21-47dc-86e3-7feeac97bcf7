@@ -127,24 +127,6 @@ extension _CommandCreateValidation on _CommandCreatePageState {
         );
         return false;
       }
-
-      if (_responseType == 'modal') {
-        showDialog(
-          context: context,
-          builder:
-              (context) => AlertDialog(
-                title: Text(context.tr.error),
-                content: Text(context.tr.validation_modal_not_legacy),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text(context.tr.ok),
-                  ),
-                ],
-              ),
-        );
-        return false;
-      }
     }
 
     // Interaction commands (chatInput / user) that are not legacy must have
@@ -160,13 +142,7 @@ extension _CommandCreateValidation on _CommandCreatePageState {
             type == 'respondWithComponentV2' ||
             type == 'respondWithModal';
       });
-      // Also check if the response block has content that would be migrated.
-      final hasResponseContent =
-          (_responseController.text.trim().isNotEmpty) ||
-          (_responseEmbeds.isNotEmpty) ||
-          (_responseComponents.isNotEmpty) ||
-          (_responseModal.isNotEmpty);
-      if (!hasRespondAction && !hasResponseContent) {
+      if (!hasRespondAction) {
         final proceed = await showDialog<bool>(
           context: context,
           builder:

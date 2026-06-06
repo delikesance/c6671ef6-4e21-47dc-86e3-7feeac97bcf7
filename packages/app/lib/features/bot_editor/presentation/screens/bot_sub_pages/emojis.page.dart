@@ -9,6 +9,7 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/core/utils/responsive.dart';
 
 class EmojisPage extends StatefulWidget {
   final String botId;
@@ -259,6 +260,13 @@ class _EmojisPageState extends State<EmojisPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
+        leading: !ResponsiveHelper.isDesktopPlatform()
+            ? IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: () => context.openParentDrawer(),
+              )
+            : null,
         backgroundColor: const Color.fromRGBO(106, 15, 162, 1),
         title: Text(context.tr.emojis_title),
         centerTitle: true,

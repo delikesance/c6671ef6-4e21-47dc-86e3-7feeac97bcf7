@@ -7324,4 +7324,27 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get variable_autocomplete_numeric_title =>
       'Dynamische numerische Vorschläge';
+
+  @override
+  String get bot_settings_tab_general => 'Allgemein';
+
+  @override
+  String get bot_settings_tab_presence => 'Präsenz & Status';
+
+  @override
+  String get bot_settings_tab_intents => 'Intents & Berechtigungen';
+
+  @override
+  String get bot_settings_tab_advanced => 'Erweitert & Wartung';
+
+  @override
+  String get bot_settings_avatar_selected => 'Ausgewähltes Bild:';
+
+  @override
+  String get bot_settings_avatar_none_selected =>
+      'Kein neues Bild ausgewählt. Klicken Sie auf Durchsuchen, um eines auszuwählen.';
+
+  @override
+  String get bot_settings_avatar_important_note =>
+      'Wichtig: Profiländerungen (Benutzername und Avatar) werden erst dann auf Discord angewendet, wenn Sie unten auf \'Profil und Status speichern\' klicken.';
 }

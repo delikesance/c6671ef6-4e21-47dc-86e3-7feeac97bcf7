@@ -14,6 +14,7 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 
 import 'package:bot_creator/features/ads/logic/ad_reward_service.dart';
 import 'package:bot_creator/core/utils/global.dart';
+import 'package:bot_creator/core/utils/responsive.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_owner_sync.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
@@ -51,12 +52,10 @@ class QuickAccessSection {
 class AppHomePage extends StatefulWidget {
   final NyxxRest client;
   final ValueChanged<int>? onNavigateToSection;
-  final List<QuickAccessSection> secondarySections;
   const AppHomePage({
     super.key,
     required this.client,
     this.onNavigateToSection,
-    this.secondarySections = const [],
   });
 
   @override
@@ -177,6 +176,13 @@ class _AppHomePageState extends State<AppHomePage>
     final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
+        leading: !ResponsiveHelper.isDesktopPlatform()
+            ? IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: () => context.openParentDrawer(),
+              )
+            : null,
         flexibleSpace: Container(
           decoration: const BoxDecoration(gradient: AppTheme.brandGradient),
         ),
@@ -193,7 +199,6 @@ class _AppHomePageState extends State<AppHomePage>
       body: LayoutBuilder(
         builder: (context, constraints) {
           final contentMaxWidth = constraints.maxWidth >= 900 ? 560.0 : 460.0;
-          final showQuickAccess = constraints.maxWidth < 900;
           return SafeArea(
             child: Center(
               child: SingleChildScrollView(
@@ -426,65 +431,6 @@ class _AppHomePageState extends State<AppHomePage>
                           ],
                         ),
                       const SizedBox(height: AppTheme.spacingMd),
-                      if (showQuickAccess &&
-                          widget.secondarySections.isNotEmpty &&
-                          widget.onNavigateToSection != null) ...[
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                  left: 4,
-                                  bottom: 10,
-                                ),
-                                child: Text(
-                                  context.tr.quick_access_title,
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.titleSmall?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    letterSpacing: 0.2,
-                                  ),
-                                ),
-                              ),
-                              GridView.count(
-                                crossAxisCount: 3,
-                                mainAxisSpacing: 10,
-                                crossAxisSpacing: 10,
-                                childAspectRatio: 1.12,
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                children: [
-                                  for (
-                                    var i = 0;
-                                    i <
-                                        widget.secondarySections.length.clamp(
-                                          0,
-                                          3,
-                                        );
-                                    i++
-                                  )
-                                    _QuickAccessChip(
-                                      icon: widget.secondarySections[i].icon,
-                                      label: _resolveQuickAccessLabel(
-                                        context,
-                                        widget.secondarySections[i].labelKey,
-                                      ),
-                                      onTap:
-                                          () => widget.onNavigateToSection!(
-                                            widget.secondarySections[i].index,
-                                          ),
-                                    ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: AppTheme.spacingSm),
-                      ],
                       _buildSection(
                         icon: Icons.monitor_heart_outlined,
                         title: context.tr.bot_home_section_monitoring,
@@ -638,50 +584,3 @@ class _AppHomePageState extends State<AppHomePage>
   }
 }
 
-class _QuickAccessChip extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  const _QuickAccessChip({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Material(
-      color: colorScheme.surfaceContainer,
-      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: 18, color: colorScheme.primary),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  height: 1.15,
-                  color: colorScheme.onSurface,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}

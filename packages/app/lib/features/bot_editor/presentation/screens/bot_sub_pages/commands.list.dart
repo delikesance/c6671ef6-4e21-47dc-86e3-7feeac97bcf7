@@ -12,6 +12,7 @@ import 'package:bot_creator/core/widgets/notion_filter_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/core/utils/responsive.dart';
 
 class AppCommandsPage extends StatefulWidget {
   final NyxxRest? client;
@@ -766,6 +767,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: const Color.fromRGBO(106, 15, 162, 1),
         title: Text(
           _isReorderMode
@@ -773,14 +775,18 @@ class _AppCommandsPageState extends State<AppCommandsPage>
               : context.tr.commands_title,
         ),
         centerTitle: true,
-        leading:
-            _isReorderMode
+        leading: _isReorderMode
+            ? IconButton(
+                icon: const Icon(Icons.close),
+                tooltip: context.tr.cancel,
+                onPressed: _cancelReorderMode,
+              )
+            : (!ResponsiveHelper.isDesktopPlatform()
                 ? IconButton(
-                  icon: const Icon(Icons.close),
-                  tooltip: context.tr.cancel,
-                  onPressed: _cancelReorderMode,
-                )
-                : null,
+                    icon: const Icon(Icons.menu),
+                    onPressed: () => context.openParentDrawer(),
+                  )
+                : null),
         actions:
             _isReorderMode
                 ? [

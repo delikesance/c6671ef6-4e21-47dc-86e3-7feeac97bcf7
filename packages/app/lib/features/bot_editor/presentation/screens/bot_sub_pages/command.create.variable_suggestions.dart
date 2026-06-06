@@ -412,6 +412,27 @@ extension _CommandCreateVariableSuggestions on _CommandCreatePageState {
           );
         }
       }
+
+      // Scoped variables: expose setScopedVariable keys dynamically.
+      if (type == 'setScopedVariable') {
+        final payload = Map<String, dynamic>.from(
+          (action['payload'] as Map?)?.cast<String, dynamic>() ?? const {},
+        );
+        final scope = (payload['scope'] ?? _readActionStringParameter(action, 'scope')).toString().trim();
+        var rawKey = (payload['key'] ?? '').toString().trim();
+        if (rawKey.isEmpty) {
+          rawKey = _readActionStringParameter(action, 'key');
+        }
+        if (scope.isNotEmpty && rawKey.isNotEmpty) {
+          final normalizedKey = rawKey.startsWith('bc_') && rawKey.length > 3
+              ? rawKey.substring(3)
+              : rawKey;
+          addSuggestion(
+            '$scope.${_toScopedReferenceName(normalizedKey)}',
+            kind: VariableSuggestionKind.unknown,
+          );
+        }
+      }
     }
 
     addSuggestion('workflow.name', kind: VariableSuggestionKind.nonNumeric);

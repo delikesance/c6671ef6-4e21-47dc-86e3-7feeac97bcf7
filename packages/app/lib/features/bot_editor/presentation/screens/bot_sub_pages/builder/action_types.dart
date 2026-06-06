@@ -18,6 +18,7 @@ enum ParameterType {
   roleId,
   emoji,
   multiSelect,
+  permissionFlags,
   embeds,
   normalComponents,
   componentV2,

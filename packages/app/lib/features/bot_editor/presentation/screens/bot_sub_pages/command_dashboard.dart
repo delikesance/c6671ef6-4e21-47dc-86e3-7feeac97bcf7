@@ -13,6 +13,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
+import 'package:bot_creator/core/utils/responsive.dart';
 
 enum _DashboardStatsSource { local, manager, runner }
 
@@ -402,263 +403,278 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
+    Widget body;
     if (_loading) {
-      return _CenteredMessage(
+      body = _CenteredMessage(
         icon: Icons.hourglass_empty,
         text: context.tr.dashboard_loading,
       );
-    }
-
-    if (_error != null) {
-      return _CenteredMessage(
+    } else if (_error != null) {
+      body = _CenteredMessage(
         icon: Icons.error_outline,
         text: '${context.tr.dashboard_error}\n$_error',
       );
-    }
+    } else {
+      final periodTotal = _commands.fold<int>(0, (sum, c) => sum + c.count);
+      final hasExpandedAnalytics = PremiumCapabilities.hasCapability(
+        PremiumCapability.analyticsExpanded,
+      );
 
-    final periodTotal = _commands.fold<int>(0, (sum, c) => sum + c.count);
-    final hasExpandedAnalytics = PremiumCapabilities.hasCapability(
-      PremiumCapability.analyticsExpanded,
-    );
-
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 1000),
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-        // ── Runner source ──
-        _StatsSourceBanner(
-          hasManagerSource: _hasManagerSource,
-          managerLabel: _managerSourceLabel(),
-          runners: _runners,
-          source: _source,
-          activeRunnerId: _activeRunnerId,
-          onSourceChanged: _switchSource,
-          onRefreshSources: _refreshingSources ? null : _refreshSources,
-        ),
-        // ── Date Selector ──
-        Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: _selectDateRange,
-            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3),
-                  width: 1.0,
-                ),
+      body = Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1000),
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              // ── Runner source ──
+              _StatsSourceBanner(
+                hasManagerSource: _hasManagerSource,
+                managerLabel: _managerSourceLabel(),
+                runners: _runners,
+                source: _source,
+                activeRunnerId: _activeRunnerId,
+                onSourceChanged: _switchSource,
+                onRefreshSources: _refreshingSources ? null : _refreshSources,
               ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.calendar_today_outlined,
-                    size: 18,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+              // ── Date Selector ──
+              Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: _selectDateRange,
+                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surfaceContainerLow,
+                      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3),
+                        width: 1.0,
+                      ),
+                    ),
+                    child: Row(
                       children: [
-                        Text(
-                          context.tr.dashboard_analysis_period,
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: Theme.of(context).colorScheme.outline,
-                            fontWeight: FontWeight.bold,
+                        Icon(
+                          Icons.calendar_today_outlined,
+                          size: 18,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                context.tr.dashboard_analysis_period,
+                                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                  color: Theme.of(context).colorScheme.outline,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                _formatDateRangeLabel(),
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        const SizedBox(height: 2),
-                        Text(
-                          _formatDateRangeLabel(),
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurface,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        Icon(
+                          Icons.edit_calendar_outlined,
+                          size: 18,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ],
                     ),
                   ),
-                  Icon(
-                    Icons.edit_calendar_outlined,
-                    size: 18,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ],
+                ),
               ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
+              const SizedBox(height: 16),
 
-        // ── Total card ──
-        _StatCard(
-          icon: Icons.functions,
-          label: context.tr.dashboard_total,
-          value: _totalAllTime.toString(),
-          subtitle: context.tr.dashboard_selected_period_total(periodTotal),
-          colorScheme: colorScheme,
-        ),
-        const SizedBox(height: 16),
-        if (hasExpandedAnalytics) ...[
-          Text(
-            context.tr.dashboard_execution_health_title,
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _MetricChip(
-                label: context.tr.dashboard_failed_commands,
-                value: _failedInPeriod.toString(),
+              // ── Total card ──
+              _StatCard(
+                icon: Icons.functions,
+                label: context.tr.dashboard_total,
+                value: _totalAllTime.toString(),
+                subtitle: context.tr.dashboard_selected_period_total(periodTotal),
+                colorScheme: colorScheme,
               ),
-              _MetricChip(
-                label: context.tr.dashboard_error_rate,
-                value: '${_errorRatePct.toStringAsFixed(1)}%',
-              ),
-              _MetricChip(
-                label: context.tr.dashboard_p50_latency,
-                value: '$_p50LatencyMs ms',
-              ),
-              _MetricChip(
-                label: context.tr.dashboard_p95_latency,
-                value: '$_p95LatencyMs ms',
-              ),
-            ],
-          ),
-        ] else ...[
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    context.tr.dashboard_premium_analytics_title,
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
+              const SizedBox(height: 16),
+              if (hasExpandedAnalytics) ...[
+                Text(
+                  context.tr.dashboard_execution_health_title,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    _MetricChip(
+                      label: context.tr.dashboard_failed_commands,
+                      value: _failedInPeriod.toString(),
                     ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(context.tr.dashboard_premium_analytics_desc),
-                  if (PremiumCapabilities.canShowPurchaseUI) ...[
-                    const SizedBox(height: 8),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: FilledButton.icon(
-                        onPressed: () => SubscriptionPage.show(context),
-                        icon: const Icon(Icons.workspace_premium_rounded),
-                        label: Text(context.tr.premium_card_button),
-                      ),
+                    _MetricChip(
+                      label: context.tr.dashboard_error_rate,
+                      value: '${_errorRatePct.toStringAsFixed(1)}%',
+                    ),
+                    _MetricChip(
+                      label: context.tr.dashboard_p50_latency,
+                      value: '$_p50LatencyMs ms',
+                    ),
+                    _MetricChip(
+                      label: context.tr.dashboard_p95_latency,
+                      value: '$_p95LatencyMs ms',
                     ),
                   ],
-                ],
+                ),
+              ] else ...[
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.tr.dashboard_premium_analytics_title,
+                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(context.tr.dashboard_premium_analytics_desc),
+                        if (PremiumCapabilities.canShowPurchaseUI) ...[
+                          const SizedBox(height: 8),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: FilledButton.icon(
+                              onPressed: () => SubscriptionPage.show(context),
+                              icon: const Icon(Icons.workspace_premium_rounded),
+                              label: Text(context.tr.premium_card_button),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+              if (hasExpandedAnalytics && _locales.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                Text(
+                  context.tr.dashboard_top_locales,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: _locales
+                      .take(8)
+                      .map(
+                        (entry) =>
+                            Chip(label: Text('${entry.locale} (${entry.count})')),
+                      )
+                      .toList(growable: false),
+                ),
+              ],
+              const SizedBox(height: 16),
+
+              // ── Top commands ──
+              Text(
+                context.tr.dashboard_top_commands,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
               ),
-            ),
-          ),
-        ],
-        if (hasExpandedAnalytics && _locales.isNotEmpty) ...[
-          const SizedBox(height: 16),
-          Text(
-            context.tr.dashboard_top_locales,
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: _locales
-                .take(8)
-                .map(
-                  (entry) =>
-                      Chip(label: Text('${entry.locale} (${entry.count})')),
+              const SizedBox(height: 8),
+              if (_commands.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 24),
+                  child: Center(
+                    child: Text(
+                      context.tr.dashboard_no_data,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
                 )
-                .toList(growable: false),
-          ),
-        ],
-        const SizedBox(height: 16),
-
-        // ── Top commands ──
-        Text(
-          context.tr.dashboard_top_commands,
-          style: Theme.of(
-            context,
-          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: 8),
-        if (_commands.isEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 24),
-            child: Center(
-              child: Text(
-                context.tr.dashboard_no_data,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
+              else
+                ..._commands.map(
+                  (cmd) => _CommandRow(
+                    command: cmd,
+                    maxCount: _commands.first.count,
+                    colorScheme: colorScheme,
+                  ),
                 ),
-              ),
-            ),
-          )
-        else
-          ..._commands.map(
-            (cmd) => _CommandRow(
-              command: cmd,
-              maxCount: _commands.first.count,
-              colorScheme: colorScheme,
-            ),
-          ),
-        const SizedBox(height: 24),
+              const SizedBox(height: 24),
 
-        // ── Timeline ──
-        Text(
-          context.tr.dashboard_timeline,
-          style: Theme.of(
-            context,
-          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: 8),
-        if (_timeline.isEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 24),
-            child: Center(
-              child: Text(
-                context.tr.dashboard_no_data,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
+              // ── Timeline ──
+              Text(
+                context.tr.dashboard_timeline,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 8),
+              if (_timeline.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 24),
+                  child: Center(
+                    child: Text(
+                      context.tr.dashboard_no_data,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                )
+              else
+                Container(
+                  height: 160,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  child: _InteractiveTimelineChart(
+                    entries: _timeline,
+                    color: Theme.of(context).colorScheme.primary,
+                    executionsLabel: context.tr.dashboard_executions,
+                  ),
                 ),
-              ),
-            ),
-          )
-        else
-          Container(
-            height: 160,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerLow,
-              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              border: Border.all(
-                color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.2),
-              ),
-            ),
-            child: _InteractiveTimelineChart(
-              entries: _timeline,
-              color: Theme.of(context).colorScheme.primary,
-              executionsLabel: context.tr.dashboard_executions,
-            ),
+            ],
           ),
-          ],
         ),
-      ),
-    );
+      );
+    }
+
+    if (!ResponsiveHelper.isDesktopPlatform()) {
+      return Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          leading: IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => context.openParentDrawer(),
+          ),
+          title: Text(context.tr.dashboard_title),
+          centerTitle: true,
+        ),
+        body: SafeArea(child: body),
+      );
+    }
+    return SafeArea(child: body);
   }
 }
 

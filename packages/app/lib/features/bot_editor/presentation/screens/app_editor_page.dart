@@ -33,29 +33,11 @@ class AppEditPage extends StatefulWidget {
 class _AppEditPageState extends State<AppEditPage>
     with TickerProviderStateMixin {
   NyxxRest? client;
-  int _selectedIndex = 0;
   bool _isLoading = true;
   String? _degradedReason;
   String? _currentToken;
 
-  static const List<QuickAccessSection> _mobileQuickAccessSections = [
-    QuickAccessSection(
-      index: 6,
-      icon: Icons.emoji_emotions_outlined,
-      labelKey: 'emojis_tab',
-    ),
-    QuickAccessSection(
-      index: 7,
-      icon: Icons.bar_chart,
-      labelKey: 'dashboard_title',
-    ),
-    QuickAccessSection(
-      index: 8,
-      icon: Icons.settings,
-      labelKey: 'settings_tab',
-    ),
-  ];
-
+  late int _selectedIndex = 0;
   bool get _isDesktopPlatform {
     if (kIsWeb) {
       return false;
@@ -238,7 +220,6 @@ class _AppEditPageState extends State<AppEditPage>
               _selectedIndex = index;
             });
           },
-          secondarySections: _mobileQuickAccessSections,
         ),
       ),
       _AppPageEntry(
@@ -297,6 +278,115 @@ class _AppEditPageState extends State<AppEditPage>
     ];
   }
 
+  Widget _buildSidebarContent(
+    BuildContext context,
+    ColorScheme colorScheme,
+    List<_AppNavItem> navItems, {
+    bool isDrawer = false,
+  }) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    tooltip: context.tr.common_back,
+                    onPressed: () {
+                      if (isDrawer) {
+                        Navigator.of(context).pop(); // Close drawer
+                      }
+                      Navigator.of(context).pop(); // Exit editor
+                    },
+                  ),
+                  Expanded(
+                    child: Text(
+                      widget.appName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Expanded(
+              child: ListView.builder(
+                itemCount: navItems.length,
+                itemBuilder: (context, index) {
+                  final item = navItems[index];
+                  final selected = _selectedIndex == index;
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 3),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+                      onTap: () {
+                        if (isDrawer) {
+                          Navigator.of(context).pop(); // Close drawer
+                        }
+                        setState(() {
+                          _selectedIndex = index;
+                        });
+                      },
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 150),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+                          color: selected
+                              ? colorScheme.primaryContainer
+                              : Colors.transparent,
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              item.icon,
+                              size: 20,
+                              color: selected
+                                  ? colorScheme.onPrimaryContainer
+                                  : colorScheme.onSurfaceVariant,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                item.label,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontWeight: selected
+                                      ? FontWeight.w700
+                                      : FontWeight.w500,
+                                  color: selected
+                                      ? colorScheme.onPrimaryContainer
+                                      : colorScheme.onSurface,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildDesktopSidebar(
     BuildContext context,
     ColorScheme colorScheme,
@@ -312,107 +402,25 @@ class _AppEditPageState extends State<AppEditPage>
           ),
         ),
       ),
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                child: Text(
-                  widget.appName,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              ...List.generate(navItems.length, (index) {
-                final item = navItems[index];
-                final selected = _selectedIndex == index;
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 3),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-                    onTap: () {
-                      setState(() {
-                        _selectedIndex = index;
-                      });
-                    },
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 150),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 10,
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-                        color:
-                            selected
-                                ? colorScheme.primaryContainer
-                                : Colors.transparent,
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            item.icon,
-                            size: 20,
-                            color:
-                                selected
-                                    ? colorScheme.onPrimaryContainer
-                                    : colorScheme.onSurfaceVariant,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              item.label,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontWeight:
-                                    selected
-                                        ? FontWeight.w700
-                                        : FontWeight.w500,
-                                color:
-                                    selected
-                                        ? colorScheme.onPrimaryContainer
-                                        : colorScheme.onSurface,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              }),
-            ],
-          ),
-        ),
-      ),
+      child: _buildSidebarContent(context, colorScheme, navItems, isDrawer: false),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final isMobile = ResponsiveHelper.isMobile(context);
     final isSmallPhone = ResponsiveHelper.isSmallPhone(context);
     final useDesktopSidebar = _isDesktopPlatform;
     final entries = _buildEntries(isSmallPhone);
-    final navItems =
-        entries
-            .map(
-              (entry) => _AppNavItem(
-                icon: entry.icon,
-                label: entry.label,
-                compactLabel: entry.compactLabel,
-              ),
-            )
-            .toList();
+    final navItems = entries
+        .map(
+          (entry) => _AppNavItem(
+            icon: entry.icon,
+            label: entry.label,
+            compactLabel: entry.compactLabel,
+          ),
+        )
+        .toList();
     final pages = entries.map((entry) => entry.page).toList();
 
     if (_isLoading) {
@@ -437,172 +445,12 @@ class _AppEditPageState extends State<AppEditPage>
       );
     }
 
-    // Mobile: split into core (bottom nav) and secondary ("More" sheet) entries
-    final coreEntries = <int>[];
-    final secondaryEntries = <int>[];
-    for (var i = 0; i < entries.length; i++) {
-      if (entries[i].mobileSecondary) {
-        secondaryEntries.add(i);
-      } else {
-        coreEntries.add(i);
-      }
-    }
-
-    final hasSecondary = secondaryEntries.isNotEmpty;
-    final moreSelected = hasSecondary && secondaryEntries.contains(activeIndex);
-
-    // Bottom nav index mapping
-    int bottomIndex;
-    if (moreSelected) {
-      bottomIndex = coreEntries.length; // "More" tab index
-    } else {
-      bottomIndex = coreEntries.indexOf(activeIndex);
-      if (bottomIndex < 0) bottomIndex = 0;
-    }
-
-    final bottomItems = <BottomNavigationBarItem>[
-      ...coreEntries.map((i) {
-        final item = navItems[i];
-        return BottomNavigationBarItem(
-          icon: Icon(item.icon),
-          label: isSmallPhone ? item.compactLabel : item.label,
-          backgroundColor: colorScheme.surface,
-        );
-      }),
-      if (hasSecondary)
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.more_horiz),
-          label: context.tr.more_tab,
-          backgroundColor: colorScheme.surface,
-        ),
-    ];
-
-    final mq = MediaQuery.of(context);
     return Scaffold(
-      bottomNavigationBar: MediaQuery(
-        data: mq.copyWith(textScaler: const TextScaler.linear(1.0)),
-        child: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: colorScheme.surface,
-          selectedItemColor: colorScheme.primary,
-          unselectedItemColor: colorScheme.onSurfaceVariant,
-          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
-          showUnselectedLabels: !isMobile,
-          currentIndex: bottomIndex,
-          onTap: (index) {
-            if (hasSecondary && index == coreEntries.length) {
-              // "More" tab tapped — show bottom sheet
-              final quickAccessIndices = _mobileQuickAccessSections
-                  .map((section) => section.index)
-                  .toList(growable: false);
-              _showMoreSheet(
-                context,
-                entries,
-                secondaryEntries,
-                quickAccessIndices,
-              );
-            } else {
-              setState(() {
-                _selectedIndex = coreEntries[index];
-              });
-            }
-          },
-          items: bottomItems,
-        ),
+      drawer: Drawer(
+        backgroundColor: colorScheme.surface,
+        child: _buildSidebarContent(context, colorScheme, navItems, isDrawer: true),
       ),
       body: pages[activeIndex],
-    );
-  }
-
-  void _showMoreSheet(
-    BuildContext context,
-    List<_AppPageEntry> entries,
-    List<int> secondaryIndices,
-    List<int> quickAccessIndices,
-  ) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    // Filter out Quick Access indices from secondary entries
-    final filteredIndices = secondaryIndices
-        .where((idx) => !quickAccessIndices.contains(idx))
-        .toList(growable: false);
-
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (sheetContext) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Drag handle
-                Container(
-                  width: 36,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 16),
-                  decoration: BoxDecoration(
-                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                // Section title
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 4, bottom: 12),
-                    child: Text(
-                      context.tr.more_options_title,
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-                // App-like list of secondary sections.
-                if (filteredIndices.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    child: Text(
-                      context.tr.no_more_options,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  )
-                else
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(maxHeight: 320),
-                    child: ListView.separated(
-                      shrinkWrap: true,
-                      itemCount: filteredIndices.length,
-                      separatorBuilder: (_, _) => const SizedBox(height: 8),
-                      itemBuilder: (context, idx) {
-                        final entryIndex = filteredIndices[idx];
-                        return _MoreSheetItem(
-                          icon: entries[entryIndex].icon,
-                          label: entries[entryIndex].label,
-                          selected: _selectedIndex == entryIndex,
-                          colorScheme: colorScheme,
-                          onTap: () {
-                            Navigator.pop(sheetContext);
-                            setState(() {
-                              _selectedIndex = entryIndex;
-                            });
-                          },
-                        );
-                      },
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        );
-      },
     );
   }
 }
@@ -633,77 +481,6 @@ class _AppPageEntry {
     required this.page,
     this.mobileSecondary = false,
   });
-}
-
-/// Visual chip for the "More" bottom sheet grid.
-class _MoreSheetItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool selected;
-  final ColorScheme colorScheme;
-  final VoidCallback onTap;
-
-  const _MoreSheetItem({
-    required this.icon,
-    required this.label,
-    required this.selected,
-    required this.colorScheme,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color:
-          selected
-              ? colorScheme.primaryContainer
-              : colorScheme.surfaceContainerHigh,
-      borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          child: Row(
-            children: [
-              Icon(
-                icon,
-                size: 22,
-                color:
-                    selected
-                        ? colorScheme.onPrimaryContainer
-                        : colorScheme.onSurfaceVariant,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                    color:
-                        selected
-                            ? colorScheme.onPrimaryContainer
-                            : colorScheme.onSurface,
-                  ),
-                ),
-              ),
-              Icon(
-                Icons.chevron_right,
-                size: 18,
-                color:
-                    selected
-                        ? colorScheme.onPrimaryContainer
-                        : colorScheme.onSurfaceVariant,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 class _OfflineTokenPage extends StatefulWidget {
@@ -790,7 +567,10 @@ class _OfflineTokenPageState extends State<_OfflineTokenPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(context.tr.bot_settings_token_title)),
+      appBar: AppBar(
+        title: Text(context.tr.bot_settings_token_title),
+        automaticallyImplyLeading: !ResponsiveHelper.isDesktopPlatform(),
+      ),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 560),
@@ -874,7 +654,10 @@ class _OfflineRecoveryPageState extends State<_OfflineRecoveryPage> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: Text(context.tr.recovery_title)),
+      appBar: AppBar(
+        title: Text(context.tr.recovery_title),
+        automaticallyImplyLeading: !ResponsiveHelper.isDesktopPlatform(),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

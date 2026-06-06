@@ -12760,6 +12760,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Dynamic numeric suggestions'**
   String get variable_autocomplete_numeric_title;
+
+  /// General tab in bot settings
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get bot_settings_tab_general;
+
+  /// Presence & status tab in bot settings
+  ///
+  /// In en, this message translates to:
+  /// **'Presence & Status'**
+  String get bot_settings_tab_presence;
+
+  /// Intents & privileges tab in bot settings
+  ///
+  /// In en, this message translates to:
+  /// **'Intents & Privileges'**
+  String get bot_settings_tab_intents;
+
+  /// Advanced & maintenance tab in bot settings
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced & Maintenance'**
+  String get bot_settings_tab_advanced;
+
+  /// Label for selected avatar image
+  ///
+  /// In en, this message translates to:
+  /// **'Selected image:'**
+  String get bot_settings_avatar_selected;
+
+  /// Placeholder when no new avatar image is selected
+  ///
+  /// In en, this message translates to:
+  /// **'No new image selected. Click Browse to choose one.'**
+  String get bot_settings_avatar_none_selected;
+
+  /// Important notice about profile change persistence
+  ///
+  /// In en, this message translates to:
+  /// **'Important: Profile changes (username and avatar) will only be applied to Discord when you click \'Save profile and statuses\' at the bottom.'**
+  String get bot_settings_avatar_important_note;
 }
 
 class _AppLocalizationsDelegate

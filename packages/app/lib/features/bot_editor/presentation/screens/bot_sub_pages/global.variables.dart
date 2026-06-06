@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nyxx/nyxx.dart' hide Builder;
 import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/core/utils/responsive.dart';
 
 enum _VariableMode { global, scoped }
 
@@ -1737,6 +1738,13 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
+        leading: !ResponsiveHelper.isDesktopPlatform()
+            ? IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: () => context.openParentDrawer(),
+              )
+            : null,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

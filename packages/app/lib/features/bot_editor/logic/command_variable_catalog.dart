@@ -322,6 +322,237 @@ const List<CommandVariableCatalogEntry> commandBuiltinVariableCatalog =
             'Root container for slash-command options and resolved values.',
         kind: VariableSuggestionKind.unknown,
       ),
+      // ── Bot ──
+      CommandVariableCatalogEntry(
+        name: 'bot.id',
+        description: 'Bot user ID.',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'bot.username',
+        description: 'Bot username.',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'bot.guildcount',
+        description: 'Number of servers the bot is in.',
+        kind: VariableSuggestionKind.numeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'bot.ping',
+        description: 'Bot latency in milliseconds.',
+        kind: VariableSuggestionKind.numeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'ping',
+        description: 'Bot latency in milliseconds.',
+        kind: VariableSuggestionKind.numeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'bot.uptime',
+        description: 'Time since the bot started.',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      // ── Common context ──
+      CommandVariableCatalogEntry(
+        name: 'timestamp',
+        description: 'Current Unix timestamp in seconds.',
+        kind: VariableSuggestionKind.numeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'actualtime',
+        description: 'Current date and time as text.',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      // ── Guild ──
+      CommandVariableCatalogEntry(
+        name: 'guild.id',
+        description: 'Server ID.',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'guild.icon',
+        description: 'Server icon URL.',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'guild.rolecount',
+        description: 'Number of roles in the server.',
+        kind: VariableSuggestionKind.numeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'guild.emojicount',
+        description: 'Number of custom server emojis.',
+        kind: VariableSuggestionKind.numeric,
+      ),
+      // ── Channel ──
+      CommandVariableCatalogEntry(
+        name: 'channel.id',
+        description: 'Channel ID.',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'channel.mention',
+        description: 'Channel mention tag.',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'channel.position',
+        description: 'Channel position in the list.',
+        kind: VariableSuggestionKind.numeric,
+      ),
+      // ── Member ──
+      CommandVariableCatalogEntry(
+        name: 'member.id',
+        description: 'Member user ID.',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'member.displayname',
+        description: 'Member display name (nickname or username).',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'member.joinedat',
+        description: 'When the member joined the server.',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'member.roles',
+        description: 'List of role IDs the member has.',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'member.isadmin',
+        description: 'Whether the member is administrator.',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'member.permissions',
+        description: 'Computed permissions of the member.',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'member.mention',
+        description: 'Member mention tag.',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      // ── Author ──
+      CommandVariableCatalogEntry(
+        name: 'author.id',
+        description: 'Author user ID.',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'author.tag',
+        description: 'Author Discord tag.',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'author.displayName',
+        description: 'Author display name (nickname or username).',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'author.isBot',
+        description: 'Whether the author is a bot.',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'author.mention',
+        description: 'Author mention tag.',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      // ── User ──
+      CommandVariableCatalogEntry(
+        name: 'user.id',
+        description: 'User ID.',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'user.tag',
+        description: 'User Discord tag.',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'user.avatar',
+        description: 'User avatar URL.',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'user.banner',
+        description: 'User banner URL.',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'user.mention',
+        description: 'User mention tag.',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      // ── Message ──
+      CommandVariableCatalogEntry(
+        name: 'message.id',
+        description: 'Message ID.',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'message.content',
+        description: 'Full message text content.',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      // ── Runtime variables ──
+      CommandVariableCatalogEntry(
+        name: 'temp.<key>',
+        description: 'Temporary variable set during execution.',
+        kind: VariableSuggestionKind.unknown,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'global.<key>',
+        description: 'Global variable from the bot storage.',
+        kind: VariableSuggestionKind.unknown,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'scoped.<key>',
+        description: 'Scoped variable from the current context.',
+        kind: VariableSuggestionKind.unknown,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'arg.<key>',
+        description: 'Workflow argument passed at call time.',
+        kind: VariableSuggestionKind.unknown,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'action.<key>',
+        description: 'Output key of a previous action.',
+        kind: VariableSuggestionKind.unknown,
+      ),
+      // ── Event / workflow ──
+      CommandVariableCatalogEntry(
+        name: 'event.name',
+        description: 'Name of the event that triggered execution.',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'workflow.args',
+        description: 'Arguments passed to this workflow.',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      // ── Image compositing ──
+      CommandVariableCatalogEntry(
+        name: 'image.width',
+        description: 'Width of the composited image in pixels.',
+        kind: VariableSuggestionKind.numeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'image.height',
+        description: 'Height of the composited image in pixels.',
+        kind: VariableSuggestionKind.numeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'image.url',
+        description: 'Generated image URL after compositing.',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
     ];
 
 const List<String> commandTemplateReferenceVariables = <String>[

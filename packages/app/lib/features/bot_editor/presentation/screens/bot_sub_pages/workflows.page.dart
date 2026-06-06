@@ -19,6 +19,7 @@ import 'package:bot_creator_shared/bot_creator_shared.dart'
     show VariableCatalog, WorkflowEventDefinition, EventCatalog;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:bot_creator/core/utils/responsive.dart';
 
 class WorkflowsPage extends StatefulWidget {
   const WorkflowsPage({super.key, required this.botId});
@@ -1036,6 +1037,13 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
+        leading: !ResponsiveHelper.isDesktopPlatform()
+            ? IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: () => context.openParentDrawer(),
+              )
+            : null,
         title: Text(context.tr.workflows_title),
         actions: [
           IconButton(

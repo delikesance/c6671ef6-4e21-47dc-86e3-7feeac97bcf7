@@ -25,6 +25,8 @@ import 'package:bot_creator/features/components_v2/presentation/component_v2_bui
 import 'package:bot_creator/features/components_v2/presentation/component_v2_builder/modal_builder.dart';
 import 'package:bot_creator/features/components_v2/presentation/component_v2_builder/normal_component_editor.dart';
 import 'package:bot_creator/core/models/types/app_emoji.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/permission_flags_field.dart';
+import 'package:bot_creator_shared/utils/permission_flags.dart' show decomposePermissionBitmasks;
 import 'package:bot_creator/core/widgets/variable_text_field.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/response_embeds_editor.dart';
 import 'package:bot_creator/core/models/types/variable_suggestion.dart';
@@ -850,6 +852,30 @@ class ActionCard extends StatelessWidget {
     return fallback;
   }
 
+  /// Coerces a value into a Map<String, String> for permissionFlags.
+  ///
+  /// Handles backward compatibility: if the payload has only 'allow'/'deny'
+  /// integer bitmasks (old format), decomposes them into the permission
+  /// states map. Otherwise returns the existing map or an empty one.
+  Map<String, String> _coercePermissionFlagsValue(dynamic value) {
+    if (value is Map<String, String>) {
+      return value;
+    }
+    if (value is Map<String, dynamic>) {
+      return value.map((k, v) => MapEntry(k, v.toString()));
+    }
+    // Backward compat: if action has allow/deny but no permissions map
+    final actionParameters = action.parameters;
+    final allowStr = (actionParameters['allow'] ?? '0').toString();
+    final denyStr = (actionParameters['deny'] ?? '0').toString();
+    final allow = int.tryParse(allowStr) ?? 0;
+    final deny = int.tryParse(denyStr) ?? 0;
+    if (allow != 0 || deny != 0) {
+      return decomposePermissionBitmasks(allow, deny);
+    }
+    return const <String, String>{};
+  }
+
   Widget _buildParameterField(
     BuildContext context,
     ParameterDefinition paramDef,
@@ -994,245 +1020,62 @@ class ActionCard extends StatelessWidget {
         );
 
       case ParameterType.duration:
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    _formatParameterName(paramDef.key),
-                    style: const TextStyle(fontWeight: FontWeight.w500),
-                  ),
-                ),
-                if (_buildVariableIcon(context, paramDef.key, currentValue) case final icon?) icon,
-              ],
-            ),
-            const SizedBox(height: 4),
-            TextFormField(
-              key: _parameterInputKey(paramDef.key),
-              initialValue: (currentValue ?? paramDef.defaultValue).toString(),
-              decoration: InputDecoration(
-                hintText:
-                    _localizeHint(paramDef.hint) ??
-                    context.tr.action_hint_duration,
-                border: const OutlineInputBorder(),
-                isDense: true,
-                suffixText: 's/m/h/d',
-              ),
-              onChanged:
-                  (newValue) => onParameterChanged(paramDef.key, newValue),
-            ),
-            ..._buildVariableSuggestionsForParam(
-              paramKey: paramDef.key,
-              value: currentValue,
-            ),
-          ],
+        return VariableTextField(
+          key: _parameterInputKey(paramDef.key),
+          label: _formatParameterName(paramDef.key),
+          initialValue: (currentValue ?? paramDef.defaultValue).toString(),
+          hint: _localizeHint(paramDef.hint) ?? context.tr.action_hint_duration,
+          suggestions: variableSuggestions,
+          required: paramDef.required,
+          onChanged: (newValue) => onParameterChanged(paramDef.key, newValue),
         );
 
       case ParameterType.url:
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              _formatParameterName(paramDef.key),
-              style: const TextStyle(fontWeight: FontWeight.w500),
-            ),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    key: _parameterInputKey(paramDef.key),
-                    initialValue:
-                        (currentValue ?? paramDef.defaultValue).toString(),
-                    keyboardType: TextInputType.url,
-                    decoration: InputDecoration(
-                      hintText: _localizeHint(paramDef.hint) ??
-                          'https://example.com',
-                      border: const OutlineInputBorder(),
-                      isDense: true,
-                      prefixIcon: const Icon(Icons.link, size: 20),
-                    ),
-                    onChanged: (newValue) =>
-                        onParameterChanged(paramDef.key, newValue),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                IconButton(
-                  icon: const Icon(Icons.image_outlined),
-                  tooltip: 'Pick local image',
-                  onPressed: () async {
-                    try {
-                      final file = await FilePicker.pickFile(
-                        type: FileType.image,
-                      );
-                      if (file == null || file.path == null) return;
-                      final bytes = await File(file.path!).readAsBytes();
-                      if (bytes.isEmpty) return;
-                      final base64 = base64Encode(bytes);
-                      const mime = 'image/png';
-                      final dataUrl = 'data:$mime;base64,$base64';
-                      onParameterChanged(paramDef.key, dataUrl);
-                    } catch (_) {
-                      // File picker cancelled or error — ignore
-                    }
-                  },
-                ),
-                if (_buildVariableIcon(context, paramDef.key, currentValue) case final icon?) icon,
-              ],
-            ),
-            ..._buildVariableSuggestionsForParam(
-              paramKey: paramDef.key,
-              value: currentValue,
-            ),
-          ],
+        return VariableTextField(
+          key: _parameterInputKey(paramDef.key),
+          label: _formatParameterName(paramDef.key),
+          initialValue: (currentValue ?? paramDef.defaultValue).toString(),
+          hint: _localizeHint(paramDef.hint) ?? 'https://example.com',
+          suggestions: variableSuggestions,
+          required: paramDef.required,
+          onChanged: (newValue) => onParameterChanged(paramDef.key, newValue),
         );
 
       case ParameterType.userId:
       case ParameterType.channelId:
       case ParameterType.messageId:
       case ParameterType.roleId:
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    _formatParameterName(paramDef.key),
-                    style: const TextStyle(fontWeight: FontWeight.w500),
-                  ),
-                ),
-                if (_buildVariableIcon(context, paramDef.key, currentValue) case final icon?) icon,
-              ],
-            ),
-            const SizedBox(height: 4),
-            TextFormField(
-              key: _parameterInputKey(paramDef.key),
-              initialValue: (currentValue ?? paramDef.defaultValue).toString(),
-              decoration: InputDecoration(
-                hintText:
-                    _localizeHint(paramDef.hint) ??
-                    context.tr.action_hint_enter_type(paramDef.type.name),
-                border: const OutlineInputBorder(),
-                isDense: true,
-                prefixIcon: Icon(_getIconForIdType(paramDef.type), size: 20),
-              ),
-              onChanged:
-                  (newValue) => onParameterChanged(paramDef.key, newValue),
-            ),
-          ],
+        return VariableTextField(
+          key: _parameterInputKey(paramDef.key),
+          label: _formatParameterName(paramDef.key),
+          initialValue: (currentValue ?? paramDef.defaultValue).toString(),
+          hint: _localizeHint(paramDef.hint) ??
+              context.tr.action_hint_enter_type(paramDef.type.name),
+          suggestions: variableSuggestions,
+          required: paramDef.required,
+          onChanged: (newValue) => onParameterChanged(paramDef.key, newValue),
         );
 
       case ParameterType.emoji:
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              _formatParameterName(paramDef.key),
-              style: const TextStyle(fontWeight: FontWeight.w500),
-            ),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    key: _parameterInputKey(paramDef.key),
-                    initialValue:
-                        (currentValue ?? paramDef.defaultValue).toString(),
-                    decoration: InputDecoration(
-                      hintText:
-                          _localizeHint(paramDef.hint) ??
-                          context.tr.action_hint_emoji,
-                      border: const OutlineInputBorder(),
-                      isDense: true,
-                      prefixIcon: const Icon(Icons.emoji_emotions, size: 20),
-                    ),
-                    onChanged:
-                        (newValue) =>
-                            onParameterChanged(paramDef.key, newValue),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: AppTheme.grey),
-                    borderRadius: BorderRadius.circular(AppTheme.radiusXs),
-                  ),
-                  child: Text(
-                    currentValue?.toString() ?? '😀',
-                    style: const TextStyle(fontSize: 20),
-                  ),
-                ),
-              ],
-            ),
-            ..._buildVariableSuggestionsForParam(
-              paramKey: paramDef.key,
-              value: currentValue,
-            ),
-          ],
+        return VariableTextField(
+          key: _parameterInputKey(paramDef.key),
+          label: _formatParameterName(paramDef.key),
+          initialValue: (currentValue ?? paramDef.defaultValue).toString(),
+          hint: _localizeHint(paramDef.hint) ?? context.tr.action_hint_emoji,
+          suggestions: variableSuggestions,
+          required: paramDef.required,
+          onChanged: (newValue) => onParameterChanged(paramDef.key, newValue),
         );
 
       case ParameterType.color:
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    _formatParameterName(paramDef.key),
-                    style: const TextStyle(fontWeight: FontWeight.w500),
-                  ),
-                ),
-                if (_buildVariableIcon(context, paramDef.key, currentValue) case final icon?) icon,
-              ],
-            ),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    key: _parameterInputKey(paramDef.key),
-                    initialValue:
-                        (currentValue ?? paramDef.defaultValue).toString(),
-                    decoration: InputDecoration(
-                      hintText:
-                          _localizeHint(paramDef.hint) ??
-                          context.tr.action_hint_color,
-                      border: const OutlineInputBorder(),
-                      isDense: true,
-                      prefixIcon: const Icon(Icons.color_lens, size: 20),
-                    ),
-                    onChanged:
-                        (newValue) =>
-                            onParameterChanged(paramDef.key, newValue),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                InkWell(
-                  borderRadius: BorderRadius.circular(AppTheme.radiusXs),
-                  onTap:
-                      () => _showColorPicker(context, paramDef, currentValue),
-                  child: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: _parseColor(currentValue?.toString() ?? '#000000'),
-                      border: Border.all(color: AppTheme.grey),
-                      borderRadius: BorderRadius.circular(AppTheme.radiusXs),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            ..._buildVariableSuggestionsForParam(
-              paramKey: paramDef.key,
-              value: currentValue,
-            ),
-          ],
+        return VariableTextField(
+          key: _parameterInputKey(paramDef.key),
+          label: _formatParameterName(paramDef.key),
+          initialValue: (currentValue ?? paramDef.defaultValue).toString(),
+          hint: _localizeHint(paramDef.hint) ?? context.tr.action_hint_color,
+          suggestions: variableSuggestions,
+          required: paramDef.required,
+          onChanged: (newValue) => onParameterChanged(paramDef.key, newValue),
         );
 
       case ParameterType.map:
@@ -1471,6 +1314,15 @@ class ActionCard extends StatelessWidget {
           onChanged: (newValue) => onParameterChanged(paramDef.key, newValue),
         );
 
+      case ParameterType.permissionFlags:
+        return PermissionFlagsField(
+          label: _formatParameterName(paramDef.key),
+          currentValue: _coercePermissionFlagsValue(currentValue),
+          hint: _localizeHint(paramDef.hint),
+          onChanged: (newValue) =>
+              onParameterChanged(paramDef.key, newValue),
+        );
+
       default: // ParameterType.string and ParameterType.url and others
         if (paramDef.type == ParameterType.string &&
             paramDef.key == 'workflowName' &&
@@ -1601,26 +1453,15 @@ class ActionCard extends StatelessWidget {
           );
         }
 
-        return _TextParameterField(
+        return VariableTextField(
           key: _parameterInputKey(paramDef.key),
-          paramDef: paramDef,
-          currentValue: currentValue,
-          onParameterChanged: onParameterChanged,
-          onSuggestionSelected: onSuggestionSelected,
-          variableSuggestions: variableSuggestions,
-          paramKey: paramDef.key,
-          buildVariableSuggestions: ({
-            required String paramKey,
-            required dynamic value,
-          }) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: _buildVariableSuggestionsForParam(
-                paramKey: paramKey,
-                value: value,
-              ),
-            );
-          },
+          label: _formatParameterName(paramDef.key),
+          initialValue: (currentValue ?? paramDef.defaultValue).toString(),
+          hint: _localizeHint(paramDef.hint),
+          suggestions: variableSuggestions,
+          required: paramDef.required,
+          maxLines: paramDef.key.toLowerCase().contains('content') ? 3 : 1,
+          onChanged: (newValue) => onParameterChanged(paramDef.key, newValue),
         );
     }
   }
