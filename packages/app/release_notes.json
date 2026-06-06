@@ -2,9 +2,5 @@
     {
         "language": "en-US",
         "text": "Bug fixes and performance improvements.\n\nThis update includes CocoaPods build fixes for macOS and general stability improvements."
-    },
-    {
-        "language": "fr-FR",
-        "text": "Corrections de bugs et améliorations de performances.\n\nCette mise à jour inclut des corrections de build CocoaPods pour macOS et des améliorations générales de stabilité."
     }
 ]
