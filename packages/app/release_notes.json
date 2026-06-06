@@ -1,0 +1,6 @@
+[
+    {
+        "language": "en-US",
+        "text": "Bug fixes and performance improvements.\n\nThis update includes CocoaPods build fixes for macOS and general stability improvements."
+    }
+]
