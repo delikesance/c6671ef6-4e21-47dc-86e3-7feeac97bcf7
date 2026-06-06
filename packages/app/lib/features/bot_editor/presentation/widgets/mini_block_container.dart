@@ -105,7 +105,12 @@ class AddSectionMenu extends StatelessWidget {
                         children: [
                           Icon(s.$2, size: 18),
                           const SizedBox(width: 8),
-                          Text(s.$3),
+                          Flexible(
+                            child: Text(
+                              s.$3,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
                         ],
                       ),
                     ),

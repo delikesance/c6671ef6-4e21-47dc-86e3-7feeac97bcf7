@@ -9250,5 +9250,33 @@
   "variable_autocomplete_numeric_title": "Dynamic numeric suggestions",
   "@variable_autocomplete_numeric_title": {
     "description": "Dynamic numeric suggestions"
+  },
+  "bot_settings_tab_general": "General",
+  "@bot_settings_tab_general": {
+    "description": "General tab in bot settings"
+  },
+  "bot_settings_tab_presence": "Presence & Status",
+  "@bot_settings_tab_presence": {
+    "description": "Presence & status tab in bot settings"
+  },
+  "bot_settings_tab_intents": "Intents & Privileges",
+  "@bot_settings_tab_intents": {
+    "description": "Intents & privileges tab in bot settings"
+  },
+  "bot_settings_tab_advanced": "Advanced & Maintenance",
+  "@bot_settings_tab_advanced": {
+    "description": "Advanced & maintenance tab in bot settings"
+  },
+  "bot_settings_avatar_selected": "Selected image:",
+  "@bot_settings_avatar_selected": {
+    "description": "Label for selected avatar image"
+  },
+  "bot_settings_avatar_none_selected": "No new image selected. Click Browse to choose one.",
+  "@bot_settings_avatar_none_selected": {
+    "description": "Placeholder when no new avatar image is selected"
+  },
+  "bot_settings_avatar_important_note": "Important: Profile changes (username and avatar) will only be applied to Discord when you click 'Save profile and statuses' at the bottom.",
+  "@bot_settings_avatar_important_note": {
+    "description": "Important notice about profile change persistence"
   }
 }

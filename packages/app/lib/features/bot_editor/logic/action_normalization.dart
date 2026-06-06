@@ -1,4 +1,6 @@
 import 'package:bot_creator_shared/types/action.dart' show BotCreatorActionType;
+import 'package:bot_creator_shared/utils/permission_flags.dart'
+    show computeAllowBitmask, computeDenyBitmask;
 
 /// Mapping from visual canvas block types to their runtime operation names.
 const _canvasBlockToOp = <BotCreatorActionType, String>{
@@ -51,12 +53,16 @@ Map<String, dynamic> purgeActionPayloadStrict(
     final keysToKeep = {
       'channelId',
       'components',
+      'componentV2',
       'attachments',
       'ephemeral',
       'visibility',
       'key',
+      'messageMode',
     };
     payload.removeWhere((key, value) => !keysToKeep.contains(key));
+    // Ensure messageMode is set so sendMessageToChannel picks up components.
+    payload['messageMode'] = 'componentV2';
   } else if (type == BotCreatorActionType.respondWithModal) {
     // Only keep modal related fields
     final keysToKeep = {'modal', 'key'};
@@ -161,6 +167,29 @@ Map<String, dynamic> purgeActionPayloadStrict(
     } else {
       // No nested actions — keep operations as-is or empty
       payload['operations'] = <Map<String, dynamic>>[];
+    }
+  }
+
+  // ── Permission Flags → allow/deny bitmask conversion ──
+  if (type == BotCreatorActionType.editChannelPermissions) {
+    final permStates = payload['permissions'];
+    if (permStates is Map) {
+      final allowKeys = <String>{};
+      final denyKeys = <String>{};
+      permStates.forEach((key, value) {
+        final state = value.toString();
+        if (state == 'allow') {
+          allowKeys.add(key.toString());
+        } else if (state == 'deny') {
+          denyKeys.add(key.toString());
+        }
+      });
+      payload['allow'] = computeAllowBitmask(allowKeys).toString();
+      payload['deny'] = computeDenyBitmask(denyKeys).toString();
+    } else if (payload['permissions'] == null) {
+      // No permissions specified — default to 0
+      payload['allow'] ??= '0';
+      payload['deny'] ??= '0';
     }
   }
 

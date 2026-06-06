@@ -638,10 +638,40 @@ class MainApiClient implements RemoteRuntimeClient {
       return;
     }
 
-    await _postFirstAvailable(
-      const <String>['/gateway/bots/sync', '/bots/sync'],
-      <String, dynamic>{'botId': botId, 'botName': botName, 'config': config},
-    );
+    try {
+      // 1. Get presigned ticket
+      final ticket = await presignBotConfig(botId: botId);
+      
+      // 2. Upload config JSON to the presigned uploadUrl
+      final configJsonBytes = utf8.encode(jsonEncode(config));
+      await uploadFileToPresignedUrl(
+        uploadUrl: ticket.uploadUrl,
+        fileBytes: configJsonBytes,
+        contentType: 'application/json',
+      );
+
+      // 3. Call sync endpoint with configUrl
+      await _postFirstAvailable(
+        const <String>['/gateway/bots/sync', '/bots/sync'],
+        <String, dynamic>{
+          'botId': botId,
+          'botName': botName,
+          'configUrl': ticket.configUrl,
+        },
+      );
+    } catch (error) {
+      debugPrint('[MainApiClient] Presigned config upload failed: $error. Falling back to legacy direct sync.');
+      
+      // Fallback: legacy direct POST sync
+      await _postFirstAvailable(
+        const <String>['/gateway/bots/sync', '/bots/sync'],
+        <String, dynamic>{
+          'botId': botId,
+          'botName': botName,
+          'config': config,
+        },
+      );
+    }
 
     _lastSyncedHashes[cacheKey] = currentHash;
     _evictOldestHashEntries(_lastSyncedHashes);
@@ -1166,6 +1196,50 @@ class MainApiClient implements RemoteRuntimeClient {
       scopes: scopes,
     );
   }
+
+  Future<PresignBotConfigResponse> presignBotConfig({String? botId}) async {
+    final body = <String, dynamic>{
+      if (botId != null && botId.trim().isNotEmpty) 'botId': botId.trim(),
+    };
+    final json = await _post('/gateway/bots/presign-config', body);
+    return PresignBotConfigResponse.fromJson(json);
+  }
+
+  Future<PresignUploadFileResponse> presignUploadFile({
+    required String filename,
+    required String contentType,
+    required int sizeBytes,
+  }) async {
+    final body = <String, dynamic>{
+      'filename': filename,
+      'contentType': contentType,
+      'size': sizeBytes,
+    };
+    final json = await _post('/storage/presign', body);
+    return PresignUploadFileResponse.fromJson(json);
+  }
+
+  Future<void> uploadFileToPresignedUrl({
+    required String uploadUrl,
+    required List<int> fileBytes,
+    required String contentType,
+  }) async {
+    final uri = Uri.parse(uploadUrl);
+    final response = await _http.put(
+      uri,
+      headers: <String, String>{
+        'content-type': contentType,
+      },
+      body: fileBytes,
+    ).timeout(_timeout);
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw MainApiClientException(
+        'Failed to upload file to storage: ${response.statusCode} - ${response.reasonPhrase}',
+        statusCode: response.statusCode,
+      );
+    }
+  }
 }
 
 bool _isNotFound(MainApiClientException error) {
@@ -1233,4 +1307,44 @@ Map<String, dynamic>? _extractMap(
 String? _normalize(String? value) {
   final trimmed = value?.trim() ?? '';
   return trimmed.isEmpty ? null : trimmed;
+}
+
+class PresignBotConfigResponse {
+  final String botId;
+  final String configUrl;
+  final String uploadUrl;
+
+  const PresignBotConfigResponse({
+    required this.botId,
+    required this.configUrl,
+    required this.uploadUrl,
+  });
+
+  factory PresignBotConfigResponse.fromJson(Map<String, dynamic> json) {
+    return PresignBotConfigResponse(
+      botId: (json['botId'] ?? '').toString(),
+      configUrl: (json['configUrl'] ?? '').toString(),
+      uploadUrl: (json['uploadUrl'] ?? '').toString(),
+    );
+  }
+}
+
+class PresignUploadFileResponse {
+  final String fileId;
+  final String objectKey;
+  final String uploadUrl;
+
+  const PresignUploadFileResponse({
+    required this.fileId,
+    required this.objectKey,
+    required this.uploadUrl,
+  });
+
+  factory PresignUploadFileResponse.fromJson(Map<String, dynamic> json) {
+    return PresignUploadFileResponse(
+      fileId: (json['file_id'] ?? '').toString(),
+      objectKey: (json['object_key'] ?? '').toString(),
+      uploadUrl: (json['upload_url'] ?? '').toString(),
+    );
+  }
 }

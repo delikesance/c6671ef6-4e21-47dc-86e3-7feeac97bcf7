@@ -242,10 +242,27 @@ abstract final class AppTheme {
       ),
       // ── Input Decoration ──
       inputDecorationTheme: InputDecorationTheme(
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radiusSm),
+        filled: true,
+        fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: spacingLg,
+          vertical: spacingLg,
         ),
-        isDense: true,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(radiusMd),
+          borderSide: BorderSide(color: colorScheme.outlineVariant),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(radiusMd),
+          borderSide: BorderSide(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(radiusMd),
+          borderSide: BorderSide(color: colorScheme.primary, width: 2),
+        ),
+        isDense: false,
       ),
       // ── Chips ──
       chipTheme: ChipThemeData(
@@ -265,15 +282,28 @@ abstract final class AppTheme {
 
   /// Thème sombre Material 3 avec seed color brand.
   static ThemeData darkTheme() {
-    final colorScheme = ColorScheme.fromSeed(
+    final baseScheme = ColorScheme.fromSeed(
       seedColor: brandPrimary,
       brightness: Brightness.dark,
+    );
+
+    final colorScheme = baseScheme.copyWith(
+      surface: const Color(0xFF2B2D31),
+      onSurface: const Color(0xFFF2F3F5),
+      surfaceContainer: const Color(0xFF2B2D31),
+      surfaceContainerLow: const Color(0xFF1E1F22),
+      surfaceContainerHigh: const Color(0xFF313338),
+      surfaceContainerHighest: const Color(0xFF35363C),
+      outline: const Color(0xFF404249),
+      outlineVariant: const Color(0xFF4E5058),
     );
 
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
       brightness: Brightness.dark,
+      scaffoldBackgroundColor: const Color(0xFF1E1F22),
+      canvasColor: const Color(0xFF1E1F22),
       // ── AppBar ──
       appBarTheme: AppBarTheme(
         centerTitle: true,
@@ -321,10 +351,25 @@ abstract final class AppTheme {
       ),
       // ── Input Decoration ──
       inputDecorationTheme: InputDecorationTheme(
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radiusSm),
+        filled: true,
+        fillColor: const Color(0xFF1E1F22),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: spacingLg,
+          vertical: spacingLg,
         ),
-        isDense: true,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(radiusMd),
+          borderSide: const BorderSide(color: Color(0xFF404249)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(radiusMd),
+          borderSide: const BorderSide(color: Color(0xFF404249)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(radiusMd),
+          borderSide: BorderSide(color: colorScheme.primary, width: 2),
+        ),
+        isDense: false,
       ),
       // ── Chips ──
       chipTheme: ChipThemeData(

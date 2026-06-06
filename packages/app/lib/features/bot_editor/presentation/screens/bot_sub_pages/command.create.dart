@@ -7,25 +7,26 @@ import 'package:flutter/foundation.dart';
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
-import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder.response.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command_option_serialization.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command_option_validation.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/workflow_docs.page.dart';
 import 'package:bot_creator/core/models/types/app_emoji.dart';
 import 'package:bot_creator_shared/types/action.dart' show BotCreatorActionType;
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder/action_type_extension.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder/action_types.dart' show ActionItem;
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder.response.dart' show ActionsBuilderPage;
+import 'package:bot_creator/features/bot_editor/logic/embed_normalization.dart' show normalizeResponseEmbedsPayload;
 import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/features/bot_editor/logic/app_emoji_api.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
   import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
 import 'package:bot_creator/features/bot_editor/logic/command_variable_catalog.dart';
-import 'package:bot_creator/features/bot_editor/logic/embed_normalization.dart';
 import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
-import 'package:bot_creator_shared/utils/command_migration.dart' show migrateCommandDataResponsePermanently;
 import 'package:bot_creator/features/bot_editor/presentation/screens/bdfd_editor_page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/option_widget.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/command_create_cards/basic_info_card.dart';
@@ -120,14 +121,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   String _commandDescription = "";
   ApplicationCommandType _commandType = ApplicationCommandType.chatInput;
   List<CommandOptionBuilder> _options = [];
-  String _response = "";
-  final TextEditingController _responseController = TextEditingController();
-  String _responseType = 'message';
-  List<Map<String, dynamic>> _responseEmbeds = [];
-  Map<String, dynamic> _responseComponents = {};
-  Map<String, dynamic> _responseModal = {};
   List<Map<String, dynamic>> _actions = [];
-  Map<String, dynamic> _responseWorkflow = _defaultWorkflow();
   Set<String> _persistedGlobalVariableNames = <String>{};
   Set<String> _scopedVariableSuggestionNames = {
     'guild.key',
@@ -167,35 +161,8 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   Map<String, Map<String, dynamic>> _subcommandWorkflows =
       <String, Map<String, dynamic>>{};
   String _activeSubcommandRoute = _rootWorkflowRoute;
-  bool _isApplyingWorkflowPayload = false;
   int _currentEditorStep = 0;
   String _initialEditSnapshot = '';
-
-  static Map<String, dynamic> _defaultWorkflow() {
-    return {
-      'workflowMode': 'visual',
-      'bdfdScriptContent': '',
-      'autoDeferIfActions': true,
-      'visibility': 'public',
-      'onError': 'edit_error',
-      'conditional': {
-        'enabled': false,
-        'variable': '',
-        'whenTrueType': 'message',
-        'whenFalseType': 'message',
-        'whenTrueText': '',
-        'whenFalseText': '',
-        'whenTrueEmbeds': <Map<String, dynamic>>[],
-        'whenFalseEmbeds': <Map<String, dynamic>>[],
-        'whenTrueNormalComponents': <String, dynamic>{},
-        'whenFalseNormalComponents': <String, dynamic>{},
-        'whenTrueComponents': <String, dynamic>{},
-        'whenFalseComponents': <String, dynamic>{},
-        'whenTrueModal': <String, dynamic>{},
-        'whenFalseModal': <String, dynamic>{},
-      },
-    };
-  }
 
   bool get _isSimpleMode => false;
 
@@ -218,17 +185,6 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
 
   void _promoteSimpleModeDraftIfNeeded(String persistedEditorMode) {
     _editorMode = _editorModeAdvanced;
-  }
-
-  void _normalizeLegacySimpleResponseType() {
-    if (_responseType != 'ephemeral') {
-      return;
-    }
-    _responseType = 'message';
-    _responseWorkflow = _normalizeWorkflow({
-      ..._responseWorkflow,
-      'visibility': 'ephemeral',
-    });
   }
 
   void _refreshBdfdCompileResult({bool notify = true}) {
@@ -358,51 +314,19 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     );
   }
 
-  Map<String, dynamic> _buildResponsePayloadFromEditor() {
-    return {
-      'mode': _responseType,
-      'type': _responseType == 'componentV2' ? 'componentV2' : 'normal',
-      'text': _responseController.text,
-      'embeds': _cloneJsonListOfMaps(_responseEmbeds.take(10).toList()),
-      'components': _cloneJsonMap(_responseComponents),
-      'modal': _cloneJsonMap(_responseModal),
-      'workflow': _normalizeWorkflow(_cloneJsonMap(_responseWorkflow)),
-    };
-  }
-
   Map<String, dynamic> _buildCurrentWorkflowPayload() {
     return {
-      'response': _buildResponsePayloadFromEditor(),
       'actions': _cloneJsonListOfMaps(_actions),
     };
   }
 
   Map<String, dynamic> _buildDefaultWorkflowPayload() {
     return {
-      'response': {
-        'mode': 'text',
-        'type': 'message',
-        'text': '',
-        'embed': {'title': '', 'description': '', 'url': ''},
-        'embeds': <Map<String, dynamic>>[],
-        'components': <String, dynamic>{},
-        'modal': <String, dynamic>{},
-        'workflow': _defaultWorkflow(),
-      },
       'actions': <Map<String, dynamic>>[],
     };
   }
 
   void _applyWorkflowPayloadToEditor(Map<String, dynamic> payload) {
-    final response = Map<String, dynamic>.from(
-      (payload['response'] as Map?)?.cast<String, dynamic>() ?? const {},
-    );
-
-    final embeds = normalizeResponseEmbedsPayload(
-      response['embeds'],
-      legacySingleEmbed: response['embed'],
-    );
-
     final actions = List<Map<String, dynamic>>.from(
       (payload['actions'] as List?)?.whereType<Map>().map(
             (entry) => Map<String, dynamic>.from(entry),
@@ -410,35 +334,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           const <Map<String, dynamic>>[],
     );
 
-    final text = (response['text'] ?? '').toString();
-    _isApplyingWorkflowPayload = true;
-    final mode = (response['mode'] ?? response['type'] ?? 'message').toString();
-    _responseType =
-        (mode == 'normal' ||
-                mode == 'text' ||
-                mode == 'embed' ||
-                mode == 'message')
-            ? 'message'
-            : mode;
-    _response = text;
-    if (_responseController.text != text) {
-      _responseController.text = text;
-    }
-    _responseEmbeds = embeds.take(10).toList(growable: false);
-    _responseComponents = Map<String, dynamic>.from(
-      (response['components'] as Map?)?.cast<String, dynamic>() ?? const {},
-    );
-    _responseModal = Map<String, dynamic>.from(
-      (response['modal'] as Map?)?.cast<String, dynamic>() ?? const {},
-    );
-    _responseWorkflow = _normalizeWorkflow(
-      Map<String, dynamic>.from(
-        (response['workflow'] as Map?)?.cast<String, dynamic>() ??
-            _defaultWorkflow(),
-      ),
-    );
     _actions = actions;
-    _isApplyingWorkflowPayload = false;
   }
 
   Map<String, Map<String, dynamic>> _normalizeStoredSubcommandWorkflows(
@@ -560,9 +456,6 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                       : (enabled) {
                         setState(() {
                           _legacyModeEnabled = enabled;
-                          if (_legacyModeEnabled && _responseType == 'modal') {
-                            _responseType = 'message';
-                          }
                         });
                       },
             ),
@@ -828,25 +721,14 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     if (widget.prefillName != null && widget.prefillName!.isNotEmpty) {
       _applyPrefillName(widget.prefillName!);
     }
-    _responseController.text = _response;
     _bdfdScriptController.text = _bdfdScriptContent;
     _refreshBdfdCompileResult(notify: false);
-    _responseController.addListener(() {
-      _response = _responseController.text;
-      if (!_isApplyingWorkflowPayload) {
-        _persistActiveSubcommandWorkflow();
-      }
-      if (!_isApplyingWorkflowPayload) {
-        _applyStateUpdate(() {});
-      }
-    });
     _init();
   }
 
   @override
   void dispose() {
     _editorNotifier.dispose();
-    _responseController.dispose();
     _bdfdScriptController.dispose();
     _folderController.dispose();
     super.dispose();
@@ -1523,15 +1405,6 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
               ? _editorModeSimple
               : _editorModeAdvanced;
 
-      final response = Map<String, dynamic>.from(
-        (normalizedData['response'] as Map?)?.cast<String, dynamic>() ??
-            const {},
-      );
-      final embeds = normalizeResponseEmbedsPayload(
-        response['embeds'],
-        legacySingleEmbed: response['embed'],
-      );
-
       _applyStateUpdate(() {
         _isLocalOnlyCommand = true;
         _commandName = (normalized['name'] ?? '').toString();
@@ -1564,29 +1437,6 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         if (!_supportsSimpleMode) {
           _editorMode = _editorModeAdvanced;
         }
-        _responseType =
-            (response['type'] == 'normal' || response['type'] == 'message')
-                ? 'message'
-                : (response['type'] ?? 'message').toString();
-        if (_legacyModeEnabled && _responseType == 'modal') {
-          _responseType = 'message';
-        }
-        _response = (response['text'] ?? '').toString();
-        _responseController.text = _response;
-        _responseEmbeds = embeds.take(10).toList();
-        _responseComponents = Map<String, dynamic>.from(
-          (response['components'] as Map?)?.cast<String, dynamic>() ?? const {},
-        );
-        _responseModal = Map<String, dynamic>.from(
-          (response['modal'] as Map?)?.cast<String, dynamic>() ?? const {},
-        );
-        _responseWorkflow = _normalizeWorkflow(
-          Map<String, dynamic>.from(
-            (response['workflow'] as Map?)?.cast<String, dynamic>() ??
-                _defaultWorkflow(),
-          ),
-        );
-        _normalizeLegacySimpleResponseType();
         _actions = List<Map<String, dynamic>>.from(
           (normalizedData['actions'] as List?)?.whereType<Map>().map(
                 (e) => Map<String, dynamic>.from(e),
@@ -1673,15 +1523,6 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                 ? _editorModeSimple
                 : _editorModeAdvanced;
 
-        final response = Map<String, dynamic>.from(
-          (normalizedData["response"] as Map?)?.cast<String, dynamic>() ??
-              const {},
-        );
-        final embeds = normalizeResponseEmbedsPayload(
-          response['embeds'],
-          legacySingleEmbed: response['embed'],
-        );
-
         if (!mounted) return;
         setState(() {
           _editorMode = editorMode;
@@ -1712,34 +1553,6 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           if (!_supportsSimpleMode) {
             _editorMode = _editorModeAdvanced;
           }
-          final loadedMode =
-              (response['mode'] ?? response['type'] ?? 'message').toString();
-          _responseType =
-              (loadedMode == 'normal' ||
-                      loadedMode == 'text' ||
-                      loadedMode == 'message')
-                  ? 'message'
-                  : loadedMode;
-          if (_legacyModeEnabled && _responseType == 'modal') {
-            _responseType = 'message';
-          }
-          _response = (response["text"] ?? "").toString();
-          _responseController.text = _response;
-          _responseEmbeds = embeds.take(10).toList();
-          _responseComponents = Map<String, dynamic>.from(
-            (response['components'] as Map?)?.cast<String, dynamic>() ??
-                const {},
-          );
-          _responseModal = Map<String, dynamic>.from(
-            (response['modal'] as Map?)?.cast<String, dynamic>() ?? const {},
-          );
-          _responseWorkflow = _normalizeWorkflow(
-            Map<String, dynamic>.from(
-              (response['workflow'] as Map?)?.cast<String, dynamic>() ??
-                  _defaultWorkflow(),
-            ),
-          );
-          _normalizeLegacySimpleResponseType();
           _actions = List<Map<String, dynamic>>.from(
             (normalizedData["actions"] as List?)?.whereType<Map>().map(
                   (e) => Map<String, dynamic>.from(e),

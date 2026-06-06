@@ -27,6 +27,7 @@
 /// ```
 library;
 
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
@@ -172,8 +173,16 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
 
   // ─── Image cache ───────────────────────────────────────────────────────
 
-  /// Loaded [ui.Image] objects keyed by their source URL.
-  final Map<String, ui.Image> _loadedImages = {};
+  /// Maximum number of [ui.Image] objects to keep in the preview cache.
+  static const _maxCachedImages = 15;
+  /// Maximum total pixel area (width × height) across all cached images.
+  /// A 1024×1024 image = ~1M pixels. Budget of 20M pixels ≈ ~20 such images.
+  static const _maxCachedPixelArea = 20 * 1000 * 1000;
+
+  /// Loaded [ui.Image] objects keyed by their source URL. Uses
+  /// [LinkedHashMap] for insertion-order iteration (LRU eviction).
+  final LinkedHashMap<String, ui.Image> _loadedImages = LinkedHashMap();
+  int _cachedPixelArea = 0;
 
   /// URLs currently being loaded (to avoid duplicate requests).
   final Set<String> _loadingUrls = {};
@@ -195,10 +204,7 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
 
   @override
   void dispose() {
-    for (final image in _loadedImages.values) {
-      image.dispose();
-    }
-    _loadedImages.clear();
+    _evictAllImages();
     super.dispose();
   }
 
@@ -254,6 +260,26 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
     }
   }
 
+  /// Evicts the least-recently-used (first-inserted) image from the cache.
+  void _evictLruOne() {
+    if (_loadedImages.isEmpty) return;
+    final firstKey = _loadedImages.keys.first;
+    final image = _loadedImages.remove(firstKey);
+    if (image != null) {
+      _cachedPixelArea -= image.width * image.height;
+      image.dispose();
+    }
+  }
+
+  /// Evicts and disposes all cached images.
+  void _evictAllImages() {
+    for (final image in _loadedImages.values) {
+      image.dispose();
+    }
+    _loadedImages.clear();
+    _cachedPixelArea = 0;
+  }
+
   /// Decodes an image from a data URL (base64) or HTTP URL into a [ui.Image].
   Future<void> _decodeImageFromUrl(String url) async {
     try {
@@ -281,7 +307,15 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
 
       if (mounted) {
         setState(() {
+          // Evict LRU entries if adding this would exceed limits.
+          final newPixels = image.width * image.height;
+          while (_loadedImages.isNotEmpty &&
+              (_loadedImages.length >= _maxCachedImages ||
+               _cachedPixelArea + newPixels > _maxCachedPixelArea)) {
+            _evictLruOne();
+          }
           _loadedImages[url] = image;
+          _cachedPixelArea += newPixels;
           _loadingUrls.remove(url);
         });
       }
@@ -307,11 +341,40 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
   /// Returns the operation index, or null if no hit.
   int? _hitTest(Offset canvasPos) {
     final ops = widget.operations;
+
+    // Build container registry for offset adjustment.
+    final containers = <String, _PreviewContainer>{};
+    for (final op in ops) {
+      if ((op['op'] ?? '') == 'container') {
+        final name = (op['name'] ?? '').toString().trim();
+        if (name.isNotEmpty) {
+          containers[name] = _PreviewContainer(
+            x: _parseDouble(op, 'x'),
+            y: _parseDouble(op, 'y'),
+            width: _parseDouble(op, 'width', 100),
+            height: _parseDouble(op, 'height', 100),
+          );
+        }
+      }
+    }
+
     // Iterate in reverse: last drawn is on top
     for (var i = ops.length - 1; i >= 0; i--) {
       if (widget.hiddenIndices.contains(i)) continue;
       final op = ops[i];
-      if (_hitTestOperation(canvasPos, op, i)) {
+
+      // Adjust click position by container offset so hit test uses
+      // container-relative coordinates.
+      final containerName = (op['container'] ?? '').toString().trim();
+      Offset adjustedPos = canvasPos;
+      if (containerName.isNotEmpty) {
+        final c = containers[containerName];
+        if (c != null) {
+          adjustedPos = canvasPos.translate(-c.x, -c.y);
+        }
+      }
+
+      if (_hitTestOperation(adjustedPos, op, i)) {
         return i;
       }
     }
@@ -323,6 +386,8 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
     switch (opType) {
       case 'create':
         return false; // Canvas background is not selectable
+      case 'container':
+        return _hitRect(pos, op);
       case 'drawRect':
         return _hitRect(pos, op);
       case 'drawCircle':
@@ -362,6 +427,7 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
     final x = _parseDouble(op, 'x');
     final y = _parseDouble(op, 'y');
     final fontSize = _parseDouble(op, 'fontSize', 14);
+    final maxWidth = _parseDouble(op, 'maxWidth', -1);
 
     // Measure text using TextPainter (same as the painter).
     // For variable placeholders, estimate bounds from the rendered badge.
@@ -371,9 +437,9 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
         style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.normal),
       ),
       textDirection: TextDirection.ltr,
-    )..layout();
+    )..layout(maxWidth: maxWidth > 0 ? maxWidth : double.infinity);
     return pos.dx >= x &&
-        pos.dx <= x + tp.width &&
+        pos.dx <= x + (maxWidth > 0 ? maxWidth : tp.width) &&
         pos.dy >= y &&
         pos.dy <= y + tp.height;
   }
@@ -434,6 +500,7 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
   Rect? _getBoundingBox(Map<String, dynamic> op) {
     final opType = (op['op'] ?? '').toString();
     switch (opType) {
+      case 'container':
       case 'drawRect':
         return Rect.fromLTWH(
           _parseDouble(op, 'x'),
@@ -452,14 +519,16 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
         final x = _parseDouble(op, 'x');
         final y = _parseDouble(op, 'y');
         final fontSize = _parseDouble(op, 'fontSize', 14);
+        final maxWidth = _parseDouble(op, 'maxWidth', -1);
         final tp = TextPainter(
           text: TextSpan(
             text: text,
             style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.normal),
           ),
           textDirection: TextDirection.ltr,
-        )..layout();
-        return Rect.fromLTWH(x, y, tp.width, tp.height);
+        )..layout(maxWidth: maxWidth > 0 ? maxWidth : double.infinity);
+        return Rect.fromLTWH(
+            x, y, maxWidth > 0 ? maxWidth : tp.width, tp.height);
       case 'drawLine':
         final x1 = _parseDouble(op, 'x1');
         final y1 = _parseDouble(op, 'y1');
@@ -657,11 +726,45 @@ class _CanvasPreviewPainter extends CustomPainter {
     }
 
     // Execute operations sequentially
+    // First pass: register containers so children can resolve offsets.
+    final containers = <String, _PreviewContainer>{};
+    for (var i = 0; i < operations.length; i++) {
+      final op = operations[i];
+      if ((op['op'] ?? '') == 'container') {
+        final name = (op['name'] ?? '').toString().trim();
+        if (name.isNotEmpty) {
+          containers[name] = _PreviewContainer(
+            x: _parseDouble(op, 'x'),
+            y: _parseDouble(op, 'y'),
+            width: _parseDouble(op, 'width', 100),
+            height: _parseDouble(op, 'height', 100),
+          );
+        }
+      }
+    }
+
     for (var i = 0; i < operations.length; i++) {
       if (hiddenIndices.contains(i)) continue;
       final op = operations[i];
       final opType = (op['op'] ?? '').toString();
+
+      // Resolve container-relative offset.
+      final containerName = (op['container'] ?? '').toString().trim();
+      double ox = 0, oy = 0;
+      if (containerName.isNotEmpty) {
+        final c = containers[containerName];
+        if (c != null) {
+          ox = c.x;
+          oy = c.y;
+          canvas.translate(ox, oy);
+        }
+      }
+
       _paintOperation(canvas, op, opType);
+
+      if (ox != 0 || oy != 0) {
+        canvas.translate(-ox, -oy);
+      }
     }
 
     // Draw selection highlight LAST (on top of everything)
@@ -669,7 +772,20 @@ class _CanvasPreviewPainter extends CustomPainter {
       final op = operations[selectedIndex!];
       final bounds = getBoundingBox(op);
       if (bounds != null) {
-        _paintSelectionHighlight(canvas, bounds);
+        // Adjust for container offset so highlight appears at correct position.
+        final containerName = (op['container'] ?? '').toString().trim();
+        double hx = 0, hy = 0;
+        if (containerName.isNotEmpty) {
+          final c = containers[containerName];
+          if (c != null) {
+            hx = c.x;
+            hy = c.y;
+          }
+        }
+        _paintSelectionHighlight(
+          canvas,
+          bounds.translate(hx, hy),
+        );
       }
     }
 
@@ -680,6 +796,9 @@ class _CanvasPreviewPainter extends CustomPainter {
     switch (op) {
       case 'create':
         break; // Background already drawn
+      case 'container':
+        _paintContainer(canvas, rawOp);
+        break;
       case 'drawRect':
         _paintDrawRect(canvas, rawOp);
         break;
@@ -708,13 +827,17 @@ class _CanvasPreviewPainter extends CustomPainter {
     final h = _parseDouble(op, 'height', 50);
     final color = _parseUiColor(op['color']) ?? const ui.Color(0xFFFFFFFF);
     final fill = _parseBool(op, 'fill', true);
+    final blend = (op['blend'] ?? '').toString().toLowerCase().trim();
 
     final paint = Paint()
       ..color = color
       ..style = fill ? PaintingStyle.fill : PaintingStyle.stroke
       ..strokeWidth = 1.0;
 
-    canvas.drawRect(Rect.fromLTWH(x, y, w, h), paint);
+    final rect = Rect.fromLTWH(x, y, w, h);
+    _drawWithBlend(canvas, rect, blend, () {
+      canvas.drawRect(rect, paint);
+    });
   }
 
   void _paintDrawCircle(Canvas canvas, Map<String, dynamic> op) {
@@ -723,13 +846,17 @@ class _CanvasPreviewPainter extends CustomPainter {
     final radius = _parseDouble(op, 'radius', 10);
     final color = _parseUiColor(op['color']) ?? const ui.Color(0xFFFFFFFF);
     final fill = _parseBool(op, 'fill', true);
+    final blend = (op['blend'] ?? '').toString().toLowerCase().trim();
 
     final paint = Paint()
       ..color = color
       ..style = fill ? PaintingStyle.fill : PaintingStyle.stroke
       ..strokeWidth = 1.0;
 
-    canvas.drawCircle(Offset(x, y), radius, paint);
+    final bounds = Rect.fromCircle(center: Offset(x, y), radius: radius);
+    _drawWithBlend(canvas, bounds, blend, () {
+      canvas.drawCircle(Offset(x, y), radius, paint);
+    });
   }
 
   void _paintDrawText(Canvas canvas, Map<String, dynamic> op) {
@@ -740,6 +867,9 @@ class _CanvasPreviewPainter extends CustomPainter {
     final y = _parseDouble(op, 'y');
     final fontSize = _parseDouble(op, 'fontSize', 14);
     final color = _parseUiColor(op['color']) ?? const ui.Color(0xFFFFFFFF);
+    final textAlignStr =
+        (op['textAlign'] ?? '').toString().toLowerCase().trim();
+    final maxWidth = _parseDouble(op, 'maxWidth', -1);
 
     if (text.contains('((')) {
       _paintVariableText(canvas, text, x, y, fontSize);
@@ -752,6 +882,13 @@ class _CanvasPreviewPainter extends CustomPainter {
         (color.g * 255).round().clamp(0, 255),
         (color.b * 255).round().clamp(0, 255));
 
+    TextAlign align = TextAlign.left;
+    if (textAlignStr == 'center') {
+      align = TextAlign.center;
+    } else if (textAlignStr == 'right') {
+      align = TextAlign.right;
+    }
+
     final textPainter = TextPainter(
       text: TextSpan(
         text: text,
@@ -761,9 +898,13 @@ class _CanvasPreviewPainter extends CustomPainter {
           fontWeight: FontWeight.normal,
         ),
       ),
+      textAlign: align,
       textDirection: TextDirection.ltr,
-    )..layout();
+    )..layout(maxWidth: maxWidth > 0 ? maxWidth : double.infinity);
 
+    // When maxWidth is set and alignment is center/right, the TextPainter
+    // handles alignment internally — but we still position the box at (x, y).
+    // For left-aligned text without maxWidth, it behaves as before.
     textPainter.paint(canvas, Offset(x, y));
   }
 
@@ -774,6 +915,7 @@ class _CanvasPreviewPainter extends CustomPainter {
     final y2 = _parseDouble(op, 'y2');
     final color = _parseUiColor(op['color']) ?? const ui.Color(0xFFFFFFFF);
     final thickness = _parseDouble(op, 'thickness', 1);
+    final blend = (op['blend'] ?? '').toString().toLowerCase().trim();
 
     final paint = Paint()
       ..color = color
@@ -781,7 +923,104 @@ class _CanvasPreviewPainter extends CustomPainter {
       ..strokeWidth = thickness
       ..strokeCap = StrokeCap.round;
 
-    canvas.drawLine(Offset(x1, y1), Offset(x2, y2), paint);
+    final bounds = Rect.fromPoints(Offset(x1, y1), Offset(x2, y2)).inflate(thickness);
+    _drawWithBlend(canvas, bounds, blend, () {
+      canvas.drawLine(Offset(x1, y1), Offset(x2, y2), paint);
+    });
+  }
+
+  /// Draws a container background (semi-transparent outline) to make the
+  /// container frame visible in the preview.
+  void _paintContainer(Canvas canvas, Map<String, dynamic> op) {
+    final x = _parseDouble(op, 'x');
+    final y = _parseDouble(op, 'y');
+    final w = _parseDouble(op, 'width', 100);
+    final h = _parseDouble(op, 'height', 100);
+    final color = _parseUiColor(op['color']);
+
+    final rect = Rect.fromLTWH(x, y, w, h);
+
+    // Semi-transparent fill
+    if (color != null) {
+      canvas.drawRect(
+        rect,
+        Paint()..color = ui.Color((color.toARGB32() & 0x00FFFFFF) | 0x22000000),
+      );
+    }
+
+    // Dashed border to distinguish from regular rectangles
+    final borderPaint = Paint()
+      ..color = color != null
+          ? ui.Color((color.toARGB32() & 0x00FFFFFF) | 0x66000000)
+          : const ui.Color(0x664285F4)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.0;
+
+    final path = Path()..addRect(rect);
+    canvas.drawPath(_dashPath(path, dashLength: 8, gapLength: 4), borderPaint);
+
+    // Draw container name label if present
+    final name = (op['name'] ?? '').toString().trim();
+    if (name.isNotEmpty) {
+      final tp = TextPainter(
+        text: TextSpan(
+          text: name,
+          style: TextStyle(
+            color: Color.fromARGB(
+              180,
+              borderPaint.color.r.toInt(),
+              borderPaint.color.g.toInt(),
+              borderPaint.color.b.toInt(),
+            ),
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      tp.paint(canvas, Offset(x + 4, y + 2));
+    }
+  }
+
+  /// Wraps [drawFn] in a [canvas.saveLayer] with the given blend mode.
+  ///
+  /// When [blend] is empty or 'normal', draws directly without a layer
+  /// (no performance overhead). Otherwise creates a temporary offscreen
+  /// layer using the corresponding Flutter [BlendMode] and composites it.
+  void _drawWithBlend(Canvas canvas, Rect bounds, String blend,
+      void Function() drawFn) {
+    final blendMode = _parseFlutterBlendMode(blend);
+    if (blendMode == null) {
+      drawFn();
+      return;
+    }
+    canvas.saveLayer(bounds, Paint()..blendMode = blendMode);
+    drawFn();
+    canvas.restore();
+  }
+
+  /// Maps a string blend mode name to a Flutter [BlendMode].
+  ui.BlendMode? _parseFlutterBlendMode(String blend) {
+    switch (blend) {
+      case 'multiply':
+        return ui.BlendMode.multiply;
+      case 'screen':
+        return ui.BlendMode.screen;
+      case 'overlay':
+        return ui.BlendMode.overlay;
+      case 'darken':
+        return ui.BlendMode.darken;
+      case 'lighten':
+        return ui.BlendMode.lighten;
+      case 'difference':
+        return ui.BlendMode.difference;
+      case 'hardlight':
+        return ui.BlendMode.hardLight;
+      case 'softlight':
+        return ui.BlendMode.softLight;
+      default:
+        return null;
+    }
   }
 
   void _paintImagePlaceholder(Canvas canvas, Map<String, dynamic> op) {
@@ -1243,6 +1482,20 @@ class _PlaceholderSegment {
   const _PlaceholderSegment({
     required this.text,
     required this.isPlaceholder,
+  });
+}
+
+/// Container metadata for relative positioning in the preview painter.
+class _PreviewContainer {
+  final double x;
+  final double y;
+  final double width;
+  final double height;
+  const _PreviewContainer({
+    required this.x,
+    required this.y,
+    required this.width,
+    required this.height,
   });
 }
 

@@ -76,9 +76,14 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
 
   // ── Undo/Redo ──────────────────────────────────────────────────────────
 
-  static const _maxHistory = 50;
+  static const _maxHistory = 30;
+  /// Maximum total bytes across all history entries. When exceeded, the
+  /// oldest entries are evicted before adding new ones.
+  static const _maxHistoryBytes = 20 * 1024 * 1024; // 20 MB
   final List<List<Map<String, dynamic>>> _history = [];
+  final List<int> _historyByteSizes = [];
   int _historyIndex = -1;
+  int _totalHistoryBytes = 0;
 
   /// Per-field [TextEditingController]s so the properties panel reflects
   /// real-time position updates from canvas drag gestures.
@@ -112,15 +117,33 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
   // ── Undo/Redo History ─────────────────────────────────────────────────
 
   void _pushHistory() {
+    // Estimate byte size of the current operations list.
+    final byteSize = _estimateByteSize(_operations);
+
     if (_historyIndex < _history.length - 1) {
+      // Discard redo history beyond the current point.
+      var removedBytes = 0;
+      for (var i = _historyIndex + 1; i < _historyByteSizes.length; i++) {
+        removedBytes += _historyByteSizes[i];
+      }
       _history.removeRange(_historyIndex + 1, _history.length);
+      _historyByteSizes.removeRange(_historyIndex + 1, _historyByteSizes.length);
+      _totalHistoryBytes -= removedBytes;
     }
+
     _history.add(_operations
         .map((op) => Map<String, dynamic>.from(op))
         .toList());
+    _historyByteSizes.add(byteSize);
     _historyIndex = _history.length - 1;
-    while (_history.length > _maxHistory) {
+    _totalHistoryBytes += byteSize;
+
+    // Evict oldest entries when exceeding count or byte budget.
+    while (_history.length > _maxHistory ||
+        (_totalHistoryBytes > _maxHistoryBytes && _historyIndex > 0)) {
+      _totalHistoryBytes -= _historyByteSizes.first;
       _history.removeAt(0);
+      _historyByteSizes.removeAt(0);
       _historyIndex--;
     }
   }
@@ -207,6 +230,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
         offset: const Offset(0, 40),
         itemBuilder: (context) => [
           const PopupMenuItem(value: 'create', child: Text('Create Canvas')),
+          const PopupMenuItem(value: 'container', child: Text('Container / Frame')),
           const PopupMenuItem(value: 'loadImage', child: Text('Load Image')),
           const PopupMenuItem(value: 'drawText', child: Text('Draw Text')),
           const PopupMenuItem(value: 'drawRect', child: Text('Draw Rectangle')),
@@ -1125,10 +1149,10 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
     /// so autocomplete suggestions appear immediately. On accept, inserts
     /// the selected variable into the operation map and syncs the prop controller.
     void showVariablePicker(String key) {
-      // Pre-populate with (( so suggestions appear immediately.
-      final vc = TextEditingController(text: '((');
-      // Place cursor after (( so the suggestions picker activates.
-      vc.selection = TextSelection.collapsed(offset: 2);
+      // Show current field value so the user can insert at cursor position.
+      final currentFieldValue = (op[key] ?? '').toString();
+      final vc = TextEditingController(text: currentFieldValue);
+      vc.selection = TextSelection.collapsed(offset: currentFieldValue.length);
 
       showDialog<String>(
         context: context,
@@ -1136,12 +1160,14 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
           title: const Text('Insert Variable'),
           content: SizedBox(
             width: 420,
+            height: 500,
             child: VariableTextField(
               label: 'Variable',
-              hint: 'Type to filter or tap a suggestion below',
+              hint: 'Type to filter, or tap a suggestion below',
               suggestions: widget.variableSuggestions,
               controller: vc,
               onChanged: (_) {},
+              alwaysShowSuggestions: true,
             ),
           ),
           actions: [
@@ -1150,13 +1176,13 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
               child: const Text('Cancel'),
             ),
             FilledButton(
-              onPressed: () => Navigator.pop(ctx, vc.text.trim()),
+              onPressed: () => Navigator.pop(ctx, vc.text),
               child: const Text('Insert'),
             ),
           ],
         ),
       ).then((result) {
-        if (result != null && result.isNotEmpty) {
+        if (result != null) {
           mutate(() {
             op[key] = result;
             final ck = '$index.$key';
@@ -1197,7 +1223,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
     }
 
     void addField(String label, String key,
-        {String? hint, TextInputType? keyboardType, bool isColor = false, bool isUrl = false}) {
+        {String? hint, TextInputType? keyboardType, bool isColor = false, bool isUrl = false, void Function(String)? onSubmitted}) {
       final suffix = buildSuffix(key, isColor, isUrl);
 
       fields.add(Padding(
@@ -1223,8 +1249,70 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
               }
             });
           },
+          onFieldSubmitted: onSubmitted,
         ),
       ));
+    }
+
+    /// Finds a container by name in the current operations list and returns
+    /// its (x, y) position, or null if not found.
+    (double, double)? _findContainerPos(String name) {
+      if (name.isEmpty) return null;
+      for (final candidate in _operations) {
+        if ((candidate['op'] ?? '') == 'container' &&
+            (candidate['name'] ?? '').toString().trim() == name) {
+          final cx = double.tryParse((candidate['x'] ?? '0').toString()) ?? 0;
+          final cy = double.tryParse((candidate['y'] ?? '0').toString()) ?? 0;
+          return (cx, cy);
+        }
+      }
+      return null;
+    }
+
+    /// Converts operation coordinates to container-relative when the user
+    /// assigns or changes a container reference.
+    void _convertToRelative(String newContainerName, Map<String, dynamic> targetOp) {
+      final oldContainerName = (targetOp['container'] ?? '').toString().trim();
+      final newPos = _findContainerPos(newContainerName);
+      final opTypeKey = (targetOp['op'] ?? '').toString();
+
+      // Determine which position keys to convert based on operation type.
+      List<String> posKeys;
+      switch (opTypeKey) {
+        case 'drawLine':
+          posKeys = ['x1', 'y1', 'x2', 'y2'];
+          break;
+        default:
+          posKeys = ['x', 'y'];
+      }
+
+      // If switching FROM another container, convert back to absolute first.
+      if (oldContainerName.isNotEmpty) {
+        final oldPos = _findContainerPos(oldContainerName);
+        if (oldPos != null) {
+          for (final k in posKeys) {
+            final v = double.tryParse((targetOp[k] ?? '0').toString()) ?? 0;
+            targetOp[k] = (v + (k.contains('y') ? oldPos.$2 : oldPos.$1)).toStringAsFixed(0);
+          }
+        }
+      }
+
+      // Convert to new container-relative coordinates.
+      if (newPos != null && newContainerName.isNotEmpty) {
+        for (final k in posKeys) {
+          final v = double.tryParse((targetOp[k] ?? '0').toString()) ?? 0;
+          targetOp[k] = (v - (k.contains('y') ? newPos.$2 : newPos.$1)).toStringAsFixed(0);
+        }
+      }
+
+      // Sync prop controllers so the UI reflects the converted values.
+      for (final k in posKeys) {
+        final ck = '$index.$k';
+        final c = _propControllers[ck];
+        if (c != null) {
+          c.text = (targetOp[k] ?? '').toString();
+        }
+      }
     }
 
     switch (opType) {
@@ -1233,12 +1321,22 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
         addField('Height', 'height', hint: '600', keyboardType: TextInputType.number);
         addField('Background Color', 'color', hint: '#2c2f33', isColor: true);
         break;
+      case 'container':
+        addField('Name', 'name', hint: 'frame');
+        addField('X', 'x', hint: '0', keyboardType: TextInputType.number);
+        addField('Y', 'y', hint: '0', keyboardType: TextInputType.number);
+        addField('Width', 'width', hint: '200', keyboardType: TextInputType.number);
+        addField('Height', 'height', hint: '100', keyboardType: TextInputType.number);
+        addField('Color', 'color', hint: 'optional background', isColor: true);
+        break;
       case 'loadImage':
         addField('Image URL', 'url', hint: 'https://... or data:image/...', isUrl: true);
         addField('X', 'x', hint: '0', keyboardType: TextInputType.number);
         addField('Y', 'y', hint: '0', keyboardType: TextInputType.number);
         addField('Width', 'width', hint: 'auto (native size)', keyboardType: TextInputType.number);
         addField('Height', 'height', hint: 'auto (native size)', keyboardType: TextInputType.number);
+        addField('Container', 'container', hint: 'parent container name',
+            onSubmitted: (v) => _convertToRelative(v, op));
         break;
       case 'drawText':
         addField('Text', 'text', hint: 'Hello World');
@@ -1246,6 +1344,10 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
         addField('Y', 'y', hint: '200', keyboardType: TextInputType.number);
         addField('Font Size', 'fontSize', hint: '48', keyboardType: TextInputType.number);
         addField('Color', 'color', hint: 'white', isColor: true);
+        addField('Max Width', 'maxWidth', hint: 'container width for alignment', keyboardType: TextInputType.number);
+        addField('Text Align', 'textAlign', hint: 'left, center, or right');
+        addField('Container', 'container', hint: 'parent container name',
+            onSubmitted: (v) => _convertToRelative(v, op));
         break;
       case 'drawRect':
         addField('X', 'x', hint: '0', keyboardType: TextInputType.number);
@@ -1253,6 +1355,9 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
         addField('Width', 'width', hint: '100', keyboardType: TextInputType.number);
         addField('Height', 'height', hint: '100', keyboardType: TextInputType.number);
         addField('Color', 'color', hint: 'white', isColor: true);
+        addField('Blend', 'blend', hint: 'multiply, screen, overlay, or empty');
+        addField('Container', 'container', hint: 'parent container name',
+            onSubmitted: (v) => _convertToRelative(v, op));
         // Fill toggle
         fields.add(_buildCheckbox(op, 'fill', 'Fill', defaultValue: true, mutate: mutate));
         break;
@@ -1261,6 +1366,9 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
         addField('Y', 'y', hint: '200', keyboardType: TextInputType.number);
         addField('Radius', 'radius', hint: '50', keyboardType: TextInputType.number);
         addField('Color', 'color', hint: 'white', isColor: true);
+        addField('Blend', 'blend', hint: 'multiply, screen, overlay, or empty');
+        addField('Container', 'container', hint: 'parent container name',
+            onSubmitted: (v) => _convertToRelative(v, op));
         fields.add(_buildCheckbox(op, 'fill', 'Fill', defaultValue: true, mutate: mutate));
         break;
       case 'drawLine':
@@ -1270,6 +1378,9 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
         addField('Y2', 'y2', hint: '100', keyboardType: TextInputType.number);
         addField('Color', 'color', hint: 'white', isColor: true);
         addField('Thickness', 'thickness', hint: '1', keyboardType: TextInputType.number);
+        addField('Blend', 'blend', hint: 'multiply, screen, overlay, or empty');
+        addField('Container', 'container', hint: 'parent container name',
+            onSubmitted: (v) => _convertToRelative(v, op));
         break;
       case 'compositeImage':
         addField('Image URL', 'url', hint: 'https://... or data:image/...', isUrl: true);
@@ -1350,6 +1461,9 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
         defaults.addAll({'op': 'create', 'width': '800', 'height': '600', 'color': '#2c2f33'});
         _canvasError = null;
         break;
+      case 'container':
+        defaults.addAll({'op': 'container', 'name': 'frame', 'x': '0', 'y': '0', 'width': '200', 'height': '100', 'color': ''});
+        break;
       case 'loadImage':
         defaults.addAll({'op': 'loadImage', 'url': '', 'x': '0', 'y': '0', 'width': '', 'height': ''});
         break;
@@ -1357,13 +1471,13 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
         defaults.addAll({'op': 'drawText', 'text': 'Hello', 'x': '50', 'y': '200', 'fontSize': '48', 'color': 'white'});
         break;
       case 'drawRect':
-        defaults.addAll({'op': 'drawRect', 'x': '0', 'y': '0', 'width': '100', 'height': '100', 'color': 'white', 'fill': 'true'});
+        defaults.addAll({'op': 'drawRect', 'x': '0', 'y': '0', 'width': '100', 'height': '100', 'color': 'white', 'fill': 'true', 'blend': ''});
         break;
       case 'drawCircle':
-        defaults.addAll({'op': 'drawCircle', 'x': '200', 'y': '200', 'radius': '50', 'color': 'white', 'fill': 'true'});
+        defaults.addAll({'op': 'drawCircle', 'x': '200', 'y': '200', 'radius': '50', 'color': 'white', 'fill': 'true', 'blend': ''});
         break;
       case 'drawLine':
-        defaults.addAll({'op': 'drawLine', 'x1': '0', 'y1': '0', 'x2': '100', 'y2': '100', 'color': 'white', 'thickness': '1'});
+        defaults.addAll({'op': 'drawLine', 'x1': '0', 'y1': '0', 'x2': '100', 'y2': '100', 'color': 'white', 'thickness': '1', 'blend': ''});
         break;
       case 'compositeImage':
         defaults.addAll({'op': 'compositeImage', 'url': '', 'x': '0', 'y': '0', 'width': '100', 'height': '100', 'shape': '', 'blend': ''});
@@ -1380,7 +1494,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
   /// Move a drawable operation by the given canvas coordinate deltas.
   ///
   /// Updates the appropriate position fields based on the operation type:
-  /// - drawText, drawRect, drawCircle, loadImage: `x`, `y`
+  /// - container, drawText, drawRect, drawCircle, loadImage: `x`, `y`
   /// - drawLine: `x1`, `y1`, `x2`, `y2` (moves both endpoints)
   void _moveElementOnCanvas(int index, double dx, double dy) {
     if (index < 0 || index >= _operations.length) return;
@@ -1397,6 +1511,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
     }
 
     switch (opType) {
+      case 'container':
       case 'drawText':
       case 'drawRect':
       case 'drawCircle':
@@ -1451,6 +1566,27 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
 
   // ── Helpers ────────────────────────────────────────────────────────────
 
+  /// Estimates the approximate memory footprint of an operations list in bytes.
+  ///
+  /// Uses a conservative per-map overhead + sum of all string lengths. Not
+  /// exact, but good enough for an LRU-style eviction budget.
+  int _estimateByteSize(List<Map<String, dynamic>> operations) {
+    var total = 0;
+    for (final op in operations) {
+      total += 64; // per-map overhead estimate
+      for (final entry in op.entries) {
+        total += (entry.key.length * 2) + 64; // key size (UTF-16) + overhead
+        final value = entry.value;
+        if (value is String) {
+          total += value.length * 2; // UTF-16
+        } else if (value != null) {
+          total += value.toString().length * 2 + 16;
+        }
+      }
+    }
+    return total;
+  }
+
   bool _hasPlaceholder(dynamic value) {
     if (value == null) return false;
     final s = value.toString();
@@ -1460,6 +1596,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
   IconData _opIcon(String opType) {
     switch (opType) {
       case 'create': return Icons.add_to_photos;
+      case 'container': return Icons.dashboard_customize;
       case 'loadImage': return Icons.image;
       case 'drawText': return Icons.text_fields;
       case 'drawRect': return Icons.crop_square;
@@ -1477,6 +1614,11 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
         final w = op['width'] ?? '800';
         final h = op['height'] ?? '600';
         return 'Create Canvas ($w×$h)';
+      case 'container':
+        final name = (op['name'] ?? 'frame').toString();
+        final w = op['width'] ?? '200';
+        final h = op['height'] ?? '100';
+        return 'Container: $name ($w×$h)';
       case 'loadImage':
         final url = (op['url'] ?? '').toString();
         final label = url.isNotEmpty

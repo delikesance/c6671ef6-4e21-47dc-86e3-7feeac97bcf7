@@ -205,9 +205,6 @@ extension _CommandCreateWizard on _CommandCreatePageState {
               _commandType = ApplicationCommandType.chatInput;
               _legacyModeEnabled = enabled;
               _localOnlyCommand = enabled;
-              if (_legacyModeEnabled && _responseType == 'modal') {
-                _responseType = 'message';
-              }
               _syncSubcommandWorkflowRoutes();
             });
           },

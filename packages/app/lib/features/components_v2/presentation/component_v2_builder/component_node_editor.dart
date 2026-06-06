@@ -489,13 +489,10 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
           MiniBlockContainer(
             icon: Icons.link,
             label: context.tr.embed_label_url,
-            child: TextFormField(
+            child: VariableTextField(
+              label: context.tr.embed_label_url,
               initialValue: btn.url,
-              decoration: InputDecoration(
-                labelText: context.tr.common_url,
-                border: const OutlineInputBorder(),
-                isDense: true,
-              ),
+              suggestions: variableSuggestions,
               onChanged: (v) {
                 btn.url = v;
                 onChanged(btn);
@@ -640,25 +637,19 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
           icon: Icons.fingerprint,
           label: context.tr.common_custom_id,
           child: _buildResponsiveTwoFieldRow(
-            first: TextFormField(
+            first: VariableTextField(
+              label: context.tr.common_custom_id,
               initialValue: menu.customId,
-              decoration: InputDecoration(
-                labelText: context.tr.common_custom_id,
-                border: const OutlineInputBorder(),
-                isDense: true,
-              ),
+              suggestions: variableSuggestions,
               onChanged: (v) {
                 menu.customId = v;
                 onChanged(menu);
               },
             ),
-            second: TextFormField(
+            second: VariableTextField(
+              label: context.tr.common_placeholder,
               initialValue: menu.placeholder,
-              decoration: InputDecoration(
-                labelText: context.tr.common_placeholder,
-                border: const OutlineInputBorder(),
-                isDense: true,
-              ),
+              suggestions: variableSuggestions,
               onChanged: (v) {
                 menu.placeholder = v;
                 onChanged(menu);
@@ -788,23 +779,19 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                             children: [
                               Expanded(
                                 child: _buildResponsiveTwoFieldRow(
-                                  first: TextFormField(
+                                  first: VariableTextField(
+                                    label: context.tr.common_label,
                                     initialValue: opt.label,
-                                    decoration: InputDecoration(
-                                      labelText: context.tr.common_label,
-                                      isDense: true,
-                                    ),
+                                    suggestions: variableSuggestions,
                                     onChanged: (v) {
                                       opt.label = v;
                                       onChanged(menu);
                                     },
                                   ),
-                                  second: TextFormField(
+                                  second: VariableTextField(
+                                    label: context.tr.common_value,
                                     initialValue: opt.value,
-                                    decoration: InputDecoration(
-                                      labelText: context.tr.common_value,
-                                      isDense: true,
-                                    ),
+                                    suggestions: variableSuggestions,
                                     onChanged: (v) {
                                       opt.value = v;
                                       onChanged(menu);
@@ -827,13 +814,11 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                           ),
                           const SizedBox(height: 8),
                           _buildResponsiveTwoFieldRow(
-                            first: TextFormField(
+                            first: VariableTextField(
+                              label: context.tr.common_description,
                               initialValue: opt.description,
-                              decoration: InputDecoration(
-                                labelText: context.tr.common_description,
-                                isDense: true,
-                                hintText: 'Optional description (max 100)',
-                              ),
+                              hint: 'Optional description (max 100)',
+                              suggestions: variableSuggestions,
                               onChanged: (v) {
                                 opt.description = v;
                                 onChanged(menu);
@@ -1377,18 +1362,15 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
     return Row(
       children: [
         Expanded(
-          child: TextFormField(
-            initialValue: node.customId,
-            decoration: InputDecoration(
-              labelText: context.tr.common_custom_id,
-              border: const OutlineInputBorder(),
-              isDense: true,
+            child: VariableTextField(
+              label: context.tr.common_custom_id_required,
+              initialValue: node.customId,
+              suggestions: variableSuggestions,
+              onChanged: (v) {
+                node.customId = v;
+                onChanged(node);
+              },
             ),
-            onChanged: (v) {
-              node.customId = v;
-              onChanged(node);
-            },
-          ),
         ),
         Switch(
           value: node.isDefault,

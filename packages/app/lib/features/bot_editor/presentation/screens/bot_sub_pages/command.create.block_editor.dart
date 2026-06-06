@@ -156,9 +156,6 @@ extension _CommandBlockEditor on _CommandCreatePageState {
             (value) => _applyStateUpdate(() {
               _legacyModeEnabled = value;
               _localOnlyCommand = value;
-              if (_legacyModeEnabled && _responseType == 'modal') {
-                _responseType = 'normal';
-              }
             }),
         onLocalOnlyCommandChanged:
             (value) => _applyStateUpdate(() {
@@ -213,9 +210,6 @@ extension _CommandBlockEditor on _CommandCreatePageState {
                 ? (value) => _applyStateUpdate(() {
                   _legacyModeEnabled = value;
                   _localOnlyCommand = value;
-                  if (_legacyModeEnabled && _responseType == 'modal') {
-                    _responseType = 'normal';
-                  }
                 })
                 : null,
         legacyPrefixOverride: _legacyPrefixOverride,

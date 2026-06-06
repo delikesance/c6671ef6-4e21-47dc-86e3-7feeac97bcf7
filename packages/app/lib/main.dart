@@ -97,6 +97,15 @@ Future<void> main() async {
   await runZonedGuarded(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
+
+      // Tune Flutter's global image cache to be more conservative.
+      // Default: 1000 images / 100 MB. For a mobile app that loads
+      // many large images (especially in the image editor), this can
+      // cause OOM. Reduce to a safer default.
+      final cache = PaintingBinding.instance.imageCache;
+      cache.maximumSize = 200;
+      cache.maximumSizeBytes = 50 << 20; // 50 MB
+
       await AppDiagnostics.initialize();
       AppDiagnostics.installGlobalErrorHandlers();
       try {

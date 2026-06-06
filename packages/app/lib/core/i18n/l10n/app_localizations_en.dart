@@ -7235,4 +7235,27 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get variable_autocomplete_numeric_title =>
       'Dynamic numeric suggestions';
+
+  @override
+  String get bot_settings_tab_general => 'General';
+
+  @override
+  String get bot_settings_tab_presence => 'Presence & Status';
+
+  @override
+  String get bot_settings_tab_intents => 'Intents & Privileges';
+
+  @override
+  String get bot_settings_tab_advanced => 'Advanced & Maintenance';
+
+  @override
+  String get bot_settings_avatar_selected => 'Selected image:';
+
+  @override
+  String get bot_settings_avatar_none_selected =>
+      'No new image selected. Click Browse to choose one.';
+
+  @override
+  String get bot_settings_avatar_important_note =>
+      'Important: Profile changes (username and avatar) will only be applied to Discord when you click \'Save profile and statuses\' at the bottom.';
 }

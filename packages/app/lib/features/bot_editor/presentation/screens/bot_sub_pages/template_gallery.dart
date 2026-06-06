@@ -8,6 +8,7 @@ import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 
 import 'package:bot_creator_shared/bot/bot_template.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command_option_serialization.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/material.dart';
 import 'package:nyxx/nyxx.dart';
@@ -19,8 +20,8 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 const Map<String, IconData> _templateIcons = {
   'welcome': Icons.waving_hand,
   'moderation': Icons.shield,
-  'utility': Icons.build,
   'fun': Icons.casino,
+  'economy': Icons.account_balance_wallet,
 };
 
 /// Gallery page that displays bot templates loaded dynamically from GitHub
@@ -231,7 +232,13 @@ class _TemplateCardState extends State<_TemplateCard> {
           'templateId': widget.template.id,
           'appliedAt': DateTime.now().toIso8601String(),
         };
-        final commandData = Map<String, dynamic>.from(cmd.data);
+        final commandData = _normalizeTemplateActions(Map<String, dynamic>.from(cmd.data));
+
+        // Build options from template data so Discord receives them.
+        final optionsRaw =
+            (commandData['options'] as List?)?.whereType<Map>().toList() ??
+            const [];
+        final options = deserializeCommandOptions(optionsRaw);
 
         if (client != null) {
           // Register on Discord and save with real ID
@@ -247,7 +254,7 @@ class _TemplateCardState extends State<_TemplateCard> {
               commandBuilder = ApplicationCommandBuilder.chatInput(
                 name: cmd.name,
                 description: cmd.description,
-                options: [],
+                options: options,
               );
             }
             await createCommand(client, commandBuilder, data: commandData);
@@ -501,6 +508,79 @@ class _TemplateCardState extends State<_TemplateCard> {
         setState(() => _applying = false);
       }
     }
+  }
+
+  /// Normalizes scoped variable action keys in template command data
+  /// so that imported commands are consistent with the manual import flow.
+  /// Strips the `bc_` prefix from keys used in setScopedVariable /
+  /// getScopedVariable / removeScopedVariable / renameScopedVariable actions.
+  static Map<String, dynamic> _normalizeTemplateActions(
+    Map<String, dynamic> commandData,
+  ) {
+    String _stripBcPrefix(String raw) {
+      final key = raw.trim();
+      if (key.startsWith('bc_') && key.length > 3) return key.substring(3);
+      return key;
+    }
+
+    List<Map<String, dynamic>> _normalizeList(List<Map<String, dynamic>> actions) {
+      return actions.map((raw) {
+        final action = Map<String, dynamic>.from(raw);
+        final type = (action['type'] ?? '').toString().trim();
+        if (type != 'setScopedVariable' &&
+            type != 'getScopedVariable' &&
+            type != 'removeScopedVariable' &&
+            type != 'renameScopedVariable') {
+          return action;
+        }
+        final payload = Map<String, dynamic>.from(
+          (action['payload'] as Map?)?.cast<String, dynamic>() ?? const {},
+        );
+        if (type == 'renameScopedVariable') {
+          payload['oldKey'] = _stripBcPrefix((payload['oldKey'] ?? '').toString());
+          payload['newKey'] = _stripBcPrefix((payload['newKey'] ?? '').toString());
+        } else {
+          payload['key'] = _stripBcPrefix((payload['key'] ?? '').toString());
+        }
+        action['payload'] = payload;
+        return action;
+      }).toList(growable: false);
+    }
+
+    final data = Map<String, dynamic>.from(commandData);
+
+    if (data['actions'] is List) {
+      data['actions'] = _normalizeList(
+        (data['actions'] as List)
+            .whereType<Map>()
+            .map((e) => Map<String, dynamic>.from(e))
+            .toList(),
+      );
+    }
+
+    if (data['subcommandWorkflows'] is Map) {
+      final workflows = Map<String, dynamic>.from(
+        (data['subcommandWorkflows'] as Map).cast<String, dynamic>(),
+      );
+      final normalized = <String, Map<String, dynamic>>{};
+      workflows.forEach((route, payload) {
+        final wf = Map<String, dynamic>.from(
+          (payload as Map?)?.cast<String, dynamic>() ?? const {},
+        );
+        if (wf['actions'] is List) {
+          wf['actions'] = _normalizeList(
+            (wf['actions'] as List)
+                .whereType<Map>()
+                .map((e) => Map<String, dynamic>.from(e))
+                .toList(),
+          );
+        }
+        normalized[route] = wf;
+      });
+      data['subcommandWorkflows'] = normalized;
+    }
+
+    return data;
   }
 
   @override

@@ -9163,5 +9163,33 @@
   "variable_autocomplete_numeric_title": "Suggestions numériques dynamiques",
   "@variable_autocomplete_numeric_title": {
     "description": "Suggestions numériques dynamiques"
+  },
+  "bot_settings_tab_general": "Général",
+  "@bot_settings_tab_general": {
+    "description": "General tab in bot settings"
+  },
+  "bot_settings_tab_presence": "Présence & Statut",
+  "@bot_settings_tab_presence": {
+    "description": "Presence & status tab in bot settings"
+  },
+  "bot_settings_tab_intents": "Intents & Privilèges",
+  "@bot_settings_tab_intents": {
+    "description": "Intents & privileges tab in bot settings"
+  },
+  "bot_settings_tab_advanced": "Avancé & Maintenance",
+  "@bot_settings_tab_advanced": {
+    "description": "Advanced & maintenance tab in bot settings"
+  },
+  "bot_settings_avatar_selected": "Nouvelle image sélectionnée :",
+  "@bot_settings_avatar_selected": {
+    "description": "Label for selected avatar image"
+  },
+  "bot_settings_avatar_none_selected": "Aucune nouvelle image sélectionnée. Cliquez sur Parcourir pour en choisir une.",
+  "@bot_settings_avatar_none_selected": {
+    "description": "Placeholder when no new avatar image is selected"
+  },
+  "bot_settings_avatar_important_note": "Important : Les changements de profil (nom et photo) ne seront appliqués sur Discord que lorsque vous cliquerez sur le bouton 'Sauvegarder le profil et les statuts' tout en bas.",
+  "@bot_settings_avatar_important_note": {
+    "description": "Important notice about profile change persistence"
   }
 }

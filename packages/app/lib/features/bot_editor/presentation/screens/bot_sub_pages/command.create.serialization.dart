@@ -24,14 +24,6 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
     final fallbackPayload =
         hasSubcommandWorkflows ? subcommandWorkflows[fallbackRoute] : null;
 
-    final responsePayload =
-        fallbackPayload != null
-            ? Map<String, dynamic>.from(
-              (fallbackPayload['response'] as Map?)?.cast<String, dynamic>() ??
-                  _buildResponsePayloadFromEditor(),
-            )
-            : _buildResponsePayloadFromEditor();
-
     final actionsPayload =
         fallbackPayload != null
             ? List<Map<String, dynamic>>.from(
@@ -56,7 +48,6 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
       'defaultMemberPermissions': _defaultMemberPermissions.trim(),
       if (_supportsCommandOptions && _effectiveOptions.isNotEmpty)
         'options': _serializeOptions(_effectiveOptions),
-      'response': _ensureCorrectResponseType(responsePayload),
       'actions': actionsPayload,
       if (hasSubcommandWorkflows)
         'subcommandWorkflows': _serializeSubcommandWorkflows(
@@ -66,32 +57,16 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
         'activeSubcommandRoute': _activeSubcommandRoute,
     };
 
-    migrateCommandDataResponsePermanently(data);
-
     return data;
-  }
-
-  Map<String, dynamic> _ensureCorrectResponseType(Map<String, dynamic> response) {
-    final mode = (response['mode'] ?? response['type'] ?? 'message').toString();
-    final normalizedType = (mode == 'componentV2' || mode == 'layout')
-        ? 'componentV2'
-        : (mode == 'modal' ? 'modal' : 'normal');
-
-    return {
-      ...response,
-      'type': normalizedType,
-    };
   }
 
   Map<String, Map<String, dynamic>> _serializeSubcommandWorkflows(
     Map<String, Map<String, dynamic>> workflows,
   ) {
     return workflows.map((route, payload) {
-      final response = Map<String, dynamic>.from(payload['response'] ?? {});
-      return MapEntry(route, {
-        ...payload,
-        'response': _ensureCorrectResponseType(response),
-      });
+      final entry = Map<String, dynamic>.from(payload);
+      entry.remove('response');
+      return MapEntry(route, entry);
     });
   }
 
@@ -422,11 +397,6 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
       normalizedData['data'] as Map? ?? const {},
     );
 
-    final response = Map<String, dynamic>.from(
-      (normalizedPayload['response'] as Map?)?.cast<String, dynamic>() ??
-          const {},
-    );
-
     final optionsRaw =
         (commandRoot['options'] as List?) ??
         (commandDataRaw['options'] as List?) ??
@@ -506,34 +476,6 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
               .toString()
               .trim();
 
-      final loadedMode =
-          (response['mode'] ?? response['type'] ?? 'message').toString();
-      _responseType =
-          (loadedMode == 'normal' ||
-                  loadedMode == 'text' ||
-                  loadedMode == 'message')
-              ? 'message'
-              : loadedMode;
-      if (_legacyModeEnabled && _responseType == 'modal') {
-        _responseType = 'message';
-      }
-      _response = (response['text'] ?? '').toString();
-      _responseController.text = _response;
-      _responseEmbeds = _normalizeEmbedsPayload(response['embeds']);
-      _responseComponents = Map<String, dynamic>.from(
-        (response['components'] as Map?)?.cast<String, dynamic>() ?? const {},
-      );
-      _responseModal = Map<String, dynamic>.from(
-        (response['modal'] as Map?)?.cast<String, dynamic>() ?? const {},
-      );
-      _responseWorkflow = _normalizeWorkflow(
-        Map<String, dynamic>.from(
-          (response['workflow'] as Map?)?.cast<String, dynamic>() ??
-              _CommandCreatePageState._defaultWorkflow(),
-        ),
-      );
-      _normalizeLegacySimpleResponseType();
-
       _actions = _normalizeImportedScopedActionKeys(
         List<Map<String, dynamic>>.from(
           (normalizedPayload['actions'] as List?)?.whereType<Map>().map(
@@ -550,11 +492,6 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
           importedSubcommandWorkflows
               .map(
                 (route, workflowPayload) => MapEntry(route, {
-                  'response': Map<String, dynamic>.from(
-                    (workflowPayload['response'] as Map?)
-                            ?.cast<String, dynamic>() ??
-                        const <String, dynamic>{},
-                  ),
                   'actions': _normalizeImportedScopedActionKeys(
                     List<Map<String, dynamic>>.from(
                       (workflowPayload['actions'] as List?)

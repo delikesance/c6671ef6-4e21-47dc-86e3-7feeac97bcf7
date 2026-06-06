@@ -7284,4 +7284,27 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get variable_autocomplete_numeric_title => 'Dinamik sayısal öneriler';
+
+  @override
+  String get bot_settings_tab_general => 'Genel';
+
+  @override
+  String get bot_settings_tab_presence => 'Durum & Varlık';
+
+  @override
+  String get bot_settings_tab_intents => 'Girişler & Ayrıcalıklar';
+
+  @override
+  String get bot_settings_tab_advanced => 'Gelişmiş & Bakım';
+
+  @override
+  String get bot_settings_avatar_selected => 'Seçilen resim:';
+
+  @override
+  String get bot_settings_avatar_none_selected =>
+      'Yeni resim seçilmedi. Seçmek için Göz At\'a tıklayın.';
+
+  @override
+  String get bot_settings_avatar_important_note =>
+      'Önemli: Profil değişiklikleri (kullanıcı adı ve avatar), yalnızca alttaki \'Profili ve durumları kaydet\' düğmesini tıkladığınızda Discord\'a uygulanacaktır.';
 }

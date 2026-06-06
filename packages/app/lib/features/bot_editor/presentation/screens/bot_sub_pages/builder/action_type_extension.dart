@@ -3081,26 +3081,25 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             defaultValue: '',
             hint: 'User or Role ID to set overwrite for',
             required: true,
+            visibleWhen: {'targetType': ['member', 'role']},
           ),
           ParameterDefinition(
             key: 'targetType',
             type: ParameterType.multiSelect,
             defaultValue: 'member',
-            hint: 'Whether targetId is a member or role',
-            options: ['member', 'role'],
+            hint:
+                'Whether targetId is a member, role, or @everyone '
+                '(for @everyone, targetId is auto-set to the guild ID)',
+            options: ['member', 'role', 'everyone'],
             required: true,
           ),
           ParameterDefinition(
-            key: 'allow',
-            type: ParameterType.string,
-            defaultValue: '0',
-            hint: 'Permissions bitmask to allow (integer as string)',
-          ),
-          ParameterDefinition(
-            key: 'deny',
-            type: ParameterType.string,
-            defaultValue: '0',
-            hint: 'Permissions bitmask to deny (integer as string)',
+            key: 'permissions',
+            type: ParameterType.permissionFlags,
+            defaultValue: const <String, String>{},
+            hint:
+                'Permission overwrites — tap each permission to cycle '
+                'through Allow / Deny / Unset',
           ),
           ParameterDefinition(
             key: 'reason',
@@ -3120,11 +3119,20 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             required: true,
           ),
           ParameterDefinition(
+            key: 'targetType',
+            type: ParameterType.multiSelect,
+            defaultValue: 'member',
+            hint:
+                'Whether targetId is a member, role, or @everyone '
+                '(for @everyone, targetId is ignored)',
+            options: ['member', 'role', 'everyone'],
+          ),
+          ParameterDefinition(
             key: 'targetId',
             type: ParameterType.string,
             defaultValue: '',
             hint: 'User or Role ID whose overwrite to delete',
-            required: true,
+            visibleWhen: {'targetType': ['member', 'role']},
           ),
           ParameterDefinition(
             key: 'reason',

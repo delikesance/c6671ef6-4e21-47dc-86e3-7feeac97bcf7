@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// Responsive design helper utilities
@@ -21,6 +22,15 @@ class ResponsiveHelper {
   /// Check if device is large desktop (width >= 1200)
   static bool isDesktop(BuildContext context) {
     return MediaQuery.of(context).size.width >= 1200;
+  }
+
+  /// Check if platform is a desktop OS (Windows, Linux, macOS)
+  static bool isDesktopPlatform() {
+    if (kIsWeb) return false;
+    return switch (defaultTargetPlatform) {
+      TargetPlatform.windows || TargetPlatform.linux || TargetPlatform.macOS => true,
+      _ => false,
+    };
   }
 
   /// Get responsive value based on screen size
@@ -106,5 +116,29 @@ class ResponsiveHelper {
   /// Check if keyboard is visible
   static bool isKeyboardVisible(BuildContext context) {
     return MediaQuery.of(context).viewInsets.bottom > 0;
+  }
+}
+
+extension ScaffoldParentExtension on BuildContext {
+  /// Open the parent Scaffold's drawer if it exists.
+  void openParentDrawer() {
+    ScaffoldState? parent;
+    int count = 0;
+    visitAncestorElements((element) {
+      if (element is StatefulElement && element.state is ScaffoldState) {
+        count++;
+        if (count > 1) { // Skip the first (nested) Scaffold
+          parent = element.state as ScaffoldState;
+          return false; // stop traversing
+        }
+      }
+      return true; // continue traversing
+    });
+    if (parent != null) {
+      parent!.openDrawer();
+    } else {
+      // Fallback: if there is only one Scaffold in the context tree, open it
+      Scaffold.maybeOf(this)?.openDrawer();
+    }
   }
 }

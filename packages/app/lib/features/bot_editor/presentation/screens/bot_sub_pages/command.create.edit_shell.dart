@@ -139,9 +139,6 @@ extension _CommandCreateEditShell on _CommandCreatePageState {
                     _commandType = ApplicationCommandType.chatInput;
                     _legacyModeEnabled = enabled;
                     _localOnlyCommand = enabled;
-                    if (_legacyModeEnabled && _responseType == 'modal') {
-                      _responseType = 'normal';
-                    }
                     _syncSubcommandWorkflowRoutes();
                   });
                 },
