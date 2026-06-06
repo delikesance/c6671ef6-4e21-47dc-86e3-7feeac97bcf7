@@ -1,0 +1,23 @@
+Bot Creator v1.9.1
+
+Bug Fixes:
+- Fixed CocoaPods installation issues in macOS CI builds
+- Improved build pipeline stability
+
+v1.9.0
+
+New Features:
+- Image Editor: create and edit images with layers, text, shapes, and image compositing
+- Attach Image action: send generated images directly to Discord
+- Image Manipulation Block with 5 canvas sub-actions (loadImage, compositeImage, drawText, drawCircle, drawRect)
+- Icon-based variable picker added to all action parameter fields
+
+Improvements:
+- Resolved top Crashlytics FATAL and high-volume non-fatal issues
+- Better null safety across the app
+- Variable resolution in editMessage messageId/channelId handlers
+- Mobile layout fixes for image editor (keyboard/SafeArea overlap)
+
+Dependencies:
+- Updated firebase_core to 4.10.0
+- Updated firebase_analytics to 12.4.2
