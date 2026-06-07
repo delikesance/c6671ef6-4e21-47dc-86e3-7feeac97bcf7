@@ -83,6 +83,9 @@ class DiscordRunner {
   }
 
   Future<void> _tickScheduledWorkflows() async {
+    // Periodically prune expired interaction listeners from the registry to prevent memory leaks.
+    InteractionListenerRegistry.instance.pruneExpired();
+
     final session = _engine.getSession(botId);
     if (session == null || !session.isActive) return;
 
