@@ -84,6 +84,10 @@ void main() async {
     }
   }
 
+  staticCache.clear();
   client.close();
-  print('Simulation complete.');
+  print('Simulation complete. Waiting 5 seconds for idle GC...');
+  await Future.delayed(const Duration(seconds: 5));
+  final finalRss = ProcessInfo.currentRss / (1024 * 1024);
+  print('Final RSS: ${finalRss.toStringAsFixed(2)} MB');
 }
