@@ -93,10 +93,13 @@
     <array>
       <string>com.pravera.flutter_foreground_task.refresh</string>
     </array>
-    <key>UIBackgroundModes</key>
-    <array>
-      <string>fetch</string>
-    </array>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
+	<key>FirebaseMessagingAutoInitEnabled</key>
+	<true/>
     <key>UIApplicationSceneManifest</key>
     <dict>
       <key>UIApplicationSupportsMultipleScenes</key>

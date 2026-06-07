@@ -18,6 +18,7 @@ import 'package:bot_creator/features/onboarding/presentation/onboarding_page.dar
 import 'package:bot_creator/core/diagnostics/app_diagnostics.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
+import 'package:bot_creator/features/notifications/logic/notification_service.dart';
 import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/features/discord_rpc/logic/discord_rpc_service.dart';
 import 'package:bot_creator/core/analytics/analytics.dart';
@@ -300,6 +301,22 @@ Future<void> _warmUpServicesAfterLaunch() async {
     timeout: const Duration(seconds: 5),
     action: () async {
       await DiscordRpcService.instance.initialize();
+    },
+  );
+
+  await _runStartupTask(
+    label: 'Notification service initialization',
+    timeout: const Duration(seconds: 10),
+    action: () async {
+      // Detect environment from the connected Manager URL
+      String managerUrl = '';
+      try {
+        final config = await MainApiSettingsStore.loadConfig();
+        managerUrl = config.baseUrl;
+      } catch (_) {}
+      await NotificationService.instance.initialize(
+        managerBaseUrl: managerUrl,
+      );
     },
   );
 
