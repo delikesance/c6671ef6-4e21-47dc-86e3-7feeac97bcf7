@@ -210,65 +210,102 @@ extension _CommandCreateVariableSuggestions on _CommandCreatePageState {
       addSuggestion(suggestion.name, kind: suggestion.kind, category: suggestion.category);
     }
 
-    for (final option in _effectiveOptions) {
-      final optionName = option.name.trim();
-      if (optionName.isEmpty) {
-        continue;
-      }
+    void walkOptions(List<CommandOptionBuilder> options, String prefix) {
+      for (final option in options) {
+        final optionName = option.name.trim();
+        if (optionName.isEmpty) {
+          continue;
+        }
 
-      addSuggestion('opts.$optionName', kind: VariableSuggestionKind.unknown);
+        final fullName = prefix.isEmpty ? optionName : '$prefix.$optionName';
 
-      switch (option.type) {
-        case CommandOptionType.integer:
-        case CommandOptionType.number:
-          addSuggestion(
-            'opts.$optionName',
-            kind: VariableSuggestionKind.numeric,
-          );
-          break;
-        case CommandOptionType.user:
-        case CommandOptionType.mentionable:
-          addSuggestion(
-            'opts.$optionName.id',
-            kind: VariableSuggestionKind.nonNumeric,
-          );
-          addSuggestion(
-            'opts.$optionName.username',
-            kind: VariableSuggestionKind.nonNumeric,
-          );
-          addSuggestion(
-            'opts.$optionName.tag',
-            kind: VariableSuggestionKind.nonNumeric,
-          );
-          addSuggestion(
-            'opts.$optionName.avatar',
-            kind: VariableSuggestionKind.nonNumeric,
-          );
-          addSuggestion(
-            'opts.$optionName.banner',
-            kind: VariableSuggestionKind.nonNumeric,
-          );
-          break;
-        case CommandOptionType.channel:
-          addSuggestion(
-            'opts.$optionName.id',
-            kind: VariableSuggestionKind.nonNumeric,
-          );
-          addSuggestion(
-            'opts.$optionName.type',
-            kind: VariableSuggestionKind.nonNumeric,
-          );
-          break;
-        case CommandOptionType.role:
-          addSuggestion(
-            'opts.$optionName.id',
-            kind: VariableSuggestionKind.nonNumeric,
-          );
-          break;
-        default:
-          break;
+        addSuggestion('opts.$fullName', kind: VariableSuggestionKind.unknown);
+
+        switch (option.type) {
+          case CommandOptionType.integer:
+          case CommandOptionType.number:
+            addSuggestion(
+              'opts.$fullName',
+              kind: VariableSuggestionKind.numeric,
+            );
+            break;
+          case CommandOptionType.user:
+          case CommandOptionType.mentionable:
+            addSuggestion(
+              'opts.$fullName.id',
+              kind: VariableSuggestionKind.nonNumeric,
+            );
+            addSuggestion(
+              'opts.$fullName.username',
+              kind: VariableSuggestionKind.nonNumeric,
+            );
+            addSuggestion(
+              'opts.$fullName.tag',
+              kind: VariableSuggestionKind.nonNumeric,
+            );
+            addSuggestion(
+              'opts.$fullName.avatar',
+              kind: VariableSuggestionKind.nonNumeric,
+            );
+            addSuggestion(
+              'opts.$fullName.banner',
+              kind: VariableSuggestionKind.nonNumeric,
+            );
+            break;
+          case CommandOptionType.channel:
+            addSuggestion(
+              'opts.$fullName.id',
+              kind: VariableSuggestionKind.nonNumeric,
+            );
+            addSuggestion(
+              'opts.$fullName.type',
+              kind: VariableSuggestionKind.nonNumeric,
+            );
+            break;
+          case CommandOptionType.role:
+            addSuggestion(
+              'opts.$fullName.id',
+              kind: VariableSuggestionKind.nonNumeric,
+            );
+            break;
+          case CommandOptionType.subCommand:
+            final children = option.options ?? const <CommandOptionBuilder>[];
+            if (children.isNotEmpty) {
+              walkOptions(children, fullName);
+            }
+            break;
+          case CommandOptionType.subCommandGroup:
+            final groups = option.options ?? const <CommandOptionBuilder>[];
+            for (final group in groups) {
+              final groupName = group.name.trim();
+              if (groupName.isEmpty) {
+                continue;
+              }
+              final groupPrefix =
+                  prefix.isEmpty ? '$optionName.$groupName' : '$prefix.$optionName.$groupName';
+              final subCommands = group.options ?? const <CommandOptionBuilder>[];
+              if (subCommands.isNotEmpty) {
+                for (final subCmd in subCommands) {
+                  final subCmdName = subCmd.name.trim();
+                  if (subCmdName.isEmpty) {
+                    continue;
+                  }
+                  final subCmdPrefix = '$groupPrefix.$subCmdName';
+                  final subOptions = subCmd.options ?? const <CommandOptionBuilder>[];
+                  if (subOptions.isNotEmpty) {
+                    walkOptions(subOptions, subCmdPrefix);
+                  }
+                }
+              }
+            }
+            break;
+          default:
+            break;
+        }
       }
     }
+
+    walkOptions(_effectiveOptions, '');
 
     final actions = _flattenActionTree(_effectiveActions);
     for (var i = 0; i < actions.length; i++) {
