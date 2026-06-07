@@ -8,6 +8,7 @@ import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator_shared/bot/bot_config.dart';
+import 'package:bot_creator_shared/utils/command_migration.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:flutter/foundation.dart';
 
@@ -475,6 +476,10 @@ Map<String, dynamic> _buildPayloadInBackground(Map<String, dynamic> args) {
   }
 
   final commands = List<Map<String, dynamic>>.from(commandsRaw);
+
+  // Optimize command payloads by stripping legacy response/simpleConfig keys
+  // from migrated commands before transmission.
+  stripMigratedCommandData(commands);
 
   final intents = Map<String, bool>.from(
     (appData['intents'] as Map?)?.map(
