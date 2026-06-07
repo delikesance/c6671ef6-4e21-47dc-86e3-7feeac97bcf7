@@ -145,6 +145,12 @@ class CommandStatsStore {
 
     if (!_sqliteAvailable) {
       _memoryRecords.add(record);
+      // Prune in-memory fallback records older than 48 hours or if total count exceeds 5,000.
+      final cutoff = now - (48 * 3600 * 1000);
+      _memoryRecords.removeWhere((r) => r.executedAtMs < cutoff);
+      if (_memoryRecords.length > 5000) {
+        _memoryRecords.removeRange(0, _memoryRecords.length - 5000);
+      }
     } else {
       _db.execute(
         'INSERT INTO command_executions (bot_id, command_name, guild_id, locale, guild_locale, success, latency_ms, executed_at) '
