@@ -13135,6 +13135,12 @@ abstract class AppLocalizations {
   /// **'Back'**
   String get marketplace_publish_back;
 
+  /// No description provided for @marketplace_publish_required_fields.
+  ///
+  /// In en, this message translates to:
+  /// **'Please fill in all required fields (Template name, Short description, Version) before publishing.'**
+  String get marketplace_publish_required_fields;
+
   /// No description provided for @marketplace_publish_no_content.
   ///
   /// In en, this message translates to:

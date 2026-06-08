@@ -7505,6 +7505,10 @@ class AppLocalizationsTr extends AppLocalizations {
   String get marketplace_publish_back => 'Geri';
 
   @override
+  String get marketplace_publish_required_fields =>
+      'Lütfen yayınlamadan önce tüm zorunlu alanları doldurun (Ad, Kısa açıklama, Sürüm).';
+
+  @override
   String get marketplace_publish_no_content =>
       'Yayınlanacak komut veya iş akışı yok.\nÖnce biraz oluştur!';
 

@@ -7202,6 +7202,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get marketplace_publish_back => '戻る';
 
   @override
+  String get marketplace_publish_required_fields =>
+      '公開する前に、すべての必須項目（テンプレート名、概要、バージョン）を入力してください。';
+
+  @override
   String get marketplace_publish_no_content =>
       '公開するコマンドやワークフローがありません。\n最初に作成してください！';
 
