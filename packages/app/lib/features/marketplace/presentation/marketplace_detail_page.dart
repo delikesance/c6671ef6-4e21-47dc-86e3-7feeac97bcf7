@@ -6,6 +6,8 @@ import 'package:bot_creator_shared/bot/marketplace_template.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
+import 'publish_template_page.dart';
+
 /// Detail page for a marketplace template.
 class MarketplaceDetailPage extends StatefulWidget {
   final MarketplaceTemplate template;
@@ -440,12 +442,19 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
   }
 
   Future<void> _editTemplate() async {
-    // Navigate back and let the user re-publish — for now just show a message
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.tr.marketplace_edit_hint)),
-      );
-    }
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => PublishTemplatePage(
+          botId: widget.botId,
+          apiClient: widget.apiClient,
+          authorId: _template.authorId,
+          authorName: _template.authorName,
+          existingTemplate: _template,
+        ),
+      ),
+    );
+    // Refresh template data after edit
+    _fetchTemplate();
   }
 
   Future<void> _confirmDelete() async {
