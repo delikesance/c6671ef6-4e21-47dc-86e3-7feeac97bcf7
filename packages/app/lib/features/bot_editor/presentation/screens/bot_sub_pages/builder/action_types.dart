@@ -161,7 +161,10 @@ class ActionItem {
         if (jumpToActionId != null) 'jumpToActionId': jumpToActionId,
         if (skipCount > 0) 'skipCount': '$skipCount',
       },
-      'payload': purgedPayload,
+      'payload': {
+        ...purgedPayload,
+        '_actionId': runtimeId,
+      },
       'runtimeId': runtimeId,
     };
   }

@@ -66,19 +66,9 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
       _tagsCtrl.text = t.tags.join(', ');
       _iconCtrl.text = t.icon;
       _versionCtrl.text = t.version;
-      _selectedCommands.addAll(
-        t.commands.map((c) => c.name).where((n) => n.isNotEmpty),
-      );
-      _selectedWorkflows.addAll(
-        t.workflows.map((w) => (w['name'] ?? '').toString()).where((n) => n.isNotEmpty),
-      );
-      for (final v in t.globalVariables) {
-        _selectedVars[v.name] = v.required;
-      }
-      _loadingData = false;
-    } else {
-      _loadData();
     }
+
+    _loadData();
   }
 
   void _onMetadataChanged() {
@@ -117,6 +107,20 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
           _allCommands = commands.map((c) => Map<String, dynamic>.from(c)).toList();
           _allWorkflows = workflows;
           _appData = appData;
+
+          if (_isEditing) {
+            final t = widget.existingTemplate!;
+            _selectedCommands.addAll(
+              t.commands.map((c) => c.name).where((n) => n.isNotEmpty),
+            );
+            _selectedWorkflows.addAll(
+              t.workflows.map((w) => (w['name'] ?? '').toString()).where((n) => n.isNotEmpty),
+            );
+            for (final v in t.globalVariables) {
+              _selectedVars[v.name] = v.required;
+            }
+          }
+
           _loadingData = false;
         });
       }
