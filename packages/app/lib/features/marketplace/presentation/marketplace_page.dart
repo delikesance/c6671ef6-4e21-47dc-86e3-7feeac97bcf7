@@ -195,7 +195,10 @@ class _MarketplacePageState extends State<MarketplacePage> {
     // We'll retry after the user returns
     final client = MainApiClient(baseUrl: config.baseUrl);
     try {
-      final startResult = await client.startDiscordAuthorization();
+      final startResult = await client.startDiscordAuthorization(
+        redirectUri: 'bcapp://discord-auth',
+        state: DateTime.now().millisecondsSinceEpoch.toRadixString(36),
+      );
       // Open browser for Discord OAuth
       // On mobile, this would use url_launcher
       // For now, just show the URL and let the user handle it
