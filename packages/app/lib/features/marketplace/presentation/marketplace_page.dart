@@ -205,10 +205,7 @@ class _MarketplacePageState extends State<MarketplacePage> {
           child: Row(
             children: [
               Text(
-                context.tr.marketplace_count.replaceAll(
-                  '{count}',
-                  filtered.length.toString(),
-                ),
+                context.tr.marketplace_count(filtered.length),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: cs.onSurfaceVariant,
                     ),
@@ -223,10 +220,7 @@ class _MarketplacePageState extends State<MarketplacePage> {
               ? Center(
                   child: Text(
                     _search.isNotEmpty
-                        ? context.tr.marketplace_no_results.replaceAll(
-                            '{query}',
-                            _search,
-                          )
+                        ? context.tr.marketplace_no_results(_search)
                         : context.tr.marketplace_empty,
                     textAlign: TextAlign.center,
                     style: TextStyle(color: cs.onSurfaceVariant),

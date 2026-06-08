@@ -307,7 +307,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
         }
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text(context.tr.marketplace_connect_manager),
           ),
         );
@@ -842,7 +842,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                       if (!mounted) return;
                       if (client == null) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
+                          SnackBar(
                             content: Text(context.tr.marketplace_connect_manager),
                           ),
                         );
@@ -936,7 +936,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                           );
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
+                            SnackBar(
                               content: Text(context.tr.marketplace_connect_manager),
                             ),
                           );
