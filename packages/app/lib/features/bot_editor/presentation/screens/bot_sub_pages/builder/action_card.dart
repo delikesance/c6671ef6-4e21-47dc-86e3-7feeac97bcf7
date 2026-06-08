@@ -84,6 +84,10 @@ class ActionCard extends StatelessWidget {
   final bool showManagementControls;
   final bool collapseActionSettings;
 
+  /// List of all actions in the current command/workflow (for Jump to action dropdown).
+  /// Only actions AFTER the current one are shown.
+  final List<ActionItem>? allActions;
+
   const ActionCard({
     super.key,
     required this.action,
@@ -104,6 +108,7 @@ class ActionCard extends StatelessWidget {
     this.showPositionLabel = true,
     this.showManagementControls = true,
     this.collapseActionSettings = false,
+    this.allActions,
   });
 
   Key _parameterInputKey(String paramKey) {
@@ -277,7 +282,42 @@ class ActionCard extends StatelessWidget {
   }
 
   Widget _buildJumpTargetField(BuildContext context) {
-    return const SizedBox.shrink(); // TODO: wire action list from parent
+    if (allActions == null || allActions!.isEmpty) return const SizedBox.shrink();
+
+    // Show only subsequent actions (after current)
+    final items = <DropdownMenuItem<String>>[];
+    var foundCurrent = false;
+    for (final a in allActions!) {
+      if (!foundCurrent) {
+        if (a.runtimeId == action.runtimeId || a.id == action.id) {
+          foundCurrent = true;
+        }
+        continue;
+      }
+      final label = a.actionKey.isNotEmpty ? a.actionKey : a.type.name;
+      items.add(DropdownMenuItem(
+        value: a.actionKey.isNotEmpty ? a.actionKey : a.id,
+        child: Text(label, overflow: TextOverflow.ellipsis),
+      ));
+    }
+    if (items.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12, top: 4),
+      child: DropdownButtonFormField<String>(
+        initialValue: action.jumpToActionId,
+        isExpanded: true,
+        decoration: const InputDecoration(
+          labelText: 'Jump to',
+          border: OutlineInputBorder(),
+          isDense: true,
+        ),
+        items: items,
+        onChanged: (value) {
+          if (value != null) onParameterChanged('__onErrorJumpTarget__', value);
+        },
+      ),
+    );
   }
 
   Widget _buildSkipCountField(BuildContext context) {

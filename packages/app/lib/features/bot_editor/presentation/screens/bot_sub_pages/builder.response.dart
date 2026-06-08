@@ -1158,6 +1158,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
                   ),
                 );
               },
+              allActions: _actions, // for Jump to action dropdown
             );
           },
         ),
