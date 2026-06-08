@@ -115,6 +115,30 @@ extension _AppHomePageSync on _AppHomePageState {
         token: token,
       );
 
+      // Pull latest bot config from Manager (synced from other devices)
+      try {
+        final mainClient = await _resolveMainApiClientForBot(
+          botId: botId,
+          botToken: token,
+          attemptSessionRestore: true,
+        );
+        if (mainClient != null) {
+          final remoteConfig = await mainClient.getBotConfig(botId);
+          if (remoteConfig.isNotEmpty) {
+            // Preserve the local token (not stored in remote config for security)
+            remoteConfig['token'] = token;
+            await appManager.saveApp(botId, remoteConfig);
+            appendBotDebugLog(
+              '[_syncAppFromRemote] Pulled bot config from Manager for $botId',
+            );
+          }
+        }
+      } catch (e) {
+        appendBotDebugLog(
+          '[_syncAppFromRemote] Pull from Manager skipped: $e',
+        );
+      }
+
       try {
         final remoteCommands = await widget.client.commands.list(
           withLocalizations: true,
