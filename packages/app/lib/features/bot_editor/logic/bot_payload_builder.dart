@@ -517,7 +517,8 @@ Map<String, dynamic> _buildPayloadInBackground(Map<String, dynamic> args) {
   );
 
   final inboundWebhookEndpoints = List<Map<String, dynamic>>.from(
-    (appData['inboundWebhooks'] as List?)?.whereType<Map>().map(
+    (appData['inboundWebhooks'] is List ? appData['inboundWebhooks'] as List? : null)
+        ?.whereType<Map>().map(
           (entry) => Map<String, dynamic>.from(entry),
         ) ??
         const [],

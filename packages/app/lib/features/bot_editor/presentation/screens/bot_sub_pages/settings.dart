@@ -608,16 +608,16 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       // 3. Navigate home and sync
       Navigator.of(context).popUntil((route) => route.isFirst);
 
-      // Trigger a sync of all bots to refresh the home page UI
-      // We use the global navigator context or a small delay to ensure home page is ready
-      unawaited(
-        Future.delayed(const Duration(milliseconds: 300), () async {
-          final homeState = homeKey.currentState;
-          if (homeState != null) {
-            await homeState.syncAllBotsFromManager();
-          }
-        }),
-      );
+      // Trigger a sync of all bots to refresh the home page UI.
+      // Use addPostFrameCallback to ensure the widget tree is fully settled
+      // before accessing homeKey.currentState (avoids GlobalKey collision
+      // during route transitions where two widget trees briefly coexist).
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final homeState = homeKey.currentState;
+        if (homeState != null) {
+          homeState.syncAllBotsFromManager();
+        }
+      });
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(

@@ -125,8 +125,22 @@ extension _AppHomePageSync on _AppHomePageState {
         if (mainClient != null) {
           final remoteConfig = await mainClient.getBotConfig(botId);
           if (remoteConfig.isNotEmpty) {
-            // Preserve the local token (not stored in remote config for security)
+            // Preserve local-only fields that the Manager doesn't store:
+            // avatar and name are set locally and should survive cross-device sync.
+            final local = await appManager.getApp(botId);
             remoteConfig['token'] = token;
+            // Strip payload-only boolean fields that collide with local DB list fields.
+            // BotConfig.inboundWebhooks is a premium-capability bool; the local DB uses
+            // the same key for the list of webhook endpoint definitions.
+            if (remoteConfig['inboundWebhooks'] is bool) {
+              remoteConfig.remove('inboundWebhooks');
+            }
+            if (local['avatar'] != null && remoteConfig['avatar'] == null) {
+              remoteConfig['avatar'] = local['avatar'];
+            }
+            if (local['name'] != null && remoteConfig['name'] == null) {
+              remoteConfig['name'] = local['name'];
+            }
             await appManager.saveApp(botId, remoteConfig);
             appendBotDebugLog(
               '[_syncAppFromRemote] Pulled bot config from Manager for $botId',

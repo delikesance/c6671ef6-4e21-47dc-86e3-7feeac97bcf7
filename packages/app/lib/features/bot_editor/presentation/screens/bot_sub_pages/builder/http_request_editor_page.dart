@@ -167,7 +167,8 @@ class _HttpRequestEditorPageState extends State<HttpRequestEditorPage> {
   Widget build(BuildContext context) {
     final showBody = _method != 'GET' && _method != 'HEAD';
 
-    return Scaffold(
+    return SafeArea(
+      child: Scaffold(
       appBar: AppBar(
         title: const Text('HTTP Request'),
         leading: IconButton(
@@ -197,8 +198,8 @@ class _HttpRequestEditorPageState extends State<HttpRequestEditorPage> {
             const SizedBox(height: 8),
             Row(
               children: [
-                SizedBox(
-                  width: 100,
+                ConstrainedBox(
+                  constraints: const BoxConstraints(minWidth: 100, maxWidth: 150),
                   child: DropdownButtonFormField<String>(
                     initialValue: _method,
                     decoration: const InputDecoration(
@@ -364,7 +365,7 @@ class _HttpRequestEditorPageState extends State<HttpRequestEditorPage> {
           ],
         ),
       ),
-    );
+    )); // SafeArea
   }
 
   Widget _sectionHeader(String title) {
