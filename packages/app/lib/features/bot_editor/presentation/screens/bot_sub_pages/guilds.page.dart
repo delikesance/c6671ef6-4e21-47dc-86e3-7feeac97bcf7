@@ -198,17 +198,13 @@ class _GuildsPageState extends State<GuildsPage> {
   }
 
   void _exploreGuild(_GuildInfo info) {
-    final cs = Theme.of(context).colorScheme;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => _GuildExplorePage(
+          info: info,
+          fetchChannels: () => _ensureClient().then((rest) => _fetchChannels(rest, info.id)),
+        ),
       ),
-      builder: (ctx) {
-        return _ExploreSheet(info: info, cs: cs, fetchChannels: () => _ensureClient().then((rest) => _fetchChannels(rest, info.id)));
-      },
     );
   }
 
@@ -334,29 +330,25 @@ class _GuildsPageState extends State<GuildsPage> {
     );
   }
 }
-
-/// The explore bottom sheet — fetches channels via REST on open.
-/// Renders a Discord-like server preview with sidebar-style channel list.
-class _ExploreSheet extends StatefulWidget {
+/// Full-page Discord-style server preview.
+/// Shows server header, channel list grouped by categories, and leave action.
+class _GuildExplorePage extends StatefulWidget {
   final _GuildInfo info;
-  final ColorScheme cs;
   final Future<List<_ChannelInfo>> Function() fetchChannels;
 
-  const _ExploreSheet({
+  const _GuildExplorePage({
     required this.info,
-    required this.cs,
     required this.fetchChannels,
   });
 
   @override
-  State<_ExploreSheet> createState() => _ExploreSheetState();
+  State<_GuildExplorePage> createState() => _GuildExplorePageState();
 }
 
-class _ExploreSheetState extends State<_ExploreSheet> {
+class _GuildExplorePageState extends State<_GuildExplorePage> {
   List<_ChannelInfo>? _channels;
   bool _loadingChannels = true;
 
-  // Discord-like colors
   static const _sidebarBg = Color(0xFF2B2D31);
   static const _channelColor = Color(0xFF949BA4);
   static const _categoryColor = Color(0xFF949BA4);
@@ -379,7 +371,7 @@ class _ExploreSheetState extends State<_ExploreSheet> {
   Widget build(BuildContext context) {
     final info = widget.info;
 
-    // Group channels: categories first, then channels under them
+    // Group channels
     final categories = <_ChannelInfo>[];
     final orphans = <_ChannelInfo>[];
     if (_channels != null) {
@@ -393,174 +385,130 @@ class _ExploreSheetState extends State<_ExploreSheet> {
     }
 
     IconData channelIcon(int type) => switch (type) {
-      0 || 5 => Icons.tag,           // text / news
-      2 => Icons.volume_up,          // voice
-      13 => Icons.volume_up,         // stage
-      15 => Icons.forum,             // forum
+      0 || 5 => Icons.tag,
+      2 => Icons.volume_up,
+      13 => Icons.volume_up,
+      15 => Icons.forum,
       _ => Icons.tag,
     };
 
     bool isVoice(int type) => type == 2 || type == 13;
 
-    return DraggableScrollableSheet(
-      initialChildSize: 0.75,
-      minChildSize: 0.4,
-      maxChildSize: 0.95,
-      expand: false,
-      builder: (ctx, scrollController) {
-        return Container(
-          decoration: const BoxDecoration(
-            color: _sidebarBg,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-          ),
-          child: Column(
-            children: [
-              // Drag handle
-              Center(
-                child: Container(
-                  margin: const EdgeInsets.only(top: 8, bottom: 4),
-                  width: 40, height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.white24,
-                    borderRadius: BorderRadius.circular(2),
+    return Scaffold(
+      backgroundColor: _sidebarBg,
+      appBar: AppBar(
+        backgroundColor: _headerBg,
+        title: Row(
+          children: [
+            CircleAvatar(
+              radius: 14,
+              backgroundImage: info.iconUrl != null
+                  ? NetworkImage(info.iconUrl!)
+                  : null,
+              child: info.iconUrl == null
+                  ? Text(info.name.substring(0, 1).toUpperCase(),
+                      style: const TextStyle(fontSize: 12, color: Colors.white))
+                  : null,
+            ),
+            const SizedBox(width: 10),
+            Text(
+              info.name,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
+        actions: [
+          if (info.approximateMemberCount != null)
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.people_alt_outlined, size: 16),
+                  const SizedBox(width: 4),
+                  Text('~${info.approximateMemberCount}',
+                    style: const TextStyle(fontSize: 13),
                   ),
-                ),
+                ],
               ),
-              // Server header (Discord-style)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                decoration: const BoxDecoration(
-                  color: _headerBg,
-                  border: Border(bottom: BorderSide(color: Color(0xFF1E1F22), width: 1)),
-                ),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 16,
-                      backgroundImage: info.iconUrl != null
-                          ? NetworkImage(info.iconUrl!)
-                          : null,
-                      child: info.iconUrl == null
-                          ? Text(info.name.substring(0, 1).toUpperCase(),
-                              style: const TextStyle(fontSize: 14, color: Colors.white))
-                          : null,
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        info.name,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const Icon(Icons.expand_more, color: Colors.white, size: 20),
-                  ],
-                ),
-              ),
-              // Channel list (scrollable, with bottom stats)
-              Expanded(
-                child: ListView(
-                  controller: scrollController,
-                  padding: const EdgeInsets.only(top: 8, bottom: 8),
-                  children: [
-                    // Uncategorized channels
-                    if (orphans.isNotEmpty) ...[
-                      ...orphans.map((ch) => _channelTile(ch, channelIcon, isVoice)),
-                    ],
-                    // Categories with their children
-                    if (categories.isNotEmpty)
-                      ...categories.map((cat) {
-                        final children = _channels!
-                            .where((c) => c.parentId == cat.id && c.type != 4)
-                            .toList();
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(height: 4),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.expand_more, size: 14, color: _categoryColor),
-                                  const SizedBox(width: 2),
-                                  Text(
-                                    cat.name.toUpperCase(),
-                                    style: const TextStyle(
-                                      color: _categoryColor,
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                      letterSpacing: 0.5,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            ...children.map((ch) => _channelTile(ch, channelIcon, isVoice)),
-                          ],
-                        );
-                      }),
-                    // Loading indicator
-                    if (_loadingChannels)
-                      const Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Center(child: SizedBox(
-                          width: 20, height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white54),
-                        )),
-                      ),
-                    const SizedBox(height: 12),
-                    // Stats footer
-                    const Divider(color: Color(0xFF3F4147), height: 1),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.people_alt_outlined, size: 16, color: _channelColor),
-                          const SizedBox(width: 8),
-                          Text(
-                            info.approximateMemberCount != null
-                                ? '~${info.approximateMemberCount} members'
-                                : 'Members: ?',
-                            style: const TextStyle(color: _channelColor, fontSize: 12),
+            ),
+          if (info.isOwner)
+            const Padding(
+              padding: EdgeInsets.only(right: 12),
+              child: Text('👑', style: TextStyle(fontSize: 16)),
+            ),
+        ],
+      ),
+      body: ListView(
+        padding: const EdgeInsets.only(top: 8, bottom: 80),
+        children: [
+          // Uncategorized channels
+          if (orphans.isNotEmpty)
+            ...orphans.map((ch) => _channelTile(ch, channelIcon, isVoice)),
+          // Categories
+          if (categories.isNotEmpty)
+            ...categories.map((cat) {
+              final children = _channels!
+                  .where((c) => c.parentId == cat.id && c.type != 4)
+                  .toList();
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 4),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.expand_more, size: 14, color: _categoryColor),
+                        const SizedBox(width: 2),
+                        Text(
+                          cat.name.toUpperCase(),
+                          style: const TextStyle(
+                            color: _categoryColor,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.5,
                           ),
-                          const Spacer(),
-                          if (info.isOwner)
-                            const Text('👑 Owner', style: TextStyle(fontSize: 12)),
-                        ],
-                      ),
-                    ),
-                    // Leave button
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton.icon(
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.redAccent,
-                            side: const BorderSide(color: Colors.redAccent),
-                          ),
-                          icon: const Icon(Icons.exit_to_app, size: 16),
-                          label: const Text('Leave Server'),
-                          onPressed: () {
-                            Navigator.pop(ctx);
-                            final pageState = context.findAncestorStateOfType<_GuildsPageState>();
-                            pageState?._leaveGuild(info);
-                          },
                         ),
-                      ),
+                      ],
                     ),
-                    const SizedBox(height: 16),
-                  ],
-                ),
+                  ),
+                  ...children.map((ch) => _channelTile(ch, channelIcon, isVoice)),
+                ],
+              );
+            }),
+          if (_loadingChannels)
+            const Padding(
+              padding: EdgeInsets.all(16),
+              child: Center(child: SizedBox(
+                width: 20, height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white54),
+              )),
+            ),
+        ],
+      ),
+      bottomSheet: Container(
+        color: _headerBg,
+        padding: const EdgeInsets.all(12),
+        child: SafeArea(
+          child: SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.redAccent,
+                side: const BorderSide(color: Colors.redAccent),
               ),
-            ],
+              icon: const Icon(Icons.exit_to_app, size: 16),
+              label: const Text('Leave Server'),
+              onPressed: () {
+                Navigator.pop(context);
+                final pageState = context.findAncestorStateOfType<_GuildsPageState>();
+                pageState?._leaveGuild(info);
+              },
+            ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -582,11 +530,8 @@ class _ExploreSheetState extends State<_ExploreSheet> {
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    voice ? ch.name : ch.name,
-                    style: TextStyle(
-                      color: _channelColor,
-                      fontSize: 14,
-                    ),
+                    ch.name,
+                    style: const TextStyle(color: _channelColor, fontSize: 14),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
