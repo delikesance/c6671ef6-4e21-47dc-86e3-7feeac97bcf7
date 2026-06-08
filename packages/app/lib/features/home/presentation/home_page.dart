@@ -525,6 +525,28 @@ class HomePageState extends State<HomePage>
         }
       }
 
+      // Enrich locally known bots with Discord metadata and decrypted tokens.
+      // On Desktop, this only runs when explicitly connected via Discord (manager session present).
+      if (!_isDesktop || await _resolveGlobalMainApiClient() != null) {
+        try {
+          appendBotDebugLog('[syncAllBotsFromManager] Fetching Discord-managed bots via listDiscordBots().');
+          final discordBots = await remoteClient.listDiscordBots();
+          appendBotDebugLog('[syncAllBotsFromManager] listDiscordBots returned ${discordBots.length} managed bots.');
+          for (final db in discordBots) {
+            final botId = (db['id'] ?? '').toString().trim();
+            if (botId.isEmpty) continue;
+            await appManager.createOrUpdateApp(
+              id: Snowflake.parse(botId),
+              username: (db['name'] ?? 'Unnamed Bot').toString(),
+              avatarHash: (db['icon'] ?? '').toString(),
+              token: (db['bot_token'] ?? '').toString(),
+            );
+          }
+        } catch (e) {
+          appendBotDebugLog('[syncAllBotsFromManager] listDiscordBots failed (non-fatal): $e');
+        }
+      }
+
       mergeBots(await remoteClient.listBots());
 
       final apps = await appManager.getAllApps();
