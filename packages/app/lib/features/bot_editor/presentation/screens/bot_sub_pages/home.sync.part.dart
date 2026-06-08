@@ -182,6 +182,43 @@ extension _AppHomePageSync on _AppHomePageState {
               appendBotDebugLog(
                 '[_syncAppFromRemote] Saved ${remoteCommands.length} commands from Manager config for $botId',
               );
+
+              // Also save workflows from the Manager config
+              final remoteWorkflows = remoteConfig['workflows'];
+              if (remoteWorkflows is List && remoteWorkflows.isNotEmpty) {
+                for (final wf in remoteWorkflows) {
+                  if (wf is! Map) continue;
+                  final wfName = (wf['name'] ?? '').toString();
+                  if (wfName.isEmpty) continue;
+
+                  // Only save if we don't already have this workflow locally
+                  final existingWorkflows = (local['workflows'] as List?) ?? [];
+                  final alreadyExists = existingWorkflows.any(
+                    (w) => (w is Map) && (w['name'] ?? '').toString() == wfName,
+                  );
+                  if (alreadyExists) continue;
+
+                  await appManager.saveWorkflow(
+                    botId,
+                    name: wfName,
+                    actions: ((wf['actions'] as List?) ?? [])
+                        .map((e) => Map<String, dynamic>.from(e as Map))
+                        .toList(),
+                    entryPoint: wf['entryPoint']?.toString(),
+                    arguments: ((wf['arguments'] as List?) ?? [])
+                        .map((e) => Map<String, dynamic>.from(e as Map))
+                        .toList(),
+                    workflowType: wf['workflowType']?.toString(),
+                    eventTrigger: wf['eventTrigger'] != null
+                        ? Map<String, dynamic>.from(wf['eventTrigger'] as Map)
+                        : null,
+                    folder: wf['folder']?.toString(),
+                  );
+                }
+                appendBotDebugLog(
+                  '[_syncAppFromRemote] Saved ${remoteWorkflows.length} workflows from Manager config for $botId',
+                );
+              }
             }
           }
         }
