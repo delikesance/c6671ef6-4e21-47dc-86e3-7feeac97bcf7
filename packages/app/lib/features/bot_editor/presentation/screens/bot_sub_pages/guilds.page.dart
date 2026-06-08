@@ -1,5 +1,9 @@
+import 'dart:convert';
+
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/storage/database.dart';
+import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nyxx/nyxx.dart';
 
@@ -366,6 +370,15 @@ class _GuildExplorePageState extends State<_GuildExplorePage> {
   final ScrollController _scrollCtrl = ScrollController();
   bool _didInitialScroll = false;
 
+  final _messageCtrl = TextEditingController();
+  bool _sending = false;
+
+  bool get _canSendMessages =>
+      PremiumCapabilities.isPremiumUser ||
+      (!kIsWeb && defaultTargetPlatform == TargetPlatform.linux) ||
+      (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) ||
+      (!kIsWeb && defaultTargetPlatform == TargetPlatform.macOS);
+
   static const _sidebarBg = Color(0xFF2B2D31);
   static const _sidebarW = 240.0;
   static const _channelColor = Color(0xFF949BA4);
@@ -489,6 +502,63 @@ class _GuildExplorePageState extends State<_GuildExplorePage> {
       }
     } catch (_) {
       if (mounted) setState(() => _loadingOlder = false);
+    }
+  }
+
+  Future<void> _sendMessage() async {
+    final text = _messageCtrl.text.trim();
+    if (text.isEmpty || _selectedChannel == null || _sending) return;
+    _messageCtrl.clear();
+    setState(() => _sending = true);
+
+    // Optimistic: add a fake message immediately
+    final optimistic = _MessageInfo(
+      id: 'sending_${DateTime.now().millisecondsSinceEpoch}',
+      authorName: 'Sending...',
+      content: text,
+      timestamp: DateTime.now(),
+    );
+    setState(() => _messages.add(optimistic));
+    _scrollToBottom();
+
+    try {
+      final route = HttpRoute()
+        ..add(HttpRoutePart('channels'))
+        ..add(HttpRoutePart(_selectedChannel!.id))
+        ..add(HttpRoutePart('messages'));
+      final response = await widget.rest.httpHandler.executeSafe(
+        BasicRequest(route, method: 'POST', body: '{"content":${jsonEncode(text)}}'),
+      );
+      // Replace optimistic with real message
+      final map = response.jsonBody as Map<String, Object?>;
+      final author = map['author'] as Map<String, Object?>?;
+      final real = _MessageInfo(
+        id: map['id'] as String,
+        authorName: author?['global_name'] as String? ?? author?['username'] as String? ?? 'Unknown',
+        authorAvatarUrl: author?['avatar'] != null
+            ? 'https://cdn.discordapp.com/avatars/${author!['id']}/${author['avatar']}.png'
+            : null,
+        content: map['content'] as String? ?? '',
+        timestamp: DateTime.parse(map['timestamp'] as String),
+      );
+      if (mounted) {
+        setState(() {
+          final idx = _messages.indexWhere((m) => m.id == optimistic.id);
+          if (idx != -1) _messages[idx] = real;
+          _sending = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _messages.removeWhere((m) => m.id == optimistic.id);
+          _sending = false;
+        });
+        _messageCtrl.text = text; // restore
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to send: $e')),
+        );
+      }
     }
   }
 
@@ -693,13 +763,12 @@ class _GuildExplorePageState extends State<_GuildExplorePage> {
       ]));
     }
 
-    return ListView.builder(
+    final listView = ListView.builder(
       controller: _scrollCtrl,
       reverse: true,
       padding: const EdgeInsets.symmetric(vertical: 8),
       itemCount: _messages.length + (_hasMore || _loadingOlder ? 1 : 0),
       itemBuilder: (ctx, i) {
-        // reversed: index 0 = bottom. Loading indicator at end (visually top)
         if (i == _messages.length) {
           return _loadingOlder
               ? const Padding(
@@ -718,9 +787,54 @@ class _GuildExplorePageState extends State<_GuildExplorePage> {
                   ),
                 );
         }
-        final msgIndex = _messages.length - 1 - i; // reverse index
+        final msgIndex = _messages.length - 1 - i;
         return _buildMessage(_messages[msgIndex]);
       },
+    );
+
+    if (!_canSendMessages) return listView;
+
+    return Column(children: [
+      Expanded(child: listView),
+      _buildMessageInput(),
+    ]);
+  }
+
+  Widget _buildMessageInput() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      color: _headerBg,
+      child: SafeArea(
+        child: Row(children: [
+          Expanded(
+            child: TextField(
+              controller: _messageCtrl,
+              style: const TextStyle(color: Colors.white, fontSize: 14),
+              decoration: InputDecoration(
+                hintText: 'Message #${_selectedChannel?.name ?? ""}',
+                hintStyle: const TextStyle(color: _channelColor, fontSize: 14),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                filled: true,
+                fillColor: _sidebarBg,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+              textInputAction: TextInputAction.send,
+              onSubmitted: (_) => _sendMessage(),
+            ),
+          ),
+          const SizedBox(width: 8),
+          IconButton(
+            icon: _sending
+                ? const SizedBox(width: 20, height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white54))
+                : const Icon(Icons.send, color: _channelColor),
+            onPressed: _sending ? null : _sendMessage,
+          ),
+        ]),
+      ),
     );
   }
 
