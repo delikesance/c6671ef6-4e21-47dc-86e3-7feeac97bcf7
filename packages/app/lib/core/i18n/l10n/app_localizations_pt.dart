@@ -7693,4 +7693,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String marketplace_command_preview_options(Object count) {
     return '$count opções';
   }
+
+  @override
+  String get guilds_tab => 'Servidores';
+
+  @override
+  String get guilds_tab_short => 'Servidores';
 }
