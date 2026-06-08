@@ -57,10 +57,13 @@ void _showLocalNotificationSync({
 
 /// Broadcast topic categories the app subscribes to.
 enum NotificationTopic {
-  broadcast,
-  updates,
-  botAlerts,
-  billing,
+  broadcast('broadcast'),
+  updates('updates'),
+  botAlerts('bot_alerts'),
+  billing('billing');
+
+  const NotificationTopic(this.topicName);
+  final String topicName;
 }
 
 /// Central service for FCM push notifications via data-only topic broadcast.
@@ -157,7 +160,7 @@ class NotificationService {
           ? NotificationTopic.values
           : topics;
       for (final topic in topicsToSubscribe) {
-        final fullTopic = '$_topicPrefix${topic.name}';
+        final fullTopic = '$_topicPrefix${topic.topicName}';
         await _messaging.subscribeToTopic(fullTopic);
         debugPrint('[NotificationService] Subscribed: $fullTopic');
       }
@@ -188,13 +191,13 @@ class NotificationService {
 
   Future<void> subscribeToTopic(NotificationTopic topic) async {
     if (!_initialized) return;
-    final fullTopic = '$_topicPrefix${topic.name}';
+    final fullTopic = '$_topicPrefix${topic.topicName}';
     await _messaging.subscribeToTopic(fullTopic);
   }
 
   Future<void> unsubscribeFromTopic(NotificationTopic topic) async {
     if (!_initialized) return;
-    final fullTopic = '$_topicPrefix${topic.name}';
+    final fullTopic = '$_topicPrefix${topic.topicName}';
     await _messaging.unsubscribeFromTopic(fullTopic);
   }
 
