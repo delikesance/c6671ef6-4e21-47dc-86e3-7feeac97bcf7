@@ -2125,7 +2125,7 @@
   "marketplace_delete": "Delete",
   "marketplace_edit_hint": "To edit, re-publish from your bot's command list with the same name.",
   "marketplace_delete_confirm_title": "Delete Template",
-  "marketplace_delete_confirm": "Are you sure you want to delete "{name}"? This cannot be undone.",
+  "marketplace_delete_confirm": "Are you sure you want to delete \"{name}\"? This cannot be undone.",
   "marketplace_delete_success": "Template deleted.",
   "marketplace_my_templates": "My Templates",
   "marketplace_login_success": "Discord connected successfully!",

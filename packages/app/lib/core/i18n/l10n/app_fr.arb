@@ -2125,7 +2125,7 @@
   "marketplace_delete": "Supprimer",
   "marketplace_edit_hint": "Pour modifier, republiez depuis la liste des commandes de votre bot avec le même nom.",
   "marketplace_delete_confirm_title": "Supprimer le template",
-  "marketplace_delete_confirm": "Voulez-vous vraiment supprimer "{name}" ? Cette action est irréversible.",
+  "marketplace_delete_confirm": "Voulez-vous vraiment supprimer \"{name}\" ? Cette action est irréversible.",
   "marketplace_delete_success": "Template supprimé.",
   "marketplace_my_templates": "Mes Templates",
   "marketplace_login_success": "Discord connecté avec succès !",

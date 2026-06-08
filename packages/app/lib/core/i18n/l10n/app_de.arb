@@ -2125,7 +2125,7 @@
   "marketplace_delete": "Löschen",
   "marketplace_edit_hint": "Zum Bearbeiten erneut aus der Befehlsliste deines Bots mit demselben Namen veröffentlichen.",
   "marketplace_delete_confirm_title": "Vorlage löschen",
-  "marketplace_delete_confirm": "Bist du sicher, dass du "{name}" löschen möchtest? Dies kann nicht rückgängig gemacht werden.",
+  "marketplace_delete_confirm": "Bist du sicher, dass du \"{name}\" löschen möchtest? Dies kann nicht rückgängig gemacht werden.",
   "marketplace_delete_success": "Vorlage gelöscht.",
   "marketplace_my_templates": "Meine Vorlagen",
   "marketplace_login_success": "Discord erfolgreich verbunden!",
