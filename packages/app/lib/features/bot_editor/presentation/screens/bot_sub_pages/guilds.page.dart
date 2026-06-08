@@ -358,8 +358,13 @@ class _GuildExplorePageState extends State<_GuildExplorePage> {
   bool _loadingChannels = true;
 
   _ChannelInfo? _selectedChannel;
-  List<_MessageInfo>? _messages;
+  List<_MessageInfo> _messages = [];
   bool _loadingMessages = false;
+  bool _loadingOlder = false;
+  bool _hasMore = true;
+
+  final ScrollController _scrollCtrl = ScrollController();
+  bool _didInitialScroll = false;
 
   static const _sidebarBg = Color(0xFF2B2D31);
   static const _sidebarW = 240.0;
@@ -373,6 +378,31 @@ class _GuildExplorePageState extends State<_GuildExplorePage> {
   void initState() {
     super.initState();
     _loadChannels();
+    _scrollCtrl.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollCtrl.removeListener(_onScroll);
+    _scrollCtrl.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollCtrl.position.pixels <= 100 && !_loadingOlder && _hasMore) {
+      _fetchOlderMessages();
+    }
+  }
+
+  void _scrollToBottom() {
+    if (_scrollCtrl.hasClients && _messages.isNotEmpty && !_didInitialScroll) {
+      _didInitialScroll = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_scrollCtrl.hasClients) {
+          _scrollCtrl.jumpTo(_scrollCtrl.position.maxScrollExtent);
+        }
+      });
+    }
   }
 
   Future<void> _loadChannels() async {
@@ -402,16 +432,63 @@ class _GuildExplorePageState extends State<_GuildExplorePage> {
 
   Future<void> _selectChannel(_ChannelInfo ch) async {
     if (ch.type == 4) return; // category
+    _didInitialScroll = false;
     setState(() {
       _selectedChannel = ch;
-      _messages = null;
+      _messages = [];
       _loadingMessages = true;
+      _hasMore = true;
     });
     try {
       final msgs = await _GuildsPageState.fetchMessages(widget.rest, ch.id);
-      if (mounted) setState(() { _messages = msgs; _loadingMessages = false; });
+      if (mounted) {
+        setState(() { _messages = msgs; _loadingMessages = false; _hasMore = msgs.length >= 50; });
+        _scrollToBottom();
+      }
     } catch (_) {
       if (mounted) setState(() => _loadingMessages = false);
+    }
+  }
+
+  Future<void> _fetchOlderMessages() async {
+    if (_selectedChannel == null || _messages.isEmpty || _loadingOlder) return;
+    final oldestId = _messages.first.id;
+    setState(() => _loadingOlder = true);
+    try {
+      final route = HttpRoute()
+        ..add(HttpRoutePart('channels'))
+        ..add(HttpRoutePart(_selectedChannel!.id))
+        ..add(HttpRoutePart('messages'));
+      final response = await widget.rest.httpHandler.executeSafe(
+        BasicRequest(route, method: 'GET', queryParameters: {
+          'limit': '50',
+          'before': oldestId,
+        }),
+      );
+      final rawList = response.jsonBody as List;
+      // API returns newest first, reverse to chronological
+      final older = rawList.reversed.map((raw) {
+        final map = raw as Map<String, Object?>;
+        final author = map['author'] as Map<String, Object?>?;
+        return _MessageInfo(
+          id: map['id'] as String,
+          authorName: author?['global_name'] as String? ?? author?['username'] as String? ?? 'Unknown',
+          authorAvatarUrl: author?['avatar'] != null
+              ? 'https://cdn.discordapp.com/avatars/${author!['id']}/${author['avatar']}.png'
+              : null,
+          content: map['content'] as String? ?? '',
+          timestamp: DateTime.parse(map['timestamp'] as String),
+        );
+      }).toList();
+      if (mounted) {
+        setState(() {
+          _messages.insertAll(0, older);
+          _loadingOlder = false;
+          _hasMore = older.length >= 50;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loadingOlder = false);
     }
   }
 
@@ -607,8 +684,7 @@ class _GuildExplorePageState extends State<_GuildExplorePage> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    final msgs = _messages ?? [];
-    if (msgs.isEmpty) {
+    if (_messages.isEmpty && !_loadingOlder) {
       return Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
         const Icon(Icons.chat_bubble_outline, size: 48, color: _channelColor),
         const SizedBox(height: 12),
@@ -618,9 +694,33 @@ class _GuildExplorePageState extends State<_GuildExplorePage> {
     }
 
     return ListView.builder(
+      controller: _scrollCtrl,
+      reverse: true,
       padding: const EdgeInsets.symmetric(vertical: 8),
-      itemCount: msgs.length,
-      itemBuilder: (ctx, i) => _buildMessage(msgs[i]),
+      itemCount: _messages.length + (_hasMore || _loadingOlder ? 1 : 0),
+      itemBuilder: (ctx, i) {
+        // reversed: index 0 = bottom. Loading indicator at end (visually top)
+        if (i == _messages.length) {
+          return _loadingOlder
+              ? const Padding(
+                  padding: EdgeInsets.all(12),
+                  child: Center(child: SizedBox(
+                      width: 20, height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white54))))
+              : Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: TextButton(
+                      onPressed: _fetchOlderMessages,
+                      child: const Text('Load older messages',
+                          style: TextStyle(color: _channelColor, fontSize: 12)),
+                    ),
+                  ),
+                );
+        }
+        final msgIndex = _messages.length - 1 - i; // reverse index
+        return _buildMessage(_messages[msgIndex]);
+      },
     );
   }
 
@@ -740,17 +840,21 @@ class _GuildExplorePageState extends State<_GuildExplorePage> {
     final isImage = a.url.contains('.png') || a.url.contains('.jpg') ||
         a.url.contains('.jpeg') || a.url.contains('.gif') || a.url.contains('.webp');
     if (isImage) {
+      final maxWidth = MediaQuery.of(context).size.width > 600 ? 300.0 : 200.0;
       return Padding(
         padding: const EdgeInsets.only(top: 4),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(8),
-          child: Image.network(a.url, fit: BoxFit.contain,
-              width: a.width?.toDouble() ?? 300, height: a.height?.toDouble(),
-              loadingBuilder: (ctx, child, progress) {
-                if (progress == null) return child;
-                return SizedBox(width: 300, height: 200,
-                    child: const Center(child: CircularProgressIndicator(strokeWidth: 2)));
-              }),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: maxWidth, maxHeight: 250),
+            child: Image.network(a.url, fit: BoxFit.contain,
+                loadingBuilder: (ctx, child, progress) {
+                  if (progress == null) return child;
+                  return SizedBox(
+                      width: maxWidth, height: 150,
+                      child: const Center(child: CircularProgressIndicator(strokeWidth: 2)));
+                }),
+          ),
         ),
       );
     }
