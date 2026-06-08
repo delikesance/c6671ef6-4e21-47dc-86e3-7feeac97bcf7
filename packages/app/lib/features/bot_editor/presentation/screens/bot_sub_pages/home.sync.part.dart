@@ -97,7 +97,7 @@ extension _AppHomePageSync on _AppHomePageState {
       return;
     }
 
-    _isSyncingApp = true;
+    _setState(() => _isSyncingApp = true);
     try {
       appendBotDebugLog('[_syncAppFromRemote] START');
       final user = await widget.client.user.get().timeout(const Duration(seconds: 10));
@@ -161,10 +161,9 @@ extension _AppHomePageSync on _AppHomePageState {
                 final cmdName = (cmd['name'] ?? '').toString();
                 if (cmdId.isEmpty || cmdName.isEmpty) continue;
 
-                // Only save if we don't already have this command locally
-                // (local edits should not be overwritten by remote pulls)
+                // Always overwrite the local command with the Manager version:
+                // the user pressed Sync explicitly, so the Manager is the source of truth.
                 final localCmd = await appManager.getAppCommand(botId, cmdId);
-                if (localCmd.isNotEmpty) continue;
 
                 // Strip legacy response/simpleConfig from imported commands
                 final cmdData = Map<String, dynamic>.from(cmd['data'] ?? cmd);
@@ -180,15 +179,15 @@ extension _AppHomePageSync on _AppHomePageState {
                   'type': cmdData['commandType'] ?? cmd['type'] ?? 'chatInput',
                   'id': cmdId,
                   'data': cmdData,
-                  'createdAt': DateTime.now().toIso8601String(),
-                  'updatedAt': DateTime.now().toIso8601String(),
+                  'createdAt': (localCmd['createdAt'] ?? DateTime.now().toIso8601String()).toString(),
+                  'updatedAt': (cmd['updatedAt'] ?? DateTime.now().toIso8601String()).toString(),
                 });
               }
               appendBotDebugLog(
-                '[_syncAppFromRemote] Saved ${remoteCommands.length} commands from Manager config for $botId',
+                '[_syncAppFromRemote] Upserted ${remoteCommands.length} commands from Manager config for $botId',
               );
 
-              // Also save workflows from the Manager config
+              // Also upsert workflows from the Manager config
               final remoteWorkflows = remoteConfig['workflows'];
               if (remoteWorkflows is List && remoteWorkflows.isNotEmpty) {
                 for (final wf in remoteWorkflows) {
@@ -196,13 +195,7 @@ extension _AppHomePageSync on _AppHomePageState {
                   final wfName = (wf['name'] ?? '').toString();
                   if (wfName.isEmpty) continue;
 
-                  // Only save if we don't already have this workflow locally
-                  final existingWorkflows = (local['workflows'] as List?) ?? [];
-                  final alreadyExists = existingWorkflows.any(
-                    (w) => (w is Map) && (w['name'] ?? '').toString() == wfName,
-                  );
-                  if (alreadyExists) continue;
-
+                  // Always overwrite the local workflow with the Manager version.
                   await appManager.saveWorkflow(
                     botId,
                     name: wfName,
@@ -221,7 +214,7 @@ extension _AppHomePageSync on _AppHomePageState {
                   );
                 }
                 appendBotDebugLog(
-                  '[_syncAppFromRemote] Saved ${remoteWorkflows.length} workflows from Manager config for $botId',
+                  '[_syncAppFromRemote] Upserted ${remoteWorkflows.length} workflows from Manager config for $botId',
                 );
               }
             }
@@ -297,8 +290,10 @@ extension _AppHomePageSync on _AppHomePageState {
         });
       }
 
-      // Push full bot configuration to Manager so it's available
-      // for sync on other devices (workflows, variables, triggers, etc.)
+      // Push Discord-reconciled command IDs back to Manager so other devices
+      // get the correct Discord IDs. We do NOT push the full local config here
+      // because we just pulled from Manager — pushing back would risk overwriting
+      // concurrent changes from another device.
       try {
         final mainClient = await _resolveMainApiClientForBot(
           botId: botId,
@@ -306,22 +301,32 @@ extension _AppHomePageSync on _AppHomePageState {
           attemptSessionRestore: true,
         );
         if (mainClient != null) {
-          final botConfig = Map<String, dynamic>.from(refreshed);
-          botConfig.remove('token');
-          appendBotDebugLog('[_syncAppFromRemote] pushing bot config to Manager...');
+          // Re-read the local state that now reflects the Manager pull + Discord reconciliation.
+          final afterSync = await appManager.getApp(botId);
+          final localCommands = await appManager.listAppCommands(botId);
+
+          // Build a minimal patch: only the fields the Manager needs to keep
+          // command IDs aligned with Discord. Do not include token.
+          final patch = Map<String, dynamic>.from(afterSync);
+          patch.remove('token');
+          // Replace the commands list with the fully-reconciled local list
+          // so Discord IDs are up-to-date on the Manager.
+          patch['commands'] = localCommands;
+
+          appendBotDebugLog('[_syncAppFromRemote] pushing reconciled IDs to Manager...');
           await mainClient.syncBot(
             botId,
             user.username,
-            botConfig,
+            patch,
             force: true,
           ).timeout(const Duration(seconds: 20));
           appendBotDebugLog(
-            '[_syncAppFromRemote] Pushed full bot config to Manager for $botId',
+            '[_syncAppFromRemote] Pushed reconciled config to Manager for $botId',
           );
         }
       } catch (e) {
         appendBotDebugLog(
-          '[_syncAppFromRemote] Failed to push bot config to Manager: $e',
+          '[_syncAppFromRemote] Failed to push reconciled config to Manager: $e',
         );
       }
 
@@ -339,7 +344,7 @@ extension _AppHomePageSync on _AppHomePageState {
         ).showSnackBar(SnackBar(content: Text(e.toString())));
       }
     } finally {
-      _isSyncingApp = false;
+      _setState(() => _isSyncingApp = false);
     }
   }
 
