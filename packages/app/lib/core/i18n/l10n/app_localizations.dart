@@ -13371,6 +13371,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} options'**
   String marketplace_command_preview_options(Object count);
+
+  /// No description provided for @guilds_tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Servers'**
+  String get guilds_tab;
+
+  /// No description provided for @guilds_tab_short.
+  ///
+  /// In en, this message translates to:
+  /// **'Servers'**
+  String get guilds_tab_short;
 }
 
 class _AppLocalizationsDelegate

@@ -7344,4 +7344,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String marketplace_command_preview_options(Object count) {
     return '$count options';
   }
+
+  @override
+  String get guilds_tab => 'サーバー';
+
+  @override
+  String get guilds_tab_short => 'サーバー';
 }

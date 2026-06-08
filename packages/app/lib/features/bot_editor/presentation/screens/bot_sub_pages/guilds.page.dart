@@ -37,12 +37,23 @@ class GuildsPage extends StatefulWidget {
 }
 
 class _GuildsPageState extends State<GuildsPage> {
-  final _leavingGuilds = <Snowflake>{};
+  final _leavingGuilds = <String>{};
   List<_GuildInfo>? _restGuilds;
   bool _loadingRest = false;
 
-  /// Try to get guilds from the running gateway cache.
-  /// Falls back to REST API if the bot is not running.
+  /// Get a REST client using the stored bot token. Returns null if no token.
+  Future<NyxxRest?> _getRestClient() async {
+    final appManager = AppManager();
+    final appData = await appManager.getApp(widget.botId);
+    final token = (appData['token'] ?? '').toString().trim();
+    if (token.isEmpty) return null;
+    try {
+      return await Nyxx.connectRest(token);
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<List<_GuildInfo>> _fetchGuilds() async {
     // 1. Try running gateway cache (instant)
     final gateway = desktopGatewayForBot(widget.botId);
@@ -51,20 +62,17 @@ class _GuildsPageState extends State<GuildsPage> {
         id: g.id.toString(),
         name: g.name,
         iconHash: g.iconHash,
+        isOwner: g.isOwnedByCurrentUser ?? false,
+        approximateMemberCount: g.approximateMemberCount,
       )).toList();
       guilds.sort((a, b) => a.name.compareTo(b.name));
       return guilds;
     }
 
-    // 2. Fall back to REST API (temporary connection, no gateway)
-    final appManager = AppManager();
-    final appData = await appManager.getApp(widget.botId);
-    final token = (appData['token'] ?? '').toString().trim();
-    if (token.isEmpty) return [];
-
-    NyxxRest? rest;
+    // 2. Fall back to REST API
+    final rest = await _getRestClient();
+    if (rest == null) return [];
     try {
-      rest = await Nyxx.connectRest(token);
       final route = HttpRoute()
         ..add(HttpRoutePart('users'))
         ..add(HttpRoutePart('@me'))
@@ -88,22 +96,11 @@ class _GuildsPageState extends State<GuildsPage> {
     } catch (_) {
       return [];
     } finally {
-      rest?.close();
+      rest.close();
     }
   }
 
-  /// Only available when gateway is running (real Guild object needed).
   Future<void> _leaveGuild(_GuildInfo info) async {
-    final gateway = desktopGatewayForBot(widget.botId);
-    if (gateway == null) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Start the bot to leave servers.')),
-        );
-      }
-      return;
-    }
-
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -127,13 +124,31 @@ class _GuildsPageState extends State<GuildsPage> {
 
     if (confirmed != true || !mounted) return;
 
-    final snowflake = Snowflake.parse(info.id);
-    setState(() => _leavingGuilds.add(snowflake));
+    setState(() => _leavingGuilds.add(info.id));
     try {
-      await gateway.guilds.delete(snowflake);
+      // Try gateway first, fall back to REST
+      final gateway = desktopGatewayForBot(widget.botId);
+      if (gateway != null) {
+        await gateway.guilds.delete(Snowflake.parse(info.id));
+      } else {
+        final rest = await _getRestClient();
+        if (rest == null) throw Exception('Cannot connect to Discord');
+        try {
+          final route = HttpRoute()
+            ..add(HttpRoutePart('users'))
+            ..add(HttpRoutePart('@me'))
+            ..add(HttpRoutePart('guilds'))
+            ..add(HttpRoutePart(info.id));
+          await rest.httpHandler.executeSafe(
+            BasicRequest(route, method: 'DELETE'),
+          );
+        } finally {
+          rest.close();
+        }
+      }
       if (mounted) {
         setState(() {
-          _leavingGuilds.remove(snowflake);
+          _leavingGuilds.remove(info.id);
           _restGuilds?.removeWhere((g) => g.id == info.id);
         });
         ScaffoldMessenger.of(context).showSnackBar(
@@ -142,7 +157,7 @@ class _GuildsPageState extends State<GuildsPage> {
       }
     } catch (e) {
       if (mounted) {
-        setState(() => _leavingGuilds.remove(snowflake));
+        setState(() => _leavingGuilds.remove(info.id));
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to leave: $e')),
         );
@@ -151,25 +166,161 @@ class _GuildsPageState extends State<GuildsPage> {
   }
 
   void _exploreGuild(_GuildInfo info) {
-    showDialog(
+    final gateway = desktopGatewayForBot(widget.botId);
+    Guild? fullGuild;
+    if (gateway != null) {
+      fullGuild = gateway.guilds.cache[Snowflake.parse(info.id)];
+    }
+
+    final cs = Theme.of(context).colorScheme;
+
+    showModalBottomSheet(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(info.name),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (info.iconUrl != null)
-              CircleAvatar(
-                radius: 32,
-                backgroundImage: NetworkImage(info.iconUrl!),
-              ),
-            const SizedBox(height: 12),
-            Text('ID: ${info.id}'),
-            if (info.isOwner) const Text('👑 Bot is owner of this server'),
-            if (info.approximateMemberCount != null)
-              Text('Members: ~${info.approximateMemberCount}'),
-          ],
-        ),
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.5,
+          minChildSize: 0.3,
+          maxChildSize: 0.85,
+          expand: false,
+          builder: (ctx, scrollController) {
+            return ListView(
+              controller: scrollController,
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+              children: [
+                Center(
+                  child: Container(
+                    width: 40, height: 4,
+                    decoration: BoxDecoration(
+                      color: cs.onSurfaceVariant.withAlpha(60),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 28,
+                      backgroundImage: info.iconUrl != null
+                          ? NetworkImage(info.iconUrl!)
+                          : null,
+                      child: info.iconUrl == null
+                          ? Text(info.name.substring(0, 1).toUpperCase(),
+                              style: const TextStyle(fontSize: 20))
+                          : null,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(info.name,
+                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                          ),
+                          Text('ID: ${info.id}',
+                            style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant, fontFamily: 'monospace'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                // Stats section
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    _statCard(ctx, Icons.people_alt_outlined, 'Members',
+                      info.approximateMemberCount?.toString() ?? '?'),
+                if (fullGuild != null) ...[
+                  _statCard(ctx, Icons.tag, 'Channels',
+                    '${gateway!.channels.cache.values.whereType<GuildChannel>().where((c) => c.guildId == Snowflake.parse(info.id)).length}'),
+                  _statCard(ctx, Icons.shield, 'Roles',
+                    '${fullGuild.roles.cache.length}'),
+                  _statCard(ctx, Icons.emoji_emotions_outlined, 'Emojis',
+                    '${fullGuild.emojis.cache.length}'),
+                    ],
+                    if (info.isOwner)
+                      _statCard(ctx, Icons.star, 'Owner', '👑'),
+                  ],
+                ),
+                if (fullGuild != null) ...[
+                  const SizedBox(height: 20),
+                  Text('Channels',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: cs.onSurface),
+                  ),
+                  const SizedBox(height: 8),
+                  ...gateway!.channels.cache.values
+                    .whereType<GuildChannel>()
+                    .where((c) => c.guildId == Snowflake.parse(info.id))
+                    .take(20).map((ch) {
+                    final typeIcon = switch (ch.type) {
+                      ChannelType.guildText || ChannelType.guildAnnouncement => Icons.chat_outlined,
+                      ChannelType.guildVoice || ChannelType.guildStageVoice => Icons.volume_up_outlined,
+                      ChannelType.guildCategory => Icons.folder_outlined,
+                      _ => Icons.tag,
+                    };
+                    return ListTile(
+                      dense: true,
+                      leading: Icon(typeIcon, size: 18, color: cs.onSurfaceVariant),
+                      title: Text('#${ch.name}',
+                        style: TextStyle(fontSize: 13, fontFamily: 'monospace'),
+                      ),
+                    );
+                  }),
+                ],
+                if (fullGuild == null) ...[
+                  const SizedBox(height: 16),
+                  Text(
+                    'Start the bot to see channels, roles, and more.',
+                    style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: cs.onSurfaceVariant),
+                  ),
+                ],
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    icon: const Icon(Icons.exit_to_app, size: 18, color: Colors.red),
+                    label: const Text('Leave Server', style: TextStyle(color: Colors.red)),
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      _leaveGuild(info);
+                    },
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _statCard(BuildContext ctx, IconData icon, String label, String value) {
+    final cs = Theme.of(ctx).colorScheme;
+    return Container(
+      width: 90,
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, size: 18, color: cs.primary),
+          const SizedBox(height: 4),
+          Text(value,
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: cs.onSurface),
+          ),
+          Text(label,
+            style: TextStyle(fontSize: 10, color: cs.onSurfaceVariant),
+          ),
+        ],
       ),
     );
   }
@@ -183,12 +334,10 @@ class _GuildsPageState extends State<GuildsPage> {
   Future<void> _loadGuilds() async {
     final gateway = desktopGatewayForBot(widget.botId);
     if (gateway != null) {
-      // Gateway running — instant, no loading state
       if (mounted) setState(() {});
       return;
     }
 
-    // Need REST fallback — show loading
     setState(() => _loadingRest = true);
     final guilds = await _fetchGuilds();
     if (mounted) {
@@ -203,17 +352,17 @@ class _GuildsPageState extends State<GuildsPage> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    // Check gateway first
     final gateway = desktopGatewayForBot(widget.botId);
     final isRunning = gateway != null;
 
-    // Get guilds from gateway or REST fallback
     List<_GuildInfo> guilds;
     if (gateway != null) {
       guilds = gateway.guilds.cache.values.map((g) => _GuildInfo(
         id: g.id.toString(),
         name: g.name,
         iconHash: g.iconHash,
+        isOwner: g.isOwnedByCurrentUser ?? false,
+        approximateMemberCount: g.approximateMemberCount,
       )).toList();
       guilds.sort((a, b) => a.name.compareTo(b.name));
     } else {
@@ -250,17 +399,16 @@ class _GuildsPageState extends State<GuildsPage> {
             ),
         ],
       ),
-      body: _buildBody(cs, guilds, isRunning),
+      body: _buildBody(cs, guilds),
     );
   }
 
-  Widget _buildBody(ColorScheme cs, List<_GuildInfo> guilds, bool isRunning) {
+  Widget _buildBody(ColorScheme cs, List<_GuildInfo> guilds) {
     if (_loadingRest) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (!isRunning && _restGuilds == null) {
-      // Initial state, no data yet
+    if (_restGuilds == null && desktopGatewayForBot(widget.botId) == null) {
       return const SizedBox.shrink();
     }
 
@@ -272,9 +420,7 @@ class _GuildsPageState extends State<GuildsPage> {
             Icon(Icons.dns_outlined, size: 48, color: cs.onSurfaceVariant),
             const SizedBox(height: 12),
             Text(
-              isRunning
-                  ? 'The bot is not in any server yet.\nInvite it to a server to see it here.'
-                  : 'The bot is not in any server, or\nit could not be reached.',
+              'The bot is not in any server.\nInvite it to a server to see it here.',
               textAlign: TextAlign.center,
               style: TextStyle(color: cs.onSurfaceVariant),
             ),
@@ -285,12 +431,8 @@ class _GuildsPageState extends State<GuildsPage> {
 
     return RefreshIndicator(
       onRefresh: () async {
-        if (!isRunning) {
-          final g = await _fetchGuilds();
-          if (mounted) setState(() => _restGuilds = g);
-        } else {
-          setState(() {});
-        }
+        final g = await _fetchGuilds();
+        if (mounted) setState(() => _restGuilds = g);
       },
       child: ListView.separated(
         padding: const EdgeInsets.symmetric(vertical: 8),
@@ -298,7 +440,7 @@ class _GuildsPageState extends State<GuildsPage> {
         separatorBuilder: (_, i2) => const Divider(height: 1),
         itemBuilder: (ctx, i) {
           final guild = guilds[i];
-          final isLeaving = _leavingGuilds.contains(Snowflake.parse(guild.id));
+          final isLeaving = _leavingGuilds.contains(guild.id);
 
           return ListTile(
             leading: CircleAvatar(
@@ -327,18 +469,17 @@ class _GuildsPageState extends State<GuildsPage> {
                   tooltip: 'Explore',
                   onPressed: () => _exploreGuild(guild),
                 ),
-                if (isRunning)
-                  IconButton(
-                    icon: isLeaving
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.exit_to_app, size: 20, color: Colors.red),
-                    tooltip: 'Leave',
-                    onPressed: isLeaving ? null : () => _leaveGuild(guild),
-                  ),
+                IconButton(
+                  icon: isLeaving
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.exit_to_app, size: 20, color: Colors.red),
+                  tooltip: 'Leave',
+                  onPressed: isLeaving ? null : () => _leaveGuild(guild),
+                ),
               ],
             ),
           );
