@@ -18,6 +18,7 @@ import 'package:bot_creator/features/subscriptions/logic/subscription_service.da
 import 'package:bot_creator/features/subscriptions/presentation/subscription_page.dart';
 import 'package:bot_creator/core/storage/drive.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
+import 'package:nyxx/nyxx.dart' hide Locale, Builder;
 
 import 'package:bot_creator/features/onboarding/logic/onboarding_manager.dart';
 import 'package:bot_creator/core/diagnostics/recovery_manager.dart';
@@ -505,6 +506,29 @@ class _SettingPageState extends State<SettingPage> {
         'OAuth completed, saving session expiresAt=${session.expiresAt.toUtc().toIso8601String()} user=${session.username ?? ''}',
       );
       await MainApiSettingsStore.saveSession(session);
+
+      // Immediately sync Discord-managed bots from the Manager to enrich local
+      // entries with bot tokens and Discord metadata (icon, name).
+      try {
+        final client = MainApiClient(baseUrl: url);
+        final bots = await client.listDiscordBots();
+        _mainApiDebug('listDiscordBots returned ${bots.length} managed bots');
+        for (final bot in bots) {
+          final botId = (bot['id'] ?? '').toString().trim();
+          if (botId.isEmpty) continue;
+          final botName = (bot['name'] ?? 'Unnamed Bot').toString();
+          final token = (bot['bot_token'] ?? '').toString();
+          await appManager.createOrUpdateApp(
+            id: Snowflake.parse(botId),
+            username: botName,
+            avatarHash: (bot['icon'] ?? '').toString(),
+            token: token,
+          );
+        }
+        _mainApiDebug('Managed Discord bots enriched locally after connect');
+      } catch (e) {
+        _mainApiDebug('Failed to sync Discord bots after connect: $e');
+      }
 
       if (!mounted) return;
       setState(() {

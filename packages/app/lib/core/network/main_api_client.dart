@@ -565,6 +565,45 @@ class MainApiClient implements RemoteRuntimeClient {
         .toList(growable: false);
   }
 
+  Future<List<Map<String, dynamic>>> listDiscordBots() async {
+    final uri = _uri('/gateway/bots/discord/mine');
+    appendBotDebugLog('[MainApiClient] GET $uri');
+
+    final response = await _http
+        .get(uri, headers: _headers(includeAuth: true))
+        .timeout(_timeout);
+
+    appendBotDebugLog(
+      '[MainApiClient] GET $uri responded with ${response.statusCode}',
+    );
+
+    if (response.statusCode >= 400) {
+      final body = response.body;
+      String message;
+      try {
+        final decoded = jsonDecode(body) as Map;
+        message = decoded['error'] ?? decoded['message'] ?? body;
+      } catch (_) {
+        message = body;
+      }
+      throw MainApiClientException(
+        message,
+        statusCode: response.statusCode,
+      );
+    }
+
+    try {
+      final decoded = jsonDecode(response.body);
+      if (decoded is List) {
+        return decoded
+            .whereType<Map>()
+            .map((entry) => Map<String, dynamic>.from(entry))
+            .toList(growable: false);
+      }
+    } catch (_) {}
+    return const <Map<String, dynamic>>[];
+  }
+
   Future<void> deleteBot(String botId) async {
     final encodedBotId = Uri.encodeComponent(botId.trim());
     await _delete('/gateway/bots/$encodedBotId');
