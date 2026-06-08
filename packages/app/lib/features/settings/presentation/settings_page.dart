@@ -521,7 +521,6 @@ class _SettingPageState extends State<SettingPage> {
           await appManager.createOrUpdateApp(
             id: Snowflake.parse(botId),
             username: botName,
-            avatarHash: (bot['icon'] ?? '').toString(),
             token: token,
           );
         }
