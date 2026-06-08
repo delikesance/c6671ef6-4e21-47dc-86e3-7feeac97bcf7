@@ -773,6 +773,8 @@ class _SettingPageState extends State<SettingPage> {
         return AppLocale.pt.label;
       case AppLocalePreference.tr:
         return AppLocale.tr.label;
+      case AppLocalePreference.ja:
+        return AppLocale.ja.label;
     }
   }
 
@@ -788,6 +790,8 @@ class _SettingPageState extends State<SettingPage> {
         return AppLocalePreference.pt;
       case AppLocale.tr:
         return AppLocalePreference.tr;
+      case AppLocale.ja:
+        return AppLocalePreference.ja;
     }
   }
 
