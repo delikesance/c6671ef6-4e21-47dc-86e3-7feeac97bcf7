@@ -7045,27 +7045,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get marketplace_apply_success => 'テンプレートが正常に適用されました！';
 
   @override
-  String get marketplace_login_required => 'Discord接続が必要です';
-
-  @override
-  String get marketplace_login_hint => 'マーケットプレイスにアクセスするにはDiscordアカウントを接続してください。';
-
-  @override
-  String get marketplace_connect_discord => 'Discordで接続';
-
-  @override
-  String get marketplace_login_title => 'Managerに接続';
-
-  @override
-  String get marketplace_login_instructions => 'マーケットプレイスを引き続き利用するにはDiscordで認証してください。';
-
-  @override
-  String get marketplace_rate_title => 'このテンプレートを評価';
-
-  @override
-  String get marketplace_rate_success => '評価を送信しました！';
-
-  @override
   String marketplace_apply_success_skipped(
     Object addedCount,
     Object skippedCount,
@@ -7077,6 +7056,30 @@ class AppLocalizationsJa extends AppLocalizations {
   String marketplace_apply_error(Object error) {
     return '適用に失敗: $error';
   }
+
+  @override
+  String get marketplace_login_required => 'Discord接続が必要です';
+
+  @override
+  String get marketplace_login_hint =>
+      'マーケットプレイスにアクセスするにはDiscordアカウントを接続してください。';
+
+  @override
+  String get marketplace_connect_discord => 'Discordで接続';
+
+  @override
+  String get marketplace_login_title => 'Managerに接続';
+
+  @override
+  String get marketplace_login_instructions =>
+      'マーケットプレイスを引き続き利用するにはDiscordで認証してください。';
+
+  @override
+  String get marketplace_rate_title => 'このテンプレートを評価';
+
+  @override
+  String get marketplace_rate_success => '評価を送信しました！';
+  String get marketplace_login_success => 'Discordに接続しました！';
 
   @override
   String get marketplace_config_required => '設定が必要です';

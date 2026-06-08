@@ -2121,6 +2121,7 @@
   "marketplace_login_instructions": "Pazar Yerini kullanmaya devam etmek için lütfen Discord ile kimlik doğrulayın.",
   "marketplace_rate_title": "Bu şablonu değerlendir",
   "marketplace_rate_success": "Değerlendirme gönderildi!",
+  "marketplace_login_success": "Discord başarıyla bağlandı!",
   "marketplace_config_required": "Yapılandırma Gerekli",
   "marketplace_config_hint": "Bu şablonu uygulamadan önce gerekli değerleri doldurun.",
   "marketplace_variable_required": "{name} zorunludur",

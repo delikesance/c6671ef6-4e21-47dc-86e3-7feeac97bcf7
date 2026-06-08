@@ -2121,6 +2121,7 @@
   "marketplace_login_instructions": "Bitte authentifiziere dich über Discord, um den Marktplatz weiter zu nutzen.",
   "marketplace_rate_title": "Diese Vorlage bewerten",
   "marketplace_rate_success": "Bewertung gesendet!",
+  "marketplace_login_success": "Discord erfolgreich verbunden!",
   "marketplace_config_required": "Konfiguration erforderlich",
   "marketplace_config_hint": "Fülle die erforderlichen Werte aus, bevor du diese Vorlage anwendest.",
   "marketplace_variable_required": "{name} ist erforderlich",

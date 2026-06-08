@@ -7291,27 +7291,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get marketplace_apply_success => 'Template applied successfully!';
 
   @override
-  String get marketplace_login_required => 'Discord connection required';
-
-  @override
-  String get marketplace_login_hint => 'You must connect your Discord account to access the Marketplace.';
-
-  @override
-  String get marketplace_connect_discord => 'Connect with Discord';
-
-  @override
-  String get marketplace_login_title => 'Connect to Manager';
-
-  @override
-  String get marketplace_login_instructions => 'Please authenticate via Discord to continue using the Marketplace.';
-
-  @override
-  String get marketplace_rate_title => 'Rate this template';
-
-  @override
-  String get marketplace_rate_success => 'Rating submitted!';
-
-  @override
   String marketplace_apply_success_skipped(
     Object addedCount,
     Object skippedCount,
@@ -7323,6 +7302,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String marketplace_apply_error(Object error) {
     return 'Failed to apply: $error';
   }
+
+  @override
+  String get marketplace_login_required => 'Discord connection required';
+
+  @override
+  String get marketplace_login_hint =>
+      'You must connect your Discord account to access the Marketplace.';
+
+  @override
+  String get marketplace_connect_discord => 'Connect with Discord';
+
+  @override
+  String get marketplace_login_title => 'Connect to Manager';
+
+  @override
+  String get marketplace_login_instructions =>
+      'Please authenticate via Discord to continue using the Marketplace.';
+
+  @override
+  String get marketplace_rate_title => 'Rate this template';
+
+  @override
+  String get marketplace_rate_success => 'Rating submitted!';
+  String get marketplace_login_success => 'Discord connected successfully!';
 
   @override
   String get marketplace_config_required => 'Configuration Required';

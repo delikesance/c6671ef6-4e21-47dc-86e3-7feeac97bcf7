@@ -7381,27 +7381,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get marketplace_apply_success => 'Vorlage erfolgreich angewendet!';
 
   @override
-  String get marketplace_login_required => 'Discord-Verbindung erforderlich';
-
-  @override
-  String get marketplace_login_hint => 'Du musst dein Discord-Konto verbinden, um auf den Marktplatz zuzugreifen.';
-
-  @override
-  String get marketplace_connect_discord => 'Mit Discord verbinden';
-
-  @override
-  String get marketplace_login_title => 'Mit Manager verbinden';
-
-  @override
-  String get marketplace_login_instructions => 'Bitte authentifiziere dich über Discord, um den Marktplatz weiter zu nutzen.';
-
-  @override
-  String get marketplace_rate_title => 'Diese Vorlage bewerten';
-
-  @override
-  String get marketplace_rate_success => 'Bewertung gesendet!';
-
-  @override
   String marketplace_apply_success_skipped(
     Object addedCount,
     Object skippedCount,
@@ -7413,6 +7392,30 @@ class AppLocalizationsDe extends AppLocalizations {
   String marketplace_apply_error(Object error) {
     return 'Anwendung fehlgeschlagen: $error';
   }
+
+  @override
+  String get marketplace_login_required => 'Discord-Verbindung erforderlich';
+
+  @override
+  String get marketplace_login_hint =>
+      'Du musst dein Discord-Konto verbinden, um auf den Marktplatz zuzugreifen.';
+
+  @override
+  String get marketplace_connect_discord => 'Mit Discord verbinden';
+
+  @override
+  String get marketplace_login_title => 'Mit Manager verbinden';
+
+  @override
+  String get marketplace_login_instructions =>
+      'Bitte authentifiziere dich über Discord, um den Marktplatz weiter zu nutzen.';
+
+  @override
+  String get marketplace_rate_title => 'Diese Vorlage bewerten';
+
+  @override
+  String get marketplace_rate_success => 'Bewertung gesendet!';
+  String get marketplace_login_success => 'Discord erfolgreich verbunden!';
 
   @override
   String get marketplace_config_required => 'Konfiguration erforderlich';

@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
@@ -191,41 +194,94 @@ class _MarketplacePageState extends State<MarketplacePage> {
       }
       return;
     }
-    // Navigate to Discord auth — the auth flow will redirect back
-    // We'll retry after the user returns
+
     final client = MainApiClient(baseUrl: config.baseUrl);
+
+    // Find a free port for the local callback server
+    final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+    final port = server.port;
+    final redirectUri = 'http://localhost:$port/oauth/main-api/discord';
+    final state = DateTime.now().millisecondsSinceEpoch.toRadixString(36);
+
     try {
       final startResult = await client.startDiscordAuthorization(
-        redirectUri: 'bcapp://discord-auth',
-        state: DateTime.now().millisecondsSinceEpoch.toRadixString(36),
+        redirectUri: redirectUri,
+        state: state,
       );
-      // Open browser for Discord OAuth
-      // On mobile, this would use url_launcher
-      // For now, just show the URL and let the user handle it
+
+      // Open Discord auth URL in browser
+      final authUrl = startResult.authorizationUrl;
       if (mounted) {
-        await showDialog(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            title: Text(context.tr.marketplace_login_title),
-            content: Text(context.tr.marketplace_login_instructions),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(ctx);
-                  _fetch();
-                },
-                child: Text(context.tr.ok),
-              ),
-            ],
-          ),
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Opening Discord for authentication...')),
+        );
+      }
+      Process.run('xdg-open', [authUrl]);
+
+      // Wait for the OAuth callback on our local server
+      final completer = Completer<HttpRequest>();
+      server.listen((request) {
+        if (request.uri.path == '/oauth/main-api/discord') {
+          completer.complete(request);
+        } else {
+          request.response.statusCode = 404;
+          request.response.close();
+        }
+      });
+
+      final callbackRequest = await completer.future.timeout(
+        const Duration(minutes: 2),
+      );
+
+      // Extract code and state from the callback URL
+      final queryParams = callbackRequest.uri.queryParameters;
+      final code = queryParams['code'] ?? '';
+      final returnedState = queryParams['state'] ?? '';
+
+      // Send success page to browser
+      callbackRequest.response
+        ..statusCode = 200
+        ..headers.contentType = ContentType.html
+        ..write('<html><body><h2>Authentication successful!</h2><p>You can close this window.</p></body></html>');
+      await callbackRequest.response.close();
+
+      if (code.isEmpty) {
+        throw Exception('No authorization code received from Discord.');
+      }
+      if (returnedState != state) {
+        throw Exception('State mismatch — possible CSRF attack.');
+      }
+
+      // Exchange code for session
+      final session = await client.completeDiscordAuthorization(
+        code: code,
+        state: returnedState,
+        redirectUri: redirectUri,
+      );
+
+      await MainApiSettingsStore.saveSession(session);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.tr.marketplace_login_success)),
+        );
+        _needsLogin = false;
+        _fetch(); // reload marketplace with the new session
+      }
+    } on TimeoutException {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Login timed out. Please try again.')),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
+          SnackBar(content: Text('Login failed: $e')),
         );
       }
+    } finally {
+      await server.close();
     }
   }
 
