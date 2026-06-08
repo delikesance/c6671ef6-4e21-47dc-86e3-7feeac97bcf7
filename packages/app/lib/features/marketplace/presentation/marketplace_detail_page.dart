@@ -1,5 +1,6 @@
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
+import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator_shared/bot/marketplace_template.dart';
 import 'package:bot_creator_shared/utils/command_migration.dart';
@@ -26,10 +27,18 @@ class MarketplaceDetailPage extends StatefulWidget {
 class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
   final _variableValues = <String, String>{};
   bool _applying = false;
+  bool _editing = false;
+  bool _deleting = false;
   bool _fetching = false;
   MarketplaceTemplate? _fetchedTemplate;
+  String? _currentUserId;
 
   MarketplaceTemplate get _template => _fetchedTemplate ?? widget.template;
+
+  bool get _isOwner =>
+      _currentUserId != null &&
+      _currentUserId!.isNotEmpty &&
+      _currentUserId == _template.authorId;
 
   @override
   void initState() {
@@ -38,6 +47,9 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
   }
 
   Future<void> _fetchTemplate() async {
+    final session = await MainApiSettingsStore.loadSession();
+    if (mounted) setState(() => _currentUserId = session?.userId);
+
     final client = widget.apiClient;
     if (client == null) return;
     setState(() => _fetching = true);
@@ -144,7 +156,36 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
+
+              // Edit / Delete for own templates
+              if (_isOwner) ...[
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: _editing ? null : _editTemplate,
+                        icon: const Icon(Icons.edit, size: 18),
+                        label: Text(tr.marketplace_edit),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: _deleting ? null : _confirmDelete,
+                        icon: _deleting
+                            ? const SizedBox(
+                                width: 14, height: 14,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Icon(Icons.delete_outline, size: 18, color: Colors.red),
+                        label: Text(tr.marketplace_delete, style: const TextStyle(color: Colors.red)),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+              ],
 
               // Rating
               _buildRating(cs, tr),
@@ -382,6 +423,59 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
           ),
       ],
     );
+  }
+
+  Future<void> _editTemplate() async {
+    // Navigate back and let the user re-publish — for now just show a message
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.tr.marketplace_edit_hint)),
+      );
+    }
+  }
+
+  Future<void> _confirmDelete() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(context.tr.marketplace_delete_confirm_title),
+        content: Text(context.tr.marketplace_delete_confirm(_template.name)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(context.tr.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(context.tr.delete, style: const TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _deleting = true);
+    try {
+      final client = widget.apiClient;
+      if (client != null) {
+        await client.deleteMarketplaceTemplate(_template.id);
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.tr.marketplace_delete_success)),
+        );
+        Navigator.of(context).pop(true); // go back to list
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _deleting = false);
+    }
   }
 
   Widget _buildRating(ColorScheme cs, AppLocalizations tr) {
