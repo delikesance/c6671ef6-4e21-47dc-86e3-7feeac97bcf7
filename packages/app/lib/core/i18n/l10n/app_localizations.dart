@@ -13293,6 +13293,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'by {author} · v{version}'**
   String marketplace_by_author(Object author, Object version);
+
+  /// Title for the conflict resolution dialog when applying a template
+  ///
+  /// In en, this message translates to:
+  /// **'Command Conflicts'**
+  String get marketplace_conflict_title;
+
+  /// Subtitle explaining that some commands conflict with local ones
+  ///
+  /// In en, this message translates to:
+  /// **'Some template commands already exist. Choose which version to keep:'**
+  String get marketplace_conflict_subtitle;
+
+  /// Label for keeping the local version of a command
+  ///
+  /// In en, this message translates to:
+  /// **'Keep Local'**
+  String get marketplace_conflict_keep_local;
+
+  /// Label for using the template version of a command
+  ///
+  /// In en, this message translates to:
+  /// **'Use Template'**
+  String get marketplace_conflict_use_template;
+
+  /// No description provided for @marketplace_conflict_local_info.
+  ///
+  /// In en, this message translates to:
+  /// **'Local ({count} actions)'**
+  String marketplace_conflict_local_info(Object count);
+
+  /// No description provided for @marketplace_conflict_template_info.
+  ///
+  /// In en, this message translates to:
+  /// **'Template ({count} actions)'**
+  String marketplace_conflict_template_info(Object count);
+
+  /// No description provided for @marketplace_conflict_apply_choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply ({count} template)'**
+  String marketplace_conflict_apply_choice(Object count);
+
+  /// No description provided for @marketplace_command_preview_actions.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} actions'**
+  String marketplace_command_preview_actions(Object count);
+
+  /// No description provided for @marketplace_command_preview_no_actions.
+  ///
+  /// In en, this message translates to:
+  /// **'No actions'**
+  String get marketplace_command_preview_no_actions;
+
+  /// No description provided for @marketplace_command_preview_type_slash.
+  ///
+  /// In en, this message translates to:
+  /// **'Slash command'**
+  String get marketplace_command_preview_type_slash;
+
+  /// No description provided for @marketplace_command_preview_type_user.
+  ///
+  /// In en, this message translates to:
+  /// **'User context menu'**
+  String get marketplace_command_preview_type_user;
+
+  /// No description provided for @marketplace_command_preview_type_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Message context menu'**
+  String get marketplace_command_preview_type_message;
+
+  /// No description provided for @marketplace_command_preview_options.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} options'**
+  String marketplace_command_preview_options(Object count);
 }
 
 class _AppLocalizationsDelegate
