@@ -2292,7 +2292,7 @@
     }
   },
   "guilds_tab": "Serveurs",
-  "guilds_tab_short": "Serveurs"
+  "guilds_tab_short": "Serveurs",
   "@@locale": "fr",
   "@action_add_else_if": {
     "description": "Add ELSE IF"
