@@ -1,8 +1,6 @@
-import 'dart:async';
-import 'dart:io';
-
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
+import 'package:bot_creator/core/network/main_api_auth_service.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/marketplace/presentation/marketplace_detail_page.dart';
@@ -195,70 +193,9 @@ class _MarketplacePageState extends State<MarketplacePage> {
       return;
     }
 
-    final client = MainApiClient(baseUrl: config.baseUrl);
-
-    // Find a free port for the local callback server
-    final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
-    final port = server.port;
-    final redirectUri = 'http://localhost:$port/oauth/main-api/discord';
-    final state = DateTime.now().millisecondsSinceEpoch.toRadixString(36);
-
     try {
-      final startResult = await client.startDiscordAuthorization(
-        redirectUri: redirectUri,
-        state: state,
-      );
-
-      // Open Discord auth URL in browser
-      final authUrl = startResult.authorizeUrl;
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Opening Discord for authentication...')),
-        );
-      }
-      Process.run('xdg-open', [authUrl]);
-
-      // Wait for the OAuth callback on our local server
-      final completer = Completer<HttpRequest>();
-      server.listen((request) {
-        if (request.uri.path == '/oauth/main-api/discord') {
-          completer.complete(request);
-        } else {
-          request.response.statusCode = 404;
-          request.response.close();
-        }
-      });
-
-      final callbackRequest = await completer.future.timeout(
-        const Duration(minutes: 2),
-      );
-
-      // Extract code and state from the callback URL
-      final queryParams = callbackRequest.uri.queryParameters;
-      final code = queryParams['code'] ?? '';
-      final returnedState = queryParams['state'] ?? '';
-
-      // Send success page to browser
-      callbackRequest.response
-        ..statusCode = 200
-        ..headers.contentType = ContentType.html
-        ..write('<html><body><h2>Authentication successful!</h2><p>You can close this window.</p></body></html>');
-      await callbackRequest.response.close();
-
-      if (code.isEmpty) {
-        throw Exception('No authorization code received from Discord.');
-      }
-      if (returnedState != state) {
-        throw Exception('State mismatch — possible CSRF attack.');
-      }
-
-      // Exchange code for session
-      final session = await client.completeDiscordAuthorization(
-        code: code,
-        state: returnedState,
-        redirectUri: redirectUri,
-      );
-
+      final client = MainApiClient(baseUrl: config.baseUrl);
+      final session = await MainApiAuthService.connectWithDiscord(client: client);
       await MainApiSettingsStore.saveSession(session);
 
       if (mounted) {
@@ -266,22 +203,14 @@ class _MarketplacePageState extends State<MarketplacePage> {
           SnackBar(content: Text(context.tr.marketplace_login_success)),
         );
         _needsLogin = false;
-        _fetch(); // reload marketplace with the new session
-      }
-    } on TimeoutException {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login timed out. Please try again.')),
-        );
+        _fetch();
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Login failed: $e')),
+          SnackBar(content: Text('${context.tr.marketplace_connect_manager}: $e')),
         );
       }
-    } finally {
-      await server.close();
     }
   }
 
