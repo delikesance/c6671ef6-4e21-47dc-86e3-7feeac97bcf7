@@ -145,6 +145,44 @@ extension _AppHomePageSync on _AppHomePageState {
             appendBotDebugLog(
               '[_syncAppFromRemote] Pulled bot config from Manager for $botId',
             );
+
+            // Also save individual commands from the Manager config so their
+            // full data (actions, options, workflows) is available locally.
+            final remoteCommands = remoteConfig['commands'];
+            if (remoteCommands is List && remoteCommands.isNotEmpty) {
+              for (final cmd in remoteCommands) {
+                if (cmd is! Map) continue;
+                final cmdId = (cmd['id'] ?? cmd['commandId'] ?? '').toString();
+                final cmdName = (cmd['name'] ?? '').toString();
+                if (cmdId.isEmpty || cmdName.isEmpty) continue;
+
+                // Only save if we don't already have this command locally
+                // (local edits should not be overwritten by remote pulls)
+                final localCmd = await appManager.getAppCommand(botId, cmdId);
+                if (localCmd.isNotEmpty) continue;
+
+                // Strip legacy response/simpleConfig from imported commands
+                final cmdData = Map<String, dynamic>.from(cmd['data'] ?? cmd);
+                if (cmdData['response'] is Map &&
+                    (cmdData['response'] as Map).containsKey('_migrated')) {
+                  cmdData.remove('response');
+                }
+                cmdData.remove('simpleConfig');
+
+                await appManager.saveAppCommand(botId, cmdId, <String, dynamic>{
+                  'name': cmdName,
+                  'description': (cmd['description'] ?? '').toString(),
+                  'type': cmdData['commandType'] ?? cmd['type'] ?? 'chatInput',
+                  'id': cmdId,
+                  'data': cmdData,
+                  'createdAt': DateTime.now().toIso8601String(),
+                  'updatedAt': DateTime.now().toIso8601String(),
+                });
+              }
+              appendBotDebugLog(
+                '[_syncAppFromRemote] Saved ${remoteCommands.length} commands from Manager config for $botId',
+              );
+            }
           }
         }
       } catch (e) {
