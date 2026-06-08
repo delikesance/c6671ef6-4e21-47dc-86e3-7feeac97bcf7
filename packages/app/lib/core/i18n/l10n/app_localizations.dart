@@ -12916,18 +12916,53 @@ abstract class AppLocalizations {
   /// **'Rating submitted!'**
   String get marketplace_rate_success;
 
+  /// No description provided for @marketplace_edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get marketplace_edit;
+
+  /// No description provided for @marketplace_delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get marketplace_delete;
+
+  /// No description provided for @marketplace_edit_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'To edit, re-publish from your bot\'s command list with the same name.'**
+  String get marketplace_edit_hint;
+
+  /// No description provided for @marketplace_delete_confirm_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Template'**
+  String get marketplace_delete_confirm_title;
+
+  /// No description provided for @marketplace_delete_confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete \"{name}\"? This cannot be undone.'**
+  String marketplace_delete_confirm(Object name);
+
+  /// No description provided for @marketplace_delete_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Template deleted.'**
+  String get marketplace_delete_success;
+
+  /// No description provided for @marketplace_my_templates.
+  ///
+  /// In en, this message translates to:
+  /// **'My Templates'**
+  String get marketplace_my_templates;
+
   /// No description provided for @marketplace_login_success.
   ///
   /// In en, this message translates to:
   /// **'Discord connected successfully!'**
   String get marketplace_login_success;
-  String get marketplace_edit;
-  String get marketplace_delete;
-  String get marketplace_edit_hint;
-  String get marketplace_delete_confirm_title;
-  String marketplace_delete_confirm(Object name);
-  String get marketplace_delete_success;
-  String get marketplace_my_templates;
 
   /// No description provided for @marketplace_config_required.
   ///

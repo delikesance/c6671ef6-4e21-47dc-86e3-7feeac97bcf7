@@ -7327,14 +7327,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get marketplace_rate_success => 'Rating submitted!';
 
   @override
-  String get marketplace_login_success => 'Discord connected successfully!';
   String get marketplace_edit => 'Edit';
+
+  @override
   String get marketplace_delete => 'Delete';
-  String get marketplace_edit_hint => 'To edit, re-publish from your bot\'s command list with the same name.';
+
+  @override
+  String get marketplace_edit_hint =>
+      'To edit, re-publish from your bot\'s command list with the same name.';
+
+  @override
   String get marketplace_delete_confirm_title => 'Delete Template';
-  String marketplace_delete_confirm(Object name) => 'Are you sure you want to delete $name? This cannot be undone.';
+
+  @override
+  String marketplace_delete_confirm(Object name) {
+    return 'Are you sure you want to delete \"$name\"? This cannot be undone.';
+  }
+
+  @override
   String get marketplace_delete_success => 'Template deleted.';
+
+  @override
   String get marketplace_my_templates => 'My Templates';
+
+  @override
+  String get marketplace_login_success => 'Discord connected successfully!';
 
   @override
   String get marketplace_config_required => 'Configuration Required';

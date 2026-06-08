@@ -7081,14 +7081,30 @@ class AppLocalizationsJa extends AppLocalizations {
   String get marketplace_rate_success => '評価を送信しました！';
 
   @override
-  String get marketplace_login_success => 'Discordに接続しました！';
   String get marketplace_edit => '編集';
+
+  @override
   String get marketplace_delete => '削除';
+
+  @override
   String get marketplace_edit_hint => '編集するには、ボットのコマンドリストから同じ名前で再公開してください。';
+
+  @override
   String get marketplace_delete_confirm_title => 'テンプレートを削除';
-  String marketplace_delete_confirm(Object name) => '$nameを削除してもよろしいですか？この操作は元に戻せません。';
+
+  @override
+  String marketplace_delete_confirm(Object name) {
+    return '\"$name\"を削除してもよろしいですか？この操作は元に戻せません。';
+  }
+
+  @override
   String get marketplace_delete_success => 'テンプレートを削除しました。';
+
+  @override
   String get marketplace_my_templates => '自分のテンプレート';
+
+  @override
+  String get marketplace_login_success => 'Discordに接続しました！';
 
   @override
   String get marketplace_config_required => '設定が必要です';
