@@ -7436,6 +7436,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get marketplace_login_success => 'Discord connecté avec succès !';
+  String get marketplace_edit => 'Modifier';
+  String get marketplace_delete => 'Supprimer';
+  String get marketplace_edit_hint => 'Pour modifier, republiez depuis la liste des commandes de votre bot avec le même nom.';
+  String get marketplace_delete_confirm_title => 'Supprimer le template';
+  String marketplace_delete_confirm(Object name) => 'Voulez-vous vraiment supprimer $name ? Cette action est irréversible.';
+  String get marketplace_delete_success => 'Template supprimé.';
+  String get marketplace_my_templates => 'Mes Templates';
 
   @override
   String get marketplace_config_required => 'Configuration requise';

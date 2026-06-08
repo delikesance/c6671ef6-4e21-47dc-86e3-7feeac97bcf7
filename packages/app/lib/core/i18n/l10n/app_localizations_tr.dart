@@ -7377,6 +7377,13 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get marketplace_login_success => 'Discord başarıyla bağlandı!';
+  String get marketplace_edit => 'Düzenle';
+  String get marketplace_delete => 'Sil';
+  String get marketplace_edit_hint => 'Düzenlemek için botunuzun komut listesinden aynı adla yeniden yayınlayın.';
+  String get marketplace_delete_confirm_title => 'Şablonu Sil';
+  String marketplace_delete_confirm(Object name) => '$name şablonunu silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.';
+  String get marketplace_delete_success => 'Şablon silindi.';
+  String get marketplace_my_templates => 'Şablonlarım';
 
   @override
   String get marketplace_config_required => 'Yapılandırma Gerekli';
