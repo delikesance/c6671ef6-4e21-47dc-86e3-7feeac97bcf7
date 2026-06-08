@@ -752,9 +752,12 @@ class _GuildExplorePageState extends State<_GuildExplorePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(children: [
-                        Text(msg.authorName,
-                            style: const TextStyle(
-                                color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
+                        Flexible(
+                          child: Text(msg.authorName,
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+                              overflow: TextOverflow.ellipsis),
+                        ),
                         const SizedBox(width: 8),
                         Text(_formatTimestamp(msg.timestamp),
                             style: const TextStyle(color: _channelColor, fontSize: 11)),
