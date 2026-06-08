@@ -65,6 +65,8 @@ class ActionItem {
   bool enabled;
   String onErrorMode;
   String actionKey;
+  String? jumpToActionId;
+  int skipCount;
   final Map<String, dynamic> parameters;
 
   ActionItem({
@@ -74,6 +76,8 @@ class ActionItem {
     required this.actionKey,
     this.enabled = true,
     this.onErrorMode = 'stop',
+    this.jumpToActionId,
+    this.skipCount = 0,
     String? runtimeId,
   }) : runtimeId =
            runtimeId ??
@@ -131,6 +135,11 @@ class ActionItem {
                   )['mode'] ??
                   'stop')
               .toString(),
+      jumpToActionId:
+          (json['error'] as Map?)?.cast<String, dynamic>()['jumpToActionId'] as String?,
+      skipCount: int.tryParse(
+              (json['error'] as Map?)?.cast<String, dynamic>()['skipCount']?.toString() ?? '') ??
+          0,
       parameters: parameters,
       actionKey: actionKey,
       runtimeId: runtimeId,
@@ -147,7 +156,11 @@ class ActionItem {
       'enabled': enabled,
       'key': actionKey,
       'depend_on': <String>[],
-      'error': {'mode': onErrorMode},
+      'error': {
+        'mode': onErrorMode,
+        if (jumpToActionId != null) 'jumpToActionId': jumpToActionId,
+        if (skipCount > 0) 'skipCount': '$skipCount',
+      },
       'payload': purgedPayload,
       'runtimeId': runtimeId,
     };

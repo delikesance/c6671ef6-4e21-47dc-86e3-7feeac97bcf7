@@ -135,7 +135,17 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
 
         if (key == '__onErrorMode__') {
           _actions[actionIndex].onErrorMode =
-              value == 'continue' ? 'continue' : 'stop';
+              value == 'continue' ? 'continue' : (value == 'jump' ? 'jump' : (value == 'skip' ? 'skip' : 'stop'));
+          return;
+        }
+
+        if (key == '__onErrorJumpTarget__') {
+          _actions[actionIndex].jumpToActionId = value?.toString();
+          return;
+        }
+
+        if (key == '__onErrorSkipCount__') {
+          _actions[actionIndex].skipCount = int.tryParse(value?.toString() ?? '') ?? 1;
           return;
         }
 
