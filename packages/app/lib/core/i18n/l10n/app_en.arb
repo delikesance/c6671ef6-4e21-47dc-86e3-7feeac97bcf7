@@ -2245,6 +2245,60 @@
       "version": {}
     }
   },
+  "marketplace_conflict_title": "Command Conflicts",
+  "marketplace_conflict_subtitle": "Some template commands already exist. Choose which version to keep:",
+  "marketplace_conflict_keep_local": "Keep Local",
+  "marketplace_conflict_use_template": "Use Template",
+  "marketplace_conflict_local_info": "Local ({count} actions)",
+  "marketplace_conflict_template_info": "Template ({count} actions)",
+  "marketplace_conflict_apply_choice": "Apply ({count} template)",
+  "marketplace_command_preview_actions": "{count} actions",
+  "marketplace_command_preview_no_actions": "No actions",
+  "marketplace_command_preview_type_slash": "Slash command",
+  "marketplace_command_preview_type_user": "User context menu",
+  "marketplace_command_preview_type_message": "Message context menu",
+  "marketplace_command_preview_options": "{count} options",
+  "@marketplace_conflict_title": {
+    "description": "Title for the conflict resolution dialog when applying a template"
+  },
+  "@marketplace_conflict_subtitle": {
+    "description": "Subtitle explaining that some commands conflict with local ones"
+  },
+  "@marketplace_conflict_keep_local": {
+    "description": "Label for keeping the local version of a command"
+  },
+  "@marketplace_conflict_use_template": {
+    "description": "Label for using the template version of a command"
+  },
+  "@marketplace_conflict_local_info": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "@marketplace_conflict_template_info": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "@marketplace_conflict_apply_choice": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "@marketplace_command_preview_actions": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "@marketplace_command_preview_no_actions": {},
+  "@marketplace_command_preview_type_slash": {},
+  "@marketplace_command_preview_type_user": {},
+  "@marketplace_command_preview_type_message": {},
+  "@marketplace_command_preview_options": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "@@locale": "en",
   "@action_add_else_if": {
     "description": "Add ELSE IF"

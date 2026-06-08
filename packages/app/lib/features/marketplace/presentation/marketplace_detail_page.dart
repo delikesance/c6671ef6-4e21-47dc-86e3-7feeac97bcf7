@@ -3,7 +3,6 @@ import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator_shared/bot/marketplace_template.dart';
-import 'package:bot_creator_shared/utils/command_migration.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
@@ -318,6 +317,12 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
         ),
         const SizedBox(height: 8),
         ..._template.commands.take(5).map((cmd) {
+          final actionCount = _countActions(cmd.data);
+          final optCount = _countOptions(cmd.data);
+          final typeLabel = _commandTypeLabel(
+            (cmd.data['commandType'] ?? cmd.data['type'])?.toString(),
+            tr,
+          );
           return ListTile(
             dense: true,
             contentPadding: EdgeInsets.zero,
@@ -327,8 +332,15 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
               style: const TextStyle(fontFamily: 'monospace'),
             ),
             subtitle: Text(
-              cmd.description,
-              maxLines: 1,
+              [
+                cmd.description,
+                typeLabel,
+                if (optCount > 0) tr.marketplace_command_preview_options(optCount),
+                actionCount > 0
+                    ? tr.marketplace_command_preview_actions(actionCount)
+                    : tr.marketplace_command_preview_no_actions,
+              ].where((s) => s.isNotEmpty).join(' · '),
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
           );
@@ -564,6 +576,142 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
     return data;
   }
 
+  int _countActions(dynamic data) {
+    if (data is Map) {
+      final actions = data['actions'];
+      if (actions is List) return actions.length;
+      // Check subcommand workflows too
+      final subWfs = data['subcommandWorkflows'];
+      if (subWfs is Map) {
+        var count = 0;
+        for (final entry in subWfs.entries) {
+          final wf = entry.value;
+          if (wf is Map && wf['actions'] is List) {
+            count += (wf['actions'] as List).length;
+          }
+        }
+        return count;
+      }
+    }
+    return 0;
+  }
+
+  String _commandTypeLabel(String? type, AppLocalizations tr) {
+    switch (type) {
+      case 'user':
+        return tr.marketplace_command_preview_type_user;
+      case 'message':
+        return tr.marketplace_command_preview_type_message;
+      default:
+        return tr.marketplace_command_preview_type_slash;
+    }
+  }
+
+  int _countOptions(dynamic data) {
+    if (data is Map) {
+      final opts = data['options'];
+      if (opts is List) return opts.length;
+    }
+    return 0;
+  }
+
+  Future<Map<String, bool>?> _showConflictDialog(
+    List<Map<String, dynamic>> conflicts,
+    Map<String, String> variables,
+    AppLocalizations tr,
+  ) async {
+    // Resolve all names first
+    for (final c in conflicts) {
+      c['resolvedName'] = _resolveVariables(c['templateName'], variables);
+    }
+
+    // Default: keep local for all
+    final choices = <String, bool>{
+      for (final c in conflicts) c['resolvedName'] as String: false,
+    };
+
+    return showDialog<Map<String, bool>>(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setDialogState) {
+            final templateCount = choices.values.where((v) => v).length;
+            return AlertDialog(
+              title: Text(tr.marketplace_conflict_title),
+              content: SizedBox(
+                width: double.maxFinite,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(tr.marketplace_conflict_subtitle),
+                    const SizedBox(height: 16),
+                    ...conflicts.map((c) {
+                      final name = c['resolvedName'] as String;
+                      final localActions = c['localActions'] as int;
+                      final templateActions = c['templateActions'] as int;
+                      final useTemplate = choices[name] ?? false;
+
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '/$name',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontFamily: 'monospace',
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    useTemplate
+                                        ? tr.marketplace_conflict_template_info(templateActions)
+                                        : tr.marketplace_conflict_local_info(localActions),
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Theme.of(ctx).colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ),
+                                Switch(
+                                  value: useTemplate,
+                                  onChanged: (v) {
+                                    setDialogState(() => choices[name] = v);
+                                  },
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx, null),
+                  child: Text(tr.marketplace_cancel),
+                ),
+                FilledButton(
+                  onPressed: () => Navigator.pop(ctx, choices),
+                  child: Text(
+                    tr.marketplace_conflict_apply_choice(templateCount),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   Future<void> _apply() async {
     final tr = context.tr;
     for (final v in _template.requiredVariables) {
@@ -602,32 +750,70 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
         await appManager.setGlobalVariable(widget.botId, entry.key, entry.value);
       }
 
-      // Add commands — strip legacy response/simpleConfig, skip duplicates
-      final uuid = const Uuid();
+      // Detect conflicts before applying commands
       final existingCommands = await appManager.listAppCommands(widget.botId);
-      final existingNames = existingCommands
-          .map((c) => (c['name'] ?? '').toString().toLowerCase())
-          .toSet();
+      final existingByName = <String, Map<String, dynamic>>{};
+      for (final c in existingCommands) {
+        final name = (c['name'] ?? '').toString().toLowerCase();
+        if (name.isNotEmpty) existingByName[name] = c;
+      }
 
+      final conflicts = <Map<String, dynamic>>[];
+      final nonConflicting = <Map<String, dynamic>>[];
+
+      for (final cmd in _template.commands) {
+        final resolvedName = (_resolveVariables(cmd.name, variables) as String).toLowerCase();
+        final existing = existingByName[resolvedName];
+        if (existing != null) {
+          final localData = existing['data'];
+          conflicts.add({
+            'templateName': cmd.name,
+            'resolvedName': resolvedName,
+            'cmd': cmd,
+            'localActions': _countActions(localData),
+            'templateActions': _countActions(Map<String, dynamic>.from(cmd.data)),
+          });
+        } else {
+          nonConflicting.add({
+            'resolvedName': resolvedName,
+            'cmd': cmd,
+          });
+        }
+      }
+
+      // Resolve conflicts if any
+      Map<String, bool>? conflictChoices;
+      if (conflicts.isNotEmpty) {
+        conflictChoices = await _showConflictDialog(conflicts, variables, tr);
+        if (conflictChoices == null) {
+          // User cancelled
+          if (mounted) setState(() => _applying = false);
+          return;
+        }
+        // User chose to cancel entirely
+        if (conflictChoices.isEmpty) {
+          if (mounted) setState(() => _applying = false);
+          return;
+        }
+      }
+
+      final uuid = const Uuid();
       var addedCount = 0;
       var skippedCount = 0;
-      for (final cmd in _template.commands) {
-        final resolvedName = _resolveVariables(cmd.name, variables) as String;
+      var overwrittenCount = 0;
+
+      // Process non-conflicting commands
+      for (final entry in nonConflicting) {
+        final cmd = entry['cmd'] as dynamic;
+        final resolvedName = entry['resolvedName'] as String;
         final resolvedDescription = _resolveVariables(cmd.description, variables) as String;
         final resolvedData = _resolveVariables(cmd.data, variables) as Map<String, dynamic>;
 
-        // Strip legacy response/simpleConfig if _migrated sentinel is present
         if (resolvedData['response'] is Map &&
             (resolvedData['response'] as Map).containsKey('_migrated')) {
           resolvedData.remove('response');
         }
         resolvedData.remove('simpleConfig');
-
-        // Check for duplicate command names
-        if (existingNames.contains(resolvedName.toLowerCase())) {
-          skippedCount++;
-          continue;
-        }
 
         final newCmdId = uuid.v4();
         final localPayload = <String, dynamic>{
@@ -641,6 +827,47 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
         };
         await appManager.saveAppCommand(widget.botId, newCmdId, localPayload);
         addedCount++;
+      }
+
+      // Process conflicting commands based on user choices
+      for (final conflict in conflicts) {
+        final cmd = conflict['cmd'] as dynamic;
+        final resolvedName = conflict['resolvedName'] as String;
+        final useTemplate = conflictChoices?[resolvedName] ?? false;
+
+        if (!useTemplate) {
+          skippedCount++;
+          continue;
+        }
+
+        // Use template version: delete local, save template
+        final existing = existingByName[resolvedName];
+        final existingId = existing?['id']?.toString();
+        if (existingId != null) {
+          await appManager.deleteAppCommand(widget.botId, existingId);
+        }
+
+        final resolvedDescription = _resolveVariables(cmd.description, variables) as String;
+        final resolvedData = _resolveVariables(cmd.data, variables) as Map<String, dynamic>;
+
+        if (resolvedData['response'] is Map &&
+            (resolvedData['response'] as Map).containsKey('_migrated')) {
+          resolvedData.remove('response');
+        }
+        resolvedData.remove('simpleConfig');
+
+        final newCmdId = uuid.v4();
+        final localPayload = <String, dynamic>{
+          'name': resolvedName,
+          'description': resolvedDescription,
+          'type': resolvedData['commandType'] ?? resolvedData['type'] ?? 'chatInput',
+          'id': newCmdId,
+          'createdAt': DateTime.now().toIso8601String(),
+          'updatedAt': DateTime.now().toIso8601String(),
+          'data': resolvedData,
+        };
+        await appManager.saveAppCommand(widget.botId, newCmdId, localPayload);
+        overwrittenCount++;
       }
 
       // Add workflows
@@ -673,9 +900,13 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
       }
 
       if (mounted) {
-        final msg = skippedCount > 0
-            ? tr.marketplace_apply_success_skipped(addedCount, skippedCount)
-            : tr.marketplace_apply_success;
+        final parts = <String>[];
+        if (addedCount > 0) parts.add('$addedCount added');
+        if (overwrittenCount > 0) parts.add('$overwrittenCount replaced');
+        if (skippedCount > 0) parts.add('$skippedCount kept local');
+        final msg = parts.isEmpty
+            ? tr.marketplace_apply_success
+            : 'Template applied: ${parts.join(', ')}';
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(msg)),
         );

@@ -2245,6 +2245,52 @@
       "version": {}
     }
   },
+  "marketplace_conflict_title": "Conflitos de comandos",
+  "marketplace_conflict_subtitle": "Alguns comandos do template já existem. Escolhe qual versão manter:",
+  "marketplace_conflict_keep_local": "Manter Local",
+  "marketplace_conflict_use_template": "Usar Template",
+  "marketplace_conflict_local_info": "Local ({count} ações)",
+  "marketplace_conflict_template_info": "Template ({count} ações)",
+  "marketplace_conflict_apply_choice": "Aplicar ({count} template)",
+  "marketplace_command_preview_actions": "{count} ações",
+  "marketplace_command_preview_no_actions": "Nenhuma ação",
+  "marketplace_command_preview_type_slash": "Comando slash",
+  "marketplace_command_preview_type_user": "Menu de contexto usuário",
+  "marketplace_command_preview_type_message": "Menu de contexto mensagem",
+  "marketplace_command_preview_options": "{count} opções",
+  "@marketplace_conflict_title": {},
+  "@marketplace_conflict_subtitle": {},
+  "@marketplace_conflict_keep_local": {},
+  "@marketplace_conflict_use_template": {},
+  "@marketplace_conflict_local_info": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "@marketplace_conflict_template_info": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "@marketplace_conflict_apply_choice": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "@marketplace_command_preview_actions": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "@marketplace_command_preview_no_actions": {},
+  "@marketplace_command_preview_type_slash": {},
+  "@marketplace_command_preview_type_user": {},
+  "@marketplace_command_preview_type_message": {},
+  "@marketplace_command_preview_options": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "@@locale": "pt",
   "@action_add_else_if": {
     "description": "Add ELSE IF"
