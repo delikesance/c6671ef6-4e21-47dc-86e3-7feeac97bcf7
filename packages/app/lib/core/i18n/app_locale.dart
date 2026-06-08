@@ -6,7 +6,8 @@ enum AppLocale {
   fr('Français', 'fr'),
   de('Deutsch', 'de'),
   pt('Português', 'pt'),
-  tr('Türkçe', 'tr');
+  tr('Türkçe', 'tr'),
+  ja('日本語', 'ja');
 
   final String label;
   final String code;
@@ -20,7 +21,8 @@ enum AppLocalePreference {
   fr('Français', 'fr'),
   de('Deutsch', 'de'),
   pt('Português', 'pt'),
-  tr('Türkçe', 'tr');
+  tr('Türkçe', 'tr'),
+  ja('日本語', 'ja');
 
   final String label;
   final String code;
@@ -44,6 +46,8 @@ AppLocale detectSystemLocale(Locale? systemLocale) {
       return AppLocale.pt;
     case 'tr':
       return AppLocale.tr;
+    case 'ja':
+      return AppLocale.ja;
     default:
       return AppLocale.en;
   }

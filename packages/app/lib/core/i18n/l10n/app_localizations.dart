@@ -8,6 +8,7 @@ import 'package:intl/intl.dart' as intl;
 import 'app_localizations_de.dart';
 import 'app_localizations_en.dart';
 import 'app_localizations_fr.dart';
+import 'app_localizations_ja.dart';
 import 'app_localizations_pt.dart';
 import 'app_localizations_tr.dart';
 
@@ -100,6 +101,7 @@ abstract class AppLocalizations {
     Locale('de'),
     Locale('en'),
     Locale('fr'),
+    Locale('ja'),
     Locale('pt'),
     Locale('tr'),
   ];
@@ -12802,6 +12804,390 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Important: Profile changes (username and avatar) will only be applied to Discord when you click \'Save profile and statuses\' at the bottom.'**
   String get bot_settings_avatar_important_note;
+
+  /// No description provided for @marketplace_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Marketplace'**
+  String get marketplace_title;
+
+  /// No description provided for @marketplace_search_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search templates...'**
+  String get marketplace_search_hint;
+
+  /// No description provided for @marketplace_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No templates yet.\nBe the first to publish!'**
+  String get marketplace_empty;
+
+  /// No description provided for @marketplace_no_results.
+  ///
+  /// In en, this message translates to:
+  /// **'No templates match \"{query}\"'**
+  String marketplace_no_results(Object query);
+
+  /// No description provided for @marketplace_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} template(s)'**
+  String marketplace_count(Object count);
+
+  /// No description provided for @marketplace_retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get marketplace_retry;
+
+  /// No description provided for @marketplace_apply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply Template'**
+  String get marketplace_apply;
+
+  /// No description provided for @marketplace_applying.
+  ///
+  /// In en, this message translates to:
+  /// **'Applying...'**
+  String get marketplace_applying;
+
+  /// No description provided for @marketplace_apply_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Template applied successfully!'**
+  String get marketplace_apply_success;
+
+  /// No description provided for @marketplace_apply_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to apply: {error}'**
+  String marketplace_apply_error(Object error);
+
+  /// No description provided for @marketplace_config_required.
+  ///
+  /// In en, this message translates to:
+  /// **'Configuration Required'**
+  String get marketplace_config_required;
+
+  /// No description provided for @marketplace_config_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in the required values before applying this template.'**
+  String get marketplace_config_hint;
+
+  /// No description provided for @marketplace_variable_required.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is required'**
+  String marketplace_variable_required(Object name);
+
+  /// No description provided for @marketplace_about.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get marketplace_about;
+
+  /// No description provided for @marketplace_commands_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Commands ({count})'**
+  String marketplace_commands_label(Object count);
+
+  /// No description provided for @marketplace_workflows_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Workflows ({count})'**
+  String marketplace_workflows_label(Object count);
+
+  /// No description provided for @marketplace_variables_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Pre-configured Variables'**
+  String get marketplace_variables_label;
+
+  /// No description provided for @marketplace_more.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count} more'**
+  String marketplace_more(Object count);
+
+  /// No description provided for @marketplace_publish_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish Template'**
+  String get marketplace_publish_title;
+
+  /// No description provided for @marketplace_publish_select.
+  ///
+  /// In en, this message translates to:
+  /// **'Select what to include'**
+  String get marketplace_publish_select;
+
+  /// No description provided for @marketplace_publish_select_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick commands, workflows, or both. Each becomes part of the template.'**
+  String get marketplace_publish_select_hint;
+
+  /// No description provided for @marketplace_publish_commands.
+  ///
+  /// In en, this message translates to:
+  /// **'Commands ({count})'**
+  String marketplace_publish_commands(Object count);
+
+  /// No description provided for @marketplace_publish_workflows.
+  ///
+  /// In en, this message translates to:
+  /// **'Workflows ({count})'**
+  String marketplace_publish_workflows(Object count);
+
+  /// No description provided for @marketplace_publish_variables.
+  ///
+  /// In en, this message translates to:
+  /// **'Global Variables'**
+  String get marketplace_publish_variables;
+
+  /// No description provided for @marketplace_publish_variables_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Include variables and mark which ones the user must fill in.'**
+  String get marketplace_publish_variables_hint;
+
+  /// No description provided for @marketplace_publish_metadata.
+  ///
+  /// In en, this message translates to:
+  /// **'Template Details'**
+  String get marketplace_publish_metadata;
+
+  /// No description provided for @marketplace_publish_metadata_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe your template so others can find and use it.'**
+  String get marketplace_publish_metadata_hint;
+
+  /// No description provided for @marketplace_publish_summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Template Summary'**
+  String get marketplace_publish_summary;
+
+  /// No description provided for @marketplace_publish_select_all.
+  ///
+  /// In en, this message translates to:
+  /// **'Select all'**
+  String get marketplace_publish_select_all;
+
+  /// No description provided for @marketplace_publish_deselect_all.
+  ///
+  /// In en, this message translates to:
+  /// **'Deselect all'**
+  String get marketplace_publish_deselect_all;
+
+  /// No description provided for @marketplace_publish_user_must_define.
+  ///
+  /// In en, this message translates to:
+  /// **'User must define this value'**
+  String get marketplace_publish_user_must_define;
+
+  /// No description provided for @marketplace_publish_user_must_define_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'The user will be prompted to fill it in before applying'**
+  String get marketplace_publish_user_must_define_hint;
+
+  /// No description provided for @marketplace_publish_add_variable.
+  ///
+  /// In en, this message translates to:
+  /// **'Add custom variable'**
+  String get marketplace_publish_add_variable;
+
+  /// No description provided for @marketplace_publish_add_variable_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Variable'**
+  String get marketplace_publish_add_variable_title;
+
+  /// No description provided for @marketplace_publish_name_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Template name'**
+  String get marketplace_publish_name_label;
+
+  /// No description provided for @marketplace_publish_name_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. AI Moderation Bot'**
+  String get marketplace_publish_name_hint;
+
+  /// No description provided for @marketplace_publish_desc_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Short description'**
+  String get marketplace_publish_desc_label;
+
+  /// No description provided for @marketplace_publish_desc_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'A one-line summary shown in the marketplace'**
+  String get marketplace_publish_desc_hint;
+
+  /// No description provided for @marketplace_publish_desc_long_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Full documentation (optional)'**
+  String get marketplace_publish_desc_long_label;
+
+  /// No description provided for @marketplace_publish_desc_long_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Detailed usage instructions, markdown supported...'**
+  String get marketplace_publish_desc_long_hint;
+
+  /// No description provided for @marketplace_publish_category_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get marketplace_publish_category_label;
+
+  /// No description provided for @marketplace_publish_category_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. ai, moderation, fun'**
+  String get marketplace_publish_category_hint;
+
+  /// No description provided for @marketplace_publish_version_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get marketplace_publish_version_label;
+
+  /// No description provided for @marketplace_publish_tags_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags (comma separated)'**
+  String get marketplace_publish_tags_label;
+
+  /// No description provided for @marketplace_publish_tags_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. openai, chatbot, moderation'**
+  String get marketplace_publish_tags_hint;
+
+  /// No description provided for @marketplace_publish_variable_name_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Variable name'**
+  String get marketplace_publish_variable_name_label;
+
+  /// No description provided for @marketplace_publish_variable_name_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. TOKEN_OPENAI'**
+  String get marketplace_publish_variable_name_hint;
+
+  /// No description provided for @marketplace_publish_variable_desc_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get marketplace_publish_variable_desc_label;
+
+  /// No description provided for @marketplace_publish_variable_desc_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'What this variable is for'**
+  String get marketplace_publish_variable_desc_hint;
+
+  /// No description provided for @marketplace_publish_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Template published successfully!'**
+  String get marketplace_publish_success;
+
+  /// No description provided for @marketplace_publish_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to publish: {error}'**
+  String marketplace_publish_error(Object error);
+
+  /// No description provided for @marketplace_publish_button.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish'**
+  String get marketplace_publish_button;
+
+  /// No description provided for @marketplace_publishing.
+  ///
+  /// In en, this message translates to:
+  /// **'Publishing...'**
+  String get marketplace_publishing;
+
+  /// No description provided for @marketplace_publish_next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get marketplace_publish_next;
+
+  /// No description provided for @marketplace_publish_back.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get marketplace_publish_back;
+
+  /// No description provided for @marketplace_publish_no_content.
+  ///
+  /// In en, this message translates to:
+  /// **'No commands or workflows to publish.\nCreate some first!'**
+  String get marketplace_publish_no_content;
+
+  /// No description provided for @marketplace_no_variables.
+  ///
+  /// In en, this message translates to:
+  /// **'No global variables defined.'**
+  String get marketplace_no_variables;
+
+  /// No description provided for @marketplace_connect_manager.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to Manager to access the Marketplace.'**
+  String get marketplace_connect_manager;
+
+  /// No description provided for @marketplace_connect_publish.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to Manager to publish a template.'**
+  String get marketplace_connect_publish;
+
+  /// No description provided for @marketplace_api_unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'API client not available'**
+  String get marketplace_api_unavailable;
+
+  /// No description provided for @marketplace_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load data: {error}'**
+  String marketplace_load_error(Object error);
+
+  /// No description provided for @marketplace_cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get marketplace_cancel;
+
+  /// No description provided for @marketplace_add.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get marketplace_add;
+
+  /// No description provided for @marketplace_by_author.
+  ///
+  /// In en, this message translates to:
+  /// **'by {author} · v{version}'**
+  String marketplace_by_author(Object author, Object version);
 }
 
 class _AppLocalizationsDelegate
@@ -12814,8 +13200,14 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['de', 'en', 'fr', 'pt', 'tr'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>[
+    'de',
+    'en',
+    'fr',
+    'ja',
+    'pt',
+    'tr',
+  ].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -12830,6 +13222,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
       return AppLocalizationsEn();
     case 'fr':
       return AppLocalizationsFr();
+    case 'ja':
+      return AppLocalizationsJa();
     case 'pt':
       return AppLocalizationsPt();
     case 'tr':
