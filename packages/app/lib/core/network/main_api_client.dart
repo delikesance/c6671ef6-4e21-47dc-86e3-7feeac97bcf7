@@ -1271,8 +1271,38 @@ class MainApiClient implements RemoteRuntimeClient {
       );
     }
   }
+
+  // ── Marketplace ──────────────────────────────────────────────
+
+  /// List all marketplace templates.
+  Future<List<Map<String, dynamic>>> listMarketplaceTemplates() async {
+    final json = await _get('/marketplace');
+    final list = json['data'] as List? ?? (json is List ? json : []);
+    return list.cast<Map<String, dynamic>>();
+  }
+
+  /// Get a single marketplace template by ID.
+  Future<Map<String, dynamic>> getMarketplaceTemplate(String id) async {
+    return await _get('/marketplace/$id');
+  }
+
+  /// Publish a new template.
+  Future<Map<String, dynamic>> createMarketplaceTemplate(
+    Map<String, dynamic> template,
+  ) async {
+    return await _post('/marketplace', template);
+  }
+
+  /// Update an existing template.
+  Future<Map<String, dynamic>> updateMarketplaceTemplate(
+    String id,
+    Map<String, dynamic> template,
+  ) async {
+    return await _post('/marketplace/$id', template);
+  }
 }
 
+/// Returns true for client errors (4xx except 429) that should NOT be retried.
 bool _isNotFound(MainApiClientException error) {
   return error.statusCode == 404;
 }

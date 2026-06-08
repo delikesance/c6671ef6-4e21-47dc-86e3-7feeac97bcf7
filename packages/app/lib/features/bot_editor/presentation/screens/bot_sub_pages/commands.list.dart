@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command.create.dart';
-import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/template_gallery.dart';
+import 'package:bot_creator/features/marketplace/presentation/marketplace_page.dart';
+import 'package:bot_creator/features/marketplace/presentation/publish_template_page.dart';
+import 'package:bot_creator/core/network/main_api_client.dart';
+import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:bot_creator/core/analytics/analytics.dart';
@@ -56,6 +59,26 @@ class _AppCommandsPageState extends State<AppCommandsPage>
       _commands = commands;
       _loading = false;
     });
+  }
+
+  /// Resolves a [MainApiClient] with a valid Manager session.
+  Future<MainApiClient?> _resolveApiClient() async {
+    final config = await MainApiSettingsStore.loadConfig();
+    if (!config.isConfigured) return null;
+    final session = await MainApiSettingsStore.loadSession();
+    if (session != null && !session.isExpired) {
+      return MainApiClient(
+        baseUrl: config.baseUrl,
+        accessToken: session.accessToken,
+      );
+    }
+    return null;
+  }
+
+  /// Returns the current user's display name.
+  Future<String> _resolveAuthorName() async {
+    final session = await MainApiSettingsStore.loadSession();
+    return session?.username ?? session?.userId ?? 'Unknown';
   }
 
   Snowflake? _toSnowflake(String raw) {
@@ -243,7 +266,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
               ),
               ListTile(
                 leading: const Icon(Icons.auto_awesome),
-                title: Text(context.tr.template_gallery_title),
+                title: Text(context.tr.marketplace_title),
                 onTap: () => Navigator.pop(context, 'template'),
               ),
               ListTile(
@@ -267,18 +290,27 @@ class _AppCommandsPageState extends State<AppCommandsPage>
     }
 
     if (selection == 'template') {
-      final applied = await Navigator.push<bool>(
-        context,
-        MaterialPageRoute(
-          builder:
-              (_) => TemplateGalleryPage(
-                botId: widget.botId,
-                client: widget.client,
-              ),
-        ),
-      );
-      if (applied == true && mounted) {
-        _load();
+      final client = await _resolveApiClient();
+      if (!mounted) return;
+      if (client != null) {
+        final applied = await Navigator.push<bool>(
+          context,
+          MaterialPageRoute(
+            builder: (_) => MarketplacePage(
+              botId: widget.botId,
+              apiClient: client,
+            ),
+          ),
+        );
+        if (applied == true && mounted) {
+          _load();
+        }
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(context.tr.marketplace_connect_manager),
+          ),
+        );
       }
       return;
     }
@@ -804,19 +836,61 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                   ),
                   IconButton(
                     icon: const Icon(Icons.auto_awesome),
-                    tooltip: context.tr.template_gallery_title,
+                    tooltip: context.tr.marketplace_title,
                     onPressed: () async {
+                      final client = await _resolveApiClient();
+                      if (!mounted) return;
+                      if (client == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(context.tr.marketplace_connect_manager),
+                          ),
+                        );
+                        return;
+                      }
                       final applied = await Navigator.push<bool>(
                         context,
                         MaterialPageRoute(
-                          builder:
-                              (_) => TemplateGalleryPage(
-                                botId: widget.botId,
-                                client: widget.client,
-                              ),
+                          builder: (_) => MarketplacePage(
+                            botId: widget.botId,
+                            apiClient: client,
+                          ),
                         ),
                       );
                       if (applied == true && mounted) {
+                        _load();
+                      }
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.cloud_upload_outlined),
+                    tooltip: context.tr.marketplace_publish_title,
+                    onPressed: () async {
+                      final client = await _resolveApiClient();
+                      final authorName = await _resolveAuthorName();
+                      final session = await MainApiSettingsStore.loadSession();
+                      final authorId = session?.userId ?? 'unknown';
+                      if (!mounted) return;
+                      if (client == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(context.tr.marketplace_connect_publish),
+                          ),
+                        );
+                        return;
+                      }
+                      final result = await Navigator.push<bool>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => PublishTemplatePage(
+                            botId: widget.botId,
+                            apiClient: client,
+                            authorId: authorId,
+                            authorName: authorName,
+                          ),
+                        ),
+                      );
+                      if (result == true && mounted) {
                         _load();
                       }
                     },
@@ -848,22 +922,28 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                     const SizedBox(height: 16),
                     FilledButton.icon(
                       onPressed: () async {
-                        final applied = await Navigator.push<bool>(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (_) => TemplateGalleryPage(
-                                  botId: widget.botId,
-                                  client: widget.client,
-                                ),
-                          ),
-                        );
-                        if (applied == true && mounted) {
-                          _load();
+                        final client = await _resolveApiClient();
+                        if (!mounted) return;
+                        if (client != null) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => MarketplacePage(
+                                botId: widget.botId,
+                                apiClient: client,
+                              ),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(context.tr.marketplace_connect_manager),
+                            ),
+                          );
                         }
                       },
                       icon: const Icon(Icons.auto_awesome),
-                      label: Text(context.tr.template_gallery_title),
+                      label: Text(context.tr.marketplace_title),
                     ),
                   ],
                 ),
