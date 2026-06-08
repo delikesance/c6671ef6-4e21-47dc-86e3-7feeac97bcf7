@@ -2259,7 +2259,7 @@
   "marketplace_command_preview_type_message": "Message context menu",
   "marketplace_command_preview_options": "{count} options",
   "guilds_tab": "Sunucular",
-  "guilds_tab_short": "Sunucular"
+  "guilds_tab_short": "Sunucular",
   "@@locale": "tr",
   "@action_add_else_if": {
     "description": "Add ELSE IF"

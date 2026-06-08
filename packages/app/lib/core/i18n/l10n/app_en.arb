@@ -2300,7 +2300,7 @@
     }
   },
   "guilds_tab": "Servers",
-  "guilds_tab_short": "Servers"
+  "guilds_tab_short": "Servers",
   "@@locale": "en",
   "@action_add_else_if": {
     "description": "Add ELSE IF"
