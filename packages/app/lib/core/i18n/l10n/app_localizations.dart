@@ -12858,12 +12858,26 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Template applied successfully!'**
   String get marketplace_apply_success;
+
+  /// Login prompt
   String get marketplace_login_required;
+
+  /// Login hint
   String get marketplace_login_hint;
+
+  /// Connect with Discord
   String get marketplace_connect_discord;
+
+  /// Login dialog title
   String get marketplace_login_title;
+
+  /// Login dialog instructions
   String get marketplace_login_instructions;
+
+  /// Rate this template
   String get marketplace_rate_title;
+
+  /// Rating submitted
   String get marketplace_rate_success;
 
   /// No description provided for @marketplace_apply_success_skipped.

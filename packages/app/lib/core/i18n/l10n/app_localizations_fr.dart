@@ -7396,14 +7396,28 @@ class AppLocalizationsFr extends AppLocalizations {
   String get marketplace_applying => 'Application en cours...';
 
   @override
-  String get marketplace_apply_success => 'Template appliqué avec succès !';
+  String get marketplace_apply_success => 'Template appliqué avec succès !';
+
+  @override
   String get marketplace_login_required => 'Connexion Discord requise';
+
+  @override
   String get marketplace_login_hint => 'Vous devez connecter votre compte Discord pour accéder au Marketplace.';
+
+  @override
   String get marketplace_connect_discord => 'Se connecter avec Discord';
+
+  @override
   String get marketplace_login_title => 'Connexion au Manager';
+
+  @override
   String get marketplace_login_instructions => 'Veuillez vous authentifier via Discord pour continuer à utiliser le Marketplace.';
+
+  @override
   String get marketplace_rate_title => 'Noter ce template';
-  String get marketplace_rate_success => 'Note envoyée !';
+
+  @override
+  String get marketplace_rate_success => 'Note envoyée !';
 
   @override
   String marketplace_apply_success_skipped(
