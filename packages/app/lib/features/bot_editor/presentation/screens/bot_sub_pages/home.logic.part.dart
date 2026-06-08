@@ -208,8 +208,8 @@ extension _AppHomePageLogic on _AppHomePageState {
       screenName: "AppHomePage",
       screenClass: "AppHomePage",
       parameters: {
-        "app_name": app["name"],
-        "app_id": botId,
+        "app_name": app["name"] ?? "unknown",
+        "app_id": botId ?? "unknown",
         "is_running": isRunning ? "true" : "false",
       },
     );
