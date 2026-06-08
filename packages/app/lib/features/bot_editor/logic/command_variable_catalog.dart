@@ -196,6 +196,21 @@ const List<CommandVariableCatalogEntry> commandBuiltinVariableCatalog =
         kind: VariableSuggestionKind.nonNumeric,
       ),
       CommandVariableCatalogEntry(
+        name: 'interaction.locale',
+        description: 'Locale of the user who triggered the interaction (e.g. fr, ja).',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'interaction.guild_locale',
+        description: 'Locale of the guild where the interaction was triggered (e.g. en-US).',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'target.locale',
+        description: 'Alias for interaction.locale.',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      CommandVariableCatalogEntry(
         name: 'modal.customId',
         description: 'Custom ID for modal submit interactions.',
         kind: VariableSuggestionKind.nonNumeric,
