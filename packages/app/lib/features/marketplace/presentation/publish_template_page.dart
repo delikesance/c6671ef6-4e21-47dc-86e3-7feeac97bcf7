@@ -5,11 +5,13 @@ import 'package:bot_creator_shared/bot/marketplace_template.dart';
 import 'package:flutter/material.dart';
 
 /// Publish flow: select commands + workflows + variables, add metadata, publish.
+/// When [existingTemplate] is provided, the page operates in edit mode (pre-filled fields, PUT on publish).
 class PublishTemplatePage extends StatefulWidget {
   final String botId;
   final MainApiClient? apiClient;
   final String authorId;
   final String authorName;
+  final MarketplaceTemplate? existingTemplate;
 
   const PublishTemplatePage({
     super.key,
@@ -17,6 +19,7 @@ class PublishTemplatePage extends StatefulWidget {
     this.apiClient,
     required this.authorId,
     required this.authorName,
+    this.existingTemplate,
   });
 
   @override
@@ -45,13 +48,37 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
 
   bool _publishing = false;
 
+  bool get _isEditing => widget.existingTemplate != null;
+
   @override
   void initState() {
     super.initState();
     _nameCtrl.addListener(_onMetadataChanged);
     _descCtrl.addListener(_onMetadataChanged);
     _versionCtrl.addListener(_onMetadataChanged);
-    _loadData();
+
+    if (_isEditing) {
+      final t = widget.existingTemplate!;
+      _nameCtrl.text = t.name;
+      _descCtrl.text = t.description;
+      _descLongCtrl.text = t.descriptionLong ?? '';
+      _categoryCtrl.text = t.category;
+      _tagsCtrl.text = t.tags.join(', ');
+      _iconCtrl.text = t.icon;
+      _versionCtrl.text = t.version;
+      _selectedCommands.addAll(
+        t.commands.map((c) => c.name).where((n) => n.isNotEmpty),
+      );
+      _selectedWorkflows.addAll(
+        t.workflows.map((w) => (w['name'] ?? '').toString()).where((n) => n.isNotEmpty),
+      );
+      for (final v in t.globalVariables) {
+        _selectedVars[v.name] = v.required;
+      }
+      _loadingData = false;
+    } else {
+      _loadData();
+    }
   }
 
   void _onMetadataChanged() {
@@ -455,19 +482,24 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
 
           Row(
             children: [
-              SizedBox(
-                width: 56,
-                child: TextField(
-                  controller: _iconCtrl,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 28),
-                  decoration: InputDecoration(
-                    hintText: '\ud83d\udce6',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    contentPadding: const EdgeInsets.all(8),
+              GestureDetector(
+                onTap: _showEmojiPicker,
+                child: AbsorbPointer(
+                  child: SizedBox(
+                    width: 56,
+                    child: TextField(
+                      controller: _iconCtrl,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 28),
+                      decoration: InputDecoration(
+                        hintText: '\ud83d\udce6',
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        contentPadding: const EdgeInsets.all(8),
+                      ),
+                      maxLength: 2,
+                      buildCounter: (_, {required currentLength, required isFocused, maxLength}) => null,
+                    ),
                   ),
-                  maxLength: 2,
-                  buildCounter: (_, {required currentLength, required isFocused, maxLength}) => null,
                 ),
               ),
               const SizedBox(width: 12),
@@ -635,6 +667,94 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
       _descCtrl.text.trim().isNotEmpty &&
       _versionCtrl.text.trim().isNotEmpty;
 
+  void _showEmojiPicker() {
+    const emojis = <String, List<String>>{
+      'Smileys': ['😀','😃','😄','😁','😅','😂','🤣','😊','😇','🙂','😉','😌','😍','🥰','😘','😗','😋','😛','😜','🤪','😎','🤩','🥳','😏','😒','😔','😢','😭','😤','😡','🥺','😱'],
+      'Gestures': ['👍','👎','👏','🙌','🤝','💪','✌️','🤞','👌','🤌','🤏','👋','🤚','🖐️','✋','🖖','🤟','🤘','🤙','🫶','🙏','💅','🤳','🦾','🦿'],
+      'Objects': ['📦','🎁','🎉','🎊','🎈','🏆','🏅','🥇','🥈','🥉','💎','🔮','🎵','🎶','🎤','🎧','📱','💻','🖥️','⌨️','🖱️','🖨️','📷','📹','🔦','💡','🔋','💰','💳'],
+      'Symbols': ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❣️','💕','💞','💓','💗','💖','💝','💘','💌','☮️','✝️','☪️','🕉️','☸️','✡️','🔯','🕎','☯️','☦️','🛐','⚛️'],
+      'Nature': ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🐦','🐤','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🐛','🦋','🐌'],
+      'Misc': ['🔥','⭐','🌟','✨','💫','🌈','☀️','🌤️','⛅','🌧️','⛈️','🌩️','❄️','☃️','⛄','💧','💦','🌊','🎯','🏹','⚔️','🛡️','🗡️','🔧','🔨','⚒️','🛠️','⛏️','🔩','⚙️','🗜️'],
+    };
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        final cs = Theme.of(ctx).colorScheme;
+        return DraggableScrollableSheet(
+          initialChildSize: 0.6,
+          minChildSize: 0.3,
+          maxChildSize: 0.85,
+          expand: false,
+          builder: (ctx, scrollController) {
+            return DefaultTabController(
+              length: emojis.length,
+              child: Column(
+                children: [
+                  const SizedBox(height: 8),
+                  Center(
+                    child: Container(
+                      width: 40, height: 4,
+                      decoration: BoxDecoration(
+                        color: cs.onSurfaceVariant.withAlpha(60),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  TabBar(
+                    isScrollable: true,
+                    tabAlignment: TabAlignment.start,
+                    labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                    unselectedLabelStyle: const TextStyle(fontSize: 13),
+                    tabs: emojis.keys.map((cat) => Tab(text: cat)).toList(),
+                  ),
+                  Expanded(
+                    child: TabBarView(
+                      children: emojis.values.map((list) {
+                        return GridView.builder(
+                          controller: scrollController,
+                          padding: const EdgeInsets.all(12),
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 8,
+                            mainAxisSpacing: 6,
+                            crossAxisSpacing: 6,
+                          ),
+                          itemCount: list.length,
+                          itemBuilder: (ctx, i) {
+                            return InkWell(
+                              onTap: () {
+                                _iconCtrl.text = list[i];
+                                Navigator.pop(ctx);
+                              },
+                              borderRadius: BorderRadius.circular(8),
+                              child: Container(
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  color: _iconCtrl.text == list[i]
+                                      ? cs.primary.withAlpha(30)
+                                      : null,
+                                ),
+                                child: Text(list[i], style: const TextStyle(fontSize: 24)),
+                              ),
+                            );
+                          },
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   Future<void> _publish() async {
     final tr = context.tr;
 
@@ -704,7 +824,12 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
         'globalVariables': globalVariables,
       };
 
-      await client.createMarketplaceTemplate(template);
+      if (_isEditing) {
+        await client.updateMarketplaceTemplate(
+          widget.existingTemplate!.id, template);
+      } else {
+        await client.createMarketplaceTemplate(template);
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

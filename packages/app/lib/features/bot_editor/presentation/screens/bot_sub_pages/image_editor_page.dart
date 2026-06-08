@@ -1198,12 +1198,18 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
     /// Builds the suffix icon row for a field. When variable suggestions
     /// are available, the Icons.data_object icon appears alongside any
     /// type-specific icon (color preview or image picker).
-    Widget? buildSuffix(String fieldKey, bool isColor, bool isUrl) {
+    Widget? buildSuffix(String fieldKey, int opIndex, Map<String, dynamic> operation, bool isColor, bool isUrl) {
       if (!hasVars && !isColor && !isUrl) return null;
       return Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (isColor) _buildColorPreview(op[fieldKey]) ?? const SizedBox.shrink(),
+          if (isColor)
+            GestureDetector(
+              onTap: () => _showColorPicker(
+                operation, fieldKey, opIndex,
+              ),
+              child: _buildColorPreview(op[fieldKey]) ?? const SizedBox.shrink(),
+            ),
           if (isUrl)
             IconButton(
               icon: const Icon(Icons.image, size: 20),
@@ -1224,7 +1230,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
 
     void addField(String label, String key,
         {String? hint, TextInputType? keyboardType, bool isColor = false, bool isUrl = false, void Function(String)? onSubmitted}) {
-      final suffix = buildSuffix(key, isColor, isUrl);
+      final suffix = buildSuffix(key, index, op, isColor, isUrl);
 
       fields.add(Padding(
         padding: const EdgeInsets.only(bottom: 12),
@@ -1648,6 +1654,98 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
     }
   }
 
+  void _showColorPicker(Map<String, dynamic> operation, String fieldKey, int opIndex) {
+    final currentColor = _tryParseColor((operation[fieldKey] ?? '').toString());
+    final hsv = HSVColor.fromColor(currentColor);
+
+    var hue = hsv.hue;
+    var saturation = hsv.saturation;
+    var value = hsv.value;
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setDialogState) {
+            final previewColor = HSVColor.fromAHSV(1, hue, saturation, value).toColor();
+            final hex = '#${previewColor.red.toRadixString(16).padLeft(2, '0')}'
+                '${previewColor.green.toRadixString(16).padLeft(2, '0')}'
+                '${previewColor.blue.toRadixString(16).padLeft(2, '0')}';
+
+            return AlertDialog(
+              title: const Text('Color Picker'),
+              content: SizedBox(
+                width: 280,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        color: previewColor,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.white24),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(hex, style: const TextStyle(fontFamily: 'monospace', fontSize: 13)),
+                    const SizedBox(height: 16),
+                    _buildColorSlider('Hue', hue, 0, 360, (v) => setDialogState(() => hue = v)),
+                    _buildColorSlider('Saturation', saturation, 0, 1, (v) => setDialogState(() => saturation = v)),
+                    _buildColorSlider('Value', value, 0, 1, (v) => setDialogState(() => value = v)),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('Cancel'),
+                ),
+                FilledButton(
+                  onPressed: () {
+                    setState(() {
+                      operation[fieldKey] = hex;
+                    });
+                    final ctrl = _propControllers['$opIndex.$fieldKey'];
+                    if (ctrl != null) {
+                      ctrl.text = hex;
+                    }
+                    Navigator.pop(ctx);
+                  },
+                  child: const Text('Apply'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildColorSlider(String label, double current, double min, double max, void Function(double) onChanged) {
+    return Row(
+      children: [
+        SizedBox(width: 80, child: Text(label, style: const TextStyle(fontSize: 12))),
+        Expanded(
+          child: Slider(
+            value: current.clamp(min, max),
+            min: min,
+            max: max,
+            onChanged: onChanged,
+          ),
+        ),
+        SizedBox(
+          width: 44,
+          child: Text(
+            (current * (max == 360 ? 1 : 100)).toStringAsFixed(0),
+            style: const TextStyle(fontSize: 11, fontFamily: 'monospace'),
+            textAlign: TextAlign.right,
+          ),
+        ),
+      ],
+    );
+  }
   Color _tryParseColor(String s) {
     s = s.replaceAll('#', '').trim();
     const named = <String, int>{
