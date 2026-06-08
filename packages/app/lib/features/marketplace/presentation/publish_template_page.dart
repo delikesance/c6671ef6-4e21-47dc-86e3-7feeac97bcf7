@@ -48,11 +48,21 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
   @override
   void initState() {
     super.initState();
+    _nameCtrl.addListener(_onMetadataChanged);
+    _descCtrl.addListener(_onMetadataChanged);
+    _versionCtrl.addListener(_onMetadataChanged);
     _loadData();
+  }
+
+  void _onMetadataChanged() {
+    setState(() {});
   }
 
   @override
   void dispose() {
+    _nameCtrl.removeListener(_onMetadataChanged);
+    _descCtrl.removeListener(_onMetadataChanged);
+    _versionCtrl.removeListener(_onMetadataChanged);
     _nameCtrl.dispose();
     _descCtrl.dispose();
     _descLongCtrl.dispose();
@@ -465,7 +475,7 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
                 child: TextField(
                   controller: _nameCtrl,
                   decoration: InputDecoration(
-                    labelText: tr.marketplace_publish_name_label,
+                    labelText: '${tr.marketplace_publish_name_label} *',
                     hintText: tr.marketplace_publish_name_hint,
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   ),
@@ -479,7 +489,7 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
             controller: _descCtrl,
             maxLines: 2,
             decoration: InputDecoration(
-              labelText: tr.marketplace_publish_desc_label,
+              labelText: '${tr.marketplace_publish_desc_label} *',
               hintText: tr.marketplace_publish_desc_hint,
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             ),
@@ -515,7 +525,7 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
                 child: TextField(
                   controller: _versionCtrl,
                   decoration: InputDecoration(
-                    labelText: tr.marketplace_publish_version_label,
+                    labelText: '${tr.marketplace_publish_version_label} *',
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                 ),
@@ -599,7 +609,7 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
               )
             else
               FilledButton.icon(
-                onPressed: _publishing ? null : _publish,
+                onPressed: _publishing || !_metadataValid ? null : _publish,
                 icon: _publishing
                     ? const SizedBox(
                         width: 18, height: 18,
@@ -616,11 +626,26 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
 
   bool get _canAdvance {
     if (_step == 0) return _selectedCount > 0;
+    if (_step == 2) return _metadataValid;
     return true;
   }
 
+  bool get _metadataValid =>
+      _nameCtrl.text.trim().isNotEmpty &&
+      _descCtrl.text.trim().isNotEmpty &&
+      _versionCtrl.text.trim().isNotEmpty;
+
   Future<void> _publish() async {
     final tr = context.tr;
+
+    // Guard: validate required fields before publishing
+    if (!_metadataValid) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(tr.marketplace_publish_required_fields)),
+      );
+      return;
+    }
+
     final client = widget.apiClient;
     if (client == null) {
       ScaffoldMessenger.of(context).showSnackBar(

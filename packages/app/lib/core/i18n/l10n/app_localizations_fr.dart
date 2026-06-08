@@ -7564,6 +7564,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get marketplace_publish_back => 'Retour';
 
   @override
+  String get marketplace_publish_required_fields =>
+      'Veuillez remplir tous les champs requis (Nom, Description courte, Version) avant de publier.';
+
+  @override
   String get marketplace_publish_no_content =>
       'Aucune commande ou workflow à publier.\nCrée-en d’abord !';
 

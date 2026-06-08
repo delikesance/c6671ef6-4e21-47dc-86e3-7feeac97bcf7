@@ -1,5 +1,6 @@
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
+import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/marketplace/presentation/marketplace_detail_page.dart';
 import 'package:bot_creator_shared/bot/marketplace_template.dart';
@@ -24,6 +25,7 @@ class _MarketplacePageState extends State<MarketplacePage> {
   List<MarketplaceTemplate>? _templates;
   bool _loading = true;
   String? _error;
+  bool _needsLogin = false;
   String _search = '';
   String? _categoryFilter;
 
@@ -46,7 +48,8 @@ class _MarketplacePageState extends State<MarketplacePage> {
         setState(() {
           _templates = [];
           _loading = false;
-          _error = context.tr.marketplace_api_unavailable;
+          _error = null;
+          _needsLogin = true;
         });
         return;
       }
@@ -111,9 +114,11 @@ class _MarketplacePageState extends State<MarketplacePage> {
       body: SafeArea(
         child: _loading
             ? const Center(child: CircularProgressIndicator())
-            : _error != null
-                ? _buildError(colorScheme)
-                : _buildContent(colorScheme),
+            : _needsLogin
+                ? _buildLoginPrompt(colorScheme)
+                : _error != null
+                    ? _buildError(colorScheme)
+                    : _buildContent(colorScheme),
       ),
     );
   }
@@ -142,6 +147,83 @@ class _MarketplacePageState extends State<MarketplacePage> {
         ),
       ),
     );
+  }
+
+  Widget _buildLoginPrompt(ColorScheme cs) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.account_circle, size: 64, color: cs.primary),
+            const SizedBox(height: 16),
+            Text(
+              context.tr.marketplace_login_required,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              context.tr.marketplace_login_hint,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: cs.onSurfaceVariant),
+            ),
+            const SizedBox(height: 24),
+            FilledButton.icon(
+              onPressed: _startDiscordLogin,
+              icon: const Icon(Icons.login),
+              label: Text(context.tr.marketplace_connect_discord),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _startDiscordLogin() async {
+    final config = await MainApiSettingsStore.loadConfig();
+    if (!config.isConfigured) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.tr.marketplace_connect_manager)),
+        );
+      }
+      return;
+    }
+    // Navigate to Discord auth — the auth flow will redirect back
+    // We'll retry after the user returns
+    final client = MainApiClient(baseUrl: config.baseUrl);
+    try {
+      final startResult = await client.startDiscordAuthorization();
+      // Open browser for Discord OAuth
+      // On mobile, this would use url_launcher
+      // For now, just show the URL and let the user handle it
+      if (mounted) {
+        await showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text(context.tr.marketplace_login_title),
+            content: Text(context.tr.marketplace_login_instructions),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  _fetch();
+                },
+                child: Text(context.tr.ok),
+              ),
+            ],
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+    }
   }
 
   Widget _buildContent(ColorScheme cs) {

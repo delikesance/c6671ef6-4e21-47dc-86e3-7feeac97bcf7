@@ -408,14 +408,19 @@ class MainApiClient implements RemoteRuntimeClient {
     throw const MainApiClientException('Request failed after retries.');
   }
 
+  /// Returns the parsed response body as a Map.
+  /// If the response is a List, it is wrapped as {'data': list}.
   Map<String, dynamic> _parseResponse(http.Response response) {
     Map<String, dynamic> json;
     try {
       final decoded = jsonDecode(response.body);
-      json =
-          decoded is Map
-              ? Map<String, dynamic>.from(decoded)
-              : <String, dynamic>{};
+      if (decoded is Map) {
+        json = Map<String, dynamic>.from(decoded);
+      } else if (decoded is List) {
+        json = <String, dynamic>{'data': decoded};
+      } else {
+        json = <String, dynamic>{};
+      }
     } catch (_) {
       json = <String, dynamic>{};
     }
@@ -1299,6 +1304,31 @@ class MainApiClient implements RemoteRuntimeClient {
     Map<String, dynamic> template,
   ) async {
     return await _post('/marketplace/$id', template);
+  }
+
+  /// Apply a marketplace template to a bot, incrementing its download count.
+  Future<Map<String, dynamic>> applyMarketplaceTemplate(
+    String templateId,
+    String botId,
+    Map<String, String> variables,
+  ) async {
+    return await _post(
+      '/marketplace/$templateId/apply',
+      <String, dynamic>{
+        'botId': botId,
+        'variables': variables,
+      },
+    );
+  }
+
+  /// Rate a marketplace template (0.0 - 5.0).
+  Future<Map<String, dynamic>> rateMarketplaceTemplate(
+    String templateId,
+    double rating,
+  ) async {
+    return await _post('/marketplace/$templateId/rate', <String, dynamic>{
+      'rating': rating,
+    });
   }
 }
 

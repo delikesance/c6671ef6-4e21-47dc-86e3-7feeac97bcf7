@@ -7547,6 +7547,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get marketplace_publish_back => 'Zurück';
 
   @override
+  String get marketplace_publish_required_fields =>
+      'Bitte füllen Sie alle Pflichtfelder aus (Name, Kurzbeschreibung, Version), bevor Sie veröffentlichen.';
+
+  @override
   String get marketplace_publish_no_content =>
       'Keine Befehle oder Workflows zum Veröffentlichen.\nErstelle zuerst welche!';
 

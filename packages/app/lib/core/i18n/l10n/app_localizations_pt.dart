@@ -7547,6 +7547,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String get marketplace_publish_back => 'Voltar';
 
   @override
+  String get marketplace_publish_required_fields =>
+      'Por favor, preencha todos os campos obrigatórios (Nome, Descrição curta, Versão) antes de publicar.';
+
+  @override
   String get marketplace_publish_no_content =>
       'Nenhum comando ou workflow para publicar.\nCrie alguns primeiro!';
 
