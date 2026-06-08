@@ -730,6 +730,9 @@ Future<BackupSnapshotSummary> createBackupSnapshot(
   AppManager appm, {
   String label = 'Manual backup',
 }) async {
+  // Flush any pending writes so the backup captures the latest state
+  await appm.flushPendingWrites();
+
   final backupsRoot = await _ensureBackupsRootFolder(drive);
   final now = DateTime.now().toUtc();
   final snapshotId = now
@@ -936,6 +939,7 @@ Future<String> restoreBackupSnapshot(
     );
 
     await appm.refreshApps();
+    await appm.reapDeletedBots();
     if (restoredRuntimeDb) {
       return context.tr.restore_runtime_db_recommended;
     }
@@ -988,6 +992,7 @@ Future<String> restoreBackupSnapshot(
     localRootPath: localRootPath,
   );
   await appm.refreshApps();
+  await appm.reapDeletedBots();
   if (restoredRuntimeDb) {
     return context.tr.restore_runtime_db_recommended;
   }
@@ -1064,6 +1069,7 @@ Future<String> _downloadLegacyFlatBackup(
   }
 
   await appm.refreshApps();
+  await appm.reapDeletedBots();
   return context.tr.download_legacy_backup;
 }
 

@@ -313,6 +313,58 @@ class AppManager implements BotDataStore {
     await allAppsFile.writeAsString(jsonEncode(appsList));
     _apps = appsList;
     _appsStreamController.add(appsList);
+
+    // Record deletion in tombstone file so bot stays deleted after restore
+    await _recordDeletion(path, id);
+  }
+
+  Future<void> _recordDeletion(String path, String botId) async {
+    final deletedFile = File("$path/apps/_deleted_bots.json");
+    Map<String, dynamic> deleted = const <String, dynamic>{};
+    if (await deletedFile.exists()) {
+      try {
+        final raw = await deletedFile.readAsString();
+        final decoded = raw.isNotEmpty ? jsonDecode(raw) : null;
+        if (decoded is Map) {
+          deleted = Map<String, dynamic>.from(decoded);
+        }
+      } catch (_) {}
+    }
+    deleted[botId] = DateTime.now().toUtc().toIso8601String();
+    await deletedFile.writeAsString(jsonEncode(deleted));
+  }
+
+  /// Re-applies deletions recorded in _deleted_bots.json after a restore.
+  Future<void> reapDeletedBots() async {
+    final path = await _path();
+    final deletedFile = File("$path/apps/_deleted_bots.json");
+    if (!await deletedFile.exists()) return;
+
+    Map<String, dynamic> deleted;
+    try {
+      final raw = await deletedFile.readAsString();
+      final decoded = raw.isNotEmpty ? jsonDecode(raw) : null;
+      if (decoded is! Map) return;
+      deleted = Map<String, dynamic>.from(decoded);
+    } catch (_) {
+      return;
+    }
+
+    for (final botId in deleted.keys) {
+      final appFile = File("$path/apps/$botId.json");
+      if (await appFile.exists()) {
+        await appFile.delete();
+      }
+      final appDirectory = Directory("$path/apps/$botId");
+      if (await appDirectory.exists()) {
+        await appDirectory.delete(recursive: true);
+      }
+    }
+
+    // Rebuild the app index without the deleted bots
+    final rebuilt = await _rebuildAppsIndexFromFiles(path);
+    _apps = rebuilt;
+    _appsStreamController.add(rebuilt);
   }
 
   Future<List<dynamic>> _rebuildAppsIndexFromFiles(String path) async {
@@ -325,7 +377,10 @@ class AppManager implements BotDataStore {
     await for (final entity in appsDir.list()) {
       if (entity is! File ||
           !entity.path.endsWith('.json') ||
-          entity.path.endsWith('all_apps.json')) {
+          entity.path.endsWith('all_apps.json') ||
+          entity.path.endsWith('_deleted_bots.json') ||
+          entity.path.endsWith('command_stats.json') ||
+          entity.path.endsWith('payload.json')) {
         continue;
       }
 
@@ -505,6 +560,14 @@ class AppManager implements BotDataStore {
         });
     _appWriteChains[id] = next;
     return completer.future;
+  }
+
+  /// Waits for all pending app writes to complete so the filesystem
+  /// reflects the latest in-memory state (used before backup).
+  Future<void> flushPendingWrites() async {
+    final snapshot = Map<String, Future<void>>.from(_appWriteChains);
+    if (snapshot.isEmpty) return;
+    await Future.wait(snapshot.values).catchError((_) {});
   }
 
   Future<void> _mutateApp(

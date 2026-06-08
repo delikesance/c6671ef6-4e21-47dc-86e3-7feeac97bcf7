@@ -178,6 +178,33 @@ extension _AppHomePageSync on _AppHomePageState {
         });
       }
 
+      // Push full bot configuration to Manager so it's available
+      // for sync on other devices (workflows, variables, triggers, etc.)
+      try {
+        final mainClient = await _resolveMainApiClientForBot(
+          botId: botId,
+          botToken: token,
+          attemptSessionRestore: true,
+        );
+        if (mainClient != null) {
+          final botConfig = Map<String, dynamic>.from(refreshed);
+          botConfig.remove('token');
+          await mainClient.syncBot(
+            botId,
+            user.username,
+            botConfig,
+            force: true,
+          );
+          appendBotDebugLog(
+            '[_syncAppFromRemote] Pushed full bot config to Manager for $botId',
+          );
+        }
+      } catch (e) {
+        appendBotDebugLog(
+          '[_syncAppFromRemote] Failed to push bot config to Manager: $e',
+        );
+      }
+
       if (showSnack && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(context.tr.bot_home_sync_success)),
