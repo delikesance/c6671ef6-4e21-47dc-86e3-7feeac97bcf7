@@ -507,26 +507,29 @@ class _SettingPageState extends State<SettingPage> {
       );
       await MainApiSettingsStore.saveSession(session);
 
-      // Immediately sync Discord-managed bots from the Manager to enrich local
-      // entries with bot tokens and Discord metadata (icon, name).
+      // Immediately sync managed bots from the Manager to enrich local
+      // entries with tokens and configs.
       try {
         final client = MainApiClient(baseUrl: url);
-        final bots = await client.listDiscordBots();
-        _mainApiDebug('listDiscordBots returned ${bots.length} managed bots');
+        final bots = await client.listBots();
+        _mainApiDebug('listBots returned ${bots.length} managed bots');
         for (final bot in bots) {
-          final botId = (bot['id'] ?? '').toString().trim();
+          final botId = (bot['bot_id'] ?? '').toString().trim();
           if (botId.isEmpty) continue;
-          final botName = (bot['name'] ?? 'Unnamed Bot').toString();
+          final botName = (bot['bot_name'] ?? 'Unnamed Bot').toString();
           final token = (bot['bot_token'] ?? '').toString();
+          final config = bot['config'] as Map<String, dynamic>? ?? {};
           await appManager.createOrUpdateApp(
             id: Snowflake.parse(botId),
             username: botName,
             token: token,
+            intents: (config['intents'] as Map?)?.cast<String, bool>(),
+            prefix: config['prefix']?.toString(),
           );
         }
-        _mainApiDebug('Managed Discord bots enriched locally after connect');
+        _mainApiDebug('Managed bots synced locally after connect');
       } catch (e) {
-        _mainApiDebug('Failed to sync Discord bots after connect: $e');
+        _mainApiDebug('Failed to sync bots after connect: $e');
       }
 
       if (!mounted) return;
