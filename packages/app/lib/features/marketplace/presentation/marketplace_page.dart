@@ -29,6 +29,8 @@ class _MarketplacePageState extends State<MarketplacePage> {
   bool _needsLogin = false;
   String _search = '';
   String? _categoryFilter;
+  bool _showMyTemplatesOnly = false;
+  String? _currentUserId;
 
   @override
   void initState() {
@@ -60,9 +62,13 @@ class _MarketplacePageState extends State<MarketplacePage> {
         return MarketplaceTemplate.fromJson(json);
       }).toList();
 
+      // Load current user ID for "My Templates" filter
+      final session = await MainApiSettingsStore.loadSession();
+
       if (mounted) {
         setState(() {
           _templates = parsed;
+          _currentUserId = session?.userId;
           _loading = false;
         });
       }
@@ -91,6 +97,11 @@ class _MarketplacePageState extends State<MarketplacePage> {
           .where((t) => t.category == _categoryFilter)
           .toList();
     }
+    if (_showMyTemplatesOnly && _currentUserId != null) {
+      list = list
+          .where((t) => t.authorId == _currentUserId)
+          .toList();
+    }
     return list;
   }
 
@@ -106,6 +117,17 @@ class _MarketplacePageState extends State<MarketplacePage> {
       appBar: AppBar(
         title: Text(context.tr.marketplace_title),
         actions: [
+          if (_currentUserId != null)
+            FilterChip(
+              label: Text(context.tr.marketplace_my_templates),
+              selected: _showMyTemplatesOnly,
+              onSelected: (v) => setState(() => _showMyTemplatesOnly = v),
+              avatar: Icon(
+                _showMyTemplatesOnly ? Icons.person : Icons.person_outline,
+                size: 18,
+              ),
+            ),
+          const SizedBox(width: 8),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _loading ? null : _fetch,

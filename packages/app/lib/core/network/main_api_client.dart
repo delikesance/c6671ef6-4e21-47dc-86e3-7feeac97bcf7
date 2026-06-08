@@ -408,6 +408,65 @@ class MainApiClient implements RemoteRuntimeClient {
     throw const MainApiClientException('Request failed after retries.');
   }
 
+  Future<Map<String, dynamic>> _put(
+    String path,
+    Map<String, dynamic> body, {
+    bool includeAuth = true,
+  }) async {
+    if (_isCircuitOpen(_baseUrl)) {
+      throw MainApiClientException(
+        'Circuit breaker open for $_baseUrl — too many failures.',
+      );
+    }
+
+    final uri = _uri(path);
+    final encodedBody = jsonEncode(body);
+    appendBotDebugLog('[MainApiClient] PUT $uri');
+
+    Object? lastError;
+    for (var attempt = 0; attempt <= _maxRetries; attempt++) {
+      try {
+        final response = await _http
+            .put(uri, headers: _headers(includeAuth: includeAuth), body: encodedBody)
+            .timeout(_timeout);
+        appendBotDebugLog(
+          '[MainApiClient] PUT $uri responded with ${response.statusCode}',
+        );
+        _recordCircuitSuccess(_baseUrl);
+        return _parseResponse(response);
+      } on MainApiClientException catch (error) {
+        lastError = error;
+        if ((error.statusCode == 401 || error.statusCode == 403) && includeAuth) {
+          final newTokens = await _tryRefreshSession();
+          if (newTokens != null) {
+            _accessToken = newTokens;
+            continue;
+          }
+        }
+        if (_isClientError(error) || attempt >= _maxRetries) {
+          _recordCircuitFailure(_baseUrl);
+          rethrow;
+        }
+        await Future<void>.delayed(
+          _baseRetryDelay * pow(_retryBackoffMultiplier, attempt),
+        );
+      } catch (error) {
+        lastError = error;
+        if (attempt >= _maxRetries) {
+          _recordCircuitFailure(_baseUrl);
+          rethrow;
+        }
+        await Future<void>.delayed(
+          _baseRetryDelay * pow(_retryBackoffMultiplier, attempt),
+        );
+      }
+    }
+
+    _recordCircuitFailure(_baseUrl);
+    if (lastError is Exception) throw lastError;
+    throw const MainApiClientException('Request failed after retries.');
+  }
+
   /// Returns the parsed response body as a Map.
   /// If the response is a List, it is wrapped as {'data': list}.
   Map<String, dynamic> _parseResponse(http.Response response) {
@@ -1303,7 +1362,12 @@ class MainApiClient implements RemoteRuntimeClient {
     String id,
     Map<String, dynamic> template,
   ) async {
-    return await _post('/marketplace/$id', template);
+    return await _put('/marketplace/$id', template);
+  }
+
+  /// Delete a marketplace template.
+  Future<void> deleteMarketplaceTemplate(String id) async {
+    await _delete('/marketplace/$id');
   }
 
   /// Apply a marketplace template to a bot, incrementing its download count.

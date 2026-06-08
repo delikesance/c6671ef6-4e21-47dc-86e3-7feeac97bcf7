@@ -1039,9 +1039,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     required String botId,
     required String botToken,
   }) async {
-    if (_isDesktop) {
-      return null;
-    }
+    // Cloud sync is now supported on all platforms including desktop.
     developer.log(
       '[_resolveMainApiClientForCloudSync] START botId=$botId tokenPresent=${botToken.isNotEmpty}',
       name: 'CommandCreatePage',
@@ -1168,9 +1166,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   }
 
   Future<bool> _syncCommandChangesToCloud({required String botId}) async {
-    if (_isDesktop) {
-      return false;
-    }
+    // Cloud sync is now supported on all platforms including desktop.
     developer.log(
       '[_syncCommandChangesToCloud] START botId=$botId commandName="$_commandName"',
       name: 'CommandCreatePage',
