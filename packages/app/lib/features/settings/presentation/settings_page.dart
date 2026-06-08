@@ -160,7 +160,7 @@ class _SettingPageState extends State<SettingPage> {
       _SettingsLifecycleObserver(onResumed: _handleAppResumed);
 
   Future<void> _handleAppResumed() async {
-    if (!_isManagedMobilePlatform || _refreshingMainApiOnResume) {
+    if (_refreshingMainApiOnResume) {
       return;
     }
     _mainApiDebug('App resumed on mobile, reloading main API session state');
@@ -350,9 +350,6 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   Future<void> _loadMainApiSettings() async {
-    if (_isDesktopPlatform) {
-      return;
-    }
     _mainApiDebug('Loading main API config + session from storage');
     final config = await MainApiSettingsStore.loadConfig();
     var session = await MainApiSettingsStore.loadSession();
@@ -1974,7 +1971,7 @@ class _SettingPageState extends State<SettingPage> {
                       ],
                     ),
                   ),
-                  if (!_isDesktopPlatform) ...[
+                  if (true) ...[  // Show Main API card on all platforms (desktop included)
                     const SizedBox(height: 24),
                     _buildMainApiCard(),
                     const SizedBox(height: 16),
