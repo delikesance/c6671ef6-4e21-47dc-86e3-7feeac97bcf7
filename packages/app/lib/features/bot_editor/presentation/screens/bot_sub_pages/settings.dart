@@ -4,6 +4,7 @@ import 'dart:convert';
 
 
 import 'package:bot_creator/main.dart';
+import 'package:bot_creator/features/home/presentation/home_page.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/export_import.page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/workflow_docs.page.dart';
@@ -609,14 +610,8 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       Navigator.of(context).popUntil((route) => route.isFirst);
 
       // Trigger a sync of all bots to refresh the home page UI.
-      // Use addPostFrameCallback to ensure the widget tree is fully settled
-      // before accessing homeKey.currentState (avoids GlobalKey collision
-      // during route transitions where two widget trees briefly coexist).
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        final homeState = homeKey.currentState;
-        if (homeState != null) {
-          homeState.syncAllBotsFromManager();
-        }
+        HomePageState.current?.syncAllBotsFromManager();
       });
     } catch (e) {
       if (!mounted) return;

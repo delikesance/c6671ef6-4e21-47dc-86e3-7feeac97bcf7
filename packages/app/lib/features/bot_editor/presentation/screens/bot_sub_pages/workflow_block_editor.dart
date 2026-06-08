@@ -619,6 +619,13 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
 
   List<Widget> _buildActionBlocks() {
     final blocks = <Widget>[];
+
+    // Precompute ActionItem list for Jump to action dropdown
+    final allActionItems = List<ActionItem>.generate(
+      _actions.length,
+      (i) => ActionItem.fromJson(_actions[i], fallbackId: 'action_$i'),
+    );
+
     for (var i = 0; i < _actions.length; i++) {
       final action = ActionItem.fromJson(_actions[i], fallbackId: 'action_$i');
       blocks.add(
@@ -729,6 +736,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
             );
             return result;
           },
+          allActions: allActionItems,
         ),
       );
     }

@@ -80,4 +80,9 @@ kotlin {
 
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+    // Force a billing client version that does not crash with a null PendingIntent
+    // in ProxyBillingActivity.onCreate (billing@@7.1.1 regression on some devices).
+    // See: https://issuetracker.google.com/issues/312977090
+    implementation("com.android.billingclient:billing:7.0.0")
+    implementation("com.android.billingclient:billing-ktx:7.0.0")
 }

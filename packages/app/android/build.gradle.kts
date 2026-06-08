@@ -27,6 +27,18 @@ subprojects {
     project.evaluationDependsOn(":app")
 }
 
+// Force billing client 7.0.0 across all subprojects to avoid the
+// ProxyBillingActivity NullPointerException bug in 7.1.1.
+// See: https://issuetracker.google.com/issues/312977090
+subprojects {
+    configurations.all {
+        resolutionStrategy {
+            force("com.android.billingclient:billing:7.0.0")
+            force("com.android.billingclient:billing-ktx:7.0.0")
+        }
+    }
+}
+
 subprojects {
     tasks.withType<JavaCompile>().configureEach {
         // Some third-party plugins still compile with source/target 8.

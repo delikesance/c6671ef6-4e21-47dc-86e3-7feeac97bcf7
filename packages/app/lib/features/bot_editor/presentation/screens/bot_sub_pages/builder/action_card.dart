@@ -296,7 +296,7 @@ class ActionCard extends StatelessWidget {
       }
       final label = a.actionKey.isNotEmpty ? a.actionKey : a.type.name;
       items.add(DropdownMenuItem(
-        value: a.actionKey.isNotEmpty ? a.actionKey : a.id,
+        value: a.actionKey.isNotEmpty ? a.actionKey : a.runtimeId,
         child: Text(label, overflow: TextOverflow.ellipsis),
       ));
     }

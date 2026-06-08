@@ -20,6 +20,12 @@ extension _CommandBlockEditor on _CommandCreatePageState {
     // Collect action blocks
     final actionBlocks = <Widget>[];
 
+    // Precompute ActionItem list for Jump to action dropdown
+    final allActionItems = List<ActionItem>.generate(
+      _actions.length,
+      (i) => ActionItem.fromJson(_actions[i], fallbackId: 'action_$i'),
+    );
+
     if (!isBdfdMode) {
       for (var i = 0; i < _actions.length; i++) {
         final action = ActionItem.fromJson(
@@ -138,6 +144,7 @@ extension _CommandBlockEditor on _CommandCreatePageState {
               );
               return result;
             },
+            allActions: allActionItems,
           ),
         );
       }

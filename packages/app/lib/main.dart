@@ -50,9 +50,6 @@ final LogBuffer currentLogList = LogBuffer(maxEntries: 5000);
 @pragma('vm:entry-point')
 final Map<String, NyxxGateway> gateways = <String, NyxxGateway>{};
 
-/// Global key to access and refresh the Home Page state.
-final GlobalKey<HomePageState> homeKey = GlobalKey<HomePageState>();
-
 FirebaseApp? firebaseApp;
 Future<void>? warmUpFuture;
 
@@ -461,7 +458,7 @@ class _MyAppState extends State<MyApp> {
         if (_isOAuthCallbackRoute(name)) {
           return MaterialPageRoute<void>(
             settings: settings,
-            builder: (context) => const MyMainPage(),
+            builder: (context) => MyMainPage(),
           );
         }
         return null;
@@ -492,7 +489,7 @@ class _MyAppState extends State<MyApp> {
                 },
               )
               : const MyMainPage(),
-      routes: {'/home': (context) => const MyMainPage()},
+      routes: {'/home': (context) => MyMainPage()},
     );
   }
 
@@ -539,7 +536,7 @@ class _MyMainPageState extends State<MyMainPage> {
           ),
         ],
       ),
-      body: HomePage(key: homeKey),
+      body: const HomePage(),
       floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {

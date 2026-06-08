@@ -82,6 +82,10 @@ class HomePage extends StatefulWidget {
 
 class HomePageState extends State<HomePage>
     with TickerProviderStateMixin, WidgetsBindingObserver {
+  /// The currently active HomePage instance. Set in initState, cleared in dispose.
+  /// Replaces the old module-level GlobalKey pattern that caused
+  /// "Multiple widgets used the same GlobalKey" crashes during navigation.
+  static HomePageState? current;
   /// IDs des bots en cours d'exécution.
   Set<String> _runningBotIds = <String>{};
 
@@ -108,6 +112,7 @@ class HomePageState extends State<HomePage>
   @override
   void initState() {
     super.initState();
+    current = this;
     appendBotDebugLog('>>>> [BOT_DEBUG] HomePage.initState ENTERED <<<<');
     WidgetsBinding.instance.addObserver(this);
     AppAnalytics.logScreenView(screenName: 'HomePage', screenClass: 'HomePage');
@@ -130,6 +135,7 @@ class HomePageState extends State<HomePage>
 
   @override
   void dispose() {
+    if (current == this) current = null;
     WidgetsBinding.instance.removeObserver(this);
     _statusRefreshTimer?.cancel();
     for (final ctrl in _pulseControllers.values) {
