@@ -2121,6 +2121,7 @@
   "marketplace_login_instructions": "Please authenticate via Discord to continue using the Marketplace.",
   "marketplace_rate_title": "Rate this template",
   "marketplace_rate_success": "Rating submitted!",
+  "marketplace_login_success": "Discord connected successfully!",
   "marketplace_config_required": "Configuration Required",
   "marketplace_config_hint": "Fill in the required values before applying this template.",
   "marketplace_variable_required": "{name} is required",

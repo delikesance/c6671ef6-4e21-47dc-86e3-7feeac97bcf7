@@ -2121,6 +2121,7 @@
   "marketplace_login_instructions": "マーケットプレイスを引き続き利用するにはDiscordで認証してください。",
   "marketplace_rate_title": "このテンプレートを評価",
   "marketplace_rate_success": "評価を送信しました！",
+  "marketplace_login_success": "Discordに接続しました！",
   "marketplace_config_required": "設定が必要です",
   "marketplace_config_hint": "このテンプレートを適用する前に必要な値を入力してください。",
   "marketplace_variable_required": "{name} は必須です",

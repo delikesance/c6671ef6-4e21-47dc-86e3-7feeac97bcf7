@@ -12859,27 +12859,6 @@ abstract class AppLocalizations {
   /// **'Template applied successfully!'**
   String get marketplace_apply_success;
 
-  /// Login prompt
-  String get marketplace_login_required;
-
-  /// Login hint
-  String get marketplace_login_hint;
-
-  /// Connect with Discord
-  String get marketplace_connect_discord;
-
-  /// Login dialog title
-  String get marketplace_login_title;
-
-  /// Login dialog instructions
-  String get marketplace_login_instructions;
-
-  /// Rate this template
-  String get marketplace_rate_title;
-
-  /// Rating submitted
-  String get marketplace_rate_success;
-
   /// No description provided for @marketplace_apply_success_skipped.
   ///
   /// In en, this message translates to:
@@ -12894,6 +12873,49 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to apply: {error}'**
   String marketplace_apply_error(Object error);
+
+  /// No description provided for @marketplace_login_required.
+  ///
+  /// In en, this message translates to:
+  /// **'Discord connection required'**
+  String get marketplace_login_required;
+
+  /// No description provided for @marketplace_login_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'You must connect your Discord account to access the Marketplace.'**
+  String get marketplace_login_hint;
+
+  /// No description provided for @marketplace_connect_discord.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect with Discord'**
+  String get marketplace_connect_discord;
+
+  /// No description provided for @marketplace_login_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to Manager'**
+  String get marketplace_login_title;
+
+  /// No description provided for @marketplace_login_instructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Please authenticate via Discord to continue using the Marketplace.'**
+  String get marketplace_login_instructions;
+
+  /// No description provided for @marketplace_rate_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate this template'**
+  String get marketplace_rate_title;
+
+  /// No description provided for @marketplace_rate_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Rating submitted!'**
+  String get marketplace_rate_success;
+  String get marketplace_login_success;
 
   /// No description provided for @marketplace_config_required.
   ///
