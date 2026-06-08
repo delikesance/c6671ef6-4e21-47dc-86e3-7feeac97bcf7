@@ -28,6 +28,7 @@ class ActionBlock extends StatefulWidget {
     this.emojiSuggestions,
     this.botIdForConfig,
     this.onEditNestedActions,
+    this.allActions,
   });
 
   final ActionItem action;
@@ -49,6 +50,7 @@ class ActionBlock extends StatefulWidget {
     void Function(List<Map<String, dynamic>>)? onChanged,
   })?
   onEditNestedActions;
+  final List<ActionItem>? allActions;
 
   @override
   State<ActionBlock> createState() => _ActionBlockState();
@@ -93,6 +95,7 @@ class _ActionBlockState extends State<ActionBlock> {
         showHeader: false,
         showPositionLabel: false,
         showManagementControls: false,
+        allActions: widget.allActions,
       ),
     );
   }
