@@ -538,7 +538,6 @@ class HomePageState extends State<HomePage>
             await appManager.createOrUpdateApp(
               id: Snowflake.parse(botId),
               username: (db['name'] ?? 'Unnamed Bot').toString(),
-              avatarHash: (db['icon'] ?? '').toString(),
               token: (db['bot_token'] ?? '').toString(),
             );
           }
