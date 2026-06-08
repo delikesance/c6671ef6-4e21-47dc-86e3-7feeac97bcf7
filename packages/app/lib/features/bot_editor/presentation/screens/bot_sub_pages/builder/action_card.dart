@@ -9,6 +9,7 @@ import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:bot_creator/features/bot_editor/presentation/screens/bdfd_editor_page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/image_editor_page.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder/http_request_editor_page.dart';
 import 'package:flutter_highlight/flutter_highlight.dart';
 import 'package:flutter_highlight/themes/darcula.dart';
 import 'package:flutter/material.dart';
@@ -696,20 +697,21 @@ class ActionCard extends StatelessWidget {
       );
     }
 
-    final method =
-        (action.parameters['method']?.toString() ?? 'GET').toUpperCase();
-    final bodyMode =
-        (action.parameters['bodyMode']?.toString() ?? 'json').toLowerCase();
-    final showBody = method != 'GET' && method != 'HEAD';
-
     return [
-      fieldFor('url'),
-      fieldFor('method'),
-      fieldFor('headers'),
-      if (showBody) ...[
-        fieldFor('bodyMode'),
-        if (bodyMode == 'text') fieldFor('bodyText') else fieldFor('bodyJson'),
-      ],
+      Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: () => _openHttpRequestEditor(context),
+            icon: const Icon(Icons.http, size: 20),
+            label: const Text('Edit Request'),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+            ),
+          ),
+        ),
+      ),
       Padding(
         padding: const EdgeInsets.only(bottom: 12),
         child: ExpansionTile(
@@ -741,6 +743,42 @@ class ActionCard extends StatelessWidget {
         ),
       ),
     ];
+  }
+
+  void _openHttpRequestEditor(BuildContext context) {
+    final headers = <String, String>{};
+    final rawHeaders = action.parameters['headers'];
+    if (rawHeaders is Map) {
+      (rawHeaders).forEach((k, v) => headers[k.toString()] = v.toString());
+    }
+
+    final bodyJsonRaw = action.parameters['bodyJson'];
+    final bodyJson = bodyJsonRaw is Map
+        ? Map<String, dynamic>.from(bodyJsonRaw.cast<String, dynamic>())
+        : <String, dynamic>{};
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => HttpRequestEditorPage(
+          url: (action.parameters['url'] ?? '').toString(),
+          method: (action.parameters['method'] ?? 'GET').toString(),
+          headers: headers,
+          bodyMode: (action.parameters['bodyMode'] ?? 'json').toString(),
+          bodyText: (action.parameters['bodyText'] ?? '').toString(),
+          bodyJson: bodyJson,
+          onSaved: (result) {
+            onParameterChanged('url', result.url);
+            onParameterChanged('method', result.method);
+            onParameterChanged('headers', result.headers);
+            onParameterChanged('bodyMode', result.bodyMode);
+            onParameterChanged('bodyText', result.bodyText);
+            onParameterChanged('bodyJson', result.bodyJson);
+          },
+        ),
+      ),
+    );
   }
 
   /// Whether a parameter should be rendered based on the current action state.
