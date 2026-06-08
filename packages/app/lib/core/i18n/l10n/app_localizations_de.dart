@@ -7417,14 +7417,31 @@ class AppLocalizationsDe extends AppLocalizations {
   String get marketplace_rate_success => 'Bewertung gesendet!';
 
   @override
-  String get marketplace_login_success => 'Discord erfolgreich verbunden!';
   String get marketplace_edit => 'Bearbeiten';
+
+  @override
   String get marketplace_delete => 'Löschen';
-  String get marketplace_edit_hint => 'Zum Bearbeiten erneut aus der Befehlsliste deines Bots mit demselben Namen veröffentlichen.';
+
+  @override
+  String get marketplace_edit_hint =>
+      'Zum Bearbeiten erneut aus der Befehlsliste deines Bots mit demselben Namen veröffentlichen.';
+
+  @override
   String get marketplace_delete_confirm_title => 'Vorlage löschen';
-  String marketplace_delete_confirm(Object name) => 'Bist du sicher, dass du $name löschen möchtest? Dies kann nicht rückgängig gemacht werden.';
+
+  @override
+  String marketplace_delete_confirm(Object name) {
+    return 'Bist du sicher, dass du \"$name\" löschen möchtest? Dies kann nicht rückgängig gemacht werden.';
+  }
+
+  @override
   String get marketplace_delete_success => 'Vorlage gelöscht.';
+
+  @override
   String get marketplace_my_templates => 'Meine Vorlagen';
+
+  @override
+  String get marketplace_login_success => 'Discord erfolgreich verbunden!';
 
   @override
   String get marketplace_config_required => 'Konfiguration erforderlich';
