@@ -9,8 +9,16 @@ class _GuildInfo {
   final String id;
   final String name;
   final String? iconHash;
+  final bool isOwner;
+  final int? approximateMemberCount;
 
-  const _GuildInfo({required this.id, required this.name, this.iconHash});
+  const _GuildInfo({
+    required this.id,
+    required this.name,
+    this.iconHash,
+    this.isOwner = false,
+    this.approximateMemberCount,
+  });
 
   String? get iconUrl => iconHash != null
       ? 'https://cdn.discordapp.com/icons/$id/$iconHash.png'
@@ -62,7 +70,7 @@ class _GuildsPageState extends State<GuildsPage> {
         ..add(HttpRoutePart('@me'))
         ..add(HttpRoutePart('guilds'));
       final response = await rest.httpHandler.executeSafe(
-        BasicRequest(route, method: 'GET'),
+        BasicRequest(route, method: 'GET', queryParameters: {'with_counts': 'true'}),
       );
       final rawList = response.jsonBody as List;
       final guilds = rawList.map((raw) {
@@ -71,6 +79,8 @@ class _GuildsPageState extends State<GuildsPage> {
           id: map['id'] as String,
           name: map['name'] as String,
           iconHash: map['icon'] as String?,
+          isOwner: map['owner'] as bool? ?? false,
+          approximateMemberCount: map['approximate_member_count'] as int?,
         );
       }).toList();
       guilds.sort((a, b) => a.name.compareTo(b.name));
@@ -155,6 +165,9 @@ class _GuildsPageState extends State<GuildsPage> {
               ),
             const SizedBox(height: 12),
             Text('ID: ${info.id}'),
+            if (info.isOwner) const Text('👑 Bot is owner of this server'),
+            if (info.approximateMemberCount != null)
+              Text('Members: ~${info.approximateMemberCount}'),
           ],
         ),
       ),
@@ -298,7 +311,12 @@ class _GuildsPageState extends State<GuildsPage> {
             ),
             title: Text(guild.name),
             subtitle: Text(
-              'ID: ${guild.id}',
+              [
+                'ID: ${guild.id}',
+                if (guild.approximateMemberCount != null)
+                  '~${guild.approximateMemberCount} members',
+                if (guild.isOwner) '👑 Owner',
+              ].join(' · '),
               style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
             ),
             trailing: Row(
