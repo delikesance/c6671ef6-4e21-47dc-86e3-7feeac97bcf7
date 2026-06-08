@@ -99,13 +99,16 @@ extension _AppHomePageSync on _AppHomePageState {
 
     _isSyncingApp = true;
     try {
-      final user = await widget.client.user.get();
+      appendBotDebugLog('[_syncAppFromRemote] START');
+      final user = await widget.client.user.get().timeout(const Duration(seconds: 10));
       final botId = user.id.toString();
+      appendBotDebugLog('[_syncAppFromRemote] botId=$botId username=${user.username}');
       final app = await appManager.getApp(botId);
       final token = (app['token'] ?? '').toString().trim();
       if (token.isEmpty) {
         throw Exception('Token not found');
       }
+      appendBotDebugLog('[_syncAppFromRemote] token present, length=${token.length}');
 
       await appManager.createOrUpdateApp(
         id: user.id,
@@ -117,13 +120,15 @@ extension _AppHomePageSync on _AppHomePageState {
 
       // Pull latest bot config from Manager (synced from other devices)
       try {
+        appendBotDebugLog('[_syncAppFromRemote] resolving Manager client...');
         final mainClient = await _resolveMainApiClientForBot(
           botId: botId,
           botToken: token,
           attemptSessionRestore: true,
         );
         if (mainClient != null) {
-          final remoteConfig = await mainClient.getBotConfig(botId);
+          appendBotDebugLog('[_syncAppFromRemote] Manager client ok, fetching config...');
+          final remoteConfig = await mainClient.getBotConfig(botId).timeout(const Duration(seconds: 15));
           if (remoteConfig.isNotEmpty) {
             // Preserve local-only fields that the Manager doesn't store:
             // avatar and name are set locally and should survive cross-device sync.
@@ -229,9 +234,10 @@ extension _AppHomePageSync on _AppHomePageState {
       }
 
       try {
+        appendBotDebugLog('[_syncAppFromRemote] syncing Discord commands...');
         final remoteCommands = await widget.client.commands.list(
           withLocalizations: true,
-        );
+        ).timeout(const Duration(seconds: 15));
 
         final allLocal = await appManager.listAppCommands(botId);
         final reconciledLocalIds = <String>{};
@@ -302,12 +308,13 @@ extension _AppHomePageSync on _AppHomePageState {
         if (mainClient != null) {
           final botConfig = Map<String, dynamic>.from(refreshed);
           botConfig.remove('token');
+          appendBotDebugLog('[_syncAppFromRemote] pushing bot config to Manager...');
           await mainClient.syncBot(
             botId,
             user.username,
             botConfig,
             force: true,
-          );
+          ).timeout(const Duration(seconds: 20));
           appendBotDebugLog(
             '[_syncAppFromRemote] Pushed full bot config to Manager for $botId',
           );
@@ -318,12 +325,14 @@ extension _AppHomePageSync on _AppHomePageState {
         );
       }
 
+      appendBotDebugLog('[_syncAppFromRemote] DONE — success');
       if (showSnack && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(context.tr.bot_home_sync_success)),
         );
       }
     } catch (e) {
+      appendBotDebugLog('[_syncAppFromRemote] FAILED: $e');
       if (showSnack && mounted) {
         ScaffoldMessenger.of(
           context,
