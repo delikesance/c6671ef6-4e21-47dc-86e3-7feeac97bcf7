@@ -768,13 +768,13 @@ class ActionCard extends StatelessWidget {
           bodyMode: (action.parameters['bodyMode'] ?? 'json').toString(),
           bodyText: (action.parameters['bodyText'] ?? '').toString(),
           bodyJson: bodyJson,
-          onSaved: (result) {
-            onParameterChanged('url', result.url);
-            onParameterChanged('method', result.method);
-            onParameterChanged('headers', result.headers);
-            onParameterChanged('bodyMode', result.bodyMode);
-            onParameterChanged('bodyText', result.bodyText);
-            onParameterChanged('bodyJson', result.bodyJson);
+          onSaved: ({url, method, headers, bodyMode, bodyText, bodyJson}) {
+            onParameterChanged('url', url);
+            onParameterChanged('method', method);
+            onParameterChanged('headers', headers);
+            onParameterChanged('bodyMode', bodyMode);
+            onParameterChanged('bodyText', bodyText);
+            onParameterChanged('bodyJson', bodyJson);
           },
         ),
       ),

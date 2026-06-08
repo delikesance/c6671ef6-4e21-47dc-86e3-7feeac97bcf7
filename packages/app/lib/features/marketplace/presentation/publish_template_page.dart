@@ -89,7 +89,7 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              context.tr.marketplace_load_error.replaceAll('{error}', e.toString()),
+              context.tr.marketplace_load_error(e.toString()),
             ),
           ),
         );
@@ -165,10 +165,10 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
           if (commands.isNotEmpty) ...[
             Row(
               children: [
-                const Icon(Icons.slash_forward, size: 20),
+                const Icon(Icons.arrow_forward, size: 20),
                 const SizedBox(width: 8),
                 Text(
-                  tr.marketplace_publish_commands.replaceAll('{count}', commands.length.toString()),
+                  tr.marketplace_publish_commands(commands.length.toString()),
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
                 ),
                 const Spacer(),
@@ -215,7 +215,7 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
                 const Icon(Icons.account_tree, size: 20),
                 const SizedBox(width: 8),
                 Text(
-                  tr.marketplace_publish_workflows.replaceAll('{count}', workflows.length.toString()),
+                  tr.marketplace_publish_workflows(workflows.length.toString()),
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
                 ),
                 const Spacer(),
@@ -555,7 +555,7 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
               style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
-            _summaryRow(Icons.slash_forward, '$cmdCount commands'),
+            _summaryRow(Icons.arrow_forward, '$cmdCount commands'),
             _summaryRow(Icons.account_tree, '$wfCount workflows'),
             _summaryRow(Icons.data_object, '$varCount variables ($requiredVarCount required)'),
           ],
@@ -691,7 +691,7 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(tr.marketplace_publish_error.replaceAll('{error}', e.toString())),
+            content: Text(tr.marketplace_publish_error(e.toString())),
           ),
         );
       }

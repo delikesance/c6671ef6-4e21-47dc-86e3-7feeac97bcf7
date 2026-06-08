@@ -1277,7 +1277,7 @@ class MainApiClient implements RemoteRuntimeClient {
   /// List all marketplace templates.
   Future<List<Map<String, dynamic>>> listMarketplaceTemplates() async {
     final json = await _get('/marketplace');
-    final list = json['data'] as List? ?? (json is List ? json : []);
+    final list = (json['data'] as List?) ?? <dynamic>[];
     return list.cast<Map<String, dynamic>>();
   }
 

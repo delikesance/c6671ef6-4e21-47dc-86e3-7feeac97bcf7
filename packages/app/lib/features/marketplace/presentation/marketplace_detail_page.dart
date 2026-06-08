@@ -156,9 +156,7 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
               ),
               const SizedBox(height: 4),
               Text(
-                tr.marketplace_by_author
-                    .replaceAll('{author}', _template.authorName)
-                    .replaceAll('{version}', _template.version),
+                tr.marketplace_by_author(_template.authorName, _template.version),
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: cs.onSurfaceVariant,
                     ),
@@ -240,10 +238,7 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          tr.marketplace_commands_label.replaceAll(
-            '{count}',
-            _template.commands.length.toString(),
-          ),
+          tr.marketplace_commands_label(_template.commands.length.toString()),
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
@@ -253,7 +248,7 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
           return ListTile(
             dense: true,
             contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.slash_forward, size: 20),
+            leading: const Icon(Icons.arrow_forward, size: 20),
             title: Text(
               '/${cmd.name}',
               style: const TextStyle(fontFamily: 'monospace'),
@@ -269,10 +264,7 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
           Padding(
             padding: const EdgeInsets.only(top: 4),
             child: Text(
-              tr.marketplace_more.replaceAll(
-                '{count}',
-                (_template.commands.length - 5).toString(),
-              ),
+              tr.marketplace_more(_template.commands.length - 5),
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: cs.onSurfaceVariant,
                   ),
@@ -287,10 +279,7 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          tr.marketplace_workflows_label.replaceAll(
-            '{count}',
-            _template.workflows.length.toString(),
-          ),
+          tr.marketplace_workflows_label(_template.workflows.length.toString()),
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
@@ -313,10 +302,7 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
           Padding(
             padding: const EdgeInsets.only(top: 4),
             child: Text(
-              tr.marketplace_more.replaceAll(
-                '{count}',
-                (_template.workflows.length - 5).toString(),
-              ),
+              tr.marketplace_more(_template.workflows.length - 5),
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: cs.onSurfaceVariant,
                   ),
@@ -356,10 +342,7 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
           Padding(
             padding: const EdgeInsets.only(top: 4),
             child: Text(
-              tr.marketplace_more.replaceAll(
-                '{count}',
-                (nonRequired.length - 5).toString(),
-              ),
+              tr.marketplace_more(nonRequired.length - 5),
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: cs.onSurfaceVariant,
                   ),
@@ -377,7 +360,7 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                tr.marketplace_variable_required.replaceAll('{name}', v.name),
+                tr.marketplace_variable_required(v.name),
               ),
             ),
           );
@@ -400,7 +383,7 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              tr.marketplace_apply_error.replaceAll('{error}', e.toString()),
+              tr.marketplace_apply_error(e.toString()),
             ),
           ),
         );
