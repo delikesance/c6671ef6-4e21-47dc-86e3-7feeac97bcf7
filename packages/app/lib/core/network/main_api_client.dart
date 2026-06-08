@@ -823,6 +823,37 @@ class MainApiClient implements RemoteRuntimeClient {
     return _get('/gateway/bots/$encodedBotId/runtime');
   }
 
+  /// Gets the URL for downloading the bot's full config JSON from the Manager.
+  /// The config is stored in R2 and is publicly accessible.
+  Future<Map<String, dynamic>> getBotConfig(String botId) async {
+    final encodedBotId = Uri.encodeComponent(botId.trim());
+    final json = await _get('/gateway/bots/$encodedBotId/config');
+    final configUrl = (json['configUrl'] ?? '').toString().trim();
+    if (configUrl.isEmpty) {
+      throw const MainApiClientException('No config URL returned');
+    }
+
+    // Download the config JSON from the public R2 URL (no auth needed)
+    final httpClient = http.Client();
+    try {
+      final response = await httpClient
+          .get(Uri.parse(configUrl))
+          .timeout(const Duration(seconds: 15));
+      if (response.statusCode != 200) {
+        throw MainApiClientException(
+          'Failed to download config: ${response.statusCode}',
+        );
+      }
+      final decoded = jsonDecode(response.body);
+      if (decoded is! Map) {
+        throw const MainApiClientException('Invalid config format');
+      }
+      return Map<String, dynamic>.from(decoded);
+    } finally {
+      httpClient.close();
+    }
+  }
+
   @override
   Future<Map<String, dynamic>> getRunnerInfo() async {
     return _get('/gateway/runner');
