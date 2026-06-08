@@ -662,7 +662,26 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                   (_actions[i]['error'] as Map?)?.cast<String, dynamic>() ??
                       const {},
                 );
-                error['mode'] = value == 'continue' ? 'continue' : 'stop';
+                error['mode'] = value == 'continue' ? 'continue'
+                    : (value == 'jump' ? 'jump' : (value == 'skip' ? 'skip' : 'stop'));
+                _actions[i]['error'] = error;
+                return;
+              }
+              if (key == '__onErrorJumpTarget__') {
+                final error = Map<String, dynamic>.from(
+                  (_actions[i]['error'] as Map?)?.cast<String, dynamic>() ??
+                      const {},
+                );
+                error['jumpToActionId'] = value?.toString();
+                _actions[i]['error'] = error;
+                return;
+              }
+              if (key == '__onErrorSkipCount__') {
+                final error = Map<String, dynamic>.from(
+                  (_actions[i]['error'] as Map?)?.cast<String, dynamic>() ??
+                      const {},
+                );
+                error['skipCount'] = value?.toString();
                 _actions[i]['error'] = error;
                 return;
               }

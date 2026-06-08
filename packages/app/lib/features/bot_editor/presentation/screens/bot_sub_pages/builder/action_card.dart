@@ -249,6 +249,8 @@ class ActionCard extends StatelessWidget {
               _buildActionKeyField(context),
               const SizedBox(height: 12),
               _buildActionStateRow(context),
+              if (action.onErrorMode == 'jump') _buildJumpTargetField(context),
+              if (action.onErrorMode == 'skip') _buildSkipCountField(context),
             ],
             const SizedBox(height: 16),
             if (action.type == BotCreatorActionType.httpRequest)
@@ -270,6 +272,26 @@ class ActionCard extends StatelessWidget {
                   }),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildJumpTargetField(BuildContext context) {
+    return const SizedBox.shrink(); // TODO: wire action list from parent
+  }
+
+  Widget _buildSkipCountField(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12, top: 4),
+      child: TextFormField(
+        initialValue: action.skipCount > 0 ? '${action.skipCount}' : '1',
+        decoration: const InputDecoration(
+          labelText: 'Skip count',
+          border: OutlineInputBorder(),
+          isDense: true,
+        ),
+        keyboardType: TextInputType.number,
+        onChanged: (value) => onParameterChanged('__onErrorSkipCount__', value),
       ),
     );
   }
@@ -315,6 +337,14 @@ class ActionCard extends StatelessWidget {
               DropdownMenuItem(
                 value: 'continue',
                 child: Text(context.tr.action_error_continue),
+              ),
+              DropdownMenuItem(
+                value: 'jump',
+                child: const Text('Jump to action'),
+              ),
+              DropdownMenuItem(
+                value: 'skip',
+                child: const Text('Skip N actions'),
               ),
             ],
             onChanged: (value) {
