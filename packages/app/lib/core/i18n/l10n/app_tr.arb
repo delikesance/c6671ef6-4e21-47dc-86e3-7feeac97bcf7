@@ -2125,7 +2125,7 @@
   "marketplace_delete": "Sil",
   "marketplace_edit_hint": "Düzenlemek için botunuzun komut listesinden aynı adla yeniden yayınlayın.",
   "marketplace_delete_confirm_title": "Şablonu Sil",
-  "marketplace_delete_confirm": ""{name}" şablonunu silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+  "marketplace_delete_confirm": "\"{name}\" şablonunu silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
   "marketplace_delete_success": "Şablon silindi.",
   "marketplace_my_templates": "Şablonlarım",
   "marketplace_login_success": "Discord başarıyla bağlandı!",

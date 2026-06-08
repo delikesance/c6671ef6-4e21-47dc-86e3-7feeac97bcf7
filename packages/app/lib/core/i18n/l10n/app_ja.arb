@@ -2125,7 +2125,7 @@
   "marketplace_delete": "削除",
   "marketplace_edit_hint": "編集するには、ボットのコマンドリストから同じ名前で再公開してください。",
   "marketplace_delete_confirm_title": "テンプレートを削除",
-  "marketplace_delete_confirm": ""{name}"を削除してもよろしいですか？この操作は元に戻せません。",
+  "marketplace_delete_confirm": "\"{name}\"を削除してもよろしいですか？この操作は元に戻せません。",
   "marketplace_delete_success": "テンプレートを削除しました。",
   "marketplace_my_templates": "自分のテンプレート",
   "marketplace_login_success": "Discordに接続しました！",
