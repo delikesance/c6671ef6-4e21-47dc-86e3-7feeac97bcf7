@@ -419,7 +419,7 @@ class _AppHomePageState extends State<AppHomePage>
                             _buildActionTile(
                               icon: Icons.tune,
                               label: context.tr.bot_home_customize,
-                              onTap: () => widget.onNavigateToSection!(8),
+                              onTap: () => widget.onNavigateToSection!(9),
                               iconColor: AppTheme.brandPrimary,
                             ),
                             _buildActionTile(

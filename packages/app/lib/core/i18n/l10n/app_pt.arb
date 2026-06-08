@@ -2291,6 +2291,8 @@
       "count": {}
     }
   },
+  "guilds_tab": "Servidores",
+  "guilds_tab_short": "Servidores"
   "@@locale": "pt",
   "@action_add_else_if": {
     "description": "Add ELSE IF"
