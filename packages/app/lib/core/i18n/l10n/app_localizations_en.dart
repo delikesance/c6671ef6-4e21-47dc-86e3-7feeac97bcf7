@@ -7258,4 +7258,234 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get bot_settings_avatar_important_note =>
       'Important: Profile changes (username and avatar) will only be applied to Discord when you click \'Save profile and statuses\' at the bottom.';
+
+  @override
+  String get marketplace_title => 'Marketplace';
+
+  @override
+  String get marketplace_search_hint => 'Search templates...';
+
+  @override
+  String get marketplace_empty => 'No templates yet.\nBe the first to publish!';
+
+  @override
+  String marketplace_no_results(Object query) {
+    return 'No templates match \"$query\"';
+  }
+
+  @override
+  String marketplace_count(Object count) {
+    return '$count template(s)';
+  }
+
+  @override
+  String get marketplace_retry => 'Retry';
+
+  @override
+  String get marketplace_apply => 'Apply Template';
+
+  @override
+  String get marketplace_applying => 'Applying...';
+
+  @override
+  String get marketplace_apply_success => 'Template applied successfully!';
+
+  @override
+  String marketplace_apply_error(Object error) {
+    return 'Failed to apply: $error';
+  }
+
+  @override
+  String get marketplace_config_required => 'Configuration Required';
+
+  @override
+  String get marketplace_config_hint =>
+      'Fill in the required values before applying this template.';
+
+  @override
+  String marketplace_variable_required(Object name) {
+    return '$name is required';
+  }
+
+  @override
+  String get marketplace_about => 'About';
+
+  @override
+  String marketplace_commands_label(Object count) {
+    return 'Commands ($count)';
+  }
+
+  @override
+  String marketplace_workflows_label(Object count) {
+    return 'Workflows ($count)';
+  }
+
+  @override
+  String get marketplace_variables_label => 'Pre-configured Variables';
+
+  @override
+  String marketplace_more(Object count) {
+    return '+$count more';
+  }
+
+  @override
+  String get marketplace_publish_title => 'Publish Template';
+
+  @override
+  String get marketplace_publish_select => 'Select what to include';
+
+  @override
+  String get marketplace_publish_select_hint =>
+      'Pick commands, workflows, or both. Each becomes part of the template.';
+
+  @override
+  String marketplace_publish_commands(Object count) {
+    return 'Commands ($count)';
+  }
+
+  @override
+  String marketplace_publish_workflows(Object count) {
+    return 'Workflows ($count)';
+  }
+
+  @override
+  String get marketplace_publish_variables => 'Global Variables';
+
+  @override
+  String get marketplace_publish_variables_hint =>
+      'Include variables and mark which ones the user must fill in.';
+
+  @override
+  String get marketplace_publish_metadata => 'Template Details';
+
+  @override
+  String get marketplace_publish_metadata_hint =>
+      'Describe your template so others can find and use it.';
+
+  @override
+  String get marketplace_publish_summary => 'Template Summary';
+
+  @override
+  String get marketplace_publish_select_all => 'Select all';
+
+  @override
+  String get marketplace_publish_deselect_all => 'Deselect all';
+
+  @override
+  String get marketplace_publish_user_must_define =>
+      'User must define this value';
+
+  @override
+  String get marketplace_publish_user_must_define_hint =>
+      'The user will be prompted to fill it in before applying';
+
+  @override
+  String get marketplace_publish_add_variable => 'Add custom variable';
+
+  @override
+  String get marketplace_publish_add_variable_title => 'Add Variable';
+
+  @override
+  String get marketplace_publish_name_label => 'Template name';
+
+  @override
+  String get marketplace_publish_name_hint => 'e.g. AI Moderation Bot';
+
+  @override
+  String get marketplace_publish_desc_label => 'Short description';
+
+  @override
+  String get marketplace_publish_desc_hint =>
+      'A one-line summary shown in the marketplace';
+
+  @override
+  String get marketplace_publish_desc_long_label =>
+      'Full documentation (optional)';
+
+  @override
+  String get marketplace_publish_desc_long_hint =>
+      'Detailed usage instructions, markdown supported...';
+
+  @override
+  String get marketplace_publish_category_label => 'Category';
+
+  @override
+  String get marketplace_publish_category_hint => 'e.g. ai, moderation, fun';
+
+  @override
+  String get marketplace_publish_version_label => 'Version';
+
+  @override
+  String get marketplace_publish_tags_label => 'Tags (comma separated)';
+
+  @override
+  String get marketplace_publish_tags_hint =>
+      'e.g. openai, chatbot, moderation';
+
+  @override
+  String get marketplace_publish_variable_name_label => 'Variable name';
+
+  @override
+  String get marketplace_publish_variable_name_hint => 'e.g. TOKEN_OPENAI';
+
+  @override
+  String get marketplace_publish_variable_desc_label => 'Description';
+
+  @override
+  String get marketplace_publish_variable_desc_hint =>
+      'What this variable is for';
+
+  @override
+  String get marketplace_publish_success => 'Template published successfully!';
+
+  @override
+  String marketplace_publish_error(Object error) {
+    return 'Failed to publish: $error';
+  }
+
+  @override
+  String get marketplace_publish_button => 'Publish';
+
+  @override
+  String get marketplace_publishing => 'Publishing...';
+
+  @override
+  String get marketplace_publish_next => 'Next';
+
+  @override
+  String get marketplace_publish_back => 'Back';
+
+  @override
+  String get marketplace_publish_no_content =>
+      'No commands or workflows to publish.\nCreate some first!';
+
+  @override
+  String get marketplace_no_variables => 'No global variables defined.';
+
+  @override
+  String get marketplace_connect_manager =>
+      'Connect to Manager to access the Marketplace.';
+
+  @override
+  String get marketplace_connect_publish =>
+      'Connect to Manager to publish a template.';
+
+  @override
+  String get marketplace_api_unavailable => 'API client not available';
+
+  @override
+  String marketplace_load_error(Object error) {
+    return 'Failed to load data: $error';
+  }
+
+  @override
+  String get marketplace_cancel => 'Cancel';
+
+  @override
+  String get marketplace_add => 'Add';
+
+  @override
+  String marketplace_by_author(Object author, Object version) {
+    return 'by $author · v$version';
+  }
 }
