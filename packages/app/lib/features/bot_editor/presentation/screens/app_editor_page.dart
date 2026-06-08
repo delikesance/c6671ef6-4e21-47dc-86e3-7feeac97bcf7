@@ -5,6 +5,7 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pag
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/commands.list.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/emojis.page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/global.variables.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/guilds.page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/home.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/inbound_webhooks.page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/scheduler.page.dart';
@@ -259,6 +260,13 @@ class _AppEditPageState extends State<AppEditPage>
         label: context.tr.emojis_tab,
         compactLabel: context.tr.emojis_tab_short,
         page: EmojisPage(botId: _botId),
+        mobileSecondary: true,
+      ),
+      _AppPageEntry(
+        icon: Icons.dns_outlined,
+        label: context.tr.guilds_tab,
+        compactLabel: context.tr.guilds_tab_short,
+        page: GuildsPage(botId: _botId),
         mobileSecondary: true,
       ),
       _AppPageEntry(

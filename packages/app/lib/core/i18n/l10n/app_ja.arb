@@ -2258,6 +2258,8 @@
   "marketplace_command_preview_type_user": "User context menu",
   "marketplace_command_preview_type_message": "Message context menu",
   "marketplace_command_preview_options": "{count} options",
+  "guilds_tab": "サーバー",
+  "guilds_tab_short": "サーバー"
   "@@locale": "ja",
   "@action_add_else_if": {
     "description": "Add ELSE IF"
