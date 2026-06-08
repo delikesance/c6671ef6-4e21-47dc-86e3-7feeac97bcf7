@@ -7381,6 +7381,21 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get marketplace_apply_success => 'Modelo aplicado com sucesso!';
+  String get marketplace_login_required => 'Conexão Discord necessária';
+  String get marketplace_login_hint => 'Você precisa conectar sua conta Discord para acessar o Marketplace.';
+  String get marketplace_connect_discord => 'Conectar com Discord';
+  String get marketplace_login_title => 'Conectar ao Manager';
+  String get marketplace_login_instructions => 'Por favor, autentique-se via Discord para continuar usando o Marketplace.';
+  String get marketplace_rate_title => 'Avaliar este template';
+  String get marketplace_rate_success => 'Avaliação enviada!';
+
+  @override
+  String marketplace_apply_success_skipped(
+    Object addedCount,
+    Object skippedCount,
+  ) {
+    return '$addedCount comando(s) adicionado(s), $skippedCount ignorado(s) (duplicados).';
+  }
 
   @override
   String marketplace_apply_error(Object error) {
