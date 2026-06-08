@@ -2,8 +2,10 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/storage/database.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command_option_serialization.dart';
 import 'package:bot_creator_shared/bot/marketplace_template.dart';
 import 'package:flutter/material.dart';
+import 'package:nyxx/nyxx.dart';
 import 'package:uuid/uuid.dart';
 
 import 'publish_template_page.dart';
@@ -949,6 +951,73 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
     );
   }
 
+  /// Register a command on Discord and return the assigned ID.
+  /// Returns null if Discord is unreachable (command saved locally with UUID).
+  Future<String?> _registerOnDiscord({
+    required String resolvedName,
+    required String resolvedDescription,
+    required Map<String, dynamic> resolvedData,
+    required String botId,
+  }) async {
+    try {
+      final appManager = AppManager();
+      final appData = await appManager.getApp(botId);
+      final token = (appData['token'] ?? '').toString().trim();
+      if (token.isEmpty) return null;
+
+      final rest = await Nyxx.connectRest(token);
+      try {
+        final commandType = resolvedData['commandType']?.toString() ?? 'chatInput';
+        final ApplicationCommandBuilder builder;
+        switch (commandType) {
+          case 'user':
+            builder = ApplicationCommandBuilder.user(name: resolvedName);
+          case 'message':
+            builder = ApplicationCommandBuilder.message(name: resolvedName);
+          default:
+            final rawOptions = (resolvedData['options'] as List?)?.whereType<Map>().toList() ?? [];
+            final options = rawOptions.isNotEmpty
+                ? deserializeCommandOptions(rawOptions)
+                : <CommandOptionBuilder>[];
+            builder = ApplicationCommandBuilder.chatInput(
+              name: resolvedName,
+              description: resolvedDescription,
+              options: options,
+            );
+        }
+
+        final permissionRaw = resolvedData['defaultMemberPermissions']?.toString();
+        if (permissionRaw != null && permissionRaw.isNotEmpty) {
+          final perm = int.tryParse(permissionRaw);
+          if (perm != null && perm > 0) {
+            builder.defaultMemberPermissions = Permissions(perm);
+          }
+        }
+
+        // Read integration types and contexts from command data
+        final integrationTypesRaw = resolvedData['integrationTypes'];
+        if (integrationTypesRaw is List && integrationTypesRaw.isNotEmpty) {
+          builder.integrationTypes = integrationTypesRaw
+              .map((t) => ApplicationIntegrationType.parse(t as int))
+              .toList();
+        }
+        final contextsRaw = resolvedData['contexts'];
+        if (contextsRaw is List && contextsRaw.isNotEmpty) {
+          builder.contexts = contextsRaw
+              .map((c) => InteractionContextType.parse(c as int))
+              .toList();
+        }
+
+        final cmd = await rest.commands.create(builder);
+        return cmd.id.toString();
+      } finally {
+        rest.close();
+      }
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<void> _apply() async {
     final tr = context.tr;
     for (final v in _template.requiredVariables) {
@@ -1052,7 +1121,14 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
         }
         resolvedData.remove('simpleConfig');
 
-        final newCmdId = uuid.v4();
+        // Register on Discord first
+        final discordId = await _registerOnDiscord(
+          resolvedName: resolvedName,
+          resolvedDescription: resolvedDescription,
+          resolvedData: resolvedData,
+          botId: widget.botId,
+        );
+        final newCmdId = discordId ?? uuid.v4();
         final localPayload = <String, dynamic>{
           'name': resolvedName,
           'description': resolvedDescription,
@@ -1093,7 +1169,14 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
         }
         resolvedData.remove('simpleConfig');
 
-        final newCmdId = uuid.v4();
+        // Register on Discord first
+        final discordId = await _registerOnDiscord(
+          resolvedName: resolvedName,
+          resolvedDescription: resolvedDescription,
+          resolvedData: resolvedData,
+          botId: widget.botId,
+        );
+        final newCmdId = discordId ?? uuid.v4();
         final localPayload = <String, dynamic>{
           'name': resolvedName,
           'description': resolvedDescription,
