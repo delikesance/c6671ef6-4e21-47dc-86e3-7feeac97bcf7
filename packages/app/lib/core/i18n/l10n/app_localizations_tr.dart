@@ -7338,12 +7338,26 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get marketplace_apply_success => 'Şablon başarıyla uygulandı!';
+
+  @override
   String get marketplace_login_required => 'Discord bağlantısı gerekli';
+
+  @override
   String get marketplace_login_hint => 'Pazar Yerine erişmek için Discord hesabınızı bağlamalısınız.';
+
+  @override
   String get marketplace_connect_discord => 'Discord ile bağlan';
+
+  @override
   String get marketplace_login_title => "Manager'a bağlan";
+
+  @override
   String get marketplace_login_instructions => 'Pazar Yerini kullanmaya devam etmek için lütfen Discord ile kimlik doğrulayın.';
+
+  @override
   String get marketplace_rate_title => 'Bu şablonu değerlendir';
+
+  @override
   String get marketplace_rate_success => 'Değerlendirme gönderildi!';
 
   @override

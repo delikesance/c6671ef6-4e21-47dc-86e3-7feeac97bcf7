@@ -7043,12 +7043,26 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get marketplace_apply_success => 'テンプレートが正常に適用されました！';
+
+  @override
   String get marketplace_login_required => 'Discord接続が必要です';
+
+  @override
   String get marketplace_login_hint => 'マーケットプレイスにアクセスするにはDiscordアカウントを接続してください。';
+
+  @override
   String get marketplace_connect_discord => 'Discordで接続';
+
+  @override
   String get marketplace_login_title => 'Managerに接続';
+
+  @override
   String get marketplace_login_instructions => 'マーケットプレイスを引き続き利用するにはDiscordで認証してください。';
+
+  @override
   String get marketplace_rate_title => 'このテンプレートを評価';
+
+  @override
   String get marketplace_rate_success => '評価を送信しました！';
 
   @override

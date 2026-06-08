@@ -7379,12 +7379,26 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get marketplace_apply_success => 'Vorlage erfolgreich angewendet!';
+
+  @override
   String get marketplace_login_required => 'Discord-Verbindung erforderlich';
+
+  @override
   String get marketplace_login_hint => 'Du musst dein Discord-Konto verbinden, um auf den Marktplatz zuzugreifen.';
+
+  @override
   String get marketplace_connect_discord => 'Mit Discord verbinden';
+
+  @override
   String get marketplace_login_title => 'Mit Manager verbinden';
+
+  @override
   String get marketplace_login_instructions => 'Bitte authentifiziere dich über Discord, um den Marktplatz weiter zu nutzen.';
+
+  @override
   String get marketplace_rate_title => 'Diese Vorlage bewerten';
+
+  @override
   String get marketplace_rate_success => 'Bewertung gesendet!';
 
   @override
