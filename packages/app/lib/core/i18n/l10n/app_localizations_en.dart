@@ -7550,4 +7550,54 @@ class AppLocalizationsEn extends AppLocalizations {
   String marketplace_by_author(Object author, Object version) {
     return 'by $author · v$version';
   }
+
+  @override
+  String get marketplace_conflict_title => 'Command Conflicts';
+
+  @override
+  String get marketplace_conflict_subtitle =>
+      'Some template commands already exist. Choose which version to keep:';
+
+  @override
+  String get marketplace_conflict_keep_local => 'Keep Local';
+
+  @override
+  String get marketplace_conflict_use_template => 'Use Template';
+
+  @override
+  String marketplace_conflict_local_info(Object count) {
+    return 'Local ($count actions)';
+  }
+
+  @override
+  String marketplace_conflict_template_info(Object count) {
+    return 'Template ($count actions)';
+  }
+
+  @override
+  String marketplace_conflict_apply_choice(Object count) {
+    return 'Apply ($count template)';
+  }
+
+  @override
+  String marketplace_command_preview_actions(Object count) {
+    return '$count actions';
+  }
+
+  @override
+  String get marketplace_command_preview_no_actions => 'No actions';
+
+  @override
+  String get marketplace_command_preview_type_slash => 'Slash command';
+
+  @override
+  String get marketplace_command_preview_type_user => 'User context menu';
+
+  @override
+  String get marketplace_command_preview_type_message => 'Message context menu';
+
+  @override
+  String marketplace_command_preview_options(Object count) {
+    return '$count options';
+  }
 }

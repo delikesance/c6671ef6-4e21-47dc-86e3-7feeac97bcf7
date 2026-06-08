@@ -343,6 +343,8 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
+            trailing: const Icon(Icons.visibility_outlined, size: 18),
+            onTap: () => _showCommandPreview(cmd),
           );
         }),
         if (_template.commands.length > 5)
@@ -615,6 +617,232 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
     return 0;
   }
 
+  void _showCommandPreview(dynamic cmd) {
+    final tr = context.tr;
+    final cs = Theme.of(context).colorScheme;
+    final name = cmd.name?.toString() ?? '';
+    final description = cmd.description?.toString() ?? '';
+    final data = cmd.data is Map ? Map<String, dynamic>.from(cmd.data) : <String, dynamic>{};
+    final actions = (data['actions'] as List?)?.whereType<Map>().toList() ?? [];
+    final opts = (data['options'] as List?)?.whereType<Map>().toList() ?? [];
+
+    const actionColors = <String, Color>{
+      'sendMessage': Color(0xFF4CAF50),
+      'respondWithMessage': Color(0xFF66BB6A),
+      'httpRequest': Color(0xFF2196F3),
+      'ifBlock': Color(0xFFFF9800),
+      'forLoop': Color(0xFF9C27B0),
+      'stopUnless': Color(0xFFE91E63),
+      'cooldown': Color(0xFF607D8B),
+      'wait': Color(0xFF795548),
+      'setVariable': Color(0xFF00BCD4),
+      'getVariable': Color(0xFF0097A7),
+      'calculate': Color(0xFF8BC34A),
+      'banUser': Color(0xFFF44336),
+      'kickUser': Color(0xFFE53935),
+      'addRole': Color(0xFFAB47BC),
+      'removeRole': Color(0xFFCE93D8),
+      'runWorkflow': Color(0xFF3F51B5),
+      'deleteMessages': Color(0xFFFF5722),
+    };
+
+    Color actionColor(String? type) =>
+        actionColors[type] ?? cs.primary.withAlpha(40);
+
+    String actionLabel(String? type) {
+      if (type == null) return 'Unknown';
+      return type[0].toUpperCase() + type.substring(1).replaceAllMapped(
+        RegExp(r'[A-Z]'), (m) => ' ${m.group(0)}',
+      );
+    }
+
+    String summarizePayload(Map<String, dynamic> payload) {
+      final parts = <String>[];
+      final content = payload['content'] ?? payload['text'];
+      if (content != null && content.toString().isNotEmpty) {
+        parts.add(content.toString().length > 60
+            ? '${content.toString().substring(0, 57)}...'
+            : content.toString());
+      }
+      final url = payload['url'];
+      if (url != null && url.toString().isNotEmpty) {
+        parts.add(url.toString().length > 50
+            ? '${url.toString().substring(0, 47)}...'
+            : url.toString());
+      }
+      if (parts.isEmpty) {
+        final nonEmpty = payload.entries
+            .where((e) => e.key != 'key' && e.value != null && e.value.toString().isNotEmpty)
+            .take(2)
+            .map((e) => '${e.key}: ${e.value.toString().length > 30 ? '${e.value.toString().substring(0, 27)}...' : e.value}')
+            .join(' | ');
+        return nonEmpty.isNotEmpty ? nonEmpty : 'No parameters';
+      }
+      return parts.join(' | ');
+    }
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.7,
+          minChildSize: 0.3,
+          maxChildSize: 0.95,
+          expand: false,
+          builder: (ctx, scrollController) {
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40, height: 4,
+                      decoration: BoxDecoration(
+                        color: cs.onSurfaceVariant.withAlpha(60),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text('/$name', style: Theme.of(ctx).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w700, fontFamily: 'monospace',
+                  )),
+                  if (description.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(description, style: TextStyle(color: cs.onSurfaceVariant)),
+                  ],
+                  if (opts.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    Text('Options (${opts.length})', style: Theme.of(ctx).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 4),
+                    Wrap(
+                      spacing: 6, runSpacing: 4,
+                      children: opts.map((o) => Chip(
+                        visualDensity: VisualDensity.compact,
+                        label: Text(
+                          '${o['name'] ?? ''}${o['required'] == true ? ' *' : ''}',
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                        avatar: Icon(_optionIcon(o['type']?.toString()), size: 14),
+                      )).toList(),
+                    ),
+                  ],
+                  const SizedBox(height: 16),
+                  Text(
+                    'Actions (${actions.length})',
+                    style: Theme.of(ctx).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 8),
+                  Expanded(
+                    child: actions.isEmpty
+                        ? Center(child: Text(tr.marketplace_command_preview_no_actions))
+                        : ListView.separated(
+                            controller: scrollController,
+                            itemCount: actions.length,
+                            separatorBuilder: (_, i2) => const SizedBox(height: 6),
+                            itemBuilder: (ctx, i) {
+                              final action = actions[i];
+                              final type = action['type']?.toString();
+                              final key = action['key']?.toString();
+                              final payload = action['payload'] is Map
+                                  ? Map<String, dynamic>.from(action['payload'])
+                                  : <String, dynamic>{};
+                              final color = actionColor(type);
+                              final enabled = action['enabled'] != false;
+
+                              return Container(
+                                decoration: BoxDecoration(
+                                  color: color.withAlpha(enabled ? 30 : 10),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(color: color.withAlpha(80)),
+                                ),
+                                padding: const EdgeInsets.all(12),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      width: 6,
+                                      height: 40,
+                                      decoration: BoxDecoration(
+                                        color: enabled ? color : cs.onSurfaceVariant.withAlpha(40),
+                                        borderRadius: BorderRadius.circular(3),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Text(
+                                                actionLabel(type),
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 13,
+                                                  color: enabled ? cs.onSurface : cs.onSurfaceVariant,
+                                                  decoration: enabled ? null : TextDecoration.lineThrough,
+                                                ),
+                                              ),
+                                              if (key != null && key.isNotEmpty) ...[
+                                                const SizedBox(width: 8),
+                                                Container(
+                                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                                                  decoration: BoxDecoration(
+                                                    color: cs.primary.withAlpha(20),
+                                                    borderRadius: BorderRadius.circular(4),
+                                                  ),
+                                                  child: Text(
+                                                    key,
+                                                    style: TextStyle(fontSize: 10, color: cs.primary, fontFamily: 'monospace'),
+                                                  ),
+                                                ),
+                                              ],
+                                            ],
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            summarizePayload(payload),
+                                            style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  IconData _optionIcon(String? type) {
+    switch (type) {
+      case 'user': return Icons.person;
+      case 'channel': return Icons.tag;
+      case 'role': return Icons.shield;
+      case 'string': return Icons.text_fields;
+      case 'integer': case 'number': return Icons.numbers;
+      case 'boolean': return Icons.toggle_on;
+      case 'attachment': return Icons.attach_file;
+      case 'mentionable': return Icons.alternate_email;
+      default: return Icons.help_outline;
+    }
+  }
   Future<Map<String, bool>?> _showConflictDialog(
     List<Map<String, dynamic>> conflicts,
     Map<String, String> variables,
