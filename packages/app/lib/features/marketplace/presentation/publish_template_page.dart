@@ -715,7 +715,6 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
                     child: TabBarView(
                       children: emojis.values.map((list) {
                         return GridView.builder(
-                          controller: scrollController,
                           padding: const EdgeInsets.all(12),
                           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 8,
