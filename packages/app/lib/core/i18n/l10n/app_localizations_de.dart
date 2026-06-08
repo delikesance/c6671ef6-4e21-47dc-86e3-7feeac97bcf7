@@ -7347,4 +7347,236 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get bot_settings_avatar_important_note =>
       'Wichtig: Profiländerungen (Benutzername und Avatar) werden erst dann auf Discord angewendet, wenn Sie unten auf \'Profil und Status speichern\' klicken.';
+
+  @override
+  String get marketplace_title => 'Marktplatz';
+
+  @override
+  String get marketplace_search_hint => 'Vorlagen durchsuchen...';
+
+  @override
+  String get marketplace_empty =>
+      'Noch keine Vorlagen.\nSei der Erste, der veröffentlicht!';
+
+  @override
+  String marketplace_no_results(Object query) {
+    return 'Keine Vorlagen entsprechen \"$query\"';
+  }
+
+  @override
+  String marketplace_count(Object count) {
+    return '$count Vorlage(n)';
+  }
+
+  @override
+  String get marketplace_retry => 'Wiederholen';
+
+  @override
+  String get marketplace_apply => 'Vorlage anwenden';
+
+  @override
+  String get marketplace_applying => 'Wird angewendet...';
+
+  @override
+  String get marketplace_apply_success => 'Vorlage erfolgreich angewendet!';
+
+  @override
+  String marketplace_apply_error(Object error) {
+    return 'Anwendung fehlgeschlagen: $error';
+  }
+
+  @override
+  String get marketplace_config_required => 'Konfiguration erforderlich';
+
+  @override
+  String get marketplace_config_hint =>
+      'Fülle die erforderlichen Werte aus, bevor du diese Vorlage anwendest.';
+
+  @override
+  String marketplace_variable_required(Object name) {
+    return '$name ist erforderlich';
+  }
+
+  @override
+  String get marketplace_about => 'Über';
+
+  @override
+  String marketplace_commands_label(Object count) {
+    return 'Befehle ($count)';
+  }
+
+  @override
+  String marketplace_workflows_label(Object count) {
+    return 'Workflows ($count)';
+  }
+
+  @override
+  String get marketplace_variables_label => 'Vorkonfigurierte Variablen';
+
+  @override
+  String marketplace_more(Object count) {
+    return '+$count weitere';
+  }
+
+  @override
+  String get marketplace_publish_title => 'Vorlage veröffentlichen';
+
+  @override
+  String get marketplace_publish_select => 'Inhalt auswählen';
+
+  @override
+  String get marketplace_publish_select_hint =>
+      'Wähle Befehle, Workflows oder beides aus.';
+
+  @override
+  String marketplace_publish_commands(Object count) {
+    return 'Befehle ($count)';
+  }
+
+  @override
+  String marketplace_publish_workflows(Object count) {
+    return 'Workflows ($count)';
+  }
+
+  @override
+  String get marketplace_publish_variables => 'Globale Variablen';
+
+  @override
+  String get marketplace_publish_variables_hint =>
+      'Füge Variablen hinzu und markiere, welche der Benutzer ausfüllen muss.';
+
+  @override
+  String get marketplace_publish_metadata => 'Vorlagendetails';
+
+  @override
+  String get marketplace_publish_metadata_hint =>
+      'Beschreibe deine Vorlage, damit andere sie finden und nutzen können.';
+
+  @override
+  String get marketplace_publish_summary => 'Zusammenfassung';
+
+  @override
+  String get marketplace_publish_select_all => 'Alle auswählen';
+
+  @override
+  String get marketplace_publish_deselect_all => 'Alle abwählen';
+
+  @override
+  String get marketplace_publish_user_must_define =>
+      'Benutzer muss diesen Wert festlegen';
+
+  @override
+  String get marketplace_publish_user_must_define_hint =>
+      'Der Benutzer wird aufgefordert, diesen Wert vor der Anwendung einzugeben';
+
+  @override
+  String get marketplace_publish_add_variable => 'Variable hinzufügen';
+
+  @override
+  String get marketplace_publish_add_variable_title => 'Variable hinzufügen';
+
+  @override
+  String get marketplace_publish_name_label => 'Vorlagenname';
+
+  @override
+  String get marketplace_publish_name_hint => 'z.B. KI-Moderations-Bot';
+
+  @override
+  String get marketplace_publish_desc_label => 'Kurzbeschreibung';
+
+  @override
+  String get marketplace_publish_desc_hint =>
+      'Eine einzeilige Zusammenfassung, die im Marktplatz angezeigt wird';
+
+  @override
+  String get marketplace_publish_desc_long_label =>
+      'Vollständige Dokumentation (optional)';
+
+  @override
+  String get marketplace_publish_desc_long_hint =>
+      'Detaillierte Nutzungsanweisungen, Markdown unterstützt...';
+
+  @override
+  String get marketplace_publish_category_label => 'Kategorie';
+
+  @override
+  String get marketplace_publish_category_hint => 'z.B. ai, moderation, fun';
+
+  @override
+  String get marketplace_publish_version_label => 'Version';
+
+  @override
+  String get marketplace_publish_tags_label => 'Tags (durch Kommas getrennt)';
+
+  @override
+  String get marketplace_publish_tags_hint =>
+      'z.B. openai, chatbot, moderation';
+
+  @override
+  String get marketplace_publish_variable_name_label => 'Variablenname';
+
+  @override
+  String get marketplace_publish_variable_name_hint => 'z.B. TOKEN_OPENAI';
+
+  @override
+  String get marketplace_publish_variable_desc_label => 'Beschreibung';
+
+  @override
+  String get marketplace_publish_variable_desc_hint =>
+      'Wofür diese Variable ist';
+
+  @override
+  String get marketplace_publish_success =>
+      'Vorlage erfolgreich veröffentlicht!';
+
+  @override
+  String marketplace_publish_error(Object error) {
+    return 'Veröffentlichung fehlgeschlagen: $error';
+  }
+
+  @override
+  String get marketplace_publish_button => 'Veröffentlichen';
+
+  @override
+  String get marketplace_publishing => 'Wird veröffentlicht...';
+
+  @override
+  String get marketplace_publish_next => 'Weiter';
+
+  @override
+  String get marketplace_publish_back => 'Zurück';
+
+  @override
+  String get marketplace_publish_no_content =>
+      'Keine Befehle oder Workflows zum Veröffentlichen.\nErstelle zuerst welche!';
+
+  @override
+  String get marketplace_no_variables => 'Keine globalen Variablen definiert.';
+
+  @override
+  String get marketplace_connect_manager =>
+      'Verbinde dich mit dem Manager, um auf den Marktplatz zuzugreifen.';
+
+  @override
+  String get marketplace_connect_publish =>
+      'Verbinde dich mit dem Manager, um eine Vorlage zu veröffentlichen.';
+
+  @override
+  String get marketplace_api_unavailable => 'API-Client nicht verfügbar';
+
+  @override
+  String marketplace_load_error(Object error) {
+    return 'Laden fehlgeschlagen: $error';
+  }
+
+  @override
+  String get marketplace_cancel => 'Abbrechen';
+
+  @override
+  String get marketplace_add => 'Hinzufügen';
+
+  @override
+  String marketplace_by_author(Object author, Object version) {
+    return 'von $author · v$version';
+  }
 }

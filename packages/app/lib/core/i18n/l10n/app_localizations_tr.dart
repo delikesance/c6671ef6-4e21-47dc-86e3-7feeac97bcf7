@@ -7307,4 +7307,234 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get bot_settings_avatar_important_note =>
       'Önemli: Profil değişiklikleri (kullanıcı adı ve avatar), yalnızca alttaki \'Profili ve durumları kaydet\' düğmesini tıkladığınızda Discord\'a uygulanacaktır.';
+
+  @override
+  String get marketplace_title => 'Pazar Yeri';
+
+  @override
+  String get marketplace_search_hint => 'Şablonlarda ara...';
+
+  @override
+  String get marketplace_empty => 'Henüz şablon yok.\nİlk yayınlayan sen ol!';
+
+  @override
+  String marketplace_no_results(Object query) {
+    return '\"$query\" ile eşleşen şablon yok';
+  }
+
+  @override
+  String marketplace_count(Object count) {
+    return '$count şablon';
+  }
+
+  @override
+  String get marketplace_retry => 'Tekrar dene';
+
+  @override
+  String get marketplace_apply => 'Şablonu uygula';
+
+  @override
+  String get marketplace_applying => 'Uygulanıyor...';
+
+  @override
+  String get marketplace_apply_success => 'Şablon başarıyla uygulandı!';
+
+  @override
+  String marketplace_apply_error(Object error) {
+    return 'Uygulama başarısız: $error';
+  }
+
+  @override
+  String get marketplace_config_required => 'Yapılandırma Gerekli';
+
+  @override
+  String get marketplace_config_hint =>
+      'Bu şablonu uygulamadan önce gerekli değerleri doldurun.';
+
+  @override
+  String marketplace_variable_required(Object name) {
+    return '$name zorunludur';
+  }
+
+  @override
+  String get marketplace_about => 'Hakkında';
+
+  @override
+  String marketplace_commands_label(Object count) {
+    return 'Komutlar ($count)';
+  }
+
+  @override
+  String marketplace_workflows_label(Object count) {
+    return 'İş Akışları ($count)';
+  }
+
+  @override
+  String get marketplace_variables_label =>
+      'Önceden Yapılandırılmış Değişkenler';
+
+  @override
+  String marketplace_more(Object count) {
+    return '+$count daha';
+  }
+
+  @override
+  String get marketplace_publish_title => 'Şablon Yayınla';
+
+  @override
+  String get marketplace_publish_select => 'İçeriği seç';
+
+  @override
+  String get marketplace_publish_select_hint =>
+      'Komutları, iş akışlarını veya her ikisini seç.';
+
+  @override
+  String marketplace_publish_commands(Object count) {
+    return 'Komutlar ($count)';
+  }
+
+  @override
+  String marketplace_publish_workflows(Object count) {
+    return 'İş Akışları ($count)';
+  }
+
+  @override
+  String get marketplace_publish_variables => 'Genel Değişkenler';
+
+  @override
+  String get marketplace_publish_variables_hint =>
+      'Değişkenleri ekle ve kullanıcının doldurması gerekenleri işaretle.';
+
+  @override
+  String get marketplace_publish_metadata => 'Şablon Detayları';
+
+  @override
+  String get marketplace_publish_metadata_hint =>
+      'Başkalarının bulup kullanabilmesi için şablonunu tanımla.';
+
+  @override
+  String get marketplace_publish_summary => 'Şablon Özeti';
+
+  @override
+  String get marketplace_publish_select_all => 'Tümünü seç';
+
+  @override
+  String get marketplace_publish_deselect_all => 'Tümünü kaldır';
+
+  @override
+  String get marketplace_publish_user_must_define =>
+      'Kullanıcı bu değeri tanımlamalı';
+
+  @override
+  String get marketplace_publish_user_must_define_hint =>
+      'Kullanıcıdan uygulamadan önce bu değeri girmesi istenecek';
+
+  @override
+  String get marketplace_publish_add_variable => 'Değişken ekle';
+
+  @override
+  String get marketplace_publish_add_variable_title => 'Değişken Ekle';
+
+  @override
+  String get marketplace_publish_name_label => 'Şablon adı';
+
+  @override
+  String get marketplace_publish_name_hint => 'örn: Yapay Zeka Moderasyon Botu';
+
+  @override
+  String get marketplace_publish_desc_label => 'Kısa açıklama';
+
+  @override
+  String get marketplace_publish_desc_hint =>
+      'Pazar yerinde gösterilen tek satırlık özet';
+
+  @override
+  String get marketplace_publish_desc_long_label =>
+      'Tam dokümantasyon (isteğe bağlı)';
+
+  @override
+  String get marketplace_publish_desc_long_hint =>
+      'Detaylı kullanım talimatları, markdown desteklenir...';
+
+  @override
+  String get marketplace_publish_category_label => 'Kategori';
+
+  @override
+  String get marketplace_publish_category_hint => 'örn: ai, moderation, fun';
+
+  @override
+  String get marketplace_publish_version_label => 'Sürüm';
+
+  @override
+  String get marketplace_publish_tags_label => 'Etiketler (virgülle ayrılmış)';
+
+  @override
+  String get marketplace_publish_tags_hint =>
+      'örn: openai, chatbot, moderation';
+
+  @override
+  String get marketplace_publish_variable_name_label => 'Değişken adı';
+
+  @override
+  String get marketplace_publish_variable_name_hint => 'örn: TOKEN_OPENAI';
+
+  @override
+  String get marketplace_publish_variable_desc_label => 'Açıklama';
+
+  @override
+  String get marketplace_publish_variable_desc_hint => 'Bu değişken ne için';
+
+  @override
+  String get marketplace_publish_success => 'Şablon başarıyla yayınlandı!';
+
+  @override
+  String marketplace_publish_error(Object error) {
+    return 'Yayınlama başarısız: $error';
+  }
+
+  @override
+  String get marketplace_publish_button => 'Yayınla';
+
+  @override
+  String get marketplace_publishing => 'Yayınlanıyor...';
+
+  @override
+  String get marketplace_publish_next => 'İleri';
+
+  @override
+  String get marketplace_publish_back => 'Geri';
+
+  @override
+  String get marketplace_publish_no_content =>
+      'Yayınlanacak komut veya iş akışı yok.\nÖnce biraz oluştur!';
+
+  @override
+  String get marketplace_no_variables => 'Genel değişken tanımlanmamış.';
+
+  @override
+  String get marketplace_connect_manager =>
+      'Pazar Yerine erişmek için Manager\'a bağlan.';
+
+  @override
+  String get marketplace_connect_publish =>
+      'Şablon yayınlamak için Manager\'a bağlan.';
+
+  @override
+  String get marketplace_api_unavailable => 'API istemcisi kullanılamıyor';
+
+  @override
+  String marketplace_load_error(Object error) {
+    return 'Yükleme başarısız: $error';
+  }
+
+  @override
+  String get marketplace_cancel => 'İptal';
+
+  @override
+  String get marketplace_add => 'Ekle';
+
+  @override
+  String marketplace_by_author(Object author, Object version) {
+    return '$author tarafından · v$version';
+  }
 }
