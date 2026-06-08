@@ -12921,6 +12921,13 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Discord connected successfully!'**
   String get marketplace_login_success;
+  String get marketplace_edit;
+  String get marketplace_delete;
+  String get marketplace_edit_hint;
+  String get marketplace_delete_confirm_title;
+  String marketplace_delete_confirm(Object name);
+  String get marketplace_delete_success;
+  String get marketplace_my_templates;
 
   /// No description provided for @marketplace_config_required.
   ///
