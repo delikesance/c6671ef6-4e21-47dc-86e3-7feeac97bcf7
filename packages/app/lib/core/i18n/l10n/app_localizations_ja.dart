@@ -7079,6 +7079,8 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get marketplace_rate_success => '評価を送信しました！';
+
+  @override
   String get marketplace_login_success => 'Discordに接続しました！';
 
   @override

@@ -7374,6 +7374,8 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get marketplace_rate_success => 'Değerlendirme gönderildi!';
+
+  @override
   String get marketplace_login_success => 'Discord başarıyla bağlandı!';
 
   @override

@@ -210,7 +210,7 @@ class _MarketplacePageState extends State<MarketplacePage> {
       );
 
       // Open Discord auth URL in browser
-      final authUrl = startResult.authorizationUrl;
+      final authUrl = startResult.authorizeUrl;
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Opening Discord for authentication...')),

@@ -12915,6 +12915,11 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Rating submitted!'**
   String get marketplace_rate_success;
+
+  /// No description provided for @marketplace_login_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Discord connected successfully!'**
   String get marketplace_login_success;
 
   /// No description provided for @marketplace_config_required.

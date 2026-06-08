@@ -7325,6 +7325,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get marketplace_rate_success => 'Rating submitted!';
+
+  @override
   String get marketplace_login_success => 'Discord connected successfully!';
 
   @override
