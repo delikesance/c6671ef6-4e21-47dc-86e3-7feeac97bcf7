@@ -14,6 +14,7 @@ import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
 import 'package:bot_creator/core/storage/runtime_preferences.dart';
+import 'package:bot_creator/features/notifications/logic/notification_service.dart';
 import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
 import 'package:bot_creator/features/subscriptions/presentation/subscription_page.dart';
 import 'package:bot_creator/core/storage/drive.dart';
@@ -838,6 +839,71 @@ class _SettingPageState extends State<SettingPage> {
       setState(() {});
       _showSnack(_formatErrorMessage(error));
     }
+  }
+
+  String _notificationTopicLabel(NotificationTopic topic) {
+    switch (topic) {
+      case NotificationTopic.broadcast:
+        return context.tr.settings_notifications_topic_broadcast;
+      case NotificationTopic.updates:
+        return context.tr.settings_notifications_topic_updates;
+      case NotificationTopic.botAlerts:
+        return context.tr.settings_notifications_topic_botAlerts;
+      case NotificationTopic.billing:
+        return context.tr.settings_notifications_topic_billing;
+    }
+  }
+
+  String _notificationTopicDescription(NotificationTopic topic) {
+    switch (topic) {
+      case NotificationTopic.broadcast:
+        return context.tr.settings_notifications_topic_broadcast_desc;
+      case NotificationTopic.updates:
+        return context.tr.settings_notifications_topic_updates_desc;
+      case NotificationTopic.botAlerts:
+        return context.tr.settings_notifications_topic_botAlerts_desc;
+      case NotificationTopic.billing:
+        return context.tr.settings_notifications_topic_billing_desc;
+    }
+  }
+
+  IconData _notificationTopicIcon(NotificationTopic topic) {
+    switch (topic) {
+      case NotificationTopic.broadcast:
+        return Icons.campaign_outlined;
+      case NotificationTopic.updates:
+        return Icons.system_update_outlined;
+      case NotificationTopic.botAlerts:
+        return Icons.warning_amber_outlined;
+      case NotificationTopic.billing:
+        return Icons.receipt_long_outlined;
+    }
+  }
+
+  Widget _buildNotificationTopicTile(NotificationTopic topic) {
+    final service = NotificationService.instance;
+    final enabled = service.isTopicEnabled(topic);
+
+    return SwitchListTile(
+      contentPadding: EdgeInsets.zero,
+      secondary: Icon(
+        _notificationTopicIcon(topic),
+        size: 20,
+        color: enabled ? Theme.of(context).colorScheme.primary : AppTheme.grey,
+      ),
+      title: Text(_notificationTopicLabel(topic)),
+      subtitle: Text(
+        _notificationTopicDescription(topic),
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+          color: AppTheme.grey,
+        ),
+      ),
+      value: enabled,
+      onChanged: (value) {
+        setState(() {}); // trigger rebuild for icon color
+        service.setTopicEnabled(topic, value);
+      },
+    );
   }
 
   Widget _buildMainApiCard() {
@@ -1695,6 +1761,36 @@ class _SettingPageState extends State<SettingPage> {
                               }
                               _showSnack(context.tr.settings_language_updated);
                             },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  // ── Notifications card ──────────────────────────────
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            context.tr.settings_notifications_title,
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            context.tr.settings_notifications_desc,
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodySmall?.copyWith(
+                              color: AppTheme.grey,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          ...NotificationTopic.values.map(
+                            (topic) => _buildNotificationTopicTile(topic),
                           ),
                         ],
                       ),
