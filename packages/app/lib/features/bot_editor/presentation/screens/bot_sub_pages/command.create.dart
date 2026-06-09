@@ -55,6 +55,7 @@ part 'command.create.validation.dart';
 part 'command.create.wizard.dart';
 part 'command.create.block_editor.dart';
 part 'command.create.bdfd.dart';
+part 'command.create.tabs.dart';
 
 /// Snapshot of editor body fields used by Selector for fine-grained rebuilds.
 class _EditorBodySnapshot {
@@ -861,24 +862,30 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   }
 
   Widget _buildEditorBody({required double contentMaxWidth}) {
-    return Selector<CommandEditorNotifier, _EditorBodySnapshot>(
-      selector:
-          (_, notifier) => _EditorBodySnapshot(
-            isLoading: notifier.state.isLoading,
-            isDataIncomplete: notifier.state.isDataIncomplete,
-            commandName: notifier.state.commandName,
-            commandDescription: notifier.state.commandDescription,
-            storageId: _existingCommandStorageId,
+    return Column(
+      children: [
+        _buildTabBar(),
+        Expanded(
+          child: Selector<CommandEditorNotifier, _EditorBodySnapshot>(
+            selector: (_, notifier) => _EditorBodySnapshot(
+              isLoading: notifier.state.isLoading,
+              isDataIncomplete: notifier.state.isDataIncomplete,
+              commandName: notifier.state.commandName,
+              commandDescription: notifier.state.commandDescription,
+              storageId: _existingCommandStorageId,
+            ),
+            builder: (context, snap, _) {
+              if (snap.isLoading) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (snap.isDataIncomplete) {
+                return _buildIncompleteDataView(snap, contentMaxWidth);
+              }
+              return _buildTabContent(contentMaxWidth);
+            },
           ),
-      builder: (context, snap, _) {
-        if (snap.isLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snap.isDataIncomplete) {
-          return _buildIncompleteDataView(snap, contentMaxWidth);
-        }
-        return _buildBlockEditor(contentMaxWidth: contentMaxWidth);
-      },
+        ),
+      ],
     );
   }
 
