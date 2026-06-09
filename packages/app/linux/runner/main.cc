@@ -47,9 +47,17 @@ static void ConfigureBundledLibraryPath()
 
 int main(int argc, char **argv)
 {
-  // FORCE GTK à utiliser XWayland/X11 pour éviter le crash silencieux sous Hyprland
-  // Le paramètre '0' permet de ne pas écraser la variable si l'utilisateur l'a définie manuellement
+  // Fix Hyprland/Wayland compatibility issues
+  // Force GDK to use X11/XWayland backend (GTK/Wayland issues)
   setenv("GDK_BACKEND", "x11", 0);
+
+  // Force EGL to use X11 platform instead of Wayland
+  // This fixes "No provider of eglGetPlatformDisplayEXT found" error
+  setenv("EGL_PLATFORM", "x11", 0);
+
+  // Fallback: Allow software rendering if hardware acceleration fails
+  // This prevents crashes when EGL extensions are missing
+  setenv("LIBGL_ALWAYS_SOFTWARE", "0", 0);
 
   ConfigureBundledLibraryPath();
   g_autoptr(MyApplication) app = my_application_new();
