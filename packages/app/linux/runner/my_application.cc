@@ -8,6 +8,32 @@
 
 #include "flutter/generated_plugin_registrant.h"
 
+// Fonction pour désactiver l'accélération matérielle et forcer le rendu logiciel
+// Ceci est nécessaire pour contourner les problèmes EGL sur Hyprland
+static void disable_hardware_acceleration()
+{
+  // Désactiver l'accélération GPU de Flutter
+  g_setenv("FLUTTER_ENGINE_SOFTWARE_RENDERING", "1", 0);
+  
+  // Désactiver l'utilisation de Vulkan (peut causer des conflits EGL)
+  g_setenv("FLUTTER_ENGINE_DISABLE_VULKAN", "1", 0);
+  
+  // Forcer le rendu logiciel OpenGL via Mesa
+  g_setenv("LIBGL_ALWAYS_SOFTWARE", "1", 0);
+  g_setenv("MESA_LOADER_DRIVER_OVERRIDE", "llvmpipe", 0);
+  
+  // Désactiver les extensions EGL problématiques
+  g_setenv("EGL_PLATFORM", "surfaceless", 0);
+  
+  // Forcer GTK à utiliser X11 au lieu de Wayland
+  g_setenv("GDK_BACKEND", "x11", 0);
+  g_setenv("CLUTTER_BACKEND", "x11", 0);
+  
+  // Désactiver l'accélération SDL
+  g_setenv("SDL_VIDEO_DRIVER", "x11", 0);
+  g_setenv("SDL_VIDEO_X11_FORCE_EGL", "0", 0);
+}
+
 struct _MyApplication
 {
   GtkApplication parent_instance;
@@ -157,6 +183,9 @@ static gboolean my_application_local_command_line(GApplication *application,
 static void my_application_startup(GApplication *application)
 {
   // MyApplication* self = MY_APPLICATION(object);
+
+  // Désactiver l'accélération matérielle pour éviter les crashs EGL sur Hyprland
+  disable_hardware_acceleration();
 
   // Perform any actions required at application startup.
 

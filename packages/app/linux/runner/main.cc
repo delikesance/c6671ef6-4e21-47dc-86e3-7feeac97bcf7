@@ -47,17 +47,17 @@ static void ConfigureBundledLibraryPath()
 
 int main(int argc, char **argv)
 {
-  // Fix Hyprland/Wayland compatibility issues
-  // Force GDK to use X11/XWayland backend (GTK/Wayland issues)
+  // Désactiver l'accélération matérielle et forcer le rendu logiciel
+  // Ceci contourne les problèmes EGL sur Hyprland/Wayland
+  setenv("FLUTTER_ENGINE_SOFTWARE_RENDERING", "1", 0);
+  setenv("FLUTTER_ENGINE_DISABLE_VULKAN", "1", 0);
+  setenv("LIBGL_ALWAYS_SOFTWARE", "1", 0);
+  setenv("MESA_LOADER_DRIVER_OVERRIDE", "llvmpipe", 0);
+  setenv("EGL_PLATFORM", "surfaceless", 0);
   setenv("GDK_BACKEND", "x11", 0);
-
-  // Force EGL to use X11 platform instead of Wayland
-  // This fixes "No provider of eglGetPlatformDisplayEXT found" error
-  setenv("EGL_PLATFORM", "x11", 0);
-
-  // Fallback: Allow software rendering if hardware acceleration fails
-  // This prevents crashes when EGL extensions are missing
-  setenv("LIBGL_ALWAYS_SOFTWARE", "0", 0);
+  setenv("CLUTTER_BACKEND", "x11", 0);
+  setenv("SDL_VIDEO_DRIVER", "x11", 0);
+  setenv("SDL_VIDEO_X11_FORCE_EGL", "0", 0);
 
   ConfigureBundledLibraryPath();
   g_autoptr(MyApplication) app = my_application_new();
