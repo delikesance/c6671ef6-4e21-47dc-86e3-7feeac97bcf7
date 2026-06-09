@@ -1,6 +1,7 @@
 #include "my_application.h"
 
 #include <glib.h>
+#include <stdlib.h>
 
 static void ConfigureBundledLibraryPath()
 {
@@ -46,6 +47,10 @@ static void ConfigureBundledLibraryPath()
 
 int main(int argc, char **argv)
 {
+  // FORCE GTK à utiliser XWayland/X11 pour éviter le crash silencieux sous Hyprland
+  // Le paramètre '0' permet de ne pas écraser la variable si l'utilisateur l'a définie manuellement
+  setenv("GDK_BACKEND", "x11", 0);
+
   ConfigureBundledLibraryPath();
   g_autoptr(MyApplication) app = my_application_new();
   return g_application_run(G_APPLICATION(app), argc, argv);
