@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
@@ -7,6 +9,8 @@ import 'package:bot_creator_shared/bot/marketplace_template.dart';
 import 'package:flutter/material.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:uuid/uuid.dart';
+
+import 'package:bot_creator/features/bot_editor/logic/bot.dart' show refreshBotRuntime;
 
 import 'publish_template_page.dart';
 
@@ -1230,6 +1234,7 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(msg)),
         );
+        unawaited(refreshBotRuntime(widget.botId));
         Navigator.of(context).pop(true);
       }
     } catch (e) {

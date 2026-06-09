@@ -439,6 +439,12 @@ class RunnerDataStore implements BotDataStore {
     _scopedVariableDefinitions
       ..clear()
       ..addAll(newConfig.scopedVariableDefinitions);
+    _seedGlobalVariables
+      ..clear()
+      ..addAll(newConfig.globalVariables);
+    _seedScopedVariables
+      ..clear()
+      ..addAll(_cloneScopedVariables(newConfig.scopedVariables));
   }
 
   /// Replaces the in-memory workflow list without recreating the store.
