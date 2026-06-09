@@ -5888,6 +5888,41 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settings_manual_snapshot_label => 'Manueller Snapshot';
 
   @override
+  String get settings_notifications_desc =>
+      'Wählen Sie aus, welche Push-Benachrichtigungen Sie erhalten möchten.';
+
+  @override
+  String get settings_notifications_title => 'Benachrichtigungen';
+
+  @override
+  String get settings_notifications_topic_billing => 'Abrechnung';
+
+  @override
+  String get settings_notifications_topic_billing_desc =>
+      'Erinnerungen zur Abonnement-Verlängerung und Zahlungsbestätigungen.';
+
+  @override
+  String get settings_notifications_topic_botAlerts => 'Bot-Warnungen';
+
+  @override
+  String get settings_notifications_topic_botAlerts_desc =>
+      'Warnungen, wenn Ihre Bots offline gehen oder Fehler auftreten.';
+
+  @override
+  String get settings_notifications_topic_broadcast => 'Ankündigungen';
+
+  @override
+  String get settings_notifications_topic_broadcast_desc =>
+      'Wichtige Ankündigungen und Neuigkeiten von Bot Creator.';
+
+  @override
+  String get settings_notifications_topic_updates => 'Updates';
+
+  @override
+  String get settings_notifications_topic_updates_desc =>
+      'Neue Funktionen, App-Updates und Changelog-Highlights.';
+
+  @override
   String get settings_open_ad_inspector => 'Anzeigen-Inspektor öffnen';
 
   @override

@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Background message handler — MUST be a top-level function.
 ///
@@ -32,7 +32,7 @@ void _showLocalNotificationSync({
   const android = AndroidInitializationSettings('@mipmap/ic_launcher');
   const ios = DarwinInitializationSettings();
   const settings = InitializationSettings(android: android, iOS: ios);
-  plugin.initialize(settings).then((_) {
+  plugin.initialize(settings: settings).then((_) {
     const androidDetails = AndroidNotificationDetails(
       'bot_creator_general',
       'Bot Creator',
@@ -51,7 +51,7 @@ void _showLocalNotificationSync({
       android: androidDetails,
       iOS: iosDetails,
     );
-    plugin.show(id, title, body, details);
+    plugin.show(id: id, title: title, body: body, notificationDetails: details);
   });
 }
 
@@ -85,6 +85,13 @@ class NotificationService {
   bool _initialized = false;
   String? _fcmToken;
   String _topicPrefix = 'prod-';
+
+  /// Per-topic enabled state, persisted via SharedPreferences.
+  /// Defaults to `true` for all topics.
+  final Map<NotificationTopic, bool> _topicEnabled = {
+    for (final topic in NotificationTopic.values) topic: true,
+  };
+  static const String _prefPrefix = 'notif_topic_';
 
   void Function(Map<String, dynamic> data)? onNotificationTap;
 
@@ -150,6 +157,9 @@ class NotificationService {
 
       await _configureLocalNotifications();
 
+      // Load per-topic notification preferences
+      await _loadTopicPreferences();
+
       // Register background handler for data-only messages
       FirebaseMessaging.onBackgroundMessage(fcmBackgroundHandler);
 
@@ -160,6 +170,10 @@ class NotificationService {
           ? NotificationTopic.values
           : topics;
       for (final topic in topicsToSubscribe) {
+        if (!_topicEnabled[topic]!) {
+          debugPrint('[NotificationService] Skipping disabled topic: $topic');
+          continue;
+        }
         final fullTopic = '$_topicPrefix${topic.topicName}';
         await _messaging.subscribeToTopic(fullTopic);
         debugPrint('[NotificationService] Subscribed: $fullTopic');
@@ -204,9 +218,48 @@ class NotificationService {
   String? get fcmToken => _fcmToken;
   String get topicPrefix => _topicPrefix;
 
+  /// Returns whether notifications for the given [topic] are enabled.
+  bool isTopicEnabled(NotificationTopic topic) =>
+      _topicEnabled[topic] ?? true;
+
+  /// Enables or disables notifications for the given [topic].
+  ///
+  /// Persists the choice and subscribes/unsubscribes from the FCM topic
+  /// immediately if the service has already been initialized.
+  Future<void> setTopicEnabled(NotificationTopic topic, bool enabled) async {
+    _topicEnabled[topic] = enabled;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('$_prefPrefix${topic.topicName}', enabled);
+
+    if (!_initialized) return;
+
+    if (enabled) {
+      await subscribeToTopic(topic);
+    } else {
+      await unsubscribeFromTopic(topic);
+    }
+  }
+
   // ──────────────────────────────────────────────
   // Private — data-only message handling
   // ──────────────────────────────────────────────
+
+  /// Loads per-topic enabled state from SharedPreferences.
+  ///
+  /// Called once during [initialize]. Missing entries default to `true`.
+  Future<void> _loadTopicPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    for (final topic in NotificationTopic.values) {
+      final key = '$_prefPrefix${topic.topicName}';
+      if (prefs.containsKey(key)) {
+        _topicEnabled[topic] = prefs.getBool(key) ?? true;
+      }
+    }
+    debugPrint(
+      '[NotificationService] Topic preferences: '
+      '${_topicEnabled.entries.map((e) => '${e.key.topicName}=${e.value}').join(', ')}',
+    );
+  }
 
   /// Handles data-only FCM messages (foreground).
   ///
@@ -250,7 +303,7 @@ class NotificationService {
     );
 
     await _localNotifications.initialize(
-      initSettings,
+      settings: initSettings,
       onDidReceiveNotificationResponse: (response) {
         final payload = response.payload;
         if (payload != null && payload.isNotEmpty) {
@@ -290,6 +343,6 @@ class NotificationService {
       iOS: iosDetails,
     );
 
-    await _localNotifications.show(id, title, body, details, payload: payload);
+    await _localNotifications.show(id: id, title: title, body: body, notificationDetails: details, payload: payload);
   }
 }

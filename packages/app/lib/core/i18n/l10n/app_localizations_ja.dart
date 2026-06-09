@@ -5625,6 +5625,40 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settings_manual_snapshot_label => '手動スナップショット';
 
   @override
+  String get settings_notifications_desc => '受信したいプッシュ通知の種類を選択してください。';
+
+  @override
+  String get settings_notifications_title => '通知';
+
+  @override
+  String get settings_notifications_topic_billing => '請求';
+
+  @override
+  String get settings_notifications_topic_billing_desc =>
+      'サブスクリプションの更新リマインダーと支払い確認。';
+
+  @override
+  String get settings_notifications_topic_botAlerts => 'ボットアラート';
+
+  @override
+  String get settings_notifications_topic_botAlerts_desc =>
+      'ボットがオフラインになったりエラーが発生した場合の警告。';
+
+  @override
+  String get settings_notifications_topic_broadcast => 'お知らせ';
+
+  @override
+  String get settings_notifications_topic_broadcast_desc =>
+      'Bot Creatorからの重要なお知らせとニュース。';
+
+  @override
+  String get settings_notifications_topic_updates => 'アップデート';
+
+  @override
+  String get settings_notifications_topic_updates_desc =>
+      '新機能、アプリアップデート、変更履歴のハイライト。';
+
+  @override
   String get settings_open_ad_inspector => '広告インスペクターを開く';
 
   @override

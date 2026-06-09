@@ -5857,6 +5857,41 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settings_manual_snapshot_label => 'Manuel anlık görüntü';
 
   @override
+  String get settings_notifications_desc =>
+      'Hangi push bildirim türlerini almak istediğinizi seçin.';
+
+  @override
+  String get settings_notifications_title => 'Bildirimler';
+
+  @override
+  String get settings_notifications_topic_billing => 'Faturalandırma';
+
+  @override
+  String get settings_notifications_topic_billing_desc =>
+      'Abonelik yenileme hatırlatıcıları ve ödeme onayları.';
+
+  @override
+  String get settings_notifications_topic_botAlerts => 'Bot Uyarıları';
+
+  @override
+  String get settings_notifications_topic_botAlerts_desc =>
+      'Botlarınız çevrimdışı olduğunda veya hatalarla karşılaştığında uyarılar.';
+
+  @override
+  String get settings_notifications_topic_broadcast => 'Duyurular';
+
+  @override
+  String get settings_notifications_topic_broadcast_desc =>
+      'Bot Creator\'dan önemli duyurular ve haberler.';
+
+  @override
+  String get settings_notifications_topic_updates => 'Güncellemeler';
+
+  @override
+  String get settings_notifications_topic_updates_desc =>
+      'Yeni özellikler, uygulama güncellemeleri ve değişiklik günlüğü özetleri.';
+
+  @override
   String get settings_open_ad_inspector => 'Reklam Denetçisini Aç';
 
   @override

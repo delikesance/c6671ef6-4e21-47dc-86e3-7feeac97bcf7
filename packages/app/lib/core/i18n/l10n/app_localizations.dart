@@ -10357,6 +10357,66 @@ abstract class AppLocalizations {
   /// **'Manual snapshot'**
   String get settings_manual_snapshot_label;
 
+  /// No description provided for @settings_notifications_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose which types of push notifications you want to receive.'**
+  String get settings_notifications_desc;
+
+  /// No description provided for @settings_notifications_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get settings_notifications_title;
+
+  /// No description provided for @settings_notifications_topic_billing.
+  ///
+  /// In en, this message translates to:
+  /// **'Billing'**
+  String get settings_notifications_topic_billing;
+
+  /// No description provided for @settings_notifications_topic_billing_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription renewal reminders and payment confirmations.'**
+  String get settings_notifications_topic_billing_desc;
+
+  /// No description provided for @settings_notifications_topic_botAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Bot Alerts'**
+  String get settings_notifications_topic_botAlerts;
+
+  /// No description provided for @settings_notifications_topic_botAlerts_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Warnings when your bots go offline or encounter errors.'**
+  String get settings_notifications_topic_botAlerts_desc;
+
+  /// No description provided for @settings_notifications_topic_broadcast.
+  ///
+  /// In en, this message translates to:
+  /// **'Broadcast'**
+  String get settings_notifications_topic_broadcast;
+
+  /// No description provided for @settings_notifications_topic_broadcast_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Important announcements and news from Bot Creator.'**
+  String get settings_notifications_topic_broadcast_desc;
+
+  /// No description provided for @settings_notifications_topic_updates.
+  ///
+  /// In en, this message translates to:
+  /// **'Updates'**
+  String get settings_notifications_topic_updates;
+
+  /// No description provided for @settings_notifications_topic_updates_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'New features, app updates, and changelog highlights.'**
+  String get settings_notifications_topic_updates_desc;
+
   /// Open Ad Inspector
   ///
   /// In en, this message translates to:
