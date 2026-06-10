@@ -2443,10 +2443,18 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
       case BotCreatorActionType.calculate:
         return [
           ParameterDefinition(
+            key: 'expression',
+            type: ParameterType.string,
+            defaultValue: '',
+            hint:
+                'Expression mathématique libre (ex: 10+5.9-9, ((var))*2).\n'
+                'Prioritaire sur le mode Operation si rempli.',
+          ),
+          ParameterDefinition(
             key: 'operation',
             type: ParameterType.multiSelect,
             defaultValue: 'add',
-            hint: 'Math operation to perform',
+            hint: 'Math operation to perform (ignored if Expression is set)',
             options: [
               'add',
               'subtract',
