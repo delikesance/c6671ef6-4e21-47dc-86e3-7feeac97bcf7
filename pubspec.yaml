@@ -3,7 +3,7 @@ description: Mono-repo workspace for bot_creator app and runner
 publish_to: none
 
 environment:
-  sdk: ^3.7.2
+  sdk: ^3.12.0
 
 workspace:
   - packages/app
