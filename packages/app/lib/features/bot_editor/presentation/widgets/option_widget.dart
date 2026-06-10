@@ -1359,7 +1359,7 @@ class OptionWidgetState extends State<OptionWidget> {
               Row(
                 children: [
                   Expanded(child: first),
-                  if (trailing != null) trailing,
+                  ?trailing,
                 ],
               ),
               const SizedBox(height: 6),
@@ -1377,7 +1377,7 @@ class OptionWidgetState extends State<OptionWidget> {
             Expanded(flex: firstFlex, child: first),
             const SizedBox(width: 6),
             Expanded(flex: secondFlex, child: second),
-            if (trailing != null) trailing,
+            ?trailing,
           ],
         );
       },

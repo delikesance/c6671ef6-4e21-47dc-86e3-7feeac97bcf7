@@ -493,7 +493,7 @@ class DiscordRpcService {
     if (client != null || subscription != null || endpoint != null) {
       await AppDiagnostics.logInfo(
         'Discord RPC closing IPC client',
-        data: <String, Object?>{if (endpoint != null) 'endpoint': endpoint},
+        data: <String, Object?>{'endpoint': ?endpoint},
       );
     }
 
@@ -638,8 +638,8 @@ Map<String, Object?> _sessionLogData(DiscordRpcSession? session) {
     'isExpired': session.isExpired,
     'expiresSoon': session.expiresSoon(),
     'scopesCount': session.scopes.length,
-    if (_normalize(session.userId) case final value?) 'userId': value,
-    if (_normalize(session.username) case final value?) 'username': value,
+    'userId': ?_normalize(session.userId),
+    'username': ?_normalize(session.username),
     if (session.authorizedAt != null)
       'authorizedAt': session.authorizedAt!.toUtc().toIso8601String(),
   };
@@ -655,16 +655,14 @@ Map<String, Object?> _presenceLogData(
 }) {
   return <String, Object?>{
     'hasPresence': presence != null,
-    if (runningBotCount != null) 'runningBotCount': runningBotCount,
-    if (_normalize(controllingBotId) case final value?)
-      'controllingBotId': value,
-    if (_normalize(controllingBotName) case final value?)
-      'controllingBotName': value,
+    'runningBotCount': ?runningBotCount,
+    'controllingBotId': ?_normalize(controllingBotId),
+    'controllingBotName': ?_normalize(controllingBotName),
     if (runtimeSource != null) 'runtimeSource': runtimeSource.name,
-    if (_normalize(activeSourceLabel) case final value?) 'runtimeLabel': value,
+    'runtimeLabel': ?_normalize(activeSourceLabel),
     if (presence != null) ...<String, Object?>{
       'details': presence.details,
-      if (_normalize(presence.state) case final value?) 'state': value,
+      'state': ?_normalize(presence.state),
       'hasStartTime': presence.startTime != null,
       if (presence.startTime != null)
         'startTime': presence.startTime!.toUtc().toIso8601String(),

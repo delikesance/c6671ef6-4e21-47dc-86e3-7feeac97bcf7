@@ -102,8 +102,8 @@ class DiscordRpcSession {
       'sessionToken': sessionToken,
       'expiresAt': expiresAt.toUtc().toIso8601String(),
       if (scopes.isNotEmpty) 'scopes': scopes,
-      if (_normalize(userId) case final value?) 'userId': value,
-      if (_normalize(username) case final value?) 'username': value,
+      'userId': ?_normalize(userId),
+      'username': ?_normalize(username),
       if (authorizedAt != null)
         'authorizedAt': authorizedAt!.toUtc().toIso8601String(),
     };

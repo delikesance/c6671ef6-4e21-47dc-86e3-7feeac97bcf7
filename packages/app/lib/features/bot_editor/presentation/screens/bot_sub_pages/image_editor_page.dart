@@ -1262,7 +1262,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
 
     /// Finds a container by name in the current operations list and returns
     /// its (x, y) position, or null if not found.
-    (double, double)? _findContainerPos(String name) {
+    (double, double)? findContainerPos(String name) {
       if (name.isEmpty) return null;
       for (final candidate in _operations) {
         if ((candidate['op'] ?? '') == 'container' &&
@@ -1277,9 +1277,9 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
 
     /// Converts operation coordinates to container-relative when the user
     /// assigns or changes a container reference.
-    void _convertToRelative(String newContainerName, Map<String, dynamic> targetOp) {
+    void convertToRelative(String newContainerName, Map<String, dynamic> targetOp) {
       final oldContainerName = (targetOp['container'] ?? '').toString().trim();
-      final newPos = _findContainerPos(newContainerName);
+      final newPos = findContainerPos(newContainerName);
       final opTypeKey = (targetOp['op'] ?? '').toString();
 
       // Determine which position keys to convert based on operation type.
@@ -1294,7 +1294,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
 
       // If switching FROM another container, convert back to absolute first.
       if (oldContainerName.isNotEmpty) {
-        final oldPos = _findContainerPos(oldContainerName);
+        final oldPos = findContainerPos(oldContainerName);
         if (oldPos != null) {
           for (final k in posKeys) {
             final v = double.tryParse((targetOp[k] ?? '0').toString()) ?? 0;
@@ -1342,7 +1342,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
         addField('Width', 'width', hint: 'auto (native size)', keyboardType: TextInputType.number);
         addField('Height', 'height', hint: 'auto (native size)', keyboardType: TextInputType.number);
         addField('Container', 'container', hint: 'parent container name',
-            onSubmitted: (v) => _convertToRelative(v, op));
+            onSubmitted: (v) => convertToRelative(v, op));
         break;
       case 'drawText':
         addField('Text', 'text', hint: 'Hello World');
@@ -1353,7 +1353,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
         addField('Max Width', 'maxWidth', hint: 'container width for alignment', keyboardType: TextInputType.number);
         addField('Text Align', 'textAlign', hint: 'left, center, or right');
         addField('Container', 'container', hint: 'parent container name',
-            onSubmitted: (v) => _convertToRelative(v, op));
+            onSubmitted: (v) => convertToRelative(v, op));
         break;
       case 'drawRect':
         addField('X', 'x', hint: '0', keyboardType: TextInputType.number);
@@ -1363,7 +1363,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
         addField('Color', 'color', hint: 'white', isColor: true);
         addField('Blend', 'blend', hint: 'multiply, screen, overlay, or empty');
         addField('Container', 'container', hint: 'parent container name',
-            onSubmitted: (v) => _convertToRelative(v, op));
+            onSubmitted: (v) => convertToRelative(v, op));
         // Fill toggle
         fields.add(_buildCheckbox(op, 'fill', 'Fill', defaultValue: true, mutate: mutate));
         break;
@@ -1374,7 +1374,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
         addField('Color', 'color', hint: 'white', isColor: true);
         addField('Blend', 'blend', hint: 'multiply, screen, overlay, or empty');
         addField('Container', 'container', hint: 'parent container name',
-            onSubmitted: (v) => _convertToRelative(v, op));
+            onSubmitted: (v) => convertToRelative(v, op));
         fields.add(_buildCheckbox(op, 'fill', 'Fill', defaultValue: true, mutate: mutate));
         break;
       case 'drawLine':
@@ -1386,7 +1386,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
         addField('Thickness', 'thickness', hint: '1', keyboardType: TextInputType.number);
         addField('Blend', 'blend', hint: 'multiply, screen, overlay, or empty');
         addField('Container', 'container', hint: 'parent container name',
-            onSubmitted: (v) => _convertToRelative(v, op));
+            onSubmitted: (v) => convertToRelative(v, op));
         break;
       case 'compositeImage':
         addField('Image URL', 'url', hint: 'https://... or data:image/...', isUrl: true);

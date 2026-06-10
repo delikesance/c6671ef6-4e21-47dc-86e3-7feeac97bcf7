@@ -34,7 +34,7 @@ class PermissionFlagsField extends StatefulWidget {
 
 class _PermissionFlagsFieldState extends State<PermissionFlagsField> {
   late Map<String, String> _permissionStates;
-  Set<PermissionCategory> _expandedCategories = {
+  final Set<PermissionCategory> _expandedCategories = {
     PermissionCategory.general,
     PermissionCategory.text,
   };

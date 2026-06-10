@@ -15,7 +15,6 @@ import 'package:bot_creator_shared/types/action.dart' show BotCreatorActionType;
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder/action_type_extension.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder/action_types.dart' show ActionItem;
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder.response.dart' show ActionsBuilderPage;
-import 'package:bot_creator/features/bot_editor/logic/embed_normalization.dart' show normalizeResponseEmbedsPayload;
 import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/features/bot_editor/logic/app_emoji_api.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
@@ -137,6 +136,10 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   /// True when editing an existing command that couldn't be fully loaded
   /// (client offline AND no local `data` block). Disables editing UI.
   bool _isDataIncomplete = false;
+
+  _EditorTab _activeTab = _EditorTab.command;
+
+  void _setActiveTab(_EditorTab tab) => setState(() => _activeTab = tab);
 
   /// True when the command has a non-zero id but doesn't exist on Discord
   /// (e.g. template commands saved locally). Saving will create instead of update.

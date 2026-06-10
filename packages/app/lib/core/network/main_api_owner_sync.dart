@@ -1,14 +1,6 @@
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/network/remote_runtime.dart';
-import 'package:flutter/foundation.dart';
-
-bool get _isDesktopPlatform {
-  if (kIsWeb) return false;
-  return defaultTargetPlatform == TargetPlatform.windows ||
-      defaultTargetPlatform == TargetPlatform.linux ||
-      defaultTargetPlatform == TargetPlatform.macOS;
-}
 
 class MainApiOwnerResolution {
   const MainApiOwnerResolution({

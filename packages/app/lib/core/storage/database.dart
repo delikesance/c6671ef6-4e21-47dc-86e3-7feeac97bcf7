@@ -271,10 +271,8 @@ class AppManager implements BotDataStore {
           'name': username,
           'avatar': avatarUri,
           'id': botId,
-          if (approximateGuildCount != null)
-            'approximate_guild_count': approximateGuildCount,
-          if (approximateGuildCount != null)
-            'guild_count': approximateGuildCount,
+          'approximate_guild_count': ?approximateGuildCount,
+          'guild_count': ?approximateGuildCount,
         });
       }
 
@@ -567,7 +565,7 @@ class AppManager implements BotDataStore {
   Future<void> flushPendingWrites() async {
     final snapshot = Map<String, Future<void>>.from(_appWriteChains);
     if (snapshot.isEmpty) return;
-    await Future.wait(snapshot.values).catchError((_) {});
+    await Future.wait(snapshot.values).catchError((_) => <void>[]);
   }
 
   Future<void> _mutateApp(

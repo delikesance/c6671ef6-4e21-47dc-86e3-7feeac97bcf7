@@ -142,15 +142,13 @@ class DiscordRpcClient {
       args: <String, dynamic>{
         'client_id': clientId,
         'scopes': scopes,
-        if (_normalize(responseType) case final value?) 'response_type': value,
-        if (_normalize(state) case final value?) 'state': value,
-        if (_normalize(prompt) case final value?) 'prompt': value,
-        if (_normalize(codeChallenge) case final value?)
-          'code_challenge': value,
-        if (_normalize(codeChallengeMethod) case final value?)
-          'code_challenge_method': value,
-        if (_normalize(rpcToken) case final value?) 'rpc_token': value,
-        if (_normalize(username) case final value?) 'username': value,
+        'response_type': ?_normalize(responseType),
+        'state': ?_normalize(state),
+        'prompt': ?_normalize(prompt),
+        'code_challenge': ?_normalize(codeChallenge),
+        'code_challenge_method': ?_normalize(codeChallengeMethod),
+        'rpc_token': ?_normalize(rpcToken),
+        'username': ?_normalize(username),
       },
     );
   }
@@ -198,7 +196,7 @@ class DiscordRpcClient {
       await AppDiagnostics.logInfo(
         'Discord RPC client connection closed',
         data: <String, Object?>{
-          if (endpoint != null) 'endpoint': endpoint,
+          'endpoint': ?endpoint,
           'pendingRequests': pendingRequests,
         },
       );
@@ -524,7 +522,7 @@ class DiscordRpcClient {
     await _writeJsonFrame(_frameOpcode, <String, dynamic>{
       'cmd': command,
       'nonce': nonce,
-      if (_normalize(event) case final value?) 'evt': value,
+      'evt': ?_normalize(event),
       'args': args,
     });
 
@@ -818,8 +816,8 @@ Map<String, Object?> _commandRequestLogData(
 }) {
   final data = <String, Object?>{
     'command': command,
-    if (endpoint != null) 'endpoint': endpoint,
-    if (_normalize(event) case final value?) 'event': value,
+    'endpoint': ?endpoint,
+    'event': ?_normalize(event),
   };
 
   switch (command) {
@@ -870,9 +868,8 @@ Map<String, Object?> _commandResponseLogData(
 }) {
   final data = <String, Object?>{
     'command': command,
-    if (endpoint != null) 'endpoint': endpoint,
-    if (_normalize(payload['evt']?.toString()) case final value?)
-      'event': value,
+    'endpoint': ?endpoint,
+    'event': ?_normalize(payload['evt']?.toString()),
     'hasNonce': payload['nonce'] != null,
   };
   final responseData = payload['data'];
@@ -895,7 +892,7 @@ Map<String, Object?> _commandResponseLogData(
     case 'AUTHENTICATE':
       data.addAll(<String, Object?>{
         'hasUser': user is Map,
-        if (userId != null) 'userId': userId,
+        'userId': ?userId,
       });
       break;
     case 'SET_ACTIVITY':
@@ -912,11 +909,9 @@ Map<String, Object?> _eventLogData(
 }) {
   final data = payload['data'];
   return <String, Object?>{
-    if (endpoint != null) 'endpoint': endpoint,
-    if (_normalize(payload['evt']?.toString()) case final value?)
-      'event': value,
-    if (_normalize(payload['cmd']?.toString()) case final value?)
-      'command': value,
+    'endpoint': ?endpoint,
+    'event': ?_normalize(payload['evt']?.toString()),
+    'command': ?_normalize(payload['cmd']?.toString()),
     'hasNonce': payload['nonce'] != null,
     if (data is Map &&
         data['code'] != null &&
@@ -938,7 +933,7 @@ Map<String, Object?> _activityLogData(Map<String, dynamic> activity) {
     if (_normalize(activity['state']?.toString()) case final value?)
       'state': _truncateLogValue(value),
     'hasTimestamps': timestamps is Map,
-    if (largeImage != null) 'largeImage': largeImage,
+    'largeImage': ?largeImage,
   };
 }
 

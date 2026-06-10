@@ -7,7 +7,6 @@ part of 'command.create.dart';
 enum _EditorTab { command, interactions }
 
 extension _CommandTabs on _CommandCreatePageState {
-  _EditorTab _activeTab = _EditorTab.command;
 
   int get _interactionCount {
     var count = 0;
@@ -94,7 +93,7 @@ extension _CommandTabs on _CommandCreatePageState {
               label: 'Command',
               icon: Icons.grid_view_rounded,
               isSelected: _activeTab == _EditorTab.command,
-              onTap: () => setState(() => _activeTab = _EditorTab.command),
+              onTap: () => _setActiveTab(_EditorTab.command),
             ),
           ),
           Expanded(
@@ -103,7 +102,7 @@ extension _CommandTabs on _CommandCreatePageState {
               icon: Icons.ads_click,
               isSelected: _activeTab == _EditorTab.interactions,
               badge: count > 0 ? count.toString() : null,
-              onTap: () => setState(() => _activeTab = _EditorTab.interactions),
+              onTap: () => _setActiveTab(_EditorTab.interactions),
             ),
           ),
         ],

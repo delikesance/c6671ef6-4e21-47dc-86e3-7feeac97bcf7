@@ -179,7 +179,7 @@ Map<String, dynamic> serializeCommandOption(CommandOptionBuilder option) {
     'required': option.isRequired,
     if (option.minValue != null) 'minValue': option.minValue,
     if (option.maxValue != null) 'maxValue': option.maxValue,
-    if (autocomplete != null) 'autocomplete': autocomplete,
+    'autocomplete': ?autocomplete,
     if (autocomplete == null && option.choices?.isNotEmpty == true)
       'choices': option.choices!
           .map((choice) => {'name': choice.name, 'value': choice.value})
