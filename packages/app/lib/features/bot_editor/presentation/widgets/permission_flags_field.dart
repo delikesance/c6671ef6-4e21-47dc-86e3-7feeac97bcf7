@@ -10,7 +10,7 @@ import 'package:bot_creator_shared/utils/permission_flags.dart'
 ///   - **Allow** (green ✓): explicitly grant
 ///   - **Deny** (red ✗): explicitly deny
 ///
-/// Value format: Map<String, String> where keys are [PermissionFlag.key]
+/// Value format: `Map<String, String>` where keys are [PermissionFlag.key]
 /// and values are 'allow', 'deny', or 'unset'.
 class PermissionFlagsField extends StatefulWidget {
   const PermissionFlagsField({

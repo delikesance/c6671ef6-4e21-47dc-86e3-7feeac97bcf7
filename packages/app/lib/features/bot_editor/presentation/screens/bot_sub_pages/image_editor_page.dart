@@ -635,7 +635,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
                           color: Theme.of(context).colorScheme.outline)))
               : ReorderableListView.builder(
                   itemCount: _operations.length,
-                  onReorder: _onReorder,
+                  onReorderItem: _onReorderItem,
                   buildDefaultDragHandles: false,
                   padding: const EdgeInsets.symmetric(vertical: 4),
                   itemBuilder: (context, index) =>
@@ -748,9 +748,8 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
     );
   }
 
-  void _onReorder(int oldIndex, int newIndex) {
+  void _onReorderItem(int oldIndex, int newIndex) {
     setState(() {
-      if (newIndex > oldIndex) newIndex--;
       final op = _operations.removeAt(oldIndex);
       _operations.insert(newIndex, op);
       final wasHidden = _hiddenIndices.contains(oldIndex);
@@ -1668,9 +1667,9 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
         return StatefulBuilder(
           builder: (ctx, setDialogState) {
             final previewColor = HSVColor.fromAHSV(1, hue, saturation, value).toColor();
-            final hex = '#${previewColor.red.toRadixString(16).padLeft(2, '0')}'
-                '${previewColor.green.toRadixString(16).padLeft(2, '0')}'
-                '${previewColor.blue.toRadixString(16).padLeft(2, '0')}';
+            final hex = '#${(previewColor.r * 255.0).round().clamp(0, 255).toRadixString(16).padLeft(2, '0')}'
+                '${(previewColor.g * 255.0).round().clamp(0, 255).toRadixString(16).padLeft(2, '0')}'
+                '${(previewColor.b * 255.0).round().clamp(0, 255).toRadixString(16).padLeft(2, '0')}';
 
             return AlertDialog(
               title: const Text('Color Picker'),

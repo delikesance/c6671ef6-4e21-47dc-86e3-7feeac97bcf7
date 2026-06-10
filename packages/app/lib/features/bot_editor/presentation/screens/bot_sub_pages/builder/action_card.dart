@@ -958,7 +958,7 @@ class ActionCard extends StatelessWidget {
     return fallback;
   }
 
-  /// Coerces a value into a Map<String, String> for permissionFlags.
+  /// Coerces a value into a `Map<String, String>` for permissionFlags.
   ///
   /// Handles backward compatibility: if the payload has only 'allow'/'deny'
   /// integer bitmasks (old format), decomposes them into the permission

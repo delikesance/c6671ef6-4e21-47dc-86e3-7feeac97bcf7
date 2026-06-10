@@ -1003,13 +1003,13 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
         final integrationTypesRaw = resolvedData['integrationTypes'];
         if (integrationTypesRaw is List && integrationTypesRaw.isNotEmpty) {
           builder.integrationTypes = integrationTypesRaw
-              .map((t) => ApplicationIntegrationType.parse(t as int))
+              .map((t) => ApplicationIntegrationType(t as int))
               .toList();
         }
         final contextsRaw = resolvedData['contexts'];
         if (contextsRaw is List && contextsRaw.isNotEmpty) {
           builder.contexts = contextsRaw
-              .map((c) => InteractionContextType.parse(c as int))
+              .map((c) => InteractionContextType(c as int))
               .toList();
         }
 
