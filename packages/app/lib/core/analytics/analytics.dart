@@ -80,7 +80,7 @@ class AppAnalytics {
       'ad_action': action,
       'ad_format': format,
       'ad_placement': placement,
-      if (parameters != null) ...parameters,
+      ...?parameters,
     };
 
     await logEvent(name: 'ad_event', parameters: merged);

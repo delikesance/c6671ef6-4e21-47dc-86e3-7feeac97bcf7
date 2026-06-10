@@ -1,7 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 import 'package:bot_creator/core/network/remote_runtime.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
@@ -1002,7 +1000,7 @@ class ActionCard extends StatelessWidget {
                     style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
                 ),
-                if (_buildVariableIcon(context, paramDef.key, currentValue) case final icon?) icon,
+                ?_buildVariableIcon(context, paramDef.key, currentValue),
                 Switch(
                   value: _coerceBoolValue(
                     currentValue,
@@ -1098,7 +1096,7 @@ class ActionCard extends StatelessWidget {
                     style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
                 ),
-                if (_buildVariableIcon(context, paramDef.key, currentValue) case final icon?) icon,
+                ?_buildVariableIcon(context, paramDef.key, currentValue),
               ],
             ),
             const SizedBox(height: 4),
@@ -1198,7 +1196,7 @@ class ActionCard extends StatelessWidget {
                     style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
                 ),
-                if (_buildVariableIcon(context, paramDef.key, currentValue) case final icon?) icon,
+                ?_buildVariableIcon(context, paramDef.key, currentValue),
                 IconButton(
                   icon: const Icon(Icons.edit, size: 20),
                   onPressed:
@@ -2631,72 +2629,6 @@ class ActionCard extends StatelessWidget {
     );
   }
 
-  void _showColorPicker(
-    BuildContext context,
-    ParameterDefinition paramDef,
-    dynamic currentValue,
-  ) {
-    showDialog(
-      context: context,
-      builder:
-          (dialogContext) => AlertDialog(
-            title: Text(
-              context.tr.action_choose_param(
-                _formatParameterName(paramDef.key),
-              ),
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children:
-                      [
-                        '#FF0000',
-                        '#00FF00',
-                        '#0000FF',
-                        '#FFFF00',
-                        '#FF00FF',
-                        '#00FFFF',
-                        '#000000',
-                        '#FFFFFF',
-                        '#808080',
-                        '#FFA500',
-                        '#800080',
-                        '#008000',
-                      ].map((colorHex) {
-                        return GestureDetector(
-                          onTap: () {
-                            onParameterChanged(paramDef.key, colorHex);
-                            Navigator.pop(dialogContext);
-                          },
-                          child: Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: _parseColor(colorHex),
-                              border: Border.all(color: AppTheme.grey),
-                              borderRadius: BorderRadius.circular(
-                                AppTheme.radiusXs,
-                              ),
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(dialogContext),
-                child: Text(context.tr.common_cancel),
-              ),
-            ],
-          ),
-    );
-  }
-
   void _showMapEditor(
     BuildContext context,
     ParameterDefinition paramDef,
@@ -3431,34 +3363,6 @@ class ActionCard extends StatelessWidget {
                 ),
           ),
     );
-  }
-
-  IconData _getIconForIdType(ParameterType type) {
-    switch (type) {
-      case ParameterType.userId:
-        return Icons.person;
-      case ParameterType.channelId:
-        return Icons.tag;
-      case ParameterType.messageId:
-        return Icons.message;
-      case ParameterType.roleId:
-        return Icons.admin_panel_settings;
-      default:
-        return Icons.tag;
-    }
-  }
-
-  Color _parseColor(String colorString) {
-    try {
-      if (colorString.startsWith('#')) {
-        return Color(
-          int.parse(colorString.substring(1), radix: 16) + 0xFF000000,
-        );
-      }
-      return Colors.black;
-    } catch (e) {
-      return Colors.black;
-    }
   }
 
   String _formatParameterName(String key) {
@@ -4387,7 +4291,6 @@ class _TextParameterField extends StatefulWidget {
   }) buildVariableSuggestions;
 
   const _TextParameterField({
-    super.key,
     required this.paramDef,
     required this.currentValue,
     required this.onParameterChanged,

@@ -34,7 +34,7 @@ class MarketplaceDetailPage extends StatefulWidget {
 class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
   final _variableValues = <String, String>{};
   bool _applying = false;
-  bool _editing = false;
+  final bool _editing = false;
   bool _deleting = false;
   bool _fetching = false;
   MarketplaceTemplate? _fetchedTemplate;
@@ -72,6 +72,7 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
       if (mounted) setState(() => _fetching = false);
     }
   }
+  @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tr = context.tr;

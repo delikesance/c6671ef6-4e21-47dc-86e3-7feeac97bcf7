@@ -2,7 +2,6 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_auth_service.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
-import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/marketplace/presentation/marketplace_detail_page.dart';
 import 'package:bot_creator_shared/bot/marketplace_template.dart';
 import 'package:flutter/material.dart';
@@ -387,7 +386,6 @@ class _TemplateCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final tr = context.tr;
     final requiredVars =
         template.globalVariables.where((v) => v.required).length;
 

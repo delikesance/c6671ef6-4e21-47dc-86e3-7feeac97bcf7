@@ -532,7 +532,7 @@ Future<Map<String, dynamic>> respondWithComponentV2Action(
             );
           }
           return {
-            if (messageId != null) 'messageId': messageId,
+            'messageId': ?messageId,
             'status': 'responded',
           };
         }

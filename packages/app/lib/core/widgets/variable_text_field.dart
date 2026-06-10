@@ -222,8 +222,7 @@ class _VariableTextFieldState extends State<VariableTextField> {
                 const SizedBox.shrink(),
           )
         else ...[
-          if (_buildSuggestionWidget(currentText, cursor) case final w?)
-            w,
+          ?_buildSuggestionWidget(currentText, cursor),
         ],
       ],
     );
@@ -496,20 +495,6 @@ class _VariableTextFieldState extends State<VariableTextField> {
     final between = input.substring(start + 1, safeCursor);
     if (between.contains('>') || between.contains(' ')) return null;
     return between;
-  }
-
-  void _insertEmoji(AppEmoji emoji) {
-    final input = _effectiveController.text;
-    final cursor = _safeCursor(input, _effectiveController.selection.baseOffset);
-    final start = cursor > 0 ? input.lastIndexOf('<', cursor - 1) : -1;
-    if (start == -1) return;
-    final mention = emoji.mention;
-    final nextText = input.replaceRange(start, cursor, mention);
-    final nextCursor = start + mention.length;
-    _effectiveController.value = TextEditingValue(
-      text: nextText,
-      selection: TextSelection.collapsed(offset: nextCursor),
-    );
   }
 
   // ── Variable placeholder extraction / insertion ──────────────────────────

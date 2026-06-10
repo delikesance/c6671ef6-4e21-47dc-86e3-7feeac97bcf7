@@ -82,9 +82,9 @@ class MainApiSession {
   Map<String, dynamic> toJson() => <String, dynamic>{
     'accessToken': accessToken,
     'expiresAt': expiresAt.toUtc().toIso8601String(),
-    if (_normalize(refreshToken) case final value?) 'refreshToken': value,
-    if (_normalize(userId) case final value?) 'userId': value,
-    if (_normalize(username) case final value?) 'username': value,
+    'refreshToken': ?_normalize(refreshToken),
+    'userId': ?_normalize(userId),
+    'username': ?_normalize(username),
     if (scopes.isNotEmpty) 'scopes': scopes,
   };
 

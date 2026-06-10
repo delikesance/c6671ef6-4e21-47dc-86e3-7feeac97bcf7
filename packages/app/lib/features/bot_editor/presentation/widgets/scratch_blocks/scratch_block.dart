@@ -131,7 +131,7 @@ class ScratchBlock extends StatelessWidget {
                         ],
                       ),
                     ),
-                    if (trailing != null) trailing!,
+                    ?trailing,
                     // Reorder buttons (only for non-required blocks)
                     if (onMoveUp != null || onMoveDown != null) ...[
                       if (onMoveUp != null)

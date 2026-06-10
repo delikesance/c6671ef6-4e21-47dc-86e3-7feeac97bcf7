@@ -853,8 +853,7 @@ class MainApiClient implements RemoteRuntimeClient {
       'platform': platform,
       'serverVerificationData': serverVerificationData,
       'productId': productId,
-      if (_normalize(localTransactionId) case final value?)
-        'localTransactionId': value,
+      'localTransactionId': ?_normalize(localTransactionId),
     });
   }
 
@@ -862,8 +861,8 @@ class MainApiClient implements RemoteRuntimeClient {
   Future<void> startBot(String botId, {String? botName}) async {
     final encodedBotId = Uri.encodeComponent(botId.trim());
     await _post('/gateway/bots/$encodedBotId/start', <String, dynamic>{
-      if (_normalize(botName) case final value?) 'bot_name': value,
-      if (_normalize(botName) case final value?) 'botName': value,
+      'bot_name': ?_normalize(botName),
+      'botName': ?_normalize(botName),
     });
   }
 

@@ -5,20 +5,6 @@ extension _AppHomePageUI on _AppHomePageState {
     return Localizations.localeOf(context).languageCode == 'fr' ? fr : en;
   }
 
-  String _resolveQuickAccessLabel(BuildContext context, String labelKey) {
-    final tr = context.tr;
-    switch (labelKey) {
-      case 'emojis_tab':
-        return tr.emojis_tab;
-      case 'dashboard_title':
-        return tr.dashboard_title;
-      case 'settings_tab':
-        return tr.settings_tab;
-      default:
-        return labelKey;
-    }
-  }
-
   Color _hostingTimeColor(int minutes) {
     const minutesPerDay = 60 * 24;
     const minutesThreeDays = minutesPerDay * 3;
