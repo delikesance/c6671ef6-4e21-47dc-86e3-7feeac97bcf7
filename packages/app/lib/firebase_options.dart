@@ -28,17 +28,11 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
         return windows;
       case TargetPlatform.linux:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for linux - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return linux;
       default:
         throw UnsupportedError(
           'DefaultFirebaseOptions are not supported for this platform.',
@@ -68,6 +62,26 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyB5yd4n-tBx3j1W4eGPNBAO-aeGguTNSkg',
+    appId: '1:777382167262:web:22e57d04163e990029f84f',
+    messagingSenderId: '777382167262',
+    projectId: 'bot-creator-f884b',
+    authDomain: 'bot-creator-f884b.firebaseapp.com',
+    storageBucket: 'bot-creator-f884b.firebasestorage.app',
+    measurementId: 'G-M83RVGEH2C',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyB5yd4n-tBx3j1W4eGPNBAO-aeGguTNSkg',
+    appId: '1:777382167262:web:22e57d04163e990029f84f',
+    messagingSenderId: '777382167262',
+    projectId: 'bot-creator-f884b',
+    authDomain: 'bot-creator-f884b.firebaseapp.com',
+    storageBucket: 'bot-creator-f884b.firebasestorage.app',
+    measurementId: 'G-M83RVGEH2C',
+  );
+
+  static const FirebaseOptions linux = FirebaseOptions(
     apiKey: 'AIzaSyB5yd4n-tBx3j1W4eGPNBAO-aeGguTNSkg',
     appId: '1:777382167262:web:22e57d04163e990029f84f',
     messagingSenderId: '777382167262',

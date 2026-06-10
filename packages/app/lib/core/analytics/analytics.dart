@@ -10,11 +10,10 @@ class AppAnalytics {
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
       case TargetPlatform.iOS:
-        return true;
       case TargetPlatform.windows:
       case TargetPlatform.macOS:
       case TargetPlatform.linux:
-        return false;
+        return true;
       default:
         return false;
     }
