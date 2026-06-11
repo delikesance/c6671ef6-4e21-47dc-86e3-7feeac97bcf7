@@ -320,7 +320,7 @@ class AppManager implements BotDataStore {
 
   Future<void> _recordDeletion(String path, String botId) async {
     final deletedFile = File("$path/apps/_deleted_bots.json");
-    Map<String, dynamic> deleted = const <String, dynamic>{};
+    Map<String, dynamic> deleted = <String, dynamic>{};
     if (await deletedFile.exists()) {
       try {
         final raw = await deletedFile.readAsString();
