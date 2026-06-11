@@ -28,6 +28,7 @@ import 'package:bot_creator/features/ads/logic/ad_consent_service.dart';
 import 'package:bot_creator/features/ads/logic/ads_placement_policy.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/app_editor_page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/bot_logs.dart';
+import 'package:bot_creator/core/storage/database.dart';
 
 String _formatHostingDuration(BuildContext context, int totalMinutes) {
   if (totalMinutes <= 0) {
@@ -924,6 +925,125 @@ class HomePageState extends State<HomePage>
       // ── Fetch + validate token before anything else (only when starting) ──
       String? token;
       if (!isRunning) {
+        final app = await appManager.getApp(botId);
+        token = app['token']?.toString();
+
+        // Sync config from manager before startup (the basic sync)
+        try {
+          appendBotDebugLog('[_toggleBot] Fetching latest config from manager before launch...');
+          final syncClient = await _resolveMainApiClientForBot(
+            botId: botId,
+            botToken: token,
+            attemptSessionRestore: true,
+          );
+          if (syncClient != null) {
+            final remoteConfig = await syncClient.getBotConfig(botId).timeout(const Duration(seconds: 15));
+            if (remoteConfig.isNotEmpty) {
+              if (remoteConfig['inboundWebhooks'] is bool) {
+                remoteConfig.remove('inboundWebhooks');
+              }
+              if (app['avatar'] != null && remoteConfig['avatar'] == null) {
+                remoteConfig['avatar'] = app['avatar'];
+              }
+              if (app['name'] != null && remoteConfig['name'] == null) {
+                remoteConfig['name'] = app['name'];
+              }
+              final existingToken = (app['token'] ?? token ?? '').toString().trim();
+              remoteConfig['token'] = existingToken;
+
+              AppManager.isSyncingFromRemote = true;
+              try {
+                await appManager.saveApp(botId, remoteConfig);
+
+                // Also overwrite local commands with remote Manager version
+                final remoteCommands = remoteConfig['commands'];
+                final remoteCommandIds = <String>{};
+                if (remoteCommands is List) {
+                  for (final cmd in remoteCommands) {
+                    if (cmd is! Map) continue;
+                    final cmdId = (cmd['id'] ?? cmd['commandId'] ?? '').toString();
+                    final cmdName = (cmd['name'] ?? '').toString();
+                    if (cmdId.isEmpty || cmdName.isEmpty) continue;
+                    remoteCommandIds.add(cmdId);
+
+                    final localCmd = await appManager.getAppCommand(botId, cmdId);
+                    final cmdData = Map<String, dynamic>.from(cmd['data'] ?? cmd);
+                    if (cmdData['response'] is Map &&
+                        (cmdData['response'] as Map).containsKey('_migrated')) {
+                      cmdData.remove('response');
+                    }
+                    cmdData.remove('simpleConfig');
+
+                    await appManager.saveAppCommand(botId, cmdId, <String, dynamic>{
+                      'name': cmdName,
+                      'description': (cmd['description'] ?? '').toString(),
+                      'type': cmdData['commandType'] ?? cmd['type'] ?? 'chatInput',
+                      'id': cmdId,
+                      'data': cmdData,
+                      'createdAt': (localCmd['createdAt'] ?? DateTime.now().toIso8601String()).toString(),
+                      'updatedAt': (cmd['updatedAt'] ?? DateTime.now().toIso8601String()).toString(),
+                    });
+                  }
+                }
+
+                // Delete local commands that are NOT in the remote configuration
+                final localCommands = await appManager.listAppCommands(botId);
+                for (final localCmd in localCommands) {
+                  final localCmdId = (localCmd['id'] ?? '').toString();
+                  if (localCmdId.isNotEmpty && !remoteCommandIds.contains(localCmdId)) {
+                    await appManager.deleteAppCommand(botId, localCmdId);
+                  }
+                }
+
+                // Also overwrite local workflows with remote Manager version
+                final remoteWorkflows = remoteConfig['workflows'];
+                final remoteWorkflowNames = <String>{};
+                if (remoteWorkflows is List) {
+                  for (final wf in remoteWorkflows) {
+                    if (wf is! Map) continue;
+                    final wfName = (wf['name'] ?? '').toString();
+                    if (wfName.isEmpty) continue;
+                    remoteWorkflowNames.add(wfName);
+
+                    await appManager.saveWorkflow(
+                      botId,
+                      name: wfName,
+                      actions: ((wf['actions'] as List?) ?? [])
+                          .map((e) => Map<String, dynamic>.from(e as Map))
+                          .toList(),
+                      entryPoint: wf['entryPoint']?.toString(),
+                      arguments: ((wf['arguments'] as List?) ?? [])
+                          .map((e) => Map<String, dynamic>.from(e as Map))
+                          .toList(),
+                      workflowType: wf['workflowType']?.toString(),
+                      eventTrigger: wf['eventTrigger'] != null
+                          ? Map<String, dynamic>.from(wf['eventTrigger'] as Map)
+                          : null,
+                      folder: wf['folder']?.toString(),
+                    );
+                  }
+                }
+
+                // Delete local workflows that are NOT in the remote configuration
+                final localApp = await appManager.getApp(botId);
+                final localWorkflows = (localApp['workflows'] as List?)?.whereType<Map>().toList() ?? [];
+                for (final wf in localWorkflows) {
+                  final wfName = (wf['name'] ?? '').toString();
+                  if (wfName.isNotEmpty && !remoteWorkflowNames.contains(wfName)) {
+                    await appManager.deleteWorkflow(botId, wfName);
+                  }
+                }
+              } finally {
+                AppManager.isSyncingFromRemote = false;
+              }
+
+              appendBotDebugLog('[_toggleBot] Pre-launch config sync success for $botId');
+            }
+          }
+        } catch (e) {
+          appendBotDebugLog('[_toggleBot] Pre-launch config sync failed/skipped: $e');
+        }
+
         var usingRunner = runtime.client != null || runtime.blocksLocalFallback;
 
         if (runtime.blocksLocalFallback) {
@@ -1643,8 +1763,8 @@ class HomePageState extends State<HomePage>
                                   final id = app['id']?.toString() ?? '';
                                   final avatar = app['avatar']?.toString();
                                   final guildCount =
-                                      switch (app['approximate_guild_count'] ??
-                                          app['guild_count']) {
+                                      switch (app['guild_count'] ??
+                                          app['approximate_guild_count']) {
                                         final int value => value,
                                         final String s => int.tryParse(s) ?? 0,
                                         _ => 0,

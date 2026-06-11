@@ -419,6 +419,37 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
         );
       }
     }
+
+    // Modal input values: when respondWithModal is present, expose each
+    // input's customId as a variable so downstream actions can reference
+    // the submitted values via modal.<customId>.
+    if (type == BotCreatorActionType.respondWithModal) {
+      final modalJson =
+          action.parameters['modal'] as Map<String, dynamic>?;
+      if (modalJson != null) {
+        final inputs =
+            (modalJson['inputs'] as List<dynamic>?)
+                ?.whereType<Map<String, dynamic>>() ??
+            const [];
+        for (final input in inputs) {
+          final customId =
+              (input['customId'] ?? '').toString().trim();
+          if (customId.isEmpty) continue;
+          _addSuggestionIfMissing(
+            bucket,
+            'modal.$customId',
+            VariableSuggestionKind.nonNumeric,
+            category: shared.VariableCategory.interaction,
+          );
+          _addSuggestionIfMissing(
+            bucket,
+            'action.$resultKey.modal.$customId',
+            VariableSuggestionKind.nonNumeric,
+            category: shared.VariableCategory.interaction,
+          );
+        }
+      }
+    }
   }
 
   List<VariableSuggestion> _buildMergedVariableSuggestions() {

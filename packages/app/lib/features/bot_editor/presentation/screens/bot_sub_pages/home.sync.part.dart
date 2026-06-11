@@ -146,54 +146,74 @@ extension _AppHomePageSync on _AppHomePageState {
             if (local['name'] != null && remoteConfig['name'] == null) {
               remoteConfig['name'] = local['name'];
             }
-            await appManager.saveApp(botId, remoteConfig);
-            appendBotDebugLog(
-              '[_syncAppFromRemote] Pulled bot config from Manager for $botId',
-            );
-
-            // Also save individual commands from the Manager config so their
-            // full data (actions, options, workflows) is available locally.
-            final remoteCommands = remoteConfig['commands'];
-            if (remoteCommands is List && remoteCommands.isNotEmpty) {
-              for (final cmd in remoteCommands) {
-                if (cmd is! Map) continue;
-                final cmdId = (cmd['id'] ?? cmd['commandId'] ?? '').toString();
-                final cmdName = (cmd['name'] ?? '').toString();
-                if (cmdId.isEmpty || cmdName.isEmpty) continue;
-
-                // Always overwrite the local command with the Manager version:
-                // the user pressed Sync explicitly, so the Manager is the source of truth.
-                final localCmd = await appManager.getAppCommand(botId, cmdId);
-
-                // Strip legacy response/simpleConfig from imported commands
-                final cmdData = Map<String, dynamic>.from(cmd['data'] ?? cmd);
-                if (cmdData['response'] is Map &&
-                    (cmdData['response'] as Map).containsKey('_migrated')) {
-                  cmdData.remove('response');
-                }
-                cmdData.remove('simpleConfig');
-
-                await appManager.saveAppCommand(botId, cmdId, <String, dynamic>{
-                  'name': cmdName,
-                  'description': (cmd['description'] ?? '').toString(),
-                  'type': cmdData['commandType'] ?? cmd['type'] ?? 'chatInput',
-                  'id': cmdId,
-                  'data': cmdData,
-                  'createdAt': (localCmd['createdAt'] ?? DateTime.now().toIso8601String()).toString(),
-                  'updatedAt': (cmd['updatedAt'] ?? DateTime.now().toIso8601String()).toString(),
-                });
-              }
+            AppManager.isSyncingFromRemote = true;
+            try {
+              await appManager.saveApp(botId, remoteConfig);
               appendBotDebugLog(
-                '[_syncAppFromRemote] Upserted ${remoteCommands.length} commands from Manager config for $botId',
+                '[_syncAppFromRemote] Pulled bot config from Manager for $botId',
               );
+
+              // Also save individual commands from the Manager config so their
+              // full data (actions, options, workflows) is available locally.
+              final remoteCommands = remoteConfig['commands'];
+              final remoteCommandIds = <String>{};
+              if (remoteCommands is List && remoteCommands.isNotEmpty) {
+                for (final cmd in remoteCommands) {
+                  if (cmd is! Map) continue;
+                  final cmdId = (cmd['id'] ?? cmd['commandId'] ?? '').toString();
+                  final cmdName = (cmd['name'] ?? '').toString();
+                  if (cmdId.isEmpty || cmdName.isEmpty) continue;
+                  remoteCommandIds.add(cmdId);
+
+                  // Always overwrite the local command with the Manager version:
+                  // the user pressed Sync explicitly, so the Manager is the source of truth.
+                  final localCmd = await appManager.getAppCommand(botId, cmdId);
+
+                  // Strip legacy response/simpleConfig from imported commands
+                  final cmdData = Map<String, dynamic>.from(cmd['data'] ?? cmd);
+                  if (cmdData['response'] is Map &&
+                      (cmdData['response'] as Map).containsKey('_migrated')) {
+                    cmdData.remove('response');
+                  }
+                  cmdData.remove('simpleConfig');
+
+                  await appManager.saveAppCommand(botId, cmdId, <String, dynamic>{
+                    'name': cmdName,
+                    'description': (cmd['description'] ?? '').toString(),
+                    'type': cmdData['commandType'] ?? cmd['type'] ?? 'chatInput',
+                    'id': cmdId,
+                    'data': cmdData,
+                    'createdAt': (localCmd['createdAt'] ?? DateTime.now().toIso8601String()).toString(),
+                    'updatedAt': (cmd['updatedAt'] ?? DateTime.now().toIso8601String()).toString(),
+                  });
+                }
+                appendBotDebugLog(
+                  '[_syncAppFromRemote] Upserted ${remoteCommands.length} commands from Manager config for $botId',
+                );
+              }
+
+              // Collect local-only commands and workflows that are NOT in
+              // the remote configuration. Instead of deleting them, we'll
+              // push them back to Manager after reconciliation.
+              final localCommands = await appManager.listAppCommands(botId);
+              final localOnlyCommands = <Map<String, dynamic>>[];
+              for (final localCmd in localCommands) {
+                final localCmdId = (localCmd['id'] ?? '').toString();
+                if (localCmdId.isNotEmpty &&
+                    !remoteCommandIds.contains(localCmdId)) {
+                  localOnlyCommands.add(Map<String, dynamic>.from(localCmd));
+                }
+              }
 
               // Also upsert workflows from the Manager config
               final remoteWorkflows = remoteConfig['workflows'];
+              final remoteWorkflowNames = <String>{};
               if (remoteWorkflows is List && remoteWorkflows.isNotEmpty) {
                 for (final wf in remoteWorkflows) {
                   if (wf is! Map) continue;
                   final wfName = (wf['name'] ?? '').toString();
                   if (wfName.isEmpty) continue;
+                  remoteWorkflowNames.add(wfName);
 
                   // Always overwrite the local workflow with the Manager version.
                   await appManager.saveWorkflow(
@@ -217,6 +237,24 @@ extension _AppHomePageSync on _AppHomePageState {
                   '[_syncAppFromRemote] Upserted ${remoteWorkflows.length} workflows from Manager config for $botId',
                 );
               }
+
+              // Collect local-only workflows so they survive sync.
+              final localApp = await appManager.getApp(botId);
+              final localWorkflows = (localApp['workflows'] as List?)
+                      ?.whereType<Map>()
+                      .map((w) => Map<String, dynamic>.from(w))
+                      .toList() ??
+                  [];
+              final localOnlyWorkflows = <Map<String, dynamic>>[];
+              for (final wf in localWorkflows) {
+                final wfName = (wf['name'] ?? '').toString();
+                if (wfName.isNotEmpty &&
+                    !remoteWorkflowNames.contains(wfName)) {
+                  localOnlyWorkflows.add(wf);
+                }
+              }
+            } finally {
+              AppManager.isSyncingFromRemote = false;
             }
           }
         }
@@ -235,50 +273,58 @@ extension _AppHomePageSync on _AppHomePageState {
         final allLocal = await appManager.listAppCommands(botId);
         final reconciledLocalIds = <String>{};
 
-        for (final command in remoteCommands) {
-          final commandId = command.id.toString();
-          var local = await appManager.getAppCommand(botId, commandId);
+        AppManager.isSyncingFromRemote = true;
+        try {
+          for (final command in remoteCommands) {
+            final commandId = command.id.toString();
+            var local = await appManager.getAppCommand(botId, commandId);
 
-          if (local.isEmpty) {
-            final commandType =
-                command.type == ApplicationCommandType.user
-                    ? 'user'
-                    : command.type == ApplicationCommandType.message
-                    ? 'message'
-                    : 'chatinput';
-            final match = allLocal.cast<Map<String, dynamic>?>().firstWhere((
-              c,
-            ) {
-              final localId = (c!['id'] ?? '').toString();
-              if (reconciledLocalIds.contains(localId)) return false;
-              if (localId == commandId) return false;
-              final localData = (c['data'] as Map?)?.cast<String, dynamic>();
-              if (localData != null &&
-                  localData['legacyModeEnabled'] == true &&
-                  localData['legacyLocalOnly'] == true) {
-                return false;
+            if (local.isEmpty) {
+              final commandType =
+                  command.type == ApplicationCommandType.user
+                      ? 'user'
+                      : command.type == ApplicationCommandType.message
+                      ? 'message'
+                      : 'chatinput';
+              final match = allLocal.cast<Map<String, dynamic>?>().firstWhere((
+                c,
+              ) {
+                final localId = (c!['id'] ?? '').toString();
+                if (reconciledLocalIds.contains(localId)) return false;
+                if (localId == commandId) return false;
+                final localData = (c['data'] as Map?)?.cast<String, dynamic>();
+                if (localData != null &&
+                    localData['legacyModeEnabled'] == true &&
+                    localData['legacyLocalOnly'] == true) {
+                  return false;
+                }
+                final localName = (c['name'] ?? '').toString();
+                final localType =
+                    (c['type'] ?? 'chatInput').toString().toLowerCase();
+                return localName == command.name && localType == commandType;
+              }, orElse: () => null);
+
+              if (match != null) {
+                final oldId = (match['id'] ?? '').toString();
+                local = match;
+                reconciledLocalIds.add(oldId);
+                await appManager.deleteAppCommand(botId, oldId);
+              } else {
+                // Skip importing this command: it exists on Discord but not in our Cloud config.
+                continue;
               }
-              final localName = (c['name'] ?? '').toString();
-              final localType =
-                  (c['type'] ?? 'chatInput').toString().toLowerCase();
-              return localName == command.name && localType == commandType;
-            }, orElse: () => null);
-
-            if (match != null) {
-              final oldId = (match['id'] ?? '').toString();
-              local = match;
-              reconciledLocalIds.add(oldId);
-              await appManager.deleteAppCommand(botId, oldId);
             }
-          }
 
-          final merged = <String, dynamic>{
-            ...local,
-            'id': commandId,
-            'name': command.name,
-            'description': command.description,
-          };
-          await appManager.saveAppCommand(botId, commandId, merged);
+            final merged = <String, dynamic>{
+              ...local,
+              'id': commandId,
+              'name': command.name,
+              'description': command.description,
+            };
+            await appManager.saveAppCommand(botId, commandId, merged);
+          }
+        } finally {
+          AppManager.isSyncingFromRemote = false;
         }
       } catch (_) {}
 

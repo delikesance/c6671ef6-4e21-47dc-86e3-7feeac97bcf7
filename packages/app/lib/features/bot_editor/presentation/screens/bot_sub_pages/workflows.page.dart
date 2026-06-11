@@ -1037,7 +1037,6 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false,
         leading: !ResponsiveHelper.isDesktopPlatform()
             ? IconButton(
                 icon: const Icon(Icons.menu),

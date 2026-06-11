@@ -35,19 +35,25 @@ Map<String, dynamic> purgeActionPayloadStrict(
       payload.remove('components');
     }
   } else if (type == BotCreatorActionType.respondWithMessage) {
-    // Only keep message related fields
-    final keysToKeep = {
-      'content',
-      'text',
-      'embeds',
-      'components',
-      'attachments',
-      'ephemeral',
-      'visibility',
-      'replyToMessage',
-      'key',
-    };
-    payload.removeWhere((key, value) => !keysToKeep.contains(key));
+    final mode = (payload['messageMode'] ?? 'message').toString();
+    if (mode == 'message' || mode == 'normal') {
+      // Keep content, embeds, components, attachments
+      payload.remove('componentV2');
+    } else if (mode == 'componentV2') {
+      // Only keep componentV2, attachments
+      payload.remove('content');
+      payload.remove('text');
+      payload.remove('embeds');
+      payload.remove('components');
+    }
+    // Always keep these (mode-agnostic)
+    final alwaysKeep = {'messageMode', 'ephemeral', 'visibility', 'replyToMessage', 'key'};
+    // Drop anything not in alwaysKeep and not mode-specific
+    // (mode-specific removal already handled above; this is belt-and-suspenders)
+    payload.removeWhere((key, value) =>
+        !alwaysKeep.contains(key) &&
+        key != 'content' && key != 'text' && key != 'embeds' &&
+        key != 'components' && key != 'componentV2' && key != 'attachments');
   } else if (type == BotCreatorActionType.respondWithComponentV2) {
     // Only keep componentV2 related fields
     final keysToKeep = {

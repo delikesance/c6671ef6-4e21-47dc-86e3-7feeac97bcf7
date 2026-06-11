@@ -274,5 +274,93 @@ void main() {
       expect(actions[0].parameters['altText'], equals('Generated card'));
       expect(actions[1].type, equals(BotCreatorActionType.sendMessage));
     });
+
+    // ── respondWithMessage componentV2 mode: preserves button actions ──
+    group('purgeActionPayloadStrict for respondWithMessage', () {
+      test('keeps componentV2 when messageMode=componentV2', () {
+        final componentV2Data = {
+          'content': '',
+          'components': [
+            {
+              'type': 'actionRow',
+              'components': [
+                {
+                  'type': 'button',
+                  'label': 'Click me',
+                  'style': 'primary',
+                  'customId': 'btn_123',
+                  'url': '',
+                  'emoji': '',
+                  'disabled': false,
+                  'actions': [
+                    {
+                      'type': 'respondWithMessage',
+                      'payload': {'content': 'Button clicked!'},
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+          'ephemeral': false,
+        };
+
+        final params = {
+          'messageMode': 'componentV2',
+          'componentV2': componentV2Data,
+          'content': 'should be removed',
+          'embeds': ['should be removed'],
+          'ephemeral': true,
+          'key': 'my_action',
+        };
+
+        final purged = purgeActionPayloadStrict(
+          BotCreatorActionType.respondWithMessage,
+          params,
+        );
+
+        expect(purged['messageMode'], equals('componentV2'));
+        expect(purged['componentV2'], isNotNull);
+        expect(purged['componentV2'], equals(componentV2Data));
+        expect(purged.containsKey('content'), isFalse);
+        expect(purged.containsKey('embeds'), isFalse);
+        expect(purged['ephemeral'], equals(true));
+        expect(purged['key'], equals('my_action'));
+      });
+
+      test('removes componentV2 when messageMode=message', () {
+        final params = {
+          'messageMode': 'message',
+          'content': 'Hello',
+          'embeds': [{'title': 'Test'}],
+          'componentV2': {'components': []},
+          'ephemeral': false,
+        };
+
+        final purged = purgeActionPayloadStrict(
+          BotCreatorActionType.respondWithMessage,
+          params,
+        );
+
+        expect(purged['messageMode'], equals('message'));
+        expect(purged['content'], equals('Hello'));
+        expect(purged.containsKey('componentV2'), isFalse);
+      });
+
+      test('defaults to message mode when messageMode is missing', () {
+        final params = {
+          'content': 'Hello',
+          'componentV2': {'components': []},
+        };
+
+        final purged = purgeActionPayloadStrict(
+          BotCreatorActionType.respondWithMessage,
+          params,
+        );
+
+        expect(purged['content'], equals('Hello'));
+        expect(purged.containsKey('componentV2'), isFalse);
+      });
+    });
   });
 }

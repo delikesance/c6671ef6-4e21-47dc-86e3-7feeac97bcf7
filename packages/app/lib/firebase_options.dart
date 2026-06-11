@@ -28,11 +28,11 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        return macos;
       case TargetPlatform.windows:
-        return windows;
       case TargetPlatform.linux:
-        return linux;
+        throw UnsupportedError(
+          'Firebase is not supported on desktop platforms.',
+        );
       default:
         throw UnsupportedError(
           'DefaultFirebaseOptions are not supported for this platform.',
@@ -41,7 +41,7 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAc5ZRkTOWEE-9O9HxScFxn0Q9HsNdixnY',
+    apiKey: 'AIzaSy...ixnY',
     appId: '1:777382167262:android:76282da1e4a1046129f84f',
     messagingSenderId: '777382167262',
     projectId: 'bot-creator-f884b',
@@ -49,7 +49,7 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDK1o4PAeInCotKhGH_qLI-6eShgjJK6Bc',
+    apiKey: 'AIzaSy...K6Bc',
     appId: '1:777382167262:ios:083d0f09a8b8ea9329f84f',
     messagingSenderId: '777382167262',
     projectId: 'bot-creator-f884b',
@@ -59,35 +59,5 @@ class DefaultFirebaseOptions {
     iosClientId:
         '777382167262-2clnpnd4ijkjp71gvmpp5u0rik446kn8.apps.googleusercontent.com',
     iosBundleId: 'fr.botcreator.app',
-  );
-
-  static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyB5yd4n-tBx3j1W4eGPNBAO-aeGguTNSkg',
-    appId: '1:777382167262:web:22e57d04163e990029f84f',
-    messagingSenderId: '777382167262',
-    projectId: 'bot-creator-f884b',
-    authDomain: 'bot-creator-f884b.firebaseapp.com',
-    storageBucket: 'bot-creator-f884b.firebasestorage.app',
-    measurementId: 'G-M83RVGEH2C',
-  );
-
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyB5yd4n-tBx3j1W4eGPNBAO-aeGguTNSkg',
-    appId: '1:777382167262:web:22e57d04163e990029f84f',
-    messagingSenderId: '777382167262',
-    projectId: 'bot-creator-f884b',
-    authDomain: 'bot-creator-f884b.firebaseapp.com',
-    storageBucket: 'bot-creator-f884b.firebasestorage.app',
-    measurementId: 'G-M83RVGEH2C',
-  );
-
-  static const FirebaseOptions linux = FirebaseOptions(
-    apiKey: 'AIzaSyB5yd4n-tBx3j1W4eGPNBAO-aeGguTNSkg',
-    appId: '1:777382167262:web:22e57d04163e990029f84f',
-    messagingSenderId: '777382167262',
-    projectId: 'bot-creator-f884b',
-    authDomain: 'bot-creator-f884b.firebaseapp.com',
-    storageBucket: 'bot-creator-f884b.firebasestorage.app',
-    measurementId: 'G-M83RVGEH2C',
   );
 }

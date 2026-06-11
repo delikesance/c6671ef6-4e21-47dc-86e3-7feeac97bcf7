@@ -105,6 +105,7 @@ void initRunnerAutoReload() {
   }
 
   AppManager.onAfterSave = (String botId) async {
+    if (AppManager.isSyncingFromRemote) return;
     _batcher.requestSync(botId, _executeSync);
   };
 
@@ -117,27 +118,33 @@ void initRunnerAutoReload() {
     String commandId,
     Map<String, dynamic> command,
   ) async {
+    if (AppManager.isSyncingFromRemote) return;
     try {
       final client = await RunnerSettings.createClientForBot(botId);
-      if (client == null) return;
-      final botName = await resolveBotName(botId);
-      await client.syncCommand(botId, botName, commandId, command);
-      debugPrint('[AutoReload] Synced command $commandId for bot $botId.');
+      if (client != null) {
+        final botName = await resolveBotName(botId);
+        await client.syncCommand(botId, botName, commandId, command);
+        debugPrint('[AutoReload] Synced command $commandId for bot $botId.');
+      }
     } catch (error) {
-      await fallbackReload(botId, 'Command sync', error);
+      debugPrint('[AutoReload] Command sync on runner failed for $botId: $error');
     }
+    _batcher.requestSync(botId, _executeSync);
   };
 
   AppManager.onAfterCommandDelete = (String botId, String commandId) async {
+    if (AppManager.isSyncingFromRemote) return;
     try {
       final client = await RunnerSettings.createClientForBot(botId);
-      if (client == null) return;
-      final botName = await resolveBotName(botId);
-      await client.deleteCommand(botId, botName, commandId);
-      debugPrint('[AutoReload] Deleted command $commandId for bot $botId.');
+      if (client != null) {
+        final botName = await resolveBotName(botId);
+        await client.deleteCommand(botId, botName, commandId);
+        debugPrint('[AutoReload] Deleted command $commandId for bot $botId.');
+      }
     } catch (error) {
-      await fallbackReload(botId, 'Command delete', error);
+      debugPrint('[AutoReload] Command delete on runner failed for $botId: $error');
     }
+    _batcher.requestSync(botId, _executeSync);
   };
 
   AppManager.onAfterWorkflowSave = (
@@ -145,27 +152,33 @@ void initRunnerAutoReload() {
     String workflowName,
     Map<String, dynamic> workflow,
   ) async {
+    if (AppManager.isSyncingFromRemote) return;
     try {
       final client = await RunnerSettings.createClientForBot(botId);
-      if (client == null) return;
-      final botName = await resolveBotName(botId);
-      await client.syncWorkflow(botId, botName, workflowName, workflow);
-      debugPrint('[AutoReload] Synced workflow $workflowName for bot $botId.');
+      if (client != null) {
+        final botName = await resolveBotName(botId);
+        await client.syncWorkflow(botId, botName, workflowName, workflow);
+        debugPrint('[AutoReload] Synced workflow $workflowName for bot $botId.');
+      }
     } catch (error) {
-      await fallbackReload(botId, 'Workflow sync', error);
+      debugPrint('[AutoReload] Workflow sync on runner failed for $botId: $error');
     }
+    _batcher.requestSync(botId, _executeSync);
   };
 
   AppManager.onAfterWorkflowDelete = (String botId, String workflowName) async {
+    if (AppManager.isSyncingFromRemote) return;
     try {
       final client = await RunnerSettings.createClientForBot(botId);
-      if (client == null) return;
-      final botName = await resolveBotName(botId);
-      await client.deleteWorkflow(botId, botName, workflowName);
-      debugPrint('[AutoReload] Deleted workflow $workflowName for bot $botId.');
+      if (client != null) {
+        final botName = await resolveBotName(botId);
+        await client.deleteWorkflow(botId, botName, workflowName);
+        debugPrint('[AutoReload] Deleted workflow $workflowName for bot $botId.');
+      }
     } catch (error) {
-      await fallbackReload(botId, 'Workflow delete', error);
+      debugPrint('[AutoReload] Workflow delete on runner failed for $botId: $error');
     }
+    _batcher.requestSync(botId, _executeSync);
   };
 
   AppManager.onAfterGlobalVariableSave = (
@@ -173,6 +186,7 @@ void initRunnerAutoReload() {
     String key,
     dynamic value,
   ) async {
+    if (AppManager.isSyncingFromRemote) return;
     try {
       final client = await RunnerSettings.createClientForBot(botId);
       if (client == null) return;
@@ -181,9 +195,11 @@ void initRunnerAutoReload() {
     } catch (error) {
       await fallbackReload(botId, 'Global variable save', error);
     }
+    _batcher.requestSync(botId, _executeSync);
   };
 
   AppManager.onAfterGlobalVariableDelete = (String botId, String key) async {
+    if (AppManager.isSyncingFromRemote) return;
     try {
       final client = await RunnerSettings.createClientForBot(botId);
       if (client == null) return;
@@ -192,6 +208,7 @@ void initRunnerAutoReload() {
     } catch (error) {
       await fallbackReload(botId, 'Global variable delete', error);
     }
+    _batcher.requestSync(botId, _executeSync);
   };
 
   AppManager.onAfterGlobalVariableRename = (
@@ -199,6 +216,7 @@ void initRunnerAutoReload() {
     String oldKey,
     String newKey,
   ) async {
+    if (AppManager.isSyncingFromRemote) return;
     try {
       final client = await RunnerSettings.createClientForBot(botId);
       if (client == null) return;
@@ -209,6 +227,7 @@ void initRunnerAutoReload() {
     } catch (error) {
       await fallbackReload(botId, 'Global variable rename', error);
     }
+    _batcher.requestSync(botId, _executeSync);
   };
 
   AppManager.onAfterScopedVariableDefinitionSave = (
@@ -218,6 +237,7 @@ void initRunnerAutoReload() {
     dynamic defaultValue, {
     String valueType = 'string',
   }) async {
+    if (AppManager.isSyncingFromRemote) return;
     try {
       final client = await RunnerSettings.createClientForBot(botId);
       if (client == null) return;
@@ -234,6 +254,7 @@ void initRunnerAutoReload() {
     } catch (error) {
       await fallbackReload(botId, 'Scoped definition save', error);
     }
+    _batcher.requestSync(botId, _executeSync);
   };
 
   AppManager.onAfterScopedVariableDefinitionDelete = (
@@ -242,6 +263,7 @@ void initRunnerAutoReload() {
     String? scope,
     bool purgeStoredValues = false,
   }) async {
+    if (AppManager.isSyncingFromRemote) return;
     try {
       final client = await RunnerSettings.createClientForBot(botId);
       if (client == null) return;
@@ -257,6 +279,7 @@ void initRunnerAutoReload() {
     } catch (error) {
       await fallbackReload(botId, 'Scoped definition delete', error);
     }
+    _batcher.requestSync(botId, _executeSync);
   };
 
   AppManager.onAfterScheduledTriggerSave = (
@@ -264,6 +287,7 @@ void initRunnerAutoReload() {
     String triggerId,
     Map<String, dynamic> trigger,
   ) async {
+    if (AppManager.isSyncingFromRemote) return;
     try {
       final client = await RunnerSettings.createClientForBot(botId);
       if (client == null) return;
@@ -272,12 +296,14 @@ void initRunnerAutoReload() {
     } catch (error) {
       await fallbackReload(botId, 'Scheduled trigger save', error);
     }
+    _batcher.requestSync(botId, _executeSync);
   };
 
   AppManager.onAfterScheduledTriggerDelete = (
     String botId,
     String triggerId,
   ) async {
+    if (AppManager.isSyncingFromRemote) return;
     try {
       final client = await RunnerSettings.createClientForBot(botId);
       if (client == null) return;
@@ -286,6 +312,7 @@ void initRunnerAutoReload() {
     } catch (error) {
       await fallbackReload(botId, 'Scheduled trigger delete', error);
     }
+    _batcher.requestSync(botId, _executeSync);
   };
 
   AppManager.onAfterInboundWebhookSave = (
@@ -293,6 +320,7 @@ void initRunnerAutoReload() {
     String webhookId,
     Map<String, dynamic> webhook,
   ) async {
+    if (AppManager.isSyncingFromRemote) return;
     try {
       final client = await RunnerSettings.createClientForBot(botId);
       if (client == null) return;
@@ -303,12 +331,14 @@ void initRunnerAutoReload() {
     } catch (error) {
       await fallbackReload(botId, 'Inbound webhook save', error);
     }
+    _batcher.requestSync(botId, _executeSync);
   };
 
   AppManager.onAfterInboundWebhookDelete = (
     String botId,
     String webhookId,
   ) async {
+    if (AppManager.isSyncingFromRemote) return;
     try {
       final client = await RunnerSettings.createClientForBot(botId);
       if (client == null) return;
@@ -319,6 +349,7 @@ void initRunnerAutoReload() {
     } catch (error) {
       await fallbackReload(botId, 'Inbound webhook delete', error);
     }
+    _batcher.requestSync(botId, _executeSync);
   };
 }
 
@@ -363,33 +394,31 @@ Future<void> _executeSync(String botId) async {
       }());
     }
 
-    // 2. Cloud Sync (Manager) (Bypassed on Desktop)
-    if (!_isDesktopPlatform) {
-      futures.add(() async {
-        try {
-          final config = await MainApiSettingsStore.loadConfig();
-          if (config.isConfigured) {
-            final session = await MainApiSettingsStore.loadSession();
-            if (session != null && !session.isExpired) {
-              final mainApiClient = MainApiClient(
-                baseUrl: config.baseUrl,
-                accessToken: session.accessToken,
-              );
-              // Note: saveDiscordBotSnapshot and syncBot now benefit from 
-              // internal caching if implemented in MainApiClient or similar.
-              await mainApiClient.saveDiscordBotSnapshot(
-                botToken: botToken,
-                config: payload,
-              );
-              await mainApiClient.syncBot(botId, botName, payload);
-              debugPrint('[AutoReload] Synced bot $botId to cloud (batched).');
-            }
+    // 2. Cloud Sync (Manager)
+    futures.add(() async {
+      try {
+        final config = await MainApiSettingsStore.loadConfig();
+        if (config.isConfigured) {
+          final session = await MainApiSettingsStore.loadSession();
+          if (session != null && !session.isExpired) {
+            final mainApiClient = MainApiClient(
+              baseUrl: config.baseUrl,
+              accessToken: session.accessToken,
+            );
+            // Note: saveDiscordBotSnapshot and syncBot now benefit from 
+            // internal caching if implemented in MainApiClient or similar.
+            await mainApiClient.saveDiscordBotSnapshot(
+              botToken: botToken,
+              config: payload,
+            );
+            await mainApiClient.syncBot(botId, botName, payload);
+            debugPrint('[AutoReload] Synced bot $botId to cloud (batched).');
           }
-        } catch (error) {
-          debugPrint('[AutoReload] Cloud sync failed for $botId: $error');
         }
-      }());
-    }
+      } catch (error) {
+        debugPrint('[AutoReload] Cloud sync failed for $botId: $error');
+      }
+    }());
 
     // 3. Mobile Service Sync (only on mobile)
     if (!_isDesktopPlatform) {

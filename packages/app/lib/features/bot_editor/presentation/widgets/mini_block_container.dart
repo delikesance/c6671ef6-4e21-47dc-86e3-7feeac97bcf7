@@ -68,7 +68,10 @@ class MiniBlockContainer extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.all(AppTheme.spacingSm),
-            child: child,
+            child: Material(
+              type: MaterialType.transparency,
+              child: child,
+            ),
           ),
         ],
       ),
