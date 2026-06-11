@@ -9,6 +9,8 @@ import 'dart:convert';
 import 'package:bot_creator/core/widgets/variable_text_field.dart';
 import 'package:bot_creator/features/components_v2/presentation/component_v2_builder/component_node_factory.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/mini_block_container.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder.response.dart'
+    show ActionsBuilderPage;
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
@@ -429,15 +431,9 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
   // ---------------------------------------------------------------------------
 
   Widget _buildButtonEditor(ButtonNode btn, BuildContext context) {
-    final hasWorkflow = btn.workflowName.trim().isNotEmpty;
+    // Step 3: detect if inline actions are configured
     final hasEmoji = btn.emoji.trim().isNotEmpty;
     final availableSections = <(String, IconData, String)>[
-      if (!_isSectionVisible('btn_workflow', hasWorkflow))
-        (
-          'btn_workflow',
-          Icons.account_tree,
-          context.tr.component_block_workflow,
-        ),
       if (!_isSectionVisible('btn_emoji', hasEmoji))
         ('btn_emoji', Icons.emoji_emotions, context.tr.emojis_tab_short),
       if (!_isSectionVisible('btn_disabled', btn.disabled))
@@ -564,41 +560,68 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
               },
             ),
           ),
-        // Workflow (optional)
-        if (_isSectionVisible('btn_workflow', hasWorkflow))
-          MiniBlockContainer(
-            icon: Icons.account_tree,
-            label: context.tr.component_block_workflow,
-            onRemove:
-                () => _hideSection('btn_workflow', () {
-                  btn.workflowName = '';
-                  btn.workflowEntryPoint = '';
-                  btn.workflowArguments = {};
-                  onChanged(btn);
-                }),
-            child: _WorkflowSelectorField(
-              botIdForConfig: botIdForConfig,
-              label: context.tr.component_workflow_optional,
-              fallbackHint: context.tr.component_workflow_click_hint,
-              selectedWorkflow: btn.workflowName,
-              entryPoint: btn.workflowEntryPoint,
-              workflowArguments: btn.workflowArguments,
-              variableSuggestions: variableSuggestions,
-              successMessage: context.tr.component_on_click_workflow,
-              onChanged: (value) {
-                btn.workflowName = value ?? '';
-                onChanged(btn);
-              },
-              onEntryPointChanged: (value) {
-                btn.workflowEntryPoint = value ?? '';
-                onChanged(btn);
-              },
-              onArgumentsChanged: (value) {
-                btn.workflowArguments = Map<String, dynamic>.from(value);
-                onChanged(btn);
-              },
-            ),
+        // Workflow / Actions — always visible
+        MiniBlockContainer(
+          icon: Icons.account_tree,
+          label: context.tr.component_block_workflow,
+          onRemove: () {
+            setState(() => btn.actions = []);
+            onChanged(btn);
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (btn.actions.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Text(
+                    context.tr.actions_summary_configured(btn.actions.length),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppTheme.success,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              FilledButton.icon(
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size.fromHeight(40),
+                ),
+                onPressed: () async {
+                  final result = await Navigator.push<
+                    List<Map<String, dynamic>>
+                  >(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (_) => ActionsBuilderPage(
+                            initialActions: List.from(btn.actions),
+                            variableSuggestions: variableSuggestions,
+                            botIdForConfig: botIdForConfig,
+                            editPath: ['Button', btn.label],
+                            isWorkflow: true,
+                          ),
+                    ),
+                  );
+                  if (result != null && mounted) {
+                    setState(() {
+                      btn.actions = result;
+                    });
+                    onChanged(btn);
+                  }
+                },
+                icon: const Icon(Icons.account_tree, size: 18),
+                label: Text(
+                  btn.actions.isEmpty
+                      ? (context.tr.actions_build_button(0).length > 40
+                          ? 'Configure Click Actions'
+                          : context.tr.actions_build_button(0))
+                      : context.tr.actions_build_button(btn.actions.length),
+                ),
+              ),
+            ],
           ),
+        ),
         if (availableSections.isNotEmpty)
           AddSectionMenu(
             sections: availableSections,
@@ -614,15 +637,9 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
   // ---------------------------------------------------------------------------
 
   Widget _buildSelectMenuEditor(SelectMenuNode menu, BuildContext context) {
-    final hasWorkflow = menu.workflowName.trim().isNotEmpty;
+    // Step 3: detect if inline actions are configured
     final hasRange = menu.minValues != 1 || menu.maxValues != 1;
     final availableSections = <(String, IconData, String)>[
-      if (!_isSectionVisible('sel_workflow', hasWorkflow))
-        (
-          'sel_workflow',
-          Icons.account_tree,
-          context.tr.component_block_workflow,
-        ),
       if (!_isSectionVisible('sel_range', hasRange))
         ('sel_range', Icons.sync_alt, context.tr.component_selection_range),
       if (!_isSectionVisible('sel_disabled', menu.disabled))
@@ -657,41 +674,68 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
             ),
           ),
         ),
-        // Workflow (optional)
-        if (_isSectionVisible('sel_workflow', hasWorkflow))
-          MiniBlockContainer(
-            icon: Icons.account_tree,
-            label: context.tr.component_block_workflow,
-            onRemove:
-                () => _hideSection('sel_workflow', () {
-                  menu.workflowName = '';
-                  menu.workflowEntryPoint = '';
-                  menu.workflowArguments = {};
-                  onChanged(menu);
-                }),
-            child: _WorkflowSelectorField(
-              botIdForConfig: botIdForConfig,
-              label: context.tr.component_workflow_optional,
-              fallbackHint: context.tr.component_workflow_select_hint,
-              selectedWorkflow: menu.workflowName,
-              entryPoint: menu.workflowEntryPoint,
-              workflowArguments: menu.workflowArguments,
-              variableSuggestions: variableSuggestions,
-              successMessage: context.tr.component_on_select_workflow,
-              onChanged: (value) {
-                menu.workflowName = value ?? '';
-                onChanged(menu);
-              },
-              onEntryPointChanged: (value) {
-                menu.workflowEntryPoint = value ?? '';
-                onChanged(menu);
-              },
-              onArgumentsChanged: (value) {
-                menu.workflowArguments = Map<String, dynamic>.from(value);
-                onChanged(menu);
-              },
-            ),
+        // Workflow / Actions — always visible
+        MiniBlockContainer(
+          icon: Icons.account_tree,
+          label: context.tr.component_block_workflow,
+          onRemove: () {
+            setState(() => menu.actions = []);
+            onChanged(menu);
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (menu.actions.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Text(
+                    context.tr.actions_summary_configured(menu.actions.length),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppTheme.success,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              FilledButton.icon(
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size.fromHeight(40),
+                ),
+                onPressed: () async {
+                  final result = await Navigator.push<
+                    List<Map<String, dynamic>>
+                  >(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (_) => ActionsBuilderPage(
+                            initialActions: List.from(menu.actions),
+                            variableSuggestions: variableSuggestions,
+                            botIdForConfig: botIdForConfig,
+                            editPath: ['SelectMenu', menu.customId],
+                            isWorkflow: true,
+                          ),
+                    ),
+                  );
+                  if (result != null && mounted) {
+                    setState(() {
+                      menu.actions = result;
+                    });
+                    onChanged(menu);
+                  }
+                },
+                icon: const Icon(Icons.account_tree, size: 18),
+                label: Text(
+                  menu.actions.isEmpty
+                      ? (context.tr.actions_build_button(0).length > 40
+                          ? 'Configure Select Actions'
+                          : context.tr.actions_build_button(0))
+                      : context.tr.actions_build_button(menu.actions.length),
+                ),
+              ),
+            ],
           ),
+        ),
         // Disabled (optional)
         if (_isSectionVisible('sel_disabled', menu.disabled))
           MiniBlockContainer(
@@ -843,17 +887,20 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                             ),
                           ),
                           const SizedBox(height: 4),
-                          SwitchListTile(
-                            contentPadding: EdgeInsets.zero,
-                            dense: true,
-                            title: Text(context.tr.common_default),
-                            value: opt.isDefault,
-                            onChanged: (v) {
-                              // Only one can be default? Discord allows multiple for some types?
-                              // Actually for String Select, it can be multiple if max_values > 1.
-                              opt.isDefault = v;
-                              onChanged(menu);
-                            },
+                          Material(
+                            color: Colors.transparent,
+                            child: SwitchListTile(
+                              contentPadding: EdgeInsets.zero,
+                              dense: true,
+                              title: Text(context.tr.common_default),
+                              value: opt.isDefault,
+                              onChanged: (v) {
+                                // Only one can be default? Discord allows multiple for some types?
+                                // Actually for String Select, it can be multiple if max_values > 1.
+                                opt.isDefault = v;
+                                onChanged(menu);
+                              },
+                            ),
                           ),
                         ],
                       ),

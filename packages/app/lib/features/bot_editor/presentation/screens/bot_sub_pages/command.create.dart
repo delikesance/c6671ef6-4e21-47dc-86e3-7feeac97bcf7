@@ -54,7 +54,6 @@ part 'command.create.validation.dart';
 part 'command.create.wizard.dart';
 part 'command.create.block_editor.dart';
 part 'command.create.bdfd.dart';
-part 'command.create.tabs.dart';
 
 /// Snapshot of editor body fields used by Selector for fine-grained rebuilds.
 class _EditorBodySnapshot {
@@ -136,10 +135,6 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   /// True when editing an existing command that couldn't be fully loaded
   /// (client offline AND no local `data` block). Disables editing UI.
   bool _isDataIncomplete = false;
-
-  _EditorTab _activeTab = _EditorTab.command;
-
-  void _setActiveTab(_EditorTab tab) => setState(() => _activeTab = tab);
 
   /// True when the command has a non-zero id but doesn't exist on Discord
   /// (e.g. template commands saved locally). Saving will create instead of update.
@@ -865,30 +860,23 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   }
 
   Widget _buildEditorBody({required double contentMaxWidth}) {
-    return Column(
-      children: [
-        _buildTabBar(),
-        Expanded(
-          child: Selector<CommandEditorNotifier, _EditorBodySnapshot>(
-            selector: (_, notifier) => _EditorBodySnapshot(
-              isLoading: notifier.state.isLoading,
-              isDataIncomplete: notifier.state.isDataIncomplete,
-              commandName: notifier.state.commandName,
-              commandDescription: notifier.state.commandDescription,
-              storageId: _existingCommandStorageId,
-            ),
-            builder: (context, snap, _) {
-              if (snap.isLoading) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (snap.isDataIncomplete) {
-                return _buildIncompleteDataView(snap, contentMaxWidth);
-              }
-              return _buildTabContent(contentMaxWidth);
-            },
-          ),
-        ),
-      ],
+    return Selector<CommandEditorNotifier, _EditorBodySnapshot>(
+      selector: (_, notifier) => _EditorBodySnapshot(
+        isLoading: notifier.state.isLoading,
+        isDataIncomplete: notifier.state.isDataIncomplete,
+        commandName: notifier.state.commandName,
+        commandDescription: notifier.state.commandDescription,
+        storageId: _existingCommandStorageId,
+      ),
+      builder: (context, snap, _) {
+        if (snap.isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snap.isDataIncomplete) {
+          return _buildIncompleteDataView(snap, contentMaxWidth);
+        }
+        return _buildBlockEditor(contentMaxWidth: contentMaxWidth);
+      },
     );
   }
 

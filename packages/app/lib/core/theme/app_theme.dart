@@ -208,6 +208,10 @@ abstract final class AppTheme {
         elevation: elevationMedium,
         clipBehavior: Clip.antiAlias,
       ),
+      // ── List Tiles ──
+      // style=list prevents ListTile's own background from conflicting with
+      // parent DecoratedBox widgets that provide a background color.
+      listTileTheme: const ListTileThemeData(style: ListTileStyle.list),
       // ── Dialogs ──
       dialogTheme: DialogThemeData(shape: dialogShape),
       // ── Bottom Sheets ──
@@ -317,6 +321,10 @@ abstract final class AppTheme {
         elevation: elevationMedium,
         clipBehavior: Clip.antiAlias,
       ),
+      // ── List Tiles ──
+      // style=list prevents ListTile's own background from conflicting with
+      // parent DecoratedBox widgets that provide a background color.
+      listTileTheme: const ListTileThemeData(style: ListTileStyle.list),
       // ── Dialogs ──
       dialogTheme: DialogThemeData(shape: dialogShape),
       // ── Bottom Sheets ──

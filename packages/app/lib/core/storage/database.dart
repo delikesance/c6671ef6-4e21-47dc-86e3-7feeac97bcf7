@@ -13,6 +13,8 @@ import 'package:bot_creator_shared/bot/bot_data_store.dart';
 import 'package:nyxx/nyxx.dart';
 
 class AppManager implements BotDataStore {
+  static bool isSyncingFromRemote = false;
+
   static final AppManager _instance = AppManager._internal();
   factory AppManager() => _instance;
 

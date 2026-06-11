@@ -48,13 +48,15 @@ extension _AppHomePageUI on _AppHomePageState {
               children: [
                 Icon(icon, size: 16, color: colorScheme.primary),
                 const SizedBox(width: AppTheme.spacingSm),
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.5,
-                    color: colorScheme.primary,
+                Expanded(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.5,
+                      color: colorScheme.primary,
+                    ),
                   ),
                 ),
               ],
@@ -75,21 +77,24 @@ extension _AppHomePageUI on _AppHomePageState {
     Color? textColor,
     Widget? trailing,
   }) {
-    return ListTile(
-      dense: true,
-      leading: Icon(icon, size: 20, color: iconColor),
-      title: Text(
-        label,
-        style: TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w500,
-          color: textColor,
+    return Material(
+      type: MaterialType.transparency,
+      child: ListTile(
+        dense: true,
+        leading: Icon(icon, size: 20, color: iconColor),
+        title: Text(
+          label,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: textColor,
+          ),
         ),
-      ),
-      trailing: trailing ?? const Icon(Icons.chevron_right, size: 18),
-      onTap: onTap,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        trailing: trailing ?? const Icon(Icons.chevron_right, size: 18),
+        onTap: onTap,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        ),
       ),
     );
   }

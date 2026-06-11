@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:bot_creator/core/i18n/extensions.dart';
 import 'package:bot_creator/core/i18n/locale_provider.dart';
 import 'package:bot_creator/firebase_options.dart';
+import 'package:bot_creator/core/analytics/posthog_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -61,8 +62,8 @@ bool get _isFirebaseSupported {
   switch (defaultTargetPlatform) {
     case TargetPlatform.android:
     case TargetPlatform.iOS:
-    case TargetPlatform.macOS:
       return true;
+    case TargetPlatform.macOS:
     case TargetPlatform.windows:
     case TargetPlatform.linux:
       return false;
@@ -79,8 +80,8 @@ bool get _isCrashlyticsSupported {
   switch (defaultTargetPlatform) {
     case TargetPlatform.android:
     case TargetPlatform.iOS:
-    case TargetPlatform.macOS:
       return true;
+    case TargetPlatform.macOS:
     case TargetPlatform.windows:
     case TargetPlatform.linux:
       return false;
@@ -231,6 +232,16 @@ Future<void> _warmUpServicesAfterLaunch() async {
       },
     );
   }
+
+  await _runStartupTask(
+    label: 'PostHog initialization',
+    timeout: const Duration(seconds: 10),
+    action: () async {
+      await AppDiagnostics.logInfo('Initializing PostHog');
+      await PosthogService.init();
+      await AppDiagnostics.logInfo('PostHog initialized');
+    },
+  );
 
   await _runStartupTask(
     label: 'Crashlytics configuration',
