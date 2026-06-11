@@ -658,7 +658,7 @@ class SqliteCliVariableStore implements VariableDatabase {
     required String? ctx2,
     String? key,
   }) {
-    return <Object?>[botId, scope, ctx1, ctx2 ?? '', if (key != null) key];
+    return <Object?>[botId, scope, ctx1, ctx2 ?? '', ?key];
   }
 
   /// Serialize dynamic value to (string, type).

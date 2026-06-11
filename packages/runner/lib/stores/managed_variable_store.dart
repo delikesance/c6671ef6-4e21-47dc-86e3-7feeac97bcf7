@@ -12,12 +12,11 @@ class ManagedVariableStore implements VariableDatabase {
   final String _token;
   final http.Client _httpClient = http.Client();
 
-  ManagedVariableStore({required String baseUrl, required String token})
+  ManagedVariableStore({required String baseUrl, required this._token})
     : _baseUrl =
           baseUrl.endsWith('/')
               ? baseUrl.substring(0, baseUrl.length - 1)
-              : baseUrl,
-      _token = token;
+              : baseUrl;
 
   void dispose() {
     _httpClient.close();
@@ -140,7 +139,7 @@ class ManagedVariableStore implements VariableDatabase {
     await _post(botId, '/global/set', {
       'key': key,
       'value': value,
-      if (ttlMs != null) 'ttl': ttlMs,
+      'ttl': ?ttlMs,
     });
   }
 
@@ -228,7 +227,7 @@ class ManagedVariableStore implements VariableDatabase {
       'scope_aux_id': auxId,
       'key': key,
       'value': value,
-      if (ttlMs != null) 'ttl': ttlMs,
+      'ttl': ?ttlMs,
     });
   }
 
@@ -299,7 +298,7 @@ class ManagedVariableStore implements VariableDatabase {
   }) async {
     final response = await _get(botId, '/scoped/list-contexts', {
       'scope': scope,
-      if (searchKey != null) 'search_key': searchKey,
+      'search_key': ?searchKey,
     });
     return List<String>.from(response ?? []);
   }
@@ -432,7 +431,7 @@ class ManagedVariableStore implements VariableDatabase {
       'offset': offset.toString(),
       'limit': limit.toString(),
       'descending': descending.toString(),
-      if (filter != null) 'filter': filter,
+      'filter': ?filter,
     });
     return Map<String, dynamic>.from(response ?? {});
   }
