@@ -18,8 +18,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:bot_creator/core/utils/responsive.dart';
-import 'package:bot_creator/core/network/main_api_settings.dart';
-import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'dart:developer' as developer;
 
@@ -583,26 +581,8 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     });
 
     try {
-      // 1. API Delete (Remote Teardown)
-      try {
-        final config = await MainApiSettingsStore.loadConfig();
-        if (config.isConfigured) {
-          final session = await MainApiSettingsStore.loadSession();
-          if (session != null && !session.isExpired) {
-            final mainApiClient = MainApiClient(
-              baseUrl: config.baseUrl,
-              accessToken: session.accessToken,
-            );
-            await mainApiClient.deleteBot(botId);
-            developer.log('[Settings] Bot $botId deleted from cloud.');
-          }
-        }
-      } catch (e) {
-        developer.log('[Settings] Cloud bot deletion failed (skipping): $e');
-      }
-
-      // 2. Local Delete (Database & Files)
-      await appManager.deleteApp(botId);
+      // Cloud + local deletion in one call.
+      await appManager.deleteBotCompletely(botId);
 
       if (!mounted) return;
 

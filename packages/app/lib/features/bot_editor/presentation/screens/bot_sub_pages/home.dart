@@ -564,7 +564,7 @@ class _AppHomePageState extends State<AppHomePage>
                                     icon: Icons.delete_forever,
                                   );
                               if (!confirmed || !mounted) return;
-                              await appManager.deleteApp(
+                              await appManager.deleteBotCompletely(
                                 widget.client.user.id.toString(),
                               );
                               if (mounted) Navigator.of(context).pop();

@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:bot_creator/core/network/main_api_client.dart';
+import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/storage/sqlite_variable_store.dart';
 import 'package:bot_creator/core/storage/app_storage_directory.dart';
 import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
@@ -285,6 +287,34 @@ class AppManager implements BotDataStore {
       unawaited((onAfterSave ?? (_) async {}).call(botId));
       return file;
     });
+  }
+
+  /// Deletes a bot completely: cloud API (S3 + manager) then local files.
+  ///
+  /// This should be the single entry point for bot deletion to ensure
+  /// no orphaned data remains on the cloud or device.
+  Future<void> deleteBotCompletely(String botId) async {
+    // 1. Cloud delete — tells the API Manager to remove the bot
+    //    and clean up S3 / managed variables.
+    try {
+      final config = await MainApiSettingsStore.loadConfig();
+      if (config.isConfigured) {
+        final session = await MainApiSettingsStore.loadSession();
+        if (session != null && !session.isExpired) {
+          final client = MainApiClient(
+            baseUrl: config.baseUrl,
+            accessToken: session.accessToken,
+          );
+          await client.deleteBot(botId);
+          debugPrint('[AppManager] Bot $botId deleted from cloud.');
+        }
+      }
+    } catch (e) {
+      debugPrint('[AppManager] Cloud bot deletion failed (continuing): $e');
+    }
+
+    // 2. Local delete — removes local files and tombstone-records.
+    await deleteApp(botId);
   }
 
   Future<void> deleteApp(String id) async {
