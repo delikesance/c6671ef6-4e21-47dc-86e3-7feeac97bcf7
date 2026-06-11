@@ -15,6 +15,7 @@ import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blo
 import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/scratch_block_palette.dart';
 import 'package:bot_creator/core/models/types/variable_suggestion.dart';
 import 'package:bot_creator_shared/types/variable_suggestion.dart' as shared;
+import 'package:bot_creator_shared/utils/variable_catalog.dart';
 import 'package:flutter/material.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
@@ -74,6 +75,9 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
   late String _selectedEvent;
   late List<_EditableArg> _arguments;
   late List<Map<String, dynamic>> _actions;
+
+  /// Event variable aliases: originalName → customName.
+  Map<String, String> _eventVariableAliases = <String, String>{};
 
   List<VariableSuggestion> _variableSuggestions = [];
   bool _saving = false;
@@ -139,6 +143,19 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
             .toList();
     if (_arguments.isEmpty) {
       _arguments.add(const _EditableArg(name: ''));
+    }
+
+    // Load existing event variable aliases.
+    final rawAliases = normalized?['eventVariableAliases'];
+    _eventVariableAliases = <String, String>{};
+    if (rawAliases is Map) {
+      for (final entry in rawAliases.entries) {
+        final k = entry.key.toString();
+        final v = entry.value?.toString() ?? '';
+        if (k.isNotEmpty && v.isNotEmpty) {
+          _eventVariableAliases[k] = v;
+        }
+      }
     }
 
     _actions = List<Map<String, dynamic>>.from(
@@ -225,6 +242,42 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
     if (mounted) {
       setState(() => _variableSuggestions = deduped.values.toList(growable: false));
     }
+
+    // Add aliased versions of event variables.
+    _refreshAliasedEventSuggestions();
+  }
+
+  void _refreshAliasedEventSuggestions() {
+    if (_workflowType != workflowTypeEvent || _eventVariableAliases.isEmpty) {
+      return;
+    }
+
+    // Remove any previously added aliased suggestions to avoid duplicates.
+    final aliasedNames = _eventVariableAliases.values.toSet();
+    final filtered = _variableSuggestions
+        .where((s) => !aliasedNames.contains(s.name))
+        .toList(growable: false);
+
+    for (final entry in _eventVariableAliases.entries) {
+      final originalName = entry.key;
+      final alias = entry.value;
+      // Find the original suggestion to copy its kind/category
+      final original = _variableSuggestions.cast<VariableSuggestion?>().firstWhere(
+        (s) => s?.name == originalName,
+        orElse: () => null,
+      );
+      filtered.add(VariableSuggestion(
+        name: alias,
+        kind: original?.kind ?? VariableSuggestionKind.unknown,
+        category: original?.category ?? shared.VariableCategory.other,
+      ));
+    }
+
+    if (mounted) {
+      setState(() {
+        _variableSuggestions = filtered;
+      });
+    }
   }
 
   Future<void> _save() async {
@@ -258,6 +311,8 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
       workflowType: _workflowType,
       eventTrigger: _workflowType == workflowTypeEvent ? _eventTrigger : null,
       folder: _folderController.text.trim(),
+      eventVariableAliases:
+          _eventVariableAliases.isNotEmpty ? Map<String, String>.from(_eventVariableAliases) : null,
     );
 
     // Dynamic Refresh: apply changes immediately to running bot.
@@ -486,6 +541,10 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
           ),
           const SizedBox(height: 12),
 
+          // Event variables aliases (only for event workflows)
+          if (_workflowType == workflowTypeEvent)
+            _buildEventVariablesSection(),
+
           // Arguments
           _buildArgumentsSection(),
         ],
@@ -563,6 +622,103 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                     });
                   },
                   visualDensity: VisualDensity.compact,
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
+  /// Shows event-specific variables with optional alias fields.
+  /// Only visible when the workflow type is "Event".
+  Widget _buildEventVariablesSection() {
+    final eventVars = VariableCatalog.getSuggestionsForEvent(_selectedEvent);
+    if (eventVars.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SizedBox(height: 4),
+        Text(
+          'Event Variables',
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 13,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Optionally rename variables for this workflow.',
+          style: TextStyle(
+            fontSize: 11,
+            color: AppTheme.grey,
+          ),
+        ),
+        const SizedBox(height: 8),
+        for (final v in eventVars)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.1),
+                      ),
+                    ),
+                    child: Text(
+                      v.name,
+                      style: const TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 12,
+                        color: AppTheme.grey,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                const Icon(Icons.arrow_forward, size: 14, color: AppTheme.grey),
+                const SizedBox(width: 6),
+                Expanded(
+                  flex: 3,
+                  child: TextFormField(
+                    initialValue: _eventVariableAliases[v.name] ?? '',
+                    style: const TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 13,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: v.name,
+                      border: const OutlineInputBorder(),
+                      isDense: true,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 10,
+                      ),
+                    ),
+                    onChanged: (value) {
+                      final trimmed = value.trim();
+                      setState(() {
+                        if (trimmed.isEmpty) {
+                          _eventVariableAliases.remove(v.name);
+                        } else {
+                          _eventVariableAliases[v.name] = trimmed;
+                        }
+                      });
+                      _refreshVariableSuggestions();
+                    },
+                  ),
                 ),
               ],
             ),

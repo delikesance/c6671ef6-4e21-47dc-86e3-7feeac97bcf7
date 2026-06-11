@@ -1793,6 +1793,7 @@ class AppManager implements BotDataStore {
     String? workflowType,
     Map<String, dynamic>? eventTrigger,
     String? folder,
+    Map<String, String>? eventVariableAliases,
   }) async {
     final app = Map<String, dynamic>.from(await getApp(id));
     final workflows = _coerceWorkflowList(app['workflows']);
@@ -1826,6 +1827,12 @@ class AppManager implements BotDataStore {
     final resolvedFolder =
         (folder ?? existing?['folder'] ?? '').toString().trim();
 
+    // Preserve existing aliases when not explicitly passed.
+    final resolvedAliases =
+        eventVariableAliases ??
+        (existing?['eventVariableAliases'] as Map<String, dynamic>?)
+            ?.map((k, v) => MapEntry(k.toString(), v.toString()));
+
     final payload = <String, dynamic>{
       'name': normalizedName,
       'actions': List<Map<String, dynamic>>.from(actions),
@@ -1834,6 +1841,8 @@ class AppManager implements BotDataStore {
       'arguments': normalizedArguments,
       'updatedAt': DateTime.now().toIso8601String(),
       if (resolvedFolder.isNotEmpty) 'folder': resolvedFolder,
+      if (resolvedAliases != null && resolvedAliases.isNotEmpty)
+        'eventVariableAliases': resolvedAliases,
     };
 
     if (normalizedWorkflowType == workflowTypeEvent) {
