@@ -1,4 +1,6 @@
 import 'dart:ui' as ui;
+import 'package:bot_creator/core/i18n/app_locale.dart'
+    show detectSystemLocale;
 import 'package:bot_creator/core/i18n/l10n/app_localizations.dart'
     show lookupAppLocalizations;
 import 'package:bot_creator_shared/types/component.dart';
@@ -8,8 +10,14 @@ import 'package:bot_creator_shared/types/component.dart';
 /// Extracted from both [ComponentV2EditorWidget] and [NormalComponentEditorWidget]
 /// to eliminate duplication and ensure consistent default values across editors.
 abstract class ComponentNodeFactory {
+  /// Returns a locale that is guaranteed to be supported.
+  static ui.Locale _supportedLocale() {
+    return ui.Locale(detectSystemLocale(ui.PlatformDispatcher.instance.locale).code);
+  }
+
   /// Creates a new [ComponentNode] with sensible defaults for the given [type].
   static ComponentNode create(ComponentV2Type type) {
+    final locale = _supportedLocale();
     return switch (type) {
       ComponentV2Type.actionRow => ActionRowNode(),
       ComponentV2Type.button => ButtonNode(),
@@ -18,9 +26,7 @@ abstract class ComponentNodeFactory {
         options: [
           SelectMenuOption(
             label:
-                lookupAppLocalizations(
-                  ui.PlatformDispatcher.instance.locale,
-                ).component_default_option_label,
+                lookupAppLocalizations(locale).component_default_option_label,
             value: 'option',
           ),
         ],
@@ -49,10 +55,7 @@ abstract class ComponentNodeFactory {
         components: [TextDisplayNode()],
       ),
       ComponentV2Type.label => LabelNode(
-        label:
-            lookupAppLocalizations(
-              ui.PlatformDispatcher.instance.locale,
-            ).common_label,
+        label: lookupAppLocalizations(locale).common_label,
         component: TextDisplayNode(),
       ),
       ComponentV2Type.fileUpload => FileUploadNode(),
@@ -60,9 +63,7 @@ abstract class ComponentNodeFactory {
         options: [
           RadioGroupOptionNode(
             label:
-                lookupAppLocalizations(
-                  ui.PlatformDispatcher.instance.locale,
-                ).component_default_choice_label,
+                lookupAppLocalizations(locale).component_default_choice_label,
             value: 'a',
           ),
         ],
@@ -71,9 +72,7 @@ abstract class ComponentNodeFactory {
         options: [
           CheckboxGroupOptionNode(
             label:
-                lookupAppLocalizations(
-                  ui.PlatformDispatcher.instance.locale,
-                ).component_default_choice_label,
+                lookupAppLocalizations(locale).component_default_choice_label,
             value: 'a',
           ),
         ],
