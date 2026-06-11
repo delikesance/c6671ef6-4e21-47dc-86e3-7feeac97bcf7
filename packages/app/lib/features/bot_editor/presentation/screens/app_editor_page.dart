@@ -162,7 +162,7 @@ class _AppEditPageState extends State<AppEditPage>
                 return;
               }
 
-              await appManager.deleteApp(_botId);
+              await appManager.deleteBotCompletely(_botId);
               if (!mounted) {
                 return;
               }
