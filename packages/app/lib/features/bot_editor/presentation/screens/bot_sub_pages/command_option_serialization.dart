@@ -65,7 +65,11 @@ Map<String, dynamic>? normalizeCommandOptionAutocompleteConfig(dynamic raw) {
   );
 
   final rawMode = (source['mode'] ?? '').toString().trim();
-  final mode = rawMode == 'static' ? 'static' : 'workflow';
+  final mode = rawMode == 'static'
+      ? 'static'
+      : rawMode == 'inline'
+      ? 'inline'
+      : 'workflow';
 
   final workflow = (source['workflow'] ?? '').toString().trim();
   final entryPoint = (source['entryPoint'] ?? 'main').toString().trim();
@@ -113,13 +117,25 @@ Map<String, dynamic>? normalizeCommandOptionAutocompleteConfig(dynamic raw) {
       (source['enabled'] == null &&
           (workflow.isNotEmpty ||
               arguments.isNotEmpty ||
-              staticChoices.isNotEmpty));
+              staticChoices.isNotEmpty ||
+              mode == 'inline'));
 
   if (!enabled &&
       workflow.isEmpty &&
       arguments.isEmpty &&
-      staticChoices.isEmpty) {
+      staticChoices.isEmpty &&
+      mode != 'inline') {
     return null;
+  }
+
+  final inlineActions = <Map<String, dynamic>>[];
+  if (source['inlineActions'] is List) {
+    for (final raw in (source['inlineActions'] as List)) {
+      if (raw is! Map) continue;
+      inlineActions.add(Map<String, dynamic>.from(
+        raw.map((k, v) => MapEntry(k.toString(), v)),
+      ));
+    }
   }
 
   return <String, dynamic>{
@@ -129,6 +145,7 @@ Map<String, dynamic>? normalizeCommandOptionAutocompleteConfig(dynamic raw) {
     'entryPoint': entryPoint.isEmpty ? 'main' : entryPoint,
     'arguments': arguments,
     'staticChoices': staticChoices,
+    if (inlineActions.isNotEmpty) 'inlineActions': inlineActions,
   };
 }
 

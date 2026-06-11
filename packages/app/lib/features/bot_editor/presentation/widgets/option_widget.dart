@@ -4,6 +4,7 @@ import 'package:nyxx/nyxx.dart' hide Builder;
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/features/bot_editor/logic/workflow_call.dart';
 
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder.response.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command_option_serialization.dart';
 import 'package:bot_creator/core/models/types/variable_suggestion.dart';
 import 'package:bot_creator/core/widgets/variable_text_field.dart';
@@ -521,6 +522,11 @@ class OptionWidgetState extends State<OptionWidget> {
                                   icon: const Icon(Icons.account_tree_outlined),
                                 ),
                                 ButtonSegment(
+                                  value: 'inline',
+                                  label: const Text('Inline'),
+                                  icon: const Icon(Icons.code),
+                                ),
+                                ButtonSegment(
                                   value: 'static',
                                   label: Text(context.tr.common_static_options),
                                   icon: const Icon(Icons.list_alt_outlined),
@@ -956,6 +962,67 @@ class OptionWidgetState extends State<OptionWidget> {
                               );
                             }
 
+                            // ── Inline actions panel ──────────────────────
+                            Widget inlinePanel() {
+                              final inlineActions = cfg['inlineActions'];
+                              final count = inlineActions is List
+                                  ? inlineActions.length
+                                  : 0;
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  OutlinedButton.icon(
+                                    icon: Icon(
+                                      count > 0
+                                          ? Icons.edit
+                                          : Icons.add,
+                                      size: 18,
+                                    ),
+                                    label: Text(
+                                      count > 0
+                                          ? 'Edit ($count actions)'
+                                          : 'Add action',
+                                    ),
+                                    onPressed: () async {
+                                      final initial = (inlineActions is List)
+                                          ? List<Map<String, dynamic>>.from(
+                                            inlineActions
+                                                .whereType<Map>()
+                                                .map((e) =>
+                                                    Map<String, dynamic>.from(e)),
+                                          )
+                                          : <Map<String, dynamic>>[];
+
+                                      final result = await Navigator.push<
+                                        List<Map<String, dynamic>>
+                                      >(
+                                        context,
+                                        MaterialPageRoute<
+                                          List<Map<String, dynamic>>
+                                        >(
+                                          builder: (_) => ActionsBuilderPage(
+                                            initialActions: initial,
+                                            variableSuggestions:
+                                                widget.variableSuggestions,
+                                            emojiSuggestions: const [],
+                                            botIdForConfig: widget.botIdForConfig,
+                                            isInteraction: false,
+                                            isWorkflow: true,
+                                          ),
+                                        ),
+                                      );
+
+                                      if (result != null) {
+                                        saveConfig(updatedCfg({
+                                          'inlineActions': result,
+                                        }));
+                                      }
+                                    },
+                                  ),
+                                ],
+                              );
+                            }
+
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
@@ -963,6 +1030,8 @@ class OptionWidgetState extends State<OptionWidget> {
                                 const SizedBox(height: 10),
                                 if (currentMode == 'workflow')
                                   workflowPanel()
+                                else if (currentMode == 'inline')
+                                  inlinePanel()
                                 else
                                   staticPanel(),
                               ],
