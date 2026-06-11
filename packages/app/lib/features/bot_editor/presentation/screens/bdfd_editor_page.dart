@@ -188,6 +188,7 @@ class BdfdSyntaxController extends TextEditingController {
 
     final result = _lexer.tokenize(source);
     final children = <TextSpan>[];
+    final covered = StringBuffer();
 
     for (final token in result.tokens) {
       if (token.type == BdfdTokenType.eof) {
@@ -207,12 +208,87 @@ class BdfdSyntaxController extends TextEditingController {
           color = _BdfdSyntaxColors.text;
       }
 
+      covered.write(token.lexeme);
       children.add(
         TextSpan(text: token.lexeme, style: style?.copyWith(color: color)),
       );
     }
 
+    // Safety: if tokenizer output doesn't exactly cover the source text,
+    // fall back to plain text to avoid cursor offset misalignment.
+    if (covered.toString() != source) {
+      return TextSpan(text: source, style: style);
+    }
+
+    // If there is active composing (IME), wrap the composing region.
+    if (withComposing && value.isComposingRangeValid) {
+      return TextSpan(
+        style: style,
+        children: _splitSpanAtComposing(children, style),
+      );
+    }
+
     return TextSpan(style: style, children: children);
+  }
+
+  /// Splits children spans at the composing range boundaries so that
+  /// Flutter can style the composing region accordingly.
+  List<InlineSpan> _splitSpanAtComposing(
+    List<TextSpan> children,
+    TextStyle? style,
+  ) {
+    final composing = value.composing;
+    final result = <InlineSpan>[];
+    var offset = 0;
+
+    for (final child in children) {
+      final len = child.text!.length;
+      final childEnd = offset + len;
+
+      if (childEnd <= composing.start || offset >= composing.end) {
+        // Fully outside composing range — keep as-is.
+        result.add(child);
+      } else if (offset >= composing.start && childEnd <= composing.end) {
+        // Fully inside composing range — wrap with composing style.
+        result.add(TextSpan(
+          text: child.text,
+          style: child.style?.copyWith(
+            decoration: TextDecoration.underline,
+          ),
+        ));
+      } else {
+        // Partially inside — split.
+        final beforeLen = (composing.start - offset).clamp(0, len);
+        final insideLen =
+            (composing.end - (offset + beforeLen)).clamp(0, len - beforeLen);
+        final afterLen = len - beforeLen - insideLen;
+
+        if (beforeLen > 0) {
+          result.add(TextSpan(
+            text: child.text!.substring(0, beforeLen),
+            style: child.style,
+          ));
+        }
+        if (insideLen > 0) {
+          result.add(TextSpan(
+            text: child.text!.substring(beforeLen, beforeLen + insideLen),
+            style: child.style?.copyWith(
+              decoration: TextDecoration.underline,
+            ),
+          ));
+        }
+        if (afterLen > 0) {
+          result.add(TextSpan(
+            text: child.text!.substring(beforeLen + insideLen),
+            style: child.style,
+          ));
+        }
+      }
+
+      offset = childEnd;
+    }
+
+    return result;
   }
 }
 
