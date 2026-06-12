@@ -116,9 +116,11 @@ packages:
   bot_creator_shared:
     dependency: "direct overridden"
     description:
-      path: "packages/shared"
-      relative: true
-    source: path
+      path: "."
+      ref: HEAD
+      resolved-ref: "61ca62e98627eafb425356561685c6323741bd1e"
+      url: "https://github.com/ketsuna-org/bot-creator-shared.git"
+    source: git
     version: "0.0.3"
   characters:
     dependency: transitive
@@ -1072,10 +1074,10 @@ packages:
     dependency: transitive
     description:
       name: posthog_flutter
-      sha256: "2a74b86306b3e1b27ad227aeeb5d63374afb03aa50e87af5062fec1341824b3b"
+      sha256: e17d3ca8b3b755246ff606f57fc250bd0d37c1cc179a5894787320f5bd6513e7
       url: "https://pub.dev"
     source: hosted
-    version: "4.11.0"
+    version: "5.27.0"
   process:
     dependency: transitive
     description:
