@@ -79,6 +79,9 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
   /// Event variable aliases: originalName → customName.
   Map<String, String> _eventVariableAliases = <String, String>{};
 
+  /// Whether the event variables list in the sidebar is expanded.
+  bool _eventVariablesExpanded = true;
+
   List<VariableSuggestion> _variableSuggestions = [];
   bool _saving = false;
   List<String> _existingFolders = const [];
@@ -642,87 +645,114 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: 4),
-        Text(
-          'Event Variables',
-          style: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 13,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          'Optionally rename variables for this workflow.',
-          style: TextStyle(
-            fontSize: 11,
-            color: AppTheme.grey,
-          ),
-        ),
-        const SizedBox(height: 8),
-        for (final v in eventVars)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 6),
+        InkWell(
+          onTap:
+              () => setState(
+                () => _eventVariablesExpanded = !_eventVariablesExpanded,
+              ),
+          borderRadius: BorderRadius.circular(6),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
             child: Row(
               children: [
-                Expanded(
-                  flex: 2,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.05),
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.1),
-                      ),
-                    ),
-                    child: Text(
-                      v.name,
-                      style: const TextStyle(
-                        fontFamily: 'monospace',
-                        fontSize: 12,
-                        color: AppTheme.grey,
-                      ),
-                    ),
+                AnimatedRotation(
+                  turns: _eventVariablesExpanded ? 0.25 : 0.0, // down vs right
+                  duration: const Duration(milliseconds: 200),
+                  child: const Icon(
+                    Icons.chevron_right,
+                    size: 20,
+                    color: AppTheme.grey,
                   ),
                 ),
-                const SizedBox(width: 6),
-                const Icon(Icons.arrow_forward, size: 14, color: AppTheme.grey),
-                const SizedBox(width: 6),
-                Expanded(
-                  flex: 3,
-                  child: TextFormField(
-                    initialValue: _eventVariableAliases[v.name] ?? '',
-                    style: const TextStyle(
-                      fontFamily: 'monospace',
-                      fontSize: 13,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: v.name,
-                      border: const OutlineInputBorder(),
-                      isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 10,
-                      ),
-                    ),
-                    onChanged: (value) {
-                      final trimmed = value.trim();
-                      setState(() {
-                        if (trimmed.isEmpty) {
-                          _eventVariableAliases.remove(v.name);
-                        } else {
-                          _eventVariableAliases[v.name] = trimmed;
-                        }
-                      });
-                      _refreshVariableSuggestions();
-                    },
+                const SizedBox(width: 4),
+                Text(
+                  'Event Variables (${eventVars.length})',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
                   ),
                 ),
               ],
             ),
           ),
+        ),
+        if (_eventVariablesExpanded) ...[
+          const SizedBox(height: 4),
+          Text(
+            'Optionally rename variables for this workflow.',
+            style: TextStyle(fontSize: 11, color: AppTheme.grey),
+          ),
+          const SizedBox(height: 8),
+          for (final v in eventVars)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.05),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.1),
+                        ),
+                      ),
+                      child: Text(
+                        v.name,
+                        style: const TextStyle(
+                          fontFamily: 'monospace',
+                          fontSize: 12,
+                          color: AppTheme.grey,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  const Icon(
+                    Icons.arrow_forward,
+                    size: 14,
+                    color: AppTheme.grey,
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    flex: 3,
+                    child: TextFormField(
+                      initialValue: _eventVariableAliases[v.name] ?? '',
+                      style: const TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 13,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: v.name,
+                        border: const OutlineInputBorder(),
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 10,
+                        ),
+                      ),
+                      onChanged: (value) {
+                        final trimmed = value.trim();
+                        setState(() {
+                          if (trimmed.isEmpty) {
+                            _eventVariableAliases.remove(v.name);
+                          } else {
+                            _eventVariableAliases[v.name] = trimmed;
+                          }
+                        });
+                        _refreshVariableSuggestions();
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
       ],
     );
   }

@@ -449,6 +449,62 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
     );
   }
 
+  Future<void> _exportSingleWorkflow(Map<String, dynamic> workflow) async {
+    final format = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (ctx) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                child: Text(
+                  context.tr.workflows_export_tooltip,
+                  style: Theme.of(ctx).textTheme.titleMedium,
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.data_object_outlined),
+                title: Text(context.tr.workflows_export_json),
+                subtitle: Text(context.tr.workflows_export_json_desc),
+                onTap: () => Navigator.pop(ctx, 'json'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.key_outlined),
+                title: Text(context.tr.workflows_export_base64),
+                subtitle: Text(context.tr.workflows_export_base64_desc),
+                onTap: () => Navigator.pop(ctx, 'base64'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (format == null || !mounted) return;
+
+    final normalized = normalizeStoredWorkflowDefinition(
+      Map<String, dynamic>.from(workflow),
+    );
+    final jsonText = const JsonEncoder.withIndent('  ').convert(normalized);
+    final text = format == 'base64' ? base64Encode(utf8.encode(jsonText)) : jsonText;
+    await Clipboard.setData(ClipboardData(text: text));
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          format == 'base64'
+              ? context.tr.workflows_copy_done_base64
+              : context.tr.workflows_copy_done_json,
+        ),
+      ),
+    );
+  }
+
   Future<void> _importWorkflows() async {
     final clipboard = await Clipboard.getData(Clipboard.kTextPlain);
     final initialText = (clipboard?.text ?? '').trim();
@@ -633,6 +689,48 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
       return;
     }
 
+    // Build preview entries
+    final previewEntries = <Map<String, dynamic>>[];
+    for (final raw in imported) {
+      final wf = normalizeStoredWorkflowDefinition(raw);
+      final wfName = (wf['name'] ?? '').toString().trim();
+      if (wfName.isEmpty) continue;
+      final wfType = normalizeWorkflowType(wf['workflowType']);
+      final actionCount = (wf['actions'] as List?)?.length ?? 0;
+      previewEntries.add(<String, dynamic>{
+        'name': wfName,
+        'type': wfType,
+        'actionCount': actionCount,
+        'workflow': wf,
+      });
+    }
+
+    if (previewEntries.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.tr.workflows_import_no_valid)),
+      );
+      return;
+    }
+
+    // Show preview with folder selection
+    String? importFolder;
+    final usedNames =
+        _workflows
+            .map((workflow) => (workflow['name'] ?? '').toString().trim())
+            .where((name) => name.isNotEmpty)
+            .toSet();
+
+    final confirmImport = await _showImportPreviewDialog(
+      previewEntries: previewEntries,
+      overwrite: overwrite,
+      usedNames: usedNames,
+    );
+
+    if (confirmImport == null || !mounted) return;
+    importFolder = confirmImport['folder'] as String?;
+    final confirmedOverwrite = confirmImport['overwrite'] as bool;
+
     String uniqueName(String base, Set<String> used) {
       var candidate = base;
       var index = 2;
@@ -644,23 +742,15 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
       return candidate;
     }
 
-    final usedNames =
-        _workflows
-            .map((workflow) => (workflow['name'] ?? '').toString().trim())
-            .where((name) => name.isNotEmpty)
-            .toSet();
-
     var importedCount = 0;
-    for (final raw in imported) {
-      final workflow = normalizeStoredWorkflowDefinition(raw);
+    for (final entry in previewEntries) {
+      final workflow = entry['workflow'] as Map<String, dynamic>;
       final rawName = (workflow['name'] ?? '').toString().trim();
-      if (rawName.isEmpty) {
-        continue;
-      }
+      if (rawName.isEmpty) continue;
 
       final workflowType = normalizeWorkflowType(workflow['workflowType']);
       final targetName =
-          overwrite
+          confirmedOverwrite
               ? rawName
               : uniqueName(rawName, Set<String>.from(usedNames));
       usedNames.add(targetName);
@@ -685,18 +775,237 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
             workflowType == workflowTypeEvent
                 ? normalizeWorkflowEventTrigger(workflow['eventTrigger'])
                 : null,
-        folder: (workflow['folder'] ?? '').toString().trim(),
+        folder: importFolder ?? (workflow['folder'] ?? '').toString().trim(),
       );
       importedCount++;
     }
 
     await _load();
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(context.tr.workflows_import_done(importedCount))),
     );
+  }
+
+  Future<Map<String, dynamic>?> _showImportPreviewDialog({
+    required List<Map<String, dynamic>> previewEntries,
+    required bool overwrite,
+    required Set<String> usedNames,
+  }) async {
+    final folders = _existingWorkflowFolders.toList()..sort();
+    String selectedFolder = '';
+    var localOverwrite = overwrite;
+
+    final compact = MediaQuery.of(context).size.width < 600;
+
+    Widget buildPreview(StateSetter setState) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            'Review ${previewEntries.length} workflow(s) to import:',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 8),
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: compact ? 180 : 250,
+            ),
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: previewEntries.length,
+              itemBuilder: (context, index) {
+                final entry = previewEntries[index];
+                final wfName = entry['name'] as String;
+                final wfType = entry['type'] as String;
+                final actionCount = entry['actionCount'] as int;
+                final typeLabel = wfType == workflowTypeEvent ? 'Event' : 'General';
+                final exists = usedNames.contains(wfName);
+                return Card(
+                  margin: const EdgeInsets.symmetric(vertical: 3),
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Row(
+                      children: [
+                        Icon(
+                          wfType == workflowTypeEvent
+                              ? Icons.notifications_active_outlined
+                              : Icons.account_tree_outlined,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                wfName,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                ),
+                              ),
+                              Text(
+                                '$typeLabel  •  $actionCount action(s)',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (exists)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.tertiaryContainer,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              'Exists',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: Theme.of(context).colorScheme.onTertiaryContainer,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 10),
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text(context.tr.workflows_import_overwrite),
+            value: localOverwrite,
+            onChanged: (v) {
+              setState(() => localOverwrite = v);
+            },
+            dense: true,
+          ),
+          const SizedBox(height: 4),
+          DropdownButtonFormField<String>(
+            initialValue: selectedFolder.isEmpty ? null : selectedFolder,
+            decoration: InputDecoration(
+              labelText: 'Destination folder (optional)',
+              border: const OutlineInputBorder(),
+              isDense: true,
+            ),
+            items: [
+              const DropdownMenuItem<String>(
+                value: null,
+                child: Text('No folder'),
+              ),
+              ...folders.map(
+                (f) => DropdownMenuItem<String>(
+                  value: f,
+                  child: Text(f),
+                ),
+              ),
+            ],
+            onChanged: (v) {
+              setState(() => selectedFolder = v ?? '');
+            },
+          ),
+        ],
+      );
+    }
+
+    final confirmed = compact
+        ? await showModalBottomSheet<bool>(
+          context: context,
+          isScrollControlled: true,
+          useSafeArea: true,
+          builder: (ctx) {
+            return StatefulBuilder(
+              builder: (ctx, setState) {
+                return Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    16,
+                    16,
+                    16,
+                    16 + MediaQuery.of(ctx).viewPadding.bottom,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        'Import workflow preview',
+                        style: Theme.of(ctx).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 10),
+                      Flexible(
+                        child: SingleChildScrollView(
+                          child: buildPreview(setState),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: () => Navigator.pop(ctx, false),
+                              child: Text(context.tr.cancel),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: FilledButton(
+                              onPressed: () => Navigator.pop(ctx, true),
+                              child: const Text('Import'),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        )
+        : await showDialog<bool>(
+          context: context,
+          builder: (ctx) {
+            return StatefulBuilder(
+              builder: (ctx, setState) {
+                return AlertDialog(
+                  title: const Text('Import workflow preview'),
+                  content: SizedBox(
+                    width: double.maxFinite,
+                    child: buildPreview(setState),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx, false),
+                      child: Text(context.tr.cancel),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => Navigator.pop(ctx, true),
+                      child: const Text('Import'),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+        );
+
+    if (confirmed != true) return null;
+
+    return <String, dynamic>{
+      'folder': selectedFolder.isEmpty ? null : selectedFolder,
+      'overwrite': localOverwrite,
+    };
   }
 
   Set<String> get _existingWorkflowFolders {
@@ -1245,6 +1554,8 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                         _createOrEditWorkflow(initial: workflow);
                       } else if (value == 'delete') {
                         _deleteWorkflow(name);
+                      } else if (value == 'export') {
+                        _exportSingleWorkflow(workflow);
                       }
                     },
                     itemBuilder:
@@ -1257,6 +1568,17 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                                 Icon(Icons.edit_outlined),
                                 SizedBox(width: 8),
                                 Text(context.tr.common_edit),
+                              ],
+                            ),
+                          ),
+                          PopupMenuItem<String>(
+                            value: 'export',
+                            height: 48,
+                            child: Row(
+                              children: [
+                                Icon(Icons.ios_share_outlined),
+                                SizedBox(width: 8),
+                                Text('Export'),
                               ],
                             ),
                           ),
@@ -1284,6 +1606,12 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                   : Wrap(
                     spacing: 8,
                     children: [
+                      IconButton(
+                        onPressed:
+                            () => _exportSingleWorkflow(workflow),
+                        tooltip: 'Export',
+                        icon: const Icon(Icons.ios_share_outlined),
+                      ),
                       IconButton(
                         onPressed:
                             () => _createOrEditWorkflow(initial: workflow),

@@ -167,6 +167,7 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
           botIdForConfig: widget.botIdForConfig,
           editPath: ['Modal', widget.modal.customId],
           isWorkflow: true,
+          isModalContext: true,
         ),
       ),
     );

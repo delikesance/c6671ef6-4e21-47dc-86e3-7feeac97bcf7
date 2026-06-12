@@ -30,6 +30,8 @@ class ActionsBuilderPage extends StatefulWidget {
   final ValueChanged<List<Map<String, dynamic>>>? onChanged;
   final bool isInteraction;
   final bool isWorkflow;
+  final bool isAutocompleteContext;
+  final bool isModalContext;
 
   const ActionsBuilderPage({
     super.key,
@@ -41,6 +43,8 @@ class ActionsBuilderPage extends StatefulWidget {
     this.onChanged,
     this.isInteraction = true,
     this.isWorkflow = false,
+    this.isAutocompleteContext = false,
+    this.isModalContext = false,
   });
 
   @override
@@ -499,14 +503,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
     final isMobile = mediaQuery.size.width < 700;
     final availableActionTypes = BotCreatorActionType.values
         .where((type) => type != BotCreatorActionType.sendComponentV2)
-        .where((type) {
-          if (!widget.isInteraction && !widget.isWorkflow) {
-            return !isInteractionOnlyAction(type);
-          }
-          return true;
-        })
-        // Autocomplete response is only valid inside an autocomplete handler.
-        .where((type) => !isAutocompleteOnlyAction(type))
+        .where(_isActionAllowedInContext)
         .toList(growable: false);
     String searchQuery = '';
 
@@ -1066,6 +1063,55 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
     }
   }
 
+  /// Centralized action filtering based on the current builder context.
+  /// Replaces scattered `.where()` clauses with a single decision point.
+  bool _isActionAllowedInContext(BotCreatorActionType type) {
+    // ── Listener actions (listenFor*) ──────────────────────────────────────
+    // Component interaction listeners are configured through a separate
+    // workflow-association UI, never as inline runtime actions.
+    if (isListenerAction(type)) {
+      return false;
+    }
+
+    // ── Autocomplete-only action ───────────────────────────────────────────
+    // respondWithAutocomplete is only valid inside an autocomplete handler.
+    if (isAutocompleteOnlyAction(type)) {
+      return widget.isAutocompleteContext;
+    }
+
+    // ── Interaction-only actions ───────────────────────────────────────────
+    // respondWithModal, deferInteraction, editInteractionMessage require an
+    // active interaction (command response, modal submit, component handler).
+    if (isInteractionOnlyAction(type)) {
+      // Modal context: defer makes no sense — you can't defer a modal submission.
+      if (widget.isModalContext &&
+          type == BotCreatorActionType.deferInteraction) {
+        return false;
+      }
+      return widget.isInteraction;
+    }
+
+    // ── Autocomplete context whitelist ─────────────────────────────────────
+    // Inside an autocomplete handler, only data/logic actions are relevant.
+    if (widget.isAutocompleteContext) {
+      return _isAutocompleteContextAction(type);
+    }
+
+    // ── Modal/component submit: no nested modals ───────────────────────────
+    // You cannot show a modal inside a modal submit handler.
+    if (widget.isWorkflow && widget.isInteraction &&
+        type == BotCreatorActionType.respondWithModal) {
+      return false;
+    }
+
+    return true;
+  }
+
+  /// Delegates to the top-level [isAutocompleteContextAction] in the palette file.
+  bool _isAutocompleteContextAction(BotCreatorActionType type) {
+    return isAutocompleteContextAction(type);
+  }
+
   List<ActionItem> _filteredActions() {
     final query = _desktopActionSearch.trim().toLowerCase();
     if (query.isEmpty) {
@@ -1432,6 +1478,8 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
                             onActionSelected: _addAction,
                             isInteraction: widget.isInteraction,
                             isWorkflow: widget.isWorkflow,
+                            isAutocompleteContext: widget.isAutocompleteContext,
+                            isModalContext: widget.isModalContext,
                             popOnSelect: false,
                           ),
                         ),
