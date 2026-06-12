@@ -1,4 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:bot_creator/core/storage/app_storage_directory.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command.create.dart';
 import 'package:bot_creator/features/marketplace/presentation/marketplace_page.dart';
 import 'package:bot_creator/features/marketplace/presentation/publish_template_page.dart';
@@ -40,6 +44,8 @@ class _AppCommandsPageState extends State<AppCommandsPage>
   String _folderFilter = '';
   bool _showTemplateOnly = false;
   bool _showLegacyOnly = false;
+  bool _isSelectMode = false;
+  final Set<String> _selectedCommandIds = {};
 
   @override
   void initState() {
@@ -54,11 +60,41 @@ class _AppCommandsPageState extends State<AppCommandsPage>
 
   Future<void> _load() async {
     final commands = await appManager.listAppCommands(widget.botId);
+    await _loadEmptyFolders();
     if (!mounted) return;
     setState(() {
       _commands = commands;
       _loading = false;
     });
+  }
+
+  Future<String> _getEmptyFoldersPath() async {
+    final storagePath = await getAppStoragePath();
+    return '$storagePath/apps/${widget.botId}/_empty_folders.json';
+  }
+
+  Future<void> _loadEmptyFolders() async {
+    try {
+      final path = await _getEmptyFoldersPath();
+      final file = File(path);
+      if (!await file.exists()) return;
+      final content = await file.readAsString();
+      final list = (jsonDecode(content) as List).cast<String>();
+      _emptyFolders.addAll(list);
+    } catch (_) {
+      // Ignore errors loading empty folders
+    }
+  }
+
+  Future<void> _saveEmptyFolders() async {
+    try {
+      final path = await _getEmptyFoldersPath();
+      final file = File(path);
+      await file.parent.create(recursive: true);
+      await file.writeAsString(jsonEncode(_emptyFolders.toList()));
+    } catch (_) {
+      // Ignore errors saving empty folders
+    }
   }
 
   /// Resolves a [MainApiClient] with a valid Manager session.
@@ -94,10 +130,40 @@ class _AppCommandsPageState extends State<AppCommandsPage>
     final snowflake = _toSnowflake(commandId);
     final templateOrigin = command['templateOrigin'] as Map<String, dynamic>?;
     final templateId = (templateOrigin?['templateId'] ?? '').toString();
+    final name = (command['name'] ?? 'unknown').toString();
 
     return Card(
       child: ListTile(
-        trailing: const Icon(Icons.arrow_forward_ios_outlined),
+        leading: _isSelectMode
+            ? Checkbox(
+                value: _selectedCommandIds.contains(commandId),
+                onChanged: (selected) {
+                  setState(() {
+                    if (selected == true) {
+                      _selectedCommandIds.add(commandId);
+                    } else {
+                      _selectedCommandIds.remove(commandId);
+                    }
+                  });
+                },
+              )
+            : null,
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (!_isSelectMode)
+              IconButton(
+                icon: Icon(
+                  Icons.delete_outline,
+                  size: 20,
+                  color: Theme.of(context).colorScheme.error,
+                ),
+                tooltip: context.tr.delete,
+                onPressed: () => _deleteCommand(commandId, name),
+              ),
+            const Icon(Icons.arrow_forward_ios_outlined),
+          ],
+        ),
         title: Row(
           children: [
             Expanded(
@@ -202,6 +268,24 @@ class _AppCommandsPageState extends State<AppCommandsPage>
       chips.add(const _CommandMetaChip(icon: Icons.offline_bolt));
     }
     return chips;
+  }
+
+  Future<void> _deleteCommand(String commandId, String name) async {
+    final confirmed = await AppTheme.showConfirmDialog(
+      context,
+      title: context.tr.delete,
+      content: 'Delete command "$name"?',
+      confirmLabel: context.tr.confirm,
+      isDestructive: true,
+    );
+    if (!confirmed || !mounted) return;
+    await appManager.deleteAppCommand(widget.botId, commandId);
+    unawaited(refreshBotRuntime(widget.botId));
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Command "$name" deleted')),
+    );
+    await _load();
   }
 
   List<Map<String, dynamic>> _visibleCommands() {
@@ -468,6 +552,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
     setState(() {
       _emptyFolders.add(folderName);
     });
+    await _saveEmptyFolders();
   }
 
   Future<void> _renameFolderDialog(String oldName) async {
@@ -521,6 +606,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
     }
     unawaited(refreshBotRuntime(widget.botId));
     _emptyFolders.remove(oldName);
+    await _saveEmptyFolders();
     await _load();
   }
 
@@ -545,6 +631,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
     }
     unawaited(refreshBotRuntime(widget.botId));
     _emptyFolders.remove(folderName);
+    await _saveEmptyFolders();
     await _load();
   }
 
@@ -566,6 +653,46 @@ class _AppCommandsPageState extends State<AppCommandsPage>
       _isReorderMode = false;
       _reorderFolderMap = {};
     });
+  }
+
+  void _enterSelectMode() {
+    setState(() {
+      _isSelectMode = true;
+      _selectedCommandIds.clear();
+    });
+  }
+
+  void _cancelSelectMode() {
+    setState(() {
+      _isSelectMode = false;
+      _selectedCommandIds.clear();
+    });
+  }
+
+  Future<void> _batchDeleteSelected() async {
+    final count = _selectedCommandIds.length;
+    if (count == 0) return;
+    final confirmed = await AppTheme.showConfirmDialog(
+      context,
+      title: context.tr.delete,
+      content: 'Delete $count commands?',
+      confirmLabel: context.tr.confirm,
+      isDestructive: true,
+    );
+    if (!confirmed || !mounted) return;
+    for (final id in _selectedCommandIds.toList()) {
+      await appManager.deleteAppCommand(widget.botId, id);
+    }
+    unawaited(refreshBotRuntime(widget.botId));
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('$count commands deleted')),
+    );
+    setState(() {
+      _isSelectMode = false;
+      _selectedCommandIds.clear();
+    });
+    await _load();
   }
 
   Future<void> _saveReorderMode() async {
@@ -772,6 +899,39 @@ class _AppCommandsPageState extends State<AppCommandsPage>
           ),
         );
         if (!isExpanded) continue;
+      } else if (commands.isNotEmpty) {
+        // "No folder" header for uncategorized commands
+        children.add(
+          Padding(
+            padding: const EdgeInsets.fromLTRB(4, 16, 4, 6),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.folder_outlined,
+                  size: 18,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  context.tr.commands_no_folder,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  '(${commands.length})',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
       }
       for (final command in commands) {
         children.add(
@@ -802,42 +962,66 @@ class _AppCommandsPageState extends State<AppCommandsPage>
         automaticallyImplyLeading: false,
         backgroundColor: const Color.fromRGBO(106, 15, 162, 1),
         title: Text(
-          _isReorderMode
-              ? context.tr.commands_reorder_title
-              : context.tr.commands_title,
+          _isSelectMode
+              ? '${_selectedCommandIds.length} selected'
+              : _isReorderMode
+                  ? context.tr.commands_reorder_title
+                  : context.tr.commands_title,
         ),
         centerTitle: true,
-        leading: _isReorderMode
+        leading: _isSelectMode
             ? IconButton(
                 icon: const Icon(Icons.close),
                 tooltip: context.tr.cancel,
-                onPressed: _cancelReorderMode,
+                onPressed: _cancelSelectMode,
               )
-            : (!ResponsiveHelper.isDesktopPlatform()
+            : _isReorderMode
                 ? IconButton(
-                    icon: const Icon(Icons.menu),
-                    onPressed: () => context.openParentDrawer(),
+                    icon: const Icon(Icons.close),
+                    tooltip: context.tr.cancel,
+                    onPressed: _cancelReorderMode,
                   )
-                : null),
-        actions:
-            _isReorderMode
+                : (!ResponsiveHelper.isDesktopPlatform()
+                    ? IconButton(
+                        icon: const Icon(Icons.menu),
+                        onPressed: () => context.openParentDrawer(),
+                      )
+                    : null),
+        actions: _isSelectMode
+            ? [
+                IconButton(
+                  icon: const Icon(Icons.delete),
+                  tooltip: context.tr.delete,
+                  onPressed: _selectedCommandIds.isNotEmpty
+                      ? _batchDeleteSelected
+                      : null,
+                ),
+              ]
+            : _isReorderMode
                 ? [
-                  IconButton(
-                    icon: const Icon(Icons.check),
-                    tooltip: context.tr.save,
-                    onPressed: _saveReorderMode,
-                  ),
-                ]
+                    IconButton(
+                      icon: const Icon(Icons.check),
+                      tooltip: context.tr.save,
+                      onPressed: _saveReorderMode,
+                    ),
+                  ]
                 : [
-                  IconButton(
-                    icon: const Icon(Icons.swap_vert),
-                    tooltip: context.tr.commands_reorder_title,
-                    onPressed: _commands.isNotEmpty ? _enterReorderMode : null,
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.auto_awesome),
-                    tooltip: context.tr.marketplace_title,
-                    onPressed: () async {
+                    IconButton(
+                      icon: const Icon(Icons.checklist),
+                      tooltip: 'Select',
+                      onPressed:
+                          _commands.isNotEmpty ? _enterSelectMode : null,
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.swap_vert),
+                      tooltip: context.tr.commands_reorder_title,
+                      onPressed:
+                          _commands.isNotEmpty ? _enterReorderMode : null,
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.auto_awesome),
+                      tooltip: context.tr.marketplace_title,
+                      onPressed: () async {
                       final client = await _resolveApiClient();
                       if (!mounted) return;
                       if (client == null) {

@@ -207,6 +207,7 @@ abstract final class AppTheme {
         shape: cardShape,
         elevation: elevationMedium,
         clipBehavior: Clip.antiAlias,
+        surfaceTintColor: Colors.transparent,
       ),
       // ── List Tiles ──
       // style=list prevents ListTile's own background from conflicting with
@@ -320,6 +321,7 @@ abstract final class AppTheme {
         shape: cardShape,
         elevation: elevationMedium,
         clipBehavior: Clip.antiAlias,
+        surfaceTintColor: Colors.transparent,
       ),
       // ── List Tiles ──
       // style=list prevents ListTile's own background from conflicting with

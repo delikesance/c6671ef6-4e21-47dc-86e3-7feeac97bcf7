@@ -2380,39 +2380,42 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
           // Collapsible JSON View
           Theme(
             data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-            child: ExpansionTile(
-              title: Text(
-                context.tr.settings_raw_json_tile,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.discordText,
+            child: Material(
+              color: Colors.transparent,
+              child: ExpansionTile(
+                title: Text(
+                  context.tr.settings_raw_json_tile,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.discordText,
+                  ),
                 ),
+                leading: const Icon(Icons.code, size: 20, color: AppTheme.discordText),
+                childrenPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                expandedAlignment: Alignment.topLeft,
+                children: [
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppTheme.discordDarkBg,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: AppTheme.discordBorder.withValues(alpha: 0.4),
+                      ),
+                    ),
+                    child: SelectableText(
+                      prettyJson,
+                      style: const TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 11,
+                        color: Colors.lightGreenAccent,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              leading: const Icon(Icons.code, size: 20, color: AppTheme.discordText),
-              childrenPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              expandedAlignment: Alignment.topLeft,
-              children: [
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppTheme.discordDarkBg,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: AppTheme.discordBorder.withValues(alpha: 0.4),
-                    ),
-                  ),
-                  child: SelectableText(
-                    prettyJson,
-                    style: const TextStyle(
-                      fontFamily: 'monospace',
-                      fontSize: 11,
-                      color: Colors.lightGreenAccent,
-                    ),
-                  ),
-                ),
-              ],
             ),
           ),
         ],

@@ -457,10 +457,7 @@ class OptionWidgetState extends State<OptionWidget> {
                               if (value == true) {
                                 setCommandOptionAutocompleteConfig(option, {
                                   'enabled': true,
-                                  'mode': 'workflow',
-                                  'workflow': '',
-                                  'entryPoint': 'main',
-                                  'arguments': <String, dynamic>{},
+                                  'mode': 'inline',
                                   'staticChoices': <Map<String, dynamic>>[],
                                 });
                               } else {
@@ -483,17 +480,14 @@ class OptionWidgetState extends State<OptionWidget> {
                                 getCommandOptionAutocompleteConfig(option) ??
                                 <String, dynamic>{
                                   'enabled': true,
-                                  'mode': 'workflow',
-                                  'workflow': '',
-                                  'entryPoint': 'main',
-                                  'arguments': <String, dynamic>{},
+                                  'mode': 'inline',
                                   'staticChoices': <Map<String, dynamic>>[],
                                 };
                             final currentMode =
-                                (cfg['mode'] ?? 'workflow').toString() ==
+                                (cfg['mode'] ?? 'inline').toString() ==
                                         'static'
                                     ? 'static'
-                                    : 'workflow';
+                                    : 'inline';
 
                             Map<String, dynamic> updatedCfg([
                               Map<String, dynamic>? overrides,
@@ -516,11 +510,6 @@ class OptionWidgetState extends State<OptionWidget> {
                             // ── Mode selector ──────────────────────────────
                             final modeSelector = SegmentedButton<String>(
                               segments: [
-                                ButtonSegment(
-                                  value: 'workflow',
-                                  label: Text(context.tr.common_workflow),
-                                  icon: const Icon(Icons.account_tree_outlined),
-                                ),
                                 ButtonSegment(
                                   value: 'inline',
                                   label: const Text('Inline'),
@@ -968,58 +957,83 @@ class OptionWidgetState extends State<OptionWidget> {
                               final count = inlineActions is List
                                   ? inlineActions.length
                                   : 0;
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  OutlinedButton.icon(
-                                    icon: Icon(
-                                      count > 0
-                                          ? Icons.edit
-                                          : Icons.add,
-                                      size: 18,
-                                    ),
-                                    label: Text(
-                                      count > 0
-                                          ? 'Edit ($count actions)'
-                                          : 'Add action',
-                                    ),
-                                    onPressed: () async {
-                                      final initial = (inlineActions is List)
-                                          ? List<Map<String, dynamic>>.from(
-                                            inlineActions
-                                                .whereType<Map>()
-                                                .map((e) =>
-                                                    Map<String, dynamic>.from(e)),
-                                          )
-                                          : <Map<String, dynamic>>[];
+                              return Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                                  border: Border.all(
+                                    color: Theme.of(context).colorScheme.outlineVariant,
+                                  ),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    if (count > 0) ...[
+                                      Text(
+                                        '$count action(s) configured',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: Theme.of(context).colorScheme.primary,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                    ],
+                                    FilledButton.icon(
+                                      onPressed: () async {
+                                        final initial = (inlineActions is List)
+                                            ? List<Map<String, dynamic>>.from(
+                                              inlineActions
+                                                  .whereType<Map>()
+                                                  .map((e) =>
+                                                      Map<String, dynamic>.from(e)),
+                                            )
+                                            : <Map<String, dynamic>>[];
 
-                                      final result = await Navigator.push<
-                                        List<Map<String, dynamic>>
-                                      >(
-                                        context,
-                                        MaterialPageRoute<
+                                        final result = await Navigator.push<
                                           List<Map<String, dynamic>>
                                         >(
-                                          builder: (_) => ActionsBuilderPage(
-                                            initialActions: initial,
-                                            variableSuggestions:
-                                                widget.variableSuggestions,
-                                            emojiSuggestions: const [],
-                                            botIdForConfig: widget.botIdForConfig,
-                                            isInteraction: false,
-                                            isWorkflow: true,
+                                          context,
+                                          MaterialPageRoute<
+                                            List<Map<String, dynamic>>
+                                          >(
+                                            builder: (_) => ActionsBuilderPage(
+                                              initialActions: initial,
+                                              variableSuggestions:
+                                                  widget.variableSuggestions,
+                                              emojiSuggestions: const [],
+                                              botIdForConfig: widget.botIdForConfig,
+                                              isInteraction: false,
+                                              isWorkflow: true,
+                                              isAutocompleteContext: true,
+                                            ),
                                           ),
-                                        ),
-                                      );
+                                        );
 
-                                      if (result != null) {
-                                        saveConfig(updatedCfg({
-                                          'inlineActions': result,
-                                        }));
-                                      }
-                                    },
-                                  ),
-                                ],
+                                        if (result != null) {
+                                          saveConfig(updatedCfg({
+                                            'inlineActions': result,
+                                          }));
+                                        }
+                                      },
+                                      icon: Icon(
+                                        count > 0
+                                            ? Icons.edit_note
+                                            : Icons.add,
+                                        size: 18,
+                                      ),
+                                      label: Text(
+                                        count > 0
+                                            ? 'Edit Autocomplete Actions'
+                                            : 'Configure Autocomplete Actions',
+                                      ),
+                                      style: FilledButton.styleFrom(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               );
                             }
 

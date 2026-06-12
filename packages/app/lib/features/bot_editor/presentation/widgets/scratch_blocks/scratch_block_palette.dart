@@ -272,6 +272,54 @@ bool isAutocompleteOnlyAction(BotCreatorActionType type) {
   return type == BotCreatorActionType.respondWithAutocomplete;
 }
 
+/// Returns true for actions that are allowed in an autocomplete handler context.
+/// Only data fetching (HTTP, variables), logic (conditions, loops, math),
+/// debugging, and the essential [respondWithAutocomplete] are included.
+bool isAutocompleteContextAction(BotCreatorActionType type) {
+  switch (type) {
+    // ── Essential autocomplete response ──
+    case BotCreatorActionType.respondWithAutocomplete:
+    // ── Data fetching ──
+    case BotCreatorActionType.httpRequest:
+    // ── Variables ──
+    case BotCreatorActionType.setGlobalVariable:
+    case BotCreatorActionType.getGlobalVariable:
+    case BotCreatorActionType.removeGlobalVariable:
+    case BotCreatorActionType.setScopedVariable:
+    case BotCreatorActionType.getScopedVariable:
+    case BotCreatorActionType.removeScopedVariable:
+    case BotCreatorActionType.renameScopedVariable:
+    case BotCreatorActionType.listScopedVariableIndex:
+    case BotCreatorActionType.setTemporaryVariable:
+    // ── Array operations ──
+    case BotCreatorActionType.appendArrayElement:
+    case BotCreatorActionType.removeArrayElement:
+    case BotCreatorActionType.queryArray:
+    // ── Math ──
+    case BotCreatorActionType.calculate:
+    // ── JSON processing ──
+    case BotCreatorActionType.runtimeJsonBlock:
+    // ── Scripting ──
+    case BotCreatorActionType.runBdfdScript:
+    // ── Control flow ──
+    case BotCreatorActionType.ifBlock:
+    case BotCreatorActionType.stopUnless:
+    case BotCreatorActionType.forLoop:
+    case BotCreatorActionType.jsonForEachLoop:
+    case BotCreatorActionType.randomChoice:
+    // ── Execution control ──
+    case BotCreatorActionType.stop:
+    case BotCreatorActionType.wait:
+    case BotCreatorActionType.cooldown:
+    // ── Debugging ──
+    case BotCreatorActionType.log:
+    case BotCreatorActionType.debugProfile:
+      return true;
+    default:
+      return false;
+  }
+}
+
 bool isListenerAction(BotCreatorActionType type) {
   switch (type) {
     case BotCreatorActionType.listenForButtonClick:
@@ -309,6 +357,7 @@ class ScratchBlockPalette extends StatefulWidget {
     this.isInteraction = true,
     this.isWorkflow = false,
     this.isAutocompleteContext = false,
+    this.isModalContext = false,
     this.popOnSelect = true,
   });
 
@@ -319,6 +368,9 @@ class ScratchBlockPalette extends StatefulWidget {
   /// When true, shows the "Respond with autocomplete" action (only valid
   /// inside an autocomplete handler workflow).
   final bool isAutocompleteContext;
+
+  /// When true, hides "Defer Interaction" (modals can't be deferred).
+  final bool isModalContext;
 
   /// When true, Navigator.pop(context) is called automatically when an action is selected.
   final bool popOnSelect;
@@ -343,7 +395,7 @@ class _ScratchBlockPaletteState extends State<ScratchBlockPalette> {
               .contains(_searchQuery.toLowerCase())) {
         continue;
       }
-      if (!widget.isWorkflow && isListenerAction(actionType)) {
+      if (isListenerAction(actionType)) {
         continue;
       }
       if (!widget.isInteraction && !widget.isWorkflow && isInteractionOnlyAction(actionType)) {
@@ -351,6 +403,14 @@ class _ScratchBlockPaletteState extends State<ScratchBlockPalette> {
       }
       // Autocomplete response is only valid inside an autocomplete handler.
       if (!widget.isAutocompleteContext && isAutocompleteOnlyAction(actionType)) {
+        continue;
+      }
+      // Autocomplete context: only show data/logic + respondWithAutocomplete.
+      if (widget.isAutocompleteContext && !isAutocompleteContextAction(actionType)) {
+        continue;
+      }
+      // Modal context: deferInteraction doesn't make sense for modals.
+      if (widget.isModalContext && actionType == BotCreatorActionType.deferInteraction) {
         continue;
       }
       // Skip deprecated canvas visual blocks.
@@ -489,6 +549,7 @@ void showBlockPalette(
   bool isInteraction = true,
   bool isWorkflow = false,
   bool isAutocompleteContext = false,
+  bool isModalContext = false,
 }) {
   final isMobile = MediaQuery.of(context).size.width < 600;
 
@@ -507,6 +568,7 @@ void showBlockPalette(
               isInteraction: isInteraction,
               isWorkflow: isWorkflow,
               isAutocompleteContext: isAutocompleteContext,
+              isModalContext: isModalContext,
             ),
           ),
         );
@@ -527,6 +589,7 @@ void showBlockPalette(
               isInteraction: isInteraction,
               isWorkflow: isWorkflow,
               isAutocompleteContext: isAutocompleteContext,
+              isModalContext: isModalContext,
             ),
           ),
         );
