@@ -1029,6 +1029,10 @@ class AppLocalizationsJa extends AppLocalizations {
       '最後のHTTPレスポンスのボディを返します。オプションでJSONパスを指定して値を抽出できます。';
 
   @override
+  String get bdfd_docs_desc_url =>
+      'Encodes or decodes text for use in URLs. Use \'encode\' to make text URL-safe, or \'decode\' to revert it.\n\nUsage: \$url[encode;Hello world!!]';
+
+  @override
   String get bdfd_docs_desc_if =>
       '条件ブロック。ネストと豊富な演算子をサポート: ==, !=, >=, <=, >, <, co';
 

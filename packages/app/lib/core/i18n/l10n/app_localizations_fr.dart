@@ -1082,6 +1082,10 @@ class AppLocalizationsFr extends AppLocalizations {
       'Retourne le corps de la dernière réponse HTTP. Passez optionnellement un chemin JSON pour extraire un champ.\n\nUtilisation : \$httpResult[] pour le corps complet, ou \$httpResult[data.name] pour un champ imbriqué.';
 
   @override
+  String get bdfd_docs_desc_url =>
+      'Encode ou décode du texte pour une utilisation dans les URLs. Utilisez \'encode\' pour rendre le texte sûr pour les URLs, ou \'decode\' pour l\'opération inverse.\n\nUtilisation : \$url[encode;Hello world!!]';
+
+  @override
   String get bdfd_docs_desc_if =>
       'Bloc conditionnel. Supporte l\'imbrication et des opérateurs riches : ==, !=, >=, <=, >, <, contains, startsWith, endsWith, notContains.\n\nUtilisation :\n\$if[\$authorID==123456]\n  Bonjour admin !\n\$elseif[\$hasRole[789]]\n  Bonjour membre !\n\$else\n  Bonjour invité !\n\$endif';
 

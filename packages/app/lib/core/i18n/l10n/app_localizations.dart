@@ -2019,6 +2019,12 @@ abstract class AppLocalizations {
   /// **'Returns the body of the last HTTP response. Optionally pass a JSON path to extract a specific field.\n\nUsage: \$httpResult[] for the full body, or \$httpResult[data.name] for a nested field.'**
   String get bdfd_docs_desc_httpresult;
 
+  /// No description provided for @bdfd_docs_desc_url.
+  ///
+  /// In en, this message translates to:
+  /// **'Encodes or decodes text for use in URLs. Use \'encode\' to make text URL-safe, or \'decode\' to revert it.\n\nUsage: \$url[encode;Hello world!!]'**
+  String get bdfd_docs_desc_url;
+
   /// Conditional block. Supports nesting and rich operators: ==, !=, >=, <=, >, <, contains, startsWith, endsWith, notContains.
   ///
   /// Usage:
