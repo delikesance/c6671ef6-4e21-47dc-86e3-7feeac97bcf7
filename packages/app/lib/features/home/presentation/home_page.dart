@@ -87,6 +87,14 @@ class HomePageState extends State<HomePage>
   /// Replaces the old module-level GlobalKey pattern that caused
   /// "Multiple widgets used the same GlobalKey" crashes during navigation.
   static HomePageState? current;
+
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      GlobalKey<RefreshIndicatorState>();
+
+  Future<void> triggerRefresh() async {
+    await _refreshIndicatorKey.currentState?.show();
+  }
+
   /// IDs des bots en cours d'exécution.
   Set<String> _runningBotIds = <String>{};
 
@@ -505,8 +513,78 @@ class HomePageState extends State<HomePage>
     final remoteClient = await _resolveManagerClientForSync();
     if (remoteClient == null) {
       appendBotDebugLog(
-        '[syncAllBotsFromManager] Aborted: global manager client unavailable. Fetching running states directly.',
+        '[syncAllBotsFromManager] Global manager client unavailable. Starting direct Discord API sync for local bots.',
       );
+      try {
+        final apps = await appManager.getAllApps();
+        final syncTasks = apps.map((rawApp) async {
+          if (rawApp is! Map) {
+            return;
+          }
+          final app = Map<String, dynamic>.from(rawApp.cast<dynamic, dynamic>());
+          final botId = (app['id'] ?? '').toString().trim();
+          final token = (app['token'] ?? '').toString().trim();
+          if (botId.isEmpty || token.isEmpty) {
+            return;
+          }
+
+          try {
+            appendBotDebugLog(
+              '[syncAllBotsFromManager] Syncing local bot $botId directly from Discord.',
+            );
+            final discordUser = await getDiscordUser(token);
+            final botName = discordUser.username;
+            final avatarHash = discordUser.avatarHash;
+            final discriminator = discordUser.discriminator.toString();
+
+            int? fetchedApproxGuildCount;
+            try {
+              final guildCount = await getDiscordBotGuildCount(token);
+              if (guildCount != null) {
+                fetchedApproxGuildCount = guildCount;
+              } else {
+                final ownerMetadata = await getDiscordApplicationOwnerMetadata(token);
+                if (ownerMetadata != null) {
+                  final approx = ownerMetadata.rawJson['approximate_guild_count'];
+                  if (approx is int) {
+                    fetchedApproxGuildCount = approx;
+                  } else if (approx != null) {
+                    fetchedApproxGuildCount = int.tryParse(approx.toString());
+                  }
+                }
+              }
+            } catch (error) {
+              appendBotDebugLog(
+                '[syncAllBotsFromManager] Failed to fetch Discord guild count for local bot $botId: $error',
+              );
+            }
+
+            await appManager.createOrUpdateApp(
+              id: Snowflake.parse(botId),
+              username: botName,
+              avatarHash: avatarHash,
+              discriminator: discriminator,
+              token: token,
+              intents: (app['intents'] as Map?)?.cast<String, bool>(),
+              prefix: app['prefix']?.toString(),
+              approximateGuildCount: fetchedApproxGuildCount,
+            );
+            appendBotDebugLog(
+              '[syncAllBotsFromManager] Local bot $botId metadata updated successfully.',
+            );
+          } catch (e) {
+            appendBotDebugLog(
+              '[syncAllBotsFromManager] Failed to sync local bot $botId directly: $e',
+            );
+          }
+        });
+        await Future.wait(syncTasks);
+      } catch (e) {
+        appendBotDebugLog(
+          '[syncAllBotsFromManager] Failed to fetch local apps for direct sync: $e',
+        );
+      }
+
       if (mounted) {
         await _initRunningState();
       }
@@ -624,19 +702,24 @@ class HomePageState extends State<HomePage>
             }
 
             try {
-              final ownerMetadata =
-                  await getDiscordApplicationOwnerMetadata(token);
-              if (ownerMetadata != null) {
-                final approx = ownerMetadata.rawJson['approximate_guild_count'];
-                if (approx is int) {
-                  fetchedApproxGuildCount = approx;
-                } else if (approx != null) {
-                  fetchedApproxGuildCount = int.tryParse(approx.toString());
+              final guildCount = await getDiscordBotGuildCount(token);
+              if (guildCount != null) {
+                fetchedApproxGuildCount = guildCount;
+              } else {
+                final ownerMetadata =
+                    await getDiscordApplicationOwnerMetadata(token);
+                if (ownerMetadata != null) {
+                  final approx = ownerMetadata.rawJson['approximate_guild_count'];
+                  if (approx is int) {
+                    fetchedApproxGuildCount = approx;
+                  } else if (approx != null) {
+                    fetchedApproxGuildCount = int.tryParse(approx.toString());
+                  }
                 }
               }
             } catch (error) {
               appendBotDebugLog(
-                '[syncAllBotsFromManager] Failed to fetch Discord application owner metadata for $botId: $error',
+                '[syncAllBotsFromManager] Failed to fetch Discord guild count / owner metadata for $botId: $error',
               );
             }
           }
@@ -1742,6 +1825,7 @@ class HomePageState extends State<HomePage>
                     ),
                   Expanded(
                     child: RefreshIndicator(
+                      key: _refreshIndicatorKey,
                       onRefresh: () => syncAllBotsFromManager(silent: false),
                       child: SingleChildScrollView(
                         padding: EdgeInsets.only(

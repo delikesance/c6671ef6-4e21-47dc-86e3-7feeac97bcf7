@@ -161,7 +161,6 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       <String, Map<String, dynamic>>{};
   String _activeSubcommandRoute = _rootWorkflowRoute;
   int _currentEditorStep = 0;
-  String _initialEditSnapshot = '';
 
   bool get _isSimpleMode => false;
 
@@ -566,6 +565,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   }
 
   void _applyOptionsUpdate(List<CommandOptionBuilder> options) {
+    _hasUnsavedChanges = true;
     _options = options;
     if (_containsHierarchyOption(_options)) {
       _editorMode = _editorModeAdvanced;
@@ -706,11 +706,11 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   bool get _showEditShell =>
       _isEditingExistingCommand && !_isDataIncomplete && !_isLoading;
 
+  bool _hasUnsavedChanges = false;
+
   bool get _isDirty {
-    if (!_showEditShell || _initialEditSnapshot.isEmpty) {
-      return false;
-    }
-    return _buildEditSnapshot() != _initialEditSnapshot;
+    if (!_showEditShell) return false;
+    return _hasUnsavedChanges;
   }
 
   @override
@@ -855,6 +855,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     if (!mounted) {
       return;
     }
+    _hasUnsavedChanges = true;
     setState(callback);
     _syncNotifier();
   }
@@ -942,46 +943,8 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     );
   }
 
-  Map<String, Map<String, dynamic>> _buildSnapshotSubcommandWorkflows() {
-    final workflows = cloneSubcommandWorkflowPayloads(_subcommandWorkflows).map(
-      (key, value) => MapEntry(
-        key,
-        Map<String, dynamic>.from((value as Map).cast<String, dynamic>()),
-      ),
-    );
-    if (_activeSubcommandRoute != _rootWorkflowRoute &&
-        workflows.containsKey(_activeSubcommandRoute)) {
-      workflows[_activeSubcommandRoute] = _buildCurrentWorkflowPayload();
-    }
-    return workflows;
-  }
-
-  String _buildEditSnapshot() {
-    final integrationTypes = _integrationTypes
-      .map(_integrationTypeToText)
-      .toList(growable: false)..sort();
-    final contexts = _contexts.map(_contextTypeToText).toList(growable: false)
-      ..sort();
-
-    final snapshot = <String, dynamic>{
-      'name': _commandName,
-      'description': _effectiveCommandDescription,
-      'commandType': _commandTypeToText(_commandType),
-      'folder': _folder.trim(),
-      'integrationTypes': integrationTypes,
-      'contexts': contexts,
-      'data': _buildCommandDataPayload(
-        effectiveActions: _effectiveActions,
-        persistActiveRoute: false,
-        subcommandWorkflowsOverride: _buildSnapshotSubcommandWorkflows(),
-      ),
-    };
-
-    return jsonEncode(snapshot);
-  }
-
-  void _captureInitialEditSnapshot() {
-    _initialEditSnapshot = _buildEditSnapshot();
+  void _resetDirtyState() {
+    _hasUnsavedChanges = false;
   }
 
   Future<bool> _confirmDiscardIfDirty() async {
@@ -1027,6 +990,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       ),
     );
     await _updateOrCreate();
+    _hasUnsavedChanges = false;
     developer.log(
       '[_saveExistingCommand] _updateOrCreate completed.',
       name: 'CommandCreatePage',
@@ -1300,8 +1264,13 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
               botIdForConfig: _botIdForConfig,
               variableSuggestions: _actionVariableSuggestions,
               onChange: (options) {
+                _hasUnsavedChanges = true;
+                _syncNotifier();
                 setState(() {
                   _applyOptionsUpdate(options);
+                });
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted) setState(() {});
                 });
               },
             ),
@@ -1458,7 +1427,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
             (normalizedData['defaultMemberPermissions'] ?? '')
                 .toString()
                 .trim();
-        _captureInitialEditSnapshot();
+        _resetDirtyState();
         _isLoading = false;
       });
       return;
@@ -1609,7 +1578,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           _isLoading = false;
           _isDataIncomplete = !hasFullLocalData;
           if (hasFullLocalData) {
-            _captureInitialEditSnapshot();
+            _resetDirtyState();
           }
         });
         return;
@@ -1665,7 +1634,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           _editorMode = _editorModeAdvanced;
         }
         _syncSubcommandWorkflowRoutes();
-        _captureInitialEditSnapshot();
+        _resetDirtyState();
         _isLoading = false;
       });
     } else {
@@ -2011,7 +1980,6 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     final guardDiscardOnPop = _showEditShell && _isDirty;
     final showStickyEditSave =
         _showEditShell &&
-        _isEditingExistingCommand &&
         !_isLoading &&
         !_isDataIncomplete;
 
@@ -2049,16 +2017,6 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                 tooltip: context.tr.cmd_show_variables,
                 icon: const Icon(Icons.info_outline),
               ),
-              if (!_isEditingExistingCommand && !_isDataIncomplete)
-                IconButton(
-                  icon: const Icon(Icons.add),
-                  tooltip: context.tr.cmd_create_tooltip,
-                  onPressed: () async {
-                    if (await _validateCommandInputs()) {
-                      _updateOrCreate();
-                    }
-                  },
-                ),
               if (!_isEditingExistingCommand && !_isDataIncomplete)
                 IconButton(
                   icon: const Icon(Icons.cancel),
@@ -2129,17 +2087,28 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           ),
           floatingActionButton: showStickyEditSave
               ? FloatingActionButton(
-                  onPressed: _isDirty ? _saveExistingCommand : null,
-                  backgroundColor: _isDirty
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context).colorScheme.surfaceContainerHighest,
-                  foregroundColor: _isDirty
-                      ? Colors.white
-                      : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.38),
-                  tooltip: _isDirty
-                      ? context.tr.edit_shell_save_changes
-                      : context.tr.edit_shell_all_saved,
-                  child: Icon(_isDirty ? Icons.save : Icons.check),
+                  onPressed: _isEditingExistingCommand
+                      ? (_isDirty ? _saveExistingCommand : null)
+                      : () async {
+                          if (await _validateCommandInputs()) {
+                            await _updateOrCreate();
+                            _hasUnsavedChanges = false;
+                          }
+                        },
+                  backgroundColor: _isEditingExistingCommand && !_isDirty
+                      ? Theme.of(context).colorScheme.surfaceContainerHighest
+                      : Theme.of(context).colorScheme.primary,
+                  foregroundColor: _isEditingExistingCommand && !_isDirty
+                      ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.38)
+                      : Colors.white,
+                  tooltip: _isEditingExistingCommand
+                      ? (_isDirty
+                          ? context.tr.edit_shell_save_changes
+                          : context.tr.edit_shell_all_saved)
+                      : context.tr.cmd_create_tooltip,
+                  child: Icon(_isEditingExistingCommand
+                      ? (_isDirty ? Icons.save : Icons.check)
+                      : Icons.add),
                 )
               : null,
           body: SafeArea(

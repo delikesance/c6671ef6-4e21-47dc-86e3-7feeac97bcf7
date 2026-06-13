@@ -537,6 +537,13 @@ class _MyMainPageState extends State<MyMainPage> {
         centerTitle: true,
         actions: [
           IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: context.tr.common_refresh,
+            onPressed: () {
+              HomePageState.current?.triggerRefresh();
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
               Navigator.push(

@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:bot_creator/core/models/types/variable_suggestion.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/core/widgets/variable_text_field.dart';
 
 /// Full-screen modal page for editing HTTP request details:
 /// URL, method, headers (key-value pairs), body mode, and JSON/text body.
@@ -17,6 +20,7 @@ class HttpRequestEditorPage extends StatefulWidget {
     required this.bodyText,
     required this.bodyJson,
     required this.onSaved,
+    required this.variableSuggestions,
   });
 
   final String url;
@@ -33,6 +37,7 @@ class HttpRequestEditorPage extends StatefulWidget {
     required String bodyText,
     required Map<String, dynamic> bodyJson,
   }) onSaved;
+  final List<VariableSuggestion> variableSuggestions;
 
   @override
   State<HttpRequestEditorPage> createState() => _HttpRequestEditorPageState();
@@ -46,6 +51,7 @@ class _HttpRequestEditorPageState extends State<HttpRequestEditorPage> {
   late final TextEditingController _bodyJsonController;
   late final List<_HeaderEntry> _headers;
   String? _jsonError;
+  Timer? _jsonValidateTimer;
 
   static const _httpMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'];
 
@@ -85,6 +91,7 @@ class _HttpRequestEditorPageState extends State<HttpRequestEditorPage> {
 
   @override
   void dispose() {
+    _jsonValidateTimer?.cancel();
     _urlController.dispose();
     _bodyTextController.dispose();
     _bodyJsonController.dispose();
@@ -105,6 +112,13 @@ class _HttpRequestEditorPageState extends State<HttpRequestEditorPage> {
   }
 
   void _validateJson(String text) {
+    _jsonValidateTimer?.cancel();
+    _jsonValidateTimer = Timer(const Duration(milliseconds: 300), () {
+      _validateJsonNow(text);
+    });
+  }
+
+  void _validateJsonNow(String text) {
     if (text.trim().isEmpty) {
       setState(() => _jsonError = null);
       return;
@@ -167,8 +181,7 @@ class _HttpRequestEditorPageState extends State<HttpRequestEditorPage> {
   Widget build(BuildContext context) {
     final showBody = _method != 'GET' && _method != 'HEAD';
 
-    return SafeArea(
-      child: Scaffold(
+    return Scaffold(
       appBar: AppBar(
         title: const Text('HTTP Request'),
         leading: IconButton(
@@ -213,14 +226,14 @@ class _HttpRequestEditorPageState extends State<HttpRequestEditorPage> {
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: TextField(
+                  child: VariableTextField(
                     controller: _urlController,
-                    decoration: const InputDecoration(
-                      hintText: 'https://api.example.com/endpoint',
-                      border: OutlineInputBorder(),
-                      isDense: true,
-                    ),
-                    keyboardType: TextInputType.url,
+                    label: 'URL',
+                    hint: 'https://api.example.com/endpoint',
+                    suggestions: widget.variableSuggestions,
+                    maxLines: 1,
+                    useLabelText: true,
+                    onChanged: (_) {},
                   ),
                 ),
               ],
@@ -269,13 +282,13 @@ class _HttpRequestEditorPageState extends State<HttpRequestEditorPage> {
                     const SizedBox(width: 8),
                     Expanded(
                       flex: 6,
-                      child: TextField(
+                      child: VariableTextField(
                         controller: header.valueController,
-                        decoration: const InputDecoration(
-                          hintText: 'Value',
-                          border: OutlineInputBorder(),
-                          isDense: true,
-                        ),
+                        label: 'Value',
+                        suggestions: widget.variableSuggestions,
+                        maxLines: 1,
+                        useLabelText: true,
+                        onChanged: (_) {},
                       ),
                     ),
                     const SizedBox(width: 4),
@@ -328,44 +341,37 @@ class _HttpRequestEditorPageState extends State<HttpRequestEditorPage> {
                     ),
                   ],
                 ),
-                SizedBox(
-                  height: 300,
-                  child: TextField(
-                    controller: _bodyJsonController,
-                    maxLines: null,
-                    expands: true,
-                    keyboardType: TextInputType.multiline,
-                    onChanged: _validateJson,
-                    style: const TextStyle(fontFamily: 'monospace', fontSize: 13),
-                    decoration: InputDecoration(
-                      hintText: '{\n  "key": "value"\n}',
-                      border: const OutlineInputBorder(),
-                      alignLabelWithHint: true,
-                      errorText: _jsonError,
-                    ),
-                  ),
+                VariableTextField(
+                  controller: _bodyJsonController,
+                  label: 'JSON Body',
+                  hint: '{\n  "key": "value"\n}',
+                  suggestions: widget.variableSuggestions,
+                  maxLines: 20,
+                  onChanged: (value) => _validateJson(value),
                 ),
-              ] else ...[
-                SizedBox(
-                  height: 200,
-                  child: TextField(
-                    controller: _bodyTextController,
-                    maxLines: null,
-                    expands: true,
-                    keyboardType: TextInputType.multiline,
-                    decoration: const InputDecoration(
-                      hintText: 'Plain text body...',
-                      border: OutlineInputBorder(),
-                      alignLabelWithHint: true,
+                if (_jsonError != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      _jsonError!,
+                      style: const TextStyle(color: AppTheme.error, fontSize: 12),
                     ),
                   ),
+              ] else ...[
+                VariableTextField(
+                  controller: _bodyTextController,
+                  label: 'Text Body',
+                  hint: 'Plain text body...',
+                  suggestions: widget.variableSuggestions,
+                  maxLines: 10,
+                  onChanged: (_) {},
                 ),
               ],
             ],
           ],
         ),
       ),
-    )); // SafeArea
+    );
   }
 
   Widget _sectionHeader(String title) {
