@@ -856,8 +856,18 @@ class ActionCard extends StatelessWidget {
     final visibleWhen = paramDef.visibleWhen;
     if (visibleWhen != null && visibleWhen.isNotEmpty) {
       for (final entry in visibleWhen.entries) {
+        var rawValue = action.parameters[entry.key];
+        if (rawValue == null) {
+          // Fallback to default value from other parameter definitions of this action type
+          for (final def in action.type.parameterDefinitions) {
+            if (def.key == entry.key) {
+              rawValue = def.defaultValue;
+              break;
+            }
+          }
+        }
         final current =
-            (action.parameters[entry.key] ?? '')
+            (rawValue ?? '')
                 .toString()
                 .trim()
                 .toLowerCase();
@@ -873,7 +883,7 @@ class ActionCard extends StatelessWidget {
     }
 
     if (action.type == BotCreatorActionType.sendMessage) {
-      final mode = (action.parameters['messageMode'] ?? 'normal').toString();
+      final mode = (action.parameters['messageMode'] ?? 'message').toString();
       if (mode == 'componentV2') {
         // In componentV2 mode, hide normal-message fields.
         if (paramDef.key == 'embeds' || paramDef.key == 'components') {

@@ -312,7 +312,7 @@ jobs:
             EFFECTIVE_TAG="${CIRCLE_TAG:-}"
             if [ -z "$EFFECTIVE_TAG" ] && [ "${BUILD_LATEST:-}" = "true" ]; then EFFECTIVE_TAG="latest"; fi
             if [ -z "$EFFECTIVE_TAG" ]; then echo "Not a tagged release and not a latest build, skipping R2 upload."; exit 0; fi
-            brew install awscli
+            yes | HOMEBREW_NO_AUTO_UPDATE=1 brew install awscli
             cd ~/project/packages/app
             aws s3 cp build/bot_creator-macos-universal-steam.zip "s3://${R2_BUCKET}/releases/${EFFECTIVE_TAG}/bot_creator-macos-universal-steam.zip" --endpoint-url "${R2_ENDPOINT}" --no-progress
 

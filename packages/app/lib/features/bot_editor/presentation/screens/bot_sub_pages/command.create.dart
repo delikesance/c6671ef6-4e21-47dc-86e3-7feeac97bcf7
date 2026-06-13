@@ -704,7 +704,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   String _generateLegacyOnlyCommandId() => _uuid.v4();
 
   bool get _showEditShell =>
-      _isEditingExistingCommand && !_isDataIncomplete && !_isLoading;
+      !_isDataIncomplete && !_isLoading;
 
   bool _hasUnsavedChanges = false;
 
