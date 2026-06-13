@@ -37,6 +37,7 @@ const Set<String> _describedFunctions = <String>{
   'httpget',
   'httpaddheader',
   'httpresult',
+  'url',
 };
 
 const List<_DocCategory> _docCategories = [
@@ -235,6 +236,7 @@ const List<_DocCategory> _docCategories = [
       'httpdelete',
       'httpaddheader',
       'httpresult',
+  'url',
     ],
   ),
   _DocCategory(

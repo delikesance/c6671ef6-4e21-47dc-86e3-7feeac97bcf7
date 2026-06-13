@@ -106,6 +106,7 @@ Les boucles avec des valeurs dynamiques (ex: `$for[$args[2]]`, `$for[i=0;i<$args
 - httpPut
 - httpDelete
 - httpPatch
+- url (encode/decode)
 
 ### Variables scopees
 
