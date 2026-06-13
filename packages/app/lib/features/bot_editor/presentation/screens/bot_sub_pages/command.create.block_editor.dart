@@ -205,7 +205,10 @@ extension _CommandBlockEditor on _CommandCreatePageState {
         // Options
         showOptions: _supportsCommandOptions,
         options: _options,
-        onOptionsChanged: _applyOptionsUpdate,
+        onOptionsChanged:
+            (value) => _applyStateUpdate(() {
+              _applyOptionsUpdate(value);
+            }),
         botIdForConfig: _botIdForConfig,
         variableSuggestions: _actionVariableSuggestions,
         // Folder

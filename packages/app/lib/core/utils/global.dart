@@ -221,6 +221,44 @@ Future<DiscordApplicationOwnerMetadata?> getDiscordApplicationOwnerMetadata(
   }
 }
 
+Future<int?> getDiscordBotGuildCount(String botToken) async {
+  final trimmedToken = botToken.trim();
+  if (trimmedToken.isEmpty) {
+    return null;
+  }
+
+  final client = HttpClient();
+  try {
+    final request = await client.getUrl(
+      Uri.parse('$discordUrl/users/@me/guilds'),
+    );
+    request.headers.set(HttpHeaders.authorizationHeader, 'Bot $trimmedToken');
+    request.headers.set(HttpHeaders.acceptHeader, 'application/json');
+
+    final response = await request.close();
+    final payload = await utf8.decodeStream(response);
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception(
+        'Discord guilds endpoint failed with status ${response.statusCode}',
+      );
+    }
+
+    final decoded = jsonDecode(payload);
+    if (decoded is List) {
+      return decoded.length;
+    }
+    return null;
+  } catch (error) {
+    developer.log(
+      'Failed to fetch bot guild count: $error',
+      name: 'GlobalUtils',
+    );
+    return null;
+  } finally {
+    client.close(force: true);
+  }
+}
+
 Future<User> updateDiscordBotProfile(
   String botToken, {
   String? username,

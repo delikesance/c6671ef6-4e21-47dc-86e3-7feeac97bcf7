@@ -1005,6 +1005,11 @@ class OptionWidgetState extends State<OptionWidget> {
                                               isInteraction: false,
                                               isWorkflow: true,
                                               isAutocompleteContext: true,
+                                              onChanged: (updatedActions) {
+                                                saveConfig(updatedCfg({
+                                                  'inlineActions': updatedActions,
+                                                }));
+                                              },
                                             ),
                                           ),
                                         );
@@ -1469,11 +1474,14 @@ class OptionWidgetState extends State<OptionWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        _buildOptionsLevel(options, parentType: null, depth: 0),
-        const SizedBox(height: 10),
-      ],
+    return Material(
+      type: MaterialType.transparency,
+      child: Column(
+        children: <Widget>[
+          _buildOptionsLevel(options, parentType: null, depth: 0),
+          const SizedBox(height: 10),
+        ],
+      ),
     );
   }
 }

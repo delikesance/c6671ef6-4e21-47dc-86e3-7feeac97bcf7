@@ -836,6 +836,7 @@ class ActionCard extends StatelessWidget {
           bodyMode: (action.parameters['bodyMode'] ?? 'json').toString(),
           bodyText: (action.parameters['bodyText'] ?? '').toString(),
           bodyJson: bodyJson,
+          variableSuggestions: variableSuggestions,
           onSaved: ({required String url, required String method, required Map<String, String> headers, required String bodyMode, required String bodyText, required Map<String, dynamic> bodyJson}) {
             onParameterChanged('url', url);
             onParameterChanged('method', method);
