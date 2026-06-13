@@ -1083,6 +1083,10 @@ class AppLocalizationsPt extends AppLocalizations {
       'Retorna o corpo da última resposta HTTP. Opcionalmente, passe um caminho JSON para extrair um campo específico.\n\nUso: \$httpResult[] para o corpo completo, ou \$httpResult[data.nome] para um campo aninhado.';
 
   @override
+  String get bdfd_docs_desc_url =>
+      'Encodes or decodes text for use in URLs. Use \'encode\' to make text URL-safe, or \'decode\' to revert it.\n\nUsage: \$url[encode;Hello world!!]';
+
+  @override
   String get bdfd_docs_desc_if =>
       'Bloco condicional. Suporta aninhamento e operadores ricos: ==, !=, >=, <=, >, <, contains, startsWith, endsWith, notContains.\n\nUso:\n\$if[\$authorID==123456]\n  Olá admin!\n\$elseif[\$hasRole[789]]\n  Olá membro!\n\$else\n  Olá convidado!\n\$endif';
 

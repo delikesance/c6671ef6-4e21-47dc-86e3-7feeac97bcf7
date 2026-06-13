@@ -1063,6 +1063,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Returns the body of the last HTTP response. Optionally pass a JSON path to extract a specific field.\n\nUsage: \$httpResult[] for the full body, or \$httpResult[data.name] for a nested field.';
 
   @override
+  String get bdfd_docs_desc_url =>
+      'Encodes or decodes text for use in URLs. Use \'encode\' to make text URL-safe, or \'decode\' to revert it.\n\nUsage: \$url[encode;Hello world!!]';
+
+  @override
   String get bdfd_docs_desc_if =>
       'Conditional block. Supports nesting and rich operators: ==, !=, >=, <=, >, <, contains, startsWith, endsWith, notContains.\n\nUsage:\n\$if[\$authorID==123456]\n  Hello admin!\n\$elseif[\$hasRole[789]]\n  Hello member!\n\$else\n  Hello guest!\n\$endif';
 

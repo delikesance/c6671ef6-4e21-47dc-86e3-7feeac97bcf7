@@ -1077,6 +1077,10 @@ class AppLocalizationsDe extends AppLocalizations {
       'Gibt den Körper der letzten HTTP-Antwort zurück. Übergeben Sie optional einen JSON-Pfad, um ein bestimmtes Feld zu extrahieren.\n\nVerwendung: \$httpResult[] für den vollständigen Körper oder \$httpResult[data.name] für ein verschachteltes Feld.';
 
   @override
+  String get bdfd_docs_desc_url =>
+      'Encodes or decodes text for use in URLs. Use \'encode\' to make text URL-safe, or \'decode\' to revert it.\n\nUsage: \$url[encode;Hello world!!]';
+
+  @override
   String get bdfd_docs_desc_if =>
       'Bedingter Block. Unterstützt Schachtelung und umfangreiche Operatoren: ==, !=, >=, <=, >, <, contains, startsWith, endsWith, notContains.\n\nVerwendung:\n\$if[\$authorID==123456]\n  Hallo Admin!\n\$elseif[\$hasRole[789]]\n  Hallo Mitglied!\n\$else\n  Hallo Gast!\n\$endif';
 

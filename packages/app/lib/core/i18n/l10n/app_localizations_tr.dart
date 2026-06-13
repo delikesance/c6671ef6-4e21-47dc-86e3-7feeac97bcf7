@@ -1065,6 +1065,10 @@ class AppLocalizationsTr extends AppLocalizations {
       'Son HTTP yanıtının gövdesini döndürür. İsteğe bağlı olarak belirli bir alanı çıkarmak için bir JSON yolu geçirin.\n\nKullanım: Tam gövde için \$httpResult[], iç içe geçmiş bir alan için \$httpResult[data.name].';
 
   @override
+  String get bdfd_docs_desc_url =>
+      'Encodes or decodes text for use in URLs. Use \'encode\' to make text URL-safe, or \'decode\' to revert it.\n\nUsage: \$url[encode;Hello world!!]';
+
+  @override
   String get bdfd_docs_desc_if =>
       'Koşullu blok. İç içe geçmeyi ve zengin operatörleri destekler: ==, !=, >=, <=, >, <, contains, startsWith, endsWith, notContains.\n\nKullanım:\n\$if[\$authorID==123456]\n  Merhaba yönetici!\n\$elseif[\$hasRole[789]]\n  Merhaba üye!\n\$else\n  Merhaba misafir!\n\$endif';
 
