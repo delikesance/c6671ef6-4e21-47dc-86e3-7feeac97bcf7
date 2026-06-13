@@ -314,6 +314,7 @@
   "bdfd_docs_desc_httpaddheader": "Adds a header to the next HTTP request. Headers are accumulated until the next $httpGet/$httpPost/etc.\n\nUsage: $httpAddHeader[Authorization;Bearer token123]",
   "bdfd_docs_desc_httpget": "Sends an HTTP GET request to the given URL. Use $httpAddHeader before to set headers. Use $httpResult to read the response.\n\nAll HTTP methods (GET, POST, PUT, PATCH, DELETE) follow the same pattern.",
   "bdfd_docs_desc_httpresult": "Returns the body of the last HTTP response. Optionally pass a JSON path to extract a specific field.\n\nUsage: $httpResult[] for the full body, or $httpResult[data.name] for a nested field.",
+  "bdfd_docs_desc_url": "Encodes or decodes text for use in URLs. Use 'encode' to make text URL-safe, or 'decode' to revert it.\n\nUsage: $url[encode;Hello world!!]",
   "bdfd_docs_desc_if": "Conditional block. Supports nesting and rich operators: ==, !=, >=, <=, >, <, contains, startsWith, endsWith, notContains.\n\nUsage:\n$if[$authorID==123456]\n  Hello admin!\n$elseif[$hasRole[789]]\n  Hello member!\n$else\n  Hello guest!\n$endif",
   "bdfd_docs_desc_jsonparse": "Parses a JSON string into memory for manipulation. All JSON operations ($jsonSet, $json, etc.) operate on this parsed context.\n\nStatic JSON is resolved at compile-time for better performance.",
   "bdfd_docs_desc_jsonset": "Sets a value in the current JSON context. Supports dot-notation paths.\n\nUsage: $jsonSet[user.name;John]\n\nThe change is applied in memory — use $jsonStringify to get the result.",

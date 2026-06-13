@@ -79,6 +79,7 @@ commands:
             curl -sL "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/${FLUTTER_ARCHIVE}" -o "/tmp/${FLUTTER_ARCHIVE}"
             tar xf "/tmp/${FLUTTER_ARCHIVE}" -C $HOME/
             echo 'export PATH=$HOME/flutter/bin:$PATH' >> $BASH_ENV
+            $HOME/flutter/bin/flutter config --no-enable-swift-package-manager
 
   install_flutter_macos:
     steps:
@@ -89,6 +90,7 @@ commands:
             curl -sL "https://storage.googleapis.com/flutter_infra_release/releases/stable/macos/${FLUTTER_ARCHIVE}" -o "/tmp/${FLUTTER_ARCHIVE}"
             unzip -q "/tmp/${FLUTTER_ARCHIVE}" -d $HOME/
             echo 'export PATH=$HOME/flutter/bin:$PATH' >> $BASH_ENV
+            $HOME/flutter/bin/flutter config --no-enable-swift-package-manager
 
   install_flutter_windows:
     steps:
@@ -100,6 +102,7 @@ commands:
             curl -sL "https://storage.googleapis.com/flutter_infra_release/releases/stable/windows/${FLUTTER_ARCHIVE}" -o "/c/${FLUTTER_ARCHIVE}"
             unzip -q "/c/${FLUTTER_ARCHIVE}" -d /c/Users/circleci/
             echo 'export PATH=/c/Users/circleci/flutter/bin:$PATH' >> $BASH_ENV
+            /c/Users/circleci/flutter/bin/flutter config --no-enable-swift-package-manager
 
   get_flutter_deps:
     steps:
