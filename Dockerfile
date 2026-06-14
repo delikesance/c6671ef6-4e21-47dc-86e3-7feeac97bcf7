@@ -12,7 +12,9 @@ RUN printf "name: bot_creator_runner_workspace\ndescription: Docker build worksp
 
 # Resolve dependencies for the runner (workspace-aware)
 # Run from workspace root to ensure proper workspace initialization
-RUN dart pub get && dart pub upgrade bot_creator_shared
+# ARG CACHEBUST forces Docker to re-run pub upgrade (git dep) on every build
+ARG CACHEBUST
+RUN echo "Cache bust: ${CACHEBUST}" && dart pub get && dart pub upgrade bot_creator_shared
 
 # Copy the rest of the source code
 COPY packages/runner packages/runner
