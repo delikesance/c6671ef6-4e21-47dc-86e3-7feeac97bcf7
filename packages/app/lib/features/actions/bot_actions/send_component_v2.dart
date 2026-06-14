@@ -491,9 +491,10 @@ Future<Map<String, dynamic>> respondWithComponentV2Action(
 
       try {
         if (isAcknowledged) {
-          final builder = MessageUpdateBuilder(
+          final builder = MessageUpdateBuilderWithFlags(
             content: null,
             components: nodes,
+            customFlags: flagsOpt,
           );
           final message = await dynInt.updateOriginalResponse(builder);
           markInteractionAcknowledged(interaction);
@@ -544,5 +545,29 @@ Future<Map<String, dynamic>> respondWithComponentV2Action(
     return {'error': 'Interaction does not support message responses'};
   } catch (e) {
     return {'error': e.toString()};
+  }
+}
+
+class MessageUpdateBuilderWithFlags extends MessageUpdateBuilder {
+  final int? customFlags;
+
+  MessageUpdateBuilderWithFlags({
+    super.content,
+    super.embeds,
+    super.suppressEmbeds,
+    super.allowedMentions,
+    super.components,
+    super.attachments,
+    super.poll,
+    this.customFlags,
+  });
+
+  @override
+  Map<String, Object?> build() {
+    final data = super.build();
+    if (customFlags != null) {
+      data['flags'] = customFlags;
+    }
+    return data;
   }
 }

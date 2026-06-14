@@ -38,10 +38,16 @@ Future<Map<String, dynamic>> editInteractionMessageAction(
       );
     }
 
-    final builder = MessageUpdateBuilder(
-      content: content.isNotEmpty ? content : null,
-      components: actionRows,
-    );
+    final builder = definition?.isRichV2 == true
+        ? MessageUpdateBuilderWithFlags(
+            content: content.isNotEmpty ? content : null,
+            components: actionRows,
+            customFlags: (definition?.ephemeral == true ? 64 : 0) | 32768,
+          )
+        : MessageUpdateBuilder(
+            content: content.isNotEmpty ? content : null,
+            components: actionRows,
+          );
 
     final message = await msgInteraction.updateOriginalResponse(builder);
     if (definition != null && botId != null && botId.trim().isNotEmpty) {
