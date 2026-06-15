@@ -1,5 +1,5 @@
 import 'package:bot_creator/core/i18n/i18n.dart';
-import 'package:flutter/material.dart' show Icons, IconData, BuildContext, Localizations;
+import 'package:flutter/material.dart' show Icons, IconData, BuildContext;
 import 'package:bot_creator_shared/types/action.dart' show BotCreatorActionType;
 
 import 'action_types.dart';
@@ -47,12 +47,7 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
       case BotCreatorActionType.updateGuild:
         return context.tr.action_name_updateGuild;
       case BotCreatorActionType.leaveGuild:
-        final languageCode = Localizations.localeOf(context).languageCode;
-        if (languageCode == 'fr') return 'Faire quitter le serveur';
-        if (languageCode == 'pt') return 'Sair do Servidor';
-        if (languageCode == 'de') return 'Server verlassen';
-        if (languageCode == 'tr') return 'Sunucudan Ayrıl';
-        return 'Leave Server';
+        return context.tr.action_name_leaveGuild;
       case BotCreatorActionType.listMembers:
         return context.tr.action_name_listMembers;
       case BotCreatorActionType.getMember:
@@ -116,16 +111,11 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
       case BotCreatorActionType.listenForModalSubmit:
         return context.tr.action_name_listenForModalSubmit;
       case BotCreatorActionType.listenAndExecute:
-        final languageCode = Localizations.localeOf(context).languageCode;
-        if (languageCode == 'fr') return 'Écouter et exécuter';
-        if (languageCode == 'pt') return 'Ouvir e Executar';
-        if (languageCode == 'de') return 'Zuhören und Ausführen';
-        if (languageCode == 'tr') return 'Dinle ve Yürüt';
-        return 'Listen and Execute';
+        return context.tr.action_name_listenAndExecute;
       case BotCreatorActionType.respondWithAutocomplete:
         return context.tr.action_name_respondWithAutocomplete;
       case BotCreatorActionType.deferInteraction:
-        return 'Defer Interaction';
+        return context.tr.action_name_deferInteraction;
       case BotCreatorActionType.stopUnless:
         return context.tr.action_name_stopUnless;
       case BotCreatorActionType.ifBlock:
@@ -217,49 +207,27 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
       case BotCreatorActionType.unregisterGuildCommands:
         return context.tr.action_name_unregisterGuildCommands;
       case BotCreatorActionType.playMusic:
-        final languageCode = Localizations.localeOf(context).languageCode;
-        if (languageCode == 'fr') return 'Jouer de la musique';
-        return 'Play Music';
+        return context.tr.action_name_playMusic;
       case BotCreatorActionType.pauseMusic:
-        final languageCode = Localizations.localeOf(context).languageCode;
-        if (languageCode == 'fr') return 'Mettre en pause la musique';
-        return 'Pause Music';
+        return context.tr.action_name_pauseMusic;
       case BotCreatorActionType.resumeMusic:
-        final languageCode = Localizations.localeOf(context).languageCode;
-        if (languageCode == 'fr') return 'Reprendre la musique';
-        return 'Resume Music';
+        return context.tr.action_name_resumeMusic;
       case BotCreatorActionType.skipMusic:
-        final languageCode = Localizations.localeOf(context).languageCode;
-        if (languageCode == 'fr') return 'Passer la musique';
-        return 'Skip Music';
+        return context.tr.action_name_skipMusic;
       case BotCreatorActionType.stopMusic:
-        final languageCode = Localizations.localeOf(context).languageCode;
-        if (languageCode == 'fr') return 'Arrêter la musique';
-        return 'Stop Music';
+        return context.tr.action_name_stopMusic;
       case BotCreatorActionType.setMusicVolume:
-        final languageCode = Localizations.localeOf(context).languageCode;
-        if (languageCode == 'fr') return 'Régler le volume de la musique';
-        return 'Set Music Volume';
+        return context.tr.action_name_setMusicVolume;
       case BotCreatorActionType.setMusicLoop:
-        final languageCode = Localizations.localeOf(context).languageCode;
-        if (languageCode == 'fr') return 'Régler la lecture en boucle';
-        return 'Set Music Loop';
+        return context.tr.action_name_setMusicLoop;
       case BotCreatorActionType.seekMusic:
-        final languageCode = Localizations.localeOf(context).languageCode;
-        if (languageCode == 'fr') return 'Positionner la lecture de musique';
-        return 'Seek Music Position';
+        return context.tr.action_name_seekMusic;
       case BotCreatorActionType.getMusicInfo:
-        final languageCode = Localizations.localeOf(context).languageCode;
-        if (languageCode == 'fr') return 'Obtenir les infos de la musique';
-        return 'Get Music Info';
+        return context.tr.action_name_getMusicInfo;
       case BotCreatorActionType.joinVoice:
-        final languageCode = Localizations.localeOf(context).languageCode;
-        if (languageCode == 'fr') return 'Rejoindre un salon vocal';
-        return 'Join Voice Channel';
+        return context.tr.action_name_joinVoice;
       case BotCreatorActionType.leaveVoice:
-        final languageCode = Localizations.localeOf(context).languageCode;
-        if (languageCode == 'fr') return 'Quitter le salon vocal';
-        return 'Leave Voice Channel';
+        return context.tr.action_name_leaveVoice;
       default:
         return '';
     }

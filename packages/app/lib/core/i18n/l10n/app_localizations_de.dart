@@ -58,6 +58,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get action_category_moderation => 'Moderation';
 
   @override
+  String get action_category_music => 'Musik';
+
+  @override
   String get action_category_reactions => 'Reaktionen';
 
   @override
@@ -82,14 +85,55 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get action_description_addReaction =>
-      'Add an emoji reaction to a message';
+      'Fügen Sie einer Nachricht eine Emoji-Reaktion hinzu';
 
   @override
-  String get action_description_addRole => 'Assign a role to a member';
+  String get action_description_addRole =>
+      'Weisen Sie einem Mitglied eine Rolle zu';
+
+  @override
+  String get action_description_addThreadMember =>
+      'Ein Mitglied zu einem Thread hinzufügen';
+
+  @override
+  String get action_description_appendArrayElement =>
+      'Ein neues Element an ein globales oder bereichsbezogenes JSON-Array anhängen';
+
+  @override
+  String get action_description_attachImage =>
+      'Eine Bilddatei an die Antwort anhängen (URL, Daten-URL oder Base64)';
 
   @override
   String get action_description_banUser =>
       'Permanently ban a user from the guild';
+
+  @override
+  String get action_description_calculate =>
+      'Mathematische Operationen durchführen und Ergebnis speichern';
+
+  @override
+  String get action_description_canvasCreateBlock =>
+      'Eine leere Bildleinwand erstellen';
+
+  @override
+  String get action_description_canvasDrawCircleBlock =>
+      'Einen Kreis auf der Bildleinwand zeichnen';
+
+  @override
+  String get action_description_canvasDrawLineBlock =>
+      'Eine Linie auf der Leinwand zeichnen';
+
+  @override
+  String get action_description_canvasDrawRectBlock =>
+      'Ein Rechteck auf der Bildleinwand zeichnen';
+
+  @override
+  String get action_description_canvasDrawTextBlock =>
+      'Text mit Styling-Optionen auf der Bildleinwand zeichnen';
+
+  @override
+  String get action_description_canvasLoadImageBlock =>
+      'Ein Bild aus einer URL oder Quelle auf die Leinwand laden';
 
   @override
   String get action_description_clearAllReactions =>
@@ -100,31 +144,290 @@ class AppLocalizationsDe extends AppLocalizations {
       'Apply a cooldown to the user or server';
 
   @override
-  String get action_description_deleteMessages => 'Delete one or more messages';
+  String get action_description_createAutoModRule =>
+      'Eine Auto-Moderationsregel für den Server erstellen';
+
+  @override
+  String get action_description_createChannel => 'Einen neuen Kanal erstellen';
+
+  @override
+  String get action_description_createEmoji =>
+      'Ein Server-Emoji aus Bilddaten erstellen';
+
+  @override
+  String get action_description_createInvite =>
+      'Einen neuen Einladungslink für einen Kanal erstellen';
+
+  @override
+  String get action_description_createPoll =>
+      'Eine Umfragenachricht in einem Kanal erstellen';
+
+  @override
+  String get action_description_createThread =>
+      'Einen Thread in einem unterstützten Textkanal erstellen';
+
+  @override
+  String get action_description_debugProfile =>
+      'Ausführungsprofil und Diagnoseinformationen generieren';
+
+  @override
+  String get action_description_deferInteraction =>
+      'Die Interaktionsantwort verzögern, um ein Discord-Timeout zu verhindern';
+
+  @override
+  String get action_description_deleteAutoModRule =>
+      'Eine Auto-Moderationsregel löschen';
+
+  @override
+  String get action_description_deleteChannelPermission =>
+      'Eine Kanalberechtigungsüberschreibung löschen';
+
+  @override
+  String get action_description_deleteEmoji => 'Ein Server-Emoji löschen';
+
+  @override
+  String get action_description_deleteInvite =>
+      'Eine vorhandene Einladung per Code löschen';
+
+  @override
+  String get action_description_deleteMessages =>
+      'Löschen Sie eine oder mehrere Nachrichten';
 
   @override
   String get action_description_deleteTrigger =>
-      'Delete the message that triggered this command';
+      'Löschen Sie die Nachricht, die diesen Befehl ausgelöst hat';
 
   @override
-  String get action_description_editMessage => 'Edit an existing message';
+  String get action_description_deleteWebhook => 'Einen Webhook löschen';
+
+  @override
+  String get action_description_disconnectFromVoice =>
+      'Die Verbindung eines Mitglieds zum Sprachkanal trennen';
+
+  @override
+  String get action_description_editChannelPermissions =>
+      'Kanalberechtigungsüberschreibungen erstellen oder aktualisieren';
+
+  @override
+  String get action_description_editComponentV2 =>
+      'Vorhandene Komponenten bearbeiten';
+
+  @override
+  String get action_description_editInteractionMessage =>
+      'Die verzögerte oder ursprüngliche Interaktionsantwort bearbeiten';
+
+  @override
+  String get action_description_editMessage =>
+      'Bearbeiten Sie eine vorhandene Nachricht';
+
+  @override
+  String get action_description_editWebhook =>
+      'Einen vorhandenen Webhook bearbeiten';
+
+  @override
+  String get action_description_endPoll => 'Eine aktive Umfrage sofort beenden';
+
+  @override
+  String get action_description_forLoop =>
+      'Über einen Zahlenbereich iterieren (For-Schleife)';
+
+  @override
+  String get action_description_getGlobalVariable =>
+      'Eine globale Variable lesen und in Laufzeitvariablen einfügen';
+
+  @override
+  String get action_description_getGuildOnboarding =>
+      'Aktuelle Onboarding-Konfiguration des Servers abrufen';
+
+  @override
+  String get action_description_getInvite =>
+      'Einladungsinformationen per Code abrufen';
+
+  @override
+  String get action_description_getMember => 'Mitgliedsinformationen abrufen';
+
+  @override
+  String get action_description_getMessage =>
+      'Eine Nachricht abrufen und ihre Felder bereitstellen';
+
+  @override
+  String get action_description_getMusicInfo =>
+      'Informationen über den aktuell gespielten Track abrufen';
+
+  @override
+  String get action_description_getScopedVariable =>
+      'Eine bereichsbezogene Variable lesen und in Laufzeitvariablen einfügen';
+
+  @override
+  String get action_description_getWebhook =>
+      'Webhook-Informationen nach ID abrufen';
+
+  @override
+  String get action_description_httpRequest =>
+      'HTTP-Anfrage mit dynamischer URL, Methode, Headern und Body senden';
+
+  @override
+  String get action_description_ifBlock =>
+      'Bedingte Verzweigung: Führt je nach Bedingung unterschiedliche Aktionen aus';
+
+  @override
+  String get action_description_joinVoice => 'Einem Sprachkanal beitreten';
+
+  @override
+  String get action_description_jsonForEachLoop =>
+      'Jedes Element eines JSON-Arrays oder -Objekts durchlaufen (forEach)';
 
   @override
   String get action_description_kickUser => 'Remove a member from the guild';
 
   @override
+  String get action_description_leaveGuild =>
+      'Den Bot den Server verlassen lassen';
+
+  @override
+  String get action_description_leaveVoice =>
+      'Den Sprachkanal verlassen und den Player schließen';
+
+  @override
+  String get action_description_listAutoModRules =>
+      'Alle Auto-Moderationsregeln im Server auflisten';
+
+  @override
+  String get action_description_listMembers =>
+      'Mitglieder in einem Server mit Optionen auflisten';
+
+  @override
+  String get action_description_listScopedVariableIndex =>
+      'Indexierte bereichsbezogene Werte sortiert nach Wert mit Offset und Limit auflisten';
+
+  @override
+  String get action_description_listWebhooks =>
+      'Alle Webhooks in einem Kanal oder Server auflisten';
+
+  @override
+  String get action_description_listenAndExecute =>
+      'Einen Workflow registrieren, der beim Klicken einer Schaltfläche, Verwenden eines Auswahlmenüs oder Senden eines Modals ausgeführt wird';
+
+  @override
+  String get action_description_listenForButtonClick =>
+      'Einen Workflow registrieren, der bei einem Klick auf eine Schaltfläche ausgeführt wird';
+
+  @override
+  String get action_description_listenForModalSubmit =>
+      'Einen Workflow registrieren, der beim Senden eines Modals ausgeführt wird';
+
+  @override
+  String get action_description_listenForSelectMenu =>
+      'Einen Workflow registrieren, der bei Verwendung eines Auswahlmenüs ausgeführt wird';
+
+  @override
+  String get action_description_log =>
+      'Diagnosemeldung in die Aktionsprotokolle schreiben oder speichern';
+
+  @override
+  String get action_description_moveToVoiceChannel =>
+      'Ein Mitglied in einen bestimmten Sprachkanal verschieben';
+
+  @override
   String get action_description_muteUser => 'Temporarily timeout a member';
+
+  @override
+  String get action_description_pauseMusic => 'Den aktuellen Track pausieren';
+
+  @override
+  String get action_description_pinMessage =>
+      'Eine Nachricht in einem Kanal anheften';
+
+  @override
+  String get action_description_playMusic =>
+      'Einen Track per Suchanfrage oder URL abspielen';
+
+  @override
+  String get action_description_queryArray =>
+      'Jedes Laufzeit-JSON-Array filtern, sortieren und paginieren';
 
   @override
   String get action_description_randomChoice =>
       'Pick a random item from a list';
 
   @override
-  String get action_description_removeReaction =>
-      'Remove a reaction from a message';
+  String get action_description_registerGuildCommands =>
+      'Anwendungsbefehle für einen Server registrieren';
 
   @override
-  String get action_description_removeRole => 'Remove a role from a member';
+  String get action_description_removeArrayElement =>
+      'Ein Element aus einem globalen oder bereichsbezogenen JSON-Array nach Index entfernen';
+
+  @override
+  String get action_description_removeChannel => 'Einen Kanal löschen';
+
+  @override
+  String get action_description_removeGlobalVariable =>
+      'Eine globale Variable löschen';
+
+  @override
+  String get action_description_removeReaction =>
+      'Entfernen Sie eine Reaktion von einer Nachricht';
+
+  @override
+  String get action_description_removeRole =>
+      'Entfernen Sie eine Rolle von einem Mitglied';
+
+  @override
+  String get action_description_removeScopedVariable =>
+      'Eine bereichsbezogene Variable löschen';
+
+  @override
+  String get action_description_removeThreadMember =>
+      'Ein Mitglied aus einem Thread entfernen';
+
+  @override
+  String get action_description_renameScopedVariable =>
+      'Den Schlüssel einer bereichsbezogenen Variable umbenennen';
+
+  @override
+  String get action_description_respondWithAutocomplete =>
+      'Auf eine Discord-Autovervollständigungsinteraktion mit bis zu 25 dynamischen Optionen antworten';
+
+  @override
+  String get action_description_respondWithComponentV2 =>
+      'Auf Befehl mit Schaltflächen/Auswahlmenüs antworten';
+
+  @override
+  String get action_description_respondWithMessage =>
+      'Auf Befehl mit einer normalen Nachricht antworten';
+
+  @override
+  String get action_description_respondWithModal =>
+      'Dem Benutzer ein modales Dialogfeld anzeigen';
+
+  @override
+  String get action_description_resumeMusic =>
+      'Einen pausierten Track fortsetzen';
+
+  @override
+  String get action_description_runBdfdScript =>
+      'Ein BDFD-Skript inline als Workflow-Aktionen kompilieren und ausführen';
+
+  @override
+  String get action_description_runWorkflow =>
+      'Einen gespeicherten Workflow ausführen (unterstützt Einstiegspunkt + Argumente)';
+
+  @override
+  String get action_description_runtimeImageBlock =>
+      'Einen Block von Bildleinwand-Verarbeitungsaktionen ausführen';
+
+  @override
+  String get action_description_runtimeJsonBlock =>
+      'Einen Block von JSON-Verarbeitungsaktionen ausführen';
+
+  @override
+  String get action_description_seekMusic =>
+      'Zu einer Position im aktuellen Track springen';
+
+  @override
+  String get action_description_sendComponentV2 =>
+      'Interaktive Komponenten senden';
 
   @override
   String get action_description_sendDm => 'Send a direct message to a user';
@@ -133,7 +436,42 @@ class AppLocalizationsDe extends AppLocalizations {
   String get action_description_sendMessage => 'Send a message to a channel';
 
   @override
+  String get action_description_sendWebhook => 'Nachricht über Webhook senden';
+
+  @override
+  String get action_description_serverDeafenMember =>
+      'Ein Mitglied auf dem Server taubstellen oder Taubstellung aufheben';
+
+  @override
+  String get action_description_serverMuteMember =>
+      'Ein Mitglied auf dem Server stummschalten oder Stummschaltung aufheben';
+
+  @override
+  String get action_description_setGlobalVariable =>
+      'Eine globale Variable für diesen Bot erstellen oder aktualisieren';
+
+  @override
+  String get action_description_setMusicLoop =>
+      'Wiederholung der Warteschlange aktivieren oder deaktivieren';
+
+  @override
+  String get action_description_setMusicVolume =>
+      'Die Lautstärke des Players einstellen (0 bis 200)';
+
+  @override
   String get action_description_setNickname => 'Change a member\'s nickname';
+
+  @override
+  String get action_description_setScopedVariable =>
+      'Eine bereichsbezogene Variable (Server/Benutzer/Kanal/Mitglied/Nachricht) erstellen oder aktualisieren';
+
+  @override
+  String get action_description_setTemporaryVariable =>
+      'Eine temporäre Variable in der lokalen Ausführung erstellen oder aktualisieren';
+
+  @override
+  String get action_description_skipMusic =>
+      'Zum nächsten Track in der Warteschlange springen';
 
   @override
   String get action_description_slowmode =>
@@ -143,10 +481,51 @@ class AppLocalizationsDe extends AppLocalizations {
   String get action_description_stop => 'Stop the current workflow execution';
 
   @override
-  String get action_description_unbanUser => 'Revoke a user\'s ban';
+  String get action_description_stopMusic =>
+      'Wiedergabe stoppen und Warteschlange leeren';
+
+  @override
+  String get action_description_stopUnless =>
+      'Den Workflow stoppen, wenn eine Bedingung nicht erfüllt ist (Guard/Filter)';
+
+  @override
+  String get action_description_unbanUser =>
+      'Heben Sie die Sperre eines Benutzers auf';
 
   @override
   String get action_description_unmuteUser => 'Remove timeout from a member';
+
+  @override
+  String get action_description_unpinMessage =>
+      'Eine Nachricht in einem Kanal losheften';
+
+  @override
+  String get action_description_unregisterGuildCommands =>
+      'Anwendungsbefehle von einem Server abmelden';
+
+  @override
+  String get action_description_updateAutoMod =>
+      'Auto-Moderationseinstellungen aktualisieren';
+
+  @override
+  String get action_description_updateChannel =>
+      'Kanaleinstellungen aktualisieren';
+
+  @override
+  String get action_description_updateEmoji =>
+      'Server-Emoji-Name oder Rollenzugriff aktualisieren';
+
+  @override
+  String get action_description_updateGuild =>
+      'Servereinstellungen aktualisieren';
+
+  @override
+  String get action_description_updateGuildOnboarding =>
+      'Onboarding-Konfiguration des Servers aktualisieren';
+
+  @override
+  String get action_description_updateSelfUser =>
+      'Das eigene Bot-Benutzerprofil (Benutzername/Avatar) aktualisieren';
 
   @override
   String get action_description_wait =>
@@ -237,10 +616,12 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get action_hint_random_choices => 'List of choices (separated by ;)';
+  String get action_hint_random_choices =>
+      'Liste der Auswahlmöglichkeiten (durch ; getrennt)';
 
   @override
-  String get action_hint_random_var => 'Variable name to store the result';
+  String get action_hint_random_var =>
+      'Variablenname zum Speichern des Ergebnisses';
 
   @override
   String get action_hint_variable_key => 'Variablenschlüssel auswählen';
@@ -318,6 +699,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get action_name_canvasDrawCircleBlock => 'Kreis zeichnen';
 
   @override
+  String get action_name_canvasDrawLineBlock => 'Linie zeichnen';
+
+  @override
   String get action_name_canvasDrawRectBlock => 'Rechteck zeichnen';
 
   @override
@@ -330,7 +714,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get action_name_clearAllReactions => 'Alle Reaktionen löschen';
 
   @override
-  String get action_name_cooldown => 'Cooldown';
+  String get action_name_cooldown => 'Abklingzeit';
 
   @override
   String get action_name_createAutoModRule => 'AutoMod-Regel erstellen';
@@ -349,6 +733,12 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get action_name_createThread => 'Thread erstellen';
+
+  @override
+  String get action_name_debugProfile => 'Debug-Profil';
+
+  @override
+  String get action_name_deferInteraction => 'Interaktion aufschieben';
 
   @override
   String get action_name_deleteAutoModRule => 'AutoMod-Regel löschen';
@@ -370,9 +760,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get action_name_deleteWebhook => 'Webhook löschen';
-
-  @override
-  String get action_name_debugProfile => 'Debug-Profil';
 
   @override
   String get action_name_disconnectFromVoice => 'Von Sprache trennen';
@@ -416,6 +803,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get action_name_getMessage => 'Nachricht abrufen';
 
   @override
+  String get action_name_getMusicInfo => 'Musikinfo abrufen';
+
+  @override
   String get action_name_getScopedVariable =>
       'Geltungsbereichsvariable abrufen';
 
@@ -426,13 +816,22 @@ class AppLocalizationsDe extends AppLocalizations {
   String get action_name_httpRequest => 'HTTP-Anfrage';
 
   @override
-  String get action_name_ifBlock => 'IF / ELSE Block';
+  String get action_name_ifBlock => 'WENN / SONST Block';
+
+  @override
+  String get action_name_joinVoice => 'Sprachkanal beitreten';
 
   @override
   String get action_name_jsonForEachLoop => 'JSON Für Jedes Schleife';
 
   @override
   String get action_name_kickUser => 'Benutzer kicken';
+
+  @override
+  String get action_name_leaveGuild => 'Server verlassen';
+
+  @override
+  String get action_name_leaveVoice => 'Sprachkanal verlassen';
 
   @override
   String get action_name_listAutoModRules => 'AutoMod-Regeln auflisten';
@@ -446,6 +845,9 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get action_name_listWebhooks => 'Webhooks auflisten';
+
+  @override
+  String get action_name_listenAndExecute => 'Zuhören und Ausführen';
 
   @override
   String get action_name_listenForButtonClick => 'Auf Button-Klick warten';
@@ -467,7 +869,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get action_name_muteUser => 'Benutzer stummschalten';
 
   @override
+  String get action_name_pauseMusic => 'Musik pausieren';
+
+  @override
   String get action_name_pinMessage => 'Nachricht anpinnen';
+
+  @override
+  String get action_name_playMusic => 'Musik abspielen';
 
   @override
   String get action_name_queryArray => 'Array abfragen';
@@ -519,16 +927,22 @@ class AppLocalizationsDe extends AppLocalizations {
   String get action_name_respondWithModal => 'Mit Modal antworten';
 
   @override
+  String get action_name_resumeMusic => 'Musik fortsetzen';
+
+  @override
   String get action_name_runBdfdScript => 'BDFD-Skript ausführen';
 
   @override
-  String get action_name_runtimeJsonBlock => 'JSON-Operationen ausführen';
+  String get action_name_runWorkflow => 'Workflow ausführen';
 
   @override
   String get action_name_runtimeImageBlock => 'Bildoperationen ausführen';
 
   @override
-  String get action_name_runWorkflow => 'Workflow ausführen';
+  String get action_name_runtimeJsonBlock => 'JSON-Operationen ausführen';
+
+  @override
+  String get action_name_seekMusic => 'Musikposition suchen';
 
   @override
   String get action_name_sendComponentV2 => 'Komponente V2 senden';
@@ -552,6 +966,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get action_name_setGlobalVariable => 'Globale Variable setzen';
 
   @override
+  String get action_name_setMusicLoop => 'Musik-Wiederholung einstellen';
+
+  @override
+  String get action_name_setMusicVolume => 'Musiklautstärke einstellen';
+
+  @override
   String get action_name_setNickname => 'Nickname setzen';
 
   @override
@@ -561,10 +981,16 @@ class AppLocalizationsDe extends AppLocalizations {
   String get action_name_setTemporaryVariable => 'Temporäre Variable setzen';
 
   @override
+  String get action_name_skipMusic => 'Musik überspringen';
+
+  @override
   String get action_name_slowmode => 'Slowmode';
 
   @override
   String get action_name_stop => 'Stoppen';
+
+  @override
+  String get action_name_stopMusic => 'Musik stoppen';
 
   @override
   String get action_name_stopUnless => 'Stoppen außer Bedingung erfüllt';
@@ -978,7 +1404,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get bdfd_docs_category_control => 'Kontrollfluss';
 
   @override
-  String get bdfd_docs_category_cooldowns => 'Cooldowns';
+  String get bdfd_docs_category_cooldowns => 'Abklingzeiten';
 
   @override
   String get bdfd_docs_category_embeds => 'Embeds';
@@ -1005,7 +1431,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get bdfd_docs_category_misc => 'Sonstiges';
 
   @override
-  String get bdfd_docs_category_modals => 'Modals';
+  String get bdfd_docs_category_modals => 'Modale Fenster';
 
   @override
   String get bdfd_docs_category_moderation => 'Moderation';
@@ -1077,10 +1503,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Gibt den Körper der letzten HTTP-Antwort zurück. Übergeben Sie optional einen JSON-Pfad, um ein bestimmtes Feld zu extrahieren.\n\nVerwendung: \$httpResult[] für den vollständigen Körper oder \$httpResult[data.name] für ein verschachteltes Feld.';
 
   @override
-  String get bdfd_docs_desc_url =>
-      'Encodes or decodes text for use in URLs. Use \'encode\' to make text URL-safe, or \'decode\' to revert it.\n\nUsage: \$url[encode;Hello world!!]';
-
-  @override
   String get bdfd_docs_desc_if =>
       'Bedingter Block. Unterstützt Schachtelung und umfangreiche Operatoren: ==, !=, >=, <=, >, <, contains, startsWith, endsWith, notContains.\n\nVerwendung:\n\$if[\$authorID==123456]\n  Hallo Admin!\n\$elseif[\$hasRole[789]]\n  Hallo Mitglied!\n\$else\n  Hallo Gast!\n\$endif';
 
@@ -1115,6 +1537,10 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get bdfd_docs_desc_try =>
       'Umschließt einen Block zur Fehlerbehandlung.\n\nVerwendung:\n\$try\n  \$httpGet[https://api.example.com/data]\n\$catch\n  Anfrage fehlgeschlagen!\n\$endtry\n\nWenn eine Funktion im \$try-Block fehlschlägt, springt die Ausführung zu \$catch.';
+
+  @override
+  String get bdfd_docs_desc_url =>
+      'Codiert oder decodiert Text für die Verwendung in URLs. Verwenden Sie \'encode\', um Text URL-sicher zu machen, oder \'decode\', um dies rückgängig zu machen.\\n\\nVerwendung: \$url[encode;Hello world!!]';
 
   @override
   String get bdfd_docs_desc_workflowresponse =>
@@ -1173,7 +1599,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get bdfd_editor_toggle_indent => 'Einrückungshilfen umschalten';
 
   @override
-  String get bdfd_editor_ux_title => 'Editor UX';
+  String get bdfd_editor_ux_title => 'Editor-Benutzererfahrung (UX)';
 
   @override
   String get bdfd_editor_wrap_toggle => 'Zeilenumbruch umschalten';
@@ -1232,7 +1658,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get bot_home_section_monitoring => 'ÜBERWACHUNG';
 
   @override
-  String get bot_home_section_tools => 'TOOLS';
+  String get bot_home_section_tools => 'WERKZEUGE';
 
   @override
   String get bot_home_service_not_started =>
@@ -1354,7 +1780,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get bot_settings_avatar_clear_selection => 'Auswahl aufheben';
 
   @override
+  String get bot_settings_avatar_important_note =>
+      'Wichtig: Profiländerungen (Benutzername und Avatar) werden erst dann auf Discord angewendet, wenn Sie unten auf \'Profil und Status speichern\' klicken.';
+
+  @override
   String get bot_settings_avatar_local_path => 'Lokaler Dateipfad für Avatar';
+
+  @override
+  String get bot_settings_avatar_none_selected =>
+      'Kein neues Bild ausgewählt. Klicken Sie auf Durchsuchen, um eines auszuwählen.';
 
   @override
   String get bot_settings_avatar_path_hint => '/absoluter/pfad/zu/avatar.png';
@@ -1364,6 +1798,9 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get bot_settings_avatar_preview_label => 'Avatar-Vorschau';
+
+  @override
+  String get bot_settings_avatar_selected => 'Ausgewähltes Bild:';
 
   @override
   String bot_settings_avatar_selected_file(String path) {
@@ -1407,7 +1844,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get bot_settings_edit_token_btn => 'Token bearbeiten';
 
   @override
-  String get bot_settings_export_import => 'Export / Import';
+  String get bot_settings_export_import => 'Exportieren / Importieren';
 
   @override
   String get bot_settings_export_import_desc =>
@@ -1525,6 +1962,18 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get bot_settings_status_type_watching => 'Schaut zu';
+
+  @override
+  String get bot_settings_tab_advanced => 'Erweitert & Wartung';
+
+  @override
+  String get bot_settings_tab_general => 'Allgemein';
+
+  @override
+  String get bot_settings_tab_intents => 'Intents & Berechtigungen';
+
+  @override
+  String get bot_settings_tab_presence => 'Präsenz & Status';
 
   @override
   String get bot_settings_title => 'Bot anpassen / Profil';
@@ -1666,6 +2115,65 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get cmd_delete_tooltip => 'Befehl löschen';
+
+  @override
+  String get cmd_deploy_close_button => 'Schließen';
+
+  @override
+  String get cmd_deploy_cloud_sync_subtitle =>
+      'Sichere Synchronisierung mit Ihrem Online-Speicher';
+
+  @override
+  String get cmd_deploy_cloud_sync_title => 'Cloud-Backup';
+
+  @override
+  String cmd_deploy_config_subtitle(String name) {
+    return 'Konfiguration von /$name';
+  }
+
+  @override
+  String get cmd_deploy_discord_sync_subtitle =>
+      'Befehl in der Discord-API veröffentlichen';
+
+  @override
+  String get cmd_deploy_discord_sync_title => 'Discord-Synchronisation';
+
+  @override
+  String get cmd_deploy_failed_title => 'Bereitstellung fehlgeschlagen';
+
+  @override
+  String get cmd_deploy_hot_reload_subtitle =>
+      'Sofortige Aktualisierung Ihres Bot-Runners';
+
+  @override
+  String get cmd_deploy_hot_reload_title => 'Hot Reload';
+
+  @override
+  String get cmd_deploy_in_progress_title => 'Bereitstellung läuft...';
+
+  @override
+  String get cmd_deploy_local_save_subtitle => 'Befehl auf dem Gerät speichern';
+
+  @override
+  String get cmd_deploy_local_save_title => 'Lokale Speicherung';
+
+  @override
+  String get cmd_deploy_reload_bot_subtitle =>
+      'Hot-Reload-Konfiguration anwenden';
+
+  @override
+  String get cmd_deploy_reload_bot_title => 'Bot neu laden';
+
+  @override
+  String get cmd_deploy_retry_button => 'Wiederholen';
+
+  @override
+  String get cmd_deploy_success_title => 'Bereitstellung erfolgreich!';
+
+  @override
+  String cmd_deploy_success_toast(String name) {
+    return 'Befehl \"$name\" bereitgestellt und aktiv!';
+  }
 
   @override
   String get cmd_editor_mode_advanced => 'Erweiterter Modus';
@@ -2740,6 +3248,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get dart_editor_title => 'Dart-Editor';
 
   @override
+  String get dashboard_analysis_period => 'Analysezeitraum';
+
+  @override
   String dashboard_error(String error) {
     return 'Statistiken konnten nicht geladen werden: $error';
   }
@@ -2818,9 +3329,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get dashboard_total => 'Befehle gesamt';
-
-  @override
-  String get dashboard_analysis_period => 'Analysezeitraum';
 
   @override
   String get debug_replay_clear => 'Replays löschen';
@@ -2971,7 +3479,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Verwenden Sie Einstiegspunkte, um Unterroutinen abzubilden (erstellen, schließen, zuweisen, eskalieren).';
 
   @override
-  String get doc_action_run_workflow_section_practices => 'Best Practices';
+  String get doc_action_run_workflow_section_practices => 'Bewährte Praktiken';
 
   @override
   String get doc_action_run_workflow_subtitle =>
@@ -3002,15 +3510,15 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get doc_action_stop_unless_operators_l1 =>
-      'equals, notEquals, contains, notContains, startsWith, endsWith';
+      'gleich, ungleich, enthält, enthältNicht, beginntMit, endetMit';
 
   @override
   String get doc_action_stop_unless_operators_l2 =>
-      'greaterThan, lessThan, greaterOrEqual, lessOrEqual';
+      'größerAls, kleinerAls, größerOderGleich, kleinerOderGleich';
 
   @override
   String get doc_action_stop_unless_operators_l3 =>
-      'isEmpty, isNotEmpty, matches';
+      'istLeer, istNichtLeer, entspricht';
 
   @override
   String get doc_action_stop_unless_section_format =>
@@ -3091,10 +3599,10 @@ class AppLocalizationsDe extends AppLocalizations {
       'Guard: ((message.isBot)) equals false\nGuard: ((message.content[0])) equals !ticket\nDann: runWorkflow -> ticket_manager entry=create';
 
   @override
-  String get doc_event_message_create_intent_1 => 'Guild Messages';
+  String get doc_event_message_create_intent_1 => 'Server-Nachrichten';
 
   @override
-  String get doc_event_message_create_intent_2 => 'Message Content';
+  String get doc_event_message_create_intent_2 => 'Nachrichteninhalt';
 
   @override
   String get doc_event_message_create_notes_l1 =>
@@ -3128,7 +3636,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Umfrageteilnahme pro Kanal oder Benutzergruppe verfolgen.';
 
   @override
-  String get doc_event_poll_vote_add_intent => 'Guild Messages';
+  String get doc_event_poll_vote_add_intent => 'Server-Nachrichten';
 
   @override
   String get doc_event_poll_vote_add_notes_l1 =>
@@ -3166,7 +3674,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Guard: ((reaction.emoji.name)) equals ✅\nAktion: addRole -> user=((userId)) role=((global.approvedRoleId))';
 
   @override
-  String get doc_event_reaction_add_intent => 'Guild Message Reactions';
+  String get doc_event_reaction_add_intent => 'Server-Nachrichtenreaktionen';
 
   @override
   String get doc_event_reaction_add_notes_l1 =>
@@ -3223,7 +3731,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Muster beim Verlassen/Beitreten anhand von Kanaländerungen protokollieren.';
 
   @override
-  String get doc_event_voice_state_update_intent => 'Guilds';
+  String get doc_event_voice_state_update_intent => 'Server';
 
   @override
   String get doc_event_voice_state_update_section_title =>
@@ -4078,7 +4586,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get globals_tab => 'Global';
 
   @override
-  String get globals_tab_short => 'Vars';
+  String get globals_tab_short => 'Var';
 
   @override
   String get globals_title => 'Variablen';
@@ -4089,6 +4597,50 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get globals_value_auto_type_hint =>
       'Wert ist automatisch typisiert (Zahl, Boolean, JSON).';
+
+  @override
+  String get guilds_empty_state =>
+      'Der Bot befindet sich auf keinem Server.\nLaden Sie ihn auf einen Server ein, um ihn hier zu sehen.';
+
+  @override
+  String guilds_leave_confirm(String name) {
+    return 'Möchten Sie \"$name\" verlassen?\nDer Bot wird von diesem Server entfernt. Sie können ihn später über das Discord-Entwicklerportal erneut einladen.';
+  }
+
+  @override
+  String guilds_leave_failed(String error) {
+    return 'Fehler beim Verlassen: $error';
+  }
+
+  @override
+  String get guilds_leave_title => 'Server verlassen';
+
+  @override
+  String get guilds_leave_tooltip => 'Verlassen';
+
+  @override
+  String guilds_left_success(String name) {
+    return '\"$name\" verlassen.';
+  }
+
+  @override
+  String guilds_members_count_other(int count) {
+    return '~$count Mitglieder';
+  }
+
+  @override
+  String get guilds_owner_label => '👑 Eigentümer';
+
+  @override
+  String guilds_server_count_other(int count) {
+    return '$count Server';
+  }
+
+  @override
+  String get guilds_tab => 'Server';
+
+  @override
+  String get guilds_tab_short => 'Server';
 
   @override
   String get hint_use_variables =>
@@ -4146,13 +4698,13 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get home_start => 'Start';
+  String get home_start => 'Starten';
 
   @override
   String get home_start_ads => 'Start (Anzeige ansehen)';
 
   @override
-  String get home_start_premium => 'Start (Premium)';
+  String get home_start_premium => 'Starten (Premium)';
 
   @override
   String get home_status_offline => 'Offline';
@@ -4167,7 +4719,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get home_sync_failed => 'Synchronisierung fehlgeschlagen';
 
   @override
-  String get home_tab => 'Home';
+  String get home_tab => 'Startseite';
 
   @override
   String get home_time_added => 'Zeit erfolgreich hinzugefügt';
@@ -4179,6 +4731,20 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get home_unknown_app => 'Unbekannt';
+
+  @override
+  String get image_editor_create => 'Erstellen';
+
+  @override
+  String get image_editor_create_canvas => 'Bild-Leinwand erstellen';
+
+  @override
+  String image_editor_edit_canvas(int count) {
+    return 'Leinwand bearbeiten ($count Ops)';
+  }
+
+  @override
+  String get image_editor_open => 'Editor öffnen';
 
   @override
   String get import_button => 'Importieren';
@@ -4239,20 +4805,6 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get image_editor_create => 'Erstellen';
-
-  @override
-  String get image_editor_create_canvas => 'Bild-Leinwand erstellen';
-
-  @override
-  String image_editor_edit_canvas(int count) {
-    return 'Leinwand bearbeiten ($count Ops)';
-  }
-
-  @override
-  String get image_editor_open => 'Editor öffnen';
-
-  @override
   String legacy_bdfd_run_failed(String command, String error) {
     return 'Fehler beim Ausführen des BDFD-Skripts für den Befehl \"$command\": $error';
   }
@@ -4276,9 +4828,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get legacy_prefix_override_label => 'Präfix-Überschreibung (optional)';
 
   @override
-  String get legacy_response_mode_label => 'Legacy-Antwortmodus';
-
-  @override
   String get legacy_response_banner_body =>
       'Einige Befehle verwenden noch das alte Antwortformat. Öffnen Sie sie im Editor und speichern Sie sie erneut, um das neue Format zu aktivieren.';
 
@@ -4287,6 +4836,10 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get legacy_response_banner_migrate => 'Alle migrieren';
+
+  @override
+  String get legacy_response_banner_migrate_failed =>
+      'Migration fehlgeschlagen';
 
   @override
   String legacy_response_banner_migrated(int count) {
@@ -4304,10 +4857,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Keine Befehle zu migrieren';
 
   @override
-  String get legacy_response_banner_migrate_failed =>
-      'Migration fehlgeschlagen';
-
-  @override
   String get legacy_response_banner_migrating => 'Wird migriert...';
 
   @override
@@ -4321,6 +4870,9 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get legacy_response_banner_title =>
       'Aktualisierung des Befehlsantwortformats';
+
+  @override
+  String get legacy_response_mode_label => 'Legacy-Antwortmodus';
 
   @override
   String get local_command_awaited_desc =>
@@ -4337,6 +4889,351 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String logs_runner_source(String name) {
     return 'Protokolle von: $name';
+  }
+
+  @override
+  String get marketplace_about => 'Über';
+
+  @override
+  String get marketplace_add => 'Hinzufügen';
+
+  @override
+  String get marketplace_api_unavailable => 'API-Client nicht verfügbar';
+
+  @override
+  String get marketplace_apply => 'Vorlage anwenden';
+
+  @override
+  String marketplace_apply_error(Object error) {
+    return 'Anwendung fehlgeschlagen: $error';
+  }
+
+  @override
+  String get marketplace_apply_success => 'Vorlage erfolgreich angewendet!';
+
+  @override
+  String marketplace_apply_success_skipped(
+    Object addedCount,
+    Object skippedCount,
+  ) {
+    return '$addedCount Befehl(e) hinzugefügt, $skippedCount übersprungen (Duplikate).';
+  }
+
+  @override
+  String get marketplace_applying => 'Wird angewendet...';
+
+  @override
+  String marketplace_by_author(Object author, Object version) {
+    return 'von $author · v$version';
+  }
+
+  @override
+  String get marketplace_cancel => 'Abbrechen';
+
+  @override
+  String marketplace_command_preview_actions(Object count) {
+    return '$count Aktionen';
+  }
+
+  @override
+  String get marketplace_command_preview_no_actions => 'Keine Aktionen';
+
+  @override
+  String marketplace_command_preview_options(Object count) {
+    return '$count Optionen';
+  }
+
+  @override
+  String get marketplace_command_preview_type_message =>
+      'Nachrichten-Kontextmenü';
+
+  @override
+  String get marketplace_command_preview_type_slash => 'Slash-Befehl';
+
+  @override
+  String get marketplace_command_preview_type_user => 'Benutzer-Kontextmenü';
+
+  @override
+  String marketplace_commands_label(Object count) {
+    return 'Befehle ($count)';
+  }
+
+  @override
+  String get marketplace_config_hint =>
+      'Fülle die erforderlichen Werte aus, bevor du diese Vorlage anwendest.';
+
+  @override
+  String get marketplace_config_required => 'Konfiguration erforderlich';
+
+  @override
+  String marketplace_conflict_apply_choice(Object count) {
+    return 'Anwenden ($count Vorlage)';
+  }
+
+  @override
+  String get marketplace_conflict_keep_local => 'Lokal behalten';
+
+  @override
+  String marketplace_conflict_local_info(Object count) {
+    return 'Lokal ($count Aktionen)';
+  }
+
+  @override
+  String get marketplace_conflict_subtitle =>
+      'Einige Vorlagenbefehle existieren bereits. Wählen Sie aus, welche Version Sie behalten möchten:';
+
+  @override
+  String marketplace_conflict_template_info(Object count) {
+    return 'Vorlage ($count Aktionen)';
+  }
+
+  @override
+  String get marketplace_conflict_title => 'Befehlskonflikte';
+
+  @override
+  String get marketplace_conflict_use_template => 'Vorlage verwenden';
+
+  @override
+  String get marketplace_connect_discord => 'Mit Discord verbinden';
+
+  @override
+  String get marketplace_connect_manager =>
+      'Verbinde dich mit dem Manager, um auf den Marktplatz zuzugreifen.';
+
+  @override
+  String get marketplace_connect_publish =>
+      'Verbinde dich mit dem Manager, um eine Vorlage zu veröffentlichen.';
+
+  @override
+  String marketplace_count(Object count) {
+    return '$count Vorlage(n)';
+  }
+
+  @override
+  String get marketplace_delete => 'Löschen';
+
+  @override
+  String marketplace_delete_confirm(Object name) {
+    return 'Bist du sicher, dass du \"$name\" löschen möchtest? Dies kann nicht rückgängig gemacht werden.';
+  }
+
+  @override
+  String get marketplace_delete_confirm_title => 'Vorlage löschen';
+
+  @override
+  String get marketplace_delete_success => 'Vorlage gelöscht.';
+
+  @override
+  String get marketplace_edit => 'Bearbeiten';
+
+  @override
+  String get marketplace_edit_hint =>
+      'Zum Bearbeiten erneut aus der Befehlsliste deines Bots mit demselben Namen veröffentlichen.';
+
+  @override
+  String get marketplace_empty =>
+      'Noch keine Vorlagen.\nSei der Erste, der veröffentlicht!';
+
+  @override
+  String marketplace_load_error(Object error) {
+    return 'Laden fehlgeschlagen: $error';
+  }
+
+  @override
+  String get marketplace_login_hint =>
+      'Du musst dein Discord-Konto verbinden, um auf den Marktplatz zuzugreifen.';
+
+  @override
+  String get marketplace_login_instructions =>
+      'Bitte authentifiziere dich über Discord, um den Marktplatz weiter zu nutzen.';
+
+  @override
+  String get marketplace_login_required => 'Discord-Verbindung erforderlich';
+
+  @override
+  String get marketplace_login_success => 'Discord erfolgreich verbunden!';
+
+  @override
+  String get marketplace_login_title => 'Mit Manager verbinden';
+
+  @override
+  String marketplace_more(Object count) {
+    return '+$count weitere';
+  }
+
+  @override
+  String get marketplace_my_templates => 'Meine Vorlagen';
+
+  @override
+  String marketplace_no_results(Object query) {
+    return 'Keine Vorlagen entsprechen \"$query\"';
+  }
+
+  @override
+  String get marketplace_no_variables => 'Keine globalen Variablen definiert.';
+
+  @override
+  String get marketplace_publish_add_variable => 'Variable hinzufügen';
+
+  @override
+  String get marketplace_publish_add_variable_title => 'Variable hinzufügen';
+
+  @override
+  String get marketplace_publish_back => 'Zurück';
+
+  @override
+  String get marketplace_publish_button => 'Veröffentlichen';
+
+  @override
+  String get marketplace_publish_category_hint => 'z.B. ai, moderation, fun';
+
+  @override
+  String get marketplace_publish_category_label => 'Kategorie';
+
+  @override
+  String marketplace_publish_commands(Object count) {
+    return 'Befehle ($count)';
+  }
+
+  @override
+  String get marketplace_publish_desc_hint =>
+      'Eine einzeilige Zusammenfassung, die im Marktplatz angezeigt wird';
+
+  @override
+  String get marketplace_publish_desc_label => 'Kurzbeschreibung';
+
+  @override
+  String get marketplace_publish_desc_long_hint =>
+      'Detaillierte Nutzungsanweisungen, Markdown unterstützt...';
+
+  @override
+  String get marketplace_publish_desc_long_label =>
+      'Vollständige Dokumentation (optional)';
+
+  @override
+  String get marketplace_publish_deselect_all => 'Alle abwählen';
+
+  @override
+  String marketplace_publish_error(Object error) {
+    return 'Veröffentlichung fehlgeschlagen: $error';
+  }
+
+  @override
+  String get marketplace_publish_metadata => 'Vorlagendetails';
+
+  @override
+  String get marketplace_publish_metadata_hint =>
+      'Beschreibe deine Vorlage, damit andere sie finden und nutzen können.';
+
+  @override
+  String get marketplace_publish_name_hint => 'z.B. KI-Moderations-Bot';
+
+  @override
+  String get marketplace_publish_name_label => 'Vorlagenname';
+
+  @override
+  String get marketplace_publish_next => 'Weiter';
+
+  @override
+  String get marketplace_publish_no_content =>
+      'Keine Befehle oder Workflows zum Veröffentlichen.\nErstelle zuerst welche!';
+
+  @override
+  String get marketplace_publish_required_fields =>
+      'Bitte füllen Sie alle Pflichtfelder aus (Name, Kurzbeschreibung, Version), bevor Sie veröffentlichen.';
+
+  @override
+  String get marketplace_publish_select => 'Inhalt auswählen';
+
+  @override
+  String get marketplace_publish_select_all => 'Alle auswählen';
+
+  @override
+  String get marketplace_publish_select_hint =>
+      'Wähle Befehle, Workflows oder beides aus.';
+
+  @override
+  String get marketplace_publish_success =>
+      'Vorlage erfolgreich veröffentlicht!';
+
+  @override
+  String get marketplace_publish_summary => 'Zusammenfassung';
+
+  @override
+  String get marketplace_publish_tags_hint =>
+      'z.B. openai, chatbot, moderation';
+
+  @override
+  String get marketplace_publish_tags_label => 'Tags (durch Kommas getrennt)';
+
+  @override
+  String get marketplace_publish_title => 'Vorlage veröffentlichen';
+
+  @override
+  String get marketplace_publish_user_must_define =>
+      'Benutzer muss diesen Wert festlegen';
+
+  @override
+  String get marketplace_publish_user_must_define_hint =>
+      'Der Benutzer wird aufgefordert, diesen Wert vor der Anwendung einzugeben';
+
+  @override
+  String get marketplace_publish_variable_desc_hint =>
+      'Wofür diese Variable ist';
+
+  @override
+  String get marketplace_publish_variable_desc_label => 'Beschreibung';
+
+  @override
+  String get marketplace_publish_variable_name_hint => 'z.B. TOKEN_OPENAI';
+
+  @override
+  String get marketplace_publish_variable_name_label => 'Variablenname';
+
+  @override
+  String get marketplace_publish_variables => 'Globale Variablen';
+
+  @override
+  String get marketplace_publish_variables_hint =>
+      'Füge Variablen hinzu und markiere, welche der Benutzer ausfüllen muss.';
+
+  @override
+  String get marketplace_publish_version_label => 'Version';
+
+  @override
+  String marketplace_publish_workflows(Object count) {
+    return 'Workflows ($count)';
+  }
+
+  @override
+  String get marketplace_publishing => 'Wird veröffentlicht...';
+
+  @override
+  String get marketplace_rate_success => 'Bewertung gesendet!';
+
+  @override
+  String get marketplace_rate_title => 'Diese Vorlage bewerten';
+
+  @override
+  String get marketplace_retry => 'Wiederholen';
+
+  @override
+  String get marketplace_search_hint => 'Vorlagen durchsuchen...';
+
+  @override
+  String get marketplace_title => 'Marktplatz';
+
+  @override
+  String marketplace_variable_required(Object name) {
+    return '$name ist erforderlich';
+  }
+
+  @override
+  String get marketplace_variables_label => 'Vorkonfigurierte Variablen';
+
+  @override
+  String marketplace_workflows_label(Object count) {
+    return 'Workflows ($count)';
   }
 
   @override
@@ -4625,7 +5522,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get option_type_attachment => 'Anhang';
 
   @override
-  String get option_type_boolean => 'Boolean';
+  String get option_type_boolean => 'Boolesch';
 
   @override
   String get option_type_channel => 'Kanal';
@@ -4643,7 +5540,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get option_type_role => 'Rolle';
 
   @override
-  String get option_type_string => 'String';
+  String get option_type_string => 'Zeichenkette';
 
   @override
   String get option_type_subcommand => 'Unterbefehl';
@@ -4686,7 +5583,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get recovery_delete_bot => 'Bot lokal löschen';
 
   @override
-  String get recovery_label => 'Recovery';
+  String get recovery_label => 'Wiederherstellung';
 
   @override
   String get recovery_retry_discord => 'Discord-Verbindung erneut versuchen';
@@ -4766,7 +5663,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get response_mode_standard => 'Standard-Nachricht';
 
   @override
-  String get response_visibility_ephemeral => 'ephemeral';
+  String get response_visibility_ephemeral => 'ephemer';
 
   @override
   String get response_visibility_public => 'öffentlich';
@@ -4987,7 +5884,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Erstellen Sie mindestens einen Workflow, bevor Sie einen Zeitplan hinzufügen.';
 
   @override
-  String get scheduler_page_title => 'Scheduler';
+  String get scheduler_page_title => 'Planer';
 
   @override
   String scheduler_save_failed(String error) {
@@ -5000,10 +5897,10 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get scheduler_tab => 'Scheduler';
+  String get scheduler_tab => 'Planer';
 
   @override
-  String get scheduler_tab_short => 'Sched';
+  String get scheduler_tab_short => 'Planer';
 
   @override
   String scheduler_triggers_count(int count, String limit) {
@@ -5351,7 +6248,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settings_compatibility_functions_category_json => 'JSON-Helfer';
 
   @override
-  String get settings_compatibility_functions_category_logging => 'Logging';
+  String get settings_compatibility_functions_category_logging =>
+      'Protokollierung';
 
   @override
   String get settings_compatibility_functions_category_messages =>
@@ -5802,9 +6700,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settings_legal_title => 'Rechtliches';
 
   @override
-  String get settings_oss_licenses => 'Open-Source-Lizenzen';
-
-  @override
   String get settings_local_hosting_enabled =>
       'Mobile Bots nutzen jetzt Ihr Gerät für das Hosting.';
 
@@ -5892,6 +6787,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settings_manual_snapshot_label => 'Manueller Snapshot';
 
   @override
+  String get settings_member_badge => 'MITGLIED';
+
+  @override
   String get settings_notifications_desc =>
       'Wählen Sie aus, welche Push-Benachrichtigungen Sie erhalten möchten.';
 
@@ -5930,10 +6828,34 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settings_open_ad_inspector => 'Anzeigen-Inspektor öffnen';
 
   @override
+  String get settings_oss_licenses => 'Open-Source-Lizenzen';
+
+  @override
+  String get settings_owner_badge => 'BESITZER';
+
+  @override
+  String get settings_owner_fallback => 'Besitzer';
+
+  @override
+  String get settings_personal_owner_fallback => 'Persönlicher Benutzer';
+
+  @override
+  String get settings_personal_owner_id_label => 'Besitzer-ID: ';
+
+  @override
+  String get settings_personal_owner_label => 'Besitzer: ';
+
+  @override
+  String get settings_personal_ownership => 'Persönlicher Besitz';
+
+  @override
   String get settings_preferences_reset_done => 'Einstellungen zurückgesetzt';
 
   @override
   String get settings_privacy_policy => 'Datenschutzerklärung';
+
+  @override
+  String get settings_raw_json_tile => 'Rohes JSON anzeigen (RAW JSON)';
 
   @override
   String get settings_recovery_title => 'Recovery Pro';
@@ -6158,6 +7080,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settings_snapshots_title => 'Snapshots';
 
   @override
+  String get settings_solo_pill => 'SOLO';
+
+  @override
   String get settings_startup_mode_cloud_desc =>
       'Empfohlen für Android und iOS. Protokolle, Statistiken und Start erfolgen über Bot Creator.';
 
@@ -6193,6 +7118,26 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settings_tab => 'Einstellungen';
+
+  @override
+  String get settings_team_id_label => 'Team-ID: ';
+
+  @override
+  String settings_team_members_label(int count) {
+    return 'Teammitglieder ($count)';
+  }
+
+  @override
+  String get settings_team_name_label => 'Teamname: ';
+
+  @override
+  String get settings_team_owner_label => 'Teamleiter';
+
+  @override
+  String get settings_team_ownership => 'Teambesitz';
+
+  @override
+  String get settings_team_pill => 'TEAM';
 
   @override
   String get settings_theme_switch_dark => 'Zum dunklen Modus wechseln';
@@ -6669,6 +7614,50 @@ class AppLocalizationsDe extends AppLocalizations {
       'Ein Unterbefehl kann keine verschachtelten Unterbefehle oder Unterbefehl-Gruppen enthalten.';
 
   @override
+  String get variable_autocomplete_numeric_title =>
+      'Dynamische numerische Vorschläge';
+
+  @override
+  String get variable_autocomplete_title =>
+      'Verfügbare Variablen — zum Einfügen tippen';
+
+  @override
+  String get variable_category_author => 'Autor';
+
+  @override
+  String get variable_category_bot => 'Bot';
+
+  @override
+  String get variable_category_channel => 'Kanal';
+
+  @override
+  String get variable_category_context => 'Kontext';
+
+  @override
+  String get variable_category_functions => 'Funktionen';
+
+  @override
+  String get variable_category_guild => 'Server';
+
+  @override
+  String get variable_category_interaction => 'Interaktion';
+
+  @override
+  String get variable_category_member => 'Mitglied';
+
+  @override
+  String get variable_category_message => 'Nachricht';
+
+  @override
+  String get variable_category_other => 'Andere';
+
+  @override
+  String get variable_category_temp => 'Temporär';
+
+  @override
+  String get variable_category_user => 'Benutzer';
+
+  @override
   String get webhooks_actions => 'Aktionen';
 
   @override
@@ -6944,7 +7933,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get workflow_set_call_args => 'Aufruf-Argumente setzen';
 
   @override
-  String get workflow_visibility_ephemeral => 'Ephemeral';
+  String get workflow_visibility_ephemeral => 'Ephemer';
 
   @override
   String get workflow_visibility_public => 'Öffentlich';
@@ -7213,527 +8202,4 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get workflows_type_title => 'Workflow-Typ';
-
-  @override
-  String get settings_team_ownership => 'Teambesitz';
-
-  @override
-  String get settings_personal_ownership => 'Persönlicher Besitz';
-
-  @override
-  String get settings_team_pill => 'TEAM';
-
-  @override
-  String get settings_solo_pill => 'SOLO';
-
-  @override
-  String get settings_team_name_label => 'Teamname: ';
-
-  @override
-  String get settings_team_id_label => 'Team-ID: ';
-
-  @override
-  String get settings_team_owner_label => 'Teamleiter';
-
-  @override
-  String get settings_owner_fallback => 'Besitzer';
-
-  @override
-  String get settings_owner_badge => 'BESITZER';
-
-  @override
-  String settings_team_members_label(int count) {
-    return 'Teammitglieder ($count)';
-  }
-
-  @override
-  String get settings_personal_owner_label => 'Besitzer: ';
-
-  @override
-  String get settings_personal_owner_fallback => 'Persönlicher Benutzer';
-
-  @override
-  String get settings_personal_owner_id_label => 'Besitzer-ID: ';
-
-  @override
-  String get settings_raw_json_tile => 'Rohes JSON anzeigen (RAW JSON)';
-
-  @override
-  String get settings_member_badge => 'MITGLIED';
-
-  @override
-  String get cmd_deploy_local_save_title => 'Lokale Speicherung';
-
-  @override
-  String get cmd_deploy_local_save_subtitle => 'Befehl auf dem Gerät speichern';
-
-  @override
-  String get cmd_deploy_reload_bot_title => 'Bot neu laden';
-
-  @override
-  String get cmd_deploy_reload_bot_subtitle =>
-      'Hot-Reload-Konfiguration anwenden';
-
-  @override
-  String get cmd_deploy_discord_sync_title => 'Discord-Synchronisation';
-
-  @override
-  String get cmd_deploy_discord_sync_subtitle =>
-      'Befehl in der Discord-API veröffentlichen';
-
-  @override
-  String get cmd_deploy_cloud_sync_title => 'Cloud-Backup';
-
-  @override
-  String get cmd_deploy_cloud_sync_subtitle =>
-      'Sichere Synchronisierung mit Ihrem Online-Speicher';
-
-  @override
-  String get cmd_deploy_hot_reload_title => 'Hot Reload';
-
-  @override
-  String get cmd_deploy_hot_reload_subtitle =>
-      'Sofortige Aktualisierung Ihres Bot-Runners';
-
-  @override
-  String cmd_deploy_success_toast(String name) {
-    return 'Befehl \"$name\" bereitgestellt und aktiv!';
-  }
-
-  @override
-  String get cmd_deploy_success_title => 'Bereitstellung erfolgreich!';
-
-  @override
-  String get cmd_deploy_failed_title => 'Bereitstellung fehlgeschlagen';
-
-  @override
-  String get cmd_deploy_in_progress_title => 'Bereitstellung läuft...';
-
-  @override
-  String cmd_deploy_config_subtitle(String name) {
-    return 'Konfiguration von /$name';
-  }
-
-  @override
-  String get cmd_deploy_close_button => 'Schließen';
-
-  @override
-  String get cmd_deploy_retry_button => 'Wiederholen';
-
-  @override
-  String get variable_category_context => 'Kontext';
-
-  @override
-  String get variable_category_interaction => 'Interaktion';
-
-  @override
-  String get variable_category_bot => 'Bot';
-
-  @override
-  String get variable_category_guild => 'Server';
-
-  @override
-  String get variable_category_channel => 'Kanal';
-
-  @override
-  String get variable_category_member => 'Mitglied';
-
-  @override
-  String get variable_category_message => 'Nachricht';
-
-  @override
-  String get variable_category_author => 'Autor';
-
-  @override
-  String get variable_category_user => 'Benutzer';
-
-  @override
-  String get variable_category_temp => 'Temporär';
-
-  @override
-  String get variable_category_functions => 'Funktionen';
-
-  @override
-  String get variable_category_other => 'Andere';
-
-  @override
-  String get variable_autocomplete_title =>
-      'Verfügbare Variablen — zum Einfügen tippen';
-
-  @override
-  String get variable_autocomplete_numeric_title =>
-      'Dynamische numerische Vorschläge';
-
-  @override
-  String get bot_settings_tab_general => 'Allgemein';
-
-  @override
-  String get bot_settings_tab_presence => 'Präsenz & Status';
-
-  @override
-  String get bot_settings_tab_intents => 'Intents & Berechtigungen';
-
-  @override
-  String get bot_settings_tab_advanced => 'Erweitert & Wartung';
-
-  @override
-  String get bot_settings_avatar_selected => 'Ausgewähltes Bild:';
-
-  @override
-  String get bot_settings_avatar_none_selected =>
-      'Kein neues Bild ausgewählt. Klicken Sie auf Durchsuchen, um eines auszuwählen.';
-
-  @override
-  String get bot_settings_avatar_important_note =>
-      'Wichtig: Profiländerungen (Benutzername und Avatar) werden erst dann auf Discord angewendet, wenn Sie unten auf \'Profil und Status speichern\' klicken.';
-
-  @override
-  String get marketplace_title => 'Marktplatz';
-
-  @override
-  String get marketplace_search_hint => 'Vorlagen durchsuchen...';
-
-  @override
-  String get marketplace_empty =>
-      'Noch keine Vorlagen.\nSei der Erste, der veröffentlicht!';
-
-  @override
-  String marketplace_no_results(Object query) {
-    return 'Keine Vorlagen entsprechen \"$query\"';
-  }
-
-  @override
-  String marketplace_count(Object count) {
-    return '$count Vorlage(n)';
-  }
-
-  @override
-  String get marketplace_retry => 'Wiederholen';
-
-  @override
-  String get marketplace_apply => 'Vorlage anwenden';
-
-  @override
-  String get marketplace_applying => 'Wird angewendet...';
-
-  @override
-  String get marketplace_apply_success => 'Vorlage erfolgreich angewendet!';
-
-  @override
-  String marketplace_apply_success_skipped(
-    Object addedCount,
-    Object skippedCount,
-  ) {
-    return '$addedCount Befehl(e) hinzugefügt, $skippedCount übersprungen (Duplikate).';
-  }
-
-  @override
-  String marketplace_apply_error(Object error) {
-    return 'Anwendung fehlgeschlagen: $error';
-  }
-
-  @override
-  String get marketplace_login_required => 'Discord-Verbindung erforderlich';
-
-  @override
-  String get marketplace_login_hint =>
-      'Du musst dein Discord-Konto verbinden, um auf den Marktplatz zuzugreifen.';
-
-  @override
-  String get marketplace_connect_discord => 'Mit Discord verbinden';
-
-  @override
-  String get marketplace_login_title => 'Mit Manager verbinden';
-
-  @override
-  String get marketplace_login_instructions =>
-      'Bitte authentifiziere dich über Discord, um den Marktplatz weiter zu nutzen.';
-
-  @override
-  String get marketplace_rate_title => 'Diese Vorlage bewerten';
-
-  @override
-  String get marketplace_rate_success => 'Bewertung gesendet!';
-
-  @override
-  String get marketplace_edit => 'Bearbeiten';
-
-  @override
-  String get marketplace_delete => 'Löschen';
-
-  @override
-  String get marketplace_edit_hint =>
-      'Zum Bearbeiten erneut aus der Befehlsliste deines Bots mit demselben Namen veröffentlichen.';
-
-  @override
-  String get marketplace_delete_confirm_title => 'Vorlage löschen';
-
-  @override
-  String marketplace_delete_confirm(Object name) {
-    return 'Bist du sicher, dass du \"$name\" löschen möchtest? Dies kann nicht rückgängig gemacht werden.';
-  }
-
-  @override
-  String get marketplace_delete_success => 'Vorlage gelöscht.';
-
-  @override
-  String get marketplace_my_templates => 'Meine Vorlagen';
-
-  @override
-  String get marketplace_login_success => 'Discord erfolgreich verbunden!';
-
-  @override
-  String get marketplace_config_required => 'Konfiguration erforderlich';
-
-  @override
-  String get marketplace_config_hint =>
-      'Fülle die erforderlichen Werte aus, bevor du diese Vorlage anwendest.';
-
-  @override
-  String marketplace_variable_required(Object name) {
-    return '$name ist erforderlich';
-  }
-
-  @override
-  String get marketplace_about => 'Über';
-
-  @override
-  String marketplace_commands_label(Object count) {
-    return 'Befehle ($count)';
-  }
-
-  @override
-  String marketplace_workflows_label(Object count) {
-    return 'Workflows ($count)';
-  }
-
-  @override
-  String get marketplace_variables_label => 'Vorkonfigurierte Variablen';
-
-  @override
-  String marketplace_more(Object count) {
-    return '+$count weitere';
-  }
-
-  @override
-  String get marketplace_publish_title => 'Vorlage veröffentlichen';
-
-  @override
-  String get marketplace_publish_select => 'Inhalt auswählen';
-
-  @override
-  String get marketplace_publish_select_hint =>
-      'Wähle Befehle, Workflows oder beides aus.';
-
-  @override
-  String marketplace_publish_commands(Object count) {
-    return 'Befehle ($count)';
-  }
-
-  @override
-  String marketplace_publish_workflows(Object count) {
-    return 'Workflows ($count)';
-  }
-
-  @override
-  String get marketplace_publish_variables => 'Globale Variablen';
-
-  @override
-  String get marketplace_publish_variables_hint =>
-      'Füge Variablen hinzu und markiere, welche der Benutzer ausfüllen muss.';
-
-  @override
-  String get marketplace_publish_metadata => 'Vorlagendetails';
-
-  @override
-  String get marketplace_publish_metadata_hint =>
-      'Beschreibe deine Vorlage, damit andere sie finden und nutzen können.';
-
-  @override
-  String get marketplace_publish_summary => 'Zusammenfassung';
-
-  @override
-  String get marketplace_publish_select_all => 'Alle auswählen';
-
-  @override
-  String get marketplace_publish_deselect_all => 'Alle abwählen';
-
-  @override
-  String get marketplace_publish_user_must_define =>
-      'Benutzer muss diesen Wert festlegen';
-
-  @override
-  String get marketplace_publish_user_must_define_hint =>
-      'Der Benutzer wird aufgefordert, diesen Wert vor der Anwendung einzugeben';
-
-  @override
-  String get marketplace_publish_add_variable => 'Variable hinzufügen';
-
-  @override
-  String get marketplace_publish_add_variable_title => 'Variable hinzufügen';
-
-  @override
-  String get marketplace_publish_name_label => 'Vorlagenname';
-
-  @override
-  String get marketplace_publish_name_hint => 'z.B. KI-Moderations-Bot';
-
-  @override
-  String get marketplace_publish_desc_label => 'Kurzbeschreibung';
-
-  @override
-  String get marketplace_publish_desc_hint =>
-      'Eine einzeilige Zusammenfassung, die im Marktplatz angezeigt wird';
-
-  @override
-  String get marketplace_publish_desc_long_label =>
-      'Vollständige Dokumentation (optional)';
-
-  @override
-  String get marketplace_publish_desc_long_hint =>
-      'Detaillierte Nutzungsanweisungen, Markdown unterstützt...';
-
-  @override
-  String get marketplace_publish_category_label => 'Kategorie';
-
-  @override
-  String get marketplace_publish_category_hint => 'z.B. ai, moderation, fun';
-
-  @override
-  String get marketplace_publish_version_label => 'Version';
-
-  @override
-  String get marketplace_publish_tags_label => 'Tags (durch Kommas getrennt)';
-
-  @override
-  String get marketplace_publish_tags_hint =>
-      'z.B. openai, chatbot, moderation';
-
-  @override
-  String get marketplace_publish_variable_name_label => 'Variablenname';
-
-  @override
-  String get marketplace_publish_variable_name_hint => 'z.B. TOKEN_OPENAI';
-
-  @override
-  String get marketplace_publish_variable_desc_label => 'Beschreibung';
-
-  @override
-  String get marketplace_publish_variable_desc_hint =>
-      'Wofür diese Variable ist';
-
-  @override
-  String get marketplace_publish_success =>
-      'Vorlage erfolgreich veröffentlicht!';
-
-  @override
-  String marketplace_publish_error(Object error) {
-    return 'Veröffentlichung fehlgeschlagen: $error';
-  }
-
-  @override
-  String get marketplace_publish_button => 'Veröffentlichen';
-
-  @override
-  String get marketplace_publishing => 'Wird veröffentlicht...';
-
-  @override
-  String get marketplace_publish_next => 'Weiter';
-
-  @override
-  String get marketplace_publish_back => 'Zurück';
-
-  @override
-  String get marketplace_publish_required_fields =>
-      'Bitte füllen Sie alle Pflichtfelder aus (Name, Kurzbeschreibung, Version), bevor Sie veröffentlichen.';
-
-  @override
-  String get marketplace_publish_no_content =>
-      'Keine Befehle oder Workflows zum Veröffentlichen.\nErstelle zuerst welche!';
-
-  @override
-  String get marketplace_no_variables => 'Keine globalen Variablen definiert.';
-
-  @override
-  String get marketplace_connect_manager =>
-      'Verbinde dich mit dem Manager, um auf den Marktplatz zuzugreifen.';
-
-  @override
-  String get marketplace_connect_publish =>
-      'Verbinde dich mit dem Manager, um eine Vorlage zu veröffentlichen.';
-
-  @override
-  String get marketplace_api_unavailable => 'API-Client nicht verfügbar';
-
-  @override
-  String marketplace_load_error(Object error) {
-    return 'Laden fehlgeschlagen: $error';
-  }
-
-  @override
-  String get marketplace_cancel => 'Abbrechen';
-
-  @override
-  String get marketplace_add => 'Hinzufügen';
-
-  @override
-  String marketplace_by_author(Object author, Object version) {
-    return 'von $author · v$version';
-  }
-
-  @override
-  String get marketplace_conflict_title => 'Command Conflicts';
-
-  @override
-  String get marketplace_conflict_subtitle =>
-      'Some template commands already exist. Choose which version to keep:';
-
-  @override
-  String get marketplace_conflict_keep_local => 'Keep Local';
-
-  @override
-  String get marketplace_conflict_use_template => 'Use Template';
-
-  @override
-  String marketplace_conflict_local_info(Object count) {
-    return 'Local ($count actions)';
-  }
-
-  @override
-  String marketplace_conflict_template_info(Object count) {
-    return 'Template ($count actions)';
-  }
-
-  @override
-  String marketplace_conflict_apply_choice(Object count) {
-    return 'Apply ($count template)';
-  }
-
-  @override
-  String marketplace_command_preview_actions(Object count) {
-    return '$count actions';
-  }
-
-  @override
-  String get marketplace_command_preview_no_actions => 'No actions';
-
-  @override
-  String get marketplace_command_preview_type_slash => 'Slash command';
-
-  @override
-  String get marketplace_command_preview_type_user => 'User context menu';
-
-  @override
-  String get marketplace_command_preview_type_message => 'Message context menu';
-
-  @override
-  String marketplace_command_preview_options(Object count) {
-    return '$count options';
-  }
-
-  @override
-  String get guilds_tab => 'Server';
-
-  @override
-  String get guilds_tab_short => 'Server';
 }

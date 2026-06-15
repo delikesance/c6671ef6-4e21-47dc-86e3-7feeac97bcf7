@@ -196,6 +196,12 @@ abstract class AppLocalizations {
   /// **'Moderation'**
   String get action_category_moderation;
 
+  /// Lavalink music key: action_category_music
+  ///
+  /// In en, this message translates to:
+  /// **'Music'**
+  String get action_category_music;
+
   /// Reactions
   ///
   /// In en, this message translates to:
@@ -250,11 +256,71 @@ abstract class AppLocalizations {
   /// **'Assign a role to a member'**
   String get action_description_addRole;
 
+  /// Action description for addThreadMember
+  ///
+  /// In en, this message translates to:
+  /// **'Add a member to a thread'**
+  String get action_description_addThreadMember;
+
+  /// Action description for appendArrayElement
+  ///
+  /// In en, this message translates to:
+  /// **'Append a new element into a global or scoped JSON array'**
+  String get action_description_appendArrayElement;
+
+  /// Action description for attachImage
+  ///
+  /// In en, this message translates to:
+  /// **'Attach an image file to the message response (URL, data URL, or base64)'**
+  String get action_description_attachImage;
+
   /// Permanently ban a user from the server
   ///
   /// In en, this message translates to:
   /// **'Permanently ban a user from the server'**
   String get action_description_banUser;
+
+  /// Action description for calculate
+  ///
+  /// In en, this message translates to:
+  /// **'Perform math operations and store result'**
+  String get action_description_calculate;
+
+  /// Action description for canvasCreateBlock
+  ///
+  /// In en, this message translates to:
+  /// **'Create a blank image canvas'**
+  String get action_description_canvasCreateBlock;
+
+  /// Action description for canvasDrawCircleBlock
+  ///
+  /// In en, this message translates to:
+  /// **'Draw a circle on the image canvas'**
+  String get action_description_canvasDrawCircleBlock;
+
+  /// Action description for canvasDrawLineBlock
+  ///
+  /// In en, this message translates to:
+  /// **'Draw a line on the canvas'**
+  String get action_description_canvasDrawLineBlock;
+
+  /// Action description for canvasDrawRectBlock
+  ///
+  /// In en, this message translates to:
+  /// **'Draw a rectangle on the image canvas'**
+  String get action_description_canvasDrawRectBlock;
+
+  /// Action description for canvasDrawTextBlock
+  ///
+  /// In en, this message translates to:
+  /// **'Draw text on the image canvas with styling options'**
+  String get action_description_canvasDrawTextBlock;
+
+  /// Action description for canvasLoadImageBlock
+  ///
+  /// In en, this message translates to:
+  /// **'Load an image from a URL or source into canvas'**
+  String get action_description_canvasLoadImageBlock;
 
   /// Remove all reactions from a message
   ///
@@ -268,6 +334,78 @@ abstract class AppLocalizations {
   /// **'Apply a command cooldown for the user or server'**
   String get action_description_cooldown;
 
+  /// Action description for createAutoModRule
+  ///
+  /// In en, this message translates to:
+  /// **'Create a guild auto-moderation rule'**
+  String get action_description_createAutoModRule;
+
+  /// Action description for createChannel
+  ///
+  /// In en, this message translates to:
+  /// **'Create a new channel'**
+  String get action_description_createChannel;
+
+  /// Action description for createEmoji
+  ///
+  /// In en, this message translates to:
+  /// **'Create a guild emoji from image data'**
+  String get action_description_createEmoji;
+
+  /// Action description for createInvite
+  ///
+  /// In en, this message translates to:
+  /// **'Create a new invite link for a channel'**
+  String get action_description_createInvite;
+
+  /// Action description for createPoll
+  ///
+  /// In en, this message translates to:
+  /// **'Create a poll message in a channel'**
+  String get action_description_createPoll;
+
+  /// Action description for createThread
+  ///
+  /// In en, this message translates to:
+  /// **'Create a thread in a supported text channel'**
+  String get action_description_createThread;
+
+  /// Action description for debugProfile
+  ///
+  /// In en, this message translates to:
+  /// **'Generate execution profile and diagnostics info'**
+  String get action_description_debugProfile;
+
+  /// Action description for deferInteraction
+  ///
+  /// In en, this message translates to:
+  /// **'Defer the interaction response to prevent Discord timeout'**
+  String get action_description_deferInteraction;
+
+  /// Action description for deleteAutoModRule
+  ///
+  /// In en, this message translates to:
+  /// **'Delete an auto-moderation rule'**
+  String get action_description_deleteAutoModRule;
+
+  /// Action description for deleteChannelPermission
+  ///
+  /// In en, this message translates to:
+  /// **'Delete a channel permission overwrite'**
+  String get action_description_deleteChannelPermission;
+
+  /// Action description for deleteEmoji
+  ///
+  /// In en, this message translates to:
+  /// **'Delete a guild emoji'**
+  String get action_description_deleteEmoji;
+
+  /// Action description for deleteInvite
+  ///
+  /// In en, this message translates to:
+  /// **'Delete an existing invite by code'**
+  String get action_description_deleteInvite;
+
   /// Delete one or more messages
   ///
   /// In en, this message translates to:
@@ -280,11 +418,131 @@ abstract class AppLocalizations {
   /// **'Delete the message that triggered this command'**
   String get action_description_deleteTrigger;
 
+  /// Action description for deleteWebhook
+  ///
+  /// In en, this message translates to:
+  /// **'Delete a webhook'**
+  String get action_description_deleteWebhook;
+
+  /// Action description for disconnectFromVoice
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnect a member from voice'**
+  String get action_description_disconnectFromVoice;
+
+  /// Action description for editChannelPermissions
+  ///
+  /// In en, this message translates to:
+  /// **'Create or update channel permission overwrites'**
+  String get action_description_editChannelPermissions;
+
+  /// Action description for editComponentV2
+  ///
+  /// In en, this message translates to:
+  /// **'Edit existing components'**
+  String get action_description_editComponentV2;
+
+  /// Action description for editInteractionMessage
+  ///
+  /// In en, this message translates to:
+  /// **'Edit the deferred or original interaction response'**
+  String get action_description_editInteractionMessage;
+
   /// Edit an existing message
   ///
   /// In en, this message translates to:
   /// **'Edit an existing message'**
   String get action_description_editMessage;
+
+  /// Action description for editWebhook
+  ///
+  /// In en, this message translates to:
+  /// **'Edit an existing Webhook'**
+  String get action_description_editWebhook;
+
+  /// Action description for endPoll
+  ///
+  /// In en, this message translates to:
+  /// **'End an active poll message immediately'**
+  String get action_description_endPoll;
+
+  /// Action description for forLoop
+  ///
+  /// In en, this message translates to:
+  /// **'Loop through a range of numbers (for loop)'**
+  String get action_description_forLoop;
+
+  /// Action description for getGlobalVariable
+  ///
+  /// In en, this message translates to:
+  /// **'Read a global variable and inject into runtime variables'**
+  String get action_description_getGlobalVariable;
+
+  /// Action description for getGuildOnboarding
+  ///
+  /// In en, this message translates to:
+  /// **'Fetch current guild onboarding configuration'**
+  String get action_description_getGuildOnboarding;
+
+  /// Action description for getInvite
+  ///
+  /// In en, this message translates to:
+  /// **'Fetch invite information by code'**
+  String get action_description_getInvite;
+
+  /// Action description for getMember
+  ///
+  /// In en, this message translates to:
+  /// **'Get member information'**
+  String get action_description_getMember;
+
+  /// Action description for getMessage
+  ///
+  /// In en, this message translates to:
+  /// **'Fetch a message and expose its fields'**
+  String get action_description_getMessage;
+
+  /// Lavalink music key: action_description_getMusicInfo
+  ///
+  /// In en, this message translates to:
+  /// **'Retrieve info about the currently playing track'**
+  String get action_description_getMusicInfo;
+
+  /// Action description for getScopedVariable
+  ///
+  /// In en, this message translates to:
+  /// **'Read a scoped variable and inject into runtime variables'**
+  String get action_description_getScopedVariable;
+
+  /// Action description for getWebhook
+  ///
+  /// In en, this message translates to:
+  /// **'Get Webhook information by ID'**
+  String get action_description_getWebhook;
+
+  /// Action description for httpRequest
+  ///
+  /// In en, this message translates to:
+  /// **'Send HTTP request with dynamic URL, method, headers and body'**
+  String get action_description_httpRequest;
+
+  /// Action description for ifBlock
+  ///
+  /// In en, this message translates to:
+  /// **'Conditional branching: run different actions based on a condition'**
+  String get action_description_ifBlock;
+
+  /// Lavalink music key: action_description_joinVoice
+  ///
+  /// In en, this message translates to:
+  /// **'Join a voice channel'**
+  String get action_description_joinVoice;
+
+  /// Action description for jsonForEachLoop
+  ///
+  /// In en, this message translates to:
+  /// **'Loop through each element of a JSON array or object (forEach)'**
+  String get action_description_jsonForEachLoop;
 
   /// Kick a member from the server
   ///
@@ -292,17 +550,137 @@ abstract class AppLocalizations {
   /// **'Kick a member from the server'**
   String get action_description_kickUser;
 
+  /// Action description for leaveGuild
+  ///
+  /// In en, this message translates to:
+  /// **'Make the bot leave the guild/server'**
+  String get action_description_leaveGuild;
+
+  /// Lavalink music key: action_description_leaveVoice
+  ///
+  /// In en, this message translates to:
+  /// **'Leave the voice channel and destroy the player'**
+  String get action_description_leaveVoice;
+
+  /// Action description for listAutoModRules
+  ///
+  /// In en, this message translates to:
+  /// **'List all auto-moderation rules in guild'**
+  String get action_description_listAutoModRules;
+
+  /// Action description for listMembers
+  ///
+  /// In en, this message translates to:
+  /// **'List members in a guild with options'**
+  String get action_description_listMembers;
+
+  /// Action description for listScopedVariableIndex
+  ///
+  /// In en, this message translates to:
+  /// **'List indexed scoped values sorted by value with offset and limit'**
+  String get action_description_listScopedVariableIndex;
+
+  /// Action description for listWebhooks
+  ///
+  /// In en, this message translates to:
+  /// **'List all Webhooks in a channel or guild'**
+  String get action_description_listWebhooks;
+
+  /// Action description for listenAndExecute
+  ///
+  /// In en, this message translates to:
+  /// **'Register a workflow to run when a button is clicked, select menu is used, or modal is submitted'**
+  String get action_description_listenAndExecute;
+
+  /// Action description for listenForButtonClick
+  ///
+  /// In en, this message translates to:
+  /// **'Register a workflow to run when a button is clicked'**
+  String get action_description_listenForButtonClick;
+
+  /// Action description for listenForModalSubmit
+  ///
+  /// In en, this message translates to:
+  /// **'Register a workflow to run when a modal is submitted'**
+  String get action_description_listenForModalSubmit;
+
+  /// Action description for listenForSelectMenu
+  ///
+  /// In en, this message translates to:
+  /// **'Register a workflow to run when a select menu is used'**
+  String get action_description_listenForSelectMenu;
+
+  /// Action description for log
+  ///
+  /// In en, this message translates to:
+  /// **'Print or store diagnostic message to action logs'**
+  String get action_description_log;
+
+  /// Action description for moveToVoiceChannel
+  ///
+  /// In en, this message translates to:
+  /// **'Move a member to a specific voice channel'**
+  String get action_description_moveToVoiceChannel;
+
   /// Temporarily exclude (timeout) a member
   ///
   /// In en, this message translates to:
   /// **'Temporarily exclude (timeout) a member'**
   String get action_description_muteUser;
 
+  /// Lavalink music key: action_description_pauseMusic
+  ///
+  /// In en, this message translates to:
+  /// **'Pause the current track'**
+  String get action_description_pauseMusic;
+
+  /// Action description for pinMessage
+  ///
+  /// In en, this message translates to:
+  /// **'Pin a message in a channel'**
+  String get action_description_pinMessage;
+
+  /// Lavalink music key: action_description_playMusic
+  ///
+  /// In en, this message translates to:
+  /// **'Play a track by search query or URL'**
+  String get action_description_playMusic;
+
+  /// Action description for queryArray
+  ///
+  /// In en, this message translates to:
+  /// **'Filter, sort and page any runtime JSON array'**
+  String get action_description_queryArray;
+
   /// Pick a random item from a list and store it in a variable
   ///
   /// In en, this message translates to:
   /// **'Pick a random item from a list and store it in a variable'**
   String get action_description_randomChoice;
+
+  /// Action description for registerGuildCommands
+  ///
+  /// In en, this message translates to:
+  /// **'Register application commands to a guild'**
+  String get action_description_registerGuildCommands;
+
+  /// Action description for removeArrayElement
+  ///
+  /// In en, this message translates to:
+  /// **'Remove one element from a global or scoped JSON array by index'**
+  String get action_description_removeArrayElement;
+
+  /// Action description for removeChannel
+  ///
+  /// In en, this message translates to:
+  /// **'Delete a channel'**
+  String get action_description_removeChannel;
+
+  /// Action description for removeGlobalVariable
+  ///
+  /// In en, this message translates to:
+  /// **'Delete a global variable'**
+  String get action_description_removeGlobalVariable;
 
   /// Remove a reaction from a message
   ///
@@ -316,6 +694,90 @@ abstract class AppLocalizations {
   /// **'Remove a role from a member'**
   String get action_description_removeRole;
 
+  /// Action description for removeScopedVariable
+  ///
+  /// In en, this message translates to:
+  /// **'Delete a scoped variable'**
+  String get action_description_removeScopedVariable;
+
+  /// Action description for removeThreadMember
+  ///
+  /// In en, this message translates to:
+  /// **'Remove a member from a thread'**
+  String get action_description_removeThreadMember;
+
+  /// Action description for renameScopedVariable
+  ///
+  /// In en, this message translates to:
+  /// **'Rename a scoped variable key'**
+  String get action_description_renameScopedVariable;
+
+  /// Action description for respondWithAutocomplete
+  ///
+  /// In en, this message translates to:
+  /// **'Reply to a Discord autocomplete interaction with up to 25 dynamic choices'**
+  String get action_description_respondWithAutocomplete;
+
+  /// Action description for respondWithComponentV2
+  ///
+  /// In en, this message translates to:
+  /// **'Reply to command with buttons/select menus'**
+  String get action_description_respondWithComponentV2;
+
+  /// Action description for respondWithMessage
+  ///
+  /// In en, this message translates to:
+  /// **'Reply to command with a normal message'**
+  String get action_description_respondWithMessage;
+
+  /// Action description for respondWithModal
+  ///
+  /// In en, this message translates to:
+  /// **'Show a modal dialog to the user'**
+  String get action_description_respondWithModal;
+
+  /// Lavalink music key: action_description_resumeMusic
+  ///
+  /// In en, this message translates to:
+  /// **'Resume a paused track'**
+  String get action_description_resumeMusic;
+
+  /// Action description for runBdfdScript
+  ///
+  /// In en, this message translates to:
+  /// **'Compile and run a BDFD script inline as workflow actions'**
+  String get action_description_runBdfdScript;
+
+  /// Action description for runWorkflow
+  ///
+  /// In en, this message translates to:
+  /// **'Execute a saved workflow (supports entry point + arguments)'**
+  String get action_description_runWorkflow;
+
+  /// Action description for runtimeImageBlock
+  ///
+  /// In en, this message translates to:
+  /// **'Run block of image canvas processing actions'**
+  String get action_description_runtimeImageBlock;
+
+  /// Action description for runtimeJsonBlock
+  ///
+  /// In en, this message translates to:
+  /// **'Run block of JSON processing actions'**
+  String get action_description_runtimeJsonBlock;
+
+  /// Lavalink music key: action_description_seekMusic
+  ///
+  /// In en, this message translates to:
+  /// **'Seek to a position in the current track'**
+  String get action_description_seekMusic;
+
+  /// Action description for sendComponentV2
+  ///
+  /// In en, this message translates to:
+  /// **'Send interactive components'**
+  String get action_description_sendComponentV2;
+
   /// Send a private message to a specific user
   ///
   /// In en, this message translates to:
@@ -328,11 +790,65 @@ abstract class AppLocalizations {
   /// **'Send a message to a specific channel'**
   String get action_description_sendMessage;
 
+  /// Action description for sendWebhook
+  ///
+  /// In en, this message translates to:
+  /// **'Send message via Webhook'**
+  String get action_description_sendWebhook;
+
+  /// Action description for serverDeafenMember
+  ///
+  /// In en, this message translates to:
+  /// **'Server-deafen or undeafen a member'**
+  String get action_description_serverDeafenMember;
+
+  /// Action description for serverMuteMember
+  ///
+  /// In en, this message translates to:
+  /// **'Server-mute or unmute a member'**
+  String get action_description_serverMuteMember;
+
+  /// Action description for setGlobalVariable
+  ///
+  /// In en, this message translates to:
+  /// **'Create or update a global variable for this bot'**
+  String get action_description_setGlobalVariable;
+
+  /// Lavalink music key: action_description_setMusicLoop
+  ///
+  /// In en, this message translates to:
+  /// **'Enable or disable looping of the queue'**
+  String get action_description_setMusicLoop;
+
+  /// Lavalink music key: action_description_setMusicVolume
+  ///
+  /// In en, this message translates to:
+  /// **'Set the player volume (0 to 200)'**
+  String get action_description_setMusicVolume;
+
   /// Change a server member's nickname
   ///
   /// In en, this message translates to:
   /// **'Change a server member\'s nickname'**
   String get action_description_setNickname;
+
+  /// Action description for setScopedVariable
+  ///
+  /// In en, this message translates to:
+  /// **'Create or update a scoped variable (guild/user/channel/guildMember/message)'**
+  String get action_description_setScopedVariable;
+
+  /// Action description for setTemporaryVariable
+  ///
+  /// In en, this message translates to:
+  /// **'Create or update a temporary variable in local execution'**
+  String get action_description_setTemporaryVariable;
+
+  /// Lavalink music key: action_description_skipMusic
+  ///
+  /// In en, this message translates to:
+  /// **'Skip to the next track in the queue'**
+  String get action_description_skipMusic;
 
   /// Set the slowmode duration for a channel
   ///
@@ -346,6 +862,18 @@ abstract class AppLocalizations {
   /// **'Immediately stop the execution of the current workflow'**
   String get action_description_stop;
 
+  /// Lavalink music key: action_description_stopMusic
+  ///
+  /// In en, this message translates to:
+  /// **'Stop playback and clear the queue'**
+  String get action_description_stopMusic;
+
+  /// Action description for stopUnless
+  ///
+  /// In en, this message translates to:
+  /// **'Stop the workflow if a condition is not met (guard/filter)'**
+  String get action_description_stopUnless;
+
   /// Revoke a user's ban
   ///
   /// In en, this message translates to:
@@ -357,6 +885,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remove temporary exclusion from a member'**
   String get action_description_unmuteUser;
+
+  /// Action description for unpinMessage
+  ///
+  /// In en, this message translates to:
+  /// **'Unpin a message in a channel'**
+  String get action_description_unpinMessage;
+
+  /// Action description for unregisterGuildCommands
+  ///
+  /// In en, this message translates to:
+  /// **'Unregister application commands from a guild'**
+  String get action_description_unregisterGuildCommands;
+
+  /// Action description for updateAutoMod
+  ///
+  /// In en, this message translates to:
+  /// **'Update auto-moderation settings'**
+  String get action_description_updateAutoMod;
+
+  /// Action description for updateChannel
+  ///
+  /// In en, this message translates to:
+  /// **'Update channel settings'**
+  String get action_description_updateChannel;
+
+  /// Action description for updateEmoji
+  ///
+  /// In en, this message translates to:
+  /// **'Update guild emoji name or role access'**
+  String get action_description_updateEmoji;
+
+  /// Action description for updateGuild
+  ///
+  /// In en, this message translates to:
+  /// **'Update guild settings'**
+  String get action_description_updateGuild;
+
+  /// Action description for updateGuildOnboarding
+  ///
+  /// In en, this message translates to:
+  /// **'Update guild onboarding configuration'**
+  String get action_description_updateGuildOnboarding;
+
+  /// Action description for updateSelfUser
+  ///
+  /// In en, this message translates to:
+  /// **'Update current bot user profile (username/avatar)'**
+  String get action_description_updateSelfUser;
 
   /// Pause the workflow execution for a specific duration
   ///
@@ -652,6 +1228,12 @@ abstract class AppLocalizations {
   /// **'Draw Circle'**
   String get action_name_canvasDrawCircleBlock;
 
+  /// Action name for canvasDrawLineBlock
+  ///
+  /// In en, this message translates to:
+  /// **'Draw Line'**
+  String get action_name_canvasDrawLineBlock;
+
   /// Draw Rectangle
   ///
   /// In en, this message translates to:
@@ -718,6 +1300,18 @@ abstract class AppLocalizations {
   /// **'Create Thread'**
   String get action_name_createThread;
 
+  /// Debug Profile
+  ///
+  /// In en, this message translates to:
+  /// **'Debug Profile'**
+  String get action_name_debugProfile;
+
+  /// Action name for deferInteraction
+  ///
+  /// In en, this message translates to:
+  /// **'Defer Interaction'**
+  String get action_name_deferInteraction;
+
   /// Delete AutoMod Rule
   ///
   /// In en, this message translates to:
@@ -759,12 +1353,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete Webhook'**
   String get action_name_deleteWebhook;
-
-  /// Debug Profile
-  ///
-  /// In en, this message translates to:
-  /// **'Debug Profile'**
-  String get action_name_debugProfile;
 
   /// Disconnect from Voice
   ///
@@ -844,6 +1432,12 @@ abstract class AppLocalizations {
   /// **'Get Message'**
   String get action_name_getMessage;
 
+  /// Lavalink music key: action_name_getMusicInfo
+  ///
+  /// In en, this message translates to:
+  /// **'Get Music Info'**
+  String get action_name_getMusicInfo;
+
   /// Get Scoped Variable
   ///
   /// In en, this message translates to:
@@ -868,6 +1462,12 @@ abstract class AppLocalizations {
   /// **'IF / ELSE Block'**
   String get action_name_ifBlock;
 
+  /// Lavalink music key: action_name_joinVoice
+  ///
+  /// In en, this message translates to:
+  /// **'Join Voice Channel'**
+  String get action_name_joinVoice;
+
   /// JSON For Each Loop
   ///
   /// In en, this message translates to:
@@ -879,6 +1479,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Kick User'**
   String get action_name_kickUser;
+
+  /// Action name for leaveGuild
+  ///
+  /// In en, this message translates to:
+  /// **'Leave Server'**
+  String get action_name_leaveGuild;
+
+  /// Lavalink music key: action_name_leaveVoice
+  ///
+  /// In en, this message translates to:
+  /// **'Leave Voice Channel'**
+  String get action_name_leaveVoice;
 
   /// List AutoMod Rules
   ///
@@ -903,6 +1515,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'List Webhooks'**
   String get action_name_listWebhooks;
+
+  /// Action name for listenAndExecute
+  ///
+  /// In en, this message translates to:
+  /// **'Listen and Execute'**
+  String get action_name_listenAndExecute;
 
   /// Listen for Button Click
   ///
@@ -940,11 +1558,23 @@ abstract class AppLocalizations {
   /// **'Mute User'**
   String get action_name_muteUser;
 
+  /// Lavalink music key: action_name_pauseMusic
+  ///
+  /// In en, this message translates to:
+  /// **'Pause Music'**
+  String get action_name_pauseMusic;
+
   /// Pin Message
   ///
   /// In en, this message translates to:
   /// **'Pin Message'**
   String get action_name_pinMessage;
+
+  /// Lavalink music key: action_name_playMusic
+  ///
+  /// In en, this message translates to:
+  /// **'Play Music'**
+  String get action_name_playMusic;
 
   /// Query Array
   ///
@@ -1036,17 +1666,23 @@ abstract class AppLocalizations {
   /// **'Respond with Modal'**
   String get action_name_respondWithModal;
 
+  /// Lavalink music key: action_name_resumeMusic
+  ///
+  /// In en, this message translates to:
+  /// **'Resume Music'**
+  String get action_name_resumeMusic;
+
   /// Run BDFD Script
   ///
   /// In en, this message translates to:
   /// **'Run BDFD Script'**
   String get action_name_runBdfdScript;
 
-  /// Execute JSON Operations
+  /// Run Workflow
   ///
   /// In en, this message translates to:
-  /// **'Execute JSON Operations'**
-  String get action_name_runtimeJsonBlock;
+  /// **'Run Workflow'**
+  String get action_name_runWorkflow;
 
   /// Execute Image Canvas
   ///
@@ -1054,11 +1690,17 @@ abstract class AppLocalizations {
   /// **'Execute Image Canvas'**
   String get action_name_runtimeImageBlock;
 
-  /// Run Workflow
+  /// Execute JSON Operations
   ///
   /// In en, this message translates to:
-  /// **'Run Workflow'**
-  String get action_name_runWorkflow;
+  /// **'Execute JSON Operations'**
+  String get action_name_runtimeJsonBlock;
+
+  /// Lavalink music key: action_name_seekMusic
+  ///
+  /// In en, this message translates to:
+  /// **'Seek Music Position'**
+  String get action_name_seekMusic;
 
   /// Send Component V2
   ///
@@ -1102,6 +1744,18 @@ abstract class AppLocalizations {
   /// **'Set Global Variable'**
   String get action_name_setGlobalVariable;
 
+  /// Lavalink music key: action_name_setMusicLoop
+  ///
+  /// In en, this message translates to:
+  /// **'Set Music Loop'**
+  String get action_name_setMusicLoop;
+
+  /// Lavalink music key: action_name_setMusicVolume
+  ///
+  /// In en, this message translates to:
+  /// **'Set Music Volume'**
+  String get action_name_setMusicVolume;
+
   /// Set Nickname
   ///
   /// In en, this message translates to:
@@ -1120,6 +1774,12 @@ abstract class AppLocalizations {
   /// **'Set Temporary Variable'**
   String get action_name_setTemporaryVariable;
 
+  /// Lavalink music key: action_name_skipMusic
+  ///
+  /// In en, this message translates to:
+  /// **'Skip Music'**
+  String get action_name_skipMusic;
+
   /// Slowmode
   ///
   /// In en, this message translates to:
@@ -1131,6 +1791,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stop Execution'**
   String get action_name_stop;
+
+  /// Lavalink music key: action_name_stopMusic
+  ///
+  /// In en, this message translates to:
+  /// **'Stop Music'**
+  String get action_name_stopMusic;
 
   /// Stop Unless Condition
   ///
@@ -2019,12 +2685,6 @@ abstract class AppLocalizations {
   /// **'Returns the body of the last HTTP response. Optionally pass a JSON path to extract a specific field.\n\nUsage: \$httpResult[] for the full body, or \$httpResult[data.name] for a nested field.'**
   String get bdfd_docs_desc_httpresult;
 
-  /// No description provided for @bdfd_docs_desc_url.
-  ///
-  /// In en, this message translates to:
-  /// **'Encodes or decodes text for use in URLs. Use \'encode\' to make text URL-safe, or \'decode\' to revert it.\n\nUsage: \$url[encode;Hello world!!]'**
-  String get bdfd_docs_desc_url;
-
   /// Conditional block. Supports nesting and rich operators: ==, !=, >=, <=, >, <, contains, startsWith, endsWith, notContains.
   ///
   /// Usage:
@@ -2104,6 +2764,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Wraps a block for error handling.\n\nUsage:\n\$try\n  \$httpGet[https://api.example.com/data]\n\$catch\n  Request failed!\n\$endtry\n\nIf any function in the \$try block fails, execution jumps to \$catch.'**
   String get bdfd_docs_desc_try;
+
+  /// No description provided for @bdfd_docs_desc_url.
+  ///
+  /// In en, this message translates to:
+  /// **'Encodes or decodes text for use in URLs. Use \'encode\' to make text URL-safe, or \'decode\' to revert it.\n\nUsage: \$url[encode;Hello world!!]'**
+  String get bdfd_docs_desc_url;
 
   /// Bot Creator only — Returns the response from the last $callWorkflow.
   ///
@@ -2539,11 +3205,23 @@ abstract class AppLocalizations {
   /// **'Clear selection'**
   String get bot_settings_avatar_clear_selection;
 
+  /// Important notice about profile change persistence
+  ///
+  /// In en, this message translates to:
+  /// **'Important: Profile changes (username and avatar) will only be applied to Discord when you click \'Save profile and statuses\' at the bottom.'**
+  String get bot_settings_avatar_important_note;
+
   /// Avatar local file path
   ///
   /// In en, this message translates to:
   /// **'Avatar local file path'**
   String get bot_settings_avatar_local_path;
+
+  /// Placeholder when no new avatar image is selected
+  ///
+  /// In en, this message translates to:
+  /// **'No new image selected. Click Browse to choose one.'**
+  String get bot_settings_avatar_none_selected;
 
   /// /absolute/path/to/avatar.png
   ///
@@ -2562,6 +3240,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Avatar preview'**
   String get bot_settings_avatar_preview_label;
+
+  /// Label for selected avatar image
+  ///
+  /// In en, this message translates to:
+  /// **'Selected image:'**
+  String get bot_settings_avatar_selected;
 
   /// Selected file: {path}
   ///
@@ -2845,6 +3529,30 @@ abstract class AppLocalizations {
   /// **'Watching'**
   String get bot_settings_status_type_watching;
 
+  /// Advanced & maintenance tab in bot settings
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced & Maintenance'**
+  String get bot_settings_tab_advanced;
+
+  /// General tab in bot settings
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get bot_settings_tab_general;
+
+  /// Intents & privileges tab in bot settings
+  ///
+  /// In en, this message translates to:
+  /// **'Intents & Privileges'**
+  String get bot_settings_tab_intents;
+
+  /// Presence & status tab in bot settings
+  ///
+  /// In en, this message translates to:
+  /// **'Presence & Status'**
+  String get bot_settings_tab_presence;
+
   /// Customize Bot / Profile
   ///
   /// In en, this message translates to:
@@ -3102,6 +3810,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete command'**
   String get cmd_delete_tooltip;
+
+  /// Close
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get cmd_deploy_close_button;
+
+  /// Secure synchronization with your online space
+  ///
+  /// In en, this message translates to:
+  /// **'Secure synchronization with your online space'**
+  String get cmd_deploy_cloud_sync_subtitle;
+
+  /// Cloud Backup
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud Backup'**
+  String get cmd_deploy_cloud_sync_title;
+
+  /// Subtitle showing command name under configuration
+  ///
+  /// In en, this message translates to:
+  /// **'Configuration of /{name}'**
+  String cmd_deploy_config_subtitle(String name);
+
+  /// Publishing command to Discord API
+  ///
+  /// In en, this message translates to:
+  /// **'Publishing command to Discord API'**
+  String get cmd_deploy_discord_sync_subtitle;
+
+  /// Discord Sync
+  ///
+  /// In en, this message translates to:
+  /// **'Discord Sync'**
+  String get cmd_deploy_discord_sync_title;
+
+  /// Deployment failed
+  ///
+  /// In en, this message translates to:
+  /// **'Deployment failed'**
+  String get cmd_deploy_failed_title;
+
+  /// Instant update of your bot runner
+  ///
+  /// In en, this message translates to:
+  /// **'Instant update of your bot runner'**
+  String get cmd_deploy_hot_reload_subtitle;
+
+  /// Hot Reload
+  ///
+  /// In en, this message translates to:
+  /// **'Hot Reload'**
+  String get cmd_deploy_hot_reload_title;
+
+  /// Deployment in progress...
+  ///
+  /// In en, this message translates to:
+  /// **'Deployment in progress...'**
+  String get cmd_deploy_in_progress_title;
+
+  /// Saving command to device
+  ///
+  /// In en, this message translates to:
+  /// **'Saving command to device'**
+  String get cmd_deploy_local_save_subtitle;
+
+  /// Local Save
+  ///
+  /// In en, this message translates to:
+  /// **'Local Save'**
+  String get cmd_deploy_local_save_title;
+
+  /// Applying hot reload configuration
+  ///
+  /// In en, this message translates to:
+  /// **'Applying hot reload configuration'**
+  String get cmd_deploy_reload_bot_subtitle;
+
+  /// Reloading Bot
+  ///
+  /// In en, this message translates to:
+  /// **'Reloading Bot'**
+  String get cmd_deploy_reload_bot_title;
+
+  /// Retry
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get cmd_deploy_retry_button;
+
+  /// Deployment successful!
+  ///
+  /// In en, this message translates to:
+  /// **'Deployment successful!'**
+  String get cmd_deploy_success_title;
+
+  /// Success message shown when command deployed successfully
+  ///
+  /// In en, this message translates to:
+  /// **'Command \"{name}\" deployed and active!'**
+  String cmd_deploy_success_toast(String name);
 
   /// Advanced mode
   ///
@@ -5029,6 +5839,12 @@ abstract class AppLocalizations {
   /// **'Dart Editor'**
   String get dart_editor_title;
 
+  /// Analysis Period
+  ///
+  /// In en, this message translates to:
+  /// **'Analysis Period'**
+  String get dashboard_analysis_period;
+
   /// Could not load stats: {error}
   ///
   /// In en, this message translates to:
@@ -5166,12 +5982,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Total commands'**
   String get dashboard_total;
-
-  /// Analysis Period
-  ///
-  /// In en, this message translates to:
-  /// **'Analysis Period'**
-  String get dashboard_analysis_period;
 
   /// Clear replays
   ///
@@ -7292,6 +8102,72 @@ abstract class AppLocalizations {
   /// **'Value is auto-typed (number, boolean, JSON).'**
   String get globals_value_auto_type_hint;
 
+  /// Servers page text key
+  ///
+  /// In en, this message translates to:
+  /// **'The bot is not in any server.\nInvite it to a server to see it here.'**
+  String get guilds_empty_state;
+
+  /// Leave confirmation dialogue message
+  ///
+  /// In en, this message translates to:
+  /// **'Leave \"{name}\"?\nThe bot will be removed from this server. You can re-invite it later from the Discord developer portal.'**
+  String guilds_leave_confirm(String name);
+
+  /// Error notification when leaving server fails
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to leave: {error}'**
+  String guilds_leave_failed(String error);
+
+  /// Servers page text key
+  ///
+  /// In en, this message translates to:
+  /// **'Leave Server'**
+  String get guilds_leave_title;
+
+  /// Servers page text key
+  ///
+  /// In en, this message translates to:
+  /// **'Leave'**
+  String get guilds_leave_tooltip;
+
+  /// Success notification after leaving server
+  ///
+  /// In en, this message translates to:
+  /// **'Left \"{name}\".'**
+  String guilds_left_success(String name);
+
+  /// Approximate members count in a guild
+  ///
+  /// In en, this message translates to:
+  /// **'~{count} members'**
+  String guilds_members_count_other(int count);
+
+  /// Servers page text key
+  ///
+  /// In en, this message translates to:
+  /// **'👑 Owner'**
+  String get guilds_owner_label;
+
+  /// Number of servers the bot is in
+  ///
+  /// In en, this message translates to:
+  /// **'{count} servers'**
+  String guilds_server_count_other(int count);
+
+  /// No description provided for @guilds_tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Servers'**
+  String get guilds_tab;
+
+  /// No description provided for @guilds_tab_short.
+  ///
+  /// In en, this message translates to:
+  /// **'Servers'**
+  String get guilds_tab_short;
+
   /// Use variables/templates if needed
   ///
   /// In en, this message translates to:
@@ -7448,6 +8324,30 @@ abstract class AppLocalizations {
   /// **'Unknown'**
   String get home_unknown_app;
 
+  /// Button label to create a new image canvas
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get image_editor_create;
+
+  /// Prompt shown when no canvas operations exist yet
+  ///
+  /// In en, this message translates to:
+  /// **'Create Image Canvas'**
+  String get image_editor_create_canvas;
+
+  /// Button label to edit existing canvas operations (count)
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Canvas ({count} ops)'**
+  String image_editor_edit_canvas(int count);
+
+  /// Button label to open the image editor for existing canvas
+  ///
+  /// In en, this message translates to:
+  /// **'Open Editor'**
+  String get image_editor_open;
+
   /// Import
   ///
   /// In en, this message translates to:
@@ -7538,30 +8438,6 @@ abstract class AppLocalizations {
   /// **'{count} workflow(s) skipped'**
   String import_summary_workflows_skipped(int count);
 
-  /// Button label to create a new image canvas
-  ///
-  /// In en, this message translates to:
-  /// **'Create'**
-  String get image_editor_create;
-
-  /// Prompt shown when no canvas operations exist yet
-  ///
-  /// In en, this message translates to:
-  /// **'Create Image Canvas'**
-  String get image_editor_create_canvas;
-
-  /// Button label to edit existing canvas operations (count)
-  ///
-  /// In en, this message translates to:
-  /// **'Edit Canvas ({count} ops)'**
-  String image_editor_edit_canvas(int count);
-
-  /// Button label to open the image editor for existing canvas
-  ///
-  /// In en, this message translates to:
-  /// **'Open Editor'**
-  String get image_editor_open;
-
   /// Failed to run BDFD script for command "{command}": {error}
   ///
   /// In en, this message translates to:
@@ -7598,12 +8474,6 @@ abstract class AppLocalizations {
   /// **'Prefix override (optional)'**
   String get legacy_prefix_override_label;
 
-  /// Legacy response mode
-  ///
-  /// In en, this message translates to:
-  /// **'Legacy response mode'**
-  String get legacy_response_mode_label;
-
   /// Body text for the legacy response deprecation banner (full size)
   ///
   /// In en, this message translates to:
@@ -7622,6 +8492,12 @@ abstract class AppLocalizations {
   /// **'Migrate all'**
   String get legacy_response_banner_migrate;
 
+  /// Error message when migration fails
+  ///
+  /// In en, this message translates to:
+  /// **'Migration failed'**
+  String get legacy_response_banner_migrate_failed;
+
   /// Message showing how many commands were migrated
   ///
   /// In en, this message translates to:
@@ -7633,12 +8509,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No commands need migration'**
   String get legacy_response_banner_migrated_none;
-
-  /// Error message when migration fails
-  ///
-  /// In en, this message translates to:
-  /// **'Migration failed'**
-  String get legacy_response_banner_migrate_failed;
 
   /// Loading state while migrating commands
   ///
@@ -7664,6 +8534,12 @@ abstract class AppLocalizations {
   /// **'Command response format update'**
   String get legacy_response_banner_title;
 
+  /// Legacy response mode
+  ///
+  /// In en, this message translates to:
+  /// **'Legacy response mode'**
+  String get legacy_response_mode_label;
+
   /// Awaited callback presets stay local because they are internal runtime callbacks.
   ///
   /// In en, this message translates to:
@@ -7687,6 +8563,573 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Logs from: {name}'**
   String logs_runner_source(String name);
+
+  /// No description provided for @marketplace_about.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get marketplace_about;
+
+  /// No description provided for @marketplace_add.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get marketplace_add;
+
+  /// No description provided for @marketplace_api_unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'API client not available'**
+  String get marketplace_api_unavailable;
+
+  /// No description provided for @marketplace_apply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply Template'**
+  String get marketplace_apply;
+
+  /// No description provided for @marketplace_apply_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to apply: {error}'**
+  String marketplace_apply_error(Object error);
+
+  /// No description provided for @marketplace_apply_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Template applied successfully!'**
+  String get marketplace_apply_success;
+
+  /// No description provided for @marketplace_apply_success_skipped.
+  ///
+  /// In en, this message translates to:
+  /// **'{addedCount} command(s) added, {skippedCount} skipped (duplicates).'**
+  String marketplace_apply_success_skipped(
+    Object addedCount,
+    Object skippedCount,
+  );
+
+  /// No description provided for @marketplace_applying.
+  ///
+  /// In en, this message translates to:
+  /// **'Applying...'**
+  String get marketplace_applying;
+
+  /// No description provided for @marketplace_by_author.
+  ///
+  /// In en, this message translates to:
+  /// **'by {author} · v{version}'**
+  String marketplace_by_author(Object author, Object version);
+
+  /// No description provided for @marketplace_cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get marketplace_cancel;
+
+  /// No description provided for @marketplace_command_preview_actions.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} actions'**
+  String marketplace_command_preview_actions(Object count);
+
+  /// No description provided for @marketplace_command_preview_no_actions.
+  ///
+  /// In en, this message translates to:
+  /// **'No actions'**
+  String get marketplace_command_preview_no_actions;
+
+  /// No description provided for @marketplace_command_preview_options.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} options'**
+  String marketplace_command_preview_options(Object count);
+
+  /// No description provided for @marketplace_command_preview_type_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Message context menu'**
+  String get marketplace_command_preview_type_message;
+
+  /// No description provided for @marketplace_command_preview_type_slash.
+  ///
+  /// In en, this message translates to:
+  /// **'Slash command'**
+  String get marketplace_command_preview_type_slash;
+
+  /// No description provided for @marketplace_command_preview_type_user.
+  ///
+  /// In en, this message translates to:
+  /// **'User context menu'**
+  String get marketplace_command_preview_type_user;
+
+  /// No description provided for @marketplace_commands_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Commands ({count})'**
+  String marketplace_commands_label(Object count);
+
+  /// No description provided for @marketplace_config_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in the required values before applying this template.'**
+  String get marketplace_config_hint;
+
+  /// No description provided for @marketplace_config_required.
+  ///
+  /// In en, this message translates to:
+  /// **'Configuration Required'**
+  String get marketplace_config_required;
+
+  /// No description provided for @marketplace_conflict_apply_choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply ({count} template)'**
+  String marketplace_conflict_apply_choice(Object count);
+
+  /// Label for keeping the local version of a command
+  ///
+  /// In en, this message translates to:
+  /// **'Keep Local'**
+  String get marketplace_conflict_keep_local;
+
+  /// No description provided for @marketplace_conflict_local_info.
+  ///
+  /// In en, this message translates to:
+  /// **'Local ({count} actions)'**
+  String marketplace_conflict_local_info(Object count);
+
+  /// Subtitle explaining that some commands conflict with local ones
+  ///
+  /// In en, this message translates to:
+  /// **'Some template commands already exist. Choose which version to keep:'**
+  String get marketplace_conflict_subtitle;
+
+  /// No description provided for @marketplace_conflict_template_info.
+  ///
+  /// In en, this message translates to:
+  /// **'Template ({count} actions)'**
+  String marketplace_conflict_template_info(Object count);
+
+  /// Title for the conflict resolution dialog when applying a template
+  ///
+  /// In en, this message translates to:
+  /// **'Command Conflicts'**
+  String get marketplace_conflict_title;
+
+  /// Label for using the template version of a command
+  ///
+  /// In en, this message translates to:
+  /// **'Use Template'**
+  String get marketplace_conflict_use_template;
+
+  /// No description provided for @marketplace_connect_discord.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect with Discord'**
+  String get marketplace_connect_discord;
+
+  /// No description provided for @marketplace_connect_manager.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to Manager to access the Marketplace.'**
+  String get marketplace_connect_manager;
+
+  /// No description provided for @marketplace_connect_publish.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to Manager to publish a template.'**
+  String get marketplace_connect_publish;
+
+  /// No description provided for @marketplace_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} template(s)'**
+  String marketplace_count(Object count);
+
+  /// No description provided for @marketplace_delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get marketplace_delete;
+
+  /// No description provided for @marketplace_delete_confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete \"{name}\"? This cannot be undone.'**
+  String marketplace_delete_confirm(Object name);
+
+  /// No description provided for @marketplace_delete_confirm_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Template'**
+  String get marketplace_delete_confirm_title;
+
+  /// No description provided for @marketplace_delete_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Template deleted.'**
+  String get marketplace_delete_success;
+
+  /// No description provided for @marketplace_edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get marketplace_edit;
+
+  /// No description provided for @marketplace_edit_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'To edit, re-publish from your bot\'s command list with the same name.'**
+  String get marketplace_edit_hint;
+
+  /// No description provided for @marketplace_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No templates yet.\nBe the first to publish!'**
+  String get marketplace_empty;
+
+  /// No description provided for @marketplace_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load data: {error}'**
+  String marketplace_load_error(Object error);
+
+  /// No description provided for @marketplace_login_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'You must connect your Discord account to access the Marketplace.'**
+  String get marketplace_login_hint;
+
+  /// No description provided for @marketplace_login_instructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Please authenticate via Discord to continue using the Marketplace.'**
+  String get marketplace_login_instructions;
+
+  /// No description provided for @marketplace_login_required.
+  ///
+  /// In en, this message translates to:
+  /// **'Discord connection required'**
+  String get marketplace_login_required;
+
+  /// No description provided for @marketplace_login_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Discord connected successfully!'**
+  String get marketplace_login_success;
+
+  /// No description provided for @marketplace_login_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to Manager'**
+  String get marketplace_login_title;
+
+  /// No description provided for @marketplace_more.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count} more'**
+  String marketplace_more(Object count);
+
+  /// No description provided for @marketplace_my_templates.
+  ///
+  /// In en, this message translates to:
+  /// **'My Templates'**
+  String get marketplace_my_templates;
+
+  /// No description provided for @marketplace_no_results.
+  ///
+  /// In en, this message translates to:
+  /// **'No templates match \"{query}\"'**
+  String marketplace_no_results(Object query);
+
+  /// No description provided for @marketplace_no_variables.
+  ///
+  /// In en, this message translates to:
+  /// **'No global variables defined.'**
+  String get marketplace_no_variables;
+
+  /// No description provided for @marketplace_publish_add_variable.
+  ///
+  /// In en, this message translates to:
+  /// **'Add custom variable'**
+  String get marketplace_publish_add_variable;
+
+  /// No description provided for @marketplace_publish_add_variable_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Variable'**
+  String get marketplace_publish_add_variable_title;
+
+  /// No description provided for @marketplace_publish_back.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get marketplace_publish_back;
+
+  /// No description provided for @marketplace_publish_button.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish'**
+  String get marketplace_publish_button;
+
+  /// No description provided for @marketplace_publish_category_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. ai, moderation, fun'**
+  String get marketplace_publish_category_hint;
+
+  /// No description provided for @marketplace_publish_category_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get marketplace_publish_category_label;
+
+  /// No description provided for @marketplace_publish_commands.
+  ///
+  /// In en, this message translates to:
+  /// **'Commands ({count})'**
+  String marketplace_publish_commands(Object count);
+
+  /// No description provided for @marketplace_publish_desc_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'A one-line summary shown in the marketplace'**
+  String get marketplace_publish_desc_hint;
+
+  /// No description provided for @marketplace_publish_desc_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Short description'**
+  String get marketplace_publish_desc_label;
+
+  /// No description provided for @marketplace_publish_desc_long_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Detailed usage instructions, markdown supported...'**
+  String get marketplace_publish_desc_long_hint;
+
+  /// No description provided for @marketplace_publish_desc_long_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Full documentation (optional)'**
+  String get marketplace_publish_desc_long_label;
+
+  /// No description provided for @marketplace_publish_deselect_all.
+  ///
+  /// In en, this message translates to:
+  /// **'Deselect all'**
+  String get marketplace_publish_deselect_all;
+
+  /// No description provided for @marketplace_publish_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to publish: {error}'**
+  String marketplace_publish_error(Object error);
+
+  /// No description provided for @marketplace_publish_metadata.
+  ///
+  /// In en, this message translates to:
+  /// **'Template Details'**
+  String get marketplace_publish_metadata;
+
+  /// No description provided for @marketplace_publish_metadata_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe your template so others can find and use it.'**
+  String get marketplace_publish_metadata_hint;
+
+  /// No description provided for @marketplace_publish_name_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. AI Moderation Bot'**
+  String get marketplace_publish_name_hint;
+
+  /// No description provided for @marketplace_publish_name_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Template name'**
+  String get marketplace_publish_name_label;
+
+  /// No description provided for @marketplace_publish_next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get marketplace_publish_next;
+
+  /// No description provided for @marketplace_publish_no_content.
+  ///
+  /// In en, this message translates to:
+  /// **'No commands or workflows to publish.\nCreate some first!'**
+  String get marketplace_publish_no_content;
+
+  /// No description provided for @marketplace_publish_required_fields.
+  ///
+  /// In en, this message translates to:
+  /// **'Please fill in all required fields (Template name, Short description, Version) before publishing.'**
+  String get marketplace_publish_required_fields;
+
+  /// No description provided for @marketplace_publish_select.
+  ///
+  /// In en, this message translates to:
+  /// **'Select what to include'**
+  String get marketplace_publish_select;
+
+  /// No description provided for @marketplace_publish_select_all.
+  ///
+  /// In en, this message translates to:
+  /// **'Select all'**
+  String get marketplace_publish_select_all;
+
+  /// No description provided for @marketplace_publish_select_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick commands, workflows, or both. Each becomes part of the template.'**
+  String get marketplace_publish_select_hint;
+
+  /// No description provided for @marketplace_publish_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Template published successfully!'**
+  String get marketplace_publish_success;
+
+  /// No description provided for @marketplace_publish_summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Template Summary'**
+  String get marketplace_publish_summary;
+
+  /// No description provided for @marketplace_publish_tags_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. openai, chatbot, moderation'**
+  String get marketplace_publish_tags_hint;
+
+  /// No description provided for @marketplace_publish_tags_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags (comma separated)'**
+  String get marketplace_publish_tags_label;
+
+  /// No description provided for @marketplace_publish_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish Template'**
+  String get marketplace_publish_title;
+
+  /// No description provided for @marketplace_publish_user_must_define.
+  ///
+  /// In en, this message translates to:
+  /// **'User must define this value'**
+  String get marketplace_publish_user_must_define;
+
+  /// No description provided for @marketplace_publish_user_must_define_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'The user will be prompted to fill it in before applying'**
+  String get marketplace_publish_user_must_define_hint;
+
+  /// No description provided for @marketplace_publish_variable_desc_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'What this variable is for'**
+  String get marketplace_publish_variable_desc_hint;
+
+  /// No description provided for @marketplace_publish_variable_desc_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get marketplace_publish_variable_desc_label;
+
+  /// No description provided for @marketplace_publish_variable_name_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. TOKEN_OPENAI'**
+  String get marketplace_publish_variable_name_hint;
+
+  /// No description provided for @marketplace_publish_variable_name_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Variable name'**
+  String get marketplace_publish_variable_name_label;
+
+  /// No description provided for @marketplace_publish_variables.
+  ///
+  /// In en, this message translates to:
+  /// **'Global Variables'**
+  String get marketplace_publish_variables;
+
+  /// No description provided for @marketplace_publish_variables_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Include variables and mark which ones the user must fill in.'**
+  String get marketplace_publish_variables_hint;
+
+  /// No description provided for @marketplace_publish_version_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get marketplace_publish_version_label;
+
+  /// No description provided for @marketplace_publish_workflows.
+  ///
+  /// In en, this message translates to:
+  /// **'Workflows ({count})'**
+  String marketplace_publish_workflows(Object count);
+
+  /// No description provided for @marketplace_publishing.
+  ///
+  /// In en, this message translates to:
+  /// **'Publishing...'**
+  String get marketplace_publishing;
+
+  /// No description provided for @marketplace_rate_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Rating submitted!'**
+  String get marketplace_rate_success;
+
+  /// No description provided for @marketplace_rate_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate this template'**
+  String get marketplace_rate_title;
+
+  /// No description provided for @marketplace_retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get marketplace_retry;
+
+  /// No description provided for @marketplace_search_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search templates...'**
+  String get marketplace_search_hint;
+
+  /// No description provided for @marketplace_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Marketplace'**
+  String get marketplace_title;
+
+  /// No description provided for @marketplace_variable_required.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is required'**
+  String marketplace_variable_required(Object name);
+
+  /// No description provided for @marketplace_variables_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Pre-configured Variables'**
+  String get marketplace_variables_label;
+
+  /// No description provided for @marketplace_workflows_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Workflows ({count})'**
+  String marketplace_workflows_label(Object count);
 
   /// Add Text Input
   ///
@@ -10207,12 +11650,6 @@ abstract class AppLocalizations {
   /// **'Legal'**
   String get settings_legal_title;
 
-  /// Button label to view open source licenses
-  ///
-  /// In en, this message translates to:
-  /// **'Open Source Licenses'**
-  String get settings_oss_licenses;
-
   /// Mobile bots now use your device for hosting.
   ///
   /// In en, this message translates to:
@@ -10363,6 +11800,12 @@ abstract class AppLocalizations {
   /// **'Manual snapshot'**
   String get settings_manual_snapshot_label;
 
+  /// MEMBER
+  ///
+  /// In en, this message translates to:
+  /// **'MEMBER'**
+  String get settings_member_badge;
+
   /// No description provided for @settings_notifications_desc.
   ///
   /// In en, this message translates to:
@@ -10429,6 +11872,48 @@ abstract class AppLocalizations {
   /// **'Open Ad Inspector'**
   String get settings_open_ad_inspector;
 
+  /// Button label to view open source licenses
+  ///
+  /// In en, this message translates to:
+  /// **'Open Source Licenses'**
+  String get settings_oss_licenses;
+
+  /// OWNER
+  ///
+  /// In en, this message translates to:
+  /// **'OWNER'**
+  String get settings_owner_badge;
+
+  /// Owner
+  ///
+  /// In en, this message translates to:
+  /// **'Owner'**
+  String get settings_owner_fallback;
+
+  /// Personal User
+  ///
+  /// In en, this message translates to:
+  /// **'Personal User'**
+  String get settings_personal_owner_fallback;
+
+  /// Owner ID:
+  ///
+  /// In en, this message translates to:
+  /// **'Owner ID: '**
+  String get settings_personal_owner_id_label;
+
+  /// Owner:
+  ///
+  /// In en, this message translates to:
+  /// **'Owner: '**
+  String get settings_personal_owner_label;
+
+  /// Personal Ownership
+  ///
+  /// In en, this message translates to:
+  /// **'Personal Ownership'**
+  String get settings_personal_ownership;
+
   /// Preferences reset
   ///
   /// In en, this message translates to:
@@ -10440,6 +11925,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Privacy Policy'**
   String get settings_privacy_policy;
+
+  /// View Raw JSON (RAW JSON)
+  ///
+  /// In en, this message translates to:
+  /// **'View Raw JSON (RAW JSON)'**
+  String get settings_raw_json_tile;
 
   /// Recovery Pro
   ///
@@ -10813,6 +12304,12 @@ abstract class AppLocalizations {
   /// **'Snapshots'**
   String get settings_snapshots_title;
 
+  /// SOLO
+  ///
+  /// In en, this message translates to:
+  /// **'SOLO'**
+  String get settings_solo_pill;
+
   /// Recommended on Android and iOS. Logs, stats, and startup all go through Bot Creator.
   ///
   /// In en, this message translates to:
@@ -10872,6 +12369,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Settings'**
   String get settings_tab;
+
+  /// Team ID:
+  ///
+  /// In en, this message translates to:
+  /// **'Team ID: '**
+  String get settings_team_id_label;
+
+  /// Number of team members
+  ///
+  /// In en, this message translates to:
+  /// **'Team Members ({count})'**
+  String settings_team_members_label(int count);
+
+  /// Team Name:
+  ///
+  /// In en, this message translates to:
+  /// **'Team Name: '**
+  String get settings_team_name_label;
+
+  /// Team Leader
+  ///
+  /// In en, this message translates to:
+  /// **'Team Leader'**
+  String get settings_team_owner_label;
+
+  /// Team Ownership
+  ///
+  /// In en, this message translates to:
+  /// **'Team Ownership'**
+  String get settings_team_ownership;
+
+  /// TEAM
+  ///
+  /// In en, this message translates to:
+  /// **'TEAM'**
+  String get settings_team_pill;
 
   /// Switch to dark mode
   ///
@@ -11580,6 +13113,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'A SubCommand cannot contain nested SubCommand or SubCommandGroup.'**
   String get validation_option_subcommand_no_nested;
+
+  /// Dynamic numeric suggestions
+  ///
+  /// In en, this message translates to:
+  /// **'Dynamic numeric suggestions'**
+  String get variable_autocomplete_numeric_title;
+
+  /// Available variables — tap to insert
+  ///
+  /// In en, this message translates to:
+  /// **'Available variables — tap to insert'**
+  String get variable_autocomplete_title;
+
+  /// Author
+  ///
+  /// In en, this message translates to:
+  /// **'Author'**
+  String get variable_category_author;
+
+  /// Bot
+  ///
+  /// In en, this message translates to:
+  /// **'Bot'**
+  String get variable_category_bot;
+
+  /// Channel
+  ///
+  /// In en, this message translates to:
+  /// **'Channel'**
+  String get variable_category_channel;
+
+  /// Context
+  ///
+  /// In en, this message translates to:
+  /// **'Context'**
+  String get variable_category_context;
+
+  /// Functions
+  ///
+  /// In en, this message translates to:
+  /// **'Functions'**
+  String get variable_category_functions;
+
+  /// Server
+  ///
+  /// In en, this message translates to:
+  /// **'Server'**
+  String get variable_category_guild;
+
+  /// Interaction
+  ///
+  /// In en, this message translates to:
+  /// **'Interaction'**
+  String get variable_category_interaction;
+
+  /// Member
+  ///
+  /// In en, this message translates to:
+  /// **'Member'**
+  String get variable_category_member;
+
+  /// Message
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get variable_category_message;
+
+  /// Other
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get variable_category_other;
+
+  /// Temporary
+  ///
+  /// In en, this message translates to:
+  /// **'Temporary'**
+  String get variable_category_temp;
+
+  /// User
+  ///
+  /// In en, this message translates to:
+  /// **'User'**
+  String get variable_category_user;
 
   /// Actions
   ///
@@ -12552,903 +14169,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Workflow type'**
   String get workflows_type_title;
-
-  /// Team Ownership
-  ///
-  /// In en, this message translates to:
-  /// **'Team Ownership'**
-  String get settings_team_ownership;
-
-  /// Personal Ownership
-  ///
-  /// In en, this message translates to:
-  /// **'Personal Ownership'**
-  String get settings_personal_ownership;
-
-  /// TEAM
-  ///
-  /// In en, this message translates to:
-  /// **'TEAM'**
-  String get settings_team_pill;
-
-  /// SOLO
-  ///
-  /// In en, this message translates to:
-  /// **'SOLO'**
-  String get settings_solo_pill;
-
-  /// Team Name:
-  ///
-  /// In en, this message translates to:
-  /// **'Team Name: '**
-  String get settings_team_name_label;
-
-  /// Team ID:
-  ///
-  /// In en, this message translates to:
-  /// **'Team ID: '**
-  String get settings_team_id_label;
-
-  /// Team Leader
-  ///
-  /// In en, this message translates to:
-  /// **'Team Leader'**
-  String get settings_team_owner_label;
-
-  /// Owner
-  ///
-  /// In en, this message translates to:
-  /// **'Owner'**
-  String get settings_owner_fallback;
-
-  /// OWNER
-  ///
-  /// In en, this message translates to:
-  /// **'OWNER'**
-  String get settings_owner_badge;
-
-  /// Number of team members
-  ///
-  /// In en, this message translates to:
-  /// **'Team Members ({count})'**
-  String settings_team_members_label(int count);
-
-  /// Owner:
-  ///
-  /// In en, this message translates to:
-  /// **'Owner: '**
-  String get settings_personal_owner_label;
-
-  /// Personal User
-  ///
-  /// In en, this message translates to:
-  /// **'Personal User'**
-  String get settings_personal_owner_fallback;
-
-  /// Owner ID:
-  ///
-  /// In en, this message translates to:
-  /// **'Owner ID: '**
-  String get settings_personal_owner_id_label;
-
-  /// View Raw JSON (RAW JSON)
-  ///
-  /// In en, this message translates to:
-  /// **'View Raw JSON (RAW JSON)'**
-  String get settings_raw_json_tile;
-
-  /// MEMBER
-  ///
-  /// In en, this message translates to:
-  /// **'MEMBER'**
-  String get settings_member_badge;
-
-  /// Local Save
-  ///
-  /// In en, this message translates to:
-  /// **'Local Save'**
-  String get cmd_deploy_local_save_title;
-
-  /// Saving command to device
-  ///
-  /// In en, this message translates to:
-  /// **'Saving command to device'**
-  String get cmd_deploy_local_save_subtitle;
-
-  /// Reloading Bot
-  ///
-  /// In en, this message translates to:
-  /// **'Reloading Bot'**
-  String get cmd_deploy_reload_bot_title;
-
-  /// Applying hot reload configuration
-  ///
-  /// In en, this message translates to:
-  /// **'Applying hot reload configuration'**
-  String get cmd_deploy_reload_bot_subtitle;
-
-  /// Discord Sync
-  ///
-  /// In en, this message translates to:
-  /// **'Discord Sync'**
-  String get cmd_deploy_discord_sync_title;
-
-  /// Publishing command to Discord API
-  ///
-  /// In en, this message translates to:
-  /// **'Publishing command to Discord API'**
-  String get cmd_deploy_discord_sync_subtitle;
-
-  /// Cloud Backup
-  ///
-  /// In en, this message translates to:
-  /// **'Cloud Backup'**
-  String get cmd_deploy_cloud_sync_title;
-
-  /// Secure synchronization with your online space
-  ///
-  /// In en, this message translates to:
-  /// **'Secure synchronization with your online space'**
-  String get cmd_deploy_cloud_sync_subtitle;
-
-  /// Hot Reload
-  ///
-  /// In en, this message translates to:
-  /// **'Hot Reload'**
-  String get cmd_deploy_hot_reload_title;
-
-  /// Instant update of your bot runner
-  ///
-  /// In en, this message translates to:
-  /// **'Instant update of your bot runner'**
-  String get cmd_deploy_hot_reload_subtitle;
-
-  /// Success message shown when command deployed successfully
-  ///
-  /// In en, this message translates to:
-  /// **'Command \"{name}\" deployed and active!'**
-  String cmd_deploy_success_toast(String name);
-
-  /// Deployment successful!
-  ///
-  /// In en, this message translates to:
-  /// **'Deployment successful!'**
-  String get cmd_deploy_success_title;
-
-  /// Deployment failed
-  ///
-  /// In en, this message translates to:
-  /// **'Deployment failed'**
-  String get cmd_deploy_failed_title;
-
-  /// Deployment in progress...
-  ///
-  /// In en, this message translates to:
-  /// **'Deployment in progress...'**
-  String get cmd_deploy_in_progress_title;
-
-  /// Subtitle showing command name under configuration
-  ///
-  /// In en, this message translates to:
-  /// **'Configuration of /{name}'**
-  String cmd_deploy_config_subtitle(String name);
-
-  /// Close
-  ///
-  /// In en, this message translates to:
-  /// **'Close'**
-  String get cmd_deploy_close_button;
-
-  /// Retry
-  ///
-  /// In en, this message translates to:
-  /// **'Retry'**
-  String get cmd_deploy_retry_button;
-
-  /// Context
-  ///
-  /// In en, this message translates to:
-  /// **'Context'**
-  String get variable_category_context;
-
-  /// Interaction
-  ///
-  /// In en, this message translates to:
-  /// **'Interaction'**
-  String get variable_category_interaction;
-
-  /// Bot
-  ///
-  /// In en, this message translates to:
-  /// **'Bot'**
-  String get variable_category_bot;
-
-  /// Server
-  ///
-  /// In en, this message translates to:
-  /// **'Server'**
-  String get variable_category_guild;
-
-  /// Channel
-  ///
-  /// In en, this message translates to:
-  /// **'Channel'**
-  String get variable_category_channel;
-
-  /// Member
-  ///
-  /// In en, this message translates to:
-  /// **'Member'**
-  String get variable_category_member;
-
-  /// Message
-  ///
-  /// In en, this message translates to:
-  /// **'Message'**
-  String get variable_category_message;
-
-  /// Author
-  ///
-  /// In en, this message translates to:
-  /// **'Author'**
-  String get variable_category_author;
-
-  /// User
-  ///
-  /// In en, this message translates to:
-  /// **'User'**
-  String get variable_category_user;
-
-  /// Temporary
-  ///
-  /// In en, this message translates to:
-  /// **'Temporary'**
-  String get variable_category_temp;
-
-  /// Functions
-  ///
-  /// In en, this message translates to:
-  /// **'Functions'**
-  String get variable_category_functions;
-
-  /// Other
-  ///
-  /// In en, this message translates to:
-  /// **'Other'**
-  String get variable_category_other;
-
-  /// Available variables — tap to insert
-  ///
-  /// In en, this message translates to:
-  /// **'Available variables — tap to insert'**
-  String get variable_autocomplete_title;
-
-  /// Dynamic numeric suggestions
-  ///
-  /// In en, this message translates to:
-  /// **'Dynamic numeric suggestions'**
-  String get variable_autocomplete_numeric_title;
-
-  /// General tab in bot settings
-  ///
-  /// In en, this message translates to:
-  /// **'General'**
-  String get bot_settings_tab_general;
-
-  /// Presence & status tab in bot settings
-  ///
-  /// In en, this message translates to:
-  /// **'Presence & Status'**
-  String get bot_settings_tab_presence;
-
-  /// Intents & privileges tab in bot settings
-  ///
-  /// In en, this message translates to:
-  /// **'Intents & Privileges'**
-  String get bot_settings_tab_intents;
-
-  /// Advanced & maintenance tab in bot settings
-  ///
-  /// In en, this message translates to:
-  /// **'Advanced & Maintenance'**
-  String get bot_settings_tab_advanced;
-
-  /// Label for selected avatar image
-  ///
-  /// In en, this message translates to:
-  /// **'Selected image:'**
-  String get bot_settings_avatar_selected;
-
-  /// Placeholder when no new avatar image is selected
-  ///
-  /// In en, this message translates to:
-  /// **'No new image selected. Click Browse to choose one.'**
-  String get bot_settings_avatar_none_selected;
-
-  /// Important notice about profile change persistence
-  ///
-  /// In en, this message translates to:
-  /// **'Important: Profile changes (username and avatar) will only be applied to Discord when you click \'Save profile and statuses\' at the bottom.'**
-  String get bot_settings_avatar_important_note;
-
-  /// No description provided for @marketplace_title.
-  ///
-  /// In en, this message translates to:
-  /// **'Marketplace'**
-  String get marketplace_title;
-
-  /// No description provided for @marketplace_search_hint.
-  ///
-  /// In en, this message translates to:
-  /// **'Search templates...'**
-  String get marketplace_search_hint;
-
-  /// No description provided for @marketplace_empty.
-  ///
-  /// In en, this message translates to:
-  /// **'No templates yet.\nBe the first to publish!'**
-  String get marketplace_empty;
-
-  /// No description provided for @marketplace_no_results.
-  ///
-  /// In en, this message translates to:
-  /// **'No templates match \"{query}\"'**
-  String marketplace_no_results(Object query);
-
-  /// No description provided for @marketplace_count.
-  ///
-  /// In en, this message translates to:
-  /// **'{count} template(s)'**
-  String marketplace_count(Object count);
-
-  /// No description provided for @marketplace_retry.
-  ///
-  /// In en, this message translates to:
-  /// **'Retry'**
-  String get marketplace_retry;
-
-  /// No description provided for @marketplace_apply.
-  ///
-  /// In en, this message translates to:
-  /// **'Apply Template'**
-  String get marketplace_apply;
-
-  /// No description provided for @marketplace_applying.
-  ///
-  /// In en, this message translates to:
-  /// **'Applying...'**
-  String get marketplace_applying;
-
-  /// No description provided for @marketplace_apply_success.
-  ///
-  /// In en, this message translates to:
-  /// **'Template applied successfully!'**
-  String get marketplace_apply_success;
-
-  /// No description provided for @marketplace_apply_success_skipped.
-  ///
-  /// In en, this message translates to:
-  /// **'{addedCount} command(s) added, {skippedCount} skipped (duplicates).'**
-  String marketplace_apply_success_skipped(
-    Object addedCount,
-    Object skippedCount,
-  );
-
-  /// No description provided for @marketplace_apply_error.
-  ///
-  /// In en, this message translates to:
-  /// **'Failed to apply: {error}'**
-  String marketplace_apply_error(Object error);
-
-  /// No description provided for @marketplace_login_required.
-  ///
-  /// In en, this message translates to:
-  /// **'Discord connection required'**
-  String get marketplace_login_required;
-
-  /// No description provided for @marketplace_login_hint.
-  ///
-  /// In en, this message translates to:
-  /// **'You must connect your Discord account to access the Marketplace.'**
-  String get marketplace_login_hint;
-
-  /// No description provided for @marketplace_connect_discord.
-  ///
-  /// In en, this message translates to:
-  /// **'Connect with Discord'**
-  String get marketplace_connect_discord;
-
-  /// No description provided for @marketplace_login_title.
-  ///
-  /// In en, this message translates to:
-  /// **'Connect to Manager'**
-  String get marketplace_login_title;
-
-  /// No description provided for @marketplace_login_instructions.
-  ///
-  /// In en, this message translates to:
-  /// **'Please authenticate via Discord to continue using the Marketplace.'**
-  String get marketplace_login_instructions;
-
-  /// No description provided for @marketplace_rate_title.
-  ///
-  /// In en, this message translates to:
-  /// **'Rate this template'**
-  String get marketplace_rate_title;
-
-  /// No description provided for @marketplace_rate_success.
-  ///
-  /// In en, this message translates to:
-  /// **'Rating submitted!'**
-  String get marketplace_rate_success;
-
-  /// No description provided for @marketplace_edit.
-  ///
-  /// In en, this message translates to:
-  /// **'Edit'**
-  String get marketplace_edit;
-
-  /// No description provided for @marketplace_delete.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete'**
-  String get marketplace_delete;
-
-  /// No description provided for @marketplace_edit_hint.
-  ///
-  /// In en, this message translates to:
-  /// **'To edit, re-publish from your bot\'s command list with the same name.'**
-  String get marketplace_edit_hint;
-
-  /// No description provided for @marketplace_delete_confirm_title.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete Template'**
-  String get marketplace_delete_confirm_title;
-
-  /// No description provided for @marketplace_delete_confirm.
-  ///
-  /// In en, this message translates to:
-  /// **'Are you sure you want to delete \"{name}\"? This cannot be undone.'**
-  String marketplace_delete_confirm(Object name);
-
-  /// No description provided for @marketplace_delete_success.
-  ///
-  /// In en, this message translates to:
-  /// **'Template deleted.'**
-  String get marketplace_delete_success;
-
-  /// No description provided for @marketplace_my_templates.
-  ///
-  /// In en, this message translates to:
-  /// **'My Templates'**
-  String get marketplace_my_templates;
-
-  /// No description provided for @marketplace_login_success.
-  ///
-  /// In en, this message translates to:
-  /// **'Discord connected successfully!'**
-  String get marketplace_login_success;
-
-  /// No description provided for @marketplace_config_required.
-  ///
-  /// In en, this message translates to:
-  /// **'Configuration Required'**
-  String get marketplace_config_required;
-
-  /// No description provided for @marketplace_config_hint.
-  ///
-  /// In en, this message translates to:
-  /// **'Fill in the required values before applying this template.'**
-  String get marketplace_config_hint;
-
-  /// No description provided for @marketplace_variable_required.
-  ///
-  /// In en, this message translates to:
-  /// **'{name} is required'**
-  String marketplace_variable_required(Object name);
-
-  /// No description provided for @marketplace_about.
-  ///
-  /// In en, this message translates to:
-  /// **'About'**
-  String get marketplace_about;
-
-  /// No description provided for @marketplace_commands_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Commands ({count})'**
-  String marketplace_commands_label(Object count);
-
-  /// No description provided for @marketplace_workflows_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Workflows ({count})'**
-  String marketplace_workflows_label(Object count);
-
-  /// No description provided for @marketplace_variables_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Pre-configured Variables'**
-  String get marketplace_variables_label;
-
-  /// No description provided for @marketplace_more.
-  ///
-  /// In en, this message translates to:
-  /// **'+{count} more'**
-  String marketplace_more(Object count);
-
-  /// No description provided for @marketplace_publish_title.
-  ///
-  /// In en, this message translates to:
-  /// **'Publish Template'**
-  String get marketplace_publish_title;
-
-  /// No description provided for @marketplace_publish_select.
-  ///
-  /// In en, this message translates to:
-  /// **'Select what to include'**
-  String get marketplace_publish_select;
-
-  /// No description provided for @marketplace_publish_select_hint.
-  ///
-  /// In en, this message translates to:
-  /// **'Pick commands, workflows, or both. Each becomes part of the template.'**
-  String get marketplace_publish_select_hint;
-
-  /// No description provided for @marketplace_publish_commands.
-  ///
-  /// In en, this message translates to:
-  /// **'Commands ({count})'**
-  String marketplace_publish_commands(Object count);
-
-  /// No description provided for @marketplace_publish_workflows.
-  ///
-  /// In en, this message translates to:
-  /// **'Workflows ({count})'**
-  String marketplace_publish_workflows(Object count);
-
-  /// No description provided for @marketplace_publish_variables.
-  ///
-  /// In en, this message translates to:
-  /// **'Global Variables'**
-  String get marketplace_publish_variables;
-
-  /// No description provided for @marketplace_publish_variables_hint.
-  ///
-  /// In en, this message translates to:
-  /// **'Include variables and mark which ones the user must fill in.'**
-  String get marketplace_publish_variables_hint;
-
-  /// No description provided for @marketplace_publish_metadata.
-  ///
-  /// In en, this message translates to:
-  /// **'Template Details'**
-  String get marketplace_publish_metadata;
-
-  /// No description provided for @marketplace_publish_metadata_hint.
-  ///
-  /// In en, this message translates to:
-  /// **'Describe your template so others can find and use it.'**
-  String get marketplace_publish_metadata_hint;
-
-  /// No description provided for @marketplace_publish_summary.
-  ///
-  /// In en, this message translates to:
-  /// **'Template Summary'**
-  String get marketplace_publish_summary;
-
-  /// No description provided for @marketplace_publish_select_all.
-  ///
-  /// In en, this message translates to:
-  /// **'Select all'**
-  String get marketplace_publish_select_all;
-
-  /// No description provided for @marketplace_publish_deselect_all.
-  ///
-  /// In en, this message translates to:
-  /// **'Deselect all'**
-  String get marketplace_publish_deselect_all;
-
-  /// No description provided for @marketplace_publish_user_must_define.
-  ///
-  /// In en, this message translates to:
-  /// **'User must define this value'**
-  String get marketplace_publish_user_must_define;
-
-  /// No description provided for @marketplace_publish_user_must_define_hint.
-  ///
-  /// In en, this message translates to:
-  /// **'The user will be prompted to fill it in before applying'**
-  String get marketplace_publish_user_must_define_hint;
-
-  /// No description provided for @marketplace_publish_add_variable.
-  ///
-  /// In en, this message translates to:
-  /// **'Add custom variable'**
-  String get marketplace_publish_add_variable;
-
-  /// No description provided for @marketplace_publish_add_variable_title.
-  ///
-  /// In en, this message translates to:
-  /// **'Add Variable'**
-  String get marketplace_publish_add_variable_title;
-
-  /// No description provided for @marketplace_publish_name_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Template name'**
-  String get marketplace_publish_name_label;
-
-  /// No description provided for @marketplace_publish_name_hint.
-  ///
-  /// In en, this message translates to:
-  /// **'e.g. AI Moderation Bot'**
-  String get marketplace_publish_name_hint;
-
-  /// No description provided for @marketplace_publish_desc_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Short description'**
-  String get marketplace_publish_desc_label;
-
-  /// No description provided for @marketplace_publish_desc_hint.
-  ///
-  /// In en, this message translates to:
-  /// **'A one-line summary shown in the marketplace'**
-  String get marketplace_publish_desc_hint;
-
-  /// No description provided for @marketplace_publish_desc_long_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Full documentation (optional)'**
-  String get marketplace_publish_desc_long_label;
-
-  /// No description provided for @marketplace_publish_desc_long_hint.
-  ///
-  /// In en, this message translates to:
-  /// **'Detailed usage instructions, markdown supported...'**
-  String get marketplace_publish_desc_long_hint;
-
-  /// No description provided for @marketplace_publish_category_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Category'**
-  String get marketplace_publish_category_label;
-
-  /// No description provided for @marketplace_publish_category_hint.
-  ///
-  /// In en, this message translates to:
-  /// **'e.g. ai, moderation, fun'**
-  String get marketplace_publish_category_hint;
-
-  /// No description provided for @marketplace_publish_version_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Version'**
-  String get marketplace_publish_version_label;
-
-  /// No description provided for @marketplace_publish_tags_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Tags (comma separated)'**
-  String get marketplace_publish_tags_label;
-
-  /// No description provided for @marketplace_publish_tags_hint.
-  ///
-  /// In en, this message translates to:
-  /// **'e.g. openai, chatbot, moderation'**
-  String get marketplace_publish_tags_hint;
-
-  /// No description provided for @marketplace_publish_variable_name_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Variable name'**
-  String get marketplace_publish_variable_name_label;
-
-  /// No description provided for @marketplace_publish_variable_name_hint.
-  ///
-  /// In en, this message translates to:
-  /// **'e.g. TOKEN_OPENAI'**
-  String get marketplace_publish_variable_name_hint;
-
-  /// No description provided for @marketplace_publish_variable_desc_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Description'**
-  String get marketplace_publish_variable_desc_label;
-
-  /// No description provided for @marketplace_publish_variable_desc_hint.
-  ///
-  /// In en, this message translates to:
-  /// **'What this variable is for'**
-  String get marketplace_publish_variable_desc_hint;
-
-  /// No description provided for @marketplace_publish_success.
-  ///
-  /// In en, this message translates to:
-  /// **'Template published successfully!'**
-  String get marketplace_publish_success;
-
-  /// No description provided for @marketplace_publish_error.
-  ///
-  /// In en, this message translates to:
-  /// **'Failed to publish: {error}'**
-  String marketplace_publish_error(Object error);
-
-  /// No description provided for @marketplace_publish_button.
-  ///
-  /// In en, this message translates to:
-  /// **'Publish'**
-  String get marketplace_publish_button;
-
-  /// No description provided for @marketplace_publishing.
-  ///
-  /// In en, this message translates to:
-  /// **'Publishing...'**
-  String get marketplace_publishing;
-
-  /// No description provided for @marketplace_publish_next.
-  ///
-  /// In en, this message translates to:
-  /// **'Next'**
-  String get marketplace_publish_next;
-
-  /// No description provided for @marketplace_publish_back.
-  ///
-  /// In en, this message translates to:
-  /// **'Back'**
-  String get marketplace_publish_back;
-
-  /// No description provided for @marketplace_publish_required_fields.
-  ///
-  /// In en, this message translates to:
-  /// **'Please fill in all required fields (Template name, Short description, Version) before publishing.'**
-  String get marketplace_publish_required_fields;
-
-  /// No description provided for @marketplace_publish_no_content.
-  ///
-  /// In en, this message translates to:
-  /// **'No commands or workflows to publish.\nCreate some first!'**
-  String get marketplace_publish_no_content;
-
-  /// No description provided for @marketplace_no_variables.
-  ///
-  /// In en, this message translates to:
-  /// **'No global variables defined.'**
-  String get marketplace_no_variables;
-
-  /// No description provided for @marketplace_connect_manager.
-  ///
-  /// In en, this message translates to:
-  /// **'Connect to Manager to access the Marketplace.'**
-  String get marketplace_connect_manager;
-
-  /// No description provided for @marketplace_connect_publish.
-  ///
-  /// In en, this message translates to:
-  /// **'Connect to Manager to publish a template.'**
-  String get marketplace_connect_publish;
-
-  /// No description provided for @marketplace_api_unavailable.
-  ///
-  /// In en, this message translates to:
-  /// **'API client not available'**
-  String get marketplace_api_unavailable;
-
-  /// No description provided for @marketplace_load_error.
-  ///
-  /// In en, this message translates to:
-  /// **'Failed to load data: {error}'**
-  String marketplace_load_error(Object error);
-
-  /// No description provided for @marketplace_cancel.
-  ///
-  /// In en, this message translates to:
-  /// **'Cancel'**
-  String get marketplace_cancel;
-
-  /// No description provided for @marketplace_add.
-  ///
-  /// In en, this message translates to:
-  /// **'Add'**
-  String get marketplace_add;
-
-  /// No description provided for @marketplace_by_author.
-  ///
-  /// In en, this message translates to:
-  /// **'by {author} · v{version}'**
-  String marketplace_by_author(Object author, Object version);
-
-  /// Title for the conflict resolution dialog when applying a template
-  ///
-  /// In en, this message translates to:
-  /// **'Command Conflicts'**
-  String get marketplace_conflict_title;
-
-  /// Subtitle explaining that some commands conflict with local ones
-  ///
-  /// In en, this message translates to:
-  /// **'Some template commands already exist. Choose which version to keep:'**
-  String get marketplace_conflict_subtitle;
-
-  /// Label for keeping the local version of a command
-  ///
-  /// In en, this message translates to:
-  /// **'Keep Local'**
-  String get marketplace_conflict_keep_local;
-
-  /// Label for using the template version of a command
-  ///
-  /// In en, this message translates to:
-  /// **'Use Template'**
-  String get marketplace_conflict_use_template;
-
-  /// No description provided for @marketplace_conflict_local_info.
-  ///
-  /// In en, this message translates to:
-  /// **'Local ({count} actions)'**
-  String marketplace_conflict_local_info(Object count);
-
-  /// No description provided for @marketplace_conflict_template_info.
-  ///
-  /// In en, this message translates to:
-  /// **'Template ({count} actions)'**
-  String marketplace_conflict_template_info(Object count);
-
-  /// No description provided for @marketplace_conflict_apply_choice.
-  ///
-  /// In en, this message translates to:
-  /// **'Apply ({count} template)'**
-  String marketplace_conflict_apply_choice(Object count);
-
-  /// No description provided for @marketplace_command_preview_actions.
-  ///
-  /// In en, this message translates to:
-  /// **'{count} actions'**
-  String marketplace_command_preview_actions(Object count);
-
-  /// No description provided for @marketplace_command_preview_no_actions.
-  ///
-  /// In en, this message translates to:
-  /// **'No actions'**
-  String get marketplace_command_preview_no_actions;
-
-  /// No description provided for @marketplace_command_preview_type_slash.
-  ///
-  /// In en, this message translates to:
-  /// **'Slash command'**
-  String get marketplace_command_preview_type_slash;
-
-  /// No description provided for @marketplace_command_preview_type_user.
-  ///
-  /// In en, this message translates to:
-  /// **'User context menu'**
-  String get marketplace_command_preview_type_user;
-
-  /// No description provided for @marketplace_command_preview_type_message.
-  ///
-  /// In en, this message translates to:
-  /// **'Message context menu'**
-  String get marketplace_command_preview_type_message;
-
-  /// No description provided for @marketplace_command_preview_options.
-  ///
-  /// In en, this message translates to:
-  /// **'{count} options'**
-  String marketplace_command_preview_options(Object count);
-
-  /// No description provided for @guilds_tab.
-  ///
-  /// In en, this message translates to:
-  /// **'Servers'**
-  String get guilds_tab;
-
-  /// No description provided for @guilds_tab_short.
-  ///
-  /// In en, this message translates to:
-  /// **'Servers'**
-  String get guilds_tab_short;
 }
 
 class _AppLocalizationsDelegate
