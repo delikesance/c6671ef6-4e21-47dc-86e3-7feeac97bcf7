@@ -82,6 +82,9 @@ dependencies:
   posthog_flutter: ^5.27.0
   image: ^4.9.0
 
+dependency_overrides:
+  meta: 1.18.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
