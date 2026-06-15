@@ -79,6 +79,7 @@ void main() {
       MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('en'),
         home: page,
       ),
     );
@@ -171,11 +172,8 @@ void main() {
 
         // Create the command inside runAsync so async I/O can complete
         await tester.runAsync(() async {
-          final createButton = tester.widget<IconButton>(
-            find.ancestor(
-              of: find.byTooltip('Create command'),
-              matching: find.byType(IconButton),
-            ),
+          final createButton = tester.widget<FloatingActionButton>(
+            find.byType(FloatingActionButton),
           );
           createButton.onPressed?.call();
           final deadline = DateTime.now().add(const Duration(seconds: 2));
@@ -247,11 +245,8 @@ void main() {
 
         // Create the command inside runAsync so async I/O can complete
         await tester.runAsync(() async {
-          final createButton = tester.widget<IconButton>(
-            find.ancestor(
-              of: find.byTooltip('Create command'),
-              matching: find.byType(IconButton),
-            ),
+          final createButton = tester.widget<FloatingActionButton>(
+            find.byType(FloatingActionButton),
           );
           createButton.onPressed?.call();
           final deadline = DateTime.now().add(const Duration(seconds: 2));

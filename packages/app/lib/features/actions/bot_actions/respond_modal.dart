@@ -1,5 +1,6 @@
 import 'package:nyxx/nyxx.dart';
 import 'package:bot_creator_shared/types/component.dart' as bc;
+import 'send_component_v2.dart';
 
 /// Respond to an interaction with a Modal dialog.
 /// NOTE: Modals can only be sent as the FIRST response (not after defer).
@@ -26,41 +27,46 @@ Future<Map<String, dynamic>> respondWithModalAction(
     if (definition.customId.isEmpty) {
       return {'error': 'Modal customId is required'};
     }
-    if (definition.inputs.isEmpty) {
-      return {'error': 'Modal must have at least one text input'};
+    final resolvedCustomId = resolve(definition.customId);
+
+    final List<ComponentBuilder> modalComponents;
+    if (definition.components.isNotEmpty) {
+      modalComponents = definition.components.map((c) => buildComponentNode(c, resolve)).toList();
+    } else {
+      if (definition.inputs.isEmpty) {
+        return {'error': 'Modal must have at least one field'};
+      }
+      modalComponents = definition.inputs.map((input) {
+        return ActionRowBuilder(
+          components: [
+            TextInputBuilder(
+              customId: resolve(input.customId),
+              // ignore: deprecated_member_use
+              label: resolve(input.label),
+              style: input.style == bc.BcTextInputStyle.paragraph
+                  ? TextInputStyle.paragraph
+                  : TextInputStyle.short,
+              placeholder:
+                  input.placeholder.isNotEmpty
+                      ? resolve(input.placeholder)
+                      : null,
+              value:
+                  input.defaultValue.isNotEmpty
+                      ? resolve(input.defaultValue)
+                      : null,
+              isRequired: input.required,
+              minLength: input.minLength,
+              maxLength: input.maxLength,
+            ),
+          ],
+        );
+      }).toList();
     }
 
-    final resolvedCustomId = resolve(definition.customId);
     final modalBuilder = ModalBuilder(
       title: resolve(definition.title),
       customId: resolvedCustomId,
-      components:
-          definition.inputs.map((input) {
-            return ActionRowBuilder(
-              components: [
-                TextInputBuilder(
-                  customId: resolve(input.customId),
-                  // ignore: deprecated_member_use
-                  label: resolve(input.label),
-                  style:
-                      input.style == bc.BcTextInputStyle.paragraph
-                          ? TextInputStyle.paragraph
-                          : TextInputStyle.short,
-                  placeholder:
-                      input.placeholder.isNotEmpty
-                          ? resolve(input.placeholder)
-                          : null,
-                  value:
-                      input.defaultValue.isNotEmpty
-                          ? resolve(input.defaultValue)
-                          : null,
-                  isRequired: input.required,
-                  minLength: input.minLength,
-                  maxLength: input.maxLength,
-                ),
-              ],
-            );
-          }).toList(),
+      components: modalComponents,
     );
 
     if (interaction is ApplicationCommandInteraction) {

@@ -78,6 +78,7 @@ abstract class ComponentNodeFactory {
         ],
       ),
       ComponentV2Type.checkbox => CheckboxNode(),
+      ComponentV2Type.textInput => ModalTextInputNode(),
     };
   }
 
