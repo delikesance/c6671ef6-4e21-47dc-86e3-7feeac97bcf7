@@ -38,7 +38,6 @@ packages/shared/build/*
 packages/app/build/*
 packages/runner/build/*
 # Local pub overrides (dev-only)
-pubspec_overrides.yaml
 
 # Symbolication related
 app.*.symbols
