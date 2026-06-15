@@ -8,6 +8,8 @@ import 'package:bot_creator/core/models/types/variable_suggestion.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder.response.dart' show ActionsBuilderPage;
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/widgets/variable_text_field.dart';
+import 'package:bot_creator/features/components_v2/presentation/component_v2_builder/component_node_editor.dart';
+import 'package:bot_creator/features/components_v2/presentation/component_v2_builder/component_node_factory.dart';
 
 /// Widget for editing a full Modal definition (title, customId, text inputs, inline actions).
 class ModalBuilderWidget extends StatefulWidget {
@@ -33,6 +35,8 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
   late TextEditingController _customIdCtrl;
   late List<ModalTextInputDefinition> _inputs;
   late List<String> _inputKeys;
+  late List<ComponentNode> _components;
+  late List<String> _componentKeys;
   late List<Map<String, dynamic>> _modalActions;
 
   @override
@@ -65,6 +69,20 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
           _inputKeys = List.generate(_inputs.length, (_) => UniqueKey().toString());
         }
       }
+      final newComponents = widget.modal.components;
+      if (_components.length != newComponents.length ||
+          !_listEquals(
+            _components.map((c) => c.toJson()).toList(),
+            newComponents.map((c) => c.toJson()).toList(),
+          )) {
+        final structureChanged = _components.length != newComponents.length;
+        _components = newComponents
+            .map((c) => ComponentNode.fromJson(c.toJson()))
+            .toList();
+        if (structureChanged) {
+          _componentKeys = List.generate(_components.length, (_) => UniqueKey().toString());
+        }
+      }
       if (!_listEquals(_modalActions, widget.modal.actions)) {
         _modalActions = List.from(widget.modal.actions);
       }
@@ -84,6 +102,10 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
     _customIdCtrl = TextEditingController(text: widget.modal.customId);
     _inputs = List.from(widget.modal.inputs);
     _inputKeys = List.generate(_inputs.length, (_) => UniqueKey().toString());
+    _components = widget.modal.components
+        .map((c) => ComponentNode.fromJson(c.toJson()))
+        .toList();
+    _componentKeys = List.generate(_components.length, (_) => UniqueKey().toString());
     _modalActions = List.from(widget.modal.actions);
   }
 
@@ -100,6 +122,7 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
         title: _titleCtrl.text,
         customId: _customIdCtrl.text,
         inputs: List.from(_inputs),
+        components: List.from(_components),
         actions: List.from(_modalActions),
       ),
     );
@@ -140,8 +163,98 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
     _emit();
   }
 
+  void _updateComponent(int index, ComponentNode updated) {
+    setState(() => _components[index] = updated);
+    _emit();
+  }
+
+  Future<void> _removeComponent(int index) async {
+    final shouldDelete = await AppTheme.showConfirmDialog(
+      context,
+      title: context.tr.component_remove_title,
+      content: context.tr.component_remove_confirm,
+      confirmLabel: context.tr.common_remove,
+      isDestructive: true,
+    );
+    if (!shouldDelete) return;
+
+    setState(() {
+      _components.removeAt(index);
+      _componentKeys.removeAt(index);
+    });
+    _emit();
+  }
+
+  void _addV2Component(ComponentV2Type type) {
+    if (_components.length >= 5) return;
+    setState(() {
+      // Auto-migrate legacy inputs if we are transitioning to components
+      if (_components.isEmpty && _inputs.isNotEmpty) {
+        _components = _inputs.map((input) {
+          return LabelNode(
+            label: input.label,
+            component: ModalTextInputNode(
+              customId: input.customId,
+              style: input.style,
+              label: input.label,
+              placeholder: input.placeholder,
+              value: input.defaultValue,
+              required: input.required,
+              minLength: input.minLength,
+              maxLength: input.maxLength,
+            ),
+          );
+        }).toList();
+        _componentKeys = List.generate(_components.length, (_) => UniqueKey().toString());
+        _inputs.clear();
+        _inputKeys.clear();
+      }
+
+      final innerComponent = ComponentNodeFactory.create(type);
+      final label = LabelNode(
+        label: ComponentNodeFactory.labelFor(type),
+        component: innerComponent,
+      );
+      _components.add(label);
+      _componentKeys.add(UniqueKey().toString());
+    });
+    _emit();
+  }
+
+  IconData _getIconForType(ComponentV2Type type) {
+    return switch (type) {
+      ComponentV2Type.textInput => Icons.text_fields,
+      ComponentV2Type.stringSelect => Icons.list,
+      ComponentV2Type.userSelect => Icons.person,
+      ComponentV2Type.roleSelect => Icons.admin_panel_settings,
+      ComponentV2Type.mentionableSelect => Icons.alternate_email,
+      ComponentV2Type.channelSelect => Icons.tag,
+      ComponentV2Type.fileUpload => Icons.upload_file,
+      ComponentV2Type.radioGroup => Icons.radio_button_checked,
+      ComponentV2Type.checkboxGroup => Icons.check_box,
+      ComponentV2Type.checkbox => Icons.check_box_outline_blank,
+      _ => Icons.extension,
+    };
+  }
+
+  String _getDisplayNameForType(ComponentV2Type type) {
+    return switch (type) {
+      ComponentV2Type.textInput => 'Text Input',
+      ComponentV2Type.stringSelect => 'Dropdown Selection',
+      ComponentV2Type.userSelect => 'User Selector',
+      ComponentV2Type.roleSelect => 'Role Selector',
+      ComponentV2Type.mentionableSelect => 'User/Role Selector',
+      ComponentV2Type.channelSelect => 'Channel Selector',
+      ComponentV2Type.fileUpload => 'File Upload',
+      ComponentV2Type.radioGroup => 'Radio Buttons',
+      ComponentV2Type.checkboxGroup => 'Checkbox Group',
+      ComponentV2Type.checkbox => 'Single Checkbox',
+      _ => ComponentNodeFactory.labelFor(type),
+    };
+  }
+
   Future<void> _editActions() async {
-    // Merge modal input fields into variable suggestions so they appear
+    // Merge modal input/component fields into variable suggestions so they appear
     // in autocomplete when configuring submit actions.
     final mergedSuggestions = List<VariableSuggestion>.from(
       widget.variableSuggestions,
@@ -156,6 +269,36 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
           category: shared.VariableCategory.interaction,
         ),
       );
+    }
+    for (final component in _components) {
+      if (component is LabelNode && component.component != null) {
+        final inner = component.component!;
+        String? customId;
+        if (inner is ModalTextInputNode) {
+          customId = inner.customId;
+        } else if (inner is SelectMenuNode) {
+          customId = inner.customId;
+        } else if (inner is FileUploadNode) {
+          customId = inner.customId;
+        } else if (inner is RadioGroupNode) {
+          customId = inner.customId;
+        } else if (inner is CheckboxGroupNode) {
+          customId = inner.customId;
+        } else if (inner is CheckboxNode) {
+          customId = inner.customId;
+        }
+        if (customId != null && customId.isNotEmpty) {
+          final name = 'modal.$customId';
+          if (mergedSuggestions.any((s) => s.name == name)) continue;
+          mergedSuggestions.add(
+            VariableSuggestion(
+              name: name,
+              kind: VariableSuggestionKind.nonNumeric,
+              category: shared.VariableCategory.interaction,
+            ),
+          );
+        }
+      }
     }
 
     final result = await Navigator.push<List<Map<String, dynamic>>>(
@@ -179,6 +322,9 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final isV2 = _components.isNotEmpty;
+    final count = isV2 ? _components.length : _inputs.length;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -210,7 +356,7 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      context.tr.modal_inputs_count(_inputs.length),
+                      context.tr.modal_inputs_count(count),
                       style: const TextStyle(color: Colors.white70, fontSize: 12),
                     ),
                   ],
@@ -228,7 +374,7 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                     ),
                   ),
                   Text(
-                    context.tr.modal_inputs_count(_inputs.length),
+                    context.tr.modal_inputs_count(count),
                     style: const TextStyle(color: Colors.white70, fontSize: 12),
                   ),
                 ],
@@ -271,30 +417,100 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
               ),
               const SizedBox(height: 12),
 
-              // ── Text Inputs ──
-              ..._inputs.asMap().entries.map((entry) {
-                final idx = entry.key;
-                final input = entry.value;
-                return _InputEditor(
-                  key: ValueKey(_inputKeys[idx]),
-                  input: input,
-                  index: idx,
-                  variableSuggestions: widget.variableSuggestions,
-                  onChanged: (updated) => _updateInput(idx, updated),
-                  onRemove: () => _removeInput(idx),
-                );
-              }),
+              // ── Fields ──
+              if (_components.isNotEmpty) ...[
+                ..._components.asMap().entries.map((entry) {
+                  final idx = entry.key;
+                  final component = entry.value;
+                  return ComponentNodeEditor(
+                    key: ValueKey(_componentKeys[idx]),
+                    node: component,
+                    depth: 0,
+                    variableSuggestions: widget.variableSuggestions,
+                    onChanged: (updated) => _updateComponent(idx, updated),
+                    onRemove: () => _removeComponent(idx),
+                    botIdForConfig: widget.botIdForConfig,
+                    isModalContext: true,
+                  );
+                }),
+              ] else ...[
+                ..._inputs.asMap().entries.map((entry) {
+                  final idx = entry.key;
+                  final input = entry.value;
+                  return _InputEditor(
+                    key: ValueKey(_inputKeys[idx]),
+                    input: input,
+                    index: idx,
+                    variableSuggestions: widget.variableSuggestions,
+                    onChanged: (updated) => _updateInput(idx, updated),
+                    onRemove: () => _removeInput(idx),
+                  );
+                }),
+              ],
 
-              if (_inputs.length < 5)
+              if (count < 5)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
-                  child: OutlinedButton.icon(
-                    onPressed: _addInput,
-                    icon: const Icon(Icons.add, size: 18),
-                    label: Text('Add Input Field'),
-                    style: OutlinedButton.styleFrom(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTheme.radiusSm)),
-                    ),
+                  child: Row(
+                    children: [
+                      PopupMenuButton<ComponentV2Type>(
+                        tooltip: 'Add Field',
+                        onSelected: _addV2Component,
+                        itemBuilder: (BuildContext context) {
+                          final v2Types = [
+                            ComponentV2Type.textInput,
+                            ComponentV2Type.stringSelect,
+                            ComponentV2Type.userSelect,
+                            ComponentV2Type.roleSelect,
+                            ComponentV2Type.mentionableSelect,
+                            ComponentV2Type.channelSelect,
+                            ComponentV2Type.fileUpload,
+                            ComponentV2Type.radioGroup,
+                            ComponentV2Type.checkboxGroup,
+                            ComponentV2Type.checkbox,
+                          ];
+                          return v2Types.map((t) {
+                            return PopupMenuItem(
+                              value: t,
+                              child: Row(
+                                children: [
+                                  Icon(_getIconForType(t), size: 16, color: Theme.of(context).colorScheme.primary),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      _getDisplayNameForType(t),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList();
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5)),
+                            borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.add_circle_outline, size: 18, color: Theme.of(context).colorScheme.primary),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Add Field',
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
 

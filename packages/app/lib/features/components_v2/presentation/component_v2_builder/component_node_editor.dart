@@ -35,6 +35,8 @@ class ComponentNodeEditor extends StatefulWidget {
   final int depth;
   final List<VariableSuggestion> variableSuggestions;
   final String? botIdForConfig;
+  final bool isModalContext;
+  final bool inLabel;
 
   const ComponentNodeEditor({
     super.key,
@@ -46,6 +48,8 @@ class ComponentNodeEditor extends StatefulWidget {
     this.depth = 0,
     required this.variableSuggestions,
     this.botIdForConfig,
+    this.isModalContext = false,
+    this.inLabel = false,
   });
 
   @override
@@ -65,6 +69,7 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
   List<VariableSuggestion> get variableSuggestions =>
       widget.variableSuggestions;
   String? get botIdForConfig => widget.botIdForConfig;
+  bool get isModalContext => widget.isModalContext;
 
   @override
   void didUpdateWidget(ComponentNodeEditor oldWidget) {
@@ -252,6 +257,7 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
       ComponentV2Type.radioGroup => Icons.radio_button_checked,
       ComponentV2Type.checkboxGroup => Icons.check_box,
       ComponentV2Type.checkbox => Icons.check_box_outline_blank,
+      ComponentV2Type.textInput => Icons.edit_note,
     };
   }
 
@@ -289,6 +295,9 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
     }
     if (node is CheckboxNode) {
       return _buildCheckboxEditor(node as CheckboxNode, context);
+    }
+    if (node is ModalTextInputNode) {
+      return _buildModalTextInputEditor(node as ModalTextInputNode, context);
     }
     if (node is RadioGroupNode) {
       return _buildRadioGroupEditor(node as RadioGroupNode, context);
@@ -353,6 +362,8 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
           return ComponentNodeEditor(
             node: child,
             depth: depth + 1,
+            isModalContext: isModalContext,
+            inLabel: widget.inLabel,
             onChanged: (updated) {
               final newChildren = List<ComponentNode>.from(row.components);
               newChildren[idx] = updated;
@@ -560,8 +571,9 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
               },
             ),
           ),
-        // Workflow / Actions — always visible
-        MiniBlockContainer(
+        // Workflow / Actions — hidden in modal context
+        if (!isModalContext)
+          MiniBlockContainer(
           icon: Icons.account_tree,
           label: context.tr.component_block_workflow,
           onRemove: () {
@@ -674,8 +686,9 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
             ),
           ),
         ),
-        // Workflow / Actions — always visible
-        MiniBlockContainer(
+        // Workflow / Actions — hidden in modal context
+        if (!isModalContext)
+          MiniBlockContainer(
           icon: Icons.account_tree,
           label: context.tr.component_block_workflow,
           onRemove: () {
@@ -1023,6 +1036,8 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                 return ComponentNodeEditor(
                   node: child,
                   depth: depth + 1,
+                  isModalContext: isModalContext,
+                  inLabel: widget.inLabel,
                   onChanged: (updated) {
                     final newChildren = List<TextDisplayNode>.from(
                       node.components,
@@ -1098,6 +1113,8 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                     ? ComponentNodeEditor(
                       node: node.accessory!,
                       depth: depth + 1,
+                      isModalContext: isModalContext,
+                      inLabel: widget.inLabel,
                       onChanged: (updated) {
                         node.accessory = updated;
                         onChanged(node);
@@ -1233,6 +1250,8 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
           return ComponentNodeEditor(
             node: child,
             depth: depth + 1,
+            isModalContext: isModalContext,
+            inLabel: widget.inLabel,
             onChanged: (updated) {
               final newChildren = List<ComponentNode>.from(node.components);
               newChildren[idx] = updated;
@@ -1361,6 +1380,8 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                     ? ComponentNodeEditor(
                       node: node.component!,
                       depth: depth + 1,
+                      isModalContext: isModalContext,
+                      inLabel: true,
                       onChanged: (updated) {
                         node.component = updated;
                         onChanged(node);
@@ -1379,6 +1400,7 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                         onChanged(node);
                       },
                       allowedTypes: [
+                        ComponentV2Type.textInput,
                         ComponentV2Type.stringSelect,
                         ComponentV2Type.userSelect,
                         ComponentV2Type.roleSelect,
@@ -1427,6 +1449,131 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
           },
         ),
         Text(context.tr.component_checked_by_default),
+      ],
+    );
+  }
+
+  Widget _buildModalTextInputEditor(ModalTextInputNode node, BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (widget.inLabel)
+          VariableTextField(
+            label: context.tr.common_custom_id_required,
+            initialValue: node.customId,
+            suggestions: variableSuggestions,
+            onChanged: (v) {
+              node.customId = v;
+              onChanged(node);
+            },
+          )
+        else
+          _buildResponsiveTwoFieldRow(
+            first: VariableTextField(
+              label: context.tr.common_custom_id_required,
+              initialValue: node.customId,
+              suggestions: variableSuggestions,
+              onChanged: (v) {
+                node.customId = v;
+                onChanged(node);
+              },
+            ),
+            second: VariableTextField(
+              label: context.tr.common_label,
+              initialValue: node.label,
+              suggestions: variableSuggestions,
+              onChanged: (v) {
+                node.label = v;
+                onChanged(node);
+              },
+            ),
+          ),
+        const SizedBox(height: 8),
+        _buildResponsiveTwoFieldRow(
+          first: VariableTextField(
+            label: context.tr.common_placeholder,
+            initialValue: node.placeholder,
+            suggestions: variableSuggestions,
+            onChanged: (v) {
+              node.placeholder = v;
+              onChanged(node);
+            },
+          ),
+          second: VariableTextField(
+            label: context.tr.common_value,
+            initialValue: node.value,
+            suggestions: variableSuggestions,
+            onChanged: (v) {
+              node.value = v;
+              onChanged(node);
+            },
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: DropdownButtonFormField<BcTextInputStyle>(
+                initialValue: node.style,
+                decoration: InputDecoration(
+                  labelText: context.tr.common_style,
+                  border: const OutlineInputBorder(),
+                  isDense: true,
+                ),
+                items: BcTextInputStyle.values.map((s) {
+                  return DropdownMenuItem(
+                    value: s,
+                    child: Text(s.name),
+                  );
+                }).toList(),
+                onChanged: (v) {
+                  if (v != null) {
+                    node.style = v;
+                    onChanged(node);
+                  }
+                },
+              ),
+            ),
+            const SizedBox(width: 8),
+            Switch(
+              value: node.required,
+              onChanged: (v) {
+                node.required = v;
+                onChanged(node);
+              },
+            ),
+            Text(context.tr.common_required),
+          ],
+        ),
+        const SizedBox(height: 8),
+        _buildResponsiveTwoFieldRow(
+          first: TextFormField(
+            initialValue: node.minLength?.toString() ?? '',
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+              labelText: 'Min Length',
+              border: OutlineInputBorder(),
+              isDense: true,
+            ),
+            onChanged: (v) {
+              node.minLength = int.tryParse(v);
+              onChanged(node);
+            },
+          ),
+          second: TextFormField(
+            initialValue: node.maxLength?.toString() ?? '',
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+              labelText: 'Max Length',
+              border: OutlineInputBorder(),
+              isDense: true,
+            ),
+            onChanged: (v) {
+              node.maxLength = int.tryParse(v);
+              onChanged(node);
+            },
+          ),
+        ),
       ],
     );
   }
