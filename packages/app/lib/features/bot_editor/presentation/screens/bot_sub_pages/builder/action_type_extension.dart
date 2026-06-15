@@ -588,15 +588,24 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             key: 'targetType',
             type: ParameterType.multiSelect,
             defaultValue: 'channel',
-            hint: 'Send to a channel or directly to a user (DM)',
-            options: ['channel', 'user'],
+            hint: 'Send to a channel, reply to a message, or directly to a user (DM)',
+            options: ['channel', 'user', 'reply'],
           ),
           ParameterDefinition(
             key: 'channelId',
             type: ParameterType.channelId,
             defaultValue: '',
             hint:
-                'Target channel (required when targetType=channel; leave empty for current channel)',
+                'Target channel (required when targetType=channel or reply; leave empty for current channel)',
+          ),
+          ParameterDefinition(
+            key: 'messageId',
+            type: ParameterType.messageId,
+            defaultValue: '',
+            hint: 'Message to reply to (required when targetType=reply)',
+            visibleWhen: <String, List<String>>{
+              'targetType': <String>['reply'],
+            },
           ),
           ParameterDefinition(
             key: 'userId',
