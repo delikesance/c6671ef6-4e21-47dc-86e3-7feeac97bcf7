@@ -760,10 +760,10 @@ packages:
     dependency: transitive
     description:
       name: lavalink
-      sha256: "8631bda4d4d21cd933327ff70e4addd17dd7dbb97c9de14c2a1a845fffbe0844"
+      sha256: b5e548f98912958558828d5b7297d3e6b884744e338d74a6d9a58c64ac5e16f2
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.0"
+    version: "1.1.0"
   leak_tracker:
     dependency: transitive
     description:
@@ -829,7 +829,7 @@ packages:
     source: hosted
     version: "0.13.0"
   meta:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       name: meta
       sha256: "1741988757a65eb6b36abe716829688cf01910bbf91c34354ff7ec1c3de2b349"
@@ -885,12 +885,13 @@ packages:
     source: hosted
     version: "6.9.0+1"
   nyxx_lavalink:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
-      path: "packages/nyxx_lavalink"
-      relative: true
-    source: path
-    version: "4.0.0-dev.1"
+      name: nyxx_lavalink
+      sha256: ff57fb58656694b216e5aa383114ca01481af23ef64177f3347aa0842e5af542
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.1.0"
   oauth2:
     dependency: transitive
     description:

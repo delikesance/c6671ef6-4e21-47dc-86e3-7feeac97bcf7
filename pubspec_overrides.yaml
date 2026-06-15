@@ -1,3 +1,0 @@
-dependency_overrides:
-  bot_creator_shared:
-    path: packages/shared
