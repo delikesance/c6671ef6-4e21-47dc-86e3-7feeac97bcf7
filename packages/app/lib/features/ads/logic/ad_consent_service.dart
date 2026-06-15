@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:bot_creator/core/diagnostics/app_diagnostics.dart';
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:flutter/foundation.dart';
-import 'package:gma_mediation_ironsource/gma_mediation_ironsource.dart';
 import 'package:gma_mediation_unity/gma_mediation_unity.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
@@ -264,21 +263,6 @@ class AdConsentService {
       unawaited(
         AppDiagnostics.logError(
           'Failed to forward consent to Unity Ads',
-          error,
-          stack,
-          fatal: false,
-        ),
-      );
-    }
-
-    try {
-      final ironSource = GmaMediationIronsource();
-      await ironSource.setConsent(hasConsent);
-      await ironSource.setDoNotSell(!hasConsent);
-    } catch (error, stack) {
-      unawaited(
-        AppDiagnostics.logError(
-          'Failed to forward consent to ironSource',
           error,
           stack,
           fatal: false,
