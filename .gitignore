@@ -33,6 +33,7 @@ migrate_working_dir/
 .pub/
 /build/
 build/*
+packages/build/
 packages/shared/build/*
 packages/app/build/*
 packages/runner/build/*
