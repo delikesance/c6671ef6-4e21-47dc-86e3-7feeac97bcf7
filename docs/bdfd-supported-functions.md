@@ -171,6 +171,15 @@ barColor par defaut (BDFD n'expose pas d'argument de couleur de bordure dedie).
 - jsonArrayPop (inline)
 - jsonArrayShift (inline)
 
+### Mathematiques et conditions (inline)
+
+- sum, sub, multi, divide, modulo, calculate
+- ceil, floor, round, sqrt, max, min
+- checkCondition (inline, booleen) — supporte les operateurs ==, !=, >, <, >=, <=,
+  contains, notContains, startsWith, endsWith. Les comparaisons avec des operandes
+  dynamiques (timestamps, variables, $sub[...] etc.) sont deferrees au runtime et
+  evaluees apres resolution des placeholders.
+
 ### Await
 
 - awaitFunc
