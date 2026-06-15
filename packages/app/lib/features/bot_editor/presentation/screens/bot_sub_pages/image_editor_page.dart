@@ -945,8 +945,9 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
           // Calls both parent setState (canvas preview) and sheet setState
           // (sheet UI) so all controls stay in sync.
           void combinedSet(VoidCallback fn) {
-            if (mounted) setState(fn);
-            setSheetState(fn);
+            fn();
+            if (mounted) setState(() {});
+            setSheetState(() {});
           }
           void closeSheet() => Navigator.pop(sheetCtx);
           return _buildPropertiesSheetContent(ctx, index, combinedSet, closeSheet);
