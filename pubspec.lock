@@ -564,14 +564,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.3"
-  gma_mediation_unity:
-    dependency: transitive
-    description:
-      name: gma_mediation_unity
-      sha256: f2326489fa598d4ff0744509df303664f87a6f5f46ab8dfbed81b4c823100df2
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.8.0"
   google_cloud:
     dependency: transitive
     description:
@@ -592,10 +584,10 @@ packages:
     dependency: transitive
     description:
       name: google_mobile_ads
-      sha256: "50549f6c945d7a445d53c04f34d025b1a1723fbd02719de9e67de432e2597f40"
+      sha256: "6029f6c48bc9b6b47767ddbb4847683048a2f006d418c871bd93c5eb6a8e5c3c"
       url: "https://pub.dev"
     source: hosted
-    version: "8.0.0"
+    version: "9.0.0"
   google_sign_in:
     dependency: transitive
     description:

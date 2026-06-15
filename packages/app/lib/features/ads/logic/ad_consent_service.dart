@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:bot_creator/core/diagnostics/app_diagnostics.dart';
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:flutter/foundation.dart';
-import 'package:gma_mediation_unity/gma_mediation_unity.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class AdConsentService {
@@ -252,22 +251,7 @@ class AdConsentService {
 
   /// Forwards the user's consent status to mediation partner SDKs.
   ///
-  /// Must be called **before** [MobileAds.instance.initialize] so that the
-  /// buyer-generated data (GDPR / CCPA signals) is included in bid requests.
-  static Future<void> forwardConsentToMediationPartners(bool hasConsent) async {
-    try {
-      final unity = GmaMediationUnity();
-      await unity.setGDPRConsent(hasConsent);
-      await unity.setCCPAConsent(hasConsent);
-    } catch (error, stack) {
-      unawaited(
-        AppDiagnostics.logError(
-          'Failed to forward consent to Unity Ads',
-          error,
-          stack,
-          fatal: false,
-        ),
-      );
-    }
-  }
+  /// Currently a no-op — all mediation partners have been removed.
+  /// Kept as a hook for future re-integration.
+  static Future<void> forwardConsentToMediationPartners(bool hasConsent) async {}
 }
