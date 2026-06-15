@@ -91,6 +91,28 @@ Les boucles avec des valeurs dynamiques (ex: `$for[$args[2]]`, `$for[i=0;i<$args
 - addSection
 - addThumbnail
 
+### Canvas / Image
+
+- canvasCreate[name;width;height;color]
+- canvasContainer[name;x;y;width;height;color?]
+- canvasLoadImage[url;x?;y?;width?;height?;container?]
+- canvasDrawText[text;x;y;fontSize;color;textAlign?;maxWidth?;container?]
+- canvasDrawCircle[x;y;radius;color;fill;blend?;container?]
+- canvasDrawRect[x;y;width;height;color;fill;blend?;container?]
+- canvasDrawLine[x1;y1;x2;y2;color;thickness;blend?;container?]
+- canvasCompositeImage[url;x;y;width;height;shape?;blend?;container?]
+- canvasProgressBar[x;y;width;height;percentage;barColor;trackColor;textColor;borderWidth?;orientation?;fontSize?;container?]
+- canvasSetPixel[x;y;color;container?]
+- canvasInvert[]
+- canvasGrayscale[]
+- canvasRotate[degrees]
+- attachImage[name]
+
+Note: les fonctions canvas sont collectees dans un bloc image runtime differe.
+Le premier $canvasCreate demarre le bloc; toute fonction non-canvas suivante
+provoque le flush du bloc. La couleur de bordure de canvasProgressBar utilise
+barColor par defaut (BDFD n'expose pas d'argument de couleur de bordure dedie).
+
 ### Threads
 
 - startThread
