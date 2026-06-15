@@ -95,9 +95,8 @@ class _GuildsPageState extends State<GuildsPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Leave Server'),
-        content: Text('Leave "${info.name}"?\nThe bot will be removed from this server. '
-            'You can re-invite it later from the Discord developer portal.'),
+        title: Text(context.tr.guilds_leave_title),
+        content: Text(context.tr.guilds_leave_confirm(info.name)),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(context.tr.cancel)),
           TextButton(onPressed: () => Navigator.pop(ctx, true),
@@ -122,14 +121,14 @@ class _GuildsPageState extends State<GuildsPage> {
           _guilds?.removeWhere((g) => g.id == info.id);
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Left "${info.name}".')),
+          SnackBar(content: Text(context.tr.guilds_left_success(info.name))),
         );
       }
     } catch (e) {
       if (mounted) {
         setState(() => _leavingGuilds.remove(info.id));
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to leave: $e')),
+          SnackBar(content: Text(context.tr.guilds_leave_failed(e.toString()))),
         );
       }
     }
@@ -140,10 +139,10 @@ class _GuildsPageState extends State<GuildsPage> {
     final cs = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Servers'),
+        title: Text(context.tr.guilds_tab),
         actions: [
           if (_guilds != null && _guilds!.isNotEmpty)
-            Text('${_guilds!.length} servers',
+            Text(context.tr.guilds_server_count_other(_guilds!.length),
                 style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant)),
           const SizedBox(width: 8),
           IconButton(icon: const Icon(Icons.refresh, size: 20),
@@ -162,7 +161,7 @@ class _GuildsPageState extends State<GuildsPage> {
         const SizedBox(height: 12),
         Text(_error!, style: TextStyle(color: cs.error)),
         const SizedBox(height: 12),
-        FilledButton.tonal(onPressed: _fetch, child: const Text('Retry')),
+        FilledButton.tonal(onPressed: _fetch, child: Text(context.tr.common_retry)),
       ]));
     }
     final guilds = _guilds ?? [];
@@ -170,7 +169,7 @@ class _GuildsPageState extends State<GuildsPage> {
       return Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
         Icon(Icons.dns_outlined, size: 48, color: cs.onSurfaceVariant),
         const SizedBox(height: 12),
-        Text('The bot is not in any server.\nInvite it to a server to see it here.',
+        Text(context.tr.guilds_empty_state,
             textAlign: TextAlign.center,
             style: TextStyle(color: cs.onSurfaceVariant)),
       ]));
@@ -193,15 +192,16 @@ class _GuildsPageState extends State<GuildsPage> {
             title: Text(guild.name),
             subtitle: Text([
               'ID: ${guild.id}',
-              if (guild.approximateMemberCount != null) '~${guild.approximateMemberCount} members',
-              if (guild.isOwner) '👑 Owner',
+              if (guild.approximateMemberCount != null)
+                context.tr.guilds_members_count_other(guild.approximateMemberCount!),
+              if (guild.isOwner) context.tr.guilds_owner_label,
             ].join(' · '), style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
             trailing: IconButton(
               icon: isLeaving
                   ? const SizedBox(width: 18, height: 18,
                       child: CircularProgressIndicator(strokeWidth: 2))
                   : const Icon(Icons.exit_to_app, color: Colors.red),
-              tooltip: 'Leave',
+              tooltip: context.tr.guilds_leave_tooltip,
               onPressed: isLeaving ? null : () => _leaveGuild(guild),
             ),
           );

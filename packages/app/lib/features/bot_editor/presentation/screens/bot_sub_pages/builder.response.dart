@@ -973,185 +973,195 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
       case BotCreatorActionType.randomChoice:
         return context.tr.action_description_randomChoice;
       case BotCreatorActionType.pinMessage:
-        return 'Pin a message in a channel';
+        return context.tr.action_description_pinMessage;
       case BotCreatorActionType.listMembers:
-        return 'List members in a guild with options';
+        return context.tr.action_description_listMembers;
       case BotCreatorActionType.sendWebhook:
-        return 'Send message via Webhook';
+        return context.tr.action_description_sendWebhook;
       case BotCreatorActionType.editWebhook:
-        return 'Edit an existing Webhook';
+        return context.tr.action_description_editWebhook;
       case BotCreatorActionType.listWebhooks:
-        return 'List all Webhooks in a channel or guild';
+        return context.tr.action_description_listWebhooks;
       case BotCreatorActionType.getWebhook:
-        return 'Get Webhook information by ID';
+        return context.tr.action_description_getWebhook;
       case BotCreatorActionType.getMember:
-        return 'Get member information';
+        return context.tr.action_description_getMember;
       case BotCreatorActionType.httpRequest:
-        return 'Send HTTP request with dynamic URL, method, headers and body';
+        return context.tr.action_description_httpRequest;
       case BotCreatorActionType.setGlobalVariable:
-        return 'Create or update a global variable for this bot';
+        return context.tr.action_description_setGlobalVariable;
       case BotCreatorActionType.getGlobalVariable:
-        return 'Read a global variable and inject into runtime variables';
+        return context.tr.action_description_getGlobalVariable;
       case BotCreatorActionType.removeGlobalVariable:
-        return 'Delete a global variable';
+        return context.tr.action_description_removeGlobalVariable;
       case BotCreatorActionType.setScopedVariable:
-        return 'Create or update a scoped variable (guild/user/channel/guildMember/message)';
+        return context.tr.action_description_setScopedVariable;
       case BotCreatorActionType.setTemporaryVariable:
-        return 'Create or update a temporary variable in local execution';
+        return context.tr.action_description_setTemporaryVariable;
       case BotCreatorActionType.getScopedVariable:
-        return 'Read a scoped variable and inject into runtime variables';
+        return context.tr.action_description_getScopedVariable;
       case BotCreatorActionType.removeScopedVariable:
-        return 'Delete a scoped variable';
+        return context.tr.action_description_removeScopedVariable;
       case BotCreatorActionType.renameScopedVariable:
-        return 'Rename a scoped variable key';
+        return context.tr.action_description_renameScopedVariable;
       case BotCreatorActionType.listScopedVariableIndex:
-        return 'List indexed scoped values sorted by value with offset and limit';
+        return context.tr.action_description_listScopedVariableIndex;
       case BotCreatorActionType.appendArrayElement:
-        return 'Append a new element into a global or scoped JSON array';
+        return context.tr.action_description_appendArrayElement;
       case BotCreatorActionType.removeArrayElement:
-        return 'Remove one element from a global or scoped JSON array by index';
+        return context.tr.action_description_removeArrayElement;
       case BotCreatorActionType.queryArray:
-        return 'Filter, sort and page any runtime JSON array';
+        return context.tr.action_description_queryArray;
       case BotCreatorActionType.runWorkflow:
-        return 'Execute a saved workflow (supports entry point + arguments)';
+        return context.tr.action_description_runWorkflow;
       case BotCreatorActionType.runBdfdScript:
-        return 'Compile and run a BDFD script inline as workflow actions';
+        return context.tr.action_description_runBdfdScript;
       case BotCreatorActionType.respondWithMessage:
-        return 'Reply to command with a normal message';
+        return context.tr.action_description_respondWithMessage;
       case BotCreatorActionType.respondWithComponentV2:
-        return 'Reply to command with buttons/select menus';
+        return context.tr.action_description_respondWithComponentV2;
       case BotCreatorActionType.respondWithModal:
-        return 'Show a modal dialog to the user';
+        return context.tr.action_description_respondWithModal;
       case BotCreatorActionType.editInteractionMessage:
-        return 'Edit the deferred or original interaction response';
+        return context.tr.action_description_editInteractionMessage;
       case BotCreatorActionType.listenForButtonClick:
-        return 'Register a workflow to run when a button is clicked';
+        return context.tr.action_description_listenForButtonClick;
       case BotCreatorActionType.listenForSelectMenu:
-        return 'Register a workflow to run when a select menu is used';
+        return context.tr.action_description_listenForSelectMenu;
       case BotCreatorActionType.listenForModalSubmit:
-        return 'Register a workflow to run when a modal is submitted';
+        return context.tr.action_description_listenForModalSubmit;
       case BotCreatorActionType.listenAndExecute:
-        return 'Register a workflow to run when a button is clicked, select menu is used, or modal is submitted';
+        return context.tr.action_description_listenAndExecute;
       case BotCreatorActionType.respondWithAutocomplete:
-        return 'Reply to a Discord autocomplete interaction with up to 25 dynamic choices';
+        return context.tr.action_description_respondWithAutocomplete;
       case BotCreatorActionType.deferInteraction:
-        return 'Defer the interaction response to prevent Discord timeout';
+        return context.tr.action_description_deferInteraction;
       case BotCreatorActionType.stopUnless:
-        return 'Stop the workflow if a condition is not met (guard/filter)';
+        return context.tr.action_description_stopUnless;
       case BotCreatorActionType.ifBlock:
-        return 'Conditional branching: run different actions based on a condition';
+        return context.tr.action_description_ifBlock;
       case BotCreatorActionType.calculate:
-        return 'Perform math operations and store result';
+        return context.tr.action_description_calculate;
       case BotCreatorActionType.getMessage:
-        return 'Fetch a message and expose its fields';
+        return context.tr.action_description_getMessage;
       case BotCreatorActionType.unpinMessage:
-        return 'Unpin a message in a channel';
+        return context.tr.action_description_unpinMessage;
       case BotCreatorActionType.createPoll:
-        return 'Create a poll message in a channel';
+        return context.tr.action_description_createPoll;
       case BotCreatorActionType.endPoll:
-        return 'End an active poll message immediately';
+        return context.tr.action_description_endPoll;
       case BotCreatorActionType.createInvite:
-        return 'Create a new invite link for a channel';
+        return context.tr.action_description_createInvite;
       case BotCreatorActionType.deleteInvite:
-        return 'Delete an existing invite by code';
+        return context.tr.action_description_deleteInvite;
       case BotCreatorActionType.getInvite:
-        return 'Fetch invite information by code';
+        return context.tr.action_description_getInvite;
       case BotCreatorActionType.moveToVoiceChannel:
-        return 'Move a member to a specific voice channel';
+        return context.tr.action_description_moveToVoiceChannel;
       case BotCreatorActionType.disconnectFromVoice:
-        return 'Disconnect a member from voice';
+        return context.tr.action_description_disconnectFromVoice;
       case BotCreatorActionType.serverMuteMember:
-        return 'Server-mute or unmute a member';
+        return context.tr.action_description_serverMuteMember;
       case BotCreatorActionType.serverDeafenMember:
-        return 'Server-deafen or undeafen a member';
+        return context.tr.action_description_serverDeafenMember;
       case BotCreatorActionType.createEmoji:
-        return 'Create a guild emoji from image data';
+        return context.tr.action_description_createEmoji;
       case BotCreatorActionType.updateEmoji:
-        return 'Update guild emoji name or role access';
+        return context.tr.action_description_updateEmoji;
       case BotCreatorActionType.deleteEmoji:
-        return 'Delete a guild emoji';
+        return context.tr.action_description_deleteEmoji;
       case BotCreatorActionType.createAutoModRule:
-        return 'Create a guild auto-moderation rule';
+        return context.tr.action_description_createAutoModRule;
       case BotCreatorActionType.deleteAutoModRule:
-        return 'Delete an auto-moderation rule';
+        return context.tr.action_description_deleteAutoModRule;
       case BotCreatorActionType.listAutoModRules:
-        return 'List all auto-moderation rules in guild';
+        return context.tr.action_description_listAutoModRules;
       case BotCreatorActionType.getGuildOnboarding:
-        return 'Fetch current guild onboarding configuration';
+        return context.tr.action_description_getGuildOnboarding;
       case BotCreatorActionType.updateGuildOnboarding:
-        return 'Update guild onboarding configuration';
+        return context.tr.action_description_updateGuildOnboarding;
       case BotCreatorActionType.updateSelfUser:
-        return 'Update current bot user profile (username/avatar)';
+        return context.tr.action_description_updateSelfUser;
       case BotCreatorActionType.createThread:
-        return 'Create a thread in a supported text channel';
+        return context.tr.action_description_createThread;
       case BotCreatorActionType.addThreadMember:
-        return 'Add a member to a thread';
+        return context.tr.action_description_addThreadMember;
       case BotCreatorActionType.removeThreadMember:
-        return 'Remove a member from a thread';
+        return context.tr.action_description_removeThreadMember;
       case BotCreatorActionType.editChannelPermissions:
-        return 'Create or update channel permission overwrites';
+        return context.tr.action_description_editChannelPermissions;
       case BotCreatorActionType.deleteChannelPermission:
-        return 'Delete a channel permission overwrite';
+        return context.tr.action_description_deleteChannelPermission;
       case BotCreatorActionType.sendComponentV2:
-        return 'Send interactive components';
+        return context.tr.action_description_sendComponentV2;
       case BotCreatorActionType.editComponentV2:
-        return 'Edit existing components';
+        return context.tr.action_description_editComponentV2;
       case BotCreatorActionType.createChannel:
-        return 'Create a new channel';
+        return context.tr.action_description_createChannel;
       case BotCreatorActionType.updateChannel:
-        return 'Update channel settings';
+        return context.tr.action_description_updateChannel;
       case BotCreatorActionType.removeChannel:
-        return 'Delete a channel';
+        return context.tr.action_description_removeChannel;
       case BotCreatorActionType.updateAutoMod:
-        return 'Update auto-moderation settings';
+        return context.tr.action_description_updateAutoMod;
       case BotCreatorActionType.updateGuild:
-        return 'Update guild settings';
+        return context.tr.action_description_updateGuild;
       case BotCreatorActionType.leaveGuild:
-        return 'Make the bot leave the guild/server';
+        return context.tr.action_description_leaveGuild;
       case BotCreatorActionType.deleteWebhook:
-        return 'Delete a webhook';
+        return context.tr.action_description_deleteWebhook;
       case BotCreatorActionType.forLoop:
-        return 'Loop through a range of numbers (for loop)';
+        return context.tr.action_description_forLoop;
       case BotCreatorActionType.jsonForEachLoop:
-        return 'Loop through each element of a JSON array or object (forEach)';
+        return context.tr.action_description_jsonForEachLoop;
       case BotCreatorActionType.debugProfile:
-        return 'Generate execution profile and diagnostics info';
+        return context.tr.action_description_debugProfile;
       case BotCreatorActionType.log:
-        return 'Print or store diagnostic message to action logs';
+        return context.tr.action_description_log;
       case BotCreatorActionType.runtimeJsonBlock:
-        return 'Run block of JSON processing actions';
+        return context.tr.action_description_runtimeJsonBlock;
       case BotCreatorActionType.runtimeImageBlock:
-        return 'Run block of image canvas processing actions';
+        return context.tr.action_description_runtimeImageBlock;
       case BotCreatorActionType.attachImage:
-        return 'Attach an image file to the message response (URL, data URL, or base64)';
+        return context.tr.action_description_attachImage;
       case BotCreatorActionType.registerGuildCommands:
-        return 'Register application commands to a guild';
+        return context.tr.action_description_registerGuildCommands;
       case BotCreatorActionType.unregisterGuildCommands:
-        return 'Unregister application commands from a guild';
+        return context.tr.action_description_unregisterGuildCommands;
       case BotCreatorActionType.playMusic:
-        return 'Play a track by search query or URL';
+        return context.tr.action_description_playMusic;
       case BotCreatorActionType.pauseMusic:
-        return 'Pause the current track';
+        return context.tr.action_description_pauseMusic;
       case BotCreatorActionType.resumeMusic:
-        return 'Resume a paused track';
+        return context.tr.action_description_resumeMusic;
       case BotCreatorActionType.skipMusic:
-        return 'Skip to the next track in the queue';
+        return context.tr.action_description_skipMusic;
       case BotCreatorActionType.stopMusic:
-        return 'Stop playback and clear the queue';
+        return context.tr.action_description_stopMusic;
       case BotCreatorActionType.setMusicVolume:
-        return 'Set the player volume (0 to 200)';
+        return context.tr.action_description_setMusicVolume;
       case BotCreatorActionType.setMusicLoop:
-        return 'Enable or disable looping of the queue';
+        return context.tr.action_description_setMusicLoop;
       case BotCreatorActionType.seekMusic:
-        return 'Seek to a position in the current track';
+        return context.tr.action_description_seekMusic;
       case BotCreatorActionType.getMusicInfo:
-        return 'Retrieve information about the currently playing track';
+        return context.tr.action_description_getMusicInfo;
       case BotCreatorActionType.joinVoice:
-        return 'Join a voice channel';
+        return context.tr.action_description_joinVoice;
       case BotCreatorActionType.leaveVoice:
-        return 'Leave the voice channel and destroy the player';
-      default:
-        return 'Deprecated action';
+        return context.tr.action_description_leaveVoice;
+      case BotCreatorActionType.canvasCreateBlock:
+        return context.tr.action_description_canvasCreateBlock;
+      case BotCreatorActionType.canvasLoadImageBlock:
+        return context.tr.action_description_canvasLoadImageBlock;
+      case BotCreatorActionType.canvasDrawTextBlock:
+        return context.tr.action_description_canvasDrawTextBlock;
+      case BotCreatorActionType.canvasDrawCircleBlock:
+        return context.tr.action_description_canvasDrawCircleBlock;
+      case BotCreatorActionType.canvasDrawRectBlock:
+        return context.tr.action_description_canvasDrawRectBlock;
+      case BotCreatorActionType.canvasDrawLineBlock:
+        return context.tr.action_description_canvasDrawLineBlock;
     }
   }
 

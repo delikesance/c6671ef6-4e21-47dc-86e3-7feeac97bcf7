@@ -56,6 +56,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get action_category_moderation => 'モデレーション';
 
   @override
+  String get action_category_music => '音楽';
+
+  @override
   String get action_category_reactions => 'リアクション';
 
   @override
@@ -85,7 +88,41 @@ class AppLocalizationsJa extends AppLocalizations {
   String get action_description_addRole => 'メンバーにロールを付与';
 
   @override
+  String get action_description_addThreadMember => 'スレッドにメンバーを追加します';
+
+  @override
+  String get action_description_appendArrayElement =>
+      'グローバルまたはスコープ付きのJSON配列に新しい要素を追加します';
+
+  @override
+  String get action_description_attachImage =>
+      'メッセージ応答に画像ファイルを添付します（URL、データURL、またはbase64）';
+
+  @override
   String get action_description_banUser => 'ユーザーをサーバーから永久追放';
+
+  @override
+  String get action_description_calculate => '数学的な演算を実行し、結果を保存します';
+
+  @override
+  String get action_description_canvasCreateBlock => '空白の画像キャンバスを作成します';
+
+  @override
+  String get action_description_canvasDrawCircleBlock => '画像キャンバスに円を描画します';
+
+  @override
+  String get action_description_canvasDrawLineBlock => 'キャンバスに線を描画します';
+
+  @override
+  String get action_description_canvasDrawRectBlock => '画像キャンバスに長方形を描画します';
+
+  @override
+  String get action_description_canvasDrawTextBlock =>
+      'スタイルオプション付きで画像キャンバスにテキストを描画します';
+
+  @override
+  String get action_description_canvasLoadImageBlock =>
+      'URLまたはソースからキャンバスに画像を読み込みます';
 
   @override
   String get action_description_clearAllReactions => 'メッセージからすべてのリアクションを削除';
@@ -94,22 +131,195 @@ class AppLocalizationsJa extends AppLocalizations {
   String get action_description_cooldown => 'ユーザーまたはサーバーにコマンドクールダウンを適用';
 
   @override
+  String get action_description_createAutoModRule => 'ギルドの自動モデレーションルールを作成します';
+
+  @override
+  String get action_description_createChannel => '新しいチャンネルを作成します';
+
+  @override
+  String get action_description_createEmoji => '画像データからギルド絵文字を作成します';
+
+  @override
+  String get action_description_createInvite => 'チャンネルの新しい招待リンクを作成します';
+
+  @override
+  String get action_description_createPoll => 'チャンネル内に投票メッセージを作成します';
+
+  @override
+  String get action_description_createThread =>
+      'サポートされているテキストチャンネル内にスレッドを作成します';
+
+  @override
+  String get action_description_debugProfile => '実行プロファイルと診断情報を生成します';
+
+  @override
+  String get action_description_deferInteraction =>
+      'Discordのタイムアウトを防ぐためにインタラクションの応答を保留します';
+
+  @override
+  String get action_description_deleteAutoModRule => '自動モデレーションルールを削除します';
+
+  @override
+  String get action_description_deleteChannelPermission =>
+      'チャンネルの権限オーバーライトを削除します';
+
+  @override
+  String get action_description_deleteEmoji => 'ギルド絵文字を削除します';
+
+  @override
+  String get action_description_deleteInvite => 'コードで既存の招待を削除します';
+
+  @override
   String get action_description_deleteMessages => '1件以上のメッセージを削除';
 
   @override
   String get action_description_deleteTrigger => 'このコマンドを起動したメッセージを削除';
 
   @override
+  String get action_description_deleteWebhook => 'Webhookを削除します';
+
+  @override
+  String get action_description_disconnectFromVoice => 'メンバーを音声から切断します';
+
+  @override
+  String get action_description_editChannelPermissions =>
+      'チャンネルの権限オーバーライトを作成または更新します';
+
+  @override
+  String get action_description_editComponentV2 => '既存のコンポーネントを編集します';
+
+  @override
+  String get action_description_editInteractionMessage =>
+      '保留中または元のインタラクション応答を編集します';
+
+  @override
   String get action_description_editMessage => '既存のメッセージを編集';
+
+  @override
+  String get action_description_editWebhook => '既存のWebhookを編集します';
+
+  @override
+  String get action_description_endPoll => 'アクティブな投票メッセージを即座に終了します';
+
+  @override
+  String get action_description_forLoop => '数値の範囲でループします（forループ）';
+
+  @override
+  String get action_description_getGlobalVariable => 'グローバル変数を読み込み、実行時変数に注入します';
+
+  @override
+  String get action_description_getGuildOnboarding => '現在のギルドオンボーディング設定を取得します';
+
+  @override
+  String get action_description_getInvite => 'コードで招待情報を取得します';
+
+  @override
+  String get action_description_getMember => 'メンバー情報を取得します';
+
+  @override
+  String get action_description_getMessage => 'メッセージを取得し、そのフィールドを公開します';
+
+  @override
+  String get action_description_getMusicInfo => '現在再生中のトラックの情報を取得します';
+
+  @override
+  String get action_description_getScopedVariable =>
+      'スコープ付き変数を読み込み、実行時変数に注入します';
+
+  @override
+  String get action_description_getWebhook => 'IDでWebhookの情報を取得します';
+
+  @override
+  String get action_description_httpRequest =>
+      '動的なURL、メソッド、ヘッダー、ボディでHTTPリクエストを送信します';
+
+  @override
+  String get action_description_ifBlock => '条件分岐：条件に基づいて異なるアクションを実行します';
+
+  @override
+  String get action_description_joinVoice => 'ボイスチャンネルに接続します';
+
+  @override
+  String get action_description_jsonForEachLoop =>
+      'JSON配列またはオブジェクトの各要素をループします（forEach）';
 
   @override
   String get action_description_kickUser => 'メンバーをサーバーからキック';
 
   @override
+  String get action_description_leaveGuild => 'ボットをサーバーから退出させます';
+
+  @override
+  String get action_description_leaveVoice => 'ボイスチャンネルから退出してプレイヤーを破棄します';
+
+  @override
+  String get action_description_listAutoModRules =>
+      'ギルド内のすべての自動モデレーションルールを一覧表示します';
+
+  @override
+  String get action_description_listMembers => 'オプション付きでギルド内のメンバーを一覧表示します';
+
+  @override
+  String get action_description_listScopedVariableIndex =>
+      'インデックス付きスコープ値を値順にソートし、オフセットと制限付きで一覧表示します';
+
+  @override
+  String get action_description_listWebhooks =>
+      'チャンネルまたはギルド内のすべてのWebhookを一覧表示します';
+
+  @override
+  String get action_description_listenAndExecute =>
+      'ボタンのクリック、選択メニューの使用、またはモーダルの送信時に実行するワークフローを登録します';
+
+  @override
+  String get action_description_listenForButtonClick =>
+      'ボタンがクリックされたときに実行するワークフローを登録します';
+
+  @override
+  String get action_description_listenForModalSubmit =>
+      'モーダルが送信されたときに実行するワークフローを登録します';
+
+  @override
+  String get action_description_listenForSelectMenu =>
+      '選択メニューが使用されたときに実行するワークフローを登録します';
+
+  @override
+  String get action_description_log => '診断メッセージをアクションログに出力または保存します';
+
+  @override
+  String get action_description_moveToVoiceChannel => 'メンバーを特定の音声チャンネルに移動します';
+
+  @override
   String get action_description_muteUser => 'メンバーを一時的に除外 (タイムアウト)';
 
   @override
+  String get action_description_pauseMusic => '現在のトラックを一時停止します';
+
+  @override
+  String get action_description_pinMessage => 'チャンネル内のメッセージをピン留めします';
+
+  @override
+  String get action_description_playMusic => '検索クエリまたはURLでトラックを再生します';
+
+  @override
+  String get action_description_queryArray => '実行時のJSON配列をフィルタリング、ソート、ページングします';
+
+  @override
   String get action_description_randomChoice => 'リストからランダムに1項目を選び変数に保存';
+
+  @override
+  String get action_description_registerGuildCommands =>
+      'アプリケーションコマンドをギルドに登録します';
+
+  @override
+  String get action_description_removeArrayElement =>
+      'グローバルまたはスコープ付きのJSON配列からインデックスで要素を削除します';
+
+  @override
+  String get action_description_removeChannel => 'チャンネルを削除します';
+
+  @override
+  String get action_description_removeGlobalVariable => 'グローバル変数を削除します';
 
   @override
   String get action_description_removeReaction => 'メッセージからリアクションを削除';
@@ -118,13 +328,91 @@ class AppLocalizationsJa extends AppLocalizations {
   String get action_description_removeRole => 'メンバーからロールを削除';
 
   @override
+  String get action_description_removeScopedVariable => 'スコープ付き変数を削除します';
+
+  @override
+  String get action_description_removeThreadMember => 'スレッドからメンバーを削除します';
+
+  @override
+  String get action_description_renameScopedVariable => 'スコープ付き変数のキーの名前を変更します';
+
+  @override
+  String get action_description_respondWithAutocomplete =>
+      'Discordのオートコンプリートに最大25個の動的選択肢で返信します';
+
+  @override
+  String get action_description_respondWithComponentV2 =>
+      'コマンドにボタンまたは選択メニューで返信します';
+
+  @override
+  String get action_description_respondWithMessage => 'コマンドに通常のメッセージで返信します';
+
+  @override
+  String get action_description_respondWithModal => 'ユーザーにモーダルダイアログを表示します';
+
+  @override
+  String get action_description_resumeMusic => '一時停止中のトラックを再開します';
+
+  @override
+  String get action_description_runBdfdScript =>
+      'BDFDスクリプトをインラインでコンパイルし、ワークフローアクションとして実行します';
+
+  @override
+  String get action_description_runWorkflow =>
+      '保存されたワークフローを実行します（エントリポイントと引数をサポート）';
+
+  @override
+  String get action_description_runtimeImageBlock =>
+      '画像キャンバス処理アクションのブロックを実行します';
+
+  @override
+  String get action_description_runtimeJsonBlock => 'JSON処理アクションのブロックを実行します';
+
+  @override
+  String get action_description_seekMusic => '現在のトラックの指定した位置に移動します';
+
+  @override
+  String get action_description_sendComponentV2 => 'インタラクティブなコンポーネントを送信します';
+
+  @override
   String get action_description_sendDm => '特定のユーザーにプライベートメッセージを送信';
 
   @override
   String get action_description_sendMessage => '特定のチャンネルにメッセージを送信';
 
   @override
+  String get action_description_sendWebhook => 'Webhook経由でメッセージを送信します';
+
+  @override
+  String get action_description_serverDeafenMember =>
+      'メンバーのサーバー聴覚保護を設定または解除します';
+
+  @override
+  String get action_description_serverMuteMember => 'メンバーのサーバーミュートを設定または解除します';
+
+  @override
+  String get action_description_setGlobalVariable =>
+      'このボットのグローバル変数を新規作成または更新します';
+
+  @override
+  String get action_description_setMusicLoop => 'キューのループ再生を有効または無効にします';
+
+  @override
+  String get action_description_setMusicVolume => 'プレイヤーの音量を設定します (0〜200)';
+
+  @override
   String get action_description_setNickname => 'サーバーメンバーのニックネームを変更';
+
+  @override
+  String get action_description_setScopedVariable =>
+      'スコープ付き変数（ギルド/ユーザー/チャンネル/メンバー/メッセージ）を作成または更新します';
+
+  @override
+  String get action_description_setTemporaryVariable =>
+      'ローカル実行で一時変数を作成または更新します';
+
+  @override
+  String get action_description_skipMusic => 'キューの次のトラックに進みます';
 
   @override
   String get action_description_slowmode => 'チャンネルの低速モード時間を設定';
@@ -133,10 +421,43 @@ class AppLocalizationsJa extends AppLocalizations {
   String get action_description_stop => '現在のワークフローの実行を即座に停止';
 
   @override
+  String get action_description_stopMusic => '再生を停止し、キューをクリアします';
+
+  @override
+  String get action_description_stopUnless =>
+      '条件が満たされない場合にワークフローを停止します（ガード/フィルター）';
+
+  @override
   String get action_description_unbanUser => 'ユーザーの追放を解除';
 
   @override
   String get action_description_unmuteUser => 'メンバーの一時除外を解除';
+
+  @override
+  String get action_description_unpinMessage => 'チャンネル内のメッセージのピン留めを解除します';
+
+  @override
+  String get action_description_unregisterGuildCommands =>
+      'アプリケーションコマンドをギルドから登録解除します';
+
+  @override
+  String get action_description_updateAutoMod => '自動モデレーション設定を更新します';
+
+  @override
+  String get action_description_updateChannel => 'チャンネル設定を更新します';
+
+  @override
+  String get action_description_updateEmoji => 'ギルド絵文字の名前またはロールアクセスを更新します';
+
+  @override
+  String get action_description_updateGuild => 'ギルド設定を更新します';
+
+  @override
+  String get action_description_updateGuildOnboarding => 'ギルドオンボーディング設定を更新します';
+
+  @override
+  String get action_description_updateSelfUser =>
+      '現在のボットのユーザープロファイル（ユーザー名/アバター）を更新します';
 
   @override
   String get action_description_wait => 'ワークフローの実行を指定時間一時停止';
@@ -302,6 +623,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get action_name_canvasDrawCircleBlock => '円を描画';
 
   @override
+  String get action_name_canvasDrawLineBlock => '線を描画';
+
+  @override
   String get action_name_canvasDrawRectBlock => '四角形を描画';
 
   @override
@@ -335,6 +659,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get action_name_createThread => 'スレッド作成';
 
   @override
+  String get action_name_debugProfile => 'デバッグプロファイル';
+
+  @override
+  String get action_name_deferInteraction => 'インタラクションを保留';
+
+  @override
   String get action_name_deleteAutoModRule => '自動モデレーションルール削除';
 
   @override
@@ -354,9 +684,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get action_name_deleteWebhook => 'Webhook削除';
-
-  @override
-  String get action_name_debugProfile => 'デバッグプロファイル';
 
   @override
   String get action_name_disconnectFromVoice => 'ボイスチャンネル切断';
@@ -398,6 +725,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get action_name_getMessage => 'メッセージ取得';
 
   @override
+  String get action_name_getMusicInfo => '音楽情報を取得';
+
+  @override
   String get action_name_getScopedVariable => 'スコープ変数取得';
 
   @override
@@ -410,10 +740,19 @@ class AppLocalizationsJa extends AppLocalizations {
   String get action_name_ifBlock => 'IF / ELSE ブロック';
 
   @override
+  String get action_name_joinVoice => 'ボイスチャンネルに参加';
+
+  @override
   String get action_name_jsonForEachLoop => 'JSON For Each ループ';
 
   @override
   String get action_name_kickUser => 'ユーザーキック';
+
+  @override
+  String get action_name_leaveGuild => 'サーバーを退出';
+
+  @override
+  String get action_name_leaveVoice => 'ボイスチャンネルから退出';
 
   @override
   String get action_name_listAutoModRules => '自動モデレーションルール一覧';
@@ -426,6 +765,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get action_name_listWebhooks => 'Webhook一覧';
+
+  @override
+  String get action_name_listenAndExecute => '監視して実行';
 
   @override
   String get action_name_listenForButtonClick => 'ボタンクリック待機';
@@ -446,7 +788,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String get action_name_muteUser => 'ユーザーミュート';
 
   @override
+  String get action_name_pauseMusic => '音楽を一時停止';
+
+  @override
   String get action_name_pinMessage => 'メッセージピン留め';
+
+  @override
+  String get action_name_playMusic => '音楽を再生';
 
   @override
   String get action_name_queryArray => '配列クエリ';
@@ -494,16 +842,22 @@ class AppLocalizationsJa extends AppLocalizations {
   String get action_name_respondWithModal => 'モーダルで応答';
 
   @override
+  String get action_name_resumeMusic => '音楽を再開';
+
+  @override
   String get action_name_runBdfdScript => 'BDFD スクリプト実行';
 
   @override
-  String get action_name_runtimeJsonBlock => 'JSON 操作を実行';
+  String get action_name_runWorkflow => 'ワークフロー実行';
 
   @override
   String get action_name_runtimeImageBlock => '画像キャンバスを実行';
 
   @override
-  String get action_name_runWorkflow => 'ワークフロー実行';
+  String get action_name_runtimeJsonBlock => 'JSON 操作を実行';
+
+  @override
+  String get action_name_seekMusic => '再生位置を変更';
 
   @override
   String get action_name_sendComponentV2 => 'コンポーネント V2 送信';
@@ -527,6 +881,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get action_name_setGlobalVariable => 'グローバル変数設定';
 
   @override
+  String get action_name_setMusicLoop => 'ループ再生を設定';
+
+  @override
+  String get action_name_setMusicVolume => '音量を設定';
+
+  @override
   String get action_name_setNickname => 'ニックネーム設定';
 
   @override
@@ -536,10 +896,16 @@ class AppLocalizationsJa extends AppLocalizations {
   String get action_name_setTemporaryVariable => '一時変数設定';
 
   @override
+  String get action_name_skipMusic => '音楽をスキップ';
+
+  @override
   String get action_name_slowmode => '低速モード';
 
   @override
   String get action_name_stop => '実行停止';
+
+  @override
+  String get action_name_stopMusic => '音楽を停止';
 
   @override
   String get action_name_stopUnless => '条件付き停止';
@@ -1029,10 +1395,6 @@ class AppLocalizationsJa extends AppLocalizations {
       '最後のHTTPレスポンスのボディを返します。オプションでJSONパスを指定して値を抽出できます。';
 
   @override
-  String get bdfd_docs_desc_url =>
-      'Encodes or decodes text for use in URLs. Use \'encode\' to make text URL-safe, or \'decode\' to revert it.\n\nUsage: \$url[encode;Hello world!!]';
-
-  @override
   String get bdfd_docs_desc_if =>
       '条件ブロック。ネストと豊富な演算子をサポート: ==, !=, >=, <=, >, <, co';
 
@@ -1067,6 +1429,10 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get bdfd_docs_desc_try =>
       'エラーハンドリングのためにブロックをラップします。\n\n使用法:\n\$try\n  \$httpGet[https://api.example.co';
+
+  @override
+  String get bdfd_docs_desc_url =>
+      'URLで使用するためにテキストをエンコードまたはデコードします。テキストをURLセーフにするには「encode」を、元に戻すには「decode」を使用します。\\n\\n使用法: \$url[encode;Hello world!!]';
 
   @override
   String get bdfd_docs_desc_workflowresponse =>
@@ -1297,7 +1663,15 @@ class AppLocalizationsJa extends AppLocalizations {
   String get bot_settings_avatar_clear_selection => '選択をクリア';
 
   @override
+  String get bot_settings_avatar_important_note =>
+      '重要: プロフィール変更（ユーザー名とアバター）は、保存時にのみDiscordに適用されます。';
+
+  @override
   String get bot_settings_avatar_local_path => 'アバターのローカルファイルパス';
+
+  @override
+  String get bot_settings_avatar_none_selected =>
+      '新しい画像が選択されていません。「参照」をクリックして選択してください。';
 
   @override
   String get bot_settings_avatar_path_hint => '/absolute/path/to/avatar.png';
@@ -1307,6 +1681,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get bot_settings_avatar_preview_label => 'アバタープレビュー';
+
+  @override
+  String get bot_settings_avatar_selected => '選択された画像:';
 
   @override
   String bot_settings_avatar_selected_file(String path) {
@@ -1465,6 +1842,18 @@ class AppLocalizationsJa extends AppLocalizations {
   String get bot_settings_status_type_watching => '視聴中';
 
   @override
+  String get bot_settings_tab_advanced => '詳細 & メンテナンス';
+
+  @override
+  String get bot_settings_tab_general => '一般';
+
+  @override
+  String get bot_settings_tab_intents => 'インテント & 権限';
+
+  @override
+  String get bot_settings_tab_presence => 'プレゼンス & ステータス';
+
+  @override
   String get bot_settings_title => 'ボットのカスタマイズ / プロフィール';
 
   @override
@@ -1599,6 +1988,61 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get cmd_delete_tooltip => 'コマンドを削除';
+
+  @override
+  String get cmd_deploy_close_button => '閉じる';
+
+  @override
+  String get cmd_deploy_cloud_sync_subtitle => 'オンラインスペースとの安全な同期';
+
+  @override
+  String get cmd_deploy_cloud_sync_title => 'クラウドバックアップ';
+
+  @override
+  String cmd_deploy_config_subtitle(String name) {
+    return '/$name の設定';
+  }
+
+  @override
+  String get cmd_deploy_discord_sync_subtitle => 'コマンドをDiscord APIに公開中';
+
+  @override
+  String get cmd_deploy_discord_sync_title => 'Discord同期';
+
+  @override
+  String get cmd_deploy_failed_title => 'デプロイ失敗';
+
+  @override
+  String get cmd_deploy_hot_reload_subtitle => 'ボットランナーの即時更新';
+
+  @override
+  String get cmd_deploy_hot_reload_title => 'ホットリロード';
+
+  @override
+  String get cmd_deploy_in_progress_title => 'デプロイ中...';
+
+  @override
+  String get cmd_deploy_local_save_subtitle => 'コマンドをデバイスに保存中';
+
+  @override
+  String get cmd_deploy_local_save_title => 'ローカル保存';
+
+  @override
+  String get cmd_deploy_reload_bot_subtitle => 'ホットリロード設定を適用中';
+
+  @override
+  String get cmd_deploy_reload_bot_title => 'ボットを再読み込み中';
+
+  @override
+  String get cmd_deploy_retry_button => '再試行';
+
+  @override
+  String get cmd_deploy_success_title => 'デプロイ成功！';
+
+  @override
+  String cmd_deploy_success_toast(String name) {
+    return 'コマンド \"$name\" がデプロイされ、有効になりました！';
+  }
 
   @override
   String get cmd_editor_mode_advanced => '詳細モード';
@@ -2610,6 +3054,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get dart_editor_title => 'Dart エディタ';
 
   @override
+  String get dashboard_analysis_period => '分析期間';
+
+  @override
   String dashboard_error(String error) {
     return '統計を読み込めませんでした: $error';
   }
@@ -2685,9 +3132,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get dashboard_total => '総コマンド数';
-
-  @override
-  String get dashboard_analysis_period => '分析期間';
 
   @override
   String get debug_replay_clear => 'リプレイをクリア';
@@ -2863,15 +3307,13 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get doc_action_stop_unless_operators_l1 =>
-      'equals, notEquals, contains, notContains, startsWith, endsWith';
+      '一致する, 一致しない, 含む, 含まない, 前方一致, 後方一致';
 
   @override
-  String get doc_action_stop_unless_operators_l2 =>
-      'greaterThan, lessThan, greaterOrEqual, lessOrEqual';
+  String get doc_action_stop_unless_operators_l2 => 'より大きい, より小さい, 以上, 以下';
 
   @override
-  String get doc_action_stop_unless_operators_l3 =>
-      'isEmpty, isNotEmpty, matches';
+  String get doc_action_stop_unless_operators_l3 => '空である, 空ではない, 正規表現に一致する';
 
   @override
   String get doc_action_stop_unless_section_format => '条件変数の形式';
@@ -3914,6 +4356,50 @@ class AppLocalizationsJa extends AppLocalizations {
   String get globals_value_auto_type_hint => '値は自動型付けされます（数値、真偽値、JSON）。';
 
   @override
+  String get guilds_empty_state =>
+      'ボットはどのサーバーにも参加していません。\nサーバーに招待するとここに表示されます。';
+
+  @override
+  String guilds_leave_confirm(String name) {
+    return '「$name」から退出しますか？\nボットはこのサーバーから削除されます。後でDiscord開発者ポータルから再招待できます。';
+  }
+
+  @override
+  String guilds_leave_failed(String error) {
+    return '退出に失敗しました: $error';
+  }
+
+  @override
+  String get guilds_leave_title => 'サーバーを退出';
+
+  @override
+  String get guilds_leave_tooltip => '退出';
+
+  @override
+  String guilds_left_success(String name) {
+    return '「$name」から退出しました。';
+  }
+
+  @override
+  String guilds_members_count_other(int count) {
+    return '~$count 人のメンバー';
+  }
+
+  @override
+  String get guilds_owner_label => '👑 オーナー';
+
+  @override
+  String guilds_server_count_other(int count) {
+    return '$count 個のサーバー';
+  }
+
+  @override
+  String get guilds_tab => 'サーバー';
+
+  @override
+  String get guilds_tab_short => 'サーバー';
+
+  @override
   String get hint_use_variables => '必要に応じて変数/テンプレートを使用';
 
   @override
@@ -4000,6 +4486,20 @@ class AppLocalizationsJa extends AppLocalizations {
   String get home_unknown_app => '不明';
 
   @override
+  String get image_editor_create => '作成';
+
+  @override
+  String get image_editor_create_canvas => '画像キャンバスを作成';
+
+  @override
+  String image_editor_edit_canvas(int count) {
+    return 'キャンバスを編集 ($count 操作)';
+  }
+
+  @override
+  String get image_editor_open => 'エディタを開く';
+
+  @override
   String get import_button => 'インポート';
 
   @override
@@ -4058,20 +4558,6 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get image_editor_create => '作成';
-
-  @override
-  String get image_editor_create_canvas => '画像キャンバスを作成';
-
-  @override
-  String image_editor_edit_canvas(int count) {
-    return 'キャンバスを編集 ($count 操作)';
-  }
-
-  @override
-  String get image_editor_open => 'エディタを開く';
-
-  @override
   String legacy_bdfd_run_failed(String command, String error) {
     return 'コマンド \"$command\" のBDFDスクリプト実行に失敗: $error';
   }
@@ -4094,9 +4580,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get legacy_prefix_override_label => 'プレフィックス上書き (オプション)';
 
   @override
-  String get legacy_response_mode_label => 'レガシー応答モード';
-
-  @override
   String get legacy_response_banner_body =>
       '一部のコマンドはまだ古い応答形式を使用しています。エディタで開いて再保存してください。';
 
@@ -4105,6 +4588,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get legacy_response_banner_migrate => 'すべて移行';
+
+  @override
+  String get legacy_response_banner_migrate_failed => '移行に失敗しました';
 
   @override
   String legacy_response_banner_migrated(int count) {
@@ -4121,9 +4607,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get legacy_response_banner_migrated_none => '移行が必要なコマンドはありません';
 
   @override
-  String get legacy_response_banner_migrate_failed => '移行に失敗しました';
-
-  @override
   String get legacy_response_banner_migrating => '移行中...';
 
   @override
@@ -4135,6 +4618,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get legacy_response_banner_title => 'コマンド応答形式の更新';
+
+  @override
+  String get legacy_response_mode_label => 'レガシー応答モード';
 
   @override
   String get local_command_awaited_desc =>
@@ -4150,6 +4636,338 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String logs_runner_source(String name) {
     return 'ログ元: $name';
+  }
+
+  @override
+  String get marketplace_about => '概要';
+
+  @override
+  String get marketplace_add => '追加';
+
+  @override
+  String get marketplace_api_unavailable => 'APIクライアントが利用できません';
+
+  @override
+  String get marketplace_apply => 'テンプレートを適用';
+
+  @override
+  String marketplace_apply_error(Object error) {
+    return '適用に失敗: $error';
+  }
+
+  @override
+  String get marketplace_apply_success => 'テンプレートが正常に適用されました！';
+
+  @override
+  String marketplace_apply_success_skipped(
+    Object addedCount,
+    Object skippedCount,
+  ) {
+    return '$addedCount個のコマンドを追加、$skippedCount個をスキップ（重複）。';
+  }
+
+  @override
+  String get marketplace_applying => '適用中...';
+
+  @override
+  String marketplace_by_author(Object author, Object version) {
+    return '作成者 $author · v$version';
+  }
+
+  @override
+  String get marketplace_cancel => 'キャンセル';
+
+  @override
+  String marketplace_command_preview_actions(Object count) {
+    return '$count 個のアクション';
+  }
+
+  @override
+  String get marketplace_command_preview_no_actions => 'アクションなし';
+
+  @override
+  String marketplace_command_preview_options(Object count) {
+    return '$count 個のオプション';
+  }
+
+  @override
+  String get marketplace_command_preview_type_message => 'メッセージのコンテキストメニュー';
+
+  @override
+  String get marketplace_command_preview_type_slash => 'スラッシュコマンド';
+
+  @override
+  String get marketplace_command_preview_type_user => 'ユーザーのコンテキストメニュー';
+
+  @override
+  String marketplace_commands_label(Object count) {
+    return 'コマンド ($count)';
+  }
+
+  @override
+  String get marketplace_config_hint => 'このテンプレートを適用する前に必要な値を入力してください。';
+
+  @override
+  String get marketplace_config_required => '設定が必要です';
+
+  @override
+  String marketplace_conflict_apply_choice(Object count) {
+    return '適用 ($count 個のテンプレート)';
+  }
+
+  @override
+  String get marketplace_conflict_keep_local => 'ローカルを維持';
+
+  @override
+  String marketplace_conflict_local_info(Object count) {
+    return 'ローカル ($count 個のアクション)';
+  }
+
+  @override
+  String get marketplace_conflict_subtitle =>
+      '一部のテンプレートコマンドが既に存在します。維持するバージョンを選択してください：';
+
+  @override
+  String marketplace_conflict_template_info(Object count) {
+    return 'テンプレート ($count 個のアクション)';
+  }
+
+  @override
+  String get marketplace_conflict_title => 'コマンドの競合';
+
+  @override
+  String get marketplace_conflict_use_template => 'テンプレートを使用';
+
+  @override
+  String get marketplace_connect_discord => 'Discordで接続';
+
+  @override
+  String get marketplace_connect_manager =>
+      'マーケットプレイスにアクセスするにはManagerに接続してください。';
+
+  @override
+  String get marketplace_connect_publish => 'テンプレートを公開するにはManagerに接続してください。';
+
+  @override
+  String marketplace_count(Object count) {
+    return '$count テンプレート';
+  }
+
+  @override
+  String get marketplace_delete => '削除';
+
+  @override
+  String marketplace_delete_confirm(Object name) {
+    return '\"$name\"を削除してもよろしいですか？この操作は元に戻せません。';
+  }
+
+  @override
+  String get marketplace_delete_confirm_title => 'テンプレートを削除';
+
+  @override
+  String get marketplace_delete_success => 'テンプレートを削除しました。';
+
+  @override
+  String get marketplace_edit => '編集';
+
+  @override
+  String get marketplace_edit_hint => '編集するには、ボットのコマンドリストから同じ名前で再公開してください。';
+
+  @override
+  String get marketplace_empty => 'まだテンプレートがありません。\n最初に公開しましょう！';
+
+  @override
+  String marketplace_load_error(Object error) {
+    return 'データの読み込みに失敗: $error';
+  }
+
+  @override
+  String get marketplace_login_hint =>
+      'マーケットプレイスにアクセスするにはDiscordアカウントを接続してください。';
+
+  @override
+  String get marketplace_login_instructions =>
+      'マーケットプレイスを引き続き利用するにはDiscordで認証してください。';
+
+  @override
+  String get marketplace_login_required => 'Discord接続が必要です';
+
+  @override
+  String get marketplace_login_success => 'Discordに接続しました！';
+
+  @override
+  String get marketplace_login_title => 'Managerに接続';
+
+  @override
+  String marketplace_more(Object count) {
+    return '+$count 件';
+  }
+
+  @override
+  String get marketplace_my_templates => '自分のテンプレート';
+
+  @override
+  String marketplace_no_results(Object query) {
+    return '\"$query\" に一致するテンプレートはありません';
+  }
+
+  @override
+  String get marketplace_no_variables => 'グローバル変数が定義されていません。';
+
+  @override
+  String get marketplace_publish_add_variable => 'カスタム変数を追加';
+
+  @override
+  String get marketplace_publish_add_variable_title => '変数を追加';
+
+  @override
+  String get marketplace_publish_back => '戻る';
+
+  @override
+  String get marketplace_publish_button => '公開';
+
+  @override
+  String get marketplace_publish_category_hint => '例: ai, moderation, fun';
+
+  @override
+  String get marketplace_publish_category_label => 'カテゴリ';
+
+  @override
+  String marketplace_publish_commands(Object count) {
+    return 'コマンド ($count)';
+  }
+
+  @override
+  String get marketplace_publish_desc_hint => 'マーケットプレイスに表示される1行の概要';
+
+  @override
+  String get marketplace_publish_desc_label => '短い説明';
+
+  @override
+  String get marketplace_publish_desc_long_hint => '詳細な使用手順、Markdown対応...';
+
+  @override
+  String get marketplace_publish_desc_long_label => '完全なドキュメント (オプション)';
+
+  @override
+  String get marketplace_publish_deselect_all => 'すべて解除';
+
+  @override
+  String marketplace_publish_error(Object error) {
+    return '公開に失敗: $error';
+  }
+
+  @override
+  String get marketplace_publish_metadata => 'テンプレート詳細';
+
+  @override
+  String get marketplace_publish_metadata_hint =>
+      '他の人が見つけて使用できるようにテンプレートを説明します。';
+
+  @override
+  String get marketplace_publish_name_hint => '例: AIモデレーションボット';
+
+  @override
+  String get marketplace_publish_name_label => 'テンプレート名';
+
+  @override
+  String get marketplace_publish_next => '次へ';
+
+  @override
+  String get marketplace_publish_no_content =>
+      '公開するコマンドやワークフローがありません。\n最初に作成してください！';
+
+  @override
+  String get marketplace_publish_required_fields =>
+      '公開する前に、すべての必須項目（テンプレート名、概要、バージョン）を入力してください。';
+
+  @override
+  String get marketplace_publish_select => '含めるものを選択';
+
+  @override
+  String get marketplace_publish_select_all => 'すべて選択';
+
+  @override
+  String get marketplace_publish_select_hint =>
+      'コマンド、ワークフロー、またはその両方を選択します。それぞれがテンプレートの一部になります。';
+
+  @override
+  String get marketplace_publish_success => 'テンプレートが正常に公開されました！';
+
+  @override
+  String get marketplace_publish_summary => 'テンプレート概要';
+
+  @override
+  String get marketplace_publish_tags_hint => '例: openai, chatbot, moderation';
+
+  @override
+  String get marketplace_publish_tags_label => 'タグ (カンマ区切り)';
+
+  @override
+  String get marketplace_publish_title => 'テンプレートを公開';
+
+  @override
+  String get marketplace_publish_user_must_define => 'ユーザーがこの値を定義する必要があります';
+
+  @override
+  String get marketplace_publish_user_must_define_hint => '適用前にユーザーに入力を求めます';
+
+  @override
+  String get marketplace_publish_variable_desc_hint => 'この変数の用途';
+
+  @override
+  String get marketplace_publish_variable_desc_label => '説明';
+
+  @override
+  String get marketplace_publish_variable_name_hint => '例: TOKEN_OPENAI';
+
+  @override
+  String get marketplace_publish_variable_name_label => '変数名';
+
+  @override
+  String get marketplace_publish_variables => 'グローバル変数';
+
+  @override
+  String get marketplace_publish_variables_hint =>
+      '変数を含め、ユーザーが入力する必要があるものをマークします。';
+
+  @override
+  String get marketplace_publish_version_label => 'バージョン';
+
+  @override
+  String marketplace_publish_workflows(Object count) {
+    return 'ワークフロー ($count)';
+  }
+
+  @override
+  String get marketplace_publishing => '公開中...';
+
+  @override
+  String get marketplace_rate_success => '評価を送信しました！';
+
+  @override
+  String get marketplace_rate_title => 'このテンプレートを評価';
+
+  @override
+  String get marketplace_retry => '再試行';
+
+  @override
+  String get marketplace_search_hint => 'テンプレートを検索...';
+
+  @override
+  String get marketplace_title => 'マーケットプレイス';
+
+  @override
+  String marketplace_variable_required(Object name) {
+    return '$name は必須です';
+  }
+
+  @override
+  String get marketplace_variables_label => '事前設定変数';
+
+  @override
+  String marketplace_workflows_label(Object count) {
+    return 'ワークフロー ($count)';
   }
 
   @override
@@ -5545,9 +6363,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settings_legal_title => '法的情報';
 
   @override
-  String get settings_oss_licenses => 'オープンソースライセンス';
-
-  @override
   String get settings_local_hosting_enabled =>
       'モバイルボットはデバイスを使用してホスティングするようになりました。';
 
@@ -5629,6 +6444,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settings_manual_snapshot_label => '手動スナップショット';
 
   @override
+  String get settings_member_badge => 'メンバー';
+
+  @override
   String get settings_notifications_desc => '受信したいプッシュ通知の種類を選択してください。';
 
   @override
@@ -5666,10 +6484,34 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settings_open_ad_inspector => '広告インスペクターを開く';
 
   @override
+  String get settings_oss_licenses => 'オープンソースライセンス';
+
+  @override
+  String get settings_owner_badge => '所有者';
+
+  @override
+  String get settings_owner_fallback => '所有者';
+
+  @override
+  String get settings_personal_owner_fallback => '個人ユーザー';
+
+  @override
+  String get settings_personal_owner_id_label => '所有者ID:';
+
+  @override
+  String get settings_personal_owner_label => '所有者:';
+
+  @override
+  String get settings_personal_ownership => '個人所有権';
+
+  @override
   String get settings_preferences_reset_done => '設定がリセットされました';
 
   @override
   String get settings_privacy_policy => 'プライバシーポリシー';
+
+  @override
+  String get settings_raw_json_tile => '生JSONを表示 (RAW JSON)';
 
   @override
   String get settings_recovery_title => 'Recovery Pro';
@@ -5884,6 +6726,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settings_snapshots_title => 'スナップショット';
 
   @override
+  String get settings_solo_pill => 'ソロ';
+
+  @override
   String get settings_startup_mode_cloud_desc =>
       'AndroidとiOSで推奨。ログ、統計、起動はすべてBot Creatorを経由します。';
 
@@ -5917,6 +6762,26 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get settings_tab => '設定';
+
+  @override
+  String get settings_team_id_label => 'チームID:';
+
+  @override
+  String settings_team_members_label(int count) {
+    return 'チームメンバー ($count)';
+  }
+
+  @override
+  String get settings_team_name_label => 'チーム名:';
+
+  @override
+  String get settings_team_owner_label => 'チームリーダー';
+
+  @override
+  String get settings_team_ownership => 'チーム所有権';
+
+  @override
+  String get settings_team_pill => 'チーム';
 
   @override
   String get settings_theme_switch_dark => 'ダークモードに切り替え';
@@ -6355,6 +7220,48 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get validation_option_subcommand_no_nested =>
       'サブコマンドにはネストされたサブコマンドやサブコマンドグループを含められません。';
+
+  @override
+  String get variable_autocomplete_numeric_title => '動的数値候補';
+
+  @override
+  String get variable_autocomplete_title => '利用可能な変数 — タップして挿入';
+
+  @override
+  String get variable_category_author => '作成者';
+
+  @override
+  String get variable_category_bot => 'ボット';
+
+  @override
+  String get variable_category_channel => 'チャンネル';
+
+  @override
+  String get variable_category_context => 'コンテキスト';
+
+  @override
+  String get variable_category_functions => '関数';
+
+  @override
+  String get variable_category_guild => 'サーバー';
+
+  @override
+  String get variable_category_interaction => 'インタラクション';
+
+  @override
+  String get variable_category_member => 'メンバー';
+
+  @override
+  String get variable_category_message => 'メッセージ';
+
+  @override
+  String get variable_category_other => 'その他';
+
+  @override
+  String get variable_category_temp => '一時';
+
+  @override
+  String get variable_category_user => 'ユーザー';
 
   @override
   String get webhooks_actions => 'アクション';
@@ -6883,509 +7790,4 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get workflows_type_title => 'ワークフロータイプ';
-
-  @override
-  String get settings_team_ownership => 'チーム所有権';
-
-  @override
-  String get settings_personal_ownership => '個人所有権';
-
-  @override
-  String get settings_team_pill => 'チーム';
-
-  @override
-  String get settings_solo_pill => 'ソロ';
-
-  @override
-  String get settings_team_name_label => 'チーム名:';
-
-  @override
-  String get settings_team_id_label => 'チームID:';
-
-  @override
-  String get settings_team_owner_label => 'チームリーダー';
-
-  @override
-  String get settings_owner_fallback => '所有者';
-
-  @override
-  String get settings_owner_badge => '所有者';
-
-  @override
-  String settings_team_members_label(int count) {
-    return 'チームメンバー ($count)';
-  }
-
-  @override
-  String get settings_personal_owner_label => '所有者:';
-
-  @override
-  String get settings_personal_owner_fallback => '個人ユーザー';
-
-  @override
-  String get settings_personal_owner_id_label => '所有者ID:';
-
-  @override
-  String get settings_raw_json_tile => '生JSONを表示 (RAW JSON)';
-
-  @override
-  String get settings_member_badge => 'メンバー';
-
-  @override
-  String get cmd_deploy_local_save_title => 'ローカル保存';
-
-  @override
-  String get cmd_deploy_local_save_subtitle => 'コマンドをデバイスに保存中';
-
-  @override
-  String get cmd_deploy_reload_bot_title => 'ボットを再読み込み中';
-
-  @override
-  String get cmd_deploy_reload_bot_subtitle => 'ホットリロード設定を適用中';
-
-  @override
-  String get cmd_deploy_discord_sync_title => 'Discord同期';
-
-  @override
-  String get cmd_deploy_discord_sync_subtitle => 'コマンドをDiscord APIに公開中';
-
-  @override
-  String get cmd_deploy_cloud_sync_title => 'クラウドバックアップ';
-
-  @override
-  String get cmd_deploy_cloud_sync_subtitle => 'オンラインスペースとの安全な同期';
-
-  @override
-  String get cmd_deploy_hot_reload_title => 'ホットリロード';
-
-  @override
-  String get cmd_deploy_hot_reload_subtitle => 'ボットランナーの即時更新';
-
-  @override
-  String cmd_deploy_success_toast(String name) {
-    return 'コマンド \"$name\" がデプロイされ、有効になりました！';
-  }
-
-  @override
-  String get cmd_deploy_success_title => 'デプロイ成功！';
-
-  @override
-  String get cmd_deploy_failed_title => 'デプロイ失敗';
-
-  @override
-  String get cmd_deploy_in_progress_title => 'デプロイ中...';
-
-  @override
-  String cmd_deploy_config_subtitle(String name) {
-    return '/$name の設定';
-  }
-
-  @override
-  String get cmd_deploy_close_button => '閉じる';
-
-  @override
-  String get cmd_deploy_retry_button => '再試行';
-
-  @override
-  String get variable_category_context => 'コンテキスト';
-
-  @override
-  String get variable_category_interaction => 'インタラクション';
-
-  @override
-  String get variable_category_bot => 'ボット';
-
-  @override
-  String get variable_category_guild => 'サーバー';
-
-  @override
-  String get variable_category_channel => 'チャンネル';
-
-  @override
-  String get variable_category_member => 'メンバー';
-
-  @override
-  String get variable_category_message => 'メッセージ';
-
-  @override
-  String get variable_category_author => '作成者';
-
-  @override
-  String get variable_category_user => 'ユーザー';
-
-  @override
-  String get variable_category_temp => '一時';
-
-  @override
-  String get variable_category_functions => '関数';
-
-  @override
-  String get variable_category_other => 'その他';
-
-  @override
-  String get variable_autocomplete_title => '利用可能な変数 — タップして挿入';
-
-  @override
-  String get variable_autocomplete_numeric_title => '動的数値候補';
-
-  @override
-  String get bot_settings_tab_general => '一般';
-
-  @override
-  String get bot_settings_tab_presence => 'プレゼンス & ステータス';
-
-  @override
-  String get bot_settings_tab_intents => 'インテント & 権限';
-
-  @override
-  String get bot_settings_tab_advanced => '詳細 & メンテナンス';
-
-  @override
-  String get bot_settings_avatar_selected => '選択された画像:';
-
-  @override
-  String get bot_settings_avatar_none_selected =>
-      '新しい画像が選択されていません。「参照」をクリックして選択してください。';
-
-  @override
-  String get bot_settings_avatar_important_note =>
-      '重要: プロフィール変更（ユーザー名とアバター）は、保存時にのみDiscordに適用されます。';
-
-  @override
-  String get marketplace_title => 'マーケットプレイス';
-
-  @override
-  String get marketplace_search_hint => 'テンプレートを検索...';
-
-  @override
-  String get marketplace_empty => 'まだテンプレートがありません。\n最初に公開しましょう！';
-
-  @override
-  String marketplace_no_results(Object query) {
-    return '\"$query\" に一致するテンプレートはありません';
-  }
-
-  @override
-  String marketplace_count(Object count) {
-    return '$count テンプレート';
-  }
-
-  @override
-  String get marketplace_retry => '再試行';
-
-  @override
-  String get marketplace_apply => 'テンプレートを適用';
-
-  @override
-  String get marketplace_applying => '適用中...';
-
-  @override
-  String get marketplace_apply_success => 'テンプレートが正常に適用されました！';
-
-  @override
-  String marketplace_apply_success_skipped(
-    Object addedCount,
-    Object skippedCount,
-  ) {
-    return '$addedCount個のコマンドを追加、$skippedCount個をスキップ（重複）。';
-  }
-
-  @override
-  String marketplace_apply_error(Object error) {
-    return '適用に失敗: $error';
-  }
-
-  @override
-  String get marketplace_login_required => 'Discord接続が必要です';
-
-  @override
-  String get marketplace_login_hint =>
-      'マーケットプレイスにアクセスするにはDiscordアカウントを接続してください。';
-
-  @override
-  String get marketplace_connect_discord => 'Discordで接続';
-
-  @override
-  String get marketplace_login_title => 'Managerに接続';
-
-  @override
-  String get marketplace_login_instructions =>
-      'マーケットプレイスを引き続き利用するにはDiscordで認証してください。';
-
-  @override
-  String get marketplace_rate_title => 'このテンプレートを評価';
-
-  @override
-  String get marketplace_rate_success => '評価を送信しました！';
-
-  @override
-  String get marketplace_edit => '編集';
-
-  @override
-  String get marketplace_delete => '削除';
-
-  @override
-  String get marketplace_edit_hint => '編集するには、ボットのコマンドリストから同じ名前で再公開してください。';
-
-  @override
-  String get marketplace_delete_confirm_title => 'テンプレートを削除';
-
-  @override
-  String marketplace_delete_confirm(Object name) {
-    return '\"$name\"を削除してもよろしいですか？この操作は元に戻せません。';
-  }
-
-  @override
-  String get marketplace_delete_success => 'テンプレートを削除しました。';
-
-  @override
-  String get marketplace_my_templates => '自分のテンプレート';
-
-  @override
-  String get marketplace_login_success => 'Discordに接続しました！';
-
-  @override
-  String get marketplace_config_required => '設定が必要です';
-
-  @override
-  String get marketplace_config_hint => 'このテンプレートを適用する前に必要な値を入力してください。';
-
-  @override
-  String marketplace_variable_required(Object name) {
-    return '$name は必須です';
-  }
-
-  @override
-  String get marketplace_about => '概要';
-
-  @override
-  String marketplace_commands_label(Object count) {
-    return 'コマンド ($count)';
-  }
-
-  @override
-  String marketplace_workflows_label(Object count) {
-    return 'ワークフロー ($count)';
-  }
-
-  @override
-  String get marketplace_variables_label => '事前設定変数';
-
-  @override
-  String marketplace_more(Object count) {
-    return '+$count 件';
-  }
-
-  @override
-  String get marketplace_publish_title => 'テンプレートを公開';
-
-  @override
-  String get marketplace_publish_select => '含めるものを選択';
-
-  @override
-  String get marketplace_publish_select_hint =>
-      'コマンド、ワークフロー、またはその両方を選択します。それぞれがテンプレートの一部になります。';
-
-  @override
-  String marketplace_publish_commands(Object count) {
-    return 'コマンド ($count)';
-  }
-
-  @override
-  String marketplace_publish_workflows(Object count) {
-    return 'ワークフロー ($count)';
-  }
-
-  @override
-  String get marketplace_publish_variables => 'グローバル変数';
-
-  @override
-  String get marketplace_publish_variables_hint =>
-      '変数を含め、ユーザーが入力する必要があるものをマークします。';
-
-  @override
-  String get marketplace_publish_metadata => 'テンプレート詳細';
-
-  @override
-  String get marketplace_publish_metadata_hint =>
-      '他の人が見つけて使用できるようにテンプレートを説明します。';
-
-  @override
-  String get marketplace_publish_summary => 'テンプレート概要';
-
-  @override
-  String get marketplace_publish_select_all => 'すべて選択';
-
-  @override
-  String get marketplace_publish_deselect_all => 'すべて解除';
-
-  @override
-  String get marketplace_publish_user_must_define => 'ユーザーがこの値を定義する必要があります';
-
-  @override
-  String get marketplace_publish_user_must_define_hint => '適用前にユーザーに入力を求めます';
-
-  @override
-  String get marketplace_publish_add_variable => 'カスタム変数を追加';
-
-  @override
-  String get marketplace_publish_add_variable_title => '変数を追加';
-
-  @override
-  String get marketplace_publish_name_label => 'テンプレート名';
-
-  @override
-  String get marketplace_publish_name_hint => '例: AIモデレーションボット';
-
-  @override
-  String get marketplace_publish_desc_label => '短い説明';
-
-  @override
-  String get marketplace_publish_desc_hint => 'マーケットプレイスに表示される1行の概要';
-
-  @override
-  String get marketplace_publish_desc_long_label => '完全なドキュメント (オプション)';
-
-  @override
-  String get marketplace_publish_desc_long_hint => '詳細な使用手順、Markdown対応...';
-
-  @override
-  String get marketplace_publish_category_label => 'カテゴリ';
-
-  @override
-  String get marketplace_publish_category_hint => '例: ai, moderation, fun';
-
-  @override
-  String get marketplace_publish_version_label => 'バージョン';
-
-  @override
-  String get marketplace_publish_tags_label => 'タグ (カンマ区切り)';
-
-  @override
-  String get marketplace_publish_tags_hint => '例: openai, chatbot, moderation';
-
-  @override
-  String get marketplace_publish_variable_name_label => '変数名';
-
-  @override
-  String get marketplace_publish_variable_name_hint => '例: TOKEN_OPENAI';
-
-  @override
-  String get marketplace_publish_variable_desc_label => '説明';
-
-  @override
-  String get marketplace_publish_variable_desc_hint => 'この変数の用途';
-
-  @override
-  String get marketplace_publish_success => 'テンプレートが正常に公開されました！';
-
-  @override
-  String marketplace_publish_error(Object error) {
-    return '公開に失敗: $error';
-  }
-
-  @override
-  String get marketplace_publish_button => '公開';
-
-  @override
-  String get marketplace_publishing => '公開中...';
-
-  @override
-  String get marketplace_publish_next => '次へ';
-
-  @override
-  String get marketplace_publish_back => '戻る';
-
-  @override
-  String get marketplace_publish_required_fields =>
-      '公開する前に、すべての必須項目（テンプレート名、概要、バージョン）を入力してください。';
-
-  @override
-  String get marketplace_publish_no_content =>
-      '公開するコマンドやワークフローがありません。\n最初に作成してください！';
-
-  @override
-  String get marketplace_no_variables => 'グローバル変数が定義されていません。';
-
-  @override
-  String get marketplace_connect_manager =>
-      'マーケットプレイスにアクセスするにはManagerに接続してください。';
-
-  @override
-  String get marketplace_connect_publish => 'テンプレートを公開するにはManagerに接続してください。';
-
-  @override
-  String get marketplace_api_unavailable => 'APIクライアントが利用できません';
-
-  @override
-  String marketplace_load_error(Object error) {
-    return 'データの読み込みに失敗: $error';
-  }
-
-  @override
-  String get marketplace_cancel => 'キャンセル';
-
-  @override
-  String get marketplace_add => '追加';
-
-  @override
-  String marketplace_by_author(Object author, Object version) {
-    return 'by $author · v$version';
-  }
-
-  @override
-  String get marketplace_conflict_title => 'Command Conflicts';
-
-  @override
-  String get marketplace_conflict_subtitle =>
-      'Some template commands already exist. Choose which version to keep:';
-
-  @override
-  String get marketplace_conflict_keep_local => 'Keep Local';
-
-  @override
-  String get marketplace_conflict_use_template => 'Use Template';
-
-  @override
-  String marketplace_conflict_local_info(Object count) {
-    return 'Local ($count actions)';
-  }
-
-  @override
-  String marketplace_conflict_template_info(Object count) {
-    return 'Template ($count actions)';
-  }
-
-  @override
-  String marketplace_conflict_apply_choice(Object count) {
-    return 'Apply ($count template)';
-  }
-
-  @override
-  String marketplace_command_preview_actions(Object count) {
-    return '$count actions';
-  }
-
-  @override
-  String get marketplace_command_preview_no_actions => 'No actions';
-
-  @override
-  String get marketplace_command_preview_type_slash => 'Slash command';
-
-  @override
-  String get marketplace_command_preview_type_user => 'User context menu';
-
-  @override
-  String get marketplace_command_preview_type_message => 'Message context menu';
-
-  @override
-  String marketplace_command_preview_options(Object count) {
-    return '$count options';
-  }
-
-  @override
-  String get guilds_tab => 'サーバー';
-
-  @override
-  String get guilds_tab_short => 'サーバー';
 }
