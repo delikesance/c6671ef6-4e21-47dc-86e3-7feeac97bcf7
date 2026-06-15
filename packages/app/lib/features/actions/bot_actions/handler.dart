@@ -1616,6 +1616,17 @@ Future<Map<String, String>> handleActions(
         case BotCreatorActionType.disconnectFromVoice:
         case BotCreatorActionType.serverMuteMember:
         case BotCreatorActionType.serverDeafenMember:
+        case BotCreatorActionType.playMusic:
+        case BotCreatorActionType.pauseMusic:
+        case BotCreatorActionType.resumeMusic:
+        case BotCreatorActionType.skipMusic:
+        case BotCreatorActionType.stopMusic:
+        case BotCreatorActionType.setMusicVolume:
+        case BotCreatorActionType.setMusicLoop:
+        case BotCreatorActionType.seekMusic:
+        case BotCreatorActionType.getMusicInfo:
+        case BotCreatorActionType.joinVoice:
+        case BotCreatorActionType.leaveVoice:
         case BotCreatorActionType.createEmoji:
         case BotCreatorActionType.updateEmoji:
         case BotCreatorActionType.deleteEmoji:

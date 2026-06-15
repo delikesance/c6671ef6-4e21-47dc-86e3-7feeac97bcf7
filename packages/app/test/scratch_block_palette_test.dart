@@ -69,4 +69,27 @@ void main() {
       }
     });
   });
+
+  group('Music and Interactions categorization', () {
+    test('Interactions actions are categorized under Interactions', () {
+      expect(getCategoryForAction(BotCreatorActionType.respondWithMessage), equals('Interactions'));
+      expect(getCategoryForAction(BotCreatorActionType.respondWithModal), equals('Interactions'));
+      expect(getCategoryForAction(BotCreatorActionType.sendDm), equals('Interactions'));
+    });
+
+    test('Music actions are categorized under Music', () {
+      expect(getCategoryForAction(BotCreatorActionType.playMusic), equals('Music'));
+      expect(getCategoryForAction(BotCreatorActionType.pauseMusic), equals('Music'));
+      expect(getCategoryForAction(BotCreatorActionType.joinVoice), equals('Music'));
+    });
+
+    test('playMusic has correct parameters and types', () {
+      final params = BotCreatorActionType.playMusic.parameterDefinitions;
+      expect(params.length, equals(3));
+      expect(params[0].key, equals('query'));
+      expect(params[0].required, isTrue);
+      expect(params[1].key, equals('userId'));
+      expect(params[2].key, equals('channelId'));
+    });
+  });
 }

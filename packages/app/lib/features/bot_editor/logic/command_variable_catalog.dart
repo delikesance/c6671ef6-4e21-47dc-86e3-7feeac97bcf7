@@ -156,6 +156,46 @@ const List<CommandVariableCatalogEntry> commandBuiltinVariableCatalog =
         kind: VariableSuggestionKind.numeric,
       ),
       CommandVariableCatalogEntry(
+        name: 'lavalink.title',
+        description: 'Title of the currently playing track.',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'lavalink.author',
+        description: 'Author or artist of the currently playing track.',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'lavalink.duration',
+        description: 'Formatted duration (m:ss) of the currently playing track.',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'lavalink.position',
+        description: 'Formatted current playback position (m:ss) of the track.',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'lavalink.queueSize',
+        description: 'Number of tracks currently in the queue.',
+        kind: VariableSuggestionKind.numeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'lavalink.volume',
+        description: 'Current volume level of the player (0 to 200).',
+        kind: VariableSuggestionKind.numeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'lavalink.isPaused',
+        description: 'Whether the player is currently paused (true/false).',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      CommandVariableCatalogEntry(
+        name: 'lavalink.isLooping',
+        description: 'Whether queue looping is currently enabled (true/false).',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      CommandVariableCatalogEntry(
         name: 'commandName',
         description: 'Registered name of the executed command.',
         kind: VariableSuggestionKind.nonNumeric,

@@ -466,6 +466,9 @@ Future<Map<String, dynamic>> buildBotPayload(String botId) async {
     PremiumCapability.autoRestart,
   );
 
+  final isPremium = PremiumCapabilities.isPremiumUser;
+  final lavalinkConfigRaw = appData['lavalinkConfig'] as Map<String, dynamic>?;
+
   final payloadArgs = <String, dynamic>{
     'appData': appData,
     'token': token,
@@ -474,6 +477,8 @@ Future<Map<String, dynamic>> buildBotPayload(String botId) async {
     'inboundWebhooks': inboundWebhooks,
     'autoSharding': autoSharding,
     'autoRestart': autoRestart,
+    'isPremium': isPremium,
+    'lavalinkConfig': lavalinkConfigRaw,
   };
 
   final payload = await compute(_buildPayloadInBackground, payloadArgs);
@@ -490,6 +495,8 @@ Map<String, dynamic> _buildPayloadInBackground(Map<String, dynamic> args) {
   final inboundWebhooks = args['inboundWebhooks'] as bool;
   final autoSharding = args['autoSharding'] as bool;
   final autoRestart = args['autoRestart'] as bool;
+  final isPremium = args['isPremium'] as bool;
+  final lavalinkConfigRaw = args['lavalinkConfig'] as Map<String, dynamic>?;
 
   final scopedVariables = <String, Map<String, Map<String, dynamic>>>{};
   for (final scopeEntry in scopedVariablesRaw.entries) {
@@ -560,6 +567,10 @@ Map<String, dynamic> _buildPayloadInBackground(Map<String, dynamic> args) {
           .toList(growable: false) ??
       const <BotStatusConfig>[];
 
+  final lavalinkConfig = (lavalinkConfigRaw != null && lavalinkConfigRaw['host']?.toString().trim().isNotEmpty == true)
+      ? LavalinkConfig.fromJson(lavalinkConfigRaw)
+      : null;
+
   final config = BotConfig(
     token: token,
     builtInLegacyHelpEnabled: appData['builtInLegacyHelpEnabled'] != false,
@@ -585,9 +596,12 @@ Map<String, dynamic> _buildPayloadInBackground(Map<String, dynamic> args) {
     inboundWebhookEndpoints: inboundWebhookEndpoints,
     statuses: statuses,
     commands: commands,
+    lavalinkConfig: lavalinkConfig,
   );
 
   config.validate();
   // Decode and re-encode to ensure the object is a clean, primitive Map that can cross isolates.
-  return jsonDecode(jsonEncode(config.toJson())) as Map<String, dynamic>;
+  final configJson = jsonDecode(jsonEncode(config.toJson())) as Map<String, dynamic>;
+  configJson['isPremium'] = isPremium;
+  return configJson;
 }

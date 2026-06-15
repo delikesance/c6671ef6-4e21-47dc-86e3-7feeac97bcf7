@@ -401,6 +401,54 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
       }
     }
 
+    if (type == BotCreatorActionType.playMusic) {
+      for (final name in <String>[
+        'title',
+        'author',
+        'duration',
+        'uri',
+      ]) {
+        _addSuggestionIfMissing(
+          bucket,
+          'action.$resultKey.$name',
+          VariableSuggestionKind.nonNumeric,
+        );
+        _addSuggestionIfMissing(
+          bucket,
+          '$resultKey.$name',
+          VariableSuggestionKind.nonNumeric,
+        );
+      }
+    }
+
+    if (type == BotCreatorActionType.getMusicInfo) {
+      for (final name in <String>[
+        'isPlaying',
+        'title',
+        'author',
+        'duration',
+        'position',
+        'queueSize',
+        'volume',
+        'isPaused',
+        'isLooping',
+      ]) {
+        final kind = (name == 'queueSize' || name == 'volume')
+            ? VariableSuggestionKind.numeric
+            : VariableSuggestionKind.nonNumeric;
+        _addSuggestionIfMissing(
+          bucket,
+          'action.$resultKey.$name',
+          kind,
+        );
+        _addSuggestionIfMissing(
+          bucket,
+          '$resultKey.$name',
+          kind,
+        );
+      }
+    }
+
     // Temporary variables: when a setTemporaryVariable action is present,
     // expose its key as temp.<key> so it appears in autocomplete for
     // downstream blocks.
@@ -745,6 +793,18 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
       case BotCreatorActionType.calculate:
       case BotCreatorActionType.cooldown:
         return 'Logic & Flow';
+      case BotCreatorActionType.playMusic:
+      case BotCreatorActionType.pauseMusic:
+      case BotCreatorActionType.resumeMusic:
+      case BotCreatorActionType.skipMusic:
+      case BotCreatorActionType.stopMusic:
+      case BotCreatorActionType.setMusicVolume:
+      case BotCreatorActionType.setMusicLoop:
+      case BotCreatorActionType.seekMusic:
+      case BotCreatorActionType.getMusicInfo:
+      case BotCreatorActionType.joinVoice:
+      case BotCreatorActionType.leaveVoice:
+        return 'Music';
       default:
         return 'Workflows';
     }
@@ -824,6 +884,8 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
         return Colors.pink;
       case 'Interactions':
         return AppTheme.premiumGold;
+      case 'Music':
+        return Colors.deepPurpleAccent;
       default:
         return AppTheme.grey;
     }
@@ -853,6 +915,14 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
         return context.tr.action_category_logic_flow;
       case 'Interactions':
         return context.tr.action_category_interactions;
+      case 'Music':
+        final languageCode = Localizations.localeOf(context).languageCode;
+        if (languageCode == 'fr') return 'Musique';
+        if (languageCode == 'de') return 'Musik';
+        if (languageCode == 'ja') return '音楽';
+        if (languageCode == 'pt') return 'Música';
+        if (languageCode == 'tr') return 'Müzik';
+        return 'Music';
       default:
         return category;
     }
@@ -1058,6 +1128,28 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
         return 'Register application commands to a guild';
       case BotCreatorActionType.unregisterGuildCommands:
         return 'Unregister application commands from a guild';
+      case BotCreatorActionType.playMusic:
+        return 'Play a track by search query or URL';
+      case BotCreatorActionType.pauseMusic:
+        return 'Pause the current track';
+      case BotCreatorActionType.resumeMusic:
+        return 'Resume a paused track';
+      case BotCreatorActionType.skipMusic:
+        return 'Skip to the next track in the queue';
+      case BotCreatorActionType.stopMusic:
+        return 'Stop playback and clear the queue';
+      case BotCreatorActionType.setMusicVolume:
+        return 'Set the player volume (0 to 200)';
+      case BotCreatorActionType.setMusicLoop:
+        return 'Enable or disable looping of the queue';
+      case BotCreatorActionType.seekMusic:
+        return 'Seek to a position in the current track';
+      case BotCreatorActionType.getMusicInfo:
+        return 'Retrieve information about the currently playing track';
+      case BotCreatorActionType.joinVoice:
+        return 'Join a voice channel';
+      case BotCreatorActionType.leaveVoice:
+        return 'Leave the voice channel and destroy the player';
       default:
         return 'Deprecated action';
     }

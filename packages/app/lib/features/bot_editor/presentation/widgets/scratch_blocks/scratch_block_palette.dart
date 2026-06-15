@@ -152,6 +152,18 @@ String getCategoryForAction(BotCreatorActionType type) {
     case BotCreatorActionType.deferInteraction:
     case BotCreatorActionType.sendDm:
       return 'Interactions';
+    case BotCreatorActionType.playMusic:
+    case BotCreatorActionType.pauseMusic:
+    case BotCreatorActionType.resumeMusic:
+    case BotCreatorActionType.skipMusic:
+    case BotCreatorActionType.stopMusic:
+    case BotCreatorActionType.setMusicVolume:
+    case BotCreatorActionType.setMusicLoop:
+    case BotCreatorActionType.seekMusic:
+    case BotCreatorActionType.getMusicInfo:
+    case BotCreatorActionType.joinVoice:
+    case BotCreatorActionType.leaveVoice:
+      return 'Music';
   }
 }
 
@@ -180,6 +192,14 @@ String localizeCategory(BuildContext context, String category) {
       return context.tr.action_category_logic_flow;
     case 'Interactions':
       return context.tr.action_category_interactions;
+    case 'Music':
+      final languageCode = Localizations.localeOf(context).languageCode;
+      if (languageCode == 'fr') return 'Musique';
+      if (languageCode == 'de') return 'Musik';
+      if (languageCode == 'ja') return '音楽';
+      if (languageCode == 'pt') return 'Música';
+      if (languageCode == 'tr') return 'Müzik';
+      return 'Music';
     default:
       return category;
   }
@@ -210,6 +230,8 @@ Color getCategoryColor(String category) {
       return Colors.pink;
     case 'Interactions':
       return AppTheme.premiumGold;
+    case 'Music':
+      return Colors.deepPurpleAccent;
     // Fixed blocks
     case 'Metadata':
       return AppTheme.info;
@@ -245,6 +267,8 @@ IconData getCategoryIcon(String category) {
       return Icons.fork_right;
     case 'Interactions':
       return Icons.touch_app;
+    case 'Music':
+      return Icons.music_note;
     default:
       return Icons.extension;
   }
