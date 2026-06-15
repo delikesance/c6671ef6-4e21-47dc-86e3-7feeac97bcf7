@@ -216,6 +216,50 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
         return context.tr.action_name_registerGuildCommands;
       case BotCreatorActionType.unregisterGuildCommands:
         return context.tr.action_name_unregisterGuildCommands;
+      case BotCreatorActionType.playMusic:
+        final languageCode = Localizations.localeOf(context).languageCode;
+        if (languageCode == 'fr') return 'Jouer de la musique';
+        return 'Play Music';
+      case BotCreatorActionType.pauseMusic:
+        final languageCode = Localizations.localeOf(context).languageCode;
+        if (languageCode == 'fr') return 'Mettre en pause la musique';
+        return 'Pause Music';
+      case BotCreatorActionType.resumeMusic:
+        final languageCode = Localizations.localeOf(context).languageCode;
+        if (languageCode == 'fr') return 'Reprendre la musique';
+        return 'Resume Music';
+      case BotCreatorActionType.skipMusic:
+        final languageCode = Localizations.localeOf(context).languageCode;
+        if (languageCode == 'fr') return 'Passer la musique';
+        return 'Skip Music';
+      case BotCreatorActionType.stopMusic:
+        final languageCode = Localizations.localeOf(context).languageCode;
+        if (languageCode == 'fr') return 'Arrêter la musique';
+        return 'Stop Music';
+      case BotCreatorActionType.setMusicVolume:
+        final languageCode = Localizations.localeOf(context).languageCode;
+        if (languageCode == 'fr') return 'Régler le volume de la musique';
+        return 'Set Music Volume';
+      case BotCreatorActionType.setMusicLoop:
+        final languageCode = Localizations.localeOf(context).languageCode;
+        if (languageCode == 'fr') return 'Régler la lecture en boucle';
+        return 'Set Music Loop';
+      case BotCreatorActionType.seekMusic:
+        final languageCode = Localizations.localeOf(context).languageCode;
+        if (languageCode == 'fr') return 'Positionner la lecture de musique';
+        return 'Seek Music Position';
+      case BotCreatorActionType.getMusicInfo:
+        final languageCode = Localizations.localeOf(context).languageCode;
+        if (languageCode == 'fr') return 'Obtenir les infos de la musique';
+        return 'Get Music Info';
+      case BotCreatorActionType.joinVoice:
+        final languageCode = Localizations.localeOf(context).languageCode;
+        if (languageCode == 'fr') return 'Rejoindre un salon vocal';
+        return 'Join Voice Channel';
+      case BotCreatorActionType.leaveVoice:
+        final languageCode = Localizations.localeOf(context).languageCode;
+        if (languageCode == 'fr') return 'Quitter le salon vocal';
+        return 'Leave Voice Channel';
       default:
         return '';
     }
@@ -412,6 +456,28 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
         return Icons.playlist_add;
       case BotCreatorActionType.unregisterGuildCommands:
         return Icons.playlist_remove;
+      case BotCreatorActionType.playMusic:
+        return Icons.play_arrow;
+      case BotCreatorActionType.pauseMusic:
+        return Icons.pause;
+      case BotCreatorActionType.resumeMusic:
+        return Icons.play_circle_fill;
+      case BotCreatorActionType.skipMusic:
+        return Icons.skip_next;
+      case BotCreatorActionType.stopMusic:
+        return Icons.stop;
+      case BotCreatorActionType.setMusicVolume:
+        return Icons.volume_up;
+      case BotCreatorActionType.setMusicLoop:
+        return Icons.loop;
+      case BotCreatorActionType.seekMusic:
+        return Icons.linear_scale;
+      case BotCreatorActionType.getMusicInfo:
+        return Icons.info_outline;
+      case BotCreatorActionType.joinVoice:
+        return Icons.settings_voice;
+      case BotCreatorActionType.leaveVoice:
+        return Icons.logout;
       default:
         return Icons.extension;
     }
@@ -3344,6 +3410,82 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             required: true,
           ),
         ];
+      case BotCreatorActionType.playMusic:
+        return [
+          ParameterDefinition(
+            key: 'query',
+            type: ParameterType.string,
+            defaultValue: '',
+            hint: 'Search query or track URL',
+            required: true,
+          ),
+          ParameterDefinition(
+            key: 'userId',
+            type: ParameterType.userId,
+            defaultValue: '',
+            hint: 'Optional: user to resolve voice channel from',
+          ),
+          ParameterDefinition(
+            key: 'channelId',
+            type: ParameterType.channelId,
+            defaultValue: '',
+            hint: 'Optional: explicit voice channel to join',
+          ),
+        ];
+      case BotCreatorActionType.joinVoice:
+        return [
+          ParameterDefinition(
+            key: 'userId',
+            type: ParameterType.userId,
+            defaultValue: '',
+            hint: 'Optional: user to resolve voice channel from',
+          ),
+          ParameterDefinition(
+            key: 'channelId',
+            type: ParameterType.channelId,
+            defaultValue: '',
+            hint: 'Optional: explicit voice channel to join',
+          ),
+        ];
+      case BotCreatorActionType.setMusicVolume:
+        return [
+          ParameterDefinition(
+            key: 'volume',
+            type: ParameterType.number,
+            defaultValue: 100,
+            hint: 'Volume level (0 to 200)',
+            minValue: 0,
+            maxValue: 200,
+            required: true,
+          ),
+        ];
+      case BotCreatorActionType.setMusicLoop:
+        return [
+          ParameterDefinition(
+            key: 'loop',
+            type: ParameterType.boolean,
+            defaultValue: false,
+            hint: 'Enable or disable looping of current track/queue',
+            required: true,
+          ),
+        ];
+      case BotCreatorActionType.seekMusic:
+        return [
+          ParameterDefinition(
+            key: 'position',
+            type: ParameterType.number,
+            defaultValue: 0,
+            hint: 'Seek position in milliseconds',
+            required: true,
+          ),
+        ];
+      case BotCreatorActionType.leaveVoice:
+      case BotCreatorActionType.pauseMusic:
+      case BotCreatorActionType.resumeMusic:
+      case BotCreatorActionType.skipMusic:
+      case BotCreatorActionType.stopMusic:
+      case BotCreatorActionType.getMusicInfo:
+        return [];
       default:
         return [];
     }
