@@ -1,1 +1,16 @@
-{}
+{
+  "ja": [
+    "subscription_feature_lavalink_desc",
+    "subscription_feature_lavalink_title"
+  ],
+
+  "pt": [
+    "subscription_feature_lavalink_desc",
+    "subscription_feature_lavalink_title"
+  ],
+
+  "tr": [
+    "subscription_feature_lavalink_desc",
+    "subscription_feature_lavalink_title"
+  ]
+}

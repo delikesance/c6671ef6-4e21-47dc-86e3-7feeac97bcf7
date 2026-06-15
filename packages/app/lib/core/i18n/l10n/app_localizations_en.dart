@@ -7149,6 +7149,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get subscription_feature_instant_start_title => 'Instant start';
 
   @override
+  String get subscription_feature_lavalink_desc =>
+      'Play music and audio in Discord voice channels using Lavalink.';
+
+  @override
+  String get subscription_feature_lavalink_title => 'Lavalink audio support';
+
+  @override
   String get subscription_feature_no_ads_desc =>
       'Remove all ad placements across the app experience.';
 

@@ -1710,7 +1710,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   }
 
   Widget _buildLavalinkTab(double contentMaxWidth) {
-    final isPremium = PremiumCapabilities.isPremiumUser;
+    final isPremium = PremiumCapabilities.hasCapability(PremiumCapability.lavalinkAudio);
     final canPurchase = PremiumCapabilities.canShowPurchaseUI;
 
     final inputDecoration = InputDecoration(

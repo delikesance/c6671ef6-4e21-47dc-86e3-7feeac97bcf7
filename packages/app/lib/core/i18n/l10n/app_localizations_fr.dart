@@ -7264,6 +7264,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get subscription_feature_instant_start_title => 'Démarrage instantané';
 
   @override
+  String get subscription_feature_lavalink_desc =>
+      'Jouez de la musique et de l\'audio dans les salons vocaux Discord avec Lavalink.';
+
+  @override
+  String get subscription_feature_lavalink_title => 'Module musique & audio';
+
+  @override
   String get subscription_feature_no_ads_desc =>
       'Supprime toutes les insertions publicitaires dans l\'application.';
 
