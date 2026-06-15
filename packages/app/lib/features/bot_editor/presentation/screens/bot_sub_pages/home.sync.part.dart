@@ -146,6 +146,50 @@ extension _AppHomePageSync on _AppHomePageState {
             if (local['name'] != null && remoteConfig['name'] == null) {
               remoteConfig['name'] = local['name'];
             }
+
+            // Merge global variables so local-only definitions survive sync
+            final localGlobals = local['globalVariables'];
+            final remoteGlobals = remoteConfig['globalVariables'];
+            if (localGlobals is Map) {
+              final mergedGlobals = Map<String, dynamic>.from(localGlobals);
+              if (remoteGlobals is Map) {
+                mergedGlobals.addAll(Map<String, dynamic>.from(remoteGlobals));
+              }
+              remoteConfig['globalVariables'] = mergedGlobals;
+            }
+
+            // Merge scoped variables so local-only definitions survive sync
+            final localScoped = local['scopedVariables'];
+            final remoteScoped = remoteConfig['scopedVariables'];
+            if (localScoped is Map) {
+              final mergedScoped = Map<String, dynamic>.from(localScoped);
+              if (remoteScoped is Map) {
+                mergedScoped.addAll(Map<String, dynamic>.from(remoteScoped));
+              }
+              remoteConfig['scopedVariables'] = mergedScoped;
+            }
+
+            // Merge scoped variable definitions so local-only definitions survive sync
+            final localScopedDefs = local['scopedVariableDefinitions'];
+            final remoteScopedDefs = remoteConfig['scopedVariableDefinitions'];
+            if (localScopedDefs is List) {
+              final mergedScopedDefs = List<dynamic>.from(localScopedDefs);
+              if (remoteScopedDefs is List) {
+                final remoteNames = remoteScopedDefs
+                    .whereType<Map>()
+                    .map((d) => (d['name'] ?? '').toString())
+                    .toSet();
+                for (final def in localScopedDefs) {
+                  if (def is! Map) continue;
+                  final name = (def['name'] ?? '').toString();
+                  if (name.isNotEmpty && !remoteNames.contains(name)) {
+                    mergedScopedDefs.add(def);
+                  }
+                }
+              }
+              remoteConfig['scopedVariableDefinitions'] = mergedScopedDefs;
+            }
+
             AppManager.isSyncingFromRemote = true;
             try {
               await appManager.saveApp(botId, remoteConfig);
@@ -192,17 +236,38 @@ extension _AppHomePageSync on _AppHomePageState {
                 );
               }
 
-              // Collect local-only commands and workflows that are NOT in
-              // the remote configuration. Instead of deleting them, we'll
-              // push them back to Manager after reconciliation.
+              final lastSyncedAtStr = local['lastSyncedAt']?.toString();
+              final lastSyncedAt = lastSyncedAtStr != null ? DateTime.tryParse(lastSyncedAtStr) : null;
+
+              // Collect local-only commands and detect deleted commands.
               final localCommands = await appManager.listAppCommands(botId);
               final localOnlyCommands = <Map<String, dynamic>>[];
+              final commandsToDelete = <String>[];
               for (final localCmd in localCommands) {
                 final localCmdId = (localCmd['id'] ?? '').toString();
-                if (localCmdId.isNotEmpty &&
-                    !remoteCommandIds.contains(localCmdId)) {
-                  localOnlyCommands.add(Map<String, dynamic>.from(localCmd));
+                if (localCmdId.isEmpty) continue;
+                if (!remoteCommandIds.contains(localCmdId)) {
+                  final cmdUpdatedAtStr = localCmd['updatedAt']?.toString();
+                  final cmdUpdatedAt = cmdUpdatedAtStr != null ? DateTime.tryParse(cmdUpdatedAtStr) : null;
+                  final isDiscordId = RegExp(r'^\d+$').hasMatch(localCmdId);
+
+                  if (isDiscordId && lastSyncedAt != null && cmdUpdatedAt != null && cmdUpdatedAt.isBefore(lastSyncedAt)) {
+                    // This command existed before the last sync but is now missing from the remote.
+                    // This means it was deleted on another device.
+                    commandsToDelete.add(localCmdId);
+                  } else {
+                    localOnlyCommands.add(Map<String, dynamic>.from(localCmd));
+                  }
                 }
+              }
+
+              for (final cmdId in commandsToDelete) {
+                await appManager.deleteAppCommand(botId, cmdId);
+              }
+              if (commandsToDelete.isNotEmpty) {
+                appendBotDebugLog(
+                  '[_syncAppFromRemote] Deleted ${commandsToDelete.length} locally-deleted commands on $botId',
+                );
               }
 
               // Also upsert workflows from the Manager config
@@ -238,20 +303,66 @@ extension _AppHomePageSync on _AppHomePageState {
                 );
               }
 
-              // Collect local-only workflows so they survive sync.
-              final localApp = await appManager.getApp(botId);
-              final localWorkflows = (localApp['workflows'] as List?)
+              // Collect local-only workflows and detect deleted workflows.
+              final localWorkflows = (local['workflows'] as List?)
                       ?.whereType<Map>()
                       .map((w) => Map<String, dynamic>.from(w))
                       .toList() ??
                   [];
               final localOnlyWorkflows = <Map<String, dynamic>>[];
+              final workflowsToDelete = <String>[];
               for (final wf in localWorkflows) {
                 final wfName = (wf['name'] ?? '').toString();
-                if (wfName.isNotEmpty &&
-                    !remoteWorkflowNames.contains(wfName)) {
-                  localOnlyWorkflows.add(wf);
+                if (wfName.isEmpty) continue;
+                if (!remoteWorkflowNames.contains(wfName)) {
+                  final wfUpdatedAtStr = wf['updatedAt']?.toString();
+                  final wfUpdatedAt = wfUpdatedAtStr != null ? DateTime.tryParse(wfUpdatedAtStr) : null;
+
+                  if (lastSyncedAt != null && wfUpdatedAt != null && wfUpdatedAt.isBefore(lastSyncedAt)) {
+                    // This workflow existed before the last sync but is now missing from the remote.
+                    // This means it was deleted on another device.
+                    workflowsToDelete.add(wfName);
+                  } else {
+                    localOnlyWorkflows.add(wf);
+                  }
                 }
+              }
+
+              for (final wfName in workflowsToDelete) {
+                await appManager.deleteWorkflow(botId, wfName);
+              }
+              if (workflowsToDelete.isNotEmpty) {
+                appendBotDebugLog(
+                  '[_syncAppFromRemote] Deleted ${workflowsToDelete.length} locally-deleted workflows on $botId',
+                );
+              }
+
+              // Re-save local-only workflows to database so they survive sync and get pushed back to Manager
+              for (final wf in localOnlyWorkflows) {
+                await appManager.saveWorkflow(
+                  botId,
+                  name: (wf['name'] ?? '').toString(),
+                  actions: ((wf['actions'] as List?) ?? [])
+                      .map((e) => Map<String, dynamic>.from(e as Map))
+                      .toList(),
+                  entryPoint: wf['entryPoint']?.toString(),
+                  arguments: ((wf['arguments'] as List?) ?? [])
+                      .map((e) => Map<String, dynamic>.from(e as Map))
+                      .toList(),
+                  workflowType: wf['workflowType']?.toString(),
+                  eventTrigger: wf['eventTrigger'] != null
+                      ? Map<String, dynamic>.from(wf['eventTrigger'] as Map)
+                      : null,
+                  folder: wf['folder']?.toString(),
+                  eventVariableAliases: wf['eventVariableAliases'] != null
+                      ? Map<String, String>.from(wf['eventVariableAliases'] as Map)
+                      : null,
+                );
+              }
+              if (localOnlyWorkflows.isNotEmpty) {
+                appendBotDebugLog(
+                  '[_syncAppFromRemote] Restored and saved ${localOnlyWorkflows.length} local-only workflows back to storage for $botId',
+                );
               }
             } finally {
               AppManager.isSyncingFromRemote = false;
@@ -369,6 +480,13 @@ extension _AppHomePageSync on _AppHomePageState {
           appendBotDebugLog(
             '[_syncAppFromRemote] Pushed reconciled config to Manager for $botId',
           );
+
+          // Save the last synced timestamp in the local app config
+          final currentApp = await appManager.getApp(botId);
+          final updatedApp = Map<String, dynamic>.from(currentApp)
+            ..['lastSyncedAt'] = DateTime.now().toUtc().toIso8601String();
+          await appManager.saveApp(botId, updatedApp);
+          appendBotDebugLog('[_syncAppFromRemote] Updated lastSyncedAt timestamp.');
         }
       } catch (e) {
         appendBotDebugLog(
