@@ -16,6 +16,7 @@ enum PremiumCapability {
   /// Automatically restart the bot after a config change that cannot be
   /// hot-reloaded (e.g. gateway intent changes, new token).
   autoRestart,
+  lavalinkAudio,
 }
 
 class PremiumFeatureDefinition {
@@ -90,6 +91,12 @@ class PremiumCapabilities {
       title: (tr) => tr.subscription_feature_auto_restart_title,
       description: (tr) => tr.subscription_feature_auto_restart_desc,
     ),
+    PremiumFeatureDefinition(
+      capability: PremiumCapability.lavalinkAudio,
+      icon: Icons.music_note_rounded,
+      title: (tr) => tr.subscription_feature_lavalink_title,
+      description: (tr) => tr.subscription_feature_lavalink_desc,
+    ),
   ];
 
   // Rollout flags for roadmap capabilities. Keep disabled until implemented.
@@ -102,6 +109,7 @@ class PremiumCapabilities {
     PremiumCapability.visualDebuggerReplay: true,
     PremiumCapability.autoSharding: true,
     PremiumCapability.autoRestart: true,
+    PremiumCapability.lavalinkAudio: true,
   };
 
   static bool get isPremiumUser =>
@@ -147,6 +155,8 @@ class PremiumCapabilities {
       case PremiumCapability.autoSharding:
         return isPremiumUser ? 1 : 0;
       case PremiumCapability.autoRestart:
+        return isPremiumUser ? 1 : 0;
+      case PremiumCapability.lavalinkAudio:
         return isPremiumUser ? 1 : 0;
     }
   }

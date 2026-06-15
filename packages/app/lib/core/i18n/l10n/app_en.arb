@@ -6719,6 +6719,12 @@
   "@subscription_feature_instant_start_title": {
     "description": "Instant start"
   },
+  "@subscription_feature_lavalink_desc": {
+    "description": "Lavalink audio module description"
+  },
+  "@subscription_feature_lavalink_title": {
+    "description": "Lavalink audio module title"
+  },
   "@subscription_feature_no_ads_desc": {
     "description": "Remove all ad placements across the app experience."
   },
@@ -9730,6 +9736,8 @@
   "subscription_feature_debug_replay_title": "Visual debug replay",
   "subscription_feature_instant_start_desc": "Start bots immediately without rewarded ad interruption.",
   "subscription_feature_instant_start_title": "Instant start",
+  "subscription_feature_lavalink_desc": "Play music and audio in Discord voice channels using Lavalink.",
+  "subscription_feature_lavalink_title": "Lavalink audio support",
   "subscription_feature_no_ads_desc": "Remove all ad placements across the app experience.",
   "subscription_feature_no_ads_title": "No ads",
   "subscription_feature_scheduler_desc": "Run workflows automatically every X minutes (up to 10 active).",

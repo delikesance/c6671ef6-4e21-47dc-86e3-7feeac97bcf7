@@ -12592,6 +12592,18 @@ abstract class AppLocalizations {
   /// **'Instant start'**
   String get subscription_feature_instant_start_title;
 
+  /// Lavalink audio module description
+  ///
+  /// In en, this message translates to:
+  /// **'Play music and audio in Discord voice channels using Lavalink.'**
+  String get subscription_feature_lavalink_desc;
+
+  /// Lavalink audio module title
+  ///
+  /// In en, this message translates to:
+  /// **'Lavalink audio support'**
+  String get subscription_feature_lavalink_title;
+
   /// Remove all ad placements across the app experience.
   ///
   /// In en, this message translates to:

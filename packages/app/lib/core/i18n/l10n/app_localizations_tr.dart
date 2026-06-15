@@ -7203,6 +7203,13 @@ class AppLocalizationsTr extends AppLocalizations {
   String get subscription_feature_instant_start_title => 'Anında başlatma';
 
   @override
+  String get subscription_feature_lavalink_desc =>
+      'Play music and audio in Discord voice channels using Lavalink.';
+
+  @override
+  String get subscription_feature_lavalink_title => 'Lavalink audio support';
+
+  @override
   String get subscription_feature_no_ads_desc =>
       'Uygulama deneyimi boyunca tüm reklam yerleşimlerini kaldırın.';
 
