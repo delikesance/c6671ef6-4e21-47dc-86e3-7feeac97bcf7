@@ -2,9 +2,6 @@ version: 2.1
 
 # ── Parameters ────────────────────────────────────────────────────────────
 parameters:
-  msix_only:
-    type: boolean
-    default: false
   build_latest:
     type: boolean
     default: false
@@ -349,12 +346,11 @@ jobs:
             cd ~/project/packages/app
             flutter build windows --release
 
-      # ── ZIP (skipped if msix_only) ──
+      # ── ZIP ──
       - run:
           name: Package Windows ZIP
           shell: bash.exe
           command: |
-            if [ "${MSIX_ONLY:-}" = "true" ]; then exit 0; fi
             cd ~/project/packages/app
             python -c 'import sys, textwrap; exec(textwrap.dedent("""
               import zipfile, os
@@ -368,36 +364,6 @@ jobs:
               print("Created:", dst)
             """))' build/windows/x64/runner/Release build/bot_creator-windows-x64-steam.zip
 
-      # ── MSIX (tagged releases or msix_only parameter) ──
-      - run:
-          name: Set Store-compatible MSIX version
-          shell: powershell.exe
-          command: |
-            if (-not ($env:CIRCLE_TAG -or $env:MSIX_ONLY -eq 'true' -or $env:BUILD_LATEST -eq 'true')) { exit 0 }
-            cd $env:APP_DIR
-            $pubspec = 'pubspec.yaml'
-            $content = Get-Content -Raw $pubspec
-            $versionMatch = [regex]::Match($content, '(?m)^version:\s*([0-9]+)\.([0-9]+)\.([0-9]+)\+[0-9]+\s*$')
-            if (-not $versionMatch.Success) {
-              throw 'Unable to parse app version from pubspec.yaml'
-            }
-            $msixVersion = "$($versionMatch.Groups[1].Value).$($versionMatch.Groups[2].Value).$($versionMatch.Groups[3].Value).0"
-            $regex = [regex]'(?m)^\s*msix_version:\s*[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\s*$'
-            if (-not $regex.IsMatch($content)) {
-              throw 'Unable to find msix_version in pubspec.yaml'
-            }
-            $updated = $regex.Replace($content, "  msix_version: $msixVersion")
-            Set-Content -Path $pubspec -Value $updated -NoNewline
-            Write-Host "MSIX version set to $msixVersion"
-
-      - run:
-          name: Create MSIX package
-          shell: bash.exe
-          command: |
-            if [ -z "${CIRCLE_TAG:-}" ] && [ "${MSIX_ONLY:-}" != "true" ] && [ "${BUILD_LATEST:-}" != "true" ]; then exit 0; fi
-            cd ~/project/packages/app
-            dart run msix:create
-
       # ── S3 upload (tagged releases or latest) ──
       - run:
           name: Install awscli and upload Windows artifacts to R2
@@ -409,9 +375,6 @@ jobs:
             pip install --quiet awscli
             cd ~/project/packages/app
             aws s3 cp build/bot_creator-windows-x64-steam.zip "s3://${R2_BUCKET}/releases/${EFFECTIVE_TAG}/bot_creator-windows-x64-steam.zip" --endpoint-url "${R2_ENDPOINT}" --no-progress
-            if [ -f build/windows/x64/runner/Release/bot_creator.msix ]; then
-              aws s3 cp "build/windows/x64/runner/Release/bot_creator.msix" "s3://${R2_BUCKET}/releases/${EFFECTIVE_TAG}/bot_creator.msix" --endpoint-url "${R2_ENDPOINT}" --no-progress
-            fi
 
 # ── Workflows ─────────────────────────────────────────────────────────────
 workflows:
@@ -440,11 +403,6 @@ workflows:
               ignore: /.*/
             tags:
               only: /^v[0-9]+\.[0-9]+\.[0-9]+.*/
-
-  msix_only:
-    when: << pipeline.parameters.msix_only >>
-    jobs:
-      - build_windows
 
   build_latest:
     when: << pipeline.parameters.build_latest >>
