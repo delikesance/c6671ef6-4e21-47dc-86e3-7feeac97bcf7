@@ -87,8 +87,8 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
 
   /// Per-field [TextEditingController]s so the properties panel reflects
   /// real-time position updates from canvas drag gestures.
-  /// Key format: `'$index.$paramKey'` (e.g. `'2.x'`, `'3.y1'`).
-  final Map<String, TextEditingController> _propControllers = {};
+  /// Keyed by the operation instance map to survive index changes (e.g. duplication/reordering).
+  final Map<Map<String, dynamic>, Map<String, TextEditingController>> _propControllers = Map.identity();
 
   // ── Lifecycle ──────────────────────────────────────────────────────────
 
@@ -104,10 +104,17 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
 
   @override
   void dispose() {
-    for (final c in _propControllers.values) {
-      c.dispose();
-    }
+    _clearPropControllers();
     super.dispose();
+  }
+
+  void _clearPropControllers() {
+    for (final opControllers in _propControllers.values) {
+      for (final c in opControllers.values) {
+        c.dispose();
+      }
+    }
+    _propControllers.clear();
   }
 
   bool get _hasCreate => _operations.any(
@@ -155,7 +162,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
       _operations = _history[_historyIndex]
           .map((op) => Map<String, dynamic>.from(op))
           .toList();
-      _propControllers.clear();
+      _clearPropControllers();
       if (_selectedIndex != null && _selectedIndex! >= _operations.length) {
         _selectedIndex = _operations.isEmpty ? null : _operations.length - 1;
       }
@@ -169,7 +176,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
       _operations = _history[_historyIndex]
           .map((op) => Map<String, dynamic>.from(op))
           .toList();
-      _propControllers.clear();
+      _clearPropControllers();
       if (_selectedIndex != null && _selectedIndex! >= _operations.length) {
         _selectedIndex = _operations.isEmpty ? null : _operations.length - 1;
       }
@@ -1185,8 +1192,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
         if (result != null) {
           mutate(() {
             op[key] = result;
-            final ck = '$index.$key';
-            final c = _propControllers[ck];
+            final c = _propControllers[op]?[key];
             if (c != null) {
               c.text = result;
             }
@@ -1237,7 +1243,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
         child: TextFormField(
           key: ValueKey('${index}_$key'),
           controller:
-              _getPropController(index, key, (op[key] ?? '').toString()),
+              _getPropController(op, key, (op[key] ?? '').toString()),
           decoration: InputDecoration(
             labelText: label,
             hintText: hint,
@@ -1313,8 +1319,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
 
       // Sync prop controllers so the UI reflects the converted values.
       for (final k in posKeys) {
-        final ck = '$index.$k';
-        final c = _propControllers[ck];
+        final c = _propControllers[op]?[k];
         if (c != null) {
           c.text = (targetOp[k] ?? '').toString();
         }
@@ -1448,12 +1453,16 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
   /// Uses the map [_propControllers] to cache controllers so that external
   /// value changes (e.g. from canvas drag) can update the displayed text
   /// without recreating the widget.
-  TextEditingController _getPropController(int index, String key, String initial) {
-    final ck = '$index.$key';
-    var c = _propControllers[ck];
+  TextEditingController _getPropController(Map<String, dynamic> op, String key, String initial) {
+    var opControllers = _propControllers[op];
+    if (opControllers == null) {
+      opControllers = {};
+      _propControllers[op] = opControllers;
+    }
+    var c = opControllers[key];
     if (c == null) {
       c = TextEditingController(text: initial);
-      _propControllers[ck] = c;
+      opControllers[key] = c;
     }
     return c;
   }
@@ -1540,7 +1549,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
     // Sync the properties panel controllers so position fields update
     // in real time as the user drags the element on canvas.
     for (final key in movedKeys) {
-      final controller = _propControllers['$index.$key'];
+      final controller = _propControllers[op]?[key];
       if (controller != null) {
         controller.text = (op[key] ?? '').toString();
       }
@@ -1707,7 +1716,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
                     setState(() {
                       operation[fieldKey] = hex;
                     });
-                    final ctrl = _propControllers['$opIndex.$fieldKey'];
+                    final ctrl = _propControllers[operation]?[fieldKey];
                     if (ctrl != null) {
                       ctrl.text = hex;
                     }

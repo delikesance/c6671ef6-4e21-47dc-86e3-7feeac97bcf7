@@ -6275,6 +6275,12 @@
   "@subscription_feature_instant_start_title": {
     "description": "Instant start"
   },
+  "@subscription_feature_lavalink_desc": {
+    "description": "Lavalink audio module description"
+  },
+  "@subscription_feature_lavalink_title": {
+    "description": "Lavalink audio module title"
+  },
   "@subscription_feature_no_ads_desc": {
     "description": "Remove all ad placements across the app experience."
   },
@@ -9286,6 +9292,8 @@
   "subscription_feature_debug_replay_title": "Görsel hata ayıklama tekrarı",
   "subscription_feature_instant_start_desc": "Botları ödüllü reklam kesintisi olmadan hemen başlatın.",
   "subscription_feature_instant_start_title": "Anında başlatma",
+  "subscription_feature_lavalink_desc": "Play music and audio in Discord voice channels using Lavalink.",
+  "subscription_feature_lavalink_title": "Lavalink audio support",
   "subscription_feature_no_ads_desc": "Uygulama deneyimi boyunca tüm reklam yerleşimlerini kaldırın.",
   "subscription_feature_no_ads_title": "Reklam yok",
   "subscription_feature_scheduler_desc": "İş akışlarını her X dakikada bir otomatik olarak çalıştırın (10 taneye kadar aktif).",

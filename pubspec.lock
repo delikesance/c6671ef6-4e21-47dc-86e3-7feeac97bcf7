@@ -119,7 +119,7 @@ packages:
       path: "packages/shared"
       relative: true
     source: path
-    version: "0.0.4"
+    version: "0.0.5"
   characters:
     dependency: transitive
     description:
