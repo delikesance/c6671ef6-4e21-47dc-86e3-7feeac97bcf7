@@ -885,11 +885,12 @@ packages:
     source: hosted
     version: "6.9.0+1"
   nyxx_lavalink:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
-      path: "packages/nyxx_lavalink"
-      relative: true
-    source: path
+      name: nyxx_lavalink
+      sha256: "3034ae31c265013b632785673df10f75a05e9f5eeec39a4b478ef1359064ac19"
+      url: "https://pub.dev"
+    source: hosted
     version: "4.0.0-dev.1"
   oauth2:
     dependency: transitive
