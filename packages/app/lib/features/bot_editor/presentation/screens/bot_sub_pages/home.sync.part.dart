@@ -119,6 +119,7 @@ extension _AppHomePageSync on _AppHomePageState {
       );
 
       // Pull latest bot config from Manager (synced from other devices)
+      var pullSucceeded = false;
       try {
         appendBotDebugLog('[_syncAppFromRemote] resolving Manager client...');
         final mainClient = await _resolveMainApiClientForBot(
@@ -130,6 +131,7 @@ extension _AppHomePageSync on _AppHomePageState {
           appendBotDebugLog('[_syncAppFromRemote] Manager client ok, fetching config...');
           final remoteConfig = await mainClient.getBotConfig(botId).timeout(const Duration(seconds: 15));
           if (remoteConfig.isNotEmpty) {
+            pullSucceeded = true;
             // Preserve local-only fields that the Manager doesn't store:
             // avatar and name are set locally and should survive cross-device sync.
             final local = await appManager.getApp(botId);
@@ -448,49 +450,50 @@ extension _AppHomePageSync on _AppHomePageState {
       }
 
       // Push Discord-reconciled command IDs back to Manager so other devices
-      // get the correct Discord IDs. We do NOT push the full local config here
-      // because we just pulled from Manager — pushing back would risk overwriting
-      // concurrent changes from another device.
-      try {
-        final mainClient = await _resolveMainApiClientForBot(
-          botId: botId,
-          botToken: token,
-          attemptSessionRestore: true,
-        );
-        if (mainClient != null) {
-          // Re-read the local state that now reflects the Manager pull + Discord reconciliation.
-          final afterSync = await appManager.getApp(botId);
-          final localCommands = await appManager.listAppCommands(botId);
-
-          // Build a minimal patch: only the fields the Manager needs to keep
-          // command IDs aligned with Discord. Do not include token.
-          final patch = Map<String, dynamic>.from(afterSync);
-          patch.remove('token');
-          // Replace the commands list with the fully-reconciled local list
-          // so Discord IDs are up-to-date on the Manager.
-          patch['commands'] = localCommands;
-
-          appendBotDebugLog('[_syncAppFromRemote] pushing reconciled IDs to Manager...');
-          await mainClient.syncBot(
-            botId,
-            user.username,
-            patch,
-            force: true,
-          ).timeout(const Duration(seconds: 20));
-          appendBotDebugLog(
-            '[_syncAppFromRemote] Pushed reconciled config to Manager for $botId',
+      // get the correct Discord IDs. We only push the commands list (not the
+      // full config) and ONLY if the Manager pull succeeded — otherwise we
+      // risk overwriting the remote with stale local data.
+      if (pullSucceeded) {
+        try {
+          final mainClient = await _resolveMainApiClientForBot(
+            botId: botId,
+            botToken: token,
+            attemptSessionRestore: true,
           );
+          if (mainClient != null) {
+            // Only send the commands list with reconciled Discord IDs.
+            // Do NOT send the full config — that would overwrite changes
+            // from other devices that we just pulled.
+            final localCommands = await appManager.listAppCommands(botId);
 
-          // Save the last synced timestamp in the local app config
-          final currentApp = await appManager.getApp(botId);
-          final updatedApp = Map<String, dynamic>.from(currentApp)
-            ..['lastSyncedAt'] = DateTime.now().toUtc().toIso8601String();
-          await appManager.saveApp(botId, updatedApp);
-          appendBotDebugLog('[_syncAppFromRemote] Updated lastSyncedAt timestamp.');
+            appendBotDebugLog('[_syncAppFromRemote] pushing reconciled command IDs to Manager...');
+            await mainClient.syncBot(
+              botId,
+              user.username,
+              <String, dynamic>{
+                'commands': localCommands,
+              },
+              force: true,
+            ).timeout(const Duration(seconds: 20));
+            appendBotDebugLog(
+              '[_syncAppFromRemote] Pushed reconciled command IDs to Manager for $botId',
+            );
+
+            // Save the last synced timestamp in the local app config
+            final currentApp = await appManager.getApp(botId);
+            final updatedApp = Map<String, dynamic>.from(currentApp)
+              ..['lastSyncedAt'] = DateTime.now().toUtc().toIso8601String();
+            await appManager.saveApp(botId, updatedApp);
+            appendBotDebugLog('[_syncAppFromRemote] Updated lastSyncedAt timestamp.');
+          }
+        } catch (e) {
+          appendBotDebugLog(
+            '[_syncAppFromRemote] Failed to push reconciled command IDs to Manager: $e',
+          );
         }
-      } catch (e) {
+      } else {
         appendBotDebugLog(
-          '[_syncAppFromRemote] Failed to push reconciled config to Manager: $e',
+          '[_syncAppFromRemote] Skipping push-back: Manager pull did not succeed.',
         );
       }
 
