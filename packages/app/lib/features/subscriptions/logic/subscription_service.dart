@@ -7,6 +7,8 @@ import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:in_app_purchase_android/billing_client_wrappers.dart';
+import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Product identifiers — must match Google Play / App Store Connect.
@@ -368,6 +370,46 @@ class SubscriptionService {
         return const SubscriptionPurchaseResult.failed(
           SubscriptionPurchaseFailureReason.productUnavailable,
         );
+      }
+
+      // ── Android billing readiness check ───────────────────────────────
+      // Before calling buyNonConsumable, verify that the Play Billing
+      // client can actually handle subscription purchases.  On devices
+      // where Play Services returns a null PendingIntent (outdated Play
+      // Store, restricted account, etc.), this pre-check gives us a clean
+      // failure path instead of crashing inside ProxyBillingActivity.
+      if (Platform.isAndroid) {
+        try {
+          final androidAddition = iap
+              .getPlatformAddition<InAppPurchaseAndroidPlatformAddition>();
+          final ready = await androidAddition.isFeatureSupported(
+            BillingClientFeature.subscriptions,
+          );
+          if (!ready) {
+            unawaited(
+              AppDiagnostics.logInfo(
+                'Purchase blocked: Play Billing subscriptions not supported',
+                data: {'product': productId},
+              ),
+            );
+            return const SubscriptionPurchaseResult.failed(
+              SubscriptionPurchaseFailureReason.storeUnavailable,
+            );
+          }
+        } catch (error, stack) {
+          // The feature-support check itself failed (e.g. billing client
+          // disconnected).  Don't crash — let the purchase attempt proceed
+          // but log the pre-check failure for diagnostics.
+          unawaited(
+            AppDiagnostics.logError(
+              'Pre-purchase billing feature check failed (continuing anyway)',
+              error,
+              stack,
+              fatal: false,
+              reason: 'product=$productId',
+            ),
+          );
+        }
       }
 
       final purchaseParam = PurchaseParam(productDetails: product);
