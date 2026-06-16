@@ -34,6 +34,7 @@ import 'package:bot_creator/features/subscriptions/logic/subscription_service.da
 import 'package:bot_creator/features/onboarding/logic/onboarding_manager.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/utils/global.dart';
+import 'package:flutter_uxcam/flutter_uxcam.dart';
 
 @pragma('vm:entry-point')
 AppManager? _appManager;
@@ -175,6 +176,19 @@ class _WindowsHttpOverrides extends HttpOverrides {
 Future<void> _bootstrapAndRunApp() async {
   try {
     appManager = AppManager();
+
+    // ── UXCam session recording ──────────────────────────────────────
+    // Must be started before any screen is rendered so the SDK can
+    // capture the full user session from the very first frame.
+    FlutterUxcam.optIntoSchematicRecordings();
+    FlutterUxcam.startWithConfiguration(
+      FlutterUxConfig(
+        userAppKey: 'rw7y5oqdoauz17n-eu',
+        enableAutomaticScreenNameTagging: false,
+        enableIntegrationLogging: true,
+      ),
+    );
+
     initRunnerAutoReload();
     final prefs = await SharedPreferences.getInstance();
     final onboardingManager = OnboardingManager(prefs);
