@@ -288,7 +288,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Configuration Lavalink sauvegardée')),
+        SnackBar(content: Text(context.tr.bot_settings_save_success)),
       );
       unawaited(refreshBotRuntime(botId));
     } catch (e) {
