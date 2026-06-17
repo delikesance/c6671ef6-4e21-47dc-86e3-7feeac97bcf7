@@ -1148,7 +1148,9 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
     @override
-  String get actions_missing_field_content => '"{action}": "{field}" gerekli.';
+  String actions_missing_field_content(String action, String field) {
+    return '"$action": "$field" gerekli.';
+  }
 
   @override
   String get actions_missing_field_title => 'Eksik Alan';
@@ -2187,16 +2189,24 @@ class AppLocalizationsTr extends AppLocalizations {
   String get cmd_delete_tooltip => 'Komut sil';
 
   @override
-  String get cmd_delete_confirm => '"{name}" komutu silinsin mi?';
+  String cmd_delete_confirm(String name) {
+    return '"$name" komutu silinsin mi?';
+  }
 
   @override
-  String get cmd_delete_success => '"{name}" komutu silindi';
+  String cmd_delete_success(String name) {
+    return '"$name" komutu silindi';
+  }
 
   @override
-  String get cmd_batch_delete_confirm => '{count} komut silinsin mi?';
+  String cmd_batch_delete_confirm(int count) {
+    return '$count komut silinsin mi?';
+  }
 
   @override
-  String get cmd_batch_delete_success => '{count} komut silindi';
+  String cmd_batch_delete_success(int count) {
+    return '$count komut silindi';
+  }
 
   @override
   String get cmd_deploy_close_button => 'Kapat';

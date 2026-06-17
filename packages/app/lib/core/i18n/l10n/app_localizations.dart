@@ -2105,7 +2105,7 @@ abstract class AppLocalizations {
   String get actions_missing_field_title;
 
   /// Missing required field content with placeholders
-  String get actions_missing_field_content;
+  String actions_missing_field_content(String action, String field);
 
   /// No matches found
   ///
@@ -3983,16 +3983,16 @@ abstract class AppLocalizations {
   String get cmd_delete_tooltip;
 
   /// Delete command confirmation dialog
-  String get cmd_delete_confirm;
+  String cmd_delete_confirm(String name);
 
   /// Delete command success snackbar
-  String get cmd_delete_success;
+  String cmd_delete_success(String name);
 
   /// Batch delete confirmation dialog
-  String get cmd_batch_delete_confirm;
+  String cmd_batch_delete_confirm(int count);
 
   /// Batch delete success snackbar
-  String get cmd_batch_delete_success;
+  String cmd_batch_delete_success(int count);
 
   /// File picker busy warning
   String get export_file_picker_busy;

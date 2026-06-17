@@ -1067,8 +1067,9 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-    @override
-  String get actions_missing_field_content => '"{action}"："{field}" は必須です。';
+  String actions_missing_field_content(String action, String field) {
+    return '"$action"："$field" は必須です。';
+  }
 
   @override
   String get actions_missing_field_title => '不足フィールド';
@@ -2081,16 +2082,24 @@ class AppLocalizationsJa extends AppLocalizations {
   String get cmd_delete_tooltip => 'コマンドを削除';
 
   @override
-  String get cmd_delete_confirm => 'コマンド "{name}" を削除しますか？';
+  String cmd_delete_confirm(String name) {
+    return 'コマンド "$name" を削除しますか？';
+  }
 
   @override
-  String get cmd_delete_success => 'コマンド "{name}" を削除しました';
+  String cmd_delete_success(String name) {
+    return 'コマンド "$name" を削除しました';
+  }
 
   @override
-  String get cmd_batch_delete_confirm => '{count} 個のコマンドを削除しますか？';
+  String cmd_batch_delete_confirm(int count) {
+    return '$count 個のコマンドを削除しますか？';
+  }
 
   @override
-  String get cmd_batch_delete_success => '{count} 個のコマンドを削除しました';
+  String cmd_batch_delete_success(int count) {
+    return '$count 個のコマンドを削除しました';
+  }
 
   @override
   String get cmd_deploy_close_button => '閉じる';

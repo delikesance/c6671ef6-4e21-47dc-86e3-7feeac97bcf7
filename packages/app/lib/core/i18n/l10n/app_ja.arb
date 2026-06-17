@@ -806,6 +806,14 @@
     "description": "Key: {key}"
   },
   "@actions_missing_field_content": {
+    "placeholders": {
+      "action": {
+        "type": "String"
+      },
+      "field": {
+        "type": "String"
+      }
+    },
     "description": "Missing required field message with placeholders"
   },
   "@actions_missing_field_title": {
@@ -3703,9 +3711,14 @@
   "@embed_color_picker_title": {
     "description": "Pick embed color"
   },
-  "@embed_delete_confirm": {
-    "description": "This embed will be removed. Continue?"
-  },
+  "@cmd_batch_delete_confirm": {
+      "placeholders": {
+        "count": {
+          "type": "int"
+        }
+      },
+      "description": "Batch delete confirmation dialog"
+    },
   "@embed_delete_title": {
     "description": "Delete embed"
   },
