@@ -1344,16 +1344,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get app_title => 'Bot Creator';
 
   @override
-  String get app_token_field_helper =>
-      'Collez le token exactement comme fourni par Discord.';
+  String get app_token_invalid_content =>
+      'Le token Discord fourni est invalide ou a été révoqué. Nous vous recommandons de suivre le tutoriel pour générer un token valide.';
 
   @override
   String get app_token_invalid_title => 'Token invalide';
 
   @override
-  String get app_token_invalid_content =>
-      'Le token Discord fourni est invalide ou a été révoqué. '
-      'Nous vous recommandons de suivre le tutoriel pour générer un token valide.';
+  String get app_token_field_helper =>
+      'Collez le token exactement tel que fourni par Discord.';
 
   @override
   String get app_token_section_desc =>
@@ -2222,6 +2221,18 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get cmd_delete_tooltip => 'Supprimer la commande';
+
+  @override
+  String get cmd_delete_confirm => 'Supprimer la commande "{name}" ?';
+
+  @override
+  String get cmd_delete_success => 'Commande "{name}" supprimée';
+
+  @override
+  String get cmd_batch_delete_confirm => 'Supprimer {count} commandes ?';
+
+  @override
+  String get cmd_batch_delete_success => '{count} commandes supprimées';
 
   @override
   String get cmd_deploy_close_button => 'Fermer';
@@ -4534,6 +4545,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get emojis_upload_pick_image => 'Choisir une image';
+
+  @override
+    @override
+  String get export_file_picker_busy => 'Le sélecteur de fichier est déjà actif. Veuillez patienter et réessayer.';
 
   @override
   String get error => 'Erreur';

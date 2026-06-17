@@ -1240,15 +1240,14 @@ class AppLocalizationsJa extends AppLocalizations {
   String get app_title => 'Bot Creator';
 
   @override
-  String get app_token_field_helper => 'Discordから提供されたトークンをそのまま貼り付けてください。';
+  String get app_token_invalid_content =>
+      '提供されたDiscordトークンは無効か、取り消されています。有効なトークンを生成するにはチュートリアルに従うことをお勧めします。';
 
   @override
   String get app_token_invalid_title => '無効なトークン';
 
   @override
-  String get app_token_invalid_content =>
-      '提供されたDiscordトークンは無効か、取り消されています。'
-      '有効なトークンを生成するにはチュートリアルに従うことをお勧めします。';
+  String get app_token_field_helper => 'Discordから提供されたトークンをそのまま貼り付けてください。';
 
   @override
   String get app_token_section_desc => 'トークンをコピーしたら、以下に貼り付けてボットをアプリに追加します。';
@@ -2076,6 +2075,18 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get cmd_delete_tooltip => 'コマンドを削除';
+
+  @override
+  String get cmd_delete_confirm => 'コマンド "{name}" を削除しますか？';
+
+  @override
+  String get cmd_delete_success => 'コマンド "{name}" を削除しました';
+
+  @override
+  String get cmd_batch_delete_confirm => '{count} 個のコマンドを削除しますか？';
+
+  @override
+  String get cmd_batch_delete_success => '{count} 個のコマンドを削除しました';
 
   @override
   String get cmd_deploy_close_button => '閉じる';
@@ -4274,6 +4285,10 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get emojis_upload_pick_image => '画像を選択';
+
+  @override
+    @override
+  String get export_file_picker_busy => 'ファイルピッカーは既にアクティブです。待ってから再試行してください。';
 
   @override
   String get error => 'エラー';

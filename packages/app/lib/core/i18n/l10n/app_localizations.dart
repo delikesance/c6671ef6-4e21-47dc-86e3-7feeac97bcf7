@@ -2392,23 +2392,23 @@ abstract class AppLocalizations {
   /// **'Bot Creator'**
   String get app_title;
 
-  /// Paste the token exactly as provided by Discord.
+  /// Token invalid error message with tutorial recommendation
   ///
   /// In en, this message translates to:
-  /// **'Paste the token exactly as provided by Discord.'**
-  String get app_token_field_helper;
+  /// **'The provided Discord token is invalid or has been revoked. We recommend following the tutorial to generate a valid token.'**
+  String get app_token_invalid_content;
 
-  /// Invalid Token error title
+  /// Invalid token error dialog title
   ///
   /// In en, this message translates to:
   /// **'Invalid Token'**
   String get app_token_invalid_title;
 
-  /// Invalid Token error content
+  /// Paste the token exactly as provided by Discord.
   ///
   /// In en, this message translates to:
-  /// **'The provided Discord token is invalid or has been revoked. We recommend following the tutorial to generate a valid token.'**
-  String get app_token_invalid_content;
+  /// **'Paste the token exactly as provided by Discord.'**
+  String get app_token_field_helper;
 
   /// Once the token is copied, paste it below to add your bot to the app.
   ///
@@ -3978,6 +3978,21 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete command'**
   String get cmd_delete_tooltip;
+
+  /// Delete command confirmation dialog
+  String get cmd_delete_confirm;
+
+  /// Delete command success snackbar
+  String get cmd_delete_success;
+
+  /// Batch delete confirmation dialog
+  String get cmd_batch_delete_confirm;
+
+  /// Batch delete success snackbar
+  String get cmd_batch_delete_success;
+
+  /// File picker busy warning
+  String get export_file_picker_busy;
 
   /// Close
   ///

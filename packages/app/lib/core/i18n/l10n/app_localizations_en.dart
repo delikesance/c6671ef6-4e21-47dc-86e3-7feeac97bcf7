@@ -1315,16 +1315,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get app_title => 'Bot Creator';
 
   @override
-  String get app_token_field_helper =>
-      'Paste the token exactly as provided by Discord.';
+  String get app_token_invalid_content =>
+      'The provided Discord token is invalid or has been revoked. We recommend following the tutorial to generate a valid token.';
 
   @override
   String get app_token_invalid_title => 'Invalid Token';
 
   @override
-  String get app_token_invalid_content =>
-      'The provided Discord token is invalid or has been revoked. '
-      'We recommend following the tutorial to generate a valid token.';
+  String get app_token_field_helper =>
+      'Paste the token exactly as provided by Discord.';
 
   @override
   String get app_token_section_desc =>
@@ -2171,6 +2170,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cmd_delete_tooltip => 'Delete command';
+
+  @override
+  String get cmd_delete_confirm => 'Delete command "{name}"?';
+
+  @override
+  String get cmd_delete_success => 'Command "{name}" deleted';
+
+  @override
+  String get cmd_batch_delete_confirm => 'Delete {count} commands?';
+
+  @override
+  String get cmd_batch_delete_success => '{count} commands deleted';
 
   @override
   String get cmd_deploy_close_button => 'Close';
@@ -4459,6 +4470,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get emojis_upload_pick_image => 'Pick Image';
+
+  @override
+    @override
+  String get export_file_picker_busy => 'File picker is already active. Please wait and try again.';
 
   @override
   String get error => 'Error';

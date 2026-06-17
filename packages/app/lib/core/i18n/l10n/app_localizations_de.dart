@@ -1344,16 +1344,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get app_title => 'Bot Creator';
 
   @override
-  String get app_token_field_helper =>
-      'Fügen Sie das Token genau so ein, wie von Discord bereitgestellt.';
+  String get app_token_invalid_content =>
+      'Das angegebene Discord-Token ist ungültig oder wurde widerrufen. Wir empfehlen, dem Tutorial zu folgen, um ein gültiges Token zu erstellen.';
 
   @override
   String get app_token_invalid_title => 'Ungültiges Token';
 
   @override
-  String get app_token_invalid_content =>
-      'Das angegebene Discord-Token ist ungültig oder wurde widerrufen. '
-      'Wir empfehlen, dem Tutorial zu folgen, um ein gültiges Token zu erstellen.';
+  String get app_token_field_helper =>
+      'Fügen Sie das Token genau so ein, wie es von Discord bereitgestellt wurde.';
 
   @override
   String get app_token_section_desc =>
@@ -2212,6 +2211,18 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get cmd_delete_tooltip => 'Befehl löschen';
+
+  @override
+  String get cmd_delete_confirm => 'Befehl "{name}" löschen?';
+
+  @override
+  String get cmd_delete_success => 'Befehl "{name}" gelöscht';
+
+  @override
+  String get cmd_batch_delete_confirm => '{count} Befehle löschen?';
+
+  @override
+  String get cmd_batch_delete_success => '{count} Befehle gelöscht';
 
   @override
   String get cmd_deploy_close_button => 'Schließen';
@@ -4521,6 +4532,10 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get emojis_upload_pick_image => 'Bild auswählen';
+
+  @override
+    @override
+  String get export_file_picker_busy => 'Dateiauswahl ist bereits aktiv. Bitte warten und erneut versuchen.';
 
   @override
   String get error => 'Fehler';
