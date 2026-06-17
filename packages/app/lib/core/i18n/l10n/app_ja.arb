@@ -3948,6 +3948,9 @@
     },
     "description": "Export failed: {error}"
   },
+  "@export_file_picker_busy": {
+    "description": "ファイル選択は既に開いています"
+  },
   "@export_global_variables": {
     "description": "Global Variables"
   },
@@ -7685,7 +7688,7 @@
   "actions_description": "このコマンドのランタイムアクションを構築",
   "actions_global_variables": "グローバル変数",
   "actions_key_label": "キー: {key}",
-  "actions_missing_field_content": ""{action}"："{field}" は必須です。",
+  "actions_missing_field_content": "\"{action}\"：\"{field}\" は必須です。",
   "actions_missing_field_title": "不足フィールド",
   "actions_no_matches": "一致するものが見つかりません",
   "actions_save_count": "{count} アクションを保存",
@@ -7970,8 +7973,8 @@
   "cmd_dart_script_label": "Dart スクリプト本文",
   "cmd_batch_delete_confirm": "{count} 個のコマンドを削除しますか？",
   "cmd_batch_delete_success": "{count} 個のコマンドを削除しました",
-  "cmd_delete_confirm": "コマンド "{name}" を削除しますか？",
-  "cmd_delete_success": "コマンド "{name}" を削除しました",
+  "cmd_delete_confirm": "コマンド \"{name}\" を削除しますか？",
+  "cmd_delete_success": "コマンド \"{name}\" を削除しました",
   "cmd_delete_tooltip": "コマンドを削除",
   "cmd_deploy_close_button": "閉じる",
   "cmd_deploy_cloud_sync_subtitle": "オンラインスペースとの安全な同期",
@@ -8643,6 +8646,7 @@
   "export_button": "ZIPをエクスポート",
   "export_commands": "コマンド",
   "export_failed": "エクスポート失敗: {error}",
+  "export_file_picker_busy": "ファイル選択は既に開いています",
   "export_global_variables": "グローバル変数",
   "export_import_title": "エクスポート / インポート",
   "export_section_desc": "ボットの選択したセクションをZIPファイルとしてエクスポートします。ボットトークンは含まれません。",

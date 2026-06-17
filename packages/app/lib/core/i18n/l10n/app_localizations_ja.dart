@@ -1053,11 +1053,10 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-    @override
-  String get actions_empty_title => 'アクションはまだありません';
+  String get actions_empty_subtitle => 'アクションを追加してから開いて詳細を設定してください。';
 
   @override
-  String get actions_empty_subtitle => 'アクションを追加してから開いて詳細を設定してください。';
+  String get actions_empty_title => 'アクションはまだありません';
 
   @override
   String get actions_builder_title => 'アクションビルダー';
@@ -1075,7 +1074,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String actions_missing_field_content(String action, String field) {
-    return '"$action"："$field" は必須です。';
+    return '\"$action\"：\"$field\" は必須です。';
   }
 
   @override
@@ -2086,27 +2085,27 @@ class AppLocalizationsJa extends AppLocalizations {
   String get cmd_dart_script_label => 'Dart スクリプト本文';
 
   @override
-  String get cmd_delete_tooltip => 'コマンドを削除';
-
-  @override
-  String cmd_delete_confirm(String name) {
-    return 'コマンド "$name" を削除しますか？';
-  }
-
-  @override
-  String cmd_delete_success(String name) {
-    return 'コマンド "$name" を削除しました';
-  }
-
-  @override
   String cmd_batch_delete_confirm(int count) {
     return '$count 個のコマンドを削除しますか？';
   }
 
   @override
-  String cmd_batch_delete_success(int count) {
+  String cmd_batch_delete_success(Object count) {
     return '$count 個のコマンドを削除しました';
   }
+
+  @override
+  String cmd_delete_confirm(Object name) {
+    return 'コマンド \"$name\" を削除しますか？';
+  }
+
+  @override
+  String cmd_delete_success(Object name) {
+    return 'コマンド \"$name\" を削除しました';
+  }
+
+  @override
+  String get cmd_delete_tooltip => 'コマンドを削除';
 
   @override
   String get cmd_deploy_close_button => '閉じる';
@@ -4307,10 +4306,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get emojis_upload_pick_image => '画像を選択';
 
   @override
-    @override
-  String get export_file_picker_busy => 'ファイルピッカーは既にアクティブです。待ってから再試行してください。';
-
-  @override
   String get error => 'エラー';
 
   @override
@@ -4340,6 +4335,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String export_failed(String error) {
     return 'エクスポート失敗: $error';
   }
+
+  @override
+  String get export_file_picker_busy => 'ファイル選択は既に開いています';
 
   @override
   String get export_global_variables => 'グローバル変数';

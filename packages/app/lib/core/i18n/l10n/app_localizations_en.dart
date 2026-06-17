@@ -1125,11 +1125,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-    @override
-  String get actions_empty_title => 'No actions yet';
+  String get actions_empty_subtitle =>
+      'Add an action, then open it to configure details.';
 
   @override
-  String get actions_empty_subtitle => 'Add an action, then open it to configure details.';
+  String get actions_empty_title => 'No actions yet';
 
   @override
   String get actions_builder_title => 'Actions Builder';
@@ -1146,10 +1146,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-    @override
-    @override
   String actions_missing_field_content(String action, String field) {
-    return '"$action": "$field" is required.';
+    return '\"$action\": \"$field\" is required.';
   }
 
   @override
@@ -2183,27 +2181,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cmd_dart_script_label => 'Dart script body';
 
   @override
-  String get cmd_delete_tooltip => 'Delete command';
-
-  @override
-  String cmd_delete_confirm(String name) {
-    return 'Delete command "$name"?';
-  }
-
-  @override
-  String cmd_delete_success(String name) {
-    return 'Command "$name" deleted';
-  }
-
-  @override
   String cmd_batch_delete_confirm(int count) {
     return 'Delete $count commands?';
   }
 
   @override
-  String cmd_batch_delete_success(int count) {
+  String cmd_batch_delete_success(Object count) {
     return '$count commands deleted';
   }
+
+  @override
+  String cmd_delete_confirm(Object name) {
+    return 'Delete command \"$name\"?';
+  }
+
+  @override
+  String cmd_delete_success(Object name) {
+    return 'Command \"$name\" deleted';
+  }
+
+  @override
+  String get cmd_delete_tooltip => 'Delete command';
 
   @override
   String get cmd_deploy_close_button => 'Close';
@@ -4494,10 +4492,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get emojis_upload_pick_image => 'Pick Image';
 
   @override
-    @override
-  String get export_file_picker_busy => 'File picker is already active. Please wait and try again.';
-
-  @override
   String get error => 'Error';
 
   @override
@@ -4527,6 +4521,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String export_failed(String error) {
     return 'Export failed: $error';
   }
+
+  @override
+  String get export_file_picker_busy => 'File picker is already open';
 
   @override
   String get export_global_variables => 'Global Variables';

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
-import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator_shared/types/component.dart';
@@ -21,8 +20,6 @@ void main() {
       ],
     );
 
-    ModalDefinition? updatedModal;
-
     await tester.pumpWidget(
       MultiProvider(
         providers: [
@@ -36,9 +33,7 @@ void main() {
             body: SingleChildScrollView(
               child: ModalBuilderWidget(
                 modal: modal,
-                onChanged: (updated) {
-                  updatedModal = updated;
-                },
+                onChanged: (_) {},
                 variableSuggestions: const [],
               ),
             ),
@@ -46,8 +41,6 @@ void main() {
         ),
       ),
     );
-
-    await tester.pumpAndSettle();
 
     // Verify Title & Custom ID render
     expect(find.text('Legacy Modal'), findsOneWidget);

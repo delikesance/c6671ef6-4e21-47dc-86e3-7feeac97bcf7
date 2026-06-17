@@ -3969,6 +3969,9 @@
     },
     "description": "Export failed: {error}"
   },
+  "@export_file_picker_busy": {
+    "description": "Un sélecteur de fichier est déjà ouvert"
+  },
   "@export_global_variables": {
     "description": "Global Variables"
   },
@@ -7697,7 +7700,7 @@
   "actions_description": "Construire les actions d'exécution pour cette commande",
   "actions_global_variables": "Variables globales",
   "actions_key_label": "Clé : {key}",
-  "actions_missing_field_content": ""{action}" : "{field}" est requis.",
+  "actions_missing_field_content": "\"{action}\" : \"{field}\" est requis.",
   "actions_missing_field_title": "Champ requis manquant",
   "actions_no_matches": "Aucune action ne correspond à votre recherche.",
   "actions_save_count": "Enregistrer {count} actions",
@@ -8004,8 +8007,8 @@
   "cmd_dart_script_label": "Corps du script Dart",
   "cmd_batch_delete_confirm": "Supprimer {count} commandes ?",
   "cmd_batch_delete_success": "{count} commandes supprimées",
-  "cmd_delete_confirm": "Supprimer la commande "{name}" ?",
-  "cmd_delete_success": "Commande "{name}" supprimée",
+  "cmd_delete_confirm": "Supprimer la commande \"{name}\" ?",
+  "cmd_delete_success": "Commande \"{name}\" supprimée",
   "cmd_delete_tooltip": "Supprimer la commande",
   "cmd_deploy_close_button": "Fermer",
   "cmd_deploy_cloud_sync_subtitle": "Synchronisation sécurisée dans votre espace en ligne",
@@ -8677,6 +8680,7 @@
   "export_button": "Exporter en ZIP",
   "export_commands": "Commandes",
   "export_failed": "Échec de l'export : {error}",
+  "export_file_picker_busy": "Un sélecteur de fichier est déjà ouvert",
   "export_global_variables": "Variables globales",
   "export_import_title": "Export / Import",
   "export_section_desc": "Exportez les sections sélectionnées de votre bot sous forme de fichier ZIP. Le token du bot n'est jamais inclus.",
