@@ -190,6 +190,10 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
         return context.tr.action_name_slowmode;
       case BotCreatorActionType.stop:
         return context.tr.action_name_stop;
+      case BotCreatorActionType.skipActions:
+        return context.tr.action_name_skipActions;
+      case BotCreatorActionType.jumpToAction:
+        return context.tr.action_name_jumpToAction;
       case BotCreatorActionType.randomChoice:
         return context.tr.action_name_randomChoice;
       case BotCreatorActionType.debugProfile:
@@ -408,6 +412,10 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
         return Icons.speed;
       case BotCreatorActionType.stop:
         return Icons.stop_circle_outlined;
+      case BotCreatorActionType.skipActions:
+        return Icons.skip_next;
+      case BotCreatorActionType.jumpToAction:
+        return Icons.arrow_forward;
       case BotCreatorActionType.randomChoice:
         return Icons.shuffle;
       case BotCreatorActionType.debugProfile:
@@ -3285,6 +3293,26 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
         ];
       case BotCreatorActionType.stop:
         return [];
+      case BotCreatorActionType.skipActions:
+        return [
+          ParameterDefinition(
+            key: 'count',
+            type: ParameterType.string,
+            defaultValue: '1',
+            hint: 'Number of actions to skip',
+            required: true,
+          ),
+        ];
+      case BotCreatorActionType.jumpToAction:
+        return [
+          ParameterDefinition(
+            key: 'targetKey',
+            type: ParameterType.string,
+            defaultValue: '',
+            hint: 'Action key, ID, or 1-indexed position to jump to',
+            required: true,
+          ),
+        ];
       case BotCreatorActionType.randomChoice:
         return [
           ParameterDefinition(

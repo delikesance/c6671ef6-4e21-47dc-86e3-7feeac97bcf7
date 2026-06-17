@@ -109,6 +109,9 @@
   "@action_description_joinVoice": {
     "description": "Lavalink music key: action_description_joinVoice"
   },
+  "@action_description_jumpToAction": {
+    "description": "Jump to an action"
+  },
   "@action_description_kickUser": {
     "description": "Kick a member from the server"
   },
@@ -153,6 +156,9 @@
   },
   "@action_description_setNickname": {
     "description": "Change a server member's nickname"
+  },
+  "@action_description_skipActions": {
+    "description": "Skip a number of actions"
   },
   "@action_description_skipMusic": {
     "description": "Lavalink music key: action_description_skipMusic"
@@ -473,6 +479,9 @@
   "@action_name_joinVoice": {
     "description": "Lavalink music key: action_name_joinVoice"
   },
+  "@action_name_jumpToAction": {
+    "description": "Jump to an action"
+  },
   "@action_name_jsonForEachLoop": {
     "description": "JSON For Each Loop"
   },
@@ -619,6 +628,9 @@
   },
   "@action_name_setTemporaryVariable": {
     "description": "Set Temporary Variable"
+  },
+  "@action_name_skipActions": {
+    "description": "Skip N actions"
   },
   "@action_name_skipMusic": {
     "description": "Lavalink music key: action_name_skipMusic"
@@ -7295,6 +7307,7 @@
   "action_description_getWebhook": "Kimliğe göre Webhook bilgilerini al",
   "action_description_httpRequest": "Dinamik URL, yöntem, başlıklar ve gövde ile HTTP isteği gönder",
   "action_description_ifBlock": "Koşullu dallanma: bir koşula göre farklı eylemler çalıştır",
+  "action_description_jumpToAction": "Anahtar, ID veya konuma göre belirli bir eyleme atla",
   "action_description_joinVoice": "Bir ses kanalına bağlan",
   "action_description_jsonForEachLoop": "Bir JSON dizisinin veya nesnesinin her öğesini döngüye al (forEach)",
   "action_description_kickUser": "Remove a member from the guild",
@@ -7347,6 +7360,7 @@
   "action_description_setNickname": "Change a member's nickname",
   "action_description_setScopedVariable": "Kapsamlı bir değişken (sunucu/kullanıcı/kanal/üye/mesaj) oluştur veya güncelle",
   "action_description_setTemporaryVariable": "Yerel yürütmede geçici bir değişken oluştur veya güncelle",
+  "action_description_skipActions": "Belirtilen sayıda sonraki eylemi atla",
   "action_description_skipMusic": "Sıradaki şarkıya geç",
   "action_description_slowmode": "Set slowmode duration for a channel",
   "action_description_stop": "Stop the current workflow execution",
@@ -7450,6 +7464,7 @@
   "action_name_getWebhook": "Webhook Getir",
   "action_name_httpRequest": "HTTP İsteği",
   "action_name_ifBlock": "IF / ELSE Bloğu",
+  "action_name_jumpToAction": "Eyleme Atla",
   "action_name_joinVoice": "Ses Kanalına Katıl",
   "action_name_jsonForEachLoop": "JSON For Each Döngüsü",
   "action_name_kickUser": "Kullanıcıyı At",
@@ -7502,6 +7517,7 @@
   "action_name_setNickname": "Takma Ad Belirle",
   "action_name_setScopedVariable": "Kapsamlı Değişken Ata",
   "action_name_setTemporaryVariable": "Geçici Değişken Ata",
+  "action_name_skipActions": "Eylemleri Atla",
   "action_name_skipMusic": "Müziği Geç",
   "action_name_slowmode": "Yavaş Mod",
   "action_name_stop": "Durdur",

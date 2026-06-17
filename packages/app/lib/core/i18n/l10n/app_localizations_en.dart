@@ -475,6 +475,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'Immediately stop the execution of the current workflow';
 
   @override
+  String get action_description_skipActions =>
+      'Skip a specified number of subsequent actions';
+
+  @override
+  String get action_description_jumpToAction =>
+      'Jump to a specific action by key, ID, or position';
+
+  @override
   String get action_description_stopMusic =>
       'Stop playback and clear the queue';
 
@@ -969,6 +977,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get action_name_stop => 'Stop Execution';
+
+  @override
+  String get action_name_skipActions => 'Skip Actions';
+
+  @override
+  String get action_name_jumpToAction => 'Jump to Action';
 
   @override
   String get action_name_stopMusic => 'Stop Music';

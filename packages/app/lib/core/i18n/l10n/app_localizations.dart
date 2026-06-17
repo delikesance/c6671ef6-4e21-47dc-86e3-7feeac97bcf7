@@ -862,6 +862,18 @@ abstract class AppLocalizations {
   /// **'Immediately stop the execution of the current workflow'**
   String get action_description_stop;
 
+  /// Skip Actions
+  ///
+  /// In en, this message translates to:
+  /// **'Skip a specified number of subsequent actions'**
+  String get action_description_skipActions;
+
+  /// Jump to Action
+  ///
+  /// In en, this message translates to:
+  /// **'Jump to a specific action by key, ID, or position'**
+  String get action_description_jumpToAction;
+
   /// Lavalink music key: action_description_stopMusic
   ///
   /// In en, this message translates to:
@@ -1791,6 +1803,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stop Execution'**
   String get action_name_stop;
+
+  /// **'Skip Actions'**
+  String get action_name_skipActions;
+
+  /// **'Jump to Action'**
+  String get action_name_jumpToAction;
 
   /// Lavalink music key: action_name_stopMusic
   ///

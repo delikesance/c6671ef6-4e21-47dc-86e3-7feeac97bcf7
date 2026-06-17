@@ -190,6 +190,22 @@ ActionSummaryData summarizeActionItem(BuildContext context, ActionItem action) {
         outputKey: outputKey,
         isEnabled: action.enabled,
       );
+    case BotCreatorActionType.skipActions:
+      final count = _valueOrEmpty(params['count']);
+      return ActionSummaryData(
+        title: action.type.displayName(context),
+        summary: 'Skip $count action(s)',
+        outputKey: outputKey,
+        isEnabled: action.enabled,
+      );
+    case BotCreatorActionType.jumpToAction:
+      final target = _valueOrEmpty(params['targetKey']);
+      return ActionSummaryData(
+        title: action.type.displayName(context),
+        summary: 'Jump to $target',
+        outputKey: outputKey,
+        isEnabled: action.enabled,
+      );
     case BotCreatorActionType.randomChoice:
       return ActionSummaryData(
         title: action.type.displayName(context),

@@ -905,6 +905,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get action_name_stop => '実行停止';
 
   @override
+  String get action_name_skipActions => 'アクションをスキップ';
+
+  @override
+  String get action_name_jumpToAction => 'アクションにジャンプ';
+
+  @override
   String get action_name_stopMusic => '音楽を停止';
 
   @override

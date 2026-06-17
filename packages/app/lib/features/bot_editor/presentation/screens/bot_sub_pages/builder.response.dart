@@ -684,6 +684,8 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
     switch (type) {
       case BotCreatorActionType.wait:
       case BotCreatorActionType.stop:
+      case BotCreatorActionType.skipActions:
+      case BotCreatorActionType.jumpToAction:
       case BotCreatorActionType.randomChoice:
         return 'Logic & Flow';
       case BotCreatorActionType.respondWithMessage:
@@ -970,6 +972,10 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
         return context.tr.action_description_slowmode;
       case BotCreatorActionType.stop:
         return context.tr.action_description_stop;
+      case BotCreatorActionType.skipActions:
+        return context.tr.action_description_skipActions;
+      case BotCreatorActionType.jumpToAction:
+        return context.tr.action_description_jumpToAction;
       case BotCreatorActionType.randomChoice:
         return context.tr.action_description_randomChoice;
       case BotCreatorActionType.pinMessage:

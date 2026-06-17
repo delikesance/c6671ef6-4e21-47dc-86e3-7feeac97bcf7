@@ -226,6 +226,9 @@
   "@action_description_joinVoice": {
     "description": "Lavalink music key: action_description_joinVoice"
   },
+  "@action_description_jumpToAction": {
+    "description": "Jump to an action"
+  },
   "@action_description_jsonForEachLoop": {
     "description": "Action description for jsonForEachLoop"
   },
@@ -378,6 +381,9 @@
   },
   "@action_description_setTemporaryVariable": {
     "description": "Action description for setTemporaryVariable"
+  },
+  "@action_description_skipActions": {
+    "description": "Skip a number of actions"
   },
   "@action_description_skipMusic": {
     "description": "Lavalink music key: action_description_skipMusic"
@@ -731,6 +737,9 @@
   "@action_name_joinVoice": {
     "description": "Lavalink music key: action_name_joinVoice"
   },
+  "@action_name_jumpToAction": {
+    "description": "Jump to an action"
+  },
   "@action_name_jsonForEachLoop": {
     "description": "JSON For Each Loop"
   },
@@ -883,6 +892,9 @@
   },
   "@action_name_setTemporaryVariable": {
     "description": "Set Temporary Variable"
+  },
+  "@action_name_skipActions": {
+    "description": "Skip N actions"
   },
   "@action_name_skipMusic": {
     "description": "Lavalink music key: action_name_skipMusic"
@@ -7805,6 +7817,7 @@
   "action_description_getWebhook": "Get Webhook information by ID",
   "action_description_httpRequest": "Send HTTP request with dynamic URL, method, headers and body",
   "action_description_ifBlock": "Conditional branching: run different actions based on a condition",
+  "action_description_jumpToAction": "Jump to a specific action by key, ID, or position",
   "action_description_joinVoice": "Join a voice channel",
   "action_description_jsonForEachLoop": "Loop through each element of a JSON array or object (forEach)",
   "action_description_kickUser": "Kick a member from the server",
@@ -7857,6 +7870,7 @@
   "action_description_setNickname": "Change a server member's nickname",
   "action_description_setScopedVariable": "Create or update a scoped variable (guild/user/channel/guildMember/message)",
   "action_description_setTemporaryVariable": "Create or update a temporary variable in local execution",
+  "action_description_skipActions": "Skip a specified number of subsequent actions",
   "action_description_skipMusic": "Skip to the next track in the queue",
   "action_description_slowmode": "Set the slowmode duration for a channel",
   "action_description_stop": "Immediately stop the execution of the current workflow",
@@ -7960,6 +7974,7 @@
   "action_name_getWebhook": "Get Webhook",
   "action_name_httpRequest": "HTTP Request",
   "action_name_ifBlock": "IF / ELSE Block",
+  "action_name_jumpToAction": "Jump to Action",
   "action_name_joinVoice": "Join Voice Channel",
   "action_name_jsonForEachLoop": "JSON For Each Loop",
   "action_name_kickUser": "Kick User",
@@ -8012,6 +8027,7 @@
   "action_name_setNickname": "Set Nickname",
   "action_name_setScopedVariable": "Set Scoped Variable",
   "action_name_setTemporaryVariable": "Set Temporary Variable",
+  "action_name_skipActions": "Skip Actions",
   "action_name_skipMusic": "Skip Music",
   "action_name_slowmode": "Slowmode",
   "action_name_stop": "Stop Execution",

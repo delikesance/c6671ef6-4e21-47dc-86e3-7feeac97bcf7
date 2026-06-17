@@ -109,6 +109,9 @@
   "@action_description_joinVoice": {
     "description": "Lavalink music key: action_description_joinVoice"
   },
+  "@action_description_jumpToAction": {
+    "description": "Jump to an action"
+  },
   "@action_description_kickUser": {
     "description": "Kick a member from the server"
   },
@@ -153,6 +156,9 @@
   },
   "@action_description_setNickname": {
     "description": "Change a server member's nickname"
+  },
+  "@action_description_skipActions": {
+    "description": "Skip a number of actions"
   },
   "@action_description_skipMusic": {
     "description": "Lavalink music key: action_description_skipMusic"
@@ -473,6 +479,9 @@
   "@action_name_joinVoice": {
     "description": "Lavalink music key: action_name_joinVoice"
   },
+  "@action_name_jumpToAction": {
+    "description": "Jump to an action"
+  },
   "@action_name_jsonForEachLoop": {
     "description": "JSON For Each Loop"
   },
@@ -619,6 +628,9 @@
   },
   "@action_name_setTemporaryVariable": {
     "description": "Set Temporary Variable"
+  },
+  "@action_name_skipActions": {
+    "description": "Skip N actions"
   },
   "@action_name_skipMusic": {
     "description": "Lavalink music key: action_name_skipMusic"
@@ -7382,6 +7394,7 @@
   "action_description_getWebhook": "IDでWebhookの情報を取得します",
   "action_description_httpRequest": "動的なURL、メソッド、ヘッダー、ボディでHTTPリクエストを送信します",
   "action_description_ifBlock": "条件分岐：条件に基づいて異なるアクションを実行します",
+  "action_description_jumpToAction": "キー、ID、または位置で特定のアクションにジャンプします",
   "action_description_joinVoice": "ボイスチャンネルに接続します",
   "action_description_jsonForEachLoop": "JSON配列またはオブジェクトの各要素をループします（forEach）",
   "action_description_kickUser": "メンバーをサーバーからキック",
@@ -7434,6 +7447,7 @@
   "action_description_setNickname": "サーバーメンバーのニックネームを変更",
   "action_description_setScopedVariable": "スコープ付き変数（ギルド/ユーザー/チャンネル/メンバー/メッセージ）を作成または更新します",
   "action_description_setTemporaryVariable": "ローカル実行で一時変数を作成または更新します",
+  "action_description_skipActions": "指定された数の後続アクションをスキップします",
   "action_description_skipMusic": "キューの次のトラックに進みます",
   "action_description_slowmode": "チャンネルの低速モード時間を設定",
   "action_description_stop": "現在のワークフローの実行を即座に停止",
@@ -7537,6 +7551,7 @@
   "action_name_getWebhook": "Webhook取得",
   "action_name_httpRequest": "HTTP リクエスト",
   "action_name_ifBlock": "IF / ELSE ブロック",
+  "action_name_jumpToAction": "アクションにジャンプ",
   "action_name_joinVoice": "ボイスチャンネルに参加",
   "action_name_jsonForEachLoop": "JSON For Each ループ",
   "action_name_kickUser": "ユーザーキック",
@@ -7589,6 +7604,7 @@
   "action_name_setNickname": "ニックネーム設定",
   "action_name_setScopedVariable": "スコープ変数設定",
   "action_name_setTemporaryVariable": "一時変数設定",
+  "action_name_skipActions": "アクションをスキップ",
   "action_name_skipMusic": "音楽をスキップ",
   "action_name_slowmode": "低速モード",
   "action_name_stop": "実行停止",

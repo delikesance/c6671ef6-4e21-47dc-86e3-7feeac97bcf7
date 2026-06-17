@@ -109,6 +109,9 @@
   "@action_description_joinVoice": {
     "description": "Lavalink music key: action_description_joinVoice"
   },
+  "@action_description_jumpToAction": {
+    "description": "Jump to an action"
+  },
   "@action_description_kickUser": {
     "description": "Kick a member from the server"
   },
@@ -153,6 +156,9 @@
   },
   "@action_description_setNickname": {
     "description": "Change a server member's nickname"
+  },
+  "@action_description_skipActions": {
+    "description": "Skip a number of actions"
   },
   "@action_description_skipMusic": {
     "description": "Lavalink music key: action_description_skipMusic"
@@ -473,6 +479,9 @@
   "@action_name_joinVoice": {
     "description": "Lavalink music key: action_name_joinVoice"
   },
+  "@action_name_jumpToAction": {
+    "description": "Jump to an action"
+  },
   "@action_name_jsonForEachLoop": {
     "description": "JSON For Each Loop"
   },
@@ -619,6 +628,9 @@
   },
   "@action_name_setTemporaryVariable": {
     "description": "Set Temporary Variable"
+  },
+  "@action_name_skipActions": {
+    "description": "Skip N actions"
   },
   "@action_name_skipMusic": {
     "description": "Lavalink music key: action_name_skipMusic"
@@ -7394,6 +7406,7 @@
   "action_description_getWebhook": "Obtenir les informations d'un Webhook par ID",
   "action_description_httpRequest": "Envoyer une requête HTTP avec URL, méthode, en-têtes et corps dynamiques",
   "action_description_ifBlock": "Branchement conditionnel : exécuter différentes actions selon une condition",
+  "action_description_jumpToAction": "Aller à une action spécifique par clé, ID, ou position",
   "action_description_joinVoice": "Se connecter à un salon vocal",
   "action_description_jsonForEachLoop": "Boucler sur chaque élément d'un tableau ou objet JSON (forEach)",
   "action_description_kickUser": "Expulser un membre du serveur",
@@ -7446,6 +7459,7 @@
   "action_description_setNickname": "Change le surnom d'un membre du serveur",
   "action_description_setScopedVariable": "Créer ou mettre à jour une variable à portée (serveur/utilisateur/salon/membre/message)",
   "action_description_setTemporaryVariable": "Créer ou mettre à jour une variable temporaire dans l'exécution locale",
+  "action_description_skipActions": "Sauter un nombre spécifié d'actions suivantes",
   "action_description_skipMusic": "Passer au morceau suivant dans la file",
   "action_description_slowmode": "Définit la durée du mode lent pour un salon",
   "action_description_stop": "Arrête immédiatement l'exécution du workflow actuel",
@@ -7549,6 +7563,7 @@
   "action_name_getWebhook": "Récupérer un webhook",
   "action_name_httpRequest": "Requête HTTP",
   "action_name_ifBlock": "Bloc SI / SINON",
+  "action_name_jumpToAction": "Aller à l'action",
   "action_name_joinVoice": "Rejoindre un salon vocal",
   "action_name_jsonForEachLoop": "Boucle Pour Chaque JSON",
   "action_name_kickUser": "Expulser un utilisateur",
@@ -7601,6 +7616,7 @@
   "action_name_setNickname": "Changer le surnom",
   "action_name_setScopedVariable": "Définir une variable scopée",
   "action_name_setTemporaryVariable": "Définir une variable temporaire",
+  "action_name_skipActions": "Sauter N actions",
   "action_name_skipMusic": "Passer la musique",
   "action_name_slowmode": "Mode lent",
   "action_name_stop": "Arrêter l'exécution",

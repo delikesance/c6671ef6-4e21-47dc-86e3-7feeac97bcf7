@@ -1648,6 +1648,8 @@ Future<Map<String, String>> handleActions(
         case BotCreatorActionType.setNickname:
         case BotCreatorActionType.slowmode:
         case BotCreatorActionType.stop:
+        case BotCreatorActionType.skipActions:
+        case BotCreatorActionType.jumpToAction:
         case BotCreatorActionType.randomChoice:
         case BotCreatorActionType.registerGuildCommands:
         case BotCreatorActionType.unregisterGuildCommands:
