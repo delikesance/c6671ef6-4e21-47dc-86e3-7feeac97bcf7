@@ -532,6 +532,12 @@ abstract class AppLocalizations {
   /// **'Conditional branching: run different actions based on a condition'**
   String get action_description_ifBlock;
 
+  /// Jump to an action
+  ///
+  /// In en, this message translates to:
+  /// **'Jump to a specific action by key, ID, or position'**
+  String get action_description_jumpToAction;
+
   /// Lavalink music key: action_description_joinVoice
   ///
   /// In en, this message translates to:
@@ -844,6 +850,12 @@ abstract class AppLocalizations {
   /// **'Create or update a temporary variable in local execution'**
   String get action_description_setTemporaryVariable;
 
+  /// Skip a number of actions
+  ///
+  /// In en, this message translates to:
+  /// **'Skip a specified number of subsequent actions'**
+  String get action_description_skipActions;
+
   /// Lavalink music key: action_description_skipMusic
   ///
   /// In en, this message translates to:
@@ -861,18 +873,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Immediately stop the execution of the current workflow'**
   String get action_description_stop;
-
-  /// Skip Actions
-  ///
-  /// In en, this message translates to:
-  /// **'Skip a specified number of subsequent actions'**
-  String get action_description_skipActions;
-
-  /// Jump to Action
-  ///
-  /// In en, this message translates to:
-  /// **'Jump to a specific action by key, ID, or position'**
-  String get action_description_jumpToAction;
 
   /// Lavalink music key: action_description_stopMusic
   ///
@@ -1474,6 +1474,12 @@ abstract class AppLocalizations {
   /// **'IF / ELSE Block'**
   String get action_name_ifBlock;
 
+  /// Jump to an action
+  ///
+  /// In en, this message translates to:
+  /// **'Jump to Action'**
+  String get action_name_jumpToAction;
+
   /// Lavalink music key: action_name_joinVoice
   ///
   /// In en, this message translates to:
@@ -1786,6 +1792,12 @@ abstract class AppLocalizations {
   /// **'Set Temporary Variable'**
   String get action_name_setTemporaryVariable;
 
+  /// Skip N actions
+  ///
+  /// In en, this message translates to:
+  /// **'Skip Actions'**
+  String get action_name_skipActions;
+
   /// Lavalink music key: action_name_skipMusic
   ///
   /// In en, this message translates to:
@@ -1803,12 +1815,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stop Execution'**
   String get action_name_stop;
-
-  /// **'Skip Actions'**
-  String get action_name_skipActions;
-
-  /// **'Jump to Action'**
-  String get action_name_jumpToAction;
 
   /// Lavalink music key: action_name_stopMusic
   ///
@@ -2391,6 +2397,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Paste the token exactly as provided by Discord.'**
   String get app_token_field_helper;
+
+  /// Invalid Token error title
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid Token'**
+  String get app_token_invalid_title;
+
+  /// Invalid Token error content
+  ///
+  /// In en, this message translates to:
+  /// **'The provided Discord token is invalid or has been revoked. We recommend following the tutorial to generate a valid token.'**
+  String get app_token_invalid_content;
 
   /// Once the token is copied, paste it below to add your bot to the app.
   ///

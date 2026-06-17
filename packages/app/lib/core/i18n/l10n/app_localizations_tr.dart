@@ -266,6 +266,10 @@ class AppLocalizationsTr extends AppLocalizations {
       'Koşullu dallanma: bir koşula göre farklı eylemler çalıştır';
 
   @override
+  String get action_description_jumpToAction =>
+      'Anahtar, ID veya konuma göre belirli bir eyleme atla';
+
+  @override
   String get action_description_joinVoice => 'Bir ses kanalına bağlan';
 
   @override
@@ -461,6 +465,10 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get action_description_setTemporaryVariable =>
       'Yerel yürütmede geçici bir değişken oluştur veya güncelle';
+
+  @override
+  String get action_description_skipActions =>
+      'Belirtilen sayıda sonraki eylemi atla';
 
   @override
   String get action_description_skipMusic => 'Sıradaki şarkıya geç';
@@ -805,6 +813,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get action_name_ifBlock => 'IF / ELSE Bloğu';
 
   @override
+  String get action_name_jumpToAction => 'Eyleme Atla';
+
+  @override
   String get action_name_joinVoice => 'Ses Kanalına Katıl';
 
   @override
@@ -962,6 +973,9 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get action_name_setTemporaryVariable => 'Geçici Değişken Ata';
+
+  @override
+  String get action_name_skipActions => 'Eylemleri Atla';
 
   @override
   String get action_name_skipMusic => 'Müziği Geç';
@@ -1311,6 +1325,14 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get app_token_field_helper =>
       'Jetonu tam olarak Discord tarafından sağlandığı şekilde yapıştırın.';
+
+  @override
+  String get app_token_invalid_title => 'Geçersiz Jeton';
+
+  @override
+  String get app_token_invalid_content =>
+      'Sağlanan Discord jetonu geçersiz veya iptal edilmiş. '
+      'Geçerli bir jeton oluşturmak için öğreticiyi takip etmenizi öneririz.';
 
   @override
   String get app_token_section_desc =>

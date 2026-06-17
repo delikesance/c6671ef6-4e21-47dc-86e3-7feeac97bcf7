@@ -271,6 +271,10 @@ class AppLocalizationsDe extends AppLocalizations {
       'Bedingte Verzweigung: Führt je nach Bedingung unterschiedliche Aktionen aus';
 
   @override
+  String get action_description_jumpToAction =>
+      'Zu einer bestimmten Aktion per Schlüssel, ID oder Position springen';
+
+  @override
   String get action_description_joinVoice => 'Einem Sprachkanal beitreten';
 
   @override
@@ -468,6 +472,10 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get action_description_setTemporaryVariable =>
       'Eine temporäre Variable in der lokalen Ausführung erstellen oder aktualisieren';
+
+  @override
+  String get action_description_skipActions =>
+      'Eine bestimmte Anzahl nachfolgender Aktionen überspringen';
 
   @override
   String get action_description_skipMusic =>
@@ -819,6 +827,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get action_name_ifBlock => 'WENN / SONST Block';
 
   @override
+  String get action_name_jumpToAction => 'Zu Aktion springen';
+
+  @override
   String get action_name_joinVoice => 'Sprachkanal beitreten';
 
   @override
@@ -981,6 +992,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get action_name_setTemporaryVariable => 'Temporäre Variable setzen';
 
   @override
+  String get action_name_skipActions => 'Aktionen überspringen';
+
+  @override
   String get action_name_skipMusic => 'Musik überspringen';
 
   @override
@@ -988,12 +1002,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get action_name_stop => 'Stoppen';
-
-  @override
-  String get action_name_skipActions => 'Aktionen überspringen';
-
-  @override
-  String get action_name_jumpToAction => 'Zu Aktion springen';
 
   @override
   String get action_name_stopMusic => 'Musik stoppen';
@@ -1337,7 +1345,15 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get app_token_field_helper =>
-      'Fügen Sie das Token genau so ein, wie es von Discord bereitgestellt wurde.';
+      'Fügen Sie das Token genau so ein, wie von Discord bereitgestellt.';
+
+  @override
+  String get app_token_invalid_title => 'Ungültiges Token';
+
+  @override
+  String get app_token_invalid_content =>
+      'Das angegebene Discord-Token ist ungültig oder wurde widerrufen. '
+      'Wir empfehlen, dem Tutorial zu folgen, um ein gültiges Token zu erstellen.';
 
   @override
   String get app_token_section_desc =>

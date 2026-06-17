@@ -62,12 +62,42 @@ class _AppCreatePageState extends State<AppCreatePage> {
       ],
     );
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return dialog;
-      },
+    showDialog(context: context, builder: (_) => dialog);
+  }
+
+  void _showTokenErrorDialog() {
+    const tutorialUrl =
+        'https://bot-creator.fr/tutorials/setup/security/2025/05/18/how-to-create-a-bot-token-bot-creator.html';
+
+    final dialog = AlertDialog(
+      title: Row(
+        children: [
+          const Icon(Icons.warning_amber_rounded, color: Colors.orange),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(context.tr.app_token_invalid_title),
+          ),
+        ],
+      ),
+      content: Text(context.tr.app_token_invalid_content),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: Text(context.tr.ok),
+        ),
+        FilledButton.icon(
+          onPressed: () {
+            _openExternalPage(tutorialUrl);
+          },
+          icon: const Icon(Icons.open_in_new_rounded, size: 18),
+          label: Text(context.tr.app_open_token_tutorial),
+        ),
+      ],
     );
+
+    showDialog(context: context, builder: (_) => dialog);
   }
 
   Future<void> _saveBot() async {
@@ -154,7 +184,17 @@ class _AppCreatePageState extends State<AppCreatePage> {
     } catch (e) {
       developer.log("Error creating app: $e", name: "AppCreatePage");
       if (mounted) {
-        _showErrorDialog(e.toString());
+        final errorString = e.toString();
+        // Detect invalid token (401 Unauthorized from Discord)
+        final isInvalidToken =
+            errorString.contains('401') ||
+            errorString.contains('Unauthorized') ||
+            errorString.contains('authorized');
+        if (isInvalidToken) {
+          _showTokenErrorDialog();
+        } else {
+          _showErrorDialog(errorString);
+        }
       }
     } finally {
       if (mounted) {

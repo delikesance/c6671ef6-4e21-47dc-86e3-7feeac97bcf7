@@ -999,6 +999,12 @@
   "@app_title": {
     "description": "Bot Creator"
   },
+  "@app_token_invalid_content": {
+    "description": "Token invalid error message with tutorial recommendation"
+  },
+  "@app_token_invalid_title": {
+    "description": "Invalid token error dialog title"
+  },
   "@app_token_field_helper": {
     "description": "Paste the token exactly as provided by Discord."
   },
@@ -7617,6 +7623,8 @@
   "app_sync_manager_manual": "Yerel tut",
   "app_sync_manager_title": "Bot zaten yönetiliyor",
   "app_title": "Bot Creator",
+  "app_token_invalid_content": "Sağlanan Discord jetonu geçersiz veya iptal edilmiş. Geçerli bir jeton oluşturmak için öğreticiyi takip etmenizi öneririz.",
+  "app_token_invalid_title": "Geçersiz Jeton",
   "app_token_field_helper": "Jetonu tam olarak Discord tarafından sağlandığı şekilde yapıştırın.",
   "app_token_section_desc": "Jeton kopyalandıktan sonra, botunuzu uygulamaya eklemek için aşağıya yapıştırın.",
   "app_token_section_title": "Bot jetonunuzu yapıştırın",

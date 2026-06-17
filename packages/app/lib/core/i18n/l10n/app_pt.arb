@@ -999,6 +999,12 @@
   "@app_title": {
     "description": "Bot Creator"
   },
+  "@app_token_invalid_content": {
+    "description": "Token invalid error message with tutorial recommendation"
+  },
+  "@app_token_invalid_title": {
+    "description": "Invalid token error dialog title"
+  },
   "@app_token_field_helper": {
     "description": "Paste the token exactly as provided by Discord."
   },
@@ -7650,6 +7656,8 @@
   "app_sync_manager_manual": "Manter local",
   "app_sync_manager_title": "Bot já gerido",
   "app_title": "Bot Creator",
+  "app_token_invalid_content": "O token Discord fornecido é inválido ou foi revogado. Recomendamos seguir o tutorial para gerar um token válido.",
+  "app_token_invalid_title": "Token inválido",
   "app_token_field_helper": "Cole o token exatamente como fornecido pelo Discord.",
   "app_token_section_desc": "Assim que o token for copiado, cole-o abaixo para adicionar o seu bot à app.",
   "app_token_section_title": "Cole o token do seu bot",

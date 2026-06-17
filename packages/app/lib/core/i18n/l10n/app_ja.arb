@@ -999,6 +999,12 @@
   "@app_title": {
     "description": "Bot Creator"
   },
+  "@app_token_invalid_content": {
+    "description": "Token invalid error message with tutorial recommendation"
+  },
+  "@app_token_invalid_title": {
+    "description": "Invalid token error dialog title"
+  },
   "@app_token_field_helper": {
     "description": "Paste the token exactly as provided by Discord."
   },
@@ -7704,6 +7710,8 @@
   "app_sync_manager_manual": "ローカルに保持",
   "app_sync_manager_title": "ボットは既に管理されています",
   "app_title": "Bot Creator",
+  "app_token_invalid_content": "提供されたDiscordトークンは無効か、取り消されています。有効なトークンを生成するにはチュートリアルに従うことをお勧めします。",
+  "app_token_invalid_title": "無効なトークン",
   "app_token_field_helper": "Discordから提供されたトークンをそのまま貼り付けてください。",
   "app_token_section_desc": "トークンをコピーしたら、以下に貼り付けてボットをアプリに追加します。",
   "app_token_section_title": "ボットトークンを貼り付け",
