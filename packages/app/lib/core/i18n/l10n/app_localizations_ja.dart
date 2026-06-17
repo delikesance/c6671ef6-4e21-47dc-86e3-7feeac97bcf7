@@ -1053,6 +1053,13 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+    @override
+  String get actions_empty_title => 'アクションはまだありません';
+
+  @override
+  String get actions_empty_subtitle => 'アクションを追加してから開いて詳細を設定してください。';
+
+  @override
   String get actions_builder_title => 'アクションビルダー';
 
   @override

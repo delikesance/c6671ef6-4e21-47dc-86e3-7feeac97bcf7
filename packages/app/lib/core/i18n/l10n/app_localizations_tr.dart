@@ -1132,6 +1132,13 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+    @override
+  String get actions_empty_title => 'Henüz eylem yok';
+
+  @override
+  String get actions_empty_subtitle => 'Bir eylem ekleyin, ardından ayrıntıları yapılandırmak için açın.';
+
+  @override
   String get actions_builder_title => 'Eylem Oluşturucu';
 
   @override

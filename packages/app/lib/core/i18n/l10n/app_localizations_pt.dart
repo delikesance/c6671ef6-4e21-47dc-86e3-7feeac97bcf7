@@ -1149,6 +1149,13 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
+    @override
+  String get actions_empty_title => 'Nenhuma ação';
+
+  @override
+  String get actions_empty_subtitle => 'Adicione uma ação e depois abra-a para configurar os detalhes.';
+
+  @override
   String get actions_builder_title => 'Construtor de Ações';
 
   @override
