@@ -9556,5 +9556,93 @@
   "workflows_type_event_desc": "Discord bir etkinlik yayınladığında otomatik olarak tepki verir.",
   "workflows_type_general": "Genel iş akışı",
   "workflows_type_general_desc": "Komutlardan, düğmelerden, modallardan veya diğer iş akışlarından çağrılan yeniden kullanılabilir mantık.",
-  "workflows_type_title": "İş akışı türü"
+  "workflows_type_title": "İş akışı türü",
+  "bot_config_versions_empty": "Önceki sürüm bulunamadı",
+  "@bot_config_versions_empty": {
+    "description": "No versions found message"
+  },
+  "bot_config_versions_error": "Sürümler yüklenemedi",
+  "@bot_config_versions_error": {
+    "description": "Failed to load versions error"
+  },
+  "bot_config_versions_restore": "Geri Yükle",
+  "@bot_config_versions_restore": {
+    "description": "Restore version button"
+  },
+  "bot_config_versions_restore_confirm": "Bu sürüm geri yüklensin mi? Mevcut yapılandırmanız önce yedeklenecek.",
+  "@bot_config_versions_restore_confirm": {
+    "description": "Confirmation dialog message"
+  },
+  "bot_config_versions_restore_error": "Sürüm geri yüklenemedi",
+  "@bot_config_versions_restore_error": {
+    "description": "Failed to restore version error"
+  },
+  "bot_config_versions_restored": "Yapılandırma başarıyla geri yüklendi!",
+  "@bot_config_versions_restored": {
+    "description": "Version restored success message"
+  },
+  "bot_config_versions_title": "Sürüm Geçmişi",
+  "@bot_config_versions_title": {
+    "description": "Version history page title"
+  },
+  "bot_home_pull": "Buluttan İndir",
+  "@bot_home_pull": {
+    "description": "Pull App"
+  },
+  "bot_home_pull_dialog_changes": "Uygulanacak değişiklikler:",
+  "@bot_home_pull_dialog_changes": {
+    "description": "Pull dialog: changes to apply header"
+  },
+  "bot_home_pull_dialog_local": "Yerel (Cihaz)",
+  "@bot_home_pull_dialog_local": {
+    "description": "Pull dialog: local device label"
+  },
+  "bot_home_pull_dialog_local_only": "yalnızca yerel (saklandı)",
+  "@bot_home_pull_dialog_local_only": {
+    "description": "Pull dialog: local-only count label"
+  },
+  "bot_home_pull_dialog_local_preserved": "Bulutta olmayan yerel komut(lar) korunacak.",
+  "@bot_home_pull_dialog_local_preserved": {
+    "description": "Pull dialog: local commands will be preserved notice"
+  },
+  "bot_home_pull_dialog_new_commands": "yeni komut(lar)",
+  "@bot_home_pull_dialog_new_commands": {
+    "description": "Pull dialog: new commands count label"
+  },
+  "bot_home_pull_dialog_remote": "Uzak (Bulut)",
+  "@bot_home_pull_dialog_remote": {
+    "description": "Pull dialog: remote cloud label"
+  },
+  "bot_home_pull_dialog_unchanged": "değişmedi",
+  "@bot_home_pull_dialog_unchanged": {
+    "description": "Pull dialog: unchanged count label"
+  },
+  "bot_home_pull_dialog_up_to_date": "Zaten güncel — değişiklik gerekmiyor.",
+  "@bot_home_pull_dialog_up_to_date": {
+    "description": "Pull dialog: already up to date message"
+  },
+  "bot_home_pull_dialog_updated_commands": "güncellenen komut(lar)",
+  "@bot_home_pull_dialog_updated_commands": {
+    "description": "Pull dialog: updated commands count label"
+  },
+  "bot_home_pull_success": "Uygulama buluttan başarıyla indirildi",
+  "@bot_home_pull_success": {
+    "description": "App pulled successfully"
+  },
+  "bot_home_push": "Buluta Gönder",
+  "@bot_home_push": {
+    "description": "Push App"
+  },
+  "bot_home_push_refused_empty": "Push reddedildi: Yerel yapılandırma boş veya bozuk. Komutlarınızı kontrol edin.",
+  "@bot_home_push_refused_empty": {
+    "description": "Push refused: config empty or corrupted"
+  },
+  "bot_home_push_success": "Uygulama buluta başarıyla gönderildi",
+  "@bot_home_push_success": {
+    "description": "App pushed successfully"
+  },
+  "bot_home_version_history": "Sürüm Geçmişi",
+  "@bot_home_version_history": {
+    "description": "Version history action button"
+  }
 }

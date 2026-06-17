@@ -917,6 +917,23 @@ class MainApiClient implements RemoteRuntimeClient {
     }
   }
 
+  /// Lists available config versions for a bot from R2 storage.
+  Future<List<Map<String, dynamic>>> getBotConfigVersions(String botId) async {
+    final encodedBotId = Uri.encodeComponent(botId.trim());
+    final response = await _get('/gateway/bots/$encodedBotId/versions');
+    return (response as List).map((e) => Map<String, dynamic>.from(e)).toList();
+  }
+
+  /// Restores a previous config version from the version history.
+  Future<bool> restoreBotConfigVersion(String botId, String versionKey) async {
+    final encodedBotId = Uri.encodeComponent(botId.trim());
+    final response = await _post(
+      '/gateway/bots/$encodedBotId/versions/restore',
+      {'key': versionKey},
+    );
+    return response['ok'] == true;
+  }
+
   @override
   Future<Map<String, dynamic>> getRunnerInfo() async {
     return _get('/gateway/runner');

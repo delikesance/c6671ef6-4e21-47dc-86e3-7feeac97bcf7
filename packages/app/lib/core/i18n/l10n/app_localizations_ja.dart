@@ -1568,6 +1568,74 @@ class AppLocalizationsJa extends AppLocalizations {
   String get bot_home_sync_success => 'アプリが正常に同期されました';
 
   @override
+  String get bot_home_pull => 'クラウドからダウンロード';
+
+  @override
+  String get bot_home_push => 'クラウドにアップロード';
+
+  @override
+  String get bot_home_pull_success => 'アプリをクラウドから正常にダウンロードしました';
+
+  @override
+  String get bot_home_push_success => 'アプリをクラウドに正常にアップロードしました';
+
+  @override
+  String get bot_home_version_history => 'バージョン履歴';
+
+  @override
+  String get bot_config_versions_title => 'バージョン履歴';
+
+  @override
+  String get bot_config_versions_empty => '以前のバージョンは見つかりません';
+
+  @override
+  String get bot_config_versions_restore => '復元';
+
+  @override
+  String get bot_config_versions_restore_confirm =>
+      'このバージョンを復元しますか？現在の設定は先にバックアップされます。';
+
+  @override
+  String get bot_config_versions_restored => '設定が正常に復元されました！';
+
+  @override
+  String get bot_config_versions_error => 'バージョンの読み込みに失敗しました';
+
+  @override
+  String get bot_config_versions_restore_error => 'バージョンの復元に失敗しました';
+
+  @override
+  String get bot_home_pull_dialog_changes => '適用する変更:';
+
+  @override
+  String get bot_home_pull_dialog_local => 'ローカル (端末)';
+
+  @override
+  String get bot_home_pull_dialog_local_only => 'ローカルのみ (保持)';
+
+  @override
+  String get bot_home_pull_dialog_local_preserved => 'クラウドにないローカルコマンドは保持されます。';
+
+  @override
+  String get bot_home_pull_dialog_new_commands => '新しいコマンド';
+
+  @override
+  String get bot_home_pull_dialog_remote => 'リモート (クラウド)';
+
+  @override
+  String get bot_home_pull_dialog_unchanged => '変更なし';
+
+  @override
+  String get bot_home_pull_dialog_up_to_date => '既に最新です — 変更は必要ありません。';
+
+  @override
+  String get bot_home_pull_dialog_updated_commands => '更新されたコマンド';
+
+  @override
+  String get bot_home_push_refused_empty =>
+      'プッシュ拒否: ローカル設定が空または破損しています。コマンドを確認してください。';
+
+  @override
   String get bot_home_token_invalid_content =>
       '提供されたトークンでDiscordに接続できません。無効か失効している可能性があります。';
 

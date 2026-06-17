@@ -3031,6 +3031,138 @@ abstract class AppLocalizations {
   /// **'App synced successfully'**
   String get bot_home_sync_success;
 
+  /// Pull App
+  ///
+  /// In en, this message translates to:
+  /// **'Pull from Cloud'**
+  String get bot_home_pull;
+
+  /// Push App
+  ///
+  /// In en, this message translates to:
+  /// **'Push to Cloud'**
+  String get bot_home_push;
+
+  /// App pulled successfully
+  ///
+  /// In en, this message translates to:
+  /// **'App pulled from cloud successfully'**
+  String get bot_home_pull_success;
+
+  /// App pushed successfully
+  ///
+  /// In en, this message translates to:
+  /// **'App pushed to cloud successfully'**
+  String get bot_home_push_success;
+
+  /// Version history action button
+  ///
+  /// In en, this message translates to:
+  /// **'Version History'**
+  String get bot_home_version_history;
+
+  /// Version history page title
+  ///
+  /// In en, this message translates to:
+  /// **'Version History'**
+  String get bot_config_versions_title;
+
+  /// No versions found message
+  ///
+  /// In en, this message translates to:
+  /// **'No previous versions found'**
+  String get bot_config_versions_empty;
+
+  /// Restore version button
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get bot_config_versions_restore;
+
+  /// Confirmation dialog message
+  ///
+  /// In en, this message translates to:
+  /// **'Restore this version? Your current config will be backed up first.'**
+  String get bot_config_versions_restore_confirm;
+
+  /// Version restored success message
+  ///
+  /// In en, this message translates to:
+  /// **'Configuration restored successfully!'**
+  String get bot_config_versions_restored;
+
+  /// Failed to load versions error
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load versions'**
+  String get bot_config_versions_error;
+
+  /// Failed to restore version error
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to restore version'**
+  String get bot_config_versions_restore_error;
+
+  /// Pull dialog: changes to apply header
+  ///
+  /// In en, this message translates to:
+  /// **'Changes to apply:'**
+  String get bot_home_pull_dialog_changes;
+
+  /// Pull dialog: local device label
+  ///
+  /// In en, this message translates to:
+  /// **'Local (Device)'**
+  String get bot_home_pull_dialog_local;
+
+  /// Pull dialog: local-only count label
+  ///
+  /// In en, this message translates to:
+  /// **'local-only (kept)'**
+  String get bot_home_pull_dialog_local_only;
+
+  /// Pull dialog: local commands will be preserved notice
+  ///
+  /// In en, this message translates to:
+  /// **'local command(s) not on remote will be preserved.'**
+  String get bot_home_pull_dialog_local_preserved;
+
+  /// Pull dialog: new commands count label
+  ///
+  /// In en, this message translates to:
+  /// **'new command(s)'**
+  String get bot_home_pull_dialog_new_commands;
+
+  /// Pull dialog: remote cloud label
+  ///
+  /// In en, this message translates to:
+  /// **'Remote (Cloud)'**
+  String get bot_home_pull_dialog_remote;
+
+  /// Pull dialog: unchanged count label
+  ///
+  /// In en, this message translates to:
+  /// **'unchanged'**
+  String get bot_home_pull_dialog_unchanged;
+
+  /// Pull dialog: already up to date message
+  ///
+  /// In en, this message translates to:
+  /// **'Already up to date — no changes needed.'**
+  String get bot_home_pull_dialog_up_to_date;
+
+  /// Pull dialog: updated commands count label
+  ///
+  /// In en, this message translates to:
+  /// **'updated command(s)'**
+  String get bot_home_pull_dialog_updated_commands;
+
+  /// Push refused: config empty or corrupted
+  ///
+  /// In en, this message translates to:
+  /// **'Refusing to push: local config is empty or corrupted. Check your commands.'**
+  String get bot_home_push_refused_empty;
+
   /// Unable to connect to Discord with the provided token. It may be invalid or revoked. Do you want to start the bot anyway?
   ///
   /// In en, this message translates to:

@@ -1310,6 +1310,72 @@
   "@bot_home_sync_success": {
     "description": "App synced successfully"
   },
+  "@bot_home_pull": {
+    "description": "Pull App"
+  },
+  "@bot_home_push": {
+    "description": "Push App"
+  },
+  "@bot_home_pull_success": {
+    "description": "App pulled successfully"
+  },
+  "@bot_home_push_success": {
+    "description": "App pushed successfully"
+  },
+  "@bot_home_version_history": {
+    "description": "Version history action button"
+  },
+  "@bot_config_versions_title": {
+    "description": "Version history page title"
+  },
+  "@bot_config_versions_empty": {
+    "description": "No versions found message"
+  },
+  "@bot_config_versions_restore": {
+    "description": "Restore version button"
+  },
+  "@bot_config_versions_restore_confirm": {
+    "description": "Confirmation dialog message"
+  },
+  "@bot_config_versions_restored": {
+    "description": "Version restored success message"
+  },
+  "@bot_config_versions_error": {
+    "description": "Failed to load versions error"
+  },
+  "@bot_config_versions_restore_error": {
+    "description": "Failed to restore version error"
+  },
+  "@bot_home_pull_dialog_changes": {
+    "description": "Pull dialog: changes to apply header"
+  },
+  "@bot_home_pull_dialog_local": {
+    "description": "Pull dialog: local device label"
+  },
+  "@bot_home_pull_dialog_local_only": {
+    "description": "Pull dialog: local-only count label"
+  },
+  "@bot_home_pull_dialog_local_preserved": {
+    "description": "Pull dialog: local commands will be preserved notice"
+  },
+  "@bot_home_pull_dialog_new_commands": {
+    "description": "Pull dialog: new commands count label"
+  },
+  "@bot_home_pull_dialog_remote": {
+    "description": "Pull dialog: remote cloud label"
+  },
+  "@bot_home_pull_dialog_unchanged": {
+    "description": "Pull dialog: unchanged count label"
+  },
+  "@bot_home_pull_dialog_up_to_date": {
+    "description": "Pull dialog: already up to date message"
+  },
+  "@bot_home_pull_dialog_updated_commands": {
+    "description": "Pull dialog: updated commands count label"
+  },
+  "@bot_home_push_refused_empty": {
+    "description": "Push refused: config empty or corrupted"
+  },
   "@bot_home_token_invalid_content": {
     "description": "Unable to connect to Discord with the provided token. It may be invalid or revoked. Do you want to start the bot anyway?"
   },
@@ -7736,6 +7802,28 @@
   "bot_home_stop": "Arrêter le bot",
   "bot_home_sync": "Synchroniser l'app",
   "bot_home_sync_success": "Application synchronisée avec succès",
+  "bot_home_pull": "Télécharger du Cloud",
+  "bot_home_push": "Envoyer vers le Cloud",
+  "bot_home_pull_success": "Application téléchargée du cloud avec succès",
+  "bot_home_push_success": "Application envoyée vers le cloud avec succès",
+  "bot_home_version_history": "Historique des versions",
+  "bot_config_versions_title": "Historique des versions",
+  "bot_config_versions_empty": "Aucune version précédente trouvée",
+  "bot_config_versions_restore": "Restaurer",
+  "bot_config_versions_restore_confirm": "Restaurer cette version ? Votre configuration actuelle sera sauvegardée d'abord.",
+  "bot_config_versions_restored": "Configuration restaurée avec succès !",
+  "bot_config_versions_error": "Échec du chargement des versions",
+  "bot_config_versions_restore_error": "Échec de la restauration de la version",
+  "bot_home_pull_dialog_changes": "Changements à appliquer :",
+  "bot_home_pull_dialog_local": "Local (Appareil)",
+  "bot_home_pull_dialog_local_only": "locale(s) uniquement (conservée(s))",
+  "bot_home_pull_dialog_local_preserved": "commande(s) locale(s) absente(s) du cloud seront conservée(s).",
+  "bot_home_pull_dialog_new_commands": "nouvelle(s) commande(s)",
+  "bot_home_pull_dialog_remote": "Distant (Cloud)",
+  "bot_home_pull_dialog_unchanged": "inchangée(s)",
+  "bot_home_pull_dialog_up_to_date": "Déjà à jour — aucun changement nécessaire.",
+  "bot_home_pull_dialog_updated_commands": "commande(s) mise(s) à jour",
+  "bot_home_push_refused_empty": "Push refusé : la configuration locale est vide ou corrompue. Vérifiez vos commandes.",
   "bot_home_token_invalid_content": "Impossible de se connecter a Discord avec le token fourni. Il est peut-etre invalide ou revoque. Voulez-vous quand meme lancer le bot ?",
   "bot_home_token_invalid_title": "Token apparemment invalide",
   "bot_home_view_logs": "Voir les logs du bot",

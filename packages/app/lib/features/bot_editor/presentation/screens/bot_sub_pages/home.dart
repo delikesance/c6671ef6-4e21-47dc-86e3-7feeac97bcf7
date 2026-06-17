@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:bot_creator/core/network/runner_settings.dart';
@@ -7,10 +8,10 @@ import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/bot_logs.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/bot_stats.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/debug_replay_page.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_config_versions_page.dart';
 import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
-import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
 import 'package:bot_creator/features/ads/logic/ad_reward_service.dart';
@@ -72,7 +73,8 @@ class _AppHomePageState extends State<AppHomePage>
   bool _botStarting = false;
   int? _freeMinutesBalance;
   bool _isAddingTime = false;
-  bool _isSyncingApp = false;
+  bool _isPushingApp = false;
+  bool _isPullingApp = false;
   void _setState(VoidCallback fn) {
     if (mounted) setState(fn);
   }
@@ -487,13 +489,14 @@ class _AppHomePageState extends State<AppHomePage>
                         title: context.tr.bot_home_section_tools,
                         children: [
                           _buildActionTile(
-                            icon: Icons.sync,
-                            label: context.tr.bot_home_sync,
+                            icon: Icons.cloud_download,
+                            label: context.tr.bot_home_pull,
+                            iconColor: AppTheme.info,
                             onTap:
-                                _isSyncingApp
+                                _isPullingApp
                                     ? null
                                     : () async {
-                                      await _syncAppFromRemote(showSnack: true);
+                                      await _pullFromRemote(showSnack: true);
                                       unawaited(
                                         refreshBotRuntime(
                                           widget.client.user.id.toString(),
@@ -501,7 +504,7 @@ class _AppHomePageState extends State<AppHomePage>
                                       );
                                     },
                             trailing:
-                                _isSyncingApp
+                                _isPullingApp
                                     ? const SizedBox(
                                       width: 18,
                                       height: 18,
@@ -510,6 +513,59 @@ class _AppHomePageState extends State<AppHomePage>
                                       ),
                                     )
                                     : null,
+                          ),
+                          _buildActionTile(
+                            icon: Icons.cloud_upload,
+                            label: context.tr.bot_home_push,
+                            iconColor: AppTheme.success,
+                            onTap:
+                                _isPushingApp
+                                    ? null
+                                    : () async {
+                                      await _pushToRemote(showSnack: true);
+                                      unawaited(
+                                        refreshBotRuntime(
+                                          widget.client.user.id.toString(),
+                                        ),
+                                      );
+                                    },
+                            trailing:
+                                _isPushingApp
+                                    ? const SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                    : null,
+                          ),
+                          _buildActionTile(
+                            icon: Icons.history,
+                            label: context.tr.bot_home_version_history,
+                            iconColor: AppTheme.grey,
+                            onTap: () async {
+                              final botId = widget.client.user.id.toString();
+                              final app = await appManager.getApp(botId);
+                              final token = (app['token'] ?? '').toString().trim();
+                              if (token.isEmpty) return;
+
+                              if (!mounted) return;
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => BotConfigVersionsPage(
+                                    botId: botId,
+                                    botToken: token,
+                                    resolveClient: (id, tok) => _resolveMainApiClientForBot(
+                                      botId: id,
+                                      botToken: tok,
+                                      attemptSessionRestore: true,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                           _buildActionTile(
                             icon: Icons.person_add,

@@ -9589,5 +9589,93 @@
   "workflows_type_event_desc": "Reage automaticamente quando o Discord emite um evento.",
   "workflows_type_general": "Workflow geral",
   "workflows_type_general_desc": "Lógica reutilizável chamada por comandos, botões, modais ou outros workflows.",
-  "workflows_type_title": "Tipo de Workflow"
+  "workflows_type_title": "Tipo de Workflow",
+  "bot_config_versions_empty": "Nenhuma versão anterior encontrada",
+  "@bot_config_versions_empty": {
+    "description": "No versions found message"
+  },
+  "bot_config_versions_error": "Falha ao carregar versões",
+  "@bot_config_versions_error": {
+    "description": "Failed to load versions error"
+  },
+  "bot_config_versions_restore": "Restaurar",
+  "@bot_config_versions_restore": {
+    "description": "Restore version button"
+  },
+  "bot_config_versions_restore_confirm": "Restaurar esta versão? Sua configuração atual será salva primeiro.",
+  "@bot_config_versions_restore_confirm": {
+    "description": "Confirmation dialog message"
+  },
+  "bot_config_versions_restore_error": "Falha ao restaurar versão",
+  "@bot_config_versions_restore_error": {
+    "description": "Failed to restore version error"
+  },
+  "bot_config_versions_restored": "Configuração restaurada com sucesso!",
+  "@bot_config_versions_restored": {
+    "description": "Version restored success message"
+  },
+  "bot_config_versions_title": "Histórico de Versões",
+  "@bot_config_versions_title": {
+    "description": "Version history page title"
+  },
+  "bot_home_pull": "Baixar da Nuvem",
+  "@bot_home_pull": {
+    "description": "Pull App"
+  },
+  "bot_home_pull_dialog_changes": "Alterações a aplicar:",
+  "@bot_home_pull_dialog_changes": {
+    "description": "Pull dialog: changes to apply header"
+  },
+  "bot_home_pull_dialog_local": "Local (Dispositivo)",
+  "@bot_home_pull_dialog_local": {
+    "description": "Pull dialog: local device label"
+  },
+  "bot_home_pull_dialog_local_only": "apenas local (mantido)",
+  "@bot_home_pull_dialog_local_only": {
+    "description": "Pull dialog: local-only count label"
+  },
+  "bot_home_pull_dialog_local_preserved": "Comando(s) local(is) ausente(s) da nuvem serão preservado(s).",
+  "@bot_home_pull_dialog_local_preserved": {
+    "description": "Pull dialog: local commands will be preserved notice"
+  },
+  "bot_home_pull_dialog_new_commands": "novo(s) comando(s)",
+  "@bot_home_pull_dialog_new_commands": {
+    "description": "Pull dialog: new commands count label"
+  },
+  "bot_home_pull_dialog_remote": "Remoto (Nuvem)",
+  "@bot_home_pull_dialog_remote": {
+    "description": "Pull dialog: remote cloud label"
+  },
+  "bot_home_pull_dialog_unchanged": "inalterado(s)",
+  "@bot_home_pull_dialog_unchanged": {
+    "description": "Pull dialog: unchanged count label"
+  },
+  "bot_home_pull_dialog_up_to_date": "Já está atualizado — nenhuma alteração necessária.",
+  "@bot_home_pull_dialog_up_to_date": {
+    "description": "Pull dialog: already up to date message"
+  },
+  "bot_home_pull_dialog_updated_commands": "comando(s) atualizado(s)",
+  "@bot_home_pull_dialog_updated_commands": {
+    "description": "Pull dialog: updated commands count label"
+  },
+  "bot_home_pull_success": "App baixado da nuvem com sucesso",
+  "@bot_home_pull_success": {
+    "description": "App pulled successfully"
+  },
+  "bot_home_push": "Enviar para a Nuvem",
+  "@bot_home_push": {
+    "description": "Push App"
+  },
+  "bot_home_push_refused_empty": "Push recusado: configuração local vazia ou corrompida. Verifique seus comandos.",
+  "@bot_home_push_refused_empty": {
+    "description": "Push refused: config empty or corrupted"
+  },
+  "bot_home_push_success": "App enviado para a nuvem com sucesso",
+  "@bot_home_push_success": {
+    "description": "App pushed successfully"
+  },
+  "bot_home_version_history": "Histórico de Versões",
+  "@bot_home_version_history": {
+    "description": "Version history action button"
+  }
 }

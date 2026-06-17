@@ -226,7 +226,6 @@ extension _AppHomePageLogic on _AppHomePageState {
     );
 
     unawaited(_refreshFreeRuntimeBalance());
-    unawaited(_syncAppFromRemote(showSnack: false));
     appendBotDebugLog('[AppHome._init] Init completed for botId=$botId.');
   }
 
@@ -292,13 +291,6 @@ extension _AppHomePageLogic on _AppHomePageState {
       }
 
       if (!_botLaunched) {
-        // Retrieve latest config from manager (basic sync) before launch
-        try {
-          appendBotDebugLog('[_toggleBotLaunchState] Fetching latest config from manager before launch...');
-          await _syncAppFromRemote(showSnack: false);
-        } catch (e) {
-          appendBotDebugLog('[_toggleBotLaunchState] Pre-launch config sync failed/skipped: $e');
-        }
 
         if (remoteRuntime.client == null) {
           try {

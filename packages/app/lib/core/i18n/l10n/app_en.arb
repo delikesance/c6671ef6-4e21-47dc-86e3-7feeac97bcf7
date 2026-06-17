@@ -1574,6 +1574,72 @@
   "@bot_home_sync_success": {
     "description": "App synced successfully"
   },
+  "@bot_home_pull": {
+    "description": "Pull App"
+  },
+  "@bot_home_push": {
+    "description": "Push App"
+  },
+  "@bot_home_pull_success": {
+    "description": "App pulled successfully"
+  },
+  "@bot_home_push_success": {
+    "description": "App pushed successfully"
+  },
+  "@bot_home_version_history": {
+    "description": "Version history action button"
+  },
+  "@bot_config_versions_title": {
+    "description": "Version history page title"
+  },
+  "@bot_config_versions_empty": {
+    "description": "No versions found message"
+  },
+  "@bot_config_versions_restore": {
+    "description": "Restore version button"
+  },
+  "@bot_config_versions_restore_confirm": {
+    "description": "Confirmation dialog message"
+  },
+  "@bot_config_versions_restored": {
+    "description": "Version restored success message"
+  },
+  "@bot_config_versions_error": {
+    "description": "Failed to load versions error"
+  },
+  "@bot_config_versions_restore_error": {
+    "description": "Failed to restore version error"
+  },
+  "@bot_home_pull_dialog_changes": {
+    "description": "Pull dialog: changes to apply header"
+  },
+  "@bot_home_pull_dialog_local": {
+    "description": "Pull dialog: local device label"
+  },
+  "@bot_home_pull_dialog_local_only": {
+    "description": "Pull dialog: local-only count label"
+  },
+  "@bot_home_pull_dialog_local_preserved": {
+    "description": "Pull dialog: local commands will be preserved notice"
+  },
+  "@bot_home_pull_dialog_new_commands": {
+    "description": "Pull dialog: new commands count label"
+  },
+  "@bot_home_pull_dialog_remote": {
+    "description": "Pull dialog: remote cloud label"
+  },
+  "@bot_home_pull_dialog_unchanged": {
+    "description": "Pull dialog: unchanged count label"
+  },
+  "@bot_home_pull_dialog_up_to_date": {
+    "description": "Pull dialog: already up to date message"
+  },
+  "@bot_home_pull_dialog_updated_commands": {
+    "description": "Pull dialog: updated commands count label"
+  },
+  "@bot_home_push_refused_empty": {
+    "description": "Push refused: config empty or corrupted"
+  },
   "@bot_home_token_invalid_content": {
     "description": "Unable to connect to Discord with the provided token. It may be invalid or revoked. Do you want to start the bot anyway?"
   },
@@ -8147,6 +8213,28 @@
   "bot_home_stop": "Stop Bot",
   "bot_home_sync": "Sync App",
   "bot_home_sync_success": "App synced successfully",
+  "bot_home_pull": "Pull from Cloud",
+  "bot_home_push": "Push to Cloud",
+  "bot_home_pull_success": "App pulled from cloud successfully",
+  "bot_home_push_success": "App pushed to cloud successfully",
+  "bot_home_version_history": "Version History",
+  "bot_config_versions_title": "Version History",
+  "bot_config_versions_empty": "No previous versions found",
+  "bot_config_versions_restore": "Restore",
+  "bot_config_versions_restore_confirm": "Restore this version? Your current config will be backed up first.",
+  "bot_config_versions_restored": "Configuration restored successfully!",
+  "bot_config_versions_error": "Failed to load versions",
+  "bot_config_versions_restore_error": "Failed to restore version",
+  "bot_home_pull_dialog_changes": "Changes to apply:",
+  "bot_home_pull_dialog_local": "Local (Device)",
+  "bot_home_pull_dialog_local_only": "local-only (kept)",
+  "bot_home_pull_dialog_local_preserved": "local command(s) not on remote will be preserved.",
+  "bot_home_pull_dialog_new_commands": "new command(s)",
+  "bot_home_pull_dialog_remote": "Remote (Cloud)",
+  "bot_home_pull_dialog_unchanged": "unchanged",
+  "bot_home_pull_dialog_up_to_date": "Already up to date — no changes needed.",
+  "bot_home_pull_dialog_updated_commands": "updated command(s)",
+  "bot_home_push_refused_empty": "Refusing to push: local config is empty or corrupted. Check your commands.",
   "bot_home_token_invalid_content": "Unable to connect to Discord with the provided token. It may be invalid or revoked. Do you want to start the bot anyway?",
   "bot_home_token_invalid_title": "Token seems invalid",
   "bot_home_view_logs": "View bot logs",

@@ -1689,6 +1689,82 @@ class AppLocalizationsFr extends AppLocalizations {
   String get bot_home_sync_success => 'Application synchronisée avec succès';
 
   @override
+  String get bot_home_pull => 'Télécharger du Cloud';
+
+  @override
+  String get bot_home_push => 'Envoyer vers le Cloud';
+
+  @override
+  String get bot_home_pull_success =>
+      'Application téléchargée du cloud avec succès';
+
+  @override
+  String get bot_home_push_success =>
+      'Application envoyée vers le cloud avec succès';
+
+  @override
+  String get bot_home_version_history => 'Historique des versions';
+
+  @override
+  String get bot_config_versions_title => 'Historique des versions';
+
+  @override
+  String get bot_config_versions_empty => 'Aucune version précédente trouvée';
+
+  @override
+  String get bot_config_versions_restore => 'Restaurer';
+
+  @override
+  String get bot_config_versions_restore_confirm =>
+      'Restaurer cette version ? Votre configuration actuelle sera sauvegardée d\'abord.';
+
+  @override
+  String get bot_config_versions_restored =>
+      'Configuration restaurée avec succès !';
+
+  @override
+  String get bot_config_versions_error => 'Échec du chargement des versions';
+
+  @override
+  String get bot_config_versions_restore_error =>
+      'Échec de la restauration de la version';
+
+  @override
+  String get bot_home_pull_dialog_changes => 'Changements à appliquer :';
+
+  @override
+  String get bot_home_pull_dialog_local => 'Local (Appareil)';
+
+  @override
+  String get bot_home_pull_dialog_local_only =>
+      'locale(s) uniquement (conservée(s))';
+
+  @override
+  String get bot_home_pull_dialog_local_preserved =>
+      'commande(s) locale(s) absente(s) du cloud seront conservée(s).';
+
+  @override
+  String get bot_home_pull_dialog_new_commands => 'nouvelle(s) commande(s)';
+
+  @override
+  String get bot_home_pull_dialog_remote => 'Distant (Cloud)';
+
+  @override
+  String get bot_home_pull_dialog_unchanged => 'inchangée(s)';
+
+  @override
+  String get bot_home_pull_dialog_up_to_date =>
+      'Déjà à jour — aucun changement nécessaire.';
+
+  @override
+  String get bot_home_pull_dialog_updated_commands =>
+      'commande(s) mise(s) à jour';
+
+  @override
+  String get bot_home_push_refused_empty =>
+      'Push refusé : la configuration locale est vide ou corrompue. Vérifiez vos commandes.';
+
+  @override
   String get bot_home_token_invalid_content =>
       'Impossible de se connecter a Discord avec le token fourni. Il est peut-etre invalide ou revoque. Voulez-vous quand meme lancer le bot ?';
 
