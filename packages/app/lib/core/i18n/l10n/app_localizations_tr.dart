@@ -1323,16 +1323,15 @@ class AppLocalizationsTr extends AppLocalizations {
   String get app_title => 'Bot Creator';
 
   @override
-  String get app_token_field_helper =>
-      'Jetonu tam olarak Discord tarafından sağlandığı şekilde yapıştırın.';
+  String get app_token_invalid_content =>
+      'Sağlanan Discord jetonu geçersiz veya iptal edilmiş. Geçerli bir jeton oluşturmak için öğreticiyi takip etmenizi öneririz.';
 
   @override
   String get app_token_invalid_title => 'Geçersiz Jeton';
 
   @override
-  String get app_token_invalid_content =>
-      'Sağlanan Discord jetonu geçersiz veya iptal edilmiş. '
-      'Geçerli bir jeton oluşturmak için öğreticiyi takip etmenizi öneririz.';
+  String get app_token_field_helper =>
+      'Jetonu tam olarak Discord tarafından sağlandığı şekilde yapıştırın.';
 
   @override
   String get app_token_section_desc =>
@@ -2182,6 +2181,18 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get cmd_delete_tooltip => 'Komut sil';
+
+  @override
+  String get cmd_delete_confirm => '"{name}" komutu silinsin mi?';
+
+  @override
+  String get cmd_delete_success => '"{name}" komutu silindi';
+
+  @override
+  String get cmd_batch_delete_confirm => '{count} komut silinsin mi?';
+
+  @override
+  String get cmd_batch_delete_success => '{count} komut silindi';
 
   @override
   String get cmd_deploy_close_button => 'Kapat';
@@ -4479,6 +4490,10 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get emojis_upload_pick_image => 'Resim Seç';
+
+  @override
+    @override
+  String get export_file_picker_busy => 'Dosya seçici zaten etkin. Lütfen bekleyin ve tekrar deneyin.';
 
   @override
   String get error => 'Hata';

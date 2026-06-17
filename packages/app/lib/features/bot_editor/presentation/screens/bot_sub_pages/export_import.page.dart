@@ -125,7 +125,7 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
       if (e.toString().contains('already_active')) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('File picker is already active. Please wait and try again.')),
+          SnackBar(content: Text(context.tr.export_file_picker_busy)),
         );
         return;
       }

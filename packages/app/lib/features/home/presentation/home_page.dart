@@ -630,16 +630,24 @@ class HomePageState extends State<HomePage>
       appendBotDebugLog(
         '[syncAllBotsFromManager] Local apps for owner expansion count=${apps.length}.',
       );
-      final fetchedOwners = <String>{};
+      // ── Phase 1: collect unique owner-bot clients (deduplicate) ──
+      final ownerClients = <String, MainApiClient>{};
       for (final rawApp in apps) {
-        if (rawApp is! Map) {
-          continue;
-        }
+        if (rawApp is! Map) continue;
         final app = Map<String, dynamic>.from(rawApp.cast<dynamic, dynamic>());
         final botId = (app['id'] ?? '').toString().trim();
-        if (botId.isEmpty) {
+        if (botId.isEmpty) continue;
+
+        final session = await MainApiSettingsStore.loadSession();
+        final ownerKey = (session?.userId ?? '').trim();
+        final dedupeKey = ownerKey.isEmpty ? 'bot:$botId' : 'owner:$ownerKey';
+        if (ownerClients.containsKey(dedupeKey)) {
+          appendBotDebugLog(
+            '[syncAllBotsFromManager] Owner already collected for dedupeKey=$dedupeKey.',
+          );
           continue;
         }
+
         final token = (app['token'] ?? '').toString();
         final client = await _resolveMainApiClientForBot(
           botId: botId,
@@ -653,110 +661,129 @@ class HomePageState extends State<HomePage>
           continue;
         }
 
-        final session = await MainApiSettingsStore.loadSession();
-        final ownerKey = (session?.userId ?? '').trim();
-        final dedupeKey = ownerKey.isEmpty ? 'bot:$botId' : 'owner:$ownerKey';
-        if (fetchedOwners.contains(dedupeKey)) {
-          appendBotDebugLog(
-            '[syncAllBotsFromManager] Owner already fetched for dedupeKey=$dedupeKey, skipping duplicate listBots call.',
-          );
-          continue;
-        }
-        fetchedOwners.add(dedupeKey);
+        ownerClients[dedupeKey] = client;
+      }
+
+      // ── Phase 2: fetch listBots in parallel ──
+      if (ownerClients.isNotEmpty) {
         appendBotDebugLog(
-          '[syncAllBotsFromManager] Fetching listBots for dedupeKey=$dedupeKey using client=${client.runtimeType}.',
+          '[syncAllBotsFromManager] Fetching listBots for ${ownerClients.length} unique owners in parallel.',
         );
-        mergeBots(await client.listBots());
+        final listBotsTasks = ownerClients.entries.map((entry) async {
+          final dedupeKey = entry.key;
+          final client = entry.value;
+          try {
+            appendBotDebugLog(
+              '[syncAllBotsFromManager] Fetching listBots for dedupeKey=$dedupeKey.',
+            );
+            mergeBots(await client.listBots());
+          } catch (error) {
+            appendBotDebugLog(
+              '[syncAllBotsFromManager] listBots failed for dedupeKey=$dedupeKey: $error',
+            );
+          }
+        }).toList(growable: false);
+        await Future.wait(listBotsTasks);
       }
 
       final bots = botsById.values.toList(growable: false);
       appendBotDebugLog(
         '[syncAllBotsFromManager] Total merged bot payloads=${bots.length}.',
       );
-      for (final bot in bots) {
-        try {
-          final botId = bot['bot_id']?.toString() ?? '';
-          if (botId.isEmpty) continue;
+      // Phase 3: sync each bot (network calls in parallel, filesystem sequential)
+      appendBotDebugLog(
+        '[syncAllBotsFromManager] Syncing ${bots.length} bots - network phase in parallel.',
+      );
 
-          final botName = bot['bot_name']?.toString() ?? 'Unnamed Bot';
-          final config = bot['config'] as Map<String, dynamic>? ?? {};
+      final botSyncTasks = bots.map((bot) async {
+        final botId = bot['bot_id']?.toString() ?? '';
+        if (botId.isEmpty) return null;
 
-          // Prefer manager token if available, otherwise use local token
-          String token = bot['bot_token']?.toString() ?? '';
-          if (token.isEmpty) {
+        final botName = bot['bot_name']?.toString() ?? 'Unnamed Bot';
+        final config = bot['config'] as Map<String, dynamic>? ?? {};
+
+        String token = bot['bot_token']?.toString() ?? '';
+        if (token.isEmpty) {
+          try {
             final existing = await appManager.getApp(botId);
             token = (existing['token'] ?? '').toString();
-          }
+          } catch (_) {}
+        }
 
-          int? fetchedApproxGuildCount;
-          if (token.trim().isNotEmpty) {
-            try {
-              final snapshotClient = await _resolveMainApiClientForBot(
-                botId: botId,
+        int? fetchedApproxGuildCount;
+        if (token.trim().isNotEmpty) {
+          try {
+            final snapshotClient = await _resolveMainApiClientForBot(
+              botId: botId,
+              botToken: token,
+              attemptSessionRestore: true,
+            );
+            if (snapshotClient != null) {
+              final payload = await buildBotPayload(botId);
+              await snapshotClient.saveDiscordBotSnapshot(
                 botToken: token,
-                attemptSessionRestore: true,
-              );
-              if (snapshotClient != null) {
-                final payload = await buildBotPayload(botId);
-                await snapshotClient.saveDiscordBotSnapshot(
-                  botToken: token,
-                  config: payload,
-                );
-                appendBotDebugLog(
-                  '[syncAllBotsFromManager] Bot $botId snapshot synced before status refresh.',
-                );
-              } else {
-                appendBotDebugLog(
-                  '[syncAllBotsFromManager] Bot $botId snapshot sync skipped: manager client unavailable.',
-                );
-              }
-            } catch (error) {
-              appendBotDebugLog(
-                '[syncAllBotsFromManager] Bot $botId snapshot sync failed before status refresh: $error',
+                config: payload,
               );
             }
+          } catch (error) {
+            appendBotDebugLog(
+              '[syncAllBotsFromManager] Bot $botId snapshot sync failed: $error',
+            );
+          }
 
-            try {
-              final guildCount = await getDiscordBotGuildCount(token);
-              if (guildCount != null) {
-                fetchedApproxGuildCount = guildCount;
-              } else {
-                final ownerMetadata =
-                    await getDiscordApplicationOwnerMetadata(token);
-                if (ownerMetadata != null) {
-                  final approx = ownerMetadata.rawJson['approximate_guild_count'];
-                  if (approx is int) {
-                    fetchedApproxGuildCount = approx;
-                  } else if (approx != null) {
-                    fetchedApproxGuildCount = int.tryParse(approx.toString());
-                  }
+          try {
+            final guildCount = await getDiscordBotGuildCount(token);
+            if (guildCount != null) {
+              fetchedApproxGuildCount = guildCount;
+            } else {
+              final ownerMetadata =
+                  await getDiscordApplicationOwnerMetadata(token);
+              if (ownerMetadata != null) {
+                final approx = ownerMetadata.rawJson['approximate_guild_count'];
+                if (approx is int) {
+                  fetchedApproxGuildCount = approx;
+                } else if (approx != null) {
+                  fetchedApproxGuildCount = int.tryParse(approx.toString());
                 }
               }
-            } catch (error) {
-              appendBotDebugLog(
-                '[syncAllBotsFromManager] Failed to fetch Discord guild count / owner metadata for $botId: $error',
-              );
             }
+          } catch (error) {
+            appendBotDebugLog(
+              '[syncAllBotsFromManager] Guild count fetch failed for $botId: $error',
+            );
           }
+        }
 
+        return _BotSyncResult(
+          botId: botId,
+          botName: botName,
+          token: token,
+          config: config,
+          bot: bot,
+          guildCount: fetchedApproxGuildCount,
+        );
+      }).toList(growable: false);
+
+      final syncResults = await Future.wait(botSyncTasks);
+
+      for (final result in syncResults) {
+        if (result == null) continue;
+        try {
           await appManager.createOrUpdateApp(
-            id: Snowflake.parse(botId),
-            username: botName,
+            id: Snowflake.parse(result.botId),
+            username: result.botName,
             avatarHash:
-                bot['avatar_hash']?.toString() ?? bot['avatar']?.toString(),
-            discriminator: bot['discriminator']?.toString(),
-            token: token,
-            intents: (config['intents'] as Map?)?.cast<String, bool>(),
-            prefix: config['prefix']?.toString(),
-            approximateGuildCount: fetchedApproxGuildCount,
-          );
-          appendBotDebugLog(
-            '[syncAllBotsFromManager] Bot $botId persisted locally (name=$botName).',
+                result.bot['avatar_hash']?.toString() ?? result.bot['avatar']?.toString(),
+            discriminator: result.bot['discriminator']?.toString(),
+            token: result.token,
+            intents: (result.config['intents'] as Map?)?.cast<String, bool>(),
+            prefix: result.config['prefix']?.toString(),
+            approximateGuildCount: result.guildCount,
           );
         } catch (e) {
-          developer.log('Failed to sync bot ${bot['bot_id']}: $e');
+          developer.log('Failed to sync bot ${result.botId}: $e');
           appendBotDebugLog(
-            '[syncAllBotsFromManager] Failed to sync bot ${bot['bot_id']}: $e',
+            '[syncAllBotsFromManager] Failed to sync bot ${result.botId}: $e',
           );
         }
       }
@@ -2440,6 +2467,24 @@ class _EmptyStateWithSupport extends StatelessWidget {
       ),
     );
   }
+}
+
+class _BotSyncResult {
+  const _BotSyncResult({
+    required this.botId,
+    required this.botName,
+    required this.token,
+    required this.config,
+    required this.bot,
+    required this.guildCount,
+  });
+
+  final String botId;
+  final String botName;
+  final String token;
+  final Map<String, dynamic> config;
+  final Map<String, dynamic> bot;
+  final int? guildCount;
 }
 
 
