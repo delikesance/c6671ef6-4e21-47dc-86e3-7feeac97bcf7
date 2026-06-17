@@ -805,6 +805,9 @@
     },
     "description": "Key: {key}"
   },
+  "@actions_missing_field_content": {
+    "description": "Missing required field message with placeholders"
+  },
   "@actions_missing_field_title": {
     "description": "Missing Field"
   },
@@ -7574,6 +7577,7 @@
   "actions_description": "Bu komut için çalışma zamanı eylemleri oluşturun",
   "actions_global_variables": "Genel Değişkenler",
   "actions_key_label": "Anahtar: {key}",
+  "actions_missing_field_content": ""{action}": "{field}" gerekli.",
   "actions_missing_field_title": "Eksik Alan",
   "actions_no_matches": "Eşleşme bulunamadı",
   "actions_save_count": "{count} eylemi kaydet",

@@ -1173,6 +1173,10 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+    @override
+  String get actions_missing_field_content => '"{action}" : "{field}" est requis.';
+
+  @override
   String get actions_missing_field_title => 'Champ requis manquant';
 
   @override

@@ -1067,6 +1067,10 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+    @override
+  String get actions_missing_field_content => '"{action}"："{field}" は必須です。';
+
+  @override
   String get actions_missing_field_title => '不足フィールド';
 
   @override

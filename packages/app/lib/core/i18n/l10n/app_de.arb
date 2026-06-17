@@ -805,6 +805,9 @@
     },
     "description": "Key: {key}"
   },
+  "@actions_missing_field_content": {
+    "description": "Missing required field message with placeholders"
+  },
   "@actions_missing_field_title": {
     "description": "Missing Field"
   },
@@ -7574,6 +7577,7 @@
   "actions_description": "Erstellen Sie Laufzeitaktionen für diesen Befehl",
   "actions_global_variables": "Globale Variablen",
   "actions_key_label": "Schlüssel: {key}",
+  "actions_missing_field_content": ""{action}": "{field}" ist erforderlich.",
   "actions_missing_field_title": "Fehlendes Feld",
   "actions_no_matches": "Keine Treffer gefunden",
   "actions_save_count": "{count} Aktionen speichern",

@@ -1147,6 +1147,10 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+    @override
+  String get actions_missing_field_content => '"{action}": "{field}" gerekli.';
+
+  @override
   String get actions_missing_field_title => 'Eksik Alan';
 
   @override
