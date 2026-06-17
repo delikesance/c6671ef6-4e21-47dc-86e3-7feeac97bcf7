@@ -263,6 +263,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Conditional branching: run different actions based on a condition';
 
   @override
+  String get action_description_jumpToAction =>
+      'Jump to a specific action by key, ID, or position';
+
+  @override
   String get action_description_joinVoice => 'Join a voice channel';
 
   @override
@@ -463,6 +467,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Create or update a temporary variable in local execution';
 
   @override
+  String get action_description_skipActions =>
+      'Skip a specified number of subsequent actions';
+
+  @override
   String get action_description_skipMusic =>
       'Skip to the next track in the queue';
 
@@ -473,14 +481,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get action_description_stop =>
       'Immediately stop the execution of the current workflow';
-
-  @override
-  String get action_description_skipActions =>
-      'Skip a specified number of subsequent actions';
-
-  @override
-  String get action_description_jumpToAction =>
-      'Jump to a specific action by key, ID, or position';
 
   @override
   String get action_description_stopMusic =>
@@ -813,6 +813,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get action_name_ifBlock => 'IF / ELSE Block';
 
   @override
+  String get action_name_jumpToAction => 'Jump to Action';
+
+  @override
   String get action_name_joinVoice => 'Join Voice Channel';
 
   @override
@@ -970,6 +973,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get action_name_setTemporaryVariable => 'Set Temporary Variable';
 
   @override
+  String get action_name_skipActions => 'Skip Actions';
+
+  @override
   String get action_name_skipMusic => 'Skip Music';
 
   @override
@@ -977,12 +983,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get action_name_stop => 'Stop Execution';
-
-  @override
-  String get action_name_skipActions => 'Skip Actions';
-
-  @override
-  String get action_name_jumpToAction => 'Jump to Action';
 
   @override
   String get action_name_stopMusic => 'Stop Music';
@@ -1317,6 +1317,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get app_token_field_helper =>
       'Paste the token exactly as provided by Discord.';
+
+  @override
+  String get app_token_invalid_title => 'Invalid Token';
+
+  @override
+  String get app_token_invalid_content =>
+      'The provided Discord token is invalid or has been revoked. '
+      'We recommend following the tutorial to generate a valid token.';
 
   @override
   String get app_token_section_desc =>

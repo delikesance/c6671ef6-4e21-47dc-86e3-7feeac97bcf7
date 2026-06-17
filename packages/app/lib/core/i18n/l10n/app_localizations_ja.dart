@@ -237,6 +237,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get action_description_ifBlock => '条件分岐：条件に基づいて異なるアクションを実行します';
 
   @override
+  String get action_description_jumpToAction => 'キー、ID、または位置で特定のアクションにジャンプします';
+
+  @override
   String get action_description_joinVoice => 'ボイスチャンネルに接続します';
 
   @override
@@ -410,6 +413,9 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get action_description_setTemporaryVariable =>
       'ローカル実行で一時変数を作成または更新します';
+
+  @override
+  String get action_description_skipActions => '指定された数の後続アクションをスキップします';
 
   @override
   String get action_description_skipMusic => 'キューの次のトラックに進みます';
@@ -740,6 +746,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get action_name_ifBlock => 'IF / ELSE ブロック';
 
   @override
+  String get action_name_jumpToAction => 'アクションにジャンプ';
+
+  @override
   String get action_name_joinVoice => 'ボイスチャンネルに参加';
 
   @override
@@ -896,6 +905,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get action_name_setTemporaryVariable => '一時変数設定';
 
   @override
+  String get action_name_skipActions => 'アクションをスキップ';
+
+  @override
   String get action_name_skipMusic => '音楽をスキップ';
 
   @override
@@ -903,12 +915,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get action_name_stop => '実行停止';
-
-  @override
-  String get action_name_skipActions => 'アクションをスキップ';
-
-  @override
-  String get action_name_jumpToAction => 'アクションにジャンプ';
 
   @override
   String get action_name_stopMusic => '音楽を停止';
@@ -1235,6 +1241,14 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get app_token_field_helper => 'Discordから提供されたトークンをそのまま貼り付けてください。';
+
+  @override
+  String get app_token_invalid_title => '無効なトークン';
+
+  @override
+  String get app_token_invalid_content =>
+      '提供されたDiscordトークンは無効か、取り消されています。'
+      '有効なトークンを生成するにはチュートリアルに従うことをお勧めします。';
 
   @override
   String get app_token_section_desc => 'トークンをコピーしたら、以下に貼り付けてボットをアプリに追加します。';
