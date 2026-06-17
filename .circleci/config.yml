@@ -203,14 +203,22 @@ jobs:
             mkdir -p "$LIB_DIR"
 
             # Only skip true kernel-ABI libs that must come from the host
-            # (glibc, ld-linux, nss resolver). Everything else — GTK, Wayland,
-            # X11, libstdc++, etc. — is bundled for cross-distro portability.
+            # (glibc, ld-linux, nss resolver) and GPU-driver libs that must
+            # match the host hardware (libepoxy dlopen()s them at runtime).
+            # Everything else — GTK, Wayland, X11, libstdc++, etc. — is
+            # bundled for cross-distro portability.
             is_skip_lib() {
               case "$(basename "$1")" in
                 linux-vdso.so.*|ld-linux*.so.*|ld-musl*.so.*) return 0 ;;
                 libc.so.*|libm.so.*|libpthread.so.*|libdl.so.*) return 0 ;;
                 librt.so.*|libresolv.so.*|libnss_*.so.*|libcrypt.so.*) return 0 ;;
                 libutil.so.*) return 0 ;;
+                # GPU driver libs — must come from the host (Mesa / NVIDIA / AMDGPU).
+                # Bundling Ubuntu's Mesa dispatch stubs breaks NixOS, proprietary
+                # NVIDIA, and any non-glibc distro. libepoxy dlopen()s the right
+                # backend at runtime.
+                libEGL.so.*|libGL.so.*|libGLX.so.*|libGLES*.so.*|libGLdispatch.so.*) return 0 ;;
+                libOpenGL.so.*|libvulkan.so.*) return 0 ;;
               esac
               return 1
             }
@@ -237,9 +245,11 @@ jobs:
             [ -f "$LIB_DIR/libflutter_linux_gtk.so" ] && collect_deps "$LIB_DIR/libflutter_linux_gtk.so"
 
             # Libs that are dlopen()d at runtime (invisible to ldd) — must bundle explicitly.
-            # libepoxy dlopen()s EGL/GL backends; Flutter/GTK need Wayland + xkbcommon.
+            # NOTE: Do NOT bundle EGL/GL/GLX/GLES/Vulkan here.  Those are
+            # GPU-driver libs that libepoxy dlopen()s from the host at runtime
+            # and must match the actual hardware (NVIDIA, Mesa, AMDGPU).
+            # Bundling them from CI's Ubuntu breaks NixOS, non-Mesa drivers, etc.
             DLOPEN_LIBS=(
-              libEGL.so.1 libGL.so.1 libGLX.so.1 libGLESv1_CM.so.1 libGLESv2.so.2
               libwayland-client.so.0 libwayland-egl.so.1 libwayland-cursor.so.0
               libxkbcommon.so.0
               libgdk_pixbuf-2.0.so.0
