@@ -940,6 +940,42 @@ class MainApiClient implements RemoteRuntimeClient {
     return response['ok'] == true;
   }
 
+  /// Fetches the full config JSON for a specific version snapshot.
+  Future<Map<String, dynamic>> getBotConfigVersion(
+    String botId,
+    String versionKey,
+  ) async {
+    final encodedBotId = Uri.encodeComponent(botId.trim());
+    final encodedKey = Uri.encodeQueryComponent(versionKey);
+    final json = await _get(
+      '/gateway/bots/$encodedBotId/versions/config',
+      query: <String, String?>{'key': encodedKey},
+    );
+    final configUrl = (json['configUrl'] ?? '').toString().trim();
+    if (configUrl.isEmpty) {
+      throw const MainApiClientException('No config URL returned for version');
+    }
+
+    final httpClient = http.Client();
+    try {
+      final response = await httpClient
+          .get(Uri.parse(configUrl))
+          .timeout(const Duration(seconds: 15));
+      if (response.statusCode != 200) {
+        throw MainApiClientException(
+          'Failed to download version config: ${response.statusCode}',
+        );
+      }
+      final decoded = jsonDecode(response.body);
+      if (decoded is! Map) {
+        throw const MainApiClientException('Invalid version config format');
+      }
+      return Map<String, dynamic>.from(decoded);
+    } finally {
+      httpClient.close();
+    }
+  }
+
   @override
   Future<Map<String, dynamic>> getRunnerInfo() async {
     return _get('/gateway/runner');
