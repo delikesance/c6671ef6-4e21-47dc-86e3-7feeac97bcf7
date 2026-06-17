@@ -2080,6 +2080,12 @@ abstract class AppLocalizations {
   /// **'Actions Builder'**
   String get actions_builder_title;
 
+  /// Empty state title
+  String get actions_empty_title;
+
+  /// Empty state subtitle
+  String get actions_empty_subtitle;
+
   /// Build runtime actions for this command
   ///
   /// In en, this message translates to:

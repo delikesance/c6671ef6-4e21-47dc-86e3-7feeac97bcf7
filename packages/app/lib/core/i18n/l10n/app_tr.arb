@@ -788,6 +788,12 @@
     },
     "description": "Build Actions ({count})"
   },
+  "@actions_empty_subtitle": {
+    "description": "Empty state subtitle in action builder"
+  },
+  "@actions_empty_title": {
+    "description": "Empty state title in action builder"
+  },
   "@actions_builder_title": {
     "description": "Actions Builder"
   },
@@ -7586,6 +7592,8 @@
   "actions_add_label": "Eylem Ekle",
   "actions_add_new_title": "Yeni Eylem Ekle",
   "actions_build_button": "Eylemleri Oluştur ({count})",
+  "actions_empty_subtitle": "Bir eylem ekleyin, ardından ayrıntıları yapılandırmak için açın.",
+  "actions_empty_title": "Henüz eylem yok",
   "actions_builder_title": "Eylem Oluşturucu",
   "actions_description": "Bu komut için çalışma zamanı eylemleri oluşturun",
   "actions_global_variables": "Genel Değişkenler",

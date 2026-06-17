@@ -1158,6 +1158,13 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+    @override
+  String get actions_empty_title => 'Aucune action';
+
+  @override
+  String get actions_empty_subtitle => 'Ajoutez une action, puis ouvrez-la pour configurer les détails.';
+
+  @override
   String get actions_builder_title => 'Constructeur d\'actions';
 
   @override

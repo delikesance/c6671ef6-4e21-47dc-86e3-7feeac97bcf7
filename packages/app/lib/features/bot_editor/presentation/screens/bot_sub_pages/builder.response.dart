@@ -1252,13 +1252,13 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
         children: [
           const Icon(Icons.add_task, size: 64, color: AppTheme.grey),
           const SizedBox(height: 16),
-          const Text(
-            'No actions yet',
-            style: TextStyle(fontSize: 18, color: AppTheme.grey),
+          Text(
+            context.tr.actions_empty_title,
+            style: const TextStyle(fontSize: 18, color: AppTheme.grey),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Add an action, then open it to configure details.',
+          Text(
+            context.tr.actions_empty_subtitle,
             style: TextStyle(color: AppTheme.grey),
           ),
         ],

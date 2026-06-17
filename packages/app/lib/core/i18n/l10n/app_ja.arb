@@ -788,6 +788,12 @@
     },
     "description": "Build Actions ({count})"
   },
+  "@actions_empty_subtitle": {
+    "description": "Empty state subtitle in action builder"
+  },
+  "@actions_empty_title": {
+    "description": "Empty state title in action builder"
+  },
   "@actions_builder_title": {
     "description": "Actions Builder"
   },
@@ -7673,6 +7679,8 @@
   "actions_add_label": "アクションを追加",
   "actions_add_new_title": "新しいアクションを追加",
   "actions_build_button": "アクションを構築 ({count})",
+  "actions_empty_subtitle": "アクションを追加してから開いて詳細を設定してください。",
+  "actions_empty_title": "アクションはまだありません",
   "actions_builder_title": "アクションビルダー",
   "actions_description": "このコマンドのランタイムアクションを構築",
   "actions_global_variables": "グローバル変数",

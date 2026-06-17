@@ -788,6 +788,12 @@
     },
     "description": "Build Actions ({count})"
   },
+  "@actions_empty_subtitle": {
+    "description": "Empty state subtitle in action builder"
+  },
+  "@actions_empty_title": {
+    "description": "Empty state title in action builder"
+  },
   "@actions_builder_title": {
     "description": "Actions Builder"
   },
@@ -7685,6 +7691,8 @@
   "actions_add_label": "Ajouter une action",
   "actions_add_new_title": "Ajouter une nouvelle action",
   "actions_build_button": "Construire les actions ({count})",
+  "actions_empty_subtitle": "Ajoutez une action, puis ouvrez-la pour configurer les détails.",
+  "actions_empty_title": "Aucune action",
   "actions_builder_title": "Constructeur d'actions",
   "actions_description": "Construire les actions d'exécution pour cette commande",
   "actions_global_variables": "Variables globales",
