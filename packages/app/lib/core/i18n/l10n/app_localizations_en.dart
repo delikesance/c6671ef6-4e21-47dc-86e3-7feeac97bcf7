@@ -1140,7 +1140,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
     @override
-  String get actions_missing_field_content => '"{action}": "{field}" is required.';
+    @override
+  String actions_missing_field_content(String action, String field) {
+    return '"$action": "$field" is required.';
+  }
 
   @override
   String get actions_missing_field_title => 'Missing Field';
@@ -2176,16 +2179,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cmd_delete_tooltip => 'Delete command';
 
   @override
-  String get cmd_delete_confirm => 'Delete command "{name}"?';
+  String cmd_delete_confirm(String name) {
+    return 'Delete command "$name"?';
+  }
 
   @override
-  String get cmd_delete_success => 'Command "{name}" deleted';
+  String cmd_delete_success(String name) {
+    return 'Command "$name" deleted';
+  }
 
   @override
-  String get cmd_batch_delete_confirm => 'Delete {count} commands?';
+  String cmd_batch_delete_confirm(int count) {
+    return 'Delete $count commands?';
+  }
 
   @override
-  String get cmd_batch_delete_success => '{count} commands deleted';
+  String cmd_batch_delete_success(int count) {
+    return '$count commands deleted';
+  }
 
   @override
   String get cmd_deploy_close_button => 'Close';

@@ -274,7 +274,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
     final confirmed = await AppTheme.showConfirmDialog(
       context,
       title: context.tr.delete,
-      content: context.tr.cmd_delete_confirm.replaceAll('{name}', name),
+      content: context.tr.cmd_delete_confirm(name),
       confirmLabel: context.tr.confirm,
       isDestructive: true,
     );
@@ -283,7 +283,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
     unawaited(refreshBotRuntime(widget.botId));
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(context.tr.cmd_delete_success.replaceAll('{name}', name))),
+      SnackBar(content: Text(context.tr.cmd_delete_success(name))),
     );
     await _load();
   }
@@ -675,7 +675,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
     final confirmed = await AppTheme.showConfirmDialog(
       context,
       title: context.tr.delete,
-      content: context.tr.cmd_batch_delete_confirm.replaceAll('{count}', '$count'),
+      content: context.tr.cmd_batch_delete_confirm(count),
       confirmLabel: context.tr.confirm,
       isDestructive: true,
     );
@@ -686,7 +686,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
     unawaited(refreshBotRuntime(widget.botId));
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(context.tr.cmd_batch_delete_success.replaceAll('{count}', '$count'))),
+      SnackBar(content: Text(context.tr.cmd_batch_delete_success(count))),
     );
     setState(() {
       _isSelectMode = false;

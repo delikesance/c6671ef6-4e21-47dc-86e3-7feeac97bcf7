@@ -203,9 +203,8 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
                 (context) => AlertDialog(
                   title: Text(context.tr.actions_missing_field_title),
                   content: Text(
-                    context.tr.actions_missing_field_content
-                        .replaceAll('{action}', action.type.displayName(context))
-                        .replaceAll('{field}', def.key),
+                    context.tr.actions_missing_field_content(
+                        action.type.displayName(context), def.key),
                   ),
                   actions: [
                     TextButton(
