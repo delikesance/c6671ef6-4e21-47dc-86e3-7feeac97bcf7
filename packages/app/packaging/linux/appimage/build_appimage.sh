@@ -12,13 +12,21 @@ APPIMAGE_OUT="$OUT_DIR/${APP_NAME}-linux-x86_64.AppImage"
 
 mkdir -p "$OUT_DIR" "$TOOLS_DIR"
 
-echo "[1/5] Build Flutter Linux release"
-flutter build linux --release
+# NOTE: The Flutter Linux release is expected to have already been built
+# by the CI pipeline before calling this script. We skip the redundant
+# rebuild here to save time. If running locally without a prior build,
+# uncomment the line below:
+# flutter build linux --release
 
-echo "[2/5] Prepare AppDir"
+echo "[1/5] Prepare AppDir"
 rm -rf "$APPDIR"
 mkdir -p "$APPDIR"
 cp -a "$BUNDLE_DIR/." "$APPDIR/"
+
+# Rename the real ELF binary so AppRun can distinguish it from the wrapper
+if [ -f "$APPDIR/bot_creator" ] && file "$APPDIR/bot_creator" | grep -q 'ELF'; then
+  mv "$APPDIR/bot_creator" "$APPDIR/bot_creator.bin"
+fi
 
 mkdir -p "$APPDIR/usr/share/applications"
 mkdir -p "$APPDIR/usr/share/icons/hicolor/256x256/apps"
@@ -30,14 +38,14 @@ cp "$ROOT_DIR/packaging/linux/common/AppRun" "$APPDIR/AppRun"
 chmod +x "$APPDIR/AppRun"
 
 if [[ ! -x "$TOOLS_DIR/appimagetool.AppImage" ]]; then
-  echo "[3/5] Download appimagetool"
+  echo "[2/5] Download appimagetool"
   curl -L "https://github.com/AppImage/appimagetool/releases/latest/download/appimagetool-x86_64.AppImage" -o "$TOOLS_DIR/appimagetool.AppImage"
   chmod +x "$TOOLS_DIR/appimagetool.AppImage"
 fi
 
-echo "[4/5] Build AppImage"
+echo "[3/5] Build AppImage"
 ARCH=x86_64 "$TOOLS_DIR/appimagetool.AppImage" --appimage-extract-and-run "$APPDIR" "$APPIMAGE_OUT"
 chmod +x "$APPIMAGE_OUT"
 
-echo "[5/5] Done"
+echo "[4/5] Done"
 echo "AppImage: $APPIMAGE_OUT"
