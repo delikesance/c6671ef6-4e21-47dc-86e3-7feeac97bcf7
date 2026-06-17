@@ -990,6 +990,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get action_name_stop => 'Stoppen';
 
   @override
+  String get action_name_skipActions => 'Aktionen überspringen';
+
+  @override
+  String get action_name_jumpToAction => 'Zu Aktion springen';
+
+  @override
   String get action_name_stopMusic => 'Musik stoppen';
 
   @override

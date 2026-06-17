@@ -138,6 +138,8 @@ String getCategoryForAction(BotCreatorActionType type) {
     case BotCreatorActionType.cooldown:
     case BotCreatorActionType.wait:
     case BotCreatorActionType.stop:
+    case BotCreatorActionType.skipActions:
+    case BotCreatorActionType.jumpToAction:
     case BotCreatorActionType.randomChoice:
       return 'Logic & Flow';
     case BotCreatorActionType.respondWithMessage:
@@ -333,6 +335,8 @@ bool isAutocompleteContextAction(BotCreatorActionType type) {
     case BotCreatorActionType.randomChoice:
     // ── Execution control ──
     case BotCreatorActionType.stop:
+    case BotCreatorActionType.skipActions:
+    case BotCreatorActionType.jumpToAction:
     case BotCreatorActionType.wait:
     case BotCreatorActionType.cooldown:
     // ── Debugging ──

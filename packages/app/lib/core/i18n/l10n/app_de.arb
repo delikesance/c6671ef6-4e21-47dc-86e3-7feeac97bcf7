@@ -109,6 +109,9 @@
   "@action_description_joinVoice": {
     "description": "Lavalink music key: action_description_joinVoice"
   },
+  "@action_description_jumpToAction": {
+    "description": "Jump to an action"
+  },
   "@action_description_kickUser": {
     "description": "Kick a member from the server"
   },
@@ -153,6 +156,9 @@
   },
   "@action_description_setNickname": {
     "description": "Change a server member's nickname"
+  },
+  "@action_description_skipActions": {
+    "description": "Skip a number of actions"
   },
   "@action_description_skipMusic": {
     "description": "Lavalink music key: action_description_skipMusic"
@@ -473,6 +479,9 @@
   "@action_name_joinVoice": {
     "description": "Lavalink music key: action_name_joinVoice"
   },
+  "@action_name_jumpToAction": {
+    "description": "Jump to an action"
+  },
   "@action_name_jsonForEachLoop": {
     "description": "JSON For Each Loop"
   },
@@ -619,6 +628,9 @@
   },
   "@action_name_setTemporaryVariable": {
     "description": "Set Temporary Variable"
+  },
+  "@action_name_skipActions": {
+    "description": "Skip N actions"
   },
   "@action_name_skipMusic": {
     "description": "Lavalink music key: action_name_skipMusic"
@@ -7295,6 +7307,7 @@
   "action_description_getWebhook": "Webhook-Informationen nach ID abrufen",
   "action_description_httpRequest": "HTTP-Anfrage mit dynamischer URL, Methode, Headern und Body senden",
   "action_description_ifBlock": "Bedingte Verzweigung: Führt je nach Bedingung unterschiedliche Aktionen aus",
+  "action_description_jumpToAction": "Zu einer bestimmten Aktion per Schlüssel, ID oder Position springen",
   "action_description_joinVoice": "Einem Sprachkanal beitreten",
   "action_description_jsonForEachLoop": "Jedes Element eines JSON-Arrays oder -Objekts durchlaufen (forEach)",
   "action_description_kickUser": "Remove a member from the guild",
@@ -7347,6 +7360,7 @@
   "action_description_setNickname": "Change a member's nickname",
   "action_description_setScopedVariable": "Eine bereichsbezogene Variable (Server/Benutzer/Kanal/Mitglied/Nachricht) erstellen oder aktualisieren",
   "action_description_setTemporaryVariable": "Eine temporäre Variable in der lokalen Ausführung erstellen oder aktualisieren",
+  "action_description_skipActions": "Eine bestimmte Anzahl nachfolgender Aktionen überspringen",
   "action_description_skipMusic": "Zum nächsten Track in der Warteschlange springen",
   "action_description_slowmode": "Set slowmode duration for a channel",
   "action_description_stop": "Stop the current workflow execution",
@@ -7450,6 +7464,7 @@
   "action_name_getWebhook": "Webhook abrufen",
   "action_name_httpRequest": "HTTP-Anfrage",
   "action_name_ifBlock": "WENN / SONST Block",
+  "action_name_jumpToAction": "Zu Aktion springen",
   "action_name_joinVoice": "Sprachkanal beitreten",
   "action_name_jsonForEachLoop": "JSON Für Jedes Schleife",
   "action_name_kickUser": "Benutzer kicken",
@@ -7502,6 +7517,7 @@
   "action_name_setNickname": "Nickname setzen",
   "action_name_setScopedVariable": "Geltungsbereichsvariable setzen",
   "action_name_setTemporaryVariable": "Temporäre Variable setzen",
+  "action_name_skipActions": "Aktionen überspringen",
   "action_name_skipMusic": "Musik überspringen",
   "action_name_slowmode": "Slowmode",
   "action_name_stop": "Stoppen",

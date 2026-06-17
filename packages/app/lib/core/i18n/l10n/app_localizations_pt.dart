@@ -477,7 +477,15 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get action_description_stop =>
-      'Para imediatamente a execução do fluxo atual';
+      'Parar imediatamente a execução do fluxo de trabalho atual';
+
+  @override
+  String get action_description_skipActions =>
+      'Saltar um número especificado de ações seguintes';
+
+  @override
+  String get action_description_jumpToAction =>
+      'Saltar para uma ação específica por chave, ID ou posição';
 
   @override
   String get action_description_stopMusic =>
@@ -984,6 +992,12 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get action_name_stop => 'Parar';
+
+  @override
+  String get action_name_skipActions => 'Saltar ações';
+
+  @override
+  String get action_name_jumpToAction => 'Saltar para ação';
 
   @override
   String get action_name_stopMusic => 'Parar Música';

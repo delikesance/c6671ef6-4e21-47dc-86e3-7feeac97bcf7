@@ -109,6 +109,9 @@
   "@action_description_joinVoice": {
     "description": "Lavalink music key: action_description_joinVoice"
   },
+  "@action_description_jumpToAction": {
+    "description": "Jump to an action"
+  },
   "@action_description_kickUser": {
     "description": "Kick a member from the server"
   },
@@ -153,6 +156,9 @@
   },
   "@action_description_setNickname": {
     "description": "Change a server member's nickname"
+  },
+  "@action_description_skipActions": {
+    "description": "Skip a number of actions"
   },
   "@action_description_skipMusic": {
     "description": "Lavalink music key: action_description_skipMusic"
@@ -473,6 +479,9 @@
   "@action_name_joinVoice": {
     "description": "Lavalink music key: action_name_joinVoice"
   },
+  "@action_name_jumpToAction": {
+    "description": "Jump to an action"
+  },
   "@action_name_jsonForEachLoop": {
     "description": "JSON For Each Loop"
   },
@@ -619,6 +628,9 @@
   },
   "@action_name_setTemporaryVariable": {
     "description": "Set Temporary Variable"
+  },
+  "@action_name_skipActions": {
+    "description": "Skip N actions"
   },
   "@action_name_skipMusic": {
     "description": "Lavalink music key: action_name_skipMusic"
@@ -7328,6 +7340,7 @@
   "action_description_getWebhook": "Obter informações do Webhook por ID",
   "action_description_httpRequest": "Enviar requisição HTTP com URL, método, cabeçalhos e corpo dinâmicos",
   "action_description_ifBlock": "Ramificação condicional: executar ações diferentes com base em uma condição",
+  "action_description_jumpToAction": "Saltar para uma ação específica por chave, ID ou posição",
   "action_description_joinVoice": "Conectar-se a um canal de voz",
   "action_description_jsonForEachLoop": "Repetir por cada elemento de um objeto ou matriz JSON (forEach)",
   "action_description_kickUser": "Expulsa um membro do servidor",
@@ -7380,6 +7393,7 @@
   "action_description_setNickname": "Altera o apelido de um membro do servidor",
   "action_description_setScopedVariable": "Criar ou atualizar uma variável de escopo (servidor/usuário/canal/membro/mensagem)",
   "action_description_setTemporaryVariable": "Criar ou atualizar uma variável temporária na execução local",
+  "action_description_skipActions": "Saltar um número especificado de ações seguintes",
   "action_description_skipMusic": "Pular para a próxima música na fila",
   "action_description_slowmode": "Define a duração do modo lento para um canal",
   "action_description_stop": "Para imediatamente a execução do fluxo atual",
@@ -7483,6 +7497,7 @@
   "action_name_getWebhook": "Obter Webhook",
   "action_name_httpRequest": "Pedido HTTP",
   "action_name_ifBlock": "Bloco IF / ELSE",
+  "action_name_jumpToAction": "Saltar para ação",
   "action_name_joinVoice": "Entrar no Canal de Voz",
   "action_name_jsonForEachLoop": "Loop For Each JSON",
   "action_name_kickUser": "Expulsar Utilizador",
@@ -7535,6 +7550,7 @@
   "action_name_setNickname": "Definir Apelido",
   "action_name_setScopedVariable": "Definir Variável de Âmbito",
   "action_name_setTemporaryVariable": "Definir Variável Temporária",
+  "action_name_skipActions": "Saltar ações",
   "action_name_skipMusic": "Pular Música",
   "action_name_slowmode": "Modo Lento",
   "action_name_stop": "Parar",
