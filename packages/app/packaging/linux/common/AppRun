@@ -2,5 +2,20 @@
 set -e
 
 HERE="$(dirname "$(readlink -f "$0")")"
+
+# Prepend bundled libs so they take priority over system ones
 export LD_LIBRARY_PATH="$HERE/lib:${LD_LIBRARY_PATH:-}"
-exec "$HERE/bot_creator" "$@"
+
+# Help Mesa/EGL find bundled DRI drivers if present
+if [ -d "$HERE/lib/dri" ]; then
+  export LIBGL_DRIVERS_PATH="$HERE/lib/dri"
+fi
+
+# The real ELF binary (the wrapper shell script is named bot_creator)
+BINARY="$HERE/bot_creator.bin"
+if [ ! -x "$BINARY" ]; then
+  # Fallback: bundle without renaming (standalone AppImage usage)
+  BINARY="$HERE/bot_creator"
+fi
+
+exec "$BINARY" "$@"
