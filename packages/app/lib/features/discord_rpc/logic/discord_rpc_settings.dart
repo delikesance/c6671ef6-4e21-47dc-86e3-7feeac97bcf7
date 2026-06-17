@@ -6,7 +6,7 @@ const String discordRpcFixedApplicationId = '1350824555119382678';
 
 class DiscordRpcConfig {
   const DiscordRpcConfig({
-    this.enabled = false,
+    this.enabled = true,
     String clientId = discordRpcFixedApplicationId,
     String clientSecret = '',
     String brokerUrl = '',
