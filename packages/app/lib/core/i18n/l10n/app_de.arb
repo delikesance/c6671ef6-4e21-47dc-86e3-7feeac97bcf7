@@ -3903,6 +3903,9 @@
     },
     "description": "Export failed: {error}"
   },
+  "@export_file_picker_busy": {
+    "description": "Dateiauswahl bereits geöffnet"
+  },
   "@export_global_variables": {
     "description": "Global Variables"
   },
@@ -7598,7 +7601,7 @@
   "actions_description": "Erstellen Sie Laufzeitaktionen für diesen Befehl",
   "actions_global_variables": "Globale Variablen",
   "actions_key_label": "Schlüssel: {key}",
-  "actions_missing_field_content": ""{action}": "{field}" ist erforderlich.",
+  "actions_missing_field_content": "\"{action}\": \"{field}\" ist erforderlich.",
   "actions_missing_field_title": "Fehlendes Feld",
   "actions_no_matches": "Keine Treffer gefunden",
   "actions_save_count": "{count} Aktionen speichern",
@@ -7883,8 +7886,8 @@
   "cmd_dart_script_label": "Dart-Skriptkörper",
   "cmd_batch_delete_confirm": "{count} Befehle löschen?",
   "cmd_batch_delete_success": "{count} Befehle gelöscht",
-  "cmd_delete_confirm": "Befehl "{name}" löschen?",
-  "cmd_delete_success": "Befehl "{name}" gelöscht",
+  "cmd_delete_confirm": "Befehl \"{name}\" löschen?",
+  "cmd_delete_success": "Befehl \"{name}\" gelöscht",
   "cmd_delete_tooltip": "Befehl löschen",
   "cmd_deploy_close_button": "Schließen",
   "cmd_deploy_cloud_sync_subtitle": "Sichere Synchronisierung mit Ihrem Online-Speicher",
@@ -8556,6 +8559,7 @@
   "export_button": "ZIP exportieren",
   "export_commands": "Befehle",
   "export_failed": "Export fehlgeschlagen: {error}",
+  "export_file_picker_busy": "Dateiauswahl bereits geöffnet",
   "export_global_variables": "Globale Variablen",
   "export_import_title": "Export / Import",
   "export_section_desc": "Exportieren Sie ausgewählte Bereiche Ihres Bots als ZIP-Datei. Das Bot-Token ist niemals enthalten.",

@@ -1158,11 +1158,11 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-    @override
-  String get actions_empty_title => 'Aucune action';
+  String get actions_empty_subtitle =>
+      'Ajoutez une action, puis ouvrez-la pour configurer les détails.';
 
   @override
-  String get actions_empty_subtitle => 'Ajoutez une action, puis ouvrez-la pour configurer les détails.';
+  String get actions_empty_title => 'Aucune action';
 
   @override
   String get actions_builder_title => 'Constructeur d\'actions';
@@ -1180,9 +1180,8 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-    @override
   String actions_missing_field_content(String action, String field) {
-    return '"$action" : "$field" est requis.';
+    return '\"$action\" : \"$field\" est requis.';
   }
 
   @override
@@ -2233,27 +2232,27 @@ class AppLocalizationsFr extends AppLocalizations {
   String get cmd_dart_script_label => 'Corps du script Dart';
 
   @override
-  String get cmd_delete_tooltip => 'Supprimer la commande';
-
-  @override
-  String cmd_delete_confirm(String name) {
-    return 'Supprimer la commande "$name" ?';
-  }
-
-  @override
-  String cmd_delete_success(String name) {
-    return 'Commande "$name" supprimée';
-  }
-
-  @override
   String cmd_batch_delete_confirm(int count) {
     return 'Supprimer $count commandes ?';
   }
 
   @override
-  String cmd_batch_delete_success(int count) {
+  String cmd_batch_delete_success(Object count) {
     return '$count commandes supprimées';
   }
+
+  @override
+  String cmd_delete_confirm(Object name) {
+    return 'Supprimer la commande \"$name\" ?';
+  }
+
+  @override
+  String cmd_delete_success(Object name) {
+    return 'Commande \"$name\" supprimée';
+  }
+
+  @override
+  String get cmd_delete_tooltip => 'Supprimer la commande';
 
   @override
   String get cmd_deploy_close_button => 'Fermer';
@@ -4568,10 +4567,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get emojis_upload_pick_image => 'Choisir une image';
 
   @override
-    @override
-  String get export_file_picker_busy => 'Le sélecteur de fichier est déjà actif. Veuillez patienter et réessayer.';
-
-  @override
   String get error => 'Erreur';
 
   @override
@@ -4603,6 +4598,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String export_failed(String error) {
     return 'Échec de l\'export : $error';
   }
+
+  @override
+  String get export_file_picker_busy =>
+      'Un sélecteur de fichier est déjà ouvert';
 
   @override
   String get export_global_variables => 'Variables globales';

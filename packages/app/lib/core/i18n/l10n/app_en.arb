@@ -4278,6 +4278,9 @@
     },
     "description": "Export failed: {error}"
   },
+  "@export_file_picker_busy": {
+    "description": "File picker is already open"
+  },
   "@export_global_variables": {
     "description": "Global Variables"
   },
@@ -8108,7 +8111,7 @@
   "actions_description": "Build runtime actions for this command",
   "actions_global_variables": "Global Variables",
   "actions_key_label": "Key: {key}",
-  "actions_missing_field_content": ""{action}": "{field}" is required.",
+  "actions_missing_field_content": "\"{action}\": \"{field}\" is required.",
   "actions_missing_field_title": "Missing Field",
   "actions_no_matches": "No matches found",
   "actions_save_count": "Save {count} actions",
@@ -8415,8 +8418,8 @@
   "cmd_dart_script_label": "Dart script body",
   "cmd_batch_delete_confirm": "Delete {count} commands?",
   "cmd_batch_delete_success": "{count} commands deleted",
-  "cmd_delete_confirm": "Delete command "{name}"?",
-  "cmd_delete_success": "Command "{name}" deleted",
+  "cmd_delete_confirm": "Delete command \"{name}\"?",
+  "cmd_delete_success": "Command \"{name}\" deleted",
   "cmd_delete_tooltip": "Delete command",
   "cmd_deploy_close_button": "Close",
   "cmd_deploy_cloud_sync_subtitle": "Secure synchronization with your online space",
@@ -9088,6 +9091,7 @@
   "export_button": "Export ZIP",
   "export_commands": "Commands",
   "export_failed": "Export failed: {error}",
+  "export_file_picker_busy": "File picker is already open",
   "export_global_variables": "Global Variables",
   "export_import_title": "Export / Import",
   "export_section_desc": "Export selected sections of your bot as a ZIP file. The bot token is never included.",

@@ -3903,6 +3903,9 @@
     },
     "description": "Export failed: {error}"
   },
+  "@export_file_picker_busy": {
+    "description": "Seletor de arquivo já está aberto"
+  },
   "@export_global_variables": {
     "description": "Global Variables"
   },
@@ -7631,7 +7634,7 @@
   "actions_description": "Construa ações de tempo de execução para este comando",
   "actions_global_variables": "Variáveis Globais",
   "actions_key_label": "Chave: {key}",
-  "actions_missing_field_content": ""{action}": "{field}" é obrigatório.",
+  "actions_missing_field_content": "\"{action}\": \"{field}\" é obrigatório.",
   "actions_missing_field_title": "Campo Obrigatório Ausente",
   "actions_no_matches": "Nenhuma ação corresponde à sua busca.",
   "actions_save_count": "Salvar {count} ações",
@@ -7916,8 +7919,8 @@
   "cmd_dart_script_label": "Corpo do script Dart",
   "cmd_batch_delete_confirm": "Excluir {count} comandos?",
   "cmd_batch_delete_success": "{count} comandos excluídos",
-  "cmd_delete_confirm": "Excluir comando "{name}"?",
-  "cmd_delete_success": "Comando "{name}" excluído",
+  "cmd_delete_confirm": "Excluir comando \"{name}\"?",
+  "cmd_delete_success": "Comando \"{name}\" excluído",
   "cmd_delete_tooltip": "Apagar comando",
   "cmd_deploy_close_button": "Fechar",
   "cmd_deploy_cloud_sync_subtitle": "Sincronização segura com o seu espaço online",
@@ -8589,6 +8592,7 @@
   "export_button": "Exportar ZIP",
   "export_commands": "Comandos",
   "export_failed": "Falha na exportação: {error}",
+  "export_file_picker_busy": "Seletor de arquivo já está aberto",
   "export_global_variables": "Variáveis Globais",
   "export_import_title": "Exportar / Importar",
   "export_section_desc": "Exporte secções selecionadas do seu bot como um ficheiro ZIP. O token do bot nunca é incluído.",

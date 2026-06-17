@@ -1132,11 +1132,11 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-    @override
-  String get actions_empty_title => 'Henüz eylem yok';
+  String get actions_empty_subtitle =>
+      'Bir eylem ekleyin, ardından ayrıntıları yapılandırmak için açın.';
 
   @override
-  String get actions_empty_subtitle => 'Bir eylem ekleyin, ardından ayrıntıları yapılandırmak için açın.';
+  String get actions_empty_title => 'Henüz eylem yok';
 
   @override
   String get actions_builder_title => 'Eylem Oluşturucu';
@@ -1154,9 +1154,8 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-    @override
   String actions_missing_field_content(String action, String field) {
-    return '"$action": "$field" gerekli.';
+    return '\"$action\": \"$field\" gerekli.';
   }
 
   @override
@@ -2193,27 +2192,27 @@ class AppLocalizationsTr extends AppLocalizations {
   String get cmd_dart_script_label => 'Dart betik gövdesi';
 
   @override
-  String get cmd_delete_tooltip => 'Komut sil';
-
-  @override
-  String cmd_delete_confirm(String name) {
-    return '"$name" komutu silinsin mi?';
-  }
-
-  @override
-  String cmd_delete_success(String name) {
-    return '"$name" komutu silindi';
-  }
-
-  @override
   String cmd_batch_delete_confirm(int count) {
     return '$count komut silinsin mi?';
   }
 
   @override
-  String cmd_batch_delete_success(int count) {
+  String cmd_batch_delete_success(Object count) {
     return '$count komut silindi';
   }
+
+  @override
+  String cmd_delete_confirm(Object name) {
+    return '\"$name\" komutu silinsin mi?';
+  }
+
+  @override
+  String cmd_delete_success(Object name) {
+    return '\"$name\" komutu silindi';
+  }
+
+  @override
+  String get cmd_delete_tooltip => 'Komut sil';
 
   @override
   String get cmd_deploy_close_button => 'Kapat';
@@ -4513,10 +4512,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get emojis_upload_pick_image => 'Resim Seç';
 
   @override
-    @override
-  String get export_file_picker_busy => 'Dosya seçici zaten etkin. Lütfen bekleyin ve tekrar deneyin.';
-
-  @override
   String get error => 'Hata';
 
   @override
@@ -4547,6 +4542,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String export_failed(String error) {
     return 'Dışa aktarma başarısız: $error';
   }
+
+  @override
+  String get export_file_picker_busy => 'Dosya seçici zaten açık';
 
   @override
   String get export_global_variables => 'Genel Değişkenler';

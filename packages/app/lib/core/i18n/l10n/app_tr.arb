@@ -3903,6 +3903,9 @@
     },
     "description": "Export failed: {error}"
   },
+  "@export_file_picker_busy": {
+    "description": "Dosya seçici zaten açık"
+  },
   "@export_global_variables": {
     "description": "Global Variables"
   },
@@ -7598,7 +7601,7 @@
   "actions_description": "Bu komut için çalışma zamanı eylemleri oluşturun",
   "actions_global_variables": "Genel Değişkenler",
   "actions_key_label": "Anahtar: {key}",
-  "actions_missing_field_content": ""{action}": "{field}" gerekli.",
+  "actions_missing_field_content": "\"{action}\": \"{field}\" gerekli.",
   "actions_missing_field_title": "Eksik Alan",
   "actions_no_matches": "Eşleşme bulunamadı",
   "actions_save_count": "{count} eylemi kaydet",
@@ -7883,8 +7886,8 @@
   "cmd_dart_script_label": "Dart betik gövdesi",
   "cmd_batch_delete_confirm": "{count} komut silinsin mi?",
   "cmd_batch_delete_success": "{count} komut silindi",
-  "cmd_delete_confirm": ""{name}" komutu silinsin mi?",
-  "cmd_delete_success": ""{name}" komutu silindi",
+  "cmd_delete_confirm": "\"{name}\" komutu silinsin mi?",
+  "cmd_delete_success": "\"{name}\" komutu silindi",
   "cmd_delete_tooltip": "Komut sil",
   "cmd_deploy_close_button": "Kapat",
   "cmd_deploy_cloud_sync_subtitle": "Çevrimiçi alanınızla güvenli senkronizasyon",
@@ -8556,6 +8559,7 @@
   "export_button": "ZIP Dışa Aktar",
   "export_commands": "Komutlar",
   "export_failed": "Dışa aktarma başarısız: {error}",
+  "export_file_picker_busy": "Dosya seçici zaten açık",
   "export_global_variables": "Genel Değişkenler",
   "export_import_title": "Dışa Aktar / İçe Aktar",
   "export_section_desc": "Botunuzun seçili bölümlerini bir ZIP dosyası olarak dışa aktarın. Bot jetonu asla dahil edilmez.",

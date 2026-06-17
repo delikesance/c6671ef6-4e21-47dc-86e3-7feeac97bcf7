@@ -128,19 +128,6 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
     );
   }
 
-  void _addInput() {
-    if (_inputs.length >= 5) return;
-    setState(() {
-      _inputs.add(
-        ModalTextInputDefinition(
-          label: context.tr.modal_field_default_label(_inputs.length + 1),
-        ),
-      );
-      _inputKeys.add(UniqueKey().toString());
-    });
-    _emit();
-  }
-
   Future<void> _removeInput(int index) async {
     final shouldDelete = await AppTheme.showConfirmDialog(
       context,

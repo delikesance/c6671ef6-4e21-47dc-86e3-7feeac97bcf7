@@ -2074,17 +2074,23 @@ abstract class AppLocalizations {
   /// **'Build Actions ({count})'**
   String actions_build_button(int count);
 
+  /// Empty state subtitle in action builder
+  ///
+  /// In en, this message translates to:
+  /// **'Add an action, then open it to configure details.'**
+  String get actions_empty_subtitle;
+
+  /// Empty state title in action builder
+  ///
+  /// In en, this message translates to:
+  /// **'No actions yet'**
+  String get actions_empty_title;
+
   /// Actions Builder
   ///
   /// In en, this message translates to:
   /// **'Actions Builder'**
   String get actions_builder_title;
-
-  /// Empty state title
-  String get actions_empty_title;
-
-  /// Empty state subtitle
-  String get actions_empty_subtitle;
 
   /// Build runtime actions for this command
   ///
@@ -2104,14 +2110,17 @@ abstract class AppLocalizations {
   /// **'Key: {key}'**
   String actions_key_label(String key);
 
+  /// Missing required field message with placeholders
+  ///
+  /// In en, this message translates to:
+  /// **'\"{action}\": \"{field}\" is required.'**
+  String actions_missing_field_content(String action, String field);
+
   /// Missing Field
   ///
   /// In en, this message translates to:
   /// **'Missing Field'**
   String get actions_missing_field_title;
-
-  /// Missing required field content with placeholders
-  String actions_missing_field_content(String action, String field);
 
   /// No matches found
   ///
@@ -3982,26 +3991,35 @@ abstract class AppLocalizations {
   /// **'Dart script body'**
   String get cmd_dart_script_label;
 
+  /// Batch delete confirmation dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {count} commands?'**
+  String cmd_batch_delete_confirm(int count);
+
+  /// No description provided for @cmd_batch_delete_success.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} commands deleted'**
+  String cmd_batch_delete_success(Object count);
+
+  /// No description provided for @cmd_delete_confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete command \"{name}\"?'**
+  String cmd_delete_confirm(Object name);
+
+  /// No description provided for @cmd_delete_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Command \"{name}\" deleted'**
+  String cmd_delete_success(Object name);
+
   /// Delete command
   ///
   /// In en, this message translates to:
   /// **'Delete command'**
   String get cmd_delete_tooltip;
-
-  /// Delete command confirmation dialog
-  String cmd_delete_confirm(String name);
-
-  /// Delete command success snackbar
-  String cmd_delete_success(String name);
-
-  /// Batch delete confirmation dialog
-  String cmd_batch_delete_confirm(int count);
-
-  /// Batch delete success snackbar
-  String cmd_batch_delete_success(int count);
-
-  /// File picker busy warning
-  String get export_file_picker_busy;
 
   /// Close
   ///
@@ -7706,7 +7724,7 @@ abstract class AppLocalizations {
   /// **'Pick embed color'**
   String get embed_color_picker_title;
 
-  /// This embed will be removed. Continue?
+  /// No description provided for @embed_delete_confirm.
   ///
   /// In en, this message translates to:
   /// **'This embed will be removed. Continue?'**
@@ -8041,6 +8059,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Export failed: {error}'**
   String export_failed(String error);
+
+  /// File picker is already open
+  ///
+  /// In en, this message translates to:
+  /// **'File picker is already open'**
+  String get export_file_picker_busy;
 
   /// Global Variables
   ///
