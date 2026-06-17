@@ -409,6 +409,14 @@ class DiscordRpcService {
       _lastError = error.toString();
       _runtimeState = _runtimeStateForError(error);
       _emitSnapshot();
+
+      // Schedule a periodic retry when Discord may not have been running yet.
+      // Common at app startup — the IPC socket won't exist until Discord is open.
+      if (_runtimeState == DiscordRpcRuntimeState.error &&
+          _config.enabled) {
+        _scheduleReconnectRetry(const Duration(seconds: 10));
+      }
+
       return _buildSnapshot();
     }
   }
@@ -483,6 +491,8 @@ class DiscordRpcService {
   }
 
   Future<void> _closeClient() async {
+    _reconnectTimer?.cancel();
+    _reconnectTimer = null;
     final client = _client;
     final subscription = _clientEventsSubscription;
     final endpoint = _connectedEndpoint;
@@ -564,6 +574,24 @@ class DiscordRpcService {
           : DiscordRpcRuntimeState.transportUnsupported;
     }
     return DiscordRpcRuntimeState.error;
+  }
+
+  Timer? _reconnectTimer;
+
+  void _scheduleReconnectRetry(Duration delay) {
+    _reconnectTimer?.cancel();
+    _reconnectTimer = Timer(delay, () {
+      if (_runtimeState == DiscordRpcRuntimeState.error &&
+          _config.enabled) {
+        unawaited(connectIfPossible().then((_) {
+          // If still in error after retry, schedule another with backoff
+          if (_runtimeState == DiscordRpcRuntimeState.error &&
+              _config.enabled) {
+            _scheduleReconnectRetry(const Duration(seconds: 30));
+          }
+        }));
+      }
+    });
   }
 
   bool get _isDesktopPlatform {
