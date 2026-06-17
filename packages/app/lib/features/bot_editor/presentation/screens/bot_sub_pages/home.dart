@@ -258,56 +258,6 @@ class _AppHomePageState extends State<AppHomePage>
                           letterSpacing: -0.3,
                         ),
                       ),
-                      if (Platform.isIOS) ...[
-                        const SizedBox(height: 16),
-                        Container(
-                          padding: const EdgeInsets.all(14),
-                          decoration: BoxDecoration(
-                            color: AppTheme.warning.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(
-                              AppTheme.radiusLg,
-                            ),
-                            border: Border.all(
-                              color: AppTheme.warning.withValues(alpha: 0.35),
-                            ),
-                          ),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Padding(
-                                padding: EdgeInsets.only(top: 2),
-                                child: Icon(
-                                  Icons.info_outline,
-                                  color: AppTheme.warning,
-                                  size: 20,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      context.tr.bot_home_ios_notice_title,
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.titleSmall?.copyWith(
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      context.tr.bot_home_ios_notice_content,
-                                      style:
-                                          Theme.of(context).textTheme.bodySmall,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
                       const SizedBox(height: AppTheme.spacingXl),
                       FilledButton(
                         style: FilledButton.styleFrom(
