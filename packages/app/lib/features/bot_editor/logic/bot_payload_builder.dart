@@ -11,6 +11,7 @@ import 'package:bot_creator_shared/bot/bot_config.dart';
 import 'package:bot_creator_shared/utils/command_migration.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:flutter/foundation.dart';
+import 'package:nyxx/nyxx.dart';
 
 bool get _isDesktopPlatform {
   if (kIsWeb) return false;
@@ -134,16 +135,57 @@ void initRunnerAutoReload() {
 
   AppManager.onAfterCommandDelete = (String botId, String commandId) async {
     if (AppManager.isSyncingFromRemote) return;
+
+    var deletedViaRunner = false;
+
+    // 1. Try runner client first.
     try {
       final client = await RunnerSettings.createClientForBot(botId);
       if (client != null) {
         final botName = await resolveBotName(botId);
         await client.deleteCommand(botId, botName, commandId);
-        debugPrint('[AutoReload] Deleted command $commandId for bot $botId.');
+        debugPrint(
+          '[AutoReload] Deleted command $commandId for bot $botId via runner.',
+        );
+        deletedViaRunner = true;
       }
     } catch (error) {
-      debugPrint('[AutoReload] Command delete on runner failed for $botId: $error');
+      debugPrint(
+        '[AutoReload] Command delete on runner failed for $botId: $error',
+      );
     }
+
+    // 2. Fallback: delete directly via Discord REST API so the command
+    //    disappears from Discord even when no runner is connected.
+    if (!deletedViaRunner) {
+      try {
+        final appData = await _appManager.getApp(botId);
+        final token = (appData['token'] ?? '').toString().trim();
+        if (token.isNotEmpty) {
+          final rest = await Nyxx.connectRest(token);
+          try {
+            await rest.commands.delete(Snowflake.parse(commandId));
+            debugPrint(
+              '[AutoReload] Deleted command $commandId for bot $botId '
+              'directly from Discord.',
+            );
+          } finally {
+            rest.close();
+          }
+        } else {
+          debugPrint(
+            '[AutoReload] Cannot delete command $commandId: '
+            'no token available for bot $botId.',
+          );
+        }
+      } catch (error) {
+        debugPrint(
+          '[AutoReload] Direct Discord delete failed for $botId '
+          'command $commandId: $error',
+        );
+      }
+    }
+
     _batcher.requestSync(botId, _executeSync);
   };
 
