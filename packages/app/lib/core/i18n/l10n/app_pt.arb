@@ -805,6 +805,9 @@
     },
     "description": "Key: {key}"
   },
+  "@actions_missing_field_content": {
+    "description": "Missing required field message with placeholders"
+  },
   "@actions_missing_field_title": {
     "description": "Missing Field"
   },
@@ -7607,6 +7610,7 @@
   "actions_description": "Construa ações de tempo de execução para este comando",
   "actions_global_variables": "Variáveis Globais",
   "actions_key_label": "Chave: {key}",
+  "actions_missing_field_content": ""{action}": "{field}" é obrigatório.",
   "actions_missing_field_title": "Campo Obrigatório Ausente",
   "actions_no_matches": "Nenhuma ação corresponde à sua busca.",
   "actions_save_count": "Salvar {count} ações",

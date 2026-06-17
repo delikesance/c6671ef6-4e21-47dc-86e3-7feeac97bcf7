@@ -805,6 +805,9 @@
     },
     "description": "Key: {key}"
   },
+  "@actions_missing_field_content": {
+    "description": "Missing required field message with placeholders"
+  },
   "@actions_missing_field_title": {
     "description": "Missing Field"
   },
@@ -7673,6 +7676,7 @@
   "actions_description": "Construire les actions d'exécution pour cette commande",
   "actions_global_variables": "Variables globales",
   "actions_key_label": "Clé : {key}",
+  "actions_missing_field_content": ""{action}" : "{field}" est requis.",
   "actions_missing_field_title": "Champ requis manquant",
   "actions_no_matches": "Aucune action ne correspond à votre recherche.",
   "actions_save_count": "Enregistrer {count} actions",

@@ -1167,6 +1167,10 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+    @override
+  String get actions_missing_field_content => '"{action}": "{field}" ist erforderlich.';
+
+  @override
   String get actions_missing_field_title => 'Fehlendes Feld';
 
   @override

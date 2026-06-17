@@ -2104,6 +2104,9 @@ abstract class AppLocalizations {
   /// **'Missing Field'**
   String get actions_missing_field_title;
 
+  /// Missing required field content with placeholders
+  String get actions_missing_field_content;
+
   /// No matches found
   ///
   /// In en, this message translates to:

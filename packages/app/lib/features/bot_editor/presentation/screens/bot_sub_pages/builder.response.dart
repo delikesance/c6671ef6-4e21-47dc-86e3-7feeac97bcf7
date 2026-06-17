@@ -92,9 +92,18 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
     _triggerOnChanged();
   }
 
-  void _removeAction(String actionId) {
+  void _removeAction(String actionId, {int? expectedIndex}) {
     setState(() {
-      final index = _actions.indexWhere((action) => action.id == actionId);
+      var index = _actions.indexWhere((action) => action.id == actionId);
+      // Fallback: try runtimeId if id lookup fails or index mismatch
+      if (index == -1 || (expectedIndex != null && index != expectedIndex)) {
+        final byRuntimeId = _actions.indexWhere(
+          (action) => action.runtimeId == actionId,
+        );
+        if (byRuntimeId != -1) {
+          index = byRuntimeId;
+        }
+      }
       if (index != -1) {
         _actions.removeAt(index);
       }
@@ -194,7 +203,9 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
                 (context) => AlertDialog(
                   title: Text(context.tr.actions_missing_field_title),
                   content: Text(
-                    '${action.type.displayName(context)}: ${def.key} is required.',
+                    context.tr.actions_missing_field_content
+                        .replaceAll('{action}', action.type.displayName(context))
+                        .replaceAll('{field}', def.key),
                   ),
                   actions: [
                     TextButton(
@@ -1318,7 +1329,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
                   isDestructive: true,
                 );
                 if (shouldDelete) {
-                  _removeAction(action.id);
+                  _removeAction(action.runtimeId, expectedIndex: absoluteIndex);
                 }
               },
               onMoveUp: absoluteIndex > 0 ? () => _moveAction(absoluteIndex, absoluteIndex - 1) : null,
