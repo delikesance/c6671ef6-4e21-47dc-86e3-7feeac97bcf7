@@ -132,6 +132,9 @@ class HomePageState extends State<HomePage>
           await warmUpFuture;
         }
       } catch (_) {}
+      // Detect running state immediately so the user sees online bots
+      // right away, even if the full manager sync takes longer.
+      await _initRunningState();
       await syncAllBotsFromManager(silent: true);
     }());
 
@@ -156,14 +159,23 @@ class HomePageState extends State<HomePage>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
+      // Immediately refresh running state so the UI updates fast,
+      // then do the full sync in background.
+      _initRunningState();
       syncAllBotsFromManager(silent: true);
     }
   }
 
   // ── Initialisation de l'état running ───────────────────────────────────────
 
+  /// Guards against concurrent [_initRunningState] calls.
+  bool _isRefreshingRunningState = false;
+
   Future<void> _initRunningState() async {
-    final runningIds = <String>{};
+    if (_isRefreshingRunningState) return;
+    _isRefreshingRunningState = true;
+    try {
+      final runningIds = <String>{};
     _runtimeSourceByBotId.clear();
     _runtimeDetailLabelByBotId.clear();
     appendBotDebugLog('[_initRunningState] Starting running-state refresh.');
@@ -394,6 +406,9 @@ class HomePageState extends State<HomePage>
     appendBotDebugLog(
       '[_initRunningState] Completed with local fallback. Running ids=${runningIds.join(',')}.',
     );
+    } finally {
+      _isRefreshingRunningState = false;
+    }
   }
 
   int _extractFreeMinutes(dynamic raw) {
