@@ -265,13 +265,6 @@ jobs:
 
             (cd build/linux/x64/release && zip -r "$OLDPWD/build/bot_creator-linux-x64-steam.zip" bot_creator-linux-x64-steam)
 
-      - run:
-          name: Build AppImage (tagged releases only)
-          command: |
-            if [ -z "${CIRCLE_TAG:-}" ]; then echo "Not a tagged release, skipping AppImage."; exit 0; fi
-            cd ~/project/packages/app
-            bash packaging/linux/appimage/build_appimage.sh
-
       # ── S3 upload (tagged releases or latest) ──
       - run:
           name: Upload Linux artifacts to R2
@@ -281,9 +274,6 @@ jobs:
             if [ -z "$EFFECTIVE_TAG" ]; then echo "Not a tagged release and not a latest build, skipping R2 upload."; exit 0; fi
             cd ~/project/packages/app
             aws s3 cp build/bot_creator-linux-x64-steam.zip "s3://${R2_BUCKET}/releases/${EFFECTIVE_TAG}/bot_creator-linux-x64-steam.zip" --endpoint-url "${R2_ENDPOINT}" --no-progress
-            if [ -f build/appimage/bot_creator-linux-x86_64.AppImage ]; then
-              aws s3 cp build/appimage/bot_creator-linux-x86_64.AppImage "s3://${R2_BUCKET}/releases/${EFFECTIVE_TAG}/bot_creator-linux-x86_64.AppImage" --endpoint-url "${R2_ENDPOINT}" --no-progress
-            fi
 
   build_macos:
     executor: macos-ci
