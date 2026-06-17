@@ -34,6 +34,8 @@ Ce document decrit ce qui est pris en charge par le transpiler BDFD de Bot Creat
 - checkUsersPerms
 - onlyIfMessageContains
 - stop
+- skipActions
+- jumpToAction
 
 ### Bloc conditionnel
 
