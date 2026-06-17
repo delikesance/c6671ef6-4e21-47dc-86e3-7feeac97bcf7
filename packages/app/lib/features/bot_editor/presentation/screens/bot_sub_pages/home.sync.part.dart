@@ -92,23 +92,23 @@ extension _AppHomePageSync on _AppHomePageState {
     }
   }
 
-  Future<void> _syncAppFromRemote({required bool showSnack}) async {
-    if (_isSyncingApp) {
+  Future<void> _pushToRemote({required bool showSnack}) async {
+    if (_isPushingApp) {
       return;
     }
 
-    _setState(() => _isSyncingApp = true);
+    _setState(() => _isPushingApp = true);
     try {
-      appendBotDebugLog('[_syncAppFromRemote] START');
+      appendBotDebugLog('[_pushToRemote] START');
       final user = await widget.client.user.get().timeout(const Duration(seconds: 10));
       final botId = user.id.toString();
-      appendBotDebugLog('[_syncAppFromRemote] botId=$botId username=${user.username}');
+      appendBotDebugLog('[_pushToRemote] botId=$botId username=${user.username}');
       final app = await appManager.getApp(botId);
       final token = (app['token'] ?? '').toString().trim();
       if (token.isEmpty) {
         throw Exception('Token not found');
       }
-      appendBotDebugLog('[_syncAppFromRemote] token present, length=${token.length}');
+      appendBotDebugLog('[_pushToRemote] token present, length=${token.length}');
 
       await appManager.createOrUpdateApp(
         id: user.id,
@@ -118,401 +118,440 @@ extension _AppHomePageSync on _AppHomePageState {
         token: token,
       );
 
-      // Pull latest bot config from Manager (synced from other devices)
-      var pullSucceeded = false;
-      try {
-        appendBotDebugLog('[_syncAppFromRemote] resolving Manager client...');
-        final mainClient = await _resolveMainApiClientForBot(
-          botId: botId,
-          botToken: token,
-          attemptSessionRestore: true,
-        );
-        if (mainClient != null) {
-          appendBotDebugLog('[_syncAppFromRemote] Manager client ok, fetching config...');
-          final remoteConfig = await mainClient.getBotConfig(botId).timeout(const Duration(seconds: 15));
-          if (remoteConfig.isNotEmpty) {
-            pullSucceeded = true;
-            // Preserve local-only fields that the Manager doesn't store:
-            // avatar and name are set locally and should survive cross-device sync.
-            final local = await appManager.getApp(botId);
-            remoteConfig['token'] = token;
-            // Strip payload-only boolean fields that collide with local DB list fields.
-            // BotConfig.inboundWebhooks is a premium-capability bool; the local DB uses
-            // the same key for the list of webhook endpoint definitions.
-            if (remoteConfig['inboundWebhooks'] is bool) {
-              remoteConfig.remove('inboundWebhooks');
-            }
-            if (local['avatar'] != null && remoteConfig['avatar'] == null) {
-              remoteConfig['avatar'] = local['avatar'];
-            }
-            if (local['name'] != null && remoteConfig['name'] == null) {
-              remoteConfig['name'] = local['name'];
-            }
+      // Push the full local config to Manager
+      final mainClient = await _resolveMainApiClientForBot(
+        botId: botId,
+        botToken: token,
+        attemptSessionRestore: true,
+      );
+      if (mainClient != null) {
+        appendBotDebugLog('[_pushToRemote] Manager client ok, collecting local config...');
+        final localConfig = await appManager.getApp(botId);
+        final localCommands = await appManager.listAppCommands(botId);
 
-            // Merge global variables so local-only definitions survive sync
-            final localGlobals = local['globalVariables'];
-            final remoteGlobals = remoteConfig['globalVariables'];
-            if (localGlobals is Map) {
-              final mergedGlobals = Map<String, dynamic>.from(localGlobals);
-              if (remoteGlobals is Map) {
-                mergedGlobals.addAll(Map<String, dynamic>.from(remoteGlobals));
-              }
-              remoteConfig['globalVariables'] = mergedGlobals;
-            }
-
-            // Merge scoped variables so local-only definitions survive sync
-            final localScoped = local['scopedVariables'];
-            final remoteScoped = remoteConfig['scopedVariables'];
-            if (localScoped is Map) {
-              final mergedScoped = Map<String, dynamic>.from(localScoped);
-              if (remoteScoped is Map) {
-                mergedScoped.addAll(Map<String, dynamic>.from(remoteScoped));
-              }
-              remoteConfig['scopedVariables'] = mergedScoped;
-            }
-
-            // Merge scoped variable definitions so local-only definitions survive sync
-            final localScopedDefs = local['scopedVariableDefinitions'];
-            final remoteScopedDefs = remoteConfig['scopedVariableDefinitions'];
-            if (localScopedDefs is List) {
-              final mergedScopedDefs = List<dynamic>.from(localScopedDefs);
-              if (remoteScopedDefs is List) {
-                final remoteNames = remoteScopedDefs
-                    .whereType<Map>()
-                    .map((d) => (d['name'] ?? '').toString())
-                    .toSet();
-                for (final def in localScopedDefs) {
-                  if (def is! Map) continue;
-                  final name = (def['name'] ?? '').toString();
-                  if (name.isNotEmpty && !remoteNames.contains(name)) {
-                    mergedScopedDefs.add(def);
-                  }
-                }
-              }
-              remoteConfig['scopedVariableDefinitions'] = mergedScopedDefs;
-            }
-
-            AppManager.isSyncingFromRemote = true;
-            try {
-              await appManager.saveApp(botId, remoteConfig);
-              appendBotDebugLog(
-                '[_syncAppFromRemote] Pulled bot config from Manager for $botId',
-              );
-
-              // Also save individual commands from the Manager config so their
-              // full data (actions, options, workflows) is available locally.
-              final remoteCommands = remoteConfig['commands'];
-              final remoteCommandIds = <String>{};
-              if (remoteCommands is List && remoteCommands.isNotEmpty) {
-                for (final cmd in remoteCommands) {
-                  if (cmd is! Map) continue;
-                  final cmdId = (cmd['id'] ?? cmd['commandId'] ?? '').toString();
-                  final cmdName = (cmd['name'] ?? '').toString();
-                  if (cmdId.isEmpty || cmdName.isEmpty) continue;
-                  remoteCommandIds.add(cmdId);
-
-                  // Always overwrite the local command with the Manager version:
-                  // the user pressed Sync explicitly, so the Manager is the source of truth.
-                  final localCmd = await appManager.getAppCommand(botId, cmdId);
-
-                  // Strip legacy response/simpleConfig from imported commands
-                  final cmdData = Map<String, dynamic>.from(cmd['data'] ?? cmd);
-                  if (cmdData['response'] is Map &&
-                      (cmdData['response'] as Map).containsKey('_migrated')) {
-                    cmdData.remove('response');
-                  }
-                  cmdData.remove('simpleConfig');
-
-                  await appManager.saveAppCommand(botId, cmdId, <String, dynamic>{
-                    'name': cmdName,
-                    'description': (cmd['description'] ?? '').toString(),
-                    'type': cmdData['commandType'] ?? cmd['type'] ?? 'chatInput',
-                    'id': cmdId,
-                    'data': cmdData,
-                    'createdAt': (localCmd['createdAt'] ?? DateTime.now().toIso8601String()).toString(),
-                    'updatedAt': (cmd['updatedAt'] ?? DateTime.now().toIso8601String()).toString(),
-                  });
-                }
-                appendBotDebugLog(
-                  '[_syncAppFromRemote] Upserted ${remoteCommands.length} commands from Manager config for $botId',
-                );
-              }
-
-              final lastSyncedAtStr = local['lastSyncedAt']?.toString();
-              final lastSyncedAt = lastSyncedAtStr != null ? DateTime.tryParse(lastSyncedAtStr) : null;
-
-              // Collect local-only commands and detect deleted commands.
-              final localCommands = await appManager.listAppCommands(botId);
-              final localOnlyCommands = <Map<String, dynamic>>[];
-              final commandsToDelete = <String>[];
-              for (final localCmd in localCommands) {
-                final localCmdId = (localCmd['id'] ?? '').toString();
-                if (localCmdId.isEmpty) continue;
-                if (!remoteCommandIds.contains(localCmdId)) {
-                  final cmdUpdatedAtStr = localCmd['updatedAt']?.toString();
-                  final cmdUpdatedAt = cmdUpdatedAtStr != null ? DateTime.tryParse(cmdUpdatedAtStr) : null;
-                  final isDiscordId = RegExp(r'^\d+$').hasMatch(localCmdId);
-
-                  if (isDiscordId && lastSyncedAt != null && cmdUpdatedAt != null && cmdUpdatedAt.isBefore(lastSyncedAt)) {
-                    // This command existed before the last sync but is now missing from the remote.
-                    // This means it was deleted on another device.
-                    commandsToDelete.add(localCmdId);
-                  } else {
-                    localOnlyCommands.add(Map<String, dynamic>.from(localCmd));
-                  }
-                }
-              }
-
-              for (final cmdId in commandsToDelete) {
-                await appManager.deleteAppCommand(botId, cmdId);
-              }
-              if (commandsToDelete.isNotEmpty) {
-                appendBotDebugLog(
-                  '[_syncAppFromRemote] Deleted ${commandsToDelete.length} locally-deleted commands on $botId',
-                );
-              }
-
-              // Also upsert workflows from the Manager config
-              final remoteWorkflows = remoteConfig['workflows'];
-              final remoteWorkflowNames = <String>{};
-              if (remoteWorkflows is List && remoteWorkflows.isNotEmpty) {
-                for (final wf in remoteWorkflows) {
-                  if (wf is! Map) continue;
-                  final wfName = (wf['name'] ?? '').toString();
-                  if (wfName.isEmpty) continue;
-                  remoteWorkflowNames.add(wfName);
-
-                  // Always overwrite the local workflow with the Manager version.
-                  await appManager.saveWorkflow(
-                    botId,
-                    name: wfName,
-                    actions: ((wf['actions'] as List?) ?? [])
-                        .map((e) => Map<String, dynamic>.from(e as Map))
-                        .toList(),
-                    entryPoint: wf['entryPoint']?.toString(),
-                    arguments: ((wf['arguments'] as List?) ?? [])
-                        .map((e) => Map<String, dynamic>.from(e as Map))
-                        .toList(),
-                    workflowType: wf['workflowType']?.toString(),
-                    eventTrigger: wf['eventTrigger'] != null
-                        ? Map<String, dynamic>.from(wf['eventTrigger'] as Map)
-                        : null,
-                    folder: wf['folder']?.toString(),
-                  );
-                }
-                appendBotDebugLog(
-                  '[_syncAppFromRemote] Upserted ${remoteWorkflows.length} workflows from Manager config for $botId',
-                );
-              }
-
-              // Collect local-only workflows and detect deleted workflows.
-              final localWorkflows = (local['workflows'] as List?)
-                      ?.whereType<Map>()
-                      .map((w) => Map<String, dynamic>.from(w))
-                      .toList() ??
-                  [];
-              final localOnlyWorkflows = <Map<String, dynamic>>[];
-              final workflowsToDelete = <String>[];
-              for (final wf in localWorkflows) {
-                final wfName = (wf['name'] ?? '').toString();
-                if (wfName.isEmpty) continue;
-                if (!remoteWorkflowNames.contains(wfName)) {
-                  final wfUpdatedAtStr = wf['updatedAt']?.toString();
-                  final wfUpdatedAt = wfUpdatedAtStr != null ? DateTime.tryParse(wfUpdatedAtStr) : null;
-
-                  if (lastSyncedAt != null && wfUpdatedAt != null && wfUpdatedAt.isBefore(lastSyncedAt)) {
-                    // This workflow existed before the last sync but is now missing from the remote.
-                    // This means it was deleted on another device.
-                    workflowsToDelete.add(wfName);
-                  } else {
-                    localOnlyWorkflows.add(wf);
-                  }
-                }
-              }
-
-              for (final wfName in workflowsToDelete) {
-                await appManager.deleteWorkflow(botId, wfName);
-              }
-              if (workflowsToDelete.isNotEmpty) {
-                appendBotDebugLog(
-                  '[_syncAppFromRemote] Deleted ${workflowsToDelete.length} locally-deleted workflows on $botId',
-                );
-              }
-
-              // Re-save local-only workflows to database so they survive sync and get pushed back to Manager
-              for (final wf in localOnlyWorkflows) {
-                await appManager.saveWorkflow(
-                  botId,
-                  name: (wf['name'] ?? '').toString(),
-                  actions: ((wf['actions'] as List?) ?? [])
-                      .map((e) => Map<String, dynamic>.from(e as Map))
-                      .toList(),
-                  entryPoint: wf['entryPoint']?.toString(),
-                  arguments: ((wf['arguments'] as List?) ?? [])
-                      .map((e) => Map<String, dynamic>.from(e as Map))
-                      .toList(),
-                  workflowType: wf['workflowType']?.toString(),
-                  eventTrigger: wf['eventTrigger'] != null
-                      ? Map<String, dynamic>.from(wf['eventTrigger'] as Map)
-                      : null,
-                  folder: wf['folder']?.toString(),
-                  eventVariableAliases: wf['eventVariableAliases'] != null
-                      ? Map<String, String>.from(wf['eventVariableAliases'] as Map)
-                      : null,
-                );
-              }
-              if (localOnlyWorkflows.isNotEmpty) {
-                appendBotDebugLog(
-                  '[_syncAppFromRemote] Restored and saved ${localOnlyWorkflows.length} local-only workflows back to storage for $botId',
-                );
-              }
-            } finally {
-              AppManager.isSyncingFromRemote = false;
-            }
-          }
-        }
-      } catch (e) {
-        appendBotDebugLog(
-          '[_syncAppFromRemote] Pull from Manager skipped: $e',
-        );
-      }
-
-      try {
-        appendBotDebugLog('[_syncAppFromRemote] syncing Discord commands...');
-        final remoteCommands = await widget.client.commands.list(
-          withLocalizations: true,
-        ).timeout(const Duration(seconds: 15));
-
-        final allLocal = await appManager.listAppCommands(botId);
-        final reconciledLocalIds = <String>{};
-
-        AppManager.isSyncingFromRemote = true;
-        try {
-          for (final command in remoteCommands) {
-            final commandId = command.id.toString();
-            var local = await appManager.getAppCommand(botId, commandId);
-
-            if (local.isEmpty) {
-              final commandType =
-                  command.type == ApplicationCommandType.user
-                      ? 'user'
-                      : command.type == ApplicationCommandType.message
-                      ? 'message'
-                      : 'chatinput';
-              final match = allLocal.cast<Map<String, dynamic>?>().firstWhere((
-                c,
-              ) {
-                final localId = (c!['id'] ?? '').toString();
-                if (reconciledLocalIds.contains(localId)) return false;
-                if (localId == commandId) return false;
-                final localData = (c['data'] as Map?)?.cast<String, dynamic>();
-                if (localData != null &&
-                    localData['legacyModeEnabled'] == true &&
-                    localData['legacyLocalOnly'] == true) {
-                  return false;
-                }
-                final localName = (c['name'] ?? '').toString();
-                final localType =
-                    (c['type'] ?? 'chatInput').toString().toLowerCase();
-                return localName == command.name && localType == commandType;
-              }, orElse: () => null);
-
-              if (match != null) {
-                final oldId = (match['id'] ?? '').toString();
-                local = match;
-                reconciledLocalIds.add(oldId);
-                await appManager.deleteAppCommand(botId, oldId);
-              } else {
-                // Skip importing this command: it exists on Discord but not in our Cloud config.
-                continue;
-              }
-            }
-
-            final merged = <String, dynamic>{
-              ...local,
-              'id': commandId,
-              'name': command.name,
-              'description': command.description,
-            };
-            await appManager.saveAppCommand(botId, commandId, merged);
-          }
-        } finally {
-          AppManager.isSyncingFromRemote = false;
-        }
-      } catch (_) {}
-
-      final refreshed = await appManager.getApp(botId);
-      if (mounted) {
-        _setState(() {
-          _appName = (refreshed['name'] ?? _appName).toString();
-          avatar = (refreshed['avatar'] ?? avatar).toString();
-        });
-      }
-
-      // Push Discord-reconciled command IDs back to Manager so other devices
-      // get the correct Discord IDs. We only push the commands list (not the
-      // full config) and ONLY if the Manager pull succeeded — otherwise we
-      // risk overwriting the remote with stale local data.
-      if (pullSucceeded) {
-        try {
-          final mainClient = await _resolveMainApiClientForBot(
-            botId: botId,
-            botToken: token,
-            attemptSessionRestore: true,
-          );
-          if (mainClient != null) {
-            // Only send the commands list with reconciled Discord IDs.
-            // Do NOT send the full config — that would overwrite changes
-            // from other devices that we just pulled.
-            final localCommands = await appManager.listAppCommands(botId);
-
-            appendBotDebugLog('[_syncAppFromRemote] pushing reconciled command IDs to Manager...');
-            await mainClient.syncBot(
-              botId,
-              user.username,
-              <String, dynamic>{
-                'commands': localCommands,
-              },
-              force: true,
-            ).timeout(const Duration(seconds: 20));
-            appendBotDebugLog(
-              '[_syncAppFromRemote] Pushed reconciled command IDs to Manager for $botId',
+        // Safety: refuse to push if config is suspiciously small (prevents accidental wipes)
+        final localConfigSize = jsonEncode(localConfig).length;
+        appendBotDebugLog('[_pushToRemote] localCommands=${localCommands.length} configSize=$localConfigSize');
+        if (localCommands.isEmpty && localConfigSize < 50) {
+          appendBotDebugLog('[_pushToRemote] REFUSING PUSH: config is empty or near-empty ($localConfigSize bytes)');
+          if (showSnack && mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(context.tr.bot_home_push_refused_empty),
+                backgroundColor: AppTheme.error,
+              ),
             );
-
-            // Save the last synced timestamp in the local app config
-            final currentApp = await appManager.getApp(botId);
-            final updatedApp = Map<String, dynamic>.from(currentApp)
-              ..['lastSyncedAt'] = DateTime.now().toUtc().toIso8601String();
-            await appManager.saveApp(botId, updatedApp);
-            appendBotDebugLog('[_syncAppFromRemote] Updated lastSyncedAt timestamp.');
           }
-        } catch (e) {
-          appendBotDebugLog(
-            '[_syncAppFromRemote] Failed to push reconciled command IDs to Manager: $e',
-          );
+          return;
         }
-      } else {
-        appendBotDebugLog(
-          '[_syncAppFromRemote] Skipping push-back: Manager pull did not succeed.',
-        );
+
+        final pushData = Map<String, dynamic>.from(localConfig);
+        pushData['commands'] = localCommands;
+        await mainClient.syncBot(
+          botId,
+          user.username,
+          pushData,
+          force: true,
+        ).timeout(const Duration(seconds: 20));
+        appendBotDebugLog('[_pushToRemote] Pushed local config to Manager for $botId');
       }
 
-      appendBotDebugLog('[_syncAppFromRemote] DONE — success');
+      appendBotDebugLog('[_pushToRemote] DONE — success');
       if (showSnack && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.tr.bot_home_sync_success)),
+          SnackBar(content: Text(context.tr.bot_home_push_success)),
         );
       }
     } catch (e) {
-      appendBotDebugLog('[_syncAppFromRemote] FAILED: $e');
+      appendBotDebugLog('[_pushToRemote] FAILED: $e');
       if (showSnack && mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text(e.toString())));
       }
     } finally {
-      _setState(() => _isSyncingApp = false);
+      _setState(() => _isPushingApp = false);
     }
+  }
+
+  // ─── Pull from Cloud ────────────────────────────────────────────
+
+  Future<void> _pullFromRemote({required bool showSnack}) async {
+    if (_isPullingApp) return;
+
+    _setState(() => _isPullingApp = true);
+    try {
+      appendBotDebugLog('[_pullFromRemote] START');
+      final user = await widget.client.user.get().timeout(const Duration(seconds: 10));
+      final botId = user.id.toString();
+      appendBotDebugLog('[_pullFromRemote] botId=$botId username=${user.username}');
+
+      final mainClient = await _resolveMainApiClientForBot(
+        botId: botId,
+        botToken: null,
+        attemptSessionRestore: true,
+      );
+      if (mainClient == null) {
+        throw Exception('Could not connect to Manager');
+      }
+
+      // 1. Fetch remote config
+      appendBotDebugLog('[_pullFromRemote] Fetching remote config...');
+      final remoteConfig = await mainClient.getBotConfig(botId);
+      final remoteCommands = _extractCommandList(remoteConfig['commands']);
+      appendBotDebugLog('[_pullFromRemote] Remote has ${remoteCommands.length} commands');
+
+      // 2. Get local commands
+      final localCommands = await appManager.listAppCommands(botId, forceRefresh: true);
+      appendBotDebugLog('[_pullFromRemote] Local has ${localCommands.length} commands');
+
+      // 3. Compute merge diff
+      final diff = _computeMergeDiff(localCommands, remoteCommands);
+      appendBotDebugLog('[_pullFromRemote] Diff: new=${diff.newCommands.length}, updated=${diff.updatedCommands.length}, unchanged=${diff.unchangedCount}, localOnly=${diff.localOnlyCount}');
+
+      // 4. Show confirmation dialog
+      if (!mounted) return;
+      final confirmed = await _showPullConfirmDialog(
+        diff: diff,
+        remoteTimestamp: _extractTimestamp(remoteConfig),
+        localTimestamp: await _getLocalMaxTimestamp(botId),
+      );
+      if (!confirmed || !mounted) {
+        appendBotDebugLog('[_pullFromRemote] User cancelled');
+        return;
+      }
+
+      // 5. Apply merge
+      appendBotDebugLog('[_pullFromRemote] Applying merge...');
+      await _applyMerge(botId, diff, remoteCommands);
+
+      // 6. Update app metadata
+      final app = await appManager.getApp(botId);
+      await appManager.createOrUpdateApp(
+        id: user.id,
+        username: user.username,
+        avatarHash: user.avatarHash,
+        discriminator: user.discriminator.toString(),
+        token: (app['token'] ?? '').toString(),
+      );
+
+      appendBotDebugLog('[_pullFromRemote] DONE — success');
+      if (showSnack && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.tr.bot_home_pull_success)),
+        );
+      }
+    } catch (e) {
+      appendBotDebugLog('[_pullFromRemote] FAILED: $e');
+      if (showSnack && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+    } finally {
+      _setState(() => _isPullingApp = false);
+    }
+  }
+
+  // ─── Merge helpers ──────────────────────────────────────────────
+
+  /// Extracts a normalized command list from the remote config payload.
+  /// The remote format can be a List of Maps or a Map keyed by command ID.
+  List<Map<String, dynamic>> _extractCommandList(dynamic raw) {
+    if (raw is List) {
+      return raw
+          .whereType<Map>()
+          .map((e) => Map<String, dynamic>.from(e.cast<String, dynamic>()))
+          .toList(growable: false);
+    }
+    if (raw is Map) {
+      return raw.values
+          .whereType<Map>()
+          .map((e) => Map<String, dynamic>.from(e.cast<String, dynamic>()))
+          .toList(growable: false);
+    }
+    return const <Map<String, dynamic>>[];
+  }
+
+  DateTime? _parseTimestamp(dynamic raw) {
+    if (raw == null) return null;
+    if (raw is DateTime) return raw;
+    return DateTime.tryParse(raw.toString());
+  }
+
+  String _extractTimestamp(Map<String, dynamic> config) {
+    final commands = _extractCommandList(config['commands']);
+    DateTime? latest;
+    for (final cmd in commands) {
+      final t = _parseTimestamp(cmd['updatedAt']);
+      if (t != null && (latest == null || t.isAfter(latest))) {
+        latest = t;
+      }
+    }
+    if (latest != null) {
+      return latest.toLocal().toString().substring(0, 19);
+    }
+    final configTs = _parseTimestamp(config['updatedAt'] ?? config['savedAt']);
+    if (configTs != null) {
+      return configTs.toLocal().toString().substring(0, 19);
+    }
+    return 'Unknown';
+  }
+
+  Future<String> _getLocalMaxTimestamp(String botId) async {
+    final commands = await appManager.listAppCommands(botId, forceRefresh: true);
+    DateTime? latest;
+    for (final cmd in commands) {
+      final t = _parseTimestamp(cmd['updatedAt']);
+      if (t != null && (latest == null || t.isAfter(latest))) {
+        latest = t;
+      }
+    }
+    if (latest != null) {
+      return latest.toLocal().toString().substring(0, 19);
+    }
+    return 'Unknown';
+  }
+
+  _MergeDiff _computeMergeDiff(
+    List<Map<String, dynamic>> localCommands,
+    List<Map<String, dynamic>> remoteCommands,
+  ) {
+    final localById = <String, Map<String, dynamic>>{};
+    for (final cmd in localCommands) {
+      final id = (cmd['id'] ?? cmd['name'] ?? '').toString();
+      if (id.isNotEmpty) localById[id] = cmd;
+    }
+
+    final newCommands = <Map<String, dynamic>>[];
+    final updatedCommands = <Map<String, dynamic>>[];
+    var unchangedCount = 0;
+
+    for (final remoteCmd in remoteCommands) {
+      final id = (remoteCmd['id'] ?? remoteCmd['name'] ?? '').toString();
+      if (id.isEmpty) continue;
+
+      final localCmd = localById[id];
+      if (localCmd == null) {
+        newCommands.add(remoteCmd);
+      } else {
+        final remoteUpdated = _parseTimestamp(remoteCmd['updatedAt']);
+        final localUpdated = _parseTimestamp(localCmd['updatedAt']);
+        if (remoteUpdated != null && localUpdated != null && remoteUpdated.isAfter(localUpdated)) {
+          updatedCommands.add(remoteCmd);
+        } else {
+          unchangedCount++;
+        }
+        localById.remove(id);
+      }
+    }
+
+    return _MergeDiff(
+      newCommands: newCommands,
+      updatedCommands: updatedCommands,
+      unchangedCount: unchangedCount,
+      localOnlyCount: localById.length,
+    );
+  }
+
+  Future<void> _applyMerge(
+    String botId,
+    _MergeDiff diff,
+    List<Map<String, dynamic>> remoteCommands,
+  ) async {
+    for (final cmd in diff.newCommands) {
+      final cmdId = (cmd['id'] ?? cmd['name'] ?? '').toString();
+      if (cmdId.isEmpty) continue;
+      await appManager.saveAppCommand(botId, cmdId, cmd);
+    }
+
+    for (final cmd in diff.updatedCommands) {
+      final cmdId = (cmd['id'] ?? cmd['name'] ?? '').toString();
+      if (cmdId.isEmpty) continue;
+      await appManager.saveAppCommand(botId, cmdId, cmd);
+    }
+  }
+
+  // ─── Pull confirmation dialog ───────────────────────────────────
+
+  Future<bool> _showPullConfirmDialog({
+    required _MergeDiff diff,
+    required String remoteTimestamp,
+    required String localTimestamp,
+  }) async {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.cloud_download, color: colorScheme.primary),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                context.tr.bot_home_pull,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
+        ),
+        content: SizedBox(
+          width: 400,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Timestamp comparison
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: colorScheme.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  children: [
+                    _buildTimestampRow(
+                      icon: Icons.cloud,
+                      label: context.tr.bot_home_pull_dialog_remote,
+                      timestamp: remoteTimestamp,
+                      color: colorScheme.primary,
+                    ),
+                    const SizedBox(height: 8),
+                    _buildTimestampRow(
+                      icon: Icons.phone_android,
+                      label: context.tr.bot_home_pull_dialog_local,
+                      timestamp: localTimestamp,
+                      color: colorScheme.secondary,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Change summary
+              if (diff.hasChanges) ...[
+                Text(
+                  context.tr.bot_home_pull_dialog_changes,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                if (diff.newCommands.isNotEmpty)
+                  _buildChangeRow(
+                    Icons.add_circle_outline,
+                    '${diff.newCommands.length} ${context.tr.bot_home_pull_dialog_new_commands}',
+                    AppTheme.successAccent,
+                  ),
+                if (diff.updatedCommands.isNotEmpty)
+                  _buildChangeRow(
+                    Icons.update,
+                    '${diff.updatedCommands.length} ${context.tr.bot_home_pull_dialog_updated_commands}',
+                    AppTheme.warning,
+                  ),
+                _buildChangeRow(
+                  Icons.check_circle_outline,
+                  '${diff.unchangedCount} ${context.tr.bot_home_pull_dialog_unchanged}',
+                  AppTheme.grey,
+                ),
+                _buildChangeRow(
+                  Icons.phone_android,
+                  '${diff.localOnlyCount} ${context.tr.bot_home_pull_dialog_local_only}',
+                  colorScheme.secondary,
+                ),
+              ] else
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    children: [
+                      Icon(Icons.check_circle, color: AppTheme.successAccent),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          context.tr.bot_home_pull_dialog_up_to_date,
+                          style: TextStyle(color: AppTheme.successAccent),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+              // Warning about local-only commands
+              if (diff.localOnlyCount > 0) ...[
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: colorScheme.secondary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.info_outline, size: 16, color: colorScheme.secondary),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          '${diff.localOnlyCount} ${context.tr.bot_home_pull_dialog_local_preserved}',
+                          style: TextStyle(fontSize: 12, color: colorScheme.secondary),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(context.tr.common_cancel),
+          ),
+          FilledButton.icon(
+            onPressed: diff.hasChanges ? () => Navigator.of(ctx).pop(true) : null,
+            icon: const Icon(Icons.cloud_download, size: 18),
+            label: Text(
+              diff.hasChanges
+                  ? '${context.tr.bot_home_pull} (${diff.newCommands.length + diff.updatedCommands.length})'
+                  : context.tr.bot_home_pull,
+            ),
+          ),
+        ],
+      ),
+    ).then((v) => v ?? false);
+  }
+
+  Widget _buildTimestampRow({
+    required IconData icon,
+    required String label,
+    required String timestamp,
+    required Color color,
+  }) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: color),
+        const SizedBox(width: 8),
+        Text(label, style: TextStyle(fontSize: 12, color: color)),
+        const Spacer(),
+        Text(timestamp, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+      ],
+    );
+  }
+
+  Widget _buildChangeRow(IconData icon, String label, Color color) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: color),
+          const SizedBox(width: 8),
+          Text(label, style: const TextStyle(fontSize: 13)),
+        ],
+      ),
+    );
   }
 
   Future<int?> _fetchMainApiRuntimeBalance(String botId) async {
@@ -587,4 +626,22 @@ extension _AppHomePageSync on _AppHomePageState {
     return false;
   }
 
+}
+
+// ─── Merge diff data class ────────────────────────────────────────
+
+class _MergeDiff {
+  final List<Map<String, dynamic>> newCommands;
+  final List<Map<String, dynamic>> updatedCommands;
+  final int unchangedCount;
+  final int localOnlyCount;
+
+  const _MergeDiff({
+    required this.newCommands,
+    required this.updatedCommands,
+    required this.unchangedCount,
+    required this.localOnlyCount,
+  });
+
+  bool get hasChanges => newCommands.isNotEmpty || updatedCommands.isNotEmpty;
 }

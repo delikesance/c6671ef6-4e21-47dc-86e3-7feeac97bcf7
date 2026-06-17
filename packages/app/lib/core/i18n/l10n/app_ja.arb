@@ -9643,5 +9643,93 @@
   "workflows_type_event_desc": "Discordがイベントを発行すると自動的に反応します。",
   "workflows_type_general": "一般ワークフロー",
   "workflows_type_general_desc": "コマンド、ボタン、モーダル、他のワークフローから呼び出される再利用可能なロジック。",
-  "workflows_type_title": "ワークフロータイプ"
+  "workflows_type_title": "ワークフロータイプ",
+  "bot_config_versions_empty": "以前のバージョンは見つかりません",
+  "@bot_config_versions_empty": {
+    "description": "No versions found message"
+  },
+  "bot_config_versions_error": "バージョンの読み込みに失敗しました",
+  "@bot_config_versions_error": {
+    "description": "Failed to load versions error"
+  },
+  "bot_config_versions_restore": "復元",
+  "@bot_config_versions_restore": {
+    "description": "Restore version button"
+  },
+  "bot_config_versions_restore_confirm": "このバージョンを復元しますか？現在の設定は先にバックアップされます。",
+  "@bot_config_versions_restore_confirm": {
+    "description": "Confirmation dialog message"
+  },
+  "bot_config_versions_restore_error": "バージョンの復元に失敗しました",
+  "@bot_config_versions_restore_error": {
+    "description": "Failed to restore version error"
+  },
+  "bot_config_versions_restored": "設定が正常に復元されました！",
+  "@bot_config_versions_restored": {
+    "description": "Version restored success message"
+  },
+  "bot_config_versions_title": "バージョン履歴",
+  "@bot_config_versions_title": {
+    "description": "Version history page title"
+  },
+  "bot_home_pull": "クラウドからダウンロード",
+  "@bot_home_pull": {
+    "description": "Pull App"
+  },
+  "bot_home_pull_dialog_changes": "適用する変更:",
+  "@bot_home_pull_dialog_changes": {
+    "description": "Pull dialog: changes to apply header"
+  },
+  "bot_home_pull_dialog_local": "ローカル (端末)",
+  "@bot_home_pull_dialog_local": {
+    "description": "Pull dialog: local device label"
+  },
+  "bot_home_pull_dialog_local_only": "ローカルのみ (保持)",
+  "@bot_home_pull_dialog_local_only": {
+    "description": "Pull dialog: local-only count label"
+  },
+  "bot_home_pull_dialog_local_preserved": "クラウドにないローカルコマンドは保持されます。",
+  "@bot_home_pull_dialog_local_preserved": {
+    "description": "Pull dialog: local commands will be preserved notice"
+  },
+  "bot_home_pull_dialog_new_commands": "新しいコマンド",
+  "@bot_home_pull_dialog_new_commands": {
+    "description": "Pull dialog: new commands count label"
+  },
+  "bot_home_pull_dialog_remote": "リモート (クラウド)",
+  "@bot_home_pull_dialog_remote": {
+    "description": "Pull dialog: remote cloud label"
+  },
+  "bot_home_pull_dialog_unchanged": "変更なし",
+  "@bot_home_pull_dialog_unchanged": {
+    "description": "Pull dialog: unchanged count label"
+  },
+  "bot_home_pull_dialog_up_to_date": "既に最新です — 変更は必要ありません。",
+  "@bot_home_pull_dialog_up_to_date": {
+    "description": "Pull dialog: already up to date message"
+  },
+  "bot_home_pull_dialog_updated_commands": "更新されたコマンド",
+  "@bot_home_pull_dialog_updated_commands": {
+    "description": "Pull dialog: updated commands count label"
+  },
+  "bot_home_pull_success": "アプリをクラウドから正常にダウンロードしました",
+  "@bot_home_pull_success": {
+    "description": "App pulled successfully"
+  },
+  "bot_home_push": "クラウドにアップロード",
+  "@bot_home_push": {
+    "description": "Push App"
+  },
+  "bot_home_push_refused_empty": "プッシュ拒否: ローカル設定が空または破損しています。コマンドを確認してください。",
+  "@bot_home_push_refused_empty": {
+    "description": "Push refused: config empty or corrupted"
+  },
+  "bot_home_push_success": "アプリをクラウドに正常にアップロードしました",
+  "@bot_home_push_success": {
+    "description": "App pushed successfully"
+  },
+  "bot_home_version_history": "バージョン履歴",
+  "@bot_home_version_history": {
+    "description": "Version history action button"
+  }
 }

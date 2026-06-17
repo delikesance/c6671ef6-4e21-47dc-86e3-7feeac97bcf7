@@ -1659,6 +1659,77 @@ class AppLocalizationsTr extends AppLocalizations {
   String get bot_home_sync_success => 'Uygulama başarıyla senkronize edildi';
 
   @override
+  String get bot_home_pull => 'Buluttan İndir';
+
+  @override
+  String get bot_home_push => 'Buluta Gönder';
+
+  @override
+  String get bot_home_pull_success => 'Uygulama buluttan başarıyla indirildi';
+
+  @override
+  String get bot_home_push_success => 'Uygulama buluta başarıyla gönderildi';
+
+  @override
+  String get bot_home_version_history => 'Sürüm Geçmişi';
+
+  @override
+  String get bot_config_versions_title => 'Sürüm Geçmişi';
+
+  @override
+  String get bot_config_versions_empty => 'Önceki sürüm bulunamadı';
+
+  @override
+  String get bot_config_versions_restore => 'Geri Yükle';
+
+  @override
+  String get bot_config_versions_restore_confirm =>
+      'Bu sürüm geri yüklensin mi? Mevcut yapılandırmanız önce yedeklenecek.';
+
+  @override
+  String get bot_config_versions_restored =>
+      'Yapılandırma başarıyla geri yüklendi!';
+
+  @override
+  String get bot_config_versions_error => 'Sürümler yüklenemedi';
+
+  @override
+  String get bot_config_versions_restore_error => 'Sürüm geri yüklenemedi';
+
+  @override
+  String get bot_home_pull_dialog_changes => 'Uygulanacak değişiklikler:';
+
+  @override
+  String get bot_home_pull_dialog_local => 'Yerel (Cihaz)';
+
+  @override
+  String get bot_home_pull_dialog_local_only => 'yalnızca yerel (saklandı)';
+
+  @override
+  String get bot_home_pull_dialog_local_preserved =>
+      'Bulutta olmayan yerel komut(lar) korunacak.';
+
+  @override
+  String get bot_home_pull_dialog_new_commands => 'yeni komut(lar)';
+
+  @override
+  String get bot_home_pull_dialog_remote => 'Uzak (Bulut)';
+
+  @override
+  String get bot_home_pull_dialog_unchanged => 'değişmedi';
+
+  @override
+  String get bot_home_pull_dialog_up_to_date =>
+      'Zaten güncel — değişiklik gerekmiyor.';
+
+  @override
+  String get bot_home_pull_dialog_updated_commands => 'güncellenen komut(lar)';
+
+  @override
+  String get bot_home_push_refused_empty =>
+      'Push reddedildi: Yerel yapılandırma boş veya bozuk. Komutlarınızı kontrol edin.';
+
+  @override
   String get bot_home_token_invalid_content =>
       'Sağlanan jeton ile Discord\'a bağlanılamıyor. Geçersiz olabilir veya iptal edilmiş olabilir. Botu yine de başlatmak istiyor musunuz?';
 

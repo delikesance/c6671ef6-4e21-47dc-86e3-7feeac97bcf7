@@ -1651,6 +1651,77 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bot_home_sync_success => 'App synced successfully';
 
   @override
+  String get bot_home_pull => 'Pull from Cloud';
+
+  @override
+  String get bot_home_push => 'Push to Cloud';
+
+  @override
+  String get bot_home_pull_success => 'App pulled from cloud successfully';
+
+  @override
+  String get bot_home_push_success => 'App pushed to cloud successfully';
+
+  @override
+  String get bot_home_version_history => 'Version History';
+
+  @override
+  String get bot_config_versions_title => 'Version History';
+
+  @override
+  String get bot_config_versions_empty => 'No previous versions found';
+
+  @override
+  String get bot_config_versions_restore => 'Restore';
+
+  @override
+  String get bot_config_versions_restore_confirm =>
+      'Restore this version? Your current config will be backed up first.';
+
+  @override
+  String get bot_config_versions_restored =>
+      'Configuration restored successfully!';
+
+  @override
+  String get bot_config_versions_error => 'Failed to load versions';
+
+  @override
+  String get bot_config_versions_restore_error => 'Failed to restore version';
+
+  @override
+  String get bot_home_pull_dialog_changes => 'Changes to apply:';
+
+  @override
+  String get bot_home_pull_dialog_local => 'Local (Device)';
+
+  @override
+  String get bot_home_pull_dialog_local_only => 'local-only (kept)';
+
+  @override
+  String get bot_home_pull_dialog_local_preserved =>
+      'local command(s) not on remote will be preserved.';
+
+  @override
+  String get bot_home_pull_dialog_new_commands => 'new command(s)';
+
+  @override
+  String get bot_home_pull_dialog_remote => 'Remote (Cloud)';
+
+  @override
+  String get bot_home_pull_dialog_unchanged => 'unchanged';
+
+  @override
+  String get bot_home_pull_dialog_up_to_date =>
+      'Already up to date — no changes needed.';
+
+  @override
+  String get bot_home_pull_dialog_updated_commands => 'updated command(s)';
+
+  @override
+  String get bot_home_push_refused_empty =>
+      'Refusing to push: local config is empty or corrupted. Check your commands.';
+
+  @override
   String get bot_home_token_invalid_content =>
       'Unable to connect to Discord with the provided token. It may be invalid or revoked. Do you want to start the bot anyway?';
 
