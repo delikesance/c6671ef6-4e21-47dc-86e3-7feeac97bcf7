@@ -89,6 +89,7 @@ class _AppCreatePageState extends State<AppCreatePage> {
         ),
         FilledButton.icon(
           onPressed: () {
+            Navigator.of(context).pop(); // close dialog first
             _openExternalPage(tutorialUrl);
           },
           icon: const Icon(Icons.open_in_new_rounded, size: 18),
