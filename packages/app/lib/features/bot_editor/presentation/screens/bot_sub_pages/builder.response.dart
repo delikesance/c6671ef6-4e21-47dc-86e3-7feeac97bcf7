@@ -434,6 +434,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
         'author',
         'duration',
         'uri',
+        'thumbnail',
       ]) {
         _addSuggestionIfMissing(
           bucket,
@@ -459,6 +460,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
         'volume',
         'isPaused',
         'isLooping',
+        'thumbnail',
       ]) {
         final kind = (name == 'queueSize' || name == 'volume')
             ? VariableSuggestionKind.numeric
