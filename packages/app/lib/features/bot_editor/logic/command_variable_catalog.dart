@@ -196,6 +196,11 @@ const List<CommandVariableCatalogEntry> commandBuiltinVariableCatalog =
         kind: VariableSuggestionKind.nonNumeric,
       ),
       CommandVariableCatalogEntry(
+        name: 'lavalink.thumbnail',
+        description: 'Artwork or thumbnail URL of the currently playing track.',
+        kind: VariableSuggestionKind.nonNumeric,
+      ),
+      CommandVariableCatalogEntry(
         name: 'commandName',
         description: 'Registered name of the executed command.',
         kind: VariableSuggestionKind.nonNumeric,
