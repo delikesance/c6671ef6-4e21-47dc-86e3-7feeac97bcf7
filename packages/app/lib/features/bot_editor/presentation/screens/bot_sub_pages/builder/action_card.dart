@@ -111,7 +111,7 @@ class ActionCard extends StatelessWidget {
 
   Key _parameterInputKey(String paramKey) {
     final version = fieldRefreshVersionOf(paramKey);
-    return ValueKey('param-input-${action.runtimeId}-$paramKey-v$version');
+    return ValueKey('param-input-${action.id}-$paramKey-v$version');
   }
 
   @override
@@ -4035,10 +4035,13 @@ class _NumberParameterFieldState extends State<_NumberParameterField> {
     );
   }
 
+  final FocusNode _numberFocusNode = FocusNode();
+
   @override
   void didUpdateWidget(_NumberParameterField oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.currentValue != widget.currentValue) {
+    if (oldWidget.currentValue != widget.currentValue &&
+        !_numberFocusNode.hasFocus) {
       _controller.text =
           (widget.currentValue ?? widget.paramDef.defaultValue).toString();
     }
@@ -4047,6 +4050,7 @@ class _NumberParameterFieldState extends State<_NumberParameterField> {
   @override
   void dispose() {
     _controller.dispose();
+    _numberFocusNode.dispose();
     super.dispose();
   }
 
@@ -4089,6 +4093,7 @@ class _NumberParameterFieldState extends State<_NumberParameterField> {
         const SizedBox(height: 4),
         TextFormField(
           controller: _controller,
+          focusNode: _numberFocusNode,
           keyboardType: TextInputType.text,
           decoration: InputDecoration(
             hintText: _localizeHint(widget.paramDef.hint),
@@ -4317,6 +4322,7 @@ class _TextParameterField extends StatefulWidget {
 
 class _TextParameterFieldState extends State<_TextParameterField> {
   late TextEditingController _controller;
+  final FocusNode _textFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -4329,7 +4335,8 @@ class _TextParameterFieldState extends State<_TextParameterField> {
   @override
   void didUpdateWidget(_TextParameterField oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.currentValue != widget.currentValue) {
+    if (oldWidget.currentValue != widget.currentValue &&
+        !_textFocusNode.hasFocus) {
       final newText = (widget.currentValue ?? widget.paramDef.defaultValue).toString();
       if (_controller.text != newText) {
         _controller.text = newText;
@@ -4343,6 +4350,7 @@ class _TextParameterFieldState extends State<_TextParameterField> {
   @override
   void dispose() {
     _controller.dispose();
+    _textFocusNode.dispose();
     super.dispose();
   }
 
@@ -4433,6 +4441,7 @@ class _TextParameterFieldState extends State<_TextParameterField> {
         const SizedBox(height: 4),
         TextFormField(
           controller: _controller,
+          focusNode: _textFocusNode,
           maxLines: widget.paramKey.toLowerCase().contains('content') ? 3 : 1,
           decoration: InputDecoration(
             hintText: _localizeHint(widget.paramDef.hint),
@@ -4485,6 +4494,16 @@ class _BdfdScriptParameterFieldState extends State<_BdfdScriptParameterField> {
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(_BdfdScriptParameterField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.currentValue != widget.currentValue &&
+        _controller.text != widget.currentValue) {
+      _controller.text = widget.currentValue;
+      _recompile();
+    }
   }
 
   void _recompile() {

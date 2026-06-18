@@ -60,6 +60,23 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
   @override
   void initState() {
     super.initState();
+    // Scan existing action IDs to prevent suffix collision with new actions
+    int maxSuffix = -1;
+    final seqIdRegex = RegExp(r'^action_(\d+)$');
+    for (final action in widget.initialActions) {
+      final rawId = (action['id'] ?? '').toString().trim();
+      final match = seqIdRegex.firstMatch(rawId);
+      if (match != null) {
+        final val = int.tryParse(match.group(1) ?? '');
+        if (val != null && val > maxSuffix) {
+          maxSuffix = val;
+        }
+      }
+    }
+    if (maxSuffix >= 0) {
+      _actionCounter = maxSuffix + 1;
+    }
+
     for (final action in widget.initialActions) {
       final item = ActionItem.fromJson(
         action,
