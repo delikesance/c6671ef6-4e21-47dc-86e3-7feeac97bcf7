@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:bot_creator/core/models/types/app_emoji.dart';
-import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder/action_types.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder/action_type_extension.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder/action_card.dart';
