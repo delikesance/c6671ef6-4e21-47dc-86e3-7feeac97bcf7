@@ -56,7 +56,8 @@ class DiscordRunner {
     final requiresReconnect =
         previousConfig.token.trim() != newConfig.token.trim() ||
         !_sameIntents(previousConfig.intents, newConfig.intents) ||
-        previousConfig.autoSharding != newConfig.autoSharding;
+        previousConfig.autoSharding != newConfig.autoSharding ||
+        (previousConfig.lavalinkConfig != null) != (newConfig.lavalinkConfig != null);
 
     config = newConfig;
     store.updateConfig(newConfig);

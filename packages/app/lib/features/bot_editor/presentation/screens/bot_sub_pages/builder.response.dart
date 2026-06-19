@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:bot_creator_shared/types/action.dart' show BotCreatorActionType;
 import 'package:bot_creator/core/models/types/app_emoji.dart';
 import 'package:bot_creator_shared/types/variable_suggestion.dart' as shared;
-import 'package:bot_creator_shared/utils/variable_catalog.dart' show inferCategory;
+import 'package:bot_creator_shared/utils/variable_catalog.dart'
+    show inferCategory;
 import 'builder/action_types.dart';
 import 'builder/action_type_extension.dart';
 import 'builder/action_summary.dart';
@@ -131,6 +132,48 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
     _triggerOnChanged();
   }
 
+  void _pasteActionAt(int index, Map<String, dynamic> copiedActionJson) {
+    setState(() {
+      final newId = 'action_${_actionCounter++}';
+
+      final clonedJson = Map<String, dynamic>.from(copiedActionJson);
+      clonedJson['id'] = newId;
+      clonedJson['key'] = newId;
+      clonedJson['runtimeId'] = newId;
+
+      if (clonedJson['payload'] is Map) {
+        final payload = Map<String, dynamic>.from(clonedJson['payload'] as Map);
+        payload['_actionId'] = newId;
+        clonedJson['payload'] = payload;
+      }
+
+      final item = ActionItem.fromJson(clonedJson, fallbackId: newId);
+
+      if (index >= _actions.length) {
+        _actions.add(item);
+      } else {
+        _actions.insert(index, item);
+      }
+    });
+    _triggerOnChanged();
+  }
+
+  void _duplicateAction(int index) {
+    if (index >= 0 && index < _actions.length) {
+      final actionJson = _actions[index].toJson();
+      _pasteActionAt(index + 1, actionJson);
+    }
+  }
+
+  void _pasteAction() async {
+    final copied = await ActionClipboard.getCopiedAction();
+    if (copied != null) {
+      _pasteActionAt(_actions.length, copied);
+    }
+  }
+
+  static String _localString(String val) => val;
+
   void _moveAction(int fromIndex, int toIndex) {
     if (fromIndex < 0 ||
         toIndex < 0 ||
@@ -164,8 +207,11 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
         }
 
         if (key == '__onErrorMode__') {
-          _actions[actionIndex].onErrorMode =
-              value == 'continue' ? 'continue' : (value == 'jump' ? 'jump' : (value == 'skip' ? 'skip' : 'stop'));
+          _actions[actionIndex].onErrorMode = value == 'continue'
+              ? 'continue'
+              : (value == 'jump'
+                    ? 'jump'
+                    : (value == 'skip' ? 'skip' : 'stop'));
           return;
         }
 
@@ -175,7 +221,8 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
         }
 
         if (key == '__onErrorSkipCount__') {
-          _actions[actionIndex].skipCount = int.tryParse(value?.toString() ?? '') ?? 1;
+          _actions[actionIndex].skipCount =
+              int.tryParse(value?.toString() ?? '') ?? 1;
           return;
         }
 
@@ -216,20 +263,21 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
         if (value == null || (value is String && value.trim().isEmpty)) {
           showDialog(
             context: context,
-            builder:
-                (context) => AlertDialog(
-                  title: Text(context.tr.actions_missing_field_title),
-                  content: Text(
-                    context.tr.actions_missing_field_content(
-                        action.type.displayName(context), def.key),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Text(context.tr.common_ok),
-                    ),
-                  ],
+            builder: (context) => AlertDialog(
+              title: Text(context.tr.actions_missing_field_title),
+              content: Text(
+                context.tr.actions_missing_field_content(
+                  action.type.displayName(context),
+                  def.key,
                 ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(context.tr.common_ok),
+                ),
+              ],
+            ),
           );
           return;
         }
@@ -261,20 +309,17 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
     if (trimmed.isEmpty) {
       return;
     }
-    bucket.putIfAbsent(
-      trimmed,
-      () {
-        // Infer category from name prefix when none explicitly set.
-        final effectiveCategory = category != shared.VariableCategory.other
-            ? category
-            : inferCategory(trimmed);
-        return VariableSuggestion(
-          name: trimmed,
-          kind: kind,
-          category: effectiveCategory,
-        );
-      },
-    );
+    bucket.putIfAbsent(trimmed, () {
+      // Infer category from name prefix when none explicitly set.
+      final effectiveCategory = category != shared.VariableCategory.other
+          ? category
+          : inferCategory(trimmed);
+      return VariableSuggestion(
+        name: trimmed,
+        kind: kind,
+        category: effectiveCategory,
+      );
+    });
   }
 
   void _addActionOutputSuggestions(
@@ -465,16 +510,8 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
         final kind = (name == 'queueSize' || name == 'volume')
             ? VariableSuggestionKind.numeric
             : VariableSuggestionKind.nonNumeric;
-        _addSuggestionIfMissing(
-          bucket,
-          'action.$resultKey.$name',
-          kind,
-        );
-        _addSuggestionIfMissing(
-          bucket,
-          '$resultKey.$name',
-          kind,
-        );
+        _addSuggestionIfMissing(bucket, 'action.$resultKey.$name', kind);
+        _addSuggestionIfMissing(bucket, '$resultKey.$name', kind);
       }
     }
 
@@ -485,7 +522,8 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
       // Read key the same way the runtime executor does:
       // from the serialized payload, not from parameters.
       final serialized = action.toJson();
-      final payload = serialized['payload'] as Map<String, dynamic>? ?? const {};
+      final payload =
+          serialized['payload'] as Map<String, dynamic>? ?? const {};
       final rawKey = (payload['key'] ?? '').toString().trim();
       if (rawKey.isNotEmpty) {
         // Strip bc_ prefix if present (matching runtime storage convention).
@@ -505,16 +543,14 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
     // input's customId as a variable so downstream actions can reference
     // the submitted values via modal.<customId>.
     if (type == BotCreatorActionType.respondWithModal) {
-      final modalJson =
-          action.parameters['modal'] as Map<String, dynamic>?;
+      final modalJson = action.parameters['modal'] as Map<String, dynamic>?;
       if (modalJson != null) {
         final inputs =
             (modalJson['inputs'] as List<dynamic>?)
                 ?.whereType<Map<String, dynamic>>() ??
             const [];
         for (final input in inputs) {
-          final customId =
-              (input['customId'] ?? '').toString().trim();
+          final customId = (input['customId'] ?? '').toString().trim();
           if (customId.isEmpty) continue;
           _addSuggestionIfMissing(
             bucket,
@@ -540,19 +576,16 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
       if (normalizedName.isEmpty) {
         continue;
       }
-      merged.putIfAbsent(
-        normalizedName,
-        () {
-          final cat = item.category != shared.VariableCategory.other
-              ? item.category
-              : inferCategory(normalizedName);
-          return VariableSuggestion(
-            name: normalizedName,
-            kind: item.kind,
-            category: cat,
-          );
-        },
-      );
+      merged.putIfAbsent(normalizedName, () {
+        final cat = item.category != shared.VariableCategory.other
+            ? item.category
+            : inferCategory(normalizedName);
+        return VariableSuggestion(
+          name: normalizedName,
+          kind: item.kind,
+          category: cat,
+        );
+      });
     }
 
     for (final action in _actions) {
@@ -572,8 +605,6 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
 
     return merged.values.toList(growable: false);
   }
-
-
 
   void _showAddActionDialog() {
     final mediaQuery = MediaQuery.of(context);
@@ -633,14 +664,11 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
                   if (actionsByCategory.isEmpty)
                     Padding(
                       padding: const EdgeInsets.only(top: 60),
-                      child: Center(
-                        child: Text(context.tr.actions_no_matches),
-                      ),
+                      child: Center(child: Text(context.tr.actions_no_matches)),
                     )
                   else
                     ...actionsByCategory.entries.map(
-                      (entry) =>
-                          _buildActionCategory(entry.key, entry.value),
+                      (entry) => _buildActionCategory(entry.key, entry.value),
                     ),
                 ],
               ),
@@ -1236,7 +1264,8 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
 
     // ── Modal/component submit: no nested modals ───────────────────────────
     // You cannot show a modal inside a modal submit handler.
-    if (widget.isWorkflow && widget.isInteraction &&
+    if (widget.isWorkflow &&
+        widget.isInteraction &&
         type == BotCreatorActionType.respondWithModal) {
       return false;
     }
@@ -1288,16 +1317,57 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
   Widget _buildAddBlockButton() {
     return Padding(
       padding: const EdgeInsets.only(top: 4),
-      child: OutlinedButton.icon(
-        onPressed: _showAddActionDialog,
-        icon: const Icon(Icons.add),
-        label: Text(context.tr.scratch_add_block),
-        style: OutlinedButton.styleFrom(
-          minimumSize: const Size(double.infinity, 48),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-          ),
-        ),
+      child: FutureBuilder<bool>(
+        future: ActionClipboard.hasCopiedAction(),
+        builder: (context, snapshot) {
+          final hasCopied = snapshot.data ?? false;
+          if (!hasCopied) {
+            return OutlinedButton.icon(
+              onPressed: _showAddActionDialog,
+              icon: const Icon(Icons.add),
+              label: Text(context.tr.scratch_add_block),
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 48),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                ),
+              ),
+            );
+          }
+          return Row(
+            children: [
+              Expanded(
+                flex: 2,
+                child: OutlinedButton.icon(
+                  onPressed: _showAddActionDialog,
+                  icon: const Icon(Icons.add),
+                  label: Text(context.tr.scratch_add_block),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(0, 48),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 1,
+                child: OutlinedButton.icon(
+                  onPressed: _pasteAction,
+                  icon: const Icon(Icons.paste),
+                  label: Text(_localString('Paste')),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(0, 48),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -1350,29 +1420,45 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
                   _removeAction(action.runtimeId, expectedIndex: absoluteIndex);
                 }
               },
-              onMoveUp: absoluteIndex > 0 ? () => _moveAction(absoluteIndex, absoluteIndex - 1) : null,
-              onMoveDown: absoluteIndex < _actions.length - 1 ? () => _moveAction(absoluteIndex, absoluteIndex + 1) : null,
-              onParameterChanged: (key, value) => _updateActionParameter(action.id, key, value),
-              onSuggestionSelected: (key, value) => _updateActionParameter(action.id, key, value, forceFieldRefresh: true),
-              fieldRefreshVersionOf: (paramKey) => _fieldRefreshVersions['${action.id}::$paramKey'] ?? 0,
-              onEditNestedActions: (current, suggestions, blockName, {onChanged}) async {
-                return await Navigator.push<List<Map<String, dynamic>>>(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => ActionsBuilderPage(
-                      initialActions: current,
-                      variableSuggestions: suggestions,
-                      emojiSuggestions: widget.emojiSuggestions,
-                      botIdForConfig: widget.botIdForConfig,
-                      editPath: [...widget.editPath, blockName],
-                      onChanged: onChanged,
-                      isInteraction: widget.isInteraction,
-                      isWorkflow: widget.isWorkflow,
-                    ),
-                  ),
-                );
-              },
+              onMoveUp: absoluteIndex > 0
+                  ? () => _moveAction(absoluteIndex, absoluteIndex - 1)
+                  : null,
+              onMoveDown: absoluteIndex < _actions.length - 1
+                  ? () => _moveAction(absoluteIndex, absoluteIndex + 1)
+                  : null,
+              onParameterChanged: (key, value) =>
+                  _updateActionParameter(action.id, key, value),
+              onSuggestionSelected: (key, value) => _updateActionParameter(
+                action.id,
+                key,
+                value,
+                forceFieldRefresh: true,
+              ),
+              fieldRefreshVersionOf: (paramKey) =>
+                  _fieldRefreshVersions['${action.id}::$paramKey'] ?? 0,
+              onEditNestedActions:
+                  (current, suggestions, blockName, {onChanged}) async {
+                    return await Navigator.push<List<Map<String, dynamic>>>(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ActionsBuilderPage(
+                          initialActions: current,
+                          variableSuggestions: suggestions,
+                          emojiSuggestions: widget.emojiSuggestions,
+                          botIdForConfig: widget.botIdForConfig,
+                          editPath: [...widget.editPath, blockName],
+                          onChanged: onChanged,
+                          isInteraction: widget.isInteraction,
+                          isWorkflow: widget.isWorkflow,
+                        ),
+                      ),
+                    );
+                  },
               allActions: _actions, // for Jump to action dropdown
+              onPasteAbove: (copied) => _pasteActionAt(absoluteIndex, copied),
+              onPasteBelow: (copied) =>
+                  _pasteActionAt(absoluteIndex + 1, copied),
+              onDuplicate: () => _duplicateAction(absoluteIndex),
             );
           },
         ),
@@ -1420,6 +1506,21 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
                     context.tr.actions_sequence_count(_actions.length),
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
+                ),
+                FutureBuilder<bool>(
+                  future: ActionClipboard.hasCopiedAction(),
+                  builder: (context, snapshot) {
+                    final hasCopied = snapshot.data ?? false;
+                    if (!hasCopied) return const SizedBox.shrink();
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: OutlinedButton.icon(
+                        onPressed: _pasteAction,
+                        icon: const Icon(Icons.paste),
+                        label: Text(_localString('Paste')),
+                      ),
+                    );
+                  },
                 ),
                 FilledButton.icon(
                   onPressed: _showAddActionDialog,
@@ -1530,10 +1631,9 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
       );
     }
 
-    final textColor =
-        isActive
-            ? theme.colorScheme.primary
-            : theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7);
+    final textColor = isActive
+        ? theme.colorScheme.primary
+        : theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7);
     final fontWeight = isActive ? FontWeight.w600 : FontWeight.bold;
 
     return Text(
@@ -1569,9 +1669,11 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
           ? FloatingActionButton.extended(
               onPressed: _saveActions,
               icon: Icon(widget.editPath.isNotEmpty ? Icons.check : Icons.save),
-              label: Text(widget.editPath.isNotEmpty
-                  ? context.tr.common_ok
-                  : context.tr.actions_save_count(_actions.length)),
+              label: Text(
+                widget.editPath.isNotEmpty
+                    ? context.tr.common_ok
+                    : context.tr.actions_save_count(_actions.length),
+              ),
               backgroundColor: widget.editPath.isNotEmpty
                   ? Theme.of(context).colorScheme.primary
                   : AppTheme.success,
@@ -1587,7 +1689,8 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
             Expanded(
               child: LayoutBuilder(
                 builder: (context, constraints) {
-                  final isDesktop = MediaQuery.of(context).size.width >= 800 &&
+                  final isDesktop =
+                      MediaQuery.of(context).size.width >= 800 &&
                       !Platform.environment.containsKey('FLUTTER_TEST');
 
                   final canvasWidget = _buildActionSequence(
@@ -1606,7 +1709,9 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
                             color: Theme.of(context).colorScheme.surface,
                             border: Border(
                               right: BorderSide(
-                                color: Theme.of(context).colorScheme.outlineVariant,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.outlineVariant,
                                 width: 1,
                               ),
                             ),
@@ -1635,4 +1740,3 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
     );
   }
 }
-

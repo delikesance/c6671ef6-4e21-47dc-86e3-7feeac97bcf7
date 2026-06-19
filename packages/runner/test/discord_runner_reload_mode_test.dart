@@ -1,10 +1,58 @@
 import 'package:bot_creator_shared/bot/bot_config.dart';
 import 'package:bot_creator_runner/runner_runtime_controller.dart';
+import 'package:bot_creator_runner/discord_runner.dart';
 import 'package:test/test.dart';
 
 const String workflowTypeEvent = 'event';
 
 void main() {
+  group('DiscordRunner.reloadConfig Lavalink Reconnect Trigger', () {
+    test('reconnect is required when Lavalink config is added (null -> non-null)', () async {
+      final initial = BotConfig(token: 'token', intents: {'Guilds': true});
+      final runner = DiscordRunner('test-bot', initial);
+
+      final nextConfig = BotConfig(
+        token: 'token',
+        intents: {'Guilds': true},
+        lavalinkConfig: const LavalinkConfig(host: 'localhost', port: 2333),
+      );
+
+      final requiresReconnect = await runner.reloadConfig(nextConfig);
+      expect(requiresReconnect, isTrue);
+    });
+
+    test('reconnect is required when Lavalink config is removed (non-null -> null)', () async {
+      final initial = BotConfig(
+        token: 'token',
+        intents: {'Guilds': true},
+        lavalinkConfig: const LavalinkConfig(host: 'localhost', port: 2333),
+      );
+      final runner = DiscordRunner('test-bot', initial);
+
+      final nextConfig = BotConfig(token: 'token', intents: {'Guilds': true});
+
+      final requiresReconnect = await runner.reloadConfig(nextConfig);
+      expect(requiresReconnect, isTrue);
+    });
+
+    test('reconnect is NOT required when Lavalink config details change without changing presence', () async {
+      final initial = BotConfig(
+        token: 'token',
+        intents: {'Guilds': true},
+        lavalinkConfig: const LavalinkConfig(host: 'localhost', port: 2333),
+      );
+      final runner = DiscordRunner('test-bot', initial);
+
+      final nextConfig = BotConfig(
+        token: 'token',
+        intents: {'Guilds': true},
+        lavalinkConfig: const LavalinkConfig(host: 'other-host', port: 2334),
+      );
+
+      final requiresReconnect = await runner.reloadConfig(nextConfig);
+      expect(requiresReconnect, isFalse);
+    });
+  });
   group('resolveEventWorkflowListenerMode', () {
     test('returns none when no event workflows and no legacy commands', () {
       final config = _config();

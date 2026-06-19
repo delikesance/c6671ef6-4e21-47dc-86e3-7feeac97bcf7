@@ -195,6 +195,7 @@ class _NormalComponentEditorWidgetState
                         ComponentV2Type.roleSelect,
                         ComponentV2Type.mentionableSelect,
                         ComponentV2Type.channelSelect,
+                        ComponentV2Type.categorySelect,
                       ];
                     }
 
@@ -227,6 +228,7 @@ class _NormalComponentEditorWidgetState
           ComponentV2Type.roleSelect,
           ComponentV2Type.mentionableSelect,
           ComponentV2Type.channelSelect,
+          ComponentV2Type.categorySelect,
         ];
     return PopupMenuButton<ComponentV2Type>(
       tooltip: context.tr.component_add_child,

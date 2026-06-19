@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 
 import 'package:bot_creator/core/models/types/app_emoji.dart';
+import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder/action_types.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder/action_type_extension.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder/action_card.dart';
 import 'package:bot_creator/core/models/types/variable_suggestion.dart';
 import 'scratch_block.dart';
 import 'scratch_block_palette.dart';
+
+String _localString(String val) => val;
 
 /// A user-added action block in the Scratch-like canvas.
 ///
@@ -29,6 +32,9 @@ class ActionBlock extends StatefulWidget {
     this.botIdForConfig,
     this.onEditNestedActions,
     this.allActions,
+    this.onPasteAbove,
+    this.onPasteBelow,
+    this.onDuplicate,
   });
 
   final ActionItem action;
@@ -51,6 +57,9 @@ class ActionBlock extends StatefulWidget {
   })?
   onEditNestedActions;
   final List<ActionItem>? allActions;
+  final Function(Map<String, dynamic> copiedAction)? onPasteAbove;
+  final Function(Map<String, dynamic> copiedAction)? onPasteBelow;
+  final VoidCallback? onDuplicate;
 
   @override
   State<ActionBlock> createState() => _ActionBlockState();
@@ -64,6 +73,114 @@ class _ActionBlockState extends State<ActionBlock> {
     final category = getCategoryForAction(widget.action.type);
     final color = getCategoryColor(category);
     final finalBlock = isFinalAction(widget.action.type);
+    final colorScheme = Theme.of(context).colorScheme;
+
+    final trailingWidget = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          width: 28,
+          height: 28,
+          child: IconButton(
+            icon: const Icon(Icons.copy, size: 18),
+            color: colorScheme.onSurfaceVariant,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+            onPressed: () async {
+              await ActionClipboard.copyAction(widget.action.toJson());
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(_localString('Action copied to clipboard')),
+                    duration: const Duration(seconds: 1),
+                  ),
+                );
+              }
+            },
+            tooltip: _localString('Copy action'),
+          ),
+        ),
+        const SizedBox(width: 4),
+        PopupMenuButton<String>(
+          icon: Icon(
+            Icons.more_vert,
+            color: colorScheme.onSurfaceVariant,
+            size: 20,
+          ),
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(),
+          tooltip: _localString('More actions'),
+          onSelected: (value) async {
+            if (value == 'duplicate') {
+              widget.onDuplicate?.call();
+            } else if (value == 'paste_above') {
+              final copied = await ActionClipboard.getCopiedAction();
+              if (copied != null) {
+                widget.onPasteAbove?.call(copied);
+              } else {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(_localString('No action in clipboard')),
+                      duration: const Duration(milliseconds: 1500),
+                    ),
+                  );
+                }
+              }
+            } else if (value == 'paste_below') {
+              final copied = await ActionClipboard.getCopiedAction();
+              if (copied != null) {
+                widget.onPasteBelow?.call(copied);
+              } else {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(_localString('No action in clipboard')),
+                      duration: const Duration(milliseconds: 1500),
+                    ),
+                  );
+                }
+              }
+            }
+          },
+          itemBuilder: (context) => [
+            PopupMenuItem(
+              value: 'duplicate',
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.copy_all, size: 18),
+                  const SizedBox(width: 12),
+                  Text(_localString('Duplicate')),
+                ],
+              ),
+            ),
+            PopupMenuItem(
+              value: 'paste_above',
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.arrow_upward, size: 18),
+                  const SizedBox(width: 12),
+                  Text(_localString('Paste Above')),
+                ],
+              ),
+            ),
+            PopupMenuItem(
+              value: 'paste_below',
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.arrow_downward, size: 18),
+                  const SizedBox(width: 12),
+                  Text(_localString('Paste Below')),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
 
     return ScratchBlock(
       color: color,
@@ -76,6 +193,7 @@ class _ActionBlockState extends State<ActionBlock> {
       onMoveUp: widget.onMoveUp,
       onMoveDown: widget.onMoveDown,
       badge: ScratchBlockBadge(label: category, color: color),
+      trailing: trailingWidget,
       child: ActionCard(
         action: widget.action,
         index: widget.index,

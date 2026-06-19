@@ -13,12 +13,14 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pag
 import 'package:bot_creator/core/models/types/app_emoji.dart';
 import 'package:bot_creator_shared/types/action.dart' show BotCreatorActionType;
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder/action_type_extension.dart';
-import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder/action_types.dart' show ActionItem;
-import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder.response.dart' show ActionsBuilderPage;
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder/action_types.dart'
+    show ActionItem;
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder.response.dart'
+    show ActionsBuilderPage;
 import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/features/bot_editor/logic/app_emoji_api.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
-  import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
 import 'package:bot_creator/features/bot_editor/logic/command_variable_catalog.dart';
 import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
@@ -37,7 +39,8 @@ import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blo
 import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/entry_point_block.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/action_block.dart';
 import 'package:bot_creator/core/models/types/variable_suggestion.dart';
-import 'package:bot_creator_shared/utils/variable_catalog.dart' show inferCategory;
+import 'package:bot_creator_shared/utils/variable_catalog.dart'
+    show inferCategory;
 import 'package:bot_creator/features/bot_editor/logic/command_editor_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -91,10 +94,11 @@ class CommandCreatePage extends StatefulWidget {
   State<CommandCreatePage> createState() => _CommandCreatePageState();
 }
 
-bool get _isDesktop => !kIsWeb &&
+bool get _isDesktop =>
+    !kIsWeb &&
     (defaultTargetPlatform == TargetPlatform.windows ||
-     defaultTargetPlatform == TargetPlatform.linux ||
-     defaultTargetPlatform == TargetPlatform.macOS);
+        defaultTargetPlatform == TargetPlatform.linux ||
+        defaultTargetPlatform == TargetPlatform.macOS);
 
 class _CommandCreatePageState extends State<CommandCreatePage> {
   static const Uuid _uuid = Uuid();
@@ -174,8 +178,10 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   );
 
   String _normalizeExecutionMode(Object? raw) {
-    final value =
-        (raw ?? _executionModeWorkflow).toString().trim().toLowerCase();
+    final value = (raw ?? _executionModeWorkflow)
+        .toString()
+        .trim()
+        .toLowerCase();
     return value == _executionModeBdfdScript
         ? _executionModeBdfdScript
         : _executionModeWorkflow;
@@ -201,10 +207,9 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   }
 
   String _formatBdfdDiagnostic(BdfdCompileDiagnostic diagnostic) {
-    final location =
-        (diagnostic.line != null && diagnostic.column != null)
-            ? 'L${diagnostic.line}:C${diagnostic.column} '
-            : '';
+    final location = (diagnostic.line != null && diagnostic.column != null)
+        ? 'L${diagnostic.line}:C${diagnostic.column} '
+        : '';
     return '$location${diagnostic.message}';
   }
 
@@ -221,10 +226,9 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       _legacyModeEnabled &&
       _localOnlyCommand;
 
-  int get _commandNameMaxLength =>
-      _allowsInternalLegacyCallbackNames
-          ? _localLegacyCommandNameMaxLength
-          : _defaultCommandNameMaxLength;
+  int get _commandNameMaxLength => _allowsInternalLegacyCallbackNames
+      ? _localLegacyCommandNameMaxLength
+      : _defaultCommandNameMaxLength;
 
   bool _looksLikeAwaitedCallbackTrigger(String value) {
     final normalized = value.trim().toLowerCase();
@@ -313,15 +317,11 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   }
 
   Map<String, dynamic> _buildCurrentWorkflowPayload() {
-    return {
-      'actions': _cloneJsonListOfMaps(_actions),
-    };
+    return {'actions': _cloneJsonListOfMaps(_actions)};
   }
 
   Map<String, dynamic> _buildDefaultWorkflowPayload() {
-    return {
-      'actions': <Map<String, dynamic>>[],
-    };
+    return {'actions': <Map<String, dynamic>>[]};
   }
 
   void _applyWorkflowPayloadToEditor(Map<String, dynamic> payload) {
@@ -388,10 +388,9 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       if (existing != null) {
         next[route] = _cloneJsonMap(existing);
       } else {
-        next[route] =
-            (!hadExistingWorkflows && next.isEmpty)
-                ? _buildCurrentWorkflowPayload()
-                : _buildDefaultWorkflowPayload();
+        next[route] = (!hadExistingWorkflows && next.isEmpty)
+            ? _buildCurrentWorkflowPayload()
+            : _buildDefaultWorkflowPayload();
       }
     }
 
@@ -448,14 +447,13 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
               title: Text(context.tr.command_legacy_mode_title),
               subtitle: Text(context.tr.legacy_prefix_mode_subtitle),
               value: _legacyModeEnabled,
-              onChanged:
-                  !_supportsCommandOptions
-                      ? null
-                      : (enabled) {
-                        setState(() {
-                          _legacyModeEnabled = enabled;
-                        });
-                      },
+              onChanged: !_supportsCommandOptions
+                  ? null
+                  : (enabled) {
+                      setState(() {
+                        _legacyModeEnabled = enabled;
+                      });
+                    },
             ),
             if (_legacyModeEnabled) ...[
               const SizedBox(height: 8),
@@ -533,10 +531,9 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
             ),
             const SizedBox(height: 10),
             DropdownButtonFormField<String>(
-              initialValue:
-                  routes.contains(_activeSubcommandRoute)
-                      ? _activeSubcommandRoute
-                      : routes.first,
+              initialValue: routes.contains(_activeSubcommandRoute)
+                  ? _activeSubcommandRoute
+                  : routes.first,
               decoration: InputDecoration(
                 labelText: context.tr.command_target_subcommand,
                 border: OutlineInputBorder(),
@@ -582,8 +579,11 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   /// - 2 words → parent command + SubCommand option.
   /// - 3 words → parent command + SubCommandGroup + SubCommand option.
   void _applyPrefillName(String raw) {
-    final parts =
-        raw.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
+    final parts = raw
+        .trim()
+        .split(RegExp(r'\s+'))
+        .where((p) => p.isNotEmpty)
+        .toList();
     if (parts.isEmpty) return;
 
     _commandName = parts.first;
@@ -703,8 +703,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
 
   String _generateLegacyOnlyCommandId() => _uuid.v4();
 
-  bool get _showEditShell =>
-      !_isDataIncomplete && !_isLoading;
+  bool get _showEditShell => !_isDataIncomplete && !_isLoading;
 
   bool _hasUnsavedChanges = false;
 
@@ -753,40 +752,58 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           _folderController.text = selection;
         });
       },
-      optionsViewBuilder: (BuildContext context, AutocompleteOnSelected<String> onSelected, Iterable<String> options) {
-        return Align(
-          alignment: Alignment.topLeft,
-          child: Material(
-            elevation: 4.0,
-            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-            color: Theme.of(context).colorScheme.surface,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: 200, maxWidth: 300),
-              child: ListView.builder(
-                padding: EdgeInsets.zero,
-                shrinkWrap: true,
-                itemCount: options.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final String option = options.elementAt(index);
-                  return InkWell(
-                    onTap: () => onSelected(option),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                      child: Row(
-                        children: [
-                          Icon(Icons.folder_outlined, size: 18, color: Theme.of(context).colorScheme.primary),
-                          const SizedBox(width: 10),
-                          Text(option, style: const TextStyle(fontSize: 14)),
-                        ],
-                      ),
-                    ),
-                  );
-                },
+      optionsViewBuilder:
+          (
+            BuildContext context,
+            AutocompleteOnSelected<String> onSelected,
+            Iterable<String> options,
+          ) {
+            return Align(
+              alignment: Alignment.topLeft,
+              child: Material(
+                elevation: 4.0,
+                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                color: Theme.of(context).colorScheme.surface,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxHeight: 200,
+                    maxWidth: 300,
+                  ),
+                  child: ListView.builder(
+                    padding: EdgeInsets.zero,
+                    shrinkWrap: true,
+                    itemCount: options.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      final String option = options.elementAt(index);
+                      return InkWell(
+                        onTap: () => onSelected(option),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 16,
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.folder_outlined,
+                                size: 18,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                option,
+                                style: const TextStyle(fontSize: 14),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
               ),
-            ),
-          ),
-        );
-      },
+            );
+          },
       fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
         if (controller.text != _folderController.text) {
           controller.text = _folderController.text;
@@ -926,10 +943,9 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                       : (snap.storageId ?? ''),
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-                subtitle:
-                    snap.commandDescription.isNotEmpty
-                        ? Text(snap.commandDescription)
-                        : null,
+                subtitle: snap.commandDescription.isNotEmpty
+                    ? Text(snap.commandDescription)
+                    : null,
                 trailing: IconButton(
                   icon: const Icon(Icons.menu_book_outlined),
                   tooltip: context.tr.cmd_show_variables,
@@ -1033,10 +1049,9 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       '[_resolveMainApiClientForCloudSync] fetching Discord application owner metadata (tokenPresent=${botToken.isNotEmpty}) for botId=$botId',
       name: 'CommandCreatePage',
     );
-    final ownerMetadata =
-        botToken.trim().isEmpty
-            ? null
-            : await getDiscordApplicationOwnerMetadata(botToken);
+    final ownerMetadata = botToken.trim().isEmpty
+        ? null
+        : await getDiscordApplicationOwnerMetadata(botToken);
     final ownerCandidates =
         ownerMetadata?.ownerCandidateIds ?? const <String>[];
     final sessionOwnerId = (session?.userId ?? '').trim();
@@ -1232,10 +1247,9 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     Navigator.push(
       context,
       MaterialPageRoute<void>(
-        builder:
-            (_) => const WorkflowDocumentationPage(
-              initialSearch: 'commandType target opts template variables',
-            ),
+        builder: (_) => const WorkflowDocumentationPage(
+          initialSearch: 'commandType target opts template variables',
+        ),
       ),
     );
   }
@@ -1286,8 +1300,9 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       screenClass: "CommandCreatePage",
       parameters: {
         "command_id": _existingCommandStorageId ?? 'new',
-        "command_name":
-            _isEditingExistingCommand ? _commandName : "New Command",
+        "command_name": _isEditingExistingCommand
+            ? _commandName
+            : "New Command",
         "is_new_command": _isEditingExistingCommand ? "false" : "true",
         "client_id": widget.client?.user.id.toString() ?? "unknown",
       },
@@ -1299,11 +1314,13 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     if (botId != null) {
       try {
         final commands = await appManager.listAppCommands(botId);
-        final folders = commands
-            .map((c) => (c['folder'] ?? '').toString().trim())
-            .where((f) => f.isNotEmpty)
-            .toSet()
-            .toList()..sort();
+        final folders =
+            commands
+                .map((c) => (c['folder'] ?? '').toString().trim())
+                .where((f) => f.isNotEmpty)
+                .toSet()
+                .toList()
+              ..sort();
         _applyStateUpdate(() {
           _existingFolders = folders;
         });
@@ -1363,10 +1380,9 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           (normalizedData['editorMode'] ?? _editorModeAdvanced)
               .toString()
               .toLowerCase();
-      final editorMode =
-          persistedEditorMode == _editorModeSimple
-              ? _editorModeSimple
-              : _editorModeAdvanced;
+      final editorMode = persistedEditorMode == _editorModeSimple
+          ? _editorModeSimple
+          : _editorModeAdvanced;
 
       _applyStateUpdate(() {
         _isLocalOnlyCommand = true;
@@ -1381,22 +1397,21 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         _commandType = savedType ?? _commandType;
         _editorMode = editorMode;
         _executionMode = executionMode;
-        _bdfdScriptContent =
-            (normalizedData['bdfdScriptContent'] ?? '').toString();
+        _bdfdScriptContent = (normalizedData['bdfdScriptContent'] ?? '')
+            .toString();
         _bdfdScriptController.text = _bdfdScriptContent;
         _bdfdCompileResult = _bdfdCompiler.compile(_bdfdScriptContent);
         _legacyModeEnabled = normalizedData['legacyModeEnabled'] == true;
         _localOnlyCommand =
             normalizedData['legacyLocalOnly'] == true ||
             normalizedData['localOnly'] == true;
-        _legacyPrefixOverride =
-            (normalizedData['legacyPrefixOverride'] ?? '').toString();
+        _legacyPrefixOverride = (normalizedData['legacyPrefixOverride'] ?? '')
+            .toString();
         final loadedLegacyResponseTarget =
             (normalizedData['legacyResponseTarget'] ?? 'reply').toString();
-        _legacyResponseTarget =
-            loadedLegacyResponseTarget == 'channelSend'
-                ? 'channelSend'
-                : 'reply';
+        _legacyResponseTarget = loadedLegacyResponseTarget == 'channelSend'
+            ? 'channelSend'
+            : 'reply';
         if (!_supportsSimpleMode) {
           _editorMode = _editorModeAdvanced;
         }
@@ -1481,10 +1496,9 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
             (normalizedData['editorMode'] ?? _editorModeAdvanced)
                 .toString()
                 .toLowerCase();
-        final editorMode =
-            persistedEditorMode == _editorModeSimple
-                ? _editorModeSimple
-                : _editorModeAdvanced;
+        final editorMode = persistedEditorMode == _editorModeSimple
+            ? _editorModeSimple
+            : _editorModeAdvanced;
 
         if (!mounted) return;
         setState(() {
@@ -1492,22 +1506,21 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           _executionMode = executionMode;
           _folder = (normalized['folder'] ?? '').toString().trim();
           _folderController.text = _folder;
-          _bdfdScriptContent =
-              (normalizedData['bdfdScriptContent'] ?? '').toString();
+          _bdfdScriptContent = (normalizedData['bdfdScriptContent'] ?? '')
+              .toString();
           _bdfdScriptController.text = _bdfdScriptContent;
           _bdfdCompileResult = _bdfdCompiler.compile(_bdfdScriptContent);
           _legacyModeEnabled = normalizedData['legacyModeEnabled'] == true;
           _localOnlyCommand =
               normalizedData['legacyLocalOnly'] == true ||
               normalizedData['localOnly'] == true;
-          _legacyPrefixOverride =
-              (normalizedData['legacyPrefixOverride'] ?? '').toString();
+          _legacyPrefixOverride = (normalizedData['legacyPrefixOverride'] ?? '')
+              .toString();
           final loadedLegacyResponseTarget =
               (normalizedData['legacyResponseTarget'] ?? 'reply').toString();
-          _legacyResponseTarget =
-              loadedLegacyResponseTarget == 'channelSend'
-                  ? 'channelSend'
-                  : 'reply';
+          _legacyResponseTarget = loadedLegacyResponseTarget == 'channelSend'
+              ? 'channelSend'
+              : 'reply';
           final savedType = _commandTypeFromText(
             (normalizedData['commandType'] ?? commandData['type'] ?? '')
                 .toString(),
@@ -1590,12 +1603,9 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         _commandName = currentCommand.name;
         _commandDescription = currentCommand.description;
         _commandType = currentCommand.type;
-        final storedOptions =
-            data is Map
-                ? Map<String, dynamic>.from(
-                  data.cast<String, dynamic>(),
-                )['options']
-                : null;
+        final storedOptions = data is Map
+            ? Map<String, dynamic>.from(data.cast<String, dynamic>())['options']
+            : null;
         if (storedOptions is List) {
           _options = deserializeCommandOptions(storedOptions);
         } else if (currentCommand.options != null) {
@@ -1605,16 +1615,15 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         } else {
           _options = [];
         }
-        _integrationTypes =
-            currentCommand.integrationTypes.map((e) {
-              if (e == ApplicationIntegrationType.guildInstall) {
-                return ApplicationIntegrationType.guildInstall;
-              } else if (e == ApplicationIntegrationType.userInstall) {
-                return ApplicationIntegrationType.userInstall;
-              } else {
-                return ApplicationIntegrationType.guildInstall;
-              }
-            }).toList();
+        _integrationTypes = currentCommand.integrationTypes.map((e) {
+          if (e == ApplicationIntegrationType.guildInstall) {
+            return ApplicationIntegrationType.guildInstall;
+          } else if (e == ApplicationIntegrationType.userInstall) {
+            return ApplicationIntegrationType.userInstall;
+          } else {
+            return ApplicationIntegrationType.guildInstall;
+          }
+        }).toList();
         _contexts = [];
         if (currentCommand.contexts != null) {
           _contexts = currentCommand.contexts!.toList();
@@ -1624,8 +1633,10 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         }
         if (_defaultMemberPermissions.isEmpty &&
             currentCommand.defaultMemberPermissions != null) {
-          _defaultMemberPermissions =
-              currentCommand.defaultMemberPermissions!.value.toString();
+          _defaultMemberPermissions = currentCommand
+              .defaultMemberPermissions!
+              .value
+              .toString();
         }
         if (!_supportsSimpleMode) {
           _editorMode = _editorModeAdvanced;
@@ -1979,9 +1990,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   Widget build(BuildContext context) {
     final guardDiscardOnPop = _showEditShell && _isDirty;
     final showStickyEditSave =
-        _showEditShell &&
-        !_isLoading &&
-        !_isDataIncomplete;
+        _showEditShell && !_isLoading && !_isDataIncomplete;
 
     return ChangeNotifierProvider.value(
       value: _editorNotifier,
@@ -2099,26 +2108,29 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                       ? Theme.of(context).colorScheme.surfaceContainerHighest
                       : Theme.of(context).colorScheme.primary,
                   foregroundColor: _isEditingExistingCommand && !_isDirty
-                      ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.38)
+                      ? Theme.of(
+                          context,
+                        ).colorScheme.onSurfaceVariant.withValues(alpha: 0.38)
                       : Colors.white,
                   tooltip: _isEditingExistingCommand
                       ? (_isDirty
-                          ? context.tr.edit_shell_save_changes
-                          : context.tr.edit_shell_all_saved)
+                            ? context.tr.edit_shell_save_changes
+                            : context.tr.edit_shell_all_saved)
                       : context.tr.cmd_create_tooltip,
-                  child: Icon(_isEditingExistingCommand
-                      ? (_isDirty ? Icons.save : Icons.check)
-                      : Icons.add),
+                  child: Icon(
+                    _isEditingExistingCommand
+                        ? (_isDirty ? Icons.save : Icons.check)
+                        : Icons.add,
+                  ),
                 )
               : null,
           body: SafeArea(
             top: false,
             child: LayoutBuilder(
               builder: (context, constraints) {
-                final contentMaxWidth =
-                    constraints.maxWidth >= 1200
-                        ? 980.0
-                        : (constraints.maxWidth >= 900 ? 860.0 : 680.0);
+                final contentMaxWidth = constraints.maxWidth >= 1200
+                    ? 980.0
+                    : (constraints.maxWidth >= 900 ? 860.0 : 680.0);
 
                 return _buildEditorBody(contentMaxWidth: contentMaxWidth);
               },
@@ -2308,12 +2320,14 @@ class _DeploymentProgressOverlayState
       }
 
       // Mark all steps successful
-      setState(() {
-        for (var step in _steps) {
-          step.state = SyncStepState.success;
-        }
-        _isSuccess = true;
-      });
+      if (mounted) {
+        setState(() {
+          for (var step in _steps) {
+            step.state = SyncStepState.success;
+          }
+          _isSuccess = true;
+        });
+      }
 
       // Show beautiful checkmark and auto-pop after a brief delay
       await Future.delayed(const Duration(milliseconds: 1500));
@@ -2350,15 +2364,17 @@ class _DeploymentProgressOverlayState
         stackTrace: stack,
       );
 
-      setState(() {
-        _hasError = true;
-        for (var step in _steps) {
-          if (step.state == SyncStepState.active) {
-            step.state = SyncStepState.error;
-            step.error = e.toString();
+      if (mounted) {
+        setState(() {
+          _hasError = true;
+          for (var step in _steps) {
+            if (step.state == SyncStepState.active) {
+              step.state = SyncStepState.error;
+              step.error = e.toString();
+            }
           }
-        }
-      });
+        });
+      }
     }
   }
 
@@ -2445,14 +2461,12 @@ class _DeploymentProgressOverlayState
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardBg =
-        isDark
-            ? const Color(0xFF1E1F22).withValues(alpha: 0.85)
-            : Colors.white.withValues(alpha: 0.9);
-    final borderColor =
-        isDark
-            ? Colors.white.withValues(alpha: 0.1)
-            : Colors.black.withValues(alpha: 0.08);
+    final cardBg = isDark
+        ? const Color(0xFF1E1F22).withValues(alpha: 0.85)
+        : Colors.white.withValues(alpha: 0.9);
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.1)
+        : Colors.black.withValues(alpha: 0.08);
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -2546,211 +2560,203 @@ class _DeploymentProgressOverlayState
                           Stack(
                             alignment: Alignment.center,
                             children: [
-                                const SizedBox(
-                                  width: 72,
-                                  height: 72,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 3.5,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      AppTheme.brandSecondary,
-                                    ),
+                              const SizedBox(
+                                width: 72,
+                                height: 72,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 3.5,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    AppTheme.brandSecondary,
                                   ),
                                 ),
-                                TweenAnimationBuilder<double>(
-                                  duration: const Duration(seconds: 2),
-                                  tween: Tween(begin: 0.0, end: 1.0),
-                                  builder: (context, val, child) {
-                                    return Opacity(
-                                      opacity: 0.7 + 0.3 * (val - 0.5).abs() * 2,
-                                      child: child,
-                                    );
-                                  },
-                                  child: const Icon(
-                                    Icons.sync,
-                                    size: 32,
-                                    color: AppTheme.brandSecondary,
-                                  ),
+                              ),
+                              TweenAnimationBuilder<double>(
+                                duration: const Duration(seconds: 2),
+                                tween: Tween(begin: 0.0, end: 1.0),
+                                builder: (context, val, child) {
+                                  return Opacity(
+                                    opacity: 0.7 + 0.3 * (val - 0.5).abs() * 2,
+                                    child: child,
+                                  );
+                                },
+                                child: const Icon(
+                                  Icons.sync,
+                                  size: 32,
+                                  color: AppTheme.brandSecondary,
                                 ),
-                              ],
-                            ),
-                          const SizedBox(height: 24),
-                          // Title
-                          Text(
-                            _isSuccess
-                                ? context.tr.cmd_deploy_success_title
-                                : (_hasError
+                              ),
+                            ],
+                          ),
+                        const SizedBox(height: 24),
+                        // Title
+                        Text(
+                          _isSuccess
+                              ? context.tr.cmd_deploy_success_title
+                              : (_hasError
                                     ? context.tr.cmd_deploy_failed_title
                                     : context.tr.cmd_deploy_in_progress_title),
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color:
-                                  Theme.of(context).textTheme.titleLarge?.color,
-                            ),
-                            textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(
+                              context,
+                            ).textTheme.titleLarge?.color,
                           ),
-                          const SizedBox(height: 6),
-                          // Subtitle
-                          Text(
-                            context.tr.cmd_deploy_config_subtitle(widget.commandName),
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Theme.of(context).textTheme.bodyMedium?.color
-                                  ?.withValues(alpha: 0.7),
-                            ),
-                            textAlign: TextAlign.center,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 6),
+                        // Subtitle
+                        Text(
+                          context.tr.cmd_deploy_config_subtitle(
+                            widget.commandName,
                           ),
-                          const SizedBox(height: 28),
-                          // Steps List
-                          Column(
-                            children:
-                                _steps.map((step) {
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 10.0,
-                                    ),
-                                    child: Row(
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Theme.of(context).textTheme.bodyMedium?.color
+                                ?.withValues(alpha: 0.7),
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 28),
+                        // Steps List
+                        Column(
+                          children: _steps.map((step) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 10.0,
+                              ),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 2.0),
+                                    child: _buildStepIcon(step.state),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                            top: 2.0,
-                                          ),
-                                          child: _buildStepIcon(step.state),
-                                        ),
-                                        const SizedBox(width: 16),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                _getStepTitle(context, step.id),
-                                                style: TextStyle(
-                                                  fontWeight:
-                                                      step.state ==
-                                                              SyncStepState.active
-                                                          ? FontWeight.bold
-                                                          : FontWeight.w600,
-                                                  color:
-                                                      step.state ==
-                                                              SyncStepState
-                                                                  .pending
-                                                          ? Theme.of(
-                                                            context,
-                                                          ).disabledColor
-                                                          : Theme.of(context)
-                                                              .textTheme
-                                                              .bodyLarge
-                                                              ?.color,
-                                                  fontSize: 14.5,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 2),
-                                              Text(
-                                                _getStepSubtitle(context, step.id),
-                                                style: TextStyle(
-                                                  fontSize: 12.0,
-                                                  color:
-                                                      step.state ==
-                                                              SyncStepState
-                                                                  .pending
-                                                          ? Theme.of(context)
-                                                              .disabledColor
-                                                              .withValues(
-                                                                alpha: 0.6,
-                                                              )
-                                                          : Theme.of(context)
-                                                              .textTheme
-                                                              .bodyMedium
-                                                              ?.color
-                                                              ?.withValues(
-                                                                alpha: 0.65,
-                                                              ),
-                                                ),
-                                              ),
-                                              if (step.state ==
-                                                      SyncStepState.error &&
-                                                  step.error != null) ...[
-                                                const SizedBox(height: 8),
-                                                Container(
-                                                  width: double.infinity,
-                                                  padding: const EdgeInsets.all(
-                                                    10,
-                                                  ),
-                                                  decoration: BoxDecoration(
-                                                    color: AppTheme.error
-                                                        .withValues(alpha: 0.08),
-                                                    borderRadius:
-                                                        BorderRadius.circular(8),
-                                                    border: Border.all(
-                                                      color: AppTheme.error
-                                                          .withValues(
-                                                            alpha: 0.15,
-                                                          ),
-                                                    ),
-                                                  ),
-                                                  child: Text(
-                                                    step.error!,
-                                                    style: const TextStyle(
-                                                      color: AppTheme.error,
-                                                      fontSize: 11,
-                                                      fontFamily: 'monospace',
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ],
+                                        Text(
+                                          _getStepTitle(context, step.id),
+                                          style: TextStyle(
+                                            fontWeight:
+                                                step.state ==
+                                                    SyncStepState.active
+                                                ? FontWeight.bold
+                                                : FontWeight.w600,
+                                            color:
+                                                step.state ==
+                                                    SyncStepState.pending
+                                                ? Theme.of(
+                                                    context,
+                                                  ).disabledColor
+                                                : Theme.of(
+                                                    context,
+                                                  ).textTheme.bodyLarge?.color,
+                                            fontSize: 14.5,
                                           ),
                                         ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          _getStepSubtitle(context, step.id),
+                                          style: TextStyle(
+                                            fontSize: 12.0,
+                                            color:
+                                                step.state ==
+                                                    SyncStepState.pending
+                                                ? Theme.of(context)
+                                                      .disabledColor
+                                                      .withValues(alpha: 0.6)
+                                                : Theme.of(context)
+                                                      .textTheme
+                                                      .bodyMedium
+                                                      ?.color
+                                                      ?.withValues(alpha: 0.65),
+                                          ),
+                                        ),
+                                        if (step.state == SyncStepState.error &&
+                                            step.error != null) ...[
+                                          const SizedBox(height: 8),
+                                          Container(
+                                            width: double.infinity,
+                                            padding: const EdgeInsets.all(10),
+                                            decoration: BoxDecoration(
+                                              color: AppTheme.error.withValues(
+                                                alpha: 0.08,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              border: Border.all(
+                                                color: AppTheme.error
+                                                    .withValues(alpha: 0.15),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              step.error!,
+                                              style: const TextStyle(
+                                                color: AppTheme.error,
+                                                fontSize: 11,
+                                                fontFamily: 'monospace',
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ],
                                     ),
-                                  );
-                                }).toList(),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                        // Error buttons
+                        if (_hasError) ...[
+                          const SizedBox(height: 28),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: OutlinedButton(
+                                  onPressed: () {
+                                    Navigator.of(
+                                      context,
+                                    ).pop(); // Close overlay only
+                                  },
+                                  style: OutlinedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 14,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    context.tr.cmd_deploy_close_button,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: FilledButton(
+                                  onPressed: _startDeployment,
+                                  style: FilledButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 14,
+                                    ),
+                                    backgroundColor: AppTheme.brandPrimary,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    context.tr.cmd_deploy_retry_button,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                          // Error buttons
-                          if (_hasError) ...[
-                            const SizedBox(height: 28),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: OutlinedButton(
-                                    onPressed: () {
-                                      Navigator.of(
-                                        context,
-                                      ).pop(); // Close overlay only
-                                    },
-                                    style: OutlinedButton.styleFrom(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 14,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                    ),
-                                    child: Text(context.tr.cmd_deploy_close_button),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: FilledButton(
-                                    onPressed: _startDeployment,
-                                    style: FilledButton.styleFrom(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 14,
-                                      ),
-                                      backgroundColor: AppTheme.brandPrimary,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                    ),
-                                    child: Text(context.tr.cmd_deploy_retry_button),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+                        ],
                       ],
                     ),
                   ),
