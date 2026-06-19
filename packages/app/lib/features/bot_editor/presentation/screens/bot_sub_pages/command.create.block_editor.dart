@@ -426,6 +426,7 @@ extension _CommandBlockEditor on _CommandCreatePageState {
                       (_) => BdfdEditorPage(
                         initialCode: _bdfdScriptController.text,
                         title: context.tr.workflow_bdfd_editor_title,
+                        appEmojis: _appEmojis,
                       ),
                 ),
               );

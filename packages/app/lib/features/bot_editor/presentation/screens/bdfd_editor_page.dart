@@ -1,4 +1,5 @@
 import 'package:bot_creator/features/bot_editor/presentation/screens/bdfd_docs.dart';
+import 'package:bot_creator/core/models/types/app_emoji.dart';
 
 import 'package:bot_creator_shared/utils/bdfd_autocomplete.dart';
 import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
@@ -296,11 +297,19 @@ final RegExp _bdfdIdentifierChar = RegExp(r'[A-Za-z0-9_]');
 const int _minAutocompletePrefixLength = 2;
 const int _maxAutocompleteItems = 6;
 
+enum _AutocompleteMode { none, function, emoji }
+
 class BdfdEditorPage extends StatefulWidget {
-  const BdfdEditorPage({super.key, required this.initialCode, this.title});
+  const BdfdEditorPage({
+    super.key,
+    required this.initialCode,
+    this.title,
+    this.appEmojis = const [],
+  });
 
   final String initialCode;
   final String? title;
+  final List<AppEmoji> appEmojis;
 
   @override
   State<BdfdEditorPage> createState() => _BdfdEditorPageState();
@@ -322,6 +331,7 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
   int _autocompleteSelectedIndex = 0;
   List<MapEntry<String, String>> _autocompleteEntries =
       const <MapEntry<String, String>>[];
+  _AutocompleteMode _autocompleteMode = _AutocompleteMode.none;
   BdfdSignatureContext? _signatureContext;
   final BdfdLexer _signatureLexer = BdfdLexer();
 
@@ -401,12 +411,51 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
     return true;
   }
 
-  int _findPrefixStart(String text, int caretOffset) {
+  ({int start, _AutocompleteMode mode})? _findAutocompleteStart(
+    String text,
+    int caretOffset,
+  ) {
     if (caretOffset <= 0 || caretOffset > text.length) {
-      return -1;
+      return null;
     }
 
+    // Check for emoji prefix: <:
+    if (caretOffset >= 2 &&
+        text[caretOffset - 2] == '<' &&
+        text[caretOffset - 1] == ':') {
+      // Allow a: for animated emojis: <a:
+      if (caretOffset >= 3 &&
+          text[caretOffset - 3] == 'a' &&
+          text[caretOffset - 2] == ':') {
+        // caret is after <a: — prefix start is at <
+        var i = caretOffset - 3;
+        if (i >= 1 && text[i - 1] == '<') {
+          return (start: i - 1, mode: _AutocompleteMode.emoji);
+        }
+      }
+      // caret is after <: — prefix start is at <
+      return (start: caretOffset - 2, mode: _AutocompleteMode.emoji);
+    }
+
+    // Emoji prefix with partial text typed: <a:partial or <:partial
     var i = caretOffset - 1;
+    while (i >= 0) {
+      final c = text[i];
+      if (c == ':' && i >= 1 && text[i - 1] == 'a' && i >= 2 && text[i - 2] == '<') {
+        return (start: i - 2, mode: _AutocompleteMode.emoji);
+      }
+      if (c == ':' && i >= 1 && text[i - 1] == '<') {
+        return (start: i - 1, mode: _AutocompleteMode.emoji);
+      }
+      if (_bdfdIdentifierChar.hasMatch(c)) {
+        i -= 1;
+        continue;
+      }
+      break;
+    }
+
+    // Check for function prefix: $
+    i = caretOffset - 1;
     while (i >= 0) {
       final c = text[i];
       if (_bdfdIdentifierChar.hasMatch(c)) {
@@ -414,12 +463,12 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
         continue;
       }
       if (c == r'$') {
-        return i;
+        return (start: i, mode: _AutocompleteMode.function);
       }
-      return -1;
+      return null;
     }
 
-    return -1;
+    return null;
   }
 
   List<MapEntry<String, String>> _computeAutocompleteEntries() {
@@ -430,19 +479,28 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
     }
 
     final caret = sel.baseOffset;
-    final start = _findPrefixStart(text, caret);
-    if (start < 0) {
+    final result = _findAutocompleteStart(text, caret);
+    if (result == null) {
       return const <MapEntry<String, String>>[];
     }
 
+    final start = result.start;
+    final mode = result.mode;
+
+    if (mode == _AutocompleteMode.emoji) {
+      return _computeEmojiAutocompleteEntries(text, caret, start);
+    }
+
+    // Function autocomplete (existing logic)
     final prefix = text.substring(start + 1, caret).toLowerCase();
     if (prefix.length < _minAutocompletePrefixLength) {
       return const <MapEntry<String, String>>[];
     }
 
     final matches = bdfdAutocompleteTemplates.entries
-      .where((entry) => entry.key.startsWith(prefix))
-      .toList(growable: false)..sort((a, b) => a.key.compareTo(b.key));
+        .where((entry) => entry.key.startsWith(prefix))
+        .toList(growable: false)
+      ..sort((a, b) => a.key.compareTo(b.key));
 
     if (matches.length == 1 && matches.first.key == prefix) {
       return const <MapEntry<String, String>>[];
@@ -451,20 +509,70 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
     return matches.take(_maxAutocompleteItems).toList(growable: false);
   }
 
+  List<MapEntry<String, String>> _computeEmojiAutocompleteEntries(
+    String text,
+    int caret,
+    int prefixStart,
+  ) {
+    final emojis = widget.appEmojis;
+    if (emojis.isEmpty) {
+      return const <MapEntry<String, String>>[];
+    }
+
+    // Extract the name prefix: text between <: or <a: and caret
+    final afterPrefix = text.substring(prefixStart, caret);
+    String namePrefix;
+    if (afterPrefix.startsWith('<a:')) {
+      namePrefix = afterPrefix.substring(3).toLowerCase();
+    } else if (afterPrefix.startsWith('<:')) {
+      namePrefix = afterPrefix.substring(2).toLowerCase();
+    } else {
+      return const <MapEntry<String, String>>[];
+    }
+
+    if (namePrefix.isEmpty) {
+      // Show all emojis when just <: is typed
+      return emojis
+          .take(_maxAutocompleteItems)
+          .map((e) => MapEntry(e.name, e.mention))
+          .toList(growable: false);
+    }
+
+    final matches = emojis
+        .where((e) => e.name.toLowerCase().startsWith(namePrefix))
+        .take(_maxAutocompleteItems)
+        .map((e) => MapEntry(e.name, e.mention))
+        .toList(growable: false);
+
+    if (matches.length == 1 && matches.first.key.toLowerCase() == namePrefix) {
+      return const <MapEntry<String, String>>[];
+    }
+
+    return matches;
+  }
+
   void _updateAutocomplete() {
     if (!_editorFocusNode.hasFocus) {
       if (_autocompleteEntries.isNotEmpty) {
         setState(() {
           _autocompleteEntries = const <MapEntry<String, String>>[];
           _autocompleteSelectedIndex = 0;
+          _autocompleteMode = _AutocompleteMode.none;
         });
       }
       return;
     }
 
+    final text = _controller.text;
+    final sel = _controller.selection;
+    final caret = sel.isValid ? sel.baseOffset : text.length;
+    final result = _findAutocompleteStart(text, caret);
+    final mode = result?.mode ?? _AutocompleteMode.none;
+
     final entries = _computeAutocompleteEntries();
     if (entries.length != _autocompleteEntries.length ||
-        !_sameEntries(entries, _autocompleteEntries)) {
+        !_sameEntries(entries, _autocompleteEntries) ||
+        mode != _autocompleteMode) {
       final previousValue =
           (_autocompleteEntries.isNotEmpty &&
                   _autocompleteSelectedIndex >= 0 &&
@@ -473,6 +581,7 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
               : null;
 
       setState(() {
+        _autocompleteMode = mode;
         _autocompleteEntries = entries;
         if (entries.isEmpty) {
           _autocompleteSelectedIndex = 0;
@@ -519,6 +628,7 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
       setState(() {
         _autocompleteEntries = const <MapEntry<String, String>>[];
         _autocompleteSelectedIndex = 0;
+        _autocompleteMode = _AutocompleteMode.none;
       });
       return KeyEventResult.handled;
     }
@@ -612,11 +722,35 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
     final text = _controller.text;
     final sel = _controller.selection;
     final caret = sel.isValid ? sel.baseOffset : text.length;
-    final start = _findPrefixStart(text, caret);
-    if (start < 0) {
+
+    final result = _findAutocompleteStart(text, caret);
+    if (result == null) {
       return;
     }
 
+    final start = result.start;
+    final mode = result.mode;
+
+    if (mode == _AutocompleteMode.emoji) {
+      // For emoji, template is already the full mention like <:name:id>
+      final replaced = text.replaceRange(start, caret, '$template>');
+      _controller.value = TextEditingValue(
+        text: replaced,
+        selection: TextSelection.collapsed(offset: start + template.length + 1),
+      );
+
+      setState(() {
+        _recompile();
+        _autocompleteEntries = const <MapEntry<String, String>>[];
+        _autocompleteSelectedIndex = 0;
+        _autocompleteMode = _AutocompleteMode.none;
+      });
+
+      _editorFocusNode.requestFocus();
+      return;
+    }
+
+    // Function autocomplete (existing logic)
     final resolvedTemplate = _templateWithDefaultArguments(key, template);
     final replaced = text.replaceRange(start, caret, resolvedTemplate);
     final bracketIdx = resolvedTemplate.indexOf('[');
@@ -634,6 +768,7 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
       _recompile();
       _autocompleteEntries = const <MapEntry<String, String>>[];
       _autocompleteSelectedIndex = 0;
+      _autocompleteMode = _AutocompleteMode.none;
     });
 
     _editorFocusNode.requestFocus();
@@ -899,7 +1034,7 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
 
   Widget _buildMobileSpecialCharsBar() {
     final theme = Theme.of(context);
-    final chars = <String>[r'$', ';', '[', ']'];
+    final chars = <String>[r'$', '<:', ';', '[', ']'];
     return Container(
       padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
       decoration: BoxDecoration(
@@ -1149,6 +1284,8 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
             itemBuilder: (_, index) {
               final entry = _autocompleteEntries[index];
               final isSelected = index == _autocompleteSelectedIndex;
+              final isEmoji = _autocompleteMode == _AutocompleteMode.emoji;
+              final hasNewline = entry.value.contains('\n');
               return InkWell(
                 onHover: (hovering) {
                   if (!mounted ||
@@ -1175,9 +1312,11 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
                   child: Row(
                     children: [
                       Icon(
-                        entry.value.contains('\n')
-                            ? Icons.segment
-                            : Icons.functions,
+                        isEmoji
+                            ? Icons.emoji_emotions_outlined
+                            : hasNewline
+                                ? Icons.segment
+                                : Icons.functions,
                         size: 14,
                         color: isSelected ? Colors.white : AppTheme.info,
                       ),
