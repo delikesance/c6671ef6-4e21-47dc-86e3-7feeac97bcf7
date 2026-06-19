@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:flutter/services.dart';
 import 'package:bot_creator_shared/types/action.dart' show BotCreatorActionType;
 import 'package:bot_creator/features/bot_editor/logic/action_normalization.dart';
 
@@ -88,10 +90,9 @@ class ActionItem {
       (json['payload'] as Map?)?.cast<String, dynamic>() ?? const {},
     );
     final persistedKey = (json['key'] ?? '').toString().trim();
-    final actionKey =
-        persistedKey.isNotEmpty
-            ? persistedKey
-            : (fallbackId ?? json['id'] ?? '');
+    final actionKey = persistedKey.isNotEmpty
+        ? persistedKey
+        : (fallbackId ?? json['id'] ?? '');
 
     final rawId = (json['id'] ?? '').toString().trim();
     final id = rawId.isNotEmpty
@@ -103,7 +104,8 @@ class ActionItem {
       if (id.isNotEmpty) {
         runtimeId = id;
       } else {
-        runtimeId = 'action_${DateTime.now().microsecondsSinceEpoch}_${_globalCounter++}';
+        runtimeId =
+            'action_${DateTime.now().microsecondsSinceEpoch}_${_globalCounter++}';
       }
       try {
         json['runtimeId'] = runtimeId;
@@ -136,9 +138,15 @@ class ActionItem {
                   'stop')
               .toString(),
       jumpToActionId:
-          (json['error'] as Map?)?.cast<String, dynamic>()['jumpToActionId'] as String?,
-      skipCount: int.tryParse(
-              (json['error'] as Map?)?.cast<String, dynamic>()['skipCount']?.toString() ?? '') ??
+          (json['error'] as Map?)?.cast<String, dynamic>()['jumpToActionId']
+              as String?,
+      skipCount:
+          int.tryParse(
+            (json['error'] as Map?)
+                    ?.cast<String, dynamic>()['skipCount']
+                    ?.toString() ??
+                '',
+          ) ??
           0,
       parameters: parameters,
       actionKey: actionKey,
@@ -161,11 +169,42 @@ class ActionItem {
         if (jumpToActionId != null) 'jumpToActionId': jumpToActionId,
         if (skipCount > 0) 'skipCount': '$skipCount',
       },
-      'payload': {
-        ...purgedPayload,
-        '_actionId': runtimeId,
-      },
+      'payload': {...purgedPayload, '_actionId': runtimeId},
       'runtimeId': runtimeId,
     };
+  }
+}
+
+class ActionClipboard {
+  static Map<String, dynamic>? _copiedAction;
+
+  static Future<void> copyAction(Map<String, dynamic> actionJson) async {
+    _copiedAction = actionJson;
+    final String jsonStr = jsonEncode({
+      '__botCreatorAction__': true,
+      'action': actionJson,
+    });
+    await Clipboard.setData(ClipboardData(text: jsonStr));
+  }
+
+  static Future<Map<String, dynamic>?> getCopiedAction() async {
+    try {
+      final data = await Clipboard.getData(Clipboard.kTextPlain);
+      final text = data?.text;
+      if (text != null) {
+        final Map<String, dynamic> parsed = jsonDecode(text);
+        if (parsed['__botCreatorAction__'] == true &&
+            parsed['action'] != null) {
+          return Map<String, dynamic>.from(parsed['action'] as Map);
+        }
+      }
+    } catch (_) {}
+    return _copiedAction;
+  }
+
+  static Future<bool> hasCopiedAction() async {
+    if (_copiedAction != null) return true;
+    final action = await getCopiedAction();
+    return action != null;
   }
 }

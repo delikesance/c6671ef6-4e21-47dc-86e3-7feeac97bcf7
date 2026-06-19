@@ -78,7 +78,6 @@ class _TextInputBuilderWithoutLabel extends TextInputBuilder {
   }
 }
 
-
 Emoji? _parseEmoji(dynamic emojiData, String Function(String) resolve) {
   if (emojiData == null) return null;
 
@@ -105,25 +104,22 @@ Emoji? _parseEmoji(dynamic emojiData, String Function(String) resolve) {
   if (emojiText.isEmpty) return null;
 
   // Custom emoji format: <:name:id>, <a:name:id>, :name:id, a:name:id, :a:name:id
-  final customMatch = RegExp(r'^<?:?(a?):([^:>]+):(\d+)>?$').firstMatch(emojiText);
+  final customMatch = RegExp(
+    r'^<?:?(a?):([^:>]+):(\d+)>?$',
+  ).firstMatch(emojiText);
   if (customMatch != null) {
     final isAnimated = customMatch.group(1) == 'a';
     final name = customMatch.group(2)!;
     final idString = customMatch.group(3)!;
     final id = int.tryParse(idString);
     if (id != null) {
-      return _FakeEmoji(
-        id: Snowflake(id),
-        name: name,
-        isAnimated: isAnimated,
-      );
+      return _FakeEmoji(id: Snowflake(id), name: name, isAnimated: isAnimated);
     }
   }
 
   // Unicode
   return _FakeEmoji(id: Snowflake.zero, name: emojiText);
 }
-
 
 ComponentBuilder buildComponentNode(
   ComponentNode node,
@@ -132,8 +128,9 @@ ComponentBuilder buildComponentNode(
 }) {
   if (node is ActionRowNode) {
     return ActionRowBuilder(
-      components:
-          node.components.map((c) => buildComponentNode(c, resolve, inLabel: inLabel)).toList(),
+      components: node.components
+          .map((c) => buildComponentNode(c, resolve, inLabel: inLabel))
+          .toList(),
     );
   } else if (node is ButtonNode) {
     if (node.style == BcButtonStyle.link) {
@@ -198,29 +195,35 @@ ComponentBuilder buildComponentNode(
           maxValues: node.maxValues,
           isDisabled: node.disabled ? true : null,
         );
+      case ComponentV2Type.categorySelect:
+        return SelectMenuBuilder.channelSelect(
+          customId: customId,
+          placeholder: placeholder,
+          minValues: node.minValues,
+          maxValues: node.maxValues,
+          isDisabled: node.disabled ? true : null,
+        )..channelTypes = [ChannelType.guildCategory];
       case ComponentV2Type.stringSelect:
       default:
-        final options =
-            node.options.map((opt) {
-              final desc = resolve(opt.description);
-              return _SelectMenuOptionBuilderWithEmojiFix(
-                label: resolve(opt.label),
-                value: resolve(opt.value),
-                description: desc.isNotEmpty ? desc : null,
-                emoji: _parseEmoji(opt.emoji, resolve),
-              );
-            }).toList();
+        final options = node.options.map((opt) {
+          final desc = resolve(opt.description);
+          return _SelectMenuOptionBuilderWithEmojiFix(
+            label: resolve(opt.label),
+            value: resolve(opt.value),
+            description: desc.isNotEmpty ? desc : null,
+            emoji: _parseEmoji(opt.emoji, resolve),
+          );
+        }).toList();
         return SelectMenuBuilder.stringSelect(
           customId: customId,
-          options:
-              options.isEmpty
-                  ? [
-                    _SelectMenuOptionBuilderWithEmojiFix(
-                      label: resolve('component_empty_option'),
-                      value: 'empty',
-                    ),
-                  ]
-                  : options,
+          options: options.isEmpty
+              ? [
+                  _SelectMenuOptionBuilderWithEmojiFix(
+                    label: resolve('component_empty_option'),
+                    value: 'empty',
+                  ),
+                ]
+              : options,
           placeholder: placeholder,
           minValues: node.minValues,
           maxValues: node.maxValues,
@@ -228,15 +231,13 @@ ComponentBuilder buildComponentNode(
         );
     }
   } else if (node is SectionNode) {
-    final components =
-        node.components
-            .map((c) => buildComponentNode(c, resolve, inLabel: inLabel))
-            .whereType<TextDisplayComponentBuilder>()
-            .toList();
-    final accessory =
-        node.accessory != null
-            ? buildComponentNode(node.accessory!, resolve, inLabel: inLabel)
-            : null;
+    final components = node.components
+        .map((c) => buildComponentNode(c, resolve, inLabel: inLabel))
+        .whereType<TextDisplayComponentBuilder>()
+        .toList();
+    final accessory = node.accessory != null
+        ? buildComponentNode(node.accessory!, resolve, inLabel: inLabel)
+        : null;
     return CustomSectionBuilder(
       sectionComponents: components,
       sectionAccessory: accessory,
@@ -246,33 +247,33 @@ ComponentBuilder buildComponentNode(
   } else if (node is ThumbnailNode) {
     return ThumbnailComponentBuilder(
       media: UnfurledMediaItemBuilder(url: Uri.parse(resolve(node.media.url))),
-      description:
-          node.description.isNotEmpty ? resolve(node.description) : null,
+      description: node.description.isNotEmpty
+          ? resolve(node.description)
+          : null,
       isSpoiler: node.isSpoiler ? true : null,
     );
   } else if (node is MediaGalleryNode) {
     return MediaGalleryComponentBuilder(
-      items:
-          node.items
-              .map(
-                (i) => MediaGalleryItemBuilder(
-                  media: UnfurledMediaItemBuilder(
-                    url: Uri.parse(resolve(i.media.url)),
-                  ),
-                  description:
-                      i.description.isNotEmpty ? resolve(i.description) : null,
-                  isSpoiler: i.isSpoiler ? true : null,
-                ),
-              )
-              .toList(),
+      items: node.items
+          .map(
+            (i) => MediaGalleryItemBuilder(
+              media: UnfurledMediaItemBuilder(
+                url: Uri.parse(resolve(i.media.url)),
+              ),
+              description: i.description.isNotEmpty
+                  ? resolve(i.description)
+                  : null,
+              isSpoiler: i.isSpoiler ? true : null,
+            ),
+          )
+          .toList(),
     );
   } else if (node is SeparatorNode) {
     return SeparatorComponentBuilder(
       isDivider: node.isDivider ? true : null,
-      spacing:
-          node.spacing == 2
-              ? SeparatorSpacingSize.large
-              : SeparatorSpacingSize.small,
+      spacing: node.spacing == 2
+          ? SeparatorSpacingSize.large
+          : SeparatorSpacingSize.small,
     );
   } else if (node is FileNode) {
     return FileComponentBuilder(
@@ -287,20 +288,21 @@ ComponentBuilder buildComponentNode(
       if (colorInt != null) accentColor = DiscordColor(colorInt);
     }
     return ContainerComponentBuilder(
-      components:
-          node.components.map((c) => buildComponentNode(c, resolve, inLabel: inLabel)).toList(),
+      components: node.components
+          .map((c) => buildComponentNode(c, resolve, inLabel: inLabel))
+          .toList(),
       accentColor: accentColor,
       isSpoiler: node.isSpoiler ? true : null,
     );
   } else if (node is LabelNode) {
     return LabelComponentBuilder(
       label: resolve(node.label),
-      description:
-          node.description.isNotEmpty ? resolve(node.description) : null,
-      component:
-          node.component != null
-              ? buildComponentNode(node.component!, resolve, inLabel: true)
-              : TextDisplayComponentBuilder(content: ''),
+      description: node.description.isNotEmpty
+          ? resolve(node.description)
+          : null,
+      component: node.component != null
+          ? buildComponentNode(node.component!, resolve, inLabel: true)
+          : TextDisplayComponentBuilder(content: ''),
     );
   } else if (node is FileUploadNode) {
     return FileUploadComponentBuilder(
@@ -312,35 +314,35 @@ ComponentBuilder buildComponentNode(
   } else if (node is RadioGroupNode) {
     return RadioGroupComponentBuilder(
       customId: resolve(node.customId),
-      options:
-          node.options
-              .map(
-                (o) => RadioGroupOptionBuilder(
-                  value: resolve(o.value),
-                  label: resolve(o.label),
-                  description:
-                      o.description.isNotEmpty ? resolve(o.description) : null,
-                  defaultValue: o.isDefault ? true : null,
-                ),
-              )
-              .toList(),
+      options: node.options
+          .map(
+            (o) => RadioGroupOptionBuilder(
+              value: resolve(o.value),
+              label: resolve(o.label),
+              description: o.description.isNotEmpty
+                  ? resolve(o.description)
+                  : null,
+              defaultValue: o.isDefault ? true : null,
+            ),
+          )
+          .toList(),
       isRequired: node.isRequired ? true : null,
     );
   } else if (node is CheckboxGroupNode) {
     return CheckboxGroupComponentBuilder(
       customId: resolve(node.customId),
-      options:
-          node.options
-              .map(
-                (o) => CheckboxGroupOptionBuilder(
-                  value: resolve(o.value),
-                  label: resolve(o.label),
-                  description:
-                      o.description.isNotEmpty ? resolve(o.description) : null,
-                  defaultValue: o.isDefault ? true : null,
-                ),
-              )
-              .toList(),
+      options: node.options
+          .map(
+            (o) => CheckboxGroupOptionBuilder(
+              value: resolve(o.value),
+              label: resolve(o.label),
+              description: o.description.isNotEmpty
+                  ? resolve(o.description)
+                  : null,
+              defaultValue: o.isDefault ? true : null,
+            ),
+          )
+          .toList(),
       minValues: node.minValues,
       maxValues: node.maxValues,
       isRequired: node.isRequired ? true : null,
@@ -357,7 +359,9 @@ ComponentBuilder buildComponentNode(
         style: node.style == BcTextInputStyle.paragraph
             ? TextInputStyle.paragraph
             : TextInputStyle.short,
-        placeholder: node.placeholder.isNotEmpty ? resolve(node.placeholder) : null,
+        placeholder: node.placeholder.isNotEmpty
+            ? resolve(node.placeholder)
+            : null,
         value: node.value.isNotEmpty ? resolve(node.value) : null,
         isRequired: node.required,
         minLength: node.minLength,
@@ -370,7 +374,9 @@ ComponentBuilder buildComponentNode(
       style: node.style == BcTextInputStyle.paragraph
           ? TextInputStyle.paragraph
           : TextInputStyle.short,
-      placeholder: node.placeholder.isNotEmpty ? resolve(node.placeholder) : null,
+      placeholder: node.placeholder.isNotEmpty
+          ? resolve(node.placeholder)
+          : null,
       value: node.value.isNotEmpty ? resolve(node.value) : null,
       isRequired: node.required,
       minLength: node.minLength,
@@ -579,10 +585,7 @@ Future<Map<String, dynamic>> respondWithComponentV2Action(
               messageId: messageId,
             );
           }
-          return {
-            'messageId': ?messageId,
-            'status': 'responded',
-          };
+          return {'messageId': ?messageId, 'status': 'responded'};
         }
       } catch (e) {
         return {'error': 'Failed to send interaction response: $e'};

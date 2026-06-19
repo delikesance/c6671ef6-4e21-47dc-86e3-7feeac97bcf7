@@ -245,6 +245,7 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
       ComponentV2Type.roleSelect => Icons.admin_panel_settings,
       ComponentV2Type.mentionableSelect => Icons.alternate_email,
       ComponentV2Type.channelSelect => Icons.tag,
+      ComponentV2Type.categorySelect => Icons.folder,
       ComponentV2Type.section => Icons.view_agenda,
       ComponentV2Type.textDisplay => Icons.text_fields,
       ComponentV2Type.thumbnail => Icons.image,
@@ -422,6 +423,7 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                 ComponentV2Type.roleSelect,
                 ComponentV2Type.mentionableSelect,
                 ComponentV2Type.channelSelect,
+                ComponentV2Type.categorySelect,
               ];
             }
 
@@ -1406,6 +1408,7 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                         ComponentV2Type.roleSelect,
                         ComponentV2Type.mentionableSelect,
                         ComponentV2Type.channelSelect,
+                        ComponentV2Type.categorySelect,
                         ComponentV2Type.fileUpload,
                         ComponentV2Type.radioGroup,
                         ComponentV2Type.checkboxGroup,
