@@ -1265,7 +1265,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get app_bot_token => 'Token de Bot';
 
   @override
-  String get app_create_button => 'Criar um bot';
+  String get app_create_button => 'Criar Aplicação';
 
   @override
   String get app_create_hero_desc =>
@@ -1278,7 +1278,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get app_create_new => 'Criar nova Aplicação';
 
   @override
-  String get app_create_page_title => 'Criar um bot';
+  String get app_create_page_title => 'Criar Aplicação';
 
   @override
   String get app_enter_token => 'Introduza o token do seu bot aqui';
@@ -8386,4 +8386,28 @@ class AppLocalizationsPt extends AppLocalizations {
   String settings_sync_force_error(Object error) {
     return 'Falha ao forçar sincronização: $error';
   }
+
+  @override
+  String get app_create_select_type_title => 'Selecionar Tipo de Aplicação';
+
+  @override
+  String get app_create_select_type_desc =>
+      'Escolha o tipo de aplicação que deseja criar para começar.';
+
+  @override
+  String get app_create_type_discord => 'Bot do Discord';
+
+  @override
+  String get app_create_type_discord_desc =>
+      'Crie e configure um bot do Discord personalizável com ações, eventos e camadas de canvas.';
+
+  @override
+  String get app_create_type_hosted => 'Aplicação Hospedada (Docker)';
+
+  @override
+  String get app_create_type_hosted_desc =>
+      'Execute uma aplicação backend, servidor ou script na sua linguagem favorita (NodeJS, Python, Java...). Envie arquivos e instale pacotes em um contêiner seguro.';
+
+  @override
+  String get app_create_coming_soon => 'Em breve';
 }

@@ -399,6 +399,16 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
       case 'loadImage':
       case 'compositeImage':
         return _hitImage(pos, op);
+      case 'progressBar':
+        final x = _parseDouble(op, 'x');
+        final y = _parseDouble(op, 'y');
+        final w = _parseDouble(op, 'width', 100);
+        final h = _parseDouble(op, 'height', 20);
+        return pos.dx >= x && pos.dx <= x + w && pos.dy >= y && pos.dy <= y + h;
+      case 'setPixel':
+        final cx = _parseDouble(op, 'x');
+        final cy = _parseDouble(op, 'y');
+        return pos.dx >= cx - 5 && pos.dx <= cx + 5 && pos.dy >= cy - 5 && pos.dy <= cy + 5;
       default:
         return false;
     }
@@ -552,6 +562,12 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
           _parseDouble(op, 'y'),
           _parseDouble(op, 'width', 100),
           _parseDouble(op, 'height', 20),
+        );
+      case 'setPixel':
+        return Rect.fromCenter(
+          center: Offset(_parseDouble(op, 'x'), _parseDouble(op, 'y')),
+          width: 10,
+          height: 10,
         );
       default:
         return null;
@@ -825,6 +841,18 @@ class _CanvasPreviewPainter extends CustomPainter {
       case 'progressBar':
         _paintProgressBar(canvas, rawOp);
         break;
+      case 'setPixel':
+        _paintSetPixel(canvas, rawOp);
+        break;
+      case 'invert':
+        _paintInvert(canvas, rawOp);
+        break;
+      case 'grayscale':
+        _paintGrayscale(canvas, rawOp);
+        break;
+      case 'rotate':
+        _paintRotate(canvas, rawOp);
+        break;
     }
   }
 
@@ -1004,10 +1032,16 @@ class _CanvasPreviewPainter extends CustomPainter {
     final borderWidth = _parseDouble(op, 'borderWidth', 0).clamp(0.0, 50.0);
     final vertical = (op['orientation'] ?? '').toString().toLowerCase().trim() == 'vertical';
     final fontSize = _parseDouble(op, 'fontSize', 14);
+    final borderRadius = _parseDouble(op, 'borderRadius', 0).clamp(0.0, 500.0);
 
     // Draw Track
     final rect = Rect.fromLTWH(x, y, w, h);
-    canvas.drawRect(rect, Paint()..color = trackColor);
+    if (borderRadius > 0.0) {
+      final rrect = RRect.fromRectAndRadius(rect, Radius.circular(borderRadius));
+      canvas.drawRRect(rrect, Paint()..color = trackColor);
+    } else {
+      canvas.drawRect(rect, Paint()..color = trackColor);
+    }
 
     // Draw Fill
     final fillFraction = percentage / 100.0;
@@ -1020,7 +1054,15 @@ class _CanvasPreviewPainter extends CustomPainter {
         final fillW = w * fillFraction;
         fillRect = Rect.fromLTWH(x, y, fillW, h);
       }
-      canvas.drawRect(fillRect, Paint()..color = barColor);
+      if (borderRadius > 0.0) {
+        canvas.save();
+        final rrect = RRect.fromRectAndRadius(rect, Radius.circular(borderRadius));
+        canvas.clipRRect(rrect);
+        canvas.drawRect(fillRect, Paint()..color = barColor);
+        canvas.restore();
+      } else {
+        canvas.drawRect(fillRect, Paint()..color = barColor);
+      }
     }
 
     // Draw Border
@@ -1029,7 +1071,12 @@ class _CanvasPreviewPainter extends CustomPainter {
         ..color = barColor
         ..style = PaintingStyle.stroke
         ..strokeWidth = borderWidth;
-      canvas.drawRect(rect.deflate(borderWidth / 2), borderPaint);
+      if (borderRadius > 0.0) {
+        final rrect = RRect.fromRectAndRadius(rect, Radius.circular(borderRadius));
+        canvas.drawRRect(rrect.deflate(borderWidth / 2), borderPaint);
+      } else {
+        canvas.drawRect(rect.deflate(borderWidth / 2), borderPaint);
+      }
     }
 
     // Draw Label text
@@ -1054,6 +1101,45 @@ class _CanvasPreviewPainter extends CustomPainter {
     final tx = x + (w - tp.width) / 2;
     final ty = y + (h - tp.height) / 2;
     tp.paint(canvas, Offset(tx, ty));
+  }
+
+  void _paintSetPixel(Canvas canvas, Map<String, dynamic> op) {
+    final x = _parseDouble(op, 'x');
+    final y = _parseDouble(op, 'y');
+    final color = _parseUiColor(op['color']) ?? const ui.Color(0xFFFFFFFF);
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+    canvas.drawRect(Rect.fromLTWH(x, y, 1, 1), paint);
+  }
+
+  void _paintInvert(Canvas canvas, Map<String, dynamic> op) {
+    final rect = Rect.fromLTWH(0, 0, canvasWidth.toDouble(), canvasHeight.toDouble());
+    final paint = Paint()
+      ..color = const ui.Color(0xFFFFFFFF)
+      ..blendMode = ui.BlendMode.difference;
+    canvas.drawRect(rect, paint);
+  }
+
+  void _paintGrayscale(Canvas canvas, Map<String, dynamic> op) {
+    final rect = Rect.fromLTWH(0, 0, canvasWidth.toDouble(), canvasHeight.toDouble());
+    final paint = Paint()
+      ..color = const ui.Color(0xFF000000)
+      ..blendMode = ui.BlendMode.saturation;
+    canvas.drawRect(rect, paint);
+  }
+
+  void _paintRotate(Canvas canvas, Map<String, dynamic> op) {
+    final angle = double.tryParse((op['angle'] ?? '0').toString()) ?? 0.0;
+    if (angle == 0.0) return;
+
+    final radians = angle * math.pi / 180.0;
+    final cx = canvasWidth / 2.0;
+    final cy = canvasHeight / 2.0;
+
+    canvas.translate(cx, cy);
+    canvas.rotate(radians);
+    canvas.translate(-cx, -cy);
   }
 
   /// Wraps [drawFn] in a [canvas.saveLayer] with the given blend mode.

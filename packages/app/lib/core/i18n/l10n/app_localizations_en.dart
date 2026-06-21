@@ -1240,7 +1240,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get app_bot_token => 'Bot Token';
 
   @override
-  String get app_create_button => 'Create a bot';
+  String get app_create_button => 'Create Application';
 
   @override
   String get app_create_hero_desc =>
@@ -1253,7 +1253,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get app_create_new => 'Create a new App';
 
   @override
-  String get app_create_page_title => 'Create a bot';
+  String get app_create_page_title => 'Create Application';
 
   @override
   String get app_enter_token => 'Enter your bot token here';
@@ -8283,4 +8283,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String settings_sync_force_error(Object error) {
     return 'Failed to force sync: $error';
   }
+
+  @override
+  String get app_create_select_type_title => 'Select Application Type';
+
+  @override
+  String get app_create_select_type_desc =>
+      'Choose the type of application you want to create to get started.';
+
+  @override
+  String get app_create_type_discord => 'Discord Bot';
+
+  @override
+  String get app_create_type_discord_desc =>
+      'Build and run a customizable Discord bot with logic, triggers, and dynamic canvas panels.';
+
+  @override
+  String get app_create_type_hosted => 'Hosted Application (Docker)';
+
+  @override
+  String get app_create_type_hosted_desc =>
+      'Run a backend app, server, or script in your favorite language (NodeJS, Python, Java...). Upload files and install packages in a secure sandbox.';
+
+  @override
+  String get app_create_coming_soon => 'Coming Soon';
 }

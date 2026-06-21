@@ -1166,7 +1166,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get app_bot_token => 'Bot トークン';
 
   @override
-  String get app_create_button => 'ボットを作成';
+  String get app_create_button => 'アプリケーションを作成';
 
   @override
   String get app_create_hero_desc =>
@@ -1179,7 +1179,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get app_create_new => '新しいアプリを作成';
 
   @override
-  String get app_create_page_title => 'ボットを作成';
+  String get app_create_page_title => 'アプリケーションを作成';
 
   @override
   String get app_enter_token => 'ボットトークンをここに入力';
@@ -7973,4 +7973,27 @@ class AppLocalizationsJa extends AppLocalizations {
   String settings_sync_force_error(Object error) {
     return '強制同期に失敗しました: $error';
   }
+
+  @override
+  String get app_create_select_type_title => 'アプリケーションの種類を選択';
+
+  @override
+  String get app_create_select_type_desc => '開始するには、作成するアプリケーションの種類を選択してください。';
+
+  @override
+  String get app_create_type_discord => 'Discordボット';
+
+  @override
+  String get app_create_type_discord_desc =>
+      'アクション、イベント、キャンバスレイヤーなどを使用して、カスタマイズ可能なDiscordボットを構築して実行します。';
+
+  @override
+  String get app_create_type_hosted => 'ホスト型アプリケーション (Docker)';
+
+  @override
+  String get app_create_type_hosted_desc =>
+      'お好みの言語（NodeJS、Python、Javaなど）でバックエンドアプリ、サーバー、またはスクリプトを実行します。ファイルをアップロードし、安全なサンドボックスにパッケージをインストールします。';
+
+  @override
+  String get app_create_coming_soon => '近日公開';
 }

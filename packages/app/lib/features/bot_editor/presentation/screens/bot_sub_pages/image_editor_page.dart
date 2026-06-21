@@ -236,7 +236,6 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
         tooltip: 'Add operation',
         offset: const Offset(0, 40),
         itemBuilder: (context) => [
-          const PopupMenuItem(value: 'create', child: Text('Create Canvas')),
           const PopupMenuItem(value: 'container', child: Text('Container / Frame')),
           const PopupMenuItem(value: 'loadImage', child: Text('Load Image')),
           const PopupMenuItem(value: 'drawText', child: Text('Draw Text')),
@@ -245,6 +244,10 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
           const PopupMenuItem(value: 'drawLine', child: Text('Draw Line')),
           const PopupMenuItem(value: 'progressBar', child: Text('Progress Bar')),
           const PopupMenuItem(value: 'compositeImage', child: Text('Composite Image')),
+          const PopupMenuItem(value: 'setPixel', child: Text('Set Pixel')),
+          const PopupMenuItem(value: 'invert', child: Text('Invert Colors')),
+          const PopupMenuItem(value: 'grayscale', child: Text('Convert to Grayscale')),
+          const PopupMenuItem(value: 'rotate', child: Text('Rotate Canvas')),
         ],
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
@@ -686,10 +689,13 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
           child: Row(
             children: [
-              ReorderableDragStartListener(
-                index: index,
-                child: const Icon(Icons.drag_handle, size: 18, color: Colors.grey),
-              ),
+              if (opType != 'create')
+                ReorderableDragStartListener(
+                  index: index,
+                  child: const Icon(Icons.drag_handle, size: 18, color: Colors.grey),
+                )
+              else
+                const SizedBox(width: 18),
               const SizedBox(width: 4),
               InkWell(
                 onTap: () {
@@ -757,6 +763,11 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
   }
 
   void _onReorderItem(int oldIndex, int newIndex) {
+    if (_operations.isNotEmpty && _operations.first['op'] == 'create') {
+      if (oldIndex == 0 || newIndex == 0) {
+        return;
+      }
+    }
     setState(() {
       final op = _operations.removeAt(oldIndex);
       _operations.insert(newIndex, op);
@@ -914,19 +925,21 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
           const Divider(),
           const SizedBox(height: 8),
           ..._buildPropertyFields(opType, op, index),
-          const SizedBox(height: 16),
-          OutlinedButton.icon(
-            onPressed: () {
-              _pushHistory();
-              setState(() {
-                _operations.insert(
-                    index + 1, Map<String, dynamic>.from(op));
-                _selectedIndex = index + 1;
-              });
-            },
-            icon: const Icon(Icons.copy, size: 16),
-            label: const Text('Duplicate'),
-          ),
+          if (opType != 'create') ...[
+            const SizedBox(height: 16),
+            OutlinedButton.icon(
+              onPressed: () {
+                _pushHistory();
+                setState(() {
+                  _operations.insert(
+                      index + 1, Map<String, dynamic>.from(op));
+                  _selectedIndex = index + 1;
+                });
+              },
+              icon: const Icon(Icons.copy, size: 16),
+              label: const Text('Duplicate'),
+            ),
+          ],
         ],
       ),
     );
@@ -1018,22 +1031,23 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  IconButton(
-                    onPressed: () {
-                      _pushHistory();
-                      combinedSet(() {
-                        _operations.insert(
-                            index + 1, Map<String, dynamic>.from(op));
-                        _selectedIndex = index + 1;
-                      });
-                      closeSheet();
-                    },
-                    icon: const Icon(Icons.copy_outlined, size: 20),
-                    tooltip: 'Duplicate',
-                    padding: EdgeInsets.zero,
-                    constraints:
-                        const BoxConstraints(minWidth: 36, minHeight: 36),
-                  ),
+                  if (opType != 'create')
+                    IconButton(
+                      onPressed: () {
+                        _pushHistory();
+                        combinedSet(() {
+                          _operations.insert(
+                              index + 1, Map<String, dynamic>.from(op));
+                          _selectedIndex = index + 1;
+                        });
+                        closeSheet();
+                      },
+                      icon: const Icon(Icons.copy_outlined, size: 20),
+                      tooltip: 'Duplicate',
+                      padding: EdgeInsets.zero,
+                      constraints:
+                          const BoxConstraints(minWidth: 36, minHeight: 36),
+                    ),
                   IconButton(
                     onPressed: () {
                       _pushHistory();
@@ -1413,10 +1427,21 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
         addField('Track Color', 'trackColor', hint: '#E0E0E0', isColor: true);
         addField('Text Color', 'textColor', hint: '#FFFFFF', isColor: true);
         addField('Border Width', 'borderWidth', hint: '0', keyboardType: TextInputType.number);
+        addField('Border Radius', 'borderRadius', hint: '0', keyboardType: TextInputType.number);
         addField('Orientation', 'orientation', hint: 'horizontal or vertical');
         addField('Font Size', 'fontSize', hint: '14', keyboardType: TextInputType.number);
         addField('Container', 'container', hint: 'parent container name',
             onSubmitted: (v) => convertToRelative(v, op));
+        break;
+      case 'setPixel':
+        addField('X', 'x', hint: '0', keyboardType: TextInputType.number);
+        addField('Y', 'y', hint: '0', keyboardType: TextInputType.number);
+        addField('Color', 'color', hint: 'white', isColor: true);
+        addField('Container', 'container', hint: 'parent container name',
+            onSubmitted: (v) => convertToRelative(v, op));
+        break;
+      case 'rotate':
+        addField('Angle (Degrees)', 'angle', hint: '90', keyboardType: TextInputType.number);
         break;
     }
 
@@ -1513,6 +1538,21 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
       case 'compositeImage':
         defaults.addAll({'op': 'compositeImage', 'url': '', 'x': '0', 'y': '0', 'width': '100', 'height': '100', 'shape': '', 'blend': ''});
         break;
+      case 'progressBar':
+        defaults.addAll({'op': 'progressBar', 'x': '0', 'y': '0', 'width': '100', 'height': '20', 'percentage': '50', 'barColor': '#4285F4', 'trackColor': '#E0E0E0', 'textColor': '#FFFFFF', 'borderWidth': '0', 'borderRadius': '0', 'orientation': 'horizontal', 'fontSize': '14'});
+        break;
+      case 'setPixel':
+        defaults.addAll({'op': 'setPixel', 'x': '0', 'y': '0', 'color': 'white'});
+        break;
+      case 'invert':
+        defaults.addAll({'op': 'invert'});
+        break;
+      case 'grayscale':
+        defaults.addAll({'op': 'grayscale'});
+        break;
+      case 'rotate':
+        defaults.addAll({'op': 'rotate', 'angle': '90'});
+        break;
     }
     _pushHistory();
     setState(() {
@@ -1546,6 +1586,8 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
       case 'drawText':
       case 'drawRect':
       case 'drawCircle':
+      case 'progressBar':
+      case 'setPixel':
         shiftX('x', dx);
         shiftX('y', dy);
         break;
@@ -1634,6 +1676,11 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
       case 'drawCircle': return Icons.circle_outlined;
       case 'drawLine': return Icons.show_chart;
       case 'compositeImage': return Icons.layers;
+      case 'progressBar': return Icons.linear_scale;
+      case 'setPixel': return Icons.adjust;
+      case 'invert': return Icons.invert_colors;
+      case 'grayscale': return Icons.filter_b_and_w;
+      case 'rotate': return Icons.rotate_right;
       default: return Icons.help_outline;
     }
   }
@@ -1674,6 +1721,20 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
             ? (url.length > 25 ? '${url.substring(0, 25)}…' : url)
             : 'no URL';
         return 'Composite Image: $label';
+      case 'progressBar':
+        final percentage = op['percentage'] ?? '50';
+        return 'Progress Bar: $percentage%';
+      case 'setPixel':
+        final x = op['x'] ?? '0';
+        final y = op['y'] ?? '0';
+        return 'Set Pixel ($x,$y)';
+      case 'invert':
+        return 'Invert Colors';
+      case 'grayscale':
+        return 'Convert to Grayscale';
+      case 'rotate':
+        final angle = op['angle'] ?? '90';
+        return 'Rotate Canvas ($angle°)';
       default:
         return 'Unknown ($opType)';
     }

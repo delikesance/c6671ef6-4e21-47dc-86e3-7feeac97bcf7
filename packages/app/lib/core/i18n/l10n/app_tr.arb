@@ -3682,13 +3682,13 @@
     "description": "Pick embed color"
   },
   "@cmd_batch_delete_confirm": {
-      "placeholders": {
-        "count": {
-          "type": "int"
-        }
-      },
-      "description": "Batch delete confirmation dialog"
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
     },
+    "description": "Batch delete confirmation dialog"
+  },
   "@embed_delete_title": {
     "description": "Delete embed"
   },
@@ -7645,11 +7645,11 @@
   "ads_consent_refused_info": "Reklam onayı reddedildi. Bot normal şekilde başlatılacaktır.",
   "ads_consent_title": "Reklam onayı",
   "app_bot_token": "Bot Jetonu",
-  "app_create_button": "Bir bot oluştur",
+  "app_create_button": "Uygulama oluştur",
   "app_create_hero_desc": "Doğru sayfaları açmak, jetonunuzu kopyalamak ve botu güvenli bir şekilde içe aktarmak için rehberli kurulum.",
   "app_create_hero_title": "Discord botunuzu bağlayın",
   "app_create_new": "Yeni Uygulama Oluştur",
-  "app_create_page_title": "Bir bot oluştur",
+  "app_create_page_title": "Uygulama oluştur",
   "app_enter_token": "Bot jetonunuzu buraya girin",
   "app_external_link_badge": "Dış bağlantı",
   "app_hide_token": "Jetonu gizle",
@@ -9738,5 +9738,12 @@
   "settings_sync_force_dialog_desc": "Bu işlem, Bot Creator'da yerel olarak tanımlanmamış tüm Discord eğik çizgi komutlarını silecektir. Devam etmek istediğinizden emin misiniz?",
   "settings_sync_force_dialog_confirm": "Zorla Eşitle",
   "settings_sync_force_success": "Zorunlu senkronizasyon başarıyla tamamlandı. Discord'dan {count} eski/takip edilmeyen komut silindi.",
-  "settings_sync_force_error": "Zorunlu senkronizasyon başarısız oldu: {error}"
+  "settings_sync_force_error": "Zorunlu senkronizasyon başarısız oldu: {error}",
+  "app_create_select_type_title": "Uygulama Türünü Seçin",
+  "app_create_select_type_desc": "Başlamak için oluşturmak istediğiniz uygulama türünü seçin.",
+  "app_create_type_discord": "Discord Botu",
+  "app_create_type_discord_desc": "Eylemler, olaylar ve dinamik tuval panelleri ile özelleştirilebilir bir Discord botu oluşturun ve çalıştırın.",
+  "app_create_type_hosted": "Barındırılan Uygulama (Docker)",
+  "app_create_type_hosted_desc": "Tercih ettiğiniz dilde (NodeJS, Python, Java...) bir arka uç uygulaması, sunucu veya komut dosyası çalıştırın. Dosyaları yükleyin ve güvenli bir korumalı alanda paketleri yükleyin.",
+  "app_create_coming_soon": "Çok yakında"
 }

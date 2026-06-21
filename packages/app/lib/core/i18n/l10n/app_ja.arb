@@ -3727,13 +3727,13 @@
     "description": "Pick embed color"
   },
   "@cmd_batch_delete_confirm": {
-      "placeholders": {
-        "count": {
-          "type": "int"
-        }
-      },
-      "description": "Batch delete confirmation dialog"
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
     },
+    "description": "Batch delete confirmation dialog"
+  },
   "@embed_delete_title": {
     "description": "Delete embed"
   },
@@ -7732,11 +7732,11 @@
   "ads_consent_refused_info": "広告同意が拒否されました。ボットは通常通り起動します。",
   "ads_consent_title": "広告の同意",
   "app_bot_token": "Bot トークン",
-  "app_create_button": "ボットを作成",
+  "app_create_button": "アプリケーションを作成",
   "app_create_hero_desc": "適切なページを開き、トークンをコピーしてボットを安全にインポートするためのガイド付きセットアップ。",
   "app_create_hero_title": "Discordボットに接続",
   "app_create_new": "新しいアプリを作成",
-  "app_create_page_title": "ボットを作成",
+  "app_create_page_title": "アプリケーションを作成",
   "app_enter_token": "ボットトークンをここに入力",
   "app_external_link_badge": "外部リンク",
   "app_hide_token": "トークンを隠す",
@@ -9825,5 +9825,12 @@
   "settings_sync_force_dialog_desc": "これにより、Bot Creatorでローカルに定義されていないDiscordのスラッシュコマンドがすべて削除されます。本当に続行しますか？",
   "settings_sync_force_dialog_confirm": "強制同期",
   "settings_sync_force_success": "強制同期が正常に完了しました。Discordから {count} 件の古い/追跡されていないコマンドを削除しました。",
-  "settings_sync_force_error": "強制同期に失敗しました: {error}"
+  "settings_sync_force_error": "強制同期に失敗しました: {error}",
+  "app_create_select_type_title": "アプリケーションの種類を選択",
+  "app_create_select_type_desc": "開始するには、作成するアプリケーションの種類を選択してください。",
+  "app_create_type_discord": "Discordボット",
+  "app_create_type_discord_desc": "アクション、イベント、キャンバスレイヤーなどを使用して、カスタマイズ可能なDiscordボットを構築して実行します。",
+  "app_create_type_hosted": "ホスト型アプリケーション (Docker)",
+  "app_create_type_hosted_desc": "お好みの言語（NodeJS、Python、Javaなど）でバックエンドアプリ、サーバー、またはスクリプトを実行します。ファイルをアップロードし、安全なサンドボックスにパッケージをインストールします。",
+  "app_create_coming_soon": "近日公開"
 }

@@ -1268,7 +1268,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get app_bot_token => 'Bot-Token';
 
   @override
-  String get app_create_button => 'Bot erstellen';
+  String get app_create_button => 'Anwendung erstellen';
 
   @override
   String get app_create_hero_desc =>
@@ -1281,7 +1281,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get app_create_new => 'Neue App erstellen';
 
   @override
-  String get app_create_page_title => 'Bot erstellen';
+  String get app_create_page_title => 'Anwendung erstellen';
 
   @override
   String get app_enter_token => 'Geben Sie hier Ihr Bot-Token ein';
@@ -8399,4 +8399,28 @@ class AppLocalizationsDe extends AppLocalizations {
   String settings_sync_force_error(Object error) {
     return 'Synchronisation fehlgeschlagen: $error';
   }
+
+  @override
+  String get app_create_select_type_title => 'Anwendungstyp auswählen';
+
+  @override
+  String get app_create_select_type_desc =>
+      'Wählen Sie den Typ der Anwendung, die Sie erstellen möchten, um zu beginnen.';
+
+  @override
+  String get app_create_type_discord => 'Discord-Bot';
+
+  @override
+  String get app_create_type_discord_desc =>
+      'Erstellen und konfigurieren Sie einen anpassbaren Discord-Bot mit Aktionen, Ereignissen und Canvas-Ebenen.';
+
+  @override
+  String get app_create_type_hosted => 'Gehostete Anwendung (Docker)';
+
+  @override
+  String get app_create_type_hosted_desc =>
+      'Führen Sie eine Backend-App, einen Server oder ein Skript in Ihrer bevorzugten Sprache (NodeJS, Python, Java...) aus. Laden Sie Dateien hoch und installieren Sie Pakete in einer sicheren Sandbox.';
+
+  @override
+  String get app_create_coming_soon => 'Demnächst verfügbar';
 }

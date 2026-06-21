@@ -3682,13 +3682,13 @@
     "description": "Pick embed color"
   },
   "@cmd_batch_delete_confirm": {
-      "placeholders": {
-        "count": {
-          "type": "int"
-        }
-      },
-      "description": "Batch delete confirmation dialog"
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
     },
+    "description": "Batch delete confirmation dialog"
+  },
   "@embed_delete_title": {
     "description": "Delete embed"
   },
@@ -7678,11 +7678,11 @@
   "ads_consent_refused_info": "Consentimento de anúncios recusado. O bot iniciará normalmente.",
   "ads_consent_title": "Consentimento de anúncios",
   "app_bot_token": "Token de Bot",
-  "app_create_button": "Criar um bot",
+  "app_create_button": "Criar Aplicação",
   "app_create_hero_desc": "Uma configuração guiada para abrir as páginas corretas, copiar o seu token e importar o bot com segurança.",
   "app_create_hero_title": "Ligue o seu bot do Discord",
   "app_create_new": "Criar nova Aplicação",
-  "app_create_page_title": "Criar um bot",
+  "app_create_page_title": "Criar Aplicação",
   "app_enter_token": "Introduza o token do seu bot aqui",
   "app_external_link_badge": "Link externo",
   "app_hide_token": "Ocultar token",
@@ -9771,5 +9771,12 @@
   "settings_sync_force_dialog_desc": "Isso excluirá todos os comandos slash no Discord que não estão definidos localmente no Bot Creator. Tem certeza de que deseja continuar?",
   "settings_sync_force_dialog_confirm": "Forçar",
   "settings_sync_force_success": "Sincronização forçada concluída com sucesso. {count} comando(s) legado(s)/não rastreado(s) excluído(s) do Discord.",
-  "settings_sync_force_error": "Falha ao forçar sincronização: {error}"
+  "settings_sync_force_error": "Falha ao forçar sincronização: {error}",
+  "app_create_select_type_title": "Selecionar Tipo de Aplicação",
+  "app_create_select_type_desc": "Escolha o tipo de aplicação que deseja criar para começar.",
+  "app_create_type_discord": "Bot do Discord",
+  "app_create_type_discord_desc": "Crie e configure um bot do Discord personalizável com ações, eventos e camadas de canvas.",
+  "app_create_type_hosted": "Aplicação Hospedada (Docker)",
+  "app_create_type_hosted_desc": "Execute uma aplicação backend, servidor ou script na sua linguagem favorita (NodeJS, Python, Java...). Envie arquivos e instale pacotes em um contêiner seguro.",
+  "app_create_coming_soon": "Em breve"
 }

@@ -3682,13 +3682,13 @@
     "description": "Pick embed color"
   },
   "@cmd_batch_delete_confirm": {
-      "placeholders": {
-        "count": {
-          "type": "int"
-        }
-      },
-      "description": "Batch delete confirmation dialog"
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
     },
+    "description": "Batch delete confirmation dialog"
+  },
   "@embed_delete_title": {
     "description": "Delete embed"
   },
@@ -7645,11 +7645,11 @@
   "ads_consent_refused_info": "Einwilligung zu Anzeigen abgelehnt. Der Bot startet trotzdem normal.",
   "ads_consent_title": "Einwilligung zu Anzeigen",
   "app_bot_token": "Bot-Token",
-  "app_create_button": "Bot erstellen",
+  "app_create_button": "Anwendung erstellen",
   "app_create_hero_desc": "Eine geführte Einrichtung, um die richtigen Seiten zu öffnen, Ihr Token zu kopieren und den Bot sicher zu importieren.",
   "app_create_hero_title": "Verbinden Sie Ihren Discord-Bot",
   "app_create_new": "Neue App erstellen",
-  "app_create_page_title": "Bot erstellen",
+  "app_create_page_title": "Anwendung erstellen",
   "app_enter_token": "Geben Sie hier Ihr Bot-Token ein",
   "app_external_link_badge": "Externer Link",
   "app_hide_token": "Token ausblenden",
@@ -9738,5 +9738,12 @@
   "settings_sync_force_dialog_desc": "Dadurch werden alle Slash-Befehle auf Discord gelöscht, die in Bot Creator nicht lokal definiert sind. Möchten Sie wirklich fortfahren?",
   "settings_sync_force_dialog_confirm": "Erzwingen",
   "settings_sync_force_success": "Synchronisation erfolgreich erzwungen. {count} veraltete(r)/nicht verfolgte(r) Befehl(e) von Discord gelöscht.",
-  "settings_sync_force_error": "Synchronisation fehlgeschlagen: {error}"
+  "settings_sync_force_error": "Synchronisation fehlgeschlagen: {error}",
+  "app_create_select_type_title": "Anwendungstyp auswählen",
+  "app_create_select_type_desc": "Wählen Sie den Typ der Anwendung, die Sie erstellen möchten, um zu beginnen.",
+  "app_create_type_discord": "Discord-Bot",
+  "app_create_type_discord_desc": "Erstellen und konfigurieren Sie einen anpassbaren Discord-Bot mit Aktionen, Ereignissen und Canvas-Ebenen.",
+  "app_create_type_hosted": "Gehostete Anwendung (Docker)",
+  "app_create_type_hosted_desc": "Führen Sie eine Backend-App, einen Server oder ein Skript in Ihrer bevorzugten Sprache (NodeJS, Python, Java...) aus. Laden Sie Dateien hoch und installieren Sie Pakete in einer sicheren Sandbox.",
+  "app_create_coming_soon": "Demnächst verfügbar"
 }
