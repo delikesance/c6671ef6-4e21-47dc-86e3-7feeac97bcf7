@@ -537,17 +537,50 @@ class _VariableTextFieldState extends State<VariableTextField> {
   String? _extractEmojiQuery(String input, int cursor) {
     final safeCursor = _safeCursor(input, cursor);
     if (safeCursor == 0) return null;
-    final start = input.lastIndexOf('<', safeCursor - 1);
-    if (start == -1) return null;
-    final between = input.substring(start + 1, safeCursor);
-    if (between.contains('>') || between.contains(' ')) return null;
 
-    if (between.startsWith('a:')) {
-      return between.substring(2);
-    } else if (between.startsWith(':')) {
-      return between.substring(1);
+    int start = -1;
+    bool startsWithLess = false;
+
+    for (int i = safeCursor - 1; i >= 0; i--) {
+      final char = input[i];
+      if (char == '<') {
+        start = i;
+        startsWithLess = true;
+        break;
+      }
+      if (char == ':') {
+        if (i > 0 && input[i - 1] == '<') {
+          start = i - 1;
+          startsWithLess = true;
+          break;
+        }
+        if (i > 1 && input[i - 1] == 'a' && input[i - 2] == '<') {
+          start = i - 2;
+          startsWithLess = true;
+          break;
+        }
+        start = i;
+        break;
+      }
+      if (char == ' ' || char == '\n' || char == '>') {
+        break;
+      }
     }
-    return between;
+
+    if (start == -1) return null;
+
+    final between = input.substring(start + 1, safeCursor);
+
+    if (startsWithLess) {
+      if (between.startsWith('a:')) {
+        return between.substring(2);
+      } else if (between.startsWith(':')) {
+        return between.substring(1);
+      }
+      return between;
+    } else {
+      return between;
+    }
   }
 
   // ── Variable placeholder extraction / insertion ──────────────────────────
@@ -632,7 +665,30 @@ class _VariableTextFieldState extends State<VariableTextField> {
   void _insertEmoji(AppEmoji emoji) {
     final input = _effectiveController.text;
     final cursor = _safeCursor(input, _effectiveController.selection.baseOffset);
-    final start = input.lastIndexOf('<', cursor);
+    
+    int start = -1;
+    for (int i = cursor - 1; i >= 0; i--) {
+      final char = input[i];
+      if (char == '<') {
+        start = i;
+        break;
+      }
+      if (char == ':') {
+        if (i > 0 && input[i - 1] == '<') {
+          start = i - 1;
+          break;
+        }
+        if (i > 1 && input[i - 1] == 'a' && input[i - 2] == '<') {
+          start = i - 2;
+          break;
+        }
+        start = i;
+        break;
+      }
+      if (char == ' ' || char == '\n' || char == '>') {
+        break;
+      }
+    }
 
     if (start == -1) {
       final replacement = emoji.mention;
