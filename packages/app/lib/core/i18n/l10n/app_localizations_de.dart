@@ -8368,35 +8368,35 @@ class AppLocalizationsDe extends AppLocalizations {
   String get workflows_type_title => 'Workflow-Typ';
 
   @override
-  String get settings_sync_title => 'Synchronization';
+  String get settings_sync_title => 'Synchronisation';
 
   @override
-  String get settings_sync_force_title => 'Force Sync Commands';
+  String get settings_sync_force_title => 'Befehlssynchronisation erzwingen';
 
   @override
   String get settings_sync_force_desc =>
-      'Deletes all Discord slash commands that are not defined locally in Bot Creator.';
+      'Löscht alle Discord-Slash-Befehle, die in Bot Creator nicht lokal definiert sind.';
 
   @override
-  String get settings_sync_force_button => 'Sync with Discord';
+  String get settings_sync_force_button => 'Mit Discord synchronisieren';
 
   @override
-  String get settings_sync_force_dialog_title => 'Force Sync Commands';
+  String get settings_sync_force_dialog_title => 'Synchronisation erzwingen';
 
   @override
   String get settings_sync_force_dialog_desc =>
-      'This will delete all slash commands on Discord that are not defined locally in Bot Creator. Are you sure you want to continue?';
+      'Dadurch werden alle Slash-Befehle auf Discord gelöscht, die in Bot Creator nicht lokal definiert sind. Möchten Sie wirklich fortfahren?';
 
   @override
-  String get settings_sync_force_dialog_confirm => 'Force Sync';
+  String get settings_sync_force_dialog_confirm => 'Erzwingen';
 
   @override
   String settings_sync_force_success(Object count) {
-    return 'Force sync completed successfully. Deleted $count legacy/untracked command(s) from Discord.';
+    return 'Synchronisation erfolgreich erzwungen. $count veraltete(r)/nicht verfolgte(r) Befehl(e) von Discord gelöscht.';
   }
 
   @override
   String settings_sync_force_error(Object error) {
-    return 'Failed to force sync: $error';
+    return 'Synchronisation fehlgeschlagen: $error';
   }
 }

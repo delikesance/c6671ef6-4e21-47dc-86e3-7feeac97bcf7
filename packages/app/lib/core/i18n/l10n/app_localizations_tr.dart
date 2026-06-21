@@ -8306,35 +8306,35 @@ class AppLocalizationsTr extends AppLocalizations {
   String get workflows_type_title => 'İş akışı türü';
 
   @override
-  String get settings_sync_title => 'Synchronization';
+  String get settings_sync_title => 'Senkronizasyon';
 
   @override
-  String get settings_sync_force_title => 'Force Sync Commands';
+  String get settings_sync_force_title => 'Komut Senkronizasyonunu Zorla';
 
   @override
   String get settings_sync_force_desc =>
-      'Deletes all Discord slash commands that are not defined locally in Bot Creator.';
+      'Bot Creator\'da yerel olarak tanımlanmamış tüm Discord eğik çizgi komutlarını siler.';
 
   @override
-  String get settings_sync_force_button => 'Sync with Discord';
+  String get settings_sync_force_button => 'Discord ile Eşitle';
 
   @override
-  String get settings_sync_force_dialog_title => 'Force Sync Commands';
+  String get settings_sync_force_dialog_title => 'Senkronizasyonu Zorla';
 
   @override
   String get settings_sync_force_dialog_desc =>
-      'This will delete all slash commands on Discord that are not defined locally in Bot Creator. Are you sure you want to continue?';
+      'Bu işlem, Bot Creator\'da yerel olarak tanımlanmamış tüm Discord eğik çizgi komutlarını silecektir. Devam etmek istediğinizden emin misiniz?';
 
   @override
-  String get settings_sync_force_dialog_confirm => 'Force Sync';
+  String get settings_sync_force_dialog_confirm => 'Zorla Eşitle';
 
   @override
   String settings_sync_force_success(Object count) {
-    return 'Force sync completed successfully. Deleted $count legacy/untracked command(s) from Discord.';
+    return 'Zorunlu senkronizasyon başarıyla tamamlandı. Discord\'dan $count eski/takip edilmeyen komut silindi.';
   }
 
   @override
   String settings_sync_force_error(Object error) {
-    return 'Failed to force sync: $error';
+    return 'Zorunlu senkronizasyon başarısız oldu: $error';
   }
 }

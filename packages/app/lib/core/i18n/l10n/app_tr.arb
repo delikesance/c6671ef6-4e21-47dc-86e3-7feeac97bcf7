@@ -9729,5 +9729,14 @@
   "bot_home_version_history": "Sürüm Geçmişi",
   "@bot_home_version_history": {
     "description": "Version history action button"
-  }
+  },
+  "settings_sync_title": "Senkronizasyon",
+  "settings_sync_force_title": "Komut Senkronizasyonunu Zorla",
+  "settings_sync_force_desc": "Bot Creator'da yerel olarak tanımlanmamış tüm Discord eğik çizgi komutlarını siler.",
+  "settings_sync_force_button": "Discord ile Eşitle",
+  "settings_sync_force_dialog_title": "Senkronizasyonu Zorla",
+  "settings_sync_force_dialog_desc": "Bu işlem, Bot Creator'da yerel olarak tanımlanmamış tüm Discord eğik çizgi komutlarını silecektir. Devam etmek istediğinizden emin misiniz?",
+  "settings_sync_force_dialog_confirm": "Zorla Eşitle",
+  "settings_sync_force_success": "Zorunlu senkronizasyon başarıyla tamamlandı. Discord'dan {count} eski/takip edilmeyen komut silindi.",
+  "settings_sync_force_error": "Zorunlu senkronizasyon başarısız oldu: {error}"
 }
