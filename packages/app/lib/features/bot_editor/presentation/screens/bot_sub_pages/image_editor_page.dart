@@ -243,6 +243,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
           const PopupMenuItem(value: 'drawRect', child: Text('Draw Rectangle')),
           const PopupMenuItem(value: 'drawCircle', child: Text('Draw Circle')),
           const PopupMenuItem(value: 'drawLine', child: Text('Draw Line')),
+          const PopupMenuItem(value: 'progressBar', child: Text('Progress Bar')),
           const PopupMenuItem(value: 'compositeImage', child: Text('Composite Image')),
         ],
         child: Padding(
@@ -1401,6 +1402,21 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
         addField('Height', 'height', hint: '100', keyboardType: TextInputType.number);
         addField('Shape', 'shape', hint: 'circle, rounded:20, triangle, or empty');
         addField('Blend', 'blend', hint: 'overlay, multiply, screen, or empty');
+        break;
+      case 'progressBar':
+        addField('X', 'x', hint: '0', keyboardType: TextInputType.number);
+        addField('Y', 'y', hint: '0', keyboardType: TextInputType.number);
+        addField('Width', 'width', hint: '100', keyboardType: TextInputType.number);
+        addField('Height', 'height', hint: '20', keyboardType: TextInputType.number);
+        addField('Percentage', 'percentage', hint: '50', keyboardType: TextInputType.number);
+        addField('Bar Color', 'barColor', hint: '#4285F4', isColor: true);
+        addField('Track Color', 'trackColor', hint: '#E0E0E0', isColor: true);
+        addField('Text Color', 'textColor', hint: '#FFFFFF', isColor: true);
+        addField('Border Width', 'borderWidth', hint: '0', keyboardType: TextInputType.number);
+        addField('Orientation', 'orientation', hint: 'horizontal or vertical');
+        addField('Font Size', 'fontSize', hint: '14', keyboardType: TextInputType.number);
+        addField('Container', 'container', hint: 'parent container name',
+            onSubmitted: (v) => convertToRelative(v, op));
         break;
     }
 
