@@ -2332,6 +2332,17 @@ class AppLocalizationsTr extends AppLocalizations {
       'Dart kodu, korumalı alan motoru aracılığıyla çalışma zamanında derlenir. Betikleri deterministik tutun ve gerektiğinde bir değer döndürün.';
 
   @override
+  String get cmd_execution_mode_javascript => 'JavaScript';
+
+  @override
+  String get cmd_execution_mode_javascript_desc =>
+      'Bu komut için özel JS kodu yazın.';
+
+  @override
+  String get cmd_execution_mode_javascript_note =>
+      'Tüm BDFD fonksiyonları asenkron JS fonksiyonları olarak kullanılabilir. Bağlam ve değişkenlere erişmek için ctx.authorId, ctx.channelId, vars[\'key\'] kullanın.';
+
+  @override
   String get cmd_execution_mode_desc =>
       'Komut meta verileri görsel oluşturucuda kalır. Komut gövdesinin nasıl çalışacağını seçin.';
 
@@ -4891,6 +4902,18 @@ class AppLocalizationsTr extends AppLocalizations {
   String import_summary_workflows_skipped(int count) {
     return '$count iş akışı atlandı';
   }
+
+  @override
+  String get js_editor_hint => '// JavaScript bot komutunuzu buraya yazın...';
+
+  @override
+  String get js_editor_segmented_label => 'JS';
+
+  @override
+  String get js_editor_subtitle => 'Bu komut için özel JavaScript yazın';
+
+  @override
+  String get js_editor_title => 'JavaScript Düzenleyici';
 
   @override
   String legacy_bdfd_run_failed(String command, String error) {

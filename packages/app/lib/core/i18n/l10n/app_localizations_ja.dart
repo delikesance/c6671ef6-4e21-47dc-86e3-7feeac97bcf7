@@ -2220,6 +2220,16 @@ class AppLocalizationsJa extends AppLocalizations {
       'Dartコードはサンドボックスエンジンを通じて実行時にコンパイルされます。スクリプトは決定論的かつ安全に保ってください。';
 
   @override
+  String get cmd_execution_mode_javascript => 'JavaScript';
+
+  @override
+  String get cmd_execution_mode_javascript_desc => 'このコマンドのカスタムJSコードを記述します。';
+
+  @override
+  String get cmd_execution_mode_javascript_note =>
+      'すべてのBDFD関数が非同期JS関数として利用可能です。ctx.authorId、ctx.channelId、vars[\'key\']でコンテキストと変数にアクセスします。';
+
+  @override
   String get cmd_execution_mode_desc =>
       'コマンドメタデータはビジュアルビルダーに残ります。コマンド本文の実行方法を選択してください。';
 
@@ -4677,6 +4687,18 @@ class AppLocalizationsJa extends AppLocalizations {
   String import_summary_workflows_skipped(int count) {
     return '$count ワークフローをスキップしました';
   }
+
+  @override
+  String get js_editor_hint => '// JavaScriptボットコマンドをここに記述...';
+
+  @override
+  String get js_editor_segmented_label => 'JS';
+
+  @override
+  String get js_editor_subtitle => 'このコマンドのカスタムJavaScriptを記述';
+
+  @override
+  String get js_editor_title => 'JavaScriptエディター';
 
   @override
   String legacy_bdfd_run_failed(String command, String error) {

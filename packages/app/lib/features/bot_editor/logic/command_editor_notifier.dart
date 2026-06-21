@@ -168,6 +168,11 @@ class CommandEditorNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setJsScriptContent(String content) {
+    _state = _state.copyWith(jsScriptContent: content);
+    notifyListeners();
+  }
+
   void refreshBdfdCompileResult(String source) {
     final result = _bdfdCompiler.compile(source);
     _state = _state.copyWith(

@@ -1848,6 +1848,15 @@
   "@cmd_execution_mode_dart_note": {
     "description": "Dart code is compiled at runtime through the sandboxed engine. Keep scripts deterministic and return a value when needed."
   },
+  "@cmd_execution_mode_javascript": {
+    "description": "Label for JavaScript execution mode radio option"
+  },
+  "@cmd_execution_mode_javascript_desc": {
+    "description": "Description for JavaScript execution mode radio option"
+  },
+  "@cmd_execution_mode_javascript_note": {
+    "description": "Information note for JavaScript execution mode"
+  },
   "@cmd_execution_mode_desc": {
     "description": "Command metadata stays in the visual builder. Choose how the command body should run."
   },
@@ -4241,6 +4250,18 @@
       }
     },
     "description": "{count} workflow(s) skipped"
+  },
+  "@js_editor_hint": {
+    "description": "Hint text in the JavaScript editor field"
+  },
+  "@js_editor_segmented_label": {
+    "description": "Short label for JavaScript execution mode SegmentedButton"
+  },
+  "@js_editor_subtitle": {
+    "description": "Card subtitle in the JavaScript editor shell"
+  },
+  "@js_editor_title": {
+    "description": "Card title in the JavaScript editor shell"
   },
   "@legacy_bdfd_run_failed": {
     "placeholders": {
@@ -7956,6 +7977,9 @@
   "cmd_execution_mode_dart": "Modo Dart Direto",
   "cmd_execution_mode_dart_desc": "Escreva o corpo do comando diretamente em Dart com diagnósticos em tempo de execução.",
   "cmd_execution_mode_dart_note": "O código Dart é compilado em execução através do motor sandbox. Mantenha os scripts determinísticos e retorne um valor quando necessário.",
+  "cmd_execution_mode_javascript": "JavaScript",
+  "cmd_execution_mode_javascript_desc": "Escreva código JS personalizado para este comando.",
+  "cmd_execution_mode_javascript_note": "Todas as funções BDFD estão disponíveis como funções JS assíncronas. Use ctx.authorId, ctx.channelId, vars['key'] para acessar contexto e variáveis.",
   "cmd_execution_mode_desc": "Os metadados do comando ficam no construtor visual. Escolha como o corpo do comando deve ser executado.",
   "cmd_execution_mode_title": "Modo de execução",
   "cmd_execution_mode_workflow": "Modo Workflow",
@@ -8691,6 +8715,10 @@
   "import_summary_variables_imported": "variáveis importadas",
   "import_summary_workflows_imported": "{count} workflow(s) importado(s)",
   "import_summary_workflows_skipped": "{count} workflow(s) ignorado(s)",
+  "js_editor_hint": "// Escreva seu comando JavaScript aqui...",
+  "js_editor_segmented_label": "JS",
+  "js_editor_subtitle": "Escreva JavaScript personalizado para este comando",
+  "js_editor_title": "Editor JavaScript",
   "legacy_bdfd_run_failed": "Falha ao executar o script BDFD para o comando \"{command}\": {error}",
   "legacy_prefix_mode_desc": "Lida com comandos de messageCreate usando <prefixo><comando>.",
   "legacy_prefix_mode_subtitle": "Usa opções posicionais (exemplo: !config #canal).",

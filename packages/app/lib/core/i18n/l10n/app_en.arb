@@ -2223,6 +2223,15 @@
   "@cmd_execution_mode_dart_note": {
     "description": "Dart code is compiled at runtime through the sandboxed engine. Keep scripts deterministic and return a value when needed."
   },
+  "@cmd_execution_mode_javascript": {
+    "description": "Label for JavaScript execution mode radio option"
+  },
+  "@cmd_execution_mode_javascript_desc": {
+    "description": "Description for JavaScript execution mode radio option"
+  },
+  "@cmd_execution_mode_javascript_note": {
+    "description": "Information note for JavaScript execution mode"
+  },
   "@cmd_execution_mode_desc": {
     "description": "Command metadata stays in the visual builder. Choose how the command body should run."
   },
@@ -4668,6 +4677,18 @@
       }
     },
     "description": "{count} workflow(s) skipped"
+  },
+  "@js_editor_hint": {
+    "description": "Hint text in the JavaScript editor field"
+  },
+  "@js_editor_segmented_label": {
+    "description": "Short label for JavaScript execution mode SegmentedButton"
+  },
+  "@js_editor_subtitle": {
+    "description": "Card subtitle in the JavaScript editor shell"
+  },
+  "@js_editor_title": {
+    "description": "Card title in the JavaScript editor shell"
   },
   "@legacy_bdfd_run_failed": {
     "placeholders": {
@@ -8455,6 +8476,9 @@
   "cmd_execution_mode_dart": "Dart Direct mode",
   "cmd_execution_mode_dart_desc": "Write the command body directly in Dart with runtime diagnostics.",
   "cmd_execution_mode_dart_note": "Dart code is compiled at runtime through the sandboxed engine. Keep scripts deterministic and return a value when needed.",
+  "cmd_execution_mode_javascript": "JavaScript",
+  "cmd_execution_mode_javascript_desc": "Write custom JS code for this command.",
+  "cmd_execution_mode_javascript_note": "All BDFD functions are available as async JS functions. Use ctx.authorId, ctx.channelId, vars['key'] to access context and variables.",
   "cmd_execution_mode_desc": "Command metadata stays in the visual builder. Choose how the command body should run.",
   "cmd_execution_mode_title": "Execution mode",
   "cmd_execution_mode_workflow": "Workflow mode",
@@ -9190,6 +9214,10 @@
   "import_summary_variables_imported": "variables imported",
   "import_summary_workflows_imported": "{count} workflow(s) imported",
   "import_summary_workflows_skipped": "{count} workflow(s) skipped",
+  "js_editor_hint": "// Write your JavaScript bot command here...",
+  "js_editor_segmented_label": "JS",
+  "js_editor_subtitle": "Write custom JavaScript for this command",
+  "js_editor_title": "JavaScript Editor",
   "legacy_bdfd_run_failed": "Failed to run BDFD script for command \"{command}\": {error}",
   "legacy_prefix_mode_desc": "Handle commands from messageCreate using <prefix><command>.",
   "legacy_prefix_mode_subtitle": "Uses positional options (example: !config #channel).",

@@ -4225,6 +4225,24 @@ abstract class AppLocalizations {
   /// **'Dart code is compiled at runtime through the sandboxed engine. Keep scripts deterministic and return a value when needed.'**
   String get cmd_execution_mode_dart_note;
 
+  /// Label for JavaScript execution mode radio option
+  ///
+  /// In en, this message translates to:
+  /// **'JavaScript'**
+  String get cmd_execution_mode_javascript;
+
+  /// Description for JavaScript execution mode radio option
+  ///
+  /// In en, this message translates to:
+  /// **'Write custom JS code for this command.'**
+  String get cmd_execution_mode_javascript_desc;
+
+  /// Information note for JavaScript execution mode
+  ///
+  /// In en, this message translates to:
+  /// **'All BDFD functions are available as async JS functions. Use ctx.authorId, ctx.channelId, vars[\'key\'] to access context and variables.'**
+  String get cmd_execution_mode_javascript_note;
+
   /// Command metadata stays in the visual builder. Choose how the command body should run.
   ///
   /// In en, this message translates to:
@@ -8653,6 +8671,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} workflow(s) skipped'**
   String import_summary_workflows_skipped(int count);
+
+  /// Hint text in the JavaScript editor field
+  ///
+  /// In en, this message translates to:
+  /// **'// Write your JavaScript bot command here...'**
+  String get js_editor_hint;
+
+  /// Short label for JavaScript execution mode SegmentedButton
+  ///
+  /// In en, this message translates to:
+  /// **'JS'**
+  String get js_editor_segmented_label;
+
+  /// Card subtitle in the JavaScript editor shell
+  ///
+  /// In en, this message translates to:
+  /// **'Write custom JavaScript for this command'**
+  String get js_editor_subtitle;
+
+  /// Card title in the JavaScript editor shell
+  ///
+  /// In en, this message translates to:
+  /// **'JavaScript Editor'**
+  String get js_editor_title;
 
   /// Failed to run BDFD script for command "{command}": {error}
   ///

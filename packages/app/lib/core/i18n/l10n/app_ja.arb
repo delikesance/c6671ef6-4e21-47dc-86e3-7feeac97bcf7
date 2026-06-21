@@ -1893,6 +1893,15 @@
   "@cmd_execution_mode_dart_note": {
     "description": "Dart code is compiled at runtime through the sandboxed engine. Keep scripts deterministic and return a value when needed."
   },
+  "@cmd_execution_mode_javascript": {
+    "description": "Label for JavaScript execution mode radio option"
+  },
+  "@cmd_execution_mode_javascript_desc": {
+    "description": "Description for JavaScript execution mode radio option"
+  },
+  "@cmd_execution_mode_javascript_note": {
+    "description": "Information note for JavaScript execution mode"
+  },
   "@cmd_execution_mode_desc": {
     "description": "Command metadata stays in the visual builder. Choose how the command body should run."
   },
@@ -4286,6 +4295,18 @@
       }
     },
     "description": "{count} workflow(s) skipped"
+  },
+  "@js_editor_hint": {
+    "description": "Hint text in the JavaScript editor field"
+  },
+  "@js_editor_segmented_label": {
+    "description": "Short label for JavaScript execution mode SegmentedButton"
+  },
+  "@js_editor_subtitle": {
+    "description": "Card subtitle in the JavaScript editor shell"
+  },
+  "@js_editor_title": {
+    "description": "Card title in the JavaScript editor shell"
   },
   "@legacy_bdfd_run_failed": {
     "placeholders": {
@@ -8010,6 +8031,9 @@
   "cmd_execution_mode_dart": "Dart ダイレクトモード",
   "cmd_execution_mode_dart_desc": "ランタイム診断付きでコマンド本文を直接Dartで記述します。",
   "cmd_execution_mode_dart_note": "Dartコードはサンドボックスエンジンを通じて実行時にコンパイルされます。スクリプトは決定論的かつ安全に保ってください。",
+  "cmd_execution_mode_javascript": "JavaScript",
+  "cmd_execution_mode_javascript_desc": "このコマンドのカスタムJSコードを記述します。",
+  "cmd_execution_mode_javascript_note": "すべてのBDFD関数が非同期JS関数として利用可能です。ctx.authorId、ctx.channelId、vars['key']でコンテキストと変数にアクセスします。",
   "cmd_execution_mode_desc": "コマンドメタデータはビジュアルビルダーに残ります。コマンド本文の実行方法を選択してください。",
   "cmd_execution_mode_title": "実行モード",
   "cmd_execution_mode_workflow": "ワークフローモード",
@@ -8745,6 +8769,10 @@
   "import_summary_variables_imported": "変数をインポートしました",
   "import_summary_workflows_imported": "{count} ワークフローをインポートしました",
   "import_summary_workflows_skipped": "{count} ワークフローをスキップしました",
+  "js_editor_hint": "// JavaScriptボットコマンドをここに記述...",
+  "js_editor_segmented_label": "JS",
+  "js_editor_subtitle": "このコマンドのカスタムJavaScriptを記述",
+  "js_editor_title": "JavaScriptエディター",
   "legacy_bdfd_run_failed": "コマンド \"{command}\" のBDFDスクリプト実行に失敗: {error}",
   "legacy_prefix_mode_desc": "messageCreateから<prefix><command>でコマンドを処理します。",
   "legacy_prefix_mode_subtitle": "位置オプションを使用します (例: !config #channel)。",

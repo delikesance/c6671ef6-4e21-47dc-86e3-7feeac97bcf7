@@ -1848,6 +1848,15 @@
   "@cmd_execution_mode_dart_note": {
     "description": "Dart code is compiled at runtime through the sandboxed engine. Keep scripts deterministic and return a value when needed."
   },
+  "@cmd_execution_mode_javascript": {
+    "description": "Label for JavaScript execution mode radio option"
+  },
+  "@cmd_execution_mode_javascript_desc": {
+    "description": "Description for JavaScript execution mode radio option"
+  },
+  "@cmd_execution_mode_javascript_note": {
+    "description": "Information note for JavaScript execution mode"
+  },
   "@cmd_execution_mode_desc": {
     "description": "Command metadata stays in the visual builder. Choose how the command body should run."
   },
@@ -4241,6 +4250,18 @@
       }
     },
     "description": "{count} workflow(s) skipped"
+  },
+  "@js_editor_hint": {
+    "description": "Hint text in the JavaScript editor field"
+  },
+  "@js_editor_segmented_label": {
+    "description": "Short label for JavaScript execution mode SegmentedButton"
+  },
+  "@js_editor_subtitle": {
+    "description": "Card subtitle in the JavaScript editor shell"
+  },
+  "@js_editor_title": {
+    "description": "Card title in the JavaScript editor shell"
   },
   "@legacy_bdfd_run_failed": {
     "placeholders": {
@@ -7923,6 +7944,9 @@
   "cmd_execution_mode_dart": "Dart Doğrudan modu",
   "cmd_execution_mode_dart_desc": "Çalışma zamanı tanılamalarıyla komut gövdesini doğrudan Dart ile yazın.",
   "cmd_execution_mode_dart_note": "Dart kodu, korumalı alan motoru aracılığıyla çalışma zamanında derlenir. Betikleri deterministik tutun ve gerektiğinde bir değer döndürün.",
+  "cmd_execution_mode_javascript": "JavaScript",
+  "cmd_execution_mode_javascript_desc": "Bu komut için özel JS kodu yazın.",
+  "cmd_execution_mode_javascript_note": "Tüm BDFD fonksiyonları asenkron JS fonksiyonları olarak kullanılabilir. Bağlam ve değişkenlere erişmek için ctx.authorId, ctx.channelId, vars['key'] kullanın.",
   "cmd_execution_mode_desc": "Komut meta verileri görsel oluşturucuda kalır. Komut gövdesinin nasıl çalışacağını seçin.",
   "cmd_execution_mode_title": "Yürütme modu",
   "cmd_execution_mode_workflow": "İş akışı modu",
@@ -8658,6 +8682,10 @@
   "import_summary_variables_imported": "değişkenler içe aktarıldı",
   "import_summary_workflows_imported": "{count} iş akışı içe aktarıldı",
   "import_summary_workflows_skipped": "{count} iş akışı atlandı",
+  "js_editor_hint": "// JavaScript bot komutunuzu buraya yazın...",
+  "js_editor_segmented_label": "JS",
+  "js_editor_subtitle": "Bu komut için özel JavaScript yazın",
+  "js_editor_title": "JavaScript Düzenleyici",
   "legacy_bdfd_run_failed": "\"{command}\" komutu için BDFD betiği çalıştırılamadı: {error}",
   "legacy_prefix_mode_desc": "messageCreate'den gelen komutları <on_ek><komut> kullanarak işler.",
   "legacy_prefix_mode_subtitle": "Konumsal seçenekleri kullanır (örnek: !config #kanal).",
