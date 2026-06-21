@@ -1848,6 +1848,15 @@
   "@cmd_execution_mode_dart_note": {
     "description": "Dart code is compiled at runtime through the sandboxed engine. Keep scripts deterministic and return a value when needed."
   },
+  "@cmd_execution_mode_javascript": {
+    "description": "Label for JavaScript execution mode radio option"
+  },
+  "@cmd_execution_mode_javascript_desc": {
+    "description": "Description for JavaScript execution mode radio option"
+  },
+  "@cmd_execution_mode_javascript_note": {
+    "description": "Information note for JavaScript execution mode"
+  },
   "@cmd_execution_mode_desc": {
     "description": "Command metadata stays in the visual builder. Choose how the command body should run."
   },
@@ -4241,6 +4250,18 @@
       }
     },
     "description": "{count} workflow(s) skipped"
+  },
+  "@js_editor_hint": {
+    "description": "Hint text in the JavaScript editor field"
+  },
+  "@js_editor_segmented_label": {
+    "description": "Short label for JavaScript execution mode SegmentedButton"
+  },
+  "@js_editor_subtitle": {
+    "description": "Card subtitle in the JavaScript editor shell"
+  },
+  "@js_editor_title": {
+    "description": "Card title in the JavaScript editor shell"
   },
   "@legacy_bdfd_run_failed": {
     "placeholders": {
@@ -7923,6 +7944,9 @@
   "cmd_execution_mode_dart": "Dart Direct-Modus",
   "cmd_execution_mode_dart_desc": "Schreiben Sie den Befehlskörper direkt in Dart mit Laufzeitdiagnose.",
   "cmd_execution_mode_dart_note": "Dart-Code wird zur Laufzeit durch die sandboxed Engine kompiliert. Halten Sie Skripte deterministisch und geben Sie bei Bedarf einen Wert zurück.",
+  "cmd_execution_mode_javascript": "JavaScript",
+  "cmd_execution_mode_javascript_desc": "Benutzerdefinierten JS-Code für diesen Befehl schreiben.",
+  "cmd_execution_mode_javascript_note": "Alle BDFD-Funktionen sind als asynchrone JS-Funktionen verfügbar. Verwenden Sie ctx.authorId, ctx.channelId, vars['key'] für Kontext und Variablen.",
   "cmd_execution_mode_desc": "Befehlsmetadaten bleiben im visuellen Builder. Wählen Sie aus, wie der Befehlskörper ausgeführt werden soll.",
   "cmd_execution_mode_title": "Ausführungsmodus",
   "cmd_execution_mode_workflow": "Workflow-Modus",
@@ -8658,6 +8682,10 @@
   "import_summary_variables_imported": "Variablen importiert",
   "import_summary_workflows_imported": "{count} Workflow(s) importiert",
   "import_summary_workflows_skipped": "{count} Workflow(s) übersprungen",
+  "js_editor_hint": "// Schreiben Sie Ihren JavaScript-Bot-Befehl hier...",
+  "js_editor_segmented_label": "JS",
+  "js_editor_subtitle": "Benutzerdefiniertes JavaScript für diesen Befehl schreiben",
+  "js_editor_title": "JavaScript-Editor",
   "legacy_bdfd_run_failed": "Fehler beim Ausführen des BDFD-Skripts für den Befehl \"{command}\": {error}",
   "legacy_prefix_mode_desc": "Behandelt Befehle aus messageCreate unter Verwendung von <präfix><befehl>.",
   "legacy_prefix_mode_subtitle": "Verwendet positionsabhängige Optionen (Beispiel: !config #kanal).",

@@ -2374,6 +2374,17 @@ class AppLocalizationsFr extends AppLocalizations {
       'Le code Dart est compilé au runtime via un moteur sandboxé. Gardez les scripts déterministes et retournez une valeur quand nécessaire.';
 
   @override
+  String get cmd_execution_mode_javascript => 'JavaScript';
+
+  @override
+  String get cmd_execution_mode_javascript_desc =>
+      'Écrire du code JS personnalisé pour cette commande.';
+
+  @override
+  String get cmd_execution_mode_javascript_note =>
+      'Toutes les fonctions BDFD sont disponibles comme fonctions JS asynchrones. Utilisez ctx.authorId, ctx.channelId, vars[\'key\'] pour accéder au contexte et aux variables.';
+
+  @override
   String get cmd_execution_mode_desc =>
       'La définition de commande reste dans le builder visuel. Choisissez ensuite comment exécuter le corps de la commande.';
 
@@ -4948,6 +4959,19 @@ class AppLocalizationsFr extends AppLocalizations {
   String import_summary_workflows_skipped(int count) {
     return '$count workflow(s) ignoré(s)';
   }
+
+  @override
+  String get js_editor_hint => '// Écrivez votre commande JavaScript ici...';
+
+  @override
+  String get js_editor_segmented_label => 'JS';
+
+  @override
+  String get js_editor_subtitle =>
+      'Écrire du JavaScript personnalisé pour cette commande';
+
+  @override
+  String get js_editor_title => 'Éditeur JavaScript';
 
   @override
   String legacy_bdfd_run_failed(String command, String error) {

@@ -69,8 +69,8 @@ class _BdfdAutoIndentFormatter extends TextInputFormatter {
   }
 }
 
-class _BdfdIndentGuidesPainter extends CustomPainter {
-  const _BdfdIndentGuidesPainter({
+class BdfdIndentGuidesPainter extends CustomPainter {
+  const BdfdIndentGuidesPainter({
     required this.source,
     required this.activeLine,
     required this.lineNumberGutterWidth,
@@ -161,7 +161,7 @@ class _BdfdIndentGuidesPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _BdfdIndentGuidesPainter oldDelegate) {
+  bool shouldRepaint(covariant BdfdIndentGuidesPainter oldDelegate) {
     return source != oldDelegate.source ||
         activeLine != oldDelegate.activeLine ||
         lineNumberGutterWidth != oldDelegate.lineNumberGutterWidth ||
@@ -1019,7 +1019,7 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
     return Positioned.fill(
       child: IgnorePointer(
         child: CustomPaint(
-          painter: _BdfdIndentGuidesPainter(
+          painter: BdfdIndentGuidesPainter(
             source: _controller.text,
             activeLine: _activeGuideLine,
             lineNumberGutterWidth: _lineNumberGutterWidth,

@@ -29,6 +29,7 @@ import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bdfd_editor_page.dart';
+
 import 'package:bot_creator/features/bot_editor/presentation/widgets/option_widget.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/command_create_cards/basic_info_card.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/command_create_cards/actions_card.dart';
@@ -178,13 +179,10 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   );
 
   String _normalizeExecutionMode(Object? raw) {
-    final value = (raw ?? _executionModeWorkflow)
-        .toString()
-        .trim()
-        .toLowerCase();
-    return value == _executionModeBdfdScript
-        ? _executionModeBdfdScript
-        : _executionModeWorkflow;
+    final value =
+        (raw ?? _executionModeWorkflow).toString().trim().toLowerCase();
+    if (value == _executionModeBdfdScript) return _executionModeBdfdScript;
+    return _executionModeWorkflow;
   }
 
   void _promoteSimpleModeDraftIfNeeded(String persistedEditorMode) {

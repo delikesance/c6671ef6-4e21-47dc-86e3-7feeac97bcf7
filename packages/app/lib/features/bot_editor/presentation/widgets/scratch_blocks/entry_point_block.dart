@@ -124,6 +124,11 @@ class _EntryPointBlockState extends State<EntryPointBlock> {
                   label: Text(context.tr.scratch_mode_bdfd),
                   icon: const Icon(Icons.code),
                 ),
+                ButtonSegment<String>(
+                  value: 'javascript',
+                  label: Text(context.tr.js_editor_segmented_label),
+                  icon: const Icon(Icons.javascript),
+                ),
               ],
               selected: <String>{widget.executionMode},
               onSelectionChanged: (selection) {

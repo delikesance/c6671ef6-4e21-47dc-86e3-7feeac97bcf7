@@ -40,6 +40,7 @@ class CommandEditorState {
     this.editorMode = 'advanced',
     this.executionMode = 'workflow',
     this.bdfdScriptContent = '',
+    this.jsScriptContent = '',
     this.bdfdCompileResult,
     this.legacyModeEnabled = false,
     this.localOnlyCommand = false,
@@ -86,6 +87,7 @@ class CommandEditorState {
   final String editorMode;
   final String executionMode;
   final String bdfdScriptContent;
+  final String jsScriptContent;
   final BdfdCompileResult? bdfdCompileResult;
 
   // ── Legacy mode ──
@@ -109,6 +111,7 @@ class CommandEditorState {
 
   bool get isSimpleMode => false;
   bool get isBdfdScriptMode => executionMode == 'bdfd_script';
+  bool get isJsScriptMode => false;
 
   List<BdfdCompileDiagnostic> get bdfdDiagnostics =>
       bdfdCompileResult?.diagnostics ?? const <BdfdCompileDiagnostic>[];
@@ -173,6 +176,7 @@ class CommandEditorState {
     String? editorMode,
     String? executionMode,
     String? bdfdScriptContent,
+    String? jsScriptContent,
     BdfdCompileResult? bdfdCompileResult,
     bool? legacyModeEnabled,
     bool? localOnlyCommand,
@@ -213,6 +217,7 @@ class CommandEditorState {
       editorMode: editorMode ?? this.editorMode,
       executionMode: executionMode ?? this.executionMode,
       bdfdScriptContent: bdfdScriptContent ?? this.bdfdScriptContent,
+      jsScriptContent: jsScriptContent ?? this.jsScriptContent,
       bdfdCompileResult: bdfdCompileResult ?? this.bdfdCompileResult,
       legacyModeEnabled: legacyModeEnabled ?? this.legacyModeEnabled,
       localOnlyCommand: localOnlyCommand ?? this.localOnlyCommand,
