@@ -10173,5 +10173,14 @@
   "workflows_type_event_desc": "Automatically reacts when Discord emits an event.",
   "workflows_type_general": "General workflow",
   "workflows_type_general_desc": "Reusable logic called from commands, buttons, modals, or other workflows.",
-  "workflows_type_title": "Workflow type"
+  "workflows_type_title": "Workflow type",
+  "settings_sync_title": "Synchronization",
+  "settings_sync_force_title": "Force Sync Commands",
+  "settings_sync_force_desc": "Deletes all Discord slash commands that are not defined locally in Bot Creator.",
+  "settings_sync_force_button": "Sync with Discord",
+  "settings_sync_force_dialog_title": "Force Sync Commands",
+  "settings_sync_force_dialog_desc": "This will delete all slash commands on Discord that are not defined locally in Bot Creator. Are you sure you want to continue?",
+  "settings_sync_force_dialog_confirm": "Force Sync",
+  "settings_sync_force_success": "Force sync completed successfully. Deleted {count} legacy/untracked command(s) from Discord.",
+  "settings_sync_force_error": "Failed to force sync: {error}"
 }

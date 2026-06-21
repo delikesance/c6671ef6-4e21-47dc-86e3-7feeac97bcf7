@@ -8379,4 +8379,38 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get workflows_type_title => 'Type de workflow';
+
+  @override
+  String get settings_sync_title => 'Synchronisation';
+
+  @override
+  String get settings_sync_force_title =>
+      'Forcer la synchronisation des commandes';
+
+  @override
+  String get settings_sync_force_desc =>
+      'Supprime toutes les commandes slash de Discord qui ne sont pas définies localement dans Bot Creator.';
+
+  @override
+  String get settings_sync_force_button => 'Synchroniser avec Discord';
+
+  @override
+  String get settings_sync_force_dialog_title => 'Forcer la synchronisation';
+
+  @override
+  String get settings_sync_force_dialog_desc =>
+      'Cela supprimera toutes les commandes slash sur Discord qui ne sont pas définies localement dans Bot Creator. Êtes-vous sûr de vouloir continuer ?';
+
+  @override
+  String get settings_sync_force_dialog_confirm => 'Forcer la synchro';
+
+  @override
+  String settings_sync_force_success(Object count) {
+    return 'Synchronisation forcée réussie. $count commande(s) obsolète(s)/non suivies supprimée(s) de Discord.';
+  }
+
+  @override
+  String settings_sync_force_error(Object error) {
+    return 'Échec de la synchronisation forcée : $error';
+  }
 }

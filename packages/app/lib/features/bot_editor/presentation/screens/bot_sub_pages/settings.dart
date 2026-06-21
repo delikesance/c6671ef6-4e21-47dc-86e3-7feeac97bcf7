@@ -746,9 +746,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     final botId = widget.client.user.id.toString();
     final confirm = await AppTheme.showConfirmDialog(
       context,
-      title: 'Force Sync Commands',
-      content: 'This will delete all slash commands on Discord that are not defined locally in Bot Creator. Are you sure you want to continue?',
-      confirmLabel: 'Force Sync',
+      title: context.tr.settings_sync_force_dialog_title,
+      content: context.tr.settings_sync_force_dialog_desc,
+      confirmLabel: context.tr.settings_sync_force_dialog_confirm,
       isDestructive: true,
     );
 
@@ -780,7 +780,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Force sync completed successfully. Deleted $deletedCount legacy/untracked command(s) from Discord.',
+            context.tr.settings_sync_force_success(deletedCount),
           ),
         ),
       );
@@ -788,7 +788,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Failed to force sync: $e'),
+          content: Text(context.tr.settings_sync_force_error(e.toString())),
           backgroundColor: AppTheme.error,
         ),
       );
@@ -2200,11 +2200,11 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               const SizedBox(height: 12),
 
               // Force Sync Section
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 12),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
                 child: Text(
-                  'Synchronization',
-                  style: TextStyle(
+                  context.tr.settings_sync_title,
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -2222,16 +2222,16 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Force Sync Commands',
-                        style: TextStyle(
+                      Text(
+                        context.tr.settings_sync_force_title,
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       const SizedBox(height: 8),
-                      const Text(
-                        'Deletes all Discord slash commands that are not defined locally in Bot Creator.',
-                        style: TextStyle(fontSize: 13),
+                      Text(
+                        context.tr.settings_sync_force_desc,
+                        style: const TextStyle(fontSize: 13),
                       ),
                       const SizedBox(height: 16),
                       SizedBox(
@@ -2247,7 +2247,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                   ),
                                 )
                               : const Icon(Icons.sync),
-                          label: const Text('Sync with Discord'),
+                          label: Text(context.tr.settings_sync_force_button),
                         ),
                       ),
                     ],
