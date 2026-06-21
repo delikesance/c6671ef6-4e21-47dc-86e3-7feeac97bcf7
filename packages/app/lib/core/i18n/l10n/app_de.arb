@@ -9729,5 +9729,14 @@
   "bot_home_version_history": "Versionsverlauf",
   "@bot_home_version_history": {
     "description": "Version history action button"
-  }
+  },
+  "settings_sync_title": "Synchronisation",
+  "settings_sync_force_title": "Befehlssynchronisation erzwingen",
+  "settings_sync_force_desc": "Löscht alle Discord-Slash-Befehle, die in Bot Creator nicht lokal definiert sind.",
+  "settings_sync_force_button": "Mit Discord synchronisieren",
+  "settings_sync_force_dialog_title": "Synchronisation erzwingen",
+  "settings_sync_force_dialog_desc": "Dadurch werden alle Slash-Befehle auf Discord gelöscht, die in Bot Creator nicht lokal definiert sind. Möchten Sie wirklich fortfahren?",
+  "settings_sync_force_dialog_confirm": "Erzwingen",
+  "settings_sync_force_success": "Synchronisation erfolgreich erzwungen. {count} veraltete(r)/nicht verfolgte(r) Befehl(e) von Discord gelöscht.",
+  "settings_sync_force_error": "Synchronisation fehlgeschlagen: {error}"
 }

@@ -9762,5 +9762,14 @@
   "bot_home_version_history": "Histórico de Versões",
   "@bot_home_version_history": {
     "description": "Version history action button"
-  }
+  },
+  "settings_sync_title": "Sincronização",
+  "settings_sync_force_title": "Forçar Sincronização de Comandos",
+  "settings_sync_force_desc": "Exclui todos os comandos slash do Discord que não estão definidos localmente no Bot Creator.",
+  "settings_sync_force_button": "Sincronizar com o Discord",
+  "settings_sync_force_dialog_title": "Forçar Sincronização",
+  "settings_sync_force_dialog_desc": "Isso excluirá todos os comandos slash no Discord que não estão definidos localmente no Bot Creator. Tem certeza de que deseja continuar?",
+  "settings_sync_force_dialog_confirm": "Forçar",
+  "settings_sync_force_success": "Sincronização forçada concluída com sucesso. {count} comando(s) legado(s)/não rastreado(s) excluído(s) do Discord.",
+  "settings_sync_force_error": "Falha ao forçar sincronização: {error}"
 }

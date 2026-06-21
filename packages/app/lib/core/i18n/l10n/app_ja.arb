@@ -9816,5 +9816,14 @@
   "bot_home_version_history": "バージョン履歴",
   "@bot_home_version_history": {
     "description": "Version history action button"
-  }
+  },
+  "settings_sync_title": "同期",
+  "settings_sync_force_title": "コマンドの強制同期",
+  "settings_sync_force_desc": "Bot Creatorでローカルに定義されていないDiscordスラッシュコマンドをすべて削除します。",
+  "settings_sync_force_button": "Discordと同期する",
+  "settings_sync_force_dialog_title": "強制同期",
+  "settings_sync_force_dialog_desc": "これにより、Bot Creatorでローカルに定義されていないDiscordのスラッシュコマンドがすべて削除されます。本当に続行しますか？",
+  "settings_sync_force_dialog_confirm": "強制同期",
+  "settings_sync_force_success": "強制同期が正常に完了しました。Discordから {count} 件の古い/追跡されていないコマンドを削除しました。",
+  "settings_sync_force_error": "強制同期に失敗しました: {error}"
 }
