@@ -14439,6 +14439,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Workflow type'**
   String get workflows_type_title;
+
+  /// No description provided for @settings_sync_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Synchronization'**
+  String get settings_sync_title;
+
+  /// No description provided for @settings_sync_force_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Force Sync Commands'**
+  String get settings_sync_force_title;
+
+  /// No description provided for @settings_sync_force_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Deletes all Discord slash commands that are not defined locally in Bot Creator.'**
+  String get settings_sync_force_desc;
+
+  /// No description provided for @settings_sync_force_button.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync with Discord'**
+  String get settings_sync_force_button;
+
+  /// No description provided for @settings_sync_force_dialog_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Force Sync Commands'**
+  String get settings_sync_force_dialog_title;
+
+  /// No description provided for @settings_sync_force_dialog_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'This will delete all slash commands on Discord that are not defined locally in Bot Creator. Are you sure you want to continue?'**
+  String get settings_sync_force_dialog_desc;
+
+  /// No description provided for @settings_sync_force_dialog_confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Force Sync'**
+  String get settings_sync_force_dialog_confirm;
+
+  /// No description provided for @settings_sync_force_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Force sync completed successfully. Deleted {count} legacy/untracked command(s) from Discord.'**
+  String settings_sync_force_success(Object count);
+
+  /// No description provided for @settings_sync_force_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to force sync: {error}'**
+  String settings_sync_force_error(Object error);
 }
 
 class _AppLocalizationsDelegate
