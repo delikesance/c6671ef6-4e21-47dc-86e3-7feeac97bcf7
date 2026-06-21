@@ -541,6 +541,12 @@ class _VariableTextFieldState extends State<VariableTextField> {
     if (start == -1) return null;
     final between = input.substring(start + 1, safeCursor);
     if (between.contains('>') || between.contains(' ')) return null;
+
+    if (between.startsWith('a:')) {
+      return between.substring(2);
+    } else if (between.startsWith(':')) {
+      return between.substring(1);
+    }
     return between;
   }
 
