@@ -2251,7 +2251,7 @@ abstract class AppLocalizations {
   /// Create a bot
   ///
   /// In en, this message translates to:
-  /// **'Create a bot'**
+  /// **'Create Application'**
   String get app_create_button;
 
   /// A guided setup to open the right pages, copy your token and import the bot safely.
@@ -2275,7 +2275,7 @@ abstract class AppLocalizations {
   /// Create a bot
   ///
   /// In en, this message translates to:
-  /// **'Create a bot'**
+  /// **'Create Application'**
   String get app_create_page_title;
 
   /// Enter your bot token here
@@ -14493,6 +14493,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to force sync: {error}'**
   String settings_sync_force_error(Object error);
+
+  /// Title of the select application type screen
+  ///
+  /// In en, this message translates to:
+  /// **'Select Application Type'**
+  String get app_create_select_type_title;
+
+  /// Description of the select application type screen
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the type of application you want to create to get started.'**
+  String get app_create_select_type_desc;
+
+  /// Discord Bot option label
+  ///
+  /// In en, this message translates to:
+  /// **'Discord Bot'**
+  String get app_create_type_discord;
+
+  /// Discord Bot option description
+  ///
+  /// In en, this message translates to:
+  /// **'Build and run a customizable Discord bot with logic, triggers, and dynamic canvas panels.'**
+  String get app_create_type_discord_desc;
+
+  /// Hosted Application (Docker) option label
+  ///
+  /// In en, this message translates to:
+  /// **'Hosted Application (Docker)'**
+  String get app_create_type_hosted;
+
+  /// Hosted Application (Docker) option description
+  ///
+  /// In en, this message translates to:
+  /// **'Run a backend app, server, or script in your favorite language (NodeJS, Python, Java...). Upload files and install packages in a secure sandbox.'**
+  String get app_create_type_hosted_desc;
+
+  /// Coming soon label
+  ///
+  /// In en, this message translates to:
+  /// **'Coming Soon'**
+  String get app_create_coming_soon;
 }
 
 class _AppLocalizationsDelegate

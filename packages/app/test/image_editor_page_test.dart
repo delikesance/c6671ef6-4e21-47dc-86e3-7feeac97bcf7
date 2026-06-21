@@ -228,6 +228,37 @@ void main() {
       expect(find.text('Duplicate'), findsOneWidget);
     });
 
+    testWidgets('selecting create canvas operation does not show duplicate button', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _wrap(
+          ImageEditorPage(
+            operations: [
+              {
+                'op': 'create',
+                'width': '400',
+                'height': '300',
+                'color': '#2c2f33',
+              },
+            ],
+            variableSuggestions: [],
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap the create canvas tile to select it
+      final createTile = find.textContaining('Create Canvas');
+      expect(createTile, findsOneWidget);
+      await tester.tap(createTile);
+      await tester.pumpAndSettle();
+
+      // Properties panel should show 'Properties' but NOT 'Duplicate'
+      expect(find.text('Properties'), findsOneWidget);
+      expect(find.text('Duplicate'), findsNothing);
+    });
+
     testWidgets('delete operation from properties panel shows delete icon', (
       tester,
     ) async {

@@ -1248,7 +1248,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get app_bot_token => 'Bot Jetonu';
 
   @override
-  String get app_create_button => 'Bir bot oluştur';
+  String get app_create_button => 'Uygulama oluştur';
 
   @override
   String get app_create_hero_desc =>
@@ -1261,7 +1261,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get app_create_new => 'Yeni Uygulama Oluştur';
 
   @override
-  String get app_create_page_title => 'Bir bot oluştur';
+  String get app_create_page_title => 'Uygulama oluştur';
 
   @override
   String get app_enter_token => 'Bot jetonunuzu buraya girin';
@@ -8337,4 +8337,28 @@ class AppLocalizationsTr extends AppLocalizations {
   String settings_sync_force_error(Object error) {
     return 'Zorunlu senkronizasyon başarısız oldu: $error';
   }
+
+  @override
+  String get app_create_select_type_title => 'Uygulama Türünü Seçin';
+
+  @override
+  String get app_create_select_type_desc =>
+      'Başlamak için oluşturmak istediğiniz uygulama türünü seçin.';
+
+  @override
+  String get app_create_type_discord => 'Discord Botu';
+
+  @override
+  String get app_create_type_discord_desc =>
+      'Eylemler, olaylar ve dinamik tuval panelleri ile özelleştirilebilir bir Discord botu oluşturun ve çalıştırın.';
+
+  @override
+  String get app_create_type_hosted => 'Barındırılan Uygulama (Docker)';
+
+  @override
+  String get app_create_type_hosted_desc =>
+      'Tercih ettiğiniz dilde (NodeJS, Python, Java...) bir arka uç uygulaması, sunucu veya komut dosyası çalıştırın. Dosyaları yükleyin ve güvenli bir korumalı alanda paketleri yükleyin.';
+
+  @override
+  String get app_create_coming_soon => 'Çok yakında';
 }

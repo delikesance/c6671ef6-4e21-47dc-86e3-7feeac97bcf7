@@ -47,6 +47,36 @@ extension _CommandBlockEditor on _CommandCreatePageState {
                 _persistActiveSubcommandWorkflow();
               });
             },
+            onPasteAbove: (copiedAction) {
+              _applyStateUpdate(() {
+                final copy = Map<String, dynamic>.from(
+                  jsonDecode(jsonEncode(copiedAction)),
+                );
+                copy['id'] = 'action_${DateTime.now().microsecondsSinceEpoch}';
+                _actions.insert(i, copy);
+                _persistActiveSubcommandWorkflow();
+              });
+            },
+            onPasteBelow: (copiedAction) {
+              _applyStateUpdate(() {
+                final copy = Map<String, dynamic>.from(
+                  jsonDecode(jsonEncode(copiedAction)),
+                );
+                copy['id'] = 'action_${DateTime.now().microsecondsSinceEpoch}';
+                _actions.insert(i + 1, copy);
+                _persistActiveSubcommandWorkflow();
+              });
+            },
+            onDuplicate: () {
+              _applyStateUpdate(() {
+                final copy = Map<String, dynamic>.from(
+                  jsonDecode(jsonEncode(_actions[i])),
+                );
+                copy['id'] = 'action_${DateTime.now().microsecondsSinceEpoch}';
+                _actions.insert(i + 1, copy);
+                _persistActiveSubcommandWorkflow();
+              });
+            },
             onMoveUp:
                 i > 0
                     ? () {

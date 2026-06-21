@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
@@ -825,6 +826,36 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
           botIdForConfig: widget.botId,
           onRemove: () {
             setState(() => _actions.removeAt(i));
+          },
+          onPasteAbove: (copiedAction) {
+            setState(() {
+              final copy = Map<String, dynamic>.from(
+                jsonDecode(jsonEncode(copiedAction)),
+              );
+              copy['id'] = 'action_${DateTime.now().microsecondsSinceEpoch}';
+              _actions.insert(i, copy);
+            });
+            _refreshVariableSuggestions();
+          },
+          onPasteBelow: (copiedAction) {
+            setState(() {
+              final copy = Map<String, dynamic>.from(
+                jsonDecode(jsonEncode(copiedAction)),
+              );
+              copy['id'] = 'action_${DateTime.now().microsecondsSinceEpoch}';
+              _actions.insert(i + 1, copy);
+            });
+            _refreshVariableSuggestions();
+          },
+          onDuplicate: () {
+            setState(() {
+              final copy = Map<String, dynamic>.from(
+                jsonDecode(jsonEncode(_actions[i])),
+              );
+              copy['id'] = 'action_${DateTime.now().microsecondsSinceEpoch}';
+              _actions.insert(i + 1, copy);
+            });
+            _refreshVariableSuggestions();
           },
           onMoveUp:
               i > 0
