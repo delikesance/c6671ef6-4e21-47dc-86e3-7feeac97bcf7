@@ -546,6 +546,13 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
             ? _parseDouble(op, 'height', 50)
             : _canvasHeight.toDouble();
         return Rect.fromLTWH(x, y, w, h);
+      case 'progressBar':
+        return Rect.fromLTWH(
+          _parseDouble(op, 'x'),
+          _parseDouble(op, 'y'),
+          _parseDouble(op, 'width', 100),
+          _parseDouble(op, 'height', 20),
+        );
       default:
         return null;
     }
@@ -815,6 +822,9 @@ class _CanvasPreviewPainter extends CustomPainter {
       case 'loadImage':
         _paintImagePlaceholder(canvas, rawOp);
         break;
+      case 'progressBar':
+        _paintProgressBar(canvas, rawOp);
+        break;
     }
   }
 
@@ -980,6 +990,70 @@ class _CanvasPreviewPainter extends CustomPainter {
       )..layout();
       tp.paint(canvas, Offset(x + 4, y + 2));
     }
+  }
+
+  void _paintProgressBar(Canvas canvas, Map<String, dynamic> op) {
+    final x = _parseDouble(op, 'x');
+    final y = _parseDouble(op, 'y');
+    final w = _parseDouble(op, 'width', 100);
+    final h = _parseDouble(op, 'height', 20);
+    var percentage = (double.tryParse((op['percentage'] ?? '0').toString()) ?? 0.0).clamp(0.0, 100.0);
+    final barColor = _parseUiColor(op['barColor']) ?? const ui.Color(0xFF4285F4);
+    final trackColor = _parseUiColor(op['trackColor']) ?? const ui.Color(0xFFE0E0E0);
+    final textColor = _parseUiColor(op['textColor']) ?? const ui.Color(0xFFFFFFFF);
+    final borderWidth = _parseDouble(op, 'borderWidth', 0).clamp(0.0, 50.0);
+    final vertical = (op['orientation'] ?? '').toString().toLowerCase().trim() == 'vertical';
+    final fontSize = _parseDouble(op, 'fontSize', 14);
+
+    // Draw Track
+    final rect = Rect.fromLTWH(x, y, w, h);
+    canvas.drawRect(rect, Paint()..color = trackColor);
+
+    // Draw Fill
+    final fillFraction = percentage / 100.0;
+    if (fillFraction > 0.0) {
+      Rect fillRect;
+      if (vertical) {
+        final fillH = h * fillFraction;
+        fillRect = Rect.fromLTWH(x, y + h - fillH, w, fillH);
+      } else {
+        final fillW = w * fillFraction;
+        fillRect = Rect.fromLTWH(x, y, fillW, h);
+      }
+      canvas.drawRect(fillRect, Paint()..color = barColor);
+    }
+
+    // Draw Border
+    if (borderWidth > 0.0) {
+      final borderPaint = Paint()
+        ..color = barColor
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = borderWidth;
+      canvas.drawRect(rect.deflate(borderWidth / 2), borderPaint);
+    }
+
+    // Draw Label text
+    final label = '${percentage.round()}%';
+    final tp = TextPainter(
+      text: TextSpan(
+        text: label,
+        style: TextStyle(
+          color: Color.fromARGB(
+            (textColor.a * 255).round().clamp(0, 255),
+            (textColor.r * 255).round().clamp(0, 255),
+            (textColor.g * 255).round().clamp(0, 255),
+            (textColor.b * 255).round().clamp(0, 255),
+          ),
+          fontSize: fontSize,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+
+    final tx = x + (w - tp.width) / 2;
+    final ty = y + (h - tp.height) / 2;
+    tp.paint(canvas, Offset(tx, ty));
   }
 
   /// Wraps [drawFn] in a [canvas.saveLayer] with the given blend mode.
