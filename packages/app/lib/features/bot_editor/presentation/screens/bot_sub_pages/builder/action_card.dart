@@ -920,6 +920,7 @@ class ActionCard extends StatelessWidget {
             label: 'Expression',
             hint: 'Type (( to see variable suggestions',
             suggestions: variableSuggestions,
+            emojiSuggestions: emojiSuggestions,
             controller: vc,
             onChanged: (_) {},
           ),
@@ -1143,6 +1144,7 @@ class ActionCard extends StatelessWidget {
           initialValue: (currentValue ?? paramDef.defaultValue).toString(),
           hint: _localizeHint(paramDef.hint) ?? context.tr.action_hint_duration,
           suggestions: variableSuggestions,
+          emojiSuggestions: emojiSuggestions,
           required: paramDef.required,
           onChanged: (newValue) => onParameterChanged(paramDef.key, newValue),
         );
@@ -1154,6 +1156,7 @@ class ActionCard extends StatelessWidget {
           initialValue: (currentValue ?? paramDef.defaultValue).toString(),
           hint: _localizeHint(paramDef.hint) ?? 'https://example.com',
           suggestions: variableSuggestions,
+          emojiSuggestions: emojiSuggestions,
           required: paramDef.required,
           onChanged: (newValue) => onParameterChanged(paramDef.key, newValue),
         );
@@ -1169,6 +1172,7 @@ class ActionCard extends StatelessWidget {
           hint: _localizeHint(paramDef.hint) ??
               context.tr.action_hint_enter_type(paramDef.type.name),
           suggestions: variableSuggestions,
+          emojiSuggestions: emojiSuggestions,
           required: paramDef.required,
           onChanged: (newValue) => onParameterChanged(paramDef.key, newValue),
         );
@@ -1180,6 +1184,7 @@ class ActionCard extends StatelessWidget {
           initialValue: (currentValue ?? paramDef.defaultValue).toString(),
           hint: _localizeHint(paramDef.hint) ?? context.tr.action_hint_emoji,
           suggestions: variableSuggestions,
+          emojiSuggestions: emojiSuggestions,
           required: paramDef.required,
           onChanged: (newValue) => onParameterChanged(paramDef.key, newValue),
         );
@@ -1191,6 +1196,7 @@ class ActionCard extends StatelessWidget {
           initialValue: (currentValue ?? paramDef.defaultValue).toString(),
           hint: _localizeHint(paramDef.hint) ?? context.tr.action_hint_color,
           suggestions: variableSuggestions,
+          emojiSuggestions: emojiSuggestions,
           required: paramDef.required,
           onChanged: (newValue) => onParameterChanged(paramDef.key, newValue),
         );
@@ -1566,6 +1572,7 @@ class ActionCard extends StatelessWidget {
             initialValue: (currentValue ?? paramDef.defaultValue).toString(),
             hint: _localizeHint(paramDef.hint),
             suggestions: variableSuggestions,
+            emojiSuggestions: emojiSuggestions,
             onChanged: (newValue) => onParameterChanged(paramDef.key, newValue),
           );
         }
@@ -1576,6 +1583,7 @@ class ActionCard extends StatelessWidget {
           initialValue: (currentValue ?? paramDef.defaultValue).toString(),
           hint: _localizeHint(paramDef.hint),
           suggestions: variableSuggestions,
+          emojiSuggestions: emojiSuggestions,
           required: paramDef.required,
           maxLines: paramDef.key.toLowerCase().contains('content') ? 3 : 1,
           onChanged: (newValue) => onParameterChanged(paramDef.key, newValue),
@@ -1716,6 +1724,7 @@ class ActionCard extends StatelessWidget {
                 initialValue: variableValue,
                 hint: context.tr.action_hint_condition_var,
                 suggestions: variableSuggestions,
+                emojiSuggestions: emojiSuggestions,
                 onChanged: (value) {
                   final updated = _cloneElseIfBranches(branches);
                   updated[branchIndex]['condition.variable'] = value;
@@ -1760,6 +1769,7 @@ class ActionCard extends StatelessWidget {
                 initialValue: conditionValue,
                 hint: context.tr.action_hint_condition_value,
                 suggestions: variableSuggestions,
+                emojiSuggestions: emojiSuggestions,
                 onChanged: (value) {
                   final updated = _cloneElseIfBranches(branches);
                   updated[branchIndex]['condition.value'] = value;
