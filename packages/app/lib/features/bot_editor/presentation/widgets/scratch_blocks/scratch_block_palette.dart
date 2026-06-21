@@ -370,6 +370,8 @@ bool _isCanvasAction(BotCreatorActionType type) {
     case BotCreatorActionType.canvasDrawCircleBlock:
     case BotCreatorActionType.canvasDrawRectBlock:
     case BotCreatorActionType.canvasDrawLineBlock:
+    case BotCreatorActionType.runtimeImageBlock:
+    case BotCreatorActionType.runtimeJsonBlock:
       return true;
     default:
       return false;
