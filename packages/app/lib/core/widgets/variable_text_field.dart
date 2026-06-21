@@ -222,7 +222,8 @@ class _VariableTextFieldState extends State<VariableTextField> {
                 const SizedBox.shrink(),
           )
         else ...[
-          ?_buildSuggestionWidget(currentText, cursor),
+          if (_buildSuggestionWidget(currentText, cursor) != null)
+            _buildSuggestionWidget(currentText, cursor)!,
         ],
       ],
     );
@@ -242,8 +243,54 @@ class _VariableTextFieldState extends State<VariableTextField> {
             .take(12)
             .toList();
         if (filteredEmojis.isNotEmpty) {
-          // Return emoji suggestions — skipped in picker mode for now
-          return null;
+          final emojiList = ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              const SizedBox(height: 8),
+              Text(
+                'Available emojis — tap to insert',
+                style: TextStyle(fontSize: 11, color: AppTheme.grey),
+              ),
+              const SizedBox(height: 6),
+              ...filteredEmojis.map((e) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(8),
+                  onTap: () => _insertEmoji(e),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    child: Row(
+                      children: [
+                        Image.network(
+                          e.imageUrl,
+                          width: 20,
+                          height: 20,
+                          errorBuilder: (context, error, stackTrace) => const Icon(Icons.emoji_emotions, size: 20),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          e.name,
+                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                        ),
+                        const Spacer(),
+                        Text(
+                          e.mention,
+                          style: TextStyle(fontSize: 11, color: AppTheme.grey, fontFamily: 'monospace'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              )),
+            ],
+          );
+          if (widget.alwaysShowSuggestions) {
+            return emojiList;
+          }
+          return SizedBox(
+            height: 220,
+            child: emojiList,
+          );
         }
       }
     }
@@ -570,6 +617,31 @@ class _VariableTextFieldState extends State<VariableTextField> {
     final nextText = input.replaceRange(start, replaceEnd, replacement);
     final nextCursor = start + replacement.length;
 
+    _effectiveController.value = TextEditingValue(
+      text: nextText,
+      selection: TextSelection.collapsed(offset: nextCursor),
+    );
+  }
+
+  void _insertEmoji(AppEmoji emoji) {
+    final input = _effectiveController.text;
+    final cursor = _safeCursor(input, _effectiveController.selection.baseOffset);
+    final start = input.lastIndexOf('<', cursor);
+
+    if (start == -1) {
+      final replacement = emoji.mention;
+      final nextText = input.replaceRange(cursor, cursor, replacement);
+      final nextCursor = cursor + replacement.length;
+      _effectiveController.value = TextEditingValue(
+        text: nextText,
+        selection: TextSelection.collapsed(offset: nextCursor),
+      );
+      return;
+    }
+
+    final replacement = emoji.mention;
+    final nextText = input.replaceRange(start, cursor, replacement);
+    final nextCursor = start + replacement.length;
     _effectiveController.value = TextEditingValue(
       text: nextText,
       selection: TextSelection.collapsed(offset: nextCursor),
