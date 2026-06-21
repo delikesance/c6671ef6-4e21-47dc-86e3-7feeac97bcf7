@@ -37,6 +37,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   Application? app;
   DiscordApplicationOwnerMetadata? _ownerMetadata;
   bool _isSavingToken = false;
+  bool _isForceSyncing = false;
   bool _isSavingIntents = false;
   bool _isSavingPrefix = false;
   bool _isSavingProfile = false;
@@ -740,6 +741,65 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   }
 
   bool _isDeletingBot = false;
+
+  Future<void> _forceSyncDiscordCommands() async {
+    final botId = widget.client.user.id.toString();
+    final confirm = await AppTheme.showConfirmDialog(
+      context,
+      title: 'Force Sync Commands',
+      content: 'This will delete all slash commands on Discord that are not defined locally in Bot Creator. Are you sure you want to continue?',
+      confirmLabel: 'Force Sync',
+      isDestructive: true,
+    );
+
+    if (confirm != true || !mounted) return;
+
+    setState(() {
+      _isForceSyncing = true;
+    });
+
+    try {
+      final localCommands = await appManager.listAppCommands(botId);
+      final localCommandIds = localCommands
+          .map((c) => (c['id'] ?? '').toString())
+          .where((id) => id.isNotEmpty)
+          .toSet();
+
+      final remoteCommands = await widget.client.commands.list();
+
+      int deletedCount = 0;
+      for (final remoteCmd in remoteCommands) {
+        final remoteId = remoteCmd.id.toString();
+        if (!localCommandIds.contains(remoteId)) {
+          await widget.client.commands.delete(remoteCmd.id);
+          deletedCount++;
+        }
+      }
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Force sync completed successfully. Deleted $deletedCount legacy/untracked command(s) from Discord.',
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to force sync: $e'),
+          backgroundColor: AppTheme.error,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isForceSyncing = false;
+        });
+      }
+    }
+  }
 
   Future<void> _deleteBot() async {
     final botId = widget.client.user.id.toString();
@@ -2129,6 +2189,66 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                             '${context.tr.settings_runner_version}: ${_runnerVersion ?? context.tr.settings_runner_not_connected}',
                           ),
                         ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 24),
+              const Divider(),
+              const SizedBox(height: 12),
+
+              // Force Sync Section
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 12),
+                child: Text(
+                  'Synchronization',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              Card(
+                shape: RoundedRectangleBorder(
+                  side: BorderSide(
+                    color: AppTheme.grey.withValues(alpha: 0.2),
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Force Sync Commands',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Deletes all Discord slash commands that are not defined locally in Bot Creator.',
+                        style: TextStyle(fontSize: 13),
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: _isForceSyncing ? null : _forceSyncDiscordCommands,
+                          icon: _isForceSyncing
+                              ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Icon(Icons.sync),
+                          label: const Text('Sync with Discord'),
+                        ),
                       ),
                     ],
                   ),
