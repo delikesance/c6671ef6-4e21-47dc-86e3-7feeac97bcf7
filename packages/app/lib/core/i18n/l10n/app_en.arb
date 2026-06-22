@@ -3008,6 +3008,9 @@
     "description": "Style"
   },
   "@component_block_workflow": {
+  "@component_button_default_label": {
+    "description": "Default button label"
+  },
     "description": "Workflow"
   },
   "@component_checkbox_options": {
@@ -3020,6 +3023,12 @@
     "description": "Choose Color"
   },
   "@component_component_to_wrap": {
+  "@component_configure_click_actions": {
+  "@component_configure_select_actions": {
+    "description": "Configure Select Actions button fallback"
+  },
+    "description": "Configure Click Actions button fallback"
+  },
     "description": "Component to Wrap:"
   },
   "@component_custom_id": {
@@ -3032,6 +3041,9 @@
     "description": "Choice"
   },
   "@component_default_option_label": {
+  "@component_disabled_hint": {
+    "description": "Disabled field hint — enter true/false or a variable"
+  },
     "description": "Option"
   },
   "@component_empty_option": {
@@ -8730,14 +8742,18 @@
   "component_add_tooltip": "Add Component",
   "component_block_label_style": "Style",
   "component_block_workflow": "Workflow",
+  "component_button_default_label": "Button",
   "component_checkbox_options": "Checkbox Options",
   "component_checked_by_default": "Checked by default",
   "component_choose_color": "Choose Color",
   "component_component_to_wrap": "Component to Wrap:",
+  "component_configure_click_actions": "Configure Click Actions",
+  "component_configure_select_actions": "Configure Select Actions",
   "component_custom_id": "Custom ID",
   "component_custom_id_required": "Custom ID *",
   "component_default_choice_label": "Choice",
   "component_default_option_label": "Option",
+  "component_disabled_hint": "Enter true/false or a variable like ((user.bc_isVip))",
   "component_empty_option": "Empty",
   "component_file_url": "File URL",
   "component_label": "Label",

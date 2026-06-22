@@ -2678,6 +2678,9 @@
     "description": "Style"
   },
   "@component_block_workflow": {
+  "@component_button_default_label": {
+    "description": "Default button label"
+  },
     "description": "Workflow"
   },
   "@component_checkbox_options": {
@@ -2690,6 +2693,12 @@
     "description": "Choose Color"
   },
   "@component_component_to_wrap": {
+  "@component_configure_click_actions": {
+  "@component_configure_select_actions": {
+    "description": "Configure Select Actions button fallback"
+  },
+    "description": "Configure Click Actions button fallback"
+  },
     "description": "Component to Wrap:"
   },
   "@component_custom_id": {
@@ -2702,6 +2711,9 @@
     "description": "Choice"
   },
   "@component_default_option_label": {
+  "@component_disabled_hint": {
+    "description": "Disabled field hint — enter true/false or a variable"
+  },
     "description": "Option"
   },
   "@component_empty_option": {
@@ -8285,14 +8297,18 @@
   "component_add_tooltip": "コンポーネントを追加",
   "component_block_label_style": "スタイル",
   "component_block_workflow": "ワークフロー",
+  "component_button_default_label": "\u30dc\u30bf\u30f3",
   "component_checkbox_options": "チェックボックスオプション",
   "component_checked_by_default": "デフォルトでチェック",
   "component_choose_color": "色を選択",
   "component_component_to_wrap": "ラップするコンポーネント:",
+  "component_configure_click_actions": "\u30af\u30ea\u30c3\u30af\u30a2\u30af\u30b7\u30e7\u30f3\u3092\u8a2d\u5b9a",
+  "component_configure_select_actions": "\u9078\u629e\u30a2\u30af\u30b7\u30e7\u30f3\u3092\u8a2d\u5b9a",
   "component_custom_id": "カスタムID",
   "component_custom_id_required": "カスタムID *",
   "component_default_choice_label": "選択肢",
   "component_default_option_label": "オプション",
+  "component_disabled_hint": "true/false \u307e\u305f\u306f ((user.bc_isVip)) \u306e\u3088\u3046\u306a\u5909\u6570\u3092\u5165\u529b",
   "component_empty_option": "空",
   "component_file_url": "ファイルURL",
   "component_label": "ラベル",

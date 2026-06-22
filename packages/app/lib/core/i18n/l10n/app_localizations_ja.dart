@@ -3023,6 +3023,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get component_block_workflow => 'ワークフロー';
 
   @override
+  String get component_button_default_label => 'ボタン';
+
+  @override
   String get component_checkbox_options => 'チェックボックスオプション';
 
   @override
@@ -3035,6 +3038,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get component_component_to_wrap => 'ラップするコンポーネント:';
 
   @override
+  String get component_configure_click_actions => 'クリックアクションを設定';
+
+  @override
+  String get component_configure_select_actions => '選択アクションを設定';
+
+  @override
   String get component_custom_id => 'カスタムID';
 
   @override
@@ -3045,6 +3054,10 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get component_default_option_label => 'オプション';
+
+  @override
+  String get component_disabled_hint =>
+      'true/false または ((user.bc_isVip)) のような変数を入力';
 
   @override
   String get component_empty_option => '空';

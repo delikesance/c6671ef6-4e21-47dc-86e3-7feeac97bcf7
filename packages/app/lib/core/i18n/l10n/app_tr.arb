@@ -2633,6 +2633,9 @@
     "description": "Style"
   },
   "@component_block_workflow": {
+  "@component_button_default_label": {
+    "description": "Default button label"
+  },
     "description": "Workflow"
   },
   "@component_checkbox_options": {
@@ -2645,6 +2648,12 @@
     "description": "Choose Color"
   },
   "@component_component_to_wrap": {
+  "@component_configure_click_actions": {
+  "@component_configure_select_actions": {
+    "description": "Configure Select Actions button fallback"
+  },
+    "description": "Configure Click Actions button fallback"
+  },
     "description": "Component to Wrap:"
   },
   "@component_custom_id": {
@@ -2657,6 +2666,9 @@
     "description": "Choice"
   },
   "@component_default_option_label": {
+  "@component_disabled_hint": {
+    "description": "Disabled field hint — enter true/false or a variable"
+  },
     "description": "Option"
   },
   "@component_empty_option": {
@@ -8198,14 +8210,18 @@
   "component_add_tooltip": "Bileşen Ekle",
   "component_block_label_style": "Stil",
   "component_block_workflow": "İş Akışı",
+  "component_button_default_label": "D\u00fc\u011fme",
   "component_checkbox_options": "Onay Kutusu Seçenekleri",
   "component_checked_by_default": "Varsayılan olarak işaretli",
   "component_choose_color": "Renk Seç",
   "component_component_to_wrap": "Sarmalanacak Bileşen:",
+  "component_configure_click_actions": "T\u0131klama Eylemlerini Yap\u0131land\u0131r",
+  "component_configure_select_actions": "Se\u00e7im Eylemlerini Yap\u0131land\u0131r",
   "component_custom_id": "Özel ID",
   "component_custom_id_required": "Özel ID *",
   "component_default_choice_label": "Seçim",
   "component_default_option_label": "Seçenek",
+  "component_disabled_hint": "true/false veya ((user.bc_isVip)) gibi bir de\u011fi\u015fken girin",
   "component_empty_option": "Boş",
   "component_file_url": "Dosya URL'si",
   "component_label": "Etiket",

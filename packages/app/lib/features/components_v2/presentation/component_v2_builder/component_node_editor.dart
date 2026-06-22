@@ -510,7 +510,7 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                     btn.actions = [];
                   } else {
                     btn.skuId = '';
-                    if (btn.label.isEmpty) btn.label = 'Button';
+                    if (btn.label.isEmpty) btn.label = context.tr.component_button_default_label;
                     if (btn.customId.isEmpty) btn.customId = ComponentNode.generateId('btn');
                   }
                   onChanged(btn);
@@ -587,7 +587,7 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
           }),
           child: VariableTextField(
             label: context.tr.common_disabled,
-            hint: 'Enter true/false or a variable like ((user.bc_isVip))',
+            hint: context.tr.component_disabled_hint,
             initialValue: btn.disabled,
             suggestions: variableSuggestions,
             onChanged: (v) {
@@ -648,7 +648,7 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                   label: Text(
                     btn.actions.isEmpty
                         ? (context.tr.actions_build_button(0).length > 40
-                            ? 'Configure Click Actions'
+                            ? context.tr.component_configure_click_actions
                             : context.tr.actions_build_button(0))
                         : context.tr.actions_build_button(btn.actions.length),
                   ),
@@ -664,7 +664,6 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
           ),
       ],
     );
-  }
   }
 
   // ---------------------------------------------------------------------------
@@ -764,7 +763,7 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                 label: Text(
                   menu.actions.isEmpty
                       ? (context.tr.actions_build_button(0).length > 40
-                          ? 'Configure Select Actions'
+                          ? context.tr.component_configure_select_actions
                           : context.tr.actions_build_button(0))
                       : context.tr.actions_build_button(menu.actions.length),
                 ),

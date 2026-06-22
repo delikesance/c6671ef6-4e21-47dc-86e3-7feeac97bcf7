@@ -3223,6 +3223,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get component_block_workflow => 'Workflow';
 
   @override
+  String get component_button_default_label => 'Schaltfläche';
+
+  @override
   String get component_checkbox_options => 'Checkbox-Optionen';
 
   @override
@@ -3235,6 +3238,14 @@ class AppLocalizationsDe extends AppLocalizations {
   String get component_component_to_wrap => 'Komponente zum Umschließen:';
 
   @override
+  String get component_configure_click_actions =>
+      'Klick-Aktionen konfigurieren';
+
+  @override
+  String get component_configure_select_actions =>
+      'Auswahlaktionen konfigurieren';
+
+  @override
   String get component_custom_id => 'Benutzerdefinierte ID';
 
   @override
@@ -3245,6 +3256,10 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get component_default_option_label => 'Option';
+
+  @override
+  String get component_disabled_hint =>
+      'true/false oder eine Variable wie ((user.bc_isVip)) eingeben';
 
   @override
   String get component_empty_option => 'Leer';
