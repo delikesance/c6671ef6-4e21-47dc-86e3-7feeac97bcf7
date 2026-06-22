@@ -121,6 +121,17 @@ Emoji? _parseEmoji(dynamic emojiData, String Function(String) resolve) {
   return _FakeEmoji(id: Snowflake.zero, name: emojiText);
 }
 
+/// Resolves a disabled template string to a bool? for the Discord API.
+/// Empty or 'false'/'no'/'0' → null (enabled).
+/// Non-empty truthy values → true (disabled).
+bool? _resolveDisabled(String raw, String Function(String) resolve) {
+  final resolved = resolve(raw).trim().toLowerCase();
+  if (resolved.isEmpty || resolved == 'false' || resolved == 'no' || resolved == '0') {
+    return null;
+  }
+  return true;
+}
+
 ComponentBuilder buildComponentNode(
   ComponentNode node,
   String Function(String) resolve, {
@@ -139,8 +150,16 @@ ComponentBuilder buildComponentNode(
       return ButtonBuilder.link(
         label: label.isNotEmpty ? label : null,
         url: url ?? Uri.parse('https://example.com'),
-        isDisabled: node.disabled ? true : null,
+        isDisabled: _resolveDisabled(node.disabled, resolve),
         emoji: _parseEmoji(node.emoji, resolve),
+      );
+    } else if (node.style == BcButtonStyle.premium) {
+      final skuIdRaw = resolve(node.skuId);
+      final skuId = int.tryParse(skuIdRaw);
+      return ButtonBuilder(
+        style: ButtonStyle.premium,
+        skuId: skuId != null ? Snowflake(skuId) : Snowflake.zero,
+        isDisabled: _resolveDisabled(node.disabled, resolve),
       );
     }
     final label = resolve(node.label);
@@ -154,7 +173,7 @@ ComponentBuilder buildComponentNode(
       style: nyxxStyle,
       label: label.isNotEmpty ? label : null,
       customId: resolve(node.customId),
-      isDisabled: node.disabled ? true : null,
+      isDisabled: _resolveDisabled(node.disabled, resolve),
       emoji: _parseEmoji(node.emoji, resolve),
     );
   } else if (node is SelectMenuNode) {
@@ -169,7 +188,7 @@ ComponentBuilder buildComponentNode(
           placeholder: placeholder,
           minValues: node.minValues,
           maxValues: node.maxValues,
-          isDisabled: node.disabled ? true : null,
+          isDisabled: _resolveDisabled(node.disabled, resolve),
         );
       case ComponentV2Type.roleSelect:
         return SelectMenuBuilder.roleSelect(
@@ -177,7 +196,7 @@ ComponentBuilder buildComponentNode(
           placeholder: placeholder,
           minValues: node.minValues,
           maxValues: node.maxValues,
-          isDisabled: node.disabled ? true : null,
+          isDisabled: _resolveDisabled(node.disabled, resolve),
         );
       case ComponentV2Type.mentionableSelect:
         return SelectMenuBuilder.mentionableSelect(
@@ -185,7 +204,7 @@ ComponentBuilder buildComponentNode(
           placeholder: placeholder,
           minValues: node.minValues,
           maxValues: node.maxValues,
-          isDisabled: node.disabled ? true : null,
+          isDisabled: _resolveDisabled(node.disabled, resolve),
         );
       case ComponentV2Type.channelSelect:
         return SelectMenuBuilder.channelSelect(
@@ -193,7 +212,7 @@ ComponentBuilder buildComponentNode(
           placeholder: placeholder,
           minValues: node.minValues,
           maxValues: node.maxValues,
-          isDisabled: node.disabled ? true : null,
+          isDisabled: _resolveDisabled(node.disabled, resolve),
         );
       case ComponentV2Type.categorySelect:
         return SelectMenuBuilder.channelSelect(
@@ -201,8 +220,16 @@ ComponentBuilder buildComponentNode(
           placeholder: placeholder,
           minValues: node.minValues,
           maxValues: node.maxValues,
-          isDisabled: node.disabled ? true : null,
+          isDisabled: _resolveDisabled(node.disabled, resolve),
         )..channelTypes = [ChannelType.guildCategory];
+      case ComponentV2Type.voiceSelect:
+        return SelectMenuBuilder.channelSelect(
+          customId: customId,
+          placeholder: placeholder,
+          minValues: node.minValues,
+          maxValues: node.maxValues,
+          isDisabled: _resolveDisabled(node.disabled, resolve),
+        )..channelTypes = [ChannelType.guildVoice];
       case ComponentV2Type.stringSelect:
       default:
         final options = node.options.map((opt) {
@@ -227,7 +254,7 @@ ComponentBuilder buildComponentNode(
           placeholder: placeholder,
           minValues: node.minValues,
           maxValues: node.maxValues,
-          isDisabled: node.disabled ? true : null,
+          isDisabled: _resolveDisabled(node.disabled, resolve),
         );
     }
   } else if (node is SectionNode) {

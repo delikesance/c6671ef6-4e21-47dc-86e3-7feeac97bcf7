@@ -246,6 +246,7 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
       ComponentV2Type.mentionableSelect => Icons.alternate_email,
       ComponentV2Type.channelSelect => Icons.tag,
       ComponentV2Type.categorySelect => Icons.folder,
+      ComponentV2Type.voiceSelect => Icons.volume_up,
       ComponentV2Type.section => Icons.view_agenda,
       ComponentV2Type.textDisplay => Icons.text_fields,
       ComponentV2Type.thumbnail => Icons.image,
@@ -424,6 +425,7 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                 ComponentV2Type.mentionableSelect,
                 ComponentV2Type.channelSelect,
                 ComponentV2Type.categorySelect,
+                ComponentV2Type.voiceSelect,
               ];
             }
 
@@ -442,15 +444,12 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
   // ---------------------------------------------------------------------------
   // Button editor — MINI-BLOCKS
   // ---------------------------------------------------------------------------
-
   Widget _buildButtonEditor(ButtonNode btn, BuildContext context) {
     // Step 3: detect if inline actions are configured
     final hasEmoji = btn.emoji.trim().isNotEmpty;
     final availableSections = <(String, IconData, String)>[
-      if (!_isSectionVisible('btn_emoji', hasEmoji))
+      if (!_isSectionVisible('btn_emoji', hasEmoji) && btn.style != BcButtonStyle.premium)
         ('btn_emoji', Icons.emoji_emotions, context.tr.emojis_tab_short),
-      if (!_isSectionVisible('btn_disabled', btn.disabled))
-        ('btn_disabled', Icons.block, context.tr.common_disabled),
     ];
 
     return Column(
@@ -461,15 +460,32 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
           icon: Icons.smart_button,
           label: context.tr.component_block_label_style,
           child: _buildResponsiveTwoFieldRow(
-            first: VariableTextField(
-              label: context.tr.component_label,
-              initialValue: btn.label,
-              suggestions: variableSuggestions,
-              onChanged: (v) {
-                btn.label = v;
-                onChanged(btn);
-              },
-            ),
+            first: btn.style == BcButtonStyle.premium
+                ? TextFormField(
+                    initialValue: btn.skuId,
+                    decoration: const InputDecoration(
+                      labelText: 'SKU ID',
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    validator: (v) => v == null || v.trim().isEmpty
+                        ? 'SKU ID is required'
+                        : null,
+                    onChanged: (v) {
+                      btn.skuId = v;
+                      onChanged(btn);
+                    },
+                  )
+                : VariableTextField(
+                    label: context.tr.component_label,
+                    initialValue: btn.label,
+                    suggestions: variableSuggestions,
+                    onChanged: (v) {
+                      btn.label = v;
+                      onChanged(btn);
+                    },
+                  ),
             second: DropdownButtonFormField<BcButtonStyle>(
               initialValue: btn.style,
               isExpanded: true,
@@ -478,164 +494,168 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                 border: const OutlineInputBorder(),
                 isDense: true,
               ),
-              items:
-                  BcButtonStyle.values
-                      .map(
-                        (s) => DropdownMenuItem(value: s, child: Text(s.name)),
-                      )
-                      .toList(),
+              items: BcButtonStyle.values
+                  .map(
+                    (s) => DropdownMenuItem(value: s, child: Text(s.name)),
+                  )
+                  .toList(),
               onChanged: (v) {
                 if (v != null) {
                   btn.style = v;
+                  if (v == BcButtonStyle.premium) {
+                    btn.label = '';
+                    btn.customId = '';
+                    btn.url = '';
+                    btn.emoji = '';
+                    btn.actions = [];
+                  } else {
+                    btn.skuId = '';
+                    if (btn.label.isEmpty) btn.label = 'Button';
+                    if (btn.customId.isEmpty) btn.customId = ComponentNode.generateId('btn');
+                  }
                   onChanged(btn);
                 }
               },
             ),
           ),
         ),
-        // Custom ID or URL (essential, context-dependent)
-        if (btn.style == BcButtonStyle.link)
-          MiniBlockContainer(
-            icon: Icons.link,
-            label: context.tr.embed_label_url,
-            child: VariableTextField(
+        if (btn.style != BcButtonStyle.premium) ...[
+          // Custom ID or URL (essential, context-dependent)
+          if (btn.style == BcButtonStyle.link)
+            MiniBlockContainer(
+              icon: Icons.link,
               label: context.tr.embed_label_url,
-              initialValue: btn.url,
-              suggestions: variableSuggestions,
-              onChanged: (v) {
-                btn.url = v;
-                onChanged(btn);
-              },
-            ),
-          )
-        else
-          MiniBlockContainer(
-            icon: Icons.fingerprint,
-            label: context.tr.common_custom_id_required,
-            child: TextFormField(
-              initialValue: btn.customId,
-              decoration: InputDecoration(
-                labelText: context.tr.common_custom_id_required,
-                border: const OutlineInputBorder(),
-                isDense: true,
-              ),
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              validator:
-                  (v) =>
-                      v == null || v.trim().isEmpty
-                          ? context.tr.component_validation_required
-                          : null,
-              onChanged: (v) {
-                btn.customId = v;
-                onChanged(btn);
-              },
-            ),
-          ),
-        // Emoji (optional)
-        if (_isSectionVisible('btn_emoji', hasEmoji))
-          MiniBlockContainer(
-            icon: Icons.emoji_emotions,
-            label: context.tr.emojis_tab_short,
-            onRemove:
-                () => _hideSection('btn_emoji', () {
-                  btn.emoji = '';
+              child: VariableTextField(
+                label: context.tr.embed_label_url,
+                initialValue: btn.url,
+                suggestions: variableSuggestions,
+                onChanged: (v) {
+                  btn.url = v;
                   onChanged(btn);
-                }),
-            child: VariableTextField(
-              label: context.tr.emojis_tab_short,
-              hint: context.tr.action_hint_emoji,
-              initialValue: btn.emoji,
-              suggestions: variableSuggestions,
-              onChanged: (v) {
-                btn.emoji = v;
-                onChanged(btn);
-              },
-            ),
-          ),
-        // Disabled (optional)
-        if (_isSectionVisible('btn_disabled', btn.disabled))
-          MiniBlockContainer(
-            icon: Icons.block,
-            label: context.tr.common_disabled,
-            onRemove:
-                () => _hideSection('btn_disabled', () {
-                  btn.disabled = false;
-                  onChanged(btn);
-                }),
-            child: SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              dense: true,
-              title: Text(context.tr.common_disabled),
-              value: btn.disabled,
-              onChanged: (v) {
-                btn.disabled = v;
-                onChanged(btn);
-              },
-            ),
-          ),
-        // Workflow / Actions — hidden in modal context
-        if (!isModalContext)
-          MiniBlockContainer(
-          icon: Icons.account_tree,
-          label: context.tr.component_block_workflow,
-          onRemove: () {
-            setState(() => btn.actions = []);
-            onChanged(btn);
-          },
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (btn.actions.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Text(
-                    context.tr.actions_summary_configured(btn.actions.length),
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppTheme.success,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              FilledButton.icon(
-                style: FilledButton.styleFrom(
-                  minimumSize: const Size.fromHeight(40),
-                ),
-                onPressed: () async {
-                  final result = await Navigator.push<
-                    List<Map<String, dynamic>>
-                  >(
-                    context,
-                    MaterialPageRoute(
-                      builder:
-                          (_) => ActionsBuilderPage(
-                            initialActions: List.from(btn.actions),
-                            variableSuggestions: variableSuggestions,
-                            botIdForConfig: botIdForConfig,
-                            editPath: ['Button', btn.label],
-                            isWorkflow: true,
-                          ),
-                    ),
-                  );
-                  if (result != null && mounted) {
-                    setState(() {
-                      btn.actions = result;
-                    });
-                    onChanged(btn);
-                  }
                 },
-                icon: const Icon(Icons.account_tree, size: 18),
-                label: Text(
-                  btn.actions.isEmpty
-                      ? (context.tr.actions_build_button(0).length > 40
-                          ? 'Configure Click Actions'
-                          : context.tr.actions_build_button(0))
-                      : context.tr.actions_build_button(btn.actions.length),
-                ),
               ),
-            ],
+            )
+          else
+            MiniBlockContainer(
+              icon: Icons.fingerprint,
+              label: context.tr.common_custom_id_required,
+              child: TextFormField(
+                initialValue: btn.customId,
+                decoration: InputDecoration(
+                  labelText: context.tr.common_custom_id_required,
+                  border: const OutlineInputBorder(),
+                  isDense: true,
+                ),
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                validator: (v) => v == null || v.trim().isEmpty
+                    ? context.tr.component_validation_required
+                    : null,
+                onChanged: (v) {
+                  btn.customId = v;
+                  onChanged(btn);
+                },
+              ),
+            ),
+          // Emoji (optional)
+          if (_isSectionVisible('btn_emoji', hasEmoji))
+            MiniBlockContainer(
+              icon: Icons.emoji_emotions,
+              label: context.tr.emojis_tab_short,
+              onRemove: () => _hideSection('btn_emoji', () {
+                btn.emoji = '';
+                onChanged(btn);
+              }),
+              child: VariableTextField(
+                label: context.tr.emojis_tab_short,
+                hint: context.tr.action_hint_emoji,
+                initialValue: btn.emoji,
+                suggestions: variableSuggestions,
+                onChanged: (v) {
+                  btn.emoji = v;
+                  onChanged(btn);
+                },
+              ),
+            ),
+        ],
+        // Disabled (always visible, supports variables)
+        MiniBlockContainer(
+          icon: Icons.block,
+          label: context.tr.common_disabled,
+          onRemove: () => _hideSection('btn_disabled', () {
+            btn.disabled = '';
+            onChanged(btn);
+          }),
+          child: VariableTextField(
+            label: context.tr.common_disabled,
+            hint: 'Enter true/false or a variable like ((user.bc_isVip))',
+            initialValue: btn.disabled,
+            suggestions: variableSuggestions,
+            onChanged: (v) {
+              btn.disabled = v;
+              onChanged(btn);
+            },
           ),
         ),
+        // Workflow / Actions — hidden in modal context
+        if (!isModalContext && btn.style != BcButtonStyle.premium)
+          MiniBlockContainer(
+            icon: Icons.account_tree,
+            label: context.tr.component_block_workflow,
+            onRemove: () {
+              setState(() => btn.actions = []);
+              onChanged(btn);
+            },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (btn.actions.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Text(
+                      context.tr.actions_summary_configured(btn.actions.length),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppTheme.success,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                FilledButton.icon(
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size.fromHeight(40),
+                  ),
+                  onPressed: () async {
+                    final result = await Navigator.push<List<Map<String, dynamic>>>(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ActionsBuilderPage(
+                          initialActions: List.from(btn.actions),
+                          variableSuggestions: variableSuggestions,
+                          botIdForConfig: botIdForConfig,
+                          editPath: ['Button', btn.label],
+                          isWorkflow: true,
+                        ),
+                      ),
+                    );
+                    if (result != null && mounted) {
+                      setState(() {
+                        btn.actions = result;
+                      });
+                      onChanged(btn);
+                    }
+                  },
+                  icon: const Icon(Icons.account_tree, size: 18),
+                  label: Text(
+                    btn.actions.isEmpty
+                        ? (context.tr.actions_build_button(0).length > 40
+                            ? 'Configure Click Actions'
+                            : context.tr.actions_build_button(0))
+                        : context.tr.actions_build_button(btn.actions.length),
+                  ),
+                ),
+              ],
+            ),
+          ),
         if (availableSections.isNotEmpty)
           AddSectionMenu(
             sections: availableSections,
@@ -644,6 +664,7 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
           ),
       ],
     );
+  }
   }
 
   // ---------------------------------------------------------------------------
@@ -656,7 +677,7 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
     final availableSections = <(String, IconData, String)>[
       if (!_isSectionVisible('sel_range', hasRange))
         ('sel_range', Icons.sync_alt, context.tr.component_selection_range),
-      if (!_isSectionVisible('sel_disabled', menu.disabled))
+      if (!_isSectionVisible('sel_disabled', menu.disabled.isNotEmpty))
         ('sel_disabled', Icons.block, context.tr.common_disabled),
     ];
 
@@ -752,22 +773,22 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
           ),
         ),
         // Disabled (optional)
-        if (_isSectionVisible('sel_disabled', menu.disabled))
+        if (_isSectionVisible('sel_disabled', menu.disabled.isNotEmpty))
           MiniBlockContainer(
             icon: Icons.block,
             label: context.tr.common_disabled,
             onRemove:
                 () => _hideSection('sel_disabled', () {
-                  menu.disabled = false;
+                  menu.disabled = '';
                   onChanged(menu);
                 }),
             child: SwitchListTile(
               contentPadding: EdgeInsets.zero,
               dense: true,
               title: Text(context.tr.common_disabled),
-              value: menu.disabled,
+              value: menu.disabled == 'true',
               onChanged: (v) {
-                menu.disabled = v;
+                menu.disabled = v ? 'true' : '';
                 onChanged(menu);
               },
             ),
@@ -1409,6 +1430,7 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                         ComponentV2Type.mentionableSelect,
                         ComponentV2Type.channelSelect,
                         ComponentV2Type.categorySelect,
+                        ComponentV2Type.voiceSelect,
                         ComponentV2Type.fileUpload,
                         ComponentV2Type.radioGroup,
                         ComponentV2Type.checkboxGroup,
