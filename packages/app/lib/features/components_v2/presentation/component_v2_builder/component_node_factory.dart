@@ -47,6 +47,10 @@ abstract class ComponentNodeFactory {
         type: ComponentV2Type.categorySelect,
         placeholder: 'Select a category...',
       ),
+      ComponentV2Type.voiceSelect => SelectMenuNode(
+        type: ComponentV2Type.voiceSelect,
+        placeholder: 'Select a voice channel...',
+      ),
       ComponentV2Type.section => SectionNode(components: [TextDisplayNode()]),
       ComponentV2Type.textDisplay => TextDisplayNode(),
       ComponentV2Type.thumbnail => ThumbnailNode(),
