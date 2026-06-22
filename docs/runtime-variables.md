@@ -188,6 +188,10 @@ suivantes permettent de router les clics boutons/menus/modals sans listener TTL:
 | `((interaction.customId))` | Custom ID du composant/modal |
 | `((interaction.values))` | Valeurs du select (CSV) |
 | `((interaction.values.count))` | Nombre de valeurs sélectionnées |
+| `((interaction.<customId>.customId))` | Le customId lui-même (bouton ou select menu) |
+| `((interaction.<customId>.value))` | 1ʳᵉ valeur sélectionnée (select) ou customId (bouton) |
+| `((interaction.<customId>.values))` | Toutes les valeurs sélectionnées, CSV (select menu) |
+| `((interaction.<customId>.option))` | Alias de `.value` (compatibilité BDFD) |
 | `((modal.<inputCustomId>))` | Valeur d'un champ texte modal |
 | `((interaction.channelId))` | ID channel interaction |
 | `((interaction.guildId))` | ID guild interaction |
