@@ -2633,6 +2633,9 @@
     "description": "Style"
   },
   "@component_block_workflow": {
+  "@component_button_default_label": {
+    "description": "Default button label"
+  },
     "description": "Workflow"
   },
   "@component_checkbox_options": {
@@ -2645,6 +2648,12 @@
     "description": "Choose Color"
   },
   "@component_component_to_wrap": {
+  "@component_configure_click_actions": {
+  "@component_configure_select_actions": {
+    "description": "Configure Select Actions button fallback"
+  },
+    "description": "Configure Click Actions button fallback"
+  },
     "description": "Component to Wrap:"
   },
   "@component_custom_id": {
@@ -2657,6 +2666,9 @@
     "description": "Choice"
   },
   "@component_default_option_label": {
+  "@component_disabled_hint": {
+    "description": "Disabled field hint — enter true/false or a variable"
+  },
     "description": "Option"
   },
   "@component_empty_option": {
@@ -8231,14 +8243,18 @@
   "component_add_tooltip": "Adicionar Componente",
   "component_block_label_style": "Estilo",
   "component_block_workflow": "Fluxo de Trabalho",
+  "component_button_default_label": "Bot\u00e3o",
   "component_checkbox_options": "Opções de Checkbox",
   "component_checked_by_default": "Marcado por padrão",
   "component_choose_color": "Escolher Cor",
   "component_component_to_wrap": "Componente para envolver:",
+  "component_configure_click_actions": "Configurar A\u00e7\u00f5es",
+  "component_configure_select_actions": "Configurar A\u00e7\u00f5es de Sele\u00e7\u00e3o",
   "component_custom_id": "ID Personalizado",
   "component_custom_id_required": "ID Personalizado *",
   "component_default_choice_label": "Escolha",
   "component_default_option_label": "Opção",
+  "component_disabled_hint": "Digite true/false ou uma vari\u00e1vel como ((user.bc_isVip))",
   "component_empty_option": "Vazio",
   "component_file_url": "URL do Arquivo",
   "component_label": "Rótulo",

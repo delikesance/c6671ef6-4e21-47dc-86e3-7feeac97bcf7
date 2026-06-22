@@ -3156,7 +3156,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get common_pick => 'Choisir';
 
   @override
-  String get common_placeholder => 'Espace réservé';
+  String get common_placeholder => 'Texte indicatif';
 
   @override
   String get common_refresh => 'Actualiser';
@@ -3229,6 +3229,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get component_block_workflow => 'Workflow';
 
   @override
+  String get component_button_default_label => 'Bouton';
+
+  @override
   String get component_checkbox_options => 'Options checkbox';
 
   @override
@@ -3241,6 +3244,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get component_component_to_wrap => 'Composant à envelopper :';
 
   @override
+  String get component_configure_click_actions => 'Configurer les actions';
+
+  @override
+  String get component_configure_select_actions =>
+      'Configurer les actions de sélection';
+
+  @override
   String get component_custom_id => 'ID personnalisé';
 
   @override
@@ -3251,6 +3261,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get component_default_option_label => 'Option';
+
+  @override
+  String get component_disabled_hint =>
+      'Entrez true/false ou une variable comme ((user.bc_isVip))';
 
   @override
   String get component_empty_option => 'Vide';

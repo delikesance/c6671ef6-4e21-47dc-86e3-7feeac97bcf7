@@ -3183,6 +3183,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get component_block_workflow => 'İş Akışı';
 
   @override
+  String get component_button_default_label => 'Düğme';
+
+  @override
   String get component_checkbox_options => 'Onay Kutusu Seçenekleri';
 
   @override
@@ -3195,6 +3198,14 @@ class AppLocalizationsTr extends AppLocalizations {
   String get component_component_to_wrap => 'Sarmalanacak Bileşen:';
 
   @override
+  String get component_configure_click_actions =>
+      'Tıklama Eylemlerini Yapılandır';
+
+  @override
+  String get component_configure_select_actions =>
+      'Seçim Eylemlerini Yapılandır';
+
+  @override
   String get component_custom_id => 'Özel ID';
 
   @override
@@ -3205,6 +3216,10 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get component_default_option_label => 'Seçenek';
+
+  @override
+  String get component_disabled_hint =>
+      'true/false veya ((user.bc_isVip)) gibi bir değişken girin';
 
   @override
   String get component_empty_option => 'Boş';

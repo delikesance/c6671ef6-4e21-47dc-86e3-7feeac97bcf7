@@ -5749,6 +5749,12 @@ abstract class AppLocalizations {
   /// **'Workflow'**
   String get component_block_workflow;
 
+  /// No description provided for @component_button_default_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Button'**
+  String get component_button_default_label;
+
   /// Checkbox Options
   ///
   /// In en, this message translates to:
@@ -5773,6 +5779,18 @@ abstract class AppLocalizations {
   /// **'Component to Wrap:'**
   String get component_component_to_wrap;
 
+  /// No description provided for @component_configure_click_actions.
+  ///
+  /// In en, this message translates to:
+  /// **'Configure Click Actions'**
+  String get component_configure_click_actions;
+
+  /// No description provided for @component_configure_select_actions.
+  ///
+  /// In en, this message translates to:
+  /// **'Configure Select Actions'**
+  String get component_configure_select_actions;
+
   /// Custom ID
   ///
   /// In en, this message translates to:
@@ -5796,6 +5814,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Option'**
   String get component_default_option_label;
+
+  /// No description provided for @component_disabled_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter true/false or a variable like ((user.bc_isVip))'**
+  String get component_disabled_hint;
 
   /// Empty
   ///
