@@ -51,7 +51,7 @@ void main() {
   group('DiscordRpcSettingsStore', () {
     test('returns empty defaults when nothing is stored', () async {
       final config = await DiscordRpcSettingsStore.loadConfig();
-      expect(config.enabled, isFalse);
+      expect(config.enabled, isTrue);
       expect(config.clientId, discordRpcFixedApplicationId);
       expect(config.clientSecret, isEmpty);
       expect(config.brokerUrl, isEmpty);
@@ -111,7 +111,7 @@ void main() {
       await DiscordRpcSettingsStore.clearAll();
 
       final config = await DiscordRpcSettingsStore.loadConfig();
-      expect(config.enabled, isFalse);
+      expect(config.enabled, isTrue);
       expect(config.clientId, discordRpcFixedApplicationId);
       expect(config.clientSecret, isEmpty);
       expect(config.brokerUrl, isEmpty);

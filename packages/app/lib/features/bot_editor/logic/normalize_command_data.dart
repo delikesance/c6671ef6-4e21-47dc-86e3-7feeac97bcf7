@@ -111,9 +111,7 @@ Map<String, dynamic> normalizeCommandData(Map<String, dynamic> command) {
   final executionMode =
       rawExecutionMode == 'bdfd_script'
           ? 'bdfd_script'
-          : rawExecutionMode == 'javascript'
-              ? 'javascript'
-              : 'workflow';
+          : 'workflow';
   final bdfdScriptContent = (rawData['bdfdScriptContent'] ?? '').toString();
   final jsScriptContent = (rawData['jsScriptContent'] ?? '').toString();
   final legacyModeEnabled = rawData['legacyModeEnabled'] == true;
