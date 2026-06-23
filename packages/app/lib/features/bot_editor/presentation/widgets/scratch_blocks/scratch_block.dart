@@ -21,7 +21,11 @@ class ScratchBlock extends StatelessWidget {
     this.onMoveDown,
     this.badge,
     this.trailing,
+    this.flat = false,
   });
+
+  /// Whether to render without card borders/margins and colored header bar.
+  final bool flat;
 
   /// Category accent color shown on the left strip and header icon.
   final Color color;
@@ -77,6 +81,45 @@ class ScratchBlock extends StatelessWidget {
         isDark
             ? Color.alphaBlend(color.withAlpha(50), colorScheme.surface)
             : Color.alphaBlend(color.withAlpha(30), colorScheme.surface);
+
+    if (flat) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: color, size: 18),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      color: color,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ),
+                if (badge != null) ...[
+                  const SizedBox(width: 6),
+                  badge!,
+                ],
+              ],
+            ),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.only(left: 4),
+              child: child,
+            ),
+            const SizedBox(height: 8),
+            Divider(color: colorScheme.outlineVariant.withValues(alpha: 0.4), height: 1),
+          ],
+        ),
+      );
+    }
 
     return Card(
       margin: EdgeInsets.zero,

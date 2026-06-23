@@ -6103,6 +6103,20 @@ class AppLocalizationsTr extends AppLocalizations {
   String get scratch_block_required => 'Gerekli';
 
   @override
+  String get scratch_blocks_tab => 'Bloklar';
+
+  @override
+  String get scratch_custom_id_filter_desc =>
+      'Bu iş akışı, yalnızca tıklanan butonun veya gönderilen modalın Özel Kimliği (Custom ID) bu kimlikle tam olarak eşleştiğinde çalışır.';
+
+  @override
+  String get scratch_custom_id_filter_hint => 'örn. buton_kimligim';
+
+  @override
+  String get scratch_custom_id_filter_label =>
+      'Özel Kimlik filtresi (isteğe bağlı)';
+
+  @override
   String get scratch_dart_script => 'Dart Betiği';
 
   @override
@@ -6198,6 +6212,96 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get scratch_response_edit => 'Yanıtı düzenle';
+
+  @override
+  String get scratch_trigger_tab => 'Tetikleyici';
+
+  @override
+  String get scratch_wizard_actions_empty_desc =>
+      'Botunuzun ne yapacağını yapılandırmak için aşağıya eylem blokları ekleyin.';
+
+  @override
+  String get scratch_wizard_actions_empty_title =>
+      'Henüz tanımlanmış eylem yok.';
+
+  @override
+  String get scratch_wizard_config_button_instruction =>
+      'Bu iş akışını tetikleyecek butonun veya modalın kimliğini yapılandırın.';
+
+  @override
+  String get scratch_wizard_folder_hint => 'örn. yonetim';
+
+  @override
+  String get scratch_wizard_folder_label => 'Klasör (isteğe bağlı)';
+
+  @override
+  String get scratch_wizard_save_details => 'Kaydetme Detayları';
+
+  @override
+  String get scratch_wizard_step_actions => 'Adım 3: Eylemler';
+
+  @override
+  String get scratch_wizard_step_config => 'Adım 2: Yapılandırma';
+
+  @override
+  String get scratch_wizard_step_save => 'Adım 4: Kaydet ve Özet';
+
+  @override
+  String get scratch_wizard_step_trigger => 'Adım 1: Tetikleyici Türü';
+
+  @override
+  String scratch_wizard_summary_actions_count(int count) {
+    return '$count eylem yapılandırıldı';
+  }
+
+  @override
+  String get scratch_wizard_summary_title => 'İş Akışı Özeti';
+
+  @override
+  String scratch_wizard_summary_trigger_button(String id) {
+    return 'Buton Tıklaması / Modal (Özel Kimlik: \'$id\')';
+  }
+
+  @override
+  String scratch_wizard_summary_trigger_event(String event) {
+    return 'Etkinlik: $event';
+  }
+
+  @override
+  String get scratch_wizard_summary_trigger_function =>
+      'Genel Fonksiyon / İş Akışı';
+
+  @override
+  String get scratch_wizard_trigger_button_desc =>
+      'Bir kullanıcı bir butona tıkladığında, seçim menüsü kullandığında veya bir modal gönderdiğinde tetiklenir.';
+
+  @override
+  String get scratch_wizard_trigger_button_title => 'Buton veya Mesaj Bileşeni';
+
+  @override
+  String get scratch_wizard_trigger_event_desc =>
+      'Bir Discord eyleminde tetiklenir (örn. sunucuya üye katılması, mesaj silinmesi, rolün güncellenmesi).';
+
+  @override
+  String get scratch_wizard_trigger_event_title => 'Discord Etkinliği';
+
+  @override
+  String get scratch_wizard_trigger_function_desc =>
+      'İş akışını diğer tetikleyiciler veya entegrasyonlar tarafından çağrılabilen yeniden kullanılabilir bir fonksiyon olarak çalıştırır.';
+
+  @override
+  String get scratch_wizard_trigger_function_title =>
+      'Fonksiyon / Manuel Tetikleyici';
+
+  @override
+  String get scratch_wizard_trigger_instruction =>
+      'Bu iş akışını neyin tetikleyeceğini seçin:';
+
+  @override
+  String get scratch_wizard_workflow_name_hint => 'örn. buton_yaniti';
+
+  @override
+  String get scratch_wizard_workflow_name_label => 'İş Akışı Adı *';
 
   @override
   String get scratch_workflow_add_argument => 'Argüman ekle';

@@ -75,7 +75,13 @@ Map<String, dynamic> normalizeWorkflowEventTrigger(
               .toString()
               .trim();
 
-  return <String, dynamic>{'category': category, 'event': event};
+  final customIdFilter = (source['customIdFilter'] ?? '').toString().trim();
+
+  return <String, dynamic>{
+    'category': category,
+    'event': event,
+    if (customIdFilter.isNotEmpty) 'customIdFilter': customIdFilter,
+  };
 }
 
 List<WorkflowArgumentDefinition> parseWorkflowArgumentDefinitions(dynamic raw) {

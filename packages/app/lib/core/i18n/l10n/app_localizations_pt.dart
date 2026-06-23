@@ -6146,6 +6146,19 @@ class AppLocalizationsPt extends AppLocalizations {
   String get scratch_block_required => 'Obrigatório';
 
   @override
+  String get scratch_blocks_tab => 'Blocos';
+
+  @override
+  String get scratch_custom_id_filter_desc =>
+      'Este fluxo de trabalho só será executado se o Custom ID do botão clicado ou modal enviado corresponder exatamente a este ID.';
+
+  @override
+  String get scratch_custom_id_filter_hint => 'ex: meu_id_do_botao';
+
+  @override
+  String get scratch_custom_id_filter_label => 'Filtro de Custom ID (opcional)';
+
+  @override
   String get scratch_dart_script => 'Script Dart';
 
   @override
@@ -6242,6 +6255,97 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get scratch_response_edit => 'Editar resposta';
+
+  @override
+  String get scratch_trigger_tab => 'Gatilho';
+
+  @override
+  String get scratch_wizard_actions_empty_desc =>
+      'Adicione blocos de ações abaixo para configurar o que o seu bot faz.';
+
+  @override
+  String get scratch_wizard_actions_empty_title =>
+      'Nenhuma ação definida ainda.';
+
+  @override
+  String get scratch_wizard_config_button_instruction =>
+      'Configure o ID do botão ou modal que irá disparar este fluxo de trabalho.';
+
+  @override
+  String get scratch_wizard_folder_hint => 'ex: admin';
+
+  @override
+  String get scratch_wizard_folder_label => 'Pasta (opcional)';
+
+  @override
+  String get scratch_wizard_save_details => 'Detalhes de salvamento';
+
+  @override
+  String get scratch_wizard_step_actions => 'Passo 3: Ações';
+
+  @override
+  String get scratch_wizard_step_config => 'Passo 2: Configuração';
+
+  @override
+  String get scratch_wizard_step_save => 'Passo 4: Salvar & Resumo';
+
+  @override
+  String get scratch_wizard_step_trigger => 'Passo 1: Tipo de Gatilho';
+
+  @override
+  String scratch_wizard_summary_actions_count(int count) {
+    return '$count ação(ões) configurada(s)';
+  }
+
+  @override
+  String get scratch_wizard_summary_title => 'Resumo do Fluxo de Trabalho';
+
+  @override
+  String scratch_wizard_summary_trigger_button(String id) {
+    return 'Clique no Botão / Modal (Custom ID: \'$id\')';
+  }
+
+  @override
+  String scratch_wizard_summary_trigger_event(String event) {
+    return 'Evento: $event';
+  }
+
+  @override
+  String get scratch_wizard_summary_trigger_function =>
+      'Função Geral / Fluxo de Trabalho';
+
+  @override
+  String get scratch_wizard_trigger_button_desc =>
+      'Dispara quando um usuário clica em um botão, usa um menu de seleção ou envia um formulário modal.';
+
+  @override
+  String get scratch_wizard_trigger_button_title =>
+      'Botão ou Componente de Mensagem';
+
+  @override
+  String get scratch_wizard_trigger_event_desc =>
+      'Dispara em uma ação do Discord (ex: novo membro entra, mensagem excluída, cargo atualizado).';
+
+  @override
+  String get scratch_wizard_trigger_event_title => 'Evento do Discord';
+
+  @override
+  String get scratch_wizard_trigger_function_desc =>
+      'Executa o fluxo de trabalho como uma função reutilizável que pode ser chamada por outros gatilhos.';
+
+  @override
+  String get scratch_wizard_trigger_function_title => 'Função / Gatilho Manual';
+
+  @override
+  String get scratch_wizard_trigger_instruction =>
+      'Escolha o que ativa este fluxo de trabalho:';
+
+  @override
+  String get scratch_wizard_workflow_name_hint => 'ex: resposta_do_botao';
+
+  @override
+  String get scratch_wizard_workflow_name_label =>
+      'Nome do Fluxo de Trabalho *';
 
   @override
   String get scratch_workflow_add_argument => 'Adicionar argumento';

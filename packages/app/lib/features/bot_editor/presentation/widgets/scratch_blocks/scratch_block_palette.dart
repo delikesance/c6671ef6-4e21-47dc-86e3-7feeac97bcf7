@@ -424,7 +424,7 @@ class _ScratchBlockPaletteState extends State<ScratchBlockPalette> {
               .contains(_searchQuery.toLowerCase())) {
         continue;
       }
-      if (isListenerAction(actionType)) {
+      if (!widget.isWorkflow && isListenerAction(actionType)) {
         continue;
       }
       if (!widget.isInteraction && !widget.isWorkflow && isInteractionOnlyAction(actionType)) {
