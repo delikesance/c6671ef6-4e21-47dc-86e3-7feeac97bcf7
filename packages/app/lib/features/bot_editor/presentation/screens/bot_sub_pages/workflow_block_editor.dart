@@ -83,11 +83,33 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
   /// Whether the event variables list in the sidebar is expanded.
   bool _eventVariablesExpanded = true;
 
+  /// 0 for Config (Metadata/Trigger), 1 for Action blocks palette.
+  int _sidebarTab = 0;
+
+  /// Wizard step for mobile editor (0 to 3)
+  int _wizardStep = 0;
+
+  /// Tab index for mobile editor in edit mode (0 for Trigger, 1 for Actions)
+  int _mobileTab = 0;
+
+  /// Mobile trigger type selection
+  late String _mobileTriggerType;
+
   List<VariableSuggestion> _variableSuggestions = [];
   bool _saving = false;
   List<String> _existingFolders = const [];
 
   bool get _isEditing => widget.initial != null;
+
+  String get _triggerType {
+    if (_workflowType == workflowTypeGeneral) {
+      return 'command';
+    }
+    if (_selectedCategory == 'core' && _selectedEvent == 'interactionCreate') {
+      return 'button';
+    }
+    return 'event';
+  }
 
   Future<void> _loadExistingFolders() async {
     try {
@@ -171,6 +193,16 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
 
     _ensureEventSelection();
     _refreshVariableSuggestions();
+
+    if (_workflowType == workflowTypeEvent) {
+      if (_selectedEvent == 'interactionCreate') {
+        _mobileTriggerType = 'button';
+      } else {
+        _mobileTriggerType = 'event';
+      }
+    } else {
+      _mobileTriggerType = 'command';
+    }
   }
 
   @override
@@ -185,14 +217,23 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
 
   void _ensureEventSelection() {
     final cats = widget.eventCategories;
+    var changed = false;
     if (!cats.contains(_selectedCategory) && cats.isNotEmpty) {
       _selectedCategory = cats.first;
+      changed = true;
     }
     final events = widget.eventsForCategory(_selectedCategory);
     if (events.isNotEmpty && !events.any((e) => e.event == _selectedEvent)) {
       _selectedEvent = events.first.event;
+      changed = true;
     }
-    _eventTrigger = {'category': _selectedCategory, 'event': _selectedEvent};
+    if (changed || _eventTrigger.isEmpty) {
+      _eventTrigger = {
+        ..._eventTrigger,
+        'category': _selectedCategory,
+        'event': _selectedEvent,
+      };
+    }
   }
 
   Future<void> _refreshVariableSuggestions() async {
@@ -372,8 +413,8 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                   physics: const BouncingScrollPhysics(),
                   padding: const EdgeInsets.all(AppTheme.spacingLg),
                   child: ScratchBlockCanvas(
-                    skipConnectorAfterIndices: _buildFinalBlockIndices(),
-                    children: _buildBlocks(showAddButton: !isDesktop),
+                    skipConnectorAfterIndices: _buildFinalBlockIndices(showHeaderBlocks: !isDesktop),
+                    children: _buildBlocks(showAddButton: true, showHeaderBlocks: !isDesktop),
                   ),
                 ),
               ),
@@ -384,7 +425,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Container(
-                    width: 320,
+                    width: 340,
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.surface,
                       border: Border(
@@ -394,45 +435,168 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                         ),
                       ),
                     ),
-                    child: ScratchBlockPalette(
-                      onActionSelected: (type) {
-                        setState(() {
-                          final uniqueId = 'action_${DateTime.now().microsecondsSinceEpoch}';
-                          _actions.add(<String, dynamic>{
-                            'id': uniqueId,
-                            'type': type.name,
-                            'enabled': true,
-                            'key': uniqueId,
-                            'depend_on': <String>[],
-                            'error': {'mode': 'stop'},
-                            'payload': Map<String, dynamic>.from(type.defaultParameters),
-                          });
-                        });
-                      },
-                      isInteraction: false,
-                      isWorkflow: true,
-                      popOnSelect: false,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            border: Border(
+                              bottom: BorderSide(
+                                color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5),
+                                width: 1,
+                              ),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: InkWell(
+                                  onTap: () => setState(() => _sidebarTab = 0),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    decoration: BoxDecoration(
+                                      border: Border(
+                                        bottom: BorderSide(
+                                          color: _sidebarTab == 0 ? AppTheme.brandPrimary : Colors.transparent,
+                                          width: 2.5,
+                                        ),
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.tune_outlined,
+                                          color: _sidebarTab == 0 ? AppTheme.brandPrimary : Theme.of(context).colorScheme.onSurfaceVariant,
+                                          size: 18,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          context.tr.scratch_trigger_tab,
+                                          style: TextStyle(
+                                            fontWeight: _sidebarTab == 0 ? FontWeight.bold : FontWeight.normal,
+                                            color: _sidebarTab == 0 ? AppTheme.brandPrimary : Theme.of(context).colorScheme.onSurfaceVariant,
+                                            fontSize: 13.5,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: InkWell(
+                                  onTap: () => setState(() => _sidebarTab = 1),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    decoration: BoxDecoration(
+                                      border: Border(
+                                        bottom: BorderSide(
+                                          color: _sidebarTab == 1 ? AppTheme.brandPrimary : Colors.transparent,
+                                          width: 2.5,
+                                        ),
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.add_box_outlined,
+                                          color: _sidebarTab == 1 ? AppTheme.brandPrimary : Theme.of(context).colorScheme.onSurfaceVariant,
+                                          size: 18,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          context.tr.scratch_blocks_tab,
+                                          style: TextStyle(
+                                            fontWeight: _sidebarTab == 1 ? FontWeight.bold : FontWeight.normal,
+                                            color: _sidebarTab == 1 ? AppTheme.brandPrimary : Theme.of(context).colorScheme.onSurfaceVariant,
+                                            fontSize: 13.5,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          child: IndexedStack(
+                            index: _sidebarTab,
+                            children: [
+                              SingleChildScrollView(
+                                padding: const EdgeInsets.all(AppTheme.spacingMd),
+                                child: _buildUnifiedTriggerConfig(flat: true),
+                              ),
+                              ScratchBlockPalette(
+                                onActionSelected: (type) {
+                                  setState(() {
+                                    final uniqueId = 'action_${DateTime.now().microsecondsSinceEpoch}';
+                                    _actions.add(<String, dynamic>{
+                                      'id': uniqueId,
+                                      'type': type.name,
+                                      'enabled': true,
+                                      'key': uniqueId,
+                                      'depend_on': <String>[],
+                                      'error': {'mode': 'stop'},
+                                      'payload': Map<String, dynamic>.from(type.defaultParameters),
+                                    });
+                                  });
+                                  _refreshVariableSuggestions();
+                                },
+                                isInteraction: false,
+                                isWorkflow: true,
+                                popOnSelect: false,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  Expanded(child: canvasWidget),
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).scaffoldBackgroundColor,
+                        gradient: RadialGradient(
+                          colors: [
+                            Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
+                            Theme.of(context).scaffoldBackgroundColor,
+                          ],
+                          center: Alignment.center,
+                          radius: 1.3,
+                        ),
+                      ),
+                      child: canvasWidget,
+                    ),
+                  ),
                 ],
               );
             }
 
-            return canvasWidget;
+            if (_isEditing) {
+              return _buildMobileTabEditor();
+            }
+
+            return _buildMobileWizard();
           },
         ),
       ),
     );
   }
 
-  List<Widget> _buildBlocks({bool showAddButton = true}) {
+  List<Widget> _buildBlocks({
+    bool showAddButton = true,
+    bool showHeaderBlocks = true,
+  }) {
     return [
       // ── Metadata block ──
-      _buildMetadataBlock(),
+      if (showHeaderBlocks) _buildMetadataBlock(),
 
       // ── Entry Point block ──
-      _buildEntryPointBlock(),
+      if (showHeaderBlocks) _buildEntryPointBlock(),
 
       // ── Action blocks ──
       ..._buildActionBlocks(),
@@ -442,10 +606,8 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
     ];
   }
 
-  /// Indices (in the canvas children list) of final / cap blocks after which
-  /// no connector should be drawn.
-  Set<int> _buildFinalBlockIndices() {
-    const offset = 2; // MetadataBlock + EntryPointBlock
+  Set<int> _buildFinalBlockIndices({bool showHeaderBlocks = true}) {
+    final offset = showHeaderBlocks ? 2 : 0;
     final indices = <int>{};
     for (var i = 0; i < _actions.length; i++) {
       final type = BotCreatorActionType.values.firstWhere(
@@ -459,10 +621,298 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
     return indices;
   }
 
+  // ── Unified Trigger Configuration Panel ──
+
+  Widget _buildTriggerTypeOption({
+    required String type,
+    required String label,
+    required IconData icon,
+  }) {
+    final currentType = _triggerType;
+    final isSelected = currentType == type;
+    final theme = Theme.of(context);
+
+    return InkWell(
+      onTap: () {
+        setState(() {
+          if (type == 'button') {
+            _workflowType = workflowTypeEvent;
+            _selectedCategory = 'core';
+            _selectedEvent = 'interactionCreate';
+            _eventTrigger = {
+              'category': 'core',
+              'event': 'interactionCreate',
+              'customIdFilter': (_eventTrigger['customIdFilter'] ?? '').toString(),
+            };
+          } else if (type == 'event') {
+            _workflowType = workflowTypeEvent;
+            if (_selectedEvent == 'interactionCreate') {
+              _selectedCategory = 'messages';
+              _selectedEvent = 'messageCreate';
+            }
+            _eventTrigger = {
+              'category': _selectedCategory,
+              'event': _selectedEvent,
+              'customIdFilter': (_eventTrigger['customIdFilter'] ?? '').toString(),
+            };
+          } else {
+            _workflowType = workflowTypeGeneral;
+          }
+        });
+        _refreshVariableSuggestions();
+      },
+      borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppTheme.brandPrimary.withValues(alpha: 0.08)
+              : theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+          border: Border.all(
+            color: isSelected
+                ? AppTheme.brandPrimary
+                : theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
+            width: isSelected ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: isSelected ? AppTheme.brandPrimary : AppTheme.grey,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  color: isSelected ? AppTheme.brandPrimary : null,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUnifiedTriggerConfig({bool flat = false}) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isButton = _triggerType == 'button';
+    final isEvent = _triggerType == 'event';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // ── SECTION 1: General Info ──
+        Text(
+          context.tr.scratch_workflow_metadata,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 13,
+            color: AppTheme.brandPrimary,
+            letterSpacing: 0.5,
+          ),
+        ),
+        const SizedBox(height: 12),
+        TextFormField(
+          controller: _nameController,
+          decoration: InputDecoration(
+            labelText: context.tr.scratch_workflow_name,
+            border: const OutlineInputBorder(),
+            isDense: true,
+          ),
+        ),
+        const SizedBox(height: 12),
+        TextFormField(
+          controller: _folderController,
+          decoration: InputDecoration(
+            labelText: context.tr.workflows_folder_label,
+            hintText: context.tr.workflows_folder_hint,
+            prefixIcon: const Icon(Icons.folder_outlined),
+            suffixIcon: _existingFolders.isNotEmpty
+                ? PopupMenuButton<String>(
+                    icon: const Icon(Icons.folder_open),
+                    tooltip: 'Dossiers existants',
+                    onSelected: (String selection) {
+                      setState(() {
+                        _folderController.text = selection;
+                      });
+                    },
+                    itemBuilder: (BuildContext context) {
+                      return _existingFolders.map((String folder) {
+                        return PopupMenuItem<String>(
+                          value: folder,
+                          child: Text(folder),
+                        );
+                      }).toList();
+                    },
+                  )
+                : null,
+            border: const OutlineInputBorder(),
+            isDense: true,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Divider(color: colorScheme.outlineVariant.withValues(alpha: 0.4), height: 1),
+        const SizedBox(height: 16),
+
+        // ── SECTION 2: Trigger Type Selector ──
+        Text(
+          context.tr.scratch_entry_point_listen,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 13,
+            color: getCategoryColor('EntryPoint'),
+            letterSpacing: 0.5,
+          ),
+        ),
+        const SizedBox(height: 12),
+        _buildTriggerTypeOption(
+          type: 'button',
+          label: context.tr.scratch_wizard_trigger_button_title,
+          icon: Icons.smart_button,
+        ),
+        const SizedBox(height: 6),
+        _buildTriggerTypeOption(
+          type: 'event',
+          label: context.tr.scratch_wizard_trigger_event_title,
+          icon: Icons.flash_on,
+        ),
+        const SizedBox(height: 6),
+        _buildTriggerTypeOption(
+          type: 'command',
+          label: context.tr.scratch_wizard_trigger_function_title,
+          icon: Icons.play_arrow,
+        ),
+        const SizedBox(height: 16),
+
+        // ── SECTION 3: Trigger Settings ──
+        if (isButton) ...[
+          TextFormField(
+            initialValue: (_eventTrigger['customIdFilter'] ?? '').toString(),
+            decoration: InputDecoration(
+              labelText: context.tr.scratch_custom_id_filter_label,
+              hintText: context.tr.scratch_custom_id_filter_hint,
+              border: const OutlineInputBorder(),
+              isDense: true,
+            ),
+            onChanged: (value) {
+              setState(() {
+                _eventTrigger = {
+                  ..._eventTrigger,
+                  'customIdFilter': value.trim(),
+                };
+              });
+            },
+          ),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surfaceVariant.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              context.tr.scratch_custom_id_filter_desc,
+              style: const TextStyle(fontSize: 11, color: AppTheme.grey),
+            ),
+          ),
+        ] else if (isEvent) ...[
+          DropdownButtonFormField<String>(
+            initialValue: _selectedCategory.isNotEmpty ? _selectedCategory : null,
+            decoration: InputDecoration(
+              labelText: context.tr.scratch_event_category,
+              border: const OutlineInputBorder(),
+              isDense: true,
+            ),
+            items: widget.eventCategories
+                .map((cat) {
+                  final label = widget.eventCategoryLabel != null
+                      ? widget.eventCategoryLabel!(cat)
+                      : cat;
+                  return DropdownMenuItem(value: cat, child: Text(label));
+                })
+                .toList(growable: false),
+            onChanged: (value) {
+              if (value != null) {
+                setState(() {
+                  _selectedCategory = value;
+                  final evts = widget.eventsForCategory(value);
+                  if (evts.isNotEmpty) {
+                    _selectedEvent = evts.first.event;
+                  }
+                  _eventTrigger = {
+                    'category': _selectedCategory,
+                    'event': _selectedEvent,
+                  };
+                });
+                _refreshVariableSuggestions();
+              }
+            },
+          ),
+          const SizedBox(height: 12),
+          DropdownButtonFormField<String>(
+            initialValue: _selectedEvent.isNotEmpty ? _selectedEvent : null,
+            key: ValueKey('event-dropdown-$_selectedCategory'),
+            decoration: InputDecoration(
+              labelText: context.tr.scratch_event_name,
+              border: const OutlineInputBorder(),
+              isDense: true,
+            ),
+            items: widget.eventsForCategory(_selectedCategory)
+                .map((def) {
+                  return DropdownMenuItem(
+                    value: def.event,
+                    child: Text(def.label),
+                  );
+                })
+                .toList(growable: false),
+            onChanged: (value) {
+              if (value != null) {
+                setState(() {
+                  _selectedEvent = value;
+                  _eventTrigger = {
+                    'category': _selectedCategory,
+                    'event': _selectedEvent,
+                  };
+                });
+                _refreshVariableSuggestions();
+              }
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildEventVariablesSection(),
+        ] else ...[
+          TextFormField(
+            controller: _entryPointController,
+            decoration: InputDecoration(
+              labelText: context.tr.scratch_entry_point_label,
+              hintText: context.tr.scratch_entry_point_hint,
+              border: const OutlineInputBorder(),
+              isDense: true,
+            ),
+            onChanged: (value) {
+              _refreshVariableSuggestions();
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildArgumentsSection(),
+        ],
+      ],
+    );
+  }
+
   // ── Metadata Block ──
 
-  Widget _buildMetadataBlock() {
+  Widget _buildMetadataBlock({bool flat = false}) {
     return ScratchBlock(
+      flat: flat,
       color: getCategoryColor('Metadata'),
       title: context.tr.scratch_workflow_metadata,
       icon: Icons.description_outlined,
@@ -760,10 +1210,11 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
 
   // ── Entry Point Block ──
 
-  Widget _buildEntryPointBlock() {
+  Widget _buildEntryPointBlock({bool flat = false}) {
     final events = widget.eventsForCategory(_selectedCategory);
 
     return WorkflowEntryPointBlock(
+      flat: flat,
       workflowType: _workflowType,
       entryPoint: _entryPointController.text,
       onEntryPointChanged: (value) {
@@ -799,6 +1250,15 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
         _refreshVariableSuggestions();
       },
       eventCategoryLabel: widget.eventCategoryLabel,
+      customIdFilter: (_eventTrigger['customIdFilter'] ?? '').toString(),
+      onCustomIdFilterChanged: (value) {
+        setState(() {
+          _eventTrigger = {
+            ..._eventTrigger,
+            'customIdFilter': value.trim(),
+          };
+        });
+      },
     );
   }
 
@@ -995,6 +1455,604 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
             borderRadius: BorderRadius.circular(AppTheme.radiusMd),
           ),
         ),
+      ),
+    );
+  }
+
+  // ── Mobile Tab Editor (Edit Mode) ──
+
+  Widget _buildMobileTabEditor() {
+    final theme = Theme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Tab Header
+        Container(
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
+                width: 1,
+              ),
+            ),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: InkWell(
+                  onTap: () => setState(() => _mobileTab = 0),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: _mobileTab == 0 ? AppTheme.brandPrimary : Colors.transparent,
+                          width: 2.5,
+                        ),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.tune_outlined,
+                          color: _mobileTab == 0 ? AppTheme.brandPrimary : theme.colorScheme.onSurfaceVariant,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          context.tr.scratch_trigger_tab,
+                          style: TextStyle(
+                            fontWeight: _mobileTab == 0 ? FontWeight.bold : FontWeight.normal,
+                            color: _mobileTab == 0 ? AppTheme.brandPrimary : theme.colorScheme.onSurfaceVariant,
+                            fontSize: 13.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: InkWell(
+                  onTap: () => setState(() => _mobileTab = 1),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: _mobileTab == 1 ? AppTheme.brandPrimary : Colors.transparent,
+                          width: 2.5,
+                        ),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.view_agenda_outlined,
+                          color: _mobileTab == 1 ? AppTheme.brandPrimary : theme.colorScheme.onSurfaceVariant,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          context.tr.actions_title,
+                          style: TextStyle(
+                            fontWeight: _mobileTab == 1 ? FontWeight.bold : FontWeight.normal,
+                            color: _mobileTab == 1 ? AppTheme.brandPrimary : theme.colorScheme.onSurfaceVariant,
+                            fontSize: 13.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Tab Content
+        Expanded(
+          child: IndexedStack(
+            index: _mobileTab,
+            children: [
+              SingleChildScrollView(
+                padding: const EdgeInsets.all(AppTheme.spacingLg),
+                child: _buildUnifiedTriggerConfig(flat: true),
+              ),
+              _buildStep3Actions(),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ── Mobile Wizard Flow ──
+
+  Widget _buildMobileWizard() {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    final stepsTitles = [
+      context.tr.scratch_wizard_step_trigger,
+      context.tr.scratch_wizard_step_config,
+      context.tr.scratch_wizard_step_actions,
+      context.tr.scratch_wizard_step_save,
+    ];
+
+    return PopScope(
+      canPop: _wizardStep == 0,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        if (_wizardStep > 0) {
+          setState(() => _wizardStep--);
+        }
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Step progress header
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceVariant.withValues(alpha: 0.3),
+              border: Border(
+                bottom: BorderSide(
+                  color: colorScheme.outlineVariant,
+                  width: 1,
+                ),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      stepsTitles[_wizardStep],
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      "${_wizardStep + 1} / 4",
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: (_wizardStep + 1) / 4,
+                    minHeight: 6,
+                    backgroundColor: colorScheme.surfaceVariant,
+                    valueColor: AlwaysStoppedAnimation<Color>(AppTheme.brandPrimary),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Main body content
+          Expanded(
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 250),
+              child: KeyedSubtree(
+                key: ValueKey<int>(_wizardStep),
+                child: _buildWizardStepContent(),
+              ),
+            ),
+          ),
+
+          // Navigation Footer
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: colorScheme.surface,
+              border: Border(
+                top: BorderSide(
+                  color: colorScheme.outlineVariant,
+                  width: 1,
+                ),
+              ),
+            ),
+            child: Row(
+              children: [
+                if (_wizardStep > 0)
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => setState(() => _wizardStep--),
+                      icon: const Icon(Icons.arrow_back),
+                      label: Text(context.tr.common_back),
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(0, 48),
+                      ),
+                    ),
+                  )
+                else
+                  const Spacer(),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: FilledButton.icon(
+                    onPressed: _wizardStep == 3 ? _save : _advanceWizardStep,
+                    icon: Icon(_wizardStep == 3 ? Icons.save : Icons.arrow_forward),
+                    label: Text(
+                      _wizardStep == 3
+                          ? context.tr.save
+                          : context.tr.common_next,
+                    ),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppTheme.brandPrimary,
+                      minimumSize: const Size(0, 48),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _advanceWizardStep() {
+    if (_wizardStep == 0) {
+      setState(() {
+        if (_mobileTriggerType == 'button') {
+          _workflowType = workflowTypeEvent;
+          _selectedCategory = 'core';
+          _selectedEvent = 'interactionCreate';
+          _eventTrigger = {
+            'category': 'core',
+            'event': 'interactionCreate',
+            'customIdFilter': (_eventTrigger['customIdFilter'] ?? '').toString(),
+          };
+        } else if (_mobileTriggerType == 'event') {
+          _workflowType = workflowTypeEvent;
+          if (_selectedEvent == 'interactionCreate') {
+            _selectedCategory = 'messages';
+            _selectedEvent = 'messageCreate';
+          }
+          _eventTrigger = {
+            'category': _selectedCategory,
+            'event': _selectedEvent,
+            'customIdFilter': (_eventTrigger['customIdFilter'] ?? '').toString(),
+          };
+        } else {
+          _workflowType = workflowTypeGeneral;
+        }
+        _wizardStep = 1;
+      });
+      _refreshVariableSuggestions();
+    } else {
+      setState(() {
+        _wizardStep++;
+      });
+    }
+  }
+
+  Widget _buildWizardStepContent() {
+    switch (_wizardStep) {
+      case 0:
+        return _buildStep1TriggerType();
+      case 1:
+        return _buildStep2TriggerConfig();
+      case 2:
+        return _buildStep3Actions();
+      case 3:
+        return _buildStep4SummaryAndSave();
+      default:
+        return const SizedBox.shrink();
+    }
+  }
+
+  Widget _buildStep1TriggerType() {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: Text(
+            context.tr.scratch_wizard_trigger_instruction,
+            style: const TextStyle(fontSize: 14, color: AppTheme.grey),
+          ),
+        ),
+        _buildTriggerTypeCard(
+          type: 'button',
+          title: context.tr.scratch_wizard_trigger_button_title,
+          desc: context.tr.scratch_wizard_trigger_button_desc,
+          icon: Icons.smart_button,
+        ),
+        const SizedBox(height: 12),
+        _buildTriggerTypeCard(
+          type: 'event',
+          title: context.tr.scratch_wizard_trigger_event_title,
+          desc: context.tr.scratch_wizard_trigger_event_desc,
+          icon: Icons.flash_on,
+        ),
+        const SizedBox(height: 12),
+        _buildTriggerTypeCard(
+          type: 'command',
+          title: context.tr.scratch_wizard_trigger_function_title,
+          desc: context.tr.scratch_wizard_trigger_function_desc,
+          icon: Icons.play_arrow,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTriggerTypeCard({
+    required String type,
+    required String title,
+    required String desc,
+    required IconData icon,
+  }) {
+    final isSelected = _mobileTriggerType == type;
+    final theme = Theme.of(context);
+
+    return InkWell(
+      onTap: () {
+        setState(() {
+          _mobileTriggerType = type;
+        });
+        _advanceWizardStep();
+      },
+      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppTheme.brandPrimary.withValues(alpha: 0.08)
+              : theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+          border: Border.all(
+            color: isSelected
+                ? AppTheme.brandPrimary
+                : theme.colorScheme.outlineVariant,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              icon,
+              size: 28,
+              color: isSelected ? AppTheme.brandPrimary : AppTheme.grey,
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: isSelected ? AppTheme.brandPrimary : null,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    desc,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStep2TriggerConfig() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (_mobileTriggerType == 'button') ...[
+            Text(
+              context.tr.scratch_wizard_config_button_instruction,
+              style: const TextStyle(fontSize: 13, color: AppTheme.grey),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              initialValue: (_eventTrigger['customIdFilter'] ?? '').toString(),
+              decoration: InputDecoration(
+                labelText: context.tr.scratch_custom_id_filter_label,
+                hintText: context.tr.scratch_custom_id_filter_hint,
+                border: const OutlineInputBorder(),
+                isDense: true,
+              ),
+              onChanged: (value) {
+                setState(() {
+                  _eventTrigger = {
+                    ..._eventTrigger,
+                    'customIdFilter': value.trim(),
+                  };
+                });
+              },
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceVariant.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                context.tr.scratch_custom_id_filter_desc,
+                style: const TextStyle(fontSize: 12, color: AppTheme.grey),
+              ),
+            ),
+          ] else if (_mobileTriggerType == 'event') ...[
+            _buildEntryPointBlock(),
+            if (_workflowType == workflowTypeEvent) ...[
+              const SizedBox(height: 16),
+              _buildEventVariablesSection(),
+            ],
+          ] else ...[
+            _buildEntryPointBlock(),
+            const SizedBox(height: 16),
+            _buildArgumentsSection(),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStep3Actions() {
+    return ScratchBlockCanvas(
+      skipConnectorAfterIndices: _buildFinalBlockIndices(showHeaderBlocks: false),
+      children: [
+        if (_actions.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
+            child: Column(
+              children: [
+                Icon(Icons.view_agenda_outlined, size: 48, color: Theme.of(context).colorScheme.outline),
+                const SizedBox(height: 16),
+                Text(
+                  context.tr.scratch_wizard_actions_empty_title,
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  context.tr.scratch_wizard_actions_empty_desc,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 12, color: AppTheme.grey),
+                ),
+              ],
+            ),
+          )
+        else
+          ..._buildActionBlocks(),
+        _buildAddBlockButton(),
+      ],
+    );
+  }
+
+  Widget _buildStep4SummaryAndSave() {
+    final theme = Theme.of(context);
+    final isButton = _mobileTriggerType == 'button';
+    final isEvent = _mobileTriggerType == 'event';
+
+    String triggerSummary = '';
+    if (isButton) {
+      final cid = _eventTrigger['customIdFilter'] ?? '';
+      triggerSummary = context.tr.scratch_wizard_summary_trigger_button(cid.toString());
+    } else if (isEvent) {
+      triggerSummary = context.tr.scratch_wizard_summary_trigger_event(_selectedEvent);
+    } else {
+      triggerSummary = context.tr.scratch_wizard_summary_trigger_function;
+    }
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surfaceVariant.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+              border: Border.all(color: theme.colorScheme.outlineVariant),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  context.tr.scratch_wizard_summary_title,
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    const Icon(Icons.flash_on, size: 18, color: AppTheme.brandPrimary),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        triggerSummary,
+                        style: const TextStyle(fontSize: 13),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    const Icon(Icons.view_agenda, size: 18, color: AppTheme.success),
+                    const SizedBox(width: 8),
+                    Text(
+                      context.tr.scratch_wizard_summary_actions_count(_actions.length),
+                      style: const TextStyle(fontSize: 13),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            context.tr.scratch_wizard_save_details,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          ),
+          const SizedBox(height: 12),
+          TextFormField(
+            controller: _nameController,
+            decoration: InputDecoration(
+              labelText: context.tr.scratch_wizard_workflow_name_label,
+              hintText: context.tr.scratch_wizard_workflow_name_hint,
+              border: const OutlineInputBorder(),
+              isDense: true,
+            ),
+          ),
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: _folderController,
+            decoration: InputDecoration(
+              labelText: context.tr.scratch_wizard_folder_label,
+              hintText: context.tr.scratch_wizard_folder_hint,
+              prefixIcon: const Icon(Icons.folder_outlined),
+              suffixIcon: _existingFolders.isNotEmpty
+                  ? PopupMenuButton<String>(
+                      icon: const Icon(Icons.folder_open),
+                      onSelected: (String selection) {
+                        setState(() {
+                          _folderController.text = selection;
+                        });
+                      },
+                      itemBuilder: (BuildContext context) {
+                        return _existingFolders.map((String folder) {
+                          return PopupMenuItem<String>(
+                            value: folder,
+                            child: Text(folder),
+                          );
+                        }).toList();
+                      },
+                    )
+                  : null,
+              border: const OutlineInputBorder(),
+              isDense: true,
+            ),
+          ),
+        ],
       ),
     );
   }

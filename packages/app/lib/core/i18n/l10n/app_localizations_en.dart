@@ -6075,6 +6075,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scratch_block_required => 'Required';
 
   @override
+  String get scratch_blocks_tab => 'Blocks';
+
+  @override
+  String get scratch_custom_id_filter_desc =>
+      'This workflow will only run if the Custom ID of the clicked button or submitted modal matches this ID exactly.';
+
+  @override
+  String get scratch_custom_id_filter_hint => 'e.g. my_button_id';
+
+  @override
+  String get scratch_custom_id_filter_label => 'Custom ID filter (optional)';
+
+  @override
   String get scratch_dart_script => 'Dart Script';
 
   @override
@@ -6170,6 +6183,96 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scratch_response_edit => 'Edit response';
+
+  @override
+  String get scratch_trigger_tab => 'Trigger';
+
+  @override
+  String get scratch_wizard_actions_empty_desc =>
+      'Add action blocks below to configure what your bot does.';
+
+  @override
+  String get scratch_wizard_actions_empty_title => 'No actions defined yet.';
+
+  @override
+  String get scratch_wizard_config_button_instruction =>
+      'Configure the ID of the button or modal that will trigger this workflow.';
+
+  @override
+  String get scratch_wizard_folder_hint => 'e.g. admin';
+
+  @override
+  String get scratch_wizard_folder_label => 'Folder (optional)';
+
+  @override
+  String get scratch_wizard_save_details => 'Save Details';
+
+  @override
+  String get scratch_wizard_step_actions => 'Step 3: Actions';
+
+  @override
+  String get scratch_wizard_step_config => 'Step 2: Configuration';
+
+  @override
+  String get scratch_wizard_step_save => 'Step 4: Save & Summary';
+
+  @override
+  String get scratch_wizard_step_trigger => 'Step 1: Trigger Type';
+
+  @override
+  String scratch_wizard_summary_actions_count(int count) {
+    return '$count action(s) configured';
+  }
+
+  @override
+  String get scratch_wizard_summary_title => 'Workflow Summary';
+
+  @override
+  String scratch_wizard_summary_trigger_button(String id) {
+    return 'Button Click / Modal (Custom ID: \'$id\')';
+  }
+
+  @override
+  String scratch_wizard_summary_trigger_event(String event) {
+    return 'Event: $event';
+  }
+
+  @override
+  String get scratch_wizard_summary_trigger_function =>
+      'General Function / Workflow';
+
+  @override
+  String get scratch_wizard_trigger_button_desc =>
+      'Triggers when a user clicks a button, uses a select menu, or submits a modal.';
+
+  @override
+  String get scratch_wizard_trigger_button_title =>
+      'Button or Message Component';
+
+  @override
+  String get scratch_wizard_trigger_event_desc =>
+      'Triggers on a Discord action (e.g. guild member joins, message deleted, role updated).';
+
+  @override
+  String get scratch_wizard_trigger_event_title => 'Discord Event';
+
+  @override
+  String get scratch_wizard_trigger_function_desc =>
+      'Runs the workflow as a reusable function called by other triggers or custom integrations.';
+
+  @override
+  String get scratch_wizard_trigger_function_title =>
+      'Function / Manual Trigger';
+
+  @override
+  String get scratch_wizard_trigger_instruction =>
+      'Choose what triggers this workflow:';
+
+  @override
+  String get scratch_wizard_workflow_name_hint => 'e.g. button_response';
+
+  @override
+  String get scratch_wizard_workflow_name_label => 'Workflow Name *';
 
   @override
   String get scratch_workflow_add_argument => 'Add argument';

@@ -5849,6 +5849,19 @@ class AppLocalizationsJa extends AppLocalizations {
   String get scratch_block_required => '必須';
 
   @override
+  String get scratch_blocks_tab => 'ブロック';
+
+  @override
+  String get scratch_custom_id_filter_desc =>
+      'このワークフローは、クリックされたボタンまたは送信されたモーダルのカスタムIDがこのIDと完全に一致する場合にのみ実行されます。';
+
+  @override
+  String get scratch_custom_id_filter_hint => '例: my_button_id';
+
+  @override
+  String get scratch_custom_id_filter_label => 'カスタムIDフィルター（任意）';
+
+  @override
   String get scratch_dart_script => 'Dart スクリプト';
 
   @override
@@ -5940,6 +5953,93 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get scratch_response_edit => '応答を編集';
+
+  @override
+  String get scratch_trigger_tab => 'トリガー';
+
+  @override
+  String get scratch_wizard_actions_empty_desc =>
+      '以下にアクションブロックを追加して、ボットの動作を設定します。';
+
+  @override
+  String get scratch_wizard_actions_empty_title => 'アクションがまだ定義されていません。';
+
+  @override
+  String get scratch_wizard_config_button_instruction =>
+      'このワークフローをトリガーするボタンまたはモーダルのIDを設定します。';
+
+  @override
+  String get scratch_wizard_folder_hint => '例: admin';
+
+  @override
+  String get scratch_wizard_folder_label => 'フォルダ（任意）';
+
+  @override
+  String get scratch_wizard_save_details => '保存詳細設定';
+
+  @override
+  String get scratch_wizard_step_actions => 'ステップ 3: アクション';
+
+  @override
+  String get scratch_wizard_step_config => 'ステップ 2: 設定';
+
+  @override
+  String get scratch_wizard_step_save => 'ステップ 4: 保存と概要';
+
+  @override
+  String get scratch_wizard_step_trigger => 'ステップ 1: トリガーの種類';
+
+  @override
+  String scratch_wizard_summary_actions_count(int count) {
+    return '$count個のアクションが設定されました';
+  }
+
+  @override
+  String get scratch_wizard_summary_title => 'ワークフローの概要';
+
+  @override
+  String scratch_wizard_summary_trigger_button(String id) {
+    return 'ボタンクリック / モーダル (カスタムID: \'$id\')';
+  }
+
+  @override
+  String scratch_wizard_summary_trigger_event(String event) {
+    return 'イベント: $event';
+  }
+
+  @override
+  String get scratch_wizard_summary_trigger_function => '一般関数 / ワークフロー';
+
+  @override
+  String get scratch_wizard_trigger_button_desc =>
+      'ユーザーがボタンをクリック、セレクトメニューを使用、またはモーダルを送信したときにトリガーします。';
+
+  @override
+  String get scratch_wizard_trigger_button_title => 'ボタンまたはメッセージコンポーネント';
+
+  @override
+  String get scratch_wizard_trigger_event_desc =>
+      'Discordの特定のアクション（メンバーの参加、メッセージの削除、ロールの更新など）でトリガーします。';
+
+  @override
+  String get scratch_wizard_trigger_event_title => 'Discordイベント';
+
+  @override
+  String get scratch_wizard_trigger_function_desc =>
+      '他のトリガーやカスタムインテグレーションから呼び出せる再利用可能な関数としてワークフローを実行します。';
+
+  @override
+  String get scratch_wizard_trigger_function_title => '関数 / 手動トリガー';
+
+  @override
+  String get scratch_wizard_trigger_instruction =>
+      'このワークフローをトリガーするイベントを選択してください:';
+
+  @override
+  String get scratch_wizard_workflow_name_hint => '例: button_response';
+
+  @override
+  String get scratch_wizard_workflow_name_label => 'ワークフロー名 *';
 
   @override
   String get scratch_workflow_add_argument => '引数を追加';

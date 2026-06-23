@@ -10714,6 +10714,30 @@ abstract class AppLocalizations {
   /// **'Required'**
   String get scratch_block_required;
 
+  /// Blocks tab label
+  ///
+  /// In en, this message translates to:
+  /// **'Blocks'**
+  String get scratch_blocks_tab;
+
+  /// Description for the custom ID filter
+  ///
+  /// In en, this message translates to:
+  /// **'This workflow will only run if the Custom ID of the clicked button or submitted modal matches this ID exactly.'**
+  String get scratch_custom_id_filter_desc;
+
+  /// Hint for custom ID filter input field
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. my_button_id'**
+  String get scratch_custom_id_filter_hint;
+
+  /// Label for custom ID filter input field
+  ///
+  /// In en, this message translates to:
+  /// **'Custom ID filter (optional)'**
+  String get scratch_custom_id_filter_label;
+
   /// Dart Script
   ///
   /// In en, this message translates to:
@@ -10899,6 +10923,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Edit response'**
   String get scratch_response_edit;
+
+  /// Trigger tab label
+  ///
+  /// In en, this message translates to:
+  /// **'Trigger'**
+  String get scratch_trigger_tab;
+
+  /// Description when actions list is empty in wizard
+  ///
+  /// In en, this message translates to:
+  /// **'Add action blocks below to configure what your bot does.'**
+  String get scratch_wizard_actions_empty_desc;
+
+  /// Title when actions list is empty in wizard
+  ///
+  /// In en, this message translates to:
+  /// **'No actions defined yet.'**
+  String get scratch_wizard_actions_empty_title;
+
+  /// Instruction for configuring button in wizard
+  ///
+  /// In en, this message translates to:
+  /// **'Configure the ID of the button or modal that will trigger this workflow.'**
+  String get scratch_wizard_config_button_instruction;
+
+  /// Hint for folder selection in wizard
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. admin'**
+  String get scratch_wizard_folder_hint;
+
+  /// Label for folder selection in wizard
+  ///
+  /// In en, this message translates to:
+  /// **'Folder (optional)'**
+  String get scratch_wizard_folder_label;
+
+  /// Save details section header
+  ///
+  /// In en, this message translates to:
+  /// **'Save Details'**
+  String get scratch_wizard_save_details;
+
+  /// Wizard step 3 header
+  ///
+  /// In en, this message translates to:
+  /// **'Step 3: Actions'**
+  String get scratch_wizard_step_actions;
+
+  /// Wizard step 2 header
+  ///
+  /// In en, this message translates to:
+  /// **'Step 2: Configuration'**
+  String get scratch_wizard_step_config;
+
+  /// Wizard step 4 header
+  ///
+  /// In en, this message translates to:
+  /// **'Step 4: Save & Summary'**
+  String get scratch_wizard_step_save;
+
+  /// Wizard step 1 header
+  ///
+  /// In en, this message translates to:
+  /// **'Step 1: Trigger Type'**
+  String get scratch_wizard_step_trigger;
+
+  /// Number of actions configured in summary
+  ///
+  /// In en, this message translates to:
+  /// **'{count} action(s) configured'**
+  String scratch_wizard_summary_actions_count(int count);
+
+  /// Summary section header
+  ///
+  /// In en, this message translates to:
+  /// **'Workflow Summary'**
+  String get scratch_wizard_summary_title;
+
+  /// Summary line for button trigger
+  ///
+  /// In en, this message translates to:
+  /// **'Button Click / Modal (Custom ID: \'{id}\')'**
+  String scratch_wizard_summary_trigger_button(String id);
+
+  /// Summary line for event trigger
+  ///
+  /// In en, this message translates to:
+  /// **'Event: {event}'**
+  String scratch_wizard_summary_trigger_event(String event);
+
+  /// Summary line for function trigger
+  ///
+  /// In en, this message translates to:
+  /// **'General Function / Workflow'**
+  String get scratch_wizard_summary_trigger_function;
+
+  /// Description for button trigger type in wizard
+  ///
+  /// In en, this message translates to:
+  /// **'Triggers when a user clicks a button, uses a select menu, or submits a modal.'**
+  String get scratch_wizard_trigger_button_desc;
+
+  /// Title for button trigger type in wizard
+  ///
+  /// In en, this message translates to:
+  /// **'Button or Message Component'**
+  String get scratch_wizard_trigger_button_title;
+
+  /// Description for event trigger type in wizard
+  ///
+  /// In en, this message translates to:
+  /// **'Triggers on a Discord action (e.g. guild member joins, message deleted, role updated).'**
+  String get scratch_wizard_trigger_event_desc;
+
+  /// Title for event trigger type in wizard
+  ///
+  /// In en, this message translates to:
+  /// **'Discord Event'**
+  String get scratch_wizard_trigger_event_title;
+
+  /// Description for function trigger type in wizard
+  ///
+  /// In en, this message translates to:
+  /// **'Runs the workflow as a reusable function called by other triggers or custom integrations.'**
+  String get scratch_wizard_trigger_function_desc;
+
+  /// Title for function trigger type in wizard
+  ///
+  /// In en, this message translates to:
+  /// **'Function / Manual Trigger'**
+  String get scratch_wizard_trigger_function_title;
+
+  /// Instruction for choosing trigger in wizard
+  ///
+  /// In en, this message translates to:
+  /// **'Choose what triggers this workflow:'**
+  String get scratch_wizard_trigger_instruction;
+
+  /// Hint for workflow name in wizard
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. button_response'**
+  String get scratch_wizard_workflow_name_hint;
+
+  /// Label for workflow name in wizard
+  ///
+  /// In en, this message translates to:
+  /// **'Workflow Name *'**
+  String get scratch_wizard_workflow_name_label;
 
   /// Add argument
   ///

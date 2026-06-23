@@ -5333,6 +5333,108 @@
   "@scratch_workflow_type_general": {
     "description": "General"
   },
+  "@scratch_blocks_tab": {
+    "description": "Blocks tab label"
+  },
+  "@scratch_custom_id_filter_desc": {
+    "description": "Description for the custom ID filter"
+  },
+  "@scratch_custom_id_filter_hint": {
+    "description": "Hint for custom ID filter input field"
+  },
+  "@scratch_custom_id_filter_label": {
+    "description": "Label for custom ID filter input field"
+  },
+  "@scratch_trigger_tab": {
+    "description": "Trigger tab label"
+  },
+  "@scratch_wizard_actions_empty_desc": {
+    "description": "Description when actions list is empty in wizard"
+  },
+  "@scratch_wizard_actions_empty_title": {
+    "description": "Title when actions list is empty in wizard"
+  },
+  "@scratch_wizard_config_button_instruction": {
+    "description": "Instruction for configuring button in wizard"
+  },
+  "@scratch_wizard_folder_hint": {
+    "description": "Hint for folder selection in wizard"
+  },
+  "@scratch_wizard_folder_label": {
+    "description": "Label for folder selection in wizard"
+  },
+  "@scratch_wizard_save_details": {
+    "description": "Save details section header"
+  },
+  "@scratch_wizard_step_actions": {
+    "description": "Wizard step 3 header"
+  },
+  "@scratch_wizard_step_config": {
+    "description": "Wizard step 2 header"
+  },
+  "@scratch_wizard_step_save": {
+    "description": "Wizard step 4 header"
+  },
+  "@scratch_wizard_step_trigger": {
+    "description": "Wizard step 1 header"
+  },
+  "@scratch_wizard_summary_actions_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "Number of actions configured in summary"
+  },
+  "@scratch_wizard_summary_title": {
+    "description": "Summary section header"
+  },
+  "@scratch_wizard_summary_trigger_button": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    },
+    "description": "Summary line for button trigger"
+  },
+  "@scratch_wizard_summary_trigger_event": {
+    "placeholders": {
+      "event": {
+        "type": "String"
+      }
+    },
+    "description": "Summary line for event trigger"
+  },
+  "@scratch_wizard_summary_trigger_function": {
+    "description": "Summary line for function trigger"
+  },
+  "@scratch_wizard_trigger_button_desc": {
+    "description": "Description for button trigger type in wizard"
+  },
+  "@scratch_wizard_trigger_button_title": {
+    "description": "Title for button trigger type in wizard"
+  },
+  "@scratch_wizard_trigger_event_desc": {
+    "description": "Description for event trigger type in wizard"
+  },
+  "@scratch_wizard_trigger_event_title": {
+    "description": "Title for event trigger type in wizard"
+  },
+  "@scratch_wizard_trigger_function_desc": {
+    "description": "Description for function trigger type in wizard"
+  },
+  "@scratch_wizard_trigger_function_title": {
+    "description": "Title for function trigger type in wizard"
+  },
+  "@scratch_wizard_trigger_instruction": {
+    "description": "Instruction for choosing trigger in wizard"
+  },
+  "@scratch_wizard_workflow_name_hint": {
+    "description": "Hint for workflow name in wizard"
+  },
+  "@scratch_wizard_workflow_name_label": {
+    "description": "Label for workflow name in wizard"
+  },
   "@serialization_export_base64_title": {
     "description": "Export command as Base64"
   },
@@ -9033,6 +9135,10 @@
   "scratch_block_entry_point": "Komut Tetikleyici",
   "scratch_block_metadata": "Meta Veri",
   "scratch_block_required": "Gerekli",
+  "scratch_blocks_tab": "Bloklar",
+  "scratch_custom_id_filter_desc": "Bu iş akışı, yalnızca tıklanan butonun veya gönderilen modalın Özel Kimliği (Custom ID) bu kimlikle tam olarak eşleştiğinde çalışır.",
+  "scratch_custom_id_filter_hint": "örn. buton_kimligim",
+  "scratch_custom_id_filter_label": "Özel Kimlik filtresi (isteğe bağlı)",
   "scratch_dart_script": "Dart Betiği",
   "scratch_entry_event_trigger": "Etkinlik tetikleyici",
   "scratch_entry_function": "Fonksiyon",
@@ -9064,6 +9170,31 @@
   "scratch_response_block": "Yanıt",
   "scratch_response_components": "Bileşenler",
   "scratch_response_edit": "Yanıtı düzenle",
+  "scratch_trigger_tab": "Tetikleyici",
+  "scratch_wizard_actions_empty_desc": "Botunuzun ne yapacağını yapılandırmak için aşağıya eylem blokları ekleyin.",
+  "scratch_wizard_actions_empty_title": "Henüz tanımlanmış eylem yok.",
+  "scratch_wizard_config_button_instruction": "Bu iş akışını tetikleyecek butonun veya modalın kimliğini yapılandırın.",
+  "scratch_wizard_folder_hint": "örn. yonetim",
+  "scratch_wizard_folder_label": "Klasör (isteğe bağlı)",
+  "scratch_wizard_save_details": "Kaydetme Detayları",
+  "scratch_wizard_step_actions": "Adım 3: Eylemler",
+  "scratch_wizard_step_config": "Adım 2: Yapılandırma",
+  "scratch_wizard_step_save": "Adım 4: Kaydet ve Özet",
+  "scratch_wizard_step_trigger": "Adım 1: Tetikleyici Türü",
+  "scratch_wizard_summary_actions_count": "{count} eylem yapılandırıldı",
+  "scratch_wizard_summary_title": "İş Akışı Özeti",
+  "scratch_wizard_summary_trigger_button": "Buton Tıklaması / Modal (Özel Kimlik: '{id}')",
+  "scratch_wizard_summary_trigger_event": "Etkinlik: {event}",
+  "scratch_wizard_summary_trigger_function": "Genel Fonksiyon / İş Akışı",
+  "scratch_wizard_trigger_button_desc": "Bir kullanıcı bir butona tıkladığında, seçim menüsü kullandığında veya bir modal gönderdiğinde tetiklenir.",
+  "scratch_wizard_trigger_button_title": "Buton veya Mesaj Bileşeni",
+  "scratch_wizard_trigger_event_desc": "Bir Discord eyleminde tetiklenir (örn. sunucuya üye katılması, mesaj silinmesi, rolün güncellenmesi).",
+  "scratch_wizard_trigger_event_title": "Discord Etkinliği",
+  "scratch_wizard_trigger_function_desc": "İş akışını diğer tetikleyiciler veya entegrasyonlar tarafından çağrılabilen yeniden kullanılabilir bir fonksiyon olarak çalıştırır.",
+  "scratch_wizard_trigger_function_title": "Fonksiyon / Manuel Tetikleyici",
+  "scratch_wizard_trigger_instruction": "Bu iş akışını neyin tetikleyeceğini seçin:",
+  "scratch_wizard_workflow_name_hint": "örn. buton_yaniti",
+  "scratch_wizard_workflow_name_label": "İş Akışı Adı *",
   "scratch_workflow_add_argument": "Argüman ekle",
   "scratch_workflow_arguments": "Argümanlar (Değişkenler)",
   "scratch_workflow_metadata": "İş Akışı Ayarları",

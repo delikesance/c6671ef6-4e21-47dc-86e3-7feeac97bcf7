@@ -5378,6 +5378,108 @@
   "@scratch_workflow_type_general": {
     "description": "General"
   },
+  "@scratch_blocks_tab": {
+    "description": "Blocks tab label"
+  },
+  "@scratch_custom_id_filter_desc": {
+    "description": "Description for the custom ID filter"
+  },
+  "@scratch_custom_id_filter_hint": {
+    "description": "Hint for custom ID filter input field"
+  },
+  "@scratch_custom_id_filter_label": {
+    "description": "Label for custom ID filter input field"
+  },
+  "@scratch_trigger_tab": {
+    "description": "Trigger tab label"
+  },
+  "@scratch_wizard_actions_empty_desc": {
+    "description": "Description when actions list is empty in wizard"
+  },
+  "@scratch_wizard_actions_empty_title": {
+    "description": "Title when actions list is empty in wizard"
+  },
+  "@scratch_wizard_config_button_instruction": {
+    "description": "Instruction for configuring button in wizard"
+  },
+  "@scratch_wizard_folder_hint": {
+    "description": "Hint for folder selection in wizard"
+  },
+  "@scratch_wizard_folder_label": {
+    "description": "Label for folder selection in wizard"
+  },
+  "@scratch_wizard_save_details": {
+    "description": "Save details section header"
+  },
+  "@scratch_wizard_step_actions": {
+    "description": "Wizard step 3 header"
+  },
+  "@scratch_wizard_step_config": {
+    "description": "Wizard step 2 header"
+  },
+  "@scratch_wizard_step_save": {
+    "description": "Wizard step 4 header"
+  },
+  "@scratch_wizard_step_trigger": {
+    "description": "Wizard step 1 header"
+  },
+  "@scratch_wizard_summary_actions_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "Number of actions configured in summary"
+  },
+  "@scratch_wizard_summary_title": {
+    "description": "Summary section header"
+  },
+  "@scratch_wizard_summary_trigger_button": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    },
+    "description": "Summary line for button trigger"
+  },
+  "@scratch_wizard_summary_trigger_event": {
+    "placeholders": {
+      "event": {
+        "type": "String"
+      }
+    },
+    "description": "Summary line for event trigger"
+  },
+  "@scratch_wizard_summary_trigger_function": {
+    "description": "Summary line for function trigger"
+  },
+  "@scratch_wizard_trigger_button_desc": {
+    "description": "Description for button trigger type in wizard"
+  },
+  "@scratch_wizard_trigger_button_title": {
+    "description": "Title for button trigger type in wizard"
+  },
+  "@scratch_wizard_trigger_event_desc": {
+    "description": "Description for event trigger type in wizard"
+  },
+  "@scratch_wizard_trigger_event_title": {
+    "description": "Title for event trigger type in wizard"
+  },
+  "@scratch_wizard_trigger_function_desc": {
+    "description": "Description for function trigger type in wizard"
+  },
+  "@scratch_wizard_trigger_function_title": {
+    "description": "Title for function trigger type in wizard"
+  },
+  "@scratch_wizard_trigger_instruction": {
+    "description": "Instruction for choosing trigger in wizard"
+  },
+  "@scratch_wizard_workflow_name_hint": {
+    "description": "Hint for workflow name in wizard"
+  },
+  "@scratch_wizard_workflow_name_label": {
+    "description": "Label for workflow name in wizard"
+  },
   "@serialization_export_base64_title": {
     "description": "Export command as Base64"
   },
@@ -9120,6 +9222,10 @@
   "scratch_block_entry_point": "コマンドトリガー",
   "scratch_block_metadata": "メタデータ",
   "scratch_block_required": "必須",
+  "scratch_blocks_tab": "ブロック",
+  "scratch_custom_id_filter_desc": "このワークフローは、クリックされたボタンまたは送信されたモーダルのカスタムIDがこのIDと完全に一致する場合にのみ実行されます。",
+  "scratch_custom_id_filter_hint": "例: my_button_id",
+  "scratch_custom_id_filter_label": "カスタムIDフィルター（任意）",
   "scratch_dart_script": "Dart スクリプト",
   "scratch_entry_event_trigger": "イベントトリガー",
   "scratch_entry_function": "関数",
@@ -9151,6 +9257,31 @@
   "scratch_response_block": "応答",
   "scratch_response_components": "コンポーネント",
   "scratch_response_edit": "応答を編集",
+  "scratch_trigger_tab": "トリガー",
+  "scratch_wizard_actions_empty_desc": "以下にアクションブロックを追加して、ボットの動作を設定します。",
+  "scratch_wizard_actions_empty_title": "アクションがまだ定義されていません。",
+  "scratch_wizard_config_button_instruction": "このワークフローをトリガーするボタンまたはモーダルのIDを設定します。",
+  "scratch_wizard_folder_hint": "例: admin",
+  "scratch_wizard_folder_label": "フォルダ（任意）",
+  "scratch_wizard_save_details": "保存詳細設定",
+  "scratch_wizard_step_actions": "ステップ 3: アクション",
+  "scratch_wizard_step_config": "ステップ 2: 設定",
+  "scratch_wizard_step_save": "ステップ 4: 保存と概要",
+  "scratch_wizard_step_trigger": "ステップ 1: トリガーの種類",
+  "scratch_wizard_summary_actions_count": "{count}個のアクションが設定されました",
+  "scratch_wizard_summary_title": "ワークフローの概要",
+  "scratch_wizard_summary_trigger_button": "ボタンクリック / モーダル (カスタムID: '{id}')",
+  "scratch_wizard_summary_trigger_event": "イベント: {event}",
+  "scratch_wizard_summary_trigger_function": "一般関数 / ワークフロー",
+  "scratch_wizard_trigger_button_desc": "ユーザーがボタンをクリック、セレクトメニューを使用、またはモーダルを送信したときにトリガーします。",
+  "scratch_wizard_trigger_button_title": "ボタンまたはメッセージコンポーネント",
+  "scratch_wizard_trigger_event_desc": "Discordの特定のアクション（メンバーの参加、メッセージの削除、ロールの更新など）でトリガーします。",
+  "scratch_wizard_trigger_event_title": "Discordイベント",
+  "scratch_wizard_trigger_function_desc": "他のトリガーやカスタムインテグレーションから呼び出せる再利用可能な関数としてワークフローを実行します。",
+  "scratch_wizard_trigger_function_title": "関数 / 手動トリガー",
+  "scratch_wizard_trigger_instruction": "このワークフローをトリガーするイベントを選択してください:",
+  "scratch_wizard_workflow_name_hint": "例: button_response",
+  "scratch_wizard_workflow_name_label": "ワークフロー名 *",
   "scratch_workflow_add_argument": "引数を追加",
   "scratch_workflow_arguments": "引数 (変数)",
   "scratch_workflow_metadata": "ワークフロー設定",

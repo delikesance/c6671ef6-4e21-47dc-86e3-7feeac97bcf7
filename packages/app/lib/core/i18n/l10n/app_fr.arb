@@ -5432,6 +5432,108 @@
   "@scratch_workflow_type_general": {
     "description": "General"
   },
+  "@scratch_blocks_tab": {
+    "description": "Blocks tab label"
+  },
+  "@scratch_custom_id_filter_desc": {
+    "description": "Description for the custom ID filter"
+  },
+  "@scratch_custom_id_filter_hint": {
+    "description": "Hint for custom ID filter input field"
+  },
+  "@scratch_custom_id_filter_label": {
+    "description": "Label for custom ID filter input field"
+  },
+  "@scratch_trigger_tab": {
+    "description": "Trigger tab label"
+  },
+  "@scratch_wizard_actions_empty_desc": {
+    "description": "Description when actions list is empty in wizard"
+  },
+  "@scratch_wizard_actions_empty_title": {
+    "description": "Title when actions list is empty in wizard"
+  },
+  "@scratch_wizard_config_button_instruction": {
+    "description": "Instruction for configuring button in wizard"
+  },
+  "@scratch_wizard_folder_hint": {
+    "description": "Hint for folder selection in wizard"
+  },
+  "@scratch_wizard_folder_label": {
+    "description": "Label for folder selection in wizard"
+  },
+  "@scratch_wizard_save_details": {
+    "description": "Save details section header"
+  },
+  "@scratch_wizard_step_actions": {
+    "description": "Wizard step 3 header"
+  },
+  "@scratch_wizard_step_config": {
+    "description": "Wizard step 2 header"
+  },
+  "@scratch_wizard_step_save": {
+    "description": "Wizard step 4 header"
+  },
+  "@scratch_wizard_step_trigger": {
+    "description": "Wizard step 1 header"
+  },
+  "@scratch_wizard_summary_actions_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "Number of actions configured in summary"
+  },
+  "@scratch_wizard_summary_title": {
+    "description": "Summary section header"
+  },
+  "@scratch_wizard_summary_trigger_button": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    },
+    "description": "Summary line for button trigger"
+  },
+  "@scratch_wizard_summary_trigger_event": {
+    "placeholders": {
+      "event": {
+        "type": "String"
+      }
+    },
+    "description": "Summary line for event trigger"
+  },
+  "@scratch_wizard_summary_trigger_function": {
+    "description": "Summary line for function trigger"
+  },
+  "@scratch_wizard_trigger_button_desc": {
+    "description": "Description for button trigger type in wizard"
+  },
+  "@scratch_wizard_trigger_button_title": {
+    "description": "Title for button trigger type in wizard"
+  },
+  "@scratch_wizard_trigger_event_desc": {
+    "description": "Description for event trigger type in wizard"
+  },
+  "@scratch_wizard_trigger_event_title": {
+    "description": "Title for event trigger type in wizard"
+  },
+  "@scratch_wizard_trigger_function_desc": {
+    "description": "Description for function trigger type in wizard"
+  },
+  "@scratch_wizard_trigger_function_title": {
+    "description": "Title for function trigger type in wizard"
+  },
+  "@scratch_wizard_trigger_instruction": {
+    "description": "Instruction for choosing trigger in wizard"
+  },
+  "@scratch_wizard_workflow_name_hint": {
+    "description": "Hint for workflow name in wizard"
+  },
+  "@scratch_wizard_workflow_name_label": {
+    "description": "Label for workflow name in wizard"
+  },
   "@serialization_export_base64_title": {
     "description": "Export command as Base64"
   },
@@ -9154,6 +9256,10 @@
   "scratch_block_entry_point": "Point de départ (Déclencheur)",
   "scratch_block_metadata": "Métadonnées",
   "scratch_block_required": "Requis",
+  "scratch_blocks_tab": "Blocs",
+  "scratch_custom_id_filter_desc": "Ce workflow ne sera exécuté que si le Custom ID du bouton cliqué ou du modal soumis correspond exactement à l'ID ci-dessus.",
+  "scratch_custom_id_filter_hint": "ex : mon_bouton_id",
+  "scratch_custom_id_filter_label": "Filtre Custom ID (optionnel)",
   "scratch_dart_script": "Script Dart",
   "scratch_entry_event_trigger": "Déclencheur d'événement",
   "scratch_entry_function": "Fonction",
@@ -9185,6 +9291,31 @@
   "scratch_response_block": "Réponse",
   "scratch_response_components": "Composants",
   "scratch_response_edit": "Modifier la réponse",
+  "scratch_trigger_tab": "Déclencheur",
+  "scratch_wizard_actions_empty_desc": "Ajoutez des blocs d'actions ci-dessous pour configurer ce que fait votre bot.",
+  "scratch_wizard_actions_empty_title": "Aucune action définie pour le moment.",
+  "scratch_wizard_config_button_instruction": "Configurez l'ID du bouton ou du modal qui déclenchera ce workflow.",
+  "scratch_wizard_folder_hint": "ex : administration",
+  "scratch_wizard_folder_label": "Dossier (optionnel)",
+  "scratch_wizard_save_details": "Détails d'enregistrement",
+  "scratch_wizard_step_actions": "Étape 3 : Actions",
+  "scratch_wizard_step_config": "Étape 2 : Configuration",
+  "scratch_wizard_step_save": "Étape 4 : Enregistrement",
+  "scratch_wizard_step_trigger": "Étape 1 : Déclencheur",
+  "scratch_wizard_summary_actions_count": "{count} action(s) configurée(s)",
+  "scratch_wizard_summary_title": "Résumé du Workflow",
+  "scratch_wizard_summary_trigger_button": "Clic de bouton / Modal (Custom ID : '{id}')",
+  "scratch_wizard_summary_trigger_event": "Événement : {event}",
+  "scratch_wizard_summary_trigger_function": "Fonction / Workflow Général",
+  "scratch_wizard_trigger_button_desc": "Se déclenche lorsqu'un utilisateur clique sur un bouton de message ou soumet un formulaire (modal).",
+  "scratch_wizard_trigger_button_title": "Bouton ou Composant de message",
+  "scratch_wizard_trigger_event_desc": "Se déclenche sur une action Discord spécifique (ex : nouveau membre rejoint, message supprimé, rôle modifié).",
+  "scratch_wizard_trigger_event_title": "Événement Discord",
+  "scratch_wizard_trigger_function_desc": "Exécute le workflow en tant que fonction pouvant être appelée par d'autres déclencheurs.",
+  "scratch_wizard_trigger_function_title": "Fonction ou Déclencheur manuel",
+  "scratch_wizard_trigger_instruction": "Choisissez l'événement qui déclenchera ce scénario (workflow) :",
+  "scratch_wizard_workflow_name_hint": "ex : reponse_bouton",
+  "scratch_wizard_workflow_name_label": "Nom du workflow *",
   "scratch_workflow_add_argument": "Ajouter un argument",
   "scratch_workflow_arguments": "Arguments (Variables)",
   "scratch_workflow_metadata": "Paramètres du workflow",

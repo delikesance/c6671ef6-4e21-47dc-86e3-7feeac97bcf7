@@ -239,7 +239,13 @@ class WorkflowEntryPointBlock extends StatefulWidget {
     this.onEventChanged,
     this.eventCategoryLabel,
     this.eventVariablePreview = const [],
+    this.customIdFilter = '',
+    this.onCustomIdFilterChanged,
+    this.flat = false,
   });
+
+  /// Whether to render without card borders/margins and colored header bar.
+  final bool flat;
 
   /// `'general'` or `'event'`.
   final String workflowType;
@@ -258,6 +264,9 @@ class WorkflowEntryPointBlock extends StatefulWidget {
   final String Function(String category)? eventCategoryLabel;
   final List<String> eventVariablePreview;
 
+  final String customIdFilter;
+  final ValueChanged<String>? onCustomIdFilterChanged;
+
   @override
   State<WorkflowEntryPointBlock> createState() =>
       _WorkflowEntryPointBlockState();
@@ -271,6 +280,7 @@ class _WorkflowEntryPointBlockState extends State<WorkflowEntryPointBlock> {
     final isEvent = widget.workflowType == 'event';
 
     return ScratchBlock(
+      flat: widget.flat,
       color: getCategoryColor('EntryPoint'),
       title:
           isEvent
@@ -278,8 +288,8 @@ class _WorkflowEntryPointBlockState extends State<WorkflowEntryPointBlock> {
               : context.tr.scratch_entry_function,
       icon: isEvent ? Icons.flash_on : Icons.play_arrow,
       required: true,
-      collapsed: _collapsed,
-      onToggleCollapse: () => setState(() => _collapsed = !_collapsed),
+      collapsed: widget.flat ? false : _collapsed,
+      onToggleCollapse: widget.flat ? null : () => setState(() => _collapsed = !_collapsed),
       badge: ScratchBlockBadge(
         label: context.tr.scratch_block_required,
         color: getCategoryColor('EntryPoint'),
@@ -354,6 +364,21 @@ class _WorkflowEntryPointBlockState extends State<WorkflowEntryPointBlock> {
             if (value != null) widget.onEventChanged?.call(value);
           },
         ),
+
+        // ── Custom ID filter ──
+        if (widget.selectedEvent == 'interactionCreate') ...[
+          const SizedBox(height: 12),
+          TextFormField(
+            initialValue: widget.customIdFilter,
+            decoration: InputDecoration(
+              labelText: context.tr.scratch_custom_id_filter_label,
+              hintText: context.tr.scratch_custom_id_filter_hint,
+              border: const OutlineInputBorder(),
+              isDense: true,
+            ),
+            onChanged: widget.onCustomIdFilterChanged,
+          ),
+        ],
 
         // ── Variable preview ──
         if (widget.eventVariablePreview.isNotEmpty) ...[
