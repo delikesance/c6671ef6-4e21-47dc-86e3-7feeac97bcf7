@@ -8,6 +8,7 @@ import 'package:bot_creator/core/storage/sqlite_variable_store.dart';
 import 'package:bot_creator/core/storage/app_storage_directory.dart';
 import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
 import 'package:bot_creator/core/utils/global.dart';
+import 'package:bot_creator/core/utils/string_sanitizer.dart';
 import 'package:bot_creator/features/bot_editor/logic/normalize_command_data.dart'
     as normalize_lib;
 import 'package:bot_creator/features/bot_editor/logic/workflow_call.dart';
@@ -200,7 +201,7 @@ class AppManager implements BotDataStore {
 
       final data =
           Map<String, dynamic>.from(existingData)
-            ..['name'] = username
+            ..['name'] = username.sanitizedUtf16
             ..['id'] = botId
             ..['avatar'] = avatarUri
             ..['token'] = token
