@@ -3189,6 +3189,19 @@ class AppLocalizationsPt extends AppLocalizations {
   String get component_accent_color => 'Cor de Destaque (Hex, ex: FF0000)';
 
   @override
+  String get component_action_row => 'Linha de Ação';
+
+  @override
+  String get component_add_action_row => 'Adicionar Linha de Ação';
+
+  @override
+  String get component_add_button => 'Adicionar Botão';
+
+  @override
+  String get component_add_button_or_select =>
+      'Adicionar Botão / Menu de Seleção';
+
+  @override
   String get component_add_checkbox_option => 'Adicionar Opção de Checkbox';
 
   @override

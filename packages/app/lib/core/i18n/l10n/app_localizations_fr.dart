@@ -3202,6 +3202,19 @@ class AppLocalizationsFr extends AppLocalizations {
       'Couleur d\'accentuation (Hex, ex. FF0000)';
 
   @override
+  String get component_action_row => 'Ligne d\'action';
+
+  @override
+  String get component_add_action_row => 'Ajouter une ligne d\'action';
+
+  @override
+  String get component_add_button => 'Ajouter un bouton';
+
+  @override
+  String get component_add_button_or_select =>
+      'Ajouter un bouton / menu de sélection';
+
+  @override
   String get component_add_checkbox_option => 'Ajouter une option checkbox';
 
   @override

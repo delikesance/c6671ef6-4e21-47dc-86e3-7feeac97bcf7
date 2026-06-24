@@ -104,7 +104,15 @@ class _NormalComponentEditorWidgetState
   // A custom locked-down ActionRow editor for "Normal" message components.
   // It only allows Button and Select Menus inside the rows.
   Widget _buildNormalActionRowEditor(ActionRowNode row, int index) {
+    final rowKey = row.components.isNotEmpty
+        ? row.components.map((c) {
+            if (c is ButtonNode) return c.customId;
+            if (c is SelectMenuNode) return c.customId;
+            return '';
+          }).join('-')
+        : 'row_$index';
     return Card(
+      key: ValueKey(rowKey),
       margin: const EdgeInsets.symmetric(vertical: 4),
       shape: RoundedRectangleBorder(
         side: BorderSide(color: AppTheme.grey),
@@ -119,9 +127,9 @@ class _NormalComponentEditorWidgetState
               children: [
                 const Icon(Icons.view_stream, size: 16, color: AppTheme.grey),
                 const SizedBox(width: 8),
-                const Text(
-                  'Action Row',
-                  style: TextStyle(
+                Text(
+                  context.tr.component_action_row,
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     color: AppTheme.grey,
                   ),
@@ -148,7 +156,14 @@ class _NormalComponentEditorWidgetState
                 ...row.components.asMap().entries.map((e) {
                   final childIdx = e.key;
                   final child = e.value;
+                  String? childKey;
+                  if (child is ButtonNode) {
+                    childKey = child.customId;
+                  } else if (child is SelectMenuNode) {
+                    childKey = child.customId;
+                  }
                   return ComponentNodeEditor(
+                    key: childKey != null ? ValueKey(childKey) : null,
                     node: child,
                     onChanged: (updated) {
                       final newChildren = List<ComponentNode>.from(
@@ -232,6 +247,10 @@ class _NormalComponentEditorWidgetState
           ComponentV2Type.categorySelect,
           ComponentV2Type.voiceSelect,
         ];
+    final isOnlyButton = types.length == 1 && types.first == ComponentV2Type.button;
+    final dropdownLabel = isOnlyButton
+        ? context.tr.component_add_button
+        : context.tr.component_add_button_or_select;
     return PopupMenuButton<ComponentV2Type>(
       tooltip: context.tr.component_add_child,
       onSelected: (type) {
@@ -262,14 +281,14 @@ class _NormalComponentEditorWidgetState
           border: Border.all(color: AppTheme.grey, width: 2),
           borderRadius: BorderRadius.circular(AppTheme.radiusXs),
         ),
-        child: const Row(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.add_circle_outline, size: 16, color: AppTheme.grey),
-            SizedBox(width: 8),
+            const Icon(Icons.add_circle_outline, size: 16, color: AppTheme.grey),
+            const SizedBox(width: 8),
             Text(
-              'Add Button / Select Menu',
-              style: TextStyle(
+              dropdownLabel,
+              style: const TextStyle(
                 color: AppTheme.grey,
                 fontWeight: FontWeight.bold,
                 fontSize: 12,
@@ -361,13 +380,13 @@ class _NormalComponentEditorWidgetState
                       border: Border.all(color: AppTheme.grey),
                       borderRadius: BorderRadius.circular(AppTheme.radiusXs),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
-                        Icon(Icons.add, size: 16, color: AppTheme.grey),
-                        SizedBox(width: 8),
+                        const Icon(Icons.add, size: 16, color: AppTheme.grey),
+                        const SizedBox(width: 8),
                         Text(
-                          'Add Action Row',
-                          style: TextStyle(
+                          context.tr.component_add_action_row,
+                          style: const TextStyle(
                             color: AppTheme.grey,
                             fontWeight: FontWeight.bold,
                             fontSize: 13,

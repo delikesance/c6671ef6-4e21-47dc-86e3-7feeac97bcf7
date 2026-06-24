@@ -168,7 +168,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
             )
             .toList();
     if (_arguments.isEmpty) {
-      _arguments.add(const _EditableArg(name: ''));
+      _arguments.add(_EditableArg(name: ''));
     }
 
     // Load existing event variable aliases.
@@ -334,6 +334,17 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
       return;
     }
     setState(() => _saving = true);
+
+    final oldName = widget.initial?['name']?.toString();
+    final nameChanged = oldName != null && oldName != name;
+
+    if (nameChanged) {
+      try {
+        await appManager.deleteWorkflow(widget.botId, oldName);
+      } catch (_) {
+        // Keep saving resilient if deleting the old one fails.
+      }
+    }
 
     final entryPoint = normalizeWorkflowEntryPoint(_entryPointController.text);
     final argDefs = _arguments
@@ -1026,7 +1037,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
               tooltip: context.tr.scratch_workflow_add_argument,
               onPressed: () {
                 setState(() {
-                  _arguments.add(const _EditableArg(name: ''));
+                  _arguments.add(_EditableArg(name: ''));
                 });
               },
               visualDensity: VisualDensity.compact,
@@ -1035,6 +1046,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
         ),
         for (var i = 0; i < _arguments.length; i++)
           Padding(
+            key: ValueKey(_arguments[i].id),
             padding: const EdgeInsets.only(bottom: 8),
             child: Row(
               children: [
@@ -2060,18 +2072,21 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
 
 /// Lightweight editable argument model (private to this file).
 class _EditableArg {
+  final String id;
   final String name;
   final bool required;
   final String defaultValue;
 
-  const _EditableArg({
+  _EditableArg({
+    String? id,
     required this.name,
     this.required = false,
     this.defaultValue = '',
-  });
+  }) : id = id ?? UniqueKey().toString();
 
   _EditableArg copyWith({String? name, bool? required, String? defaultValue}) {
     return _EditableArg(
+      id: id,
       name: name ?? this.name,
       required: required ?? this.required,
       defaultValue: defaultValue ?? this.defaultValue,
