@@ -134,7 +134,7 @@ class PosthogService {
         ..host = _host
         ..captureApplicationLifecycleEvents = true
         ..sessionReplay = doRecord
-        ..sessionReplayConfig = (ph.SessionReplayConfig()
+        ..sessionReplayConfig = (ph.PostHogSessionReplayConfig()
           ..maskAllTexts = false
           ..maskAllImages = false);
 

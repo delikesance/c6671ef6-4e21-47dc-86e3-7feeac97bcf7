@@ -21,6 +21,7 @@ import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
 import 'package:bot_creator/core/utils/global.dart';
+import 'package:bot_creator/core/utils/string_sanitizer.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/features/discord_rpc/logic/discord_rpc_service.dart';
 import 'package:bot_creator/features/ads/logic/ad_reward_service.dart';
@@ -548,7 +549,7 @@ class HomePageState extends State<HomePage>
               '[syncAllBotsFromManager] Syncing local bot $botId directly from Discord.',
             );
             final discordUser = await getDiscordUser(token);
-            final botName = discordUser.username;
+            final botName = discordUser.username.sanitizedUtf16;
             final avatarHash = discordUser.avatarHash;
             final discriminator = discordUser.discriminator.toString();
 
@@ -1884,7 +1885,7 @@ class HomePageState extends State<HomePage>
                             children:
                                 apps.map((app) {
                                   final name =
-                                      app['name']?.toString() ??
+                                      app['name']?.toString().sanitizedUtf16 ??
                                       context.tr.home_unknown_app;
                                   final id = app['id']?.toString() ?? '';
                                   final avatar = app['avatar']?.toString();

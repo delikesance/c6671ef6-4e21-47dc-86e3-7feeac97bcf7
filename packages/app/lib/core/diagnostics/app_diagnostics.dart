@@ -97,10 +97,14 @@ class AppDiagnostics {
       FlutterError.presentError(details);
       previousFlutterOnError?.call(details);
 
-      // Layout overflow errors are non-fatal - the UI may have minor rendering issues
-      // but the app can continue to function
+      // Layout overflow errors are non-fatal — the UI may have minor rendering issues
+      // but the app can continue to function.
+      // Flutter framework debug assertion errors (e.g. ListTile/ColoredBox conflicts,
+      // missing Material ancestors) are also non-fatal validation warnings.
       final isLayoutError = details.exceptionAsString().contains('overflowed');
-      unawaited(recordFlutterError(details, fatal: !isLayoutError));
+      final isDebugAssertion =
+          details.stack?.toString().contains('._debug') ?? false;
+      unawaited(recordFlutterError(details, fatal: !(isLayoutError || isDebugAssertion)));
     };
 
     PlatformDispatcher.instance.onError = (error, stack) {
