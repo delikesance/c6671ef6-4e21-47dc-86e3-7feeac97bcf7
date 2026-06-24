@@ -5,20 +5,24 @@ import 'package:posthog_flutter/posthog_flutter.dart' as ph;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
-/// PostHog analytics service — used on desktop platforms where Firebase
-/// Analytics is unavailable.
+/// PostHog analytics service — used on all supported platforms (Android, iOS,
+/// macOS, Windows, Linux). Uses the posthog_flutter SDK where available
+/// (macOS, Android, iOS) with session recording enabled; falls back to HTTP
+/// capture on Windows/Linux (no session recording).
 class PosthogService {
   static const _apiKey = 'phc_CeXy4mW5wmhxGpknMm7cWUTNmKgqb7HZZNnNcjzY53Qp';
-  static const _host = 'https://eu.posthog.com';
+  static const _host = 'https://eu.i.posthog.com';
 
   static bool _initialized = false;
   static String? _distinctId;
 
-  static bool get _isDesktop =>
+  static bool get _isSupportedPlatform =>
       !kIsWeb &&
       (defaultTargetPlatform == TargetPlatform.windows ||
           defaultTargetPlatform == TargetPlatform.macOS ||
-          defaultTargetPlatform == TargetPlatform.linux);
+          defaultTargetPlatform == TargetPlatform.linux ||
+          defaultTargetPlatform == TargetPlatform.android ||
+          defaultTargetPlatform == TargetPlatform.iOS);
 
   static bool get _useHttpFallback =>
       !kIsWeb &&
@@ -104,9 +108,19 @@ class PosthogService {
     }
   }
 
+  /// Deterministic session recording sampling at ~20% — keeps us under the
+  /// 2 500 free monthly recordings by only enabling replays for a subset of
+  /// users. Uses the persistent distinct ID so the same user always gets the
+  /// same treatment.
+  static Future<bool> _shouldRecordSessions() async {
+    final id = await _getOrCreateDistinctId();
+    final hash = id.hashCode;
+    return hash.abs() % 100 < 20;
+  }
+
   static Future<void> init() async {
     if (_initialized) return;
-    if (!_isDesktop) return;
+    if (!_isSupportedPlatform) return;
 
     if (_useHttpFallback) {
       await _getOrCreateDistinctId();
@@ -115,9 +129,14 @@ class PosthogService {
     }
 
     try {
+      final doRecord = await _shouldRecordSessions();
       final config = ph.PostHogConfig(_apiKey)
         ..host = _host
-        ..captureApplicationLifecycleEvents = true;
+        ..captureApplicationLifecycleEvents = true
+        ..sessionReplay = doRecord
+        ..sessionReplayConfig = (ph.SessionReplayConfig()
+          ..maskAllTexts = false
+          ..maskAllImages = false);
 
       await ph.Posthog().setup(config);
       _initialized = true;

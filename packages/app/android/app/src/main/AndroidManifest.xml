@@ -51,6 +51,11 @@
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="bot_creator_general" />
 
+        <!-- Disable PostHog auto-init (session replay requires manual init) -->
+        <meta-data
+            android:name="com.posthog.posthog.AUTO_INIT"
+            android:value="false" />
+
         <!-- Fix crash: AdActivity needs its own theme with a proper window container -->
         <activity
             android:name="com.google.android.gms.ads.AdActivity"
