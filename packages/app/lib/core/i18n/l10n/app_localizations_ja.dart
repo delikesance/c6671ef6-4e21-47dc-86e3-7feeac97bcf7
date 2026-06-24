@@ -2996,6 +2996,18 @@ class AppLocalizationsJa extends AppLocalizations {
   String get component_accent_color => 'アクセントカラー (Hex, 例: FF0000)';
 
   @override
+  String get component_action_row => 'アクション行';
+
+  @override
+  String get component_add_action_row => 'アクション行を追加';
+
+  @override
+  String get component_add_button => 'ボタンを追加';
+
+  @override
+  String get component_add_button_or_select => 'ボタン / セレクトメニューを追加';
+
+  @override
   String get component_add_checkbox_option => 'チェックボックスオプションを追加';
 
   @override

@@ -186,7 +186,24 @@ class _ComponentV2EditorWidgetState extends State<ComponentV2EditorWidget> {
               ..._components.asMap().entries.map((entry) {
                 final index = entry.key;
                 final node = entry.value;
+                String? nodeKey;
+                if (node is ButtonNode) {
+                  nodeKey = node.customId;
+                } else if (node is SelectMenuNode) {
+                  nodeKey = node.customId;
+                } else if (node is ModalTextInputNode) {
+                  nodeKey = node.customId;
+                } else if (node is ActionRowNode) {
+                  nodeKey = node.components.map((c) {
+                    if (c is ButtonNode) return c.customId;
+                    if (c is SelectMenuNode) return c.customId;
+                    return '';
+                  }).join('-');
+                }
                 return ComponentNodeEditor(
+                  key: nodeKey != null && nodeKey.isNotEmpty
+                      ? ValueKey(nodeKey)
+                      : ValueKey('root_$index'),
                   node: node,
                   onChanged: (updated) => _updateNode(index, updated),
                   onRemove: () => _removeNode(index),

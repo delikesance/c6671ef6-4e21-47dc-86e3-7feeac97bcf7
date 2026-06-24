@@ -3156,6 +3156,18 @@ class AppLocalizationsTr extends AppLocalizations {
   String get component_accent_color => 'Vurgu Rengi (Hex, örn. FF0000)';
 
   @override
+  String get component_action_row => 'Eylem Satırı';
+
+  @override
+  String get component_add_action_row => 'Eylem Satırı Ekle';
+
+  @override
+  String get component_add_button => 'Buton Ekle';
+
+  @override
+  String get component_add_button_or_select => 'Buton / Seçim Menüsü Ekle';
+
+  @override
   String get component_add_checkbox_option => 'Onay Kutusu Seçeneği Ekle';
 
   @override

@@ -3196,6 +3196,19 @@ class AppLocalizationsDe extends AppLocalizations {
   String get component_accent_color => 'Akzentfarbe (Hex, z. B. FF0000)';
 
   @override
+  String get component_action_row => 'Aktionsleiste';
+
+  @override
+  String get component_add_action_row => 'Aktionsleiste hinzufügen';
+
+  @override
+  String get component_add_button => 'Button hinzufügen';
+
+  @override
+  String get component_add_button_or_select =>
+      'Button / Auswahlmenü hinzufügen';
+
+  @override
   String get component_add_checkbox_option => 'Checkbox-Option hinzufügen';
 
   @override

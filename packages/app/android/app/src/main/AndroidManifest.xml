@@ -51,6 +51,12 @@
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="bot_creator_general" />
 
+        <!-- Fix crash: AdActivity needs its own theme with a proper window container -->
+        <activity
+            android:name="com.google.android.gms.ads.AdActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" />
+
         <service android:name="com.pravera.flutter_foreground_task.service.ForegroundService"
             android:foregroundServiceType="dataSync|remoteMessaging" android:exported="false" />
     </application>

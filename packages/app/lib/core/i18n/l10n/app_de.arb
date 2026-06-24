@@ -2608,6 +2608,18 @@
   "@component_accent_color": {
     "description": "Accent Color (Hex, e.g. FF0000)"
   },
+  "@component_action_row": {
+    "description": "Action Row"
+  },
+  "@component_add_action_row": {
+    "description": "Add Action Row"
+  },
+  "@component_add_button": {
+    "description": "Add Button"
+  },
+  "@component_add_button_or_select": {
+    "description": "Add Button / Select Menu"
+  },
   "@component_add_checkbox_option": {
     "description": "Add Checkbox Option"
   },
@@ -8303,6 +8315,10 @@
   "common_value": "Wert",
   "common_workflow": "Workflow",
   "component_accent_color": "Akzentfarbe (Hex, z. B. FF0000)",
+  "component_action_row": "Aktionsleiste",
+  "component_add_action_row": "Aktionsleiste hinzufügen",
+  "component_add_button": "Button hinzufügen",
+  "component_add_button_or_select": "Button / Auswahlmenü hinzufügen",
   "component_add_checkbox_option": "Checkbox-Option hinzufügen",
   "component_add_child": "Unterkomponente hinzufügen",
   "component_add_media_item": "Medienelement hinzufügen",

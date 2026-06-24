@@ -2608,6 +2608,18 @@
   "@component_accent_color": {
     "description": "Accent Color (Hex, e.g. FF0000)"
   },
+  "@component_action_row": {
+    "description": "Action Row"
+  },
+  "@component_add_action_row": {
+    "description": "Add Action Row"
+  },
+  "@component_add_button": {
+    "description": "Add Button"
+  },
+  "@component_add_button_or_select": {
+    "description": "Add Button / Select Menu"
+  },
   "@component_add_checkbox_option": {
     "description": "Add Checkbox Option"
   },
@@ -8303,6 +8315,10 @@
   "common_value": "Değer",
   "common_workflow": "İş Akışı",
   "component_accent_color": "Vurgu Rengi (Hex, örn. FF0000)",
+  "component_action_row": "Eylem Satırı",
+  "component_add_action_row": "Eylem Satırı Ekle",
+  "component_add_button": "Buton Ekle",
+  "component_add_button_or_select": "Buton / Seçim Menüsü Ekle",
   "component_add_checkbox_option": "Onay Kutusu Seçeneği Ekle",
   "component_add_child": "Alt Bileşen Ekle",
   "component_add_media_item": "Medya Öğesi Ekle",

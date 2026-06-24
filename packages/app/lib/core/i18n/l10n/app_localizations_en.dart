@@ -3141,6 +3141,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get component_accent_color => 'Accent Color (Hex, e.g. FF0000)';
 
   @override
+  String get component_action_row => 'Action Row';
+
+  @override
+  String get component_add_action_row => 'Add Action Row';
+
+  @override
+  String get component_add_button => 'Add Button';
+
+  @override
+  String get component_add_button_or_select => 'Add Button / Select Menu';
+
+  @override
   String get component_add_checkbox_option => 'Add Checkbox Option';
 
   @override

@@ -5695,6 +5695,30 @@ abstract class AppLocalizations {
   /// **'Accent Color (Hex, e.g. FF0000)'**
   String get component_accent_color;
 
+  /// Action Row
+  ///
+  /// In en, this message translates to:
+  /// **'Action Row'**
+  String get component_action_row;
+
+  /// Add Action Row
+  ///
+  /// In en, this message translates to:
+  /// **'Add Action Row'**
+  String get component_add_action_row;
+
+  /// Add Button
+  ///
+  /// In en, this message translates to:
+  /// **'Add Button'**
+  String get component_add_button;
+
+  /// Add Button / Select Menu
+  ///
+  /// In en, this message translates to:
+  /// **'Add Button / Select Menu'**
+  String get component_add_button_or_select;
+
   /// Add Checkbox Option
   ///
   /// In en, this message translates to:
