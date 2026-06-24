@@ -5,6 +5,7 @@ import 'package:bot_creator/core/i18n/extensions.dart';
 import 'package:bot_creator/core/i18n/locale_provider.dart';
 import 'package:bot_creator/firebase_options.dart';
 import 'package:bot_creator/core/analytics/posthog_service.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -34,7 +35,7 @@ import 'package:bot_creator/features/subscriptions/logic/subscription_service.da
 import 'package:bot_creator/features/onboarding/logic/onboarding_manager.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/utils/global.dart';
-import 'package:flutter_uxcam/flutter_uxcam.dart';
+
 
 @pragma('vm:entry-point')
 AppManager? _appManager;
@@ -177,30 +178,23 @@ Future<void> _bootstrapAndRunApp() async {
   try {
     appManager = AppManager();
 
-    // ── UXCam session recording ──────────────────────────────────────
-    // Must be started before any screen is rendered so the SDK can
-    // capture the full user session from the very first frame.
-    FlutterUxcam.optIntoSchematicRecordings();
-    FlutterUxcam.startWithConfiguration(
-      FlutterUxConfig(
-        userAppKey: 'rw7y5oqdoauz17n-eu',
-        enableAutomaticScreenNameTagging: false,
-        enableIntegrationLogging: true,
-      ),
-    );
+    // ── PostHog analytics & session recording ─────────────────────────
+    await PosthogService.init();
 
     initRunnerAutoReload();
     final prefs = await SharedPreferences.getInstance();
     final onboardingManager = OnboardingManager(prefs);
 
     runApp(
-      MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (_) => ThemeProvider()),
-          ChangeNotifierProvider(create: (_) => LocaleProvider()),
-          Provider(create: (_) => onboardingManager),
-        ],
-        child: const MyApp(),
+      PostHogWidget(
+        child: MultiProvider(
+          providers: [
+            ChangeNotifierProvider(create: (_) => ThemeProvider()),
+            ChangeNotifierProvider(create: (_) => LocaleProvider()),
+            Provider(create: (_) => onboardingManager),
+          ],
+          child: const MyApp(),
+        ),
       ),
     );
 
@@ -477,6 +471,7 @@ class _MyAppState extends State<MyApp> {
 
     return MaterialApp(
       navigatorKey: MyApp.navigatorKey,
+      navigatorObservers: [PosthogObserver()],
       onGenerateTitle: (context) => context.tr.app_title,
       onGenerateRoute: (settings) {
         final name = settings.name;

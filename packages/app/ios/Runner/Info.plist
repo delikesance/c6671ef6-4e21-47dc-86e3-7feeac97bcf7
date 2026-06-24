@@ -98,6 +98,8 @@
 		<string>fetch</string>
 		<string>remote-notification</string>
 	</array>
+	<key>com.posthog.posthog.AUTO_INIT</key>
+	<false/>
 	<key>FirebaseMessagingAutoInitEnabled</key>
 	<true/>
     <key>UIApplicationSceneManifest</key>
