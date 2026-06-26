@@ -164,7 +164,8 @@ jobs:
               libx11-dev libx11-xcb-dev libxcb1-dev \
               libxi-dev libxcursor-dev libxdamage-dev libxfixes-dev \
               libxrandr-dev libxtst-dev libcups2-dev \
-              libglib2.0-dev libdbus-1-dev libfontconfig1-dev patchelf
+              libglib2.0-dev libdbus-1-dev libfontconfig1-dev patchelf \
+              libsecret-1-dev
             sudo pip3 install --break-system-packages awscli
       - install_flutter_linux
       - get_flutter_deps
