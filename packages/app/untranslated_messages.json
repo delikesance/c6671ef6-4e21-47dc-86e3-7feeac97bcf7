@@ -1,1 +1,36 @@
-{}
+{
+  "de": [
+    "onboarding_command_learn",
+    "onboarding_skip_confirm",
+    "onboarding_skip_dialog_desc",
+    "onboarding_skip_dialog_title"
+  ],
+
+  "fr": [
+    "onboarding_command_learn",
+    "onboarding_skip_confirm",
+    "onboarding_skip_dialog_desc",
+    "onboarding_skip_dialog_title"
+  ],
+
+  "ja": [
+    "onboarding_command_learn",
+    "onboarding_skip_confirm",
+    "onboarding_skip_dialog_desc",
+    "onboarding_skip_dialog_title"
+  ],
+
+  "pt": [
+    "onboarding_command_learn",
+    "onboarding_skip_confirm",
+    "onboarding_skip_dialog_desc",
+    "onboarding_skip_dialog_title"
+  ],
+
+  "tr": [
+    "onboarding_command_learn",
+    "onboarding_skip_confirm",
+    "onboarding_skip_dialog_desc",
+    "onboarding_skip_dialog_title"
+  ]
+}

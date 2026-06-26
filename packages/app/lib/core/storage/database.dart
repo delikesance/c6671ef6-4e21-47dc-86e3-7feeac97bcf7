@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
+import 'package:bot_creator/core/secure/secure_storage_service.dart';
 import 'package:bot_creator/core/storage/sqlite_variable_store.dart';
 import 'package:bot_creator/core/storage/app_storage_directory.dart';
 import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
@@ -258,6 +259,13 @@ class AppManager implements BotDataStore {
             );
 
       await _writeAppToDisk(botId, data);
+      // Dual-write token to secure storage
+      unawaited(() async {
+        try {
+          final secure = await SecureStorageService.instance;
+          await secure.write('bot_token:$botId', token);
+        } catch (_) {}
+      }());
       if (!await allAppsFile.exists()) {
         await allAppsFile.create(recursive: true);
       }
@@ -505,7 +513,24 @@ class AppManager implements BotDataStore {
     if (!await file.exists()) return {};
 
     final data = await file.readAsString();
-    return data.isNotEmpty ? jsonDecode(data) : {};
+    final result = data.isNotEmpty
+        ? Map<String, dynamic>.from(
+            jsonDecode(data) as Map<String, dynamic>,
+          )
+        : <String, dynamic>{};
+
+    // Try to read token from secure storage; fall back to legacy JSON token
+    try {
+      final secure = await SecureStorageService.instance;
+      final secureToken = await secure.read('bot_token:$id');
+      if (secureToken != null && secureToken.isNotEmpty) {
+        result['token'] = secureToken;
+      }
+    } catch (_) {
+      // Secure storage unavailable; keep legacy token from JSON
+    }
+
+    return result;
   }
 
   Future<Map<String, dynamic>?> getCachedPayload(String botId) async {
@@ -556,7 +581,17 @@ class AppManager implements BotDataStore {
   }
 
   Future<void> saveApp(String id, Map<String, dynamic> data) async {
-    await _enqueueAppWrite(id, () => _writeAppToDisk(id, data));
+    await _enqueueAppWrite(id, () async {
+      await _writeAppToDisk(id, data);
+      // Dual-write token to secure storage
+      final token = data['token']?.toString();
+      if (token != null && token.isNotEmpty) {
+        try {
+          final secure = await SecureStorageService.instance;
+          await secure.write('bot_token:$id', token);
+        } catch (_) {}
+      }
+    });
     await invalidatePayloadCache(id);
     unawaited((onAfterSave ?? (_) async {}).call(id));
   }

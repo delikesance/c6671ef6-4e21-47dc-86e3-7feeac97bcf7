@@ -125,35 +125,44 @@ extension _AppHomePageSync on _AppHomePageState {
         attemptSessionRestore: true,
       );
       if (mainClient != null) {
-        appendBotDebugLog('[_pushToRemote] Manager client ok, collecting local config...');
-        final localConfig = await appManager.getApp(botId);
-        final localCommands = await appManager.listAppCommands(botId);
+        appendBotDebugLog('[_pushToRemote] Manager client ok, building canonical payload...');
 
         // Safety: refuse to push if config is suspiciously small (prevents accidental wipes)
-        final localConfigSize = jsonEncode(localConfig).length;
-        appendBotDebugLog('[_pushToRemote] localCommands=${localCommands.length} configSize=$localConfigSize');
-        if (localCommands.isEmpty && localConfigSize < 50) {
-          appendBotDebugLog('[_pushToRemote] REFUSING PUSH: config is empty or near-empty ($localConfigSize bytes)');
-          if (showSnack && mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(context.tr.bot_home_push_refused_empty),
-                backgroundColor: AppTheme.error,
-              ),
-            );
+        final localCommands = await appManager.listAppCommands(botId);
+        if (localCommands.isEmpty) {
+          final localConfigSize = jsonEncode(await appManager.getApp(botId)).length;
+          appendBotDebugLog('[_pushToRemote] No commands, configSize=$localConfigSize');
+          if (localConfigSize < 50) {
+            appendBotDebugLog('[_pushToRemote] REFUSING PUSH: config is empty or near-empty ($localConfigSize bytes)');
+            if (showSnack && mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(context.tr.bot_home_push_refused_empty),
+                  backgroundColor: AppTheme.error,
+                ),
+              );
+            }
+            return;
           }
-          return;
         }
 
-        final pushData = Map<String, dynamic>.from(localConfig);
-        pushData['commands'] = localCommands;
+        // Build canonical BotConfig payload — ensures workflows, scoped variables,
+        // scheduled triggers, webhook endpoints, statuses, and lavalink config
+        // are all properly serialized via BotConfig.toJson().  The previous manual
+        // approach (localConfig + commands) was not routing through BotConfig,
+        // causing workflows and other structured data to be lost or malformed on push.
+        final payload = await buildBotPayload(botId);
+        final wfCount = (payload['workflows'] as List?)?.length ?? 0;
+        final cmdCount = (payload['commands'] as List?)?.length ?? 0;
+        appendBotDebugLog('[_pushToRemote] Payload built: commands=$cmdCount workflows=$wfCount');
+
         await mainClient.syncBot(
           botId,
           user.username,
-          pushData,
+          payload,
           force: true,
         ).timeout(const Duration(seconds: 20));
-        appendBotDebugLog('[_pushToRemote] Pushed local config to Manager for $botId');
+        appendBotDebugLog('[_pushToRemote] Pushed canonical config to Manager for $botId');
       }
 
       appendBotDebugLog('[_pushToRemote] DONE — success');
@@ -536,7 +545,13 @@ extension _AppHomePageSync on _AppHomePageState {
         const SizedBox(width: 8),
         Text(label, style: TextStyle(fontSize: 12, color: color)),
         const Spacer(),
-        Text(timestamp, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+        Flexible(
+          child: Text(
+            timestamp,
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
       ],
     );
   }

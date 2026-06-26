@@ -5429,6 +5429,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Example:\n/hello → Bot replies \"Hello! 👋\"';
 
   @override
+  String get onboarding_command_learn => 'Learn how commands work';
+
+  @override
   String get onboarding_command_text =>
       'Commands are the heart of your bot. They allow users to interact with your bot via Discord.';
 
@@ -5440,6 +5443,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboarding_create_desc => 'Get your Discord token';
+
+  @override
+  String get onboarding_create_open_portal => 'Open Discord Developer Portal';
 
   @override
   String get onboarding_create_steps =>
@@ -5456,10 +5462,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboarding_create_tutorial => 'Tutorial: How to get a token';
 
   @override
+  String get onboarding_remind_later => 'Remind me later';
+
+  @override
+  String get onboarding_skip_confirm => 'Skip onboarding';
+
+  @override
+  String get onboarding_skip_dialog_desc =>
+      'You can resume where you left off next time, or skip the tour entirely.';
+
+  @override
+  String get onboarding_skip_dialog_title => 'Leave the onboarding?';
+
+  @override
   String get onboarding_start_button => 'Continue';
 
   @override
   String get onboarding_start_desc => 'Launch your bot!';
+
+  @override
+  String get onboarding_start_hint =>
+      'Once your bot is created, you\'ll find the Start button on its card in the app.';
 
   @override
   String get onboarding_start_text =>
@@ -5471,6 +5494,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboarding_start_title => 'Step 3: Start the Bot';
+
+  @override
+  String onboarding_step_indicator(int current, int total) {
+    return 'Step $current of $total';
+  }
 
   @override
   String get onboarding_success_button => 'Start!';
@@ -8435,4 +8463,96 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get app_create_coming_soon => 'Coming Soon';
+
+  @override
+  String get app_create_sample_title => 'Create Sample Command';
+
+  @override
+  String app_create_sample_desc(String botName) {
+    return 'Would you like to add a sample /ping command to $botName? It responds with \"Pong!\" and is a great starting point to learn how Bot Creator works.';
+  }
+
+  @override
+  String get app_create_sample_skip => 'Skip';
+
+  @override
+  String get app_create_sample_confirm => 'Add sample /ping';
+
+  @override
+  String get app_create_sample_success =>
+      'Sample /ping command created successfully!';
+
+  @override
+  String get commands_empty_title => 'Create your first command!';
+
+  @override
+  String get commands_empty_description =>
+      'A command lets your bot respond when someone types /something on Discord.';
+
+  @override
+  String get commands_empty_create_button => 'Create a command';
+
+  @override
+  String get commands_empty_marketplace_link =>
+      'Or start from a Marketplace template';
+
+  @override
+  String get command_created_success_title => 'Your command is ready!';
+
+  @override
+  String get command_created_success_subtitle => 'What do you want to do next?';
+
+  @override
+  String get command_created_start_bot => 'Start my bot';
+
+  @override
+  String get command_created_start_bot_hint =>
+      'Open your bot\'s Home tab and tap Start to bring it online.';
+
+  @override
+  String get command_created_invite => 'Invite to a server';
+
+  @override
+  String get command_created_invite_error => 'Could not open the invite link.';
+
+  @override
+  String get command_created_create_another => 'Create another command';
+
+  @override
+  String get command_created_close => 'Close';
+
+  @override
+  String get beginner_mode_label => 'Beginner mode';
+
+  @override
+  String get beginner_mode_on_hint => 'Showing essential tabs only';
+
+  @override
+  String get beginner_mode_off_hint => 'Showing all features';
+
+  @override
+  String get live_preview_label => 'Live Preview';
+
+  @override
+  String get live_preview_empty =>
+      'Empty message — type something above to see it here.';
+
+  @override
+  String get live_preview_ephemeral_tag => 'Only you';
+
+  @override
+  String get live_preview_today => 'today';
+
+  @override
+  String get commands_empty_sample_ping => 'Add a sample /ping command';
+
+  @override
+  String get command_created_sample_success =>
+      'Sample /ping command created! It responds \"Pong!\"';
+
+  @override
+  String get onboarding_create_now => 'Create my bot now';
+
+  @override
+  String get onboarding_command_now => 'Create your first command';
 }

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:bot_creator/main.dart';
@@ -183,7 +184,10 @@ class _AppCreatePageState extends State<AppCreatePage> {
       );
 
       if (mounted) {
-        Navigator.pop(context);
+        await _offerSampleCommand(discordUser.id.toString(), discordUser.username);
+        if (mounted) {
+          Navigator.pop(context);
+        }
       }
     } catch (e) {
       developer.log("Error creating app: $e", name: "AppCreatePage");
@@ -205,6 +209,112 @@ class _AppCreatePageState extends State<AppCreatePage> {
         setState(() => _isSaving = false);
       }
     }
+  }
+
+  /// Offers the user a chance to create a sample /ping command for their new bot.
+  Future<void> _offerSampleCommand(String botId, String botName) async {
+    if (!mounted) return;
+    final createSample = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.smart_toy_rounded,
+                color: Theme.of(ctx).colorScheme.primary),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(context.tr.app_create_sample_title),
+            ),
+          ],
+        ),
+        content: Text(
+          context.tr.app_create_sample_desc(botName),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(context.tr.app_create_sample_skip),
+          ),
+          FilledButton.icon(
+            onPressed: () => Navigator.pop(ctx, true),
+            icon: const Icon(Icons.add_circle_outline_rounded, size: 18),
+            label: Text(context.tr.app_create_sample_confirm),
+          ),
+        ],
+      ),
+    );
+
+    if (createSample != true || !mounted) return;
+
+    try {
+      final sampleCommand = _buildSamplePingCommand();
+      final commandId = sampleCommand['id'] as String;
+      await appManager.saveAppCommand(botId, commandId, sampleCommand);
+
+      await AppAnalytics.logEvent(
+        name: "create_sample_command",
+        parameters: {
+          "bot_id": botId as Object,
+          "command_name": "ping",
+        },
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(context.tr.app_create_sample_success),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Theme.of(context).colorScheme.primary,
+          ),
+        );
+      }
+    } catch (e) {
+      developer.log(
+        'Error creating sample command: $e',
+        name: 'AppCreatePage',
+      );
+    }
+  }
+
+  /// Builds the data payload for a sample /ping command with a "Pong!" response.
+  Map<String, dynamic> _buildSamplePingCommand() {
+    final now = DateTime.now().toIso8601String();
+    final internalId = 'sample_ping_${DateTime.now().millisecondsSinceEpoch}';
+    return <String, dynamic>{
+      'name': 'ping',
+      'description': 'Check if the bot is responsive',
+      'type': 'chatInput',
+      'id': internalId,
+      'createdAt': now,
+      'updatedAt': now,
+      'data': <String, dynamic>{
+        'version': 1,
+        'commandType': 'chatInput',
+        'editorMode': 'advanced',
+        'executionMode': 'workflow',
+        'bdfdScriptContent': '',
+        'legacyModeEnabled': false,
+        'legacyLocalOnly': false,
+        'legacyPrefixOverride': '',
+        'legacyResponseTarget': 'reply',
+        'simpleConfig': <String, dynamic>{},
+        'defaultMemberPermissions': '',
+        'actions': <Map<String, dynamic>>[
+          <String, dynamic>{
+            'type': 'respondWithMessage',
+            'key': 'sample_ping_response',
+            'enabled': true,
+            'payload': <String, dynamic>{
+              'content': 'Pong!',
+              'embeds': <Map<String, dynamic>>[],
+              'components': <String, dynamic>{},
+              'ephemeral': false,
+              'replyToMessage': false,
+            },
+          },
+        ],
+      },
+    };
   }
 
   Widget _buildTypeSelectionView(

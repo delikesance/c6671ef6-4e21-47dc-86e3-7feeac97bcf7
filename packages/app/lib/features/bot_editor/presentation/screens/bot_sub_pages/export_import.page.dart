@@ -114,9 +114,9 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
   }
 
   Future<void> _pickAndParseZip() async {
-    PlatformFile? result;
+    FilePickerResult? pickerResult;
     try {
-      result = await FilePicker.pickFile(
+      pickerResult = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['zip'],
       );
@@ -132,7 +132,9 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
       rethrow;
     }
 
-    if (result == null || result.path == null || result.path!.isEmpty) return;
+    if (pickerResult == null || pickerResult.files.isEmpty) return;
+    final result = pickerResult.files.first;
+    if (result.path == null || result.path!.isEmpty) return;
 
     // Use dart:io File like the rest of the codebase (drive.dart, emojis.page.dart).
     // Avoid using result.readAsBytes() which can fail with "file data is not available"

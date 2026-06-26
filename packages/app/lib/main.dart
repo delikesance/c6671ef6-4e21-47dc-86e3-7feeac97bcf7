@@ -93,11 +93,13 @@ bool get _isCrashlyticsSupported {
 }
 
 Future<void> main() async {
-  HttpOverrides.global = _WindowsHttpOverrides();
-
   await runZonedGuarded(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
+
+      // Windows TLS compatibility override — required for HTTP requests to
+      // succeed on Windows (cert store behaviour diverges from other platforms).
+      HttpOverrides.global = _WindowsHttpOverrides();
 
       // Tune Flutter's global image cache to be more conservative.
       // Default: 1000 images / 100 MB. For a mobile app that loads
@@ -159,19 +161,6 @@ bool _isTransientNetworkError(Object error) {
       message.contains('network is unreachable') ||
       message.contains('handshake') ||
       message.contains('no route to host');
-}
-
-/// Windows TLS compatibility override.
-class _WindowsHttpOverrides extends HttpOverrides {
-  @override
-  HttpClient createHttpClient(SecurityContext? context) {
-    final client = super.createHttpClient(context);
-    if (Platform.isWindows) {
-      client.badCertificateCallback =
-          (X509Certificate cert, String host, int port) => true;
-    }
-    return client;
-  }
 }
 
 Future<void> _bootstrapAndRunApp() async {
@@ -716,5 +705,18 @@ class _StartupFailureAppState extends State<StartupFailureApp> {
         },
       ),
     );
+  }
+}
+
+/// Windows TLS compatibility override.
+class _WindowsHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    final client = super.createHttpClient(context);
+    if (Platform.isWindows) {
+      client.badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+    }
+    return client;
   }
 }

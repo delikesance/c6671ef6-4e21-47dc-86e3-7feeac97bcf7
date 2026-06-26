@@ -9995,5 +9995,57 @@
   "app_create_type_discord_desc": "アクション、イベント、キャンバスレイヤーなどを使用して、カスタマイズ可能なDiscordボットを構築して実行します。",
   "app_create_type_hosted": "ホスト型アプリケーション (Docker)",
   "app_create_type_hosted_desc": "お好みの言語（NodeJS、Python、Javaなど）でバックエンドアプリ、サーバー、またはスクリプトを実行します。ファイルをアップロードし、安全なサンドボックスにパッケージをインストールします。",
-  "app_create_coming_soon": "近日公開"
+  "app_create_coming_soon": "近日公開",
+  "app_create_sample_title": "サンプルコマンドを作成",
+  "@app_create_sample_title": {
+    "description": "Title of the Create Sample Command dialog"
+  },
+  "app_create_sample_desc": "{botName}にサンプルの/pingコマンドを追加しますか？「Pong!」と応答し、Bot Creatorの使い方を学ぶのに最適な出発点です。",
+  "@app_create_sample_desc": {
+    "description": "Description text in the Create Sample Command dialog",
+    "placeholders": {
+      "botName": {
+        "type": "String"
+      }
+    }
+  },
+  "app_create_sample_skip": "スキップ",
+  "@app_create_sample_skip": {
+    "description": "Skip button text in the Create Sample Command dialog"
+  },
+  "app_create_sample_confirm": "サンプルの/pingを追加",
+  "@app_create_sample_confirm": {
+    "description": "Confirm button text in the Create Sample Command dialog"
+  },
+  "app_create_sample_success": "/pingコマンドを作成しました",
+  "@app_create_sample_success": {
+    "description": "Snackbar message shown after creating the sample command"
+  },
+  "commands_empty_title": "最初のコマンドを作成しよう！",
+  "commands_empty_description": "コマンドを使うと、Discordで/somethingと入力したときにボットが反応できます。",
+  "commands_empty_create_button": "コマンドを作成",
+  "commands_empty_marketplace_link": "またはMarketplaceのテンプレートから始める",
+  "command_created_success_title": "コマンドの準備ができました！",
+  "command_created_success_subtitle": "次に何をしますか？",
+  "command_created_start_bot": "ボットを起動する",
+  "command_created_start_bot_hint": "ボットのホームタブを開き、「起動」をタップしてオンラインにしましょう。",
+  "command_created_invite": "サーバーに招待する",
+  "command_created_invite_error": "招待リンクを開けませんでした。",
+  "command_created_create_another": "別のコマンドを作成",
+  "command_created_close": "閉じる",
+  "onboarding_step_indicator": "ステップ {current} / {total}",
+  "onboarding_create_open_portal": "Discord Developer Portalを開く",
+  "onboarding_remind_later": "後で通知する",
+  "onboarding_start_hint": "ボットを作成したら、アプリのボットカードに起動ボタンが表示されます。",
+  "beginner_mode_label": "ビギナーモード",
+  "beginner_mode_on_hint": "基本タブのみ表示",
+  "beginner_mode_off_hint": "すべての機能を表示",
+  "live_preview_label": "ライブプレビュー",
+  "live_preview_empty": "メッセージが空です — 上に入力するとここに表示されます。",
+  "live_preview_ephemeral_tag": "あなただけ",
+  "live_preview_today": "今日",
+  "commands_empty_sample_ping": "サンプル/pingコマンドを追加",
+  "command_created_sample_success": "/pingコマンドを作成しました！「Pong!」と応答します。",
+  "onboarding_create_now": "今すぐボットを作成",
+  "onboarding_command_now": "最初のコマンドを作成"
 }
