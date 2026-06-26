@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:bot_creator/features/onboarding/logic/onboarding_manager.dart';
 import 'package:bot_creator/core/analytics/analytics.dart';
+import 'package:bot_creator/features/bot_management/presentation/create_page.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/app_editor_page.dart';
+import 'package:bot_creator/main.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -70,6 +73,56 @@ class _OnboardingBottomAction extends StatelessWidget {
   }
 }
 
+/// Shows a "Step X of Y" label followed by a row of dots. The dot for the
+/// current step is wider and uses the brand color; the others are muted grey.
+class _StepProgressIndicator extends StatelessWidget {
+  final int currentStep;
+
+  const _StepProgressIndicator({
+    required this.currentStep,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    const totalSteps = 5;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          context.tr.onboarding_step_indicator(currentStep, totalSteps),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: AppTheme.grey,
+          ),
+        ),
+        SizedBox(height: AppTheme.spacingSm),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(totalSteps, (index) {
+            final isActive = index == currentStep - 1;
+            return Padding(
+              padding: EdgeInsets.only(
+                right: index == totalSteps - 1 ? 0 : AppTheme.spacingXs,
+              ),
+              child: AnimatedContainer(
+                duration: AppTheme.animNormal,
+                width: isActive ? 24 : 8,
+                height: 4,
+                decoration: BoxDecoration(
+                  color:
+                      isActive
+                          ? AppTheme.brandPrimary
+                          : AppTheme.grey.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+                ),
+              ),
+            );
+          }),
+        ),
+      ],
+    );
+  }
+}
+
 /// Root onboarding flow - presents 5 steps to guide new users through first bot creation
 class OnboardingPage extends StatefulWidget {
   /// Called when onboarding is completed or skipped
@@ -124,10 +177,77 @@ class _OnboardingPageState extends State<OnboardingPage> {
     }
   }
 
+  // ── F7: Interactive onboarding actions ─────────────────────────────────────
+
+  /// Count bots before navigation so we can detect creation on return.
+  int _botCountBefore = 0;
+
+  /// Navigate to the bot creation page. When the user returns, if a new bot
+  /// was created, auto-advance to step 3.
+  Future<void> _createBotNow() async {
+    _botCountBefore = (await appManager.getAllApps()).length;
+    if (!mounted) return;
+    await Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const AppCreatePage()),
+    );
+    if (!mounted) return;
+    final botCountAfter = (await appManager.getAllApps()).length;
+    if (botCountAfter > _botCountBefore) {
+      AppAnalytics.logEvent(name: 'onboarding_bot_created');
+      // Auto-advance to step 3 (Add Command)
+      if (_currentStep < 3) {
+        _goToStep(3);
+      }
+    }
+  }
+
+  /// Navigate to the most recently created bot's editor so the user can add
+  /// a command. When they return, auto-advance to step 4.
+  Future<void> _addCommandNow() async {
+    final apps = await appManager.getAllApps();
+    if (apps.isEmpty) return;
+
+    final latest = apps.last as Map<String, dynamic>;
+    final botIdStr = (latest['id'] ?? latest['appId'] ?? '').toString();
+    final botName = (latest['name'] ?? 'Bot').toString();
+    final botId = int.tryParse(botIdStr);
+    if (botId == null) return;
+
+    final commandsBefore = await appManager.listAppCommands(botIdStr);
+
+    if (!mounted) return;
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => AppEditPage(appName: botName, id: botId),
+      ),
+    );
+    if (!mounted) return;
+    final commandsAfter = await appManager.listAppCommands(botIdStr);
+    if (commandsAfter.length > commandsBefore.length) {
+      AppAnalytics.logEvent(name: 'onboarding_command_created');
+      if (_currentStep < 4) {
+        _goToStep(4);
+      }
+    }
+  }
+
   void _skipOnboarding() async {
     await _manager.skipOnboarding();
     AppAnalytics.logEvent(
       name: 'onboarding_skipped',
+      parameters: {'step': _currentStep.toString()},
+    );
+    if (mounted) {
+      widget.onComplete();
+    }
+  }
+
+  /// Postpone onboarding but remember where the user left off so it can resume
+  /// later (unlike skip, which marks onboarding as completed/skipped).
+  void _remindLater() async {
+    await _manager.setCurrentStep(_currentStep);
+    AppAnalytics.logEvent(
+      name: 'onboarding_remind_later',
       parameters: {'step': _currentStep.toString()},
     );
     if (mounted) {
@@ -155,10 +275,27 @@ class _OnboardingPageState extends State<OnboardingPage> {
             const NeverScrollableScrollPhysics(), // Disable swipe, use buttons only
         children: [
           _WelcomeStep(onNext: _nextStep, onSkip: _skipOnboarding),
-          _CreateBotStep(onNext: _nextStep, onSkip: _skipOnboarding),
-          _AddCommandStep(onNext: _nextStep, onSkip: _skipOnboarding),
-          _StartBotStep(onNext: _nextStep, onSkip: _skipOnboarding),
-          _SuccessStep(onDone: _completeOnboarding),
+          _CreateBotStep(
+            currentStep: 2,
+            onNext: _nextStep,
+            onSkip: _skipOnboarding,
+            onRemindLater: _remindLater,
+            onCreateBot: _createBotNow,
+          ),
+          _AddCommandStep(
+            currentStep: 3,
+            onNext: _nextStep,
+            onSkip: _skipOnboarding,
+            onRemindLater: _remindLater,
+            onAddCommand: _addCommandNow,
+          ),
+          _StartBotStep(
+            currentStep: 4,
+            onNext: _nextStep,
+            onSkip: _skipOnboarding,
+            onRemindLater: _remindLater,
+          ),
+          _SuccessStep(onDone: _completeOnboarding, currentStep: 5),
         ],
       ),
       extendBody: true,
@@ -252,10 +389,19 @@ class _WelcomeStep extends StatelessWidget {
 // ═════════════════════════════════════════════════════════════════════════════
 
 class _CreateBotStep extends StatelessWidget {
+  final int currentStep;
   final VoidCallback onNext;
   final VoidCallback onSkip;
+  final VoidCallback onRemindLater;
+  final VoidCallback onCreateBot;
 
-  const _CreateBotStep({required this.onNext, required this.onSkip});
+  const _CreateBotStep({
+    required this.currentStep,
+    required this.onNext,
+    required this.onSkip,
+    required this.onRemindLater,
+    required this.onCreateBot,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -264,6 +410,10 @@ class _CreateBotStep extends StatelessWidget {
         automaticallyImplyLeading: false,
         title: Text(context.tr.onboarding_create_title),
         actions: [
+          TextButton(
+            onPressed: onRemindLater,
+            child: Text(context.tr.onboarding_remind_later),
+          ),
           TextButton(
             onPressed: onSkip,
             child: Text(context.tr.onboarding_welcome_skip),
@@ -277,6 +427,10 @@ class _CreateBotStep extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              _StepProgressIndicator(
+                currentStep: currentStep,
+              ),
+              SizedBox(height: AppTheme.spacingXxl),
               Container(
                 width: 100,
                 height: 100,
@@ -332,6 +486,40 @@ class _CreateBotStep extends StatelessWidget {
                   },
                 ),
               ),
+              const SizedBox(height: AppTheme.spacingMd),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: onCreateBot,
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: AppTheme.success,
+                  ),
+                  icon: const Icon(Icons.add_circle_outline),
+                  label: Text(
+                    context.tr.onboarding_create_now,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppTheme.spacingMd),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  icon: const Icon(Icons.open_in_browser),
+                  label: Text(context.tr.onboarding_create_open_portal),
+                  onPressed: () async {
+                    await launchUrl(
+                      Uri.parse('https://discord.com/developers/applications'),
+                      mode: LaunchMode.externalApplication,
+                    );
+                  },
+                ),
+              ),
             ],
           ),
         ),
@@ -358,10 +546,19 @@ class _CreateBotStep extends StatelessWidget {
 // ═════════════════════════════════════════════════════════════════════════════
 
 class _AddCommandStep extends StatelessWidget {
+  final int currentStep;
   final VoidCallback onNext;
   final VoidCallback onSkip;
+  final VoidCallback onRemindLater;
+  final VoidCallback onAddCommand;
 
-  const _AddCommandStep({required this.onNext, required this.onSkip});
+  const _AddCommandStep({
+    required this.currentStep,
+    required this.onNext,
+    required this.onSkip,
+    required this.onRemindLater,
+    required this.onAddCommand,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -370,6 +567,10 @@ class _AddCommandStep extends StatelessWidget {
         automaticallyImplyLeading: false,
         title: Text(context.tr.onboarding_command_title),
         actions: [
+          TextButton(
+            onPressed: onRemindLater,
+            child: Text(context.tr.onboarding_remind_later),
+          ),
           TextButton(
             onPressed: onSkip,
             child: Text(context.tr.onboarding_welcome_skip),
@@ -383,6 +584,10 @@ class _AddCommandStep extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              _StepProgressIndicator(
+                currentStep: currentStep,
+              ),
+              SizedBox(height: AppTheme.spacingXxl),
               Container(
                 width: 100,
                 height: 100,
@@ -431,6 +636,26 @@ class _AddCommandStep extends StatelessWidget {
                   ],
                 ),
               ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: onAddCommand,
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: AppTheme.success,
+                  ),
+                  icon: const Icon(Icons.terminal),
+                  label: Text(
+                    context.tr.onboarding_command_now,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -457,10 +682,17 @@ class _AddCommandStep extends StatelessWidget {
 // ═════════════════════════════════════════════════════════════════════════════
 
 class _StartBotStep extends StatelessWidget {
+  final int currentStep;
   final VoidCallback onNext;
   final VoidCallback onSkip;
+  final VoidCallback onRemindLater;
 
-  const _StartBotStep({required this.onNext, required this.onSkip});
+  const _StartBotStep({
+    required this.currentStep,
+    required this.onNext,
+    required this.onSkip,
+    required this.onRemindLater,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -469,6 +701,10 @@ class _StartBotStep extends StatelessWidget {
         automaticallyImplyLeading: false,
         title: Text(context.tr.onboarding_start_title),
         actions: [
+          TextButton(
+            onPressed: onRemindLater,
+            child: Text(context.tr.onboarding_remind_later),
+          ),
           TextButton(
             onPressed: onSkip,
             child: Text(context.tr.onboarding_welcome_skip),
@@ -482,6 +718,10 @@ class _StartBotStep extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              _StepProgressIndicator(
+                currentStep: currentStep,
+              ),
+              SizedBox(height: AppTheme.spacingXxl),
               Container(
                 width: 100,
                 height: 100,
@@ -518,9 +758,22 @@ class _StartBotStep extends StatelessWidget {
                     color: AppTheme.success.withValues(alpha: 0.5),
                   ),
                 ),
-                child: Text(
-                  context.tr.onboarding_start_tip,
-                  style: const TextStyle(fontSize: 13),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      context.tr.onboarding_start_tip,
+                      style: const TextStyle(fontSize: 13),
+                    ),
+                    const SizedBox(height: AppTheme.spacingSm),
+                    Text(
+                      context.tr.onboarding_start_hint,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: AppTheme.grey,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -550,8 +803,12 @@ class _StartBotStep extends StatelessWidget {
 
 class _SuccessStep extends StatelessWidget {
   final VoidCallback onDone;
+  final int currentStep;
 
-  const _SuccessStep({required this.onDone});
+  const _SuccessStep({
+    required this.onDone,
+    this.currentStep = 5,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -562,6 +819,10 @@ class _SuccessStep extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              _StepProgressIndicator(
+                currentStep: currentStep,
+              ),
+              SizedBox(height: AppTheme.spacingXxl),
               Container(
                 width: 120,
                 height: 120,

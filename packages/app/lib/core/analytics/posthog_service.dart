@@ -135,8 +135,8 @@ class PosthogService {
         ..captureApplicationLifecycleEvents = true
         ..sessionReplay = doRecord
         ..sessionReplayConfig = (ph.PostHogSessionReplayConfig()
-          ..maskAllTexts = false
-          ..maskAllImages = false);
+          ..maskAllTexts = true
+          ..maskAllImages = true);
 
       await ph.Posthog().setup(config);
       _initialized = true;

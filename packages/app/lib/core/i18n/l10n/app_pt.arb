@@ -9941,5 +9941,57 @@
   "app_create_type_discord_desc": "Crie e configure um bot do Discord personalizável com ações, eventos e camadas de canvas.",
   "app_create_type_hosted": "Aplicação Hospedada (Docker)",
   "app_create_type_hosted_desc": "Execute uma aplicação backend, servidor ou script na sua linguagem favorita (NodeJS, Python, Java...). Envie arquivos e instale pacotes em um contêiner seguro.",
-  "app_create_coming_soon": "Em breve"
+  "app_create_coming_soon": "Em breve",
+  "app_create_sample_title": "Criar comando de exemplo",
+  "@app_create_sample_title": {
+    "description": "Title of the Create Sample Command dialog"
+  },
+  "app_create_sample_desc": "Gostaria de adicionar um comando /ping de exemplo ao {botName}? Ele responde com \"Pong!\" e é um ótimo ponto de partida para aprender como o Bot Creator funciona.",
+  "@app_create_sample_desc": {
+    "description": "Description text in the Create Sample Command dialog",
+    "placeholders": {
+      "botName": {
+        "type": "String"
+      }
+    }
+  },
+  "app_create_sample_skip": "Pular",
+  "@app_create_sample_skip": {
+    "description": "Skip button text in the Create Sample Command dialog"
+  },
+  "app_create_sample_confirm": "Adicionar /ping de exemplo",
+  "@app_create_sample_confirm": {
+    "description": "Confirm button text in the Create Sample Command dialog"
+  },
+  "app_create_sample_success": "Comando /ping criado com sucesso!",
+  "@app_create_sample_success": {
+    "description": "Snackbar message shown after creating the sample command"
+  },
+  "commands_empty_title": "Crie seu primeiro comando!",
+  "commands_empty_description": "Um comando permite que seu bot responda quando alguém digita /algo no Discord.",
+  "commands_empty_create_button": "Criar um comando",
+  "commands_empty_marketplace_link": "Ou comece com um template do Marketplace",
+  "command_created_success_title": "Seu comando está pronto!",
+  "command_created_success_subtitle": "O que você quer fazer agora?",
+  "command_created_start_bot": "Iniciar meu bot",
+  "command_created_start_bot_hint": "Abra a aba Início do seu bot e toque em Iniciar para colocá-lo online.",
+  "command_created_invite": "Convidar para um servidor",
+  "command_created_invite_error": "Não foi possível abrir o link de convite.",
+  "command_created_create_another": "Criar outro comando",
+  "command_created_close": "Fechar",
+  "onboarding_step_indicator": "Etapa {current} de {total}",
+  "onboarding_create_open_portal": "Abrir Portal de Desenvolvedor do Discord",
+  "onboarding_remind_later": "Lembrar mais tarde",
+  "onboarding_start_hint": "Depois de criar seu bot, você encontrará o botão Iniciar no cartão dele no aplicativo.",
+  "beginner_mode_label": "Modo iniciante",
+  "beginner_mode_on_hint": "Mostrando apenas abas essenciais",
+  "beginner_mode_off_hint": "Mostrando todos os recursos",
+  "live_preview_label": "Pré-visualização ao vivo",
+  "live_preview_empty": "Mensagem vazia — digite algo acima para vê-la aqui.",
+  "live_preview_ephemeral_tag": "Só você",
+  "live_preview_today": "hoje",
+  "commands_empty_sample_ping": "Adicionar comando /ping de exemplo",
+  "command_created_sample_success": "Comando /ping criado! Ele responde \"Pong!\"",
+  "onboarding_create_now": "Criar meu bot agora",
+  "onboarding_command_now": "Crie seu primeiro comando"
 }

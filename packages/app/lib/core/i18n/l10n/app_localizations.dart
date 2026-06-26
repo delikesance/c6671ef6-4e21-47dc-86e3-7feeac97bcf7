@@ -9588,6 +9588,12 @@ abstract class AppLocalizations {
   /// **'Example:\n/hello → Bot replies \"Hello! 👋\"'**
   String get onboarding_command_example;
 
+  /// Link button that opens the commands tutorial
+  ///
+  /// In en, this message translates to:
+  /// **'Learn how commands work'**
+  String get onboarding_command_learn;
+
   /// Commands are the heart of your bot. They allow users to interact with your bot via Discord.
   ///
   /// In en, this message translates to:
@@ -9611,6 +9617,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Get your Discord token'**
   String get onboarding_create_desc;
+
+  /// Action button that opens the Discord Developer Portal
+  ///
+  /// In en, this message translates to:
+  /// **'Open Discord Developer Portal'**
+  String get onboarding_create_open_portal;
 
   /// 1. Go to Discord Developer Portal
   /// 2. Create a new app
@@ -9639,6 +9651,30 @@ abstract class AppLocalizations {
   /// **'Tutorial: How to get a token'**
   String get onboarding_create_tutorial;
 
+  /// Postpone onboarding and resume later
+  ///
+  /// In en, this message translates to:
+  /// **'Remind me later'**
+  String get onboarding_remind_later;
+
+  /// Confirm skipping the onboarding tour entirely
+  ///
+  /// In en, this message translates to:
+  /// **'Skip onboarding'**
+  String get onboarding_skip_confirm;
+
+  /// Body of the dialog shown when leaving onboarding early
+  ///
+  /// In en, this message translates to:
+  /// **'You can resume where you left off next time, or skip the tour entirely.'**
+  String get onboarding_skip_dialog_desc;
+
+  /// Title of the dialog shown when leaving onboarding early
+  ///
+  /// In en, this message translates to:
+  /// **'Leave the onboarding?'**
+  String get onboarding_skip_dialog_title;
+
   /// Continue
   ///
   /// In en, this message translates to:
@@ -9650,6 +9686,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Launch your bot!'**
   String get onboarding_start_desc;
+
+  /// Hint explaining where to find the Start button once the bot is created
+  ///
+  /// In en, this message translates to:
+  /// **'Once your bot is created, you\'ll find the Start button on its card in the app.'**
+  String get onboarding_start_hint;
 
   /// Click the "Start" button on your bot card. Then test your command in Discord!
   ///
@@ -9668,6 +9710,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Step 3: Start the Bot'**
   String get onboarding_start_title;
+
+  /// Step progress label, e.g. 'Step 2 of 5'
+  ///
+  /// In en, this message translates to:
+  /// **'Step {current} of {total}'**
+  String onboarding_step_indicator(int current, int total);
 
   /// Start!
   ///
@@ -14757,6 +14805,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Coming Soon'**
   String get app_create_coming_soon;
+
+  /// Title of the Create Sample Command dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Create Sample Command'**
+  String get app_create_sample_title;
+
+  /// Description text in the Create Sample Command dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Would you like to add a sample /ping command to {botName}? It responds with \"Pong!\" and is a great starting point to learn how Bot Creator works.'**
+  String app_create_sample_desc(String botName);
+
+  /// Skip button text in the Create Sample Command dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get app_create_sample_skip;
+
+  /// Confirm button text in the Create Sample Command dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Add sample /ping'**
+  String get app_create_sample_confirm;
+
+  /// Snackbar message shown after creating the sample command
+  ///
+  /// In en, this message translates to:
+  /// **'Sample /ping command created successfully!'**
+  String get app_create_sample_success;
+
+  /// Headline shown in the guided empty state when a bot has no commands yet
+  ///
+  /// In en, this message translates to:
+  /// **'Create your first command!'**
+  String get commands_empty_title;
+
+  /// Explanation text under the guided empty state headline
+  ///
+  /// In en, this message translates to:
+  /// **'A command lets your bot respond when someone types /something on Discord.'**
+  String get commands_empty_description;
+
+  /// Primary call-to-action button in the guided empty state
+  ///
+  /// In en, this message translates to:
+  /// **'Create a command'**
+  String get commands_empty_create_button;
+
+  /// Secondary text link in the guided empty state that opens the Marketplace
+  ///
+  /// In en, this message translates to:
+  /// **'Or start from a Marketplace template'**
+  String get commands_empty_marketplace_link;
+
+  /// Title of the post-save guidance sheet shown after creating a new command
+  ///
+  /// In en, this message translates to:
+  /// **'Your command is ready!'**
+  String get command_created_success_title;
+
+  /// Subtitle of the post-save guidance sheet
+  ///
+  /// In en, this message translates to:
+  /// **'What do you want to do next?'**
+  String get command_created_success_subtitle;
+
+  /// Action in the post-save guidance sheet to bring the bot online (shown only when the bot is not running)
+  ///
+  /// In en, this message translates to:
+  /// **'Start my bot'**
+  String get command_created_start_bot;
+
+  /// Snackbar shown after tapping Start my bot, directing the user to the Home tab
+  ///
+  /// In en, this message translates to:
+  /// **'Open your bot\'s Home tab and tap Start to bring it online.'**
+  String get command_created_start_bot_hint;
+
+  /// Action in the post-save guidance sheet that opens the Discord OAuth invite URL
+  ///
+  /// In en, this message translates to:
+  /// **'Invite to a server'**
+  String get command_created_invite;
+
+  /// Snackbar shown when the Discord invite URL could not be opened
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open the invite link.'**
+  String get command_created_invite_error;
+
+  /// Action in the post-save guidance sheet that reopens the command creation flow
+  ///
+  /// In en, this message translates to:
+  /// **'Create another command'**
+  String get command_created_create_another;
+
+  /// Dismiss button at the bottom of the post-save guidance sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get command_created_close;
+
+  /// No description provided for @beginner_mode_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Beginner mode'**
+  String get beginner_mode_label;
+
+  /// No description provided for @beginner_mode_on_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing essential tabs only'**
+  String get beginner_mode_on_hint;
+
+  /// No description provided for @beginner_mode_off_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing all features'**
+  String get beginner_mode_off_hint;
+
+  /// No description provided for @live_preview_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Live Preview'**
+  String get live_preview_label;
+
+  /// No description provided for @live_preview_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty message — type something above to see it here.'**
+  String get live_preview_empty;
+
+  /// No description provided for @live_preview_ephemeral_tag.
+  ///
+  /// In en, this message translates to:
+  /// **'Only you'**
+  String get live_preview_ephemeral_tag;
+
+  /// No description provided for @live_preview_today.
+  ///
+  /// In en, this message translates to:
+  /// **'today'**
+  String get live_preview_today;
+
+  /// No description provided for @commands_empty_sample_ping.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a sample /ping command'**
+  String get commands_empty_sample_ping;
+
+  /// No description provided for @command_created_sample_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Sample /ping command created! It responds \"Pong!\"'**
+  String get command_created_sample_success;
+
+  /// No description provided for @onboarding_create_now.
+  ///
+  /// In en, this message translates to:
+  /// **'Create my bot now'**
+  String get onboarding_create_now;
+
+  /// No description provided for @onboarding_command_now.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your first command'**
+  String get onboarding_command_now;
 }
 
 class _AppLocalizationsDelegate

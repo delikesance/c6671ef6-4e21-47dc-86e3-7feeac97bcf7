@@ -5223,6 +5223,9 @@ class AppLocalizationsJa extends AppLocalizations {
       '例:\n/hello → ボットが \"こんにちは！ 👋\" と返信';
 
   @override
+  String get onboarding_command_learn => 'Learn how commands work';
+
+  @override
   String get onboarding_command_text =>
       'コマンドはボットの心臓部です。ユーザーはコマンドを通じてボットと対話します。';
 
@@ -5234,6 +5237,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get onboarding_create_desc => 'Discordトークンを取得';
+
+  @override
+  String get onboarding_create_open_portal => 'Discord Developer Portalを開く';
 
   @override
   String get onboarding_create_steps =>
@@ -5250,10 +5256,26 @@ class AppLocalizationsJa extends AppLocalizations {
   String get onboarding_create_tutorial => 'チュートリアル: トークンの取得方法';
 
   @override
+  String get onboarding_remind_later => '後で通知する';
+
+  @override
+  String get onboarding_skip_confirm => 'Skip onboarding';
+
+  @override
+  String get onboarding_skip_dialog_desc =>
+      'You can resume where you left off next time, or skip the tour entirely.';
+
+  @override
+  String get onboarding_skip_dialog_title => 'Leave the onboarding?';
+
+  @override
   String get onboarding_start_button => '続ける';
 
   @override
   String get onboarding_start_desc => 'ボットを起動！';
+
+  @override
+  String get onboarding_start_hint => 'ボットを作成したら、アプリのボットカードに起動ボタンが表示されます。';
 
   @override
   String get onboarding_start_text =>
@@ -5265,6 +5287,11 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get onboarding_start_title => 'ステップ3: ボットを起動';
+
+  @override
+  String onboarding_step_indicator(int current, int total) {
+    return 'ステップ $current / $total';
+  }
 
   @override
   String get onboarding_success_button => '始める！';
@@ -8121,4 +8148,93 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get app_create_coming_soon => '近日公開';
+
+  @override
+  String get app_create_sample_title => 'サンプルコマンドを作成';
+
+  @override
+  String app_create_sample_desc(String botName) {
+    return '$botNameにサンプルの/pingコマンドを追加しますか？「Pong!」と応答し、Bot Creatorの使い方を学ぶのに最適な出発点です。';
+  }
+
+  @override
+  String get app_create_sample_skip => 'スキップ';
+
+  @override
+  String get app_create_sample_confirm => 'サンプルの/pingを追加';
+
+  @override
+  String get app_create_sample_success => '/pingコマンドを作成しました';
+
+  @override
+  String get commands_empty_title => '最初のコマンドを作成しよう！';
+
+  @override
+  String get commands_empty_description =>
+      'コマンドを使うと、Discordで/somethingと入力したときにボットが反応できます。';
+
+  @override
+  String get commands_empty_create_button => 'コマンドを作成';
+
+  @override
+  String get commands_empty_marketplace_link => 'またはMarketplaceのテンプレートから始める';
+
+  @override
+  String get command_created_success_title => 'コマンドの準備ができました！';
+
+  @override
+  String get command_created_success_subtitle => '次に何をしますか？';
+
+  @override
+  String get command_created_start_bot => 'ボットを起動する';
+
+  @override
+  String get command_created_start_bot_hint =>
+      'ボットのホームタブを開き、「起動」をタップしてオンラインにしましょう。';
+
+  @override
+  String get command_created_invite => 'サーバーに招待する';
+
+  @override
+  String get command_created_invite_error => '招待リンクを開けませんでした。';
+
+  @override
+  String get command_created_create_another => '別のコマンドを作成';
+
+  @override
+  String get command_created_close => '閉じる';
+
+  @override
+  String get beginner_mode_label => 'ビギナーモード';
+
+  @override
+  String get beginner_mode_on_hint => '基本タブのみ表示';
+
+  @override
+  String get beginner_mode_off_hint => 'すべての機能を表示';
+
+  @override
+  String get live_preview_label => 'ライブプレビュー';
+
+  @override
+  String get live_preview_empty => 'メッセージが空です — 上に入力するとここに表示されます。';
+
+  @override
+  String get live_preview_ephemeral_tag => 'あなただけ';
+
+  @override
+  String get live_preview_today => '今日';
+
+  @override
+  String get commands_empty_sample_ping => 'サンプル/pingコマンドを追加';
+
+  @override
+  String get command_created_sample_success =>
+      '/pingコマンドを作成しました！「Pong!」と応答します。';
+
+  @override
+  String get onboarding_create_now => '今すぐボットを作成';
+
+  @override
+  String get onboarding_command_now => '最初のコマンドを作成';
 }

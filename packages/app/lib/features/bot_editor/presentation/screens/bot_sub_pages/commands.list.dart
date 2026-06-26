@@ -20,6 +20,8 @@ import 'package:flutter/material.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/utils/responsive.dart';
+import 'package:bot_creator/core/utils/external_link.dart';
+import 'package:bot_creator/core/network/remote_runtime.dart';
 
 class AppCommandsPage extends StatefulWidget {
   final NyxxRest? client;
@@ -281,11 +283,42 @@ class _AppCommandsPageState extends State<AppCommandsPage>
     if (!confirmed || !mounted) return;
     await appManager.deleteAppCommand(widget.botId, commandId);
     unawaited(refreshBotRuntime(widget.botId));
+    await _load();
+
+    // Fallback: old buggy commands may have a different filename than internal id.
+    // If the command still appears, scan the directory for files with matching name.
+    if (mounted && _commands.any((c) => (c['id'] ?? '') == commandId)) {
+      await _forceDeleteCommandByScan(name);
+    }
+
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(context.tr.cmd_delete_success(name))),
     );
     await _load();
+  }
+
+  /// Fallback for buggy commands whose filename doesn't match their internal id.
+  /// Scans all command files in the bot directory and deletes the one whose
+  /// decoded `name` field matches [name].
+  Future<void> _forceDeleteCommandByScan(String name) async {
+    final storagePath = await getAppStoragePath();
+    final dir = Directory('$storagePath/apps/${widget.botId}');
+    if (!await dir.exists()) return;
+    final entities = await dir.list().toList();
+    for (final entity in entities) {
+      if (entity is! File || !entity.path.endsWith('.json')) continue;
+      try {
+        final content = await entity.readAsString();
+        if (content.trim().isEmpty) continue;
+        final decoded = jsonDecode(content) as Map<String, dynamic>;
+        final decodedName = (decoded['name'] ?? '').toString();
+        if (decodedName.toLowerCase() == name.toLowerCase()) {
+          await entity.delete();
+          return;
+        }
+      } catch (_) {}
+    }
   }
 
   List<Map<String, dynamic>> _visibleCommands() {
@@ -498,6 +531,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
   }
 
   Future<void> _navigateToCreateCommand() async {
+    final countBefore = _commands.length;
     await Navigator.push(
       context,
       MaterialPageRoute(
@@ -507,7 +541,256 @@ class _AppCommandsPageState extends State<AppCommandsPage>
       ),
     );
     if (!mounted) return;
-    _load();
+    await _load();
+    if (!mounted) return;
+    // S6: Post-save guidance — only when a brand-new command was actually added.
+    if (_commands.length > countBefore) {
+      await _showPostSaveGuidance();
+    }
+  }
+
+  /// F12: Creates a sample /ping command directly from the empty state.
+  /// This gives users a one-click recovery if they missed the initial
+  /// sample dialog during bot creation.
+  Future<void> _addSamplePingCommand() async {
+    final now = DateTime.now().toIso8601String();
+    final commandId = 'sample_ping_${DateTime.now().millisecondsSinceEpoch}';
+    final sampleCommand = <String, dynamic>{
+      'name': 'ping',
+      'description': 'Check if the bot is responsive',
+      'type': 'chatInput',
+      'id': commandId,
+      'createdAt': now,
+      'updatedAt': now,
+      'data': <String, dynamic>{
+        'version': 1,
+        'commandType': 'chatInput',
+        'editorMode': 'advanced',
+        'executionMode': 'workflow',
+        'bdfdScriptContent': '',
+        'legacyModeEnabled': false,
+        'legacyLocalOnly': false,
+        'legacyPrefixOverride': '',
+        'legacyResponseTarget': 'reply',
+        'simpleConfig': <String, dynamic>{},
+        'defaultMemberPermissions': '',
+        'actions': <Map<String, dynamic>>[
+          <String, dynamic>{
+            'type': 'respondWithMessage',
+            'key': 'sample_ping_response',
+            'enabled': true,
+            'payload': <String, dynamic>{
+              'content': 'Pong!',
+              'embeds': <Map<String, dynamic>>[],
+              'components': <String, dynamic>{},
+            },
+          },
+        ],
+        'options': <Map<String, dynamic>>[],
+        'integrationTypes': <int>[1],
+        'contexts': <int>[0],
+      },
+    };
+
+    try {
+      await appManager.saveAppCommand(widget.botId, commandId, sampleCommand);
+      AppAnalytics.logEvent(
+        name: 'add_sample_ping_from_empty',
+        parameters: {'bot_id': widget.botId},
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(context.tr.command_created_sample_success),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: AppTheme.success,
+          ),
+        );
+        await _load();
+        if (mounted) await _showPostSaveGuidance();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    }
+  }
+
+  /// S6 helper: best-effort check of whether [widget.botId] is currently
+  /// running on any resolved remote runtime. Defaults to [false] on any error
+  /// or timeout so the "Start my bot" CTA remains available and the post-save
+  /// sheet is not delayed.
+  Future<bool> _isBotCurrentlyRunning() async {
+    try {
+      final resolved = await resolveRemoteRuntime(
+        supportsManagerRuntime: true,
+        botId: widget.botId,
+      ).timeout(const Duration(seconds: 4));
+      final client = resolved.client;
+      if (client == null) return false;
+      final status = await client
+          .getStatus(botId: widget.botId)
+          .timeout(const Duration(seconds: 4));
+      return status.isBotRunning(widget.botId);
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Shared helper that opens the Marketplace flow (resolved Manager client
+  /// required). Used by both the guided empty state and the create menu.
+  Future<void> _openMarketplace() async {
+    final client = await _resolveApiClient();
+    if (!mounted) return;
+    if (client != null) {
+      final applied = await Navigator.push<bool>(
+        context,
+        MaterialPageRoute(
+          builder: (_) => MarketplacePage(
+            botId: widget.botId,
+            apiClient: client,
+          ),
+        ),
+      );
+      if (applied == true && mounted) {
+        _load();
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.tr.marketplace_connect_manager)),
+      );
+    }
+  }
+
+  /// S6: Post-save guidance sheet shown after a brand-new command is created.
+  /// Offers the user clear next steps (start bot / invite / create another).
+  Future<void> _showPostSaveGuidance() async {
+    final isRunning = await _isBotCurrentlyRunning();
+    if (!mounted) return;
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppTheme.radiusLg),
+        ),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppTheme.spacingXl,
+              AppTheme.spacingSm,
+              AppTheme.spacingXl,
+              AppTheme.spacingLg,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.only(
+                    top: AppTheme.spacingSm,
+                    bottom: AppTheme.spacingMd,
+                  ),
+                  child: Container(
+                    width: 76,
+                    height: 76,
+                    decoration: BoxDecoration(
+                      color: AppTheme.successLight.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.check_circle_rounded,
+                      size: 48,
+                      color: AppTheme.success,
+                    ),
+                  ),
+                ),
+                Text(
+                  context.tr.command_created_success_title,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: AppTheme.fontWeightBold,
+                  ),
+                ),
+                const SizedBox(height: AppTheme.spacingXs),
+                Text(
+                  context.tr.command_created_success_subtitle,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: AppTheme.spacingXxl),
+                if (!isRunning) ...[
+                  _GuidanceActionTile(
+                    icon: Icons.play_arrow_rounded,
+                    iconColor: AppTheme.success,
+                    iconBg: AppTheme.successLight.withValues(alpha: 0.15),
+                    label: context.tr.command_created_start_bot,
+                    onTap: () {
+                      final messenger = ScaffoldMessenger.of(this.context);
+                      final hint = context.tr.command_created_start_bot_hint;
+                      Navigator.of(context).pop();
+                      messenger.showSnackBar(
+                        SnackBar(content: Text(hint)),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: AppTheme.spacingSm),
+                ],
+                _GuidanceActionTile(
+                  icon: Icons.person_add_rounded,
+                  iconColor: AppTheme.info,
+                  iconBg: AppTheme.info.withValues(alpha: 0.15),
+                  label: context.tr.command_created_invite,
+                  onTap: () async {
+                    final messenger = ScaffoldMessenger.of(this.context);
+                    final errorMsg = context.tr.command_created_invite_error;
+                    final inviteUrl = Uri.parse(
+                      'https://discord.com/oauth2/authorize'
+                      '?client_id=${widget.botId}'
+                      '&permissions=8'
+                      '&scope=bot%20applications.commands',
+                    );
+                    final opened = await openExternalUrl(inviteUrl);
+                    if (!opened) {
+                      messenger.showSnackBar(
+                        SnackBar(content: Text(errorMsg)),
+                      );
+                    }
+                  },
+                ),
+                const SizedBox(height: AppTheme.spacingSm),
+                _GuidanceActionTile(
+                  icon: Icons.add_circle_outline_rounded,
+                  iconColor: AppTheme.brandPrimary,
+                  iconBg: AppTheme.brandPrimary.withValues(alpha: 0.12),
+                  label: context.tr.command_created_create_another,
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _navigateToCreateCommand();
+                  },
+                ),
+                const SizedBox(height: AppTheme.spacingLg),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text(context.tr.command_created_close),
+                ),
+                const SizedBox(height: AppTheme.spacingSm),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Future<void> _showCreateFolderDialog() async {
@@ -1098,38 +1381,121 @@ class _AppCommandsPageState extends State<AppCommandsPage>
             }
 
             if (_commands.isEmpty) {
+              // S2: Guided empty state — single obvious primary action with a
+              // calm secondary path. Avoids the bottom-sheet dead end.
               return Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(context.tr.commands_empty),
-                    const SizedBox(height: 16),
-                    FilledButton.icon(
-                      onPressed: () async {
-                        final client = await _resolveApiClient();
-                        if (!mounted) return;
-                        if (client != null) {
-                          Navigator.push(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppTheme.spacingXxl,
+                    AppTheme.spacingXxl,
+                    AppTheme.spacingXxl,
+                    AppTheme.spacingXxl,
+                  ),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 440),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 128,
+                          height: 128,
+                          decoration: BoxDecoration(
+                            color: AppTheme.brandPrimary.withValues(alpha: 0.12),
+                            shape: BoxShape.circle,
+                          ),
+                          alignment: Alignment.center,
+                          child: const Icon(
+                            Icons.smart_toy_rounded,
+                            size: 80,
+                            color: AppTheme.brandPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: AppTheme.spacingXxl),
+                        Text(
+                          context.tr.commands_empty_title,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(
                             context,
-                            MaterialPageRoute(
-                              builder: (_) => MarketplacePage(
-                                botId: widget.botId,
-                                apiClient: client,
+                          ).textTheme.headlineSmall?.copyWith(
+                            fontWeight: AppTheme.fontWeightBold,
+                          ),
+                        ),
+                        const SizedBox(height: AppTheme.spacingSm),
+                        Text(
+                          context.tr.commands_empty_description,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: AppTheme.spacingXxl),
+                        SizedBox(
+                          width: double.infinity,
+                          child: FilledButton.icon(
+                            onPressed: _navigateToCreateCommand,
+                            style: FilledButton.styleFrom(
+                              backgroundColor: AppTheme.brandPrimary,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppTheme.spacingLg,
+                                vertical: AppTheme.spacingMd,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                  AppTheme.radiusPill,
+                                ),
                               ),
                             ),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(context.tr.marketplace_connect_manager),
+                            icon: const Icon(Icons.add_rounded),
+                            label: Text(
+                              context.tr.commands_empty_create_button,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: AppTheme.fontWeightSemiBold,
+                              ),
                             ),
-                          );
-                        }
-                      },
-                      icon: const Icon(Icons.auto_awesome),
-                      label: Text(context.tr.marketplace_title),
+                          ),
+                        ),
+                        const SizedBox(height: AppTheme.spacingSm),
+                        TextButton.icon(
+                          onPressed: _openMarketplace,
+                          icon: Icon(
+                            Icons.auto_awesome,
+                            size: 18,
+                            color: AppTheme.brandSecondary,
+                          ),
+                          label: Text(
+                            context.tr.commands_empty_marketplace_link,
+                            style: TextStyle(
+                              color: AppTheme.brandSecondary,
+                              fontWeight: AppTheme.fontWeightSemiBold,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: AppTheme.spacingXs),
+                        TextButton.icon(
+                          onPressed: () async {
+                            await _addSamplePingCommand();
+                          },
+                          icon: Icon(
+                            Icons.bolt_rounded,
+                            size: 18,
+                            color: AppTheme.warning,
+                          ),
+                          label: Text(
+                            context.tr.commands_empty_sample_ping,
+                            style: TextStyle(
+                              color: AppTheme.warning,
+                              fontWeight: AppTheme.fontWeightSemiBold,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               );
             }
@@ -1360,6 +1726,73 @@ class _SpeedDialItem extends StatelessWidget {
           child: Icon(icon),
         ),
       ],
+    );
+  }
+}
+
+/// S6: A single tappable action row used inside the post-save guidance sheet.
+class _GuidanceActionTile extends StatelessWidget {
+  const _GuidanceActionTile({
+    required this.icon,
+    required this.iconColor,
+    required this.iconBg,
+    required this.label,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final Color iconColor;
+  final Color iconBg;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppTheme.spacingMd,
+            vertical: AppTheme.spacingMd,
+          ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outlineVariant,
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: iconBg,
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                child: Icon(icon, size: 22, color: iconColor),
+              ),
+              const SizedBox(width: AppTheme.spacingMd),
+              Expanded(
+                child: Text(
+                  label,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: AppTheme.fontWeightSemiBold,
+                  ),
+                ),
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

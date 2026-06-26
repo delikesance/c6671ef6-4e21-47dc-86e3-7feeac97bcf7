@@ -4992,6 +4992,9 @@
   "@onboarding_command_example": {
     "description": "Example:\n/hello → Bot replies \"Hello! 👋\""
   },
+  "@onboarding_command_learn": {
+    "description": "Link button that opens the commands tutorial"
+  },
   "@onboarding_command_text": {
     "description": "Commands are the heart of your bot. They allow users to interact with your bot via Discord."
   },
@@ -5003,6 +5006,9 @@
   },
   "@onboarding_create_desc": {
     "description": "Get your Discord token"
+  },
+  "@onboarding_create_open_portal": {
+    "description": "Action button that opens the Discord Developer Portal"
   },
   "@onboarding_create_steps": {
     "description": "1. Go to Discord Developer Portal\n2. Create a new app\n3. Copy the bot token\n4. Paste it below"
@@ -5016,11 +5022,26 @@
   "@onboarding_create_tutorial": {
     "description": "Tutorial: How to get a token"
   },
+  "@onboarding_remind_later": {
+    "description": "Postpone onboarding and resume later"
+  },
+  "@onboarding_skip_confirm": {
+    "description": "Confirm skipping the onboarding tour entirely"
+  },
+  "@onboarding_skip_dialog_desc": {
+    "description": "Body of the dialog shown when leaving onboarding early"
+  },
+  "@onboarding_skip_dialog_title": {
+    "description": "Title of the dialog shown when leaving onboarding early"
+  },
   "@onboarding_start_button": {
     "description": "Continue"
   },
   "@onboarding_start_desc": {
     "description": "Launch your bot!"
+  },
+  "@onboarding_start_hint": {
+    "description": "Hint explaining where to find the Start button once the bot is created"
   },
   "@onboarding_start_text": {
     "description": "Click the \"Start\" button on your bot card. Then test your command in Discord!"
@@ -5030,6 +5051,17 @@
   },
   "@onboarding_start_title": {
     "description": "Step 3: Start the Bot"
+  },
+  "@onboarding_step_indicator": {
+    "description": "Step progress label, e.g. 'Step 2 of 5'",
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
   },
   "@onboarding_success_button": {
     "description": "Start!"
@@ -9492,19 +9524,27 @@
   "onboarding_command_button": "Continue",
   "onboarding_command_desc": "Create your first command",
   "onboarding_command_example": "Example:\n/hello → Bot replies \"Hello! 👋\"",
+  "onboarding_command_learn": "Learn how commands work",
   "onboarding_command_text": "Commands are the heart of your bot. They allow users to interact with your bot via Discord.",
   "onboarding_command_title": "Step 2: Add a Command",
   "onboarding_create_button": "Continue",
   "onboarding_create_desc": "Get your Discord token",
+  "onboarding_create_open_portal": "Open Discord Developer Portal",
   "onboarding_create_steps": "1. Go to Discord Developer Portal\n2. Create a new app\n3. Copy the bot token\n4. Paste it below",
   "onboarding_create_tip": "💡 Tip: Never share your token! It gives full access to your bot.",
   "onboarding_create_title": "Step 1: Create a Bot",
   "onboarding_create_tutorial": "Tutorial: How to get a token",
+  "onboarding_remind_later": "Remind me later",
+  "onboarding_skip_confirm": "Skip onboarding",
+  "onboarding_skip_dialog_desc": "You can resume where you left off next time, or skip the tour entirely.",
+  "onboarding_skip_dialog_title": "Leave the onboarding?",
   "onboarding_start_button": "Continue",
   "onboarding_start_desc": "Launch your bot!",
+  "onboarding_start_hint": "Once your bot is created, you'll find the Start button on its card in the app.",
   "onboarding_start_text": "Click the \"Start\" button on your bot card. Then test your command in Discord!",
   "onboarding_start_tip": "✨ Great! You've created your first Discord bot. You can now add more commands and customize it!",
   "onboarding_start_title": "Step 3: Start the Bot",
+  "onboarding_step_indicator": "Step {current} of {total}",
   "onboarding_success_button": "Start!",
   "onboarding_success_desc": "Your Discord bot is ready to go!",
   "onboarding_success_tip1": "Add more commands",
@@ -10373,5 +10413,89 @@
   },
   "@app_create_coming_soon": {
     "description": "Coming soon label"
-  }
+  },
+  "app_create_sample_title": "Create Sample Command",
+  "@app_create_sample_title": {
+    "description": "Title of the Create Sample Command dialog"
+  },
+  "app_create_sample_desc": "Would you like to add a sample /ping command to {botName}? It responds with \"Pong!\" and is a great starting point to learn how Bot Creator works.",
+  "@app_create_sample_desc": {
+    "description": "Description text in the Create Sample Command dialog",
+    "placeholders": {
+      "botName": {
+        "type": "String"
+      }
+    }
+  },
+  "app_create_sample_skip": "Skip",
+  "@app_create_sample_skip": {
+    "description": "Skip button text in the Create Sample Command dialog"
+  },
+  "app_create_sample_confirm": "Add sample /ping",
+  "@app_create_sample_confirm": {
+    "description": "Confirm button text in the Create Sample Command dialog"
+  },
+  "app_create_sample_success": "Sample /ping command created successfully!",
+  "@app_create_sample_success": {
+    "description": "Snackbar message shown after creating the sample command"
+  },
+  "commands_empty_title": "Create your first command!",
+  "@commands_empty_title": {
+    "description": "Headline shown in the guided empty state when a bot has no commands yet"
+  },
+  "commands_empty_description": "A command lets your bot respond when someone types /something on Discord.",
+  "@commands_empty_description": {
+    "description": "Explanation text under the guided empty state headline"
+  },
+  "commands_empty_create_button": "Create a command",
+  "@commands_empty_create_button": {
+    "description": "Primary call-to-action button in the guided empty state"
+  },
+  "commands_empty_marketplace_link": "Or start from a Marketplace template",
+  "@commands_empty_marketplace_link": {
+    "description": "Secondary text link in the guided empty state that opens the Marketplace"
+  },
+  "command_created_success_title": "Your command is ready!",
+  "@command_created_success_title": {
+    "description": "Title of the post-save guidance sheet shown after creating a new command"
+  },
+  "command_created_success_subtitle": "What do you want to do next?",
+  "@command_created_success_subtitle": {
+    "description": "Subtitle of the post-save guidance sheet"
+  },
+  "command_created_start_bot": "Start my bot",
+  "@command_created_start_bot": {
+    "description": "Action in the post-save guidance sheet to bring the bot online (shown only when the bot is not running)"
+  },
+  "command_created_start_bot_hint": "Open your bot's Home tab and tap Start to bring it online.",
+  "@command_created_start_bot_hint": {
+    "description": "Snackbar shown after tapping Start my bot, directing the user to the Home tab"
+  },
+  "command_created_invite": "Invite to a server",
+  "@command_created_invite": {
+    "description": "Action in the post-save guidance sheet that opens the Discord OAuth invite URL"
+  },
+  "command_created_invite_error": "Could not open the invite link.",
+  "@command_created_invite_error": {
+    "description": "Snackbar shown when the Discord invite URL could not be opened"
+  },
+  "command_created_create_another": "Create another command",
+  "@command_created_create_another": {
+    "description": "Action in the post-save guidance sheet that reopens the command creation flow"
+  },
+  "command_created_close": "Close",
+  "@command_created_close": {
+    "description": "Dismiss button at the bottom of the post-save guidance sheet"
+  },
+  "beginner_mode_label": "Beginner mode",
+  "beginner_mode_on_hint": "Showing essential tabs only",
+  "beginner_mode_off_hint": "Showing all features",
+  "live_preview_label": "Live Preview",
+  "live_preview_empty": "Empty message — type something above to see it here.",
+  "live_preview_ephemeral_tag": "Only you",
+  "live_preview_today": "today",
+  "commands_empty_sample_ping": "Add a sample /ping command",
+  "command_created_sample_success": "Sample /ping command created! It responds \"Pong!\"",
+  "onboarding_create_now": "Create my bot now",
+  "onboarding_command_now": "Create your first command"
 }

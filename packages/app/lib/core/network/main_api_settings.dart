@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:bot_creator/core/secure/secure_storage_service.dart';
+
 const String _defaultMainApiBaseUrlRaw =
     kDebugMode ? 'https://dev.bot-creator.fr/' : 'https://api.bot-creator.fr';
 String get defaultMainApiBaseUrl =>
@@ -137,6 +139,25 @@ class MainApiSettingsStore {
   }
 
   static Future<MainApiSession?> loadSession() async {
+    // Try secure storage first
+    try {
+      final secure = await SecureStorageService.instance;
+      final jsonStr = await secure.read('main_api_session');
+      if (jsonStr != null && jsonStr.isNotEmpty) {
+        final json = _decodeJsonMap(jsonStr);
+        if (json != null) {
+          final accessToken = _normalize(json['accessToken']?.toString());
+          final expiresAt = _normalize(json['expiresAt']?.toString());
+          if (accessToken != null && expiresAt != null) {
+            return MainApiSession.fromJson(json);
+          }
+        }
+      }
+    } catch (_) {
+      // Secure storage unavailable; fall through
+    }
+
+    // Fallback to legacy SharedPreferences
     final prefs = await SharedPreferences.getInstance();
     final json = _decodeJsonMap(prefs.getString(_sessionKey));
     if (json == null) {
@@ -153,16 +174,40 @@ class MainApiSettingsStore {
   }
 
   static Future<void> saveSession(MainApiSession session) async {
+    final jsonStr = jsonEncode(session.toJson());
+
+    // Write to secure storage
+    try {
+      final secure = await SecureStorageService.instance;
+      await secure.write('main_api_session', jsonStr);
+    } catch (_) {
+      // Secure storage unavailable; continue with legacy write
+    }
+
+    // Legacy write to SharedPreferences
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_sessionKey, jsonEncode(session.toJson()));
+    await prefs.setString(_sessionKey, jsonStr);
   }
 
   static Future<void> clearSession() async {
+    // Clear from secure storage
+    try {
+      final secure = await SecureStorageService.instance;
+      await secure.delete('main_api_session');
+    } catch (_) {}
+
+    // Clear from legacy SharedPreferences
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_sessionKey);
   }
 
   static Future<void> clearAll() async {
+    // Clear session from secure storage
+    try {
+      final secure = await SecureStorageService.instance;
+      await secure.delete('main_api_session');
+    } catch (_) {}
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_configKey);
     await prefs.remove(_sessionKey);

@@ -1616,11 +1616,13 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
 
   Future<void> _pickImage(String key) async {
     try {
-      final result = await FilePicker.pickFile(
+      final result = await FilePicker.pickFiles(
         type: FileType.image,
       );
-      if (result == null || result.path == null || result.path!.isEmpty) return;
-      final filePath = result.path!;
+      if (result == null || result.files.isEmpty) return;
+      final file = result.files.first;
+      if (file.path == null || file.path!.isEmpty) return;
+      final filePath = file.path!;
       final bytes = await File(filePath).readAsBytes();
       final ext = filePath.split('.').last.toLowerCase();
       final mime = {

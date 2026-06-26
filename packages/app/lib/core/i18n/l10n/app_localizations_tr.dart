@@ -5454,6 +5454,9 @@ class AppLocalizationsTr extends AppLocalizations {
       'Örnek:\n/hello → Bot \"Merhaba! 👋\" yanıtını verir';
 
   @override
+  String get onboarding_command_learn => 'Learn how commands work';
+
+  @override
   String get onboarding_command_text =>
       'Komutlar botunuzun kalbidir. Kullanıcıların Discord üzerinden botunuzla etkileşime girmesini sağlarlar.';
 
@@ -5465,6 +5468,10 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get onboarding_create_desc => 'Discord jetonunuzu (token) alın';
+
+  @override
+  String get onboarding_create_open_portal =>
+      'Discord Geliştirici Portalı\'nı aç';
 
   @override
   String get onboarding_create_steps =>
@@ -5481,10 +5488,27 @@ class AppLocalizationsTr extends AppLocalizations {
   String get onboarding_create_tutorial => 'Eğitim: Jeton nasıl alınır';
 
   @override
+  String get onboarding_remind_later => 'Daha sonra hatırlat';
+
+  @override
+  String get onboarding_skip_confirm => 'Skip onboarding';
+
+  @override
+  String get onboarding_skip_dialog_desc =>
+      'You can resume where you left off next time, or skip the tour entirely.';
+
+  @override
+  String get onboarding_skip_dialog_title => 'Leave the onboarding?';
+
+  @override
   String get onboarding_start_button => 'Devam Et';
 
   @override
   String get onboarding_start_desc => 'Botunuzu yayınlayın!';
+
+  @override
+  String get onboarding_start_hint =>
+      'Botunu oluşturduktan sonra, uygulamadaki bot kartında Başlat düğmesini bulacaksın.';
 
   @override
   String get onboarding_start_text =>
@@ -5496,6 +5520,11 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get onboarding_start_title => 'Adım 3: Botu Başlatın';
+
+  @override
+  String onboarding_step_indicator(int current, int total) {
+    return 'Adım $current / $total';
+  }
 
   @override
   String get onboarding_success_button => 'Başla!';
@@ -8492,4 +8521,95 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get app_create_coming_soon => 'Çok yakında';
+
+  @override
+  String get app_create_sample_title => 'Örnek komut oluştur';
+
+  @override
+  String app_create_sample_desc(String botName) {
+    return '$botName için örnek bir /ping komutu eklemek ister misiniz? \"Pong!\" ile yanıt verir ve Bot Creator\'un nasıl çalıştığını öğrenmek için harika bir başlangıç noktasıdır.';
+  }
+
+  @override
+  String get app_create_sample_skip => 'Atla';
+
+  @override
+  String get app_create_sample_confirm => 'Örnek /ping ekle';
+
+  @override
+  String get app_create_sample_success => '/ping komutu başarıyla oluşturuldu';
+
+  @override
+  String get commands_empty_title => 'İlk komutunu oluştur!';
+
+  @override
+  String get commands_empty_description =>
+      'Bir komut, biri Discord\'da /birşey yazdığında botunun yanıt vermesini sağlar.';
+
+  @override
+  String get commands_empty_create_button => 'Komut oluştur';
+
+  @override
+  String get commands_empty_marketplace_link =>
+      'Veya bir Marketplace şablonuyla başla';
+
+  @override
+  String get command_created_success_title => 'Komutun hazır!';
+
+  @override
+  String get command_created_success_subtitle => 'Şimdi ne yapmak istiyorsun?';
+
+  @override
+  String get command_created_start_bot => 'Botumu başlat';
+
+  @override
+  String get command_created_start_bot_hint =>
+      'Botunun Giriş sekmesini aç ve çevrimiçi yapmak için Başlat\'a dokun.';
+
+  @override
+  String get command_created_invite => 'Bir sunucuya davet et';
+
+  @override
+  String get command_created_invite_error => 'Davet bağlantısı açılamadı.';
+
+  @override
+  String get command_created_create_another => 'Başka bir komut oluştur';
+
+  @override
+  String get command_created_close => 'Kapat';
+
+  @override
+  String get beginner_mode_label => 'Başlangıç modu';
+
+  @override
+  String get beginner_mode_on_hint => 'Sadece temel sekmeler gösteriliyor';
+
+  @override
+  String get beginner_mode_off_hint => 'Tüm özellikler gösteriliyor';
+
+  @override
+  String get live_preview_label => 'Canlı önizleme';
+
+  @override
+  String get live_preview_empty =>
+      'Boş mesaj — yukarıya bir şey yazınca burada görünecek.';
+
+  @override
+  String get live_preview_ephemeral_tag => 'Sadece sen';
+
+  @override
+  String get live_preview_today => 'bugün';
+
+  @override
+  String get commands_empty_sample_ping => 'Örnek /ping komutu ekle';
+
+  @override
+  String get command_created_sample_success =>
+      '/ping komutu oluşturuldu! \"Pong!\" diye yanıt verir.';
+
+  @override
+  String get onboarding_create_now => 'Botu şimdi oluştur';
+
+  @override
+  String get onboarding_command_now => 'İlk komutunu oluştur';
 }

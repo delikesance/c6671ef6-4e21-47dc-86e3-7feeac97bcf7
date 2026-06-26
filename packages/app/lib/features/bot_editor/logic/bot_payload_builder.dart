@@ -150,9 +150,18 @@ void initRunnerAutoReload() {
         deletedViaRunner = true;
       }
     } catch (error) {
-      debugPrint(
-        '[AutoReload] Command delete on runner failed for $botId: $error',
-      );
+      final message = error.toString();
+      if (message.contains('10063') ||
+          message.contains('Unknown application command')) {
+        debugPrint(
+          '[AutoReload] Command $commandId already absent from Discord '
+          '(runner delete skipped).',
+        );
+      } else {
+        debugPrint(
+          '[AutoReload] Command delete on runner failed for $botId: $error',
+        );
+      }
     }
 
     // 2. Fallback: delete directly via Discord REST API so the command
@@ -179,10 +188,22 @@ void initRunnerAutoReload() {
           );
         }
       } catch (error) {
-        debugPrint(
-          '[AutoReload] Direct Discord delete failed for $botId '
-          'command $commandId: $error',
-        );
+        final message = error.toString();
+        // 10063 = Unknown application command — already deleted from Discord.
+        // This is expected when the command was removed externally or was
+        // never synced; the local delete already succeeded.
+        if (message.contains('10063') ||
+            message.contains('Unknown application command')) {
+          debugPrint(
+            '[AutoReload] Command $commandId already absent from Discord '
+            '(local delete OK).',
+          );
+        } else {
+          debugPrint(
+            '[AutoReload] Direct Discord delete failed for $botId '
+            'command $commandId: $error',
+          );
+        }
       }
     }
 

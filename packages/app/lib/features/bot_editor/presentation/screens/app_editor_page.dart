@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:nyxx/nyxx.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AppEditPage extends StatefulWidget {
   final String appName;
@@ -39,6 +40,8 @@ class _AppEditPageState extends State<AppEditPage>
   String? _currentToken;
 
   late int _selectedIndex = 0;
+  bool _beginnerMode = false;
+  bool _beginnerModeLoaded = false;
   bool get _isDesktopPlatform {
     if (kIsWeb) {
       return false;
@@ -134,6 +137,51 @@ class _AppEditPageState extends State<AppEditPage>
         _isLoading = false;
       });
     }
+
+    // S7: Load beginner mode preference. Auto-enable for bots with 0 commands
+    // unless the user has previously opted out.
+    await _loadBeginnerMode();
+  }
+
+  String get _beginnerModeKey => 'beginner_mode_${widget.id}';
+
+  Future<void> _loadBeginnerMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    final optedOut = prefs.getBool(_beginnerModeKey) == false;
+
+    if (optedOut) {
+      // User previously disabled beginner mode for this bot.
+      if (mounted) setState(() { _beginnerMode = false; _beginnerModeLoaded = true; });
+      return;
+    }
+
+    // Auto-detect: beginner mode is on when the bot has no commands yet.
+    try {
+      final commands = await appManager.listAppCommands(_botId);
+      if (!mounted) return;
+      setState(() {
+        _beginnerMode = commands.isEmpty;
+        _beginnerModeLoaded = true;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _beginnerMode = false;
+        _beginnerModeLoaded = true;
+      });
+    }
+  }
+
+  Future<void> _toggleBeginnerMode(bool value) async {
+    setState(() => _beginnerMode = value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_beginnerModeKey, value);
+    // Reset to Home tab when switching modes to avoid invalid indices.
+    if (mounted) setState(() => _selectedIndex = 0);
+    AppAnalytics.logEvent(
+      name: 'beginner_mode_toggled',
+      parameters: {'enabled': value.toString(), 'bot_id': _botId},
+    );
   }
 
   String get _botId => widget.id.toString();
@@ -214,6 +262,7 @@ class _AppEditPageState extends State<AppEditPage>
         icon: Icons.home,
         label: context.tr.home_tab,
         compactLabel: context.tr.home_tab,
+        beginnerEssential: true,
         page: AppHomePage(
           client: client!,
           onNavigateToSection: (index) {
@@ -227,6 +276,7 @@ class _AppEditPageState extends State<AppEditPage>
         icon: Icons.add_circle,
         label: context.tr.commands_tab,
         compactLabel: context.tr.commands_tab_short,
+        beginnerEssential: true,
         page: AppCommandsPage(client: client!, botId: _botId),
       ),
       _AppPageEntry(
@@ -282,6 +332,7 @@ class _AppEditPageState extends State<AppEditPage>
         compactLabel: context.tr.settings_tab,
         page: AppSettingsPage(client: client!),
         mobileSecondary: true,
+        beginnerEssential: true,
       ),
     ];
   }
@@ -389,6 +440,42 @@ class _AppEditPageState extends State<AppEditPage>
                 },
               ),
             ),
+            // S7: Beginner mode toggle at the bottom of the sidebar
+            if (_beginnerModeLoaded)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Material(
+                  borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                  color: _beginnerMode
+                      ? AppTheme.info.withValues(alpha: 0.08)
+                      : Colors.transparent,
+                  child: SwitchListTile(
+                    dense: true,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 0,
+                    ),
+                    title: Text(
+                      context.tr.beginner_mode_label,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: _beginnerMode
+                            ? AppTheme.info
+                            : colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    subtitle: Text(
+                      _beginnerMode
+                          ? context.tr.beginner_mode_on_hint
+                          : context.tr.beginner_mode_off_hint,
+                      style: const TextStyle(fontSize: 11),
+                    ),
+                    value: _beginnerMode,
+                    onChanged: (val) => _toggleBeginnerMode(val),
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -410,7 +497,10 @@ class _AppEditPageState extends State<AppEditPage>
           ),
         ),
       ),
-      child: _buildSidebarContent(context, colorScheme, navItems, isDrawer: false),
+      child: Material(
+        color: Colors.transparent,
+        child: _buildSidebarContent(context, colorScheme, navItems, isDrawer: false),
+      ),
     );
   }
 
@@ -419,7 +509,14 @@ class _AppEditPageState extends State<AppEditPage>
     final colorScheme = Theme.of(context).colorScheme;
     final isSmallPhone = ResponsiveHelper.isSmallPhone(context);
     final useDesktopSidebar = _isDesktopPlatform;
-    final entries = _buildEntries(isSmallPhone);
+    var entries = _buildEntries(isSmallPhone);
+
+    // S7: Beginner mode — show only essential tabs (Home, Commands, Settings).
+    // Only filter when online (offline mode already shows a reduced set).
+    if (_beginnerMode && client != null) {
+      entries = entries.where((e) => e.beginnerEssential).toList();
+    }
+
     final navItems = entries
         .map(
           (entry) => _AppNavItem(
@@ -481,6 +578,7 @@ class _AppPageEntry {
   final String compactLabel;
   final Widget page;
   final bool mobileSecondary;
+  final bool beginnerEssential;
 
   const _AppPageEntry({
     required this.icon,
@@ -488,6 +586,7 @@ class _AppPageEntry {
     required this.compactLabel,
     required this.page,
     this.mobileSecondary = false,
+    this.beginnerEssential = false,
   });
 }
 

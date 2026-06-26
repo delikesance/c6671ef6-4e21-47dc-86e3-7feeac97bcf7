@@ -9908,5 +9908,57 @@
   "app_create_type_discord_desc": "Eylemler, olaylar ve dinamik tuval panelleri ile özelleştirilebilir bir Discord botu oluşturun ve çalıştırın.",
   "app_create_type_hosted": "Barındırılan Uygulama (Docker)",
   "app_create_type_hosted_desc": "Tercih ettiğiniz dilde (NodeJS, Python, Java...) bir arka uç uygulaması, sunucu veya komut dosyası çalıştırın. Dosyaları yükleyin ve güvenli bir korumalı alanda paketleri yükleyin.",
-  "app_create_coming_soon": "Çok yakında"
+  "app_create_coming_soon": "Çok yakında",
+  "app_create_sample_title": "Örnek komut oluştur",
+  "@app_create_sample_title": {
+    "description": "Title of the Create Sample Command dialog"
+  },
+  "app_create_sample_desc": "{botName} için örnek bir /ping komutu eklemek ister misiniz? \"Pong!\" ile yanıt verir ve Bot Creator'un nasıl çalıştığını öğrenmek için harika bir başlangıç noktasıdır.",
+  "@app_create_sample_desc": {
+    "description": "Description text in the Create Sample Command dialog",
+    "placeholders": {
+      "botName": {
+        "type": "String"
+      }
+    }
+  },
+  "app_create_sample_skip": "Atla",
+  "@app_create_sample_skip": {
+    "description": "Skip button text in the Create Sample Command dialog"
+  },
+  "app_create_sample_confirm": "Örnek /ping ekle",
+  "@app_create_sample_confirm": {
+    "description": "Confirm button text in the Create Sample Command dialog"
+  },
+  "app_create_sample_success": "/ping komutu başarıyla oluşturuldu",
+  "@app_create_sample_success": {
+    "description": "Snackbar message shown after creating the sample command"
+  },
+  "commands_empty_title": "İlk komutunu oluştur!",
+  "commands_empty_description": "Bir komut, biri Discord'da /birşey yazdığında botunun yanıt vermesini sağlar.",
+  "commands_empty_create_button": "Komut oluştur",
+  "commands_empty_marketplace_link": "Veya bir Marketplace şablonuyla başla",
+  "command_created_success_title": "Komutun hazır!",
+  "command_created_success_subtitle": "Şimdi ne yapmak istiyorsun?",
+  "command_created_start_bot": "Botumu başlat",
+  "command_created_start_bot_hint": "Botunun Giriş sekmesini aç ve çevrimiçi yapmak için Başlat'a dokun.",
+  "command_created_invite": "Bir sunucuya davet et",
+  "command_created_invite_error": "Davet bağlantısı açılamadı.",
+  "command_created_create_another": "Başka bir komut oluştur",
+  "command_created_close": "Kapat",
+  "onboarding_step_indicator": "Adım {current} / {total}",
+  "onboarding_create_open_portal": "Discord Geliştirici Portalı'nı aç",
+  "onboarding_remind_later": "Daha sonra hatırlat",
+  "onboarding_start_hint": "Botunu oluşturduktan sonra, uygulamadaki bot kartında Başlat düğmesini bulacaksın.",
+  "beginner_mode_label": "Başlangıç modu",
+  "beginner_mode_on_hint": "Sadece temel sekmeler gösteriliyor",
+  "beginner_mode_off_hint": "Tüm özellikler gösteriliyor",
+  "live_preview_label": "Canlı önizleme",
+  "live_preview_empty": "Boş mesaj — yukarıya bir şey yazınca burada görünecek.",
+  "live_preview_ephemeral_tag": "Sadece sen",
+  "live_preview_today": "bugün",
+  "commands_empty_sample_ping": "Örnek /ping komutu ekle",
+  "command_created_sample_success": "/ping komutu oluşturuldu! \"Pong!\" diye yanıt verir.",
+  "onboarding_create_now": "Botu şimdi oluştur",
+  "onboarding_command_now": "İlk komutunu oluştur"
 }
