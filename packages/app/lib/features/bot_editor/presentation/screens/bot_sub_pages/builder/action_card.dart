@@ -17,7 +17,6 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pag
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/global.variables.dart';
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
-import 'package:bot_creator/features/bot_editor/presentation/widgets/discord_message_preview.dart';
 import 'package:bot_creator/features/bot_editor/logic/embed_normalization.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
@@ -113,50 +112,6 @@ class ActionCard extends StatelessWidget {
   Key _parameterInputKey(String paramKey) {
     final version = fieldRefreshVersionOf(paramKey);
     return ValueKey('param-input-${action.id}-$paramKey-v$version');
-  }
-
-  // ── S4: Live Preview helpers ──────────────────────────────────────────────
-
-  /// Actions that produce a visible Discord message with text content.
-  static const _messageProducingTypes = <BotCreatorActionType>[
-    BotCreatorActionType.respondWithMessage,
-    BotCreatorActionType.sendMessage,
-    BotCreatorActionType.sendDm,
-    BotCreatorActionType.editInteractionMessage,
-    BotCreatorActionType.respondWithComponentV2,
-  ];
-
-  bool get _shouldShowLivePreview =>
-      _messageProducingTypes.contains(action.type) &&
-      !collapseActionSettings;
-
-  String get _livePreviewContent {
-    final raw = action.parameters['content']?.toString() ?? '';
-    if (raw.isNotEmpty) return raw;
-    // CV2: content may be nested inside the ComponentV2Definition
-    final comps = action.parameters['components'];
-    if (comps is Map<String, dynamic>) {
-      final nested = comps['content'];
-      if (nested != null) return nested.toString();
-    }
-    return '';
-  }
-
-  bool get _livePreviewEphemeral =>
-      action.parameters['ephemeral'] == true;
-
-  List<Map<String, dynamic>> get _livePreviewEmbeds {
-    final raw = action.parameters['embeds'];
-    if (raw is List) {
-      return raw.whereType<Map<String, dynamic>>().toList();
-    }
-    return const [];
-  }
-
-  Map<String, dynamic>? get _livePreviewComponents {
-    final raw = action.parameters['components'];
-    if (raw is Map<String, dynamic>) return raw;
-    return null;
   }
 
   @override
@@ -318,16 +273,6 @@ class ActionCard extends StatelessWidget {
                       ),
                     );
                   }),
-            // S4: Live preview for message-producing actions
-            if (_shouldShowLivePreview) ...[
-              const SizedBox(height: 4),
-              DiscordMessagePreview(
-                content: _livePreviewContent,
-                ephemeral: _livePreviewEphemeral,
-                embeds: _livePreviewEmbeds,
-                components: _livePreviewComponents,
-              ),
-            ],
           ],
         ),
       ),

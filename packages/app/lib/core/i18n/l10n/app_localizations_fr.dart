@@ -8667,19 +8667,6 @@ class AppLocalizationsFr extends AppLocalizations {
       'Affichage de toutes les fonctionnalités';
 
   @override
-  String get live_preview_label => 'Aperçu en direct';
-
-  @override
-  String get live_preview_empty =>
-      'Message vide — tape quelque chose ci-dessus pour le voir ici.';
-
-  @override
-  String get live_preview_ephemeral_tag => 'Vous uniquement';
-
-  @override
-  String get live_preview_today => 'aujourd\'hui';
-
-  @override
   String get commands_empty_sample_ping =>
       'Ajouter une commande /ping d\'exemple';
 
