@@ -64,12 +64,15 @@
     <string>ca-app-pub-9146609240142753~7806481288</string>
     <key>NSLocalNetworkUsageDescription</key>
     <string>This app requires access to devices on your local network for debugging.</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>This app uses your location to support location-aware features when needed.</string>
     <key>NSUserTrackingUsageDescription</key>
     <string>This identifier will be used to provide a better ad experience.</string>
-	<key>NSCameraUsageDescription</key>
-	<string>This app requires camera access for advertisement experiences and content creation features.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>This app requires access to your photo library to select an avatar image for your bot.</string>
+    <key>NSCameraUsageDescription</key>
+    <string>This app requires camera access for advertisement experiences and content creation
+      features.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>This app requires access to your photo library to select an avatar image for your bot.</string>
     <key>UIMainStoryboardFile</key>
     <string>Main</string>
     <key>UISupportedInterfaceOrientations</key>
@@ -95,15 +98,15 @@
     <array>
       <string>com.pravera.flutter_foreground_task.refresh</string>
     </array>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>fetch</string>
-		<string>remote-notification</string>
-	</array>
-	<key>com.posthog.posthog.AUTO_INIT</key>
-	<false/>
-	<key>FirebaseMessagingAutoInitEnabled</key>
-	<true/>
+    <key>UIBackgroundModes</key>
+    <array>
+      <string>fetch</string>
+      <string>remote-notification</string>
+    </array>
+    <key>com.posthog.posthog.AUTO_INIT</key>
+    <false />
+    <key>FirebaseMessagingAutoInitEnabled</key>
+    <true />
     <key>UIApplicationSceneManifest</key>
     <dict>
       <key>UIApplicationSupportsMultipleScenes</key>
