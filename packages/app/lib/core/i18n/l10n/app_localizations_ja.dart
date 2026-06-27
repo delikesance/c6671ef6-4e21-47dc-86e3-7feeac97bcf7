@@ -8214,18 +8214,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get beginner_mode_off_hint => 'すべての機能を表示';
 
   @override
-  String get live_preview_label => 'ライブプレビュー';
-
-  @override
-  String get live_preview_empty => 'メッセージが空です — 上に入力するとここに表示されます。';
-
-  @override
-  String get live_preview_ephemeral_tag => 'あなただけ';
-
-  @override
-  String get live_preview_today => '今日';
-
-  @override
   String get commands_empty_sample_ping => 'サンプル/pingコマンドを追加';
 
   @override

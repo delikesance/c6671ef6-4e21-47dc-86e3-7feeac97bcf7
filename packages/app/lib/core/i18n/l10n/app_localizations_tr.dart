@@ -8588,19 +8588,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get beginner_mode_off_hint => 'Tüm özellikler gösteriliyor';
 
   @override
-  String get live_preview_label => 'Canlı önizleme';
-
-  @override
-  String get live_preview_empty =>
-      'Boş mesaj — yukarıya bir şey yazınca burada görünecek.';
-
-  @override
-  String get live_preview_ephemeral_tag => 'Sadece sen';
-
-  @override
-  String get live_preview_today => 'bugün';
-
-  @override
   String get commands_empty_sample_ping => 'Örnek /ping komutu ekle';
 
   @override

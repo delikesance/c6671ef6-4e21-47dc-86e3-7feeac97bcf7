@@ -14926,30 +14926,6 @@ abstract class AppLocalizations {
   /// **'Showing all features'**
   String get beginner_mode_off_hint;
 
-  /// No description provided for @live_preview_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Live Preview'**
-  String get live_preview_label;
-
-  /// No description provided for @live_preview_empty.
-  ///
-  /// In en, this message translates to:
-  /// **'Empty message — type something above to see it here.'**
-  String get live_preview_empty;
-
-  /// No description provided for @live_preview_ephemeral_tag.
-  ///
-  /// In en, this message translates to:
-  /// **'Only you'**
-  String get live_preview_ephemeral_tag;
-
-  /// No description provided for @live_preview_today.
-  ///
-  /// In en, this message translates to:
-  /// **'today'**
-  String get live_preview_today;
-
   /// No description provided for @commands_empty_sample_ping.
   ///
   /// In en, this message translates to:

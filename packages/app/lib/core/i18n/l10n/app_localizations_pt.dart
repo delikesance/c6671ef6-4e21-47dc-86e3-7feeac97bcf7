@@ -8638,19 +8638,6 @@ class AppLocalizationsPt extends AppLocalizations {
   String get beginner_mode_off_hint => 'Mostrando todos os recursos';
 
   @override
-  String get live_preview_label => 'Pré-visualização ao vivo';
-
-  @override
-  String get live_preview_empty =>
-      'Mensagem vazia — digite algo acima para vê-la aqui.';
-
-  @override
-  String get live_preview_ephemeral_tag => 'Só você';
-
-  @override
-  String get live_preview_today => 'hoje';
-
-  @override
   String get commands_empty_sample_ping => 'Adicionar comando /ping de exemplo';
 
   @override
