@@ -1328,10 +1328,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get app_token_invalid_content =>
-      'The provided Discord token is invalid or has been revoked. We recommend following the tutorial to generate a valid token.';
+      'The token appears to have been reset. Please provide the new token from the Discord Developer Portal.';
 
   @override
-  String get app_token_invalid_title => 'Invalid Token';
+  String get app_token_invalid_title => 'Token Reset Detected';
 
   @override
   String get app_token_field_helper =>
@@ -1756,10 +1756,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bot_home_token_invalid_content =>
-      'Unable to connect to Discord with the provided token. It may be invalid or revoked. Do you want to start the bot anyway?';
+      'The token seems to have been reset. Please provide the new token from the Discord Developer Portal. Do you want to start the bot anyway?';
 
   @override
-  String get bot_home_token_invalid_title => 'Token seems invalid';
+  String get bot_home_token_invalid_title => 'Token seems to have been reset';
 
   @override
   String get bot_home_view_logs => 'View bot logs';
@@ -1930,6 +1930,81 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bot_settings_intents_saved => 'Intents saved successfully';
 
   @override
+  String get bot_settings_lavalink_choose_server => 'Choose a public server...';
+
+  @override
+  String get bot_settings_lavalink_host => 'Host';
+
+  @override
+  String get bot_settings_lavalink_host_hint =>
+      'localhost or Lavalink server IP';
+
+  @override
+  String get bot_settings_lavalink_password => 'Password';
+
+  @override
+  String get bot_settings_lavalink_password_hint => 'youshallnotpass';
+
+  @override
+  String get bot_settings_lavalink_port => 'Port';
+
+  @override
+  String get bot_settings_lavalink_port_hint => '2333';
+
+  @override
+  String get bot_settings_lavalink_premium_banner_desc =>
+      'Unlock Lavalink audio support for your bot.';
+
+  @override
+  String get bot_settings_lavalink_premium_banner_title =>
+      '🔒 Available with Bot Creator PREMIUM';
+
+  @override
+  String get bot_settings_lavalink_public_servers => 'Public servers';
+
+  @override
+  String get bot_settings_lavalink_save_btn => 'Save';
+
+  @override
+  String get bot_settings_lavalink_save_caption =>
+      'Save this configuration so the bot can connect to the Lavalink server.';
+
+  @override
+  String get bot_settings_lavalink_section_title => 'Lavalink Server';
+
+  @override
+  String get bot_settings_lavalink_server_picker_title =>
+      'Public Lavalink Servers';
+
+  @override
+  String bot_settings_lavalink_server_subtitle(String port, String version) {
+    return 'Port $port — $version';
+  }
+
+  @override
+  String bot_settings_lavalink_servers_available(int count) {
+    return '$count servers available';
+  }
+
+  @override
+  String get bot_settings_lavalink_ssl => 'Use SSL/TLS';
+
+  @override
+  String get bot_settings_lavalink_ssl_subtitle => 'Secure wss:// connection';
+
+  @override
+  String get bot_settings_lavalink_success => 'Connection successful!';
+
+  @override
+  String get bot_settings_lavalink_test_btn => 'Test connection';
+
+  @override
+  String get bot_settings_lavalink_testing => 'Testing...';
+
+  @override
+  String get bot_settings_lavalink_view_offers => 'View offers';
+
+  @override
   String get bot_settings_no_activities => 'No activities configured';
 
   @override
@@ -2039,6 +2114,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bot_settings_tab_intents => 'Intents & Privileges';
+
+  @override
+  String get bot_settings_tab_lavalink => 'Lavalink';
 
   @override
   String get bot_settings_tab_presence => 'Presence & Status';

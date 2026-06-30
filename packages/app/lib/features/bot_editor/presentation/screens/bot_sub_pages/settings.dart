@@ -14,6 +14,8 @@ import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
 import 'package:bot_creator/core/network/runner_settings.dart';
+import 'package:bot_creator/core/network/main_api_client.dart';
+import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:nyxx/nyxx.dart';
@@ -38,12 +40,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   DiscordApplicationOwnerMetadata? _ownerMetadata;
   bool _isSavingToken = false;
   bool _isForceSyncing = false;
-  bool _isSavingIntents = false;
   bool _isSavingPrefix = false;
   bool _isSavingProfile = false;
   bool _isEditingToken = false;
   String _savedToken = '';
-  late Map<String, bool> _intentsMap;
   final TextEditingController _tokenController = TextEditingController();
   final TextEditingController _prefixController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
@@ -121,35 +121,8 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       screenClass: "AppSettingsPage",
       parameters: {"app_id": widget.client.application.id.toString()},
     );
-    _initIntents();
     _init();
     _loadVersions();
-  }
-
-  void _initIntents() {
-    _intentsMap = {
-      'Guild Presence': false,
-      'Guild Members': false,
-      'Message Content': true,
-      'Direct Messages': true,
-      'Guilds': true,
-      'Guild Messages': true,
-      'Guild Message Reactions': false,
-      'Direct Message Reactions': false,
-      'Guild Message Typing': false,
-      'Direct Message Typing': false,
-      'Guild Scheduled Events': false,
-      'Auto Moderation Configuration': false,
-      'Auto Moderation Execution': false,
-      'Guild Moderation': false,
-      'Guild Expressions': false,
-      'Guild Integrations': false,
-      'Guild Webhooks': false,
-      'Guild Invites': false,
-      'Guild Voice States': false,
-      'Guild Message Polls': false,
-      'Direct Message Polls': false,
-    };
   }
 
   @override
@@ -172,18 +145,6 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     final persistedApp = await appManager.getApp(
       widget.client.user.id.toString(),
     );
-    final persistedIntents = Map<String, bool>.from(
-      (persistedApp['intents'] as Map?)?.map(
-            (key, value) => MapEntry(key.toString(), value == true),
-          ) ??
-          const <String, bool>{},
-    );
-
-    for (final entry in persistedIntents.entries) {
-      if (_intentsMap.containsKey(entry.key)) {
-        _intentsMap[entry.key] = entry.value;
-      }
-    }
 
     final persistedActivities = List<Map<String, dynamic>>.from(
       ((persistedApp['activities'] ?? persistedApp['statuses']) as List?)
@@ -367,7 +328,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     final server = await showDialog<LavalinkServerEntry>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Serveurs Lavalink publics'),
+        title: Text(context.tr.bot_settings_lavalink_server_picker_title),
         content: SizedBox(
           width: double.maxFinite,
           child: ListView.builder(
@@ -382,7 +343,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ),
                 title: Text(s.host, style: const TextStyle(fontSize: 14)),
                 subtitle: Text(
-                  'Port ${s.port} — ${s.version}',
+                  context.tr.bot_settings_lavalink_server_subtitle(s.port.toString(), s.version),
                   style: const TextStyle(fontSize: 12),
                 ),
                 onTap: () => Navigator.pop(ctx, s),
@@ -400,44 +361,6 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
         _lavalinkPasswordController.text = server.password;
         _lavalinkSsl = server.secure;
       });
-    }
-  }
-
-  Future<void> _saveIntentsOnly() async {
-    setState(() {
-      _isSavingIntents = true;
-    });
-
-    try {
-      final appData = Map<String, dynamic>.from(
-        await appManager.getApp(widget.client.user.id.toString()),
-      );
-      final token = (appData['token'] ?? _savedToken).toString().trim();
-      if (token.isEmpty) {
-        throw Exception(context.tr.bot_settings_save_token_first);
-      }
-
-      final latestAppData = Map<String, dynamic>.from(appData);
-      latestAppData['token'] = token;
-      latestAppData['intents'] = Map<String, bool>.from(_intentsMap);
-      latestAppData.remove('username');
-      latestAppData.remove('avatarPath');
-      await appManager.saveApp(widget.client.user.id.toString(), latestAppData);
-
-      if (!mounted) {
-        return;
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.tr.bot_settings_intents_saved)),
-      );
-      unawaited(refreshBotRuntime(widget.client.user.id.toString()));
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isSavingIntents = false;
-        });
-      }
     }
   }
 
@@ -532,17 +455,43 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
         if (!proceed || !mounted) return;
       }
 
-      final existingAppData = Map<String, dynamic>.from(
-        await appManager.getApp(widget.client.user.id.toString()),
-      );
-      final existingIntents = Map<String, bool>.from(
-        (existingAppData['intents'] as Map?)?.map(
-              (key, value) => MapEntry(key.toString(), value == true),
-            ) ??
-            const <String, bool>{},
-      );
-      final intentsToKeep =
-          existingIntents.isEmpty ? _intentsMap : existingIntents;
+      // Fetch app flags from Discord to compute privileged intents
+      final tempClient = await Nyxx.connectRest(effectiveToken);
+      Application app;
+      try {
+        app = await tempClient.applications.fetchCurrentApplication();
+      } finally {
+        await tempClient.close();
+      }
+
+      final computedIntents = <String, bool>{
+        // Non-privileged intents — always granted
+        'Guilds': true,
+        'Guild Messages': true,
+        'Direct Messages': true,
+        'Guild Message Reactions': true,
+        'Direct Message Reactions': true,
+        'Guild Message Typing': true,
+        'Direct Message Typing': true,
+        'Guild Scheduled Events': true,
+        'Auto Moderation Configuration': true,
+        'Auto Moderation Execution': true,
+        'Guild Moderation': true,
+        'Guild Expressions': true,
+        'Guild Integrations': true,
+        'Guild Webhooks': true,
+        'Guild Invites': true,
+        'Guild Voice States': true,
+        'Guild Message Polls': true,
+        'Direct Message Polls': true,
+        // Privileged intents — only if Discord app flags approve them
+        'Guild Members':
+            app.flags.hasGatewayGuildMembers || app.flags.hasGatewayGuildMembersLimited,
+        'Guild Presence':
+            app.flags.hasGatewayPresence || app.flags.hasGatewayPresenceLimited,
+        'Message Content':
+            app.flags.hasGatewayMessageContent || app.flags.hasGatewayMessageContentLimited,
+      };
 
       await appManager.createOrUpdateApp(
         id: discordUser.id,
@@ -550,7 +499,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
         avatarHash: discordUser.avatarHash,
         discriminator: discordUser.discriminator.toString(),
         token: effectiveToken,
-        intents: intentsToKeep,
+        intents: computedIntents,
         prefix:
             _prefixController.text.trim().isEmpty
                 ? '!'
@@ -564,6 +513,26 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       appData.remove('username');
       appData.remove('avatarPath');
       await appManager.saveApp(discordUser.id.toString(), appData);
+
+      // Push to cloud if configured
+      try {
+        final apiConfig = await MainApiSettingsStore.loadConfig();
+        if (apiConfig.isConfigured) {
+          final client = MainApiClient(baseUrl: apiConfig.baseUrl);
+          final session = await client.exchangeDiscordBotToken(botToken: effectiveToken);
+          final apiClient = MainApiClient(
+            baseUrl: apiConfig.baseUrl,
+            accessToken: session.accessToken,
+          );
+          await apiClient.syncBot(
+            discordUser.id.toString(),
+            discordUser.username,
+            appData,
+          );
+        }
+      } catch (e) {
+        developer.log('Failed to sync token to cloud: $e', name: 'AppSettingsPage');
+      }
 
       _savedToken = effectiveToken;
       _isEditingToken = false;
@@ -1602,173 +1571,6 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     );
   }
 
-  Widget _buildIntentsTab(double contentMaxWidth) {
-    Map<String, dynamic> flagsMap = {
-      'Application Command Badge':
-          app?.flags.hasApplicationCommandBadge ?? false,
-      'Guild Member Intents': app?.flags.hasGatewayGuildMembers ?? false,
-      'Guild Member Intents Limited':
-          app?.flags.hasGatewayGuildMembersLimited ?? false,
-      'Message Content Intents': app?.flags.hasGatewayMessageContent ?? false,
-      'Message Content Intents Limited':
-          app?.flags.hasGatewayMessageContentLimited ?? false,
-      'Presence Intents': app?.flags.hasGatewayPresence ?? false,
-      'Presence Intents Limited': app?.flags.hasGatewayPresenceLimited ?? false,
-      'Embedded App': app?.flags.isEmbedded ?? false,
-      'Verification Pending Guild Limit':
-          app?.flags.isVerificationPendingGuildLimit ?? false,
-      'Auto Moderation Rule Create Badge':
-          app?.flags.usesApplicationAutoModerationRuleCreateBadge ?? false,
-      'Hash Code': app?.flags.hashCode ?? 0,
-    };
-
-    return SingleChildScrollView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: contentMaxWidth),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Intents Configuration Section
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Text(
-                  context.tr.bot_settings_gateway_intents,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Text(
-                  context.tr.bot_settings_gateway_intents_desc,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppTheme.grey,
-                  ),
-                ),
-              ),
-              ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: _intentsMap.length,
-                itemBuilder: (context, index) {
-                  final intentName = _intentsMap.keys.elementAt(index);
-                  final intentValue = _intentsMap[intentName] ?? false;
-
-                  return CheckboxListTile(
-                    title: Text(intentName),
-                    value: intentValue,
-                    onChanged: (newValue) {
-                      setState(() {
-                        _intentsMap[intentName] = newValue ?? false;
-                      });
-                    },
-                    controlAffinity: ListTileControlAffinity.trailing,
-                  );
-                },
-                separatorBuilder: (_, _) => const Divider(),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                context.tr.bot_settings_save_intents_caption,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: AppTheme.grey,
-                ),
-              ),
-              const SizedBox(height: 8),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed:
-                      _isSavingIntents
-                          ? null
-                          : () async {
-                            try {
-                              await _saveIntentsOnly();
-                            } catch (e) {
-                              developer.log(
-                                'Error saving intents: $e',
-                                name: 'AppSettingsPage',
-                              );
-                              if (!mounted) return;
-                              final dialog = AlertDialog(
-                                title: Text(context.tr.error),
-                                content: Text(e.toString()),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: Text(context.tr.ok),
-                                  ),
-                                ],
-                              );
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return dialog;
-                                },
-                              );
-                            }
-                          },
-                  icon: const Icon(Icons.tune),
-                  label: Text(context.tr.bot_settings_save_intents_btn),
-                ),
-              ),
-
-              const SizedBox(height: 24),
-              const Divider(),
-              const SizedBox(height: 12),
-
-              // App Flags Section
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Text(
-                  context.tr.bot_settings_app_flags,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              if (app != null)
-                ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: flagsMap.length,
-                  itemBuilder: (context, index) {
-                    final flagName = flagsMap.keys.elementAt(index);
-                    final flagValue = flagsMap[flagName];
-
-                    if (flagName == 'Hash Code') {
-                      return ListTile(
-                        title: Text(flagName),
-                        trailing: Text(flagValue.toString()),
-                      );
-                    }
-
-                    return CheckboxListTile(
-                      title: Text(flagName),
-                      value: flagValue,
-                      onChanged: null,
-                      controlAffinity: ListTileControlAffinity.trailing,
-                    );
-                  },
-                  separatorBuilder: (_, _) => const Divider(),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildLavalinkTab(double contentMaxWidth) {
     final isPremium = PremiumCapabilities.hasCapability(PremiumCapability.lavalinkAudio);
     final canPurchase = PremiumCapabilities.canShowPurchaseUI;
@@ -1813,43 +1615,43 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                           AppTheme.discord.withValues(alpha: 0.3),
                     ),
                   ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.lock, color: AppTheme.discord),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              '🔒 Disponible avec Bot Creator PREMIUM',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: AppTheme.discord,
-                              ),
-                            ),
-                            if (canPurchase)
-                              const Text(
-                                'Débloquez le support audio Lavalink pour votre bot.',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: AppTheme.grey,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.lock, color: AppTheme.discord),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                context.tr.bot_settings_lavalink_premium_banner_title,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.discord,
                                 ),
                               ),
-                          ],
+                              if (canPurchase)
+                                Text(
+                                  context.tr.bot_settings_lavalink_premium_banner_desc,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: AppTheme.grey,
+                                  ),
+                                ),
+                            ],
+                          ),
                         ),
-                      ),
-                      if (canPurchase) ...[
-                        const SizedBox(width: 12),
-                        ElevatedButton(
-                          onPressed: () {
-                            SubscriptionPage.show(context);
-                          },
-                          child: const Text('Voir les offres'),
-                        ),
+                        if (canPurchase) ...[
+                          const SizedBox(width: 12),
+                          ElevatedButton(
+                            onPressed: () {
+                              SubscriptionPage.show(context);
+                            },
+                            child: Text(context.tr.bot_settings_lavalink_view_offers),
+                          ),
+                        ],
                       ],
-                    ],
-                  ),
+                    ),
                 ),
                 const SizedBox(height: 16),
               ],
@@ -1861,9 +1663,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                   children: [
                     Icon(Icons.music_note, color: AppTheme.discord),
                     const SizedBox(width: 10),
-                    const Text(
-                      'Serveur Lavalink',
-                      style: TextStyle(
+                    Text(
+                      context.tr.bot_settings_lavalink_section_title,
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
@@ -1885,9 +1687,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                           children: [
                             const Icon(Icons.public, size: 16, color: AppTheme.discord),
                             const SizedBox(width: 8),
-                            const Text(
-                              'Serveurs publics',
-                              style: TextStyle(fontWeight: FontWeight.w600),
+                            Text(
+                              context.tr.bot_settings_lavalink_public_servers,
+                              style: const TextStyle(fontWeight: FontWeight.w600),
                             ),
                             const Spacer(),
                             if (_isLoadingServers)
@@ -1908,8 +1710,8 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                             icon: const Icon(Icons.list),
                             label: Text(
                               _publicServers != null
-                                  ? '${_publicServers!.length} serveurs disponibles'
-                                  : 'Choisir un serveur public...',
+                                  ? context.tr.bot_settings_lavalink_servers_available(_publicServers!.length)
+                                  : context.tr.bot_settings_lavalink_choose_server,
                             ),
                           ),
                         ),
@@ -1928,7 +1730,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       padding: EdgeInsets.only(right: 8),
                       child: Icon(Icons.lock, size: 16, color: AppTheme.grey),
                     ),
-                  const Text('Hôte'),
+                  Text(context.tr.bot_settings_lavalink_host),
                 ],
               ),
               const SizedBox(height: 6),
@@ -1936,7 +1738,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 controller: _lavalinkHostController,
                 enabled: isPremium,
                 decoration: inputDecoration.copyWith(
-                  hintText: 'localhost ou IP du serveur Lavalink',
+                  hintText: context.tr.bot_settings_lavalink_host_hint,
                 ),
               ),
               const SizedBox(height: 16),
@@ -1949,7 +1751,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       padding: EdgeInsets.only(right: 8),
                       child: Icon(Icons.lock, size: 16, color: AppTheme.grey),
                     ),
-                  const Text('Port'),
+                  Text(context.tr.bot_settings_lavalink_port),
                 ],
               ),
               const SizedBox(height: 6),
@@ -1958,7 +1760,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 enabled: isPremium,
                 keyboardType: TextInputType.number,
                 decoration: inputDecoration.copyWith(
-                  hintText: '2333',
+                  hintText: context.tr.bot_settings_lavalink_port_hint,
                 ),
               ),
               const SizedBox(height: 16),
@@ -1971,7 +1773,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       padding: EdgeInsets.only(right: 8),
                       child: Icon(Icons.lock, size: 16, color: AppTheme.grey),
                     ),
-                  const Text('Mot de passe'),
+                  Text(context.tr.bot_settings_lavalink_password),
                 ],
               ),
               const SizedBox(height: 6),
@@ -1980,7 +1782,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 enabled: isPremium,
                 obscureText: !_lavalinkPasswordVisible,
                 decoration: inputDecoration.copyWith(
-                  hintText: 'youshallnotpass',
+                  hintText: context.tr.bot_settings_lavalink_password_hint,
                   suffixIcon: IconButton(
                     icon: Icon(
                       _lavalinkPasswordVisible
@@ -2008,12 +1810,12 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                         child:
                             Icon(Icons.lock, size: 16, color: AppTheme.grey),
                       ),
-                    const Text('Utiliser SSL/TLS'),
+                    Text(context.tr.bot_settings_lavalink_ssl),
                   ],
                 ),
-                subtitle: const Text(
-                  'Connexion sécurisée wss://',
-                  style: TextStyle(fontSize: 12, color: AppTheme.grey),
+                subtitle: Text(
+                  context.tr.bot_settings_lavalink_ssl_subtitle,
+                  style: const TextStyle(fontSize: 12, color: AppTheme.grey),
                 ),
                 value: _lavalinkSsl,
                 onChanged: isPremium
@@ -2028,7 +1830,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               const SizedBox(height: 12),
 
               Text(
-                'Enregistrez cette configuration pour que le bot puisse se connecter au serveur Lavalink.',
+                context.tr.bot_settings_lavalink_save_caption,
                 style: const TextStyle(
                   fontSize: 12,
                   color: AppTheme.grey,
@@ -2040,7 +1842,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 child: ElevatedButton.icon(
                   onPressed: _isSavingLavalink ? null : _saveLavalinkOnly,
                   icon: const Icon(Icons.music_note),
-                  label: const Text('Enregistrer'),
+                  label: Text(context.tr.bot_settings_lavalink_save_btn),
                 ),
               ),
               const SizedBox(height: 8),
@@ -2060,8 +1862,8 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                         : const Icon(Icons.wifi_find),
                     label: Text(
                       _isTestingConnection
-                          ? 'Test en cours...'
-                          : 'Tester la connexion',
+                          ? context.tr.bot_settings_lavalink_testing
+                          : context.tr.bot_settings_lavalink_test_btn,
                     ),
                   ),
                 ),
@@ -2081,7 +1883,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       const SizedBox(width: 8),
                       Text(
                         _connectionTestResult!.isEmpty
-                            ? 'Connexion réussie !'
+                            ? context.tr.bot_settings_lavalink_success
                             : _connectionTestResult!,
                         style: TextStyle(
                           fontSize: 12,
@@ -2340,7 +2142,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 5,
+      length: 4,
       child: Scaffold(
         appBar: AppBar(
           title: Text(context.tr.bot_settings_title),
@@ -2363,12 +2165,8 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 text: context.tr.bot_settings_tab_presence,
               ),
               Tab(
-                icon: const Icon(Icons.tune),
-                text: context.tr.bot_settings_tab_intents,
-              ),
-              Tab(
                 icon: const Icon(Icons.music_note),
-                text: 'Lavalink',
+                text: context.tr.bot_settings_tab_lavalink,
               ),
               Tab(
                 icon: const Icon(Icons.build_outlined),
@@ -2386,7 +2184,6 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 children: [
                   _buildGeneralTab(contentMaxWidth),
                   _buildPresenceTab(contentMaxWidth),
-                  _buildIntentsTab(contentMaxWidth),
                   _buildLavalinkTab(contentMaxWidth),
                   _buildAdvancedTab(contentMaxWidth),
                 ],

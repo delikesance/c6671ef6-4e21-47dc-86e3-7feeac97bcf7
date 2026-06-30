@@ -70,13 +70,10 @@ class _AppCreatePageState extends State<AppCreatePage> {
   }
 
   void _showTokenErrorDialog() {
-    const tutorialUrl =
-        'https://bot-creator.fr/tutorials/setup/security/2025/05/18/how-to-create-a-bot-token-bot-creator.html';
-
     final dialog = AlertDialog(
       title: Row(
         children: [
-          const Icon(Icons.warning_amber_rounded, color: Colors.orange),
+          const Icon(Icons.vpn_key_off_rounded, color: Colors.orange),
           const SizedBox(width: 10),
           Expanded(
             child: Text(context.tr.app_token_invalid_title),
@@ -90,14 +87,6 @@ class _AppCreatePageState extends State<AppCreatePage> {
             Navigator.of(context).pop();
           },
           child: Text(context.tr.ok),
-        ),
-        FilledButton.icon(
-          onPressed: () {
-            Navigator.of(context).pop(); // close dialog first
-            _openExternalPage(tutorialUrl);
-          },
-          icon: const Icon(Icons.open_in_new_rounded, size: 18),
-          label: Text(context.tr.app_open_token_tutorial),
         ),
       ],
     );

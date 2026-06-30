@@ -1336,10 +1336,10 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get app_token_invalid_content =>
-      'Sağlanan Discord jetonu geçersiz veya iptal edilmiş. Geçerli bir jeton oluşturmak için öğreticiyi takip etmenizi öneririz.';
+      'Jeton sıfırlanmış gibi görünüyor. Lütfen Discord Geliştirici Portalı\'ndan yeni jetonu girin.';
 
   @override
-  String get app_token_invalid_title => 'Geçersiz Jeton';
+  String get app_token_invalid_title => 'Jeton Sıfırlaması Algılandı';
 
   @override
   String get app_token_field_helper =>
@@ -1764,10 +1764,10 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get bot_home_token_invalid_content =>
-      'Sağlanan jeton ile Discord\'a bağlanılamıyor. Geçersiz olabilir veya iptal edilmiş olabilir. Botu yine de başlatmak istiyor musunuz?';
+      'Jeton sıfırlanmış gibi görünüyor. Lütfen Discord Geliştirici Portalı\'ndan yeni jetonu girin. Botu yine de başlatmak istiyor musunuz?';
 
   @override
-  String get bot_home_token_invalid_title => 'Jeton geçersiz görünüyor';
+  String get bot_home_token_invalid_title => 'Jeton sıfırlanmış gibi görünüyor';
 
   @override
   String get bot_home_view_logs => 'Bot günlüklerini görüntüle';
@@ -1941,6 +1941,81 @@ class AppLocalizationsTr extends AppLocalizations {
   String get bot_settings_intents_saved => 'Intent\'ler başarıyla kaydedildi';
 
   @override
+  String get bot_settings_lavalink_choose_server => 'Genel bir sunucu seç...';
+
+  @override
+  String get bot_settings_lavalink_host => 'Sunucu';
+
+  @override
+  String get bot_settings_lavalink_host_hint =>
+      'localhost veya Lavalink sunucu IP\'si';
+
+  @override
+  String get bot_settings_lavalink_password => 'Parola';
+
+  @override
+  String get bot_settings_lavalink_password_hint => 'youshallnotpass';
+
+  @override
+  String get bot_settings_lavalink_port => 'Port';
+
+  @override
+  String get bot_settings_lavalink_port_hint => '2333';
+
+  @override
+  String get bot_settings_lavalink_premium_banner_desc =>
+      'Botunuz için Lavalink ses desteğinin kilidini açın.';
+
+  @override
+  String get bot_settings_lavalink_premium_banner_title =>
+      '🔒 Bot Creator PREMIUM ile kullanılabilir';
+
+  @override
+  String get bot_settings_lavalink_public_servers => 'Genel sunucular';
+
+  @override
+  String get bot_settings_lavalink_save_btn => 'Kaydet';
+
+  @override
+  String get bot_settings_lavalink_save_caption =>
+      'Botun Lavalink sunucusuna bağlanabilmesi için bu yapılandırmayı kaydedin.';
+
+  @override
+  String get bot_settings_lavalink_section_title => 'Lavalink Sunucusu';
+
+  @override
+  String get bot_settings_lavalink_server_picker_title =>
+      'Genel Lavalink Sunucuları';
+
+  @override
+  String bot_settings_lavalink_server_subtitle(String port, String version) {
+    return 'Port $port — $version';
+  }
+
+  @override
+  String bot_settings_lavalink_servers_available(int count) {
+    return '$count sunucu mevcut';
+  }
+
+  @override
+  String get bot_settings_lavalink_ssl => 'SSL/TLS kullan';
+
+  @override
+  String get bot_settings_lavalink_ssl_subtitle => 'Güvenli wss:// bağlantısı';
+
+  @override
+  String get bot_settings_lavalink_success => 'Bağlantı başarılı!';
+
+  @override
+  String get bot_settings_lavalink_test_btn => 'Bağlantıyı test et';
+
+  @override
+  String get bot_settings_lavalink_testing => 'Test ediliyor...';
+
+  @override
+  String get bot_settings_lavalink_view_offers => 'Teklifleri gör';
+
+  @override
   String get bot_settings_no_activities => 'Yapılandırılmış etkinlik yok';
 
   @override
@@ -2050,6 +2125,9 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get bot_settings_tab_intents => 'Girişler & Ayrıcalıklar';
+
+  @override
+  String get bot_settings_tab_lavalink => 'Lavalink';
 
   @override
   String get bot_settings_tab_presence => 'Durum & Varlık';

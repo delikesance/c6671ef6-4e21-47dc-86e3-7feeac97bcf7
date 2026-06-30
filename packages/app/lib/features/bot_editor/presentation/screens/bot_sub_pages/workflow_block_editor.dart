@@ -301,7 +301,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
     final aliasedNames = _eventVariableAliases.values.toSet();
     final filtered = _variableSuggestions
         .where((s) => !aliasedNames.contains(s.name))
-        .toList(growable: false);
+        .toList();
 
     for (final entry in _eventVariableAliases.entries) {
       final originalName = entry.key;

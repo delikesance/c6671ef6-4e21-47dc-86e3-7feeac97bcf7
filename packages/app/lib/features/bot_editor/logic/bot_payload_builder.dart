@@ -515,6 +515,47 @@ Future<Map<String, dynamic>> buildBotPayload(String botId) async {
     throw StateError('Bot "$botId" has no token configured.');
   }
 
+  // Compute intents from Discord app flags
+  try {
+    final tempClient = await Nyxx.connectRest(token);
+    try {
+      final app = await tempClient.applications.fetchCurrentApplication();
+      appData['intents'] = {
+        // Non-privileged intents — always granted
+        'Guilds': true,
+        'Guild Messages': true,
+        'Direct Messages': true,
+        'Guild Message Reactions': true,
+        'Direct Message Reactions': true,
+        'Guild Message Typing': true,
+        'Direct Message Typing': true,
+        'Guild Scheduled Events': true,
+        'Auto Moderation Configuration': true,
+        'Auto Moderation Execution': true,
+        'Guild Moderation': true,
+        'Guild Expressions': true,
+        'Guild Integrations': true,
+        'Guild Webhooks': true,
+        'Guild Invites': true,
+        'Guild Voice States': true,
+        'Guild Message Polls': true,
+        'Direct Message Polls': true,
+        // Privileged intents — only if Discord app flags approve them
+        'Guild Members':
+            app.flags.hasGatewayGuildMembers || app.flags.hasGatewayGuildMembersLimited,
+        'Guild Presence':
+            app.flags.hasGatewayPresence || app.flags.hasGatewayPresenceLimited,
+        'Message Content':
+            app.flags.hasGatewayMessageContent || app.flags.hasGatewayMessageContentLimited,
+      };
+    } finally {
+      await tempClient.close();
+    }
+  } catch (e) {
+    // If fetching app flags fails, keep existing intents as fallback
+    debugPrint('[buildBotPayload] Failed to fetch app flags for intents: $e');
+  }
+
   final scopedVariables = await _appManager.exportScopedVariables(botId);
   final commands = await _appManager.listAppCommands(botId);
 

@@ -219,63 +219,6 @@ String _timestampNow() {
   return '${_two(now.hour)}:${_two(now.minute)}:${_two(now.second)}';
 }
 
-
-
-/// Convert the intents configuration map to GatewayIntents
-Flags<GatewayIntents> buildGatewayIntents(Map<String, bool>? intentsMap) {
-  if (intentsMap == null || intentsMap.isEmpty) {
-    return GatewayIntents.allUnprivileged;
-  }
-
-  Flags<GatewayIntents> intents = GatewayIntents.none;
-
-  if (intentsMap['Guild Presence'] == true) {
-    intents = intents | GatewayIntents.guildPresences;
-  }
-  if (intentsMap['Guild Members'] == true) {
-    intents = intents | GatewayIntents.guildMembers;
-  }
-  if (intentsMap['Message Content'] == true) {
-    intents = intents | GatewayIntents.messageContent;
-  }
-  if (intentsMap['Direct Messages'] == true) {
-    intents = intents | GatewayIntents.directMessages;
-  }
-  if (intentsMap['Guilds'] == true) {
-    intents = intents | GatewayIntents.guilds;
-  }
-  if (intentsMap['Guild Messages'] == true) {
-    intents = intents | GatewayIntents.guildMessages;
-  }
-  if (intentsMap['Guild Message Reactions'] == true) {
-    intents = intents | GatewayIntents.guildMessageReactions;
-  }
-  if (intentsMap['Direct Message Reactions'] == true) {
-    intents = intents | GatewayIntents.directMessageReactions;
-  }
-  if (intentsMap['Guild Message Typing'] == true) {
-    intents = intents | GatewayIntents.guildMessageTyping;
-  }
-  if (intentsMap['Direct Message Typing'] == true) {
-    intents = intents | GatewayIntents.directMessageTyping;
-  }
-  if (intentsMap['Guild Scheduled Events'] == true) {
-    intents = intents | GatewayIntents.guildScheduledEvents;
-  }
-  if (intentsMap['Auto Moderation Configuration'] == true) {
-    intents = intents | GatewayIntents.autoModerationConfiguration;
-  }
-  if (intentsMap['Auto Moderation Execution'] == true) {
-    intents = intents | GatewayIntents.autoModerationExecution;
-  }
-
-  if (intents == GatewayIntents.none) {
-    return GatewayIntents.allUnprivileged;
-  }
-
-  return intents;
-}
-
 Future<void> startDesktopBot(String token) async {
   if (!Platform.isWindows && !Platform.isLinux && !Platform.isMacOS) {
     throw Exception('Desktop bot mode is only available on desktop platforms.');

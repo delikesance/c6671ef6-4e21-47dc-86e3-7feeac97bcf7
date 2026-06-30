@@ -1609,7 +1609,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         } else if (currentCommand.options != null) {
           _options = currentCommand.options!
               .map(_buildOptionFromApplicationOption)
-              .toList(growable: false);
+          .toList();
         } else {
           _options = [];
         }

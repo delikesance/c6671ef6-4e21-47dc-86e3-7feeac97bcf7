@@ -2413,13 +2413,13 @@ abstract class AppLocalizations {
   /// Token invalid error message with tutorial recommendation
   ///
   /// In en, this message translates to:
-  /// **'The provided Discord token is invalid or has been revoked. We recommend following the tutorial to generate a valid token.'**
+  /// **'The token appears to have been reset. Please provide the new token from the Discord Developer Portal.'**
   String get app_token_invalid_content;
 
   /// Invalid token error dialog title
   ///
   /// In en, this message translates to:
-  /// **'Invalid Token'**
+  /// **'Token Reset Detected'**
   String get app_token_invalid_title;
 
   /// Paste the token exactly as provided by Discord.
@@ -3220,13 +3220,13 @@ abstract class AppLocalizations {
   /// Unable to connect to Discord with the provided token. It may be invalid or revoked. Do you want to start the bot anyway?
   ///
   /// In en, this message translates to:
-  /// **'Unable to connect to Discord with the provided token. It may be invalid or revoked. Do you want to start the bot anyway?'**
+  /// **'The token seems to have been reset. Please provide the new token from the Discord Developer Portal. Do you want to start the bot anyway?'**
   String get bot_home_token_invalid_content;
 
   /// Token seems invalid
   ///
   /// In en, this message translates to:
-  /// **'Token seems invalid'**
+  /// **'Token seems to have been reset'**
   String get bot_home_token_invalid_title;
 
   /// View bot logs
@@ -3529,6 +3529,138 @@ abstract class AppLocalizations {
   /// **'Intents saved successfully'**
   String get bot_settings_intents_saved;
 
+  /// Choose a public server button
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a public server...'**
+  String get bot_settings_lavalink_choose_server;
+
+  /// Host field label
+  ///
+  /// In en, this message translates to:
+  /// **'Host'**
+  String get bot_settings_lavalink_host;
+
+  /// Host field hint
+  ///
+  /// In en, this message translates to:
+  /// **'localhost or Lavalink server IP'**
+  String get bot_settings_lavalink_host_hint;
+
+  /// Password field label
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get bot_settings_lavalink_password;
+
+  /// Password field hint
+  ///
+  /// In en, this message translates to:
+  /// **'youshallnotpass'**
+  String get bot_settings_lavalink_password_hint;
+
+  /// Port field label
+  ///
+  /// In en, this message translates to:
+  /// **'Port'**
+  String get bot_settings_lavalink_port;
+
+  /// Port field hint
+  ///
+  /// In en, this message translates to:
+  /// **'2333'**
+  String get bot_settings_lavalink_port_hint;
+
+  /// Premium banner description on the Lavalink tab
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock Lavalink audio support for your bot.'**
+  String get bot_settings_lavalink_premium_banner_desc;
+
+  /// Premium banner title on the Lavalink tab
+  ///
+  /// In en, this message translates to:
+  /// **'🔒 Available with Bot Creator PREMIUM'**
+  String get bot_settings_lavalink_premium_banner_title;
+
+  /// Public servers list header
+  ///
+  /// In en, this message translates to:
+  /// **'Public servers'**
+  String get bot_settings_lavalink_public_servers;
+
+  /// Save button on Lavalink tab
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get bot_settings_lavalink_save_btn;
+
+  /// Caption explaining the bot needs this config to connect
+  ///
+  /// In en, this message translates to:
+  /// **'Save this configuration so the bot can connect to the Lavalink server.'**
+  String get bot_settings_lavalink_save_caption;
+
+  /// Lavalink server section title
+  ///
+  /// In en, this message translates to:
+  /// **'Lavalink Server'**
+  String get bot_settings_lavalink_section_title;
+
+  /// Public Lavalink servers picker dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Public Lavalink Servers'**
+  String get bot_settings_lavalink_server_picker_title;
+
+  /// Port {port} — {version}
+  ///
+  /// In en, this message translates to:
+  /// **'Port {port} — {version}'**
+  String bot_settings_lavalink_server_subtitle(String port, String version);
+
+  /// {count} public servers available
+  ///
+  /// In en, this message translates to:
+  /// **'{count} servers available'**
+  String bot_settings_lavalink_servers_available(int count);
+
+  /// Use SSL/TLS toggle title
+  ///
+  /// In en, this message translates to:
+  /// **'Use SSL/TLS'**
+  String get bot_settings_lavalink_ssl;
+
+  /// Secure wss:// connection subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Secure wss:// connection'**
+  String get bot_settings_lavalink_ssl_subtitle;
+
+  /// Connection test succeeded
+  ///
+  /// In en, this message translates to:
+  /// **'Connection successful!'**
+  String get bot_settings_lavalink_success;
+
+  /// Test connection button
+  ///
+  /// In en, this message translates to:
+  /// **'Test connection'**
+  String get bot_settings_lavalink_test_btn;
+
+  /// Testing connection in progress
+  ///
+  /// In en, this message translates to:
+  /// **'Testing...'**
+  String get bot_settings_lavalink_testing;
+
+  /// View offers button on the premium banner
+  ///
+  /// In en, this message translates to:
+  /// **'View offers'**
+  String get bot_settings_lavalink_view_offers;
+
   /// Message shown when no activities are configured for the bot
   ///
   /// In en, this message translates to:
@@ -3732,6 +3864,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Intents & Privileges'**
   String get bot_settings_tab_intents;
+
+  /// Lavalink (music) tab in bot settings
+  ///
+  /// In en, this message translates to:
+  /// **'Lavalink'**
+  String get bot_settings_tab_lavalink;
 
   /// Presence & status tab in bot settings
   ///

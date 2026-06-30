@@ -12,6 +12,8 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pag
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/settings.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/workflows.page.dart';
 import 'package:bot_creator/core/analytics/analytics.dart';
+import 'package:bot_creator/core/network/main_api_client.dart';
+import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
@@ -189,35 +191,6 @@ class _AppEditPageState extends State<AppEditPage>
   List<_AppPageEntry> _buildEntries(bool isSmallPhone) {
     if (client == null) {
       return [
-        _AppPageEntry(
-          icon: Icons.warning_amber_rounded,
-          label: context.tr.recovery_label,
-          compactLabel: context.tr.recovery_label,
-          page: _OfflineRecoveryPage(
-            reason: _degradedReason,
-            token: _currentToken,
-            onRetry: _init,
-            onDeleteLocal: () async {
-              final shouldDelete = await AppTheme.showConfirmDialog(
-                context,
-                title: context.tr.recovery_delete_bot,
-                content:
-                    'This removes the local bot data from this device. Continue?',
-                confirmLabel: context.tr.delete,
-                isDestructive: true,
-              );
-              if (!shouldDelete) {
-                return;
-              }
-
-              await appManager.deleteBotCompletely(_botId);
-              if (!mounted) {
-                return;
-              }
-              Navigator.of(context).pop();
-            },
-          ),
-        ),
         _AppPageEntry(
           icon: Icons.vpn_key_outlined,
           label: context.tr.settings_tab,
@@ -639,24 +612,74 @@ class _OfflineTokenPageState extends State<_OfflineTokenPage> {
         if (!proceed || !mounted) return;
       }
 
-      final existingData = Map<String, dynamic>.from(
-        await appManager.getApp(widget.botId),
-      );
-      final intents = Map<String, bool>.from(
-        (existingData['intents'] as Map?)?.map(
-              (k, v) => MapEntry(k.toString(), v == true),
-            ) ??
-            const <String, bool>{},
-      );
+      // Fetch app flags from Discord to compute privileged intents
+      final tempClient = await Nyxx.connectRest(newToken);
+      Application app;
+      try {
+        app = await tempClient.applications.fetchCurrentApplication();
+      } finally {
+        await tempClient.close();
+      }
+
+      final computedIntents = <String, bool>{
+        'Guilds': true,
+        'Guild Messages': true,
+        'Direct Messages': true,
+        'Guild Message Reactions': true,
+        'Direct Message Reactions': true,
+        'Guild Message Typing': true,
+        'Direct Message Typing': true,
+        'Guild Scheduled Events': true,
+        'Auto Moderation Configuration': true,
+        'Auto Moderation Execution': true,
+        'Guild Moderation': true,
+        'Guild Expressions': true,
+        'Guild Integrations': true,
+        'Guild Webhooks': true,
+        'Guild Invites': true,
+        'Guild Voice States': true,
+        'Guild Message Polls': true,
+        'Direct Message Polls': true,
+        'Guild Members':
+            app.flags.hasGatewayGuildMembers || app.flags.hasGatewayGuildMembersLimited,
+        'Guild Presence':
+            app.flags.hasGatewayPresence || app.flags.hasGatewayPresenceLimited,
+        'Message Content':
+            app.flags.hasGatewayMessageContent || app.flags.hasGatewayMessageContentLimited,
+      };
+
       await appManager.createOrUpdateApp(
         id: discordUser.id,
         username: discordUser.username,
         avatarHash: discordUser.avatarHash,
         discriminator: discordUser.discriminator.toString(),
         token: newToken,
-        intents: intents,
+        intents: computedIntents,
       );
       if (!mounted) return;
+
+      try {
+        final apiConfig = await MainApiSettingsStore.loadConfig();
+        if (apiConfig.isConfigured) {
+          final appData = Map<String, dynamic>.from(
+            await appManager.getApp(discordUser.id.toString()),
+          );
+          final client = MainApiClient(baseUrl: apiConfig.baseUrl);
+          final session = await client.exchangeDiscordBotToken(botToken: newToken);
+          final apiClient = MainApiClient(
+            baseUrl: apiConfig.baseUrl,
+            accessToken: session.accessToken,
+          );
+          await apiClient.syncBot(
+            discordUser.id.toString(),
+            discordUser.username,
+            appData,
+          );
+        }
+      } catch (e) {
+        developer.log('Failed to sync token to cloud: $e', name: 'AppEditPage');
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(context.tr.bot_settings_token_saved)),
       );

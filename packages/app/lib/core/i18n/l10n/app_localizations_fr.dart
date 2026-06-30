@@ -1357,10 +1357,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get app_token_invalid_content =>
-      'Le token Discord fourni est invalide ou a été révoqué. Nous vous recommandons de suivre le tutoriel pour générer un token valide.';
+      'Le token semble avoir été réinitialisé. Veuillez fournir le nouveau token depuis le Discord Developer Portal.';
 
   @override
-  String get app_token_invalid_title => 'Token invalide';
+  String get app_token_invalid_title => 'Réinitialisation du token détectée';
 
   @override
   String get app_token_field_helper =>
@@ -1799,10 +1799,11 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get bot_home_token_invalid_content =>
-      'Impossible de se connecter a Discord avec le token fourni. Il est peut-etre invalide ou revoque. Voulez-vous quand meme lancer le bot ?';
+      'Le token semble avoir été réinitialisé. Veuillez fournir le nouveau token depuis le Discord Developer Portal. Voulez-vous quand même lancer le bot ?';
 
   @override
-  String get bot_home_token_invalid_title => 'Token apparemment invalide';
+  String get bot_home_token_invalid_title =>
+      'Le token semble avoir été réinitialisé';
 
   @override
   String get bot_home_view_logs => 'Voir les logs du bot';
@@ -1978,6 +1979,82 @@ class AppLocalizationsFr extends AppLocalizations {
   String get bot_settings_intents_saved => 'Intents sauvegardes avec succes';
 
   @override
+  String get bot_settings_lavalink_choose_server =>
+      'Choisir un serveur public...';
+
+  @override
+  String get bot_settings_lavalink_host => 'Hôte';
+
+  @override
+  String get bot_settings_lavalink_host_hint =>
+      'localhost ou IP du serveur Lavalink';
+
+  @override
+  String get bot_settings_lavalink_password => 'Mot de passe';
+
+  @override
+  String get bot_settings_lavalink_password_hint => 'youshallnotpass';
+
+  @override
+  String get bot_settings_lavalink_port => 'Port';
+
+  @override
+  String get bot_settings_lavalink_port_hint => '2333';
+
+  @override
+  String get bot_settings_lavalink_premium_banner_desc =>
+      'Débloquez le support audio Lavalink pour votre bot.';
+
+  @override
+  String get bot_settings_lavalink_premium_banner_title =>
+      '🔒 Disponible avec Bot Creator PREMIUM';
+
+  @override
+  String get bot_settings_lavalink_public_servers => 'Serveurs publics';
+
+  @override
+  String get bot_settings_lavalink_save_btn => 'Enregistrer';
+
+  @override
+  String get bot_settings_lavalink_save_caption =>
+      'Enregistrez cette configuration pour que le bot puisse se connecter au serveur Lavalink.';
+
+  @override
+  String get bot_settings_lavalink_section_title => 'Serveur Lavalink';
+
+  @override
+  String get bot_settings_lavalink_server_picker_title =>
+      'Serveurs Lavalink publics';
+
+  @override
+  String bot_settings_lavalink_server_subtitle(String port, String version) {
+    return 'Port $port — $version';
+  }
+
+  @override
+  String bot_settings_lavalink_servers_available(int count) {
+    return '$count serveurs disponibles';
+  }
+
+  @override
+  String get bot_settings_lavalink_ssl => 'Utiliser SSL/TLS';
+
+  @override
+  String get bot_settings_lavalink_ssl_subtitle => 'Connexion sécurisée wss://';
+
+  @override
+  String get bot_settings_lavalink_success => 'Connexion réussie !';
+
+  @override
+  String get bot_settings_lavalink_test_btn => 'Tester la connexion';
+
+  @override
+  String get bot_settings_lavalink_testing => 'Test en cours...';
+
+  @override
+  String get bot_settings_lavalink_view_offers => 'Voir les offres';
+
+  @override
   String get bot_settings_no_activities => 'Aucune activité configurée';
 
   @override
@@ -2087,6 +2164,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get bot_settings_tab_intents => 'Intents & Privilèges';
+
+  @override
+  String get bot_settings_tab_lavalink => 'Lavalink';
 
   @override
   String get bot_settings_tab_presence => 'Présence & Statut';
