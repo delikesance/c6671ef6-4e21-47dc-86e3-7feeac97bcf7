@@ -152,7 +152,7 @@ CommandOptionBuilder deserializeCommandOption(Map<String, dynamic> raw) {
             value: choice['value'],
           ),
         )
-        .toList(growable: false);
+        .toList();
   }
 
   final nestedOptionsRaw = raw['options'];
