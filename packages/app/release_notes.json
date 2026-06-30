@@ -1,6 +1,6 @@
 [
     {
         "language": "en-US",
-        "text": "Bug fixes and performance improvements.\n\nThis update includes CocoaPods build fixes for macOS and general stability improvements."
+        "text": "Lavalink controls are now translated in French, German, Portuguese, Japanese, and Turkish. Token recovery is easier with direct token editing in the editor. Fixed rare crashes when editing command options and workflows. Bot permissions (Gateway Intents) are now automatically configured when saving your token."
     }
 ]
