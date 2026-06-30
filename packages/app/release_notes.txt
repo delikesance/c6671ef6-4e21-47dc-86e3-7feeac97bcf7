@@ -1,10 +1,22 @@
-Bot Creator v1.9.1
+Bot Creator v1.9.22
+
+New Features:
+- Lavalink controls are now fully translated in French, German, Portuguese, Japanese, and Turkish
+- Token recovery is now easier: when your bot token is reset, you can update it directly from the editor
+- Bot permissions (Gateway Intents) are now automatically configured when saving your token — no more manual setup needed
+
+Improvements:
+- Fixed rare app crashes when editing command options and workflows
+- Improved stability when saving bot settings
+- Better messages when your bot token needs to be updated
+
+v1.9.21
 
 Bug Fixes:
 - Fixed CocoaPods installation issues in macOS CI builds
 - Improved build pipeline stability
 
-v1.9.0
+v1.9.20
 
 New Features:
 - Image Editor: create and edit images with layers, text, shapes, and image compositing

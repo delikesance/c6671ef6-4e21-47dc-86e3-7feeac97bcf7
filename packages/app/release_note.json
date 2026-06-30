@@ -1,10 +1,10 @@
 [
     {
         "language": "fr-FR",
-        "text": "Fix de bug."
+        "text": "Les contrôles Lavalink sont maintenant traduits en français, allemand, portugais, japonais et turc. La récupération des tokens est plus simple : vous pouvez mettre à jour votre token directement depuis l'éditeur. Correction de bugs rares lors de l'édition des commandes et workflows."
     },
     {
         "language": "en-US",
-        "text": "Bug Fix."
+        "text": "Lavalink controls are now fully translated in French, German, Portuguese, Japanese, and Turkish. Token recovery is easier: you can now update your bot token directly from the editor. Fixed rare crashes when editing commands and workflows."
     }
 ]
