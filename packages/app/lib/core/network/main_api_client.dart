@@ -9,6 +9,8 @@ import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/core/utils/hash_util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:web_socket_channel/io.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MainApiClientException implements Exception {
@@ -202,9 +204,12 @@ class MainApiClient implements RemoteRuntimeClient {
 
   Map<String, String> _headers({
     bool includeAuth = true,
-    String contentType = 'application/json',
+    String? contentType = 'application/json',
   }) {
-    final headers = <String, String>{'content-type': contentType};
+    final headers = <String, String>{};
+    if (contentType != null) {
+      headers['content-type'] = contentType;
+    }
     if (includeAuth && _accessToken != null) {
       headers['authorization'] = 'Bearer $_accessToken';
     }
@@ -467,6 +472,69 @@ class MainApiClient implements RemoteRuntimeClient {
     throw const MainApiClientException('Request failed after retries.');
   }
 
+  Future<Map<String, dynamic>> _patch(
+    String path,
+    Map<String, dynamic> body, {
+    bool includeAuth = true,
+  }) async {
+    if (_isCircuitOpen(_baseUrl)) {
+      throw MainApiClientException(
+        'Circuit breaker open for $_baseUrl — too many failures.',
+      );
+    }
+
+    final uri = _uri(path);
+    final encodedBody = jsonEncode(body);
+    appendBotDebugLog('[MainApiClient] PATCH $uri');
+
+    Object? lastError;
+    for (var attempt = 0; attempt <= _maxRetries; attempt++) {
+      try {
+        final response = await _http
+            .patch(
+              uri,
+              headers: _headers(includeAuth: includeAuth),
+              body: encodedBody,
+            )
+            .timeout(_timeout);
+        appendBotDebugLog(
+          '[MainApiClient] PATCH $uri responded with ${response.statusCode}',
+        );
+        _recordCircuitSuccess(_baseUrl);
+        return _parseResponse(response);
+      } on MainApiClientException catch (error) {
+        lastError = error;
+        if ((error.statusCode == 401 || error.statusCode == 403) && includeAuth) {
+          final newTokens = await _tryRefreshSession();
+          if (newTokens != null) {
+            _accessToken = newTokens;
+            continue;
+          }
+        }
+        if (_isClientError(error) || attempt >= _maxRetries) {
+          _recordCircuitFailure(_baseUrl);
+          rethrow;
+        }
+        await Future<void>.delayed(
+          _baseRetryDelay * pow(_retryBackoffMultiplier, attempt),
+        );
+      } catch (error) {
+        lastError = error;
+        if (attempt >= _maxRetries) {
+          _recordCircuitFailure(_baseUrl);
+          rethrow;
+        }
+        await Future<void>.delayed(
+          _baseRetryDelay * pow(_retryBackoffMultiplier, attempt),
+        );
+      }
+    }
+
+    _recordCircuitFailure(_baseUrl);
+    if (lastError is Exception) throw lastError;
+    throw const MainApiClientException('Request failed after retries.');
+  }
+
   /// Returns the parsed response body as a Map.
   /// If the response is a List, it is wrapped as {'data': list}.
   Map<String, dynamic> _parseResponse(http.Response response) {
@@ -637,21 +705,31 @@ class MainApiClient implements RemoteRuntimeClient {
   @override
   Future<RunnerStatus> getStatus({String? botId}) async {
     if (botId == null || botId.trim().isEmpty) {
-      final json = await _get('/gateway/runtime');
-      var isRunning = false;
-      for (final value in json.values) {
-        if (value is Map) {
-          final running = value['bots_running'] as int? ?? 0;
-          if (running > 0) {
-            isRunning = true;
-            break;
+      try {
+        final json = await _get('/gateway/runtime');
+        var isRunning = false;
+        for (final value in json.values) {
+          if (value is Map) {
+            final running = value['bots_running'] as int? ?? 0;
+            if (running > 0) {
+              isRunning = true;
+              break;
+            }
           }
         }
+        return RunnerStatus(
+          running: isRunning,
+          bots: const <RunnerBotRuntime>[],
+        );
+      } on MainApiClientException catch (e) {
+        // In pool mode, /gateway/runtime returns 404 pool_mode_active.
+        // Return empty status gracefully instead of propagating the error.
+        if (e.message.contains('pool_mode_active') ||
+            e.message.contains('pool mode')) {
+          return RunnerStatus(running: false, bots: const <RunnerBotRuntime>[]);
+        }
+        rethrow;
       }
-          return RunnerStatus(
-        running: isRunning,
-        bots: const <RunnerBotRuntime>[],
-      );
     }
 
     final encodedBotId = Uri.encodeComponent(botId.trim());
@@ -672,11 +750,19 @@ class MainApiClient implements RemoteRuntimeClient {
   @override
   Future<RunnerMetrics> getMetrics({String? botId}) async {
     if (botId == null || botId.trim().isEmpty) {
-      final json = await _getFirstAvailable(const <String>[
-        '/gateway/metrics',
-        '/metrics',
-      ]);
-      return RunnerMetrics.fromJson(json);
+      try {
+        final json = await _getFirstAvailable(const <String>[
+          '/gateway/metrics',
+          '/metrics',
+        ]);
+        return RunnerMetrics.fromJson(json);
+      } on MainApiClientException catch (e) {
+        if (e.message.contains('pool_mode_active') ||
+            e.message.contains('pool mode')) {
+          return RunnerMetrics(running: false, bots: const <RunnerBotRuntime>[]);
+        }
+        rethrow;
+      }
     }
 
     final encodedBotId = Uri.encodeComponent(botId.trim());
@@ -985,14 +1071,33 @@ class MainApiClient implements RemoteRuntimeClient {
   Future<List<String>> getLogs({String? botId, int limit = 300}) async {
     final List<String> paths;
     if (botId == null || botId.trim().isEmpty) {
-      paths = const <String>['/gateway/logs', '/logs'];
-    } else {
-      final encodedBotId = Uri.encodeComponent(botId.trim());
-      paths = <String>[
-        '/gateway/bots/$encodedBotId/logs',
-        '/bots/$encodedBotId/logs',
-      ];
+      try {
+        paths = const <String>['/gateway/logs', '/logs'];
+
+        final json = await _getFirstAvailable(
+          paths,
+          query: <String, String?>{'limit': limit.toString()},
+        );
+
+        final rawLines = json['lines'];
+        if (rawLines is! List) {
+          return const <String>[];
+        }
+        return rawLines.map((entry) => entry.toString()).toList(growable: false);
+      } on MainApiClientException catch (e) {
+        if (e.message.contains('pool_mode_active') ||
+            e.message.contains('pool mode')) {
+          return const <String>[];
+        }
+        rethrow;
+      }
     }
+
+    final encodedBotId = Uri.encodeComponent(botId.trim());
+    paths = <String>[
+      '/gateway/bots/$encodedBotId/logs',
+      '/bots/$encodedBotId/logs',
+    ];
 
     final json = await _getFirstAvailable(
       paths,
@@ -1452,6 +1557,80 @@ class MainApiClient implements RemoteRuntimeClient {
       'rating': rating,
     });
   }
+
+  // ──────────────────────────────────────────────
+  // Container / Hosted App methods
+  // ──────────────────────────────────────────────
+
+  /// List all containers for the authenticated owner.
+  Future<List<ContainerInfo>> listContainers() async {
+    final json = await _get('/containers');
+    final list = (json['containers'] as List<dynamic>?)
+            ?.cast<Map<String, dynamic>>() ??
+        <Map<String, dynamic>>[];
+    return list.map((e) => ContainerInfo.fromJson(e)).toList();
+  }
+
+  /// Deploy a new container (async, returns job + container IDs).
+  Future<Map<String, dynamic>> deployContainer({
+    required String image,
+    required int cpuMillis,
+    required int memoryMb,
+    int storageGb = 10,
+    Map<String, String> env = const <String, String>{},
+    int ttlMinutes = 60,
+  }) async {
+    return _post('/containers/deploy', <String, dynamic>{
+      'image': image,
+      'cpu_millis': cpuMillis,
+      'memory_mb': memoryMb,
+      'storage_gb': storageGb,
+      'env': env,
+      'ttl_minutes': ttlMinutes,
+    });
+  }
+
+  /// Get the current status of a container.
+  Future<Map<String, dynamic>> getContainerStatus(String id) async {
+    return _get('/containers/$id/status');
+  }
+
+  /// Stop a running container.
+  Future<void> stopContainer(String id) async {
+    await _post('/containers/$id/stop', <String, dynamic>{});
+  }
+
+  /// Extend the TTL of a container.
+  Future<Map<String, dynamic>> extendContainerTTL(
+    String id,
+    int ttlMinutes,
+  ) async {
+    return _patch('/containers/$id/ttl', <String, dynamic>{
+      'ttl_minutes': ttlMinutes,
+    });
+  }
+
+  /// Update CPU / memory resources of a container.
+  Future<Map<String, dynamic>> updateContainerResources(
+    String id, {
+    required int cpuMillis,
+    required int memoryMb,
+  }) async {
+    return _patch('/containers/$id/resources', <String, dynamic>{
+      'cpu_millis': cpuMillis,
+      'memory_mb': memoryMb,
+    });
+  }
+
+  /// Connect to the container console WebSocket.
+  /// Returns a connected [WebSocketChannel] ready for bidirectional I/O.
+  WebSocketChannel connectContainerConsole(String id) {
+    final uri = Uri.parse('${_baseUrl.replaceFirst('http', 'ws')}/containers/$id/console');
+    return IOWebSocketChannel.connect(
+      uri,
+      headers: _headers(includeAuth: true, contentType: null),
+    );
+  }
 }
 
 /// Returns true for client errors (4xx except 429) that should NOT be retried.
@@ -1520,6 +1699,82 @@ Map<String, dynamic>? _extractMap(
 String? _normalize(String? value) {
   final trimmed = value?.trim() ?? '';
   return trimmed.isEmpty ? null : trimmed;
+}
+
+/// Information about a hosted container.
+class ContainerInfo {
+  final String id;
+  final String ownerId;
+  final String swarmServiceId;
+  final String image;
+  final int cpuMillis;
+  final int memoryMb;
+  final int storageGb;
+  final Map<String, String> env;
+  final String state;
+  final int hostPort;
+  final String nodeIp;
+  final DateTime expiresAt;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  const ContainerInfo({
+    required this.id,
+    required this.ownerId,
+    this.swarmServiceId = '',
+    required this.image,
+    required this.cpuMillis,
+    required this.memoryMb,
+    required this.storageGb,
+    this.env = const <String, String>{},
+    required this.state,
+    this.hostPort = 0,
+    this.nodeIp = '',
+    required this.expiresAt,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  factory ContainerInfo.fromJson(Map<String, dynamic> json) {
+    return ContainerInfo(
+      id: (json['id'] ?? '').toString(),
+      ownerId: (json['owner_id'] ?? '').toString(),
+      swarmServiceId: (json['swarm_service_id'] ?? '').toString(),
+      image: (json['image'] ?? '').toString(),
+      cpuMillis: _parseInt(json['cpu_millis'], 0),
+      memoryMb: _parseInt(json['memory_mb'], 0),
+      storageGb: _parseInt(json['storage_gb'], 0),
+      env: (json['env'] is Map<String, dynamic>
+          ? (json['env'] as Map<String, dynamic>)
+              .map((k, v) => MapEntry(k, v.toString()))
+          : <String, String>{}),
+      state: (json['state'] ?? '').toString(),
+      hostPort: _parseInt(json['host_port'], 0),
+      nodeIp: (json['node_ip'] ?? '').toString(),
+      expiresAt: _parseDateTime(json['expires_at']),
+      createdAt: _parseDateTime(json['created_at']),
+      updatedAt: _parseDateTime(json['updated_at']),
+    );
+  }
+
+  bool get isRunning => state == 'RUNNING';
+  bool get isPending => state == 'PENDING';
+  bool get isStopped => state == 'STOPPED' || state == 'STOPPING';
+  bool get isFailed => state == 'FAILED';
+  bool get isTerminal => isStopped || isFailed;
+
+  static int _parseInt(dynamic v, int fallback) {
+    if (v is int) return v;
+    if (v is double) return v.toInt();
+    if (v is String) return int.tryParse(v) ?? fallback;
+    return fallback;
+  }
+
+  static DateTime _parseDateTime(dynamic v) {
+    if (v is String) return DateTime.tryParse(v) ?? DateTime(0);
+    if (v is int) return DateTime.fromMillisecondsSinceEpoch(v);
+    return DateTime(0);
+  }
 }
 
 class PresignBotConfigResponse {

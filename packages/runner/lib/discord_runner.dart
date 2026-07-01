@@ -14,13 +14,14 @@ class DiscordRunner {
   BotConfig config;
   final RunnerDataStore store;
   final CommandStatsStore? statsStore;
+  final void Function(String reason)? onDisconnected;
   final Logger _log;
 
   late final BotEngine _engine;
   Timer? _scheduledWorkflowTimer;
   final Map<String, DateTime> _scheduledLastRun = <String, DateTime>{};
 
-  DiscordRunner(this.botId, this.config, {this.statsStore})
+  DiscordRunner(this.botId, this.config, {this.statsStore, this.onDisconnected})
     : store = RunnerDataStore(config, statsStore: statsStore),
       _log = Logger('bot:$botId') {
     _engine = BotEngine(
@@ -34,6 +35,10 @@ class DiscordRunner {
           _engine.saveDebugReplay(botId, label, frames, totalMs);
         },
         isDebugReplayCapturing: (botId) => _engine.isDebugReplayCapturing(botId),
+        onDisconnected: (reason, {required botId}) {
+          _log.warning('Permanent disconnection: $reason');
+          onDisconnected?.call(reason);
+        },
       ),
     );
   }

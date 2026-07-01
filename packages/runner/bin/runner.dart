@@ -157,9 +157,6 @@ Future<void> _runWebMode({
     await server.start();
     stdout.writeln('Runner API listening on http://$host:$port');
 
-    // Self-healing: resume bots that were running before the restart
-    unawaited(server.selfHeal());
-
     await Future.any<void>(<Future<void>>[
       shutdownCompleter.future,
       server.waitForShutdown(),

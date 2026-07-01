@@ -12,43 +12,44 @@ class AppLocalizationsTr extends AppLocalizations {
   String get action_add_else_if => 'ELSE IF Ekle';
 
   @override
-  String get action_add_header => 'Başlık ekle';
+  String get action_add_header => 'BaÃ…Å¸lÃ„Â±k ekle';
 
   @override
-  String get action_add_new_item => 'Yeni öğe ekle';
+  String get action_add_new_item => 'Yeni ÃƒÂ¶Ã„Å¸e ekle';
 
   @override
-  String get action_advanced_settings => 'Gelişmiş ayarlar';
+  String get action_advanced_settings => 'GeliÃ…Å¸miÃ…Å¸ ayarlar';
 
   @override
   String action_and_more(int count) {
-    return '… ve $count tane daha';
+    return 'Ã¢â‚¬Â¦ ve $count tane daha';
   }
 
   @override
   String get action_bulk_import_hint =>
-      'Toplu içe aktarma (Anahtar: Değer şeklinde başlıkları yapıştırın)';
+      'Toplu iÃƒÂ§e aktarma (Anahtar: DeÃ„Å¸er Ã…Å¸eklinde baÃ…Å¸lÃ„Â±klarÃ„Â± yapÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±n)';
 
   @override
-  String get action_cannot_format_json => 'Formatlanamıyor: Geçersiz JSON';
+  String get action_cannot_format_json =>
+      'FormatlanamÃ„Â±yor: GeÃƒÂ§ersiz JSON';
 
   @override
   String get action_category_channels => 'Kanallar';
 
   @override
-  String get action_category_components => 'Bileşenler';
+  String get action_category_components => 'BileÃ…Å¸enler';
 
   @override
-  String get action_category_guild_members => 'Sunucu ve Üyeler';
+  String get action_category_guild_members => 'Sunucu ve ÃƒÅ“yeler';
 
   @override
-  String get action_category_http_variables => 'HTTP ve Değişkenler';
+  String get action_category_http_variables => 'HTTP ve DeÃ„Å¸iÃ…Å¸kenler';
 
   @override
-  String get action_category_interactions => 'Etkileşimler';
+  String get action_category_interactions => 'EtkileÃ…Å¸imler';
 
   @override
-  String get action_category_logic_flow => 'Mantık ve Akış';
+  String get action_category_logic_flow => 'MantÃ„Â±k ve AkÃ„Â±Ã…Å¸';
 
   @override
   String get action_category_messages => 'Mesajlar';
@@ -57,7 +58,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get action_category_moderation => 'Moderasyon';
 
   @override
-  String get action_category_music => 'Müzik';
+  String get action_category_music => 'MÃƒÂ¼zik';
 
   @override
   String get action_category_reactions => 'Tepkiler';
@@ -66,39 +67,39 @@ class AppLocalizationsTr extends AppLocalizations {
   String get action_category_webhooks => 'Webhooks';
 
   @override
-  String get action_category_workflows => 'İş Akışları';
+  String get action_category_workflows => 'Ã„Â°Ã…Å¸ AkÃ„Â±Ã…Å¸larÃ„Â±';
 
   @override
   String action_choose_param(String name) {
-    return '$name Seç';
+    return '$name SeÃƒÂ§';
   }
 
   @override
-  String get action_clear_all => 'Tümünü temizle';
+  String get action_clear_all => 'TÃƒÂ¼mÃƒÂ¼nÃƒÂ¼ temizle';
 
   @override
-  String get action_condition_value => 'Koşul Değeri';
+  String get action_condition_value => 'KoÃ…Å¸ul DeÃ„Å¸eri';
 
   @override
-  String get action_condition_variable => 'Koşul Değişkeni';
+  String get action_condition_variable => 'KoÃ…Å¸ul DeÃ„Å¸iÃ…Å¸keni';
 
   @override
   String get action_description_addReaction => 'Bir mesaja emoji tepkisi ekle';
 
   @override
-  String get action_description_addRole => 'Bir üyeye rol ata';
+  String get action_description_addRole => 'Bir ÃƒÂ¼yeye rol ata';
 
   @override
   String get action_description_addThreadMember =>
-      'İleti dizisine bir üye ekle';
+      'Ã„Â°leti dizisine bir ÃƒÂ¼ye ekle';
 
   @override
   String get action_description_appendArrayElement =>
-      'Genel veya kapsamlı bir JSON dizisine yeni bir öğe ekle';
+      'Genel veya kapsamlÃ„Â± bir JSON dizisine yeni bir ÃƒÂ¶Ã„Å¸e ekle';
 
   @override
   String get action_description_attachImage =>
-      'Mesaj yanıtına bir resim dosyası ekle (URL, veri URL\'si veya base64)';
+      'Mesaj yanÃ„Â±tÃ„Â±na bir resim dosyasÃ„Â± ekle (URL, veri URL\'si veya base64)';
 
   @override
   String get action_description_banUser =>
@@ -106,31 +107,31 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get action_description_calculate =>
-      'Matematiksel işlemleri gerçekleştir ve sonucu kaydet';
+      'Matematiksel iÃ…Å¸lemleri gerÃƒÂ§ekleÃ…Å¸tir ve sonucu kaydet';
 
   @override
   String get action_description_canvasCreateBlock =>
-      'Boş bir resim tuvali oluştur';
+      'BoÃ…Å¸ bir resim tuvali oluÃ…Å¸tur';
 
   @override
   String get action_description_canvasDrawCircleBlock =>
-      'Resim tuvali üzerine bir daire çiz';
+      'Resim tuvali ÃƒÂ¼zerine bir daire ÃƒÂ§iz';
 
   @override
   String get action_description_canvasDrawLineBlock =>
-      'Tuval üzerine bir çizgi çiz';
+      'Tuval ÃƒÂ¼zerine bir ÃƒÂ§izgi ÃƒÂ§iz';
 
   @override
   String get action_description_canvasDrawRectBlock =>
-      'Resim tuvali üzerine bir dikdörtgen çiz';
+      'Resim tuvali ÃƒÂ¼zerine bir dikdÃƒÂ¶rtgen ÃƒÂ§iz';
 
   @override
   String get action_description_canvasDrawTextBlock =>
-      'Stil seçenekleriyle resim tuvaline metin çiz';
+      'Stil seÃƒÂ§enekleriyle resim tuvaline metin ÃƒÂ§iz';
 
   @override
   String get action_description_canvasLoadImageBlock =>
-      'Bir URL\'den veya kaynaktan tuvale bir resim yükle';
+      'Bir URL\'den veya kaynaktan tuvale bir resim yÃƒÂ¼kle';
 
   @override
   String get action_description_clearAllReactions =>
@@ -142,207 +143,211 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get action_description_createAutoModRule =>
-      'Sunucu otomatik denetleme kuralı oluştur';
+      'Sunucu otomatik denetleme kuralÃ„Â± oluÃ…Å¸tur';
 
   @override
-  String get action_description_createChannel => 'Yeni bir kanal oluştur';
+  String get action_description_createChannel => 'Yeni bir kanal oluÃ…Å¸tur';
 
   @override
   String get action_description_createEmoji =>
-      'Resim verilerinden bir sunucu emojisi oluştur';
+      'Resim verilerinden bir sunucu emojisi oluÃ…Å¸tur';
 
   @override
   String get action_description_createInvite =>
-      'Kanal için yeni bir davet bağlantısı oluştur';
+      'Kanal iÃƒÂ§in yeni bir davet baÃ„Å¸lantÃ„Â±sÃ„Â± oluÃ…Å¸tur';
 
   @override
   String get action_description_createPoll =>
-      'Kanalda bir anket mesajı oluştur';
+      'Kanalda bir anket mesajÃ„Â± oluÃ…Å¸tur';
 
   @override
   String get action_description_createThread =>
-      'Desteklenen bir metin kanalında ileti dizisi oluştur';
+      'Desteklenen bir metin kanalÃ„Â±nda ileti dizisi oluÃ…Å¸tur';
 
   @override
   String get action_description_debugProfile =>
-      'Yürütme profilini ve teşhis bilgilerini oluştur';
+      'YÃƒÂ¼rÃƒÂ¼tme profilini ve teÃ…Å¸his bilgilerini oluÃ…Å¸tur';
 
   @override
   String get action_description_deferInteraction =>
-      'Discord zaman aşımını önlemek için etkileşim yanıtını ertele';
+      'Discord zaman aÃ…Å¸Ã„Â±mÃ„Â±nÃ„Â± ÃƒÂ¶nlemek iÃƒÂ§in etkileÃ…Å¸im yanÃ„Â±tÃ„Â±nÃ„Â± ertele';
 
   @override
   String get action_description_deleteAutoModRule =>
-      'Otomatik denetleme kuralını sil';
+      'Otomatik denetleme kuralÃ„Â±nÃ„Â± sil';
 
   @override
   String get action_description_deleteChannelPermission =>
-      'Kanal izin geçersiz kılmasını sil';
+      'Kanal izin geÃƒÂ§ersiz kÃ„Â±lmasÃ„Â±nÃ„Â± sil';
 
   @override
   String get action_description_deleteEmoji => 'Sunucu emojisini sil';
 
   @override
   String get action_description_deleteInvite =>
-      'Koda göre mevcut bir daveti sil';
+      'Koda gÃƒÂ¶re mevcut bir daveti sil';
 
   @override
   String get action_description_deleteMessages =>
-      'Bir veya daha fazla mesajı sil';
+      'Bir veya daha fazla mesajÃ„Â± sil';
 
   @override
   String get action_description_deleteTrigger =>
-      'Bu komutu tetikleyen mesajı sil';
+      'Bu komutu tetikleyen mesajÃ„Â± sil';
 
   @override
   String get action_description_deleteWebhook => 'Webhook\'u sil';
 
   @override
   String get action_description_disconnectFromVoice =>
-      'Bir üyenin ses bağlantısını kes';
+      'Bir ÃƒÂ¼yenin ses baÃ„Å¸lantÃ„Â±sÃ„Â±nÃ„Â± kes';
 
   @override
   String get action_description_editChannelPermissions =>
-      'Kanal izin geçersiz kılmalarını oluştur veya güncelle';
+      'Kanal izin geÃƒÂ§ersiz kÃ„Â±lmalarÃ„Â±nÃ„Â± oluÃ…Å¸tur veya gÃƒÂ¼ncelle';
 
   @override
-  String get action_description_editComponentV2 => 'Mevcut bileşenleri düzenle';
+  String get action_description_editComponentV2 =>
+      'Mevcut bileÃ…Å¸enleri dÃƒÂ¼zenle';
 
   @override
   String get action_description_editInteractionMessage =>
-      'Ertelenmiş veya orijinal etkileşim yanıtını düzenle';
+      'ErtelenmiÃ…Å¸ veya orijinal etkileÃ…Å¸im yanÃ„Â±tÃ„Â±nÃ„Â± dÃƒÂ¼zenle';
 
   @override
-  String get action_description_editMessage => 'Mevcut bir mesajı düzenle';
+  String get action_description_editMessage =>
+      'Mevcut bir mesajÃ„Â± dÃƒÂ¼zenle';
 
   @override
-  String get action_description_editWebhook => 'Mevcut bir Webhook\'u düzenle';
+  String get action_description_editWebhook =>
+      'Mevcut bir Webhook\'u dÃƒÂ¼zenle';
 
   @override
   String get action_description_endPoll =>
-      'Etkin bir anket mesajını hemen sonlandır';
+      'Etkin bir anket mesajÃ„Â±nÃ„Â± hemen sonlandÃ„Â±r';
 
   @override
   String get action_description_forLoop =>
-      'Belirli bir sayı aralığında döngü oluştur (for döngüsü)';
+      'Belirli bir sayÃ„Â± aralÃ„Â±Ã„Å¸Ã„Â±nda dÃƒÂ¶ngÃƒÂ¼ oluÃ…Å¸tur (for dÃƒÂ¶ngÃƒÂ¼sÃƒÂ¼)';
 
   @override
   String get action_description_getGlobalVariable =>
-      'Genel bir değişkeni oku ve çalışma zamanı değişkenlerine aktar';
+      'Genel bir deÃ„Å¸iÃ…Å¸keni oku ve ÃƒÂ§alÃ„Â±Ã…Å¸ma zamanÃ„Â± deÃ„Å¸iÃ…Å¸kenlerine aktar';
 
   @override
   String get action_description_getGuildOnboarding =>
-      'Mevcut sunucu ilk katılım yapılandırmasını getir';
+      'Mevcut sunucu ilk katÃ„Â±lÃ„Â±m yapÃ„Â±landÃ„Â±rmasÃ„Â±nÃ„Â± getir';
 
   @override
   String get action_description_getInvite =>
-      'Koda göre davet bilgilerini getir';
+      'Koda gÃƒÂ¶re davet bilgilerini getir';
 
   @override
-  String get action_description_getMember => 'Üye bilgilerini al';
+  String get action_description_getMember => 'ÃƒÅ“ye bilgilerini al';
 
   @override
   String get action_description_getMessage =>
-      'Bir mesajı getir ve alanlarını açığa çıkar';
+      'Bir mesajÃ„Â± getir ve alanlarÃ„Â±nÃ„Â± aÃƒÂ§Ã„Â±Ã„Å¸a ÃƒÂ§Ã„Â±kar';
 
   @override
   String get action_description_getMusicInfo =>
-      'Şu anda çalan şarkı hakkında bilgi al';
+      'Ã…Å¾u anda ÃƒÂ§alan Ã…Å¸arkÃ„Â± hakkÃ„Â±nda bilgi al';
 
   @override
   String get action_description_getScopedVariable =>
-      'Kapsamlı bir değişkeni oku ve çalışma zamanı değişkenlerine aktar';
+      'KapsamlÃ„Â± bir deÃ„Å¸iÃ…Å¸keni oku ve ÃƒÂ§alÃ„Â±Ã…Å¸ma zamanÃ„Â± deÃ„Å¸iÃ…Å¸kenlerine aktar';
 
   @override
   String get action_description_getWebhook =>
-      'Kimliğe göre Webhook bilgilerini al';
+      'KimliÃ„Å¸e gÃƒÂ¶re Webhook bilgilerini al';
 
   @override
   String get action_description_httpRequest =>
-      'Dinamik URL, yöntem, başlıklar ve gövde ile HTTP isteği gönder';
+      'Dinamik URL, yÃƒÂ¶ntem, baÃ…Å¸lÃ„Â±klar ve gÃƒÂ¶vde ile HTTP isteÃ„Å¸i gÃƒÂ¶nder';
 
   @override
   String get action_description_ifBlock =>
-      'Koşullu dallanma: bir koşula göre farklı eylemler çalıştır';
+      'KoÃ…Å¸ullu dallanma: bir koÃ…Å¸ula gÃƒÂ¶re farklÃ„Â± eylemler ÃƒÂ§alÃ„Â±Ã…Å¸tÃ„Â±r';
 
   @override
   String get action_description_jumpToAction =>
-      'Anahtar, ID veya konuma göre belirli bir eyleme atla';
+      'Anahtar, ID veya konuma gÃƒÂ¶re belirli bir eyleme atla';
 
   @override
-  String get action_description_joinVoice => 'Bir ses kanalına bağlan';
+  String get action_description_joinVoice => 'Bir ses kanalÃ„Â±na baÃ„Å¸lan';
 
   @override
   String get action_description_jsonForEachLoop =>
-      'Bir JSON dizisinin veya nesnesinin her öğesini döngüye al (forEach)';
+      'Bir JSON dizisinin veya nesnesinin her ÃƒÂ¶Ã„Å¸esini dÃƒÂ¶ngÃƒÂ¼ye al (forEach)';
 
   @override
   String get action_description_kickUser => 'Remove a member from the guild';
 
   @override
   String get action_description_leaveGuild =>
-      'Botun sunucudan ayrılmasını sağla';
+      'Botun sunucudan ayrÃ„Â±lmasÃ„Â±nÃ„Â± saÃ„Å¸la';
 
   @override
   String get action_description_leaveVoice =>
-      'Ses kanalından ayrıl ve oynatıcıyı kapat';
+      'Ses kanalÃ„Â±ndan ayrÃ„Â±l ve oynatÃ„Â±cÃ„Â±yÃ„Â± kapat';
 
   @override
   String get action_description_listAutoModRules =>
-      'Sunucudaki tüm otomatik denetleme kurallarını listele';
+      'Sunucudaki tÃƒÂ¼m otomatik denetleme kurallarÃ„Â±nÃ„Â± listele';
 
   @override
   String get action_description_listMembers =>
-      'Seçeneklerle bir sunucudaki üyeleri listele';
+      'SeÃƒÂ§eneklerle bir sunucudaki ÃƒÂ¼yeleri listele';
 
   @override
   String get action_description_listScopedVariableIndex =>
-      'Dizinlenmiş kapsamlı değerleri, uzaklık ve sınırla değere göre sıralanmış olarak listele';
+      'DizinlenmiÃ…Å¸ kapsamlÃ„Â± deÃ„Å¸erleri, uzaklÃ„Â±k ve sÃ„Â±nÃ„Â±rla deÃ„Å¸ere gÃƒÂ¶re sÃ„Â±ralanmÃ„Â±Ã…Å¸ olarak listele';
 
   @override
   String get action_description_listWebhooks =>
-      'Bir kanal veya sunucudaki tüm Webhook\'ları listele';
+      'Bir kanal veya sunucudaki tÃƒÂ¼m Webhook\'larÃ„Â± listele';
 
   @override
   String get action_description_listenAndExecute =>
-      'Bir butona tıklandığında, seçim menüsü kullanıldığında veya bir modal gönderildiğinde çalışacak bir iş akışı kaydet';
+      'Bir butona tÃ„Â±klandÃ„Â±Ã„Å¸Ã„Â±nda, seÃƒÂ§im menÃƒÂ¼sÃƒÂ¼ kullanÃ„Â±ldÃ„Â±Ã„Å¸Ã„Â±nda veya bir modal gÃƒÂ¶nderildiÃ„Å¸inde ÃƒÂ§alÃ„Â±Ã…Å¸acak bir iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â± kaydet';
 
   @override
   String get action_description_listenForButtonClick =>
-      'Bir butona tıklandığında çalışacak bir iş akışı kaydet';
+      'Bir butona tÃ„Â±klandÃ„Â±Ã„Å¸Ã„Â±nda ÃƒÂ§alÃ„Â±Ã…Å¸acak bir iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â± kaydet';
 
   @override
   String get action_description_listenForModalSubmit =>
-      'Bir modal gönderildiğinde çalışacak bir iş akışı kaydet';
+      'Bir modal gÃƒÂ¶nderildiÃ„Å¸inde ÃƒÂ§alÃ„Â±Ã…Å¸acak bir iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â± kaydet';
 
   @override
   String get action_description_listenForSelectMenu =>
-      'Bir seçim menüsü kullanıldığında çalışacak bir iş akışı kaydet';
+      'Bir seÃƒÂ§im menÃƒÂ¼sÃƒÂ¼ kullanÃ„Â±ldÃ„Â±Ã„Å¸Ã„Â±nda ÃƒÂ§alÃ„Â±Ã…Å¸acak bir iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â± kaydet';
 
   @override
   String get action_description_log =>
-      'Eylem günlüklerine teşhis mesajı yazdır veya depola';
+      'Eylem gÃƒÂ¼nlÃƒÂ¼klerine teÃ…Å¸his mesajÃ„Â± yazdÃ„Â±r veya depola';
 
   @override
   String get action_description_moveToVoiceChannel =>
-      'Bir üyeyi belirli bir ses kanalına taşı';
+      'Bir ÃƒÂ¼yeyi belirli bir ses kanalÃ„Â±na taÃ…Å¸Ã„Â±';
 
   @override
   String get action_description_muteUser => 'Temporarily timeout a member';
 
   @override
-  String get action_description_pauseMusic => 'Çalan şarkıyı duraklat';
+  String get action_description_pauseMusic =>
+      'Ãƒâ€¡alan Ã…Å¸arkÃ„Â±yÃ„Â± duraklat';
 
   @override
-  String get action_description_pinMessage => 'Kanalda bir mesajı sabitle';
+  String get action_description_pinMessage => 'Kanalda bir mesajÃ„Â± sabitle';
 
   @override
   String get action_description_playMusic =>
-      'Arama sorgusu veya URL ile bir şarkı çal';
+      'Arama sorgusu veya URL ile bir Ã…Å¸arkÃ„Â± ÃƒÂ§al';
 
   @override
   String get action_description_queryArray =>
-      'Herhangi bir çalışma zamanı JSON dizisini filtrele, sırala ve sayfala';
+      'Herhangi bir ÃƒÂ§alÃ„Â±Ã…Å¸ma zamanÃ„Â± JSON dizisini filtrele, sÃ„Â±rala ve sayfala';
 
   @override
   String get action_description_randomChoice =>
@@ -350,80 +355,81 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get action_description_registerGuildCommands =>
-      'Uygulama komutlarını bir sunucuya kaydet';
+      'Uygulama komutlarÃ„Â±nÃ„Â± bir sunucuya kaydet';
 
   @override
   String get action_description_removeArrayElement =>
-      'Dizin ile genel veya kapsamlı bir JSON dizisinden bir öğeyi kaldır';
+      'Dizin ile genel veya kapsamlÃ„Â± bir JSON dizisinden bir ÃƒÂ¶Ã„Å¸eyi kaldÃ„Â±r';
 
   @override
-  String get action_description_removeChannel => 'Kanalı sil';
+  String get action_description_removeChannel => 'KanalÃ„Â± sil';
 
   @override
   String get action_description_removeGlobalVariable =>
-      'Genel bir değişkeni sil';
+      'Genel bir deÃ„Å¸iÃ…Å¸keni sil';
 
   @override
-  String get action_description_removeReaction => 'Bir mesajdan tepkiyi kaldır';
+  String get action_description_removeReaction =>
+      'Bir mesajdan tepkiyi kaldÃ„Â±r';
 
   @override
-  String get action_description_removeRole => 'Bir üyeden rolü kaldır';
+  String get action_description_removeRole => 'Bir ÃƒÂ¼yeden rolÃƒÂ¼ kaldÃ„Â±r';
 
   @override
   String get action_description_removeScopedVariable =>
-      'Kapsamlı bir değişkeni sil';
+      'KapsamlÃ„Â± bir deÃ„Å¸iÃ…Å¸keni sil';
 
   @override
   String get action_description_removeThreadMember =>
-      'İleti dizisinden bir üyeyi kaldır';
+      'Ã„Â°leti dizisinden bir ÃƒÂ¼yeyi kaldÃ„Â±r';
 
   @override
   String get action_description_renameScopedVariable =>
-      'Kapsamlı bir değişken anahtarını yeniden adlandır';
+      'KapsamlÃ„Â± bir deÃ„Å¸iÃ…Å¸ken anahtarÃ„Â±nÃ„Â± yeniden adlandÃ„Â±r';
 
   @override
   String get action_description_respondWithAutocomplete =>
-      'Discord otomatik tamamlama etkileşimine 25 adede kadar dinamik seçenekle yanıt ver';
+      'Discord otomatik tamamlama etkileÃ…Å¸imine 25 adede kadar dinamik seÃƒÂ§enekle yanÃ„Â±t ver';
 
   @override
   String get action_description_respondWithComponentV2 =>
-      'Komuta butonlar veya seçim menüleri ile yanıt ver';
+      'Komuta butonlar veya seÃƒÂ§im menÃƒÂ¼leri ile yanÃ„Â±t ver';
 
   @override
   String get action_description_respondWithMessage =>
-      'Komuta normal bir mesajla yanıt ver';
+      'Komuta normal bir mesajla yanÃ„Â±t ver';
 
   @override
   String get action_description_respondWithModal =>
-      'Kullanıcıya bir modal iletişim kutusu göster';
+      'KullanÃ„Â±cÃ„Â±ya bir modal iletiÃ…Å¸im kutusu gÃƒÂ¶ster';
 
   @override
   String get action_description_resumeMusic =>
-      'Duraklatılmış bir şarkıyı sürdür';
+      'DuraklatÃ„Â±lmÃ„Â±Ã…Å¸ bir Ã…Å¸arkÃ„Â±yÃ„Â± sÃƒÂ¼rdÃƒÂ¼r';
 
   @override
   String get action_description_runBdfdScript =>
-      'BDFD betiğini iş akışı eylemleri olarak satır içi derle ve çalıştır';
+      'BDFD betiÃ„Å¸ini iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â± eylemleri olarak satÃ„Â±r iÃƒÂ§i derle ve ÃƒÂ§alÃ„Â±Ã…Å¸tÃ„Â±r';
 
   @override
   String get action_description_runWorkflow =>
-      'Kaydedilmiş bir iş akışını yürüt (giriş noktası ve argümanları destekler)';
+      'KaydedilmiÃ…Å¸ bir iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â±nÃ„Â± yÃƒÂ¼rÃƒÂ¼t (giriÃ…Å¸ noktasÃ„Â± ve argÃƒÂ¼manlarÃ„Â± destekler)';
 
   @override
   String get action_description_runtimeImageBlock =>
-      'Resim tuvali işleme eylemleri bloğunu çalıştır';
+      'Resim tuvali iÃ…Å¸leme eylemleri bloÃ„Å¸unu ÃƒÂ§alÃ„Â±Ã…Å¸tÃ„Â±r';
 
   @override
   String get action_description_runtimeJsonBlock =>
-      'JSON işleme eylemleri bloğunu çalıştır';
+      'JSON iÃ…Å¸leme eylemleri bloÃ„Å¸unu ÃƒÂ§alÃ„Â±Ã…Å¸tÃ„Â±r';
 
   @override
   String get action_description_seekMusic =>
-      'Çalan şarkıda belirli bir süreye git';
+      'Ãƒâ€¡alan Ã…Å¸arkÃ„Â±da belirli bir sÃƒÂ¼reye git';
 
   @override
   String get action_description_sendComponentV2 =>
-      'Etkileşimli bileşenler gönder';
+      'EtkileÃ…Å¸imli bileÃ…Å¸enler gÃƒÂ¶nder';
 
   @override
   String get action_description_sendDm => 'Send a direct message to a user';
@@ -433,45 +439,45 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get action_description_sendWebhook =>
-      'Webhook aracılığıyla mesaj gönder';
+      'Webhook aracÃ„Â±lÃ„Â±Ã„Å¸Ã„Â±yla mesaj gÃƒÂ¶nder';
 
   @override
   String get action_description_serverDeafenMember =>
-      'Bir üyeyi sunucuda sağırlaştır veya sağırlaştırmasını kaldır';
+      'Bir ÃƒÂ¼yeyi sunucuda saÃ„Å¸Ã„Â±rlaÃ…Å¸tÃ„Â±r veya saÃ„Å¸Ã„Â±rlaÃ…Å¸tÃ„Â±rmasÃ„Â±nÃ„Â± kaldÃ„Â±r';
 
   @override
   String get action_description_serverMuteMember =>
-      'Bir üyeyi sunucuda sustur veya sesini aç';
+      'Bir ÃƒÂ¼yeyi sunucuda sustur veya sesini aÃƒÂ§';
 
   @override
   String get action_description_setGlobalVariable =>
-      'Bu bot için genel bir değişken oluştur veya güncelle';
+      'Bu bot iÃƒÂ§in genel bir deÃ„Å¸iÃ…Å¸ken oluÃ…Å¸tur veya gÃƒÂ¼ncelle';
 
   @override
   String get action_description_setMusicLoop =>
-      'Sıra döngüsünü etkinleştir veya devre dışı bırak';
+      'SÃ„Â±ra dÃƒÂ¶ngÃƒÂ¼sÃƒÂ¼nÃƒÂ¼ etkinleÃ…Å¸tir veya devre dÃ„Â±Ã…Å¸Ã„Â± bÃ„Â±rak';
 
   @override
   String get action_description_setMusicVolume =>
-      'Oynatıcı ses seviyesini ayarla (0 - 200)';
+      'OynatÃ„Â±cÃ„Â± ses seviyesini ayarla (0 - 200)';
 
   @override
   String get action_description_setNickname => 'Change a member\'s nickname';
 
   @override
   String get action_description_setScopedVariable =>
-      'Kapsamlı bir değişken (sunucu/kullanıcı/kanal/üye/mesaj) oluştur veya güncelle';
+      'KapsamlÃ„Â± bir deÃ„Å¸iÃ…Å¸ken (sunucu/kullanÃ„Â±cÃ„Â±/kanal/ÃƒÂ¼ye/mesaj) oluÃ…Å¸tur veya gÃƒÂ¼ncelle';
 
   @override
   String get action_description_setTemporaryVariable =>
-      'Yerel yürütmede geçici bir değişken oluştur veya güncelle';
+      'Yerel yÃƒÂ¼rÃƒÂ¼tmede geÃƒÂ§ici bir deÃ„Å¸iÃ…Å¸ken oluÃ…Å¸tur veya gÃƒÂ¼ncelle';
 
   @override
   String get action_description_skipActions =>
-      'Belirtilen sayıda sonraki eylemi atla';
+      'Belirtilen sayÃ„Â±da sonraki eylemi atla';
 
   @override
-  String get action_description_skipMusic => 'Sıradaki şarkıya geç';
+  String get action_description_skipMusic => 'SÃ„Â±radaki Ã…Å¸arkÃ„Â±ya geÃƒÂ§';
 
   @override
   String get action_description_slowmode =>
@@ -482,47 +488,50 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get action_description_stopMusic =>
-      'Oynatmayı durdur ve sırayı temizle';
+      'OynatmayÃ„Â± durdur ve sÃ„Â±rayÃ„Â± temizle';
 
   @override
   String get action_description_stopUnless =>
-      'Koşul karşılanmazsa iş akışını durdur (koruma/filtre)';
+      'KoÃ…Å¸ul karÃ…Å¸Ã„Â±lanmazsa iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â±nÃ„Â± durdur (koruma/filtre)';
 
   @override
-  String get action_description_unbanUser => 'Bir kullanıcının banını kaldır';
+  String get action_description_unbanUser =>
+      'Bir kullanÃ„Â±cÃ„Â±nÃ„Â±n banÃ„Â±nÃ„Â± kaldÃ„Â±r';
 
   @override
   String get action_description_unmuteUser => 'Remove timeout from a member';
 
   @override
   String get action_description_unpinMessage =>
-      'Kanalda bir mesajın sabitlemesini kaldır';
+      'Kanalda bir mesajÃ„Â±n sabitlemesini kaldÃ„Â±r';
 
   @override
   String get action_description_unregisterGuildCommands =>
-      'Uygulama komutlarının sunucu kaydını sil';
+      'Uygulama komutlarÃ„Â±nÃ„Â±n sunucu kaydÃ„Â±nÃ„Â± sil';
 
   @override
   String get action_description_updateAutoMod =>
-      'Otomatik denetleme ayarlarını güncelle';
+      'Otomatik denetleme ayarlarÃ„Â±nÃ„Â± gÃƒÂ¼ncelle';
 
   @override
-  String get action_description_updateChannel => 'Kanal ayarlarını güncelle';
+  String get action_description_updateChannel =>
+      'Kanal ayarlarÃ„Â±nÃ„Â± gÃƒÂ¼ncelle';
 
   @override
   String get action_description_updateEmoji =>
-      'Sunucu emojisi adını veya rol erişimini güncelle';
+      'Sunucu emojisi adÃ„Â±nÃ„Â± veya rol eriÃ…Å¸imini gÃƒÂ¼ncelle';
 
   @override
-  String get action_description_updateGuild => 'Sunucu ayarlarını güncelle';
+  String get action_description_updateGuild =>
+      'Sunucu ayarlarÃ„Â±nÃ„Â± gÃƒÂ¼ncelle';
 
   @override
   String get action_description_updateGuildOnboarding =>
-      'Sunucu ilk katılım yapılandırmasını güncelle';
+      'Sunucu ilk katÃ„Â±lÃ„Â±m yapÃ„Â±landÃ„Â±rmasÃ„Â±nÃ„Â± gÃƒÂ¼ncelle';
 
   @override
   String get action_description_updateSelfUser =>
-      'Mevcut bot kullanıcı profilini (kullanıcı adı/avatar) güncelle';
+      'Mevcut bot kullanÃ„Â±cÃ„Â± profilini (kullanÃ„Â±cÃ„Â± adÃ„Â±/avatar) gÃƒÂ¼ncelle';
 
   @override
   String get action_description_wait =>
@@ -541,35 +550,35 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get action_dynamic_multiselect_hint =>
-      'Dinamik değer (((...)) destekler)';
+      'Dinamik deÃ„Å¸er (((...)) destekler)';
 
   @override
-  String get action_dynamic_numeric => 'Dinamik sayısal öneriler';
+  String get action_dynamic_numeric => 'Dinamik sayÃ„Â±sal ÃƒÂ¶neriler';
 
   @override
-  String get action_dynamic_variable => 'Dinamik değişken önerileri';
+  String get action_dynamic_variable => 'Dinamik deÃ„Å¸iÃ…Å¸ken ÃƒÂ¶nerileri';
 
   @override
   String action_edit_nested(int count) {
-    return '$count tanesini düzenle';
+    return '$count tanesini dÃƒÂ¼zenle';
   }
 
   @override
   String action_edit_nested_parens(int count) {
-    return 'Düzenle ($count)';
+    return 'DÃƒÂ¼zenle ($count)';
   }
 
   @override
   String action_edit_param(String name) {
-    return '$name Düzenle';
+    return '$name DÃƒÂ¼zenle';
   }
 
   @override
-  String get action_edit_raw_json => 'Ham JSON\'u Düzenle';
+  String get action_edit_raw_json => 'Ham JSON\'u DÃƒÂ¼zenle';
 
   @override
   String action_else_if_label(int index) {
-    return 'ELSE IF $index — eylemler';
+    return 'ELSE IF $index Ã¢â‚¬â€ eylemler';
   }
 
   @override
@@ -579,7 +588,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get action_error_stop => 'Durdur';
 
   @override
-  String get action_expression => 'İfade';
+  String get action_expression => 'Ã„Â°fade';
 
   @override
   String get action_format_json => 'JSON Formatla';
@@ -588,24 +597,25 @@ class AppLocalizationsTr extends AppLocalizations {
   String get action_hint_color => '#FFFFFF veya rgb(255,255,255)';
 
   @override
-  String get action_hint_condition_value => 'Karşılaştırılacak değer';
+  String get action_hint_condition_value =>
+      'KarÃ…Å¸Ã„Â±laÃ…Å¸tÃ„Â±rÃ„Â±lacak deÃ„Å¸er';
 
   @override
   String get action_hint_condition_var =>
-      '((degiskenAdi)) veya bir çalışma zamanı değeri kullanın';
+      '((degiskenAdi)) veya bir ÃƒÂ§alÃ„Â±Ã…Å¸ma zamanÃ„Â± deÃ„Å¸eri kullanÃ„Â±n';
 
   @override
   String get action_hint_cooldown_error =>
-      'Özel hata mesajı (%time% destekler)';
+      'Ãƒâ€“zel hata mesajÃ„Â± (%time% destekler)';
 
   @override
-  String get action_hint_cooldown_time => 'Süre (ör. 10s, 1m)';
+  String get action_hint_cooldown_time => 'SÃƒÂ¼re (ÃƒÂ¶r. 10s, 1m)';
 
   @override
-  String get action_hint_duration => 'örn. 5m, 1sa, 30sn';
+  String get action_hint_duration => 'ÃƒÂ¶rn. 5m, 1sa, 30sn';
 
   @override
-  String get action_hint_emoji => 'Emoji (örn. 🪜) veya <:ad:kimlik>';
+  String get action_hint_emoji => 'Emoji (ÃƒÂ¶rn. Ã°Å¸ÂªÅ“) veya <:ad:kimlik>';
 
   @override
   String action_hint_enter_type(String type) {
@@ -614,28 +624,31 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get action_hint_random_choices =>
-      'Seçenekler listesi (; ile ayrılmış)';
+      'SeÃƒÂ§enekler listesi (; ile ayrÃ„Â±lmÃ„Â±Ã…Å¸)';
 
   @override
-  String get action_hint_random_var => 'Sonucu kaydetmek için değişken adı';
+  String get action_hint_random_var =>
+      'Sonucu kaydetmek iÃƒÂ§in deÃ„Å¸iÃ…Å¸ken adÃ„Â±';
 
   @override
-  String get action_hint_variable_key => 'Değişken anahtarını seçin';
+  String get action_hint_variable_key =>
+      'DeÃ„Å¸iÃ…Å¸ken anahtarÃ„Â±nÃ„Â± seÃƒÂ§in';
 
   @override
-  String get action_hint_workflow => 'Kayıtlı iş akışı adı';
+  String get action_hint_workflow =>
+      'KayÃ„Â±tlÃ„Â± iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â± adÃ„Â±';
 
   @override
   String get action_http_headers_title =>
-      'HTTP Başlıkları (Anahtar/Değer çiftleri)';
+      'HTTP BaÃ…Å¸lÃ„Â±klarÃ„Â± (Anahtar/DeÃ„Å¸er ÃƒÂ§iftleri)';
 
   @override
   String action_http_paths_parsed(int count) {
-    return '$count yol ayrıştırıldı';
+    return '$count yol ayrÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±ldÃ„Â±';
   }
 
   @override
-  String get action_http_response_body => 'Yanıt Gövdesi (Ham):';
+  String get action_http_response_body => 'YanÃ„Â±t GÃƒÂ¶vdesi (Ham):';
 
   @override
   String action_http_status(int status) {
@@ -644,29 +657,30 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get action_http_test_button =>
-      'Test İsteği Gönder ve Rotaları Otomatik Algıla';
+      'Test Ã„Â°steÃ„Å¸i GÃƒÂ¶nder ve RotalarÃ„Â± Otomatik AlgÃ„Â±la';
 
   @override
-  String get action_http_test_title => 'Test İsteği Sonuçları';
+  String get action_http_test_title => 'Test Ã„Â°steÃ„Å¸i SonuÃƒÂ§larÃ„Â±';
 
   @override
   String get action_json_editor_hint =>
-      'JSON nesne düzenleyici (iç içe geçmiş nesneleri/dizileri destekler)';
+      'JSON nesne dÃƒÂ¼zenleyici (iÃƒÂ§ iÃƒÂ§e geÃƒÂ§miÃ…Å¸ nesneleri/dizileri destekler)';
 
   @override
-  String get action_key_field => 'Eylem Anahtarı';
+  String get action_key_field => 'Eylem AnahtarÃ„Â±';
 
   @override
-  String get action_key_value_pairs => 'Anahtar / Değer çiftleri';
+  String get action_key_value_pairs => 'Anahtar / DeÃ„Å¸er ÃƒÂ§iftleri';
 
   @override
-  String get action_literal => 'Değişmez (Literal)';
+  String get action_literal => 'DeÃ„Å¸iÃ…Å¸mez (Literal)';
 
   @override
-  String get action_loading_keys => 'Anahtarlar yükleniyor...';
+  String get action_loading_keys => 'Anahtarlar yÃƒÂ¼kleniyor...';
 
   @override
-  String get action_manage_variable_keys => 'Değişken Anahtarlarını Yönet';
+  String get action_manage_variable_keys =>
+      'DeÃ„Å¸iÃ…Å¸ken AnahtarlarÃ„Â±nÃ„Â± YÃƒÂ¶net';
 
   @override
   String get action_name_addReaction => 'Tepki Ekle';
@@ -675,73 +689,73 @@ class AppLocalizationsTr extends AppLocalizations {
   String get action_name_addRole => 'Rol Ekle';
 
   @override
-  String get action_name_addThreadMember => 'Konu Üyesi Ekle';
+  String get action_name_addThreadMember => 'Konu ÃƒÅ“yesi Ekle';
 
   @override
-  String get action_name_appendArrayElement => 'Dizi Öğesi Ekle';
+  String get action_name_appendArrayElement => 'Dizi Ãƒâ€“Ã„Å¸esi Ekle';
 
   @override
   String get action_name_attachImage => 'Resim Ekle';
 
   @override
-  String get action_name_banUser => 'Kullanıcıyı Yasakla';
+  String get action_name_banUser => 'KullanÃ„Â±cÃ„Â±yÃ„Â± Yasakla';
 
   @override
   String get action_name_calculate => 'Hesapla';
 
   @override
-  String get action_name_canvasCreateBlock => 'Tuval Oluştur';
+  String get action_name_canvasCreateBlock => 'Tuval OluÃ…Å¸tur';
 
   @override
-  String get action_name_canvasDrawCircleBlock => 'Daire Çiz';
+  String get action_name_canvasDrawCircleBlock => 'Daire Ãƒâ€¡iz';
 
   @override
-  String get action_name_canvasDrawLineBlock => 'Çizgi Çiz';
+  String get action_name_canvasDrawLineBlock => 'Ãƒâ€¡izgi Ãƒâ€¡iz';
 
   @override
-  String get action_name_canvasDrawRectBlock => 'Dikdörtgen Çiz';
+  String get action_name_canvasDrawRectBlock => 'DikdÃƒÂ¶rtgen Ãƒâ€¡iz';
 
   @override
-  String get action_name_canvasDrawTextBlock => 'Metin Çiz';
+  String get action_name_canvasDrawTextBlock => 'Metin Ãƒâ€¡iz';
 
   @override
-  String get action_name_canvasLoadImageBlock => 'Resim Yükle';
+  String get action_name_canvasLoadImageBlock => 'Resim YÃƒÂ¼kle';
 
   @override
-  String get action_name_clearAllReactions => 'Tüm Tepkileri Temizle';
+  String get action_name_clearAllReactions => 'TÃƒÂ¼m Tepkileri Temizle';
 
   @override
-  String get action_name_cooldown => 'Bekleme Süresi';
+  String get action_name_cooldown => 'Bekleme SÃƒÂ¼resi';
 
   @override
-  String get action_name_createAutoModRule => 'AutoMod Kuralı Oluştur';
+  String get action_name_createAutoModRule => 'AutoMod KuralÃ„Â± OluÃ…Å¸tur';
 
   @override
-  String get action_name_createChannel => 'Kanal Oluştur';
+  String get action_name_createChannel => 'Kanal OluÃ…Å¸tur';
 
   @override
-  String get action_name_createEmoji => 'Emoji Oluştur';
+  String get action_name_createEmoji => 'Emoji OluÃ…Å¸tur';
 
   @override
-  String get action_name_createInvite => 'Davet Oluştur';
+  String get action_name_createInvite => 'Davet OluÃ…Å¸tur';
 
   @override
-  String get action_name_createPoll => 'Anket Oluştur';
+  String get action_name_createPoll => 'Anket OluÃ…Å¸tur';
 
   @override
-  String get action_name_createThread => 'Konu (Thread) Oluştur';
+  String get action_name_createThread => 'Konu (Thread) OluÃ…Å¸tur';
 
   @override
-  String get action_name_debugProfile => 'Hata Ayıklama Profili';
+  String get action_name_debugProfile => 'Hata AyÃ„Â±klama Profili';
 
   @override
-  String get action_name_deferInteraction => 'Etkileşimi Ertele';
+  String get action_name_deferInteraction => 'EtkileÃ…Å¸imi Ertele';
 
   @override
-  String get action_name_deleteAutoModRule => 'AutoMod Kuralını Sil';
+  String get action_name_deleteAutoModRule => 'AutoMod KuralÃ„Â±nÃ„Â± Sil';
 
   @override
-  String get action_name_deleteChannelPermission => 'Kanal İznini Sil';
+  String get action_name_deleteChannelPermission => 'Kanal Ã„Â°znini Sil';
 
   @override
   String get action_name_deleteEmoji => 'Emoji Sil';
@@ -750,7 +764,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get action_name_deleteInvite => 'Daveti Sil';
 
   @override
-  String get action_name_deleteMessages => 'Mesajları Sil';
+  String get action_name_deleteMessages => 'MesajlarÃ„Â± Sil';
 
   @override
   String get action_name_deleteTrigger => 'Tetikleyiciyi Sil';
@@ -759,312 +773,333 @@ class AppLocalizationsTr extends AppLocalizations {
   String get action_name_deleteWebhook => 'Webhook Sil';
 
   @override
-  String get action_name_disconnectFromVoice => 'Sesten Bağlantıyı Kes';
+  String get action_name_disconnectFromVoice =>
+      'Sesten BaÃ„Å¸lantÃ„Â±yÃ„Â± Kes';
 
   @override
-  String get action_name_editChannelPermissions => 'Kanal İzinlerini Düzenle';
+  String get action_name_editChannelPermissions =>
+      'Kanal Ã„Â°zinlerini DÃƒÂ¼zenle';
 
   @override
-  String get action_name_editComponentV2 => 'Bileşen V2 Düzenle';
+  String get action_name_editComponentV2 => 'BileÃ…Å¸en V2 DÃƒÂ¼zenle';
 
   @override
-  String get action_name_editInteractionMessage => 'Etkileşim Mesajını Düzenle';
+  String get action_name_editInteractionMessage =>
+      'EtkileÃ…Å¸im MesajÃ„Â±nÃ„Â± DÃƒÂ¼zenle';
 
   @override
-  String get action_name_editMessage => 'Mesajı Düzenle';
+  String get action_name_editMessage => 'MesajÃ„Â± DÃƒÂ¼zenle';
 
   @override
-  String get action_name_editWebhook => 'Webhook Düzenle';
+  String get action_name_editWebhook => 'Webhook DÃƒÂ¼zenle';
 
   @override
   String get action_name_endPoll => 'Anketi Bitir';
 
   @override
-  String get action_name_forLoop => 'For Döngüsü';
+  String get action_name_forLoop => 'For DÃƒÂ¶ngÃƒÂ¼sÃƒÂ¼';
 
   @override
-  String get action_name_getGlobalVariable => 'Genel Değişkeni Al';
+  String get action_name_getGlobalVariable => 'Genel DeÃ„Å¸iÃ…Å¸keni Al';
 
   @override
-  String get action_name_getGuildOnboarding => 'Sunucu Katılımını Getir';
+  String get action_name_getGuildOnboarding =>
+      'Sunucu KatÃ„Â±lÃ„Â±mÃ„Â±nÃ„Â± Getir';
 
   @override
   String get action_name_getInvite => 'Daveti Al';
 
   @override
-  String get action_name_getMember => 'Üyeyi Getir';
+  String get action_name_getMember => 'ÃƒÅ“yeyi Getir';
 
   @override
-  String get action_name_getMessage => 'Mesajı Al';
+  String get action_name_getMessage => 'MesajÃ„Â± Al';
 
   @override
-  String get action_name_getMusicInfo => 'Müzik Bilgisini Al';
+  String get action_name_getMusicInfo => 'MÃƒÂ¼zik Bilgisini Al';
 
   @override
-  String get action_name_getScopedVariable => 'Kapsamlı Değişkeni Al';
+  String get action_name_getScopedVariable => 'KapsamlÃ„Â± DeÃ„Å¸iÃ…Å¸keni Al';
 
   @override
   String get action_name_getWebhook => 'Webhook Getir';
 
   @override
-  String get action_name_httpRequest => 'HTTP İsteği';
+  String get action_name_httpRequest => 'HTTP Ã„Â°steÃ„Å¸i';
 
   @override
-  String get action_name_ifBlock => 'IF / ELSE Bloğu';
+  String get action_name_ifBlock => 'IF / ELSE BloÃ„Å¸u';
 
   @override
   String get action_name_jumpToAction => 'Eyleme Atla';
 
   @override
-  String get action_name_joinVoice => 'Ses Kanalına Katıl';
+  String get action_name_joinVoice => 'Ses KanalÃ„Â±na KatÃ„Â±l';
 
   @override
-  String get action_name_jsonForEachLoop => 'JSON For Each Döngüsü';
+  String get action_name_jsonForEachLoop => 'JSON For Each DÃƒÂ¶ngÃƒÂ¼sÃƒÂ¼';
 
   @override
-  String get action_name_kickUser => 'Kullanıcıyı At';
+  String get action_name_kickUser => 'KullanÃ„Â±cÃ„Â±yÃ„Â± At';
 
   @override
-  String get action_name_leaveGuild => 'Sunucudan Ayrıl';
+  String get action_name_leaveGuild => 'Sunucudan AyrÃ„Â±l';
 
   @override
-  String get action_name_leaveVoice => 'Ses Kanalından Ayrıl';
+  String get action_name_leaveVoice => 'Ses KanalÃ„Â±ndan AyrÃ„Â±l';
 
   @override
-  String get action_name_listAutoModRules => 'AutoMod Kurallarını Listele';
+  String get action_name_listAutoModRules =>
+      'AutoMod KurallarÃ„Â±nÃ„Â± Listele';
 
   @override
-  String get action_name_listMembers => 'Üyeleri Listele';
+  String get action_name_listMembers => 'ÃƒÅ“yeleri Listele';
 
   @override
   String get action_name_listScopedVariableIndex =>
-      'Kapsamlı Değişken İndeksini Listele';
+      'KapsamlÃ„Â± DeÃ„Å¸iÃ…Å¸ken Ã„Â°ndeksini Listele';
 
   @override
-  String get action_name_listWebhooks => 'Webhook\'ları Listele';
+  String get action_name_listWebhooks => 'Webhook\'larÃ„Â± Listele';
 
   @override
-  String get action_name_listenAndExecute => 'Dinle ve Yürüt';
+  String get action_name_listenAndExecute => 'Dinle ve YÃƒÂ¼rÃƒÂ¼t';
 
   @override
-  String get action_name_listenForButtonClick => 'Düğme Tıklamasını Dinle';
+  String get action_name_listenForButtonClick =>
+      'DÃƒÂ¼Ã„Å¸me TÃ„Â±klamasÃ„Â±nÃ„Â± Dinle';
 
   @override
-  String get action_name_listenForModalSubmit => 'Modal Gönderimini Dinle';
+  String get action_name_listenForModalSubmit => 'Modal GÃƒÂ¶nderimini Dinle';
 
   @override
-  String get action_name_listenForSelectMenu => 'Seçim Menüsünü Dinle';
+  String get action_name_listenForSelectMenu =>
+      'SeÃƒÂ§im MenÃƒÂ¼sÃƒÂ¼nÃƒÂ¼ Dinle';
 
   @override
-  String get action_name_log => 'Mesajı Günlüğe Kaydet';
+  String get action_name_log => 'MesajÃ„Â± GÃƒÂ¼nlÃƒÂ¼Ã„Å¸e Kaydet';
 
   @override
-  String get action_name_moveToVoiceChannel => 'Ses Kanalına Taşı';
+  String get action_name_moveToVoiceChannel => 'Ses KanalÃ„Â±na TaÃ…Å¸Ã„Â±';
 
   @override
-  String get action_name_muteUser => 'Kullanıcıyı Sustur';
+  String get action_name_muteUser => 'KullanÃ„Â±cÃ„Â±yÃ„Â± Sustur';
 
   @override
-  String get action_name_pauseMusic => 'Müziği Duraklat';
+  String get action_name_pauseMusic => 'MÃƒÂ¼ziÃ„Å¸i Duraklat';
 
   @override
-  String get action_name_pinMessage => 'Mesajı Sabitle';
+  String get action_name_pinMessage => 'MesajÃ„Â± Sabitle';
 
   @override
-  String get action_name_playMusic => 'Müzik Çal';
+  String get action_name_playMusic => 'MÃƒÂ¼zik Ãƒâ€¡al';
 
   @override
   String get action_name_queryArray => 'Sorgu Dizisi';
 
   @override
-  String get action_name_randomChoice => 'Rastgele Seçim';
+  String get action_name_randomChoice => 'Rastgele SeÃƒÂ§im';
 
   @override
-  String get action_name_registerGuildCommands => 'Sunucu Komutlarını Kaydet';
+  String get action_name_registerGuildCommands =>
+      'Sunucu KomutlarÃ„Â±nÃ„Â± Kaydet';
 
   @override
-  String get action_name_removeArrayElement => 'Dizi Öğesini Kaldır';
+  String get action_name_removeArrayElement => 'Dizi Ãƒâ€“Ã„Å¸esini KaldÃ„Â±r';
 
   @override
-  String get action_name_removeChannel => 'Kanalı Kaldır';
+  String get action_name_removeChannel => 'KanalÃ„Â± KaldÃ„Â±r';
 
   @override
-  String get action_name_removeGlobalVariable => 'Genel Değişkeni Kaldır';
+  String get action_name_removeGlobalVariable =>
+      'Genel DeÃ„Å¸iÃ…Å¸keni KaldÃ„Â±r';
 
   @override
-  String get action_name_removeReaction => 'Tepkiyi Kaldır';
+  String get action_name_removeReaction => 'Tepkiyi KaldÃ„Â±r';
 
   @override
-  String get action_name_removeRole => 'Rolü Kaldır';
+  String get action_name_removeRole => 'RolÃƒÂ¼ KaldÃ„Â±r';
 
   @override
-  String get action_name_removeScopedVariable => 'Kapsamlı Değişkeni Kaldır';
+  String get action_name_removeScopedVariable =>
+      'KapsamlÃ„Â± DeÃ„Å¸iÃ…Å¸keni KaldÃ„Â±r';
 
   @override
-  String get action_name_removeThreadMember => 'Konu Üyesini Kaldır';
+  String get action_name_removeThreadMember => 'Konu ÃƒÅ“yesini KaldÃ„Â±r';
 
   @override
   String get action_name_renameScopedVariable =>
-      'Kapsamlı Değişkeni Yeniden Adlandır';
+      'KapsamlÃ„Â± DeÃ„Å¸iÃ…Å¸keni Yeniden AdlandÃ„Â±r';
 
   @override
   String get action_name_respondWithAutocomplete =>
-      'Otomatik Tamamlama ile Yanıtla';
+      'Otomatik Tamamlama ile YanÃ„Â±tla';
 
   @override
-  String get action_name_respondWithComponentV2 => 'Bileşen V2 ile Yanıtla';
+  String get action_name_respondWithComponentV2 =>
+      'BileÃ…Å¸en V2 ile YanÃ„Â±tla';
 
   @override
-  String get action_name_respondWithMessage => 'Mesajla Yanıtla';
+  String get action_name_respondWithMessage => 'Mesajla YanÃ„Â±tla';
 
   @override
-  String get action_name_respondWithModal => 'Modal ile Yanıtla';
+  String get action_name_respondWithModal => 'Modal ile YanÃ„Â±tla';
 
   @override
-  String get action_name_resumeMusic => 'Müziği Sürdür';
+  String get action_name_resumeMusic => 'MÃƒÂ¼ziÃ„Å¸i SÃƒÂ¼rdÃƒÂ¼r';
 
   @override
-  String get action_name_runBdfdScript => 'BDFD Betiği Çalıştır';
+  String get action_name_runBdfdScript =>
+      'BDFD BetiÃ„Å¸i Ãƒâ€¡alÃ„Â±Ã…Å¸tÃ„Â±r';
 
   @override
-  String get action_name_runWorkflow => 'İş Akışını Çalıştır';
+  String get action_name_runWorkflow =>
+      'Ã„Â°Ã…Å¸ AkÃ„Â±Ã…Å¸Ã„Â±nÃ„Â± Ãƒâ€¡alÃ„Â±Ã…Å¸tÃ„Â±r';
 
   @override
-  String get action_name_runtimeImageBlock => 'Görüntü İşlemlerini Çalıştır';
+  String get action_name_runtimeImageBlock =>
+      'GÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼ Ã„Â°Ã…Å¸lemlerini Ãƒâ€¡alÃ„Â±Ã…Å¸tÃ„Â±r';
 
   @override
-  String get action_name_runtimeJsonBlock => 'JSON İşlemlerini Çalıştır';
+  String get action_name_runtimeJsonBlock =>
+      'JSON Ã„Â°Ã…Å¸lemlerini Ãƒâ€¡alÃ„Â±Ã…Å¸tÃ„Â±r';
 
   @override
-  String get action_name_seekMusic => 'Müzik Konumuna Git';
+  String get action_name_seekMusic => 'MÃƒÂ¼zik Konumuna Git';
 
   @override
-  String get action_name_sendComponentV2 => 'Bileşen V2 Gönder';
+  String get action_name_sendComponentV2 => 'BileÃ…Å¸en V2 GÃƒÂ¶nder';
 
   @override
-  String get action_name_sendDm => 'DM Gönder';
+  String get action_name_sendDm => 'DM GÃƒÂ¶nder';
 
   @override
-  String get action_name_sendMessage => 'Mesaj Gönder';
+  String get action_name_sendMessage => 'Mesaj GÃƒÂ¶nder';
 
   @override
-  String get action_name_sendWebhook => 'Webhook Gönder';
+  String get action_name_sendWebhook => 'Webhook GÃƒÂ¶nder';
 
   @override
-  String get action_name_serverDeafenMember => 'Sunucuda Üyeyi Sağırlaştır';
+  String get action_name_serverDeafenMember =>
+      'Sunucuda ÃƒÅ“yeyi SaÃ„Å¸Ã„Â±rlaÃ…Å¸tÃ„Â±r';
 
   @override
-  String get action_name_serverMuteMember => 'Sunucuda Üyeyi Sustur';
+  String get action_name_serverMuteMember => 'Sunucuda ÃƒÅ“yeyi Sustur';
 
   @override
-  String get action_name_setGlobalVariable => 'Genel Değişken Ata';
+  String get action_name_setGlobalVariable => 'Genel DeÃ„Å¸iÃ…Å¸ken Ata';
 
   @override
-  String get action_name_setMusicLoop => 'Müzik Döngüsünü Ayarla';
+  String get action_name_setMusicLoop =>
+      'MÃƒÂ¼zik DÃƒÂ¶ngÃƒÂ¼sÃƒÂ¼nÃƒÂ¼ Ayarla';
 
   @override
-  String get action_name_setMusicVolume => 'Müzik Sesini Ayarla';
+  String get action_name_setMusicVolume => 'MÃƒÂ¼zik Sesini Ayarla';
 
   @override
   String get action_name_setNickname => 'Takma Ad Belirle';
 
   @override
-  String get action_name_setScopedVariable => 'Kapsamlı Değişken Ata';
+  String get action_name_setScopedVariable => 'KapsamlÃ„Â± DeÃ„Å¸iÃ…Å¸ken Ata';
 
   @override
-  String get action_name_setTemporaryVariable => 'Geçici Değişken Ata';
+  String get action_name_setTemporaryVariable => 'GeÃƒÂ§ici DeÃ„Å¸iÃ…Å¸ken Ata';
 
   @override
   String get action_name_skipActions => 'Eylemleri Atla';
 
   @override
-  String get action_name_skipMusic => 'Müziği Geç';
+  String get action_name_skipMusic => 'MÃƒÂ¼ziÃ„Å¸i GeÃƒÂ§';
 
   @override
-  String get action_name_slowmode => 'Yavaş Mod';
+  String get action_name_slowmode => 'YavaÃ…Å¸ Mod';
 
   @override
   String get action_name_stop => 'Durdur';
 
   @override
-  String get action_name_stopMusic => 'Müziği Durdur';
+  String get action_name_stopMusic => 'MÃƒÂ¼ziÃ„Å¸i Durdur';
 
   @override
-  String get action_name_stopUnless => 'Koşul Sağlanmadıkça Durdur';
+  String get action_name_stopUnless => 'KoÃ…Å¸ul SaÃ„Å¸lanmadÃ„Â±kÃƒÂ§a Durdur';
 
   @override
-  String get action_name_unbanUser => 'Kullanıcı Yasağını Kaldır';
+  String get action_name_unbanUser =>
+      'KullanÃ„Â±cÃ„Â± YasaÃ„Å¸Ã„Â±nÃ„Â± KaldÃ„Â±r';
 
   @override
-  String get action_name_unmuteUser => 'Kullanıcı Susturmasını Kaldır';
+  String get action_name_unmuteUser =>
+      'KullanÃ„Â±cÃ„Â± SusturmasÃ„Â±nÃ„Â± KaldÃ„Â±r';
 
   @override
-  String get action_name_unpinMessage => 'Mesaj Sabitlemesini Kaldır';
+  String get action_name_unpinMessage => 'Mesaj Sabitlemesini KaldÃ„Â±r';
 
   @override
   String get action_name_unregisterGuildCommands =>
-      'Sunucu Komutlarının Kaydını Sil';
+      'Sunucu KomutlarÃ„Â±nÃ„Â±n KaydÃ„Â±nÃ„Â± Sil';
 
   @override
-  String get action_name_updateAutoMod => 'AutoMod\'u Güncelle';
+  String get action_name_updateAutoMod => 'AutoMod\'u GÃƒÂ¼ncelle';
 
   @override
-  String get action_name_updateChannel => 'Kanalı Güncelle';
+  String get action_name_updateChannel => 'KanalÃ„Â± GÃƒÂ¼ncelle';
 
   @override
-  String get action_name_updateEmoji => 'Emoji Güncelle';
+  String get action_name_updateEmoji => 'Emoji GÃƒÂ¼ncelle';
 
   @override
-  String get action_name_updateGuild => 'Sunucuyu Güncelle';
+  String get action_name_updateGuild => 'Sunucuyu GÃƒÂ¼ncelle';
 
   @override
-  String get action_name_updateGuildOnboarding => 'Sunucu Katılımını Güncelle';
+  String get action_name_updateGuildOnboarding =>
+      'Sunucu KatÃ„Â±lÃ„Â±mÃ„Â±nÃ„Â± GÃƒÂ¼ncelle';
 
   @override
-  String get action_name_updateSelfUser => 'Kendini Güncelle (Bot Profili)';
+  String get action_name_updateSelfUser => 'Kendini GÃƒÂ¼ncelle (Bot Profili)';
 
   @override
   String get action_name_wait => 'Bekle';
 
   @override
-  String get action_no_actions_yet => 'Bu dalda henüz eylem yok.';
+  String get action_no_actions_yet => 'Bu dalda henÃƒÂ¼z eylem yok.';
 
   @override
   String get action_no_args_tap_edit =>
-      'Argüman yok - eklemek için düzenleye dokunun';
+      'ArgÃƒÂ¼man yok - eklemek iÃƒÂ§in dÃƒÂ¼zenleye dokunun';
 
   @override
   String get action_no_else_if_yet =>
-      'Henüz ELSE IF dalı yok. ELSE\'den önce daha fazla koşulu test etmek için bir tane ekleyin.';
+      'HenÃƒÂ¼z ELSE IF dalÃ„Â± yok. ELSE\'den ÃƒÂ¶nce daha fazla koÃ…Å¸ulu test etmek iÃƒÂ§in bir tane ekleyin.';
 
   @override
   String get action_no_headers_tap_edit =>
-      'Başlık yok - eklemek için düzenleye dokunun';
+      'BaÃ…Å¸lÃ„Â±k yok - eklemek iÃƒÂ§in dÃƒÂ¼zenleye dokunun';
 
   @override
   String get action_no_items_tap_edit =>
-      'Öğe yok - eklemek için düzenleye dokunun';
+      'Ãƒâ€“Ã„Å¸e yok - eklemek iÃƒÂ§in dÃƒÂ¼zenleye dokunun';
 
   @override
   String get action_no_properties_tap_edit =>
-      'Özellik yok - yapılandırmak için düzenleye dokunun';
+      'Ãƒâ€“zellik yok - yapÃ„Â±landÃ„Â±rmak iÃƒÂ§in dÃƒÂ¼zenleye dokunun';
 
   @override
   String get action_no_saved_keys =>
-      'Kayıtlı anahtar bulunamadı. Anahtarlar ilk erişimde otomatik olarak oluşturulur.';
+      'KayÃ„Â±tlÃ„Â± anahtar bulunamadÃ„Â±. Anahtarlar ilk eriÃ…Å¸imde otomatik olarak oluÃ…Å¸turulur.';
 
   @override
   String get action_on_error => 'Hata Durumunda';
 
   @override
-  String get action_options_tooltip => 'Eylem seçenekleri';
+  String get action_options_tooltip => 'Eylem seÃƒÂ§enekleri';
 
   @override
-  String get action_or_type_workflow => 'Veya iş akışı adını yazın';
+  String get action_or_type_workflow =>
+      'Veya iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â± adÃ„Â±nÃ„Â± yazÃ„Â±n';
 
   @override
   String get action_order_tip =>
-      'İpucu: eylem sırasını değiştirmek için okları kullanın.';
+      'Ã„Â°pucu: eylem sÃ„Â±rasÃ„Â±nÃ„Â± deÃ„Å¸iÃ…Å¸tirmek iÃƒÂ§in oklarÃ„Â± kullanÃ„Â±n.';
 
   @override
   String action_position(int index, int total) {
@@ -1072,48 +1107,51 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get action_preview_json => 'Vurgulanmış JSON\'u Önizle';
+  String get action_preview_json => 'VurgulanmÃ„Â±Ã…Å¸ JSON\'u Ãƒâ€“nizle';
 
   @override
-  String get action_provide_valid_url => 'Lütfen geçerli bir URL sağlayın.';
+  String get action_provide_valid_url =>
+      'LÃƒÂ¼tfen geÃƒÂ§erli bir URL saÃ„Å¸layÃ„Â±n.';
 
   @override
-  String get action_refresh_keys => 'Anahtarları yenile';
+  String get action_refresh_keys => 'AnahtarlarÃ„Â± yenile';
 
   @override
   String get action_remove_confirm =>
-      'Bu eylem iş akışından kaldırılacak. Devam edilsin mi?';
+      'Bu eylem iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â±ndan kaldÃ„Â±rÃ„Â±lacak. Devam edilsin mi?';
 
   @override
-  String get action_remove_else_if => 'ELSE IF Kaldır';
+  String get action_remove_else_if => 'ELSE IF KaldÃ„Â±r';
 
   @override
-  String get action_remove_menu => 'Eylemi kaldır';
+  String get action_remove_menu => 'Eylemi kaldÃ„Â±r';
 
   @override
-  String get action_remove_title => 'Eylemi kaldır';
+  String get action_remove_title => 'Eylemi kaldÃ„Â±r';
 
   @override
-  String get action_root_must_json => 'Kök bir JSON nesnesi olmalıdır';
+  String get action_root_must_json => 'KÃƒÂ¶k bir JSON nesnesi olmalÃ„Â±dÃ„Â±r';
 
   @override
-  String get action_select_saved_key => 'Kayıtlı bir anahtarı seçin';
+  String get action_select_saved_key =>
+      'KayÃ„Â±tlÃ„Â± bir anahtarÃ„Â± seÃƒÂ§in';
 
   @override
   String get action_select_stored_key =>
-      'Saklanan bir anahtarı seçin (bc_ ön eki isteğe bağlıdır)';
+      'Saklanan bir anahtarÃ„Â± seÃƒÂ§in (bc_ ÃƒÂ¶n eki isteÃ„Å¸e baÃ„Å¸lÃ„Â±dÃ„Â±r)';
 
   @override
   String get action_static_badge => '(statik)';
 
   @override
-  String get action_status_disabled => 'Devre Dışı';
+  String get action_status_disabled => 'Devre DÃ„Â±Ã…Å¸Ã„Â±';
 
   @override
   String get action_status_enabled => 'Etkin';
 
   @override
-  String get action_store_results => 'Sonuçları genel değişkenlerde sakla';
+  String get action_store_results =>
+      'SonuÃƒÂ§larÃ„Â± genel deÃ„Å¸iÃ…Å¸kenlerde sakla';
 
   @override
   String actions_active_route(String label) {
@@ -1128,25 +1166,25 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String actions_build_button(int count) {
-    return 'Eylemleri Oluştur ($count)';
+    return 'Eylemleri OluÃ…Å¸tur ($count)';
   }
 
   @override
   String get actions_empty_subtitle =>
-      'Bir eylem ekleyin, ardından ayrıntıları yapılandırmak için açın.';
+      'Bir eylem ekleyin, ardÃ„Â±ndan ayrÃ„Â±ntÃ„Â±larÃ„Â± yapÃ„Â±landÃ„Â±rmak iÃƒÂ§in aÃƒÂ§Ã„Â±n.';
 
   @override
-  String get actions_empty_title => 'Henüz eylem yok';
+  String get actions_empty_title => 'HenÃƒÂ¼z eylem yok';
 
   @override
-  String get actions_builder_title => 'Eylem Oluşturucu';
+  String get actions_builder_title => 'Eylem OluÃ…Å¸turucu';
 
   @override
   String get actions_description =>
-      'Bu komut için çalışma zamanı eylemleri oluşturun';
+      'Bu komut iÃƒÂ§in ÃƒÂ§alÃ„Â±Ã…Å¸ma zamanÃ„Â± eylemleri oluÃ…Å¸turun';
 
   @override
-  String get actions_global_variables => 'Genel Değişkenler';
+  String get actions_global_variables => 'Genel DeÃ„Å¸iÃ…Å¸kenler';
 
   @override
   String actions_key_label(String key) {
@@ -1162,7 +1200,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get actions_missing_field_title => 'Eksik Alan';
 
   @override
-  String get actions_no_matches => 'Eşleşme bulunamadı';
+  String get actions_no_matches => 'EÃ…Å¸leÃ…Å¸me bulunamadÃ„Â±';
 
   @override
   String actions_save_count(int count) {
@@ -1173,7 +1211,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get actions_save_tooltip => 'Eylemleri Kaydet';
 
   @override
-  String get actions_save_workflow_title => 'İş Akışı Olarak Kaydet';
+  String get actions_save_workflow_title =>
+      'Ã„Â°Ã…Å¸ AkÃ„Â±Ã…Å¸Ã„Â± Olarak Kaydet';
 
   @override
   String get actions_search_hint => 'Eylemlerde ara...';
@@ -1195,22 +1234,22 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String actions_step_label(int index, int total) {
-    return 'Adım $index / $total';
+    return 'AdÃ„Â±m $index / $total';
   }
 
   @override
   String actions_summary_bdfd(int lines, int diagnostics) {
-    return 'BDFD betiği | $lines satır | $diagnostics tanılama';
+    return 'BDFD betiÃ„Å¸i | $lines satÃ„Â±r | $diagnostics tanÃ„Â±lama';
   }
 
   @override
   String actions_summary_configured(int count) {
-    return '$count eylem yapılandırıldı';
+    return '$count eylem yapÃ„Â±landÃ„Â±rÃ„Â±ldÃ„Â±';
   }
 
   @override
   String actions_summary_dart(int lines, int diagnostics) {
-    return 'Dart betiği | $lines satır | $diagnostics tanılama';
+    return 'Dart betiÃ„Å¸i | $lines satÃ„Â±r | $diagnostics tanÃ„Â±lama';
   }
 
   @override
@@ -1222,135 +1261,137 @@ class AppLocalizationsTr extends AppLocalizations {
   String get actions_title => 'Eylemler';
 
   @override
-  String get actions_workflow_name_label => 'İş akışı adı';
+  String get actions_workflow_name_label => 'Ã„Â°Ã…Å¸ akÃ„Â±Ã…Å¸Ã„Â± adÃ„Â±';
 
   @override
-  String get actions_workflows => 'İş Akışları';
+  String get actions_workflows => 'Ã„Â°Ã…Å¸ AkÃ„Â±Ã…Å¸larÃ„Â±';
 
   @override
   String get ads_consent_accept => 'Kabul ediyorum';
 
   @override
   String get ads_consent_message =>
-      'GDPR\'ye uymak için reklam göstermeden önce onayınıza ihtiyacımız var. Reddetseniz bile uygulamayı kullanmaya devam edebilirsiniz.';
+      'GDPR\'ye uymak iÃƒÂ§in reklam gÃƒÂ¶stermeden ÃƒÂ¶nce onayÃ„Â±nÃ„Â±za ihtiyacÃ„Â±mÃ„Â±z var. Reddetseniz bile uygulamayÃ„Â± kullanmaya devam edebilirsiniz.';
 
   @override
   String get ads_consent_refuse => 'Reddediyorum';
 
   @override
   String get ads_consent_refused_info =>
-      'Reklam onayı reddedildi. Bot normal şekilde başlatılacaktır.';
+      'Reklam onayÃ„Â± reddedildi. Bot normal Ã…Å¸ekilde baÃ…Å¸latÃ„Â±lacaktÃ„Â±r.';
 
   @override
-  String get ads_consent_title => 'Reklam onayı';
+  String get ads_consent_title => 'Reklam onayÃ„Â±';
 
   @override
   String get app_bot_token => 'Bot Jetonu';
 
   @override
-  String get app_create_button => 'Uygulama oluştur';
+  String get app_create_button => 'Uygulama oluÃ…Å¸tur';
 
   @override
   String get app_create_hero_desc =>
-      'Doğru sayfaları açmak, jetonunuzu kopyalamak ve botu güvenli bir şekilde içe aktarmak için rehberli kurulum.';
+      'DoÃ„Å¸ru sayfalarÃ„Â± aÃƒÂ§mak, jetonunuzu kopyalamak ve botu gÃƒÂ¼venli bir Ã…Å¸ekilde iÃƒÂ§e aktarmak iÃƒÂ§in rehberli kurulum.';
 
   @override
-  String get app_create_hero_title => 'Discord botunuzu bağlayın';
+  String get app_create_hero_title => 'Discord botunuzu baÃ„Å¸layÃ„Â±n';
 
   @override
-  String get app_create_new => 'Yeni Uygulama Oluştur';
+  String get app_create_new => 'Yeni Uygulama OluÃ…Å¸tur';
 
   @override
-  String get app_create_page_title => 'Uygulama oluştur';
+  String get app_create_page_title => 'Uygulama oluÃ…Å¸tur';
 
   @override
   String get app_enter_token => 'Bot jetonunuzu buraya girin';
 
   @override
-  String get app_external_link_badge => 'Dış bağlantı';
+  String get app_external_link_badge => 'DÃ„Â±Ã…Å¸ baÃ„Å¸lantÃ„Â±';
 
   @override
   String get app_hide_token => 'Jetonu gizle';
 
   @override
-  String get app_how_to_create_token => 'Bot Jetonu nasıl oluşturulur?';
+  String get app_how_to_create_token => 'Bot Jetonu nasÃ„Â±l oluÃ…Å¸turulur?';
 
   @override
-  String get app_loading_error => 'Yükleme hatası';
+  String get app_loading_error => 'YÃƒÂ¼kleme hatasÃ„Â±';
 
   @override
-  String get app_no_apps => 'Henüz uygulamanız yok.';
+  String get app_no_apps => 'HenÃƒÂ¼z uygulamanÃ„Â±z yok.';
 
   @override
   String get app_note =>
-      'Not: Discord Geliştirici Portalı\'nda yeni bir Uygulama oluşturmanız ve bot jetonunuzu almanız gerekir.';
+      'Not: Discord GeliÃ…Å¸tirici PortalÃ„Â±\'nda yeni bir Uygulama oluÃ…Å¸turmanÃ„Â±z ve bot jetonunuzu almanÃ„Â±z gerekir.';
 
   @override
-  String get app_open_discord_portal => 'Discord Geliştirici Portalı\'nı Aç';
+  String get app_open_discord_portal =>
+      'Discord GeliÃ…Å¸tirici PortalÃ„Â±\'nÃ„Â± AÃƒÂ§';
 
   @override
   String get app_open_discord_portal_desc =>
-      'Uygulamanızı oluşturun ve bot bölümünü etkinleştirin.';
+      'UygulamanÃ„Â±zÃ„Â± oluÃ…Å¸turun ve bot bÃƒÂ¶lÃƒÂ¼mÃƒÂ¼nÃƒÂ¼ etkinleÃ…Å¸tirin.';
 
   @override
-  String get app_open_link_error => 'Bu harici sayfa açılamıyor.';
+  String get app_open_link_error => 'Bu harici sayfa aÃƒÂ§Ã„Â±lamÃ„Â±yor.';
 
   @override
-  String get app_open_token_tutorial => 'Jeton eğitimini oku';
+  String get app_open_token_tutorial => 'Jeton eÃ„Å¸itimini oku';
 
   @override
   String get app_open_token_tutorial_desc =>
-      'Bot jetonunuzu oluşturmak ve kopyalamak için adım adım kılavuz.';
+      'Bot jetonunuzu oluÃ…Å¸turmak ve kopyalamak iÃƒÂ§in adÃ„Â±m adÃ„Â±m kÃ„Â±lavuz.';
 
   @override
   String get app_resources_desc =>
-      'Bu eylemler, botunuzu buraya kaydetmeden önce ihtiyacınız olan resmi sayfaları açar.';
+      'Bu eylemler, botunuzu buraya kaydetmeden ÃƒÂ¶nce ihtiyacÃ„Â±nÃ„Â±z olan resmi sayfalarÃ„Â± aÃƒÂ§ar.';
 
   @override
   String get app_resources_title => 'Rehberli kurulum';
 
   @override
-  String get app_save => 'Değişiklikleri Kaydet';
+  String get app_save => 'DeÃ„Å¸iÃ…Å¸iklikleri Kaydet';
 
   @override
   String get app_save_bot => 'Bot ekle';
 
   @override
-  String get app_show_token => 'Jetonu göster';
+  String get app_show_token => 'Jetonu gÃƒÂ¶ster';
 
   @override
-  String get app_sync_manager_connect => 'Discord\'u Bağla';
+  String get app_sync_manager_connect => 'Discord\'u BaÃ„Å¸la';
 
   @override
   String get app_sync_manager_desc =>
-      'Bu bot zaten Bot Creator Manager\'da kayıtlı. Tüm botlarınızı otomatik olarak senkronize etmek için Discord ile bağlanmak ister misiniz?';
+      'Bu bot zaten Bot Creator Manager\'da kayÃ„Â±tlÃ„Â±. TÃƒÂ¼m botlarÃ„Â±nÃ„Â±zÃ„Â± otomatik olarak senkronize etmek iÃƒÂ§in Discord ile baÃ„Å¸lanmak ister misiniz?';
 
   @override
   String get app_sync_manager_manual => 'Yerel tut';
 
   @override
-  String get app_sync_manager_title => 'Bot zaten yönetiliyor';
+  String get app_sync_manager_title => 'Bot zaten yÃƒÂ¶netiliyor';
 
   @override
   String get app_title => 'Bot Creator';
 
   @override
   String get app_token_invalid_content =>
-      'Jeton sıfırlanmış gibi görünüyor. Lütfen Discord Geliştirici Portalı\'ndan yeni jetonu girin.';
+      'Jeton sÃ„Â±fÃ„Â±rlanmÃ„Â±Ã…Å¸ gibi gÃƒÂ¶rÃƒÂ¼nÃƒÂ¼yor. LÃƒÂ¼tfen Discord GeliÃ…Å¸tirici PortalÃ„Â±\'ndan yeni jetonu girin.';
 
   @override
-  String get app_token_invalid_title => 'Jeton Sıfırlaması Algılandı';
+  String get app_token_invalid_title =>
+      'Jeton SÃ„Â±fÃ„Â±rlamasÃ„Â± AlgÃ„Â±landÃ„Â±';
 
   @override
   String get app_token_field_helper =>
-      'Jetonu tam olarak Discord tarafından sağlandığı şekilde yapıştırın.';
+      'Jetonu tam olarak Discord tarafÃ„Â±ndan saÃ„Å¸landÃ„Â±Ã„Å¸Ã„Â± Ã…Å¸ekilde yapÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±n.';
 
   @override
   String get app_token_section_desc =>
-      'Jeton kopyalandıktan sonra, botunuzu uygulamaya eklemek için aşağıya yapıştırın.';
+      'Jeton kopyalandÃ„Â±ktan sonra, botunuzu uygulamaya eklemek iÃƒÂ§in aÃ…Å¸aÃ„Å¸Ã„Â±ya yapÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±n.';
 
   @override
-  String get app_token_section_title => 'Bot jetonunuzu yapıştırın';
+  String get app_token_section_title => 'Bot jetonunuzu yapÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±n';
 
   @override
   String get app_token_security_hint =>
@@ -1361,84 +1402,89 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get autocomplete_dynamic_desc =>
-      'Seçenekleri statik değerler yerine bir iş akışından çözün.';
+      'SeÃƒÂ§enekleri statik deÃ„Å¸erler yerine bir iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â±ndan ÃƒÂ§ÃƒÂ¶zÃƒÂ¼n.';
 
   @override
   String get autocomplete_filter_hint =>
-      'Öneriler, kullanıcının yazdığına göre filtrelenir.';
+      'Ãƒâ€“neriler, kullanÃ„Â±cÃ„Â±nÃ„Â±n yazdÃ„Â±Ã„Å¸Ã„Â±na gÃƒÂ¶re filtrelenir.';
 
   @override
-  String get autocomplete_loading => 'İş akışları yükleniyor…';
+  String get autocomplete_loading =>
+      'Ã„Â°Ã…Å¸ akÃ„Â±Ã…Å¸larÃ„Â± yÃƒÂ¼kleniyorÃ¢â‚¬Â¦';
 
   @override
-  String get autocomplete_no_workflows => 'Kayıtlı iş akışı bulunamadı';
+  String get autocomplete_no_workflows =>
+      'KayÃ„Â±tlÃ„Â± iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â± bulunamadÃ„Â±';
 
   @override
-  String get autocomplete_select_workflow => 'Kayıtlı bir iş akışı seçin';
+  String get autocomplete_select_workflow =>
+      'KayÃ„Â±tlÃ„Â± bir iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â± seÃƒÂ§in';
 
   @override
-  String get autocomplete_type_name => 'Veya iş akışı adını yazın';
+  String get autocomplete_type_name =>
+      'Veya iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â± adÃ„Â±nÃ„Â± yazÃ„Â±n';
 
   @override
-  String get autocomplete_workflow_label => 'Otomatik Tamamlama İş Akışı';
+  String get autocomplete_workflow_label =>
+      'Otomatik Tamamlama Ã„Â°Ã…Å¸ AkÃ„Â±Ã…Å¸Ã„Â±';
 
   @override
   String backup_completed(String id) {
-    return 'Yedekleme tamamlandı: $id';
+    return 'Yedekleme tamamlandÃ„Â±: $id';
   }
 
   @override
   String backup_failed(String error) {
-    return 'Yedekleme başarısız: $error';
+    return 'Yedekleme baÃ…Å¸arÃ„Â±sÃ„Â±z: $error';
   }
 
   @override
   String bdfd_compile_error_detailed(String summary) {
-    return 'Bu BDFD betiği derlenemedi:\n$summary';
+    return 'Bu BDFD betiÃ„Å¸i derlenemedi:\n$summary';
   }
 
   @override
-  String get bdfd_compile_error_simple => 'Bu BDFD betiği derlenemedi.';
+  String get bdfd_compile_error_simple => 'Bu BDFD betiÃ„Å¸i derlenemedi.';
 
   @override
   String get bdfd_compiled_no_actions =>
-      'Bu BDFD betiği başarıyla derlendi ancak herhangi bir eylem üretmedi.';
+      'Bu BDFD betiÃ„Å¸i baÃ…Å¸arÃ„Â±yla derlendi ancak herhangi bir eylem ÃƒÂ¼retmedi.';
 
   @override
   String get bdfd_docs_category_channels => 'Kanallar ve Konular';
 
   @override
-  String get bdfd_docs_category_components => 'Bileşenler';
+  String get bdfd_docs_category_components => 'BileÃ…Å¸enler';
 
   @override
-  String get bdfd_docs_category_control => 'Kontrol Akışı';
+  String get bdfd_docs_category_control => 'Kontrol AkÃ„Â±Ã…Å¸Ã„Â±';
 
   @override
-  String get bdfd_docs_category_cooldowns => 'Bekleme Süreleri';
+  String get bdfd_docs_category_cooldowns => 'Bekleme SÃƒÂ¼releri';
 
   @override
-  String get bdfd_docs_category_embeds => 'Gömülü Mesajlar (Embeds)';
+  String get bdfd_docs_category_embeds => 'GÃƒÂ¶mÃƒÂ¼lÃƒÂ¼ Mesajlar (Embeds)';
 
   @override
-  String get bdfd_docs_category_guards => 'Muhafızlar ve İzinler';
+  String get bdfd_docs_category_guards => 'MuhafÃ„Â±zlar ve Ã„Â°zinler';
 
   @override
-  String get bdfd_docs_category_http => 'HTTP İstekleri';
+  String get bdfd_docs_category_http => 'HTTP Ã„Â°stekleri';
 
   @override
   String get bdfd_docs_category_json => 'JSON';
 
   @override
-  String get bdfd_docs_category_leaderboards => 'Lider Tabloları';
+  String get bdfd_docs_category_leaderboards => 'Lider TablolarÃ„Â±';
 
   @override
   String get bdfd_docs_category_math => 'Matematik';
 
   @override
-  String get bdfd_docs_category_messages => 'Mesajlar ve İçerik';
+  String get bdfd_docs_category_messages => 'Mesajlar ve Ã„Â°ÃƒÂ§erik';
 
   @override
-  String get bdfd_docs_category_misc => 'Diğer';
+  String get bdfd_docs_category_misc => 'DiÃ„Å¸er';
 
   @override
   String get bdfd_docs_category_modals => 'Modallar';
@@ -1459,284 +1505,298 @@ class AppLocalizationsTr extends AppLocalizations {
   String get bdfd_docs_category_tickets => 'Destek Talepleri (Tickets)';
 
   @override
-  String get bdfd_docs_category_variables => 'Değişkenler';
+  String get bdfd_docs_category_variables => 'DeÃ„Å¸iÃ…Å¸kenler';
 
   @override
   String get bdfd_docs_category_webhooks => 'Webhooklar';
 
   @override
   String get bdfd_docs_desc_and =>
-      'Mantıksal VE — birden fazla koşulu birleştirir. Hepsi doğru olmalıdır.\n\nKullanım: \$if[\$and[\$authorID==123;\$hasRole[456]]]';
+      'MantÃ„Â±ksal VE Ã¢â‚¬â€ birden fazla koÃ…Å¸ulu birleÃ…Å¸tirir. Hepsi doÃ„Å¸ru olmalÃ„Â±dÃ„Â±r.\n\nKullanÃ„Â±m: \$if[\$and[\$authorID==123;\$hasRole[456]]]';
 
   @override
   String get bdfd_docs_desc_awaitfunc =>
-      'Kullanıcı yanıtını bekleyen bir geri arama (callback) kaydeder.\n\nKullanım: \$awaitFunc[ad;kullaniciID (ist);kanalID (ist)]\n\nBeklenen fonksiyon saklanır ve hedef kullanıcı hedef kanalda bir mesaj gönderdiğinde tetiklenir.';
+      'KullanÃ„Â±cÃ„Â± yanÃ„Â±tÃ„Â±nÃ„Â± bekleyen bir geri arama (callback) kaydeder.\n\nKullanÃ„Â±m: \$awaitFunc[ad;kullaniciID (ist);kanalID (ist)]\n\nBeklenen fonksiyon saklanÃ„Â±r ve hedef kullanÃ„Â±cÃ„Â± hedef kanalda bir mesaj gÃƒÂ¶nderdiÃ„Å¸inde tetiklenir.';
 
   @override
   String get bdfd_docs_desc_callworkflow =>
-      'Yalnızca Bot Creator — Başka bir iş akışını adıyla çağırır ve argümanları iletir.\n\nSözdizimi: \$callWorkflow[isAkisim;anahtar1=değer1;anahtar2=değer2]\n\nÇağrılan iş akışı argümanları okuyabilir ve \$workflowResponse aracılığıyla bir değer döndürebilir.';
+      'YalnÃ„Â±zca Bot Creator Ã¢â‚¬â€ BaÃ…Å¸ka bir iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â±nÃ„Â± adÃ„Â±yla ÃƒÂ§aÃ„Å¸Ã„Â±rÃ„Â±r ve argÃƒÂ¼manlarÃ„Â± iletir.\n\nSÃƒÂ¶zdizimi: \$callWorkflow[isAkisim;anahtar1=deÃ„Å¸er1;anahtar2=deÃ„Å¸er2]\n\nÃƒâ€¡aÃ„Å¸rÃ„Â±lan iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â± argÃƒÂ¼manlarÃ„Â± okuyabilir ve \$workflowResponse aracÃ„Â±lÃ„Â±Ã„Å¸Ã„Â±yla bir deÃ„Å¸er dÃƒÂ¶ndÃƒÂ¼rebilir.';
 
   @override
   String get bdfd_docs_desc_defer =>
-      'Etkileşim yanıtını erteler ve size işlemek için daha fazla zaman kazandırır. Kullanıcı \"Bot düşünüyor…\" mesajı görür. HTTP istekleri gibi uzun işlemlerden önce kullanın.';
+      'EtkileÃ…Å¸im yanÃ„Â±tÃ„Â±nÃ„Â± erteler ve size iÃ…Å¸lemek iÃƒÂ§in daha fazla zaman kazandÃ„Â±rÃ„Â±r. KullanÃ„Â±cÃ„Â± \"Bot dÃƒÂ¼Ã…Å¸ÃƒÂ¼nÃƒÂ¼yorÃ¢â‚¬Â¦\" mesajÃ„Â± gÃƒÂ¶rÃƒÂ¼r. HTTP istekleri gibi uzun iÃ…Å¸lemlerden ÃƒÂ¶nce kullanÃ„Â±n.';
 
   @override
   String get bdfd_docs_desc_elseif =>
-      'Bir \$if bloğu içine alternatif bir koşul ekler. \$if ve \$else/\$endif arasında görünmelidir.';
+      'Bir \$if bloÃ„Å¸u iÃƒÂ§ine alternatif bir koÃ…Å¸ul ekler. \$if ve \$else/\$endif arasÃ„Â±nda gÃƒÂ¶rÃƒÂ¼nmelidir.';
 
   @override
   String get bdfd_docs_desc_embedsuppresserrors =>
-      '\$suppressErrors ile aynı — tüm hata mesajlarını sessizce bastırır.';
+      '\$suppressErrors ile aynÃ„Â± Ã¢â‚¬â€ tÃƒÂ¼m hata mesajlarÃ„Â±nÃ„Â± sessizce bastÃ„Â±rÃ„Â±r.';
 
   @override
   String get bdfd_docs_desc_ephemeral =>
-      'Yanıtı yalnızca komutu tetikleyen kullanıcı için görünür kılar. Herhangi bir yanıt içeriğinden önce yerleştirilmelidir.';
+      'YanÃ„Â±tÃ„Â± yalnÃ„Â±zca komutu tetikleyen kullanÃ„Â±cÃ„Â± iÃƒÂ§in gÃƒÂ¶rÃƒÂ¼nÃƒÂ¼r kÃ„Â±lar. Herhangi bir yanÃ„Â±t iÃƒÂ§eriÃ„Å¸inden ÃƒÂ¶nce yerleÃ…Å¸tirilmelidir.';
 
   @override
   String get bdfd_docs_desc_eval =>
-      'Bir BDFD betik dizesini çalışma zamanında yürütür. Argüman olarak geçirilen kod yeniden derlenir ve dinamik olarak yürütülür. Kullanıcı tarafından sağlanan veya değişken tabanlı betikleri çalıştırmak için kullanışlıdır.';
+      'Bir BDFD betik dizesini ÃƒÂ§alÃ„Â±Ã…Å¸ma zamanÃ„Â±nda yÃƒÂ¼rÃƒÂ¼tÃƒÂ¼r. ArgÃƒÂ¼man olarak geÃƒÂ§irilen kod yeniden derlenir ve dinamik olarak yÃƒÂ¼rÃƒÂ¼tÃƒÂ¼lÃƒÂ¼r. KullanÃ„Â±cÃ„Â± tarafÃ„Â±ndan saÃ„Å¸lanan veya deÃ„Å¸iÃ…Å¸ken tabanlÃ„Â± betikleri ÃƒÂ§alÃ„Â±Ã…Å¸tÃ„Â±rmak iÃƒÂ§in kullanÃ„Â±Ã…Å¸lÃ„Â±dÃ„Â±r.';
 
   @override
   String get bdfd_docs_desc_for =>
-      'Yalnızca Bot Creator — Bir kod bloğunu N kez tekrarlar.\n\nBasit: \$for[5]...\$endfor → gövde 5 kez tekrarlanır (maks 100). Mevcut indeks için \$i (0\'dan başlar) ve toplam için \$loopCount kullanabilirsiniz.\n\nC-stili: \$for[i=0;i<10;i++]...\$endfor → başlatma, koşul ve güncelleme ile klasik for döngüsü. ++, --, +=, -=, *= destekler.\n\nYineleme sayısı dinamikse (örn. \$for[\$args[1]]), döngü derleme zamanı yerine çalışma zamanında çalışır.';
+      'YalnÃ„Â±zca Bot Creator Ã¢â‚¬â€ Bir kod bloÃ„Å¸unu N kez tekrarlar.\n\nBasit: \$for[5]...\$endfor Ã¢â€ â€™ gÃƒÂ¶vde 5 kez tekrarlanÃ„Â±r (maks 100). Mevcut indeks iÃƒÂ§in \$i (0\'dan baÃ…Å¸lar) ve toplam iÃƒÂ§in \$loopCount kullanabilirsiniz.\n\nC-stili: \$for[i=0;i<10;i++]...\$endfor Ã¢â€ â€™ baÃ…Å¸latma, koÃ…Å¸ul ve gÃƒÂ¼ncelleme ile klasik for dÃƒÂ¶ngÃƒÂ¼sÃƒÂ¼. ++, --, +=, -=, *= destekler.\n\nYineleme sayÃ„Â±sÃ„Â± dinamikse (ÃƒÂ¶rn. \$for[\$args[1]]), dÃƒÂ¶ngÃƒÂ¼ derleme zamanÃ„Â± yerine ÃƒÂ§alÃ„Â±Ã…Å¸ma zamanÃ„Â±nda ÃƒÂ§alÃ„Â±Ã…Å¸Ã„Â±r.';
 
   @override
   String get bdfd_docs_desc_httpaddheader =>
-      'Bir sonraki HTTP isteğine bir başlık ekler. Başlıklar bir sonraki \$httpGet/\$httpPost/vb. işlemine kadar biriktirilir.\n\nKullanım: \$httpAddHeader[Authorization;Bearer token123]';
+      'Bir sonraki HTTP isteÃ„Å¸ine bir baÃ…Å¸lÃ„Â±k ekler. BaÃ…Å¸lÃ„Â±klar bir sonraki \$httpGet/\$httpPost/vb. iÃ…Å¸lemine kadar biriktirilir.\n\nKullanÃ„Â±m: \$httpAddHeader[Authorization;Bearer token123]';
 
   @override
   String get bdfd_docs_desc_httpget =>
-      'Verilen URL\'ye bir HTTP GET isteği gönderir. Başlıkları ayarlamak için önce \$httpAddHeader kullanın. Yanıtı okumak için \$httpResult kullanın.\n\nTüm HTTP yöntemleri (GET, POST, PUT, PATCH, DELETE) aynı kalıbı izler.';
+      'Verilen URL\'ye bir HTTP GET isteÃ„Å¸i gÃƒÂ¶nderir. BaÃ…Å¸lÃ„Â±klarÃ„Â± ayarlamak iÃƒÂ§in ÃƒÂ¶nce \$httpAddHeader kullanÃ„Â±n. YanÃ„Â±tÃ„Â± okumak iÃƒÂ§in \$httpResult kullanÃ„Â±n.\n\nTÃƒÂ¼m HTTP yÃƒÂ¶ntemleri (GET, POST, PUT, PATCH, DELETE) aynÃ„Â± kalÃ„Â±bÃ„Â± izler.';
 
   @override
   String get bdfd_docs_desc_httpresult =>
-      'Son HTTP yanıtının gövdesini döndürür. İsteğe bağlı olarak belirli bir alanı çıkarmak için bir JSON yolu geçirin.\n\nKullanım: Tam gövde için \$httpResult[], iç içe geçmiş bir alan için \$httpResult[data.name].';
+      'Son HTTP yanÃ„Â±tÃ„Â±nÃ„Â±n gÃƒÂ¶vdesini dÃƒÂ¶ndÃƒÂ¼rÃƒÂ¼r. Ã„Â°steÃ„Å¸e baÃ„Å¸lÃ„Â± olarak belirli bir alanÃ„Â± ÃƒÂ§Ã„Â±karmak iÃƒÂ§in bir JSON yolu geÃƒÂ§irin.\n\nKullanÃ„Â±m: Tam gÃƒÂ¶vde iÃƒÂ§in \$httpResult[], iÃƒÂ§ iÃƒÂ§e geÃƒÂ§miÃ…Å¸ bir alan iÃƒÂ§in \$httpResult[data.name].';
 
   @override
   String get bdfd_docs_desc_if =>
-      'Koşullu blok. İç içe geçmeyi ve zengin operatörleri destekler: ==, !=, >=, <=, >, <, contains, startsWith, endsWith, notContains.\n\nKullanım:\n\$if[\$authorID==123456]\n  Merhaba yönetici!\n\$elseif[\$hasRole[789]]\n  Merhaba üye!\n\$else\n  Merhaba misafir!\n\$endif';
+      'KoÃ…Å¸ullu blok. Ã„Â°ÃƒÂ§ iÃƒÂ§e geÃƒÂ§meyi ve zengin operatÃƒÂ¶rleri destekler: ==, !=, >=, <=, >, <, contains, startsWith, endsWith, notContains.\n\nKullanÃ„Â±m:\n\$if[\$authorID==123456]\n  Merhaba yÃƒÂ¶netici!\n\$elseif[\$hasRole[789]]\n  Merhaba ÃƒÂ¼ye!\n\$else\n  Merhaba misafir!\n\$endif';
 
   @override
   String get bdfd_docs_desc_jsonparse =>
-      'Manipülasyon için bir JSON dizesini belleğe ayrıştırır. Tüm JSON işlemleri (\$jsonSet, \$json, vb.) bu ayrıştırılmış bağlam üzerinde çalışır.\n\nStatik JSON, daha iyi performans için derleme zamanında çözülür.';
+      'ManipÃƒÂ¼lasyon iÃƒÂ§in bir JSON dizesini belleÃ„Å¸e ayrÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±r. TÃƒÂ¼m JSON iÃ…Å¸lemleri (\$jsonSet, \$json, vb.) bu ayrÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±lmÃ„Â±Ã…Å¸ baÃ„Å¸lam ÃƒÂ¼zerinde ÃƒÂ§alÃ„Â±Ã…Å¸Ã„Â±r.\n\nStatik JSON, daha iyi performans iÃƒÂ§in derleme zamanÃ„Â±nda ÃƒÂ§ÃƒÂ¶zÃƒÂ¼lÃƒÂ¼r.';
 
   @override
   String get bdfd_docs_desc_jsonset =>
-      'Mevcut JSON bağlamında bir değer ayarlar. Noktalı gösterim yollarını destekler.\n\nKullanım: \$jsonSet[user.name;John]\n\nDeğişiklik bellekte uygulanır — sonucu almak için \$jsonStringify kullanın.';
+      'Mevcut JSON baÃ„Å¸lamÃ„Â±nda bir deÃ„Å¸er ayarlar. NoktalÃ„Â± gÃƒÂ¶sterim yollarÃ„Â±nÃ„Â± destekler.\n\nKullanÃ„Â±m: \$jsonSet[user.name;John]\n\nDeÃ„Å¸iÃ…Å¸iklik bellekte uygulanÃ„Â±r Ã¢â‚¬â€ sonucu almak iÃƒÂ§in \$jsonStringify kullanÃ„Â±n.';
 
   @override
   String get bdfd_docs_desc_jsonstringify =>
-      'Mevcut JSON bağlamını tekrar dizeye dönüştürür. Sonucu çıktı olarak almak için \$jsonParse ve \$jsonSet işlemlerinden sonra kullanın.';
+      'Mevcut JSON baÃ„Å¸lamÃ„Â±nÃ„Â± tekrar dizeye dÃƒÂ¶nÃƒÂ¼Ã…Å¸tÃƒÂ¼rÃƒÂ¼r. Sonucu ÃƒÂ§Ã„Â±ktÃ„Â± olarak almak iÃƒÂ§in \$jsonParse ve \$jsonSet iÃ…Å¸lemlerinden sonra kullanÃ„Â±n.';
 
   @override
   String get bdfd_docs_desc_loop =>
-      'Yalnızca Bot Creator — \$for için takma ad. Detaylar için \$for\'a bakın. Bloğu kapatmak için \$endloop kullanın.';
+      'YalnÃ„Â±zca Bot Creator Ã¢â‚¬â€ \$for iÃƒÂ§in takma ad. Detaylar iÃƒÂ§in \$for\'a bakÃ„Â±n. BloÃ„Å¸u kapatmak iÃƒÂ§in \$endloop kullanÃ„Â±n.';
 
   @override
   String get bdfd_docs_desc_or =>
-      'Mantıksal VEYA — birden fazla koşulu birleştirir. En az biri doğru olmalıdır.\n\nKullanım: \$if[\$or[\$authorID==123;\$authorID==456]]]';
+      'MantÃ„Â±ksal VEYA Ã¢â‚¬â€ birden fazla koÃ…Å¸ulu birleÃ…Å¸tirir. En az biri doÃ„Å¸ru olmalÃ„Â±dÃ„Â±r.\n\nKullanÃ„Â±m: \$if[\$or[\$authorID==123;\$authorID==456]]]';
 
   @override
   String get bdfd_docs_desc_stop =>
-      'Mevcut betiğin yürütülmesini anında durdurur. \$stop\'tan sonra hiçbir eylem çalışmaz.';
+      'Mevcut betiÃ„Å¸in yÃƒÂ¼rÃƒÂ¼tÃƒÂ¼lmesini anÃ„Â±nda durdurur. \$stop\'tan sonra hiÃƒÂ§bir eylem ÃƒÂ§alÃ„Â±Ã…Å¸maz.';
 
   @override
   String get bdfd_docs_desc_suppresserrors =>
-      'Hata mesajlarının kullanıcıya gönderilmesini engeller. Herhangi bir eylem başarısız olursa, hata sessizce bastırılır.';
+      'Hata mesajlarÃ„Â±nÃ„Â±n kullanÃ„Â±cÃ„Â±ya gÃƒÂ¶nderilmesini engeller. Herhangi bir eylem baÃ…Å¸arÃ„Â±sÃ„Â±z olursa, hata sessizce bastÃ„Â±rÃ„Â±lÃ„Â±r.';
 
   @override
   String get bdfd_docs_desc_try =>
-      'Hata ayıklama için bir bloğu sarmalar.\n\nKullanım:\n\$try\n  \$httpGet[https://api.example.com/data]\n\$catch\n  İstek başarısız!\n\$endtry\n\n\$try bloğundaki herhangi bir fonksiyon hata verirse, yürütme \$catch bloğuna atlar.';
+      'Hata ayÃ„Â±klama iÃƒÂ§in bir bloÃ„Å¸u sarmalar.\n\nKullanÃ„Â±m:\n\$try\n  \$httpGet[https://api.example.com/data]\n\$catch\n  Ã„Â°stek baÃ…Å¸arÃ„Â±sÃ„Â±z!\n\$endtry\n\n\$try bloÃ„Å¸undaki herhangi bir fonksiyon hata verirse, yÃƒÂ¼rÃƒÂ¼tme \$catch bloÃ„Å¸una atlar.';
 
   @override
   String get bdfd_docs_desc_url =>
-      'Metni URL\'lerde kullanmak üzere kodlar veya çözer. Metni URL güvenli hale getirmek için \'encode\' veya geri almak için \'decode\' kullanın.\\n\\nKullanım: \$url[encode;Hello world!!]';
+      'Metni URL\'lerde kullanmak ÃƒÂ¼zere kodlar veya ÃƒÂ§ÃƒÂ¶zer. Metni URL gÃƒÂ¼venli hale getirmek iÃƒÂ§in \'encode\' veya geri almak iÃƒÂ§in \'decode\' kullanÃ„Â±n.\\n\\nKullanÃ„Â±m: \$url[encode;Hello world!!]';
 
   @override
   String get bdfd_docs_desc_workflowresponse =>
-      'Yalnızca Bot Creator — Son \$callWorkflow\'dan gelen yanıtı döndürür.\n\nTam yanıt için \$workflowResponse[], belirli bir alan için \$workflowResponse[alan] kullanın.';
+      'YalnÃ„Â±zca Bot Creator Ã¢â‚¬â€ Son \$callWorkflow\'dan gelen yanÃ„Â±tÃ„Â± dÃƒÂ¶ndÃƒÂ¼rÃƒÂ¼r.\n\nTam yanÃ„Â±t iÃƒÂ§in \$workflowResponse[], belirli bir alan iÃƒÂ§in \$workflowResponse[alan] kullanÃ„Â±n.';
 
   @override
-  String get bdfd_docs_empty => 'Eşleşen fonksiyon yok.';
+  String get bdfd_docs_empty => 'EÃ…Å¸leÃ…Å¸en fonksiyon yok.';
 
   @override
   String get bdfd_docs_no_params =>
-      'Parametre yok — \$fonksiyonAdı olarak kullanın';
+      'Parametre yok Ã¢â‚¬â€ \$fonksiyonAdÃ„Â± olarak kullanÃ„Â±n';
 
   @override
   String get bdfd_docs_parameters => 'PARAMETRELER';
 
   @override
-  String get bdfd_docs_search_hint => 'Fonksiyonlarda ara…';
+  String get bdfd_docs_search_hint => 'Fonksiyonlarda araÃ¢â‚¬Â¦';
 
   @override
-  String get bdfd_docs_syntax => 'SÖZDIZIMI';
+  String get bdfd_docs_syntax => 'SÃƒâ€“ZDIZIMI';
 
   @override
   String get bdfd_docs_title => 'BDFD Belgeleri';
 
   @override
-  String get bdfd_editor_auto_indent => '• Enter ile akıllı otomatik girinti';
+  String get bdfd_editor_auto_indent =>
+      'Ã¢â‚¬Â¢ Enter ile akÃ„Â±llÃ„Â± otomatik girinti';
 
   @override
-  String get bdfd_editor_diagnostics_toggle => 'Tanılama panelini değiştir';
+  String get bdfd_editor_diagnostics_toggle =>
+      'TanÃ„Â±lama panelini deÃ„Å¸iÃ…Å¸tir';
 
   @override
-  String get bdfd_editor_docs => 'BDFD Fonksiyon Referansı';
+  String get bdfd_editor_docs => 'BDFD Fonksiyon ReferansÃ„Â±';
 
   @override
   String get bdfd_editor_empty =>
-      'Boş betik — tanılamaları görmek için yazmaya başlayın.';
+      'BoÃ…Å¸ betik Ã¢â‚¬â€ tanÃ„Â±lamalarÃ„Â± gÃƒÂ¶rmek iÃƒÂ§in yazmaya baÃ…Å¸layÃ„Â±n.';
 
   @override
-  String get bdfd_editor_includes => 'İçerir:';
+  String get bdfd_editor_includes => 'Ã„Â°ÃƒÂ§erir:';
 
   @override
-  String get bdfd_editor_indent_guides => '• Canlı girinti kılavuzları';
+  String get bdfd_editor_indent_guides =>
+      'Ã¢â‚¬Â¢ CanlÃ„Â± girinti kÃ„Â±lavuzlarÃ„Â±';
 
   @override
   String get bdfd_editor_quick_keys =>
-      '• BDFD sembolleri için mobil hızlı tuşlar';
+      'Ã¢â‚¬Â¢ BDFD sembolleri iÃƒÂ§in mobil hÃ„Â±zlÃ„Â± tuÃ…Å¸lar';
 
   @override
-  String get bdfd_editor_tap_hint => 'Düzenleyiciyi açmak için dokunun';
+  String get bdfd_editor_tap_hint =>
+      'DÃƒÂ¼zenleyiciyi aÃƒÂ§mak iÃƒÂ§in dokunun';
 
   @override
-  String get bdfd_editor_title => 'BDFD Düzenleyici';
+  String get bdfd_editor_title => 'BDFD DÃƒÂ¼zenleyici';
 
   @override
-  String get bdfd_editor_toggle_indent => 'Girinti kılavuzlarını değiştir';
+  String get bdfd_editor_toggle_indent =>
+      'Girinti kÃ„Â±lavuzlarÃ„Â±nÃ„Â± deÃ„Å¸iÃ…Å¸tir';
 
   @override
-  String get bdfd_editor_ux_title => 'Düzenleyici UX';
+  String get bdfd_editor_ux_title => 'DÃƒÂ¼zenleyici UX';
 
   @override
-  String get bdfd_editor_wrap_toggle => 'Satır kaydırmayı değiştir';
+  String get bdfd_editor_wrap_toggle =>
+      'SatÃ„Â±r kaydÃ„Â±rmayÃ„Â± deÃ„Å¸iÃ…Å¸tir';
 
   @override
   String get bdfd_runtime_execution_error =>
-      'Bu BDFD betiği yürütülürken bir hata oluştu.';
+      'Bu BDFD betiÃ„Å¸i yÃƒÂ¼rÃƒÂ¼tÃƒÂ¼lÃƒÂ¼rken bir hata oluÃ…Å¸tu.';
 
   @override
-  String get bot_home_create_command => 'İlk komutumu oluştur';
+  String get bot_home_create_command => 'Ã„Â°lk komutumu oluÃ…Å¸tur';
 
   @override
-  String get bot_home_customize => 'Botumu özelleştir';
+  String get bot_home_customize => 'Botumu ÃƒÂ¶zelleÃ…Å¸tir';
 
   @override
-  String get bot_home_delete => 'Uygulamayı Sil';
+  String get bot_home_delete => 'UygulamayÃ„Â± Sil';
 
   @override
   String get bot_home_delete_confirm =>
-      'Bu uygulamayı silmek istediğinizden emin misiniz?';
+      'Bu uygulamayÃ„Â± silmek istediÃ„Å¸inizden emin misiniz?';
 
   @override
   String get bot_home_invite => 'Botu Davet Et';
 
   @override
-  String get bot_home_invite_error => 'Davet bağlantısı açılamadı';
+  String get bot_home_invite_error =>
+      'Davet baÃ„Å¸lantÃ„Â±sÃ„Â± aÃƒÂ§Ã„Â±lamadÃ„Â±';
 
   @override
   String get bot_home_ios_notice_content =>
-      'Yerel modda, iOS uygulamayı arka planda askıya alabilir. Bot başlayabilir ancak Discord bağlantısını canlı tutmak bir Runner ile olduğu kadar garanti değildir.';
+      'Yerel modda, iOS uygulamayÃ„Â± arka planda askÃ„Â±ya alabilir. Bot baÃ…Å¸layabilir ancak Discord baÃ„Å¸lantÃ„Â±sÃ„Â±nÃ„Â± canlÃ„Â± tutmak bir Runner ile olduÃ„Å¸u kadar garanti deÃ„Å¸ildir.';
 
   @override
-  String get bot_home_ios_notice_title => 'Yerel iOS kısıtlaması';
+  String get bot_home_ios_notice_title => 'Yerel iOS kÃ„Â±sÃ„Â±tlamasÃ„Â±';
 
   @override
-  String get bot_home_log_desktop_stop => 'Masaüstü bot durdurma istendi';
+  String get bot_home_log_desktop_stop => 'MasaÃƒÂ¼stÃƒÂ¼ bot durdurma istendi';
 
   @override
-  String get bot_home_log_start => 'Bot başlatma istendi';
+  String get bot_home_log_start => 'Bot baÃ…Å¸latma istendi';
 
   @override
   String get bot_home_log_stop => 'Bot durdurma istendi';
 
   @override
   String get bot_home_notif_required =>
-      'Bot hizmetini başlatmak için bildirim izni gereklidir.';
+      'Bot hizmetini baÃ…Å¸latmak iÃƒÂ§in bildirim izni gereklidir.';
 
   @override
-  String get bot_home_section_danger => 'TEHLİKELİ BÖLGE';
+  String get bot_home_section_danger => 'TEHLÃ„Â°KELÃ„Â° BÃƒâ€“LGE';
 
   @override
-  String get bot_home_section_getting_started => 'BAŞLARKEN';
+  String get bot_home_section_getting_started => 'BAÃ…Å¾LARKEN';
 
   @override
-  String get bot_home_section_monitoring => 'İZLEME';
+  String get bot_home_section_monitoring => 'Ã„Â°ZLEME';
 
   @override
-  String get bot_home_section_tools => 'ARAÇLAR';
+  String get bot_home_section_tools => 'ARAÃƒâ€¡LAR';
 
   @override
-  String get bot_home_service_not_started => 'Ön plan hizmeti başlamadı.';
+  String get bot_home_service_not_started =>
+      'Ãƒâ€“n plan hizmeti baÃ…Å¸lamadÃ„Â±.';
 
   @override
-  String get bot_home_start => 'Botu Başlat';
+  String get bot_home_start => 'Botu BaÃ…Å¸lat';
 
   @override
   String bot_home_start_error(String error) {
-    return 'Başlatılamadı: $error';
+    return 'BaÃ…Å¸latÃ„Â±lamadÃ„Â±: $error';
   }
 
   @override
-  String get bot_home_starting => 'Başlatılıyor…';
+  String get bot_home_starting => 'BaÃ…Å¸latÃ„Â±lÃ„Â±yorÃ¢â‚¬Â¦';
 
   @override
   String get bot_home_stop => 'Botu Durdur';
 
   @override
-  String get bot_home_sync => 'Uygulamayı Senkronize Et';
+  String get bot_home_sync => 'UygulamayÃ„Â± Senkronize Et';
 
   @override
-  String get bot_home_sync_success => 'Uygulama başarıyla senkronize edildi';
+  String get bot_home_sync_success =>
+      'Uygulama baÃ…Å¸arÃ„Â±yla senkronize edildi';
 
   @override
-  String get bot_home_pull => 'Buluttan İndir';
+  String get bot_home_pull => 'Buluttan Ã„Â°ndir';
 
   @override
-  String get bot_home_push => 'Buluta Gönder';
+  String get bot_home_push => 'Buluta GÃƒÂ¶nder';
 
   @override
-  String get bot_home_pull_success => 'Uygulama buluttan başarıyla indirildi';
+  String get bot_home_pull_success =>
+      'Uygulama buluttan baÃ…Å¸arÃ„Â±yla indirildi';
 
   @override
-  String get bot_home_push_success => 'Uygulama buluta başarıyla gönderildi';
+  String get bot_home_push_success =>
+      'Uygulama buluta baÃ…Å¸arÃ„Â±yla gÃƒÂ¶nderildi';
 
   @override
-  String get bot_home_version_history => 'Sürüm Geçmişi';
+  String get bot_home_version_history => 'SÃƒÂ¼rÃƒÂ¼m GeÃƒÂ§miÃ…Å¸i';
 
   @override
-  String get bot_config_versions_title => 'Sürüm Geçmişi';
+  String get bot_config_versions_title => 'SÃƒÂ¼rÃƒÂ¼m GeÃƒÂ§miÃ…Å¸i';
 
   @override
-  String get bot_config_versions_empty => 'Önceki sürüm bulunamadı';
+  String get bot_config_versions_empty =>
+      'Ãƒâ€“nceki sÃƒÂ¼rÃƒÂ¼m bulunamadÃ„Â±';
 
   @override
-  String get bot_config_versions_restore => 'Geri Yükle';
+  String get bot_config_versions_restore => 'Geri YÃƒÂ¼kle';
 
   @override
   String get bot_config_versions_restore_confirm =>
-      'Bu sürüm geri yüklensin mi? Mevcut yapılandırmanız önce yedeklenecek.';
+      'Bu sÃƒÂ¼rÃƒÂ¼m geri yÃƒÂ¼klensin mi? Mevcut yapÃ„Â±landÃ„Â±rmanÃ„Â±z ÃƒÂ¶nce yedeklenecek.';
 
   @override
   String get bot_config_versions_restored =>
-      'Yapılandırma başarıyla geri yüklendi!';
+      'YapÃ„Â±landÃ„Â±rma baÃ…Å¸arÃ„Â±yla geri yÃƒÂ¼klendi!';
 
   @override
-  String get bot_config_versions_error => 'Sürümler yüklenemedi';
+  String get bot_config_versions_error => 'SÃƒÂ¼rÃƒÂ¼mler yÃƒÂ¼klenemedi';
 
   @override
-  String get bot_config_versions_restore_error => 'Sürüm geri yüklenemedi';
+  String get bot_config_versions_restore_error =>
+      'SÃƒÂ¼rÃƒÂ¼m geri yÃƒÂ¼klenemedi';
 
   @override
-  String get bot_home_pull_dialog_changes => 'Uygulanacak değişiklikler:';
+  String get bot_home_pull_dialog_changes => 'Uygulanacak deÃ„Å¸iÃ…Å¸iklikler:';
 
   @override
   String get bot_home_pull_dialog_local => 'Yerel (Cihaz)';
 
   @override
-  String get bot_home_pull_dialog_local_only => 'yalnızca yerel (saklandı)';
+  String get bot_home_pull_dialog_local_only =>
+      'yalnÃ„Â±zca yerel (saklandÃ„Â±)';
 
   @override
   String get bot_home_pull_dialog_local_preserved =>
@@ -1749,66 +1809,71 @@ class AppLocalizationsTr extends AppLocalizations {
   String get bot_home_pull_dialog_remote => 'Uzak (Bulut)';
 
   @override
-  String get bot_home_pull_dialog_unchanged => 'değişmedi';
+  String get bot_home_pull_dialog_unchanged => 'deÃ„Å¸iÃ…Å¸medi';
 
   @override
   String get bot_home_pull_dialog_up_to_date =>
-      'Zaten güncel — değişiklik gerekmiyor.';
+      'Zaten gÃƒÂ¼ncel Ã¢â‚¬â€ deÃ„Å¸iÃ…Å¸iklik gerekmiyor.';
 
   @override
-  String get bot_home_pull_dialog_updated_commands => 'güncellenen komut(lar)';
+  String get bot_home_pull_dialog_updated_commands =>
+      'gÃƒÂ¼ncellenen komut(lar)';
 
   @override
   String get bot_home_push_refused_empty =>
-      'Push reddedildi: Yerel yapılandırma boş veya bozuk. Komutlarınızı kontrol edin.';
+      'Push reddedildi: Yerel yapÃ„Â±landÃ„Â±rma boÃ…Å¸ veya bozuk. KomutlarÃ„Â±nÃ„Â±zÃ„Â± kontrol edin.';
 
   @override
   String get bot_home_token_invalid_content =>
-      'Jeton sıfırlanmış gibi görünüyor. Lütfen Discord Geliştirici Portalı\'ndan yeni jetonu girin. Botu yine de başlatmak istiyor musunuz?';
+      'Jeton sÃ„Â±fÃ„Â±rlanmÃ„Â±Ã…Å¸ gibi gÃƒÂ¶rÃƒÂ¼nÃƒÂ¼yor. LÃƒÂ¼tfen Discord GeliÃ…Å¸tirici PortalÃ„Â±\'ndan yeni jetonu girin. Botu yine de baÃ…Å¸latmak istiyor musunuz?';
 
   @override
-  String get bot_home_token_invalid_title => 'Jeton sıfırlanmış gibi görünüyor';
+  String get bot_home_token_invalid_title =>
+      'Jeton sÃ„Â±fÃ„Â±rlanmÃ„Â±Ã…Å¸ gibi gÃƒÂ¶rÃƒÂ¼nÃƒÂ¼yor';
 
   @override
-  String get bot_home_view_logs => 'Bot günlüklerini görüntüle';
+  String get bot_home_view_logs => 'Bot gÃƒÂ¼nlÃƒÂ¼klerini gÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼le';
 
   @override
-  String get bot_home_view_replay => 'Hata ayıklayıcı tekrarlarını görüntüle';
+  String get bot_home_view_replay =>
+      'Hata ayÃ„Â±klayÃ„Â±cÃ„Â± tekrarlarÃ„Â±nÃ„Â± gÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼le';
 
   @override
-  String get bot_home_view_stats => 'Bot istatistiklerini görüntüle';
+  String get bot_home_view_stats => 'Bot istatistiklerini gÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼le';
 
   @override
-  String get bot_logs_copied => 'Günlükler kopyalandı';
+  String get bot_logs_copied => 'GÃƒÂ¼nlÃƒÂ¼kler kopyalandÃ„Â±';
 
   @override
   String get bot_logs_disable_debug =>
-      'Hata ayıklama günlüklerini devre dışı bırak';
+      'Hata ayÃ„Â±klama gÃƒÂ¼nlÃƒÂ¼klerini devre dÃ„Â±Ã…Å¸Ã„Â± bÃ„Â±rak';
 
   @override
-  String get bot_logs_empty => 'Henüz günlük yok';
+  String get bot_logs_empty => 'HenÃƒÂ¼z gÃƒÂ¼nlÃƒÂ¼k yok';
 
   @override
-  String get bot_logs_enable_debug => 'Hata ayıklama günlüklerini etkinleştir';
+  String get bot_logs_enable_debug =>
+      'Hata ayÃ„Â±klama gÃƒÂ¼nlÃƒÂ¼klerini etkinleÃ…Å¸tir';
 
   @override
-  String get bot_logs_filter_count => 'Görüntülenen günlük sayısı';
+  String get bot_logs_filter_count =>
+      'GÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼lenen gÃƒÂ¼nlÃƒÂ¼k sayÃ„Â±sÃ„Â±';
 
   @override
   String get bot_logs_go_to_bottom => 'En alta git';
 
   @override
-  String get bot_logs_go_to_latest => 'Son günlüğe git';
+  String get bot_logs_go_to_latest => 'Son gÃƒÂ¼nlÃƒÂ¼Ã„Å¸e git';
 
   @override
-  String get bot_logs_newest_first => 'Önce en yeniyi göster';
+  String get bot_logs_newest_first => 'Ãƒâ€“nce en yeniyi gÃƒÂ¶ster';
 
   @override
-  String get bot_logs_oldest_first => 'Önce en eskiyi göster';
+  String get bot_logs_oldest_first => 'Ãƒâ€“nce en eskiyi gÃƒÂ¶ster';
 
   @override
   String bot_logs_ram(String memory) {
-    return 'Bot süreci RAM: $memory';
+    return 'Bot sÃƒÂ¼reci RAM: $memory';
   }
 
   @override
@@ -1817,131 +1882,136 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get bot_logs_raw_mode => 'Sıkıştırılmış ham günlükler';
+  String get bot_logs_raw_mode =>
+      'SÃ„Â±kÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±lmÃ„Â±Ã…Å¸ ham gÃƒÂ¼nlÃƒÂ¼kler';
 
   @override
-  String get bot_logs_rich_mode => 'Zengin formatlı günlükler';
+  String get bot_logs_rich_mode => 'Zengin formatlÃ„Â± gÃƒÂ¼nlÃƒÂ¼kler';
 
   @override
-  String get bot_logs_show_all => 'Tümünü göster';
+  String get bot_logs_show_all => 'TÃƒÂ¼mÃƒÂ¼nÃƒÂ¼ gÃƒÂ¶ster';
 
   @override
-  String get bot_logs_show_less => 'Daha az göster';
+  String get bot_logs_show_less => 'Daha az gÃƒÂ¶ster';
 
   @override
-  String get bot_logs_show_more => 'Daha fazla göster';
+  String get bot_logs_show_more => 'Daha fazla gÃƒÂ¶ster';
 
   @override
   String bot_logs_show_n(int count) {
-    return '$count günlüğü göster';
+    return '$count gÃƒÂ¼nlÃƒÂ¼Ã„Å¸ÃƒÂ¼ gÃƒÂ¶ster';
   }
 
   @override
-  String get bot_logs_title => 'Bot Günlükleri';
+  String get bot_logs_title => 'Bot GÃƒÂ¼nlÃƒÂ¼kleri';
 
   @override
   String get bot_offline_token_desc =>
-      'Jeton geçersiz veya eksik. Bağlantıyı geri yüklemek için yeni bir Discord bot jetonu girin.';
+      'Jeton geÃƒÂ§ersiz veya eksik. BaÃ„Å¸lantÃ„Â±yÃ„Â± geri yÃƒÂ¼klemek iÃƒÂ§in yeni bir Discord bot jetonu girin.';
 
   @override
   String get bot_settings_activity_state_label =>
-      'Etkinlik durumu (isteğe bağlı)';
+      'Etkinlik durumu (isteÃ„Å¸e baÃ„Å¸lÃ„Â±)';
 
   @override
   String get bot_settings_activity_url_label =>
-      'Yayın URL\'si (yayında türü için)';
+      'YayÃ„Â±n URL\'si (yayÃ„Â±nda tÃƒÂ¼rÃƒÂ¼ iÃƒÂ§in)';
 
   @override
   String get bot_settings_add_status => 'Etkinlik ekle';
 
   @override
-  String get bot_settings_app_flags => 'Uygulama Bayrakları';
+  String get bot_settings_app_flags => 'Uygulama BayraklarÃ„Â±';
 
   @override
-  String get bot_settings_avatar_clear_selection => 'Seçimi temizle';
+  String get bot_settings_avatar_clear_selection => 'SeÃƒÂ§imi temizle';
 
   @override
   String get bot_settings_avatar_important_note =>
-      'Önemli: Profil değişiklikleri (kullanıcı adı ve avatar), yalnızca alttaki \'Profili ve durumları kaydet\' düğmesini tıkladığınızda Discord\'a uygulanacaktır.';
+      'Ãƒâ€“nemli: Profil deÃ„Å¸iÃ…Å¸iklikleri (kullanÃ„Â±cÃ„Â± adÃ„Â± ve avatar), yalnÃ„Â±zca alttaki \'Profili ve durumlarÃ„Â± kaydet\' dÃƒÂ¼Ã„Å¸mesini tÃ„Â±kladÃ„Â±Ã„Å¸Ã„Â±nÃ„Â±zda Discord\'a uygulanacaktÃ„Â±r.';
 
   @override
   String get bot_settings_avatar_local_path => 'Avatar yerel dosya yolu';
 
   @override
   String get bot_settings_avatar_none_selected =>
-      'Yeni resim seçilmedi. Seçmek için Göz At\'a tıklayın.';
+      'Yeni resim seÃƒÂ§ilmedi. SeÃƒÂ§mek iÃƒÂ§in GÃƒÂ¶z At\'a tÃ„Â±klayÃ„Â±n.';
 
   @override
   String get bot_settings_avatar_path_hint => '/tam/yol/avatar.png';
 
   @override
-  String get bot_settings_avatar_preview_error => 'Resim önizlenemiyor';
+  String get bot_settings_avatar_preview_error => 'Resim ÃƒÂ¶nizlenemiyor';
 
   @override
-  String get bot_settings_avatar_preview_label => 'Avatar önizleme';
+  String get bot_settings_avatar_preview_label => 'Avatar ÃƒÂ¶nizleme';
 
   @override
-  String get bot_settings_avatar_selected => 'Seçilen resim:';
+  String get bot_settings_avatar_selected => 'SeÃƒÂ§ilen resim:';
 
   @override
   String bot_settings_avatar_selected_file(String path) {
-    return 'Seçilen dosya: $path';
+    return 'SeÃƒÂ§ilen dosya: $path';
   }
 
   @override
   String bot_settings_avatar_unsupported_format(String ext, String formats) {
-    return 'Desteklenmeyen avatar formatı: $ext. Desteklenen formatlar: $formats.';
+    return 'Desteklenmeyen avatar formatÃ„Â±: $ext. Desteklenen formatlar: $formats.';
   }
 
   @override
-  String get bot_settings_browse => 'Gözat';
+  String get bot_settings_browse => 'GÃƒÂ¶zat';
 
   @override
-  String get bot_settings_cancel_token_edit_btn => 'Jeton düzenlemeyi iptal et';
+  String get bot_settings_cancel_token_edit_btn =>
+      'Jeton dÃƒÂ¼zenlemeyi iptal et';
 
   @override
-  String get bot_settings_danger_zone => 'Tehlikeli Bölge';
+  String get bot_settings_danger_zone => 'Tehlikeli BÃƒÂ¶lge';
 
   @override
   String get bot_settings_delete_bot => 'Botu Sil';
 
   @override
-  String get bot_settings_delete_bot_btn => 'Kalıcı Olarak Sil';
+  String get bot_settings_delete_bot_btn => 'KalÃ„Â±cÃ„Â± Olarak Sil';
 
   @override
   String get bot_settings_delete_bot_desc =>
-      'Bu işlem geri alınamaz. Tüm yerel veriler ve uzak yapılandırmalar kalıcı olarak kaldırılacaktır.';
+      'Bu iÃ…Å¸lem geri alÃ„Â±namaz. TÃƒÂ¼m yerel veriler ve uzak yapÃ„Â±landÃ„Â±rmalar kalÃ„Â±cÃ„Â± olarak kaldÃ„Â±rÃ„Â±lacaktÃ„Â±r.';
 
   @override
   String bot_settings_delete_desc(String id) {
-    return '$id botunu silmek istediğinizden emin misiniz? Tüm veriler kaybolacak.';
+    return '$id botunu silmek istediÃ„Å¸inizden emin misiniz? TÃƒÂ¼m veriler kaybolacak.';
   }
 
   @override
-  String get bot_settings_delete_title => 'Silme İşlemini Onayla';
+  String get bot_settings_delete_title => 'Silme Ã„Â°Ã…Å¸lemini Onayla';
 
   @override
-  String get bot_settings_edit_token_btn => 'Jetonu düzenle';
+  String get bot_settings_edit_token_btn => 'Jetonu dÃƒÂ¼zenle';
 
   @override
-  String get bot_settings_export_import => 'Dışa Aktar / İçe Aktar';
+  String get bot_settings_export_import => 'DÃ„Â±Ã…Å¸a Aktar / Ã„Â°ÃƒÂ§e Aktar';
 
   @override
   String get bot_settings_export_import_desc =>
-      'Bot yapılandırmanızı bir ZIP dosyası olarak dışa aktarın veya içe aktarın.';
+      'Bot yapÃ„Â±landÃ„Â±rmanÃ„Â±zÃ„Â± bir ZIP dosyasÃ„Â± olarak dÃ„Â±Ã…Å¸a aktarÃ„Â±n veya iÃƒÂ§e aktarÃ„Â±n.';
 
   @override
-  String get bot_settings_gateway_intents => 'Gateway Intent Yapılandırması';
+  String get bot_settings_gateway_intents =>
+      'Gateway Intent YapÃ„Â±landÃ„Â±rmasÃ„Â±';
 
   @override
   String get bot_settings_gateway_intents_desc =>
-      'Botunuzun hangi intent\'lere (niyetlere) ihtiyacı olduğunu seçin. Bunları Discord Geliştirici Portalı\'nda yapılandırın.';
+      'Botunuzun hangi intent\'lere (niyetlere) ihtiyacÃ„Â± olduÃ„Å¸unu seÃƒÂ§in. BunlarÃ„Â± Discord GeliÃ…Å¸tirici PortalÃ„Â±\'nda yapÃ„Â±landÃ„Â±rÃ„Â±n.';
 
   @override
-  String get bot_settings_intents_saved => 'Intent\'ler başarıyla kaydedildi';
+  String get bot_settings_intents_saved =>
+      'Intent\'ler baÃ…Å¸arÃ„Â±yla kaydedildi';
 
   @override
-  String get bot_settings_lavalink_choose_server => 'Genel bir sunucu seç...';
+  String get bot_settings_lavalink_choose_server =>
+      'Genel bir sunucu seÃƒÂ§...';
 
   @override
   String get bot_settings_lavalink_host => 'Sunucu';
@@ -1964,11 +2034,11 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get bot_settings_lavalink_premium_banner_desc =>
-      'Botunuz için Lavalink ses desteğinin kilidini açın.';
+      'Botunuz iÃƒÂ§in Lavalink ses desteÃ„Å¸inin kilidini aÃƒÂ§Ã„Â±n.';
 
   @override
   String get bot_settings_lavalink_premium_banner_title =>
-      '🔒 Bot Creator PREMIUM ile kullanılabilir';
+      'Ã°Å¸â€â€™ Bot Creator PREMIUM ile kullanÃ„Â±labilir';
 
   @override
   String get bot_settings_lavalink_public_servers => 'Genel sunucular';
@@ -1978,18 +2048,18 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get bot_settings_lavalink_save_caption =>
-      'Botun Lavalink sunucusuna bağlanabilmesi için bu yapılandırmayı kaydedin.';
+      'Botun Lavalink sunucusuna baÃ„Å¸lanabilmesi iÃƒÂ§in bu yapÃ„Â±landÃ„Â±rmayÃ„Â± kaydedin.';
 
   @override
   String get bot_settings_lavalink_section_title => 'Lavalink Sunucusu';
 
   @override
   String get bot_settings_lavalink_server_picker_title =>
-      'Genel Lavalink Sunucuları';
+      'Genel Lavalink SunucularÃ„Â±';
 
   @override
   String bot_settings_lavalink_server_subtitle(String port, String version) {
-    return 'Port $port — $version';
+    return 'Port $port Ã¢â‚¬â€ $version';
   }
 
   @override
@@ -2001,79 +2071,82 @@ class AppLocalizationsTr extends AppLocalizations {
   String get bot_settings_lavalink_ssl => 'SSL/TLS kullan';
 
   @override
-  String get bot_settings_lavalink_ssl_subtitle => 'Güvenli wss:// bağlantısı';
+  String get bot_settings_lavalink_ssl_subtitle =>
+      'GÃƒÂ¼venli wss:// baÃ„Å¸lantÃ„Â±sÃ„Â±';
 
   @override
-  String get bot_settings_lavalink_success => 'Bağlantı başarılı!';
+  String get bot_settings_lavalink_success =>
+      'BaÃ„Å¸lantÃ„Â± baÃ…Å¸arÃ„Â±lÃ„Â±!';
 
   @override
-  String get bot_settings_lavalink_test_btn => 'Bağlantıyı test et';
+  String get bot_settings_lavalink_test_btn => 'BaÃ„Å¸lantÃ„Â±yÃ„Â± test et';
 
   @override
   String get bot_settings_lavalink_testing => 'Test ediliyor...';
 
   @override
-  String get bot_settings_lavalink_view_offers => 'Teklifleri gör';
+  String get bot_settings_lavalink_view_offers => 'Teklifleri gÃƒÂ¶r';
 
   @override
-  String get bot_settings_no_activities => 'Yapılandırılmış etkinlik yok';
+  String get bot_settings_no_activities =>
+      'YapÃ„Â±landÃ„Â±rÃ„Â±lmÃ„Â±Ã…Å¸ etkinlik yok';
 
   @override
-  String get bot_settings_presence_dnd => 'Rahatsız Etmeyin';
+  String get bot_settings_presence_dnd => 'RahatsÃ„Â±z Etmeyin';
 
   @override
-  String get bot_settings_presence_idle => 'Boşta (Uzakta)';
+  String get bot_settings_presence_idle => 'BoÃ…Å¸ta (Uzakta)';
 
   @override
-  String get bot_settings_presence_invisible => 'Görünmez';
+  String get bot_settings_presence_invisible => 'GÃƒÂ¶rÃƒÂ¼nmez';
 
   @override
-  String get bot_settings_presence_online => 'Çevrimiçi';
+  String get bot_settings_presence_online => 'Ãƒâ€¡evrimiÃƒÂ§i';
 
   @override
-  String get bot_settings_presence_status_label => 'Varlık';
+  String get bot_settings_presence_status_label => 'VarlÃ„Â±k';
 
   @override
-  String get bot_settings_presence_status_title => 'Bot Varlık Durumu';
+  String get bot_settings_presence_status_title => 'Bot VarlÃ„Â±k Durumu';
 
   @override
   String get bot_settings_profile_saved =>
-      'Profil/durumlar başarıyla uygulandı';
+      'Profil/durumlar baÃ…Å¸arÃ„Â±yla uygulandÃ„Â±';
 
   @override
   String get bot_settings_profile_title => 'Bot Profili';
 
   @override
-  String get bot_settings_remove_status => 'Etkinliği kaldır';
+  String get bot_settings_remove_status => 'EtkinliÃ„Å¸i kaldÃ„Â±r';
 
   @override
   String get bot_settings_save_intents_btn => 'Intent\'leri kaydet';
 
   @override
   String get bot_settings_save_intents_caption =>
-      'Bu sadece gateway intent yapılandırmasını günceller.';
+      'Bu sadece gateway intent yapÃ„Â±landÃ„Â±rmasÃ„Â±nÃ„Â± gÃƒÂ¼nceller.';
 
   @override
   String get bot_settings_save_profile_caption =>
-      'Bu, kullanıcı adını/avatarı anında uygular ve durum rotasyonunu kaydeder.';
+      'Bu, kullanÃ„Â±cÃ„Â± adÃ„Â±nÃ„Â±/avatarÃ„Â± anÃ„Â±nda uygular ve durum rotasyonunu kaydeder.';
 
   @override
   String get bot_settings_save_profile_status_btn =>
-      'Profili ve durumları kaydet';
+      'Profili ve durumlarÃ„Â± kaydet';
 
   @override
-  String get bot_settings_save_success => 'Ayarlar başarıyla kaydedildi';
+  String get bot_settings_save_success => 'Ayarlar baÃ…Å¸arÃ„Â±yla kaydedildi';
 
   @override
   String get bot_settings_save_token_btn => 'Jetonu ve intent\'leri kaydet';
 
   @override
   String get bot_settings_save_token_caption =>
-      'Jeton değişiklikleri korumalıdır. Önce \"Jetonu düzenle\"ye tıklayın, ardından kaydedin.';
+      'Jeton deÃ„Å¸iÃ…Å¸iklikleri korumalÃ„Â±dÃ„Â±r. Ãƒâ€“nce \"Jetonu dÃƒÂ¼zenle\"ye tÃ„Â±klayÃ„Â±n, ardÃ„Â±ndan kaydedin.';
 
   @override
   String get bot_settings_save_token_first =>
-      'Profil/durum değişikliklerini uygulamadan önce lütfen jetonu kaydedin.';
+      'Profil/durum deÃ„Å¸iÃ…Å¸ikliklerini uygulamadan ÃƒÂ¶nce lÃƒÂ¼tfen jetonu kaydedin.';
 
   @override
   String get bot_settings_save_token_only_btn => 'Jetonu kaydet';
@@ -2084,26 +2157,26 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get bot_settings_status_max_interval => 'Maks aralık (sn)';
+  String get bot_settings_status_max_interval => 'Maks aralÃ„Â±k (sn)';
 
   @override
-  String get bot_settings_status_min_interval => 'Min aralık (sn)';
+  String get bot_settings_status_min_interval => 'Min aralÃ„Â±k (sn)';
 
   @override
   String get bot_settings_status_rotation_desc =>
-      'Bir veya daha fazla etkinlik ekleyin. Her etkinliğin bir türü, adı ve minimum/maksimum aralığı (saniye) olmalıdır.';
+      'Bir veya daha fazla etkinlik ekleyin. Her etkinliÃ„Å¸in bir tÃƒÂ¼rÃƒÂ¼, adÃ„Â± ve minimum/maksimum aralÃ„Â±Ã„Å¸Ã„Â± (saniye) olmalÃ„Â±dÃ„Â±r.';
 
   @override
   String get bot_settings_status_rotation_title => 'Etkinlik Rotasyonu';
 
   @override
-  String get bot_settings_status_text_label => 'Etkinlik adı';
+  String get bot_settings_status_text_label => 'Etkinlik adÃ„Â±';
 
   @override
-  String get bot_settings_status_type_competing => 'Yarışıyor';
+  String get bot_settings_status_type_competing => 'YarÃ„Â±Ã…Å¸Ã„Â±yor';
 
   @override
-  String get bot_settings_status_type_label => 'Tür';
+  String get bot_settings_status_type_label => 'TÃƒÂ¼r';
 
   @override
   String get bot_settings_status_type_listening => 'Dinliyor';
@@ -2112,91 +2185,94 @@ class AppLocalizationsTr extends AppLocalizations {
   String get bot_settings_status_type_playing => 'Oynuyor';
 
   @override
-  String get bot_settings_status_type_streaming => 'Yayında';
+  String get bot_settings_status_type_streaming => 'YayÃ„Â±nda';
 
   @override
-  String get bot_settings_status_type_watching => 'İzliyor';
+  String get bot_settings_status_type_watching => 'Ã„Â°zliyor';
 
   @override
-  String get bot_settings_tab_advanced => 'Gelişmiş & Bakım';
+  String get bot_settings_tab_advanced => 'GeliÃ…Å¸miÃ…Å¸ & BakÃ„Â±m';
 
   @override
   String get bot_settings_tab_general => 'Genel';
 
   @override
-  String get bot_settings_tab_intents => 'Girişler & Ayrıcalıklar';
+  String get bot_settings_tab_intents => 'GiriÃ…Å¸ler & AyrÃ„Â±calÃ„Â±klar';
 
   @override
   String get bot_settings_tab_lavalink => 'Lavalink';
 
   @override
-  String get bot_settings_tab_presence => 'Durum & Varlık';
+  String get bot_settings_tab_presence => 'Durum & VarlÃ„Â±k';
 
   @override
-  String get bot_settings_title => 'Botu Özelleştir / Profil';
+  String get bot_settings_title => 'Botu Ãƒâ€“zelleÃ…Å¸tir / Profil';
 
   @override
   String get bot_settings_token_hidden_desc =>
-      'Jeton girişi güvenlik nedeniyle varsayılan olarak gizlidir.';
+      'Jeton giriÃ…Å¸i gÃƒÂ¼venlik nedeniyle varsayÃ„Â±lan olarak gizlidir.';
 
   @override
   String get bot_settings_token_hint => 'Bot jetonunuzu buraya girin';
 
   @override
-  String get bot_settings_token_mismatch_confirm => 'Yine de jetonu değiştir';
+  String get bot_settings_token_mismatch_confirm =>
+      'Yine de jetonu deÃ„Å¸iÃ…Å¸tir';
 
   @override
   String bot_settings_token_mismatch_content(String newId, String oldId) {
-    return 'Bu jeton $newId botuna ait ancak mevcut veriler $oldId botuna ait. Komutlar ve ayarlar eşleşmeyebilir. Yine de devam edilsin mi?';
+    return 'Bu jeton $newId botuna ait ancak mevcut veriler $oldId botuna ait. Komutlar ve ayarlar eÃ…Å¸leÃ…Å¸meyebilir. Yine de devam edilsin mi?';
   }
 
   @override
-  String get bot_settings_token_mismatch_title => 'Farklı bot algılandı';
+  String get bot_settings_token_mismatch_title =>
+      'FarklÃ„Â± bot algÃ„Â±landÃ„Â±';
 
   @override
   String get bot_settings_token_required => 'Bot jetonu gereklidir.';
 
   @override
-  String get bot_settings_token_saved => 'Jeton başarıyla kaydedildi';
+  String get bot_settings_token_saved => 'Jeton baÃ…Å¸arÃ„Â±yla kaydedildi';
 
   @override
   String get bot_settings_token_title => 'Bot Jetonu';
 
   @override
-  String get bot_settings_update_token => 'Bot Jetonunu Güncelle';
+  String get bot_settings_update_token => 'Bot Jetonunu GÃƒÂ¼ncelle';
 
   @override
   String get bot_settings_username_hint =>
-      'Mevcut kullanıcı adını korumak için boş bırakın';
+      'Mevcut kullanÃ„Â±cÃ„Â± adÃ„Â±nÃ„Â± korumak iÃƒÂ§in boÃ…Å¸ bÃ„Â±rakÃ„Â±n';
 
   @override
-  String get bot_settings_username_override => 'Kullanıcı adı geçersiz kılma';
+  String get bot_settings_username_override =>
+      'KullanÃ„Â±cÃ„Â± adÃ„Â± geÃƒÂ§ersiz kÃ„Â±lma';
 
   @override
   String get bot_settings_workflow_docs => 'Belgelendirme Merkezi';
 
   @override
   String get bot_settings_workflow_docs_desc =>
-      'Komutlar, iş akışları, çalışma zamanı değişkenleri ve yürütme davranışı için merkezi belgeler.';
+      'Komutlar, iÃ…Å¸ akÃ„Â±Ã…Å¸larÃ„Â±, ÃƒÂ§alÃ„Â±Ã…Å¸ma zamanÃ„Â± deÃ„Å¸iÃ…Å¸kenleri ve yÃƒÂ¼rÃƒÂ¼tme davranÃ„Â±Ã…Å¸Ã„Â± iÃƒÂ§in merkezi belgeler.';
 
   @override
-  String get bot_stats_collecting => 'Toplanıyor…';
+  String get bot_stats_collecting => 'ToplanÃ„Â±yorÃ¢â‚¬Â¦';
 
   @override
-  String get bot_stats_cpu => 'Bot süreci CPU';
+  String get bot_stats_cpu => 'Bot sÃƒÂ¼reci CPU';
 
   @override
   String get bot_stats_notes =>
-      'Notlar: CPU Android/Linux üzerinde mevcuttur. Depolama = uygulamadaki bot veri dosyaları.';
+      'Notlar: CPU Android/Linux ÃƒÂ¼zerinde mevcuttur. Depolama = uygulamadaki bot veri dosyalarÃ„Â±.';
 
   @override
   String get bot_stats_ram_estimated => 'Sadece bot RAM (tahmini)';
 
   @override
-  String get bot_stats_ram_process => 'Bot süreci RAM';
+  String get bot_stats_ram_process => 'Bot sÃƒÂ¼reci RAM';
 
   @override
-  String get bot_stats_source_local_hosting => 'Kaynak: Yerel Barındırma';
+  String get bot_stats_source_local_hosting => 'Kaynak: Yerel BarÃ„Â±ndÃ„Â±rma';
 
   @override
   String get bot_stats_source_runner_api => 'Kaynak: Runner API';
@@ -2205,20 +2281,20 @@ class AppLocalizationsTr extends AppLocalizations {
   String get bot_stats_storage => 'Bot depolama (uygulama verisi)';
 
   @override
-  String get bot_stats_title => 'Bot İstatistikleri';
+  String get bot_stats_title => 'Bot Ã„Â°statistikleri';
 
   @override
-  String get cancel => 'İptal';
+  String get cancel => 'Ã„Â°ptal';
 
   @override
   String get close => 'Kapat';
 
   @override
   String get cmd_bdfd_autocomplete_hint =>
-      'Hızlı betik önerileri almak için \$ yazın ve bir fonksiyon adı yazmaya başlayın.';
+      'HÃ„Â±zlÃ„Â± betik ÃƒÂ¶nerileri almak iÃƒÂ§in \$ yazÃ„Â±n ve bir fonksiyon adÃ„Â± yazmaya baÃ…Å¸layÃ„Â±n.';
 
   @override
-  String get cmd_bdfd_autocomplete_title => 'BDFD ön ek otomatik tamamlama';
+  String get cmd_bdfd_autocomplete_title => 'BDFD ÃƒÂ¶n ek otomatik tamamlama';
 
   @override
   String get cmd_bdfd_diagnostics_clean =>
@@ -2228,46 +2304,47 @@ class AppLocalizationsTr extends AppLocalizations {
   String get cmd_bdfd_diagnostics_error => 'Hata';
 
   @override
-  String get cmd_bdfd_diagnostics_title => 'BDFD tanılamaları';
+  String get cmd_bdfd_diagnostics_title => 'BDFD tanÃ„Â±lamalarÃ„Â±';
 
   @override
-  String get cmd_bdfd_diagnostics_warning => 'Uyarı';
+  String get cmd_bdfd_diagnostics_warning => 'UyarÃ„Â±';
 
   @override
-  String get cmd_bdfd_script_empty_error => 'BDFD betik gövdesi boş olamaz.';
+  String get cmd_bdfd_script_empty_error =>
+      'BDFD betik gÃƒÂ¶vdesi boÃ…Å¸ olamaz.';
 
   @override
   String get cmd_bdfd_script_hint =>
       '\$nomention\\n\$if[\$hasPerms[\$authorID;administrator]==true]\\nBot Creator\'dan merhaba';
 
   @override
-  String get cmd_bdfd_script_label => 'BDFD betik gövdesi';
+  String get cmd_bdfd_script_label => 'BDFD betik gÃƒÂ¶vdesi';
 
   @override
   String get cmd_bdfd_script_validation_error =>
-      'Bu BDFD betiği hala tanılamalar içeriyor:';
+      'Bu BDFD betiÃ„Å¸i hala tanÃ„Â±lamalar iÃƒÂ§eriyor:';
 
   @override
-  String get cmd_create_tooltip => 'Komut oluştur';
+  String get cmd_create_tooltip => 'Komut oluÃ…Å¸tur';
 
   @override
   String get cmd_dart_diagnostics_clean =>
-      'Mevcut Dart betiğinde sorun tespit edilmedi.';
+      'Mevcut Dart betiÃ„Å¸inde sorun tespit edilmedi.';
 
   @override
   String get cmd_dart_diagnostics_error => 'Hata';
 
   @override
-  String get cmd_dart_diagnostics_title => 'Dart tanılamaları';
+  String get cmd_dart_diagnostics_title => 'Dart tanÃ„Â±lamalarÃ„Â±';
 
   @override
-  String get cmd_dart_diagnostics_warning => 'Uyarı';
+  String get cmd_dart_diagnostics_warning => 'UyarÃ„Â±';
 
   @override
   String get cmd_dart_script_hint => 'return \"Dart Direct\'ten merhaba\";';
 
   @override
-  String get cmd_dart_script_label => 'Dart betik gövdesi';
+  String get cmd_dart_script_label => 'Dart betik gÃƒÂ¶vdesi';
 
   @override
   String cmd_batch_delete_confirm(int count) {
@@ -2297,35 +2374,35 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get cmd_deploy_cloud_sync_subtitle =>
-      'Çevrimiçi alanınızla güvenli senkronizasyon';
+      'Ãƒâ€¡evrimiÃƒÂ§i alanÃ„Â±nÃ„Â±zla gÃƒÂ¼venli senkronizasyon';
 
   @override
   String get cmd_deploy_cloud_sync_title => 'Bulut Yedekleme';
 
   @override
   String cmd_deploy_config_subtitle(String name) {
-    return '/$name yapılandırması';
+    return '/$name yapÃ„Â±landÃ„Â±rmasÃ„Â±';
   }
 
   @override
   String get cmd_deploy_discord_sync_subtitle =>
-      'Komut Discord API\'sine yayınlanıyor';
+      'Komut Discord API\'sine yayÃ„Â±nlanÃ„Â±yor';
 
   @override
   String get cmd_deploy_discord_sync_title => 'Discord Senkronizasyonu';
 
   @override
-  String get cmd_deploy_failed_title => 'Dağıtım başarısız';
+  String get cmd_deploy_failed_title => 'DaÃ„Å¸Ã„Â±tÃ„Â±m baÃ…Å¸arÃ„Â±sÃ„Â±z';
 
   @override
   String get cmd_deploy_hot_reload_subtitle =>
-      'Bot çalıştırıcınızın anında güncellenmesi';
+      'Bot ÃƒÂ§alÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±cÃ„Â±nÃ„Â±zÃ„Â±n anÃ„Â±nda gÃƒÂ¼ncellenmesi';
 
   @override
-  String get cmd_deploy_hot_reload_title => 'Sıcak Yeniden Yükleme';
+  String get cmd_deploy_hot_reload_title => 'SÃ„Â±cak Yeniden YÃƒÂ¼kleme';
 
   @override
-  String get cmd_deploy_in_progress_title => 'Dağıtım devam ediyor...';
+  String get cmd_deploy_in_progress_title => 'DaÃ„Å¸Ã„Â±tÃ„Â±m devam ediyor...';
 
   @override
   String get cmd_deploy_local_save_subtitle => 'Komut cihaza kaydediliyor';
@@ -2335,343 +2412,347 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get cmd_deploy_reload_bot_subtitle =>
-      'Sıcak yükleme yapılandırması uygulanıyor';
+      'SÃ„Â±cak yÃƒÂ¼kleme yapÃ„Â±landÃ„Â±rmasÃ„Â± uygulanÃ„Â±yor';
 
   @override
-  String get cmd_deploy_reload_bot_title => 'Bot Yeniden Yükleniyor';
+  String get cmd_deploy_reload_bot_title => 'Bot Yeniden YÃƒÂ¼kleniyor';
 
   @override
   String get cmd_deploy_retry_button => 'Yeniden Dene';
 
   @override
-  String get cmd_deploy_success_title => 'Dağıtım başarılı!';
+  String get cmd_deploy_success_title => 'DaÃ„Å¸Ã„Â±tÃ„Â±m baÃ…Å¸arÃ„Â±lÃ„Â±!';
 
   @override
   String cmd_deploy_success_toast(String name) {
-    return '\"$name\" komutu dağıtıldı ve aktif!';
+    return '\"$name\" komutu daÃ„Å¸Ã„Â±tÃ„Â±ldÃ„Â± ve aktif!';
   }
 
   @override
-  String get cmd_editor_mode_advanced => 'Gelişmiş mod';
+  String get cmd_editor_mode_advanced => 'GeliÃ…Å¸miÃ…Å¸ mod';
 
   @override
   String get cmd_editor_mode_advanced_desc =>
-      'Özel yanıt, seçenekler ve eylem oluşturucu ile tam düzenleyici.';
+      'Ãƒâ€“zel yanÃ„Â±t, seÃƒÂ§enekler ve eylem oluÃ…Å¸turucu ile tam dÃƒÂ¼zenleyici.';
 
   @override
-  String get cmd_editor_mode_locked => 'Bu komut için gelişmiş mod kilitli.';
+  String get cmd_editor_mode_locked =>
+      'Bu komut iÃƒÂ§in geliÃ…Å¸miÃ…Å¸ mod kilitli.';
 
   @override
-  String get cmd_editor_mode_simple => 'Basitleştirilmiş mod';
+  String get cmd_editor_mode_simple => 'BasitleÃ…Å¸tirilmiÃ…Å¸ mod';
 
   @override
   String get cmd_editor_mode_simple_desc =>
-      'Rehberli seçenekler ve önceden yapılandırılmış eylemlerle hızlıca bir komut oluşturun.';
+      'Rehberli seÃƒÂ§enekler ve ÃƒÂ¶nceden yapÃ„Â±landÃ„Â±rÃ„Â±lmÃ„Â±Ã…Å¸ eylemlerle hÃ„Â±zlÃ„Â±ca bir komut oluÃ…Å¸turun.';
 
   @override
-  String get cmd_editor_mode_switch_adv => 'Gelişmiş moda geç';
+  String get cmd_editor_mode_switch_adv => 'GeliÃ…Å¸miÃ…Å¸ moda geÃƒÂ§';
 
   @override
-  String get cmd_editor_mode_switch_adv_confirm => 'Geç';
+  String get cmd_editor_mode_switch_adv_confirm => 'GeÃƒÂ§';
 
   @override
   String get cmd_editor_mode_switch_adv_content =>
-      'Bu geçiş bu komut için tek yönlüdür. Basitleştirilmiş moda geri dönemeyeceksiniz.';
+      'Bu geÃƒÂ§iÃ…Å¸ bu komut iÃƒÂ§in tek yÃƒÂ¶nlÃƒÂ¼dÃƒÂ¼r. BasitleÃ…Å¸tirilmiÃ…Å¸ moda geri dÃƒÂ¶nemeyeceksiniz.';
 
   @override
-  String get cmd_editor_mode_switch_adv_title => 'Gelişmiş moda geçilsin mi?';
+  String get cmd_editor_mode_switch_adv_title =>
+      'GeliÃ…Å¸miÃ…Å¸ moda geÃƒÂ§ilsin mi?';
 
   @override
-  String get cmd_editor_mode_title => 'Düzenleme modu';
+  String get cmd_editor_mode_title => 'DÃƒÂ¼zenleme modu';
 
   @override
-  String get cmd_error_fill_fields => 'Lütfen tüm alanları doldurun';
+  String get cmd_error_fill_fields => 'LÃƒÂ¼tfen tÃƒÂ¼m alanlarÃ„Â± doldurun';
 
   @override
   String get cmd_execution_mode_bdfd => 'BDFD Betik modu';
 
   @override
   String get cmd_execution_mode_bdfd_desc =>
-      'Komut tanımını görsel tutarken komut gövdesini BDFD tarzı betik olarak yazın.';
+      'Komut tanÃ„Â±mÃ„Â±nÃ„Â± gÃƒÂ¶rsel tutarken komut gÃƒÂ¶vdesini BDFD tarzÃ„Â± betik olarak yazÃ„Â±n.';
 
   @override
   String get cmd_execution_mode_bdfd_note =>
-      'Betik dahili eylemlere derlenir. Düzenleme sırasında tanılamalar gösterilir; geçersiz betikler komut çalıştığında hata verir.';
+      'Betik dahili eylemlere derlenir. DÃƒÂ¼zenleme sÃ„Â±rasÃ„Â±nda tanÃ„Â±lamalar gÃƒÂ¶sterilir; geÃƒÂ§ersiz betikler komut ÃƒÂ§alÃ„Â±Ã…Å¸tÃ„Â±Ã„Å¸Ã„Â±nda hata verir.';
 
   @override
-  String get cmd_execution_mode_dart => 'Dart Doğrudan modu';
+  String get cmd_execution_mode_dart => 'Dart DoÃ„Å¸rudan modu';
 
   @override
   String get cmd_execution_mode_dart_desc =>
-      'Çalışma zamanı tanılamalarıyla komut gövdesini doğrudan Dart ile yazın.';
+      'Ãƒâ€¡alÃ„Â±Ã…Å¸ma zamanÃ„Â± tanÃ„Â±lamalarÃ„Â±yla komut gÃƒÂ¶vdesini doÃ„Å¸rudan Dart ile yazÃ„Â±n.';
 
   @override
   String get cmd_execution_mode_dart_note =>
-      'Dart kodu, korumalı alan motoru aracılığıyla çalışma zamanında derlenir. Betikleri deterministik tutun ve gerektiğinde bir değer döndürün.';
+      'Dart kodu, korumalÃ„Â± alan motoru aracÃ„Â±lÃ„Â±Ã„Å¸Ã„Â±yla ÃƒÂ§alÃ„Â±Ã…Å¸ma zamanÃ„Â±nda derlenir. Betikleri deterministik tutun ve gerektiÃ„Å¸inde bir deÃ„Å¸er dÃƒÂ¶ndÃƒÂ¼rÃƒÂ¼n.';
 
   @override
   String get cmd_execution_mode_javascript => 'JavaScript';
 
   @override
   String get cmd_execution_mode_javascript_desc =>
-      'Bu komut için özel JS kodu yazın.';
+      'Bu komut iÃƒÂ§in ÃƒÂ¶zel JS kodu yazÃ„Â±n.';
 
   @override
   String get cmd_execution_mode_javascript_note =>
-      'Tüm BDFD fonksiyonları asenkron JS fonksiyonları olarak kullanılabilir. Bağlam ve değişkenlere erişmek için ctx.authorId, ctx.channelId, vars[\'key\'] kullanın.';
+      'TÃƒÂ¼m BDFD fonksiyonlarÃ„Â± asenkron JS fonksiyonlarÃ„Â± olarak kullanÃ„Â±labilir. BaÃ„Å¸lam ve deÃ„Å¸iÃ…Å¸kenlere eriÃ…Å¸mek iÃƒÂ§in ctx.authorId, ctx.channelId, vars[\'key\'] kullanÃ„Â±n.';
 
   @override
   String get cmd_execution_mode_desc =>
-      'Komut meta verileri görsel oluşturucuda kalır. Komut gövdesinin nasıl çalışacağını seçin.';
+      'Komut meta verileri gÃƒÂ¶rsel oluÃ…Å¸turucuda kalÃ„Â±r. Komut gÃƒÂ¶vdesinin nasÃ„Â±l ÃƒÂ§alÃ„Â±Ã…Å¸acaÃ„Å¸Ã„Â±nÃ„Â± seÃƒÂ§in.';
 
   @override
-  String get cmd_execution_mode_title => 'Yürütme modu';
+  String get cmd_execution_mode_title => 'YÃƒÂ¼rÃƒÂ¼tme modu';
 
   @override
-  String get cmd_execution_mode_workflow => 'İş akışı modu';
+  String get cmd_execution_mode_workflow => 'Ã„Â°Ã…Å¸ akÃ„Â±Ã…Å¸Ã„Â± modu';
 
   @override
   String get cmd_execution_mode_workflow_desc =>
-      'Mevcut görsel yanıt ve eylem oluşturucuyu kullanın.';
+      'Mevcut gÃƒÂ¶rsel yanÃ„Â±t ve eylem oluÃ…Å¸turucuyu kullanÃ„Â±n.';
 
   @override
   String get cmd_execution_mode_workflow_note =>
-      'İş akışı modu mevcut üretim yoludur ve tam olarak desteklenmeye devam eder.';
+      'Ã„Â°Ã…Å¸ akÃ„Â±Ã…Å¸Ã„Â± modu mevcut ÃƒÂ¼retim yoludur ve tam olarak desteklenmeye devam eder.';
 
   @override
-  String get cmd_migrate_bdfd_to_dart_action => 'Geçir';
+  String get cmd_migrate_bdfd_to_dart_action => 'GeÃƒÂ§ir';
 
   @override
   String get cmd_migrate_bdfd_to_dart_desc =>
-      'Mevcut BDFD betiğinizden bir Dart geçiş iskeleti oluşturun.';
+      'Mevcut BDFD betiÃ„Å¸inizden bir Dart geÃƒÂ§iÃ…Å¸ iskeleti oluÃ…Å¸turun.';
 
   @override
   String get cmd_offline_incomplete_warning =>
-      'Bu komut tam olarak yüklenemedi (çevrimdışı veya jeton geçersiz). Düzenlemek için geçerli bir jeton bağlayın.';
+      'Bu komut tam olarak yÃƒÂ¼klenemedi (ÃƒÂ§evrimdÃ„Â±Ã…Å¸Ã„Â± veya jeton geÃƒÂ§ersiz). DÃƒÂ¼zenlemek iÃƒÂ§in geÃƒÂ§erli bir jeton baÃ„Å¸layÃ„Â±n.';
 
   @override
-  String get cmd_show_variables => 'Değişken belgelerini aç';
+  String get cmd_show_variables => 'DeÃ„Å¸iÃ…Å¸ken belgelerini aÃƒÂ§';
 
   @override
   String get cmd_simple_action_add_role => 'Rol ekle';
 
   @override
   String get cmd_simple_action_add_role_desc =>
-      'Seçilen /rol\'ü seçilen /kullanici\'ya verir.';
+      'SeÃƒÂ§ilen /rol\'ÃƒÂ¼ seÃƒÂ§ilen /kullanici\'ya verir.';
 
   @override
-  String get cmd_simple_action_ban => 'Kullanıcıyı yasakla';
+  String get cmd_simple_action_ban => 'KullanÃ„Â±cÃ„Â±yÃ„Â± yasakla';
 
   @override
   String get cmd_simple_action_ban_delete_days_hint =>
-      'Silinecek son 0 ila 7 günlük mesajlar';
+      'Silinecek son 0 ila 7 gÃƒÂ¼nlÃƒÂ¼k mesajlar';
 
   @override
   String get cmd_simple_action_ban_delete_days_label =>
-      'Yasaklama mesaj silme günleri';
+      'Yasaklama mesaj silme gÃƒÂ¼nleri';
 
   @override
   String get cmd_simple_action_ban_desc =>
-      'Seçilen /kullanici\'yi sunucudan yasaklar.';
+      'SeÃƒÂ§ilen /kullanici\'yi sunucudan yasaklar.';
 
   @override
-  String get cmd_simple_action_create_invite => 'Davet oluştur';
+  String get cmd_simple_action_create_invite => 'Davet oluÃ…Å¸tur';
 
   @override
   String get cmd_simple_action_create_invite_desc =>
-      'Mevcut kanal veya isteğe bağlı bir /kanal için davet oluşturur.';
+      'Mevcut kanal veya isteÃ„Å¸e baÃ„Å¸lÃ„Â± bir /kanal iÃƒÂ§in davet oluÃ…Å¸turur.';
 
   @override
-  String get cmd_simple_action_create_poll => 'Anket oluştur';
+  String get cmd_simple_action_create_poll => 'Anket oluÃ…Å¸tur';
 
   @override
   String get cmd_simple_action_create_poll_desc =>
-      'Dinamik bir /soru ve sabit cevap seçenekleri ile bir anket oluşturur.';
+      'Dinamik bir /soru ve sabit cevap seÃƒÂ§enekleri ile bir anket oluÃ…Å¸turur.';
 
   @override
-  String get cmd_simple_action_delete => 'Mesajları sil';
+  String get cmd_simple_action_delete => 'MesajlarÃ„Â± sil';
 
   @override
   String get cmd_simple_action_delete_default_count_hint =>
-      '/sayi sağlanmadığında kullanılır';
+      '/sayi saÃ„Å¸lanmadÃ„Â±Ã„Å¸Ã„Â±nda kullanÃ„Â±lÃ„Â±r';
 
   @override
   String get cmd_simple_action_delete_default_count_label =>
-      'Varsayılan silme sayısı';
+      'VarsayÃ„Â±lan silme sayÃ„Â±sÃ„Â±';
 
   @override
   String get cmd_simple_action_delete_desc =>
-      'Mevcut kanaldaki mesajları sil (isteğe bağlı /sayi).';
+      'Mevcut kanaldaki mesajlarÃ„Â± sil (isteÃ„Å¸e baÃ„Å¸lÃ„Â± /sayi).';
 
   @override
-  String get cmd_simple_action_kick => 'Kullanıcıyı at';
+  String get cmd_simple_action_kick => 'KullanÃ„Â±cÃ„Â±yÃ„Â± at';
 
   @override
   String get cmd_simple_action_kick_desc =>
-      'Seçilen /kullanici\'yi sunucudan atar.';
+      'SeÃƒÂ§ilen /kullanici\'yi sunucudan atar.';
 
   @override
-  String get cmd_simple_action_mute => 'Kullanıcıyı sustur';
+  String get cmd_simple_action_mute => 'KullanÃ„Â±cÃ„Â±yÃ„Â± sustur';
 
   @override
   String get cmd_simple_action_mute_desc =>
-      'Seçilen /kullanici\'yi geçici olarak susturur.';
+      'SeÃƒÂ§ilen /kullanici\'yi geÃƒÂ§ici olarak susturur.';
 
   @override
   String get cmd_simple_action_mute_duration_hint =>
-      'Örnekler: 10m, 2h, 1d veya ham saniye';
+      'Ãƒâ€“rnekler: 10m, 2h, 1d veya ham saniye';
 
   @override
-  String get cmd_simple_action_mute_duration_label => 'Susturma süresi';
+  String get cmd_simple_action_mute_duration_label => 'Susturma sÃƒÂ¼resi';
 
   @override
-  String get cmd_simple_action_pin => 'Mesajı sabitle';
+  String get cmd_simple_action_pin => 'MesajÃ„Â± sabitle';
 
   @override
   String get cmd_simple_action_pin_desc =>
-      '/mesaj_id kullanarak mevcut kanalda bir mesajı sabitler.';
+      '/mesaj_id kullanarak mevcut kanalda bir mesajÃ„Â± sabitler.';
 
   @override
   String get cmd_simple_action_reason_hint =>
-      'Moderasyon eylemleri tarafından paylaşılan isteğe bağlı neden';
+      'Moderasyon eylemleri tarafÃ„Â±ndan paylaÃ…Å¸Ã„Â±lan isteÃ„Å¸e baÃ„Å¸lÃ„Â± neden';
 
   @override
-  String get cmd_simple_action_reason_label => 'Denetim kaydı nedeni';
+  String get cmd_simple_action_reason_label => 'Denetim kaydÃ„Â± nedeni';
 
   @override
-  String get cmd_simple_action_remove_role => 'Rolü kaldır';
+  String get cmd_simple_action_remove_role => 'RolÃƒÂ¼ kaldÃ„Â±r';
 
   @override
   String get cmd_simple_action_remove_role_desc =>
-      'Seçilen /rol\'ü seçilen /kullanici\'dan kaldırır.';
+      'SeÃƒÂ§ilen /rol\'ÃƒÂ¼ seÃƒÂ§ilen /kullanici\'dan kaldÃ„Â±rÃ„Â±r.';
 
   @override
-  String get cmd_simple_action_send_message => 'Mesaj gönder';
+  String get cmd_simple_action_send_message => 'Mesaj gÃƒÂ¶nder';
 
   @override
   String get cmd_simple_action_send_message_desc =>
-      'Mevcut kanalda ek bir mesaj gönderir.';
+      'Mevcut kanalda ek bir mesaj gÃƒÂ¶nderir.';
 
   @override
   String get cmd_simple_action_send_message_hint =>
-      'Mesaj Gönder eylemi tarafından gönderilen mesaj';
+      'Mesaj GÃƒÂ¶nder eylemi tarafÃ„Â±ndan gÃƒÂ¶nderilen mesaj';
 
   @override
-  String get cmd_simple_action_send_message_label => 'Eylem mesajı';
+  String get cmd_simple_action_send_message_label => 'Eylem mesajÃ„Â±';
 
   @override
-  String get cmd_simple_action_unban => 'Yasağı kaldır';
+  String get cmd_simple_action_unban => 'YasaÃ„Å¸Ã„Â± kaldÃ„Â±r';
 
   @override
   String get cmd_simple_action_unban_desc =>
-      'Sağlanan bir /kullanici_id dizesi ile bir kullanıcının yasağını kaldırır.';
+      'SaÃ„Å¸lanan bir /kullanici_id dizesi ile bir kullanÃ„Â±cÃ„Â±nÃ„Â±n yasaÃ„Å¸Ã„Â±nÃ„Â± kaldÃ„Â±rÃ„Â±r.';
 
   @override
-  String get cmd_simple_action_unmute => 'Susturmayı kaldır';
+  String get cmd_simple_action_unmute => 'SusturmayÃ„Â± kaldÃ„Â±r';
 
   @override
   String get cmd_simple_action_unmute_desc =>
-      'Seçilen /kullanici\'dan zaman aşımını kaldırır.';
+      'SeÃƒÂ§ilen /kullanici\'dan zaman aÃ…Å¸Ã„Â±mÃ„Â±nÃ„Â± kaldÃ„Â±rÃ„Â±r.';
 
   @override
-  String get cmd_simple_action_unpin => 'Mesaj sabitlemesini kaldır';
+  String get cmd_simple_action_unpin => 'Mesaj sabitlemesini kaldÃ„Â±r';
 
   @override
   String get cmd_simple_action_unpin_desc =>
-      '/mesaj_id kullanarak mevcut kanalda bir mesajın sabitlemesini kaldırır.';
+      '/mesaj_id kullanarak mevcut kanalda bir mesajÃ„Â±n sabitlemesini kaldÃ„Â±rÃ„Â±r.';
 
   @override
   String get cmd_simple_actions_desc =>
-      'Bu komutun ne yapması gerektiğini seçin. Seçenekler otomatik olarak oluşturulur.';
+      'Bu komutun ne yapmasÃ„Â± gerektiÃ„Å¸ini seÃƒÂ§in. SeÃƒÂ§enekler otomatik olarak oluÃ…Å¸turulur.';
 
   @override
-  String get cmd_simple_actions_title => 'Basitleştirilmiş eylemler';
+  String get cmd_simple_actions_title => 'BasitleÃ…Å¸tirilmiÃ…Å¸ eylemler';
 
   @override
   String get cmd_simple_conflict_ban_unban =>
-      'Kullanıcıyı yasakla ve yasağı kaldır, basitleştirilmiş modda birlikte etkinleştirilemez.';
+      'KullanÃ„Â±cÃ„Â±yÃ„Â± yasakla ve yasaÃ„Å¸Ã„Â± kaldÃ„Â±r, basitleÃ…Å¸tirilmiÃ…Å¸ modda birlikte etkinleÃ…Å¸tirilemez.';
 
   @override
   String get cmd_simple_conflict_mute_unmute =>
-      'Kullanıcıyı sustur ve susturmayı kaldır, basitleştirilmiş modda birlikte etkinleştirilemez.';
+      'KullanÃ„Â±cÃ„Â±yÃ„Â± sustur ve susturmayÃ„Â± kaldÃ„Â±r, basitleÃ…Å¸tirilmiÃ…Å¸ modda birlikte etkinleÃ…Å¸tirilemez.';
 
   @override
   String get cmd_simple_conflict_pin_unpin =>
-      'Mesajı sabitle ve sabitlemeyi kaldır, basitleştirilmiş modda birlikte etkinleştirilemez.';
+      'MesajÃ„Â± sabitle ve sabitlemeyi kaldÃ„Â±r, basitleÃ…Å¸tirilmiÃ…Å¸ modda birlikte etkinleÃ…Å¸tirilemez.';
 
   @override
   String get cmd_simple_execution_desc =>
-      'Basitleştirilmiş moddan ayrılmadan oluşturulan eylemlerde ince ayar yapın.';
+      'BasitleÃ…Å¸tirilmiÃ…Å¸ moddan ayrÃ„Â±lmadan oluÃ…Å¸turulan eylemlerde ince ayar yapÃ„Â±n.';
 
   @override
-  String get cmd_simple_execution_title => 'Yürütme ayarları';
+  String get cmd_simple_execution_title => 'YÃƒÂ¼rÃƒÂ¼tme ayarlarÃ„Â±';
 
   @override
   String get cmd_simple_generated_none =>
-      'Henüz seçenek oluşturulmadı. En az bir eylem seçin.';
+      'HenÃƒÂ¼z seÃƒÂ§enek oluÃ…Å¸turulmadÃ„Â±. En az bir eylem seÃƒÂ§in.';
 
   @override
-  String get cmd_simple_generated_options => 'Oluşturulan komut seçenekleri';
+  String get cmd_simple_generated_options =>
+      'OluÃ…Å¸turulan komut seÃƒÂ§enekleri';
 
   @override
   String get cmd_simple_group_messages_desc =>
-      'Mevcut bağlamda çalışan mesaj ve kanal eylemleri.';
+      'Mevcut baÃ„Å¸lamda ÃƒÂ§alÃ„Â±Ã…Å¸an mesaj ve kanal eylemleri.';
 
   @override
   String get cmd_simple_group_messages_title => 'Mesajlar';
 
   @override
   String get cmd_simple_group_moderation_desc =>
-      'Rehberli seçeneklerle üye ve moderasyon eylemleri.';
+      'Rehberli seÃƒÂ§eneklerle ÃƒÂ¼ye ve moderasyon eylemleri.';
 
   @override
   String get cmd_simple_group_moderation_title => 'Moderasyon';
 
   @override
   String get cmd_simple_group_utility_desc =>
-      'Davetler ve anketler gibi yararlı ekstralar.';
+      'Davetler ve anketler gibi yararlÃ„Â± ekstralar.';
 
   @override
-  String get cmd_simple_group_utility_title => 'Araçlar';
+  String get cmd_simple_group_utility_title => 'AraÃƒÂ§lar';
 
   @override
   String get cmd_simple_invite_max_age_hint =>
-      'Süre sonu olmaması için 0, 604800\'e kadar';
+      'SÃƒÂ¼re sonu olmamasÃ„Â± iÃƒÂ§in 0, 604800\'e kadar';
 
   @override
   String get cmd_simple_invite_max_age_invalid =>
-      'Davet süresi 0 ile 604800 saniye arasında bir sayı olmalıdır.';
+      'Davet sÃƒÂ¼resi 0 ile 604800 saniye arasÃ„Â±nda bir sayÃ„Â± olmalÃ„Â±dÃ„Â±r.';
 
   @override
-  String get cmd_simple_invite_max_age_label => 'Davet süresi (saniye)';
+  String get cmd_simple_invite_max_age_label => 'Davet sÃƒÂ¼resi (saniye)';
 
   @override
-  String get cmd_simple_invite_max_uses_hint => 'Sınırsız kullanım için 0';
+  String get cmd_simple_invite_max_uses_hint =>
+      'SÃ„Â±nÃ„Â±rsÃ„Â±z kullanÃ„Â±m iÃƒÂ§in 0';
 
   @override
   String get cmd_simple_invite_max_uses_invalid =>
-      'Davet maksimum kullanımı 0 ile 1000000 arasında bir sayı olmalıdır.';
+      'Davet maksimum kullanÃ„Â±mÃ„Â± 0 ile 1000000 arasÃ„Â±nda bir sayÃ„Â± olmalÃ„Â±dÃ„Â±r.';
 
   @override
-  String get cmd_simple_invite_max_uses_label => 'Maksimum kullanım';
+  String get cmd_simple_invite_max_uses_label => 'Maksimum kullanÃ„Â±m';
 
   @override
   String get cmd_simple_invite_settings_desc =>
-      'Oluşturulan Davet Oluştur eylemi tarafından kullanılan varsayılanlar.';
+      'OluÃ…Å¸turulan Davet OluÃ…Å¸tur eylemi tarafÃ„Â±ndan kullanÃ„Â±lan varsayÃ„Â±lanlar.';
 
   @override
-  String get cmd_simple_invite_settings_title => 'Davet ayarları';
+  String get cmd_simple_invite_settings_title => 'Davet ayarlarÃ„Â±';
 
   @override
   String get cmd_simple_invite_temporary_desc =>
-      'Üyeler bir rol almadan ayrılırlarsa çıkarılırlar.';
+      'ÃƒÅ“yeler bir rol almadan ayrÃ„Â±lÃ„Â±rlarsa ÃƒÂ§Ã„Â±karÃ„Â±lÃ„Â±rlar.';
 
   @override
-  String get cmd_simple_invite_temporary_label => 'Geçici üyelik';
+  String get cmd_simple_invite_temporary_label => 'GeÃƒÂ§ici ÃƒÂ¼yelik';
 
   @override
   String get cmd_simple_invite_unique_desc =>
-      'Mevcut olanı yeniden kullanmak yerine her zaman yeni bir davet oluşturun.';
+      'Mevcut olanÃ„Â± yeniden kullanmak yerine her zaman yeni bir davet oluÃ…Å¸turun.';
 
   @override
   String get cmd_simple_invite_unique_label => 'Benzersiz davet zorla';
@@ -2681,13 +2762,13 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get cmd_simple_option_channel_desc =>
-      'Davet oluşturma için isteğe bağlı kanal geçersiz kılma';
+      'Davet oluÃ…Å¸turma iÃƒÂ§in isteÃ„Å¸e baÃ„Å¸lÃ„Â± kanal geÃƒÂ§ersiz kÃ„Â±lma';
 
   @override
-  String get cmd_simple_option_count => '/sayi (Tam Sayı)';
+  String get cmd_simple_option_count => '/sayi (Tam SayÃ„Â±)';
 
   @override
-  String get cmd_simple_option_count_desc => 'Silinecek mesaj sayısı';
+  String get cmd_simple_option_count_desc => 'Silinecek mesaj sayÃ„Â±sÃ„Â±';
 
   @override
   String get cmd_simple_option_message_id => '/mesaj_id (Metin)';
@@ -2708,42 +2789,42 @@ class AppLocalizationsTr extends AppLocalizations {
   String get cmd_simple_option_role_desc => 'Hedef rol';
 
   @override
-  String get cmd_simple_option_user => '/kullanici (Kullanıcı)';
+  String get cmd_simple_option_user => '/kullanici (KullanÃ„Â±cÃ„Â±)';
 
   @override
-  String get cmd_simple_option_user_desc => 'Hedef kullanıcı';
+  String get cmd_simple_option_user_desc => 'Hedef kullanÃ„Â±cÃ„Â±';
 
   @override
   String get cmd_simple_option_user_id => '/kullanici_id (Metin)';
 
   @override
   String get cmd_simple_option_user_id_desc =>
-      'Yasağı kaldırılacak kullanıcı ID\'si';
+      'YasaÃ„Å¸Ã„Â± kaldÃ„Â±rÃ„Â±lacak kullanÃ„Â±cÃ„Â± ID\'si';
 
   @override
   String get cmd_simple_poll_answers_hint =>
-      'Her satıra bir cevap veya virgül kullanın. Minimum 2, maksimum 10.';
+      'Her satÃ„Â±ra bir cevap veya virgÃƒÂ¼l kullanÃ„Â±n. Minimum 2, maksimum 10.';
 
   @override
   String get cmd_simple_poll_answers_invalid =>
-      'Anket cevapları 2 ile 10 arasında boş olmayan seçenek içermelidir.';
+      'Anket cevaplarÃ„Â± 2 ile 10 arasÃ„Â±nda boÃ…Å¸ olmayan seÃƒÂ§enek iÃƒÂ§ermelidir.';
 
   @override
-  String get cmd_simple_poll_answers_label => 'Anket cevapları';
+  String get cmd_simple_poll_answers_label => 'Anket cevaplarÃ„Â±';
 
   @override
-  String get cmd_simple_poll_duration_hint => '1 ila 168 saat arası';
+  String get cmd_simple_poll_duration_hint => '1 ila 168 saat arasÃ„Â±';
 
   @override
   String get cmd_simple_poll_duration_invalid =>
-      'Anket süresi 1 ile 168 saat arasında bir sayı olmalıdır.';
+      'Anket sÃƒÂ¼resi 1 ile 168 saat arasÃ„Â±nda bir sayÃ„Â± olmalÃ„Â±dÃ„Â±r.';
 
   @override
-  String get cmd_simple_poll_duration_label => 'Anket süresi (saat)';
+  String get cmd_simple_poll_duration_label => 'Anket sÃƒÂ¼resi (saat)';
 
   @override
   String get cmd_simple_poll_multiselect_desc =>
-      'Kullanıcılar birden fazla seçenek belirleyebilir.';
+      'KullanÃ„Â±cÃ„Â±lar birden fazla seÃƒÂ§enek belirleyebilir.';
 
   @override
   String get cmd_simple_poll_multiselect_label =>
@@ -2751,110 +2832,114 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get cmd_simple_poll_settings_desc =>
-      'Oluşturulan Anket Oluştur eylemi tarafından kullanılan varsayılanlar.';
+      'OluÃ…Å¸turulan Anket OluÃ…Å¸tur eylemi tarafÃ„Â±ndan kullanÃ„Â±lan varsayÃ„Â±lanlar.';
 
   @override
-  String get cmd_simple_poll_settings_title => 'Anket ayarları';
+  String get cmd_simple_poll_settings_title => 'Anket ayarlarÃ„Â±';
 
   @override
   String get cmd_simple_response_desc =>
-      'Eylemler yürütüldükten sonra kullanıcıya geri gönderilen mesaj.';
+      'Eylemler yÃƒÂ¼rÃƒÂ¼tÃƒÂ¼ldÃƒÂ¼kten sonra kullanÃ„Â±cÃ„Â±ya geri gÃƒÂ¶nderilen mesaj.';
 
   @override
   String get cmd_simple_response_embeds_desc =>
-      'Final yanıtıyla birlikte gönderilen isteğe bağlı gömülü mesajlar.';
+      'Final yanÃ„Â±tÃ„Â±yla birlikte gÃƒÂ¶nderilen isteÃ„Å¸e baÃ„Å¸lÃ„Â± gÃƒÂ¶mÃƒÂ¼lÃƒÂ¼ mesajlar.';
 
   @override
-  String get cmd_simple_response_embeds_title => 'Yanıt gömülü mesajları';
+  String get cmd_simple_response_embeds_title =>
+      'YanÃ„Â±t gÃƒÂ¶mÃƒÂ¼lÃƒÂ¼ mesajlarÃ„Â±';
 
   @override
-  String get cmd_simple_response_hint => 'Bitti ✅';
+  String get cmd_simple_response_hint => 'Bitti Ã¢Å“â€¦';
 
   @override
-  String get cmd_simple_response_title => 'Final yanıtı';
+  String get cmd_simple_response_title => 'Final yanÃ„Â±tÃ„Â±';
 
   @override
-  String get cmd_simple_response_visibility_ephemeral => 'Geçici (Ephemeral)';
+  String get cmd_simple_response_visibility_ephemeral =>
+      'GeÃƒÂ§ici (Ephemeral)';
 
   @override
-  String get cmd_simple_response_visibility_label => 'Yanıt görünürlüğü';
+  String get cmd_simple_response_visibility_label =>
+      'YanÃ„Â±t gÃƒÂ¶rÃƒÂ¼nÃƒÂ¼rlÃƒÂ¼Ã„Å¸ÃƒÂ¼';
 
   @override
   String get cmd_simple_response_visibility_public => 'Genel';
 
   @override
   String get cmd_simple_send_message_required =>
-      'Lütfen kaydetmeden önce eylem mesajını doldurun.';
+      'LÃƒÂ¼tfen kaydetmeden ÃƒÂ¶nce eylem mesajÃ„Â±nÃ„Â± doldurun.';
 
   @override
-  String get cmd_variables_title => 'Komut Değişkenleri';
+  String get cmd_variables_title => 'Komut DeÃ„Å¸iÃ…Å¸kenleri';
 
   @override
   String get command_awaited_error => 'Hata';
 
   @override
   String get command_awaited_filter_hint =>
-      'Örnek: <numeric> veya <yes/no/cancel>';
+      'Ãƒâ€“rnek: <numeric> veya <yes/no/cancel>';
 
   @override
-  String get command_awaited_filter_label => 'Filtre (isteğe bağlı)';
+  String get command_awaited_filter_label => 'Filtre (isteÃ„Å¸e baÃ„Å¸lÃ„Â±)';
 
   @override
-  String get command_awaited_name_hint => 'Örnek: soyle';
+  String get command_awaited_name_hint => 'Ãƒâ€“rnek: soyle';
 
   @override
-  String get command_awaited_name_label => 'Beklenen geri arama adı';
+  String get command_awaited_name_label => 'Beklenen geri arama adÃ„Â±';
 
   @override
-  String get command_awaited_preset_active => 'Beklenen geri arama ön ayarı';
+  String get command_awaited_preset_active =>
+      'Beklenen geri arama ÃƒÂ¶n ayarÃ„Â±';
 
   @override
   String get command_awaited_preset_button =>
-      'Beklenen Geri Arama Ön Ayarını Kullan';
+      'Beklenen Geri Arama Ãƒâ€“n AyarÃ„Â±nÃ„Â± Kullan';
 
   @override
   String get command_awaited_preset_desc =>
-      'Komut adı sizin için oluşturulur ve dahili bir eski geri arama olarak kaydedilir.';
+      'Komut adÃ„Â± sizin iÃƒÂ§in oluÃ…Å¸turulur ve dahili bir eski geri arama olarak kaydedilir.';
 
   @override
-  String get command_awaited_success => 'Başarılı';
+  String get command_awaited_success => 'BaÃ…Å¸arÃ„Â±lÃ„Â±';
 
   @override
   String get command_context_bot_dm => 'Bot DM';
 
   @override
-  String get command_context_group_dm => 'Grup DM / Diğer';
+  String get command_context_group_dm => 'Grup DM / DiÃ„Å¸er';
 
   @override
   String get command_context_guild => 'Sunucu';
 
   @override
   String get command_description_length =>
-      'Komut açıklaması en fazla 100 karakter uzunluğunda olmalıdır';
+      'Komut aÃƒÂ§Ã„Â±klamasÃ„Â± en fazla 100 karakter uzunluÃ„Å¸unda olmalÃ„Â±dÃ„Â±r';
 
   @override
   String get command_description_required =>
-      'Lütfen bir komut açıklaması girin';
+      'LÃƒÂ¼tfen bir komut aÃƒÂ§Ã„Â±klamasÃ„Â± girin';
 
   @override
-  String get command_edit_raw_name => 'Ham Adı Düzenle';
+  String get command_edit_raw_name => 'Ham AdÃ„Â± DÃƒÂ¼zenle';
 
   @override
   String get command_error_missing_bot_id =>
-      'Yerel komut kaydı için bot ID\'si eksik.';
+      'Yerel komut kaydÃ„Â± iÃƒÂ§in bot ID\'si eksik.';
 
   @override
   String get command_execution_error =>
-      'Bu komut yürütülürken bir hata oluştu.';
+      'Bu komut yÃƒÂ¼rÃƒÂ¼tÃƒÂ¼lÃƒÂ¼rken bir hata oluÃ…Å¸tu.';
 
   @override
-  String get command_export_tooltip => 'Komut yükünü dışa aktar';
+  String get command_export_tooltip => 'Komut yÃƒÂ¼kÃƒÂ¼nÃƒÂ¼ dÃ„Â±Ã…Å¸a aktar';
 
   @override
-  String get command_import_tooltip => 'Komut yükünü içe aktar';
+  String get command_import_tooltip => 'Komut yÃƒÂ¼kÃƒÂ¼nÃƒÂ¼ iÃƒÂ§e aktar';
 
   @override
-  String get command_info_desc => 'Temel meta veriler ve kullanılabilirlik';
+  String get command_info_desc => 'Temel meta veriler ve kullanÃ„Â±labilirlik';
 
   @override
   String get command_info_title => 'Komut Bilgisi';
@@ -2863,109 +2948,110 @@ class AppLocalizationsTr extends AppLocalizations {
   String get command_integration_guild => 'Sunucu Kurulumu';
 
   @override
-  String get command_integration_label => 'Bu komut nerede kullanılabilir';
+  String get command_integration_label => 'Bu komut nerede kullanÃ„Â±labilir';
 
   @override
-  String get command_integration_user => 'Kullanıcı Kurulumu';
+  String get command_integration_user => 'KullanÃ„Â±cÃ„Â± Kurulumu';
 
   @override
   String get command_legacy_mode_subtitle =>
-      'Konumsal seçenekleri kullanır (örnek: !config #kanal).';
+      'Konumsal seÃƒÂ§enekleri kullanÃ„Â±r (ÃƒÂ¶rnek: !config #kanal).';
 
   @override
-  String get command_legacy_mode_title => 'Bu komutta eski modu etkinleştir';
+  String get command_legacy_mode_title => 'Bu komutta eski modu etkinleÃ…Å¸tir';
 
   @override
   String get command_legacy_prefix_desc =>
-      'messageCreate\'den gelen komutları <on_ek><komut> kullanarak işler.';
+      'messageCreate\'den gelen komutlarÃ„Â± <on_ek><komut> kullanarak iÃ…Å¸ler.';
 
   @override
-  String get command_legacy_prefix_title => 'Eski Ön Ek Modu';
+  String get command_legacy_prefix_title => 'Eski Ãƒâ€“n Ek Modu';
 
   @override
   String get command_legacy_preset_desc =>
-      'Dahili bir beklenen geri arama tetikleyicisi oluşturun ve bu komutu gerekli yerel eski kuruluma geçirin.';
+      'Dahili bir beklenen geri arama tetikleyicisi oluÃ…Å¸turun ve bu komutu gerekli yerel eski kuruluma geÃƒÂ§irin.';
 
   @override
-  String get command_legacy_preset_title => 'Eski ön ayar';
+  String get command_legacy_preset_title => 'Eski ÃƒÂ¶n ayar';
 
   @override
-  String get command_legacy_response_label => 'Eski yanıt modu';
+  String get command_legacy_response_label => 'Eski yanÃ„Â±t modu';
 
   @override
   String get command_modal_disabled_legacy =>
-      'Modallar eski modda devre dışıdır.';
+      'Modallar eski modda devre dÃ„Â±Ã…Å¸Ã„Â±dÃ„Â±r.';
 
   @override
   String get command_name_generated =>
-      'Beklenen geri arama ön ayarı tarafından oluşturuldu.';
+      'Beklenen geri arama ÃƒÂ¶n ayarÃ„Â± tarafÃ„Â±ndan oluÃ…Å¸turuldu.';
 
   @override
   String get command_name_label => 'Ad';
 
   @override
-  String get command_not_found => 'Komut bulunamadı';
+  String get command_not_found => 'Komut bulunamadÃ„Â±';
 
   @override
   String get command_options_legacy_params =>
-      'Eski konumsal parametreler (sıralı: önce gerekli, sonra isteğe bağlı)';
+      'Eski konumsal parametreler (sÃ„Â±ralÃ„Â±: ÃƒÂ¶nce gerekli, sonra isteÃ„Å¸e baÃ„Å¸lÃ„Â±)';
 
   @override
-  String get command_options_slash_params => 'Eğik çizgi komut parametreleri';
+  String get command_options_slash_params =>
+      'EÃ„Å¸ik ÃƒÂ§izgi komut parametreleri';
 
   @override
-  String get command_options_title => 'Komut Seçenekleri';
+  String get command_options_title => 'Komut SeÃƒÂ§enekleri';
 
   @override
-  String get command_payload_hint => 'Komut yükü';
+  String get command_payload_hint => 'Komut yÃƒÂ¼kÃƒÂ¼';
 
   @override
   String get command_permissions_admin_warning =>
-      'Yönetici seçildi: bu diğer izin kontrollerini atlar.';
+      'YÃƒÂ¶netici seÃƒÂ§ildi: bu diÃ„Å¸er izin kontrollerini atlar.';
 
   @override
-  String get command_permissions_bitfield => 'Hesaplanan İzin Bit Alanı';
+  String get command_permissions_bitfield => 'Hesaplanan Ã„Â°zin Bit AlanÃ„Â±';
 
   @override
   String get command_permissions_bitfield_helper =>
-      'Seçilen izinlerden otomatik olarak hesaplanır.';
+      'SeÃƒÂ§ilen izinlerden otomatik olarak hesaplanÃ„Â±r.';
 
   @override
   String command_permissions_count(int count) {
-    return '$count izin seçildi';
+    return '$count izin seÃƒÂ§ildi';
   }
 
   @override
   String get command_permissions_label =>
-      'Varsayılan Üye İzinleri (isteğe bağlı)';
+      'VarsayÃ„Â±lan ÃƒÅ“ye Ã„Â°zinleri (isteÃ„Å¸e baÃ„Å¸lÃ„Â±)';
 
   @override
   String get command_permissions_none =>
-      'Seçim yok (herkes komutu kullanabilir)';
+      'SeÃƒÂ§im yok (herkes komutu kullanabilir)';
 
   @override
   String get command_permissions_tip =>
-      'İpucu: Komutu varsayılan olarak herkesin kullanımına sunmak için hepsini işaretsiz bırakın.';
+      'Ã„Â°pucu: Komutu varsayÃ„Â±lan olarak herkesin kullanÃ„Â±mÃ„Â±na sunmak iÃƒÂ§in hepsini iÃ…Å¸aretsiz bÃ„Â±rakÃ„Â±n.';
 
   @override
-  String get command_permissions_title => 'İzinleri seç';
+  String get command_permissions_title => 'Ã„Â°zinleri seÃƒÂ§';
 
   @override
   String command_permissions_unknown_bits(String bits) {
-    return 'Uyarı: kaydedilen verilerden bilinmeyen izin bitleri algılandı ve korundu: $bits';
+    return 'UyarÃ„Â±: kaydedilen verilerden bilinmeyen izin bitleri algÃ„Â±landÃ„Â± ve korundu: $bits';
   }
 
   @override
   String get command_prefix_helper =>
-      'Şablonları ve kapsamlı değişkenleri destekler (bc_ isteğe bağlı). Örnek: ((guild.prefix | user.prefix | !))';
+      'Ã…Å¾ablonlarÃ„Â± ve kapsamlÃ„Â± deÃ„Å¸iÃ…Å¸kenleri destekler (bc_ isteÃ„Å¸e baÃ„Å¸lÃ„Â±). Ãƒâ€“rnek: ((guild.prefix | user.prefix | !))';
 
   @override
   String get command_prefix_override_hint =>
-      'Örnek: ? veya ((guild.prefix | !))';
+      'Ãƒâ€“rnek: ? veya ((guild.prefix | !))';
 
   @override
   String get command_prefix_override_label =>
-      'Ön ek geçersiz kılma (isteğe bağlı)';
+      'Ãƒâ€“n ek geÃƒÂ§ersiz kÃ„Â±lma (isteÃ„Å¸e baÃ„Å¸lÃ„Â±)';
 
   @override
   String get command_response_mode_channel => 'mesaj.kanal.gonder';
@@ -2974,75 +3060,76 @@ class AppLocalizationsTr extends AppLocalizations {
   String get command_response_mode_reply => 'mesaj.yanitla';
 
   @override
-  String get command_scope_label => 'Komutun kapsamı (Bağlamlar)';
+  String get command_scope_label => 'Komutun kapsamÃ„Â± (BaÃ„Å¸lamlar)';
 
   @override
   String get command_subcommand_workflow_desc =>
-      'Hangi alt komutu yapılandıracağınızı seçin.';
+      'Hangi alt komutu yapÃ„Â±landÃ„Â±racaÃ„Å¸Ã„Â±nÃ„Â±zÃ„Â± seÃƒÂ§in.';
 
   @override
-  String get command_subcommand_workflow_title => 'Alt Komut İş Akışı';
+  String get command_subcommand_workflow_title =>
+      'Alt Komut Ã„Â°Ã…Å¸ AkÃ„Â±Ã…Å¸Ã„Â±';
 
   @override
   String command_sync_failed_local(String error) {
-    return 'Yerel olarak kaydedildi. Discord senkronizasyonu başarısız oldu: $error';
+    return 'Yerel olarak kaydedildi. Discord senkronizasyonu baÃ…Å¸arÃ„Â±sÃ„Â±z oldu: $error';
   }
 
   @override
   String get command_target_subcommand => 'Hedef alt komut';
 
   @override
-  String get command_type_label => 'Komut Türü';
+  String get command_type_label => 'Komut TÃƒÂ¼rÃƒÂ¼';
 
   @override
   String get command_type_legacy => 'Eski Komut';
 
   @override
   String get command_type_locked =>
-      'Komut türü oluşturulduktan sonra değiştirilemez.';
+      'Komut tÃƒÂ¼rÃƒÂ¼ oluÃ…Å¸turulduktan sonra deÃ„Å¸iÃ…Å¸tirilemez.';
 
   @override
   String get command_type_message => 'Mesaj Komutu';
 
   @override
-  String get command_type_slash => 'Eğik Çizgi Komutu';
+  String get command_type_slash => 'EÃ„Å¸ik Ãƒâ€¡izgi Komutu';
 
   @override
-  String get command_type_user => 'Kullanıcı Komutu';
+  String get command_type_user => 'KullanÃ„Â±cÃ„Â± Komutu';
 
   @override
   String get command_unsaved_confirm =>
-      'Kaydedilmemiş değişiklikleriniz var. Onları atmak istiyor musunuz?';
+      'KaydedilmemiÃ…Å¸ deÃ„Å¸iÃ…Å¸iklikleriniz var. OnlarÃ„Â± atmak istiyor musunuz?';
 
   @override
-  String get command_unsaved_keep => 'Düzenlemeye devam et';
+  String get command_unsaved_keep => 'DÃƒÂ¼zenlemeye devam et';
 
   @override
-  String get command_unsaved_title => 'Kaydedilmemiş değişiklikler';
+  String get command_unsaved_title => 'KaydedilmemiÃ…Å¸ deÃ„Å¸iÃ…Å¸iklikler';
 
   @override
-  String get commands_all_folders => 'Tüm klasörler';
+  String get commands_all_folders => 'TÃƒÂ¼m klasÃƒÂ¶rler';
 
   @override
-  String get commands_create_button => 'Komut oluştur';
+  String get commands_create_button => 'Komut oluÃ…Å¸tur';
 
   @override
-  String get commands_create_folder => 'Klasör oluştur';
+  String get commands_create_folder => 'KlasÃƒÂ¶r oluÃ…Å¸tur';
 
   @override
   String commands_create_from_query(String query) {
-    return '\"$query\" komutunu oluştur';
+    return '\"$query\" komutunu oluÃ…Å¸tur';
   }
 
   @override
-  String get commands_delete_folder => 'Klasörü sil';
+  String get commands_delete_folder => 'KlasÃƒÂ¶rÃƒÂ¼ sil';
 
   @override
   String get commands_delete_folder_desc =>
-      'Bu klasördeki komutlar silinmeyecek, sadece klasörden çıkarılacaktır.';
+      'Bu klasÃƒÂ¶rdeki komutlar silinmeyecek, sadece klasÃƒÂ¶rden ÃƒÂ§Ã„Â±karÃ„Â±lacaktÃ„Â±r.';
 
   @override
-  String get commands_empty => 'Komut bulunamadı';
+  String get commands_empty => 'Komut bulunamadÃ„Â±';
 
   @override
   String commands_error(String error) {
@@ -3053,38 +3140,39 @@ class AppLocalizationsTr extends AppLocalizations {
   String get commands_filter_legacy_local => 'Eski yerel';
 
   @override
-  String get commands_filter_template => 'Şablon';
+  String get commands_filter_template => 'Ã…Å¾ablon';
 
   @override
-  String get commands_filter_type_label => 'Tür';
+  String get commands_filter_type_label => 'TÃƒÂ¼r';
 
   @override
-  String get commands_folder_hint => 'İsteğe bağlı klasör adı';
+  String get commands_folder_hint =>
+      'Ã„Â°steÃ„Å¸e baÃ„Å¸lÃ„Â± klasÃƒÂ¶r adÃ„Â±';
 
   @override
-  String get commands_folder_label => 'Klasör';
+  String get commands_folder_label => 'KlasÃƒÂ¶r';
 
   @override
-  String get commands_move_to_folder => 'Klasöre taşı';
+  String get commands_move_to_folder => 'KlasÃƒÂ¶re taÃ…Å¸Ã„Â±';
 
   @override
-  String get commands_new_folder_hint => 'Yeni klasör adı';
+  String get commands_new_folder_hint => 'Yeni klasÃƒÂ¶r adÃ„Â±';
 
   @override
-  String get commands_no_folder => 'Klasör yok';
+  String get commands_no_folder => 'KlasÃƒÂ¶r yok';
 
   @override
   String get commands_no_match_filters =>
-      'Mevcut filtrelerle eşleşen komut yok.';
+      'Mevcut filtrelerle eÃ…Å¸leÃ…Å¸en komut yok.';
 
   @override
-  String get commands_remove_from_folder => 'Klasörden kaldır';
+  String get commands_remove_from_folder => 'KlasÃƒÂ¶rden kaldÃ„Â±r';
 
   @override
-  String get commands_rename_folder => 'Klasörü yeniden adlandır';
+  String get commands_rename_folder => 'KlasÃƒÂ¶rÃƒÂ¼ yeniden adlandÃ„Â±r';
 
   @override
-  String get commands_reorder_title => 'Komutları düzenle';
+  String get commands_reorder_title => 'KomutlarÃ„Â± dÃƒÂ¼zenle';
 
   @override
   String get commands_search_hint => 'Komutlarda ara...';
@@ -3099,16 +3187,16 @@ class AppLocalizationsTr extends AppLocalizations {
   String get commands_title => 'Komutlar';
 
   @override
-  String get common_add_argument => 'Argüman Ekle';
+  String get common_add_argument => 'ArgÃƒÂ¼man Ekle';
 
   @override
-  String get common_add_option => 'Seçenek Ekle';
+  String get common_add_option => 'SeÃƒÂ§enek Ekle';
 
   @override
-  String get common_add_section => 'Bölüm Ekle';
+  String get common_add_section => 'BÃƒÂ¶lÃƒÂ¼m Ekle';
 
   @override
-  String get common_all => 'Tümü';
+  String get common_all => 'TÃƒÂ¼mÃƒÂ¼';
 
   @override
   String get common_apply => 'Uygula';
@@ -3120,7 +3208,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get common_bot => 'Bot';
 
   @override
-  String get common_cancel => 'İptal';
+  String get common_cancel => 'Ã„Â°ptal';
 
   @override
   String get common_clear => 'Temizle';
@@ -3129,31 +3217,31 @@ class AppLocalizationsTr extends AppLocalizations {
   String get common_close => 'Kapat';
 
   @override
-  String get common_custom_id => 'Özel ID';
+  String get common_custom_id => 'Ãƒâ€“zel ID';
 
   @override
-  String get common_custom_id_required => 'Özel ID *';
+  String get common_custom_id_required => 'Ãƒâ€“zel ID *';
 
   @override
-  String get common_default => 'Varsayılan';
+  String get common_default => 'VarsayÃ„Â±lan';
 
   @override
   String get common_delete => 'Sil';
 
   @override
-  String get common_description => 'Açıklama';
+  String get common_description => 'AÃƒÂ§Ã„Â±klama';
 
   @override
-  String get common_disabled => 'Devre Dışı';
+  String get common_disabled => 'Devre DÃ„Â±Ã…Å¸Ã„Â±';
 
   @override
-  String get common_edit => 'Düzenle';
+  String get common_edit => 'DÃƒÂ¼zenle';
 
   @override
   String get common_enabled => 'Etkin';
 
   @override
-  String get common_import => 'İçe Aktar';
+  String get common_import => 'Ã„Â°ÃƒÂ§e Aktar';
 
   @override
   String get common_key => 'Anahtar';
@@ -3162,19 +3250,20 @@ class AppLocalizationsTr extends AppLocalizations {
   String get common_label => 'Etiket';
 
   @override
-  String get common_manage_workflows => 'İş Akışlarını Yönet';
+  String get common_manage_workflows =>
+      'Ã„Â°Ã…Å¸ AkÃ„Â±Ã…Å¸larÃ„Â±nÃ„Â± YÃƒÂ¶net';
 
   @override
-  String get common_move_down => 'Aşağı taşı';
+  String get common_move_down => 'AÃ…Å¸aÃ„Å¸Ã„Â± taÃ…Å¸Ã„Â±';
 
   @override
-  String get common_move_up => 'Yukarı taşı';
+  String get common_move_up => 'YukarÃ„Â± taÃ…Å¸Ã„Â±';
 
   @override
   String get common_name => 'Ad';
 
   @override
-  String get common_next => 'İleri';
+  String get common_next => 'Ã„Â°leri';
 
   @override
   String get common_none => 'Yok';
@@ -3183,10 +3272,10 @@ class AppLocalizationsTr extends AppLocalizations {
   String get common_ok => 'Tamam';
 
   @override
-  String get common_operator => 'Operatör';
+  String get common_operator => 'OperatÃƒÂ¶r';
 
   @override
-  String get common_pick => 'Seç';
+  String get common_pick => 'SeÃƒÂ§';
 
   @override
   String get common_placeholder => 'Yer Tutucu';
@@ -3195,10 +3284,11 @@ class AppLocalizationsTr extends AppLocalizations {
   String get common_refresh => 'Yenile';
 
   @override
-  String get common_refresh_workflows => 'İş akışlarını yenile';
+  String get common_refresh_workflows =>
+      'Ã„Â°Ã…Å¸ akÃ„Â±Ã…Å¸larÃ„Â±nÃ„Â± yenile';
 
   @override
-  String get common_remove => 'Kaldır';
+  String get common_remove => 'KaldÃ„Â±r';
 
   @override
   String get common_required => 'Gerekli';
@@ -3213,79 +3303,80 @@ class AppLocalizationsTr extends AppLocalizations {
   String get common_search => 'Ara';
 
   @override
-  String get common_static_options => 'Statik Seçenekler';
+  String get common_static_options => 'Statik SeÃƒÂ§enekler';
 
   @override
   String get common_style => 'Stil';
 
   @override
-  String get common_type => 'Tür';
+  String get common_type => 'TÃƒÂ¼r';
 
   @override
   String get common_url => 'URL';
 
   @override
-  String get common_value => 'Değer';
+  String get common_value => 'DeÃ„Å¸er';
 
   @override
-  String get common_workflow => 'İş Akışı';
+  String get common_workflow => 'Ã„Â°Ã…Å¸ AkÃ„Â±Ã…Å¸Ã„Â±';
 
   @override
-  String get component_accent_color => 'Vurgu Rengi (Hex, örn. FF0000)';
+  String get component_accent_color => 'Vurgu Rengi (Hex, ÃƒÂ¶rn. FF0000)';
 
   @override
-  String get component_action_row => 'Eylem Satırı';
+  String get component_action_row => 'Eylem SatÃ„Â±rÃ„Â±';
 
   @override
-  String get component_add_action_row => 'Eylem Satırı Ekle';
+  String get component_add_action_row => 'Eylem SatÃ„Â±rÃ„Â± Ekle';
 
   @override
   String get component_add_button => 'Buton Ekle';
 
   @override
-  String get component_add_button_or_select => 'Buton / Seçim Menüsü Ekle';
+  String get component_add_button_or_select =>
+      'Buton / SeÃƒÂ§im MenÃƒÂ¼sÃƒÂ¼ Ekle';
 
   @override
-  String get component_add_checkbox_option => 'Onay Kutusu Seçeneği Ekle';
+  String get component_add_checkbox_option => 'Onay Kutusu SeÃƒÂ§eneÃ„Å¸i Ekle';
 
   @override
-  String get component_add_child => 'Alt Bileşen Ekle';
+  String get component_add_child => 'Alt BileÃ…Å¸en Ekle';
 
   @override
-  String get component_add_media_item => 'Medya Öğesi Ekle';
+  String get component_add_media_item => 'Medya Ãƒâ€“Ã„Å¸esi Ekle';
 
   @override
-  String get component_add_radio_option => 'Radyo Seçeneği Ekle';
+  String get component_add_radio_option => 'Radyo SeÃƒÂ§eneÃ„Å¸i Ekle';
 
   @override
-  String get component_add_root => 'Kök Bileşen Ekle';
+  String get component_add_root => 'KÃƒÂ¶k BileÃ…Å¸en Ekle';
 
   @override
-  String get component_add_text_display => 'Metin Görüntüleme Ekle';
+  String get component_add_text_display => 'Metin GÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼leme Ekle';
 
   @override
-  String get component_add_tooltip => 'Bileşen Ekle';
+  String get component_add_tooltip => 'BileÃ…Å¸en Ekle';
 
   @override
   String get component_block_label_style => 'Stil';
 
   @override
-  String get component_block_workflow => 'İş Akışı';
+  String get component_block_workflow => 'Ã„Â°Ã…Å¸ AkÃ„Â±Ã…Å¸Ã„Â±';
 
   @override
   String get component_button_default_label => 'Düğme';
 
   @override
-  String get component_checkbox_options => 'Onay Kutusu Seçenekleri';
+  String get component_checkbox_options => 'Onay Kutusu SeÃƒÂ§enekleri';
 
   @override
-  String get component_checked_by_default => 'Varsayılan olarak işaretli';
+  String get component_checked_by_default => 'VarsayÃ„Â±lan olarak iÃ…Å¸aretli';
 
   @override
-  String get component_choose_color => 'Renk Seç';
+  String get component_choose_color => 'Renk SeÃƒÂ§';
 
   @override
-  String get component_component_to_wrap => 'Sarmalanacak Bileşen:';
+  String get component_component_to_wrap => 'Sarmalanacak BileÃ…Å¸en:';
 
   @override
   String get component_configure_click_actions =>
@@ -3296,23 +3387,23 @@ class AppLocalizationsTr extends AppLocalizations {
       'Seçim Eylemlerini Yapılandır';
 
   @override
-  String get component_custom_id => 'Özel ID';
+  String get component_custom_id => 'Ãƒâ€“zel ID';
 
   @override
-  String get component_custom_id_required => 'Özel ID *';
+  String get component_custom_id_required => 'Ãƒâ€“zel ID *';
 
   @override
-  String get component_default_choice_label => 'Seçim';
+  String get component_default_choice_label => 'SeÃƒÂ§im';
 
   @override
-  String get component_default_option_label => 'Seçenek';
+  String get component_default_option_label => 'SeÃƒÂ§enek';
 
   @override
   String get component_disabled_hint =>
       'true/false veya ((user.bc_isVip)) gibi bir değişken girin';
 
   @override
-  String get component_empty_option => 'Boş';
+  String get component_empty_option => 'BoÃ…Å¸';
 
   @override
   String get component_file_url => 'Dosya URL\'si';
@@ -3321,13 +3412,13 @@ class AppLocalizationsTr extends AppLocalizations {
   String get component_label => 'Etiket';
 
   @override
-  String get component_label_title => 'Etiket Başlığı';
+  String get component_label_title => 'Etiket BaÃ…Å¸lÃ„Â±Ã„Å¸Ã„Â±';
 
   @override
-  String get component_markdown_content => 'Markdown İçeriği';
+  String get component_markdown_content => 'Markdown Ã„Â°ÃƒÂ§eriÃ„Å¸i';
 
   @override
-  String get component_max_selections => 'Maks Seçimler';
+  String get component_max_selections => 'Maks SeÃƒÂ§imler';
 
   @override
   String get component_media_url => 'Resim / Video URL\'si';
@@ -3336,71 +3427,76 @@ class AppLocalizationsTr extends AppLocalizations {
   String get component_media_urls => 'Medya URL\'leri';
 
   @override
-  String get component_min_selections => 'Min Seçimler';
+  String get component_min_selections => 'Min SeÃƒÂ§imler';
 
   @override
   String get component_new_checkbox => 'Yeni Onay Kutusu';
 
   @override
-  String get component_new_option => 'Yeni Seçenek';
+  String get component_new_option => 'Yeni SeÃƒÂ§enek';
 
   @override
   String get component_new_radio => 'Yeni Radyo';
 
   @override
-  String get component_not_implemented => 'Düzenleyici henüz uygulanmadı';
+  String get component_not_implemented =>
+      'DÃƒÂ¼zenleyici henÃƒÂ¼z uygulanmadÃ„Â±';
 
   @override
-  String get component_on_click_workflow => 'Tıklandığında iş akışı';
+  String get component_on_click_workflow =>
+      'TÃ„Â±klandÃ„Â±Ã„Å¸Ã„Â±nda iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â±';
 
   @override
-  String get component_on_select_workflow => 'Seçildiğinde iş akışı';
+  String get component_on_select_workflow =>
+      'SeÃƒÂ§ildiÃ„Å¸inde iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â±';
 
   @override
-  String get component_options => 'Seçenekler';
+  String get component_options => 'SeÃƒÂ§enekler';
 
   @override
-  String get component_pick_accent_color => 'Vurgu Rengi Seç';
+  String get component_pick_accent_color => 'Vurgu Rengi SeÃƒÂ§';
 
   @override
   String get component_placeholder => 'Yer Tutucu';
 
   @override
-  String get component_radio_options => 'Radyo Seçenekleri';
+  String get component_radio_options => 'Radyo SeÃƒÂ§enekleri';
 
   @override
   String get component_remove_confirm =>
-      'Bu bileşen düzenden kaldırılacak. Devam edilsin mi?';
+      'Bu bileÃ…Å¸en dÃƒÂ¼zenden kaldÃ„Â±rÃ„Â±lacak. Devam edilsin mi?';
 
   @override
-  String get component_remove_row_title => 'Eylem satırını kaldır';
+  String get component_remove_row_title => 'Eylem satÃ„Â±rÃ„Â±nÃ„Â± kaldÃ„Â±r';
 
   @override
-  String get component_remove_title => 'Bileşeni kaldır';
+  String get component_remove_title => 'BileÃ…Å¸eni kaldÃ„Â±r';
 
   @override
-  String get component_section_accessory => 'Aksesuar Düğümü (İsteğe Bağlı)';
+  String get component_section_accessory =>
+      'Aksesuar DÃƒÂ¼Ã„Å¸ÃƒÂ¼mÃƒÂ¼ (Ã„Â°steÃ„Å¸e BaÃ„Å¸lÃ„Â±)';
 
   @override
-  String get component_section_text_displays => 'Metin Görüntülemeleri';
+  String get component_section_text_displays =>
+      'Metin GÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼lemeleri';
 
   @override
-  String get component_selection_range => 'Seçim Aralığı';
+  String get component_selection_range => 'SeÃƒÂ§im AralÃ„Â±Ã„Å¸Ã„Â±';
 
   @override
-  String get component_spacing_large => 'Büyük Boşluk';
+  String get component_spacing_large => 'BÃƒÂ¼yÃƒÂ¼k BoÃ…Å¸luk';
 
   @override
-  String get component_spacing_small => 'Küçük Boşluk';
+  String get component_spacing_small => 'KÃƒÂ¼ÃƒÂ§ÃƒÂ¼k BoÃ…Å¸luk';
 
   @override
   String get component_style => 'Stil';
 
   @override
-  String get component_thumbnail_url => 'Küçük Resim URL\'si';
+  String get component_thumbnail_url => 'KÃƒÂ¼ÃƒÂ§ÃƒÂ¼k Resim URL\'si';
 
   @override
-  String get component_unknown_component => 'Bilinmeyen bileşen';
+  String get component_unknown_component => 'Bilinmeyen bileÃ…Å¸en';
 
   @override
   String get component_url => 'URL';
@@ -3409,27 +3505,31 @@ class AppLocalizationsTr extends AppLocalizations {
   String get component_validation_required => 'Gerekli';
 
   @override
-  String get component_value_hint => 'Bileşen değeri ipucu';
+  String get component_value_hint => 'BileÃ…Å¸en deÃ„Å¸eri ipucu';
 
   @override
-  String get component_visible_divider => 'Görünür Bölücü Çizgi';
+  String get component_visible_divider =>
+      'GÃƒÂ¶rÃƒÂ¼nÃƒÂ¼r BÃƒÂ¶lÃƒÂ¼cÃƒÂ¼ Ãƒâ€¡izgi';
 
   @override
-  String get component_workflow_args_hint => 'Örnek: biletId = ((opts.bilet))';
+  String get component_workflow_args_hint =>
+      'Ãƒâ€“rnek: biletId = ((opts.bilet))';
 
   @override
-  String get component_workflow_args_title => 'İş Akışı Çağrı Argümanları';
+  String get component_workflow_args_title =>
+      'Ã„Â°Ã…Å¸ AkÃ„Â±Ã…Å¸Ã„Â± Ãƒâ€¡aÃ„Å¸rÃ„Â± ArgÃƒÂ¼manlarÃ„Â±';
 
   @override
   String get component_workflow_click_hint =>
-      'Tıklandığında çalıştırılacak kayıtlı iş akışı adı';
+      'TÃ„Â±klandÃ„Â±Ã„Å¸Ã„Â±nda ÃƒÂ§alÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±lacak kayÃ„Â±tlÃ„Â± iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â± adÃ„Â±';
 
   @override
-  String get component_workflow_optional => 'İş Akışını Çağır (isteğe bağlı)';
+  String get component_workflow_optional =>
+      'Ã„Â°Ã…Å¸ AkÃ„Â±Ã…Å¸Ã„Â±nÃ„Â± Ãƒâ€¡aÃ„Å¸Ã„Â±r (isteÃ„Å¸e baÃ„Å¸lÃ„Â±)';
 
   @override
   String get component_workflow_select_hint =>
-      'Seçildiğinde çalıştırılacak kayıtlı iş akışı adı';
+      'SeÃƒÂ§ildiÃ„Å¸inde ÃƒÂ§alÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±lacak kayÃ„Â±tlÃ„Â± iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â± adÃ„Â±';
 
   @override
   String get confirm => 'Onayla';
@@ -3438,46 +3538,48 @@ class AppLocalizationsTr extends AppLocalizations {
   String get copy => 'Kopyala';
 
   @override
-  String get create => 'Oluştur';
+  String get create => 'OluÃ…Å¸tur';
 
   @override
   String get dart_editor_empty =>
-      'Boş betik — Dart tanılamalarını görmek için yazmaya başlayın.';
+      'BoÃ…Å¸ betik Ã¢â‚¬â€ Dart tanÃ„Â±lamalarÃ„Â±nÃ„Â± gÃƒÂ¶rmek iÃƒÂ§in yazmaya baÃ…Å¸layÃ„Â±n.';
 
   @override
-  String get dart_editor_tap_hint => 'Dart düzenleyiciyi açmak için dokunun';
+  String get dart_editor_tap_hint =>
+      'Dart dÃƒÂ¼zenleyiciyi aÃƒÂ§mak iÃƒÂ§in dokunun';
 
   @override
-  String get dart_editor_title => 'Dart Düzenleyici';
+  String get dart_editor_title => 'Dart DÃƒÂ¼zenleyici';
 
   @override
-  String get dashboard_analysis_period => 'Analiz dönemi';
+  String get dashboard_analysis_period => 'Analiz dÃƒÂ¶nemi';
 
   @override
   String dashboard_error(String error) {
-    return 'İstatistikler yüklenemedi: $error';
+    return 'Ã„Â°statistikler yÃƒÂ¼klenemedi: $error';
   }
 
   @override
-  String get dashboard_error_rate => 'Hata oranı';
+  String get dashboard_error_rate => 'Hata oranÃ„Â±';
 
   @override
-  String get dashboard_execution_health_title => 'Yürütme sağlığı';
+  String get dashboard_execution_health_title =>
+      'YÃƒÂ¼rÃƒÂ¼tme saÃ„Å¸lÃ„Â±Ã„Å¸Ã„Â±';
 
   @override
   String dashboard_executions(int count) {
-    return '$count yürütme';
+    return '$count yÃƒÂ¼rÃƒÂ¼tme';
   }
 
   @override
-  String get dashboard_failed_commands => 'Başarısız';
+  String get dashboard_failed_commands => 'BaÃ…Å¸arÃ„Â±sÃ„Â±z';
 
   @override
-  String get dashboard_loading => 'İstatistikler yükleniyor...';
+  String get dashboard_loading => 'Ã„Â°statistikler yÃƒÂ¼kleniyor...';
 
   @override
   String get dashboard_no_data =>
-      'Henüz komut kullanım verisi yok. İzlemeye başlamak için botunuzu çalıştırın.';
+      'HenÃƒÂ¼z komut kullanÃ„Â±m verisi yok. Ã„Â°zlemeye baÃ…Å¸lamak iÃƒÂ§in botunuzu ÃƒÂ§alÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±n.';
 
   @override
   String get dashboard_p50_latency => 'Gecikme p50';
@@ -3489,77 +3591,78 @@ class AppLocalizationsTr extends AppLocalizations {
   String get dashboard_period_24h => 'Son 24 sa';
 
   @override
-  String get dashboard_period_30d => 'Son 30 gün';
+  String get dashboard_period_30d => 'Son 30 gÃƒÂ¼n';
 
   @override
-  String get dashboard_period_7d => 'Son 7 gün';
+  String get dashboard_period_7d => 'Son 7 gÃƒÂ¼n';
 
   @override
   String get dashboard_premium_analytics_desc =>
-      'Hata oranı, gecikme yüzdelikleri ve dil içgörülerinin kilidini açın.';
+      'Hata oranÃ„Â±, gecikme yÃƒÂ¼zdelikleri ve dil iÃƒÂ§gÃƒÂ¶rÃƒÂ¼lerinin kilidini aÃƒÂ§Ã„Â±n.';
 
   @override
   String get dashboard_premium_analytics_title => 'Premium analitik';
 
   @override
-  String get dashboard_refresh_sources_tooltip => 'Yürütme sunucularını yenile';
+  String get dashboard_refresh_sources_tooltip =>
+      'YÃƒÂ¼rÃƒÂ¼tme sunucularÃ„Â±nÃ„Â± yenile';
 
   @override
   String get dashboard_requires_runner =>
-      'Komut kullanım istatistiklerini görmek için bir runner\'a bağlanın.';
+      'Komut kullanÃ„Â±m istatistiklerini gÃƒÂ¶rmek iÃƒÂ§in bir runner\'a baÃ„Å¸lanÃ„Â±n.';
 
   @override
   String dashboard_selected_period_total(int count) {
-    return 'Seçilen dönemde $count';
+    return 'SeÃƒÂ§ilen dÃƒÂ¶nemde $count';
   }
 
   @override
   String get dashboard_single_runner_notice =>
-      'Gösterilen istatistikler yalnızca şu anda yapılandırılmış olan runner\'dan alınmıştır. Botları birden fazla runner\'da çalıştırıyorsanız, bu görünüm eksik olabilir.';
+      'GÃƒÂ¶sterilen istatistikler yalnÃ„Â±zca Ã…Å¸u anda yapÃ„Â±landÃ„Â±rÃ„Â±lmÃ„Â±Ã…Å¸ olan runner\'dan alÃ„Â±nmÃ„Â±Ã…Å¸tÃ„Â±r. BotlarÃ„Â± birden fazla runner\'da ÃƒÂ§alÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±yorsanÃ„Â±z, bu gÃƒÂ¶rÃƒÂ¼nÃƒÂ¼m eksik olabilir.';
 
   @override
-  String get dashboard_timeline => 'Zaman içindeki kullanım';
+  String get dashboard_timeline => 'Zaman iÃƒÂ§indeki kullanÃ„Â±m';
 
   @override
   String get dashboard_title => 'Panel';
 
   @override
-  String get dashboard_top_commands => 'En çok kullanılan komutlar';
+  String get dashboard_top_commands => 'En ÃƒÂ§ok kullanÃ„Â±lan komutlar';
 
   @override
-  String get dashboard_top_locales => 'En çok kullanılan diller';
+  String get dashboard_top_locales => 'En ÃƒÂ§ok kullanÃ„Â±lan diller';
 
   @override
   String get dashboard_total => 'Toplam komut';
 
   @override
-  String get debug_replay_clear => 'Tekrarları temizle';
+  String get debug_replay_clear => 'TekrarlarÃ„Â± temizle';
 
   @override
   String get debug_replay_clear_confirm =>
-      'Kaydedilen tüm tekrarlar silinecek. Devam edilsin mi?';
+      'Kaydedilen tÃƒÂ¼m tekrarlar silinecek. Devam edilsin mi?';
 
   @override
-  String get debug_replay_clear_title => 'Tekrarları temizle';
+  String get debug_replay_clear_title => 'TekrarlarÃ„Â± temizle';
 
   @override
-  String get debug_replay_duration_label => 'SÜRE';
+  String get debug_replay_duration_label => 'SÃƒÅ“RE';
 
   @override
   String get debug_replay_empty_capturing =>
-      'Yakalanıyor… Bir tekrar kaydetmek için bir komut çalıştırın.';
+      'YakalanÃ„Â±yorÃ¢â‚¬Â¦ Bir tekrar kaydetmek iÃƒÂ§in bir komut ÃƒÂ§alÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±n.';
 
   @override
   String get debug_replay_empty_idle =>
-      'Yakalama kapalı. Etkinleştirin ve bir tekrar kaydetmek için bir komut çalıştırın.';
+      'Yakalama kapalÃ„Â±. EtkinleÃ…Å¸tirin ve bir tekrar kaydetmek iÃƒÂ§in bir komut ÃƒÂ§alÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±n.';
 
   @override
   String debug_replay_loop_info(int depth, int iteration) {
-    return 'Döngü derinliği $depth, yineleme $iteration';
+    return 'DÃƒÂ¶ngÃƒÂ¼ derinliÃ„Å¸i $depth, yineleme $iteration';
   }
 
   @override
-  String get debug_replay_overview => 'Genel Bakış';
+  String get debug_replay_overview => 'Genel BakÃ„Â±Ã…Å¸';
 
   @override
   String get debug_replay_pause => 'Duraklat';
@@ -3569,214 +3672,220 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get debug_replay_premium_desc =>
-      'Komut yürütmelerinizi adım adım kaydedin ve tekrar oynatın. Her eylemin tam olarak ne yaptığını, ne kadar sürdüğünü ve hataların nerede oluştuğunu görün.';
+      'Komut yÃƒÂ¼rÃƒÂ¼tmelerinizi adÃ„Â±m adÃ„Â±m kaydedin ve tekrar oynatÃ„Â±n. Her eylemin tam olarak ne yaptÃ„Â±Ã„Å¸Ã„Â±nÃ„Â±, ne kadar sÃƒÂ¼rdÃƒÂ¼Ã„Å¸ÃƒÂ¼nÃƒÂ¼ ve hatalarÃ„Â±n nerede oluÃ…Å¸tuÃ„Å¸unu gÃƒÂ¶rÃƒÂ¼n.';
 
   @override
-  String get debug_replay_premium_title => 'Görsel Hata Ayıklayıcı Tekrarı';
+  String get debug_replay_premium_title =>
+      'GÃƒÂ¶rsel Hata AyÃ„Â±klayÃ„Â±cÃ„Â± TekrarÃ„Â±';
 
   @override
-  String get debug_replay_result_empty => '(sonuç yok)';
+  String get debug_replay_result_empty => '(sonuÃƒÂ§ yok)';
 
   @override
-  String get debug_replay_result_label => 'SONUÇ';
+  String get debug_replay_result_label => 'SONUÃƒâ€¡';
 
   @override
-  String get debug_replay_start_capture => 'Yakalamayı etkinleştir';
+  String get debug_replay_start_capture => 'YakalamayÃ„Â± etkinleÃ…Å¸tir';
 
   @override
   String debug_replay_start_offset(int ms) {
-    return 'Başlangıçtan +$ms ms';
+    return 'BaÃ…Å¸langÃ„Â±ÃƒÂ§tan +$ms ms';
   }
 
   @override
-  String get debug_replay_step_back => 'Önceki adım';
+  String get debug_replay_step_back => 'Ãƒâ€“nceki adÃ„Â±m';
 
   @override
-  String get debug_replay_step_first => 'İlk adım';
+  String get debug_replay_step_first => 'Ã„Â°lk adÃ„Â±m';
 
   @override
-  String get debug_replay_step_forward => 'Sonraki adım';
+  String get debug_replay_step_forward => 'Sonraki adÃ„Â±m';
 
   @override
-  String get debug_replay_step_last => 'Son adım';
+  String get debug_replay_step_last => 'Son adÃ„Â±m';
 
   @override
-  String get debug_replay_stop_capture => 'Yakalamayı devre dışı bırak';
+  String get debug_replay_stop_capture =>
+      'YakalamayÃ„Â± devre dÃ„Â±Ã…Å¸Ã„Â± bÃ„Â±rak';
 
   @override
-  String get debug_replay_title => 'Hata Ayıklayıcı Tekrarı';
+  String get debug_replay_title => 'Hata AyÃ„Â±klayÃ„Â±cÃ„Â± TekrarÃ„Â±';
 
   @override
-  String get debug_replay_variables_empty => '(değişken yok)';
+  String get debug_replay_variables_empty => '(deÃ„Å¸iÃ…Å¸ken yok)';
 
   @override
-  String get debug_replay_variables_label => 'DEĞİŞKENLER';
+  String get debug_replay_variables_label => 'DEÃ„Å¾Ã„Â°Ã…Å¾KENLER';
 
   @override
   String get delete => 'Sil';
 
   @override
   String get doc_action_http_request_checklist_l1 =>
-      'Mümkünse hizmet katmanınızda açık zaman aşımı ve yeniden denemeler ayarlayın.';
+      'MÃƒÂ¼mkÃƒÂ¼nse hizmet katmanÃ„Â±nÃ„Â±zda aÃƒÂ§Ã„Â±k zaman aÃ…Å¸Ã„Â±mÃ„Â± ve yeniden denemeler ayarlayÃ„Â±n.';
 
   @override
   String get doc_action_http_request_checklist_l2 =>
-      'API anahtarlarını genellerde veya güvenli arka uçta saklayın, jetonları asla sabit kodlamayın.';
+      'API anahtarlarÃ„Â±nÃ„Â± genellerde veya gÃƒÂ¼venli arka uÃƒÂ§ta saklayÃ„Â±n, jetonlarÃ„Â± asla sabit kodlamayÃ„Â±n.';
 
   @override
   String get doc_action_http_request_checklist_l3 =>
-      'Sonraki eylemlerden önce durum kodunu ve yanıt gövdesini doğrulayın.';
+      'Sonraki eylemlerden ÃƒÂ¶nce durum kodunu ve yanÃ„Â±t gÃƒÂ¶vdesini doÃ„Å¸rulayÃ„Â±n.';
 
   @override
   String get doc_action_http_request_section_checklist =>
-      'Güvenilirlik Kontrol Listesi';
+      'GÃƒÂ¼venilirlik Kontrol Listesi';
 
   @override
   String get doc_action_http_request_subtitle =>
-      'Bir iş akışı içinde harici bir HTTP çağrısı yürütür.';
+      'Bir iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â± iÃƒÂ§inde harici bir HTTP ÃƒÂ§aÃ„Å¸rÃ„Â±sÃ„Â± yÃƒÂ¼rÃƒÂ¼tÃƒÂ¼r.';
 
   @override
   String get doc_action_http_request_summary =>
-      'Bunu webhooklar, dahili API\'ler, moderasyon hizmetleri, yapay zeka uç noktaları ve entegrasyonlar için kullanın.';
+      'Bunu webhooklar, dahili API\'ler, moderasyon hizmetleri, yapay zeka uÃƒÂ§ noktalarÃ„Â± ve entegrasyonlar iÃƒÂ§in kullanÃ„Â±n.';
 
   @override
   String get doc_action_http_request_title => 'Eylem: httpRequest';
 
   @override
   String get doc_action_if_block_execution_l1 =>
-      'Koşul bir kez değerlendirilir.';
+      'KoÃ…Å¸ul bir kez deÃ„Å¸erlendirilir.';
 
   @override
   String get doc_action_if_block_execution_l2 =>
-      'İlk eşleşen dal yürütülür: THEN, ardından sırasıyla ELSE IF blokları, ardından ELSE.';
+      'Ã„Â°lk eÃ…Å¸leÃ…Å¸en dal yÃƒÂ¼rÃƒÂ¼tÃƒÂ¼lÃƒÂ¼r: THEN, ardÃ„Â±ndan sÃ„Â±rasÃ„Â±yla ELSE IF bloklarÃ„Â±, ardÃ„Â±ndan ELSE.';
 
   @override
   String get doc_action_if_block_execution_l3 =>
-      'İç içe eylemler runWorkflow, API çağrıları ve etkileşim yanıtlarını içerebilir.';
+      'Ã„Â°ÃƒÂ§ iÃƒÂ§e eylemler runWorkflow, API ÃƒÂ§aÃ„Å¸rÃ„Â±larÃ„Â± ve etkileÃ…Å¸im yanÃ„Â±tlarÃ„Â±nÃ„Â± iÃƒÂ§erebilir.';
 
   @override
-  String get doc_action_if_block_section_execution => 'Yürütme Modeli';
+  String get doc_action_if_block_section_execution => 'YÃƒÂ¼rÃƒÂ¼tme Modeli';
 
   @override
   String get doc_action_if_block_subtitle =>
-      'Yürütmeyi THEN, ELSE IF ve ELSE iç içe eylem listeleri arasında dallandırın.';
+      'YÃƒÂ¼rÃƒÂ¼tmeyi THEN, ELSE IF ve ELSE iÃƒÂ§ iÃƒÂ§e eylem listeleri arasÃ„Â±nda dallandÃ„Â±rÃ„Â±n.';
 
   @override
   String get doc_action_if_block_summary =>
-      'Çalışma zamanı durumuna göre birkaç sonucu yönetirken tek bir iş akışını korumak için bunu kullanın.';
+      'Ãƒâ€¡alÃ„Â±Ã…Å¸ma zamanÃ„Â± durumuna gÃƒÂ¶re birkaÃƒÂ§ sonucu yÃƒÂ¶netirken tek bir iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â±nÃ„Â± korumak iÃƒÂ§in bunu kullanÃ„Â±n.';
 
   @override
   String get doc_action_if_block_title => 'Eylem: ifBlock';
 
   @override
   String get doc_action_run_workflow_practices_l1 =>
-      'Üst düzey iş akışını ince tutun ve alan iş akışlarına devredin.';
+      'ÃƒÅ“st dÃƒÂ¼zey iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â±nÃ„Â± ince tutun ve alan iÃ…Å¸ akÃ„Â±Ã…Å¸larÃ„Â±na devredin.';
 
   @override
   String get doc_action_run_workflow_practices_l2 =>
-      'Örtük genellere güvenmek yerine açık argümanlar iletin.';
+      'Ãƒâ€“rtÃƒÂ¼k genellere gÃƒÂ¼venmek yerine aÃƒÂ§Ã„Â±k argÃƒÂ¼manlar iletin.';
 
   @override
   String get doc_action_run_workflow_practices_l3 =>
-      'Alt rutinleri (oluştur, kapat, ata, ilet) modellemek için giriş noktalarını kullanın.';
+      'Alt rutinleri (oluÃ…Å¸tur, kapat, ata, ilet) modellemek iÃƒÂ§in giriÃ…Å¸ noktalarÃ„Â±nÃ„Â± kullanÃ„Â±n.';
 
   @override
-  String get doc_action_run_workflow_section_practices => 'En İyi Uygulamalar';
+  String get doc_action_run_workflow_section_practices =>
+      'En Ã„Â°yi Uygulamalar';
 
   @override
   String get doc_action_run_workflow_subtitle =>
-      'Başka bir iş akışını giriş noktası ve argümanlarla çağırır.';
+      'BaÃ…Å¸ka bir iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â±nÃ„Â± giriÃ…Å¸ noktasÃ„Â± ve argÃƒÂ¼manlarla ÃƒÂ§aÃ„Å¸Ã„Â±rÃ„Â±r.';
 
   @override
   String get doc_action_run_workflow_summary =>
-      'İş mantığını yeniden kullanılabilir birimlere ayırmak için temel bileşim ilkelidir.';
+      'Ã„Â°Ã…Å¸ mantÃ„Â±Ã„Å¸Ã„Â±nÃ„Â± yeniden kullanÃ„Â±labilir birimlere ayÃ„Â±rmak iÃƒÂ§in temel bileÃ…Å¸im ilkelidir.';
 
   @override
   String get doc_action_run_workflow_title => 'Eylem: runWorkflow';
 
   @override
   String get doc_action_stop_unless_example =>
-      'condition.variable = ((reaction.emoji.name))\ncondition.operator = equals\ncondition.value = ✅';
+      'condition.variable = ((reaction.emoji.name))\ncondition.operator = equals\ncondition.value = Ã¢Å“â€¦';
 
   @override
   String get doc_action_stop_unless_format_l1 =>
-      'Ham anahtarları kullanabilirsiniz: message.content[0]';
+      'Ham anahtarlarÃ„Â± kullanabilirsiniz: message.content[0]';
 
   @override
   String get doc_action_stop_unless_format_l2 =>
-      'Sarmalanmış değişkenleri kullanabilirsiniz: ((message.content[0]))';
+      'SarmalanmÃ„Â±Ã…Å¸ deÃ„Å¸iÃ…Å¸kenleri kullanabilirsiniz: ((message.content[0]))';
 
   @override
   String get doc_action_stop_unless_format_l3 =>
-      'Her ikisi de çalışma zamanı tarafından çözülür.';
+      'Her ikisi de ÃƒÂ§alÃ„Â±Ã…Å¸ma zamanÃ„Â± tarafÃ„Â±ndan ÃƒÂ§ÃƒÂ¶zÃƒÂ¼lÃƒÂ¼r.';
 
   @override
   String get doc_action_stop_unless_operators_l1 =>
-      'eşittir, eşitDeğildir, içerir, içermez, ileBaşlar, ileBiter';
+      'eÃ…Å¸ittir, eÃ…Å¸itDeÃ„Å¸ildir, iÃƒÂ§erir, iÃƒÂ§ermez, ileBaÃ…Å¸lar, ileBiter';
 
   @override
   String get doc_action_stop_unless_operators_l2 =>
-      'büyüktür, küçüktür, büyükEşittir, küçükEşittir';
+      'bÃƒÂ¼yÃƒÂ¼ktÃƒÂ¼r, kÃƒÂ¼ÃƒÂ§ÃƒÂ¼ktÃƒÂ¼r, bÃƒÂ¼yÃƒÂ¼kEÃ…Å¸ittir, kÃƒÂ¼ÃƒÂ§ÃƒÂ¼kEÃ…Å¸ittir';
 
   @override
   String get doc_action_stop_unless_operators_l3 =>
-      'boştur, boşDeğildir, eşleşir';
+      'boÃ…Å¸tur, boÃ…Å¸DeÃ„Å¸ildir, eÃ…Å¸leÃ…Å¸ir';
 
   @override
-  String get doc_action_stop_unless_section_format => 'Koşul Değişken Formatı';
+  String get doc_action_stop_unless_section_format =>
+      'KoÃ…Å¸ul DeÃ„Å¸iÃ…Å¸ken FormatÃ„Â±';
 
   @override
   String get doc_action_stop_unless_section_operators =>
-      'Desteklenen Operatörler';
+      'Desteklenen OperatÃƒÂ¶rler';
 
   @override
   String get doc_action_stop_unless_subtitle =>
-      'Koşul başarısız olduğunda iş akışını durduran muhafız cümlesi.';
+      'KoÃ…Å¸ul baÃ…Å¸arÃ„Â±sÃ„Â±z olduÃ„Å¸unda iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â±nÃ„Â± durduran muhafÃ„Â±z cÃƒÂ¼mlesi.';
 
   @override
   String get doc_action_stop_unless_summary =>
-      'Bağlam eşleşmediğinde gereksiz eylemleri önlemek için bunu iş akışlarının en başında kullanın.';
+      'BaÃ„Å¸lam eÃ…Å¸leÃ…Å¸mediÃ„Å¸inde gereksiz eylemleri ÃƒÂ¶nlemek iÃƒÂ§in bunu iÃ…Å¸ akÃ„Â±Ã…Å¸larÃ„Â±nÃ„Â±n en baÃ…Å¸Ã„Â±nda kullanÃ„Â±n.';
 
   @override
   String get doc_action_stop_unless_title => 'Eylem: stopUnless';
 
   @override
-  String get doc_available_variables => 'Kullanılabilir Değişkenler';
+  String get doc_available_variables => 'KullanÃ„Â±labilir DeÃ„Å¸iÃ…Å¸kenler';
 
   @override
-  String get doc_center_clear_search => 'Aramayı temizle';
+  String get doc_center_clear_search => 'AramayÃ„Â± temizle';
 
   @override
-  String get doc_center_empty => 'Aramanızla eşleşen belge girişi yok.';
+  String get doc_center_empty =>
+      'AramanÃ„Â±zla eÃ…Å¸leÃ…Å¸en belge giriÃ…Å¸i yok.';
 
   @override
   String get doc_center_search_hint =>
-      'Komutlar, iş akışları, değişkenler, eylemler, intentler veya örneklerde ara...';
+      'Komutlar, iÃ…Å¸ akÃ„Â±Ã…Å¸larÃ„Â±, deÃ„Å¸iÃ…Å¸kenler, eylemler, intentler veya ÃƒÂ¶rneklerde ara...';
 
   @override
   String get doc_center_title => 'Belgelendirme Merkezi';
 
   @override
-  String get doc_common_section_best_use_cases => 'En İyi Kullanım Durumları';
+  String get doc_common_section_best_use_cases =>
+      'En Ã„Â°yi KullanÃ„Â±m DurumlarÃ„Â±';
 
   @override
-  String get doc_common_section_important_notes => 'Önemli Notlar';
+  String get doc_common_section_important_notes => 'Ãƒâ€“nemli Notlar';
 
   @override
   String get doc_event_audit_log_create_best_use_l1 =>
-      'Hassas eylemlerde (rol silme, webhook oluşturma, yasaklama vb.) personeli uyarın.';
+      'Hassas eylemlerde (rol silme, webhook oluÃ…Å¸turma, yasaklama vb.) personeli uyarÃ„Â±n.';
 
   @override
   String get doc_event_audit_log_create_best_use_l2 =>
-      'Belirli eylem türlerini özel iş akışlarına yönlendirin.';
+      'Belirli eylem tÃƒÂ¼rlerini ÃƒÂ¶zel iÃ…Å¸ akÃ„Â±Ã…Å¸larÃ„Â±na yÃƒÂ¶nlendirin.';
 
   @override
   String get doc_event_audit_log_create_subtitle =>
-      'Yeni bir denetim kaydı girişi oluşturulduğunda tetiklenir.';
+      'Yeni bir denetim kaydÃ„Â± giriÃ…Å¸i oluÃ…Å¸turulduÃ„Å¸unda tetiklenir.';
 
   @override
   String get doc_event_audit_log_create_summary =>
-      'İdari güvenlik izleme için yüksek değerli etkinlik.';
+      'Ã„Â°dari gÃƒÂ¼venlik izleme iÃƒÂ§in yÃƒÂ¼ksek deÃ„Å¸erli etkinlik.';
 
   @override
   String get doc_event_audit_log_create_title =>
@@ -3784,151 +3893,151 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get doc_event_message_create_best_use_l1 =>
-      'Eğik çizgi komutu olmadan yazılan komutları algılayın.';
+      'EÃ„Å¸ik ÃƒÂ§izgi komutu olmadan yazÃ„Â±lan komutlarÃ„Â± algÃ„Â±layÃ„Â±n.';
 
   @override
   String get doc_event_message_create_best_use_l2 =>
-      'Yanıt vermeden önce spam önleme filtreleri uygulayın.';
+      'YanÃ„Â±t vermeden ÃƒÂ¶nce spam ÃƒÂ¶nleme filtreleri uygulayÃ„Â±n.';
 
   @override
   String get doc_event_message_create_best_use_l3 =>
-      'İlk kelimeye veya bahsetmeye göre yeniden kullanılabilir iş akışlarına yönlendirin.';
+      'Ã„Â°lk kelimeye veya bahsetmeye gÃƒÂ¶re yeniden kullanÃ„Â±labilir iÃ…Å¸ akÃ„Â±Ã…Å¸larÃ„Â±na yÃƒÂ¶nlendirin.';
 
   @override
   String get doc_event_message_create_example =>
-      'Muhafız: ((message.isBot)) eşittir false\nMuhafız: ((message.content[0])) eşittir !bilet\nO halde: runWorkflow -> bilet_yoneticisi giris=olustur';
+      'MuhafÃ„Â±z: ((message.isBot)) eÃ…Å¸ittir false\nMuhafÃ„Â±z: ((message.content[0])) eÃ…Å¸ittir !bilet\nO halde: runWorkflow -> bilet_yoneticisi giris=olustur';
 
   @override
-  String get doc_event_message_create_intent_1 => 'Sunucu Mesajları';
+  String get doc_event_message_create_intent_1 => 'Sunucu MesajlarÃ„Â±';
 
   @override
-  String get doc_event_message_create_intent_2 => 'Mesaj İçeriği';
+  String get doc_event_message_create_intent_2 => 'Mesaj Ã„Â°ÃƒÂ§eriÃ„Å¸i';
 
   @override
   String get doc_event_message_create_notes_l1 =>
-      'Mesaj İçeriği intent\'i kapalıysa, içeriğe bağlı koşullar başarısız olabilir.';
+      'Mesaj Ã„Â°ÃƒÂ§eriÃ„Å¸i intent\'i kapalÃ„Â±ysa, iÃƒÂ§eriÃ„Å¸e baÃ„Å¸lÃ„Â± koÃ…Å¸ullar baÃ…Å¸arÃ„Â±sÃ„Â±z olabilir.';
 
   @override
   String get doc_event_message_create_notes_l2 =>
-      'message.content[indeks] kelime tabanlıdır ve çalışma zamanı çıkarımı ile sınırlıdır.';
+      'message.content[indeks] kelime tabanlÃ„Â±dÃ„Â±r ve ÃƒÂ§alÃ„Â±Ã…Å¸ma zamanÃ„Â± ÃƒÂ§Ã„Â±karÃ„Â±mÃ„Â± ile sÃ„Â±nÃ„Â±rlÃ„Â±dÃ„Â±r.';
 
   @override
   String get doc_event_message_create_notes_l3 =>
-      'author.isBot, bot döngülerinden kaçınmaya yardımcı olabilir.';
+      'author.isBot, bot dÃƒÂ¶ngÃƒÂ¼lerinden kaÃƒÂ§Ã„Â±nmaya yardÃ„Â±mcÃ„Â± olabilir.';
 
   @override
   String get doc_event_message_create_subtitle =>
-      'Her yeni oluşturulan mesaj için tetiklenir.';
+      'Her yeni oluÃ…Å¸turulan mesaj iÃƒÂ§in tetiklenir.';
 
   @override
   String get doc_event_message_create_summary =>
-      'Bu etkinliği moderasyon, anahtar kelime boru hatları, otomatik yanıtlar, komut tarzı ayrıştırma ve analitik için kullanın.';
+      'Bu etkinliÃ„Å¸i moderasyon, anahtar kelime boru hatlarÃ„Â±, otomatik yanÃ„Â±tlar, komut tarzÃ„Â± ayrÃ„Â±Ã…Å¸tÃ„Â±rma ve analitik iÃƒÂ§in kullanÃ„Â±n.';
 
   @override
   String get doc_event_message_create_title => 'Etkinlik: messageCreate';
 
   @override
   String get doc_event_poll_vote_add_best_use_l1 =>
-      'Her cevap ID\'sini farklı bir eylem dalına eşleyin.';
+      'Her cevap ID\'sini farklÃ„Â± bir eylem dalÃ„Â±na eÃ…Å¸leyin.';
 
   @override
   String get doc_event_poll_vote_add_best_use_l2 =>
-      'Kanal veya kullanıcı grubu başına anket katılımını takip edin.';
+      'Kanal veya kullanÃ„Â±cÃ„Â± grubu baÃ…Å¸Ã„Â±na anket katÃ„Â±lÃ„Â±mÃ„Â±nÃ„Â± takip edin.';
 
   @override
-  String get doc_event_poll_vote_add_intent => 'Sunucu Mesajları';
+  String get doc_event_poll_vote_add_intent => 'Sunucu MesajlarÃ„Â±';
 
   @override
   String get doc_event_poll_vote_add_notes_l1 =>
-      'poll.answer.id yönlendirme için en kararlı anahtardır.';
+      'poll.answer.id yÃƒÂ¶nlendirme iÃƒÂ§in en kararlÃ„Â± anahtardÃ„Â±r.';
 
   @override
   String get doc_event_poll_vote_add_notes_l2 =>
-      'poll.question isteğe bağlıdır ve yüke bağlı olarak boş olabilir.';
+      'poll.question isteÃ„Å¸e baÃ„Å¸lÃ„Â±dÃ„Â±r ve yÃƒÂ¼ke baÃ„Å¸lÃ„Â± olarak boÃ…Å¸ olabilir.';
 
   @override
   String get doc_event_poll_vote_add_subtitle =>
-      'Bir kullanıcı bir anket cevabına oy verdiğinde tetiklenir.';
+      'Bir kullanÃ„Â±cÃ„Â± bir anket cevabÃ„Â±na oy verdiÃ„Å¸inde tetiklenir.';
 
   @override
   String get doc_event_poll_vote_add_summary =>
-      'Puan takibi, anket seçeneğine göre rol atama ve anket işleme için kullanışlıdır.';
+      'Puan takibi, anket seÃƒÂ§eneÃ„Å¸ine gÃƒÂ¶re rol atama ve anket iÃ…Å¸leme iÃƒÂ§in kullanÃ„Â±Ã…Å¸lÃ„Â±dÃ„Â±r.';
 
   @override
   String get doc_event_poll_vote_add_title => 'Etkinlik: messagePollVoteAdd';
 
   @override
   String get doc_event_reaction_add_best_use_l1 =>
-      'Unicode emoji ile onaylama/reddetme akışları.';
+      'Unicode emoji ile onaylama/reddetme akÃ„Â±Ã…Å¸larÃ„Â±.';
 
   @override
   String get doc_event_reaction_add_best_use_l2 =>
-      'Özel emoji ID\'leri kullanarak çok adımlı anketler.';
+      'Ãƒâ€“zel emoji ID\'leri kullanarak ÃƒÂ§ok adÃ„Â±mlÃ„Â± anketler.';
 
   @override
   String get doc_event_reaction_add_best_use_l3 =>
-      'Personel kanallarından hızlı moderasyon sinyalleri.';
+      'Personel kanallarÃ„Â±ndan hÃ„Â±zlÃ„Â± moderasyon sinyalleri.';
 
   @override
   String get doc_event_reaction_add_example =>
-      'Muhafız: ((reaction.emoji.name)) eşittir ✅\nEylem: addRole -> kullanici=((userId)) rol=((global.approvedRoleId))';
+      'MuhafÃ„Â±z: ((reaction.emoji.name)) eÃ…Å¸ittir Ã¢Å“â€¦\nEylem: addRole -> kullanici=((userId)) rol=((global.approvedRoleId))';
 
   @override
   String get doc_event_reaction_add_intent => 'Sunucu Mesaj Tepkileri';
 
   @override
   String get doc_event_reaction_add_notes_l1 =>
-      'Unicode emojiler için reaction.emoji.id boş olabilir.';
+      'Unicode emojiler iÃƒÂ§in reaction.emoji.id boÃ…Å¸ olabilir.';
 
   @override
   String get doc_event_reaction_add_notes_l2 =>
-      'Genel eşleştirme için reaction.emoji.name kullanın.';
+      'Genel eÃ…Å¸leÃ…Å¸tirme iÃƒÂ§in reaction.emoji.name kullanÃ„Â±n.';
 
   @override
   String get doc_event_reaction_add_notes_l3 =>
-      'Katı özel emoji eşleştirmesi için reaction.emoji.id kullanın.';
+      'KatÃ„Â± ÃƒÂ¶zel emoji eÃ…Å¸leÃ…Å¸tirmesi iÃƒÂ§in reaction.emoji.id kullanÃ„Â±n.';
 
   @override
   String get doc_event_reaction_add_subtitle =>
-      'Bir kullanıcı bir mesaja tepki eklediğinde tetiklenir.';
+      'Bir kullanÃ„Â±cÃ„Â± bir mesaja tepki eklediÃ„Å¸inde tetiklenir.';
 
   @override
   String get doc_event_reaction_add_summary =>
-      'Bileşenler olmadan düğme benzeri kullanıcı deneyimi, oylama sistemleri, rol menüleri ve hafif onaylar için idealdir.';
+      'BileÃ…Å¸enler olmadan dÃƒÂ¼Ã„Å¸me benzeri kullanÃ„Â±cÃ„Â± deneyimi, oylama sistemleri, rol menÃƒÂ¼leri ve hafif onaylar iÃƒÂ§in idealdir.';
 
   @override
   String get doc_event_reaction_add_title => 'Etkinlik: messageReactionAdd';
 
   @override
   String get doc_event_user_update_notes_l1 =>
-      'Bu etkinlik için çoğu durumda kanal bağlamı yoktur.';
+      'Bu etkinlik iÃƒÂ§in ÃƒÂ§oÃ„Å¸u durumda kanal baÃ„Å¸lamÃ„Â± yoktur.';
 
   @override
   String get doc_event_user_update_notes_l2 =>
-      'Doğrudan kullanıcıya yönelik yanıtlar yerine günlükleme + moderasyon uyarılarını tercih edin.';
+      'DoÃ„Å¸rudan kullanÃ„Â±cÃ„Â±ya yÃƒÂ¶nelik yanÃ„Â±tlar yerine gÃƒÂ¼nlÃƒÂ¼kleme + moderasyon uyarÃ„Â±larÃ„Â±nÃ„Â± tercih edin.';
 
   @override
   String get doc_event_user_update_subtitle =>
-      'Kullanıcı profili verileri değiştiğinde tetiklenir.';
+      'KullanÃ„Â±cÃ„Â± profili verileri deÃ„Å¸iÃ…Å¸tiÃ„Å¸inde tetiklenir.';
 
   @override
   String get doc_event_user_update_summary =>
-      'Profil değişikliği denetimi ve kullanıcı adı/avatar odaklı tetikleyiciler için kullanışlıdır.';
+      'Profil deÃ„Å¸iÃ…Å¸ikliÃ„Å¸i denetimi ve kullanÃ„Â±cÃ„Â± adÃ„Â±/avatar odaklÃ„Â± tetikleyiciler iÃƒÂ§in kullanÃ„Â±Ã…Å¸lÃ„Â±dÃ„Â±r.';
 
   @override
   String get doc_event_user_update_title => 'Etkinlik: userUpdate';
 
   @override
   String get doc_event_voice_state_update_automations_l1 =>
-      'Kendi kendini susturma/sağırlaştırma politikası ihlallerini tespit edin.';
+      'Kendi kendini susturma/saÃ„Å¸Ã„Â±rlaÃ…Å¸tÃ„Â±rma politikasÃ„Â± ihlallerini tespit edin.';
 
   @override
   String get doc_event_voice_state_update_automations_l2 =>
-      'Destek kanalları için sese katılımda karşılama mesajı tetikleyin.';
+      'Destek kanallarÃ„Â± iÃƒÂ§in sese katÃ„Â±lÃ„Â±mda karÃ…Å¸Ã„Â±lama mesajÃ„Â± tetikleyin.';
 
   @override
   String get doc_event_voice_state_update_automations_l3 =>
-      'Kanal değişikliklerini kullanarak ayrılma/katılma modellerini günlüğe gelin.';
+      'Kanal deÃ„Å¸iÃ…Å¸ikliklerini kullanarak ayrÃ„Â±lma/katÃ„Â±lma modellerini gÃƒÂ¼nlÃƒÂ¼Ã„Å¸e gelin.';
 
   @override
   String get doc_event_voice_state_update_intent => 'Sunucular';
@@ -3938,121 +4047,121 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get doc_event_voice_state_update_subtitle =>
-      'Bir kullanıcı için ses durumu değiştiğinde tetiklenir.';
+      'Bir kullanÃ„Â±cÃ„Â± iÃƒÂ§in ses durumu deÃ„Å¸iÃ…Å¸tiÃ„Å¸inde tetiklenir.';
 
   @override
   String get doc_event_voice_state_update_summary =>
-      'Bunu ses kanallarında otomatik moderasyon, katılım kontrolleri ve ses otomasyonu için kullanın.';
+      'Bunu ses kanallarÃ„Â±nda otomatik moderasyon, katÃ„Â±lÃ„Â±m kontrolleri ve ses otomasyonu iÃƒÂ§in kullanÃ„Â±n.';
 
   @override
   String get doc_event_voice_state_update_title => 'Etkinlik: voiceStateUpdate';
 
   @override
-  String get doc_example => 'Örnek';
+  String get doc_example => 'Ãƒâ€“rnek';
 
   @override
   String doc_interaction_commands_example(String name, String id) {
-    return 'Otomatik tamamlama iş akışı:\nquery = ((autocomplete.query))\nqueryArray -> items=((httpSearch.body))\nrespondWithAutocomplete -> label=\'$name\' value=\'$id\'';
+    return 'Otomatik tamamlama iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â±:\nquery = ((autocomplete.query))\nqueryArray -> items=((httpSearch.body))\nrespondWithAutocomplete -> label=\'$name\' value=\'$id\'';
   }
 
   @override
   String get doc_interaction_commands_section_builtin_title =>
-      'Yerleşik Komut Değişkenleri';
+      'YerleÃ…Å¸ik Komut DeÃ„Å¸iÃ…Å¸kenleri';
 
   @override
   String get doc_interaction_commands_section_execution_l1 =>
-      'Eğik çizgi, kullanıcı ve mesaj komutlarının tümü çalıştırıcıya uygulama komut etkileşimleri olarak girer.';
+      'EÃ„Å¸ik ÃƒÂ§izgi, kullanÃ„Â±cÃ„Â± ve mesaj komutlarÃ„Â±nÃ„Â±n tÃƒÂ¼mÃƒÂ¼ ÃƒÂ§alÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±cÃ„Â±ya uygulama komut etkileÃ…Å¸imleri olarak girer.';
 
   @override
   String get doc_interaction_commands_section_execution_l2 =>
-      'Çalıştırıcı, komutları Discord komut ID\'si ile eşleştirir, ardından saklanan türü gelen türle doğrular.';
+      'Ãƒâ€¡alÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±cÃ„Â±, komutlarÃ„Â± Discord komut ID\'si ile eÃ…Å¸leÃ…Å¸tirir, ardÃ„Â±ndan saklanan tÃƒÂ¼rÃƒÂ¼ gelen tÃƒÂ¼rle doÃ„Å¸rular.';
 
   @override
   String get doc_interaction_commands_section_execution_l3 =>
-      'Tür uyuşmazlığı uyarı olarak günlüğe kaydedilir ancak yürütmeyi sert bir şekilde durdurmaz.';
+      'TÃƒÂ¼r uyuÃ…Å¸mazlÃ„Â±Ã„Å¸Ã„Â± uyarÃ„Â± olarak gÃƒÂ¼nlÃƒÂ¼Ã„Å¸e kaydedilir ancak yÃƒÂ¼rÃƒÂ¼tmeyi sert bir Ã…Å¸ekilde durdurmaz.';
 
   @override
   String get doc_interaction_commands_section_execution_title =>
-      'Yürütme Modeli';
+      'YÃƒÂ¼rÃƒÂ¼tme Modeli';
 
   @override
   String get doc_interaction_commands_section_guidance_l1 =>
-      'commandType or interaction.command.type\'a karşı koşullu mantık yazın.';
+      'commandType or interaction.command.type\'a karÃ…Å¸Ã„Â± koÃ…Å¸ullu mantÃ„Â±k yazÃ„Â±n.';
 
   @override
   String get doc_interaction_commands_section_guidance_l2 =>
-      'Eğik çizgi olan ve olmayan komutlar arasında bir şablon paylaşırken geri dönüş sözdizimini tercih edin ve ayrılmış otomatik tamamlama iş akışları içinde autocomplete.query kullanın.';
+      'EÃ„Å¸ik ÃƒÂ§izgi olan ve olmayan komutlar arasÃ„Â±nda bir Ã…Å¸ablon paylaÃ…Å¸Ã„Â±rken geri dÃƒÂ¶nÃƒÂ¼Ã…Å¸ sÃƒÂ¶zdizimini tercih edin ve ayrÃ„Â±lmÃ„Â±Ã…Å¸ otomatik tamamlama iÃ…Å¸ akÃ„Â±Ã…Å¸larÃ„Â± iÃƒÂ§inde autocomplete.query kullanÃ„Â±n.';
 
   @override
   String get doc_interaction_commands_section_guidance_l3 =>
-      'Komut iş akışlarında yalnızca etkinliğe özel adlardan kaçınarak şablonları taşınabilir tutun; dinamik otomatik tamamlama respondWithAutocomplete ile biten genel bir iş akışı gerektirir.';
+      'Komut iÃ…Å¸ akÃ„Â±Ã…Å¸larÃ„Â±nda yalnÃ„Â±zca etkinliÃ„Å¸e ÃƒÂ¶zel adlardan kaÃƒÂ§Ã„Â±narak Ã…Å¸ablonlarÃ„Â± taÃ…Å¸Ã„Â±nabilir tutun; dinamik otomatik tamamlama respondWithAutocomplete ile biten genel bir iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â± gerektirir.';
 
   @override
   String get doc_interaction_commands_section_guidance_title => 'Yazma Rehberi';
 
   @override
   String get doc_interaction_commands_section_per_type_l1 =>
-      'chatInput: parametreler ve alt komutlar için opts.*.';
+      'chatInput: parametreler ve alt komutlar iÃƒÂ§in opts.*.';
 
   @override
   String get doc_interaction_commands_section_per_type_l2 =>
-      'user: mevcut olduğunda target.user.* ve target.member.*.';
+      'user: mevcut olduÃ„Å¸unda target.user.* ve target.member.*.';
 
   @override
   String get doc_interaction_commands_section_per_type_l3 =>
-      'message: içerik ve çözüldüğünde yazar ID\'si dahil target.message.*.';
+      'message: iÃƒÂ§erik ve ÃƒÂ§ÃƒÂ¶zÃƒÂ¼ldÃƒÂ¼Ã„Å¸ÃƒÂ¼nde yazar ID\'si dahil target.message.*.';
 
   @override
   String get doc_interaction_commands_section_per_type_title =>
-      'Tür Başına Değişkenler';
+      'TÃƒÂ¼r BaÃ…Å¸Ã„Â±na DeÃ„Å¸iÃ…Å¸kenler';
 
   @override
   String get doc_interaction_commands_subtitle =>
-      'Eğik çizgi, kullanıcı ve mesaj komutlarının çalışma zamanı davranışı.';
+      'EÃ„Å¸ik ÃƒÂ§izgi, kullanÃ„Â±cÃ„Â± ve mesaj komutlarÃ„Â±nÃ„Â±n ÃƒÂ§alÃ„Â±Ã…Å¸ma zamanÃ„Â± davranÃ„Â±Ã…Å¸Ã„Â±.';
 
   @override
   String get doc_interaction_commands_summary =>
-      'Uygulama komutları, Discord komut türüne bağlı olarak çalışma zamanı değişkenleri ile paylaşılan bir etkileşim yolu üzerinden yürütülür.';
+      'Uygulama komutlarÃ„Â±, Discord komut tÃƒÂ¼rÃƒÂ¼ne baÃ„Å¸lÃ„Â± olarak ÃƒÂ§alÃ„Â±Ã…Å¸ma zamanÃ„Â± deÃ„Å¸iÃ…Å¸kenleri ile paylaÃ…Å¸Ã„Â±lan bir etkileÃ…Å¸im yolu ÃƒÂ¼zerinden yÃƒÂ¼rÃƒÂ¼tÃƒÂ¼lÃƒÂ¼r.';
 
   @override
-  String get doc_interaction_commands_title => 'Etkileşim Komutları';
+  String get doc_interaction_commands_title => 'EtkileÃ…Å¸im KomutlarÃ„Â±';
 
   @override
   String get doc_kind_action => 'Eylem';
 
   @override
-  String get doc_kind_all => 'Tümü';
+  String get doc_kind_all => 'TÃƒÂ¼mÃƒÂ¼';
 
   @override
   String get doc_kind_event => 'Etkinlik';
 
   @override
-  String get doc_kind_runtime => 'Çalışma Zamanı';
+  String get doc_kind_runtime => 'Ãƒâ€¡alÃ„Â±Ã…Å¸ma ZamanÃ„Â±';
 
   @override
-  String get doc_kind_template => 'Şablon';
+  String get doc_kind_template => 'Ã…Å¾ablon';
 
   @override
   String get doc_required_intents => 'Gerekli Intentler';
 
   @override
   String get doc_runtime_action_outputs_example =>
-      'Durum: ((action.http.status|http.status|unknown))\nGövde: ((action.http.body|http.body))\nSilinen: ((cleanup.count|0))\nToplam: ((page.total|0))';
+      'Durum: ((action.http.status|http.status|unknown))\nGÃƒÂ¶vde: ((action.http.body|http.body))\nSilinen: ((cleanup.count|0))\nToplam: ((page.total|0))';
 
   @override
   String get doc_runtime_action_outputs_section_caveats_l1 =>
-      'Her eylem her son eki ortaya çıkarmaz; kullanılabilirlik yürütücüye özeldir.';
+      'Her eylem her son eki ortaya ÃƒÂ§Ã„Â±karmaz; kullanÃ„Â±labilirlik yÃƒÂ¼rÃƒÂ¼tÃƒÂ¼cÃƒÂ¼ye ÃƒÂ¶zeldir.';
 
   @override
   String get doc_runtime_action_outputs_section_caveats_l2 =>
-      'Taşınabilirlik için isteğe bağlı çıktı alanlarını okurken geri dönüş ifadelerini tercih edin.';
+      'TaÃ…Å¸Ã„Â±nabilirlik iÃƒÂ§in isteÃ„Å¸e baÃ„Å¸lÃ„Â± ÃƒÂ§Ã„Â±ktÃ„Â± alanlarÃ„Â±nÃ„Â± okurken geri dÃƒÂ¶nÃƒÂ¼Ã…Å¸ ifadelerini tercih edin.';
 
   @override
   String get doc_runtime_action_outputs_section_caveats_l3 =>
-      'Bir anahtar eksikse, şablon çözümü boş bir dize döndürür.';
+      'Bir anahtar eksikse, Ã…Å¸ablon ÃƒÂ§ÃƒÂ¶zÃƒÂ¼mÃƒÂ¼ boÃ…Å¸ bir dize dÃƒÂ¶ndÃƒÂ¼rÃƒÂ¼r.';
 
   @override
-  String get doc_runtime_action_outputs_section_caveats_title => 'Uyarılar';
+  String get doc_runtime_action_outputs_section_caveats_title => 'UyarÃ„Â±lar';
 
   @override
   String get doc_runtime_action_outputs_section_common_fields_l1 =>
@@ -4060,7 +4169,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get doc_runtime_action_outputs_section_common_fields_l2 =>
-      'Mesajlaşma/liste eylemleri: count, mode, deleteItself, deleteResponse.';
+      'MesajlaÃ…Å¸ma/liste eylemleri: count, mode, deleteItself, deleteResponse.';
 
   @override
   String get doc_runtime_action_outputs_section_common_fields_l3 =>
@@ -4068,149 +4177,151 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get doc_runtime_action_outputs_section_common_fields_l4 =>
-      'Diğer yürütücüler result veya messageId alanlarını ortaya çıkarabilir.';
+      'DiÃ„Å¸er yÃƒÂ¼rÃƒÂ¼tÃƒÂ¼cÃƒÂ¼ler result veya messageId alanlarÃ„Â±nÃ„Â± ortaya ÃƒÂ§Ã„Â±karabilir.';
 
   @override
   String get doc_runtime_action_outputs_section_common_fields_title =>
-      'Ortak Çıktı Alanları';
+      'Ortak Ãƒâ€¡Ã„Â±ktÃ„Â± AlanlarÃ„Â±';
 
   @override
   String get doc_runtime_action_outputs_section_patterns_l1 =>
-      'Birincil çıktı genellikle <sonucAnahtari> olarak saklanır.';
+      'Birincil ÃƒÂ§Ã„Â±ktÃ„Â± genellikle <sonucAnahtari> olarak saklanÃ„Â±r.';
 
   @override
   String get doc_runtime_action_outputs_section_patterns_l2 =>
-      'Birçok yürütücü, netlik ve ad alanı için action.<sonucAnahtari>.* alanlarını da ortaya çıkarır.';
+      'BirÃƒÂ§ok yÃƒÂ¼rÃƒÂ¼tÃƒÂ¼cÃƒÂ¼, netlik ve ad alanÃ„Â± iÃƒÂ§in action.<sonucAnahtari>.* alanlarÃ„Â±nÃ„Â± da ortaya ÃƒÂ§Ã„Â±karÃ„Â±r.';
 
   @override
   String get doc_runtime_action_outputs_section_patterns_l3 =>
-      'Bazı alanlar action. ön ekiyle ve ön eksiz olarak aynalanır.';
+      'BazÃ„Â± alanlar action. ÃƒÂ¶n ekiyle ve ÃƒÂ¶n eksiz olarak aynalanÃ„Â±r.';
 
   @override
   String get doc_runtime_action_outputs_section_patterns_title =>
-      'Çıktı Kalıpları';
+      'Ãƒâ€¡Ã„Â±ktÃ„Â± KalÃ„Â±plarÃ„Â±';
 
   @override
   String get doc_runtime_action_outputs_subtitle =>
-      'Eylem sonuç anahtarlarının çalışma zamanı değişkenleri olarak nasıl ortaya çıktığı.';
+      'Eylem sonuÃƒÂ§ anahtarlarÃ„Â±nÃ„Â±n ÃƒÂ§alÃ„Â±Ã…Å¸ma zamanÃ„Â± deÃ„Å¸iÃ…Å¸kenleri olarak nasÃ„Â±l ortaya ÃƒÂ§Ã„Â±ktÃ„Â±Ã„Å¸Ã„Â±.';
 
   @override
   String get doc_runtime_action_outputs_summary =>
-      'Çoğu eylem birincil bir sonuç anahtarı yazar ve ayrıca yürütücüye bağlı olarak action.<sonucAnahtari>.* altında ön ekli alanlar ortaya çıkarabilir.';
+      'Ãƒâ€¡oÃ„Å¸u eylem birincil bir sonuÃƒÂ§ anahtarÃ„Â± yazar ve ayrÃ„Â±ca yÃƒÂ¼rÃƒÂ¼tÃƒÂ¼cÃƒÂ¼ye baÃ„Å¸lÃ„Â± olarak action.<sonucAnahtari>.* altÃ„Â±nda ÃƒÂ¶n ekli alanlar ortaya ÃƒÂ§Ã„Â±karabilir.';
 
   @override
   String get doc_runtime_action_outputs_title =>
-      'Çalışma Zamanı Eylem Çıktıları';
+      'Ãƒâ€¡alÃ„Â±Ã…Å¸ma ZamanÃ„Â± Eylem Ãƒâ€¡Ã„Â±ktÃ„Â±larÃ„Â±';
 
   @override
   String get doc_runtime_execution_flow_section_parity_l1 =>
-      'Değişkenler yerel uygulama çalışma zamanı ile çalıştırıcı çalışma zamanı arasında aynı olmalıdır.';
+      'DeÃ„Å¸iÃ…Å¸kenler yerel uygulama ÃƒÂ§alÃ„Â±Ã…Å¸ma zamanÃ„Â± ile ÃƒÂ§alÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±cÃ„Â± ÃƒÂ§alÃ„Â±Ã…Å¸ma zamanÃ„Â± arasÃ„Â±nda aynÃ„Â± olmalÃ„Â±dÃ„Â±r.';
 
   @override
   String get doc_runtime_execution_flow_section_parity_l2 =>
-      'Taşınabilir kalmak için koşullarda aynı değişken adlarını kullanın.';
+      'TaÃ…Å¸Ã„Â±nabilir kalmak iÃƒÂ§in koÃ…Å¸ullarda aynÃ„Â± deÃ„Å¸iÃ…Å¸ken adlarÃ„Â±nÃ„Â± kullanÃ„Â±n.';
 
   @override
   String get doc_runtime_execution_flow_section_parity_title =>
-      'Eşitlik Kuralı';
+      'EÃ…Å¸itlik KuralÃ„Â±';
 
   @override
   String get doc_runtime_execution_flow_section_pipeline_l1 =>
-      '1) Gateway etkinliğini al.';
+      '1) Gateway etkinliÃ„Å¸ini al.';
 
   @override
   String get doc_runtime_execution_flow_section_pipeline_l2 =>
-      '2) Bağlam değişkenleri haritasını oluştur.';
+      '2) BaÃ„Å¸lam deÃ„Å¸iÃ…Å¸kenleri haritasÃ„Â±nÃ„Â± oluÃ…Å¸tur.';
 
   @override
   String get doc_runtime_execution_flow_section_pipeline_l3 =>
-      '3) İş akışlarını etkinlik adıyla eşleştir.';
+      '3) Ã„Â°Ã…Å¸ akÃ„Â±Ã…Å¸larÃ„Â±nÃ„Â± etkinlik adÃ„Â±yla eÃ…Å¸leÃ…Å¸tir.';
 
   @override
   String get doc_runtime_execution_flow_section_pipeline_l4 =>
-      '4) Genel değişkenleri birleştir.';
+      '4) Genel deÃ„Å¸iÃ…Å¸kenleri birleÃ…Å¸tir.';
 
   @override
   String get doc_runtime_execution_flow_section_pipeline_l5 =>
-      '5) Eylemleri koşullarla sırayla yürüt.';
+      '5) Eylemleri koÃ…Å¸ullarla sÃ„Â±rayla yÃƒÂ¼rÃƒÂ¼t.';
 
   @override
-  String get doc_runtime_execution_flow_section_pipeline_title => 'Boru Hattı';
+  String get doc_runtime_execution_flow_section_pipeline_title =>
+      'Boru HattÃ„Â±';
 
   @override
   String get doc_runtime_execution_flow_subtitle =>
-      'Etkinlik iş akışlarının nasıl seçildiği ve yürütüldüğü.';
+      'Etkinlik iÃ…Å¸ akÃ„Â±Ã…Å¸larÃ„Â±nÃ„Â±n nasÃ„Â±l seÃƒÂ§ildiÃ„Å¸i ve yÃƒÂ¼rÃƒÂ¼tÃƒÂ¼ldÃƒÂ¼Ã„Å¸ÃƒÂ¼.';
 
   @override
   String get doc_runtime_execution_flow_summary =>
-      'Bir etkinlik geldiğinde, çalışma zamanı yapılandırılmış iş akışlarını eventTrigger.event ile eşleştirir, ardından eylemleri bağlam değişkenleriyle yürütür.';
+      'Bir etkinlik geldiÃ„Å¸inde, ÃƒÂ§alÃ„Â±Ã…Å¸ma zamanÃ„Â± yapÃ„Â±landÃ„Â±rÃ„Â±lmÃ„Â±Ã…Å¸ iÃ…Å¸ akÃ„Â±Ã…Å¸larÃ„Â±nÃ„Â± eventTrigger.event ile eÃ…Å¸leÃ…Å¸tirir, ardÃ„Â±ndan eylemleri baÃ„Å¸lam deÃ„Å¸iÃ…Å¸kenleriyle yÃƒÂ¼rÃƒÂ¼tÃƒÂ¼r.';
 
   @override
-  String get doc_runtime_execution_flow_title => 'Çalışma Zamanı Yürütme Akışı';
+  String get doc_runtime_execution_flow_title =>
+      'Ãƒâ€¡alÃ„Â±Ã…Å¸ma ZamanÃ„Â± YÃƒÂ¼rÃƒÂ¼tme AkÃ„Â±Ã…Å¸Ã„Â±';
 
   @override
   String get doc_template_advanced_variables_example =>
-      'Tür: ((interaction.kind))\nSeçilen sayı: ((interaction.values.count|0))\nKonu sahibi: ((channel.thread.ownerId|unknown))\nSunucu yük türü: ((guild.kind|n/a))';
+      'TÃƒÂ¼r: ((interaction.kind))\nSeÃƒÂ§ilen sayÃ„Â±: ((interaction.values.count|0))\nKonu sahibi: ((channel.thread.ownerId|unknown))\nSunucu yÃƒÂ¼k tÃƒÂ¼rÃƒÂ¼: ((guild.kind|n/a))';
 
   @override
   String get doc_template_advanced_variables_section_aliases_l1 =>
-      'Yapılandırılmış kullanıcı takma adları (user.id, user.username, user.tag, user.avatar, user.banner) birçok komut bağlamında mevcuttur.';
+      'YapÃ„Â±landÃ„Â±rÃ„Â±lmÃ„Â±Ã…Å¸ kullanÃ„Â±cÃ„Â± takma adlarÃ„Â± (user.id, user.username, user.tag, user.avatar, user.banner) birÃƒÂ§ok komut baÃ„Å¸lamÃ„Â±nda mevcuttur.';
 
   @override
   String get doc_template_advanced_variables_section_aliases_l2 =>
-      'member.id hem kullanıcı hem de sunucu üyesi bağlamı gerektiğinde yararlı olabilir.';
+      'member.id hem kullanÃ„Â±cÃ„Â± hem de sunucu ÃƒÂ¼yesi baÃ„Å¸lamÃ„Â± gerektiÃ„Å¸inde yararlÃ„Â± olabilir.';
 
   @override
   String get doc_template_advanced_variables_section_aliases_title =>
-      'Kullanıcı ve Üye Takma Adları';
+      'KullanÃ„Â±cÃ„Â± ve ÃƒÅ“ye Takma AdlarÃ„Â±';
 
   @override
   String get doc_template_advanced_variables_section_channel_guild_l1 =>
-      'channel.kind, channel.position, channel.bitrate ve channel.userLimit bağlama bağlı kanal ayrıntılarıdır.';
+      'channel.kind, channel.position, channel.bitrate ve channel.userLimit baÃ„Å¸lama baÃ„Å¸lÃ„Â± kanal ayrÃ„Â±ntÃ„Â±larÃ„Â±dÃ„Â±r.';
 
   @override
   String get doc_template_advanced_variables_section_channel_guild_l2 =>
-      'Konu (Thread) bağlamları channel.thread.* değerlerini (archived, locked, ownerId, autoArchiveDuration) ortaya çıkarabilir.';
+      'Konu (Thread) baÃ„Å¸lamlarÃ„Â± channel.thread.* deÃ„Å¸erlerini (archived, locked, ownerId, autoArchiveDuration) ortaya ÃƒÂ§Ã„Â±karabilir.';
 
   @override
   String get doc_template_advanced_variables_section_channel_guild_l3 =>
-      'guild.kind gelişmiş iş akışlarında kısmi/tam sunucu yüklerini ayırt etmeye yardımcı olur.';
+      'guild.kind geliÃ…Å¸miÃ…Å¸ iÃ…Å¸ akÃ„Â±Ã…Å¸larÃ„Â±nda kÃ„Â±smi/tam sunucu yÃƒÂ¼klerini ayÃ„Â±rt etmeye yardÃ„Â±mcÃ„Â± olur.';
 
   @override
   String get doc_template_advanced_variables_section_channel_guild_title =>
-      'Kanal ve Sunucu Ayrıntıları';
+      'Kanal ve Sunucu AyrÃ„Â±ntÃ„Â±larÃ„Â±';
 
   @override
   String get doc_template_advanced_variables_section_interaction_l1 =>
-      'interaction.kind gelen etkileşim modunu tanımlar (button, select, modal, command, autocomplete).';
+      'interaction.kind gelen etkileÃ…Å¸im modunu tanÃ„Â±mlar (button, select, modal, command, autocomplete).';
 
   @override
   String get doc_template_advanced_variables_section_interaction_l2 =>
-      'interaction.values ve interaction.values.count seçim menüleri için doldurulur.';
+      'interaction.values ve interaction.values.count seÃƒÂ§im menÃƒÂ¼leri iÃƒÂ§in doldurulur.';
 
   @override
   String get doc_template_advanced_variables_section_interaction_l3 =>
-      'interaction.command.name ve interaction.command.id tanılama ve yönlendirme kontrolleri için kullanışlıdır.';
+      'interaction.command.name ve interaction.command.id tanÃ„Â±lama ve yÃƒÂ¶nlendirme kontrolleri iÃƒÂ§in kullanÃ„Â±Ã…Å¸lÃ„Â±dÃ„Â±r.';
 
   @override
   String get doc_template_advanced_variables_section_interaction_title =>
-      'Etkileşim Meta Verileri';
+      'EtkileÃ…Å¸im Meta Verileri';
 
   @override
   String get doc_template_advanced_variables_subtitle =>
-      'Belirli bağlamlarda mevcut olan ek çalışma zamanı anahtarları.';
+      'Belirli baÃ„Å¸lamlarda mevcut olan ek ÃƒÂ§alÃ„Â±Ã…Å¸ma zamanÃ„Â± anahtarlarÃ„Â±.';
 
   @override
   String get doc_template_advanced_variables_summary =>
-      'Bu anahtarlar, etkinlik veya komut türüne bağlı olarak etkileşim yüklerinden ve kanal/sunucu/kullanıcı çalışma zamanı ayrıntılarından oluşturulur.';
+      'Bu anahtarlar, etkinlik veya komut tÃƒÂ¼rÃƒÂ¼ne baÃ„Å¸lÃ„Â± olarak etkileÃ…Å¸im yÃƒÂ¼klerinden ve kanal/sunucu/kullanÃ„Â±cÃ„Â± ÃƒÂ§alÃ„Â±Ã…Å¸ma zamanÃ„Â± ayrÃ„Â±ntÃ„Â±larÃ„Â±ndan oluÃ…Å¸turulur.';
 
   @override
   String get doc_template_advanced_variables_title =>
-      'Gelişmiş Şablon Değişkenleri';
+      'GeliÃ…Å¸miÃ…Å¸ Ã…Å¾ablon DeÃ„Å¸iÃ…Å¸kenleri';
 
   @override
   String get doc_template_functions_example =>
-      'Normalleştirilmiş: ((uppercase(trim(userName))))\nAdmin rolü var: ((contains(userRole, \"admin\")))\nEn yüksek puan: ((first(scores.\$)))\nToplam puan: ((sum(scores.\$)))';
+      'NormalleÃ…Å¸tirilmiÃ…Å¸: ((uppercase(trim(userName))))\nAdmin rolÃƒÂ¼ var: ((contains(userRole, \"admin\")))\nEn yÃƒÂ¼ksek puan: ((first(scores.\$)))\nToplam puan: ((sum(scores.\$)))';
 
   @override
   String get doc_template_functions_section_array_l1 =>
@@ -4222,38 +4333,38 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get doc_template_functions_section_array_l3 =>
-      'sum(kaynak): sayısal öğeleri toplar ve sayısal olmayan değerleri yoksayar.';
+      'sum(kaynak): sayÃ„Â±sal ÃƒÂ¶Ã„Å¸eleri toplar ve sayÃ„Â±sal olmayan deÃ„Å¸erleri yoksayar.';
 
   @override
   String get doc_template_functions_section_array_l4 =>
-      'formatEach(...) ve embedFields(...) nesne dizilerini metin ve gömülü mesajlar için formatlar.';
+      'formatEach(...) ve embedFields(...) nesne dizilerini metin ve gÃƒÂ¶mÃƒÂ¼lÃƒÂ¼ mesajlar iÃƒÂ§in formatlar.';
 
   @override
   String get doc_template_functions_section_array_title =>
-      'Dizi ve Toplama Yardımcıları';
+      'Dizi ve Toplama YardÃ„Â±mcÃ„Â±larÃ„Â±';
 
   @override
   String get doc_template_functions_section_notes_l1 =>
-      'Fonksiyon adları büyük/küçük harfe duyarsızdır.';
+      'Fonksiyon adlarÃ„Â± bÃƒÂ¼yÃƒÂ¼k/kÃƒÂ¼ÃƒÂ§ÃƒÂ¼k harfe duyarsÃ„Â±zdÃ„Â±r.';
 
   @override
   String get doc_template_functions_section_notes_l2 =>
-      'Bilinmeyen fonksiyonlar veya geçersiz argümanlar boş bir dizeye çözülür.';
+      'Bilinmeyen fonksiyonlar veya geÃƒÂ§ersiz argÃƒÂ¼manlar boÃ…Å¸ bir dizeye ÃƒÂ§ÃƒÂ¶zÃƒÂ¼lÃƒÂ¼r.';
 
   @override
   String get doc_template_functions_section_notes_l3 =>
-      'Kök seviyesinde | ile geri dönüş sözdizimini kullanın: ((replace(ad, \"_\", \" \")|Bilinmiyor)).';
+      'KÃƒÂ¶k seviyesinde | ile geri dÃƒÂ¶nÃƒÂ¼Ã…Å¸ sÃƒÂ¶zdizimini kullanÃ„Â±n: ((replace(ad, \"_\", \" \")|Bilinmiyor)).';
 
   @override
   String get doc_template_functions_section_notes_l4 =>
-      'Fonksiyonlar tarafından döndürülen diziler ve nesneler JSON metni olarak serileştirilir.';
+      'Fonksiyonlar tarafÃ„Â±ndan dÃƒÂ¶ndÃƒÂ¼rÃƒÂ¼len diziler ve nesneler JSON metni olarak serileÃ…Å¸tirilir.';
 
   @override
-  String get doc_template_functions_section_notes_title => 'Önemli Notlar';
+  String get doc_template_functions_section_notes_title => 'Ãƒâ€“nemli Notlar';
 
   @override
   String get doc_template_functions_section_random_l1 =>
-      'coin() ve random(): koşullu dallanma için \"true\" veya \"\" döndürür.';
+      'coin() ve random(): koÃ…Å¸ullu dallanma iÃƒÂ§in \"true\" veya \"\" dÃƒÂ¶ndÃƒÂ¼rÃƒÂ¼r.';
 
   @override
   String get doc_template_functions_section_random_l2 =>
@@ -4261,37 +4372,38 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get doc_template_functions_section_random_title =>
-      'Rastgelelik Yardımcıları';
+      'Rastgelelik YardÃ„Â±mcÃ„Â±larÃ„Â±';
 
   @override
   String get doc_template_functions_section_string_l1 =>
-      'lowercase(kaynak) / lower(kaynak): metni küçük harfe dönüştürür.';
+      'lowercase(kaynak) / lower(kaynak): metni kÃƒÂ¼ÃƒÂ§ÃƒÂ¼k harfe dÃƒÂ¶nÃƒÂ¼Ã…Å¸tÃƒÂ¼rÃƒÂ¼r.';
 
   @override
   String get doc_template_functions_section_string_l2 =>
-      'uppercase(kaynak) / upper(kaynak): metni büyük harfe dönüştürür.';
+      'uppercase(kaynak) / upper(kaynak): metni bÃƒÂ¼yÃƒÂ¼k harfe dÃƒÂ¶nÃƒÂ¼Ã…Å¸tÃƒÂ¼rÃƒÂ¼r.';
 
   @override
   String get doc_template_functions_section_string_l3 =>
-      'trim(kaynak): baştaki ve sondaki boşlukları kaldırır.';
+      'trim(kaynak): baÃ…Å¸taki ve sondaki boÃ…Å¸luklarÃ„Â± kaldÃ„Â±rÃ„Â±r.';
 
   @override
   String get doc_template_functions_section_string_l4 =>
-      'Değiştirmeler ve kontroller için replace(kaynak, ara, yeni) ve contains(kaynak, aranan).';
+      'DeÃ„Å¸iÃ…Å¸tirmeler ve kontroller iÃƒÂ§in replace(kaynak, ara, yeni) ve contains(kaynak, aranan).';
 
   @override
-  String get doc_template_functions_section_string_title => 'Dize Yardımcıları';
+  String get doc_template_functions_section_string_title =>
+      'Dize YardÃ„Â±mcÃ„Â±larÃ„Â±';
 
   @override
   String get doc_template_functions_subtitle =>
-      '((...)) ifadeleri içindeki verileri dönüştürün ve karşılaştırın.';
+      '((...)) ifadeleri iÃƒÂ§indeki verileri dÃƒÂ¶nÃƒÂ¼Ã…Å¸tÃƒÂ¼rÃƒÂ¼n ve karÃ…Å¸Ã„Â±laÃ…Å¸tÃ„Â±rÃ„Â±n.';
 
   @override
   String get doc_template_functions_summary =>
-      'Metni normalleştirmek, dizileri incelemek, çıktı blokları oluşturmak ve hafif rastgelelik eklemek için şablon fonksiyonlarını kullanın.';
+      'Metni normalleÃ…Å¸tirmek, dizileri incelemek, ÃƒÂ§Ã„Â±ktÃ„Â± bloklarÃ„Â± oluÃ…Å¸turmak ve hafif rastgelelik eklemek iÃƒÂ§in Ã…Å¸ablon fonksiyonlarÃ„Â±nÃ„Â± kullanÃ„Â±n.';
 
   @override
-  String get doc_template_functions_title => 'Şablon Fonksiyonları';
+  String get doc_template_functions_title => 'Ã…Å¾ablon FonksiyonlarÃ„Â±';
 
   @override
   String doc_template_variables_example(String name, String score) {
@@ -4300,118 +4412,118 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get doc_template_variables_section_builtin_title =>
-      'Yerleşik Komut Değişkenleri';
+      'YerleÃ…Å¸ik Komut DeÃ„Å¸iÃ…Å¸kenleri';
 
   @override
   String get doc_template_variables_section_fallbacks_l1 =>
-      'Bir seçenek eksik olduğunda geri dönmek için ((opts.user|userName)) kullanın.';
+      'Bir seÃƒÂ§enek eksik olduÃ„Å¸unda geri dÃƒÂ¶nmek iÃƒÂ§in ((opts.user|userName)) kullanÃ„Â±n.';
 
   @override
   String get doc_template_variables_section_fallbacks_l2 =>
-      'Eylem çıktılarını okumak için JSONPath sözdizimini kullanın: ((myHttp.body.\$.data[0].id)); diziler ve nesneler sorgulanabilir kalır.';
+      'Eylem ÃƒÂ§Ã„Â±ktÃ„Â±larÃ„Â±nÃ„Â± okumak iÃƒÂ§in JSONPath sÃƒÂ¶zdizimini kullanÃ„Â±n: ((myHttp.body.\$.data[0].id)); diziler ve nesneler sorgulanabilir kalÃ„Â±r.';
 
   @override
   String get doc_template_variables_section_fallbacks_l3 =>
-      'length(...), join(...), formatEach(...) ve embedFields(...) gibi fonksiyonlar da desteklenir; bilinmeyen değişkenler boş bir dizeye çözülür.';
+      'length(...), join(...), formatEach(...) ve embedFields(...) gibi fonksiyonlar da desteklenir; bilinmeyen deÃ„Å¸iÃ…Å¸kenler boÃ…Å¸ bir dizeye ÃƒÂ§ÃƒÂ¶zÃƒÂ¼lÃƒÂ¼r.';
 
   @override
   String get doc_template_variables_section_fallbacks_title =>
-      'Geri Dönüşler ve Yollar';
+      'Geri DÃƒÂ¶nÃƒÂ¼Ã…Å¸ler ve Yollar';
 
   @override
   String get doc_template_variables_section_sources_l1 =>
-      'Komut değişkenleri: commandName, commandId, commandType, target.*, opts.*.';
+      'Komut deÃ„Å¸iÃ…Å¸kenleri: commandName, commandId, commandType, target.*, opts.*.';
 
   @override
   String get doc_template_variables_section_sources_l2 =>
-      'Etkinlik değişkenleri: event.*, message.*, reaction.*, voice.*, role.*, vb.';
+      'Etkinlik deÃ„Å¸iÃ…Å¸kenleri: event.*, message.*, reaction.*, voice.*, role.*, vb.';
 
   @override
   String get doc_template_variables_section_sources_l3 =>
-      'İş akışı değişkenleri: workflow.name, workflow.entryPoint, arg.*, workflow.arg.*';
+      'Ã„Â°Ã…Å¸ akÃ„Â±Ã…Å¸Ã„Â± deÃ„Å¸iÃ…Å¸kenleri: workflow.name, workflow.entryPoint, arg.*, workflow.arg.*';
 
   @override
   String get doc_template_variables_section_sources_l4 =>
-      'Genel değişkenler: global.<anahtar>';
+      'Genel deÃ„Å¸iÃ…Å¸kenler: global.<anahtar>';
 
   @override
   String get doc_template_variables_section_sources_l5 =>
-      'Eylem çıktıları: varsa action.<anahtar>.';
+      'Eylem ÃƒÂ§Ã„Â±ktÃ„Â±larÃ„Â±: varsa action.<anahtar>.';
 
   @override
   String get doc_template_variables_section_sources_title =>
-      'Değişken Kaynakları';
+      'DeÃ„Å¸iÃ…Å¸ken KaynaklarÃ„Â±';
 
   @override
   String get doc_template_variables_section_types_l1 =>
-      'Eğik çizgi komutları commandType = chatInput kullanır ve opts.<secenek> değişkenlerini ortaya çıkarır.';
+      'EÃ„Å¸ik ÃƒÂ§izgi komutlarÃ„Â± commandType = chatInput kullanÃ„Â±r ve opts.<secenek> deÃ„Å¸iÃ…Å¸kenlerini ortaya ÃƒÂ§Ã„Â±karÃ„Â±r.';
 
   @override
   String get doc_template_variables_section_types_l2 =>
-      'Kullanıcı komutları commandType = user kullanır ve target.user.* değişkenlerini ortaya çıkarır.';
+      'KullanÃ„Â±cÃ„Â± komutlarÃ„Â± commandType = user kullanÃ„Â±r ve target.user.* deÃ„Å¸iÃ…Å¸kenlerini ortaya ÃƒÂ§Ã„Â±karÃ„Â±r.';
 
   @override
   String get doc_template_variables_section_types_l3 =>
-      'Mesaj komutları commandType = message kullanır ve target.message.* değişkenlerini ortaya çıkarır.';
+      'Mesaj komutlarÃ„Â± commandType = message kullanÃ„Â±r ve target.message.* deÃ„Å¸iÃ…Å¸kenlerini ortaya ÃƒÂ§Ã„Â±karÃ„Â±r.';
 
   @override
   String get doc_template_variables_section_types_l4 =>
-      'Alt komutlar hala argümanlarını opts.* aracılığıyla ortaya çıkarır.';
+      'Alt komutlar hala argÃƒÂ¼manlarÃ„Â±nÃ„Â± opts.* aracÃ„Â±lÃ„Â±Ã„Å¸Ã„Â±yla ortaya ÃƒÂ§Ã„Â±karÃ„Â±r.';
 
   @override
-  String get doc_template_variables_section_types_title => 'Komut Türleri';
+  String get doc_template_variables_section_types_title => 'Komut TÃƒÂ¼rleri';
 
   @override
   String get doc_template_variables_subtitle =>
-      'Dinamik yer tutucuların nasıl çözüldüğü.';
+      'Dinamik yer tutucularÃ„Â±n nasÃ„Â±l ÃƒÂ§ÃƒÂ¶zÃƒÂ¼ldÃƒÂ¼Ã„Å¸ÃƒÂ¼.';
 
   @override
   String get doc_template_variables_summary =>
-      'Çalışma zamanı, mevcut etkinlik/etkileşim bağlamını, iş akışı argümanlarını ve genel değişkenleri kullanarak yer tutucuları çözer.';
+      'Ãƒâ€¡alÃ„Â±Ã…Å¸ma zamanÃ„Â±, mevcut etkinlik/etkileÃ…Å¸im baÃ„Å¸lamÃ„Â±nÃ„Â±, iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â± argÃƒÂ¼manlarÃ„Â±nÃ„Â± ve genel deÃ„Å¸iÃ…Å¸kenleri kullanarak yer tutucularÃ„Â± ÃƒÂ§ÃƒÂ¶zer.';
 
   @override
-  String get doc_template_variables_title => 'Şablon Değişkenleri';
+  String get doc_template_variables_title => 'Ã…Å¾ablon DeÃ„Å¸iÃ…Å¸kenleri';
 
   @override
   String get done => 'Bitti';
 
   @override
   String download_completed(String id) {
-    return 'İndirme tamamlandı: $id';
+    return 'Ã„Â°ndirme tamamlandÃ„Â±: $id';
   }
 
   @override
   String download_failed(String error) {
-    return 'İndirme başarısız: $error';
+    return 'Ã„Â°ndirme baÃ…Å¸arÃ„Â±sÃ„Â±z: $error';
   }
 
   @override
-  String get download_legacy_backup => 'İndirme tamamlandı (eski yedek)';
+  String get download_legacy_backup => 'Ã„Â°ndirme tamamlandÃ„Â± (eski yedek)';
 
   @override
-  String get drive_legacy_snapshot => 'Eski anlık görüntü';
+  String get drive_legacy_snapshot => 'Eski anlÃ„Â±k gÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼';
 
   @override
   String get drive_manual_backup => 'Manuel yedekleme';
 
   @override
-  String get edit_shell_all_saved => 'Tüm değişiklikler kaydedildi';
+  String get edit_shell_all_saved => 'TÃƒÂ¼m deÃ„Å¸iÃ…Å¸iklikler kaydedildi';
 
   @override
-  String get edit_shell_command_body => 'Komut gövdesi';
+  String get edit_shell_command_body => 'Komut gÃƒÂ¶vdesi';
 
   @override
-  String get edit_shell_command_settings => 'Komut ayarları';
+  String get edit_shell_command_settings => 'Komut ayarlarÃ„Â±';
 
   @override
   String get edit_shell_command_settings_desc =>
-      'Meta veriler, kullanılabilirlik, izinler ve klasör yerleşimi.';
+      'Meta veriler, kullanÃ„Â±labilirlik, izinler ve klasÃƒÂ¶r yerleÃ…Å¸imi.';
 
   @override
   String get edit_shell_local_draft => 'Yerel taslak';
 
   @override
-  String get edit_shell_local_only => 'Yalnızca yerel';
+  String get edit_shell_local_only => 'YalnÃ„Â±zca yerel';
 
   @override
   String edit_shell_routes_count(int count) {
@@ -4419,18 +4531,18 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get edit_shell_save_changes => 'Değişiklikleri kaydet';
+  String get edit_shell_save_changes => 'DeÃ„Å¸iÃ…Å¸iklikleri kaydet';
 
   @override
   String get edit_shell_subtitle =>
-      'Ayarlar ve girişler üsttedir. Eylemler ve yanıt aşağıdadır.';
+      'Ayarlar ve giriÃ…Å¸ler ÃƒÂ¼sttedir. Eylemler ve yanÃ„Â±t aÃ…Å¸aÃ„Å¸Ã„Â±dadÃ„Â±r.';
 
   @override
-  String get edit_shell_trigger_inputs => 'Tetikleyici ve Girişler';
+  String get edit_shell_trigger_inputs => 'Tetikleyici ve GiriÃ…Å¸ler';
 
   @override
   String get edit_shell_trigger_inputs_desc =>
-      'Komut seçeneklerini, tetikleyici davranışını ve yürütme modunu ayarlayın.';
+      'Komut seÃƒÂ§eneklerini, tetikleyici davranÃ„Â±Ã…Å¸Ã„Â±nÃ„Â± ve yÃƒÂ¼rÃƒÂ¼tme modunu ayarlayÃ„Â±n.';
 
   @override
   String get edit_shell_type_command => 'Komut';
@@ -4442,47 +4554,47 @@ class AppLocalizationsTr extends AppLocalizations {
   String get edit_shell_type_message => 'Mesaj komutu';
 
   @override
-  String get edit_shell_type_slash => 'Eğik çizgi komutu';
+  String get edit_shell_type_slash => 'EÃ„Å¸ik ÃƒÂ§izgi komutu';
 
   @override
-  String get edit_shell_type_user => 'Kullanıcı komutu';
+  String get edit_shell_type_user => 'KullanÃ„Â±cÃ„Â± komutu';
 
   @override
-  String get edit_shell_unsaved => 'Kaydedilmemiş değişiklikler';
+  String get edit_shell_unsaved => 'KaydedilmemiÃ…Å¸ deÃ„Å¸iÃ…Å¸iklikler';
 
   @override
-  String get edit_shell_untitled_command => 'Adsız komut';
+  String get edit_shell_untitled_command => 'AdsÃ„Â±z komut';
 
   @override
   String get embed_add_field => 'Alan Ekle';
 
   @override
-  String get embed_add_section => 'Bölüm Ekle';
+  String get embed_add_section => 'BÃƒÂ¶lÃƒÂ¼m Ekle';
 
   @override
-  String get embed_add_tooltip => 'Gömülü mesaj ekle';
+  String get embed_add_tooltip => 'GÃƒÂ¶mÃƒÂ¼lÃƒÂ¼ mesaj ekle';
 
   @override
-  String get embed_color_picker_title => 'Gömülü mesaj rengi seç';
+  String get embed_color_picker_title => 'GÃƒÂ¶mÃƒÂ¼lÃƒÂ¼ mesaj rengi seÃƒÂ§';
 
   @override
   String get embed_delete_confirm =>
-      'Bu gömülü mesaj kaldırılacak. Devam edilsin mi?';
+      'Bu gÃƒÂ¶mÃƒÂ¼lÃƒÂ¼ mesaj kaldÃ„Â±rÃ„Â±lacak. Devam edilsin mi?';
 
   @override
-  String get embed_delete_title => 'Gömülü mesajı sil';
+  String get embed_delete_title => 'GÃƒÂ¶mÃƒÂ¼lÃƒÂ¼ mesajÃ„Â± sil';
 
   @override
   String embed_empty_message(int max) {
-    return 'Gömülü mesaj yok. En fazla $max tane ekleyebilirsiniz.';
+    return 'GÃƒÂ¶mÃƒÂ¼lÃƒÂ¼ mesaj yok. En fazla $max tane ekleyebilirsiniz.';
   }
 
   @override
   String get embed_field_delete_confirm =>
-      'Bu alan gömülü mesajdan kaldırılacak. Devam edilsin mi?';
+      'Bu alan gÃƒÂ¶mÃƒÂ¼lÃƒÂ¼ mesajdan kaldÃ„Â±rÃ„Â±lacak. Devam edilsin mi?';
 
   @override
-  String get embed_field_delete_title => 'Alanı sil';
+  String get embed_field_delete_title => 'AlanÃ„Â± sil';
 
   @override
   String embed_field_number(int index) {
@@ -4490,7 +4602,7 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get embed_fields_empty => 'Henüz alan yok.';
+  String get embed_fields_empty => 'HenÃƒÂ¼z alan yok.';
 
   @override
   String embed_fields_header(int count) {
@@ -4501,7 +4613,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get embed_label_author_icon => 'Yazar Simge URL\'si';
 
   @override
-  String get embed_label_author_name => 'Yazar Adı';
+  String get embed_label_author_name => 'Yazar AdÃ„Â±';
 
   @override
   String get embed_label_author_url => 'Yazar URL\'si';
@@ -4510,7 +4622,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get embed_label_color => 'Renk (int veya #hex)';
 
   @override
-  String get embed_label_dynamic_fields => 'Dinamik Alan Şablonu';
+  String get embed_label_dynamic_fields => 'Dinamik Alan Ã…Å¾ablonu';
 
   @override
   String get embed_label_footer_icon => 'Alt Bilgi Simge URL\'si';
@@ -4522,28 +4634,28 @@ class AppLocalizationsTr extends AppLocalizations {
   String get embed_label_image_url => 'Resim URL\'si';
 
   @override
-  String get embed_label_inline => 'Satır içi (Inline)';
+  String get embed_label_inline => 'SatÃ„Â±r iÃƒÂ§i (Inline)';
 
   @override
-  String get embed_label_thumbnail_url => 'Küçük Resim URL\'si';
+  String get embed_label_thumbnail_url => 'KÃƒÂ¼ÃƒÂ§ÃƒÂ¼k Resim URL\'si';
 
   @override
-  String get embed_label_timestamp => 'Zaman Damgası (ISO8601)';
+  String get embed_label_timestamp => 'Zaman DamgasÃ„Â± (ISO8601)';
 
   @override
-  String get embed_label_title => 'Başlık';
+  String get embed_label_title => 'BaÃ…Å¸lÃ„Â±k';
 
   @override
   String get embed_label_url => 'URL';
 
   @override
   String embed_number(int index) {
-    return 'Gömülü Mesaj #$index';
+    return 'GÃƒÂ¶mÃƒÂ¼lÃƒÂ¼ Mesaj #$index';
   }
 
   @override
   String embed_response_header(int count, int max) {
-    return 'Yanıt Gömülü Mesajları ($count/$max)';
+    return 'YanÃ„Â±t GÃƒÂ¶mÃƒÂ¼lÃƒÂ¼ MesajlarÃ„Â± ($count/$max)';
   }
 
   @override
@@ -4565,11 +4677,11 @@ class AppLocalizationsTr extends AppLocalizations {
   String get embed_section_media => 'Medya';
 
   @override
-  String get embed_section_timestamp => 'Zaman Damgası';
+  String get embed_section_timestamp => 'Zaman DamgasÃ„Â±';
 
   @override
   String emojis_delete_confirm_body(String name) {
-    return ':$name: silinsin mi? Bu işlem geri alınamaz.';
+    return ':$name: silinsin mi? Bu iÃ…Å¸lem geri alÃ„Â±namaz.';
   }
 
   @override
@@ -4577,7 +4689,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String emojis_delete_error(String error) {
-    return 'Silme başarısız: $error';
+    return 'Silme baÃ…Å¸arÃ„Â±sÃ„Â±z: $error';
   }
 
   @override
@@ -4585,24 +4697,24 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get emojis_empty =>
-      'Henüz emoji yok. Başlamak için bir tane yükleyin.';
+      'HenÃƒÂ¼z emoji yok. BaÃ…Å¸lamak iÃƒÂ§in bir tane yÃƒÂ¼kleyin.';
 
   @override
-  String get emojis_loading_error => 'Emojiler yüklenemedi';
+  String get emojis_loading_error => 'Emojiler yÃƒÂ¼klenemedi';
 
   @override
   String emojis_rename_error(String error) {
-    return 'Ad değiştirme başarısız: $error';
+    return 'Ad deÃ„Å¸iÃ…Å¸tirme baÃ…Å¸arÃ„Â±sÃ„Â±z: $error';
   }
 
   @override
   String get emojis_rename_hint => 'Yeni ad';
 
   @override
-  String get emojis_rename_title => 'Emoji Adını Değiştir';
+  String get emojis_rename_title => 'Emoji AdÃ„Â±nÃ„Â± DeÃ„Å¸iÃ…Å¸tir';
 
   @override
-  String get emojis_rename_tooltip => 'Yeniden Adlandır';
+  String get emojis_rename_tooltip => 'Yeniden AdlandÃ„Â±r';
 
   @override
   String get emojis_tab => 'Emojiler';
@@ -4614,18 +4726,18 @@ class AppLocalizationsTr extends AppLocalizations {
   String get emojis_title => 'Uygulama Emojileri';
 
   @override
-  String get emojis_upload => 'Emoji Yükle';
+  String get emojis_upload => 'Emoji YÃƒÂ¼kle';
 
   @override
   String emojis_upload_error(String error) {
-    return 'Yükleme başarısız: $error';
+    return 'YÃƒÂ¼kleme baÃ…Å¸arÃ„Â±sÃ„Â±z: $error';
   }
 
   @override
-  String get emojis_upload_name_hint => 'Emoji adı (harfler, sayılar, _)';
+  String get emojis_upload_name_hint => 'Emoji adÃ„Â± (harfler, sayÃ„Â±lar, _)';
 
   @override
-  String get emojis_upload_pick_image => 'Resim Seç';
+  String get emojis_upload_pick_image => 'Resim SeÃƒÂ§';
 
   @override
   String get error => 'Hata';
@@ -4634,14 +4746,16 @@ class AppLocalizationsTr extends AppLocalizations {
   String get error_delete_messages_failed => 'Mesajlar silinemedi.';
 
   @override
-  String get error_invalid_channel_type => 'Kanal bir metin kanalı değil.';
+  String get error_invalid_channel_type =>
+      'Kanal bir metin kanalÃ„Â± deÃ„Å¸il.';
 
   @override
-  String get error_invalid_count => 'Sayı 0\'dan büyük olmalıdır.';
+  String get error_invalid_count =>
+      'SayÃ„Â± 0\'dan bÃƒÂ¼yÃƒÂ¼k olmalÃ„Â±dÃ„Â±r.';
 
   @override
   String get error_network_timeout =>
-      'İşlem zaman aşımına uğradı. Lütfen tekrar deneyin.';
+      'Ã„Â°Ã…Å¸lem zaman aÃ…Å¸Ã„Â±mÃ„Â±na uÃ„Å¸radÃ„Â±. LÃƒÂ¼tfen tekrar deneyin.';
 
   @override
   String error_with_details(String error) {
@@ -4649,49 +4763,49 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get export_button => 'ZIP Dışa Aktar';
+  String get export_button => 'ZIP DÃ„Â±Ã…Å¸a Aktar';
 
   @override
   String get export_commands => 'Komutlar';
 
   @override
   String export_failed(String error) {
-    return 'Dışa aktarma başarısız: $error';
+    return 'DÃ„Â±Ã…Å¸a aktarma baÃ…Å¸arÃ„Â±sÃ„Â±z: $error';
   }
 
   @override
-  String get export_file_picker_busy => 'Dosya seçici zaten açık';
+  String get export_file_picker_busy => 'Dosya seÃƒÂ§ici zaten aÃƒÂ§Ã„Â±k';
 
   @override
-  String get export_global_variables => 'Genel Değişkenler';
+  String get export_global_variables => 'Genel DeÃ„Å¸iÃ…Å¸kenler';
 
   @override
-  String get export_import_title => 'Dışa Aktar / İçe Aktar';
+  String get export_import_title => 'DÃ„Â±Ã…Å¸a Aktar / Ã„Â°ÃƒÂ§e Aktar';
 
   @override
   String get export_section_desc =>
-      'Botunuzun seçili bölümlerini bir ZIP dosyası olarak dışa aktarın. Bot jetonu asla dahil edilmez.';
+      'Botunuzun seÃƒÂ§ili bÃƒÂ¶lÃƒÂ¼mlerini bir ZIP dosyasÃ„Â± olarak dÃ„Â±Ã…Å¸a aktarÃ„Â±n. Bot jetonu asla dahil edilmez.';
 
   @override
-  String get export_section_title => 'Dışa Aktar';
+  String get export_section_title => 'DÃ„Â±Ã…Å¸a Aktar';
 
   @override
   String get export_status => 'Durum ve Etkinlikler';
 
   @override
-  String get export_workflows => 'İş Akışları';
+  String get export_workflows => 'Ã„Â°Ã…Å¸ AkÃ„Â±Ã…Å¸larÃ„Â±';
 
   @override
-  String get globals_add => 'Değişken Ekle';
+  String get globals_add => 'DeÃ„Å¸iÃ…Å¸ken Ekle';
 
   @override
-  String get globals_add_global => 'Genel Değişken Ekle';
+  String get globals_add_global => 'Genel DeÃ„Å¸iÃ…Å¸ken Ekle';
 
   @override
-  String get globals_add_scoped => 'Kapsamlı Değişken Ekle';
+  String get globals_add_scoped => 'KapsamlÃ„Â± DeÃ„Å¸iÃ…Å¸ken Ekle';
 
   @override
-  String get globals_copy_value => 'Değeri kopyala';
+  String get globals_copy_value => 'DeÃ„Å¸eri kopyala';
 
   @override
   String globals_delete_confirm(String key) {
@@ -4699,60 +4813,60 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get globals_delete_title => 'Değişkeni Sil';
+  String get globals_delete_title => 'DeÃ„Å¸iÃ…Å¸keni Sil';
 
   @override
   String get globals_dialog_global_desc =>
-      'Genel değişkenler tüm komutlar ve sunucular arasında paylaşılır.';
+      'Genel deÃ„Å¸iÃ…Å¸kenler tÃƒÂ¼m komutlar ve sunucular arasÃ„Â±nda paylaÃ…Å¸Ã„Â±lÃ„Â±r.';
 
   @override
   String globals_dialog_ref_preview(String ref) {
-    return 'Kullanım: \$getVar[$ref]';
+    return 'KullanÃ„Â±m: \$getVar[$ref]';
   }
 
   @override
   String globals_dialog_scoped_desc(String scope) {
-    return 'Kapsamlı bir değişken, $scope bağlamı başına ayrı bir değer saklar.';
+    return 'KapsamlÃ„Â± bir deÃ„Å¸iÃ…Å¸ken, $scope baÃ„Å¸lamÃ„Â± baÃ…Å¸Ã„Â±na ayrÃ„Â± bir deÃ„Å¸er saklar.';
   }
 
   @override
-  String get globals_edit => 'Değişkeni Düzenle';
+  String get globals_edit => 'DeÃ„Å¸iÃ…Å¸keni DÃƒÂ¼zenle';
 
   @override
-  String get globals_edit_global => 'Genel Değişkeni Düzenle';
+  String get globals_edit_global => 'Genel DeÃ„Å¸iÃ…Å¸keni DÃƒÂ¼zenle';
 
   @override
-  String get globals_edit_scoped => 'Kapsamlı Değişkeni Düzenle';
+  String get globals_edit_scoped => 'KapsamlÃ„Â± DeÃ„Å¸iÃ…Å¸keni DÃƒÂ¼zenle';
 
   @override
-  String get globals_empty => 'Henüz genel değişken yok';
+  String get globals_empty => 'HenÃƒÂ¼z genel deÃ„Å¸iÃ…Å¸ken yok';
 
   @override
   String get globals_empty_subtitle =>
-      'Tüm komutlar tarafından erişilebilen kalıcı verileri saklamak için bir değişken ekleyin.';
+      'TÃƒÂ¼m komutlar tarafÃ„Â±ndan eriÃ…Å¸ilebilen kalÃ„Â±cÃ„Â± verileri saklamak iÃƒÂ§in bir deÃ„Å¸iÃ…Å¸ken ekleyin.';
 
   @override
   String get globals_help_global =>
-      'Tüm komutlar arasında paylaşılır. \$getVar[anahtar] ile erişin.';
+      'TÃƒÂ¼m komutlar arasÃ„Â±nda paylaÃ…Å¸Ã„Â±lÃ„Â±r. \$getVar[anahtar] ile eriÃ…Å¸in.';
 
   @override
   String get globals_help_scoped =>
-      'Bağlam başına saklanır (sunucu, kullanıcı, kanal…). Her giriş Discord bağlamı başına ayrı bir değer tutar.';
+      'BaÃ„Å¸lam baÃ…Å¸Ã„Â±na saklanÃ„Â±r (sunucu, kullanÃ„Â±cÃ„Â±, kanalÃ¢â‚¬Â¦). Her giriÃ…Å¸ Discord baÃ„Å¸lamÃ„Â± baÃ…Å¸Ã„Â±na ayrÃ„Â± bir deÃ„Å¸er tutar.';
 
   @override
   String get globals_key => 'Anahtar';
 
   @override
-  String get globals_key_hint => 'örn. prefix, level, welcome_message';
+  String get globals_key_hint => 'ÃƒÂ¶rn. prefix, level, welcome_message';
 
   @override
   String get globals_mode_global => 'Genel';
 
   @override
-  String get globals_mode_scoped => 'Kapsamlı';
+  String get globals_mode_scoped => 'KapsamlÃ„Â±';
 
   @override
-  String get globals_no_default => 'Varsayılan değer yok';
+  String get globals_no_default => 'VarsayÃ„Â±lan deÃ„Å¸er yok';
 
   @override
   String get globals_refresh => 'Yenile';
@@ -4767,73 +4881,73 @@ class AppLocalizationsTr extends AppLocalizations {
   String get globals_scope_guild => 'sunucu';
 
   @override
-  String get globals_scope_guildMember => 'sunucuÜyesi';
+  String get globals_scope_guildMember => 'sunucuÃƒÅ“yesi';
 
   @override
   String get globals_scope_message => 'mesaj';
 
   @override
-  String get globals_scope_user => 'kullanıcı';
+  String get globals_scope_user => 'kullanÃ„Â±cÃ„Â±';
 
   @override
-  String get globals_search => 'Değişkenlerde ara…';
+  String get globals_search => 'DeÃ„Å¸iÃ…Å¸kenlerde araÃ¢â‚¬Â¦';
 
   @override
   String get globals_source_local => 'Yerel';
 
   @override
   String globals_source_runner(String name) {
-    return 'Çalıştırıcı: $name';
+    return 'Ãƒâ€¡alÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±cÃ„Â±: $name';
   }
 
   @override
   String get globals_tab => 'Geneller';
 
   @override
-  String get globals_tab_short => 'Değiş';
+  String get globals_tab_short => 'DeÃ„Å¸iÃ…Å¸';
 
   @override
-  String get globals_title => 'Değişkenler';
+  String get globals_title => 'DeÃ„Å¸iÃ…Å¸kenler';
 
   @override
-  String get globals_value => 'Değer';
+  String get globals_value => 'DeÃ„Å¸er';
 
   @override
   String get globals_value_auto_type_hint =>
-      'Değer otomatik tiplidir (sayı, boolean, JSON).';
+      'DeÃ„Å¸er otomatik tiplidir (sayÃ„Â±, boolean, JSON).';
 
   @override
   String get guilds_empty_state =>
-      'Bot hiçbir sunucuda değil.\nBurada görmek için bir sunucuya davet edin.';
+      'Bot hiÃƒÂ§bir sunucuda deÃ„Å¸il.\nBurada gÃƒÂ¶rmek iÃƒÂ§in bir sunucuya davet edin.';
 
   @override
   String guilds_leave_confirm(String name) {
-    return '\"$name\" sunucusundan ayrılsın mı?\nBot bu sunucudan kaldırılacak. Daha sonra Discord geliştirici portalından tekrar davet edebilirsiniz.';
+    return '\"$name\" sunucusundan ayrÃ„Â±lsÃ„Â±n mÃ„Â±?\nBot bu sunucudan kaldÃ„Â±rÃ„Â±lacak. Daha sonra Discord geliÃ…Å¸tirici portalÃ„Â±ndan tekrar davet edebilirsiniz.';
   }
 
   @override
   String guilds_leave_failed(String error) {
-    return 'Ayrılma başarısız oldu: $error';
+    return 'AyrÃ„Â±lma baÃ…Å¸arÃ„Â±sÃ„Â±z oldu: $error';
   }
 
   @override
-  String get guilds_leave_title => 'Sunucudan Ayrıl';
+  String get guilds_leave_title => 'Sunucudan AyrÃ„Â±l';
 
   @override
-  String get guilds_leave_tooltip => 'Ayrıl';
+  String get guilds_leave_tooltip => 'AyrÃ„Â±l';
 
   @override
   String guilds_left_success(String name) {
-    return '\"$name\" sunucusundan ayrılındı.';
+    return '\"$name\" sunucusundan ayrÃ„Â±lÃ„Â±ndÃ„Â±.';
   }
 
   @override
   String guilds_members_count_other(int count) {
-    return '~$count üye';
+    return '~$count ÃƒÂ¼ye';
   }
 
   @override
-  String get guilds_owner_label => '👑 Sahip';
+  String get guilds_owner_label => 'Ã°Å¸â€˜â€˜ Sahip';
 
   @override
   String guilds_server_count_other(int count) {
@@ -4848,48 +4962,49 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get hint_use_variables =>
-      'Gerekiyorsa değişkenleri/şablonları kullanın';
+      'Gerekiyorsa deÃ„Å¸iÃ…Å¸kenleri/Ã…Å¸ablonlarÃ„Â± kullanÃ„Â±n';
 
   @override
   String get home_add_time => 'Zaman Ekle';
 
   @override
-  String get home_empty_support_btn => 'Discord Desteği';
+  String get home_empty_support_btn => 'Discord DesteÃ„Å¸i';
 
   @override
   String get home_empty_support_hint =>
-      'Yardıma mı ihtiyacınız var? Topluluğumuza katılın!';
+      'YardÃ„Â±ma mÃ„Â± ihtiyacÃ„Â±nÃ„Â±z var? TopluluÃ„Å¸umuza katÃ„Â±lÃ„Â±n!';
 
   @override
   String get home_foreground_service_not_started =>
-      'Ön plan hizmeti başlamadı.';
+      'Ãƒâ€“n plan hizmeti baÃ…Å¸lamadÃ„Â±.';
 
   @override
-  String get home_hosting_expired => 'Barındırma süresi doldu';
+  String get home_hosting_expired => 'BarÃ„Â±ndÃ„Â±rma sÃƒÂ¼resi doldu';
 
   @override
   String home_hosting_time_left(String time) {
-    return 'Kalan Barındırma: $time';
+    return 'Kalan BarÃ„Â±ndÃ„Â±rma: $time';
   }
 
   @override
-  String get home_log_desktop_stop_requested => 'Masaüstü bot durdurma istendi';
+  String get home_log_desktop_stop_requested =>
+      'MasaÃƒÂ¼stÃƒÂ¼ bot durdurma istendi';
 
   @override
-  String get home_log_start_requested => 'Bot başlatma istendi';
+  String get home_log_start_requested => 'Bot baÃ…Å¸latma istendi';
 
   @override
   String get home_log_stop_requested => 'Bot durdurma istendi';
 
   @override
-  String get home_logs_tooltip => 'Günlükleri Görüntüle';
+  String get home_logs_tooltip => 'GÃƒÂ¼nlÃƒÂ¼kleri GÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼le';
 
   @override
-  String get home_manage => 'Yönet';
+  String get home_manage => 'YÃƒÂ¶net';
 
   @override
   String get home_notification_permission_required =>
-      'Botu başlatmak için bildirim izni gereklidir.';
+      'Botu baÃ…Å¸latmak iÃƒÂ§in bildirim izni gereklidir.';
 
   @override
   String home_server_count_one(int count) {
@@ -4902,245 +5017,253 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get home_start => 'Başlat';
+  String get home_start => 'BaÃ…Å¸lat';
 
   @override
-  String get home_start_ads => 'Başlat (Reklam İzle)';
+  String get home_start_ads => 'BaÃ…Å¸lat (Reklam Ã„Â°zle)';
 
   @override
-  String get home_start_premium => 'Başlat (Premium)';
+  String get home_start_premium => 'BaÃ…Å¸lat (Premium)';
 
   @override
-  String get home_status_offline => 'Çevrimdışı';
+  String get home_status_offline => 'Ãƒâ€¡evrimdÃ„Â±Ã…Å¸Ã„Â±';
 
   @override
-  String get home_status_online => 'Çevrimiçi';
+  String get home_status_online => 'Ãƒâ€¡evrimiÃƒÂ§i';
 
   @override
   String get home_stop => 'Durdur';
 
   @override
-  String get home_sync_failed => 'Senkronizasyon başarısız';
+  String get home_sync_failed => 'Senkronizasyon baÃ…Å¸arÃ„Â±sÃ„Â±z';
 
   @override
   String get home_tab => 'Ana Sayfa';
 
   @override
-  String get home_time_added => 'Zaman başarıyla eklendi';
+  String get home_time_added => 'Zaman baÃ…Å¸arÃ„Â±yla eklendi';
 
   @override
   String home_token_missing(String botName) {
-    return '$botName için jeton bulunamadı';
+    return '$botName iÃƒÂ§in jeton bulunamadÃ„Â±';
   }
 
   @override
   String get home_unknown_app => 'Bilinmeyen';
 
   @override
-  String get image_editor_create => 'Oluştur';
+  String get image_editor_create => 'OluÃ…Å¸tur';
 
   @override
-  String get image_editor_create_canvas => 'Görüntü Tuvali Oluştur';
+  String get image_editor_create_canvas => 'GÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼ Tuvali OluÃ…Å¸tur';
 
   @override
   String image_editor_edit_canvas(int count) {
-    return 'Tuvali Düzenle ($count işlem)';
+    return 'Tuvali DÃƒÂ¼zenle ($count iÃ…Å¸lem)';
   }
 
   @override
-  String get image_editor_open => 'Düzenleyiciyi Aç';
+  String get image_editor_open => 'DÃƒÂ¼zenleyiciyi AÃƒÂ§';
 
   @override
-  String get import_button => 'İçe Aktar';
+  String get import_button => 'Ã„Â°ÃƒÂ§e Aktar';
 
   @override
   String import_failed(String error) {
-    return 'İçe aktarma başarısız: $error';
+    return 'Ã„Â°ÃƒÂ§e aktarma baÃ…Å¸arÃ„Â±sÃ„Â±z: $error';
   }
 
   @override
-  String get import_nothing => 'Hiçbir şey içe aktarılmadı.';
+  String get import_nothing => 'HiÃƒÂ§bir Ã…Å¸ey iÃƒÂ§e aktarÃ„Â±lmadÃ„Â±.';
 
   @override
-  String get import_overwrite => 'Üzerine yaz';
+  String get import_overwrite => 'ÃƒÅ“zerine yaz';
 
   @override
   String import_parse_failed(String error) {
-    return 'ZIP ayrıştırılamadı: $error';
+    return 'ZIP ayrÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±lamadÃ„Â±: $error';
   }
 
   @override
-  String get import_pick_file => 'ZIP dosyası seç';
+  String get import_pick_file => 'ZIP dosyasÃ„Â± seÃƒÂ§';
 
   @override
   String get import_section_desc =>
-      'Daha önce dışa aktarılan bir ZIP dosyasını içe aktarın. Çakışmalar öğe başına çözülebilir.';
+      'Daha ÃƒÂ¶nce dÃ„Â±Ã…Å¸a aktarÃ„Â±lan bir ZIP dosyasÃ„Â±nÃ„Â± iÃƒÂ§e aktarÃ„Â±n. Ãƒâ€¡akÃ„Â±Ã…Å¸malar ÃƒÂ¶Ã„Å¸e baÃ…Å¸Ã„Â±na ÃƒÂ§ÃƒÂ¶zÃƒÂ¼lebilir.';
 
   @override
-  String get import_section_title => 'İçe Aktar';
+  String get import_section_title => 'Ã„Â°ÃƒÂ§e Aktar';
 
   @override
   String get import_skip => 'Atla';
 
   @override
   String import_summary_commands_imported(int count) {
-    return '$count komut içe aktarıldı';
+    return '$count komut iÃƒÂ§e aktarÃ„Â±ldÃ„Â±';
   }
 
   @override
   String import_summary_commands_skipped(int count) {
-    return '$count komut atlandı';
+    return '$count komut atlandÃ„Â±';
   }
 
   @override
-  String get import_summary_status_imported => 'durum içe aktarıldı';
+  String get import_summary_status_imported => 'durum iÃƒÂ§e aktarÃ„Â±ldÃ„Â±';
 
   @override
-  String get import_summary_variables_imported => 'değişkenler içe aktarıldı';
+  String get import_summary_variables_imported =>
+      'deÃ„Å¸iÃ…Å¸kenler iÃƒÂ§e aktarÃ„Â±ldÃ„Â±';
 
   @override
   String import_summary_workflows_imported(int count) {
-    return '$count iş akışı içe aktarıldı';
+    return '$count iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â± iÃƒÂ§e aktarÃ„Â±ldÃ„Â±';
   }
 
   @override
   String import_summary_workflows_skipped(int count) {
-    return '$count iş akışı atlandı';
+    return '$count iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â± atlandÃ„Â±';
   }
 
   @override
-  String get js_editor_hint => '// JavaScript bot komutunuzu buraya yazın...';
+  String get js_editor_hint =>
+      '// JavaScript bot komutunuzu buraya yazÃ„Â±n...';
 
   @override
   String get js_editor_segmented_label => 'JS';
 
   @override
-  String get js_editor_subtitle => 'Bu komut için özel JavaScript yazın';
+  String get js_editor_subtitle =>
+      'Bu komut iÃƒÂ§in ÃƒÂ¶zel JavaScript yazÃ„Â±n';
 
   @override
-  String get js_editor_title => 'JavaScript Düzenleyici';
+  String get js_editor_title => 'JavaScript DÃƒÂ¼zenleyici';
 
   @override
   String legacy_bdfd_run_failed(String command, String error) {
-    return '\"$command\" komutu için BDFD betiği çalıştırılamadı: $error';
+    return '\"$command\" komutu iÃƒÂ§in BDFD betiÃ„Å¸i ÃƒÂ§alÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±lamadÃ„Â±: $error';
   }
 
   @override
   String get legacy_prefix_mode_desc =>
-      'messageCreate\'den gelen komutları <on_ek><komut> kullanarak işler.';
+      'messageCreate\'den gelen komutlarÃ„Â± <on_ek><komut> kullanarak iÃ…Å¸ler.';
 
   @override
   String get legacy_prefix_mode_subtitle =>
-      'Konumsal seçenekleri kullanır (örnek: !config #kanal).';
+      'Konumsal seÃƒÂ§enekleri kullanÃ„Â±r (ÃƒÂ¶rnek: !config #kanal).';
 
   @override
-  String get legacy_prefix_mode_title => 'Eski Ön Ek Modu';
+  String get legacy_prefix_mode_title => 'Eski Ãƒâ€“n Ek Modu';
 
   @override
   String get legacy_prefix_override_hint =>
-      'Örnek: ? veya ((guild.prefix | !))';
+      'Ãƒâ€“rnek: ? veya ((guild.prefix | !))';
 
   @override
   String get legacy_prefix_override_label =>
-      'Ön ek geçersiz kılma (isteğe bağlı)';
+      'Ãƒâ€“n ek geÃƒÂ§ersiz kÃ„Â±lma (isteÃ„Å¸e baÃ„Å¸lÃ„Â±)';
 
   @override
   String get legacy_response_banner_body =>
-      'Bazı komutlar hâlâ eski yanıt biçimini kullanıyor. Yeni biçimi etkinleştirmek için düzenleyicide açın ve yeniden kaydedin.';
+      'BazÃ„Â± komutlar hÃƒÂ¢lÃƒÂ¢ eski yanÃ„Â±t biÃƒÂ§imini kullanÃ„Â±yor. Yeni biÃƒÂ§imi etkinleÃ…Å¸tirmek iÃƒÂ§in dÃƒÂ¼zenleyicide aÃƒÂ§Ã„Â±n ve yeniden kaydedin.';
 
   @override
   String get legacy_response_banner_dismiss => 'Kapat';
 
   @override
-  String get legacy_response_banner_migrate => 'Hepsini geçir';
+  String get legacy_response_banner_migrate => 'Hepsini geÃƒÂ§ir';
 
   @override
-  String get legacy_response_banner_migrate_failed => 'Geçirme başarısız';
+  String get legacy_response_banner_migrate_failed =>
+      'GeÃƒÂ§irme baÃ…Å¸arÃ„Â±sÃ„Â±z';
 
   @override
   String legacy_response_banner_migrated(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count komut geçirildi',
-      one: '1 komut geçirildi',
+      other: '$count komut geÃƒÂ§irildi',
+      one: '1 komut geÃƒÂ§irildi',
     );
     return '$_temp0';
   }
 
   @override
-  String get legacy_response_banner_migrated_none => 'Geçirilecek komut yok';
+  String get legacy_response_banner_migrated_none => 'GeÃƒÂ§irilecek komut yok';
 
   @override
-  String get legacy_response_banner_migrating => 'Geçiriliyor...';
+  String get legacy_response_banner_migrating => 'GeÃƒÂ§iriliyor...';
 
   @override
   String get legacy_response_banner_short_body =>
-      'Yeni biçime geçmek için komutlarınızı açın ve yeniden kaydedin.';
+      'Yeni biÃƒÂ§ime geÃƒÂ§mek iÃƒÂ§in komutlarÃ„Â±nÃ„Â±zÃ„Â± aÃƒÂ§Ã„Â±n ve yeniden kaydedin.';
 
   @override
-  String get legacy_response_banner_short_title => 'Komut güncellemesi mevcut';
+  String get legacy_response_banner_short_title =>
+      'Komut gÃƒÂ¼ncellemesi mevcut';
 
   @override
-  String get legacy_response_banner_title => 'Komut yanıt biçimi güncellemesi';
+  String get legacy_response_banner_title =>
+      'Komut yanÃ„Â±t biÃƒÂ§imi gÃƒÂ¼ncellemesi';
 
   @override
-  String get legacy_response_mode_label => 'Eski yanıt modu';
+  String get legacy_response_mode_label => 'Eski yanÃ„Â±t modu';
 
   @override
   String get local_command_awaited_desc =>
-      'Beklenen geri arama ön ayarları, dahili çalışma zamanı geri aramaları oldukları için yerel kalır.';
+      'Beklenen geri arama ÃƒÂ¶n ayarlarÃ„Â±, dahili ÃƒÂ§alÃ„Â±Ã…Å¸ma zamanÃ„Â± geri aramalarÃ„Â± olduklarÃ„Â± iÃƒÂ§in yerel kalÃ„Â±r.';
 
   @override
   String get local_command_desc =>
-      'Komutu yalnızca Bot Creator\'da saklayın. BDFD \$registerGuildCommands kullanarak belirli sunuculara dinamik olarak kaydedebilirsiniz.';
+      'Komutu yalnÃ„Â±zca Bot Creator\'da saklayÃ„Â±n. BDFD \$registerGuildCommands kullanarak belirli sunuculara dinamik olarak kaydedebilirsiniz.';
 
   @override
   String get local_command_title => 'Yerel Komut (Discord\'a kaydetme)';
 
   @override
   String logs_runner_source(String name) {
-    return 'Günlüklerin kaynağı: $name';
+    return 'GÃƒÂ¼nlÃƒÂ¼klerin kaynaÃ„Å¸Ã„Â±: $name';
   }
 
   @override
-  String get marketplace_about => 'Hakkında';
+  String get marketplace_about => 'HakkÃ„Â±nda';
 
   @override
   String get marketplace_add => 'Ekle';
 
   @override
-  String get marketplace_api_unavailable => 'API istemcisi kullanılamıyor';
+  String get marketplace_api_unavailable =>
+      'API istemcisi kullanÃ„Â±lamÃ„Â±yor';
 
   @override
-  String get marketplace_apply => 'Şablonu uygula';
+  String get marketplace_apply => 'Ã…Å¾ablonu uygula';
 
   @override
   String marketplace_apply_error(Object error) {
-    return 'Uygulama başarısız: $error';
+    return 'Uygulama baÃ…Å¸arÃ„Â±sÃ„Â±z: $error';
   }
 
   @override
-  String get marketplace_apply_success => 'Şablon başarıyla uygulandı!';
+  String get marketplace_apply_success =>
+      'Ã…Å¾ablon baÃ…Å¸arÃ„Â±yla uygulandÃ„Â±!';
 
   @override
   String marketplace_apply_success_skipped(
     Object addedCount,
     Object skippedCount,
   ) {
-    return '$addedCount komut eklendi, $skippedCount atlandı (yinelenen).';
+    return '$addedCount komut eklendi, $skippedCount atlandÃ„Â± (yinelenen).';
   }
 
   @override
-  String get marketplace_applying => 'Uygulanıyor...';
+  String get marketplace_applying => 'UygulanÃ„Â±yor...';
 
   @override
   String marketplace_by_author(Object author, Object version) {
-    return '$author tarafından · v$version';
+    return '$author tarafÃ„Â±ndan Ã‚Â· v$version';
   }
 
   @override
-  String get marketplace_cancel => 'İptal';
+  String get marketplace_cancel => 'Ã„Â°ptal';
 
   @override
   String marketplace_command_preview_actions(Object count) {
@@ -5152,17 +5275,20 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String marketplace_command_preview_options(Object count) {
-    return '$count seçenek';
+    return '$count seÃƒÂ§enek';
   }
 
   @override
-  String get marketplace_command_preview_type_message => 'Mesaj bağlam menüsü';
+  String get marketplace_command_preview_type_message =>
+      'Mesaj baÃ„Å¸lam menÃƒÂ¼sÃƒÂ¼';
 
   @override
-  String get marketplace_command_preview_type_slash => 'Eğik çizgi komutu';
+  String get marketplace_command_preview_type_slash =>
+      'EÃ„Å¸ik ÃƒÂ§izgi komutu';
 
   @override
-  String get marketplace_command_preview_type_user => 'Kullanıcı bağlam menüsü';
+  String get marketplace_command_preview_type_user =>
+      'KullanÃ„Â±cÃ„Â± baÃ„Å¸lam menÃƒÂ¼sÃƒÂ¼';
 
   @override
   String marketplace_commands_label(Object count) {
@@ -5171,14 +5297,14 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get marketplace_config_hint =>
-      'Bu şablonu uygulamadan önce gerekli değerleri doldurun.';
+      'Bu Ã…Å¸ablonu uygulamadan ÃƒÂ¶nce gerekli deÃ„Å¸erleri doldurun.';
 
   @override
-  String get marketplace_config_required => 'Yapılandırma Gerekli';
+  String get marketplace_config_required => 'YapÃ„Â±landÃ„Â±rma Gerekli';
 
   @override
   String marketplace_conflict_apply_choice(Object count) {
-    return 'Uygula ($count şablon)';
+    return 'Uygula ($count Ã…Å¸ablon)';
   }
 
   @override
@@ -5191,33 +5317,33 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get marketplace_conflict_subtitle =>
-      'Bazı şablon komutları zaten mevcut. Hangi sürümü korumak istediğinizi seçin:';
+      'BazÃ„Â± Ã…Å¸ablon komutlarÃ„Â± zaten mevcut. Hangi sÃƒÂ¼rÃƒÂ¼mÃƒÂ¼ korumak istediÃ„Å¸inizi seÃƒÂ§in:';
 
   @override
   String marketplace_conflict_template_info(Object count) {
-    return 'Şablon ($count eylem)';
+    return 'Ã…Å¾ablon ($count eylem)';
   }
 
   @override
-  String get marketplace_conflict_title => 'Komut Çakışmaları';
+  String get marketplace_conflict_title => 'Komut Ãƒâ€¡akÃ„Â±Ã…Å¸malarÃ„Â±';
 
   @override
-  String get marketplace_conflict_use_template => 'Şablonu Kullan';
+  String get marketplace_conflict_use_template => 'Ã…Å¾ablonu Kullan';
 
   @override
-  String get marketplace_connect_discord => 'Discord ile bağlan';
+  String get marketplace_connect_discord => 'Discord ile baÃ„Å¸lan';
 
   @override
   String get marketplace_connect_manager =>
-      'Pazar Yerine erişmek için Manager\'a bağlan.';
+      'Pazar Yerine eriÃ…Å¸mek iÃƒÂ§in Manager\'a baÃ„Å¸lan.';
 
   @override
   String get marketplace_connect_publish =>
-      'Şablon yayınlamak için Manager\'a bağlan.';
+      'Ã…Å¾ablon yayÃ„Â±nlamak iÃƒÂ§in Manager\'a baÃ„Å¸lan.';
 
   @override
   String marketplace_count(Object count) {
-    return '$count şablon';
+    return '$count Ã…Å¸ablon';
   }
 
   @override
@@ -5225,46 +5351,49 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String marketplace_delete_confirm(Object name) {
-    return '\"$name\" şablonunu silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.';
+    return '\"$name\" Ã…Å¸ablonunu silmek istediÃ„Å¸inizden emin misiniz? Bu iÃ…Å¸lem geri alÃ„Â±namaz.';
   }
 
   @override
-  String get marketplace_delete_confirm_title => 'Şablonu Sil';
+  String get marketplace_delete_confirm_title => 'Ã…Å¾ablonu Sil';
 
   @override
-  String get marketplace_delete_success => 'Şablon silindi.';
+  String get marketplace_delete_success => 'Ã…Å¾ablon silindi.';
 
   @override
-  String get marketplace_edit => 'Düzenle';
+  String get marketplace_edit => 'DÃƒÂ¼zenle';
 
   @override
   String get marketplace_edit_hint =>
-      'Düzenlemek için botunuzun komut listesinden aynı adla yeniden yayınlayın.';
+      'DÃƒÂ¼zenlemek iÃƒÂ§in botunuzun komut listesinden aynÃ„Â± adla yeniden yayÃ„Â±nlayÃ„Â±n.';
 
   @override
-  String get marketplace_empty => 'Henüz şablon yok.\nİlk yayınlayan sen ol!';
+  String get marketplace_empty =>
+      'HenÃƒÂ¼z Ã…Å¸ablon yok.\nÃ„Â°lk yayÃ„Â±nlayan sen ol!';
 
   @override
   String marketplace_load_error(Object error) {
-    return 'Yükleme başarısız: $error';
+    return 'YÃƒÂ¼kleme baÃ…Å¸arÃ„Â±sÃ„Â±z: $error';
   }
 
   @override
   String get marketplace_login_hint =>
-      'Pazar Yerine erişmek için Discord hesabınızı bağlamalısınız.';
+      'Pazar Yerine eriÃ…Å¸mek iÃƒÂ§in Discord hesabÃ„Â±nÃ„Â±zÃ„Â± baÃ„Å¸lamalÃ„Â±sÃ„Â±nÃ„Â±z.';
 
   @override
   String get marketplace_login_instructions =>
-      'Pazar Yerini kullanmaya devam etmek için lütfen Discord ile kimlik doğrulayın.';
+      'Pazar Yerini kullanmaya devam etmek iÃƒÂ§in lÃƒÂ¼tfen Discord ile kimlik doÃ„Å¸rulayÃ„Â±n.';
 
   @override
-  String get marketplace_login_required => 'Discord bağlantısı gerekli';
+  String get marketplace_login_required =>
+      'Discord baÃ„Å¸lantÃ„Â±sÃ„Â± gerekli';
 
   @override
-  String get marketplace_login_success => 'Discord başarıyla bağlandı!';
+  String get marketplace_login_success =>
+      'Discord baÃ…Å¸arÃ„Â±yla baÃ„Å¸landÃ„Â±!';
 
   @override
-  String get marketplace_login_title => 'Manager\'a bağlan';
+  String get marketplace_login_title => 'Manager\'a baÃ„Å¸lan';
 
   @override
   String marketplace_more(Object count) {
@@ -5272,30 +5401,31 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get marketplace_my_templates => 'Şablonlarım';
+  String get marketplace_my_templates => 'Ã…Å¾ablonlarÃ„Â±m';
 
   @override
   String marketplace_no_results(Object query) {
-    return '\"$query\" ile eşleşen şablon yok';
+    return '\"$query\" ile eÃ…Å¸leÃ…Å¸en Ã…Å¸ablon yok';
   }
 
   @override
-  String get marketplace_no_variables => 'Genel değişken tanımlanmamış.';
+  String get marketplace_no_variables =>
+      'Genel deÃ„Å¸iÃ…Å¸ken tanÃ„Â±mlanmamÃ„Â±Ã…Å¸.';
 
   @override
-  String get marketplace_publish_add_variable => 'Değişken ekle';
+  String get marketplace_publish_add_variable => 'DeÃ„Å¸iÃ…Å¸ken ekle';
 
   @override
-  String get marketplace_publish_add_variable_title => 'Değişken Ekle';
+  String get marketplace_publish_add_variable_title => 'DeÃ„Å¸iÃ…Å¸ken Ekle';
 
   @override
   String get marketplace_publish_back => 'Geri';
 
   @override
-  String get marketplace_publish_button => 'Yayınla';
+  String get marketplace_publish_button => 'YayÃ„Â±nla';
 
   @override
-  String get marketplace_publish_category_hint => 'örn: ai, moderation, fun';
+  String get marketplace_publish_category_hint => 'ÃƒÂ¶rn: ai, moderation, fun';
 
   @override
   String get marketplace_publish_category_label => 'Kategori';
@@ -5307,126 +5437,130 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get marketplace_publish_desc_hint =>
-      'Pazar yerinde gösterilen tek satırlık özet';
+      'Pazar yerinde gÃƒÂ¶sterilen tek satÃ„Â±rlÃ„Â±k ÃƒÂ¶zet';
 
   @override
-  String get marketplace_publish_desc_label => 'Kısa açıklama';
+  String get marketplace_publish_desc_label => 'KÃ„Â±sa aÃƒÂ§Ã„Â±klama';
 
   @override
   String get marketplace_publish_desc_long_hint =>
-      'Detaylı kullanım talimatları, markdown desteklenir...';
+      'DetaylÃ„Â± kullanÃ„Â±m talimatlarÃ„Â±, markdown desteklenir...';
 
   @override
   String get marketplace_publish_desc_long_label =>
-      'Tam dokümantasyon (isteğe bağlı)';
+      'Tam dokÃƒÂ¼mantasyon (isteÃ„Å¸e baÃ„Å¸lÃ„Â±)';
 
   @override
-  String get marketplace_publish_deselect_all => 'Tümünü kaldır';
+  String get marketplace_publish_deselect_all => 'TÃƒÂ¼mÃƒÂ¼nÃƒÂ¼ kaldÃ„Â±r';
 
   @override
   String marketplace_publish_error(Object error) {
-    return 'Yayınlama başarısız: $error';
+    return 'YayÃ„Â±nlama baÃ…Å¸arÃ„Â±sÃ„Â±z: $error';
   }
 
   @override
-  String get marketplace_publish_metadata => 'Şablon Detayları';
+  String get marketplace_publish_metadata => 'Ã…Å¾ablon DetaylarÃ„Â±';
 
   @override
   String get marketplace_publish_metadata_hint =>
-      'Başkalarının bulup kullanabilmesi için şablonunu tanımla.';
+      'BaÃ…Å¸kalarÃ„Â±nÃ„Â±n bulup kullanabilmesi iÃƒÂ§in Ã…Å¸ablonunu tanÃ„Â±mla.';
 
   @override
-  String get marketplace_publish_name_hint => 'örn: Yapay Zeka Moderasyon Botu';
+  String get marketplace_publish_name_hint =>
+      'ÃƒÂ¶rn: Yapay Zeka Moderasyon Botu';
 
   @override
-  String get marketplace_publish_name_label => 'Şablon adı';
+  String get marketplace_publish_name_label => 'Ã…Å¾ablon adÃ„Â±';
 
   @override
-  String get marketplace_publish_next => 'İleri';
+  String get marketplace_publish_next => 'Ã„Â°leri';
 
   @override
   String get marketplace_publish_no_content =>
-      'Yayınlanacak komut veya iş akışı yok.\nÖnce biraz oluştur!';
+      'YayÃ„Â±nlanacak komut veya iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â± yok.\nÃƒâ€“nce biraz oluÃ…Å¸tur!';
 
   @override
   String get marketplace_publish_required_fields =>
-      'Lütfen yayınlamadan önce tüm zorunlu alanları doldurun (Ad, Kısa açıklama, Sürüm).';
+      'LÃƒÂ¼tfen yayÃ„Â±nlamadan ÃƒÂ¶nce tÃƒÂ¼m zorunlu alanlarÃ„Â± doldurun (Ad, KÃ„Â±sa aÃƒÂ§Ã„Â±klama, SÃƒÂ¼rÃƒÂ¼m).';
 
   @override
-  String get marketplace_publish_select => 'İçeriği seç';
+  String get marketplace_publish_select => 'Ã„Â°ÃƒÂ§eriÃ„Å¸i seÃƒÂ§';
 
   @override
-  String get marketplace_publish_select_all => 'Tümünü seç';
+  String get marketplace_publish_select_all => 'TÃƒÂ¼mÃƒÂ¼nÃƒÂ¼ seÃƒÂ§';
 
   @override
   String get marketplace_publish_select_hint =>
-      'Komutları, iş akışlarını veya her ikisini seç.';
+      'KomutlarÃ„Â±, iÃ…Å¸ akÃ„Â±Ã…Å¸larÃ„Â±nÃ„Â± veya her ikisini seÃƒÂ§.';
 
   @override
-  String get marketplace_publish_success => 'Şablon başarıyla yayınlandı!';
+  String get marketplace_publish_success =>
+      'Ã…Å¾ablon baÃ…Å¸arÃ„Â±yla yayÃ„Â±nlandÃ„Â±!';
 
   @override
-  String get marketplace_publish_summary => 'Şablon Özeti';
+  String get marketplace_publish_summary => 'Ã…Å¾ablon Ãƒâ€“zeti';
 
   @override
   String get marketplace_publish_tags_hint =>
-      'örn: openai, chatbot, moderation';
+      'ÃƒÂ¶rn: openai, chatbot, moderation';
 
   @override
-  String get marketplace_publish_tags_label => 'Etiketler (virgülle ayrılmış)';
+  String get marketplace_publish_tags_label =>
+      'Etiketler (virgÃƒÂ¼lle ayrÃ„Â±lmÃ„Â±Ã…Å¸)';
 
   @override
-  String get marketplace_publish_title => 'Şablon Yayınla';
+  String get marketplace_publish_title => 'Ã…Å¾ablon YayÃ„Â±nla';
 
   @override
   String get marketplace_publish_user_must_define =>
-      'Kullanıcı bu değeri tanımlamalı';
+      'KullanÃ„Â±cÃ„Â± bu deÃ„Å¸eri tanÃ„Â±mlamalÃ„Â±';
 
   @override
   String get marketplace_publish_user_must_define_hint =>
-      'Kullanıcıdan uygulamadan önce bu değeri girmesi istenecek';
+      'KullanÃ„Â±cÃ„Â±dan uygulamadan ÃƒÂ¶nce bu deÃ„Å¸eri girmesi istenecek';
 
   @override
-  String get marketplace_publish_variable_desc_hint => 'Bu değişken ne için';
+  String get marketplace_publish_variable_desc_hint =>
+      'Bu deÃ„Å¸iÃ…Å¸ken ne iÃƒÂ§in';
 
   @override
-  String get marketplace_publish_variable_desc_label => 'Açıklama';
+  String get marketplace_publish_variable_desc_label => 'AÃƒÂ§Ã„Â±klama';
 
   @override
-  String get marketplace_publish_variable_name_hint => 'örn: TOKEN_OPENAI';
+  String get marketplace_publish_variable_name_hint => 'ÃƒÂ¶rn: TOKEN_OPENAI';
 
   @override
-  String get marketplace_publish_variable_name_label => 'Değişken adı';
+  String get marketplace_publish_variable_name_label => 'DeÃ„Å¸iÃ…Å¸ken adÃ„Â±';
 
   @override
-  String get marketplace_publish_variables => 'Genel Değişkenler';
+  String get marketplace_publish_variables => 'Genel DeÃ„Å¸iÃ…Å¸kenler';
 
   @override
   String get marketplace_publish_variables_hint =>
-      'Değişkenleri ekle ve kullanıcının doldurması gerekenleri işaretle.';
+      'DeÃ„Å¸iÃ…Å¸kenleri ekle ve kullanÃ„Â±cÃ„Â±nÃ„Â±n doldurmasÃ„Â± gerekenleri iÃ…Å¸aretle.';
 
   @override
-  String get marketplace_publish_version_label => 'Sürüm';
+  String get marketplace_publish_version_label => 'SÃƒÂ¼rÃƒÂ¼m';
 
   @override
   String marketplace_publish_workflows(Object count) {
-    return 'İş Akışları ($count)';
+    return 'Ã„Â°Ã…Å¸ AkÃ„Â±Ã…Å¸larÃ„Â± ($count)';
   }
 
   @override
-  String get marketplace_publishing => 'Yayınlanıyor...';
+  String get marketplace_publishing => 'YayÃ„Â±nlanÃ„Â±yor...';
 
   @override
-  String get marketplace_rate_success => 'Değerlendirme gönderildi!';
+  String get marketplace_rate_success => 'DeÃ„Å¸erlendirme gÃƒÂ¶nderildi!';
 
   @override
-  String get marketplace_rate_title => 'Bu şablonu değerlendir';
+  String get marketplace_rate_title => 'Bu Ã…Å¸ablonu deÃ„Å¸erlendir';
 
   @override
   String get marketplace_retry => 'Tekrar dene';
 
   @override
-  String get marketplace_search_hint => 'Şablonlarda ara...';
+  String get marketplace_search_hint => 'Ã…Å¾ablonlarda ara...';
 
   @override
   String get marketplace_title => 'Pazar Yeri';
@@ -5438,27 +5572,28 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get marketplace_variables_label =>
-      'Önceden Yapılandırılmış Değişkenler';
+      'Ãƒâ€“nceden YapÃ„Â±landÃ„Â±rÃ„Â±lmÃ„Â±Ã…Å¸ DeÃ„Å¸iÃ…Å¸kenler';
 
   @override
   String marketplace_workflows_label(Object count) {
-    return 'İş Akışları ($count)';
+    return 'Ã„Â°Ã…Å¸ AkÃ„Â±Ã…Å¸larÃ„Â± ($count)';
   }
 
   @override
-  String get modal_add_text_input => 'Metin Girişi Ekle';
+  String get modal_add_text_input => 'Metin GiriÃ…Å¸i Ekle';
 
   @override
-  String get modal_builder_title => 'Modal Oluşturucu';
+  String get modal_builder_title => 'Modal OluÃ…Å¸turucu';
 
   @override
-  String get modal_custom_id_hint => 'Bu modalı tanımlamak için kullanılır';
+  String get modal_custom_id_hint =>
+      'Bu modalÃ„Â± tanÃ„Â±mlamak iÃƒÂ§in kullanÃ„Â±lÃ„Â±r';
 
   @override
-  String get modal_custom_id_label => 'Özel ID';
+  String get modal_custom_id_label => 'Ãƒâ€“zel ID';
 
   @override
-  String get modal_default_value => 'Varsayılan değer';
+  String get modal_default_value => 'VarsayÃ„Â±lan deÃ„Å¸er';
 
   @override
   String modal_field_default_label(int index) {
@@ -5467,33 +5602,33 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String modal_input_index(int index) {
-    return 'Giriş $index';
+    return 'GiriÃ…Å¸ $index';
   }
 
   @override
   String modal_inputs_count(int count) {
-    return '$count/5 giriş';
+    return '$count/5 giriÃ…Å¸';
   }
 
   @override
   String get modal_remove_field_confirm =>
-      'Bu alan modaldan kaldırılacak. Devam edilsin mi?';
+      'Bu alan modaldan kaldÃ„Â±rÃ„Â±lacak. Devam edilsin mi?';
 
   @override
-  String get modal_remove_field_title => 'Modal alanını kaldır';
+  String get modal_remove_field_title => 'Modal alanÃ„Â±nÃ„Â± kaldÃ„Â±r';
 
   @override
   String get modal_style => 'Stil:';
 
   @override
-  String get modal_title_label => 'Modal Başlığı';
+  String get modal_title_label => 'Modal BaÃ…Å¸lÃ„Â±Ã„Å¸Ã„Â±';
 
   @override
   String get modal_workflow_submit =>
-      'Gönderildiğinde çalışacak iş akışı (isteğe bağlı)';
+      'GÃƒÂ¶nderildiÃ„Å¸inde ÃƒÂ§alÃ„Â±Ã…Å¸acak iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â± (isteÃ„Å¸e baÃ„Å¸lÃ„Â±)';
 
   @override
-  String get more_options_title => 'Diğer Seçenekler';
+  String get more_options_title => 'DiÃ„Å¸er SeÃƒÂ§enekler';
 
   @override
   String get more_tab => 'Daha Fazla';
@@ -5505,18 +5640,18 @@ class AppLocalizationsTr extends AppLocalizations {
   String get nav_webhooks_compact => 'Hooklar';
 
   @override
-  String get no_more_options => 'Başka seçenek yok';
+  String get no_more_options => 'BaÃ…Å¸ka seÃƒÂ§enek yok';
 
   @override
   String notion_create_workflow_from_query(String query) {
-    return '\"$query\" iş akışını oluştur';
+    return '\"$query\" iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â±nÃ„Â± oluÃ…Å¸tur';
   }
 
   @override
   String get notion_filter_add => 'Filtre Ekle';
 
   @override
-  String get notion_filter_type => 'Tür';
+  String get notion_filter_type => 'TÃƒÂ¼r';
 
   @override
   String get ok => 'Tamam';
@@ -5525,48 +5660,49 @@ class AppLocalizationsTr extends AppLocalizations {
   String get onboarding_command_button => 'Devam Et';
 
   @override
-  String get onboarding_command_desc => 'İlk komutunuzu oluşturun';
+  String get onboarding_command_desc => 'Ã„Â°lk komutunuzu oluÃ…Å¸turun';
 
   @override
   String get onboarding_command_example =>
-      'Örnek:\n/hello → Bot \"Merhaba! 👋\" yanıtını verir';
+      'Ãƒâ€“rnek:\n/hello Ã¢â€ â€™ Bot \"Merhaba! Ã°Å¸â€˜â€¹\" yanÃ„Â±tÃ„Â±nÃ„Â± verir';
 
   @override
   String get onboarding_command_learn => 'Learn how commands work';
 
   @override
   String get onboarding_command_text =>
-      'Komutlar botunuzun kalbidir. Kullanıcıların Discord üzerinden botunuzla etkileşime girmesini sağlarlar.';
+      'Komutlar botunuzun kalbidir. KullanÃ„Â±cÃ„Â±larÃ„Â±n Discord ÃƒÂ¼zerinden botunuzla etkileÃ…Å¸ime girmesini saÃ„Å¸larlar.';
 
   @override
-  String get onboarding_command_title => 'Adım 2: Bir Komut Ekleyin';
+  String get onboarding_command_title => 'AdÃ„Â±m 2: Bir Komut Ekleyin';
 
   @override
   String get onboarding_create_button => 'Devam Et';
 
   @override
-  String get onboarding_create_desc => 'Discord jetonunuzu (token) alın';
+  String get onboarding_create_desc => 'Discord jetonunuzu (token) alÃ„Â±n';
 
   @override
   String get onboarding_create_open_portal =>
-      'Discord Geliştirici Portalı\'nı aç';
+      'Discord GeliÃ…Å¸tirici PortalÃ„Â±\'nÃ„Â± aÃƒÂ§';
 
   @override
   String get onboarding_create_steps =>
-      '1. Discord Geliştirici Portalı\'na gidin\n2. Yeni bir uygulama oluşturun\n3. Bot jetonunu kopyalayın\n4. Aşağıya yapıştırın';
+      '1. Discord GeliÃ…Å¸tirici PortalÃ„Â±\'na gidin\n2. Yeni bir uygulama oluÃ…Å¸turun\n3. Bot jetonunu kopyalayÃ„Â±n\n4. AÃ…Å¸aÃ„Å¸Ã„Â±ya yapÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±n';
 
   @override
   String get onboarding_create_tip =>
-      '💡 İpucu: Jetonunuzu asla paylaşmayın! Botunuza tam erişim sağlar.';
+      'Ã°Å¸â€™Â¡ Ã„Â°pucu: Jetonunuzu asla paylaÃ…Å¸mayÃ„Â±n! Botunuza tam eriÃ…Å¸im saÃ„Å¸lar.';
 
   @override
-  String get onboarding_create_title => 'Adım 1: Bir Bot Oluşturun';
+  String get onboarding_create_title => 'AdÃ„Â±m 1: Bir Bot OluÃ…Å¸turun';
 
   @override
-  String get onboarding_create_tutorial => 'Eğitim: Jeton nasıl alınır';
+  String get onboarding_create_tutorial =>
+      'EÃ„Å¸itim: Jeton nasÃ„Â±l alÃ„Â±nÃ„Â±r';
 
   @override
-  String get onboarding_remind_later => 'Daha sonra hatırlat';
+  String get onboarding_remind_later => 'Daha sonra hatÃ„Â±rlat';
 
   @override
   String get onboarding_skip_confirm => 'Skip onboarding';
@@ -5582,121 +5718,123 @@ class AppLocalizationsTr extends AppLocalizations {
   String get onboarding_start_button => 'Devam Et';
 
   @override
-  String get onboarding_start_desc => 'Botunuzu yayınlayın!';
+  String get onboarding_start_desc => 'Botunuzu yayÃ„Â±nlayÃ„Â±n!';
 
   @override
   String get onboarding_start_hint =>
-      'Botunu oluşturduktan sonra, uygulamadaki bot kartında Başlat düğmesini bulacaksın.';
+      'Botunu oluÃ…Å¸turduktan sonra, uygulamadaki bot kartÃ„Â±nda BaÃ…Å¸lat dÃƒÂ¼Ã„Å¸mesini bulacaksÃ„Â±n.';
 
   @override
   String get onboarding_start_text =>
-      'Bot kartınızdaki \"Başlat\" düğmesine tıklayın. Ardından komutunuzu Discord\'da test edin!';
+      'Bot kartÃ„Â±nÃ„Â±zdaki \"BaÃ…Å¸lat\" dÃƒÂ¼Ã„Å¸mesine tÃ„Â±klayÃ„Â±n. ArdÃ„Â±ndan komutunuzu Discord\'da test edin!';
 
   @override
   String get onboarding_start_tip =>
-      '✨ Harika! İlk Discord botunuzu oluşturdunuz. Şimdi daha fazla komut ekleyebilir ve özelleştirebilirsiniz!';
+      'Ã¢Å“Â¨ Harika! Ã„Â°lk Discord botunuzu oluÃ…Å¸turdunuz. Ã…Å¾imdi daha fazla komut ekleyebilir ve ÃƒÂ¶zelleÃ…Å¸tirebilirsiniz!';
 
   @override
-  String get onboarding_start_title => 'Adım 3: Botu Başlatın';
+  String get onboarding_start_title => 'AdÃ„Â±m 3: Botu BaÃ…Å¸latÃ„Â±n';
 
   @override
   String onboarding_step_indicator(int current, int total) {
-    return 'Adım $current / $total';
+    return 'AdÃ„Â±m $current / $total';
   }
 
   @override
-  String get onboarding_success_button => 'Başla!';
+  String get onboarding_success_button => 'BaÃ…Å¸la!';
 
   @override
-  String get onboarding_success_desc => 'Discord botunuz kullanıma hazır!';
+  String get onboarding_success_desc =>
+      'Discord botunuz kullanÃ„Â±ma hazÃ„Â±r!';
 
   @override
   String get onboarding_success_tip1 => 'Daha fazla komut ekle';
 
   @override
-  String get onboarding_success_tip2 => 'İş akışları oluştur';
+  String get onboarding_success_tip2 => 'Ã„Â°Ã…Å¸ akÃ„Â±Ã…Å¸larÃ„Â± oluÃ…Å¸tur';
 
   @override
   String get onboarding_success_tip3 => 'Verilerini yedekle';
 
   @override
-  String get onboarding_success_title => 'Tebrikler! 🎉';
+  String get onboarding_success_title => 'Tebrikler! Ã°Å¸Å½â€°';
 
   @override
-  String get onboarding_success_whatsnext => 'Sırada ne var?';
+  String get onboarding_success_whatsnext => 'SÃ„Â±rada ne var?';
 
   @override
   String get onboarding_welcome_desc =>
-      '3 basit adımda ilk Discord botunuzu oluşturun. Her adımda size rehberlik edeceğiz.';
+      '3 basit adÃ„Â±mda ilk Discord botunuzu oluÃ…Å¸turun. Her adÃ„Â±mda size rehberlik edeceÃ„Å¸iz.';
 
   @override
   String get onboarding_welcome_skip => 'Atla';
 
   @override
-  String get onboarding_welcome_start => 'Başla';
+  String get onboarding_welcome_start => 'BaÃ…Å¸la';
 
   @override
-  String get onboarding_welcome_title => 'Bot Creator\'a Hoş Geldiniz';
+  String get onboarding_welcome_title => 'Bot Creator\'a HoÃ…Å¸ Geldiniz';
 
   @override
-  String get option_add_choice => 'Seçim Ekle';
+  String get option_add_choice => 'SeÃƒÂ§im Ekle';
 
   @override
-  String get option_add_localizations => 'Yerelleştirme Ekle';
+  String get option_add_localizations => 'YerelleÃ…Å¸tirme Ekle';
 
   @override
   String get option_choice_delete_confirm =>
-      'Bu seçim kaldırılacak. Devam edilsin mi?';
+      'Bu seÃƒÂ§im kaldÃ„Â±rÃ„Â±lacak. Devam edilsin mi?';
 
   @override
-  String get option_choice_delete_title => 'Seçimi sil';
+  String get option_choice_delete_title => 'SeÃƒÂ§imi sil';
 
   @override
-  String get option_choice_name => 'Seçim Adı';
+  String get option_choice_name => 'SeÃƒÂ§im AdÃ„Â±';
 
   @override
   String option_choice_number(int index) {
-    return 'Seçim $index';
+    return 'SeÃƒÂ§im $index';
   }
 
   @override
-  String get option_choice_value => 'Seçim Değeri';
+  String get option_choice_value => 'SeÃƒÂ§im DeÃ„Å¸eri';
 
   @override
   String option_default_name(int index) {
-    return 'Seçenek $index';
+    return 'SeÃƒÂ§enek $index';
   }
 
   @override
   String get option_delete_argument_confirm =>
-      'Bu argüman kaldırılacak. Devam edilsin mi?';
+      'Bu argÃƒÂ¼man kaldÃ„Â±rÃ„Â±lacak. Devam edilsin mi?';
 
   @override
-  String get option_delete_argument_title => 'Argümanı sil';
+  String get option_delete_argument_title => 'ArgÃƒÂ¼manÃ„Â± sil';
 
   @override
   String get option_delete_choice_confirm =>
-      'Bu seçim kaldırılacak. Devam edilsin mi?';
+      'Bu seÃƒÂ§im kaldÃ„Â±rÃ„Â±lacak. Devam edilsin mi?';
 
   @override
-  String get option_delete_choice_title => 'Seçeneği sil';
+  String get option_delete_choice_title => 'SeÃƒÂ§eneÃ„Å¸i sil';
 
   @override
   String get option_delete_confirm =>
-      'Bu seçenek kaldırılacak. Devam edilsin mi?';
+      'Bu seÃƒÂ§enek kaldÃ„Â±rÃ„Â±lacak. Devam edilsin mi?';
 
   @override
   String get option_delete_localization_confirm =>
-      'Bu yerelleştirme girişi kaldırılacak. Devam edilsin mi?';
+      'Bu yerelleÃ…Å¸tirme giriÃ…Å¸i kaldÃ„Â±rÃ„Â±lacak. Devam edilsin mi?';
 
   @override
-  String get option_delete_localization_title => 'Yerelleştirmeyi sil';
+  String get option_delete_localization_title => 'YerelleÃ…Å¸tirmeyi sil';
 
   @override
-  String get option_delete_title => 'Seçeneği sil';
+  String get option_delete_title => 'SeÃƒÂ§eneÃ„Å¸i sil';
 
   @override
-  String get option_desc_required => 'Lütfen seçenek için bir açıklama girin';
+  String get option_desc_required =>
+      'LÃƒÂ¼tfen seÃƒÂ§enek iÃƒÂ§in bir aÃƒÂ§Ã„Â±klama girin';
 
   @override
   String option_label_number(int index) {
@@ -5704,37 +5842,40 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get option_localized_description => 'Yerelleştirilmiş Açıklama';
+  String get option_localized_description =>
+      'YerelleÃ…Å¸tirilmiÃ…Å¸ AÃƒÂ§Ã„Â±klama';
 
   @override
-  String get option_localized_name => 'Yerelleştirilmiş Ad';
+  String get option_localized_name => 'YerelleÃ…Å¸tirilmiÃ…Å¸ Ad';
 
   @override
-  String get option_max_value => 'Maksimum Değer';
+  String get option_max_value => 'Maksimum DeÃ„Å¸er';
 
   @override
-  String get option_min_value => 'Minimum Değer';
+  String get option_min_value => 'Minimum DeÃ„Å¸er';
 
   @override
-  String get option_name_duplicate => 'Bu ad bu seviyede zaten kullanılıyor';
+  String get option_name_duplicate =>
+      'Bu ad bu seviyede zaten kullanÃ„Â±lÃ„Â±yor';
 
   @override
   String get option_name_invalid_chars =>
-      'Seçenek adı yalnızca harf, sayı ve alt çizgi içerebilir';
+      'SeÃƒÂ§enek adÃ„Â± yalnÃ„Â±zca harf, sayÃ„Â± ve alt ÃƒÂ§izgi iÃƒÂ§erebilir';
 
   @override
   String get option_name_invalid_start =>
-      'Seçenek adı desteklenmeyen bir karakterle başlıyor';
+      'SeÃƒÂ§enek adÃ„Â± desteklenmeyen bir karakterle baÃ…Å¸lÃ„Â±yor';
 
   @override
   String get option_name_max_length =>
-      'Seçenek adı en fazla 32 karakter uzunluğunda olmalıdır';
+      'SeÃƒÂ§enek adÃ„Â± en fazla 32 karakter uzunluÃ„Å¸unda olmalÃ„Â±dÃ„Â±r';
 
   @override
-  String get option_name_required => 'Lütfen seçenek için bir ad girin';
+  String get option_name_required =>
+      'LÃƒÂ¼tfen seÃƒÂ§enek iÃƒÂ§in bir ad girin';
 
   @override
-  String get option_select_language => 'Dil Seç';
+  String get option_select_language => 'Dil SeÃƒÂ§';
 
   @override
   String option_static_label_n(int index) {
@@ -5743,11 +5884,11 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String option_static_value_n(int index) {
-    return 'Değer $index';
+    return 'DeÃ„Å¸er $index';
   }
 
   @override
-  String get option_subcommand_options => 'Alt Komut Seçenekleri';
+  String get option_subcommand_options => 'Alt Komut SeÃƒÂ§enekleri';
 
   @override
   String get option_subcommands => 'Alt Komutlar';
@@ -5756,19 +5897,19 @@ class AppLocalizationsTr extends AppLocalizations {
   String get option_type_attachment => 'Ek';
 
   @override
-  String get option_type_boolean => 'Mantıksal (Boolean)';
+  String get option_type_boolean => 'MantÃ„Â±ksal (Boolean)';
 
   @override
   String get option_type_channel => 'Kanal';
 
   @override
-  String get option_type_integer => 'Tam Sayı';
+  String get option_type_integer => 'Tam SayÃ„Â±';
 
   @override
   String get option_type_mentionable => 'Bahsedilebilir';
 
   @override
-  String get option_type_number => 'Sayı';
+  String get option_type_number => 'SayÃ„Â±';
 
   @override
   String get option_type_role => 'Rol';
@@ -5786,32 +5927,32 @@ class AppLocalizationsTr extends AppLocalizations {
   String get option_type_unknown => 'Bilinmeyen';
 
   @override
-  String get option_type_user => 'Kullanıcı';
+  String get option_type_user => 'KullanÃ„Â±cÃ„Â±';
 
   @override
   String option_value_number(int index) {
-    return 'Değer $index';
+    return 'DeÃ„Å¸er $index';
   }
 
   @override
   String get premium_active_desc =>
-      'Desteğiniz için teşekkür ederiz! Tüm reklamlar devre dışı bırakıldı.';
+      'DesteÃ„Å¸iniz iÃƒÂ§in teÃ…Å¸ekkÃƒÂ¼r ederiz! TÃƒÂ¼m reklamlar devre dÃ„Â±Ã…Å¸Ã„Â± bÃ„Â±rakÃ„Â±ldÃ„Â±.';
 
   @override
   String get premium_active_title => 'Premium aktif';
 
   @override
-  String get premium_card_button => 'Planları gör';
+  String get premium_card_button => 'PlanlarÃ„Â± gÃƒÂ¶r';
 
   @override
   String get premium_card_desc =>
-      'Tüm reklamları kaldırmak ve botlarınızı herhangi bir pop-up olmadan anında başlatmak için abone olun.';
+      'TÃƒÂ¼m reklamlarÃ„Â± kaldÃ„Â±rmak ve botlarÃ„Â±nÃ„Â±zÃ„Â± herhangi bir pop-up olmadan anÃ„Â±nda baÃ…Å¸latmak iÃƒÂ§in abone olun.';
 
   @override
-  String get premium_card_title => 'Reklamları Kaldır';
+  String get premium_card_title => 'ReklamlarÃ„Â± KaldÃ„Â±r';
 
   @override
-  String get quick_access_title => 'Hızlı Erişim';
+  String get quick_access_title => 'HÃ„Â±zlÃ„Â± EriÃ…Å¸im';
 
   @override
   String get recovery_delete_bot => 'Botu yerel olarak sil';
@@ -5820,7 +5961,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get recovery_label => 'Kurtarma';
 
   @override
-  String get recovery_retry_discord => 'Discord bağlantısını tekrar dene';
+  String get recovery_retry_discord =>
+      'Discord baÃ„Å¸lantÃ„Â±sÃ„Â±nÃ„Â± tekrar dene';
 
   @override
   String get recovery_title => 'Kurtarma modu';
@@ -5832,65 +5974,67 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get reply_buttons_desc =>
-      'Bu mesaja etkileşimli düğmeler veya açılır menüler ekleyin';
+      'Bu mesaja etkileÃ…Å¸imli dÃƒÂ¼Ã„Å¸meler veya aÃƒÂ§Ã„Â±lÃ„Â±r menÃƒÂ¼ler ekleyin';
 
   @override
   String get reply_buttons_optional =>
-      'Düğmeler ve Seçim Menüleri (isteğe bağlı)';
+      'DÃƒÂ¼Ã„Å¸meler ve SeÃƒÂ§im MenÃƒÂ¼leri (isteÃ„Å¸e baÃ„Å¸lÃ„Â±)';
 
   @override
-  String get reply_choose_type => 'Gönderilecek yanıt türünü seçin';
+  String get reply_choose_type =>
+      'GÃƒÂ¶nderilecek yanÃ„Â±t tÃƒÂ¼rÃƒÂ¼nÃƒÂ¼ seÃƒÂ§in';
 
   @override
-  String get reply_command_reply_title => 'Komut Yanıtı';
+  String get reply_command_reply_title => 'Komut YanÃ„Â±tÃ„Â±';
 
   @override
-  String get reply_configure_workflow => 'Yanıt İş Akışını Yapılandır';
+  String get reply_configure_workflow =>
+      'YanÃ„Â±t Ã„Â°Ã…Å¸ AkÃ„Â±Ã…Å¸Ã„Â±nÃ„Â± YapÃ„Â±landÃ„Â±r';
 
   @override
-  String get reply_editor_title => 'Yanıt Ayrıntıları';
+  String get reply_editor_title => 'YanÃ„Â±t AyrÃ„Â±ntÃ„Â±larÃ„Â±';
 
   @override
-  String get reply_mode_layout => 'Düzen Modu';
+  String get reply_mode_layout => 'DÃƒÂ¼zen Modu';
 
   @override
   String get reply_mode_layout_desc =>
-      'Discord\'un zengin düzen sistemi — kapsayıcılar, medya, metin ve formlar';
+      'Discord\'un zengin dÃƒÂ¼zen sistemi Ã¢â‚¬â€ kapsayÃ„Â±cÃ„Â±lar, medya, metin ve formlar';
 
   @override
   String get reply_mode_modal => 'Modal Formu';
 
   @override
   String get reply_mode_modal_desc =>
-      'Metin girişi alanlarına sahip pop-up diyaloğu';
+      'Metin giriÃ…Å¸i alanlarÃ„Â±na sahip pop-up diyaloÃ„Å¸u';
 
   @override
   String get reply_mode_standard => 'Standart Mesaj';
 
   @override
   String get reply_mode_standard_desc =>
-      'Metin, gömülü mesajlar ve isteğe bağlı düğmeler / seçim menüleri';
+      'Metin, gÃƒÂ¶mÃƒÂ¼lÃƒÂ¼ mesajlar ve isteÃ„Å¸e baÃ„Å¸lÃ„Â± dÃƒÂ¼Ã„Å¸meler / seÃƒÂ§im menÃƒÂ¼leri';
 
   @override
   String get reply_response_text_helper =>
-      'Eğik çizgi komutu yanıt metni olarak kullanılır. ((değişken)) sözdizimini destekler.';
+      'EÃ„Å¸ik ÃƒÂ§izgi komutu yanÃ„Â±t metni olarak kullanÃ„Â±lÃ„Â±r. ((deÃ„Å¸iÃ…Å¸ken)) sÃƒÂ¶zdizimini destekler.';
 
   @override
-  String get reply_response_text_label => 'Yanıt Metni';
+  String get reply_response_text_label => 'YanÃ„Â±t Metni';
 
   @override
-  String get reply_response_workflow => 'Yanıt İş Akışı';
+  String get reply_response_workflow => 'YanÃ„Â±t Ã„Â°Ã…Å¸ AkÃ„Â±Ã…Å¸Ã„Â±';
 
   @override
   String response_embeds_count(int count) {
-    return '$count gömülü mesaj';
+    return '$count gÃƒÂ¶mÃƒÂ¼lÃƒÂ¼ mesaj';
   }
 
   @override
-  String get response_interactive_components => 'etkileşimli bileşenler';
+  String get response_interactive_components => 'etkileÃ…Å¸imli bileÃ…Å¸enler';
 
   @override
-  String get response_mode_layout => 'Düzen modu';
+  String get response_mode_layout => 'DÃƒÂ¼zen modu';
 
   @override
   String get response_mode_modal => 'Modal formu';
@@ -5899,7 +6043,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get response_mode_standard => 'Standart mesaj';
 
   @override
-  String get response_visibility_ephemeral => 'geçici (ephemeral)';
+  String get response_visibility_ephemeral => 'geÃƒÂ§ici (ephemeral)';
 
   @override
   String get response_visibility_public => 'genel';
@@ -5909,38 +6053,38 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get response_workflow_auto_defer_desc =>
-      'Hızlıca onaylayın, eylemleri yürütün, ardından nihai yanıtı düzenleyin.';
+      'HÃ„Â±zlÃ„Â±ca onaylayÃ„Â±n, eylemleri yÃƒÂ¼rÃƒÂ¼tÃƒÂ¼n, ardÃ„Â±ndan nihai yanÃ„Â±tÃ„Â± dÃƒÂ¼zenleyin.';
 
   @override
   String get response_workflow_condition_desc =>
-      'Değişken mevcutsa ve boş değilse => THEN metnini kullanın, aksi takdirde ELSE metnini kullanın.';
+      'DeÃ„Å¸iÃ…Å¸ken mevcutsa ve boÃ…Å¸ deÃ„Å¸ilse => THEN metnini kullanÃ„Â±n, aksi takdirde ELSE metnini kullanÃ„Â±n.';
 
   @override
-  String get response_workflow_conditional_title => 'Koşullu yanıt (MVP)';
+  String get response_workflow_conditional_title => 'KoÃ…Å¸ullu yanÃ„Â±t (MVP)';
 
   @override
-  String get response_workflow_deferred_reply => 'Ertelenmiş yanıt';
+  String get response_workflow_deferred_reply => 'ErtelenmiÃ…Å¸ yanÃ„Â±t';
 
   @override
   String get response_workflow_else_text =>
-      'ELSE (DEĞİLSE) yanıt metni (isteğe bağlı)';
+      'ELSE (DEÃ„Å¾Ã„Â°LSE) yanÃ„Â±t metni (isteÃ„Å¸e baÃ„Å¸lÃ„Â±)';
 
   @override
-  String get response_workflow_enable_condition => 'Koşulu etkinleştir';
+  String get response_workflow_enable_condition => 'KoÃ…Å¸ulu etkinleÃ…Å¸tir';
 
   @override
   String get response_workflow_ephemeral_only_user =>
-      'Geçici (Yalnızca komut kullanıcısı)';
+      'GeÃƒÂ§ici (YalnÃ„Â±zca komut kullanÃ„Â±cÃ„Â±sÃ„Â±)';
 
   @override
-  String get response_workflow_error_policy => 'Hata politikası';
+  String get response_workflow_error_policy => 'Hata politikasÃ„Â±';
 
   @override
   String get response_workflow_error_policy_desc =>
-      'Bir eylem başarısız olduğunda, ertelenen mesajı bir hata ile düzenleyin.';
+      'Bir eylem baÃ…Å¸arÃ„Â±sÃ„Â±z olduÃ„Å¸unda, ertelenen mesajÃ„Â± bir hata ile dÃƒÂ¼zenleyin.';
 
   @override
-  String get response_workflow_mode_component => 'Bileşen';
+  String get response_workflow_mode_component => 'BileÃ…Å¸en';
 
   @override
   String get response_workflow_mode_modal => 'Modal';
@@ -5952,40 +6096,41 @@ class AppLocalizationsTr extends AppLocalizations {
   String get response_workflow_public => 'Genel';
 
   @override
-  String get response_workflow_revert_tooltip => 'Tüm değişiklikleri geri al';
+  String get response_workflow_revert_tooltip =>
+      'TÃƒÂ¼m deÃ„Å¸iÃ…Å¸iklikleri geri al';
 
   @override
   String get response_workflow_then_text =>
-      'THEN (O HALDE) yanıt metni (isteğe bağlı)';
+      'THEN (O HALDE) yanÃ„Â±t metni (isteÃ„Å¸e baÃ„Å¸lÃ„Â±)';
 
   @override
-  String get response_workflow_title => 'Yanıt İş Akışı';
+  String get response_workflow_title => 'YanÃ„Â±t Ã„Â°Ã…Å¸ AkÃ„Â±Ã…Å¸Ã„Â±';
 
   @override
   String get response_workflow_variable_key =>
-      'Değişken anahtarı (örn: opts.userId)';
+      'DeÃ„Å¸iÃ…Å¸ken anahtarÃ„Â± (ÃƒÂ¶rn: opts.userId)';
 
   @override
-  String get response_workflow_visibility => 'Görünürlük';
+  String get response_workflow_visibility => 'GÃƒÂ¶rÃƒÂ¼nÃƒÂ¼rlÃƒÂ¼k';
 
   @override
-  String get restore_completed => 'Geri yükleme tamamlandı';
+  String get restore_completed => 'Geri yÃƒÂ¼kleme tamamlandÃ„Â±';
 
   @override
   String get restore_runtime_db_recommended =>
-      'Geri yükleme tamamlandı (SQLite çalışma zamanı geri yüklendi, yeniden başlatma önerilir)';
+      'Geri yÃƒÂ¼kleme tamamlandÃ„Â± (SQLite ÃƒÂ§alÃ„Â±Ã…Å¸ma zamanÃ„Â± geri yÃƒÂ¼klendi, yeniden baÃ…Å¸latma ÃƒÂ¶nerilir)';
 
   @override
   String get review_actions_title => 'Eylemler';
 
   @override
   String review_description_line(String desc) {
-    return 'Açıklama: $desc';
+    return 'AÃƒÂ§Ã„Â±klama: $desc';
   }
 
   @override
   String review_folder_line(String folder) {
-    return 'Klasör: $folder';
+    return 'KlasÃƒÂ¶r: $folder';
   }
 
   @override
@@ -5995,7 +6140,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get review_legacy_mode => 'Eski mod etkin';
 
   @override
-  String get review_local_only => 'Yalnızca yerel komut';
+  String get review_local_only => 'YalnÃ„Â±zca yerel komut';
 
   @override
   String review_name_line(String name) {
@@ -6003,49 +6148,50 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get review_name_untitled => '(adsız)';
+  String get review_name_untitled => '(adsÃ„Â±z)';
 
   @override
   String review_options_count(int count) {
-    return '$count seçenek';
+    return '$count seÃƒÂ§enek';
   }
 
   @override
-  String get review_reply_title => 'Yanıt';
+  String get review_reply_title => 'YanÃ„Â±t';
 
   @override
   String review_subcommand_routes(int count) {
-    return '$count alt komut rotası';
+    return '$count alt komut rotasÃ„Â±';
   }
 
   @override
-  String get review_trigger_inputs_title => 'Tetikleyici ve Girişler';
+  String get review_trigger_inputs_title => 'Tetikleyici ve GiriÃ…Å¸ler';
 
   @override
   String review_type_line(String type) {
-    return 'Tür: $type';
+    return 'TÃƒÂ¼r: $type';
   }
 
   @override
   String get rewarded_start_complete_ad =>
-      'Barındırma oturumunuzu başlatmak için lütfen reklamın tamamını izleyin.';
+      'BarÃ„Â±ndÃ„Â±rma oturumunuzu baÃ…Å¸latmak iÃƒÂ§in lÃƒÂ¼tfen reklamÃ„Â±n tamamÃ„Â±nÃ„Â± izleyin.';
 
   @override
   String get rewarded_start_continue => 'Devam et';
 
   @override
   String get rewarded_start_message =>
-      'Bu barındırma oturumunu başlatmak için bir reklam izlemeniz gerekiyor. Bu, projeyi finanse etmeye yardımcı olur. Premium kullanıcılar bunu atlayabilir.';
+      'Bu barÃ„Â±ndÃ„Â±rma oturumunu baÃ…Å¸latmak iÃƒÂ§in bir reklam izlemeniz gerekiyor. Bu, projeyi finanse etmeye yardÃ„Â±mcÃ„Â± olur. Premium kullanÃ„Â±cÃ„Â±lar bunu atlayabilir.';
 
   @override
   String get rewarded_start_no_ad_available =>
-      'Şu anda uygun reklam yok. Lütfen daha sonra tekrar deneyin.';
+      'Ã…Å¾u anda uygun reklam yok. LÃƒÂ¼tfen daha sonra tekrar deneyin.';
 
   @override
   String get rewarded_start_skip => 'Atla';
 
   @override
-  String get rewarded_start_thanks => 'Desteğiniz için teşekkürler!';
+  String get rewarded_start_thanks =>
+      'DesteÃ„Å¸iniz iÃƒÂ§in teÃ…Å¸ekkÃƒÂ¼rler!';
 
   @override
   String get rewarded_start_title => 'Reklam Gerekli';
@@ -6054,25 +6200,25 @@ class AppLocalizationsTr extends AppLocalizations {
   String get rewarded_start_watch => 'Reklam izle';
 
   @override
-  String get runner_select_source => 'Runner seç';
+  String get runner_select_source => 'Runner seÃƒÂ§';
 
   @override
-  String get runner_source_all => 'Tüm runnerlar';
+  String get runner_source_all => 'TÃƒÂ¼m runnerlar';
 
   @override
   String runner_source_label(String name) {
-    return 'Çalıştırıcı: $name';
+    return 'Ãƒâ€¡alÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±cÃ„Â±: $name';
   }
 
   @override
   String get runner_source_local => 'Yerel';
 
   @override
-  String get runner_source_manager => 'Bot Creator sunucuları';
+  String get runner_source_manager => 'Bot Creator sunucularÃ„Â±';
 
   @override
   String get runner_source_manager_unavailable =>
-      'Bot Creator sunucularından istatistikleri yüklemek için Ayarlar\'da Bot Creator\'a giriş yapın.';
+      'Bot Creator sunucularÃ„Â±ndan istatistikleri yÃƒÂ¼klemek iÃƒÂ§in Ayarlar\'da Bot Creator\'a giriÃ…Å¸ yapÃ„Â±n.';
 
   @override
   String get save => 'Kaydet';
@@ -6085,42 +6231,43 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String scheduler_delete_confirm(String label) {
-    return '\"$label\" programı silinsin mi?';
+    return '\"$label\" programÃ„Â± silinsin mi?';
   }
 
   @override
-  String get scheduler_delete_title => 'Programı sil';
+  String get scheduler_delete_title => 'ProgramÃ„Â± sil';
 
   @override
-  String get scheduler_edit_title => 'Programı düzenle';
+  String get scheduler_edit_title => 'ProgramÃ„Â± dÃƒÂ¼zenle';
 
   @override
-  String get scheduler_empty => 'Henüz planlanmış tetikleyici yok.';
+  String get scheduler_empty => 'HenÃƒÂ¼z planlanmÃ„Â±Ã…Å¸ tetikleyici yok.';
 
   @override
   String get scheduler_every_minutes => 'Her (dakika)';
 
   @override
   String get scheduler_invalid_minutes =>
-      'Dakika değeri 0\'dan büyük olmalıdır.';
+      'Dakika deÃ„Å¸eri 0\'dan bÃƒÂ¼yÃƒÂ¼k olmalÃ„Â±dÃ„Â±r.';
 
   @override
   String get scheduler_label_field => 'Etiket';
 
   @override
-  String get scheduler_label_hint => 'İsteğe bağlı görüntüleme etiketi';
+  String get scheduler_label_hint =>
+      'Ã„Â°steÃ„Å¸e baÃ„Å¸lÃ„Â± gÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼leme etiketi';
 
   @override
   String scheduler_limit_reached(int limit) {
-    return 'Zamanlayıcı sınırına ulaşıldı ($limit).';
+    return 'ZamanlayÃ„Â±cÃ„Â± sÃ„Â±nÃ„Â±rÃ„Â±na ulaÃ…Å¸Ã„Â±ldÃ„Â± ($limit).';
   }
 
   @override
   String get scheduler_no_workflows =>
-      'Bir program eklemeden önce en az bir iş akışı oluşturun.';
+      'Bir program eklemeden ÃƒÂ¶nce en az bir iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â± oluÃ…Å¸turun.';
 
   @override
-  String get scheduler_page_title => 'Zamanlayıcı';
+  String get scheduler_page_title => 'ZamanlayÃ„Â±cÃ„Â±';
 
   @override
   String scheduler_save_failed(String error) {
@@ -6129,11 +6276,11 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String scheduler_subtitle(String workflow, int minutes) {
-    return 'İş Akışı: $workflow • Her $minutes dk';
+    return 'Ã„Â°Ã…Å¸ AkÃ„Â±Ã…Å¸Ã„Â±: $workflow Ã¢â‚¬Â¢ Her $minutes dk';
   }
 
   @override
-  String get scheduler_tab => 'Zamanlayıcı';
+  String get scheduler_tab => 'ZamanlayÃ„Â±cÃ„Â±';
 
   @override
   String get scheduler_tab_short => 'Zam';
@@ -6144,28 +6291,30 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get scoped_default_value => 'Varsayılan değer';
+  String get scoped_default_value => 'VarsayÃ„Â±lan deÃ„Å¸er';
 
   @override
-  String get scoped_default_value_hint => 'İsteğe bağlı';
+  String get scoped_default_value_hint => 'Ã„Â°steÃ„Å¸e baÃ„Å¸lÃ„Â±';
 
   @override
   String scoped_delete_confirm(String key) {
-    return '\"$key\" ve saklanan tüm çalışma zamanı verileri silinsin mi?';
+    return '\"$key\" ve saklanan tÃƒÂ¼m ÃƒÂ§alÃ„Â±Ã…Å¸ma zamanÃ„Â± verileri silinsin mi?';
   }
 
   @override
-  String get scoped_delete_title => 'Kapsamlı Değişkeni Sil';
+  String get scoped_delete_title => 'KapsamlÃ„Â± DeÃ„Å¸iÃ…Å¸keni Sil';
 
   @override
-  String get scoped_empty => 'Tanımlanmış kapsamlı değişken yok';
+  String get scoped_empty =>
+      'TanÃ„Â±mlanmÃ„Â±Ã…Å¸ kapsamlÃ„Â± deÃ„Å¸iÃ…Å¸ken yok';
 
   @override
   String get scoped_empty_subtitle =>
-      'Kapsamlı değişkenler Discord bağlamı (kullanıcı, sunucu…) başına bir değer saklar. Çalışma zamanında bot tarafından doldurulurlar.';
+      'KapsamlÃ„Â± deÃ„Å¸iÃ…Å¸kenler Discord baÃ„Å¸lamÃ„Â± (kullanÃ„Â±cÃ„Â±, sunucuÃ¢â‚¬Â¦) baÃ…Å¸Ã„Â±na bir deÃ„Å¸er saklar. Ãƒâ€¡alÃ„Â±Ã…Å¸ma zamanÃ„Â±nda bot tarafÃ„Â±ndan doldurulurlar.';
 
   @override
-  String get scoped_explore_runtime => 'Çalışma zamanı verilerini keşfet';
+  String get scoped_explore_runtime =>
+      'Ãƒâ€¡alÃ„Â±Ã…Å¸ma zamanÃ„Â± verilerini keÃ…Å¸fet';
 
   @override
   String scoped_ref(String ref) {
@@ -6178,39 +6327,40 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get scoped_runtime_copy_all => 'Tümünü kopyala';
+  String get scoped_runtime_copy_all => 'TÃƒÂ¼mÃƒÂ¼nÃƒÂ¼ kopyala';
 
   @override
   String get scoped_runtime_empty =>
-      'Çalışma zamanı verisi yok.\nBu anahtar yürütme sırasında bot tarafından doldurulacaktır.';
+      'Ãƒâ€¡alÃ„Â±Ã…Å¸ma zamanÃ„Â± verisi yok.\nBu anahtar yÃƒÂ¼rÃƒÂ¼tme sÃ„Â±rasÃ„Â±nda bot tarafÃ„Â±ndan doldurulacaktÃ„Â±r.';
 
   @override
-  String get scoped_runtime_search => 'ID veya isme göre ara…';
+  String get scoped_runtime_search => 'ID veya isme gÃƒÂ¶re araÃ¢â‚¬Â¦';
 
   @override
   String scoped_runtime_subtitle(String scope, int count) {
-    return 'Kapsam: $scope · $count bağlam bulundu';
+    return 'Kapsam: $scope Ã‚Â· $count baÃ„Å¸lam bulundu';
   }
 
   @override
   String scoped_runtime_title(String key) {
-    return 'Çalışma zamanı verisi — \"$key\"';
+    return 'Ãƒâ€¡alÃ„Â±Ã…Å¸ma zamanÃ„Â± verisi Ã¢â‚¬â€ \"$key\"';
   }
 
   @override
   String get scoped_scope => 'Kapsam';
 
   @override
-  String get scoped_scope_help => 'Değişkenin saklandığı varlık seviyesi.';
+  String get scoped_scope_help =>
+      'DeÃ„Å¸iÃ…Å¸kenin saklandÃ„Â±Ã„Å¸Ã„Â± varlÃ„Â±k seviyesi.';
 
   @override
-  String get scoped_title => 'Kapsamlı Değişkenler';
+  String get scoped_title => 'KapsamlÃ„Â± DeÃ„Å¸iÃ…Å¸kenler';
 
   @override
   String get scratch_add_block => 'Blok ekle';
 
   @override
-  String get scratch_bdfd_script => 'BDFD Betiği';
+  String get scratch_bdfd_script => 'BDFD BetiÃ„Å¸i';
 
   @override
   String get scratch_block_entry_point => 'Komut Tetikleyici';
@@ -6226,17 +6376,17 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get scratch_custom_id_filter_desc =>
-      'Bu iş akışı, yalnızca tıklanan butonun veya gönderilen modalın Özel Kimliği (Custom ID) bu kimlikle tam olarak eşleştiğinde çalışır.';
+      'Bu iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â±, yalnÃ„Â±zca tÃ„Â±klanan butonun veya gÃƒÂ¶nderilen modalÃ„Â±n Ãƒâ€“zel KimliÃ„Å¸i (Custom ID) bu kimlikle tam olarak eÃ…Å¸leÃ…Å¸tiÃ„Å¸inde ÃƒÂ§alÃ„Â±Ã…Å¸Ã„Â±r.';
 
   @override
-  String get scratch_custom_id_filter_hint => 'örn. buton_kimligim';
+  String get scratch_custom_id_filter_hint => 'ÃƒÂ¶rn. buton_kimligim';
 
   @override
   String get scratch_custom_id_filter_label =>
-      'Özel Kimlik filtresi (isteğe bağlı)';
+      'Ãƒâ€“zel Kimlik filtresi (isteÃ„Å¸e baÃ„Å¸lÃ„Â±)';
 
   @override
-  String get scratch_dart_script => 'Dart Betiği';
+  String get scratch_dart_script => 'Dart BetiÃ„Å¸i';
 
   @override
   String get scratch_entry_event_trigger => 'Etkinlik tetikleyici';
@@ -6245,140 +6395,142 @@ class AppLocalizationsTr extends AppLocalizations {
   String get scratch_entry_function => 'Fonksiyon';
 
   @override
-  String get scratch_entry_interaction => 'Eğik Çizgi Komutu (/)';
+  String get scratch_entry_interaction => 'EÃ„Å¸ik Ãƒâ€¡izgi Komutu (/)';
 
   @override
-  String get scratch_entry_message => 'Metin Mesajı';
+  String get scratch_entry_message => 'Metin MesajÃ„Â±';
 
   @override
-  String get scratch_entry_point_hint => 'Karalama giriş noktası ipucu';
+  String get scratch_entry_point_hint => 'Karalama giriÃ…Å¸ noktasÃ„Â± ipucu';
 
   @override
-  String get scratch_entry_point_label => 'Giriş noktası adı';
+  String get scratch_entry_point_label => 'GiriÃ…Å¸ noktasÃ„Â± adÃ„Â±';
 
   @override
-  String get scratch_entry_point_listen => 'Bu komut ne zaman çalışır?';
+  String get scratch_entry_point_listen =>
+      'Bu komut ne zaman ÃƒÂ§alÃ„Â±Ã…Å¸Ã„Â±r?';
 
   @override
   String get scratch_event_category => 'Etkinlik kategorisi';
 
   @override
-  String get scratch_event_name => 'Etkinlik adı';
+  String get scratch_event_name => 'Etkinlik adÃ„Â±';
 
   @override
-  String get scratch_event_variables => 'Etkinlik değişkenleri';
+  String get scratch_event_variables => 'Etkinlik deÃ„Å¸iÃ…Å¸kenleri';
 
   @override
-  String get scratch_execution_mode => 'Komut nasıl oluşturulur?';
+  String get scratch_execution_mode => 'Komut nasÃ„Â±l oluÃ…Å¸turulur?';
 
   @override
-  String get scratch_legacy_config => 'Eski yapılandırma';
+  String get scratch_legacy_config => 'Eski yapÃ„Â±landÃ„Â±rma';
 
   @override
-  String get scratch_meta_advanced => 'Gelişmiş ayarlar';
+  String get scratch_meta_advanced => 'GeliÃ…Å¸miÃ…Å¸ ayarlar';
 
   @override
-  String get scratch_meta_desc_hint => 'Komut açıklaması';
+  String get scratch_meta_desc_hint => 'Komut aÃƒÂ§Ã„Â±klamasÃ„Â±';
 
   @override
-  String get scratch_meta_name_hint => 'Komut adı';
+  String get scratch_meta_name_hint => 'Komut adÃ„Â±';
 
   @override
-  String get scratch_meta_type_label => 'Komut türü';
+  String get scratch_meta_type_label => 'Komut tÃƒÂ¼rÃƒÂ¼';
 
   @override
   String get scratch_meta_type_message => 'Mesaj komutu';
 
   @override
   String get scratch_meta_type_message_desc =>
-      'Mesaj bağlam menüsünden tetiklenir.';
+      'Mesaj baÃ„Å¸lam menÃƒÂ¼sÃƒÂ¼nden tetiklenir.';
 
   @override
-  String get scratch_meta_type_prefix => 'Ön ek komutu';
+  String get scratch_meta_type_prefix => 'Ãƒâ€“n ek komutu';
 
   @override
   String get scratch_meta_type_prefix_desc =>
-      'Bir metin ön ekiyle tetiklenir (örn. !yardım).';
+      'Bir metin ÃƒÂ¶n ekiyle tetiklenir (ÃƒÂ¶rn. !yardÃ„Â±m).';
 
   @override
-  String get scratch_meta_type_slash => 'Eğik çizgi komutu';
+  String get scratch_meta_type_slash => 'EÃ„Å¸ik ÃƒÂ§izgi komutu';
 
   @override
   String get scratch_meta_type_slash_desc =>
       'Discord\'da / yazarak tetiklenir.';
 
   @override
-  String get scratch_meta_type_user => 'Kullanıcı komutu';
+  String get scratch_meta_type_user => 'KullanÃ„Â±cÃ„Â± komutu';
 
   @override
   String get scratch_meta_type_user_desc =>
-      'Kullanıcı bağlam menüsünden tetiklenir.';
+      'KullanÃ„Â±cÃ„Â± baÃ„Å¸lam menÃƒÂ¼sÃƒÂ¼nden tetiklenir.';
 
   @override
   String get scratch_mode_bdfd => 'BDFD Kodu';
 
   @override
-  String get scratch_mode_blocks => 'Görsel (Bloklar)';
+  String get scratch_mode_blocks => 'GÃƒÂ¶rsel (Bloklar)';
 
   @override
   String get scratch_mode_dart => 'Dart';
 
   @override
-  String get scratch_response_block => 'Yanıt';
+  String get scratch_response_block => 'YanÃ„Â±t';
 
   @override
-  String get scratch_response_components => 'Bileşenler';
+  String get scratch_response_components => 'BileÃ…Å¸enler';
 
   @override
-  String get scratch_response_edit => 'Yanıtı düzenle';
+  String get scratch_response_edit => 'YanÃ„Â±tÃ„Â± dÃƒÂ¼zenle';
 
   @override
   String get scratch_trigger_tab => 'Tetikleyici';
 
   @override
   String get scratch_wizard_actions_empty_desc =>
-      'Botunuzun ne yapacağını yapılandırmak için aşağıya eylem blokları ekleyin.';
+      'Botunuzun ne yapacaÃ„Å¸Ã„Â±nÃ„Â± yapÃ„Â±landÃ„Â±rmak iÃƒÂ§in aÃ…Å¸aÃ„Å¸Ã„Â±ya eylem bloklarÃ„Â± ekleyin.';
 
   @override
   String get scratch_wizard_actions_empty_title =>
-      'Henüz tanımlanmış eylem yok.';
+      'HenÃƒÂ¼z tanÃ„Â±mlanmÃ„Â±Ã…Å¸ eylem yok.';
 
   @override
   String get scratch_wizard_config_button_instruction =>
-      'Bu iş akışını tetikleyecek butonun veya modalın kimliğini yapılandırın.';
+      'Bu iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â±nÃ„Â± tetikleyecek butonun veya modalÃ„Â±n kimliÃ„Å¸ini yapÃ„Â±landÃ„Â±rÃ„Â±n.';
 
   @override
-  String get scratch_wizard_folder_hint => 'örn. yonetim';
+  String get scratch_wizard_folder_hint => 'ÃƒÂ¶rn. yonetim';
 
   @override
-  String get scratch_wizard_folder_label => 'Klasör (isteğe bağlı)';
+  String get scratch_wizard_folder_label => 'KlasÃƒÂ¶r (isteÃ„Å¸e baÃ„Å¸lÃ„Â±)';
 
   @override
-  String get scratch_wizard_save_details => 'Kaydetme Detayları';
+  String get scratch_wizard_save_details => 'Kaydetme DetaylarÃ„Â±';
 
   @override
-  String get scratch_wizard_step_actions => 'Adım 3: Eylemler';
+  String get scratch_wizard_step_actions => 'AdÃ„Â±m 3: Eylemler';
 
   @override
-  String get scratch_wizard_step_config => 'Adım 2: Yapılandırma';
+  String get scratch_wizard_step_config => 'AdÃ„Â±m 2: YapÃ„Â±landÃ„Â±rma';
 
   @override
-  String get scratch_wizard_step_save => 'Adım 4: Kaydet ve Özet';
+  String get scratch_wizard_step_save => 'AdÃ„Â±m 4: Kaydet ve Ãƒâ€“zet';
 
   @override
-  String get scratch_wizard_step_trigger => 'Adım 1: Tetikleyici Türü';
+  String get scratch_wizard_step_trigger => 'AdÃ„Â±m 1: Tetikleyici TÃƒÂ¼rÃƒÂ¼';
 
   @override
   String scratch_wizard_summary_actions_count(int count) {
-    return '$count eylem yapılandırıldı';
+    return '$count eylem yapÃ„Â±landÃ„Â±rÃ„Â±ldÃ„Â±';
   }
 
   @override
-  String get scratch_wizard_summary_title => 'İş Akışı Özeti';
+  String get scratch_wizard_summary_title =>
+      'Ã„Â°Ã…Å¸ AkÃ„Â±Ã…Å¸Ã„Â± Ãƒâ€“zeti';
 
   @override
   String scratch_wizard_summary_trigger_button(String id) {
-    return 'Buton Tıklaması / Modal (Özel Kimlik: \'$id\')';
+    return 'Buton TÃ„Â±klamasÃ„Â± / Modal (Ãƒâ€“zel Kimlik: \'$id\')';
   }
 
   @override
@@ -6388,25 +6540,26 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get scratch_wizard_summary_trigger_function =>
-      'Genel Fonksiyon / İş Akışı';
+      'Genel Fonksiyon / Ã„Â°Ã…Å¸ AkÃ„Â±Ã…Å¸Ã„Â±';
 
   @override
   String get scratch_wizard_trigger_button_desc =>
-      'Bir kullanıcı bir butona tıkladığında, seçim menüsü kullandığında veya bir modal gönderdiğinde tetiklenir.';
+      'Bir kullanÃ„Â±cÃ„Â± bir butona tÃ„Â±kladÃ„Â±Ã„Å¸Ã„Â±nda, seÃƒÂ§im menÃƒÂ¼sÃƒÂ¼ kullandÃ„Â±Ã„Å¸Ã„Â±nda veya bir modal gÃƒÂ¶nderdiÃ„Å¸inde tetiklenir.';
 
   @override
-  String get scratch_wizard_trigger_button_title => 'Buton veya Mesaj Bileşeni';
+  String get scratch_wizard_trigger_button_title =>
+      'Buton veya Mesaj BileÃ…Å¸eni';
 
   @override
   String get scratch_wizard_trigger_event_desc =>
-      'Bir Discord eyleminde tetiklenir (örn. sunucuya üye katılması, mesaj silinmesi, rolün güncellenmesi).';
+      'Bir Discord eyleminde tetiklenir (ÃƒÂ¶rn. sunucuya ÃƒÂ¼ye katÃ„Â±lmasÃ„Â±, mesaj silinmesi, rolÃƒÂ¼n gÃƒÂ¼ncellenmesi).';
 
   @override
-  String get scratch_wizard_trigger_event_title => 'Discord Etkinliği';
+  String get scratch_wizard_trigger_event_title => 'Discord EtkinliÃ„Å¸i';
 
   @override
   String get scratch_wizard_trigger_function_desc =>
-      'İş akışını diğer tetikleyiciler veya entegrasyonlar tarafından çağrılabilen yeniden kullanılabilir bir fonksiyon olarak çalıştırır.';
+      'Ã„Â°Ã…Å¸ akÃ„Â±Ã…Å¸Ã„Â±nÃ„Â± diÃ„Å¸er tetikleyiciler veya entegrasyonlar tarafÃ„Â±ndan ÃƒÂ§aÃ„Å¸rÃ„Â±labilen yeniden kullanÃ„Â±labilir bir fonksiyon olarak ÃƒÂ§alÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±r.';
 
   @override
   String get scratch_wizard_trigger_function_title =>
@@ -6414,112 +6567,117 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get scratch_wizard_trigger_instruction =>
-      'Bu iş akışını neyin tetikleyeceğini seçin:';
+      'Bu iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â±nÃ„Â± neyin tetikleyeceÃ„Å¸ini seÃƒÂ§in:';
 
   @override
-  String get scratch_wizard_workflow_name_hint => 'örn. buton_yaniti';
+  String get scratch_wizard_workflow_name_hint => 'ÃƒÂ¶rn. buton_yaniti';
 
   @override
-  String get scratch_wizard_workflow_name_label => 'İş Akışı Adı *';
+  String get scratch_wizard_workflow_name_label =>
+      'Ã„Â°Ã…Å¸ AkÃ„Â±Ã…Å¸Ã„Â± AdÃ„Â± *';
 
   @override
-  String get scratch_workflow_add_argument => 'Argüman ekle';
+  String get scratch_workflow_add_argument => 'ArgÃƒÂ¼man ekle';
 
   @override
-  String get scratch_workflow_arguments => 'Argümanlar (Değişkenler)';
+  String get scratch_workflow_arguments => 'ArgÃƒÂ¼manlar (DeÃ„Å¸iÃ…Å¸kenler)';
 
   @override
-  String get scratch_workflow_metadata => 'İş Akışı Ayarları';
+  String get scratch_workflow_metadata => 'Ã„Â°Ã…Å¸ AkÃ„Â±Ã…Å¸Ã„Â± AyarlarÃ„Â±';
 
   @override
-  String get scratch_workflow_name => 'İş Akışı Adı';
+  String get scratch_workflow_name => 'Ã„Â°Ã…Å¸ AkÃ„Â±Ã…Å¸Ã„Â± AdÃ„Â±';
 
   @override
-  String get scratch_workflow_type => 'İş Akışı Türü';
+  String get scratch_workflow_type => 'Ã„Â°Ã…Å¸ AkÃ„Â±Ã…Å¸Ã„Â± TÃƒÂ¼rÃƒÂ¼';
 
   @override
-  String get scratch_workflow_type_event => 'Etkinlik odaklı';
+  String get scratch_workflow_type_event => 'Etkinlik odaklÃ„Â±';
 
   @override
   String get scratch_workflow_type_general => 'Genel';
 
   @override
   String get serialization_export_base64_title =>
-      'Komutu Base64 olarak dışa aktar';
+      'Komutu Base64 olarak dÃ„Â±Ã…Å¸a aktar';
 
   @override
   String get serialization_export_json_subtitle =>
       'Okunabilir JSON\'u panoya kopyala';
 
   @override
-  String get serialization_export_json_title => 'Komutu JSON olarak dışa aktar';
+  String get serialization_export_json_title =>
+      'Komutu JSON olarak dÃ„Â±Ã…Å¸a aktar';
 
   @override
   String get serialization_import_desc =>
-      'Bir komut yükü (JSON veya Base64) yapıştırın.';
+      'Bir komut yÃƒÂ¼kÃƒÂ¼ (JSON veya Base64) yapÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±n.';
 
   @override
-  String get serialization_import_title => 'Komutu içe aktar';
+  String get serialization_import_title => 'Komutu iÃƒÂ§e aktar';
 
   @override
-  String get serialization_imported => 'Komut düzenleyiciye aktarıldı.';
+  String get serialization_imported =>
+      'Komut dÃƒÂ¼zenleyiciye aktarÃ„Â±ldÃ„Â±.';
 
   @override
-  String get serialization_invalid_format => 'Geçersiz komut yükü formatı.';
+  String get serialization_invalid_format =>
+      'GeÃƒÂ§ersiz komut yÃƒÂ¼kÃƒÂ¼ formatÃ„Â±.';
 
   @override
-  String get serialization_invalid_structure => 'Geçersiz komut yükü yapısı.';
+  String get serialization_invalid_structure =>
+      'GeÃƒÂ§ersiz komut yÃƒÂ¼kÃƒÂ¼ yapÃ„Â±sÃ„Â±.';
 
   @override
   String get settings_account_connect_label =>
-      'Discord ile Bot Creator\'a giriş yap';
+      'Discord ile Bot Creator\'a giriÃ…Å¸ yap';
 
   @override
   String get settings_account_connected_hint =>
-      'Hesap bağlandı. Botlarınız ve verileriniz artık Bot Creator ile senkronize edildi.';
+      'Hesap baÃ„Å¸landÃ„Â±. BotlarÃ„Â±nÃ„Â±z ve verileriniz artÃ„Â±k Bot Creator ile senkronize edildi.';
 
   @override
   String get settings_account_disconnect_label => 'Oturumu kapat';
 
   @override
   String get settings_account_disconnected_hint =>
-      'Bot Creator hesabınız bir bot eklediğinizde otomatik olarak oluşturulur. Ardından bu cihazdaki botlarınızı kurtarmak için Discord ile giriş yapın.';
+      'Bot Creator hesabÃ„Â±nÃ„Â±z bir bot eklediÃ„Å¸inizde otomatik olarak oluÃ…Å¸turulur. ArdÃ„Â±ndan bu cihazdaki botlarÃ„Â±nÃ„Â±zÃ„Â± kurtarmak iÃƒÂ§in Discord ile giriÃ…Å¸ yapÃ„Â±n.';
 
   @override
-  String get settings_account_status_connected => 'Hesap bağlandı';
+  String get settings_account_status_connected => 'Hesap baÃ„Å¸landÃ„Â±';
 
   @override
-  String get settings_account_status_disconnected => 'Giriş yapılmadı';
+  String get settings_account_status_disconnected => 'GiriÃ…Å¸ yapÃ„Â±lmadÃ„Â±';
 
   @override
   String get settings_ads_privacy_loading =>
-      'Reklam gizliliği ayarları kontrol ediliyor...';
+      'Reklam gizliliÃ„Å¸i ayarlarÃ„Â± kontrol ediliyor...';
 
   @override
   String get settings_ads_privacy_manage =>
-      'Reklam gizliliği tercihlerini yönet';
+      'Reklam gizliliÃ„Å¸i tercihlerini yÃƒÂ¶net';
 
   @override
   String get settings_ads_privacy_not_required =>
-      'Reklam gizliliği seçenekleri şu an için gerekli değil';
+      'Reklam gizliliÃ„Å¸i seÃƒÂ§enekleri Ã…Å¸u an iÃƒÂ§in gerekli deÃ„Å¸il';
 
   @override
   String get settings_ads_privacy_open_error =>
-      'Reklam gizliliği seçenekleri açılamadı';
+      'Reklam gizliliÃ„Å¸i seÃƒÂ§enekleri aÃƒÂ§Ã„Â±lamadÃ„Â±';
 
   @override
   String get settings_ads_privacy_opened =>
-      'Reklam gizliliği seçenekleri açıldı';
+      'Reklam gizliliÃ„Å¸i seÃƒÂ§enekleri aÃƒÂ§Ã„Â±ldÃ„Â±';
 
   @override
   String get settings_app_version => 'Uygulama';
 
   @override
-  String get settings_appearance_title => 'Görünüm ve dil';
+  String get settings_appearance_title => 'GÃƒÂ¶rÃƒÂ¼nÃƒÂ¼m ve dil';
 
   @override
   String get settings_auto_backup_check_loading =>
-      'Otomatik yedekleme kontrolü…';
+      'Otomatik yedekleme kontrolÃƒÂ¼Ã¢â‚¬Â¦';
 
   @override
   String get settings_auto_backup_every_12h => 'Her 12 saatte bir';
@@ -6534,77 +6692,79 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settings_auto_backup_every_72h => 'Her 72 saatte bir';
 
   @override
-  String get settings_auto_backup_interval => 'Otomatik yedekleme aralığı';
+  String get settings_auto_backup_interval =>
+      'Otomatik yedekleme aralÃ„Â±Ã„Å¸Ã„Â±';
 
   @override
-  String get settings_backup_now => 'Şimdi yedekle';
+  String get settings_backup_now => 'Ã…Å¾imdi yedekle';
 
   @override
   String get settings_backup_restore_desc =>
-      'Google Drive ile veri senkronizasyonunuzu yönetin';
+      'Google Drive ile veri senkronizasyonunuzu yÃƒÂ¶netin';
 
   @override
-  String get settings_backup_restore_title => 'Yedekle ve Geri Yükle';
+  String get settings_backup_restore_title => 'Yedekle ve Geri YÃƒÂ¼kle';
 
   @override
-  String get settings_builtin_help => 'Yerleşik eski !yardım komutu';
+  String get settings_builtin_help => 'YerleÃ…Å¸ik eski !yardÃ„Â±m komutu';
 
   @override
   String get settings_builtin_help_subtitle =>
-      'Açık geçişli zorunlu özellik. Sadece özel yardım davranışı istiyorsanız devre dışı bırakın.';
+      'AÃƒÂ§Ã„Â±k geÃƒÂ§iÃ…Å¸li zorunlu ÃƒÂ¶zellik. Sadece ÃƒÂ¶zel yardÃ„Â±m davranÃ„Â±Ã…Å¸Ã„Â± istiyorsanÃ„Â±z devre dÃ„Â±Ã…Å¸Ã„Â± bÃ„Â±rakÃ„Â±n.';
 
   @override
-  String get settings_clear_logs => 'Günlükleri temizle';
+  String get settings_clear_logs => 'GÃƒÂ¼nlÃƒÂ¼kleri temizle';
 
   @override
   String get settings_cloud_hosting_enabled =>
-      'Mobil botlar artık Bot Creator sunucularını kullanıyor.';
+      'Mobil botlar artÃ„Â±k Bot Creator sunucularÃ„Â±nÃ„Â± kullanÃ„Â±yor.';
 
   @override
   String get settings_compatibility_desc =>
-      'BDFD\'den geçen kullanıcılar için özellik kapsamına hızlı bir bakış.';
+      'BDFD\'den geÃƒÂ§en kullanÃ„Â±cÃ„Â±lar iÃƒÂ§in ÃƒÂ¶zellik kapsamÃ„Â±na hÃ„Â±zlÃ„Â± bir bakÃ„Â±Ã…Å¸.';
 
   @override
   String get settings_compatibility_functions_category_components =>
-      'Bileşenler / Etkileşimler';
+      'BileÃ…Å¸enler / EtkileÃ…Å¸imler';
 
   @override
   String get settings_compatibility_functions_category_control =>
-      'Kontrol akışı';
+      'Kontrol akÃ„Â±Ã…Å¸Ã„Â±';
 
   @override
   String get settings_compatibility_functions_category_embeds =>
-      'Gömülü mesajlar (Embeds)';
+      'GÃƒÂ¶mÃƒÂ¼lÃƒÂ¼ mesajlar (Embeds)';
 
   @override
   String get settings_compatibility_functions_category_guards =>
-      'Muhafızlar ve izinler';
+      'MuhafÃ„Â±zlar ve izinler';
 
   @override
   String get settings_compatibility_functions_category_http =>
-      'HTTP yardımcıları';
+      'HTTP yardÃ„Â±mcÃ„Â±larÃ„Â±';
 
   @override
   String get settings_compatibility_functions_category_json =>
-      'JSON yardımcıları';
+      'JSON yardÃ„Â±mcÃ„Â±larÃ„Â±';
 
   @override
-  String get settings_compatibility_functions_category_logging => 'Günlükleme';
+  String get settings_compatibility_functions_category_logging =>
+      'GÃƒÂ¼nlÃƒÂ¼kleme';
 
   @override
   String get settings_compatibility_functions_category_messages => 'Mesajlar';
 
   @override
   String get settings_compatibility_functions_category_runtime =>
-      'Çalışma zamanı yer tutucuları';
+      'Ãƒâ€¡alÃ„Â±Ã…Å¸ma zamanÃ„Â± yer tutucularÃ„Â±';
 
   @override
   String get settings_compatibility_functions_category_threads =>
-      'İş parçacıkları (Threads)';
+      'Ã„Â°Ã…Å¸ parÃƒÂ§acÃ„Â±klarÃ„Â± (Threads)';
 
   @override
   String get settings_compatibility_functions_category_variables =>
-      'Kapsamlı değişkenler';
+      'KapsamlÃ„Â± deÃ„Å¸iÃ…Å¸kenler';
 
   @override
   String settings_compatibility_functions_count(int count) {
@@ -6613,17 +6773,17 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String settings_compatibility_functions_count_bdfd(int count) {
-    return 'BDFD referans toplamı: $count';
+    return 'BDFD referans toplamÃ„Â±: $count';
   }
 
   @override
   String settings_compatibility_functions_count_bot_creator(int count) {
-    return 'Bot Creator tarafından desteklenen: $count';
+    return 'Bot Creator tarafÃ„Â±ndan desteklenen: $count';
   }
 
   @override
   String settings_compatibility_functions_count_bot_only(int count) {
-    return 'Yalnızca Bot Creator: $count';
+    return 'YalnÃ„Â±zca Bot Creator: $count';
   }
 
   @override
@@ -6638,31 +6798,31 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get settings_compatibility_functions_empty =>
-      'Bu bölümde fonksiyon yok.';
+      'Bu bÃƒÂ¶lÃƒÂ¼mde fonksiyon yok.';
 
   @override
   String get settings_compatibility_functions_matrix_note =>
-      'Yalnızca BDFD olan girişler, sağlanan BDFD kataloğunda listelenen ancak şu anda Bot Creator\'da uygulanmayan fonksiyonlardır.';
+      'YalnÃ„Â±zca BDFD olan giriÃ…Å¸ler, saÃ„Å¸lanan BDFD kataloÃ„Å¸unda listelenen ancak Ã…Å¸u anda Bot Creator\'da uygulanmayan fonksiyonlardÃ„Â±r.';
 
   @override
   String get settings_compatibility_functions_matrix_subtitle =>
-      'Bot Creator uygulaması ile BDFD referans fonksiyonları arasındaki fark görünümü.';
+      'Bot Creator uygulamasÃ„Â± ile BDFD referans fonksiyonlarÃ„Â± arasÃ„Â±ndaki fark gÃƒÂ¶rÃƒÂ¼nÃƒÂ¼mÃƒÂ¼.';
 
   @override
   String get settings_compatibility_functions_note =>
-      'Bu sayfa mevcut uygulama kapsamından oluşturulmuştur ve zamanla büyüyecektir.';
+      'Bu sayfa mevcut uygulama kapsamÃ„Â±ndan oluÃ…Å¸turulmuÃ…Å¸tur ve zamanla bÃƒÂ¼yÃƒÂ¼yecektir.';
 
   @override
   String get settings_compatibility_functions_search_hint =>
-      'Bir fonksiyon arayın (örnek: \$userJoined)';
+      'Bir fonksiyon arayÃ„Â±n (ÃƒÂ¶rnek: \$userJoined)';
 
   @override
   String get settings_compatibility_functions_section_bot_only =>
-      'Yalnızca Bot Creator\'da desteklenenler';
+      'YalnÃ„Â±zca Bot Creator\'da desteklenenler';
 
   @override
   String get settings_compatibility_functions_section_bot_only_note =>
-      'Döngü yardımcıları şu anda Bot Creator\'a özgüdür.';
+      'DÃƒÂ¶ngÃƒÂ¼ yardÃ„Â±mcÃ„Â±larÃ„Â± Ã…Å¸u anda Bot Creator\'a ÃƒÂ¶zgÃƒÂ¼dÃƒÂ¼r.';
 
   @override
   String get settings_compatibility_functions_section_both =>
@@ -6674,145 +6834,147 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get settings_compatibility_functions_subtitle =>
-      'Bot Creator BDFD modunda şu anda uygulanan ve kullanılabilen fonksiyonlar.';
+      'Bot Creator BDFD modunda Ã…Å¸u anda uygulanan ve kullanÃ„Â±labilen fonksiyonlar.';
 
   @override
   String get settings_compatibility_functions_title =>
-      'Uyumlu BDFD Fonksiyonları';
+      'Uyumlu BDFD FonksiyonlarÃ„Â±';
 
   @override
   String get settings_compatibility_item_bdscript_desc =>
-      'BDFD fonksiyon kataloğunun tam kapsamı.';
+      'BDFD fonksiyon kataloÃ„Å¸unun tam kapsamÃ„Â±.';
 
   @override
   String get settings_compatibility_item_bdscript_title =>
-      'BDScript fonksiyon eşitliği';
+      'BDScript fonksiyon eÃ…Å¸itliÃ„Å¸i';
 
   @override
   String get settings_compatibility_item_events_desc =>
-      'En yaygın etkinlikler desteklenir, bazıları çalışma zamanı sınırlıdır.';
+      'En yaygÃ„Â±n etkinlikler desteklenir, bazÃ„Â±larÃ„Â± ÃƒÂ§alÃ„Â±Ã…Å¸ma zamanÃ„Â± sÃ„Â±nÃ„Â±rlÃ„Â±dÃ„Â±r.';
 
   @override
-  String get settings_compatibility_item_events_title => 'Etkinlik kapsamı';
+  String get settings_compatibility_item_events_title => 'Etkinlik kapsamÃ„Â±';
 
   @override
   String get settings_compatibility_item_runner_desc =>
-      'Uzak çalıştırıcı (runner) mevcuttur, çoklu çalıştırıcı desteği devam ediyor.';
+      'Uzak ÃƒÂ§alÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±cÃ„Â± (runner) mevcuttur, ÃƒÂ§oklu ÃƒÂ§alÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±cÃ„Â± desteÃ„Å¸i devam ediyor.';
 
   @override
   String get settings_compatibility_item_runner_title => 'Runner mimarisi';
 
   @override
   String get settings_compatibility_item_variables_desc =>
-      'Dinamik değişkenler ve şablon yardımcıları desteklenir.';
+      'Dinamik deÃ„Å¸iÃ…Å¸kenler ve Ã…Å¸ablon yardÃ„Â±mcÃ„Â±larÃ„Â± desteklenir.';
 
   @override
   String get settings_compatibility_item_variables_title =>
-      'Çalışma zamanı değişkenleri ve şablonları';
+      'Ãƒâ€¡alÃ„Â±Ã…Å¸ma zamanÃ„Â± deÃ„Å¸iÃ…Å¸kenleri ve Ã…Å¸ablonlarÃ„Â±';
 
   @override
   String get settings_compatibility_item_workflows_desc =>
-      'Görsel komut ve yanıt iş akışları mevcuttur.';
+      'GÃƒÂ¶rsel komut ve yanÃ„Â±t iÃ…Å¸ akÃ„Â±Ã…Å¸larÃ„Â± mevcuttur.';
 
   @override
   String get settings_compatibility_item_workflows_title =>
-      'İş akışı oluşturucu';
+      'Ã„Â°Ã…Å¸ akÃ„Â±Ã…Å¸Ã„Â± oluÃ…Å¸turucu';
 
   @override
   String get settings_compatibility_note =>
-      'Bu özet kasıtlı olarak genel düzeydedir ve sürümlerle birlikte gelişecektir.';
+      'Bu ÃƒÂ¶zet kasÃ„Â±tlÃ„Â± olarak genel dÃƒÂ¼zeydedir ve sÃƒÂ¼rÃƒÂ¼mlerle birlikte geliÃ…Å¸ecektir.';
 
   @override
   String get settings_compatibility_open_functions =>
-      'Uyumlu fonksiyonları görüntüle';
+      'Uyumlu fonksiyonlarÃ„Â± gÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼le';
 
   @override
   String get settings_compatibility_status_missing => 'Eksik';
 
   @override
-  String get settings_compatibility_status_partial => 'Kısmi';
+  String get settings_compatibility_status_partial => 'KÃ„Â±smi';
 
   @override
   String get settings_compatibility_status_supported => 'Destekleniyor';
 
   @override
-  String get settings_compatibility_title => 'BDFD uyumluluk özeti';
+  String get settings_compatibility_title => 'BDFD uyumluluk ÃƒÂ¶zeti';
 
   @override
-  String get settings_data_operations_title => 'Veri İşlemleri';
+  String get settings_data_operations_title => 'Veri Ã„Â°Ã…Å¸lemleri';
 
   @override
   String get settings_debug_desc =>
-      'Yerel tercihleri sıfırlayın veya test için kurulumu yeniden oynatın.';
+      'Yerel tercihleri sÃ„Â±fÃ„Â±rlayÃ„Â±n veya test iÃƒÂ§in kurulumu yeniden oynatÃ„Â±n.';
 
   @override
   String get settings_debug_premium_bypass => 'Premium atlama';
 
   @override
   String get settings_debug_premium_bypass_desc =>
-      'Abonelik olmadan tüm Premium özellikleri açın (yalnızca hata ayıklama).';
+      'Abonelik olmadan tÃƒÂ¼m Premium ÃƒÂ¶zellikleri aÃƒÂ§Ã„Â±n (yalnÃ„Â±zca hata ayÃ„Â±klama).';
 
   @override
-  String get settings_debug_title => 'Hata ayıklama araçları';
+  String get settings_debug_title => 'Hata ayÃ„Â±klama araÃƒÂ§larÃ„Â±';
 
   @override
-  String get settings_diagnostics_copied => 'Tanılama panoya kopyalandı';
+  String get settings_diagnostics_copied => 'TanÃ„Â±lama panoya kopyalandÃ„Â±';
 
   @override
-  String get settings_diagnostics_copy_all => 'Tüm günlükleri kopyala';
+  String get settings_diagnostics_copy_all => 'TÃƒÂ¼m gÃƒÂ¼nlÃƒÂ¼kleri kopyala';
 
   @override
-  String get settings_diagnostics_dialog_title => 'Başlangıç Tanılama';
+  String get settings_diagnostics_dialog_title =>
+      'BaÃ…Å¸langÃ„Â±ÃƒÂ§ TanÃ„Â±lama';
 
   @override
-  String get settings_diagnostics_empty => 'Henüz uygulama günlüğü yok.';
+  String get settings_diagnostics_empty =>
+      'HenÃƒÂ¼z uygulama gÃƒÂ¼nlÃƒÂ¼Ã„Å¸ÃƒÂ¼ yok.';
 
   @override
   String get settings_diagnostics_page_scope_note =>
-      'Yalnızca uygulama tanılama günlüklerini gösterir (bot günlükleri hariçtir).';
+      'YalnÃ„Â±zca uygulama tanÃ„Â±lama gÃƒÂ¼nlÃƒÂ¼klerini gÃƒÂ¶sterir (bot gÃƒÂ¼nlÃƒÂ¼kleri hariÃƒÂ§tir).';
 
   @override
-  String get settings_diagnostics_page_title => 'Uygulama Günlükleri';
+  String get settings_diagnostics_page_title => 'Uygulama GÃƒÂ¼nlÃƒÂ¼kleri';
 
   @override
-  String get settings_diagnostics_refresh => 'Günlükleri yenile';
+  String get settings_diagnostics_refresh => 'GÃƒÂ¼nlÃƒÂ¼kleri yenile';
 
   @override
-  String get settings_diagnostics_section_title => 'Tanılama';
+  String get settings_diagnostics_section_title => 'TanÃ„Â±lama';
 
   @override
   String get settings_discord_rpc_authenticating =>
-      'Discord ile kimlik doğrulanıyor…';
+      'Discord ile kimlik doÃ„Å¸rulanÃ„Â±yorÃ¢â‚¬Â¦';
 
   @override
   String get settings_discord_rpc_authorization_code_pending_exchange =>
-      'Yetkilendirme kodu önbelleğe alındı; jeton değişimini bitirmek için tekrar deneyin';
+      'Yetkilendirme kodu ÃƒÂ¶nbelleÃ„Å¸e alÃ„Â±ndÃ„Â±; jeton deÃ„Å¸iÃ…Å¸imini bitirmek iÃƒÂ§in tekrar deneyin';
 
   @override
   String get settings_discord_rpc_authorization_pending_exchange =>
-      'Yetkilendirme kodu alındı';
+      'Yetkilendirme kodu alÃ„Â±ndÃ„Â±';
 
   @override
   String get settings_discord_rpc_authorize => 'Yetkilendir';
 
   @override
   String get settings_discord_rpc_authorizing =>
-      'Discord yetkilendirmesi bekleniyor…';
+      'Discord yetkilendirmesi bekleniyorÃ¢â‚¬Â¦';
 
   @override
   String get settings_discord_rpc_broker_hint => 'https://auth.example.com';
 
   @override
   String get settings_discord_rpc_broker_label =>
-      'OAuth aracı URL\'si (gelişmiş, isteğe bağlı)';
+      'OAuth aracÃ„Â± URL\'si (geliÃ…Å¸miÃ…Å¸, isteÃ„Å¸e baÃ„Å¸lÃ„Â±)';
 
   @override
   String get settings_discord_rpc_broker_required =>
-      'Genel istemci akışı için İstemci ID\'si yeterlidir; aracı URL\'si ve istemci sırrı isteğe bağlı geri dönüşlerdir';
+      'Genel istemci akÃ„Â±Ã…Å¸Ã„Â± iÃƒÂ§in Ã„Â°stemci ID\'si yeterlidir; aracÃ„Â± URL\'si ve istemci sÃ„Â±rrÃ„Â± isteÃ„Å¸e baÃ„Å¸lÃ„Â± geri dÃƒÂ¶nÃƒÂ¼Ã…Å¸lerdir';
 
   @override
   String get settings_discord_rpc_client_id_helper =>
-      'Bu ID Bot Creator\'da sabittir ve ayarlardan değiştirilemez.';
+      'Bu ID Bot Creator\'da sabittir ve ayarlardan deÃ„Å¸iÃ…Å¸tirilemez.';
 
   @override
   String get settings_discord_rpc_client_id_hint => '1350824555119382678';
@@ -6823,67 +6985,70 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get settings_discord_rpc_client_secret_helper =>
-      'Yerel olarak işlenen gizli istemci akışı için isteğe bağlı gelişmiş geri dönüş.';
+      'Yerel olarak iÃ…Å¸lenen gizli istemci akÃ„Â±Ã…Å¸Ã„Â± iÃƒÂ§in isteÃ„Å¸e baÃ„Å¸lÃ„Â± geliÃ…Å¸miÃ…Å¸ geri dÃƒÂ¶nÃƒÂ¼Ã…Å¸.';
 
   @override
-  String get settings_discord_rpc_client_secret_hint => 'İstemci sırrı';
+  String get settings_discord_rpc_client_secret_hint =>
+      'Ã„Â°stemci sÃ„Â±rrÃ„Â±';
 
   @override
   String get settings_discord_rpc_client_secret_label =>
-      'Discord uygulama istemci sırrı (isteğe bağlı)';
+      'Discord uygulama istemci sÃ„Â±rrÃ„Â± (isteÃ„Å¸e baÃ„Å¸lÃ„Â±)';
 
   @override
   String get settings_discord_rpc_complete_authorization =>
       'Yetkilendirmeyi tamamla';
 
   @override
-  String get settings_discord_rpc_connect => 'Varlığı yenile';
+  String get settings_discord_rpc_connect => 'VarlÃ„Â±Ã„Å¸Ã„Â± yenile';
 
   @override
-  String get settings_discord_rpc_connected => 'Varlık Discord\'a gönderildi';
+  String get settings_discord_rpc_connected =>
+      'VarlÃ„Â±k Discord\'a gÃƒÂ¶nderildi';
 
   @override
-  String get settings_discord_rpc_connecting => 'Discord\'a bağlanılıyor…';
+  String get settings_discord_rpc_connecting =>
+      'Discord\'a baÃ„Å¸lanÃ„Â±lÃ„Â±yorÃ¢â‚¬Â¦';
 
   @override
   String get settings_discord_rpc_desc =>
-      'Bot Creator masaüstü etkinliğini yerel Discord istemcisinde yayınlayın. Bot Creator her zaman yerleşik Discord uygulamasını kullanır ve etkinleştirildiğinde SET_ACTIVITY\'yi doğrudan yerel IPC üzerinden gönderir.';
+      'Bot Creator masaÃƒÂ¼stÃƒÂ¼ etkinliÃ„Å¸ini yerel Discord istemcisinde yayÃ„Â±nlayÃ„Â±n. Bot Creator her zaman yerleÃ…Å¸ik Discord uygulamasÃ„Â±nÃ„Â± kullanÃ„Â±r ve etkinleÃ…Å¸tirildiÃ„Å¸inde SET_ACTIVITY\'yi doÃ„Å¸rudan yerel IPC ÃƒÂ¼zerinden gÃƒÂ¶nderir.';
 
   @override
-  String get settings_discord_rpc_disabled => 'Devre dışı';
+  String get settings_discord_rpc_disabled => 'Devre dÃ„Â±Ã…Å¸Ã„Â±';
 
   @override
   String get settings_discord_rpc_disconnect => 'IPC\'yi kapat';
 
   @override
-  String get settings_discord_rpc_disconnected => 'IPC kapatıldı';
+  String get settings_discord_rpc_disconnected => 'IPC kapatÃ„Â±ldÃ„Â±';
 
   @override
   String get settings_discord_rpc_enable =>
-      'Discord Zengin Varlık özelliğini etkinleştir';
+      'Discord Zengin VarlÃ„Â±k ÃƒÂ¶zelliÃ„Å¸ini etkinleÃ…Å¸tir';
 
   @override
   String get settings_discord_rpc_enable_first =>
-      'Önce Discord Zengin Varlık özelliğini etkinleştirin';
+      'Ãƒâ€“nce Discord Zengin VarlÃ„Â±k ÃƒÂ¶zelliÃ„Å¸ini etkinleÃ…Å¸tirin';
 
   @override
   String settings_discord_rpc_endpoint(String endpoint) {
-    return 'IPC uç noktası: $endpoint';
+    return 'IPC uÃƒÂ§ noktasÃ„Â±: $endpoint';
   }
 
   @override
-  String get settings_discord_rpc_error => 'Discord RPC hatası';
+  String get settings_discord_rpc_error => 'Discord RPC hatasÃ„Â±';
 
   @override
   String get settings_discord_rpc_exchanging_code =>
-      'OAuth değişimi tamamlanıyor…';
+      'OAuth deÃ„Å¸iÃ…Å¸imi tamamlanÃ„Â±yorÃ¢â‚¬Â¦';
 
   @override
   String get settings_discord_rpc_ipc_connected_auth_required =>
-      'Yerel Discord IPC bağlandı; henüz OAuth HTTP isteği gönderilmedi, yetkilendirme hala gerekli';
+      'Yerel Discord IPC baÃ„Å¸landÃ„Â±; henÃƒÂ¼z OAuth HTTP isteÃ„Å¸i gÃƒÂ¶nderilmedi, yetkilendirme hala gerekli';
 
   @override
-  String get settings_discord_rpc_ipc_open => 'Yerel IPC zaten açık';
+  String get settings_discord_rpc_ipc_open => 'Yerel IPC zaten aÃƒÂ§Ã„Â±k';
 
   @override
   String settings_discord_rpc_last_error(String error) {
@@ -6895,114 +7060,118 @@ class AppLocalizationsTr extends AppLocalizations {
       'Yetkilendirme gerekli';
 
   @override
-  String get settings_discord_rpc_not_configured => 'İstemci ID\'si gerekli';
+  String get settings_discord_rpc_not_configured => 'Ã„Â°stemci ID\'si gerekli';
 
   @override
-  String get settings_discord_rpc_open_ipc => 'Yerel IPC\'yi aç';
+  String get settings_discord_rpc_open_ipc => 'Yerel IPC\'yi aÃƒÂ§';
 
   @override
   String get settings_discord_rpc_platform_unsupported =>
-      'Discord Zengin Varlık yalnızca masaüstünde kullanılabilir';
+      'Discord Zengin VarlÃ„Â±k yalnÃ„Â±zca masaÃƒÂ¼stÃƒÂ¼nde kullanÃ„Â±labilir';
 
   @override
-  String get settings_discord_rpc_save => 'Ayarları kaydet';
+  String get settings_discord_rpc_save => 'AyarlarÃ„Â± kaydet';
 
   @override
   String get settings_discord_rpc_saved =>
-      'Discord Zengin Varlık ayarları kaydedildi';
+      'Discord Zengin VarlÃ„Â±k ayarlarÃ„Â± kaydedildi';
 
   @override
   String get settings_discord_rpc_title =>
-      'Discord Zengin Varlık (Rich Presence)';
+      'Discord Zengin VarlÃ„Â±k (Rich Presence)';
 
   @override
   String get settings_discord_rpc_transport_unsupported =>
-      'Discord taşıması henüz bu platformda desteklenmiyor';
+      'Discord taÃ…Å¸Ã„Â±masÃ„Â± henÃƒÂ¼z bu platformda desteklenmiyor';
 
   @override
   String settings_discord_rpc_user(String user) {
-    return 'Yetkili kullanıcı: $user';
+    return 'Yetkili kullanÃ„Â±cÃ„Â±: $user';
   }
 
   @override
-  String get settings_drive_connect => 'Google Drive\'a Bağlan';
+  String get settings_drive_connect => 'Google Drive\'a BaÃ„Å¸lan';
 
   @override
-  String get settings_drive_connect_loading => 'Google Drive\'a bağlanılıyor…';
+  String get settings_drive_connect_loading =>
+      'Google Drive\'a baÃ„Å¸lanÃ„Â±lÃ„Â±yorÃ¢â‚¬Â¦';
 
   @override
-  String get settings_drive_connected => 'Google Drive\'a bağlandı';
+  String get settings_drive_connected => 'Google Drive\'a baÃ„Å¸landÃ„Â±';
 
   @override
   String get settings_drive_desc =>
-      'Verilerinizi senkronize etmek için Google Drive hesabınızı bağlayın';
+      'Verilerinizi senkronize etmek iÃƒÂ§in Google Drive hesabÃ„Â±nÃ„Â±zÃ„Â± baÃ„Å¸layÃ„Â±n';
 
   @override
-  String get settings_drive_disconnect => 'Bağlantıyı Kes';
+  String get settings_drive_disconnect => 'BaÃ„Å¸lantÃ„Â±yÃ„Â± Kes';
 
   @override
-  String get settings_drive_disconnect_loading => 'Bağlantı kesiliyor…';
+  String get settings_drive_disconnect_loading =>
+      'BaÃ„Å¸lantÃ„Â± kesiliyorÃ¢â‚¬Â¦';
 
   @override
-  String get settings_drive_disconnected => 'Google Drive bağlantısı kesildi';
+  String get settings_drive_disconnected =>
+      'Google Drive baÃ„Å¸lantÃ„Â±sÃ„Â± kesildi';
 
   @override
-  String get settings_drive_status_connected => 'Bağlı';
+  String get settings_drive_status_connected => 'BaÃ„Å¸lÃ„Â±';
 
   @override
-  String get settings_drive_title => 'Google Drive Bağlantısı';
+  String get settings_drive_title => 'Google Drive BaÃ„Å¸lantÃ„Â±sÃ„Â±';
 
   @override
-  String get settings_enable_auto_backup => 'Otomatik yedeklemeyi etkinleştir';
+  String get settings_enable_auto_backup =>
+      'Otomatik yedeklemeyi etkinleÃ…Å¸tir';
 
   @override
   String get settings_enable_auto_backup_desc =>
-      'Zamanı geldiğinde otomatik olarak sürümlü anlık görüntüler oluşturun.';
+      'ZamanÃ„Â± geldiÃ„Å¸inde otomatik olarak sÃƒÂ¼rÃƒÂ¼mlÃƒÂ¼ anlÃ„Â±k gÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼ler oluÃ…Å¸turun.';
 
   @override
   String get settings_execution_mode_desc =>
-      'Bu platformda, Bot Creator botlarınızı asla barındırmaz. Kendi barındırdığınız çalıştırıcınızı kullanabilir veya botları yerel olarak yürütebilirsiniz.';
+      'Bu platformda, Bot Creator botlarÃ„Â±nÃ„Â±zÃ„Â± asla barÃ„Â±ndÃ„Â±rmaz. Kendi barÃ„Â±ndÃ„Â±rdÃ„Â±Ã„Å¸Ã„Â±nÃ„Â±z ÃƒÂ§alÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±cÃ„Â±nÃ„Â±zÃ„Â± kullanabilir veya botlarÃ„Â± yerel olarak yÃƒÂ¼rÃƒÂ¼tebilirsiniz.';
 
   @override
   String get settings_execution_mode_local_active =>
-      'Botlar artık yerel olarak başlatılıyor. Çalıştırıcı ayarları saklı kalır ve her zaman yeniden etkinleştirilebilir.';
+      'Botlar artÃ„Â±k yerel olarak baÃ…Å¸latÃ„Â±lÃ„Â±yor. Ãƒâ€¡alÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±cÃ„Â± ayarlarÃ„Â± saklÃ„Â± kalÃ„Â±r ve her zaman yeniden etkinleÃ…Å¸tirilebilir.';
 
   @override
   String get settings_execution_mode_no_runner =>
-      'Henüz bir çalıştırıcı yapılandırılmadı. Uygulama, bir tane ekleyene kadar yerel modda kalır.';
+      'HenÃƒÂ¼z bir ÃƒÂ§alÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±cÃ„Â± yapÃ„Â±landÃ„Â±rÃ„Â±lmadÃ„Â±. Uygulama, bir tane ekleyene kadar yerel modda kalÃ„Â±r.';
 
   @override
   String get settings_execution_mode_runner_priority =>
-      'Kendi barındırdığınız çalıştırıcı tercih edilir. Eğer yapılandırılmış bir çalıştırıcı yoksa, uygulama yerel moda geri döner.';
+      'Kendi barÃ„Â±ndÃ„Â±rdÃ„Â±Ã„Å¸Ã„Â±nÃ„Â±z ÃƒÂ§alÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±cÃ„Â± tercih edilir. EÃ„Å¸er yapÃ„Â±landÃ„Â±rÃ„Â±lmÃ„Â±Ã…Å¸ bir ÃƒÂ§alÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±cÃ„Â± yoksa, uygulama yerel moda geri dÃƒÂ¶ner.';
 
   @override
-  String get settings_execution_mode_title => 'Yürütme modu';
+  String get settings_execution_mode_title => 'YÃƒÂ¼rÃƒÂ¼tme modu';
 
   @override
   String get settings_execution_mode_use_runner =>
-      'Kendi barındırdığınız çalıştırıcıyı (runner) kullanın';
+      'Kendi barÃ„Â±ndÃ„Â±rdÃ„Â±Ã„Å¸Ã„Â±nÃ„Â±z ÃƒÂ§alÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±cÃ„Â±yÃ„Â± (runner) kullanÃ„Â±n';
 
   @override
-  String get settings_export => 'Dışa Aktar';
+  String get settings_export => 'DÃ„Â±Ã…Å¸a Aktar';
 
   @override
-  String get settings_export_app_data => 'Uygulama Verilerini Dışa Aktar';
+  String get settings_export_app_data => 'Uygulama Verilerini DÃ„Â±Ã…Å¸a Aktar';
 
   @override
-  String get settings_export_loading => 'Dışa aktarılıyor…';
+  String get settings_export_loading => 'DÃ„Â±Ã…Å¸a aktarÃ„Â±lÃ„Â±yorÃ¢â‚¬Â¦';
 
   @override
-  String get settings_import => 'İçe Aktar';
+  String get settings_import => 'Ã„Â°ÃƒÂ§e Aktar';
 
   @override
-  String get settings_import_app_data => 'Uygulama Verilerini İçe Aktar';
+  String get settings_import_app_data => 'Uygulama Verilerini Ã„Â°ÃƒÂ§e Aktar';
 
   @override
-  String get settings_import_loading => 'İçe aktarılıyor…';
+  String get settings_import_loading => 'Ã„Â°ÃƒÂ§e aktarÃ„Â±lÃ„Â±yorÃ¢â‚¬Â¦';
 
   @override
   String get settings_language_desc =>
-      'Uygulama tarafından kullanılan dili seçin.';
+      'Uygulama tarafÃ„Â±ndan kullanÃ„Â±lan dili seÃƒÂ§in.';
 
   @override
   String get settings_language_system => 'Otomatik (cihaz)';
@@ -7011,7 +7180,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settings_language_title => 'Dil';
 
   @override
-  String get settings_language_updated => 'Dil güncellendi';
+  String get settings_language_updated => 'Dil gÃƒÂ¼ncellendi';
 
   @override
   String settings_last_auto_backup_at(String date) {
@@ -7020,14 +7189,14 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get settings_last_auto_backup_never =>
-      'Son otomatik yedekleme: hiç yok';
+      'Son otomatik yedekleme: hiÃƒÂ§ yok';
 
   @override
-  String get settings_legacy_prefix => 'Eski komut ön eki';
+  String get settings_legacy_prefix => 'Eski komut ÃƒÂ¶n eki';
 
   @override
   String get settings_legacy_prefix_helper =>
-      'Şablonları ve kapsamlı değişkenleri destekler (bc_ isteğe bağlı). Örnek: ((guild.prefix | user.prefix | !))';
+      'Ã…Å¾ablonlarÃ„Â± ve kapsamlÃ„Â± deÃ„Å¸iÃ…Å¸kenleri destekler (bc_ isteÃ„Å¸e baÃ„Å¸lÃ„Â±). Ãƒâ€“rnek: ((guild.prefix | user.prefix | !))';
 
   @override
   String get settings_legacy_prefix_hint =>
@@ -7035,21 +7204,22 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get settings_legal_desc =>
-      'Verilerinizin nasıl işlendiğini ve saklandığını inceleyin.';
+      'Verilerinizin nasÃ„Â±l iÃ…Å¸lendiÃ„Å¸ini ve saklandÃ„Â±Ã„Å¸Ã„Â±nÃ„Â± inceleyin.';
 
   @override
   String get settings_legal_title => 'Yasal';
 
   @override
   String get settings_local_hosting_enabled =>
-      'Mobil botlar artık barındırma için cihazınızı kullanıyor.';
+      'Mobil botlar artÃ„Â±k barÃ„Â±ndÃ„Â±rma iÃƒÂ§in cihazÃ„Â±nÃ„Â±zÃ„Â± kullanÃ„Â±yor.';
 
   @override
-  String get settings_logs_cleared => 'Tanılama günlüğü temizlendi';
+  String get settings_logs_cleared =>
+      'TanÃ„Â±lama gÃƒÂ¼nlÃƒÂ¼Ã„Å¸ÃƒÂ¼ temizlendi';
 
   @override
   String get settings_main_api_auth_failed =>
-      'Bot Creator Sunucu oturumu geçersiz veya süresi dolmuş';
+      'Bot Creator Sunucu oturumu geÃƒÂ§ersiz veya sÃƒÂ¼resi dolmuÃ…Å¸';
 
   @override
   String get settings_main_api_check => 'Bot Creator Sunucusunu Kontrol Et';
@@ -7059,33 +7229,36 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get settings_main_api_cleared =>
-      'Bot Creator Sunucu ayarları temizlendi';
+      'Bot Creator Sunucu ayarlarÃ„Â± temizlendi';
 
   @override
-  String get settings_main_api_connect_discord => 'Discord hesabını bağla';
+  String get settings_main_api_connect_discord =>
+      'Discord hesabÃ„Â±nÃ„Â± baÃ„Å¸la';
 
   @override
   String get settings_main_api_connected =>
-      'Bot Creator Sunucusu erişilebilir ✓';
+      'Bot Creator Sunucusu eriÃ…Å¸ilebilir Ã¢Å“â€œ';
 
   @override
-  String get settings_main_api_connected_discord => 'Discord hesabı bağlandı';
+  String get settings_main_api_connected_discord =>
+      'Discord hesabÃ„Â± baÃ„Å¸landÃ„Â±';
 
   @override
   String settings_main_api_connected_user(String user) {
-    return '$user olarak bağlandı';
+    return '$user olarak baÃ„Å¸landÃ„Â±';
   }
 
   @override
   String get settings_main_api_desc =>
-      'Bot Creator\'ı Bot Creator Sunucunuza bağlayın ve Discord ile giriş yapın. Discord istemci sırrı arka uçta kalmalıdır.';
+      'Bot Creator\'Ã„Â± Bot Creator Sunucunuza baÃ„Å¸layÃ„Â±n ve Discord ile giriÃ…Å¸ yapÃ„Â±n. Discord istemci sÃ„Â±rrÃ„Â± arka uÃƒÂ§ta kalmalÃ„Â±dÃ„Â±r.';
 
   @override
   String get settings_main_api_desktop_only =>
-      'Bot Creator Sunucusu üzerinden Discord girişi yalnızca masaüstünde mevcuttur.';
+      'Bot Creator Sunucusu ÃƒÂ¼zerinden Discord giriÃ…Å¸i yalnÃ„Â±zca masaÃƒÂ¼stÃƒÂ¼nde mevcuttur.';
 
   @override
-  String get settings_main_api_disconnect => 'Hesabın bağlantısını kes';
+  String get settings_main_api_disconnect =>
+      'HesabÃ„Â±n baÃ„Å¸lantÃ„Â±sÃ„Â±nÃ„Â± kes';
 
   @override
   String get settings_main_api_not_configured =>
@@ -7096,7 +7269,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get settings_main_api_saved =>
-      'Bot Creator Sunucu ayarları kaydedildi';
+      'Bot Creator Sunucu ayarlarÃ„Â± kaydedildi';
 
   @override
   String get settings_main_api_session_connected => 'Discord oturumu aktif';
@@ -7107,13 +7280,14 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get settings_main_api_session_expired =>
-      'Discord oturumunun süresi doldu';
+      'Discord oturumunun sÃƒÂ¼resi doldu';
 
   @override
   String get settings_main_api_title => 'Bot Creator Sunucusu';
 
   @override
-  String get settings_main_api_unreachable => 'Bot Creator Sunucusu erişilemez';
+  String get settings_main_api_unreachable =>
+      'Bot Creator Sunucusu eriÃ…Å¸ilemez';
 
   @override
   String get settings_main_api_url_hint => 'https://api.example.com';
@@ -7123,81 +7297,82 @@ class AppLocalizationsTr extends AppLocalizations {
       'Bot Creator Sunucu URL\'si gerekli';
 
   @override
-  String get settings_main_api_user_unknown => 'Discord kullanıcısı';
+  String get settings_main_api_user_unknown => 'Discord kullanÃ„Â±cÃ„Â±sÃ„Â±';
 
   @override
-  String get settings_manual_snapshot_label => 'Manuel anlık görüntü';
+  String get settings_manual_snapshot_label =>
+      'Manuel anlÃ„Â±k gÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼';
 
   @override
-  String get settings_member_badge => 'ÜYE';
+  String get settings_member_badge => 'ÃƒÅ“YE';
 
   @override
   String get settings_notifications_desc =>
-      'Hangi push bildirim türlerini almak istediğinizi seçin.';
+      'Hangi push bildirim tÃƒÂ¼rlerini almak istediÃ„Å¸inizi seÃƒÂ§in.';
 
   @override
   String get settings_notifications_title => 'Bildirimler';
 
   @override
-  String get settings_notifications_topic_billing => 'Faturalandırma';
+  String get settings_notifications_topic_billing => 'FaturalandÃ„Â±rma';
 
   @override
   String get settings_notifications_topic_billing_desc =>
-      'Abonelik yenileme hatırlatıcıları ve ödeme onayları.';
+      'Abonelik yenileme hatÃ„Â±rlatÃ„Â±cÃ„Â±larÃ„Â± ve ÃƒÂ¶deme onaylarÃ„Â±.';
 
   @override
-  String get settings_notifications_topic_botAlerts => 'Bot Uyarıları';
+  String get settings_notifications_topic_botAlerts => 'Bot UyarÃ„Â±larÃ„Â±';
 
   @override
   String get settings_notifications_topic_botAlerts_desc =>
-      'Botlarınız çevrimdışı olduğunda veya hatalarla karşılaştığında uyarılar.';
+      'BotlarÃ„Â±nÃ„Â±z ÃƒÂ§evrimdÃ„Â±Ã…Å¸Ã„Â± olduÃ„Å¸unda veya hatalarla karÃ…Å¸Ã„Â±laÃ…Å¸tÃ„Â±Ã„Å¸Ã„Â±nda uyarÃ„Â±lar.';
 
   @override
   String get settings_notifications_topic_broadcast => 'Duyurular';
 
   @override
   String get settings_notifications_topic_broadcast_desc =>
-      'Bot Creator\'dan önemli duyurular ve haberler.';
+      'Bot Creator\'dan ÃƒÂ¶nemli duyurular ve haberler.';
 
   @override
-  String get settings_notifications_topic_updates => 'Güncellemeler';
+  String get settings_notifications_topic_updates => 'GÃƒÂ¼ncellemeler';
 
   @override
   String get settings_notifications_topic_updates_desc =>
-      'Yeni özellikler, uygulama güncellemeleri ve değişiklik günlüğü özetleri.';
+      'Yeni ÃƒÂ¶zellikler, uygulama gÃƒÂ¼ncellemeleri ve deÃ„Å¸iÃ…Å¸iklik gÃƒÂ¼nlÃƒÂ¼Ã„Å¸ÃƒÂ¼ ÃƒÂ¶zetleri.';
 
   @override
-  String get settings_open_ad_inspector => 'Reklam Denetçisini Aç';
+  String get settings_open_ad_inspector => 'Reklam DenetÃƒÂ§isini AÃƒÂ§';
 
   @override
-  String get settings_oss_licenses => 'Açık Kaynak Lisansları';
+  String get settings_oss_licenses => 'AÃƒÂ§Ã„Â±k Kaynak LisanslarÃ„Â±';
 
   @override
-  String get settings_owner_badge => 'SAHİP';
+  String get settings_owner_badge => 'SAHÃ„Â°P';
 
   @override
   String get settings_owner_fallback => 'Sahip';
 
   @override
-  String get settings_personal_owner_fallback => 'Kişisel Kullanıcı';
+  String get settings_personal_owner_fallback => 'KiÃ…Å¸isel KullanÃ„Â±cÃ„Â±';
 
   @override
-  String get settings_personal_owner_id_label => 'Sahip Kimliği: ';
+  String get settings_personal_owner_id_label => 'Sahip KimliÃ„Å¸i: ';
 
   @override
   String get settings_personal_owner_label => 'Sahip: ';
 
   @override
-  String get settings_personal_ownership => 'Kişisel Sahiplik';
+  String get settings_personal_ownership => 'KiÃ…Å¸isel Sahiplik';
 
   @override
-  String get settings_preferences_reset_done => 'Tercihler sıfırlandı';
+  String get settings_preferences_reset_done => 'Tercihler sÃ„Â±fÃ„Â±rlandÃ„Â±';
 
   @override
-  String get settings_privacy_policy => 'Gizlilik Politikası';
+  String get settings_privacy_policy => 'Gizlilik PolitikasÃ„Â±';
 
   @override
-  String get settings_raw_json_tile => 'Ham JSON Görüntüle (RAW JSON)';
+  String get settings_raw_json_tile => 'Ham JSON GÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼le (RAW JSON)';
 
   @override
   String get settings_recovery_title => 'Kurtarma Pro';
@@ -7207,24 +7382,26 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get settings_replay_onboarding_desc =>
-      'Kurulumu sıfırlayın ve şimdi tekrar başlatın.';
+      'Kurulumu sÃ„Â±fÃ„Â±rlayÃ„Â±n ve Ã…Å¸imdi tekrar baÃ…Å¸latÃ„Â±n.';
 
   @override
-  String get settings_reset_preferences => 'Tercihleri sıfırla';
+  String get settings_reset_preferences => 'Tercihleri sÃ„Â±fÃ„Â±rla';
 
   @override
   String get settings_reset_preferences_desc =>
-      'Tema, dil ve kurulum ilerlemesini sıfırlayın.';
+      'Tema, dil ve kurulum ilerlemesini sÃ„Â±fÃ„Â±rlayÃ„Â±n.';
 
   @override
-  String get settings_restore_snapshot => 'Bu Anlık Görüntüyü Geri Yükle';
+  String get settings_restore_snapshot =>
+      'Bu AnlÃ„Â±k GÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼yÃƒÂ¼ Geri YÃƒÂ¼kle';
 
   @override
   String get settings_run_auto_backup_now =>
-      'Otomatik yedeklemeyi şimdi çalıştır';
+      'Otomatik yedeklemeyi Ã…Å¸imdi ÃƒÂ§alÃ„Â±Ã…Å¸tÃ„Â±r';
 
   @override
-  String get settings_run_diagnostics => 'Tanılamayı Çalıştır';
+  String get settings_run_diagnostics =>
+      'TanÃ„Â±lamayÃ„Â± Ãƒâ€¡alÃ„Â±Ã…Å¸tÃ„Â±r';
 
   @override
   String settings_runner_active(String url) {
@@ -7235,67 +7412,69 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settings_runner_auth_failed => 'Runner API jetonunu reddetti';
 
   @override
-  String get settings_runner_check => 'Bağlantıyı kontrol et';
+  String get settings_runner_check => 'BaÃ„Å¸lantÃ„Â±yÃ„Â± kontrol et';
 
   @override
   String get settings_runner_clear => 'Temizle';
 
   @override
-  String get settings_runner_cleared => 'Runner ayarları temizlendi';
+  String get settings_runner_cleared => 'Runner ayarlarÃ„Â± temizlendi';
 
   @override
-  String get settings_runner_connected => 'Runner erişilebilir ✓';
+  String get settings_runner_connected => 'Runner eriÃ…Å¸ilebilir Ã¢Å“â€œ';
 
   @override
-  String get settings_runner_connecting => 'Bağlantı kontrol ediliyor…';
+  String get settings_runner_connecting =>
+      'BaÃ„Å¸lantÃ„Â± kontrol ediliyorÃ¢â‚¬Â¦';
 
   @override
   String get settings_runner_desc =>
-      'Uygulamayı bir Bot Creator Runner\'a bağlayın. Uzak çalıştırıcılar güvenilir ağlarda kalmalı ve bir taşıyıcı jeton (bearer token) kullanmalıdır.';
+      'UygulamayÃ„Â± bir Bot Creator Runner\'a baÃ„Å¸layÃ„Â±n. Uzak ÃƒÂ§alÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±cÃ„Â±lar gÃƒÂ¼venilir aÃ„Å¸larda kalmalÃ„Â± ve bir taÃ…Å¸Ã„Â±yÃ„Â±cÃ„Â± jeton (bearer token) kullanmalÃ„Â±dÃ„Â±r.';
 
   @override
   String get settings_runner_disable_temp =>
-      'Runner\'ı geçici olarak devre dışı bırak';
+      'Runner\'Ã„Â± geÃƒÂ§ici olarak devre dÃ„Â±Ã…Å¸Ã„Â± bÃ„Â±rak';
 
   @override
   String get settings_runner_disable_temp_desc =>
-      'Runner ayarlarını koru ancak yeniden etkinleştirilene kadar yerel modu zorla.';
+      'Runner ayarlarÃ„Â±nÃ„Â± koru ancak yeniden etkinleÃ…Å¸tirilene kadar yerel modu zorla.';
 
   @override
-  String get settings_runner_disconnected => 'Runner bağlantısı kesildi';
+  String get settings_runner_disconnected =>
+      'Runner baÃ„Å¸lantÃ„Â±sÃ„Â± kesildi';
 
   @override
-  String get settings_runner_not_connected => 'Bağlı değil';
+  String get settings_runner_not_connected => 'BaÃ„Å¸lÃ„Â± deÃ„Å¸il';
 
   @override
-  String get settings_runner_reenabled => 'Runner yeniden etkinleştirildi';
+  String get settings_runner_reenabled => 'Runner yeniden etkinleÃ…Å¸tirildi';
 
   @override
-  String get settings_runner_save => 'Ayarları kaydet';
+  String get settings_runner_save => 'AyarlarÃ„Â± kaydet';
 
   @override
-  String get settings_runner_saved => 'Runner ayarları kaydedildi';
+  String get settings_runner_saved => 'Runner ayarlarÃ„Â± kaydedildi';
 
   @override
   String get settings_runner_temporarily_disabled =>
-      'Runner geçici olarak devre dışı (yerel mod aktif)';
+      'Runner geÃƒÂ§ici olarak devre dÃ„Â±Ã…Å¸Ã„Â± (yerel mod aktif)';
 
   @override
   String get settings_runner_temporarily_disabled_saved =>
-      'Runner geçici olarak devre dışı bırakıldı';
+      'Runner geÃƒÂ§ici olarak devre dÃ„Â±Ã…Å¸Ã„Â± bÃ„Â±rakÃ„Â±ldÃ„Â±';
 
   @override
   String get settings_runner_title => 'Runner API';
 
   @override
   String get settings_runner_token_hint =>
-      'Taşıyıcı jeton (localhost üzerinde isteğe bağlı)';
+      'TaÃ…Å¸Ã„Â±yÃ„Â±cÃ„Â± jeton (localhost ÃƒÂ¼zerinde isteÃ„Å¸e baÃ„Å¸lÃ„Â±)';
 
   @override
   String get settings_runner_token_label => 'Runner API jetonu';
 
   @override
-  String get settings_runner_unreachable => 'Runner erişilemez';
+  String get settings_runner_unreachable => 'Runner eriÃ…Å¸ilemez';
 
   @override
   String get settings_runner_url_clear => 'Temizle';
@@ -7321,30 +7500,33 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get settings_snapshot_apps_list => 'Bu anlık görüntüdeki uygulamalar';
+  String get settings_snapshot_apps_list =>
+      'Bu anlÃ„Â±k gÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼deki uygulamalar';
 
   @override
-  String get settings_snapshot_create_loading => 'Anlık görüntü oluşturuluyor…';
+  String get settings_snapshot_create_loading =>
+      'AnlÃ„Â±k gÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼ oluÃ…Å¸turuluyorÃ¢â‚¬Â¦';
 
   @override
   String settings_snapshot_created_at(String date) {
-    return 'Oluşturulma: $date';
+    return 'OluÃ…Å¸turulma: $date';
   }
 
   @override
   String settings_snapshot_created_message(String id) {
-    return 'Anlık görüntü oluşturuldu: $id';
+    return 'AnlÃ„Â±k gÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼ oluÃ…Å¸turuldu: $id';
   }
 
   @override
-  String get settings_snapshot_delete_loading => 'Anlık görüntü siliniyor…';
+  String get settings_snapshot_delete_loading =>
+      'AnlÃ„Â±k gÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼ siliniyorÃ¢â‚¬Â¦';
 
   @override
-  String get settings_snapshot_deleted => 'Anlık görüntü silindi';
+  String get settings_snapshot_deleted => 'AnlÃ„Â±k gÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼ silindi';
 
   @override
   String settings_snapshot_files_size(int count, String size) {
-    return 'Dosyalar: $count • Boyut: $size';
+    return 'Dosyalar: $count Ã¢â‚¬Â¢ Boyut: $size';
   }
 
   @override
@@ -7359,236 +7541,245 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String settings_snapshot_list_entry(String date, int count, String size) {
-    return '$date • $count dosya • $size';
+    return '$date Ã¢â‚¬Â¢ $count dosya Ã¢â‚¬Â¢ $size';
   }
 
   @override
   String get settings_snapshot_no_metadata => 'Uygulama meta verisi yok.';
 
   @override
-  String get settings_snapshot_preview_title => 'Anlık Görüntü Önizleme';
+  String get settings_snapshot_preview_title =>
+      'AnlÃ„Â±k GÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼ Ãƒâ€“nizleme';
 
   @override
   String get settings_snapshot_restore_loading =>
-      'Anlık görüntü geri yükleniyor…';
+      'AnlÃ„Â±k gÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼ geri yÃƒÂ¼kleniyorÃ¢â‚¬Â¦';
 
   @override
-  String get settings_snapshots_delete_all => 'Tüm anlık görüntüleri sil';
+  String get settings_snapshots_delete_all =>
+      'TÃƒÂ¼m anlÃ„Â±k gÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼leri sil';
 
   @override
   String settings_snapshots_delete_all_confirm(int count) {
-    return '$count anlık görüntü kalıcı olarak silinsin mi? Bu işlem geri alınamaz.';
+    return '$count anlÃ„Â±k gÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼ kalÃ„Â±cÃ„Â± olarak silinsin mi? Bu iÃ…Å¸lem geri alÃ„Â±namaz.';
   }
 
   @override
   String settings_snapshots_delete_all_done(int count) {
-    return '$count anlık görüntü silindi.';
+    return '$count anlÃ„Â±k gÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼ silindi.';
   }
 
   @override
   String get settings_snapshots_delete_all_loading =>
-      'Tüm anlık görüntüler siliniyor…';
+      'TÃƒÂ¼m anlÃ„Â±k gÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼ler siliniyorÃ¢â‚¬Â¦';
 
   @override
-  String get settings_snapshots_delete_all_title => 'Tüm anlık görüntüleri sil';
+  String get settings_snapshots_delete_all_title =>
+      'TÃƒÂ¼m anlÃ„Â±k gÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼leri sil';
 
   @override
   String settings_snapshots_delete_one_confirm(String label) {
-    return '\"$label\" kalıcı olarak silinsin mi? Bu işlem geri alınamaz.';
+    return '\"$label\" kalÃ„Â±cÃ„Â± olarak silinsin mi? Bu iÃ…Å¸lem geri alÃ„Â±namaz.';
   }
 
   @override
   String get settings_snapshots_delete_select_desc =>
-      'Kaldırılacak anlık görüntüyü seçin (önce en eski).';
+      'KaldÃ„Â±rÃ„Â±lacak anlÃ„Â±k gÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼yÃƒÂ¼ seÃƒÂ§in (ÃƒÂ¶nce en eski).';
 
   @override
   String get settings_snapshots_delete_select_title =>
-      'Bir anlık görüntüyü sil';
+      'Bir anlÃ„Â±k gÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼yÃƒÂ¼ sil';
 
   @override
   String get settings_snapshots_delete_select_tooltip =>
-      'Seçili bir anlık görüntüyü sil';
+      'SeÃƒÂ§ili bir anlÃ„Â±k gÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼yÃƒÂ¼ sil';
 
   @override
-  String get settings_snapshots_empty => 'Henüz anlık görüntü bulunamadı.';
+  String get settings_snapshots_empty =>
+      'HenÃƒÂ¼z anlÃ„Â±k gÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼ bulunamadÃ„Â±.';
 
   @override
-  String get settings_snapshots_refresh => 'Anlık görüntüleri yenile';
+  String get settings_snapshots_refresh =>
+      'AnlÃ„Â±k gÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼leri yenile';
 
   @override
   String get settings_snapshots_refresh_loading =>
-      'Anlık görüntüler yenileniyor…';
+      'AnlÃ„Â±k gÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼ler yenileniyorÃ¢â‚¬Â¦';
 
   @override
-  String get settings_snapshots_title => 'Anlık Görüntüler';
+  String get settings_snapshots_title => 'AnlÃ„Â±k GÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼ler';
 
   @override
   String get settings_solo_pill => 'SOLO';
 
   @override
   String get settings_startup_mode_cloud_desc =>
-      'Android ve iOS\'ta önerilir. Günlükler, istatistikler ve başlatma Bot Creator üzerinden gerçekleşir.';
+      'Android ve iOS\'ta ÃƒÂ¶nerilir. GÃƒÂ¼nlÃƒÂ¼kler, istatistikler ve baÃ…Å¸latma Bot Creator ÃƒÂ¼zerinden gerÃƒÂ§ekleÃ…Å¸ir.';
 
   @override
   String get settings_startup_mode_desc =>
-      'Botlarınızın Bot Creator sunucularında mı yoksa yerel olarak bu cihazda mı başlatılacağını seçin.';
+      'BotlarÃ„Â±nÃ„Â±zÃ„Â±n Bot Creator sunucularÃ„Â±nda mÃ„Â± yoksa yerel olarak bu cihazda mÃ„Â± baÃ…Å¸latÃ„Â±lacaÃ„Å¸Ã„Â±nÃ„Â± seÃƒÂ§in.';
 
   @override
   String get settings_startup_mode_ios_unavailable =>
-      'Yerel mod iOS\'ta hala kullanılamıyor.';
+      'Yerel mod iOS\'ta hala kullanÃ„Â±lamÃ„Â±yor.';
 
   @override
   String get settings_startup_mode_ios_warning =>
-      'iOS\'ta yerel mod desteklenmez. Botlar her zaman Bot Creator sunucularını kullanır.';
+      'iOS\'ta yerel mod desteklenmez. Botlar her zaman Bot Creator sunucularÃ„Â±nÃ„Â± kullanÃ„Â±r.';
 
   @override
   String get settings_startup_mode_local_desc =>
-      'Botlar artık bu cihazda yerel olarak başlatılıyor.';
+      'Botlar artÃ„Â±k bu cihazda yerel olarak baÃ…Å¸latÃ„Â±lÃ„Â±yor.';
 
   @override
   String get settings_startup_mode_local_warning =>
-      'Yerel mod, hata ayıklama veya belirli ihtiyaçlar için tasarlanmış gelişmiş bir seçenektir. Normal kullanım için Bot Creator sunucularını etkin tutun.';
+      'Yerel mod, hata ayÃ„Â±klama veya belirli ihtiyaÃƒÂ§lar iÃƒÂ§in tasarlanmÃ„Â±Ã…Å¸ geliÃ…Å¸miÃ…Å¸ bir seÃƒÂ§enektir. Normal kullanÃ„Â±m iÃƒÂ§in Bot Creator sunucularÃ„Â±nÃ„Â± etkin tutun.';
 
   @override
-  String get settings_startup_mode_title => 'Bot başlatma modu';
+  String get settings_startup_mode_title => 'Bot baÃ…Å¸latma modu';
 
   @override
   String get settings_startup_mode_use_cloud =>
-      'Bot Creator sunucularını kullan';
+      'Bot Creator sunucularÃ„Â±nÃ„Â± kullan';
 
   @override
   String get settings_status_remove_confirm =>
-      'Bu durum girişi kaldırılacak. Devam edilsin mi?';
+      'Bu durum giriÃ…Å¸i kaldÃ„Â±rÃ„Â±lacak. Devam edilsin mi?';
 
   @override
   String get settings_tab => 'Ayarlar';
 
   @override
-  String get settings_team_id_label => 'Ekip Kimliği: ';
+  String get settings_team_id_label => 'Ekip KimliÃ„Å¸i: ';
 
   @override
   String settings_team_members_label(int count) {
-    return 'Ekip Üyeleri ($count)';
+    return 'Ekip ÃƒÅ“yeleri ($count)';
   }
 
   @override
-  String get settings_team_name_label => 'Ekip Adı: ';
+  String get settings_team_name_label => 'Ekip AdÃ„Â±: ';
 
   @override
   String get settings_team_owner_label => 'Ekip Lideri';
 
   @override
-  String get settings_team_ownership => 'Ekip Sahipliği';
+  String get settings_team_ownership => 'Ekip SahipliÃ„Å¸i';
 
   @override
-  String get settings_team_pill => 'EKİP';
+  String get settings_team_pill => 'EKÃ„Â°P';
 
   @override
-  String get settings_theme_switch_dark => 'Karanlık moda geç';
+  String get settings_theme_switch_dark => 'KaranlÃ„Â±k moda geÃƒÂ§';
 
   @override
-  String get settings_theme_switch_light => 'Açık moda geç';
+  String get settings_theme_switch_light => 'AÃƒÂ§Ã„Â±k moda geÃƒÂ§';
 
   @override
-  String get settings_version_title => 'Sürüm';
+  String get settings_version_title => 'SÃƒÂ¼rÃƒÂ¼m';
 
   @override
-  String get settings_view_startup_logs => 'Başlangıç günlüklerini görüntüle';
+  String get settings_view_startup_logs =>
+      'BaÃ…Å¸langÃ„Â±ÃƒÂ§ gÃƒÂ¼nlÃƒÂ¼klerini gÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼le';
 
   @override
-  String get startup_copy_diagnostics => 'Tanılamaları kopyala';
+  String get startup_copy_diagnostics => 'TanÃ„Â±lamalarÃ„Â± kopyala';
 
   @override
-  String get startup_diagnostics_copied => 'Tanılamalar panoya kopyalandı';
+  String get startup_diagnostics_copied =>
+      'TanÃ„Â±lamalar panoya kopyalandÃ„Â±';
 
   @override
-  String get startup_error_title => 'Başlangıç Hatası';
+  String get startup_error_title => 'BaÃ…Å¸langÃ„Â±ÃƒÂ§ HatasÃ„Â±';
 
   @override
-  String get startup_failed_message => 'Bot Creator bu cihazda başlatılamadı.';
+  String get startup_failed_message =>
+      'Bot Creator bu cihazda baÃ…Å¸latÃ„Â±lamadÃ„Â±.';
 
   @override
-  String get startup_refresh_diagnostics => 'Tanılamaları yenile';
+  String get startup_refresh_diagnostics => 'TanÃ„Â±lamalarÃ„Â± yenile';
 
   @override
-  String get subscription_active_annual => 'Premium — Yıllık';
+  String get subscription_active_annual => 'Premium Ã¢â‚¬â€ YÃ„Â±llÃ„Â±k';
 
   @override
   String get subscription_active_label => 'Aktif plan:';
 
   @override
-  String get subscription_active_monthly => 'Premium — Aylık';
+  String get subscription_active_monthly => 'Premium Ã¢â‚¬â€ AylÃ„Â±k';
 
   @override
-  String get subscription_annual_title => 'Yıllık';
+  String get subscription_annual_title => 'YÃ„Â±llÃ„Â±k';
 
   @override
   String get subscription_benefit_fast_start =>
-      'Botlar anında başlar, pop-up yok';
+      'Botlar anÃ„Â±nda baÃ…Å¸lar, pop-up yok';
 
   @override
   String get subscription_benefit_no_ads =>
-      'Uygulamanın hiçbir yerinde reklam yok';
+      'UygulamanÃ„Â±n hiÃƒÂ§bir yerinde reklam yok';
 
   @override
   String get subscription_benefit_support =>
-      'Bağımsız geliştirmeyi destekleyin';
+      'BaÃ„Å¸Ã„Â±msÃ„Â±z geliÃ…Å¸tirmeyi destekleyin';
 
   @override
   String get subscription_error =>
-      'Satın alma tamamlanamadı. Lütfen tekrar deneyin.';
+      'SatÃ„Â±n alma tamamlanamadÃ„Â±. LÃƒÂ¼tfen tekrar deneyin.';
 
   @override
   String get subscription_error_product_unavailable =>
-      'Bu plan şu anda kullanılamıyor. Lütfen daha sonra tekrar deneyin.';
+      'Bu plan Ã…Å¸u anda kullanÃ„Â±lamÃ„Â±yor. LÃƒÂ¼tfen daha sonra tekrar deneyin.';
 
   @override
   String get subscription_error_purchase_start_failed =>
-      'Satın alma başlatılamadı. Lütfen tekrar deneyin.';
+      'SatÃ„Â±n alma baÃ…Å¸latÃ„Â±lamadÃ„Â±. LÃƒÂ¼tfen tekrar deneyin.';
 
   @override
   String get subscription_error_store_unavailable =>
-      'Uygulama Mağazası şu anda kullanılamıyor. Lütfen biraz sonra tekrar deneyin.';
+      'Uygulama MaÃ„Å¸azasÃ„Â± Ã…Å¸u anda kullanÃ„Â±lamÃ„Â±yor. LÃƒÂ¼tfen biraz sonra tekrar deneyin.';
 
   @override
   String get subscription_feature_analytics_desc =>
-      'Hata oranı, gecikme yüzdelikleri ve dil içgörülerine erişin.';
+      'Hata oranÃ„Â±, gecikme yÃƒÂ¼zdelikleri ve dil iÃƒÂ§gÃƒÂ¶rÃƒÂ¼lerine eriÃ…Å¸in.';
 
   @override
-  String get subscription_feature_analytics_title => 'Gelişmiş analitik';
+  String get subscription_feature_analytics_title => 'GeliÃ…Å¸miÃ…Å¸ analitik';
 
   @override
   String get subscription_feature_auto_restart_desc =>
-      'Tam bir yeniden başlatma gerektiğinde botu otomatik olarak yeniden başlatın.';
+      'Tam bir yeniden baÃ…Å¸latma gerektiÃ„Å¸inde botu otomatik olarak yeniden baÃ…Å¸latÃ„Â±n.';
 
   @override
   String get subscription_feature_auto_restart_title =>
-      'Otomatik yeniden başlatma';
+      'Otomatik yeniden baÃ…Å¸latma';
 
   @override
   String get subscription_feature_auto_sharding_desc =>
-      'Yükü shard işçileri arasında dağıtarak büyük botları ölçeklendirin.';
+      'YÃƒÂ¼kÃƒÂ¼ shard iÃ…Å¸ÃƒÂ§ileri arasÃ„Â±nda daÃ„Å¸Ã„Â±tarak bÃƒÂ¼yÃƒÂ¼k botlarÃ„Â± ÃƒÂ¶lÃƒÂ§eklendirin.';
 
   @override
   String get subscription_feature_auto_sharding_title => 'Otomatik sharding';
 
   @override
-  String get subscription_feature_coming_soon => 'Yakında';
+  String get subscription_feature_coming_soon => 'YakÃ„Â±nda';
 
   @override
   String get subscription_feature_debug_replay_desc =>
-      'Hata ayıklama için komut eylemlerini adım adım kaydedin ve tekrar oynatın.';
+      'Hata ayÃ„Â±klama iÃƒÂ§in komut eylemlerini adÃ„Â±m adÃ„Â±m kaydedin ve tekrar oynatÃ„Â±n.';
 
   @override
   String get subscription_feature_debug_replay_title =>
-      'Görsel hata ayıklama tekrarı';
+      'GÃƒÂ¶rsel hata ayÃ„Â±klama tekrarÃ„Â±';
 
   @override
   String get subscription_feature_instant_start_desc =>
-      'Botları ödüllü reklam kesintisi olmadan hemen başlatın.';
+      'BotlarÃ„Â± ÃƒÂ¶dÃƒÂ¼llÃƒÂ¼ reklam kesintisi olmadan hemen baÃ…Å¸latÃ„Â±n.';
 
   @override
-  String get subscription_feature_instant_start_title => 'Anında başlatma';
+  String get subscription_feature_instant_start_title =>
+      'AnÃ„Â±nda baÃ…Å¸latma';
 
   @override
   String get subscription_feature_lavalink_desc =>
@@ -7599,84 +7790,86 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get subscription_feature_no_ads_desc =>
-      'Uygulama deneyimi boyunca tüm reklam yerleşimlerini kaldırın.';
+      'Uygulama deneyimi boyunca tÃƒÂ¼m reklam yerleÃ…Å¸imlerini kaldÃ„Â±rÃ„Â±n.';
 
   @override
   String get subscription_feature_no_ads_title => 'Reklam yok';
 
   @override
   String get subscription_feature_scheduler_desc =>
-      'İş akışlarını her X dakikada bir otomatik olarak çalıştırın (10 taneye kadar aktif).';
+      'Ã„Â°Ã…Å¸ akÃ„Â±Ã…Å¸larÃ„Â±nÃ„Â± her X dakikada bir otomatik olarak ÃƒÂ§alÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±n (10 taneye kadar aktif).';
 
   @override
   String get subscription_feature_scheduler_title =>
-      'Zamanlayıcı tetikleyicileri';
+      'ZamanlayÃ„Â±cÃ„Â± tetikleyicileri';
 
   @override
   String get subscription_feature_webhooks_desc =>
-      'Güvenli webhook uç noktaları oluşturun ve çağrıları iş akışlarına yönlendirin.';
+      'GÃƒÂ¼venli webhook uÃƒÂ§ noktalarÃ„Â± oluÃ…Å¸turun ve ÃƒÂ§aÃ„Å¸rÃ„Â±larÃ„Â± iÃ…Å¸ akÃ„Â±Ã…Å¸larÃ„Â±na yÃƒÂ¶nlendirin.';
 
   @override
   String get subscription_feature_webhooks_title => 'Gelen webhooklar';
 
   @override
-  String get subscription_manage => 'Aboneliği yönet';
+  String get subscription_manage => 'AboneliÃ„Å¸i yÃƒÂ¶net';
 
   @override
-  String get subscription_monthly_title => 'Aylık';
+  String get subscription_monthly_title => 'AylÃ„Â±k';
 
   @override
   String get subscription_not_available_on_platform =>
-      'Abonelikler şu anda yalnızca mobilde mevcuttur.';
+      'Abonelikler Ã…Å¸u anda yalnÃ„Â±zca mobilde mevcuttur.';
 
   @override
-  String get subscription_per_month => 'aylık';
+  String get subscription_per_month => 'aylÃ„Â±k';
 
   @override
-  String get subscription_per_year => 'yıllık';
+  String get subscription_per_year => 'yÃ„Â±llÃ„Â±k';
 
   @override
   String get subscription_plan_desc =>
-      'Reklamları kaldırın ve tüm mevcut ve gelecek premium özelliklere erişim kazanın.';
+      'ReklamlarÃ„Â± kaldÃ„Â±rÃ„Â±n ve tÃƒÂ¼m mevcut ve gelecek premium ÃƒÂ¶zelliklere eriÃ…Å¸im kazanÃ„Â±n.';
 
   @override
   String get subscription_plan_label => 'Premium Temel';
 
   @override
-  String get subscription_privacy => 'Gizlilik politikası';
+  String get subscription_privacy => 'Gizlilik politikasÃ„Â±';
 
   @override
-  String get subscription_restore => 'Satın almaları geri yükle';
+  String get subscription_restore => 'SatÃ„Â±n almalarÃ„Â± geri yÃƒÂ¼kle';
 
   @override
-  String get subscription_restore_not_found => 'Aktif abonelik bulunamadı.';
+  String get subscription_restore_not_found => 'Aktif abonelik bulunamadÃ„Â±.';
 
   @override
-  String get subscription_restored => 'Abonelik başarıyla geri yüklendi!';
+  String get subscription_restored =>
+      'Abonelik baÃ…Å¸arÃ„Â±yla geri yÃƒÂ¼klendi!';
 
   @override
   String get subscription_save_badge => '%67 TASARRUF ET';
 
   @override
   String get subscription_subtitle =>
-      'Tüm premium özelliklerin kilidini açmak için bir plan seçin.';
+      'TÃƒÂ¼m premium ÃƒÂ¶zelliklerin kilidini aÃƒÂ§mak iÃƒÂ§in bir plan seÃƒÂ§in.';
 
   @override
   String get subscription_success =>
-      'Premium\'a hoş geldiniz! Tüm reklamlar kaldırıldı.';
+      'Premium\'a hoÃ…Å¸ geldiniz! TÃƒÂ¼m reklamlar kaldÃ„Â±rÃ„Â±ldÃ„Â±.';
 
   @override
-  String get subscription_terms => 'Kullanım şartları';
+  String get subscription_terms => 'KullanÃ„Â±m Ã…Å¸artlarÃ„Â±';
 
   @override
   String get subscription_title => 'Premium';
 
   @override
-  String get subscription_unavailable_platform => 'Bu platformda mevcut değil.';
+  String get subscription_unavailable_platform =>
+      'Bu platformda mevcut deÃ„Å¸il.';
 
   @override
   String get support_card_desc =>
-      'Bir soru, bir hata, bir öneri? Ekibimiz ve topluluğumuzla sohbete gelin.';
+      'Bir soru, bir hata, bir ÃƒÂ¶neri? Ekibimiz ve topluluÃ„Å¸umuzla sohbete gelin.';
 
   @override
   String get support_card_title => 'Destek ve Topluluk';
@@ -7685,31 +7878,31 @@ class AppLocalizationsTr extends AppLocalizations {
   String get support_discord_badge => 'Resmi destek';
 
   @override
-  String get support_join_discord => 'Discord sunucusuna katıl';
+  String get support_join_discord => 'Discord sunucusuna katÃ„Â±l';
 
   @override
   String get template_fun_description =>
-      'Yazı tura, anketler ve sihirli 8-top.';
+      'YazÃ„Â± tura, anketler ve sihirli 8-top.';
 
   @override
-  String get template_fun_name => 'Eğlence Botu';
+  String get template_fun_name => 'EÃ„Å¸lence Botu';
 
   @override
   String template_gallery_already_exists(String name) {
-    return '\"$name\" komutu zaten mevcut ve atlandı.';
+    return '\"$name\" komutu zaten mevcut ve atlandÃ„Â±.';
   }
 
   @override
-  String get template_gallery_apply => 'Bu şablonu kullan';
+  String get template_gallery_apply => 'Bu Ã…Å¸ablonu kullan';
 
   @override
   String template_gallery_apply_error(String error) {
-    return 'Şablon uygulanamadı: $error';
+    return 'Ã…Å¾ablon uygulanamadÃ„Â±: $error';
   }
 
   @override
   String template_gallery_apply_success(int count, int wCount) {
-    return 'Şablondan $count komut ve $wCount iş akışı eklendi.';
+    return 'Ã…Å¾ablondan $count komut ve $wCount iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â± eklendi.';
   }
 
   @override
@@ -7718,69 +7911,69 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get template_gallery_empty => 'Kullanılabilir şablon yok.';
+  String get template_gallery_empty => 'KullanÃ„Â±labilir Ã…Å¸ablon yok.';
 
   @override
   String template_gallery_nothing_to_remove(String name) {
-    return '$name için kaldırılacak bir şey yok.';
+    return '$name iÃƒÂ§in kaldÃ„Â±rÃ„Â±lacak bir Ã…Å¸ey yok.';
   }
 
   @override
   String get template_gallery_remove_confirm =>
-      'Bu şablondaki tüm komutları ve iş akışlarını kaldırmak istediğinizden emin misiniz?';
+      'Bu Ã…Å¸ablondaki tÃƒÂ¼m komutlarÃ„Â± ve iÃ…Å¸ akÃ„Â±Ã…Å¸larÃ„Â±nÃ„Â± kaldÃ„Â±rmak istediÃ„Å¸inizden emin misiniz?';
 
   @override
-  String get template_gallery_remove_title => 'Şablonu Kaldır';
+  String get template_gallery_remove_title => 'Ã…Å¾ablonu KaldÃ„Â±r';
 
   @override
   String get template_gallery_removed =>
-      'Şablon komutları ve iş akışları kaldırıldı.';
+      'Ã…Å¾ablon komutlarÃ„Â± ve iÃ…Å¸ akÃ„Â±Ã…Å¸larÃ„Â± kaldÃ„Â±rÃ„Â±ldÃ„Â±.';
 
   @override
   String get template_gallery_subtitle =>
-      'Hazır bir şablonla botunuzu hızlıca başlatın.';
+      'HazÃ„Â±r bir Ã…Å¸ablonla botunuzu hÃ„Â±zlÃ„Â±ca baÃ…Å¸latÃ„Â±n.';
 
   @override
   String get template_gallery_sync_warning =>
-      'Komutlar yerel olarak kaydedildi. Onları Discord\'a kaydetmek için botunuzu başlatın.';
+      'Komutlar yerel olarak kaydedildi. OnlarÃ„Â± Discord\'a kaydetmek iÃƒÂ§in botunuzu baÃ…Å¸latÃ„Â±n.';
 
   @override
-  String get template_gallery_title => 'Şablonlar';
+  String get template_gallery_title => 'Ã…Å¾ablonlar';
 
   @override
   String template_gallery_workflows_count(int count) {
-    return '$count iş akışı';
+    return '$count iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â±';
   }
 
   @override
   String get template_moderation_description =>
-      'Üyeleri yasaklayın, atın, susturun ve mesajları temizleyin.';
+      'ÃƒÅ“yeleri yasaklayÃ„Â±n, atÃ„Â±n, susturun ve mesajlarÃ„Â± temizleyin.';
 
   @override
   String get template_moderation_name => 'Moderasyon Botu';
 
   @override
   String get template_utility_description =>
-      'Ping, avatar bakma ve bot-konusur komutları.';
+      'Ping, avatar bakma ve bot-konusur komutlarÃ„Â±.';
 
   @override
-  String get template_utility_name => 'Araç Botu';
+  String get template_utility_name => 'AraÃƒÂ§ Botu';
 
   @override
   String get template_welcome_description =>
-      'Yeni üyeleri selamlayın, merhaba deyin ve sunucu bilgisini gösterin.';
+      'Yeni ÃƒÂ¼yeleri selamlayÃ„Â±n, merhaba deyin ve sunucu bilgisini gÃƒÂ¶sterin.';
 
   @override
-  String get template_welcome_name => 'Karşılama Botu';
+  String get template_welcome_name => 'KarÃ…Å¸Ã„Â±lama Botu';
 
   @override
   String unit_day(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count gün',
-      one: '1 gün',
-      zero: '0 gün',
+      other: '$count gÃƒÂ¼n',
+      one: '1 gÃƒÂ¼n',
+      zero: '0 gÃƒÂ¼n',
     );
     return '$_temp0';
   }
@@ -7823,146 +8016,149 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get validation_awaited_callback_format =>
-      'Beklenen geri arama \$awaitedCommand[ad;filtre] veya \$awaitedCommandError[ad] kullanmalıdır.';
+      'Beklenen geri arama \$awaitedCommand[ad;filtre] veya \$awaitedCommandError[ad] kullanmalÃ„Â±dÃ„Â±r.';
 
   @override
   String validation_awaited_callback_length(int max) {
-    return 'Beklenen geri arama tetikleyicisi en fazla $max karakter uzunluğunda olmalıdır';
+    return 'Beklenen geri arama tetikleyicisi en fazla $max karakter uzunluÃ„Å¸unda olmalÃ„Â±dÃ„Â±r';
   }
 
   @override
   String get validation_awaited_callback_local_only =>
-      'Beklenen geri aramalar (awaited callbacks) yerel-özel Eski Komut gerektirir.';
+      'Beklenen geri aramalar (awaited callbacks) yerel-ÃƒÂ¶zel Eski Komut gerektirir.';
 
   @override
   String get validation_command_name_invalid_chars =>
-      'Komut adı yalnızca harf, sayı ve alt çizgi içerebilir';
+      'Komut adÃ„Â± yalnÃ„Â±zca harf, sayÃ„Â± ve alt ÃƒÂ§izgi iÃƒÂ§erebilir';
 
   @override
   String validation_command_name_length(int max) {
-    return 'Komut adı en fazla $max karakter uzunluğunda olmalıdır';
+    return 'Komut adÃ„Â± en fazla $max karakter uzunluÃ„Å¸unda olmalÃ„Â±dÃ„Â±r';
   }
 
   @override
   String get validation_command_name_no_ampersand =>
-      'Komut adı ve (&) işareti ile başlayamaz';
+      'Komut adÃ„Â± ve (&) iÃ…Å¸areti ile baÃ…Å¸layamaz';
 
   @override
   String get validation_command_name_no_at =>
-      'Komut adı et (@) işareti ile başlayamaz';
+      'Komut adÃ„Â± et (@) iÃ…Å¸areti ile baÃ…Å¸layamaz';
 
   @override
   String get validation_command_name_no_exclamation =>
-      'Komut adı ünlem işareti ile başlayamaz';
+      'Komut adÃ„Â± ÃƒÂ¼nlem iÃ…Å¸areti ile baÃ…Å¸layamaz';
 
   @override
   String get validation_command_name_no_hash =>
-      'Komut adı kare (#) işareti ile başlayamaz';
+      'Komut adÃ„Â± kare (#) iÃ…Å¸areti ile baÃ…Å¸layamaz';
 
   @override
   String get validation_command_name_no_percent =>
-      'Komut adı yüzde (%) işareti ile başlayamaz';
+      'Komut adÃ„Â± yÃƒÂ¼zde (%) iÃ…Å¸areti ile baÃ…Å¸layamaz';
 
   @override
   String get validation_command_name_no_slash =>
-      'Komut adı eğik çizgi ile başlayamaz';
+      'Komut adÃ„Â± eÃ„Å¸ik ÃƒÂ§izgi ile baÃ…Å¸layamaz';
 
   @override
-  String get validation_command_name_no_spaces => 'Komut adı boşluk içeremez';
+  String get validation_command_name_no_spaces =>
+      'Komut adÃ„Â± boÃ…Å¸luk iÃƒÂ§eremez';
 
   @override
   String get validation_command_name_no_underscore =>
-      'Komut adı alt çizgi ile başlayamaz';
+      'Komut adÃ„Â± alt ÃƒÂ§izgi ile baÃ…Å¸layamaz';
 
   @override
-  String get validation_command_name_required => 'Lütfen bir komut adı girin';
+  String get validation_command_name_required =>
+      'LÃƒÂ¼tfen bir komut adÃ„Â± girin';
 
   @override
   String get validation_interaction_no_response =>
-      'Etkileşim komutları en az bir yanıt eylemi içermelidir (Mesajla yanıtla, Bileşen V2 veya Modal).';
+      'EtkileÃ…Å¸im komutlarÃ„Â± en az bir yanÃ„Â±t eylemi iÃƒÂ§ermelidir (Mesajla yanÃ„Â±tla, BileÃ…Å¸en V2 veya Modal).';
 
   @override
-  String get validation_interaction_no_response_short => 'Yanıt eylemi yok';
+  String get validation_interaction_no_response_short => 'YanÃ„Â±t eylemi yok';
 
   @override
   String get validation_invalid_permissions =>
-      'Geçersiz varsayılan üye izinleri bit alanı. Pozitif bir tam sayı kullanın veya boş bırakın.';
+      'GeÃƒÂ§ersiz varsayÃ„Â±lan ÃƒÂ¼ye izinleri bit alanÃ„Â±. Pozitif bir tam sayÃ„Â± kullanÃ„Â±n veya boÃ…Å¸ bÃ„Â±rakÃ„Â±n.';
 
   @override
   String get validation_legacy_chat_input_only =>
-      'Eski mod yalnızca sohbet girişi (chat input) komutları için kullanılabilir.';
+      'Eski mod yalnÃ„Â±zca sohbet giriÃ…Å¸i (chat input) komutlarÃ„Â± iÃƒÂ§in kullanÃ„Â±labilir.';
 
   @override
   String get validation_legacy_only_new_or_local =>
-      'Yalnızca eski mod, sadece yeni komutlar veya mevcut yerel komutlar için kullanılabilir.';
+      'YalnÃ„Â±zca eski mod, sadece yeni komutlar veya mevcut yerel komutlar iÃƒÂ§in kullanÃ„Â±labilir.';
 
   @override
   String get validation_legacy_only_requires_legacy =>
-      'Yalnızca eski komutlar için eski modun etkinleştirilmesi gerekir.';
+      'YalnÃ„Â±zca eski komutlar iÃƒÂ§in eski modun etkinleÃ…Å¸tirilmesi gerekir.';
 
   @override
   String get validation_modal_not_legacy =>
-      'Modal yanıtları eski komut modunda desteklenmez.';
+      'Modal yanÃ„Â±tlarÃ„Â± eski komut modunda desteklenmez.';
 
   @override
   String get validation_option_description_required =>
-      'Her seçeneğin bir açıklaması olmalıdır.';
+      'Her seÃƒÂ§eneÃ„Å¸in bir aÃƒÂ§Ã„Â±klamasÃ„Â± olmalÃ„Â±dÃ„Â±r.';
 
   @override
   String get validation_option_group_only_subcommands =>
-      'Bir SubCommandGroup yalnızca SubCommand seçenekleri içerebilir.';
+      'Bir SubCommandGroup yalnÃ„Â±zca SubCommand seÃƒÂ§enekleri iÃƒÂ§erebilir.';
 
   @override
   String get validation_option_group_top_level_only =>
-      'SubCommandGroup\'a yalnızca üst düzeyde izin verilir.';
+      'SubCommandGroup\'a yalnÃ„Â±zca ÃƒÂ¼st dÃƒÂ¼zeyde izin verilir.';
 
   @override
   String get validation_option_hierarchy_no_choices =>
-      'SubCommand ve SubCommandGroup seçimler tanımlayamaz.';
+      'SubCommand ve SubCommandGroup seÃƒÂ§imler tanÃ„Â±mlayamaz.';
 
   @override
   String get validation_option_hierarchy_no_min_max =>
-      'SubCommand ve SubCommandGroup minimum/maksimum değerler tanımlayamaz.';
+      'SubCommand ve SubCommandGroup minimum/maksimum deÃ„Å¸erler tanÃ„Â±mlayamaz.';
 
   @override
   String get validation_option_hierarchy_not_required =>
-      'SubCommand ve SubCommandGroup gerekli olarak işaretlenemez.';
+      'SubCommand ve SubCommandGroup gerekli olarak iÃ…Å¸aretlenemez.';
 
   @override
   String get validation_option_leaf_no_nested =>
-      'Normal seçenekler iç içe geçmiş seçenekler içeremez.';
+      'Normal seÃƒÂ§enekler iÃƒÂ§ iÃƒÂ§e geÃƒÂ§miÃ…Å¸ seÃƒÂ§enekler iÃƒÂ§eremez.';
 
   @override
   String get validation_option_max_entries =>
-      'Her seçenek seviyesi en fazla 25 girişi destekler.';
+      'Her seÃƒÂ§enek seviyesi en fazla 25 giriÃ…Å¸i destekler.';
 
   @override
   String validation_option_name_duplicate(String name) {
-    return 'Aynı seviyede yinelenen seçenek adı \"$name\".';
+    return 'AynÃ„Â± seviyede yinelenen seÃƒÂ§enek adÃ„Â± \"$name\".';
   }
 
   @override
   String get validation_option_name_required =>
-      'Her seçeneğin bir adı olmalıdır.';
+      'Her seÃƒÂ§eneÃ„Å¸in bir adÃ„Â± olmalÃ„Â±dÃ„Â±r.';
 
   @override
   String get validation_option_no_mix_top_level =>
-      'Üst düzey seçenekler, alt komutları/grupları normal seçeneklerle karıştıramaz.';
+      'ÃƒÅ“st dÃƒÂ¼zey seÃƒÂ§enekler, alt komutlarÃ„Â±/gruplarÃ„Â± normal seÃƒÂ§eneklerle karÃ„Â±Ã…Å¸tÃ„Â±ramaz.';
 
   @override
   String get validation_option_subcommand_depth =>
-      'Alt komut yuvalama derinliği Discord sınırlarını aşıyor.';
+      'Alt komut yuvalama derinliÃ„Å¸i Discord sÃ„Â±nÃ„Â±rlarÃ„Â±nÃ„Â± aÃ…Å¸Ã„Â±yor.';
 
   @override
   String get validation_option_subcommand_no_nested =>
-      'Bir SubCommand iç içe geçmiş SubCommand veya SubCommandGroup içeremez.';
+      'Bir SubCommand iÃƒÂ§ iÃƒÂ§e geÃƒÂ§miÃ…Å¸ SubCommand veya SubCommandGroup iÃƒÂ§eremez.';
 
   @override
-  String get variable_autocomplete_numeric_title => 'Dinamik sayısal öneriler';
+  String get variable_autocomplete_numeric_title =>
+      'Dinamik sayÃ„Â±sal ÃƒÂ¶neriler';
 
   @override
   String get variable_autocomplete_title =>
-      'Kullanılabilir değişkenler — eklemek için dokunun';
+      'KullanÃ„Â±labilir deÃ„Å¸iÃ…Å¸kenler Ã¢â‚¬â€ eklemek iÃƒÂ§in dokunun';
 
   @override
   String get variable_category_author => 'Yazar';
@@ -7974,7 +8170,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get variable_category_channel => 'Kanal';
 
   @override
-  String get variable_category_context => 'Bağlam';
+  String get variable_category_context => 'BaÃ„Å¸lam';
 
   @override
   String get variable_category_functions => 'Fonksiyonlar';
@@ -7983,22 +8179,22 @@ class AppLocalizationsTr extends AppLocalizations {
   String get variable_category_guild => 'Sunucu';
 
   @override
-  String get variable_category_interaction => 'Etkileşim';
+  String get variable_category_interaction => 'EtkileÃ…Å¸im';
 
   @override
-  String get variable_category_member => 'Üye';
+  String get variable_category_member => 'ÃƒÅ“ye';
 
   @override
   String get variable_category_message => 'Mesaj';
 
   @override
-  String get variable_category_other => 'Diğer';
+  String get variable_category_other => 'DiÃ„Å¸er';
 
   @override
-  String get variable_category_temp => 'Geçici';
+  String get variable_category_temp => 'GeÃƒÂ§ici';
 
   @override
-  String get variable_category_user => 'Kullanıcı';
+  String get variable_category_user => 'KullanÃ„Â±cÃ„Â±';
 
   @override
   String get webhooks_actions => 'Eylemler';
@@ -8010,13 +8206,13 @@ class AppLocalizationsTr extends AppLocalizations {
   String get webhooks_add_title => 'Gelen webhook ekle';
 
   @override
-  String get webhooks_copied => 'Tam webhook URL\'si kopyalandı.';
+  String get webhooks_copied => 'Tam webhook URL\'si kopyalandÃ„Â±.';
 
   @override
   String get webhooks_copy_path => 'Yolu kopyala';
 
   @override
-  String get webhooks_copy_secret => 'Sırrı kopyala';
+  String get webhooks_copy_secret => 'SÃ„Â±rrÃ„Â± kopyala';
 
   @override
   String get webhooks_copy_url => 'URL\'yi kopyala';
@@ -8028,48 +8224,49 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String webhooks_delete_confirm(String label) {
-    return '\"$label\" silinsin mi? Bu işlem geri alınamaz.';
+    return '\"$label\" silinsin mi? Bu iÃ…Å¸lem geri alÃ„Â±namaz.';
   }
 
   @override
-  String get webhooks_delete_confirm_no_label => 'Bu işlem geri alınamaz.';
+  String get webhooks_delete_confirm_no_label =>
+      'Bu iÃ…Å¸lem geri alÃ„Â±namaz.';
 
   @override
   String get webhooks_delete_title => 'Gelen webhook silinsin mi?';
 
   @override
-  String get webhooks_edit_title => 'Gelen webhook\'u düzenle';
+  String get webhooks_edit_title => 'Gelen webhook\'u dÃƒÂ¼zenle';
 
   @override
-  String get webhooks_empty => 'Henüz gelen webhook yok.';
+  String get webhooks_empty => 'HenÃƒÂ¼z gelen webhook yok.';
 
   @override
-  String get webhooks_generate => 'Oluştur';
+  String get webhooks_generate => 'OluÃ…Å¸tur';
 
   @override
-  String get webhooks_invalid_runner_url => 'Runner URL\'si geçersiz.';
+  String get webhooks_invalid_runner_url => 'Runner URL\'si geÃƒÂ§ersiz.';
 
   @override
   String webhooks_limit_reached(int limit) {
-    return 'Gelen webhook sınırına ulaşıldı ($limit).';
+    return 'Gelen webhook sÃ„Â±nÃ„Â±rÃ„Â±na ulaÃ…Å¸Ã„Â±ldÃ„Â± ($limit).';
   }
 
   @override
-  String get webhooks_missing_data => 'Webhook yolu veya sırrı eksik.';
+  String get webhooks_missing_data => 'Webhook yolu veya sÃ„Â±rrÃ„Â± eksik.';
 
   @override
   String get webhooks_no_workflows =>
-      'Bir gelen webhook eklemeden önce en az bir iş akışı oluşturun.';
+      'Bir gelen webhook eklemeden ÃƒÂ¶nce en az bir iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â± oluÃ…Å¸turun.';
 
   @override
   String get webhooks_page_title => 'Gelen Webhooklar';
 
   @override
-  String get webhooks_path_copied => 'Yol kopyalandı.';
+  String get webhooks_path_copied => 'Yol kopyalandÃ„Â±.';
 
   @override
   String get webhooks_path_exists =>
-      'Bu yol zaten mevcut. Başka bir tane seçin.';
+      'Bu yol zaten mevcut. BaÃ…Å¸ka bir tane seÃƒÂ§in.';
 
   @override
   String get webhooks_path_hint => 'siparisler/yeni';
@@ -8079,7 +8276,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get webhooks_runner_url_required =>
-      'Tam webhook URL\'sini kopyalamak için önce bir Runner URL\'si yapılandırın.';
+      'Tam webhook URL\'sini kopyalamak iÃƒÂ§in ÃƒÂ¶nce bir Runner URL\'si yapÃ„Â±landÃ„Â±rÃ„Â±n.';
 
   @override
   String webhooks_save_failed(String error) {
@@ -8087,60 +8284,63 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get webhooks_secret_copied => 'Sır kopyalandı.';
+  String get webhooks_secret_copied => 'SÃ„Â±r kopyalandÃ„Â±.';
 
   @override
-  String get webhooks_secret_label => 'Webhook sırrı';
+  String get webhooks_secret_label => 'Webhook sÃ„Â±rrÃ„Â±';
 
   @override
-  String get webhooks_target_label => 'İş akışı hedefi';
+  String get webhooks_target_label => 'Ã„Â°Ã…Å¸ akÃ„Â±Ã…Å¸Ã„Â± hedefi';
 
   @override
   String webhooks_workflow_subtitle(String workflow) {
-    return 'İş Akışı: $workflow';
+    return 'Ã„Â°Ã…Å¸ AkÃ„Â±Ã…Å¸Ã„Â±: $workflow';
   }
 
   @override
-  String get wizard_advanced_trigger => 'Gelişmiş tetikleyici ayarları';
+  String get wizard_advanced_trigger =>
+      'GeliÃ…Å¸miÃ…Å¸ tetikleyici ayarlarÃ„Â±';
 
   @override
-  String get wizard_apply_quick_start => 'Hızlı başlangıcı taslağa uygula';
+  String get wizard_apply_quick_start =>
+      'HÃ„Â±zlÃ„Â± baÃ…Å¸langÃ„Â±cÃ„Â± taslaÃ„Å¸a uygula';
 
   @override
   String get wizard_bdfd_mode_enabled => 'BDFD betik modu etkin';
 
   @override
-  String get wizard_code_advanced => 'Kod / Gelişmiş';
+  String get wizard_code_advanced => 'Kod / GeliÃ…Å¸miÃ…Å¸';
 
   @override
-  String get wizard_command_body => 'Komut gövdesi';
+  String get wizard_command_body => 'Komut gÃƒÂ¶vdesi';
 
   @override
-  String get wizard_create_command => 'Komut oluştur';
+  String get wizard_create_command => 'Komut oluÃ…Å¸tur';
 
   @override
   String get wizard_dart_mode_enabled => 'Dart betik modu etkin';
 
   @override
-  String get wizard_edit_reply => 'Yanıt ayrıntılarını düzenle';
+  String get wizard_edit_reply =>
+      'YanÃ„Â±t ayrÃ„Â±ntÃ„Â±larÃ„Â±nÃ„Â± dÃƒÂ¼zenle';
 
   @override
   String get wizard_legacy_options_subtitle =>
-      'Eski komut seçenekleri ve yalnızca yerel davranış';
+      'Eski komut seÃƒÂ§enekleri ve yalnÃ„Â±zca yerel davranÃ„Â±Ã…Å¸';
 
   @override
   String get wizard_quick_start_applied =>
-      'Hızlı başlangıç komut taslağına uygulandı.';
+      'HÃ„Â±zlÃ„Â± baÃ…Å¸langÃ„Â±ÃƒÂ§ komut taslaÃ„Å¸Ã„Â±na uygulandÃ„Â±.';
 
   @override
   String get wizard_quick_start_subtitle =>
-      'Başlangıç noktası olarak eski basit oluşturucuyu kullanın, ardından paylaşılan taslağa uygulayın.';
+      'BaÃ…Å¸langÃ„Â±ÃƒÂ§ noktasÃ„Â± olarak eski basit oluÃ…Å¸turucuyu kullanÃ„Â±n, ardÃ„Â±ndan paylaÃ…Å¸Ã„Â±lan taslaÃ„Å¸a uygulayÃ„Â±n.';
 
   @override
-  String get wizard_quick_starts => 'Hızlı başlangıçlar';
+  String get wizard_quick_starts => 'HÃ„Â±zlÃ„Â± baÃ…Å¸langÃ„Â±ÃƒÂ§lar';
 
   @override
-  String get wizard_reply_summary => 'Yanıt özeti';
+  String get wizard_reply_summary => 'YanÃ„Â±t ÃƒÂ¶zeti';
 
   @override
   String get wizard_save_command => 'Komutu kaydet';
@@ -8152,23 +8352,25 @@ class AppLocalizationsTr extends AppLocalizations {
   String get wizard_step_infos => 'Bilgiler';
 
   @override
-  String get wizard_step_reply => 'Yanıt';
+  String get wizard_step_reply => 'YanÃ„Â±t';
 
   @override
-  String get wizard_step_review => 'İncele';
+  String get wizard_step_review => 'Ã„Â°ncele';
 
   @override
-  String get wizard_step_trigger_inputs => 'Tetikleyici ve Girişler';
+  String get wizard_step_trigger_inputs => 'Tetikleyici ve GiriÃ…Å¸ler';
 
   @override
-  String get wizard_visual_mode_enabled => 'Görsel iş akışı modu etkin';
+  String get wizard_visual_mode_enabled =>
+      'GÃƒÂ¶rsel iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â± modu etkin';
 
   @override
   String get workflow_argument_hint =>
-      'İş akışı argümanı (\$arg üzerinden erişilebilir)';
+      'Ã„Â°Ã…Å¸ akÃ„Â±Ã…Å¸Ã„Â± argÃƒÂ¼manÃ„Â± (\$arg ÃƒÂ¼zerinden eriÃ…Å¸ilebilir)';
 
   @override
-  String get workflow_arguments_section => 'İş Akışı Argümanları';
+  String get workflow_arguments_section =>
+      'Ã„Â°Ã…Å¸ AkÃ„Â±Ã…Å¸Ã„Â± ArgÃƒÂ¼manlarÃ„Â±';
 
   @override
   String get workflow_auto_defer => 'Otomatik ertele';
@@ -8178,117 +8380,120 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get workflow_bdfd_editor_desc =>
-      'Bu iş akışı yanıtı için tam BDFD kodunu yazın. Tanılamalar canlı olarak görüntülenir.';
+      'Bu iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â± yanÃ„Â±tÃ„Â± iÃƒÂ§in tam BDFD kodunu yazÃ„Â±n. TanÃ„Â±lamalar canlÃ„Â± olarak gÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼lenir.';
 
   @override
-  String get workflow_bdfd_editor_title => 'BDFD Betik Düzenleyici';
+  String get workflow_bdfd_editor_title => 'BDFD Betik DÃƒÂ¼zenleyici';
 
   @override
-  String get workflow_condition_off => 'Koşul kapalı';
+  String get workflow_condition_off => 'KoÃ…Å¸ul kapalÃ„Â±';
 
   @override
-  String get workflow_condition_off_upper => 'Koşul KAPALI';
+  String get workflow_condition_off_upper => 'KoÃ…Å¸ul KAPALI';
 
   @override
-  String get workflow_condition_on => 'Koşul açık';
+  String get workflow_condition_on => 'KoÃ…Å¸ul aÃƒÂ§Ã„Â±k';
 
   @override
-  String get workflow_condition_on_upper => 'Koşul AÇIK';
+  String get workflow_condition_on_upper => 'KoÃ…Å¸ul AÃƒâ€¡IK';
 
   @override
   String get workflow_dart_editor_desc =>
-      'Bu iş akışı yanıtı için tam Dart kodunu yazın. Tanılamalar canlı olarak görüntülenir.';
+      'Bu iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â± yanÃ„Â±tÃ„Â± iÃƒÂ§in tam Dart kodunu yazÃ„Â±n. TanÃ„Â±lamalar canlÃ„Â± olarak gÃƒÂ¶rÃƒÂ¼ntÃƒÂ¼lenir.';
 
   @override
-  String get workflow_dart_editor_title => 'Dart Betik Düzenleyici';
+  String get workflow_dart_editor_title => 'Dart Betik DÃƒÂ¼zenleyici';
 
   @override
   String workflow_edit_call_args(int count) {
-    return 'Çağrı Argümanlarını Düzenle ($count)';
+    return 'Ãƒâ€¡aÃ„Å¸rÃ„Â± ArgÃƒÂ¼manlarÃ„Â±nÃ„Â± DÃƒÂ¼zenle ($count)';
   }
 
   @override
-  String get workflow_entry_point => 'Giriş Noktası';
+  String get workflow_entry_point => 'GiriÃ…Å¸ NoktasÃ„Â±';
 
   @override
   String get workflow_entry_point_helper =>
-      'Boş olduğunda iş akışı giriş noktasına varsayılan olarak ayarlanır';
+      'BoÃ…Å¸ olduÃ„Å¸unda iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â± giriÃ…Å¸ noktasÃ„Â±na varsayÃ„Â±lan olarak ayarlanÃ„Â±r';
 
   @override
-  String get workflow_entry_point_optional => 'Giriş Noktası (isteğe bağlı)';
+  String get workflow_entry_point_optional =>
+      'GiriÃ…Å¸ NoktasÃ„Â± (isteÃ„Å¸e baÃ„Å¸lÃ„Â±)';
 
   @override
-  String get workflow_hint_name => 'örn. form_gonderimini_isle';
+  String get workflow_hint_name => 'ÃƒÂ¶rn. form_gonderimini_isle';
 
   @override
   String get workflow_manual => 'Manuel';
 
   @override
-  String get workflow_mode_bdfd => 'BDFD Betiği';
+  String get workflow_mode_bdfd => 'BDFD BetiÃ„Å¸i';
 
   @override
   String get workflow_mode_bdfd_note =>
-      'Tüm iş akışınızı tek bir BDFD betiği olarak yazın. Betik gerçek zamanlı olarak derlenir ve doğrulanır.';
+      'TÃƒÂ¼m iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â±nÃ„Â±zÃ„Â± tek bir BDFD betiÃ„Å¸i olarak yazÃ„Â±n. Betik gerÃƒÂ§ek zamanlÃ„Â± olarak derlenir ve doÃ„Å¸rulanÃ„Â±r.';
 
   @override
-  String get workflow_mode_dart => 'Dart Doğrudan';
+  String get workflow_mode_dart => 'Dart DoÃ„Å¸rudan';
 
   @override
   String get workflow_mode_dart_note =>
-      'İş akışınızı Dart dilinde yazın. Hataları erkenden yakalamak için düzenleme sırasında tanılamalar güncellenir.';
+      'Ã„Â°Ã…Å¸ akÃ„Â±Ã…Å¸Ã„Â±nÃ„Â±zÃ„Â± Dart dilinde yazÃ„Â±n. HatalarÃ„Â± erkenden yakalamak iÃƒÂ§in dÃƒÂ¼zenleme sÃ„Â±rasÃ„Â±nda tanÃ„Â±lamalar gÃƒÂ¼ncellenir.';
 
   @override
   String get workflow_mode_desc =>
-      'Görsel bir eylem oluşturucu veya tam bir BDFD betik düzenleyicisi arasında seçim yapın.';
+      'GÃƒÂ¶rsel bir eylem oluÃ…Å¸turucu veya tam bir BDFD betik dÃƒÂ¼zenleyicisi arasÃ„Â±nda seÃƒÂ§im yapÃ„Â±n.';
 
   @override
-  String get workflow_mode_title => 'İş akışı modu';
+  String get workflow_mode_title => 'Ã„Â°Ã…Å¸ akÃ„Â±Ã…Å¸Ã„Â± modu';
 
   @override
-  String get workflow_mode_visual => 'Görsel';
+  String get workflow_mode_visual => 'GÃƒÂ¶rsel';
 
   @override
   String get workflow_mode_visual_note =>
-      'Kart düzenleyici ile tek tek eylemler ekleyerek iş akışınızı görsel olarak oluşturun.';
+      'Kart dÃƒÂ¼zenleyici ile tek tek eylemler ekleyerek iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â±nÃ„Â±zÃ„Â± gÃƒÂ¶rsel olarak oluÃ…Å¸turun.';
 
   @override
   String get workflow_no_auto_defer => 'Otomatik erteleme yok';
 
   @override
   String get workflow_no_workflow_note =>
-      'Not: Herhangi bir iş akışı seçilmezse, bu modalı göndermek hiçbir şey yapmaz.';
+      'Not: Herhangi bir iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â± seÃƒÂ§ilmezse, bu modalÃ„Â± gÃƒÂ¶ndermek hiÃƒÂ§bir Ã…Å¸ey yapmaz.';
 
   @override
   String workflow_on_submit_info(String name, String entry, int args) {
-    return 'Gönderildiğinde \"$name\" iş akışı çalışacak (giriş: $entry, arg: $args).';
+    return 'GÃƒÂ¶nderildiÃ„Å¸inde \"$name\" iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â± ÃƒÂ§alÃ„Â±Ã…Å¸acak (giriÃ…Å¸: $entry, arg: $args).';
   }
 
   @override
-  String get workflow_root_json_error => 'Kök bir JSON nesnesi olmalıdır';
+  String get workflow_root_json_error =>
+      'KÃƒÂ¶k bir JSON nesnesi olmalÃ„Â±dÃ„Â±r';
 
   @override
   String workflow_saved_snackbar(String name, int count) {
-    return '\"$name\" iş akışı kaydedildi ($count eylem).';
+    return '\"$name\" iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â± kaydedildi ($count eylem).';
   }
 
   @override
-  String get workflow_set_call_args => 'Çağrı Argümanlarını Ayarla';
+  String get workflow_set_call_args =>
+      'Ãƒâ€¡aÃ„Å¸rÃ„Â± ArgÃƒÂ¼manlarÃ„Â±nÃ„Â± Ayarla';
 
   @override
-  String get workflow_visibility_ephemeral => 'Geçici (Ephemeral)';
+  String get workflow_visibility_ephemeral => 'GeÃƒÂ§ici (Ephemeral)';
 
   @override
   String get workflow_visibility_public => 'Genel';
 
   @override
-  String get workflows_add_arg => 'Argüman ekle';
+  String get workflows_add_arg => 'ArgÃƒÂ¼man ekle';
 
   @override
-  String get workflows_arg_default => 'Varsayılan değer';
+  String get workflows_arg_default => 'VarsayÃ„Â±lan deÃ„Å¸er';
 
   @override
   String get workflows_arg_hint =>
-      'Argümanlar ((arg.name)) ve ((workflow.arg.name)) olarak çalışma zamanı değişkenleri haline gelir.';
+      'ArgÃƒÂ¼manlar ((arg.name)) ve ((workflow.arg.name)) olarak ÃƒÂ§alÃ„Â±Ã…Å¸ma zamanÃ„Â± deÃ„Å¸iÃ…Å¸kenleri haline gelir.';
 
   @override
   String get workflows_arg_name => 'Ad';
@@ -8297,50 +8502,52 @@ class AppLocalizationsTr extends AppLocalizations {
   String get workflows_arg_required_short => 'Ger';
 
   @override
-  String get workflows_arguments => 'Argümanlar';
+  String get workflows_arguments => 'ArgÃƒÂ¼manlar';
 
   @override
   String get workflows_continue => 'Devam Et';
 
   @override
   String get workflows_copy_done_base64 =>
-      'İş akışları Base64 olarak kopyalandı.';
+      'Ã„Â°Ã…Å¸ akÃ„Â±Ã…Å¸larÃ„Â± Base64 olarak kopyalandÃ„Â±.';
 
   @override
-  String get workflows_copy_done_json => 'İş akışları JSON olarak kopyalandı.';
+  String get workflows_copy_done_json =>
+      'Ã„Â°Ã…Å¸ akÃ„Â±Ã…Å¸larÃ„Â± JSON olarak kopyalandÃ„Â±.';
 
   @override
-  String get workflows_copy_none => 'Kopyalanacak iş akışı yok.';
+  String get workflows_copy_none => 'Kopyalanacak iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â± yok.';
 
   @override
-  String get workflows_create => 'İş Akışı Oluştur';
+  String get workflows_create => 'Ã„Â°Ã…Å¸ AkÃ„Â±Ã…Å¸Ã„Â± OluÃ…Å¸tur';
 
   @override
   String workflows_delete_confirm(String name) {
-    return '\"$name\" silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.';
+    return '\"$name\" silmek istediÃ„Å¸inizden emin misiniz? Bu iÃ…Å¸lem geri alÃ„Â±namaz.';
   }
 
   @override
-  String get workflows_delete_title => 'İş akışını sil';
+  String get workflows_delete_title => 'Ã„Â°Ã…Å¸ akÃ„Â±Ã…Å¸Ã„Â±nÃ„Â± sil';
 
   @override
-  String get workflows_docs_tooltip => 'Belgelendirme merkezini aç';
+  String get workflows_docs_tooltip => 'Belgelendirme merkezini aÃƒÂ§';
 
   @override
-  String get workflows_edit => 'İş Akışını Düzenle';
+  String get workflows_edit => 'Ã„Â°Ã…Å¸ AkÃ„Â±Ã…Å¸Ã„Â±nÃ„Â± DÃƒÂ¼zenle';
 
   @override
-  String get workflows_empty => 'Henüz iş akışı yok';
+  String get workflows_empty => 'HenÃƒÂ¼z iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â± yok';
 
   @override
-  String get workflows_entry_point => 'Varsayılan Giriş Noktası';
+  String get workflows_entry_point => 'VarsayÃ„Â±lan GiriÃ…Å¸ NoktasÃ„Â±';
 
   @override
   String get workflows_entry_point_hint =>
-      'Arayan kişi bunu geçersiz kılmazsa kullanılır';
+      'Arayan kiÃ…Å¸i bunu geÃƒÂ§ersiz kÃ„Â±lmazsa kullanÃ„Â±lÃ„Â±r';
 
   @override
-  String get workflows_event_available_vars => 'Kullanılabilir değişkenler';
+  String get workflows_event_available_vars =>
+      'KullanÃ„Â±labilir deÃ„Å¸iÃ…Å¸kenler';
 
   @override
   String get workflows_event_category => 'Etkinlik kategorisi';
@@ -8352,63 +8559,63 @@ class AppLocalizationsTr extends AppLocalizations {
   String get workflows_event_category_invites => 'Davetler';
 
   @override
-  String get workflows_event_category_members => 'Üyeler';
+  String get workflows_event_category_members => 'ÃƒÅ“yeler';
 
   @override
   String get workflows_event_category_messages => 'Mesajlar';
 
   @override
-  String get workflows_event_channel_update => 'Kanal Güncelleme';
+  String get workflows_event_channel_update => 'Kanal GÃƒÂ¼ncelleme';
 
   @override
   String get workflows_event_channel_update_desc =>
-      'Bir kanal güncellendiğinde tetiklenir.';
+      'Bir kanal gÃƒÂ¼ncellendiÃ„Å¸inde tetiklenir.';
 
   @override
   String get workflows_event_hint =>
-      'Bu iş akışını tetiklemesi gereken Discord etkinliğini seçin.';
+      'Bu iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â±nÃ„Â± tetiklemesi gereken Discord etkinliÃ„Å¸ini seÃƒÂ§in.';
 
   @override
-  String get workflows_event_invite_create => 'Davet Oluşturma';
+  String get workflows_event_invite_create => 'Davet OluÃ…Å¸turma';
 
   @override
   String get workflows_event_invite_create_desc =>
-      'Bir davet oluşturulduğunda tetiklenir.';
+      'Bir davet oluÃ…Å¸turulduÃ„Å¸unda tetiklenir.';
 
   @override
-  String get workflows_event_member_join => 'Üye Katılımı';
+  String get workflows_event_member_join => 'ÃƒÅ“ye KatÃ„Â±lÃ„Â±mÃ„Â±';
 
   @override
   String get workflows_event_member_join_desc =>
-      'Sunucuya yeni bir üye katıldığında tetiklenir.';
+      'Sunucuya yeni bir ÃƒÂ¼ye katÃ„Â±ldÃ„Â±Ã„Å¸Ã„Â±nda tetiklenir.';
 
   @override
-  String get workflows_event_member_remove => 'Üye Ayrılması';
+  String get workflows_event_member_remove => 'ÃƒÅ“ye AyrÃ„Â±lmasÃ„Â±';
 
   @override
   String get workflows_event_member_remove_desc =>
-      'Bir üye sunucudan ayrıldığında veya çıkarıldığında tetiklenir.';
+      'Bir ÃƒÂ¼ye sunucudan ayrÃ„Â±ldÃ„Â±Ã„Å¸Ã„Â±nda veya ÃƒÂ§Ã„Â±karÃ„Â±ldÃ„Â±Ã„Å¸Ã„Â±nda tetiklenir.';
 
   @override
-  String get workflows_event_message_create => 'Mesaj Oluşturma';
+  String get workflows_event_message_create => 'Mesaj OluÃ…Å¸turma';
 
   @override
   String get workflows_event_message_create_desc =>
-      'Yeni bir mesaj oluşturulduğunda tetiklenir.';
+      'Yeni bir mesaj oluÃ…Å¸turulduÃ„Å¸unda tetiklenir.';
 
   @override
   String get workflows_event_message_delete => 'Mesaj Silme';
 
   @override
   String get workflows_event_message_delete_desc =>
-      'Bir mesaj silindiğinde tetiklenir.';
+      'Bir mesaj silindiÃ„Å¸inde tetiklenir.';
 
   @override
-  String get workflows_event_message_update => 'Mesaj Güncelleme';
+  String get workflows_event_message_update => 'Mesaj GÃƒÂ¼ncelleme';
 
   @override
   String get workflows_event_message_update_desc =>
-      'Mevcut bir mesaj düzenlendiğinde tetiklenir.';
+      'Mevcut bir mesaj dÃƒÂ¼zenlendiÃ„Å¸inde tetiklenir.';
 
   @override
   String workflows_event_preview(String event) {
@@ -8416,109 +8623,118 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get workflows_event_section => 'Etkinlik İş Akışları';
+  String get workflows_event_section => 'Etkinlik Ã„Â°Ã…Å¸ AkÃ„Â±Ã…Å¸larÃ„Â±';
 
   @override
   String workflows_event_subtitle(int count, String event) {
-    return '$count eylem • Dinlenen: $event';
+    return '$count eylem Ã¢â‚¬Â¢ Dinlenen: $event';
   }
 
   @override
   String get workflows_export_base64 => 'Base64 olarak kopyala';
 
   @override
-  String get workflows_export_base64_desc => 'Hızlı paylaşım için kompakt.';
+  String get workflows_export_base64_desc =>
+      'HÃ„Â±zlÃ„Â± paylaÃ…Å¸Ã„Â±m iÃƒÂ§in kompakt.';
 
   @override
   String get workflows_export_json => 'JSON olarak kopyala';
 
   @override
-  String get workflows_export_json_desc => 'Okunabilir ve düzenlemesi kolay.';
+  String get workflows_export_json_desc =>
+      'Okunabilir ve dÃƒÂ¼zenlemesi kolay.';
 
   @override
-  String get workflows_export_tooltip => 'İş akışlarını kopyala';
+  String get workflows_export_tooltip =>
+      'Ã„Â°Ã…Å¸ akÃ„Â±Ã…Å¸larÃ„Â±nÃ„Â± kopyala';
 
   @override
-  String get workflows_folder_hint => 'İsteğe bağlı klasör adı';
+  String get workflows_folder_hint =>
+      'Ã„Â°steÃ„Å¸e baÃ„Å¸lÃ„Â± klasÃƒÂ¶r adÃ„Â±';
 
   @override
-  String get workflows_folder_label => 'Klasör';
+  String get workflows_folder_label => 'KlasÃƒÂ¶r';
 
   @override
-  String get workflows_general_section => 'Genel İş Akışları';
+  String get workflows_general_section => 'Genel Ã„Â°Ã…Å¸ AkÃ„Â±Ã…Å¸larÃ„Â±';
 
   @override
-  String get workflows_import_action => 'İçe Aktar';
+  String get workflows_import_action => 'Ã„Â°ÃƒÂ§e Aktar';
 
   @override
   String get workflows_import_desc =>
-      'Bot Creator\'dan dışa aktarılan bir JSON yükü veya Base64(JSON) yapıştırın.';
+      'Bot Creator\'dan dÃ„Â±Ã…Å¸a aktarÃ„Â±lan bir JSON yÃƒÂ¼kÃƒÂ¼ veya Base64(JSON) yapÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±n.';
 
   @override
   String workflows_import_done(int count) {
-    return '$count iş akışı içe aktarıldı.';
+    return '$count iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â± iÃƒÂ§e aktarÃ„Â±ldÃ„Â±.';
   }
 
   @override
-  String get workflows_import_empty => 'İçe aktarılacak veri yok.';
+  String get workflows_import_empty => 'Ã„Â°ÃƒÂ§e aktarÃ„Â±lacak veri yok.';
 
   @override
   String get workflows_import_input_hint =>
-      'JSON veya Base64\'ü buraya yapıştırın...';
+      'JSON veya Base64\'ÃƒÂ¼ buraya yapÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±n...';
 
   @override
   String get workflows_import_invalid_format =>
-      'Geçersiz format. JSON veya Base64(JSON) kullanın.';
+      'GeÃƒÂ§ersiz format. JSON veya Base64(JSON) kullanÃ„Â±n.';
 
   @override
-  String get workflows_import_no_valid => 'Geçerli iş akışı bulunamadı.';
+  String get workflows_import_no_valid =>
+      'GeÃƒÂ§erli iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â± bulunamadÃ„Â±.';
 
   @override
-  String get workflows_import_overwrite => 'Ad zaten mevcutsa değiştir';
+  String get workflows_import_overwrite => 'Ad zaten mevcutsa deÃ„Å¸iÃ…Å¸tir';
 
   @override
-  String get workflows_import_title => 'İş akışlarını içe aktar';
+  String get workflows_import_title =>
+      'Ã„Â°Ã…Å¸ akÃ„Â±Ã…Å¸larÃ„Â±nÃ„Â± iÃƒÂ§e aktar';
 
   @override
-  String get workflows_import_tooltip => 'İş akışlarını içe aktar';
+  String get workflows_import_tooltip =>
+      'Ã„Â°Ã…Å¸ akÃ„Â±Ã…Å¸larÃ„Â±nÃ„Â± iÃƒÂ§e aktar';
 
   @override
-  String get workflows_listen_for => 'Şunu dinle';
+  String get workflows_listen_for => 'Ã…Å¾unu dinle';
 
   @override
-  String get workflows_move_to_folder => 'Klasöre taşı';
+  String get workflows_move_to_folder => 'KlasÃƒÂ¶re taÃ…Å¸Ã„Â±';
 
   @override
-  String get workflows_name => 'İş Akışı Adı';
+  String get workflows_name => 'Ã„Â°Ã…Å¸ AkÃ„Â±Ã…Å¸Ã„Â± AdÃ„Â±';
 
   @override
-  String get workflows_new_folder_hint => 'Yeni klasör adı';
+  String get workflows_new_folder_hint => 'Yeni klasÃƒÂ¶r adÃ„Â±';
 
   @override
-  String get workflows_no_match => 'Mevcut filtrelerle eşleşen iş akışı yok.';
+  String get workflows_no_match =>
+      'Mevcut filtrelerle eÃ…Å¸leÃ…Å¸en iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â± yok.';
 
   @override
-  String get workflows_no_matches => 'Mevcut filtrelerle eşleşen iş akışı yok.';
+  String get workflows_no_matches =>
+      'Mevcut filtrelerle eÃ…Å¸leÃ…Å¸en iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â± yok.';
 
   @override
-  String get workflows_remove_from_folder => 'Klasörden kaldır';
+  String get workflows_remove_from_folder => 'KlasÃƒÂ¶rden kaldÃ„Â±r';
 
   @override
-  String get workflows_search_hint => 'İş akışlarında ara...';
+  String get workflows_search_hint => 'Ã„Â°Ã…Å¸ akÃ„Â±Ã…Å¸larÃ„Â±nda ara...';
 
   @override
   String workflows_subtitle(int count, String entry, String args) {
-    return '$count eylem • giriş: $entry • arg: $args';
+    return '$count eylem Ã¢â‚¬Â¢ giriÃ…Å¸: $entry Ã¢â‚¬Â¢ arg: $args';
   }
 
   @override
-  String get workflows_tab => 'İş Akışları';
+  String get workflows_tab => 'Ã„Â°Ã…Å¸ AkÃ„Â±Ã…Å¸larÃ„Â±';
 
   @override
-  String get workflows_tab_short => 'Akış';
+  String get workflows_tab_short => 'AkÃ„Â±Ã…Å¸';
 
   @override
-  String get workflows_title => 'İş Akışları';
+  String get workflows_title => 'Ã„Â°Ã…Å¸ AkÃ„Â±Ã…Å¸larÃ„Â±';
 
   @override
   String get workflows_type_badge_event => 'Etkinlik';
@@ -8527,21 +8743,21 @@ class AppLocalizationsTr extends AppLocalizations {
   String get workflows_type_badge_general => 'Genel';
 
   @override
-  String get workflows_type_event => 'Etkinlik iş akışı';
+  String get workflows_type_event => 'Etkinlik iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â±';
 
   @override
   String get workflows_type_event_desc =>
-      'Discord bir etkinlik yayınladığında otomatik olarak tepki verir.';
+      'Discord bir etkinlik yayÃ„Â±nladÃ„Â±Ã„Å¸Ã„Â±nda otomatik olarak tepki verir.';
 
   @override
-  String get workflows_type_general => 'Genel iş akışı';
+  String get workflows_type_general => 'Genel iÃ…Å¸ akÃ„Â±Ã…Å¸Ã„Â±';
 
   @override
   String get workflows_type_general_desc =>
-      'Komutlardan, düğmelerden, modallardan veya diğer iş akışlarından çağrılan yeniden kullanılabilir mantık.';
+      'Komutlardan, dÃƒÂ¼Ã„Å¸melerden, modallardan veya diÃ„Å¸er iÃ…Å¸ akÃ„Â±Ã…Å¸larÃ„Â±ndan ÃƒÂ§aÃ„Å¸rÃ„Â±lan yeniden kullanÃ„Â±labilir mantÃ„Â±k.';
 
   @override
-  String get workflows_type_title => 'İş akışı türü';
+  String get workflows_type_title => 'Ã„Â°Ã…Å¸ akÃ„Â±Ã…Å¸Ã„Â± tÃƒÂ¼rÃƒÂ¼';
 
   @override
   String get settings_sync_title => 'Senkronizasyon';
@@ -8551,130 +8767,338 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get settings_sync_force_desc =>
-      'Bot Creator\'da yerel olarak tanımlanmamış tüm Discord eğik çizgi komutlarını siler.';
+      'Bot Creator\'da yerel olarak tanÃ„Â±mlanmamÃ„Â±Ã…Å¸ tÃƒÂ¼m Discord eÃ„Å¸ik ÃƒÂ§izgi komutlarÃ„Â±nÃ„Â± siler.';
 
   @override
-  String get settings_sync_force_button => 'Discord ile Eşitle';
+  String get settings_sync_force_button => 'Discord ile EÃ…Å¸itle';
 
   @override
   String get settings_sync_force_dialog_title => 'Senkronizasyonu Zorla';
 
   @override
   String get settings_sync_force_dialog_desc =>
-      'Bu işlem, Bot Creator\'da yerel olarak tanımlanmamış tüm Discord eğik çizgi komutlarını silecektir. Devam etmek istediğinizden emin misiniz?';
+      'Bu iÃ…Å¸lem, Bot Creator\'da yerel olarak tanÃ„Â±mlanmamÃ„Â±Ã…Å¸ tÃƒÂ¼m Discord eÃ„Å¸ik ÃƒÂ§izgi komutlarÃ„Â±nÃ„Â± silecektir. Devam etmek istediÃ„Å¸inizden emin misiniz?';
 
   @override
-  String get settings_sync_force_dialog_confirm => 'Zorla Eşitle';
+  String get settings_sync_force_dialog_confirm => 'Zorla EÃ…Å¸itle';
 
   @override
   String settings_sync_force_success(Object count) {
-    return 'Zorunlu senkronizasyon başarıyla tamamlandı. Discord\'dan $count eski/takip edilmeyen komut silindi.';
+    return 'Zorunlu senkronizasyon baÃ…Å¸arÃ„Â±yla tamamlandÃ„Â±. Discord\'dan $count eski/takip edilmeyen komut silindi.';
   }
 
   @override
   String settings_sync_force_error(Object error) {
-    return 'Zorunlu senkronizasyon başarısız oldu: $error';
+    return 'Zorunlu senkronizasyon baÃ…Å¸arÃ„Â±sÃ„Â±z oldu: $error';
   }
 
   @override
-  String get app_create_select_type_title => 'Uygulama Türünü Seçin';
+  String get app_create_select_type_title =>
+      'Uygulama TÃƒÂ¼rÃƒÂ¼nÃƒÂ¼ SeÃƒÂ§in';
 
   @override
   String get app_create_select_type_desc =>
-      'Başlamak için oluşturmak istediğiniz uygulama türünü seçin.';
+      'BaÃ…Å¸lamak iÃƒÂ§in oluÃ…Å¸turmak istediÃ„Å¸iniz uygulama tÃƒÂ¼rÃƒÂ¼nÃƒÂ¼ seÃƒÂ§in.';
 
   @override
   String get app_create_type_discord => 'Discord Botu';
 
   @override
   String get app_create_type_discord_desc =>
-      'Eylemler, olaylar ve dinamik tuval panelleri ile özelleştirilebilir bir Discord botu oluşturun ve çalıştırın.';
+      'Eylemler, olaylar ve dinamik tuval panelleri ile ÃƒÂ¶zelleÃ…Å¸tirilebilir bir Discord botu oluÃ…Å¸turun ve ÃƒÂ§alÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±n.';
 
   @override
-  String get app_create_type_hosted => 'Barındırılan Uygulama (Docker)';
+  String get app_create_type_hosted =>
+      'BarÃ„Â±ndÃ„Â±rÃ„Â±lan Uygulama (Docker)';
 
   @override
   String get app_create_type_hosted_desc =>
-      'Tercih ettiğiniz dilde (NodeJS, Python, Java...) bir arka uç uygulaması, sunucu veya komut dosyası çalıştırın. Dosyaları yükleyin ve güvenli bir korumalı alanda paketleri yükleyin.';
+      'Tercih ettiÃ„Å¸iniz dilde (NodeJS, Python, Java...) bir arka uÃƒÂ§ uygulamasÃ„Â±, sunucu veya komut dosyasÃ„Â± ÃƒÂ§alÃ„Â±Ã…Å¸tÃ„Â±rÃ„Â±n. DosyalarÃ„Â± yÃƒÂ¼kleyin ve gÃƒÂ¼venli bir korumalÃ„Â± alanda paketleri yÃƒÂ¼kleyin.';
 
   @override
-  String get app_create_coming_soon => 'Çok yakında';
+  String get app_create_coming_soon => 'Ãƒâ€¡ok yakÃ„Â±nda';
 
   @override
-  String get app_create_sample_title => 'Örnek komut oluştur';
+  String get app_create_sample_title => 'Ãƒâ€“rnek komut oluÃ…Å¸tur';
 
   @override
   String app_create_sample_desc(String botName) {
-    return '$botName için örnek bir /ping komutu eklemek ister misiniz? \"Pong!\" ile yanıt verir ve Bot Creator\'un nasıl çalıştığını öğrenmek için harika bir başlangıç noktasıdır.';
+    return '$botName iÃƒÂ§in ÃƒÂ¶rnek bir /ping komutu eklemek ister misiniz? \"Pong!\" ile yanÃ„Â±t verir ve Bot Creator\'un nasÃ„Â±l ÃƒÂ§alÃ„Â±Ã…Å¸tÃ„Â±Ã„Å¸Ã„Â±nÃ„Â± ÃƒÂ¶Ã„Å¸renmek iÃƒÂ§in harika bir baÃ…Å¸langÃ„Â±ÃƒÂ§ noktasÃ„Â±dÃ„Â±r.';
   }
 
   @override
   String get app_create_sample_skip => 'Atla';
 
   @override
-  String get app_create_sample_confirm => 'Örnek /ping ekle';
+  String get app_create_sample_confirm => 'Ãƒâ€“rnek /ping ekle';
 
   @override
-  String get app_create_sample_success => '/ping komutu başarıyla oluşturuldu';
+  String get app_create_sample_success =>
+      '/ping komutu baÃ…Å¸arÃ„Â±yla oluÃ…Å¸turuldu';
 
   @override
-  String get commands_empty_title => 'İlk komutunu oluştur!';
+  String get commands_empty_title => 'Ã„Â°lk komutunu oluÃ…Å¸tur!';
 
   @override
   String get commands_empty_description =>
-      'Bir komut, biri Discord\'da /birşey yazdığında botunun yanıt vermesini sağlar.';
+      'Bir komut, biri Discord\'da /birÃ…Å¸ey yazdÃ„Â±Ã„Å¸Ã„Â±nda botunun yanÃ„Â±t vermesini saÃ„Å¸lar.';
 
   @override
-  String get commands_empty_create_button => 'Komut oluştur';
+  String get commands_empty_create_button => 'Komut oluÃ…Å¸tur';
 
   @override
   String get commands_empty_marketplace_link =>
-      'Veya bir Marketplace şablonuyla başla';
+      'Veya bir Marketplace Ã…Å¸ablonuyla baÃ…Å¸la';
 
   @override
-  String get command_created_success_title => 'Komutun hazır!';
+  String get command_created_success_title => 'Komutun hazÃ„Â±r!';
 
   @override
-  String get command_created_success_subtitle => 'Şimdi ne yapmak istiyorsun?';
+  String get command_created_success_subtitle =>
+      'Ã…Å¾imdi ne yapmak istiyorsun?';
 
   @override
-  String get command_created_start_bot => 'Botumu başlat';
+  String get command_created_start_bot => 'Botumu baÃ…Å¸lat';
 
   @override
   String get command_created_start_bot_hint =>
-      'Botunun Giriş sekmesini aç ve çevrimiçi yapmak için Başlat\'a dokun.';
+      'Botunun GiriÃ…Å¸ sekmesini aÃƒÂ§ ve ÃƒÂ§evrimiÃƒÂ§i yapmak iÃƒÂ§in BaÃ…Å¸lat\'a dokun.';
 
   @override
   String get command_created_invite => 'Bir sunucuya davet et';
 
   @override
-  String get command_created_invite_error => 'Davet bağlantısı açılamadı.';
+  String get command_created_invite_error =>
+      'Davet baÃ„Å¸lantÃ„Â±sÃ„Â± aÃƒÂ§Ã„Â±lamadÃ„Â±.';
 
   @override
-  String get command_created_create_another => 'Başka bir komut oluştur';
+  String get command_created_create_another => 'BaÃ…Å¸ka bir komut oluÃ…Å¸tur';
 
   @override
   String get command_created_close => 'Kapat';
 
   @override
-  String get beginner_mode_label => 'Başlangıç modu';
+  String get beginner_mode_label => 'BaÃ…Å¸langÃ„Â±ÃƒÂ§ modu';
 
   @override
-  String get beginner_mode_on_hint => 'Sadece temel sekmeler gösteriliyor';
+  String get beginner_mode_on_hint => 'Sadece temel sekmeler gÃƒÂ¶steriliyor';
 
   @override
-  String get beginner_mode_off_hint => 'Tüm özellikler gösteriliyor';
+  String get beginner_mode_off_hint => 'TÃƒÂ¼m ÃƒÂ¶zellikler gÃƒÂ¶steriliyor';
 
   @override
-  String get commands_empty_sample_ping => 'Örnek /ping komutu ekle';
+  String get commands_empty_sample_ping => 'Ãƒâ€“rnek /ping komutu ekle';
 
   @override
   String get command_created_sample_success =>
-      '/ping komutu oluşturuldu! \"Pong!\" diye yanıt verir.';
+      '/ping komutu oluÃ…Å¸turuldu! \"Pong!\" diye yanÃ„Â±t verir.';
 
   @override
-  String get onboarding_create_now => 'Botu şimdi oluştur';
+  String get onboarding_create_now => 'Botu Ã…Å¸imdi oluÃ…Å¸tur';
 
   @override
-  String get onboarding_command_now => 'İlk komutunu oluştur';
+  String get onboarding_command_now => 'Ã„Â°lk komutunu oluÃ…Å¸tur';
+
+  @override
+  String get container_list_title => 'Barindirilan Uygulamalar';
+
+  @override
+  String get container_list_session_missing => 'Oturum kullanilamiyor';
+
+  @override
+  String get container_list_session_hint =>
+      'LÃ¼tfen Ã¶nce hesabiniza baglanin.';
+
+  @override
+  String get container_list_error => 'Kapsayicilar yÃ¼klenirken basarisiz oldu';
+
+  @override
+  String get container_list_retry => 'Tekrar Dene';
+
+  @override
+  String get container_list_empty => 'Barindirilan uygulama yok';
+
+  @override
+  String get container_list_empty_hint =>
+      'Baslamak iÃ§in ilk uygulamanizi dagitin.';
+
+  @override
+  String get container_list_deploy_btn => 'Uygulama Dagit';
+
+  @override
+  String get container_list_expired => 'SÃ¼resi doldu';
+
+  @override
+  String container_list_expiry_minutes(int minutes) {
+    return '$minutes dakika kaldi';
+  }
+
+  @override
+  String container_list_expiry_hours(int hours, int minutes) {
+    return '$hours saat $minutes dakika kaldi';
+  }
+
+  @override
+  String container_list_expiry_days(int days, int hours) {
+    return '$days gÃ¼n $hours saat kaldi';
+  }
+
+  @override
+  String get container_deploy_title => 'Uygulama Dagit';
+
+  @override
+  String get container_deploy_image_label => 'GÃ¶rÃ¼ntÃ¼';
+
+  @override
+  String get container_deploy_image_hint => 'Etiketli Docker gÃ¶rÃ¼ntÃ¼ adi';
+
+  @override
+  String get container_deploy_image_required => 'GÃ¶rÃ¼ntÃ¼ gereklidir';
+
+  @override
+  String get container_deploy_cpu_label => 'CPU (milis)';
+
+  @override
+  String get container_deploy_cpu_min => 'Min 128';
+
+  @override
+  String get container_deploy_memory_label => 'Bellek (MB)';
+
+  @override
+  String get container_deploy_memory_min => 'Min 128 MB';
+
+  @override
+  String get container_deploy_storage_label => 'Depolama (GB)';
+
+  @override
+  String get container_deploy_storage_min => 'Min 1 GB';
+
+  @override
+  String get container_deploy_ttl_label => 'TTL (dakika)';
+
+  @override
+  String get container_deploy_ttl_min => 'Min 1 dakika';
+
+  @override
+  String get container_deploy_env_label => 'Ortam Degiskenleri';
+
+  @override
+  String get container_deploy_env_key_hint => 'ANAHTAR';
+
+  @override
+  String get container_deploy_env_value_hint => 'deger';
+
+  @override
+  String get container_deploy_submit => 'Dagit';
+
+  @override
+  String get container_deploy_submitting => 'Dagitiliyor...';
+
+  @override
+  String get container_deploy_not_auth => 'Kimlik dogrulanmadi';
+
+  @override
+  String container_deploy_success(String containerId) {
+    return '$containerId dagitiliyor...';
+  }
+
+  @override
+  String container_deploy_failed(String error) {
+    return 'Dagitim basarisiz: $error';
+  }
+
+  @override
+  String get container_detail_state => 'Durum';
+
+  @override
+  String get container_detail_expires => 'Bitis';
+
+  @override
+  String get container_detail_extend_ttl => 'TTL Uzat';
+
+  @override
+  String get container_detail_stop_title => 'Kapsayiciyi Durdur';
+
+  @override
+  String get container_detail_stop_confirm =>
+      'Bu, kapsayiciyi sonlandiracak ve verileri kaybolacaktir.';
+
+  @override
+  String get container_detail_stop_btn => 'Durdur';
+
+  @override
+  String get container_detail_stopped_ok => 'Kapsayici durduruldu';
+
+  @override
+  String get container_detail_update_resources => 'Kaynaklari GÃ¼ncelle';
+
+  @override
+  String get container_detail_update_btn => 'GÃ¼ncelle';
+
+  @override
+  String get container_detail_updated_ok => 'Kaynaklar gÃ¼ncellendi';
+
+  @override
+  String get container_detail_extend_hint => 'Eklenecek dakika';
+
+  @override
+  String get container_detail_extend_btn => 'Uzat';
+
+  @override
+  String get container_detail_extended_ok => 'TTL uzatildi';
+
+  @override
+  String get container_detail_console => 'Konsol';
+
+  @override
+  String get container_detail_deploying => 'Kapsayici dagitiliyor...';
+
+  @override
+  String container_detail_status_stopped(String state) {
+    return 'Bu kapsayici $state.';
+  }
+
+  @override
+  String get container_detail_not_connected => 'Bagli degil';
+
+  @override
+  String get container_detail_console_connecting => 'Baglaniyor...';
+
+  @override
+  String get container_detail_console_closed => '--- Baglanti kapatildi ---';
+
+  @override
+  String get container_detail_console_hint => 'Bir komut yazin...';
+
+  @override
+  String container_detail_failed(String error) {
+    return 'Basarisiz: $error';
+  }
+
+  @override
+  String get container_state_running => 'Ã‡alisiyor';
+
+  @override
+  String get container_state_pending => 'Beklemede';
+
+  @override
+  String get container_state_stopped => 'Durduruldu';
+
+  @override
+  String get container_state_stopping => 'Durduruluyor';
+
+  @override
+  String get container_state_failed => 'Basarisiz';
+
+  @override
+  String get container_hosted_subtitle =>
+      'Docker kapsayicilarini dagitin ve yÃ¶netin';
+
+  @override
+  String get container_premium_badge => 'Premium';
+
+  @override
+  String container_detail_title(String id) {
+    return 'Kapsayici $id';
+  }
 }

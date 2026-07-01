@@ -9,2807 +9,3320 @@ class AppLocalizationsJa extends AppLocalizations {
   AppLocalizationsJa([String locale = 'ja']) : super(locale);
 
   @override
-  String get action_add_else_if => 'ELSE IF を追加';
+  String get action_add_else_if => 'ELSE IF Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get action_add_header => 'ヘッダーを追加';
+  String get action_add_header =>
+      'Ã£Æ’ËœÃ£Æ’Æ’Ã£Æ’â‚¬Ã£Æ’Â¼Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get action_add_new_item => '新しい項目を追加';
+  String get action_add_new_item =>
+      'Ã¦â€“Â°Ã£Ââ€”Ã£Ââ€žÃ©Â â€¦Ã§â€ºÂ®Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get action_advanced_settings => '詳細設定';
+  String get action_advanced_settings => 'Ã¨Â©Â³Ã§Â´Â°Ã¨Â¨Â­Ã¥Â®Å¡';
 
   @override
   String action_and_more(int count) {
-    return '… 他 $count 件';
+    return 'Ã¢â‚¬Â¦ Ã¤Â»â€“ $count Ã¤Â»Â¶';
   }
 
   @override
-  String get action_bulk_import_hint => '一括インポート (Key: Value 形式で貼り付け)';
+  String get action_bulk_import_hint =>
+      'Ã¤Â¸â‚¬Ã¦â€¹Â¬Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë† (Key: Value Ã¥Â½Â¢Ã¥Â¼ÂÃ£ÂÂ§Ã¨Â²Â¼Ã£â€šÅ Ã¤Â»ËœÃ£Ââ€˜)';
 
   @override
-  String get action_cannot_format_json => 'フォーマット不可: 無効なJSON';
+  String get action_cannot_format_json =>
+      'Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â¼Ã£Æ’Å¾Ã£Æ’Æ’Ã£Æ’Ë†Ã¤Â¸ÂÃ¥ÂÂ¯: Ã§â€žÂ¡Ã¥Å Â¹Ã£ÂÂªJSON';
 
   @override
-  String get action_category_channels => 'チャンネル';
+  String get action_category_channels => 'Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«';
 
   @override
-  String get action_category_components => 'コンポーネント';
+  String get action_category_components =>
+      'Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â³Ã£Æ’Ë†';
 
   @override
-  String get action_category_guild_members => 'サーバー & メンバー';
+  String get action_category_guild_members =>
+      'Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼ & Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼';
 
   @override
-  String get action_category_http_variables => 'HTTP & 変数';
+  String get action_category_http_variables => 'HTTP & Ã¥Â¤â€°Ã¦â€¢Â°';
 
   @override
-  String get action_category_interactions => 'インタラクション';
+  String get action_category_interactions =>
+      'Ã£â€šÂ¤Ã£Æ’Â³Ã£â€šÂ¿Ã£Æ’Â©Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³';
 
   @override
-  String get action_category_logic_flow => 'ロジック & フロー';
+  String get action_category_logic_flow =>
+      'Ã£Æ’Â­Ã£â€šÂ¸Ã£Æ’Æ’Ã£â€šÂ¯ & Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼';
 
   @override
-  String get action_category_messages => 'メッセージ';
+  String get action_category_messages => 'Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸';
 
   @override
-  String get action_category_moderation => 'モデレーション';
+  String get action_category_moderation =>
+      'Ã£Æ’Â¢Ã£Æ’â€¡Ã£Æ’Â¬Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³';
 
   @override
-  String get action_category_music => '音楽';
+  String get action_category_music => 'Ã©Å¸Â³Ã¦Â¥Â½';
 
   @override
-  String get action_category_reactions => 'リアクション';
+  String get action_category_reactions =>
+      'Ã£Æ’ÂªÃ£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³';
 
   @override
   String get action_category_webhooks => 'Webhook';
 
   @override
-  String get action_category_workflows => 'ワークフロー';
+  String get action_category_workflows =>
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼';
 
   @override
   String action_choose_param(String name) {
-    return '$name を選択';
+    return '$name Ã£â€šâ€™Ã©ÂÂ¸Ã¦Å Å¾';
   }
 
   @override
-  String get action_clear_all => 'すべてクリア';
+  String get action_clear_all => 'Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£â€šÂ¯Ã£Æ’ÂªÃ£â€šÂ¢';
 
   @override
-  String get action_condition_value => '条件値';
+  String get action_condition_value => 'Ã¦ÂÂ¡Ã¤Â»Â¶Ã¥â‚¬Â¤';
 
   @override
-  String get action_condition_variable => '条件変数';
+  String get action_condition_variable => 'Ã¦ÂÂ¡Ã¤Â»Â¶Ã¥Â¤â€°Ã¦â€¢Â°';
 
   @override
-  String get action_description_addReaction => 'メッセージに絵文字リアクションを追加';
+  String get action_description_addReaction =>
+      'Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£ÂÂ«Ã§ÂµÂµÃ¦â€“â€¡Ã¥Â­â€”Ã£Æ’ÂªÃ£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get action_description_addRole => 'メンバーにロールを付与';
+  String get action_description_addRole =>
+      'Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£ÂÂ«Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’Â«Ã£â€šâ€™Ã¤Â»ËœÃ¤Â¸Å½';
 
   @override
-  String get action_description_addThreadMember => 'スレッドにメンバーを追加します';
+  String get action_description_addThreadMember =>
+      'Ã£â€šÂ¹Ã£Æ’Â¬Ã£Æ’Æ’Ã£Æ’â€°Ã£ÂÂ«Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
   String get action_description_appendArrayElement =>
-      'グローバルまたはスコープ付きのJSON配列に新しい要素を追加します';
+      'Ã£â€šÂ°Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â«Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã£â€šÂ¹Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€”Ã¤Â»ËœÃ£ÂÂÃ£ÂÂ®JSONÃ©â€¦ÂÃ¥Ë†â€”Ã£ÂÂ«Ã¦â€“Â°Ã£Ââ€”Ã£Ââ€žÃ¨Â¦ÂÃ§Â´Â Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
   String get action_description_attachImage =>
-      'メッセージ応答に画像ファイルを添付します（URL、データURL、またはbase64）';
+      'Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã¥Â¿Å“Ã§Â­â€Ã£ÂÂ«Ã§â€Â»Ã¥Æ’ÂÃ£Æ’â€¢Ã£â€šÂ¡Ã£â€šÂ¤Ã£Æ’Â«Ã£â€šâ€™Ã¦Â·Â»Ã¤Â»ËœÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã¯Â¼Ë†URLÃ£â‚¬ÂÃ£Æ’â€¡Ã£Æ’Â¼Ã£â€šÂ¿URLÃ£â‚¬ÂÃ£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯base64Ã¯Â¼â€°';
 
   @override
-  String get action_description_banUser => 'ユーザーをサーバーから永久追放';
+  String get action_description_banUser =>
+      'Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£â€šâ€™Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£Ââ€¹Ã£â€šâ€°Ã¦Â°Â¸Ã¤Â¹â€¦Ã¨Â¿Â½Ã¦â€Â¾';
 
   @override
-  String get action_description_calculate => '数学的な演算を実行し、結果を保存します';
+  String get action_description_calculate =>
+      'Ã¦â€¢Â°Ã¥Â­Â¦Ã§Å¡â€žÃ£ÂÂªÃ¦Â¼â€Ã§Â®â€”Ã£â€šâ€™Ã¥Â®Å¸Ã¨Â¡Å’Ã£Ââ€”Ã£â‚¬ÂÃ§ÂµÂÃ¦Å¾Å“Ã£â€šâ€™Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_canvasCreateBlock => '空白の画像キャンバスを作成します';
+  String get action_description_canvasCreateBlock =>
+      'Ã§Â©ÂºÃ§â„¢Â½Ã£ÂÂ®Ã§â€Â»Ã¥Æ’ÂÃ£â€šÂ­Ã£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£â€šÂ¹Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†ÂÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_canvasDrawCircleBlock => '画像キャンバスに円を描画します';
+  String get action_description_canvasDrawCircleBlock =>
+      'Ã§â€Â»Ã¥Æ’ÂÃ£â€šÂ­Ã£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£â€šÂ¹Ã£ÂÂ«Ã¥â€ â€ Ã£â€šâ€™Ã¦ÂÂÃ§â€Â»Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_canvasDrawLineBlock => 'キャンバスに線を描画します';
+  String get action_description_canvasDrawLineBlock =>
+      'Ã£â€šÂ­Ã£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£â€šÂ¹Ã£ÂÂ«Ã§Â·Å¡Ã£â€šâ€™Ã¦ÂÂÃ§â€Â»Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_canvasDrawRectBlock => '画像キャンバスに長方形を描画します';
+  String get action_description_canvasDrawRectBlock =>
+      'Ã§â€Â»Ã¥Æ’ÂÃ£â€šÂ­Ã£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£â€šÂ¹Ã£ÂÂ«Ã©â€¢Â·Ã¦â€“Â¹Ã¥Â½Â¢Ã£â€šâ€™Ã¦ÂÂÃ§â€Â»Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
   String get action_description_canvasDrawTextBlock =>
-      'スタイルオプション付きで画像キャンバスにテキストを描画します';
+      'Ã£â€šÂ¹Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â«Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã¤Â»ËœÃ£ÂÂÃ£ÂÂ§Ã§â€Â»Ã¥Æ’ÂÃ£â€šÂ­Ã£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£â€šÂ¹Ã£ÂÂ«Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã£â€šâ€™Ã¦ÂÂÃ§â€Â»Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
   String get action_description_canvasLoadImageBlock =>
-      'URLまたはソースからキャンバスに画像を読み込みます';
+      'URLÃ£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã£â€šÂ½Ã£Æ’Â¼Ã£â€šÂ¹Ã£Ââ€¹Ã£â€šâ€°Ã£â€šÂ­Ã£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£â€šÂ¹Ã£ÂÂ«Ã§â€Â»Ã¥Æ’ÂÃ£â€šâ€™Ã¨ÂªÂ­Ã£ÂÂ¿Ã¨Â¾Â¼Ã£ÂÂ¿Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_clearAllReactions => 'メッセージからすべてのリアクションを削除';
+  String get action_description_clearAllReactions =>
+      'Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£Ââ€¹Ã£â€šâ€°Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÂ®Ã£Æ’ÂªÃ£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get action_description_cooldown => 'ユーザーまたはサーバーにコマンドクールダウンを適用';
+  String get action_description_cooldown =>
+      'Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£ÂÂ«Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šÂ¯Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’â‚¬Ã£â€šÂ¦Ã£Æ’Â³Ã£â€šâ€™Ã©ÂÂ©Ã§â€Â¨';
 
   @override
-  String get action_description_createAutoModRule => 'ギルドの自動モデレーションルールを作成します';
+  String get action_description_createAutoModRule =>
+      'Ã£â€šÂ®Ã£Æ’Â«Ã£Æ’â€°Ã£ÂÂ®Ã¨â€¡ÂªÃ¥â€¹â€¢Ã£Æ’Â¢Ã£Æ’â€¡Ã£Æ’Â¬Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’Â«Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†ÂÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_createChannel => '新しいチャンネルを作成します';
+  String get action_description_createChannel =>
+      'Ã¦â€“Â°Ã£Ââ€”Ã£Ââ€žÃ£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†ÂÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_createEmoji => '画像データからギルド絵文字を作成します';
+  String get action_description_createEmoji =>
+      'Ã§â€Â»Ã¥Æ’ÂÃ£Æ’â€¡Ã£Æ’Â¼Ã£â€šÂ¿Ã£Ââ€¹Ã£â€šâ€°Ã£â€šÂ®Ã£Æ’Â«Ã£Æ’â€°Ã§ÂµÂµÃ¦â€“â€¡Ã¥Â­â€”Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†ÂÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_createInvite => 'チャンネルの新しい招待リンクを作成します';
+  String get action_description_createInvite =>
+      'Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã£ÂÂ®Ã¦â€“Â°Ã£Ââ€”Ã£Ââ€žÃ¦â€¹â€ºÃ¥Â¾â€¦Ã£Æ’ÂªÃ£Æ’Â³Ã£â€šÂ¯Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†ÂÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_createPoll => 'チャンネル内に投票メッセージを作成します';
+  String get action_description_createPoll =>
+      'Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã¥â€ â€¦Ã£ÂÂ«Ã¦Å â€¢Ã§Â¥Â¨Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†ÂÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
   String get action_description_createThread =>
-      'サポートされているテキストチャンネル内にスレッドを作成します';
+      'Ã£â€šÂµÃ£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¦Ã£Ââ€žÃ£â€šâ€¹Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã¥â€ â€¦Ã£ÂÂ«Ã£â€šÂ¹Ã£Æ’Â¬Ã£Æ’Æ’Ã£Æ’â€°Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†ÂÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_debugProfile => '実行プロファイルと診断情報を生成します';
+  String get action_description_debugProfile =>
+      'Ã¥Â®Å¸Ã¨Â¡Å’Ã£Æ’â€”Ã£Æ’Â­Ã£Æ’â€¢Ã£â€šÂ¡Ã£â€šÂ¤Ã£Æ’Â«Ã£ÂÂ¨Ã¨Â¨ÂºÃ¦â€“Â­Ã¦Æ’â€¦Ã¥Â Â±Ã£â€šâ€™Ã§â€Å¸Ã¦Ë†ÂÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
   String get action_description_deferInteraction =>
-      'Discordのタイムアウトを防ぐためにインタラクションの応答を保留します';
+      'DiscordÃ£ÂÂ®Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â Ã£â€šÂ¢Ã£â€šÂ¦Ã£Æ’Ë†Ã£â€šâ€™Ã©ËœÂ²Ã£ÂÂÃ£ÂÅ¸Ã£â€šÂÃ£ÂÂ«Ã£â€šÂ¤Ã£Æ’Â³Ã£â€šÂ¿Ã£Æ’Â©Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ®Ã¥Â¿Å“Ã§Â­â€Ã£â€šâ€™Ã¤Â¿ÂÃ§â€¢â„¢Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_deleteAutoModRule => '自動モデレーションルールを削除します';
+  String get action_description_deleteAutoModRule =>
+      'Ã¨â€¡ÂªÃ¥â€¹â€¢Ã£Æ’Â¢Ã£Æ’â€¡Ã£Æ’Â¬Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’Â«Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
   String get action_description_deleteChannelPermission =>
-      'チャンネルの権限オーバーライトを削除します';
+      'Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã£ÂÂ®Ã¦Â¨Â©Ã©â„¢ÂÃ£â€šÂªÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Â©Ã£â€šÂ¤Ã£Æ’Ë†Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_deleteEmoji => 'ギルド絵文字を削除します';
+  String get action_description_deleteEmoji =>
+      'Ã£â€šÂ®Ã£Æ’Â«Ã£Æ’â€°Ã§ÂµÂµÃ¦â€“â€¡Ã¥Â­â€”Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_deleteInvite => 'コードで既存の招待を削除します';
+  String get action_description_deleteInvite =>
+      'Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€°Ã£ÂÂ§Ã¦â€”Â¢Ã¥Â­ËœÃ£ÂÂ®Ã¦â€¹â€ºÃ¥Â¾â€¦Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_deleteMessages => '1件以上のメッセージを削除';
+  String get action_description_deleteMessages =>
+      '1Ã¤Â»Â¶Ã¤Â»Â¥Ã¤Â¸Å Ã£ÂÂ®Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get action_description_deleteTrigger => 'このコマンドを起動したメッセージを削除';
+  String get action_description_deleteTrigger =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¨ÂµÂ·Ã¥â€¹â€¢Ã£Ââ€”Ã£ÂÅ¸Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get action_description_deleteWebhook => 'Webhookを削除します';
+  String get action_description_deleteWebhook =>
+      'WebhookÃ£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_disconnectFromVoice => 'メンバーを音声から切断します';
+  String get action_description_disconnectFromVoice =>
+      'Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£â€šâ€™Ã©Å¸Â³Ã¥Â£Â°Ã£Ââ€¹Ã£â€šâ€°Ã¥Ë†â€¡Ã¦â€“Â­Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
   String get action_description_editChannelPermissions =>
-      'チャンネルの権限オーバーライトを作成または更新します';
+      'Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã£ÂÂ®Ã¦Â¨Â©Ã©â„¢ÂÃ£â€šÂªÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Â©Ã£â€šÂ¤Ã£Æ’Ë†Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†ÂÃ£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã¦â€ºÂ´Ã¦â€“Â°Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_editComponentV2 => '既存のコンポーネントを編集します';
+  String get action_description_editComponentV2 =>
+      'Ã¦â€”Â¢Ã¥Â­ËœÃ£ÂÂ®Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â³Ã£Æ’Ë†Ã£â€šâ€™Ã§Â·Â¨Ã©â€ºâ€ Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
   String get action_description_editInteractionMessage =>
-      '保留中または元のインタラクション応答を編集します';
+      'Ã¤Â¿ÂÃ§â€¢â„¢Ã¤Â¸Â­Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã¥â€¦Æ’Ã£ÂÂ®Ã£â€šÂ¤Ã£Æ’Â³Ã£â€šÂ¿Ã£Æ’Â©Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã¥Â¿Å“Ã§Â­â€Ã£â€šâ€™Ã§Â·Â¨Ã©â€ºâ€ Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_editMessage => '既存のメッセージを編集';
+  String get action_description_editMessage =>
+      'Ã¦â€”Â¢Ã¥Â­ËœÃ£ÂÂ®Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£â€šâ€™Ã§Â·Â¨Ã©â€ºâ€ ';
 
   @override
-  String get action_description_editWebhook => '既存のWebhookを編集します';
+  String get action_description_editWebhook =>
+      'Ã¦â€”Â¢Ã¥Â­ËœÃ£ÂÂ®WebhookÃ£â€šâ€™Ã§Â·Â¨Ã©â€ºâ€ Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_endPoll => 'アクティブな投票メッセージを即座に終了します';
+  String get action_description_endPoll =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’â€“Ã£ÂÂªÃ¦Å â€¢Ã§Â¥Â¨Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£â€šâ€™Ã¥ÂÂ³Ã¥ÂºÂ§Ã£ÂÂ«Ã§Âµâ€šÃ¤Âºâ€ Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_forLoop => '数値の範囲でループします（forループ）';
+  String get action_description_forLoop =>
+      'Ã¦â€¢Â°Ã¥â‚¬Â¤Ã£ÂÂ®Ã§Â¯â€žÃ¥â€ºÂ²Ã£ÂÂ§Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’â€”Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã¯Â¼Ë†forÃ£Æ’Â«Ã£Æ’Â¼Ã£Æ’â€”Ã¯Â¼â€°';
 
   @override
-  String get action_description_getGlobalVariable => 'グローバル変数を読み込み、実行時変数に注入します';
+  String get action_description_getGlobalVariable =>
+      'Ã£â€šÂ°Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â«Ã¥Â¤â€°Ã¦â€¢Â°Ã£â€šâ€™Ã¨ÂªÂ­Ã£ÂÂ¿Ã¨Â¾Â¼Ã£ÂÂ¿Ã£â‚¬ÂÃ¥Â®Å¸Ã¨Â¡Å’Ã¦â„¢â€šÃ¥Â¤â€°Ã¦â€¢Â°Ã£ÂÂ«Ã¦Â³Â¨Ã¥â€¦Â¥Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_getGuildOnboarding => '現在のギルドオンボーディング設定を取得します';
+  String get action_description_getGuildOnboarding =>
+      'Ã§ÂÂ¾Ã¥Å“Â¨Ã£ÂÂ®Ã£â€šÂ®Ã£Æ’Â«Ã£Æ’â€°Ã£â€šÂªÃ£Æ’Â³Ã£Æ’Å“Ã£Æ’Â¼Ã£Æ’â€¡Ã£â€šÂ£Ã£Æ’Â³Ã£â€šÂ°Ã¨Â¨Â­Ã¥Â®Å¡Ã£â€šâ€™Ã¥Ââ€“Ã¥Â¾â€”Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_getInvite => 'コードで招待情報を取得します';
+  String get action_description_getInvite =>
+      'Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€°Ã£ÂÂ§Ã¦â€¹â€ºÃ¥Â¾â€¦Ã¦Æ’â€¦Ã¥Â Â±Ã£â€šâ€™Ã¥Ââ€“Ã¥Â¾â€”Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_getMember => 'メンバー情報を取得します';
+  String get action_description_getMember =>
+      'Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã¦Æ’â€¦Ã¥Â Â±Ã£â€šâ€™Ã¥Ââ€“Ã¥Â¾â€”Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_getMessage => 'メッセージを取得し、そのフィールドを公開します';
+  String get action_description_getMessage =>
+      'Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£â€šâ€™Ã¥Ââ€“Ã¥Â¾â€”Ã£Ââ€”Ã£â‚¬ÂÃ£ÂÂÃ£ÂÂ®Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’â€°Ã£â€šâ€™Ã¥â€¦Â¬Ã©â€“â€¹Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_getMusicInfo => '現在再生中のトラックの情報を取得します';
+  String get action_description_getMusicInfo =>
+      'Ã§ÂÂ¾Ã¥Å“Â¨Ã¥â€ ÂÃ§â€Å¸Ã¤Â¸Â­Ã£ÂÂ®Ã£Æ’Ë†Ã£Æ’Â©Ã£Æ’Æ’Ã£â€šÂ¯Ã£ÂÂ®Ã¦Æ’â€¦Ã¥Â Â±Ã£â€šâ€™Ã¥Ââ€“Ã¥Â¾â€”Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
   String get action_description_getScopedVariable =>
-      'スコープ付き変数を読み込み、実行時変数に注入します';
+      'Ã£â€šÂ¹Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€”Ã¤Â»ËœÃ£ÂÂÃ¥Â¤â€°Ã¦â€¢Â°Ã£â€šâ€™Ã¨ÂªÂ­Ã£ÂÂ¿Ã¨Â¾Â¼Ã£ÂÂ¿Ã£â‚¬ÂÃ¥Â®Å¸Ã¨Â¡Å’Ã¦â„¢â€šÃ¥Â¤â€°Ã¦â€¢Â°Ã£ÂÂ«Ã¦Â³Â¨Ã¥â€¦Â¥Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_getWebhook => 'IDでWebhookの情報を取得します';
+  String get action_description_getWebhook =>
+      'IDÃ£ÂÂ§WebhookÃ£ÂÂ®Ã¦Æ’â€¦Ã¥Â Â±Ã£â€šâ€™Ã¥Ââ€“Ã¥Â¾â€”Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
   String get action_description_httpRequest =>
-      '動的なURL、メソッド、ヘッダー、ボディでHTTPリクエストを送信します';
+      'Ã¥â€¹â€¢Ã§Å¡â€žÃ£ÂÂªURLÃ£â‚¬ÂÃ£Æ’Â¡Ã£â€šÂ½Ã£Æ’Æ’Ã£Æ’â€°Ã£â‚¬ÂÃ£Æ’ËœÃ£Æ’Æ’Ã£Æ’â‚¬Ã£Æ’Â¼Ã£â‚¬ÂÃ£Æ’Å“Ã£Æ’â€¡Ã£â€šÂ£Ã£ÂÂ§HTTPÃ£Æ’ÂªÃ£â€šÂ¯Ã£â€šÂ¨Ã£â€šÂ¹Ã£Æ’Ë†Ã£â€šâ€™Ã©â‚¬ÂÃ¤Â¿Â¡Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_ifBlock => '条件分岐：条件に基づいて異なるアクションを実行します';
+  String get action_description_ifBlock =>
+      'Ã¦ÂÂ¡Ã¤Â»Â¶Ã¥Ë†â€ Ã¥Â²ÂÃ¯Â¼Å¡Ã¦ÂÂ¡Ã¤Â»Â¶Ã£ÂÂ«Ã¥Å¸ÂºÃ£ÂÂ¥Ã£Ââ€žÃ£ÂÂ¦Ã§â€¢Â°Ã£ÂÂªÃ£â€šâ€¹Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¥Â®Å¸Ã¨Â¡Å’Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_jumpToAction => 'キー、ID、または位置で特定のアクションにジャンプします';
+  String get action_description_jumpToAction =>
+      'Ã£â€šÂ­Ã£Æ’Â¼Ã£â‚¬ÂIDÃ£â‚¬ÂÃ£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã¤Â½ÂÃ§Â½Â®Ã£ÂÂ§Ã§â€°Â¹Ã¥Â®Å¡Ã£ÂÂ®Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ«Ã£â€šÂ¸Ã£Æ’Â£Ã£Æ’Â³Ã£Æ’â€”Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_joinVoice => 'ボイスチャンネルに接続します';
+  String get action_description_joinVoice =>
+      'Ã£Æ’Å“Ã£â€šÂ¤Ã£â€šÂ¹Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã£ÂÂ«Ã¦Å½Â¥Ã§Â¶Å¡Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
   String get action_description_jsonForEachLoop =>
-      'JSON配列またはオブジェクトの各要素をループします（forEach）';
+      'JSONÃ©â€¦ÂÃ¥Ë†â€”Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã£â€šÂªÃ£Æ’â€“Ã£â€šÂ¸Ã£â€šÂ§Ã£â€šÂ¯Ã£Æ’Ë†Ã£ÂÂ®Ã¥Ââ€žÃ¨Â¦ÂÃ§Â´Â Ã£â€šâ€™Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’â€”Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã¯Â¼Ë†forEachÃ¯Â¼â€°';
 
   @override
-  String get action_description_kickUser => 'メンバーをサーバーからキック';
+  String get action_description_kickUser =>
+      'Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£â€šâ€™Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£Ââ€¹Ã£â€šâ€°Ã£â€šÂ­Ã£Æ’Æ’Ã£â€šÂ¯';
 
   @override
-  String get action_description_leaveGuild => 'ボットをサーバーから退出させます';
+  String get action_description_leaveGuild =>
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£Ââ€¹Ã£â€šâ€°Ã©â‚¬â‚¬Ã¥â€¡ÂºÃ£Ââ€¢Ã£Ââ€ºÃ£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_leaveVoice => 'ボイスチャンネルから退出してプレイヤーを破棄します';
+  String get action_description_leaveVoice =>
+      'Ã£Æ’Å“Ã£â€šÂ¤Ã£â€šÂ¹Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã£Ââ€¹Ã£â€šâ€°Ã©â‚¬â‚¬Ã¥â€¡ÂºÃ£Ââ€”Ã£ÂÂ¦Ã£Æ’â€”Ã£Æ’Â¬Ã£â€šÂ¤Ã£Æ’Â¤Ã£Æ’Â¼Ã£â€šâ€™Ã§Â Â´Ã¦Â£â€žÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
   String get action_description_listAutoModRules =>
-      'ギルド内のすべての自動モデレーションルールを一覧表示します';
+      'Ã£â€šÂ®Ã£Æ’Â«Ã£Æ’â€°Ã¥â€ â€¦Ã£ÂÂ®Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÂ®Ã¨â€¡ÂªÃ¥â€¹â€¢Ã£Æ’Â¢Ã£Æ’â€¡Ã£Æ’Â¬Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’Â«Ã£â€šâ€™Ã¤Â¸â‚¬Ã¨Â¦Â§Ã¨Â¡Â¨Ã§Â¤ÂºÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_listMembers => 'オプション付きでギルド内のメンバーを一覧表示します';
+  String get action_description_listMembers =>
+      'Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã¤Â»ËœÃ£ÂÂÃ£ÂÂ§Ã£â€šÂ®Ã£Æ’Â«Ã£Æ’â€°Ã¥â€ â€¦Ã£ÂÂ®Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£â€šâ€™Ã¤Â¸â‚¬Ã¨Â¦Â§Ã¨Â¡Â¨Ã§Â¤ÂºÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
   String get action_description_listScopedVariableIndex =>
-      'インデックス付きスコープ値を値順にソートし、オフセットと制限付きで一覧表示します';
+      'Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’â€¡Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¹Ã¤Â»ËœÃ£ÂÂÃ£â€šÂ¹Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€”Ã¥â‚¬Â¤Ã£â€šâ€™Ã¥â‚¬Â¤Ã©Â â€ Ã£ÂÂ«Ã£â€šÂ½Ã£Æ’Â¼Ã£Æ’Ë†Ã£Ââ€”Ã£â‚¬ÂÃ£â€šÂªÃ£Æ’â€¢Ã£â€šÂ»Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÂ¨Ã¥Ë†Â¶Ã©â„¢ÂÃ¤Â»ËœÃ£ÂÂÃ£ÂÂ§Ã¤Â¸â‚¬Ã¨Â¦Â§Ã¨Â¡Â¨Ã§Â¤ÂºÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
   String get action_description_listWebhooks =>
-      'チャンネルまたはギルド内のすべてのWebhookを一覧表示します';
+      'Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã£â€šÂ®Ã£Æ’Â«Ã£Æ’â€°Ã¥â€ â€¦Ã£ÂÂ®Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÂ®WebhookÃ£â€šâ€™Ã¤Â¸â‚¬Ã¨Â¦Â§Ã¨Â¡Â¨Ã§Â¤ÂºÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
   String get action_description_listenAndExecute =>
-      'ボタンのクリック、選択メニューの使用、またはモーダルの送信時に実行するワークフローを登録します';
+      'Ã£Æ’Å“Ã£â€šÂ¿Ã£Æ’Â³Ã£ÂÂ®Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’Æ’Ã£â€šÂ¯Ã£â‚¬ÂÃ©ÂÂ¸Ã¦Å Å¾Ã£Æ’Â¡Ã£Æ’â€¹Ã£Æ’Â¥Ã£Æ’Â¼Ã£ÂÂ®Ã¤Â½Â¿Ã§â€Â¨Ã£â‚¬ÂÃ£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â‚¬Ã£Æ’Â«Ã£ÂÂ®Ã©â‚¬ÂÃ¤Â¿Â¡Ã¦â„¢â€šÃ£ÂÂ«Ã¥Â®Å¸Ã¨Â¡Å’Ã£Ââ„¢Ã£â€šâ€¹Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã§â„¢Â»Ã©Å’Â²Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
   String get action_description_listenForButtonClick =>
-      'ボタンがクリックされたときに実行するワークフローを登録します';
+      'Ã£Æ’Å“Ã£â€šÂ¿Ã£Æ’Â³Ã£ÂÅ’Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’Æ’Ã£â€šÂ¯Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£ÂÂ¨Ã£ÂÂÃ£ÂÂ«Ã¥Â®Å¸Ã¨Â¡Å’Ã£Ââ„¢Ã£â€šâ€¹Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã§â„¢Â»Ã©Å’Â²Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
   String get action_description_listenForModalSubmit =>
-      'モーダルが送信されたときに実行するワークフローを登録します';
+      'Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â‚¬Ã£Æ’Â«Ã£ÂÅ’Ã©â‚¬ÂÃ¤Â¿Â¡Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£ÂÂ¨Ã£ÂÂÃ£ÂÂ«Ã¥Â®Å¸Ã¨Â¡Å’Ã£Ââ„¢Ã£â€šâ€¹Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã§â„¢Â»Ã©Å’Â²Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
   String get action_description_listenForSelectMenu =>
-      '選択メニューが使用されたときに実行するワークフローを登録します';
+      'Ã©ÂÂ¸Ã¦Å Å¾Ã£Æ’Â¡Ã£Æ’â€¹Ã£Æ’Â¥Ã£Æ’Â¼Ã£ÂÅ’Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£ÂÂ¨Ã£ÂÂÃ£ÂÂ«Ã¥Â®Å¸Ã¨Â¡Å’Ã£Ââ„¢Ã£â€šâ€¹Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã§â„¢Â»Ã©Å’Â²Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_log => '診断メッセージをアクションログに出力または保存します';
+  String get action_description_log =>
+      'Ã¨Â¨ÂºÃ¦â€“Â­Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£â€šâ€™Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£Æ’Â­Ã£â€šÂ°Ã£ÂÂ«Ã¥â€¡ÂºÃ¥Å â€ºÃ£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_moveToVoiceChannel => 'メンバーを特定の音声チャンネルに移動します';
+  String get action_description_moveToVoiceChannel =>
+      'Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£â€šâ€™Ã§â€°Â¹Ã¥Â®Å¡Ã£ÂÂ®Ã©Å¸Â³Ã¥Â£Â°Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã£ÂÂ«Ã§Â§Â»Ã¥â€¹â€¢Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_muteUser => 'メンバーを一時的に除外 (タイムアウト)';
+  String get action_description_muteUser =>
+      'Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£â€šâ€™Ã¤Â¸â‚¬Ã¦â„¢â€šÃ§Å¡â€žÃ£ÂÂ«Ã©â„¢Â¤Ã¥Â¤â€“ (Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â Ã£â€šÂ¢Ã£â€šÂ¦Ã£Æ’Ë†)';
 
   @override
-  String get action_description_pauseMusic => '現在のトラックを一時停止します';
+  String get action_description_pauseMusic =>
+      'Ã§ÂÂ¾Ã¥Å“Â¨Ã£ÂÂ®Ã£Æ’Ë†Ã£Æ’Â©Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šâ€™Ã¤Â¸â‚¬Ã¦â„¢â€šÃ¥ÂÅ“Ã¦Â­Â¢Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_pinMessage => 'チャンネル内のメッセージをピン留めします';
+  String get action_description_pinMessage =>
+      'Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã¥â€ â€¦Ã£ÂÂ®Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£â€šâ€™Ã£Æ’â€Ã£Æ’Â³Ã§â€¢â„¢Ã£â€šÂÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_playMusic => '検索クエリまたはURLでトラックを再生します';
+  String get action_description_playMusic =>
+      'Ã¦Â¤Å“Ã§Â´Â¢Ã£â€šÂ¯Ã£â€šÂ¨Ã£Æ’ÂªÃ£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯URLÃ£ÂÂ§Ã£Æ’Ë†Ã£Æ’Â©Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šâ€™Ã¥â€ ÂÃ§â€Å¸Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_queryArray => '実行時のJSON配列をフィルタリング、ソート、ページングします';
+  String get action_description_queryArray =>
+      'Ã¥Â®Å¸Ã¨Â¡Å’Ã¦â„¢â€šÃ£ÂÂ®JSONÃ©â€¦ÂÃ¥Ë†â€”Ã£â€šâ€™Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â«Ã£â€šÂ¿Ã£Æ’ÂªÃ£Æ’Â³Ã£â€šÂ°Ã£â‚¬ÂÃ£â€šÂ½Ã£Æ’Â¼Ã£Æ’Ë†Ã£â‚¬ÂÃ£Æ’Å¡Ã£Æ’Â¼Ã£â€šÂ¸Ã£Æ’Â³Ã£â€šÂ°Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_randomChoice => 'リストからランダムに1項目を選び変数に保存';
+  String get action_description_randomChoice =>
+      'Ã£Æ’ÂªÃ£â€šÂ¹Ã£Æ’Ë†Ã£Ââ€¹Ã£â€šâ€°Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’â‚¬Ã£Æ’Â Ã£ÂÂ«1Ã©Â â€¦Ã§â€ºÂ®Ã£â€šâ€™Ã©ÂÂ¸Ã£ÂÂ³Ã¥Â¤â€°Ã¦â€¢Â°Ã£ÂÂ«Ã¤Â¿ÂÃ¥Â­Ëœ';
 
   @override
   String get action_description_registerGuildCommands =>
-      'アプリケーションコマンドをギルドに登録します';
+      'Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£â€šÂ±Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã£â€šÂ®Ã£Æ’Â«Ã£Æ’â€°Ã£ÂÂ«Ã§â„¢Â»Ã©Å’Â²Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
   String get action_description_removeArrayElement =>
-      'グローバルまたはスコープ付きのJSON配列からインデックスで要素を削除します';
+      'Ã£â€šÂ°Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â«Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã£â€šÂ¹Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€”Ã¤Â»ËœÃ£ÂÂÃ£ÂÂ®JSONÃ©â€¦ÂÃ¥Ë†â€”Ã£Ââ€¹Ã£â€šâ€°Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’â€¡Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¹Ã£ÂÂ§Ã¨Â¦ÂÃ§Â´Â Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_removeChannel => 'チャンネルを削除します';
+  String get action_description_removeChannel =>
+      'Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_removeGlobalVariable => 'グローバル変数を削除します';
+  String get action_description_removeGlobalVariable =>
+      'Ã£â€šÂ°Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â«Ã¥Â¤â€°Ã¦â€¢Â°Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_removeReaction => 'メッセージからリアクションを削除';
+  String get action_description_removeReaction =>
+      'Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£Ââ€¹Ã£â€šâ€°Ã£Æ’ÂªÃ£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get action_description_removeRole => 'メンバーからロールを削除';
+  String get action_description_removeRole =>
+      'Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Ââ€¹Ã£â€šâ€°Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’Â«Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get action_description_removeScopedVariable => 'スコープ付き変数を削除します';
+  String get action_description_removeScopedVariable =>
+      'Ã£â€šÂ¹Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€”Ã¤Â»ËœÃ£ÂÂÃ¥Â¤â€°Ã¦â€¢Â°Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_removeThreadMember => 'スレッドからメンバーを削除します';
+  String get action_description_removeThreadMember =>
+      'Ã£â€šÂ¹Ã£Æ’Â¬Ã£Æ’Æ’Ã£Æ’â€°Ã£Ââ€¹Ã£â€šâ€°Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_renameScopedVariable => 'スコープ付き変数のキーの名前を変更します';
+  String get action_description_renameScopedVariable =>
+      'Ã£â€šÂ¹Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€”Ã¤Â»ËœÃ£ÂÂÃ¥Â¤â€°Ã¦â€¢Â°Ã£ÂÂ®Ã£â€šÂ­Ã£Æ’Â¼Ã£ÂÂ®Ã¥ÂÂÃ¥â€°ÂÃ£â€šâ€™Ã¥Â¤â€°Ã¦â€ºÂ´Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
   String get action_description_respondWithAutocomplete =>
-      'Discordのオートコンプリートに最大25個の動的選択肢で返信します';
+      'DiscordÃ£ÂÂ®Ã£â€šÂªÃ£Æ’Â¼Ã£Æ’Ë†Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’ÂªÃ£Æ’Â¼Ã£Æ’Ë†Ã£ÂÂ«Ã¦Å“â‚¬Ã¥Â¤Â§25Ã¥â‚¬â€¹Ã£ÂÂ®Ã¥â€¹â€¢Ã§Å¡â€žÃ©ÂÂ¸Ã¦Å Å¾Ã¨â€šÂ¢Ã£ÂÂ§Ã¨Â¿â€Ã¤Â¿Â¡Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
   String get action_description_respondWithComponentV2 =>
-      'コマンドにボタンまたは選択メニューで返信します';
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ«Ã£Æ’Å“Ã£â€šÂ¿Ã£Æ’Â³Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã©ÂÂ¸Ã¦Å Å¾Ã£Æ’Â¡Ã£Æ’â€¹Ã£Æ’Â¥Ã£Æ’Â¼Ã£ÂÂ§Ã¨Â¿â€Ã¤Â¿Â¡Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_respondWithMessage => 'コマンドに通常のメッセージで返信します';
+  String get action_description_respondWithMessage =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ«Ã©â‚¬Å¡Ã¥Â¸Â¸Ã£ÂÂ®Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£ÂÂ§Ã¨Â¿â€Ã¤Â¿Â¡Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_respondWithModal => 'ユーザーにモーダルダイアログを表示します';
+  String get action_description_respondWithModal =>
+      'Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£ÂÂ«Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â‚¬Ã£Æ’Â«Ã£Æ’â‚¬Ã£â€šÂ¤Ã£â€šÂ¢Ã£Æ’Â­Ã£â€šÂ°Ã£â€šâ€™Ã¨Â¡Â¨Ã§Â¤ÂºÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_resumeMusic => '一時停止中のトラックを再開します';
+  String get action_description_resumeMusic =>
+      'Ã¤Â¸â‚¬Ã¦â„¢â€šÃ¥ÂÅ“Ã¦Â­Â¢Ã¤Â¸Â­Ã£ÂÂ®Ã£Æ’Ë†Ã£Æ’Â©Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šâ€™Ã¥â€ ÂÃ©â€“â€¹Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
   String get action_description_runBdfdScript =>
-      'BDFDスクリプトをインラインでコンパイルし、ワークフローアクションとして実行します';
+      'BDFDÃ£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë†Ã£â€šâ€™Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’Â©Ã£â€šÂ¤Ã£Æ’Â³Ã£ÂÂ§Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€˜Ã£â€šÂ¤Ã£Æ’Â«Ã£Ââ€”Ã£â‚¬ÂÃ£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ¨Ã£Ââ€”Ã£ÂÂ¦Ã¥Â®Å¸Ã¨Â¡Å’Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
   String get action_description_runWorkflow =>
-      '保存されたワークフローを実行します（エントリポイントと引数をサポート）';
+      'Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã¥Â®Å¸Ã¨Â¡Å’Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã¯Â¼Ë†Ã£â€šÂ¨Ã£Æ’Â³Ã£Æ’Ë†Ã£Æ’ÂªÃ£Æ’ÂÃ£â€šÂ¤Ã£Æ’Â³Ã£Æ’Ë†Ã£ÂÂ¨Ã¥Â¼â€¢Ã¦â€¢Â°Ã£â€šâ€™Ã£â€šÂµÃ£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†Ã¯Â¼â€°';
 
   @override
   String get action_description_runtimeImageBlock =>
-      '画像キャンバス処理アクションのブロックを実行します';
+      'Ã§â€Â»Ã¥Æ’ÂÃ£â€šÂ­Ã£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£â€šÂ¹Ã¥â€¡Â¦Ã§Ââ€ Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ®Ã£Æ’â€“Ã£Æ’Â­Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šâ€™Ã¥Â®Å¸Ã¨Â¡Å’Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_runtimeJsonBlock => 'JSON処理アクションのブロックを実行します';
+  String get action_description_runtimeJsonBlock =>
+      'JSONÃ¥â€¡Â¦Ã§Ââ€ Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ®Ã£Æ’â€“Ã£Æ’Â­Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šâ€™Ã¥Â®Å¸Ã¨Â¡Å’Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_seekMusic => '現在のトラックの指定した位置に移動します';
+  String get action_description_seekMusic =>
+      'Ã§ÂÂ¾Ã¥Å“Â¨Ã£ÂÂ®Ã£Æ’Ë†Ã£Æ’Â©Ã£Æ’Æ’Ã£â€šÂ¯Ã£ÂÂ®Ã¦Å’â€¡Ã¥Â®Å¡Ã£Ââ€”Ã£ÂÅ¸Ã¤Â½ÂÃ§Â½Â®Ã£ÂÂ«Ã§Â§Â»Ã¥â€¹â€¢Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_sendComponentV2 => 'インタラクティブなコンポーネントを送信します';
+  String get action_description_sendComponentV2 =>
+      'Ã£â€šÂ¤Ã£Æ’Â³Ã£â€šÂ¿Ã£Æ’Â©Ã£â€šÂ¯Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’â€“Ã£ÂÂªÃ£â€šÂ³Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â³Ã£Æ’Ë†Ã£â€šâ€™Ã©â‚¬ÂÃ¤Â¿Â¡Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_sendDm => '特定のユーザーにプライベートメッセージを送信';
+  String get action_description_sendDm =>
+      'Ã§â€°Â¹Ã¥Â®Å¡Ã£ÂÂ®Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£ÂÂ«Ã£Æ’â€”Ã£Æ’Â©Ã£â€šÂ¤Ã£Æ’â„¢Ã£Æ’Â¼Ã£Æ’Ë†Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£â€šâ€™Ã©â‚¬ÂÃ¤Â¿Â¡';
 
   @override
-  String get action_description_sendMessage => '特定のチャンネルにメッセージを送信';
+  String get action_description_sendMessage =>
+      'Ã§â€°Â¹Ã¥Â®Å¡Ã£ÂÂ®Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã£ÂÂ«Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£â€šâ€™Ã©â‚¬ÂÃ¤Â¿Â¡';
 
   @override
-  String get action_description_sendWebhook => 'Webhook経由でメッセージを送信します';
+  String get action_description_sendWebhook =>
+      'WebhookÃ§ÂµÅ’Ã§â€Â±Ã£ÂÂ§Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£â€šâ€™Ã©â‚¬ÂÃ¤Â¿Â¡Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
   String get action_description_serverDeafenMember =>
-      'メンバーのサーバー聴覚保護を設定または解除します';
+      'Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£ÂÂ®Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã¨ÂÂ´Ã¨Â¦Å¡Ã¤Â¿ÂÃ¨Â­Â·Ã£â€šâ€™Ã¨Â¨Â­Ã¥Â®Å¡Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã¨Â§Â£Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_serverMuteMember => 'メンバーのサーバーミュートを設定または解除します';
+  String get action_description_serverMuteMember =>
+      'Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£ÂÂ®Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Å¸Ã£Æ’Â¥Ã£Æ’Â¼Ã£Æ’Ë†Ã£â€šâ€™Ã¨Â¨Â­Ã¥Â®Å¡Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã¨Â§Â£Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
   String get action_description_setGlobalVariable =>
-      'このボットのグローバル変数を新規作成または更新します';
+      'Ã£Ââ€œÃ£ÂÂ®Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÂ®Ã£â€šÂ°Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â«Ã¥Â¤â€°Ã¦â€¢Â°Ã£â€šâ€™Ã¦â€“Â°Ã¨Â¦ÂÃ¤Â½Å“Ã¦Ë†ÂÃ£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã¦â€ºÂ´Ã¦â€“Â°Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_setMusicLoop => 'キューのループ再生を有効または無効にします';
+  String get action_description_setMusicLoop =>
+      'Ã£â€šÂ­Ã£Æ’Â¥Ã£Æ’Â¼Ã£ÂÂ®Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’â€”Ã¥â€ ÂÃ§â€Å¸Ã£â€šâ€™Ã¦Å“â€°Ã¥Å Â¹Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã§â€žÂ¡Ã¥Å Â¹Ã£ÂÂ«Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_setMusicVolume => 'プレイヤーの音量を設定します (0〜200)';
+  String get action_description_setMusicVolume =>
+      'Ã£Æ’â€”Ã£Æ’Â¬Ã£â€šÂ¤Ã£Æ’Â¤Ã£Æ’Â¼Ã£ÂÂ®Ã©Å¸Â³Ã©â€¡ÂÃ£â€šâ€™Ã¨Â¨Â­Ã¥Â®Å¡Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢ (0Ã£â‚¬Å“200)';
 
   @override
-  String get action_description_setNickname => 'サーバーメンバーのニックネームを変更';
+  String get action_description_setNickname =>
+      'Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£ÂÂ®Ã£Æ’â€¹Ã£Æ’Æ’Ã£â€šÂ¯Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Â Ã£â€šâ€™Ã¥Â¤â€°Ã¦â€ºÂ´';
 
   @override
   String get action_description_setScopedVariable =>
-      'スコープ付き変数（ギルド/ユーザー/チャンネル/メンバー/メッセージ）を作成または更新します';
+      'Ã£â€šÂ¹Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€”Ã¤Â»ËœÃ£ÂÂÃ¥Â¤â€°Ã¦â€¢Â°Ã¯Â¼Ë†Ã£â€šÂ®Ã£Æ’Â«Ã£Æ’â€°/Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼/Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«/Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼/Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã¯Â¼â€°Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†ÂÃ£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã¦â€ºÂ´Ã¦â€“Â°Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
   String get action_description_setTemporaryVariable =>
-      'ローカル実行で一時変数を作成または更新します';
+      'Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã¥Â®Å¸Ã¨Â¡Å’Ã£ÂÂ§Ã¤Â¸â‚¬Ã¦â„¢â€šÃ¥Â¤â€°Ã¦â€¢Â°Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†ÂÃ£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã¦â€ºÂ´Ã¦â€“Â°Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_skipActions => '指定された数の後続アクションをスキップします';
+  String get action_description_skipActions =>
+      'Ã¦Å’â€¡Ã¥Â®Å¡Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã¦â€¢Â°Ã£ÂÂ®Ã¥Â¾Å’Ã§Â¶Å¡Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã£â€šÂ¹Ã£â€šÂ­Ã£Æ’Æ’Ã£Æ’â€”Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_skipMusic => 'キューの次のトラックに進みます';
+  String get action_description_skipMusic =>
+      'Ã£â€šÂ­Ã£Æ’Â¥Ã£Æ’Â¼Ã£ÂÂ®Ã¦Â¬Â¡Ã£ÂÂ®Ã£Æ’Ë†Ã£Æ’Â©Ã£Æ’Æ’Ã£â€šÂ¯Ã£ÂÂ«Ã©â‚¬Â²Ã£ÂÂ¿Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_slowmode => 'チャンネルの低速モード時間を設定';
+  String get action_description_slowmode =>
+      'Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã£ÂÂ®Ã¤Â½Å½Ã©â‚¬Å¸Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°Ã¦â„¢â€šÃ©â€“â€œÃ£â€šâ€™Ã¨Â¨Â­Ã¥Â®Å¡';
 
   @override
-  String get action_description_stop => '現在のワークフローの実行を即座に停止';
+  String get action_description_stop =>
+      'Ã§ÂÂ¾Ã¥Å“Â¨Ã£ÂÂ®Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£ÂÂ®Ã¥Â®Å¸Ã¨Â¡Å’Ã£â€šâ€™Ã¥ÂÂ³Ã¥ÂºÂ§Ã£ÂÂ«Ã¥ÂÅ“Ã¦Â­Â¢';
 
   @override
-  String get action_description_stopMusic => '再生を停止し、キューをクリアします';
+  String get action_description_stopMusic =>
+      'Ã¥â€ ÂÃ§â€Å¸Ã£â€šâ€™Ã¥ÂÅ“Ã¦Â­Â¢Ã£Ââ€”Ã£â‚¬ÂÃ£â€šÂ­Ã£Æ’Â¥Ã£Æ’Â¼Ã£â€šâ€™Ã£â€šÂ¯Ã£Æ’ÂªÃ£â€šÂ¢Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
   String get action_description_stopUnless =>
-      '条件が満たされない場合にワークフローを停止します（ガード/フィルター）';
+      'Ã¦ÂÂ¡Ã¤Â»Â¶Ã£ÂÅ’Ã¦Âºâ‚¬Ã£ÂÅ¸Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂªÃ£Ââ€žÃ¥Â Â´Ã¥ÂË†Ã£ÂÂ«Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã¥ÂÅ“Ã¦Â­Â¢Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã¯Â¼Ë†Ã£â€šÂ¬Ã£Æ’Â¼Ã£Æ’â€°/Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â«Ã£â€šÂ¿Ã£Æ’Â¼Ã¯Â¼â€°';
 
   @override
-  String get action_description_unbanUser => 'ユーザーの追放を解除';
+  String get action_description_unbanUser =>
+      'Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£ÂÂ®Ã¨Â¿Â½Ã¦â€Â¾Ã£â€šâ€™Ã¨Â§Â£Ã©â„¢Â¤';
 
   @override
-  String get action_description_unmuteUser => 'メンバーの一時除外を解除';
+  String get action_description_unmuteUser =>
+      'Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£ÂÂ®Ã¤Â¸â‚¬Ã¦â„¢â€šÃ©â„¢Â¤Ã¥Â¤â€“Ã£â€šâ€™Ã¨Â§Â£Ã©â„¢Â¤';
 
   @override
-  String get action_description_unpinMessage => 'チャンネル内のメッセージのピン留めを解除します';
+  String get action_description_unpinMessage =>
+      'Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã¥â€ â€¦Ã£ÂÂ®Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£ÂÂ®Ã£Æ’â€Ã£Æ’Â³Ã§â€¢â„¢Ã£â€šÂÃ£â€šâ€™Ã¨Â§Â£Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
   String get action_description_unregisterGuildCommands =>
-      'アプリケーションコマンドをギルドから登録解除します';
+      'Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£â€šÂ±Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã£â€šÂ®Ã£Æ’Â«Ã£Æ’â€°Ã£Ââ€¹Ã£â€šâ€°Ã§â„¢Â»Ã©Å’Â²Ã¨Â§Â£Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_updateAutoMod => '自動モデレーション設定を更新します';
+  String get action_description_updateAutoMod =>
+      'Ã¨â€¡ÂªÃ¥â€¹â€¢Ã£Æ’Â¢Ã£Æ’â€¡Ã£Æ’Â¬Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã¨Â¨Â­Ã¥Â®Å¡Ã£â€šâ€™Ã¦â€ºÂ´Ã¦â€“Â°Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_updateChannel => 'チャンネル設定を更新します';
+  String get action_description_updateChannel =>
+      'Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã¨Â¨Â­Ã¥Â®Å¡Ã£â€šâ€™Ã¦â€ºÂ´Ã¦â€“Â°Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_updateEmoji => 'ギルド絵文字の名前またはロールアクセスを更新します';
+  String get action_description_updateEmoji =>
+      'Ã£â€šÂ®Ã£Æ’Â«Ã£Æ’â€°Ã§ÂµÂµÃ¦â€“â€¡Ã¥Â­â€”Ã£ÂÂ®Ã¥ÂÂÃ¥â€°ÂÃ£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’Â«Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ»Ã£â€šÂ¹Ã£â€šâ€™Ã¦â€ºÂ´Ã¦â€“Â°Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_updateGuild => 'ギルド設定を更新します';
+  String get action_description_updateGuild =>
+      'Ã£â€šÂ®Ã£Æ’Â«Ã£Æ’â€°Ã¨Â¨Â­Ã¥Â®Å¡Ã£â€šâ€™Ã¦â€ºÂ´Ã¦â€“Â°Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_updateGuildOnboarding => 'ギルドオンボーディング設定を更新します';
+  String get action_description_updateGuildOnboarding =>
+      'Ã£â€šÂ®Ã£Æ’Â«Ã£Æ’â€°Ã£â€šÂªÃ£Æ’Â³Ã£Æ’Å“Ã£Æ’Â¼Ã£Æ’â€¡Ã£â€šÂ£Ã£Æ’Â³Ã£â€šÂ°Ã¨Â¨Â­Ã¥Â®Å¡Ã£â€šâ€™Ã¦â€ºÂ´Ã¦â€“Â°Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
   String get action_description_updateSelfUser =>
-      '現在のボットのユーザープロファイル（ユーザー名/アバター）を更新します';
+      'Ã§ÂÂ¾Ã¥Å“Â¨Ã£ÂÂ®Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÂ®Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£Æ’â€”Ã£Æ’Â­Ã£Æ’â€¢Ã£â€šÂ¡Ã£â€šÂ¤Ã£Æ’Â«Ã¯Â¼Ë†Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã¥ÂÂ/Ã£â€šÂ¢Ã£Æ’ÂÃ£â€šÂ¿Ã£Æ’Â¼Ã¯Â¼â€°Ã£â€šâ€™Ã¦â€ºÂ´Ã¦â€“Â°Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_description_wait => 'ワークフローの実行を指定時間一時停止';
+  String get action_description_wait =>
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£ÂÂ®Ã¥Â®Å¸Ã¨Â¡Å’Ã£â€šâ€™Ã¦Å’â€¡Ã¥Â®Å¡Ã¦â„¢â€šÃ©â€“â€œÃ¤Â¸â‚¬Ã¦â„¢â€šÃ¥ÂÅ“Ã¦Â­Â¢';
 
   @override
-  String get action_dynamic => '動的';
+  String get action_dynamic => 'Ã¥â€¹â€¢Ã§Å¡â€ž';
 
   @override
-  String get action_dynamic_bool_hint => 'true/false または ((変数))';
+  String get action_dynamic_bool_hint =>
+      'true/false Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯ ((Ã¥Â¤â€°Ã¦â€¢Â°))';
 
   @override
   String action_dynamic_id_hint(String type) {
-    return '動的 $type (((...)) 対応)';
+    return 'Ã¥â€¹â€¢Ã§Å¡â€ž $type (((...)) Ã¥Â¯Â¾Ã¥Â¿Å“)';
   }
 
   @override
-  String get action_dynamic_multiselect_hint => '動的な値 (((...)) 対応)';
+  String get action_dynamic_multiselect_hint =>
+      'Ã¥â€¹â€¢Ã§Å¡â€žÃ£ÂÂªÃ¥â‚¬Â¤ (((...)) Ã¥Â¯Â¾Ã¥Â¿Å“)';
 
   @override
-  String get action_dynamic_numeric => '動的数値候補';
+  String get action_dynamic_numeric =>
+      'Ã¥â€¹â€¢Ã§Å¡â€žÃ¦â€¢Â°Ã¥â‚¬Â¤Ã¥â‚¬â„¢Ã¨Â£Å“';
 
   @override
-  String get action_dynamic_variable => '動的変数候補';
+  String get action_dynamic_variable =>
+      'Ã¥â€¹â€¢Ã§Å¡â€žÃ¥Â¤â€°Ã¦â€¢Â°Ã¥â‚¬â„¢Ã¨Â£Å“';
 
   @override
   String action_edit_nested(int count) {
-    return '$count 件を編集';
+    return '$count Ã¤Â»Â¶Ã£â€šâ€™Ã§Â·Â¨Ã©â€ºâ€ ';
   }
 
   @override
   String action_edit_nested_parens(int count) {
-    return '編集 ($count)';
+    return 'Ã§Â·Â¨Ã©â€ºâ€  ($count)';
   }
 
   @override
   String action_edit_param(String name) {
-    return '$name を編集';
+    return '$name Ã£â€šâ€™Ã§Â·Â¨Ã©â€ºâ€ ';
   }
 
   @override
-  String get action_edit_raw_json => '生JSONを編集';
+  String get action_edit_raw_json => 'Ã§â€Å¸JSONÃ£â€šâ€™Ã§Â·Â¨Ã©â€ºâ€ ';
 
   @override
   String action_else_if_label(int index) {
-    return 'ELSE IF $index — アクション';
+    return 'ELSE IF $index Ã¢â‚¬â€ Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³';
   }
 
   @override
-  String get action_error_continue => '続行';
+  String get action_error_continue => 'Ã§Â¶Å¡Ã¨Â¡Å’';
 
   @override
-  String get action_error_stop => '停止';
+  String get action_error_stop => 'Ã¥ÂÅ“Ã¦Â­Â¢';
 
   @override
-  String get action_expression => '式';
+  String get action_expression => 'Ã¥Â¼Â';
 
   @override
-  String get action_format_json => 'JSONをフォーマット';
+  String get action_format_json =>
+      'JSONÃ£â€šâ€™Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â¼Ã£Æ’Å¾Ã£Æ’Æ’Ã£Æ’Ë†';
 
   @override
-  String get action_hint_color => '#FFFFFF または rgb(255,255,255)';
+  String get action_hint_color => '#FFFFFF Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯ rgb(255,255,255)';
 
   @override
-  String get action_hint_condition_value => '比較する値';
+  String get action_hint_condition_value =>
+      'Ã¦Â¯â€Ã¨Â¼Æ’Ã£Ââ„¢Ã£â€šâ€¹Ã¥â‚¬Â¤';
 
   @override
-  String get action_hint_condition_var => '((変数名)) または実行時の値を使用';
+  String get action_hint_condition_var =>
+      '((Ã¥Â¤â€°Ã¦â€¢Â°Ã¥ÂÂ)) Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã¥Â®Å¸Ã¨Â¡Å’Ã¦â„¢â€šÃ£ÂÂ®Ã¥â‚¬Â¤Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨';
 
   @override
-  String get action_hint_cooldown_error => 'クールダウン中に送信するメッセージ (%time% 対応)';
+  String get action_hint_cooldown_error =>
+      'Ã£â€šÂ¯Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’â‚¬Ã£â€šÂ¦Ã£Æ’Â³Ã¤Â¸Â­Ã£ÂÂ«Ã©â‚¬ÂÃ¤Â¿Â¡Ã£Ââ„¢Ã£â€šâ€¹Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸ (%time% Ã¥Â¯Â¾Ã¥Â¿Å“)';
 
   @override
-  String get action_hint_cooldown_time => '時間 (例: 10s, 5m)';
+  String get action_hint_cooldown_time => 'Ã¦â„¢â€šÃ©â€“â€œ (Ã¤Â¾â€¹: 10s, 5m)';
 
   @override
-  String get action_hint_duration => '例: 5m, 1h, 30s';
+  String get action_hint_duration => 'Ã¤Â¾â€¹: 5m, 1h, 30s';
 
   @override
-  String get action_hint_emoji => '絵文字 (例: 🪜) または <:名前:ID>';
+  String get action_hint_emoji =>
+      'Ã§ÂµÂµÃ¦â€“â€¡Ã¥Â­â€” (Ã¤Â¾â€¹: Ã°Å¸ÂªÅ“) Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯ <:Ã¥ÂÂÃ¥â€°Â:ID>';
 
   @override
   String action_hint_enter_type(String type) {
-    return '$type を入力';
+    return '$type Ã£â€šâ€™Ã¥â€¦Â¥Ã¥Å â€º';
   }
 
   @override
-  String get action_hint_random_choices => '選択肢リスト (; 区切り)';
+  String get action_hint_random_choices =>
+      'Ã©ÂÂ¸Ã¦Å Å¾Ã¨â€šÂ¢Ã£Æ’ÂªÃ£â€šÂ¹Ã£Æ’Ë† (; Ã¥Å’ÂºÃ¥Ë†â€¡Ã£â€šÅ )';
 
   @override
-  String get action_hint_random_var => '結果を保存する変数名';
+  String get action_hint_random_var =>
+      'Ã§ÂµÂÃ¦Å¾Å“Ã£â€šâ€™Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ„¢Ã£â€šâ€¹Ã¥Â¤â€°Ã¦â€¢Â°Ã¥ÂÂ';
 
   @override
-  String get action_hint_variable_key => '変数キーを選択';
+  String get action_hint_variable_key =>
+      'Ã¥Â¤â€°Ã¦â€¢Â°Ã£â€šÂ­Ã£Æ’Â¼Ã£â€šâ€™Ã©ÂÂ¸Ã¦Å Å¾';
 
   @override
-  String get action_hint_workflow => '保存済みワークフロー名';
+  String get action_hint_workflow =>
+      'Ã¤Â¿ÂÃ¥Â­ËœÃ¦Â¸Ë†Ã£ÂÂ¿Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã¥ÂÂ';
 
   @override
-  String get action_http_headers_title => 'HTTP ヘッダー (Key/Value ペア)';
+  String get action_http_headers_title =>
+      'HTTP Ã£Æ’ËœÃ£Æ’Æ’Ã£Æ’â‚¬Ã£Æ’Â¼ (Key/Value Ã£Æ’Å¡Ã£â€šÂ¢)';
 
   @override
   String action_http_paths_parsed(int count) {
-    return '$count 件のパスを解析';
+    return '$count Ã¤Â»Â¶Ã£ÂÂ®Ã£Æ’â€˜Ã£â€šÂ¹Ã£â€šâ€™Ã¨Â§Â£Ã¦Å¾Â';
   }
 
   @override
-  String get action_http_response_body => 'レスポンスボディ (Raw):';
+  String get action_http_response_body =>
+      'Ã£Æ’Â¬Ã£â€šÂ¹Ã£Æ’ÂÃ£Æ’Â³Ã£â€šÂ¹Ã£Æ’Å“Ã£Æ’â€¡Ã£â€šÂ£ (Raw):';
 
   @override
   String action_http_status(int status) {
-    return 'ステータス: $status';
+    return 'Ã£â€šÂ¹Ã£Æ’â€ Ã£Æ’Â¼Ã£â€šÂ¿Ã£â€šÂ¹: $status';
   }
 
   @override
-  String get action_http_test_button => 'テストリクエスト送信 & ルート自動検出';
+  String get action_http_test_button =>
+      'Ã£Æ’â€ Ã£â€šÂ¹Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¯Ã£â€šÂ¨Ã£â€šÂ¹Ã£Æ’Ë†Ã©â‚¬ÂÃ¤Â¿Â¡ & Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’Ë†Ã¨â€¡ÂªÃ¥â€¹â€¢Ã¦Â¤Å“Ã¥â€¡Âº';
 
   @override
-  String get action_http_test_title => 'テストリクエスト結果';
+  String get action_http_test_title =>
+      'Ã£Æ’â€ Ã£â€šÂ¹Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¯Ã£â€šÂ¨Ã£â€šÂ¹Ã£Æ’Ë†Ã§ÂµÂÃ¦Å¾Å“';
 
   @override
-  String get action_json_editor_hint => 'JSONオブジェクトエディタ (ネストされたオブジェクト/配列対応)';
+  String get action_json_editor_hint =>
+      'JSONÃ£â€šÂªÃ£Æ’â€“Ã£â€šÂ¸Ã£â€šÂ§Ã£â€šÂ¯Ã£Æ’Ë†Ã£â€šÂ¨Ã£Æ’â€¡Ã£â€šÂ£Ã£â€šÂ¿ (Ã£Æ’ÂÃ£â€šÂ¹Ã£Æ’Ë†Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£â€šÂªÃ£Æ’â€“Ã£â€šÂ¸Ã£â€šÂ§Ã£â€šÂ¯Ã£Æ’Ë†/Ã©â€¦ÂÃ¥Ë†â€”Ã¥Â¯Â¾Ã¥Â¿Å“)';
 
   @override
-  String get action_key_field => 'アクションキー';
+  String get action_key_field =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šÂ­Ã£Æ’Â¼';
 
   @override
-  String get action_key_value_pairs => 'Key / Value ペア';
+  String get action_key_value_pairs => 'Key / Value Ã£Æ’Å¡Ã£â€šÂ¢';
 
   @override
-  String get action_literal => 'リテラル';
+  String get action_literal => 'Ã£Æ’ÂªÃ£Æ’â€ Ã£Æ’Â©Ã£Æ’Â«';
 
   @override
-  String get action_loading_keys => 'キーを読み込み中...';
+  String get action_loading_keys =>
+      'Ã£â€šÂ­Ã£Æ’Â¼Ã£â€šâ€™Ã¨ÂªÂ­Ã£ÂÂ¿Ã¨Â¾Â¼Ã£ÂÂ¿Ã¤Â¸Â­...';
 
   @override
-  String get action_manage_variable_keys => '変数キーを管理';
+  String get action_manage_variable_keys =>
+      'Ã¥Â¤â€°Ã¦â€¢Â°Ã£â€šÂ­Ã£Æ’Â¼Ã£â€šâ€™Ã§Â®Â¡Ã§Ââ€ ';
 
   @override
-  String get action_name_addReaction => 'リアクション追加';
+  String get action_name_addReaction =>
+      'Ã£Æ’ÂªÃ£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get action_name_addRole => 'ロール追加';
+  String get action_name_addRole => 'Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’Â«Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get action_name_addThreadMember => 'スレッドメンバー追加';
+  String get action_name_addThreadMember =>
+      'Ã£â€šÂ¹Ã£Æ’Â¬Ã£Æ’Æ’Ã£Æ’â€°Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get action_name_appendArrayElement => '配列要素を追加';
+  String get action_name_appendArrayElement =>
+      'Ã©â€¦ÂÃ¥Ë†â€”Ã¨Â¦ÂÃ§Â´Â Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get action_name_attachImage => '画像を添付';
+  String get action_name_attachImage => 'Ã§â€Â»Ã¥Æ’ÂÃ£â€šâ€™Ã¦Â·Â»Ã¤Â»Ëœ';
 
   @override
-  String get action_name_banUser => 'ユーザー追放';
+  String get action_name_banUser => 'Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã¨Â¿Â½Ã¦â€Â¾';
 
   @override
-  String get action_name_calculate => '計算';
+  String get action_name_calculate => 'Ã¨Â¨Ë†Ã§Â®â€”';
 
   @override
-  String get action_name_canvasCreateBlock => 'キャンバス作成';
+  String get action_name_canvasCreateBlock =>
+      'Ã£â€šÂ­Ã£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£â€šÂ¹Ã¤Â½Å“Ã¦Ë†Â';
 
   @override
-  String get action_name_canvasDrawCircleBlock => '円を描画';
+  String get action_name_canvasDrawCircleBlock =>
+      'Ã¥â€ â€ Ã£â€šâ€™Ã¦ÂÂÃ§â€Â»';
 
   @override
-  String get action_name_canvasDrawLineBlock => '線を描画';
+  String get action_name_canvasDrawLineBlock => 'Ã§Â·Å¡Ã£â€šâ€™Ã¦ÂÂÃ§â€Â»';
 
   @override
-  String get action_name_canvasDrawRectBlock => '四角形を描画';
+  String get action_name_canvasDrawRectBlock =>
+      'Ã¥â€ºâ€ºÃ¨Â§â€™Ã¥Â½Â¢Ã£â€šâ€™Ã¦ÂÂÃ§â€Â»';
 
   @override
-  String get action_name_canvasDrawTextBlock => 'テキストを描画';
+  String get action_name_canvasDrawTextBlock =>
+      'Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã£â€šâ€™Ã¦ÂÂÃ§â€Â»';
 
   @override
-  String get action_name_canvasLoadImageBlock => '画像を読み込み';
+  String get action_name_canvasLoadImageBlock =>
+      'Ã§â€Â»Ã¥Æ’ÂÃ£â€šâ€™Ã¨ÂªÂ­Ã£ÂÂ¿Ã¨Â¾Â¼Ã£ÂÂ¿';
 
   @override
-  String get action_name_clearAllReactions => '全リアクション削除';
+  String get action_name_clearAllReactions =>
+      'Ã¥â€¦Â¨Ã£Æ’ÂªÃ£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get action_name_cooldown => 'クールダウン';
+  String get action_name_cooldown => 'Ã£â€šÂ¯Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’â‚¬Ã£â€šÂ¦Ã£Æ’Â³';
 
   @override
-  String get action_name_createAutoModRule => '自動モデレーションルール作成';
+  String get action_name_createAutoModRule =>
+      'Ã¨â€¡ÂªÃ¥â€¹â€¢Ã£Æ’Â¢Ã£Æ’â€¡Ã£Æ’Â¬Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’Â«Ã¤Â½Å“Ã¦Ë†Â';
 
   @override
-  String get action_name_createChannel => 'チャンネル作成';
+  String get action_name_createChannel =>
+      'Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã¤Â½Å“Ã¦Ë†Â';
 
   @override
-  String get action_name_createEmoji => '絵文字作成';
+  String get action_name_createEmoji => 'Ã§ÂµÂµÃ¦â€“â€¡Ã¥Â­â€”Ã¤Â½Å“Ã¦Ë†Â';
 
   @override
-  String get action_name_createInvite => '招待作成';
+  String get action_name_createInvite => 'Ã¦â€¹â€ºÃ¥Â¾â€¦Ã¤Â½Å“Ã¦Ë†Â';
 
   @override
-  String get action_name_createPoll => '投票作成';
+  String get action_name_createPoll => 'Ã¦Å â€¢Ã§Â¥Â¨Ã¤Â½Å“Ã¦Ë†Â';
 
   @override
-  String get action_name_createThread => 'スレッド作成';
+  String get action_name_createThread =>
+      'Ã£â€šÂ¹Ã£Æ’Â¬Ã£Æ’Æ’Ã£Æ’â€°Ã¤Â½Å“Ã¦Ë†Â';
 
   @override
-  String get action_name_debugProfile => 'デバッグプロファイル';
+  String get action_name_debugProfile =>
+      'Ã£Æ’â€¡Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ°Ã£Æ’â€”Ã£Æ’Â­Ã£Æ’â€¢Ã£â€šÂ¡Ã£â€šÂ¤Ã£Æ’Â«';
 
   @override
-  String get action_name_deferInteraction => 'インタラクションを保留';
+  String get action_name_deferInteraction =>
+      'Ã£â€šÂ¤Ã£Æ’Â³Ã£â€šÂ¿Ã£Æ’Â©Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¤Â¿ÂÃ§â€¢â„¢';
 
   @override
-  String get action_name_deleteAutoModRule => '自動モデレーションルール削除';
+  String get action_name_deleteAutoModRule =>
+      'Ã¨â€¡ÂªÃ¥â€¹â€¢Ã£Æ’Â¢Ã£Æ’â€¡Ã£Æ’Â¬Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’Â«Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get action_name_deleteChannelPermission => 'チャンネル権限削除';
+  String get action_name_deleteChannelPermission =>
+      'Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã¦Â¨Â©Ã©â„¢ÂÃ¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get action_name_deleteEmoji => '絵文字削除';
+  String get action_name_deleteEmoji => 'Ã§ÂµÂµÃ¦â€“â€¡Ã¥Â­â€”Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get action_name_deleteInvite => '招待削除';
+  String get action_name_deleteInvite => 'Ã¦â€¹â€ºÃ¥Â¾â€¦Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get action_name_deleteMessages => 'メッセージ削除';
+  String get action_name_deleteMessages =>
+      'Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get action_name_deleteTrigger => 'トリガーメッセージ削除';
+  String get action_name_deleteTrigger =>
+      'Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get action_name_deleteWebhook => 'Webhook削除';
+  String get action_name_deleteWebhook => 'WebhookÃ¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get action_name_disconnectFromVoice => 'ボイスチャンネル切断';
+  String get action_name_disconnectFromVoice =>
+      'Ã£Æ’Å“Ã£â€šÂ¤Ã£â€šÂ¹Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã¥Ë†â€¡Ã¦â€“Â­';
 
   @override
-  String get action_name_editChannelPermissions => 'チャンネル権限編集';
+  String get action_name_editChannelPermissions =>
+      'Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã¦Â¨Â©Ã©â„¢ÂÃ§Â·Â¨Ã©â€ºâ€ ';
 
   @override
-  String get action_name_editComponentV2 => 'コンポーネント編集 V2';
+  String get action_name_editComponentV2 =>
+      'Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â³Ã£Æ’Ë†Ã§Â·Â¨Ã©â€ºâ€  V2';
 
   @override
-  String get action_name_editInteractionMessage => 'インタラクションメッセージ編集';
+  String get action_name_editInteractionMessage =>
+      'Ã£â€šÂ¤Ã£Æ’Â³Ã£â€šÂ¿Ã£Æ’Â©Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã§Â·Â¨Ã©â€ºâ€ ';
 
   @override
-  String get action_name_editMessage => 'メッセージ編集';
+  String get action_name_editMessage =>
+      'Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã§Â·Â¨Ã©â€ºâ€ ';
 
   @override
-  String get action_name_editWebhook => 'Webhook編集';
+  String get action_name_editWebhook => 'WebhookÃ§Â·Â¨Ã©â€ºâ€ ';
 
   @override
-  String get action_name_endPoll => '投票終了';
+  String get action_name_endPoll => 'Ã¦Å â€¢Ã§Â¥Â¨Ã§Âµâ€šÃ¤Âºâ€ ';
 
   @override
-  String get action_name_forLoop => 'For ループ';
+  String get action_name_forLoop => 'For Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’â€”';
 
   @override
-  String get action_name_getGlobalVariable => 'グローバル変数取得';
+  String get action_name_getGlobalVariable =>
+      'Ã£â€šÂ°Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â«Ã¥Â¤â€°Ã¦â€¢Â°Ã¥Ââ€“Ã¥Â¾â€”';
 
   @override
-  String get action_name_getGuildOnboarding => 'サーバーオンボーディング取得';
+  String get action_name_getGuildOnboarding =>
+      'Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£â€šÂªÃ£Æ’Â³Ã£Æ’Å“Ã£Æ’Â¼Ã£Æ’â€¡Ã£â€šÂ£Ã£Æ’Â³Ã£â€šÂ°Ã¥Ââ€“Ã¥Â¾â€”';
 
   @override
-  String get action_name_getInvite => '招待取得';
+  String get action_name_getInvite => 'Ã¦â€¹â€ºÃ¥Â¾â€¦Ã¥Ââ€“Ã¥Â¾â€”';
 
   @override
-  String get action_name_getMember => 'メンバー取得';
+  String get action_name_getMember => 'Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã¥Ââ€“Ã¥Â¾â€”';
 
   @override
-  String get action_name_getMessage => 'メッセージ取得';
+  String get action_name_getMessage =>
+      'Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã¥Ââ€“Ã¥Â¾â€”';
 
   @override
-  String get action_name_getMusicInfo => '音楽情報を取得';
+  String get action_name_getMusicInfo =>
+      'Ã©Å¸Â³Ã¦Â¥Â½Ã¦Æ’â€¦Ã¥Â Â±Ã£â€šâ€™Ã¥Ââ€“Ã¥Â¾â€”';
 
   @override
-  String get action_name_getScopedVariable => 'スコープ変数取得';
+  String get action_name_getScopedVariable =>
+      'Ã£â€šÂ¹Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€”Ã¥Â¤â€°Ã¦â€¢Â°Ã¥Ââ€“Ã¥Â¾â€”';
 
   @override
-  String get action_name_getWebhook => 'Webhook取得';
+  String get action_name_getWebhook => 'WebhookÃ¥Ââ€“Ã¥Â¾â€”';
 
   @override
-  String get action_name_httpRequest => 'HTTP リクエスト';
+  String get action_name_httpRequest =>
+      'HTTP Ã£Æ’ÂªÃ£â€šÂ¯Ã£â€šÂ¨Ã£â€šÂ¹Ã£Æ’Ë†';
 
   @override
-  String get action_name_ifBlock => 'IF / ELSE ブロック';
+  String get action_name_ifBlock => 'IF / ELSE Ã£Æ’â€“Ã£Æ’Â­Ã£Æ’Æ’Ã£â€šÂ¯';
 
   @override
-  String get action_name_jumpToAction => 'アクションにジャンプ';
+  String get action_name_jumpToAction =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ«Ã£â€šÂ¸Ã£Æ’Â£Ã£Æ’Â³Ã£Æ’â€”';
 
   @override
-  String get action_name_joinVoice => 'ボイスチャンネルに参加';
+  String get action_name_joinVoice =>
+      'Ã£Æ’Å“Ã£â€šÂ¤Ã£â€šÂ¹Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã£ÂÂ«Ã¥Ââ€šÃ¥Å Â ';
 
   @override
-  String get action_name_jsonForEachLoop => 'JSON For Each ループ';
+  String get action_name_jsonForEachLoop => 'JSON For Each Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’â€”';
 
   @override
-  String get action_name_kickUser => 'ユーザーキック';
+  String get action_name_kickUser =>
+      'Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£â€šÂ­Ã£Æ’Æ’Ã£â€šÂ¯';
 
   @override
-  String get action_name_leaveGuild => 'サーバーを退出';
+  String get action_name_leaveGuild =>
+      'Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£â€šâ€™Ã©â‚¬â‚¬Ã¥â€¡Âº';
 
   @override
-  String get action_name_leaveVoice => 'ボイスチャンネルから退出';
+  String get action_name_leaveVoice =>
+      'Ã£Æ’Å“Ã£â€šÂ¤Ã£â€šÂ¹Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã£Ââ€¹Ã£â€šâ€°Ã©â‚¬â‚¬Ã¥â€¡Âº';
 
   @override
-  String get action_name_listAutoModRules => '自動モデレーションルール一覧';
+  String get action_name_listAutoModRules =>
+      'Ã¨â€¡ÂªÃ¥â€¹â€¢Ã£Æ’Â¢Ã£Æ’â€¡Ã£Æ’Â¬Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’Â«Ã¤Â¸â‚¬Ã¨Â¦Â§';
 
   @override
-  String get action_name_listMembers => 'メンバー一覧';
+  String get action_name_listMembers => 'Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã¤Â¸â‚¬Ã¨Â¦Â§';
 
   @override
-  String get action_name_listScopedVariableIndex => 'スコープ変数インデックス一覧';
+  String get action_name_listScopedVariableIndex =>
+      'Ã£â€šÂ¹Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€”Ã¥Â¤â€°Ã¦â€¢Â°Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’â€¡Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¹Ã¤Â¸â‚¬Ã¨Â¦Â§';
 
   @override
-  String get action_name_listWebhooks => 'Webhook一覧';
+  String get action_name_listWebhooks => 'WebhookÃ¤Â¸â‚¬Ã¨Â¦Â§';
 
   @override
-  String get action_name_listenAndExecute => '監視して実行';
+  String get action_name_listenAndExecute =>
+      'Ã§â€ºÂ£Ã¨Â¦â€“Ã£Ââ€”Ã£ÂÂ¦Ã¥Â®Å¸Ã¨Â¡Å’';
 
   @override
-  String get action_name_listenForButtonClick => 'ボタンクリック待機';
+  String get action_name_listenForButtonClick =>
+      'Ã£Æ’Å“Ã£â€šÂ¿Ã£Æ’Â³Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’Æ’Ã£â€šÂ¯Ã¥Â¾â€¦Ã¦Â©Å¸';
 
   @override
-  String get action_name_listenForModalSubmit => 'モーダル送信待機';
+  String get action_name_listenForModalSubmit =>
+      'Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â‚¬Ã£Æ’Â«Ã©â‚¬ÂÃ¤Â¿Â¡Ã¥Â¾â€¦Ã¦Â©Å¸';
 
   @override
-  String get action_name_listenForSelectMenu => 'セレクトメニュー待機';
+  String get action_name_listenForSelectMenu =>
+      'Ã£â€šÂ»Ã£Æ’Â¬Ã£â€šÂ¯Ã£Æ’Ë†Ã£Æ’Â¡Ã£Æ’â€¹Ã£Æ’Â¥Ã£Æ’Â¼Ã¥Â¾â€¦Ã¦Â©Å¸';
 
   @override
-  String get action_name_log => 'ログメッセージ';
+  String get action_name_log => 'Ã£Æ’Â­Ã£â€šÂ°Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸';
 
   @override
-  String get action_name_moveToVoiceChannel => 'ボイスチャンネルに移動';
+  String get action_name_moveToVoiceChannel =>
+      'Ã£Æ’Å“Ã£â€šÂ¤Ã£â€šÂ¹Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã£ÂÂ«Ã§Â§Â»Ã¥â€¹â€¢';
 
   @override
-  String get action_name_muteUser => 'ユーザーミュート';
+  String get action_name_muteUser =>
+      'Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£Æ’Å¸Ã£Æ’Â¥Ã£Æ’Â¼Ã£Æ’Ë†';
 
   @override
-  String get action_name_pauseMusic => '音楽を一時停止';
+  String get action_name_pauseMusic =>
+      'Ã©Å¸Â³Ã¦Â¥Â½Ã£â€šâ€™Ã¤Â¸â‚¬Ã¦â„¢â€šÃ¥ÂÅ“Ã¦Â­Â¢';
 
   @override
-  String get action_name_pinMessage => 'メッセージピン留め';
+  String get action_name_pinMessage =>
+      'Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£Æ’â€Ã£Æ’Â³Ã§â€¢â„¢Ã£â€šÂ';
 
   @override
-  String get action_name_playMusic => '音楽を再生';
+  String get action_name_playMusic => 'Ã©Å¸Â³Ã¦Â¥Â½Ã£â€šâ€™Ã¥â€ ÂÃ§â€Å¸';
 
   @override
-  String get action_name_queryArray => '配列クエリ';
+  String get action_name_queryArray => 'Ã©â€¦ÂÃ¥Ë†â€”Ã£â€šÂ¯Ã£â€šÂ¨Ã£Æ’Âª';
 
   @override
-  String get action_name_randomChoice => 'ランダム選択';
+  String get action_name_randomChoice =>
+      'Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’â‚¬Ã£Æ’Â Ã©ÂÂ¸Ã¦Å Å¾';
 
   @override
-  String get action_name_registerGuildCommands => 'サーバーコマンド登録';
+  String get action_name_registerGuildCommands =>
+      'Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã§â„¢Â»Ã©Å’Â²';
 
   @override
-  String get action_name_removeArrayElement => '配列要素削除';
+  String get action_name_removeArrayElement =>
+      'Ã©â€¦ÂÃ¥Ë†â€”Ã¨Â¦ÂÃ§Â´Â Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get action_name_removeChannel => 'チャンネル削除';
+  String get action_name_removeChannel =>
+      'Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get action_name_removeGlobalVariable => 'グローバル変数削除';
+  String get action_name_removeGlobalVariable =>
+      'Ã£â€šÂ°Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â«Ã¥Â¤â€°Ã¦â€¢Â°Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get action_name_removeReaction => 'リアクション削除';
+  String get action_name_removeReaction =>
+      'Ã£Æ’ÂªÃ£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get action_name_removeRole => 'ロール削除';
+  String get action_name_removeRole => 'Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’Â«Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get action_name_removeScopedVariable => 'スコープ変数削除';
+  String get action_name_removeScopedVariable =>
+      'Ã£â€šÂ¹Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€”Ã¥Â¤â€°Ã¦â€¢Â°Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get action_name_removeThreadMember => 'スレッドメンバー削除';
+  String get action_name_removeThreadMember =>
+      'Ã£â€šÂ¹Ã£Æ’Â¬Ã£Æ’Æ’Ã£Æ’â€°Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get action_name_renameScopedVariable => 'スコープ変数名変更';
+  String get action_name_renameScopedVariable =>
+      'Ã£â€šÂ¹Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€”Ã¥Â¤â€°Ã¦â€¢Â°Ã¥ÂÂÃ¥Â¤â€°Ã¦â€ºÂ´';
 
   @override
-  String get action_name_respondWithAutocomplete => 'オートコンプリートで応答';
+  String get action_name_respondWithAutocomplete =>
+      'Ã£â€šÂªÃ£Æ’Â¼Ã£Æ’Ë†Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’ÂªÃ£Æ’Â¼Ã£Æ’Ë†Ã£ÂÂ§Ã¥Â¿Å“Ã§Â­â€';
 
   @override
-  String get action_name_respondWithComponentV2 => 'コンポーネント V2 で応答';
+  String get action_name_respondWithComponentV2 =>
+      'Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â³Ã£Æ’Ë† V2 Ã£ÂÂ§Ã¥Â¿Å“Ã§Â­â€';
 
   @override
-  String get action_name_respondWithMessage => 'メッセージで応答';
+  String get action_name_respondWithMessage =>
+      'Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£ÂÂ§Ã¥Â¿Å“Ã§Â­â€';
 
   @override
-  String get action_name_respondWithModal => 'モーダルで応答';
+  String get action_name_respondWithModal =>
+      'Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â‚¬Ã£Æ’Â«Ã£ÂÂ§Ã¥Â¿Å“Ã§Â­â€';
 
   @override
-  String get action_name_resumeMusic => '音楽を再開';
+  String get action_name_resumeMusic => 'Ã©Å¸Â³Ã¦Â¥Â½Ã£â€šâ€™Ã¥â€ ÂÃ©â€“â€¹';
 
   @override
-  String get action_name_runBdfdScript => 'BDFD スクリプト実行';
+  String get action_name_runBdfdScript =>
+      'BDFD Ã£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë†Ã¥Â®Å¸Ã¨Â¡Å’';
 
   @override
-  String get action_name_runWorkflow => 'ワークフロー実行';
+  String get action_name_runWorkflow =>
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã¥Â®Å¸Ã¨Â¡Å’';
 
   @override
-  String get action_name_runtimeImageBlock => '画像キャンバスを実行';
+  String get action_name_runtimeImageBlock =>
+      'Ã§â€Â»Ã¥Æ’ÂÃ£â€šÂ­Ã£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£â€šÂ¹Ã£â€šâ€™Ã¥Â®Å¸Ã¨Â¡Å’';
 
   @override
-  String get action_name_runtimeJsonBlock => 'JSON 操作を実行';
+  String get action_name_runtimeJsonBlock =>
+      'JSON Ã¦â€œÂÃ¤Â½Å“Ã£â€šâ€™Ã¥Â®Å¸Ã¨Â¡Å’';
 
   @override
-  String get action_name_seekMusic => '再生位置を変更';
+  String get action_name_seekMusic =>
+      'Ã¥â€ ÂÃ§â€Å¸Ã¤Â½ÂÃ§Â½Â®Ã£â€šâ€™Ã¥Â¤â€°Ã¦â€ºÂ´';
 
   @override
-  String get action_name_sendComponentV2 => 'コンポーネント V2 送信';
+  String get action_name_sendComponentV2 =>
+      'Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â³Ã£Æ’Ë† V2 Ã©â‚¬ÂÃ¤Â¿Â¡';
 
   @override
-  String get action_name_sendDm => 'ダイレクトメッセージ送信';
+  String get action_name_sendDm =>
+      'Ã£Æ’â‚¬Ã£â€šÂ¤Ã£Æ’Â¬Ã£â€šÂ¯Ã£Æ’Ë†Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã©â‚¬ÂÃ¤Â¿Â¡';
 
   @override
-  String get action_name_sendMessage => 'メッセージ送信';
+  String get action_name_sendMessage =>
+      'Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã©â‚¬ÂÃ¤Â¿Â¡';
 
   @override
-  String get action_name_sendWebhook => 'Webhook送信';
+  String get action_name_sendWebhook => 'WebhookÃ©â‚¬ÂÃ¤Â¿Â¡';
 
   @override
-  String get action_name_serverDeafenMember => 'サーバー聴覚無効化';
+  String get action_name_serverDeafenMember =>
+      'Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã¨ÂÂ´Ã¨Â¦Å¡Ã§â€žÂ¡Ã¥Å Â¹Ã¥Å’â€“';
 
   @override
-  String get action_name_serverMuteMember => 'サーバーミュート';
+  String get action_name_serverMuteMember =>
+      'Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Å¸Ã£Æ’Â¥Ã£Æ’Â¼Ã£Æ’Ë†';
 
   @override
-  String get action_name_setGlobalVariable => 'グローバル変数設定';
+  String get action_name_setGlobalVariable =>
+      'Ã£â€šÂ°Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â«Ã¥Â¤â€°Ã¦â€¢Â°Ã¨Â¨Â­Ã¥Â®Å¡';
 
   @override
-  String get action_name_setMusicLoop => 'ループ再生を設定';
+  String get action_name_setMusicLoop =>
+      'Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’â€”Ã¥â€ ÂÃ§â€Å¸Ã£â€šâ€™Ã¨Â¨Â­Ã¥Â®Å¡';
 
   @override
-  String get action_name_setMusicVolume => '音量を設定';
+  String get action_name_setMusicVolume => 'Ã©Å¸Â³Ã©â€¡ÂÃ£â€šâ€™Ã¨Â¨Â­Ã¥Â®Å¡';
 
   @override
-  String get action_name_setNickname => 'ニックネーム設定';
+  String get action_name_setNickname =>
+      'Ã£Æ’â€¹Ã£Æ’Æ’Ã£â€šÂ¯Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Â Ã¨Â¨Â­Ã¥Â®Å¡';
 
   @override
-  String get action_name_setScopedVariable => 'スコープ変数設定';
+  String get action_name_setScopedVariable =>
+      'Ã£â€šÂ¹Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€”Ã¥Â¤â€°Ã¦â€¢Â°Ã¨Â¨Â­Ã¥Â®Å¡';
 
   @override
-  String get action_name_setTemporaryVariable => '一時変数設定';
+  String get action_name_setTemporaryVariable =>
+      'Ã¤Â¸â‚¬Ã¦â„¢â€šÃ¥Â¤â€°Ã¦â€¢Â°Ã¨Â¨Â­Ã¥Â®Å¡';
 
   @override
-  String get action_name_skipActions => 'アクションをスキップ';
+  String get action_name_skipActions =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã£â€šÂ¹Ã£â€šÂ­Ã£Æ’Æ’Ã£Æ’â€”';
 
   @override
-  String get action_name_skipMusic => '音楽をスキップ';
+  String get action_name_skipMusic =>
+      'Ã©Å¸Â³Ã¦Â¥Â½Ã£â€šâ€™Ã£â€šÂ¹Ã£â€šÂ­Ã£Æ’Æ’Ã£Æ’â€”';
 
   @override
-  String get action_name_slowmode => '低速モード';
+  String get action_name_slowmode => 'Ã¤Â½Å½Ã©â‚¬Å¸Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°';
 
   @override
-  String get action_name_stop => '実行停止';
+  String get action_name_stop => 'Ã¥Â®Å¸Ã¨Â¡Å’Ã¥ÂÅ“Ã¦Â­Â¢';
 
   @override
-  String get action_name_stopMusic => '音楽を停止';
+  String get action_name_stopMusic => 'Ã©Å¸Â³Ã¦Â¥Â½Ã£â€šâ€™Ã¥ÂÅ“Ã¦Â­Â¢';
 
   @override
-  String get action_name_stopUnless => '条件付き停止';
+  String get action_name_stopUnless => 'Ã¦ÂÂ¡Ã¤Â»Â¶Ã¤Â»ËœÃ£ÂÂÃ¥ÂÅ“Ã¦Â­Â¢';
 
   @override
-  String get action_name_unbanUser => '追放解除';
+  String get action_name_unbanUser => 'Ã¨Â¿Â½Ã¦â€Â¾Ã¨Â§Â£Ã©â„¢Â¤';
 
   @override
-  String get action_name_unmuteUser => 'ミュート解除';
+  String get action_name_unmuteUser => 'Ã£Æ’Å¸Ã£Æ’Â¥Ã£Æ’Â¼Ã£Æ’Ë†Ã¨Â§Â£Ã©â„¢Â¤';
 
   @override
-  String get action_name_unpinMessage => 'ピン留め解除';
+  String get action_name_unpinMessage =>
+      'Ã£Æ’â€Ã£Æ’Â³Ã§â€¢â„¢Ã£â€šÂÃ¨Â§Â£Ã©â„¢Â¤';
 
   @override
-  String get action_name_unregisterGuildCommands => 'サーバーコマンド登録解除';
+  String get action_name_unregisterGuildCommands =>
+      'Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã§â„¢Â»Ã©Å’Â²Ã¨Â§Â£Ã©â„¢Â¤';
 
   @override
-  String get action_name_updateAutoMod => '自動モデレーション更新';
+  String get action_name_updateAutoMod =>
+      'Ã¨â€¡ÂªÃ¥â€¹â€¢Ã£Æ’Â¢Ã£Æ’â€¡Ã£Æ’Â¬Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã¦â€ºÂ´Ã¦â€“Â°';
 
   @override
-  String get action_name_updateChannel => 'チャンネル更新';
+  String get action_name_updateChannel =>
+      'Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã¦â€ºÂ´Ã¦â€“Â°';
 
   @override
-  String get action_name_updateEmoji => '絵文字更新';
+  String get action_name_updateEmoji => 'Ã§ÂµÂµÃ¦â€“â€¡Ã¥Â­â€”Ã¦â€ºÂ´Ã¦â€“Â°';
 
   @override
-  String get action_name_updateGuild => 'サーバー更新';
+  String get action_name_updateGuild =>
+      'Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã¦â€ºÂ´Ã¦â€“Â°';
 
   @override
-  String get action_name_updateGuildOnboarding => 'サーバーオンボーディング更新';
+  String get action_name_updateGuildOnboarding =>
+      'Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£â€šÂªÃ£Æ’Â³Ã£Æ’Å“Ã£Æ’Â¼Ã£Æ’â€¡Ã£â€šÂ£Ã£Æ’Â³Ã£â€šÂ°Ã¦â€ºÂ´Ã¦â€“Â°';
 
   @override
-  String get action_name_updateSelfUser => '自己ユーザー更新 (Botプロフィール)';
+  String get action_name_updateSelfUser =>
+      'Ã¨â€¡ÂªÃ¥Â·Â±Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã¦â€ºÂ´Ã¦â€“Â° (BotÃ£Æ’â€”Ã£Æ’Â­Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â¼Ã£Æ’Â«)';
 
   @override
-  String get action_name_wait => '待機';
+  String get action_name_wait => 'Ã¥Â¾â€¦Ã¦Â©Å¸';
 
   @override
-  String get action_no_actions_yet => 'このブランチにはまだアクションがありません。';
+  String get action_no_actions_yet =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã£Æ’â€“Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’ÂÃ£ÂÂ«Ã£ÂÂ¯Ã£ÂÂ¾Ã£ÂÂ Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
-  String get action_no_args_tap_edit => '引数なし - 編集をタップして追加';
+  String get action_no_args_tap_edit =>
+      'Ã¥Â¼â€¢Ã¦â€¢Â°Ã£ÂÂªÃ£Ââ€” - Ã§Â·Â¨Ã©â€ºâ€ Ã£â€šâ€™Ã£â€šÂ¿Ã£Æ’Æ’Ã£Æ’â€”Ã£Ââ€”Ã£ÂÂ¦Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
   String get action_no_else_if_yet =>
-      'ELSE IF ブランチがまだありません。ELSE の前に条件を追加してください。';
+      'ELSE IF Ã£Æ’â€“Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’ÂÃ£ÂÅ’Ã£ÂÂ¾Ã£ÂÂ Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€šELSE Ã£ÂÂ®Ã¥â€°ÂÃ£ÂÂ«Ã¦ÂÂ¡Ã¤Â»Â¶Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get action_no_headers_tap_edit => 'ヘッダーなし - 編集をタップして追加';
+  String get action_no_headers_tap_edit =>
+      'Ã£Æ’ËœÃ£Æ’Æ’Ã£Æ’â‚¬Ã£Æ’Â¼Ã£ÂÂªÃ£Ââ€” - Ã§Â·Â¨Ã©â€ºâ€ Ã£â€šâ€™Ã£â€šÂ¿Ã£Æ’Æ’Ã£Æ’â€”Ã£Ââ€”Ã£ÂÂ¦Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get action_no_items_tap_edit => '項目なし - 編集をタップして追加';
+  String get action_no_items_tap_edit =>
+      'Ã©Â â€¦Ã§â€ºÂ®Ã£ÂÂªÃ£Ââ€” - Ã§Â·Â¨Ã©â€ºâ€ Ã£â€šâ€™Ã£â€šÂ¿Ã£Æ’Æ’Ã£Æ’â€”Ã£Ââ€”Ã£ÂÂ¦Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get action_no_properties_tap_edit => 'プロパティなし - 編集をタップして設定';
+  String get action_no_properties_tap_edit =>
+      'Ã£Æ’â€”Ã£Æ’Â­Ã£Æ’â€˜Ã£Æ’â€ Ã£â€šÂ£Ã£ÂÂªÃ£Ââ€” - Ã§Â·Â¨Ã©â€ºâ€ Ã£â€šâ€™Ã£â€šÂ¿Ã£Æ’Æ’Ã£Æ’â€”Ã£Ââ€”Ã£ÂÂ¦Ã¨Â¨Â­Ã¥Â®Å¡';
 
   @override
-  String get action_no_saved_keys => '保存されたキーが見つかりません。キーは初回アクセス時に自動生成されます。';
+  String get action_no_saved_keys =>
+      'Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£â€šÂ­Ã£Æ’Â¼Ã£ÂÅ’Ã¨Â¦â€¹Ã£ÂÂ¤Ã£Ââ€¹Ã£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€šÃ£â€šÂ­Ã£Æ’Â¼Ã£ÂÂ¯Ã¥Ë†ÂÃ¥â€ºÅ¾Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ»Ã£â€šÂ¹Ã¦â„¢â€šÃ£ÂÂ«Ã¨â€¡ÂªÃ¥â€¹â€¢Ã§â€Å¸Ã¦Ë†ÂÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get action_on_error => 'エラー時';
+  String get action_on_error => 'Ã£â€šÂ¨Ã£Æ’Â©Ã£Æ’Â¼Ã¦â„¢â€š';
 
   @override
-  String get action_options_tooltip => 'アクションオプション';
+  String get action_options_tooltip =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³';
 
   @override
-  String get action_or_type_workflow => 'またはワークフロー名を入力';
+  String get action_or_type_workflow =>
+      'Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã¥ÂÂÃ£â€šâ€™Ã¥â€¦Â¥Ã¥Å â€º';
 
   @override
-  String get action_order_tip => 'ヒント: 矢印でアクションの順序を変更できます。';
+  String get action_order_tip =>
+      'Ã£Æ’â€™Ã£Æ’Â³Ã£Æ’Ë†: Ã§Å¸Â¢Ã¥ÂÂ°Ã£ÂÂ§Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ®Ã©Â â€ Ã¥ÂºÂÃ£â€šâ€™Ã¥Â¤â€°Ã¦â€ºÂ´Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String action_position(int index, int total) {
-    return 'アクション $index/$total';
+    return 'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³ $index/$total';
   }
 
   @override
-  String get action_preview_json => 'ハイライトJSONをプレビュー';
+  String get action_preview_json =>
+      'Ã£Æ’ÂÃ£â€šÂ¤Ã£Æ’Â©Ã£â€šÂ¤Ã£Æ’Ë†JSONÃ£â€šâ€™Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’â€œÃ£Æ’Â¥Ã£Æ’Â¼';
 
   @override
-  String get action_provide_valid_url => '有効なURLを入力してください。';
+  String get action_provide_valid_url =>
+      'Ã¦Å“â€°Ã¥Å Â¹Ã£ÂÂªURLÃ£â€šâ€™Ã¥â€¦Â¥Ã¥Å â€ºÃ£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get action_refresh_keys => 'キーを更新';
+  String get action_refresh_keys => 'Ã£â€šÂ­Ã£Æ’Â¼Ã£â€šâ€™Ã¦â€ºÂ´Ã¦â€“Â°';
 
   @override
-  String get action_remove_confirm => 'このアクションをワークフローから削除します。続行しますか？';
+  String get action_remove_confirm =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£Ââ€¹Ã£â€šâ€°Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ§Â¶Å¡Ã¨Â¡Å’Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸';
 
   @override
-  String get action_remove_else_if => 'ELSE IF を削除';
+  String get action_remove_else_if => 'ELSE IF Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get action_remove_menu => 'アクションを削除';
+  String get action_remove_menu =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get action_remove_title => 'アクションを削除';
+  String get action_remove_title =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get action_root_must_json => 'ルートはJSONオブジェクトである必要があります';
+  String get action_root_must_json =>
+      'Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’Ë†Ã£ÂÂ¯JSONÃ£â€šÂªÃ£Æ’â€“Ã£â€šÂ¸Ã£â€šÂ§Ã£â€šÂ¯Ã£Æ’Ë†Ã£ÂÂ§Ã£Ââ€šÃ£â€šâ€¹Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get action_select_saved_key => '保存されたキーを選択';
+  String get action_select_saved_key =>
+      'Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£â€šÂ­Ã£Æ’Â¼Ã£â€šâ€™Ã©ÂÂ¸Ã¦Å Å¾';
 
   @override
-  String get action_select_stored_key => '保存されたキーを選択 (bc_ 接頭辞は任意)';
+  String get action_select_stored_key =>
+      'Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£â€šÂ­Ã£Æ’Â¼Ã£â€šâ€™Ã©ÂÂ¸Ã¦Å Å¾ (bc_ Ã¦Å½Â¥Ã©Â Â­Ã¨Â¾Å¾Ã£ÂÂ¯Ã¤Â»Â»Ã¦â€žÂ)';
 
   @override
-  String get action_static_badge => '(静的)';
+  String get action_static_badge => '(Ã©Ââ„¢Ã§Å¡â€ž)';
 
   @override
-  String get action_status_disabled => '無効';
+  String get action_status_disabled => 'Ã§â€žÂ¡Ã¥Å Â¹';
 
   @override
-  String get action_status_enabled => '有効';
+  String get action_status_enabled => 'Ã¦Å“â€°Ã¥Å Â¹';
 
   @override
-  String get action_store_results => '結果をグローバル変数に保存';
+  String get action_store_results =>
+      'Ã§ÂµÂÃ¦Å¾Å“Ã£â€šâ€™Ã£â€šÂ°Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â«Ã¥Â¤â€°Ã¦â€¢Â°Ã£ÂÂ«Ã¤Â¿ÂÃ¥Â­Ëœ';
 
   @override
   String actions_active_route(String label) {
-    return 'アクティブルート: $label';
+    return 'Ã£â€šÂ¢Ã£â€šÂ¯Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’â€“Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’Ë†: $label';
   }
 
   @override
-  String get actions_add_label => 'アクションを追加';
+  String get actions_add_label =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get actions_add_new_title => '新しいアクションを追加';
+  String get actions_add_new_title =>
+      'Ã¦â€“Â°Ã£Ââ€”Ã£Ââ€žÃ£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
   String actions_build_button(int count) {
-    return 'アクションを構築 ($count)';
+    return 'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¦Â§â€¹Ã§Â¯â€° ($count)';
   }
 
   @override
-  String get actions_empty_subtitle => 'アクションを追加してから開いて詳細を設定してください。';
+  String get actions_empty_subtitle =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â Ã£Ââ€”Ã£ÂÂ¦Ã£Ââ€¹Ã£â€šâ€°Ã©â€“â€¹Ã£Ââ€žÃ£ÂÂ¦Ã¨Â©Â³Ã§Â´Â°Ã£â€šâ€™Ã¨Â¨Â­Ã¥Â®Å¡Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get actions_empty_title => 'アクションはまだありません';
+  String get actions_empty_title =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ¯Ã£ÂÂ¾Ã£ÂÂ Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œ';
 
   @override
-  String get actions_builder_title => 'アクションビルダー';
+  String get actions_builder_title =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£Æ’â€œÃ£Æ’Â«Ã£Æ’â‚¬Ã£Æ’Â¼';
 
   @override
-  String get actions_description => 'このコマンドのランタイムアクションを構築';
+  String get actions_description =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ®Ã£Æ’Â©Ã£Æ’Â³Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¦Â§â€¹Ã§Â¯â€°';
 
   @override
-  String get actions_global_variables => 'グローバル変数';
+  String get actions_global_variables =>
+      'Ã£â€šÂ°Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â«Ã¥Â¤â€°Ã¦â€¢Â°';
 
   @override
   String actions_key_label(String key) {
-    return 'キー: $key';
+    return 'Ã£â€šÂ­Ã£Æ’Â¼: $key';
   }
 
   @override
   String actions_missing_field_content(String action, String field) {
-    return '\"$action\"：\"$field\" は必須です。';
+    return '\"$action\"Ã¯Â¼Å¡\"$field\" Ã£ÂÂ¯Ã¥Â¿â€¦Ã©Â Ë†Ã£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€š';
   }
 
   @override
-  String get actions_missing_field_title => '不足フィールド';
+  String get actions_missing_field_title =>
+      'Ã¤Â¸ÂÃ¨Â¶Â³Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’â€°';
 
   @override
-  String get actions_no_matches => '一致するものが見つかりません';
+  String get actions_no_matches =>
+      'Ã¤Â¸â‚¬Ã¨â€¡Â´Ã£Ââ„¢Ã£â€šâ€¹Ã£â€šâ€šÃ£ÂÂ®Ã£ÂÅ’Ã¨Â¦â€¹Ã£ÂÂ¤Ã£Ââ€¹Ã£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œ';
 
   @override
   String actions_save_count(int count) {
-    return '$count アクションを保存';
+    return '$count Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¤Â¿ÂÃ¥Â­Ëœ';
   }
 
   @override
-  String get actions_save_tooltip => 'アクションを保存';
+  String get actions_save_tooltip =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¤Â¿ÂÃ¥Â­Ëœ';
 
   @override
-  String get actions_save_workflow_title => 'ワークフローとして保存';
+  String get actions_save_workflow_title =>
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£ÂÂ¨Ã£Ââ€”Ã£ÂÂ¦Ã¤Â¿ÂÃ¥Â­Ëœ';
 
   @override
-  String get actions_search_hint => 'アクションを検索...';
+  String get actions_search_hint =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¦Â¤Å“Ã§Â´Â¢...';
 
   @override
-  String get actions_search_sequence_hint => 'シーケンスを検索...';
+  String get actions_search_sequence_hint =>
+      'Ã£â€šÂ·Ã£Æ’Â¼Ã£â€šÂ±Ã£Æ’Â³Ã£â€šÂ¹Ã£â€šâ€™Ã¦Â¤Å“Ã§Â´Â¢...';
 
   @override
   String actions_sequence_count(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count アクション',
-      one: '1 アクション',
-      zero: 'アクションなし',
+      other: '$count Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³',
+      one: '1 Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³',
+      zero: 'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂªÃ£Ââ€”',
     );
     return '$_temp0';
   }
 
   @override
   String actions_step_label(int index, int total) {
-    return 'ステップ $index/$total';
+    return 'Ã£â€šÂ¹Ã£Æ’â€ Ã£Æ’Æ’Ã£Æ’â€” $index/$total';
   }
 
   @override
   String actions_summary_bdfd(int lines, int diagnostics) {
-    return 'BDFD スクリプト | $lines 行 | $diagnostics 診断';
+    return 'BDFD Ã£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë† | $lines Ã¨Â¡Å’ | $diagnostics Ã¨Â¨ÂºÃ¦â€“Â­';
   }
 
   @override
   String actions_summary_configured(int count) {
-    return '$count アクション設定済み';
+    return '$count Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã¨Â¨Â­Ã¥Â®Å¡Ã¦Â¸Ë†Ã£ÂÂ¿';
   }
 
   @override
   String actions_summary_dart(int lines, int diagnostics) {
-    return 'Dart スクリプト | $lines 行 | $diagnostics 診断';
+    return 'Dart Ã£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë† | $lines Ã¨Â¡Å’ | $diagnostics Ã¨Â¨ÂºÃ¦â€“Â­';
   }
 
   @override
   String actions_summary_routes(int count, int routes) {
-    return '$count アクション (アクティブルート) | $routes ルート';
+    return '$count Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³ (Ã£â€šÂ¢Ã£â€šÂ¯Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’â€“Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’Ë†) | $routes Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’Ë†';
   }
 
   @override
-  String get actions_title => 'アクション';
+  String get actions_title => 'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³';
 
   @override
-  String get actions_workflow_name_label => 'ワークフロー名';
+  String get actions_workflow_name_label =>
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã¥ÂÂ';
 
   @override
-  String get actions_workflows => 'ワークフロー';
+  String get actions_workflows => 'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼';
 
   @override
-  String get ads_consent_accept => '同意する';
+  String get ads_consent_accept => 'Ã¥ÂÅ’Ã¦â€žÂÃ£Ââ„¢Ã£â€šâ€¹';
 
   @override
   String get ads_consent_message =>
-      'GDPRに準拠するため、広告表示前に同意が必要です。同意しなくてもアプリは引き続きご利用いただけます。';
+      'GDPRÃ£ÂÂ«Ã¦Âºâ€“Ã¦â€¹Â Ã£Ââ„¢Ã£â€šâ€¹Ã£ÂÅ¸Ã£â€šÂÃ£â‚¬ÂÃ¥ÂºÆ’Ã¥â€˜Å Ã¨Â¡Â¨Ã§Â¤ÂºÃ¥â€°ÂÃ£ÂÂ«Ã¥ÂÅ’Ã¦â€žÂÃ£ÂÅ’Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€šÃ¥ÂÅ’Ã¦â€žÂÃ£Ââ€”Ã£ÂÂªÃ£ÂÂÃ£ÂÂ¦Ã£â€šâ€šÃ£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£ÂÂ¯Ã¥Â¼â€¢Ã£ÂÂÃ§Â¶Å¡Ã£ÂÂÃ£Ââ€Ã¥Ë†Â©Ã§â€Â¨Ã£Ââ€žÃ£ÂÅ¸Ã£ÂÂ Ã£Ââ€˜Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get ads_consent_refuse => '拒否する';
+  String get ads_consent_refuse => 'Ã¦â€¹â€™Ã¥ÂÂ¦Ã£Ââ„¢Ã£â€šâ€¹';
 
   @override
-  String get ads_consent_refused_info => '広告同意が拒否されました。ボットは通常通り起動します。';
+  String get ads_consent_refused_info =>
+      'Ã¥ÂºÆ’Ã¥â€˜Å Ã¥ÂÅ’Ã¦â€žÂÃ£ÂÅ’Ã¦â€¹â€™Ã¥ÂÂ¦Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€šÃ£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÂ¯Ã©â‚¬Å¡Ã¥Â¸Â¸Ã©â‚¬Å¡Ã£â€šÅ Ã¨ÂµÂ·Ã¥â€¹â€¢Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get ads_consent_title => '広告の同意';
+  String get ads_consent_title => 'Ã¥ÂºÆ’Ã¥â€˜Å Ã£ÂÂ®Ã¥ÂÅ’Ã¦â€žÂ';
 
   @override
-  String get app_bot_token => 'Bot トークン';
+  String get app_bot_token => 'Bot Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³';
 
   @override
-  String get app_create_button => 'アプリケーションを作成';
+  String get app_create_button =>
+      'Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£â€šÂ±Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†Â';
 
   @override
   String get app_create_hero_desc =>
-      '適切なページを開き、トークンをコピーしてボットを安全にインポートするためのガイド付きセットアップ。';
+      'Ã©ÂÂ©Ã¥Ë†â€¡Ã£ÂÂªÃ£Æ’Å¡Ã£Æ’Â¼Ã£â€šÂ¸Ã£â€šâ€™Ã©â€“â€¹Ã£ÂÂÃ£â‚¬ÂÃ£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£â€šâ€™Ã£â€šÂ³Ã£Æ’â€Ã£Æ’Â¼Ã£Ââ€”Ã£ÂÂ¦Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¥Â®â€°Ã¥â€¦Â¨Ã£ÂÂ«Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†Ã£Ââ„¢Ã£â€šâ€¹Ã£ÂÅ¸Ã£â€šÂÃ£ÂÂ®Ã£â€šÂ¬Ã£â€šÂ¤Ã£Æ’â€°Ã¤Â»ËœÃ£ÂÂÃ£â€šÂ»Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šÂ¢Ã£Æ’Æ’Ã£Æ’â€”Ã£â‚¬â€š';
 
   @override
-  String get app_create_hero_title => 'Discordボットに接続';
+  String get app_create_hero_title =>
+      'DiscordÃ£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÂ«Ã¦Å½Â¥Ã§Â¶Å¡';
 
   @override
-  String get app_create_new => '新しいアプリを作成';
+  String get app_create_new =>
+      'Ã¦â€“Â°Ã£Ââ€”Ã£Ââ€žÃ£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£â€šâ€™Ã¤Â½Å“Ã¦Ë†Â';
 
   @override
-  String get app_create_page_title => 'アプリケーションを作成';
+  String get app_create_page_title =>
+      'Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£â€šÂ±Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†Â';
 
   @override
-  String get app_enter_token => 'ボットトークンをここに入力';
+  String get app_enter_token =>
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£â€šâ€™Ã£Ââ€œÃ£Ââ€œÃ£ÂÂ«Ã¥â€¦Â¥Ã¥Å â€º';
 
   @override
-  String get app_external_link_badge => '外部リンク';
+  String get app_external_link_badge => 'Ã¥Â¤â€“Ã©Æ’Â¨Ã£Æ’ÂªÃ£Æ’Â³Ã£â€šÂ¯';
 
   @override
-  String get app_hide_token => 'トークンを隠す';
+  String get app_hide_token => 'Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£â€šâ€™Ã©Å¡Â Ã£Ââ„¢';
 
   @override
-  String get app_how_to_create_token => 'Botトークンの作成方法';
+  String get app_how_to_create_token =>
+      'BotÃ£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£ÂÂ®Ã¤Â½Å“Ã¦Ë†ÂÃ¦â€“Â¹Ã¦Â³â€¢';
 
   @override
-  String get app_loading_error => '読み込みエラー';
+  String get app_loading_error => 'Ã¨ÂªÂ­Ã£ÂÂ¿Ã¨Â¾Â¼Ã£ÂÂ¿Ã£â€šÂ¨Ã£Æ’Â©Ã£Æ’Â¼';
 
   @override
-  String get app_no_apps => 'まだアプリがありません。';
+  String get app_no_apps =>
+      'Ã£ÂÂ¾Ã£ÂÂ Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
   String get app_note =>
-      '注意: Discord Developer Portalで新しいアプリを作成し、ボットトークンを取得する必要があります。';
+      'Ã¦Â³Â¨Ã¦â€žÂ: Discord Developer PortalÃ£ÂÂ§Ã¦â€“Â°Ã£Ââ€”Ã£Ââ€žÃ£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£â€šâ€™Ã¤Â½Å“Ã¦Ë†ÂÃ£Ââ€”Ã£â‚¬ÂÃ£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£â€šâ€™Ã¥Ââ€“Ã¥Â¾â€”Ã£Ââ„¢Ã£â€šâ€¹Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get app_open_discord_portal => 'Discord Developer Portal を開く';
+  String get app_open_discord_portal =>
+      'Discord Developer Portal Ã£â€šâ€™Ã©â€“â€¹Ã£ÂÂ';
 
   @override
-  String get app_open_discord_portal_desc => 'アプリケーションを作成し、ボットセクションを有効にします。';
+  String get app_open_discord_portal_desc =>
+      'Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£â€šÂ±Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†ÂÃ£Ââ€”Ã£â‚¬ÂÃ£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šÂ»Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¦Å“â€°Ã¥Å Â¹Ã£ÂÂ«Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get app_open_link_error => 'この外部ページを開けません。';
+  String get app_open_link_error =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã¥Â¤â€“Ã©Æ’Â¨Ã£Æ’Å¡Ã£Æ’Â¼Ã£â€šÂ¸Ã£â€šâ€™Ã©â€“â€¹Ã£Ââ€˜Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
-  String get app_open_token_tutorial => 'トークンチュートリアルを読む';
+  String get app_open_token_tutorial =>
+      'Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¥Ã£Æ’Â¼Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¢Ã£Æ’Â«Ã£â€šâ€™Ã¨ÂªÂ­Ã£â€šâ‚¬';
 
   @override
   String get app_open_token_tutorial_desc =>
-      'ボットトークンを生成してコピーするためのステップバイステップガイド。';
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£â€šâ€™Ã§â€Å¸Ã¦Ë†ÂÃ£Ââ€”Ã£ÂÂ¦Ã£â€šÂ³Ã£Æ’â€Ã£Æ’Â¼Ã£Ââ„¢Ã£â€šâ€¹Ã£ÂÅ¸Ã£â€šÂÃ£ÂÂ®Ã£â€šÂ¹Ã£Æ’â€ Ã£Æ’Æ’Ã£Æ’â€”Ã£Æ’ÂÃ£â€šÂ¤Ã£â€šÂ¹Ã£Æ’â€ Ã£Æ’Æ’Ã£Æ’â€”Ã£â€šÂ¬Ã£â€šÂ¤Ã£Æ’â€°Ã£â‚¬â€š';
 
   @override
-  String get app_resources_desc => 'これらのアクションは、ボットをここに保存する前に必要な公式ページを開きます。';
+  String get app_resources_desc =>
+      'Ã£Ââ€œÃ£â€šÅ’Ã£â€šâ€°Ã£ÂÂ®Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ¯Ã£â‚¬ÂÃ£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã£Ââ€œÃ£Ââ€œÃ£ÂÂ«Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ„¢Ã£â€šâ€¹Ã¥â€°ÂÃ£ÂÂ«Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÂªÃ¥â€¦Â¬Ã¥Â¼ÂÃ£Æ’Å¡Ã£Æ’Â¼Ã£â€šÂ¸Ã£â€šâ€™Ã©â€“â€¹Ã£ÂÂÃ£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get app_resources_title => 'ガイド付きセットアップ';
+  String get app_resources_title =>
+      'Ã£â€šÂ¬Ã£â€šÂ¤Ã£Æ’â€°Ã¤Â»ËœÃ£ÂÂÃ£â€šÂ»Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šÂ¢Ã£Æ’Æ’Ã£Æ’â€”';
 
   @override
-  String get app_save => '変更を保存';
+  String get app_save => 'Ã¥Â¤â€°Ã¦â€ºÂ´Ã£â€šâ€™Ã¤Â¿ÂÃ¥Â­Ëœ';
 
   @override
-  String get app_save_bot => 'ボットを追加';
+  String get app_save_bot => 'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get app_show_token => 'トークンを表示';
+  String get app_show_token => 'Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£â€šâ€™Ã¨Â¡Â¨Ã§Â¤Âº';
 
   @override
-  String get app_sync_manager_connect => 'Discordに接続';
+  String get app_sync_manager_connect => 'DiscordÃ£ÂÂ«Ã¦Å½Â¥Ã§Â¶Å¡';
 
   @override
   String get app_sync_manager_desc =>
-      'このボットは既にBot Creator Managerに保存されています。Discordに接続して同期してください。';
+      'Ã£Ââ€œÃ£ÂÂ®Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÂ¯Ã¦â€”Â¢Ã£ÂÂ«Bot Creator ManagerÃ£ÂÂ«Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¦Ã£Ââ€žÃ£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šDiscordÃ£ÂÂ«Ã¦Å½Â¥Ã§Â¶Å¡Ã£Ââ€”Ã£ÂÂ¦Ã¥ÂÅ’Ã¦Å“Å¸Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get app_sync_manager_manual => 'ローカルに保持';
+  String get app_sync_manager_manual =>
+      'Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã£ÂÂ«Ã¤Â¿ÂÃ¦Å’Â';
 
   @override
-  String get app_sync_manager_title => 'ボットは既に管理されています';
+  String get app_sync_manager_title =>
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÂ¯Ã¦â€”Â¢Ã£ÂÂ«Ã§Â®Â¡Ã§Ââ€ Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¦Ã£Ââ€žÃ£ÂÂ¾Ã£Ââ„¢';
 
   @override
   String get app_title => 'Bot Creator';
 
   @override
   String get app_token_invalid_content =>
-      'トークンがリセットされたようです。Discord Developer Portal から新しいトークンを入力してください。';
+      'Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£ÂÅ’Ã£Æ’ÂªÃ£â€šÂ»Ã£Æ’Æ’Ã£Æ’Ë†Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£â€šË†Ã£Ââ€ Ã£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€šDiscord Developer Portal Ã£Ââ€¹Ã£â€šâ€°Ã¦â€“Â°Ã£Ââ€”Ã£Ââ€žÃ£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£â€šâ€™Ã¥â€¦Â¥Ã¥Å â€ºÃ£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get app_token_invalid_title => 'トークンのリセットが検出されました';
+  String get app_token_invalid_title =>
+      'Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£ÂÂ®Ã£Æ’ÂªÃ£â€šÂ»Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÅ’Ã¦Â¤Å“Ã¥â€¡ÂºÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
-  String get app_token_field_helper => 'Discordから提供されたトークンをそのまま貼り付けてください。';
+  String get app_token_field_helper =>
+      'DiscordÃ£Ââ€¹Ã£â€šâ€°Ã¦ÂÂÃ¤Â¾â€ºÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£â€šâ€™Ã£ÂÂÃ£ÂÂ®Ã£ÂÂ¾Ã£ÂÂ¾Ã¨Â²Â¼Ã£â€šÅ Ã¤Â»ËœÃ£Ââ€˜Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get app_token_section_desc => 'トークンをコピーしたら、以下に貼り付けてボットをアプリに追加します。';
+  String get app_token_section_desc =>
+      'Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£â€šâ€™Ã£â€šÂ³Ã£Æ’â€Ã£Æ’Â¼Ã£Ââ€”Ã£ÂÅ¸Ã£â€šâ€°Ã£â‚¬ÂÃ¤Â»Â¥Ã¤Â¸â€¹Ã£ÂÂ«Ã¨Â²Â¼Ã£â€šÅ Ã¤Â»ËœÃ£Ââ€˜Ã£ÂÂ¦Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£ÂÂ«Ã¨Â¿Â½Ã¥Å Â Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get app_token_section_title => 'ボットトークンを貼り付け';
+  String get app_token_section_title =>
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£â€šâ€™Ã¨Â²Â¼Ã£â€šÅ Ã¤Â»ËœÃ£Ââ€˜';
 
   @override
   String get app_token_security_hint =>
-      'このトークンは秘密にしてください。トークンを知っている人は誰でもボットを操作できます。';
+      'Ã£Ââ€œÃ£ÂÂ®Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£ÂÂ¯Ã§Â§ËœÃ¥Â¯â€ Ã£ÂÂ«Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€šÃ£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£â€šâ€™Ã§Å¸Â¥Ã£ÂÂ£Ã£ÂÂ¦Ã£Ââ€žÃ£â€šâ€¹Ã¤ÂºÂºÃ£ÂÂ¯Ã¨ÂªÂ°Ã£ÂÂ§Ã£â€šâ€šÃ£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¦â€œÂÃ¤Â½Å“Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get autocomplete_dynamic => '動的オートコンプリート';
+  String get autocomplete_dynamic =>
+      'Ã¥â€¹â€¢Ã§Å¡â€žÃ£â€šÂªÃ£Æ’Â¼Ã£Æ’Ë†Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’ÂªÃ£Æ’Â¼Ã£Æ’Ë†';
 
   @override
-  String get autocomplete_dynamic_desc => '静的な値の代わりにワークフローから選択肢を解決します。';
+  String get autocomplete_dynamic_desc =>
+      'Ã©Ââ„¢Ã§Å¡â€žÃ£ÂÂªÃ¥â‚¬Â¤Ã£ÂÂ®Ã¤Â»Â£Ã£â€šÂÃ£â€šÅ Ã£ÂÂ«Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£Ââ€¹Ã£â€šâ€°Ã©ÂÂ¸Ã¦Å Å¾Ã¨â€šÂ¢Ã£â€šâ€™Ã¨Â§Â£Ã¦Â±ÂºÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get autocomplete_filter_hint => 'ユーザーの入力に応じて候補がフィルタリングされます。';
+  String get autocomplete_filter_hint =>
+      'Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£ÂÂ®Ã¥â€¦Â¥Ã¥Å â€ºÃ£ÂÂ«Ã¥Â¿Å“Ã£ÂËœÃ£ÂÂ¦Ã¥â‚¬â„¢Ã¨Â£Å“Ã£ÂÅ’Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â«Ã£â€šÂ¿Ã£Æ’ÂªÃ£Æ’Â³Ã£â€šÂ°Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get autocomplete_loading => 'ワークフローを読み込み中…';
+  String get autocomplete_loading =>
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã¨ÂªÂ­Ã£ÂÂ¿Ã¨Â¾Â¼Ã£ÂÂ¿Ã¤Â¸Â­Ã¢â‚¬Â¦';
 
   @override
-  String get autocomplete_no_workflows => '保存されたワークフローが見つかりません';
+  String get autocomplete_no_workflows =>
+      'Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£ÂÅ’Ã¨Â¦â€¹Ã£ÂÂ¤Ã£Ââ€¹Ã£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œ';
 
   @override
-  String get autocomplete_select_workflow => '保存されたワークフローを選択';
+  String get autocomplete_select_workflow =>
+      'Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã©ÂÂ¸Ã¦Å Å¾';
 
   @override
-  String get autocomplete_type_name => 'またはワークフロー名を入力';
+  String get autocomplete_type_name =>
+      'Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã¥ÂÂÃ£â€šâ€™Ã¥â€¦Â¥Ã¥Å â€º';
 
   @override
-  String get autocomplete_workflow_label => 'オートコンプリートワークフロー';
+  String get autocomplete_workflow_label =>
+      'Ã£â€šÂªÃ£Æ’Â¼Ã£Æ’Ë†Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’ÂªÃ£Æ’Â¼Ã£Æ’Ë†Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼';
 
   @override
   String backup_completed(String id) {
-    return 'バックアップ完了: $id';
+    return 'Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¢Ã£Æ’Æ’Ã£Æ’â€”Ã¥Â®Å’Ã¤Âºâ€ : $id';
   }
 
   @override
   String backup_failed(String error) {
-    return 'バックアップ失敗: $error';
+    return 'Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¢Ã£Æ’Æ’Ã£Æ’â€”Ã¥Â¤Â±Ã¦â€¢â€”: $error';
   }
 
   @override
   String bdfd_compile_error_detailed(String summary) {
-    return 'このBDFDスクリプトはコンパイルできませんでした:\n$summary';
+    return 'Ã£Ââ€œÃ£ÂÂ®BDFDÃ£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë†Ã£ÂÂ¯Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€˜Ã£â€šÂ¤Ã£Æ’Â«Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£ÂÂ§Ã£Ââ€”Ã£ÂÅ¸:\n$summary';
   }
 
   @override
-  String get bdfd_compile_error_simple => 'このBDFDスクリプトはコンパイルできませんでした。';
+  String get bdfd_compile_error_simple =>
+      'Ã£Ââ€œÃ£ÂÂ®BDFDÃ£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë†Ã£ÂÂ¯Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€˜Ã£â€šÂ¤Ã£Æ’Â«Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£ÂÂ§Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€š';
 
   @override
   String get bdfd_compiled_no_actions =>
-      'このBDFDスクリプトは正常にコンパイルされましたが、アクションが生成されませんでした。';
+      'Ã£Ââ€œÃ£ÂÂ®BDFDÃ£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë†Ã£ÂÂ¯Ã¦Â­Â£Ã¥Â¸Â¸Ã£ÂÂ«Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€˜Ã£â€šÂ¤Ã£Æ’Â«Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã£ÂÅ’Ã£â‚¬ÂÃ£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÅ’Ã§â€Å¸Ã¦Ë†ÂÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£ÂÂ§Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€š';
 
   @override
-  String get bdfd_docs_category_channels => 'チャンネル & スレッド';
+  String get bdfd_docs_category_channels =>
+      'Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â« & Ã£â€šÂ¹Ã£Æ’Â¬Ã£Æ’Æ’Ã£Æ’â€°';
 
   @override
-  String get bdfd_docs_category_components => 'コンポーネント';
+  String get bdfd_docs_category_components =>
+      'Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â³Ã£Æ’Ë†';
 
   @override
-  String get bdfd_docs_category_control => '制御フロー';
+  String get bdfd_docs_category_control => 'Ã¥Ë†Â¶Ã¥Â¾Â¡Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼';
 
   @override
-  String get bdfd_docs_category_cooldowns => 'クールダウン';
+  String get bdfd_docs_category_cooldowns =>
+      'Ã£â€šÂ¯Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’â‚¬Ã£â€šÂ¦Ã£Æ’Â³';
 
   @override
-  String get bdfd_docs_category_embeds => '埋め込み';
+  String get bdfd_docs_category_embeds => 'Ã¥Å¸â€¹Ã£â€šÂÃ¨Â¾Â¼Ã£ÂÂ¿';
 
   @override
-  String get bdfd_docs_category_guards => 'ガード & 権限';
+  String get bdfd_docs_category_guards =>
+      'Ã£â€šÂ¬Ã£Æ’Â¼Ã£Æ’â€° & Ã¦Â¨Â©Ã©â„¢Â';
 
   @override
-  String get bdfd_docs_category_http => 'HTTP リクエスト';
+  String get bdfd_docs_category_http =>
+      'HTTP Ã£Æ’ÂªÃ£â€šÂ¯Ã£â€šÂ¨Ã£â€šÂ¹Ã£Æ’Ë†';
 
   @override
   String get bdfd_docs_category_json => 'JSON';
 
   @override
-  String get bdfd_docs_category_leaderboards => 'リーダーボード';
+  String get bdfd_docs_category_leaderboards =>
+      'Ã£Æ’ÂªÃ£Æ’Â¼Ã£Æ’â‚¬Ã£Æ’Â¼Ã£Æ’Å“Ã£Æ’Â¼Ã£Æ’â€°';
 
   @override
-  String get bdfd_docs_category_math => '数学';
+  String get bdfd_docs_category_math => 'Ã¦â€¢Â°Ã¥Â­Â¦';
 
   @override
-  String get bdfd_docs_category_messages => 'メッセージ & コンテンツ';
+  String get bdfd_docs_category_messages =>
+      'Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸ & Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€ž';
 
   @override
-  String get bdfd_docs_category_misc => 'その他';
+  String get bdfd_docs_category_misc => 'Ã£ÂÂÃ£ÂÂ®Ã¤Â»â€“';
 
   @override
-  String get bdfd_docs_category_modals => 'モーダル';
+  String get bdfd_docs_category_modals => 'Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â‚¬Ã£Æ’Â«';
 
   @override
-  String get bdfd_docs_category_moderation => 'モデレーション';
+  String get bdfd_docs_category_moderation =>
+      'Ã£Æ’Â¢Ã£Æ’â€¡Ã£Æ’Â¬Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³';
 
   @override
-  String get bdfd_docs_category_reactions => 'リアクション';
+  String get bdfd_docs_category_reactions =>
+      'Ã£Æ’ÂªÃ£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³';
 
   @override
-  String get bdfd_docs_category_roles => 'ロール';
+  String get bdfd_docs_category_roles => 'Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’Â«';
 
   @override
-  String get bdfd_docs_category_text => 'テキスト & 文字列';
+  String get bdfd_docs_category_text =>
+      'Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë† & Ã¦â€“â€¡Ã¥Â­â€”Ã¥Ë†â€”';
 
   @override
-  String get bdfd_docs_category_tickets => 'チケット';
+  String get bdfd_docs_category_tickets => 'Ã£Æ’ÂÃ£â€šÂ±Ã£Æ’Æ’Ã£Æ’Ë†';
 
   @override
-  String get bdfd_docs_category_variables => '変数';
+  String get bdfd_docs_category_variables => 'Ã¥Â¤â€°Ã¦â€¢Â°';
 
   @override
   String get bdfd_docs_category_webhooks => 'Webhook';
 
   @override
   String get bdfd_docs_desc_and =>
-      '論理AND — 複数の条件を結合します。すべてがtrueである必要があります。\n\n使用法: \$if[\$and[\$\n…';
+      'Ã¨Â«â€“Ã§Ââ€ AND Ã¢â‚¬â€ Ã¨Â¤â€¡Ã¦â€¢Â°Ã£ÂÂ®Ã¦ÂÂ¡Ã¤Â»Â¶Ã£â€šâ€™Ã§ÂµÂÃ¥ÂË†Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÅ’trueÃ£ÂÂ§Ã£Ââ€šÃ£â€šâ€¹Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š\n\nÃ¤Â½Â¿Ã§â€Â¨Ã¦Â³â€¢: \$if[\$and[\$\nÃ¢â‚¬Â¦';
 
   @override
   String get bdfd_docs_desc_awaitfunc =>
-      'ユーザーの応答を待つコールバックを登録します。\n\n使用法: \$awaitFunc[name;use…';
+      'Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£ÂÂ®Ã¥Â¿Å“Ã§Â­â€Ã£â€šâ€™Ã¥Â¾â€¦Ã£ÂÂ¤Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã£â€šâ€™Ã§â„¢Â»Ã©Å’Â²Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š\n\nÃ¤Â½Â¿Ã§â€Â¨Ã¦Â³â€¢: \$awaitFunc[name;useÃ¢â‚¬Â¦';
 
   @override
   String get bdfd_docs_desc_callworkflow =>
-      'Bot Creator専用 — 名前で別のワークフローを呼び出し、引数を渡します。\n\n構文:';
+      'Bot CreatorÃ¥Â°â€šÃ§â€Â¨ Ã¢â‚¬â€ Ã¥ÂÂÃ¥â€°ÂÃ£ÂÂ§Ã¥Ë†Â¥Ã£ÂÂ®Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã¥â€˜Â¼Ã£ÂÂ³Ã¥â€¡ÂºÃ£Ââ€”Ã£â‚¬ÂÃ¥Â¼â€¢Ã¦â€¢Â°Ã£â€šâ€™Ã¦Â¸Â¡Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š\n\nÃ¦Â§â€¹Ã¦â€“â€¡:';
 
   @override
   String get bdfd_docs_desc_defer =>
-      'インタラクション応答を遅延させ、処理時間を延長します。ユーザーには「考え中…」と表示されます。';
+      'Ã£â€šÂ¤Ã£Æ’Â³Ã£â€šÂ¿Ã£Æ’Â©Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã¥Â¿Å“Ã§Â­â€Ã£â€šâ€™Ã©Ââ€¦Ã¥Â»Â¶Ã£Ââ€¢Ã£Ââ€ºÃ£â‚¬ÂÃ¥â€¡Â¦Ã§Ââ€ Ã¦â„¢â€šÃ©â€“â€œÃ£â€šâ€™Ã¥Â»Â¶Ã©â€¢Â·Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£ÂÂ«Ã£ÂÂ¯Ã£â‚¬Å’Ã¨â‚¬Æ’Ã£ÂË†Ã¤Â¸Â­Ã¢â‚¬Â¦Ã£â‚¬ÂÃ£ÂÂ¨Ã¨Â¡Â¨Ã§Â¤ÂºÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get bdfd_docs_desc_elseif =>
-      '\$ifブロック内に代替条件を追加します。\$ifと\$endifの間に配置する必要があります。';
+      '\$ifÃ£Æ’â€“Ã£Æ’Â­Ã£Æ’Æ’Ã£â€šÂ¯Ã¥â€ â€¦Ã£ÂÂ«Ã¤Â»Â£Ã¦â€ºÂ¿Ã¦ÂÂ¡Ã¤Â»Â¶Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š\$ifÃ£ÂÂ¨\$endifÃ£ÂÂ®Ã©â€“â€œÃ£ÂÂ«Ã©â€¦ÂÃ§Â½Â®Ã£Ââ„¢Ã£â€šâ€¹Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get bdfd_docs_desc_embedsuppresserrors =>
-      '\$suppressErrorsと同じ — すべてのエラーメッセージを黙って抑制します。';
+      '\$suppressErrorsÃ£ÂÂ¨Ã¥ÂÅ’Ã£ÂËœ Ã¢â‚¬â€ Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÂ®Ã£â€šÂ¨Ã£Æ’Â©Ã£Æ’Â¼Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£â€šâ€™Ã©Â»â„¢Ã£ÂÂ£Ã£ÂÂ¦Ã¦Å â€˜Ã¥Ë†Â¶Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get bdfd_docs_desc_ephemeral =>
-      '応答をコマンド実行者にのみ表示します。\$sendMessageの前に配置する必要があります。';
+      'Ã¥Â¿Å“Ã§Â­â€Ã£â€šâ€™Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã¥Â®Å¸Ã¨Â¡Å’Ã¨â‚¬â€¦Ã£ÂÂ«Ã£ÂÂ®Ã£ÂÂ¿Ã¨Â¡Â¨Ã§Â¤ÂºÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š\$sendMessageÃ£ÂÂ®Ã¥â€°ÂÃ£ÂÂ«Ã©â€¦ÂÃ§Â½Â®Ã£Ââ„¢Ã£â€šâ€¹Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get bdfd_docs_desc_eval =>
-      'BDFDスクリプト文字列を実行時に実行します。引数として渡されたコードは再コンパイルされます。';
+      'BDFDÃ£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë†Ã¦â€“â€¡Ã¥Â­â€”Ã¥Ë†â€”Ã£â€šâ€™Ã¥Â®Å¸Ã¨Â¡Å’Ã¦â„¢â€šÃ£ÂÂ«Ã¥Â®Å¸Ã¨Â¡Å’Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ¥Â¼â€¢Ã¦â€¢Â°Ã£ÂÂ¨Ã£Ââ€”Ã£ÂÂ¦Ã¦Â¸Â¡Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€°Ã£ÂÂ¯Ã¥â€ ÂÃ£â€šÂ³Ã£Æ’Â³Ã£Æ’â€˜Ã£â€šÂ¤Ã£Æ’Â«Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get bdfd_docs_desc_for =>
-      'Bot Creator専用 — コードブロックをN回繰り返します。\n\nシンプル: \$for[5]...\$endfor →';
+      'Bot CreatorÃ¥Â°â€šÃ§â€Â¨ Ã¢â‚¬â€ Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€°Ã£Æ’â€“Ã£Æ’Â­Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šâ€™NÃ¥â€ºÅ¾Ã§Â¹Â°Ã£â€šÅ Ã¨Â¿â€Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š\n\nÃ£â€šÂ·Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â«: \$for[5]...\$endfor Ã¢â€ â€™';
 
   @override
   String get bdfd_docs_desc_httpaddheader =>
-      '次のHTTPリクエストにヘッダーを追加します。ヘッダーは次の\$http…まで累積されます。';
+      'Ã¦Â¬Â¡Ã£ÂÂ®HTTPÃ£Æ’ÂªÃ£â€šÂ¯Ã£â€šÂ¨Ã£â€šÂ¹Ã£Æ’Ë†Ã£ÂÂ«Ã£Æ’ËœÃ£Æ’Æ’Ã£Æ’â‚¬Ã£Æ’Â¼Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ£Æ’ËœÃ£Æ’Æ’Ã£Æ’â‚¬Ã£Æ’Â¼Ã£ÂÂ¯Ã¦Â¬Â¡Ã£ÂÂ®\$httpÃ¢â‚¬Â¦Ã£ÂÂ¾Ã£ÂÂ§Ã§Â´Â¯Ã§Â©ÂÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get bdfd_docs_desc_httpget =>
-      '指定されたURLにHTTP GETリクエストを送信します。事前に\$httpAddHeaderでヘッダーを設定してください。';
+      'Ã¦Å’â€¡Ã¥Â®Å¡Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸URLÃ£ÂÂ«HTTP GETÃ£Æ’ÂªÃ£â€šÂ¯Ã£â€šÂ¨Ã£â€šÂ¹Ã£Æ’Ë†Ã£â€šâ€™Ã©â‚¬ÂÃ¤Â¿Â¡Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ¤Âºâ€¹Ã¥â€°ÂÃ£ÂÂ«\$httpAddHeaderÃ£ÂÂ§Ã£Æ’ËœÃ£Æ’Æ’Ã£Æ’â‚¬Ã£Æ’Â¼Ã£â€šâ€™Ã¨Â¨Â­Ã¥Â®Å¡Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
   String get bdfd_docs_desc_httpresult =>
-      '最後のHTTPレスポンスのボディを返します。オプションでJSONパスを指定して値を抽出できます。';
+      'Ã¦Å“â‚¬Ã¥Â¾Å’Ã£ÂÂ®HTTPÃ£Æ’Â¬Ã£â€šÂ¹Ã£Æ’ÂÃ£Æ’Â³Ã£â€šÂ¹Ã£ÂÂ®Ã£Æ’Å“Ã£Æ’â€¡Ã£â€šÂ£Ã£â€šâ€™Ã¨Â¿â€Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ§JSONÃ£Æ’â€˜Ã£â€šÂ¹Ã£â€šâ€™Ã¦Å’â€¡Ã¥Â®Å¡Ã£Ââ€”Ã£ÂÂ¦Ã¥â‚¬Â¤Ã£â€šâ€™Ã¦Å Â½Ã¥â€¡ÂºÃ£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get bdfd_docs_desc_if =>
-      '条件ブロック。ネストと豊富な演算子をサポート: ==, !=, >=, <=, >, <, co';
+      'Ã¦ÂÂ¡Ã¤Â»Â¶Ã£Æ’â€“Ã£Æ’Â­Ã£Æ’Æ’Ã£â€šÂ¯Ã£â‚¬â€šÃ£Æ’ÂÃ£â€šÂ¹Ã£Æ’Ë†Ã£ÂÂ¨Ã¨Â±Å Ã¥Â¯Å’Ã£ÂÂªÃ¦Â¼â€Ã§Â®â€”Ã¥Â­ÂÃ£â€šâ€™Ã£â€šÂµÃ£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†: ==, !=, >=, <=, >, <, co';
 
   @override
   String get bdfd_docs_desc_jsonparse =>
-      'JSON文字列を操作のためにメモリにパースします。すべてのJSON操作(\$jsonSet…';
+      'JSONÃ¦â€“â€¡Ã¥Â­â€”Ã¥Ë†â€”Ã£â€šâ€™Ã¦â€œÂÃ¤Â½Å“Ã£ÂÂ®Ã£ÂÅ¸Ã£â€šÂÃ£ÂÂ«Ã£Æ’Â¡Ã£Æ’Â¢Ã£Æ’ÂªÃ£ÂÂ«Ã£Æ’â€˜Ã£Æ’Â¼Ã£â€šÂ¹Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÂ®JSONÃ¦â€œÂÃ¤Â½Å“(\$jsonSetÃ¢â‚¬Â¦';
 
   @override
   String get bdfd_docs_desc_jsonset =>
-      '現在のJSONコンテキストに値を設定します。ドット記法のパスをサポート。\n\n使用法: \$';
+      'Ã§ÂÂ¾Ã¥Å“Â¨Ã£ÂÂ®JSONÃ£â€šÂ³Ã£Æ’Â³Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã£ÂÂ«Ã¥â‚¬Â¤Ã£â€šâ€™Ã¨Â¨Â­Ã¥Â®Å¡Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ£Æ’â€°Ã£Æ’Æ’Ã£Æ’Ë†Ã¨Â¨ËœÃ¦Â³â€¢Ã£ÂÂ®Ã£Æ’â€˜Ã£â€šÂ¹Ã£â€šâ€™Ã£â€šÂµÃ£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†Ã£â‚¬â€š\n\nÃ¤Â½Â¿Ã§â€Â¨Ã¦Â³â€¢: \$';
 
   @override
   String get bdfd_docs_desc_jsonstringify =>
-      '現在のJSONコンテキストを文字列に変換します。\$jsonParseと\$js…の後に使用します。';
+      'Ã§ÂÂ¾Ã¥Å“Â¨Ã£ÂÂ®JSONÃ£â€šÂ³Ã£Æ’Â³Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã£â€šâ€™Ã¦â€“â€¡Ã¥Â­â€”Ã¥Ë†â€”Ã£ÂÂ«Ã¥Â¤â€°Ã¦Ââ€ºÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š\$jsonParseÃ£ÂÂ¨\$jsÃ¢â‚¬Â¦Ã£ÂÂ®Ã¥Â¾Å’Ã£ÂÂ«Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get bdfd_docs_desc_loop =>
-      'Bot Creator専用 — \$forのエイリアス。詳細は\$forを参照。\$endloopでブロックを閉じます。';
+      'Bot CreatorÃ¥Â°â€šÃ§â€Â¨ Ã¢â‚¬â€ \$forÃ£ÂÂ®Ã£â€šÂ¨Ã£â€šÂ¤Ã£Æ’ÂªÃ£â€šÂ¢Ã£â€šÂ¹Ã£â‚¬â€šÃ¨Â©Â³Ã§Â´Â°Ã£ÂÂ¯\$forÃ£â€šâ€™Ã¥Ââ€šÃ§â€¦Â§Ã£â‚¬â€š\$endloopÃ£ÂÂ§Ã£Æ’â€“Ã£Æ’Â­Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šâ€™Ã©â€“â€°Ã£ÂËœÃ£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get bdfd_docs_desc_or =>
-      '論理OR — 複数の条件を結合します。少なくとも1つがtrueである必要があります。\n\n使用法: \$i';
+      'Ã¨Â«â€“Ã§Ââ€ OR Ã¢â‚¬â€ Ã¨Â¤â€¡Ã¦â€¢Â°Ã£ÂÂ®Ã¦ÂÂ¡Ã¤Â»Â¶Ã£â€šâ€™Ã§ÂµÂÃ¥ÂË†Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ¥Â°â€˜Ã£ÂÂªÃ£ÂÂÃ£ÂÂ¨Ã£â€šâ€š1Ã£ÂÂ¤Ã£ÂÅ’trueÃ£ÂÂ§Ã£Ââ€šÃ£â€šâ€¹Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š\n\nÃ¤Â½Â¿Ã§â€Â¨Ã¦Â³â€¢: \$i';
 
   @override
   String get bdfd_docs_desc_stop =>
-      '現在のスクリプトの実行を即座に停止します。\$stop以降のアクションは実行されません。';
+      'Ã§ÂÂ¾Ã¥Å“Â¨Ã£ÂÂ®Ã£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë†Ã£ÂÂ®Ã¥Â®Å¸Ã¨Â¡Å’Ã£â€šâ€™Ã¥ÂÂ³Ã¥ÂºÂ§Ã£ÂÂ«Ã¥ÂÅ“Ã¦Â­Â¢Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š\$stopÃ¤Â»Â¥Ã©â„¢ÂÃ£ÂÂ®Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ¯Ã¥Â®Å¸Ã¨Â¡Å’Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
   String get bdfd_docs_desc_suppresserrors =>
-      'エラーメッセージがユーザーに送信されるのを防ぎます。アクションが失敗してもエラーは抑制されます。';
+      'Ã£â€šÂ¨Ã£Æ’Â©Ã£Æ’Â¼Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£ÂÅ’Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£ÂÂ«Ã©â‚¬ÂÃ¤Â¿Â¡Ã£Ââ€¢Ã£â€šÅ’Ã£â€šâ€¹Ã£ÂÂ®Ã£â€šâ€™Ã©ËœÂ²Ã£ÂÅ½Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÅ’Ã¥Â¤Â±Ã¦â€¢â€”Ã£Ââ€”Ã£ÂÂ¦Ã£â€šâ€šÃ£â€šÂ¨Ã£Æ’Â©Ã£Æ’Â¼Ã£ÂÂ¯Ã¦Å â€˜Ã¥Ë†Â¶Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get bdfd_docs_desc_try =>
-      'エラーハンドリングのためにブロックをラップします。\n\n使用法:\n\$try\n  \$httpGet[https://api.example.co';
+      'Ã£â€šÂ¨Ã£Æ’Â©Ã£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â³Ã£Æ’â€°Ã£Æ’ÂªÃ£Æ’Â³Ã£â€šÂ°Ã£ÂÂ®Ã£ÂÅ¸Ã£â€šÂÃ£ÂÂ«Ã£Æ’â€“Ã£Æ’Â­Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šâ€™Ã£Æ’Â©Ã£Æ’Æ’Ã£Æ’â€”Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š\n\nÃ¤Â½Â¿Ã§â€Â¨Ã¦Â³â€¢:\n\$try\n  \$httpGet[https://api.example.co';
 
   @override
   String get bdfd_docs_desc_url =>
-      'URLで使用するためにテキストをエンコードまたはデコードします。テキストをURLセーフにするには「encode」を、元に戻すには「decode」を使用します。\\n\\n使用法: \$url[encode;Hello world!!]';
+      'URLÃ£ÂÂ§Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ„¢Ã£â€šâ€¹Ã£ÂÅ¸Ã£â€šÂÃ£ÂÂ«Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã£â€šâ€™Ã£â€šÂ¨Ã£Æ’Â³Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€°Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã£Æ’â€¡Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€°Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã£â€šâ€™URLÃ£â€šÂ»Ã£Æ’Â¼Ã£Æ’â€¢Ã£ÂÂ«Ã£Ââ„¢Ã£â€šâ€¹Ã£ÂÂ«Ã£ÂÂ¯Ã£â‚¬Å’encodeÃ£â‚¬ÂÃ£â€šâ€™Ã£â‚¬ÂÃ¥â€¦Æ’Ã£ÂÂ«Ã¦Ë†Â»Ã£Ââ„¢Ã£ÂÂ«Ã£ÂÂ¯Ã£â‚¬Å’decodeÃ£â‚¬ÂÃ£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š\\n\\nÃ¤Â½Â¿Ã§â€Â¨Ã¦Â³â€¢: \$url[encode;Hello world!!]';
 
   @override
   String get bdfd_docs_desc_workflowresponse =>
-      'Bot Creator専用 — 最後の\$callWorkflowからの応答を返します。\n\n\$workf…を使用';
+      'Bot CreatorÃ¥Â°â€šÃ§â€Â¨ Ã¢â‚¬â€ Ã¦Å“â‚¬Ã¥Â¾Å’Ã£ÂÂ®\$callWorkflowÃ£Ââ€¹Ã£â€šâ€°Ã£ÂÂ®Ã¥Â¿Å“Ã§Â­â€Ã£â€šâ€™Ã¨Â¿â€Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š\n\n\$workfÃ¢â‚¬Â¦Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨';
 
   @override
-  String get bdfd_docs_empty => '一致する関数がありません。';
+  String get bdfd_docs_empty =>
+      'Ã¤Â¸â‚¬Ã¨â€¡Â´Ã£Ââ„¢Ã£â€šâ€¹Ã©â€“Â¢Ã¦â€¢Â°Ã£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
-  String get bdfd_docs_no_params => 'パラメータなし — \$functionName として使用';
+  String get bdfd_docs_no_params =>
+      'Ã£Æ’â€˜Ã£Æ’Â©Ã£Æ’Â¡Ã£Æ’Â¼Ã£â€šÂ¿Ã£ÂÂªÃ£Ââ€” Ã¢â‚¬â€ \$functionName Ã£ÂÂ¨Ã£Ââ€”Ã£ÂÂ¦Ã¤Â½Â¿Ã§â€Â¨';
 
   @override
-  String get bdfd_docs_parameters => 'パラメータ';
+  String get bdfd_docs_parameters => 'Ã£Æ’â€˜Ã£Æ’Â©Ã£Æ’Â¡Ã£Æ’Â¼Ã£â€šÂ¿';
 
   @override
-  String get bdfd_docs_search_hint => '関数を検索…';
+  String get bdfd_docs_search_hint =>
+      'Ã©â€“Â¢Ã¦â€¢Â°Ã£â€šâ€™Ã¦Â¤Å“Ã§Â´Â¢Ã¢â‚¬Â¦';
 
   @override
-  String get bdfd_docs_syntax => '構文';
+  String get bdfd_docs_syntax => 'Ã¦Â§â€¹Ã¦â€“â€¡';
 
   @override
-  String get bdfd_docs_title => 'BDFD ドキュメント';
+  String get bdfd_docs_title => 'BDFD Ã£Æ’â€°Ã£â€šÂ­Ã£Æ’Â¥Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’Ë†';
 
   @override
-  String get bdfd_editor_auto_indent => '• Enterでスマート自動インデント';
+  String get bdfd_editor_auto_indent =>
+      'Ã¢â‚¬Â¢ EnterÃ£ÂÂ§Ã£â€šÂ¹Ã£Æ’Å¾Ã£Æ’Â¼Ã£Æ’Ë†Ã¨â€¡ÂªÃ¥â€¹â€¢Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’â€¡Ã£Æ’Â³Ã£Æ’Ë†';
 
   @override
-  String get bdfd_editor_diagnostics_toggle => '診断パネルの切替';
+  String get bdfd_editor_diagnostics_toggle =>
+      'Ã¨Â¨ÂºÃ¦â€“Â­Ã£Æ’â€˜Ã£Æ’ÂÃ£Æ’Â«Ã£ÂÂ®Ã¥Ë†â€¡Ã¦â€ºÂ¿';
 
   @override
-  String get bdfd_editor_docs => 'BDFD 関数リファレンス';
+  String get bdfd_editor_docs =>
+      'BDFD Ã©â€“Â¢Ã¦â€¢Â°Ã£Æ’ÂªÃ£Æ’â€¢Ã£â€šÂ¡Ã£Æ’Â¬Ã£Æ’Â³Ã£â€šÂ¹';
 
   @override
-  String get bdfd_editor_empty => '空のスクリプト — 入力を開始すると診断が表示されます。';
+  String get bdfd_editor_empty =>
+      'Ã§Â©ÂºÃ£ÂÂ®Ã£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë† Ã¢â‚¬â€ Ã¥â€¦Â¥Ã¥Å â€ºÃ£â€šâ€™Ã©â€“â€¹Ã¥Â§â€¹Ã£Ââ„¢Ã£â€šâ€¹Ã£ÂÂ¨Ã¨Â¨ÂºÃ¦â€“Â­Ã£ÂÅ’Ã¨Â¡Â¨Ã§Â¤ÂºÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get bdfd_editor_includes => '含まれるもの:';
+  String get bdfd_editor_includes =>
+      'Ã¥ÂÂ«Ã£ÂÂ¾Ã£â€šÅ’Ã£â€šâ€¹Ã£â€šâ€šÃ£ÂÂ®:';
 
   @override
-  String get bdfd_editor_indent_guides => '• ライブインデントガイド';
+  String get bdfd_editor_indent_guides =>
+      'Ã¢â‚¬Â¢ Ã£Æ’Â©Ã£â€šÂ¤Ã£Æ’â€“Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’â€¡Ã£Æ’Â³Ã£Æ’Ë†Ã£â€šÂ¬Ã£â€šÂ¤Ã£Æ’â€°';
 
   @override
-  String get bdfd_editor_quick_keys => '• BDFD記号用モバイルクイックキー';
+  String get bdfd_editor_quick_keys =>
+      'Ã¢â‚¬Â¢ BDFDÃ¨Â¨ËœÃ¥ÂÂ·Ã§â€Â¨Ã£Æ’Â¢Ã£Æ’ÂÃ£â€šÂ¤Ã£Æ’Â«Ã£â€šÂ¯Ã£â€šÂ¤Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ­Ã£Æ’Â¼';
 
   @override
-  String get bdfd_editor_tap_hint => 'タップしてエディタを開く';
+  String get bdfd_editor_tap_hint =>
+      'Ã£â€šÂ¿Ã£Æ’Æ’Ã£Æ’â€”Ã£Ââ€”Ã£ÂÂ¦Ã£â€šÂ¨Ã£Æ’â€¡Ã£â€šÂ£Ã£â€šÂ¿Ã£â€šâ€™Ã©â€“â€¹Ã£ÂÂ';
 
   @override
-  String get bdfd_editor_title => 'BDFD エディタ';
+  String get bdfd_editor_title => 'BDFD Ã£â€šÂ¨Ã£Æ’â€¡Ã£â€šÂ£Ã£â€šÂ¿';
 
   @override
-  String get bdfd_editor_toggle_indent => 'インデントガイドの切替';
+  String get bdfd_editor_toggle_indent =>
+      'Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’â€¡Ã£Æ’Â³Ã£Æ’Ë†Ã£â€šÂ¬Ã£â€šÂ¤Ã£Æ’â€°Ã£ÂÂ®Ã¥Ë†â€¡Ã¦â€ºÂ¿';
 
   @override
-  String get bdfd_editor_ux_title => 'エディタ UX';
+  String get bdfd_editor_ux_title => 'Ã£â€šÂ¨Ã£Æ’â€¡Ã£â€šÂ£Ã£â€šÂ¿ UX';
 
   @override
-  String get bdfd_editor_wrap_toggle => '行の折り返し切替';
+  String get bdfd_editor_wrap_toggle =>
+      'Ã¨Â¡Å’Ã£ÂÂ®Ã¦Å ËœÃ£â€šÅ Ã¨Â¿â€Ã£Ââ€”Ã¥Ë†â€¡Ã¦â€ºÂ¿';
 
   @override
-  String get bdfd_runtime_execution_error => 'このBDFDスクリプトの実行中にエラーが発生しました。';
+  String get bdfd_runtime_execution_error =>
+      'Ã£Ââ€œÃ£ÂÂ®BDFDÃ£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë†Ã£ÂÂ®Ã¥Â®Å¸Ã¨Â¡Å’Ã¤Â¸Â­Ã£ÂÂ«Ã£â€šÂ¨Ã£Æ’Â©Ã£Æ’Â¼Ã£ÂÅ’Ã§â„¢ÂºÃ§â€Å¸Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€š';
 
   @override
-  String get bot_home_create_command => '最初のコマンドを作成';
+  String get bot_home_create_command =>
+      'Ã¦Å“â‚¬Ã¥Ë†ÂÃ£ÂÂ®Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†Â';
 
   @override
-  String get bot_home_customize => 'ボットをカスタマイズ';
+  String get bot_home_customize =>
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã£â€šÂ«Ã£â€šÂ¹Ã£â€šÂ¿Ã£Æ’Å¾Ã£â€šÂ¤Ã£â€šÂº';
 
   @override
-  String get bot_home_delete => 'アプリを削除';
+  String get bot_home_delete => 'Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get bot_home_delete_confirm => 'このアプリを削除してもよろしいですか？';
+  String get bot_home_delete_confirm =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¦Ã£â€šâ€šÃ£â€šË†Ã£â€šÂÃ£Ââ€”Ã£Ââ€žÃ£ÂÂ§Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸';
 
   @override
-  String get bot_home_invite => 'ボットを招待';
+  String get bot_home_invite => 'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¦â€¹â€ºÃ¥Â¾â€¦';
 
   @override
-  String get bot_home_invite_error => '招待リンクを開けませんでした';
+  String get bot_home_invite_error =>
+      'Ã¦â€¹â€ºÃ¥Â¾â€¦Ã£Æ’ÂªÃ£Æ’Â³Ã£â€šÂ¯Ã£â€šâ€™Ã©â€“â€¹Ã£Ââ€˜Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£ÂÂ§Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
   String get bot_home_ios_notice_content =>
-      'ローカルモードでは、iOSがバックグラウンドでアプリを中断する場合があります。ボットは起動できますが、';
+      'Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°Ã£ÂÂ§Ã£ÂÂ¯Ã£â‚¬ÂiOSÃ£ÂÅ’Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ°Ã£Æ’Â©Ã£â€šÂ¦Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ§Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£â€šâ€™Ã¤Â¸Â­Ã¦â€“Â­Ã£Ââ„¢Ã£â€šâ€¹Ã¥Â Â´Ã¥ÂË†Ã£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÂ¯Ã¨ÂµÂ·Ã¥â€¹â€¢Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ„¢Ã£ÂÅ’Ã£â‚¬Â';
 
   @override
-  String get bot_home_ios_notice_title => 'iOSのローカル制約';
+  String get bot_home_ios_notice_title =>
+      'iOSÃ£ÂÂ®Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã¥Ë†Â¶Ã§Â´â€ž';
 
   @override
-  String get bot_home_log_desktop_stop => 'デスクトップボット停止要求';
+  String get bot_home_log_desktop_stop =>
+      'Ã£Æ’â€¡Ã£â€šÂ¹Ã£â€šÂ¯Ã£Æ’Ë†Ã£Æ’Æ’Ã£Æ’â€”Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã¥ÂÅ“Ã¦Â­Â¢Ã¨Â¦ÂÃ¦Â±â€š';
 
   @override
-  String get bot_home_log_start => 'ボット起動要求';
+  String get bot_home_log_start =>
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã¨ÂµÂ·Ã¥â€¹â€¢Ã¨Â¦ÂÃ¦Â±â€š';
 
   @override
-  String get bot_home_log_stop => 'ボット停止要求';
+  String get bot_home_log_stop => 'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã¥ÂÅ“Ã¦Â­Â¢Ã¨Â¦ÂÃ¦Â±â€š';
 
   @override
-  String get bot_home_notif_required => 'ボットサービスを起動するには通知権限が必要です。';
+  String get bot_home_notif_required =>
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’â€œÃ£â€šÂ¹Ã£â€šâ€™Ã¨ÂµÂ·Ã¥â€¹â€¢Ã£Ââ„¢Ã£â€šâ€¹Ã£ÂÂ«Ã£ÂÂ¯Ã©â‚¬Å¡Ã§Å¸Â¥Ã¦Â¨Â©Ã©â„¢ÂÃ£ÂÅ’Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get bot_home_section_danger => '危険ゾーン';
+  String get bot_home_section_danger => 'Ã¥ÂÂ±Ã©â„¢ÂºÃ£â€šÂ¾Ã£Æ’Â¼Ã£Æ’Â³';
 
   @override
-  String get bot_home_section_getting_started => 'はじめに';
+  String get bot_home_section_getting_started => 'Ã£ÂÂ¯Ã£ÂËœÃ£â€šÂÃ£ÂÂ«';
 
   @override
-  String get bot_home_section_monitoring => '監視';
+  String get bot_home_section_monitoring => 'Ã§â€ºÂ£Ã¨Â¦â€“';
 
   @override
-  String get bot_home_section_tools => 'ツール';
+  String get bot_home_section_tools => 'Ã£Æ’â€žÃ£Æ’Â¼Ã£Æ’Â«';
 
   @override
-  String get bot_home_service_not_started => 'フォアグラウンドサービスが起動しませんでした。';
+  String get bot_home_service_not_started =>
+      'Ã£Æ’â€¢Ã£â€šÂ©Ã£â€šÂ¢Ã£â€šÂ°Ã£Æ’Â©Ã£â€šÂ¦Ã£Æ’Â³Ã£Æ’â€°Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’â€œÃ£â€šÂ¹Ã£ÂÅ’Ã¨ÂµÂ·Ã¥â€¹â€¢Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£ÂÂ§Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€š';
 
   @override
-  String get bot_home_start => 'ボット起動';
+  String get bot_home_start => 'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã¨ÂµÂ·Ã¥â€¹â€¢';
 
   @override
   String bot_home_start_error(String error) {
-    return '起動できませんでした: $error';
+    return 'Ã¨ÂµÂ·Ã¥â€¹â€¢Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£ÂÂ§Ã£Ââ€”Ã£ÂÅ¸: $error';
   }
 
   @override
-  String get bot_home_starting => '起動中…';
+  String get bot_home_starting => 'Ã¨ÂµÂ·Ã¥â€¹â€¢Ã¤Â¸Â­Ã¢â‚¬Â¦';
 
   @override
-  String get bot_home_stop => 'ボット停止';
+  String get bot_home_stop => 'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã¥ÂÅ“Ã¦Â­Â¢';
 
   @override
-  String get bot_home_sync => 'アプリを同期';
+  String get bot_home_sync => 'Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£â€šâ€™Ã¥ÂÅ’Ã¦Å“Å¸';
 
   @override
-  String get bot_home_sync_success => 'アプリが正常に同期されました';
+  String get bot_home_sync_success =>
+      'Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£ÂÅ’Ã¦Â­Â£Ã¥Â¸Â¸Ã£ÂÂ«Ã¥ÂÅ’Ã¦Å“Å¸Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
-  String get bot_home_pull => 'クラウドからダウンロード';
+  String get bot_home_pull =>
+      'Ã£â€šÂ¯Ã£Æ’Â©Ã£â€šÂ¦Ã£Æ’â€°Ã£Ââ€¹Ã£â€šâ€°Ã£Æ’â‚¬Ã£â€šÂ¦Ã£Æ’Â³Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’â€°';
 
   @override
-  String get bot_home_push => 'クラウドにアップロード';
+  String get bot_home_push =>
+      'Ã£â€šÂ¯Ã£Æ’Â©Ã£â€šÂ¦Ã£Æ’â€°Ã£ÂÂ«Ã£â€šÂ¢Ã£Æ’Æ’Ã£Æ’â€”Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’â€°';
 
   @override
-  String get bot_home_pull_success => 'アプリをクラウドから正常にダウンロードしました';
+  String get bot_home_pull_success =>
+      'Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£â€šâ€™Ã£â€šÂ¯Ã£Æ’Â©Ã£â€šÂ¦Ã£Æ’â€°Ã£Ââ€¹Ã£â€šâ€°Ã¦Â­Â£Ã¥Â¸Â¸Ã£ÂÂ«Ã£Æ’â‚¬Ã£â€šÂ¦Ã£Æ’Â³Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’â€°Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
-  String get bot_home_push_success => 'アプリをクラウドに正常にアップロードしました';
+  String get bot_home_push_success =>
+      'Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£â€šâ€™Ã£â€šÂ¯Ã£Æ’Â©Ã£â€šÂ¦Ã£Æ’â€°Ã£ÂÂ«Ã¦Â­Â£Ã¥Â¸Â¸Ã£ÂÂ«Ã£â€šÂ¢Ã£Æ’Æ’Ã£Æ’â€”Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’â€°Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
-  String get bot_home_version_history => 'バージョン履歴';
+  String get bot_home_version_history =>
+      'Ã£Æ’ÂÃ£Æ’Â¼Ã£â€šÂ¸Ã£Æ’Â§Ã£Æ’Â³Ã¥Â±Â¥Ã¦Â­Â´';
 
   @override
-  String get bot_config_versions_title => 'バージョン履歴';
+  String get bot_config_versions_title =>
+      'Ã£Æ’ÂÃ£Æ’Â¼Ã£â€šÂ¸Ã£Æ’Â§Ã£Æ’Â³Ã¥Â±Â¥Ã¦Â­Â´';
 
   @override
-  String get bot_config_versions_empty => '以前のバージョンは見つかりません';
+  String get bot_config_versions_empty =>
+      'Ã¤Â»Â¥Ã¥â€°ÂÃ£ÂÂ®Ã£Æ’ÂÃ£Æ’Â¼Ã£â€šÂ¸Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ¯Ã¨Â¦â€¹Ã£ÂÂ¤Ã£Ââ€¹Ã£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œ';
 
   @override
-  String get bot_config_versions_restore => '復元';
+  String get bot_config_versions_restore => 'Ã¥Â¾Â©Ã¥â€¦Æ’';
 
   @override
   String get bot_config_versions_restore_confirm =>
-      'このバージョンを復元しますか？現在の設定は先にバックアップされます。';
+      'Ã£Ââ€œÃ£ÂÂ®Ã£Æ’ÂÃ£Æ’Â¼Ã£â€šÂ¸Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¥Â¾Â©Ã¥â€¦Æ’Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸Ã§ÂÂ¾Ã¥Å“Â¨Ã£ÂÂ®Ã¨Â¨Â­Ã¥Â®Å¡Ã£ÂÂ¯Ã¥â€¦Ë†Ã£ÂÂ«Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¢Ã£Æ’Æ’Ã£Æ’â€”Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get bot_config_versions_restored => '設定が正常に復元されました！';
+  String get bot_config_versions_restored =>
+      'Ã¨Â¨Â­Ã¥Â®Å¡Ã£ÂÅ’Ã¦Â­Â£Ã¥Â¸Â¸Ã£ÂÂ«Ã¥Â¾Â©Ã¥â€¦Æ’Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã¯Â¼Â';
 
   @override
-  String get bot_config_versions_error => 'バージョンの読み込みに失敗しました';
+  String get bot_config_versions_error =>
+      'Ã£Æ’ÂÃ£Æ’Â¼Ã£â€šÂ¸Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ®Ã¨ÂªÂ­Ã£ÂÂ¿Ã¨Â¾Â¼Ã£ÂÂ¿Ã£ÂÂ«Ã¥Â¤Â±Ã¦â€¢â€”Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
-  String get bot_config_versions_restore_error => 'バージョンの復元に失敗しました';
+  String get bot_config_versions_restore_error =>
+      'Ã£Æ’ÂÃ£Æ’Â¼Ã£â€šÂ¸Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ®Ã¥Â¾Â©Ã¥â€¦Æ’Ã£ÂÂ«Ã¥Â¤Â±Ã¦â€¢â€”Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
-  String get bot_home_pull_dialog_changes => '適用する変更:';
+  String get bot_home_pull_dialog_changes =>
+      'Ã©ÂÂ©Ã§â€Â¨Ã£Ââ„¢Ã£â€šâ€¹Ã¥Â¤â€°Ã¦â€ºÂ´:';
 
   @override
-  String get bot_home_pull_dialog_local => 'ローカル (端末)';
+  String get bot_home_pull_dialog_local =>
+      'Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â« (Ã§Â«Â¯Ã¦Å“Â«)';
 
   @override
-  String get bot_home_pull_dialog_local_only => 'ローカルのみ (保持)';
+  String get bot_home_pull_dialog_local_only =>
+      'Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã£ÂÂ®Ã£ÂÂ¿ (Ã¤Â¿ÂÃ¦Å’Â)';
 
   @override
-  String get bot_home_pull_dialog_local_preserved => 'クラウドにないローカルコマンドは保持されます。';
+  String get bot_home_pull_dialog_local_preserved =>
+      'Ã£â€šÂ¯Ã£Æ’Â©Ã£â€šÂ¦Ã£Æ’â€°Ã£ÂÂ«Ã£ÂÂªÃ£Ââ€žÃ£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ¯Ã¤Â¿ÂÃ¦Å’ÂÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get bot_home_pull_dialog_new_commands => '新しいコマンド';
+  String get bot_home_pull_dialog_new_commands =>
+      'Ã¦â€“Â°Ã£Ââ€”Ã£Ââ€žÃ£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°';
 
   @override
-  String get bot_home_pull_dialog_remote => 'リモート (クラウド)';
+  String get bot_home_pull_dialog_remote =>
+      'Ã£Æ’ÂªÃ£Æ’Â¢Ã£Æ’Â¼Ã£Æ’Ë† (Ã£â€šÂ¯Ã£Æ’Â©Ã£â€šÂ¦Ã£Æ’â€°)';
 
   @override
-  String get bot_home_pull_dialog_unchanged => '変更なし';
+  String get bot_home_pull_dialog_unchanged => 'Ã¥Â¤â€°Ã¦â€ºÂ´Ã£ÂÂªÃ£Ââ€”';
 
   @override
-  String get bot_home_pull_dialog_up_to_date => '既に最新です — 変更は必要ありません。';
+  String get bot_home_pull_dialog_up_to_date =>
+      'Ã¦â€”Â¢Ã£ÂÂ«Ã¦Å“â‚¬Ã¦â€“Â°Ã£ÂÂ§Ã£Ââ„¢ Ã¢â‚¬â€ Ã¥Â¤â€°Ã¦â€ºÂ´Ã£ÂÂ¯Ã¥Â¿â€¦Ã¨Â¦ÂÃ£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
-  String get bot_home_pull_dialog_updated_commands => '更新されたコマンド';
+  String get bot_home_pull_dialog_updated_commands =>
+      'Ã¦â€ºÂ´Ã¦â€“Â°Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°';
 
   @override
   String get bot_home_push_refused_empty =>
-      'プッシュ拒否: ローカル設定が空または破損しています。コマンドを確認してください。';
+      'Ã£Æ’â€”Ã£Æ’Æ’Ã£â€šÂ·Ã£Æ’Â¥Ã¦â€¹â€™Ã¥ÂÂ¦: Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã¨Â¨Â­Ã¥Â®Å¡Ã£ÂÅ’Ã§Â©ÂºÃ£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã§Â Â´Ã¦ÂÂÃ£Ââ€”Ã£ÂÂ¦Ã£Ââ€žÃ£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã§Â¢ÂºÃ¨ÂªÂÃ£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
   String get bot_home_token_invalid_content =>
-      'トークンがリセットされたようです。Discord Developer Portal から新しいトークンを入力してください。';
+      'Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£ÂÅ’Ã£Æ’ÂªÃ£â€šÂ»Ã£Æ’Æ’Ã£Æ’Ë†Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£â€šË†Ã£Ââ€ Ã£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€šDiscord Developer Portal Ã£Ââ€¹Ã£â€šâ€°Ã¦â€“Â°Ã£Ââ€”Ã£Ââ€žÃ£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£â€šâ€™Ã¥â€¦Â¥Ã¥Å â€ºÃ£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get bot_home_token_invalid_title => 'トークンがリセットされたようです';
+  String get bot_home_token_invalid_title =>
+      'Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£ÂÅ’Ã£Æ’ÂªÃ£â€šÂ»Ã£Æ’Æ’Ã£Æ’Ë†Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£â€šË†Ã£Ââ€ Ã£ÂÂ§Ã£Ââ„¢';
 
   @override
-  String get bot_home_view_logs => 'ボットログを表示';
+  String get bot_home_view_logs =>
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£Æ’Â­Ã£â€šÂ°Ã£â€šâ€™Ã¨Â¡Â¨Ã§Â¤Âº';
 
   @override
-  String get bot_home_view_replay => 'デバッガーリプレイを表示';
+  String get bot_home_view_replay =>
+      'Ã£Æ’â€¡Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¬Ã£Æ’Â¼Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Â¬Ã£â€šÂ¤Ã£â€šâ€™Ã¨Â¡Â¨Ã§Â¤Âº';
 
   @override
-  String get bot_home_view_stats => 'ボット統計を表示';
+  String get bot_home_view_stats =>
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã§ÂµÂ±Ã¨Â¨Ë†Ã£â€šâ€™Ã¨Â¡Â¨Ã§Â¤Âº';
 
   @override
-  String get bot_logs_copied => 'ログをコピーしました';
+  String get bot_logs_copied =>
+      'Ã£Æ’Â­Ã£â€šÂ°Ã£â€šâ€™Ã£â€šÂ³Ã£Æ’â€Ã£Æ’Â¼Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
-  String get bot_logs_disable_debug => 'デバッグログを無効化';
+  String get bot_logs_disable_debug =>
+      'Ã£Æ’â€¡Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ°Ã£Æ’Â­Ã£â€šÂ°Ã£â€šâ€™Ã§â€žÂ¡Ã¥Å Â¹Ã¥Å’â€“';
 
   @override
-  String get bot_logs_empty => 'まだログがありません';
+  String get bot_logs_empty =>
+      'Ã£ÂÂ¾Ã£ÂÂ Ã£Æ’Â­Ã£â€šÂ°Ã£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œ';
 
   @override
-  String get bot_logs_enable_debug => 'デバッグログを有効化';
+  String get bot_logs_enable_debug =>
+      'Ã£Æ’â€¡Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ°Ã£Æ’Â­Ã£â€šÂ°Ã£â€šâ€™Ã¦Å“â€°Ã¥Å Â¹Ã¥Å’â€“';
 
   @override
-  String get bot_logs_filter_count => '表示ログ数';
+  String get bot_logs_filter_count => 'Ã¨Â¡Â¨Ã§Â¤ÂºÃ£Æ’Â­Ã£â€šÂ°Ã¦â€¢Â°';
 
   @override
-  String get bot_logs_go_to_bottom => '最下部へ';
+  String get bot_logs_go_to_bottom => 'Ã¦Å“â‚¬Ã¤Â¸â€¹Ã©Æ’Â¨Ã£ÂÂ¸';
 
   @override
-  String get bot_logs_go_to_latest => '最新ログへ';
+  String get bot_logs_go_to_latest => 'Ã¦Å“â‚¬Ã¦â€“Â°Ã£Æ’Â­Ã£â€šÂ°Ã£ÂÂ¸';
 
   @override
-  String get bot_logs_newest_first => '新しい順';
+  String get bot_logs_newest_first => 'Ã¦â€“Â°Ã£Ââ€”Ã£Ââ€žÃ©Â â€ ';
 
   @override
-  String get bot_logs_oldest_first => '古い順';
+  String get bot_logs_oldest_first => 'Ã¥ÂÂ¤Ã£Ââ€žÃ©Â â€ ';
 
   @override
   String bot_logs_ram(String memory) {
-    return 'ボットプロセスRAM: $memory';
+    return 'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£Æ’â€”Ã£Æ’Â­Ã£â€šÂ»Ã£â€šÂ¹RAM: $memory';
   }
 
   @override
   String bot_logs_ram_estimated(String memory) {
-    return '推定ボットRAM: $memory';
+    return 'Ã¦Å½Â¨Ã¥Â®Å¡Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†RAM: $memory';
   }
 
   @override
-  String get bot_logs_raw_mode => 'コンパクト生ログ';
+  String get bot_logs_raw_mode =>
+      'Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€˜Ã£â€šÂ¯Ã£Æ’Ë†Ã§â€Å¸Ã£Æ’Â­Ã£â€šÂ°';
 
   @override
-  String get bot_logs_rich_mode => 'リッチフォーマットログ';
+  String get bot_logs_rich_mode =>
+      'Ã£Æ’ÂªÃ£Æ’Æ’Ã£Æ’ÂÃ£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â¼Ã£Æ’Å¾Ã£Æ’Æ’Ã£Æ’Ë†Ã£Æ’Â­Ã£â€šÂ°';
 
   @override
-  String get bot_logs_show_all => 'すべて表示';
+  String get bot_logs_show_all => 'Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã¨Â¡Â¨Ã§Â¤Âº';
 
   @override
-  String get bot_logs_show_less => '表示を減らす';
+  String get bot_logs_show_less => 'Ã¨Â¡Â¨Ã§Â¤ÂºÃ£â€šâ€™Ã¦Â¸â€ºÃ£â€šâ€°Ã£Ââ„¢';
 
   @override
-  String get bot_logs_show_more => 'もっと表示';
+  String get bot_logs_show_more => 'Ã£â€šâ€šÃ£ÂÂ£Ã£ÂÂ¨Ã¨Â¡Â¨Ã§Â¤Âº';
 
   @override
   String bot_logs_show_n(int count) {
-    return '$count 件のログを表示';
+    return '$count Ã¤Â»Â¶Ã£ÂÂ®Ã£Æ’Â­Ã£â€šÂ°Ã£â€šâ€™Ã¨Â¡Â¨Ã§Â¤Âº';
   }
 
   @override
-  String get bot_logs_title => 'ボットログ';
+  String get bot_logs_title => 'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£Æ’Â­Ã£â€šÂ°';
 
   @override
   String get bot_offline_token_desc =>
-      'トークンが無効または不足しています。新しいDiscordボットトークンを入力して接続を復元してください。';
+      'Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£ÂÅ’Ã§â€žÂ¡Ã¥Å Â¹Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã¤Â¸ÂÃ¨Â¶Â³Ã£Ââ€”Ã£ÂÂ¦Ã£Ââ€žÃ£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ¦â€“Â°Ã£Ââ€”Ã£Ââ€žDiscordÃ£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£â€šâ€™Ã¥â€¦Â¥Ã¥Å â€ºÃ£Ââ€”Ã£ÂÂ¦Ã¦Å½Â¥Ã§Â¶Å¡Ã£â€šâ€™Ã¥Â¾Â©Ã¥â€¦Æ’Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get bot_settings_activity_state_label => 'アクティビティ状態 (任意)';
+  String get bot_settings_activity_state_label =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’â€œÃ£Æ’â€ Ã£â€šÂ£Ã§Å Â¶Ã¦â€¦â€¹ (Ã¤Â»Â»Ã¦â€žÂ)';
 
   @override
-  String get bot_settings_activity_url_label => 'ストリームURL (ストリーミング用)';
+  String get bot_settings_activity_url_label =>
+      'Ã£â€šÂ¹Ã£Æ’Ë†Ã£Æ’ÂªÃ£Æ’Â¼Ã£Æ’Â URL (Ã£â€šÂ¹Ã£Æ’Ë†Ã£Æ’ÂªÃ£Æ’Â¼Ã£Æ’Å¸Ã£Æ’Â³Ã£â€šÂ°Ã§â€Â¨)';
 
   @override
-  String get bot_settings_add_status => 'アクティビティを追加';
+  String get bot_settings_add_status =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’â€œÃ£Æ’â€ Ã£â€šÂ£Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get bot_settings_app_flags => 'アプリケーションフラグ';
+  String get bot_settings_app_flags =>
+      'Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£â€šÂ±Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£Æ’â€¢Ã£Æ’Â©Ã£â€šÂ°';
 
   @override
-  String get bot_settings_avatar_clear_selection => '選択をクリア';
+  String get bot_settings_avatar_clear_selection =>
+      'Ã©ÂÂ¸Ã¦Å Å¾Ã£â€šâ€™Ã£â€šÂ¯Ã£Æ’ÂªÃ£â€šÂ¢';
 
   @override
   String get bot_settings_avatar_important_note =>
-      '重要: プロフィール変更（ユーザー名とアバター）は、保存時にのみDiscordに適用されます。';
+      'Ã©â€¡ÂÃ¨Â¦Â: Ã£Æ’â€”Ã£Æ’Â­Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â¼Ã£Æ’Â«Ã¥Â¤â€°Ã¦â€ºÂ´Ã¯Â¼Ë†Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã¥ÂÂÃ£ÂÂ¨Ã£â€šÂ¢Ã£Æ’ÂÃ£â€šÂ¿Ã£Æ’Â¼Ã¯Â¼â€°Ã£ÂÂ¯Ã£â‚¬ÂÃ¤Â¿ÂÃ¥Â­ËœÃ¦â„¢â€šÃ£ÂÂ«Ã£ÂÂ®Ã£ÂÂ¿DiscordÃ£ÂÂ«Ã©ÂÂ©Ã§â€Â¨Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get bot_settings_avatar_local_path => 'アバターのローカルファイルパス';
+  String get bot_settings_avatar_local_path =>
+      'Ã£â€šÂ¢Ã£Æ’ÂÃ£â€šÂ¿Ã£Æ’Â¼Ã£ÂÂ®Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã£Æ’â€¢Ã£â€šÂ¡Ã£â€šÂ¤Ã£Æ’Â«Ã£Æ’â€˜Ã£â€šÂ¹';
 
   @override
   String get bot_settings_avatar_none_selected =>
-      '新しい画像が選択されていません。「参照」をクリックして選択してください。';
+      'Ã¦â€“Â°Ã£Ââ€”Ã£Ââ€žÃ§â€Â»Ã¥Æ’ÂÃ£ÂÅ’Ã©ÂÂ¸Ã¦Å Å¾Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¦Ã£Ââ€žÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€šÃ£â‚¬Å’Ã¥Ââ€šÃ§â€¦Â§Ã£â‚¬ÂÃ£â€šâ€™Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’Æ’Ã£â€šÂ¯Ã£Ââ€”Ã£ÂÂ¦Ã©ÂÂ¸Ã¦Å Å¾Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
   String get bot_settings_avatar_path_hint => '/absolute/path/to/avatar.png';
 
   @override
-  String get bot_settings_avatar_preview_error => '画像をプレビューできません';
+  String get bot_settings_avatar_preview_error =>
+      'Ã§â€Â»Ã¥Æ’ÂÃ£â€šâ€™Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’â€œÃ£Æ’Â¥Ã£Æ’Â¼Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œ';
 
   @override
-  String get bot_settings_avatar_preview_label => 'アバタープレビュー';
+  String get bot_settings_avatar_preview_label =>
+      'Ã£â€šÂ¢Ã£Æ’ÂÃ£â€šÂ¿Ã£Æ’Â¼Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’â€œÃ£Æ’Â¥Ã£Æ’Â¼';
 
   @override
-  String get bot_settings_avatar_selected => '選択された画像:';
+  String get bot_settings_avatar_selected =>
+      'Ã©ÂÂ¸Ã¦Å Å¾Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã§â€Â»Ã¥Æ’Â:';
 
   @override
   String bot_settings_avatar_selected_file(String path) {
-    return '選択されたファイル: $path';
+    return 'Ã©ÂÂ¸Ã¦Å Å¾Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£Æ’â€¢Ã£â€šÂ¡Ã£â€šÂ¤Ã£Æ’Â«: $path';
   }
 
   @override
   String bot_settings_avatar_unsupported_format(String ext, String formats) {
-    return '未対応のアバター形式: $ext。対応形式: $formats。';
+    return 'Ã¦Å“ÂªÃ¥Â¯Â¾Ã¥Â¿Å“Ã£ÂÂ®Ã£â€šÂ¢Ã£Æ’ÂÃ£â€šÂ¿Ã£Æ’Â¼Ã¥Â½Â¢Ã¥Â¼Â: $extÃ£â‚¬â€šÃ¥Â¯Â¾Ã¥Â¿Å“Ã¥Â½Â¢Ã¥Â¼Â: $formatsÃ£â‚¬â€š';
   }
 
   @override
-  String get bot_settings_browse => '参照';
+  String get bot_settings_browse => 'Ã¥Ââ€šÃ§â€¦Â§';
 
   @override
-  String get bot_settings_cancel_token_edit_btn => 'トークン編集をキャンセル';
+  String get bot_settings_cancel_token_edit_btn =>
+      'Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã§Â·Â¨Ã©â€ºâ€ Ã£â€šâ€™Ã£â€šÂ­Ã£Æ’Â£Ã£Æ’Â³Ã£â€šÂ»Ã£Æ’Â«';
 
   @override
-  String get bot_settings_danger_zone => '危険ゾーン';
+  String get bot_settings_danger_zone => 'Ã¥ÂÂ±Ã©â„¢ÂºÃ£â€šÂ¾Ã£Æ’Â¼Ã£Æ’Â³';
 
   @override
-  String get bot_settings_delete_bot => 'ボットを削除';
+  String get bot_settings_delete_bot =>
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get bot_settings_delete_bot_btn => '完全に削除';
+  String get bot_settings_delete_bot_btn => 'Ã¥Â®Å’Ã¥â€¦Â¨Ã£ÂÂ«Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
   String get bot_settings_delete_bot_desc =>
-      'この操作は元に戻せません。すべてのローカルデータとリモート設定が完全に削除されます。';
+      'Ã£Ââ€œÃ£ÂÂ®Ã¦â€œÂÃ¤Â½Å“Ã£ÂÂ¯Ã¥â€¦Æ’Ã£ÂÂ«Ã¦Ë†Â»Ã£Ââ€ºÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€šÃ£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÂ®Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã£Æ’â€¡Ã£Æ’Â¼Ã£â€šÂ¿Ã£ÂÂ¨Ã£Æ’ÂªÃ£Æ’Â¢Ã£Æ’Â¼Ã£Æ’Ë†Ã¨Â¨Â­Ã¥Â®Å¡Ã£ÂÅ’Ã¥Â®Å’Ã¥â€¦Â¨Ã£ÂÂ«Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String bot_settings_delete_desc(String id) {
-    return 'ボット $id を削除してもよろしいですか？すべてのデータが失われます。';
+    return 'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë† $id Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¦Ã£â€šâ€šÃ£â€šË†Ã£â€šÂÃ£Ââ€”Ã£Ââ€žÃ£ÂÂ§Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÂ®Ã£Æ’â€¡Ã£Æ’Â¼Ã£â€šÂ¿Ã£ÂÅ’Ã¥Â¤Â±Ã£â€šÂÃ£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
   }
 
   @override
-  String get bot_settings_delete_title => '削除の確認';
+  String get bot_settings_delete_title => 'Ã¥â€°Å Ã©â„¢Â¤Ã£ÂÂ®Ã§Â¢ÂºÃ¨ÂªÂ';
 
   @override
-  String get bot_settings_edit_token_btn => 'トークンを編集';
+  String get bot_settings_edit_token_btn =>
+      'Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£â€šâ€™Ã§Â·Â¨Ã©â€ºâ€ ';
 
   @override
-  String get bot_settings_export_import => 'エクスポート / インポート';
+  String get bot_settings_export_import =>
+      'Ã£â€šÂ¨Ã£â€šÂ¯Ã£â€šÂ¹Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë† / Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†';
 
   @override
   String get bot_settings_export_import_desc =>
-      'ボット設定をZIPファイルとしてエクスポートまたはインポートします。';
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã¨Â¨Â­Ã¥Â®Å¡Ã£â€šâ€™ZIPÃ£Æ’â€¢Ã£â€šÂ¡Ã£â€šÂ¤Ã£Æ’Â«Ã£ÂÂ¨Ã£Ââ€”Ã£ÂÂ¦Ã£â€šÂ¨Ã£â€šÂ¯Ã£â€šÂ¹Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get bot_settings_gateway_intents => 'ゲートウェイインテント設定';
+  String get bot_settings_gateway_intents =>
+      'Ã£â€šÂ²Ã£Æ’Â¼Ã£Æ’Ë†Ã£â€šÂ¦Ã£â€šÂ§Ã£â€šÂ¤Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’Ë†Ã¨Â¨Â­Ã¥Â®Å¡';
 
   @override
   String get bot_settings_gateway_intents_desc =>
-      'ボットに必要なインテントを選択してください。Discord Developer Portalで設定してください。';
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÂ«Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÂªÃ£â€šÂ¤Ã£Æ’Â³Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’Ë†Ã£â€šâ€™Ã©ÂÂ¸Ã¦Å Å¾Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€šDiscord Developer PortalÃ£ÂÂ§Ã¨Â¨Â­Ã¥Â®Å¡Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get bot_settings_intents_saved => 'インテントが正常に保存されました';
+  String get bot_settings_intents_saved =>
+      'Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’Ë†Ã£ÂÅ’Ã¦Â­Â£Ã¥Â¸Â¸Ã£ÂÂ«Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
-  String get bot_settings_lavalink_choose_server => '公開サーバーを選択...';
+  String get bot_settings_lavalink_choose_server =>
+      'Ã¥â€¦Â¬Ã©â€“â€¹Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£â€šâ€™Ã©ÂÂ¸Ã¦Å Å¾...';
 
   @override
-  String get bot_settings_lavalink_host => 'ホスト';
+  String get bot_settings_lavalink_host => 'Ã£Æ’â€ºÃ£â€šÂ¹Ã£Æ’Ë†';
 
   @override
   String get bot_settings_lavalink_host_hint =>
-      'localhost または Lavalink サーバー IP';
+      'localhost Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯ Lavalink Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼ IP';
 
   @override
-  String get bot_settings_lavalink_password => 'パスワード';
+  String get bot_settings_lavalink_password =>
+      'Ã£Æ’â€˜Ã£â€šÂ¹Ã£Æ’Â¯Ã£Æ’Â¼Ã£Æ’â€°';
 
   @override
   String get bot_settings_lavalink_password_hint => 'youshallnotpass';
 
   @override
-  String get bot_settings_lavalink_port => 'ポート';
+  String get bot_settings_lavalink_port => 'Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†';
 
   @override
   String get bot_settings_lavalink_port_hint => '2333';
 
   @override
   String get bot_settings_lavalink_premium_banner_desc =>
-      'ボットの Lavalink オーディオサポートのロックを解除します。';
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÂ® Lavalink Ã£â€šÂªÃ£Æ’Â¼Ã£Æ’â€¡Ã£â€šÂ£Ã£â€šÂªÃ£â€šÂµÃ£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†Ã£ÂÂ®Ã£Æ’Â­Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šâ€™Ã¨Â§Â£Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get bot_settings_lavalink_premium_banner_title =>
-      '🔒 Bot Creator PREMIUM で利用可能';
+      'Ã°Å¸â€â€™ Bot Creator PREMIUM Ã£ÂÂ§Ã¥Ë†Â©Ã§â€Â¨Ã¥ÂÂ¯Ã¨Æ’Â½';
 
   @override
-  String get bot_settings_lavalink_public_servers => '公開サーバー';
+  String get bot_settings_lavalink_public_servers =>
+      'Ã¥â€¦Â¬Ã©â€“â€¹Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼';
 
   @override
-  String get bot_settings_lavalink_save_btn => '保存';
+  String get bot_settings_lavalink_save_btn => 'Ã¤Â¿ÂÃ¥Â­Ëœ';
 
   @override
   String get bot_settings_lavalink_save_caption =>
-      'ボットが Lavalink サーバーに接続できるように、この設定を保存してください。';
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÅ’ Lavalink Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£ÂÂ«Ã¦Å½Â¥Ã§Â¶Å¡Ã£ÂÂ§Ã£ÂÂÃ£â€šâ€¹Ã£â€šË†Ã£Ââ€ Ã£ÂÂ«Ã£â‚¬ÂÃ£Ââ€œÃ£ÂÂ®Ã¨Â¨Â­Ã¥Â®Å¡Ã£â€šâ€™Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get bot_settings_lavalink_section_title => 'Lavalink サーバー';
+  String get bot_settings_lavalink_section_title =>
+      'Lavalink Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼';
 
   @override
-  String get bot_settings_lavalink_server_picker_title => '公開 Lavalink サーバー';
+  String get bot_settings_lavalink_server_picker_title =>
+      'Ã¥â€¦Â¬Ã©â€“â€¹ Lavalink Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼';
 
   @override
   String bot_settings_lavalink_server_subtitle(String port, String version) {
-    return 'ポート $port — $version';
+    return 'Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë† $port Ã¢â‚¬â€ $version';
   }
 
   @override
   String bot_settings_lavalink_servers_available(int count) {
-    return '$count 個のサーバーが利用可能';
+    return '$count Ã¥â‚¬â€¹Ã£ÂÂ®Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£ÂÅ’Ã¥Ë†Â©Ã§â€Â¨Ã¥ÂÂ¯Ã¨Æ’Â½';
   }
 
   @override
-  String get bot_settings_lavalink_ssl => 'SSL/TLS を使用';
+  String get bot_settings_lavalink_ssl => 'SSL/TLS Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨';
 
   @override
-  String get bot_settings_lavalink_ssl_subtitle => '安全な wss:// 接続';
+  String get bot_settings_lavalink_ssl_subtitle =>
+      'Ã¥Â®â€°Ã¥â€¦Â¨Ã£ÂÂª wss:// Ã¦Å½Â¥Ã§Â¶Å¡';
 
   @override
-  String get bot_settings_lavalink_success => '接続成功!';
+  String get bot_settings_lavalink_success => 'Ã¦Å½Â¥Ã§Â¶Å¡Ã¦Ë†ÂÃ¥Å Å¸!';
 
   @override
-  String get bot_settings_lavalink_test_btn => '接続をテスト';
+  String get bot_settings_lavalink_test_btn =>
+      'Ã¦Å½Â¥Ã§Â¶Å¡Ã£â€šâ€™Ã£Æ’â€ Ã£â€šÂ¹Ã£Æ’Ë†';
 
   @override
-  String get bot_settings_lavalink_testing => 'テスト中...';
+  String get bot_settings_lavalink_testing => 'Ã£Æ’â€ Ã£â€šÂ¹Ã£Æ’Ë†Ã¤Â¸Â­...';
 
   @override
-  String get bot_settings_lavalink_view_offers => 'オファーを見る';
+  String get bot_settings_lavalink_view_offers =>
+      'Ã£â€šÂªÃ£Æ’â€¢Ã£â€šÂ¡Ã£Æ’Â¼Ã£â€šâ€™Ã¨Â¦â€¹Ã£â€šâ€¹';
 
   @override
-  String get bot_settings_no_activities => 'アクティビティが設定されていません';
+  String get bot_settings_no_activities =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’â€œÃ£Æ’â€ Ã£â€šÂ£Ã£ÂÅ’Ã¨Â¨Â­Ã¥Â®Å¡Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¦Ã£Ââ€žÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œ';
 
   @override
-  String get bot_settings_presence_dnd => '取り込み中';
+  String get bot_settings_presence_dnd => 'Ã¥Ââ€“Ã£â€šÅ Ã¨Â¾Â¼Ã£ÂÂ¿Ã¤Â¸Â­';
 
   @override
-  String get bot_settings_presence_idle => '退席中';
+  String get bot_settings_presence_idle => 'Ã©â‚¬â‚¬Ã¥Â¸Â­Ã¤Â¸Â­';
 
   @override
-  String get bot_settings_presence_invisible => 'オフライン表示';
+  String get bot_settings_presence_invisible =>
+      'Ã£â€šÂªÃ£Æ’â€¢Ã£Æ’Â©Ã£â€šÂ¤Ã£Æ’Â³Ã¨Â¡Â¨Ã§Â¤Âº';
 
   @override
-  String get bot_settings_presence_online => 'オンライン';
+  String get bot_settings_presence_online => 'Ã£â€šÂªÃ£Æ’Â³Ã£Æ’Â©Ã£â€šÂ¤Ã£Æ’Â³';
 
   @override
-  String get bot_settings_presence_status_label => 'プレゼンス';
+  String get bot_settings_presence_status_label =>
+      'Ã£Æ’â€”Ã£Æ’Â¬Ã£â€šÂ¼Ã£Æ’Â³Ã£â€šÂ¹';
 
   @override
-  String get bot_settings_presence_status_title => 'ボットプレゼンス状態';
+  String get bot_settings_presence_status_title =>
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£Æ’â€”Ã£Æ’Â¬Ã£â€šÂ¼Ã£Æ’Â³Ã£â€šÂ¹Ã§Å Â¶Ã¦â€¦â€¹';
 
   @override
-  String get bot_settings_profile_saved => 'プロフィール/ステータスが正常に適用されました';
+  String get bot_settings_profile_saved =>
+      'Ã£Æ’â€”Ã£Æ’Â­Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â¼Ã£Æ’Â«/Ã£â€šÂ¹Ã£Æ’â€ Ã£Æ’Â¼Ã£â€šÂ¿Ã£â€šÂ¹Ã£ÂÅ’Ã¦Â­Â£Ã¥Â¸Â¸Ã£ÂÂ«Ã©ÂÂ©Ã§â€Â¨Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
-  String get bot_settings_profile_title => 'ボットプロフィール';
+  String get bot_settings_profile_title =>
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£Æ’â€”Ã£Æ’Â­Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â¼Ã£Æ’Â«';
 
   @override
-  String get bot_settings_remove_status => 'アクティビティを削除';
+  String get bot_settings_remove_status =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’â€œÃ£Æ’â€ Ã£â€šÂ£Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get bot_settings_save_intents_btn => 'インテントを保存';
+  String get bot_settings_save_intents_btn =>
+      'Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’Ë†Ã£â€šâ€™Ã¤Â¿ÂÃ¥Â­Ëœ';
 
   @override
-  String get bot_settings_save_intents_caption => 'ゲートウェイインテント設定のみを更新します。';
+  String get bot_settings_save_intents_caption =>
+      'Ã£â€šÂ²Ã£Æ’Â¼Ã£Æ’Ë†Ã£â€šÂ¦Ã£â€šÂ§Ã£â€šÂ¤Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’Ë†Ã¨Â¨Â­Ã¥Â®Å¡Ã£ÂÂ®Ã£ÂÂ¿Ã£â€šâ€™Ã¦â€ºÂ´Ã¦â€“Â°Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get bot_settings_save_profile_caption =>
-      'ユーザー名/アバターを即座に適用し、ステータスローテーションを保存します。';
+      'Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã¥ÂÂ/Ã£â€šÂ¢Ã£Æ’ÂÃ£â€šÂ¿Ã£Æ’Â¼Ã£â€šâ€™Ã¥ÂÂ³Ã¥ÂºÂ§Ã£ÂÂ«Ã©ÂÂ©Ã§â€Â¨Ã£Ââ€”Ã£â‚¬ÂÃ£â€šÂ¹Ã£Æ’â€ Ã£Æ’Â¼Ã£â€šÂ¿Ã£â€šÂ¹Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’â€ Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get bot_settings_save_profile_status_btn => 'プロフィールとステータスを保存';
+  String get bot_settings_save_profile_status_btn =>
+      'Ã£Æ’â€”Ã£Æ’Â­Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â¼Ã£Æ’Â«Ã£ÂÂ¨Ã£â€šÂ¹Ã£Æ’â€ Ã£Æ’Â¼Ã£â€šÂ¿Ã£â€šÂ¹Ã£â€šâ€™Ã¤Â¿ÂÃ¥Â­Ëœ';
 
   @override
-  String get bot_settings_save_success => '設定が正常に保存されました';
+  String get bot_settings_save_success =>
+      'Ã¨Â¨Â­Ã¥Â®Å¡Ã£ÂÅ’Ã¦Â­Â£Ã¥Â¸Â¸Ã£ÂÂ«Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
-  String get bot_settings_save_token_btn => 'トークンとインテントを保存';
+  String get bot_settings_save_token_btn =>
+      'Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£ÂÂ¨Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’Ë†Ã£â€šâ€™Ã¤Â¿ÂÃ¥Â­Ëœ';
 
   @override
   String get bot_settings_save_token_caption =>
-      'トークン変更は保護されています。まず「トークンを編集」をクリックしてから保存してください。';
+      'Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã¥Â¤â€°Ã¦â€ºÂ´Ã£ÂÂ¯Ã¤Â¿ÂÃ¨Â­Â·Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¦Ã£Ââ€žÃ£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ£ÂÂ¾Ã£ÂÅ¡Ã£â‚¬Å’Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£â€šâ€™Ã§Â·Â¨Ã©â€ºâ€ Ã£â‚¬ÂÃ£â€šâ€™Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’Æ’Ã£â€šÂ¯Ã£Ââ€”Ã£ÂÂ¦Ã£Ââ€¹Ã£â€šâ€°Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
   String get bot_settings_save_token_first =>
-      'プロフィール/ステータス変更を適用する前に、まずトークンを保存してください。';
+      'Ã£Æ’â€”Ã£Æ’Â­Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â¼Ã£Æ’Â«/Ã£â€šÂ¹Ã£Æ’â€ Ã£Æ’Â¼Ã£â€šÂ¿Ã£â€šÂ¹Ã¥Â¤â€°Ã¦â€ºÂ´Ã£â€šâ€™Ã©ÂÂ©Ã§â€Â¨Ã£Ââ„¢Ã£â€šâ€¹Ã¥â€°ÂÃ£ÂÂ«Ã£â‚¬ÂÃ£ÂÂ¾Ã£ÂÅ¡Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£â€šâ€™Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get bot_settings_save_token_only_btn => 'トークンを保存';
+  String get bot_settings_save_token_only_btn =>
+      'Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£â€šâ€™Ã¤Â¿ÂÃ¥Â­Ëœ';
 
   @override
   String bot_settings_status_item_title(int index) {
-    return 'アクティビティ $index';
+    return 'Ã£â€šÂ¢Ã£â€šÂ¯Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’â€œÃ£Æ’â€ Ã£â€šÂ£ $index';
   }
 
   @override
-  String get bot_settings_status_max_interval => '最大間隔 (秒)';
+  String get bot_settings_status_max_interval =>
+      'Ã¦Å“â‚¬Ã¥Â¤Â§Ã©â€“â€œÃ©Å¡â€ (Ã§Â§â€™)';
 
   @override
-  String get bot_settings_status_min_interval => '最小間隔 (秒)';
+  String get bot_settings_status_min_interval =>
+      'Ã¦Å“â‚¬Ã¥Â°ÂÃ©â€“â€œÃ©Å¡â€ (Ã§Â§â€™)';
 
   @override
   String get bot_settings_status_rotation_desc =>
-      '1つ以上のアクティビティを追加してください。各アクティビティにはタイプ、名前、最小/最大間隔(秒)が必要です。';
+      '1Ã£ÂÂ¤Ã¤Â»Â¥Ã¤Â¸Å Ã£ÂÂ®Ã£â€šÂ¢Ã£â€šÂ¯Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’â€œÃ£Æ’â€ Ã£â€šÂ£Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€šÃ¥Ââ€žÃ£â€šÂ¢Ã£â€šÂ¯Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’â€œÃ£Æ’â€ Ã£â€šÂ£Ã£ÂÂ«Ã£ÂÂ¯Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’â€”Ã£â‚¬ÂÃ¥ÂÂÃ¥â€°ÂÃ£â‚¬ÂÃ¦Å“â‚¬Ã¥Â°Â/Ã¦Å“â‚¬Ã¥Â¤Â§Ã©â€“â€œÃ©Å¡â€(Ã§Â§â€™)Ã£ÂÅ’Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get bot_settings_status_rotation_title => 'アクティビティローテーション';
+  String get bot_settings_status_rotation_title =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’â€œÃ£Æ’â€ Ã£â€šÂ£Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’â€ Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³';
 
   @override
-  String get bot_settings_status_text_label => 'アクティビティ名';
+  String get bot_settings_status_text_label =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’â€œÃ£Æ’â€ Ã£â€šÂ£Ã¥ÂÂ';
 
   @override
-  String get bot_settings_status_type_competing => '競技中';
+  String get bot_settings_status_type_competing => 'Ã§Â«Â¶Ã¦Å â‚¬Ã¤Â¸Â­';
 
   @override
-  String get bot_settings_status_type_label => 'タイプ';
+  String get bot_settings_status_type_label => 'Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’â€”';
 
   @override
-  String get bot_settings_status_type_listening => 'リスニング';
+  String get bot_settings_status_type_listening =>
+      'Ã£Æ’ÂªÃ£â€šÂ¹Ã£Æ’â€¹Ã£Æ’Â³Ã£â€šÂ°';
 
   @override
-  String get bot_settings_status_type_playing => 'プレイ中';
+  String get bot_settings_status_type_playing => 'Ã£Æ’â€”Ã£Æ’Â¬Ã£â€šÂ¤Ã¤Â¸Â­';
 
   @override
-  String get bot_settings_status_type_streaming => '配信中';
+  String get bot_settings_status_type_streaming => 'Ã©â€¦ÂÃ¤Â¿Â¡Ã¤Â¸Â­';
 
   @override
-  String get bot_settings_status_type_watching => '視聴中';
+  String get bot_settings_status_type_watching => 'Ã¨Â¦â€“Ã¨ÂÂ´Ã¤Â¸Â­';
 
   @override
-  String get bot_settings_tab_advanced => '詳細 & メンテナンス';
+  String get bot_settings_tab_advanced =>
+      'Ã¨Â©Â³Ã§Â´Â° & Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’â€ Ã£Æ’Å Ã£Æ’Â³Ã£â€šÂ¹';
 
   @override
-  String get bot_settings_tab_general => '一般';
+  String get bot_settings_tab_general => 'Ã¤Â¸â‚¬Ã¨Ë†Â¬';
 
   @override
-  String get bot_settings_tab_intents => 'インテント & 権限';
+  String get bot_settings_tab_intents =>
+      'Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’Ë† & Ã¦Â¨Â©Ã©â„¢Â';
 
   @override
   String get bot_settings_tab_lavalink => 'Lavalink';
 
   @override
-  String get bot_settings_tab_presence => 'プレゼンス & ステータス';
+  String get bot_settings_tab_presence =>
+      'Ã£Æ’â€”Ã£Æ’Â¬Ã£â€šÂ¼Ã£Æ’Â³Ã£â€šÂ¹ & Ã£â€šÂ¹Ã£Æ’â€ Ã£Æ’Â¼Ã£â€šÂ¿Ã£â€šÂ¹';
 
   @override
-  String get bot_settings_title => 'ボットのカスタマイズ / プロフィール';
+  String get bot_settings_title =>
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÂ®Ã£â€šÂ«Ã£â€šÂ¹Ã£â€šÂ¿Ã£Æ’Å¾Ã£â€šÂ¤Ã£â€šÂº / Ã£Æ’â€”Ã£Æ’Â­Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â¼Ã£Æ’Â«';
 
   @override
-  String get bot_settings_token_hidden_desc => 'トークン入力は安全のためデフォルトで非表示です。';
+  String get bot_settings_token_hidden_desc =>
+      'Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã¥â€¦Â¥Ã¥Å â€ºÃ£ÂÂ¯Ã¥Â®â€°Ã¥â€¦Â¨Ã£ÂÂ®Ã£ÂÅ¸Ã£â€šÂÃ£Æ’â€¡Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â«Ã£Æ’Ë†Ã£ÂÂ§Ã©ÂÅ¾Ã¨Â¡Â¨Ã§Â¤ÂºÃ£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get bot_settings_token_hint => 'ボットトークンをここに入力';
+  String get bot_settings_token_hint =>
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£â€šâ€™Ã£Ââ€œÃ£Ââ€œÃ£ÂÂ«Ã¥â€¦Â¥Ã¥Å â€º';
 
   @override
-  String get bot_settings_token_mismatch_confirm => 'それでもトークンを置き換える';
+  String get bot_settings_token_mismatch_confirm =>
+      'Ã£ÂÂÃ£â€šÅ’Ã£ÂÂ§Ã£â€šâ€šÃ£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£â€šâ€™Ã§Â½Â®Ã£ÂÂÃ¦Ââ€ºÃ£ÂË†Ã£â€šâ€¹';
 
   @override
   String bot_settings_token_mismatch_content(String newId, String oldId) {
-    return 'このトークンはボット $newId のものですが、現在のデータはボット $oldId 用です。コマンドと設定が失われる可能性があります。';
+    return 'Ã£Ââ€œÃ£ÂÂ®Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£ÂÂ¯Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë† $newId Ã£ÂÂ®Ã£â€šâ€šÃ£ÂÂ®Ã£ÂÂ§Ã£Ââ„¢Ã£ÂÅ’Ã£â‚¬ÂÃ§ÂÂ¾Ã¥Å“Â¨Ã£ÂÂ®Ã£Æ’â€¡Ã£Æ’Â¼Ã£â€šÂ¿Ã£ÂÂ¯Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë† $oldId Ã§â€Â¨Ã£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€šÃ£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ¨Ã¨Â¨Â­Ã¥Â®Å¡Ã£ÂÅ’Ã¥Â¤Â±Ã£â€šÂÃ£â€šÅ’Ã£â€šâ€¹Ã¥ÂÂ¯Ã¨Æ’Â½Ã¦â‚¬Â§Ã£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
   }
 
   @override
-  String get bot_settings_token_mismatch_title => '異なるボットが検出されました';
+  String get bot_settings_token_mismatch_title =>
+      'Ã§â€¢Â°Ã£ÂÂªÃ£â€šâ€¹Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÅ’Ã¦Â¤Å“Ã¥â€¡ÂºÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
-  String get bot_settings_token_required => 'ボットトークンが必要です。';
+  String get bot_settings_token_required =>
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£ÂÅ’Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get bot_settings_token_saved => 'トークンが正常に保存されました';
+  String get bot_settings_token_saved =>
+      'Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£ÂÅ’Ã¦Â­Â£Ã¥Â¸Â¸Ã£ÂÂ«Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
-  String get bot_settings_token_title => 'ボットトークン';
+  String get bot_settings_token_title =>
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³';
 
   @override
-  String get bot_settings_update_token => 'ボットトークンを更新';
+  String get bot_settings_update_token =>
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£â€šâ€™Ã¦â€ºÂ´Ã¦â€“Â°';
 
   @override
-  String get bot_settings_username_hint => '現在のユーザー名を維持する場合は空欄';
+  String get bot_settings_username_hint =>
+      'Ã§ÂÂ¾Ã¥Å“Â¨Ã£ÂÂ®Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã¥ÂÂÃ£â€šâ€™Ã§Â¶Â­Ã¦Å’ÂÃ£Ââ„¢Ã£â€šâ€¹Ã¥Â Â´Ã¥ÂË†Ã£ÂÂ¯Ã§Â©ÂºÃ¦Â¬â€ž';
 
   @override
-  String get bot_settings_username_override => 'ユーザー名上書き';
+  String get bot_settings_username_override =>
+      'Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã¥ÂÂÃ¤Â¸Å Ã¦â€ºÂ¸Ã£ÂÂ';
 
   @override
-  String get bot_settings_workflow_docs => 'ドキュメントセンター';
+  String get bot_settings_workflow_docs =>
+      'Ã£Æ’â€°Ã£â€šÂ­Ã£Æ’Â¥Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’Ë†Ã£â€šÂ»Ã£Æ’Â³Ã£â€šÂ¿Ã£Æ’Â¼';
 
   @override
   String get bot_settings_workflow_docs_desc =>
-      'コマンド、ワークフロー、ランタイム変数、実行動作に関する一元化されたドキュメント。';
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â‚¬ÂÃ£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â‚¬ÂÃ£Æ’Â©Ã£Æ’Â³Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â Ã¥Â¤â€°Ã¦â€¢Â°Ã£â‚¬ÂÃ¥Â®Å¸Ã¨Â¡Å’Ã¥â€¹â€¢Ã¤Â½Å“Ã£ÂÂ«Ã©â€“Â¢Ã£Ââ„¢Ã£â€šâ€¹Ã¤Â¸â‚¬Ã¥â€¦Æ’Ã¥Å’â€“Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£Æ’â€°Ã£â€šÂ­Ã£Æ’Â¥Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’Ë†Ã£â‚¬â€š';
 
   @override
-  String get bot_stats_collecting => '収集中…';
+  String get bot_stats_collecting => 'Ã¥ÂÅ½Ã©â€ºâ€ Ã¤Â¸Â­Ã¢â‚¬Â¦';
 
   @override
-  String get bot_stats_cpu => 'ボットプロセスCPU';
+  String get bot_stats_cpu =>
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£Æ’â€”Ã£Æ’Â­Ã£â€šÂ»Ã£â€šÂ¹CPU';
 
   @override
   String get bot_stats_notes =>
-      '注意: CPUはAndroid/Linuxで利用可能。ストレージ = アプリ内のボットデータファイル。';
+      'Ã¦Â³Â¨Ã¦â€žÂ: CPUÃ£ÂÂ¯Android/LinuxÃ£ÂÂ§Ã¥Ë†Â©Ã§â€Â¨Ã¥ÂÂ¯Ã¨Æ’Â½Ã£â‚¬â€šÃ£â€šÂ¹Ã£Æ’Ë†Ã£Æ’Â¬Ã£Æ’Â¼Ã£â€šÂ¸ = Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ¥â€ â€¦Ã£ÂÂ®Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£Æ’â€¡Ã£Æ’Â¼Ã£â€šÂ¿Ã£Æ’â€¢Ã£â€šÂ¡Ã£â€šÂ¤Ã£Æ’Â«Ã£â‚¬â€š';
 
   @override
-  String get bot_stats_ram_estimated => 'ボットRAMのみ (推定)';
+  String get bot_stats_ram_estimated =>
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†RAMÃ£ÂÂ®Ã£ÂÂ¿ (Ã¦Å½Â¨Ã¥Â®Å¡)';
 
   @override
-  String get bot_stats_ram_process => 'ボットプロセスRAM';
+  String get bot_stats_ram_process =>
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£Æ’â€”Ã£Æ’Â­Ã£â€šÂ»Ã£â€šÂ¹RAM';
 
   @override
-  String get bot_stats_source_local_hosting => 'ソース: ローカルホスティング';
+  String get bot_stats_source_local_hosting =>
+      'Ã£â€šÂ½Ã£Æ’Â¼Ã£â€šÂ¹: Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã£Æ’â€ºÃ£â€šÂ¹Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’Â³Ã£â€šÂ°';
 
   @override
-  String get bot_stats_source_runner_api => 'ソース: Runner API';
+  String get bot_stats_source_runner_api => 'Ã£â€šÂ½Ã£Æ’Â¼Ã£â€šÂ¹: Runner API';
 
   @override
-  String get bot_stats_storage => 'ボットストレージ (アプリデータ)';
+  String get bot_stats_storage =>
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šÂ¹Ã£Æ’Ë†Ã£Æ’Â¬Ã£Æ’Â¼Ã£â€šÂ¸ (Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£Æ’â€¡Ã£Æ’Â¼Ã£â€šÂ¿)';
 
   @override
-  String get bot_stats_title => 'ボット統計';
+  String get bot_stats_title => 'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã§ÂµÂ±Ã¨Â¨Ë†';
 
   @override
-  String get cancel => 'キャンセル';
+  String get cancel => 'Ã£â€šÂ­Ã£Æ’Â£Ã£Æ’Â³Ã£â€šÂ»Ã£Æ’Â«';
 
   @override
-  String get close => '閉じる';
+  String get close => 'Ã©â€“â€°Ã£ÂËœÃ£â€šâ€¹';
 
   @override
   String get cmd_bdfd_autocomplete_hint =>
-      '\$ を入力して関数名を書き始めると、クイックスクリプト候補が表示されます。';
+      '\$ Ã£â€šâ€™Ã¥â€¦Â¥Ã¥Å â€ºÃ£Ââ€”Ã£ÂÂ¦Ã©â€“Â¢Ã¦â€¢Â°Ã¥ÂÂÃ£â€šâ€™Ã¦â€ºÂ¸Ã£ÂÂÃ¥Â§â€¹Ã£â€šÂÃ£â€šâ€¹Ã£ÂÂ¨Ã£â‚¬ÂÃ£â€šÂ¯Ã£â€šÂ¤Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë†Ã¥â‚¬â„¢Ã¨Â£Å“Ã£ÂÅ’Ã¨Â¡Â¨Ã§Â¤ÂºÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get cmd_bdfd_autocomplete_title => 'BDFD プレフィックスオートコンプリート';
+  String get cmd_bdfd_autocomplete_title =>
+      'BDFD Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¹Ã£â€šÂªÃ£Æ’Â¼Ã£Æ’Ë†Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’ÂªÃ£Æ’Â¼Ã£Æ’Ë†';
 
   @override
-  String get cmd_bdfd_diagnostics_clean => '現在のスクリプトに問題は検出されませんでした。';
+  String get cmd_bdfd_diagnostics_clean =>
+      'Ã§ÂÂ¾Ã¥Å“Â¨Ã£ÂÂ®Ã£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë†Ã£ÂÂ«Ã¥â€¢ÂÃ©Â¡Å’Ã£ÂÂ¯Ã¦Â¤Å“Ã¥â€¡ÂºÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£ÂÂ§Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€š';
 
   @override
-  String get cmd_bdfd_diagnostics_error => 'エラー';
+  String get cmd_bdfd_diagnostics_error => 'Ã£â€šÂ¨Ã£Æ’Â©Ã£Æ’Â¼';
 
   @override
-  String get cmd_bdfd_diagnostics_title => 'BDFD 診断';
+  String get cmd_bdfd_diagnostics_title => 'BDFD Ã¨Â¨ÂºÃ¦â€“Â­';
 
   @override
-  String get cmd_bdfd_diagnostics_warning => '警告';
+  String get cmd_bdfd_diagnostics_warning => 'Ã¨Â­Â¦Ã¥â€˜Å ';
 
   @override
-  String get cmd_bdfd_script_empty_error => 'BDFDスクリプト本文は空にできません。';
+  String get cmd_bdfd_script_empty_error =>
+      'BDFDÃ£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë†Ã¦Å“Â¬Ã¦â€“â€¡Ã£ÂÂ¯Ã§Â©ÂºÃ£ÂÂ«Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
   String get cmd_bdfd_script_hint =>
       '\$nomention\\n\$if[\$hasPerms[\$authorID;administrator]==true]\\nHello from Bot Creator';
 
   @override
-  String get cmd_bdfd_script_label => 'BDFD スクリプト本文';
+  String get cmd_bdfd_script_label =>
+      'BDFD Ã£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë†Ã¦Å“Â¬Ã¦â€“â€¡';
 
   @override
   String get cmd_bdfd_script_validation_error =>
-      'このBDFDスクリプトにはまだ診断メッセージが含まれています:';
+      'Ã£Ââ€œÃ£ÂÂ®BDFDÃ£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë†Ã£ÂÂ«Ã£ÂÂ¯Ã£ÂÂ¾Ã£ÂÂ Ã¨Â¨ÂºÃ¦â€“Â­Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£ÂÅ’Ã¥ÂÂ«Ã£ÂÂ¾Ã£â€šÅ’Ã£ÂÂ¦Ã£Ââ€žÃ£ÂÂ¾Ã£Ââ„¢:';
 
   @override
-  String get cmd_create_tooltip => 'コマンドを作成';
+  String get cmd_create_tooltip =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†Â';
 
   @override
-  String get cmd_dart_diagnostics_clean => '現在のDartスクリプトに問題は検出されませんでした。';
+  String get cmd_dart_diagnostics_clean =>
+      'Ã§ÂÂ¾Ã¥Å“Â¨Ã£ÂÂ®DartÃ£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë†Ã£ÂÂ«Ã¥â€¢ÂÃ©Â¡Å’Ã£ÂÂ¯Ã¦Â¤Å“Ã¥â€¡ÂºÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£ÂÂ§Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€š';
 
   @override
-  String get cmd_dart_diagnostics_error => 'エラー';
+  String get cmd_dart_diagnostics_error => 'Ã£â€šÂ¨Ã£Æ’Â©Ã£Æ’Â¼';
 
   @override
-  String get cmd_dart_diagnostics_title => 'Dart 診断';
+  String get cmd_dart_diagnostics_title => 'Dart Ã¨Â¨ÂºÃ¦â€“Â­';
 
   @override
-  String get cmd_dart_diagnostics_warning => '警告';
+  String get cmd_dart_diagnostics_warning => 'Ã¨Â­Â¦Ã¥â€˜Å ';
 
   @override
   String get cmd_dart_script_hint => 'return \"Hello from Dart Direct\";';
 
   @override
-  String get cmd_dart_script_label => 'Dart スクリプト本文';
+  String get cmd_dart_script_label =>
+      'Dart Ã£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë†Ã¦Å“Â¬Ã¦â€“â€¡';
 
   @override
   String cmd_batch_delete_confirm(int count) {
-    return '$count 個のコマンドを削除しますか？';
+    return '$count Ã¥â‚¬â€¹Ã£ÂÂ®Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸';
   }
 
   @override
   String cmd_batch_delete_success(Object count) {
-    return '$count 個のコマンドを削除しました';
+    return '$count Ã¥â‚¬â€¹Ã£ÂÂ®Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
   }
 
   @override
   String cmd_delete_confirm(Object name) {
-    return 'コマンド \"$name\" を削除しますか？';
+    return 'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€° \"$name\" Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸';
   }
 
   @override
   String cmd_delete_success(Object name) {
-    return 'コマンド \"$name\" を削除しました';
+    return 'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€° \"$name\" Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
   }
 
   @override
-  String get cmd_delete_tooltip => 'コマンドを削除';
+  String get cmd_delete_tooltip =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get cmd_deploy_close_button => '閉じる';
+  String get cmd_deploy_close_button => 'Ã©â€“â€°Ã£ÂËœÃ£â€šâ€¹';
 
   @override
-  String get cmd_deploy_cloud_sync_subtitle => 'オンラインスペースとの安全な同期';
+  String get cmd_deploy_cloud_sync_subtitle =>
+      'Ã£â€šÂªÃ£Æ’Â³Ã£Æ’Â©Ã£â€šÂ¤Ã£Æ’Â³Ã£â€šÂ¹Ã£Æ’Å¡Ã£Æ’Â¼Ã£â€šÂ¹Ã£ÂÂ¨Ã£ÂÂ®Ã¥Â®â€°Ã¥â€¦Â¨Ã£ÂÂªÃ¥ÂÅ’Ã¦Å“Å¸';
 
   @override
-  String get cmd_deploy_cloud_sync_title => 'クラウドバックアップ';
+  String get cmd_deploy_cloud_sync_title =>
+      'Ã£â€šÂ¯Ã£Æ’Â©Ã£â€šÂ¦Ã£Æ’â€°Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¢Ã£Æ’Æ’Ã£Æ’â€”';
 
   @override
   String cmd_deploy_config_subtitle(String name) {
-    return '/$name の設定';
+    return '/$name Ã£ÂÂ®Ã¨Â¨Â­Ã¥Â®Å¡';
   }
 
   @override
-  String get cmd_deploy_discord_sync_subtitle => 'コマンドをDiscord APIに公開中';
+  String get cmd_deploy_discord_sync_subtitle =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Discord APIÃ£ÂÂ«Ã¥â€¦Â¬Ã©â€“â€¹Ã¤Â¸Â­';
 
   @override
-  String get cmd_deploy_discord_sync_title => 'Discord同期';
+  String get cmd_deploy_discord_sync_title => 'DiscordÃ¥ÂÅ’Ã¦Å“Å¸';
 
   @override
-  String get cmd_deploy_failed_title => 'デプロイ失敗';
+  String get cmd_deploy_failed_title =>
+      'Ã£Æ’â€¡Ã£Æ’â€”Ã£Æ’Â­Ã£â€šÂ¤Ã¥Â¤Â±Ã¦â€¢â€”';
 
   @override
-  String get cmd_deploy_hot_reload_subtitle => 'ボットランナーの即時更新';
+  String get cmd_deploy_hot_reload_subtitle =>
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼Ã£ÂÂ®Ã¥ÂÂ³Ã¦â„¢â€šÃ¦â€ºÂ´Ã¦â€“Â°';
 
   @override
-  String get cmd_deploy_hot_reload_title => 'ホットリロード';
+  String get cmd_deploy_hot_reload_title =>
+      'Ã£Æ’â€ºÃ£Æ’Æ’Ã£Æ’Ë†Ã£Æ’ÂªÃ£Æ’Â­Ã£Æ’Â¼Ã£Æ’â€°';
 
   @override
-  String get cmd_deploy_in_progress_title => 'デプロイ中...';
+  String get cmd_deploy_in_progress_title =>
+      'Ã£Æ’â€¡Ã£Æ’â€”Ã£Æ’Â­Ã£â€šÂ¤Ã¤Â¸Â­...';
 
   @override
-  String get cmd_deploy_local_save_subtitle => 'コマンドをデバイスに保存中';
+  String get cmd_deploy_local_save_subtitle =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã£Æ’â€¡Ã£Æ’ÂÃ£â€šÂ¤Ã£â€šÂ¹Ã£ÂÂ«Ã¤Â¿ÂÃ¥Â­ËœÃ¤Â¸Â­';
 
   @override
-  String get cmd_deploy_local_save_title => 'ローカル保存';
+  String get cmd_deploy_local_save_title =>
+      'Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã¤Â¿ÂÃ¥Â­Ëœ';
 
   @override
-  String get cmd_deploy_reload_bot_subtitle => 'ホットリロード設定を適用中';
+  String get cmd_deploy_reload_bot_subtitle =>
+      'Ã£Æ’â€ºÃ£Æ’Æ’Ã£Æ’Ë†Ã£Æ’ÂªÃ£Æ’Â­Ã£Æ’Â¼Ã£Æ’â€°Ã¨Â¨Â­Ã¥Â®Å¡Ã£â€šâ€™Ã©ÂÂ©Ã§â€Â¨Ã¤Â¸Â­';
 
   @override
-  String get cmd_deploy_reload_bot_title => 'ボットを再読み込み中';
+  String get cmd_deploy_reload_bot_title =>
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¥â€ ÂÃ¨ÂªÂ­Ã£ÂÂ¿Ã¨Â¾Â¼Ã£ÂÂ¿Ã¤Â¸Â­';
 
   @override
-  String get cmd_deploy_retry_button => '再試行';
+  String get cmd_deploy_retry_button => 'Ã¥â€ ÂÃ¨Â©Â¦Ã¨Â¡Å’';
 
   @override
-  String get cmd_deploy_success_title => 'デプロイ成功！';
+  String get cmd_deploy_success_title =>
+      'Ã£Æ’â€¡Ã£Æ’â€”Ã£Æ’Â­Ã£â€šÂ¤Ã¦Ë†ÂÃ¥Å Å¸Ã¯Â¼Â';
 
   @override
   String cmd_deploy_success_toast(String name) {
-    return 'コマンド \"$name\" がデプロイされ、有効になりました！';
+    return 'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€° \"$name\" Ã£ÂÅ’Ã£Æ’â€¡Ã£Æ’â€”Ã£Æ’Â­Ã£â€šÂ¤Ã£Ââ€¢Ã£â€šÅ’Ã£â‚¬ÂÃ¦Å“â€°Ã¥Å Â¹Ã£ÂÂ«Ã£ÂÂªÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã¯Â¼Â';
   }
 
   @override
-  String get cmd_editor_mode_advanced => '詳細モード';
+  String get cmd_editor_mode_advanced => 'Ã¨Â©Â³Ã§Â´Â°Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°';
 
   @override
   String get cmd_editor_mode_advanced_desc =>
-      'カスタムレスポンス、オプション、アクションビルダーを備えたフルエディタ。';
+      'Ã£â€šÂ«Ã£â€šÂ¹Ã£â€šÂ¿Ã£Æ’Â Ã£Æ’Â¬Ã£â€šÂ¹Ã£Æ’ÂÃ£Æ’Â³Ã£â€šÂ¹Ã£â‚¬ÂÃ£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â‚¬ÂÃ£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£Æ’â€œÃ£Æ’Â«Ã£Æ’â‚¬Ã£Æ’Â¼Ã£â€šâ€™Ã¥â€šâ„¢Ã£ÂË†Ã£ÂÅ¸Ã£Æ’â€¢Ã£Æ’Â«Ã£â€šÂ¨Ã£Æ’â€¡Ã£â€šÂ£Ã£â€šÂ¿Ã£â‚¬â€š';
 
   @override
-  String get cmd_editor_mode_locked => 'このコマンドでは詳細モードがロックされています。';
+  String get cmd_editor_mode_locked =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ§Ã£ÂÂ¯Ã¨Â©Â³Ã§Â´Â°Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°Ã£ÂÅ’Ã£Æ’Â­Ã£Æ’Æ’Ã£â€šÂ¯Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¦Ã£Ââ€žÃ£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get cmd_editor_mode_simple => 'シンプルモード';
+  String get cmd_editor_mode_simple =>
+      'Ã£â€šÂ·Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â«Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°';
 
   @override
   String get cmd_editor_mode_simple_desc =>
-      'ガイド付きオプションと事前設定されたアクションで素早くコマンドを構築。';
+      'Ã£â€šÂ¬Ã£â€šÂ¤Ã£Æ’â€°Ã¤Â»ËœÃ£ÂÂÃ£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ¨Ã¤Âºâ€¹Ã¥â€°ÂÃ¨Â¨Â­Ã¥Â®Å¡Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ§Ã§Â´Â Ã¦â€”Â©Ã£ÂÂÃ£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¦Â§â€¹Ã§Â¯â€°Ã£â‚¬â€š';
 
   @override
-  String get cmd_editor_mode_switch_adv => '詳細モードに切り替え';
+  String get cmd_editor_mode_switch_adv =>
+      'Ã¨Â©Â³Ã§Â´Â°Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°Ã£ÂÂ«Ã¥Ë†â€¡Ã£â€šÅ Ã¦â€ºÂ¿Ã£ÂË†';
 
   @override
-  String get cmd_editor_mode_switch_adv_confirm => '切り替え';
+  String get cmd_editor_mode_switch_adv_confirm =>
+      'Ã¥Ë†â€¡Ã£â€šÅ Ã¦â€ºÂ¿Ã£ÂË†';
 
   @override
   String get cmd_editor_mode_switch_adv_content =>
-      'この切り替えはこのコマンドでは一方通行です。シンプルモードに戻ることはできません。';
+      'Ã£Ââ€œÃ£ÂÂ®Ã¥Ë†â€¡Ã£â€šÅ Ã¦â€ºÂ¿Ã£ÂË†Ã£ÂÂ¯Ã£Ââ€œÃ£ÂÂ®Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ§Ã£ÂÂ¯Ã¤Â¸â‚¬Ã¦â€“Â¹Ã©â‚¬Å¡Ã¨Â¡Å’Ã£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€šÃ£â€šÂ·Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â«Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°Ã£ÂÂ«Ã¦Ë†Â»Ã£â€šâ€¹Ã£Ââ€œÃ£ÂÂ¨Ã£ÂÂ¯Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
-  String get cmd_editor_mode_switch_adv_title => '詳細モードに切り替えますか？';
+  String get cmd_editor_mode_switch_adv_title =>
+      'Ã¨Â©Â³Ã§Â´Â°Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°Ã£ÂÂ«Ã¥Ë†â€¡Ã£â€šÅ Ã¦â€ºÂ¿Ã£ÂË†Ã£ÂÂ¾Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸';
 
   @override
-  String get cmd_editor_mode_title => '編集モード';
+  String get cmd_editor_mode_title => 'Ã§Â·Â¨Ã©â€ºâ€ Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°';
 
   @override
-  String get cmd_error_fill_fields => 'すべてのフィールドに入力してください';
+  String get cmd_error_fill_fields =>
+      'Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÂ®Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’â€°Ã£ÂÂ«Ã¥â€¦Â¥Ã¥Å â€ºÃ£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€ž';
 
   @override
-  String get cmd_execution_mode_bdfd => 'BDFD スクリプトモード';
+  String get cmd_execution_mode_bdfd =>
+      'BDFD Ã£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë†Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°';
 
   @override
   String get cmd_execution_mode_bdfd_desc =>
-      'コマンド定義をビジュアルに保ちながら、コマンド本文をBDFDスタイルのスクリプトとして記述します。';
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã¥Â®Å¡Ã§Â¾Â©Ã£â€šâ€™Ã£Æ’â€œÃ£â€šÂ¸Ã£Æ’Â¥Ã£â€šÂ¢Ã£Æ’Â«Ã£ÂÂ«Ã¤Â¿ÂÃ£ÂÂ¡Ã£ÂÂªÃ£ÂÅ’Ã£â€šâ€°Ã£â‚¬ÂÃ£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã¦Å“Â¬Ã¦â€“â€¡Ã£â€šâ€™BDFDÃ£â€šÂ¹Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â«Ã£ÂÂ®Ã£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë†Ã£ÂÂ¨Ã£Ââ€”Ã£ÂÂ¦Ã¨Â¨ËœÃ¨Â¿Â°Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get cmd_execution_mode_bdfd_note =>
-      'スクリプトは内部アクションにコンパイルされます。編集中に診断が表示されます。無効なスクリプトは保存できません。';
+      'Ã£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë†Ã£ÂÂ¯Ã¥â€ â€¦Ã©Æ’Â¨Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ«Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€˜Ã£â€šÂ¤Ã£Æ’Â«Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ§Â·Â¨Ã©â€ºâ€ Ã¤Â¸Â­Ã£ÂÂ«Ã¨Â¨ÂºÃ¦â€“Â­Ã£ÂÅ’Ã¨Â¡Â¨Ã§Â¤ÂºÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ§â€žÂ¡Ã¥Å Â¹Ã£ÂÂªÃ£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë†Ã£ÂÂ¯Ã¤Â¿ÂÃ¥Â­ËœÃ£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
-  String get cmd_execution_mode_dart => 'Dart ダイレクトモード';
+  String get cmd_execution_mode_dart =>
+      'Dart Ã£Æ’â‚¬Ã£â€šÂ¤Ã£Æ’Â¬Ã£â€šÂ¯Ã£Æ’Ë†Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°';
 
   @override
-  String get cmd_execution_mode_dart_desc => 'ランタイム診断付きでコマンド本文を直接Dartで記述します。';
+  String get cmd_execution_mode_dart_desc =>
+      'Ã£Æ’Â©Ã£Æ’Â³Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â Ã¨Â¨ÂºÃ¦â€“Â­Ã¤Â»ËœÃ£ÂÂÃ£ÂÂ§Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã¦Å“Â¬Ã¦â€“â€¡Ã£â€šâ€™Ã§â€ºÂ´Ã¦Å½Â¥DartÃ£ÂÂ§Ã¨Â¨ËœÃ¨Â¿Â°Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get cmd_execution_mode_dart_note =>
-      'Dartコードはサンドボックスエンジンを通じて実行時にコンパイルされます。スクリプトは決定論的かつ安全に保ってください。';
+      'DartÃ£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€°Ã£ÂÂ¯Ã£â€šÂµÃ£Æ’Â³Ã£Æ’â€°Ã£Æ’Å“Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¹Ã£â€šÂ¨Ã£Æ’Â³Ã£â€šÂ¸Ã£Æ’Â³Ã£â€šâ€™Ã©â‚¬Å¡Ã£ÂËœÃ£ÂÂ¦Ã¥Â®Å¸Ã¨Â¡Å’Ã¦â„¢â€šÃ£ÂÂ«Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€˜Ã£â€šÂ¤Ã£Æ’Â«Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë†Ã£ÂÂ¯Ã¦Â±ÂºÃ¥Â®Å¡Ã¨Â«â€“Ã§Å¡â€žÃ£Ââ€¹Ã£ÂÂ¤Ã¥Â®â€°Ã¥â€¦Â¨Ã£ÂÂ«Ã¤Â¿ÂÃ£ÂÂ£Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
   String get cmd_execution_mode_javascript => 'JavaScript';
 
   @override
-  String get cmd_execution_mode_javascript_desc => 'このコマンドのカスタムJSコードを記述します。';
+  String get cmd_execution_mode_javascript_desc =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ®Ã£â€šÂ«Ã£â€šÂ¹Ã£â€šÂ¿Ã£Æ’Â JSÃ£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€°Ã£â€šâ€™Ã¨Â¨ËœÃ¨Â¿Â°Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get cmd_execution_mode_javascript_note =>
-      'すべてのBDFD関数が非同期JS関数として利用可能です。ctx.authorId、ctx.channelId、vars[\'key\']でコンテキストと変数にアクセスします。';
+      'Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÂ®BDFDÃ©â€“Â¢Ã¦â€¢Â°Ã£ÂÅ’Ã©ÂÅ¾Ã¥ÂÅ’Ã¦Å“Å¸JSÃ©â€“Â¢Ã¦â€¢Â°Ã£ÂÂ¨Ã£Ââ€”Ã£ÂÂ¦Ã¥Ë†Â©Ã§â€Â¨Ã¥ÂÂ¯Ã¨Æ’Â½Ã£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€šctx.authorIdÃ£â‚¬Âctx.channelIdÃ£â‚¬Âvars[\'key\']Ã£ÂÂ§Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã£ÂÂ¨Ã¥Â¤â€°Ã¦â€¢Â°Ã£ÂÂ«Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ»Ã£â€šÂ¹Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get cmd_execution_mode_desc =>
-      'コマンドメタデータはビジュアルビルダーに残ります。コマンド本文の実行方法を選択してください。';
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£Æ’Â¡Ã£â€šÂ¿Ã£Æ’â€¡Ã£Æ’Â¼Ã£â€šÂ¿Ã£ÂÂ¯Ã£Æ’â€œÃ£â€šÂ¸Ã£Æ’Â¥Ã£â€šÂ¢Ã£Æ’Â«Ã£Æ’â€œÃ£Æ’Â«Ã£Æ’â‚¬Ã£Æ’Â¼Ã£ÂÂ«Ã¦Â®â€¹Ã£â€šÅ Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã¦Å“Â¬Ã¦â€“â€¡Ã£ÂÂ®Ã¥Â®Å¸Ã¨Â¡Å’Ã¦â€“Â¹Ã¦Â³â€¢Ã£â€šâ€™Ã©ÂÂ¸Ã¦Å Å¾Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get cmd_execution_mode_title => '実行モード';
+  String get cmd_execution_mode_title => 'Ã¥Â®Å¸Ã¨Â¡Å’Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°';
 
   @override
-  String get cmd_execution_mode_workflow => 'ワークフローモード';
+  String get cmd_execution_mode_workflow =>
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°';
 
   @override
   String get cmd_execution_mode_workflow_desc =>
-      '既存のビジュアルレスポンスとアクションビルダーを使用します。';
+      'Ã¦â€”Â¢Ã¥Â­ËœÃ£ÂÂ®Ã£Æ’â€œÃ£â€šÂ¸Ã£Æ’Â¥Ã£â€šÂ¢Ã£Æ’Â«Ã£Æ’Â¬Ã£â€šÂ¹Ã£Æ’ÂÃ£Æ’Â³Ã£â€šÂ¹Ã£ÂÂ¨Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£Æ’â€œÃ£Æ’Â«Ã£Æ’â‚¬Ã£Æ’Â¼Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get cmd_execution_mode_workflow_note =>
-      'ワークフローモードは現在の本番パスであり、引き続き完全にサポートされています。';
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°Ã£ÂÂ¯Ã§ÂÂ¾Ã¥Å“Â¨Ã£ÂÂ®Ã¦Å“Â¬Ã§â€¢ÂªÃ£Æ’â€˜Ã£â€šÂ¹Ã£ÂÂ§Ã£Ââ€šÃ£â€šÅ Ã£â‚¬ÂÃ¥Â¼â€¢Ã£ÂÂÃ§Â¶Å¡Ã£ÂÂÃ¥Â®Å’Ã¥â€¦Â¨Ã£ÂÂ«Ã£â€šÂµÃ£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¦Ã£Ââ€žÃ£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get cmd_migrate_bdfd_to_dart_action => '移行';
+  String get cmd_migrate_bdfd_to_dart_action => 'Ã§Â§Â»Ã¨Â¡Å’';
 
   @override
   String get cmd_migrate_bdfd_to_dart_desc =>
-      '現在のBDFDスクリプトからDart移行スキャフォールドを生成します。';
+      'Ã§ÂÂ¾Ã¥Å“Â¨Ã£ÂÂ®BDFDÃ£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë†Ã£Ââ€¹Ã£â€šâ€°DartÃ§Â§Â»Ã¨Â¡Å’Ã£â€šÂ¹Ã£â€šÂ­Ã£Æ’Â£Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’â€°Ã£â€šâ€™Ã§â€Å¸Ã¦Ë†ÂÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get cmd_offline_incomplete_warning =>
-      'このコマンドは完全に読み込めませんでした（オフラインまたはトークン無効）。有効なトークンを接続してください。';
+      'Ã£Ââ€œÃ£ÂÂ®Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ¯Ã¥Â®Å’Ã¥â€¦Â¨Ã£ÂÂ«Ã¨ÂªÂ­Ã£ÂÂ¿Ã¨Â¾Â¼Ã£â€šÂÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£ÂÂ§Ã£Ââ€”Ã£ÂÅ¸Ã¯Â¼Ë†Ã£â€šÂªÃ£Æ’â€¢Ã£Æ’Â©Ã£â€šÂ¤Ã£Æ’Â³Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã§â€žÂ¡Ã¥Å Â¹Ã¯Â¼â€°Ã£â‚¬â€šÃ¦Å“â€°Ã¥Å Â¹Ã£ÂÂªÃ£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£â€šâ€™Ã¦Å½Â¥Ã§Â¶Å¡Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get cmd_show_variables => '変数ドキュメントを開く';
+  String get cmd_show_variables =>
+      'Ã¥Â¤â€°Ã¦â€¢Â°Ã£Æ’â€°Ã£â€šÂ­Ã£Æ’Â¥Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’Ë†Ã£â€šâ€™Ã©â€“â€¹Ã£ÂÂ';
 
   @override
-  String get cmd_simple_action_add_role => 'ロールを追加';
+  String get cmd_simple_action_add_role =>
+      'Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’Â«Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
   String get cmd_simple_action_add_role_desc =>
-      '選択した /role を選択した /user に付与します。';
+      'Ã©ÂÂ¸Ã¦Å Å¾Ã£Ââ€”Ã£ÂÅ¸ /role Ã£â€šâ€™Ã©ÂÂ¸Ã¦Å Å¾Ã£Ââ€”Ã£ÂÅ¸ /user Ã£ÂÂ«Ã¤Â»ËœÃ¤Â¸Å½Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get cmd_simple_action_ban => 'ユーザーを追放';
+  String get cmd_simple_action_ban =>
+      'Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£â€šâ€™Ã¨Â¿Â½Ã¦â€Â¾';
 
   @override
-  String get cmd_simple_action_ban_delete_days_hint => '削除する最近のメッセージの日数 (0〜7)';
+  String get cmd_simple_action_ban_delete_days_hint =>
+      'Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ„¢Ã£â€šâ€¹Ã¦Å“â‚¬Ã¨Â¿â€˜Ã£ÂÂ®Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£ÂÂ®Ã¦â€”Â¥Ã¦â€¢Â° (0Ã£â‚¬Å“7)';
 
   @override
-  String get cmd_simple_action_ban_delete_days_label => '追放時のメッセージ削除日数';
+  String get cmd_simple_action_ban_delete_days_label =>
+      'Ã¨Â¿Â½Ã¦â€Â¾Ã¦â„¢â€šÃ£ÂÂ®Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã¥â€°Å Ã©â„¢Â¤Ã¦â€”Â¥Ã¦â€¢Â°';
 
   @override
-  String get cmd_simple_action_ban_desc => '選択した /user をサーバーから追放します。';
+  String get cmd_simple_action_ban_desc =>
+      'Ã©ÂÂ¸Ã¦Å Å¾Ã£Ââ€”Ã£ÂÅ¸ /user Ã£â€šâ€™Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£Ââ€¹Ã£â€šâ€°Ã¨Â¿Â½Ã¦â€Â¾Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get cmd_simple_action_create_invite => '招待を作成';
+  String get cmd_simple_action_create_invite =>
+      'Ã¦â€¹â€ºÃ¥Â¾â€¦Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†Â';
 
   @override
   String get cmd_simple_action_create_invite_desc =>
-      '現在のチャンネルまたはオプションの /channel の招待を作成します。';
+      'Ã§ÂÂ¾Ã¥Å“Â¨Ã£ÂÂ®Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ® /channel Ã£ÂÂ®Ã¦â€¹â€ºÃ¥Â¾â€¦Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†ÂÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get cmd_simple_action_create_poll => '投票を作成';
+  String get cmd_simple_action_create_poll =>
+      'Ã¦Å â€¢Ã§Â¥Â¨Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†Â';
 
   @override
   String get cmd_simple_action_create_poll_desc =>
-      '動的な /question と固定の回答選択肢で投票を作成します。';
+      'Ã¥â€¹â€¢Ã§Å¡â€žÃ£ÂÂª /question Ã£ÂÂ¨Ã¥â€ºÂºÃ¥Â®Å¡Ã£ÂÂ®Ã¥â€ºÅ¾Ã§Â­â€Ã©ÂÂ¸Ã¦Å Å¾Ã¨â€šÂ¢Ã£ÂÂ§Ã¦Å â€¢Ã§Â¥Â¨Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†ÂÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get cmd_simple_action_delete => 'メッセージを削除';
+  String get cmd_simple_action_delete =>
+      'Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
   String get cmd_simple_action_delete_default_count_hint =>
-      '/count が指定されていない場合に使用';
+      '/count Ã£ÂÅ’Ã¦Å’â€¡Ã¥Â®Å¡Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¦Ã£Ââ€žÃ£ÂÂªÃ£Ââ€žÃ¥Â Â´Ã¥ÂË†Ã£ÂÂ«Ã¤Â½Â¿Ã§â€Â¨';
 
   @override
-  String get cmd_simple_action_delete_default_count_label => 'デフォルト削除数';
+  String get cmd_simple_action_delete_default_count_label =>
+      'Ã£Æ’â€¡Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â«Ã£Æ’Ë†Ã¥â€°Å Ã©â„¢Â¤Ã¦â€¢Â°';
 
   @override
   String get cmd_simple_action_delete_desc =>
-      '現在のチャンネルのメッセージを削除します (オプションの /count)。';
+      'Ã§ÂÂ¾Ã¥Å“Â¨Ã£ÂÂ®Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã£ÂÂ®Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢ (Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ® /count)Ã£â‚¬â€š';
 
   @override
-  String get cmd_simple_action_kick => 'ユーザーをキック';
+  String get cmd_simple_action_kick =>
+      'Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£â€šâ€™Ã£â€šÂ­Ã£Æ’Æ’Ã£â€šÂ¯';
 
   @override
-  String get cmd_simple_action_kick_desc => '選択した /user をサーバーからキックします。';
+  String get cmd_simple_action_kick_desc =>
+      'Ã©ÂÂ¸Ã¦Å Å¾Ã£Ââ€”Ã£ÂÅ¸ /user Ã£â€šâ€™Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£Ââ€¹Ã£â€šâ€°Ã£â€šÂ­Ã£Æ’Æ’Ã£â€šÂ¯Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get cmd_simple_action_mute => 'ユーザーをミュート';
+  String get cmd_simple_action_mute =>
+      'Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£â€šâ€™Ã£Æ’Å¸Ã£Æ’Â¥Ã£Æ’Â¼Ã£Æ’Ë†';
 
   @override
-  String get cmd_simple_action_mute_desc => '選択した /user を一時的にミュートします。';
+  String get cmd_simple_action_mute_desc =>
+      'Ã©ÂÂ¸Ã¦Å Å¾Ã£Ââ€”Ã£ÂÅ¸ /user Ã£â€šâ€™Ã¤Â¸â‚¬Ã¦â„¢â€šÃ§Å¡â€žÃ£ÂÂ«Ã£Æ’Å¸Ã£Æ’Â¥Ã£Æ’Â¼Ã£Æ’Ë†Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get cmd_simple_action_mute_duration_hint => '例: 10m, 2h, 1d, または秒数';
+  String get cmd_simple_action_mute_duration_hint =>
+      'Ã¤Â¾â€¹: 10m, 2h, 1d, Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã§Â§â€™Ã¦â€¢Â°';
 
   @override
-  String get cmd_simple_action_mute_duration_label => 'ミュート時間';
+  String get cmd_simple_action_mute_duration_label =>
+      'Ã£Æ’Å¸Ã£Æ’Â¥Ã£Æ’Â¼Ã£Æ’Ë†Ã¦â„¢â€šÃ©â€“â€œ';
 
   @override
-  String get cmd_simple_action_pin => 'メッセージをピン留め';
+  String get cmd_simple_action_pin =>
+      'Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£â€šâ€™Ã£Æ’â€Ã£Æ’Â³Ã§â€¢â„¢Ã£â€šÂ';
 
   @override
   String get cmd_simple_action_pin_desc =>
-      '/message_id を使用して現在のチャンネルのメッセージをピン留めします。';
+      '/message_id Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ€”Ã£ÂÂ¦Ã§ÂÂ¾Ã¥Å“Â¨Ã£ÂÂ®Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã£ÂÂ®Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£â€šâ€™Ã£Æ’â€Ã£Æ’Â³Ã§â€¢â„¢Ã£â€šÂÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get cmd_simple_action_reason_hint => 'モデレーションアクションで共有されるオプションの理由';
+  String get cmd_simple_action_reason_hint =>
+      'Ã£Æ’Â¢Ã£Æ’â€¡Ã£Æ’Â¬Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ§Ã¥â€¦Â±Ã¦Å“â€°Ã£Ââ€¢Ã£â€šÅ’Ã£â€šâ€¹Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ®Ã§Ââ€ Ã§â€Â±';
 
   @override
-  String get cmd_simple_action_reason_label => '監査ログの理由';
+  String get cmd_simple_action_reason_label =>
+      'Ã§â€ºÂ£Ã¦Å¸Â»Ã£Æ’Â­Ã£â€šÂ°Ã£ÂÂ®Ã§Ââ€ Ã§â€Â±';
 
   @override
-  String get cmd_simple_action_remove_role => 'ロールを削除';
+  String get cmd_simple_action_remove_role =>
+      'Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’Â«Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
   String get cmd_simple_action_remove_role_desc =>
-      '選択した /role を選択した /user から削除します。';
+      'Ã©ÂÂ¸Ã¦Å Å¾Ã£Ââ€”Ã£ÂÅ¸ /role Ã£â€šâ€™Ã©ÂÂ¸Ã¦Å Å¾Ã£Ââ€”Ã£ÂÅ¸ /user Ã£Ââ€¹Ã£â€šâ€°Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get cmd_simple_action_send_message => 'メッセージを送信';
+  String get cmd_simple_action_send_message =>
+      'Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£â€šâ€™Ã©â‚¬ÂÃ¤Â¿Â¡';
 
   @override
-  String get cmd_simple_action_send_message_desc => '現在のチャンネルに追加メッセージを送信します。';
+  String get cmd_simple_action_send_message_desc =>
+      'Ã§ÂÂ¾Ã¥Å“Â¨Ã£ÂÂ®Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã£ÂÂ«Ã¨Â¿Â½Ã¥Å Â Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£â€šâ€™Ã©â‚¬ÂÃ¤Â¿Â¡Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get cmd_simple_action_send_message_hint => 'メッセージ送信アクションで送信されるメッセージ';
+  String get cmd_simple_action_send_message_hint =>
+      'Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã©â‚¬ÂÃ¤Â¿Â¡Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ§Ã©â‚¬ÂÃ¤Â¿Â¡Ã£Ââ€¢Ã£â€šÅ’Ã£â€šâ€¹Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸';
 
   @override
-  String get cmd_simple_action_send_message_label => 'アクションメッセージ';
+  String get cmd_simple_action_send_message_label =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸';
 
   @override
-  String get cmd_simple_action_unban => '追放解除';
+  String get cmd_simple_action_unban => 'Ã¨Â¿Â½Ã¦â€Â¾Ã¨Â§Â£Ã©â„¢Â¤';
 
   @override
   String get cmd_simple_action_unban_desc =>
-      '指定された /user_id 文字列でユーザーの追放を解除します。';
+      'Ã¦Å’â€¡Ã¥Â®Å¡Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸ /user_id Ã¦â€“â€¡Ã¥Â­â€”Ã¥Ë†â€”Ã£ÂÂ§Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£ÂÂ®Ã¨Â¿Â½Ã¦â€Â¾Ã£â€šâ€™Ã¨Â§Â£Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get cmd_simple_action_unmute => 'ミュート解除';
+  String get cmd_simple_action_unmute =>
+      'Ã£Æ’Å¸Ã£Æ’Â¥Ã£Æ’Â¼Ã£Æ’Ë†Ã¨Â§Â£Ã©â„¢Â¤';
 
   @override
-  String get cmd_simple_action_unmute_desc => '選択した /user のタイムアウトを解除します。';
+  String get cmd_simple_action_unmute_desc =>
+      'Ã©ÂÂ¸Ã¦Å Å¾Ã£Ââ€”Ã£ÂÅ¸ /user Ã£ÂÂ®Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â Ã£â€šÂ¢Ã£â€šÂ¦Ã£Æ’Ë†Ã£â€šâ€™Ã¨Â§Â£Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get cmd_simple_action_unpin => 'ピン留め解除';
+  String get cmd_simple_action_unpin =>
+      'Ã£Æ’â€Ã£Æ’Â³Ã§â€¢â„¢Ã£â€šÂÃ¨Â§Â£Ã©â„¢Â¤';
 
   @override
   String get cmd_simple_action_unpin_desc =>
-      '/message_id を使用して現在のチャンネルのメッセージのピン留めを解除します。';
+      '/message_id Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ€”Ã£ÂÂ¦Ã§ÂÂ¾Ã¥Å“Â¨Ã£ÂÂ®Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã£ÂÂ®Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£ÂÂ®Ã£Æ’â€Ã£Æ’Â³Ã§â€¢â„¢Ã£â€šÂÃ£â€šâ€™Ã¨Â§Â£Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get cmd_simple_actions_desc => 'このコマンドの動作を選択してください。オプションは自動生成されます。';
+  String get cmd_simple_actions_desc =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ®Ã¥â€¹â€¢Ã¤Â½Å“Ã£â€šâ€™Ã©ÂÂ¸Ã¦Å Å¾Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€šÃ£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ¯Ã¨â€¡ÂªÃ¥â€¹â€¢Ã§â€Å¸Ã¦Ë†ÂÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get cmd_simple_actions_title => 'シンプルアクション';
+  String get cmd_simple_actions_title =>
+      'Ã£â€šÂ·Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â«Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³';
 
   @override
   String get cmd_simple_conflict_ban_unban =>
-      'シンプルモードでは「ユーザー追放」と「追放解除」を同時に有効にできません。';
+      'Ã£â€šÂ·Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â«Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°Ã£ÂÂ§Ã£ÂÂ¯Ã£â‚¬Å’Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã¨Â¿Â½Ã¦â€Â¾Ã£â‚¬ÂÃ£ÂÂ¨Ã£â‚¬Å’Ã¨Â¿Â½Ã¦â€Â¾Ã¨Â§Â£Ã©â„¢Â¤Ã£â‚¬ÂÃ£â€šâ€™Ã¥ÂÅ’Ã¦â„¢â€šÃ£ÂÂ«Ã¦Å“â€°Ã¥Å Â¹Ã£ÂÂ«Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
   String get cmd_simple_conflict_mute_unmute =>
-      'シンプルモードでは「ユーザーミュート」と「ミュート解除」を同時に有効にできません。';
+      'Ã£â€šÂ·Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â«Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°Ã£ÂÂ§Ã£ÂÂ¯Ã£â‚¬Å’Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£Æ’Å¸Ã£Æ’Â¥Ã£Æ’Â¼Ã£Æ’Ë†Ã£â‚¬ÂÃ£ÂÂ¨Ã£â‚¬Å’Ã£Æ’Å¸Ã£Æ’Â¥Ã£Æ’Â¼Ã£Æ’Ë†Ã¨Â§Â£Ã©â„¢Â¤Ã£â‚¬ÂÃ£â€šâ€™Ã¥ÂÅ’Ã¦â„¢â€šÃ£ÂÂ«Ã¦Å“â€°Ã¥Å Â¹Ã£ÂÂ«Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
   String get cmd_simple_conflict_pin_unpin =>
-      'シンプルモードでは「ピン留め」と「ピン留め解除」を同時に有効にできません。';
+      'Ã£â€šÂ·Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â«Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°Ã£ÂÂ§Ã£ÂÂ¯Ã£â‚¬Å’Ã£Æ’â€Ã£Æ’Â³Ã§â€¢â„¢Ã£â€šÂÃ£â‚¬ÂÃ£ÂÂ¨Ã£â‚¬Å’Ã£Æ’â€Ã£Æ’Â³Ã§â€¢â„¢Ã£â€šÂÃ¨Â§Â£Ã©â„¢Â¤Ã£â‚¬ÂÃ£â€šâ€™Ã¥ÂÅ’Ã¦â„¢â€šÃ£ÂÂ«Ã¦Å“â€°Ã¥Å Â¹Ã£ÂÂ«Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
-  String get cmd_simple_execution_desc => 'シンプルモードを離れずに生成されたアクションを微調整します。';
+  String get cmd_simple_execution_desc =>
+      'Ã£â€šÂ·Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â«Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°Ã£â€šâ€™Ã©â€ºÂ¢Ã£â€šÅ’Ã£ÂÅ¡Ã£ÂÂ«Ã§â€Å¸Ã¦Ë†ÂÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¥Â¾Â®Ã¨ÂªÂ¿Ã¦â€¢Â´Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get cmd_simple_execution_title => '実行設定';
+  String get cmd_simple_execution_title => 'Ã¥Â®Å¸Ã¨Â¡Å’Ã¨Â¨Â­Ã¥Â®Å¡';
 
   @override
   String get cmd_simple_generated_none =>
-      'まだオプションが生成されていません。少なくとも1つのアクションを選択してください。';
+      'Ã£ÂÂ¾Ã£ÂÂ Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÅ’Ã§â€Å¸Ã¦Ë†ÂÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¦Ã£Ââ€žÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€šÃ¥Â°â€˜Ã£ÂÂªÃ£ÂÂÃ£ÂÂ¨Ã£â€šâ€š1Ã£ÂÂ¤Ã£ÂÂ®Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã©ÂÂ¸Ã¦Å Å¾Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get cmd_simple_generated_options => '生成されたコマンドオプション';
+  String get cmd_simple_generated_options =>
+      'Ã§â€Å¸Ã¦Ë†ÂÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³';
 
   @override
   String get cmd_simple_group_messages_desc =>
-      '現在のコンテキストで動作するメッセージとチャンネルアクション。';
+      'Ã§ÂÂ¾Ã¥Å“Â¨Ã£ÂÂ®Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã£ÂÂ§Ã¥â€¹â€¢Ã¤Â½Å“Ã£Ââ„¢Ã£â€šâ€¹Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£ÂÂ¨Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â‚¬â€š';
 
   @override
-  String get cmd_simple_group_messages_title => 'メッセージ';
+  String get cmd_simple_group_messages_title =>
+      'Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸';
 
   @override
   String get cmd_simple_group_moderation_desc =>
-      'ガイド付きオプション付きのメンバーとモデレーションアクション。';
+      'Ã£â€šÂ¬Ã£â€šÂ¤Ã£Æ’â€°Ã¤Â»ËœÃ£ÂÂÃ£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã¤Â»ËœÃ£ÂÂÃ£ÂÂ®Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£ÂÂ¨Ã£Æ’Â¢Ã£Æ’â€¡Ã£Æ’Â¬Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â‚¬â€š';
 
   @override
-  String get cmd_simple_group_moderation_title => 'モデレーション';
+  String get cmd_simple_group_moderation_title =>
+      'Ã£Æ’Â¢Ã£Æ’â€¡Ã£Æ’Â¬Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³';
 
   @override
-  String get cmd_simple_group_utility_desc => '招待や投票などの便利な追加機能。';
+  String get cmd_simple_group_utility_desc =>
+      'Ã¦â€¹â€ºÃ¥Â¾â€¦Ã£â€šâ€žÃ¦Å â€¢Ã§Â¥Â¨Ã£ÂÂªÃ£ÂÂ©Ã£ÂÂ®Ã¤Â¾Â¿Ã¥Ë†Â©Ã£ÂÂªÃ¨Â¿Â½Ã¥Å Â Ã¦Â©Å¸Ã¨Æ’Â½Ã£â‚¬â€š';
 
   @override
-  String get cmd_simple_group_utility_title => 'ユーティリティ';
+  String get cmd_simple_group_utility_title =>
+      'Ã£Æ’Â¦Ã£Æ’Â¼Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’ÂªÃ£Æ’â€ Ã£â€šÂ£';
 
   @override
-  String get cmd_simple_invite_max_age_hint => '有効期限なしは0、最大604800';
+  String get cmd_simple_invite_max_age_hint =>
+      'Ã¦Å“â€°Ã¥Å Â¹Ã¦Å“Å¸Ã©â„¢ÂÃ£ÂÂªÃ£Ââ€”Ã£ÂÂ¯0Ã£â‚¬ÂÃ¦Å“â‚¬Ã¥Â¤Â§604800';
 
   @override
   String get cmd_simple_invite_max_age_invalid =>
-      '招待の有効期限は0から604800秒の間の数値である必要があります。';
+      'Ã¦â€¹â€ºÃ¥Â¾â€¦Ã£ÂÂ®Ã¦Å“â€°Ã¥Å Â¹Ã¦Å“Å¸Ã©â„¢ÂÃ£ÂÂ¯0Ã£Ââ€¹Ã£â€šâ€°604800Ã§Â§â€™Ã£ÂÂ®Ã©â€“â€œÃ£ÂÂ®Ã¦â€¢Â°Ã¥â‚¬Â¤Ã£ÂÂ§Ã£Ââ€šÃ£â€šâ€¹Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get cmd_simple_invite_max_age_label => '招待有効期限 (秒)';
+  String get cmd_simple_invite_max_age_label =>
+      'Ã¦â€¹â€ºÃ¥Â¾â€¦Ã¦Å“â€°Ã¥Å Â¹Ã¦Å“Å¸Ã©â„¢Â (Ã§Â§â€™)';
 
   @override
-  String get cmd_simple_invite_max_uses_hint => '無制限は0';
+  String get cmd_simple_invite_max_uses_hint => 'Ã§â€žÂ¡Ã¥Ë†Â¶Ã©â„¢ÂÃ£ÂÂ¯0';
 
   @override
   String get cmd_simple_invite_max_uses_invalid =>
-      '招待の最大使用回数は0から1000000の間の数値である必要があります。';
+      'Ã¦â€¹â€ºÃ¥Â¾â€¦Ã£ÂÂ®Ã¦Å“â‚¬Ã¥Â¤Â§Ã¤Â½Â¿Ã§â€Â¨Ã¥â€ºÅ¾Ã¦â€¢Â°Ã£ÂÂ¯0Ã£Ââ€¹Ã£â€šâ€°1000000Ã£ÂÂ®Ã©â€“â€œÃ£ÂÂ®Ã¦â€¢Â°Ã¥â‚¬Â¤Ã£ÂÂ§Ã£Ââ€šÃ£â€šâ€¹Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get cmd_simple_invite_max_uses_label => '最大使用回数';
+  String get cmd_simple_invite_max_uses_label =>
+      'Ã¦Å“â‚¬Ã¥Â¤Â§Ã¤Â½Â¿Ã§â€Â¨Ã¥â€ºÅ¾Ã¦â€¢Â°';
 
   @override
-  String get cmd_simple_invite_settings_desc => '生成された招待作成アクションで使用されるデフォルト値。';
+  String get cmd_simple_invite_settings_desc =>
+      'Ã§â€Å¸Ã¦Ë†ÂÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã¦â€¹â€ºÃ¥Â¾â€¦Ã¤Â½Å“Ã¦Ë†ÂÃ£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ§Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ€¢Ã£â€šÅ’Ã£â€šâ€¹Ã£Æ’â€¡Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â«Ã£Æ’Ë†Ã¥â‚¬Â¤Ã£â‚¬â€š';
 
   @override
-  String get cmd_simple_invite_settings_title => '招待設定';
+  String get cmd_simple_invite_settings_title => 'Ã¦â€¹â€ºÃ¥Â¾â€¦Ã¨Â¨Â­Ã¥Â®Å¡';
 
   @override
-  String get cmd_simple_invite_temporary_desc => 'ロールを取得する前に退出したメンバーは削除されます。';
+  String get cmd_simple_invite_temporary_desc =>
+      'Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’Â«Ã£â€šâ€™Ã¥Ââ€“Ã¥Â¾â€”Ã£Ââ„¢Ã£â€šâ€¹Ã¥â€°ÂÃ£ÂÂ«Ã©â‚¬â‚¬Ã¥â€¡ÂºÃ£Ââ€”Ã£ÂÅ¸Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£ÂÂ¯Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get cmd_simple_invite_temporary_label => '一時メンバーシップ';
+  String get cmd_simple_invite_temporary_label =>
+      'Ã¤Â¸â‚¬Ã¦â„¢â€šÃ£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£â€šÂ·Ã£Æ’Æ’Ã£Æ’â€”';
 
   @override
-  String get cmd_simple_invite_unique_desc => '既存の招待を再利用せず、常に新しい招待を作成します。';
+  String get cmd_simple_invite_unique_desc =>
+      'Ã¦â€”Â¢Ã¥Â­ËœÃ£ÂÂ®Ã¦â€¹â€ºÃ¥Â¾â€¦Ã£â€šâ€™Ã¥â€ ÂÃ¥Ë†Â©Ã§â€Â¨Ã£Ââ€ºÃ£ÂÅ¡Ã£â‚¬ÂÃ¥Â¸Â¸Ã£ÂÂ«Ã¦â€“Â°Ã£Ââ€”Ã£Ââ€žÃ¦â€¹â€ºÃ¥Â¾â€¦Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†ÂÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get cmd_simple_invite_unique_label => '一意の招待を強制';
+  String get cmd_simple_invite_unique_label =>
+      'Ã¤Â¸â‚¬Ã¦â€žÂÃ£ÂÂ®Ã¦â€¹â€ºÃ¥Â¾â€¦Ã£â€šâ€™Ã¥Â¼Â·Ã¥Ë†Â¶';
 
   @override
-  String get cmd_simple_option_channel => '/channel (チャンネル)';
+  String get cmd_simple_option_channel =>
+      '/channel (Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«)';
 
   @override
-  String get cmd_simple_option_channel_desc => '招待作成用のオプションのチャンネル上書き';
+  String get cmd_simple_option_channel_desc =>
+      'Ã¦â€¹â€ºÃ¥Â¾â€¦Ã¤Â½Å“Ã¦Ë†ÂÃ§â€Â¨Ã£ÂÂ®Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ®Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã¤Â¸Å Ã¦â€ºÂ¸Ã£ÂÂ';
 
   @override
-  String get cmd_simple_option_count => '/count (整数)';
+  String get cmd_simple_option_count => '/count (Ã¦â€¢Â´Ã¦â€¢Â°)';
 
   @override
-  String get cmd_simple_option_count_desc => '削除するメッセージ数';
+  String get cmd_simple_option_count_desc =>
+      'Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ„¢Ã£â€šâ€¹Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã¦â€¢Â°';
 
   @override
-  String get cmd_simple_option_message_id => '/message_id (テキスト)';
+  String get cmd_simple_option_message_id =>
+      '/message_id (Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†)';
 
   @override
-  String get cmd_simple_option_message_id_desc => '対象のメッセージID';
+  String get cmd_simple_option_message_id_desc =>
+      'Ã¥Â¯Â¾Ã¨Â±Â¡Ã£ÂÂ®Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸ID';
 
   @override
-  String get cmd_simple_option_question => '/question (テキスト)';
+  String get cmd_simple_option_question =>
+      '/question (Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†)';
 
   @override
-  String get cmd_simple_option_question_desc => '投票の質問';
+  String get cmd_simple_option_question_desc =>
+      'Ã¦Å â€¢Ã§Â¥Â¨Ã£ÂÂ®Ã¨Â³ÂªÃ¥â€¢Â';
 
   @override
-  String get cmd_simple_option_role => '/role (ロール)';
+  String get cmd_simple_option_role => '/role (Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’Â«)';
 
   @override
-  String get cmd_simple_option_role_desc => '対象ロール';
+  String get cmd_simple_option_role_desc => 'Ã¥Â¯Â¾Ã¨Â±Â¡Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’Â«';
 
   @override
-  String get cmd_simple_option_user => '/user (ユーザー)';
+  String get cmd_simple_option_user => '/user (Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼)';
 
   @override
-  String get cmd_simple_option_user_desc => '対象ユーザー';
+  String get cmd_simple_option_user_desc =>
+      'Ã¥Â¯Â¾Ã¨Â±Â¡Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼';
 
   @override
-  String get cmd_simple_option_user_id => '/user_id (テキスト)';
+  String get cmd_simple_option_user_id =>
+      '/user_id (Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†)';
 
   @override
-  String get cmd_simple_option_user_id_desc => '追放解除するユーザーID';
+  String get cmd_simple_option_user_id_desc =>
+      'Ã¨Â¿Â½Ã¦â€Â¾Ã¨Â§Â£Ã©â„¢Â¤Ã£Ââ„¢Ã£â€šâ€¹Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼ID';
 
   @override
-  String get cmd_simple_poll_answers_hint => '1行に1つの回答、またはカンマ区切り。最小2、最大10。';
+  String get cmd_simple_poll_answers_hint =>
+      '1Ã¨Â¡Å’Ã£ÂÂ«1Ã£ÂÂ¤Ã£ÂÂ®Ã¥â€ºÅ¾Ã§Â­â€Ã£â‚¬ÂÃ£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã£â€šÂ«Ã£Æ’Â³Ã£Æ’Å¾Ã¥Å’ÂºÃ¥Ë†â€¡Ã£â€šÅ Ã£â‚¬â€šÃ¦Å“â‚¬Ã¥Â°Â2Ã£â‚¬ÂÃ¦Å“â‚¬Ã¥Â¤Â§10Ã£â‚¬â€š';
 
   @override
   String get cmd_simple_poll_answers_invalid =>
-      '投票の回答は2〜10個の空でない選択肢を含む必要があります。';
+      'Ã¦Å â€¢Ã§Â¥Â¨Ã£ÂÂ®Ã¥â€ºÅ¾Ã§Â­â€Ã£ÂÂ¯2Ã£â‚¬Å“10Ã¥â‚¬â€¹Ã£ÂÂ®Ã§Â©ÂºÃ£ÂÂ§Ã£ÂÂªÃ£Ââ€žÃ©ÂÂ¸Ã¦Å Å¾Ã¨â€šÂ¢Ã£â€šâ€™Ã¥ÂÂ«Ã£â€šâ‚¬Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get cmd_simple_poll_answers_label => '投票の回答';
+  String get cmd_simple_poll_answers_label =>
+      'Ã¦Å â€¢Ã§Â¥Â¨Ã£ÂÂ®Ã¥â€ºÅ¾Ã§Â­â€';
 
   @override
-  String get cmd_simple_poll_duration_hint => '1〜168時間';
+  String get cmd_simple_poll_duration_hint => '1Ã£â‚¬Å“168Ã¦â„¢â€šÃ©â€“â€œ';
 
   @override
-  String get cmd_simple_poll_duration_invalid => '投票時間は1〜168時間の間の数値である必要があります。';
+  String get cmd_simple_poll_duration_invalid =>
+      'Ã¦Å â€¢Ã§Â¥Â¨Ã¦â„¢â€šÃ©â€“â€œÃ£ÂÂ¯1Ã£â‚¬Å“168Ã¦â„¢â€šÃ©â€“â€œÃ£ÂÂ®Ã©â€“â€œÃ£ÂÂ®Ã¦â€¢Â°Ã¥â‚¬Â¤Ã£ÂÂ§Ã£Ââ€šÃ£â€šâ€¹Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get cmd_simple_poll_duration_label => '投票時間 (時間)';
+  String get cmd_simple_poll_duration_label =>
+      'Ã¦Å â€¢Ã§Â¥Â¨Ã¦â„¢â€šÃ©â€“â€œ (Ã¦â„¢â€šÃ©â€“â€œ)';
 
   @override
-  String get cmd_simple_poll_multiselect_desc => 'ユーザーは複数の選択肢を選べます。';
+  String get cmd_simple_poll_multiselect_desc =>
+      'Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£ÂÂ¯Ã¨Â¤â€¡Ã¦â€¢Â°Ã£ÂÂ®Ã©ÂÂ¸Ã¦Å Å¾Ã¨â€šÂ¢Ã£â€šâ€™Ã©ÂÂ¸Ã£ÂÂ¹Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get cmd_simple_poll_multiselect_label => '複数回答を許可';
+  String get cmd_simple_poll_multiselect_label =>
+      'Ã¨Â¤â€¡Ã¦â€¢Â°Ã¥â€ºÅ¾Ã§Â­â€Ã£â€šâ€™Ã¨Â¨Â±Ã¥ÂÂ¯';
 
   @override
-  String get cmd_simple_poll_settings_desc => '生成された投票作成アクションで使用されるデフォルト値。';
+  String get cmd_simple_poll_settings_desc =>
+      'Ã§â€Å¸Ã¦Ë†ÂÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã¦Å â€¢Ã§Â¥Â¨Ã¤Â½Å“Ã¦Ë†ÂÃ£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ§Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ€¢Ã£â€šÅ’Ã£â€šâ€¹Ã£Æ’â€¡Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â«Ã£Æ’Ë†Ã¥â‚¬Â¤Ã£â‚¬â€š';
 
   @override
-  String get cmd_simple_poll_settings_title => '投票設定';
+  String get cmd_simple_poll_settings_title => 'Ã¦Å â€¢Ã§Â¥Â¨Ã¨Â¨Â­Ã¥Â®Å¡';
 
   @override
-  String get cmd_simple_response_desc => 'アクション実行後にユーザーに返信されるメッセージ。';
+  String get cmd_simple_response_desc =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã¥Â®Å¸Ã¨Â¡Å’Ã¥Â¾Å’Ã£ÂÂ«Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£ÂÂ«Ã¨Â¿â€Ã¤Â¿Â¡Ã£Ââ€¢Ã£â€šÅ’Ã£â€šâ€¹Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£â‚¬â€š';
 
   @override
-  String get cmd_simple_response_embeds_desc => '最終応答と共に送信されるオプションの埋め込み。';
+  String get cmd_simple_response_embeds_desc =>
+      'Ã¦Å“â‚¬Ã§Âµâ€šÃ¥Â¿Å“Ã§Â­â€Ã£ÂÂ¨Ã¥â€¦Â±Ã£ÂÂ«Ã©â‚¬ÂÃ¤Â¿Â¡Ã£Ââ€¢Ã£â€šÅ’Ã£â€šâ€¹Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ®Ã¥Å¸â€¹Ã£â€šÂÃ¨Â¾Â¼Ã£ÂÂ¿Ã£â‚¬â€š';
 
   @override
-  String get cmd_simple_response_embeds_title => '応答埋め込み';
+  String get cmd_simple_response_embeds_title =>
+      'Ã¥Â¿Å“Ã§Â­â€Ã¥Å¸â€¹Ã£â€šÂÃ¨Â¾Â¼Ã£ÂÂ¿';
 
   @override
-  String get cmd_simple_response_hint => '完了 ✅';
+  String get cmd_simple_response_hint => 'Ã¥Â®Å’Ã¤Âºâ€  Ã¢Å“â€¦';
 
   @override
-  String get cmd_simple_response_title => '最終応答';
+  String get cmd_simple_response_title => 'Ã¦Å“â‚¬Ã§Âµâ€šÃ¥Â¿Å“Ã§Â­â€';
 
   @override
-  String get cmd_simple_response_visibility_ephemeral => 'エフェメラル';
+  String get cmd_simple_response_visibility_ephemeral =>
+      'Ã£â€šÂ¨Ã£Æ’â€¢Ã£â€šÂ§Ã£Æ’Â¡Ã£Æ’Â©Ã£Æ’Â«';
 
   @override
-  String get cmd_simple_response_visibility_label => '応答の可視性';
+  String get cmd_simple_response_visibility_label =>
+      'Ã¥Â¿Å“Ã§Â­â€Ã£ÂÂ®Ã¥ÂÂ¯Ã¨Â¦â€“Ã¦â‚¬Â§';
 
   @override
-  String get cmd_simple_response_visibility_public => '公開';
+  String get cmd_simple_response_visibility_public => 'Ã¥â€¦Â¬Ã©â€“â€¹';
 
   @override
-  String get cmd_simple_send_message_required => '保存する前にアクションメッセージを入力してください。';
+  String get cmd_simple_send_message_required =>
+      'Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ„¢Ã£â€šâ€¹Ã¥â€°ÂÃ£ÂÂ«Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£â€šâ€™Ã¥â€¦Â¥Ã¥Å â€ºÃ£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get cmd_variables_title => 'コマンド変数';
+  String get cmd_variables_title => 'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã¥Â¤â€°Ã¦â€¢Â°';
 
   @override
-  String get command_awaited_error => 'エラー';
+  String get command_awaited_error => 'Ã£â€šÂ¨Ã£Æ’Â©Ã£Æ’Â¼';
 
   @override
-  String get command_awaited_filter_hint => '例: <numeric> または <yes/no/cancel>';
+  String get command_awaited_filter_hint =>
+      'Ã¤Â¾â€¹: <numeric> Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯ <yes/no/cancel>';
 
   @override
-  String get command_awaited_filter_label => 'フィルター (オプション)';
+  String get command_awaited_filter_label =>
+      'Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â«Ã£â€šÂ¿Ã£Æ’Â¼ (Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³)';
 
   @override
-  String get command_awaited_name_hint => '例: say';
+  String get command_awaited_name_hint => 'Ã¤Â¾â€¹: say';
 
   @override
-  String get command_awaited_name_label => '待機コールバック名';
+  String get command_awaited_name_label =>
+      'Ã¥Â¾â€¦Ã¦Â©Å¸Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã¥ÂÂ';
 
   @override
-  String get command_awaited_preset_active => '待機コールバックプリセット';
+  String get command_awaited_preset_active =>
+      'Ã¥Â¾â€¦Ã¦Â©Å¸Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã£Æ’â€”Ã£Æ’ÂªÃ£â€šÂ»Ã£Æ’Æ’Ã£Æ’Ë†';
 
   @override
-  String get command_awaited_preset_button => '待機コールバックプリセットを使用';
+  String get command_awaited_preset_button =>
+      'Ã¥Â¾â€¦Ã¦Â©Å¸Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã£Æ’â€”Ã£Æ’ÂªÃ£â€šÂ»Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨';
 
   @override
   String get command_awaited_preset_desc =>
-      'コマンド名が自動生成され、内部レガシーコールバックとして保存されます。';
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã¥ÂÂÃ£ÂÅ’Ã¨â€¡ÂªÃ¥â€¹â€¢Ã§â€Å¸Ã¦Ë†ÂÃ£Ââ€¢Ã£â€šÅ’Ã£â‚¬ÂÃ¥â€ â€¦Ã©Æ’Â¨Ã£Æ’Â¬Ã£â€šÂ¬Ã£â€šÂ·Ã£Æ’Â¼Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã£ÂÂ¨Ã£Ââ€”Ã£ÂÂ¦Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get command_awaited_success => '成功';
+  String get command_awaited_success => 'Ã¦Ë†ÂÃ¥Å Å¸';
 
   @override
   String get command_context_bot_dm => 'Bot DM';
 
   @override
-  String get command_context_group_dm => 'グループDM / その他';
+  String get command_context_group_dm =>
+      'Ã£â€šÂ°Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’â€”DM / Ã£ÂÂÃ£ÂÂ®Ã¤Â»â€“';
 
   @override
-  String get command_context_guild => 'サーバー';
+  String get command_context_guild => 'Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼';
 
   @override
-  String get command_description_length => 'コマンドの説明は最大100文字である必要があります';
+  String get command_description_length =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ®Ã¨ÂªÂ¬Ã¦ËœÅ½Ã£ÂÂ¯Ã¦Å“â‚¬Ã¥Â¤Â§100Ã¦â€“â€¡Ã¥Â­â€”Ã£ÂÂ§Ã£Ââ€šÃ£â€šâ€¹Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get command_description_required => 'コマンドの説明を入力してください';
+  String get command_description_required =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ®Ã¨ÂªÂ¬Ã¦ËœÅ½Ã£â€šâ€™Ã¥â€¦Â¥Ã¥Å â€ºÃ£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€ž';
 
   @override
-  String get command_edit_raw_name => '生の名前を編集';
+  String get command_edit_raw_name =>
+      'Ã§â€Å¸Ã£ÂÂ®Ã¥ÂÂÃ¥â€°ÂÃ£â€šâ€™Ã§Â·Â¨Ã©â€ºâ€ ';
 
   @override
-  String get command_error_missing_bot_id => 'ローカルコマンド保存にボットIDがありません。';
+  String get command_error_missing_bot_id =>
+      'Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã¤Â¿ÂÃ¥Â­ËœÃ£ÂÂ«Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†IDÃ£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
-  String get command_execution_error => 'このコマンドの実行中にエラーが発生しました。';
+  String get command_execution_error =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ®Ã¥Â®Å¸Ã¨Â¡Å’Ã¤Â¸Â­Ã£ÂÂ«Ã£â€šÂ¨Ã£Æ’Â©Ã£Æ’Â¼Ã£ÂÅ’Ã§â„¢ÂºÃ§â€Å¸Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€š';
 
   @override
-  String get command_export_tooltip => 'コマンドペイロードをエクスポート';
+  String get command_export_tooltip =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£Æ’Å¡Ã£â€šÂ¤Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’â€°Ã£â€šâ€™Ã£â€šÂ¨Ã£â€šÂ¯Ã£â€šÂ¹Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†';
 
   @override
-  String get command_import_tooltip => 'コマンドペイロードをインポート';
+  String get command_import_tooltip =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£Æ’Å¡Ã£â€šÂ¤Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’â€°Ã£â€šâ€™Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†';
 
   @override
-  String get command_info_desc => '基本メタデータと利用可能性';
+  String get command_info_desc =>
+      'Ã¥Å¸ÂºÃ¦Å“Â¬Ã£Æ’Â¡Ã£â€šÂ¿Ã£Æ’â€¡Ã£Æ’Â¼Ã£â€šÂ¿Ã£ÂÂ¨Ã¥Ë†Â©Ã§â€Â¨Ã¥ÂÂ¯Ã¨Æ’Â½Ã¦â‚¬Â§';
 
   @override
-  String get command_info_title => 'コマンド情報';
+  String get command_info_title => 'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã¦Æ’â€¦Ã¥Â Â±';
 
   @override
-  String get command_integration_guild => 'サーバーインストール';
+  String get command_integration_guild =>
+      'Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£â€šÂ¤Ã£Æ’Â³Ã£â€šÂ¹Ã£Æ’Ë†Ã£Æ’Â¼Ã£Æ’Â«';
 
   @override
-  String get command_integration_label => 'このコマンドを使用できる場所';
+  String get command_integration_label =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨Ã£ÂÂ§Ã£ÂÂÃ£â€šâ€¹Ã¥Â Â´Ã¦â€°â‚¬';
 
   @override
-  String get command_integration_user => 'ユーザーインストール';
+  String get command_integration_user =>
+      'Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£â€šÂ¤Ã£Æ’Â³Ã£â€šÂ¹Ã£Æ’Ë†Ã£Æ’Â¼Ã£Æ’Â«';
 
   @override
   String get command_legacy_mode_subtitle =>
-      '位置オプションを使用します (例: !config #channel)。';
+      'Ã¤Â½ÂÃ§Â½Â®Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢ (Ã¤Â¾â€¹: !config #channel)Ã£â‚¬â€š';
 
   @override
-  String get command_legacy_mode_title => 'このコマンドでレガシーモードを有効にする';
+  String get command_legacy_mode_title =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ§Ã£Æ’Â¬Ã£â€šÂ¬Ã£â€šÂ·Ã£Æ’Â¼Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°Ã£â€šâ€™Ã¦Å“â€°Ã¥Å Â¹Ã£ÂÂ«Ã£Ââ„¢Ã£â€šâ€¹';
 
   @override
   String get command_legacy_prefix_desc =>
-      'messageCreateから<prefix><command>でコマンドを処理します。';
+      'messageCreateÃ£Ââ€¹Ã£â€šâ€°<prefix><command>Ã£ÂÂ§Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¥â€¡Â¦Ã§Ââ€ Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get command_legacy_prefix_title => 'レガシープレフィックスモード';
+  String get command_legacy_prefix_title =>
+      'Ã£Æ’Â¬Ã£â€šÂ¬Ã£â€šÂ·Ã£Æ’Â¼Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¹Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°';
 
   @override
   String get command_legacy_preset_desc =>
-      '内部待機コールバックトリガーを生成し、このコマンドを必要なローカルレガシー設定に切り替えます。';
+      'Ã¥â€ â€¦Ã©Æ’Â¨Ã¥Â¾â€¦Ã¦Â©Å¸Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼Ã£â€šâ€™Ã§â€Å¸Ã¦Ë†ÂÃ£Ââ€”Ã£â‚¬ÂÃ£Ââ€œÃ£ÂÂ®Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÂªÃ£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã£Æ’Â¬Ã£â€šÂ¬Ã£â€šÂ·Ã£Æ’Â¼Ã¨Â¨Â­Ã¥Â®Å¡Ã£ÂÂ«Ã¥Ë†â€¡Ã£â€šÅ Ã¦â€ºÂ¿Ã£ÂË†Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get command_legacy_preset_title => 'レガシープリセット';
+  String get command_legacy_preset_title =>
+      'Ã£Æ’Â¬Ã£â€šÂ¬Ã£â€šÂ·Ã£Æ’Â¼Ã£Æ’â€”Ã£Æ’ÂªÃ£â€šÂ»Ã£Æ’Æ’Ã£Æ’Ë†';
 
   @override
-  String get command_legacy_response_label => 'レガシー応答モード';
+  String get command_legacy_response_label =>
+      'Ã£Æ’Â¬Ã£â€šÂ¬Ã£â€šÂ·Ã£Æ’Â¼Ã¥Â¿Å“Ã§Â­â€Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°';
 
   @override
-  String get command_modal_disabled_legacy => 'モーダルはレガシーモードでは無効です。';
+  String get command_modal_disabled_legacy =>
+      'Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â‚¬Ã£Æ’Â«Ã£ÂÂ¯Ã£Æ’Â¬Ã£â€šÂ¬Ã£â€šÂ·Ã£Æ’Â¼Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°Ã£ÂÂ§Ã£ÂÂ¯Ã§â€žÂ¡Ã¥Å Â¹Ã£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get command_name_generated => '待機コールバックプリセットによって生成されました。';
+  String get command_name_generated =>
+      'Ã¥Â¾â€¦Ã¦Â©Å¸Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã£Æ’â€”Ã£Æ’ÂªÃ£â€šÂ»Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÂ«Ã£â€šË†Ã£ÂÂ£Ã£ÂÂ¦Ã§â€Å¸Ã¦Ë†ÂÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€š';
 
   @override
-  String get command_name_label => '名前';
+  String get command_name_label => 'Ã¥ÂÂÃ¥â€°Â';
 
   @override
-  String get command_not_found => 'コマンドが見つかりません';
+  String get command_not_found =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÅ’Ã¨Â¦â€¹Ã£ÂÂ¤Ã£Ââ€¹Ã£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œ';
 
   @override
-  String get command_options_legacy_params => 'レガシー位置パラメータ (順序: 必須、次にオプション)';
+  String get command_options_legacy_params =>
+      'Ã£Æ’Â¬Ã£â€šÂ¬Ã£â€šÂ·Ã£Æ’Â¼Ã¤Â½ÂÃ§Â½Â®Ã£Æ’â€˜Ã£Æ’Â©Ã£Æ’Â¡Ã£Æ’Â¼Ã£â€šÂ¿ (Ã©Â â€ Ã¥ÂºÂ: Ã¥Â¿â€¦Ã©Â Ë†Ã£â‚¬ÂÃ¦Â¬Â¡Ã£ÂÂ«Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³)';
 
   @override
-  String get command_options_slash_params => 'スラッシュコマンドパラメータ';
+  String get command_options_slash_params =>
+      'Ã£â€šÂ¹Ã£Æ’Â©Ã£Æ’Æ’Ã£â€šÂ·Ã£Æ’Â¥Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£Æ’â€˜Ã£Æ’Â©Ã£Æ’Â¡Ã£Æ’Â¼Ã£â€šÂ¿';
 
   @override
-  String get command_options_title => 'コマンドオプション';
+  String get command_options_title =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³';
 
   @override
-  String get command_payload_hint => 'コマンドペイロード';
+  String get command_payload_hint =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£Æ’Å¡Ã£â€šÂ¤Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’â€°';
 
   @override
   String get command_permissions_admin_warning =>
-      '管理者が選択されました: 他の権限チェックをバイパスします。';
+      'Ã§Â®Â¡Ã§Ââ€ Ã¨â‚¬â€¦Ã£ÂÅ’Ã©ÂÂ¸Ã¦Å Å¾Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸: Ã¤Â»â€“Ã£ÂÂ®Ã¦Â¨Â©Ã©â„¢ÂÃ£Æ’ÂÃ£â€šÂ§Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šâ€™Ã£Æ’ÂÃ£â€šÂ¤Ã£Æ’â€˜Ã£â€šÂ¹Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get command_permissions_bitfield => '計算された権限ビットフィールド';
+  String get command_permissions_bitfield =>
+      'Ã¨Â¨Ë†Ã§Â®â€”Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã¦Â¨Â©Ã©â„¢ÂÃ£Æ’â€œÃ£Æ’Æ’Ã£Æ’Ë†Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’â€°';
 
   @override
-  String get command_permissions_bitfield_helper => '選択された権限から自動計算されます。';
+  String get command_permissions_bitfield_helper =>
+      'Ã©ÂÂ¸Ã¦Å Å¾Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã¦Â¨Â©Ã©â„¢ÂÃ£Ââ€¹Ã£â€šâ€°Ã¨â€¡ÂªÃ¥â€¹â€¢Ã¨Â¨Ë†Ã§Â®â€”Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String command_permissions_count(int count) {
-    return '$count 件の権限が選択されました';
+    return '$count Ã¤Â»Â¶Ã£ÂÂ®Ã¦Â¨Â©Ã©â„¢ÂÃ£ÂÅ’Ã©ÂÂ¸Ã¦Å Å¾Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
   }
 
   @override
-  String get command_permissions_label => 'デフォルトメンバー権限 (オプション)';
+  String get command_permissions_label =>
+      'Ã£Æ’â€¡Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â«Ã£Æ’Ë†Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã¦Â¨Â©Ã©â„¢Â (Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³)';
 
   @override
-  String get command_permissions_none => '選択なし (全員がコマンドを使用可能)';
+  String get command_permissions_none =>
+      'Ã©ÂÂ¸Ã¦Å Å¾Ã£ÂÂªÃ£Ââ€” (Ã¥â€¦Â¨Ã¥â€œÂ¡Ã£ÂÅ’Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨Ã¥ÂÂ¯Ã¨Æ’Â½)';
 
   @override
   String get command_permissions_tip =>
-      'ヒント: すべて未チェックにすると、デフォルトで全員がコマンドを使用できます。';
+      'Ã£Æ’â€™Ã£Æ’Â³Ã£Æ’Ë†: Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã¦Å“ÂªÃ£Æ’ÂÃ£â€šÂ§Ã£Æ’Æ’Ã£â€šÂ¯Ã£ÂÂ«Ã£Ââ„¢Ã£â€šâ€¹Ã£ÂÂ¨Ã£â‚¬ÂÃ£Æ’â€¡Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â«Ã£Æ’Ë†Ã£ÂÂ§Ã¥â€¦Â¨Ã¥â€œÂ¡Ã£ÂÅ’Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get command_permissions_title => '権限を選択';
+  String get command_permissions_title => 'Ã¦Â¨Â©Ã©â„¢ÂÃ£â€šâ€™Ã©ÂÂ¸Ã¦Å Å¾';
 
   @override
   String command_permissions_unknown_bits(String bits) {
-    return '警告: 保存データから不明な権限ビットが検出され、保持されました: $bits';
+    return 'Ã¨Â­Â¦Ã¥â€˜Å : Ã¤Â¿ÂÃ¥Â­ËœÃ£Æ’â€¡Ã£Æ’Â¼Ã£â€šÂ¿Ã£Ââ€¹Ã£â€šâ€°Ã¤Â¸ÂÃ¦ËœÅ½Ã£ÂÂªÃ¦Â¨Â©Ã©â„¢ÂÃ£Æ’â€œÃ£Æ’Æ’Ã£Æ’Ë†Ã£ÂÅ’Ã¦Â¤Å“Ã¥â€¡ÂºÃ£Ââ€¢Ã£â€šÅ’Ã£â‚¬ÂÃ¤Â¿ÂÃ¦Å’ÂÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸: $bits';
   }
 
   @override
   String get command_prefix_helper =>
-      'テンプレートとスコープ変数をサポート (bc_ はオプション)。例: ((guild.prefix | user.prefix | !))';
+      'Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã£ÂÂ¨Ã£â€šÂ¹Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€”Ã¥Â¤â€°Ã¦â€¢Â°Ã£â€šâ€™Ã£â€šÂµÃ£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë† (bc_ Ã£ÂÂ¯Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³)Ã£â‚¬â€šÃ¤Â¾â€¹: ((guild.prefix | user.prefix | !))';
 
   @override
-  String get command_prefix_override_hint => '例: ? または ((guild.prefix | !))';
+  String get command_prefix_override_hint =>
+      'Ã¤Â¾â€¹: ? Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯ ((guild.prefix | !))';
 
   @override
-  String get command_prefix_override_label => 'プレフィックス上書き (オプション)';
+  String get command_prefix_override_label =>
+      'Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¹Ã¤Â¸Å Ã¦â€ºÂ¸Ã£ÂÂ (Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³)';
 
   @override
   String get command_response_mode_channel => 'message.channel.send';
@@ -2818,313 +3331,361 @@ class AppLocalizationsJa extends AppLocalizations {
   String get command_response_mode_reply => 'message.reply';
 
   @override
-  String get command_scope_label => 'コマンドのスコープ (コンテキスト)';
+  String get command_scope_label =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ®Ã£â€šÂ¹Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€” (Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†)';
 
   @override
-  String get command_subcommand_workflow_desc => '設定するサブコマンドを選択してください。';
+  String get command_subcommand_workflow_desc =>
+      'Ã¨Â¨Â­Ã¥Â®Å¡Ã£Ââ„¢Ã£â€šâ€¹Ã£â€šÂµÃ£Æ’â€“Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã©ÂÂ¸Ã¦Å Å¾Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get command_subcommand_workflow_title => 'サブコマンドワークフロー';
+  String get command_subcommand_workflow_title =>
+      'Ã£â€šÂµÃ£Æ’â€“Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼';
 
   @override
   String command_sync_failed_local(String error) {
-    return 'ローカルに保存されました。Discord同期に失敗: $error';
+    return 'Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã£ÂÂ«Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€šDiscordÃ¥ÂÅ’Ã¦Å“Å¸Ã£ÂÂ«Ã¥Â¤Â±Ã¦â€¢â€”: $error';
   }
 
   @override
-  String get command_target_subcommand => '対象サブコマンド';
+  String get command_target_subcommand =>
+      'Ã¥Â¯Â¾Ã¨Â±Â¡Ã£â€šÂµÃ£Æ’â€“Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°';
 
   @override
-  String get command_type_label => 'コマンドタイプ';
+  String get command_type_label =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’â€”';
 
   @override
-  String get command_type_legacy => 'レガシーコマンド';
+  String get command_type_legacy =>
+      'Ã£Æ’Â¬Ã£â€šÂ¬Ã£â€šÂ·Ã£Æ’Â¼Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°';
 
   @override
-  String get command_type_locked => 'コマンドタイプは作成後に変更できません。';
+  String get command_type_locked =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’â€”Ã£ÂÂ¯Ã¤Â½Å“Ã¦Ë†ÂÃ¥Â¾Å’Ã£ÂÂ«Ã¥Â¤â€°Ã¦â€ºÂ´Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
-  String get command_type_message => 'メッセージコマンド';
+  String get command_type_message =>
+      'Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°';
 
   @override
-  String get command_type_slash => 'スラッシュコマンド';
+  String get command_type_slash =>
+      'Ã£â€šÂ¹Ã£Æ’Â©Ã£Æ’Æ’Ã£â€šÂ·Ã£Æ’Â¥Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°';
 
   @override
-  String get command_type_user => 'ユーザーコマンド';
+  String get command_type_user =>
+      'Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°';
 
   @override
-  String get command_unsaved_confirm => '未保存の変更があります。破棄しますか？';
+  String get command_unsaved_confirm =>
+      'Ã¦Å“ÂªÃ¤Â¿ÂÃ¥Â­ËœÃ£ÂÂ®Ã¥Â¤â€°Ã¦â€ºÂ´Ã£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ§Â Â´Ã¦Â£â€žÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸';
 
   @override
-  String get command_unsaved_keep => '編集を続ける';
+  String get command_unsaved_keep =>
+      'Ã§Â·Â¨Ã©â€ºâ€ Ã£â€šâ€™Ã§Â¶Å¡Ã£Ââ€˜Ã£â€šâ€¹';
 
   @override
-  String get command_unsaved_title => '未保存の変更';
+  String get command_unsaved_title => 'Ã¦Å“ÂªÃ¤Â¿ÂÃ¥Â­ËœÃ£ÂÂ®Ã¥Â¤â€°Ã¦â€ºÂ´';
 
   @override
-  String get commands_all_folders => 'すべてのフォルダ';
+  String get commands_all_folders =>
+      'Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÂ®Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â«Ã£Æ’â‚¬';
 
   @override
-  String get commands_create_button => 'コマンドを作成';
+  String get commands_create_button =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†Â';
 
   @override
-  String get commands_create_folder => 'フォルダを作成';
+  String get commands_create_folder =>
+      'Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â«Ã£Æ’â‚¬Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†Â';
 
   @override
   String commands_create_from_query(String query) {
-    return 'コマンド \"$query\" を作成';
+    return 'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€° \"$query\" Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†Â';
   }
 
   @override
-  String get commands_delete_folder => 'フォルダを削除';
+  String get commands_delete_folder =>
+      'Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â«Ã£Æ’â‚¬Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get commands_delete_folder_desc => 'フォルダ内のコマンドは削除されず、フォルダ解除のみ行われます。';
+  String get commands_delete_folder_desc =>
+      'Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â«Ã£Æ’â‚¬Ã¥â€ â€¦Ã£ÂÂ®Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ¯Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¡Ã£â‚¬ÂÃ£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â«Ã£Æ’â‚¬Ã¨Â§Â£Ã©â„¢Â¤Ã£ÂÂ®Ã£ÂÂ¿Ã¨Â¡Å’Ã£â€šÂÃ£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get commands_empty => 'コマンドが見つかりません';
+  String get commands_empty =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÅ’Ã¨Â¦â€¹Ã£ÂÂ¤Ã£Ââ€¹Ã£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œ';
 
   @override
   String commands_error(String error) {
-    return 'エラー: $error';
+    return 'Ã£â€šÂ¨Ã£Æ’Â©Ã£Æ’Â¼: $error';
   }
 
   @override
-  String get commands_filter_legacy_local => 'レガシーローカル';
+  String get commands_filter_legacy_local =>
+      'Ã£Æ’Â¬Ã£â€šÂ¬Ã£â€šÂ·Ã£Æ’Â¼Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«';
 
   @override
-  String get commands_filter_template => 'テンプレート';
+  String get commands_filter_template =>
+      'Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†';
 
   @override
-  String get commands_filter_type_label => 'タイプ';
+  String get commands_filter_type_label => 'Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’â€”';
 
   @override
-  String get commands_folder_hint => 'オプションのフォルダ名';
+  String get commands_folder_hint =>
+      'Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ®Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â«Ã£Æ’â‚¬Ã¥ÂÂ';
 
   @override
-  String get commands_folder_label => 'フォルダ';
+  String get commands_folder_label => 'Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â«Ã£Æ’â‚¬';
 
   @override
-  String get commands_move_to_folder => 'フォルダに移動';
+  String get commands_move_to_folder =>
+      'Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â«Ã£Æ’â‚¬Ã£ÂÂ«Ã§Â§Â»Ã¥â€¹â€¢';
 
   @override
-  String get commands_new_folder_hint => '新しいフォルダ名';
+  String get commands_new_folder_hint =>
+      'Ã¦â€“Â°Ã£Ââ€”Ã£Ââ€žÃ£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â«Ã£Æ’â‚¬Ã¥ÂÂ';
 
   @override
-  String get commands_no_folder => 'フォルダなし';
+  String get commands_no_folder => 'Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â«Ã£Æ’â‚¬Ã£ÂÂªÃ£Ââ€”';
 
   @override
-  String get commands_no_match_filters => '現在のフィルターに一致するコマンドはありません。';
+  String get commands_no_match_filters =>
+      'Ã§ÂÂ¾Ã¥Å“Â¨Ã£ÂÂ®Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â«Ã£â€šÂ¿Ã£Æ’Â¼Ã£ÂÂ«Ã¤Â¸â‚¬Ã¨â€¡Â´Ã£Ââ„¢Ã£â€šâ€¹Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ¯Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
-  String get commands_remove_from_folder => 'フォルダから削除';
+  String get commands_remove_from_folder =>
+      'Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â«Ã£Æ’â‚¬Ã£Ââ€¹Ã£â€šâ€°Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get commands_rename_folder => 'フォルダ名を変更';
+  String get commands_rename_folder =>
+      'Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â«Ã£Æ’â‚¬Ã¥ÂÂÃ£â€šâ€™Ã¥Â¤â€°Ã¦â€ºÂ´';
 
   @override
-  String get commands_reorder_title => 'コマンドを整理';
+  String get commands_reorder_title =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¦â€¢Â´Ã§Ââ€ ';
 
   @override
-  String get commands_search_hint => 'コマンドを検索...';
+  String get commands_search_hint =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¦Â¤Å“Ã§Â´Â¢...';
 
   @override
-  String get commands_tab => 'コマンド';
+  String get commands_tab => 'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°';
 
   @override
   String get commands_tab_short => 'Cmd';
 
   @override
-  String get commands_title => 'コマンド';
+  String get commands_title => 'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°';
 
   @override
-  String get common_add_argument => '引数を追加';
+  String get common_add_argument => 'Ã¥Â¼â€¢Ã¦â€¢Â°Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get common_add_option => 'オプションを追加';
+  String get common_add_option =>
+      'Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get common_add_section => 'セクションを追加';
+  String get common_add_section =>
+      'Ã£â€šÂ»Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get common_all => 'すべて';
+  String get common_all => 'Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦';
 
   @override
-  String get common_apply => '適用';
+  String get common_apply => 'Ã©ÂÂ©Ã§â€Â¨';
 
   @override
-  String get common_back => '戻る';
+  String get common_back => 'Ã¦Ë†Â»Ã£â€šâ€¹';
 
   @override
-  String get common_bot => 'ボット';
+  String get common_bot => 'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†';
 
   @override
-  String get common_cancel => 'キャンセル';
+  String get common_cancel => 'Ã£â€šÂ­Ã£Æ’Â£Ã£Æ’Â³Ã£â€šÂ»Ã£Æ’Â«';
 
   @override
-  String get common_clear => 'クリア';
+  String get common_clear => 'Ã£â€šÂ¯Ã£Æ’ÂªÃ£â€šÂ¢';
 
   @override
-  String get common_close => '閉じる';
+  String get common_close => 'Ã©â€“â€°Ã£ÂËœÃ£â€šâ€¹';
 
   @override
-  String get common_custom_id => 'カスタムID';
+  String get common_custom_id => 'Ã£â€šÂ«Ã£â€šÂ¹Ã£â€šÂ¿Ã£Æ’Â ID';
 
   @override
-  String get common_custom_id_required => 'カスタムID *';
+  String get common_custom_id_required => 'Ã£â€šÂ«Ã£â€šÂ¹Ã£â€šÂ¿Ã£Æ’Â ID *';
 
   @override
-  String get common_default => 'デフォルト';
+  String get common_default => 'Ã£Æ’â€¡Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â«Ã£Æ’Ë†';
 
   @override
-  String get common_delete => '削除';
+  String get common_delete => 'Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get common_description => '説明';
+  String get common_description => 'Ã¨ÂªÂ¬Ã¦ËœÅ½';
 
   @override
-  String get common_disabled => '無効';
+  String get common_disabled => 'Ã§â€žÂ¡Ã¥Å Â¹';
 
   @override
-  String get common_edit => '編集';
+  String get common_edit => 'Ã§Â·Â¨Ã©â€ºâ€ ';
 
   @override
-  String get common_enabled => '有効';
+  String get common_enabled => 'Ã¦Å“â€°Ã¥Å Â¹';
 
   @override
-  String get common_import => 'インポート';
+  String get common_import => 'Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†';
 
   @override
-  String get common_key => 'キー';
+  String get common_key => 'Ã£â€šÂ­Ã£Æ’Â¼';
 
   @override
-  String get common_label => 'ラベル';
+  String get common_label => 'Ã£Æ’Â©Ã£Æ’â„¢Ã£Æ’Â«';
 
   @override
-  String get common_manage_workflows => 'ワークフローを管理';
+  String get common_manage_workflows =>
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã§Â®Â¡Ã§Ââ€ ';
 
   @override
-  String get common_move_down => '下に移動';
+  String get common_move_down => 'Ã¤Â¸â€¹Ã£ÂÂ«Ã§Â§Â»Ã¥â€¹â€¢';
 
   @override
-  String get common_move_up => '上に移動';
+  String get common_move_up => 'Ã¤Â¸Å Ã£ÂÂ«Ã§Â§Â»Ã¥â€¹â€¢';
 
   @override
-  String get common_name => '名前';
+  String get common_name => 'Ã¥ÂÂÃ¥â€°Â';
 
   @override
-  String get common_next => '次へ';
+  String get common_next => 'Ã¦Â¬Â¡Ã£ÂÂ¸';
 
   @override
-  String get common_none => 'なし';
+  String get common_none => 'Ã£ÂÂªÃ£Ââ€”';
 
   @override
   String get common_ok => 'OK';
 
   @override
-  String get common_operator => '演算子';
+  String get common_operator => 'Ã¦Â¼â€Ã§Â®â€”Ã¥Â­Â';
 
   @override
-  String get common_pick => '選択';
+  String get common_pick => 'Ã©ÂÂ¸Ã¦Å Å¾';
 
   @override
-  String get common_placeholder => 'プレースホルダー';
+  String get common_placeholder =>
+      'Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£â€šÂ¹Ã£Æ’â€ºÃ£Æ’Â«Ã£Æ’â‚¬Ã£Æ’Â¼';
 
   @override
-  String get common_refresh => '更新';
+  String get common_refresh => 'Ã¦â€ºÂ´Ã¦â€“Â°';
 
   @override
-  String get common_refresh_workflows => 'ワークフローを更新';
+  String get common_refresh_workflows =>
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã¦â€ºÂ´Ã¦â€“Â°';
 
   @override
-  String get common_remove => '削除';
+  String get common_remove => 'Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get common_required => '必須';
+  String get common_required => 'Ã¥Â¿â€¦Ã©Â Ë†';
 
   @override
-  String get common_retry => '再試行';
+  String get common_retry => 'Ã¥â€ ÂÃ¨Â©Â¦Ã¨Â¡Å’';
 
   @override
-  String get common_save => '保存';
+  String get common_save => 'Ã¤Â¿ÂÃ¥Â­Ëœ';
 
   @override
-  String get common_search => '検索';
+  String get common_search => 'Ã¦Â¤Å“Ã§Â´Â¢';
 
   @override
-  String get common_static_options => '静的オプション';
+  String get common_static_options =>
+      'Ã©Ââ„¢Ã§Å¡â€žÃ£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³';
 
   @override
-  String get common_style => 'スタイル';
+  String get common_style => 'Ã£â€šÂ¹Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â«';
 
   @override
-  String get common_type => 'タイプ';
+  String get common_type => 'Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’â€”';
 
   @override
   String get common_url => 'URL';
 
   @override
-  String get common_value => '値';
+  String get common_value => 'Ã¥â‚¬Â¤';
 
   @override
-  String get common_workflow => 'ワークフロー';
+  String get common_workflow => 'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼';
 
   @override
-  String get component_accent_color => 'アクセントカラー (Hex, 例: FF0000)';
+  String get component_accent_color =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ»Ã£Æ’Â³Ã£Æ’Ë†Ã£â€šÂ«Ã£Æ’Â©Ã£Æ’Â¼ (Hex, Ã¤Â¾â€¹: FF0000)';
 
   @override
-  String get component_action_row => 'アクション行';
+  String get component_action_row => 'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã¨Â¡Å’';
 
   @override
-  String get component_add_action_row => 'アクション行を追加';
+  String get component_add_action_row =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã¨Â¡Å’Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get component_add_button => 'ボタンを追加';
+  String get component_add_button => 'Ã£Æ’Å“Ã£â€šÂ¿Ã£Æ’Â³Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get component_add_button_or_select => 'ボタン / セレクトメニューを追加';
+  String get component_add_button_or_select =>
+      'Ã£Æ’Å“Ã£â€šÂ¿Ã£Æ’Â³ / Ã£â€šÂ»Ã£Æ’Â¬Ã£â€šÂ¯Ã£Æ’Ë†Ã£Æ’Â¡Ã£Æ’â€¹Ã£Æ’Â¥Ã£Æ’Â¼Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get component_add_checkbox_option => 'チェックボックスオプションを追加';
+  String get component_add_checkbox_option =>
+      'Ã£Æ’ÂÃ£â€šÂ§Ã£Æ’Æ’Ã£â€šÂ¯Ã£Æ’Å“Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¹Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get component_add_child => '子コンポーネントを追加';
+  String get component_add_child =>
+      'Ã¥Â­ÂÃ£â€šÂ³Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â³Ã£Æ’Ë†Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get component_add_media_item => 'メディア項目を追加';
+  String get component_add_media_item =>
+      'Ã£Æ’Â¡Ã£Æ’â€¡Ã£â€šÂ£Ã£â€šÂ¢Ã©Â â€¦Ã§â€ºÂ®Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get component_add_radio_option => 'ラジオオプションを追加';
+  String get component_add_radio_option =>
+      'Ã£Æ’Â©Ã£â€šÂ¸Ã£â€šÂªÃ£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get component_add_root => 'ルートコンポーネントを追加';
+  String get component_add_root =>
+      'Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’Ë†Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â³Ã£Æ’Ë†Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get component_add_text_display => 'テキスト表示を追加';
+  String get component_add_text_display =>
+      'Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã¨Â¡Â¨Ã§Â¤ÂºÃ£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get component_add_tooltip => 'コンポーネントを追加';
+  String get component_add_tooltip =>
+      'Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â³Ã£Æ’Ë†Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get component_block_label_style => 'スタイル';
+  String get component_block_label_style => 'Ã£â€šÂ¹Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â«';
 
   @override
-  String get component_block_workflow => 'ワークフロー';
+  String get component_block_workflow =>
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼';
 
   @override
   String get component_button_default_label => 'ボタン';
 
   @override
-  String get component_checkbox_options => 'チェックボックスオプション';
+  String get component_checkbox_options =>
+      'Ã£Æ’ÂÃ£â€šÂ§Ã£Æ’Æ’Ã£â€šÂ¯Ã£Æ’Å“Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¹Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³';
 
   @override
-  String get component_checked_by_default => 'デフォルトでチェック';
+  String get component_checked_by_default =>
+      'Ã£Æ’â€¡Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â«Ã£Æ’Ë†Ã£ÂÂ§Ã£Æ’ÂÃ£â€šÂ§Ã£Æ’Æ’Ã£â€šÂ¯';
 
   @override
-  String get component_choose_color => '色を選択';
+  String get component_choose_color => 'Ã¨â€°Â²Ã£â€šâ€™Ã©ÂÂ¸Ã¦Å Å¾';
 
   @override
-  String get component_component_to_wrap => 'ラップするコンポーネント:';
+  String get component_component_to_wrap =>
+      'Ã£Æ’Â©Ã£Æ’Æ’Ã£Æ’â€”Ã£Ââ„¢Ã£â€šâ€¹Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â³Ã£Æ’Ë†:';
 
   @override
   String get component_configure_click_actions => 'クリックアクションを設定';
@@ -3133,2207 +3694,2478 @@ class AppLocalizationsJa extends AppLocalizations {
   String get component_configure_select_actions => '選択アクションを設定';
 
   @override
-  String get component_custom_id => 'カスタムID';
+  String get component_custom_id => 'Ã£â€šÂ«Ã£â€šÂ¹Ã£â€šÂ¿Ã£Æ’Â ID';
 
   @override
-  String get component_custom_id_required => 'カスタムID *';
+  String get component_custom_id_required => 'Ã£â€šÂ«Ã£â€šÂ¹Ã£â€šÂ¿Ã£Æ’Â ID *';
 
   @override
-  String get component_default_choice_label => '選択肢';
+  String get component_default_choice_label => 'Ã©ÂÂ¸Ã¦Å Å¾Ã¨â€šÂ¢';
 
   @override
-  String get component_default_option_label => 'オプション';
+  String get component_default_option_label =>
+      'Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³';
 
   @override
   String get component_disabled_hint =>
       'true/false または ((user.bc_isVip)) のような変数を入力';
 
   @override
-  String get component_empty_option => '空';
+  String get component_empty_option => 'Ã§Â©Âº';
 
   @override
-  String get component_file_url => 'ファイルURL';
+  String get component_file_url => 'Ã£Æ’â€¢Ã£â€šÂ¡Ã£â€šÂ¤Ã£Æ’Â«URL';
 
   @override
-  String get component_label => 'ラベル';
+  String get component_label => 'Ã£Æ’Â©Ã£Æ’â„¢Ã£Æ’Â«';
 
   @override
-  String get component_label_title => 'ラベルタイトル';
+  String get component_label_title =>
+      'Ã£Æ’Â©Ã£Æ’â„¢Ã£Æ’Â«Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Ë†Ã£Æ’Â«';
 
   @override
-  String get component_markdown_content => 'Markdown コンテンツ';
+  String get component_markdown_content =>
+      'Markdown Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€ž';
 
   @override
-  String get component_max_selections => '最大選択数';
+  String get component_max_selections => 'Ã¦Å“â‚¬Ã¥Â¤Â§Ã©ÂÂ¸Ã¦Å Å¾Ã¦â€¢Â°';
 
   @override
-  String get component_media_url => '画像 / 動画 URL';
+  String get component_media_url => 'Ã§â€Â»Ã¥Æ’Â / Ã¥â€¹â€¢Ã§â€Â» URL';
 
   @override
-  String get component_media_urls => 'メディアURL';
+  String get component_media_urls => 'Ã£Æ’Â¡Ã£Æ’â€¡Ã£â€šÂ£Ã£â€šÂ¢URL';
 
   @override
-  String get component_min_selections => '最小選択数';
+  String get component_min_selections => 'Ã¦Å“â‚¬Ã¥Â°ÂÃ©ÂÂ¸Ã¦Å Å¾Ã¦â€¢Â°';
 
   @override
-  String get component_new_checkbox => '新しいチェックボックス';
+  String get component_new_checkbox =>
+      'Ã¦â€“Â°Ã£Ââ€”Ã£Ââ€žÃ£Æ’ÂÃ£â€šÂ§Ã£Æ’Æ’Ã£â€šÂ¯Ã£Æ’Å“Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¹';
 
   @override
-  String get component_new_option => '新しいオプション';
+  String get component_new_option =>
+      'Ã¦â€“Â°Ã£Ââ€”Ã£Ââ€žÃ£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³';
 
   @override
-  String get component_new_radio => '新しいラジオ';
+  String get component_new_radio => 'Ã¦â€“Â°Ã£Ââ€”Ã£Ââ€žÃ£Æ’Â©Ã£â€šÂ¸Ã£â€šÂª';
 
   @override
-  String get component_not_implemented => 'エディタはまだ実装されていません';
+  String get component_not_implemented =>
+      'Ã£â€šÂ¨Ã£Æ’â€¡Ã£â€šÂ£Ã£â€šÂ¿Ã£ÂÂ¯Ã£ÂÂ¾Ã£ÂÂ Ã¥Â®Å¸Ã¨Â£â€¦Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¦Ã£Ââ€žÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œ';
 
   @override
-  String get component_on_click_workflow => 'クリック時にワークフロー';
+  String get component_on_click_workflow =>
+      'Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’Æ’Ã£â€šÂ¯Ã¦â„¢â€šÃ£ÂÂ«Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼';
 
   @override
-  String get component_on_select_workflow => '選択時にワークフロー';
+  String get component_on_select_workflow =>
+      'Ã©ÂÂ¸Ã¦Å Å¾Ã¦â„¢â€šÃ£ÂÂ«Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼';
 
   @override
-  String get component_options => 'オプション';
+  String get component_options => 'Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³';
 
   @override
-  String get component_pick_accent_color => 'アクセントカラーを選択';
+  String get component_pick_accent_color =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ»Ã£Æ’Â³Ã£Æ’Ë†Ã£â€šÂ«Ã£Æ’Â©Ã£Æ’Â¼Ã£â€šâ€™Ã©ÂÂ¸Ã¦Å Å¾';
 
   @override
-  String get component_placeholder => 'プレースホルダー';
+  String get component_placeholder =>
+      'Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£â€šÂ¹Ã£Æ’â€ºÃ£Æ’Â«Ã£Æ’â‚¬Ã£Æ’Â¼';
 
   @override
-  String get component_radio_options => 'ラジオオプション';
+  String get component_radio_options =>
+      'Ã£Æ’Â©Ã£â€šÂ¸Ã£â€šÂªÃ£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³';
 
   @override
-  String get component_remove_confirm => 'このコンポーネントをレイアウトから削除します。続行しますか？';
+  String get component_remove_confirm =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â³Ã£Æ’Ë†Ã£â€šâ€™Ã£Æ’Â¬Ã£â€šÂ¤Ã£â€šÂ¢Ã£â€šÂ¦Ã£Æ’Ë†Ã£Ââ€¹Ã£â€šâ€°Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ§Â¶Å¡Ã¨Â¡Å’Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸';
 
   @override
-  String get component_remove_row_title => 'アクション行を削除';
+  String get component_remove_row_title =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã¨Â¡Å’Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get component_remove_title => 'コンポーネントを削除';
+  String get component_remove_title =>
+      'Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â³Ã£Æ’Ë†Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get component_section_accessory => 'アクセサリノード (オプション)';
+  String get component_section_accessory =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ»Ã£â€šÂµÃ£Æ’ÂªÃ£Æ’Å½Ã£Æ’Â¼Ã£Æ’â€° (Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³)';
 
   @override
-  String get component_section_text_displays => 'テキスト表示';
+  String get component_section_text_displays =>
+      'Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã¨Â¡Â¨Ã§Â¤Âº';
 
   @override
-  String get component_selection_range => '選択範囲';
+  String get component_selection_range => 'Ã©ÂÂ¸Ã¦Å Å¾Ã§Â¯â€žÃ¥â€ºÂ²';
 
   @override
-  String get component_spacing_large => '大スペーシング';
+  String get component_spacing_large =>
+      'Ã¥Â¤Â§Ã£â€šÂ¹Ã£Æ’Å¡Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â³Ã£â€šÂ°';
 
   @override
-  String get component_spacing_small => '小スペーシング';
+  String get component_spacing_small =>
+      'Ã¥Â°ÂÃ£â€šÂ¹Ã£Æ’Å¡Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â³Ã£â€šÂ°';
 
   @override
-  String get component_style => 'スタイル';
+  String get component_style => 'Ã£â€šÂ¹Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â«';
 
   @override
-  String get component_thumbnail_url => 'サムネイルURL';
+  String get component_thumbnail_url => 'Ã£â€šÂµÃ£Æ’Â Ã£Æ’ÂÃ£â€šÂ¤Ã£Æ’Â«URL';
 
   @override
-  String get component_unknown_component => '不明なコンポーネント';
+  String get component_unknown_component =>
+      'Ã¤Â¸ÂÃ¦ËœÅ½Ã£ÂÂªÃ£â€šÂ³Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â³Ã£Æ’Ë†';
 
   @override
   String get component_url => 'URL';
 
   @override
-  String get component_validation_required => '必須';
+  String get component_validation_required => 'Ã¥Â¿â€¦Ã©Â Ë†';
 
   @override
-  String get component_value_hint => 'コンポーネント値のヒント';
+  String get component_value_hint =>
+      'Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â³Ã£Æ’Ë†Ã¥â‚¬Â¤Ã£ÂÂ®Ã£Æ’â€™Ã£Æ’Â³Ã£Æ’Ë†';
 
   @override
-  String get component_visible_divider => '可視線';
+  String get component_visible_divider => 'Ã¥ÂÂ¯Ã¨Â¦â€“Ã§Â·Å¡';
 
   @override
-  String get component_workflow_args_hint => '例: ticketId = ((opts.ticket))';
+  String get component_workflow_args_hint =>
+      'Ã¤Â¾â€¹: ticketId = ((opts.ticket))';
 
   @override
-  String get component_workflow_args_title => 'ワークフロー呼び出し引数';
+  String get component_workflow_args_title =>
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã¥â€˜Â¼Ã£ÂÂ³Ã¥â€¡ÂºÃ£Ââ€”Ã¥Â¼â€¢Ã¦â€¢Â°';
 
   @override
-  String get component_workflow_click_hint => 'クリック時に実行する保存済みワークフロー名';
+  String get component_workflow_click_hint =>
+      'Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’Æ’Ã£â€šÂ¯Ã¦â„¢â€šÃ£ÂÂ«Ã¥Â®Å¸Ã¨Â¡Å’Ã£Ââ„¢Ã£â€šâ€¹Ã¤Â¿ÂÃ¥Â­ËœÃ¦Â¸Ë†Ã£ÂÂ¿Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã¥ÂÂ';
 
   @override
-  String get component_workflow_optional => 'ワークフロー呼び出し (オプション)';
+  String get component_workflow_optional =>
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã¥â€˜Â¼Ã£ÂÂ³Ã¥â€¡ÂºÃ£Ââ€” (Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³)';
 
   @override
-  String get component_workflow_select_hint => '選択時に実行する保存済みワークフロー名';
+  String get component_workflow_select_hint =>
+      'Ã©ÂÂ¸Ã¦Å Å¾Ã¦â„¢â€šÃ£ÂÂ«Ã¥Â®Å¸Ã¨Â¡Å’Ã£Ââ„¢Ã£â€šâ€¹Ã¤Â¿ÂÃ¥Â­ËœÃ¦Â¸Ë†Ã£ÂÂ¿Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã¥ÂÂ';
 
   @override
-  String get confirm => '確認';
+  String get confirm => 'Ã§Â¢ÂºÃ¨ÂªÂ';
 
   @override
-  String get copy => 'コピー';
+  String get copy => 'Ã£â€šÂ³Ã£Æ’â€Ã£Æ’Â¼';
 
   @override
-  String get create => '作成';
+  String get create => 'Ã¤Â½Å“Ã¦Ë†Â';
 
   @override
-  String get dart_editor_empty => '空のスクリプト — 入力を開始するとDart診断が表示されます。';
+  String get dart_editor_empty =>
+      'Ã§Â©ÂºÃ£ÂÂ®Ã£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë† Ã¢â‚¬â€ Ã¥â€¦Â¥Ã¥Å â€ºÃ£â€šâ€™Ã©â€“â€¹Ã¥Â§â€¹Ã£Ââ„¢Ã£â€šâ€¹Ã£ÂÂ¨DartÃ¨Â¨ÂºÃ¦â€“Â­Ã£ÂÅ’Ã¨Â¡Â¨Ã§Â¤ÂºÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get dart_editor_tap_hint => 'タップしてDartエディタを開く';
+  String get dart_editor_tap_hint =>
+      'Ã£â€šÂ¿Ã£Æ’Æ’Ã£Æ’â€”Ã£Ââ€”Ã£ÂÂ¦DartÃ£â€šÂ¨Ã£Æ’â€¡Ã£â€šÂ£Ã£â€šÂ¿Ã£â€šâ€™Ã©â€“â€¹Ã£ÂÂ';
 
   @override
-  String get dart_editor_title => 'Dart エディタ';
+  String get dart_editor_title => 'Dart Ã£â€šÂ¨Ã£Æ’â€¡Ã£â€šÂ£Ã£â€šÂ¿';
 
   @override
-  String get dashboard_analysis_period => '分析期間';
+  String get dashboard_analysis_period => 'Ã¥Ë†â€ Ã¦Å¾ÂÃ¦Å“Å¸Ã©â€“â€œ';
 
   @override
   String dashboard_error(String error) {
-    return '統計を読み込めませんでした: $error';
+    return 'Ã§ÂµÂ±Ã¨Â¨Ë†Ã£â€šâ€™Ã¨ÂªÂ­Ã£ÂÂ¿Ã¨Â¾Â¼Ã£â€šÂÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£ÂÂ§Ã£Ââ€”Ã£ÂÅ¸: $error';
   }
 
   @override
-  String get dashboard_error_rate => 'エラー率';
+  String get dashboard_error_rate => 'Ã£â€šÂ¨Ã£Æ’Â©Ã£Æ’Â¼Ã§Å½â€¡';
 
   @override
-  String get dashboard_execution_health_title => '実行健全性';
+  String get dashboard_execution_health_title =>
+      'Ã¥Â®Å¸Ã¨Â¡Å’Ã¥ÂÂ¥Ã¥â€¦Â¨Ã¦â‚¬Â§';
 
   @override
   String dashboard_executions(int count) {
-    return '$count 実行';
+    return '$count Ã¥Â®Å¸Ã¨Â¡Å’';
   }
 
   @override
-  String get dashboard_failed_commands => '失敗';
+  String get dashboard_failed_commands => 'Ã¥Â¤Â±Ã¦â€¢â€”';
 
   @override
-  String get dashboard_loading => '統計を読み込み中...';
+  String get dashboard_loading =>
+      'Ã§ÂµÂ±Ã¨Â¨Ë†Ã£â€šâ€™Ã¨ÂªÂ­Ã£ÂÂ¿Ã¨Â¾Â¼Ã£ÂÂ¿Ã¤Â¸Â­...';
 
   @override
-  String get dashboard_no_data => 'まだコマンド使用データがありません。ボットを実行して追跡を開始してください。';
+  String get dashboard_no_data =>
+      'Ã£ÂÂ¾Ã£ÂÂ Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã¤Â½Â¿Ã§â€Â¨Ã£Æ’â€¡Ã£Æ’Â¼Ã£â€šÂ¿Ã£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€šÃ£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¥Â®Å¸Ã¨Â¡Å’Ã£Ââ€”Ã£ÂÂ¦Ã¨Â¿Â½Ã¨Â·Â¡Ã£â€šâ€™Ã©â€“â€¹Ã¥Â§â€¹Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get dashboard_p50_latency => 'レイテンシ p50';
+  String get dashboard_p50_latency => 'Ã£Æ’Â¬Ã£â€šÂ¤Ã£Æ’â€ Ã£Æ’Â³Ã£â€šÂ· p50';
 
   @override
-  String get dashboard_p95_latency => 'レイテンシ p95';
+  String get dashboard_p95_latency => 'Ã£Æ’Â¬Ã£â€šÂ¤Ã£Æ’â€ Ã£Æ’Â³Ã£â€šÂ· p95';
 
   @override
-  String get dashboard_period_24h => '過去24時間';
+  String get dashboard_period_24h => 'Ã©ÂÅ½Ã¥Å½Â»24Ã¦â„¢â€šÃ©â€“â€œ';
 
   @override
-  String get dashboard_period_30d => '過去30日間';
+  String get dashboard_period_30d => 'Ã©ÂÅ½Ã¥Å½Â»30Ã¦â€”Â¥Ã©â€“â€œ';
 
   @override
-  String get dashboard_period_7d => '過去7日間';
+  String get dashboard_period_7d => 'Ã©ÂÅ½Ã¥Å½Â»7Ã¦â€”Â¥Ã©â€“â€œ';
 
   @override
   String get dashboard_premium_analytics_desc =>
-      'エラー率、レイテンシパーセンタイル、ロケールインサイトをアンロックします。';
+      'Ã£â€šÂ¨Ã£Æ’Â©Ã£Æ’Â¼Ã§Å½â€¡Ã£â‚¬ÂÃ£Æ’Â¬Ã£â€šÂ¤Ã£Æ’â€ Ã£Æ’Â³Ã£â€šÂ·Ã£Æ’â€˜Ã£Æ’Â¼Ã£â€šÂ»Ã£Æ’Â³Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â«Ã£â‚¬ÂÃ£Æ’Â­Ã£â€šÂ±Ã£Æ’Â¼Ã£Æ’Â«Ã£â€šÂ¤Ã£Æ’Â³Ã£â€šÂµÃ£â€šÂ¤Ã£Æ’Ë†Ã£â€šâ€™Ã£â€šÂ¢Ã£Æ’Â³Ã£Æ’Â­Ã£Æ’Æ’Ã£â€šÂ¯Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get dashboard_premium_analytics_title => 'プレミアム分析';
+  String get dashboard_premium_analytics_title =>
+      'Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Å¸Ã£â€šÂ¢Ã£Æ’Â Ã¥Ë†â€ Ã¦Å¾Â';
 
   @override
-  String get dashboard_refresh_sources_tooltip => '実行サーバーを更新';
+  String get dashboard_refresh_sources_tooltip =>
+      'Ã¥Â®Å¸Ã¨Â¡Å’Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£â€šâ€™Ã¦â€ºÂ´Ã¦â€“Â°';
 
   @override
-  String get dashboard_requires_runner => 'ランナーに接続してコマンド使用統計を表示します。';
+  String get dashboard_requires_runner =>
+      'Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼Ã£ÂÂ«Ã¦Å½Â¥Ã§Â¶Å¡Ã£Ââ€”Ã£ÂÂ¦Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã¤Â½Â¿Ã§â€Â¨Ã§ÂµÂ±Ã¨Â¨Ë†Ã£â€šâ€™Ã¨Â¡Â¨Ã§Â¤ÂºÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String dashboard_selected_period_total(int count) {
-    return '選択期間内 $count 件';
+    return 'Ã©ÂÂ¸Ã¦Å Å¾Ã¦Å“Å¸Ã©â€“â€œÃ¥â€ â€¦ $count Ã¤Â»Â¶';
   }
 
   @override
   String get dashboard_single_runner_notice =>
-      '表示されている統計は現在設定されているランナーのみのものです。複数のランナーでボットを実行している場合、';
+      'Ã¨Â¡Â¨Ã§Â¤ÂºÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¦Ã£Ââ€žÃ£â€šâ€¹Ã§ÂµÂ±Ã¨Â¨Ë†Ã£ÂÂ¯Ã§ÂÂ¾Ã¥Å“Â¨Ã¨Â¨Â­Ã¥Â®Å¡Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¦Ã£Ââ€žÃ£â€šâ€¹Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼Ã£ÂÂ®Ã£ÂÂ¿Ã£ÂÂ®Ã£â€šâ€šÃ£ÂÂ®Ã£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€šÃ¨Â¤â€¡Ã¦â€¢Â°Ã£ÂÂ®Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼Ã£ÂÂ§Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¥Â®Å¸Ã¨Â¡Å’Ã£Ââ€”Ã£ÂÂ¦Ã£Ââ€žÃ£â€šâ€¹Ã¥Â Â´Ã¥ÂË†Ã£â‚¬Â';
 
   @override
-  String get dashboard_timeline => '時系列の使用状況';
+  String get dashboard_timeline =>
+      'Ã¦â„¢â€šÃ§Â³Â»Ã¥Ë†â€”Ã£ÂÂ®Ã¤Â½Â¿Ã§â€Â¨Ã§Å Â¶Ã¦Â³Â';
 
   @override
-  String get dashboard_title => 'ダッシュボード';
+  String get dashboard_title => 'Ã£Æ’â‚¬Ã£Æ’Æ’Ã£â€šÂ·Ã£Æ’Â¥Ã£Æ’Å“Ã£Æ’Â¼Ã£Æ’â€°';
 
   @override
-  String get dashboard_top_commands => 'トップコマンド';
+  String get dashboard_top_commands =>
+      'Ã£Æ’Ë†Ã£Æ’Æ’Ã£Æ’â€”Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°';
 
   @override
-  String get dashboard_top_locales => 'トップロケール';
+  String get dashboard_top_locales =>
+      'Ã£Æ’Ë†Ã£Æ’Æ’Ã£Æ’â€”Ã£Æ’Â­Ã£â€šÂ±Ã£Æ’Â¼Ã£Æ’Â«';
 
   @override
-  String get dashboard_total => '総コマンド数';
+  String get dashboard_total => 'Ã§Â·ÂÃ£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã¦â€¢Â°';
 
   @override
-  String get debug_replay_clear => 'リプレイをクリア';
+  String get debug_replay_clear =>
+      'Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Â¬Ã£â€šÂ¤Ã£â€šâ€™Ã£â€šÂ¯Ã£Æ’ÂªÃ£â€šÂ¢';
 
   @override
-  String get debug_replay_clear_confirm => '記録されたすべてのリプレイが削除されます。続行しますか？';
+  String get debug_replay_clear_confirm =>
+      'Ã¨Â¨ËœÃ©Å’Â²Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÂ®Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Â¬Ã£â€šÂ¤Ã£ÂÅ’Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ§Â¶Å¡Ã¨Â¡Å’Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸';
 
   @override
-  String get debug_replay_clear_title => 'リプレイをクリア';
+  String get debug_replay_clear_title =>
+      'Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Â¬Ã£â€šÂ¤Ã£â€šâ€™Ã£â€šÂ¯Ã£Æ’ÂªÃ£â€šÂ¢';
 
   @override
-  String get debug_replay_duration_label => '所要時間';
+  String get debug_replay_duration_label => 'Ã¦â€°â‚¬Ã¨Â¦ÂÃ¦â„¢â€šÃ©â€“â€œ';
 
   @override
-  String get debug_replay_empty_capturing => 'キャプチャ中… コマンドを実行してリプレイを記録してください。';
+  String get debug_replay_empty_capturing =>
+      'Ã£â€šÂ­Ã£Æ’Â£Ã£Æ’â€”Ã£Æ’ÂÃ£Æ’Â£Ã¤Â¸Â­Ã¢â‚¬Â¦ Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¥Â®Å¸Ã¨Â¡Å’Ã£Ââ€”Ã£ÂÂ¦Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Â¬Ã£â€šÂ¤Ã£â€šâ€™Ã¨Â¨ËœÃ©Å’Â²Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
   String get debug_replay_empty_idle =>
-      'キャプチャはオフです。有効にしてコマンドを実行し、リプレイを記録してください。';
+      'Ã£â€šÂ­Ã£Æ’Â£Ã£Æ’â€”Ã£Æ’ÂÃ£Æ’Â£Ã£ÂÂ¯Ã£â€šÂªÃ£Æ’â€¢Ã£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€šÃ¦Å“â€°Ã¥Å Â¹Ã£ÂÂ«Ã£Ââ€”Ã£ÂÂ¦Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¥Â®Å¸Ã¨Â¡Å’Ã£Ââ€”Ã£â‚¬ÂÃ£Æ’ÂªÃ£Æ’â€”Ã£Æ’Â¬Ã£â€šÂ¤Ã£â€šâ€™Ã¨Â¨ËœÃ©Å’Â²Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
   String debug_replay_loop_info(int depth, int iteration) {
-    return 'ループ深度 $depth, 反復 $iteration';
+    return 'Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’â€”Ã¦Â·Â±Ã¥ÂºÂ¦ $depth, Ã¥ÂÂÃ¥Â¾Â© $iteration';
   }
 
   @override
-  String get debug_replay_overview => '概要';
+  String get debug_replay_overview => 'Ã¦Â¦â€šÃ¨Â¦Â';
 
   @override
-  String get debug_replay_pause => '一時停止';
+  String get debug_replay_pause => 'Ã¤Â¸â‚¬Ã¦â„¢â€šÃ¥ÂÅ“Ã¦Â­Â¢';
 
   @override
-  String get debug_replay_play => '再生';
+  String get debug_replay_play => 'Ã¥â€ ÂÃ§â€Å¸';
 
   @override
   String get debug_replay_premium_desc =>
-      'コマンド実行をステップごとに記録・再生します。各アクションの動作、所要時間を正確に確認できます。';
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã¥Â®Å¸Ã¨Â¡Å’Ã£â€šâ€™Ã£â€šÂ¹Ã£Æ’â€ Ã£Æ’Æ’Ã£Æ’â€”Ã£Ââ€Ã£ÂÂ¨Ã£ÂÂ«Ã¨Â¨ËœÃ©Å’Â²Ã£Æ’Â»Ã¥â€ ÂÃ§â€Å¸Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ¥Ââ€žÃ£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ®Ã¥â€¹â€¢Ã¤Â½Å“Ã£â‚¬ÂÃ¦â€°â‚¬Ã¨Â¦ÂÃ¦â„¢â€šÃ©â€“â€œÃ£â€šâ€™Ã¦Â­Â£Ã§Â¢ÂºÃ£ÂÂ«Ã§Â¢ÂºÃ¨ÂªÂÃ£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get debug_replay_premium_title => 'ビジュアルデバッガーリプレイ';
+  String get debug_replay_premium_title =>
+      'Ã£Æ’â€œÃ£â€šÂ¸Ã£Æ’Â¥Ã£â€šÂ¢Ã£Æ’Â«Ã£Æ’â€¡Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¬Ã£Æ’Â¼Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Â¬Ã£â€šÂ¤';
 
   @override
-  String get debug_replay_result_empty => '(結果なし)';
+  String get debug_replay_result_empty => '(Ã§ÂµÂÃ¦Å¾Å“Ã£ÂÂªÃ£Ââ€”)';
 
   @override
-  String get debug_replay_result_label => '結果';
+  String get debug_replay_result_label => 'Ã§ÂµÂÃ¦Å¾Å“';
 
   @override
-  String get debug_replay_start_capture => 'キャプチャを有効化';
+  String get debug_replay_start_capture =>
+      'Ã£â€šÂ­Ã£Æ’Â£Ã£Æ’â€”Ã£Æ’ÂÃ£Æ’Â£Ã£â€šâ€™Ã¦Å“â€°Ã¥Å Â¹Ã¥Å’â€“';
 
   @override
   String debug_replay_start_offset(int ms) {
-    return '開始から +$ms ms';
+    return 'Ã©â€“â€¹Ã¥Â§â€¹Ã£Ââ€¹Ã£â€šâ€° +$ms ms';
   }
 
   @override
-  String get debug_replay_step_back => '前のステップ';
+  String get debug_replay_step_back =>
+      'Ã¥â€°ÂÃ£ÂÂ®Ã£â€šÂ¹Ã£Æ’â€ Ã£Æ’Æ’Ã£Æ’â€”';
 
   @override
-  String get debug_replay_step_first => '最初のステップ';
+  String get debug_replay_step_first =>
+      'Ã¦Å“â‚¬Ã¥Ë†ÂÃ£ÂÂ®Ã£â€šÂ¹Ã£Æ’â€ Ã£Æ’Æ’Ã£Æ’â€”';
 
   @override
-  String get debug_replay_step_forward => '次のステップ';
+  String get debug_replay_step_forward =>
+      'Ã¦Â¬Â¡Ã£ÂÂ®Ã£â€šÂ¹Ã£Æ’â€ Ã£Æ’Æ’Ã£Æ’â€”';
 
   @override
-  String get debug_replay_step_last => '最後のステップ';
+  String get debug_replay_step_last =>
+      'Ã¦Å“â‚¬Ã¥Â¾Å’Ã£ÂÂ®Ã£â€šÂ¹Ã£Æ’â€ Ã£Æ’Æ’Ã£Æ’â€”';
 
   @override
-  String get debug_replay_stop_capture => 'キャプチャを無効化';
+  String get debug_replay_stop_capture =>
+      'Ã£â€šÂ­Ã£Æ’Â£Ã£Æ’â€”Ã£Æ’ÂÃ£Æ’Â£Ã£â€šâ€™Ã§â€žÂ¡Ã¥Å Â¹Ã¥Å’â€“';
 
   @override
-  String get debug_replay_title => 'デバッガーリプレイ';
+  String get debug_replay_title =>
+      'Ã£Æ’â€¡Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¬Ã£Æ’Â¼Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Â¬Ã£â€šÂ¤';
 
   @override
-  String get debug_replay_variables_empty => '(変数なし)';
+  String get debug_replay_variables_empty => '(Ã¥Â¤â€°Ã¦â€¢Â°Ã£ÂÂªÃ£Ââ€”)';
 
   @override
-  String get debug_replay_variables_label => '変数';
+  String get debug_replay_variables_label => 'Ã¥Â¤â€°Ã¦â€¢Â°';
 
   @override
-  String get delete => '削除';
+  String get delete => 'Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
   String get doc_action_http_request_checklist_l1 =>
-      '可能な場合はサービスレイヤーで明示的なタイムアウトとリトライを設定してください。';
+      'Ã¥ÂÂ¯Ã¨Æ’Â½Ã£ÂÂªÃ¥Â Â´Ã¥ÂË†Ã£ÂÂ¯Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’â€œÃ£â€šÂ¹Ã£Æ’Â¬Ã£â€šÂ¤Ã£Æ’Â¤Ã£Æ’Â¼Ã£ÂÂ§Ã¦ËœÅ½Ã§Â¤ÂºÃ§Å¡â€žÃ£ÂÂªÃ£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â Ã£â€šÂ¢Ã£â€šÂ¦Ã£Æ’Ë†Ã£ÂÂ¨Ã£Æ’ÂªÃ£Æ’Ë†Ã£Æ’Â©Ã£â€šÂ¤Ã£â€šâ€™Ã¨Â¨Â­Ã¥Â®Å¡Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
   String get doc_action_http_request_checklist_l2 =>
-      'APIキーはグローバル変数または安全なバックエンドに保存し、トークンをハードコードしないでください。';
+      'APIÃ£â€šÂ­Ã£Æ’Â¼Ã£ÂÂ¯Ã£â€šÂ°Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â«Ã¥Â¤â€°Ã¦â€¢Â°Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã¥Â®â€°Ã¥â€¦Â¨Ã£ÂÂªÃ£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¨Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ«Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ€”Ã£â‚¬ÂÃ£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£â€šâ€™Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’â€°Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€°Ã£Ââ€”Ã£ÂÂªÃ£Ââ€žÃ£ÂÂ§Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
   String get doc_action_http_request_checklist_l3 =>
-      '次のアクションの前にステータスコードとレスポンスボディを検証してください。';
+      'Ã¦Â¬Â¡Ã£ÂÂ®Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ®Ã¥â€°ÂÃ£ÂÂ«Ã£â€šÂ¹Ã£Æ’â€ Ã£Æ’Â¼Ã£â€šÂ¿Ã£â€šÂ¹Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€°Ã£ÂÂ¨Ã£Æ’Â¬Ã£â€šÂ¹Ã£Æ’ÂÃ£Æ’Â³Ã£â€šÂ¹Ã£Æ’Å“Ã£Æ’â€¡Ã£â€šÂ£Ã£â€šâ€™Ã¦Â¤Å“Ã¨Â¨Â¼Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get doc_action_http_request_section_checklist => '信頼性チェックリスト';
+  String get doc_action_http_request_section_checklist =>
+      'Ã¤Â¿Â¡Ã©Â Â¼Ã¦â‚¬Â§Ã£Æ’ÂÃ£â€šÂ§Ã£Æ’Æ’Ã£â€šÂ¯Ã£Æ’ÂªÃ£â€šÂ¹Ã£Æ’Ë†';
 
   @override
-  String get doc_action_http_request_subtitle => 'ワークフロー内で外部HTTP呼び出しを実行します。';
+  String get doc_action_http_request_subtitle =>
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã¥â€ â€¦Ã£ÂÂ§Ã¥Â¤â€“Ã©Æ’Â¨HTTPÃ¥â€˜Â¼Ã£ÂÂ³Ã¥â€¡ÂºÃ£Ââ€”Ã£â€šâ€™Ã¥Â®Å¸Ã¨Â¡Å’Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_action_http_request_summary =>
-      'Webhook、内部API、モデレーションサービス、AIエンドポイント、統合に使用します。';
+      'WebhookÃ£â‚¬ÂÃ¥â€ â€¦Ã©Æ’Â¨APIÃ£â‚¬ÂÃ£Æ’Â¢Ã£Æ’â€¡Ã£Æ’Â¬Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’â€œÃ£â€šÂ¹Ã£â‚¬ÂAIÃ£â€šÂ¨Ã£Æ’Â³Ã£Æ’â€°Ã£Æ’ÂÃ£â€šÂ¤Ã£Æ’Â³Ã£Æ’Ë†Ã£â‚¬ÂÃ§ÂµÂ±Ã¥ÂË†Ã£ÂÂ«Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get doc_action_http_request_title => 'アクション: httpRequest';
+  String get doc_action_http_request_title =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³: httpRequest';
 
   @override
-  String get doc_action_if_block_execution_l1 => '条件は1回だけ評価されます。';
+  String get doc_action_if_block_execution_l1 =>
+      'Ã¦ÂÂ¡Ã¤Â»Â¶Ã£ÂÂ¯1Ã¥â€ºÅ¾Ã£ÂÂ Ã£Ââ€˜Ã¨Â©â€¢Ã¤Â¾Â¡Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_action_if_block_execution_l2 =>
-      '最初に一致するブランチが実行されます: THEN、次にELSE IFブロックが順に、最後にELSE。';
+      'Ã¦Å“â‚¬Ã¥Ë†ÂÃ£ÂÂ«Ã¤Â¸â‚¬Ã¨â€¡Â´Ã£Ââ„¢Ã£â€šâ€¹Ã£Æ’â€“Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’ÂÃ£ÂÅ’Ã¥Â®Å¸Ã¨Â¡Å’Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢: THENÃ£â‚¬ÂÃ¦Â¬Â¡Ã£ÂÂ«ELSE IFÃ£Æ’â€“Ã£Æ’Â­Ã£Æ’Æ’Ã£â€šÂ¯Ã£ÂÅ’Ã©Â â€ Ã£ÂÂ«Ã£â‚¬ÂÃ¦Å“â‚¬Ã¥Â¾Å’Ã£ÂÂ«ELSEÃ£â‚¬â€š';
 
   @override
   String get doc_action_if_block_execution_l3 =>
-      'ネストされたアクションにはrunWorkflow、API呼び出し、インタラクション応答を含められます。';
+      'Ã£Æ’ÂÃ£â€šÂ¹Ã£Æ’Ë†Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ«Ã£ÂÂ¯runWorkflowÃ£â‚¬ÂAPIÃ¥â€˜Â¼Ã£ÂÂ³Ã¥â€¡ÂºÃ£Ââ€”Ã£â‚¬ÂÃ£â€šÂ¤Ã£Æ’Â³Ã£â€šÂ¿Ã£Æ’Â©Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã¥Â¿Å“Ã§Â­â€Ã£â€šâ€™Ã¥ÂÂ«Ã£â€šÂÃ£â€šâ€°Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get doc_action_if_block_section_execution => '実行モデル';
+  String get doc_action_if_block_section_execution =>
+      'Ã¥Â®Å¸Ã¨Â¡Å’Ã£Æ’Â¢Ã£Æ’â€¡Ã£Æ’Â«';
 
   @override
   String get doc_action_if_block_subtitle =>
-      'THEN、ELSE IF、ELSEのネストされたアクションリスト間の分岐実行。';
+      'THENÃ£â‚¬ÂELSE IFÃ£â‚¬ÂELSEÃ£ÂÂ®Ã£Æ’ÂÃ£â€šÂ¹Ã£Æ’Ë†Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£Æ’ÂªÃ£â€šÂ¹Ã£Æ’Ë†Ã©â€“â€œÃ£ÂÂ®Ã¥Ë†â€ Ã¥Â²ÂÃ¥Â®Å¸Ã¨Â¡Å’Ã£â‚¬â€š';
 
   @override
   String get doc_action_if_block_summary =>
-      'ランタイム状態に基づいて複数の結果を処理しながら単一のワークフローを維持するために使用します。';
+      'Ã£Æ’Â©Ã£Æ’Â³Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â Ã§Å Â¶Ã¦â€¦â€¹Ã£ÂÂ«Ã¥Å¸ÂºÃ£ÂÂ¥Ã£Ââ€žÃ£ÂÂ¦Ã¨Â¤â€¡Ã¦â€¢Â°Ã£ÂÂ®Ã§ÂµÂÃ¦Å¾Å“Ã£â€šâ€™Ã¥â€¡Â¦Ã§Ââ€ Ã£Ââ€”Ã£ÂÂªÃ£ÂÅ’Ã£â€šâ€°Ã¥ÂËœÃ¤Â¸â‚¬Ã£ÂÂ®Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã§Â¶Â­Ã¦Å’ÂÃ£Ââ„¢Ã£â€šâ€¹Ã£ÂÅ¸Ã£â€šÂÃ£ÂÂ«Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get doc_action_if_block_title => 'アクション: ifBlock';
+  String get doc_action_if_block_title =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³: ifBlock';
 
   @override
   String get doc_action_run_workflow_practices_l1 =>
-      'トップレベルのワークフローは薄く保ち、ドメインワークフローに委譲してください。';
+      'Ã£Æ’Ë†Ã£Æ’Æ’Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’â„¢Ã£Æ’Â«Ã£ÂÂ®Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£ÂÂ¯Ã¨â€“â€žÃ£ÂÂÃ¤Â¿ÂÃ£ÂÂ¡Ã£â‚¬ÂÃ£Æ’â€°Ã£Æ’Â¡Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£ÂÂ«Ã¥Â§â€Ã¨Â­Â²Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
   String get doc_action_run_workflow_practices_l2 =>
-      '暗黙的なグローバル変数に頼らず、明示的な引数を渡してください。';
+      'Ã¦Å¡â€”Ã©Â»â„¢Ã§Å¡â€žÃ£ÂÂªÃ£â€šÂ°Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â«Ã¥Â¤â€°Ã¦â€¢Â°Ã£ÂÂ«Ã©Â Â¼Ã£â€šâ€°Ã£ÂÅ¡Ã£â‚¬ÂÃ¦ËœÅ½Ã§Â¤ÂºÃ§Å¡â€žÃ£ÂÂªÃ¥Â¼â€¢Ã¦â€¢Â°Ã£â€šâ€™Ã¦Â¸Â¡Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
   String get doc_action_run_workflow_practices_l3 =>
-      'エントリポイントを使用してサブルーチンをモデル化します (create, close, assign, escalate)。';
+      'Ã£â€šÂ¨Ã£Æ’Â³Ã£Æ’Ë†Ã£Æ’ÂªÃ£Æ’ÂÃ£â€šÂ¤Ã£Æ’Â³Ã£Æ’Ë†Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ€”Ã£ÂÂ¦Ã£â€šÂµÃ£Æ’â€“Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â³Ã£â€šâ€™Ã£Æ’Â¢Ã£Æ’â€¡Ã£Æ’Â«Ã¥Å’â€“Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢ (create, close, assign, escalate)Ã£â‚¬â€š';
 
   @override
-  String get doc_action_run_workflow_section_practices => 'ベストプラクティス';
+  String get doc_action_run_workflow_section_practices =>
+      'Ã£Æ’â„¢Ã£â€šÂ¹Ã£Æ’Ë†Ã£Æ’â€”Ã£Æ’Â©Ã£â€šÂ¯Ã£Æ’â€ Ã£â€šÂ£Ã£â€šÂ¹';
 
   @override
   String get doc_action_run_workflow_subtitle =>
-      'エントリポイントと引数を使用して別のワークフローを呼び出します。';
+      'Ã£â€šÂ¨Ã£Æ’Â³Ã£Æ’Ë†Ã£Æ’ÂªÃ£Æ’ÂÃ£â€šÂ¤Ã£Æ’Â³Ã£Æ’Ë†Ã£ÂÂ¨Ã¥Â¼â€¢Ã¦â€¢Â°Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ€”Ã£ÂÂ¦Ã¥Ë†Â¥Ã£ÂÂ®Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã¥â€˜Â¼Ã£ÂÂ³Ã¥â€¡ÂºÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_action_run_workflow_summary =>
-      'ビジネスロジックを再利用可能なユニットに分割するための中核的な構成プリミティブ。';
+      'Ã£Æ’â€œÃ£â€šÂ¸Ã£Æ’ÂÃ£â€šÂ¹Ã£Æ’Â­Ã£â€šÂ¸Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šâ€™Ã¥â€ ÂÃ¥Ë†Â©Ã§â€Â¨Ã¥ÂÂ¯Ã¨Æ’Â½Ã£ÂÂªÃ£Æ’Â¦Ã£Æ’â€¹Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÂ«Ã¥Ë†â€ Ã¥â€°Â²Ã£Ââ„¢Ã£â€šâ€¹Ã£ÂÅ¸Ã£â€šÂÃ£ÂÂ®Ã¤Â¸Â­Ã¦Â Â¸Ã§Å¡â€žÃ£ÂÂªÃ¦Â§â€¹Ã¦Ë†ÂÃ£Æ’â€”Ã£Æ’ÂªÃ£Æ’Å¸Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’â€“Ã£â‚¬â€š';
 
   @override
-  String get doc_action_run_workflow_title => 'アクション: runWorkflow';
+  String get doc_action_run_workflow_title =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³: runWorkflow';
 
   @override
   String get doc_action_stop_unless_example =>
-      'condition.variable = ((reaction.emoji.name))\ncondition.operator = equals\ncondition.value = ✅';
+      'condition.variable = ((reaction.emoji.name))\ncondition.operator = equals\ncondition.value = Ã¢Å“â€¦';
 
   @override
   String get doc_action_stop_unless_format_l1 =>
-      '生のキーを使用できます: message.content[0]';
+      'Ã§â€Å¸Ã£ÂÂ®Ã£â€šÂ­Ã£Æ’Â¼Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ„¢: message.content[0]';
 
   @override
   String get doc_action_stop_unless_format_l2 =>
-      'ラップされた変数を使用できます: ((message.content[0]))';
+      'Ã£Æ’Â©Ã£Æ’Æ’Ã£Æ’â€”Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã¥Â¤â€°Ã¦â€¢Â°Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ„¢: ((message.content[0]))';
 
   @override
-  String get doc_action_stop_unless_format_l3 => 'どちらもランタイムによって解決されます。';
+  String get doc_action_stop_unless_format_l3 =>
+      'Ã£ÂÂ©Ã£ÂÂ¡Ã£â€šâ€°Ã£â€šâ€šÃ£Æ’Â©Ã£Æ’Â³Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â Ã£ÂÂ«Ã£â€šË†Ã£ÂÂ£Ã£ÂÂ¦Ã¨Â§Â£Ã¦Â±ÂºÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_action_stop_unless_operators_l1 =>
-      '一致する, 一致しない, 含む, 含まない, 前方一致, 後方一致';
+      'Ã¤Â¸â‚¬Ã¨â€¡Â´Ã£Ââ„¢Ã£â€šâ€¹, Ã¤Â¸â‚¬Ã¨â€¡Â´Ã£Ââ€”Ã£ÂÂªÃ£Ââ€ž, Ã¥ÂÂ«Ã£â€šâ‚¬, Ã¥ÂÂ«Ã£ÂÂ¾Ã£ÂÂªÃ£Ââ€ž, Ã¥â€°ÂÃ¦â€“Â¹Ã¤Â¸â‚¬Ã¨â€¡Â´, Ã¥Â¾Å’Ã¦â€“Â¹Ã¤Â¸â‚¬Ã¨â€¡Â´';
 
   @override
-  String get doc_action_stop_unless_operators_l2 => 'より大きい, より小さい, 以上, 以下';
+  String get doc_action_stop_unless_operators_l2 =>
+      'Ã£â€šË†Ã£â€šÅ Ã¥Â¤Â§Ã£ÂÂÃ£Ââ€ž, Ã£â€šË†Ã£â€šÅ Ã¥Â°ÂÃ£Ââ€¢Ã£Ââ€ž, Ã¤Â»Â¥Ã¤Â¸Å , Ã¤Â»Â¥Ã¤Â¸â€¹';
 
   @override
-  String get doc_action_stop_unless_operators_l3 => '空である, 空ではない, 正規表現に一致する';
+  String get doc_action_stop_unless_operators_l3 =>
+      'Ã§Â©ÂºÃ£ÂÂ§Ã£Ââ€šÃ£â€šâ€¹, Ã§Â©ÂºÃ£ÂÂ§Ã£ÂÂ¯Ã£ÂÂªÃ£Ââ€ž, Ã¦Â­Â£Ã¨Â¦ÂÃ¨Â¡Â¨Ã§ÂÂ¾Ã£ÂÂ«Ã¤Â¸â‚¬Ã¨â€¡Â´Ã£Ââ„¢Ã£â€šâ€¹';
 
   @override
-  String get doc_action_stop_unless_section_format => '条件変数の形式';
+  String get doc_action_stop_unless_section_format =>
+      'Ã¦ÂÂ¡Ã¤Â»Â¶Ã¥Â¤â€°Ã¦â€¢Â°Ã£ÂÂ®Ã¥Â½Â¢Ã¥Â¼Â';
 
   @override
-  String get doc_action_stop_unless_section_operators => 'サポートされている演算子';
+  String get doc_action_stop_unless_section_operators =>
+      'Ã£â€šÂµÃ£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¦Ã£Ââ€žÃ£â€šâ€¹Ã¦Â¼â€Ã§Â®â€”Ã¥Â­Â';
 
   @override
-  String get doc_action_stop_unless_subtitle => '条件が失敗したときにワークフローを停止するガード句。';
+  String get doc_action_stop_unless_subtitle =>
+      'Ã¦ÂÂ¡Ã¤Â»Â¶Ã£ÂÅ’Ã¥Â¤Â±Ã¦â€¢â€”Ã£Ââ€”Ã£ÂÅ¸Ã£ÂÂ¨Ã£ÂÂÃ£ÂÂ«Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã¥ÂÅ“Ã¦Â­Â¢Ã£Ââ„¢Ã£â€šâ€¹Ã£â€šÂ¬Ã£Æ’Â¼Ã£Æ’â€°Ã¥ÂÂ¥Ã£â‚¬â€š';
 
   @override
   String get doc_action_stop_unless_summary =>
-      'コンテキストが一致しない場合に不要なアクションを防ぐために、ワークフローの先頭で使用します。';
+      'Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã£ÂÅ’Ã¤Â¸â‚¬Ã¨â€¡Â´Ã£Ââ€”Ã£ÂÂªÃ£Ââ€žÃ¥Â Â´Ã¥ÂË†Ã£ÂÂ«Ã¤Â¸ÂÃ¨Â¦ÂÃ£ÂÂªÃ£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã©ËœÂ²Ã£ÂÂÃ£ÂÅ¸Ã£â€šÂÃ£ÂÂ«Ã£â‚¬ÂÃ£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£ÂÂ®Ã¥â€¦Ë†Ã©Â Â­Ã£ÂÂ§Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get doc_action_stop_unless_title => 'アクション: stopUnless';
+  String get doc_action_stop_unless_title =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³: stopUnless';
 
   @override
-  String get doc_available_variables => '利用可能な変数';
+  String get doc_available_variables =>
+      'Ã¥Ë†Â©Ã§â€Â¨Ã¥ÂÂ¯Ã¨Æ’Â½Ã£ÂÂªÃ¥Â¤â€°Ã¦â€¢Â°';
 
   @override
-  String get doc_center_clear_search => '検索をクリア';
+  String get doc_center_clear_search =>
+      'Ã¦Â¤Å“Ã§Â´Â¢Ã£â€šâ€™Ã£â€šÂ¯Ã£Æ’ÂªÃ£â€šÂ¢';
 
   @override
-  String get doc_center_empty => '検索に一致するドキュメントエントリがありません。';
+  String get doc_center_empty =>
+      'Ã¦Â¤Å“Ã§Â´Â¢Ã£ÂÂ«Ã¤Â¸â‚¬Ã¨â€¡Â´Ã£Ââ„¢Ã£â€šâ€¹Ã£Æ’â€°Ã£â€šÂ­Ã£Æ’Â¥Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’Ë†Ã£â€šÂ¨Ã£Æ’Â³Ã£Æ’Ë†Ã£Æ’ÂªÃ£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
-  String get doc_center_search_hint => 'コマンド、ワークフロー、変数、アクション、インテント、例を検索...';
+  String get doc_center_search_hint =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â‚¬ÂÃ£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â‚¬ÂÃ¥Â¤â€°Ã¦â€¢Â°Ã£â‚¬ÂÃ£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â‚¬ÂÃ£â€šÂ¤Ã£Æ’Â³Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’Ë†Ã£â‚¬ÂÃ¤Â¾â€¹Ã£â€šâ€™Ã¦Â¤Å“Ã§Â´Â¢...';
 
   @override
-  String get doc_center_title => 'ドキュメントセンター';
+  String get doc_center_title =>
+      'Ã£Æ’â€°Ã£â€šÂ­Ã£Æ’Â¥Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’Ë†Ã£â€šÂ»Ã£Æ’Â³Ã£â€šÂ¿Ã£Æ’Â¼';
 
   @override
-  String get doc_common_section_best_use_cases => '最適なユースケース';
+  String get doc_common_section_best_use_cases =>
+      'Ã¦Å“â‚¬Ã©ÂÂ©Ã£ÂÂªÃ£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¹Ã£â€šÂ±Ã£Æ’Â¼Ã£â€šÂ¹';
 
   @override
-  String get doc_common_section_important_notes => '重要な注意事項';
+  String get doc_common_section_important_notes =>
+      'Ã©â€¡ÂÃ¨Â¦ÂÃ£ÂÂªÃ¦Â³Â¨Ã¦â€žÂÃ¤Âºâ€¹Ã©Â â€¦';
 
   @override
   String get doc_event_audit_log_create_best_use_l1 =>
-      '機密アクション（ロール削除、Webhook作成、追放など）についてスタッフに警告します。';
+      'Ã¦Â©Å¸Ã¥Â¯â€ Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã¯Â¼Ë†Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’Â«Ã¥â€°Å Ã©â„¢Â¤Ã£â‚¬ÂWebhookÃ¤Â½Å“Ã¦Ë†ÂÃ£â‚¬ÂÃ¨Â¿Â½Ã¦â€Â¾Ã£ÂÂªÃ£ÂÂ©Ã¯Â¼â€°Ã£ÂÂ«Ã£ÂÂ¤Ã£Ââ€žÃ£ÂÂ¦Ã£â€šÂ¹Ã£â€šÂ¿Ã£Æ’Æ’Ã£Æ’â€¢Ã£ÂÂ«Ã¨Â­Â¦Ã¥â€˜Å Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_event_audit_log_create_best_use_l2 =>
-      '特定のアクションタイプを専用ワークフローにルーティングします。';
+      'Ã§â€°Â¹Ã¥Â®Å¡Ã£ÂÂ®Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’â€”Ã£â€šâ€™Ã¥Â°â€šÃ§â€Â¨Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£ÂÂ«Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’Â³Ã£â€šÂ°Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_event_audit_log_create_subtitle =>
-      '新しい監査ログエントリが作成されたときにトリガーされます。';
+      'Ã¦â€“Â°Ã£Ââ€”Ã£Ââ€žÃ§â€ºÂ£Ã¦Å¸Â»Ã£Æ’Â­Ã£â€šÂ°Ã£â€šÂ¨Ã£Æ’Â³Ã£Æ’Ë†Ã£Æ’ÂªÃ£ÂÅ’Ã¤Â½Å“Ã¦Ë†ÂÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£ÂÂ¨Ã£ÂÂÃ£ÂÂ«Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get doc_event_audit_log_create_summary => '管理セキュリティ監視のための高価値イベント。';
+  String get doc_event_audit_log_create_summary =>
+      'Ã§Â®Â¡Ã§Ââ€ Ã£â€šÂ»Ã£â€šÂ­Ã£Æ’Â¥Ã£Æ’ÂªÃ£Æ’â€ Ã£â€šÂ£Ã§â€ºÂ£Ã¨Â¦â€“Ã£ÂÂ®Ã£ÂÅ¸Ã£â€šÂÃ£ÂÂ®Ã©Â«ËœÃ¤Â¾Â¡Ã¥â‚¬Â¤Ã£â€šÂ¤Ã£Æ’â„¢Ã£Æ’Â³Ã£Æ’Ë†Ã£â‚¬â€š';
 
   @override
-  String get doc_event_audit_log_create_title => 'イベント: guildAuditLogCreate';
+  String get doc_event_audit_log_create_title =>
+      'Ã£â€šÂ¤Ã£Æ’â„¢Ã£Æ’Â³Ã£Æ’Ë†: guildAuditLogCreate';
 
   @override
   String get doc_event_message_create_best_use_l1 =>
-      'スラッシュコマンドなしで入力されたコマンドを検出します。';
+      'Ã£â€šÂ¹Ã£Æ’Â©Ã£Æ’Æ’Ã£â€šÂ·Ã£Æ’Â¥Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂªÃ£Ââ€”Ã£ÂÂ§Ã¥â€¦Â¥Ã¥Å â€ºÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¦Â¤Å“Ã¥â€¡ÂºÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get doc_event_message_create_best_use_l2 => '応答前にアンチスパムフィルターを適用します。';
+  String get doc_event_message_create_best_use_l2 =>
+      'Ã¥Â¿Å“Ã§Â­â€Ã¥â€°ÂÃ£ÂÂ«Ã£â€šÂ¢Ã£Æ’Â³Ã£Æ’ÂÃ£â€šÂ¹Ã£Æ’â€˜Ã£Æ’Â Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â«Ã£â€šÂ¿Ã£Æ’Â¼Ã£â€šâ€™Ã©ÂÂ©Ã§â€Â¨Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_event_message_create_best_use_l3 =>
-      '最初の単語またはメンションに基づいて再利用可能なワークフローにルーティングします。';
+      'Ã¦Å“â‚¬Ã¥Ë†ÂÃ£ÂÂ®Ã¥ÂËœÃ¨ÂªÅ¾Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã£Æ’Â¡Ã£Æ’Â³Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ«Ã¥Å¸ÂºÃ£ÂÂ¥Ã£Ââ€žÃ£ÂÂ¦Ã¥â€ ÂÃ¥Ë†Â©Ã§â€Â¨Ã¥ÂÂ¯Ã¨Æ’Â½Ã£ÂÂªÃ£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£ÂÂ«Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’Â³Ã£â€šÂ°Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_event_message_create_example =>
-      'ガード: ((message.isBot)) equals false\nガード: ((message.content[0])) equals !ticket\nThen: runWorkflow';
+      'Ã£â€šÂ¬Ã£Æ’Â¼Ã£Æ’â€°: ((message.isBot)) equals false\nÃ£â€šÂ¬Ã£Æ’Â¼Ã£Æ’â€°: ((message.content[0])) equals !ticket\nThen: runWorkflow';
 
   @override
-  String get doc_event_message_create_intent_1 => 'サーバーメッセージ';
+  String get doc_event_message_create_intent_1 =>
+      'Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸';
 
   @override
-  String get doc_event_message_create_intent_2 => 'メッセージ内容';
+  String get doc_event_message_create_intent_2 =>
+      'Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã¥â€ â€¦Ã¥Â®Â¹';
 
   @override
   String get doc_event_message_create_notes_l1 =>
-      'Message Contentインテントがオフの場合、コンテンツ依存の条件が失敗する可能性があります。';
+      'Message ContentÃ£â€šÂ¤Ã£Æ’Â³Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’Ë†Ã£ÂÅ’Ã£â€šÂªÃ£Æ’â€¢Ã£ÂÂ®Ã¥Â Â´Ã¥ÂË†Ã£â‚¬ÂÃ£â€šÂ³Ã£Æ’Â³Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€žÃ¤Â¾ÂÃ¥Â­ËœÃ£ÂÂ®Ã¦ÂÂ¡Ã¤Â»Â¶Ã£ÂÅ’Ã¥Â¤Â±Ã¦â€¢â€”Ã£Ââ„¢Ã£â€šâ€¹Ã¥ÂÂ¯Ã¨Æ’Â½Ã¦â‚¬Â§Ã£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_event_message_create_notes_l2 =>
-      'message.content[index]は単語ベースで、ランタイム抽出によって上限があります。';
+      'message.content[index]Ã£ÂÂ¯Ã¥ÂËœÃ¨ÂªÅ¾Ã£Æ’â„¢Ã£Æ’Â¼Ã£â€šÂ¹Ã£ÂÂ§Ã£â‚¬ÂÃ£Æ’Â©Ã£Æ’Â³Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â Ã¦Å Â½Ã¥â€¡ÂºÃ£ÂÂ«Ã£â€šË†Ã£ÂÂ£Ã£ÂÂ¦Ã¤Â¸Å Ã©â„¢ÂÃ£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_event_message_create_notes_l3 =>
-      'author.isBotはボットのループを防ぐのに役立ちます。';
+      'author.isBotÃ£ÂÂ¯Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÂ®Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’â€”Ã£â€šâ€™Ã©ËœÂ²Ã£ÂÂÃ£ÂÂ®Ã£ÂÂ«Ã¥Â½Â¹Ã§Â«â€¹Ã£ÂÂ¡Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get doc_event_message_create_subtitle => '新しく作成されたメッセージごとにトリガーされます。';
+  String get doc_event_message_create_subtitle =>
+      'Ã¦â€“Â°Ã£Ââ€”Ã£ÂÂÃ¤Â½Å“Ã¦Ë†ÂÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£Ââ€Ã£ÂÂ¨Ã£ÂÂ«Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_event_message_create_summary =>
-      'モデレーション、キーワードパイプライン、自動返信、コマンドスタイルの解析、分析にこのイベントを使用します。';
+      'Ã£Æ’Â¢Ã£Æ’â€¡Ã£Æ’Â¬Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â‚¬ÂÃ£â€šÂ­Ã£Æ’Â¼Ã£Æ’Â¯Ã£Æ’Â¼Ã£Æ’â€°Ã£Æ’â€˜Ã£â€šÂ¤Ã£Æ’â€”Ã£Æ’Â©Ã£â€šÂ¤Ã£Æ’Â³Ã£â‚¬ÂÃ¨â€¡ÂªÃ¥â€¹â€¢Ã¨Â¿â€Ã¤Â¿Â¡Ã£â‚¬ÂÃ£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šÂ¹Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â«Ã£ÂÂ®Ã¨Â§Â£Ã¦Å¾ÂÃ£â‚¬ÂÃ¥Ë†â€ Ã¦Å¾ÂÃ£ÂÂ«Ã£Ââ€œÃ£ÂÂ®Ã£â€šÂ¤Ã£Æ’â„¢Ã£Æ’Â³Ã£Æ’Ë†Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get doc_event_message_create_title => 'イベント: messageCreate';
+  String get doc_event_message_create_title =>
+      'Ã£â€šÂ¤Ã£Æ’â„¢Ã£Æ’Â³Ã£Æ’Ë†: messageCreate';
 
   @override
   String get doc_event_poll_vote_add_best_use_l1 =>
-      '各回答IDを異なるアクションブランチにマッピングします。';
+      'Ã¥Ââ€žÃ¥â€ºÅ¾Ã§Â­â€IDÃ£â€šâ€™Ã§â€¢Â°Ã£ÂÂªÃ£â€šâ€¹Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£Æ’â€“Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’ÂÃ£ÂÂ«Ã£Æ’Å¾Ã£Æ’Æ’Ã£Æ’â€Ã£Æ’Â³Ã£â€šÂ°Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_event_poll_vote_add_best_use_l2 =>
-      'チャンネルまたはユーザーグループごとの投票参加を追跡します。';
+      'Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£â€šÂ°Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’â€”Ã£Ââ€Ã£ÂÂ¨Ã£ÂÂ®Ã¦Å â€¢Ã§Â¥Â¨Ã¥Ââ€šÃ¥Å Â Ã£â€šâ€™Ã¨Â¿Â½Ã¨Â·Â¡Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get doc_event_poll_vote_add_intent => 'サーバーメッセージ';
+  String get doc_event_poll_vote_add_intent =>
+      'Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸';
 
   @override
   String get doc_event_poll_vote_add_notes_l1 =>
-      'poll.answer.idがルーティングに最も安定したキーです。';
+      'poll.answer.idÃ£ÂÅ’Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’Â³Ã£â€šÂ°Ã£ÂÂ«Ã¦Å“â‚¬Ã£â€šâ€šÃ¥Â®â€°Ã¥Â®Å¡Ã£Ââ€”Ã£ÂÅ¸Ã£â€šÂ­Ã£Æ’Â¼Ã£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_event_poll_vote_add_notes_l2 =>
-      'poll.questionはオプションで、ペイロードによっては空の場合があります。';
+      'poll.questionÃ£ÂÂ¯Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ§Ã£â‚¬ÂÃ£Æ’Å¡Ã£â€šÂ¤Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’â€°Ã£ÂÂ«Ã£â€šË†Ã£ÂÂ£Ã£ÂÂ¦Ã£ÂÂ¯Ã§Â©ÂºÃ£ÂÂ®Ã¥Â Â´Ã¥ÂË†Ã£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get doc_event_poll_vote_add_subtitle => 'ユーザーが投票の回答に投票したときにトリガーされます。';
+  String get doc_event_poll_vote_add_subtitle =>
+      'Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£ÂÅ’Ã¦Å â€¢Ã§Â¥Â¨Ã£ÂÂ®Ã¥â€ºÅ¾Ã§Â­â€Ã£ÂÂ«Ã¦Å â€¢Ã§Â¥Â¨Ã£Ââ€”Ã£ÂÅ¸Ã£ÂÂ¨Ã£ÂÂÃ£ÂÂ«Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_event_poll_vote_add_summary =>
-      'スコア追跡、投票オプションによるロール割り当て、アンケート処理に役立ちます。';
+      'Ã£â€šÂ¹Ã£â€šÂ³Ã£â€šÂ¢Ã¨Â¿Â½Ã¨Â·Â¡Ã£â‚¬ÂÃ¦Å â€¢Ã§Â¥Â¨Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ«Ã£â€šË†Ã£â€šâ€¹Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’Â«Ã¥â€°Â²Ã£â€šÅ Ã¥Â½â€œÃ£ÂÂ¦Ã£â‚¬ÂÃ£â€šÂ¢Ã£Æ’Â³Ã£â€šÂ±Ã£Æ’Â¼Ã£Æ’Ë†Ã¥â€¡Â¦Ã§Ââ€ Ã£ÂÂ«Ã¥Â½Â¹Ã§Â«â€¹Ã£ÂÂ¡Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get doc_event_poll_vote_add_title => 'イベント: messagePollVoteAdd';
+  String get doc_event_poll_vote_add_title =>
+      'Ã£â€šÂ¤Ã£Æ’â„¢Ã£Æ’Â³Ã£Æ’Ë†: messagePollVoteAdd';
 
   @override
-  String get doc_event_reaction_add_best_use_l1 => 'Unicode絵文字で承認/拒否フロー。';
+  String get doc_event_reaction_add_best_use_l1 =>
+      'UnicodeÃ§ÂµÂµÃ¦â€“â€¡Ã¥Â­â€”Ã£ÂÂ§Ã¦â€°Â¿Ã¨ÂªÂ/Ã¦â€¹â€™Ã¥ÂÂ¦Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â‚¬â€š';
 
   @override
-  String get doc_event_reaction_add_best_use_l2 => 'カスタム絵文字IDを使用した多段階投票。';
+  String get doc_event_reaction_add_best_use_l2 =>
+      'Ã£â€šÂ«Ã£â€šÂ¹Ã£â€šÂ¿Ã£Æ’Â Ã§ÂµÂµÃ¦â€“â€¡Ã¥Â­â€”IDÃ£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ€”Ã£ÂÅ¸Ã¥Â¤Å¡Ã¦Â®ÂµÃ©Å¡Å½Ã¦Å â€¢Ã§Â¥Â¨Ã£â‚¬â€š';
 
   @override
-  String get doc_event_reaction_add_best_use_l3 => 'スタッフチャンネルからのクイックモデレーション信号。';
+  String get doc_event_reaction_add_best_use_l3 =>
+      'Ã£â€šÂ¹Ã£â€šÂ¿Ã£Æ’Æ’Ã£Æ’â€¢Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã£Ââ€¹Ã£â€šâ€°Ã£ÂÂ®Ã£â€šÂ¯Ã£â€šÂ¤Ã£Æ’Æ’Ã£â€šÂ¯Ã£Æ’Â¢Ã£Æ’â€¡Ã£Æ’Â¬Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã¤Â¿Â¡Ã¥ÂÂ·Ã£â‚¬â€š';
 
   @override
   String get doc_event_reaction_add_example =>
-      'ガード: ((reaction.emoji.name)) equals ✅\nアクション: addRole -> user=((userId)) role=((global.approvedRole))';
+      'Ã£â€šÂ¬Ã£Æ’Â¼Ã£Æ’â€°: ((reaction.emoji.name)) equals Ã¢Å“â€¦\nÃ£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³: addRole -> user=((userId)) role=((global.approvedRole))';
 
   @override
-  String get doc_event_reaction_add_intent => 'サーバーメッセージリアクション';
+  String get doc_event_reaction_add_intent =>
+      'Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£Æ’ÂªÃ£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³';
 
   @override
   String get doc_event_reaction_add_notes_l1 =>
-      'reaction.emoji.idはUnicode絵文字の場合空になることがあります。';
+      'reaction.emoji.idÃ£ÂÂ¯UnicodeÃ§ÂµÂµÃ¦â€“â€¡Ã¥Â­â€”Ã£ÂÂ®Ã¥Â Â´Ã¥ÂË†Ã§Â©ÂºÃ£ÂÂ«Ã£ÂÂªÃ£â€šâ€¹Ã£Ââ€œÃ£ÂÂ¨Ã£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_event_reaction_add_notes_l2 =>
-      '汎用マッチングにはreaction.emoji.nameを使用してください。';
+      'Ã¦Â±Å½Ã§â€Â¨Ã£Æ’Å¾Ã£Æ’Æ’Ã£Æ’ÂÃ£Æ’Â³Ã£â€šÂ°Ã£ÂÂ«Ã£ÂÂ¯reaction.emoji.nameÃ£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
   String get doc_event_reaction_add_notes_l3 =>
-      '厳密なカスタム絵文字マッチングにはreaction.emoji.idを使用してください。';
+      'Ã¥Å½Â³Ã¥Â¯â€ Ã£ÂÂªÃ£â€šÂ«Ã£â€šÂ¹Ã£â€šÂ¿Ã£Æ’Â Ã§ÂµÂµÃ¦â€“â€¡Ã¥Â­â€”Ã£Æ’Å¾Ã£Æ’Æ’Ã£Æ’ÂÃ£Æ’Â³Ã£â€šÂ°Ã£ÂÂ«Ã£ÂÂ¯reaction.emoji.idÃ£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
   String get doc_event_reaction_add_subtitle =>
-      'ユーザーがメッセージにリアクションを追加したときにトリガーされます。';
+      'Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£ÂÅ’Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£ÂÂ«Ã£Æ’ÂªÃ£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â Ã£Ââ€”Ã£ÂÅ¸Ã£ÂÂ¨Ã£ÂÂÃ£ÂÂ«Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_event_reaction_add_summary =>
-      'コンポーネントなしのボタン風UX、投票システム、ロールメニュー、軽量承認に最適です。';
+      'Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â³Ã£Æ’Ë†Ã£ÂÂªÃ£Ââ€”Ã£ÂÂ®Ã£Æ’Å“Ã£â€šÂ¿Ã£Æ’Â³Ã©Â¢Â¨UXÃ£â‚¬ÂÃ¦Å â€¢Ã§Â¥Â¨Ã£â€šÂ·Ã£â€šÂ¹Ã£Æ’â€ Ã£Æ’Â Ã£â‚¬ÂÃ£Æ’Â­Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’Â¡Ã£Æ’â€¹Ã£Æ’Â¥Ã£Æ’Â¼Ã£â‚¬ÂÃ¨Â»Â½Ã©â€¡ÂÃ¦â€°Â¿Ã¨ÂªÂÃ£ÂÂ«Ã¦Å“â‚¬Ã©ÂÂ©Ã£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get doc_event_reaction_add_title => 'イベント: messageReactionAdd';
+  String get doc_event_reaction_add_title =>
+      'Ã£â€šÂ¤Ã£Æ’â„¢Ã£Æ’Â³Ã£Æ’Ë†: messageReactionAdd';
 
   @override
   String get doc_event_user_update_notes_l1 =>
-      'ほとんどの場合、このイベントにはチャンネルコンテキストがありません。';
+      'Ã£ÂÂ»Ã£ÂÂ¨Ã£â€šâ€œÃ£ÂÂ©Ã£ÂÂ®Ã¥Â Â´Ã¥ÂË†Ã£â‚¬ÂÃ£Ââ€œÃ£ÂÂ®Ã£â€šÂ¤Ã£Æ’â„¢Ã£Æ’Â³Ã£Æ’Ë†Ã£ÂÂ«Ã£ÂÂ¯Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
   String get doc_event_user_update_notes_l2 =>
-      '直接のユーザー向け返信よりもログ記録とモデレーション警告を優先してください。';
+      'Ã§â€ºÂ´Ã¦Å½Â¥Ã£ÂÂ®Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã¥Ââ€˜Ã£Ââ€˜Ã¨Â¿â€Ã¤Â¿Â¡Ã£â€šË†Ã£â€šÅ Ã£â€šâ€šÃ£Æ’Â­Ã£â€šÂ°Ã¨Â¨ËœÃ©Å’Â²Ã£ÂÂ¨Ã£Æ’Â¢Ã£Æ’â€¡Ã£Æ’Â¬Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã¨Â­Â¦Ã¥â€˜Å Ã£â€šâ€™Ã¥â€žÂªÃ¥â€¦Ë†Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
   String get doc_event_user_update_subtitle =>
-      'ユーザープロフィールデータが変更されたときにトリガーされます。';
+      'Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£Æ’â€”Ã£Æ’Â­Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’â€¡Ã£Æ’Â¼Ã£â€šÂ¿Ã£ÂÅ’Ã¥Â¤â€°Ã¦â€ºÂ´Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£ÂÂ¨Ã£ÂÂÃ£ÂÂ«Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_event_user_update_summary =>
-      'プロフィール変更監査やユーザー名/アバター駆動のトリガーに役立ちます。';
+      'Ã£Æ’â€”Ã£Æ’Â­Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â¼Ã£Æ’Â«Ã¥Â¤â€°Ã¦â€ºÂ´Ã§â€ºÂ£Ã¦Å¸Â»Ã£â€šâ€žÃ£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã¥ÂÂ/Ã£â€šÂ¢Ã£Æ’ÂÃ£â€šÂ¿Ã£Æ’Â¼Ã©Â§â€ Ã¥â€¹â€¢Ã£ÂÂ®Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼Ã£ÂÂ«Ã¥Â½Â¹Ã§Â«â€¹Ã£ÂÂ¡Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get doc_event_user_update_title => 'イベント: userUpdate';
+  String get doc_event_user_update_title =>
+      'Ã£â€šÂ¤Ã£Æ’â„¢Ã£Æ’Â³Ã£Æ’Ë†: userUpdate';
 
   @override
   String get doc_event_voice_state_update_automations_l1 =>
-      '自己ミュート/自己聴覚無効化のポリシー違反を検出します。';
+      'Ã¨â€¡ÂªÃ¥Â·Â±Ã£Æ’Å¸Ã£Æ’Â¥Ã£Æ’Â¼Ã£Æ’Ë†/Ã¨â€¡ÂªÃ¥Â·Â±Ã¨ÂÂ´Ã¨Â¦Å¡Ã§â€žÂ¡Ã¥Å Â¹Ã¥Å’â€“Ã£ÂÂ®Ã£Æ’ÂÃ£Æ’ÂªÃ£â€šÂ·Ã£Æ’Â¼Ã©Ââ€¢Ã¥ÂÂÃ£â€šâ€™Ã¦Â¤Å“Ã¥â€¡ÂºÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_event_voice_state_update_automations_l2 =>
-      'サポートチャンネルのボイス参加時にウェルカムメッセージをトリガーします。';
+      'Ã£â€šÂµÃ£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã£ÂÂ®Ã£Æ’Å“Ã£â€šÂ¤Ã£â€šÂ¹Ã¥Ââ€šÃ¥Å Â Ã¦â„¢â€šÃ£ÂÂ«Ã£â€šÂ¦Ã£â€šÂ§Ã£Æ’Â«Ã£â€šÂ«Ã£Æ’Â Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£â€šâ€™Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_event_voice_state_update_automations_l3 =>
-      'チャンネル変更を使用して退出/参加パターンをログに記録します。';
+      'Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã¥Â¤â€°Ã¦â€ºÂ´Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ€”Ã£ÂÂ¦Ã©â‚¬â‚¬Ã¥â€¡Âº/Ã¥Ââ€šÃ¥Å Â Ã£Æ’â€˜Ã£â€šÂ¿Ã£Æ’Â¼Ã£Æ’Â³Ã£â€šâ€™Ã£Æ’Â­Ã£â€šÂ°Ã£ÂÂ«Ã¨Â¨ËœÃ©Å’Â²Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get doc_event_voice_state_update_intent => 'サーバー';
+  String get doc_event_voice_state_update_intent => 'Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼';
 
   @override
-  String get doc_event_voice_state_update_section_title => '典型的な自動化';
+  String get doc_event_voice_state_update_section_title =>
+      'Ã¥â€¦Â¸Ã¥Å¾â€¹Ã§Å¡â€žÃ£ÂÂªÃ¨â€¡ÂªÃ¥â€¹â€¢Ã¥Å’â€“';
 
   @override
   String get doc_event_voice_state_update_subtitle =>
-      'ユーザーのボイス状態が変更されたときにトリガーされます。';
+      'Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£ÂÂ®Ã£Æ’Å“Ã£â€šÂ¤Ã£â€šÂ¹Ã§Å Â¶Ã¦â€¦â€¹Ã£ÂÅ’Ã¥Â¤â€°Ã¦â€ºÂ´Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£ÂÂ¨Ã£ÂÂÃ£ÂÂ«Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_event_voice_state_update_summary =>
-      'ボイスチャンネルの自動モデレーション、出席チェック、ボイス自動化に使用します。';
+      'Ã£Æ’Å“Ã£â€šÂ¤Ã£â€šÂ¹Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã£ÂÂ®Ã¨â€¡ÂªÃ¥â€¹â€¢Ã£Æ’Â¢Ã£Æ’â€¡Ã£Æ’Â¬Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â‚¬ÂÃ¥â€¡ÂºÃ¥Â¸Â­Ã£Æ’ÂÃ£â€šÂ§Ã£Æ’Æ’Ã£â€šÂ¯Ã£â‚¬ÂÃ£Æ’Å“Ã£â€šÂ¤Ã£â€šÂ¹Ã¨â€¡ÂªÃ¥â€¹â€¢Ã¥Å’â€“Ã£ÂÂ«Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get doc_event_voice_state_update_title => 'イベント: voiceStateUpdate';
+  String get doc_event_voice_state_update_title =>
+      'Ã£â€šÂ¤Ã£Æ’â„¢Ã£Æ’Â³Ã£Æ’Ë†: voiceStateUpdate';
 
   @override
-  String get doc_example => '例';
+  String get doc_example => 'Ã¤Â¾â€¹';
 
   @override
   String doc_interaction_commands_example(String name, String id) {
-    return 'オートコンプリートワークフロー:\nquery = ((autocomplete.query))\nqueryArray -> items=((httpSearch.body))\nresponseWithAutocomplete';
+    return 'Ã£â€šÂªÃ£Æ’Â¼Ã£Æ’Ë†Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’ÂªÃ£Æ’Â¼Ã£Æ’Ë†Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼:\nquery = ((autocomplete.query))\nqueryArray -> items=((httpSearch.body))\nresponseWithAutocomplete';
   }
 
   @override
-  String get doc_interaction_commands_section_builtin_title => '組み込みコマンド変数';
+  String get doc_interaction_commands_section_builtin_title =>
+      'Ã§Âµâ€žÃ£ÂÂ¿Ã¨Â¾Â¼Ã£ÂÂ¿Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã¥Â¤â€°Ã¦â€¢Â°';
 
   @override
   String get doc_interaction_commands_section_execution_l1 =>
-      'スラッシュ、ユーザー、メッセージコマンドはすべてアプリケーションコマンドインタラクションとしてランナーに入ります。';
+      'Ã£â€šÂ¹Ã£Æ’Â©Ã£Æ’Æ’Ã£â€šÂ·Ã£Æ’Â¥Ã£â‚¬ÂÃ£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£â‚¬ÂÃ£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ¯Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£â€šÂ±Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šÂ¤Ã£Æ’Â³Ã£â€šÂ¿Ã£Æ’Â©Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ¨Ã£Ââ€”Ã£ÂÂ¦Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼Ã£ÂÂ«Ã¥â€¦Â¥Ã£â€šÅ Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_interaction_commands_section_execution_l2 =>
-      'ランナーはDiscordコマンドIDでコマンドを照合し、保存されたタイプと受信タイプを検証します。';
+      'Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼Ã£ÂÂ¯DiscordÃ£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°IDÃ£ÂÂ§Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã§â€¦Â§Ã¥ÂË†Ã£Ââ€”Ã£â‚¬ÂÃ¤Â¿ÂÃ¥Â­ËœÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’â€”Ã£ÂÂ¨Ã¥Ââ€”Ã¤Â¿Â¡Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’â€”Ã£â€šâ€™Ã¦Â¤Å“Ã¨Â¨Â¼Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_interaction_commands_section_execution_l3 =>
-      'タイプの不一致は警告としてログに記録されますが、実行をハード停止しません。';
+      'Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’â€”Ã£ÂÂ®Ã¤Â¸ÂÃ¤Â¸â‚¬Ã¨â€¡Â´Ã£ÂÂ¯Ã¨Â­Â¦Ã¥â€˜Å Ã£ÂÂ¨Ã£Ââ€”Ã£ÂÂ¦Ã£Æ’Â­Ã£â€šÂ°Ã£ÂÂ«Ã¨Â¨ËœÃ©Å’Â²Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£ÂÅ’Ã£â‚¬ÂÃ¥Â®Å¸Ã¨Â¡Å’Ã£â€šâ€™Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’â€°Ã¥ÂÅ“Ã¦Â­Â¢Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
-  String get doc_interaction_commands_section_execution_title => '実行モデル';
+  String get doc_interaction_commands_section_execution_title =>
+      'Ã¥Â®Å¸Ã¨Â¡Å’Ã£Æ’Â¢Ã£Æ’â€¡Ã£Æ’Â«';
 
   @override
   String get doc_interaction_commands_section_guidance_l1 =>
-      'commandTypeまたはinteraction.command.typeに対して条件付きロジックを記述してください。';
+      'commandTypeÃ£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯interaction.command.typeÃ£ÂÂ«Ã¥Â¯Â¾Ã£Ââ€”Ã£ÂÂ¦Ã¦ÂÂ¡Ã¤Â»Â¶Ã¤Â»ËœÃ£ÂÂÃ£Æ’Â­Ã£â€šÂ¸Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šâ€™Ã¨Â¨ËœÃ¨Â¿Â°Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
   String get doc_interaction_commands_section_guidance_l2 =>
-      'スラッシュと非スラッシュコマンド間でテンプレートを共有する場合はフォールバック構文を優先し、オートコンプリートを使用してください。';
+      'Ã£â€šÂ¹Ã£Æ’Â©Ã£Æ’Æ’Ã£â€šÂ·Ã£Æ’Â¥Ã£ÂÂ¨Ã©ÂÅ¾Ã£â€šÂ¹Ã£Æ’Â©Ã£Æ’Æ’Ã£â€šÂ·Ã£Æ’Â¥Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã©â€“â€œÃ£ÂÂ§Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã£â€šâ€™Ã¥â€¦Â±Ã¦Å“â€°Ã£Ââ„¢Ã£â€šâ€¹Ã¥Â Â´Ã¥ÂË†Ã£ÂÂ¯Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã¦Â§â€¹Ã¦â€“â€¡Ã£â€šâ€™Ã¥â€žÂªÃ¥â€¦Ë†Ã£Ââ€”Ã£â‚¬ÂÃ£â€šÂªÃ£Æ’Â¼Ã£Æ’Ë†Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’ÂªÃ£Æ’Â¼Ã£Æ’Ë†Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
   String get doc_interaction_commands_section_guidance_l3 =>
-      'コマンドワークフロー内でイベント専用名を避けてテンプレートの移植性を保ちます。動的オートコンプリートは';
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã¥â€ â€¦Ã£ÂÂ§Ã£â€šÂ¤Ã£Æ’â„¢Ã£Æ’Â³Ã£Æ’Ë†Ã¥Â°â€šÃ§â€Â¨Ã¥ÂÂÃ£â€šâ€™Ã©ÂÂ¿Ã£Ââ€˜Ã£ÂÂ¦Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã£ÂÂ®Ã§Â§Â»Ã¦Â¤ÂÃ¦â‚¬Â§Ã£â€šâ€™Ã¤Â¿ÂÃ£ÂÂ¡Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ¥â€¹â€¢Ã§Å¡â€žÃ£â€šÂªÃ£Æ’Â¼Ã£Æ’Ë†Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’ÂªÃ£Æ’Â¼Ã£Æ’Ë†Ã£ÂÂ¯';
 
   @override
-  String get doc_interaction_commands_section_guidance_title => '作成ガイダンス';
+  String get doc_interaction_commands_section_guidance_title =>
+      'Ã¤Â½Å“Ã¦Ë†ÂÃ£â€šÂ¬Ã£â€šÂ¤Ã£Æ’â‚¬Ã£Æ’Â³Ã£â€šÂ¹';
 
   @override
   String get doc_interaction_commands_section_per_type_l1 =>
-      'chatInput: パラメータとサブコマンドにopts.*。';
+      'chatInput: Ã£Æ’â€˜Ã£Æ’Â©Ã£Æ’Â¡Ã£Æ’Â¼Ã£â€šÂ¿Ã£ÂÂ¨Ã£â€šÂµÃ£Æ’â€“Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ«opts.*Ã£â‚¬â€š';
 
   @override
   String get doc_interaction_commands_section_per_type_l2 =>
-      'user: target.user.* および利用可能な場合 target.member.*。';
+      'user: target.user.* Ã£ÂÅ Ã£â€šË†Ã£ÂÂ³Ã¥Ë†Â©Ã§â€Â¨Ã¥ÂÂ¯Ã¨Æ’Â½Ã£ÂÂªÃ¥Â Â´Ã¥ÂË† target.member.*Ã£â‚¬â€š';
 
   @override
   String get doc_interaction_commands_section_per_type_l3 =>
-      'message: target.message.* (解決された場合、コンテンツと作成者IDを含む)。';
+      'message: target.message.* (Ã¨Â§Â£Ã¦Â±ÂºÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã¥Â Â´Ã¥ÂË†Ã£â‚¬ÂÃ£â€šÂ³Ã£Æ’Â³Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€žÃ£ÂÂ¨Ã¤Â½Å“Ã¦Ë†ÂÃ¨â‚¬â€¦IDÃ£â€šâ€™Ã¥ÂÂ«Ã£â€šâ‚¬)Ã£â‚¬â€š';
 
   @override
-  String get doc_interaction_commands_section_per_type_title => 'タイプ別変数';
+  String get doc_interaction_commands_section_per_type_title =>
+      'Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’â€”Ã¥Ë†Â¥Ã¥Â¤â€°Ã¦â€¢Â°';
 
   @override
   String get doc_interaction_commands_subtitle =>
-      'スラッシュ、ユーザー、メッセージコマンドのランタイム動作。';
+      'Ã£â€šÂ¹Ã£Æ’Â©Ã£Æ’Æ’Ã£â€šÂ·Ã£Æ’Â¥Ã£â‚¬ÂÃ£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£â‚¬ÂÃ£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ®Ã£Æ’Â©Ã£Æ’Â³Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â Ã¥â€¹â€¢Ã¤Â½Å“Ã£â‚¬â€š';
 
   @override
   String get doc_interaction_commands_summary =>
-      'アプリケーションコマンドは共有インタラクションパスを通じて実行され、ランタイム変数は以下に依存します。';
+      'Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£â€šÂ±Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ¯Ã¥â€¦Â±Ã¦Å“â€°Ã£â€šÂ¤Ã£Æ’Â³Ã£â€šÂ¿Ã£Æ’Â©Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£Æ’â€˜Ã£â€šÂ¹Ã£â€šâ€™Ã©â‚¬Å¡Ã£ÂËœÃ£ÂÂ¦Ã¥Â®Å¸Ã¨Â¡Å’Ã£Ââ€¢Ã£â€šÅ’Ã£â‚¬ÂÃ£Æ’Â©Ã£Æ’Â³Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â Ã¥Â¤â€°Ã¦â€¢Â°Ã£ÂÂ¯Ã¤Â»Â¥Ã¤Â¸â€¹Ã£ÂÂ«Ã¤Â¾ÂÃ¥Â­ËœÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get doc_interaction_commands_title => 'インタラクションコマンド';
+  String get doc_interaction_commands_title =>
+      'Ã£â€šÂ¤Ã£Æ’Â³Ã£â€šÂ¿Ã£Æ’Â©Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°';
 
   @override
-  String get doc_kind_action => 'アクション';
+  String get doc_kind_action => 'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³';
 
   @override
-  String get doc_kind_all => 'すべて';
+  String get doc_kind_all => 'Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦';
 
   @override
-  String get doc_kind_event => 'イベント';
+  String get doc_kind_event => 'Ã£â€šÂ¤Ã£Æ’â„¢Ã£Æ’Â³Ã£Æ’Ë†';
 
   @override
-  String get doc_kind_runtime => 'ランタイム';
+  String get doc_kind_runtime => 'Ã£Æ’Â©Ã£Æ’Â³Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â ';
 
   @override
-  String get doc_kind_template => 'テンプレート';
+  String get doc_kind_template => 'Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†';
 
   @override
-  String get doc_required_intents => '必要なインテント';
+  String get doc_required_intents =>
+      'Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÂªÃ£â€šÂ¤Ã£Æ’Â³Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’Ë†';
 
   @override
   String get doc_runtime_action_outputs_example =>
-      'ステータス: ((action.http.status|http.status|unknown))\nボディ: ((action.http.body|http.body))\n削除済み: ((c';
+      'Ã£â€šÂ¹Ã£Æ’â€ Ã£Æ’Â¼Ã£â€šÂ¿Ã£â€šÂ¹: ((action.http.status|http.status|unknown))\nÃ£Æ’Å“Ã£Æ’â€¡Ã£â€šÂ£: ((action.http.body|http.body))\nÃ¥â€°Å Ã©â„¢Â¤Ã¦Â¸Ë†Ã£ÂÂ¿: ((c';
 
   @override
   String get doc_runtime_action_outputs_section_caveats_l1 =>
-      'すべてのアクションがすべてのサフィックスを公開するわけではありません。利用可能性はエグゼキュータ固有です。';
+      'Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÂ®Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÅ’Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÂ®Ã£â€šÂµÃ£Æ’â€¢Ã£â€šÂ£Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¹Ã£â€šâ€™Ã¥â€¦Â¬Ã©â€“â€¹Ã£Ââ„¢Ã£â€šâ€¹Ã£â€šÂÃ£Ââ€˜Ã£ÂÂ§Ã£ÂÂ¯Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€šÃ¥Ë†Â©Ã§â€Â¨Ã¥ÂÂ¯Ã¨Æ’Â½Ã¦â‚¬Â§Ã£ÂÂ¯Ã£â€šÂ¨Ã£â€šÂ°Ã£â€šÂ¼Ã£â€šÂ­Ã£Æ’Â¥Ã£Æ’Â¼Ã£â€šÂ¿Ã¥â€ºÂºÃ¦Å“â€°Ã£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_runtime_action_outputs_section_caveats_l2 =>
-      '移植性のために、オプションの出力フィールドを読み取る際はフォールバック式を優先してください。';
+      'Ã§Â§Â»Ã¦Â¤ÂÃ¦â‚¬Â§Ã£ÂÂ®Ã£ÂÅ¸Ã£â€šÂÃ£ÂÂ«Ã£â‚¬ÂÃ£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ®Ã¥â€¡ÂºÃ¥Å â€ºÃ£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’â€°Ã£â€šâ€™Ã¨ÂªÂ­Ã£ÂÂ¿Ã¥Ââ€“Ã£â€šâ€¹Ã©Å¡â€ºÃ£ÂÂ¯Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã¥Â¼ÂÃ£â€šâ€™Ã¥â€žÂªÃ¥â€¦Ë†Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
   String get doc_runtime_action_outputs_section_caveats_l3 =>
-      'キーが存在しない場合、テンプレート解決は空の文字列を返します。';
+      'Ã£â€šÂ­Ã£Æ’Â¼Ã£ÂÅ’Ã¥Â­ËœÃ¥Å“Â¨Ã£Ââ€”Ã£ÂÂªÃ£Ââ€žÃ¥Â Â´Ã¥ÂË†Ã£â‚¬ÂÃ£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã¨Â§Â£Ã¦Â±ÂºÃ£ÂÂ¯Ã§Â©ÂºÃ£ÂÂ®Ã¦â€“â€¡Ã¥Â­â€”Ã¥Ë†â€”Ã£â€šâ€™Ã¨Â¿â€Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get doc_runtime_action_outputs_section_caveats_title => '注意事項';
+  String get doc_runtime_action_outputs_section_caveats_title =>
+      'Ã¦Â³Â¨Ã¦â€žÂÃ¤Âºâ€¹Ã©Â â€¦';
 
   @override
   String get doc_runtime_action_outputs_section_common_fields_l1 =>
-      'HTTPアクション: status, body, jsonPath。';
+      'HTTPÃ£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³: status, body, jsonPathÃ£â‚¬â€š';
 
   @override
   String get doc_runtime_action_outputs_section_common_fields_l2 =>
-      'メッセージング/リストアクション: count, mode, deleteItself, deleteResponse。';
+      'Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£Æ’Â³Ã£â€šÂ°/Ã£Æ’ÂªÃ£â€šÂ¹Ã£Æ’Ë†Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³: count, mode, deleteItself, deleteResponseÃ£â‚¬â€š';
 
   @override
   String get doc_runtime_action_outputs_section_common_fields_l3 =>
-      '配列アクション: items, length, removed, total。';
+      'Ã©â€¦ÂÃ¥Ë†â€”Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³: items, length, removed, totalÃ£â‚¬â€š';
 
   @override
   String get doc_runtime_action_outputs_section_common_fields_l4 =>
-      '他のエグゼキュータはresultやmessageIdフィールドを公開する場合があります。';
+      'Ã¤Â»â€“Ã£ÂÂ®Ã£â€šÂ¨Ã£â€šÂ°Ã£â€šÂ¼Ã£â€šÂ­Ã£Æ’Â¥Ã£Æ’Â¼Ã£â€šÂ¿Ã£ÂÂ¯resultÃ£â€šâ€žmessageIdÃ£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’â€°Ã£â€šâ€™Ã¥â€¦Â¬Ã©â€“â€¹Ã£Ââ„¢Ã£â€šâ€¹Ã¥Â Â´Ã¥ÂË†Ã£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_runtime_action_outputs_section_common_fields_title =>
-      '共通出力フィールド';
+      'Ã¥â€¦Â±Ã©â‚¬Å¡Ã¥â€¡ÂºÃ¥Å â€ºÃ£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’â€°';
 
   @override
   String get doc_runtime_action_outputs_section_patterns_l1 =>
-      '主出力は通常 <resultKey> として保存されます。';
+      'Ã¤Â¸Â»Ã¥â€¡ÂºÃ¥Å â€ºÃ£ÂÂ¯Ã©â‚¬Å¡Ã¥Â¸Â¸ <resultKey> Ã£ÂÂ¨Ã£Ââ€”Ã£ÂÂ¦Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_runtime_action_outputs_section_patterns_l2 =>
-      '多くのエグゼキュータは明確さと名前空間のために action.<resultKey>.* フィールドも公開します。';
+      'Ã¥Â¤Å¡Ã£ÂÂÃ£ÂÂ®Ã£â€šÂ¨Ã£â€šÂ°Ã£â€šÂ¼Ã£â€šÂ­Ã£Æ’Â¥Ã£Æ’Â¼Ã£â€šÂ¿Ã£ÂÂ¯Ã¦ËœÅ½Ã§Â¢ÂºÃ£Ââ€¢Ã£ÂÂ¨Ã¥ÂÂÃ¥â€°ÂÃ§Â©ÂºÃ©â€“â€œÃ£ÂÂ®Ã£ÂÅ¸Ã£â€šÂÃ£ÂÂ« action.<resultKey>.* Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’â€°Ã£â€šâ€šÃ¥â€¦Â¬Ã©â€“â€¹Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_runtime_action_outputs_section_patterns_l3 =>
-      '一部のフィールドは action. プレフィックスあり/なしの両方でミラーリングされます。';
+      'Ã¤Â¸â‚¬Ã©Æ’Â¨Ã£ÂÂ®Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’â€°Ã£ÂÂ¯ action. Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¹Ã£Ââ€šÃ£â€šÅ /Ã£ÂÂªÃ£Ââ€”Ã£ÂÂ®Ã¤Â¸Â¡Ã¦â€“Â¹Ã£ÂÂ§Ã£Æ’Å¸Ã£Æ’Â©Ã£Æ’Â¼Ã£Æ’ÂªÃ£Æ’Â³Ã£â€šÂ°Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get doc_runtime_action_outputs_section_patterns_title => '出力パターン';
+  String get doc_runtime_action_outputs_section_patterns_title =>
+      'Ã¥â€¡ÂºÃ¥Å â€ºÃ£Æ’â€˜Ã£â€šÂ¿Ã£Æ’Â¼Ã£Æ’Â³';
 
   @override
   String get doc_runtime_action_outputs_subtitle =>
-      'アクション結果キーがランタイム変数として公開される方法。';
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã§ÂµÂÃ¦Å¾Å“Ã£â€šÂ­Ã£Æ’Â¼Ã£ÂÅ’Ã£Æ’Â©Ã£Æ’Â³Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â Ã¥Â¤â€°Ã¦â€¢Â°Ã£ÂÂ¨Ã£Ââ€”Ã£ÂÂ¦Ã¥â€¦Â¬Ã©â€“â€¹Ã£Ââ€¢Ã£â€šÅ’Ã£â€šâ€¹Ã¦â€“Â¹Ã¦Â³â€¢Ã£â‚¬â€š';
 
   @override
   String get doc_runtime_action_outputs_summary =>
-      'ほとんどのアクションは主結果キーを書き込み、action.<resultKey>.* の下にプレフィックス付きフィールドも公開する場合があります。';
+      'Ã£ÂÂ»Ã£ÂÂ¨Ã£â€šâ€œÃ£ÂÂ©Ã£ÂÂ®Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ¯Ã¤Â¸Â»Ã§ÂµÂÃ¦Å¾Å“Ã£â€šÂ­Ã£Æ’Â¼Ã£â€šâ€™Ã¦â€ºÂ¸Ã£ÂÂÃ¨Â¾Â¼Ã£ÂÂ¿Ã£â‚¬Âaction.<resultKey>.* Ã£ÂÂ®Ã¤Â¸â€¹Ã£ÂÂ«Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¹Ã¤Â»ËœÃ£ÂÂÃ£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’â€°Ã£â€šâ€šÃ¥â€¦Â¬Ã©â€“â€¹Ã£Ââ„¢Ã£â€šâ€¹Ã¥Â Â´Ã¥ÂË†Ã£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get doc_runtime_action_outputs_title => 'ランタイムアクション出力';
+  String get doc_runtime_action_outputs_title =>
+      'Ã£Æ’Â©Ã£Æ’Â³Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã¥â€¡ÂºÃ¥Å â€º';
 
   @override
   String get doc_runtime_execution_flow_section_parity_l1 =>
-      '変数はローカルアプリランタイムとランナーランタイム間で同一である必要があります。';
+      'Ã¥Â¤â€°Ã¦â€¢Â°Ã£ÂÂ¯Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£Æ’Â©Ã£Æ’Â³Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â Ã£ÂÂ¨Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼Ã£Æ’Â©Ã£Æ’Â³Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â Ã©â€“â€œÃ£ÂÂ§Ã¥ÂÅ’Ã¤Â¸â‚¬Ã£ÂÂ§Ã£Ââ€šÃ£â€šâ€¹Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_runtime_execution_flow_section_parity_l2 =>
-      '移植性を保つために条件で同じ変数名を使用してください。';
+      'Ã§Â§Â»Ã¦Â¤ÂÃ¦â‚¬Â§Ã£â€šâ€™Ã¤Â¿ÂÃ£ÂÂ¤Ã£ÂÅ¸Ã£â€šÂÃ£ÂÂ«Ã¦ÂÂ¡Ã¤Â»Â¶Ã£ÂÂ§Ã¥ÂÅ’Ã£ÂËœÃ¥Â¤â€°Ã¦â€¢Â°Ã¥ÂÂÃ£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get doc_runtime_execution_flow_section_parity_title => 'パリティルール';
+  String get doc_runtime_execution_flow_section_parity_title =>
+      'Ã£Æ’â€˜Ã£Æ’ÂªÃ£Æ’â€ Ã£â€šÂ£Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’Â«';
 
   @override
   String get doc_runtime_execution_flow_section_pipeline_l1 =>
-      '1) ゲートウェイイベントを受信。';
+      '1) Ã£â€šÂ²Ã£Æ’Â¼Ã£Æ’Ë†Ã£â€šÂ¦Ã£â€šÂ§Ã£â€šÂ¤Ã£â€šÂ¤Ã£Æ’â„¢Ã£Æ’Â³Ã£Æ’Ë†Ã£â€šâ€™Ã¥Ââ€”Ã¤Â¿Â¡Ã£â‚¬â€š';
 
   @override
   String get doc_runtime_execution_flow_section_pipeline_l2 =>
-      '2) コンテキスト変数マップを構築。';
+      '2) Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã¥Â¤â€°Ã¦â€¢Â°Ã£Æ’Å¾Ã£Æ’Æ’Ã£Æ’â€”Ã£â€šâ€™Ã¦Â§â€¹Ã§Â¯â€°Ã£â‚¬â€š';
 
   @override
   String get doc_runtime_execution_flow_section_pipeline_l3 =>
-      '3) イベント名でワークフローを照合。';
+      '3) Ã£â€šÂ¤Ã£Æ’â„¢Ã£Æ’Â³Ã£Æ’Ë†Ã¥ÂÂÃ£ÂÂ§Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã§â€¦Â§Ã¥ÂË†Ã£â‚¬â€š';
 
   @override
   String get doc_runtime_execution_flow_section_pipeline_l4 =>
-      '4) グローバル変数をマージ。';
+      '4) Ã£â€šÂ°Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â«Ã¥Â¤â€°Ã¦â€¢Â°Ã£â€šâ€™Ã£Æ’Å¾Ã£Æ’Â¼Ã£â€šÂ¸Ã£â‚¬â€š';
 
   @override
   String get doc_runtime_execution_flow_section_pipeline_l5 =>
-      '5) 条件付きでアクションを順次実行。';
+      '5) Ã¦ÂÂ¡Ã¤Â»Â¶Ã¤Â»ËœÃ£ÂÂÃ£ÂÂ§Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã©Â â€ Ã¦Â¬Â¡Ã¥Â®Å¸Ã¨Â¡Å’Ã£â‚¬â€š';
 
   @override
-  String get doc_runtime_execution_flow_section_pipeline_title => 'パイプライン';
+  String get doc_runtime_execution_flow_section_pipeline_title =>
+      'Ã£Æ’â€˜Ã£â€šÂ¤Ã£Æ’â€”Ã£Æ’Â©Ã£â€šÂ¤Ã£Æ’Â³';
 
   @override
-  String get doc_runtime_execution_flow_subtitle => 'イベントワークフローが選択され実行される方法。';
+  String get doc_runtime_execution_flow_subtitle =>
+      'Ã£â€šÂ¤Ã£Æ’â„¢Ã£Æ’Â³Ã£Æ’Ë†Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£ÂÅ’Ã©ÂÂ¸Ã¦Å Å¾Ã£Ââ€¢Ã£â€šÅ’Ã¥Â®Å¸Ã¨Â¡Å’Ã£Ââ€¢Ã£â€šÅ’Ã£â€šâ€¹Ã¦â€“Â¹Ã¦Â³â€¢Ã£â‚¬â€š';
 
   @override
   String get doc_runtime_execution_flow_summary =>
-      'イベントが到着すると、ランタイムはeventTrigger.eventで設定されたワークフローを照合し、アクションを実行します。';
+      'Ã£â€šÂ¤Ã£Æ’â„¢Ã£Æ’Â³Ã£Æ’Ë†Ã£ÂÅ’Ã¥Ë†Â°Ã§Ââ‚¬Ã£Ââ„¢Ã£â€šâ€¹Ã£ÂÂ¨Ã£â‚¬ÂÃ£Æ’Â©Ã£Æ’Â³Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â Ã£ÂÂ¯eventTrigger.eventÃ£ÂÂ§Ã¨Â¨Â­Ã¥Â®Å¡Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã§â€¦Â§Ã¥ÂË†Ã£Ââ€”Ã£â‚¬ÂÃ£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¥Â®Å¸Ã¨Â¡Å’Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get doc_runtime_execution_flow_title => 'ランタイム実行フロー';
+  String get doc_runtime_execution_flow_title =>
+      'Ã£Æ’Â©Ã£Æ’Â³Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â Ã¥Â®Å¸Ã¨Â¡Å’Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼';
 
   @override
   String get doc_template_advanced_variables_example =>
-      '種類: ((interaction.kind))\n選択数: ((interaction.values.count|0))\nスレッド所有者: ((channel.thread.ownerId))';
+      'Ã§Â¨Â®Ã©Â¡Å¾: ((interaction.kind))\nÃ©ÂÂ¸Ã¦Å Å¾Ã¦â€¢Â°: ((interaction.values.count|0))\nÃ£â€šÂ¹Ã£Æ’Â¬Ã£Æ’Æ’Ã£Æ’â€°Ã¦â€°â‚¬Ã¦Å“â€°Ã¨â‚¬â€¦: ((channel.thread.ownerId))';
 
   @override
   String get doc_template_advanced_variables_section_aliases_l1 =>
-      '構造化されたユーザーエイリアス（user.id, user.username, user.tag, user.avatar, user.banner）が利用可能です。';
+      'Ã¦Â§â€¹Ã©â‚¬Â Ã¥Å’â€“Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£â€šÂ¨Ã£â€šÂ¤Ã£Æ’ÂªÃ£â€šÂ¢Ã£â€šÂ¹Ã¯Â¼Ë†user.id, user.username, user.tag, user.avatar, user.bannerÃ¯Â¼â€°Ã£ÂÅ’Ã¥Ë†Â©Ã§â€Â¨Ã¥ÂÂ¯Ã¨Æ’Â½Ã£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_template_advanced_variables_section_aliases_l2 =>
-      'member.idはユーザーとサーバーメンバーのコンテキストの両方が必要な場合に便利です。';
+      'member.idÃ£ÂÂ¯Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£ÂÂ¨Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£ÂÂ®Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã£ÂÂ®Ã¤Â¸Â¡Ã¦â€“Â¹Ã£ÂÅ’Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÂªÃ¥Â Â´Ã¥ÂË†Ã£ÂÂ«Ã¤Â¾Â¿Ã¥Ë†Â©Ã£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_template_advanced_variables_section_aliases_title =>
-      'ユーザーとメンバーのエイリアス';
+      'Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£ÂÂ¨Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£ÂÂ®Ã£â€šÂ¨Ã£â€šÂ¤Ã£Æ’ÂªÃ£â€šÂ¢Ã£â€šÂ¹';
 
   @override
   String get doc_template_advanced_variables_section_channel_guild_l1 =>
-      'channel.kind, channel.position, channel.bitrate, channel.userLimitはコンテキスト依存のチャンネル詳細です。';
+      'channel.kind, channel.position, channel.bitrate, channel.userLimitÃ£ÂÂ¯Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã¤Â¾ÂÃ¥Â­ËœÃ£ÂÂ®Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã¨Â©Â³Ã§Â´Â°Ã£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_template_advanced_variables_section_channel_guild_l2 =>
-      'スレッドコンテキストはchannel.thread.*値を公開できます（archived, locked, ownerId, autoArchiveDuration）。';
+      'Ã£â€šÂ¹Ã£Æ’Â¬Ã£Æ’Æ’Ã£Æ’â€°Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã£ÂÂ¯channel.thread.*Ã¥â‚¬Â¤Ã£â€šâ€™Ã¥â€¦Â¬Ã©â€“â€¹Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ„¢Ã¯Â¼Ë†archived, locked, ownerId, autoArchiveDurationÃ¯Â¼â€°Ã£â‚¬â€š';
 
   @override
   String get doc_template_advanced_variables_section_channel_guild_l3 =>
-      'guild.kindは高度なワークフローで部分/完全なサーバーペイロードを区別するのに役立ちます。';
+      'guild.kindÃ£ÂÂ¯Ã©Â«ËœÃ¥ÂºÂ¦Ã£ÂÂªÃ£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£ÂÂ§Ã©Æ’Â¨Ã¥Ë†â€ /Ã¥Â®Å’Ã¥â€¦Â¨Ã£ÂÂªÃ£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Å¡Ã£â€šÂ¤Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’â€°Ã£â€šâ€™Ã¥Å’ÂºÃ¥Ë†Â¥Ã£Ââ„¢Ã£â€šâ€¹Ã£ÂÂ®Ã£ÂÂ«Ã¥Â½Â¹Ã§Â«â€¹Ã£ÂÂ¡Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_template_advanced_variables_section_channel_guild_title =>
-      'チャンネルとサーバーの詳細';
+      'Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã£ÂÂ¨Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£ÂÂ®Ã¨Â©Â³Ã§Â´Â°';
 
   @override
   String get doc_template_advanced_variables_section_interaction_l1 =>
-      'interaction.kindは受信インタラクションモードを識別します（button, select, modal, command, autocomplete）。';
+      'interaction.kindÃ£ÂÂ¯Ã¥Ââ€”Ã¤Â¿Â¡Ã£â€šÂ¤Ã£Æ’Â³Ã£â€šÂ¿Ã£Æ’Â©Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°Ã£â€šâ€™Ã¨Â­ËœÃ¥Ë†Â¥Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã¯Â¼Ë†button, select, modal, command, autocompleteÃ¯Â¼â€°Ã£â‚¬â€š';
 
   @override
   String get doc_template_advanced_variables_section_interaction_l2 =>
-      'interaction.valuesとinteraction.values.countはセレクトメニュー用に設定されます。';
+      'interaction.valuesÃ£ÂÂ¨interaction.values.countÃ£ÂÂ¯Ã£â€šÂ»Ã£Æ’Â¬Ã£â€šÂ¯Ã£Æ’Ë†Ã£Æ’Â¡Ã£Æ’â€¹Ã£Æ’Â¥Ã£Æ’Â¼Ã§â€Â¨Ã£ÂÂ«Ã¨Â¨Â­Ã¥Â®Å¡Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_template_advanced_variables_section_interaction_l3 =>
-      'interaction.command.nameとinteraction.command.idは診断とルーティングチェックに役立ちます。';
+      'interaction.command.nameÃ£ÂÂ¨interaction.command.idÃ£ÂÂ¯Ã¨Â¨ÂºÃ¦â€“Â­Ã£ÂÂ¨Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’Â³Ã£â€šÂ°Ã£Æ’ÂÃ£â€šÂ§Ã£Æ’Æ’Ã£â€šÂ¯Ã£ÂÂ«Ã¥Â½Â¹Ã§Â«â€¹Ã£ÂÂ¡Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_template_advanced_variables_section_interaction_title =>
-      'インタラクションメタデータ';
+      'Ã£â€šÂ¤Ã£Æ’Â³Ã£â€šÂ¿Ã£Æ’Â©Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£Æ’Â¡Ã£â€šÂ¿Ã£Æ’â€¡Ã£Æ’Â¼Ã£â€šÂ¿';
 
   @override
   String get doc_template_advanced_variables_subtitle =>
-      '特定のコンテキストで利用可能な追加のランタイムキー。';
+      'Ã§â€°Â¹Ã¥Â®Å¡Ã£ÂÂ®Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã£ÂÂ§Ã¥Ë†Â©Ã§â€Â¨Ã¥ÂÂ¯Ã¨Æ’Â½Ã£ÂÂªÃ¨Â¿Â½Ã¥Å Â Ã£ÂÂ®Ã£Æ’Â©Ã£Æ’Â³Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â Ã£â€šÂ­Ã£Æ’Â¼Ã£â‚¬â€š';
 
   @override
   String get doc_template_advanced_variables_summary =>
-      'これらのキーは、インタラクションペイロードとチャンネル/サーバー/ユーザーのランタイム詳細から生成されます。';
+      'Ã£Ââ€œÃ£â€šÅ’Ã£â€šâ€°Ã£ÂÂ®Ã£â€šÂ­Ã£Æ’Â¼Ã£ÂÂ¯Ã£â‚¬ÂÃ£â€šÂ¤Ã£Æ’Â³Ã£â€šÂ¿Ã£Æ’Â©Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£Æ’Å¡Ã£â€šÂ¤Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’â€°Ã£ÂÂ¨Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«/Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼/Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£ÂÂ®Ã£Æ’Â©Ã£Æ’Â³Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â Ã¨Â©Â³Ã§Â´Â°Ã£Ââ€¹Ã£â€šâ€°Ã§â€Å¸Ã¦Ë†ÂÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get doc_template_advanced_variables_title => 'テンプレート高度変数';
+  String get doc_template_advanced_variables_title =>
+      'Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã©Â«ËœÃ¥ÂºÂ¦Ã¥Â¤â€°Ã¦â€¢Â°';
 
   @override
   String get doc_template_functions_example =>
-      '正規化: ((uppercase(trim(userName))))\n管理者ロールあり: ((contains(userRole, \"admin\")))\nトップスコア:';
+      'Ã¦Â­Â£Ã¨Â¦ÂÃ¥Å’â€“: ((uppercase(trim(userName))))\nÃ§Â®Â¡Ã§Ââ€ Ã¨â‚¬â€¦Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’Â«Ã£Ââ€šÃ£â€šÅ : ((contains(userRole, \"admin\")))\nÃ£Æ’Ë†Ã£Æ’Æ’Ã£Æ’â€”Ã£â€šÂ¹Ã£â€šÂ³Ã£â€šÂ¢:';
 
   @override
   String get doc_template_functions_section_array_l1 =>
-      'length(source), at(source, index), first(source), last(source)。';
+      'length(source), at(source, index), first(source), last(source)Ã£â‚¬â€š';
 
   @override
   String get doc_template_functions_section_array_l2 =>
-      'slice(source, start, end?) と join(source, separator)。';
+      'slice(source, start, end?) Ã£ÂÂ¨ join(source, separator)Ã£â‚¬â€š';
 
   @override
   String get doc_template_functions_section_array_l3 =>
-      'sum(source): 数値項目を加算し、非数値は無視します。';
+      'sum(source): Ã¦â€¢Â°Ã¥â‚¬Â¤Ã©Â â€¦Ã§â€ºÂ®Ã£â€šâ€™Ã¥Å Â Ã§Â®â€”Ã£Ââ€”Ã£â‚¬ÂÃ©ÂÅ¾Ã¦â€¢Â°Ã¥â‚¬Â¤Ã£ÂÂ¯Ã§â€žÂ¡Ã¨Â¦â€“Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_template_functions_section_array_l4 =>
-      'formatEach(...) と embedFields(...) はオブジェクト配列をテキストと埋め込み用にフォーマットします。';
+      'formatEach(...) Ã£ÂÂ¨ embedFields(...) Ã£ÂÂ¯Ã£â€šÂªÃ£Æ’â€“Ã£â€šÂ¸Ã£â€šÂ§Ã£â€šÂ¯Ã£Æ’Ë†Ã©â€¦ÂÃ¥Ë†â€”Ã£â€šâ€™Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã£ÂÂ¨Ã¥Å¸â€¹Ã£â€šÂÃ¨Â¾Â¼Ã£ÂÂ¿Ã§â€Â¨Ã£ÂÂ«Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â¼Ã£Æ’Å¾Ã£Æ’Æ’Ã£Æ’Ë†Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get doc_template_functions_section_array_title => '配列関数';
+  String get doc_template_functions_section_array_title =>
+      'Ã©â€¦ÂÃ¥Ë†â€”Ã©â€“Â¢Ã¦â€¢Â°';
 
   @override
-  String get doc_template_functions_section_notes_l1 => '関数名は大文字小文字を区別しません。';
+  String get doc_template_functions_section_notes_l1 =>
+      'Ã©â€“Â¢Ã¦â€¢Â°Ã¥ÂÂÃ£ÂÂ¯Ã¥Â¤Â§Ã¦â€“â€¡Ã¥Â­â€”Ã¥Â°ÂÃ¦â€“â€¡Ã¥Â­â€”Ã£â€šâ€™Ã¥Å’ÂºÃ¥Ë†Â¥Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
   String get doc_template_functions_section_notes_l2 =>
-      '不明な関数や無効な引数は空文字列に解決されます。';
+      'Ã¤Â¸ÂÃ¦ËœÅ½Ã£ÂÂªÃ©â€“Â¢Ã¦â€¢Â°Ã£â€šâ€žÃ§â€žÂ¡Ã¥Å Â¹Ã£ÂÂªÃ¥Â¼â€¢Ã¦â€¢Â°Ã£ÂÂ¯Ã§Â©ÂºÃ¦â€“â€¡Ã¥Â­â€”Ã¥Ë†â€”Ã£ÂÂ«Ã¨Â§Â£Ã¦Â±ÂºÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_template_functions_section_notes_l3 =>
-      'ルートレベルで | を使ったフォールバック構文: ((replace(name, \"_\", \" \")|Unknown))。';
+      'Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’Ë†Ã£Æ’Â¬Ã£Æ’â„¢Ã£Æ’Â«Ã£ÂÂ§ | Ã£â€šâ€™Ã¤Â½Â¿Ã£ÂÂ£Ã£ÂÅ¸Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã¦Â§â€¹Ã¦â€“â€¡: ((replace(name, \"_\", \" \")|Unknown))Ã£â‚¬â€š';
 
   @override
   String get doc_template_functions_section_notes_l4 =>
-      '関数から返される配列とオブジェクトはJSONテキストとしてシリアル化されます。';
+      'Ã©â€“Â¢Ã¦â€¢Â°Ã£Ââ€¹Ã£â€šâ€°Ã¨Â¿â€Ã£Ââ€¢Ã£â€šÅ’Ã£â€šâ€¹Ã©â€¦ÂÃ¥Ë†â€”Ã£ÂÂ¨Ã£â€šÂªÃ£Æ’â€“Ã£â€šÂ¸Ã£â€šÂ§Ã£â€šÂ¯Ã£Æ’Ë†Ã£ÂÂ¯JSONÃ£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã£ÂÂ¨Ã£Ââ€”Ã£ÂÂ¦Ã£â€šÂ·Ã£Æ’ÂªÃ£â€šÂ¢Ã£Æ’Â«Ã¥Å’â€“Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get doc_template_functions_section_notes_title => '重要な注意事項';
+  String get doc_template_functions_section_notes_title =>
+      'Ã©â€¡ÂÃ¨Â¦ÂÃ£ÂÂªÃ¦Â³Â¨Ã¦â€žÂÃ¤Âºâ€¹Ã©Â â€¦';
 
   @override
   String get doc_template_functions_section_random_l1 =>
-      'coin() と random(): 条件分岐用に \"true\" または \"\" を返します。';
+      'coin() Ã£ÂÂ¨ random(): Ã¦ÂÂ¡Ã¤Â»Â¶Ã¥Ë†â€ Ã¥Â²ÂÃ§â€Â¨Ã£ÂÂ« \"true\" Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯ \"\" Ã£â€šâ€™Ã¨Â¿â€Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_template_functions_section_random_l2 =>
-      'randomchoice(a, b, ...) と randomint(min, max)。';
+      'randomchoice(a, b, ...) Ã£ÂÂ¨ randomint(min, max)Ã£â‚¬â€š';
 
   @override
-  String get doc_template_functions_section_random_title => 'ランダムヘルパー';
+  String get doc_template_functions_section_random_title =>
+      'Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’â‚¬Ã£Æ’Â Ã£Æ’ËœÃ£Æ’Â«Ã£Æ’â€˜Ã£Æ’Â¼';
 
   @override
   String get doc_template_functions_section_string_l1 =>
-      'uppercase(s), lowercase(s), trim(s), replace(s, old, new)。';
+      'uppercase(s), lowercase(s), trim(s), replace(s, old, new)Ã£â‚¬â€š';
 
   @override
   String get doc_template_functions_section_string_l2 =>
-      'contains(haystack, needle), startsWith(s, prefix), endsWith(s, suffix)。';
+      'contains(haystack, needle), startsWith(s, prefix), endsWith(s, suffix)Ã£â‚¬â€š';
 
   @override
   String get doc_template_functions_section_string_l3 =>
-      'trim(source): 先頭と末尾のスペースを削除します。';
+      'trim(source): Ã¥â€¦Ë†Ã©Â Â­Ã£ÂÂ¨Ã¦Å“Â«Ã¥Â°Â¾Ã£ÂÂ®Ã£â€šÂ¹Ã£Æ’Å¡Ã£Æ’Â¼Ã£â€šÂ¹Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_template_functions_section_string_l4 =>
-      'replace(source, search, replacement) と contains(source, needle) による置換と検索。';
+      'replace(source, search, replacement) Ã£ÂÂ¨ contains(source, needle) Ã£ÂÂ«Ã£â€šË†Ã£â€šâ€¹Ã§Â½Â®Ã¦Ââ€ºÃ£ÂÂ¨Ã¦Â¤Å“Ã§Â´Â¢Ã£â‚¬â€š';
 
   @override
-  String get doc_template_functions_section_string_title => '文字列関数';
+  String get doc_template_functions_section_string_title =>
+      'Ã¦â€“â€¡Ã¥Â­â€”Ã¥Ë†â€”Ã©â€“Â¢Ã¦â€¢Â°';
 
   @override
-  String get doc_template_functions_subtitle => 'ランタイム変数の変換とフォーマットのための組み込み関数。';
+  String get doc_template_functions_subtitle =>
+      'Ã£Æ’Â©Ã£Æ’Â³Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â Ã¥Â¤â€°Ã¦â€¢Â°Ã£ÂÂ®Ã¥Â¤â€°Ã¦Ââ€ºÃ£ÂÂ¨Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â¼Ã£Æ’Å¾Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÂ®Ã£ÂÅ¸Ã£â€šÂÃ£ÂÂ®Ã§Âµâ€žÃ£ÂÂ¿Ã¨Â¾Â¼Ã£ÂÂ¿Ã©â€“Â¢Ã¦â€¢Â°Ã£â‚¬â€š';
 
   @override
   String get doc_template_functions_summary =>
-      'これらの関数はテンプレート式内で使用でき、ランタイム変数に対して変換、比較、配列操作を実行します。';
+      'Ã£Ââ€œÃ£â€šÅ’Ã£â€šâ€°Ã£ÂÂ®Ã©â€“Â¢Ã¦â€¢Â°Ã£ÂÂ¯Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã¥Â¼ÂÃ¥â€ â€¦Ã£ÂÂ§Ã¤Â½Â¿Ã§â€Â¨Ã£ÂÂ§Ã£ÂÂÃ£â‚¬ÂÃ£Æ’Â©Ã£Æ’Â³Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â Ã¥Â¤â€°Ã¦â€¢Â°Ã£ÂÂ«Ã¥Â¯Â¾Ã£Ââ€”Ã£ÂÂ¦Ã¥Â¤â€°Ã¦Ââ€ºÃ£â‚¬ÂÃ¦Â¯â€Ã¨Â¼Æ’Ã£â‚¬ÂÃ©â€¦ÂÃ¥Ë†â€”Ã¦â€œÂÃ¤Â½Å“Ã£â€šâ€™Ã¥Â®Å¸Ã¨Â¡Å’Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get doc_template_functions_title => 'テンプレート関数';
+  String get doc_template_functions_title =>
+      'Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã©â€“Â¢Ã¦â€¢Â°';
 
   @override
   String doc_template_variables_example(String name, String score) {
-    return 'こんにちは ((target.user.username|userName))\nプレイヤー: ((join(scores.items.\$, \", \")))';
+    return 'Ã£Ââ€œÃ£â€šâ€œÃ£ÂÂ«Ã£ÂÂ¡Ã£ÂÂ¯ ((target.user.username|userName))\nÃ£Æ’â€”Ã£Æ’Â¬Ã£â€šÂ¤Ã£Æ’Â¤Ã£Æ’Â¼: ((join(scores.items.\$, \", \")))';
   }
 
   @override
-  String get doc_template_variables_section_builtin_title => '組み込みコマンド変数';
+  String get doc_template_variables_section_builtin_title =>
+      'Ã§Âµâ€žÃ£ÂÂ¿Ã¨Â¾Â¼Ã£ÂÂ¿Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã¥Â¤â€°Ã¦â€¢Â°';
 
   @override
   String get doc_template_variables_section_fallbacks_l1 =>
-      'オプションがない場合のフォールバックには ((opts.user|userName)) を使用します。';
+      'Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÅ’Ã£ÂÂªÃ£Ââ€žÃ¥Â Â´Ã¥ÂË†Ã£ÂÂ®Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã£ÂÂ«Ã£ÂÂ¯ ((opts.user|userName)) Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_template_variables_section_fallbacks_l2 =>
-      'アクション出力にJSONPath構文を使用: ((myHttp.body.\$.data[0].id)); 配列と';
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã¥â€¡ÂºÃ¥Å â€ºÃ£ÂÂ«JSONPathÃ¦Â§â€¹Ã¦â€“â€¡Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨: ((myHttp.body.\$.data[0].id)); Ã©â€¦ÂÃ¥Ë†â€”Ã£ÂÂ¨';
 
   @override
   String get doc_template_variables_section_fallbacks_l3 =>
-      'length(...), join(...), formatEach(...), embedFields(...) などの関数が';
+      'length(...), join(...), formatEach(...), embedFields(...) Ã£ÂÂªÃ£ÂÂ©Ã£ÂÂ®Ã©â€“Â¢Ã¦â€¢Â°Ã£ÂÅ’';
 
   @override
-  String get doc_template_variables_section_fallbacks_title => 'フォールバックとパス';
+  String get doc_template_variables_section_fallbacks_title =>
+      'Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã£ÂÂ¨Ã£Æ’â€˜Ã£â€šÂ¹';
 
   @override
   String get doc_template_variables_section_sources_l1 =>
-      'コマンド変数: commandName, commandId, commandType, target.*, opts.*。';
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã¥Â¤â€°Ã¦â€¢Â°: commandName, commandId, commandType, target.*, opts.*Ã£â‚¬â€š';
 
   @override
   String get doc_template_variables_section_sources_l2 =>
-      'イベント変数: event.*, message.*, reaction.*, voice.*, role.* など。';
+      'Ã£â€šÂ¤Ã£Æ’â„¢Ã£Æ’Â³Ã£Æ’Ë†Ã¥Â¤â€°Ã¦â€¢Â°: event.*, message.*, reaction.*, voice.*, role.* Ã£ÂÂªÃ£ÂÂ©Ã£â‚¬â€š';
 
   @override
   String get doc_template_variables_section_sources_l3 =>
-      'ワークフロー変数: workflow.name, workflow.entryPoint, arg.*, workflow.arg.*';
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã¥Â¤â€°Ã¦â€¢Â°: workflow.name, workflow.entryPoint, arg.*, workflow.arg.*';
 
   @override
   String get doc_template_variables_section_sources_l4 =>
-      'グローバル変数: global.<key>';
+      'Ã£â€šÂ°Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â«Ã¥Â¤â€°Ã¦â€¢Â°: global.<key>';
 
   @override
   String get doc_template_variables_section_sources_l5 =>
-      'アクション出力: 利用可能な場合 action.<key>。';
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã¥â€¡ÂºÃ¥Å â€º: Ã¥Ë†Â©Ã§â€Â¨Ã¥ÂÂ¯Ã¨Æ’Â½Ã£ÂÂªÃ¥Â Â´Ã¥ÂË† action.<key>Ã£â‚¬â€š';
 
   @override
-  String get doc_template_variables_section_sources_title => '変数ソース';
+  String get doc_template_variables_section_sources_title =>
+      'Ã¥Â¤â€°Ã¦â€¢Â°Ã£â€šÂ½Ã£Æ’Â¼Ã£â€šÂ¹';
 
   @override
   String get doc_template_variables_section_types_l1 =>
-      'スラッシュコマンドは commandType = chatInput を使用し、opts.<option> 変数を公開します。';
+      'Ã£â€šÂ¹Ã£Æ’Â©Ã£Æ’Æ’Ã£â€šÂ·Ã£Æ’Â¥Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ¯ commandType = chatInput Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ€”Ã£â‚¬Âopts.<option> Ã¥Â¤â€°Ã¦â€¢Â°Ã£â€šâ€™Ã¥â€¦Â¬Ã©â€“â€¹Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_template_variables_section_types_l2 =>
-      'ユーザーコマンドは commandType = user を使用し、target.user.* 変数を公開します。';
+      'Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ¯ commandType = user Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ€”Ã£â‚¬Âtarget.user.* Ã¥Â¤â€°Ã¦â€¢Â°Ã£â€šâ€™Ã¥â€¦Â¬Ã©â€“â€¹Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_template_variables_section_types_l3 =>
-      'メッセージコマンドは commandType = message を使用し、target.message.* 変数を公開します。';
+      'Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ¯ commandType = message Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ€”Ã£â‚¬Âtarget.message.* Ã¥Â¤â€°Ã¦â€¢Â°Ã£â€šâ€™Ã¥â€¦Â¬Ã©â€“â€¹Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get doc_template_variables_section_types_l4 =>
-      'サブコマンドは引き続き opts.* を通じて引数を公開します。';
+      'Ã£â€šÂµÃ£Æ’â€“Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ¯Ã¥Â¼â€¢Ã£ÂÂÃ§Â¶Å¡Ã£ÂÂ opts.* Ã£â€šâ€™Ã©â‚¬Å¡Ã£ÂËœÃ£ÂÂ¦Ã¥Â¼â€¢Ã¦â€¢Â°Ã£â€šâ€™Ã¥â€¦Â¬Ã©â€“â€¹Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get doc_template_variables_section_types_title => 'コマンドタイプ';
+  String get doc_template_variables_section_types_title =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’â€”';
 
   @override
-  String get doc_template_variables_subtitle => '動的プレースホルダーの解決方法。';
+  String get doc_template_variables_subtitle =>
+      'Ã¥â€¹â€¢Ã§Å¡â€žÃ£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£â€šÂ¹Ã£Æ’â€ºÃ£Æ’Â«Ã£Æ’â‚¬Ã£Æ’Â¼Ã£ÂÂ®Ã¨Â§Â£Ã¦Â±ÂºÃ¦â€“Â¹Ã¦Â³â€¢Ã£â‚¬â€š';
 
   @override
   String get doc_template_variables_summary =>
-      'ランタイムは現在のイベント/インタラクションコンテキスト、ワークフローを使用してプレースホルダーを解決します。';
+      'Ã£Æ’Â©Ã£Æ’Â³Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â Ã£ÂÂ¯Ã§ÂÂ¾Ã¥Å“Â¨Ã£ÂÂ®Ã£â€šÂ¤Ã£Æ’â„¢Ã£Æ’Â³Ã£Æ’Ë†/Ã£â€šÂ¤Ã£Æ’Â³Ã£â€šÂ¿Ã£Æ’Â©Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã£â‚¬ÂÃ£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ€”Ã£ÂÂ¦Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£â€šÂ¹Ã£Æ’â€ºÃ£Æ’Â«Ã£Æ’â‚¬Ã£Æ’Â¼Ã£â€šâ€™Ã¨Â§Â£Ã¦Â±ÂºÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get doc_template_variables_title => 'テンプレート変数';
+  String get doc_template_variables_title =>
+      'Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã¥Â¤â€°Ã¦â€¢Â°';
 
   @override
-  String get done => '完了';
+  String get done => 'Ã¥Â®Å’Ã¤Âºâ€ ';
 
   @override
   String download_completed(String id) {
-    return 'ダウンロード完了: $id';
+    return 'Ã£Æ’â‚¬Ã£â€šÂ¦Ã£Æ’Â³Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’â€°Ã¥Â®Å’Ã¤Âºâ€ : $id';
   }
 
   @override
   String download_failed(String error) {
-    return 'ダウンロード失敗: $error';
+    return 'Ã£Æ’â‚¬Ã£â€šÂ¦Ã£Æ’Â³Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’â€°Ã¥Â¤Â±Ã¦â€¢â€”: $error';
   }
 
   @override
-  String get download_legacy_backup => 'ダウンロード完了 (レガシーバックアップ)';
+  String get download_legacy_backup =>
+      'Ã£Æ’â‚¬Ã£â€šÂ¦Ã£Æ’Â³Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’â€°Ã¥Â®Å’Ã¤Âºâ€  (Ã£Æ’Â¬Ã£â€šÂ¬Ã£â€šÂ·Ã£Æ’Â¼Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¢Ã£Æ’Æ’Ã£Æ’â€”)';
 
   @override
-  String get drive_legacy_snapshot => 'レガシースナップショット';
+  String get drive_legacy_snapshot =>
+      'Ã£Æ’Â¬Ã£â€šÂ¬Ã£â€šÂ·Ã£Æ’Â¼Ã£â€šÂ¹Ã£Æ’Å Ã£Æ’Æ’Ã£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Æ’Ã£Æ’Ë†';
 
   @override
-  String get drive_manual_backup => '手動バックアップ';
+  String get drive_manual_backup =>
+      'Ã¦â€°â€¹Ã¥â€¹â€¢Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¢Ã£Æ’Æ’Ã£Æ’â€”';
 
   @override
-  String get edit_shell_all_saved => 'すべての変更が保存されました';
+  String get edit_shell_all_saved =>
+      'Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÂ®Ã¥Â¤â€°Ã¦â€ºÂ´Ã£ÂÅ’Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
-  String get edit_shell_command_body => 'コマンド本文';
+  String get edit_shell_command_body =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã¦Å“Â¬Ã¦â€“â€¡';
 
   @override
-  String get edit_shell_command_settings => 'コマンド設定';
+  String get edit_shell_command_settings =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã¨Â¨Â­Ã¥Â®Å¡';
 
   @override
-  String get edit_shell_command_settings_desc => 'メタデータ、利用可能性、権限、フォルダ配置。';
+  String get edit_shell_command_settings_desc =>
+      'Ã£Æ’Â¡Ã£â€šÂ¿Ã£Æ’â€¡Ã£Æ’Â¼Ã£â€šÂ¿Ã£â‚¬ÂÃ¥Ë†Â©Ã§â€Â¨Ã¥ÂÂ¯Ã¨Æ’Â½Ã¦â‚¬Â§Ã£â‚¬ÂÃ¦Â¨Â©Ã©â„¢ÂÃ£â‚¬ÂÃ£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â«Ã£Æ’â‚¬Ã©â€¦ÂÃ§Â½Â®Ã£â‚¬â€š';
 
   @override
-  String get edit_shell_local_draft => 'ローカル下書き';
+  String get edit_shell_local_draft =>
+      'Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã¤Â¸â€¹Ã¦â€ºÂ¸Ã£ÂÂ';
 
   @override
-  String get edit_shell_local_only => 'ローカルのみ';
+  String get edit_shell_local_only => 'Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã£ÂÂ®Ã£ÂÂ¿';
 
   @override
   String edit_shell_routes_count(int count) {
-    return '$count ルート';
+    return '$count Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’Ë†';
   }
 
   @override
-  String get edit_shell_save_changes => '変更を保存';
+  String get edit_shell_save_changes => 'Ã¥Â¤â€°Ã¦â€ºÂ´Ã£â€šâ€™Ã¤Â¿ÂÃ¥Â­Ëœ';
 
   @override
-  String get edit_shell_subtitle => '設定と入力は上部にあります。アクションと返信は下に続きます。';
+  String get edit_shell_subtitle =>
+      'Ã¨Â¨Â­Ã¥Â®Å¡Ã£ÂÂ¨Ã¥â€¦Â¥Ã¥Å â€ºÃ£ÂÂ¯Ã¤Â¸Å Ã©Æ’Â¨Ã£ÂÂ«Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ¨Ã¨Â¿â€Ã¤Â¿Â¡Ã£ÂÂ¯Ã¤Â¸â€¹Ã£ÂÂ«Ã§Â¶Å¡Ã£ÂÂÃ£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get edit_shell_trigger_inputs => 'トリガーと入力';
+  String get edit_shell_trigger_inputs =>
+      'Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼Ã£ÂÂ¨Ã¥â€¦Â¥Ã¥Å â€º';
 
   @override
-  String get edit_shell_trigger_inputs_desc => 'コマンドオプション、トリガー動作、実行モードを調整します。';
+  String get edit_shell_trigger_inputs_desc =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â‚¬ÂÃ£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼Ã¥â€¹â€¢Ã¤Â½Å“Ã£â‚¬ÂÃ¥Â®Å¸Ã¨Â¡Å’Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°Ã£â€šâ€™Ã¨ÂªÂ¿Ã¦â€¢Â´Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get edit_shell_type_command => 'コマンド';
+  String get edit_shell_type_command => 'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°';
 
   @override
-  String get edit_shell_type_legacy => 'レガシーコマンド';
+  String get edit_shell_type_legacy =>
+      'Ã£Æ’Â¬Ã£â€šÂ¬Ã£â€šÂ·Ã£Æ’Â¼Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°';
 
   @override
-  String get edit_shell_type_message => 'メッセージコマンド';
+  String get edit_shell_type_message =>
+      'Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°';
 
   @override
-  String get edit_shell_type_slash => 'スラッシュコマンド';
+  String get edit_shell_type_slash =>
+      'Ã£â€šÂ¹Ã£Æ’Â©Ã£Æ’Æ’Ã£â€šÂ·Ã£Æ’Â¥Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°';
 
   @override
-  String get edit_shell_type_user => 'ユーザーコマンド';
+  String get edit_shell_type_user =>
+      'Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°';
 
   @override
-  String get edit_shell_unsaved => '未保存の変更';
+  String get edit_shell_unsaved => 'Ã¦Å“ÂªÃ¤Â¿ÂÃ¥Â­ËœÃ£ÂÂ®Ã¥Â¤â€°Ã¦â€ºÂ´';
 
   @override
-  String get edit_shell_untitled_command => '無題のコマンド';
+  String get edit_shell_untitled_command =>
+      'Ã§â€žÂ¡Ã©Â¡Å’Ã£ÂÂ®Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°';
 
   @override
-  String get embed_add_field => 'フィールドを追加';
+  String get embed_add_field =>
+      'Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’â€°Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get embed_add_section => 'セクションを追加';
+  String get embed_add_section =>
+      'Ã£â€šÂ»Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get embed_add_tooltip => '埋め込みを追加';
+  String get embed_add_tooltip =>
+      'Ã¥Å¸â€¹Ã£â€šÂÃ¨Â¾Â¼Ã£ÂÂ¿Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get embed_color_picker_title => '埋め込みの色を選択';
+  String get embed_color_picker_title =>
+      'Ã¥Å¸â€¹Ã£â€šÂÃ¨Â¾Â¼Ã£ÂÂ¿Ã£ÂÂ®Ã¨â€°Â²Ã£â€šâ€™Ã©ÂÂ¸Ã¦Å Å¾';
 
   @override
-  String get embed_delete_confirm => 'この埋め込みは削除されます。続行しますか？';
+  String get embed_delete_confirm =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã¥Å¸â€¹Ã£â€šÂÃ¨Â¾Â¼Ã£ÂÂ¿Ã£ÂÂ¯Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ§Â¶Å¡Ã¨Â¡Å’Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸';
 
   @override
-  String get embed_delete_title => '埋め込みを削除';
+  String get embed_delete_title =>
+      'Ã¥Å¸â€¹Ã£â€šÂÃ¨Â¾Â¼Ã£ÂÂ¿Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
   String embed_empty_message(int max) {
-    return '埋め込みがありません。最大 $max 個まで追加できます。';
+    return 'Ã¥Å¸â€¹Ã£â€šÂÃ¨Â¾Â¼Ã£ÂÂ¿Ã£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€šÃ¦Å“â‚¬Ã¥Â¤Â§ $max Ã¥â‚¬â€¹Ã£ÂÂ¾Ã£ÂÂ§Ã¨Â¿Â½Ã¥Å Â Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
   }
 
   @override
-  String get embed_field_delete_confirm => 'このフィールドは埋め込みから削除されます。続行しますか？';
+  String get embed_field_delete_confirm =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’â€°Ã£ÂÂ¯Ã¥Å¸â€¹Ã£â€šÂÃ¨Â¾Â¼Ã£ÂÂ¿Ã£Ââ€¹Ã£â€šâ€°Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ§Â¶Å¡Ã¨Â¡Å’Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸';
 
   @override
-  String get embed_field_delete_title => 'フィールドを削除';
+  String get embed_field_delete_title =>
+      'Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’â€°Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
   String embed_field_number(int index) {
-    return 'フィールド #$index';
+    return 'Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’â€° #$index';
   }
 
   @override
-  String get embed_fields_empty => 'まだフィールドがありません。';
+  String get embed_fields_empty =>
+      'Ã£ÂÂ¾Ã£ÂÂ Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’â€°Ã£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
   String embed_fields_header(int count) {
-    return 'フィールド ($count/25)';
+    return 'Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’â€° ($count/25)';
   }
 
   @override
-  String get embed_label_author_icon => '作成者アイコンURL';
+  String get embed_label_author_icon =>
+      'Ã¤Â½Å“Ã¦Ë†ÂÃ¨â‚¬â€¦Ã£â€šÂ¢Ã£â€šÂ¤Ã£â€šÂ³Ã£Æ’Â³URL';
 
   @override
-  String get embed_label_author_name => '作成者名';
+  String get embed_label_author_name => 'Ã¤Â½Å“Ã¦Ë†ÂÃ¨â‚¬â€¦Ã¥ÂÂ';
 
   @override
-  String get embed_label_author_url => '作成者URL';
+  String get embed_label_author_url => 'Ã¤Â½Å“Ã¦Ë†ÂÃ¨â‚¬â€¦URL';
 
   @override
-  String get embed_label_color => '色';
+  String get embed_label_color => 'Ã¨â€°Â²';
 
   @override
-  String get embed_label_dynamic_fields => '動的フィールドテンプレート';
+  String get embed_label_dynamic_fields =>
+      'Ã¥â€¹â€¢Ã§Å¡â€žÃ£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’â€°Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†';
 
   @override
-  String get embed_label_footer_icon => 'フッターアイコンURL';
+  String get embed_label_footer_icon =>
+      'Ã£Æ’â€¢Ã£Æ’Æ’Ã£â€šÂ¿Ã£Æ’Â¼Ã£â€šÂ¢Ã£â€šÂ¤Ã£â€šÂ³Ã£Æ’Â³URL';
 
   @override
-  String get embed_label_footer_text => 'フッターテキスト';
+  String get embed_label_footer_text =>
+      'Ã£Æ’â€¢Ã£Æ’Æ’Ã£â€šÂ¿Ã£Æ’Â¼Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†';
 
   @override
-  String get embed_label_image_url => '画像URL';
+  String get embed_label_image_url => 'Ã§â€Â»Ã¥Æ’ÂURL';
 
   @override
-  String get embed_label_inline => 'インライン';
+  String get embed_label_inline => 'Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’Â©Ã£â€šÂ¤Ã£Æ’Â³';
 
   @override
-  String get embed_label_thumbnail_url => 'サムネイルURL';
+  String get embed_label_thumbnail_url => 'Ã£â€šÂµÃ£Æ’Â Ã£Æ’ÂÃ£â€šÂ¤Ã£Æ’Â«URL';
 
   @override
-  String get embed_label_timestamp => 'タイムスタンプ';
+  String get embed_label_timestamp =>
+      'Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â Ã£â€šÂ¹Ã£â€šÂ¿Ã£Æ’Â³Ã£Æ’â€”';
 
   @override
-  String get embed_label_title => 'タイトル';
+  String get embed_label_title => 'Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Ë†Ã£Æ’Â«';
 
   @override
   String get embed_label_url => 'URL';
 
   @override
   String embed_number(int index) {
-    return '埋め込み #$index';
+    return 'Ã¥Å¸â€¹Ã£â€šÂÃ¨Â¾Â¼Ã£ÂÂ¿ #$index';
   }
 
   @override
   String embed_response_header(int count, int max) {
-    return '応答埋め込み ($count/$max)';
+    return 'Ã¥Â¿Å“Ã§Â­â€Ã¥Å¸â€¹Ã£â€šÂÃ¨Â¾Â¼Ã£ÂÂ¿ ($count/$max)';
   }
 
   @override
-  String get embed_section_author => '作成者';
+  String get embed_section_author => 'Ã¤Â½Å“Ã¦Ë†ÂÃ¨â‚¬â€¦';
 
   @override
-  String get embed_section_color => '色';
+  String get embed_section_color => 'Ã¨â€°Â²';
 
   @override
-  String get embed_section_dynamic_fields => '動的フィールド';
+  String get embed_section_dynamic_fields =>
+      'Ã¥â€¹â€¢Ã§Å¡â€žÃ£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’â€°';
 
   @override
-  String get embed_section_fields => 'フィールド';
+  String get embed_section_fields => 'Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’â€°';
 
   @override
-  String get embed_section_footer => 'フッター';
+  String get embed_section_footer => 'Ã£Æ’â€¢Ã£Æ’Æ’Ã£â€šÂ¿Ã£Æ’Â¼';
 
   @override
-  String get embed_section_media => 'メディア';
+  String get embed_section_media => 'Ã£Æ’Â¡Ã£Æ’â€¡Ã£â€šÂ£Ã£â€šÂ¢';
 
   @override
-  String get embed_section_timestamp => 'タイムスタンプ';
+  String get embed_section_timestamp =>
+      'Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â Ã£â€šÂ¹Ã£â€šÂ¿Ã£Æ’Â³Ã£Æ’â€”';
 
   @override
   String emojis_delete_confirm_body(String name) {
-    return ':$name: を削除しますか？この操作は元に戻せません。';
+    return ':$name: Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸Ã£Ââ€œÃ£ÂÂ®Ã¦â€œÂÃ¤Â½Å“Ã£ÂÂ¯Ã¥â€¦Æ’Ã£ÂÂ«Ã¦Ë†Â»Ã£Ââ€ºÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
   }
 
   @override
-  String get emojis_delete_confirm_title => '絵文字を削除';
+  String get emojis_delete_confirm_title =>
+      'Ã§ÂµÂµÃ¦â€“â€¡Ã¥Â­â€”Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
   String emojis_delete_error(String error) {
-    return '削除失敗: $error';
+    return 'Ã¥â€°Å Ã©â„¢Â¤Ã¥Â¤Â±Ã¦â€¢â€”: $error';
   }
 
   @override
-  String get emojis_delete_tooltip => '削除';
+  String get emojis_delete_tooltip => 'Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get emojis_empty => 'まだ絵文字がありません。アップロードして始めてください。';
+  String get emojis_empty =>
+      'Ã£ÂÂ¾Ã£ÂÂ Ã§ÂµÂµÃ¦â€“â€¡Ã¥Â­â€”Ã£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€šÃ£â€šÂ¢Ã£Æ’Æ’Ã£Æ’â€”Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’â€°Ã£Ââ€”Ã£ÂÂ¦Ã¥Â§â€¹Ã£â€šÂÃ£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get emojis_loading_error => '絵文字の読み込みに失敗しました';
+  String get emojis_loading_error =>
+      'Ã§ÂµÂµÃ¦â€“â€¡Ã¥Â­â€”Ã£ÂÂ®Ã¨ÂªÂ­Ã£ÂÂ¿Ã¨Â¾Â¼Ã£ÂÂ¿Ã£ÂÂ«Ã¥Â¤Â±Ã¦â€¢â€”Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
   String emojis_rename_error(String error) {
-    return '名前変更失敗: $error';
+    return 'Ã¥ÂÂÃ¥â€°ÂÃ¥Â¤â€°Ã¦â€ºÂ´Ã¥Â¤Â±Ã¦â€¢â€”: $error';
   }
 
   @override
-  String get emojis_rename_hint => '新しい名前';
+  String get emojis_rename_hint => 'Ã¦â€“Â°Ã£Ââ€”Ã£Ââ€žÃ¥ÂÂÃ¥â€°Â';
 
   @override
-  String get emojis_rename_title => '絵文字の名前を変更';
+  String get emojis_rename_title =>
+      'Ã§ÂµÂµÃ¦â€“â€¡Ã¥Â­â€”Ã£ÂÂ®Ã¥ÂÂÃ¥â€°ÂÃ£â€šâ€™Ã¥Â¤â€°Ã¦â€ºÂ´';
 
   @override
-  String get emojis_rename_tooltip => '名前を変更';
+  String get emojis_rename_tooltip => 'Ã¥ÂÂÃ¥â€°ÂÃ£â€šâ€™Ã¥Â¤â€°Ã¦â€ºÂ´';
 
   @override
-  String get emojis_tab => '絵文字';
+  String get emojis_tab => 'Ã§ÂµÂµÃ¦â€“â€¡Ã¥Â­â€”';
 
   @override
-  String get emojis_tab_short => '絵文字';
+  String get emojis_tab_short => 'Ã§ÂµÂµÃ¦â€“â€¡Ã¥Â­â€”';
 
   @override
-  String get emojis_title => 'アプリケーション絵文字';
+  String get emojis_title =>
+      'Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£â€šÂ±Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã§ÂµÂµÃ¦â€“â€¡Ã¥Â­â€”';
 
   @override
-  String get emojis_upload => '絵文字をアップロード';
+  String get emojis_upload =>
+      'Ã§ÂµÂµÃ¦â€“â€¡Ã¥Â­â€”Ã£â€šâ€™Ã£â€šÂ¢Ã£Æ’Æ’Ã£Æ’â€”Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’â€°';
 
   @override
   String emojis_upload_error(String error) {
-    return 'アップロード失敗: $error';
+    return 'Ã£â€šÂ¢Ã£Æ’Æ’Ã£Æ’â€”Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’â€°Ã¥Â¤Â±Ã¦â€¢â€”: $error';
   }
 
   @override
-  String get emojis_upload_name_hint => '絵文字名 (英数字、_)';
+  String get emojis_upload_name_hint =>
+      'Ã§ÂµÂµÃ¦â€“â€¡Ã¥Â­â€”Ã¥ÂÂ (Ã¨â€¹Â±Ã¦â€¢Â°Ã¥Â­â€”Ã£â‚¬Â_)';
 
   @override
-  String get emojis_upload_pick_image => '画像を選択';
+  String get emojis_upload_pick_image => 'Ã§â€Â»Ã¥Æ’ÂÃ£â€šâ€™Ã©ÂÂ¸Ã¦Å Å¾';
 
   @override
-  String get error => 'エラー';
+  String get error => 'Ã£â€šÂ¨Ã£Æ’Â©Ã£Æ’Â¼';
 
   @override
-  String get error_delete_messages_failed => 'メッセージの削除に失敗しました。';
+  String get error_delete_messages_failed =>
+      'Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£ÂÂ®Ã¥â€°Å Ã©â„¢Â¤Ã£ÂÂ«Ã¥Â¤Â±Ã¦â€¢â€”Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€š';
 
   @override
-  String get error_invalid_channel_type => 'チャンネルはテキストチャンネルではありません。';
+  String get error_invalid_channel_type =>
+      'Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã£ÂÂ¯Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã£ÂÂ§Ã£ÂÂ¯Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
-  String get error_invalid_count => 'カウントは0より大きい必要があります。';
+  String get error_invalid_count =>
+      'Ã£â€šÂ«Ã£â€šÂ¦Ã£Æ’Â³Ã£Æ’Ë†Ã£ÂÂ¯0Ã£â€šË†Ã£â€šÅ Ã¥Â¤Â§Ã£ÂÂÃ£Ââ€žÃ¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get error_network_timeout => 'アクションがタイムアウトしました。もう一度お試しください。';
+  String get error_network_timeout =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÅ’Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â Ã£â€šÂ¢Ã£â€šÂ¦Ã£Æ’Ë†Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€šÃ£â€šâ€šÃ£Ââ€ Ã¤Â¸â‚¬Ã¥ÂºÂ¦Ã£ÂÅ Ã¨Â©Â¦Ã£Ââ€”Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
   String error_with_details(String error) {
-    return 'エラー: $error';
+    return 'Ã£â€šÂ¨Ã£Æ’Â©Ã£Æ’Â¼: $error';
   }
 
   @override
-  String get export_button => 'ZIPをエクスポート';
+  String get export_button =>
+      'ZIPÃ£â€šâ€™Ã£â€šÂ¨Ã£â€šÂ¯Ã£â€šÂ¹Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†';
 
   @override
-  String get export_commands => 'コマンド';
+  String get export_commands => 'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°';
 
   @override
   String export_failed(String error) {
-    return 'エクスポート失敗: $error';
+    return 'Ã£â€šÂ¨Ã£â€šÂ¯Ã£â€šÂ¹Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†Ã¥Â¤Â±Ã¦â€¢â€”: $error';
   }
 
   @override
-  String get export_file_picker_busy => 'ファイル選択は既に開いています';
+  String get export_file_picker_busy =>
+      'Ã£Æ’â€¢Ã£â€šÂ¡Ã£â€šÂ¤Ã£Æ’Â«Ã©ÂÂ¸Ã¦Å Å¾Ã£ÂÂ¯Ã¦â€”Â¢Ã£ÂÂ«Ã©â€“â€¹Ã£Ââ€žÃ£ÂÂ¦Ã£Ââ€žÃ£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get export_global_variables => 'グローバル変数';
+  String get export_global_variables =>
+      'Ã£â€šÂ°Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â«Ã¥Â¤â€°Ã¦â€¢Â°';
 
   @override
-  String get export_import_title => 'エクスポート / インポート';
+  String get export_import_title =>
+      'Ã£â€šÂ¨Ã£â€šÂ¯Ã£â€šÂ¹Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë† / Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†';
 
   @override
   String get export_section_desc =>
-      'ボットの選択したセクションをZIPファイルとしてエクスポートします。ボットトークンは含まれません。';
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÂ®Ã©ÂÂ¸Ã¦Å Å¾Ã£Ââ€”Ã£ÂÅ¸Ã£â€šÂ»Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™ZIPÃ£Æ’â€¢Ã£â€šÂ¡Ã£â€šÂ¤Ã£Æ’Â«Ã£ÂÂ¨Ã£Ââ€”Ã£ÂÂ¦Ã£â€šÂ¨Ã£â€šÂ¯Ã£â€šÂ¹Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£ÂÂ¯Ã¥ÂÂ«Ã£ÂÂ¾Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
-  String get export_section_title => 'エクスポート';
+  String get export_section_title => 'Ã£â€šÂ¨Ã£â€šÂ¯Ã£â€šÂ¹Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†';
 
   @override
-  String get export_status => 'ステータスとアクティビティ';
+  String get export_status =>
+      'Ã£â€šÂ¹Ã£Æ’â€ Ã£Æ’Â¼Ã£â€šÂ¿Ã£â€šÂ¹Ã£ÂÂ¨Ã£â€šÂ¢Ã£â€šÂ¯Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’â€œÃ£Æ’â€ Ã£â€šÂ£';
 
   @override
-  String get export_workflows => 'ワークフロー';
+  String get export_workflows => 'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼';
 
   @override
-  String get globals_add => '変数を追加';
+  String get globals_add => 'Ã¥Â¤â€°Ã¦â€¢Â°Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get globals_add_global => 'グローバル変数を追加';
+  String get globals_add_global =>
+      'Ã£â€šÂ°Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â«Ã¥Â¤â€°Ã¦â€¢Â°Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get globals_add_scoped => 'スコープ変数を追加';
+  String get globals_add_scoped =>
+      'Ã£â€šÂ¹Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€”Ã¥Â¤â€°Ã¦â€¢Â°Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get globals_copy_value => '値をコピー';
+  String get globals_copy_value => 'Ã¥â‚¬Â¤Ã£â€šâ€™Ã£â€šÂ³Ã£Æ’â€Ã£Æ’Â¼';
 
   @override
   String globals_delete_confirm(String key) {
-    return '\"$key\" を削除しますか？';
+    return '\"$key\" Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸';
   }
 
   @override
-  String get globals_delete_title => '変数を削除';
+  String get globals_delete_title => 'Ã¥Â¤â€°Ã¦â€¢Â°Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get globals_dialog_global_desc => 'グローバル変数はすべてのコマンドとサーバー間で共有されます。';
+  String get globals_dialog_global_desc =>
+      'Ã£â€šÂ°Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â«Ã¥Â¤â€°Ã¦â€¢Â°Ã£ÂÂ¯Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÂ®Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ¨Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã©â€“â€œÃ£ÂÂ§Ã¥â€¦Â±Ã¦Å“â€°Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String globals_dialog_ref_preview(String ref) {
-    return '使用法: \$getVar[$ref]';
+    return 'Ã¤Â½Â¿Ã§â€Â¨Ã¦Â³â€¢: \$getVar[$ref]';
   }
 
   @override
   String globals_dialog_scoped_desc(String scope) {
-    return 'スコープ変数は $scope コンテキストごとに個別の値を保存します。';
+    return 'Ã£â€šÂ¹Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€”Ã¥Â¤â€°Ã¦â€¢Â°Ã£ÂÂ¯ $scope Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã£Ââ€Ã£ÂÂ¨Ã£ÂÂ«Ã¥â‚¬â€¹Ã¥Ë†Â¥Ã£ÂÂ®Ã¥â‚¬Â¤Ã£â€šâ€™Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
   }
 
   @override
-  String get globals_edit => '変数を編集';
+  String get globals_edit => 'Ã¥Â¤â€°Ã¦â€¢Â°Ã£â€šâ€™Ã§Â·Â¨Ã©â€ºâ€ ';
 
   @override
-  String get globals_edit_global => 'グローバル変数を編集';
+  String get globals_edit_global =>
+      'Ã£â€šÂ°Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â«Ã¥Â¤â€°Ã¦â€¢Â°Ã£â€šâ€™Ã§Â·Â¨Ã©â€ºâ€ ';
 
   @override
-  String get globals_edit_scoped => 'スコープ変数を編集';
+  String get globals_edit_scoped =>
+      'Ã£â€šÂ¹Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€”Ã¥Â¤â€°Ã¦â€¢Â°Ã£â€šâ€™Ã§Â·Â¨Ã©â€ºâ€ ';
 
   @override
-  String get globals_empty => 'まだグローバル変数がありません';
+  String get globals_empty =>
+      'Ã£ÂÂ¾Ã£ÂÂ Ã£â€šÂ°Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â«Ã¥Â¤â€°Ã¦â€¢Â°Ã£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œ';
 
   @override
   String get globals_empty_subtitle =>
-      'すべてのコマンドからアクセス可能な永続データを保存する変数を追加してください。';
+      'Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÂ®Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£Ââ€¹Ã£â€šâ€°Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ»Ã£â€šÂ¹Ã¥ÂÂ¯Ã¨Æ’Â½Ã£ÂÂªÃ¦Â°Â¸Ã§Â¶Å¡Ã£Æ’â€¡Ã£Æ’Â¼Ã£â€šÂ¿Ã£â€šâ€™Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ„¢Ã£â€šâ€¹Ã¥Â¤â€°Ã¦â€¢Â°Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get globals_help_global => 'すべてのコマンドで共有。\$getVar[key] でアクセス。';
+  String get globals_help_global =>
+      'Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÂ®Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ§Ã¥â€¦Â±Ã¦Å“â€°Ã£â‚¬â€š\$getVar[key] Ã£ÂÂ§Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ»Ã£â€šÂ¹Ã£â‚¬â€š';
 
   @override
   String get globals_help_scoped =>
-      'コンテキストごとに保存（サーバー、ユーザー、チャンネル…）。各エントリはスコープごとに個別の値を保持します。';
+      'Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã£Ââ€Ã£ÂÂ¨Ã£ÂÂ«Ã¤Â¿ÂÃ¥Â­ËœÃ¯Â¼Ë†Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£â‚¬ÂÃ£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£â‚¬ÂÃ£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã¢â‚¬Â¦Ã¯Â¼â€°Ã£â‚¬â€šÃ¥Ââ€žÃ£â€šÂ¨Ã£Æ’Â³Ã£Æ’Ë†Ã£Æ’ÂªÃ£ÂÂ¯Ã£â€šÂ¹Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€”Ã£Ââ€Ã£ÂÂ¨Ã£ÂÂ«Ã¥â‚¬â€¹Ã¥Ë†Â¥Ã£ÂÂ®Ã¥â‚¬Â¤Ã£â€šâ€™Ã¤Â¿ÂÃ¦Å’ÂÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get globals_key => 'キー';
+  String get globals_key => 'Ã£â€šÂ­Ã£Æ’Â¼';
 
   @override
-  String get globals_key_hint => '例: prefix, level, welcome_message';
+  String get globals_key_hint => 'Ã¤Â¾â€¹: prefix, level, welcome_message';
 
   @override
-  String get globals_mode_global => 'グローバル';
+  String get globals_mode_global => 'Ã£â€šÂ°Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â«';
 
   @override
-  String get globals_mode_scoped => 'スコープ';
+  String get globals_mode_scoped => 'Ã£â€šÂ¹Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€”';
 
   @override
-  String get globals_no_default => 'デフォルト値なし';
+  String get globals_no_default =>
+      'Ã£Æ’â€¡Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â«Ã£Æ’Ë†Ã¥â‚¬Â¤Ã£ÂÂªÃ£Ââ€”';
 
   @override
-  String get globals_refresh => '更新';
+  String get globals_refresh => 'Ã¦â€ºÂ´Ã¦â€“Â°';
 
   @override
-  String get globals_retry => '再試行';
+  String get globals_retry => 'Ã¥â€ ÂÃ¨Â©Â¦Ã¨Â¡Å’';
 
   @override
-  String get globals_scope_channel => 'チャンネル';
+  String get globals_scope_channel => 'Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«';
 
   @override
-  String get globals_scope_guild => 'サーバー';
+  String get globals_scope_guild => 'Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼';
 
   @override
-  String get globals_scope_guildMember => 'サーバーメンバー';
+  String get globals_scope_guildMember =>
+      'Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼';
 
   @override
-  String get globals_scope_message => 'メッセージ';
+  String get globals_scope_message => 'Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸';
 
   @override
-  String get globals_scope_user => 'ユーザー';
+  String get globals_scope_user => 'Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼';
 
   @override
-  String get globals_search => '変数を検索…';
+  String get globals_search => 'Ã¥Â¤â€°Ã¦â€¢Â°Ã£â€šâ€™Ã¦Â¤Å“Ã§Â´Â¢Ã¢â‚¬Â¦';
 
   @override
-  String get globals_source_local => 'ローカル';
+  String get globals_source_local => 'Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«';
 
   @override
   String globals_source_runner(String name) {
-    return 'ランナー: $name';
+    return 'Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼: $name';
   }
 
   @override
-  String get globals_tab => 'グローバル変数';
+  String get globals_tab => 'Ã£â€šÂ°Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â«Ã¥Â¤â€°Ã¦â€¢Â°';
 
   @override
-  String get globals_tab_short => '変数';
+  String get globals_tab_short => 'Ã¥Â¤â€°Ã¦â€¢Â°';
 
   @override
-  String get globals_title => '変数';
+  String get globals_title => 'Ã¥Â¤â€°Ã¦â€¢Â°';
 
   @override
-  String get globals_value => '値';
+  String get globals_value => 'Ã¥â‚¬Â¤';
 
   @override
-  String get globals_value_auto_type_hint => '値は自動型付けされます（数値、真偽値、JSON）。';
+  String get globals_value_auto_type_hint =>
+      'Ã¥â‚¬Â¤Ã£ÂÂ¯Ã¨â€¡ÂªÃ¥â€¹â€¢Ã¥Å¾â€¹Ã¤Â»ËœÃ£Ââ€˜Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã¯Â¼Ë†Ã¦â€¢Â°Ã¥â‚¬Â¤Ã£â‚¬ÂÃ§Å“Å¸Ã¥ÂÂ½Ã¥â‚¬Â¤Ã£â‚¬ÂJSONÃ¯Â¼â€°Ã£â‚¬â€š';
 
   @override
   String get guilds_empty_state =>
-      'ボットはどのサーバーにも参加していません。\nサーバーに招待するとここに表示されます。';
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÂ¯Ã£ÂÂ©Ã£ÂÂ®Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£ÂÂ«Ã£â€šâ€šÃ¥Ââ€šÃ¥Å Â Ã£Ââ€”Ã£ÂÂ¦Ã£Ââ€žÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š\nÃ£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£ÂÂ«Ã¦â€¹â€ºÃ¥Â¾â€¦Ã£Ââ„¢Ã£â€šâ€¹Ã£ÂÂ¨Ã£Ââ€œÃ£Ââ€œÃ£ÂÂ«Ã¨Â¡Â¨Ã§Â¤ÂºÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String guilds_leave_confirm(String name) {
-    return '「$name」から退出しますか？\nボットはこのサーバーから削除されます。後でDiscord開発者ポータルから再招待できます。';
+    return 'Ã£â‚¬Å’$nameÃ£â‚¬ÂÃ£Ââ€¹Ã£â€šâ€°Ã©â‚¬â‚¬Ã¥â€¡ÂºÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸\nÃ£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÂ¯Ã£Ââ€œÃ£ÂÂ®Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£Ââ€¹Ã£â€šâ€°Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ¥Â¾Å’Ã£ÂÂ§DiscordÃ©â€“â€¹Ã§â„¢ÂºÃ¨â‚¬â€¦Ã£Æ’ÂÃ£Æ’Â¼Ã£â€šÂ¿Ã£Æ’Â«Ã£Ââ€¹Ã£â€šâ€°Ã¥â€ ÂÃ¦â€¹â€ºÃ¥Â¾â€¦Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
   }
 
   @override
   String guilds_leave_failed(String error) {
-    return '退出に失敗しました: $error';
+    return 'Ã©â‚¬â‚¬Ã¥â€¡ÂºÃ£ÂÂ«Ã¥Â¤Â±Ã¦â€¢â€”Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸: $error';
   }
 
   @override
-  String get guilds_leave_title => 'サーバーを退出';
+  String get guilds_leave_title =>
+      'Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£â€šâ€™Ã©â‚¬â‚¬Ã¥â€¡Âº';
 
   @override
-  String get guilds_leave_tooltip => '退出';
+  String get guilds_leave_tooltip => 'Ã©â‚¬â‚¬Ã¥â€¡Âº';
 
   @override
   String guilds_left_success(String name) {
-    return '「$name」から退出しました。';
+    return 'Ã£â‚¬Å’$nameÃ£â‚¬ÂÃ£Ââ€¹Ã£â€šâ€°Ã©â‚¬â‚¬Ã¥â€¡ÂºÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€š';
   }
 
   @override
   String guilds_members_count_other(int count) {
-    return '~$count 人のメンバー';
+    return '~$count Ã¤ÂºÂºÃ£ÂÂ®Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼';
   }
 
   @override
-  String get guilds_owner_label => '👑 オーナー';
+  String get guilds_owner_label => 'Ã°Å¸â€˜â€˜ Ã£â€šÂªÃ£Æ’Â¼Ã£Æ’Å Ã£Æ’Â¼';
 
   @override
   String guilds_server_count_other(int count) {
-    return '$count 個のサーバー';
+    return '$count Ã¥â‚¬â€¹Ã£ÂÂ®Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼';
   }
 
   @override
-  String get guilds_tab => 'サーバー';
+  String get guilds_tab => 'Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼';
 
   @override
-  String get guilds_tab_short => 'サーバー';
+  String get guilds_tab_short => 'Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼';
 
   @override
-  String get hint_use_variables => '必要に応じて変数/テンプレートを使用';
+  String get hint_use_variables =>
+      'Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÂ«Ã¥Â¿Å“Ã£ÂËœÃ£ÂÂ¦Ã¥Â¤â€°Ã¦â€¢Â°/Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨';
 
   @override
-  String get home_add_time => '時間を追加';
+  String get home_add_time => 'Ã¦â„¢â€šÃ©â€“â€œÃ£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get home_empty_support_btn => 'Discord サポート';
+  String get home_empty_support_btn => 'Discord Ã£â€šÂµÃ£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†';
 
   @override
-  String get home_empty_support_hint => 'ヘルプが必要ですか？コミュニティに参加しましょう！';
+  String get home_empty_support_hint =>
+      'Ã£Æ’ËœÃ£Æ’Â«Ã£Æ’â€”Ã£ÂÅ’Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÂ§Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸Ã£â€šÂ³Ã£Æ’Å¸Ã£Æ’Â¥Ã£Æ’â€¹Ã£Æ’â€ Ã£â€šÂ£Ã£ÂÂ«Ã¥Ââ€šÃ¥Å Â Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£â€šâ€¡Ã£Ââ€ Ã¯Â¼Â';
 
   @override
-  String get home_foreground_service_not_started => 'フォアグラウンドサービスが起動しませんでした。';
+  String get home_foreground_service_not_started =>
+      'Ã£Æ’â€¢Ã£â€šÂ©Ã£â€šÂ¢Ã£â€šÂ°Ã£Æ’Â©Ã£â€šÂ¦Ã£Æ’Â³Ã£Æ’â€°Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’â€œÃ£â€šÂ¹Ã£ÂÅ’Ã¨ÂµÂ·Ã¥â€¹â€¢Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£ÂÂ§Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€š';
 
   @override
-  String get home_hosting_expired => 'ホスティングの有効期限が切れました';
+  String get home_hosting_expired =>
+      'Ã£Æ’â€ºÃ£â€šÂ¹Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’Â³Ã£â€šÂ°Ã£ÂÂ®Ã¦Å“â€°Ã¥Å Â¹Ã¦Å“Å¸Ã©â„¢ÂÃ£ÂÅ’Ã¥Ë†â€¡Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
   String home_hosting_time_left(String time) {
-    return 'ホスティング残り時間: $time';
+    return 'Ã£Æ’â€ºÃ£â€šÂ¹Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’Â³Ã£â€šÂ°Ã¦Â®â€¹Ã£â€šÅ Ã¦â„¢â€šÃ©â€“â€œ: $time';
   }
 
   @override
-  String get home_log_desktop_stop_requested => 'デスクトップボット停止が要求されました';
+  String get home_log_desktop_stop_requested =>
+      'Ã£Æ’â€¡Ã£â€šÂ¹Ã£â€šÂ¯Ã£Æ’Ë†Ã£Æ’Æ’Ã£Æ’â€”Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã¥ÂÅ“Ã¦Â­Â¢Ã£ÂÅ’Ã¨Â¦ÂÃ¦Â±â€šÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
-  String get home_log_start_requested => 'ボット起動が要求されました';
+  String get home_log_start_requested =>
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã¨ÂµÂ·Ã¥â€¹â€¢Ã£ÂÅ’Ã¨Â¦ÂÃ¦Â±â€šÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
-  String get home_log_stop_requested => 'ボット停止が要求されました';
+  String get home_log_stop_requested =>
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã¥ÂÅ“Ã¦Â­Â¢Ã£ÂÅ’Ã¨Â¦ÂÃ¦Â±â€šÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
-  String get home_logs_tooltip => 'ログを表示';
+  String get home_logs_tooltip => 'Ã£Æ’Â­Ã£â€šÂ°Ã£â€šâ€™Ã¨Â¡Â¨Ã§Â¤Âº';
 
   @override
-  String get home_manage => '管理';
+  String get home_manage => 'Ã§Â®Â¡Ã§Ââ€ ';
 
   @override
-  String get home_notification_permission_required => 'ボットを起動するには通知権限が必要です。';
+  String get home_notification_permission_required =>
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¨ÂµÂ·Ã¥â€¹â€¢Ã£Ââ„¢Ã£â€šâ€¹Ã£ÂÂ«Ã£ÂÂ¯Ã©â‚¬Å¡Ã§Å¸Â¥Ã¦Â¨Â©Ã©â„¢ÂÃ£ÂÅ’Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String home_server_count_one(int count) {
-    return '$count サーバー';
+    return '$count Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼';
   }
 
   @override
   String home_server_count_other(int count) {
-    return '$count サーバー';
+    return '$count Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼';
   }
 
   @override
-  String get home_start => '起動';
+  String get home_start => 'Ã¨ÂµÂ·Ã¥â€¹â€¢';
 
   @override
-  String get home_start_ads => '起動 (広告を見る)';
+  String get home_start_ads =>
+      'Ã¨ÂµÂ·Ã¥â€¹â€¢ (Ã¥ÂºÆ’Ã¥â€˜Å Ã£â€šâ€™Ã¨Â¦â€¹Ã£â€šâ€¹)';
 
   @override
-  String get home_start_premium => '起動 (プレミアム)';
+  String get home_start_premium =>
+      'Ã¨ÂµÂ·Ã¥â€¹â€¢ (Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Å¸Ã£â€šÂ¢Ã£Æ’Â )';
 
   @override
-  String get home_status_offline => 'オフライン';
+  String get home_status_offline => 'Ã£â€šÂªÃ£Æ’â€¢Ã£Æ’Â©Ã£â€šÂ¤Ã£Æ’Â³';
 
   @override
-  String get home_status_online => 'オンライン';
+  String get home_status_online => 'Ã£â€šÂªÃ£Æ’Â³Ã£Æ’Â©Ã£â€šÂ¤Ã£Æ’Â³';
 
   @override
-  String get home_stop => '停止';
+  String get home_stop => 'Ã¥ÂÅ“Ã¦Â­Â¢';
 
   @override
-  String get home_sync_failed => '同期失敗';
+  String get home_sync_failed => 'Ã¥ÂÅ’Ã¦Å“Å¸Ã¥Â¤Â±Ã¦â€¢â€”';
 
   @override
-  String get home_tab => 'ホーム';
+  String get home_tab => 'Ã£Æ’â€ºÃ£Æ’Â¼Ã£Æ’Â ';
 
   @override
-  String get home_time_added => '時間が正常に追加されました';
+  String get home_time_added =>
+      'Ã¦â„¢â€šÃ©â€“â€œÃ£ÂÅ’Ã¦Â­Â£Ã¥Â¸Â¸Ã£ÂÂ«Ã¨Â¿Â½Ã¥Å Â Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
   String home_token_missing(String botName) {
-    return '$botName のトークンが見つかりません';
+    return '$botName Ã£ÂÂ®Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£ÂÅ’Ã¨Â¦â€¹Ã£ÂÂ¤Ã£Ââ€¹Ã£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œ';
   }
 
   @override
-  String get home_unknown_app => '不明';
+  String get home_unknown_app => 'Ã¤Â¸ÂÃ¦ËœÅ½';
 
   @override
-  String get image_editor_create => '作成';
+  String get image_editor_create => 'Ã¤Â½Å“Ã¦Ë†Â';
 
   @override
-  String get image_editor_create_canvas => '画像キャンバスを作成';
+  String get image_editor_create_canvas =>
+      'Ã§â€Â»Ã¥Æ’ÂÃ£â€šÂ­Ã£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£â€šÂ¹Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†Â';
 
   @override
   String image_editor_edit_canvas(int count) {
-    return 'キャンバスを編集 ($count 操作)';
+    return 'Ã£â€šÂ­Ã£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£â€šÂ¹Ã£â€šâ€™Ã§Â·Â¨Ã©â€ºâ€  ($count Ã¦â€œÂÃ¤Â½Å“)';
   }
 
   @override
-  String get image_editor_open => 'エディタを開く';
+  String get image_editor_open =>
+      'Ã£â€šÂ¨Ã£Æ’â€¡Ã£â€šÂ£Ã£â€šÂ¿Ã£â€šâ€™Ã©â€“â€¹Ã£ÂÂ';
 
   @override
-  String get import_button => 'インポート';
+  String get import_button => 'Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†';
 
   @override
   String import_failed(String error) {
-    return 'インポート失敗: $error';
+    return 'Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†Ã¥Â¤Â±Ã¦â€¢â€”: $error';
   }
 
   @override
-  String get import_nothing => '何もインポートされませんでした。';
+  String get import_nothing =>
+      'Ã¤Â½â€¢Ã£â€šâ€šÃ£â€šÂ¤Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£ÂÂ§Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€š';
 
   @override
-  String get import_overwrite => '上書き';
+  String get import_overwrite => 'Ã¤Â¸Å Ã¦â€ºÂ¸Ã£ÂÂ';
 
   @override
   String import_parse_failed(String error) {
-    return 'ZIPの解析に失敗: $error';
+    return 'ZIPÃ£ÂÂ®Ã¨Â§Â£Ã¦Å¾ÂÃ£ÂÂ«Ã¥Â¤Â±Ã¦â€¢â€”: $error';
   }
 
   @override
-  String get import_pick_file => 'ZIPファイルを選択';
+  String get import_pick_file =>
+      'ZIPÃ£Æ’â€¢Ã£â€šÂ¡Ã£â€šÂ¤Ã£Æ’Â«Ã£â€šâ€™Ã©ÂÂ¸Ã¦Å Å¾';
 
   @override
   String get import_section_desc =>
-      '以前にエクスポートしたZIPファイルをインポートします。競合は項目ごとに解決できます。';
+      'Ã¤Â»Â¥Ã¥â€°ÂÃ£ÂÂ«Ã£â€šÂ¨Ã£â€šÂ¯Ã£â€šÂ¹Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†Ã£Ââ€”Ã£ÂÅ¸ZIPÃ£Æ’â€¢Ã£â€šÂ¡Ã£â€šÂ¤Ã£Æ’Â«Ã£â€šâ€™Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ§Â«Â¶Ã¥ÂË†Ã£ÂÂ¯Ã©Â â€¦Ã§â€ºÂ®Ã£Ââ€Ã£ÂÂ¨Ã£ÂÂ«Ã¨Â§Â£Ã¦Â±ÂºÃ£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get import_section_title => 'インポート';
+  String get import_section_title => 'Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†';
 
   @override
-  String get import_skip => 'スキップ';
+  String get import_skip => 'Ã£â€šÂ¹Ã£â€šÂ­Ã£Æ’Æ’Ã£Æ’â€”';
 
   @override
   String import_summary_commands_imported(int count) {
-    return '$count コマンドをインポートしました';
+    return '$count Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
   }
 
   @override
   String import_summary_commands_skipped(int count) {
-    return '$count コマンドをスキップしました';
+    return '$count Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã£â€šÂ¹Ã£â€šÂ­Ã£Æ’Æ’Ã£Æ’â€”Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
   }
 
   @override
-  String get import_summary_status_imported => 'ステータスをインポートしました';
+  String get import_summary_status_imported =>
+      'Ã£â€šÂ¹Ã£Æ’â€ Ã£Æ’Â¼Ã£â€šÂ¿Ã£â€šÂ¹Ã£â€šâ€™Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
-  String get import_summary_variables_imported => '変数をインポートしました';
+  String get import_summary_variables_imported =>
+      'Ã¥Â¤â€°Ã¦â€¢Â°Ã£â€šâ€™Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
   String import_summary_workflows_imported(int count) {
-    return '$count ワークフローをインポートしました';
+    return '$count Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
   }
 
   @override
   String import_summary_workflows_skipped(int count) {
-    return '$count ワークフローをスキップしました';
+    return '$count Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã£â€šÂ¹Ã£â€šÂ­Ã£Æ’Æ’Ã£Æ’â€”Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
   }
 
   @override
-  String get js_editor_hint => '// JavaScriptボットコマンドをここに記述...';
+  String get js_editor_hint =>
+      '// JavaScriptÃ£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã£Ââ€œÃ£Ââ€œÃ£ÂÂ«Ã¨Â¨ËœÃ¨Â¿Â°...';
 
   @override
   String get js_editor_segmented_label => 'JS';
 
   @override
-  String get js_editor_subtitle => 'このコマンドのカスタムJavaScriptを記述';
+  String get js_editor_subtitle =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ®Ã£â€šÂ«Ã£â€šÂ¹Ã£â€šÂ¿Ã£Æ’Â JavaScriptÃ£â€šâ€™Ã¨Â¨ËœÃ¨Â¿Â°';
 
   @override
-  String get js_editor_title => 'JavaScriptエディター';
+  String get js_editor_title => 'JavaScriptÃ£â€šÂ¨Ã£Æ’â€¡Ã£â€šÂ£Ã£â€šÂ¿Ã£Æ’Â¼';
 
   @override
   String legacy_bdfd_run_failed(String command, String error) {
-    return 'コマンド \"$command\" のBDFDスクリプト実行に失敗: $error';
+    return 'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€° \"$command\" Ã£ÂÂ®BDFDÃ£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë†Ã¥Â®Å¸Ã¨Â¡Å’Ã£ÂÂ«Ã¥Â¤Â±Ã¦â€¢â€”: $error';
   }
 
   @override
   String get legacy_prefix_mode_desc =>
-      'messageCreateから<prefix><command>でコマンドを処理します。';
+      'messageCreateÃ£Ââ€¹Ã£â€šâ€°<prefix><command>Ã£ÂÂ§Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¥â€¡Â¦Ã§Ââ€ Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get legacy_prefix_mode_subtitle =>
-      '位置オプションを使用します (例: !config #channel)。';
+      'Ã¤Â½ÂÃ§Â½Â®Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢ (Ã¤Â¾â€¹: !config #channel)Ã£â‚¬â€š';
 
   @override
-  String get legacy_prefix_mode_title => 'レガシープレフィックスモード';
+  String get legacy_prefix_mode_title =>
+      'Ã£Æ’Â¬Ã£â€šÂ¬Ã£â€šÂ·Ã£Æ’Â¼Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¹Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°';
 
   @override
-  String get legacy_prefix_override_hint => '例: ? または ((guild.prefix | !))';
+  String get legacy_prefix_override_hint =>
+      'Ã¤Â¾â€¹: ? Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯ ((guild.prefix | !))';
 
   @override
-  String get legacy_prefix_override_label => 'プレフィックス上書き (オプション)';
+  String get legacy_prefix_override_label =>
+      'Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¹Ã¤Â¸Å Ã¦â€ºÂ¸Ã£ÂÂ (Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³)';
 
   @override
   String get legacy_response_banner_body =>
-      '一部のコマンドはまだ古い応答形式を使用しています。エディタで開いて再保存してください。';
+      'Ã¤Â¸â‚¬Ã©Æ’Â¨Ã£ÂÂ®Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ¯Ã£ÂÂ¾Ã£ÂÂ Ã¥ÂÂ¤Ã£Ââ€žÃ¥Â¿Å“Ã§Â­â€Ã¥Â½Â¢Ã¥Â¼ÂÃ£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ€”Ã£ÂÂ¦Ã£Ââ€žÃ£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ£â€šÂ¨Ã£Æ’â€¡Ã£â€šÂ£Ã£â€šÂ¿Ã£ÂÂ§Ã©â€“â€¹Ã£Ââ€žÃ£ÂÂ¦Ã¥â€ ÂÃ¤Â¿ÂÃ¥Â­ËœÃ£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get legacy_response_banner_dismiss => '閉じる';
+  String get legacy_response_banner_dismiss => 'Ã©â€“â€°Ã£ÂËœÃ£â€šâ€¹';
 
   @override
-  String get legacy_response_banner_migrate => 'すべて移行';
+  String get legacy_response_banner_migrate =>
+      'Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã§Â§Â»Ã¨Â¡Å’';
 
   @override
-  String get legacy_response_banner_migrate_failed => '移行に失敗しました';
+  String get legacy_response_banner_migrate_failed =>
+      'Ã§Â§Â»Ã¨Â¡Å’Ã£ÂÂ«Ã¥Â¤Â±Ã¦â€¢â€”Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
   String legacy_response_banner_migrated(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count コマンドを移行しました',
-      one: '1 コマンドを移行しました',
+      other:
+          '$count Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã§Â§Â»Ã¨Â¡Å’Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸',
+      one:
+          '1 Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã§Â§Â»Ã¨Â¡Å’Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸',
     );
     return '$_temp0';
   }
 
   @override
-  String get legacy_response_banner_migrated_none => '移行が必要なコマンドはありません';
+  String get legacy_response_banner_migrated_none =>
+      'Ã§Â§Â»Ã¨Â¡Å’Ã£ÂÅ’Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÂªÃ£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ¯Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œ';
 
   @override
-  String get legacy_response_banner_migrating => '移行中...';
+  String get legacy_response_banner_migrating => 'Ã§Â§Â»Ã¨Â¡Å’Ã¤Â¸Â­...';
 
   @override
   String get legacy_response_banner_short_body =>
-      'コマンドを開いて再保存し、新しい形式に移行してください。';
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã©â€“â€¹Ã£Ââ€žÃ£ÂÂ¦Ã¥â€ ÂÃ¤Â¿ÂÃ¥Â­ËœÃ£Ââ€”Ã£â‚¬ÂÃ¦â€“Â°Ã£Ââ€”Ã£Ââ€žÃ¥Â½Â¢Ã¥Â¼ÂÃ£ÂÂ«Ã§Â§Â»Ã¨Â¡Å’Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get legacy_response_banner_short_title => 'コマンド更新が利用可能です';
+  String get legacy_response_banner_short_title =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã¦â€ºÂ´Ã¦â€“Â°Ã£ÂÅ’Ã¥Ë†Â©Ã§â€Â¨Ã¥ÂÂ¯Ã¨Æ’Â½Ã£ÂÂ§Ã£Ââ„¢';
 
   @override
-  String get legacy_response_banner_title => 'コマンド応答形式の更新';
+  String get legacy_response_banner_title =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã¥Â¿Å“Ã§Â­â€Ã¥Â½Â¢Ã¥Â¼ÂÃ£ÂÂ®Ã¦â€ºÂ´Ã¦â€“Â°';
 
   @override
-  String get legacy_response_mode_label => 'レガシー応答モード';
+  String get legacy_response_mode_label =>
+      'Ã£Æ’Â¬Ã£â€šÂ¬Ã£â€šÂ·Ã£Æ’Â¼Ã¥Â¿Å“Ã§Â­â€Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°';
 
   @override
   String get local_command_awaited_desc =>
-      '待機コールバックプリセットは内部ランタイムコールバックであるため、ローカルのままです。';
+      'Ã¥Â¾â€¦Ã¦Â©Å¸Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã£Æ’â€”Ã£Æ’ÂªÃ£â€šÂ»Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÂ¯Ã¥â€ â€¦Ã©Æ’Â¨Ã£Æ’Â©Ã£Æ’Â³Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã£ÂÂ§Ã£Ââ€šÃ£â€šâ€¹Ã£ÂÅ¸Ã£â€šÂÃ£â‚¬ÂÃ£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã£ÂÂ®Ã£ÂÂ¾Ã£ÂÂ¾Ã£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get local_command_desc =>
-      'コマンドをBot Creatorにのみ保存します。特定のサーバーに動的に登録できます。';
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Bot CreatorÃ£ÂÂ«Ã£ÂÂ®Ã£ÂÂ¿Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ§â€°Â¹Ã¥Â®Å¡Ã£ÂÂ®Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£ÂÂ«Ã¥â€¹â€¢Ã§Å¡â€žÃ£ÂÂ«Ã§â„¢Â»Ã©Å’Â²Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get local_command_title => 'ローカルコマンド (Discordに登録しない)';
+  String get local_command_title =>
+      'Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€° (DiscordÃ£ÂÂ«Ã§â„¢Â»Ã©Å’Â²Ã£Ââ€”Ã£ÂÂªÃ£Ââ€ž)';
 
   @override
   String logs_runner_source(String name) {
-    return 'ログ元: $name';
+    return 'Ã£Æ’Â­Ã£â€šÂ°Ã¥â€¦Æ’: $name';
   }
 
   @override
-  String get marketplace_about => '概要';
+  String get marketplace_about => 'Ã¦Â¦â€šÃ¨Â¦Â';
 
   @override
-  String get marketplace_add => '追加';
+  String get marketplace_add => 'Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get marketplace_api_unavailable => 'APIクライアントが利用できません';
+  String get marketplace_api_unavailable =>
+      'APIÃ£â€šÂ¯Ã£Æ’Â©Ã£â€šÂ¤Ã£â€šÂ¢Ã£Æ’Â³Ã£Æ’Ë†Ã£ÂÅ’Ã¥Ë†Â©Ã§â€Â¨Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œ';
 
   @override
-  String get marketplace_apply => 'テンプレートを適用';
+  String get marketplace_apply =>
+      'Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã£â€šâ€™Ã©ÂÂ©Ã§â€Â¨';
 
   @override
   String marketplace_apply_error(Object error) {
-    return '適用に失敗: $error';
+    return 'Ã©ÂÂ©Ã§â€Â¨Ã£ÂÂ«Ã¥Â¤Â±Ã¦â€¢â€”: $error';
   }
 
   @override
-  String get marketplace_apply_success => 'テンプレートが正常に適用されました！';
+  String get marketplace_apply_success =>
+      'Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã£ÂÅ’Ã¦Â­Â£Ã¥Â¸Â¸Ã£ÂÂ«Ã©ÂÂ©Ã§â€Â¨Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã¯Â¼Â';
 
   @override
   String marketplace_apply_success_skipped(
     Object addedCount,
     Object skippedCount,
   ) {
-    return '$addedCount個のコマンドを追加、$skippedCount個をスキップ（重複）。';
+    return '$addedCountÃ¥â‚¬â€¹Ã£ÂÂ®Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â Ã£â‚¬Â$skippedCountÃ¥â‚¬â€¹Ã£â€šâ€™Ã£â€šÂ¹Ã£â€šÂ­Ã£Æ’Æ’Ã£Æ’â€”Ã¯Â¼Ë†Ã©â€¡ÂÃ¨Â¤â€¡Ã¯Â¼â€°Ã£â‚¬â€š';
   }
 
   @override
-  String get marketplace_applying => '適用中...';
+  String get marketplace_applying => 'Ã©ÂÂ©Ã§â€Â¨Ã¤Â¸Â­...';
 
   @override
   String marketplace_by_author(Object author, Object version) {
-    return '作成者 $author · v$version';
+    return 'Ã¤Â½Å“Ã¦Ë†ÂÃ¨â‚¬â€¦ $author Ã‚Â· v$version';
   }
 
   @override
-  String get marketplace_cancel => 'キャンセル';
+  String get marketplace_cancel => 'Ã£â€šÂ­Ã£Æ’Â£Ã£Æ’Â³Ã£â€šÂ»Ã£Æ’Â«';
 
   @override
   String marketplace_command_preview_actions(Object count) {
-    return '$count 個のアクション';
+    return '$count Ã¥â‚¬â€¹Ã£ÂÂ®Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³';
   }
 
   @override
-  String get marketplace_command_preview_no_actions => 'アクションなし';
+  String get marketplace_command_preview_no_actions =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂªÃ£Ââ€”';
 
   @override
   String marketplace_command_preview_options(Object count) {
-    return '$count 個のオプション';
+    return '$count Ã¥â‚¬â€¹Ã£ÂÂ®Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³';
   }
 
   @override
-  String get marketplace_command_preview_type_message => 'メッセージのコンテキストメニュー';
+  String get marketplace_command_preview_type_message =>
+      'Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£ÂÂ®Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã£Æ’Â¡Ã£Æ’â€¹Ã£Æ’Â¥Ã£Æ’Â¼';
 
   @override
-  String get marketplace_command_preview_type_slash => 'スラッシュコマンド';
+  String get marketplace_command_preview_type_slash =>
+      'Ã£â€šÂ¹Ã£Æ’Â©Ã£Æ’Æ’Ã£â€šÂ·Ã£Æ’Â¥Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°';
 
   @override
-  String get marketplace_command_preview_type_user => 'ユーザーのコンテキストメニュー';
+  String get marketplace_command_preview_type_user =>
+      'Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£ÂÂ®Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã£Æ’Â¡Ã£Æ’â€¹Ã£Æ’Â¥Ã£Æ’Â¼';
 
   @override
   String marketplace_commands_label(Object count) {
-    return 'コマンド ($count)';
+    return 'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€° ($count)';
   }
 
   @override
-  String get marketplace_config_hint => 'このテンプレートを適用する前に必要な値を入力してください。';
+  String get marketplace_config_hint =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã£â€šâ€™Ã©ÂÂ©Ã§â€Â¨Ã£Ââ„¢Ã£â€šâ€¹Ã¥â€°ÂÃ£ÂÂ«Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÂªÃ¥â‚¬Â¤Ã£â€šâ€™Ã¥â€¦Â¥Ã¥Å â€ºÃ£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get marketplace_config_required => '設定が必要です';
+  String get marketplace_config_required =>
+      'Ã¨Â¨Â­Ã¥Â®Å¡Ã£ÂÅ’Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÂ§Ã£Ââ„¢';
 
   @override
   String marketplace_conflict_apply_choice(Object count) {
-    return '適用 ($count 個のテンプレート)';
+    return 'Ã©ÂÂ©Ã§â€Â¨ ($count Ã¥â‚¬â€¹Ã£ÂÂ®Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†)';
   }
 
   @override
-  String get marketplace_conflict_keep_local => 'ローカルを維持';
+  String get marketplace_conflict_keep_local =>
+      'Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã£â€šâ€™Ã§Â¶Â­Ã¦Å’Â';
 
   @override
   String marketplace_conflict_local_info(Object count) {
-    return 'ローカル ($count 個のアクション)';
+    return 'Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â« ($count Ã¥â‚¬â€¹Ã£ÂÂ®Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³)';
   }
 
   @override
   String get marketplace_conflict_subtitle =>
-      '一部のテンプレートコマンドが既に存在します。維持するバージョンを選択してください：';
+      'Ã¤Â¸â‚¬Ã©Æ’Â¨Ã£ÂÂ®Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÅ’Ã¦â€”Â¢Ã£ÂÂ«Ã¥Â­ËœÃ¥Å“Â¨Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ§Â¶Â­Ã¦Å’ÂÃ£Ââ„¢Ã£â€šâ€¹Ã£Æ’ÂÃ£Æ’Â¼Ã£â€šÂ¸Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã©ÂÂ¸Ã¦Å Å¾Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ¯Â¼Å¡';
 
   @override
   String marketplace_conflict_template_info(Object count) {
-    return 'テンプレート ($count 個のアクション)';
+    return 'Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë† ($count Ã¥â‚¬â€¹Ã£ÂÂ®Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³)';
   }
 
   @override
-  String get marketplace_conflict_title => 'コマンドの競合';
+  String get marketplace_conflict_title =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ®Ã§Â«Â¶Ã¥ÂË†';
 
   @override
-  String get marketplace_conflict_use_template => 'テンプレートを使用';
+  String get marketplace_conflict_use_template =>
+      'Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨';
 
   @override
-  String get marketplace_connect_discord => 'Discordで接続';
+  String get marketplace_connect_discord => 'DiscordÃ£ÂÂ§Ã¦Å½Â¥Ã§Â¶Å¡';
 
   @override
   String get marketplace_connect_manager =>
-      'マーケットプレイスにアクセスするにはManagerに接続してください。';
+      'Ã£Æ’Å¾Ã£Æ’Â¼Ã£â€šÂ±Ã£Æ’Æ’Ã£Æ’Ë†Ã£Æ’â€”Ã£Æ’Â¬Ã£â€šÂ¤Ã£â€šÂ¹Ã£ÂÂ«Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ»Ã£â€šÂ¹Ã£Ââ„¢Ã£â€šâ€¹Ã£ÂÂ«Ã£ÂÂ¯ManagerÃ£ÂÂ«Ã¦Å½Â¥Ã§Â¶Å¡Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get marketplace_connect_publish => 'テンプレートを公開するにはManagerに接続してください。';
+  String get marketplace_connect_publish =>
+      'Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã£â€šâ€™Ã¥â€¦Â¬Ã©â€“â€¹Ã£Ââ„¢Ã£â€šâ€¹Ã£ÂÂ«Ã£ÂÂ¯ManagerÃ£ÂÂ«Ã¦Å½Â¥Ã§Â¶Å¡Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
   String marketplace_count(Object count) {
-    return '$count テンプレート';
+    return '$count Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†';
   }
 
   @override
-  String get marketplace_delete => '削除';
+  String get marketplace_delete => 'Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
   String marketplace_delete_confirm(Object name) {
-    return '\"$name\"を削除してもよろしいですか？この操作は元に戻せません。';
+    return '\"$name\"Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¦Ã£â€šâ€šÃ£â€šË†Ã£â€šÂÃ£Ââ€”Ã£Ââ€žÃ£ÂÂ§Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸Ã£Ââ€œÃ£ÂÂ®Ã¦â€œÂÃ¤Â½Å“Ã£ÂÂ¯Ã¥â€¦Æ’Ã£ÂÂ«Ã¦Ë†Â»Ã£Ââ€ºÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
   }
 
   @override
-  String get marketplace_delete_confirm_title => 'テンプレートを削除';
+  String get marketplace_delete_confirm_title =>
+      'Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get marketplace_delete_success => 'テンプレートを削除しました。';
+  String get marketplace_delete_success =>
+      'Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€š';
 
   @override
-  String get marketplace_edit => '編集';
+  String get marketplace_edit => 'Ã§Â·Â¨Ã©â€ºâ€ ';
 
   @override
-  String get marketplace_edit_hint => '編集するには、ボットのコマンドリストから同じ名前で再公開してください。';
+  String get marketplace_edit_hint =>
+      'Ã§Â·Â¨Ã©â€ºâ€ Ã£Ââ„¢Ã£â€šâ€¹Ã£ÂÂ«Ã£ÂÂ¯Ã£â‚¬ÂÃ£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÂ®Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£Æ’ÂªÃ£â€šÂ¹Ã£Æ’Ë†Ã£Ââ€¹Ã£â€šâ€°Ã¥ÂÅ’Ã£ÂËœÃ¥ÂÂÃ¥â€°ÂÃ£ÂÂ§Ã¥â€ ÂÃ¥â€¦Â¬Ã©â€“â€¹Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get marketplace_empty => 'まだテンプレートがありません。\n最初に公開しましょう！';
+  String get marketplace_empty =>
+      'Ã£ÂÂ¾Ã£ÂÂ Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š\nÃ¦Å“â‚¬Ã¥Ë†ÂÃ£ÂÂ«Ã¥â€¦Â¬Ã©â€“â€¹Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£â€šâ€¡Ã£Ââ€ Ã¯Â¼Â';
 
   @override
   String marketplace_load_error(Object error) {
-    return 'データの読み込みに失敗: $error';
+    return 'Ã£Æ’â€¡Ã£Æ’Â¼Ã£â€šÂ¿Ã£ÂÂ®Ã¨ÂªÂ­Ã£ÂÂ¿Ã¨Â¾Â¼Ã£ÂÂ¿Ã£ÂÂ«Ã¥Â¤Â±Ã¦â€¢â€”: $error';
   }
 
   @override
   String get marketplace_login_hint =>
-      'マーケットプレイスにアクセスするにはDiscordアカウントを接続してください。';
+      'Ã£Æ’Å¾Ã£Æ’Â¼Ã£â€šÂ±Ã£Æ’Æ’Ã£Æ’Ë†Ã£Æ’â€”Ã£Æ’Â¬Ã£â€šÂ¤Ã£â€šÂ¹Ã£ÂÂ«Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ»Ã£â€šÂ¹Ã£Ââ„¢Ã£â€šâ€¹Ã£ÂÂ«Ã£ÂÂ¯DiscordÃ£â€šÂ¢Ã£â€šÂ«Ã£â€šÂ¦Ã£Æ’Â³Ã£Æ’Ë†Ã£â€šâ€™Ã¦Å½Â¥Ã§Â¶Å¡Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
   String get marketplace_login_instructions =>
-      'マーケットプレイスを引き続き利用するにはDiscordで認証してください。';
+      'Ã£Æ’Å¾Ã£Æ’Â¼Ã£â€šÂ±Ã£Æ’Æ’Ã£Æ’Ë†Ã£Æ’â€”Ã£Æ’Â¬Ã£â€šÂ¤Ã£â€šÂ¹Ã£â€šâ€™Ã¥Â¼â€¢Ã£ÂÂÃ§Â¶Å¡Ã£ÂÂÃ¥Ë†Â©Ã§â€Â¨Ã£Ââ„¢Ã£â€šâ€¹Ã£ÂÂ«Ã£ÂÂ¯DiscordÃ£ÂÂ§Ã¨ÂªÂÃ¨Â¨Â¼Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get marketplace_login_required => 'Discord接続が必要です';
+  String get marketplace_login_required =>
+      'DiscordÃ¦Å½Â¥Ã§Â¶Å¡Ã£ÂÅ’Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÂ§Ã£Ââ„¢';
 
   @override
-  String get marketplace_login_success => 'Discordに接続しました！';
+  String get marketplace_login_success =>
+      'DiscordÃ£ÂÂ«Ã¦Å½Â¥Ã§Â¶Å¡Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã¯Â¼Â';
 
   @override
-  String get marketplace_login_title => 'Managerに接続';
+  String get marketplace_login_title => 'ManagerÃ£ÂÂ«Ã¦Å½Â¥Ã§Â¶Å¡';
 
   @override
   String marketplace_more(Object count) {
-    return '+$count 件';
+    return '+$count Ã¤Â»Â¶';
   }
 
   @override
-  String get marketplace_my_templates => '自分のテンプレート';
+  String get marketplace_my_templates =>
+      'Ã¨â€¡ÂªÃ¥Ë†â€ Ã£ÂÂ®Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†';
 
   @override
   String marketplace_no_results(Object query) {
-    return '\"$query\" に一致するテンプレートはありません';
+    return '\"$query\" Ã£ÂÂ«Ã¤Â¸â‚¬Ã¨â€¡Â´Ã£Ââ„¢Ã£â€šâ€¹Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã£ÂÂ¯Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œ';
   }
 
   @override
-  String get marketplace_no_variables => 'グローバル変数が定義されていません。';
+  String get marketplace_no_variables =>
+      'Ã£â€šÂ°Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â«Ã¥Â¤â€°Ã¦â€¢Â°Ã£ÂÅ’Ã¥Â®Å¡Ã§Â¾Â©Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¦Ã£Ââ€žÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
-  String get marketplace_publish_add_variable => 'カスタム変数を追加';
+  String get marketplace_publish_add_variable =>
+      'Ã£â€šÂ«Ã£â€šÂ¹Ã£â€šÂ¿Ã£Æ’Â Ã¥Â¤â€°Ã¦â€¢Â°Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get marketplace_publish_add_variable_title => '変数を追加';
+  String get marketplace_publish_add_variable_title =>
+      'Ã¥Â¤â€°Ã¦â€¢Â°Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get marketplace_publish_back => '戻る';
+  String get marketplace_publish_back => 'Ã¦Ë†Â»Ã£â€šâ€¹';
 
   @override
-  String get marketplace_publish_button => '公開';
+  String get marketplace_publish_button => 'Ã¥â€¦Â¬Ã©â€“â€¹';
 
   @override
-  String get marketplace_publish_category_hint => '例: ai, moderation, fun';
+  String get marketplace_publish_category_hint =>
+      'Ã¤Â¾â€¹: ai, moderation, fun';
 
   @override
-  String get marketplace_publish_category_label => 'カテゴリ';
+  String get marketplace_publish_category_label =>
+      'Ã£â€šÂ«Ã£Æ’â€ Ã£â€šÂ´Ã£Æ’Âª';
 
   @override
   String marketplace_publish_commands(Object count) {
-    return 'コマンド ($count)';
+    return 'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€° ($count)';
   }
 
   @override
-  String get marketplace_publish_desc_hint => 'マーケットプレイスに表示される1行の概要';
+  String get marketplace_publish_desc_hint =>
+      'Ã£Æ’Å¾Ã£Æ’Â¼Ã£â€šÂ±Ã£Æ’Æ’Ã£Æ’Ë†Ã£Æ’â€”Ã£Æ’Â¬Ã£â€šÂ¤Ã£â€šÂ¹Ã£ÂÂ«Ã¨Â¡Â¨Ã§Â¤ÂºÃ£Ââ€¢Ã£â€šÅ’Ã£â€šâ€¹1Ã¨Â¡Å’Ã£ÂÂ®Ã¦Â¦â€šÃ¨Â¦Â';
 
   @override
-  String get marketplace_publish_desc_label => '短い説明';
+  String get marketplace_publish_desc_label => 'Ã§Å¸Â­Ã£Ââ€žÃ¨ÂªÂ¬Ã¦ËœÅ½';
 
   @override
-  String get marketplace_publish_desc_long_hint => '詳細な使用手順、Markdown対応...';
+  String get marketplace_publish_desc_long_hint =>
+      'Ã¨Â©Â³Ã§Â´Â°Ã£ÂÂªÃ¤Â½Â¿Ã§â€Â¨Ã¦â€°â€¹Ã©Â â€ Ã£â‚¬ÂMarkdownÃ¥Â¯Â¾Ã¥Â¿Å“...';
 
   @override
-  String get marketplace_publish_desc_long_label => '完全なドキュメント (オプション)';
+  String get marketplace_publish_desc_long_label =>
+      'Ã¥Â®Å’Ã¥â€¦Â¨Ã£ÂÂªÃ£Æ’â€°Ã£â€šÂ­Ã£Æ’Â¥Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’Ë† (Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³)';
 
   @override
-  String get marketplace_publish_deselect_all => 'すべて解除';
+  String get marketplace_publish_deselect_all =>
+      'Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã¨Â§Â£Ã©â„¢Â¤';
 
   @override
   String marketplace_publish_error(Object error) {
-    return '公開に失敗: $error';
+    return 'Ã¥â€¦Â¬Ã©â€“â€¹Ã£ÂÂ«Ã¥Â¤Â±Ã¦â€¢â€”: $error';
   }
 
   @override
-  String get marketplace_publish_metadata => 'テンプレート詳細';
+  String get marketplace_publish_metadata =>
+      'Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã¨Â©Â³Ã§Â´Â°';
 
   @override
   String get marketplace_publish_metadata_hint =>
-      '他の人が見つけて使用できるようにテンプレートを説明します。';
+      'Ã¤Â»â€“Ã£ÂÂ®Ã¤ÂºÂºÃ£ÂÅ’Ã¨Â¦â€¹Ã£ÂÂ¤Ã£Ââ€˜Ã£ÂÂ¦Ã¤Â½Â¿Ã§â€Â¨Ã£ÂÂ§Ã£ÂÂÃ£â€šâ€¹Ã£â€šË†Ã£Ââ€ Ã£ÂÂ«Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã£â€šâ€™Ã¨ÂªÂ¬Ã¦ËœÅ½Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get marketplace_publish_name_hint => '例: AIモデレーションボット';
+  String get marketplace_publish_name_hint =>
+      'Ã¤Â¾â€¹: AIÃ£Æ’Â¢Ã£Æ’â€¡Ã£Æ’Â¬Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†';
 
   @override
-  String get marketplace_publish_name_label => 'テンプレート名';
+  String get marketplace_publish_name_label =>
+      'Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã¥ÂÂ';
 
   @override
-  String get marketplace_publish_next => '次へ';
+  String get marketplace_publish_next => 'Ã¦Â¬Â¡Ã£ÂÂ¸';
 
   @override
   String get marketplace_publish_no_content =>
-      '公開するコマンドやワークフローがありません。\n最初に作成してください！';
+      'Ã¥â€¦Â¬Ã©â€“â€¹Ã£Ââ„¢Ã£â€šâ€¹Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€žÃ£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š\nÃ¦Å“â‚¬Ã¥Ë†ÂÃ£ÂÂ«Ã¤Â½Å“Ã¦Ë†ÂÃ£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ¯Â¼Â';
 
   @override
   String get marketplace_publish_required_fields =>
-      '公開する前に、すべての必須項目（テンプレート名、概要、バージョン）を入力してください。';
+      'Ã¥â€¦Â¬Ã©â€“â€¹Ã£Ââ„¢Ã£â€šâ€¹Ã¥â€°ÂÃ£ÂÂ«Ã£â‚¬ÂÃ£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÂ®Ã¥Â¿â€¦Ã©Â Ë†Ã©Â â€¦Ã§â€ºÂ®Ã¯Â¼Ë†Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã¥ÂÂÃ£â‚¬ÂÃ¦Â¦â€šÃ¨Â¦ÂÃ£â‚¬ÂÃ£Æ’ÂÃ£Æ’Â¼Ã£â€šÂ¸Ã£Æ’Â§Ã£Æ’Â³Ã¯Â¼â€°Ã£â€šâ€™Ã¥â€¦Â¥Ã¥Å â€ºÃ£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get marketplace_publish_select => '含めるものを選択';
+  String get marketplace_publish_select =>
+      'Ã¥ÂÂ«Ã£â€šÂÃ£â€šâ€¹Ã£â€šâ€šÃ£ÂÂ®Ã£â€šâ€™Ã©ÂÂ¸Ã¦Å Å¾';
 
   @override
-  String get marketplace_publish_select_all => 'すべて選択';
+  String get marketplace_publish_select_all =>
+      'Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã©ÂÂ¸Ã¦Å Å¾';
 
   @override
   String get marketplace_publish_select_hint =>
-      'コマンド、ワークフロー、またはその両方を選択します。それぞれがテンプレートの一部になります。';
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â‚¬ÂÃ£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â‚¬ÂÃ£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã£ÂÂÃ£ÂÂ®Ã¤Â¸Â¡Ã¦â€“Â¹Ã£â€šâ€™Ã©ÂÂ¸Ã¦Å Å¾Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ£ÂÂÃ£â€šÅ’Ã£ÂÅ¾Ã£â€šÅ’Ã£ÂÅ’Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã£ÂÂ®Ã¤Â¸â‚¬Ã©Æ’Â¨Ã£ÂÂ«Ã£ÂÂªÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get marketplace_publish_success => 'テンプレートが正常に公開されました！';
+  String get marketplace_publish_success =>
+      'Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã£ÂÅ’Ã¦Â­Â£Ã¥Â¸Â¸Ã£ÂÂ«Ã¥â€¦Â¬Ã©â€“â€¹Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã¯Â¼Â';
 
   @override
-  String get marketplace_publish_summary => 'テンプレート概要';
+  String get marketplace_publish_summary =>
+      'Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã¦Â¦â€šÃ¨Â¦Â';
 
   @override
-  String get marketplace_publish_tags_hint => '例: openai, chatbot, moderation';
+  String get marketplace_publish_tags_hint =>
+      'Ã¤Â¾â€¹: openai, chatbot, moderation';
 
   @override
-  String get marketplace_publish_tags_label => 'タグ (カンマ区切り)';
+  String get marketplace_publish_tags_label =>
+      'Ã£â€šÂ¿Ã£â€šÂ° (Ã£â€šÂ«Ã£Æ’Â³Ã£Æ’Å¾Ã¥Å’ÂºÃ¥Ë†â€¡Ã£â€šÅ )';
 
   @override
-  String get marketplace_publish_title => 'テンプレートを公開';
+  String get marketplace_publish_title =>
+      'Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã£â€šâ€™Ã¥â€¦Â¬Ã©â€“â€¹';
 
   @override
-  String get marketplace_publish_user_must_define => 'ユーザーがこの値を定義する必要があります';
+  String get marketplace_publish_user_must_define =>
+      'Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£ÂÅ’Ã£Ââ€œÃ£ÂÂ®Ã¥â‚¬Â¤Ã£â€šâ€™Ã¥Â®Å¡Ã§Â¾Â©Ã£Ââ„¢Ã£â€šâ€¹Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get marketplace_publish_user_must_define_hint => '適用前にユーザーに入力を求めます';
+  String get marketplace_publish_user_must_define_hint =>
+      'Ã©ÂÂ©Ã§â€Â¨Ã¥â€°ÂÃ£ÂÂ«Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£ÂÂ«Ã¥â€¦Â¥Ã¥Å â€ºÃ£â€šâ€™Ã¦Â±â€šÃ£â€šÂÃ£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get marketplace_publish_variable_desc_hint => 'この変数の用途';
+  String get marketplace_publish_variable_desc_hint =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã¥Â¤â€°Ã¦â€¢Â°Ã£ÂÂ®Ã§â€Â¨Ã©â‚¬â€';
 
   @override
-  String get marketplace_publish_variable_desc_label => '説明';
+  String get marketplace_publish_variable_desc_label => 'Ã¨ÂªÂ¬Ã¦ËœÅ½';
 
   @override
-  String get marketplace_publish_variable_name_hint => '例: TOKEN_OPENAI';
+  String get marketplace_publish_variable_name_hint => 'Ã¤Â¾â€¹: TOKEN_OPENAI';
 
   @override
-  String get marketplace_publish_variable_name_label => '変数名';
+  String get marketplace_publish_variable_name_label => 'Ã¥Â¤â€°Ã¦â€¢Â°Ã¥ÂÂ';
 
   @override
-  String get marketplace_publish_variables => 'グローバル変数';
+  String get marketplace_publish_variables =>
+      'Ã£â€šÂ°Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â«Ã¥Â¤â€°Ã¦â€¢Â°';
 
   @override
   String get marketplace_publish_variables_hint =>
-      '変数を含め、ユーザーが入力する必要があるものをマークします。';
+      'Ã¥Â¤â€°Ã¦â€¢Â°Ã£â€šâ€™Ã¥ÂÂ«Ã£â€šÂÃ£â‚¬ÂÃ£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£ÂÅ’Ã¥â€¦Â¥Ã¥Å â€ºÃ£Ââ„¢Ã£â€šâ€¹Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÅ’Ã£Ââ€šÃ£â€šâ€¹Ã£â€šâ€šÃ£ÂÂ®Ã£â€šâ€™Ã£Æ’Å¾Ã£Æ’Â¼Ã£â€šÂ¯Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get marketplace_publish_version_label => 'バージョン';
+  String get marketplace_publish_version_label =>
+      'Ã£Æ’ÂÃ£Æ’Â¼Ã£â€šÂ¸Ã£Æ’Â§Ã£Æ’Â³';
 
   @override
   String marketplace_publish_workflows(Object count) {
-    return 'ワークフロー ($count)';
+    return 'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼ ($count)';
   }
 
   @override
-  String get marketplace_publishing => '公開中...';
+  String get marketplace_publishing => 'Ã¥â€¦Â¬Ã©â€“â€¹Ã¤Â¸Â­...';
 
   @override
-  String get marketplace_rate_success => '評価を送信しました！';
+  String get marketplace_rate_success =>
+      'Ã¨Â©â€¢Ã¤Â¾Â¡Ã£â€šâ€™Ã©â‚¬ÂÃ¤Â¿Â¡Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã¯Â¼Â';
 
   @override
-  String get marketplace_rate_title => 'このテンプレートを評価';
+  String get marketplace_rate_title =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã£â€šâ€™Ã¨Â©â€¢Ã¤Â¾Â¡';
 
   @override
-  String get marketplace_retry => '再試行';
+  String get marketplace_retry => 'Ã¥â€ ÂÃ¨Â©Â¦Ã¨Â¡Å’';
 
   @override
-  String get marketplace_search_hint => 'テンプレートを検索...';
+  String get marketplace_search_hint =>
+      'Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã£â€šâ€™Ã¦Â¤Å“Ã§Â´Â¢...';
 
   @override
-  String get marketplace_title => 'マーケットプレイス';
+  String get marketplace_title =>
+      'Ã£Æ’Å¾Ã£Æ’Â¼Ã£â€šÂ±Ã£Æ’Æ’Ã£Æ’Ë†Ã£Æ’â€”Ã£Æ’Â¬Ã£â€šÂ¤Ã£â€šÂ¹';
 
   @override
   String marketplace_variable_required(Object name) {
-    return '$name は必須です';
+    return '$name Ã£ÂÂ¯Ã¥Â¿â€¦Ã©Â Ë†Ã£ÂÂ§Ã£Ââ„¢';
   }
 
   @override
-  String get marketplace_variables_label => '事前設定変数';
+  String get marketplace_variables_label =>
+      'Ã¤Âºâ€¹Ã¥â€°ÂÃ¨Â¨Â­Ã¥Â®Å¡Ã¥Â¤â€°Ã¦â€¢Â°';
 
   @override
   String marketplace_workflows_label(Object count) {
-    return 'ワークフロー ($count)';
+    return 'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼ ($count)';
   }
 
   @override
-  String get modal_add_text_input => 'テキスト入力を追加';
+  String get modal_add_text_input =>
+      'Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã¥â€¦Â¥Ã¥Å â€ºÃ£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get modal_builder_title => 'モーダルビルダー';
+  String get modal_builder_title =>
+      'Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â‚¬Ã£Æ’Â«Ã£Æ’â€œÃ£Æ’Â«Ã£Æ’â‚¬Ã£Æ’Â¼';
 
   @override
-  String get modal_custom_id_hint => 'このモーダルを識別するために使用';
+  String get modal_custom_id_hint =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â‚¬Ã£Æ’Â«Ã£â€šâ€™Ã¨Â­ËœÃ¥Ë†Â¥Ã£Ââ„¢Ã£â€šâ€¹Ã£ÂÅ¸Ã£â€šÂÃ£ÂÂ«Ã¤Â½Â¿Ã§â€Â¨';
 
   @override
-  String get modal_custom_id_label => 'カスタムID';
+  String get modal_custom_id_label => 'Ã£â€šÂ«Ã£â€šÂ¹Ã£â€šÂ¿Ã£Æ’Â ID';
 
   @override
-  String get modal_default_value => 'デフォルト値';
+  String get modal_default_value => 'Ã£Æ’â€¡Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â«Ã£Æ’Ë†Ã¥â‚¬Â¤';
 
   @override
   String modal_field_default_label(int index) {
-    return 'フィールド $index';
+    return 'Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’â€° $index';
   }
 
   @override
   String modal_input_index(int index) {
-    return '入力 $index';
+    return 'Ã¥â€¦Â¥Ã¥Å â€º $index';
   }
 
   @override
   String modal_inputs_count(int count) {
-    return '$count/5 入力';
+    return '$count/5 Ã¥â€¦Â¥Ã¥Å â€º';
   }
 
   @override
-  String get modal_remove_field_confirm => 'このフィールドはモーダルから削除されます。続行しますか？';
+  String get modal_remove_field_confirm =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’â€°Ã£ÂÂ¯Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â‚¬Ã£Æ’Â«Ã£Ââ€¹Ã£â€šâ€°Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ§Â¶Å¡Ã¨Â¡Å’Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸';
 
   @override
-  String get modal_remove_field_title => 'モーダルフィールドを削除';
+  String get modal_remove_field_title =>
+      'Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â‚¬Ã£Æ’Â«Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’â€°Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get modal_style => 'スタイル:';
+  String get modal_style => 'Ã£â€šÂ¹Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â«:';
 
   @override
-  String get modal_title_label => 'モーダルタイトル';
+  String get modal_title_label =>
+      'Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â‚¬Ã£Æ’Â«Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Ë†Ã£Æ’Â«';
 
   @override
-  String get modal_workflow_submit => '送信時に実行するワークフロー (オプション)';
+  String get modal_workflow_submit =>
+      'Ã©â‚¬ÂÃ¤Â¿Â¡Ã¦â„¢â€šÃ£ÂÂ«Ã¥Â®Å¸Ã¨Â¡Å’Ã£Ââ„¢Ã£â€šâ€¹Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼ (Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³)';
 
   @override
-  String get more_options_title => 'その他のオプション';
+  String get more_options_title =>
+      'Ã£ÂÂÃ£ÂÂ®Ã¤Â»â€“Ã£ÂÂ®Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³';
 
   @override
-  String get more_tab => 'その他';
+  String get more_tab => 'Ã£ÂÂÃ£ÂÂ®Ã¤Â»â€“';
 
   @override
   String get nav_webhooks => 'Webhook';
 
   @override
-  String get nav_webhooks_compact => 'フック';
+  String get nav_webhooks_compact => 'Ã£Æ’â€¢Ã£Æ’Æ’Ã£â€šÂ¯';
 
   @override
-  String get no_more_options => '利用可能な他のオプションはありません';
+  String get no_more_options =>
+      'Ã¥Ë†Â©Ã§â€Â¨Ã¥ÂÂ¯Ã¨Æ’Â½Ã£ÂÂªÃ¤Â»â€“Ã£ÂÂ®Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ¯Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œ';
 
   @override
   String notion_create_workflow_from_query(String query) {
-    return 'ワークフロー \"$query\" を作成';
+    return 'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼ \"$query\" Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†Â';
   }
 
   @override
-  String get notion_filter_add => 'フィルターを追加';
+  String get notion_filter_add =>
+      'Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â«Ã£â€šÂ¿Ã£Æ’Â¼Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get notion_filter_type => 'タイプ';
+  String get notion_filter_type => 'Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’â€”';
 
   @override
   String get ok => 'OK';
 
   @override
-  String get onboarding_command_button => '続ける';
+  String get onboarding_command_button => 'Ã§Â¶Å¡Ã£Ââ€˜Ã£â€šâ€¹';
 
   @override
-  String get onboarding_command_desc => '最初のコマンドを作成';
+  String get onboarding_command_desc =>
+      'Ã¦Å“â‚¬Ã¥Ë†ÂÃ£ÂÂ®Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†Â';
 
   @override
   String get onboarding_command_example =>
-      '例:\n/hello → ボットが \"こんにちは！ 👋\" と返信';
+      'Ã¤Â¾â€¹:\n/hello Ã¢â€ â€™ Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÅ’ \"Ã£Ââ€œÃ£â€šâ€œÃ£ÂÂ«Ã£ÂÂ¡Ã£ÂÂ¯Ã¯Â¼Â Ã°Å¸â€˜â€¹\" Ã£ÂÂ¨Ã¨Â¿â€Ã¤Â¿Â¡';
 
   @override
   String get onboarding_command_learn => 'Learn how commands work';
 
   @override
   String get onboarding_command_text =>
-      'コマンドはボットの心臓部です。ユーザーはコマンドを通じてボットと対話します。';
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ¯Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÂ®Ã¥Â¿Æ’Ã¨â€¡â€œÃ©Æ’Â¨Ã£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€šÃ£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£ÂÂ¯Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã©â‚¬Å¡Ã£ÂËœÃ£ÂÂ¦Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÂ¨Ã¥Â¯Â¾Ã¨Â©Â±Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get onboarding_command_title => 'ステップ2: コマンドを追加';
+  String get onboarding_command_title =>
+      'Ã£â€šÂ¹Ã£Æ’â€ Ã£Æ’Æ’Ã£Æ’â€”2: Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get onboarding_create_button => '続ける';
+  String get onboarding_create_button => 'Ã§Â¶Å¡Ã£Ââ€˜Ã£â€šâ€¹';
 
   @override
-  String get onboarding_create_desc => 'Discordトークンを取得';
+  String get onboarding_create_desc =>
+      'DiscordÃ£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£â€šâ€™Ã¥Ââ€“Ã¥Â¾â€”';
 
   @override
-  String get onboarding_create_open_portal => 'Discord Developer Portalを開く';
+  String get onboarding_create_open_portal =>
+      'Discord Developer PortalÃ£â€šâ€™Ã©â€“â€¹Ã£ÂÂ';
 
   @override
   String get onboarding_create_steps =>
-      '1. Discord Developer Portal にアクセス\n2. 新しいアプリを作成\n3. ボットトークンをコピー\n4. ここに貼り付け';
+      '1. Discord Developer Portal Ã£ÂÂ«Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ»Ã£â€šÂ¹\n2. Ã¦â€“Â°Ã£Ââ€”Ã£Ââ€žÃ£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£â€šâ€™Ã¤Â½Å“Ã¦Ë†Â\n3. Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£â€šâ€™Ã£â€šÂ³Ã£Æ’â€Ã£Æ’Â¼\n4. Ã£Ââ€œÃ£Ââ€œÃ£ÂÂ«Ã¨Â²Â¼Ã£â€šÅ Ã¤Â»ËœÃ£Ââ€˜';
 
   @override
   String get onboarding_create_tip =>
-      '💡 ヒント: トークンは絶対に共有しないでください！ボットへの完全なアクセス権を与えます。';
+      'Ã°Å¸â€™Â¡ Ã£Æ’â€™Ã£Æ’Â³Ã£Æ’Ë†: Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£ÂÂ¯Ã§ÂµÂ¶Ã¥Â¯Â¾Ã£ÂÂ«Ã¥â€¦Â±Ã¦Å“â€°Ã£Ââ€”Ã£ÂÂªÃ£Ââ€žÃ£ÂÂ§Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ¯Â¼ÂÃ£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÂ¸Ã£ÂÂ®Ã¥Â®Å’Ã¥â€¦Â¨Ã£ÂÂªÃ£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ»Ã£â€šÂ¹Ã¦Â¨Â©Ã£â€šâ€™Ã¤Â¸Å½Ã£ÂË†Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get onboarding_create_title => 'ステップ1: ボットを作成';
+  String get onboarding_create_title =>
+      'Ã£â€šÂ¹Ã£Æ’â€ Ã£Æ’Æ’Ã£Æ’â€”1: Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†Â';
 
   @override
-  String get onboarding_create_tutorial => 'チュートリアル: トークンの取得方法';
+  String get onboarding_create_tutorial =>
+      'Ã£Æ’ÂÃ£Æ’Â¥Ã£Æ’Â¼Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¢Ã£Æ’Â«: Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£ÂÂ®Ã¥Ââ€“Ã¥Â¾â€”Ã¦â€“Â¹Ã¦Â³â€¢';
 
   @override
-  String get onboarding_remind_later => '後で通知する';
+  String get onboarding_remind_later =>
+      'Ã¥Â¾Å’Ã£ÂÂ§Ã©â‚¬Å¡Ã§Å¸Â¥Ã£Ââ„¢Ã£â€šâ€¹';
 
   @override
   String get onboarding_skip_confirm => 'Skip onboarding';
@@ -5346,1685 +6178,1962 @@ class AppLocalizationsJa extends AppLocalizations {
   String get onboarding_skip_dialog_title => 'Leave the onboarding?';
 
   @override
-  String get onboarding_start_button => '続ける';
+  String get onboarding_start_button => 'Ã§Â¶Å¡Ã£Ââ€˜Ã£â€šâ€¹';
 
   @override
-  String get onboarding_start_desc => 'ボットを起動！';
+  String get onboarding_start_desc =>
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¨ÂµÂ·Ã¥â€¹â€¢Ã¯Â¼Â';
 
   @override
-  String get onboarding_start_hint => 'ボットを作成したら、アプリのボットカードに起動ボタンが表示されます。';
+  String get onboarding_start_hint =>
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†ÂÃ£Ââ€”Ã£ÂÅ¸Ã£â€šâ€°Ã£â‚¬ÂÃ£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£ÂÂ®Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šÂ«Ã£Æ’Â¼Ã£Æ’â€°Ã£ÂÂ«Ã¨ÂµÂ·Ã¥â€¹â€¢Ã£Æ’Å“Ã£â€šÂ¿Ã£Æ’Â³Ã£ÂÅ’Ã¨Â¡Â¨Ã§Â¤ÂºÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get onboarding_start_text =>
-      'ボットカードの「起動」ボタンをクリックしてください。その後Discordでコマンドをテストしましょう！';
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šÂ«Ã£Æ’Â¼Ã£Æ’â€°Ã£ÂÂ®Ã£â‚¬Å’Ã¨ÂµÂ·Ã¥â€¹â€¢Ã£â‚¬ÂÃ£Æ’Å“Ã£â€šÂ¿Ã£Æ’Â³Ã£â€šâ€™Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’Æ’Ã£â€šÂ¯Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€šÃ£ÂÂÃ£ÂÂ®Ã¥Â¾Å’DiscordÃ£ÂÂ§Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã£Æ’â€ Ã£â€šÂ¹Ã£Æ’Ë†Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£â€šâ€¡Ã£Ââ€ Ã¯Â¼Â';
 
   @override
   String get onboarding_start_tip =>
-      '✨ 素晴らしい！最初のDiscordボットを作成しました。さらにコマンドを追加して';
+      'Ã¢Å“Â¨ Ã§Â´Â Ã¦â„¢Â´Ã£â€šâ€°Ã£Ââ€”Ã£Ââ€žÃ¯Â¼ÂÃ¦Å“â‚¬Ã¥Ë†ÂÃ£ÂÂ®DiscordÃ£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†ÂÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€šÃ£Ââ€¢Ã£â€šâ€°Ã£ÂÂ«Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â Ã£Ââ€”Ã£ÂÂ¦';
 
   @override
-  String get onboarding_start_title => 'ステップ3: ボットを起動';
+  String get onboarding_start_title =>
+      'Ã£â€šÂ¹Ã£Æ’â€ Ã£Æ’Æ’Ã£Æ’â€”3: Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¨ÂµÂ·Ã¥â€¹â€¢';
 
   @override
   String onboarding_step_indicator(int current, int total) {
-    return 'ステップ $current / $total';
+    return 'Ã£â€šÂ¹Ã£Æ’â€ Ã£Æ’Æ’Ã£Æ’â€” $current / $total';
   }
 
   @override
-  String get onboarding_success_button => '始める！';
+  String get onboarding_success_button => 'Ã¥Â§â€¹Ã£â€šÂÃ£â€šâ€¹Ã¯Â¼Â';
 
   @override
-  String get onboarding_success_desc => 'Discordボットの準備ができました！';
+  String get onboarding_success_desc =>
+      'DiscordÃ£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÂ®Ã¦Âºâ€“Ã¥â€šâ„¢Ã£ÂÅ’Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã¯Â¼Â';
 
   @override
-  String get onboarding_success_tip1 => 'さらにコマンドを追加';
+  String get onboarding_success_tip1 =>
+      'Ã£Ââ€¢Ã£â€šâ€°Ã£ÂÂ«Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get onboarding_success_tip2 => 'ワークフローを作成';
+  String get onboarding_success_tip2 =>
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†Â';
 
   @override
-  String get onboarding_success_tip3 => 'データをバックアップ';
+  String get onboarding_success_tip3 =>
+      'Ã£Æ’â€¡Ã£Æ’Â¼Ã£â€šÂ¿Ã£â€šâ€™Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¢Ã£Æ’Æ’Ã£Æ’â€”';
 
   @override
-  String get onboarding_success_title => 'おめでとうございます！ 🎉';
+  String get onboarding_success_title =>
+      'Ã£ÂÅ Ã£â€šÂÃ£ÂÂ§Ã£ÂÂ¨Ã£Ââ€ Ã£Ââ€Ã£Ââ€“Ã£Ââ€žÃ£ÂÂ¾Ã£Ââ„¢Ã¯Â¼Â Ã°Å¸Å½â€°';
 
   @override
-  String get onboarding_success_whatsnext => '次は何をしますか？';
+  String get onboarding_success_whatsnext =>
+      'Ã¦Â¬Â¡Ã£ÂÂ¯Ã¤Â½â€¢Ã£â€šâ€™Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸';
 
   @override
   String get onboarding_welcome_desc =>
-      '3つの簡単なステップで最初のDiscordボットを作成します。各ステップをガイドします。';
+      '3Ã£ÂÂ¤Ã£ÂÂ®Ã§Â°Â¡Ã¥ÂËœÃ£ÂÂªÃ£â€šÂ¹Ã£Æ’â€ Ã£Æ’Æ’Ã£Æ’â€”Ã£ÂÂ§Ã¦Å“â‚¬Ã¥Ë†ÂÃ£ÂÂ®DiscordÃ£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†ÂÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ¥Ââ€žÃ£â€šÂ¹Ã£Æ’â€ Ã£Æ’Æ’Ã£Æ’â€”Ã£â€šâ€™Ã£â€šÂ¬Ã£â€šÂ¤Ã£Æ’â€°Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get onboarding_welcome_skip => 'スキップ';
+  String get onboarding_welcome_skip => 'Ã£â€šÂ¹Ã£â€šÂ­Ã£Æ’Æ’Ã£Æ’â€”';
 
   @override
-  String get onboarding_welcome_start => '始める';
+  String get onboarding_welcome_start => 'Ã¥Â§â€¹Ã£â€šÂÃ£â€šâ€¹';
 
   @override
-  String get onboarding_welcome_title => 'Bot Creator へようこそ';
+  String get onboarding_welcome_title =>
+      'Bot Creator Ã£ÂÂ¸Ã£â€šË†Ã£Ââ€ Ã£Ââ€œÃ£ÂÂ';
 
   @override
-  String get option_add_choice => '選択肢を追加';
+  String get option_add_choice => 'Ã©ÂÂ¸Ã¦Å Å¾Ã¨â€šÂ¢Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get option_add_localizations => 'ローカライズを追加';
+  String get option_add_localizations =>
+      'Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â©Ã£â€šÂ¤Ã£â€šÂºÃ£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get option_choice_delete_confirm => 'この選択肢は削除されます。続行しますか？';
+  String get option_choice_delete_confirm =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã©ÂÂ¸Ã¦Å Å¾Ã¨â€šÂ¢Ã£ÂÂ¯Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ§Â¶Å¡Ã¨Â¡Å’Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸';
 
   @override
-  String get option_choice_delete_title => '選択肢を削除';
+  String get option_choice_delete_title =>
+      'Ã©ÂÂ¸Ã¦Å Å¾Ã¨â€šÂ¢Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get option_choice_name => '選択肢名';
+  String get option_choice_name => 'Ã©ÂÂ¸Ã¦Å Å¾Ã¨â€šÂ¢Ã¥ÂÂ';
 
   @override
   String option_choice_number(int index) {
-    return '選択肢 $index';
+    return 'Ã©ÂÂ¸Ã¦Å Å¾Ã¨â€šÂ¢ $index';
   }
 
   @override
-  String get option_choice_value => '選択肢の値';
+  String get option_choice_value => 'Ã©ÂÂ¸Ã¦Å Å¾Ã¨â€šÂ¢Ã£ÂÂ®Ã¥â‚¬Â¤';
 
   @override
   String option_default_name(int index) {
-    return 'オプション $index';
+    return 'Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³ $index';
   }
 
   @override
-  String get option_delete_argument_confirm => 'この引数は削除されます。続行しますか？';
+  String get option_delete_argument_confirm =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã¥Â¼â€¢Ã¦â€¢Â°Ã£ÂÂ¯Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ§Â¶Å¡Ã¨Â¡Å’Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸';
 
   @override
-  String get option_delete_argument_title => '引数を削除';
+  String get option_delete_argument_title =>
+      'Ã¥Â¼â€¢Ã¦â€¢Â°Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get option_delete_choice_confirm => 'この選択肢は削除されます。続行しますか？';
+  String get option_delete_choice_confirm =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã©ÂÂ¸Ã¦Å Å¾Ã¨â€šÂ¢Ã£ÂÂ¯Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ§Â¶Å¡Ã¨Â¡Å’Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸';
 
   @override
-  String get option_delete_choice_title => 'オプションを削除';
+  String get option_delete_choice_title =>
+      'Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get option_delete_confirm => 'このオプションは削除されます。続行しますか？';
+  String get option_delete_confirm =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ¯Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ§Â¶Å¡Ã¨Â¡Å’Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸';
 
   @override
   String get option_delete_localization_confirm =>
-      'このローカライズエントリは削除されます。続行しますか？';
+      'Ã£Ââ€œÃ£ÂÂ®Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â©Ã£â€šÂ¤Ã£â€šÂºÃ£â€šÂ¨Ã£Æ’Â³Ã£Æ’Ë†Ã£Æ’ÂªÃ£ÂÂ¯Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ§Â¶Å¡Ã¨Â¡Å’Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸';
 
   @override
-  String get option_delete_localization_title => 'ローカライズを削除';
+  String get option_delete_localization_title =>
+      'Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â©Ã£â€šÂ¤Ã£â€šÂºÃ£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get option_delete_title => 'オプションを削除';
+  String get option_delete_title =>
+      'Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get option_desc_required => 'オプションの説明を入力してください';
+  String get option_desc_required =>
+      'Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ®Ã¨ÂªÂ¬Ã¦ËœÅ½Ã£â€šâ€™Ã¥â€¦Â¥Ã¥Å â€ºÃ£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€ž';
 
   @override
   String option_label_number(int index) {
-    return 'ラベル $index';
+    return 'Ã£Æ’Â©Ã£Æ’â„¢Ã£Æ’Â« $index';
   }
 
   @override
-  String get option_localized_description => 'ローカライズされた説明';
+  String get option_localized_description =>
+      'Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â©Ã£â€šÂ¤Ã£â€šÂºÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã¨ÂªÂ¬Ã¦ËœÅ½';
 
   @override
-  String get option_localized_name => 'ローカライズされた名前';
+  String get option_localized_name =>
+      'Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â©Ã£â€šÂ¤Ã£â€šÂºÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã¥ÂÂÃ¥â€°Â';
 
   @override
-  String get option_max_value => '最大値';
+  String get option_max_value => 'Ã¦Å“â‚¬Ã¥Â¤Â§Ã¥â‚¬Â¤';
 
   @override
-  String get option_min_value => '最小値';
+  String get option_min_value => 'Ã¦Å“â‚¬Ã¥Â°ÂÃ¥â‚¬Â¤';
 
   @override
-  String get option_name_duplicate => 'この名前は既にこのレベルで使用されています';
+  String get option_name_duplicate =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã¥ÂÂÃ¥â€°ÂÃ£ÂÂ¯Ã¦â€”Â¢Ã£ÂÂ«Ã£Ââ€œÃ£ÂÂ®Ã£Æ’Â¬Ã£Æ’â„¢Ã£Æ’Â«Ã£ÂÂ§Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¦Ã£Ââ€žÃ£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get option_name_invalid_chars => 'オプション名には英数字とアンダースコアのみ使用できます';
+  String get option_name_invalid_chars =>
+      'Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã¥ÂÂÃ£ÂÂ«Ã£ÂÂ¯Ã¨â€¹Â±Ã¦â€¢Â°Ã¥Â­â€”Ã£ÂÂ¨Ã£â€šÂ¢Ã£Æ’Â³Ã£Æ’â‚¬Ã£Æ’Â¼Ã£â€šÂ¹Ã£â€šÂ³Ã£â€šÂ¢Ã£ÂÂ®Ã£ÂÂ¿Ã¤Â½Â¿Ã§â€Â¨Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get option_name_invalid_start => 'オプション名がサポートされていない文字で始まっています';
+  String get option_name_invalid_start =>
+      'Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã¥ÂÂÃ£ÂÅ’Ã£â€šÂµÃ£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¦Ã£Ââ€žÃ£ÂÂªÃ£Ââ€žÃ¦â€“â€¡Ã¥Â­â€”Ã£ÂÂ§Ã¥Â§â€¹Ã£ÂÂ¾Ã£ÂÂ£Ã£ÂÂ¦Ã£Ââ€žÃ£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get option_name_max_length => 'オプション名は最大32文字です';
+  String get option_name_max_length =>
+      'Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã¥ÂÂÃ£ÂÂ¯Ã¦Å“â‚¬Ã¥Â¤Â§32Ã¦â€“â€¡Ã¥Â­â€”Ã£ÂÂ§Ã£Ââ„¢';
 
   @override
-  String get option_name_required => 'オプションの名前を入力してください';
+  String get option_name_required =>
+      'Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ®Ã¥ÂÂÃ¥â€°ÂÃ£â€šâ€™Ã¥â€¦Â¥Ã¥Å â€ºÃ£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€ž';
 
   @override
-  String get option_select_language => '言語を選択';
+  String get option_select_language => 'Ã¨Â¨â‚¬Ã¨ÂªÅ¾Ã£â€šâ€™Ã©ÂÂ¸Ã¦Å Å¾';
 
   @override
   String option_static_label_n(int index) {
-    return 'ラベル $index';
+    return 'Ã£Æ’Â©Ã£Æ’â„¢Ã£Æ’Â« $index';
   }
 
   @override
   String option_static_value_n(int index) {
-    return '値 $index';
+    return 'Ã¥â‚¬Â¤ $index';
   }
 
   @override
-  String get option_subcommand_options => 'サブコマンドオプション';
+  String get option_subcommand_options =>
+      'Ã£â€šÂµÃ£Æ’â€“Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³';
 
   @override
-  String get option_subcommands => 'サブコマンド';
+  String get option_subcommands => 'Ã£â€šÂµÃ£Æ’â€“Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°';
 
   @override
-  String get option_type_attachment => '添付ファイル';
+  String get option_type_attachment =>
+      'Ã¦Â·Â»Ã¤Â»ËœÃ£Æ’â€¢Ã£â€šÂ¡Ã£â€šÂ¤Ã£Æ’Â«';
 
   @override
-  String get option_type_boolean => '真偽値';
+  String get option_type_boolean => 'Ã§Å“Å¸Ã¥ÂÂ½Ã¥â‚¬Â¤';
 
   @override
-  String get option_type_channel => 'チャンネル';
+  String get option_type_channel => 'Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«';
 
   @override
-  String get option_type_integer => '整数';
+  String get option_type_integer => 'Ã¦â€¢Â´Ã¦â€¢Â°';
 
   @override
-  String get option_type_mentionable => 'メンション可能';
+  String get option_type_mentionable =>
+      'Ã£Æ’Â¡Ã£Æ’Â³Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã¥ÂÂ¯Ã¨Æ’Â½';
 
   @override
-  String get option_type_number => '数値';
+  String get option_type_number => 'Ã¦â€¢Â°Ã¥â‚¬Â¤';
 
   @override
-  String get option_type_role => 'ロール';
+  String get option_type_role => 'Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’Â«';
 
   @override
-  String get option_type_string => '文字列';
+  String get option_type_string => 'Ã¦â€“â€¡Ã¥Â­â€”Ã¥Ë†â€”';
 
   @override
-  String get option_type_subcommand => 'サブコマンド';
+  String get option_type_subcommand =>
+      'Ã£â€šÂµÃ£Æ’â€“Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°';
 
   @override
-  String get option_type_subcommand_group => 'サブコマンドグループ';
+  String get option_type_subcommand_group =>
+      'Ã£â€šÂµÃ£Æ’â€“Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šÂ°Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’â€”';
 
   @override
-  String get option_type_unknown => '不明';
+  String get option_type_unknown => 'Ã¤Â¸ÂÃ¦ËœÅ½';
 
   @override
-  String get option_type_user => 'ユーザー';
+  String get option_type_user => 'Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼';
 
   @override
   String option_value_number(int index) {
-    return '値 $index';
+    return 'Ã¥â‚¬Â¤ $index';
   }
 
   @override
-  String get premium_active_desc => 'ご支援ありがとうございます！すべての広告が無効になりました。';
+  String get premium_active_desc =>
+      'Ã£Ââ€Ã¦â€Â¯Ã¦ÂÂ´Ã£Ââ€šÃ£â€šÅ Ã£ÂÅ’Ã£ÂÂ¨Ã£Ââ€ Ã£Ââ€Ã£Ââ€“Ã£Ââ€žÃ£ÂÂ¾Ã£Ââ„¢Ã¯Â¼ÂÃ£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÂ®Ã¥ÂºÆ’Ã¥â€˜Å Ã£ÂÅ’Ã§â€žÂ¡Ã¥Å Â¹Ã£ÂÂ«Ã£ÂÂªÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€š';
 
   @override
-  String get premium_active_title => 'プレミアム有効';
+  String get premium_active_title =>
+      'Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Å¸Ã£â€šÂ¢Ã£Æ’Â Ã¦Å“â€°Ã¥Å Â¹';
 
   @override
-  String get premium_card_button => 'プランを見る';
+  String get premium_card_button =>
+      'Ã£Æ’â€”Ã£Æ’Â©Ã£Æ’Â³Ã£â€šâ€™Ã¨Â¦â€¹Ã£â€šâ€¹';
 
   @override
-  String get premium_card_desc => 'サブスクライブしてすべての広告を削除し、ポップアップなしで即座にボットを起動できます。';
+  String get premium_card_desc =>
+      'Ã£â€šÂµÃ£Æ’â€“Ã£â€šÂ¹Ã£â€šÂ¯Ã£Æ’Â©Ã£â€šÂ¤Ã£Æ’â€“Ã£Ââ€”Ã£ÂÂ¦Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÂ®Ã¥ÂºÆ’Ã¥â€˜Å Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£â‚¬ÂÃ£Æ’ÂÃ£Æ’Æ’Ã£Æ’â€”Ã£â€šÂ¢Ã£Æ’Æ’Ã£Æ’â€”Ã£ÂÂªÃ£Ââ€”Ã£ÂÂ§Ã¥ÂÂ³Ã¥ÂºÂ§Ã£ÂÂ«Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¨ÂµÂ·Ã¥â€¹â€¢Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get premium_card_title => '広告を削除';
+  String get premium_card_title => 'Ã¥ÂºÆ’Ã¥â€˜Å Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get quick_access_title => 'クイックアクセス';
+  String get quick_access_title =>
+      'Ã£â€šÂ¯Ã£â€šÂ¤Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ»Ã£â€šÂ¹';
 
   @override
-  String get recovery_delete_bot => 'ボットをローカルで削除';
+  String get recovery_delete_bot =>
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã£ÂÂ§Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get recovery_label => 'リカバリー';
+  String get recovery_label => 'Ã£Æ’ÂªÃ£â€šÂ«Ã£Æ’ÂÃ£Æ’ÂªÃ£Æ’Â¼';
 
   @override
-  String get recovery_retry_discord => 'Discord接続を再試行';
+  String get recovery_retry_discord =>
+      'DiscordÃ¦Å½Â¥Ã§Â¶Å¡Ã£â€šâ€™Ã¥â€ ÂÃ¨Â©Â¦Ã¨Â¡Å’';
 
   @override
-  String get recovery_title => 'リカバリーモード';
+  String get recovery_title =>
+      'Ã£Æ’ÂªÃ£â€šÂ«Ã£Æ’ÂÃ£Æ’ÂªÃ£Æ’Â¼Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°';
 
   @override
   String reply_active_route(String label) {
-    return 'アクティブルート: $label';
+    return 'Ã£â€šÂ¢Ã£â€šÂ¯Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’â€“Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’Ë†: $label';
   }
 
   @override
-  String get reply_buttons_desc => 'このメッセージにインタラクティブなボタンやドロップダウンを追加';
+  String get reply_buttons_desc =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£ÂÂ«Ã£â€šÂ¤Ã£Æ’Â³Ã£â€šÂ¿Ã£Æ’Â©Ã£â€šÂ¯Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’â€“Ã£ÂÂªÃ£Æ’Å“Ã£â€šÂ¿Ã£Æ’Â³Ã£â€šâ€žÃ£Æ’â€°Ã£Æ’Â­Ã£Æ’Æ’Ã£Æ’â€”Ã£Æ’â‚¬Ã£â€šÂ¦Ã£Æ’Â³Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get reply_buttons_optional => 'ボタンとセレクトメニュー (オプション)';
+  String get reply_buttons_optional =>
+      'Ã£Æ’Å“Ã£â€šÂ¿Ã£Æ’Â³Ã£ÂÂ¨Ã£â€šÂ»Ã£Æ’Â¬Ã£â€šÂ¯Ã£Æ’Ë†Ã£Æ’Â¡Ã£Æ’â€¹Ã£Æ’Â¥Ã£Æ’Â¼ (Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³)';
 
   @override
-  String get reply_choose_type => '送信する応答の種類を選択';
+  String get reply_choose_type =>
+      'Ã©â‚¬ÂÃ¤Â¿Â¡Ã£Ââ„¢Ã£â€šâ€¹Ã¥Â¿Å“Ã§Â­â€Ã£ÂÂ®Ã§Â¨Â®Ã©Â¡Å¾Ã£â€šâ€™Ã©ÂÂ¸Ã¦Å Å¾';
 
   @override
-  String get reply_command_reply_title => 'コマンド返信';
+  String get reply_command_reply_title =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã¨Â¿â€Ã¤Â¿Â¡';
 
   @override
-  String get reply_configure_workflow => '応答ワークフローを設定';
+  String get reply_configure_workflow =>
+      'Ã¥Â¿Å“Ã§Â­â€Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã¨Â¨Â­Ã¥Â®Å¡';
 
   @override
-  String get reply_editor_title => '返信詳細';
+  String get reply_editor_title => 'Ã¨Â¿â€Ã¤Â¿Â¡Ã¨Â©Â³Ã§Â´Â°';
 
   @override
-  String get reply_mode_layout => 'レイアウトモード';
+  String get reply_mode_layout =>
+      'Ã£Æ’Â¬Ã£â€šÂ¤Ã£â€šÂ¢Ã£â€šÂ¦Ã£Æ’Ë†Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°';
 
   @override
   String get reply_mode_layout_desc =>
-      'Discordのリッチレイアウトシステム — コンテナ、メディア、テキスト、フォーム';
+      'DiscordÃ£ÂÂ®Ã£Æ’ÂªÃ£Æ’Æ’Ã£Æ’ÂÃ£Æ’Â¬Ã£â€šÂ¤Ã£â€šÂ¢Ã£â€šÂ¦Ã£Æ’Ë†Ã£â€šÂ·Ã£â€šÂ¹Ã£Æ’â€ Ã£Æ’Â  Ã¢â‚¬â€ Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€ Ã£Æ’Å Ã£â‚¬ÂÃ£Æ’Â¡Ã£Æ’â€¡Ã£â€šÂ£Ã£â€šÂ¢Ã£â‚¬ÂÃ£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã£â‚¬ÂÃ£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â¼Ã£Æ’Â ';
 
   @override
-  String get reply_mode_modal => 'モーダルフォーム';
+  String get reply_mode_modal =>
+      'Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â‚¬Ã£Æ’Â«Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â¼Ã£Æ’Â ';
 
   @override
-  String get reply_mode_modal_desc => 'テキスト入力フィールド付きのポップアップダイアログ';
+  String get reply_mode_modal_desc =>
+      'Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã¥â€¦Â¥Ã¥Å â€ºÃ£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’â€°Ã¤Â»ËœÃ£ÂÂÃ£ÂÂ®Ã£Æ’ÂÃ£Æ’Æ’Ã£Æ’â€”Ã£â€šÂ¢Ã£Æ’Æ’Ã£Æ’â€”Ã£Æ’â‚¬Ã£â€šÂ¤Ã£â€šÂ¢Ã£Æ’Â­Ã£â€šÂ°';
 
   @override
-  String get reply_mode_standard => '標準メッセージ';
+  String get reply_mode_standard =>
+      'Ã¦Â¨â„¢Ã¦Âºâ€“Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸';
 
   @override
-  String get reply_mode_standard_desc => 'テキスト、埋め込み、オプションのボタン/セレクトメニュー';
+  String get reply_mode_standard_desc =>
+      'Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã£â‚¬ÂÃ¥Å¸â€¹Ã£â€šÂÃ¨Â¾Â¼Ã£ÂÂ¿Ã£â‚¬ÂÃ£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ®Ã£Æ’Å“Ã£â€šÂ¿Ã£Æ’Â³/Ã£â€šÂ»Ã£Æ’Â¬Ã£â€šÂ¯Ã£Æ’Ë†Ã£Æ’Â¡Ã£Æ’â€¹Ã£Æ’Â¥Ã£Æ’Â¼';
 
   @override
   String get reply_response_text_helper =>
-      'スラッシュコマンドの返信テキストとして使用。((変数)) 構文をサポート。';
+      'Ã£â€šÂ¹Ã£Æ’Â©Ã£Æ’Æ’Ã£â€šÂ·Ã£Æ’Â¥Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ®Ã¨Â¿â€Ã¤Â¿Â¡Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã£ÂÂ¨Ã£Ââ€”Ã£ÂÂ¦Ã¤Â½Â¿Ã§â€Â¨Ã£â‚¬â€š((Ã¥Â¤â€°Ã¦â€¢Â°)) Ã¦Â§â€¹Ã¦â€“â€¡Ã£â€šâ€™Ã£â€šÂµÃ£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†Ã£â‚¬â€š';
 
   @override
-  String get reply_response_text_label => '応答テキスト';
+  String get reply_response_text_label =>
+      'Ã¥Â¿Å“Ã§Â­â€Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†';
 
   @override
-  String get reply_response_workflow => '応答ワークフロー';
+  String get reply_response_workflow =>
+      'Ã¥Â¿Å“Ã§Â­â€Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼';
 
   @override
   String response_embeds_count(int count) {
-    return '$count 埋め込み';
+    return '$count Ã¥Å¸â€¹Ã£â€šÂÃ¨Â¾Â¼Ã£ÂÂ¿';
   }
 
   @override
-  String get response_interactive_components => 'インタラクティブコンポーネント';
+  String get response_interactive_components =>
+      'Ã£â€šÂ¤Ã£Æ’Â³Ã£â€šÂ¿Ã£Æ’Â©Ã£â€šÂ¯Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’â€“Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â³Ã£Æ’Ë†';
 
   @override
-  String get response_mode_layout => 'レイアウトモード';
+  String get response_mode_layout =>
+      'Ã£Æ’Â¬Ã£â€šÂ¤Ã£â€šÂ¢Ã£â€šÂ¦Ã£Æ’Ë†Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°';
 
   @override
-  String get response_mode_modal => 'モーダルフォーム';
+  String get response_mode_modal =>
+      'Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â‚¬Ã£Æ’Â«Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â¼Ã£Æ’Â ';
 
   @override
-  String get response_mode_standard => '標準メッセージ';
+  String get response_mode_standard =>
+      'Ã¦Â¨â„¢Ã¦Âºâ€“Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸';
 
   @override
-  String get response_visibility_ephemeral => 'エフェメラル';
+  String get response_visibility_ephemeral =>
+      'Ã£â€šÂ¨Ã£Æ’â€¢Ã£â€šÂ§Ã£Æ’Â¡Ã£Æ’Â©Ã£Æ’Â«';
 
   @override
-  String get response_visibility_public => '公開';
+  String get response_visibility_public => 'Ã¥â€¦Â¬Ã©â€“â€¹';
 
   @override
-  String get response_workflow_auto_defer => 'アクションがある場合自動遅延';
+  String get response_workflow_auto_defer =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÅ’Ã£Ââ€šÃ£â€šâ€¹Ã¥Â Â´Ã¥ÂË†Ã¨â€¡ÂªÃ¥â€¹â€¢Ã©Ââ€¦Ã¥Â»Â¶';
 
   @override
   String get response_workflow_auto_defer_desc =>
-      '迅速に確認応答し、アクションを実行してから最終応答を編集します。';
+      'Ã¨Â¿â€¦Ã©â‚¬Å¸Ã£ÂÂ«Ã§Â¢ÂºÃ¨ÂªÂÃ¥Â¿Å“Ã§Â­â€Ã£Ââ€”Ã£â‚¬ÂÃ£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¥Â®Å¸Ã¨Â¡Å’Ã£Ââ€”Ã£ÂÂ¦Ã£Ââ€¹Ã£â€šâ€°Ã¦Å“â‚¬Ã§Âµâ€šÃ¥Â¿Å“Ã§Â­â€Ã£â€šâ€™Ã§Â·Â¨Ã©â€ºâ€ Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get response_workflow_condition_desc =>
-      '変数が存在し空でない場合 => THENテキスト、それ以外はELSEテキスト。';
+      'Ã¥Â¤â€°Ã¦â€¢Â°Ã£ÂÅ’Ã¥Â­ËœÃ¥Å“Â¨Ã£Ââ€”Ã§Â©ÂºÃ£ÂÂ§Ã£ÂÂªÃ£Ââ€žÃ¥Â Â´Ã¥ÂË† => THENÃ£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã£â‚¬ÂÃ£ÂÂÃ£â€šÅ’Ã¤Â»Â¥Ã¥Â¤â€“Ã£ÂÂ¯ELSEÃ£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã£â‚¬â€š';
 
   @override
-  String get response_workflow_conditional_title => '条件付き応答 (MVP)';
+  String get response_workflow_conditional_title =>
+      'Ã¦ÂÂ¡Ã¤Â»Â¶Ã¤Â»ËœÃ£ÂÂÃ¥Â¿Å“Ã§Â­â€ (MVP)';
 
   @override
-  String get response_workflow_deferred_reply => '遅延返信';
+  String get response_workflow_deferred_reply => 'Ã©Ââ€¦Ã¥Â»Â¶Ã¨Â¿â€Ã¤Â¿Â¡';
 
   @override
-  String get response_workflow_else_text => 'ELSE 応答テキスト (オプション)';
+  String get response_workflow_else_text =>
+      'ELSE Ã¥Â¿Å“Ã§Â­â€Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë† (Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³)';
 
   @override
-  String get response_workflow_enable_condition => '条件を有効化';
+  String get response_workflow_enable_condition =>
+      'Ã¦ÂÂ¡Ã¤Â»Â¶Ã£â€šâ€™Ã¦Å“â€°Ã¥Å Â¹Ã¥Å’â€“';
 
   @override
-  String get response_workflow_ephemeral_only_user => 'エフェメラル (コマンド実行者 only)';
+  String get response_workflow_ephemeral_only_user =>
+      'Ã£â€šÂ¨Ã£Æ’â€¢Ã£â€šÂ§Ã£Æ’Â¡Ã£Æ’Â©Ã£Æ’Â« (Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã¥Â®Å¸Ã¨Â¡Å’Ã¨â‚¬â€¦ only)';
 
   @override
-  String get response_workflow_error_policy => 'エラーポリシー';
+  String get response_workflow_error_policy =>
+      'Ã£â€šÂ¨Ã£Æ’Â©Ã£Æ’Â¼Ã£Æ’ÂÃ£Æ’ÂªÃ£â€šÂ·Ã£Æ’Â¼';
 
   @override
   String get response_workflow_error_policy_desc =>
-      'アクションが失敗した場合、遅延メッセージをエラーで編集します。';
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÅ’Ã¥Â¤Â±Ã¦â€¢â€”Ã£Ââ€”Ã£ÂÅ¸Ã¥Â Â´Ã¥ÂË†Ã£â‚¬ÂÃ©Ââ€¦Ã¥Â»Â¶Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£â€šâ€™Ã£â€šÂ¨Ã£Æ’Â©Ã£Æ’Â¼Ã£ÂÂ§Ã§Â·Â¨Ã©â€ºâ€ Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get response_workflow_mode_component => 'コンポーネント';
+  String get response_workflow_mode_component =>
+      'Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â³Ã£Æ’Ë†';
 
   @override
-  String get response_workflow_mode_modal => 'モーダル';
+  String get response_workflow_mode_modal => 'Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â‚¬Ã£Æ’Â«';
 
   @override
-  String get response_workflow_mode_normal => '通常';
+  String get response_workflow_mode_normal => 'Ã©â‚¬Å¡Ã¥Â¸Â¸';
 
   @override
-  String get response_workflow_public => '公開';
+  String get response_workflow_public => 'Ã¥â€¦Â¬Ã©â€“â€¹';
 
   @override
-  String get response_workflow_revert_tooltip => 'すべての変更を元に戻す';
+  String get response_workflow_revert_tooltip =>
+      'Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÂ®Ã¥Â¤â€°Ã¦â€ºÂ´Ã£â€šâ€™Ã¥â€¦Æ’Ã£ÂÂ«Ã¦Ë†Â»Ã£Ââ„¢';
 
   @override
-  String get response_workflow_then_text => 'THEN 応答テキスト (オプション)';
+  String get response_workflow_then_text =>
+      'THEN Ã¥Â¿Å“Ã§Â­â€Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë† (Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³)';
 
   @override
-  String get response_workflow_title => '応答ワークフロー';
+  String get response_workflow_title =>
+      'Ã¥Â¿Å“Ã§Â­â€Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼';
 
   @override
-  String get response_workflow_variable_key => '変数キー (例: opts.userId)';
+  String get response_workflow_variable_key =>
+      'Ã¥Â¤â€°Ã¦â€¢Â°Ã£â€šÂ­Ã£Æ’Â¼ (Ã¤Â¾â€¹: opts.userId)';
 
   @override
-  String get response_workflow_visibility => '可視性';
+  String get response_workflow_visibility => 'Ã¥ÂÂ¯Ã¨Â¦â€“Ã¦â‚¬Â§';
 
   @override
-  String get restore_completed => '復元完了';
+  String get restore_completed => 'Ã¥Â¾Â©Ã¥â€¦Æ’Ã¥Â®Å’Ã¤Âºâ€ ';
 
   @override
-  String get restore_runtime_db_recommended => '復元完了 (SQLiteランタイム復元、再起動推奨)';
+  String get restore_runtime_db_recommended =>
+      'Ã¥Â¾Â©Ã¥â€¦Æ’Ã¥Â®Å’Ã¤Âºâ€  (SQLiteÃ£Æ’Â©Ã£Æ’Â³Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â Ã¥Â¾Â©Ã¥â€¦Æ’Ã£â‚¬ÂÃ¥â€ ÂÃ¨ÂµÂ·Ã¥â€¹â€¢Ã¦Å½Â¨Ã¥Â¥Â¨)';
 
   @override
-  String get review_actions_title => 'アクション';
+  String get review_actions_title => 'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³';
 
   @override
   String review_description_line(String desc) {
-    return '説明: $desc';
+    return 'Ã¨ÂªÂ¬Ã¦ËœÅ½: $desc';
   }
 
   @override
   String review_folder_line(String folder) {
-    return 'フォルダ: $folder';
+    return 'Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â«Ã£Æ’â‚¬: $folder';
   }
 
   @override
-  String get review_info_title => '情報';
+  String get review_info_title => 'Ã¦Æ’â€¦Ã¥Â Â±';
 
   @override
-  String get review_legacy_mode => 'レガシーモード有効';
+  String get review_legacy_mode =>
+      'Ã£Æ’Â¬Ã£â€šÂ¬Ã£â€šÂ·Ã£Æ’Â¼Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°Ã¦Å“â€°Ã¥Å Â¹';
 
   @override
-  String get review_local_only => 'ローカルのみのコマンド';
+  String get review_local_only =>
+      'Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã£ÂÂ®Ã£ÂÂ¿Ã£ÂÂ®Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°';
 
   @override
   String review_name_line(String name) {
-    return '名前: $name';
+    return 'Ã¥ÂÂÃ¥â€°Â: $name';
   }
 
   @override
-  String get review_name_untitled => '(無題)';
+  String get review_name_untitled => '(Ã§â€žÂ¡Ã©Â¡Å’)';
 
   @override
   String review_options_count(int count) {
-    return '$count オプション';
+    return '$count Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³';
   }
 
   @override
-  String get review_reply_title => '返信';
+  String get review_reply_title => 'Ã¨Â¿â€Ã¤Â¿Â¡';
 
   @override
   String review_subcommand_routes(int count) {
-    return '$count サブコマンドルート';
+    return '$count Ã£â€šÂµÃ£Æ’â€“Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’Ë†';
   }
 
   @override
-  String get review_trigger_inputs_title => 'トリガーと入力';
+  String get review_trigger_inputs_title =>
+      'Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼Ã£ÂÂ¨Ã¥â€¦Â¥Ã¥Å â€º';
 
   @override
   String review_type_line(String type) {
-    return 'タイプ: $type';
+    return 'Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’â€”: $type';
   }
 
   @override
-  String get rewarded_start_complete_ad => 'ホスティングセッションを開始するには広告を最後まで視聴してください。';
+  String get rewarded_start_complete_ad =>
+      'Ã£Æ’â€ºÃ£â€šÂ¹Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’Â³Ã£â€šÂ°Ã£â€šÂ»Ã£Æ’Æ’Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã©â€“â€¹Ã¥Â§â€¹Ã£Ââ„¢Ã£â€šâ€¹Ã£ÂÂ«Ã£ÂÂ¯Ã¥ÂºÆ’Ã¥â€˜Å Ã£â€šâ€™Ã¦Å“â‚¬Ã¥Â¾Å’Ã£ÂÂ¾Ã£ÂÂ§Ã¨Â¦â€“Ã¨ÂÂ´Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get rewarded_start_continue => '続ける';
+  String get rewarded_start_continue => 'Ã§Â¶Å¡Ã£Ââ€˜Ã£â€šâ€¹';
 
   @override
   String get rewarded_start_message =>
-      'このホスティングセッションを開始するには広告が必要です。これはプロジェクトの資金となります。プレミアムユーザー';
+      'Ã£Ââ€œÃ£ÂÂ®Ã£Æ’â€ºÃ£â€šÂ¹Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’Â³Ã£â€šÂ°Ã£â€šÂ»Ã£Æ’Æ’Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã©â€“â€¹Ã¥Â§â€¹Ã£Ââ„¢Ã£â€šâ€¹Ã£ÂÂ«Ã£ÂÂ¯Ã¥ÂºÆ’Ã¥â€˜Å Ã£ÂÅ’Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€šÃ£Ââ€œÃ£â€šÅ’Ã£ÂÂ¯Ã£Æ’â€”Ã£Æ’Â­Ã£â€šÂ¸Ã£â€šÂ§Ã£â€šÂ¯Ã£Æ’Ë†Ã£ÂÂ®Ã¨Â³â€¡Ã©â€¡â€˜Ã£ÂÂ¨Ã£ÂÂªÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ£Æ’â€”Ã£Æ’Â¬Ã£Æ’Å¸Ã£â€šÂ¢Ã£Æ’Â Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼';
 
   @override
-  String get rewarded_start_no_ad_available => '現在利用可能な広告がありません。後でもう一度お試しください。';
+  String get rewarded_start_no_ad_available =>
+      'Ã§ÂÂ¾Ã¥Å“Â¨Ã¥Ë†Â©Ã§â€Â¨Ã¥ÂÂ¯Ã¨Æ’Â½Ã£ÂÂªÃ¥ÂºÆ’Ã¥â€˜Å Ã£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€šÃ¥Â¾Å’Ã£ÂÂ§Ã£â€šâ€šÃ£Ââ€ Ã¤Â¸â‚¬Ã¥ÂºÂ¦Ã£ÂÅ Ã¨Â©Â¦Ã£Ââ€”Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get rewarded_start_skip => 'スキップ';
+  String get rewarded_start_skip => 'Ã£â€šÂ¹Ã£â€šÂ­Ã£Æ’Æ’Ã£Æ’â€”';
 
   @override
-  String get rewarded_start_thanks => 'ご支援ありがとうございます！';
+  String get rewarded_start_thanks =>
+      'Ã£Ââ€Ã¦â€Â¯Ã¦ÂÂ´Ã£Ââ€šÃ£â€šÅ Ã£ÂÅ’Ã£ÂÂ¨Ã£Ââ€ Ã£Ââ€Ã£Ââ€“Ã£Ââ€žÃ£ÂÂ¾Ã£Ââ„¢Ã¯Â¼Â';
 
   @override
-  String get rewarded_start_title => '広告が必要です';
+  String get rewarded_start_title =>
+      'Ã¥ÂºÆ’Ã¥â€˜Å Ã£ÂÅ’Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÂ§Ã£Ââ„¢';
 
   @override
-  String get rewarded_start_watch => '広告を見る';
+  String get rewarded_start_watch => 'Ã¥ÂºÆ’Ã¥â€˜Å Ã£â€šâ€™Ã¨Â¦â€¹Ã£â€šâ€¹';
 
   @override
-  String get runner_select_source => 'ランナーを選択';
+  String get runner_select_source =>
+      'Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼Ã£â€šâ€™Ã©ÂÂ¸Ã¦Å Å¾';
 
   @override
-  String get runner_source_all => 'すべてのランナー';
+  String get runner_source_all =>
+      'Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÂ®Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼';
 
   @override
   String runner_source_label(String name) {
-    return 'ランナー: $name';
+    return 'Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼: $name';
   }
 
   @override
-  String get runner_source_local => 'ローカル';
+  String get runner_source_local => 'Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«';
 
   @override
-  String get runner_source_manager => 'Bot Creator サーバー';
+  String get runner_source_manager => 'Bot Creator Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼';
 
   @override
   String get runner_source_manager_unavailable =>
-      '設定でBot Creatorにサインインして、Bot Creatorサーバーからの統計を読み込んでください。';
+      'Ã¨Â¨Â­Ã¥Â®Å¡Ã£ÂÂ§Bot CreatorÃ£ÂÂ«Ã£â€šÂµÃ£â€šÂ¤Ã£Æ’Â³Ã£â€šÂ¤Ã£Æ’Â³Ã£Ââ€”Ã£ÂÂ¦Ã£â‚¬ÂBot CreatorÃ£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£Ââ€¹Ã£â€šâ€°Ã£ÂÂ®Ã§ÂµÂ±Ã¨Â¨Ë†Ã£â€šâ€™Ã¨ÂªÂ­Ã£ÂÂ¿Ã¨Â¾Â¼Ã£â€šâ€œÃ£ÂÂ§Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get save => '保存';
+  String get save => 'Ã¤Â¿ÂÃ¥Â­Ëœ';
 
   @override
-  String get scheduler_add_title => 'スケジュールを追加';
+  String get scheduler_add_title =>
+      'Ã£â€šÂ¹Ã£â€šÂ±Ã£â€šÂ¸Ã£Æ’Â¥Ã£Æ’Â¼Ã£Æ’Â«Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get scheduler_add_trigger => 'トリガーを追加';
+  String get scheduler_add_trigger =>
+      'Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
   String scheduler_delete_confirm(String label) {
-    return 'スケジュール \"$label\" を削除しますか？';
+    return 'Ã£â€šÂ¹Ã£â€šÂ±Ã£â€šÂ¸Ã£Æ’Â¥Ã£Æ’Â¼Ã£Æ’Â« \"$label\" Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸';
   }
 
   @override
-  String get scheduler_delete_title => 'スケジュールを削除';
+  String get scheduler_delete_title =>
+      'Ã£â€šÂ¹Ã£â€šÂ±Ã£â€šÂ¸Ã£Æ’Â¥Ã£Æ’Â¼Ã£Æ’Â«Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get scheduler_edit_title => 'スケジュールを編集';
+  String get scheduler_edit_title =>
+      'Ã£â€šÂ¹Ã£â€šÂ±Ã£â€šÂ¸Ã£Æ’Â¥Ã£Æ’Â¼Ã£Æ’Â«Ã£â€šâ€™Ã§Â·Â¨Ã©â€ºâ€ ';
 
   @override
-  String get scheduler_empty => 'まだスケジュールされたトリガーがありません。';
+  String get scheduler_empty =>
+      'Ã£ÂÂ¾Ã£ÂÂ Ã£â€šÂ¹Ã£â€šÂ±Ã£â€šÂ¸Ã£Æ’Â¥Ã£Æ’Â¼Ã£Æ’Â«Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼Ã£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
-  String get scheduler_every_minutes => '間隔 (分)';
+  String get scheduler_every_minutes => 'Ã©â€“â€œÃ©Å¡â€ (Ã¥Ë†â€ )';
 
   @override
-  String get scheduler_invalid_minutes => '間隔は0より大きい必要があります。';
+  String get scheduler_invalid_minutes =>
+      'Ã©â€“â€œÃ©Å¡â€Ã£ÂÂ¯0Ã£â€šË†Ã£â€šÅ Ã¥Â¤Â§Ã£ÂÂÃ£Ââ€žÃ¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get scheduler_label_field => 'ラベル';
+  String get scheduler_label_field => 'Ã£Æ’Â©Ã£Æ’â„¢Ã£Æ’Â«';
 
   @override
-  String get scheduler_label_hint => 'オプションの表示ラベル';
+  String get scheduler_label_hint =>
+      'Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ®Ã¨Â¡Â¨Ã§Â¤ÂºÃ£Æ’Â©Ã£Æ’â„¢Ã£Æ’Â«';
 
   @override
   String scheduler_limit_reached(int limit) {
-    return 'スケジューラーの上限に達しました ($limit)。';
+    return 'Ã£â€šÂ¹Ã£â€šÂ±Ã£â€šÂ¸Ã£Æ’Â¥Ã£Æ’Â¼Ã£Æ’Â©Ã£Æ’Â¼Ã£ÂÂ®Ã¤Â¸Å Ã©â„¢ÂÃ£ÂÂ«Ã©Ââ€Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸ ($limit)Ã£â‚¬â€š';
   }
 
   @override
-  String get scheduler_no_workflows => 'スケジュールを追加する前に少なくとも1つのワークフローを作成してください。';
+  String get scheduler_no_workflows =>
+      'Ã£â€šÂ¹Ã£â€šÂ±Ã£â€šÂ¸Ã£Æ’Â¥Ã£Æ’Â¼Ã£Æ’Â«Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â Ã£Ââ„¢Ã£â€šâ€¹Ã¥â€°ÂÃ£ÂÂ«Ã¥Â°â€˜Ã£ÂÂªÃ£ÂÂÃ£ÂÂ¨Ã£â€šâ€š1Ã£ÂÂ¤Ã£ÂÂ®Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†ÂÃ£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get scheduler_page_title => 'スケジューラー';
+  String get scheduler_page_title =>
+      'Ã£â€šÂ¹Ã£â€šÂ±Ã£â€šÂ¸Ã£Æ’Â¥Ã£Æ’Â¼Ã£Æ’Â©Ã£Æ’Â¼';
 
   @override
   String scheduler_save_failed(String error) {
-    return 'スケジュールの保存に失敗: $error';
+    return 'Ã£â€šÂ¹Ã£â€šÂ±Ã£â€šÂ¸Ã£Æ’Â¥Ã£Æ’Â¼Ã£Æ’Â«Ã£ÂÂ®Ã¤Â¿ÂÃ¥Â­ËœÃ£ÂÂ«Ã¥Â¤Â±Ã¦â€¢â€”: $error';
   }
 
   @override
   String scheduler_subtitle(String workflow, int minutes) {
-    return 'ワークフロー: $workflow • $minutes 分ごと';
+    return 'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼: $workflow Ã¢â‚¬Â¢ $minutes Ã¥Ë†â€ Ã£Ââ€Ã£ÂÂ¨';
   }
 
   @override
-  String get scheduler_tab => 'スケジューラー';
+  String get scheduler_tab => 'Ã£â€šÂ¹Ã£â€šÂ±Ã£â€šÂ¸Ã£Æ’Â¥Ã£Æ’Â¼Ã£Æ’Â©Ã£Æ’Â¼';
 
   @override
-  String get scheduler_tab_short => 'スケジュール';
+  String get scheduler_tab_short => 'Ã£â€šÂ¹Ã£â€šÂ±Ã£â€šÂ¸Ã£Æ’Â¥Ã£Æ’Â¼Ã£Æ’Â«';
 
   @override
   String scheduler_triggers_count(int count, String limit) {
-    return 'トリガー: $count$limit';
+    return 'Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼: $count$limit';
   }
 
   @override
-  String get scoped_default_value => 'デフォルト値';
+  String get scoped_default_value => 'Ã£Æ’â€¡Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â«Ã£Æ’Ë†Ã¥â‚¬Â¤';
 
   @override
-  String get scoped_default_value_hint => 'オプション';
+  String get scoped_default_value_hint => 'Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³';
 
   @override
   String scoped_delete_confirm(String key) {
-    return '\"$key\" とその保存されたすべてのランタイムデータを削除しますか？';
+    return '\"$key\" Ã£ÂÂ¨Ã£ÂÂÃ£ÂÂ®Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÂ®Ã£Æ’Â©Ã£Æ’Â³Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â Ã£Æ’â€¡Ã£Æ’Â¼Ã£â€šÂ¿Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸';
   }
 
   @override
-  String get scoped_delete_title => 'スコープ変数を削除';
+  String get scoped_delete_title =>
+      'Ã£â€šÂ¹Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€”Ã¥Â¤â€°Ã¦â€¢Â°Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get scoped_empty => 'スコープ変数が定義されていません';
+  String get scoped_empty =>
+      'Ã£â€šÂ¹Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€”Ã¥Â¤â€°Ã¦â€¢Â°Ã£ÂÅ’Ã¥Â®Å¡Ã§Â¾Â©Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¦Ã£Ââ€žÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œ';
 
   @override
   String get scoped_empty_subtitle =>
-      'スコープ変数はDiscordコンテキスト（ユーザー、サーバー…）ごとに値を保存します。実行時に設定されます。';
+      'Ã£â€šÂ¹Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€”Ã¥Â¤â€°Ã¦â€¢Â°Ã£ÂÂ¯DiscordÃ£â€šÂ³Ã£Æ’Â³Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã¯Â¼Ë†Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£â‚¬ÂÃ£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã¢â‚¬Â¦Ã¯Â¼â€°Ã£Ââ€Ã£ÂÂ¨Ã£ÂÂ«Ã¥â‚¬Â¤Ã£â€šâ€™Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ¥Â®Å¸Ã¨Â¡Å’Ã¦â„¢â€šÃ£ÂÂ«Ã¨Â¨Â­Ã¥Â®Å¡Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get scoped_explore_runtime => 'ランタイムデータを探索';
+  String get scoped_explore_runtime =>
+      'Ã£Æ’Â©Ã£Æ’Â³Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â Ã£Æ’â€¡Ã£Æ’Â¼Ã£â€šÂ¿Ã£â€šâ€™Ã¦Å½Â¢Ã§Â´Â¢';
 
   @override
   String scoped_ref(String ref) {
-    return '参照: $ref';
+    return 'Ã¥Ââ€šÃ§â€¦Â§: $ref';
   }
 
   @override
   String scoped_ref_legacy(String ref) {
-    return 'レガシー: $ref';
+    return 'Ã£Æ’Â¬Ã£â€šÂ¬Ã£â€šÂ·Ã£Æ’Â¼: $ref';
   }
 
   @override
-  String get scoped_runtime_copy_all => 'すべてコピー';
+  String get scoped_runtime_copy_all =>
+      'Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£â€šÂ³Ã£Æ’â€Ã£Æ’Â¼';
 
   @override
-  String get scoped_runtime_empty => 'ランタイムデータがありません。\nこのキーは実行時にボットによって設定されます。';
+  String get scoped_runtime_empty =>
+      'Ã£Æ’Â©Ã£Æ’Â³Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â Ã£Æ’â€¡Ã£Æ’Â¼Ã£â€šÂ¿Ã£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š\nÃ£Ââ€œÃ£ÂÂ®Ã£â€šÂ­Ã£Æ’Â¼Ã£ÂÂ¯Ã¥Â®Å¸Ã¨Â¡Å’Ã¦â„¢â€šÃ£ÂÂ«Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÂ«Ã£â€šË†Ã£ÂÂ£Ã£ÂÂ¦Ã¨Â¨Â­Ã¥Â®Å¡Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get scoped_runtime_search => 'IDまたは名前で検索…';
+  String get scoped_runtime_search =>
+      'IDÃ£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã¥ÂÂÃ¥â€°ÂÃ£ÂÂ§Ã¦Â¤Å“Ã§Â´Â¢Ã¢â‚¬Â¦';
 
   @override
   String scoped_runtime_subtitle(String scope, int count) {
-    return 'スコープ: $scope · $count コンテキストが見つかりました';
+    return 'Ã£â€šÂ¹Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€”: $scope Ã‚Â· $count Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã£ÂÅ’Ã¨Â¦â€¹Ã£ÂÂ¤Ã£Ââ€¹Ã£â€šÅ Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
   }
 
   @override
   String scoped_runtime_title(String key) {
-    return 'ランタイムデータ — \"$key\"';
+    return 'Ã£Æ’Â©Ã£Æ’Â³Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â Ã£Æ’â€¡Ã£Æ’Â¼Ã£â€šÂ¿ Ã¢â‚¬â€ \"$key\"';
   }
 
   @override
-  String get scoped_scope => 'スコープ';
+  String get scoped_scope => 'Ã£â€šÂ¹Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€”';
 
   @override
-  String get scoped_scope_help => '変数が保存されるエンティティレベル。';
+  String get scoped_scope_help =>
+      'Ã¥Â¤â€°Ã¦â€¢Â°Ã£ÂÅ’Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ€¢Ã£â€šÅ’Ã£â€šâ€¹Ã£â€šÂ¨Ã£Æ’Â³Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’Â¬Ã£Æ’â„¢Ã£Æ’Â«Ã£â‚¬â€š';
 
   @override
-  String get scoped_title => 'スコープ変数';
+  String get scoped_title => 'Ã£â€šÂ¹Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€”Ã¥Â¤â€°Ã¦â€¢Â°';
 
   @override
-  String get scratch_add_block => 'ブロックを追加';
+  String get scratch_add_block =>
+      'Ã£Æ’â€“Ã£Æ’Â­Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get scratch_bdfd_script => 'BDFD スクリプト';
+  String get scratch_bdfd_script => 'BDFD Ã£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë†';
 
   @override
-  String get scratch_block_entry_point => 'コマンドトリガー';
+  String get scratch_block_entry_point =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼';
 
   @override
-  String get scratch_block_metadata => 'メタデータ';
+  String get scratch_block_metadata => 'Ã£Æ’Â¡Ã£â€šÂ¿Ã£Æ’â€¡Ã£Æ’Â¼Ã£â€šÂ¿';
 
   @override
-  String get scratch_block_required => '必須';
+  String get scratch_block_required => 'Ã¥Â¿â€¦Ã©Â Ë†';
 
   @override
-  String get scratch_blocks_tab => 'ブロック';
+  String get scratch_blocks_tab => 'Ã£Æ’â€“Ã£Æ’Â­Ã£Æ’Æ’Ã£â€šÂ¯';
 
   @override
   String get scratch_custom_id_filter_desc =>
-      'このワークフローは、クリックされたボタンまたは送信されたモーダルのカスタムIDがこのIDと完全に一致する場合にのみ実行されます。';
+      'Ã£Ââ€œÃ£ÂÂ®Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£ÂÂ¯Ã£â‚¬ÂÃ£â€šÂ¯Ã£Æ’ÂªÃ£Æ’Æ’Ã£â€šÂ¯Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£Æ’Å“Ã£â€šÂ¿Ã£Æ’Â³Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã©â‚¬ÂÃ¤Â¿Â¡Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â‚¬Ã£Æ’Â«Ã£ÂÂ®Ã£â€šÂ«Ã£â€šÂ¹Ã£â€šÂ¿Ã£Æ’Â IDÃ£ÂÅ’Ã£Ââ€œÃ£ÂÂ®IDÃ£ÂÂ¨Ã¥Â®Å’Ã¥â€¦Â¨Ã£ÂÂ«Ã¤Â¸â‚¬Ã¨â€¡Â´Ã£Ââ„¢Ã£â€šâ€¹Ã¥Â Â´Ã¥ÂË†Ã£ÂÂ«Ã£ÂÂ®Ã£ÂÂ¿Ã¥Â®Å¸Ã¨Â¡Å’Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get scratch_custom_id_filter_hint => '例: my_button_id';
+  String get scratch_custom_id_filter_hint => 'Ã¤Â¾â€¹: my_button_id';
 
   @override
-  String get scratch_custom_id_filter_label => 'カスタムIDフィルター（任意）';
+  String get scratch_custom_id_filter_label =>
+      'Ã£â€šÂ«Ã£â€šÂ¹Ã£â€šÂ¿Ã£Æ’Â IDÃ£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â«Ã£â€šÂ¿Ã£Æ’Â¼Ã¯Â¼Ë†Ã¤Â»Â»Ã¦â€žÂÃ¯Â¼â€°';
 
   @override
-  String get scratch_dart_script => 'Dart スクリプト';
+  String get scratch_dart_script => 'Dart Ã£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë†';
 
   @override
-  String get scratch_entry_event_trigger => 'イベントトリガー';
+  String get scratch_entry_event_trigger =>
+      'Ã£â€šÂ¤Ã£Æ’â„¢Ã£Æ’Â³Ã£Æ’Ë†Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼';
 
   @override
-  String get scratch_entry_function => '関数';
+  String get scratch_entry_function => 'Ã©â€“Â¢Ã¦â€¢Â°';
 
   @override
-  String get scratch_entry_interaction => 'スラッシュコマンド (/)';
+  String get scratch_entry_interaction =>
+      'Ã£â€šÂ¹Ã£Æ’Â©Ã£Æ’Æ’Ã£â€šÂ·Ã£Æ’Â¥Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€° (/)';
 
   @override
-  String get scratch_entry_message => 'テキストメッセージ';
+  String get scratch_entry_message =>
+      'Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸';
 
   @override
-  String get scratch_entry_point_hint => 'スクラッチエントリポイントのヒント';
+  String get scratch_entry_point_hint =>
+      'Ã£â€šÂ¹Ã£â€šÂ¯Ã£Æ’Â©Ã£Æ’Æ’Ã£Æ’ÂÃ£â€šÂ¨Ã£Æ’Â³Ã£Æ’Ë†Ã£Æ’ÂªÃ£Æ’ÂÃ£â€šÂ¤Ã£Æ’Â³Ã£Æ’Ë†Ã£ÂÂ®Ã£Æ’â€™Ã£Æ’Â³Ã£Æ’Ë†';
 
   @override
-  String get scratch_entry_point_label => 'エントリポイント名';
+  String get scratch_entry_point_label =>
+      'Ã£â€šÂ¨Ã£Æ’Â³Ã£Æ’Ë†Ã£Æ’ÂªÃ£Æ’ÂÃ£â€šÂ¤Ã£Æ’Â³Ã£Æ’Ë†Ã¥ÂÂ';
 
   @override
-  String get scratch_entry_point_listen => 'このコマンドはいつ実行されますか？';
+  String get scratch_entry_point_listen =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ¯Ã£Ââ€žÃ£ÂÂ¤Ã¥Â®Å¸Ã¨Â¡Å’Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸';
 
   @override
-  String get scratch_event_category => 'イベントカテゴリ';
+  String get scratch_event_category =>
+      'Ã£â€šÂ¤Ã£Æ’â„¢Ã£Æ’Â³Ã£Æ’Ë†Ã£â€šÂ«Ã£Æ’â€ Ã£â€šÂ´Ã£Æ’Âª';
 
   @override
-  String get scratch_event_name => 'イベント名';
+  String get scratch_event_name => 'Ã£â€šÂ¤Ã£Æ’â„¢Ã£Æ’Â³Ã£Æ’Ë†Ã¥ÂÂ';
 
   @override
-  String get scratch_event_variables => 'イベント変数';
+  String get scratch_event_variables =>
+      'Ã£â€šÂ¤Ã£Æ’â„¢Ã£Æ’Â³Ã£Æ’Ë†Ã¥Â¤â€°Ã¦â€¢Â°';
 
   @override
-  String get scratch_execution_mode => 'コマンドはどのように構築されますか？';
+  String get scratch_execution_mode =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ¯Ã£ÂÂ©Ã£ÂÂ®Ã£â€šË†Ã£Ââ€ Ã£ÂÂ«Ã¦Â§â€¹Ã§Â¯â€°Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸';
 
   @override
-  String get scratch_legacy_config => 'レガシー設定';
+  String get scratch_legacy_config => 'Ã£Æ’Â¬Ã£â€šÂ¬Ã£â€šÂ·Ã£Æ’Â¼Ã¨Â¨Â­Ã¥Â®Å¡';
 
   @override
-  String get scratch_meta_advanced => '詳細設定';
+  String get scratch_meta_advanced => 'Ã¨Â©Â³Ã§Â´Â°Ã¨Â¨Â­Ã¥Â®Å¡';
 
   @override
-  String get scratch_meta_desc_hint => 'コマンドの説明';
+  String get scratch_meta_desc_hint =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ®Ã¨ÂªÂ¬Ã¦ËœÅ½';
 
   @override
-  String get scratch_meta_name_hint => 'コマンド名';
+  String get scratch_meta_name_hint => 'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã¥ÂÂ';
 
   @override
-  String get scratch_meta_type_label => 'コマンドタイプ';
+  String get scratch_meta_type_label =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’â€”';
 
   @override
-  String get scratch_meta_type_message => 'メッセージコマンド';
+  String get scratch_meta_type_message =>
+      'Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°';
 
   @override
-  String get scratch_meta_type_message_desc => 'メッセージのコンテキストメニューからトリガーされます。';
+  String get scratch_meta_type_message_desc =>
+      'Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£ÂÂ®Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã£Æ’Â¡Ã£Æ’â€¹Ã£Æ’Â¥Ã£Æ’Â¼Ã£Ââ€¹Ã£â€šâ€°Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get scratch_meta_type_prefix => 'プレフィックスコマンド';
+  String get scratch_meta_type_prefix =>
+      'Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¹Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°';
 
   @override
-  String get scratch_meta_type_prefix_desc => 'テキストプレフィックスでトリガーされます（例: !help）。';
+  String get scratch_meta_type_prefix_desc =>
+      'Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¹Ã£ÂÂ§Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã¯Â¼Ë†Ã¤Â¾â€¹: !helpÃ¯Â¼â€°Ã£â‚¬â€š';
 
   @override
-  String get scratch_meta_type_slash => 'スラッシュコマンド';
+  String get scratch_meta_type_slash =>
+      'Ã£â€šÂ¹Ã£Æ’Â©Ã£Æ’Æ’Ã£â€šÂ·Ã£Æ’Â¥Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°';
 
   @override
-  String get scratch_meta_type_slash_desc => 'Discordで / を入力してトリガーされます。';
+  String get scratch_meta_type_slash_desc =>
+      'DiscordÃ£ÂÂ§ / Ã£â€šâ€™Ã¥â€¦Â¥Ã¥Å â€ºÃ£Ââ€”Ã£ÂÂ¦Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get scratch_meta_type_user => 'ユーザーコマンド';
+  String get scratch_meta_type_user =>
+      'Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°';
 
   @override
-  String get scratch_meta_type_user_desc => 'ユーザーのコンテキストメニューからトリガーされます。';
+  String get scratch_meta_type_user_desc =>
+      'Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£ÂÂ®Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†Ã£Æ’Â¡Ã£Æ’â€¹Ã£Æ’Â¥Ã£Æ’Â¼Ã£Ââ€¹Ã£â€šâ€°Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get scratch_mode_bdfd => 'BDFD コード';
+  String get scratch_mode_bdfd => 'BDFD Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€°';
 
   @override
-  String get scratch_mode_blocks => 'ビジュアル (ブロック)';
+  String get scratch_mode_blocks =>
+      'Ã£Æ’â€œÃ£â€šÂ¸Ã£Æ’Â¥Ã£â€šÂ¢Ã£Æ’Â« (Ã£Æ’â€“Ã£Æ’Â­Ã£Æ’Æ’Ã£â€šÂ¯)';
 
   @override
   String get scratch_mode_dart => 'Dart';
 
   @override
-  String get scratch_response_block => '応答';
+  String get scratch_response_block => 'Ã¥Â¿Å“Ã§Â­â€';
 
   @override
-  String get scratch_response_components => 'コンポーネント';
+  String get scratch_response_components =>
+      'Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â³Ã£Æ’Ë†';
 
   @override
-  String get scratch_response_edit => '応答を編集';
+  String get scratch_response_edit => 'Ã¥Â¿Å“Ã§Â­â€Ã£â€šâ€™Ã§Â·Â¨Ã©â€ºâ€ ';
 
   @override
-  String get scratch_trigger_tab => 'トリガー';
+  String get scratch_trigger_tab => 'Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼';
 
   @override
   String get scratch_wizard_actions_empty_desc =>
-      '以下にアクションブロックを追加して、ボットの動作を設定します。';
+      'Ã¤Â»Â¥Ã¤Â¸â€¹Ã£ÂÂ«Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£Æ’â€“Ã£Æ’Â­Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â Ã£Ââ€”Ã£ÂÂ¦Ã£â‚¬ÂÃ£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÂ®Ã¥â€¹â€¢Ã¤Â½Å“Ã£â€šâ€™Ã¨Â¨Â­Ã¥Â®Å¡Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get scratch_wizard_actions_empty_title => 'アクションがまだ定義されていません。';
+  String get scratch_wizard_actions_empty_title =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÅ’Ã£ÂÂ¾Ã£ÂÂ Ã¥Â®Å¡Ã§Â¾Â©Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¦Ã£Ââ€žÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
   String get scratch_wizard_config_button_instruction =>
-      'このワークフローをトリガーするボタンまたはモーダルのIDを設定します。';
+      'Ã£Ââ€œÃ£ÂÂ®Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼Ã£Ââ„¢Ã£â€šâ€¹Ã£Æ’Å“Ã£â€šÂ¿Ã£Æ’Â³Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â‚¬Ã£Æ’Â«Ã£ÂÂ®IDÃ£â€šâ€™Ã¨Â¨Â­Ã¥Â®Å¡Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get scratch_wizard_folder_hint => '例: admin';
+  String get scratch_wizard_folder_hint => 'Ã¤Â¾â€¹: admin';
 
   @override
-  String get scratch_wizard_folder_label => 'フォルダ（任意）';
+  String get scratch_wizard_folder_label =>
+      'Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â«Ã£Æ’â‚¬Ã¯Â¼Ë†Ã¤Â»Â»Ã¦â€žÂÃ¯Â¼â€°';
 
   @override
-  String get scratch_wizard_save_details => '保存詳細設定';
+  String get scratch_wizard_save_details =>
+      'Ã¤Â¿ÂÃ¥Â­ËœÃ¨Â©Â³Ã§Â´Â°Ã¨Â¨Â­Ã¥Â®Å¡';
 
   @override
-  String get scratch_wizard_step_actions => 'ステップ 3: アクション';
+  String get scratch_wizard_step_actions =>
+      'Ã£â€šÂ¹Ã£Æ’â€ Ã£Æ’Æ’Ã£Æ’â€” 3: Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³';
 
   @override
-  String get scratch_wizard_step_config => 'ステップ 2: 設定';
+  String get scratch_wizard_step_config =>
+      'Ã£â€šÂ¹Ã£Æ’â€ Ã£Æ’Æ’Ã£Æ’â€” 2: Ã¨Â¨Â­Ã¥Â®Å¡';
 
   @override
-  String get scratch_wizard_step_save => 'ステップ 4: 保存と概要';
+  String get scratch_wizard_step_save =>
+      'Ã£â€šÂ¹Ã£Æ’â€ Ã£Æ’Æ’Ã£Æ’â€” 4: Ã¤Â¿ÂÃ¥Â­ËœÃ£ÂÂ¨Ã¦Â¦â€šÃ¨Â¦Â';
 
   @override
-  String get scratch_wizard_step_trigger => 'ステップ 1: トリガーの種類';
+  String get scratch_wizard_step_trigger =>
+      'Ã£â€šÂ¹Ã£Æ’â€ Ã£Æ’Æ’Ã£Æ’â€” 1: Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼Ã£ÂÂ®Ã§Â¨Â®Ã©Â¡Å¾';
 
   @override
   String scratch_wizard_summary_actions_count(int count) {
-    return '$count個のアクションが設定されました';
+    return '$countÃ¥â‚¬â€¹Ã£ÂÂ®Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÅ’Ã¨Â¨Â­Ã¥Â®Å¡Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
   }
 
   @override
-  String get scratch_wizard_summary_title => 'ワークフローの概要';
+  String get scratch_wizard_summary_title =>
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£ÂÂ®Ã¦Â¦â€šÃ¨Â¦Â';
 
   @override
   String scratch_wizard_summary_trigger_button(String id) {
-    return 'ボタンクリック / モーダル (カスタムID: \'$id\')';
+    return 'Ã£Æ’Å“Ã£â€šÂ¿Ã£Æ’Â³Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’Æ’Ã£â€šÂ¯ / Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â‚¬Ã£Æ’Â« (Ã£â€šÂ«Ã£â€šÂ¹Ã£â€šÂ¿Ã£Æ’Â ID: \'$id\')';
   }
 
   @override
   String scratch_wizard_summary_trigger_event(String event) {
-    return 'イベント: $event';
+    return 'Ã£â€šÂ¤Ã£Æ’â„¢Ã£Æ’Â³Ã£Æ’Ë†: $event';
   }
 
   @override
-  String get scratch_wizard_summary_trigger_function => '一般関数 / ワークフロー';
+  String get scratch_wizard_summary_trigger_function =>
+      'Ã¤Â¸â‚¬Ã¨Ë†Â¬Ã©â€“Â¢Ã¦â€¢Â° / Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼';
 
   @override
   String get scratch_wizard_trigger_button_desc =>
-      'ユーザーがボタンをクリック、セレクトメニューを使用、またはモーダルを送信したときにトリガーします。';
+      'Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã£ÂÅ’Ã£Æ’Å“Ã£â€šÂ¿Ã£Æ’Â³Ã£â€šâ€™Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’Æ’Ã£â€šÂ¯Ã£â‚¬ÂÃ£â€šÂ»Ã£Æ’Â¬Ã£â€šÂ¯Ã£Æ’Ë†Ã£Æ’Â¡Ã£Æ’â€¹Ã£Æ’Â¥Ã£Æ’Â¼Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨Ã£â‚¬ÂÃ£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â‚¬Ã£Æ’Â«Ã£â€šâ€™Ã©â‚¬ÂÃ¤Â¿Â¡Ã£Ââ€”Ã£ÂÅ¸Ã£ÂÂ¨Ã£ÂÂÃ£ÂÂ«Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get scratch_wizard_trigger_button_title => 'ボタンまたはメッセージコンポーネント';
+  String get scratch_wizard_trigger_button_title =>
+      'Ã£Æ’Å“Ã£â€šÂ¿Ã£Æ’Â³Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â³Ã£Æ’Ë†';
 
   @override
   String get scratch_wizard_trigger_event_desc =>
-      'Discordの特定のアクション（メンバーの参加、メッセージの削除、ロールの更新など）でトリガーします。';
+      'DiscordÃ£ÂÂ®Ã§â€°Â¹Ã¥Â®Å¡Ã£ÂÂ®Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã¯Â¼Ë†Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£ÂÂ®Ã¥Ââ€šÃ¥Å Â Ã£â‚¬ÂÃ£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£ÂÂ®Ã¥â€°Å Ã©â„¢Â¤Ã£â‚¬ÂÃ£Æ’Â­Ã£Æ’Â¼Ã£Æ’Â«Ã£ÂÂ®Ã¦â€ºÂ´Ã¦â€“Â°Ã£ÂÂªÃ£ÂÂ©Ã¯Â¼â€°Ã£ÂÂ§Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get scratch_wizard_trigger_event_title => 'Discordイベント';
+  String get scratch_wizard_trigger_event_title =>
+      'DiscordÃ£â€šÂ¤Ã£Æ’â„¢Ã£Æ’Â³Ã£Æ’Ë†';
 
   @override
   String get scratch_wizard_trigger_function_desc =>
-      '他のトリガーやカスタムインテグレーションから呼び出せる再利用可能な関数としてワークフローを実行します。';
+      'Ã¤Â»â€“Ã£ÂÂ®Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼Ã£â€šâ€žÃ£â€šÂ«Ã£â€šÂ¹Ã£â€šÂ¿Ã£Æ’Â Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’â€ Ã£â€šÂ°Ã£Æ’Â¬Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£Ââ€¹Ã£â€šâ€°Ã¥â€˜Â¼Ã£ÂÂ³Ã¥â€¡ÂºÃ£Ââ€ºÃ£â€šâ€¹Ã¥â€ ÂÃ¥Ë†Â©Ã§â€Â¨Ã¥ÂÂ¯Ã¨Æ’Â½Ã£ÂÂªÃ©â€“Â¢Ã¦â€¢Â°Ã£ÂÂ¨Ã£Ââ€”Ã£ÂÂ¦Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã¥Â®Å¸Ã¨Â¡Å’Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get scratch_wizard_trigger_function_title => '関数 / 手動トリガー';
+  String get scratch_wizard_trigger_function_title =>
+      'Ã©â€“Â¢Ã¦â€¢Â° / Ã¦â€°â€¹Ã¥â€¹â€¢Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼';
 
   @override
   String get scratch_wizard_trigger_instruction =>
-      'このワークフローをトリガーするイベントを選択してください:';
+      'Ã£Ââ€œÃ£ÂÂ®Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼Ã£Ââ„¢Ã£â€šâ€¹Ã£â€šÂ¤Ã£Æ’â„¢Ã£Æ’Â³Ã£Æ’Ë†Ã£â€šâ€™Ã©ÂÂ¸Ã¦Å Å¾Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€ž:';
 
   @override
-  String get scratch_wizard_workflow_name_hint => '例: button_response';
+  String get scratch_wizard_workflow_name_hint => 'Ã¤Â¾â€¹: button_response';
 
   @override
-  String get scratch_wizard_workflow_name_label => 'ワークフロー名 *';
+  String get scratch_wizard_workflow_name_label =>
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã¥ÂÂ *';
 
   @override
-  String get scratch_workflow_add_argument => '引数を追加';
+  String get scratch_workflow_add_argument =>
+      'Ã¥Â¼â€¢Ã¦â€¢Â°Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get scratch_workflow_arguments => '引数 (変数)';
+  String get scratch_workflow_arguments => 'Ã¥Â¼â€¢Ã¦â€¢Â° (Ã¥Â¤â€°Ã¦â€¢Â°)';
 
   @override
-  String get scratch_workflow_metadata => 'ワークフロー設定';
+  String get scratch_workflow_metadata =>
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã¨Â¨Â­Ã¥Â®Å¡';
 
   @override
-  String get scratch_workflow_name => 'ワークフロー名';
+  String get scratch_workflow_name =>
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã¥ÂÂ';
 
   @override
-  String get scratch_workflow_type => 'ワークフロータイプ';
+  String get scratch_workflow_type =>
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’â€”';
 
   @override
-  String get scratch_workflow_type_event => 'イベント駆動';
+  String get scratch_workflow_type_event =>
+      'Ã£â€šÂ¤Ã£Æ’â„¢Ã£Æ’Â³Ã£Æ’Ë†Ã©Â§â€ Ã¥â€¹â€¢';
 
   @override
-  String get scratch_workflow_type_general => '一般';
+  String get scratch_workflow_type_general => 'Ã¤Â¸â‚¬Ã¨Ë†Â¬';
 
   @override
-  String get serialization_export_base64_title => 'コマンドをBase64でエクスポート';
+  String get serialization_export_base64_title =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Base64Ã£ÂÂ§Ã£â€šÂ¨Ã£â€šÂ¯Ã£â€šÂ¹Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†';
 
   @override
-  String get serialization_export_json_subtitle => '読み取り可能なJSONをクリップボードにコピー';
+  String get serialization_export_json_subtitle =>
+      'Ã¨ÂªÂ­Ã£ÂÂ¿Ã¥Ââ€“Ã£â€šÅ Ã¥ÂÂ¯Ã¨Æ’Â½Ã£ÂÂªJSONÃ£â€šâ€™Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’Æ’Ã£Æ’â€”Ã£Æ’Å“Ã£Æ’Â¼Ã£Æ’â€°Ã£ÂÂ«Ã£â€šÂ³Ã£Æ’â€Ã£Æ’Â¼';
 
   @override
-  String get serialization_export_json_title => 'コマンドをJSONでエクスポート';
+  String get serialization_export_json_title =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™JSONÃ£ÂÂ§Ã£â€šÂ¨Ã£â€šÂ¯Ã£â€šÂ¹Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†';
 
   @override
-  String get serialization_import_desc => 'コマンドペイロードを貼り付け（JSON または Base64）。';
+  String get serialization_import_desc =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£Æ’Å¡Ã£â€šÂ¤Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’â€°Ã£â€šâ€™Ã¨Â²Â¼Ã£â€šÅ Ã¤Â»ËœÃ£Ââ€˜Ã¯Â¼Ë†JSON Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯ Base64Ã¯Â¼â€°Ã£â‚¬â€š';
 
   @override
-  String get serialization_import_title => 'コマンドをインポート';
+  String get serialization_import_title =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†';
 
   @override
-  String get serialization_imported => 'コマンドがエディタにインポートされました。';
+  String get serialization_imported =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÅ’Ã£â€šÂ¨Ã£Æ’â€¡Ã£â€šÂ£Ã£â€šÂ¿Ã£ÂÂ«Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€š';
 
   @override
-  String get serialization_invalid_format => '無効なコマンドペイロード形式です。';
+  String get serialization_invalid_format =>
+      'Ã§â€žÂ¡Ã¥Å Â¹Ã£ÂÂªÃ£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£Æ’Å¡Ã£â€šÂ¤Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’â€°Ã¥Â½Â¢Ã¥Â¼ÂÃ£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get serialization_invalid_structure => '無効なコマンドペイロード構造です。';
+  String get serialization_invalid_structure =>
+      'Ã§â€žÂ¡Ã¥Å Â¹Ã£ÂÂªÃ£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£Æ’Å¡Ã£â€šÂ¤Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’â€°Ã¦Â§â€¹Ã©â‚¬Â Ã£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get settings_account_connect_label => 'DiscordでBot Creatorにサインイン';
+  String get settings_account_connect_label =>
+      'DiscordÃ£ÂÂ§Bot CreatorÃ£ÂÂ«Ã£â€šÂµÃ£â€šÂ¤Ã£Æ’Â³Ã£â€šÂ¤Ã£Æ’Â³';
 
   @override
   String get settings_account_connected_hint =>
-      'アカウントが接続されました。ボットとデータがBot Creatorと同期されました。';
+      'Ã£â€šÂ¢Ã£â€šÂ«Ã£â€šÂ¦Ã£Æ’Â³Ã£Æ’Ë†Ã£ÂÅ’Ã¦Å½Â¥Ã§Â¶Å¡Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€šÃ£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÂ¨Ã£Æ’â€¡Ã£Æ’Â¼Ã£â€šÂ¿Ã£ÂÅ’Bot CreatorÃ£ÂÂ¨Ã¥ÂÅ’Ã¦Å“Å¸Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€š';
 
   @override
-  String get settings_account_disconnect_label => 'サインアウト';
+  String get settings_account_disconnect_label =>
+      'Ã£â€šÂµÃ£â€šÂ¤Ã£Æ’Â³Ã£â€šÂ¢Ã£â€šÂ¦Ã£Æ’Ë†';
 
   @override
   String get settings_account_disconnected_hint =>
-      'Bot Creatorアカウントはボットを追加すると自動的に作成されます。その後Discordでサインインしてください。';
+      'Bot CreatorÃ£â€šÂ¢Ã£â€šÂ«Ã£â€šÂ¦Ã£Æ’Â³Ã£Æ’Ë†Ã£ÂÂ¯Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â Ã£Ââ„¢Ã£â€šâ€¹Ã£ÂÂ¨Ã¨â€¡ÂªÃ¥â€¹â€¢Ã§Å¡â€žÃ£ÂÂ«Ã¤Â½Å“Ã¦Ë†ÂÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ£ÂÂÃ£ÂÂ®Ã¥Â¾Å’DiscordÃ£ÂÂ§Ã£â€šÂµÃ£â€šÂ¤Ã£Æ’Â³Ã£â€šÂ¤Ã£Æ’Â³Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get settings_account_status_connected => 'アカウント接続済み';
+  String get settings_account_status_connected =>
+      'Ã£â€šÂ¢Ã£â€šÂ«Ã£â€šÂ¦Ã£Æ’Â³Ã£Æ’Ë†Ã¦Å½Â¥Ã§Â¶Å¡Ã¦Â¸Ë†Ã£ÂÂ¿';
 
   @override
-  String get settings_account_status_disconnected => '未サインイン';
+  String get settings_account_status_disconnected =>
+      'Ã¦Å“ÂªÃ£â€šÂµÃ£â€šÂ¤Ã£Æ’Â³Ã£â€šÂ¤Ã£Æ’Â³';
 
   @override
-  String get settings_ads_privacy_loading => '広告プライバシー設定を確認中...';
+  String get settings_ads_privacy_loading =>
+      'Ã¥ÂºÆ’Ã¥â€˜Å Ã£Æ’â€”Ã£Æ’Â©Ã£â€šÂ¤Ã£Æ’ÂÃ£â€šÂ·Ã£Æ’Â¼Ã¨Â¨Â­Ã¥Â®Å¡Ã£â€šâ€™Ã§Â¢ÂºÃ¨ÂªÂÃ¤Â¸Â­...';
 
   @override
-  String get settings_ads_privacy_manage => '広告プライバシー設定を管理';
+  String get settings_ads_privacy_manage =>
+      'Ã¥ÂºÆ’Ã¥â€˜Å Ã£Æ’â€”Ã£Æ’Â©Ã£â€šÂ¤Ã£Æ’ÂÃ£â€šÂ·Ã£Æ’Â¼Ã¨Â¨Â­Ã¥Â®Å¡Ã£â€šâ€™Ã§Â®Â¡Ã§Ââ€ ';
 
   @override
-  String get settings_ads_privacy_not_required => '現在、広告プライバシーオプションは必要ありません';
+  String get settings_ads_privacy_not_required =>
+      'Ã§ÂÂ¾Ã¥Å“Â¨Ã£â‚¬ÂÃ¥ÂºÆ’Ã¥â€˜Å Ã£Æ’â€”Ã£Æ’Â©Ã£â€šÂ¤Ã£Æ’ÂÃ£â€šÂ·Ã£Æ’Â¼Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ¯Ã¥Â¿â€¦Ã¨Â¦ÂÃ£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œ';
 
   @override
-  String get settings_ads_privacy_open_error => '広告プライバシーオプションを開けませんでした';
+  String get settings_ads_privacy_open_error =>
+      'Ã¥ÂºÆ’Ã¥â€˜Å Ã£Æ’â€”Ã£Æ’Â©Ã£â€šÂ¤Ã£Æ’ÂÃ£â€šÂ·Ã£Æ’Â¼Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã©â€“â€¹Ã£Ââ€˜Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£ÂÂ§Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
-  String get settings_ads_privacy_opened => '広告プライバシーオプションが開かれました';
+  String get settings_ads_privacy_opened =>
+      'Ã¥ÂºÆ’Ã¥â€˜Å Ã£Æ’â€”Ã£Æ’Â©Ã£â€šÂ¤Ã£Æ’ÂÃ£â€šÂ·Ã£Æ’Â¼Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÅ’Ã©â€“â€¹Ã£Ââ€¹Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
-  String get settings_app_version => 'アプリ';
+  String get settings_app_version => 'Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’Âª';
 
   @override
-  String get settings_appearance_title => '外観と言語';
+  String get settings_appearance_title => 'Ã¥Â¤â€“Ã¨Â¦Â³Ã£ÂÂ¨Ã¨Â¨â‚¬Ã¨ÂªÅ¾';
 
   @override
-  String get settings_auto_backup_check_loading => '自動バックアップ確認中…';
+  String get settings_auto_backup_check_loading =>
+      'Ã¨â€¡ÂªÃ¥â€¹â€¢Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¢Ã£Æ’Æ’Ã£Æ’â€”Ã§Â¢ÂºÃ¨ÂªÂÃ¤Â¸Â­Ã¢â‚¬Â¦';
 
   @override
-  String get settings_auto_backup_every_12h => '12時間ごと';
+  String get settings_auto_backup_every_12h =>
+      '12Ã¦â„¢â€šÃ©â€“â€œÃ£Ââ€Ã£ÂÂ¨';
 
   @override
-  String get settings_auto_backup_every_24h => '24時間ごと';
+  String get settings_auto_backup_every_24h =>
+      '24Ã¦â„¢â€šÃ©â€“â€œÃ£Ââ€Ã£ÂÂ¨';
 
   @override
-  String get settings_auto_backup_every_6h => '6時間ごと';
+  String get settings_auto_backup_every_6h => '6Ã¦â„¢â€šÃ©â€“â€œÃ£Ââ€Ã£ÂÂ¨';
 
   @override
-  String get settings_auto_backup_every_72h => '72時間ごと';
+  String get settings_auto_backup_every_72h =>
+      '72Ã¦â„¢â€šÃ©â€“â€œÃ£Ââ€Ã£ÂÂ¨';
 
   @override
-  String get settings_auto_backup_interval => '自動バックアップ間隔';
+  String get settings_auto_backup_interval =>
+      'Ã¨â€¡ÂªÃ¥â€¹â€¢Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¢Ã£Æ’Æ’Ã£Æ’â€”Ã©â€“â€œÃ©Å¡â€';
 
   @override
-  String get settings_backup_now => '今すぐバックアップ';
+  String get settings_backup_now =>
+      'Ã¤Â»Å Ã£Ââ„¢Ã£ÂÂÃ£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¢Ã£Æ’Æ’Ã£Æ’â€”';
 
   @override
-  String get settings_backup_restore_desc => 'Google Driveとのデータ同期を管理';
+  String get settings_backup_restore_desc =>
+      'Google DriveÃ£ÂÂ¨Ã£ÂÂ®Ã£Æ’â€¡Ã£Æ’Â¼Ã£â€šÂ¿Ã¥ÂÅ’Ã¦Å“Å¸Ã£â€šâ€™Ã§Â®Â¡Ã§Ââ€ ';
 
   @override
-  String get settings_backup_restore_title => 'バックアップと復元';
+  String get settings_backup_restore_title =>
+      'Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¢Ã£Æ’Æ’Ã£Æ’â€”Ã£ÂÂ¨Ã¥Â¾Â©Ã¥â€¦Æ’';
 
   @override
-  String get settings_builtin_help => '組み込みレガシー !help コマンド';
+  String get settings_builtin_help =>
+      'Ã§Âµâ€žÃ£ÂÂ¿Ã¨Â¾Â¼Ã£ÂÂ¿Ã£Æ’Â¬Ã£â€šÂ¬Ã£â€šÂ·Ã£Æ’Â¼ !help Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°';
 
   @override
   String get settings_builtin_help_subtitle =>
-      '明示的なトグル付きの必須機能。カスタムヘルプ動作のみが必要な場合は無効にしてください。';
+      'Ã¦ËœÅ½Ã§Â¤ÂºÃ§Å¡â€žÃ£ÂÂªÃ£Æ’Ë†Ã£â€šÂ°Ã£Æ’Â«Ã¤Â»ËœÃ£ÂÂÃ£ÂÂ®Ã¥Â¿â€¦Ã©Â Ë†Ã¦Â©Å¸Ã¨Æ’Â½Ã£â‚¬â€šÃ£â€šÂ«Ã£â€šÂ¹Ã£â€šÂ¿Ã£Æ’Â Ã£Æ’ËœÃ£Æ’Â«Ã£Æ’â€”Ã¥â€¹â€¢Ã¤Â½Å“Ã£ÂÂ®Ã£ÂÂ¿Ã£ÂÅ’Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÂªÃ¥Â Â´Ã¥ÂË†Ã£ÂÂ¯Ã§â€žÂ¡Ã¥Å Â¹Ã£ÂÂ«Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get settings_clear_logs => 'ログをクリア';
+  String get settings_clear_logs => 'Ã£Æ’Â­Ã£â€šÂ°Ã£â€šâ€™Ã£â€šÂ¯Ã£Æ’ÂªÃ£â€šÂ¢';
 
   @override
   String get settings_cloud_hosting_enabled =>
-      'モバイルボットはBot Creatorサーバーを使用するようになりました。';
+      'Ã£Æ’Â¢Ã£Æ’ÂÃ£â€šÂ¤Ã£Æ’Â«Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÂ¯Bot CreatorÃ£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ„¢Ã£â€šâ€¹Ã£â€šË†Ã£Ââ€ Ã£ÂÂ«Ã£ÂÂªÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€š';
 
   @override
-  String get settings_compatibility_desc => 'BDFDから移行するユーザー向けの機能カバレッジのクイックビュー。';
+  String get settings_compatibility_desc =>
+      'BDFDÃ£Ââ€¹Ã£â€šâ€°Ã§Â§Â»Ã¨Â¡Å’Ã£Ââ„¢Ã£â€šâ€¹Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼Ã¥Ââ€˜Ã£Ââ€˜Ã£ÂÂ®Ã¦Â©Å¸Ã¨Æ’Â½Ã£â€šÂ«Ã£Æ’ÂÃ£Æ’Â¬Ã£Æ’Æ’Ã£â€šÂ¸Ã£ÂÂ®Ã£â€šÂ¯Ã£â€šÂ¤Ã£Æ’Æ’Ã£â€šÂ¯Ã£Æ’â€œÃ£Æ’Â¥Ã£Æ’Â¼Ã£â‚¬â€š';
 
   @override
   String get settings_compatibility_functions_category_components =>
-      'コンポーネント / インタラクション';
+      'Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â³Ã£Æ’Ë† / Ã£â€šÂ¤Ã£Æ’Â³Ã£â€šÂ¿Ã£Æ’Â©Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³';
 
   @override
-  String get settings_compatibility_functions_category_control => '制御フロー';
+  String get settings_compatibility_functions_category_control =>
+      'Ã¥Ë†Â¶Ã¥Â¾Â¡Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼';
 
   @override
-  String get settings_compatibility_functions_category_embeds => '埋め込み';
+  String get settings_compatibility_functions_category_embeds =>
+      'Ã¥Å¸â€¹Ã£â€šÂÃ¨Â¾Â¼Ã£ÂÂ¿';
 
   @override
-  String get settings_compatibility_functions_category_guards => 'ガードと権限';
+  String get settings_compatibility_functions_category_guards =>
+      'Ã£â€šÂ¬Ã£Æ’Â¼Ã£Æ’â€°Ã£ÂÂ¨Ã¦Â¨Â©Ã©â„¢Â';
 
   @override
-  String get settings_compatibility_functions_category_http => 'HTTP ヘルパー';
+  String get settings_compatibility_functions_category_http =>
+      'HTTP Ã£Æ’ËœÃ£Æ’Â«Ã£Æ’â€˜Ã£Æ’Â¼';
 
   @override
-  String get settings_compatibility_functions_category_json => 'JSON ヘルパー';
+  String get settings_compatibility_functions_category_json =>
+      'JSON Ã£Æ’ËœÃ£Æ’Â«Ã£Æ’â€˜Ã£Æ’Â¼';
 
   @override
-  String get settings_compatibility_functions_category_logging => 'ログ';
+  String get settings_compatibility_functions_category_logging =>
+      'Ã£Æ’Â­Ã£â€šÂ°';
 
   @override
-  String get settings_compatibility_functions_category_messages => 'メッセージ';
+  String get settings_compatibility_functions_category_messages =>
+      'Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸';
 
   @override
   String get settings_compatibility_functions_category_runtime =>
-      'ランタイムプレースホルダー';
+      'Ã£Æ’Â©Ã£Æ’Â³Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£â€šÂ¹Ã£Æ’â€ºÃ£Æ’Â«Ã£Æ’â‚¬Ã£Æ’Â¼';
 
   @override
-  String get settings_compatibility_functions_category_threads => 'スレッド';
+  String get settings_compatibility_functions_category_threads =>
+      'Ã£â€šÂ¹Ã£Æ’Â¬Ã£Æ’Æ’Ã£Æ’â€°';
 
   @override
-  String get settings_compatibility_functions_category_variables => 'スコープ変数';
+  String get settings_compatibility_functions_category_variables =>
+      'Ã£â€šÂ¹Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€”Ã¥Â¤â€°Ã¦â€¢Â°';
 
   @override
   String settings_compatibility_functions_count(int count) {
-    return '互換関数: $count';
+    return 'Ã¤Âºâ€™Ã¦Ââ€ºÃ©â€“Â¢Ã¦â€¢Â°: $count';
   }
 
   @override
   String settings_compatibility_functions_count_bdfd(int count) {
-    return 'BDFD参照総数: $count';
+    return 'BDFDÃ¥Ââ€šÃ§â€¦Â§Ã§Â·ÂÃ¦â€¢Â°: $count';
   }
 
   @override
   String settings_compatibility_functions_count_bot_creator(int count) {
-    return 'Bot Creator対応: $count';
+    return 'Bot CreatorÃ¥Â¯Â¾Ã¥Â¿Å“: $count';
   }
 
   @override
   String settings_compatibility_functions_count_bot_only(int count) {
-    return 'Bot Creatorのみ: $count';
+    return 'Bot CreatorÃ£ÂÂ®Ã£ÂÂ¿: $count';
   }
 
   @override
   String settings_compatibility_functions_count_both(int count) {
-    return '両方で対応: $count';
+    return 'Ã¤Â¸Â¡Ã¦â€“Â¹Ã£ÂÂ§Ã¥Â¯Â¾Ã¥Â¿Å“: $count';
   }
 
   @override
   String settings_compatibility_functions_count_missing(int count) {
-    return 'Bot Creatorで未対応: $count';
+    return 'Bot CreatorÃ£ÂÂ§Ã¦Å“ÂªÃ¥Â¯Â¾Ã¥Â¿Å“: $count';
   }
 
   @override
-  String get settings_compatibility_functions_empty => 'このセクションに関数はありません。';
+  String get settings_compatibility_functions_empty =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã£â€šÂ»Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ«Ã©â€“Â¢Ã¦â€¢Â°Ã£ÂÂ¯Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
   String get settings_compatibility_functions_matrix_note =>
-      'BDFD専用エントリは、提供されたBDFDカタログに記載されているが現在実装されていない関数です。';
+      'BDFDÃ¥Â°â€šÃ§â€Â¨Ã£â€šÂ¨Ã£Æ’Â³Ã£Æ’Ë†Ã£Æ’ÂªÃ£ÂÂ¯Ã£â‚¬ÂÃ¦ÂÂÃ¤Â¾â€ºÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸BDFDÃ£â€šÂ«Ã£â€šÂ¿Ã£Æ’Â­Ã£â€šÂ°Ã£ÂÂ«Ã¨Â¨ËœÃ¨Â¼â€°Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¦Ã£Ââ€žÃ£â€šâ€¹Ã£ÂÅ’Ã§ÂÂ¾Ã¥Å“Â¨Ã¥Â®Å¸Ã¨Â£â€¦Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¦Ã£Ââ€žÃ£ÂÂªÃ£Ââ€žÃ©â€“Â¢Ã¦â€¢Â°Ã£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get settings_compatibility_functions_matrix_subtitle =>
-      'Bot Creator実装とBDFD参照関数の差分ビュー。';
+      'Bot CreatorÃ¥Â®Å¸Ã¨Â£â€¦Ã£ÂÂ¨BDFDÃ¥Ââ€šÃ§â€¦Â§Ã©â€“Â¢Ã¦â€¢Â°Ã£ÂÂ®Ã¥Â·Â®Ã¥Ë†â€ Ã£Æ’â€œÃ£Æ’Â¥Ã£Æ’Â¼Ã£â‚¬â€š';
 
   @override
   String get settings_compatibility_functions_note =>
-      'このページは現在の実装範囲から生成されており、時間とともに成長します。';
+      'Ã£Ââ€œÃ£ÂÂ®Ã£Æ’Å¡Ã£Æ’Â¼Ã£â€šÂ¸Ã£ÂÂ¯Ã§ÂÂ¾Ã¥Å“Â¨Ã£ÂÂ®Ã¥Â®Å¸Ã¨Â£â€¦Ã§Â¯â€žÃ¥â€ºÂ²Ã£Ââ€¹Ã£â€šâ€°Ã§â€Å¸Ã¦Ë†ÂÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¦Ã£ÂÅ Ã£â€šÅ Ã£â‚¬ÂÃ¦â„¢â€šÃ©â€“â€œÃ£ÂÂ¨Ã£ÂÂ¨Ã£â€šâ€šÃ£ÂÂ«Ã¦Ë†ÂÃ©â€¢Â·Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get settings_compatibility_functions_search_hint =>
-      '関数を検索 (例: \$userJoined)';
+      'Ã©â€“Â¢Ã¦â€¢Â°Ã£â€šâ€™Ã¦Â¤Å“Ã§Â´Â¢ (Ã¤Â¾â€¹: \$userJoined)';
 
   @override
   String get settings_compatibility_functions_section_bot_only =>
-      'Bot Creatorのみ対応';
+      'Bot CreatorÃ£ÂÂ®Ã£ÂÂ¿Ã¥Â¯Â¾Ã¥Â¿Å“';
 
   @override
   String get settings_compatibility_functions_section_bot_only_note =>
-      'ループヘルパーは現在Bot Creator固有です。';
+      'Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’â€”Ã£Æ’ËœÃ£Æ’Â«Ã£Æ’â€˜Ã£Æ’Â¼Ã£ÂÂ¯Ã§ÂÂ¾Ã¥Å“Â¨Bot CreatorÃ¥â€ºÂºÃ¦Å“â€°Ã£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get settings_compatibility_functions_section_both =>
-      'Bot CreatorとBDFDの両方で対応';
+      'Bot CreatorÃ£ÂÂ¨BDFDÃ£ÂÂ®Ã¤Â¸Â¡Ã¦â€“Â¹Ã£ÂÂ§Ã¥Â¯Â¾Ã¥Â¿Å“';
 
   @override
   String get settings_compatibility_functions_section_missing =>
-      'BDFDで利用可能だがBot Creatorで未対応';
+      'BDFDÃ£ÂÂ§Ã¥Ë†Â©Ã§â€Â¨Ã¥ÂÂ¯Ã¨Æ’Â½Ã£ÂÂ Ã£ÂÅ’Bot CreatorÃ£ÂÂ§Ã¦Å“ÂªÃ¥Â¯Â¾Ã¥Â¿Å“';
 
   @override
   String get settings_compatibility_functions_subtitle =>
-      'Bot Creator BDFDモードで現在実装され使用可能な関数。';
+      'Bot Creator BDFDÃ£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°Ã£ÂÂ§Ã§ÂÂ¾Ã¥Å“Â¨Ã¥Â®Å¸Ã¨Â£â€¦Ã£Ââ€¢Ã£â€šÅ’Ã¤Â½Â¿Ã§â€Â¨Ã¥ÂÂ¯Ã¨Æ’Â½Ã£ÂÂªÃ©â€“Â¢Ã¦â€¢Â°Ã£â‚¬â€š';
 
   @override
-  String get settings_compatibility_functions_title => '互換BDFD関数';
+  String get settings_compatibility_functions_title =>
+      'Ã¤Âºâ€™Ã¦Ââ€ºBDFDÃ©â€“Â¢Ã¦â€¢Â°';
 
   @override
-  String get settings_compatibility_item_bdscript_desc => 'BDFD関数カタログの完全カバレッジ。';
+  String get settings_compatibility_item_bdscript_desc =>
+      'BDFDÃ©â€“Â¢Ã¦â€¢Â°Ã£â€šÂ«Ã£â€šÂ¿Ã£Æ’Â­Ã£â€šÂ°Ã£ÂÂ®Ã¥Â®Å’Ã¥â€¦Â¨Ã£â€šÂ«Ã£Æ’ÂÃ£Æ’Â¬Ã£Æ’Æ’Ã£â€šÂ¸Ã£â‚¬â€š';
 
   @override
-  String get settings_compatibility_item_bdscript_title => 'BDScript関数パリティ';
+  String get settings_compatibility_item_bdscript_title =>
+      'BDScriptÃ©â€“Â¢Ã¦â€¢Â°Ã£Æ’â€˜Ã£Æ’ÂªÃ£Æ’â€ Ã£â€šÂ£';
 
   @override
   String get settings_compatibility_item_events_desc =>
-      'ほとんどの一般的なイベントがサポートされています。一部はランタイム制限があります。';
+      'Ã£ÂÂ»Ã£ÂÂ¨Ã£â€šâ€œÃ£ÂÂ©Ã£ÂÂ®Ã¤Â¸â‚¬Ã¨Ë†Â¬Ã§Å¡â€žÃ£ÂÂªÃ£â€šÂ¤Ã£Æ’â„¢Ã£Æ’Â³Ã£Æ’Ë†Ã£ÂÅ’Ã£â€šÂµÃ£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¦Ã£Ââ€žÃ£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ¤Â¸â‚¬Ã©Æ’Â¨Ã£ÂÂ¯Ã£Æ’Â©Ã£Æ’Â³Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â Ã¥Ë†Â¶Ã©â„¢ÂÃ£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get settings_compatibility_item_events_title => 'イベントカバレッジ';
+  String get settings_compatibility_item_events_title =>
+      'Ã£â€šÂ¤Ã£Æ’â„¢Ã£Æ’Â³Ã£Æ’Ë†Ã£â€šÂ«Ã£Æ’ÂÃ£Æ’Â¬Ã£Æ’Æ’Ã£â€šÂ¸';
 
   @override
   String get settings_compatibility_item_runner_desc =>
-      'リモートランナーが利用可能です。マルチランナーサポートは進行中です。';
+      'Ã£Æ’ÂªÃ£Æ’Â¢Ã£Æ’Â¼Ã£Æ’Ë†Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼Ã£ÂÅ’Ã¥Ë†Â©Ã§â€Â¨Ã¥ÂÂ¯Ã¨Æ’Â½Ã£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€šÃ£Æ’Å¾Ã£Æ’Â«Ã£Æ’ÂÃ£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼Ã£â€šÂµÃ£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†Ã£ÂÂ¯Ã©â‚¬Â²Ã¨Â¡Å’Ã¤Â¸Â­Ã£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get settings_compatibility_item_runner_title => 'ランナーアーキテクチャ';
+  String get settings_compatibility_item_runner_title =>
+      'Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼Ã£â€šÂ¢Ã£Æ’Â¼Ã£â€šÂ­Ã£Æ’â€ Ã£â€šÂ¯Ã£Æ’ÂÃ£Æ’Â£';
 
   @override
   String get settings_compatibility_item_variables_desc =>
-      '動的変数とテンプレートヘルパーがサポートされています。';
+      'Ã¥â€¹â€¢Ã§Å¡â€žÃ¥Â¤â€°Ã¦â€¢Â°Ã£ÂÂ¨Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã£Æ’ËœÃ£Æ’Â«Ã£Æ’â€˜Ã£Æ’Â¼Ã£ÂÅ’Ã£â€šÂµÃ£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¦Ã£Ââ€žÃ£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get settings_compatibility_item_variables_title => 'ランタイム変数とテンプレート';
+  String get settings_compatibility_item_variables_title =>
+      'Ã£Æ’Â©Ã£Æ’Â³Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â Ã¥Â¤â€°Ã¦â€¢Â°Ã£ÂÂ¨Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†';
 
   @override
   String get settings_compatibility_item_workflows_desc =>
-      'ビジュアルコマンドと応答ワークフローが利用可能です。';
+      'Ã£Æ’â€œÃ£â€šÂ¸Ã£Æ’Â¥Ã£â€šÂ¢Ã£Æ’Â«Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ¨Ã¥Â¿Å“Ã§Â­â€Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£ÂÅ’Ã¥Ë†Â©Ã§â€Â¨Ã¥ÂÂ¯Ã¨Æ’Â½Ã£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get settings_compatibility_item_workflows_title => 'ワークフロービルダー';
+  String get settings_compatibility_item_workflows_title =>
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’â€œÃ£Æ’Â«Ã£Æ’â‚¬Ã£Æ’Â¼';
 
   @override
   String get settings_compatibility_note =>
-      'このスナップショットは意図的に高レベルであり、リリースとともに進化します。';
+      'Ã£Ââ€œÃ£ÂÂ®Ã£â€šÂ¹Ã£Æ’Å Ã£Æ’Æ’Ã£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÂ¯Ã¦â€žÂÃ¥â€ºÂ³Ã§Å¡â€žÃ£ÂÂ«Ã©Â«ËœÃ£Æ’Â¬Ã£Æ’â„¢Ã£Æ’Â«Ã£ÂÂ§Ã£Ââ€šÃ£â€šÅ Ã£â‚¬ÂÃ£Æ’ÂªÃ£Æ’ÂªÃ£Æ’Â¼Ã£â€šÂ¹Ã£ÂÂ¨Ã£ÂÂ¨Ã£â€šâ€šÃ£ÂÂ«Ã©â‚¬Â²Ã¥Å’â€“Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get settings_compatibility_open_functions => '互換関数を表示';
+  String get settings_compatibility_open_functions =>
+      'Ã¤Âºâ€™Ã¦Ââ€ºÃ©â€“Â¢Ã¦â€¢Â°Ã£â€šâ€™Ã¨Â¡Â¨Ã§Â¤Âº';
 
   @override
-  String get settings_compatibility_status_missing => '未対応';
+  String get settings_compatibility_status_missing => 'Ã¦Å“ÂªÃ¥Â¯Â¾Ã¥Â¿Å“';
 
   @override
-  String get settings_compatibility_status_partial => '部分的';
+  String get settings_compatibility_status_partial => 'Ã©Æ’Â¨Ã¥Ë†â€ Ã§Å¡â€ž';
 
   @override
-  String get settings_compatibility_status_supported => '対応済み';
+  String get settings_compatibility_status_supported =>
+      'Ã¥Â¯Â¾Ã¥Â¿Å“Ã¦Â¸Ë†Ã£ÂÂ¿';
 
   @override
-  String get settings_compatibility_title => 'BDFD互換性スナップショット';
+  String get settings_compatibility_title =>
+      'BDFDÃ¤Âºâ€™Ã¦Ââ€ºÃ¦â‚¬Â§Ã£â€šÂ¹Ã£Æ’Å Ã£Æ’Æ’Ã£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Æ’Ã£Æ’Ë†';
 
   @override
-  String get settings_data_operations_title => 'データ操作';
+  String get settings_data_operations_title =>
+      'Ã£Æ’â€¡Ã£Æ’Â¼Ã£â€šÂ¿Ã¦â€œÂÃ¤Â½Å“';
 
   @override
-  String get settings_debug_desc => 'テスト用にローカル設定をリセットするか、オンボーディングを再実行します。';
+  String get settings_debug_desc =>
+      'Ã£Æ’â€ Ã£â€šÂ¹Ã£Æ’Ë†Ã§â€Â¨Ã£ÂÂ«Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã¨Â¨Â­Ã¥Â®Å¡Ã£â€šâ€™Ã£Æ’ÂªÃ£â€šÂ»Ã£Æ’Æ’Ã£Æ’Ë†Ã£Ââ„¢Ã£â€šâ€¹Ã£Ââ€¹Ã£â‚¬ÂÃ£â€šÂªÃ£Æ’Â³Ã£Æ’Å“Ã£Æ’Â¼Ã£Æ’â€¡Ã£â€šÂ£Ã£Æ’Â³Ã£â€šÂ°Ã£â€šâ€™Ã¥â€ ÂÃ¥Â®Å¸Ã¨Â¡Å’Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get settings_debug_premium_bypass => 'プレミアムバイパス';
+  String get settings_debug_premium_bypass =>
+      'Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Å¸Ã£â€šÂ¢Ã£Æ’Â Ã£Æ’ÂÃ£â€šÂ¤Ã£Æ’â€˜Ã£â€šÂ¹';
 
   @override
   String get settings_debug_premium_bypass_desc =>
-      'サブスクリプションなしですべてのプレミアム機能を解除（デバッグのみ）。';
+      'Ã£â€šÂµÃ£Æ’â€“Ã£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂªÃ£Ââ€”Ã£ÂÂ§Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÂ®Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Å¸Ã£â€šÂ¢Ã£Æ’Â Ã¦Â©Å¸Ã¨Æ’Â½Ã£â€šâ€™Ã¨Â§Â£Ã©â„¢Â¤Ã¯Â¼Ë†Ã£Æ’â€¡Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ°Ã£ÂÂ®Ã£ÂÂ¿Ã¯Â¼â€°Ã£â‚¬â€š';
 
   @override
-  String get settings_debug_title => 'デバッグツール';
+  String get settings_debug_title =>
+      'Ã£Æ’â€¡Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ°Ã£Æ’â€žÃ£Æ’Â¼Ã£Æ’Â«';
 
   @override
-  String get settings_diagnostics_copied => '診断情報がクリップボードにコピーされました';
+  String get settings_diagnostics_copied =>
+      'Ã¨Â¨ÂºÃ¦â€“Â­Ã¦Æ’â€¦Ã¥Â Â±Ã£ÂÅ’Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’Æ’Ã£Æ’â€”Ã£Æ’Å“Ã£Æ’Â¼Ã£Æ’â€°Ã£ÂÂ«Ã£â€šÂ³Ã£Æ’â€Ã£Æ’Â¼Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
-  String get settings_diagnostics_copy_all => 'すべてのログをコピー';
+  String get settings_diagnostics_copy_all =>
+      'Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÂ®Ã£Æ’Â­Ã£â€šÂ°Ã£â€šâ€™Ã£â€šÂ³Ã£Æ’â€Ã£Æ’Â¼';
 
   @override
-  String get settings_diagnostics_dialog_title => '起動診断';
+  String get settings_diagnostics_dialog_title => 'Ã¨ÂµÂ·Ã¥â€¹â€¢Ã¨Â¨ÂºÃ¦â€“Â­';
 
   @override
-  String get settings_diagnostics_empty => 'まだアプリケーションログがありません。';
+  String get settings_diagnostics_empty =>
+      'Ã£ÂÂ¾Ã£ÂÂ Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£â€šÂ±Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£Æ’Â­Ã£â€šÂ°Ã£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
   String get settings_diagnostics_page_scope_note =>
-      'アプリ診断ログのみを表示します（ボットログは除外）。';
+      'Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ¨Â¨ÂºÃ¦â€“Â­Ã£Æ’Â­Ã£â€šÂ°Ã£ÂÂ®Ã£ÂÂ¿Ã£â€šâ€™Ã¨Â¡Â¨Ã§Â¤ÂºÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã¯Â¼Ë†Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£Æ’Â­Ã£â€šÂ°Ã£ÂÂ¯Ã©â„¢Â¤Ã¥Â¤â€“Ã¯Â¼â€°Ã£â‚¬â€š';
 
   @override
-  String get settings_diagnostics_page_title => 'アプリケーションログ';
+  String get settings_diagnostics_page_title =>
+      'Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£â€šÂ±Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£Æ’Â­Ã£â€šÂ°';
 
   @override
-  String get settings_diagnostics_refresh => 'ログを更新';
+  String get settings_diagnostics_refresh =>
+      'Ã£Æ’Â­Ã£â€šÂ°Ã£â€šâ€™Ã¦â€ºÂ´Ã¦â€“Â°';
 
   @override
-  String get settings_diagnostics_section_title => '診断';
+  String get settings_diagnostics_section_title => 'Ã¨Â¨ÂºÃ¦â€“Â­';
 
   @override
-  String get settings_discord_rpc_authenticating => 'Discordで認証中…';
+  String get settings_discord_rpc_authenticating =>
+      'DiscordÃ£ÂÂ§Ã¨ÂªÂÃ¨Â¨Â¼Ã¤Â¸Â­Ã¢â‚¬Â¦';
 
   @override
   String get settings_discord_rpc_authorization_code_pending_exchange =>
-      '認証コードがキャッシュされました。再試行してトークン交換を完了してください';
+      'Ã¨ÂªÂÃ¨Â¨Â¼Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€°Ã£ÂÅ’Ã£â€šÂ­Ã£Æ’Â£Ã£Æ’Æ’Ã£â€šÂ·Ã£Æ’Â¥Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€šÃ¥â€ ÂÃ¨Â©Â¦Ã¨Â¡Å’Ã£Ââ€”Ã£ÂÂ¦Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã¤ÂºÂ¤Ã¦Ââ€ºÃ£â€šâ€™Ã¥Â®Å’Ã¤Âºâ€ Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€ž';
 
   @override
   String get settings_discord_rpc_authorization_pending_exchange =>
-      '認証コードを受信しました';
+      'Ã¨ÂªÂÃ¨Â¨Â¼Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€°Ã£â€šâ€™Ã¥Ââ€”Ã¤Â¿Â¡Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
-  String get settings_discord_rpc_authorize => '認証';
+  String get settings_discord_rpc_authorize => 'Ã¨ÂªÂÃ¨Â¨Â¼';
 
   @override
-  String get settings_discord_rpc_authorizing => 'Discord認証を待機中…';
+  String get settings_discord_rpc_authorizing =>
+      'DiscordÃ¨ÂªÂÃ¨Â¨Â¼Ã£â€šâ€™Ã¥Â¾â€¦Ã¦Â©Å¸Ã¤Â¸Â­Ã¢â‚¬Â¦';
 
   @override
   String get settings_discord_rpc_broker_hint => 'https://auth.example.com';
 
   @override
-  String get settings_discord_rpc_broker_label => 'OAuthブローカーURL (詳細、オプション)';
+  String get settings_discord_rpc_broker_label =>
+      'OAuthÃ£Æ’â€“Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â¼URL (Ã¨Â©Â³Ã§Â´Â°Ã£â‚¬ÂÃ£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³)';
 
   @override
   String get settings_discord_rpc_broker_required =>
-      '公開クライアントフローにはクライアントIDで十分です。ブローカーURLとクライアントシークレットはオプションです。';
+      'Ã¥â€¦Â¬Ã©â€“â€¹Ã£â€šÂ¯Ã£Æ’Â©Ã£â€šÂ¤Ã£â€šÂ¢Ã£Æ’Â³Ã£Æ’Ë†Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£ÂÂ«Ã£ÂÂ¯Ã£â€šÂ¯Ã£Æ’Â©Ã£â€šÂ¤Ã£â€šÂ¢Ã£Æ’Â³Ã£Æ’Ë†IDÃ£ÂÂ§Ã¥ÂÂÃ¥Ë†â€ Ã£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€šÃ£Æ’â€“Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â¼URLÃ£ÂÂ¨Ã£â€šÂ¯Ã£Æ’Â©Ã£â€šÂ¤Ã£â€šÂ¢Ã£Æ’Â³Ã£Æ’Ë†Ã£â€šÂ·Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â¬Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÂ¯Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get settings_discord_rpc_client_id_helper =>
-      'このIDはBot Creatorで固定されており、設定から変更できません。';
+      'Ã£Ââ€œÃ£ÂÂ®IDÃ£ÂÂ¯Bot CreatorÃ£ÂÂ§Ã¥â€ºÂºÃ¥Â®Å¡Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¦Ã£ÂÅ Ã£â€šÅ Ã£â‚¬ÂÃ¨Â¨Â­Ã¥Â®Å¡Ã£Ââ€¹Ã£â€šâ€°Ã¥Â¤â€°Ã¦â€ºÂ´Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
   String get settings_discord_rpc_client_id_hint => '1350824555119382678';
 
   @override
   String get settings_discord_rpc_client_id_required =>
-      'DiscordアプリケーションクライアントIDが必要です';
+      'DiscordÃ£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£â€šÂ±Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šÂ¯Ã£Æ’Â©Ã£â€šÂ¤Ã£â€šÂ¢Ã£Æ’Â³Ã£Æ’Ë†IDÃ£ÂÅ’Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÂ§Ã£Ââ„¢';
 
   @override
   String get settings_discord_rpc_client_secret_helper =>
-      'ローカルで処理される機密クライアントフロー用のオプションの高度なフォールバック。';
+      'Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã£ÂÂ§Ã¥â€¡Â¦Ã§Ââ€ Ã£Ââ€¢Ã£â€šÅ’Ã£â€šâ€¹Ã¦Â©Å¸Ã¥Â¯â€ Ã£â€šÂ¯Ã£Æ’Â©Ã£â€šÂ¤Ã£â€šÂ¢Ã£Æ’Â³Ã£Æ’Ë†Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã§â€Â¨Ã£ÂÂ®Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ®Ã©Â«ËœÃ¥ÂºÂ¦Ã£ÂÂªÃ£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã£â‚¬â€š';
 
   @override
-  String get settings_discord_rpc_client_secret_hint => 'クライアントシークレット';
+  String get settings_discord_rpc_client_secret_hint =>
+      'Ã£â€šÂ¯Ã£Æ’Â©Ã£â€šÂ¤Ã£â€šÂ¢Ã£Æ’Â³Ã£Æ’Ë†Ã£â€šÂ·Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â¬Ã£Æ’Æ’Ã£Æ’Ë†';
 
   @override
   String get settings_discord_rpc_client_secret_label =>
-      'Discordアプリケーションクライアントシークレット (オプション)';
+      'DiscordÃ£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£â€šÂ±Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šÂ¯Ã£Æ’Â©Ã£â€šÂ¤Ã£â€šÂ¢Ã£Æ’Â³Ã£Æ’Ë†Ã£â€šÂ·Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â¬Ã£Æ’Æ’Ã£Æ’Ë† (Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³)';
 
   @override
-  String get settings_discord_rpc_complete_authorization => '認証を完了';
+  String get settings_discord_rpc_complete_authorization =>
+      'Ã¨ÂªÂÃ¨Â¨Â¼Ã£â€šâ€™Ã¥Â®Å’Ã¤Âºâ€ ';
 
   @override
-  String get settings_discord_rpc_connect => 'プレゼンスを更新';
+  String get settings_discord_rpc_connect =>
+      'Ã£Æ’â€”Ã£Æ’Â¬Ã£â€šÂ¼Ã£Æ’Â³Ã£â€šÂ¹Ã£â€šâ€™Ã¦â€ºÂ´Ã¦â€“Â°';
 
   @override
-  String get settings_discord_rpc_connected => 'プレゼンスがDiscordに送信されました';
+  String get settings_discord_rpc_connected =>
+      'Ã£Æ’â€”Ã£Æ’Â¬Ã£â€šÂ¼Ã£Æ’Â³Ã£â€šÂ¹Ã£ÂÅ’DiscordÃ£ÂÂ«Ã©â‚¬ÂÃ¤Â¿Â¡Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
-  String get settings_discord_rpc_connecting => 'Discordに接続中…';
+  String get settings_discord_rpc_connecting =>
+      'DiscordÃ£ÂÂ«Ã¦Å½Â¥Ã§Â¶Å¡Ã¤Â¸Â­Ã¢â‚¬Â¦';
 
   @override
   String get settings_discord_rpc_desc =>
-      'Bot CreatorデスクトップアクティビティをローカルDiscordクライアントに公開します。Bot Creatorは常に使用します';
+      'Bot CreatorÃ£Æ’â€¡Ã£â€šÂ¹Ã£â€šÂ¯Ã£Æ’Ë†Ã£Æ’Æ’Ã£Æ’â€”Ã£â€šÂ¢Ã£â€šÂ¯Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’â€œÃ£Æ’â€ Ã£â€šÂ£Ã£â€šâ€™Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«DiscordÃ£â€šÂ¯Ã£Æ’Â©Ã£â€šÂ¤Ã£â€šÂ¢Ã£Æ’Â³Ã£Æ’Ë†Ã£ÂÂ«Ã¥â€¦Â¬Ã©â€“â€¹Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šBot CreatorÃ£ÂÂ¯Ã¥Â¸Â¸Ã£ÂÂ«Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
-  String get settings_discord_rpc_disabled => '無効';
+  String get settings_discord_rpc_disabled => 'Ã§â€žÂ¡Ã¥Å Â¹';
 
   @override
-  String get settings_discord_rpc_disconnect => 'IPCを閉じる';
+  String get settings_discord_rpc_disconnect =>
+      'IPCÃ£â€šâ€™Ã©â€“â€°Ã£ÂËœÃ£â€šâ€¹';
 
   @override
-  String get settings_discord_rpc_disconnected => 'IPCが閉じられました';
+  String get settings_discord_rpc_disconnected =>
+      'IPCÃ£ÂÅ’Ã©â€“â€°Ã£ÂËœÃ£â€šâ€°Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
-  String get settings_discord_rpc_enable => 'Discord Rich Presenceを有効にする';
+  String get settings_discord_rpc_enable =>
+      'Discord Rich PresenceÃ£â€šâ€™Ã¦Å“â€°Ã¥Å Â¹Ã£ÂÂ«Ã£Ââ„¢Ã£â€šâ€¹';
 
   @override
   String get settings_discord_rpc_enable_first =>
-      '最初にDiscord Rich Presenceを有効にしてください';
+      'Ã¦Å“â‚¬Ã¥Ë†ÂÃ£ÂÂ«Discord Rich PresenceÃ£â€šâ€™Ã¦Å“â€°Ã¥Å Â¹Ã£ÂÂ«Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€ž';
 
   @override
   String settings_discord_rpc_endpoint(String endpoint) {
-    return 'IPCエンドポイント: $endpoint';
+    return 'IPCÃ£â€šÂ¨Ã£Æ’Â³Ã£Æ’â€°Ã£Æ’ÂÃ£â€šÂ¤Ã£Æ’Â³Ã£Æ’Ë†: $endpoint';
   }
 
   @override
-  String get settings_discord_rpc_error => 'Discord RPCエラー';
+  String get settings_discord_rpc_error => 'Discord RPCÃ£â€šÂ¨Ã£Æ’Â©Ã£Æ’Â¼';
 
   @override
-  String get settings_discord_rpc_exchanging_code => 'OAuth交換を完了中…';
+  String get settings_discord_rpc_exchanging_code =>
+      'OAuthÃ¤ÂºÂ¤Ã¦Ââ€ºÃ£â€šâ€™Ã¥Â®Å’Ã¤Âºâ€ Ã¤Â¸Â­Ã¢â‚¬Â¦';
 
   @override
   String get settings_discord_rpc_ipc_connected_auth_required =>
-      'ローカルDiscord IPC接続済み。OAuth HTTPリクエストは未送信、認証がまだ必要です';
+      'Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Discord IPCÃ¦Å½Â¥Ã§Â¶Å¡Ã¦Â¸Ë†Ã£ÂÂ¿Ã£â‚¬â€šOAuth HTTPÃ£Æ’ÂªÃ£â€šÂ¯Ã£â€šÂ¨Ã£â€šÂ¹Ã£Æ’Ë†Ã£ÂÂ¯Ã¦Å“ÂªÃ©â‚¬ÂÃ¤Â¿Â¡Ã£â‚¬ÂÃ¨ÂªÂÃ¨Â¨Â¼Ã£ÂÅ’Ã£ÂÂ¾Ã£ÂÂ Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÂ§Ã£Ââ„¢';
 
   @override
-  String get settings_discord_rpc_ipc_open => 'ローカルIPCは既に開いています';
+  String get settings_discord_rpc_ipc_open =>
+      'Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«IPCÃ£ÂÂ¯Ã¦â€”Â¢Ã£ÂÂ«Ã©â€“â€¹Ã£Ââ€žÃ£ÂÂ¦Ã£Ââ€žÃ£ÂÂ¾Ã£Ââ„¢';
 
   @override
   String settings_discord_rpc_last_error(String error) {
-    return '最後のエラー: $error';
+    return 'Ã¦Å“â‚¬Ã¥Â¾Å’Ã£ÂÂ®Ã£â€šÂ¨Ã£Æ’Â©Ã£Æ’Â¼: $error';
   }
 
   @override
-  String get settings_discord_rpc_needs_authorization => '認証が必要です';
+  String get settings_discord_rpc_needs_authorization =>
+      'Ã¨ÂªÂÃ¨Â¨Â¼Ã£ÂÅ’Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÂ§Ã£Ââ„¢';
 
   @override
-  String get settings_discord_rpc_not_configured => 'クライアントIDが必要です';
+  String get settings_discord_rpc_not_configured =>
+      'Ã£â€šÂ¯Ã£Æ’Â©Ã£â€šÂ¤Ã£â€šÂ¢Ã£Æ’Â³Ã£Æ’Ë†IDÃ£ÂÅ’Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÂ§Ã£Ââ„¢';
 
   @override
-  String get settings_discord_rpc_open_ipc => 'ローカルIPCを開く';
+  String get settings_discord_rpc_open_ipc =>
+      'Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«IPCÃ£â€šâ€™Ã©â€“â€¹Ã£ÂÂ';
 
   @override
   String get settings_discord_rpc_platform_unsupported =>
-      'Discord Rich Presenceはデスクトップのみ対応です';
+      'Discord Rich PresenceÃ£ÂÂ¯Ã£Æ’â€¡Ã£â€šÂ¹Ã£â€šÂ¯Ã£Æ’Ë†Ã£Æ’Æ’Ã£Æ’â€”Ã£ÂÂ®Ã£ÂÂ¿Ã¥Â¯Â¾Ã¥Â¿Å“Ã£ÂÂ§Ã£Ââ„¢';
 
   @override
-  String get settings_discord_rpc_save => '設定を保存';
+  String get settings_discord_rpc_save => 'Ã¨Â¨Â­Ã¥Â®Å¡Ã£â€šâ€™Ã¤Â¿ÂÃ¥Â­Ëœ';
 
   @override
-  String get settings_discord_rpc_saved => 'Discord Rich Presence設定が保存されました';
+  String get settings_discord_rpc_saved =>
+      'Discord Rich PresenceÃ¨Â¨Â­Ã¥Â®Å¡Ã£ÂÅ’Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
   String get settings_discord_rpc_title => 'Discord Rich Presence';
 
   @override
   String get settings_discord_rpc_transport_unsupported =>
-      'このプラットフォームではDiscordトランスポートはまだサポートされていません';
+      'Ã£Ââ€œÃ£ÂÂ®Ã£Æ’â€”Ã£Æ’Â©Ã£Æ’Æ’Ã£Æ’Ë†Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â¼Ã£Æ’Â Ã£ÂÂ§Ã£ÂÂ¯DiscordÃ£Æ’Ë†Ã£Æ’Â©Ã£Æ’Â³Ã£â€šÂ¹Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†Ã£ÂÂ¯Ã£ÂÂ¾Ã£ÂÂ Ã£â€šÂµÃ£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¦Ã£Ââ€žÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œ';
 
   @override
   String settings_discord_rpc_user(String user) {
-    return '認証済みユーザー: $user';
+    return 'Ã¨ÂªÂÃ¨Â¨Â¼Ã¦Â¸Ë†Ã£ÂÂ¿Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼: $user';
   }
 
   @override
-  String get settings_drive_connect => 'Google Driveに接続';
+  String get settings_drive_connect => 'Google DriveÃ£ÂÂ«Ã¦Å½Â¥Ã§Â¶Å¡';
 
   @override
-  String get settings_drive_connect_loading => 'Google Driveに接続中…';
+  String get settings_drive_connect_loading =>
+      'Google DriveÃ£ÂÂ«Ã¦Å½Â¥Ã§Â¶Å¡Ã¤Â¸Â­Ã¢â‚¬Â¦';
 
   @override
-  String get settings_drive_connected => 'Google Driveに接続されました';
+  String get settings_drive_connected =>
+      'Google DriveÃ£ÂÂ«Ã¦Å½Â¥Ã§Â¶Å¡Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
-  String get settings_drive_desc => 'Google Driveアカウントを接続してデータを同期';
+  String get settings_drive_desc =>
+      'Google DriveÃ£â€šÂ¢Ã£â€šÂ«Ã£â€šÂ¦Ã£Æ’Â³Ã£Æ’Ë†Ã£â€šâ€™Ã¦Å½Â¥Ã§Â¶Å¡Ã£Ââ€”Ã£ÂÂ¦Ã£Æ’â€¡Ã£Æ’Â¼Ã£â€šÂ¿Ã£â€šâ€™Ã¥ÂÅ’Ã¦Å“Å¸';
 
   @override
-  String get settings_drive_disconnect => '切断';
+  String get settings_drive_disconnect => 'Ã¥Ë†â€¡Ã¦â€“Â­';
 
   @override
-  String get settings_drive_disconnect_loading => '切断中…';
+  String get settings_drive_disconnect_loading => 'Ã¥Ë†â€¡Ã¦â€“Â­Ã¤Â¸Â­Ã¢â‚¬Â¦';
 
   @override
-  String get settings_drive_disconnected => 'Google Driveから切断されました';
+  String get settings_drive_disconnected =>
+      'Google DriveÃ£Ââ€¹Ã£â€šâ€°Ã¥Ë†â€¡Ã¦â€“Â­Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
-  String get settings_drive_status_connected => '接続済み';
+  String get settings_drive_status_connected => 'Ã¦Å½Â¥Ã§Â¶Å¡Ã¦Â¸Ë†Ã£ÂÂ¿';
 
   @override
-  String get settings_drive_title => 'Google Drive接続';
+  String get settings_drive_title => 'Google DriveÃ¦Å½Â¥Ã§Â¶Å¡';
 
   @override
-  String get settings_enable_auto_backup => '自動バックアップを有効にする';
+  String get settings_enable_auto_backup =>
+      'Ã¨â€¡ÂªÃ¥â€¹â€¢Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¢Ã£Æ’Æ’Ã£Æ’â€”Ã£â€šâ€™Ã¦Å“â€°Ã¥Å Â¹Ã£ÂÂ«Ã£Ââ„¢Ã£â€šâ€¹';
 
   @override
   String get settings_enable_auto_backup_desc =>
-      '期限が来たら自動的にバージョン管理されたスナップショットを作成します。';
+      'Ã¦Å“Å¸Ã©â„¢ÂÃ£ÂÅ’Ã¦ÂÂ¥Ã£ÂÅ¸Ã£â€šâ€°Ã¨â€¡ÂªÃ¥â€¹â€¢Ã§Å¡â€žÃ£ÂÂ«Ã£Æ’ÂÃ£Æ’Â¼Ã£â€šÂ¸Ã£Æ’Â§Ã£Æ’Â³Ã§Â®Â¡Ã§Ââ€ Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£â€šÂ¹Ã£Æ’Å Ã£Æ’Æ’Ã£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†ÂÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get settings_execution_mode_desc =>
-      'このプラットフォームでは、Bot Creatorがボットをホストすることはありません。セルフホストランナーを使用するか、';
+      'Ã£Ââ€œÃ£ÂÂ®Ã£Æ’â€”Ã£Æ’Â©Ã£Æ’Æ’Ã£Æ’Ë†Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â¼Ã£Æ’Â Ã£ÂÂ§Ã£ÂÂ¯Ã£â‚¬ÂBot CreatorÃ£ÂÅ’Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã£Æ’â€ºÃ£â€šÂ¹Ã£Æ’Ë†Ã£Ââ„¢Ã£â€šâ€¹Ã£Ââ€œÃ£ÂÂ¨Ã£ÂÂ¯Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€šÃ£â€šÂ»Ã£Æ’Â«Ã£Æ’â€¢Ã£Æ’â€ºÃ£â€šÂ¹Ã£Æ’Ë†Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ„¢Ã£â€šâ€¹Ã£Ââ€¹Ã£â‚¬Â';
 
   @override
   String get settings_execution_mode_local_active =>
-      'ボットはローカルで起動するようになりました。ランナー設定は保存され、いつでも再有効化できます。';
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÂ¯Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã£ÂÂ§Ã¨ÂµÂ·Ã¥â€¹â€¢Ã£Ââ„¢Ã£â€šâ€¹Ã£â€šË†Ã£Ââ€ Ã£ÂÂ«Ã£ÂÂªÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€šÃ£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼Ã¨Â¨Â­Ã¥Â®Å¡Ã£ÂÂ¯Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ€¢Ã£â€šÅ’Ã£â‚¬ÂÃ£Ââ€žÃ£ÂÂ¤Ã£ÂÂ§Ã£â€šâ€šÃ¥â€ ÂÃ¦Å“â€°Ã¥Å Â¹Ã¥Å’â€“Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get settings_execution_mode_no_runner =>
-      'まだランナーが設定されていません。追加するまでアプリはローカルのままです。';
+      'Ã£ÂÂ¾Ã£ÂÂ Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼Ã£ÂÅ’Ã¨Â¨Â­Ã¥Â®Å¡Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¦Ã£Ââ€žÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€šÃ¨Â¿Â½Ã¥Å Â Ã£Ââ„¢Ã£â€šâ€¹Ã£ÂÂ¾Ã£ÂÂ§Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£ÂÂ¯Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã£ÂÂ®Ã£ÂÂ¾Ã£ÂÂ¾Ã£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get settings_execution_mode_runner_priority =>
-      'セルフホストランナーが優先されます。ランナーが設定されていない場合、アプリはローカルにフォールバックします。';
+      'Ã£â€šÂ»Ã£Æ’Â«Ã£Æ’â€¢Ã£Æ’â€ºÃ£â€šÂ¹Ã£Æ’Ë†Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼Ã£ÂÅ’Ã¥â€žÂªÃ¥â€¦Ë†Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼Ã£ÂÅ’Ã¨Â¨Â­Ã¥Â®Å¡Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¦Ã£Ââ€žÃ£ÂÂªÃ£Ââ€žÃ¥Â Â´Ã¥ÂË†Ã£â‚¬ÂÃ£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£ÂÂ¯Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã£ÂÂ«Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get settings_execution_mode_title => '実行モード';
+  String get settings_execution_mode_title => 'Ã¥Â®Å¸Ã¨Â¡Å’Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°';
 
   @override
-  String get settings_execution_mode_use_runner => 'セルフホストランナーを使用';
+  String get settings_execution_mode_use_runner =>
+      'Ã£â€šÂ»Ã£Æ’Â«Ã£Æ’â€¢Ã£Æ’â€ºÃ£â€šÂ¹Ã£Æ’Ë†Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨';
 
   @override
-  String get settings_export => 'エクスポート';
+  String get settings_export => 'Ã£â€šÂ¨Ã£â€šÂ¯Ã£â€šÂ¹Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†';
 
   @override
-  String get settings_export_app_data => 'アプリデータをエクスポート';
+  String get settings_export_app_data =>
+      'Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£Æ’â€¡Ã£Æ’Â¼Ã£â€šÂ¿Ã£â€šâ€™Ã£â€šÂ¨Ã£â€šÂ¯Ã£â€šÂ¹Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†';
 
   @override
-  String get settings_export_loading => 'エクスポート中…';
+  String get settings_export_loading =>
+      'Ã£â€šÂ¨Ã£â€šÂ¯Ã£â€šÂ¹Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†Ã¤Â¸Â­Ã¢â‚¬Â¦';
 
   @override
-  String get settings_import => 'インポート';
+  String get settings_import => 'Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†';
 
   @override
-  String get settings_import_app_data => 'アプリデータをインポート';
+  String get settings_import_app_data =>
+      'Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£Æ’â€¡Ã£Æ’Â¼Ã£â€šÂ¿Ã£â€šâ€™Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†';
 
   @override
-  String get settings_import_loading => 'インポート中…';
+  String get settings_import_loading =>
+      'Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†Ã¤Â¸Â­Ã¢â‚¬Â¦';
 
   @override
-  String get settings_language_desc => 'アプリで使用する言語を選択してください。';
+  String get settings_language_desc =>
+      'Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£ÂÂ§Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ„¢Ã£â€šâ€¹Ã¨Â¨â‚¬Ã¨ÂªÅ¾Ã£â€šâ€™Ã©ÂÂ¸Ã¦Å Å¾Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get settings_language_system => '自動 (デバイス)';
+  String get settings_language_system =>
+      'Ã¨â€¡ÂªÃ¥â€¹â€¢ (Ã£Æ’â€¡Ã£Æ’ÂÃ£â€šÂ¤Ã£â€šÂ¹)';
 
   @override
-  String get settings_language_title => '言語';
+  String get settings_language_title => 'Ã¨Â¨â‚¬Ã¨ÂªÅ¾';
 
   @override
-  String get settings_language_updated => '言語が更新されました';
+  String get settings_language_updated =>
+      'Ã¨Â¨â‚¬Ã¨ÂªÅ¾Ã£ÂÅ’Ã¦â€ºÂ´Ã¦â€“Â°Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
   String settings_last_auto_backup_at(String date) {
-    return '最終自動バックアップ: $date';
+    return 'Ã¦Å“â‚¬Ã§Âµâ€šÃ¨â€¡ÂªÃ¥â€¹â€¢Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¢Ã£Æ’Æ’Ã£Æ’â€”: $date';
   }
 
   @override
-  String get settings_last_auto_backup_never => '最終自動バックアップ: なし';
+  String get settings_last_auto_backup_never =>
+      'Ã¦Å“â‚¬Ã§Âµâ€šÃ¨â€¡ÂªÃ¥â€¹â€¢Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¢Ã£Æ’Æ’Ã£Æ’â€”: Ã£ÂÂªÃ£Ââ€”';
 
   @override
-  String get settings_legacy_prefix => 'レガシーコマンドプレフィックス';
+  String get settings_legacy_prefix =>
+      'Ã£Æ’Â¬Ã£â€šÂ¬Ã£â€šÂ·Ã£Æ’Â¼Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¹';
 
   @override
   String get settings_legacy_prefix_helper =>
-      'テンプレートとスコープ変数をサポート (bc_ はオプション)。例: ((guild.prefix | user.prefix | !))';
+      'Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã£ÂÂ¨Ã£â€šÂ¹Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€”Ã¥Â¤â€°Ã¦â€¢Â°Ã£â€šâ€™Ã£â€šÂµÃ£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë† (bc_ Ã£ÂÂ¯Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³)Ã£â‚¬â€šÃ¤Â¾â€¹: ((guild.prefix | user.prefix | !))';
 
   @override
   String get settings_legacy_prefix_hint =>
-      '!, ? または ((guild.prefix | user.prefix | !))';
+      '!, ? Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯ ((guild.prefix | user.prefix | !))';
 
   @override
-  String get settings_legal_desc => 'データの取り扱いと保存方法を確認してください。';
+  String get settings_legal_desc =>
+      'Ã£Æ’â€¡Ã£Æ’Â¼Ã£â€šÂ¿Ã£ÂÂ®Ã¥Ââ€“Ã£â€šÅ Ã¦â€°Â±Ã£Ââ€žÃ£ÂÂ¨Ã¤Â¿ÂÃ¥Â­ËœÃ¦â€“Â¹Ã¦Â³â€¢Ã£â€šâ€™Ã§Â¢ÂºÃ¨ÂªÂÃ£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get settings_legal_title => '法的情報';
+  String get settings_legal_title => 'Ã¦Â³â€¢Ã§Å¡â€žÃ¦Æ’â€¦Ã¥Â Â±';
 
   @override
   String get settings_local_hosting_enabled =>
-      'モバイルボットはデバイスを使用してホスティングするようになりました。';
+      'Ã£Æ’Â¢Ã£Æ’ÂÃ£â€šÂ¤Ã£Æ’Â«Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÂ¯Ã£Æ’â€¡Ã£Æ’ÂÃ£â€šÂ¤Ã£â€šÂ¹Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ€”Ã£ÂÂ¦Ã£Æ’â€ºÃ£â€šÂ¹Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’Â³Ã£â€šÂ°Ã£Ââ„¢Ã£â€šâ€¹Ã£â€šË†Ã£Ââ€ Ã£ÂÂ«Ã£ÂÂªÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€š';
 
   @override
-  String get settings_logs_cleared => '診断ログがクリアされました';
+  String get settings_logs_cleared =>
+      'Ã¨Â¨ÂºÃ¦â€“Â­Ã£Æ’Â­Ã£â€šÂ°Ã£ÂÅ’Ã£â€šÂ¯Ã£Æ’ÂªÃ£â€šÂ¢Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
   String get settings_main_api_auth_failed =>
-      'Bot Creator Serverセッションが無効または期限切れです';
+      'Bot Creator ServerÃ£â€šÂ»Ã£Æ’Æ’Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÅ’Ã§â€žÂ¡Ã¥Å Â¹Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã¦Å“Å¸Ã©â„¢ÂÃ¥Ë†â€¡Ã£â€šÅ’Ã£ÂÂ§Ã£Ââ„¢';
 
   @override
-  String get settings_main_api_check => 'Bot Creator Serverを確認';
+  String get settings_main_api_check =>
+      'Bot Creator ServerÃ£â€šâ€™Ã§Â¢ÂºÃ¨ÂªÂ';
 
   @override
-  String get settings_main_api_clear => 'クリア';
+  String get settings_main_api_clear => 'Ã£â€šÂ¯Ã£Æ’ÂªÃ£â€šÂ¢';
 
   @override
-  String get settings_main_api_cleared => 'Bot Creator Server設定がクリアされました';
+  String get settings_main_api_cleared =>
+      'Bot Creator ServerÃ¨Â¨Â­Ã¥Â®Å¡Ã£ÂÅ’Ã£â€šÂ¯Ã£Æ’ÂªÃ£â€šÂ¢Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
-  String get settings_main_api_connect_discord => 'Discordアカウントを接続';
+  String get settings_main_api_connect_discord =>
+      'DiscordÃ£â€šÂ¢Ã£â€šÂ«Ã£â€šÂ¦Ã£Æ’Â³Ã£Æ’Ë†Ã£â€šâ€™Ã¦Å½Â¥Ã§Â¶Å¡';
 
   @override
-  String get settings_main_api_connected => 'Bot Creator Server 到達可能 ✓';
+  String get settings_main_api_connected =>
+      'Bot Creator Server Ã¥Ë†Â°Ã©Ââ€Ã¥ÂÂ¯Ã¨Æ’Â½ Ã¢Å“â€œ';
 
   @override
-  String get settings_main_api_connected_discord => 'Discordアカウント接続済み';
+  String get settings_main_api_connected_discord =>
+      'DiscordÃ£â€šÂ¢Ã£â€šÂ«Ã£â€šÂ¦Ã£Æ’Â³Ã£Æ’Ë†Ã¦Å½Â¥Ã§Â¶Å¡Ã¦Â¸Ë†Ã£ÂÂ¿';
 
   @override
   String settings_main_api_connected_user(String user) {
-    return '$user として接続中';
+    return '$user Ã£ÂÂ¨Ã£Ââ€”Ã£ÂÂ¦Ã¦Å½Â¥Ã§Â¶Å¡Ã¤Â¸Â­';
   }
 
   @override
   String get settings_main_api_desc =>
-      'Bot CreatorをBot Creator Serverに接続し、Discordでサインインします。Discordクライアント';
+      'Bot CreatorÃ£â€šâ€™Bot Creator ServerÃ£ÂÂ«Ã¦Å½Â¥Ã§Â¶Å¡Ã£Ââ€”Ã£â‚¬ÂDiscordÃ£ÂÂ§Ã£â€šÂµÃ£â€šÂ¤Ã£Æ’Â³Ã£â€šÂ¤Ã£Æ’Â³Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šDiscordÃ£â€šÂ¯Ã£Æ’Â©Ã£â€šÂ¤Ã£â€šÂ¢Ã£Æ’Â³Ã£Æ’Ë†';
 
   @override
   String get settings_main_api_desktop_only =>
-      'Bot Creator Server経由のDiscordログインはデスクトップのみ対応です。';
+      'Bot Creator ServerÃ§ÂµÅ’Ã§â€Â±Ã£ÂÂ®DiscordÃ£Æ’Â­Ã£â€šÂ°Ã£â€šÂ¤Ã£Æ’Â³Ã£ÂÂ¯Ã£Æ’â€¡Ã£â€šÂ¹Ã£â€šÂ¯Ã£Æ’Ë†Ã£Æ’Æ’Ã£Æ’â€”Ã£ÂÂ®Ã£ÂÂ¿Ã¥Â¯Â¾Ã¥Â¿Å“Ã£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get settings_main_api_disconnect => 'アカウントを切断';
+  String get settings_main_api_disconnect =>
+      'Ã£â€šÂ¢Ã£â€šÂ«Ã£â€šÂ¦Ã£Æ’Â³Ã£Æ’Ë†Ã£â€šâ€™Ã¥Ë†â€¡Ã¦â€“Â­';
 
   @override
-  String get settings_main_api_not_configured => 'Bot Creator Server URLが必要です';
+  String get settings_main_api_not_configured =>
+      'Bot Creator Server URLÃ£ÂÅ’Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÂ§Ã£Ââ„¢';
 
   @override
-  String get settings_main_api_save => 'Bot Creator Serverを保存';
+  String get settings_main_api_save => 'Bot Creator ServerÃ£â€šâ€™Ã¤Â¿ÂÃ¥Â­Ëœ';
 
   @override
-  String get settings_main_api_saved => 'Bot Creator Server設定が保存されました';
+  String get settings_main_api_saved =>
+      'Bot Creator ServerÃ¨Â¨Â­Ã¥Â®Å¡Ã£ÂÅ’Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
-  String get settings_main_api_session_connected => 'Discordセッション有効';
+  String get settings_main_api_session_connected =>
+      'DiscordÃ£â€šÂ»Ã£Æ’Æ’Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã¦Å“â€°Ã¥Å Â¹';
 
   @override
-  String get settings_main_api_session_disconnected => 'Discordセッション切断';
+  String get settings_main_api_session_disconnected =>
+      'DiscordÃ£â€šÂ»Ã£Æ’Æ’Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã¥Ë†â€¡Ã¦â€“Â­';
 
   @override
-  String get settings_main_api_session_expired => 'Discordセッション期限切れ';
+  String get settings_main_api_session_expired =>
+      'DiscordÃ£â€šÂ»Ã£Æ’Æ’Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã¦Å“Å¸Ã©â„¢ÂÃ¥Ë†â€¡Ã£â€šÅ’';
 
   @override
   String get settings_main_api_title => 'Bot Creator Server';
 
   @override
-  String get settings_main_api_unreachable => 'Bot Creator Serverに到達できません';
+  String get settings_main_api_unreachable =>
+      'Bot Creator ServerÃ£ÂÂ«Ã¥Ë†Â°Ã©Ââ€Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œ';
 
   @override
   String get settings_main_api_url_hint => 'https://api.example.com';
 
   @override
-  String get settings_main_api_url_required => 'Bot Creator Server URLが必要です';
+  String get settings_main_api_url_required =>
+      'Bot Creator Server URLÃ£ÂÅ’Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÂ§Ã£Ââ„¢';
 
   @override
-  String get settings_main_api_user_unknown => 'Discordユーザー';
+  String get settings_main_api_user_unknown =>
+      'DiscordÃ£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼';
 
   @override
-  String get settings_manual_snapshot_label => '手動スナップショット';
+  String get settings_manual_snapshot_label =>
+      'Ã¦â€°â€¹Ã¥â€¹â€¢Ã£â€šÂ¹Ã£Æ’Å Ã£Æ’Æ’Ã£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Æ’Ã£Æ’Ë†';
 
   @override
-  String get settings_member_badge => 'メンバー';
+  String get settings_member_badge => 'Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼';
 
   @override
-  String get settings_notifications_desc => '受信したいプッシュ通知の種類を選択してください。';
+  String get settings_notifications_desc =>
+      'Ã¥Ââ€”Ã¤Â¿Â¡Ã£Ââ€”Ã£ÂÅ¸Ã£Ââ€žÃ£Æ’â€”Ã£Æ’Æ’Ã£â€šÂ·Ã£Æ’Â¥Ã©â‚¬Å¡Ã§Å¸Â¥Ã£ÂÂ®Ã§Â¨Â®Ã©Â¡Å¾Ã£â€šâ€™Ã©ÂÂ¸Ã¦Å Å¾Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get settings_notifications_title => '通知';
+  String get settings_notifications_title => 'Ã©â‚¬Å¡Ã§Å¸Â¥';
 
   @override
-  String get settings_notifications_topic_billing => '請求';
+  String get settings_notifications_topic_billing => 'Ã¨Â«â€¹Ã¦Â±â€š';
 
   @override
   String get settings_notifications_topic_billing_desc =>
-      'サブスクリプションの更新リマインダーと支払い確認。';
+      'Ã£â€šÂµÃ£Æ’â€“Ã£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ®Ã¦â€ºÂ´Ã¦â€“Â°Ã£Æ’ÂªÃ£Æ’Å¾Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’â‚¬Ã£Æ’Â¼Ã£ÂÂ¨Ã¦â€Â¯Ã¦â€°â€¢Ã£Ââ€žÃ§Â¢ÂºÃ¨ÂªÂÃ£â‚¬â€š';
 
   @override
-  String get settings_notifications_topic_botAlerts => 'ボットアラート';
+  String get settings_notifications_topic_botAlerts =>
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šÂ¢Ã£Æ’Â©Ã£Æ’Â¼Ã£Æ’Ë†';
 
   @override
   String get settings_notifications_topic_botAlerts_desc =>
-      'ボットがオフラインになったりエラーが発生した場合の警告。';
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÅ’Ã£â€šÂªÃ£Æ’â€¢Ã£Æ’Â©Ã£â€šÂ¤Ã£Æ’Â³Ã£ÂÂ«Ã£ÂÂªÃ£ÂÂ£Ã£ÂÅ¸Ã£â€šÅ Ã£â€šÂ¨Ã£Æ’Â©Ã£Æ’Â¼Ã£ÂÅ’Ã§â„¢ÂºÃ§â€Å¸Ã£Ââ€”Ã£ÂÅ¸Ã¥Â Â´Ã¥ÂË†Ã£ÂÂ®Ã¨Â­Â¦Ã¥â€˜Å Ã£â‚¬â€š';
 
   @override
-  String get settings_notifications_topic_broadcast => 'お知らせ';
+  String get settings_notifications_topic_broadcast =>
+      'Ã£ÂÅ Ã§Å¸Â¥Ã£â€šâ€°Ã£Ââ€º';
 
   @override
   String get settings_notifications_topic_broadcast_desc =>
-      'Bot Creatorからの重要なお知らせとニュース。';
+      'Bot CreatorÃ£Ââ€¹Ã£â€šâ€°Ã£ÂÂ®Ã©â€¡ÂÃ¨Â¦ÂÃ£ÂÂªÃ£ÂÅ Ã§Å¸Â¥Ã£â€šâ€°Ã£Ââ€ºÃ£ÂÂ¨Ã£Æ’â€¹Ã£Æ’Â¥Ã£Æ’Â¼Ã£â€šÂ¹Ã£â‚¬â€š';
 
   @override
-  String get settings_notifications_topic_updates => 'アップデート';
+  String get settings_notifications_topic_updates =>
+      'Ã£â€šÂ¢Ã£Æ’Æ’Ã£Æ’â€”Ã£Æ’â€¡Ã£Æ’Â¼Ã£Æ’Ë†';
 
   @override
   String get settings_notifications_topic_updates_desc =>
-      '新機能、アプリアップデート、変更履歴のハイライト。';
+      'Ã¦â€“Â°Ã¦Â©Å¸Ã¨Æ’Â½Ã£â‚¬ÂÃ£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£â€šÂ¢Ã£Æ’Æ’Ã£Æ’â€”Ã£Æ’â€¡Ã£Æ’Â¼Ã£Æ’Ë†Ã£â‚¬ÂÃ¥Â¤â€°Ã¦â€ºÂ´Ã¥Â±Â¥Ã¦Â­Â´Ã£ÂÂ®Ã£Æ’ÂÃ£â€šÂ¤Ã£Æ’Â©Ã£â€šÂ¤Ã£Æ’Ë†Ã£â‚¬â€š';
 
   @override
-  String get settings_open_ad_inspector => '広告インスペクターを開く';
+  String get settings_open_ad_inspector =>
+      'Ã¥ÂºÆ’Ã¥â€˜Å Ã£â€šÂ¤Ã£Æ’Â³Ã£â€šÂ¹Ã£Æ’Å¡Ã£â€šÂ¯Ã£â€šÂ¿Ã£Æ’Â¼Ã£â€šâ€™Ã©â€“â€¹Ã£ÂÂ';
 
   @override
-  String get settings_oss_licenses => 'オープンソースライセンス';
+  String get settings_oss_licenses =>
+      'Ã£â€šÂªÃ£Æ’Â¼Ã£Æ’â€”Ã£Æ’Â³Ã£â€šÂ½Ã£Æ’Â¼Ã£â€šÂ¹Ã£Æ’Â©Ã£â€šÂ¤Ã£â€šÂ»Ã£Æ’Â³Ã£â€šÂ¹';
 
   @override
-  String get settings_owner_badge => '所有者';
+  String get settings_owner_badge => 'Ã¦â€°â‚¬Ã¦Å“â€°Ã¨â‚¬â€¦';
 
   @override
-  String get settings_owner_fallback => '所有者';
+  String get settings_owner_fallback => 'Ã¦â€°â‚¬Ã¦Å“â€°Ã¨â‚¬â€¦';
 
   @override
-  String get settings_personal_owner_fallback => '個人ユーザー';
+  String get settings_personal_owner_fallback =>
+      'Ã¥â‚¬â€¹Ã¤ÂºÂºÃ£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼';
 
   @override
-  String get settings_personal_owner_id_label => '所有者ID:';
+  String get settings_personal_owner_id_label => 'Ã¦â€°â‚¬Ã¦Å“â€°Ã¨â‚¬â€¦ID:';
 
   @override
-  String get settings_personal_owner_label => '所有者:';
+  String get settings_personal_owner_label => 'Ã¦â€°â‚¬Ã¦Å“â€°Ã¨â‚¬â€¦:';
 
   @override
-  String get settings_personal_ownership => '個人所有権';
+  String get settings_personal_ownership =>
+      'Ã¥â‚¬â€¹Ã¤ÂºÂºÃ¦â€°â‚¬Ã¦Å“â€°Ã¦Â¨Â©';
 
   @override
-  String get settings_preferences_reset_done => '設定がリセットされました';
+  String get settings_preferences_reset_done =>
+      'Ã¨Â¨Â­Ã¥Â®Å¡Ã£ÂÅ’Ã£Æ’ÂªÃ£â€šÂ»Ã£Æ’Æ’Ã£Æ’Ë†Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
-  String get settings_privacy_policy => 'プライバシーポリシー';
+  String get settings_privacy_policy =>
+      'Ã£Æ’â€”Ã£Æ’Â©Ã£â€šÂ¤Ã£Æ’ÂÃ£â€šÂ·Ã£Æ’Â¼Ã£Æ’ÂÃ£Æ’ÂªÃ£â€šÂ·Ã£Æ’Â¼';
 
   @override
-  String get settings_raw_json_tile => '生JSONを表示 (RAW JSON)';
+  String get settings_raw_json_tile =>
+      'Ã§â€Å¸JSONÃ£â€šâ€™Ã¨Â¡Â¨Ã§Â¤Âº (RAW JSON)';
 
   @override
   String get settings_recovery_title => 'Recovery Pro';
 
   @override
-  String get settings_replay_onboarding => 'オンボーディングを再実行';
+  String get settings_replay_onboarding =>
+      'Ã£â€šÂªÃ£Æ’Â³Ã£Æ’Å“Ã£Æ’Â¼Ã£Æ’â€¡Ã£â€šÂ£Ã£Æ’Â³Ã£â€šÂ°Ã£â€šâ€™Ã¥â€ ÂÃ¥Â®Å¸Ã¨Â¡Å’';
 
   @override
-  String get settings_replay_onboarding_desc => 'オンボーディングをリセットして今すぐ再起動します。';
+  String get settings_replay_onboarding_desc =>
+      'Ã£â€šÂªÃ£Æ’Â³Ã£Æ’Å“Ã£Æ’Â¼Ã£Æ’â€¡Ã£â€šÂ£Ã£Æ’Â³Ã£â€šÂ°Ã£â€šâ€™Ã£Æ’ÂªÃ£â€šÂ»Ã£Æ’Æ’Ã£Æ’Ë†Ã£Ââ€”Ã£ÂÂ¦Ã¤Â»Å Ã£Ââ„¢Ã£ÂÂÃ¥â€ ÂÃ¨ÂµÂ·Ã¥â€¹â€¢Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get settings_reset_preferences => '設定をリセット';
+  String get settings_reset_preferences =>
+      'Ã¨Â¨Â­Ã¥Â®Å¡Ã£â€šâ€™Ã£Æ’ÂªÃ£â€šÂ»Ã£Æ’Æ’Ã£Æ’Ë†';
 
   @override
-  String get settings_reset_preferences_desc => 'テーマ、言語、オンボーディングの進行状況をリセットします。';
+  String get settings_reset_preferences_desc =>
+      'Ã£Æ’â€ Ã£Æ’Â¼Ã£Æ’Å¾Ã£â‚¬ÂÃ¨Â¨â‚¬Ã¨ÂªÅ¾Ã£â‚¬ÂÃ£â€šÂªÃ£Æ’Â³Ã£Æ’Å“Ã£Æ’Â¼Ã£Æ’â€¡Ã£â€šÂ£Ã£Æ’Â³Ã£â€šÂ°Ã£ÂÂ®Ã©â‚¬Â²Ã¨Â¡Å’Ã§Å Â¶Ã¦Â³ÂÃ£â€šâ€™Ã£Æ’ÂªÃ£â€šÂ»Ã£Æ’Æ’Ã£Æ’Ë†Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get settings_restore_snapshot => 'このスナップショットを復元';
+  String get settings_restore_snapshot =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã£â€šÂ¹Ã£Æ’Å Ã£Æ’Æ’Ã£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¥Â¾Â©Ã¥â€¦Æ’';
 
   @override
-  String get settings_run_auto_backup_now => '今すぐ自動バックアップを実行';
+  String get settings_run_auto_backup_now =>
+      'Ã¤Â»Å Ã£Ââ„¢Ã£ÂÂÃ¨â€¡ÂªÃ¥â€¹â€¢Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¢Ã£Æ’Æ’Ã£Æ’â€”Ã£â€šâ€™Ã¥Â®Å¸Ã¨Â¡Å’';
 
   @override
-  String get settings_run_diagnostics => '診断を実行';
+  String get settings_run_diagnostics => 'Ã¨Â¨ÂºÃ¦â€“Â­Ã£â€šâ€™Ã¥Â®Å¸Ã¨Â¡Å’';
 
   @override
   String settings_runner_active(String url) {
-    return 'アクティブランナーAPI: $url';
+    return 'Ã£â€šÂ¢Ã£â€šÂ¯Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’â€“Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼API: $url';
   }
 
   @override
-  String get settings_runner_auth_failed => 'ランナーがAPIトークンを拒否しました';
+  String get settings_runner_auth_failed =>
+      'Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼Ã£ÂÅ’APIÃ£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³Ã£â€šâ€™Ã¦â€¹â€™Ã¥ÂÂ¦Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
-  String get settings_runner_check => '接続を確認';
+  String get settings_runner_check => 'Ã¦Å½Â¥Ã§Â¶Å¡Ã£â€šâ€™Ã§Â¢ÂºÃ¨ÂªÂ';
 
   @override
-  String get settings_runner_clear => 'クリア';
+  String get settings_runner_clear => 'Ã£â€šÂ¯Ã£Æ’ÂªÃ£â€šÂ¢';
 
   @override
-  String get settings_runner_cleared => 'ランナー設定がクリアされました';
+  String get settings_runner_cleared =>
+      'Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼Ã¨Â¨Â­Ã¥Â®Å¡Ã£ÂÅ’Ã£â€šÂ¯Ã£Æ’ÂªÃ£â€šÂ¢Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
-  String get settings_runner_connected => 'ランナー到達可能 ✓';
+  String get settings_runner_connected =>
+      'Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼Ã¥Ë†Â°Ã©Ââ€Ã¥ÂÂ¯Ã¨Æ’Â½ Ã¢Å“â€œ';
 
   @override
-  String get settings_runner_connecting => '接続を確認中…';
+  String get settings_runner_connecting =>
+      'Ã¦Å½Â¥Ã§Â¶Å¡Ã£â€šâ€™Ã§Â¢ÂºÃ¨ÂªÂÃ¤Â¸Â­Ã¢â‚¬Â¦';
 
   @override
   String get settings_runner_desc =>
-      'アプリをBot Creatorランナーに接続します。リモートランナーは信頼できるネットワークに配置してください。';
+      'Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£â€šâ€™Bot CreatorÃ£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼Ã£ÂÂ«Ã¦Å½Â¥Ã§Â¶Å¡Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ£Æ’ÂªÃ£Æ’Â¢Ã£Æ’Â¼Ã£Æ’Ë†Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼Ã£ÂÂ¯Ã¤Â¿Â¡Ã©Â Â¼Ã£ÂÂ§Ã£ÂÂÃ£â€šâ€¹Ã£Æ’ÂÃ£Æ’Æ’Ã£Æ’Ë†Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£ÂÂ«Ã©â€¦ÂÃ§Â½Â®Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get settings_runner_disable_temp => 'ランナーを一時的に無効化';
+  String get settings_runner_disable_temp =>
+      'Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼Ã£â€šâ€™Ã¤Â¸â‚¬Ã¦â„¢â€šÃ§Å¡â€žÃ£ÂÂ«Ã§â€žÂ¡Ã¥Å Â¹Ã¥Å’â€“';
 
   @override
   String get settings_runner_disable_temp_desc =>
-      'ランナー設定を保持したまま、再有効化までローカルモードを強制します。';
+      'Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼Ã¨Â¨Â­Ã¥Â®Å¡Ã£â€šâ€™Ã¤Â¿ÂÃ¦Å’ÂÃ£Ââ€”Ã£ÂÅ¸Ã£ÂÂ¾Ã£ÂÂ¾Ã£â‚¬ÂÃ¥â€ ÂÃ¦Å“â€°Ã¥Å Â¹Ã¥Å’â€“Ã£ÂÂ¾Ã£ÂÂ§Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°Ã£â€šâ€™Ã¥Â¼Â·Ã¥Ë†Â¶Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get settings_runner_disconnected => 'ランナーが切断されました';
+  String get settings_runner_disconnected =>
+      'Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼Ã£ÂÅ’Ã¥Ë†â€¡Ã¦â€“Â­Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
-  String get settings_runner_not_connected => '未接続';
+  String get settings_runner_not_connected => 'Ã¦Å“ÂªÃ¦Å½Â¥Ã§Â¶Å¡';
 
   @override
-  String get settings_runner_reenabled => 'ランナーが再有効化されました';
+  String get settings_runner_reenabled =>
+      'Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼Ã£ÂÅ’Ã¥â€ ÂÃ¦Å“â€°Ã¥Å Â¹Ã¥Å’â€“Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
-  String get settings_runner_save => '設定を保存';
+  String get settings_runner_save => 'Ã¨Â¨Â­Ã¥Â®Å¡Ã£â€šâ€™Ã¤Â¿ÂÃ¥Â­Ëœ';
 
   @override
-  String get settings_runner_saved => 'ランナー設定が保存されました';
+  String get settings_runner_saved =>
+      'Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼Ã¨Â¨Â­Ã¥Â®Å¡Ã£ÂÅ’Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
   String get settings_runner_temporarily_disabled =>
-      'ランナーが一時的に無効化されました（ローカルモード有効）';
+      'Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼Ã£ÂÅ’Ã¤Â¸â‚¬Ã¦â„¢â€šÃ§Å¡â€žÃ£ÂÂ«Ã§â€žÂ¡Ã¥Å Â¹Ã¥Å’â€“Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã¯Â¼Ë†Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°Ã¦Å“â€°Ã¥Å Â¹Ã¯Â¼â€°';
 
   @override
-  String get settings_runner_temporarily_disabled_saved => 'ランナーが一時的に無効化されました';
+  String get settings_runner_temporarily_disabled_saved =>
+      'Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼Ã£ÂÅ’Ã¤Â¸â‚¬Ã¦â„¢â€šÃ§Å¡â€žÃ£ÂÂ«Ã§â€žÂ¡Ã¥Å Â¹Ã¥Å’â€“Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
-  String get settings_runner_title => 'ランナーAPI';
+  String get settings_runner_title => 'Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼API';
 
   @override
-  String get settings_runner_token_hint => 'Bearer トークン (localhostではオプション)';
+  String get settings_runner_token_hint =>
+      'Bearer Ã£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³ (localhostÃ£ÂÂ§Ã£ÂÂ¯Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³)';
 
   @override
-  String get settings_runner_token_label => 'ランナーAPIトークン';
+  String get settings_runner_token_label =>
+      'Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼APIÃ£Æ’Ë†Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â³';
 
   @override
-  String get settings_runner_unreachable => 'ランナーに到達できません';
+  String get settings_runner_unreachable =>
+      'Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼Ã£ÂÂ«Ã¥Ë†Â°Ã©Ââ€Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œ';
 
   @override
-  String get settings_runner_url_clear => 'クリア';
+  String get settings_runner_url_clear => 'Ã£â€šÂ¯Ã£Æ’ÂªÃ£â€šÂ¢';
 
   @override
-  String get settings_runner_url_cleared => 'ランナーURLがクリアされました';
+  String get settings_runner_url_cleared =>
+      'Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼URLÃ£ÂÅ’Ã£â€šÂ¯Ã£Æ’ÂªÃ£â€šÂ¢Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
   String get settings_runner_url_hint => 'http://192.168.1.x:8080';
 
   @override
-  String get settings_runner_url_save => 'URLを保存';
+  String get settings_runner_url_save => 'URLÃ£â€šâ€™Ã¤Â¿ÂÃ¥Â­Ëœ';
 
   @override
-  String get settings_runner_url_saved => 'ランナーURLが保存されました';
+  String get settings_runner_url_saved =>
+      'Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼URLÃ£ÂÅ’Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
-  String get settings_runner_version => 'ランナー';
+  String get settings_runner_version => 'Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼';
 
   @override
   String settings_snapshot_apps_count(int count) {
-    return 'アプリ: $count';
+    return 'Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’Âª: $count';
   }
 
   @override
-  String get settings_snapshot_apps_list => 'このスナップショット内のアプリ';
+  String get settings_snapshot_apps_list =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã£â€šÂ¹Ã£Æ’Å Ã£Æ’Æ’Ã£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Æ’Ã£Æ’Ë†Ã¥â€ â€¦Ã£ÂÂ®Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’Âª';
 
   @override
-  String get settings_snapshot_create_loading => 'スナップショットを作成中…';
+  String get settings_snapshot_create_loading =>
+      'Ã£â€šÂ¹Ã£Æ’Å Ã£Æ’Æ’Ã£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†ÂÃ¤Â¸Â­Ã¢â‚¬Â¦';
 
   @override
   String settings_snapshot_created_at(String date) {
-    return '作成日時: $date';
+    return 'Ã¤Â½Å“Ã¦Ë†ÂÃ¦â€”Â¥Ã¦â„¢â€š: $date';
   }
 
   @override
   String settings_snapshot_created_message(String id) {
-    return 'スナップショットが作成されました: $id';
+    return 'Ã£â€šÂ¹Ã£Æ’Å Ã£Æ’Æ’Ã£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÅ’Ã¤Â½Å“Ã¦Ë†ÂÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸: $id';
   }
 
   @override
-  String get settings_snapshot_delete_loading => 'スナップショットを削除中…';
+  String get settings_snapshot_delete_loading =>
+      'Ã£â€šÂ¹Ã£Æ’Å Ã£Æ’Æ’Ã£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤Ã¤Â¸Â­Ã¢â‚¬Â¦';
 
   @override
-  String get settings_snapshot_deleted => 'スナップショットが削除されました';
+  String get settings_snapshot_deleted =>
+      'Ã£â€šÂ¹Ã£Æ’Å Ã£Æ’Æ’Ã£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÅ’Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
   String settings_snapshot_files_size(int count, String size) {
-    return 'ファイル: $count • サイズ: $size';
+    return 'Ã£Æ’â€¢Ã£â€šÂ¡Ã£â€šÂ¤Ã£Æ’Â«: $count Ã¢â‚¬Â¢ Ã£â€šÂµÃ£â€šÂ¤Ã£â€šÂº: $size';
   }
 
   @override
@@ -7034,226 +8143,265 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String settings_snapshot_label(String label) {
-    return 'ラベル: $label';
+    return 'Ã£Æ’Â©Ã£Æ’â„¢Ã£Æ’Â«: $label';
   }
 
   @override
   String settings_snapshot_list_entry(String date, int count, String size) {
-    return '$date • $count ファイル • $size';
+    return '$date Ã¢â‚¬Â¢ $count Ã£Æ’â€¢Ã£â€šÂ¡Ã£â€šÂ¤Ã£Æ’Â« Ã¢â‚¬Â¢ $size';
   }
 
   @override
-  String get settings_snapshot_no_metadata => 'アプリメタデータがありません。';
+  String get settings_snapshot_no_metadata =>
+      'Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£Æ’Â¡Ã£â€šÂ¿Ã£Æ’â€¡Ã£Æ’Â¼Ã£â€šÂ¿Ã£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
-  String get settings_snapshot_preview_title => 'スナップショットプレビュー';
+  String get settings_snapshot_preview_title =>
+      'Ã£â€šÂ¹Ã£Æ’Å Ã£Æ’Æ’Ã£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Æ’Ã£Æ’Ë†Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’â€œÃ£Æ’Â¥Ã£Æ’Â¼';
 
   @override
-  String get settings_snapshot_restore_loading => 'スナップショットを復元中…';
+  String get settings_snapshot_restore_loading =>
+      'Ã£â€šÂ¹Ã£Æ’Å Ã£Æ’Æ’Ã£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¥Â¾Â©Ã¥â€¦Æ’Ã¤Â¸Â­Ã¢â‚¬Â¦';
 
   @override
-  String get settings_snapshots_delete_all => 'すべてのスナップショットを削除';
+  String get settings_snapshots_delete_all =>
+      'Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÂ®Ã£â€šÂ¹Ã£Æ’Å Ã£Æ’Æ’Ã£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
   String settings_snapshots_delete_all_confirm(int count) {
-    return '$count 個のスナップショットを完全に削除しますか？この操作は元に戻せません。';
+    return '$count Ã¥â‚¬â€¹Ã£ÂÂ®Ã£â€šÂ¹Ã£Æ’Å Ã£Æ’Æ’Ã£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¥Â®Å’Ã¥â€¦Â¨Ã£ÂÂ«Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸Ã£Ââ€œÃ£ÂÂ®Ã¦â€œÂÃ¤Â½Å“Ã£ÂÂ¯Ã¥â€¦Æ’Ã£ÂÂ«Ã¦Ë†Â»Ã£Ââ€ºÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
   }
 
   @override
   String settings_snapshots_delete_all_done(int count) {
-    return '$count 個のスナップショットが削除されました。';
+    return '$count Ã¥â‚¬â€¹Ã£ÂÂ®Ã£â€šÂ¹Ã£Æ’Å Ã£Æ’Æ’Ã£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÅ’Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€š';
   }
 
   @override
-  String get settings_snapshots_delete_all_loading => 'すべてのスナップショットを削除中…';
+  String get settings_snapshots_delete_all_loading =>
+      'Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÂ®Ã£â€šÂ¹Ã£Æ’Å Ã£Æ’Æ’Ã£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤Ã¤Â¸Â­Ã¢â‚¬Â¦';
 
   @override
-  String get settings_snapshots_delete_all_title => 'すべてのスナップショットを削除';
+  String get settings_snapshots_delete_all_title =>
+      'Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÂ®Ã£â€šÂ¹Ã£Æ’Å Ã£Æ’Æ’Ã£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
   String settings_snapshots_delete_one_confirm(String label) {
-    return '\"$label\" を完全に削除しますか？この操作は元に戻せません。';
+    return '\"$label\" Ã£â€šâ€™Ã¥Â®Å’Ã¥â€¦Â¨Ã£ÂÂ«Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸Ã£Ââ€œÃ£ÂÂ®Ã¦â€œÂÃ¤Â½Å“Ã£ÂÂ¯Ã¥â€¦Æ’Ã£ÂÂ«Ã¦Ë†Â»Ã£Ââ€ºÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
   }
 
   @override
   String get settings_snapshots_delete_select_desc =>
-      '削除するスナップショットを選択してください（古い順）。';
+      'Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ„¢Ã£â€šâ€¹Ã£â€šÂ¹Ã£Æ’Å Ã£Æ’Æ’Ã£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã©ÂÂ¸Ã¦Å Å¾Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ¯Â¼Ë†Ã¥ÂÂ¤Ã£Ââ€žÃ©Â â€ Ã¯Â¼â€°Ã£â‚¬â€š';
 
   @override
-  String get settings_snapshots_delete_select_title => 'スナップショットを削除';
+  String get settings_snapshots_delete_select_title =>
+      'Ã£â€šÂ¹Ã£Æ’Å Ã£Æ’Æ’Ã£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get settings_snapshots_delete_select_tooltip => '選択したスナップショットを削除';
+  String get settings_snapshots_delete_select_tooltip =>
+      'Ã©ÂÂ¸Ã¦Å Å¾Ã£Ââ€”Ã£ÂÅ¸Ã£â€šÂ¹Ã£Æ’Å Ã£Æ’Æ’Ã£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get settings_snapshots_empty => 'まだスナップショットが見つかりません。';
+  String get settings_snapshots_empty =>
+      'Ã£ÂÂ¾Ã£ÂÂ Ã£â€šÂ¹Ã£Æ’Å Ã£Æ’Æ’Ã£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÅ’Ã¨Â¦â€¹Ã£ÂÂ¤Ã£Ââ€¹Ã£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
-  String get settings_snapshots_refresh => 'スナップショットを更新';
+  String get settings_snapshots_refresh =>
+      'Ã£â€šÂ¹Ã£Æ’Å Ã£Æ’Æ’Ã£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¦â€ºÂ´Ã¦â€“Â°';
 
   @override
-  String get settings_snapshots_refresh_loading => 'スナップショットを更新中…';
+  String get settings_snapshots_refresh_loading =>
+      'Ã£â€šÂ¹Ã£Æ’Å Ã£Æ’Æ’Ã£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¦â€ºÂ´Ã¦â€“Â°Ã¤Â¸Â­Ã¢â‚¬Â¦';
 
   @override
-  String get settings_snapshots_title => 'スナップショット';
+  String get settings_snapshots_title =>
+      'Ã£â€šÂ¹Ã£Æ’Å Ã£Æ’Æ’Ã£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Æ’Ã£Æ’Ë†';
 
   @override
-  String get settings_solo_pill => 'ソロ';
+  String get settings_solo_pill => 'Ã£â€šÂ½Ã£Æ’Â­';
 
   @override
   String get settings_startup_mode_cloud_desc =>
-      'AndroidとiOSで推奨。ログ、統計、起動はすべてBot Creatorを経由します。';
+      'AndroidÃ£ÂÂ¨iOSÃ£ÂÂ§Ã¦Å½Â¨Ã¥Â¥Â¨Ã£â‚¬â€šÃ£Æ’Â­Ã£â€šÂ°Ã£â‚¬ÂÃ§ÂµÂ±Ã¨Â¨Ë†Ã£â‚¬ÂÃ¨ÂµÂ·Ã¥â€¹â€¢Ã£ÂÂ¯Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Bot CreatorÃ£â€šâ€™Ã§ÂµÅ’Ã§â€Â±Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get settings_startup_mode_desc =>
-      'ボットをBot Creatorサーバーで起動するか、このデバイスでローカルに起動するかを選択します。';
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Bot CreatorÃ£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£ÂÂ§Ã¨ÂµÂ·Ã¥â€¹â€¢Ã£Ââ„¢Ã£â€šâ€¹Ã£Ââ€¹Ã£â‚¬ÂÃ£Ââ€œÃ£ÂÂ®Ã£Æ’â€¡Ã£Æ’ÂÃ£â€šÂ¤Ã£â€šÂ¹Ã£ÂÂ§Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã£ÂÂ«Ã¨ÂµÂ·Ã¥â€¹â€¢Ã£Ââ„¢Ã£â€šâ€¹Ã£Ââ€¹Ã£â€šâ€™Ã©ÂÂ¸Ã¦Å Å¾Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get settings_startup_mode_ios_unavailable => 'iOSではローカルモードは利用できません。';
+  String get settings_startup_mode_ios_unavailable =>
+      'iOSÃ£ÂÂ§Ã£ÂÂ¯Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°Ã£ÂÂ¯Ã¥Ë†Â©Ã§â€Â¨Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
   String get settings_startup_mode_ios_warning =>
-      'iOSではローカルモードはサポートされていません。ボットは常にBot Creatorサーバーを使用します。';
+      'iOSÃ£ÂÂ§Ã£ÂÂ¯Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°Ã£ÂÂ¯Ã£â€šÂµÃ£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¦Ã£Ââ€žÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€šÃ£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÂ¯Ã¥Â¸Â¸Ã£ÂÂ«Bot CreatorÃ£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get settings_startup_mode_local_desc =>
-      'ボットはこのデバイスでローカルに起動するようになりました。';
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÂ¯Ã£Ââ€œÃ£ÂÂ®Ã£Æ’â€¡Ã£Æ’ÂÃ£â€šÂ¤Ã£â€šÂ¹Ã£ÂÂ§Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã£ÂÂ«Ã¨ÂµÂ·Ã¥â€¹â€¢Ã£Ââ„¢Ã£â€šâ€¹Ã£â€šË†Ã£Ââ€ Ã£ÂÂ«Ã£ÂÂªÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€š';
 
   @override
   String get settings_startup_mode_local_warning =>
-      'ローカルモードはデバッグや特定のニーズ向けの高度なオプションです。通常の使用では、';
+      'Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°Ã£ÂÂ¯Ã£Æ’â€¡Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ°Ã£â€šâ€žÃ§â€°Â¹Ã¥Â®Å¡Ã£ÂÂ®Ã£Æ’â€¹Ã£Æ’Â¼Ã£â€šÂºÃ¥Ââ€˜Ã£Ââ€˜Ã£ÂÂ®Ã©Â«ËœÃ¥ÂºÂ¦Ã£ÂÂªÃ£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€šÃ©â‚¬Å¡Ã¥Â¸Â¸Ã£ÂÂ®Ã¤Â½Â¿Ã§â€Â¨Ã£ÂÂ§Ã£ÂÂ¯Ã£â‚¬Â';
 
   @override
-  String get settings_startup_mode_title => 'ボット起動モード';
+  String get settings_startup_mode_title =>
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã¨ÂµÂ·Ã¥â€¹â€¢Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°';
 
   @override
-  String get settings_startup_mode_use_cloud => 'Bot Creatorサーバーを使用';
+  String get settings_startup_mode_use_cloud =>
+      'Bot CreatorÃ£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨';
 
   @override
-  String get settings_status_remove_confirm => 'このステータスエントリは削除されます。続行しますか？';
+  String get settings_status_remove_confirm =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã£â€šÂ¹Ã£Æ’â€ Ã£Æ’Â¼Ã£â€šÂ¿Ã£â€šÂ¹Ã£â€šÂ¨Ã£Æ’Â³Ã£Æ’Ë†Ã£Æ’ÂªÃ£ÂÂ¯Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ§Â¶Å¡Ã¨Â¡Å’Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸';
 
   @override
-  String get settings_tab => '設定';
+  String get settings_tab => 'Ã¨Â¨Â­Ã¥Â®Å¡';
 
   @override
-  String get settings_team_id_label => 'チームID:';
+  String get settings_team_id_label => 'Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Â ID:';
 
   @override
   String settings_team_members_label(int count) {
-    return 'チームメンバー ($count)';
+    return 'Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Â Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼ ($count)';
   }
 
   @override
-  String get settings_team_name_label => 'チーム名:';
+  String get settings_team_name_label => 'Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Â Ã¥ÂÂ:';
 
   @override
-  String get settings_team_owner_label => 'チームリーダー';
+  String get settings_team_owner_label =>
+      'Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Â Ã£Æ’ÂªÃ£Æ’Â¼Ã£Æ’â‚¬Ã£Æ’Â¼';
 
   @override
-  String get settings_team_ownership => 'チーム所有権';
+  String get settings_team_ownership =>
+      'Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Â Ã¦â€°â‚¬Ã¦Å“â€°Ã¦Â¨Â©';
 
   @override
-  String get settings_team_pill => 'チーム';
+  String get settings_team_pill => 'Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Â ';
 
   @override
-  String get settings_theme_switch_dark => 'ダークモードに切り替え';
+  String get settings_theme_switch_dark =>
+      'Ã£Æ’â‚¬Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°Ã£ÂÂ«Ã¥Ë†â€¡Ã£â€šÅ Ã¦â€ºÂ¿Ã£ÂË†';
 
   @override
-  String get settings_theme_switch_light => 'ライトモードに切り替え';
+  String get settings_theme_switch_light =>
+      'Ã£Æ’Â©Ã£â€šÂ¤Ã£Æ’Ë†Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°Ã£ÂÂ«Ã¥Ë†â€¡Ã£â€šÅ Ã¦â€ºÂ¿Ã£ÂË†';
 
   @override
-  String get settings_version_title => 'バージョン';
+  String get settings_version_title => 'Ã£Æ’ÂÃ£Æ’Â¼Ã£â€šÂ¸Ã£Æ’Â§Ã£Æ’Â³';
 
   @override
-  String get settings_view_startup_logs => '起動ログを表示';
+  String get settings_view_startup_logs =>
+      'Ã¨ÂµÂ·Ã¥â€¹â€¢Ã£Æ’Â­Ã£â€šÂ°Ã£â€šâ€™Ã¨Â¡Â¨Ã§Â¤Âº';
 
   @override
-  String get startup_copy_diagnostics => '診断情報をコピー';
+  String get startup_copy_diagnostics =>
+      'Ã¨Â¨ÂºÃ¦â€“Â­Ã¦Æ’â€¦Ã¥Â Â±Ã£â€šâ€™Ã£â€šÂ³Ã£Æ’â€Ã£Æ’Â¼';
 
   @override
-  String get startup_diagnostics_copied => '診断情報がクリップボードにコピーされました';
+  String get startup_diagnostics_copied =>
+      'Ã¨Â¨ÂºÃ¦â€“Â­Ã¦Æ’â€¦Ã¥Â Â±Ã£ÂÅ’Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’Æ’Ã£Æ’â€”Ã£Æ’Å“Ã£Æ’Â¼Ã£Æ’â€°Ã£ÂÂ«Ã£â€šÂ³Ã£Æ’â€Ã£Æ’Â¼Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
-  String get startup_error_title => '起動エラー';
+  String get startup_error_title => 'Ã¨ÂµÂ·Ã¥â€¹â€¢Ã£â€šÂ¨Ã£Æ’Â©Ã£Æ’Â¼';
 
   @override
-  String get startup_failed_message => 'このデバイスでBot Creatorの起動に失敗しました。';
+  String get startup_failed_message =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã£Æ’â€¡Ã£Æ’ÂÃ£â€šÂ¤Ã£â€šÂ¹Ã£ÂÂ§Bot CreatorÃ£ÂÂ®Ã¨ÂµÂ·Ã¥â€¹â€¢Ã£ÂÂ«Ã¥Â¤Â±Ã¦â€¢â€”Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€š';
 
   @override
-  String get startup_refresh_diagnostics => '診断情報を更新';
+  String get startup_refresh_diagnostics =>
+      'Ã¨Â¨ÂºÃ¦â€“Â­Ã¦Æ’â€¦Ã¥Â Â±Ã£â€šâ€™Ã¦â€ºÂ´Ã¦â€“Â°';
 
   @override
-  String get subscription_active_annual => 'プレミアム — 年間';
+  String get subscription_active_annual =>
+      'Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Å¸Ã£â€šÂ¢Ã£Æ’Â  Ã¢â‚¬â€ Ã¥Â¹Â´Ã©â€“â€œ';
 
   @override
-  String get subscription_active_label => 'アクティブプラン:';
+  String get subscription_active_label =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’â€“Ã£Æ’â€”Ã£Æ’Â©Ã£Æ’Â³:';
 
   @override
-  String get subscription_active_monthly => 'プレミアム — 月間';
+  String get subscription_active_monthly =>
+      'Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Å¸Ã£â€šÂ¢Ã£Æ’Â  Ã¢â‚¬â€ Ã¦Å“Ë†Ã©â€“â€œ';
 
   @override
-  String get subscription_annual_title => '年間';
+  String get subscription_annual_title => 'Ã¥Â¹Â´Ã©â€“â€œ';
 
   @override
-  String get subscription_benefit_fast_start => 'ボットが即座に起動、ポップアップなし';
+  String get subscription_benefit_fast_start =>
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÅ’Ã¥ÂÂ³Ã¥ÂºÂ§Ã£ÂÂ«Ã¨ÂµÂ·Ã¥â€¹â€¢Ã£â‚¬ÂÃ£Æ’ÂÃ£Æ’Æ’Ã£Æ’â€”Ã£â€šÂ¢Ã£Æ’Æ’Ã£Æ’â€”Ã£ÂÂªÃ£Ââ€”';
 
   @override
-  String get subscription_benefit_no_ads => 'アプリ内の広告を完全に削除';
+  String get subscription_benefit_no_ads =>
+      'Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ¥â€ â€¦Ã£ÂÂ®Ã¥ÂºÆ’Ã¥â€˜Å Ã£â€šâ€™Ã¥Â®Å’Ã¥â€¦Â¨Ã£ÂÂ«Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get subscription_benefit_support => '独立した開発を支援';
+  String get subscription_benefit_support =>
+      'Ã§â€¹Â¬Ã§Â«â€¹Ã£Ââ€”Ã£ÂÅ¸Ã©â€“â€¹Ã§â„¢ÂºÃ£â€šâ€™Ã¦â€Â¯Ã¦ÂÂ´';
 
   @override
-  String get subscription_error => '購入を完了できませんでした。もう一度お試しください。';
+  String get subscription_error =>
+      'Ã¨Â³Â¼Ã¥â€¦Â¥Ã£â€šâ€™Ã¥Â®Å’Ã¤Âºâ€ Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£ÂÂ§Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€šÃ£â€šâ€šÃ£Ââ€ Ã¤Â¸â‚¬Ã¥ÂºÂ¦Ã£ÂÅ Ã¨Â©Â¦Ã£Ââ€”Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
   String get subscription_error_product_unavailable =>
-      'このプランは現在利用できません。後でもう一度お試しください。';
+      'Ã£Ââ€œÃ£ÂÂ®Ã£Æ’â€”Ã£Æ’Â©Ã£Æ’Â³Ã£ÂÂ¯Ã§ÂÂ¾Ã¥Å“Â¨Ã¥Ë†Â©Ã§â€Â¨Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€šÃ¥Â¾Å’Ã£ÂÂ§Ã£â€šâ€šÃ£Ââ€ Ã¤Â¸â‚¬Ã¥ÂºÂ¦Ã£ÂÅ Ã¨Â©Â¦Ã£Ââ€”Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
   String get subscription_error_purchase_start_failed =>
-      '購入を開始できませんでした。もう一度お試しください。';
+      'Ã¨Â³Â¼Ã¥â€¦Â¥Ã£â€šâ€™Ã©â€“â€¹Ã¥Â§â€¹Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£ÂÂ§Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€šÃ£â€šâ€šÃ£Ââ€ Ã¤Â¸â‚¬Ã¥ÂºÂ¦Ã£ÂÅ Ã¨Â©Â¦Ã£Ââ€”Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
   String get subscription_error_store_unavailable =>
-      'App Storeが現在利用できません。しばらくしてからもう一度お試しください。';
+      'App StoreÃ£ÂÅ’Ã§ÂÂ¾Ã¥Å“Â¨Ã¥Ë†Â©Ã§â€Â¨Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€šÃ£Ââ€”Ã£ÂÂ°Ã£â€šâ€°Ã£ÂÂÃ£Ââ€”Ã£ÂÂ¦Ã£Ââ€¹Ã£â€šâ€°Ã£â€šâ€šÃ£Ââ€ Ã¤Â¸â‚¬Ã¥ÂºÂ¦Ã£ÂÅ Ã¨Â©Â¦Ã£Ââ€”Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
   String get subscription_feature_analytics_desc =>
-      'エラー率、レイテンシパーセンタイル、ロケールインサイトにアクセス。';
+      'Ã£â€šÂ¨Ã£Æ’Â©Ã£Æ’Â¼Ã§Å½â€¡Ã£â‚¬ÂÃ£Æ’Â¬Ã£â€šÂ¤Ã£Æ’â€ Ã£Æ’Â³Ã£â€šÂ·Ã£Æ’â€˜Ã£Æ’Â¼Ã£â€šÂ»Ã£Æ’Â³Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â«Ã£â‚¬ÂÃ£Æ’Â­Ã£â€šÂ±Ã£Æ’Â¼Ã£Æ’Â«Ã£â€šÂ¤Ã£Æ’Â³Ã£â€šÂµÃ£â€šÂ¤Ã£Æ’Ë†Ã£ÂÂ«Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ»Ã£â€šÂ¹Ã£â‚¬â€š';
 
   @override
-  String get subscription_feature_analytics_title => '高度な分析';
+  String get subscription_feature_analytics_title =>
+      'Ã©Â«ËœÃ¥ÂºÂ¦Ã£ÂÂªÃ¥Ë†â€ Ã¦Å¾Â';
 
   @override
   String get subscription_feature_auto_restart_desc =>
-      '完全な再起動が必要な場合にボットを自動的に再起動します。';
+      'Ã¥Â®Å’Ã¥â€¦Â¨Ã£ÂÂªÃ¥â€ ÂÃ¨ÂµÂ·Ã¥â€¹â€¢Ã£ÂÅ’Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÂªÃ¥Â Â´Ã¥ÂË†Ã£ÂÂ«Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¨â€¡ÂªÃ¥â€¹â€¢Ã§Å¡â€žÃ£ÂÂ«Ã¥â€ ÂÃ¨ÂµÂ·Ã¥â€¹â€¢Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get subscription_feature_auto_restart_title => '自動再起動';
+  String get subscription_feature_auto_restart_title =>
+      'Ã¨â€¡ÂªÃ¥â€¹â€¢Ã¥â€ ÂÃ¨ÂµÂ·Ã¥â€¹â€¢';
 
   @override
   String get subscription_feature_auto_sharding_desc =>
-      'シャードワーカーに負荷を分散して大規模ボットをスケーリング。';
+      'Ã£â€šÂ·Ã£Æ’Â£Ã£Æ’Â¼Ã£Æ’â€°Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â¼Ã£ÂÂ«Ã¨Â²Â Ã¨ÂÂ·Ã£â€šâ€™Ã¥Ë†â€ Ã¦â€¢Â£Ã£Ââ€”Ã£ÂÂ¦Ã¥Â¤Â§Ã¨Â¦ÂÃ¦Â¨Â¡Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã£â€šÂ¹Ã£â€šÂ±Ã£Æ’Â¼Ã£Æ’ÂªÃ£Æ’Â³Ã£â€šÂ°Ã£â‚¬â€š';
 
   @override
-  String get subscription_feature_auto_sharding_title => '自動シャーディング';
+  String get subscription_feature_auto_sharding_title =>
+      'Ã¨â€¡ÂªÃ¥â€¹â€¢Ã£â€šÂ·Ã£Æ’Â£Ã£Æ’Â¼Ã£Æ’â€¡Ã£â€šÂ£Ã£Æ’Â³Ã£â€šÂ°';
 
   @override
-  String get subscription_feature_coming_soon => '近日公開';
+  String get subscription_feature_coming_soon =>
+      'Ã¨Â¿â€˜Ã¦â€”Â¥Ã¥â€¦Â¬Ã©â€“â€¹';
 
   @override
   String get subscription_feature_debug_replay_desc =>
-      'デバッグ用にコマンドアクションをステップごとに記録・再生。';
+      'Ã£Æ’â€¡Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ°Ã§â€Â¨Ã£ÂÂ«Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã£â€šÂ¹Ã£Æ’â€ Ã£Æ’Æ’Ã£Æ’â€”Ã£Ââ€Ã£ÂÂ¨Ã£ÂÂ«Ã¨Â¨ËœÃ©Å’Â²Ã£Æ’Â»Ã¥â€ ÂÃ§â€Å¸Ã£â‚¬â€š';
 
   @override
-  String get subscription_feature_debug_replay_title => 'ビジュアルデバッグリプレイ';
+  String get subscription_feature_debug_replay_title =>
+      'Ã£Æ’â€œÃ£â€šÂ¸Ã£Æ’Â¥Ã£â€šÂ¢Ã£Æ’Â«Ã£Æ’â€¡Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ°Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Â¬Ã£â€šÂ¤';
 
   @override
-  String get subscription_feature_instant_start_desc => '報酬広告の中断なしにボットを即座に起動。';
+  String get subscription_feature_instant_start_desc =>
+      'Ã¥Â Â±Ã©â€¦Â¬Ã¥ÂºÆ’Ã¥â€˜Å Ã£ÂÂ®Ã¤Â¸Â­Ã¦â€“Â­Ã£ÂÂªÃ£Ââ€”Ã£ÂÂ«Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¥ÂÂ³Ã¥ÂºÂ§Ã£ÂÂ«Ã¨ÂµÂ·Ã¥â€¹â€¢Ã£â‚¬â€š';
 
   @override
-  String get subscription_feature_instant_start_title => 'インスタント起動';
+  String get subscription_feature_instant_start_title =>
+      'Ã£â€šÂ¤Ã£Æ’Â³Ã£â€šÂ¹Ã£â€šÂ¿Ã£Æ’Â³Ã£Æ’Ë†Ã¨ÂµÂ·Ã¥â€¹â€¢';
 
   @override
   String get subscription_feature_lavalink_desc =>
@@ -7263,177 +8411,203 @@ class AppLocalizationsJa extends AppLocalizations {
   String get subscription_feature_lavalink_title => 'Lavalink audio support';
 
   @override
-  String get subscription_feature_no_ads_desc => 'アプリ体験全体からすべての広告配置を削除。';
+  String get subscription_feature_no_ads_desc =>
+      'Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ¤Â½â€œÃ©Â¨â€œÃ¥â€¦Â¨Ã¤Â½â€œÃ£Ââ€¹Ã£â€šâ€°Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÂ®Ã¥ÂºÆ’Ã¥â€˜Å Ã©â€¦ÂÃ§Â½Â®Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤Ã£â‚¬â€š';
 
   @override
-  String get subscription_feature_no_ads_title => '広告なし';
+  String get subscription_feature_no_ads_title => 'Ã¥ÂºÆ’Ã¥â€˜Å Ã£ÂÂªÃ£Ââ€”';
 
   @override
   String get subscription_feature_scheduler_desc =>
-      'X分ごとに自動的にワークフローを実行（最大10個まで有効）。';
+      'XÃ¥Ë†â€ Ã£Ââ€Ã£ÂÂ¨Ã£ÂÂ«Ã¨â€¡ÂªÃ¥â€¹â€¢Ã§Å¡â€žÃ£ÂÂ«Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã¥Â®Å¸Ã¨Â¡Å’Ã¯Â¼Ë†Ã¦Å“â‚¬Ã¥Â¤Â§10Ã¥â‚¬â€¹Ã£ÂÂ¾Ã£ÂÂ§Ã¦Å“â€°Ã¥Å Â¹Ã¯Â¼â€°Ã£â‚¬â€š';
 
   @override
-  String get subscription_feature_scheduler_title => 'スケジューラートリガー';
+  String get subscription_feature_scheduler_title =>
+      'Ã£â€šÂ¹Ã£â€šÂ±Ã£â€šÂ¸Ã£Æ’Â¥Ã£Æ’Â¼Ã£Æ’Â©Ã£Æ’Â¼Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼';
 
   @override
   String get subscription_feature_webhooks_desc =>
-      '安全なWebhookエンドポイントを作成し、呼び出しをワークフローにルーティング。';
+      'Ã¥Â®â€°Ã¥â€¦Â¨Ã£ÂÂªWebhookÃ£â€šÂ¨Ã£Æ’Â³Ã£Æ’â€°Ã£Æ’ÂÃ£â€šÂ¤Ã£Æ’Â³Ã£Æ’Ë†Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†ÂÃ£Ââ€”Ã£â‚¬ÂÃ¥â€˜Â¼Ã£ÂÂ³Ã¥â€¡ÂºÃ£Ââ€”Ã£â€šâ€™Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£ÂÂ«Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’Â³Ã£â€šÂ°Ã£â‚¬â€š';
 
   @override
-  String get subscription_feature_webhooks_title => '受信Webhook';
+  String get subscription_feature_webhooks_title => 'Ã¥Ââ€”Ã¤Â¿Â¡Webhook';
 
   @override
-  String get subscription_manage => 'サブスクリプションを管理';
+  String get subscription_manage =>
+      'Ã£â€šÂµÃ£Æ’â€“Ã£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã§Â®Â¡Ã§Ââ€ ';
 
   @override
-  String get subscription_monthly_title => '月間';
+  String get subscription_monthly_title => 'Ã¦Å“Ë†Ã©â€“â€œ';
 
   @override
   String get subscription_not_available_on_platform =>
-      'サブスクリプションは現在モバイルのみ対応です。';
+      'Ã£â€šÂµÃ£Æ’â€“Ã£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ¯Ã§ÂÂ¾Ã¥Å“Â¨Ã£Æ’Â¢Ã£Æ’ÂÃ£â€šÂ¤Ã£Æ’Â«Ã£ÂÂ®Ã£ÂÂ¿Ã¥Â¯Â¾Ã¥Â¿Å“Ã£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get subscription_per_month => '月額';
+  String get subscription_per_month => 'Ã¦Å“Ë†Ã©Â¡Â';
 
   @override
-  String get subscription_per_year => '年額';
+  String get subscription_per_year => 'Ã¥Â¹Â´Ã©Â¡Â';
 
   @override
-  String get subscription_plan_desc => '広告を削除し、現在および今後のすべてのプレミアム機能にアクセスできます。';
+  String get subscription_plan_desc =>
+      'Ã¥ÂºÆ’Ã¥â€˜Å Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£â‚¬ÂÃ§ÂÂ¾Ã¥Å“Â¨Ã£ÂÅ Ã£â€šË†Ã£ÂÂ³Ã¤Â»Å Ã¥Â¾Å’Ã£ÂÂ®Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÂ®Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Å¸Ã£â€šÂ¢Ã£Æ’Â Ã¦Â©Å¸Ã¨Æ’Â½Ã£ÂÂ«Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ»Ã£â€šÂ¹Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get subscription_plan_label => 'プレミアムベーシック';
+  String get subscription_plan_label =>
+      'Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Å¸Ã£â€šÂ¢Ã£Æ’Â Ã£Æ’â„¢Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Æ’Ã£â€šÂ¯';
 
   @override
-  String get subscription_privacy => 'プライバシーポリシー';
+  String get subscription_privacy =>
+      'Ã£Æ’â€”Ã£Æ’Â©Ã£â€šÂ¤Ã£Æ’ÂÃ£â€šÂ·Ã£Æ’Â¼Ã£Æ’ÂÃ£Æ’ÂªÃ£â€šÂ·Ã£Æ’Â¼';
 
   @override
-  String get subscription_restore => '購入を復元';
+  String get subscription_restore => 'Ã¨Â³Â¼Ã¥â€¦Â¥Ã£â€šâ€™Ã¥Â¾Â©Ã¥â€¦Æ’';
 
   @override
-  String get subscription_restore_not_found => 'アクティブなサブスクリプションが見つかりません。';
+  String get subscription_restore_not_found =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’â€“Ã£ÂÂªÃ£â€šÂµÃ£Æ’â€“Ã£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÅ’Ã¨Â¦â€¹Ã£ÂÂ¤Ã£Ââ€¹Ã£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
-  String get subscription_restored => 'サブスクリプションが正常に復元されました！';
+  String get subscription_restored =>
+      'Ã£â€šÂµÃ£Æ’â€“Ã£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÅ’Ã¦Â­Â£Ã¥Â¸Â¸Ã£ÂÂ«Ã¥Â¾Â©Ã¥â€¦Æ’Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã¯Â¼Â';
 
   @override
-  String get subscription_save_badge => '67% 割引';
+  String get subscription_save_badge => '67% Ã¥â€°Â²Ã¥Â¼â€¢';
 
   @override
-  String get subscription_subtitle => 'すべてのプレミアム機能を解除するプランを選択してください。';
+  String get subscription_subtitle =>
+      'Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÂ®Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Å¸Ã£â€šÂ¢Ã£Æ’Â Ã¦Â©Å¸Ã¨Æ’Â½Ã£â€šâ€™Ã¨Â§Â£Ã©â„¢Â¤Ã£Ââ„¢Ã£â€šâ€¹Ã£Æ’â€”Ã£Æ’Â©Ã£Æ’Â³Ã£â€šâ€™Ã©ÂÂ¸Ã¦Å Å¾Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get subscription_success => 'プレミアムへようこそ！すべての広告が削除されました。';
+  String get subscription_success =>
+      'Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Å¸Ã£â€šÂ¢Ã£Æ’Â Ã£ÂÂ¸Ã£â€šË†Ã£Ââ€ Ã£Ââ€œÃ£ÂÂÃ¯Â¼ÂÃ£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÂ®Ã¥ÂºÆ’Ã¥â€˜Å Ã£ÂÅ’Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€š';
 
   @override
-  String get subscription_terms => '利用規約';
+  String get subscription_terms => 'Ã¥Ë†Â©Ã§â€Â¨Ã¨Â¦ÂÃ§Â´â€ž';
 
   @override
-  String get subscription_title => 'プレミアム';
+  String get subscription_title => 'Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Å¸Ã£â€šÂ¢Ã£Æ’Â ';
 
   @override
-  String get subscription_unavailable_platform => 'このプラットフォームでは利用できません。';
+  String get subscription_unavailable_platform =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã£Æ’â€”Ã£Æ’Â©Ã£Æ’Æ’Ã£Æ’Ë†Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â¼Ã£Æ’Â Ã£ÂÂ§Ã£ÂÂ¯Ã¥Ë†Â©Ã§â€Â¨Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
-  String get support_card_desc => '質問、バグ、提案がありますか？チームやコミュニティとチャットしましょう。';
+  String get support_card_desc =>
+      'Ã¨Â³ÂªÃ¥â€¢ÂÃ£â‚¬ÂÃ£Æ’ÂÃ£â€šÂ°Ã£â‚¬ÂÃ¦ÂÂÃ¦Â¡Ë†Ã£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Â Ã£â€šâ€žÃ£â€šÂ³Ã£Æ’Å¸Ã£Æ’Â¥Ã£Æ’â€¹Ã£Æ’â€ Ã£â€šÂ£Ã£ÂÂ¨Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Æ’Ã£Æ’Ë†Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£â€šâ€¡Ã£Ââ€ Ã£â‚¬â€š';
 
   @override
-  String get support_card_title => 'サポート & コミュニティ';
+  String get support_card_title =>
+      'Ã£â€šÂµÃ£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë† & Ã£â€šÂ³Ã£Æ’Å¸Ã£Æ’Â¥Ã£Æ’â€¹Ã£Æ’â€ Ã£â€šÂ£';
 
   @override
-  String get support_discord_badge => '公式サポート';
+  String get support_discord_badge => 'Ã¥â€¦Â¬Ã¥Â¼ÂÃ£â€šÂµÃ£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†';
 
   @override
-  String get support_join_discord => 'Discordサーバーに参加';
+  String get support_join_discord =>
+      'DiscordÃ£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£ÂÂ«Ã¥Ââ€šÃ¥Å Â ';
 
   @override
-  String get template_fun_description => 'コイントス、投票、マジック8ボール。';
+  String get template_fun_description =>
+      'Ã£â€šÂ³Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’Ë†Ã£â€šÂ¹Ã£â‚¬ÂÃ¦Å â€¢Ã§Â¥Â¨Ã£â‚¬ÂÃ£Æ’Å¾Ã£â€šÂ¸Ã£Æ’Æ’Ã£â€šÂ¯8Ã£Æ’Å“Ã£Æ’Â¼Ã£Æ’Â«Ã£â‚¬â€š';
 
   @override
-  String get template_fun_name => 'お楽しみボット';
+  String get template_fun_name => 'Ã£ÂÅ Ã¦Â¥Â½Ã£Ââ€”Ã£ÂÂ¿Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†';
 
   @override
   String template_gallery_already_exists(String name) {
-    return 'コマンド \"$name\" は既に存在するためスキップされました。';
+    return 'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€° \"$name\" Ã£ÂÂ¯Ã¦â€”Â¢Ã£ÂÂ«Ã¥Â­ËœÃ¥Å“Â¨Ã£Ââ„¢Ã£â€šâ€¹Ã£ÂÅ¸Ã£â€šÂÃ£â€šÂ¹Ã£â€šÂ­Ã£Æ’Æ’Ã£Æ’â€”Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€š';
   }
 
   @override
-  String get template_gallery_apply => 'このテンプレートを使用';
+  String get template_gallery_apply =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨';
 
   @override
   String template_gallery_apply_error(String error) {
-    return 'テンプレートの適用に失敗: $error';
+    return 'Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã£ÂÂ®Ã©ÂÂ©Ã§â€Â¨Ã£ÂÂ«Ã¥Â¤Â±Ã¦â€¢â€”: $error';
   }
 
   @override
   String template_gallery_apply_success(int count, int wCount) {
-    return 'テンプレートから $count コマンドと $wCount ワークフローが追加されました。';
+    return 'Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã£Ââ€¹Ã£â€šâ€° $count Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ¨ $wCount Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£ÂÅ’Ã¨Â¿Â½Ã¥Å Â Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€š';
   }
 
   @override
   String template_gallery_commands_count(int count) {
-    return '$count コマンド';
+    return '$count Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°';
   }
 
   @override
-  String get template_gallery_empty => '利用可能なテンプレートがありません。';
+  String get template_gallery_empty =>
+      'Ã¥Ë†Â©Ã§â€Â¨Ã¥ÂÂ¯Ã¨Æ’Â½Ã£ÂÂªÃ£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
   String template_gallery_nothing_to_remove(String name) {
-    return '$name に削除するものがありません。';
+    return '$name Ã£ÂÂ«Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ„¢Ã£â€šâ€¹Ã£â€šâ€šÃ£ÂÂ®Ã£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
   }
 
   @override
   String get template_gallery_remove_confirm =>
-      'このテンプレートからすべてのコマンドとワークフローを削除してもよろしいですか？';
+      'Ã£Ââ€œÃ£ÂÂ®Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã£Ââ€¹Ã£â€šâ€°Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÂ®Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ¨Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¦Ã£â€šâ€šÃ£â€šË†Ã£â€šÂÃ£Ââ€”Ã£Ââ€žÃ£ÂÂ§Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸';
 
   @override
-  String get template_gallery_remove_title => 'テンプレートを削除';
+  String get template_gallery_remove_title =>
+      'Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get template_gallery_removed => 'テンプレートのコマンドとワークフローが削除されました。';
+  String get template_gallery_removed =>
+      'Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã£ÂÂ®Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ¨Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£ÂÅ’Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€š';
 
   @override
-  String get template_gallery_subtitle => '既製のテンプレートでボットを素早く始めましょう。';
+  String get template_gallery_subtitle =>
+      'Ã¦â€”Â¢Ã¨Â£Â½Ã£ÂÂ®Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã£ÂÂ§Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã§Â´Â Ã¦â€”Â©Ã£ÂÂÃ¥Â§â€¹Ã£â€šÂÃ£ÂÂ¾Ã£Ââ€”Ã£â€šâ€¡Ã£Ââ€ Ã£â‚¬â€š';
 
   @override
   String get template_gallery_sync_warning =>
-      'コマンドはローカルに保存されました。Discordに登録するにはボットを起動してください。';
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ¯Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã£ÂÂ«Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€šDiscordÃ£ÂÂ«Ã§â„¢Â»Ã©Å’Â²Ã£Ââ„¢Ã£â€šâ€¹Ã£ÂÂ«Ã£ÂÂ¯Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¨ÂµÂ·Ã¥â€¹â€¢Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get template_gallery_title => 'テンプレート';
+  String get template_gallery_title => 'Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†';
 
   @override
   String template_gallery_workflows_count(int count) {
-    return '$count ワークフロー';
+    return '$count Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼';
   }
 
   @override
-  String get template_moderation_description => '追放、キック、メンバーミュート、メッセージ削除。';
+  String get template_moderation_description =>
+      'Ã¨Â¿Â½Ã¦â€Â¾Ã£â‚¬ÂÃ£â€šÂ­Ã£Æ’Æ’Ã£â€šÂ¯Ã£â‚¬ÂÃ£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Å¸Ã£Æ’Â¥Ã£Æ’Â¼Ã£Æ’Ë†Ã£â‚¬ÂÃ£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã¥â€°Å Ã©â„¢Â¤Ã£â‚¬â€š';
 
   @override
-  String get template_moderation_name => 'モデレーションボット';
+  String get template_moderation_name =>
+      'Ã£Æ’Â¢Ã£Æ’â€¡Ã£Æ’Â¬Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†';
 
   @override
-  String get template_utility_description => 'Ping、アバター検索、ボット発言コマンド。';
+  String get template_utility_description =>
+      'PingÃ£â‚¬ÂÃ£â€šÂ¢Ã£Æ’ÂÃ£â€šÂ¿Ã£Æ’Â¼Ã¦Â¤Å“Ã§Â´Â¢Ã£â‚¬ÂÃ£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã§â„¢ÂºÃ¨Â¨â‚¬Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â‚¬â€š';
 
   @override
-  String get template_utility_name => 'ユーティリティボット';
+  String get template_utility_name =>
+      'Ã£Æ’Â¦Ã£Æ’Â¼Ã£Æ’â€ Ã£â€šÂ£Ã£Æ’ÂªÃ£Æ’â€ Ã£â€šÂ£Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†';
 
   @override
-  String get template_welcome_description => '新規メンバーを歓迎、挨拶、サーバー情報を表示。';
+  String get template_welcome_description =>
+      'Ã¦â€“Â°Ã¨Â¦ÂÃ£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£â€šâ€™Ã¦Â­â€œÃ¨Â¿Å½Ã£â‚¬ÂÃ¦Å’Â¨Ã¦â€¹Â¶Ã£â‚¬ÂÃ£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã¦Æ’â€¦Ã¥Â Â±Ã£â€šâ€™Ã¨Â¡Â¨Ã§Â¤ÂºÃ£â‚¬â€š';
 
   @override
-  String get template_welcome_name => 'ウェルカムボット';
+  String get template_welcome_name =>
+      'Ã£â€šÂ¦Ã£â€šÂ§Ã£Æ’Â«Ã£â€šÂ«Ã£Æ’Â Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†';
 
   @override
   String unit_day(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count日',
-      one: '1日',
-      zero: '0日',
+      other: '$countÃ¦â€”Â¥',
+      one: '1Ã¦â€”Â¥',
+      zero: '0Ã¦â€”Â¥',
     );
     return '$_temp0';
   }
@@ -7443,9 +8617,9 @@ class AppLocalizationsJa extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count時間',
-      one: '1時間',
-      zero: '0時間',
+      other: '$countÃ¦â„¢â€šÃ©â€“â€œ',
+      one: '1Ã¦â„¢â€šÃ©â€“â€œ',
+      zero: '0Ã¦â„¢â€šÃ©â€“â€œ',
     );
     return '$_temp0';
   }
@@ -7455,9 +8629,9 @@ class AppLocalizationsJa extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count分',
-      one: '1分',
-      zero: '0分',
+      other: '$countÃ¥Ë†â€ ',
+      one: '1Ã¥Ë†â€ ',
+      zero: '0Ã¥Ë†â€ ',
     );
     return '$_temp0';
   }
@@ -7467,201 +8641,220 @@ class AppLocalizationsJa extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$countヶ月',
-      one: '1ヶ月',
-      zero: '0ヶ月',
+      other: '$countÃ£Æ’Â¶Ã¦Å“Ë†',
+      one: '1Ã£Æ’Â¶Ã¦Å“Ë†',
+      zero: '0Ã£Æ’Â¶Ã¦Å“Ë†',
     );
     return '$_temp0';
   }
 
   @override
   String get validation_awaited_callback_format =>
-      '待機コールバックは \$awaitedCommand[name;filter] または \$awaitedCommandError[name] を使用する必要があります。';
+      'Ã¥Â¾â€¦Ã¦Â©Å¸Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã£ÂÂ¯ \$awaitedCommand[name;filter] Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯ \$awaitedCommandError[name] Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ„¢Ã£â€šâ€¹Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String validation_awaited_callback_length(int max) {
-    return '待機コールバックトリガーは最大 $max 文字です';
+    return 'Ã¥Â¾â€¦Ã¦Â©Å¸Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼Ã£ÂÂ¯Ã¦Å“â‚¬Ã¥Â¤Â§ $max Ã¦â€“â€¡Ã¥Â­â€”Ã£ÂÂ§Ã£Ââ„¢';
   }
 
   @override
   String get validation_awaited_callback_local_only =>
-      '待機コールバックにはローカルのみのレガシーコマンドが必要です。';
+      'Ã¥Â¾â€¦Ã¦Â©Å¸Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã£ÂÂ«Ã£ÂÂ¯Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã£ÂÂ®Ã£ÂÂ¿Ã£ÂÂ®Ã£Æ’Â¬Ã£â€šÂ¬Ã£â€šÂ·Ã£Æ’Â¼Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÅ’Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get validation_command_name_invalid_chars =>
-      'コマンド名には英数字とアンダースコアのみ使用できます';
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã¥ÂÂÃ£ÂÂ«Ã£ÂÂ¯Ã¨â€¹Â±Ã¦â€¢Â°Ã¥Â­â€”Ã£ÂÂ¨Ã£â€šÂ¢Ã£Æ’Â³Ã£Æ’â‚¬Ã£Æ’Â¼Ã£â€šÂ¹Ã£â€šÂ³Ã£â€šÂ¢Ã£ÂÂ®Ã£ÂÂ¿Ã¤Â½Â¿Ã§â€Â¨Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ„¢';
 
   @override
   String validation_command_name_length(int max) {
-    return 'コマンド名は最大 $max 文字です';
+    return 'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã¥ÂÂÃ£ÂÂ¯Ã¦Å“â‚¬Ã¥Â¤Â§ $max Ã¦â€“â€¡Ã¥Â­â€”Ã£ÂÂ§Ã£Ââ„¢';
   }
 
   @override
-  String get validation_command_name_no_ampersand => 'コマンド名をアンパサンドで始めることはできません';
+  String get validation_command_name_no_ampersand =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã¥ÂÂÃ£â€šâ€™Ã£â€šÂ¢Ã£Æ’Â³Ã£Æ’â€˜Ã£â€šÂµÃ£Æ’Â³Ã£Æ’â€°Ã£ÂÂ§Ã¥Â§â€¹Ã£â€šÂÃ£â€šâ€¹Ã£Ââ€œÃ£ÂÂ¨Ã£ÂÂ¯Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œ';
 
   @override
-  String get validation_command_name_no_at => 'コマンド名をアットマークで始めることはできません';
+  String get validation_command_name_no_at =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã¥ÂÂÃ£â€šâ€™Ã£â€šÂ¢Ã£Æ’Æ’Ã£Æ’Ë†Ã£Æ’Å¾Ã£Æ’Â¼Ã£â€šÂ¯Ã£ÂÂ§Ã¥Â§â€¹Ã£â€šÂÃ£â€šâ€¹Ã£Ââ€œÃ£ÂÂ¨Ã£ÂÂ¯Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œ';
 
   @override
-  String get validation_command_name_no_exclamation => 'コマンド名を感嘆符で始めることはできません';
+  String get validation_command_name_no_exclamation =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã¥ÂÂÃ£â€šâ€™Ã¦â€žÅ¸Ã¥Ëœâ€ Ã§Â¬Â¦Ã£ÂÂ§Ã¥Â§â€¹Ã£â€šÂÃ£â€šâ€¹Ã£Ââ€œÃ£ÂÂ¨Ã£ÂÂ¯Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œ';
 
   @override
-  String get validation_command_name_no_hash => 'コマンド名をハッシュで始めることはできません';
+  String get validation_command_name_no_hash =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã¥ÂÂÃ£â€šâ€™Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ·Ã£Æ’Â¥Ã£ÂÂ§Ã¥Â§â€¹Ã£â€šÂÃ£â€šâ€¹Ã£Ââ€œÃ£ÂÂ¨Ã£ÂÂ¯Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œ';
 
   @override
-  String get validation_command_name_no_percent => 'コマンド名をパーセント記号で始めることはできません';
+  String get validation_command_name_no_percent =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã¥ÂÂÃ£â€šâ€™Ã£Æ’â€˜Ã£Æ’Â¼Ã£â€šÂ»Ã£Æ’Â³Ã£Æ’Ë†Ã¨Â¨ËœÃ¥ÂÂ·Ã£ÂÂ§Ã¥Â§â€¹Ã£â€šÂÃ£â€šâ€¹Ã£Ââ€œÃ£ÂÂ¨Ã£ÂÂ¯Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œ';
 
   @override
-  String get validation_command_name_no_slash => 'コマンド名をスラッシュで始めることはできません';
+  String get validation_command_name_no_slash =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã¥ÂÂÃ£â€šâ€™Ã£â€šÂ¹Ã£Æ’Â©Ã£Æ’Æ’Ã£â€šÂ·Ã£Æ’Â¥Ã£ÂÂ§Ã¥Â§â€¹Ã£â€šÂÃ£â€šâ€¹Ã£Ââ€œÃ£ÂÂ¨Ã£ÂÂ¯Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œ';
 
   @override
-  String get validation_command_name_no_spaces => 'コマンド名にスペースを含めることはできません';
+  String get validation_command_name_no_spaces =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã¥ÂÂÃ£ÂÂ«Ã£â€šÂ¹Ã£Æ’Å¡Ã£Æ’Â¼Ã£â€šÂ¹Ã£â€šâ€™Ã¥ÂÂ«Ã£â€šÂÃ£â€šâ€¹Ã£Ââ€œÃ£ÂÂ¨Ã£ÂÂ¯Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œ';
 
   @override
   String get validation_command_name_no_underscore =>
-      'コマンド名をアンダースコアで始めることはできません';
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã¥ÂÂÃ£â€šâ€™Ã£â€šÂ¢Ã£Æ’Â³Ã£Æ’â‚¬Ã£Æ’Â¼Ã£â€šÂ¹Ã£â€šÂ³Ã£â€šÂ¢Ã£ÂÂ§Ã¥Â§â€¹Ã£â€šÂÃ£â€šâ€¹Ã£Ââ€œÃ£ÂÂ¨Ã£ÂÂ¯Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œ';
 
   @override
-  String get validation_command_name_required => 'コマンド名を入力してください';
+  String get validation_command_name_required =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã¥ÂÂÃ£â€šâ€™Ã¥â€¦Â¥Ã¥Å â€ºÃ£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€ž';
 
   @override
   String get validation_interaction_no_response =>
-      'インタラクションコマンドには少なくとも1つの応答アクションが必要です（メッセージで応答、コンポーネントで応答';
+      'Ã£â€šÂ¤Ã£Æ’Â³Ã£â€šÂ¿Ã£Æ’Â©Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ«Ã£ÂÂ¯Ã¥Â°â€˜Ã£ÂÂªÃ£ÂÂÃ£ÂÂ¨Ã£â€šâ€š1Ã£ÂÂ¤Ã£ÂÂ®Ã¥Â¿Å“Ã§Â­â€Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÅ’Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÂ§Ã£Ââ„¢Ã¯Â¼Ë†Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£ÂÂ§Ã¥Â¿Å“Ã§Â­â€Ã£â‚¬ÂÃ£â€šÂ³Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â³Ã£Æ’Ë†Ã£ÂÂ§Ã¥Â¿Å“Ã§Â­â€';
 
   @override
-  String get validation_interaction_no_response_short => '応答アクションがありません';
+  String get validation_interaction_no_response_short =>
+      'Ã¥Â¿Å“Ã§Â­â€Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œ';
 
   @override
   String get validation_invalid_permissions =>
-      '無効なデフォルトメンバー権限ビットフィールドです。正の整数を使用するか空欄にしてください。';
+      'Ã§â€žÂ¡Ã¥Å Â¹Ã£ÂÂªÃ£Æ’â€¡Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â«Ã£Æ’Ë†Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã¦Â¨Â©Ã©â„¢ÂÃ£Æ’â€œÃ£Æ’Æ’Ã£Æ’Ë†Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â¼Ã£Æ’Â«Ã£Æ’â€°Ã£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€šÃ¦Â­Â£Ã£ÂÂ®Ã¦â€¢Â´Ã¦â€¢Â°Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ„¢Ã£â€šâ€¹Ã£Ââ€¹Ã§Â©ÂºÃ¦Â¬â€žÃ£ÂÂ«Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
   String get validation_legacy_chat_input_only =>
-      'レガシーモードはチャット入力コマンドでのみ利用可能です。';
+      'Ã£Æ’Â¬Ã£â€šÂ¬Ã£â€šÂ·Ã£Æ’Â¼Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°Ã£ÂÂ¯Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Æ’Ã£Æ’Ë†Ã¥â€¦Â¥Ã¥Å â€ºÃ£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ§Ã£ÂÂ®Ã£ÂÂ¿Ã¥Ë†Â©Ã§â€Â¨Ã¥ÂÂ¯Ã¨Æ’Â½Ã£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get validation_legacy_only_new_or_local =>
-      'レガシー専用モードは新規コマンドまたは既存のローカルコマンドでのみ使用できます。';
+      'Ã£Æ’Â¬Ã£â€šÂ¬Ã£â€šÂ·Ã£Æ’Â¼Ã¥Â°â€šÃ§â€Â¨Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°Ã£ÂÂ¯Ã¦â€“Â°Ã¨Â¦ÂÃ£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã¦â€”Â¢Ã¥Â­ËœÃ£ÂÂ®Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ§Ã£ÂÂ®Ã£ÂÂ¿Ã¤Â½Â¿Ã§â€Â¨Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get validation_legacy_only_requires_legacy =>
-      'レガシー専用コマンドにはレガシーモードが有効である必要があります。';
+      'Ã£Æ’Â¬Ã£â€šÂ¬Ã£â€šÂ·Ã£Æ’Â¼Ã¥Â°â€šÃ§â€Â¨Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ«Ã£ÂÂ¯Ã£Æ’Â¬Ã£â€šÂ¬Ã£â€šÂ·Ã£Æ’Â¼Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°Ã£ÂÅ’Ã¦Å“â€°Ã¥Å Â¹Ã£ÂÂ§Ã£Ââ€šÃ£â€šâ€¹Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get validation_modal_not_legacy => 'モーダル応答はレガシーコマンドモードではサポートされていません。';
+  String get validation_modal_not_legacy =>
+      'Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â‚¬Ã£Æ’Â«Ã¥Â¿Å“Ã§Â­â€Ã£ÂÂ¯Ã£Æ’Â¬Ã£â€šÂ¬Ã£â€šÂ·Ã£Æ’Â¼Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°Ã£ÂÂ§Ã£ÂÂ¯Ã£â€šÂµÃ£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¦Ã£Ââ€žÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
-  String get validation_option_description_required => 'すべてのオプションに説明が必要です。';
+  String get validation_option_description_required =>
+      'Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÂ®Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ«Ã¨ÂªÂ¬Ã¦ËœÅ½Ã£ÂÅ’Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get validation_option_group_only_subcommands =>
-      'サブコマンドグループにはサブコマンドオプションのみを含められます。';
+      'Ã£â€šÂµÃ£Æ’â€“Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šÂ°Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’â€”Ã£ÂÂ«Ã£ÂÂ¯Ã£â€šÂµÃ£Æ’â€“Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ®Ã£ÂÂ¿Ã£â€šâ€™Ã¥ÂÂ«Ã£â€šÂÃ£â€šâ€°Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get validation_option_group_top_level_only =>
-      'サブコマンドグループはトップレベルでのみ許可されます。';
+      'Ã£â€šÂµÃ£Æ’â€“Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šÂ°Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’â€”Ã£ÂÂ¯Ã£Æ’Ë†Ã£Æ’Æ’Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’â„¢Ã£Æ’Â«Ã£ÂÂ§Ã£ÂÂ®Ã£ÂÂ¿Ã¨Â¨Â±Ã¥ÂÂ¯Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get validation_option_hierarchy_no_choices =>
-      'サブコマンドとサブコマンドグループは選択肢を定義できません。';
+      'Ã£â€šÂµÃ£Æ’â€“Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ¨Ã£â€šÂµÃ£Æ’â€“Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šÂ°Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’â€”Ã£ÂÂ¯Ã©ÂÂ¸Ã¦Å Å¾Ã¨â€šÂ¢Ã£â€šâ€™Ã¥Â®Å¡Ã§Â¾Â©Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
   String get validation_option_hierarchy_no_min_max =>
-      'サブコマンドとサブコマンドグループは最小/最大値を定義できません。';
+      'Ã£â€šÂµÃ£Æ’â€“Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ¨Ã£â€šÂµÃ£Æ’â€“Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šÂ°Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’â€”Ã£ÂÂ¯Ã¦Å“â‚¬Ã¥Â°Â/Ã¦Å“â‚¬Ã¥Â¤Â§Ã¥â‚¬Â¤Ã£â€šâ€™Ã¥Â®Å¡Ã§Â¾Â©Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
   String get validation_option_hierarchy_not_required =>
-      'サブコマンドとサブコマンドグループを必須にすることはできません。';
+      'Ã£â€šÂµÃ£Æ’â€“Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ¨Ã£â€šÂµÃ£Æ’â€“Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šÂ°Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’â€”Ã£â€šâ€™Ã¥Â¿â€¦Ã©Â Ë†Ã£ÂÂ«Ã£Ââ„¢Ã£â€šâ€¹Ã£Ââ€œÃ£ÂÂ¨Ã£ÂÂ¯Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
   String get validation_option_leaf_no_nested =>
-      '通常のオプションにはネストされたオプションを含められません。';
+      'Ã©â‚¬Å¡Ã¥Â¸Â¸Ã£ÂÂ®Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ«Ã£ÂÂ¯Ã£Æ’ÂÃ£â€šÂ¹Ã£Æ’Ë†Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¥ÂÂ«Ã£â€šÂÃ£â€šâ€°Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
-  String get validation_option_max_entries => '各オプションレベルは最大25エントリまでサポートします。';
+  String get validation_option_max_entries =>
+      'Ã¥Ââ€žÃ£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£Æ’Â¬Ã£Æ’â„¢Ã£Æ’Â«Ã£ÂÂ¯Ã¦Å“â‚¬Ã¥Â¤Â§25Ã£â€šÂ¨Ã£Æ’Â³Ã£Æ’Ë†Ã£Æ’ÂªÃ£ÂÂ¾Ã£ÂÂ§Ã£â€šÂµÃ£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String validation_option_name_duplicate(String name) {
-    return '同じレベルに重複したオプション名 \"$name\" があります。';
+    return 'Ã¥ÂÅ’Ã£ÂËœÃ£Æ’Â¬Ã£Æ’â„¢Ã£Æ’Â«Ã£ÂÂ«Ã©â€¡ÂÃ¨Â¤â€¡Ã£Ââ€”Ã£ÂÅ¸Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã¥ÂÂ \"$name\" Ã£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
   }
 
   @override
-  String get validation_option_name_required => 'すべてのオプションに名前が必要です。';
+  String get validation_option_name_required =>
+      'Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÂ®Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ«Ã¥ÂÂÃ¥â€°ÂÃ£ÂÅ’Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get validation_option_no_mix_top_level =>
-      'トップレベルオプションでサブコマンド/グループと通常オプションを混在させることはできません。';
+      'Ã£Æ’Ë†Ã£Æ’Æ’Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’â„¢Ã£Æ’Â«Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ§Ã£â€šÂµÃ£Æ’â€“Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°/Ã£â€šÂ°Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’â€”Ã£ÂÂ¨Ã©â‚¬Å¡Ã¥Â¸Â¸Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¦Â·Â·Ã¥Å“Â¨Ã£Ââ€¢Ã£Ââ€ºÃ£â€šâ€¹Ã£Ââ€œÃ£ÂÂ¨Ã£ÂÂ¯Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
   String get validation_option_subcommand_depth =>
-      'サブコマンドのネスト深度がDiscordの制限を超えています。';
+      'Ã£â€šÂµÃ£Æ’â€“Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ®Ã£Æ’ÂÃ£â€šÂ¹Ã£Æ’Ë†Ã¦Â·Â±Ã¥ÂºÂ¦Ã£ÂÅ’DiscordÃ£ÂÂ®Ã¥Ë†Â¶Ã©â„¢ÂÃ£â€šâ€™Ã¨Â¶â€¦Ã£ÂË†Ã£ÂÂ¦Ã£Ââ€žÃ£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get validation_option_subcommand_no_nested =>
-      'サブコマンドにはネストされたサブコマンドやサブコマンドグループを含められません。';
+      'Ã£â€šÂµÃ£Æ’â€“Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ«Ã£ÂÂ¯Ã£Æ’ÂÃ£â€šÂ¹Ã£Æ’Ë†Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸Ã£â€šÂµÃ£Æ’â€“Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€žÃ£â€šÂµÃ£Æ’â€“Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šÂ°Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’â€”Ã£â€šâ€™Ã¥ÂÂ«Ã£â€šÂÃ£â€šâ€°Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
-  String get variable_autocomplete_numeric_title => '動的数値候補';
+  String get variable_autocomplete_numeric_title =>
+      'Ã¥â€¹â€¢Ã§Å¡â€žÃ¦â€¢Â°Ã¥â‚¬Â¤Ã¥â‚¬â„¢Ã¨Â£Å“';
 
   @override
-  String get variable_autocomplete_title => '利用可能な変数 — タップして挿入';
+  String get variable_autocomplete_title =>
+      'Ã¥Ë†Â©Ã§â€Â¨Ã¥ÂÂ¯Ã¨Æ’Â½Ã£ÂÂªÃ¥Â¤â€°Ã¦â€¢Â° Ã¢â‚¬â€ Ã£â€šÂ¿Ã£Æ’Æ’Ã£Æ’â€”Ã£Ââ€”Ã£ÂÂ¦Ã¦Å’Â¿Ã¥â€¦Â¥';
 
   @override
-  String get variable_category_author => '作成者';
+  String get variable_category_author => 'Ã¤Â½Å“Ã¦Ë†ÂÃ¨â‚¬â€¦';
 
   @override
-  String get variable_category_bot => 'ボット';
+  String get variable_category_bot => 'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†';
 
   @override
-  String get variable_category_channel => 'チャンネル';
+  String get variable_category_channel => 'Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«';
 
   @override
-  String get variable_category_context => 'コンテキスト';
+  String get variable_category_context =>
+      'Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€ Ã£â€šÂ­Ã£â€šÂ¹Ã£Æ’Ë†';
 
   @override
-  String get variable_category_functions => '関数';
+  String get variable_category_functions => 'Ã©â€“Â¢Ã¦â€¢Â°';
 
   @override
-  String get variable_category_guild => 'サーバー';
+  String get variable_category_guild => 'Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼';
 
   @override
-  String get variable_category_interaction => 'インタラクション';
+  String get variable_category_interaction =>
+      'Ã£â€šÂ¤Ã£Æ’Â³Ã£â€šÂ¿Ã£Æ’Â©Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³';
 
   @override
-  String get variable_category_member => 'メンバー';
+  String get variable_category_member => 'Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼';
 
   @override
-  String get variable_category_message => 'メッセージ';
+  String get variable_category_message => 'Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸';
 
   @override
-  String get variable_category_other => 'その他';
+  String get variable_category_other => 'Ã£ÂÂÃ£ÂÂ®Ã¤Â»â€“';
 
   @override
-  String get variable_category_temp => '一時';
+  String get variable_category_temp => 'Ã¤Â¸â‚¬Ã¦â„¢â€š';
 
   @override
-  String get variable_category_user => 'ユーザー';
+  String get variable_category_user => 'Ã£Æ’Â¦Ã£Æ’Â¼Ã£â€šÂ¶Ã£Æ’Â¼';
 
   @override
-  String get webhooks_actions => 'アクション';
+  String get webhooks_actions => 'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³';
 
   @override
-  String get webhooks_add_action => 'Webhookを追加';
+  String get webhooks_add_action => 'WebhookÃ£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get webhooks_add_title => '受信Webhookを追加';
+  String get webhooks_add_title => 'Ã¥Ââ€”Ã¤Â¿Â¡WebhookÃ£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get webhooks_copied => '完全なWebhook URLがコピーされました。';
+  String get webhooks_copied =>
+      'Ã¥Â®Å’Ã¥â€¦Â¨Ã£ÂÂªWebhook URLÃ£ÂÅ’Ã£â€šÂ³Ã£Æ’â€Ã£Æ’Â¼Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€š';
 
   @override
-  String get webhooks_copy_path => 'パスをコピー';
+  String get webhooks_copy_path => 'Ã£Æ’â€˜Ã£â€šÂ¹Ã£â€šâ€™Ã£â€šÂ³Ã£Æ’â€Ã£Æ’Â¼';
 
   @override
-  String get webhooks_copy_secret => 'シークレットをコピー';
+  String get webhooks_copy_secret =>
+      'Ã£â€šÂ·Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â¬Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã£â€šÂ³Ã£Æ’â€Ã£Æ’Â¼';
 
   @override
-  String get webhooks_copy_url => 'URLをコピー';
+  String get webhooks_copy_url => 'URLÃ£â€šâ€™Ã£â€šÂ³Ã£Æ’â€Ã£Æ’Â¼';
 
   @override
   String webhooks_count(int count, String limit) {
@@ -7670,636 +8863,945 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String webhooks_delete_confirm(String label) {
-    return '\"$label\" を削除しますか？元に戻せません。';
+    return '\"$label\" Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸Ã¥â€¦Æ’Ã£ÂÂ«Ã¦Ë†Â»Ã£Ââ€ºÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
   }
 
   @override
-  String get webhooks_delete_confirm_no_label => '元に戻せません。';
+  String get webhooks_delete_confirm_no_label =>
+      'Ã¥â€¦Æ’Ã£ÂÂ«Ã¦Ë†Â»Ã£Ââ€ºÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
-  String get webhooks_delete_title => '受信Webhookを削除しますか？';
+  String get webhooks_delete_title =>
+      'Ã¥Ââ€”Ã¤Â¿Â¡WebhookÃ£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸';
 
   @override
-  String get webhooks_edit_title => '受信Webhookを編集';
+  String get webhooks_edit_title =>
+      'Ã¥Ââ€”Ã¤Â¿Â¡WebhookÃ£â€šâ€™Ã§Â·Â¨Ã©â€ºâ€ ';
 
   @override
-  String get webhooks_empty => 'まだ受信Webhookがありません。';
+  String get webhooks_empty =>
+      'Ã£ÂÂ¾Ã£ÂÂ Ã¥Ââ€”Ã¤Â¿Â¡WebhookÃ£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
-  String get webhooks_generate => '生成';
+  String get webhooks_generate => 'Ã§â€Å¸Ã¦Ë†Â';
 
   @override
-  String get webhooks_invalid_runner_url => 'ランナーURLが無効です。';
+  String get webhooks_invalid_runner_url =>
+      'Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼URLÃ£ÂÅ’Ã§â€žÂ¡Ã¥Å Â¹Ã£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String webhooks_limit_reached(int limit) {
-    return '受信Webhookの上限に達しました ($limit)。';
+    return 'Ã¥Ââ€”Ã¤Â¿Â¡WebhookÃ£ÂÂ®Ã¤Â¸Å Ã©â„¢ÂÃ£ÂÂ«Ã©Ââ€Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸ ($limit)Ã£â‚¬â€š';
   }
 
   @override
-  String get webhooks_missing_data => 'Webhookのパスまたはシークレットが不足しています。';
+  String get webhooks_missing_data =>
+      'WebhookÃ£ÂÂ®Ã£Æ’â€˜Ã£â€šÂ¹Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã£â€šÂ·Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â¬Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÅ’Ã¤Â¸ÂÃ¨Â¶Â³Ã£Ââ€”Ã£ÂÂ¦Ã£Ââ€žÃ£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String get webhooks_no_workflows =>
-      '受信Webhookを追加する前に少なくとも1つのワークフローを作成してください。';
+      'Ã¥Ââ€”Ã¤Â¿Â¡WebhookÃ£â€šâ€™Ã¨Â¿Â½Ã¥Å Â Ã£Ââ„¢Ã£â€šâ€¹Ã¥â€°ÂÃ£ÂÂ«Ã¥Â°â€˜Ã£ÂÂªÃ£ÂÂÃ£ÂÂ¨Ã£â€šâ€š1Ã£ÂÂ¤Ã£ÂÂ®Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†ÂÃ£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get webhooks_page_title => '受信Webhook';
+  String get webhooks_page_title => 'Ã¥Ââ€”Ã¤Â¿Â¡Webhook';
 
   @override
-  String get webhooks_path_copied => 'パスがコピーされました。';
+  String get webhooks_path_copied =>
+      'Ã£Æ’â€˜Ã£â€šÂ¹Ã£ÂÅ’Ã£â€šÂ³Ã£Æ’â€Ã£Æ’Â¼Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€š';
 
   @override
-  String get webhooks_path_exists => 'このパスは既に存在します。別のものを選択してください。';
+  String get webhooks_path_exists =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã£Æ’â€˜Ã£â€šÂ¹Ã£ÂÂ¯Ã¦â€”Â¢Ã£ÂÂ«Ã¥Â­ËœÃ¥Å“Â¨Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ¥Ë†Â¥Ã£ÂÂ®Ã£â€šâ€šÃ£ÂÂ®Ã£â€šâ€™Ã©ÂÂ¸Ã¦Å Å¾Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
   String get webhooks_path_hint => 'orders/new';
 
   @override
-  String get webhooks_path_label => 'パス';
+  String get webhooks_path_label => 'Ã£Æ’â€˜Ã£â€šÂ¹';
 
   @override
   String get webhooks_runner_url_required =>
-      '完全なWebhook URLをコピーするには、最初にランナーURLを設定してください。';
+      'Ã¥Â®Å’Ã¥â€¦Â¨Ã£ÂÂªWebhook URLÃ£â€šâ€™Ã£â€šÂ³Ã£Æ’â€Ã£Æ’Â¼Ã£Ââ„¢Ã£â€šâ€¹Ã£ÂÂ«Ã£ÂÂ¯Ã£â‚¬ÂÃ¦Å“â‚¬Ã¥Ë†ÂÃ£ÂÂ«Ã£Æ’Â©Ã£Æ’Â³Ã£Æ’Å Ã£Æ’Â¼URLÃ£â€šâ€™Ã¨Â¨Â­Ã¥Â®Å¡Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
   String webhooks_save_failed(String error) {
-    return '受信Webhookの保存に失敗: $error';
+    return 'Ã¥Ââ€”Ã¤Â¿Â¡WebhookÃ£ÂÂ®Ã¤Â¿ÂÃ¥Â­ËœÃ£ÂÂ«Ã¥Â¤Â±Ã¦â€¢â€”: $error';
   }
 
   @override
-  String get webhooks_secret_copied => 'シークレットがコピーされました。';
+  String get webhooks_secret_copied =>
+      'Ã£â€šÂ·Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â¬Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÅ’Ã£â€šÂ³Ã£Æ’â€Ã£Æ’Â¼Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€š';
 
   @override
-  String get webhooks_secret_label => 'Webhookシークレット';
+  String get webhooks_secret_label =>
+      'WebhookÃ£â€šÂ·Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’Â¬Ã£Æ’Æ’Ã£Æ’Ë†';
 
   @override
-  String get webhooks_target_label => 'ワークフローターゲット';
+  String get webhooks_target_label =>
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ¿Ã£Æ’Â¼Ã£â€šÂ²Ã£Æ’Æ’Ã£Æ’Ë†';
 
   @override
   String webhooks_workflow_subtitle(String workflow) {
-    return 'ワークフロー: $workflow';
+    return 'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼: $workflow';
   }
 
   @override
-  String get wizard_advanced_trigger => '高度なトリガー設定';
+  String get wizard_advanced_trigger =>
+      'Ã©Â«ËœÃ¥ÂºÂ¦Ã£ÂÂªÃ£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼Ã¨Â¨Â­Ã¥Â®Å¡';
 
   @override
-  String get wizard_apply_quick_start => 'クイックスタートを下書きに適用';
+  String get wizard_apply_quick_start =>
+      'Ã£â€šÂ¯Ã£â€šÂ¤Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¹Ã£â€šÂ¿Ã£Æ’Â¼Ã£Æ’Ë†Ã£â€šâ€™Ã¤Â¸â€¹Ã¦â€ºÂ¸Ã£ÂÂÃ£ÂÂ«Ã©ÂÂ©Ã§â€Â¨';
 
   @override
-  String get wizard_bdfd_mode_enabled => 'BDFDスクリプトモード有効';
+  String get wizard_bdfd_mode_enabled =>
+      'BDFDÃ£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë†Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°Ã¦Å“â€°Ã¥Å Â¹';
 
   @override
-  String get wizard_code_advanced => 'コード / 詳細';
+  String get wizard_code_advanced => 'Ã£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€° / Ã¨Â©Â³Ã§Â´Â°';
 
   @override
-  String get wizard_command_body => 'コマンド本文';
+  String get wizard_command_body => 'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã¦Å“Â¬Ã¦â€“â€¡';
 
   @override
-  String get wizard_create_command => 'コマンドを作成';
+  String get wizard_create_command =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†Â';
 
   @override
-  String get wizard_dart_mode_enabled => 'Dartスクリプトモード有効';
+  String get wizard_dart_mode_enabled =>
+      'DartÃ£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë†Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°Ã¦Å“â€°Ã¥Å Â¹';
 
   @override
-  String get wizard_edit_reply => '返信詳細を編集';
+  String get wizard_edit_reply =>
+      'Ã¨Â¿â€Ã¤Â¿Â¡Ã¨Â©Â³Ã§Â´Â°Ã£â€šâ€™Ã§Â·Â¨Ã©â€ºâ€ ';
 
   @override
-  String get wizard_legacy_options_subtitle => 'レガシーコマンドオプションとローカルのみの動作';
+  String get wizard_legacy_options_subtitle =>
+      'Ã£Æ’Â¬Ã£â€šÂ¬Ã£â€šÂ·Ã£Æ’Â¼Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ¨Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã£ÂÂ®Ã£ÂÂ¿Ã£ÂÂ®Ã¥â€¹â€¢Ã¤Â½Å“';
 
   @override
-  String get wizard_quick_start_applied => 'クイックスタートがコマンド下書きに適用されました。';
+  String get wizard_quick_start_applied =>
+      'Ã£â€šÂ¯Ã£â€šÂ¤Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¹Ã£â€šÂ¿Ã£Æ’Â¼Ã£Æ’Ë†Ã£ÂÅ’Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã¤Â¸â€¹Ã¦â€ºÂ¸Ã£ÂÂÃ£ÂÂ«Ã©ÂÂ©Ã§â€Â¨Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€š';
 
   @override
   String get wizard_quick_start_subtitle =>
-      'レガシーシンプルビルダーを出発点として使用し、共有下書きに適用します。';
+      'Ã£Æ’Â¬Ã£â€šÂ¬Ã£â€šÂ·Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â«Ã£Æ’â€œÃ£Æ’Â«Ã£Æ’â‚¬Ã£Æ’Â¼Ã£â€šâ€™Ã¥â€¡ÂºÃ§â„¢ÂºÃ§â€šÂ¹Ã£ÂÂ¨Ã£Ââ€”Ã£ÂÂ¦Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ€”Ã£â‚¬ÂÃ¥â€¦Â±Ã¦Å“â€°Ã¤Â¸â€¹Ã¦â€ºÂ¸Ã£ÂÂÃ£ÂÂ«Ã©ÂÂ©Ã§â€Â¨Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get wizard_quick_starts => 'クイックスタート';
+  String get wizard_quick_starts =>
+      'Ã£â€šÂ¯Ã£â€šÂ¤Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¹Ã£â€šÂ¿Ã£Æ’Â¼Ã£Æ’Ë†';
 
   @override
-  String get wizard_reply_summary => '返信概要';
+  String get wizard_reply_summary => 'Ã¨Â¿â€Ã¤Â¿Â¡Ã¦Â¦â€šÃ¨Â¦Â';
 
   @override
-  String get wizard_save_command => 'コマンドを保存';
+  String get wizard_save_command =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¤Â¿ÂÃ¥Â­Ëœ';
 
   @override
-  String get wizard_step_actions => 'アクション';
+  String get wizard_step_actions => 'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³';
 
   @override
-  String get wizard_step_infos => '情報';
+  String get wizard_step_infos => 'Ã¦Æ’â€¦Ã¥Â Â±';
 
   @override
-  String get wizard_step_reply => '返信';
+  String get wizard_step_reply => 'Ã¨Â¿â€Ã¤Â¿Â¡';
 
   @override
-  String get wizard_step_review => '確認';
+  String get wizard_step_review => 'Ã§Â¢ÂºÃ¨ÂªÂ';
 
   @override
-  String get wizard_step_trigger_inputs => 'トリガーと入力';
+  String get wizard_step_trigger_inputs =>
+      'Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼Ã£ÂÂ¨Ã¥â€¦Â¥Ã¥Å â€º';
 
   @override
-  String get wizard_visual_mode_enabled => 'ビジュアルワークフローモード有効';
+  String get wizard_visual_mode_enabled =>
+      'Ã£Æ’â€œÃ£â€šÂ¸Ã£Æ’Â¥Ã£â€šÂ¢Ã£Æ’Â«Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°Ã¦Å“â€°Ã¥Å Â¹';
 
   @override
-  String get workflow_argument_hint => 'ワークフロー引数 (\$arg でアクセス可能)';
+  String get workflow_argument_hint =>
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã¥Â¼â€¢Ã¦â€¢Â° (\$arg Ã£ÂÂ§Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ»Ã£â€šÂ¹Ã¥ÂÂ¯Ã¨Æ’Â½)';
 
   @override
-  String get workflow_arguments_section => 'ワークフロー引数';
+  String get workflow_arguments_section =>
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã¥Â¼â€¢Ã¦â€¢Â°';
 
   @override
-  String get workflow_auto_defer => '自動遅延';
+  String get workflow_auto_defer => 'Ã¨â€¡ÂªÃ¥â€¹â€¢Ã©Ââ€¦Ã¥Â»Â¶';
 
   @override
-  String get workflow_auto_defer_actions => 'アクションがある場合自動遅延';
+  String get workflow_auto_defer_actions =>
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÅ’Ã£Ââ€šÃ£â€šâ€¹Ã¥Â Â´Ã¥ÂË†Ã¨â€¡ÂªÃ¥â€¹â€¢Ã©Ââ€¦Ã¥Â»Â¶';
 
   @override
   String get workflow_bdfd_editor_desc =>
-      'このワークフロー応答の完全なBDFDコードを記述します。診断がライブ表示されます。';
+      'Ã£Ââ€œÃ£ÂÂ®Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã¥Â¿Å“Ã§Â­â€Ã£ÂÂ®Ã¥Â®Å’Ã¥â€¦Â¨Ã£ÂÂªBDFDÃ£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€°Ã£â€šâ€™Ã¨Â¨ËœÃ¨Â¿Â°Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ¨Â¨ÂºÃ¦â€“Â­Ã£ÂÅ’Ã£Æ’Â©Ã£â€šÂ¤Ã£Æ’â€“Ã¨Â¡Â¨Ã§Â¤ÂºÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get workflow_bdfd_editor_title => 'BDFDスクリプトエディタ';
+  String get workflow_bdfd_editor_title =>
+      'BDFDÃ£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë†Ã£â€šÂ¨Ã£Æ’â€¡Ã£â€šÂ£Ã£â€šÂ¿';
 
   @override
-  String get workflow_condition_off => '条件オフ';
+  String get workflow_condition_off => 'Ã¦ÂÂ¡Ã¤Â»Â¶Ã£â€šÂªÃ£Æ’â€¢';
 
   @override
-  String get workflow_condition_off_upper => '条件 OFF';
+  String get workflow_condition_off_upper => 'Ã¦ÂÂ¡Ã¤Â»Â¶ OFF';
 
   @override
-  String get workflow_condition_on => '条件オン';
+  String get workflow_condition_on => 'Ã¦ÂÂ¡Ã¤Â»Â¶Ã£â€šÂªÃ£Æ’Â³';
 
   @override
-  String get workflow_condition_on_upper => '条件 ON';
+  String get workflow_condition_on_upper => 'Ã¦ÂÂ¡Ã¤Â»Â¶ ON';
 
   @override
   String get workflow_dart_editor_desc =>
-      'このワークフロー応答の完全なDartコードを記述します。診断がライブ表示されます。';
+      'Ã£Ââ€œÃ£ÂÂ®Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã¥Â¿Å“Ã§Â­â€Ã£ÂÂ®Ã¥Â®Å’Ã¥â€¦Â¨Ã£ÂÂªDartÃ£â€šÂ³Ã£Æ’Â¼Ã£Æ’â€°Ã£â€šâ€™Ã¨Â¨ËœÃ¨Â¿Â°Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ¨Â¨ÂºÃ¦â€“Â­Ã£ÂÅ’Ã£Æ’Â©Ã£â€šÂ¤Ã£Æ’â€“Ã¨Â¡Â¨Ã§Â¤ÂºÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get workflow_dart_editor_title => 'Dartスクリプトエディタ';
+  String get workflow_dart_editor_title =>
+      'DartÃ£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë†Ã£â€šÂ¨Ã£Æ’â€¡Ã£â€šÂ£Ã£â€šÂ¿';
 
   @override
   String workflow_edit_call_args(int count) {
-    return '呼び出し引数を編集 ($count)';
+    return 'Ã¥â€˜Â¼Ã£ÂÂ³Ã¥â€¡ÂºÃ£Ââ€”Ã¥Â¼â€¢Ã¦â€¢Â°Ã£â€šâ€™Ã§Â·Â¨Ã©â€ºâ€  ($count)';
   }
 
   @override
-  String get workflow_entry_point => 'エントリポイント';
+  String get workflow_entry_point =>
+      'Ã£â€šÂ¨Ã£Æ’Â³Ã£Æ’Ë†Ã£Æ’ÂªÃ£Æ’ÂÃ£â€šÂ¤Ã£Æ’Â³Ã£Æ’Ë†';
 
   @override
-  String get workflow_entry_point_helper => '空の場合はワークフローのエントリポイントがデフォルト';
+  String get workflow_entry_point_helper =>
+      'Ã§Â©ÂºÃ£ÂÂ®Ã¥Â Â´Ã¥ÂË†Ã£ÂÂ¯Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£ÂÂ®Ã£â€šÂ¨Ã£Æ’Â³Ã£Æ’Ë†Ã£Æ’ÂªÃ£Æ’ÂÃ£â€šÂ¤Ã£Æ’Â³Ã£Æ’Ë†Ã£ÂÅ’Ã£Æ’â€¡Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â«Ã£Æ’Ë†';
 
   @override
-  String get workflow_entry_point_optional => 'エントリポイント (オプション)';
+  String get workflow_entry_point_optional =>
+      'Ã£â€šÂ¨Ã£Æ’Â³Ã£Æ’Ë†Ã£Æ’ÂªÃ£Æ’ÂÃ£â€šÂ¤Ã£Æ’Â³Ã£Æ’Ë† (Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³)';
 
   @override
-  String get workflow_hint_name => '例: handle_form_submit';
+  String get workflow_hint_name => 'Ã¤Â¾â€¹: handle_form_submit';
 
   @override
-  String get workflow_manual => '手動';
+  String get workflow_manual => 'Ã¦â€°â€¹Ã¥â€¹â€¢';
 
   @override
-  String get workflow_mode_bdfd => 'BDFDスクリプト';
+  String get workflow_mode_bdfd => 'BDFDÃ£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë†';
 
   @override
   String get workflow_mode_bdfd_note =>
-      'ワークフロー全体を単一のBDFDスクリプトとして記述します。スクリプトはコンパイルされて検証されます。';
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã¥â€¦Â¨Ã¤Â½â€œÃ£â€šâ€™Ã¥ÂËœÃ¤Â¸â‚¬Ã£ÂÂ®BDFDÃ£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë†Ã£ÂÂ¨Ã£Ââ€”Ã£ÂÂ¦Ã¨Â¨ËœÃ¨Â¿Â°Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë†Ã£ÂÂ¯Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€˜Ã£â€šÂ¤Ã£Æ’Â«Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¦Ã¦Â¤Å“Ã¨Â¨Â¼Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get workflow_mode_dart => 'Dartダイレクト';
+  String get workflow_mode_dart => 'DartÃ£Æ’â‚¬Ã£â€šÂ¤Ã£Æ’Â¬Ã£â€šÂ¯Ã£Æ’Ë†';
 
   @override
   String get workflow_mode_dart_note =>
-      'ワークフローをDartで記述します。編集中に診断が更新され、エラーを早期に検出します。';
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™DartÃ£ÂÂ§Ã¨Â¨ËœÃ¨Â¿Â°Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ§Â·Â¨Ã©â€ºâ€ Ã¤Â¸Â­Ã£ÂÂ«Ã¨Â¨ÂºÃ¦â€“Â­Ã£ÂÅ’Ã¦â€ºÂ´Ã¦â€“Â°Ã£Ââ€¢Ã£â€šÅ’Ã£â‚¬ÂÃ£â€šÂ¨Ã£Æ’Â©Ã£Æ’Â¼Ã£â€šâ€™Ã¦â€”Â©Ã¦Å“Å¸Ã£ÂÂ«Ã¦Â¤Å“Ã¥â€¡ÂºÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get workflow_mode_desc => 'ビジュアルアクションビルダーかフルBDFDスクリプトエディタを選択します。';
+  String get workflow_mode_desc =>
+      'Ã£Æ’â€œÃ£â€šÂ¸Ã£Æ’Â¥Ã£â€šÂ¢Ã£Æ’Â«Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£Æ’â€œÃ£Æ’Â«Ã£Æ’â‚¬Ã£Æ’Â¼Ã£Ââ€¹Ã£Æ’â€¢Ã£Æ’Â«BDFDÃ£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë†Ã£â€šÂ¨Ã£Æ’â€¡Ã£â€šÂ£Ã£â€šÂ¿Ã£â€šâ€™Ã©ÂÂ¸Ã¦Å Å¾Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get workflow_mode_title => 'ワークフローモード';
+  String get workflow_mode_title =>
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°';
 
   @override
-  String get workflow_mode_visual => 'ビジュアル';
+  String get workflow_mode_visual => 'Ã£Æ’â€œÃ£â€šÂ¸Ã£Æ’Â¥Ã£â€šÂ¢Ã£Æ’Â«';
 
   @override
   String get workflow_mode_visual_note =>
-      'カードエディタで個別のアクションを追加してビジュアルにワークフローを構築します。';
+      'Ã£â€šÂ«Ã£Æ’Â¼Ã£Æ’â€°Ã£â€šÂ¨Ã£Æ’â€¡Ã£â€šÂ£Ã£â€šÂ¿Ã£ÂÂ§Ã¥â‚¬â€¹Ã¥Ë†Â¥Ã£ÂÂ®Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â Ã£Ââ€”Ã£ÂÂ¦Ã£Æ’â€œÃ£â€šÂ¸Ã£Æ’Â¥Ã£â€šÂ¢Ã£Æ’Â«Ã£ÂÂ«Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã¦Â§â€¹Ã§Â¯â€°Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get workflow_no_auto_defer => '自動遅延なし';
+  String get workflow_no_auto_defer =>
+      'Ã¨â€¡ÂªÃ¥â€¹â€¢Ã©Ââ€¦Ã¥Â»Â¶Ã£ÂÂªÃ£Ââ€”';
 
   @override
   String get workflow_no_workflow_note =>
-      '注意: ワークフローが選択されていない場合、このモーダルを送信しても何も起こりません。';
+      'Ã¦Â³Â¨Ã¦â€žÂ: Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£ÂÅ’Ã©ÂÂ¸Ã¦Å Å¾Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¦Ã£Ââ€žÃ£ÂÂªÃ£Ââ€žÃ¥Â Â´Ã¥ÂË†Ã£â‚¬ÂÃ£Ââ€œÃ£ÂÂ®Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â‚¬Ã£Æ’Â«Ã£â€šâ€™Ã©â‚¬ÂÃ¤Â¿Â¡Ã£Ââ€”Ã£ÂÂ¦Ã£â€šâ€šÃ¤Â½â€¢Ã£â€šâ€šÃ¨ÂµÂ·Ã£Ââ€œÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
   String workflow_on_submit_info(String name, String entry, int args) {
-    return '送信時にワークフロー \"$name\" が実行されます (エントリ: $entry, 引数: $args)。';
+    return 'Ã©â‚¬ÂÃ¤Â¿Â¡Ã¦â„¢â€šÃ£ÂÂ«Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼ \"$name\" Ã£ÂÅ’Ã¥Â®Å¸Ã¨Â¡Å’Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢ (Ã£â€šÂ¨Ã£Æ’Â³Ã£Æ’Ë†Ã£Æ’Âª: $entry, Ã¥Â¼â€¢Ã¦â€¢Â°: $args)Ã£â‚¬â€š';
   }
 
   @override
-  String get workflow_root_json_error => 'ルートはJSONオブジェクトである必要があります';
+  String get workflow_root_json_error =>
+      'Ã£Æ’Â«Ã£Æ’Â¼Ã£Æ’Ë†Ã£ÂÂ¯JSONÃ£â€šÂªÃ£Æ’â€“Ã£â€šÂ¸Ã£â€šÂ§Ã£â€šÂ¯Ã£Æ’Ë†Ã£ÂÂ§Ã£Ââ€šÃ£â€šâ€¹Ã¥Â¿â€¦Ã¨Â¦ÂÃ£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ„¢';
 
   @override
   String workflow_saved_snackbar(String name, int count) {
-    return 'ワークフロー \"$name\" が保存されました ($count アクション)。';
+    return 'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼ \"$name\" Ã£ÂÅ’Ã¤Â¿ÂÃ¥Â­ËœÃ£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸ ($count Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³)Ã£â‚¬â€š';
   }
 
   @override
-  String get workflow_set_call_args => '呼び出し引数を設定';
+  String get workflow_set_call_args =>
+      'Ã¥â€˜Â¼Ã£ÂÂ³Ã¥â€¡ÂºÃ£Ââ€”Ã¥Â¼â€¢Ã¦â€¢Â°Ã£â€šâ€™Ã¨Â¨Â­Ã¥Â®Å¡';
 
   @override
-  String get workflow_visibility_ephemeral => 'エフェメラル';
+  String get workflow_visibility_ephemeral =>
+      'Ã£â€šÂ¨Ã£Æ’â€¢Ã£â€šÂ§Ã£Æ’Â¡Ã£Æ’Â©Ã£Æ’Â«';
 
   @override
-  String get workflow_visibility_public => '公開';
+  String get workflow_visibility_public => 'Ã¥â€¦Â¬Ã©â€“â€¹';
 
   @override
-  String get workflows_add_arg => '引数を追加';
+  String get workflows_add_arg => 'Ã¥Â¼â€¢Ã¦â€¢Â°Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get workflows_arg_default => 'デフォルト値';
+  String get workflows_arg_default =>
+      'Ã£Æ’â€¡Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â«Ã£Æ’Ë†Ã¥â‚¬Â¤';
 
   @override
   String get workflows_arg_hint =>
-      '引数は ((arg.name)) および ((workflow.arg.name)) としてランタイム変数になります。';
+      'Ã¥Â¼â€¢Ã¦â€¢Â°Ã£ÂÂ¯ ((arg.name)) Ã£ÂÅ Ã£â€šË†Ã£ÂÂ³ ((workflow.arg.name)) Ã£ÂÂ¨Ã£Ââ€”Ã£ÂÂ¦Ã£Æ’Â©Ã£Æ’Â³Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’Â Ã¥Â¤â€°Ã¦â€¢Â°Ã£ÂÂ«Ã£ÂÂªÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get workflows_arg_name => '名前';
+  String get workflows_arg_name => 'Ã¥ÂÂÃ¥â€°Â';
 
   @override
-  String get workflows_arg_required_short => '必須';
+  String get workflows_arg_required_short => 'Ã¥Â¿â€¦Ã©Â Ë†';
 
   @override
-  String get workflows_arguments => '引数';
+  String get workflows_arguments => 'Ã¥Â¼â€¢Ã¦â€¢Â°';
 
   @override
-  String get workflows_continue => '続ける';
+  String get workflows_continue => 'Ã§Â¶Å¡Ã£Ââ€˜Ã£â€šâ€¹';
 
   @override
-  String get workflows_copy_done_base64 => 'ワークフローがBase64としてコピーされました。';
+  String get workflows_copy_done_base64 =>
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£ÂÅ’Base64Ã£ÂÂ¨Ã£Ââ€”Ã£ÂÂ¦Ã£â€šÂ³Ã£Æ’â€Ã£Æ’Â¼Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€š';
 
   @override
-  String get workflows_copy_done_json => 'ワークフローがJSONとしてコピーされました。';
+  String get workflows_copy_done_json =>
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£ÂÅ’JSONÃ£ÂÂ¨Ã£Ââ€”Ã£ÂÂ¦Ã£â€šÂ³Ã£Æ’â€Ã£Æ’Â¼Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€š';
 
   @override
-  String get workflows_copy_none => 'コピーするワークフローがありません。';
+  String get workflows_copy_none =>
+      'Ã£â€šÂ³Ã£Æ’â€Ã£Æ’Â¼Ã£Ââ„¢Ã£â€šâ€¹Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
-  String get workflows_create => 'ワークフローを作成';
+  String get workflows_create =>
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†Â';
 
   @override
   String workflows_delete_confirm(String name) {
-    return '\"$name\" を削除してもよろしいですか？この操作は元に戻せません。';
+    return '\"$name\" Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¦Ã£â€šâ€šÃ£â€šË†Ã£â€šÂÃ£Ââ€”Ã£Ââ€žÃ£ÂÂ§Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸Ã£Ââ€œÃ£ÂÂ®Ã¦â€œÂÃ¤Â½Å“Ã£ÂÂ¯Ã¥â€¦Æ’Ã£ÂÂ«Ã¦Ë†Â»Ã£Ââ€ºÃ£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
   }
 
   @override
-  String get workflows_delete_title => 'ワークフローを削除';
+  String get workflows_delete_title =>
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get workflows_docs_tooltip => 'ドキュメントセンターを開く';
+  String get workflows_docs_tooltip =>
+      'Ã£Æ’â€°Ã£â€šÂ­Ã£Æ’Â¥Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’Ë†Ã£â€šÂ»Ã£Æ’Â³Ã£â€šÂ¿Ã£Æ’Â¼Ã£â€šâ€™Ã©â€“â€¹Ã£ÂÂ';
 
   @override
-  String get workflows_edit => 'ワークフローを編集';
+  String get workflows_edit =>
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã§Â·Â¨Ã©â€ºâ€ ';
 
   @override
-  String get workflows_empty => 'まだワークフローがありません';
+  String get workflows_empty =>
+      'Ã£ÂÂ¾Ã£ÂÂ Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œ';
 
   @override
-  String get workflows_entry_point => 'デフォルトエントリポイント';
+  String get workflows_entry_point =>
+      'Ã£Æ’â€¡Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â«Ã£Æ’Ë†Ã£â€šÂ¨Ã£Æ’Â³Ã£Æ’Ë†Ã£Æ’ÂªÃ£Æ’ÂÃ£â€šÂ¤Ã£Æ’Â³Ã£Æ’Ë†';
 
   @override
-  String get workflows_entry_point_hint => '呼び出し元が上書きしない場合に使用';
+  String get workflows_entry_point_hint =>
+      'Ã¥â€˜Â¼Ã£ÂÂ³Ã¥â€¡ÂºÃ£Ââ€”Ã¥â€¦Æ’Ã£ÂÅ’Ã¤Â¸Å Ã¦â€ºÂ¸Ã£ÂÂÃ£Ââ€”Ã£ÂÂªÃ£Ââ€žÃ¥Â Â´Ã¥ÂË†Ã£ÂÂ«Ã¤Â½Â¿Ã§â€Â¨';
 
   @override
-  String get workflows_event_available_vars => '利用可能な変数';
+  String get workflows_event_available_vars =>
+      'Ã¥Ë†Â©Ã§â€Â¨Ã¥ÂÂ¯Ã¨Æ’Â½Ã£ÂÂªÃ¥Â¤â€°Ã¦â€¢Â°';
 
   @override
-  String get workflows_event_category => 'イベントカテゴリ';
+  String get workflows_event_category =>
+      'Ã£â€šÂ¤Ã£Æ’â„¢Ã£Æ’Â³Ã£Æ’Ë†Ã£â€šÂ«Ã£Æ’â€ Ã£â€šÂ´Ã£Æ’Âª';
 
   @override
-  String get workflows_event_category_channels => 'チャンネル';
+  String get workflows_event_category_channels =>
+      'Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«';
 
   @override
-  String get workflows_event_category_invites => '招待';
+  String get workflows_event_category_invites => 'Ã¦â€¹â€ºÃ¥Â¾â€¦';
 
   @override
-  String get workflows_event_category_members => 'メンバー';
+  String get workflows_event_category_members => 'Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼';
 
   @override
-  String get workflows_event_category_messages => 'メッセージ';
+  String get workflows_event_category_messages =>
+      'Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸';
 
   @override
-  String get workflows_event_channel_update => 'チャンネル更新';
+  String get workflows_event_channel_update =>
+      'Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã¦â€ºÂ´Ã¦â€“Â°';
 
   @override
-  String get workflows_event_channel_update_desc => 'チャンネルが更新されるたびにトリガーされます。';
+  String get workflows_event_channel_update_desc =>
+      'Ã£Æ’ÂÃ£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â«Ã£ÂÅ’Ã¦â€ºÂ´Ã¦â€“Â°Ã£Ââ€¢Ã£â€šÅ’Ã£â€šâ€¹Ã£ÂÅ¸Ã£ÂÂ³Ã£ÂÂ«Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get workflows_event_hint => 'このワークフローをトリガーするDiscordイベントを選択してください。';
+  String get workflows_event_hint =>
+      'Ã£Ââ€œÃ£ÂÂ®Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼Ã£Ââ„¢Ã£â€šâ€¹DiscordÃ£â€šÂ¤Ã£Æ’â„¢Ã£Æ’Â³Ã£Æ’Ë†Ã£â€šâ€™Ã©ÂÂ¸Ã¦Å Å¾Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get workflows_event_invite_create => '招待作成';
+  String get workflows_event_invite_create => 'Ã¦â€¹â€ºÃ¥Â¾â€¦Ã¤Â½Å“Ã¦Ë†Â';
 
   @override
-  String get workflows_event_invite_create_desc => '招待が作成されるたびにトリガーされます。';
+  String get workflows_event_invite_create_desc =>
+      'Ã¦â€¹â€ºÃ¥Â¾â€¦Ã£ÂÅ’Ã¤Â½Å“Ã¦Ë†ÂÃ£Ââ€¢Ã£â€šÅ’Ã£â€šâ€¹Ã£ÂÅ¸Ã£ÂÂ³Ã£ÂÂ«Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get workflows_event_member_join => 'メンバー参加';
+  String get workflows_event_member_join =>
+      'Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã¥Ââ€šÃ¥Å Â ';
 
   @override
-  String get workflows_event_member_join_desc => 'メンバーがサーバーに参加するたびにトリガーされます。';
+  String get workflows_event_member_join_desc =>
+      'Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£ÂÅ’Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£ÂÂ«Ã¥Ââ€šÃ¥Å Â Ã£Ââ„¢Ã£â€šâ€¹Ã£ÂÅ¸Ã£ÂÂ³Ã£ÂÂ«Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get workflows_event_member_remove => 'メンバー退出';
+  String get workflows_event_member_remove =>
+      'Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã©â‚¬â‚¬Ã¥â€¡Âº';
 
   @override
   String get workflows_event_member_remove_desc =>
-      'メンバーが退出するかサーバーから削除されるたびにトリガーされます。';
+      'Ã£Æ’Â¡Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£ÂÅ’Ã©â‚¬â‚¬Ã¥â€¡ÂºÃ£Ââ„¢Ã£â€šâ€¹Ã£Ââ€¹Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£Ââ€¹Ã£â€šâ€°Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€¢Ã£â€šÅ’Ã£â€šâ€¹Ã£ÂÅ¸Ã£ÂÂ³Ã£ÂÂ«Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get workflows_event_message_create => 'メッセージ作成';
+  String get workflows_event_message_create =>
+      'Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã¤Â½Å“Ã¦Ë†Â';
 
   @override
   String get workflows_event_message_create_desc =>
-      '新しいメッセージが作成されるたびにトリガーされます。';
+      'Ã¦â€“Â°Ã£Ââ€”Ã£Ââ€žÃ£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£ÂÅ’Ã¤Â½Å“Ã¦Ë†ÂÃ£Ââ€¢Ã£â€šÅ’Ã£â€šâ€¹Ã£ÂÅ¸Ã£ÂÂ³Ã£ÂÂ«Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get workflows_event_message_delete => 'メッセージ削除';
+  String get workflows_event_message_delete =>
+      'Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get workflows_event_message_delete_desc => 'メッセージが削除されるたびにトリガーされます。';
+  String get workflows_event_message_delete_desc =>
+      'Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£ÂÅ’Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€¢Ã£â€šÅ’Ã£â€šâ€¹Ã£ÂÅ¸Ã£ÂÂ³Ã£ÂÂ«Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get workflows_event_message_update => 'メッセージ更新';
+  String get workflows_event_message_update =>
+      'Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã¦â€ºÂ´Ã¦â€“Â°';
 
   @override
   String get workflows_event_message_update_desc =>
-      '既存のメッセージが編集されるたびにトリガーされます。';
+      'Ã¦â€”Â¢Ã¥Â­ËœÃ£ÂÂ®Ã£Æ’Â¡Ã£Æ’Æ’Ã£â€šÂ»Ã£Æ’Â¼Ã£â€šÂ¸Ã£ÂÅ’Ã§Â·Â¨Ã©â€ºâ€ Ã£Ââ€¢Ã£â€šÅ’Ã£â€šâ€¹Ã£ÂÅ¸Ã£ÂÂ³Ã£ÂÂ«Ã£Æ’Ë†Ã£Æ’ÂªÃ£â€šÂ¬Ã£Æ’Â¼Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String workflows_event_preview(String event) {
-    return '待機: $event';
+    return 'Ã¥Â¾â€¦Ã¦Â©Å¸: $event';
   }
 
   @override
-  String get workflows_event_section => 'イベントワークフロー';
+  String get workflows_event_section =>
+      'Ã£â€šÂ¤Ã£Æ’â„¢Ã£Æ’Â³Ã£Æ’Ë†Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼';
 
   @override
   String workflows_event_subtitle(int count, String event) {
-    return '$count アクション • 待機: $event';
+    return '$count Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³ Ã¢â‚¬Â¢ Ã¥Â¾â€¦Ã¦Â©Å¸: $event';
   }
 
   @override
-  String get workflows_export_base64 => 'Base64としてコピー';
+  String get workflows_export_base64 =>
+      'Base64Ã£ÂÂ¨Ã£Ââ€”Ã£ÂÂ¦Ã£â€šÂ³Ã£Æ’â€Ã£Æ’Â¼';
 
   @override
-  String get workflows_export_base64_desc => 'コンパクトな共有に便利です。';
+  String get workflows_export_base64_desc =>
+      'Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’â€˜Ã£â€šÂ¯Ã£Æ’Ë†Ã£ÂÂªÃ¥â€¦Â±Ã¦Å“â€°Ã£ÂÂ«Ã¤Â¾Â¿Ã¥Ë†Â©Ã£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get workflows_export_json => 'JSONとしてコピー';
+  String get workflows_export_json =>
+      'JSONÃ£ÂÂ¨Ã£Ââ€”Ã£ÂÂ¦Ã£â€šÂ³Ã£Æ’â€Ã£Æ’Â¼';
 
   @override
-  String get workflows_export_json_desc => '読みやすく編集しやすい。';
+  String get workflows_export_json_desc =>
+      'Ã¨ÂªÂ­Ã£ÂÂ¿Ã£â€šâ€žÃ£Ââ„¢Ã£ÂÂÃ§Â·Â¨Ã©â€ºâ€ Ã£Ââ€”Ã£â€šâ€žÃ£Ââ„¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get workflows_export_tooltip => 'ワークフローをコピー';
+  String get workflows_export_tooltip =>
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã£â€šÂ³Ã£Æ’â€Ã£Æ’Â¼';
 
   @override
-  String get workflows_folder_hint => 'オプションのフォルダ名';
+  String get workflows_folder_hint =>
+      'Ã£â€šÂªÃ£Æ’â€”Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ®Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â«Ã£Æ’â‚¬Ã¥ÂÂ';
 
   @override
-  String get workflows_folder_label => 'フォルダ';
+  String get workflows_folder_label => 'Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â«Ã£Æ’â‚¬';
 
   @override
-  String get workflows_general_section => '一般ワークフロー';
+  String get workflows_general_section =>
+      'Ã¤Â¸â‚¬Ã¨Ë†Â¬Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼';
 
   @override
-  String get workflows_import_action => 'インポート';
+  String get workflows_import_action => 'Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†';
 
   @override
   String get workflows_import_desc =>
-      'Bot CreatorからエクスポートされたJSONペイロードまたはBase64(JSON)を貼り付けます。';
+      'Bot CreatorÃ£Ââ€¹Ã£â€šâ€°Ã£â€šÂ¨Ã£â€šÂ¯Ã£â€šÂ¹Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÅ¸JSONÃ£Æ’Å¡Ã£â€šÂ¤Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’â€°Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Base64(JSON)Ã£â€šâ€™Ã¨Â²Â¼Ã£â€šÅ Ã¤Â»ËœÃ£Ââ€˜Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
   String workflows_import_done(int count) {
-    return '$count ワークフローがインポートされました。';
+    return '$count Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£ÂÅ’Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€š';
   }
 
   @override
-  String get workflows_import_empty => 'インポートするデータがありません。';
+  String get workflows_import_empty =>
+      'Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†Ã£Ââ„¢Ã£â€šâ€¹Ã£Æ’â€¡Ã£Æ’Â¼Ã£â€šÂ¿Ã£ÂÅ’Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
-  String get workflows_import_input_hint => 'JSONまたはBase64をここに貼り付け...';
+  String get workflows_import_input_hint =>
+      'JSONÃ£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Base64Ã£â€šâ€™Ã£Ââ€œÃ£Ââ€œÃ£ÂÂ«Ã¨Â²Â¼Ã£â€šÅ Ã¤Â»ËœÃ£Ââ€˜...';
 
   @override
   String get workflows_import_invalid_format =>
-      '無効な形式です。JSONまたはBase64(JSON)を使用してください。';
+      'Ã§â€žÂ¡Ã¥Å Â¹Ã£ÂÂªÃ¥Â½Â¢Ã¥Â¼ÂÃ£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€šJSONÃ£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Base64(JSON)Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get workflows_import_no_valid => '有効なワークフローが見つかりません。';
+  String get workflows_import_no_valid =>
+      'Ã¦Å“â€°Ã¥Å Â¹Ã£ÂÂªÃ£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£ÂÅ’Ã¨Â¦â€¹Ã£ÂÂ¤Ã£Ââ€¹Ã£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
-  String get workflows_import_overwrite => '名前が既に存在する場合は置き換え';
+  String get workflows_import_overwrite =>
+      'Ã¥ÂÂÃ¥â€°ÂÃ£ÂÅ’Ã¦â€”Â¢Ã£ÂÂ«Ã¥Â­ËœÃ¥Å“Â¨Ã£Ââ„¢Ã£â€šâ€¹Ã¥Â Â´Ã¥ÂË†Ã£ÂÂ¯Ã§Â½Â®Ã£ÂÂÃ¦Ââ€ºÃ£ÂË†';
 
   @override
-  String get workflows_import_title => 'ワークフローをインポート';
+  String get workflows_import_title =>
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†';
 
   @override
-  String get workflows_import_tooltip => 'ワークフローをインポート';
+  String get workflows_import_tooltip =>
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã£â€šÂ¤Ã£Æ’Â³Ã£Æ’ÂÃ£Æ’Â¼Ã£Æ’Ë†';
 
   @override
-  String get workflows_listen_for => '待機対象';
+  String get workflows_listen_for => 'Ã¥Â¾â€¦Ã¦Â©Å¸Ã¥Â¯Â¾Ã¨Â±Â¡';
 
   @override
-  String get workflows_move_to_folder => 'フォルダに移動';
+  String get workflows_move_to_folder =>
+      'Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â«Ã£Æ’â‚¬Ã£ÂÂ«Ã§Â§Â»Ã¥â€¹â€¢';
 
   @override
-  String get workflows_name => 'ワークフロー名';
+  String get workflows_name => 'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã¥ÂÂ';
 
   @override
-  String get workflows_new_folder_hint => '新しいフォルダ名';
+  String get workflows_new_folder_hint =>
+      'Ã¦â€“Â°Ã£Ââ€”Ã£Ââ€žÃ£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â«Ã£Æ’â‚¬Ã¥ÂÂ';
 
   @override
-  String get workflows_no_match => '現在のフィルターに一致するワークフローはありません。';
+  String get workflows_no_match =>
+      'Ã§ÂÂ¾Ã¥Å“Â¨Ã£ÂÂ®Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â«Ã£â€šÂ¿Ã£Æ’Â¼Ã£ÂÂ«Ã¤Â¸â‚¬Ã¨â€¡Â´Ã£Ââ„¢Ã£â€šâ€¹Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£ÂÂ¯Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
-  String get workflows_no_matches => '現在のフィルターに一致するワークフローはありません。';
+  String get workflows_no_matches =>
+      'Ã§ÂÂ¾Ã¥Å“Â¨Ã£ÂÂ®Ã£Æ’â€¢Ã£â€šÂ£Ã£Æ’Â«Ã£â€šÂ¿Ã£Æ’Â¼Ã£ÂÂ«Ã¤Â¸â‚¬Ã¨â€¡Â´Ã£Ââ„¢Ã£â€šâ€¹Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£ÂÂ¯Ã£Ââ€šÃ£â€šÅ Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£â‚¬â€š';
 
   @override
-  String get workflows_remove_from_folder => 'フォルダから削除';
+  String get workflows_remove_from_folder =>
+      'Ã£Æ’â€¢Ã£â€šÂ©Ã£Æ’Â«Ã£Æ’â‚¬Ã£Ââ€¹Ã£â€šâ€°Ã¥â€°Å Ã©â„¢Â¤';
 
   @override
-  String get workflows_search_hint => 'ワークフローを検索...';
+  String get workflows_search_hint =>
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šâ€™Ã¦Â¤Å“Ã§Â´Â¢...';
 
   @override
   String workflows_subtitle(int count, String entry, String args) {
-    return '$count アクション • エントリ: $entry • 引数: $args';
+    return '$count Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³ Ã¢â‚¬Â¢ Ã£â€šÂ¨Ã£Æ’Â³Ã£Æ’Ë†Ã£Æ’Âª: $entry Ã¢â‚¬Â¢ Ã¥Â¼â€¢Ã¦â€¢Â°: $args';
   }
 
   @override
-  String get workflows_tab => 'ワークフロー';
+  String get workflows_tab => 'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼';
 
   @override
-  String get workflows_tab_short => 'フロー';
+  String get workflows_tab_short => 'Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼';
 
   @override
-  String get workflows_title => 'ワークフロー';
+  String get workflows_title => 'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼';
 
   @override
-  String get workflows_type_badge_event => 'イベント';
+  String get workflows_type_badge_event => 'Ã£â€šÂ¤Ã£Æ’â„¢Ã£Æ’Â³Ã£Æ’Ë†';
 
   @override
-  String get workflows_type_badge_general => '一般';
+  String get workflows_type_badge_general => 'Ã¤Â¸â‚¬Ã¨Ë†Â¬';
 
   @override
-  String get workflows_type_event => 'イベントワークフロー';
+  String get workflows_type_event =>
+      'Ã£â€šÂ¤Ã£Æ’â„¢Ã£Æ’Â³Ã£Æ’Ë†Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼';
 
   @override
-  String get workflows_type_event_desc => 'Discordがイベントを発行すると自動的に反応します。';
+  String get workflows_type_event_desc =>
+      'DiscordÃ£ÂÅ’Ã£â€šÂ¤Ã£Æ’â„¢Ã£Æ’Â³Ã£Æ’Ë†Ã£â€šâ€™Ã§â„¢ÂºÃ¨Â¡Å’Ã£Ââ„¢Ã£â€šâ€¹Ã£ÂÂ¨Ã¨â€¡ÂªÃ¥â€¹â€¢Ã§Å¡â€žÃ£ÂÂ«Ã¥ÂÂÃ¥Â¿Å“Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get workflows_type_general => '一般ワークフロー';
+  String get workflows_type_general =>
+      'Ã¤Â¸â‚¬Ã¨Ë†Â¬Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼';
 
   @override
   String get workflows_type_general_desc =>
-      'コマンド、ボタン、モーダル、他のワークフローから呼び出される再利用可能なロジック。';
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â‚¬ÂÃ£Æ’Å“Ã£â€šÂ¿Ã£Æ’Â³Ã£â‚¬ÂÃ£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â‚¬Ã£Æ’Â«Ã£â‚¬ÂÃ¤Â»â€“Ã£ÂÂ®Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£Ââ€¹Ã£â€šâ€°Ã¥â€˜Â¼Ã£ÂÂ³Ã¥â€¡ÂºÃ£Ââ€¢Ã£â€šÅ’Ã£â€šâ€¹Ã¥â€ ÂÃ¥Ë†Â©Ã§â€Â¨Ã¥ÂÂ¯Ã¨Æ’Â½Ã£ÂÂªÃ£Æ’Â­Ã£â€šÂ¸Ã£Æ’Æ’Ã£â€šÂ¯Ã£â‚¬â€š';
 
   @override
-  String get workflows_type_title => 'ワークフロータイプ';
+  String get workflows_type_title =>
+      'Ã£Æ’Â¯Ã£Æ’Â¼Ã£â€šÂ¯Ã£Æ’â€¢Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ¿Ã£â€šÂ¤Ã£Æ’â€”';
 
   @override
-  String get settings_sync_title => '同期';
+  String get settings_sync_title => 'Ã¥ÂÅ’Ã¦Å“Å¸';
 
   @override
-  String get settings_sync_force_title => 'コマンドの強制同期';
+  String get settings_sync_force_title =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ®Ã¥Â¼Â·Ã¥Ë†Â¶Ã¥ÂÅ’Ã¦Å“Å¸';
 
   @override
   String get settings_sync_force_desc =>
-      'Bot Creatorでローカルに定義されていないDiscordスラッシュコマンドをすべて削除します。';
+      'Bot CreatorÃ£ÂÂ§Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã£ÂÂ«Ã¥Â®Å¡Ã§Â¾Â©Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¦Ã£Ââ€žÃ£ÂÂªÃ£Ââ€žDiscordÃ£â€šÂ¹Ã£Æ’Â©Ã£Æ’Æ’Ã£â€šÂ·Ã£Æ’Â¥Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get settings_sync_force_button => 'Discordと同期する';
+  String get settings_sync_force_button =>
+      'DiscordÃ£ÂÂ¨Ã¥ÂÅ’Ã¦Å“Å¸Ã£Ââ„¢Ã£â€šâ€¹';
 
   @override
-  String get settings_sync_force_dialog_title => '強制同期';
+  String get settings_sync_force_dialog_title => 'Ã¥Â¼Â·Ã¥Ë†Â¶Ã¥ÂÅ’Ã¦Å“Å¸';
 
   @override
   String get settings_sync_force_dialog_desc =>
-      'これにより、Bot Creatorでローカルに定義されていないDiscordのスラッシュコマンドがすべて削除されます。本当に続行しますか？';
+      'Ã£Ââ€œÃ£â€šÅ’Ã£ÂÂ«Ã£â€šË†Ã£â€šÅ Ã£â‚¬ÂBot CreatorÃ£ÂÂ§Ã£Æ’Â­Ã£Æ’Â¼Ã£â€šÂ«Ã£Æ’Â«Ã£ÂÂ«Ã¥Â®Å¡Ã§Â¾Â©Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¦Ã£Ââ€žÃ£ÂÂªÃ£Ââ€žDiscordÃ£ÂÂ®Ã£â€šÂ¹Ã£Æ’Â©Ã£Æ’Æ’Ã£â€šÂ·Ã£Æ’Â¥Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÅ’Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ¦Å“Â¬Ã¥Â½â€œÃ£ÂÂ«Ã§Â¶Å¡Ã¨Â¡Å’Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸';
 
   @override
-  String get settings_sync_force_dialog_confirm => '強制同期';
+  String get settings_sync_force_dialog_confirm => 'Ã¥Â¼Â·Ã¥Ë†Â¶Ã¥ÂÅ’Ã¦Å“Å¸';
 
   @override
   String settings_sync_force_success(Object count) {
-    return '強制同期が正常に完了しました。Discordから $count 件の古い/追跡されていないコマンドを削除しました。';
+    return 'Ã¥Â¼Â·Ã¥Ë†Â¶Ã¥ÂÅ’Ã¦Å“Å¸Ã£ÂÅ’Ã¦Â­Â£Ã¥Â¸Â¸Ã£ÂÂ«Ã¥Â®Å’Ã¤Âºâ€ Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€šDiscordÃ£Ââ€¹Ã£â€šâ€° $count Ã¤Â»Â¶Ã£ÂÂ®Ã¥ÂÂ¤Ã£Ââ€ž/Ã¨Â¿Â½Ã¨Â·Â¡Ã£Ââ€¢Ã£â€šÅ’Ã£ÂÂ¦Ã£Ââ€žÃ£ÂÂªÃ£Ââ€žÃ£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¥â€°Å Ã©â„¢Â¤Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€š';
   }
 
   @override
   String settings_sync_force_error(Object error) {
-    return '強制同期に失敗しました: $error';
+    return 'Ã¥Â¼Â·Ã¥Ë†Â¶Ã¥ÂÅ’Ã¦Å“Å¸Ã£ÂÂ«Ã¥Â¤Â±Ã¦â€¢â€”Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸: $error';
   }
 
   @override
-  String get app_create_select_type_title => 'アプリケーションの種類を選択';
+  String get app_create_select_type_title =>
+      'Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£â€šÂ±Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ®Ã§Â¨Â®Ã©Â¡Å¾Ã£â€šâ€™Ã©ÂÂ¸Ã¦Å Å¾';
 
   @override
-  String get app_create_select_type_desc => '開始するには、作成するアプリケーションの種類を選択してください。';
+  String get app_create_select_type_desc =>
+      'Ã©â€“â€¹Ã¥Â§â€¹Ã£Ââ„¢Ã£â€šâ€¹Ã£ÂÂ«Ã£ÂÂ¯Ã£â‚¬ÂÃ¤Â½Å“Ã¦Ë†ÂÃ£Ââ„¢Ã£â€šâ€¹Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£â€šÂ±Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£ÂÂ®Ã§Â¨Â®Ã©Â¡Å¾Ã£â€šâ€™Ã©ÂÂ¸Ã¦Å Å¾Ã£Ââ€”Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£Ââ€¢Ã£Ââ€žÃ£â‚¬â€š';
 
   @override
-  String get app_create_type_discord => 'Discordボット';
+  String get app_create_type_discord => 'DiscordÃ£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†';
 
   @override
   String get app_create_type_discord_desc =>
-      'アクション、イベント、キャンバスレイヤーなどを使用して、カスタマイズ可能なDiscordボットを構築して実行します。';
+      'Ã£â€šÂ¢Ã£â€šÂ¯Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³Ã£â‚¬ÂÃ£â€šÂ¤Ã£Æ’â„¢Ã£Æ’Â³Ã£Æ’Ë†Ã£â‚¬ÂÃ£â€šÂ­Ã£Æ’Â£Ã£Æ’Â³Ã£Æ’ÂÃ£â€šÂ¹Ã£Æ’Â¬Ã£â€šÂ¤Ã£Æ’Â¤Ã£Æ’Â¼Ã£ÂÂªÃ£ÂÂ©Ã£â€šâ€™Ã¤Â½Â¿Ã§â€Â¨Ã£Ââ€”Ã£ÂÂ¦Ã£â‚¬ÂÃ£â€šÂ«Ã£â€šÂ¹Ã£â€šÂ¿Ã£Æ’Å¾Ã£â€šÂ¤Ã£â€šÂºÃ¥ÂÂ¯Ã¨Æ’Â½Ã£ÂÂªDiscordÃ£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¦Â§â€¹Ã§Â¯â€°Ã£Ââ€”Ã£ÂÂ¦Ã¥Â®Å¸Ã¨Â¡Å’Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get app_create_type_hosted => 'ホスト型アプリケーション (Docker)';
+  String get app_create_type_hosted =>
+      'Ã£Æ’â€ºÃ£â€šÂ¹Ã£Æ’Ë†Ã¥Å¾â€¹Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£â€šÂ±Ã£Æ’Â¼Ã£â€šÂ·Ã£Æ’Â§Ã£Æ’Â³ (Docker)';
 
   @override
   String get app_create_type_hosted_desc =>
-      'お好みの言語（NodeJS、Python、Javaなど）でバックエンドアプリ、サーバー、またはスクリプトを実行します。ファイルをアップロードし、安全なサンドボックスにパッケージをインストールします。';
+      'Ã£ÂÅ Ã¥Â¥Â½Ã£ÂÂ¿Ã£ÂÂ®Ã¨Â¨â‚¬Ã¨ÂªÅ¾Ã¯Â¼Ë†NodeJSÃ£â‚¬ÂPythonÃ£â‚¬ÂJavaÃ£ÂÂªÃ£ÂÂ©Ã¯Â¼â€°Ã£ÂÂ§Ã£Æ’ÂÃ£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¨Ã£Æ’Â³Ã£Æ’â€°Ã£â€šÂ¢Ã£Æ’â€”Ã£Æ’ÂªÃ£â‚¬ÂÃ£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£â‚¬ÂÃ£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯Ã£â€šÂ¹Ã£â€šÂ¯Ã£Æ’ÂªÃ£Æ’â€”Ã£Æ’Ë†Ã£â€šâ€™Ã¥Â®Å¸Ã¨Â¡Å’Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€šÃ£Æ’â€¢Ã£â€šÂ¡Ã£â€šÂ¤Ã£Æ’Â«Ã£â€šâ€™Ã£â€šÂ¢Ã£Æ’Æ’Ã£Æ’â€”Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’â€°Ã£Ââ€”Ã£â‚¬ÂÃ¥Â®â€°Ã¥â€¦Â¨Ã£ÂÂªÃ£â€šÂµÃ£Æ’Â³Ã£Æ’â€°Ã£Æ’Å“Ã£Æ’Æ’Ã£â€šÂ¯Ã£â€šÂ¹Ã£ÂÂ«Ã£Æ’â€˜Ã£Æ’Æ’Ã£â€šÂ±Ã£Æ’Â¼Ã£â€šÂ¸Ã£â€šâ€™Ã£â€šÂ¤Ã£Æ’Â³Ã£â€šÂ¹Ã£Æ’Ë†Ã£Æ’Â¼Ã£Æ’Â«Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get app_create_coming_soon => '近日公開';
+  String get app_create_coming_soon => 'Ã¨Â¿â€˜Ã¦â€”Â¥Ã¥â€¦Â¬Ã©â€“â€¹';
 
   @override
-  String get app_create_sample_title => 'サンプルコマンドを作成';
+  String get app_create_sample_title =>
+      'Ã£â€šÂµÃ£Æ’Â³Ã£Æ’â€”Ã£Æ’Â«Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†Â';
 
   @override
   String app_create_sample_desc(String botName) {
-    return '$botNameにサンプルの/pingコマンドを追加しますか？「Pong!」と応答し、Bot Creatorの使い方を学ぶのに最適な出発点です。';
+    return '$botNameÃ£ÂÂ«Ã£â€šÂµÃ£Æ’Â³Ã£Æ’â€”Ã£Æ’Â«Ã£ÂÂ®/pingÃ£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸Ã£â‚¬Å’Pong!Ã£â‚¬ÂÃ£ÂÂ¨Ã¥Â¿Å“Ã§Â­â€Ã£Ââ€”Ã£â‚¬ÂBot CreatorÃ£ÂÂ®Ã¤Â½Â¿Ã£Ââ€žÃ¦â€“Â¹Ã£â€šâ€™Ã¥Â­Â¦Ã£ÂÂ¶Ã£ÂÂ®Ã£ÂÂ«Ã¦Å“â‚¬Ã©ÂÂ©Ã£ÂÂªÃ¥â€¡ÂºÃ§â„¢ÂºÃ§â€šÂ¹Ã£ÂÂ§Ã£Ââ„¢Ã£â‚¬â€š';
   }
 
   @override
-  String get app_create_sample_skip => 'スキップ';
+  String get app_create_sample_skip => 'Ã£â€šÂ¹Ã£â€šÂ­Ã£Æ’Æ’Ã£Æ’â€”';
 
   @override
-  String get app_create_sample_confirm => 'サンプルの/pingを追加';
+  String get app_create_sample_confirm =>
+      'Ã£â€šÂµÃ£Æ’Â³Ã£Æ’â€”Ã£Æ’Â«Ã£ÂÂ®/pingÃ£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
-  String get app_create_sample_success => '/pingコマンドを作成しました';
+  String get app_create_sample_success =>
+      '/pingÃ£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†ÂÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸';
 
   @override
-  String get commands_empty_title => '最初のコマンドを作成しよう！';
+  String get commands_empty_title =>
+      'Ã¦Å“â‚¬Ã¥Ë†ÂÃ£ÂÂ®Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†ÂÃ£Ââ€”Ã£â€šË†Ã£Ââ€ Ã¯Â¼Â';
 
   @override
   String get commands_empty_description =>
-      'コマンドを使うと、Discordで/somethingと入力したときにボットが反応できます。';
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¤Â½Â¿Ã£Ââ€ Ã£ÂÂ¨Ã£â‚¬ÂDiscordÃ£ÂÂ§/somethingÃ£ÂÂ¨Ã¥â€¦Â¥Ã¥Å â€ºÃ£Ââ€”Ã£ÂÅ¸Ã£ÂÂ¨Ã£ÂÂÃ£ÂÂ«Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÅ’Ã¥ÂÂÃ¥Â¿Å“Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get commands_empty_create_button => 'コマンドを作成';
+  String get commands_empty_create_button =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†Â';
 
   @override
-  String get commands_empty_marketplace_link => 'またはMarketplaceのテンプレートから始める';
+  String get commands_empty_marketplace_link =>
+      'Ã£ÂÂ¾Ã£ÂÅ¸Ã£ÂÂ¯MarketplaceÃ£ÂÂ®Ã£Æ’â€ Ã£Æ’Â³Ã£Æ’â€”Ã£Æ’Â¬Ã£Æ’Â¼Ã£Æ’Ë†Ã£Ââ€¹Ã£â€šâ€°Ã¥Â§â€¹Ã£â€šÂÃ£â€šâ€¹';
 
   @override
-  String get command_created_success_title => 'コマンドの準備ができました！';
+  String get command_created_success_title =>
+      'Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£ÂÂ®Ã¦Âºâ€“Ã¥â€šâ„¢Ã£ÂÅ’Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã¯Â¼Â';
 
   @override
-  String get command_created_success_subtitle => '次に何をしますか？';
+  String get command_created_success_subtitle =>
+      'Ã¦Â¬Â¡Ã£ÂÂ«Ã¤Â½â€¢Ã£â€šâ€™Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£Ââ€¹Ã¯Â¼Å¸';
 
   @override
-  String get command_created_start_bot => 'ボットを起動する';
+  String get command_created_start_bot =>
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¨ÂµÂ·Ã¥â€¹â€¢Ã£Ââ„¢Ã£â€šâ€¹';
 
   @override
   String get command_created_start_bot_hint =>
-      'ボットのホームタブを開き、「起動」をタップしてオンラインにしましょう。';
+      'Ã£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£ÂÂ®Ã£Æ’â€ºÃ£Æ’Â¼Ã£Æ’Â Ã£â€šÂ¿Ã£Æ’â€“Ã£â€šâ€™Ã©â€“â€¹Ã£ÂÂÃ£â‚¬ÂÃ£â‚¬Å’Ã¨ÂµÂ·Ã¥â€¹â€¢Ã£â‚¬ÂÃ£â€šâ€™Ã£â€šÂ¿Ã£Æ’Æ’Ã£Æ’â€”Ã£Ââ€”Ã£ÂÂ¦Ã£â€šÂªÃ£Æ’Â³Ã£Æ’Â©Ã£â€šÂ¤Ã£Æ’Â³Ã£ÂÂ«Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£â€šâ€¡Ã£Ââ€ Ã£â‚¬â€š';
 
   @override
-  String get command_created_invite => 'サーバーに招待する';
+  String get command_created_invite =>
+      'Ã£â€šÂµÃ£Æ’Â¼Ã£Æ’ÂÃ£Æ’Â¼Ã£ÂÂ«Ã¦â€¹â€ºÃ¥Â¾â€¦Ã£Ââ„¢Ã£â€šâ€¹';
 
   @override
-  String get command_created_invite_error => '招待リンクを開けませんでした。';
+  String get command_created_invite_error =>
+      'Ã¦â€¹â€ºÃ¥Â¾â€¦Ã£Æ’ÂªÃ£Æ’Â³Ã£â€šÂ¯Ã£â€šâ€™Ã©â€“â€¹Ã£Ââ€˜Ã£ÂÂ¾Ã£Ââ€ºÃ£â€šâ€œÃ£ÂÂ§Ã£Ââ€”Ã£ÂÅ¸Ã£â‚¬â€š';
 
   @override
-  String get command_created_create_another => '別のコマンドを作成';
+  String get command_created_create_another =>
+      'Ã¥Ë†Â¥Ã£ÂÂ®Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†Â';
 
   @override
-  String get command_created_close => '閉じる';
+  String get command_created_close => 'Ã©â€“â€°Ã£ÂËœÃ£â€šâ€¹';
 
   @override
-  String get beginner_mode_label => 'ビギナーモード';
+  String get beginner_mode_label =>
+      'Ã£Æ’â€œÃ£â€šÂ®Ã£Æ’Å Ã£Æ’Â¼Ã£Æ’Â¢Ã£Æ’Â¼Ã£Æ’â€°';
 
   @override
-  String get beginner_mode_on_hint => '基本タブのみ表示';
+  String get beginner_mode_on_hint =>
+      'Ã¥Å¸ÂºÃ¦Å“Â¬Ã£â€šÂ¿Ã£Æ’â€“Ã£ÂÂ®Ã£ÂÂ¿Ã¨Â¡Â¨Ã§Â¤Âº';
 
   @override
-  String get beginner_mode_off_hint => 'すべての機能を表示';
+  String get beginner_mode_off_hint =>
+      'Ã£Ââ„¢Ã£ÂÂ¹Ã£ÂÂ¦Ã£ÂÂ®Ã¦Â©Å¸Ã¨Æ’Â½Ã£â€šâ€™Ã¨Â¡Â¨Ã§Â¤Âº';
 
   @override
-  String get commands_empty_sample_ping => 'サンプル/pingコマンドを追加';
+  String get commands_empty_sample_ping =>
+      'Ã£â€šÂµÃ£Æ’Â³Ã£Æ’â€”Ã£Æ’Â«/pingÃ£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¨Â¿Â½Ã¥Å Â ';
 
   @override
   String get command_created_sample_success =>
-      '/pingコマンドを作成しました！「Pong!」と応答します。';
+      '/pingÃ£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†ÂÃ£Ââ€”Ã£ÂÂ¾Ã£Ââ€”Ã£ÂÅ¸Ã¯Â¼ÂÃ£â‚¬Å’Pong!Ã£â‚¬ÂÃ£ÂÂ¨Ã¥Â¿Å“Ã§Â­â€Ã£Ââ€”Ã£ÂÂ¾Ã£Ââ„¢Ã£â‚¬â€š';
 
   @override
-  String get onboarding_create_now => '今すぐボットを作成';
+  String get onboarding_create_now =>
+      'Ã¤Â»Å Ã£Ââ„¢Ã£ÂÂÃ£Æ’Å“Ã£Æ’Æ’Ã£Æ’Ë†Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†Â';
 
   @override
-  String get onboarding_command_now => '最初のコマンドを作成';
+  String get onboarding_command_now =>
+      'Ã¦Å“â‚¬Ã¥Ë†ÂÃ£ÂÂ®Ã£â€šÂ³Ã£Æ’Å¾Ã£Æ’Â³Ã£Æ’â€°Ã£â€šâ€™Ã¤Â½Å“Ã¦Ë†Â';
+
+  @override
+  String get container_list_title => '????????????';
+
+  @override
+  String get container_list_session_missing => '?????????????';
+
+  @override
+  String get container_list_session_hint => '??????????????????';
+
+  @override
+  String get container_list_error => '????????????????';
+
+  @override
+  String get container_list_retry => '???';
+
+  @override
+  String get container_list_empty => '??????????????????';
+
+  @override
+  String get container_list_empty_hint => '???????????????????????';
+
+  @override
+  String get container_list_deploy_btn => '?????????????';
+
+  @override
+  String get container_list_expired => '????';
+
+  @override
+  String container_list_expiry_minutes(int minutes) {
+    return '??$minutes?';
+  }
+
+  @override
+  String container_list_expiry_hours(int hours, int minutes) {
+    return '??$hours??$minutes?';
+  }
+
+  @override
+  String container_list_expiry_days(int days, int hours) {
+    return '??$days?$hours??';
+  }
+
+  @override
+  String get container_deploy_title => '?????????????';
+
+  @override
+  String get container_deploy_image_label => '????';
+
+  @override
+  String get container_deploy_image_hint => '????Docker?????';
+
+  @override
+  String get container_deploy_image_required => '?????????';
+
+  @override
+  String get container_deploy_cpu_label => 'CPU(???)';
+
+  @override
+  String get container_deploy_cpu_min => '??128';
+
+  @override
+  String get container_deploy_memory_label => '???(MB)';
+
+  @override
+  String get container_deploy_memory_min => '??128 MB';
+
+  @override
+  String get container_deploy_storage_label => '?????(GB)';
+
+  @override
+  String get container_deploy_storage_min => '??1 GB';
+
+  @override
+  String get container_deploy_ttl_label => 'TTL(?)';
+
+  @override
+  String get container_deploy_ttl_min => '??1?';
+
+  @override
+  String get container_deploy_env_label => '????';
+
+  @override
+  String get container_deploy_env_key_hint => '??';
+
+  @override
+  String get container_deploy_env_value_hint => '?';
+
+  @override
+  String get container_deploy_submit => '????';
+
+  @override
+  String get container_deploy_submitting => '?????...';
+
+  @override
+  String get container_deploy_not_auth => '?????????';
+
+  @override
+  String container_deploy_success(String containerId) {
+    return '$containerId??????...';
+  }
+
+  @override
+  String container_deploy_failed(String error) {
+    return '???????????: $error';
+  }
+
+  @override
+  String get container_detail_state => '??';
+
+  @override
+  String get container_detail_expires => '????';
+
+  @override
+  String get container_detail_extend_ttl => 'TTL???';
+
+  @override
+  String get container_detail_stop_title => '???????';
+
+  @override
+  String get container_detail_stop_confirm => '???????????????????';
+
+  @override
+  String get container_detail_stop_btn => '??';
+
+  @override
+  String get container_detail_stopped_ok => '???????????';
+
+  @override
+  String get container_detail_update_resources => '???????';
+
+  @override
+  String get container_detail_update_btn => '??';
+
+  @override
+  String get container_detail_updated_ok => '???????????';
+
+  @override
+  String get container_detail_extend_hint => '??????';
+
+  @override
+  String get container_detail_extend_btn => '??';
+
+  @override
+  String get container_detail_extended_ok => 'TTL???????';
+
+  @override
+  String get container_detail_console => '?????';
+
+  @override
+  String get container_detail_deploying => '??????????...';
+
+  @override
+  String container_detail_status_stopped(String state) {
+    return '???????$state???';
+  }
+
+  @override
+  String get container_detail_not_connected => '???';
+
+  @override
+  String get container_detail_console_connecting => '???...';
+
+  @override
+  String get container_detail_console_closed => '--- ?????????? ---';
+
+  @override
+  String get container_detail_console_hint => '???????...';
+
+  @override
+  String container_detail_failed(String error) {
+    return '??: $error';
+  }
+
+  @override
+  String get container_state_running => '???';
+
+  @override
+  String get container_state_pending => '???';
+
+  @override
+  String get container_state_stopped => '????';
+
+  @override
+  String get container_state_stopping => '???';
+
+  @override
+  String get container_state_failed => '??';
+
+  @override
+  String get container_hosted_subtitle => 'Docker??????????????';
+
+  @override
+  String get container_premium_badge => '?????';
+
+  @override
+  String container_detail_title(String id) {
+    return '???? $id';
+  }
 }
