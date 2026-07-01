@@ -22,7 +22,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String action_and_more(int count) {
-    return 'Ã¢â‚¬Â¦ and $count more';
+    return '… and $count more';
   }
 
   @override
@@ -571,7 +571,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String action_else_if_label(int index) {
-    return 'ELSE IF $index Ã¢â‚¬â€ actions';
+    return 'ELSE IF $index — actions';
   }
 
   @override
@@ -607,7 +607,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get action_hint_duration => 'e.g., 5m, 1h, 30s';
 
   @override
-  String get action_hint_emoji => 'Emoji (e.g. Ã°Å¸ÂªÅ“) or <:name:id>';
+  String get action_hint_emoji => 'Emoji (e.g. 🪜) or <:name:id>';
 
   @override
   String action_hint_enter_type(String type) {
@@ -1360,7 +1360,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Suggestions are filtered by what the user types.';
 
   @override
-  String get autocomplete_loading => 'Loading workflowsÃ¢â‚¬Â¦';
+  String get autocomplete_loading => 'Loading workflows…';
 
   @override
   String get autocomplete_no_workflows => 'No saved workflows found';
@@ -1459,7 +1459,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bdfd_docs_desc_and =>
-      'Logical AND Ã¢â‚¬â€ combines multiple conditions. All must be true.\n\nUsage: \$if[\$and[\$authorID==123;\$hasRole[456]]]';
+      'Logical AND — combines multiple conditions. All must be true.\n\nUsage: \$if[\$and[\$authorID==123;\$hasRole[456]]]';
 
   @override
   String get bdfd_docs_desc_awaitfunc =>
@@ -1467,11 +1467,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bdfd_docs_desc_callworkflow =>
-      'Bot Creator only Ã¢â‚¬â€ Calls another workflow by name and passes arguments.\n\nSyntax: \$callWorkflow[myWorkflow;key1=value1;key2=value2]\n\nThe called workflow can read arguments and return a value via \$workflowResponse.';
+      'Bot Creator only — Calls another workflow by name and passes arguments.\n\nSyntax: \$callWorkflow[myWorkflow;key1=value1;key2=value2]\n\nThe called workflow can read arguments and return a value via \$workflowResponse.';
 
   @override
   String get bdfd_docs_desc_defer =>
-      'Defers the interaction response, giving you more time to process. The user sees a \"Bot is thinkingÃ¢â‚¬Â¦\" message. Use before long operations like HTTP requests.';
+      'Defers the interaction response, giving you more time to process. The user sees a \"Bot is thinking…\" message. Use before long operations like HTTP requests.';
 
   @override
   String get bdfd_docs_desc_elseif =>
@@ -1479,7 +1479,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bdfd_docs_desc_embedsuppresserrors =>
-      'Same as \$suppressErrors Ã¢â‚¬â€ suppresses all error messages silently.';
+      'Same as \$suppressErrors — suppresses all error messages silently.';
 
   @override
   String get bdfd_docs_desc_ephemeral =>
@@ -1491,7 +1491,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bdfd_docs_desc_for =>
-      'Bot Creator only Ã¢â‚¬â€ Repeats a block of code N times.\n\nSimple: \$for[5]...\$endfor Ã¢â€ â€™ the body is repeated 5 times (max 100). You can use \$i for the current index (starting at 0) and \$loopCount for the total.\n\nC-style: \$for[i=0;i<10;i++]...\$endfor Ã¢â€ â€™ classic for loop with init, condition and update. Supports ++, --, +=, -=, *=.\n\nIf the iteration count is dynamic (e.g. \$for[\$args[1]]), the loop runs at runtime instead of compile-time.';
+      'Bot Creator only — Repeats a block of code N times.\n\nSimple: \$for[5]...\$endfor → the body is repeated 5 times (max 100). You can use \$i for the current index (starting at 0) and \$loopCount for the total.\n\nC-style: \$for[i=0;i<10;i++]...\$endfor → classic for loop with init, condition and update. Supports ++, --, +=, -=, *=.\n\nIf the iteration count is dynamic (e.g. \$for[\$args[1]]), the loop runs at runtime instead of compile-time.';
 
   @override
   String get bdfd_docs_desc_httpaddheader =>
@@ -1515,7 +1515,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bdfd_docs_desc_jsonset =>
-      'Sets a value in the current JSON context. Supports dot-notation paths.\n\nUsage: \$jsonSet[user.name;John]\n\nThe change is applied in memory Ã¢â‚¬â€ use \$jsonStringify to get the result.';
+      'Sets a value in the current JSON context. Supports dot-notation paths.\n\nUsage: \$jsonSet[user.name;John]\n\nThe change is applied in memory — use \$jsonStringify to get the result.';
 
   @override
   String get bdfd_docs_desc_jsonstringify =>
@@ -1523,11 +1523,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bdfd_docs_desc_loop =>
-      'Bot Creator only Ã¢â‚¬â€ Alias for \$for. See \$for for details. Use \$endloop to close the block.';
+      'Bot Creator only — Alias for \$for. See \$for for details. Use \$endloop to close the block.';
 
   @override
   String get bdfd_docs_desc_or =>
-      'Logical OR Ã¢â‚¬â€ combines multiple conditions. At least one must be true.\n\nUsage: \$if[\$or[\$authorID==123;\$authorID==456]]]';
+      'Logical OR — combines multiple conditions. At least one must be true.\n\nUsage: \$if[\$or[\$authorID==123;\$authorID==456]]]';
 
   @override
   String get bdfd_docs_desc_stop =>
@@ -1547,20 +1547,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bdfd_docs_desc_workflowresponse =>
-      'Bot Creator only Ã¢â‚¬â€ Returns the response from the last \$callWorkflow.\n\nUse \$workflowResponse[] for the full response, or \$workflowResponse[property] to access a specific field.';
+      'Bot Creator only — Returns the response from the last \$callWorkflow.\n\nUse \$workflowResponse[] for the full response, or \$workflowResponse[property] to access a specific field.';
 
   @override
   String get bdfd_docs_empty => 'No matching functions.';
 
   @override
-  String get bdfd_docs_no_params =>
-      'No parameters Ã¢â‚¬â€ use as \$functionName';
+  String get bdfd_docs_no_params => 'No parameters — use as \$functionName';
 
   @override
   String get bdfd_docs_parameters => 'PARAMETERS';
 
   @override
-  String get bdfd_docs_search_hint => 'Search functionsÃ¢â‚¬Â¦';
+  String get bdfd_docs_search_hint => 'Search functions…';
 
   @override
   String get bdfd_docs_syntax => 'SYNTAX';
@@ -1569,8 +1568,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bdfd_docs_title => 'BDFD Docs';
 
   @override
-  String get bdfd_editor_auto_indent =>
-      'Ã¢â‚¬Â¢ Smart auto indentation on Enter';
+  String get bdfd_editor_auto_indent => '• Smart auto indentation on Enter';
 
   @override
   String get bdfd_editor_diagnostics_toggle => 'Toggle diagnostics panel';
@@ -1580,17 +1578,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bdfd_editor_empty =>
-      'Empty script Ã¢â‚¬â€ start typing to see diagnostics.';
+      'Empty script — start typing to see diagnostics.';
 
   @override
   String get bdfd_editor_includes => 'Includes:';
 
   @override
-  String get bdfd_editor_indent_guides => 'Ã¢â‚¬Â¢ Live indentation guides';
+  String get bdfd_editor_indent_guides => '• Live indentation guides';
 
   @override
-  String get bdfd_editor_quick_keys =>
-      'Ã¢â‚¬Â¢ Mobile quick-keys for BDFD symbols';
+  String get bdfd_editor_quick_keys => '• Mobile quick-keys for BDFD symbols';
 
   @override
   String get bdfd_editor_tap_hint => 'Tap to open editor';
@@ -1675,7 +1672,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get bot_home_starting => 'StartingÃ¢â‚¬Â¦';
+  String get bot_home_starting => 'Starting…';
 
   @override
   String get bot_home_stop => 'Stop Bot';
@@ -1748,7 +1745,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bot_home_pull_dialog_up_to_date =>
-      'Already up to date Ã¢â‚¬â€ no changes needed.';
+      'Already up to date — no changes needed.';
 
   @override
   String get bot_home_pull_dialog_updated_commands => 'updated command(s)';
@@ -1960,7 +1957,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bot_settings_lavalink_premium_banner_title =>
-      'Ã°Å¸â€â€™ Available with Bot Creator PREMIUM';
+      '🔒 Available with Bot Creator PREMIUM';
 
   @override
   String get bot_settings_lavalink_public_servers => 'Public servers';
@@ -1981,7 +1978,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String bot_settings_lavalink_server_subtitle(String port, String version) {
-    return 'Port $port Ã¢â‚¬â€ $version';
+    return 'Port $port — $version';
   }
 
   @override
@@ -2172,7 +2169,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Centralized documentation for commands, workflows, runtime variables, and execution behavior.';
 
   @override
-  String get bot_stats_collecting => 'CollectingÃ¢â‚¬Â¦';
+  String get bot_stats_collecting => 'Collecting…';
 
   @override
   String get bot_stats_cpu => 'Bot process CPU';
@@ -2369,7 +2366,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cmd_editor_mode_switch_adv_content =>
-      'This switch is one-way for this command. You wonÃ¢â‚¬â„¢t be able to return to simplified mode.';
+      'This switch is one-way for this command. You won’t be able to return to simplified mode.';
 
   @override
   String get cmd_editor_mode_switch_adv_title => 'Switch to advanced mode?';
@@ -2758,7 +2755,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cmd_simple_response_embeds_title => 'Response embeds';
 
   @override
-  String get cmd_simple_response_hint => 'Done Ã¢Å“â€¦';
+  String get cmd_simple_response_hint => 'Done ✅';
 
   @override
   String get cmd_simple_response_title => 'Final response';
@@ -3429,7 +3426,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dart_editor_empty =>
-      'Empty script Ã¢â‚¬â€ start typing to see Dart diagnostics.';
+      'Empty script — start typing to see Dart diagnostics.';
 
   @override
   String get dart_editor_tap_hint => 'Tap to open Dart editor';
@@ -3534,7 +3531,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get debug_replay_empty_capturing =>
-      'CapturingÃ¢â‚¬Â¦ Run a command to record a replay.';
+      'Capturing… Run a command to record a replay.';
 
   @override
   String get debug_replay_empty_idle =>
@@ -3682,7 +3679,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get doc_action_stop_unless_example =>
-      'condition.variable = ((reaction.emoji.name))\ncondition.operator = equals\ncondition.value = Ã¢Å“â€¦';
+      'condition.variable = ((reaction.emoji.name))\ncondition.operator = equals\ncondition.value = ✅';
 
   @override
   String get doc_action_stop_unless_format_l1 =>
@@ -3856,7 +3853,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get doc_event_reaction_add_example =>
-      'Guard: ((reaction.emoji.name)) equals Ã¢Å“â€¦\nAction: addRole -> user=((userId)) role=((global.approvedRoleId))';
+      'Guard: ((reaction.emoji.name)) equals ✅\nAction: addRole -> user=((userId)) role=((global.approvedRoleId))';
 
   @override
   String get doc_event_reaction_add_intent => 'Guild Message Reactions';
@@ -4717,7 +4714,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get globals_help_scoped =>
-      'Stored per context (server, user, channelÃ¢â‚¬Â¦). Each entry keeps a distinct value per Discord context.';
+      'Stored per context (server, user, channel…). Each entry keeps a distinct value per Discord context.';
 
   @override
   String get globals_key => 'Key';
@@ -4756,7 +4753,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get globals_scope_user => 'user';
 
   @override
-  String get globals_search => 'Search variablesÃ¢â‚¬Â¦';
+  String get globals_search => 'Search variables…';
 
   @override
   String get globals_source_local => 'Local';
@@ -4813,7 +4810,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get guilds_owner_label => 'Ã°Å¸â€˜â€˜ Owner';
+  String get guilds_owner_label => '👑 Owner';
 
   @override
   String guilds_server_count_other(int count) {
@@ -5115,7 +5112,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String marketplace_by_author(Object author, Object version) {
-    return 'by $author Ã‚Â· v$version';
+    return 'by $author · v$version';
   }
 
   @override
@@ -5507,7 +5504,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboarding_command_example =>
-      'Example:\n/hello Ã¢â€ â€™ Bot replies \"Hello! Ã°Å¸â€˜â€¹\"';
+      'Example:\n/hello → Bot replies \"Hello! 👋\"';
 
   @override
   String get onboarding_command_learn => 'Learn how commands work';
@@ -5534,7 +5531,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboarding_create_tip =>
-      'Ã°Å¸â€™Â¡ Tip: Never share your token! It gives full access to your bot.';
+      '💡 Tip: Never share your token! It gives full access to your bot.';
 
   @override
   String get onboarding_create_title => 'Step 1: Create a Bot';
@@ -5571,7 +5568,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboarding_start_tip =>
-      'Ã¢Å“Â¨ Great! You\'ve created your first Discord bot. You can now add more commands and customize it!';
+      '✨ Great! You\'ve created your first Discord bot. You can now add more commands and customize it!';
 
   @override
   String get onboarding_start_title => 'Step 3: Start the Bot';
@@ -5597,7 +5594,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboarding_success_tip3 => 'Backup your data';
 
   @override
-  String get onboarding_success_title => 'Congratulations! Ã°Å¸Å½â€°';
+  String get onboarding_success_title => 'Congratulations! 🎉';
 
   @override
   String get onboarding_success_whatsnext => 'What\'s next?';
@@ -5831,7 +5828,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reply_mode_layout_desc =>
-      'Discord\'s rich layout system Ã¢â‚¬â€ containers, media, text & forms';
+      'Discord\'s rich layout system — containers, media, text & forms';
 
   @override
   String get reply_mode_modal => 'Modal Form';
@@ -6102,7 +6099,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String scheduler_subtitle(String workflow, int minutes) {
-    return 'Workflow: $workflow Ã¢â‚¬Â¢ Every $minutes min';
+    return 'Workflow: $workflow • Every $minutes min';
   }
 
   @override
@@ -6135,7 +6132,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scoped_empty_subtitle =>
-      'Scoped variables store a value per Discord context (user, serverÃ¢â‚¬Â¦). They are populated by the bot at runtime.';
+      'Scoped variables store a value per Discord context (user, server…). They are populated by the bot at runtime.';
 
   @override
   String get scoped_explore_runtime => 'Explore runtime data';
@@ -6158,16 +6155,16 @@ class AppLocalizationsEn extends AppLocalizations {
       'No runtime data.\nThis key will be populated by the bot at execution.';
 
   @override
-  String get scoped_runtime_search => 'Search by ID or nameÃ¢â‚¬Â¦';
+  String get scoped_runtime_search => 'Search by ID or name…';
 
   @override
   String scoped_runtime_subtitle(String scope, int count) {
-    return 'Scope: $scope Ã‚Â· $count context(s) found';
+    return 'Scope: $scope · $count context(s) found';
   }
 
   @override
   String scoped_runtime_title(String key) {
-    return 'Runtime data Ã¢â‚¬â€ \"$key\"';
+    return 'Runtime data — \"$key\"';
   }
 
   @override
@@ -6488,7 +6485,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings_appearance_title => 'Appearance & language';
 
   @override
-  String get settings_auto_backup_check_loading => 'Auto-backup checkÃ¢â‚¬Â¦';
+  String get settings_auto_backup_check_loading => 'Auto-backup check…';
 
   @override
   String get settings_auto_backup_every_12h => 'Every 12h';
@@ -6746,7 +6743,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settings_discord_rpc_authenticating =>
-      'Authenticating with DiscordÃ¢â‚¬Â¦';
+      'Authenticating with Discord…';
 
   @override
   String get settings_discord_rpc_authorization_code_pending_exchange =>
@@ -6761,7 +6758,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settings_discord_rpc_authorizing =>
-      'Waiting for Discord authorizationÃ¢â‚¬Â¦';
+      'Waiting for Discord authorization…';
 
   @override
   String get settings_discord_rpc_broker_hint => 'https://auth.example.com';
@@ -6807,7 +6804,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings_discord_rpc_connected => 'Presence sent to Discord';
 
   @override
-  String get settings_discord_rpc_connecting => 'Connecting to DiscordÃ¢â‚¬Â¦';
+  String get settings_discord_rpc_connecting => 'Connecting to Discord…';
 
   @override
   String get settings_discord_rpc_desc =>
@@ -6839,7 +6836,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settings_discord_rpc_exchanging_code =>
-      'Completing OAuth exchangeÃ¢â‚¬Â¦';
+      'Completing OAuth exchange…';
 
   @override
   String get settings_discord_rpc_ipc_connected_auth_required =>
@@ -6890,8 +6887,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings_drive_connect => 'Connect to Google Drive';
 
   @override
-  String get settings_drive_connect_loading =>
-      'Connecting to Google DriveÃ¢â‚¬Â¦';
+  String get settings_drive_connect_loading => 'Connecting to Google Drive…';
 
   @override
   String get settings_drive_connected => 'Connected to Google Drive';
@@ -6904,7 +6900,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings_drive_disconnect => 'Disconnect';
 
   @override
-  String get settings_drive_disconnect_loading => 'DisconnectingÃ¢â‚¬Â¦';
+  String get settings_drive_disconnect_loading => 'Disconnecting…';
 
   @override
   String get settings_drive_disconnected => 'Disconnected from Google Drive';
@@ -6951,7 +6947,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings_export_app_data => 'Export App Data';
 
   @override
-  String get settings_export_loading => 'ExportingÃ¢â‚¬Â¦';
+  String get settings_export_loading => 'Exporting…';
 
   @override
   String get settings_import => 'Import';
@@ -6960,7 +6956,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings_import_app_data => 'Import App Data';
 
   @override
-  String get settings_import_loading => 'ImportingÃ¢â‚¬Â¦';
+  String get settings_import_loading => 'Importing…';
 
   @override
   String get settings_language_desc => 'Choose the language used by the app.';
@@ -7024,8 +7020,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings_main_api_connect_discord => 'Connect Discord account';
 
   @override
-  String get settings_main_api_connected =>
-      'Bot Creator Server reachable Ã¢Å“â€œ';
+  String get settings_main_api_connected => 'Bot Creator Server reachable ✓';
 
   @override
   String get settings_main_api_connected_discord => 'Discord account connected';
@@ -7200,10 +7195,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings_runner_cleared => 'Runner settings cleared';
 
   @override
-  String get settings_runner_connected => 'Runner reachable Ã¢Å“â€œ';
+  String get settings_runner_connected => 'Runner reachable ✓';
 
   @override
-  String get settings_runner_connecting => 'Checking connectionÃ¢â‚¬Â¦';
+  String get settings_runner_connecting => 'Checking connection…';
 
   @override
   String get settings_runner_desc =>
@@ -7279,7 +7274,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings_snapshot_apps_list => 'Apps in this snapshot';
 
   @override
-  String get settings_snapshot_create_loading => 'Creating snapshotÃ¢â‚¬Â¦';
+  String get settings_snapshot_create_loading => 'Creating snapshot…';
 
   @override
   String settings_snapshot_created_at(String date) {
@@ -7292,14 +7287,14 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get settings_snapshot_delete_loading => 'Deleting snapshotÃ¢â‚¬Â¦';
+  String get settings_snapshot_delete_loading => 'Deleting snapshot…';
 
   @override
   String get settings_snapshot_deleted => 'Snapshot deleted';
 
   @override
   String settings_snapshot_files_size(int count, String size) {
-    return 'Files: $count Ã¢â‚¬Â¢ Size: $size';
+    return 'Files: $count • Size: $size';
   }
 
   @override
@@ -7314,7 +7309,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String settings_snapshot_list_entry(String date, int count, String size) {
-    return '$date Ã¢â‚¬Â¢ $count files Ã¢â‚¬Â¢ $size';
+    return '$date • $count files • $size';
   }
 
   @override
@@ -7324,7 +7319,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings_snapshot_preview_title => 'Snapshot Preview';
 
   @override
-  String get settings_snapshot_restore_loading => 'Restoring snapshotÃ¢â‚¬Â¦';
+  String get settings_snapshot_restore_loading => 'Restoring snapshot…';
 
   @override
   String get settings_snapshots_delete_all => 'Delete all snapshots';
@@ -7340,8 +7335,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get settings_snapshots_delete_all_loading =>
-      'Deleting all snapshotsÃ¢â‚¬Â¦';
+  String get settings_snapshots_delete_all_loading => 'Deleting all snapshots…';
 
   @override
   String get settings_snapshots_delete_all_title => 'Delete all snapshots';
@@ -7369,8 +7363,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings_snapshots_refresh => 'Refresh snapshots';
 
   @override
-  String get settings_snapshots_refresh_loading =>
-      'Refreshing snapshotsÃ¢â‚¬Â¦';
+  String get settings_snapshots_refresh_loading => 'Refreshing snapshots…';
 
   @override
   String get settings_snapshots_title => 'Snapshots';
@@ -7464,13 +7457,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get startup_refresh_diagnostics => 'Refresh diagnostics';
 
   @override
-  String get subscription_active_annual => 'Premium Ã¢â‚¬â€ Annual';
+  String get subscription_active_annual => 'Premium — Annual';
 
   @override
   String get subscription_active_label => 'Active plan:';
 
   @override
-  String get subscription_active_monthly => 'Premium Ã¢â‚¬â€ Monthly';
+  String get subscription_active_monthly => 'Premium — Monthly';
 
   @override
   String get subscription_annual_title => 'Annual';
@@ -7912,7 +7905,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get variable_autocomplete_title =>
-      'Available variables Ã¢â‚¬â€ tap to insert';
+      'Available variables — tap to insert';
 
   @override
   String get variable_category_author => 'Author';
@@ -8369,7 +8362,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String workflows_event_subtitle(int count, String event) {
-    return '$count action(s) Ã¢â‚¬Â¢ Listen for: $event';
+    return '$count action(s) • Listen for: $event';
   }
 
   @override
@@ -8457,7 +8450,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String workflows_subtitle(int count, String entry, String args) {
-    return '$count action(s) Ã¢â‚¬Â¢ entry: $entry Ã¢â‚¬Â¢ args: $args';
+    return '$count action(s) • entry: $entry • args: $args';
   }
 
   @override

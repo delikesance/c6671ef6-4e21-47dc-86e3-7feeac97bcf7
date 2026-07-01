@@ -18,7 +18,7 @@
         "type": "int"
       }
     },
-    "description": "Ã¢â‚¬Â¦ and {count} more"
+    "description": "… and {count} more"
   },
   "@action_bulk_import_hint": {
     "description": "Bulk import (Paste headers like Key: Value)"
@@ -489,7 +489,7 @@
         "type": "int"
       }
     },
-    "description": "ELSE IF {index} Ã¢â‚¬â€ actions"
+    "description": "ELSE IF {index} — actions"
   },
   "@action_error_continue": {
     "description": "Continue"
@@ -522,7 +522,7 @@
     "description": "e.g., 5m, 1h, 30s"
   },
   "@action_hint_emoji": {
-    "description": "Emoji (e.g. Ã°Å¸ÂªÅ“) or <:name:id>"
+    "description": "Emoji (e.g. 🪜) or <:name:id>"
   },
   "@action_hint_enter_type": {
     "placeholders": {
@@ -1308,7 +1308,7 @@
     "description": "Suggestions are filtered by what the user types."
   },
   "@autocomplete_loading": {
-    "description": "Loading workflowsÃ¢â‚¬Â¦"
+    "description": "Loading workflows…"
   },
   "@autocomplete_no_workflows": {
     "description": "No saved workflows found"
@@ -1413,22 +1413,22 @@
     "description": "Webhooks"
   },
   "@bdfd_docs_desc_and": {
-    "description": "Logical AND Ã¢â‚¬â€ combines multiple conditions. All must be true.\n\nUsage: $if[$and[$authorID==123;$hasRole[456]]]"
+    "description": "Logical AND — combines multiple conditions. All must be true.\n\nUsage: $if[$and[$authorID==123;$hasRole[456]]]"
   },
   "@bdfd_docs_desc_awaitfunc": {
     "description": "Registers a callback that waits for a user response.\n\nUsage: $awaitFunc[name;userID (opt);channelID (opt)]\n\nThe awaited function is stored and triggered when the target user sends a message in the target channel."
   },
   "@bdfd_docs_desc_callworkflow": {
-    "description": "Bot Creator only Ã¢â‚¬â€ Calls another workflow by name and passes arguments.\n\nSyntax: $callWorkflow[myWorkflow;key1=value1;key2=value2]\n\nThe called workflow can read arguments and return a value via $workflowResponse."
+    "description": "Bot Creator only — Calls another workflow by name and passes arguments.\n\nSyntax: $callWorkflow[myWorkflow;key1=value1;key2=value2]\n\nThe called workflow can read arguments and return a value via $workflowResponse."
   },
   "@bdfd_docs_desc_defer": {
-    "description": "Defers the interaction response, giving you more time to process. The user sees a \"Bot is thinkingÃ¢â‚¬Â¦\" message. Use before long operations like HTTP requests."
+    "description": "Defers the interaction response, giving you more time to process. The user sees a \"Bot is thinking…\" message. Use before long operations like HTTP requests."
   },
   "@bdfd_docs_desc_elseif": {
     "description": "Adds an alternative condition inside an $if block. Must appear between $if and $else/$endif."
   },
   "@bdfd_docs_desc_embedsuppresserrors": {
-    "description": "Same as $suppressErrors Ã¢â‚¬â€ suppresses all error messages silently."
+    "description": "Same as $suppressErrors — suppresses all error messages silently."
   },
   "@bdfd_docs_desc_ephemeral": {
     "description": "Makes the response visible only to the user who triggered the command. Must be placed before any response content."
@@ -1437,7 +1437,7 @@
     "description": "Executes a BDFD script string at runtime. The code passed as argument is re-compiled and executed dynamically. Useful for running user-provided or variable-based scripts."
   },
   "@bdfd_docs_desc_for": {
-    "description": "Bot Creator only Ã¢â‚¬â€ Repeats a block of code N times.\n\nSimple: $for[5]...$endfor Ã¢â€ â€™ the body is repeated 5 times (max 100). You can use $i for the current index (starting at 0) and $loopCount for the total.\n\nC-style: $for[i=0;i<10;i++]...$endfor Ã¢â€ â€™ classic for loop with init, condition and update. Supports ++, --, +=, -=, *=.\n\nIf the iteration count is dynamic (e.g. $for[$args[1]]), the loop runs at runtime instead of compile-time."
+    "description": "Bot Creator only — Repeats a block of code N times.\n\nSimple: $for[5]...$endfor → the body is repeated 5 times (max 100). You can use $i for the current index (starting at 0) and $loopCount for the total.\n\nC-style: $for[i=0;i<10;i++]...$endfor → classic for loop with init, condition and update. Supports ++, --, +=, -=, *=.\n\nIf the iteration count is dynamic (e.g. $for[$args[1]]), the loop runs at runtime instead of compile-time."
   },
   "@bdfd_docs_desc_httpaddheader": {
     "description": "Adds a header to the next HTTP request. Headers are accumulated until the next $httpGet/$httpPost/etc.\n\nUsage: $httpAddHeader[Authorization;Bearer token123]"
@@ -1455,16 +1455,16 @@
     "description": "Parses a JSON string into memory for manipulation. All JSON operations ($jsonSet, $json, etc.) operate on this parsed context.\n\nStatic JSON is resolved at compile-time for better performance."
   },
   "@bdfd_docs_desc_jsonset": {
-    "description": "Sets a value in the current JSON context. Supports dot-notation paths.\n\nUsage: $jsonSet[user.name;John]\n\nThe change is applied in memory Ã¢â‚¬â€ use $jsonStringify to get the result."
+    "description": "Sets a value in the current JSON context. Supports dot-notation paths.\n\nUsage: $jsonSet[user.name;John]\n\nThe change is applied in memory — use $jsonStringify to get the result."
   },
   "@bdfd_docs_desc_jsonstringify": {
     "description": "Converts the current JSON context back to a string. Use after $jsonParse and $jsonSet operations to output the result."
   },
   "@bdfd_docs_desc_loop": {
-    "description": "Bot Creator only Ã¢â‚¬â€ Alias for $for. See $for for details. Use $endloop to close the block."
+    "description": "Bot Creator only — Alias for $for. See $for for details. Use $endloop to close the block."
   },
   "@bdfd_docs_desc_or": {
-    "description": "Logical OR Ã¢â‚¬â€ combines multiple conditions. At least one must be true.\n\nUsage: $if[$or[$authorID==123;$authorID==456]]]"
+    "description": "Logical OR — combines multiple conditions. At least one must be true.\n\nUsage: $if[$or[$authorID==123;$authorID==456]]]"
   },
   "@bdfd_docs_desc_stop": {
     "description": "Immediately stops execution of the current script. No further actions after $stop will run."
@@ -1476,19 +1476,19 @@
     "description": "Wraps a block for error handling.\n\nUsage:\n$try\n  $httpGet[https://api.example.com/data]\n$catch\n  Request failed!\n$endtry\n\nIf any function in the $try block fails, execution jumps to $catch."
   },
   "@bdfd_docs_desc_workflowresponse": {
-    "description": "Bot Creator only Ã¢â‚¬â€ Returns the response from the last $callWorkflow.\n\nUse $workflowResponse[] for the full response, or $workflowResponse[property] to access a specific field."
+    "description": "Bot Creator only — Returns the response from the last $callWorkflow.\n\nUse $workflowResponse[] for the full response, or $workflowResponse[property] to access a specific field."
   },
   "@bdfd_docs_empty": {
     "description": "No matching functions."
   },
   "@bdfd_docs_no_params": {
-    "description": "No parameters Ã¢â‚¬â€ use as $functionName"
+    "description": "No parameters — use as $functionName"
   },
   "@bdfd_docs_parameters": {
     "description": "PARAMETERS"
   },
   "@bdfd_docs_search_hint": {
-    "description": "Search functionsÃ¢â‚¬Â¦"
+    "description": "Search functions…"
   },
   "@bdfd_docs_syntax": {
     "description": "SYNTAX"
@@ -1497,7 +1497,7 @@
     "description": "BDFD Docs"
   },
   "@bdfd_editor_auto_indent": {
-    "description": "Ã¢â‚¬Â¢ Smart auto indentation on Enter"
+    "description": "• Smart auto indentation on Enter"
   },
   "@bdfd_editor_diagnostics_toggle": {
     "description": "Toggle diagnostics panel"
@@ -1506,16 +1506,16 @@
     "description": "BDFD Functions Reference"
   },
   "@bdfd_editor_empty": {
-    "description": "Empty script Ã¢â‚¬â€ start typing to see diagnostics."
+    "description": "Empty script — start typing to see diagnostics."
   },
   "@bdfd_editor_includes": {
     "description": "Includes:"
   },
   "@bdfd_editor_indent_guides": {
-    "description": "Ã¢â‚¬Â¢ Live indentation guides"
+    "description": "• Live indentation guides"
   },
   "@bdfd_editor_quick_keys": {
-    "description": "Ã¢â‚¬Â¢ Mobile quick-keys for BDFD symbols"
+    "description": "• Mobile quick-keys for BDFD symbols"
   },
   "@bdfd_editor_tap_hint": {
     "description": "Tap to open editor"
@@ -1598,7 +1598,7 @@
     "description": "Could not start: {error}"
   },
   "@bot_home_starting": {
-    "description": "StartingÃ¢â‚¬Â¦"
+    "description": "Starting…"
   },
   "@bot_home_stop": {
     "description": "Stop Bot"
@@ -2054,7 +2054,7 @@
         "type": "String"
       }
     },
-    "description": "Port {port} Ã¢â‚¬â€ {version}"
+    "description": "Port {port} — {version}"
   },
   "@bot_settings_title": {
     "description": "Customize Bot / Profile"
@@ -2107,7 +2107,7 @@
     "description": "Centralized documentation for commands, workflows, runtime variables, and execution behavior."
   },
   "@bot_stats_collecting": {
-    "description": "CollectingÃ¢â‚¬Â¦"
+    "description": "Collecting…"
   },
   "@bot_stats_cpu": {
     "description": "Bot process CPU"
@@ -2276,7 +2276,7 @@
     "description": "Switch"
   },
   "@cmd_editor_mode_switch_adv_content": {
-    "description": "This switch is one-way for this command. You wonÃ¢â‚¬â„¢t be able to return to simplified mode."
+    "description": "This switch is one-way for this command. You won’t be able to return to simplified mode."
   },
   "@cmd_editor_mode_switch_adv_title": {
     "description": "Switch to advanced mode?"
@@ -2612,7 +2612,7 @@
     "description": "Response embeds"
   },
   "@cmd_simple_response_hint": {
-    "description": "Done Ã¢Å“â€¦"
+    "description": "Done ✅"
   },
   "@cmd_simple_response_title": {
     "description": "Final response"
@@ -3102,9 +3102,9 @@
     "description": "Style"
   },
   "@component_block_workflow": {
-  "@component_button_default_label": {
-    "description": "Default button label"
-  },
+    "@component_button_default_label": {
+      "description": "Default button label"
+    },
     "description": "Workflow"
   },
   "@component_checkbox_options": {
@@ -3117,12 +3117,12 @@
     "description": "Choose Color"
   },
   "@component_component_to_wrap": {
-  "@component_configure_click_actions": {
-  "@component_configure_select_actions": {
-    "description": "Configure Select Actions button fallback"
-  },
-    "description": "Configure Click Actions button fallback"
-  },
+    "@component_configure_click_actions": {
+      "@component_configure_select_actions": {
+        "description": "Configure Select Actions button fallback"
+      },
+      "description": "Configure Click Actions button fallback"
+    },
     "description": "Component to Wrap:"
   },
   "@component_custom_id": {
@@ -3135,9 +3135,9 @@
     "description": "Choice"
   },
   "@component_default_option_label": {
-  "@component_disabled_hint": {
-    "description": "Disabled field hint Ã¢â‚¬â€ enter true/false or a variable"
-  },
+    "@component_disabled_hint": {
+      "description": "Disabled field hint — enter true/false or a variable"
+    },
     "description": "Option"
   },
   "@component_empty_option": {
@@ -3267,7 +3267,7 @@
     "description": "Create"
   },
   "@dart_editor_empty": {
-    "description": "Empty script Ã¢â‚¬â€ start typing to see Dart diagnostics."
+    "description": "Empty script — start typing to see Dart diagnostics."
   },
   "@dart_editor_tap_hint": {
     "description": "Tap to open Dart editor"
@@ -3375,7 +3375,7 @@
     "description": "DURATION"
   },
   "@debug_replay_empty_capturing": {
-    "description": "CapturingÃ¢â‚¬Â¦ Run a command to record a replay."
+    "description": "Capturing… Run a command to record a replay."
   },
   "@debug_replay_empty_idle": {
     "description": "Capture is off. Enable it and run a command to record a replay."
@@ -3514,7 +3514,7 @@
     "description": "Action: runWorkflow"
   },
   "@doc_action_stop_unless_example": {
-    "description": "condition.variable = ((reaction.emoji.name))\ncondition.operator = equals\ncondition.value = Ã¢Å“â€¦"
+    "description": "condition.variable = ((reaction.emoji.name))\ncondition.operator = equals\ncondition.value = ✅"
   },
   "@doc_action_stop_unless_format_l1": {
     "description": "You can use raw keys: message.content[0]"
@@ -3655,7 +3655,7 @@
     "description": "Quick moderation signals from staff channels."
   },
   "@doc_event_reaction_add_example": {
-    "description": "Guard: ((reaction.emoji.name)) equals Ã¢Å“â€¦\nAction: addRole -> user=((userId)) role=((global.approvedRoleId))"
+    "description": "Guard: ((reaction.emoji.name)) equals ✅\nAction: addRole -> user=((userId)) role=((global.approvedRoleId))"
   },
   "@doc_event_reaction_add_intent": {
     "description": "Guild Message Reactions"
@@ -4475,7 +4475,7 @@
     "description": "Shared across all commands. Access via $getVar[key]."
   },
   "@globals_help_scoped": {
-    "description": "Stored per context (server, user, channelÃ¢â‚¬Â¦). Each entry keeps a distinct value per Discord context."
+    "description": "Stored per context (server, user, channel…). Each entry keeps a distinct value per Discord context."
   },
   "@globals_key": {
     "description": "Key"
@@ -4514,7 +4514,7 @@
     "description": "user"
   },
   "@globals_search": {
-    "description": "Search variablesÃ¢â‚¬Â¦"
+    "description": "Search variables…"
   },
   "@globals_source_local": {
     "description": "Local"
@@ -5072,7 +5072,7 @@
     "description": "Create your first command"
   },
   "@onboarding_command_example": {
-    "description": "Example:\n/hello Ã¢â€ â€™ Bot replies \"Hello! Ã°Å¸â€˜â€¹\""
+    "description": "Example:\n/hello → Bot replies \"Hello! 👋\""
   },
   "@onboarding_command_learn": {
     "description": "Link button that opens the commands tutorial"
@@ -5096,7 +5096,7 @@
     "description": "1. Go to Discord Developer Portal\n2. Create a new app\n3. Copy the bot token\n4. Paste it below"
   },
   "@onboarding_create_tip": {
-    "description": "Ã°Å¸â€™Â¡ Tip: Never share your token! It gives full access to your bot."
+    "description": "💡 Tip: Never share your token! It gives full access to your bot."
   },
   "@onboarding_create_title": {
     "description": "Step 1: Create a Bot"
@@ -5129,7 +5129,7 @@
     "description": "Click the \"Start\" button on your bot card. Then test your command in Discord!"
   },
   "@onboarding_start_tip": {
-    "description": "Ã¢Å“Â¨ Great! You've created your first Discord bot. You can now add more commands and customize it!"
+    "description": "✨ Great! You've created your first Discord bot. You can now add more commands and customize it!"
   },
   "@onboarding_start_title": {
     "description": "Step 3: Start the Bot"
@@ -5161,7 +5161,7 @@
     "description": "Backup your data"
   },
   "@onboarding_success_title": {
-    "description": "Congratulations! Ã°Å¸Å½â€°"
+    "description": "Congratulations! 🎉"
   },
   "@onboarding_success_whatsnext": {
     "description": "What's next?"
@@ -5403,7 +5403,7 @@
     "description": "Layout Mode"
   },
   "@reply_mode_layout_desc": {
-    "description": "Discord's rich layout system Ã¢â‚¬â€ containers, media, text & forms"
+    "description": "Discord's rich layout system — containers, media, text & forms"
   },
   "@reply_mode_modal": {
     "description": "Modal Form"
@@ -5700,7 +5700,7 @@
         "type": "int"
       }
     },
-    "description": "Workflow: {workflow} Ã¢â‚¬Â¢ Every {minutes} min"
+    "description": "Workflow: {workflow} • Every {minutes} min"
   },
   "@scheduler_tab": {
     "description": "Scheduler"
@@ -5740,7 +5740,7 @@
     "description": "No scoped variables defined"
   },
   "@scoped_empty_subtitle": {
-    "description": "Scoped variables store a value per Discord context (user, serverÃ¢â‚¬Â¦). They are populated by the bot at runtime."
+    "description": "Scoped variables store a value per Discord context (user, server…). They are populated by the bot at runtime."
   },
   "@scoped_explore_runtime": {
     "description": "Explore runtime data"
@@ -5768,7 +5768,7 @@
     "description": "No runtime data.\nThis key will be populated by the bot at execution."
   },
   "@scoped_runtime_search": {
-    "description": "Search by ID or nameÃ¢â‚¬Â¦"
+    "description": "Search by ID or name…"
   },
   "@scoped_runtime_subtitle": {
     "placeholders": {
@@ -5779,7 +5779,7 @@
         "type": "int"
       }
     },
-    "description": "Scope: {scope} Ã‚Â· {count} context(s) found"
+    "description": "Scope: {scope} · {count} context(s) found"
   },
   "@scoped_runtime_title": {
     "placeholders": {
@@ -5787,7 +5787,7 @@
         "type": "String"
       }
     },
-    "description": "Runtime data Ã¢â‚¬â€ \"{key}\""
+    "description": "Runtime data — \"{key}\""
   },
   "@scoped_scope": {
     "description": "Scope"
@@ -6093,7 +6093,7 @@
     "description": "Appearance & language"
   },
   "@settings_auto_backup_check_loading": {
-    "description": "Auto-backup checkÃ¢â‚¬Â¦"
+    "description": "Auto-backup check…"
   },
   "@settings_auto_backup_every_12h": {
     "description": "Every 12h"
@@ -6336,7 +6336,7 @@
     "description": "Diagnostics"
   },
   "@settings_discord_rpc_authenticating": {
-    "description": "Authenticating with DiscordÃ¢â‚¬Â¦"
+    "description": "Authenticating with Discord…"
   },
   "@settings_discord_rpc_authorization_code_pending_exchange": {
     "description": "Authorization code cached; retry to finish the token exchange"
@@ -6348,7 +6348,7 @@
     "description": "Authorize"
   },
   "@settings_discord_rpc_authorizing": {
-    "description": "Waiting for Discord authorizationÃ¢â‚¬Â¦"
+    "description": "Waiting for Discord authorization…"
   },
   "@settings_discord_rpc_broker_hint": {
     "description": "https://auth.example.com"
@@ -6387,7 +6387,7 @@
     "description": "Presence sent to Discord"
   },
   "@settings_discord_rpc_connecting": {
-    "description": "Connecting to DiscordÃ¢â‚¬Â¦"
+    "description": "Connecting to Discord…"
   },
   "@settings_discord_rpc_desc": {
     "description": "Publish Bot Creator desktop activity to the local Discord client. Bot Creator always uses the built-in Discord application and sends SET_ACTIVITY directly over local IPC when enabled."
@@ -6419,7 +6419,7 @@
     "description": "Discord RPC error"
   },
   "@settings_discord_rpc_exchanging_code": {
-    "description": "Completing OAuth exchangeÃ¢â‚¬Â¦"
+    "description": "Completing OAuth exchange…"
   },
   "@settings_discord_rpc_ipc_connected_auth_required": {
     "description": "Local Discord IPC connected; no OAuth HTTP request sent yet, authentication still required"
@@ -6471,7 +6471,7 @@
     "description": "Connect to Google Drive"
   },
   "@settings_drive_connect_loading": {
-    "description": "Connecting to Google DriveÃ¢â‚¬Â¦"
+    "description": "Connecting to Google Drive…"
   },
   "@settings_drive_connected": {
     "description": "Connected to Google Drive"
@@ -6483,7 +6483,7 @@
     "description": "Disconnect"
   },
   "@settings_drive_disconnect_loading": {
-    "description": "DisconnectingÃ¢â‚¬Â¦"
+    "description": "Disconnecting…"
   },
   "@settings_drive_disconnected": {
     "description": "Disconnected from Google Drive"
@@ -6525,7 +6525,7 @@
     "description": "Export App Data"
   },
   "@settings_export_loading": {
-    "description": "ExportingÃ¢â‚¬Â¦"
+    "description": "Exporting…"
   },
   "@settings_import": {
     "description": "Import"
@@ -6534,7 +6534,7 @@
     "description": "Import App Data"
   },
   "@settings_import_loading": {
-    "description": "ImportingÃ¢â‚¬Â¦"
+    "description": "Importing…"
   },
   "@settings_language_desc": {
     "description": "Choose the language used by the app."
@@ -6596,7 +6596,7 @@
     "description": "Connect Discord account"
   },
   "@settings_main_api_connected": {
-    "description": "Bot Creator Server reachable Ã¢Å“â€œ"
+    "description": "Bot Creator Server reachable ✓"
   },
   "@settings_main_api_connected_discord": {
     "description": "Discord account connected"
@@ -6735,10 +6735,10 @@
     "description": "Runner settings cleared"
   },
   "@settings_runner_connected": {
-    "description": "Runner reachable Ã¢Å“â€œ"
+    "description": "Runner reachable ✓"
   },
   "@settings_runner_connecting": {
-    "description": "Checking connectionÃ¢â‚¬Â¦"
+    "description": "Checking connection…"
   },
   "@settings_runner_desc": {
     "description": "Connect the app to a Bot Creator Runner. Remote runners should stay on trusted networks and use a bearer token."
@@ -6812,7 +6812,7 @@
     "description": "Apps in this snapshot"
   },
   "@settings_snapshot_create_loading": {
-    "description": "Creating snapshotÃ¢â‚¬Â¦"
+    "description": "Creating snapshot…"
   },
   "@settings_snapshot_created_at": {
     "placeholders": {
@@ -6831,7 +6831,7 @@
     "description": "Snapshot created: {id}"
   },
   "@settings_snapshot_delete_loading": {
-    "description": "Deleting snapshotÃ¢â‚¬Â¦"
+    "description": "Deleting snapshot…"
   },
   "@settings_snapshot_deleted": {
     "description": "Snapshot deleted"
@@ -6845,7 +6845,7 @@
         "type": "String"
       }
     },
-    "description": "Files: {count} Ã¢â‚¬Â¢ Size: {size}"
+    "description": "Files: {count} • Size: {size}"
   },
   "@settings_snapshot_id": {
     "placeholders": {
@@ -6875,7 +6875,7 @@
         "type": "String"
       }
     },
-    "description": "{date} Ã¢â‚¬Â¢ {count} files Ã¢â‚¬Â¢ {size}"
+    "description": "{date} • {count} files • {size}"
   },
   "@settings_snapshot_no_metadata": {
     "description": "No app metadata available."
@@ -6884,7 +6884,7 @@
     "description": "Snapshot Preview"
   },
   "@settings_snapshot_restore_loading": {
-    "description": "Restoring snapshotÃ¢â‚¬Â¦"
+    "description": "Restoring snapshot…"
   },
   "@settings_snapshots_delete_all": {
     "description": "Delete all snapshots"
@@ -6906,7 +6906,7 @@
     "description": "{count} snapshot(s) deleted."
   },
   "@settings_snapshots_delete_all_loading": {
-    "description": "Deleting all snapshotsÃ¢â‚¬Â¦"
+    "description": "Deleting all snapshots…"
   },
   "@settings_snapshots_delete_all_title": {
     "description": "Delete all snapshots"
@@ -6935,7 +6935,7 @@
     "description": "Refresh snapshots"
   },
   "@settings_snapshots_refresh_loading": {
-    "description": "Refreshing snapshotsÃ¢â‚¬Â¦"
+    "description": "Refreshing snapshots…"
   },
   "@settings_snapshots_title": {
     "description": "Snapshots"
@@ -7024,13 +7024,13 @@
     "description": "Refresh diagnostics"
   },
   "@subscription_active_annual": {
-    "description": "Premium Ã¢â‚¬â€ Annual"
+    "description": "Premium — Annual"
   },
   "@subscription_active_label": {
     "description": "Active plan:"
   },
   "@subscription_active_monthly": {
-    "description": "Premium Ã¢â‚¬â€ Monthly"
+    "description": "Premium — Monthly"
   },
   "@subscription_annual_title": {
     "description": "Annual"
@@ -7428,7 +7428,7 @@
     "description": "Dynamic numeric suggestions"
   },
   "@variable_autocomplete_title": {
-    "description": "Available variables Ã¢â‚¬â€ tap to insert"
+    "description": "Available variables — tap to insert"
   },
   "@variable_category_author": {
     "description": "Author"
@@ -7909,7 +7909,7 @@
         "type": "String"
       }
     },
-    "description": "{count} action(s) Ã¢â‚¬Â¢ Listen for: {event}"
+    "description": "{count} action(s) • Listen for: {event}"
   },
   "@workflows_export_base64": {
     "description": "Copy as Base64"
@@ -8006,7 +8006,7 @@
         "type": "String"
       }
     },
-    "description": "{count} action(s) Ã¢â‚¬Â¢ entry: {entry} Ã¢â‚¬Â¢ args: {args}"
+    "description": "{count} action(s) • entry: {entry} • args: {args}"
   },
   "@workflows_tab": {
     "description": "Workflows"
@@ -8042,7 +8042,7 @@
   "action_add_header": "Add header",
   "action_add_new_item": "Add new item",
   "action_advanced_settings": "Advanced settings",
-  "action_and_more": "Ã¢â‚¬Â¦ and {count} more",
+  "action_and_more": "… and {count} more",
   "action_bulk_import_hint": "Bulk import (Paste headers like Key: Value)",
   "action_cannot_format_json": "Cannot format: Invalid JSON",
   "action_category_channels": "Channels",
@@ -8189,7 +8189,7 @@
   "action_edit_nested_parens": "Edit ({count})",
   "action_edit_param": "Edit {name}",
   "action_edit_raw_json": "Edit Raw JSON",
-  "action_else_if_label": "ELSE IF {index} Ã¢â‚¬â€ actions",
+  "action_else_if_label": "ELSE IF {index} — actions",
   "action_error_continue": "Continue",
   "action_error_stop": "Stop",
   "action_expression": "Expression",
@@ -8200,7 +8200,7 @@
   "action_hint_cooldown_error": "Message to send if on cooldown (supports %time%)",
   "action_hint_cooldown_time": "Duration (e.g. 10s, 5m)",
   "action_hint_duration": "e.g., 5m, 1h, 30s",
-  "action_hint_emoji": "Emoji (e.g. Ã°Å¸ÂªÅ“) or <:name:id>",
+  "action_hint_emoji": "Emoji (e.g. 🪜) or <:name:id>",
   "action_hint_enter_type": "Enter {type}",
   "action_hint_random_choices": "List of choices (separated by ;)",
   "action_hint_random_var": "Variable name to store the result",
@@ -8431,7 +8431,7 @@
   "autocomplete_dynamic": "Dynamic Autocomplete",
   "autocomplete_dynamic_desc": "Resolve choices from a workflow instead of static values.",
   "autocomplete_filter_hint": "Suggestions are filtered by what the user types.",
-  "autocomplete_loading": "Loading workflowsÃ¢â‚¬Â¦",
+  "autocomplete_loading": "Loading workflows…",
   "autocomplete_no_workflows": "No saved workflows found",
   "autocomplete_select_workflow": "Select a saved workflow",
   "autocomplete_type_name": "Or type workflow name",
@@ -8461,42 +8461,42 @@
   "bdfd_docs_category_tickets": "Tickets",
   "bdfd_docs_category_variables": "Variables",
   "bdfd_docs_category_webhooks": "Webhooks",
-  "bdfd_docs_desc_and": "Logical AND Ã¢â‚¬â€ combines multiple conditions. All must be true.\n\nUsage: $if[$and[$authorID==123;$hasRole[456]]]",
+  "bdfd_docs_desc_and": "Logical AND — combines multiple conditions. All must be true.\n\nUsage: $if[$and[$authorID==123;$hasRole[456]]]",
   "bdfd_docs_desc_awaitfunc": "Registers a callback that waits for a user response.\n\nUsage: $awaitFunc[name;userID (opt);channelID (opt)]\n\nThe awaited function is stored and triggered when the target user sends a message in the target channel.",
-  "bdfd_docs_desc_callworkflow": "Bot Creator only Ã¢â‚¬â€ Calls another workflow by name and passes arguments.\n\nSyntax: $callWorkflow[myWorkflow;key1=value1;key2=value2]\n\nThe called workflow can read arguments and return a value via $workflowResponse.",
-  "bdfd_docs_desc_defer": "Defers the interaction response, giving you more time to process. The user sees a \"Bot is thinkingÃ¢â‚¬Â¦\" message. Use before long operations like HTTP requests.",
+  "bdfd_docs_desc_callworkflow": "Bot Creator only — Calls another workflow by name and passes arguments.\n\nSyntax: $callWorkflow[myWorkflow;key1=value1;key2=value2]\n\nThe called workflow can read arguments and return a value via $workflowResponse.",
+  "bdfd_docs_desc_defer": "Defers the interaction response, giving you more time to process. The user sees a \"Bot is thinking…\" message. Use before long operations like HTTP requests.",
   "bdfd_docs_desc_elseif": "Adds an alternative condition inside an $if block. Must appear between $if and $else/$endif.",
-  "bdfd_docs_desc_embedsuppresserrors": "Same as $suppressErrors Ã¢â‚¬â€ suppresses all error messages silently.",
+  "bdfd_docs_desc_embedsuppresserrors": "Same as $suppressErrors — suppresses all error messages silently.",
   "bdfd_docs_desc_ephemeral": "Makes the response visible only to the user who triggered the command. Must be placed before any response content.",
   "bdfd_docs_desc_eval": "Executes a BDFD script string at runtime. The code passed as argument is re-compiled and executed dynamically. Useful for running user-provided or variable-based scripts.",
-  "bdfd_docs_desc_for": "Bot Creator only Ã¢â‚¬â€ Repeats a block of code N times.\n\nSimple: $for[5]...$endfor Ã¢â€ â€™ the body is repeated 5 times (max 100). You can use $i for the current index (starting at 0) and $loopCount for the total.\n\nC-style: $for[i=0;i<10;i++]...$endfor Ã¢â€ â€™ classic for loop with init, condition and update. Supports ++, --, +=, -=, *=.\n\nIf the iteration count is dynamic (e.g. $for[$args[1]]), the loop runs at runtime instead of compile-time.",
+  "bdfd_docs_desc_for": "Bot Creator only — Repeats a block of code N times.\n\nSimple: $for[5]...$endfor → the body is repeated 5 times (max 100). You can use $i for the current index (starting at 0) and $loopCount for the total.\n\nC-style: $for[i=0;i<10;i++]...$endfor → classic for loop with init, condition and update. Supports ++, --, +=, -=, *=.\n\nIf the iteration count is dynamic (e.g. $for[$args[1]]), the loop runs at runtime instead of compile-time.",
   "bdfd_docs_desc_httpaddheader": "Adds a header to the next HTTP request. Headers are accumulated until the next $httpGet/$httpPost/etc.\n\nUsage: $httpAddHeader[Authorization;Bearer token123]",
   "bdfd_docs_desc_httpget": "Sends an HTTP GET request to the given URL. Use $httpAddHeader before to set headers. Use $httpResult to read the response.\n\nAll HTTP methods (GET, POST, PUT, PATCH, DELETE) follow the same pattern.",
   "bdfd_docs_desc_httpresult": "Returns the body of the last HTTP response. Optionally pass a JSON path to extract a specific field.\n\nUsage: $httpResult[] for the full body, or $httpResult[data.name] for a nested field.",
   "bdfd_docs_desc_if": "Conditional block. Supports nesting and rich operators: ==, !=, >=, <=, >, <, contains, startsWith, endsWith, notContains.\n\nUsage:\n$if[$authorID==123456]\n  Hello admin!\n$elseif[$hasRole[789]]\n  Hello member!\n$else\n  Hello guest!\n$endif",
   "bdfd_docs_desc_jsonparse": "Parses a JSON string into memory for manipulation. All JSON operations ($jsonSet, $json, etc.) operate on this parsed context.\n\nStatic JSON is resolved at compile-time for better performance.",
-  "bdfd_docs_desc_jsonset": "Sets a value in the current JSON context. Supports dot-notation paths.\n\nUsage: $jsonSet[user.name;John]\n\nThe change is applied in memory Ã¢â‚¬â€ use $jsonStringify to get the result.",
+  "bdfd_docs_desc_jsonset": "Sets a value in the current JSON context. Supports dot-notation paths.\n\nUsage: $jsonSet[user.name;John]\n\nThe change is applied in memory — use $jsonStringify to get the result.",
   "bdfd_docs_desc_jsonstringify": "Converts the current JSON context back to a string. Use after $jsonParse and $jsonSet operations to output the result.",
-  "bdfd_docs_desc_loop": "Bot Creator only Ã¢â‚¬â€ Alias for $for. See $for for details. Use $endloop to close the block.",
-  "bdfd_docs_desc_or": "Logical OR Ã¢â‚¬â€ combines multiple conditions. At least one must be true.\n\nUsage: $if[$or[$authorID==123;$authorID==456]]]",
+  "bdfd_docs_desc_loop": "Bot Creator only — Alias for $for. See $for for details. Use $endloop to close the block.",
+  "bdfd_docs_desc_or": "Logical OR — combines multiple conditions. At least one must be true.\n\nUsage: $if[$or[$authorID==123;$authorID==456]]]",
   "bdfd_docs_desc_stop": "Immediately stops execution of the current script. No further actions after $stop will run.",
   "bdfd_docs_desc_suppresserrors": "Prevents error messages from being sent to the user. If any action fails, the error is silently suppressed.",
   "bdfd_docs_desc_try": "Wraps a block for error handling.\n\nUsage:\n$try\n  $httpGet[https://api.example.com/data]\n$catch\n  Request failed!\n$endtry\n\nIf any function in the $try block fails, execution jumps to $catch.",
   "bdfd_docs_desc_url": "Encodes or decodes text for use in URLs. Use 'encode' to make text URL-safe, or 'decode' to revert it.\n\nUsage: $url[encode;Hello world!!]",
-  "bdfd_docs_desc_workflowresponse": "Bot Creator only Ã¢â‚¬â€ Returns the response from the last $callWorkflow.\n\nUse $workflowResponse[] for the full response, or $workflowResponse[property] to access a specific field.",
+  "bdfd_docs_desc_workflowresponse": "Bot Creator only — Returns the response from the last $callWorkflow.\n\nUse $workflowResponse[] for the full response, or $workflowResponse[property] to access a specific field.",
   "bdfd_docs_empty": "No matching functions.",
-  "bdfd_docs_no_params": "No parameters Ã¢â‚¬â€ use as $functionName",
+  "bdfd_docs_no_params": "No parameters — use as $functionName",
   "bdfd_docs_parameters": "PARAMETERS",
-  "bdfd_docs_search_hint": "Search functionsÃ¢â‚¬Â¦",
+  "bdfd_docs_search_hint": "Search functions…",
   "bdfd_docs_syntax": "SYNTAX",
   "bdfd_docs_title": "BDFD Docs",
-  "bdfd_editor_auto_indent": "Ã¢â‚¬Â¢ Smart auto indentation on Enter",
+  "bdfd_editor_auto_indent": "• Smart auto indentation on Enter",
   "bdfd_editor_diagnostics_toggle": "Toggle diagnostics panel",
   "bdfd_editor_docs": "BDFD Functions Reference",
-  "bdfd_editor_empty": "Empty script Ã¢â‚¬â€ start typing to see diagnostics.",
+  "bdfd_editor_empty": "Empty script — start typing to see diagnostics.",
   "bdfd_editor_includes": "Includes:",
-  "bdfd_editor_indent_guides": "Ã¢â‚¬Â¢ Live indentation guides",
-  "bdfd_editor_quick_keys": "Ã¢â‚¬Â¢ Mobile quick-keys for BDFD symbols",
+  "bdfd_editor_indent_guides": "• Live indentation guides",
+  "bdfd_editor_quick_keys": "• Mobile quick-keys for BDFD symbols",
   "bdfd_editor_tap_hint": "Tap to open editor",
   "bdfd_editor_title": "BDFD Editor",
   "bdfd_editor_toggle_indent": "Toggle indentation guides",
@@ -8522,7 +8522,7 @@
   "bot_home_service_not_started": "Foreground service did not start.",
   "bot_home_start": "Start Bot",
   "bot_home_start_error": "Could not start: {error}",
-  "bot_home_starting": "StartingÃ¢â‚¬Â¦",
+  "bot_home_starting": "Starting…",
   "bot_home_stop": "Stop Bot",
   "bot_home_sync": "Sync App",
   "bot_home_sync_success": "App synced successfully",
@@ -8545,7 +8545,7 @@
   "bot_home_pull_dialog_new_commands": "new command(s)",
   "bot_home_pull_dialog_remote": "Remote (Cloud)",
   "bot_home_pull_dialog_unchanged": "unchanged",
-  "bot_home_pull_dialog_up_to_date": "Already up to date Ã¢â‚¬â€ no changes needed.",
+  "bot_home_pull_dialog_up_to_date": "Already up to date — no changes needed.",
   "bot_home_pull_dialog_updated_commands": "updated command(s)",
   "bot_home_push_refused_empty": "Refusing to push: local config is empty or corrupted. Check your commands.",
   "bot_home_token_invalid_content": "The token seems to have been reset. Please provide the new token from the Discord Developer Portal. Do you want to start the bot anyway?",
@@ -8608,13 +8608,13 @@
   "bot_settings_lavalink_port": "Port",
   "bot_settings_lavalink_port_hint": "2333",
   "bot_settings_lavalink_premium_banner_desc": "Unlock Lavalink audio support for your bot.",
-  "bot_settings_lavalink_premium_banner_title": "Ã°Å¸â€â€™ Available with Bot Creator PREMIUM",
+  "bot_settings_lavalink_premium_banner_title": "🔒 Available with Bot Creator PREMIUM",
   "bot_settings_lavalink_public_servers": "Public servers",
   "bot_settings_lavalink_save_btn": "Save",
   "bot_settings_lavalink_save_caption": "Save this configuration so the bot can connect to the Lavalink server.",
   "bot_settings_lavalink_section_title": "Lavalink Server",
   "bot_settings_lavalink_server_picker_title": "Public Lavalink Servers",
-  "bot_settings_lavalink_server_subtitle": "Port {port} Ã¢â‚¬â€ {version}",
+  "bot_settings_lavalink_server_subtitle": "Port {port} — {version}",
   "bot_settings_lavalink_servers_available": "{count} servers available",
   "bot_settings_lavalink_ssl": "Use SSL/TLS",
   "bot_settings_lavalink_ssl_subtitle": "Secure wss:// connection",
@@ -8672,7 +8672,7 @@
   "bot_settings_username_override": "Username override",
   "bot_settings_workflow_docs": "Documentation Center",
   "bot_settings_workflow_docs_desc": "Centralized documentation for commands, workflows, runtime variables, and execution behavior.",
-  "bot_stats_collecting": "CollectingÃ¢â‚¬Â¦",
+  "bot_stats_collecting": "Collecting…",
   "bot_stats_cpu": "Bot process CPU",
   "bot_stats_notes": "Notes: CPU available on Android/Linux. Storage = bot data files in the app.",
   "bot_stats_ram_estimated": "Bot RAM only (estimated)",
@@ -8729,7 +8729,7 @@
   "cmd_editor_mode_simple_desc": "Build a command quickly with guided options and preconfigured actions.",
   "cmd_editor_mode_switch_adv": "Switch to advanced mode",
   "cmd_editor_mode_switch_adv_confirm": "Switch",
-  "cmd_editor_mode_switch_adv_content": "This switch is one-way for this command. You wonÃ¢â‚¬â„¢t be able to return to simplified mode.",
+  "cmd_editor_mode_switch_adv_content": "This switch is one-way for this command. You won’t be able to return to simplified mode.",
   "cmd_editor_mode_switch_adv_title": "Switch to advanced mode?",
   "cmd_editor_mode_title": "Editing mode",
   "cmd_error_fill_fields": "Please fill all fields",
@@ -8841,7 +8841,7 @@
   "cmd_simple_response_desc": "Message sent back to the user after actions are executed.",
   "cmd_simple_response_embeds_desc": "Optional embeds sent with the final response.",
   "cmd_simple_response_embeds_title": "Response embeds",
-  "cmd_simple_response_hint": "Done Ã¢Å“â€¦",
+  "cmd_simple_response_hint": "Done ✅",
   "cmd_simple_response_title": "Final response",
   "cmd_simple_response_visibility_ephemeral": "Ephemeral",
   "cmd_simple_response_visibility_label": "Response visibility",
@@ -9051,7 +9051,7 @@
   "confirm": "Confirm",
   "copy": "Copy",
   "create": "Create",
-  "dart_editor_empty": "Empty script Ã¢â‚¬â€ start typing to see Dart diagnostics.",
+  "dart_editor_empty": "Empty script — start typing to see Dart diagnostics.",
   "dart_editor_tap_hint": "Tap to open Dart editor",
   "dart_editor_title": "Dart Editor",
   "dashboard_analysis_period": "Analysis Period",
@@ -9082,7 +9082,7 @@
   "debug_replay_clear_confirm": "All recorded replays will be deleted. Continue?",
   "debug_replay_clear_title": "Clear replays",
   "debug_replay_duration_label": "DURATION",
-  "debug_replay_empty_capturing": "CapturingÃ¢â‚¬Â¦ Run a command to record a replay.",
+  "debug_replay_empty_capturing": "Capturing… Run a command to record a replay.",
   "debug_replay_empty_idle": "Capture is off. Enable it and run a command to record a replay.",
   "debug_replay_loop_info": "Loop depth {depth}, iteration {iteration}",
   "debug_replay_overview": "Overview",
@@ -9124,7 +9124,7 @@
   "doc_action_run_workflow_subtitle": "Calls another workflow with entry point and arguments.",
   "doc_action_run_workflow_summary": "Core composition primitive to split business logic into reusable units.",
   "doc_action_run_workflow_title": "Action: runWorkflow",
-  "doc_action_stop_unless_example": "condition.variable = ((reaction.emoji.name))\ncondition.operator = equals\ncondition.value = Ã¢Å“â€¦",
+  "doc_action_stop_unless_example": "condition.variable = ((reaction.emoji.name))\ncondition.operator = equals\ncondition.value = ✅",
   "doc_action_stop_unless_format_l1": "You can use raw keys: message.content[0]",
   "doc_action_stop_unless_format_l2": "You can use wrapped variables: ((message.content[0]))",
   "doc_action_stop_unless_format_l3": "Both are resolved by runtime.",
@@ -9171,7 +9171,7 @@
   "doc_event_reaction_add_best_use_l1": "Approve/reject flows with unicode emoji.",
   "doc_event_reaction_add_best_use_l2": "Multi-step polls using custom emoji IDs.",
   "doc_event_reaction_add_best_use_l3": "Quick moderation signals from staff channels.",
-  "doc_event_reaction_add_example": "Guard: ((reaction.emoji.name)) equals Ã¢Å“â€¦\nAction: addRole -> user=((userId)) role=((global.approvedRoleId))",
+  "doc_event_reaction_add_example": "Guard: ((reaction.emoji.name)) equals ✅\nAction: addRole -> user=((userId)) role=((global.approvedRoleId))",
   "doc_event_reaction_add_intent": "Guild Message Reactions",
   "doc_event_reaction_add_notes_l1": "reaction.emoji.id can be empty for unicode emoji.",
   "doc_event_reaction_add_notes_l2": "Use reaction.emoji.name for generic matching.",
@@ -9408,7 +9408,7 @@
   "globals_empty": "No global variables yet",
   "globals_empty_subtitle": "Add a variable to store persistent data accessible by all commands.",
   "globals_help_global": "Shared across all commands. Access via $getVar[key].",
-  "globals_help_scoped": "Stored per context (server, user, channelÃ¢â‚¬Â¦). Each entry keeps a distinct value per Discord context.",
+  "globals_help_scoped": "Stored per context (server, user, channel…). Each entry keeps a distinct value per Discord context.",
   "globals_key": "Key",
   "globals_key_hint": "e.g. prefix, level, welcome_message",
   "globals_mode_global": "Global",
@@ -9421,7 +9421,7 @@
   "globals_scope_guildMember": "guildMember",
   "globals_scope_message": "message",
   "globals_scope_user": "user",
-  "globals_search": "Search variablesÃ¢â‚¬Â¦",
+  "globals_search": "Search variables…",
   "globals_source_local": "Local",
   "globals_source_runner": "Runner: {name}",
   "globals_tab": "Globals",
@@ -9436,7 +9436,7 @@
   "guilds_leave_tooltip": "Leave",
   "guilds_left_success": "Left \"{name}\".",
   "guilds_members_count_other": "~{count} members",
-  "guilds_owner_label": "Ã°Å¸â€˜â€˜ Owner",
+  "guilds_owner_label": "👑 Owner",
   "guilds_server_count_other": "{count} servers",
   "guilds_tab": "Servers",
   "guilds_tab_short": "Servers",
@@ -9518,7 +9518,7 @@
   "marketplace_apply_success": "Template applied successfully!",
   "marketplace_apply_success_skipped": "{addedCount} command(s) added, {skippedCount} skipped (duplicates).",
   "marketplace_applying": "Applying...",
-  "marketplace_by_author": "by {author} Ã‚Â· v{version}",
+  "marketplace_by_author": "by {author} · v{version}",
   "marketplace_cancel": "Cancel",
   "marketplace_command_preview_actions": "{count} actions",
   "marketplace_command_preview_no_actions": "No actions",
@@ -9628,7 +9628,7 @@
   "ok": "OK",
   "onboarding_command_button": "Continue",
   "onboarding_command_desc": "Create your first command",
-  "onboarding_command_example": "Example:\n/hello Ã¢â€ â€™ Bot replies \"Hello! Ã°Å¸â€˜â€¹\"",
+  "onboarding_command_example": "Example:\n/hello → Bot replies \"Hello! 👋\"",
   "onboarding_command_learn": "Learn how commands work",
   "onboarding_command_text": "Commands are the heart of your bot. They allow users to interact with your bot via Discord.",
   "onboarding_command_title": "Step 2: Add a Command",
@@ -9636,7 +9636,7 @@
   "onboarding_create_desc": "Get your Discord token",
   "onboarding_create_open_portal": "Open Discord Developer Portal",
   "onboarding_create_steps": "1. Go to Discord Developer Portal\n2. Create a new app\n3. Copy the bot token\n4. Paste it below",
-  "onboarding_create_tip": "Ã°Å¸â€™Â¡ Tip: Never share your token! It gives full access to your bot.",
+  "onboarding_create_tip": "💡 Tip: Never share your token! It gives full access to your bot.",
   "onboarding_create_title": "Step 1: Create a Bot",
   "onboarding_create_tutorial": "Tutorial: How to get a token",
   "onboarding_remind_later": "Remind me later",
@@ -9647,7 +9647,7 @@
   "onboarding_start_desc": "Launch your bot!",
   "onboarding_start_hint": "Once your bot is created, you'll find the Start button on its card in the app.",
   "onboarding_start_text": "Click the \"Start\" button on your bot card. Then test your command in Discord!",
-  "onboarding_start_tip": "Ã¢Å“Â¨ Great! You've created your first Discord bot. You can now add more commands and customize it!",
+  "onboarding_start_tip": "✨ Great! You've created your first Discord bot. You can now add more commands and customize it!",
   "onboarding_start_title": "Step 3: Start the Bot",
   "onboarding_step_indicator": "Step {current} of {total}",
   "onboarding_success_button": "Start!",
@@ -9655,7 +9655,7 @@
   "onboarding_success_tip1": "Add more commands",
   "onboarding_success_tip2": "Create workflows",
   "onboarding_success_tip3": "Backup your data",
-  "onboarding_success_title": "Congratulations! Ã°Å¸Å½â€°",
+  "onboarding_success_title": "Congratulations! 🎉",
   "onboarding_success_whatsnext": "What's next?",
   "onboarding_welcome_desc": "Create your first Discord bot in 3 simple steps. We'll guide you through each step.",
   "onboarding_welcome_skip": "Skip",
@@ -9724,7 +9724,7 @@
   "reply_configure_workflow": "Configure Response Workflow",
   "reply_editor_title": "Reply Details",
   "reply_mode_layout": "Layout Mode",
-  "reply_mode_layout_desc": "Discord's rich layout system Ã¢â‚¬â€ containers, media, text & forms",
+  "reply_mode_layout_desc": "Discord's rich layout system — containers, media, text & forms",
   "reply_mode_modal": "Modal Form",
   "reply_mode_modal_desc": "Pop-up dialog with text input fields",
   "reply_mode_standard": "Standard Message",
@@ -9802,7 +9802,7 @@
   "scheduler_no_workflows": "Create at least one workflow before adding a schedule.",
   "scheduler_page_title": "Scheduler",
   "scheduler_save_failed": "Failed to save schedule: {error}",
-  "scheduler_subtitle": "Workflow: {workflow} Ã¢â‚¬Â¢ Every {minutes} min",
+  "scheduler_subtitle": "Workflow: {workflow} • Every {minutes} min",
   "scheduler_tab": "Scheduler",
   "scheduler_tab_short": "Sched",
   "scheduler_triggers_count": "Triggers: {count}{limit}",
@@ -9811,15 +9811,15 @@
   "scoped_delete_confirm": "Delete \"{key}\" and all its stored runtime data?",
   "scoped_delete_title": "Delete Scoped Variable",
   "scoped_empty": "No scoped variables defined",
-  "scoped_empty_subtitle": "Scoped variables store a value per Discord context (user, serverÃ¢â‚¬Â¦). They are populated by the bot at runtime.",
+  "scoped_empty_subtitle": "Scoped variables store a value per Discord context (user, server…). They are populated by the bot at runtime.",
   "scoped_explore_runtime": "Explore runtime data",
   "scoped_ref": "Reference: {ref}",
   "scoped_ref_legacy": "Legacy: {ref}",
   "scoped_runtime_copy_all": "Copy all",
   "scoped_runtime_empty": "No runtime data.\nThis key will be populated by the bot at execution.",
-  "scoped_runtime_search": "Search by ID or nameÃ¢â‚¬Â¦",
-  "scoped_runtime_subtitle": "Scope: {scope} Ã‚Â· {count} context(s) found",
-  "scoped_runtime_title": "Runtime data Ã¢â‚¬â€ \"{key}\"",
+  "scoped_runtime_search": "Search by ID or name…",
+  "scoped_runtime_subtitle": "Scope: {scope} · {count} context(s) found",
+  "scoped_runtime_title": "Runtime data — \"{key}\"",
   "scoped_scope": "Scope",
   "scoped_scope_help": "The entity level at which the variable is stored.",
   "scoped_title": "Scoped Variables",
@@ -9916,7 +9916,7 @@
   "settings_ads_privacy_opened": "Ad privacy options opened",
   "settings_app_version": "App",
   "settings_appearance_title": "Appearance & language",
-  "settings_auto_backup_check_loading": "Auto-backup checkÃ¢â‚¬Â¦",
+  "settings_auto_backup_check_loading": "Auto-backup check…",
   "settings_auto_backup_every_12h": "Every 12h",
   "settings_auto_backup_every_24h": "Every 24h",
   "settings_auto_backup_every_6h": "Every 6h",
@@ -9987,11 +9987,11 @@
   "settings_diagnostics_page_title": "Application Logs",
   "settings_diagnostics_refresh": "Refresh logs",
   "settings_diagnostics_section_title": "Diagnostics",
-  "settings_discord_rpc_authenticating": "Authenticating with DiscordÃ¢â‚¬Â¦",
+  "settings_discord_rpc_authenticating": "Authenticating with Discord…",
   "settings_discord_rpc_authorization_code_pending_exchange": "Authorization code cached; retry to finish the token exchange",
   "settings_discord_rpc_authorization_pending_exchange": "Authorization code received",
   "settings_discord_rpc_authorize": "Authorize",
-  "settings_discord_rpc_authorizing": "Waiting for Discord authorizationÃ¢â‚¬Â¦",
+  "settings_discord_rpc_authorizing": "Waiting for Discord authorization…",
   "settings_discord_rpc_broker_hint": "https://auth.example.com",
   "settings_discord_rpc_broker_label": "OAuth broker URL (advanced, optional)",
   "settings_discord_rpc_broker_required": "Client ID is enough for the public-client flow; broker URL and client secret are optional fallbacks",
@@ -10004,7 +10004,7 @@
   "settings_discord_rpc_complete_authorization": "Complete authorization",
   "settings_discord_rpc_connect": "Refresh presence",
   "settings_discord_rpc_connected": "Presence sent to Discord",
-  "settings_discord_rpc_connecting": "Connecting to DiscordÃ¢â‚¬Â¦",
+  "settings_discord_rpc_connecting": "Connecting to Discord…",
   "settings_discord_rpc_desc": "Publish Bot Creator desktop activity to the local Discord client. Bot Creator always uses the built-in Discord application and sends SET_ACTIVITY directly over local IPC when enabled.",
   "settings_discord_rpc_disabled": "Disabled",
   "settings_discord_rpc_disconnect": "Close IPC",
@@ -10013,7 +10013,7 @@
   "settings_discord_rpc_enable_first": "Enable Discord Rich Presence first",
   "settings_discord_rpc_endpoint": "IPC endpoint: {endpoint}",
   "settings_discord_rpc_error": "Discord RPC error",
-  "settings_discord_rpc_exchanging_code": "Completing OAuth exchangeÃ¢â‚¬Â¦",
+  "settings_discord_rpc_exchanging_code": "Completing OAuth exchange…",
   "settings_discord_rpc_ipc_connected_auth_required": "Local Discord IPC connected; no OAuth HTTP request sent yet, authentication still required",
   "settings_discord_rpc_ipc_open": "Local IPC already open",
   "settings_discord_rpc_last_error": "Last error: {error}",
@@ -10027,11 +10027,11 @@
   "settings_discord_rpc_transport_unsupported": "Discord transport is not supported on this platform yet",
   "settings_discord_rpc_user": "Authorized user: {user}",
   "settings_drive_connect": "Connect to Google Drive",
-  "settings_drive_connect_loading": "Connecting to Google DriveÃ¢â‚¬Â¦",
+  "settings_drive_connect_loading": "Connecting to Google Drive…",
   "settings_drive_connected": "Connected to Google Drive",
   "settings_drive_desc": "Connect your Google Drive account to sync your data",
   "settings_drive_disconnect": "Disconnect",
-  "settings_drive_disconnect_loading": "DisconnectingÃ¢â‚¬Â¦",
+  "settings_drive_disconnect_loading": "Disconnecting…",
   "settings_drive_disconnected": "Disconnected from Google Drive",
   "settings_drive_status_connected": "Connected",
   "settings_drive_title": "Google Drive Connection",
@@ -10045,10 +10045,10 @@
   "settings_execution_mode_use_runner": "Use a self-hosted runner",
   "settings_export": "Export",
   "settings_export_app_data": "Export App Data",
-  "settings_export_loading": "ExportingÃ¢â‚¬Â¦",
+  "settings_export_loading": "Exporting…",
   "settings_import": "Import",
   "settings_import_app_data": "Import App Data",
-  "settings_import_loading": "ImportingÃ¢â‚¬Â¦",
+  "settings_import_loading": "Importing…",
   "settings_language_desc": "Choose the language used by the app.",
   "settings_language_system": "Automatic (device)",
   "settings_language_title": "Language",
@@ -10067,7 +10067,7 @@
   "settings_main_api_clear": "Clear",
   "settings_main_api_cleared": "Bot Creator Server settings cleared",
   "settings_main_api_connect_discord": "Connect Discord account",
-  "settings_main_api_connected": "Bot Creator Server reachable Ã¢Å“â€œ",
+  "settings_main_api_connected": "Bot Creator Server reachable ✓",
   "settings_main_api_connected_discord": "Discord account connected",
   "settings_main_api_connected_user": "Connected as {user}",
   "settings_main_api_desc": "Connect Bot Creator to your Bot Creator Server and sign in with Discord. The Discord client secret must stay on the backend.",
@@ -10120,8 +10120,8 @@
   "settings_runner_check": "Check connection",
   "settings_runner_clear": "Clear",
   "settings_runner_cleared": "Runner settings cleared",
-  "settings_runner_connected": "Runner reachable Ã¢Å“â€œ",
-  "settings_runner_connecting": "Checking connectionÃ¢â‚¬Â¦",
+  "settings_runner_connected": "Runner reachable ✓",
+  "settings_runner_connecting": "Checking connection…",
   "settings_runner_desc": "Connect the app to a Bot Creator Runner. Remote runners should stay on trusted networks and use a bearer token.",
   "settings_runner_disable_temp": "Temporarily disable Runner",
   "settings_runner_disable_temp_desc": "Keep Runner settings but force local mode until re-enabled.",
@@ -10144,22 +10144,22 @@
   "settings_runner_version": "Runner",
   "settings_snapshot_apps_count": "Apps: {count}",
   "settings_snapshot_apps_list": "Apps in this snapshot",
-  "settings_snapshot_create_loading": "Creating snapshotÃ¢â‚¬Â¦",
+  "settings_snapshot_create_loading": "Creating snapshot…",
   "settings_snapshot_created_at": "Created: {date}",
   "settings_snapshot_created_message": "Snapshot created: {id}",
-  "settings_snapshot_delete_loading": "Deleting snapshotÃ¢â‚¬Â¦",
+  "settings_snapshot_delete_loading": "Deleting snapshot…",
   "settings_snapshot_deleted": "Snapshot deleted",
-  "settings_snapshot_files_size": "Files: {count} Ã¢â‚¬Â¢ Size: {size}",
+  "settings_snapshot_files_size": "Files: {count} • Size: {size}",
   "settings_snapshot_id": "ID: {id}",
   "settings_snapshot_label": "Label: {label}",
-  "settings_snapshot_list_entry": "{date} Ã¢â‚¬Â¢ {count} files Ã¢â‚¬Â¢ {size}",
+  "settings_snapshot_list_entry": "{date} • {count} files • {size}",
   "settings_snapshot_no_metadata": "No app metadata available.",
   "settings_snapshot_preview_title": "Snapshot Preview",
-  "settings_snapshot_restore_loading": "Restoring snapshotÃ¢â‚¬Â¦",
+  "settings_snapshot_restore_loading": "Restoring snapshot…",
   "settings_snapshots_delete_all": "Delete all snapshots",
   "settings_snapshots_delete_all_confirm": "Permanently delete {count} snapshot(s)? This action cannot be undone.",
   "settings_snapshots_delete_all_done": "{count} snapshot(s) deleted.",
-  "settings_snapshots_delete_all_loading": "Deleting all snapshotsÃ¢â‚¬Â¦",
+  "settings_snapshots_delete_all_loading": "Deleting all snapshots…",
   "settings_snapshots_delete_all_title": "Delete all snapshots",
   "settings_snapshots_delete_one_confirm": "Permanently delete \"{label}\"? This action cannot be undone.",
   "settings_snapshots_delete_select_desc": "Select the snapshot to remove (oldest first).",
@@ -10167,7 +10167,7 @@
   "settings_snapshots_delete_select_tooltip": "Delete a selected snapshot",
   "settings_snapshots_empty": "No snapshots found yet.",
   "settings_snapshots_refresh": "Refresh snapshots",
-  "settings_snapshots_refresh_loading": "Refreshing snapshotsÃ¢â‚¬Â¦",
+  "settings_snapshots_refresh_loading": "Refreshing snapshots…",
   "settings_snapshots_title": "Snapshots",
   "settings_solo_pill": "SOLO",
   "settings_startup_mode_cloud_desc": "Recommended on Android and iOS. Logs, stats, and startup all go through Bot Creator.",
@@ -10195,9 +10195,9 @@
   "startup_error_title": "Startup Error",
   "startup_failed_message": "Bot Creator failed to start on this device.",
   "startup_refresh_diagnostics": "Refresh diagnostics",
-  "subscription_active_annual": "Premium Ã¢â‚¬â€ Annual",
+  "subscription_active_annual": "Premium — Annual",
   "subscription_active_label": "Active plan:",
-  "subscription_active_monthly": "Premium Ã¢â‚¬â€ Monthly",
+  "subscription_active_monthly": "Premium — Monthly",
   "subscription_annual_title": "Annual",
   "subscription_benefit_fast_start": "Bots start instantly, no popup",
   "subscription_benefit_no_ads": "No ads anywhere in the app",
@@ -10307,7 +10307,7 @@
   "validation_option_subcommand_depth": "SubCommand nesting depth exceeds Discord limits.",
   "validation_option_subcommand_no_nested": "A SubCommand cannot contain nested SubCommand or SubCommandGroup.",
   "variable_autocomplete_numeric_title": "Dynamic numeric suggestions",
-  "variable_autocomplete_title": "Available variables Ã¢â‚¬â€ tap to insert",
+  "variable_autocomplete_title": "Available variables — tap to insert",
   "variable_category_author": "Author",
   "variable_category_bot": "Bot",
   "variable_category_channel": "Channel",
@@ -10444,7 +10444,7 @@
   "workflows_event_message_update_desc": "Triggered whenever an existing message is edited.",
   "workflows_event_preview": "Listen for: {event}",
   "workflows_event_section": "Event Workflows",
-  "workflows_event_subtitle": "{count} action(s) Ã¢â‚¬Â¢ Listen for: {event}",
+  "workflows_event_subtitle": "{count} action(s) • Listen for: {event}",
   "workflows_export_base64": "Copy as Base64",
   "workflows_export_base64_desc": "Convenient for compact sharing.",
   "workflows_export_json": "Copy as JSON",
@@ -10471,7 +10471,7 @@
   "workflows_no_matches": "No workflows match the current filters.",
   "workflows_remove_from_folder": "Remove from folder",
   "workflows_search_hint": "Search workflows...",
-  "workflows_subtitle": "{count} action(s) Ã¢â‚¬Â¢ entry: {entry} Ã¢â‚¬Â¢ args: {args}",
+  "workflows_subtitle": "{count} action(s) • entry: {entry} • args: {args}",
   "workflows_tab": "Workflows",
   "workflows_tab_short": "Flow",
   "workflows_title": "Workflows",
@@ -10600,125 +10600,293 @@
   "onboarding_create_now": "Create my bot now",
   "onboarding_command_now": "Create your first command",
   "container_list_title": "Hosted Applications",
-  "@container_list_title": { "description": "Title of the container list page" },
+  "@container_list_title": {
+    "description": "Title of the container list page"
+  },
   "container_list_session_missing": "Session not available",
-  "@container_list_session_missing": { "description": "Shown when no API session is found" },
+  "@container_list_session_missing": {
+    "description": "Shown when no API session is found"
+  },
   "container_list_session_hint": "Please connect to your account first.",
-  "@container_list_session_hint": { "description": "Hint below the session error" },
+  "@container_list_session_hint": {
+    "description": "Hint below the session error"
+  },
   "container_list_error": "Failed to load containers",
-  "@container_list_error": { "description": "Error message when container list fails to load" },
+  "@container_list_error": {
+    "description": "Error message when container list fails to load"
+  },
   "container_list_retry": "Retry",
-  "@container_list_retry": { "description": "Retry button label" },
+  "@container_list_retry": {
+    "description": "Retry button label"
+  },
   "container_list_empty": "No hosted applications",
-  "@container_list_empty": { "description": "Empty state title" },
+  "@container_list_empty": {
+    "description": "Empty state title"
+  },
   "container_list_empty_hint": "Deploy your first application to get started.",
-  "@container_list_empty_hint": { "description": "Empty state description" },
+  "@container_list_empty_hint": {
+    "description": "Empty state description"
+  },
   "container_list_deploy_btn": "Deploy Application",
-  "@container_list_deploy_btn": { "description": "Button to deploy a new container" },
+  "@container_list_deploy_btn": {
+    "description": "Button to deploy a new container"
+  },
   "container_list_expired": "Expired",
-  "@container_list_expired": { "description": "Label when a container has expired" },
+  "@container_list_expired": {
+    "description": "Label when a container has expired"
+  },
   "container_list_expiry_minutes": "{minutes}m left",
-  "@container_list_expiry_minutes": { "description": "Container expiry in minutes", "placeholders": { "minutes": { "type": "int" } } },
+  "@container_list_expiry_minutes": {
+    "description": "Container expiry in minutes",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
   "container_list_expiry_hours": "{hours}h {minutes}m left",
-  "@container_list_expiry_hours": { "description": "Container expiry in hours and minutes", "placeholders": { "hours": { "type": "int" }, "minutes": { "type": "int" } } },
+  "@container_list_expiry_hours": {
+    "description": "Container expiry in hours and minutes",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
   "container_list_expiry_days": "{days}d {hours}h left",
-  "@container_list_expiry_days": { "description": "Container expiry in days and hours", "placeholders": { "days": { "type": "int" }, "hours": { "type": "int" } } },
+  "@container_list_expiry_days": {
+    "description": "Container expiry in days and hours",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
   "container_deploy_title": "Deploy Application",
-  "@container_deploy_title": { "description": "Title of the deploy container page" },
+  "@container_deploy_title": {
+    "description": "Title of the deploy container page"
+  },
   "container_deploy_image_label": "Image",
-  "@container_deploy_image_label": { "description": "Label for the Docker image field" },
+  "@container_deploy_image_label": {
+    "description": "Label for the Docker image field"
+  },
   "container_deploy_image_hint": "Docker image name with tag",
-  "@container_deploy_image_hint": { "description": "Helper text for the image field" },
+  "@container_deploy_image_hint": {
+    "description": "Helper text for the image field"
+  },
   "container_deploy_image_required": "Image is required",
-  "@container_deploy_image_required": { "description": "Validation error when image is empty" },
+  "@container_deploy_image_required": {
+    "description": "Validation error when image is empty"
+  },
   "container_deploy_cpu_label": "CPU (millis)",
-  "@container_deploy_cpu_label": { "description": "Label for CPU field" },
+  "@container_deploy_cpu_label": {
+    "description": "Label for CPU field"
+  },
   "container_deploy_cpu_min": "Min 128",
-  "@container_deploy_cpu_min": { "description": "Validation minimum for CPU" },
+  "@container_deploy_cpu_min": {
+    "description": "Validation minimum for CPU"
+  },
   "container_deploy_memory_label": "Memory (MB)",
-  "@container_deploy_memory_label": { "description": "Label for memory field" },
+  "@container_deploy_memory_label": {
+    "description": "Label for memory field"
+  },
   "container_deploy_memory_min": "Min 128 MB",
-  "@container_deploy_memory_min": { "description": "Validation minimum for memory" },
+  "@container_deploy_memory_min": {
+    "description": "Validation minimum for memory"
+  },
   "container_deploy_storage_label": "Storage (GB)",
-  "@container_deploy_storage_label": { "description": "Label for storage field" },
+  "@container_deploy_storage_label": {
+    "description": "Label for storage field"
+  },
   "container_deploy_storage_min": "Min 1 GB",
-  "@container_deploy_storage_min": { "description": "Validation minimum for storage" },
+  "@container_deploy_storage_min": {
+    "description": "Validation minimum for storage"
+  },
   "container_deploy_ttl_label": "TTL (minutes)",
-  "@container_deploy_ttl_label": { "description": "Label for TTL field" },
+  "@container_deploy_ttl_label": {
+    "description": "Label for TTL field"
+  },
   "container_deploy_ttl_min": "Min 1 minute",
-  "@container_deploy_ttl_min": { "description": "Validation minimum for TTL" },
+  "@container_deploy_ttl_min": {
+    "description": "Validation minimum for TTL"
+  },
   "container_deploy_env_label": "Environment Variables",
-  "@container_deploy_env_label": { "description": "Section label for environment variables" },
+  "@container_deploy_env_label": {
+    "description": "Section label for environment variables"
+  },
   "container_deploy_env_key_hint": "KEY",
-  "@container_deploy_env_key_hint": { "description": "Hint for environment variable key input" },
+  "@container_deploy_env_key_hint": {
+    "description": "Hint for environment variable key input"
+  },
   "container_deploy_env_value_hint": "value",
-  "@container_deploy_env_value_hint": { "description": "Hint for environment variable value input" },
+  "@container_deploy_env_value_hint": {
+    "description": "Hint for environment variable value input"
+  },
   "container_deploy_submit": "Deploy",
-  "@container_deploy_submit": { "description": "Submit button label on deploy form" },
+  "@container_deploy_submit": {
+    "description": "Submit button label on deploy form"
+  },
   "container_deploy_submitting": "Deploying...",
-  "@container_deploy_submitting": { "description": "Button label while deploy is in progress" },
+  "@container_deploy_submitting": {
+    "description": "Button label while deploy is in progress"
+  },
   "container_deploy_not_auth": "Not authenticated",
-  "@container_deploy_not_auth": { "description": "Error when user is not authenticated" },
+  "@container_deploy_not_auth": {
+    "description": "Error when user is not authenticated"
+  },
   "container_deploy_success": "Deploying {containerId}...",
-  "@container_deploy_success": { "description": "Snackbar after successful deploy request", "placeholders": { "containerId": { "type": "String" } } },
+  "@container_deploy_success": {
+    "description": "Snackbar after successful deploy request",
+    "placeholders": {
+      "containerId": {
+        "type": "String"
+      }
+    }
+  },
   "container_deploy_failed": "Deployment failed: {error}",
-  "@container_deploy_failed": { "description": "Snackbar when deploy fails", "placeholders": { "error": { "type": "String" } } },
+  "@container_deploy_failed": {
+    "description": "Snackbar when deploy fails",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "container_detail_state": "State",
-  "@container_detail_state": { "description": "Label for container state" },
+  "@container_detail_state": {
+    "description": "Label for container state"
+  },
   "container_detail_expires": "Expires",
-  "@container_detail_expires": { "description": "Label for container expiry" },
+  "@container_detail_expires": {
+    "description": "Label for container expiry"
+  },
   "container_detail_extend_ttl": "Extend TTL",
-  "@container_detail_extend_ttl": { "description": "Button and dialog title for extending TTL" },
+  "@container_detail_extend_ttl": {
+    "description": "Button and dialog title for extending TTL"
+  },
   "container_detail_stop_title": "Stop Container",
-  "@container_detail_stop_title": { "description": "Title of the stop container dialog" },
+  "@container_detail_stop_title": {
+    "description": "Title of the stop container dialog"
+  },
   "container_detail_stop_confirm": "This will terminate the container and its data will be lost.",
-  "@container_detail_stop_confirm": { "description": "Confirmation message for stopping a container" },
+  "@container_detail_stop_confirm": {
+    "description": "Confirmation message for stopping a container"
+  },
   "container_detail_stop_btn": "Stop",
-  "@container_detail_stop_btn": { "description": "Confirm button in stop dialog" },
+  "@container_detail_stop_btn": {
+    "description": "Confirm button in stop dialog"
+  },
   "container_detail_stopped_ok": "Container stopped",
-  "@container_detail_stopped_ok": { "description": "Snackbar after container is stopped" },
+  "@container_detail_stopped_ok": {
+    "description": "Snackbar after container is stopped"
+  },
   "container_detail_update_resources": "Update Resources",
-  "@container_detail_update_resources": { "description": "Button and dialog title for updating resources" },
+  "@container_detail_update_resources": {
+    "description": "Button and dialog title for updating resources"
+  },
   "container_detail_update_btn": "Update",
-  "@container_detail_update_btn": { "description": "Confirm button in update resources dialog" },
+  "@container_detail_update_btn": {
+    "description": "Confirm button in update resources dialog"
+  },
   "container_detail_updated_ok": "Resources updated",
-  "@container_detail_updated_ok": { "description": "Snackbar after resources are updated" },
+  "@container_detail_updated_ok": {
+    "description": "Snackbar after resources are updated"
+  },
   "container_detail_extend_hint": "Minutes to add",
-  "@container_detail_extend_hint": { "description": "Hint for the TTL extension input field" },
+  "@container_detail_extend_hint": {
+    "description": "Hint for the TTL extension input field"
+  },
   "container_detail_extend_btn": "Extend",
-  "@container_detail_extend_btn": { "description": "Confirm button in extend TTL dialog" },
+  "@container_detail_extend_btn": {
+    "description": "Confirm button in extend TTL dialog"
+  },
   "container_detail_extended_ok": "TTL extended",
-  "@container_detail_extended_ok": { "description": "Snackbar after TTL is extended" },
+  "@container_detail_extended_ok": {
+    "description": "Snackbar after TTL is extended"
+  },
   "container_detail_console": "Console",
-  "@container_detail_console": { "description": "Label for the container console section" },
+  "@container_detail_console": {
+    "description": "Label for the container console section"
+  },
   "container_detail_deploying": "Container is being deployed...",
-  "@container_detail_deploying": { "description": "Message shown while container is being deployed" },
+  "@container_detail_deploying": {
+    "description": "Message shown while container is being deployed"
+  },
   "container_detail_status_stopped": "This container is {state}.",
-  "@container_detail_status_stopped": { "description": "Message when container is stopped or failed", "placeholders": { "state": { "type": "String" } } },
+  "@container_detail_status_stopped": {
+    "description": "Message when container is stopped or failed",
+    "placeholders": {
+      "state": {
+        "type": "String"
+      }
+    }
+  },
   "container_detail_not_connected": "Not connected",
-  "@container_detail_not_connected": { "description": "Placeholder when no client is available" },
+  "@container_detail_not_connected": {
+    "description": "Placeholder when no client is available"
+  },
   "container_detail_console_connecting": "Connecting...",
-  "@container_detail_console_connecting": { "description": "Message while WebSocket is connecting" },
+  "@container_detail_console_connecting": {
+    "description": "Message while WebSocket is connecting"
+  },
   "container_detail_console_closed": "--- Connection closed ---",
-  "@container_detail_console_closed": { "description": "Message when WebSocket connection is closed" },
+  "@container_detail_console_closed": {
+    "description": "Message when WebSocket connection is closed"
+  },
   "container_detail_console_hint": "Type a command...",
-  "@container_detail_console_hint": { "description": "Hint for the console input field" },
+  "@container_detail_console_hint": {
+    "description": "Hint for the console input field"
+  },
   "container_detail_failed": "Failed: {error}",
-  "@container_detail_failed": { "description": "Generic failure snackbar pattern", "placeholders": { "error": { "type": "String" } } },
+  "@container_detail_failed": {
+    "description": "Generic failure snackbar pattern",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "container_state_running": "Running",
-  "@container_state_running": { "description": "Container state label: running" },
+  "@container_state_running": {
+    "description": "Container state label: running"
+  },
   "container_state_pending": "Pending",
-  "@container_state_pending": { "description": "Container state label: pending" },
+  "@container_state_pending": {
+    "description": "Container state label: pending"
+  },
   "container_state_stopped": "Stopped",
-  "@container_state_stopped": { "description": "Container state label: stopped" },
+  "@container_state_stopped": {
+    "description": "Container state label: stopped"
+  },
   "container_state_stopping": "Stopping",
-  "@container_state_stopping": { "description": "Container state label: stopping" },
+  "@container_state_stopping": {
+    "description": "Container state label: stopping"
+  },
   "container_state_failed": "Failed",
-  "@container_state_failed": { "description": "Container state label: failed" },
+  "@container_state_failed": {
+    "description": "Container state label: failed"
+  },
   "container_hosted_subtitle": "Deploy and manage Docker containers",
-  "@container_hosted_subtitle": { "description": "Subtitle for the hosted apps card on the home page" },
+  "@container_hosted_subtitle": {
+    "description": "Subtitle for the hosted apps card on the home page"
+  },
   "container_premium_badge": "Premium",
-  "@container_premium_badge": { "description": "Badge text for premium-gated container feature" },
+  "@container_premium_badge": {
+    "description": "Badge text for premium-gated container feature"
+  },
   "container_detail_title": "Container {id}",
-  "@container_detail_title": { "description": "Title of the container detail page, {id} is the short container ID", "placeholders": { "id": { "type": "String" } } }
+  "@container_detail_title": {
+    "description": "Title of the container detail page, {id} is the short container ID",
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  }
 }
