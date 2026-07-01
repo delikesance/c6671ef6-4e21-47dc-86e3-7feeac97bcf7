@@ -15,9 +15,6 @@ class ContainerDeployPage extends StatefulWidget {
 class _ContainerDeployPageState extends State<ContainerDeployPage> {
   final _formKey = GlobalKey<FormState>();
   final _imageCtrl = TextEditingController(text: 'nginx:alpine');
-  final _cpuCtrl = TextEditingController(text: '512');
-  final _memCtrl = TextEditingController(text: '512');
-  final _storageCtrl = TextEditingController(text: '10');
   final _ttlCtrl = TextEditingController(text: '120');
   final _envKeyCtrl = TextEditingController();
   final _envValCtrl = TextEditingController();
@@ -49,9 +46,6 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
   @override
   void dispose() {
     _imageCtrl.dispose();
-    _cpuCtrl.dispose();
-    _memCtrl.dispose();
-    _storageCtrl.dispose();
     _ttlCtrl.dispose();
     _envKeyCtrl.dispose();
     _envValCtrl.dispose();
@@ -77,13 +71,10 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
     setState(() => _deploying = true);
     try {
       final image = _imageCtrl.text.trim();
-      final cpu = int.parse(_cpuCtrl.text.trim());
-      final mem = int.parse(_memCtrl.text.trim());
-      final storage = int.parse(_storageCtrl.text.trim());
       final ttl = int.parse(_ttlCtrl.text.trim());
       final env = {for (final e in _envVars) e.key: e.value};
 
-      final result = await _client!.deployContainer(image: image, cpuMillis: cpu, memoryMb: mem, storageGb: storage, env: env, ttlMinutes: ttl);
+      final result = await _client!.deployContainer(image: image, cpuMillis: 250, memoryMb: 192, storageGb: 1, env: env, ttlMinutes: ttl);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.tr.container_deploy_success(result['container_id'])), backgroundColor: Colors.green));
@@ -114,39 +105,6 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
 
           Row(children: [
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(context.tr.container_deploy_cpu_label, style: Theme.of(context).textTheme.titleSmall),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _cpuCtrl, keyboardType: TextInputType.number,
-                decoration: const InputDecoration(hintText: '512'),
-                validator: (v) { final n = int.tryParse(v ?? ''); if (n == null || n < 128) return context.tr.container_deploy_cpu_min; return null; },
-              ),
-            ])),
-            const SizedBox(width: 16),
-            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(context.tr.container_deploy_memory_label, style: Theme.of(context).textTheme.titleSmall),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _memCtrl, keyboardType: TextInputType.number,
-                decoration: const InputDecoration(hintText: '512'),
-                validator: (v) { final n = int.tryParse(v ?? ''); if (n == null || n < 128) return context.tr.container_deploy_memory_min; return null; },
-              ),
-            ])),
-          ]),
-          const SizedBox(height: 24),
-
-          Row(children: [
-            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(context.tr.container_deploy_storage_label, style: Theme.of(context).textTheme.titleSmall),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _storageCtrl, keyboardType: TextInputType.number,
-                decoration: const InputDecoration(hintText: '10'),
-                validator: (v) { final n = int.tryParse(v ?? ''); if (n == null || n < 1) return context.tr.container_deploy_storage_min; return null; },
-              ),
-            ])),
-            const SizedBox(width: 16),
-            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(context.tr.container_deploy_ttl_label, style: Theme.of(context).textTheme.titleSmall),
               const SizedBox(height: 8),
               TextFormField(
@@ -175,6 +133,22 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
             const SizedBox(width: 8),
             IconButton(icon: const Icon(Icons.add_circle_outline), onPressed: _addEnvVar),
           ]),
+          const SizedBox(height: 24),
+
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(children: [
+                const Icon(Icons.info_outline, size: 20, color: Colors.teal),
+                const SizedBox(width: 12),
+                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text('0.25 CPU · 192 MB RAM', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 4),
+                  Text('Ephemeral storage (no persistent volume)', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13)),
+                ])),
+              ]),
+            ),
+          ),
           const SizedBox(height: 32),
 
           FilledButton.icon(
