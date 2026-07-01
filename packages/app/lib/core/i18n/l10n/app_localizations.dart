@@ -130,10 +130,10 @@ abstract class AppLocalizations {
   /// **'Advanced settings'**
   String get action_advanced_settings;
 
-  /// Ã¢â‚¬Â¦ and {count} more
+  /// … and {count} more
   ///
   /// In en, this message translates to:
-  /// **'Ã¢â‚¬Â¦ and {count} more'**
+  /// **'… and {count} more'**
   String action_and_more(int count);
 
   /// Bulk import (Paste headers like Key: Value)
@@ -1012,10 +1012,10 @@ abstract class AppLocalizations {
   /// **'Edit Raw JSON'**
   String get action_edit_raw_json;
 
-  /// ELSE IF {index} Ã¢â‚¬â€ actions
+  /// ELSE IF {index} — actions
   ///
   /// In en, this message translates to:
-  /// **'ELSE IF {index} Ã¢â‚¬â€ actions'**
+  /// **'ELSE IF {index} — actions'**
   String action_else_if_label(int index);
 
   /// Continue
@@ -1078,10 +1078,10 @@ abstract class AppLocalizations {
   /// **'e.g., 5m, 1h, 30s'**
   String get action_hint_duration;
 
-  /// Emoji (e.g. Ã°Å¸ÂªÅ“) or <:name:id>
+  /// Emoji (e.g. 🪜) or <:name:id>
   ///
   /// In en, this message translates to:
-  /// **'Emoji (e.g. Ã°Å¸ÂªÅ“) or <:name:id>'**
+  /// **'Emoji (e.g. 🪜) or <:name:id>'**
   String get action_hint_emoji;
 
   /// Enter {type}
@@ -2464,10 +2464,10 @@ abstract class AppLocalizations {
   /// **'Suggestions are filtered by what the user types.'**
   String get autocomplete_filter_hint;
 
-  /// Loading workflowsÃ¢â‚¬Â¦
+  /// Loading workflows…
   ///
   /// In en, this message translates to:
-  /// **'Loading workflowsÃ¢â‚¬Â¦'**
+  /// **'Loading workflows…'**
   String get autocomplete_loading;
 
   /// No saved workflows found
@@ -2645,12 +2645,12 @@ abstract class AppLocalizations {
   /// **'Webhooks'**
   String get bdfd_docs_category_webhooks;
 
-  /// Logical AND Ã¢â‚¬â€ combines multiple conditions. All must be true.
+  /// Logical AND — combines multiple conditions. All must be true.
   ///
   /// Usage: $if[$and[$authorID==123;$hasRole[456]]]
   ///
   /// In en, this message translates to:
-  /// **'Logical AND Ã¢â‚¬â€ combines multiple conditions. All must be true.\n\nUsage: \$if[\$and[\$authorID==123;\$hasRole[456]]]'**
+  /// **'Logical AND — combines multiple conditions. All must be true.\n\nUsage: \$if[\$and[\$authorID==123;\$hasRole[456]]]'**
   String get bdfd_docs_desc_and;
 
   /// Registers a callback that waits for a user response.
@@ -2663,20 +2663,20 @@ abstract class AppLocalizations {
   /// **'Registers a callback that waits for a user response.\n\nUsage: \$awaitFunc[name;userID (opt);channelID (opt)]\n\nThe awaited function is stored and triggered when the target user sends a message in the target channel.'**
   String get bdfd_docs_desc_awaitfunc;
 
-  /// Bot Creator only Ã¢â‚¬â€ Calls another workflow by name and passes arguments.
+  /// Bot Creator only — Calls another workflow by name and passes arguments.
   ///
   /// Syntax: $callWorkflow[myWorkflow;key1=value1;key2=value2]
   ///
   /// The called workflow can read arguments and return a value via $workflowResponse.
   ///
   /// In en, this message translates to:
-  /// **'Bot Creator only Ã¢â‚¬â€ Calls another workflow by name and passes arguments.\n\nSyntax: \$callWorkflow[myWorkflow;key1=value1;key2=value2]\n\nThe called workflow can read arguments and return a value via \$workflowResponse.'**
+  /// **'Bot Creator only — Calls another workflow by name and passes arguments.\n\nSyntax: \$callWorkflow[myWorkflow;key1=value1;key2=value2]\n\nThe called workflow can read arguments and return a value via \$workflowResponse.'**
   String get bdfd_docs_desc_callworkflow;
 
-  /// Defers the interaction response, giving you more time to process. The user sees a "Bot is thinkingÃ¢â‚¬Â¦" message. Use before long operations like HTTP requests.
+  /// Defers the interaction response, giving you more time to process. The user sees a "Bot is thinking…" message. Use before long operations like HTTP requests.
   ///
   /// In en, this message translates to:
-  /// **'Defers the interaction response, giving you more time to process. The user sees a \"Bot is thinkingÃ¢â‚¬Â¦\" message. Use before long operations like HTTP requests.'**
+  /// **'Defers the interaction response, giving you more time to process. The user sees a \"Bot is thinking…\" message. Use before long operations like HTTP requests.'**
   String get bdfd_docs_desc_defer;
 
   /// Adds an alternative condition inside an $if block. Must appear between $if and $else/$endif.
@@ -2685,10 +2685,10 @@ abstract class AppLocalizations {
   /// **'Adds an alternative condition inside an \$if block. Must appear between \$if and \$else/\$endif.'**
   String get bdfd_docs_desc_elseif;
 
-  /// Same as $suppressErrors Ã¢â‚¬â€ suppresses all error messages silently.
+  /// Same as $suppressErrors — suppresses all error messages silently.
   ///
   /// In en, this message translates to:
-  /// **'Same as \$suppressErrors Ã¢â‚¬â€ suppresses all error messages silently.'**
+  /// **'Same as \$suppressErrors — suppresses all error messages silently.'**
   String get bdfd_docs_desc_embedsuppresserrors;
 
   /// Makes the response visible only to the user who triggered the command. Must be placed before any response content.
@@ -2703,16 +2703,16 @@ abstract class AppLocalizations {
   /// **'Executes a BDFD script string at runtime. The code passed as argument is re-compiled and executed dynamically. Useful for running user-provided or variable-based scripts.'**
   String get bdfd_docs_desc_eval;
 
-  /// Bot Creator only Ã¢â‚¬â€ Repeats a block of code N times.
+  /// Bot Creator only — Repeats a block of code N times.
   ///
-  /// Simple: $for[5]...$endfor Ã¢â€ â€™ the body is repeated 5 times (max 100). You can use $i for the current index (starting at 0) and $loopCount for the total.
+  /// Simple: $for[5]...$endfor → the body is repeated 5 times (max 100). You can use $i for the current index (starting at 0) and $loopCount for the total.
   ///
-  /// C-style: $for[i=0;i<10;i++]...$endfor Ã¢â€ â€™ classic for loop with init, condition and update. Supports ++, --, +=, -=, *=.
+  /// C-style: $for[i=0;i<10;i++]...$endfor → classic for loop with init, condition and update. Supports ++, --, +=, -=, *=.
   ///
   /// If the iteration count is dynamic (e.g. $for[$args[1]]), the loop runs at runtime instead of compile-time.
   ///
   /// In en, this message translates to:
-  /// **'Bot Creator only Ã¢â‚¬â€ Repeats a block of code N times.\n\nSimple: \$for[5]...\$endfor Ã¢â€ â€™ the body is repeated 5 times (max 100). You can use \$i for the current index (starting at 0) and \$loopCount for the total.\n\nC-style: \$for[i=0;i<10;i++]...\$endfor Ã¢â€ â€™ classic for loop with init, condition and update. Supports ++, --, +=, -=, *=.\n\nIf the iteration count is dynamic (e.g. \$for[\$args[1]]), the loop runs at runtime instead of compile-time.'**
+  /// **'Bot Creator only — Repeats a block of code N times.\n\nSimple: \$for[5]...\$endfor → the body is repeated 5 times (max 100). You can use \$i for the current index (starting at 0) and \$loopCount for the total.\n\nC-style: \$for[i=0;i<10;i++]...\$endfor → classic for loop with init, condition and update. Supports ++, --, +=, -=, *=.\n\nIf the iteration count is dynamic (e.g. \$for[\$args[1]]), the loop runs at runtime instead of compile-time.'**
   String get bdfd_docs_desc_for;
 
   /// Adds a header to the next HTTP request. Headers are accumulated until the next $httpGet/$httpPost/etc.
@@ -2766,10 +2766,10 @@ abstract class AppLocalizations {
   ///
   /// Usage: $jsonSet[user.name;John]
   ///
-  /// The change is applied in memory Ã¢â‚¬â€ use $jsonStringify to get the result.
+  /// The change is applied in memory — use $jsonStringify to get the result.
   ///
   /// In en, this message translates to:
-  /// **'Sets a value in the current JSON context. Supports dot-notation paths.\n\nUsage: \$jsonSet[user.name;John]\n\nThe change is applied in memory Ã¢â‚¬â€ use \$jsonStringify to get the result.'**
+  /// **'Sets a value in the current JSON context. Supports dot-notation paths.\n\nUsage: \$jsonSet[user.name;John]\n\nThe change is applied in memory — use \$jsonStringify to get the result.'**
   String get bdfd_docs_desc_jsonset;
 
   /// Converts the current JSON context back to a string. Use after $jsonParse and $jsonSet operations to output the result.
@@ -2778,18 +2778,18 @@ abstract class AppLocalizations {
   /// **'Converts the current JSON context back to a string. Use after \$jsonParse and \$jsonSet operations to output the result.'**
   String get bdfd_docs_desc_jsonstringify;
 
-  /// Bot Creator only Ã¢â‚¬â€ Alias for $for. See $for for details. Use $endloop to close the block.
+  /// Bot Creator only — Alias for $for. See $for for details. Use $endloop to close the block.
   ///
   /// In en, this message translates to:
-  /// **'Bot Creator only Ã¢â‚¬â€ Alias for \$for. See \$for for details. Use \$endloop to close the block.'**
+  /// **'Bot Creator only — Alias for \$for. See \$for for details. Use \$endloop to close the block.'**
   String get bdfd_docs_desc_loop;
 
-  /// Logical OR Ã¢â‚¬â€ combines multiple conditions. At least one must be true.
+  /// Logical OR — combines multiple conditions. At least one must be true.
   ///
   /// Usage: $if[$or[$authorID==123;$authorID==456]]]
   ///
   /// In en, this message translates to:
-  /// **'Logical OR Ã¢â‚¬â€ combines multiple conditions. At least one must be true.\n\nUsage: \$if[\$or[\$authorID==123;\$authorID==456]]]'**
+  /// **'Logical OR — combines multiple conditions. At least one must be true.\n\nUsage: \$if[\$or[\$authorID==123;\$authorID==456]]]'**
   String get bdfd_docs_desc_or;
 
   /// Immediately stops execution of the current script. No further actions after $stop will run.
@@ -2825,12 +2825,12 @@ abstract class AppLocalizations {
   /// **'Encodes or decodes text for use in URLs. Use \'encode\' to make text URL-safe, or \'decode\' to revert it.\n\nUsage: \$url[encode;Hello world!!]'**
   String get bdfd_docs_desc_url;
 
-  /// Bot Creator only Ã¢â‚¬â€ Returns the response from the last $callWorkflow.
+  /// Bot Creator only — Returns the response from the last $callWorkflow.
   ///
   /// Use $workflowResponse[] for the full response, or $workflowResponse[property] to access a specific field.
   ///
   /// In en, this message translates to:
-  /// **'Bot Creator only Ã¢â‚¬â€ Returns the response from the last \$callWorkflow.\n\nUse \$workflowResponse[] for the full response, or \$workflowResponse[property] to access a specific field.'**
+  /// **'Bot Creator only — Returns the response from the last \$callWorkflow.\n\nUse \$workflowResponse[] for the full response, or \$workflowResponse[property] to access a specific field.'**
   String get bdfd_docs_desc_workflowresponse;
 
   /// No matching functions.
@@ -2839,10 +2839,10 @@ abstract class AppLocalizations {
   /// **'No matching functions.'**
   String get bdfd_docs_empty;
 
-  /// No parameters Ã¢â‚¬â€ use as $functionName
+  /// No parameters — use as $functionName
   ///
   /// In en, this message translates to:
-  /// **'No parameters Ã¢â‚¬â€ use as \$functionName'**
+  /// **'No parameters — use as \$functionName'**
   String get bdfd_docs_no_params;
 
   /// PARAMETERS
@@ -2851,10 +2851,10 @@ abstract class AppLocalizations {
   /// **'PARAMETERS'**
   String get bdfd_docs_parameters;
 
-  /// Search functionsÃ¢â‚¬Â¦
+  /// Search functions…
   ///
   /// In en, this message translates to:
-  /// **'Search functionsÃ¢â‚¬Â¦'**
+  /// **'Search functions…'**
   String get bdfd_docs_search_hint;
 
   /// SYNTAX
@@ -2869,10 +2869,10 @@ abstract class AppLocalizations {
   /// **'BDFD Docs'**
   String get bdfd_docs_title;
 
-  /// Ã¢â‚¬Â¢ Smart auto indentation on Enter
+  /// • Smart auto indentation on Enter
   ///
   /// In en, this message translates to:
-  /// **'Ã¢â‚¬Â¢ Smart auto indentation on Enter'**
+  /// **'• Smart auto indentation on Enter'**
   String get bdfd_editor_auto_indent;
 
   /// Toggle diagnostics panel
@@ -2887,10 +2887,10 @@ abstract class AppLocalizations {
   /// **'BDFD Functions Reference'**
   String get bdfd_editor_docs;
 
-  /// Empty script Ã¢â‚¬â€ start typing to see diagnostics.
+  /// Empty script — start typing to see diagnostics.
   ///
   /// In en, this message translates to:
-  /// **'Empty script Ã¢â‚¬â€ start typing to see diagnostics.'**
+  /// **'Empty script — start typing to see diagnostics.'**
   String get bdfd_editor_empty;
 
   /// Includes:
@@ -2899,16 +2899,16 @@ abstract class AppLocalizations {
   /// **'Includes:'**
   String get bdfd_editor_includes;
 
-  /// Ã¢â‚¬Â¢ Live indentation guides
+  /// • Live indentation guides
   ///
   /// In en, this message translates to:
-  /// **'Ã¢â‚¬Â¢ Live indentation guides'**
+  /// **'• Live indentation guides'**
   String get bdfd_editor_indent_guides;
 
-  /// Ã¢â‚¬Â¢ Mobile quick-keys for BDFD symbols
+  /// • Mobile quick-keys for BDFD symbols
   ///
   /// In en, this message translates to:
-  /// **'Ã¢â‚¬Â¢ Mobile quick-keys for BDFD symbols'**
+  /// **'• Mobile quick-keys for BDFD symbols'**
   String get bdfd_editor_quick_keys;
 
   /// Tap to open editor
@@ -3061,10 +3061,10 @@ abstract class AppLocalizations {
   /// **'Could not start: {error}'**
   String bot_home_start_error(String error);
 
-  /// StartingÃ¢â‚¬Â¦
+  /// Starting…
   ///
   /// In en, this message translates to:
-  /// **'StartingÃ¢â‚¬Â¦'**
+  /// **'Starting…'**
   String get bot_home_starting;
 
   /// Stop Bot
@@ -3202,7 +3202,7 @@ abstract class AppLocalizations {
   /// Pull dialog: already up to date message
   ///
   /// In en, this message translates to:
-  /// **'Already up to date Ã¢â‚¬â€ no changes needed.'**
+  /// **'Already up to date — no changes needed.'**
   String get bot_home_pull_dialog_up_to_date;
 
   /// Pull dialog: updated commands count label
@@ -3580,7 +3580,7 @@ abstract class AppLocalizations {
   /// Premium banner title on the Lavalink tab
   ///
   /// In en, this message translates to:
-  /// **'Ã°Å¸â€â€™ Available with Bot Creator PREMIUM'**
+  /// **'🔒 Available with Bot Creator PREMIUM'**
   String get bot_settings_lavalink_premium_banner_title;
 
   /// Public servers list header
@@ -3613,10 +3613,10 @@ abstract class AppLocalizations {
   /// **'Public Lavalink Servers'**
   String get bot_settings_lavalink_server_picker_title;
 
-  /// Port {port} Ã¢â‚¬â€ {version}
+  /// Port {port} — {version}
   ///
   /// In en, this message translates to:
-  /// **'Port {port} Ã¢â‚¬â€ {version}'**
+  /// **'Port {port} — {version}'**
   String bot_settings_lavalink_server_subtitle(String port, String version);
 
   /// {count} public servers available
@@ -3961,10 +3961,10 @@ abstract class AppLocalizations {
   /// **'Centralized documentation for commands, workflows, runtime variables, and execution behavior.'**
   String get bot_settings_workflow_docs_desc;
 
-  /// CollectingÃ¢â‚¬Â¦
+  /// Collecting…
   ///
   /// In en, this message translates to:
-  /// **'CollectingÃ¢â‚¬Â¦'**
+  /// **'Collecting…'**
   String get bot_stats_collecting;
 
   /// Bot process CPU
@@ -4303,10 +4303,10 @@ abstract class AppLocalizations {
   /// **'Switch'**
   String get cmd_editor_mode_switch_adv_confirm;
 
-  /// This switch is one-way for this command. You wonÃ¢â‚¬â„¢t be able to return to simplified mode.
+  /// This switch is one-way for this command. You won’t be able to return to simplified mode.
   ///
   /// In en, this message translates to:
-  /// **'This switch is one-way for this command. You wonÃ¢â‚¬â„¢t be able to return to simplified mode.'**
+  /// **'This switch is one-way for this command. You won’t be able to return to simplified mode.'**
   String get cmd_editor_mode_switch_adv_content;
 
   /// Switch to advanced mode?
@@ -4975,10 +4975,10 @@ abstract class AppLocalizations {
   /// **'Response embeds'**
   String get cmd_simple_response_embeds_title;
 
-  /// Done Ã¢Å“â€¦
+  /// Done ✅
   ///
   /// In en, this message translates to:
-  /// **'Done Ã¢Å“â€¦'**
+  /// **'Done ✅'**
   String get cmd_simple_response_hint;
 
   /// Final response
@@ -6235,10 +6235,10 @@ abstract class AppLocalizations {
   /// **'Create'**
   String get create;
 
-  /// Empty script Ã¢â‚¬â€ start typing to see Dart diagnostics.
+  /// Empty script — start typing to see Dart diagnostics.
   ///
   /// In en, this message translates to:
-  /// **'Empty script Ã¢â‚¬â€ start typing to see Dart diagnostics.'**
+  /// **'Empty script — start typing to see Dart diagnostics.'**
   String get dart_editor_empty;
 
   /// Tap to open Dart editor
@@ -6421,10 +6421,10 @@ abstract class AppLocalizations {
   /// **'DURATION'**
   String get debug_replay_duration_label;
 
-  /// CapturingÃ¢â‚¬Â¦ Run a command to record a replay.
+  /// Capturing… Run a command to record a replay.
   ///
   /// In en, this message translates to:
-  /// **'CapturingÃ¢â‚¬Â¦ Run a command to record a replay.'**
+  /// **'Capturing… Run a command to record a replay.'**
   String get debug_replay_empty_capturing;
 
   /// Capture is off. Enable it and run a command to record a replay.
@@ -6675,10 +6675,10 @@ abstract class AppLocalizations {
 
   /// condition.variable = ((reaction.emoji.name))
   /// condition.operator = equals
-  /// condition.value = Ã¢Å“â€¦
+  /// condition.value = ✅
   ///
   /// In en, this message translates to:
-  /// **'condition.variable = ((reaction.emoji.name))\ncondition.operator = equals\ncondition.value = Ã¢Å“â€¦'**
+  /// **'condition.variable = ((reaction.emoji.name))\ncondition.operator = equals\ncondition.value = ✅'**
   String get doc_action_stop_unless_example;
 
   /// You can use raw keys: message.content[0]
@@ -6959,11 +6959,11 @@ abstract class AppLocalizations {
   /// **'Quick moderation signals from staff channels.'**
   String get doc_event_reaction_add_best_use_l3;
 
-  /// Guard: ((reaction.emoji.name)) equals Ã¢Å“â€¦
+  /// Guard: ((reaction.emoji.name)) equals ✅
   /// Action: addRole -> user=((userId)) role=((global.approvedRoleId))
   ///
   /// In en, this message translates to:
-  /// **'Guard: ((reaction.emoji.name)) equals Ã¢Å“â€¦\nAction: addRole -> user=((userId)) role=((global.approvedRoleId))'**
+  /// **'Guard: ((reaction.emoji.name)) equals ✅\nAction: addRole -> user=((userId)) role=((global.approvedRoleId))'**
   String get doc_event_reaction_add_example;
 
   /// Guild Message Reactions
@@ -8396,10 +8396,10 @@ abstract class AppLocalizations {
   /// **'Shared across all commands. Access via \$getVar[key].'**
   String get globals_help_global;
 
-  /// Stored per context (server, user, channelÃ¢â‚¬Â¦). Each entry keeps a distinct value per Discord context.
+  /// Stored per context (server, user, channel…). Each entry keeps a distinct value per Discord context.
   ///
   /// In en, this message translates to:
-  /// **'Stored per context (server, user, channelÃ¢â‚¬Â¦). Each entry keeps a distinct value per Discord context.'**
+  /// **'Stored per context (server, user, channel…). Each entry keeps a distinct value per Discord context.'**
   String get globals_help_scoped;
 
   /// Key
@@ -8474,10 +8474,10 @@ abstract class AppLocalizations {
   /// **'user'**
   String get globals_scope_user;
 
-  /// Search variablesÃ¢â‚¬Â¦
+  /// Search variables…
   ///
   /// In en, this message translates to:
-  /// **'Search variablesÃ¢â‚¬Â¦'**
+  /// **'Search variables…'**
   String get globals_search;
 
   /// Local
@@ -8567,7 +8567,7 @@ abstract class AppLocalizations {
   /// Servers page text key
   ///
   /// In en, this message translates to:
-  /// **'Ã°Å¸â€˜â€˜ Owner'**
+  /// **'👑 Owner'**
   String get guilds_owner_label;
 
   /// Number of servers the bot is in
@@ -9062,7 +9062,7 @@ abstract class AppLocalizations {
   /// No description provided for @marketplace_by_author.
   ///
   /// In en, this message translates to:
-  /// **'by {author} Ã‚Â· v{version}'**
+  /// **'by {author} · v{version}'**
   String marketplace_by_author(Object author, Object version);
 
   /// No description provided for @marketplace_cancel.
@@ -9720,10 +9720,10 @@ abstract class AppLocalizations {
   String get onboarding_command_desc;
 
   /// Example:
-  /// /hello Ã¢â€ â€™ Bot replies "Hello! Ã°Å¸â€˜â€¹"
+  /// /hello → Bot replies "Hello! 👋"
   ///
   /// In en, this message translates to:
-  /// **'Example:\n/hello Ã¢â€ â€™ Bot replies \"Hello! Ã°Å¸â€˜â€¹\"'**
+  /// **'Example:\n/hello → Bot replies \"Hello! 👋\"'**
   String get onboarding_command_example;
 
   /// Link button that opens the commands tutorial
@@ -9771,10 +9771,10 @@ abstract class AppLocalizations {
   /// **'1. Go to Discord Developer Portal\n2. Create a new app\n3. Copy the bot token\n4. Paste it below'**
   String get onboarding_create_steps;
 
-  /// Ã°Å¸â€™Â¡ Tip: Never share your token! It gives full access to your bot.
+  /// 💡 Tip: Never share your token! It gives full access to your bot.
   ///
   /// In en, this message translates to:
-  /// **'Ã°Å¸â€™Â¡ Tip: Never share your token! It gives full access to your bot.'**
+  /// **'💡 Tip: Never share your token! It gives full access to your bot.'**
   String get onboarding_create_tip;
 
   /// Step 1: Create a Bot
@@ -9837,10 +9837,10 @@ abstract class AppLocalizations {
   /// **'Click the \"Start\" button on your bot card. Then test your command in Discord!'**
   String get onboarding_start_text;
 
-  /// Ã¢Å“Â¨ Great! You've created your first Discord bot. You can now add more commands and customize it!
+  /// ✨ Great! You've created your first Discord bot. You can now add more commands and customize it!
   ///
   /// In en, this message translates to:
-  /// **'Ã¢Å“Â¨ Great! You\'ve created your first Discord bot. You can now add more commands and customize it!'**
+  /// **'✨ Great! You\'ve created your first Discord bot. You can now add more commands and customize it!'**
   String get onboarding_start_tip;
 
   /// Step 3: Start the Bot
@@ -9885,10 +9885,10 @@ abstract class AppLocalizations {
   /// **'Backup your data'**
   String get onboarding_success_tip3;
 
-  /// Congratulations! Ã°Å¸Å½â€°
+  /// Congratulations! 🎉
   ///
   /// In en, this message translates to:
-  /// **'Congratulations! Ã°Å¸Å½â€°'**
+  /// **'Congratulations! 🎉'**
   String get onboarding_success_title;
 
   /// What's next?
@@ -10299,10 +10299,10 @@ abstract class AppLocalizations {
   /// **'Layout Mode'**
   String get reply_mode_layout;
 
-  /// Discord's rich layout system Ã¢â‚¬â€ containers, media, text & forms
+  /// Discord's rich layout system — containers, media, text & forms
   ///
   /// In en, this message translates to:
-  /// **'Discord\'s rich layout system Ã¢â‚¬â€ containers, media, text & forms'**
+  /// **'Discord\'s rich layout system — containers, media, text & forms'**
   String get reply_mode_layout_desc;
 
   /// Modal Form
@@ -10767,10 +10767,10 @@ abstract class AppLocalizations {
   /// **'Failed to save schedule: {error}'**
   String scheduler_save_failed(String error);
 
-  /// Workflow: {workflow} Ã¢â‚¬Â¢ Every {minutes} min
+  /// Workflow: {workflow} • Every {minutes} min
   ///
   /// In en, this message translates to:
-  /// **'Workflow: {workflow} Ã¢â‚¬Â¢ Every {minutes} min'**
+  /// **'Workflow: {workflow} • Every {minutes} min'**
   String scheduler_subtitle(String workflow, int minutes);
 
   /// Scheduler
@@ -10821,10 +10821,10 @@ abstract class AppLocalizations {
   /// **'No scoped variables defined'**
   String get scoped_empty;
 
-  /// Scoped variables store a value per Discord context (user, serverÃ¢â‚¬Â¦). They are populated by the bot at runtime.
+  /// Scoped variables store a value per Discord context (user, server…). They are populated by the bot at runtime.
   ///
   /// In en, this message translates to:
-  /// **'Scoped variables store a value per Discord context (user, serverÃ¢â‚¬Â¦). They are populated by the bot at runtime.'**
+  /// **'Scoped variables store a value per Discord context (user, server…). They are populated by the bot at runtime.'**
   String get scoped_empty_subtitle;
 
   /// Explore runtime data
@@ -10858,22 +10858,22 @@ abstract class AppLocalizations {
   /// **'No runtime data.\nThis key will be populated by the bot at execution.'**
   String get scoped_runtime_empty;
 
-  /// Search by ID or nameÃ¢â‚¬Â¦
+  /// Search by ID or name…
   ///
   /// In en, this message translates to:
-  /// **'Search by ID or nameÃ¢â‚¬Â¦'**
+  /// **'Search by ID or name…'**
   String get scoped_runtime_search;
 
-  /// Scope: {scope} Ã‚Â· {count} context(s) found
+  /// Scope: {scope} · {count} context(s) found
   ///
   /// In en, this message translates to:
-  /// **'Scope: {scope} Ã‚Â· {count} context(s) found'**
+  /// **'Scope: {scope} · {count} context(s) found'**
   String scoped_runtime_subtitle(String scope, int count);
 
-  /// Runtime data Ã¢â‚¬â€ "{key}"
+  /// Runtime data — "{key}"
   ///
   /// In en, this message translates to:
-  /// **'Runtime data Ã¢â‚¬â€ \"{key}\"'**
+  /// **'Runtime data — \"{key}\"'**
   String scoped_runtime_title(String key);
 
   /// Scope
@@ -11452,10 +11452,10 @@ abstract class AppLocalizations {
   /// **'Appearance & language'**
   String get settings_appearance_title;
 
-  /// Auto-backup checkÃ¢â‚¬Â¦
+  /// Auto-backup check…
   ///
   /// In en, this message translates to:
-  /// **'Auto-backup checkÃ¢â‚¬Â¦'**
+  /// **'Auto-backup check…'**
   String get settings_auto_backup_check_loading;
 
   /// Every 12h
@@ -11878,10 +11878,10 @@ abstract class AppLocalizations {
   /// **'Diagnostics'**
   String get settings_diagnostics_section_title;
 
-  /// Authenticating with DiscordÃ¢â‚¬Â¦
+  /// Authenticating with Discord…
   ///
   /// In en, this message translates to:
-  /// **'Authenticating with DiscordÃ¢â‚¬Â¦'**
+  /// **'Authenticating with Discord…'**
   String get settings_discord_rpc_authenticating;
 
   /// Authorization code cached; retry to finish the token exchange
@@ -11902,10 +11902,10 @@ abstract class AppLocalizations {
   /// **'Authorize'**
   String get settings_discord_rpc_authorize;
 
-  /// Waiting for Discord authorizationÃ¢â‚¬Â¦
+  /// Waiting for Discord authorization…
   ///
   /// In en, this message translates to:
-  /// **'Waiting for Discord authorizationÃ¢â‚¬Â¦'**
+  /// **'Waiting for Discord authorization…'**
   String get settings_discord_rpc_authorizing;
 
   /// https://auth.example.com
@@ -11980,10 +11980,10 @@ abstract class AppLocalizations {
   /// **'Presence sent to Discord'**
   String get settings_discord_rpc_connected;
 
-  /// Connecting to DiscordÃ¢â‚¬Â¦
+  /// Connecting to Discord…
   ///
   /// In en, this message translates to:
-  /// **'Connecting to DiscordÃ¢â‚¬Â¦'**
+  /// **'Connecting to Discord…'**
   String get settings_discord_rpc_connecting;
 
   /// Publish Bot Creator desktop activity to the local Discord client. Bot Creator always uses the built-in Discord application and sends SET_ACTIVITY directly over local IPC when enabled.
@@ -12034,10 +12034,10 @@ abstract class AppLocalizations {
   /// **'Discord RPC error'**
   String get settings_discord_rpc_error;
 
-  /// Completing OAuth exchangeÃ¢â‚¬Â¦
+  /// Completing OAuth exchange…
   ///
   /// In en, this message translates to:
-  /// **'Completing OAuth exchangeÃ¢â‚¬Â¦'**
+  /// **'Completing OAuth exchange…'**
   String get settings_discord_rpc_exchanging_code;
 
   /// Local Discord IPC connected; no OAuth HTTP request sent yet, authentication still required
@@ -12118,10 +12118,10 @@ abstract class AppLocalizations {
   /// **'Connect to Google Drive'**
   String get settings_drive_connect;
 
-  /// Connecting to Google DriveÃ¢â‚¬Â¦
+  /// Connecting to Google Drive…
   ///
   /// In en, this message translates to:
-  /// **'Connecting to Google DriveÃ¢â‚¬Â¦'**
+  /// **'Connecting to Google Drive…'**
   String get settings_drive_connect_loading;
 
   /// Connected to Google Drive
@@ -12142,10 +12142,10 @@ abstract class AppLocalizations {
   /// **'Disconnect'**
   String get settings_drive_disconnect;
 
-  /// DisconnectingÃ¢â‚¬Â¦
+  /// Disconnecting…
   ///
   /// In en, this message translates to:
-  /// **'DisconnectingÃ¢â‚¬Â¦'**
+  /// **'Disconnecting…'**
   String get settings_drive_disconnect_loading;
 
   /// Disconnected from Google Drive
@@ -12226,10 +12226,10 @@ abstract class AppLocalizations {
   /// **'Export App Data'**
   String get settings_export_app_data;
 
-  /// ExportingÃ¢â‚¬Â¦
+  /// Exporting…
   ///
   /// In en, this message translates to:
-  /// **'ExportingÃ¢â‚¬Â¦'**
+  /// **'Exporting…'**
   String get settings_export_loading;
 
   /// Import
@@ -12244,10 +12244,10 @@ abstract class AppLocalizations {
   /// **'Import App Data'**
   String get settings_import_app_data;
 
-  /// ImportingÃ¢â‚¬Â¦
+  /// Importing…
   ///
   /// In en, this message translates to:
-  /// **'ImportingÃ¢â‚¬Â¦'**
+  /// **'Importing…'**
   String get settings_import_loading;
 
   /// Choose the language used by the app.
@@ -12358,10 +12358,10 @@ abstract class AppLocalizations {
   /// **'Connect Discord account'**
   String get settings_main_api_connect_discord;
 
-  /// Bot Creator Server reachable Ã¢Å“â€œ
+  /// Bot Creator Server reachable ✓
   ///
   /// In en, this message translates to:
-  /// **'Bot Creator Server reachable Ã¢Å“â€œ'**
+  /// **'Bot Creator Server reachable ✓'**
   String get settings_main_api_connected;
 
   /// Discord account connected
@@ -12676,16 +12676,16 @@ abstract class AppLocalizations {
   /// **'Runner settings cleared'**
   String get settings_runner_cleared;
 
-  /// Runner reachable Ã¢Å“â€œ
+  /// Runner reachable ✓
   ///
   /// In en, this message translates to:
-  /// **'Runner reachable Ã¢Å“â€œ'**
+  /// **'Runner reachable ✓'**
   String get settings_runner_connected;
 
-  /// Checking connectionÃ¢â‚¬Â¦
+  /// Checking connection…
   ///
   /// In en, this message translates to:
-  /// **'Checking connectionÃ¢â‚¬Â¦'**
+  /// **'Checking connection…'**
   String get settings_runner_connecting;
 
   /// Connect the app to a Bot Creator Runner. Remote runners should stay on trusted networks and use a bearer token.
@@ -12820,10 +12820,10 @@ abstract class AppLocalizations {
   /// **'Apps in this snapshot'**
   String get settings_snapshot_apps_list;
 
-  /// Creating snapshotÃ¢â‚¬Â¦
+  /// Creating snapshot…
   ///
   /// In en, this message translates to:
-  /// **'Creating snapshotÃ¢â‚¬Â¦'**
+  /// **'Creating snapshot…'**
   String get settings_snapshot_create_loading;
 
   /// Created: {date}
@@ -12838,10 +12838,10 @@ abstract class AppLocalizations {
   /// **'Snapshot created: {id}'**
   String settings_snapshot_created_message(String id);
 
-  /// Deleting snapshotÃ¢â‚¬Â¦
+  /// Deleting snapshot…
   ///
   /// In en, this message translates to:
-  /// **'Deleting snapshotÃ¢â‚¬Â¦'**
+  /// **'Deleting snapshot…'**
   String get settings_snapshot_delete_loading;
 
   /// Snapshot deleted
@@ -12850,10 +12850,10 @@ abstract class AppLocalizations {
   /// **'Snapshot deleted'**
   String get settings_snapshot_deleted;
 
-  /// Files: {count} Ã¢â‚¬Â¢ Size: {size}
+  /// Files: {count} • Size: {size}
   ///
   /// In en, this message translates to:
-  /// **'Files: {count} Ã¢â‚¬Â¢ Size: {size}'**
+  /// **'Files: {count} • Size: {size}'**
   String settings_snapshot_files_size(int count, String size);
 
   /// ID: {id}
@@ -12868,10 +12868,10 @@ abstract class AppLocalizations {
   /// **'Label: {label}'**
   String settings_snapshot_label(String label);
 
-  /// {date} Ã¢â‚¬Â¢ {count} files Ã¢â‚¬Â¢ {size}
+  /// {date} • {count} files • {size}
   ///
   /// In en, this message translates to:
-  /// **'{date} Ã¢â‚¬Â¢ {count} files Ã¢â‚¬Â¢ {size}'**
+  /// **'{date} • {count} files • {size}'**
   String settings_snapshot_list_entry(String date, int count, String size);
 
   /// No app metadata available.
@@ -12886,10 +12886,10 @@ abstract class AppLocalizations {
   /// **'Snapshot Preview'**
   String get settings_snapshot_preview_title;
 
-  /// Restoring snapshotÃ¢â‚¬Â¦
+  /// Restoring snapshot…
   ///
   /// In en, this message translates to:
-  /// **'Restoring snapshotÃ¢â‚¬Â¦'**
+  /// **'Restoring snapshot…'**
   String get settings_snapshot_restore_loading;
 
   /// Delete all snapshots
@@ -12910,10 +12910,10 @@ abstract class AppLocalizations {
   /// **'{count} snapshot(s) deleted.'**
   String settings_snapshots_delete_all_done(int count);
 
-  /// Deleting all snapshotsÃ¢â‚¬Â¦
+  /// Deleting all snapshots…
   ///
   /// In en, this message translates to:
-  /// **'Deleting all snapshotsÃ¢â‚¬Â¦'**
+  /// **'Deleting all snapshots…'**
   String get settings_snapshots_delete_all_loading;
 
   /// Delete all snapshots
@@ -12958,10 +12958,10 @@ abstract class AppLocalizations {
   /// **'Refresh snapshots'**
   String get settings_snapshots_refresh;
 
-  /// Refreshing snapshotsÃ¢â‚¬Â¦
+  /// Refreshing snapshots…
   ///
   /// In en, this message translates to:
-  /// **'Refreshing snapshotsÃ¢â‚¬Â¦'**
+  /// **'Refreshing snapshots…'**
   String get settings_snapshots_refresh_loading;
 
   /// Snapshots
@@ -13126,10 +13126,10 @@ abstract class AppLocalizations {
   /// **'Refresh diagnostics'**
   String get startup_refresh_diagnostics;
 
-  /// Premium Ã¢â‚¬â€ Annual
+  /// Premium — Annual
   ///
   /// In en, this message translates to:
-  /// **'Premium Ã¢â‚¬â€ Annual'**
+  /// **'Premium — Annual'**
   String get subscription_active_annual;
 
   /// Active plan:
@@ -13138,10 +13138,10 @@ abstract class AppLocalizations {
   /// **'Active plan:'**
   String get subscription_active_label;
 
-  /// Premium Ã¢â‚¬â€ Monthly
+  /// Premium — Monthly
   ///
   /// In en, this message translates to:
-  /// **'Premium Ã¢â‚¬â€ Monthly'**
+  /// **'Premium — Monthly'**
   String get subscription_active_monthly;
 
   /// Annual
@@ -13798,10 +13798,10 @@ abstract class AppLocalizations {
   /// **'Dynamic numeric suggestions'**
   String get variable_autocomplete_numeric_title;
 
-  /// Available variables Ã¢â‚¬â€ tap to insert
+  /// Available variables — tap to insert
   ///
   /// In en, this message translates to:
-  /// **'Available variables Ã¢â‚¬â€ tap to insert'**
+  /// **'Available variables — tap to insert'**
   String get variable_autocomplete_title;
 
   /// Author
@@ -14620,10 +14620,10 @@ abstract class AppLocalizations {
   /// **'Event Workflows'**
   String get workflows_event_section;
 
-  /// {count} action(s) Ã¢â‚¬Â¢ Listen for: {event}
+  /// {count} action(s) • Listen for: {event}
   ///
   /// In en, this message translates to:
-  /// **'{count} action(s) Ã¢â‚¬Â¢ Listen for: {event}'**
+  /// **'{count} action(s) • Listen for: {event}'**
   String workflows_event_subtitle(int count, String event);
 
   /// Copy as Base64
@@ -14782,10 +14782,10 @@ abstract class AppLocalizations {
   /// **'Search workflows...'**
   String get workflows_search_hint;
 
-  /// {count} action(s) Ã¢â‚¬Â¢ entry: {entry} Ã¢â‚¬Â¢ args: {args}
+  /// {count} action(s) • entry: {entry} • args: {args}
   ///
   /// In en, this message translates to:
-  /// **'{count} action(s) Ã¢â‚¬Â¢ entry: {entry} Ã¢â‚¬Â¢ args: {args}'**
+  /// **'{count} action(s) • entry: {entry} • args: {args}'**
   String workflows_subtitle(int count, String entry, String args);
 
   /// Workflows
