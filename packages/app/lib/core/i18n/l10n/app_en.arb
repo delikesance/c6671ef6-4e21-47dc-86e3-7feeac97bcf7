@@ -9906,9 +9906,38 @@
   "settings_account_connect_label": "Sign in to Bot Creator with Discord",
   "settings_account_connected_hint": "Account connected. Your bots and data are now synced with Bot Creator.",
   "settings_account_disconnect_label": "Sign out",
-  "settings_account_disconnected_hint": "Your Bot Creator account is created automatically when you add a bot. Then sign in with Discord to recover your bots on this device.",
+  "settings_account_disconnected_hint": "On mobile, sign in with Discord to sync bots, deploy hosted applications, and recover your data on a new phone.",
   "settings_account_status_connected": "Account connected",
   "settings_account_status_disconnected": "Not signed in",
+  "mobile_account_required_title": "Sign in with Discord",
+  "@mobile_account_required_title": {
+    "description": "Title on the mobile account gate screen"
+  },
+  "mobile_account_required_body": "On mobile, a Discord account is required to use Bot Creator. Your bots, hosted applications, and subscriptions are tied to this account and can be recovered on a new phone.",
+  "@mobile_account_required_body": {
+    "description": "Explanation on the mobile account gate screen"
+  },
+  "mobile_account_required_feature_bots": "Sync and restore your bots from the cloud",
+  "@mobile_account_required_feature_bots": {
+    "description": "Feature bullet on the mobile account gate screen"
+  },
+  "mobile_account_required_feature_hosted": "Deploy and manage hosted applications",
+  "@mobile_account_required_feature_hosted": {
+    "description": "Feature bullet on the mobile account gate screen"
+  },
+  "mobile_account_required_feature_recovery": "Recover everything after reinstall or on a new phone",
+  "@mobile_account_required_feature_recovery": {
+    "description": "Feature bullet on the mobile account gate screen"
+  },
+  "mobile_account_required_failed": "Discord sign-in failed: {error}",
+  "@mobile_account_required_failed": {
+    "description": "Error snackbar when Discord sign-in fails on mobile gate",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "settings_ads_privacy_loading": "Checking ad privacy settings...",
   "settings_ads_privacy_manage": "Manage ad privacy choices",
   "settings_ads_privacy_not_required": "Ad privacy options are not required right now",
@@ -10228,6 +10257,45 @@
   "subscription_feature_webhooks_desc": "Create secure webhook endpoints and route calls to workflows.",
   "subscription_feature_webhooks_title": "Inbound webhooks",
   "subscription_manage": "Manage subscription",
+  "subscriptions_hub_title": "Subscriptions",
+  "@subscriptions_hub_title": {
+    "description": "Title for the subscriptions management page"
+  },
+  "subscriptions_hub_subtitle": "View and manage your Bot Premium and hosted application plans.",
+  "@subscriptions_hub_subtitle": {
+    "description": "Subtitle on subscriptions hub page"
+  },
+  "subscriptions_hub_open_settings": "Subscriptions & billing",
+  "@subscriptions_hub_open_settings": {
+    "description": "Settings entry title for subscriptions hub"
+  },
+  "subscriptions_hub_bot_premium_section": "Bot Premium",
+  "@subscriptions_hub_bot_premium_section": {
+    "description": "Section title for bot premium on subscriptions hub"
+  },
+  "subscriptions_hub_bot_premium_desc": "Remove ads and unlock premium features for your Discord bots.",
+  "subscriptions_hub_hosted_section": "Hosted applications",
+  "@subscriptions_hub_hosted_section": {
+    "description": "Section title for hosted apps on subscriptions hub"
+  },
+  "subscriptions_hub_hosted_desc": "Run Docker containers in the cloud without watching ads.",
+  "subscriptions_hub_status_active": "Active",
+  "subscriptions_hub_status_inactive": "Not subscribed",
+  "subscriptions_hub_subscribe": "Subscribe",
+  "subscriptions_hub_summary_both": "Bot Premium and Hosted applications active",
+  "subscriptions_hub_summary_bot_only": "Bot Premium active",
+  "subscriptions_hub_summary_hosted_only": "Hosted applications active",
+  "subscriptions_hub_summary_none": "No active subscriptions",
+  "subscriptions_hub_expires_at": "Renews until {date} at {time}",
+  "@subscriptions_hub_expires_at": {
+    "placeholders": {
+      "date": { "type": "String" },
+      "time": { "type": "String" }
+    }
+  },
+  "subscription_upgrade_annual": "Upgrade to annual",
+  "subscription_upgrade_two_apps": "Upgrade to 2 containers",
+  "subscription_manage_cancel_hint": "To cancel or change billing, use Manage subscription — this opens the App Store or Google Play.",
   "subscription_monthly_title": "Monthly",
   "subscription_not_available_on_platform": "Subscriptions are currently available on mobile only.",
   "subscription_per_month": "per month",
@@ -10844,9 +10912,9 @@
   "@container_detail_extended_ok": {
     "description": "Snackbar after TTL is extended"
   },
-  "container_detail_console": "Console",
+  "container_detail_console": "Logs",
   "@container_detail_console": {
-    "description": "Label for the container console section"
+    "description": "Label for the container logs section"
   },
   "container_detail_deploying": "Container is being deployed...",
   "@container_detail_deploying": {
@@ -10931,26 +10999,35 @@
   "@container_list_premium_host_anytime_fab": {
     "description": "FAB label for premium upsell on container list"
   },
-  "container_list_free_limit_reached": "Free limit reached (1 container). Upgrade to Premium to host more.",
+  "container_list_free_limit_reached": "Free limit reached (1 container). Subscribe to host more containers.",
   "@container_list_free_limit_reached": {
     "description": "Snackbar when free user tries to deploy another container"
   },
   "container_hosted_premium_host_anytime": "Host anytime",
   "@container_hosted_premium_host_anytime": {
-    "description": "Premium upsell card title for hosted apps"
+    "description": "Hosted app subscription upsell card title"
   },
-  "container_hosted_premium_host_anytime_compact": "Premium — host anytime",
+  "container_hosted_premium_host_anytime_compact": "Subscribe — host anytime",
   "@container_hosted_premium_host_anytime_compact": {
-    "description": "Compact premium upsell button label"
+    "description": "Compact hosted app subscription upsell button label"
   },
-  "container_hosted_premium_desc": "Upgrade to Premium for Docker containers with unlimited hosting and no ads.",
+  "container_hosted_premium_desc": "Subscribe to host Docker containers with unlimited uptime — no ads required.",
   "@container_hosted_premium_desc": {
-    "description": "Premium upsell description for hosted apps"
+    "description": "Hosted app subscription upsell description"
   },
-  "container_hosted_premium_view_btn": "View Premium",
+  "container_hosted_premium_view_btn": "View plans",
   "@container_hosted_premium_view_btn": {
-    "description": "Button to open subscription page from hosted apps"
+    "description": "Button to open hosted app subscription page"
   },
+  "hosted_app_subscription_title": "Hosted applications",
+  "hosted_app_subscription_subtitle": "Run Docker containers in the cloud without watching ads.",
+  "hosted_app_subscription_benefit_unlimited": "Unlimited hosting time",
+  "hosted_app_subscription_benefit_no_ads": "No rewarded ads required",
+  "hosted_app_subscription_one_app_title": "1 container",
+  "hosted_app_subscription_one_app_desc": "Host one Docker container anytime",
+  "hosted_app_subscription_two_app_title": "2 containers",
+  "hosted_app_subscription_two_app_desc": "Host up to two Docker containers",
+  "hosted_app_subscription_recommended": "Best value",
   "container_hosted_free_title": "Free hosting (1 container max)",
   "@container_hosted_free_title": {
     "description": "Title for free-tier hosted app banner"

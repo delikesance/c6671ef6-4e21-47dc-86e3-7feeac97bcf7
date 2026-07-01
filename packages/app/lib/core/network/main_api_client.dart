@@ -577,8 +577,11 @@ class MainApiClient implements RemoteRuntimeClient {
       }
       debugPrint('[MainApiClient] Access token expired or invalid (401/403). Attempting to refresh session...');
       final publicClient = MainApiClient(baseUrl: _baseUrl, httpClient: _http, timeout: _timeout);
+      final existing = await MainApiSettingsStore.loadSession();
       final newSession = await publicClient.refreshSession(refreshToken: refreshToken);
-      await MainApiSettingsStore.saveSession(newSession);
+      await MainApiSettingsStore.saveSession(
+        newSession.copyWith(authMethod: existing?.authMethod),
+      );
       debugPrint('[MainApiClient] Session refreshed successfully.');
       return newSession.accessToken;
     } catch (e) {
@@ -1618,6 +1621,12 @@ class MainApiClient implements RemoteRuntimeClient {
   /// Get the current status of a container.
   Future<Map<String, dynamic>> getContainerStatus(String id) async {
     return _get('/containers/$id/status');
+  }
+
+  /// Fetch recent container logs (read-only, no exec shell).
+  Future<String> getContainerLogs(String id, {int tail = 200}) async {
+    final json = await _get('/containers/$id/logs?tail=$tail');
+    return json['logs']?.toString() ?? '';
   }
 
   /// Stop a running container (shut down; config is kept for restart).

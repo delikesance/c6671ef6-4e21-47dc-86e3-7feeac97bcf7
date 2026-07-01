@@ -5,7 +5,6 @@ import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/features/containers/logic/hosted_app_hosting_actions.dart';
 import 'package:bot_creator/features/containers/presentation/hosted_app_upsell_widgets.dart';
-import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
 import 'package:flutter/material.dart';
 
 class ContainerDeployPage extends StatefulWidget {
@@ -81,7 +80,7 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
     }
   }
 
-  bool get _canDeploy => _eligibility?.canDeploy ?? PremiumCapabilities.isPremiumUser;
+  bool get _canDeploy => _eligibility?.canDeploy ?? false;
 
   @override
   void dispose() {
@@ -240,7 +239,8 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const HostedAppPremiumUpsell(),
+          if (_eligibility != null && !_eligibility!.premium)
+            HostedAppPremiumUpsell(eligibility: _eligibility),
           HostedAppFreeHostingBanner(
             eligibility: elig,
             claimingAd: false,

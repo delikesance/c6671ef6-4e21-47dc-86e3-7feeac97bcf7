@@ -108,6 +108,71 @@
           ]
         }
       ]
+    },
+    {
+      "id" : "22200596",
+      "localizations" : [
+
+      ],
+      "name" : "Hosted Application Group",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "2.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "6762000001",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Host one Docker container",
+              "displayName" : "Host one App",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "host_one_app",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Host one App",
+          "subscriptionGroupID" : "22200596",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "4.99",
+          "familyShareable" : false,
+          "groupNumber" : 2,
+          "internalID" : "6762000002",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Host two Docker containers",
+              "displayName" : "Host Two App",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "host_two_app",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Host Two App",
+          "subscriptionGroupID" : "22200596",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        }
+      ]
     }
   ],
   "version" : {

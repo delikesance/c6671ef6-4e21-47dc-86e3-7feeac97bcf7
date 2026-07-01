@@ -136,7 +136,10 @@ Future<ResolvedRemoteRuntime> resolveRemoteRuntime({
         final newSession = await client.refreshSession(
           refreshToken: session.refreshToken!,
         );
-        await MainApiSettingsStore.saveSession(newSession);
+        final existing = await MainApiSettingsStore.loadSession();
+        await MainApiSettingsStore.saveSession(
+          newSession.copyWith(authMethod: existing?.authMethod),
+        );
         session = newSession;
       } catch (_) {
         // Refresh failed, proceed to expired/null logic.

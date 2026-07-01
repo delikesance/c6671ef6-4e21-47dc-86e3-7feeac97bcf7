@@ -6565,6 +6565,30 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settings_account_status_disconnected => 'Compte non connecté';
 
   @override
+  String get mobile_account_required_title => 'Sign in with Discord';
+
+  @override
+  String get mobile_account_required_body =>
+      'On mobile, a Discord account is required to use Bot Creator. Your bots, hosted applications, and subscriptions are tied to this account and can be recovered on a new phone.';
+
+  @override
+  String get mobile_account_required_feature_bots =>
+      'Sync and restore your bots from the cloud';
+
+  @override
+  String get mobile_account_required_feature_hosted =>
+      'Deploy and manage hosted applications';
+
+  @override
+  String get mobile_account_required_feature_recovery =>
+      'Recover everything after reinstall or on a new phone';
+
+  @override
+  String mobile_account_required_failed(String error) {
+    return 'Discord sign-in failed: $error';
+  }
+
+  @override
   String get settings_ads_privacy_loading =>
       'Vérification des paramètres de confidentialité pub...';
 
@@ -7697,6 +7721,68 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get subscription_manage => 'Gérer l\'abonnement';
+
+  @override
+  String get subscriptions_hub_title => 'Subscriptions';
+
+  @override
+  String get subscriptions_hub_subtitle =>
+      'View and manage your Bot Premium and hosted application plans.';
+
+  @override
+  String get subscriptions_hub_open_settings => 'Subscriptions & billing';
+
+  @override
+  String get subscriptions_hub_bot_premium_section => 'Bot Premium';
+
+  @override
+  String get subscriptions_hub_bot_premium_desc =>
+      'Remove ads and unlock premium features for your Discord bots.';
+
+  @override
+  String get subscriptions_hub_hosted_section => 'Hosted applications';
+
+  @override
+  String get subscriptions_hub_hosted_desc =>
+      'Run Docker containers in the cloud without watching ads.';
+
+  @override
+  String get subscriptions_hub_status_active => 'Active';
+
+  @override
+  String get subscriptions_hub_status_inactive => 'Not subscribed';
+
+  @override
+  String get subscriptions_hub_subscribe => 'Subscribe';
+
+  @override
+  String get subscriptions_hub_summary_both =>
+      'Bot Premium and Hosted applications active';
+
+  @override
+  String get subscriptions_hub_summary_bot_only => 'Bot Premium active';
+
+  @override
+  String get subscriptions_hub_summary_hosted_only =>
+      'Hosted applications active';
+
+  @override
+  String get subscriptions_hub_summary_none => 'No active subscriptions';
+
+  @override
+  String subscriptions_hub_expires_at(String date, String time) {
+    return 'Renews until $date at $time';
+  }
+
+  @override
+  String get subscription_upgrade_annual => 'Upgrade to annual';
+
+  @override
+  String get subscription_upgrade_two_apps => 'Upgrade to 2 containers';
+
+  @override
+  String get subscription_manage_cancel_hint =>
+      'To cancel or change billing, use Manage subscription — this opens the App Store or Google Play.';
 
   @override
   String get subscription_monthly_title => 'Mensuel';
@@ -9008,21 +9094,53 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get container_list_free_limit_reached =>
-      'Limite gratuite atteinte (1 conteneur). Passez Premium pour en héberger plus.';
+      'Limite gratuite atteinte (1 conteneur). Abonnez-vous pour en héberger plus.';
 
   @override
   String get container_hosted_premium_host_anytime => 'Hébergez à tout moment';
 
   @override
   String get container_hosted_premium_host_anytime_compact =>
-      'Premium — hébergez à tout moment';
+      'S\'abonner — héberger à tout moment';
 
   @override
   String get container_hosted_premium_desc =>
-      'Passez Premium pour des conteneurs Docker avec un hébergement illimité — sans publicité.';
+      'Abonnez-vous pour héberger des conteneurs Docker sans limite — sans publicité.';
 
   @override
-  String get container_hosted_premium_view_btn => 'Voir Premium';
+  String get container_hosted_premium_view_btn => 'Voir les offres';
+
+  @override
+  String get hosted_app_subscription_title => 'Applications hébergées';
+
+  @override
+  String get hosted_app_subscription_subtitle =>
+      'Exécutez des conteneurs Docker dans le cloud sans regarder de publicités.';
+
+  @override
+  String get hosted_app_subscription_benefit_unlimited =>
+      'Temps d\'hébergement illimité';
+
+  @override
+  String get hosted_app_subscription_benefit_no_ads =>
+      'Aucune publicité récompensée requise';
+
+  @override
+  String get hosted_app_subscription_one_app_title => '1 conteneur';
+
+  @override
+  String get hosted_app_subscription_one_app_desc =>
+      'Hébergez un conteneur Docker à tout moment';
+
+  @override
+  String get hosted_app_subscription_two_app_title => '2 conteneurs';
+
+  @override
+  String get hosted_app_subscription_two_app_desc =>
+      'Hébergez jusqu\'à deux conteneurs Docker';
+
+  @override
+  String get hosted_app_subscription_recommended => 'Meilleur choix';
 
   @override
   String get container_hosted_free_title =>

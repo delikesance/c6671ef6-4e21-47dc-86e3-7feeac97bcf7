@@ -1,7 +1,7 @@
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
-import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
-import 'package:bot_creator/features/subscriptions/presentation/subscription_page.dart';
+import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
+import 'package:bot_creator/features/subscriptions/presentation/hosted_app_subscription_page.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -10,13 +10,20 @@ class HostedAppPremiumUpsell extends StatelessWidget {
   const HostedAppPremiumUpsell({
     super.key,
     this.compact = false,
+    this.eligibility,
   });
 
   final bool compact;
+  final HostedAppEligibility? eligibility;
+
+  bool get _hasHostedAppSubscription => eligibility?.premium == true;
+
+  bool get _canShowPurchase =>
+      SubscriptionService.supportsNativeBilling && !_hasHostedAppSubscription;
 
   @override
   Widget build(BuildContext context) {
-    if (PremiumCapabilities.isPremiumUser || !PremiumCapabilities.canShowPurchaseUI) {
+    if (!_canShowPurchase) {
       return const SizedBox.shrink();
     }
 
@@ -24,14 +31,14 @@ class HostedAppPremiumUpsell extends StatelessWidget {
 
     if (compact) {
       return FilledButton.tonalIcon(
-        onPressed: () => SubscriptionPage.show(context),
-        icon: const Icon(Icons.workspace_premium, color: Colors.amber),
+        onPressed: () => HostedAppSubscriptionPage.show(context),
+        icon: const Icon(Icons.storage_rounded, color: Colors.teal),
         label: Text(tr.container_hosted_premium_host_anytime_compact),
       );
     }
 
     return Card(
-      color: Colors.amber.withValues(alpha: 0.08),
+      color: Colors.teal.withValues(alpha: 0.08),
       margin: const EdgeInsets.only(bottom: 16),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -40,7 +47,7 @@ class HostedAppPremiumUpsell extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.workspace_premium, color: Colors.amber),
+                const Icon(Icons.storage_rounded, color: Colors.teal),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -60,8 +67,8 @@ class HostedAppPremiumUpsell extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             FilledButton.icon(
-              onPressed: () => SubscriptionPage.show(context),
-              icon: const Icon(Icons.workspace_premium),
+              onPressed: () => HostedAppSubscriptionPage.show(context),
+              icon: const Icon(Icons.storage_rounded),
               label: Text(tr.container_hosted_premium_view_btn),
             ),
           ],
