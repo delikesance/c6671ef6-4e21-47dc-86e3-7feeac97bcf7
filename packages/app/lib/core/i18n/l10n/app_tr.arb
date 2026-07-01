@@ -10269,5 +10269,32 @@
         "type": "String"
       }
     }
-  }
+  },
+  "container_list_premium_host_anytime_tooltip": "Premium — istediginiz zaman barindirin",
+  "container_list_premium_host_anytime_fab": "Istediginiz zaman barindirin",
+  "container_list_free_limit_reached": "Ucretsiz limit doldu (1 konteyner). Daha fazlasi icin Premium'a gecin.",
+  "container_hosted_premium_host_anytime": "Istediginiz zaman barindirin",
+  "container_hosted_premium_host_anytime_compact": "Premium — istediginiz zaman barindirin",
+  "container_hosted_premium_desc": "Sinirsiz barindirma ve reklamsiz Docker konteynerleri icin Premium'a gecin.",
+  "container_hosted_premium_view_btn": "Premium'u gor",
+  "container_hosted_free_title": "Ucretsiz barindirma (en fazla 1 konteyner)",
+  "container_hosted_expires_at": "Bitis: {dateTime}",
+  "container_hosted_topup_ad_hint": "Bu konteynere {reward} dk eklemek icin reklam izleyin (birikir).",
+  "container_hosted_at_limit_open_detail": "Konteyner aktif ({active}/{max}). Reklamla uzatmak icin acin.",
+  "container_hosted_minutes_available": "{minutes} dk barindirma kullanilabilir (birikir).",
+  "container_hosted_watch_ad_earn": "{reward} dk barindirma kazanmak icin reklam izleyin.",
+  "container_hosted_ad_button": "Reklam +{reward} dk",
+  "container_hosted_balance_after_ad": "Son reklamdan sonra bakiye: {minutes} dk",
+  "container_deploy_ad_unlock_success": "+{granted} dk barindirma (toplam: {balance} dk).",
+  "container_deploy_ad_unlock_failed": "Acma basarisiz: {error}",
+  "container_deploy_requires_premium_or_ad": "Konteyner dagitmak icin Premium abonelik veya odullu reklam gerekli.",
+  "container_deploy_premium_account": "Premium hesap",
+  "container_deploy_premium_containers": "En fazla {max} aktif konteyner ({active}/{max}).",
+  "container_deploy_ephemeral_storage": "Gecici depolama (kalici birim yok)",
+  "container_detail_topup_applied": "Bu konteynere +{minutes} dk eklendi.",
+  "container_detail_topup_credited": "+{minutes} dk yuklendi.",
+  "container_detail_apply_stored_minutes": "Kayitli {minutes} dk uygula",
+  "container_detail_minutes_applied": "{minutes} dk uygulandi.",
+  "subscription_feature_hosted_apps_title": "Barindirilan uygulamalar",
+  "subscription_feature_hosted_apps_desc": "Docker konteynerlerini sinirsiz barindirin — reklam yok."
 }

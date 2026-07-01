@@ -7530,6 +7530,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Start bots immediately without rewarded ad interruption.';
 
   @override
+  String get subscription_feature_hosted_apps_title => 'Hosted applications';
+
+  @override
+  String get subscription_feature_hosted_apps_desc =>
+      'Run Docker containers with unlimited hosting — no ads required.';
+
+  @override
   String get subscription_feature_instant_start_title => 'Instant start';
 
   @override
@@ -8847,5 +8854,114 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String container_detail_title(String id) {
     return 'Container $id';
+  }
+
+  @override
+  String get container_list_premium_host_anytime_tooltip =>
+      'Premium — host anytime';
+
+  @override
+  String get container_list_premium_host_anytime_fab => 'Host anytime';
+
+  @override
+  String get container_list_free_limit_reached =>
+      'Free limit reached (1 container). Upgrade to Premium to host more.';
+
+  @override
+  String get container_hosted_premium_host_anytime => 'Host anytime';
+
+  @override
+  String get container_hosted_premium_host_anytime_compact =>
+      'Premium — host anytime';
+
+  @override
+  String get container_hosted_premium_desc =>
+      'Upgrade to Premium for Docker containers with unlimited hosting and no ads.';
+
+  @override
+  String get container_hosted_premium_view_btn => 'View Premium';
+
+  @override
+  String get container_hosted_free_title => 'Free hosting (1 container max)';
+
+  @override
+  String container_hosted_expires_at(String dateTime) {
+    return 'Expires $dateTime';
+  }
+
+  @override
+  String container_hosted_topup_ad_hint(int reward) {
+    return 'Watch an ad to add $reward min to this container (stackable).';
+  }
+
+  @override
+  String container_hosted_at_limit_open_detail(int active, int max) {
+    return 'Container active ($active/$max). Open it to extend with an ad.';
+  }
+
+  @override
+  String container_hosted_minutes_available(int minutes) {
+    return '$minutes hosting minutes available (stackable).';
+  }
+
+  @override
+  String container_hosted_watch_ad_earn(int reward) {
+    return 'Watch an ad to earn $reward hosting minutes.';
+  }
+
+  @override
+  String container_hosted_ad_button(int reward) {
+    return 'Ad +$reward min';
+  }
+
+  @override
+  String container_hosted_balance_after_ad(int minutes) {
+    return 'Balance after last ad: $minutes min';
+  }
+
+  @override
+  String container_deploy_ad_unlock_success(int granted, int balance) {
+    return '+$granted hosting minutes (total: $balance min).';
+  }
+
+  @override
+  String container_deploy_ad_unlock_failed(String error) {
+    return 'Unlock failed: $error';
+  }
+
+  @override
+  String get container_deploy_requires_premium_or_ad =>
+      'Premium subscription or rewarded ad required to deploy a container.';
+
+  @override
+  String get container_deploy_premium_account => 'Premium account';
+
+  @override
+  String container_deploy_premium_containers(int max, int active) {
+    return 'Up to $max active containers ($active/$max).';
+  }
+
+  @override
+  String get container_deploy_ephemeral_storage =>
+      'Ephemeral storage (no persistent volume)';
+
+  @override
+  String container_detail_topup_applied(int minutes) {
+    return '+$minutes min added to this container.';
+  }
+
+  @override
+  String container_detail_topup_credited(int minutes) {
+    return '+$minutes min credited.';
+  }
+
+  @override
+  String container_detail_apply_stored_minutes(int minutes) {
+    return 'Apply $minutes stored min';
+  }
+
+  @override
+  String container_detail_minutes_applied(int minutes) {
+    return '$minutes min applied.';
   }
 }

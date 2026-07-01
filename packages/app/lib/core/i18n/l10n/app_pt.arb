@@ -10302,5 +10302,32 @@
         "type": "String"
       }
     }
-  }
+  },
+  "container_list_premium_host_anytime_tooltip": "Premium — hospede a qualquer momento",
+  "container_list_premium_host_anytime_fab": "Hospedar a qualquer momento",
+  "container_list_free_limit_reached": "Limite gratuito atingido (1 contêiner). Faça upgrade para Premium para hospedar mais.",
+  "container_hosted_premium_host_anytime": "Hospede a qualquer momento",
+  "container_hosted_premium_host_anytime_compact": "Premium — hospede a qualquer momento",
+  "container_hosted_premium_desc": "Faça upgrade para Premium para contêineres Docker com hospedagem ilimitada — sem anúncios.",
+  "container_hosted_premium_view_btn": "Ver Premium",
+  "container_hosted_free_title": "Hospedagem gratuita (máx. 1 contêiner)",
+  "container_hosted_expires_at": "Expira em {dateTime}",
+  "container_hosted_topup_ad_hint": "Assista a um anúncio para adicionar {reward} min a este contêiner (acumulável).",
+  "container_hosted_at_limit_open_detail": "Contêiner ativo ({active}/{max}). Abra-o para estender com um anúncio.",
+  "container_hosted_minutes_available": "{minutes} minutos de hospedagem disponíveis (acumuláveis).",
+  "container_hosted_watch_ad_earn": "Assista a um anúncio para ganhar {reward} minutos de hospedagem.",
+  "container_hosted_ad_button": "Anúncio +{reward} min",
+  "container_hosted_balance_after_ad": "Saldo após último anúncio: {minutes} min",
+  "container_deploy_ad_unlock_success": "+{granted} minutos de hospedagem (total: {balance} min).",
+  "container_deploy_ad_unlock_failed": "Falha ao desbloquear: {error}",
+  "container_deploy_requires_premium_or_ad": "Assinatura Premium ou anúncio recompensado necessário para implantar um contêiner.",
+  "container_deploy_premium_account": "Conta Premium",
+  "container_deploy_premium_containers": "Até {max} contêineres ativos ({active}/{max}).",
+  "container_deploy_ephemeral_storage": "Armazenamento efêmero (sem volume persistente)",
+  "container_detail_topup_applied": "+{minutes} min adicionados a este contêiner.",
+  "container_detail_topup_credited": "+{minutes} min creditados.",
+  "container_detail_apply_stored_minutes": "Aplicar {minutes} min armazenados",
+  "container_detail_minutes_applied": "{minutes} min aplicados.",
+  "subscription_feature_hosted_apps_title": "Aplicações hospedadas",
+  "subscription_feature_hosted_apps_desc": "Execute contêineres Docker com hospedagem ilimitada — sem anúncios."
 }

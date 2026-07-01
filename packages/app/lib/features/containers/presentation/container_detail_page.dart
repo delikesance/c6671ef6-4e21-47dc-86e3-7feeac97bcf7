@@ -4,6 +4,8 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
+import 'package:bot_creator/features/containers/logic/hosted_app_hosting_actions.dart';
+import 'package:bot_creator/features/containers/presentation/hosted_app_upsell_widgets.dart';
 
 class ContainerDetailPage extends StatefulWidget {
   final String containerId;
@@ -22,6 +24,9 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
   bool _stopping = false;
   bool _starting = false;
   bool _deleting = false;
+  bool _claimingAd = false;
+  bool _loadingEligibility = true;
+  HostedAppEligibility? _eligibility;
   Timer? _pollTimer;
   WebSocketChannel? _consoleChannel;
 
@@ -63,7 +68,111 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
         }
       } catch (_) {}
     }
-    await _loadStatus(showFullScreenLoader: true);
+    await Future.wait([
+      _loadStatus(showFullScreenLoader: true),
+      _refreshEligibility(),
+    ]);
+  }
+
+  Future<void> _refreshEligibility() async {
+    if (_client == null) {
+      if (mounted) setState(() => _loadingEligibility = false);
+      return;
+    }
+    setState(() => _loadingEligibility = true);
+    try {
+      final elig = await _client!.getHostedAppEligibility();
+      if (mounted) {
+        setState(() {
+          _eligibility = elig;
+          _loadingEligibility = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loadingEligibility = false);
+    }
+  }
+
+  DateTime? get _expiresAt {
+    final raw = _status?['expires_at']?.toString();
+    if (raw == null || raw.isEmpty) return null;
+    return DateTime.tryParse(raw);
+  }
+
+  Future<void> _watchAdAndTopUp() async {
+    if (_client == null || _claimingAd) return;
+    setState(() => _claimingAd = true);
+    try {
+      final result = await HostedAppHostingActions.watchAdAndClaim(
+        client: _client!,
+        placement: 'hosted_app_topup',
+        containerId: widget.containerId,
+        applyToContainer: true,
+      );
+      await Future.wait([
+        _refreshEligibility(),
+        _loadStatus(),
+      ]);
+      if (mounted && result != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              result.appliedToContainer
+                  ? context.tr.container_detail_topup_applied(result.grantedMinutes)
+                  : context.tr.container_detail_topup_credited(result.grantedMinutes),
+            ),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(context.tr.container_detail_failed(e.toString())),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _claimingAd = false);
+    }
+  }
+
+  Future<void> _applyStoredMinutes() async {
+    final elig = _eligibility;
+    if (_client == null || elig == null || elig.premium || elig.hostingMinutesBalance <= 0) {
+      return;
+    }
+    try {
+      await _client!.extendContainerTTL(
+        widget.containerId,
+        elig.hostingMinutesBalance,
+      );
+      await Future.wait([
+        _refreshEligibility(),
+        _loadStatus(),
+      ]);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              context.tr.container_detail_minutes_applied(elig.hostingMinutesBalance),
+            ),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(context.tr.container_detail_failed(e.toString())),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _loadStatus({bool showFullScreenLoader = false}) async {
@@ -208,6 +317,33 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : ListView(padding: const EdgeInsets.all(16), children: [
+              if (!_loadingEligibility && _eligibility != null && !_eligibility!.premium) ...[
+                HostedAppFreeHostingBanner(
+                  eligibility: _eligibility!,
+                  claimingAd: _claimingAd,
+                  onWatchAd: (state == 'RUNNING' || state == 'PROVISIONING')
+                      ? _watchAdAndTopUp
+                      : null,
+                  showTopUpHint: state == 'RUNNING' || state == 'PROVISIONING',
+                  expiresAt: _expiresAt,
+                ),
+                if (_eligibility!.hostingMinutesBalance > 0 &&
+                    (state == 'RUNNING' || state == 'PROVISIONING'))
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: OutlinedButton.icon(
+                      onPressed: _applyStoredMinutes,
+                      icon: const Icon(Icons.schedule),
+                      label: Text(
+                        context.tr.container_detail_apply_stored_minutes(
+                          _eligibility!.hostingMinutesBalance,
+                        ),
+                      ),
+                    ),
+                  ),
+                const HostedAppPremiumUpsell(compact: true),
+                const SizedBox(height: 8),
+              ],
               Card(child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 if (image.isNotEmpty) ...[
                   Text(image, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),

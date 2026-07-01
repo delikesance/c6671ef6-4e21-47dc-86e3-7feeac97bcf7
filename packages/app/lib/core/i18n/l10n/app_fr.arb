@@ -9683,6 +9683,8 @@
   "subscription_feature_debug_replay_desc": "Enregistre et rejoue les actions de commande étape par étape.",
   "subscription_feature_debug_replay_title": "Replay visuel de debug",
   "subscription_feature_instant_start_desc": "Lance les bots immédiatement sans interruption publicitaire.",
+  "subscription_feature_hosted_apps_title": "Applications hébergées",
+  "subscription_feature_hosted_apps_desc": "Déployez des conteneurs Docker avec un hébergement illimité — sans publicité.",
   "subscription_feature_instant_start_title": "Démarrage instantané",
   "subscription_feature_lavalink_desc": "Jouez de la musique et de l'audio dans les salons vocaux Discord avec Lavalink.",
   "subscription_feature_lavalink_title": "Module musique & audio",
@@ -10334,5 +10336,30 @@
         "type": "String"
       }
     }
-  }
+  },
+  "container_list_premium_host_anytime_tooltip": "Premium — hébergez à tout moment",
+  "container_list_premium_host_anytime_fab": "Héberger à tout moment",
+  "container_list_free_limit_reached": "Limite gratuite atteinte (1 conteneur). Passez Premium pour en héberger plus.",
+  "container_hosted_premium_host_anytime": "Hébergez à tout moment",
+  "container_hosted_premium_host_anytime_compact": "Premium — hébergez à tout moment",
+  "container_hosted_premium_desc": "Passez Premium pour des conteneurs Docker avec un hébergement illimité — sans publicité.",
+  "container_hosted_premium_view_btn": "Voir Premium",
+  "container_hosted_free_title": "Hébergement gratuit (1 conteneur max)",
+  "container_hosted_expires_at": "Expire le {dateTime}",
+  "container_hosted_topup_ad_hint": "Regardez une pub pour ajouter {reward} min à ce conteneur (cumulable).",
+  "container_hosted_at_limit_open_detail": "Conteneur actif ({active}/{max}). Ouvrez-le pour prolonger avec une pub.",
+  "container_hosted_minutes_available": "{minutes} min d'hébergement disponibles (cumulables).",
+  "container_hosted_watch_ad_earn": "Regardez une pub pour gagner {reward} min d'hébergement.",
+  "container_hosted_ad_button": "Pub +{reward} min",
+  "container_hosted_balance_after_ad": "Solde après dernière pub : {minutes} min",
+  "container_deploy_ad_unlock_success": "+{granted} min d'hébergement (total : {balance} min).",
+  "container_deploy_ad_unlock_failed": "Échec du déblocage : {error}",
+  "container_deploy_requires_premium_or_ad": "Abonnement Premium ou publicité requise pour déployer un conteneur.",
+  "container_deploy_premium_account": "Compte Premium",
+  "container_deploy_premium_containers": "Jusqu'à {max} conteneurs actifs ({active}/{max}).",
+  "container_deploy_ephemeral_storage": "Stockage éphémère (pas de volume persistant)",
+  "container_detail_topup_applied": "+{minutes} min ajoutées à ce conteneur.",
+  "container_detail_topup_credited": "+{minutes} min créditées.",
+  "container_detail_apply_stored_minutes": "Appliquer {minutes} min stockées",
+  "container_detail_minutes_applied": "{minutes} min appliquées."
 }

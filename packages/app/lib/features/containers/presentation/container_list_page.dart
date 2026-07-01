@@ -1,10 +1,13 @@
-import 'package:flutter/material.dart';
+import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
-import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/features/containers/presentation/container_deploy_page.dart';
 import 'package:bot_creator/features/containers/presentation/container_detail_page.dart';
+import 'package:bot_creator/features/containers/presentation/hosted_app_upsell_widgets.dart';
+import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
+import 'package:bot_creator/features/subscriptions/presentation/subscription_page.dart';
+import 'package:flutter/material.dart';
 
 class ContainerListPage extends StatefulWidget {
   const ContainerListPage({super.key});
@@ -16,9 +19,16 @@ class ContainerListPage extends StatefulWidget {
 class _ContainerListPageState extends State<ContainerListPage> {
   MainApiClient? _client;
   List<ContainerInfo>? _containers;
+  HostedAppEligibility? _eligibility;
   bool _loading = true;
   bool _initError = false;
   String? _error;
+
+  bool get _atFreeContainerLimit {
+    final elig = _eligibility;
+    if (elig == null || elig.premium) return false;
+    return elig.activeContainers >= elig.maxContainers;
+  }
 
   @override
   void initState() {
@@ -48,11 +58,40 @@ class _ContainerListPageState extends State<ContainerListPage> {
     if (_client == null) return;
     setState(() { _loading = true; _error = null; });
     try {
-      final containers = await _client!.listContainers();
-      if (mounted) setState(() { _containers = containers; _loading = false; });
+      final results = await Future.wait([
+        _client!.listContainers(),
+        _client!.getHostedAppEligibility(),
+      ]);
+      if (mounted) {
+        setState(() {
+          _containers = results[0] as List<ContainerInfo>;
+          _eligibility = results[1] as HostedAppEligibility;
+          _loading = false;
+        });
+      }
     } catch (e) {
       if (mounted) setState(() { _error = e.toString(); _loading = false; });
     }
+  }
+
+  Future<void> _openDeploy() async {
+    if (_atFreeContainerLimit) {
+      if (PremiumCapabilities.canShowPurchaseUI) {
+        await SubscriptionPage.show(context);
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.tr.container_list_free_limit_reached)),
+        );
+      }
+      return;
+    }
+    final deployed = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ContainerDeployPage(client: _client),
+      ),
+    );
+    if (deployed == true) _load();
   }
 
   Color _stateColor(String state) {
@@ -97,31 +136,40 @@ class _ContainerListPageState extends State<ContainerListPage> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final tr = context.tr;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(context.tr.container_list_title),
+        title: Text(tr.container_list_title),
         actions: [
           IconButton(icon: const Icon(Icons.refresh), onPressed: _load),
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () async {
-              final deployed = await Navigator.push<bool>(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => ContainerDeployPage(client: _client),
-                ),
-              );
-              if (deployed == true) _load();
-            },
-          ),
+          if (_atFreeContainerLimit)
+            IconButton(
+              icon: const Icon(Icons.workspace_premium, color: Colors.amber),
+              tooltip: tr.container_list_premium_host_anytime_tooltip,
+              onPressed: () => SubscriptionPage.show(context),
+            )
+          else
+            IconButton(
+              icon: const Icon(Icons.add),
+              onPressed: _openDeploy,
+            ),
         ],
       ),
       body: _buildBody(colorScheme),
+      floatingActionButton: _atFreeContainerLimit && PremiumCapabilities.canShowPurchaseUI
+          ? FloatingActionButton.extended(
+              onPressed: () => SubscriptionPage.show(context),
+              icon: const Icon(Icons.workspace_premium),
+              label: Text(tr.container_list_premium_host_anytime_fab),
+            )
+          : null,
     );
   }
 
   Widget _buildBody(ColorScheme colorScheme) {
+    final tr = context.tr;
+
     if (_loading) return const Center(child: CircularProgressIndicator());
 
     if (_initError) {
@@ -129,9 +177,9 @@ class _ContainerListPageState extends State<ContainerListPage> {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Icon(Icons.cloud_off, size: 64, color: colorScheme.error),
           const SizedBox(height: 16),
-          Text(context.tr.container_list_session_missing, style: Theme.of(context).textTheme.titleMedium),
+          Text(tr.container_list_session_missing, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
-          Text(context.tr.container_list_session_hint, style: TextStyle(color: colorScheme.onSurfaceVariant)),
+          Text(tr.container_list_session_hint, style: TextStyle(color: colorScheme.onSurfaceVariant)),
         ]),
       );
     }
@@ -141,11 +189,11 @@ class _ContainerListPageState extends State<ContainerListPage> {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Icon(Icons.cloud_off, size: 64, color: colorScheme.error),
           const SizedBox(height: 16),
-          Text(context.tr.container_list_error, style: Theme.of(context).textTheme.titleMedium),
+          Text(tr.container_list_error, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
           Text(_error!, style: TextStyle(color: colorScheme.onSurfaceVariant), textAlign: TextAlign.center),
           const SizedBox(height: 16),
-          FilledButton.tonalIcon(onPressed: _load, icon: const Icon(Icons.refresh), label: Text(context.tr.container_list_retry)),
+          FilledButton.tonalIcon(onPressed: _load, icon: const Icon(Icons.refresh), label: Text(tr.container_list_retry)),
         ]),
       );
     }
@@ -155,20 +203,14 @@ class _ContainerListPageState extends State<ContainerListPage> {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Icon(Icons.storage_rounded, size: 64, color: colorScheme.onSurfaceVariant),
           const SizedBox(height: 16),
-          Text(context.tr.container_list_empty, style: Theme.of(context).textTheme.titleMedium),
+          Text(tr.container_list_empty, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
-          Text(context.tr.container_list_empty_hint, style: TextStyle(color: colorScheme.onSurfaceVariant)),
+          Text(tr.container_list_empty_hint, style: TextStyle(color: colorScheme.onSurfaceVariant)),
           const SizedBox(height: 16),
           FilledButton.icon(
-            onPressed: () async {
-              final deployed = await Navigator.push<bool>(
-                context,
-                MaterialPageRoute(builder: (_) => ContainerDeployPage(client: _client)),
-              );
-              if (deployed == true) _load();
-            },
+            onPressed: _openDeploy,
             icon: const Icon(Icons.add),
-            label: Text(context.tr.container_list_deploy_btn),
+            label: Text(tr.container_list_deploy_btn),
           ),
         ]),
       );
@@ -178,9 +220,15 @@ class _ContainerListPageState extends State<ContainerListPage> {
       onRefresh: _load,
       child: ListView.builder(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        itemCount: _containers!.length,
+        itemCount: _containers!.length + (_atFreeContainerLimit ? 1 : 0),
         itemBuilder: (context, index) {
-          final c = _containers![index];
+          if (_atFreeContainerLimit && index == 0) {
+            return const Padding(
+              padding: EdgeInsets.only(bottom: 8),
+              child: HostedAppPremiumUpsell(),
+            );
+          }
+          final c = _containers![index - (_atFreeContainerLimit ? 1 : 0)];
           return Card(
             clipBehavior: Clip.antiAlias,
             margin: const EdgeInsets.symmetric(vertical: 6),
@@ -209,7 +257,7 @@ class _ContainerListPageState extends State<ContainerListPage> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(color: _stateColor(c.state).withValues(alpha: 0.15), borderRadius: BorderRadius.circular(AppTheme.radiusPill)),
-                        child: Text(_stateLabel(c.state, context.tr), style: TextStyle(color: _stateColor(c.state), fontSize: 12, fontWeight: FontWeight.bold)),
+                        child: Text(_stateLabel(c.state, tr), style: TextStyle(color: _stateColor(c.state), fontSize: 12, fontWeight: FontWeight.bold)),
                       ),
                     ]),
                   ],

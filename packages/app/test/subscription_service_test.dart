@@ -28,7 +28,7 @@ void main() {
     await SubscriptionService.debugResetForTests();
   });
 
-  test('mobile premium comes from the local store cache only', () async {
+  test('mobile premium requires server-validated local cache', () async {
     seedLocalPremiumCache();
 
     final isPremium = await SubscriptionService.resolveEffectivePremiumStatus(

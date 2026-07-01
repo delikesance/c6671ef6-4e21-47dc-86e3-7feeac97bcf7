@@ -59,6 +59,13 @@ class PremiumCapabilities {
       coreBenefit: true,
     ),
     PremiumFeatureDefinition(
+      capability: PremiumCapability.hostedApps,
+      icon: Icons.storage_rounded,
+      title: (tr) => tr.subscription_feature_hosted_apps_title,
+      description: (tr) => tr.subscription_feature_hosted_apps_desc,
+      coreBenefit: true,
+    ),
+    PremiumFeatureDefinition(
       capability: PremiumCapability.analyticsExpanded,
       icon: Icons.insights_rounded,
       title: (tr) => tr.subscription_feature_analytics_title,

@@ -353,6 +353,7 @@ extension _AppHomePageLogic on _AppHomePageState {
               if (botToken.isNotEmpty) {
                 try {
                   await remoteClient.saveDiscordBotSnapshot(
+                    botId: botId,
                     botToken: botToken,
                     config: payload,
                   );
