@@ -127,10 +127,16 @@ class PremiumCapabilities {
     return _rolloutEnabled[capability] ?? false;
   }
 
+  static bool get hostedAppsRolloutEnabled =>
+      isCapabilityRolledOut(PremiumCapability.hostedApps);
+
   static bool hasCapability(PremiumCapability capability) {
     if (capability == PremiumCapability.noAds ||
         capability == PremiumCapability.instantStart) {
       return isPremiumUser;
+    }
+    if (capability == PremiumCapability.hostedApps) {
+      return isPremiumUser && isCapabilityRolledOut(capability);
     }
     return isPremiumUser && isCapabilityRolledOut(capability);
   }
@@ -163,7 +169,7 @@ class PremiumCapabilities {
       case PremiumCapability.lavalinkAudio:
         return isPremiumUser ? 1 : 0;
       case PremiumCapability.hostedApps:
-        return isPremiumUser ? 2 : 0;
+        return isPremiumUser ? 2 : 1;
     }
   }
 

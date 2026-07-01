@@ -8739,17 +8739,43 @@ class AppLocalizationsEn extends AppLocalizations {
   String get container_detail_extend_ttl => 'Extend TTL';
 
   @override
-  String get container_detail_stop_title => 'Stop Container';
+  String get container_detail_stop_title => 'Shut Down Container';
 
   @override
   String get container_detail_stop_confirm =>
-      'This will terminate the container and its data will be lost.';
+      'This will shut down the container. Your image and environment variables are saved so you can restart it later.';
 
   @override
-  String get container_detail_stop_btn => 'Stop';
+  String get container_detail_stop_btn => 'Shut Down';
 
   @override
-  String get container_detail_stopped_ok => 'Container stopped';
+  String get container_detail_stopped_ok => 'Container shut down';
+
+  @override
+  String get container_detail_start_btn => 'Start';
+
+  @override
+  String get container_detail_starting => 'Starting...';
+
+  @override
+  String get container_detail_started_ok => 'Container is starting';
+
+  @override
+  String get container_detail_delete_title => 'Delete Container';
+
+  @override
+  String get container_detail_delete_confirm =>
+      'This permanently deletes the container from the database and cloud. This cannot be undone.';
+
+  @override
+  String get container_detail_delete_btn => 'Delete';
+
+  @override
+  String get container_detail_deleted_ok => 'Container deleted';
+
+  @override
+  String get container_detail_stopped_hint =>
+      'This container is shut down. You can restart it without re-entering environment variables.';
 
   @override
   String get container_detail_update_resources => 'Update Resources';

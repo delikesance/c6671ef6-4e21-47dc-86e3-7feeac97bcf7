@@ -10770,21 +10770,53 @@
   "@container_detail_extend_ttl": {
     "description": "Button and dialog title for extending TTL"
   },
-  "container_detail_stop_title": "Stop Container",
+  "container_detail_stop_title": "Shut Down Container",
   "@container_detail_stop_title": {
-    "description": "Title of the stop container dialog"
+    "description": "Title of the shut down container dialog"
   },
-  "container_detail_stop_confirm": "This will terminate the container and its data will be lost.",
+  "container_detail_stop_confirm": "This will shut down the container. Your image and environment variables are saved so you can restart it later.",
   "@container_detail_stop_confirm": {
-    "description": "Confirmation message for stopping a container"
+    "description": "Confirmation message for shutting down a container"
   },
-  "container_detail_stop_btn": "Stop",
+  "container_detail_stop_btn": "Shut Down",
   "@container_detail_stop_btn": {
-    "description": "Confirm button in stop dialog"
+    "description": "Confirm button in shut down dialog"
   },
-  "container_detail_stopped_ok": "Container stopped",
+  "container_detail_stopped_ok": "Container shut down",
   "@container_detail_stopped_ok": {
-    "description": "Snackbar after container is stopped"
+    "description": "Snackbar after container is shut down"
+  },
+  "container_detail_start_btn": "Start",
+  "@container_detail_start_btn": {
+    "description": "Button to restart a stopped container"
+  },
+  "container_detail_starting": "Starting...",
+  "@container_detail_starting": {
+    "description": "Label while container is starting"
+  },
+  "container_detail_started_ok": "Container is starting",
+  "@container_detail_started_ok": {
+    "description": "Snackbar after container start is requested"
+  },
+  "container_detail_delete_title": "Delete Container",
+  "@container_detail_delete_title": {
+    "description": "Title of the delete container dialog"
+  },
+  "container_detail_delete_confirm": "This permanently deletes the container from the database and cloud. This cannot be undone.",
+  "@container_detail_delete_confirm": {
+    "description": "Confirmation message for deleting a container"
+  },
+  "container_detail_delete_btn": "Delete",
+  "@container_detail_delete_btn": {
+    "description": "Confirm button in delete dialog"
+  },
+  "container_detail_deleted_ok": "Container deleted",
+  "@container_detail_deleted_ok": {
+    "description": "Snackbar after container is deleted"
+  },
+  "container_detail_stopped_hint": "This container is shut down. You can restart it without re-entering environment variables.",
+  "@container_detail_stopped_hint": {
+    "description": "Hint shown when a container is stopped"
   },
   "container_detail_update_resources": "Update Resources",
   "@container_detail_update_resources": {

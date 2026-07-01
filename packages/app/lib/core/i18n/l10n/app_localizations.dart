@@ -15298,29 +15298,77 @@ abstract class AppLocalizations {
   /// **'Extend TTL'**
   String get container_detail_extend_ttl;
 
-  /// Title of the stop container dialog
+  /// Title of the shut down container dialog
   ///
   /// In en, this message translates to:
-  /// **'Stop Container'**
+  /// **'Shut Down Container'**
   String get container_detail_stop_title;
 
-  /// Confirmation message for stopping a container
+  /// Confirmation message for shutting down a container
   ///
   /// In en, this message translates to:
-  /// **'This will terminate the container and its data will be lost.'**
+  /// **'This will shut down the container. Your image and environment variables are saved so you can restart it later.'**
   String get container_detail_stop_confirm;
 
-  /// Confirm button in stop dialog
+  /// Confirm button in shut down dialog
   ///
   /// In en, this message translates to:
-  /// **'Stop'**
+  /// **'Shut Down'**
   String get container_detail_stop_btn;
 
-  /// Snackbar after container is stopped
+  /// Snackbar after container is shut down
   ///
   /// In en, this message translates to:
-  /// **'Container stopped'**
+  /// **'Container shut down'**
   String get container_detail_stopped_ok;
+
+  /// Button to restart a stopped container
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get container_detail_start_btn;
+
+  /// Label while container is starting
+  ///
+  /// In en, this message translates to:
+  /// **'Starting...'**
+  String get container_detail_starting;
+
+  /// Snackbar after container start is requested
+  ///
+  /// In en, this message translates to:
+  /// **'Container is starting'**
+  String get container_detail_started_ok;
+
+  /// Title of the delete container dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Container'**
+  String get container_detail_delete_title;
+
+  /// Confirmation message for deleting a container
+  ///
+  /// In en, this message translates to:
+  /// **'This permanently deletes the container from the database and cloud. This cannot be undone.'**
+  String get container_detail_delete_confirm;
+
+  /// Confirm button in delete dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get container_detail_delete_btn;
+
+  /// Snackbar after container is deleted
+  ///
+  /// In en, this message translates to:
+  /// **'Container deleted'**
+  String get container_detail_deleted_ok;
+
+  /// Hint shown when a container is stopped
+  ///
+  /// In en, this message translates to:
+  /// **'This container is shut down. You can restart it without re-entering environment variables.'**
+  String get container_detail_stopped_hint;
 
   /// Button and dialog title for updating resources
   ///

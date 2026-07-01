@@ -479,7 +479,11 @@ Future<void> _executeSync(String botId) async {
           }
         }
       } catch (error) {
-        debugPrint('[AutoReload] Cloud sync failed for $botId: $error');
+        if (_isTransientNetworkError(error)) {
+          debugPrint('[AutoReload] Cloud sync skipped for $botId (offline).');
+        } else {
+          debugPrint('[AutoReload] Cloud sync failed for $botId: $error');
+        }
       }
     }());
 
@@ -553,7 +557,13 @@ Future<Map<String, dynamic>> buildBotPayload(String botId) async {
     }
   } catch (e) {
     // If fetching app flags fails, keep existing intents as fallback
-    debugPrint('[buildBotPayload] Failed to fetch app flags for intents: $e');
+    if (_isTransientNetworkError(e)) {
+      debugPrint(
+        '[buildBotPayload] Offline — skipping Discord app flags fetch.',
+      );
+    } else {
+      debugPrint('[buildBotPayload] Failed to fetch app flags for intents: $e');
+    }
   }
 
   final scopedVariables = await _appManager.exportScopedVariables(botId);
@@ -708,4 +718,11 @@ Map<String, dynamic> _buildPayloadInBackground(Map<String, dynamic> args) {
   final configJson = jsonDecode(jsonEncode(config.toJson())) as Map<String, dynamic>;
   configJson['isPremium'] = isPremium;
   return configJson;
+}
+
+bool _isTransientNetworkError(Object error) {
+  final message = error.toString();
+  return message.contains('SocketException') ||
+      message.contains('Failed host lookup') ||
+      message.contains('ClientException');
 }

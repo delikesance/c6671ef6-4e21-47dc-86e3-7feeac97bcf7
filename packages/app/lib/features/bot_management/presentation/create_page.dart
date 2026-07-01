@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/core/utils/global.dart';
@@ -13,8 +10,8 @@ import 'dart:developer' as developer;
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
-import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
 import 'package:bot_creator/features/containers/presentation/container_deploy_page.dart';
+import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
 
 class AppCreatePage extends StatefulWidget {
   const AppCreatePage({super.key});
@@ -313,8 +310,6 @@ class _AppCreatePageState extends State<AppCreatePage> {
     bool isMobile,
     ColorScheme colorScheme,
   ) {
-    final isPremium = PremiumCapabilities.isPremiumUser;
-
     final cards = <Widget>[
       _TypeSelectionCard(
         title: context.tr.app_create_type_discord,
@@ -332,7 +327,7 @@ class _AppCreatePageState extends State<AppCreatePage> {
           });
         },
       ),
-      if (isPremium)
+      if (PremiumCapabilities.hostedAppsRolloutEnabled)
         _TypeSelectionCard(
           title: context.tr.app_create_type_hosted,
           description: context.tr.app_create_type_hosted_desc,
@@ -340,6 +335,10 @@ class _AppCreatePageState extends State<AppCreatePage> {
           iconColor: Colors.teal,
           iconBackgroundColor: Colors.teal.withOpacity(0.12),
           onTap: () {
+            AppAnalytics.logEvent(
+              name: "select_app_type",
+              parameters: {"type": "hosted_application"},
+            );
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -347,17 +346,6 @@ class _AppCreatePageState extends State<AppCreatePage> {
               ),
             );
           },
-        )
-      else
-        _TypeSelectionCard(
-          title: context.tr.app_create_type_hosted,
-          description: context.tr.app_create_type_hosted_desc,
-          icon: Icons.storage_rounded,
-          iconColor: Colors.teal,
-          iconBackgroundColor: Colors.teal.withOpacity(0.12),
-          isEnabled: false,
-          badgeText: context.tr.container_premium_badge,
-          onTap: () {},
         ),
     ];
 
@@ -383,18 +371,22 @@ class _AppCreatePageState extends State<AppCreatePage> {
         if (isMobile)
           Column(
             children: [
-              cards[0],
-              const SizedBox(height: 16),
-              cards[1],
+              for (var i = 0; i < cards.length; i++) ...[
+                if (i > 0) const SizedBox(height: 16),
+                cards[i],
+              ],
             ],
           )
+        else if (cards.length == 1)
+          cards[0]
         else
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(child: cards[0]),
-              const SizedBox(width: 20),
-              Expanded(child: cards[1]),
+              for (var i = 0; i < cards.length; i++) ...[
+                if (i > 0) const SizedBox(width: 20),
+                Expanded(child: cards[i]),
+              ],
             ],
           ),
         const SizedBox(height: 32),
@@ -649,15 +641,13 @@ class _AppCreatePageState extends State<AppCreatePage> {
     final sectionSpacing = ResponsiveHelper.getSpacing(context, factor: 1.5);
     final cardPadding = EdgeInsets.all(isMobile ? 16 : 20);
 
-    final isDesktopPlatform = !kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS);
-    final forceDiscordBot = isDesktopPlatform;
-    final showSelection = _selectedType == null && !forceDiscordBot;
+    final showSelection = _selectedType == null;
 
     return PopScope(
-      canPop: showSelection || forceDiscordBot,
+      canPop: showSelection,
       onPopInvokedWithResult: (didPop, _) async {
         if (didPop) return;
-        if (_selectedType != null && !forceDiscordBot) {
+        if (_selectedType != null) {
           setState(() {
             _selectedType = null;
           });
@@ -669,7 +659,7 @@ class _AppCreatePageState extends State<AppCreatePage> {
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_rounded),
             onPressed: () {
-              if (_selectedType != null && !forceDiscordBot) {
+              if (_selectedType != null) {
                 setState(() {
                   _selectedType = null;
                 });

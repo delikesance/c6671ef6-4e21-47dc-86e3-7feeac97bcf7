@@ -1571,6 +1571,28 @@ class MainApiClient implements RemoteRuntimeClient {
     return list.map((e) => ContainerInfo.fromJson(e)).toList();
   }
 
+  /// Free/premium eligibility for deploying a hosted Docker container.
+  Future<HostedAppEligibility> getHostedAppEligibility() async {
+    final json = await _get('/containers/eligibility');
+    return HostedAppEligibility.fromJson(json);
+  }
+
+  /// Claim a rewarded-ad deploy slot for a free hosted container.
+  Future<HostedAppClaimAdResult> claimHostedAppAd({
+    required String placement,
+    required String rewardId,
+    required String idempotencyKey,
+    DateTime? occurredAt,
+  }) async {
+    final json = await _post('/containers/claim-ad', <String, dynamic>{
+      'placement': placement,
+      'reward_id': rewardId,
+      'idempotency_key': idempotencyKey,
+      'occurred_at': (occurredAt ?? DateTime.now()).toUtc().toIso8601String(),
+    });
+    return HostedAppClaimAdResult.fromJson(json);
+  }
+
   /// Deploy a new container (async, returns job + container IDs).
   Future<Map<String, dynamic>> deployContainer({
     required String image,
@@ -1578,7 +1600,6 @@ class MainApiClient implements RemoteRuntimeClient {
     required int memoryMb,
     int storageGb = 10,
     Map<String, String> env = const <String, String>{},
-    int ttlMinutes = 60,
   }) async {
     return _post('/containers/deploy', <String, dynamic>{
       'image': image,
@@ -1586,7 +1607,6 @@ class MainApiClient implements RemoteRuntimeClient {
       'memory_mb': memoryMb,
       'storage_gb': storageGb,
       'env': env,
-      'ttl_minutes': ttlMinutes,
     });
   }
 
@@ -1595,9 +1615,19 @@ class MainApiClient implements RemoteRuntimeClient {
     return _get('/containers/$id/status');
   }
 
-  /// Stop a running container.
+  /// Stop a running container (shut down; config is kept for restart).
   Future<void> stopContainer(String id) async {
     await _post('/containers/$id/stop', <String, dynamic>{});
+  }
+
+  /// Start a stopped container using saved image and environment variables.
+  Future<Map<String, dynamic>> startContainer(String id) async {
+    return _post('/containers/$id/start', <String, dynamic>{});
+  }
+
+  /// Permanently delete a container from the database and compute layer.
+  Future<void> deleteContainer(String id) async {
+    await _delete('/containers/$id');
   }
 
   /// Extend the TTL of a container.
@@ -1709,6 +1739,7 @@ class ContainerInfo {
   final String image;
   final int cpuMillis;
   final int memoryMb;
+  final int memoryUsageBytes;
   final int storageGb;
   final Map<String, String> env;
   final String state;
@@ -1725,6 +1756,7 @@ class ContainerInfo {
     required this.image,
     required this.cpuMillis,
     required this.memoryMb,
+    this.memoryUsageBytes = 0,
     required this.storageGb,
     this.env = const <String, String>{},
     required this.state,
@@ -1743,6 +1775,7 @@ class ContainerInfo {
       image: (json['image'] ?? '').toString(),
       cpuMillis: _parseInt(json['cpu_millis'], 0),
       memoryMb: _parseInt(json['memory_mb'], 0),
+      memoryUsageBytes: _parseInt(json['memory_usage_bytes'], 0),
       storageGb: _parseInt(json['storage_gb'], 0),
       env: (json['env'] is Map<String, dynamic>
           ? (json['env'] as Map<String, dynamic>)
@@ -1763,17 +1796,71 @@ class ContainerInfo {
   bool get isFailed => state == 'FAILED';
   bool get isTerminal => isStopped || isFailed;
 
-  static int _parseInt(dynamic v, int fallback) {
+  static int parseInt(dynamic v, int fallback) {
     if (v is int) return v;
     if (v is double) return v.toInt();
     if (v is String) return int.tryParse(v) ?? fallback;
     return fallback;
   }
 
+  static int _parseInt(dynamic v, int fallback) => parseInt(v, fallback);
+
   static DateTime _parseDateTime(dynamic v) {
     if (v is String) return DateTime.tryParse(v) ?? DateTime(0);
     if (v is int) return DateTime.fromMillisecondsSinceEpoch(v);
     return DateTime(0);
+  }
+}
+
+class HostedAppEligibility {
+  const HostedAppEligibility({
+    required this.premium,
+    required this.hostingMinutesBalance,
+    required this.activeContainers,
+    required this.canDeploy,
+    required this.maxContainers,
+    required this.adRewardMinutes,
+  });
+
+  final bool premium;
+  final int hostingMinutesBalance;
+  final int activeContainers;
+  final bool canDeploy;
+  final int maxContainers;
+  final int adRewardMinutes;
+
+  factory HostedAppEligibility.fromJson(Map<String, dynamic> json) {
+    return HostedAppEligibility(
+      premium: json['premium'] == true,
+      hostingMinutesBalance: ContainerInfo.parseInt(
+        json['hosting_minutes_balance'],
+        0,
+      ),
+      activeContainers: ContainerInfo.parseInt(json['active_containers'], 0),
+      canDeploy: json['can_deploy'] == true,
+      maxContainers: ContainerInfo.parseInt(json['max_containers'], 1),
+      adRewardMinutes: ContainerInfo.parseInt(json['ad_reward_minutes'], 60),
+    );
+  }
+}
+
+class HostedAppClaimAdResult {
+  const HostedAppClaimAdResult({
+    required this.grantedMinutes,
+    required this.hostingMinutesBalance,
+  });
+
+  final int grantedMinutes;
+  final int hostingMinutesBalance;
+
+  factory HostedAppClaimAdResult.fromJson(Map<String, dynamic> json) {
+    return HostedAppClaimAdResult(
+      grantedMinutes: ContainerInfo.parseInt(json['granted_minutes'], 0),
+      hostingMinutesBalance: ContainerInfo.parseInt(
+        json['hosting_minutes_balance'],
+        0,
+      ),
+    );
   }
 }
 

@@ -8876,6 +8876,32 @@ class AppLocalizationsDe extends AppLocalizations {
   String get container_detail_stopped_ok => 'Container gestoppt';
 
   @override
+  String get container_detail_start_btn => 'Start';
+
+  @override
+  String get container_detail_starting => 'Starting...';
+
+  @override
+  String get container_detail_started_ok => 'Container is starting';
+
+  @override
+  String get container_detail_delete_title => 'Delete Container';
+
+  @override
+  String get container_detail_delete_confirm =>
+      'This permanently deletes the container from the database and cloud. This cannot be undone.';
+
+  @override
+  String get container_detail_delete_btn => 'Delete';
+
+  @override
+  String get container_detail_deleted_ok => 'Container deleted';
+
+  @override
+  String get container_detail_stopped_hint =>
+      'This container is shut down. You can restart it without re-entering environment variables.';
+
+  @override
   String get container_detail_update_resources => 'Ressourcen aktualisieren';
 
   @override

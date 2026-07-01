@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:bot_creator/core/network/runner_settings.dart';
+import 'package:bot_creator/core/utils/responsive.dart';
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/bot_logs.dart';
@@ -401,19 +402,20 @@ class _AppHomePageState extends State<AppHomePage>
                               );
                             },
                           ),
-                          _buildActionTile(
-                            icon: Icons.bar_chart,
-                            label: context.tr.bot_home_view_stats,
-                            onTap: () {
-                              final botId = widget.client.user.id.toString();
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => BotStatsPage(botId: botId),
-                                ),
-                              );
-                            },
-                          ),
+                          if (ResponsiveHelper.isDesktopPlatform())
+                            _buildActionTile(
+                              icon: Icons.bar_chart,
+                              label: context.tr.bot_home_view_stats,
+                              onTap: () {
+                                final botId = widget.client.user.id.toString();
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => BotStatsPage(botId: botId),
+                                  ),
+                                );
+                              },
+                            ),
                           if (PremiumCapabilities.isCapabilityRolledOut(
                             PremiumCapability.visualDebuggerReplay,
                           ))
