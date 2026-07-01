@@ -719,7 +719,9 @@ class RunnerWebBootstrapServer {
         managedApi.endsWith('/')
             ? managedApi.substring(0, managedApi.length - 1)
             : managedApi;
-    final url = Uri.parse('$baseUrl/internal/pool-runners/$nodeId/bootstrap');
+    final url = baseUrl.endsWith('/internal/pool-runners/$nodeId')
+        ? Uri.parse('$baseUrl/bootstrap')
+        : Uri.parse('$baseUrl/internal/pool-runners/$nodeId/bootstrap');
 
     try {
       final client = http.Client();
