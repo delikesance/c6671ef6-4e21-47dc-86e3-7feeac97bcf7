@@ -3,7 +3,15 @@
     "onboarding_command_learn",
     "onboarding_skip_confirm",
     "onboarding_skip_dialog_desc",
-    "onboarding_skip_dialog_title"
+    "onboarding_skip_dialog_title",
+    "container_detail_start_btn",
+    "container_detail_starting",
+    "container_detail_started_ok",
+    "container_detail_delete_title",
+    "container_detail_delete_confirm",
+    "container_detail_delete_btn",
+    "container_detail_deleted_ok",
+    "container_detail_stopped_hint"
   ],
 
   "fr": [
@@ -17,20 +25,44 @@
     "onboarding_command_learn",
     "onboarding_skip_confirm",
     "onboarding_skip_dialog_desc",
-    "onboarding_skip_dialog_title"
+    "onboarding_skip_dialog_title",
+    "container_detail_start_btn",
+    "container_detail_starting",
+    "container_detail_started_ok",
+    "container_detail_delete_title",
+    "container_detail_delete_confirm",
+    "container_detail_delete_btn",
+    "container_detail_deleted_ok",
+    "container_detail_stopped_hint"
   ],
 
   "pt": [
     "onboarding_command_learn",
     "onboarding_skip_confirm",
     "onboarding_skip_dialog_desc",
-    "onboarding_skip_dialog_title"
+    "onboarding_skip_dialog_title",
+    "container_detail_start_btn",
+    "container_detail_starting",
+    "container_detail_started_ok",
+    "container_detail_delete_title",
+    "container_detail_delete_confirm",
+    "container_detail_delete_btn",
+    "container_detail_deleted_ok",
+    "container_detail_stopped_hint"
   ],
 
   "tr": [
     "onboarding_command_learn",
     "onboarding_skip_confirm",
     "onboarding_skip_dialog_desc",
-    "onboarding_skip_dialog_title"
+    "onboarding_skip_dialog_title",
+    "container_detail_start_btn",
+    "container_detail_starting",
+    "container_detail_started_ok",
+    "container_detail_delete_title",
+    "container_detail_delete_confirm",
+    "container_detail_delete_btn",
+    "container_detail_deleted_ok",
+    "container_detail_stopped_hint"
   ]
 }

@@ -10184,21 +10184,53 @@
   "@container_detail_extend_ttl": {
     "description": "Button and dialog title for extending TTL"
   },
-  "container_detail_stop_title": "Arrêter le Conteneur",
+  "container_detail_stop_title": "Éteindre le conteneur",
   "@container_detail_stop_title": {
-    "description": "Title of the stop container dialog"
+    "description": "Title of the shut down container dialog"
   },
-  "container_detail_stop_confirm": "Cela va terminer le conteneur et ses données seront perdues.",
+  "container_detail_stop_confirm": "Le conteneur sera éteint. L'image et les variables d'environnement sont conservées pour un redémarrage ultérieur.",
   "@container_detail_stop_confirm": {
-    "description": "Confirmation message for stopping a container"
+    "description": "Confirmation message for shutting down a container"
   },
-  "container_detail_stop_btn": "Arrêter",
+  "container_detail_stop_btn": "Éteindre",
   "@container_detail_stop_btn": {
-    "description": "Confirm button in stop dialog"
+    "description": "Confirm button in shut down dialog"
   },
-  "container_detail_stopped_ok": "Conteneur arrêté",
+  "container_detail_stopped_ok": "Conteneur éteint",
   "@container_detail_stopped_ok": {
-    "description": "Snackbar after container is stopped"
+    "description": "Snackbar after container is shut down"
+  },
+  "container_detail_start_btn": "Démarrer",
+  "@container_detail_start_btn": {
+    "description": "Button to restart a stopped container"
+  },
+  "container_detail_starting": "Démarrage...",
+  "@container_detail_starting": {
+    "description": "Label while container is starting"
+  },
+  "container_detail_started_ok": "Démarrage du conteneur en cours",
+  "@container_detail_started_ok": {
+    "description": "Snackbar after container start is requested"
+  },
+  "container_detail_delete_title": "Supprimer le conteneur",
+  "@container_detail_delete_title": {
+    "description": "Title of the delete container dialog"
+  },
+  "container_detail_delete_confirm": "Cela supprime définitivement le conteneur de la base de données et du cloud. Cette action est irréversible.",
+  "@container_detail_delete_confirm": {
+    "description": "Confirmation message for deleting a container"
+  },
+  "container_detail_delete_btn": "Supprimer",
+  "@container_detail_delete_btn": {
+    "description": "Confirm button in delete dialog"
+  },
+  "container_detail_deleted_ok": "Conteneur supprimé",
+  "@container_detail_deleted_ok": {
+    "description": "Snackbar after container is deleted"
+  },
+  "container_detail_stopped_hint": "Ce conteneur est éteint. Vous pouvez le redémarrer sans ressaisir les variables d'environnement.",
+  "@container_detail_stopped_hint": {
+    "description": "Hint shown when a container is stopped"
   },
   "container_detail_update_resources": "Mettre à jour les Ressources",
   "@container_detail_update_resources": {

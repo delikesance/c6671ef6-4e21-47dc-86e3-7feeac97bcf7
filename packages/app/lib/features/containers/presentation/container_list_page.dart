@@ -86,6 +86,14 @@ class _ContainerListPageState extends State<ContainerListPage> {
     }
   }
 
+  String _formatMemory(ContainerInfo c) {
+    if (c.memoryUsageBytes > 0) {
+      final usedMb = (c.memoryUsageBytes / (1024 * 1024)).ceil();
+      return '$usedMb / ${c.memoryMb} MB';
+    }
+    return '${c.memoryMb} MB';
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -194,7 +202,7 @@ class _ContainerListPageState extends State<ContainerListPage> {
                         Text(c.image, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                             maxLines: 1, overflow: TextOverflow.ellipsis),
                         const SizedBox(height: 4),
-                        Text('${c.cpuMillis} CPU · ${c.memoryMb}MB', style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13)),
+                        Text(_formatMemory(c), style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13)),
                       ]),
                     ),
                     Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
@@ -203,8 +211,6 @@ class _ContainerListPageState extends State<ContainerListPage> {
                         decoration: BoxDecoration(color: _stateColor(c.state).withValues(alpha: 0.15), borderRadius: BorderRadius.circular(AppTheme.radiusPill)),
                         child: Text(_stateLabel(c.state, context.tr), style: TextStyle(color: _stateColor(c.state), fontSize: 12, fontWeight: FontWeight.bold)),
                       ),
-                      const SizedBox(height: 4),
-                      Text(_formatExpiry(c.expiresAt, context.tr), style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 11)),
                     ]),
                   ],
                 ),
@@ -214,13 +220,5 @@ class _ContainerListPageState extends State<ContainerListPage> {
         },
       ),
     );
-  }
-
-  String _formatExpiry(DateTime dt, AppLocalizations tr) {
-    if (dt.isBefore(DateTime.now())) return tr.container_list_expired;
-    final diff = dt.difference(DateTime.now());
-    if (diff.inMinutes < 60) return tr.container_list_expiry_minutes(diff.inMinutes);
-    if (diff.inHours < 24) return tr.container_list_expiry_hours(diff.inHours, diff.inMinutes % 60);
-    return tr.container_list_expiry_days(diff.inDays, diff.inHours % 24);
   }
 }

@@ -8878,17 +8878,43 @@ class AppLocalizationsFr extends AppLocalizations {
   String get container_detail_extend_ttl => 'Prolonger la TTL';
 
   @override
-  String get container_detail_stop_title => 'Arrêter le Conteneur';
+  String get container_detail_stop_title => 'Éteindre le conteneur';
 
   @override
   String get container_detail_stop_confirm =>
-      'Cela va terminer le conteneur et ses données seront perdues.';
+      'Le conteneur sera éteint. L\'image et les variables d\'environnement sont conservées pour un redémarrage ultérieur.';
 
   @override
-  String get container_detail_stop_btn => 'Arrêter';
+  String get container_detail_stop_btn => 'Éteindre';
 
   @override
-  String get container_detail_stopped_ok => 'Conteneur arrêté';
+  String get container_detail_stopped_ok => 'Conteneur éteint';
+
+  @override
+  String get container_detail_start_btn => 'Démarrer';
+
+  @override
+  String get container_detail_starting => 'Démarrage...';
+
+  @override
+  String get container_detail_started_ok => 'Démarrage du conteneur en cours';
+
+  @override
+  String get container_detail_delete_title => 'Supprimer le conteneur';
+
+  @override
+  String get container_detail_delete_confirm =>
+      'Cela supprime définitivement le conteneur de la base de données et du cloud. Cette action est irréversible.';
+
+  @override
+  String get container_detail_delete_btn => 'Supprimer';
+
+  @override
+  String get container_detail_deleted_ok => 'Conteneur supprimé';
+
+  @override
+  String get container_detail_stopped_hint =>
+      'Ce conteneur est éteint. Vous pouvez le redémarrer sans ressaisir les variables d\'environnement.';
 
   @override
   String get container_detail_update_resources =>

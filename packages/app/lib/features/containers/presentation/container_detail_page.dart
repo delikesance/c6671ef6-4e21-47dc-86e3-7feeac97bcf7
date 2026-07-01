@@ -20,7 +20,10 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
   Map<String, dynamic>? _status;
   bool _loading = true;
   bool _stopping = false;
+  bool _starting = false;
+  bool _deleting = false;
   Timer? _pollTimer;
+  WebSocketChannel? _consoleChannel;
 
   @override
   void initState() {
@@ -31,7 +34,21 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
   @override
   void dispose() {
     _pollTimer?.cancel();
+    _closeConsoleChannel();
     super.dispose();
+  }
+
+  void _closeConsoleChannel() {
+    _consoleChannel?.sink.close();
+    _consoleChannel = null;
+  }
+
+  void _syncConsoleChannel(String state) {
+    if (state != 'RUNNING' || _client == null) {
+      _closeConsoleChannel();
+      return;
+    }
+    _consoleChannel ??= _client!.connectContainerConsole(widget.containerId);
   }
 
   Future<void> _init() async {
@@ -46,17 +63,26 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
         }
       } catch (_) {}
     }
-    await _loadStatus();
+    await _loadStatus(showFullScreenLoader: true);
   }
 
-  Future<void> _loadStatus() async {
+  Future<void> _loadStatus({bool showFullScreenLoader = false}) async {
     if (_client == null) return;
-    setState(() => _loading = true);
+    if (showFullScreenLoader || _status == null) {
+      setState(() => _loading = true);
+    }
     try {
       final status = await _client!.getContainerStatus(widget.containerId);
-      if (mounted) setState(() { _status = status; _loading = false; });
+      if (mounted) {
+        final nextState = status['state']?.toString() ?? '';
+        setState(() {
+          _status = status;
+          _loading = false;
+        });
+        _syncConsoleChannel(nextState);
+      }
       final state = status['state']?.toString() ?? '';
-      if (state == 'PENDING') {
+      if (state == 'PENDING' || state == 'PROVISIONING') {
         _pollTimer ??= Timer.periodic(const Duration(seconds: 10), (_) => _loadStatus());
       } else {
         _pollTimer?.cancel();
@@ -75,7 +101,7 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
       content: Text(tr.container_detail_stop_confirm),
       actions: [
         TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr.cancel)),
-        FilledButton(style: FilledButton.styleFrom(backgroundColor: Colors.red), onPressed: () => Navigator.pop(ctx, true), child: Text(tr.container_detail_stop_btn)),
+        FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(tr.container_detail_stop_btn)),
       ],
     ));
     if (confirm != true) return;
@@ -94,67 +120,65 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
     }
   }
 
-  Future<void> _extendTTL() async {
+  Future<void> _startContainer() async {
     if (_client == null) return;
     final tr = context.tr;
-    final ttlCtrl = TextEditingController(text: '60');
-    final ttl = await showDialog<int>(context: context, builder: (ctx) => AlertDialog(
-      title: Text(tr.container_detail_extend_ttl),
-      content: TextField(controller: ttlCtrl, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: tr.container_detail_extend_hint, hintText: '60')),
-      actions: [
-        TextButton(onPressed: () => Navigator.pop(ctx), child: Text(tr.cancel)),
-        FilledButton(onPressed: () { final n = int.tryParse(ttlCtrl.text); if (n == null || n < 1) return; Navigator.pop(ctx, n); }, child: Text(tr.container_detail_extend_btn)),
-      ],
-    ));
-    ttlCtrl.dispose();
-    if (ttl == null) return;
-
+    setState(() => _starting = true);
     try {
-      final result = await _client!.extendContainerTTL(widget.containerId, ttl);
-      if (mounted) { _status = result; setState(() {}); }
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(tr.container_detail_extended_ok), backgroundColor: Colors.green));
+      await _client!.startContainer(widget.containerId);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(tr.container_detail_started_ok), backgroundColor: Colors.green));
+        _loadStatus(showFullScreenLoader: true);
+      }
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(tr.container_detail_failed(e.toString())), backgroundColor: Colors.red));
+    } finally {
+      if (mounted) setState(() => _starting = false);
     }
   }
 
-  Future<void> _updateResources() async {
+  Future<void> _deleteContainer() async {
     if (_client == null) return;
     final tr = context.tr;
-    final cpuCtrl = TextEditingController(text: '1000');
-    final memCtrl = TextEditingController(text: '1024');
-    final updated = await showDialog<bool>(context: context, builder: (ctx) => AlertDialog(
-      title: Text(tr.container_detail_update_resources),
-      content: Column(mainAxisSize: MainAxisSize.min, children: [
-        TextField(controller: cpuCtrl, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: tr.container_deploy_cpu_label, hintText: '1000')),
-        const SizedBox(height: 12),
-        TextField(controller: memCtrl, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: tr.container_deploy_memory_label, hintText: '1024')),
-      ]),
+    final confirm = await showDialog<bool>(context: context, builder: (ctx) => AlertDialog(
+      title: Text(tr.container_detail_delete_title),
+      content: Text(tr.container_detail_delete_confirm),
       actions: [
         TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr.cancel)),
-        FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(tr.container_detail_update_btn)),
+        FilledButton(style: FilledButton.styleFrom(backgroundColor: Colors.red), onPressed: () => Navigator.pop(ctx, true), child: Text(tr.container_detail_delete_btn)),
       ],
     ));
-    cpuCtrl.dispose();
-    memCtrl.dispose();
-    if (updated != true) return;
+    if (confirm != true) return;
 
-    final cpu = int.tryParse(cpuCtrl.text);
-    final mem = int.tryParse(memCtrl.text);
-    if (cpu == null || mem == null) return;
-
+    setState(() => _deleting = true);
     try {
-      await _client!.updateContainerResources(widget.containerId, cpuMillis: cpu, memoryMb: mem);
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(tr.container_detail_updated_ok), backgroundColor: Colors.green));
+      await _client!.deleteContainer(widget.containerId);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(tr.container_detail_deleted_ok), backgroundColor: Colors.green));
+        Navigator.pop(context);
+      }
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(tr.container_detail_failed(e.toString())), backgroundColor: Colors.red));
+    } finally {
+      if (mounted) setState(() => _deleting = false);
     }
+  }
+
+  String _formatMemoryUsage(Map<String, dynamic>? status) {
+    if (status == null) return '—';
+    final limitMb = ContainerInfo.parseInt(status['memory_mb'], 0);
+    final usageBytes = ContainerInfo.parseInt(status['memory_usage_bytes'], 0);
+    if (usageBytes > 0) {
+      final usedMb = (usageBytes / (1024 * 1024)).ceil();
+      return '$usedMb / $limitMb MB';
+    }
+    return '$limitMb MB';
   }
 
   Color _stateColor(String state) {
     switch (state) {
       case 'RUNNING': return Colors.green;
-      case 'PENDING': return Colors.orange;
+      case 'PENDING': case 'PROVISIONING': return Colors.orange;
       case 'STOPPED': case 'STOPPING': return Colors.grey;
       case 'FAILED': return Colors.red;
       default: return Colors.grey;
@@ -164,7 +188,7 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
   String _stateLabel(String state, AppLocalizations tr) {
     switch (state) {
       case 'RUNNING': return tr.container_state_running;
-      case 'PENDING': return tr.container_state_pending;
+      case 'PENDING': case 'PROVISIONING': return tr.container_state_pending;
       case 'STOPPED': return tr.container_state_stopped;
       case 'STOPPING': return tr.container_state_stopping;
       case 'FAILED': return tr.container_state_failed;
@@ -177,7 +201,7 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
     final colorScheme = Theme.of(context).colorScheme;
     final tr = context.tr;
     final state = _status?['state']?.toString() ?? '';
-    final expiresAt = _status?['expires_at']?.toString() ?? '';
+    final image = _status?['image']?.toString() ?? '';
 
     return Scaffold(
       appBar: AppBar(title: Text(tr.container_detail_title(widget.containerId.substring(0, 8)))),
@@ -185,6 +209,10 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
           ? const Center(child: CircularProgressIndicator())
           : ListView(padding: const EdgeInsets.all(16), children: [
               Card(child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                if (image.isNotEmpty) ...[
+                  Text(image, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 12),
+                ],
                 Row(children: [
                   Container(width: 12, height: 12, decoration: BoxDecoration(color: _stateColor(state), shape: BoxShape.circle)),
                   const SizedBox(width: 8),
@@ -192,31 +220,26 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
                   const Spacer(),
                   Text(_stateLabel(state, tr), style: TextStyle(fontWeight: FontWeight.bold, color: _stateColor(state))),
                 ]),
-                if (expiresAt.isNotEmpty) ...[
-                  const SizedBox(height: 12),
-                  Row(children: [
-                    const Icon(Icons.timer_outlined, size: 18),
-                    const SizedBox(width: 8),
-                    Text(tr.container_detail_expires, style: Theme.of(context).textTheme.titleSmall),
-                    const Spacer(),
-                    Text(expiresAt, style: const TextStyle(fontSize: 13)),
-                  ]),
-                ],
+                const SizedBox(height: 12),
+                Row(children: [
+                  const Icon(Icons.memory_outlined, size: 18),
+                  const SizedBox(width: 8),
+                  Text('RAM', style: Theme.of(context).textTheme.titleSmall),
+                  const Spacer(),
+                  Text(_formatMemoryUsage(_status), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                ]),
               ]))),
               const SizedBox(height: 24),
-              if (state == 'RUNNING') ...[
-                FilledButton.icon(onPressed: _extendTTL, icon: const Icon(Icons.timer), label: Text(tr.container_detail_extend_ttl)),
-                const SizedBox(height: 12),
-                FilledButton.tonalIcon(onPressed: _updateResources, icon: const Icon(Icons.tune), label: Text(tr.container_detail_update_resources)),
-                const SizedBox(height: 12),
+              if (state == 'RUNNING' || state == 'PROVISIONING') ...[
                 FilledButton.icon(
-                  style: FilledButton.styleFrom(backgroundColor: Colors.red),
+                  style: FilledButton.styleFrom(backgroundColor: Colors.orange.shade800),
                   onPressed: _stopping ? null : _stopContainer,
                   icon: _stopping
                       ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                      : const Icon(Icons.stop),
+                      : const Icon(Icons.power_settings_new),
                   label: Text(_stopping ? tr.container_state_stopping : tr.container_detail_stop_title),
                 ),
+                if (state == 'RUNNING') ...[
                 const SizedBox(height: 24),
                 Text(tr.container_detail_console, style: Theme.of(context).textTheme.titleSmall),
                 const SizedBox(height: 8),
@@ -224,15 +247,39 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
                   height: 300,
                   child: Card(
                     clipBehavior: Clip.antiAlias,
-                    child: _client != null
-                        ? WebSocketConsole(channel: _client!.connectContainerConsole(widget.containerId))
+                    child: _consoleChannel != null
+                        ? WebSocketConsole(
+                            key: ValueKey(widget.containerId),
+                            channel: _consoleChannel!,
+                          )
                         : Center(child: Text(tr.container_detail_not_connected)),
                   ),
                 ),
+                ],
               ],
               if (state == 'PENDING')
                 Center(child: Column(children: [const CircularProgressIndicator(), const SizedBox(height: 12), Text(tr.container_detail_deploying)])),
-              if (state == 'STOPPED' || state == 'FAILED')
+              if (state == 'STOPPED') ...[
+                Text(tr.container_detail_stopped_hint, style: TextStyle(color: colorScheme.onSurfaceVariant)),
+                const SizedBox(height: 16),
+                FilledButton.icon(
+                  onPressed: _starting ? null : _startContainer,
+                  icon: _starting
+                      ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                      : const Icon(Icons.play_arrow),
+                  label: Text(_starting ? tr.container_detail_starting : tr.container_detail_start_btn),
+                ),
+                const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
+                  onPressed: _deleting ? null : _deleteContainer,
+                  icon: _deleting
+                      ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                      : const Icon(Icons.delete_outline),
+                  label: Text(_deleting ? tr.container_detail_delete_btn : tr.container_detail_delete_title),
+                ),
+              ],
+              if (state == 'FAILED')
                 Center(child: Text(tr.container_detail_status_stopped(_stateLabel(state, tr)), style: TextStyle(color: colorScheme.onSurfaceVariant))),
             ]),
     );
@@ -252,44 +299,49 @@ class _WebSocketConsoleState extends State<WebSocketConsole> {
   final _scrollCtrl = ScrollController();
   final _inputCtrl = TextEditingController();
   bool _connected = false;
+  StreamSubscription<dynamic>? _subscription;
 
   @override
   void initState() {
     super.initState();
-    _lines.add(context.tr.container_detail_console_connecting);
-    widget.channel.stream.listen(
+    _subscription = widget.channel.stream.listen(
       (data) {
-        if (mounted) {
-          setState(() {
-            _lines.add(data.toString());
-            _connected = true;
-          });
-          _scrollToBottom();
-        }
+        if (!mounted) return;
+        final text = switch (data) {
+          final String s => s,
+          final List<int> bytes => String.fromCharCodes(bytes),
+          _ => data.toString(),
+        };
+        if (text.isEmpty) return;
+        setState(() {
+          _connected = true;
+          _lines.add(text);
+        });
+        _scrollToBottom();
       },
       onError: (error) {
-        if (mounted) setState(() => _lines.add(context.tr.container_detail_failed(error.toString())));
+        if (!mounted) return;
+        setState(() {
+          _connected = false;
+          _lines.add(context.tr.container_detail_failed(error.toString()));
+        });
       },
       onDone: () {
-        if (mounted) {
-          setState(() {
-            _lines.add(context.tr.container_detail_console_closed);
-            _connected = false;
-          });
-        }
+        if (!mounted) return;
+        setState(() {
+          _connected = false;
+          _lines.add(context.tr.container_detail_console_closed);
+        });
       },
       cancelOnError: false,
     );
-    setState(() {
-      _lines.removeLast();
-      _connected = true;
-    });
   }
 
   void _sendCommand(String cmd) {
-    if (cmd.trim().isEmpty) return;
-    widget.channel.sink.add(cmd);
-    setState(() => _lines.add('> $cmd'));
+    if (cmd.trim().isEmpty || !_connected) return;
+    final line = cmd.endsWith('\n') ? cmd : '$cmd\n';
+    widget.channel.sink.add(line);
+    setState(() => _lines.add('> ${cmd.trim()}'));
     _inputCtrl.clear();
   }
 
@@ -307,7 +359,7 @@ class _WebSocketConsoleState extends State<WebSocketConsole> {
 
   @override
   void dispose() {
-    widget.channel.sink.close();
+    _subscription?.cancel();
     _inputCtrl.dispose();
     _scrollCtrl.dispose();
     super.dispose();
