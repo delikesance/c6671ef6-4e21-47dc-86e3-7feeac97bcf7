@@ -13,6 +13,8 @@ import 'dart:developer' as developer;
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
+import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
+import 'package:bot_creator/features/containers/presentation/container_deploy_page.dart';
 
 class AppCreatePage extends StatefulWidget {
   const AppCreatePage({super.key});
@@ -311,6 +313,8 @@ class _AppCreatePageState extends State<AppCreatePage> {
     bool isMobile,
     ColorScheme colorScheme,
   ) {
+    final isPremium = PremiumCapabilities.isPremiumUser;
+
     final cards = <Widget>[
       _TypeSelectionCard(
         title: context.tr.app_create_type_discord,
@@ -328,16 +332,33 @@ class _AppCreatePageState extends State<AppCreatePage> {
           });
         },
       ),
-      _TypeSelectionCard(
-        title: context.tr.app_create_type_hosted,
-        description: context.tr.app_create_type_hosted_desc,
-        icon: Icons.storage_rounded,
-        iconColor: Colors.teal,
-        iconBackgroundColor: Colors.teal.withOpacity(0.12),
-        isEnabled: false,
-        badgeText: context.tr.app_create_coming_soon,
-        onTap: () {},
-      ),
+      if (isPremium)
+        _TypeSelectionCard(
+          title: context.tr.app_create_type_hosted,
+          description: context.tr.app_create_type_hosted_desc,
+          icon: Icons.storage_rounded,
+          iconColor: Colors.teal,
+          iconBackgroundColor: Colors.teal.withOpacity(0.12),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const ContainerDeployPage(),
+              ),
+            );
+          },
+        )
+      else
+        _TypeSelectionCard(
+          title: context.tr.app_create_type_hosted,
+          description: context.tr.app_create_type_hosted_desc,
+          icon: Icons.storage_rounded,
+          iconColor: Colors.teal,
+          iconBackgroundColor: Colors.teal.withOpacity(0.12),
+          isEnabled: false,
+          badgeText: context.tr.container_premium_badge,
+          onTap: () {},
+        ),
     ];
 
     return Column(

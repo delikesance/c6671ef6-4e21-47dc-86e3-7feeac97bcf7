@@ -17,6 +17,9 @@ enum PremiumCapability {
   /// hot-reloaded (e.g. gateway intent changes, new token).
   autoRestart,
   lavalinkAudio,
+
+  /// Deploy and manage Docker containers (Hosted Applications).
+  hostedApps,
 }
 
 class PremiumFeatureDefinition {
@@ -110,6 +113,7 @@ class PremiumCapabilities {
     PremiumCapability.autoSharding: true,
     PremiumCapability.autoRestart: true,
     PremiumCapability.lavalinkAudio: true,
+    PremiumCapability.hostedApps: true,
   };
 
   static bool get isPremiumUser =>
@@ -158,6 +162,8 @@ class PremiumCapabilities {
         return isPremiumUser ? 1 : 0;
       case PremiumCapability.lavalinkAudio:
         return isPremiumUser ? 1 : 0;
+      case PremiumCapability.hostedApps:
+        return isPremiumUser ? 2 : 0;
     }
   }
 

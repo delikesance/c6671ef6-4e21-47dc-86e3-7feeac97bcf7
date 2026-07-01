@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:alfred/alfred.dart';
@@ -10,6 +11,7 @@ import 'package:bot_creator_runner/stores/sqlite_cli_variable_store.dart';
 import 'package:bot_creator_runner/web_log_store.dart';
 import 'package:bot_creator_runner/web_runtime_config.dart';
 import 'package:bot_creator_runner/web_api_spec.dart';
+import 'package:http/http.dart' as http;
 import 'package:openapi_spec/openapi_spec.dart';
 
 class _CpuSample {
@@ -161,6 +163,35 @@ class RunnerWebBootstrapServer {
       },
     );
 
+    // Pool Configuration
+    _get(
+      '/pool/config',
+      (req, res) => _handlePoolConfig(),
+      summary: 'Pool Configuration',
+      requiresAuth: true,
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Pool Config', {
+          'max_bots': Schema.integer(),
+        }),
+      },
+    );
+
+    // Pool Drain — gracefully stops all bots before node shutdown
+    _post(
+      '/pool/drain',
+      (req, res) async => _handlePoolDrain(),
+      summary: 'Drain Pool Node',
+      description:
+          'Gracefully stops all running bots on this node. '
+          'Called by the orchestrator before decommissioning the node.',
+      requiresAuth: true,
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Drain Result', {
+          'stopped': Schema.integer(),
+        }),
+      },
+    );
+
     // System Status & Logs
     _get(
       '/status',
@@ -197,6 +228,13 @@ class RunnerWebBootstrapServer {
                 .toList(),
       };
     }, summary: 'List All Bots');
+
+    _get(
+      '/bots/running-status',
+      (req, res) => _handleRunningStatus(),
+      summary: 'Bot Running Status (batch)',
+      responses: {},
+    );
 
     _post(
       '/bots/sync',
@@ -625,6 +663,14 @@ class RunnerWebBootstrapServer {
 
   Future<void> start() async {
     await _app.listen(port, host);
+
+    final poolMode =
+        (Platform.environment['BOT_CREATOR_POOL_MODE'] ?? '').trim().toLowerCase();
+    if (poolMode == 'true' || poolMode == '1') {
+      unawaited(_bootstrapFromPool());
+    } else {
+      unawaited(selfHeal());
+    }
   }
 
   Future<void> waitForShutdown() => _lifecycleCompleter.future;
@@ -642,6 +688,111 @@ class RunnerWebBootstrapServer {
     await _app.close();
     if (!_lifecycleCompleter.isCompleted) {
       _lifecycleCompleter.complete();
+    }
+  }
+
+  /// Bootstraps this runner from the Manager's pool bootstrap endpoint.
+  /// Called on startup when BOT_CREATOR_POOL_MODE is true.
+  Future<void> _bootstrapFromPool() async {
+    final nodeId =
+        (Platform.environment['BOT_CREATOR_RUNNER_NODE_ID'] ?? '').trim();
+    if (nodeId.isEmpty) {
+      stderr.writeln(
+        '[Pool] BOT_CREATOR_RUNNER_NODE_ID is required in pool mode.',
+      );
+      return;
+    }
+
+    final managedApi =
+        (Platform.environment['BOT_CREATOR_MANAGED_RUNNER_API'] ?? '').trim();
+    final managedToken =
+        (Platform.environment['BOT_CREATOR_MANAGED_RUNNER_TOKEN'] ?? '').trim();
+    if (managedApi.isEmpty || managedToken.isEmpty) {
+      stderr.writeln(
+        '[Pool] BOT_CREATOR_MANAGED_RUNNER_API and '
+        'BOT_CREATOR_MANAGED_RUNNER_TOKEN are required in pool mode.',
+      );
+      return;
+    }
+
+    final baseUrl =
+        managedApi.endsWith('/')
+            ? managedApi.substring(0, managedApi.length - 1)
+            : managedApi;
+    final url = Uri.parse('$baseUrl/internal/pool-runners/$nodeId/bootstrap');
+
+    try {
+      final client = http.Client();
+      try {
+        final response = await client.get(
+          url,
+          headers: {'Authorization': 'Bearer $managedToken'},
+        );
+
+        if (response.statusCode != 200) {
+          stderr.writeln(
+            '[Pool] Bootstrap failed: ${response.statusCode} ${response.body}',
+          );
+          return;
+        }
+
+        final body =
+            jsonDecode(response.body) as Map<String, dynamic>;
+        final bots = (body['bots'] as List<dynamic>? ?? []);
+
+        stdout.writeln(
+          '[Pool] Bootstrapping ${bots.length} bot(s) from pool...',
+        );
+
+        for (final botData in bots) {
+          try {
+            await _syncAndStartPoolBot(botData as Map<String, dynamic>);
+          } catch (e) {
+            stderr.writeln('[Pool] Failed to sync/start bot: $e');
+          }
+        }
+      } finally {
+        client.close();
+      }
+    } catch (e) {
+      stderr.writeln('[Pool] Bootstrap error: $e');
+    }
+  }
+
+  /// Syncs and optionally starts a single bot from the pool bootstrap payload.
+  Future<void> _syncAndStartPoolBot(Map<String, dynamic> botJson) async {
+    final botId = (botJson['bot_id'] ?? '').toString().trim();
+    final botName = (botJson['bot_name'] ?? '').toString().trim();
+    final desiredState = (botJson['desired_state'] ?? '').toString().trim();
+    final payload = botJson['payload'];
+
+    if (botId.isEmpty || payload == null || payload is! Map) {
+      stderr.writeln(
+        '[Pool] Skipping invalid bot entry: missing bot_id or payload.',
+      );
+      return;
+    }
+
+    final configRaw = payload['config'];
+    if (configRaw == null || configRaw is! Map) {
+      stderr.writeln(
+        '[Pool] Skipping bot "$botId": missing config in payload.',
+      );
+      return;
+    }
+
+    final config = BotConfig.fromJson(Map<String, dynamic>.from(configRaw));
+    config.validate();
+
+    await _runtimeController.botStore.save(
+      botId,
+      botName.isEmpty ? botId : botName,
+      config,
+    );
+
+    if (desiredState == 'running' && !_runtimeController.isBotRunning(botId)) {
+      await _runtimeController.startBot(botId: botId, botName: botName);
+      stdout.writeln('[Pool] Bot "$botName" ($botId) started.');
     }
   }
 
@@ -1454,6 +1605,29 @@ class RunnerWebBootstrapServer {
               .map(_runtimeStateToPayload)
               .toList(),
     };
+  }
+
+  Future<Map<String, dynamic>> _handlePoolDrain() async {
+    final stopped = await _runtimeController.drainAllBots();
+    return {'stopped': stopped};
+  }
+
+  Map<String, dynamic> _handlePoolConfig() {
+    final raw = (Platform.environment['BOT_CREATOR_POOL_MAX_BOTS'] ?? '').trim();
+    final maxBots = int.tryParse(raw) ?? 40;
+    return {'max_bots': maxBots};
+  }
+
+  Map<String, dynamic> _handleRunningStatus() {
+    final states = _runtimeController.listRuntimeStates();
+    final bots = <String, Map<String, dynamic>>{};
+    for (final s in states) {
+      bots[s.botId] = {
+        'connected': s.state == 'running',
+        'state': s.state,
+      };
+    }
+    return {'bots': bots};
   }
 
   Map<String, dynamic> _buildBotStatePayload(String botId) {

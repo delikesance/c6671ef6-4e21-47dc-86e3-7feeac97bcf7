@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:bot_creator_shared/bot/bot_config.dart';
@@ -166,7 +167,12 @@ class RunnerRuntimeController {
       throw StateError('Bot "$botId" is already running.');
     }
 
-    final runner = DiscordRunner(botId, config, statsStore: _commandStatsStore);
+    final runner = DiscordRunner(
+      botId,
+      config,
+      statsStore: _commandStatsStore,
+      onDisconnected: (reason) => _handleBotDisconnected(botId, reason),
+    );
     try {
       if (!_statsInitialized) {
         await _commandStatsStore.init();
@@ -210,11 +216,50 @@ class RunnerRuntimeController {
     }
   }
 
+  /// Called when a bot permanently disconnects from Discord
+  /// (e.g., token invalidated). Removes it from the runners map and
+  /// records the error so the status endpoint reports it correctly.
+  void _handleBotDisconnected(String botId, String reason) {
+    _runners.remove(botId);
+    _lastSeenAtByBot[botId] = DateTime.now().toUtc();
+    _lastErrorByBot[botId] = reason;
+    unawaited(_botStore.setRunning(botId, false));
+    stderr.writeln('[Runner] Bot "$botId" disconnected: $reason');
+  }
+
   Future<void> stopAllBots() async {
     final ids = _runners.keys.toList(growable: false);
     for (final botId in ids) {
       await stopBot(botId);
     }
+  }
+
+  /// Graciously stops all running bots during a pool drain.
+  /// Returns the number of bots that were successfully stopped.
+  Future<int> drainAllBots() async {
+    final ids = _runners.keys.toList(growable: false);
+    int stopped = 0;
+    for (final botId in ids) {
+      try {
+        final runner = _runners[botId];
+        if (runner == null) {
+          await _botStore.setRunning(botId, false);
+          stopped++;
+          continue;
+        }
+        _busyBots.add(botId);
+        await runner.stop();
+        _runners.remove(botId);
+        _lastSeenAtByBot[botId] = DateTime.now().toUtc();
+        await _botStore.setRunning(botId, false);
+        stopped++;
+      } catch (e) {
+        stderr.writeln('[Drain] Error stopping bot "$botId": $e');
+      } finally {
+        _busyBots.remove(botId);
+      }
+    }
+    return stopped;
   }
 
   /// Automatically resumes all bots that were marked as running in the store.

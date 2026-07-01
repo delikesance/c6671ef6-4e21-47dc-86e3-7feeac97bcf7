@@ -30,6 +30,7 @@ import 'package:bot_creator/features/ads/logic/ads_placement_policy.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/app_editor_page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/bot_logs.dart';
 import 'package:bot_creator/core/storage/database.dart';
+import 'package:bot_creator/features/containers/presentation/container_list_page.dart';
 
 String _formatHostingDuration(BuildContext context, int totalMinutes) {
   if (totalMinutes <= 0) {
@@ -1877,13 +1878,17 @@ class HomePageState extends State<HomePage>
                           right: listHorizontalPadding,
                         ),
                         physics: const AlwaysScrollableScrollPhysics(),
-                        child: Align(
-                          alignment: Alignment.topCenter,
-                          child: Wrap(
-                            spacing: 14,
-                            runSpacing: 14,
-                            children:
-                                apps.map((app) {
+                        child: Column(
+                          children: [
+                            _HostedAppsHomeCard(),
+                            const SizedBox(height: 16),
+                            Align(
+                              alignment: Alignment.topCenter,
+                              child: Wrap(
+                                spacing: 14,
+                                runSpacing: 14,
+                                children:
+                                    apps.map((app) {
                                   final name =
                                       app['name']?.toString().sanitizedUtf16 ??
                                       context.tr.home_unknown_app;
@@ -1963,7 +1968,9 @@ class HomePageState extends State<HomePage>
                                     ),
                                   );
                                 }).toList(),
-                          ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -2486,6 +2493,78 @@ class _BotSyncResult {
   final Map<String, dynamic> config;
   final Map<String, dynamic> bot;
   final int? guildCount;
+}
+
+class _HostedAppsHomeCard extends StatefulWidget {
+  @override
+  State<_HostedAppsHomeCard> createState() => _HostedAppsHomeCardState();
+}
+
+class _HostedAppsHomeCardState extends State<_HostedAppsHomeCard> {
+  bool _hasSession = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkSession();
+  }
+
+  Future<void> _checkSession() async {
+    final session = await MainApiSettingsStore.loadSession();
+    if (mounted) setState(() => _hasSession = session != null && !session.isExpired);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_hasSession) return const SizedBox.shrink();
+
+    final colorScheme = Theme.of(context).colorScheme;
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const ContainerListPage()),
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: Colors.teal.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.storage_rounded, color: Colors.teal, size: 28),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                      Text(
+                      context.tr.container_list_title,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      context.tr.container_hosted_subtitle,
+                      style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right, color: Colors.grey),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 
