@@ -6223,6 +6223,30 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settings_account_status_disconnected => '未サインイン';
 
   @override
+  String get mobile_account_required_title => 'Sign in with Discord';
+
+  @override
+  String get mobile_account_required_body =>
+      'On mobile, a Discord account is required to use Bot Creator. Your bots, hosted applications, and subscriptions are tied to this account and can be recovered on a new phone.';
+
+  @override
+  String get mobile_account_required_feature_bots =>
+      'Sync and restore your bots from the cloud';
+
+  @override
+  String get mobile_account_required_feature_hosted =>
+      'Deploy and manage hosted applications';
+
+  @override
+  String get mobile_account_required_feature_recovery =>
+      'Recover everything after reinstall or on a new phone';
+
+  @override
+  String mobile_account_required_failed(String error) {
+    return 'Discord sign-in failed: $error';
+  }
+
+  @override
   String get settings_ads_privacy_loading => '広告プライバシー設定を確認中...';
 
   @override
@@ -7291,6 +7315,68 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get subscription_manage => 'サブスクリプションを管理';
+
+  @override
+  String get subscriptions_hub_title => 'Subscriptions';
+
+  @override
+  String get subscriptions_hub_subtitle =>
+      'View and manage your Bot Premium and hosted application plans.';
+
+  @override
+  String get subscriptions_hub_open_settings => 'Subscriptions & billing';
+
+  @override
+  String get subscriptions_hub_bot_premium_section => 'Bot Premium';
+
+  @override
+  String get subscriptions_hub_bot_premium_desc =>
+      'Remove ads and unlock premium features for your Discord bots.';
+
+  @override
+  String get subscriptions_hub_hosted_section => 'Hosted applications';
+
+  @override
+  String get subscriptions_hub_hosted_desc =>
+      'Run Docker containers in the cloud without watching ads.';
+
+  @override
+  String get subscriptions_hub_status_active => 'Active';
+
+  @override
+  String get subscriptions_hub_status_inactive => 'Not subscribed';
+
+  @override
+  String get subscriptions_hub_subscribe => 'Subscribe';
+
+  @override
+  String get subscriptions_hub_summary_both =>
+      'Bot Premium and Hosted applications active';
+
+  @override
+  String get subscriptions_hub_summary_bot_only => 'Bot Premium active';
+
+  @override
+  String get subscriptions_hub_summary_hosted_only =>
+      'Hosted applications active';
+
+  @override
+  String get subscriptions_hub_summary_none => 'No active subscriptions';
+
+  @override
+  String subscriptions_hub_expires_at(String date, String time) {
+    return 'Renews until $date at $time';
+  }
+
+  @override
+  String get subscription_upgrade_annual => 'Upgrade to annual';
+
+  @override
+  String get subscription_upgrade_two_apps => 'Upgrade to 2 containers';
+
+  @override
+  String get subscription_manage_cancel_hint =>
+      'To cancel or change billing, use Manage subscription — this opens the App Store or Google Play.';
 
   @override
   String get subscription_monthly_title => '月間';
@@ -8549,14 +8635,41 @@ class AppLocalizationsJa extends AppLocalizations {
   String get container_hosted_premium_host_anytime => 'いつでもホスト';
 
   @override
-  String get container_hosted_premium_host_anytime_compact => 'プレミアム — いつでもホスト';
+  String get container_hosted_premium_host_anytime_compact => '登録 — いつでもホスト';
 
   @override
   String get container_hosted_premium_desc =>
-      'Premiumにアップグレードして、Dockerコンテナを無制限にホスト — 広告なし。';
+      'Dockerコンテナを無制限にホスト — 広告不要。サブスク登録で利用できます。';
 
   @override
-  String get container_hosted_premium_view_btn => 'Premiumを見る';
+  String get container_hosted_premium_view_btn => 'プランを見る';
+
+  @override
+  String get hosted_app_subscription_title => 'ホストアプリケーション';
+
+  @override
+  String get hosted_app_subscription_subtitle => '広告を見ずにDockerコンテナをクラウドで実行。';
+
+  @override
+  String get hosted_app_subscription_benefit_unlimited => 'ホスティング時間無制限';
+
+  @override
+  String get hosted_app_subscription_benefit_no_ads => 'リワード広告不要';
+
+  @override
+  String get hosted_app_subscription_one_app_title => '1コンテナ';
+
+  @override
+  String get hosted_app_subscription_one_app_desc => 'Dockerコンテナを1ついつでもホスト';
+
+  @override
+  String get hosted_app_subscription_two_app_title => '2コンテナ';
+
+  @override
+  String get hosted_app_subscription_two_app_desc => '最大2つのDockerコンテナをホスト';
+
+  @override
+  String get hosted_app_subscription_recommended => 'おすすめ';
 
   @override
   String get container_hosted_free_title => '無料ホスティング（コンテナ最大1つ）';

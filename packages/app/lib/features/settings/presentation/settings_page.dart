@@ -9,17 +9,20 @@ import 'package:bot_creator/features/ads/logic/ad_consent_service.dart';
 import 'package:bot_creator/features/ads/logic/ad_mediation_debug.dart';
 import 'package:bot_creator/core/diagnostics/app_diagnostics.dart';
 import 'package:bot_creator/features/discord_rpc/logic/discord_rpc_service.dart';
-import 'package:bot_creator/core/network/main_api_auth_service.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
+import 'package:bot_creator/core/network/main_api_auth_service.dart';
+import 'package:bot_creator/core/auth/mobile_account_gate.dart';
+import 'package:bot_creator/core/auth/mobile_account_session.dart';
+import 'package:bot_creator/core/auth/main_api_account_bootstrap.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
 import 'package:bot_creator/core/storage/runtime_preferences.dart';
 import 'package:bot_creator/features/notifications/logic/notification_service.dart';
 import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
-import 'package:bot_creator/features/subscriptions/presentation/subscription_page.dart';
+import 'package:bot_creator/features/subscriptions/logic/hosted_app_subscription_service.dart';
+import 'package:bot_creator/features/subscriptions/presentation/subscriptions_hub_page.dart';
 import 'package:bot_creator/core/storage/drive.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
-import 'package:nyxx/nyxx.dart' hide Locale, Builder;
 
 import 'package:bot_creator/features/onboarding/logic/onboarding_manager.dart';
 import 'package:bot_creator/core/diagnostics/recovery_manager.dart';
@@ -428,7 +431,9 @@ class _SettingPageState extends State<SettingPage> {
             activeSession = await publicClient.refreshSession(
               refreshToken: activeSession.refreshToken!,
             );
-            await MainApiSettingsStore.saveSession(activeSession);
+            await MainApiSettingsStore.saveSession(
+              activeSession.copyWith(authMethod: nextSession?.authMethod),
+            );
             _mainApiDebug('Session refresh succeeded');
           } catch (_) {
             _mainApiDebug('Session refresh failed, keeping previous session');
@@ -503,32 +508,21 @@ class _SettingPageState extends State<SettingPage> {
       _mainApiDebug(
         'OAuth completed, saving session expiresAt=${session.expiresAt.toUtc().toIso8601String()} user=${session.username ?? ''}',
       );
-      await MainApiSettingsStore.saveSession(session);
+      await MainApiSettingsStore.saveDiscordOAuthSession(session);
 
       // Immediately sync managed bots from the Manager to enrich local
       // entries with tokens and configs.
       try {
-        final client = MainApiClient(baseUrl: url);
-        final bots = await client.listBots();
-        _mainApiDebug('listBots returned ${bots.length} managed bots');
-        for (final bot in bots) {
-          final botId = (bot['bot_id'] ?? '').toString().trim();
-          if (botId.isEmpty) continue;
-          final botName = (bot['bot_name'] ?? 'Unnamed Bot').toString();
-          final token = (bot['bot_token'] ?? '').toString();
-          final config = bot['config'] as Map<String, dynamic>? ?? {};
-          await appManager.createOrUpdateApp(
-            id: Snowflake.parse(botId),
-            username: botName,
-            token: token,
-            intents: (config['intents'] as Map?)?.cast<String, bool>(),
-            prefix: config['prefix']?.toString(),
-          );
-        }
+        await syncManagedBotsAfterDiscordLogin(
+          baseUrl: url,
+          accessToken: session.accessToken,
+        );
         _mainApiDebug('Managed bots synced locally after connect');
       } catch (e) {
         _mainApiDebug('Failed to sync bots after connect: $e');
       }
+
+      await MobileAccountSession.instance.recheck();
 
       if (!mounted) return;
       setState(() {
@@ -569,6 +563,7 @@ class _SettingPageState extends State<SettingPage> {
 
     try {
       await MainApiSettingsStore.clearSession();
+      await MobileAccountSession.instance.recheck();
       if (!mounted) return;
       setState(() {
         _mainApiSession = null;
@@ -911,22 +906,25 @@ class _SettingPageState extends State<SettingPage> {
     final statusColor = _mainApiStatusColor(statusKey);
     final session = _mainApiSession;
     final hasSession = session != null && !session.isExpired;
+    final hasDiscordAccount = MobileAccountGate.isDiscordOAuthSession(session);
+    final accountConnected =
+        _isManagedMobilePlatform ? hasDiscordAccount : hasSession;
     final sessionUser = (session?.username ?? '').trim();
     _mainApiUrlController.text.trim();
     final accountTitle = context.tr.settings_main_api_title;
     final accountDescription = context.tr.settings_main_api_desc;
     final accountHint =
-        hasSession
+        accountConnected
             ? context.tr.settings_account_connected_hint
             : context.tr.settings_account_disconnected_hint;
     final connectButtonLabel = context.tr.settings_account_connect_label;
     final disconnectButtonLabel = context.tr.settings_account_disconnect_label;
     final mobileStatusText =
-        hasSession
+        accountConnected
             ? context.tr.settings_account_status_connected
             : context.tr.settings_account_status_disconnected;
     final mobileStatusColor =
-        hasSession ? AppTheme.successLight : AppTheme.warning;
+        accountConnected ? AppTheme.successLight : AppTheme.warning;
 
     final isBusy =
         _checkingMainApi || _connectingMainApi || _disconnectingMainApi;
@@ -978,13 +976,13 @@ class _SettingPageState extends State<SettingPage> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color:
-                  hasSession
+                  accountConnected
                       ? AppTheme.successLight.withValues(alpha: 0.12)
                       : AppTheme.warning.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
                 color:
-                    hasSession
+                    accountConnected
                         ? AppTheme.successLight.withValues(alpha: 0.35)
                         : AppTheme.warning.withValues(alpha: 0.35),
               ),
@@ -993,9 +991,9 @@ class _SettingPageState extends State<SettingPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Icon(
-                  hasSession ? Icons.verified_user : Icons.info_outline,
+                  accountConnected ? Icons.verified_user : Icons.info_outline,
                   size: 18,
-                  color: hasSession ? AppTheme.successLight : AppTheme.warning,
+                  color: accountConnected ? AppTheme.successLight : AppTheme.warning,
                 ),
                 const SizedBox(width: 8),
                 Expanded(
@@ -1007,7 +1005,7 @@ class _SettingPageState extends State<SettingPage> {
               ],
             ),
           ),
-          if (hasSession) ...[
+          if (accountConnected) ...[
             const SizedBox(height: 10),
             Row(
               children: [
@@ -1044,7 +1042,7 @@ class _SettingPageState extends State<SettingPage> {
                 label: Text(connectButtonLabel),
               ),
               OutlinedButton.icon(
-                onPressed: isBusy || !hasSession ? null : _disconnectMainApi,
+                onPressed: isBusy || !accountConnected ? null : _disconnectMainApi,
                 icon:
                     _disconnectingMainApi
                         ? const SizedBox(
@@ -1678,7 +1676,7 @@ class _SettingPageState extends State<SettingPage> {
                   // ── Support Discord card ────────────────────────────────────
                   _SupportDiscordCard(),
                   const SizedBox(height: 16),
-                  _PremiumCard(),
+                  _SubscriptionsSettingsCard(),
                   const SizedBox(height: 16),
                   _PrivacyPolicyCard(
                     checkingAdPrivacy: _checkingAdPrivacy,
@@ -3120,28 +3118,47 @@ class _SupportDiscordCard extends StatelessWidget {
   }
 }
 
-// ── Premium Subscription Card ──────────────────────────────────────────────
+// ── Subscriptions entry ─────────────────────────────────────────────────────
 
-class _PremiumCard extends StatefulWidget {
-  const _PremiumCard();
+class _SubscriptionsSettingsCard extends StatefulWidget {
+  const _SubscriptionsSettingsCard();
 
   @override
-  State<_PremiumCard> createState() => _PremiumCardState();
+  State<_SubscriptionsSettingsCard> createState() =>
+      _SubscriptionsSettingsCardState();
 }
 
-class _PremiumCardState extends State<_PremiumCard> {
+class _SubscriptionsSettingsCardState extends State<_SubscriptionsSettingsCard> {
   @override
   void initState() {
     super.initState();
-    unawaited(_refreshPremiumStatus());
+    unawaited(_refresh());
   }
 
-  Future<void> _refreshPremiumStatus() async {
-    await SubscriptionService.resolveEffectivePremiumStatus(forceRefresh: true);
-    if (!mounted) {
-      return;
+  Future<void> _refresh() async {
+    await Future.wait([
+      SubscriptionService.resolveEffectivePremiumStatus(forceRefresh: true),
+      HostedAppSubscriptionService.resolveEffectiveHostedAppStatus(
+        forceRefresh: true,
+      ),
+    ]);
+    if (mounted) setState(() {});
+  }
+
+  String _summary(BuildContext context) {
+    final tr = context.tr;
+    final bot = SubscriptionService.isSubscribed;
+    final hosted = HostedAppSubscriptionService.isSubscribed;
+    if (bot && hosted) {
+      return tr.subscriptions_hub_summary_both;
     }
-    setState(() {});
+    if (bot) {
+      return tr.subscriptions_hub_summary_bot_only;
+    }
+    if (hosted) {
+      return tr.subscriptions_hub_summary_hosted_only;
+    }
+    return tr.subscriptions_hub_summary_none;
   }
 
   @override
@@ -3150,130 +3167,48 @@ class _PremiumCardState extends State<_PremiumCard> {
       return const SizedBox.shrink();
     }
 
-    final isActive = SubscriptionService.isSubscribed;
-    final expiresAt = SubscriptionService.subscriptionExpiresAt;
-
-    if (isActive) {
-      return Card(
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () async {
+          await SubscriptionsHubPage.open(context);
+          if (mounted) {
+            await _refresh();
+          }
+        },
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              const Icon(
-                Icons.workspace_premium_rounded,
-                color: AppTheme.premiumGold,
-                size: 28,
-              ),
+              const Icon(Icons.subscriptions_outlined, size: 28),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      context.tr.premium_active_title,
+                      context.tr.subscriptions_hub_open_settings,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      context.tr.premium_active_desc,
+                      _summary(context),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
-                    if (expiresAt != null) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        _formatSubscriptionExpiry(context, expiresAt),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
                   ],
                 ),
               ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [AppTheme.premiumGold, AppTheme.warning],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  const Icon(
-                    Icons.workspace_premium_rounded,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    context.tr.premium_card_title,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                context.tr.premium_card_desc,
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.90),
-                  fontSize: 13,
-                  height: 1.4,
-                ),
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.icon(
-                  onPressed: () => SubscriptionPage.show(context),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: AppTheme.premiumGold,
-                  ),
-                  icon: const Icon(Icons.star_rounded, size: 18),
-                  label: Text(context.tr.premium_card_button),
-                ),
-              ),
+              const Icon(Icons.chevron_right),
             ],
           ),
         ),
       ),
     );
   }
-}
-
-String _formatSubscriptionExpiry(BuildContext context, DateTime expiresAt) {
-  final localized = expiresAt.toLocal();
-  final date = MaterialLocalizations.of(context).formatMediumDate(localized);
-  final time = MaterialLocalizations.of(
-    context,
-  ).formatTimeOfDay(TimeOfDay.fromDateTime(localized));
-  final languageCode = Localizations.localeOf(context).languageCode;
-  if (languageCode == 'fr') {
-    return 'Valable jusqu\'au $date à $time';
-  }
-  return 'Active until $date at $time';
 }
 
 String _translateStatusKey(BuildContext context, String statusKey) {

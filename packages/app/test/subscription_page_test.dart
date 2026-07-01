@@ -1,5 +1,4 @@
 import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
-import 'package:bot_creator/features/subscriptions/presentation/subscription_page.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

@@ -5,8 +5,8 @@ import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/containers/presentation/container_deploy_page.dart';
 import 'package:bot_creator/features/containers/presentation/container_detail_page.dart';
 import 'package:bot_creator/features/containers/presentation/hosted_app_upsell_widgets.dart';
-import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
-import 'package:bot_creator/features/subscriptions/presentation/subscription_page.dart';
+import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
+import 'package:bot_creator/features/subscriptions/presentation/hosted_app_subscription_page.dart';
 import 'package:flutter/material.dart';
 
 class ContainerListPage extends StatefulWidget {
@@ -76,8 +76,9 @@ class _ContainerListPageState extends State<ContainerListPage> {
 
   Future<void> _openDeploy() async {
     if (_atFreeContainerLimit) {
-      if (PremiumCapabilities.canShowPurchaseUI) {
-        await SubscriptionPage.show(context);
+      if (SubscriptionService.supportsNativeBilling &&
+          _eligibility?.premium != true) {
+        await HostedAppSubscriptionPage.show(context);
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(context.tr.container_list_free_limit_reached)),
@@ -133,6 +134,18 @@ class _ContainerListPageState extends State<ContainerListPage> {
     return '${c.memoryMb} MB';
   }
 
+  String? _formatTimeRemaining(ContainerInfo c) {
+    if (c.expiresAt.millisecondsSinceEpoch == 0) return null;
+    final remaining = c.expiresAt.toUtc().difference(DateTime.now().toUtc());
+    if (remaining.isNegative) return 'Expired';
+    final totalMinutes = remaining.inMinutes;
+    if (totalMinutes < 1) return '<1m left';
+    if (totalMinutes < 60) return '${totalMinutes}m left';
+    final hours = totalMinutes ~/ 60;
+    if (hours < 24) return '${hours}h left';
+    return '${hours ~/ 24}d left';
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -143,11 +156,13 @@ class _ContainerListPageState extends State<ContainerListPage> {
         title: Text(tr.container_list_title),
         actions: [
           IconButton(icon: const Icon(Icons.refresh), onPressed: _load),
-          if (_atFreeContainerLimit)
+          if (_atFreeContainerLimit &&
+              SubscriptionService.supportsNativeBilling &&
+              _eligibility?.premium != true)
             IconButton(
-              icon: const Icon(Icons.workspace_premium, color: Colors.amber),
+              icon: const Icon(Icons.storage_rounded, color: Colors.teal),
               tooltip: tr.container_list_premium_host_anytime_tooltip,
-              onPressed: () => SubscriptionPage.show(context),
+              onPressed: () => HostedAppSubscriptionPage.show(context),
             )
           else
             IconButton(
@@ -157,13 +172,16 @@ class _ContainerListPageState extends State<ContainerListPage> {
         ],
       ),
       body: _buildBody(colorScheme),
-      floatingActionButton: _atFreeContainerLimit && PremiumCapabilities.canShowPurchaseUI
-          ? FloatingActionButton.extended(
-              onPressed: () => SubscriptionPage.show(context),
-              icon: const Icon(Icons.workspace_premium),
-              label: Text(tr.container_list_premium_host_anytime_fab),
-            )
-          : null,
+      floatingActionButton:
+          _atFreeContainerLimit &&
+                  SubscriptionService.supportsNativeBilling &&
+                  _eligibility?.premium != true
+              ? FloatingActionButton.extended(
+                  onPressed: () => HostedAppSubscriptionPage.show(context),
+                  icon: const Icon(Icons.storage_rounded),
+                  label: Text(tr.container_list_premium_host_anytime_fab),
+                )
+              : null,
     );
   }
 
@@ -223,9 +241,9 @@ class _ContainerListPageState extends State<ContainerListPage> {
         itemCount: _containers!.length + (_atFreeContainerLimit ? 1 : 0),
         itemBuilder: (context, index) {
           if (_atFreeContainerLimit && index == 0) {
-            return const Padding(
-              padding: EdgeInsets.only(bottom: 8),
-              child: HostedAppPremiumUpsell(),
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: HostedAppPremiumUpsell(eligibility: _eligibility),
             );
           }
           final c = _containers![index - (_atFreeContainerLimit ? 1 : 0)];
@@ -251,6 +269,10 @@ class _ContainerListPageState extends State<ContainerListPage> {
                             maxLines: 1, overflow: TextOverflow.ellipsis),
                         const SizedBox(height: 4),
                         Text(_formatMemory(c), style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13)),
+                        if (_formatTimeRemaining(c) case final timeLeft?) ...[
+                          const SizedBox(height: 2),
+                          Text(timeLeft, style: TextStyle(color: colorScheme.primary, fontSize: 12, fontWeight: FontWeight.w600)),
+                        ],
                       ]),
                     ),
                     Column(crossAxisAlignment: CrossAxisAlignment.end, children: [

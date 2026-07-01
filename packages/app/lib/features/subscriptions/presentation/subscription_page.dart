@@ -11,20 +11,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
-@visibleForTesting
-String subscriptionPurchaseErrorKey(SubscriptionPurchaseFailureReason? reason) {
-  switch (reason) {
-    case SubscriptionPurchaseFailureReason.storeUnavailable:
-      return 'subscription_error_store_unavailable';
-    case SubscriptionPurchaseFailureReason.productUnavailable:
-      return 'subscription_error_product_unavailable';
-    case SubscriptionPurchaseFailureReason.purchaseStartFailed:
-      return 'subscription_error_purchase_start_failed';
-    case null:
-      return 'subscription_error';
-  }
-}
-
 /// Full-screen page (or bottom-sheet) for purchasing a premium subscription.
 class SubscriptionPage extends StatefulWidget {
   const SubscriptionPage({super.key});

@@ -11395,7 +11395,7 @@ abstract class AppLocalizations {
   /// Your Bot Creator account is created automatically when you add a bot. Then sign in with Discord to recover your bots on this device.
   ///
   /// In en, this message translates to:
-  /// **'Your Bot Creator account is created automatically when you add a bot. Then sign in with Discord to recover your bots on this device.'**
+  /// **'On mobile, sign in with Discord to sync bots, deploy hosted applications, and recover your data on a new phone.'**
   String get settings_account_disconnected_hint;
 
   /// Account connected
@@ -11409,6 +11409,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not signed in'**
   String get settings_account_status_disconnected;
+
+  /// Title on the mobile account gate screen
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with Discord'**
+  String get mobile_account_required_title;
+
+  /// Explanation on the mobile account gate screen
+  ///
+  /// In en, this message translates to:
+  /// **'On mobile, a Discord account is required to use Bot Creator. Your bots, hosted applications, and subscriptions are tied to this account and can be recovered on a new phone.'**
+  String get mobile_account_required_body;
+
+  /// Feature bullet on the mobile account gate screen
+  ///
+  /// In en, this message translates to:
+  /// **'Sync and restore your bots from the cloud'**
+  String get mobile_account_required_feature_bots;
+
+  /// Feature bullet on the mobile account gate screen
+  ///
+  /// In en, this message translates to:
+  /// **'Deploy and manage hosted applications'**
+  String get mobile_account_required_feature_hosted;
+
+  /// Feature bullet on the mobile account gate screen
+  ///
+  /// In en, this message translates to:
+  /// **'Recover everything after reinstall or on a new phone'**
+  String get mobile_account_required_feature_recovery;
+
+  /// Error snackbar when Discord sign-in fails on mobile gate
+  ///
+  /// In en, this message translates to:
+  /// **'Discord sign-in failed: {error}'**
+  String mobile_account_required_failed(String error);
 
   /// Checking ad privacy settings...
   ///
@@ -13323,6 +13359,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Manage subscription'**
   String get subscription_manage;
+
+  /// Title for the subscriptions management page
+  ///
+  /// In en, this message translates to:
+  /// **'Subscriptions'**
+  String get subscriptions_hub_title;
+
+  /// Subtitle on subscriptions hub page
+  ///
+  /// In en, this message translates to:
+  /// **'View and manage your Bot Premium and hosted application plans.'**
+  String get subscriptions_hub_subtitle;
+
+  /// Settings entry title for subscriptions hub
+  ///
+  /// In en, this message translates to:
+  /// **'Subscriptions & billing'**
+  String get subscriptions_hub_open_settings;
+
+  /// Section title for bot premium on subscriptions hub
+  ///
+  /// In en, this message translates to:
+  /// **'Bot Premium'**
+  String get subscriptions_hub_bot_premium_section;
+
+  /// No description provided for @subscriptions_hub_bot_premium_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove ads and unlock premium features for your Discord bots.'**
+  String get subscriptions_hub_bot_premium_desc;
+
+  /// Section title for hosted apps on subscriptions hub
+  ///
+  /// In en, this message translates to:
+  /// **'Hosted applications'**
+  String get subscriptions_hub_hosted_section;
+
+  /// No description provided for @subscriptions_hub_hosted_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Run Docker containers in the cloud without watching ads.'**
+  String get subscriptions_hub_hosted_desc;
+
+  /// No description provided for @subscriptions_hub_status_active.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get subscriptions_hub_status_active;
+
+  /// No description provided for @subscriptions_hub_status_inactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Not subscribed'**
+  String get subscriptions_hub_status_inactive;
+
+  /// No description provided for @subscriptions_hub_subscribe.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribe'**
+  String get subscriptions_hub_subscribe;
+
+  /// No description provided for @subscriptions_hub_summary_both.
+  ///
+  /// In en, this message translates to:
+  /// **'Bot Premium and Hosted applications active'**
+  String get subscriptions_hub_summary_both;
+
+  /// No description provided for @subscriptions_hub_summary_bot_only.
+  ///
+  /// In en, this message translates to:
+  /// **'Bot Premium active'**
+  String get subscriptions_hub_summary_bot_only;
+
+  /// No description provided for @subscriptions_hub_summary_hosted_only.
+  ///
+  /// In en, this message translates to:
+  /// **'Hosted applications active'**
+  String get subscriptions_hub_summary_hosted_only;
+
+  /// No description provided for @subscriptions_hub_summary_none.
+  ///
+  /// In en, this message translates to:
+  /// **'No active subscriptions'**
+  String get subscriptions_hub_summary_none;
+
+  /// No description provided for @subscriptions_hub_expires_at.
+  ///
+  /// In en, this message translates to:
+  /// **'Renews until {date} at {time}'**
+  String subscriptions_hub_expires_at(String date, String time);
+
+  /// No description provided for @subscription_upgrade_annual.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade to annual'**
+  String get subscription_upgrade_annual;
+
+  /// No description provided for @subscription_upgrade_two_apps.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade to 2 containers'**
+  String get subscription_upgrade_two_apps;
+
+  /// No description provided for @subscription_manage_cancel_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'To cancel or change billing, use Manage subscription — this opens the App Store or Google Play.'**
+  String get subscription_manage_cancel_hint;
 
   /// Monthly
   ///
@@ -15418,10 +15562,10 @@ abstract class AppLocalizations {
   /// **'TTL extended'**
   String get container_detail_extended_ok;
 
-  /// Label for the container console section
+  /// Label for the container logs section
   ///
   /// In en, this message translates to:
-  /// **'Console'**
+  /// **'Logs'**
   String get container_detail_console;
 
   /// Message shown while container is being deployed
@@ -15529,32 +15673,86 @@ abstract class AppLocalizations {
   /// Snackbar when free user tries to deploy another container
   ///
   /// In en, this message translates to:
-  /// **'Free limit reached (1 container). Upgrade to Premium to host more.'**
+  /// **'Free limit reached (1 container). Subscribe to host more containers.'**
   String get container_list_free_limit_reached;
 
-  /// Premium upsell card title for hosted apps
+  /// Hosted app subscription upsell card title
   ///
   /// In en, this message translates to:
   /// **'Host anytime'**
   String get container_hosted_premium_host_anytime;
 
-  /// Compact premium upsell button label
+  /// Compact hosted app subscription upsell button label
   ///
   /// In en, this message translates to:
-  /// **'Premium — host anytime'**
+  /// **'Subscribe — host anytime'**
   String get container_hosted_premium_host_anytime_compact;
 
-  /// Premium upsell description for hosted apps
+  /// Hosted app subscription upsell description
   ///
   /// In en, this message translates to:
-  /// **'Upgrade to Premium for Docker containers with unlimited hosting and no ads.'**
+  /// **'Subscribe to host Docker containers with unlimited uptime — no ads required.'**
   String get container_hosted_premium_desc;
 
-  /// Button to open subscription page from hosted apps
+  /// Button to open hosted app subscription page
   ///
   /// In en, this message translates to:
-  /// **'View Premium'**
+  /// **'View plans'**
   String get container_hosted_premium_view_btn;
+
+  /// No description provided for @hosted_app_subscription_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Hosted applications'**
+  String get hosted_app_subscription_title;
+
+  /// No description provided for @hosted_app_subscription_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Run Docker containers in the cloud without watching ads.'**
+  String get hosted_app_subscription_subtitle;
+
+  /// No description provided for @hosted_app_subscription_benefit_unlimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited hosting time'**
+  String get hosted_app_subscription_benefit_unlimited;
+
+  /// No description provided for @hosted_app_subscription_benefit_no_ads.
+  ///
+  /// In en, this message translates to:
+  /// **'No rewarded ads required'**
+  String get hosted_app_subscription_benefit_no_ads;
+
+  /// No description provided for @hosted_app_subscription_one_app_title.
+  ///
+  /// In en, this message translates to:
+  /// **'1 container'**
+  String get hosted_app_subscription_one_app_title;
+
+  /// No description provided for @hosted_app_subscription_one_app_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Host one Docker container anytime'**
+  String get hosted_app_subscription_one_app_desc;
+
+  /// No description provided for @hosted_app_subscription_two_app_title.
+  ///
+  /// In en, this message translates to:
+  /// **'2 containers'**
+  String get hosted_app_subscription_two_app_title;
+
+  /// No description provided for @hosted_app_subscription_two_app_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Host up to two Docker containers'**
+  String get hosted_app_subscription_two_app_desc;
+
+  /// No description provided for @hosted_app_subscription_recommended.
+  ///
+  /// In en, this message translates to:
+  /// **'Best value'**
+  String get hosted_app_subscription_recommended;
 
   /// Title for free-tier hosted app banner
   ///

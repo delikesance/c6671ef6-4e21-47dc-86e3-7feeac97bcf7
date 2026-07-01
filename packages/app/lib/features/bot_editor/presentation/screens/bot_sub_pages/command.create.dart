@@ -1120,7 +1120,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         '[_resolveMainApiClientForCloudSync] saving restored session and returning client (botId=$botId owner=${restoredSession.userId ?? "unknown"}).',
         name: 'CommandCreatePage',
       );
-      await MainApiSettingsStore.saveSession(restoredSession);
+      await MainApiSettingsStore.saveBotTokenSession(restoredSession);
       developer.log(
         '[_resolveMainApiClientForCloudSync] session saved OK for botId=$botId.',
         name: 'CommandCreatePage',

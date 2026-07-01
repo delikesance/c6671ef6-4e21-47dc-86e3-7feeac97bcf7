@@ -118,7 +118,7 @@ class MainApiOwnerSyncHelper {
         botToken: trimmedToken,
       );
 
-      await MainApiSettingsStore.saveSession(session);
+      await MainApiSettingsStore.saveBotTokenSession(session);
       log(
         'Manager session restored from bot token for $botId.',
       );
@@ -157,7 +157,7 @@ class MainApiOwnerSyncHelper {
         final newSession = await client.refreshSession(
           refreshToken: session.refreshToken!,
         );
-        await MainApiSettingsStore.saveSession(newSession);
+        await MainApiSettingsStore.saveBotTokenSession(newSession);
         session = newSession;
         log('resolveMainApiClientForBot($botId): session refreshed successfully.');
       } catch (error) {

@@ -1,3 +1,4 @@
+import 'package:bot_creator/core/auth/mobile_account_session.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_auth_service.dart';
@@ -217,7 +218,8 @@ class _MarketplacePageState extends State<MarketplacePage> {
     try {
       final client = MainApiClient(baseUrl: config.baseUrl);
       final session = await MainApiAuthService.connectWithDiscord(client: client);
-      await MainApiSettingsStore.saveSession(session);
+      await MainApiSettingsStore.saveDiscordOAuthSession(session);
+      await MobileAccountSession.instance.recheck();
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

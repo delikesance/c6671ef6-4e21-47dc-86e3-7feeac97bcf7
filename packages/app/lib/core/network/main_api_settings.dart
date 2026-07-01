@@ -40,6 +40,26 @@ class MainApiConfig {
   }
 }
 
+enum MainApiAuthMethod {
+  discordOauth('discord_oauth'),
+  botToken('bot_token');
+
+  const MainApiAuthMethod(this.storageValue);
+
+  final String storageValue;
+
+  static MainApiAuthMethod? fromStorage(String? raw) {
+    switch (raw?.trim()) {
+      case 'discord_oauth':
+        return MainApiAuthMethod.discordOauth;
+      case 'bot_token':
+        return MainApiAuthMethod.botToken;
+      default:
+        return null;
+    }
+  }
+}
+
 class MainApiSession {
   const MainApiSession({
     required this.accessToken,
@@ -48,6 +68,7 @@ class MainApiSession {
     this.userId,
     this.username,
     this.scopes = const <String>[],
+    this.authMethod,
   });
 
   final String accessToken;
@@ -56,6 +77,7 @@ class MainApiSession {
   final String? userId;
   final String? username;
   final List<String> scopes;
+  final MainApiAuthMethod? authMethod;
 
   bool get isExpired => expiresAt.isBefore(DateTime.now().toUtc());
 
@@ -70,6 +92,7 @@ class MainApiSession {
     String? userId,
     String? username,
     List<String>? scopes,
+    MainApiAuthMethod? authMethod,
   }) {
     return MainApiSession(
       accessToken: accessToken ?? this.accessToken,
@@ -78,6 +101,7 @@ class MainApiSession {
       userId: userId ?? this.userId,
       username: username ?? this.username,
       scopes: scopes ?? this.scopes,
+      authMethod: authMethod ?? this.authMethod,
     );
   }
 
@@ -88,6 +112,7 @@ class MainApiSession {
     'userId': ?_normalize(userId),
     'username': ?_normalize(username),
     if (scopes.isNotEmpty) 'scopes': scopes,
+    if (authMethod != null) 'authMethod': authMethod!.storageValue,
   };
 
   factory MainApiSession.fromJson(Map<String, dynamic> json) {
@@ -105,6 +130,7 @@ class MainApiSession {
                   .where((item) => item.isNotEmpty)
                   .toList(growable: false)
               : const <String>[],
+      authMethod: MainApiAuthMethod.fromStorage(json['authMethod']?.toString()),
     );
   }
 }
@@ -193,6 +219,24 @@ class MainApiSettingsStore {
     // Remove any legacy SharedPreferences copy.
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_sessionKey);
+  }
+
+  static Future<void> saveDiscordOAuthSession(MainApiSession session) {
+    return saveSession(
+      session.copyWith(authMethod: MainApiAuthMethod.discordOauth),
+    );
+  }
+
+  static Future<void> saveBotTokenSession(MainApiSession session) async {
+    final existing = await loadSession();
+    if (existing?.authMethod == MainApiAuthMethod.discordOauth) {
+      return saveSession(
+        session.copyWith(authMethod: MainApiAuthMethod.discordOauth),
+      );
+    }
+    return saveSession(
+      session.copyWith(authMethod: MainApiAuthMethod.botToken),
+    );
   }
 
   static Future<void> clearSession() async {

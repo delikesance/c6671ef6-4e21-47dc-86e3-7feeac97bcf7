@@ -1,7 +1,10 @@
+import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -20,11 +23,13 @@ void main() {
     SharedPreferences.setMockInitialValues(const <String, Object>{});
     await SubscriptionService.debugResetForTests();
     SubscriptionService.debugSetNativeBillingSourceOfTruth(true);
+    SubscriptionService.debugSetDesktopForTests(false);
   });
 
   tearDown(() async {
     debugDefaultTargetPlatformOverride = null;
     SubscriptionService.debugSetNativeBillingSourceOfTruth(null);
+    SubscriptionService.debugSetDesktopForTests(null);
     await SubscriptionService.debugResetForTests();
   });
 
@@ -102,6 +107,55 @@ void main() {
       );
 
       expect(canSkipAds, isFalse);
+    },
+  );
+
+  test(
+    'mobile clears local premium when manager runtime says free',
+    () async {
+      seedLocalPremiumCache();
+      await MainApiSettingsStore.saveConfig(
+        const MainApiConfig(baseUrl: 'https://api.example.com'),
+      );
+      await MainApiSettingsStore.saveSession(
+        MainApiSession(
+          accessToken: 'token',
+          expiresAt: DateTime.now().toUtc().add(const Duration(hours: 1)),
+        ),
+      );
+
+      final client = MainApiClient(
+        baseUrl: 'https://api.example.com',
+        accessToken: 'token',
+        httpClient: MockClient((request) async {
+          if (request.url.path.endsWith('/gateway/runtime')) {
+            return http.Response('{"plan":"FREE"}', 200);
+          }
+          return http.Response('not found', 404);
+        }),
+      );
+
+      final isPremium = await SubscriptionService.refreshPremiumFromServer(
+        client: client,
+        forceRefresh: true,
+      );
+
+      expect(isPremium, isFalse);
+      expect(SubscriptionService.isSubscribed, isFalse);
+    },
+  );
+
+  test(
+    'mobile keeps local premium when manager session is unavailable',
+    () async {
+      seedLocalPremiumCache();
+
+      final isPremium = await SubscriptionService.refreshPremiumFromServer(
+        forceRefresh: true,
+      );
+
+      expect(isPremium, isTrue);
+      expect(SubscriptionService.isSubscribed, isTrue);
     },
   );
 

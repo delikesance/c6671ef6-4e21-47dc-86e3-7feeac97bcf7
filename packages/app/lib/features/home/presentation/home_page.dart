@@ -977,7 +977,7 @@ class HomePageState extends State<HomePage>
         final newSession = await client.refreshSession(
           refreshToken: session.refreshToken!,
         );
-        await MainApiSettingsStore.saveSession(newSession);
+        await MainApiSettingsStore.saveBotTokenSession(newSession);
         session = newSession;
         appendBotDebugLog(
           '[_resolveGlobalMainApiClient] Global session refreshed successfully.',

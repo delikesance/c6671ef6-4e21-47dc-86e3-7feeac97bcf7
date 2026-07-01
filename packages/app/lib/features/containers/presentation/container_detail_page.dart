@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
@@ -28,7 +27,7 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
   bool _loadingEligibility = true;
   HostedAppEligibility? _eligibility;
   Timer? _pollTimer;
-  WebSocketChannel? _consoleChannel;
+  Timer? _metricsTimer;
 
   @override
   void initState() {
@@ -39,21 +38,8 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
   @override
   void dispose() {
     _pollTimer?.cancel();
-    _closeConsoleChannel();
+    _metricsTimer?.cancel();
     super.dispose();
-  }
-
-  void _closeConsoleChannel() {
-    _consoleChannel?.sink.close();
-    _consoleChannel = null;
-  }
-
-  void _syncConsoleChannel(String state) {
-    if (state != 'RUNNING' || _client == null) {
-      _closeConsoleChannel();
-      return;
-    }
-    _consoleChannel ??= _client!.connectContainerConsole(widget.containerId);
   }
 
   Future<void> _init() async {
@@ -97,6 +83,23 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
     final raw = _status?['expires_at']?.toString();
     if (raw == null || raw.isEmpty) return null;
     return DateTime.tryParse(raw);
+  }
+
+  void _syncStatusTimers(String state) {
+    if (state == 'PENDING' || state == 'PROVISIONING') {
+      _metricsTimer?.cancel();
+      _metricsTimer = null;
+      _pollTimer ??= Timer.periodic(const Duration(seconds: 10), (_) => _loadStatus());
+      return;
+    }
+    _pollTimer?.cancel();
+    _pollTimer = null;
+    if (state == 'RUNNING') {
+      _metricsTimer ??= Timer.periodic(const Duration(seconds: 10), (_) => _loadStatus());
+    } else {
+      _metricsTimer?.cancel();
+      _metricsTimer = null;
+    }
   }
 
   Future<void> _watchAdAndTopUp() async {
@@ -183,20 +186,12 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
     try {
       final status = await _client!.getContainerStatus(widget.containerId);
       if (mounted) {
-        final nextState = status['state']?.toString() ?? '';
         setState(() {
           _status = status;
           _loading = false;
         });
-        _syncConsoleChannel(nextState);
       }
-      final state = status['state']?.toString() ?? '';
-      if (state == 'PENDING' || state == 'PROVISIONING') {
-        _pollTimer ??= Timer.periodic(const Duration(seconds: 10), (_) => _loadStatus());
-      } else {
-        _pollTimer?.cancel();
-        _pollTimer = null;
-      }
+      _syncStatusTimers(status['state']?.toString() ?? '');
     } catch (_) {
       if (mounted) setState(() => _loading = false);
     }
@@ -284,6 +279,28 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
     return '$limitMb MB';
   }
 
+  String _formatCpuUsage(Map<String, dynamic>? status) {
+    if (status == null) return '—';
+    final limitMillis = ContainerInfo.parseInt(status['cpu_millis'], 0);
+    final usagePercent = (status['cpu_usage_percent'] as num?)?.toDouble() ?? 0;
+    if (usagePercent > 0) {
+      return '${usagePercent.toStringAsFixed(1)}% (${limitMillis}mCPU)';
+    }
+    return '${limitMillis}mCPU';
+  }
+
+  String _formatTimeRemaining(DateTime? expiresAt) {
+    if (expiresAt == null) return '—';
+    final remaining = expiresAt.toUtc().difference(DateTime.now().toUtc());
+    if (remaining.isNegative) return 'Expired';
+    final totalMinutes = remaining.inMinutes;
+    if (totalMinutes < 1) return '<1m left';
+    if (totalMinutes < 60) return '${totalMinutes}m left';
+    final hours = totalMinutes ~/ 60;
+    if (hours < 24) return '${hours}h left';
+    return '${hours ~/ 24}d left';
+  }
+
   Color _stateColor(String state) {
     switch (state) {
       case 'RUNNING': return Colors.green;
@@ -341,7 +358,7 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
                       ),
                     ),
                   ),
-                const HostedAppPremiumUpsell(compact: true),
+                HostedAppPremiumUpsell(compact: true, eligibility: _eligibility),
                 const SizedBox(height: 8),
               ],
               Card(child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -356,6 +373,16 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
                   const Spacer(),
                   Text(_stateLabel(state, tr), style: TextStyle(fontWeight: FontWeight.bold, color: _stateColor(state))),
                 ]),
+                if (_expiresAt != null) ...[
+                  const SizedBox(height: 12),
+                  Row(children: [
+                    const Icon(Icons.timer_outlined, size: 18),
+                    const SizedBox(width: 8),
+                    Text(tr.container_detail_expires, style: Theme.of(context).textTheme.titleSmall),
+                    const Spacer(),
+                    Text(_formatTimeRemaining(_expiresAt), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                  ]),
+                ],
                 const SizedBox(height: 12),
                 Row(children: [
                   const Icon(Icons.memory_outlined, size: 18),
@@ -363,6 +390,14 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
                   Text('RAM', style: Theme.of(context).textTheme.titleSmall),
                   const Spacer(),
                   Text(_formatMemoryUsage(_status), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                ]),
+                const SizedBox(height: 12),
+                Row(children: [
+                  const Icon(Icons.speed_outlined, size: 18),
+                  const SizedBox(width: 8),
+                  Text('CPU', style: Theme.of(context).textTheme.titleSmall),
+                  const Spacer(),
+                  Text(_formatCpuUsage(_status), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                 ]),
               ]))),
               const SizedBox(height: 24),
@@ -383,10 +418,11 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
                   height: 300,
                   child: Card(
                     clipBehavior: Clip.antiAlias,
-                    child: _consoleChannel != null
-                        ? WebSocketConsole(
-                            key: ValueKey(widget.containerId),
-                            channel: _consoleChannel!,
+                    child: _client != null
+                        ? ContainerLogsViewer(
+                            key: ValueKey('logs-${widget.containerId}'),
+                            client: _client!,
+                            containerId: widget.containerId,
                           )
                         : Center(child: Text(tr.container_detail_not_connected)),
                   ),
@@ -422,140 +458,93 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
   }
 }
 
-class WebSocketConsole extends StatefulWidget {
-  final WebSocketChannel channel;
-  const WebSocketConsole({super.key, required this.channel});
+class ContainerLogsViewer extends StatefulWidget {
+  final MainApiClient client;
+  final String containerId;
+
+  const ContainerLogsViewer({
+    super.key,
+    required this.client,
+    required this.containerId,
+  });
 
   @override
-  State<WebSocketConsole> createState() => _WebSocketConsoleState();
+  State<ContainerLogsViewer> createState() => _ContainerLogsViewerState();
 }
 
-class _WebSocketConsoleState extends State<WebSocketConsole> {
-  final List<String> _lines = <String>[];
+class _ContainerLogsViewerState extends State<ContainerLogsViewer> {
   final _scrollCtrl = ScrollController();
-  final _inputCtrl = TextEditingController();
-  bool _connected = false;
-  StreamSubscription<dynamic>? _subscription;
+  String _logs = '';
+  bool _loading = true;
+  String? _error;
+  Timer? _pollTimer;
 
   @override
   void initState() {
     super.initState();
-    _subscription = widget.channel.stream.listen(
-      (data) {
-        if (!mounted) return;
-        final text = switch (data) {
-          final String s => s,
-          final List<int> bytes => String.fromCharCodes(bytes),
-          _ => data.toString(),
-        };
-        if (text.isEmpty) return;
-        setState(() {
-          _connected = true;
-          _lines.add(text);
-        });
-        _scrollToBottom();
-      },
-      onError: (error) {
-        if (!mounted) return;
-        setState(() {
-          _connected = false;
-          _lines.add(context.tr.container_detail_failed(error.toString()));
-        });
-      },
-      onDone: () {
-        if (!mounted) return;
-        setState(() {
-          _connected = false;
-          _lines.add(context.tr.container_detail_console_closed);
-        });
-      },
-      cancelOnError: false,
-    );
+    _loadLogs();
+    _pollTimer = Timer.periodic(const Duration(seconds: 5), (_) => _loadLogs(silent: true));
   }
 
-  void _sendCommand(String cmd) {
-    if (cmd.trim().isEmpty || !_connected) return;
-    final line = cmd.endsWith('\n') ? cmd : '$cmd\n';
-    widget.channel.sink.add(line);
-    setState(() => _lines.add('> ${cmd.trim()}'));
-    _inputCtrl.clear();
+  Future<void> _loadLogs({bool silent = false}) async {
+    if (!silent && mounted) setState(() => _loading = true);
+    try {
+      final logs = await widget.client.getContainerLogs(widget.containerId);
+      if (!mounted) return;
+      setState(() {
+        _logs = logs;
+        _loading = false;
+        _error = null;
+      });
+      _scrollToBottom();
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _loading = false;
+        _error = e.toString();
+      });
+    }
   }
 
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollCtrl.hasClients) {
-        _scrollCtrl.animateTo(
-          _scrollCtrl.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 100),
-          curve: Curves.easeOut,
-        );
+        _scrollCtrl.jumpTo(_scrollCtrl.position.maxScrollExtent);
       }
     });
   }
 
   @override
   void dispose() {
-    _subscription?.cancel();
-    _inputCtrl.dispose();
+    _pollTimer?.cancel();
     _scrollCtrl.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        if (!_connected)
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: Row(
-              children: [
-                const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2)),
-                const SizedBox(width: 8),
-                Text(context.tr.container_detail_console_connecting, style: const TextStyle(fontSize: 12)),
-              ],
-            ),
-          ),
-        Expanded(
-          child: ListView.builder(
-            controller: _scrollCtrl,
-            padding: const EdgeInsets.all(8),
-            itemCount: _lines.length,
-            itemBuilder: (_, i) => Text(
-              _lines[i],
-              style: const TextStyle(fontFamily: 'monospace', fontSize: 13, height: 1.4),
-            ),
+    if (_loading && _logs.isEmpty) {
+      return const Center(child: CircularProgressIndicator(strokeWidth: 2));
+    }
+    if (_error != null && _logs.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Text(
+            context.tr.container_detail_failed(_error!),
+            style: const TextStyle(fontSize: 12, color: Colors.red),
+            textAlign: TextAlign.center,
           ),
         ),
-        const Divider(height: 1),
-        Container(
-          color: Theme.of(context).colorScheme.surfaceContainerLow,
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _inputCtrl,
-                  enabled: _connected,
-                  decoration: InputDecoration(
-                    hintText: context.tr.container_detail_console_hint,
-                    border: InputBorder.none,
-                    isDense: true,
-                  ),
-                  style: const TextStyle(fontFamily: 'monospace', fontSize: 13),
-                  onSubmitted: _sendCommand,
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.send, size: 20),
-                onPressed: _connected ? () => _sendCommand(_inputCtrl.text) : null,
-                visualDensity: VisualDensity.compact,
-              ),
-            ],
-          ),
-        ),
-      ],
+      );
+    }
+    return SingleChildScrollView(
+      controller: _scrollCtrl,
+      padding: const EdgeInsets.all(8),
+      child: SelectableText(
+        _logs.isEmpty ? '—' : _logs,
+        style: const TextStyle(fontFamily: 'monospace', fontSize: 12, height: 1.4),
+      ),
     );
   }
 }

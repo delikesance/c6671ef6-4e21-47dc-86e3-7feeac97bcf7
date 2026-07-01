@@ -30,11 +30,13 @@ import 'package:bot_creator/features/ads/logic/ad_reward_service.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
+import 'package:bot_creator/features/subscriptions/logic/hosted_app_subscription_service.dart';
 import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
 
 import 'package:bot_creator/features/onboarding/logic/onboarding_manager.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/utils/global.dart';
+import 'package:bot_creator/features/auth/presentation/mobile_account_gate_shell.dart';
 
 
 @pragma('vm:entry-point')
@@ -286,6 +288,22 @@ Future<void> _warmUpServicesAfterLaunch() async {
   );
 
   await _runStartupTask(
+    label: 'Hosted app subscription service initialization',
+    timeout: const Duration(seconds: 10),
+    action: () async {
+      await HostedAppSubscriptionService.initialize();
+    },
+  );
+
+  await _runStartupTask(
+    label: 'Hosted app subscription server refresh',
+    timeout: const Duration(seconds: 8),
+    action: () async {
+      await HostedAppSubscriptionService.refreshFromServer(forceRefresh: true);
+    },
+  );
+
+  await _runStartupTask(
     label: 'Main API client hashes load',
     timeout: const Duration(seconds: 5),
     action: () async {
@@ -364,7 +382,10 @@ Future<void> _restorePersistedMainApiSession() async {
     final refreshedSession = await client.refreshSession(
       refreshToken: refreshToken,
     );
-    await MainApiSettingsStore.saveSession(refreshedSession);
+    final existing = await MainApiSettingsStore.loadSession();
+    await MainApiSettingsStore.saveSession(
+      refreshedSession.copyWith(authMethod: existing?.authMethod),
+    );
     await AppDiagnostics.logInfo(
       'Main API session restored from refresh token on startup',
       data: <String, Object?>{
@@ -467,7 +488,7 @@ class _MyAppState extends State<MyApp> {
         if (_isOAuthCallbackRoute(name)) {
           return MaterialPageRoute<void>(
             settings: settings,
-            builder: (context) => MyMainPage(),
+            builder: (context) => const MobileAccountGateShell(child: MyMainPage()),
           );
         }
         return null;
@@ -497,8 +518,10 @@ class _MyAppState extends State<MyApp> {
                   }
                 },
               )
-              : const MyMainPage(),
-      routes: {'/home': (context) => MyMainPage()},
+              : const MobileAccountGateShell(child: MyMainPage()),
+      routes: {
+        '/home': (context) => const MobileAccountGateShell(child: MyMainPage()),
+      },
     );
   }
 

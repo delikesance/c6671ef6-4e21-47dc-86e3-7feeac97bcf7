@@ -3,6 +3,7 @@ import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
+import 'package:bot_creator/core/auth/mobile_account_gate.dart';
 import 'package:bot_creator/core/utils/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -334,11 +335,22 @@ class _AppCreatePageState extends State<AppCreatePage> {
           icon: Icons.storage_rounded,
           iconColor: Colors.teal,
           iconBackgroundColor: Colors.teal.withOpacity(0.12),
-          onTap: () {
+          onTap: () async {
             AppAnalytics.logEvent(
               name: "select_app_type",
               parameters: {"type": "hosted_application"},
             );
+            if (MobileAccountGate.isRequired &&
+                !await MobileAccountGate.hasRequiredAccount()) {
+              if (!context.mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(context.tr.mobile_account_required_body),
+                ),
+              );
+              return;
+            }
+            if (!context.mounted) return;
             Navigator.push(
               context,
               MaterialPageRoute(
