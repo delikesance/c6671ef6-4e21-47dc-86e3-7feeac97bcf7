@@ -10269,5 +10269,32 @@
         "type": "String"
       }
     }
-  }
+  },
+  "container_list_premium_host_anytime_tooltip": "Premium — jederzeit hosten",
+  "container_list_premium_host_anytime_fab": "Jederzeit hosten",
+  "container_list_free_limit_reached": "Kostenloses Limit erreicht (1 Container). Upgrade auf Premium für mehr.",
+  "container_hosted_premium_host_anytime": "Jederzeit hosten",
+  "container_hosted_premium_host_anytime_compact": "Premium — jederzeit hosten",
+  "container_hosted_premium_desc": "Upgrade auf Premium für Docker-Container mit unbegrenztem Hosting — ohne Werbung.",
+  "container_hosted_premium_view_btn": "Premium ansehen",
+  "container_hosted_free_title": "Kostenloses Hosting (max. 1 Container)",
+  "container_hosted_expires_at": "Läuft ab am {dateTime}",
+  "container_hosted_topup_ad_hint": "Schau eine Werbung, um {reward} Min. zu diesem Container hinzuzufügen (stapelbar).",
+  "container_hosted_at_limit_open_detail": "Container aktiv ({active}/{max}). Öffne ihn, um mit einer Werbung zu verlängern.",
+  "container_hosted_minutes_available": "{minutes} Hosting-Minuten verfügbar (stapelbar).",
+  "container_hosted_watch_ad_earn": "Schau eine Werbung, um {reward} Hosting-Minuten zu erhalten.",
+  "container_hosted_ad_button": "Werbung +{reward} Min.",
+  "container_hosted_balance_after_ad": "Guthaben nach letzter Werbung: {minutes} Min.",
+  "container_deploy_ad_unlock_success": "+{granted} Hosting-Minuten (Gesamt: {balance} Min.).",
+  "container_deploy_ad_unlock_failed": "Freischaltung fehlgeschlagen: {error}",
+  "container_deploy_requires_premium_or_ad": "Premium-Abo oder Werbung erforderlich, um einen Container bereitzustellen.",
+  "container_deploy_premium_account": "Premium-Konto",
+  "container_deploy_premium_containers": "Bis zu {max} aktive Container ({active}/{max}).",
+  "container_deploy_ephemeral_storage": "Ephemeraler Speicher (kein persistentes Volume)",
+  "container_detail_topup_applied": "+{minutes} Min. zu diesem Container hinzugefügt.",
+  "container_detail_topup_credited": "+{minutes} Min. gutgeschrieben.",
+  "container_detail_apply_stored_minutes": "{minutes} gespeicherte Min. anwenden",
+  "container_detail_minutes_applied": "{minutes} Min. angewendet.",
+  "subscription_feature_hosted_apps_title": "Gehostete Anwendungen",
+  "subscription_feature_hosted_apps_desc": "Docker-Container mit unbegrenztem Hosting betreiben — ohne Werbung."
 }

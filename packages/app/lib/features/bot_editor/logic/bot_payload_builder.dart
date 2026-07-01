@@ -471,6 +471,7 @@ Future<void> _executeSync(String botId) async {
             // Note: saveDiscordBotSnapshot and syncBot now benefit from 
             // internal caching if implemented in MainApiClient or similar.
             await mainApiClient.saveDiscordBotSnapshot(
+              botId: botId,
               botToken: botToken,
               config: payload,
             );

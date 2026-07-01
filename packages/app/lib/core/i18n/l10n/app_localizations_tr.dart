@@ -7588,6 +7588,14 @@ class AppLocalizationsTr extends AppLocalizations {
       'Botları ödüllü reklam kesintisi olmadan hemen başlatın.';
 
   @override
+  String get subscription_feature_hosted_apps_title =>
+      'Barindirilan uygulamalar';
+
+  @override
+  String get subscription_feature_hosted_apps_desc =>
+      'Docker konteynerlerini sinirsiz barindirin — reklam yok.';
+
+  @override
   String get subscription_feature_instant_start_title => 'Anında başlatma';
 
   @override
@@ -8904,5 +8912,117 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String container_detail_title(String id) {
     return 'Kapsayici $id';
+  }
+
+  @override
+  String get container_list_premium_host_anytime_tooltip =>
+      'Premium — istediginiz zaman barindirin';
+
+  @override
+  String get container_list_premium_host_anytime_fab =>
+      'Istediginiz zaman barindirin';
+
+  @override
+  String get container_list_free_limit_reached =>
+      'Ucretsiz limit doldu (1 konteyner). Daha fazlasi icin Premium\'a gecin.';
+
+  @override
+  String get container_hosted_premium_host_anytime =>
+      'Istediginiz zaman barindirin';
+
+  @override
+  String get container_hosted_premium_host_anytime_compact =>
+      'Premium — istediginiz zaman barindirin';
+
+  @override
+  String get container_hosted_premium_desc =>
+      'Sinirsiz barindirma ve reklamsiz Docker konteynerleri icin Premium\'a gecin.';
+
+  @override
+  String get container_hosted_premium_view_btn => 'Premium\'u gor';
+
+  @override
+  String get container_hosted_free_title =>
+      'Ucretsiz barindirma (en fazla 1 konteyner)';
+
+  @override
+  String container_hosted_expires_at(String dateTime) {
+    return 'Bitis: $dateTime';
+  }
+
+  @override
+  String container_hosted_topup_ad_hint(int reward) {
+    return 'Bu konteynere $reward dk eklemek icin reklam izleyin (birikir).';
+  }
+
+  @override
+  String container_hosted_at_limit_open_detail(int active, int max) {
+    return 'Konteyner aktif ($active/$max). Reklamla uzatmak icin acin.';
+  }
+
+  @override
+  String container_hosted_minutes_available(int minutes) {
+    return '$minutes dk barindirma kullanilabilir (birikir).';
+  }
+
+  @override
+  String container_hosted_watch_ad_earn(int reward) {
+    return '$reward dk barindirma kazanmak icin reklam izleyin.';
+  }
+
+  @override
+  String container_hosted_ad_button(int reward) {
+    return 'Reklam +$reward dk';
+  }
+
+  @override
+  String container_hosted_balance_after_ad(int minutes) {
+    return 'Son reklamdan sonra bakiye: $minutes dk';
+  }
+
+  @override
+  String container_deploy_ad_unlock_success(int granted, int balance) {
+    return '+$granted dk barindirma (toplam: $balance dk).';
+  }
+
+  @override
+  String container_deploy_ad_unlock_failed(String error) {
+    return 'Acma basarisiz: $error';
+  }
+
+  @override
+  String get container_deploy_requires_premium_or_ad =>
+      'Konteyner dagitmak icin Premium abonelik veya odullu reklam gerekli.';
+
+  @override
+  String get container_deploy_premium_account => 'Premium hesap';
+
+  @override
+  String container_deploy_premium_containers(int max, int active) {
+    return 'En fazla $max aktif konteyner ($active/$max).';
+  }
+
+  @override
+  String get container_deploy_ephemeral_storage =>
+      'Gecici depolama (kalici birim yok)';
+
+  @override
+  String container_detail_topup_applied(int minutes) {
+    return 'Bu konteynere +$minutes dk eklendi.';
+  }
+
+  @override
+  String container_detail_topup_credited(int minutes) {
+    return '+$minutes dk yuklendi.';
+  }
+
+  @override
+  String container_detail_apply_stored_minutes(int minutes) {
+    return 'Kayitli $minutes dk uygula';
+  }
+
+  @override
+  String container_detail_minutes_applied(int minutes) {
+    return '$minutes dk uygulandi.';
   }
 }

@@ -13252,6 +13252,18 @@ abstract class AppLocalizations {
   /// **'Start bots immediately without rewarded ad interruption.'**
   String get subscription_feature_instant_start_desc;
 
+  /// No description provided for @subscription_feature_hosted_apps_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Hosted applications'**
+  String get subscription_feature_hosted_apps_title;
+
+  /// No description provided for @subscription_feature_hosted_apps_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Run Docker containers with unlimited hosting — no ads required.'**
+  String get subscription_feature_hosted_apps_desc;
+
   /// Instant start
   ///
   /// In en, this message translates to:
@@ -15501,6 +15513,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Container {id}'**
   String container_detail_title(String id);
+
+  /// Tooltip for premium upsell icon on container list
+  ///
+  /// In en, this message translates to:
+  /// **'Premium — host anytime'**
+  String get container_list_premium_host_anytime_tooltip;
+
+  /// FAB label for premium upsell on container list
+  ///
+  /// In en, this message translates to:
+  /// **'Host anytime'**
+  String get container_list_premium_host_anytime_fab;
+
+  /// Snackbar when free user tries to deploy another container
+  ///
+  /// In en, this message translates to:
+  /// **'Free limit reached (1 container). Upgrade to Premium to host more.'**
+  String get container_list_free_limit_reached;
+
+  /// Premium upsell card title for hosted apps
+  ///
+  /// In en, this message translates to:
+  /// **'Host anytime'**
+  String get container_hosted_premium_host_anytime;
+
+  /// Compact premium upsell button label
+  ///
+  /// In en, this message translates to:
+  /// **'Premium — host anytime'**
+  String get container_hosted_premium_host_anytime_compact;
+
+  /// Premium upsell description for hosted apps
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade to Premium for Docker containers with unlimited hosting and no ads.'**
+  String get container_hosted_premium_desc;
+
+  /// Button to open subscription page from hosted apps
+  ///
+  /// In en, this message translates to:
+  /// **'View Premium'**
+  String get container_hosted_premium_view_btn;
+
+  /// Title for free-tier hosted app banner
+  ///
+  /// In en, this message translates to:
+  /// **'Free hosting (1 container max)'**
+  String get container_hosted_free_title;
+
+  /// Container expiry label
+  ///
+  /// In en, this message translates to:
+  /// **'Expires {dateTime}'**
+  String container_hosted_expires_at(String dateTime);
+
+  /// Hint to watch ad to extend running container
+  ///
+  /// In en, this message translates to:
+  /// **'Watch an ad to add {reward} min to this container (stackable).'**
+  String container_hosted_topup_ad_hint(int reward);
+
+  /// Message when free user has max containers on deploy page
+  ///
+  /// In en, this message translates to:
+  /// **'Container active ({active}/{max}). Open it to extend with an ad.'**
+  String container_hosted_at_limit_open_detail(int active, int max);
+
+  /// Free hosting minutes balance message
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} hosting minutes available (stackable).'**
+  String container_hosted_minutes_available(int minutes);
+
+  /// Prompt to watch ad before first deploy
+  ///
+  /// In en, this message translates to:
+  /// **'Watch an ad to earn {reward} hosting minutes.'**
+  String container_hosted_watch_ad_earn(int reward);
+
+  /// Button to watch rewarded ad for hosting minutes
+  ///
+  /// In en, this message translates to:
+  /// **'Ad +{reward} min'**
+  String container_hosted_ad_button(int reward);
+
+  /// Shows remaining hosting minutes after ad claim
+  ///
+  /// In en, this message translates to:
+  /// **'Balance after last ad: {minutes} min'**
+  String container_hosted_balance_after_ad(int minutes);
+
+  /// Snackbar after successful ad claim for hosting
+  ///
+  /// In en, this message translates to:
+  /// **'+{granted} hosting minutes (total: {balance} min).'**
+  String container_deploy_ad_unlock_success(int granted, int balance);
+
+  /// Snackbar when ad claim fails
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock failed: {error}'**
+  String container_deploy_ad_unlock_failed(String error);
+
+  /// Snackbar when deploy blocked without credits
+  ///
+  /// In en, this message translates to:
+  /// **'Premium subscription or rewarded ad required to deploy a container.'**
+  String get container_deploy_requires_premium_or_ad;
+
+  /// Premium account banner title on deploy page
+  ///
+  /// In en, this message translates to:
+  /// **'Premium account'**
+  String get container_deploy_premium_account;
+
+  /// Premium container quota on deploy page
+  ///
+  /// In en, this message translates to:
+  /// **'Up to {max} active containers ({active}/{max}).'**
+  String container_deploy_premium_containers(int max, int active);
+
+  /// Resource info on deploy page
+  ///
+  /// In en, this message translates to:
+  /// **'Ephemeral storage (no persistent volume)'**
+  String get container_deploy_ephemeral_storage;
+
+  /// Snackbar after ad top-up applied to running container
+  ///
+  /// In en, this message translates to:
+  /// **'+{minutes} min added to this container.'**
+  String container_detail_topup_applied(int minutes);
+
+  /// Snackbar after ad top-up credited but not applied
+  ///
+  /// In en, this message translates to:
+  /// **'+{minutes} min credited.'**
+  String container_detail_topup_credited(int minutes);
+
+  /// Button to apply stored hosting minutes to container
+  ///
+  /// In en, this message translates to:
+  /// **'Apply {minutes} stored min'**
+  String container_detail_apply_stored_minutes(int minutes);
+
+  /// Snackbar after applying stored minutes
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min applied.'**
+  String container_detail_minutes_applied(int minutes);
 }
 
 class _AppLocalizationsDelegate

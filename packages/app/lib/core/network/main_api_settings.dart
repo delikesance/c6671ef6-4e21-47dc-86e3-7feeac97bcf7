@@ -157,7 +157,7 @@ class MainApiSettingsStore {
       // Secure storage unavailable; fall through
     }
 
-    // Fallback to legacy SharedPreferences
+    // One-time migration from legacy SharedPreferences
     final prefs = await SharedPreferences.getInstance();
     final json = _decodeJsonMap(prefs.getString(_sessionKey));
     if (json == null) {
@@ -167,26 +167,32 @@ class MainApiSettingsStore {
     final accessToken = _normalize(json['accessToken']?.toString());
     final expiresAt = _normalize(json['expiresAt']?.toString());
     if (accessToken == null || expiresAt == null) {
+      await prefs.remove(_sessionKey);
       return null;
     }
 
-    return MainApiSession.fromJson(json);
+    final session = MainApiSession.fromJson(json);
+    try {
+      final secure = await SecureStorageService.instance;
+      await secure.write('main_api_session', jsonEncode(session.toJson()));
+    } catch (_) {}
+    await prefs.remove(_sessionKey);
+    return session;
   }
 
   static Future<void> saveSession(MainApiSession session) async {
     final jsonStr = jsonEncode(session.toJson());
 
-    // Write to secure storage
     try {
       final secure = await SecureStorageService.instance;
       await secure.write('main_api_session', jsonStr);
     } catch (_) {
-      // Secure storage unavailable; continue with legacy write
+      // Secure storage unavailable
     }
 
-    // Legacy write to SharedPreferences
+    // Remove any legacy SharedPreferences copy.
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_sessionKey, jsonStr);
+    await prefs.remove(_sessionKey);
   }
 
   static Future<void> clearSession() async {

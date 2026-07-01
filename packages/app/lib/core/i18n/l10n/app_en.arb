@@ -10216,6 +10216,8 @@
   "subscription_feature_debug_replay_desc": "Record and replay command actions step by step for debugging.",
   "subscription_feature_debug_replay_title": "Visual debug replay",
   "subscription_feature_instant_start_desc": "Start bots immediately without rewarded ad interruption.",
+  "subscription_feature_hosted_apps_title": "Hosted applications",
+  "subscription_feature_hosted_apps_desc": "Run Docker containers with unlimited hosting — no ads required.",
   "subscription_feature_instant_start_title": "Instant start",
   "subscription_feature_lavalink_desc": "Play music and audio in Discord voice channels using Lavalink.",
   "subscription_feature_lavalink_title": "Lavalink audio support",
@@ -10918,6 +10920,185 @@
     "placeholders": {
       "id": {
         "type": "String"
+      }
+    }
+  },
+  "container_list_premium_host_anytime_tooltip": "Premium — host anytime",
+  "@container_list_premium_host_anytime_tooltip": {
+    "description": "Tooltip for premium upsell icon on container list"
+  },
+  "container_list_premium_host_anytime_fab": "Host anytime",
+  "@container_list_premium_host_anytime_fab": {
+    "description": "FAB label for premium upsell on container list"
+  },
+  "container_list_free_limit_reached": "Free limit reached (1 container). Upgrade to Premium to host more.",
+  "@container_list_free_limit_reached": {
+    "description": "Snackbar when free user tries to deploy another container"
+  },
+  "container_hosted_premium_host_anytime": "Host anytime",
+  "@container_hosted_premium_host_anytime": {
+    "description": "Premium upsell card title for hosted apps"
+  },
+  "container_hosted_premium_host_anytime_compact": "Premium — host anytime",
+  "@container_hosted_premium_host_anytime_compact": {
+    "description": "Compact premium upsell button label"
+  },
+  "container_hosted_premium_desc": "Upgrade to Premium for Docker containers with unlimited hosting and no ads.",
+  "@container_hosted_premium_desc": {
+    "description": "Premium upsell description for hosted apps"
+  },
+  "container_hosted_premium_view_btn": "View Premium",
+  "@container_hosted_premium_view_btn": {
+    "description": "Button to open subscription page from hosted apps"
+  },
+  "container_hosted_free_title": "Free hosting (1 container max)",
+  "@container_hosted_free_title": {
+    "description": "Title for free-tier hosted app banner"
+  },
+  "container_hosted_expires_at": "Expires {dateTime}",
+  "@container_hosted_expires_at": {
+    "description": "Container expiry label",
+    "placeholders": {
+      "dateTime": {
+        "type": "String"
+      }
+    }
+  },
+  "container_hosted_topup_ad_hint": "Watch an ad to add {reward} min to this container (stackable).",
+  "@container_hosted_topup_ad_hint": {
+    "description": "Hint to watch ad to extend running container",
+    "placeholders": {
+      "reward": {
+        "type": "int"
+      }
+    }
+  },
+  "container_hosted_at_limit_open_detail": "Container active ({active}/{max}). Open it to extend with an ad.",
+  "@container_hosted_at_limit_open_detail": {
+    "description": "Message when free user has max containers on deploy page",
+    "placeholders": {
+      "active": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "container_hosted_minutes_available": "{minutes} hosting minutes available (stackable).",
+  "@container_hosted_minutes_available": {
+    "description": "Free hosting minutes balance message",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "container_hosted_watch_ad_earn": "Watch an ad to earn {reward} hosting minutes.",
+  "@container_hosted_watch_ad_earn": {
+    "description": "Prompt to watch ad before first deploy",
+    "placeholders": {
+      "reward": {
+        "type": "int"
+      }
+    }
+  },
+  "container_hosted_ad_button": "Ad +{reward} min",
+  "@container_hosted_ad_button": {
+    "description": "Button to watch rewarded ad for hosting minutes",
+    "placeholders": {
+      "reward": {
+        "type": "int"
+      }
+    }
+  },
+  "container_hosted_balance_after_ad": "Balance after last ad: {minutes} min",
+  "@container_hosted_balance_after_ad": {
+    "description": "Shows remaining hosting minutes after ad claim",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "container_deploy_ad_unlock_success": "+{granted} hosting minutes (total: {balance} min).",
+  "@container_deploy_ad_unlock_success": {
+    "description": "Snackbar after successful ad claim for hosting",
+    "placeholders": {
+      "granted": {
+        "type": "int"
+      },
+      "balance": {
+        "type": "int"
+      }
+    }
+  },
+  "container_deploy_ad_unlock_failed": "Unlock failed: {error}",
+  "@container_deploy_ad_unlock_failed": {
+    "description": "Snackbar when ad claim fails",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "container_deploy_requires_premium_or_ad": "Premium subscription or rewarded ad required to deploy a container.",
+  "@container_deploy_requires_premium_or_ad": {
+    "description": "Snackbar when deploy blocked without credits"
+  },
+  "container_deploy_premium_account": "Premium account",
+  "@container_deploy_premium_account": {
+    "description": "Premium account banner title on deploy page"
+  },
+  "container_deploy_premium_containers": "Up to {max} active containers ({active}/{max}).",
+  "@container_deploy_premium_containers": {
+    "description": "Premium container quota on deploy page",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      },
+      "active": {
+        "type": "int"
+      }
+    }
+  },
+  "container_deploy_ephemeral_storage": "Ephemeral storage (no persistent volume)",
+  "@container_deploy_ephemeral_storage": {
+    "description": "Resource info on deploy page"
+  },
+  "container_detail_topup_applied": "+{minutes} min added to this container.",
+  "@container_detail_topup_applied": {
+    "description": "Snackbar after ad top-up applied to running container",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "container_detail_topup_credited": "+{minutes} min credited.",
+  "@container_detail_topup_credited": {
+    "description": "Snackbar after ad top-up credited but not applied",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "container_detail_apply_stored_minutes": "Apply {minutes} stored min",
+  "@container_detail_apply_stored_minutes": {
+    "description": "Button to apply stored hosting minutes to container",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "container_detail_minutes_applied": "{minutes} min applied.",
+  "@container_detail_minutes_applied": {
+    "description": "Snackbar after applying stored minutes",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
       }
     }
   }

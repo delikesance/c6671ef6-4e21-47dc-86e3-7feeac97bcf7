@@ -6,6 +6,7 @@ import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:bot_creator_shared/bot/bot_config.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
+import 'package:bot_creator/core/utils/log_redaction.dart';
 import 'package:bot_creator/core/utils/hash_util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -43,15 +44,15 @@ class MainApiClient implements RemoteRuntimeClient {
   /// Key format: "${baseUrl}:${botId}"
   static final Map<String, String> _lastSyncedHashes = <String, String>{};
 
-  /// Internal cache of the last saved snapshot hash per bot token.
-  /// Key format: "${baseUrl}:snapshot:${botToken}"
+  /// Internal cache of the last saved snapshot hash per bot id.
+  /// Key format: "${baseUrl}:snapshot:${botId}"
   static final Map<String, String> _lastSavedSnapshots = <String, String>{};
 
   /// Maximum number of entries in each hash cache before LRU eviction.
   static const int _maxHashCacheEntries = 100;
 
   static const String _lastSyncedHashesKey = 'main_api_last_synced_hashes';
-  static const String _lastSavedSnapshotsKey = 'main_api_last_saved_snapshots';
+  static const String _lastSavedSnapshotsKey = 'main_api_last_saved_snapshots_v2';
 
   /// Initializes the client by loading persisted hashes from disk.
   static Future<void> initialize() async {
@@ -228,7 +229,7 @@ class MainApiClient implements RemoteRuntimeClient {
     }
 
     final uri = _uri(path, query: query);
-    appendBotDebugLog('[MainApiClient] GET $uri');
+    appendBotDebugLog('[MainApiClient] GET ${redactUriForLog(uri.toString())}');
 
     Object? lastError;
     for (var attempt = 0; attempt <= _maxRetries; attempt++) {
@@ -293,7 +294,9 @@ class MainApiClient implements RemoteRuntimeClient {
 
     final uri = _uri(path);
     final encodedBody = jsonEncode(body);
-    appendBotDebugLog('[MainApiClient] POST $uri body=$encodedBody');
+    appendBotDebugLog(
+      '[MainApiClient] POST $uri body=${redactSensitiveJson(encodedBody)}',
+    );
 
     Object? lastError;
     for (var attempt = 0; attempt <= _maxRetries; attempt++) {
@@ -361,7 +364,7 @@ class MainApiClient implements RemoteRuntimeClient {
     }
 
     final uri = _uri(path, query: query);
-    appendBotDebugLog('[MainApiClient] DELETE $uri');
+    appendBotDebugLog('[MainApiClient] DELETE ${redactUriForLog(uri.toString())}');
 
     Object? lastError;
     for (var attempt = 0; attempt <= _maxRetries; attempt++) {
@@ -426,7 +429,7 @@ class MainApiClient implements RemoteRuntimeClient {
 
     final uri = _uri(path);
     final encodedBody = jsonEncode(body);
-    appendBotDebugLog('[MainApiClient] PUT $uri');
+    appendBotDebugLog('[MainApiClient] PUT ${redactUriForLog(uri.toString())}');
 
     Object? lastError;
     for (var attempt = 0; attempt <= _maxRetries; attempt++) {
@@ -485,7 +488,7 @@ class MainApiClient implements RemoteRuntimeClient {
 
     final uri = _uri(path);
     final encodedBody = jsonEncode(body);
-    appendBotDebugLog('[MainApiClient] PATCH $uri');
+    appendBotDebugLog('[MainApiClient] PATCH ${redactUriForLog(uri.toString())}');
 
     Object? lastError;
     for (var attempt = 0; attempt <= _maxRetries; attempt++) {
@@ -907,11 +910,13 @@ class MainApiClient implements RemoteRuntimeClient {
   }
 
   Future<void> saveDiscordBotSnapshot({
+    required String botId,
     required String botToken,
     required Map<String, dynamic> config,
     bool force = false,
   }) async {
-    final cacheKey = '$_baseUrl:snapshot:$botToken';
+    final normalizedBotId = botId.trim();
+    final cacheKey = '$_baseUrl:snapshot:$normalizedBotId';
     final currentHash = HashUtil.calculateHash(config);
 
     if (!force && _lastSavedSnapshots[cacheKey] == currentHash) {

@@ -47,12 +47,14 @@ class SubscriptionService {
 
   // ── Prefs keys ─────────────────────────────────────────────────────────────
   static const String _activeKey = 'subscription_active';
+  static const String _serverValidatedKey = 'subscription_server_validated';
   static const String _productIdKey = 'subscription_product_id';
   static const String _expiresAtKey = 'subscription_expires_at';
 
   // ── State ──────────────────────────────────────────────────────────────────
   static bool _initialized = false;
   static bool _isSubscribed = false;
+  static bool _serverValidated = false;
   static String? _activeProductId;
   static DateTime? _subscriptionExpiresAt;
   static DateTime? _lastSyncAt;
@@ -75,7 +77,7 @@ class SubscriptionService {
   static const Duration _localValidationTtl = Duration(hours: 6);
 
   static bool _isLocalSubscriptionActive() {
-    if (!_isSubscribed) {
+    if (!_isSubscribed || !_serverValidated) {
       return false;
     }
     final expiresAt = _subscriptionExpiresAt;
@@ -172,6 +174,7 @@ class SubscriptionService {
       // Read cached state immediately so the UI can render without delay.
       // Read cached active state immediately so the UI can render without delay.
       _isSubscribed = _prefs?.getBool(_activeKey) ?? false;
+      _serverValidated = _prefs?.getBool(_serverValidatedKey) ?? false;
       _activeProductId = _prefs?.getString(_productIdKey);
       _subscriptionExpiresAt = _parseStoredDateTime(
         _prefs?.getString(_expiresAtKey),
@@ -256,10 +259,11 @@ class SubscriptionService {
         ),
       );
 
-      // Validate cached subscription against the store in the background.
-      if (isSubscribed) {
+      // Validate cached subscription against the store and manager in the background.
+      if (_isSubscribed) {
         unawaited(refreshStatus());
         unawaited(syncStatusWithBackend());
+        unawaited(_revalidateCachedSubscription());
       }
       unawaited(resolveEffectivePremiumStatus(forceRefresh: true));
     } catch (error, stack) {
@@ -484,46 +488,57 @@ class SubscriptionService {
   }
 
   static Future<void> _verifyAndDeliver(PurchaseDetails purchase) async {
-    // Mobile native billing is the single source of truth for local premium
-    // access. Backend sync is best-effort only and must never change the local
-    // entitlement state.
-    if (_kSubscriptionIds.contains(purchase.productID)) {
-      _isSubscribed = true;
-      _activeProductId = purchase.productID;
-      _managerPremiumOverride = null;
-      _managerPremiumOverrideUpdatedAt = null;
-      await _prefs?.setBool(_activeKey, true);
-      await _prefs?.setString(_productIdKey, purchase.productID);
+    if (!_kSubscriptionIds.contains(purchase.productID)) {
+      return;
+    }
 
-      final estimatedExpiresAt = _estimateSubscriptionExpiryFromPurchase(
-        purchase,
-      );
-      final expiresAt = estimatedExpiresAt;
-      if (expiresAt != null) {
-        if (!expiresAt.isAfter(DateTime.now().toUtc())) {
-          await _markExpired();
-          return;
-        }
-        await _setSubscriptionExpiry(expiresAt);
-      } else {
-        // If the product does not map to a known duration, keep the local
-        // premium state and clear any previously cached estimated expiry.
-        await _setSubscriptionExpiry(null);
-      }
-      _scheduleExpirationTimer();
-      _lastLocalValidationAt = DateTime.now().toUtc();
-      unawaited(_syncBillingEntitlement(purchase));
+    final verification = await _verifyPurchaseWithServer(purchase);
+    if (!verification.active) {
       unawaited(
         AppDiagnostics.logInfo(
-          'Subscription activated',
-          data: {'product': purchase.productID},
+          'Subscription rejected until server verification succeeds',
+          data: {
+            'product': purchase.productID,
+            'reason': verification.reason ?? 'inactive',
+          },
         ),
       );
+      return;
     }
+
+    _isSubscribed = true;
+    _serverValidated = true;
+    _activeProductId = purchase.productID;
+    _managerPremiumOverride = null;
+    _managerPremiumOverrideUpdatedAt = null;
+    await _prefs?.setBool(_activeKey, true);
+    await _prefs?.setBool(_serverValidatedKey, true);
+    await _prefs?.setString(_productIdKey, purchase.productID);
+
+    final expiresAt =
+        verification.expiresAt ??
+        _estimateSubscriptionExpiryFromPurchase(purchase);
+    if (expiresAt != null) {
+      if (!expiresAt.isAfter(DateTime.now().toUtc())) {
+        await _markExpired();
+        return;
+      }
+      await _setSubscriptionExpiry(expiresAt);
+    } else {
+      await _setSubscriptionExpiry(null);
+    }
+    _scheduleExpirationTimer();
+    _lastLocalValidationAt = DateTime.now().toUtc();
+    unawaited(
+      AppDiagnostics.logInfo(
+        'Subscription activated after server verification',
+        data: {'product': purchase.productID},
+      ),
+    );
   }
 
-  static Future<void> _syncBillingEntitlement(PurchaseDetails purchase) async {
-    // On iOS the server needs the transactionId; on Android the purchaseToken.
+  static Future<({bool active, DateTime? expiresAt, String? reason})>
+  _verifyPurchaseWithServer(PurchaseDetails purchase) async {
     final platform = Platform.isIOS ? 'ios' : 'android';
     final serverVerificationData =
         Platform.isIOS
@@ -531,14 +546,14 @@ class SubscriptionService {
             : purchase.verificationData.serverVerificationData.trim();
 
     if (serverVerificationData.isEmpty) {
-      return;
+      return (active: false, expiresAt: null, reason: 'missing_receipt');
     }
 
     try {
       final config = await MainApiSettingsStore.loadConfig();
       final session = await MainApiSettingsStore.loadSession();
       if (!config.isConfigured || session == null || session.isExpired) {
-        return;
+        return (active: false, expiresAt: null, reason: 'missing_manager_session');
       }
 
       final client = MainApiClient(
@@ -551,29 +566,61 @@ class SubscriptionService {
         productId: purchase.productID,
         localTransactionId: purchase.purchaseID,
       );
-      unawaited(
-        AppDiagnostics.logInfo(
-          'Subscription synced to main API',
-          data: {
-            'product': purchase.productID,
-            'platform': platform,
-            'active': response['active']?.toString() ?? '',
-          },
-        ),
+
+      final activeRaw = response['active'];
+      final active =
+          activeRaw == true ||
+          activeRaw?.toString().toLowerCase() == 'true';
+      DateTime? expiresAt;
+      final rawExpiry = response['expires_at'] ?? response['expiresAt'];
+      if (rawExpiry != null && rawExpiry.toString().trim().isNotEmpty) {
+        expiresAt = DateTime.tryParse(rawExpiry.toString())?.toUtc();
+      }
+
+      return (
+        active: active,
+        expiresAt: expiresAt,
+        reason: active ? null : 'server_inactive',
       );
     } catch (error) {
-      // Backend sync is best-effort only (see comment above). Don't pollute
-      // Crashlytics with transient network/circuit-breaker errors.
-      unawaited(
-        AppDiagnostics.logInfo(
-          'Subscription sync to main API skipped (best-effort)',
-          data: {
-            'product': purchase.productID,
-            'reason': error.toString(),
-          },
-        ),
-      );
+      return (active: false, expiresAt: null, reason: error.toString());
     }
+  }
+
+  static Future<void> _revalidateCachedSubscription() async {
+    if (!_isSupportedPlatform || !_isSubscribed) {
+      return;
+    }
+
+    await InAppPurchase.instance.restorePurchases();
+    await Future<void>.delayed(const Duration(seconds: 2));
+
+    if (!_isSubscribed) {
+      return;
+    }
+
+    if (_isLocalSubscriptionActive()) {
+      _lastLocalValidationAt = DateTime.now().toUtc();
+      return;
+    }
+
+    await _markExpired();
+  }
+
+  static Future<void> _syncBillingEntitlement(PurchaseDetails purchase) async {
+    final verification = await _verifyPurchaseWithServer(purchase);
+    if (!verification.active) {
+      return;
+    }
+    unawaited(
+      AppDiagnostics.logInfo(
+        'Subscription synced to main API',
+        data: {
+          'product': purchase.productID,
+          'active': verification.active,
+        },
+      ),
+    );
   }
 
   /// Called when a subscription expires or is revoked.
@@ -582,10 +629,12 @@ class SubscriptionService {
     _expiryTimer?.cancel();
     _expiryTimer = null;
     _isSubscribed = false;
+    _serverValidated = false;
     _activeProductId = null;
     await _setSubscriptionExpiry(null);
     _lastLocalValidationAt = DateTime.now().toUtc();
     await _prefs?.setBool(_activeKey, false);
+    await _prefs?.setBool(_serverValidatedKey, false);
     await _prefs?.remove(_productIdKey);
   }
 
@@ -965,6 +1014,7 @@ class SubscriptionService {
     dispose();
     _initialized = false;
     _isSubscribed = false;
+    _serverValidated = false;
     _activeProductId = null;
     _subscriptionExpiresAt = null;
     _managerPremiumOverride = null;
@@ -983,6 +1033,7 @@ class SubscriptionService {
     DateTime? expiresAt,
   }) {
     _isSubscribed = active;
+    _serverValidated = active;
     _activeProductId = active ? productId : null;
     _subscriptionExpiresAt = active ? expiresAt?.toUtc() : null;
     _initialized = true;

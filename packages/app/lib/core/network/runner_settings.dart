@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:bot_creator/core/network/runner_client.dart';
+import 'package:bot_creator/core/secure/secure_storage_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// A single runner connection configuration.
@@ -31,10 +32,10 @@ class RunnerConnectionConfig {
     );
   }
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson({bool includeToken = false}) => {
     'id': id,
     'url': url,
-    if (apiToken != null) 'apiToken': apiToken,
+    if (includeToken && apiToken != null) 'apiToken': apiToken,
     if (name != null) 'name': name,
   };
 
@@ -50,9 +51,8 @@ class RunnerConnectionConfig {
 
 /// Manages a registry of runner connections with an active runner selection.
 ///
-/// Stores data in SharedPreferences. Backward-compatible: automatically
-/// migrates the legacy single-runner format (keys `developer_runner_url` /
-/// `developer_runner_api_token`) into the registry on first access.
+/// Non-sensitive metadata is stored in SharedPreferences. API tokens are stored
+/// in [SecureStorageService] under `runner_api_token:<id>`.
 class RunnerSettings {
   RunnerSettings._();
 
@@ -65,6 +65,8 @@ class RunnerSettings {
   static const _keyActiveId = 'runner_active_id';
   static const _keyTemporarilyDisabled = 'runner_temporarily_disabled';
   static const _keyBotAssociations = 'runner_bot_associations';
+
+  static String _tokenStorageKey(String runnerId) => 'runner_api_token:$runnerId';
 
   /// In-memory association of botId to runnerId.
   static final Map<String, String> _botRunnerAssociation = <String, String>{};
@@ -119,7 +121,9 @@ class RunnerSettings {
     await _migrateLegacy(prefs);
     final raw = prefs.getString(_keyRegistry);
     if (raw == null) return [];
-    return _decodeRegistry(raw);
+    final runners = _decodeRegistry(raw);
+    await _migrateRegistryTokens(prefs, runners);
+    return _hydrateRunnerTokens(runners);
   }
 
   /// Returns the active runner ID, or `null` if none is selected.
@@ -197,10 +201,11 @@ class RunnerSettings {
   static Future<void> addRunner(RunnerConnectionConfig config) async {
     final prefs = await SharedPreferences.getInstance();
     await _migrateLegacy(prefs);
-    final runners = _decodeRegistry(prefs.getString(_keyRegistry));
+    final runners = await _hydrateRunnerTokens(_decodeRegistry(prefs.getString(_keyRegistry)));
     runners.removeWhere((r) => r.id == config.id);
     runners.add(config);
-    await _saveRegistry(prefs, runners);
+    await _persistRunner(config);
+    await _saveRegistry(prefs, runners, includeTokens: false);
 
     // Auto-select if it's the only runner or no active selection
     final currentActive = prefs.getString(_keyActiveId);
@@ -216,9 +221,10 @@ class RunnerSettings {
   static Future<void> removeRunner(String id) async {
     final prefs = await SharedPreferences.getInstance();
     await _migrateLegacy(prefs);
-    final runners = _decodeRegistry(prefs.getString(_keyRegistry));
+    final runners = await _hydrateRunnerTokens(_decodeRegistry(prefs.getString(_keyRegistry)));
     runners.removeWhere((r) => r.id == id);
-    await _saveRegistry(prefs, runners);
+    await _deleteRunnerToken(id);
+    await _saveRegistry(prefs, runners, includeTokens: false);
 
     if (prefs.getString(_keyActiveId) == id) {
       if (runners.isNotEmpty) {
@@ -269,6 +275,10 @@ class RunnerSettings {
   /// Clears the entire runner registry.
   static Future<void> clear() async {
     final prefs = await SharedPreferences.getInstance();
+    final runners = await _hydrateRunnerTokens(_decodeRegistry(prefs.getString(_keyRegistry)));
+    for (final runner in runners) {
+      await _deleteRunnerToken(runner.id);
+    }
     await prefs.remove(_keyRegistry);
     await prefs.remove(_keyActiveId);
     await prefs.remove(_keyTemporarilyDisabled);
@@ -279,6 +289,78 @@ class RunnerSettings {
 
   // ── Private helpers ──────────────────────────────────────────────────────
 
+  static Future<List<RunnerConnectionConfig>> _hydrateRunnerTokens(
+    List<RunnerConnectionConfig> runners,
+  ) async {
+    if (runners.isEmpty) {
+      return runners;
+    }
+    try {
+      final secure = await SecureStorageService.instance;
+      final hydrated = <RunnerConnectionConfig>[];
+      for (final runner in runners) {
+        final storedToken = await secure.read(_tokenStorageKey(runner.id));
+        hydrated.add(
+          RunnerConnectionConfig(
+            id: runner.id,
+            url: runner.url,
+            apiToken: _normalize(storedToken) ?? runner.apiToken,
+            name: runner.name,
+          ),
+        );
+      }
+      return hydrated;
+    } catch (_) {
+      return runners;
+    }
+  }
+
+  static Future<void> _persistRunner(RunnerConnectionConfig config) async {
+    try {
+      final secure = await SecureStorageService.instance;
+      final token = _normalize(config.apiToken);
+      if (token == null) {
+        await secure.delete(_tokenStorageKey(config.id));
+      } else {
+        await secure.write(_tokenStorageKey(config.id), token);
+      }
+    } catch (_) {}
+  }
+
+  static Future<void> _deleteRunnerToken(String runnerId) async {
+    try {
+      final secure = await SecureStorageService.instance;
+      await secure.delete(_tokenStorageKey(runnerId));
+    } catch (_) {}
+  }
+
+  static Future<void> _migrateRegistryTokens(
+    SharedPreferences prefs,
+    List<RunnerConnectionConfig> runners,
+  ) async {
+    var containsLegacyTokens = false;
+    for (final runner in runners) {
+      if (runner.apiToken != null) {
+        containsLegacyTokens = true;
+        await _persistRunner(runner);
+      }
+    }
+    if (!containsLegacyTokens) {
+      return;
+    }
+
+    final sanitized = runners
+        .map(
+          (runner) => RunnerConnectionConfig(
+            id: runner.id,
+            url: runner.url,
+            name: runner.name,
+          ),
+        )
+        .toList(growable: false);
+    await _saveRegistry(prefs, sanitized, includeTokens: false);
+  }
+
   /// Migrates the old singleton format into the registry (once).
   static Future<void> _migrateLegacy(SharedPreferences prefs) async {
     // If registry already exists, skip migration
@@ -288,14 +370,16 @@ class RunnerSettings {
     if (legacyUrl == null) return;
 
     final legacyToken = _normalize(prefs.getString(_keyApiToken));
+    final id = _generateId();
     final config = RunnerConnectionConfig(
-      id: _generateId(),
+      id: id,
       url: legacyUrl,
       apiToken: legacyToken,
       name: 'Default',
     );
 
-    await _saveRegistry(prefs, [config]);
+    await _persistRunner(config);
+    await _saveRegistry(prefs, [config], includeTokens: false);
     await prefs.setString(_keyActiveId, config.id);
     // Remove legacy keys after successful migration
     await prefs.remove(_keyUrl);
@@ -321,10 +405,19 @@ class RunnerSettings {
 
   static Future<void> _saveRegistry(
     SharedPreferences prefs,
-    List<RunnerConnectionConfig> runners,
-  ) async {
-    final json = jsonEncode(runners.map((r) => r.toJson()).toList());
+    List<RunnerConnectionConfig> runners, {
+    required bool includeTokens,
+  }) async {
+    final json = jsonEncode(
+      runners.map((r) => r.toJson(includeToken: includeTokens)).toList(),
+    );
     await prefs.setString(_keyRegistry, json);
+
+    if (includeTokens) {
+      for (final runner in runners) {
+        await _persistRunner(runner);
+      }
+    }
   }
 
   static String _generateId() {

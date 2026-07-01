@@ -7253,6 +7253,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String get subscription_feature_instant_start_desc => '報酬広告の中断なしにボットを即座に起動。';
 
   @override
+  String get subscription_feature_hosted_apps_title => 'ホストアプリケーション';
+
+  @override
+  String get subscription_feature_hosted_apps_desc =>
+      'Dockerコンテナを無制限にホスト — 広告不要。';
+
+  @override
   String get subscription_feature_instant_start_title => 'インスタント起動';
 
   @override
@@ -8526,5 +8533,111 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String container_detail_title(String id) {
     return 'コンテナ $id';
+  }
+
+  @override
+  String get container_list_premium_host_anytime_tooltip => 'プレミアム — いつでもホスト';
+
+  @override
+  String get container_list_premium_host_anytime_fab => 'いつでもホスト';
+
+  @override
+  String get container_list_free_limit_reached =>
+      '無料上限に達しました（コンテナ1つ）。Premiumにアップグレードして追加ホスト。';
+
+  @override
+  String get container_hosted_premium_host_anytime => 'いつでもホスト';
+
+  @override
+  String get container_hosted_premium_host_anytime_compact => 'プレミアム — いつでもホスト';
+
+  @override
+  String get container_hosted_premium_desc =>
+      'Premiumにアップグレードして、Dockerコンテナを無制限にホスト — 広告なし。';
+
+  @override
+  String get container_hosted_premium_view_btn => 'Premiumを見る';
+
+  @override
+  String get container_hosted_free_title => '無料ホスティング（コンテナ最大1つ）';
+
+  @override
+  String container_hosted_expires_at(String dateTime) {
+    return '有効期限: $dateTime';
+  }
+
+  @override
+  String container_hosted_topup_ad_hint(int reward) {
+    return '広告を視聴してこのコンテナに$reward分追加（累積可能）。';
+  }
+
+  @override
+  String container_hosted_at_limit_open_detail(int active, int max) {
+    return 'コンテナ稼働中（$active/$max）。開いて広告で延長。';
+  }
+
+  @override
+  String container_hosted_minutes_available(int minutes) {
+    return 'ホスティング$minutes分利用可能（累積可能）。';
+  }
+
+  @override
+  String container_hosted_watch_ad_earn(int reward) {
+    return '広告を視聴して$reward分のホスティングを獲得。';
+  }
+
+  @override
+  String container_hosted_ad_button(int reward) {
+    return '広告 +$reward分';
+  }
+
+  @override
+  String container_hosted_balance_after_ad(int minutes) {
+    return '前回の広告後の残高: $minutes分';
+  }
+
+  @override
+  String container_deploy_ad_unlock_success(int granted, int balance) {
+    return '+$granted分のホスティング（合計: $balance分）。';
+  }
+
+  @override
+  String container_deploy_ad_unlock_failed(String error) {
+    return 'アンロック失敗: $error';
+  }
+
+  @override
+  String get container_deploy_requires_premium_or_ad =>
+      'コンテナのデプロイにはPremiumまたはリワード広告が必要です。';
+
+  @override
+  String get container_deploy_premium_account => 'Premiumアカウント';
+
+  @override
+  String container_deploy_premium_containers(int max, int active) {
+    return '最大$max個のアクティブコンテナ（$active/$max）。';
+  }
+
+  @override
+  String get container_deploy_ephemeral_storage => 'エフェメラルストレージ（永続ボリュームなし）';
+
+  @override
+  String container_detail_topup_applied(int minutes) {
+    return 'このコンテナに+$minutes分追加しました。';
+  }
+
+  @override
+  String container_detail_topup_credited(int minutes) {
+    return '+$minutes分を付与しました。';
+  }
+
+  @override
+  String container_detail_apply_stored_minutes(int minutes) {
+    return '保存済み$minutes分を適用';
+  }
+
+  @override
+  String container_detail_minutes_applied(int minutes) {
+    return '$minutes分を適用しました。';
   }
 }

@@ -723,6 +723,7 @@ class HomePageState extends State<HomePage>
             if (snapshotClient != null) {
               final payload = await buildBotPayload(botId);
               await snapshotClient.saveDiscordBotSnapshot(
+                botId: botId,
                 botToken: token,
                 config: payload,
               );
@@ -1274,6 +1275,7 @@ class HomePageState extends State<HomePage>
               if (botToken.isNotEmpty) {
                 try {
                   await client.saveDiscordBotSnapshot(
+                    botId: botId,
                     botToken: botToken,
                     config: payload,
                   );
@@ -1513,6 +1515,7 @@ class HomePageState extends State<HomePage>
     final payload = await buildBotPayload(botId);
     try {
       await remoteClient.saveDiscordBotSnapshot(
+        botId: botId,
         botToken: botToken,
         config: payload,
       );

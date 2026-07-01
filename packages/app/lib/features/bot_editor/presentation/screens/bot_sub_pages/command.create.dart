@@ -1216,6 +1216,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
             name: 'CommandCreatePage',
           );
           await mainApiClient.saveDiscordBotSnapshot(
+            botId: botId,
             botToken: botToken,
             config: payload,
           );

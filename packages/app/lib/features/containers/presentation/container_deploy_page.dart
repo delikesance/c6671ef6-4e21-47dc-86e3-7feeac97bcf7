@@ -1,14 +1,12 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
-import 'package:bot_creator/features/ads/logic/ad_reward_service.dart';
+import 'package:bot_creator/features/containers/logic/hosted_app_hosting_actions.dart';
+import 'package:bot_creator/features/containers/presentation/hosted_app_upsell_widgets.dart';
 import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:uuid/uuid.dart';
 
 class ContainerDeployPage extends StatefulWidget {
   final MainApiClient? client;
@@ -42,6 +40,7 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
   Future<void> _initClient() async {
     if (widget.client != null) {
       _client = widget.client;
+      _ownerId = await HostedAppHostingActions.resolveOwnerId();
     } else {
       try {
         final config = await MainApiSettingsStore.loadConfig();
@@ -101,112 +100,25 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
     _envValCtrl.clear();
   }
 
-  String _copy({required String fr, required String en}) {
-    final code = Localizations.localeOf(context).languageCode;
-    return code == 'fr' ? fr : en;
-  }
-
   Future<void> _watchAdForHostingMinutes() async {
     if (_client == null || _claimingAd) return;
 
-    if (!Platform.isAndroid && !Platform.isIOS && !kIsWeb) {
-      return;
-    }
-    if (kIsWeb) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              _copy(
-                fr: 'Les publicités récompensées ne sont pas disponibles sur le web.',
-                en: 'Rewarded ads are not available on web.',
-              ),
-            ),
-          ),
-        );
-      }
-      return;
-    }
-
     setState(() => _claimingAd = true);
     try {
-      if (!AdRewardService.hasReadyRewardedAd) {
-        final loaded = await AdRewardService.ensureAdLoaded(
-          timeout: const Duration(seconds: 6),
-        );
-        if (!loaded) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  _copy(
-                    fr: 'Aucune publicité disponible pour le moment.',
-                    en: 'No ad available right now.',
-                  ),
-                ),
-              ),
-            );
-          }
-          return;
-        }
-      }
-
-      if (!await AdRewardService.shouldOfferRewardedAd(
-        checkPremiumCapability: false,
-      )) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                _copy(
-                  fr: 'Cooldown publicitaire actif. Réessayez dans quelques instants.',
-                  en: 'Ad cooldown is active. Try again in a moment.',
-                ),
-              ),
-            ),
-          );
-        }
-        return;
-      }
-
-      var rewardEarned = false;
-      final rewardId = const Uuid().v4();
-      final adShown = await AdRewardService.showRewardedAd(
-        ssvContext: AdRewardSsvContext(userId: _ownerId),
-        onRewardEarned: () async {
-          rewardEarned = true;
-        },
-      );
-      if (!adShown || !rewardEarned) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                _copy(
-                  fr: 'Publicité non terminée — aucune minute créditée.',
-                  en: 'Ad not completed — no minutes granted.',
-                ),
-              ),
-            ),
-          );
-        }
-        return;
-      }
-
-      final result = await _client!.claimHostedAppAd(
+      final result = await HostedAppHostingActions.watchAdAndClaim(
+        client: _client!,
+        ownerId: _ownerId,
         placement: 'hosted_app_deploy',
-        rewardId: rewardId,
-        idempotencyKey: rewardId,
       );
       await _refreshEligibility();
 
-      if (mounted) {
+      if (mounted && result != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              _copy(
-                fr: '+${result.grantedMinutes} min d\'hébergement (total : ${result.hostingMinutesBalance} min).',
-                en: '+${result.grantedMinutes} hosting minutes (total: ${result.hostingMinutesBalance} min).',
+              context.tr.container_deploy_ad_unlock_success(
+                result.grantedMinutes,
+                result.hostingMinutesBalance,
               ),
             ),
             backgroundColor: Colors.green,
@@ -217,12 +129,7 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              _copy(
-                fr: 'Échec du déblocage : $e',
-                en: 'Unlock failed: $e',
-              ),
-            ),
+            content: Text(context.tr.container_deploy_ad_unlock_failed(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -249,12 +156,7 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              _copy(
-                fr: 'Abonnement Premium ou publicité requise pour déployer un conteneur.',
-                en: 'Premium subscription or rewarded ad required to deploy a container.',
-              ),
-            ),
+            content: Text(context.tr.container_deploy_requires_premium_or_ad),
             backgroundColor: Colors.orange,
           ),
         );
@@ -320,104 +222,38 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
         child: ListTile(
           leading: const Icon(Icons.workspace_premium, color: Colors.amber),
           title: Text(
-            _copy(fr: 'Compte Premium', en: 'Premium account'),
+            context.tr.container_deploy_premium_account,
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           subtitle: Text(
-            _copy(
-              fr: 'Jusqu\'à ${elig.maxContainers} conteneurs actifs (${elig.activeContainers}/${elig.maxContainers}).',
-              en: 'Up to ${elig.maxContainers} active containers (${elig.activeContainers}/${elig.maxContainers}).',
+            context.tr.container_deploy_premium_containers(
+              elig.maxContainers,
+              elig.activeContainers,
             ),
           ),
         ),
       );
     }
 
-    final minutes = elig.hostingMinutesBalance;
-    final reward = elig.adRewardMinutes;
     final atLimit = elig.activeContainers >= elig.maxContainers;
-    final canDeployNow = minutes > 0 && !atLimit;
+    if (atLimit) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const HostedAppPremiumUpsell(),
+          HostedAppFreeHostingBanner(
+            eligibility: elig,
+            claimingAd: false,
+            onWatchAd: null,
+          ),
+        ],
+      );
+    }
 
-    return Card(
-      color: Colors.teal.withValues(alpha: 0.08),
-      margin: const EdgeInsets.only(bottom: 16),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.info_outline, color: Colors.teal),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    _copy(
-                      fr: 'Hébergement gratuit (1 conteneur max)',
-                      en: 'Free hosting (1 container max)',
-                    ),
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              atLimit
-                  ? _copy(
-                      fr: 'Conteneur actif — arrêtez-le pour en relancer un (${elig.activeContainers}/${elig.maxContainers}).',
-                      en: 'Container active — stop it to deploy again (${elig.activeContainers}/${elig.maxContainers}).',
-                    )
-                  : minutes > 0
-                  ? _copy(
-                      fr: '$minutes min d\'hébergement disponibles (cumulables).',
-                      en: '$minutes hosting minutes available (stackable).',
-                    )
-                  : _copy(
-                      fr: 'Regardez une pub pour gagner $reward min d\'hébergement.',
-                      en: 'Watch an ad to earn $reward hosting minutes.',
-                    ),
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                fontSize: 13,
-              ),
-            ),
-            if (!atLimit) ...[
-              const SizedBox(height: 12),
-              FilledButton.tonalIcon(
-                onPressed: _claimingAd ? null : _watchAdForHostingMinutes,
-                icon: _claimingAd
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.play_circle_outline),
-                label: Text(
-                  _copy(
-                    fr: 'Pub +$reward min',
-                    en: 'Ad +$reward min',
-                  ),
-                ),
-              ),
-            ],
-            if (!canDeployNow && !atLimit) ...[
-              const SizedBox(height: 8),
-              Text(
-                _copy(
-                  fr: 'Accumulez des minutes via les pubs, puis déployez.',
-                  en: 'Stack minutes from ads, then deploy.',
-                ),
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  fontSize: 12,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
+    return HostedAppFreeHostingBanner(
+      eligibility: elig,
+      claimingAd: _claimingAd,
+      onWatchAd: _watchAdForHostingMinutes,
     );
   }
 
@@ -519,10 +355,7 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            _copy(
-                              fr: 'Stockage éphémère (pas de volume persistant)',
-                              en: 'Ephemeral storage (no persistent volume)',
-                            ),
+                            context.tr.container_deploy_ephemeral_storage,
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.onSurfaceVariant,
                               fontSize: 13,

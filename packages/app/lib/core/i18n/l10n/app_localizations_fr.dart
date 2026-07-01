@@ -7658,6 +7658,13 @@ class AppLocalizationsFr extends AppLocalizations {
       'Lance les bots immédiatement sans interruption publicitaire.';
 
   @override
+  String get subscription_feature_hosted_apps_title => 'Applications hébergées';
+
+  @override
+  String get subscription_feature_hosted_apps_desc =>
+      'Déployez des conteneurs Docker avec un hébergement illimité — sans publicité.';
+
+  @override
   String get subscription_feature_instant_start_title => 'Démarrage instantané';
 
   @override
@@ -8989,5 +8996,116 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String container_detail_title(String id) {
     return 'Conteneur $id';
+  }
+
+  @override
+  String get container_list_premium_host_anytime_tooltip =>
+      'Premium — hébergez à tout moment';
+
+  @override
+  String get container_list_premium_host_anytime_fab =>
+      'Héberger à tout moment';
+
+  @override
+  String get container_list_free_limit_reached =>
+      'Limite gratuite atteinte (1 conteneur). Passez Premium pour en héberger plus.';
+
+  @override
+  String get container_hosted_premium_host_anytime => 'Hébergez à tout moment';
+
+  @override
+  String get container_hosted_premium_host_anytime_compact =>
+      'Premium — hébergez à tout moment';
+
+  @override
+  String get container_hosted_premium_desc =>
+      'Passez Premium pour des conteneurs Docker avec un hébergement illimité — sans publicité.';
+
+  @override
+  String get container_hosted_premium_view_btn => 'Voir Premium';
+
+  @override
+  String get container_hosted_free_title =>
+      'Hébergement gratuit (1 conteneur max)';
+
+  @override
+  String container_hosted_expires_at(String dateTime) {
+    return 'Expire le $dateTime';
+  }
+
+  @override
+  String container_hosted_topup_ad_hint(int reward) {
+    return 'Regardez une pub pour ajouter $reward min à ce conteneur (cumulable).';
+  }
+
+  @override
+  String container_hosted_at_limit_open_detail(int active, int max) {
+    return 'Conteneur actif ($active/$max). Ouvrez-le pour prolonger avec une pub.';
+  }
+
+  @override
+  String container_hosted_minutes_available(int minutes) {
+    return '$minutes min d\'hébergement disponibles (cumulables).';
+  }
+
+  @override
+  String container_hosted_watch_ad_earn(int reward) {
+    return 'Regardez une pub pour gagner $reward min d\'hébergement.';
+  }
+
+  @override
+  String container_hosted_ad_button(int reward) {
+    return 'Pub +$reward min';
+  }
+
+  @override
+  String container_hosted_balance_after_ad(int minutes) {
+    return 'Solde après dernière pub : $minutes min';
+  }
+
+  @override
+  String container_deploy_ad_unlock_success(int granted, int balance) {
+    return '+$granted min d\'hébergement (total : $balance min).';
+  }
+
+  @override
+  String container_deploy_ad_unlock_failed(String error) {
+    return 'Échec du déblocage : $error';
+  }
+
+  @override
+  String get container_deploy_requires_premium_or_ad =>
+      'Abonnement Premium ou publicité requise pour déployer un conteneur.';
+
+  @override
+  String get container_deploy_premium_account => 'Compte Premium';
+
+  @override
+  String container_deploy_premium_containers(int max, int active) {
+    return 'Jusqu\'à $max conteneurs actifs ($active/$max).';
+  }
+
+  @override
+  String get container_deploy_ephemeral_storage =>
+      'Stockage éphémère (pas de volume persistant)';
+
+  @override
+  String container_detail_topup_applied(int minutes) {
+    return '+$minutes min ajoutées à ce conteneur.';
+  }
+
+  @override
+  String container_detail_topup_credited(int minutes) {
+    return '+$minutes min créditées.';
+  }
+
+  @override
+  String container_detail_apply_stored_minutes(int minutes) {
+    return 'Appliquer $minutes min stockées';
+  }
+
+  @override
+  String container_detail_minutes_applied(int minutes) {
+    return '$minutes min appliquées.';
   }
 }

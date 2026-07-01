@@ -10356,5 +10356,32 @@
         "type": "String"
       }
     }
-  }
+  },
+  "container_list_premium_host_anytime_tooltip": "プレミアム — いつでもホスト",
+  "container_list_premium_host_anytime_fab": "いつでもホスト",
+  "container_list_free_limit_reached": "無料上限に達しました（コンテナ1つ）。Premiumにアップグレードして追加ホスト。",
+  "container_hosted_premium_host_anytime": "いつでもホスト",
+  "container_hosted_premium_host_anytime_compact": "プレミアム — いつでもホスト",
+  "container_hosted_premium_desc": "Premiumにアップグレードして、Dockerコンテナを無制限にホスト — 広告なし。",
+  "container_hosted_premium_view_btn": "Premiumを見る",
+  "container_hosted_free_title": "無料ホスティング（コンテナ最大1つ）",
+  "container_hosted_expires_at": "有効期限: {dateTime}",
+  "container_hosted_topup_ad_hint": "広告を視聴してこのコンテナに{reward}分追加（累積可能）。",
+  "container_hosted_at_limit_open_detail": "コンテナ稼働中（{active}/{max}）。開いて広告で延長。",
+  "container_hosted_minutes_available": "ホスティング{minutes}分利用可能（累積可能）。",
+  "container_hosted_watch_ad_earn": "広告を視聴して{reward}分のホスティングを獲得。",
+  "container_hosted_ad_button": "広告 +{reward}分",
+  "container_hosted_balance_after_ad": "前回の広告後の残高: {minutes}分",
+  "container_deploy_ad_unlock_success": "+{granted}分のホスティング（合計: {balance}分）。",
+  "container_deploy_ad_unlock_failed": "アンロック失敗: {error}",
+  "container_deploy_requires_premium_or_ad": "コンテナのデプロイにはPremiumまたはリワード広告が必要です。",
+  "container_deploy_premium_account": "Premiumアカウント",
+  "container_deploy_premium_containers": "最大{max}個のアクティブコンテナ（{active}/{max}）。",
+  "container_deploy_ephemeral_storage": "エフェメラルストレージ（永続ボリュームなし）",
+  "container_detail_topup_applied": "このコンテナに+{minutes}分追加しました。",
+  "container_detail_topup_credited": "+{minutes}分を付与しました。",
+  "container_detail_apply_stored_minutes": "保存済み{minutes}分を適用",
+  "container_detail_minutes_applied": "{minutes}分を適用しました。",
+  "subscription_feature_hosted_apps_title": "ホストアプリケーション",
+  "subscription_feature_hosted_apps_desc": "Dockerコンテナを無制限にホスト — 広告不要。"
 }
