@@ -104,7 +104,9 @@ Future<ResolvedRemoteRuntime> resolveRemoteRuntime({
   }
 
   if (!effectiveSupportsManagerRuntime) {
-    final runnerConfig = await RunnerSettings.getConfig();
+    final runnerConfig = botId != null
+        ? await RunnerSettings.resolveConfigForBot(botId)
+        : await RunnerSettings.getConfig();
     if (runnerConfig != null) {
       return ResolvedRemoteRuntime(
         source: RemoteRuntimeSource.runner,
@@ -199,7 +201,9 @@ Future<ResolvedRemoteRuntime> resolveRemoteRuntime({
     );
   }
 
-  final runnerConfig = await RunnerSettings.getConfig();
+  final runnerConfig = botId != null
+      ? await RunnerSettings.resolveConfigForBot(botId)
+      : await RunnerSettings.getConfig();
   if (runnerConfig != null) {
     return ResolvedRemoteRuntime(
       source: RemoteRuntimeSource.runner,

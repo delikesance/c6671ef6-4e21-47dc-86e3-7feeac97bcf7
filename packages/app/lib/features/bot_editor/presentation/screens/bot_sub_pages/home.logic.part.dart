@@ -347,6 +347,9 @@ extension _AppHomePageLogic on _AppHomePageState {
               botId: botId,
               source: remoteRuntime.source,
             );
+            if (await getBotRuntimeEngine(botId) == runtimeEngineJavascript) {
+              await validateJsBotPayloadOrThrow(botId);
+            }
             final payload = await buildRemotePayload(botId);
             if (remoteClient is MainApiClient) {
               final botToken = token.trim();
@@ -449,6 +452,17 @@ extension _AppHomePageLogic on _AppHomePageState {
             _botStarting = false;
           });
           return;
+        }
+
+        if (await getBotRuntimeEngine(botId) == runtimeEngineJavascript) {
+          throw Exception(
+            _uiCopy(
+              fr:
+                  'Ce bot JavaScript necessite un runner JS. Activez le runner JS embarque dans les parametres ou configurez une URL de runner.',
+              en:
+                  'This JavaScript bot requires a JS runner. Enable the embedded JS runner in Settings or configure a runner URL.',
+            ),
+          );
         }
 
         await startDesktopBot(token);

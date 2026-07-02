@@ -5,6 +5,7 @@ import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/core/network/runner_kind.dart';
 import 'package:bot_creator/core/runner/embedded_js_runner_service.dart';
 import 'package:bot_creator/core/secure/secure_storage_service.dart';
+import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -149,7 +150,78 @@ class RunnerSettings {
     if (await isTemporarilyDisabled()) {
       return null;
     }
+    return _hydrateStoredConfig(await getStoredConfig());
+  }
+
+  /// Resolves the best runner config for a specific bot.
+  ///
+  /// JavaScript bots on desktop fall back to the embedded JS runner when no
+  /// external runner is configured.
+  static Future<RunnerConnectionConfig?> resolveConfigForBot(String botId) async {
+    if (await isTemporarilyDisabled()) {
+      return null;
+    }
+
+    final engine = await getBotRuntimeEngine(botId);
+    final isJavascriptBot = engine == runtimeEngineJavascript;
+
+    if (isJavascriptBot && !kIsWeb && _isDesktopPlatform) {
+      final embedded = await EmbeddedJsRunnerService.instance.ensureConfig();
+      if (embedded != null) {
+        return embedded;
+      }
+    }
+
+    final associatedId = getAssociatedRunnerId(botId);
+    if (associatedId != null && associatedId != 'local') {
+      final runners = await getRunners();
+      final match = runners.where((r) => r.id == associatedId);
+      if (match.isNotEmpty) {
+        final candidate = match.first;
+        if (!isJavascriptBot || _supportsJavascriptRunner(candidate)) {
+          final hydrated = await _hydrateStoredConfig(candidate);
+          if (hydrated != null) {
+            return hydrated;
+          }
+        }
+      }
+    }
+
     final stored = await getStoredConfig();
+    if (stored != null) {
+      if (!isJavascriptBot || _supportsJavascriptRunner(stored)) {
+        final hydrated = await _hydrateStoredConfig(stored);
+        if (hydrated != null) {
+          return hydrated;
+        }
+      }
+    }
+
+    if (isJavascriptBot && !kIsWeb && _isDesktopPlatform) {
+      return EmbeddedJsRunnerService.instance.ensureConfig();
+    }
+
+    return null;
+  }
+
+  static bool _supportsJavascriptRunner(RunnerConnectionConfig config) {
+    return config.useEmbedded ||
+        config.kind == RunnerKind.javascript ||
+        config.kind == RunnerKind.auto;
+  }
+
+  static bool get _isDesktopPlatform {
+    if (kIsWeb) return false;
+    return switch (defaultTargetPlatform) {
+      TargetPlatform.windows || TargetPlatform.linux || TargetPlatform.macOS =>
+        true,
+      _ => false,
+    };
+  }
+
+  static Future<RunnerConnectionConfig?> _hydrateStoredConfig(
+    RunnerConnectionConfig? stored,
+  ) async {
     if (stored == null) {
       return null;
     }
@@ -200,13 +272,18 @@ class RunnerSettings {
       final runners = await getRunners();
       final match = runners.where((r) => r.id == associatedId);
       if (match.isNotEmpty) {
-        return match.first.createClient(
+        final hydrated = await _hydrateStoredConfig(match.first);
+        return hydrated?.createClient(
           getTimeout: getTimeout,
           postTimeout: postTimeout,
         );
       }
     }
-    return createClient(getTimeout: getTimeout, postTimeout: postTimeout);
+    final config = await resolveConfigForBot(botId);
+    return config?.createClient(
+      getTimeout: getTimeout,
+      postTimeout: postTimeout,
+    );
   }
 
   /// Returns the saved runner URL of the active runner, or `null`.

@@ -244,7 +244,7 @@ class _AppCreatePageState extends State<AppCreatePage> {
     if (createSample != true || !mounted) return;
 
     try {
-      final sampleCommand = _buildSamplePingCommand();
+      final sampleCommand = _buildSamplePingCommand(javascript: _createJavascriptBot);
       final commandId = sampleCommand['id'] as String;
       await appManager.saveAppCommand(botId, commandId, sampleCommand);
 
@@ -274,7 +274,7 @@ class _AppCreatePageState extends State<AppCreatePage> {
   }
 
   /// Builds the data payload for a sample /ping command with a "Pong!" response.
-  Map<String, dynamic> _buildSamplePingCommand() {
+  Map<String, dynamic> _buildSamplePingCommand({bool javascript = false}) {
     final now = DateTime.now().toIso8601String();
     final internalId = 'sample_ping_${DateTime.now().millisecondsSinceEpoch}';
     return <String, dynamic>{
@@ -288,8 +288,9 @@ class _AppCreatePageState extends State<AppCreatePage> {
         'version': 1,
         'commandType': 'chatInput',
         'editorMode': 'advanced',
-        'executionMode': 'workflow',
+        'executionMode': javascript ? 'javascript' : 'workflow',
         'bdfdScriptContent': '',
+        'jsScriptContent': javascript ? 'await interaction.reply("Pong!");' : '',
         'legacyModeEnabled': false,
         'legacyLocalOnly': false,
         'legacyPrefixOverride': '',
@@ -354,7 +355,8 @@ class _AppCreatePageState extends State<AppCreatePage> {
           });
         },
       ),
-      if (PremiumCapabilities.hostedAppsRolloutEnabled)
+      if (PremiumCapabilities.hostedAppsRolloutEnabled &&
+          !ResponsiveHelper.isDesktopPlatform())
         _TypeSelectionCard(
           title: context.tr.app_create_type_hosted,
           description: context.tr.app_create_type_hosted_desc,

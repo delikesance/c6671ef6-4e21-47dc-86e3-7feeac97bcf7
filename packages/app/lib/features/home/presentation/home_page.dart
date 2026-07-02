@@ -20,6 +20,8 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
+import 'package:bot_creator/features/bot_editor/logic/js_bot_payload_builder.dart';
+import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/utils/string_sanitizer.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
@@ -1046,6 +1048,7 @@ class HomePageState extends State<HomePage>
       final isRunning = _runningBotIds.contains(botId);
 
       var runtime = await _resolveRemoteRuntime(
+        botId: botId,
         getTimeout: const Duration(seconds: 30),
         postTimeout: const Duration(seconds: 90),
       );
@@ -1184,6 +1187,7 @@ class HomePageState extends State<HomePage>
           );
           if (sessionRestored) {
             runtime = await _resolveRemoteRuntime(
+              botId: botId,
               getTimeout: const Duration(seconds: 30),
               postTimeout: const Duration(seconds: 90),
             );
@@ -1238,6 +1242,7 @@ class HomePageState extends State<HomePage>
 
       // ── Runner API (API only) ─────────────────────────────────────────────
       runtime = await _resolveRemoteRuntime(
+        botId: botId,
         getTimeout: const Duration(seconds: 30),
         postTimeout: const Duration(seconds: 90),
       );
@@ -1268,6 +1273,9 @@ class HomePageState extends State<HomePage>
               botId: botId,
               source: runtime.source,
             );
+            if (await getBotRuntimeEngine(botId) == runtimeEngineJavascript) {
+              await validateJsBotPayloadOrThrow(botId);
+            }
             final payload = await buildRemotePayload(botId);
             if (client is MainApiClient) {
               final app = await appManager.getApp(botId);
@@ -1402,6 +1410,16 @@ class HomePageState extends State<HomePage>
             });
           }
         } else {
+          if (await getBotRuntimeEngine(botId) == runtimeEngineJavascript) {
+            throw Exception(
+              _uiCopy(
+                fr:
+                    'Impossible de demarrer le runner JS embarque. Relancez completement l\'application (pas un hot reload) apres avoir ajoute bot-creator-runner-js-win.exe dans assets/embedded-runner-js/.',
+                en:
+                    'Could not start the embedded JS runner. Fully restart the app (not hot reload) after adding bot-creator-runner-js-win.exe to assets/embedded-runner-js/.',
+              ),
+            );
+          }
           await startDesktopBot(token);
           if (mounted) {
             setState(() {
@@ -1883,8 +1901,10 @@ class HomePageState extends State<HomePage>
                         physics: const AlwaysScrollableScrollPhysics(),
                         child: Column(
                           children: [
-                            _HostedAppsHomeCard(),
-                            const SizedBox(height: 16),
+                            if (!_isDesktop) ...[
+                              _HostedAppsHomeCard(),
+                              const SizedBox(height: 16),
+                            ],
                             Align(
                               alignment: Alignment.topCenter,
                               child: Wrap(

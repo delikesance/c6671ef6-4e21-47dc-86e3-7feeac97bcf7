@@ -38,7 +38,9 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
       'version': 1,
       'commandType': _commandTypeToText(_commandType),
       'editorMode': _CommandCreatePageState._editorModeAdvanced,
-      'executionMode': _executionMode,
+      'executionMode': _isJavascriptOnlyBot
+          ? _CommandCreatePageState._executionModeJavascript
+          : _executionMode,
       'bdfdScriptContent': _bdfdScriptController.text,
       'jsScriptContent': _jsScriptController.text,
       'legacyModeEnabled': _legacyModeEnabled,

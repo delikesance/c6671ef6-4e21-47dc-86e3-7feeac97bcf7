@@ -34,6 +34,9 @@ class EntryPointBlock extends StatefulWidget {
     // Execution mode
     this.executionMode = 'workflow',
     this.onExecutionModeChanged,
+    this.showWorkflowMode = true,
+    this.showBdfdMode = true,
+    this.showJavascriptMode = false,
   });
 
   final CommandEntryPointType entryPointType;
@@ -46,9 +49,12 @@ class EntryPointBlock extends StatefulWidget {
   final String legacyResponseTarget;
   final ValueChanged<String>? onLegacyResponseTargetChanged;
 
-  /// `'workflow'` for visual blocks, `'bdfd_script'` for BDFD script.
+  /// `'workflow'` for visual blocks, `'bdfd_script'` for BDFD script, `'javascript'` for JS.
   final String executionMode;
   final ValueChanged<String>? onExecutionModeChanged;
+  final bool showWorkflowMode;
+  final bool showBdfdMode;
+  final bool showJavascriptMode;
 
   @override
   State<EntryPointBlock> createState() => _EntryPointBlockState();
@@ -112,22 +118,51 @@ class _EntryPointBlockState extends State<EntryPointBlock> {
               style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
             ),
             const SizedBox(height: 8),
-            SegmentedButton<String>(
-              segments: <ButtonSegment<String>>[
-                ButtonSegment<String>(
-                  value: 'workflow',
-                  label: Text(context.tr.scratch_mode_blocks),
-                  icon: const Icon(Icons.view_agenda),
-                ),
-                ButtonSegment<String>(
-                  value: 'bdfd_script',
-                  label: Text(context.tr.scratch_mode_bdfd),
-                  icon: const Icon(Icons.code),
-                ),
-              ],
-              selected: <String>{widget.executionMode},
-              onSelectionChanged: (selection) {
-                widget.onExecutionModeChanged!(selection.first);
+            Builder(
+              builder: (context) {
+                final segments = <ButtonSegment<String>>[];
+                if (widget.showWorkflowMode) {
+                  segments.add(
+                    ButtonSegment<String>(
+                      value: 'workflow',
+                      label: Text(context.tr.scratch_mode_blocks),
+                      icon: const Icon(Icons.view_agenda),
+                    ),
+                  );
+                }
+                if (widget.showBdfdMode) {
+                  segments.add(
+                    ButtonSegment<String>(
+                      value: 'bdfd_script',
+                      label: Text(context.tr.scratch_mode_bdfd),
+                      icon: const Icon(Icons.code),
+                    ),
+                  );
+                }
+                if (widget.showJavascriptMode) {
+                  segments.add(
+                    ButtonSegment<String>(
+                      value: 'javascript',
+                      label: Text(context.tr.cmd_execution_mode_javascript),
+                      icon: const Icon(Icons.code),
+                    ),
+                  );
+                }
+                if (segments.isEmpty) {
+                  return const SizedBox.shrink();
+                }
+                final selectedValue = segments.any(
+                  (segment) => segment.value == widget.executionMode,
+                )
+                    ? widget.executionMode
+                    : segments.first.value!;
+                return SegmentedButton<String>(
+                  segments: segments,
+                  selected: <String>{selectedValue},
+                  onSelectionChanged: (selection) {
+                    widget.onExecutionModeChanged!(selection.first);
+                  },
+                );
               },
             ),
             const SizedBox(height: 12),

@@ -390,6 +390,18 @@ jobs:
       - install_flutter_windows
       - get_flutter_deps_windows
       - run:
+          name: Fetch embedded JS runner (Windows)
+          shell: bash.exe
+          command: |
+            if [ -n "${RUNNER_JS_RELEASE_TAG:-}" ]; then
+              cd ~/project
+              chmod +x scripts/fetch-embedded-runner-js.sh
+              TARGET_PLATFORM=windows RUNNER_JS_RELEASE_TAG="${RUNNER_JS_RELEASE_TAG}" \
+                ./scripts/fetch-embedded-runner-js.sh
+            else
+              echo "RUNNER_JS_RELEASE_TAG not set — skipping embedded runner fetch"
+            fi
+      - run:
           name: Enable Windows desktop
           command: flutter config --enable-windows-desktop
       - run:
