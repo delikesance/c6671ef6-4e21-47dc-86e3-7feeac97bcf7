@@ -9,7 +9,8 @@ import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator_shared/bot/bot_config.dart';
 import 'package:bot_creator_shared/utils/command_migration.dart';
-import 'package:bot_creator/features/bot_editor/logic/bot.dart';
+import 'package:bot_creator/features/bot_editor/logic/js_bot_payload_builder.dart';
+import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:flutter/foundation.dart';
 import 'package:nyxx/nyxx.dart';
 
@@ -92,7 +93,7 @@ void initRunnerAutoReload() {
     try {
       final client = await RunnerSettings.createClientForBot(botId);
       if (client == null) return;
-      final payload = await buildBotPayload(botId);
+      final payload = await buildRemotePayload(botId);
       final botName = await resolveBotName(botId);
       await client.reloadBot(botId, botName, payload);
       debugPrint(
@@ -120,6 +121,10 @@ void initRunnerAutoReload() {
     Map<String, dynamic> command,
   ) async {
     if (AppManager.isSyncingFromRemote) return;
+    if (await getBotRuntimeEngine(botId) == runtimeEngineJavascript) {
+      _batcher.requestSync(botId, _executeSync);
+      return;
+    }
     try {
       final client = await RunnerSettings.createClientForBot(botId);
       if (client != null) {
@@ -216,6 +221,10 @@ void initRunnerAutoReload() {
     Map<String, dynamic> workflow,
   ) async {
     if (AppManager.isSyncingFromRemote) return;
+    if (await getBotRuntimeEngine(botId) == runtimeEngineJavascript) {
+      _batcher.requestSync(botId, _executeSync);
+      return;
+    }
     try {
       final client = await RunnerSettings.createClientForBot(botId);
       if (client != null) {
@@ -418,7 +427,11 @@ void initRunnerAutoReload() {
 
 Future<void> _executeSync(String botId) async {
   try {
-    final payload = await buildBotPayload(botId);
+    final engine = await getBotRuntimeEngine(botId);
+    if (engine == runtimeEngineJavascript) {
+      await validateJsBotPayloadOrThrow(botId);
+    }
+    final payload = await buildRemotePayload(botId);
     final app = await _appManager.getApp(botId);
     final botName = (app['username'] ?? app['name'] ?? '').toString().trim();
     final botToken = (app['token'] ?? '').toString().trim();
@@ -497,6 +510,15 @@ Future<void> _executeSync(String botId) async {
   } catch (error) {
     debugPrint('[AutoReload] Auto-reload failed for $botId: $error');
   }
+}
+
+/// Builds the config payload appropriate for the bot runtime engine.
+Future<Map<String, dynamic>> buildRemotePayload(String botId) async {
+  final engine = await getBotRuntimeEngine(botId);
+  if (engine == runtimeEngineJavascript) {
+    return buildJsBotPayload(botId);
+  }
+  return buildBotPayload(botId);
 }
 
 /// Assembles a [BotConfig] JSON payload for a given bot by reading all data

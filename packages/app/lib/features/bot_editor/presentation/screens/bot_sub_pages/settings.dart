@@ -9,7 +9,7 @@ import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/export_import.page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/workflow_docs.page.dart';
 import 'package:bot_creator/core/analytics/analytics.dart';
-import 'package:bot_creator/features/bot_editor/logic/bot.dart';
+import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
@@ -53,6 +53,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   String _presenceStatus = 'online';
   String _appVersion = '';
   String? _runnerVersion;
+  String _runtimeEngine = runtimeEngineDart;
   // Lavalink fields
   final TextEditingController _lavalinkHostController = TextEditingController();
   final TextEditingController _lavalinkPortController = TextEditingController();
@@ -194,6 +195,11 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               : (persistedApp['prefix'] ?? '!').toString();
       _usernameController.text = '';
       _selectedAvatarPath = null;
+      _runtimeEngine = isJavascriptRuntimeEngine(
+            (persistedApp['runtimeEngine'] ?? '').toString(),
+          )
+          ? runtimeEngineJavascript
+          : runtimeEngineDart;
       // Lavalink config
       final lavalinkConfig =
           (persistedApp['lavalinkConfig'] as Map<String, dynamic>?) ?? {};
@@ -979,6 +985,44 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ),
               ),
 
+              const SizedBox(height: 24),
+              const Divider(),
+              const SizedBox(height: 12),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Text(
+                  'Runtime engine',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              DropdownButtonFormField<String>(
+                value: _runtimeEngine,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  helperText:
+                      'JavaScript bots require a JS runner (embedded or external).',
+                ),
+                items: const [
+                  DropdownMenuItem(
+                    value: runtimeEngineDart,
+                    child: Text('Bot Creator (Dart / blocks)'),
+                  ),
+                  DropdownMenuItem(
+                    value: runtimeEngineJavascript,
+                    child: Text('JavaScript (runner-js)'),
+                  ),
+                ],
+                onChanged: (value) async {
+                  if (value == null) return;
+                  final botId = widget.client.user.id.toString();
+                  await setBotRuntimeEngine(botId, value);
+                  if (!mounted) return;
+                  setState(() => _runtimeEngine = value);
+                },
+              ),
               const SizedBox(height: 24),
               const Divider(),
               const SizedBox(height: 12),

@@ -404,6 +404,21 @@ class RunnerClient implements RemoteRuntimeClient {
     }
   }
 
+  /// Returns root runner metadata from `GET /`.
+  Future<Map<String, dynamic>> fetchRootInfo() async {
+    return _get('/', includeAuth: false);
+  }
+
+  /// Returns detected runner engine (`dart`, `javascript`) when available.
+  Future<String?> getRunnerEngine() async {
+    try {
+      final json = await fetchRootInfo();
+      return (json['engine'] ?? '').toString().trim().toLowerCase();
+    } catch (_) {
+      return null;
+    }
+  }
+
   /// Returns the current runner status.
   ///
   /// If [botId] is provided, this calls `/bots/{botId}/status` and adapts

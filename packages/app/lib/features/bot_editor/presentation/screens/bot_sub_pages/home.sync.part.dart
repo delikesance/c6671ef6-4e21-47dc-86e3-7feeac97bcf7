@@ -151,7 +151,7 @@ extension _AppHomePageSync on _AppHomePageState {
         // are all properly serialized via BotConfig.toJson().  The previous manual
         // approach (localConfig + commands) was not routing through BotConfig,
         // causing workflows and other structured data to be lost or malformed on push.
-        final payload = await buildBotPayload(botId);
+        final payload = await buildRemotePayload(botId);
         final wfCount = (payload['workflows'] as List?)?.length ?? 0;
         final cmdCount = (payload['commands'] as List?)?.length ?? 0;
         appendBotDebugLog('[_pushToRemote] Payload built: commands=$cmdCount workflows=$wfCount');

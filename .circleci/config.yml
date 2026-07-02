@@ -170,6 +170,17 @@ jobs:
       - install_flutter_linux
       - get_flutter_deps
       - run:
+          name: Fetch embedded JS runner (Linux)
+          command: |
+            if [ -n "${RUNNER_JS_RELEASE_TAG:-}" ]; then
+              cd ~/project
+              chmod +x scripts/fetch-embedded-runner-js.sh
+              TARGET_PLATFORM=linux-x64 RUNNER_JS_RELEASE_TAG="${RUNNER_JS_RELEASE_TAG}" \
+                ./scripts/fetch-embedded-runner-js.sh
+            else
+              echo "RUNNER_JS_RELEASE_TAG not set — skipping embedded runner fetch"
+            fi
+      - run:
           name: Enable Linux desktop
           command: flutter config --enable-linux-desktop
       - run:

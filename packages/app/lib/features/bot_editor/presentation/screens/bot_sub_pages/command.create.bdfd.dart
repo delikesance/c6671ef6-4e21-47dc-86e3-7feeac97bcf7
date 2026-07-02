@@ -2,7 +2,8 @@ part of 'command.create.dart';
 
 extension _CommandCreateBdfd on _CommandCreatePageState {
   Widget _buildExecutionModeCard({bool includeInlineEditor = true}) {
-    final isWorkflowMode = !_isBdfdScriptMode;
+    final isWorkflowMode =
+        !_isBdfdScriptMode && !_isJavascriptMode;
 
     Widget buildModeTile({
       required String value,
@@ -53,18 +54,27 @@ extension _CommandCreateBdfd on _CommandCreatePageState {
               },
               child: Column(
                 children: [
-                  buildModeTile(
-                    value: _CommandCreatePageState._executionModeWorkflow,
-                    title: context.tr.cmd_execution_mode_workflow,
-                    subtitle: context.tr.cmd_execution_mode_workflow_desc,
-                    icon: Icons.account_tree_outlined,
-                  ),
-                  buildModeTile(
-                    value: _CommandCreatePageState._executionModeBdfdScript,
-                    title: context.tr.cmd_execution_mode_bdfd,
-                    subtitle: context.tr.cmd_execution_mode_bdfd_desc,
-                    icon: Icons.code_outlined,
-                  ),
+                  if (!_isJavascriptOnlyBot)
+                    buildModeTile(
+                      value: _CommandCreatePageState._executionModeWorkflow,
+                      title: context.tr.cmd_execution_mode_workflow,
+                      subtitle: context.tr.cmd_execution_mode_workflow_desc,
+                      icon: Icons.account_tree_outlined,
+                    ),
+                  if (!_isJavascriptOnlyBot)
+                    buildModeTile(
+                      value: _CommandCreatePageState._executionModeBdfdScript,
+                      title: context.tr.cmd_execution_mode_bdfd,
+                      subtitle: context.tr.cmd_execution_mode_bdfd_desc,
+                      icon: Icons.code_outlined,
+                    ),
+                  if (_supportsJavascriptMode)
+                    buildModeTile(
+                      value: _CommandCreatePageState._executionModeJavascript,
+                      title: context.tr.cmd_execution_mode_javascript,
+                      subtitle: context.tr.cmd_execution_mode_javascript_desc,
+                      icon: Icons.code,
+                    ),
                 ],
               ),
             ),
@@ -80,8 +90,10 @@ extension _CommandCreateBdfd on _CommandCreatePageState {
               ),
               child: Text(
                 isWorkflowMode
-                    ? 'cmd_execution_mode_workflow_note'
-                    : 'cmd_execution_mode_bdfd_note',
+                    ? context.tr.cmd_execution_mode_workflow_note
+                    : _isJavascriptMode
+                        ? context.tr.cmd_execution_mode_javascript_note
+                        : context.tr.cmd_execution_mode_bdfd_note,
                 style: TextStyle(
                   fontSize: 12,
                   color: isWorkflowMode ? AppTheme.grey : AppTheme.warning,
@@ -93,6 +105,10 @@ extension _CommandCreateBdfd on _CommandCreatePageState {
               _buildBdfdEditorTile(),
               const SizedBox(height: 12),
               _buildBdfdDiagnosticsPanel(),
+            ],
+            if (includeInlineEditor && _isJavascriptMode) ...[
+              const SizedBox(height: 12),
+              _buildJavascriptEditorTile(),
             ],
           ],
         ),

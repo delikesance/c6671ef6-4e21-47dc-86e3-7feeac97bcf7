@@ -2,7 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:bot_creator/core/network/runner_client.dart';
+import 'package:bot_creator/core/network/runner_kind.dart';
+import 'package:bot_creator/core/runner/embedded_js_runner_service.dart';
 import 'package:bot_creator/core/secure/secure_storage_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// A single runner connection configuration.
@@ -12,6 +15,8 @@ class RunnerConnectionConfig {
     required this.url,
     this.apiToken,
     this.name,
+    this.kind = RunnerKind.auto,
+    this.useEmbedded = false,
   });
 
   /// Unique identifier for this runner entry.
@@ -22,6 +27,8 @@ class RunnerConnectionConfig {
 
   /// Optional human-readable label (e.g. "Production", "Dev Server").
   final String? name;
+  final RunnerKind kind;
+  final bool useEmbedded;
 
   RunnerClient createClient({Duration? getTimeout, Duration? postTimeout}) {
     return RunnerClient(
@@ -37,6 +44,8 @@ class RunnerConnectionConfig {
     'url': url,
     if (includeToken && apiToken != null) 'apiToken': apiToken,
     if (name != null) 'name': name,
+    'kind': kind.toJson(),
+    'useEmbedded': useEmbedded,
   };
 
   factory RunnerConnectionConfig.fromJson(Map<String, dynamic> json) {
@@ -45,6 +54,8 @@ class RunnerConnectionConfig {
       url: (json['url'] ?? '').toString(),
       apiToken: _normalize(json['apiToken']?.toString()),
       name: _normalize(json['name']?.toString()),
+      kind: RunnerKind.fromJson(json['kind']?.toString()),
+      useEmbedded: json['useEmbedded'] == true,
     );
   }
 }
@@ -138,7 +149,17 @@ class RunnerSettings {
     if (await isTemporarilyDisabled()) {
       return null;
     }
-    return await getStoredConfig();
+    final stored = await getStoredConfig();
+    if (stored == null) {
+      return null;
+    }
+    if (stored.useEmbedded && !kIsWeb) {
+      final embedded = await EmbeddedJsRunnerService.instance.ensureConfig();
+      if (embedded != null) {
+        return embedded;
+      }
+    }
+    return stored;
   }
 
   /// Returns the stored active runner config even if temporarily disabled.
@@ -242,7 +263,28 @@ class RunnerSettings {
   }
 
   /// Backward-compatible save: updates the active runner, or creates one.
-  static Future<void> save({String? url, String? apiToken}) async {
+  static Future<void> save({
+    String? url,
+    String? apiToken,
+    RunnerKind? kind,
+    bool? useEmbedded,
+  }) async {
+    if (useEmbedded == true) {
+      final config = await getStoredConfig();
+      final id = config?.id ?? _generateId();
+      await addRunner(
+        RunnerConnectionConfig(
+          id: id,
+          url: config?.url ?? 'http://127.0.0.1:18080',
+          apiToken: config?.apiToken,
+          name: config?.name ?? 'Embedded JS Runner',
+          kind: kind ?? RunnerKind.javascript,
+          useEmbedded: true,
+        ),
+      );
+      return;
+    }
+
     final normalizedUrl = _normalize(url);
     if (normalizedUrl == null) {
       // Clear all runners
@@ -250,7 +292,7 @@ class RunnerSettings {
       return;
     }
 
-    final config = await getConfig();
+    final config = await getStoredConfig();
     final id = config?.id ?? _generateId();
     await addRunner(
       RunnerConnectionConfig(
@@ -258,6 +300,8 @@ class RunnerSettings {
         url: normalizedUrl,
         apiToken: _normalize(apiToken),
         name: config?.name,
+        kind: kind ?? config?.kind ?? RunnerKind.auto,
+        useEmbedded: useEmbedded ?? config?.useEmbedded ?? false,
       ),
     );
   }
@@ -306,6 +350,8 @@ class RunnerSettings {
             url: runner.url,
             apiToken: _normalize(storedToken) ?? runner.apiToken,
             name: runner.name,
+            kind: runner.kind,
+            useEmbedded: runner.useEmbedded,
           ),
         );
       }
@@ -355,6 +401,8 @@ class RunnerSettings {
             id: runner.id,
             url: runner.url,
             name: runner.name,
+            kind: runner.kind,
+            useEmbedded: runner.useEmbedded,
           ),
         )
         .toList(growable: false);

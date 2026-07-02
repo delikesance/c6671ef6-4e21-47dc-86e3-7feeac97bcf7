@@ -311,7 +311,7 @@ extension _AppHomePageAds on _AppHomePageState {
     );
     if (remoteClient == null) return false;
 
-    final payload = await buildBotPayload(botId);
+    final payload = await buildRemotePayload(botId);
     try {
       await remoteClient.saveDiscordBotSnapshot(
         botId: botId,
