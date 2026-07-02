@@ -166,7 +166,7 @@ class RunnerSettings {
     final isJavascriptBot = engine == runtimeEngineJavascript;
 
     if (isJavascriptBot && !kIsWeb && _isDesktopPlatform) {
-      final embedded = await EmbeddedJsRunnerService.instance.ensureConfig();
+      final embedded = await prepareEmbeddedJsRunner();
       if (embedded != null) {
         return embedded;
       }
@@ -198,10 +198,47 @@ class RunnerSettings {
     }
 
     if (isJavascriptBot && !kIsWeb && _isDesktopPlatform) {
-      return EmbeddedJsRunnerService.instance.ensureConfig();
+      return prepareEmbeddedJsRunner();
     }
 
     return null;
+  }
+
+  /// Starts the embedded JS runner on desktop and registers it locally so the
+  /// app can use it without a manual Settings toggle.
+  static Future<RunnerConnectionConfig?> prepareEmbeddedJsRunner() async {
+    if (kIsWeb || !_isDesktopPlatform) {
+      return null;
+    }
+
+    final embedded = await EmbeddedJsRunnerService.instance.ensureConfig();
+    if (embedded == null) {
+      return null;
+    }
+
+    await _persistEmbeddedRunnerAvailability(embedded);
+    return embedded;
+  }
+
+  static Future<void> _persistEmbeddedRunnerAvailability(
+    RunnerConnectionConfig embedded,
+  ) async {
+    final runners = await getRunners();
+    final hasEmbedded = runners.any(
+      (runner) => runner.useEmbedded || runner.id == embedded.id,
+    );
+    if (!hasEmbedded) {
+      await addRunner(embedded);
+    }
+
+    final activeId = await getActiveId();
+    if ((activeId ?? '').isEmpty) {
+      await setActiveRunner(embedded.id);
+    }
+  }
+
+  static bool supportsJavascriptRunner(RunnerConnectionConfig config) {
+    return _supportsJavascriptRunner(config);
   }
 
   static bool _supportsJavascriptRunner(RunnerConnectionConfig config) {
@@ -267,16 +304,22 @@ class RunnerSettings {
     Duration? getTimeout,
     Duration? postTimeout,
   }) async {
+    final engine = await getBotRuntimeEngine(botId);
+    final isJavascriptBot = engine == runtimeEngineJavascript;
+
     final associatedId = _botRunnerAssociation[botId];
     if (associatedId != null) {
       final runners = await getRunners();
       final match = runners.where((r) => r.id == associatedId);
       if (match.isNotEmpty) {
-        final hydrated = await _hydrateStoredConfig(match.first);
-        return hydrated?.createClient(
-          getTimeout: getTimeout,
-          postTimeout: postTimeout,
-        );
+        final candidate = match.first;
+        if (!isJavascriptBot || _supportsJavascriptRunner(candidate)) {
+          final hydrated = await _hydrateStoredConfig(candidate);
+          return hydrated?.createClient(
+            getTimeout: getTimeout,
+            postTimeout: postTimeout,
+          );
+        }
       }
     }
     final config = await resolveConfigForBot(botId);

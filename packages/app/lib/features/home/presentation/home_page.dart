@@ -1302,7 +1302,8 @@ class HomePageState extends State<HomePage>
               RunnerSettings.associateBotWithRunner(botId, 'manager');
             } else {
               await client.startBot(botId, botName: botName);
-              final runnerConfig = await RunnerSettings.getConfig();
+              final runnerConfig =
+                  await RunnerSettings.resolveConfigForBot(botId);
               if (runnerConfig != null) {
                 RunnerSettings.associateBotWithRunner(botId, runnerConfig.id);
               }
@@ -1411,14 +1412,50 @@ class HomePageState extends State<HomePage>
           }
         } else {
           if (await getBotRuntimeEngine(botId) == runtimeEngineJavascript) {
-            throw Exception(
-              _uiCopy(
-                fr:
-                    'Impossible de demarrer le runner JS embarque. Relancez completement l\'application (pas un hot reload) apres avoir ajoute bot-creator-runner-js-win.exe dans assets/embedded-runner-js/.',
-                en:
-                    'Could not start the embedded JS runner. Fully restart the app (not hot reload) after adding bot-creator-runner-js-win.exe to assets/embedded-runner-js/.',
-              ),
+            final runnerConfig =
+                await RunnerSettings.resolveConfigForBot(botId);
+            if (runnerConfig == null) {
+              throw Exception(
+                _uiCopy(
+                  fr:
+                      'Le runner JS embarque n\'a pas pu demarrer. Relancez completement l\'application (pas un hot reload).',
+                  en:
+                      'The embedded JS runner could not start. Fully restart the app (not hot reload).',
+                ),
+              );
+            }
+
+            final client = runnerConfig.createClient();
+            startBotLogSession(
+              botId: botId,
+              source: RemoteRuntimeSource.runner,
             );
+            clearBotBaselineRss();
+            appendBotLog(
+              'Bot start requested',
+              botId: botId,
+              source: RemoteRuntimeSource.runner,
+            );
+            await validateJsBotPayloadOrThrow(botId);
+            final payload = await buildRemotePayload(botId);
+            await client.syncBot(botId, botName, payload);
+            await client.startBot(botId, botName: botName);
+            RunnerSettings.associateBotWithRunner(botId, runnerConfig.id);
+            setBotRuntimeActive(true);
+            if (mounted) {
+              setState(() {
+                _runningBotIds = <String>{..._runningBotIds, botId};
+                _runtimeSource = RemoteRuntimeSource.runner;
+                _runtimeDetailLabel = runnerConfig.name ?? runnerConfig.url;
+              });
+            }
+            _syncPulse(_runningBotIds);
+            await _syncDiscordRpcPresence(
+              _runningBotIds,
+              preferredBotId: botId,
+              preferredBotName: botName,
+            );
+            return;
           }
           await startDesktopBot(token);
           if (mounted) {

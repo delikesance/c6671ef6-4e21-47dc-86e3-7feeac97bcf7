@@ -57,6 +57,11 @@ Map<String, dynamic>? normalizeCommandOptionAutocompleteConfig(dynamic raw) {
     result['enabled'] = true;
   }
 
+  // App-specific: auto-enable when mode is 'javascript'
+  if (result['mode'] == 'javascript' && result['enabled'] != true) {
+    result['enabled'] = true;
+  }
+
   return result;
 }
 

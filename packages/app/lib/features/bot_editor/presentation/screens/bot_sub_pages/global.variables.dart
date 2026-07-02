@@ -97,7 +97,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
 
   Future<void> _refreshSourcesAndLoad({required bool preserveSelection}) async {
     final runners = await RunnerSettings.getRunners();
-    final active = await RunnerSettings.getConfig();
+    final active = await RunnerSettings.resolveConfigForBot(widget.botId);
     final remoteRuntime = await resolveRemoteRuntime(
       supportsManagerRuntime: _supportsManagerRuntime,
       botId: widget.botId,
@@ -110,8 +110,12 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
             : null;
 
     if (!mounted) return;
+    final mergedRunners = List<RunnerConnectionConfig>.from(runners);
+    if (active != null && !mergedRunners.any((runner) => runner.id == active.id)) {
+      mergedRunners.insert(0, active);
+    }
     setState(() {
-      _runners = runners;
+      _runners = mergedRunners;
       _activeRunnerId = active?.id;
       _runnerClient = active?.createClient();
       _managerClient = managerClient;

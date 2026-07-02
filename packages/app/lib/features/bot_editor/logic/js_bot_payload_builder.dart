@@ -117,6 +117,12 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
     'globalVariables': Map<String, dynamic>.from(
       (appData['globalVariables'] as Map?) ?? const {},
     ),
+    'scopedVariableDefinitions': List<Map<String, dynamic>>.from(
+      (appData['scopedVariableDefinitions'] as List?)?.whereType<Map>().map(
+            (entry) => Map<String, dynamic>.from(entry),
+          ) ??
+          const <Map<String, dynamic>>[],
+    ),
     'scriptTimeoutMs': 30000,
   };
 }

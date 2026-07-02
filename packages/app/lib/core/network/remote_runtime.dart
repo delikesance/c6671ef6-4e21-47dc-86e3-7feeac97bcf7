@@ -3,6 +3,7 @@ import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:bot_creator/core/storage/runtime_preferences.dart';
+import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:ui' as ui;
 
@@ -91,14 +92,24 @@ Future<ResolvedRemoteRuntime> resolveRemoteRuntime({
       final match = runners.where((r) => r.id == associatedId);
       if (match.isNotEmpty) {
         final config = match.first;
-        return ResolvedRemoteRuntime(
-          source: RemoteRuntimeSource.runner,
-          client: config.createClient(
-            getTimeout: getTimeout,
-            postTimeout: postTimeout,
-          ),
-          detailLabel: config.name ?? config.url,
-        );
+        var useAssociation = true;
+        if (isDesktop) {
+          final engine = await getBotRuntimeEngine(botId);
+          if (engine == runtimeEngineJavascript &&
+              !RunnerSettings.supportsJavascriptRunner(config)) {
+            useAssociation = false;
+          }
+        }
+        if (useAssociation) {
+          return ResolvedRemoteRuntime(
+            source: RemoteRuntimeSource.runner,
+            client: config.createClient(
+              getTimeout: getTimeout,
+              postTimeout: postTimeout,
+            ),
+            detailLabel: config.name ?? config.url,
+          );
+        }
       }
     }
   }

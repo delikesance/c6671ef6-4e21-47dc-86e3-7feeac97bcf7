@@ -32,6 +32,7 @@ import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bdfd_editor_page.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/js_editor_page.dart';
 
 import 'package:bot_creator/features/bot_editor/presentation/widgets/option_widget.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/command_create_cards/basic_info_card.dart';
@@ -217,16 +218,32 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     if (botId != null) {
       botRuntimeEngine = await getBotRuntimeEngine(botId);
     }
-    final config = await RunnerSettings.getConfig();
-    if (config != null) {
-      if (config.kind == RunnerKind.javascript || config.useEmbedded) {
+
+    if (botId != null && isJavascriptRuntimeEngine(botRuntimeEngine)) {
+      if (!kIsWeb &&
+          (defaultTargetPlatform == TargetPlatform.windows ||
+              defaultTargetPlatform == TargetPlatform.linux ||
+              defaultTargetPlatform == TargetPlatform.macOS)) {
         runnerSupportsJavascript = true;
-      } else if (config.kind == RunnerKind.auto) {
-        try {
-          final client = config.createClient();
-          final engine = await client.getRunnerEngine();
-          runnerSupportsJavascript = engine == runtimeEngineJavascript;
-        } catch (_) {}
+      } else {
+        final config = await RunnerSettings.resolveConfigForBot(botId);
+        runnerSupportsJavascript = config != null;
+      }
+    } else {
+      final config =
+          botId != null
+              ? await RunnerSettings.resolveConfigForBot(botId)
+              : await RunnerSettings.getConfig();
+      if (config != null) {
+        if (config.kind == RunnerKind.javascript || config.useEmbedded) {
+          runnerSupportsJavascript = true;
+        } else if (config.kind == RunnerKind.auto) {
+          try {
+            final client = config.createClient();
+            final engine = await client.getRunnerEngine();
+            runnerSupportsJavascript = engine == runtimeEngineJavascript;
+          } catch (_) {}
+        }
       }
     }
 
