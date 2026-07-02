@@ -2237,7 +2237,7 @@ class _SettingPageState extends State<SettingPage> {
                               ),
                             ],
                             selected: {_runnerKind},
-                            onChanged: _runnerTemporarilyDisabled ||
+                            onSelectionChanged: _runnerTemporarilyDisabled ||
                                     _useEmbeddedJsRunner
                                 ? null
                                 : (selection) {

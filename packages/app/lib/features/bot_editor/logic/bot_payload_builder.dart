@@ -7,6 +7,7 @@ import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:bot_creator_shared/bot/bot_config.dart';
 import 'package:bot_creator_shared/utils/command_migration.dart';
 import 'package:bot_creator/features/bot_editor/logic/js_bot_payload_builder.dart';
@@ -429,7 +430,12 @@ Future<void> _executeSync(String botId) async {
   try {
     final engine = await getBotRuntimeEngine(botId);
     if (engine == runtimeEngineJavascript) {
-      await validateJsBotPayloadOrThrow(botId);
+      try {
+        await validateJsBotPayloadOrThrow(botId);
+      } catch (error) {
+        debugPrint('[AutoReload] JS payload not ready for $botId: $error');
+        return;
+      }
     }
     final payload = await buildRemotePayload(botId);
     final app = await _appManager.getApp(botId);

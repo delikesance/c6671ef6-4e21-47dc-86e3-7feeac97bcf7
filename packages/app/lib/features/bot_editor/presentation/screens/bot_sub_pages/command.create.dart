@@ -20,6 +20,7 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pag
 import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/features/bot_editor/logic/app_emoji_api.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/core/network/runner_kind.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
@@ -209,25 +210,34 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   }
 
   Future<void> _loadRuntimeContext() async {
+    var botRuntimeEngine = runtimeEngineDart;
+    var runnerSupportsJavascript = false;
+
     final botId = _botIdForConfig;
     if (botId != null) {
-      _botRuntimeEngine = await getBotRuntimeEngine(botId);
+      botRuntimeEngine = await getBotRuntimeEngine(botId);
     }
     final config = await RunnerSettings.getConfig();
     if (config != null) {
       if (config.kind == RunnerKind.javascript || config.useEmbedded) {
-        _runnerSupportsJavascript = true;
+        runnerSupportsJavascript = true;
       } else if (config.kind == RunnerKind.auto) {
         try {
           final client = config.createClient();
           final engine = await client.getRunnerEngine();
-          _runnerSupportsJavascript = engine == runtimeEngineJavascript;
+          runnerSupportsJavascript = engine == runtimeEngineJavascript;
         } catch (_) {}
       }
     }
-    if (_isJavascriptOnlyBot) {
-      _executionMode = _executionModeJavascript;
-    }
+
+    if (!mounted) return;
+    _applyStateUpdate(() {
+      _botRuntimeEngine = botRuntimeEngine;
+      _runnerSupportsJavascript = runnerSupportsJavascript;
+      if (_botRuntimeEngine == runtimeEngineJavascript) {
+        _executionMode = _executionModeJavascript;
+      }
+    });
   }
 
   void _promoteSimpleModeDraftIfNeeded(String persistedEditorMode) {

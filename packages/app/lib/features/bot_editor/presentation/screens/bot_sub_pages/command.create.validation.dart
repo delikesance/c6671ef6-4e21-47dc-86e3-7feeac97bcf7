@@ -109,7 +109,8 @@ extension _CommandCreateValidation on _CommandCreatePageState {
 
     // In BDFD mode, diagnostics are informational only and must not block save.
 
-    if (_isJavascriptMode && _jsScriptController.text.trim().isEmpty) {
+    if ((_isJavascriptMode || _isJavascriptOnlyBot) &&
+        _jsScriptController.text.trim().isEmpty) {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(

@@ -1,4 +1,6 @@
-import 'package:bot_creator/main.dart';
+import 'dart:convert';
+
+import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/features/bot_editor/logic/normalize_command_data.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 
@@ -26,12 +28,17 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
     );
     final executionMode =
         (data['executionMode'] ?? 'workflow').toString().trim().toLowerCase();
+    var script = (data['jsScriptContent'] ?? '').toString();
     if (executionMode != 'javascript') {
-      continue;
-    }
-
-    final script = (data['jsScriptContent'] ?? '').toString();
-    if (script.trim().isEmpty) {
+      if (script.trim().isEmpty) {
+        script = _synthesizeJsFromWorkflowActions(
+          (data['actions'] as List?) ?? const [],
+        ) ?? '';
+      }
+      if (script.trim().isEmpty) {
+        continue;
+      }
+    } else if (script.trim().isEmpty) {
       continue;
     }
 
@@ -122,4 +129,29 @@ Future<void> validateJsBotPayloadOrThrow(String botId) async {
       'This JavaScript bot has no JavaScript commands. Add at least one command in JavaScript mode.',
     );
   }
+}
+
+String? _synthesizeJsFromWorkflowActions(List<dynamic> actions) {
+  for (final raw in actions) {
+    if (raw is! Map) {
+      continue;
+    }
+    final type = (raw['type'] ?? '').toString();
+    if (type != 'respondWithMessage' && type != 'sendMessage') {
+      continue;
+    }
+    final payload = Map<String, dynamic>.from(
+      (raw['payload'] as Map?)?.cast<String, dynamic>() ?? const {},
+    );
+    final content = (payload['content'] ?? '').toString();
+    if (content.trim().isEmpty) {
+      continue;
+    }
+    final ephemeral = payload['ephemeral'] == true;
+    if (ephemeral) {
+      return 'await interaction.reply({ content: ${jsonEncode(content)}, ephemeral: true });';
+    }
+    return 'await interaction.reply(${jsonEncode(content)});';
+  }
+  return null;
 }

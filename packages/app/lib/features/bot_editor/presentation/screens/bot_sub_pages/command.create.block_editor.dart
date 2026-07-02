@@ -16,6 +16,9 @@ extension _CommandBlockEditor on _CommandCreatePageState {
 
     final isBdfdMode =
         _executionMode == _CommandCreatePageState._executionModeBdfdScript;
+    final isJavascriptMode =
+        _executionMode == _CommandCreatePageState._executionModeJavascript;
+    final isCodeMode = isBdfdMode || isJavascriptMode;
 
     // Collect action blocks
     final actionBlocks = <Widget>[];
@@ -26,7 +29,7 @@ extension _CommandBlockEditor on _CommandCreatePageState {
       (i) => ActionItem.fromJson(_actions[i], fallbackId: 'action_$i'),
     );
 
-    if (!isBdfdMode) {
+    if (!isCodeMode) {
       for (var i = 0; i < _actions.length; i++) {
         final action = ActionItem.fromJson(
           _actions[i],
@@ -282,8 +285,12 @@ extension _CommandBlockEditor on _CommandCreatePageState {
               _legacyResponseTarget = value;
             }),
         executionMode: _executionMode,
-        onExecutionModeChanged:
-            (value) => _applyStateUpdate(() {
+        showWorkflowMode: !_isJavascriptOnlyBot,
+        showBdfdMode: !_isJavascriptOnlyBot,
+        showJavascriptMode: _supportsJavascriptMode,
+        onExecutionModeChanged: _isJavascriptOnlyBot
+            ? null
+            : (value) => _applyStateUpdate(() {
               _executionMode = value;
               if (value == _CommandCreatePageState._executionModeBdfdScript) {
                 _refreshBdfdCompileResult(notify: false);
@@ -297,22 +304,25 @@ extension _CommandBlockEditor on _CommandCreatePageState {
       // ── BDFD Script editor (if BDFD mode) ──
       if (isBdfdMode) _buildBdfdBlock(),
 
+      // ── JavaScript editor (if JS mode) ──
+      if (isJavascriptMode) _buildJavascriptBlock(),
+
       // ── Action blocks ──
       ...actionBlocks,
 
       // ── Add block button ──
-      if (!isBdfdMode && !isDesktop) _buildAddBlockButton(),
+      if (!isCodeMode && !isDesktop) _buildAddBlockButton(),
     ];
 
     // Compute indices of final (cap) blocks so the canvas skips connectors
     // after them.
     final skipConnectorAfter = <int>{};
 
-    if (!isBdfdMode) {
+    if (!isCodeMode) {
       // Offset: MetadataBlock + EntryPointBlock + optional subcommand + optional bdfd
       var offset = 2;
       if (_subcommandWorkflows.isNotEmpty) offset++;
-      if (isBdfdMode) offset++;
+      if (isBdfdMode || isJavascriptMode) offset++;
       for (var i = 0; i < _actions.length; i++) {
         final type = BotCreatorActionType.values.firstWhere(
           (t) => t.name == _actions[i]['type'],
@@ -331,7 +341,7 @@ extension _CommandBlockEditor on _CommandCreatePageState {
     );
 
     if (isDesktop) {
-      if (isBdfdMode) {
+      if (isCodeMode) {
         return Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 860.0),
@@ -424,6 +434,16 @@ extension _CommandBlockEditor on _CommandCreatePageState {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildJavascriptBlock() {
+    return ScratchBlock(
+      color: Colors.orange,
+      title: context.tr.cmd_execution_mode_javascript,
+      icon: Icons.code,
+      required: true,
+      child: _buildJavascriptEditorTile(),
     );
   }
 
