@@ -20,7 +20,9 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pag
 import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/features/bot_editor/logic/app_emoji_api.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
-import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
+import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
+import 'package:bot_creator/core/network/runner_kind.dart';
+import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:bot_creator/features/bot_editor/logic/command_variable_catalog.dart';
 import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
@@ -58,6 +60,7 @@ part 'command.create.validation.dart';
 part 'command.create.wizard.dart';
 part 'command.create.block_editor.dart';
 part 'command.create.bdfd.dart';
+part 'command.create.javascript.dart';
 
 /// Snapshot of editor body fields used by Selector for fine-grained rebuilds.
 class _EditorBodySnapshot {
@@ -107,6 +110,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   static const String _editorModeAdvanced = 'advanced';
   static const String _executionModeWorkflow = 'workflow';
   static const String _executionModeBdfdScript = 'bdfd_script';
+  static const String _executionModeJavascript = 'javascript';
   static const String _rootWorkflowRoute = '__root__';
   static const int _defaultCommandNameMaxLength = 32;
   static const int _localLegacyCommandNameMaxLength = 256;
@@ -152,7 +156,11 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   String _editorMode = _editorModeSimple;
   String _executionMode = _executionModeWorkflow;
   String _bdfdScriptContent = '';
+  String _jsScriptContent = '';
   final TextEditingController _bdfdScriptController = TextEditingController();
+  final TextEditingController _jsScriptController = TextEditingController();
+  String _botRuntimeEngine = runtimeEngineDart;
+  bool _runnerSupportsJavascript = false;
   final BdfdCompiler _bdfdCompiler = BdfdCompiler();
   BdfdCompileResult? _bdfdCompileResult;
   bool _legacyModeEnabled = false;
@@ -171,6 +179,15 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
 
   bool get _isBdfdScriptMode => _executionMode == _executionModeBdfdScript;
 
+  bool get _isJavascriptMode => _executionMode == _executionModeJavascript;
+
+  bool get _supportsJavascriptMode =>
+      _botRuntimeEngine == runtimeEngineJavascript ||
+      _runnerSupportsJavascript;
+
+  bool get _isJavascriptOnlyBot =>
+      _botRuntimeEngine == runtimeEngineJavascript;
+
   List<BdfdCompileDiagnostic> get _bdfdDiagnostics =>
       _bdfdCompileResult?.diagnostics ?? const <BdfdCompileDiagnostic>[];
 
@@ -182,7 +199,35 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     final value =
         (raw ?? _executionModeWorkflow).toString().trim().toLowerCase();
     if (value == _executionModeBdfdScript) return _executionModeBdfdScript;
+    if (value == _executionModeJavascript && _supportsJavascriptMode) {
+      return _executionModeJavascript;
+    }
+    if (_isJavascriptOnlyBot) {
+      return _executionModeJavascript;
+    }
     return _executionModeWorkflow;
+  }
+
+  Future<void> _loadRuntimeContext() async {
+    final botId = _botIdForConfig;
+    if (botId != null) {
+      _botRuntimeEngine = await getBotRuntimeEngine(botId);
+    }
+    final config = await RunnerSettings.getConfig();
+    if (config != null) {
+      if (config.kind == RunnerKind.javascript || config.useEmbedded) {
+        _runnerSupportsJavascript = true;
+      } else if (config.kind == RunnerKind.auto) {
+        try {
+          final client = config.createClient();
+          final engine = await client.getRunnerEngine();
+          _runnerSupportsJavascript = engine == runtimeEngineJavascript;
+        } catch (_) {}
+      }
+    }
+    if (_isJavascriptOnlyBot) {
+      _executionMode = _executionModeJavascript;
+    }
   }
 
   void _promoteSimpleModeDraftIfNeeded(String persistedEditorMode) {
@@ -718,6 +763,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       _applyPrefillName(widget.prefillName!);
     }
     _bdfdScriptController.text = _bdfdScriptContent;
+    _jsScriptController.text = _jsScriptContent;
     _refreshBdfdCompileResult(notify: false);
     _init();
   }
@@ -726,6 +772,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   void dispose() {
     _editorNotifier.dispose();
     _bdfdScriptController.dispose();
+    _jsScriptController.dispose();
     _folderController.dispose();
     super.dispose();
   }
@@ -1183,7 +1230,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         '[_syncCommandChangesToCloud] building bot payload for botId=$botId',
         name: 'CommandCreatePage',
       );
-      final payload = await buildBotPayload(botId);
+      final payload = await buildRemotePayload(botId);
       developer.log(
         '[_syncCommandChangesToCloud] payload built — topLevelKeys=${payload.keys.toList()} for botId=$botId',
         name: 'CommandCreatePage',
@@ -1294,6 +1341,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   }
 
   Future<void> _init() async {
+    await _loadRuntimeContext();
     await AppAnalytics.logScreenView(
       screenName: "CommandCreatePage",
       screenClass: "CommandCreatePage",
@@ -1399,6 +1447,8 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         _bdfdScriptContent = (normalizedData['bdfdScriptContent'] ?? '')
             .toString();
         _bdfdScriptController.text = _bdfdScriptContent;
+        _jsScriptContent = (normalizedData['jsScriptContent'] ?? '').toString();
+        _jsScriptController.text = _jsScriptContent;
         _bdfdCompileResult = _bdfdCompiler.compile(_bdfdScriptContent);
         _legacyModeEnabled = normalizedData['legacyModeEnabled'] == true;
         _localOnlyCommand =
@@ -1508,6 +1558,8 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           _bdfdScriptContent = (normalizedData['bdfdScriptContent'] ?? '')
               .toString();
           _bdfdScriptController.text = _bdfdScriptContent;
+          _jsScriptContent = (normalizedData['jsScriptContent'] ?? '').toString();
+          _jsScriptController.text = _jsScriptContent;
           _bdfdCompileResult = _bdfdCompiler.compile(_bdfdScriptContent);
           _legacyModeEnabled = normalizedData['legacyModeEnabled'] == true;
           _localOnlyCommand =

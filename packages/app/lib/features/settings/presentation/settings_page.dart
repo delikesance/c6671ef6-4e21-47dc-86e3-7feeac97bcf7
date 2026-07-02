@@ -26,6 +26,7 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 
 import 'package:bot_creator/features/onboarding/logic/onboarding_manager.dart';
 import 'package:bot_creator/core/diagnostics/recovery_manager.dart';
+import 'package:bot_creator/core/network/runner_kind.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:flutter/foundation.dart';
@@ -67,6 +68,10 @@ class _SettingPageState extends State<SettingPage> {
   String? _mainApiStatusKey;
   bool _runnerTokenObscured = true;
   bool _runnerTemporarilyDisabled = false;
+  RunnerKind _runnerKind = RunnerKind.auto;
+  bool _useEmbeddedJsRunner = false;
+  String? _runnerEngineLabel;
+  String? _runnerVersionLabel;
   bool _mainApiSectionExpanded = false;
   MainApiSession? _mainApiSession;
   StreamSubscription<DiscordRpcSnapshot>? _discordRpcSnapshotSubscription;
@@ -267,6 +272,10 @@ class _SettingPageState extends State<SettingPage> {
       _runnerUrlController.text = config?.url ?? '';
       _runnerApiTokenController.text = config?.apiToken ?? '';
       _runnerTemporarilyDisabled = isDisabled;
+      _runnerKind = config?.kind ?? RunnerKind.auto;
+      _useEmbeddedJsRunner = config?.useEmbedded ?? false;
+      _runnerEngineLabel = null;
+      _runnerVersionLabel = null;
     });
     if (config != null && !isDisabled) {
       await _checkRunnerConnection();
@@ -295,24 +304,69 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   Future<void> _saveRunnerSettings() async {
-    final url = _runnerUrlController.text.trim();
-    final apiToken = _runnerApiTokenController.text.trim();
-    await RunnerSettings.save(url: url, apiToken: apiToken);
+    if (_useEmbeddedJsRunner && _isDesktopPlatform) {
+      await RunnerSettings.save(
+        kind: _runnerKind == RunnerKind.auto ? RunnerKind.javascript : _runnerKind,
+        useEmbedded: true,
+      );
+    } else {
+      final url = _runnerUrlController.text.trim();
+      final apiToken = _runnerApiTokenController.text.trim();
+      await RunnerSettings.save(
+        url: url,
+        apiToken: apiToken,
+        kind: _runnerKind,
+        useEmbedded: false,
+      );
+    }
     if (!mounted) return;
     setState(() {
       _runnerStatusKey = null;
     });
+    final cleared = !_useEmbeddedJsRunner &&
+        _runnerUrlController.text.trim().isEmpty &&
+        _runnerApiTokenController.text.trim().isEmpty;
     _showSnack(
-      url.isEmpty && apiToken.isEmpty
+      cleared
           ? context.tr.settings_runner_cleared
           : context.tr.settings_runner_saved,
     );
-    if (url.isNotEmpty) {
+    if (!cleared) {
       await _checkRunnerConnection();
     }
   }
 
   Future<void> _checkRunnerConnection() async {
+    if (_useEmbeddedJsRunner && _isDesktopPlatform) {
+      if (!mounted) return;
+      setState(() {
+        _checkingRunner = true;
+        _runnerStatusKey = null;
+      });
+      try {
+        final config = await RunnerSettings.getConfig();
+        if (config == null) {
+          throw const RunnerClientException('Embedded runner unavailable');
+        }
+        final client = config.createClient();
+        final root = await client.fetchRootInfo();
+        if (!mounted) return;
+        setState(() {
+          _runnerStatusKey = 'settings_runner_connected';
+          _checkingRunner = false;
+          _runnerEngineLabel = (root['engine'] ?? '').toString();
+          _runnerVersionLabel = (root['version'] ?? '').toString();
+        });
+      } catch (_) {
+        if (!mounted) return;
+        setState(() {
+          _runnerStatusKey = 'settings_runner_unreachable';
+          _checkingRunner = false;
+        });
+      }
+      return;
+    }
+
     final url = _runnerUrlController.text.trim();
     if (url.isEmpty) return;
     if (!mounted) return;
@@ -325,15 +379,19 @@ class _SettingPageState extends State<SettingPage> {
         id: '_check',
         url: url,
         apiToken: _runnerApiTokenController.text.trim(),
+        kind: _runnerKind,
       ).createClient(
         getTimeout: const Duration(seconds: 30),
         postTimeout: const Duration(seconds: 90),
       );
+      final root = await client.fetchRootInfo();
       await client.getStatus();
       if (!mounted) return;
       setState(() {
         _runnerStatusKey = 'settings_runner_connected';
         _checkingRunner = false;
+        _runnerEngineLabel = (root['engine'] ?? '').toString();
+        _runnerVersionLabel = (root['version'] ?? '').toString();
       });
     } on RunnerClientException catch (error) {
       if (!mounted) return;
@@ -2134,6 +2192,70 @@ class _SettingPageState extends State<SettingPage> {
                             ),
                           ),
                           const SizedBox(height: 8),
+                          if (_isDesktopPlatform) ...[
+                            SwitchListTile.adaptive(
+                              contentPadding: EdgeInsets.zero,
+                              title: const Text('Use embedded JS runner'),
+                              subtitle: const Text(
+                                'Spawn the packaged runner-js binary locally (desktop only).',
+                              ),
+                              value: _useEmbeddedJsRunner,
+                              onChanged: _runnerTemporarilyDisabled
+                                  ? null
+                                  : (value) {
+                                      setState(() {
+                                        _useEmbeddedJsRunner = value;
+                                        if (value) {
+                                          _runnerKind = RunnerKind.javascript;
+                                        }
+                                      });
+                                    },
+                            ),
+                            const SizedBox(height: 8),
+                          ],
+                          Text(
+                            'Runner type',
+                            style: Theme.of(context).textTheme.labelLarge,
+                          ),
+                          const SizedBox(height: 8),
+                          SegmentedButton<RunnerKind>(
+                            segments: const [
+                              ButtonSegment(
+                                value: RunnerKind.dart,
+                                label: Text('Dart'),
+                                icon: Icon(Icons.memory),
+                              ),
+                              ButtonSegment(
+                                value: RunnerKind.javascript,
+                                label: Text('JS'),
+                                icon: Icon(Icons.code),
+                              ),
+                              ButtonSegment(
+                                value: RunnerKind.auto,
+                                label: Text('Auto'),
+                                icon: Icon(Icons.auto_awesome),
+                              ),
+                            ],
+                            selected: {_runnerKind},
+                            onChanged: _runnerTemporarilyDisabled ||
+                                    _useEmbeddedJsRunner
+                                ? null
+                                : (selection) {
+                                    setState(() {
+                                      _runnerKind = selection.first;
+                                    });
+                                  },
+                          ),
+                          if (_runnerEngineLabel != null &&
+                              _runnerEngineLabel!.isNotEmpty) ...[
+                            const SizedBox(height: 8),
+                            Text(
+                              'Detected engine: $_runnerEngineLabel'
+                              '${_runnerVersionLabel != null && _runnerVersionLabel!.isNotEmpty ? ' · v$_runnerVersionLabel' : ''}',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
+                          const SizedBox(height: 8),
                           SwitchListTile.adaptive(
                             contentPadding: EdgeInsets.zero,
                             title: Text(
@@ -2151,6 +2273,7 @@ class _SettingPageState extends State<SettingPage> {
                           const SizedBox(height: 12),
                           TextField(
                             controller: _runnerUrlController,
+                            enabled: !_useEmbeddedJsRunner,
                             decoration: InputDecoration(
                               hintText: context.tr.settings_runner_url_hint,
                               isDense: true,
@@ -2189,6 +2312,7 @@ class _SettingPageState extends State<SettingPage> {
                           const SizedBox(height: 12),
                           TextField(
                             controller: _runnerApiTokenController,
+                            enabled: !_useEmbeddedJsRunner,
                             decoration: InputDecoration(
                               labelText: context.tr.settings_runner_token_label,
                               hintText: context.tr.settings_runner_token_hint,

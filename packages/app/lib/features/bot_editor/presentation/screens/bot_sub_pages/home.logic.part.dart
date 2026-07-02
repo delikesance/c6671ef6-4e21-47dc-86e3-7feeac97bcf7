@@ -347,7 +347,7 @@ extension _AppHomePageLogic on _AppHomePageState {
               botId: botId,
               source: remoteRuntime.source,
             );
-            final payload = await buildBotPayload(botId);
+            final payload = await buildRemotePayload(botId);
             if (remoteClient is MainApiClient) {
               final botToken = token.trim();
               if (botToken.isNotEmpty) {

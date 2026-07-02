@@ -721,7 +721,7 @@ class HomePageState extends State<HomePage>
               attemptSessionRestore: true,
             );
             if (snapshotClient != null) {
-              final payload = await buildBotPayload(botId);
+              final payload = await buildRemotePayload(botId);
               await snapshotClient.saveDiscordBotSnapshot(
                 botId: botId,
                 botToken: token,
@@ -1268,7 +1268,7 @@ class HomePageState extends State<HomePage>
               botId: botId,
               source: runtime.source,
             );
-            final payload = await buildBotPayload(botId);
+            final payload = await buildRemotePayload(botId);
             if (client is MainApiClient) {
               final app = await appManager.getApp(botId);
               final botToken = (app['token'] ?? '').toString().trim();
@@ -1512,7 +1512,7 @@ class HomePageState extends State<HomePage>
       return false;
     }
 
-    final payload = await buildBotPayload(botId);
+    final payload = await buildRemotePayload(botId);
     try {
       await remoteClient.saveDiscordBotSnapshot(
         botId: botId,

@@ -109,7 +109,24 @@ extension _CommandCreateValidation on _CommandCreatePageState {
 
     // In BDFD mode, diagnostics are informational only and must not block save.
 
-    if (!_isBdfdScriptMode && _legacyModeEnabled) {
+    if (_isJavascriptMode && _jsScriptController.text.trim().isEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(context.tr.error),
+          content: Text(context.tr.cmd_execution_mode_javascript_desc),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(context.tr.ok),
+            ),
+          ],
+        ),
+      );
+      return false;
+    }
+
+    if (!_isBdfdScriptMode && !_isJavascriptMode && _legacyModeEnabled) {
       if (_commandType != ApplicationCommandType.chatInput) {
         showDialog(
           context: context,
@@ -133,6 +150,7 @@ extension _CommandCreateValidation on _CommandCreatePageState {
     // at least one respond action after migration.  A missing response will
     // cause a Discord interaction timeout, so we warn the user.
     if (!_isBdfdScriptMode &&
+        !_isJavascriptMode &&
         !_legacyModeEnabled &&
         !_localOnlyCommand &&
         _commandType != ApplicationCommandType.message) {
@@ -165,7 +183,7 @@ extension _CommandCreateValidation on _CommandCreatePageState {
       }
     }
 
-    if (!_isBdfdScriptMode && _localOnlyCommand) {
+    if (!_isBdfdScriptMode && !_isJavascriptMode && _localOnlyCommand) {
       if (!_legacyModeEnabled) {
         showDialog(
           context: context,

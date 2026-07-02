@@ -12,6 +12,7 @@ import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/features/containers/presentation/container_deploy_page.dart';
+import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
 
 class AppCreatePage extends StatefulWidget {
@@ -26,6 +27,7 @@ class _AppCreatePageState extends State<AppCreatePage> {
   bool _isSaving = false;
   bool _obscureToken = true;
   String? _selectedType;
+  bool _createJavascriptBot = false;
 
   @override
   void initState() {
@@ -164,6 +166,12 @@ class _AppCreatePageState extends State<AppCreatePage> {
         discriminator: discordUser.discriminator,
         token: token,
       );
+      if (_createJavascriptBot) {
+        await setBotRuntimeEngine(
+          discordUser.id.toString(),
+          runtimeEngineJavascript,
+        );
+      }
       await AppAnalytics.logEvent(
         name: "create_app",
         parameters: {
@@ -325,6 +333,24 @@ class _AppCreatePageState extends State<AppCreatePage> {
           );
           setState(() {
             _selectedType = 'discord_bot';
+            _createJavascriptBot = false;
+          });
+        },
+      ),
+      _TypeSelectionCard(
+        title: context.tr.cmd_execution_mode_javascript,
+        description: context.tr.cmd_execution_mode_javascript_desc,
+        icon: Icons.code,
+        iconColor: Colors.orange,
+        iconBackgroundColor: Colors.orange.withOpacity(0.12),
+        onTap: () {
+          AppAnalytics.logEvent(
+            name: "select_app_type",
+            parameters: {"type": "javascript_bot"},
+          );
+          setState(() {
+            _selectedType = 'discord_bot';
+            _createJavascriptBot = true;
           });
         },
       ),

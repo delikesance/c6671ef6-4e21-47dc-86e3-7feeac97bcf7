@@ -40,6 +40,7 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
       'editorMode': _CommandCreatePageState._editorModeAdvanced,
       'executionMode': _executionMode,
       'bdfdScriptContent': _bdfdScriptController.text,
+      'jsScriptContent': _jsScriptController.text,
       'legacyModeEnabled': _legacyModeEnabled,
       'legacyLocalOnly': _localOnlyCommand,
       'legacyPrefixOverride': _legacyPrefixOverride.trim(),

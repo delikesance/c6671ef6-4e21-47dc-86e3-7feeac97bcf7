@@ -108,9 +108,10 @@ Map<String, dynamic> normalizeCommandData(Map<String, dynamic> command) {
   const editorMode = 'advanced';
   final rawExecutionMode =
       (rawData['executionMode'] ?? 'workflow').toString().toLowerCase();
-  final executionMode =
-      rawExecutionMode == 'bdfd_script'
-          ? 'bdfd_script'
+  final executionMode = rawExecutionMode == 'bdfd_script'
+      ? 'bdfd_script'
+      : rawExecutionMode == 'javascript'
+          ? 'javascript'
           : 'workflow';
   final bdfdScriptContent = (rawData['bdfdScriptContent'] ?? '').toString();
   final jsScriptContent = (rawData['jsScriptContent'] ?? '').toString();

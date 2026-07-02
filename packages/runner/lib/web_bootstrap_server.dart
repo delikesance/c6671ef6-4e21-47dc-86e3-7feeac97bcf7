@@ -141,7 +141,11 @@ class RunnerWebBootstrapServer {
     // Public Routes
     _get(
       '/',
-      (req, res) => {'name': 'Bot Creator Runner', 'version': runnerVersion},
+      (req, res) => {
+        'name': 'Bot Creator Runner',
+        'version': runnerVersion,
+        'engine': 'dart',
+      },
       summary: 'Runner Information',
       requiresAuth: false,
       responses: {
