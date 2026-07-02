@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:bot_creator/core/storage/database.dart';
 
 const runtimeEngineDart = 'dart';
@@ -18,6 +21,9 @@ Future<void> setBotRuntimeEngine(String botId, String engine) async {
       ? runtimeEngineJavascript
       : runtimeEngineDart;
   await AppManager().saveApp(botId, app);
+  if (isJavascriptRuntimeEngine(app['runtimeEngine']?.toString())) {
+    unawaited(RunnerSettings.prepareEmbeddedJsRunner());
+  }
 }
 
 bool isJavascriptRuntimeEngine(String? engine) {

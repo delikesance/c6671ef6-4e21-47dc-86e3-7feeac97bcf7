@@ -9,6 +9,9 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pag
 import 'package:bot_creator/core/models/types/variable_suggestion.dart';
 import 'package:bot_creator/core/widgets/variable_text_field.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
+import 'package:bot_creator/core/js_editor/js_editor_snippets.dart';
+import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/js_editor_page.dart';
 
 class OptionWidget extends StatefulWidget {
   final Function(List<CommandOptionBuilder>) onChange;
@@ -50,6 +53,7 @@ class OptionWidgetState extends State<OptionWidget> {
   final List<CommandOptionBuilder> options = <CommandOptionBuilder>[];
   List<String> _availableWorkflowNames = const [];
   bool _loadingWorkflows = false;
+  bool _isJavascriptBot = false;
 
   @override
   void initState() {
@@ -61,6 +65,7 @@ class OptionWidgetState extends State<OptionWidget> {
       }
     }
     _loadAvailableWorkflows();
+    _loadRuntimeEngine();
   }
 
   @override
@@ -68,7 +73,24 @@ class OptionWidgetState extends State<OptionWidget> {
     super.didUpdateWidget(oldWidget);
     if (widget.botIdForConfig != oldWidget.botIdForConfig) {
       _loadAvailableWorkflows();
+      _loadRuntimeEngine();
     }
+  }
+
+  Future<void> _loadRuntimeEngine() async {
+    final botId = widget.botIdForConfig;
+    if (botId == null || botId.trim().isEmpty) {
+      if (mounted) {
+        setState(() => _isJavascriptBot = false);
+      }
+      return;
+    }
+
+    final engine = await getBotRuntimeEngine(botId);
+    if (!mounted) {
+      return;
+    }
+    setState(() => _isJavascriptBot = isJavascriptRuntimeEngine(engine));
   }
 
   Future<void> _loadAvailableWorkflows() async {
@@ -457,7 +479,9 @@ class OptionWidgetState extends State<OptionWidget> {
                               if (value == true) {
                                 setCommandOptionAutocompleteConfig(option, {
                                   'enabled': true,
-                                  'mode': 'inline',
+                                  'mode': _isJavascriptBot ? 'javascript' : 'inline',
+                                  if (_isJavascriptBot)
+                                    'jsScript': defaultJsAutocompleteScript,
                                   'staticChoices': <Map<String, dynamic>>[],
                                 });
                               } else {
@@ -483,11 +507,19 @@ class OptionWidgetState extends State<OptionWidget> {
                                   'mode': 'inline',
                                   'staticChoices': <Map<String, dynamic>>[],
                                 };
-                            final currentMode =
-                                (cfg['mode'] ?? 'inline').toString() ==
-                                        'static'
-                                    ? 'static'
-                                    : 'inline';
+                            final currentMode = () {
+                              final raw = (cfg['mode'] ?? '').toString().trim().toLowerCase();
+                              if (raw == 'static') {
+                                return 'static';
+                              }
+                              if (raw == 'javascript') {
+                                return 'javascript';
+                              }
+                              if (raw == 'workflow' && !_isJavascriptBot) {
+                                return 'workflow';
+                              }
+                              return _isJavascriptBot ? 'javascript' : 'inline';
+                            }();
 
                             Map<String, dynamic> updatedCfg([
                               Map<String, dynamic>? overrides,
@@ -510,11 +542,18 @@ class OptionWidgetState extends State<OptionWidget> {
                             // ── Mode selector ──────────────────────────────
                             final modeSelector = SegmentedButton<String>(
                               segments: [
-                                ButtonSegment(
-                                  value: 'inline',
-                                  label: const Text('Inline'),
-                                  icon: const Icon(Icons.code),
-                                ),
+                                if (_isJavascriptBot)
+                                  const ButtonSegment(
+                                    value: 'javascript',
+                                    label: Text('JavaScript'),
+                                    icon: Icon(Icons.javascript),
+                                  )
+                                else
+                                  const ButtonSegment(
+                                    value: 'inline',
+                                    label: Text('Inline'),
+                                    icon: Icon(Icons.code),
+                                  ),
                                 ButtonSegment(
                                   value: 'static',
                                   label: Text(context.tr.common_static_options),
@@ -523,8 +562,14 @@ class OptionWidgetState extends State<OptionWidget> {
                               ],
                               selected: {currentMode},
                               onSelectionChanged: (Set<String> selection) {
+                                final nextMode = selection.first;
                                 saveConfig(
-                                  updatedCfg({'mode': selection.first}),
+                                  updatedCfg({
+                                    'mode': nextMode,
+                                    if (nextMode == 'javascript' &&
+                                        (cfg['jsScript'] ?? '').toString().trim().isEmpty)
+                                      'jsScript': defaultJsAutocompleteScript,
+                                  }),
                                 );
                               },
                             );
@@ -951,6 +996,81 @@ class OptionWidgetState extends State<OptionWidget> {
                               );
                             }
 
+                            // ── JavaScript panel ───────────────────────────
+                            Widget javascriptPanel() {
+                              final script = (cfg['jsScript'] ?? defaultJsAutocompleteScript)
+                                  .toString();
+                              final preview =
+                                  script.trim().isEmpty
+                                      ? defaultJsAutocompleteScript
+                                      : (script.length > 220
+                                          ? '${script.substring(0, 220)}…'
+                                          : script);
+
+                              return Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                                  border: Border.all(
+                                    color: Theme.of(context).colorScheme.outlineVariant,
+                                  ),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    Text(
+                                      'Use interaction.respond([{ name, value }]) to return up to 25 choices.',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      preview,
+                                      style: const TextStyle(
+                                        fontFamily: 'monospace',
+                                        fontSize: 12,
+                                        color: Color(0xFFCFD8DC),
+                                      ),
+                                      maxLines: 8,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 10),
+                                    FilledButton.icon(
+                                      onPressed: () async {
+                                        final result = await Navigator.push<String>(
+                                          context,
+                                          MaterialPageRoute<String>(
+                                            builder:
+                                                (_) => JsEditorPage(
+                                                  initialCode:
+                                                      script.trim().isEmpty
+                                                          ? defaultJsAutocompleteScript
+                                                          : script,
+                                                  title: 'Autocomplete JavaScript',
+                                                  snippets: jsAutocompleteSnippets,
+                                                ),
+                                          ),
+                                        );
+                                        if (result != null) {
+                                          saveConfig(
+                                            updatedCfg({'jsScript': result}),
+                                          );
+                                        }
+                                      },
+                                      icon: const Icon(Icons.edit_note, size: 18),
+                                      label: Text(
+                                        script.trim().isEmpty
+                                            ? 'Configure Autocomplete JavaScript'
+                                            : 'Edit Autocomplete JavaScript',
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+
                             // ── Inline actions panel ──────────────────────
                             Widget inlinePanel() {
                               final inlineActions = cfg['inlineActions'];
@@ -1051,6 +1171,8 @@ class OptionWidgetState extends State<OptionWidget> {
                                   workflowPanel()
                                 else if (currentMode == 'inline')
                                   inlinePanel()
+                                else if (currentMode == 'javascript')
+                                  javascriptPanel()
                                 else
                                   staticPanel(),
                               ],

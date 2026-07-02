@@ -373,7 +373,8 @@ extension _AppHomePageLogic on _AppHomePageState {
               RunnerSettings.associateBotWithRunner(botId, 'manager');
             } else {
               await remoteClient.startBot(botId, botName: _appName);
-              final runnerConfig = await RunnerSettings.getConfig();
+              final runnerConfig =
+                  await RunnerSettings.resolveConfigForBot(botId);
               if (runnerConfig != null) {
                 RunnerSettings.associateBotWithRunner(
                   botId,
@@ -455,14 +456,37 @@ extension _AppHomePageLogic on _AppHomePageState {
         }
 
         if (await getBotRuntimeEngine(botId) == runtimeEngineJavascript) {
-          throw Exception(
-            _uiCopy(
-              fr:
-                  'Ce bot JavaScript necessite un runner JS. Activez le runner JS embarque dans les parametres ou configurez une URL de runner.',
-              en:
-                  'This JavaScript bot requires a JS runner. Enable the embedded JS runner in Settings or configure a runner URL.',
-            ),
+          final runnerConfig = await RunnerSettings.resolveConfigForBot(botId);
+          if (runnerConfig == null) {
+            throw Exception(
+              _uiCopy(
+                fr:
+                    'Le runner JS embarque n\'a pas pu demarrer. Relancez completement l\'application (pas un hot reload).',
+                en:
+                    'The embedded JS runner could not start. Fully restart the app (not hot reload).',
+              ),
+            );
+          }
+
+          final client = runnerConfig.createClient();
+          startBotLogSession(
+            botId: botId,
+            source: RemoteRuntimeSource.runner,
           );
+          clearBotBaselineRss();
+          appendBotLog(
+            'Bot start requested',
+            botId: botId,
+            source: RemoteRuntimeSource.runner,
+          );
+          await validateJsBotPayloadOrThrow(botId);
+          final payload = await buildRemotePayload(botId);
+          await client.syncBot(botId, _appName, payload);
+          await client.startBot(botId, botName: _appName);
+          RunnerSettings.associateBotWithRunner(botId, runnerConfig.id);
+          setBotRuntimeActive(true);
+          _setState(() => _botLaunched = true);
+          return;
         }
 
         await startDesktopBot(token);

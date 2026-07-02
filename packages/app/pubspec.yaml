@@ -85,6 +85,7 @@ dependencies:
   flutter_secure_storage: ^10.3.1
   encrypt: ^5.0.3
   web_socket_channel: ^3.0.1
+  re_highlight: ^0.0.3
 
 
 dependency_overrides:
@@ -115,6 +116,7 @@ flutter:
 
   assets:
     - assets/embedded-runner-js/
+    - assets/js_editor/discord_js_completions.json
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
