@@ -11,6 +11,7 @@ import 'package:bot_creator/core/diagnostics/app_diagnostics.dart';
 import 'package:bot_creator/features/discord_rpc/logic/discord_rpc_service.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_auth_service.dart';
+import 'package:bot_creator/core/network/main_api_credentials_auth_service.dart';
 import 'package:bot_creator/core/auth/mobile_account_gate.dart';
 import 'package:bot_creator/core/auth/mobile_account_session.dart';
 import 'package:bot_creator/core/auth/main_api_account_bootstrap.dart';
@@ -81,6 +82,17 @@ class _SettingPageState extends State<SettingPage> {
   bool _mobileLocalHostingEnabled = false;
   bool _loadingMobileLocalHosting = true;
   bool _refreshingMainApiOnResume = false;
+  final TextEditingController _altLoginEmailController = TextEditingController();
+  final TextEditingController _altLoginPasswordController =
+      TextEditingController();
+  final TextEditingController _altLoginConfirmController =
+      TextEditingController();
+  final TextEditingController _altLoginCurrentPasswordController =
+      TextEditingController();
+  bool _savingAlternativeLogin = false;
+  bool _alternativeLoginExpanded = false;
+  bool _userHasPassword = false;
+  String? _userEmail;
 
   void _mainApiDebug(String message) {
     if (!kDebugMode) {
@@ -512,6 +524,8 @@ class _SettingPageState extends State<SettingPage> {
 
           final username =
               (profile['username'] ?? profile['name'] ?? '').toString().trim();
+          final profileEmail = (profile['email'] ?? '').toString().trim();
+          final hasPassword = profile['has_password'] == true;
           if (username.isNotEmpty && username != activeSession.username) {
             activeSession = activeSession.copyWith(username: username);
             await MainApiSettingsStore.saveSession(activeSession);
@@ -519,6 +533,12 @@ class _SettingPageState extends State<SettingPage> {
           }
           nextSession = activeSession;
           statusKey = 'settings_main_api_session_connected';
+          if (mounted) {
+            setState(() {
+              _userHasPassword = hasPassword;
+              _userEmail = profileEmail.isEmpty ? null : profileEmail;
+            });
+          }
           _mainApiDebug('Session validated successfully (connected)');
         } on MainApiClientException catch (error) {
           _mainApiDebug(
@@ -677,6 +697,10 @@ class _SettingPageState extends State<SettingPage> {
     _mainApiUrlController.dispose();
     _runnerUrlController.dispose();
     _runnerApiTokenController.dispose();
+    _altLoginEmailController.dispose();
+    _altLoginPasswordController.dispose();
+    _altLoginConfirmController.dispose();
+    _altLoginCurrentPasswordController.dispose();
     super.dispose();
   }
 
@@ -966,7 +990,9 @@ class _SettingPageState extends State<SettingPage> {
     final hasSession = session != null && !session.isExpired;
     final hasDiscordAccount = MobileAccountGate.isDiscordOAuthSession(session);
     final accountConnected =
-        _isManagedMobilePlatform ? hasDiscordAccount : hasSession;
+        _isManagedMobilePlatform
+            ? MobileAccountGate.isManagedAccountSession(session)
+            : hasSession;
     final sessionUser = (session?.username ?? '').trim();
     _mainApiUrlController.text.trim();
     final accountTitle = context.tr.settings_main_api_title;
@@ -985,7 +1011,10 @@ class _SettingPageState extends State<SettingPage> {
         accountConnected ? AppTheme.successLight : AppTheme.warning;
 
     final isBusy =
-        _checkingMainApi || _connectingMainApi || _disconnectingMainApi;
+        _checkingMainApi ||
+        _connectingMainApi ||
+        _disconnectingMainApi ||
+        _savingAlternativeLogin;
 
     return Card(
       child: ExpansionTile(
@@ -1113,9 +1142,143 @@ class _SettingPageState extends State<SettingPage> {
               ),
             ],
           ),
+          if (_isManagedMobilePlatform && hasDiscordAccount) ...[
+            const SizedBox(height: 20),
+            _buildAlternativeLoginSection(session),
+          ],
         ],
       ),
     );
+  }
+
+  Widget _buildAlternativeLoginSection(MainApiSession? session) {
+    final tr = context.tr;
+    return ExpansionTile(
+      tilePadding: EdgeInsets.zero,
+      initiallyExpanded: _alternativeLoginExpanded,
+      onExpansionChanged: (expanded) {
+        setState(() => _alternativeLoginExpanded = expanded);
+      },
+      title: Text(
+        tr.settings_alternative_login_title,
+        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      subtitle: _userHasPassword && (_userEmail?.isNotEmpty ?? false)
+          ? Text(
+              _userEmail!,
+              style: Theme.of(context).textTheme.bodySmall,
+            )
+          : null,
+      children: [
+        TextField(
+          controller: _altLoginEmailController,
+          keyboardType: TextInputType.emailAddress,
+          decoration: InputDecoration(
+            labelText: tr.mobile_login_email,
+            border: const OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 12),
+        if (_userHasPassword)
+          TextField(
+            controller: _altLoginCurrentPasswordController,
+            obscureText: true,
+            decoration: InputDecoration(
+              labelText: tr.settings_alternative_login_current_password,
+              border: const OutlineInputBorder(),
+            ),
+          ),
+        if (_userHasPassword) const SizedBox(height: 12),
+        TextField(
+          controller: _altLoginPasswordController,
+          obscureText: true,
+          decoration: InputDecoration(
+            labelText: tr.mobile_login_password,
+            border: const OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 12),
+        TextField(
+          controller: _altLoginConfirmController,
+          obscureText: true,
+          decoration: InputDecoration(
+            labelText: tr.settings_alternative_login_confirm_password,
+            border: const OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 12),
+        FilledButton(
+          onPressed: _savingAlternativeLogin ? null : () => _saveAlternativeLogin(session),
+          child: _savingAlternativeLogin
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : Text(
+                  _userHasPassword
+                      ? tr.settings_alternative_login_update
+                      : tr.settings_add_credentials,
+                ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _saveAlternativeLogin(MainApiSession? session) async {
+    if (session == null || session.isExpired) {
+      return;
+    }
+
+    final email = _altLoginEmailController.text.trim();
+    final password = _altLoginPasswordController.text;
+    final confirm = _altLoginConfirmController.text;
+    if (email.isEmpty || password.isEmpty) {
+      _showSnack(context.tr.settings_alternative_login_missing_fields);
+      return;
+    }
+    if (password != confirm) {
+      _showSnack(context.tr.settings_alternative_login_password_mismatch);
+      return;
+    }
+
+    setState(() => _savingAlternativeLogin = true);
+    try {
+      final config = await MainApiSettingsStore.loadConfig();
+      final client = MainApiClient(
+        baseUrl: config.baseUrl,
+        accessToken: session.accessToken,
+      );
+      final profile = await MainApiCredentialsAuthService.setCredentials(
+        client: client,
+        email: email,
+        password: password,
+        currentPassword: _userHasPassword
+            ? _altLoginCurrentPasswordController.text
+            : null,
+      );
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _userHasPassword = profile['has_password'] == true;
+        _userEmail = (profile['email'] ?? email).toString();
+        _altLoginPasswordController.clear();
+        _altLoginConfirmController.clear();
+        _altLoginCurrentPasswordController.clear();
+      });
+      _showSnack(context.tr.settings_credentials_saved);
+    } on MainApiCredentialsAuthException catch (error) {
+      _showSnack(error.message);
+    } catch (error) {
+      _showSnack(_formatErrorMessage(error));
+    } finally {
+      if (mounted) {
+        setState(() => _savingAlternativeLogin = false);
+      }
+    }
   }
 
   Widget _buildMobileLocalHostingCard() {

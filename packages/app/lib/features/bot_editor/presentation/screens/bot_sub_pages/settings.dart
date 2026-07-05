@@ -18,6 +18,7 @@ import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:bot_creator/core/utils/responsive.dart';
@@ -55,6 +56,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   String _appVersion = '';
   String? _runnerVersion;
   String _runtimeEngine = runtimeEngineDart;
+  bool _isSwitchingRuntimeEngine = false;
   // Lavalink fields
   final TextEditingController _lavalinkHostController = TextEditingController();
   final TextEditingController _lavalinkPortController = TextEditingController();
@@ -77,6 +79,59 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     'watching',
     'competing',
   ];
+
+  bool get _supportsManagerRuntime =>
+      !kIsWeb &&
+      !Platform.isWindows &&
+      !Platform.isLinux &&
+      !Platform.isMacOS;
+
+  Future<void> _onRuntimeEngineChanged(String? value) async {
+    if (value == null || value == _runtimeEngine || _isSwitchingRuntimeEngine) {
+      return;
+    }
+
+    final confirm = await AppTheme.showConfirmDialog(
+      context,
+      title: context.tr.settings_runtime_engine_switch_dialog_title,
+      content: context.tr.settings_runtime_engine_switch_dialog_desc,
+      confirmLabel: context.tr.settings_runtime_engine_switch_dialog_confirm,
+      isDestructive: true,
+    );
+    if (confirm != true || !mounted) {
+      return;
+    }
+
+    final botId = widget.client.user.id.toString();
+    setState(() => _isSwitchingRuntimeEngine = true);
+
+    try {
+      await switchBotRuntimeEngine(
+        botId,
+        value,
+        supportsManagerRuntime: _supportsManagerRuntime,
+      );
+      if (!mounted) return;
+      setState(() => _runtimeEngine = value);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.tr.settings_runtime_engine_switch_success)),
+      );
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            context.tr.settings_runtime_engine_switch_error(error.toString()),
+          ),
+          backgroundColor: AppTheme.error,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isSwitchingRuntimeEngine = false);
+      }
+    }
+  }
 
   static const List<String> _presenceStatuses = <String>[
     'online',
@@ -1016,13 +1071,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     child: Text('JavaScript (runner-js)'),
                   ),
                 ],
-                onChanged: (value) async {
-                  if (value == null) return;
-                  final botId = widget.client.user.id.toString();
-                  await setBotRuntimeEngine(botId, value);
-                  if (!mounted) return;
-                  setState(() => _runtimeEngine = value);
-                },
+                onChanged: _isSwitchingRuntimeEngine ? null : _onRuntimeEngineChanged,
               ),
               const SizedBox(height: 24),
               const Divider(),

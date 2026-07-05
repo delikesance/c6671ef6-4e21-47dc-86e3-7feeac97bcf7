@@ -1,4 +1,6 @@
 import 'package:bot_creator/core/i18n/i18n.dart';
+import 'package:bot_creator/features/bot_editor/logic/discord_application_command_rules.dart';
+import 'package:bot_creator/features/bot_editor/logic/discord_command_validation_messages.dart';
 import 'package:flutter/widgets.dart';
 import 'package:nyxx/nyxx.dart';
 
@@ -21,6 +23,7 @@ String? validateOptionsForLevel(
   List<CommandOptionBuilder> options, {
   required int level,
   required CommandOptionType? parentType,
+  bool isPrefixCommand = false,
 }) {
   if (options.length > 25) {
     return context.tr.validation_option_max_entries;
@@ -46,6 +49,17 @@ String? validateOptionsForLevel(
     return context.tr.validation_option_subcommand_no_nested;
   }
 
+  if (!isPrefixCommand) {
+    final requiredOrderIssue = validateRequiredOptionsBeforeOptional(options);
+    final requiredOrderMessage = discordCommandValidationMessage(
+      context,
+      requiredOrderIssue,
+    );
+    if (requiredOrderMessage != null) {
+      return requiredOrderMessage;
+    }
+  }
+
   final seenNames = <String>{};
   for (final option in options) {
     final optionName = option.name.trim();
@@ -55,7 +69,19 @@ String? validateOptionsForLevel(
     if (!seenNames.add(optionName)) {
       return context.tr.validation_option_name_duplicate(optionName);
     }
-    if (option.description.trim().isEmpty) {
+
+    if (!isPrefixCommand) {
+      final nameIssue = validateChatInputOptionName(optionName);
+      final nameMessage = discordCommandValidationMessage(
+        context,
+        nameIssue,
+      );
+      if (nameMessage != null) {
+        return nameMessage;
+      }
+    }
+
+    if (!isPrefixCommand && option.description.trim().isEmpty) {
       return context.tr.validation_option_description_required;
     }
 
@@ -91,6 +117,7 @@ String? validateOptionsForLevel(
         nestedOptions,
         level: level + 1,
         parentType: CommandOptionType.subCommandGroup,
+        isPrefixCommand: isPrefixCommand,
       );
       if (nestedError != null) return nestedError;
     } else if (option.type == CommandOptionType.subCommand) {
@@ -99,6 +126,7 @@ String? validateOptionsForLevel(
         nestedOptions,
         level: level + 1,
         parentType: CommandOptionType.subCommand,
+        isPrefixCommand: isPrefixCommand,
       );
       if (nestedError != null) return nestedError;
     }

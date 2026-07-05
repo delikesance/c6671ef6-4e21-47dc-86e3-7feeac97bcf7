@@ -1626,7 +1626,7 @@ class AppLocalizationsJa extends AppLocalizations {
       'このバージョンを復元しますか？現在の設定は先にバックアップされます。';
 
   @override
-  String get bot_config_versions_restored => '設定が正常に復元されました！';
+  String get bot_config_versions_restored => '設定をローカルとクラウドの両方に復元しました。';
 
   @override
   String get bot_config_versions_error => 'バージョンの読み込みに失敗しました';
@@ -2706,6 +2706,18 @@ class AppLocalizationsJa extends AppLocalizations {
   String get command_import_tooltip => 'コマンドペイロードをインポート';
 
   @override
+  String get command_discord_rules_message_hint =>
+      'メッセージコマンドはメッセージのコンテキストメニューに表示されます。名前はスペースと大文字小文字の混在が可能です（1-32文字）。Discordでは説明は使用しません。';
+
+  @override
+  String get command_discord_rules_slash_hint =>
+      'スラッシュコマンドはDiscordに登録されます。名前は小文字（1-32文字）が必要です。説明は必須（1-100文字）。名前・説明・オプションの合計は8000文字以内です。';
+
+  @override
+  String get command_discord_rules_user_hint =>
+      'ユーザーコマンドはユーザーのコンテキストメニューに表示されます。名前はスペースと大文字小文字の混在が可能です（1-32文字）。Discordでは説明は使用しません。';
+
+  @override
   String get command_info_desc => '基本メタデータと利用可能性';
 
   @override
@@ -2722,30 +2734,30 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get command_legacy_mode_subtitle =>
-      '位置オプションを使用します (例: !config #channel)。';
+      'ボットのプレフィックスでチャットから実行します（例: !config #channel）。';
 
   @override
-  String get command_legacy_mode_title => 'このコマンドでレガシーモードを有効にする';
+  String get command_legacy_mode_title => 'このコマンドでプレフィックスモードを有効にする';
 
   @override
   String get command_legacy_prefix_desc =>
-      'messageCreateから<prefix><command>でコマンドを処理します。';
+      'messageCreateで<prefix><command>としてトリガーされます。';
 
   @override
-  String get command_legacy_prefix_title => 'レガシープレフィックスモード';
+  String get command_legacy_prefix_title => 'プレフィックスコマンドモード';
 
   @override
   String get command_legacy_preset_desc =>
-      '内部待機コールバックトリガーを生成し、このコマンドを必要なローカルレガシー設定に切り替えます。';
+      'ローカルのみのプレフィックスコマンド用に内部待機コールバックトリガーを生成します。';
 
   @override
-  String get command_legacy_preset_title => 'レガシープリセット';
+  String get command_legacy_preset_title => 'プレフィックスプリセット';
 
   @override
-  String get command_legacy_response_label => 'レガシー応答モード';
+  String get command_legacy_response_label => 'プレフィックス応答モード';
 
   @override
-  String get command_modal_disabled_legacy => 'モーダルはレガシーモードでは無効です。';
+  String get command_modal_disabled_legacy => 'モーダルはプレフィックスモードでは無効です。';
 
   @override
   String get command_name_generated => '待機コールバックプリセットによって生成されました。';
@@ -2757,7 +2769,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get command_not_found => 'コマンドが見つかりません';
 
   @override
-  String get command_options_legacy_params => 'レガシー位置パラメータ (順序: 必須、次にオプション)';
+  String get command_options_legacy_params => 'プレフィックス位置パラメータ（順序: 必須、次にオプション）';
 
   @override
   String get command_options_slash_params => 'スラッシュコマンドパラメータ';
@@ -2767,6 +2779,10 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get command_payload_hint => 'コマンドペイロード';
+
+  @override
+  String get command_prefix_rules_hint =>
+      'プレフィックスコマンドはチャットメッセージ（例: !ping）から実行され、Discordには登録されません。Discordのスラッシュルールは適用されません。説明は任意です。';
 
   @override
   String get command_permissions_admin_warning =>
@@ -2838,7 +2854,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get command_type_label => 'コマンドタイプ';
 
   @override
-  String get command_type_legacy => 'レガシーコマンド';
+  String get command_type_legacy => 'プレフィックスコマンド';
 
   @override
   String get command_type_locked => 'コマンドタイプは作成後に変更できません。';
@@ -5481,7 +5497,8 @@ class AppLocalizationsJa extends AppLocalizations {
   String get option_name_duplicate => 'この名前は既にこのレベルで使用されています';
 
   @override
-  String get option_name_invalid_chars => 'オプション名には英数字とアンダースコアのみ使用できます';
+  String get option_name_invalid_chars =>
+      'オプション名は1-32文字の小文字である必要があります。使用可能: 文字、数字、ハイフン、アンダースコア、アポストロフィ。';
 
   @override
   String get option_name_invalid_start => 'オプション名がサポートされていない文字で始まっています';
@@ -5740,7 +5757,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get review_info_title => '情報';
 
   @override
-  String get review_legacy_mode => 'レガシーモード有効';
+  String get review_legacy_mode => 'プレフィックスモード有効';
 
   @override
   String get review_local_only => 'ローカルのみのコマンド';
@@ -6223,11 +6240,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settings_account_status_disconnected => '未サインイン';
 
   @override
-  String get mobile_account_required_title => 'Sign in with Discord';
+  String get mobile_account_required_title => 'Sign in';
 
   @override
-  String get mobile_account_required_body =>
-      'On mobile, a Discord account is required to use Bot Creator. Your bots, hosted applications, and subscriptions are tied to this account and can be recovered on a new phone.';
+  String get mobile_account_required_body => 'Sign in with Discord or email.';
 
   @override
   String get mobile_account_required_feature_bots =>
@@ -6245,6 +6261,74 @@ class AppLocalizationsJa extends AppLocalizations {
   String mobile_account_required_failed(String error) {
     return 'Discord sign-in failed: $error';
   }
+
+  @override
+  String get mobile_login_or_divider => 'or';
+
+  @override
+  String get mobile_login_show_email => 'Sign in with email';
+
+  @override
+  String get mobile_login_hide_email => 'Hide email sign-in';
+
+  @override
+  String get mobile_login_email_title => 'Sign in with email';
+
+  @override
+  String get mobile_login_email_hint =>
+      'Use the email and password linked to your account.';
+
+  @override
+  String get mobile_login_email => 'Email';
+
+  @override
+  String get mobile_login_password => 'Password';
+
+  @override
+  String get mobile_login_submit => 'Sign in';
+
+  @override
+  String get mobile_login_invalid_credentials => 'Invalid email or password.';
+
+  @override
+  String mobile_login_failed(String error) {
+    return 'Sign-in failed: $error';
+  }
+
+  @override
+  String get settings_alternative_login_title => 'Alternative sign-in';
+
+  @override
+  String get settings_alternative_login_desc =>
+      'Add an email and password to sign in without Discord.';
+
+  @override
+  String settings_alternative_login_current_email(String email) {
+    return 'Current email: $email';
+  }
+
+  @override
+  String get settings_alternative_login_current_password => 'Current password';
+
+  @override
+  String get settings_alternative_login_confirm_password => 'Confirm password';
+
+  @override
+  String get settings_alternative_login_update => 'Update credentials';
+
+  @override
+  String get settings_add_credentials => 'Save credentials';
+
+  @override
+  String get settings_alternative_login_missing_fields =>
+      'Email and password are required.';
+
+  @override
+  String get settings_alternative_login_password_mismatch =>
+      'Passwords do not match.';
+
+  @override
+  String get settings_credentials_saved => 'Alternative sign-in saved.';
 
   @override
   String get settings_ads_privacy_loading => '広告プライバシー設定を確認中...';
@@ -7578,15 +7662,24 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get validation_awaited_callback_local_only =>
-      '待機コールバックにはローカルのみのレガシーコマンドが必要です。';
+      '待機コールバックにはローカルのみのプレフィックスコマンドが必要です。';
 
   @override
   String get validation_command_name_invalid_chars =>
-      'コマンド名には英数字とアンダースコアのみ使用できます';
+      'スラッシュ名は1-32文字の小文字である必要があります。使用可能: 文字、数字、ハイフン、アンダースコア、アポストロフィ。';
 
   @override
   String validation_command_name_length(int max) {
     return 'コマンド名は最大 $max 文字です';
+  }
+
+  @override
+  String get validation_command_name_must_be_lowercase =>
+      'スラッシュ名は小文字のバリアントがある場合は小文字を使用する必要があります。';
+
+  @override
+  String validation_command_payload_too_large(int current, int max) {
+    return 'このスラッシュコマンドはDiscordの$max文字制限を超えています（$current文字使用）。名前、説明、オプション、または選択肢を短くしてください。';
   }
 
   @override
@@ -7630,7 +7723,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get validation_legacy_chat_input_only =>
-      'レガシーモードはチャット入力コマンドでのみ利用可能です。';
+      'プレフィックスモードはチャット入力コマンドでのみ利用可能です。';
 
   @override
   String get validation_legacy_only_new_or_local =>
@@ -7638,7 +7731,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get validation_legacy_only_requires_legacy =>
-      'レガシー専用コマンドにはレガシーモードが有効である必要があります。';
+      'ローカルのみのコマンドにはプレフィックスモードが有効である必要があります。';
 
   @override
   String get validation_modal_not_legacy => 'モーダル応答はレガシーコマンドモードではサポートされていません。';
@@ -7677,6 +7770,14 @@ class AppLocalizationsJa extends AppLocalizations {
   String validation_option_name_duplicate(String name) {
     return '同じレベルに重複したオプション名 \"$name\" があります。';
   }
+
+  @override
+  String get validation_option_name_must_be_lowercase =>
+      'オプション名は小文字のバリアントがある場合は小文字を使用する必要があります。';
+
+  @override
+  String get validation_option_required_before_optional =>
+      '必須オプションは任意オプションより前に配置する必要があります。';
 
   @override
   String get validation_option_name_required => 'すべてのオプションに名前が必要です。';
@@ -8297,6 +8398,25 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String get settings_runtime_engine_switch_dialog_title => 'ランタイムエンジンを変更しますか？';
+
+  @override
+  String get settings_runtime_engine_switch_dialog_desc =>
+      'これは破壊的な操作です。\n\n• ローカルデータを削除する前に、設定がクラウドにバックアップされます。\n• 変更はボットを再起動するまで反映されません。\n• ローカルのコマンド、ワークフロー、スケジュールトリガーがすべて削除されます。\n• Discordに登録されたコマンドもすべて削除されます。\n\nバージョン履歴からすべて復元できます（ローカルにも自動復元）。';
+
+  @override
+  String get settings_runtime_engine_switch_dialog_confirm => 'エンジンを変更';
+
+  @override
+  String get settings_runtime_engine_switch_success =>
+      'ランタイムエンジンを更新しました。準備ができたらボットを再起動してください。';
+
+  @override
+  String settings_runtime_engine_switch_error(String error) {
+    return 'ランタイムエンジンの変更に失敗しました: $error';
+  }
+
+  @override
   String get app_create_select_type_title => 'アプリケーションの種類を選択';
 
   @override
@@ -8693,6 +8813,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String container_hosted_minutes_available(int minutes) {
     return 'ホスティング$minutes分利用可能（累積可能）。';
   }
+
+  @override
+  String get container_hosted_resume_with_time =>
+      'You still have hosting time on this container. Tap Start to resume.';
 
   @override
   String container_hosted_watch_ad_earn(int reward) {

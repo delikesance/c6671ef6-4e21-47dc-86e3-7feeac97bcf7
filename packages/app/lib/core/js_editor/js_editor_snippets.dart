@@ -76,7 +76,7 @@ const defaultJsAutocompleteScript =
     'const focused = interaction.options.getFocused(true);\n'
     'const query = String(focused.value ?? "");\n\n'
     'await interaction.respond([\n'
-    '  { name: `Suggestion for ${query || "..."}`, value: query || "default" },\n'
+    r'  { name: `Suggestion for ${query || "..."}`, value: query || "default" },' '\n'
     ']);';
 
 const jsAutocompleteSnippets = <JsEditorSnippet>[

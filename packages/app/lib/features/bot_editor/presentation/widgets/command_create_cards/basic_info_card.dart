@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
+import 'package:bot_creator/features/bot_editor/logic/discord_command_validation_messages.dart';
 
 class BasicInfoCard extends StatefulWidget {
   final String commandName;
@@ -231,6 +232,38 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
     }
     return 'slash';
   }
+
+  String _rulesHintText() {
+    if (widget.isLegacyCommand) {
+      return context.tr.command_prefix_rules_hint;
+    }
+    if (widget.commandType == ApplicationCommandType.user) {
+      return context.tr.command_discord_rules_user_hint;
+    }
+    if (widget.commandType == ApplicationCommandType.message) {
+      return context.tr.command_discord_rules_message_hint;
+    }
+    return context.tr.command_discord_rules_slash_hint;
+  }
+
+  Widget _buildRulesBanner(ColorScheme colorScheme) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: colorScheme.outlineVariant),
+      ),
+      child: Text(
+        _rulesHintText(),
+        style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
+      ),
+    );
+  }
+
+  bool get _descriptionRequired =>
+      widget.showDescriptionField && !widget.isLegacyCommand;
 
   bool get _canUseAwaitedPreset =>
       widget.isLegacyCommand ||
@@ -488,6 +521,8 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
               context.tr.command_info_desc,
               style: TextStyle(fontSize: 12, color: AppTheme.grey),
             ),
+            const SizedBox(height: 10),
+            _buildRulesBanner(Theme.of(context).colorScheme),
             const SizedBox(height: 12),
             LayoutBuilder(
               builder: (context, innerConstraints) {
@@ -499,7 +534,7 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                   validator: widget.nameValidator,
                   maxLength: widget.nameMaxLength,
                   decoration: InputDecoration(
-                    labelText: context.tr.command_name_label,
+                    labelText: requiredFieldLabel(context.tr.command_name_label),
                     border: const OutlineInputBorder(),
                     helperText:
                         _awaitedPresetEnabled
@@ -564,6 +599,13 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                   minLines: 1,
                   keyboardType: TextInputType.multiline,
                   validator: (value) {
+                    if (!_descriptionRequired) {
+                      if (value != null &&
+                          value.length > 100) {
+                        return context.tr.command_description_length;
+                      }
+                      return null;
+                    }
                     if (value == null || value.isEmpty) {
                       return context.tr.command_description_required;
                     }
@@ -574,7 +616,9 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                   },
                   initialValue: widget.commandDescription,
                   decoration: InputDecoration(
-                    labelText: context.tr.common_description,
+                    labelText: _descriptionRequired
+                        ? requiredFieldLabel(context.tr.common_description)
+                        : context.tr.common_description,
                     border: OutlineInputBorder(),
                   ),
                   onChanged: widget.onDescriptionChanged,

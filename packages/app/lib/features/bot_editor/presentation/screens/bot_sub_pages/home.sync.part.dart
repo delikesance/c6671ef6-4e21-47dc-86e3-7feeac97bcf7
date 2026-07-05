@@ -233,6 +233,11 @@ extension _AppHomePageSync on _AppHomePageState {
       // 5. Apply merge
       appendBotDebugLog('[_pullFromRemote] Applying merge...');
       await _applyMerge(botId, diff, remoteCommands);
+      await applyManagerWorkflowsToLocal(
+        appManager: appManager,
+        botId: botId,
+        remoteConfig: remoteConfig,
+      );
 
       // 6. Update app metadata
       final app = await appManager.getApp(botId);

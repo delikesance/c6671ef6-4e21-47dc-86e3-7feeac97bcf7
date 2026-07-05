@@ -10,6 +10,8 @@ import 'package:bot_creator/core/models/types/variable_suggestion.dart';
 import 'package:bot_creator/core/widgets/variable_text_field.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/js_editor/js_editor_snippets.dart';
+import 'package:bot_creator/features/bot_editor/logic/discord_application_command_rules.dart';
+import 'package:bot_creator/features/bot_editor/logic/discord_command_validation_messages.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/js_editor_page.dart';
 
@@ -18,6 +20,7 @@ class OptionWidget extends StatefulWidget {
   final List<CommandOptionBuilder>? initialOptions;
   final String? botIdForConfig;
   final List<VariableSuggestion> variableSuggestions;
+  final bool isPrefixCommand;
 
   const OptionWidget({
     super.key,
@@ -25,6 +28,7 @@ class OptionWidget extends StatefulWidget {
     this.initialOptions,
     this.botIdForConfig,
     this.variableSuggestions = const <VariableSuggestion>[],
+    this.isPrefixCommand = false,
   });
 
   @override
@@ -277,22 +281,20 @@ class OptionWidgetState extends State<OptionWidget> {
       return context.tr.option_name_required;
     }
 
-    if (value.length > 32) {
-      return context.tr.option_name_max_length;
-    }
-
-    if (value.contains(RegExp(r'[^a-zA-Z0-9_]'))) {
-      return context.tr.option_name_invalid_chars;
-    }
-
-    if (value.startsWith('_') ||
-        value.startsWith('!') ||
-        value.startsWith('/') ||
-        value.startsWith('#') ||
-        value.startsWith('@') ||
-        value.startsWith('&') ||
-        value.startsWith('%')) {
-      return context.tr.option_name_invalid_start;
+    if (widget.isPrefixCommand) {
+      if (value.length > discordCommandNameMaxLength) {
+        return context.tr.option_name_max_length;
+      }
+    } else {
+      final issue = validateChatInputOptionName(value);
+      final message = discordCommandValidationMessage(
+        context,
+        issue,
+        maxLength: discordCommandNameMaxLength,
+      );
+      if (message != null) {
+        return message;
+      }
     }
 
     var duplicates = 0;
@@ -381,7 +383,9 @@ class OptionWidgetState extends State<OptionWidget> {
                     children: <Widget>[
                       TextFormField(
                         decoration: InputDecoration(
-                          labelText: context.tr.common_name,
+                          labelText: widget.isPrefixCommand
+                              ? context.tr.common_name
+                              : requiredFieldLabel(context.tr.common_name),
                           border: OutlineInputBorder(),
                         ),
                         initialValue: option.name,
@@ -399,7 +403,9 @@ class OptionWidgetState extends State<OptionWidget> {
                       const SizedBox(height: 8),
                       TextFormField(
                         decoration: InputDecoration(
-                          labelText: context.tr.common_description,
+                          labelText: widget.isPrefixCommand
+                              ? context.tr.common_description
+                              : requiredFieldLabel(context.tr.common_description),
                           border: OutlineInputBorder(),
                         ),
                         maxLength: 100,
@@ -407,6 +413,12 @@ class OptionWidgetState extends State<OptionWidget> {
                         minLines: 1,
                         initialValue: option.description,
                         validator: (String? value) {
+                          if (widget.isPrefixCommand) {
+                            if (value != null && value.length > 100) {
+                              return context.tr.command_description_length;
+                            }
+                            return null;
+                          }
                           if (value == null || value.isEmpty) {
                             return context.tr.option_desc_required;
                           }

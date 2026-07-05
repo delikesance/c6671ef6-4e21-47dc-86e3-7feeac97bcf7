@@ -42,7 +42,8 @@ class MainApiConfig {
 
 enum MainApiAuthMethod {
   discordOauth('discord_oauth'),
-  botToken('bot_token');
+  botToken('bot_token'),
+  emailPassword('email_password');
 
   const MainApiAuthMethod(this.storageValue);
 
@@ -54,6 +55,8 @@ enum MainApiAuthMethod {
         return MainApiAuthMethod.discordOauth;
       case 'bot_token':
         return MainApiAuthMethod.botToken;
+      case 'email_password':
+        return MainApiAuthMethod.emailPassword;
       default:
         return null;
     }
@@ -175,7 +178,7 @@ class MainApiSettingsStore {
           final accessToken = _normalize(json['accessToken']?.toString());
           final expiresAt = _normalize(json['expiresAt']?.toString());
           if (accessToken != null && expiresAt != null) {
-            return MainApiSession.fromJson(json);
+            return _loadAndMigrateSession(MainApiSession.fromJson(json));
           }
         }
       }
@@ -197,7 +200,7 @@ class MainApiSettingsStore {
       return null;
     }
 
-    final session = MainApiSession.fromJson(json);
+    final session = await _loadAndMigrateSession(MainApiSession.fromJson(json));
     try {
       final secure = await SecureStorageService.instance;
       await secure.write('main_api_session', jsonEncode(session.toJson()));
@@ -227,9 +230,19 @@ class MainApiSettingsStore {
     );
   }
 
+  static Future<void> saveEmailPasswordSession(MainApiSession session) {
+    return saveSession(
+      session.copyWith(
+        authMethod: MainApiAuthMethod.emailPassword,
+        refreshToken: null,
+      ),
+    );
+  }
+
   static Future<void> saveBotTokenSession(MainApiSession session) async {
     final existing = await loadSession();
-    if (existing?.authMethod == MainApiAuthMethod.discordOauth) {
+    if (existing?.authMethod == MainApiAuthMethod.discordOauth ||
+        (existing?.refreshToken?.trim().isNotEmpty ?? false)) {
       return saveSession(
         session.copyWith(authMethod: MainApiAuthMethod.discordOauth),
       );
@@ -237,6 +250,17 @@ class MainApiSettingsStore {
     return saveSession(
       session.copyWith(authMethod: MainApiAuthMethod.botToken),
     );
+  }
+
+  static Future<void> saveRefreshedSession(MainApiSession session) async {
+    final existing = await loadSession();
+    final authMethod =
+        existing?.authMethod ??
+        ((existing?.refreshToken?.trim().isNotEmpty ?? false)
+            ? MainApiAuthMethod.discordOauth
+            : null) ??
+        session.authMethod;
+    return saveSession(session.copyWith(authMethod: authMethod));
   }
 
   static Future<void> clearSession() async {
@@ -262,6 +286,16 @@ class MainApiSettingsStore {
     await prefs.remove(_configKey);
     await prefs.remove(_sessionKey);
   }
+
+  static Future<MainApiSession> _loadAndMigrateSession(
+    MainApiSession session,
+  ) async {
+    final migrated = _finalizeLoadedSession(session);
+    if (migrated.authMethod != session.authMethod) {
+      await saveSession(migrated);
+    }
+    return migrated;
+  }
 }
 
 Map<String, dynamic>? _decodeJsonMap(String? raw) {
@@ -282,4 +316,15 @@ Map<String, dynamic>? _decodeJsonMap(String? raw) {
 String? _normalize(String? value) {
   final trimmed = value?.trim() ?? '';
   return trimmed.isEmpty ? null : trimmed;
+}
+
+MainApiSession _finalizeLoadedSession(MainApiSession session) {
+  if (session.authMethod == MainApiAuthMethod.emailPassword) {
+    return session;
+  }
+  if (session.authMethod == null &&
+      (session.refreshToken?.trim().isNotEmpty ?? false)) {
+    return session.copyWith(authMethod: MainApiAuthMethod.discordOauth);
+  }
+  return session;
 }

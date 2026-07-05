@@ -22,6 +22,8 @@ import 'package:bot_creator/features/bot_editor/logic/app_emoji_api.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
+import 'package:bot_creator/features/bot_editor/logic/discord_application_command_rules.dart';
+import 'package:bot_creator/features/bot_editor/logic/discord_command_validation_messages.dart';
 import 'package:bot_creator/core/network/runner_kind.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:bot_creator/features/bot_editor/logic/command_variable_catalog.dart';
@@ -315,7 +317,9 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   bool get _isAwaitedCallbackCommand => _isAwaitedCallbackTrigger(_commandName);
 
   bool get _requiresCommandDescription =>
-      _supportsCommandDescription && !_isAwaitedCallbackCommand;
+      _supportsCommandDescription &&
+      !_legacyModeEnabled &&
+      !_isAwaitedCallbackCommand;
 
   String get _effectiveCommandDescription =>
       _supportsCommandDescription ? _commandDescription : '';
@@ -1350,6 +1354,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
               initialOptions: _options,
               botIdForConfig: _botIdForConfig,
               variableSuggestions: _actionVariableSuggestions,
+              isPrefixCommand: _legacyModeEnabled,
               onChange: (options) {
                 _hasUnsavedChanges = true;
                 _syncNotifier();

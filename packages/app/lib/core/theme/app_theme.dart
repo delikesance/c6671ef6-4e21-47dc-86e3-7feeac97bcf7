@@ -220,6 +220,8 @@ abstract final class AppTheme {
       // ── Filled Buttons ──
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
+          backgroundColor: brandPrimary,
+          foregroundColor: Colors.white,
           shape: buttonShape,
           padding: const EdgeInsets.symmetric(
             horizontal: spacingLg,
@@ -334,6 +336,8 @@ abstract final class AppTheme {
       // ── Filled Buttons ──
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
+          backgroundColor: brandPrimary,
+          foregroundColor: Colors.white,
           shape: buttonShape,
           padding: const EdgeInsets.symmetric(
             horizontal: spacingLg,

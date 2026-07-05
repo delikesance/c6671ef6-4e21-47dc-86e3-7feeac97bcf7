@@ -579,9 +579,7 @@ class MainApiClient implements RemoteRuntimeClient {
       final publicClient = MainApiClient(baseUrl: _baseUrl, httpClient: _http, timeout: _timeout);
       final existing = await MainApiSettingsStore.loadSession();
       final newSession = await publicClient.refreshSession(refreshToken: refreshToken);
-      await MainApiSettingsStore.saveSession(
-        newSession.copyWith(authMethod: existing?.authMethod),
-      );
+      await MainApiSettingsStore.saveRefreshedSession(newSession);
       debugPrint('[MainApiClient] Session refreshed successfully.');
       return newSession.accessToken;
     } catch (e) {
@@ -676,6 +674,33 @@ class MainApiClient implements RemoteRuntimeClient {
       'refreshToken': refreshToken,
     }, includeAuth: false);
     return _sessionFromAuthPayload(json);
+  }
+
+  Future<MainApiSession> loginWithEmailPassword({
+    required String email,
+    required String password,
+  }) async {
+    final json = await _post('/auth/login', <String, dynamic>{
+      'email': email.trim(),
+      'password': password,
+    }, includeAuth: false);
+    return _sessionFromAuthPayload(
+      json,
+      authMethod: MainApiAuthMethod.emailPassword,
+    );
+  }
+
+  Future<Map<String, dynamic>> setCredentials({
+    required String email,
+    required String password,
+    String? currentPassword,
+  }) async {
+    return _post('/auth/credentials', <String, dynamic>{
+      'email': email.trim(),
+      'password': password,
+      if (currentPassword != null && currentPassword.isNotEmpty)
+        'current_password': currentPassword,
+    });
   }
 
   Future<Map<String, dynamic>> getCurrentUser() async {
@@ -1375,7 +1400,10 @@ class MainApiClient implements RemoteRuntimeClient {
         const MainApiClientException('No compatible API route found.');
   }
 
-  MainApiSession _sessionFromAuthPayload(Map<String, dynamic> json) {
+  MainApiSession _sessionFromAuthPayload(
+    Map<String, dynamic> json, {
+    MainApiAuthMethod? authMethod,
+  }) {
     final tokens = _extractMap(json, <String>['tokens']) ?? json;
     final user =
         _extractMap(json, <String>['user']) ??
@@ -1460,6 +1488,7 @@ class MainApiClient implements RemoteRuntimeClient {
             <String>['username', 'global_name', 'name', 'display_name'],
           ),
       scopes: scopes,
+      authMethod: authMethod,
     );
   }
 
