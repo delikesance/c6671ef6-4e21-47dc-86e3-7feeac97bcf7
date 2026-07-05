@@ -102,6 +102,11 @@ class HostedAppFreeHostingBanner extends StatelessWidget {
     return context.tr.container_hosted_expires_at(formatted);
   }
 
+  bool get _hasRemainingContainerTime {
+    if (expiresAt == null) return false;
+    return expiresAt!.toUtc().isAfter(DateTime.now().toUtc());
+  }
+
   @override
   Widget build(BuildContext context) {
     final tr = context.tr;
@@ -109,6 +114,7 @@ class HostedAppFreeHostingBanner extends StatelessWidget {
     final minutes = eligibility.hostingMinutesBalance;
     final reward = eligibility.adRewardMinutes;
     final expiry = _formatExpiry(context);
+    final hasRemainingTime = _hasRemainingContainerTime;
 
     return Card(
       color: Colors.teal.withValues(alpha: 0.08),
@@ -145,6 +151,8 @@ class HostedAppFreeHostingBanner extends StatelessWidget {
             Text(
               showTopUpHint
                   ? tr.container_hosted_topup_ad_hint(reward)
+                  : hasRemainingTime
+                  ? tr.container_hosted_resume_with_time
                   : atLimit
                   ? tr.container_hosted_at_limit_open_detail(
                       eligibility.activeContainers,

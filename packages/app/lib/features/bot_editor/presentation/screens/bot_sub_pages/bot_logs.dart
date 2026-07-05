@@ -444,34 +444,6 @@ class _BotLogsPageState extends State<BotLogsPage> {
                         ),
                       ),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surfaceContainer,
-                          borderRadius: BorderRadius.circular(
-                            AppTheme.radiusSm,
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.memory, size: 18),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                '${context.tr.bot_logs_ram(memoryText)} • '
-                                '${context.tr.bot_logs_ram_estimated(estimatedText)}',
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Padding(
                       padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
                       child: Container(
                         width: double.infinity,

@@ -1721,7 +1721,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get bot_config_versions_restored =>
-      'Yapılandırma başarıyla geri yüklendi!';
+      'Yapılandırma yerel olarak ve bulutta geri yüklendi.';
 
   @override
   String get bot_config_versions_error => 'Sürümler yüklenemedi';
@@ -2854,6 +2854,18 @@ class AppLocalizationsTr extends AppLocalizations {
   String get command_import_tooltip => 'Komut yükünü içe aktar';
 
   @override
+  String get command_discord_rules_message_hint =>
+      'Mesaj komutları bir mesajın bağlam menüsünde görünür. Ad boşluk ve büyük/küçük harf içerebilir (1-32 karakter). Discord açıklama kullanmaz.';
+
+  @override
+  String get command_discord_rules_slash_hint =>
+      'Slash komutları Discord\'a kaydedilir. Ad küçük harf olmalıdır (1-32 karakter). Açıklama zorunludur (1-100 karakter). Ad, açıklama ve seçenekler toplamı 8000 karakteri aşamaz.';
+
+  @override
+  String get command_discord_rules_user_hint =>
+      'Kullanıcı komutları bir kullanıcının bağlam menüsünde görünür. Ad boşluk ve büyük/küçük harf içerebilir (1-32 karakter). Discord açıklama kullanmaz.';
+
+  @override
   String get command_info_desc => 'Temel meta veriler ve kullanılabilirlik';
 
   @override
@@ -2870,31 +2882,31 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get command_legacy_mode_subtitle =>
-      'Konumsal seçenekleri kullanır (örnek: !config #kanal).';
+      'Bot ön ekiyle sohbetten çalıştırılır (örnek: !config #kanal).';
 
   @override
-  String get command_legacy_mode_title => 'Bu komutta eski modu etkinleştir';
+  String get command_legacy_mode_title => 'Bu komutta ön ek modunu etkinleştir';
 
   @override
   String get command_legacy_prefix_desc =>
-      'messageCreate\'den gelen komutları <on_ek><komut> kullanarak işler.';
+      'messageCreate ile <on_ek><komut> olarak tetiklenir.';
 
   @override
-  String get command_legacy_prefix_title => 'Eski Ön Ek Modu';
+  String get command_legacy_prefix_title => 'Ön Ek Komut Modu';
 
   @override
   String get command_legacy_preset_desc =>
-      'Dahili bir beklenen geri arama tetikleyicisi oluşturun ve bu komutu gerekli yerel eski kuruluma geçirin.';
+      'Yalnızca yerel bir ön ek komutu için dahili beklenen geri arama tetikleyicisi oluşturun.';
 
   @override
-  String get command_legacy_preset_title => 'Eski ön ayar';
+  String get command_legacy_preset_title => 'Ön ek ön ayarı';
 
   @override
-  String get command_legacy_response_label => 'Eski yanıt modu';
+  String get command_legacy_response_label => 'Ön ek yanıt modu';
 
   @override
   String get command_modal_disabled_legacy =>
-      'Modallar eski modda devre dışıdır.';
+      'Modallar ön ek modunda devre dışıdır.';
 
   @override
   String get command_name_generated =>
@@ -2908,7 +2920,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get command_options_legacy_params =>
-      'Eski konumsal parametreler (sıralı: önce gerekli, sonra isteğe bağlı)';
+      'Ön ek konumsal parametreler (sıralı: önce gerekli, sonra isteğe bağlı)';
 
   @override
   String get command_options_slash_params => 'Eğik çizgi komut parametreleri';
@@ -2918,6 +2930,10 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get command_payload_hint => 'Komut yükü';
+
+  @override
+  String get command_prefix_rules_hint =>
+      'Ön ek komutları sohbet mesajlarından çalışır (ör. !ping) ve Discord\'a kaydedilmez. Discord slash kuralları geçerli değildir. Açıklama isteğe bağlıdır.';
 
   @override
   String get command_permissions_admin_warning =>
@@ -2995,7 +3011,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get command_type_label => 'Komut Türü';
 
   @override
-  String get command_type_legacy => 'Eski Komut';
+  String get command_type_legacy => 'Ön Ek Komutu';
 
   @override
   String get command_type_locked =>
@@ -5720,7 +5736,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get option_name_invalid_chars =>
-      'Seçenek adı yalnızca harf, sayı ve alt çizgi içerebilir';
+      'Seçenek adları 1-32 küçük harf karakter olmalıdır. İzin verilenler: harfler, rakamlar, tire, alt çizgi ve kesme işareti.';
 
   @override
   String get option_name_invalid_start =>
@@ -5992,7 +6008,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get review_info_title => 'Bilgi';
 
   @override
-  String get review_legacy_mode => 'Eski mod etkin';
+  String get review_legacy_mode => 'Ön ek modu etkin';
 
   @override
   String get review_local_only => 'Yalnızca yerel komut';
@@ -6492,11 +6508,10 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settings_account_status_disconnected => 'Giriş yapılmadı';
 
   @override
-  String get mobile_account_required_title => 'Sign in with Discord';
+  String get mobile_account_required_title => 'Sign in';
 
   @override
-  String get mobile_account_required_body =>
-      'On mobile, a Discord account is required to use Bot Creator. Your bots, hosted applications, and subscriptions are tied to this account and can be recovered on a new phone.';
+  String get mobile_account_required_body => 'Sign in with Discord or email.';
 
   @override
   String get mobile_account_required_feature_bots =>
@@ -6514,6 +6529,74 @@ class AppLocalizationsTr extends AppLocalizations {
   String mobile_account_required_failed(String error) {
     return 'Discord sign-in failed: $error';
   }
+
+  @override
+  String get mobile_login_or_divider => 'or';
+
+  @override
+  String get mobile_login_show_email => 'Sign in with email';
+
+  @override
+  String get mobile_login_hide_email => 'Hide email sign-in';
+
+  @override
+  String get mobile_login_email_title => 'Sign in with email';
+
+  @override
+  String get mobile_login_email_hint =>
+      'Use the email and password linked to your account.';
+
+  @override
+  String get mobile_login_email => 'Email';
+
+  @override
+  String get mobile_login_password => 'Password';
+
+  @override
+  String get mobile_login_submit => 'Sign in';
+
+  @override
+  String get mobile_login_invalid_credentials => 'Invalid email or password.';
+
+  @override
+  String mobile_login_failed(String error) {
+    return 'Sign-in failed: $error';
+  }
+
+  @override
+  String get settings_alternative_login_title => 'Alternative sign-in';
+
+  @override
+  String get settings_alternative_login_desc =>
+      'Add an email and password to sign in without Discord.';
+
+  @override
+  String settings_alternative_login_current_email(String email) {
+    return 'Current email: $email';
+  }
+
+  @override
+  String get settings_alternative_login_current_password => 'Current password';
+
+  @override
+  String get settings_alternative_login_confirm_password => 'Confirm password';
+
+  @override
+  String get settings_alternative_login_update => 'Update credentials';
+
+  @override
+  String get settings_add_credentials => 'Save credentials';
+
+  @override
+  String get settings_alternative_login_missing_fields =>
+      'Email and password are required.';
+
+  @override
+  String get settings_alternative_login_password_mismatch =>
+      'Passwords do not match.';
+
+  @override
+  String get settings_credentials_saved => 'Alternative sign-in saved.';
 
   @override
   String get settings_ads_privacy_loading =>
@@ -7926,15 +8009,24 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get validation_awaited_callback_local_only =>
-      'Beklenen geri aramalar (awaited callbacks) yerel-özel Eski Komut gerektirir.';
+      'Beklenen geri aramalar yalnızca yerel bir Ön Ek Komutu gerektirir.';
 
   @override
   String get validation_command_name_invalid_chars =>
-      'Komut adı yalnızca harf, sayı ve alt çizgi içerebilir';
+      'Slash adları 1-32 küçük harf karakter olmalıdır. İzin verilenler: harfler, rakamlar, tire, alt çizgi ve kesme işareti.';
 
   @override
   String validation_command_name_length(int max) {
     return 'Komut adı en fazla $max karakter uzunluğunda olmalıdır';
+  }
+
+  @override
+  String get validation_command_name_must_be_lowercase =>
+      'Slash adları küçük harf varyantı varsa küçük harf kullanmalıdır.';
+
+  @override
+  String validation_command_payload_too_large(int current, int max) {
+    return 'Bu slash komutu Discord\'un $max karakter sınırını aşıyor ($current kullanıldı). Adları, açıklamaları, seçenekleri veya seçimleri kısaltın.';
   }
 
   @override
@@ -7984,7 +8076,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get validation_legacy_chat_input_only =>
-      'Eski mod yalnızca sohbet girişi (chat input) komutları için kullanılabilir.';
+      'Ön ek modu yalnızca sohbet girişi (chat input) komutları için kullanılabilir.';
 
   @override
   String get validation_legacy_only_new_or_local =>
@@ -7992,7 +8084,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get validation_legacy_only_requires_legacy =>
-      'Yalnızca eski komutlar için eski modun etkinleştirilmesi gerekir.';
+      'Yalnızca yerel komutlar için ön ek modunun etkinleştirilmesi gerekir.';
 
   @override
   String get validation_modal_not_legacy =>
@@ -8034,6 +8126,14 @@ class AppLocalizationsTr extends AppLocalizations {
   String validation_option_name_duplicate(String name) {
     return 'Aynı seviyede yinelenen seçenek adı \"$name\".';
   }
+
+  @override
+  String get validation_option_name_must_be_lowercase =>
+      'Seçenek adları küçük harf varyantı varsa küçük harf kullanmalıdır.';
+
+  @override
+  String get validation_option_required_before_optional =>
+      'Zorunlu seçenekler isteğe bağlı seçeneklerden önce listelenmelidir.';
 
   @override
   String get validation_option_name_required =>
@@ -8671,6 +8771,26 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String get settings_runtime_engine_switch_dialog_title =>
+      'Çalışma zamanı motoru değiştirilsin mi?';
+
+  @override
+  String get settings_runtime_engine_switch_dialog_desc =>
+      'Bu yıkıcı bir işlemdir.\n\n• Yerel veriler silinmeden önce yapılandırmanız buluta yedeklenir.\n• Değişiklik yalnızca botu yeniden başlattıktan sonra geçerli olur.\n• Tüm yerel komutlar, iş akışları ve zamanlanmış tetikleyiciler kaldırılacak.\n• Discord\'a kayıtlı tüm komutlar da silinecek.\n\nHer şeyi Sürüm Geçmişi\'nden geri yükleyebilirsiniz (yerel olarak otomatik geri yükleme).';
+
+  @override
+  String get settings_runtime_engine_switch_dialog_confirm => 'Motoru değiştir';
+
+  @override
+  String get settings_runtime_engine_switch_success =>
+      'Çalışma zamanı motoru güncellendi. Hazır olduğunuzda botu yeniden başlatın.';
+
+  @override
+  String settings_runtime_engine_switch_error(String error) {
+    return 'Çalışma zamanı motoru değiştirilemedi: $error';
+  }
+
+  @override
   String get app_create_select_type_title => 'Uygulama Türünü Seçin';
 
   @override
@@ -9081,6 +9201,10 @@ class AppLocalizationsTr extends AppLocalizations {
   String container_hosted_minutes_available(int minutes) {
     return '$minutes dk barindirma kullanilabilir (birikir).';
   }
+
+  @override
+  String get container_hosted_resume_with_time =>
+      'You still have hosting time on this container. Tap Start to resume.';
 
   @override
   String container_hosted_watch_ad_earn(int reward) {

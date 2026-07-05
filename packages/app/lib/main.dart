@@ -27,6 +27,9 @@ import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/features/ads/logic/ad_consent_service.dart';
 import 'package:bot_creator/features/ads/logic/ad_native_service.dart';
 import 'package:bot_creator/features/ads/logic/ad_reward_service.dart';
+import 'package:bot_creator/core/auth/mobile_account_gate.dart';
+import 'package:bot_creator/core/auth/mobile_account_session.dart';
+import 'package:bot_creator/core/network/main_api_session_restore.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
@@ -174,6 +177,10 @@ Future<void> _bootstrapAndRunApp() async {
     initRunnerAutoReload();
     final prefs = await SharedPreferences.getInstance();
     final onboardingManager = OnboardingManager(prefs);
+
+    if (MobileAccountGate.isRequired) {
+      await restoreMainApiSessionIfNeeded();
+    }
 
     runApp(
       PostHogWidget(
@@ -357,41 +364,17 @@ Future<void> _restorePersistedMainApiSession() async {
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
     return;
   }
-  final config = await MainApiSettingsStore.loadConfig();
-  final session = await MainApiSettingsStore.loadSession();
-  if (session == null) {
-    return;
-  }
 
-  if (session.isExpired && session.refreshToken == null) {
-    await MainApiSettingsStore.clearSession();
-    return;
-  }
-
-  final refreshToken = session.refreshToken?.trim() ?? '';
-  if (refreshToken.isEmpty || !session.expiresSoon()) {
-    return;
-  }
-
-  final client = MainApiClient(
-    baseUrl: config.baseUrl,
-    timeout: const Duration(seconds: 6),
-  );
   try {
-    final refreshedSession = await client.refreshSession(
-      refreshToken: refreshToken,
-    );
-    final existing = await MainApiSettingsStore.loadSession();
-    await MainApiSettingsStore.saveSession(
-      refreshedSession.copyWith(authMethod: existing?.authMethod),
-    );
-    await AppDiagnostics.logInfo(
-      'Main API session restored from refresh token on startup',
-      data: <String, Object?>{
-        'sessionExpired': session.isExpired,
-        'expiresAt': refreshedSession.expiresAt.toUtc().toIso8601String(),
-      },
-    );
+    final session = await restoreMainApiSessionIfNeeded();
+    if (session != null) {
+      await AppDiagnostics.logInfo(
+        'Main API session restored from refresh token on startup',
+        data: <String, Object?>{
+          'expiresAt': session.expiresAt.toUtc().toIso8601String(),
+        },
+      );
+    }
   } catch (error, stack) {
     await AppDiagnostics.logError(
       'Main API session restore failed on startup',
@@ -399,6 +382,10 @@ Future<void> _restorePersistedMainApiSession() async {
       stack,
       fatal: false,
     );
+  }
+
+  if (MobileAccountGate.isRequired) {
+    await MobileAccountSession.instance.recheck();
   }
 }
 

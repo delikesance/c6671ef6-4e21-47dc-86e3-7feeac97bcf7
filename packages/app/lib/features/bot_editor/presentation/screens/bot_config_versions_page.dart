@@ -1,6 +1,7 @@
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot_config_import.dart';
 import 'package:flutter/material.dart';
 
 import 'package:bot_creator/main.dart' show appManager;
@@ -243,6 +244,27 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
       );
       if (!mounted) return;
       if (success) {
+        final remoteConfig = await client.getBotConfig(widget.botId);
+        if (remoteConfig['inboundWebhooks'] is bool) {
+          remoteConfig.remove('inboundWebhooks');
+        }
+        final localApp = await appManager.getApp(widget.botId);
+        if (localApp['avatar'] != null && remoteConfig['avatar'] == null) {
+          remoteConfig['avatar'] = localApp['avatar'];
+        }
+        if (localApp['name'] != null && remoteConfig['name'] == null) {
+          remoteConfig['name'] = localApp['name'];
+        }
+        final token = (localApp['token'] ?? widget.botToken).toString().trim();
+        if (token.isNotEmpty) {
+          remoteConfig['token'] = token;
+        }
+        await applyManagerConfigToLocal(
+          appManager: appManager,
+          botId: widget.botId,
+          remoteConfig: remoteConfig,
+        );
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(context.tr.bot_config_versions_restored),

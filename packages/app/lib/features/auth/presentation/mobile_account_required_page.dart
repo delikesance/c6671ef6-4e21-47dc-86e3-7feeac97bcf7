@@ -4,6 +4,8 @@ import 'package:bot_creator/core/network/main_api_auth_service.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/core/auth/mobile_account_session.dart';
+import 'package:bot_creator/features/auth/presentation/mobile_email_login_form.dart';
 import 'package:flutter/material.dart';
 
 class MobileAccountRequiredPage extends StatefulWidget {
@@ -18,6 +20,7 @@ class MobileAccountRequiredPage extends StatefulWidget {
 
 class _MobileAccountRequiredPageState extends State<MobileAccountRequiredPage> {
   bool _connecting = false;
+  bool _emailLoginExpanded = false;
 
   Future<void> _connectDiscord() async {
     if (_connecting) {
@@ -76,87 +79,76 @@ class _MobileAccountRequiredPageState extends State<MobileAccountRequiredPage> {
                 children: [
                   Icon(
                     Icons.account_circle_outlined,
-                    size: 72,
+                    size: 56,
                     color: colorScheme.primary,
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
                   Text(
                     tr.mobile_account_required_title,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                   Text(
                     tr.mobile_account_required_body,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: colorScheme.onSurfaceVariant,
-                      height: 1.45,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 28),
-                  _FeatureRow(
-                    icon: Icons.smart_toy_outlined,
-                    text: tr.mobile_account_required_feature_bots,
-                  ),
-                  const SizedBox(height: 12),
-                  _FeatureRow(
-                    icon: Icons.storage_rounded,
-                    text: tr.mobile_account_required_feature_hosted,
-                  ),
-                  const SizedBox(height: 12),
-                  _FeatureRow(
-                    icon: Icons.phone_android_outlined,
-                    text: tr.mobile_account_required_feature_recovery,
-                  ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
                   FilledButton.icon(
                     onPressed: _connecting ? null : _connectDiscord,
                     icon: _connecting
                         ? const SizedBox(
                             width: 18,
                             height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
                           )
                         : const Icon(Icons.login),
                     label: Text(tr.settings_account_connect_label),
                     style: FilledButton.styleFrom(
                       backgroundColor: AppTheme.brandPrimary,
+                      foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
                   ),
+                  const SizedBox(height: 8),
+                  TextButton(
+                    onPressed: _connecting
+                        ? null
+                        : () => setState(
+                          () => _emailLoginExpanded = !_emailLoginExpanded,
+                        ),
+                    child: Text(
+                      _emailLoginExpanded
+                          ? tr.mobile_login_hide_email
+                          : tr.mobile_login_show_email,
+                    ),
+                  ),
+                  if (_emailLoginExpanded)
+                    MobileEmailLoginForm(
+                      busy: _connecting,
+                      compact: true,
+                      onSuccess: () async {
+                        await MobileAccountSession.instance.recheck();
+                        if (!mounted) {
+                          return;
+                        }
+                        widget.onConnected();
+                      },
+                    ),
                 ],
               ),
             ),
           ),
         ),
       ),
-    );
-  }
-}
-
-class _FeatureRow extends StatelessWidget {
-  const _FeatureRow({required this.icon, required this.text});
-
-  final IconData icon;
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, size: 22, color: Theme.of(context).colorScheme.primary),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            text,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.35),
-          ),
-        ),
-      ],
     );
   }
 }

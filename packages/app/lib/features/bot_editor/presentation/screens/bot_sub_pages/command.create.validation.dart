@@ -5,7 +5,13 @@ extension _CommandCreateValidation on _CommandCreatePageState {
     List<CommandOptionBuilder> options, {
     required int level,
     required CommandOptionType? parentType,
-  }) => validateOptionsForLevel(context, options, level: level, parentType: parentType);
+  }) => validateOptionsForLevel(
+    context,
+    options,
+    level: level,
+    parentType: parentType,
+    isPrefixCommand: _legacyModeEnabled,
+  );
 
   String? _validateName(String? value) {
     final normalized = (value ?? '').trim();
@@ -29,37 +35,28 @@ extension _CommandCreateValidation on _CommandCreatePageState {
       return context.tr.validation_awaited_callback_format;
     }
 
-    if (normalized.length > _commandNameMaxLength) {
-      return context.tr.validation_command_name_length(_commandNameMaxLength);
+    if (_legacyModeEnabled) {
+      final issue = validatePrefixCommandNameFormat(
+        normalized,
+        maxLength: _commandNameMaxLength,
+      );
+      return discordCommandValidationMessage(
+        context,
+        issue,
+        maxLength: _commandNameMaxLength,
+      );
     }
-    if (normalized.contains(' ')) {
-      return context.tr.validation_command_name_no_spaces;
-    }
-    if (normalized.contains(RegExp(r'[^a-zA-Z0-9_]'))) {
-      return context.tr.validation_command_name_invalid_chars;
-    }
-    if (normalized.startsWith('_')) {
-      return context.tr.validation_command_name_no_underscore;
-    }
-    if (normalized.startsWith('!')) {
-      return context.tr.validation_command_name_no_exclamation;
-    }
-    if (normalized.startsWith('/')) {
-      return context.tr.validation_command_name_no_slash;
-    }
-    if (normalized.startsWith('#')) {
-      return context.tr.validation_command_name_no_hash;
-    }
-    if (normalized.startsWith('@')) {
-      return context.tr.validation_command_name_no_at;
-    }
-    if (normalized.startsWith('&')) {
-      return context.tr.validation_command_name_no_ampersand;
-    }
-    if (normalized.startsWith('%')) {
-      return context.tr.validation_command_name_no_percent;
-    }
-    return null;
+
+    final issue = validateCommandName(
+      _commandType,
+      normalized,
+      isPrefixCommand: false,
+    );
+    return discordCommandValidationMessage(
+      context,
+      issue,
+      maxLength: _commandNameMaxLength,
+    );
   }
 
   Future<bool> _validateCommandInputs() async {
@@ -80,6 +77,91 @@ extension _CommandCreateValidation on _CommandCreatePageState {
             ),
       );
       return false;
+    }
+
+    if (!_legacyModeEnabled && _requiresCommandDescription) {
+      final descriptionIssue = validateDescriptionValue(
+        _commandDescription,
+        required: true,
+      );
+      final descriptionError = discordCommandValidationMessage(
+        context,
+        descriptionIssue,
+      );
+      if (descriptionError != null) {
+        showDialog(
+          context: context,
+          builder:
+              (context) => AlertDialog(
+                title: Text(context.tr.error),
+                content: Text(descriptionError),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text(context.tr.ok),
+                  ),
+                ],
+              ),
+        );
+        return false;
+      }
+    } else if (_supportsCommandDescription && _legacyModeEnabled) {
+      final descriptionIssue = validateDescriptionValue(
+        _commandDescription,
+        required: false,
+      );
+      final descriptionError = discordCommandValidationMessage(
+        context,
+        descriptionIssue,
+      );
+      if (descriptionError != null) {
+        showDialog(
+          context: context,
+          builder:
+              (context) => AlertDialog(
+                title: Text(context.tr.error),
+                content: Text(descriptionError),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text(context.tr.ok),
+                  ),
+                ],
+              ),
+        );
+        return false;
+      }
+    }
+
+    if (_supportsCommandOptions && !_legacyModeEnabled) {
+      final payloadSize = computeSlashCommandPayloadSize(
+        name: _commandName.trim(),
+        description: _commandDescription.trim(),
+        options: _effectiveOptions,
+      );
+      final payloadIssue = validateSlashCommandPayloadSize(payloadSize);
+      final payloadError = discordCommandValidationMessage(
+        context,
+        payloadIssue,
+        payloadSize: payloadSize,
+      );
+      if (payloadError != null) {
+        showDialog(
+          context: context,
+          builder:
+              (context) => AlertDialog(
+                title: Text(context.tr.error),
+                content: Text(payloadError),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text(context.tr.ok),
+                  ),
+                ],
+              ),
+        );
+        return false;
+      }
     }
 
     if (_supportsCommandOptions) {

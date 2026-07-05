@@ -1749,7 +1749,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get bot_config_versions_restored =>
-      'Konfiguration erfolgreich wiederhergestellt!';
+      'Konfiguration lokal und in der Cloud wiederhergestellt.';
 
   @override
   String get bot_config_versions_error => 'Fehler beim Laden der Versionen';
@@ -2893,6 +2893,18 @@ class AppLocalizationsDe extends AppLocalizations {
   String get command_import_tooltip => 'Befehlsnutzlast importieren';
 
   @override
+  String get command_discord_rules_message_hint =>
+      'Nachrichtenbefehle erscheinen im Kontextmenü einer Nachricht. Der Name darf Leerzeichen und Groß-/Kleinschreibung enthalten (1-32 Zeichen). Discord verwendet keine Beschreibung.';
+
+  @override
+  String get command_discord_rules_slash_hint =>
+      'Slash-Befehle werden auf Discord registriert. Namen müssen kleingeschrieben sein (1-32 Zeichen). Beschreibung ist erforderlich (1-100 Zeichen). Name, Beschreibung und Optionen zusammen dürfen 8000 Zeichen nicht überschreiten.';
+
+  @override
+  String get command_discord_rules_user_hint =>
+      'Benutzerbefehle erscheinen im Kontextmenü eines Benutzers. Der Name darf Leerzeichen und Groß-/Kleinschreibung enthalten (1-32 Zeichen). Discord verwendet keine Beschreibung.';
+
+  @override
   String get command_info_desc => 'Grundlegende Metadaten und Verfügbarkeit';
 
   @override
@@ -2910,32 +2922,32 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get command_legacy_mode_subtitle =>
-      'Verwendet positionsabhängige Optionen (Beispiel: !config #kanal).';
+      'Wird im Chat mit dem Bot-Präfix ausgeführt (Beispiel: !config #kanal).';
 
   @override
   String get command_legacy_mode_title =>
-      'Legacy-Modus für diesen Befehl aktivieren';
+      'Präfix-Modus für diesen Befehl aktivieren';
 
   @override
   String get command_legacy_prefix_desc =>
-      'Behandelt Befehle aus messageCreate unter Verwendung von <präfix><befehl>.';
+      'Wird über messageCreate mit <präfix><befehl> ausgelöst.';
 
   @override
-  String get command_legacy_prefix_title => 'Legacy-Präfix-Modus';
+  String get command_legacy_prefix_title => 'Präfix-Befehl-Modus';
 
   @override
   String get command_legacy_preset_desc =>
-      'Generieren Sie einen internen Auslöser für einen erwarteten Callback und schalten Sie diesen Befehl auf das erforderliche lokale Legacy-Setup um.';
+      'Internen Auslöser für einen erwarteten Callback für einen rein lokalen Präfix-Befehl generieren.';
 
   @override
-  String get command_legacy_preset_title => 'Legacy-Voreinstellung';
+  String get command_legacy_preset_title => 'Präfix-Voreinstellung';
 
   @override
-  String get command_legacy_response_label => 'Legacy-Antwortmodus';
+  String get command_legacy_response_label => 'Präfix-Antwortmodus';
 
   @override
   String get command_modal_disabled_legacy =>
-      'Modals sind im Legacy-Modus deaktiviert.';
+      'Modals sind im Präfix-Modus deaktiviert.';
 
   @override
   String get command_name_generated =>
@@ -2949,7 +2961,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get command_options_legacy_params =>
-      'Legacy positionsabhängige Parameter (sortiert: erforderlich, dann optional)';
+      'Präfix positionsabhängige Parameter (sortiert: erforderlich, dann optional)';
 
   @override
   String get command_options_slash_params => 'Slash-Befehl-Parameter';
@@ -2961,8 +2973,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get command_payload_hint => 'Befehlsnutzlast';
 
   @override
+  String get command_prefix_rules_hint =>
+      'Präfix-Befehle werden über Chat-Nachrichten ausgeführt (z. B. !ping) und nicht auf Discord registriert. Discord-Slash-Regeln gelten nicht. Beschreibung ist optional.';
+
+  @override
   String get command_permissions_admin_warning =>
-      'Administrator ausgewählt: Dies umgeht andere Berechtigungsprüfungen.';
+      'Administrator selected: this bypasses other permission checks.';
 
   @override
   String get command_permissions_bitfield =>
@@ -3037,7 +3053,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get command_type_label => 'Befehlstyp';
 
   @override
-  String get command_type_legacy => 'Legacy-Befehl';
+  String get command_type_legacy => 'Präfix-Befehl';
 
   @override
   String get command_type_locked =>
@@ -5777,7 +5793,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get option_name_invalid_chars =>
-      'Der Name der Option darf nur Buchstaben, Zahlen und Unterstriche enthalten';
+      'Optionsnamen müssen 1-32 Kleinbuchstaben sein. Erlaubt: Buchstaben, Zahlen, Bindestriche, Unterstriche und Apostrophe.';
 
   @override
   String get option_name_invalid_start =>
@@ -6048,7 +6064,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get review_info_title => 'Info';
 
   @override
-  String get review_legacy_mode => 'Legacy-Modus aktiviert';
+  String get review_legacy_mode => 'Präfix-Modus aktiviert';
 
   @override
   String get review_local_only => 'Nur lokaler Befehl';
@@ -6553,11 +6569,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settings_account_status_disconnected => 'Nicht angemeldet';
 
   @override
-  String get mobile_account_required_title => 'Sign in with Discord';
+  String get mobile_account_required_title => 'Sign in';
 
   @override
-  String get mobile_account_required_body =>
-      'On mobile, a Discord account is required to use Bot Creator. Your bots, hosted applications, and subscriptions are tied to this account and can be recovered on a new phone.';
+  String get mobile_account_required_body => 'Sign in with Discord or email.';
 
   @override
   String get mobile_account_required_feature_bots =>
@@ -6575,6 +6590,74 @@ class AppLocalizationsDe extends AppLocalizations {
   String mobile_account_required_failed(String error) {
     return 'Discord sign-in failed: $error';
   }
+
+  @override
+  String get mobile_login_or_divider => 'or';
+
+  @override
+  String get mobile_login_show_email => 'Sign in with email';
+
+  @override
+  String get mobile_login_hide_email => 'Hide email sign-in';
+
+  @override
+  String get mobile_login_email_title => 'Sign in with email';
+
+  @override
+  String get mobile_login_email_hint =>
+      'Use the email and password linked to your account.';
+
+  @override
+  String get mobile_login_email => 'Email';
+
+  @override
+  String get mobile_login_password => 'Password';
+
+  @override
+  String get mobile_login_submit => 'Sign in';
+
+  @override
+  String get mobile_login_invalid_credentials => 'Invalid email or password.';
+
+  @override
+  String mobile_login_failed(String error) {
+    return 'Sign-in failed: $error';
+  }
+
+  @override
+  String get settings_alternative_login_title => 'Alternative sign-in';
+
+  @override
+  String get settings_alternative_login_desc =>
+      'Add an email and password to sign in without Discord.';
+
+  @override
+  String settings_alternative_login_current_email(String email) {
+    return 'Current email: $email';
+  }
+
+  @override
+  String get settings_alternative_login_current_password => 'Current password';
+
+  @override
+  String get settings_alternative_login_confirm_password => 'Confirm password';
+
+  @override
+  String get settings_alternative_login_update => 'Update credentials';
+
+  @override
+  String get settings_add_credentials => 'Save credentials';
+
+  @override
+  String get settings_alternative_login_missing_fields =>
+      'Email and password are required.';
+
+  @override
+  String get settings_alternative_login_password_mismatch =>
+      'Passwords do not match.';
+
+  @override
+  String get settings_credentials_saved => 'Alternative sign-in saved.';
 
   @override
   String get settings_ads_privacy_loading =>
@@ -7984,15 +8067,24 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get validation_awaited_callback_local_only =>
-      'Erwartete Callbacks erfordern einen rein lokalen Legacy-Befehl.';
+      'Erwartete Callbacks erfordern einen rein lokalen Präfix-Befehl.';
 
   @override
   String get validation_command_name_invalid_chars =>
-      'Der Befehlsname darf nur Buchstaben, Zahlen und Unterstriche enthalten';
+      'Slash-Namen müssen 1-32 Kleinbuchstaben sein. Erlaubt: Buchstaben, Zahlen, Bindestriche, Unterstriche und Apostrophe.';
 
   @override
   String validation_command_name_length(int max) {
     return 'Der Befehlsname darf höchstens $max Zeichen lang sein';
+  }
+
+  @override
+  String get validation_command_name_must_be_lowercase =>
+      'Slash-Namen müssen Kleinbuchstaben verwenden, wenn eine Kleinbuchstaben-Variante existiert.';
+
+  @override
+  String validation_command_payload_too_large(int current, int max) {
+    return 'Dieser Slash-Befehl überschreitet Discords Limit von $max Zeichen ($current verwendet). Kürzen Sie Namen, Beschreibungen, Optionen oder Auswahlmöglichkeiten.';
   }
 
   @override
@@ -8044,7 +8136,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get validation_legacy_chat_input_only =>
-      'Der Legacy-Modus ist nur für Chat-Eingabebefehle verfügbar.';
+      'Der Präfix-Modus ist nur für Chat-Eingabebefehle verfügbar.';
 
   @override
   String get validation_legacy_only_new_or_local =>
@@ -8052,7 +8144,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get validation_legacy_only_requires_legacy =>
-      'Befehle im Modus \'Nur Legacy\' erfordern die Aktivierung des Legacy-Modus.';
+      'Nur-lokale Befehle erfordern die Aktivierung des Präfix-Modus.';
 
   @override
   String get validation_modal_not_legacy =>
@@ -8094,6 +8186,14 @@ class AppLocalizationsDe extends AppLocalizations {
   String validation_option_name_duplicate(String name) {
     return 'Doppelter Optionsname \"$name\" auf derselben Ebene.';
   }
+
+  @override
+  String get validation_option_name_must_be_lowercase =>
+      'Optionsnamen müssen Kleinbuchstaben verwenden, wenn eine Kleinbuchstaben-Variante existiert.';
+
+  @override
+  String get validation_option_required_before_optional =>
+      'Erforderliche Optionen müssen vor optionalen Optionen aufgeführt werden.';
 
   @override
   String get validation_option_name_required =>
@@ -8735,6 +8835,26 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get settings_runtime_engine_switch_dialog_title =>
+      'Laufzeit-Engine wechseln?';
+
+  @override
+  String get settings_runtime_engine_switch_dialog_desc =>
+      'Diese Aktion ist destruktiv.\n\n• Ihre Konfiguration wird in der Cloud gesichert, bevor lokale Daten gelöscht werden.\n• Die Änderung wird erst nach einem Neustart des Bots wirksam.\n• Alle lokalen Befehle, Workflows und geplanten Trigger werden entfernt.\n• Alle auf Discord registrierten Befehle werden ebenfalls gelöscht.\n\nSie können alles über den Versionsverlauf wiederherstellen (automatische lokale Wiederherstellung).';
+
+  @override
+  String get settings_runtime_engine_switch_dialog_confirm => 'Engine wechseln';
+
+  @override
+  String get settings_runtime_engine_switch_success =>
+      'Laufzeit-Engine aktualisiert. Starten Sie den Bot neu, wenn Sie bereit sind.';
+
+  @override
+  String settings_runtime_engine_switch_error(String error) {
+    return 'Engine-Wechsel fehlgeschlagen: $error';
+  }
+
+  @override
   String get app_create_select_type_title => 'Anwendungstyp auswählen';
 
   @override
@@ -9148,6 +9268,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String container_hosted_minutes_available(int minutes) {
     return '$minutes Hosting-Minuten verfügbar (stapelbar).';
   }
+
+  @override
+  String get container_hosted_resume_with_time =>
+      'You still have hosting time on this container. Tap Start to resume.';
 
   @override
   String container_hosted_watch_ad_earn(int reward) {
