@@ -8740,6 +8740,8 @@
   "embed_label_inline": "Em linha",
   "embed_label_thumbnail_url": "URL da Miniatura",
   "embed_label_timestamp": "Data/Hora (ISO8601)",
+  "embed_checkbox_current_timestamp": "Data/Hora atual",
+  "embed_hint_timestamp": "Mostra a hora atual quando o comando é executado. Para segundos Unix no texto, use ((timestamp)) nos campos de mensagem.",
   "embed_label_title": "Título",
   "embed_label_url": "URL",
   "embed_number": "Embed #{index}",

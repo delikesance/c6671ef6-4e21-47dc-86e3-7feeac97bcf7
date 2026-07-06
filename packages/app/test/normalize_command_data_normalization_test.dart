@@ -271,4 +271,39 @@ void main() {
       expect(data['actions'][0]['type'], 'respondWithMessage');
     });
   });
+
+  group('normalizeCommandData – javascript runner format', () {
+    test('maps script field to jsScriptContent and executionMode', () {
+      final command = {
+        'name': 'ping',
+        'type': 'command',
+        'id': 'cmd-1',
+        'description': 'Ping',
+        'script': "await interaction.reply('pong');",
+        'enabled': true,
+      };
+
+      final result = roundTrip(command);
+      final data = result['data'] as Map<String, dynamic>;
+
+      expect(data['jsScriptContent'], "await interaction.reply('pong');");
+      expect(data['executionMode'], 'javascript');
+      expect(data.containsKey('script'), isFalse);
+    });
+
+    test('preserves jsScriptContent through save round-trip', () {
+      final command = _makeCommand(
+        data: {
+          'executionMode': 'javascript',
+          'jsScriptContent': 'await interaction.reply("hi");',
+        },
+      );
+
+      final result = roundTrip(command);
+      final data = result['data'] as Map<String, dynamic>;
+
+      expect(data['jsScriptContent'], 'await interaction.reply("hi");');
+      expect(data['executionMode'], 'javascript');
+    });
+  });
 }

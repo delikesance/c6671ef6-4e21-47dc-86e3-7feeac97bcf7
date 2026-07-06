@@ -8921,6 +8921,19 @@
   "command_subcommand_workflow_desc": "Choose which subcommand you are configuring.",
   "command_subcommand_workflow_title": "SubCommand Workflow",
   "command_sync_failed_local": "Saved locally. Discord sync failed: {error}",
+  "command_cloud_sync_failed_saved": "Saved on Discord and locally. Cloud backup failed.",
+  "command_cloud_sync_retry": "Retry sync",
+  "cmd_block_editor_empty_title": "No actions yet",
+  "cmd_block_editor_empty_hint": "Add an action block to define what your command does when it runs.",
+  "cmd_block_editor_add_action": "Add an action",
+  "cmd_block_editor_action_label": "Action {index}",
+  "@cmd_block_editor_action_label": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
   "command_target_subcommand": "Target subcommand",
   "command_type_label": "Command Type",
   "command_type_legacy": "Prefix Command",
@@ -9365,6 +9378,8 @@
   "embed_label_inline": "Inline",
   "embed_label_thumbnail_url": "Thumbnail URL",
   "embed_label_timestamp": "Timestamp (ISO8601)",
+  "embed_checkbox_current_timestamp": "Current Timestamp",
+  "embed_hint_timestamp": "Shows the current time when the command runs. For Unix seconds in text, use ((timestamp)) in message fields.",
   "embed_label_title": "Title",
   "embed_label_url": "URL",
   "embed_number": "Embed #{index}",

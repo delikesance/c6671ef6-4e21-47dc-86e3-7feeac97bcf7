@@ -5383,6 +5383,42 @@ abstract class AppLocalizations {
   /// **'Saved locally. Discord sync failed: {error}'**
   String command_sync_failed_local(String error);
 
+  /// No description provided for @command_cloud_sync_failed_saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved on Discord and locally. Cloud backup failed.'**
+  String get command_cloud_sync_failed_saved;
+
+  /// No description provided for @command_cloud_sync_retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry sync'**
+  String get command_cloud_sync_retry;
+
+  /// No description provided for @cmd_block_editor_empty_title.
+  ///
+  /// In en, this message translates to:
+  /// **'No actions yet'**
+  String get cmd_block_editor_empty_title;
+
+  /// No description provided for @cmd_block_editor_empty_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an action block to define what your command does when it runs.'**
+  String get cmd_block_editor_empty_hint;
+
+  /// No description provided for @cmd_block_editor_add_action.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an action'**
+  String get cmd_block_editor_add_action;
+
+  /// No description provided for @cmd_block_editor_action_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Action {index}'**
+  String cmd_block_editor_action_label(int index);
+
   /// Target subcommand
   ///
   /// In en, this message translates to:
@@ -8065,6 +8101,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Timestamp (ISO8601)'**
   String get embed_label_timestamp;
+
+  /// No description provided for @embed_checkbox_current_timestamp.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Timestamp'**
+  String get embed_checkbox_current_timestamp;
+
+  /// No description provided for @embed_hint_timestamp.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows the current time when the command runs. For Unix seconds in text, use ((timestamp)) in message fields.'**
+  String get embed_hint_timestamp;
 
   /// Title
   ///

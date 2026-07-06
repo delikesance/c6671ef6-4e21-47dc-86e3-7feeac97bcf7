@@ -543,7 +543,7 @@ class MainApiClient implements RemoteRuntimeClient {
   Map<String, dynamic> _parseResponse(http.Response response) {
     Map<String, dynamic> json;
     try {
-      final decoded = jsonDecode(response.body);
+      final decoded = _decodeUtf8Json(response);
       if (decoded is Map) {
         json = Map<String, dynamic>.from(decoded);
       } else if (decoded is List) {
@@ -566,6 +566,10 @@ class MainApiClient implements RemoteRuntimeClient {
     }
 
     return json;
+  }
+
+  dynamic _decodeUtf8Json(http.Response response) {
+    return jsonDecode(utf8.decode(response.bodyBytes));
   }
 
   Future<String?> _tryRefreshSession() async {
@@ -828,7 +832,7 @@ class MainApiClient implements RemoteRuntimeClient {
       await uploadFileToPresignedUrl(
         uploadUrl: ticket.uploadUrl,
         fileBytes: configJsonBytes,
-        contentType: 'application/json',
+        contentType: 'application/json; charset=utf-8',
       );
 
       // 3. Call sync endpoint with configUrl
@@ -1026,7 +1030,7 @@ class MainApiClient implements RemoteRuntimeClient {
           'Failed to download config: ${response.statusCode}',
         );
       }
-      final decoded = jsonDecode(response.body);
+      final decoded = _decodeUtf8Json(response);
       if (decoded is! Map) {
         throw const MainApiClientException('Invalid config format');
       }
@@ -1085,7 +1089,7 @@ class MainApiClient implements RemoteRuntimeClient {
           'Failed to download version config: ${response.statusCode}',
         );
       }
-      final decoded = jsonDecode(response.body);
+      final decoded = _decodeUtf8Json(response);
       if (decoded is! Map) {
         throw const MainApiClientException('Invalid version config format');
       }

@@ -8706,6 +8706,8 @@
   "embed_label_inline": "Nebeneinander",
   "embed_label_thumbnail_url": "Thumbnail-URL",
   "embed_label_timestamp": "Zeitstempel (ISO8601)",
+  "embed_checkbox_current_timestamp": "Aktueller Zeitstempel",
+  "embed_hint_timestamp": "Zeigt die aktuelle Uhrzeit beim Ausführen des Befehls. Für Unix-Sekunden im Text ((timestamp)) in Nachrichtenfeldern verwenden.",
   "embed_label_title": "Titel",
   "embed_label_url": "URL",
   "embed_number": "Embed #{index}",

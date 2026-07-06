@@ -937,10 +937,25 @@ class ActionCard extends StatelessWidget {
         ],
       ),
     ).then((result) {
-      if (result != null && result.isNotEmpty) {
-        onParameterChanged(paramKey, result);
-      }
+      if (result == null || result.isEmpty) return;
+      final current = (currentValue ?? '').toString();
+      final merged = _mergeVariableExpression(current, result);
+      onParameterChanged(paramKey, merged);
     });
+  }
+
+  String _mergeVariableExpression(String current, String picked) {
+    final expression = picked.trim();
+    if (expression.isEmpty) return current;
+    if (current.isEmpty) return expression;
+
+    final selectionEnd = current.length;
+    final before = current.substring(0, selectionEnd);
+    final after = current.substring(selectionEnd);
+    final needsLeadingSpace =
+        before.isNotEmpty && !before.endsWith(' ') && !before.endsWith('\n');
+    final prefix = needsLeadingSpace ? ' ' : '';
+    return '$before$prefix$expression$after';
   }
 
   /// Returns a compact [IconButton] for inserting variables via the

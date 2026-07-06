@@ -2848,6 +2848,28 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String get command_cloud_sync_failed_saved =>
+      'Saved on Discord and locally. Cloud backup failed.';
+
+  @override
+  String get command_cloud_sync_retry => 'Retry sync';
+
+  @override
+  String get cmd_block_editor_empty_title => 'No actions yet';
+
+  @override
+  String get cmd_block_editor_empty_hint =>
+      'Add an action block to define what your command does when it runs.';
+
+  @override
+  String get cmd_block_editor_add_action => 'Add an action';
+
+  @override
+  String cmd_block_editor_action_label(int index) {
+    return 'Action $index';
+  }
+
+  @override
   String get command_target_subcommand => '対象サブコマンド';
 
   @override
@@ -4336,6 +4358,13 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get embed_label_timestamp => 'タイムスタンプ';
+
+  @override
+  String get embed_checkbox_current_timestamp => '現在のタイムスタンプ';
+
+  @override
+  String get embed_hint_timestamp =>
+      'コマンド実行時の現在時刻を表示します。テキストでUnix秒を使う場合はメッセージ欄で((timestamp))を使用してください。';
 
   @override
   String get embed_label_title => 'タイトル';

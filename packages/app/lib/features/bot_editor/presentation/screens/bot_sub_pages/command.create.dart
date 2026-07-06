@@ -1320,6 +1320,21 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     }
   }
 
+  void _notifyCloudSyncFailed(String botId) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(context.tr.command_cloud_sync_failed_saved),
+        action: SnackBarAction(
+          label: context.tr.command_cloud_sync_retry,
+          onPressed: () {
+            unawaited(_syncCommandChangesToCloud(botId: botId));
+          },
+        ),
+      ),
+    );
+  }
+
   void _openDocumentationCenter() {
     Navigator.push(
       context,
@@ -1958,7 +1973,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
               name: 'CommandCreatePage',
             );
             if (!cloudSyncOk) {
-              throw Exception('Cloud sync failed.');
+              _notifyCloudSyncFailed(botId);
             }
           }
           // Delete the old temp-ID file if this was a local-only command
@@ -2040,7 +2055,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
               name: 'CommandCreatePage',
             );
             if (!cloudSyncOk) {
-              throw Exception('Cloud sync failed.');
+              _notifyCloudSyncFailed(botId);
             }
           }
         }

@@ -416,7 +416,8 @@ const List<CommandVariableCatalogEntry> commandBuiltinVariableCatalog =
       // ── Common context ──
       CommandVariableCatalogEntry(
         name: 'timestamp',
-        description: 'Current Unix timestamp in seconds.',
+        description:
+            'Current Unix timestamp in seconds (for message text). For Discord embed footers, use the Current Timestamp checkbox.',
         kind: VariableSuggestionKind.numeric,
       ),
       CommandVariableCatalogEntry(
