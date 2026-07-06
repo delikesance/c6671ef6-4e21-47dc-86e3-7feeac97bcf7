@@ -12,7 +12,9 @@ Map<String, dynamic> normalizeCommandData(Map<String, dynamic> command) {
   if (normalized['data'] == null &&
       (normalized['actions'] != null ||
           normalized['response'] != null ||
-          normalized['legacyPrefixOverride'] != null)) {
+          normalized['legacyPrefixOverride'] != null ||
+          normalized['script'] != null ||
+          normalized['type']?.toString() == 'command')) {
     final healedData = Map<String, dynamic>.from(normalized);
     normalized.clear();
     normalized['data'] = healedData;
@@ -108,13 +110,19 @@ Map<String, dynamic> normalizeCommandData(Map<String, dynamic> command) {
   const editorMode = 'advanced';
   final rawExecutionMode =
       (rawData['executionMode'] ?? 'workflow').toString().toLowerCase();
-  final executionMode = rawExecutionMode == 'bdfd_script'
+  var executionMode = rawExecutionMode == 'bdfd_script'
       ? 'bdfd_script'
       : rawExecutionMode == 'javascript'
           ? 'javascript'
           : 'workflow';
   final bdfdScriptContent = (rawData['bdfdScriptContent'] ?? '').toString();
-  final jsScriptContent = (rawData['jsScriptContent'] ?? '').toString();
+  final jsScriptContent = (rawData['jsScriptContent'] ?? rawData['script'] ?? '')
+      .toString();
+  if (jsScriptContent.isNotEmpty &&
+      executionMode == 'workflow' &&
+      (rawData.containsKey('script') || rawData['type'] == 'command')) {
+    executionMode = 'javascript';
+  }
   final legacyModeEnabled = rawData['legacyModeEnabled'] == true;
   final legacyLocalOnly = rawData['legacyLocalOnly'] == true;
   final legacyPrefixOverride =

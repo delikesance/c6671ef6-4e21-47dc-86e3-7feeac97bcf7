@@ -286,6 +286,11 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
     return keys.any((k) => (nested[k]?.toString() ?? '').isNotEmpty);
   }
 
+  bool _isCurrentTimestamp(String value) {
+    final normalized = value.trim().toLowerCase();
+    return normalized == 'now' || normalized == 'current';
+  }
+
   List<_EmbedMiniBlockType> _visibleBlocks(int index) {
     final embed = _normalizeEmbed(_embeds[index]);
     final forced = _expandedBlocks[index] ?? {};
@@ -521,12 +526,41 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
         );
 
       case _EmbedMiniBlockType.timestamp:
-        return VariableTextField(
-          label: context.tr.embed_label_timestamp,
-          initialValue: embed['timestamp']?.toString() ?? '',
-          suggestions: widget.variableSuggestions,
-          emojiSuggestions: widget.emojiSuggestions,
-          onChanged: (v) => _setEmbedValue(index, 'timestamp', v),
+        final timestampValue = embed['timestamp']?.toString() ?? '';
+        final useCurrentTimestamp = _isCurrentTimestamp(timestampValue);
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CheckboxListTile(
+              contentPadding: EdgeInsets.zero,
+              controlAffinity: ListTileControlAffinity.leading,
+              title: Text(context.tr.embed_checkbox_current_timestamp),
+              subtitle: Text(context.tr.embed_hint_timestamp),
+              value: useCurrentTimestamp,
+              onChanged: (checked) {
+                if (checked == true) {
+                  _setEmbedValue(index, 'timestamp', 'now');
+                } else {
+                  _setEmbedValue(index, 'timestamp', '');
+                }
+              },
+            ),
+            const SizedBox(height: 8),
+            IgnorePointer(
+              ignoring: useCurrentTimestamp,
+              child: Opacity(
+                opacity: useCurrentTimestamp ? 0.5 : 1,
+                child: VariableTextField(
+                  label: context.tr.embed_label_timestamp,
+                  initialValue:
+                      useCurrentTimestamp ? '' : timestampValue,
+                  suggestions: widget.variableSuggestions,
+                  emojiSuggestions: widget.emojiSuggestions,
+                  onChanged: (v) => _setEmbedValue(index, 'timestamp', v),
+                ),
+              ),
+            ),
+          ],
         );
 
       case _EmbedMiniBlockType.footer:

@@ -447,6 +447,11 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
       _bdfdScriptContent =
           (normalizedPayload['bdfdScriptContent'] ?? '').toString();
       _bdfdScriptController.text = _bdfdScriptContent;
+      _jsScriptContent = (normalizedPayload['jsScriptContent'] ??
+              normalizedPayload['script'] ??
+              '')
+          .toString();
+      _jsScriptController.text = _jsScriptContent;
 
       final persistedEditorMode =
           (normalizedPayload['editorMode'] ??

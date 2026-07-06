@@ -28,7 +28,7 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
     );
     final executionMode =
         (data['executionMode'] ?? 'workflow').toString().trim().toLowerCase();
-    var script = (data['jsScriptContent'] ?? '').toString();
+    var script = (data['jsScriptContent'] ?? data['script'] ?? '').toString();
     if (executionMode != 'javascript') {
       if (script.trim().isEmpty) {
         script = _synthesizeJsFromWorkflowActions(
@@ -60,7 +60,7 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
       continue;
     }
     final map = Map<String, dynamic>.from(endpoint);
-    final script = (map['jsScriptContent'] ?? '').toString();
+    final script = (map['jsScriptContent'] ?? map['script'] ?? '').toString();
     if (script.trim().isEmpty) {
       continue;
     }
@@ -81,7 +81,7 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
       continue;
     }
     final map = Map<String, dynamic>.from(trigger);
-    final script = (map['jsScriptContent'] ?? '').toString();
+    final script = (map['jsScriptContent'] ?? map['script'] ?? '').toString();
     if (script.trim().isEmpty) {
       continue;
     }
@@ -128,13 +128,7 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
 }
 
 Future<void> validateJsBotPayloadOrThrow(String botId) async {
-  final payload = await buildJsBotPayload(botId);
-  final commands = (payload['commands'] as List?) ?? const [];
-  if (commands.isEmpty) {
-    throw StateError(
-      'This JavaScript bot has no JavaScript commands. Add at least one command in JavaScript mode.',
-    );
-  }
+  await buildJsBotPayload(botId);
 }
 
 String? _synthesizeJsFromWorkflowActions(List<dynamic> actions) {

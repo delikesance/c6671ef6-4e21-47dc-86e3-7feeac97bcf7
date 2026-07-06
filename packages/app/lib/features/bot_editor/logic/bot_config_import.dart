@@ -16,6 +16,32 @@ List<Map<String, dynamic>> extractCommandListFromConfig(dynamic raw) {
   return const <Map<String, dynamic>>[];
 }
 
+String localCommandTypeFromRemote(
+  Map<String, dynamic> cmd,
+  Map<String, dynamic> cmdData,
+) {
+  final raw =
+      (cmdData['commandType'] ?? cmd['type'] ?? 'chatInput').toString().trim();
+  switch (raw.toLowerCase()) {
+    case 'command':
+    case 'chatinput':
+    case 'chat_input':
+    case 'chat-input':
+    case 'slash':
+      return 'chatInput';
+    case 'user':
+    case 'usercommand':
+    case 'user_command':
+      return 'user';
+    case 'message':
+    case 'messagecommand':
+    case 'message_command':
+      return 'message';
+    default:
+      return 'chatInput';
+  }
+}
+
 /// Overwrites local commands and workflows from a Manager config payload.
 Future<void> applyManagerConfigToLocal({
   required AppManager appManager,
@@ -50,7 +76,7 @@ Future<void> applyManagerConfigToLocal({
       await appManager.saveAppCommand(botId, cmdId, <String, dynamic>{
         'name': cmdName,
         'description': (cmd['description'] ?? '').toString(),
-        'type': cmdData['commandType'] ?? cmd['type'] ?? 'chatInput',
+        'type': localCommandTypeFromRemote(cmd, cmdData),
         'id': cmdId,
         'data': cmdData,
         'createdAt':

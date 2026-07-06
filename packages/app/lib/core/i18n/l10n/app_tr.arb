@@ -8707,6 +8707,8 @@
   "embed_label_inline": "Satır içi (Inline)",
   "embed_label_thumbnail_url": "Küçük Resim URL'si",
   "embed_label_timestamp": "Zaman Damgası (ISO8601)",
+  "embed_checkbox_current_timestamp": "Güncel Zaman Damgası",
+  "embed_hint_timestamp": "Komut çalıştırıldığında güncel saati gösterir. Metinde Unix saniyesi için mesaj alanlarında ((timestamp)) kullanın.",
   "embed_label_title": "Başlık",
   "embed_label_url": "URL",
   "embed_number": "Gömülü Mesaj #{index}",

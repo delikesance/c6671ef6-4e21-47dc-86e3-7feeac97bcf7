@@ -3040,6 +3040,28 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
+  String get command_cloud_sync_failed_saved =>
+      'Saved on Discord and locally. Cloud backup failed.';
+
+  @override
+  String get command_cloud_sync_retry => 'Retry sync';
+
+  @override
+  String get cmd_block_editor_empty_title => 'No actions yet';
+
+  @override
+  String get cmd_block_editor_empty_hint =>
+      'Add an action block to define what your command does when it runs.';
+
+  @override
+  String get cmd_block_editor_add_action => 'Add an action';
+
+  @override
+  String cmd_block_editor_action_label(int index) {
+    return 'Action $index';
+  }
+
+  @override
   String get command_target_subcommand => 'Subcomando alvo';
 
   @override
@@ -4585,6 +4607,13 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get embed_label_timestamp => 'Data/Hora (ISO8601)';
+
+  @override
+  String get embed_checkbox_current_timestamp => 'Data/Hora atual';
+
+  @override
+  String get embed_hint_timestamp =>
+      'Mostra a hora atual quando o comando é executado. Para segundos Unix no texto, use ((timestamp)) nos campos de mensagem.';
 
   @override
   String get embed_label_title => 'Título';

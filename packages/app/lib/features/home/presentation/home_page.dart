@@ -20,6 +20,8 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_config_import.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot_config_merge.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/bot_config_pull_dialog.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
 import 'package:bot_creator/features/bot_editor/logic/js_bot_payload_builder.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
@@ -1083,13 +1085,79 @@ class HomePageState extends State<HomePage>
               final existingToken = (app['token'] ?? token ?? '').toString().trim();
               remoteConfig['token'] = existingToken;
 
-              await applyManagerConfigToLocal(
-                appManager: appManager,
-                botId: botId,
-                remoteConfig: remoteConfig,
+              final localCommands = await appManager.listAppCommands(
+                botId,
+                forceRefresh: true,
+              );
+              final remoteCommands = extractCommandListFromConfig(
+                remoteConfig['commands'],
+              );
+              final diff = computeBotConfigMergeDiff(
+                localCommands,
+                remoteCommands,
+              );
+              final localNewer = botConfigLocalHasNewerEdits(
+                localCommands,
+                remoteCommands,
               );
 
-              appendBotDebugLog('[_toggleBot] Pre-launch config sync success for $botId');
+              if (!diff.hasChanges) {
+                appendBotDebugLog(
+                  '[_toggleBot] Pre-launch pull skipped: no remote updates'
+                  '${diff.localOnlyCount > 0 ? ' (local-only commands preserved)' : ''}'
+                  '${localNewer ? ' (local edits are newer)' : ''}',
+                );
+              } else if (localNewer || diff.localOnlyCount > 0) {
+                if (!mounted) return;
+                final confirmed = await showBotConfigPullConfirmDialog(
+                  context: context,
+                  diff: diff,
+                  remoteTimestamp: formatBotConfigTimestamp(remoteConfig),
+                  localTimestamp: await formatLocalBotConfigTimestamp(
+                    appManager,
+                    botId,
+                  ),
+                );
+                if (confirmed) {
+                  await applyManagerConfigToLocal(
+                    appManager: appManager,
+                    botId: botId,
+                    remoteConfig: remoteConfig,
+                  );
+                  appendBotDebugLog(
+                    '[_toggleBot] Pre-launch config sync applied for $botId',
+                  );
+                } else {
+                  appendBotDebugLog(
+                    '[_toggleBot] Pre-launch pull declined; keeping local config for $botId',
+                  );
+                }
+              } else {
+                if (!mounted) return;
+                final confirmed = await showBotConfigPullConfirmDialog(
+                  context: context,
+                  diff: diff,
+                  remoteTimestamp: formatBotConfigTimestamp(remoteConfig),
+                  localTimestamp: await formatLocalBotConfigTimestamp(
+                    appManager,
+                    botId,
+                  ),
+                );
+                if (confirmed) {
+                  await applyManagerConfigToLocal(
+                    appManager: appManager,
+                    botId: botId,
+                    remoteConfig: remoteConfig,
+                  );
+                  appendBotDebugLog(
+                    '[_toggleBot] Pre-launch config sync success for $botId',
+                  );
+                } else {
+                  appendBotDebugLog(
+                    '[_toggleBot] Pre-launch pull declined for $botId',
+                  );
+                }
+              }
             }
           }
         } catch (e) {

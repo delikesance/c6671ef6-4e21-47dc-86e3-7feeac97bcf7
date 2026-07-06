@@ -309,6 +309,51 @@ extension _CommandCreateValidation on _CommandCreatePageState {
     return true;
   }
 
+  List<String> _collectWorkflowActionIssues() {
+    if (_isBdfdScriptMode || _isJavascriptMode) {
+      return const <String>[];
+    }
+
+    final issues = <String>[];
+    for (var i = 0; i < _actions.length; i++) {
+      final action = _actions[i];
+      if (action['enabled'] == false) continue;
+
+      final type = (action['type'] ?? '').toString();
+      final params = Map<String, dynamic>.from(
+        (action['parameters'] as Map?)?.cast<String, dynamic>() ?? const {},
+      );
+
+      if (type == 'sendMessage') {
+        final content = (params['content'] ?? '').toString().trim();
+        final embeds = params['embeds'];
+        final hasEmbeds = embeds is List && embeds.isNotEmpty;
+        final mode = (params['messageMode'] ?? 'normal').toString();
+        final hasComponentV2 =
+            mode == 'componentV2' && params['componentV2'] is Map;
+        if (content.isEmpty && !hasEmbeds && !hasComponentV2) {
+          issues.add(
+            '${context.tr.cmd_block_editor_action_label(i + 1)}: ${context.tr.cmd_simple_send_message_required}',
+          );
+        }
+      }
+
+      if (type == 'respondWithMessage') {
+        final content = (params['content'] ?? '').toString().trim();
+        final embeds = params['embeds'];
+        final hasEmbeds = embeds is List && embeds.isNotEmpty;
+        final components = params['components'];
+        final hasComponents = components is Map && components.isNotEmpty;
+        if (content.isEmpty && !hasEmbeds && !hasComponents) {
+          issues.add(
+            '${context.tr.cmd_block_editor_action_label(i + 1)}: ${context.tr.cmd_simple_send_message_required}',
+          );
+        }
+      }
+    }
+    return issues;
+  }
+
   Permissions? _parseDefaultMemberPermissions(String raw) {
     final trimmed = raw.trim();
     if (trimmed.isEmpty) {

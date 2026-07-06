@@ -3,6 +3,7 @@ import 'package:bot_creator_shared/types/component.dart';
 import 'package:bot_creator/features/actions/bot_actions/send_component_v2.dart';
 import 'package:bot_creator/features/bot_editor/logic/component_workflow_bindings.dart';
 import 'package:bot_creator_shared/utils/embed_fields.dart';
+import 'package:bot_creator_shared/utils/embed_timestamp.dart';
 import 'package:bot_creator_shared/utils/interaction_ack_state.dart';
 
 Future<Map<String, dynamic>> respondWithMessageAction(
@@ -57,8 +58,8 @@ Future<Map<String, dynamic>> respondWithMessageAction(
       if (description.isNotEmpty) embed.description = description;
       if (url.isNotEmpty) embed.url = Uri.tryParse(url);
 
-      final timestamp = DateTime.tryParse(
-        (embedJson['timestamp'] ?? '').toString(),
+      final timestamp = parseEmbedTimestamp(
+        resolve((embedJson['timestamp'] ?? '').toString()),
       );
       if (timestamp != null) {
         embed.timestamp = timestamp;

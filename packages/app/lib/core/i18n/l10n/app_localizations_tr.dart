@@ -3005,6 +3005,28 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String get command_cloud_sync_failed_saved =>
+      'Saved on Discord and locally. Cloud backup failed.';
+
+  @override
+  String get command_cloud_sync_retry => 'Retry sync';
+
+  @override
+  String get cmd_block_editor_empty_title => 'No actions yet';
+
+  @override
+  String get cmd_block_editor_empty_hint =>
+      'Add an action block to define what your command does when it runs.';
+
+  @override
+  String get cmd_block_editor_add_action => 'Add an action';
+
+  @override
+  String cmd_block_editor_action_label(int index) {
+    return 'Action $index';
+  }
+
+  @override
   String get command_target_subcommand => 'Hedef alt komut';
 
   @override
@@ -4545,6 +4567,13 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get embed_label_timestamp => 'Zaman Damgası (ISO8601)';
+
+  @override
+  String get embed_checkbox_current_timestamp => 'Güncel Zaman Damgası';
+
+  @override
+  String get embed_hint_timestamp =>
+      'Komut çalıştırıldığında güncel saati gösterir. Metinde Unix saniyesi için mesaj alanlarında ((timestamp)) kullanın.';
 
   @override
   String get embed_label_title => 'Başlık';

@@ -307,6 +307,12 @@ extension _CommandBlockEditor on _CommandCreatePageState {
       // ── JavaScript editor (if JS mode) ──
       if (isJavascriptMode) _buildJavascriptBlock(),
 
+      // ── Empty state ──
+      if (!isCodeMode && _actions.isEmpty) _buildActionsEmptyState(),
+
+      // ── Inline action validation ──
+      if (!isCodeMode) ..._buildActionValidationBanners(),
+
       // ── Action blocks ──
       ...actionBlocks,
 
@@ -548,41 +554,120 @@ extension _CommandBlockEditor on _CommandCreatePageState {
     );
   }
 
+  void _openBlockPalette() {
+    showBlockPalette(
+      context,
+      isInteraction: !_legacyModeEnabled,
+      onActionSelected: (type) {
+        _applyStateUpdate(() {
+          final uniqueId = 'action_${DateTime.now().microsecondsSinceEpoch}';
+          final newAction = <String, dynamic>{
+            'id': uniqueId,
+            'type': type.name,
+            'enabled': true,
+            'key': uniqueId,
+            'depend_on': <String>[],
+            'error': {'mode': 'stop'},
+            'payload': Map<String, dynamic>.from(type.defaultParameters),
+          };
+          try {
+            _actions.add(newAction);
+          } on UnsupportedError {
+            _actions = List<Map<String, dynamic>>.from(_actions);
+            _actions.add(newAction);
+          }
+          _persistActiveSubcommandWorkflow();
+        });
+      },
+    );
+  }
+
+  List<Widget> _buildActionValidationBanners() {
+    final issues = _collectWorkflowActionIssues();
+    if (issues.isEmpty) return const <Widget>[];
+
+    return issues
+        .map(
+          (issue) => Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppTheme.warning.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                border: Border.all(color: AppTheme.warning.withValues(alpha: 0.4)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.warning_amber_rounded, size: 18, color: AppTheme.warning),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      issue,
+                      style: TextStyle(fontSize: 12, color: AppTheme.warning),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        )
+        .toList(growable: false);
+  }
+
+  Widget _buildActionsEmptyState() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+          border: Border.all(color: AppTheme.grey.withValues(alpha: 0.35)),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              Icons.touch_app_outlined,
+              size: 32,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              context.tr.cmd_block_editor_empty_title,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 6),
+            Text(
+              context.tr.cmd_block_editor_empty_hint,
+              style: TextStyle(fontSize: 13, color: AppTheme.grey),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: _openBlockPalette,
+              icon: const Icon(Icons.add),
+              label: Text(context.tr.cmd_block_editor_add_action),
+            ),
+            TextButton(
+              onPressed: _openDocumentationCenter,
+              child: Text(context.tr.doc_template_variables_title),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildAddBlockButton() {
     return Padding(
       padding: const EdgeInsets.only(top: 4),
       child: OutlinedButton.icon(
-        onPressed: () {
-          showBlockPalette(
-            context,
-            isInteraction: !_legacyModeEnabled,
-            onActionSelected: (type) {
-              _applyStateUpdate(() {
-                final uniqueId = 'action_${DateTime.now().microsecondsSinceEpoch}';
-                final newAction = <String, dynamic>{
-                  'id': uniqueId,
-                  'type': type.name,
-                  'enabled': true,
-                  'key': uniqueId,
-                  'depend_on': <String>[],
-                  'error': {'mode': 'stop'},
-                  'payload': Map<String, dynamic>.from(type.defaultParameters),
-                };
-                // Defensive: ensure _actions is a growable list. Some code paths
-                // (e.g. import, builder round-trip) may produce a fixed-length list
-                // via const [] or List.unmodifiable, causing a runtime crash.
-                try {
-                  _actions.add(newAction);
-                } on UnsupportedError {
-                  // Fixed-length list — replace with a growable copy and retry.
-                  _actions = List<Map<String, dynamic>>.from(_actions);
-                  _actions.add(newAction);
-                }
-                _persistActiveSubcommandWorkflow();
-              });
-            },
-          );
-        },
+        onPressed: _openBlockPalette,
         icon: const Icon(Icons.add),
         label: Text(context.tr.scratch_add_block),
         style: OutlinedButton.styleFrom(

@@ -1,6 +1,12 @@
 {
   "de": [
     "command_permissions_admin_warning",
+    "command_cloud_sync_failed_saved",
+    "command_cloud_sync_retry",
+    "cmd_block_editor_empty_title",
+    "cmd_block_editor_empty_hint",
+    "cmd_block_editor_add_action",
+    "cmd_block_editor_action_label",
     "onboarding_command_learn",
     "onboarding_skip_confirm",
     "onboarding_skip_dialog_desc",
@@ -90,6 +96,12 @@
   ],
 
   "ja": [
+    "command_cloud_sync_failed_saved",
+    "command_cloud_sync_retry",
+    "cmd_block_editor_empty_title",
+    "cmd_block_editor_empty_hint",
+    "cmd_block_editor_add_action",
+    "cmd_block_editor_action_label",
     "onboarding_command_learn",
     "onboarding_skip_confirm",
     "onboarding_skip_dialog_desc",
@@ -150,6 +162,12 @@
   ],
 
   "pt": [
+    "command_cloud_sync_failed_saved",
+    "command_cloud_sync_retry",
+    "cmd_block_editor_empty_title",
+    "cmd_block_editor_empty_hint",
+    "cmd_block_editor_add_action",
+    "cmd_block_editor_action_label",
     "onboarding_command_learn",
     "onboarding_skip_confirm",
     "onboarding_skip_dialog_desc",
@@ -210,6 +228,12 @@
   ],
 
   "tr": [
+    "command_cloud_sync_failed_saved",
+    "command_cloud_sync_retry",
+    "cmd_block_editor_empty_title",
+    "cmd_block_editor_empty_hint",
+    "cmd_block_editor_add_action",
+    "cmd_block_editor_action_label",
     "onboarding_command_learn",
     "onboarding_skip_confirm",
     "onboarding_skip_dialog_desc",

@@ -8384,6 +8384,19 @@
   "command_subcommand_workflow_desc": "Choisissez le sous-commande que vous configurez.",
   "command_subcommand_workflow_title": "Workflow SubCommand",
   "command_sync_failed_local": "Enregistré localement. Échec de la synchronisation Discord : {error}",
+  "command_cloud_sync_failed_saved": "Enregistré sur Discord et localement. La sauvegarde cloud a échoué.",
+  "command_cloud_sync_retry": "Réessayer la sync",
+  "cmd_block_editor_empty_title": "Aucune action pour l'instant",
+  "cmd_block_editor_empty_hint": "Ajoutez un bloc d'action pour définir ce que fait votre commande à l'exécution.",
+  "cmd_block_editor_add_action": "Ajouter une action",
+  "cmd_block_editor_action_label": "Action {index}",
+  "@cmd_block_editor_action_label": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
   "command_target_subcommand": "Sous-commande cible",
   "command_type_label": "Type de commande",
   "command_type_legacy": "Commande à préfixe",
@@ -8828,6 +8841,8 @@
   "embed_label_inline": "En ligne",
   "embed_label_thumbnail_url": "URL de la miniature",
   "embed_label_timestamp": "Horodatage (ISO8601)",
+  "embed_checkbox_current_timestamp": "Horodatage actuel",
+  "embed_hint_timestamp": "Affiche l'heure courante à l'exécution de la commande. Pour des secondes Unix dans le texte, utilisez ((timestamp)) dans les champs de message.",
   "embed_label_title": "Titre",
   "embed_label_url": "URL",
   "embed_number": "Intégration #{index}",

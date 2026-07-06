@@ -8794,6 +8794,8 @@
   "embed_label_inline": "インライン",
   "embed_label_thumbnail_url": "サムネイルURL",
   "embed_label_timestamp": "タイムスタンプ",
+  "embed_checkbox_current_timestamp": "現在のタイムスタンプ",
+  "embed_hint_timestamp": "コマンド実行時の現在時刻を表示します。テキストでUnix秒を使う場合はメッセージ欄で((timestamp))を使用してください。",
   "embed_label_title": "タイトル",
   "embed_label_url": "URL",
   "embed_number": "埋め込み #{index}",
