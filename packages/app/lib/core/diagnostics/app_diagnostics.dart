@@ -143,6 +143,30 @@ class AppDiagnostics {
     await _appendLine(payload.toString());
   }
 
+  /// Returns `true` for transient network/TLS failures that should not be
+  /// reported to Crashlytics (DNS failures, no connectivity, circuit breaker).
+  static bool isTransientNetworkError(Object error) {
+    final name = error.runtimeType.toString();
+    if (name.contains('SocketException') ||
+        name.contains('HandshakeException') ||
+        name.contains('TlsException') ||
+        name.contains('ClientException') ||
+        name.contains('TimeoutException') ||
+        name.contains('HttpException') ||
+        name.contains('WebSocketException')) {
+      return true;
+    }
+    final message = error.toString().toLowerCase();
+    return message.contains('connection timed out') ||
+        message.contains('connection refused') ||
+        message.contains('network is unreachable') ||
+        message.contains('failed host lookup') ||
+        message.contains('handshake') ||
+        message.contains('no route to host') ||
+        message.contains('circuit breaker open') ||
+        message.contains('request failed after retries');
+  }
+
   static Future<void> logError(
     String message,
     Object error,

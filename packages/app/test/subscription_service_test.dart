@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
@@ -151,6 +153,75 @@ void main() {
       seedLocalPremiumCache();
 
       final isPremium = await SubscriptionService.refreshPremiumFromServer(
+        forceRefresh: true,
+      );
+
+      expect(isPremium, isTrue);
+      expect(SubscriptionService.isSubscribed, isTrue);
+    },
+  );
+
+  test(
+    'mobile keeps local premium on transient network error during server refresh',
+    () async {
+      seedLocalPremiumCache();
+      await MainApiSettingsStore.saveConfig(
+        const MainApiConfig(baseUrl: 'https://api.example.com'),
+      );
+      await MainApiSettingsStore.saveSession(
+        MainApiSession(
+          accessToken: 'token',
+          expiresAt: DateTime.now().toUtc().add(const Duration(hours: 1)),
+        ),
+      );
+
+      final client = MainApiClient(
+        baseUrl: 'https://api.example.com',
+        accessToken: 'token',
+        httpClient: MockClient((request) async {
+          throw const SocketException('Failed host lookup: api.example.com');
+        }),
+      );
+
+      final isPremium = await SubscriptionService.refreshPremiumFromServer(
+        client: client,
+        forceRefresh: true,
+      );
+
+      expect(isPremium, isTrue);
+      expect(SubscriptionService.isSubscribed, isTrue);
+    },
+  );
+
+  test(
+    'mobile keeps local premium when circuit breaker is open during server refresh',
+    () async {
+      seedLocalPremiumCache();
+      await MainApiSettingsStore.saveConfig(
+        const MainApiConfig(baseUrl: 'https://api.example.com'),
+      );
+      await MainApiSettingsStore.saveSession(
+        MainApiSession(
+          accessToken: 'token',
+          expiresAt: DateTime.now().toUtc().add(const Duration(hours: 1)),
+        ),
+      );
+
+      final failingClient = MainApiClient(
+        baseUrl: 'https://api.example.com',
+        accessToken: 'token',
+        httpClient: MockClient((request) async {
+          throw const SocketException('Failed host lookup: api.example.com');
+        }),
+      );
+      for (var attempt = 0; attempt < 3; attempt++) {
+        try {
+          await failingClient.getGatewayRuntime();
+        } catch (_) {}
+      }
+
+      final isPremium = await SubscriptionService.refreshPremiumFromServer(
+        client: failingClient,
         forceRefresh: true,
       );
 

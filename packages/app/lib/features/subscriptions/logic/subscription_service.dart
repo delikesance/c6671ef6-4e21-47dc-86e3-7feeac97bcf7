@@ -812,14 +812,20 @@ class SubscriptionService {
       }
       return plan;
     } catch (error, stack) {
-      unawaited(
-        AppDiagnostics.logError(
-          'Failed to refresh premium status from manager runtime',
-          error,
-          stack,
-          fatal: false,
-        ),
-      );
+      if (AppDiagnostics.isTransientNetworkError(error)) {
+        debugPrint(
+          '[SubscriptionService] Premium refresh deferred (transient network): $error',
+        );
+      } else {
+        unawaited(
+          AppDiagnostics.logError(
+            'Failed to refresh premium status from manager runtime',
+            error,
+            stack,
+            fatal: false,
+          ),
+        );
+      }
       if (!preferLocalOnFailure) {
         _managerPremiumOverride = false;
         _managerPremiumOverrideUpdatedAt = DateTime.now().toUtc();
@@ -881,14 +887,20 @@ class SubscriptionService {
       }
       return plan;
     } catch (error, stack) {
-      unawaited(
-        AppDiagnostics.logError(
-          'Failed to refresh premium subscription from server',
-          error,
-          stack,
-          fatal: false,
-        ),
-      );
+      if (AppDiagnostics.isTransientNetworkError(error)) {
+        debugPrint(
+          '[SubscriptionService] Premium refresh deferred (transient network): $error',
+        );
+      } else {
+        unawaited(
+          AppDiagnostics.logError(
+            'Failed to refresh premium subscription from server',
+            error,
+            stack,
+            fatal: false,
+          ),
+        );
+      }
       return localPremium;
     }
   }
