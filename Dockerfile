@@ -5,10 +5,9 @@ WORKDIR /workspace
 
 # Pre-copy manifests to cache dependencies
 COPY packages/runner/pubspec.yaml packages/runner/
-COPY packages/shared/pubspec.yaml* packages/shared/
 
 # Create a minimal workspace for Docker build (exclude Flutter app package)
-RUN printf "name: bot_creator_runner_workspace\ndescription: Docker build workspace for runner\npublish_to: none\nenvironment:\n  sdk: ^3.12.0\nworkspace:\n  - packages/shared\n  - packages/runner\n" > /workspace/pubspec.yaml
+RUN printf "name: bot_creator_runner_workspace\ndescription: Docker build workspace for runner\npublish_to: none\nenvironment:\n  sdk: ^3.12.0\nworkspace:\n  - packages/runner\n" > /workspace/pubspec.yaml
 
 # Resolve dependencies for the runner (workspace-aware)
 # Run from workspace root to ensure proper workspace initialization
@@ -18,7 +17,6 @@ RUN echo "Cache bust: ${CACHEBUST}" && dart pub get && dart pub upgrade bot_crea
 
 # Copy the rest of the source code
 COPY packages/runner packages/runner
-COPY packages/shared/ packages/shared/
 
 # Build a native CLI bundle (binary + native assets)
 WORKDIR /workspace/packages/runner
