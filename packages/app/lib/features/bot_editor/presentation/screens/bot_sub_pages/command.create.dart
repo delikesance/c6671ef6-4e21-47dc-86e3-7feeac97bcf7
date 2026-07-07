@@ -583,7 +583,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   }
 
   Widget _buildSubcommandWorkflowSelectorCard() {
-    if (_subcommandWorkflows.isEmpty) {
+    if (_isJavascriptOnlyBot || _subcommandWorkflows.isEmpty) {
       return const SizedBox.shrink();
     }
 

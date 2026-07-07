@@ -213,12 +213,14 @@ extension _AppHomePageLogic on _AppHomePageState {
         "is_running": isRunning ? "true" : "false",
       },
     );
+    final capabilities = await getBotRuntimeCapabilities(botId);
     if (mounted) {
       _setState(() {
         _botLaunched = isRunning;
         _botStarting = false;
         _appName = app["name"];
         avatar = app["avatar"] ?? "";
+        _runtimeCapabilities = capabilities;
       });
     }
     appendBotDebugLog(

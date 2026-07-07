@@ -252,7 +252,7 @@ extension _CommandCreateWizard on _CommandCreatePageState {
       key: const ValueKey('step-trigger'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (_subcommandWorkflows.isNotEmpty) ...[
+        if (!_isJavascriptOnlyBot && _subcommandWorkflows.isNotEmpty) ...[
           _buildSubcommandWorkflowSelectorCard(),
           const SizedBox(height: 12),
         ],
@@ -302,7 +302,7 @@ extension _CommandCreateWizard on _CommandCreatePageState {
           ],
         ),
         const SizedBox(height: 12),
-        if (_subcommandWorkflows.isNotEmpty) ...[
+        if (!_isJavascriptOnlyBot && _subcommandWorkflows.isNotEmpty) ...[
           _buildSubcommandWorkflowSelectorCard(),
           const SizedBox(height: 12),
         ],
@@ -352,6 +352,7 @@ extension _CommandCreateWizard on _CommandCreatePageState {
             activeRouteIsGrouped:
                 _subcommandWorkflows.isNotEmpty &&
                 _activeSubcommandRoute.contains('/'),
+            showWorkflowLink: !_isJavascriptOnlyBot,
           ),
       ],
     );

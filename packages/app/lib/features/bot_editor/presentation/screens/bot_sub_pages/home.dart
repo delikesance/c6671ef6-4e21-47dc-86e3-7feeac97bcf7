@@ -15,6 +15,7 @@ import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_config_import.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
 import 'package:bot_creator/features/bot_editor/logic/js_bot_payload_builder.dart';
+import 'package:bot_creator/features/bot_editor/logic/js_runner_capabilities.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
@@ -79,6 +80,7 @@ class _AppHomePageState extends State<AppHomePage>
   bool _isAddingTime = false;
   bool _isPushingApp = false;
   bool _isPullingApp = false;
+  BotRuntimeCapabilities _runtimeCapabilities = BotRuntimeCapabilities.dart;
   void _setState(VoidCallback fn) {
     if (mounted) setState(fn);
   }
@@ -405,7 +407,8 @@ class _AppHomePageState extends State<AppHomePage>
                               );
                             },
                           ),
-                          if (ResponsiveHelper.isDesktopPlatform())
+                          if (ResponsiveHelper.isDesktopPlatform() &&
+                              _runtimeCapabilities.supportsBotProcessStats)
                             _buildActionTile(
                               icon: Icons.bar_chart,
                               label: context.tr.bot_home_view_stats,
@@ -419,7 +422,8 @@ class _AppHomePageState extends State<AppHomePage>
                                 );
                               },
                             ),
-                          if (PremiumCapabilities.isCapabilityRolledOut(
+                          if (_runtimeCapabilities.supportsDebugReplay &&
+                              PremiumCapabilities.isCapabilityRolledOut(
                             PremiumCapability.visualDebuggerReplay,
                           ))
                             _buildActionTile(
