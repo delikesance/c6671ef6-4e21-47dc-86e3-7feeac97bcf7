@@ -11,6 +11,7 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pag
 import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
+import 'package:bot_creator/features/bot_editor/logic/js_runner_capabilities.dart';
 import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
@@ -31,7 +32,13 @@ import 'dart:developer' as developer;
 
 class AppSettingsPage extends StatefulWidget {
   final NyxxRest client;
-  const AppSettingsPage({super.key, required this.client});
+  final VoidCallback? onRuntimeEngineChanged;
+
+  const AppSettingsPage({
+    super.key,
+    required this.client,
+    this.onRuntimeEngineChanged,
+  });
 
   @override
   State<AppSettingsPage> createState() => _AppSettingsPageState();
@@ -86,6 +93,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       !Platform.isLinux &&
       !Platform.isMacOS;
 
+  BotRuntimeCapabilities get _capabilities =>
+      capabilitiesForEngine(_runtimeEngine);
+
   Future<void> _onRuntimeEngineChanged(String? value) async {
     if (value == null || value == _runtimeEngine || _isSwitchingRuntimeEngine) {
       return;
@@ -113,6 +123,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       );
       if (!mounted) return;
       setState(() => _runtimeEngine = value);
+      widget.onRuntimeEngineChanged?.call();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(context.tr.settings_runtime_engine_switch_success)),
       );
@@ -1397,21 +1408,22 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ),
               ),
 
-              const SizedBox(height: 24),
-              const Divider(),
-              const SizedBox(height: 12),
+              if (_capabilities.supportsStatusRotation) ...[
+                const SizedBox(height: 24),
+                const Divider(),
+                const SizedBox(height: 12),
 
-              // Status Rotation Section
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Text(
-                  context.tr.bot_settings_status_rotation_title,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                // Status Rotation Section
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: Text(
+                    context.tr.bot_settings_status_rotation_title,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-              ),
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Text(
@@ -1607,6 +1619,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                   ),
                 );
               }),
+              ],
 
               const SizedBox(height: 12),
               Text(
@@ -2235,8 +2248,12 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final showLavalink = _capabilities.supportsLavalink;
+    final tabCount = showLavalink ? 4 : 3;
+
     return DefaultTabController(
-      length: 4,
+      key: ValueKey('bot-settings-tabs-$tabCount'),
+      length: tabCount,
       child: Scaffold(
         appBar: AppBar(
           title: Text(context.tr.bot_settings_title),
@@ -2258,10 +2275,11 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 icon: const Icon(Icons.emoji_emotions_outlined),
                 text: context.tr.bot_settings_tab_presence,
               ),
-              Tab(
-                icon: const Icon(Icons.music_note),
-                text: context.tr.bot_settings_tab_lavalink,
-              ),
+              if (showLavalink)
+                Tab(
+                  icon: const Icon(Icons.music_note),
+                  text: context.tr.bot_settings_tab_lavalink,
+                ),
               Tab(
                 icon: const Icon(Icons.build_outlined),
                 text: context.tr.bot_settings_tab_advanced,
@@ -2278,7 +2296,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 children: [
                   _buildGeneralTab(contentMaxWidth),
                   _buildPresenceTab(contentMaxWidth),
-                  _buildLavalinkTab(contentMaxWidth),
+                  if (showLavalink) _buildLavalinkTab(contentMaxWidth),
                   _buildAdvancedTab(contentMaxWidth),
                 ],
               );

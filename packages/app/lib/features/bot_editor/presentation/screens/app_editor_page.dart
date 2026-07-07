@@ -16,6 +16,8 @@ import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
+import 'package:bot_creator/features/bot_editor/logic/js_runner_capabilities.dart';
+import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 
 import 'package:bot_creator/core/utils/responsive.dart';
 import 'package:flutter/foundation.dart';
@@ -44,6 +46,7 @@ class _AppEditPageState extends State<AppEditPage>
   late int _selectedIndex = 0;
   bool _beginnerMode = false;
   bool _beginnerModeLoaded = false;
+  String _runtimeEngine = runtimeEngineDart;
   bool get _isDesktopPlatform {
     if (kIsWeb) {
       return false;
@@ -85,6 +88,7 @@ class _AppEditPageState extends State<AppEditPage>
     );
     try {
       final app = await appManager.getApp(widget.id.toString());
+      final runtimeEngine = await getBotRuntimeEngine(widget.id.toString());
       final token = (app["token"] ?? '').toString().replaceAll(
         RegExp(r'[\s\u200B-\u200D\uFEFF]'),
         '',
@@ -93,6 +97,7 @@ class _AppEditPageState extends State<AppEditPage>
       if (mounted) {
         setState(() {
           _currentToken = token;
+          _runtimeEngine = runtimeEngine;
         });
       }
 
@@ -188,9 +193,32 @@ class _AppEditPageState extends State<AppEditPage>
 
   String get _botId => widget.id.toString();
 
+  BotRuntimeCapabilities get _capabilities =>
+      capabilitiesForEngine(_runtimeEngine);
+
+  Future<void> _onRuntimeEngineChanged() async {
+    final engine = await getBotRuntimeEngine(_botId);
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _runtimeEngine = engine;
+      _selectedIndex = 0;
+    });
+  }
+
+  List<_AppPageEntry> _applyRuntimeGating(List<_AppPageEntry> entries) {
+    if (_capabilities.supportsWorkflows) {
+      return entries;
+    }
+    return entries
+        .where((entry) => !entry.dartOnly)
+        .toList(growable: false);
+  }
+
   List<_AppPageEntry> _buildEntries(bool isSmallPhone) {
     if (client == null) {
-      return [
+      return _applyRuntimeGating([
         _AppPageEntry(
           icon: Icons.vpn_key_outlined,
           label: context.tr.settings_tab,
@@ -214,23 +242,26 @@ class _AppEditPageState extends State<AppEditPage>
           label: context.tr.workflows_tab,
           compactLabel: context.tr.workflows_tab_short,
           page: WorkflowsPage(botId: _botId),
+          dartOnly: true,
         ),
         _AppPageEntry(
           icon: Icons.schedule,
           label: context.tr.scheduler_tab,
           compactLabel: context.tr.scheduler_tab_short,
           page: SchedulerPage(botId: _botId),
+          dartOnly: true,
         ),
         _AppPageEntry(
           icon: Icons.webhook,
           label: context.tr.webhooks_page_title,
           compactLabel: context.tr.webhooks_page_title,
           page: InboundWebhooksPage(botId: _botId),
+          dartOnly: true,
         ),
-      ];
+      ]);
     }
 
-    return [
+    return _applyRuntimeGating([
       _AppPageEntry(
         icon: Icons.home,
         label: context.tr.home_tab,
@@ -263,6 +294,7 @@ class _AppEditPageState extends State<AppEditPage>
         label: context.tr.workflows_tab,
         compactLabel: context.tr.workflows_tab_short,
         page: WorkflowsPage(botId: _botId),
+        dartOnly: true,
       ),
       _AppPageEntry(
         icon: Icons.schedule,
@@ -270,6 +302,7 @@ class _AppEditPageState extends State<AppEditPage>
         compactLabel: context.tr.scheduler_tab_short,
         page: SchedulerPage(botId: _botId),
         mobileSecondary: true,
+        dartOnly: true,
       ),
       _AppPageEntry(
         icon: Icons.webhook,
@@ -277,6 +310,7 @@ class _AppEditPageState extends State<AppEditPage>
         compactLabel: context.tr.webhooks_page_title,
         page: InboundWebhooksPage(botId: _botId),
         mobileSecondary: true,
+        dartOnly: true,
       ),
       _AppPageEntry(
         icon: Icons.emoji_emotions_outlined,
@@ -298,16 +332,20 @@ class _AppEditPageState extends State<AppEditPage>
         compactLabel: context.tr.dashboard_title,
         page: CommandDashboardPage(botId: _botId),
         mobileSecondary: true,
+        dartOnly: true,
       ),
       _AppPageEntry(
         icon: Icons.settings,
         label: context.tr.settings_tab,
         compactLabel: context.tr.settings_tab,
-        page: AppSettingsPage(client: client!),
+        page: AppSettingsPage(
+          client: client!,
+          onRuntimeEngineChanged: _onRuntimeEngineChanged,
+        ),
         mobileSecondary: true,
         beginnerEssential: true,
       ),
-    ];
+    ]);
   }
 
   Widget _buildSidebarContent(
@@ -552,6 +590,7 @@ class _AppPageEntry {
   final Widget page;
   final bool mobileSecondary;
   final bool beginnerEssential;
+  final bool dartOnly;
 
   const _AppPageEntry({
     required this.icon,
@@ -560,6 +599,7 @@ class _AppPageEntry {
     required this.page,
     this.mobileSecondary = false,
     this.beginnerEssential = false,
+    this.dartOnly = false,
   });
 }
 

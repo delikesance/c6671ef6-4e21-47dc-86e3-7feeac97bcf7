@@ -768,18 +768,33 @@ class MainApiClient implements RemoteRuntimeClient {
     }
 
     final encodedBotId = Uri.encodeComponent(botId.trim());
-    final json = await _get('/gateway/bots/$encodedBotId/runtime');
-    final running = json['session_active'] == true;
-    return RunnerStatus(
-      running: running,
-      bots: <RunnerBotRuntime>[
-        RunnerBotRuntime(
-          botId: botId.trim(),
-          botName: '',
-          state: running ? 'running' : 'stopped',
-        ),
-      ],
-    );
+    try {
+      final statusJson = await _get('/gateway/bots/$encodedBotId/status');
+      final bot = statusJson['bot'];
+      final state = bot is Map ? (bot['state'] ?? '').toString() : '';
+      final running = state.toLowerCase() == 'running';
+      return RunnerStatus(
+        running: running,
+        bots: <RunnerBotRuntime>[
+          RunnerBotRuntime(
+            botId: botId.trim(),
+            botName: bot is Map ? (bot['botName'] ?? '').toString() : '',
+            state: running ? 'running' : 'stopped',
+          ),
+        ],
+      );
+    } on MainApiClientException {
+      return RunnerStatus(
+        running: false,
+        bots: <RunnerBotRuntime>[
+          RunnerBotRuntime(
+            botId: botId.trim(),
+            botName: '',
+            state: 'stopped',
+          ),
+        ],
+      );
+    }
   }
 
   @override

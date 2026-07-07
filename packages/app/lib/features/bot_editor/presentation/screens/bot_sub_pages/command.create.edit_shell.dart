@@ -82,7 +82,7 @@ extension _CommandCreateEditShell on _CommandCreatePageState {
               ),
           ],
         ),
-        if (_subcommandWorkflows.isNotEmpty) ...[
+        if (!_isJavascriptOnlyBot && _subcommandWorkflows.isNotEmpty) ...[
           const SizedBox(height: 12),
           _buildSubcommandWorkflowSelectorCard(),
         ],
@@ -232,6 +232,7 @@ extension _CommandCreateEditShell on _CommandCreatePageState {
             activeRouteIsGrouped:
                 _subcommandWorkflows.isNotEmpty &&
                 _activeSubcommandRoute.contains('/'),
+            showWorkflowLink: !_isJavascriptOnlyBot,
           ),
       ],
     );

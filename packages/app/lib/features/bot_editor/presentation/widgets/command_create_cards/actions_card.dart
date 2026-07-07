@@ -16,6 +16,7 @@ class ActionsCard extends StatelessWidget {
   final String? botIdForConfig;
   final String? activeRouteLabel;
   final bool activeRouteIsGrouped;
+  final bool showWorkflowLink;
 
   const ActionsCard({
     super.key,
@@ -26,6 +27,7 @@ class ActionsCard extends StatelessWidget {
     this.botIdForConfig,
     this.activeRouteLabel,
     this.activeRouteIsGrouped = false,
+    this.showWorkflowLink = true,
   });
 
   @override
@@ -108,11 +110,12 @@ class ActionsCard extends StatelessWidget {
               spacing: 8,
               runSpacing: 8,
               children: [
-                OutlinedButton.icon(
-                  onPressed:
-                      botIdForConfig == null || actions.isEmpty
-                          ? null
-                          : () async {
+                if (showWorkflowLink)
+                  OutlinedButton.icon(
+                    onPressed:
+                        botIdForConfig == null || actions.isEmpty
+                            ? null
+                            : () async {
                             final controller = TextEditingController();
                             final workflowName = await showDialog<String>(
                               context: context,
@@ -205,23 +208,24 @@ class ActionsCard extends StatelessWidget {
                   icon: const Icon(Icons.key),
                   label: Text(context.tr.actions_global_variables),
                 ),
-                OutlinedButton.icon(
-                  onPressed:
-                      botIdForConfig == null
-                          ? null
-                          : () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (context) =>
-                                        WorkflowsPage(botId: botIdForConfig!),
-                              ),
-                            );
-                          },
-                  icon: const Icon(Icons.account_tree),
-                  label: Text(context.tr.actions_workflows),
-                ),
+                if (showWorkflowLink)
+                  OutlinedButton.icon(
+                    onPressed:
+                        botIdForConfig == null
+                            ? null
+                            : () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) =>
+                                          WorkflowsPage(botId: botIdForConfig!),
+                                ),
+                              );
+                            },
+                    icon: const Icon(Icons.account_tree),
+                    label: Text(context.tr.actions_workflows),
+                  ),
               ],
             ),
           ],
