@@ -10072,9 +10072,41 @@
   "@container_deploy_image_label": {
     "description": "Label for the Docker image field"
   },
-  "container_deploy_image_hint": "Etiketli Docker görüntü adi",
+  "container_deploy_image_hint": "Etiketli Docker görüntüsü (örn. ghcr.io/lazaroagomez/beatdock:latest)",
   "@container_deploy_image_hint": {
     "description": "Helper text for the image field"
+  },
+  "container_deploy_template_label": "Şablon",
+  "@container_deploy_template_label": {
+    "description": "Label for hosted app template picker"
+  },
+  "container_deploy_template_easy_music": "Kolay Müzik Botu",
+  "@container_deploy_template_easy_music": {
+    "description": "Preset template for a minimal-config Discord music bot"
+  },
+  "container_deploy_template_custom": "Özel görüntü",
+  "@container_deploy_template_custom": {
+    "description": "Custom Docker image template option"
+  },
+  "container_deploy_easy_music_hint": "Yalnızca Discord bot jetonunuz gerekir. Herkese açık Lavalink sunucularını kullanır — kayıt defteri girişi, API anahtarı veya ekstra kurulum yok.",
+  "@container_deploy_easy_music_hint": {
+    "description": "Helper text for the easy music bot template"
+  },
+  "container_deploy_pick_bot": "Mevcut bir bot kullan",
+  "@container_deploy_pick_bot": {
+    "description": "Label for bot picker on deploy page"
+  },
+  "container_deploy_pick_bot_manual": "Jetonu elle gir",
+  "@container_deploy_pick_bot_manual": {
+    "description": "Option to enter bot token manually instead of picking a saved bot"
+  },
+  "container_deploy_bot_token_hint": "Discord Geliştirici Portalı'nda bir bot oluşturun, Message Content Intent'i etkinleştirin ve sunucunuza davet edin.",
+  "@container_deploy_bot_token_hint": {
+    "description": "Helper text for bot token field on easy music deploy"
+  },
+  "container_deploy_bot_token_required": "Discord bot jetonu gereklidir",
+  "@container_deploy_bot_token_required": {
+    "description": "Validation error when bot token is empty for easy music template"
   },
   "container_deploy_image_required": "Görüntü gereklidir",
   "@container_deploy_image_required": {
@@ -10320,5 +10352,175 @@
   "container_detail_apply_stored_minutes": "Kayitli {minutes} dk uygula",
   "container_detail_minutes_applied": "{minutes} dk uygulandi.",
   "subscription_feature_hosted_apps_title": "Barindirilan uygulamalar",
-  "subscription_feature_hosted_apps_desc": "Docker konteynerlerini sinirsiz barindirin — reklam yok."
+  "subscription_feature_hosted_apps_desc": "Docker konteynerlerini sinirsiz barindirin — reklam yok.",
+  "command_cloud_sync_failed_saved": "Discord ve yerel olarak kaydedildi. Bulut yedekleme başarısız oldu.",
+  "command_cloud_sync_retry": "Senkronizasyonu yeniden dene",
+  "cmd_block_editor_empty_title": "Henüz eylem yok",
+  "cmd_block_editor_empty_hint": "Komutunuz çalıştığında ne yapacağını tanımlamak için bir eylem bloğu ekleyin.",
+  "cmd_block_editor_add_action": "Eylem ekle",
+  "cmd_block_editor_action_label": "Eylem {index}",
+  "@cmd_block_editor_action_label": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "onboarding_command_learn": "Komutların nasıl çalıştığını öğrenin",
+  "onboarding_skip_confirm": "Tanıtımı atla",
+  "onboarding_skip_dialog_desc": "Bir sonraki sefer kaldığınız yerden devam edebilir veya turu tamamen atlayabilirsiniz.",
+  "onboarding_skip_dialog_title": "Tanıtımdan çıkılsın mı?",
+  "mobile_account_required_title": "Giriş yap",
+  "mobile_account_required_body": "Discord veya e-posta ile giriş yapın.",
+  "mobile_account_required_feature_bots": "Botlarınızı buluttan senkronize edin ve geri yükleyin",
+  "mobile_account_required_feature_hosted": "Barındırılan uygulamaları dağıtın ve yönetin",
+  "mobile_account_required_feature_recovery": "Yeniden yüklemeden veya yeni telefonda her şeyi kurtarın",
+  "mobile_account_required_failed": "Discord girişi başarısız: {error}",
+  "@mobile_account_required_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "mobile_login_or_divider": "veya",
+  "mobile_login_show_email": "E-posta ile giriş yap",
+  "mobile_login_hide_email": "E-posta girişini gizle",
+  "mobile_login_email_title": "E-posta ile giriş yap",
+  "mobile_login_email_hint": "Hesabınıza bağlı e-posta ve şifreyi kullanın.",
+  "mobile_login_email": "E-posta",
+  "mobile_login_password": "Şifre",
+  "mobile_login_submit": "Giriş yap",
+  "mobile_login_invalid_credentials": "Geçersiz e-posta veya şifre.",
+  "mobile_login_failed": "Giriş başarısız: {error}",
+  "@mobile_login_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_alternative_login_title": "Alternatif giriş",
+  "settings_alternative_login_desc": "Discord olmadan giriş yapmak için e-posta ve şifre ekleyin.",
+  "settings_alternative_login_current_email": "Mevcut e-posta: {email}",
+  "@settings_alternative_login_current_email": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_alternative_login_current_password": "Mevcut şifre",
+  "settings_alternative_login_confirm_password": "Şifreyi onayla",
+  "settings_alternative_login_update": "Kimlik bilgilerini güncelle",
+  "settings_add_credentials": "Kimlik bilgilerini kaydet",
+  "settings_alternative_login_missing_fields": "E-posta ve şifre gereklidir.",
+  "settings_alternative_login_password_mismatch": "Şifreler eşleşmiyor.",
+  "settings_credentials_saved": "Alternatif giriş kaydedildi.",
+  "subscriptions_hub_title": "Abonelikler",
+  "subscriptions_hub_subtitle": "Bot Premium ve barındırılan uygulama planlarınızı görüntüleyin ve yönetin.",
+  "subscriptions_hub_open_settings": "Abonelikler ve faturalandırma",
+  "subscriptions_hub_bot_premium_section": "Bot Premium",
+  "subscriptions_hub_bot_premium_desc": "Reklamları kaldırın ve Discord botlarınız için premium özelliklerin kilidini açın.",
+  "subscriptions_hub_hosted_section": "Barındırılan uygulamalar",
+  "subscriptions_hub_hosted_desc": "Reklam izlemeden bulutta Docker konteynerleri çalıştırın.",
+  "subscriptions_hub_status_active": "Aktif",
+  "subscriptions_hub_status_inactive": "Abone değil",
+  "subscriptions_hub_subscribe": "Abone ol",
+  "subscriptions_hub_summary_both": "Bot Premium ve barındırılan uygulamalar aktif",
+  "subscriptions_hub_summary_bot_only": "Bot Premium aktif",
+  "subscriptions_hub_summary_hosted_only": "Barındırılan uygulamalar aktif",
+  "subscriptions_hub_summary_none": "Aktif abonelik yok",
+  "subscriptions_hub_expires_at": "{date} {time} tarihine kadar yenilenir",
+  "@subscriptions_hub_expires_at": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "subscription_upgrade_annual": "Yıllık plana yükselt",
+  "subscription_upgrade_two_apps": "2 konteynere yükselt",
+  "subscription_manage_cancel_hint": "İptal etmek veya faturalandırmayı değiştirmek için Aboneliği yönet'i kullanın — App Store veya Google Play açılır.",
+  "container_detail_start_btn": "Başlat",
+  "container_detail_starting": "Başlatılıyor...",
+  "container_detail_started_ok": "Konteyner başlatılıyor",
+  "container_detail_delete_title": "Konteyneri sil",
+  "container_detail_delete_confirm": "Bu, konteyneri veritabanından ve buluttan kalıcı olarak siler. Geri alınamaz.",
+  "container_detail_delete_btn": "Sil",
+  "container_detail_deleted_ok": "Konteyner silindi",
+  "container_detail_stopped_hint": "Bu konteyner kapatıldı. Ortam değişkenlerini yeniden girmeden yeniden başlatabilirsiniz.",
+  "container_hosted_resume_with_time": "Bu konteynerde hâlâ barındırma süreniz var. Devam etmek için Başlat'a dokunun.",
+  "container_deploy_private_image": "Özel görüntü",
+  "container_deploy_private_image_hint": "Özel görüntüleri çekmek için kayıt defteri kimlik bilgilerini girin (örn. GHCR).",
+  "container_deploy_use_custom_credentials": "Özel kimlik bilgileri kullan",
+  "container_deploy_registry_profile": "Kayıtlı kayıt defteri profili",
+  "container_deploy_registry_profile_none": "Profil seç",
+  "container_deploy_registry_detected": "Kayıt defteri: {host}",
+  "@container_deploy_registry_detected": {
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "container_deploy_save_registry_auth": "Kimlik bilgilerini yeniden kullanım için kaydet",
+  "container_deploy_registry_auth_required": "Özel görüntüler için kullanıcı adı ve şifre gereklidir.",
+  "container_deploy_registry_profile_required": "Kayıtlı bir kayıt defteri profili seçin veya özel kimlik bilgileri kullanın.",
+  "registry_credentials_title": "Kayıt defteri kimlik bilgileri",
+  "registry_credentials_add": "Kimlik bilgisi ekle",
+  "registry_credentials_edit": "Kimlik bilgilerini düzenle",
+  "registry_credentials_manage": "Kayıt defteri kimlik bilgilerini yönet",
+  "registry_credentials_empty": "Henüz kayıtlı kayıt defteri kimlik bilgisi yok.",
+  "registry_credentials_label": "Etiket",
+  "registry_credentials_label_required": "Etiket gereklidir",
+  "registry_credentials_host": "Kayıt defteri ana bilgisayarı",
+  "registry_credentials_host_required": "Kayıt defteri ana bilgisayarı gereklidir",
+  "registry_credentials_username": "Kullanıcı adı",
+  "registry_credentials_username_required": "Kullanıcı adı gereklidir",
+  "registry_credentials_password": "Şifre veya jeton",
+  "registry_credentials_password_required": "Şifre veya jeton gereklidir",
+  "registry_credentials_password_hint": "Kişisel erişim jetonu veya kayıt defteri şifresi",
+  "registry_credentials_password_edit_hint": "Mevcut şifreyi korumak için boş bırakın",
+  "registry_credentials_ghcr_hint": "GHCR için read:packages kapsamına sahip bir GitHub PAT kullanın.",
+  "registry_credentials_delete_title": "Kimlik bilgileri silinsin mi?",
+  "registry_credentials_delete_body": "\"{label}\" silinsin mi? Bu işlem geri alınamaz.",
+  "@registry_credentials_delete_body": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "registry_credentials_deleted": "Kayıt defteri kimlik bilgileri silindi",
+  "registry_credentials_delete_failed": "Kimlik bilgileri silinemedi: {error}",
+  "@registry_credentials_delete_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "registry_credentials_save_failed": "Kimlik bilgileri kaydedilemedi: {error}",
+  "@registry_credentials_save_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "container_detail_private_registry": "Özel kayıt defteri: {host} · {username}",
+  "@container_detail_private_registry": {
+    "placeholders": {
+      "host": {
+        "type": "String"
+      },
+      "username": {
+        "type": "String"
+      }
+    }
+  }
 }

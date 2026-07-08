@@ -10071,9 +10071,41 @@
   "@container_deploy_image_label": {
     "description": "Label for the Docker image field"
   },
-  "container_deploy_image_hint": "Docker-Image-Name mit Tag",
+  "container_deploy_image_hint": "Docker-Image mit Tag (z. B. ghcr.io/lazaroagomez/beatdock:latest)",
   "@container_deploy_image_hint": {
     "description": "Helper text for the image field"
+  },
+  "container_deploy_template_label": "Vorlage",
+  "@container_deploy_template_label": {
+    "description": "Label for hosted app template picker"
+  },
+  "container_deploy_template_easy_music": "Einfacher Musik-Bot",
+  "@container_deploy_template_easy_music": {
+    "description": "Preset template for a minimal-config Discord music bot"
+  },
+  "container_deploy_template_custom": "Eigenes Image",
+  "@container_deploy_template_custom": {
+    "description": "Custom Docker image template option"
+  },
+  "container_deploy_easy_music_hint": "Nur dein Discord-Bot-Token ist erforderlich. Nutzt öffentliche Lavalink-Server — keine Registry-Anmeldung, API-Schlüssel oder zusätzliche Einrichtung.",
+  "@container_deploy_easy_music_hint": {
+    "description": "Helper text for the easy music bot template"
+  },
+  "container_deploy_pick_bot": "Vorhandenen Bot verwenden",
+  "@container_deploy_pick_bot": {
+    "description": "Label for bot picker on deploy page"
+  },
+  "container_deploy_pick_bot_manual": "Token manuell eingeben",
+  "@container_deploy_pick_bot_manual": {
+    "description": "Option to enter bot token manually instead of picking a saved bot"
+  },
+  "container_deploy_bot_token_hint": "Erstelle einen Bot im Discord Developer Portal, aktiviere die Message Content Intent und lade ihn auf deinen Server ein.",
+  "@container_deploy_bot_token_hint": {
+    "description": "Helper text for bot token field on easy music deploy"
+  },
+  "container_deploy_bot_token_required": "Discord-Bot-Token ist erforderlich",
+  "@container_deploy_bot_token_required": {
+    "description": "Validation error when bot token is empty for easy music template"
   },
   "container_deploy_image_required": "Image ist erforderlich",
   "@container_deploy_image_required": {
@@ -10319,5 +10351,176 @@
   "container_detail_apply_stored_minutes": "{minutes} gespeicherte Min. anwenden",
   "container_detail_minutes_applied": "{minutes} Min. angewendet.",
   "subscription_feature_hosted_apps_title": "Gehostete Anwendungen",
-  "subscription_feature_hosted_apps_desc": "Docker-Container mit unbegrenztem Hosting betreiben — ohne Werbung."
+  "subscription_feature_hosted_apps_desc": "Docker-Container mit unbegrenztem Hosting betreiben — ohne Werbung.",
+  "command_permissions_admin_warning": "Administrator ausgewählt: Dies umgeht andere Berechtigungsprüfungen.",
+  "command_cloud_sync_failed_saved": "Auf Discord und lokal gespeichert. Cloud-Backup fehlgeschlagen.",
+  "command_cloud_sync_retry": "Synchronisierung wiederholen",
+  "cmd_block_editor_empty_title": "Noch keine Aktionen",
+  "cmd_block_editor_empty_hint": "Füge einen Aktionsblock hinzu, um zu definieren, was dein Befehl beim Ausführen tut.",
+  "cmd_block_editor_add_action": "Aktion hinzufügen",
+  "cmd_block_editor_action_label": "Aktion {index}",
+  "@cmd_block_editor_action_label": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "onboarding_command_learn": "So funktionieren Befehle",
+  "onboarding_skip_confirm": "Onboarding überspringen",
+  "onboarding_skip_dialog_desc": "Du kannst beim nächsten Mal dort weitermachen, wo du aufgehört hast, oder die Tour ganz überspringen.",
+  "onboarding_skip_dialog_title": "Onboarding verlassen?",
+  "mobile_account_required_title": "Anmelden",
+  "mobile_account_required_body": "Melde dich mit Discord oder E-Mail an.",
+  "mobile_account_required_feature_bots": "Bots aus der Cloud synchronisieren und wiederherstellen",
+  "mobile_account_required_feature_hosted": "Gehostete Anwendungen bereitstellen und verwalten",
+  "mobile_account_required_feature_recovery": "Alles nach Neuinstallation oder auf einem neuen Handy wiederherstellen",
+  "mobile_account_required_failed": "Discord-Anmeldung fehlgeschlagen: {error}",
+  "@mobile_account_required_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "mobile_login_or_divider": "oder",
+  "mobile_login_show_email": "Mit E-Mail anmelden",
+  "mobile_login_hide_email": "E-Mail-Anmeldung ausblenden",
+  "mobile_login_email_title": "Mit E-Mail anmelden",
+  "mobile_login_email_hint": "Verwende die E-Mail und das Passwort deines Kontos.",
+  "mobile_login_email": "E-Mail",
+  "mobile_login_password": "Passwort",
+  "mobile_login_submit": "Anmelden",
+  "mobile_login_invalid_credentials": "Ungültige E-Mail oder ungültiges Passwort.",
+  "mobile_login_failed": "Anmeldung fehlgeschlagen: {error}",
+  "@mobile_login_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_alternative_login_title": "Alternative Anmeldung",
+  "settings_alternative_login_desc": "Füge E-Mail und Passwort hinzu, um dich ohne Discord anzumelden.",
+  "settings_alternative_login_current_email": "Aktuelle E-Mail: {email}",
+  "@settings_alternative_login_current_email": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_alternative_login_current_password": "Aktuelles Passwort",
+  "settings_alternative_login_confirm_password": "Passwort bestätigen",
+  "settings_alternative_login_update": "Anmeldedaten aktualisieren",
+  "settings_add_credentials": "Anmeldedaten speichern",
+  "settings_alternative_login_missing_fields": "E-Mail und Passwort sind erforderlich.",
+  "settings_alternative_login_password_mismatch": "Passwörter stimmen nicht überein.",
+  "settings_credentials_saved": "Alternative Anmeldung gespeichert.",
+  "subscriptions_hub_title": "Abonnements",
+  "subscriptions_hub_subtitle": "Verwalte deine Bot-Premium- und Gehostete-Anwendungen-Pläne.",
+  "subscriptions_hub_open_settings": "Abonnements & Abrechnung",
+  "subscriptions_hub_bot_premium_section": "Bot Premium",
+  "subscriptions_hub_bot_premium_desc": "Entferne Werbung und schalte Premium-Funktionen für deine Discord-Bots frei.",
+  "subscriptions_hub_hosted_section": "Gehostete Anwendungen",
+  "subscriptions_hub_hosted_desc": "Führe Docker-Container in der Cloud aus, ohne Werbung anzusehen.",
+  "subscriptions_hub_status_active": "Aktiv",
+  "subscriptions_hub_status_inactive": "Nicht abonniert",
+  "subscriptions_hub_subscribe": "Abonnieren",
+  "subscriptions_hub_summary_both": "Bot Premium und Gehostete Anwendungen aktiv",
+  "subscriptions_hub_summary_bot_only": "Bot Premium aktiv",
+  "subscriptions_hub_summary_hosted_only": "Gehostete Anwendungen aktiv",
+  "subscriptions_hub_summary_none": "Keine aktiven Abonnements",
+  "subscriptions_hub_expires_at": "Verlängert bis {date} um {time}",
+  "@subscriptions_hub_expires_at": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "subscription_upgrade_annual": "Auf Jahresabo upgraden",
+  "subscription_upgrade_two_apps": "Auf 2 Container upgraden",
+  "subscription_manage_cancel_hint": "Zum Kündigen oder Ändern der Abrechnung nutze Abonnement verwalten — dies öffnet den App Store oder Google Play.",
+  "container_detail_start_btn": "Starten",
+  "container_detail_starting": "Wird gestartet...",
+  "container_detail_started_ok": "Container wird gestartet",
+  "container_detail_delete_title": "Container löschen",
+  "container_detail_delete_confirm": "Dies löscht den Container dauerhaft aus der Datenbank und der Cloud. Dies kann nicht rückgängig gemacht werden.",
+  "container_detail_delete_btn": "Löschen",
+  "container_detail_deleted_ok": "Container gelöscht",
+  "container_detail_stopped_hint": "Dieser Container ist heruntergefahren. Du kannst ihn neu starten, ohne Umgebungsvariablen erneut einzugeben.",
+  "container_hosted_resume_with_time": "Du hast noch Hosting-Zeit auf diesem Container. Tippe auf Starten, um fortzufahren.",
+  "container_deploy_private_image": "Privates Image",
+  "container_deploy_private_image_hint": "Registry-Anmeldedaten angeben, um private Images zu pullen (z. B. GHCR).",
+  "container_deploy_use_custom_credentials": "Eigene Anmeldedaten verwenden",
+  "container_deploy_registry_profile": "Gespeichertes Registry-Profil",
+  "container_deploy_registry_profile_none": "Profil auswählen",
+  "container_deploy_registry_detected": "Registry: {host}",
+  "@container_deploy_registry_detected": {
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "container_deploy_save_registry_auth": "Anmeldedaten zur Wiederverwendung speichern",
+  "container_deploy_registry_auth_required": "Benutzername und Passwort sind für private Images erforderlich.",
+  "container_deploy_registry_profile_required": "Wähle ein gespeichertes Registry-Profil oder verwende eigene Anmeldedaten.",
+  "registry_credentials_title": "Registry-Anmeldedaten",
+  "registry_credentials_add": "Anmeldedaten hinzufügen",
+  "registry_credentials_edit": "Anmeldedaten bearbeiten",
+  "registry_credentials_manage": "Registry-Anmeldedaten verwalten",
+  "registry_credentials_empty": "Noch keine gespeicherten Registry-Anmeldedaten.",
+  "registry_credentials_label": "Bezeichnung",
+  "registry_credentials_label_required": "Bezeichnung ist erforderlich",
+  "registry_credentials_host": "Registry-Host",
+  "registry_credentials_host_required": "Registry-Host ist erforderlich",
+  "registry_credentials_username": "Benutzername",
+  "registry_credentials_username_required": "Benutzername ist erforderlich",
+  "registry_credentials_password": "Passwort oder Token",
+  "registry_credentials_password_required": "Passwort oder Token ist erforderlich",
+  "registry_credentials_password_hint": "Personal Access Token oder Registry-Passwort",
+  "registry_credentials_password_edit_hint": "Leer lassen, um das aktuelle Passwort beizubehalten",
+  "registry_credentials_ghcr_hint": "Für GHCR verwende ein GitHub-PAT mit read:packages-Bereich.",
+  "registry_credentials_delete_title": "Anmeldedaten löschen?",
+  "registry_credentials_delete_body": "\"{label}\" löschen? Dies kann nicht rückgängig gemacht werden.",
+  "@registry_credentials_delete_body": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "registry_credentials_deleted": "Registry-Anmeldedaten gelöscht",
+  "registry_credentials_delete_failed": "Löschen der Anmeldedaten fehlgeschlagen: {error}",
+  "@registry_credentials_delete_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "registry_credentials_save_failed": "Speichern der Anmeldedaten fehlgeschlagen: {error}",
+  "@registry_credentials_save_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "container_detail_private_registry": "Private Registry: {host} · {username}",
+  "@container_detail_private_registry": {
+    "placeholders": {
+      "host": {
+        "type": "String"
+      },
+      "username": {
+        "type": "String"
+      }
+    }
+  }
 }

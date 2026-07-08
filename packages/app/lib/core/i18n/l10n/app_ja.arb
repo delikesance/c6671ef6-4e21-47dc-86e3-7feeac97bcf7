@@ -10159,9 +10159,41 @@
   "@container_deploy_image_label": {
     "description": "Label for the Docker image field"
   },
-  "container_deploy_image_hint": "タグ付きのDockerイメージ名",
+  "container_deploy_image_hint": "タグ付きのDockerイメージ（例: ghcr.io/lazaroagomez/beatdock:latest）",
   "@container_deploy_image_hint": {
     "description": "Helper text for the image field"
+  },
+  "container_deploy_template_label": "テンプレート",
+  "@container_deploy_template_label": {
+    "description": "Label for hosted app template picker"
+  },
+  "container_deploy_template_easy_music": "かんたん音楽ボット",
+  "@container_deploy_template_easy_music": {
+    "description": "Preset template for a minimal-config Discord music bot"
+  },
+  "container_deploy_template_custom": "カスタムイメージ",
+  "@container_deploy_template_custom": {
+    "description": "Custom Docker image template option"
+  },
+  "container_deploy_easy_music_hint": "DiscordボットトークンだけでOK。公開Lavalinkサーバーを使用するため、レジストリログイン、APIキー、追加設定は不要です。",
+  "@container_deploy_easy_music_hint": {
+    "description": "Helper text for the easy music bot template"
+  },
+  "container_deploy_pick_bot": "既存のボットを使う",
+  "@container_deploy_pick_bot": {
+    "description": "Label for bot picker on deploy page"
+  },
+  "container_deploy_pick_bot_manual": "トークンを手入力",
+  "@container_deploy_pick_bot_manual": {
+    "description": "Option to enter bot token manually instead of picking a saved bot"
+  },
+  "container_deploy_bot_token_hint": "Discord Developer Portalでボットを作成し、Message Content Intentを有効にしてからサーバーに招待してください。",
+  "@container_deploy_bot_token_hint": {
+    "description": "Helper text for bot token field on easy music deploy"
+  },
+  "container_deploy_bot_token_required": "Discordボットトークンは必須です",
+  "@container_deploy_bot_token_required": {
+    "description": "Validation error when bot token is empty for easy music template"
   },
   "container_deploy_image_required": "イメージは必須です",
   "@container_deploy_image_required": {
@@ -10407,5 +10439,175 @@
   "container_detail_apply_stored_minutes": "保存済み{minutes}分を適用",
   "container_detail_minutes_applied": "{minutes}分を適用しました。",
   "subscription_feature_hosted_apps_title": "ホストアプリケーション",
-  "subscription_feature_hosted_apps_desc": "Dockerコンテナを無制限にホスト — 広告不要。"
+  "subscription_feature_hosted_apps_desc": "Dockerコンテナを無制限にホスト — 広告不要。",
+  "command_cloud_sync_failed_saved": "Discordとローカルに保存しました。クラウドバックアップに失敗しました。",
+  "command_cloud_sync_retry": "同期を再試行",
+  "cmd_block_editor_empty_title": "アクションはまだありません",
+  "cmd_block_editor_empty_hint": "アクションブロックを追加して、コマンド実行時の動作を定義します。",
+  "cmd_block_editor_add_action": "アクションを追加",
+  "cmd_block_editor_action_label": "アクション {index}",
+  "@cmd_block_editor_action_label": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "onboarding_command_learn": "コマンドの仕組みを学ぶ",
+  "onboarding_skip_confirm": "オンボーディングをスキップ",
+  "onboarding_skip_dialog_desc": "次回は中断したところから再開するか、ツアーを完全にスキップできます。",
+  "onboarding_skip_dialog_title": "オンボーディングを終了しますか？",
+  "mobile_account_required_title": "サインイン",
+  "mobile_account_required_body": "Discordまたはメールでサインインしてください。",
+  "mobile_account_required_feature_bots": "クラウドからボットを同期・復元",
+  "mobile_account_required_feature_hosted": "ホスト型アプリケーションのデプロイと管理",
+  "mobile_account_required_feature_recovery": "再インストール後や新しい端末ですべてを復元",
+  "mobile_account_required_failed": "Discordサインインに失敗しました: {error}",
+  "@mobile_account_required_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "mobile_login_or_divider": "または",
+  "mobile_login_show_email": "メールでサインイン",
+  "mobile_login_hide_email": "メールサインインを非表示",
+  "mobile_login_email_title": "メールでサインイン",
+  "mobile_login_email_hint": "アカウントに登録したメールとパスワードを使用してください。",
+  "mobile_login_email": "メール",
+  "mobile_login_password": "パスワード",
+  "mobile_login_submit": "サインイン",
+  "mobile_login_invalid_credentials": "メールまたはパスワードが無効です。",
+  "mobile_login_failed": "サインインに失敗しました: {error}",
+  "@mobile_login_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_alternative_login_title": "代替サインイン",
+  "settings_alternative_login_desc": "Discordなしでサインインするためのメールとパスワードを追加します。",
+  "settings_alternative_login_current_email": "現在のメール: {email}",
+  "@settings_alternative_login_current_email": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_alternative_login_current_password": "現在のパスワード",
+  "settings_alternative_login_confirm_password": "パスワードを確認",
+  "settings_alternative_login_update": "認証情報を更新",
+  "settings_add_credentials": "認証情報を保存",
+  "settings_alternative_login_missing_fields": "メールとパスワードは必須です。",
+  "settings_alternative_login_password_mismatch": "パスワードが一致しません。",
+  "settings_credentials_saved": "代替サインインを保存しました。",
+  "subscriptions_hub_title": "サブスクリプション",
+  "subscriptions_hub_subtitle": "Bot Premiumとホスト型アプリのプランを表示・管理します。",
+  "subscriptions_hub_open_settings": "サブスクリプションと請求",
+  "subscriptions_hub_bot_premium_section": "Bot Premium",
+  "subscriptions_hub_bot_premium_desc": "広告を削除し、Discordボットのプレミアム機能を利用できます。",
+  "subscriptions_hub_hosted_section": "ホスト型アプリケーション",
+  "subscriptions_hub_hosted_desc": "広告を見ずにクラウドでDockerコンテナを実行します。",
+  "subscriptions_hub_status_active": "有効",
+  "subscriptions_hub_status_inactive": "未加入",
+  "subscriptions_hub_subscribe": "登録する",
+  "subscriptions_hub_summary_both": "Bot Premiumとホスト型アプリが有効",
+  "subscriptions_hub_summary_bot_only": "Bot Premiumが有効",
+  "subscriptions_hub_summary_hosted_only": "ホスト型アプリが有効",
+  "subscriptions_hub_summary_none": "有効なサブスクリプションはありません",
+  "subscriptions_hub_expires_at": "{date} {time} まで更新",
+  "@subscriptions_hub_expires_at": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "subscription_upgrade_annual": "年間プランにアップグレード",
+  "subscription_upgrade_two_apps": "2コンテナにアップグレード",
+  "subscription_manage_cancel_hint": "解約や請求の変更は「サブスクリプションを管理」から行ってください。App StoreまたはGoogle Playが開きます。",
+  "container_detail_start_btn": "開始",
+  "container_detail_starting": "開始中...",
+  "container_detail_started_ok": "コンテナを開始しています",
+  "container_detail_delete_title": "コンテナを削除",
+  "container_detail_delete_confirm": "データベースとクラウドからコンテナが完全に削除されます。元に戻せません。",
+  "container_detail_delete_btn": "削除",
+  "container_detail_deleted_ok": "コンテナを削除しました",
+  "container_detail_stopped_hint": "このコンテナは停止中です。環境変数を再入力せずに再起動できます。",
+  "container_hosted_resume_with_time": "このコンテナにはまだホスティング時間が残っています。開始をタップして再開してください。",
+  "container_deploy_private_image": "プライベートイメージ",
+  "container_deploy_private_image_hint": "プライベートイメージを取得するにはレジストリ認証情報を入力してください（例: GHCR）。",
+  "container_deploy_use_custom_credentials": "カスタム認証情報を使用",
+  "container_deploy_registry_profile": "保存済みレジストリプロファイル",
+  "container_deploy_registry_profile_none": "プロファイルを選択",
+  "container_deploy_registry_detected": "レジストリ: {host}",
+  "@container_deploy_registry_detected": {
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "container_deploy_save_registry_auth": "認証情報を保存して再利用",
+  "container_deploy_registry_auth_required": "プライベートイメージにはユーザー名とパスワードが必要です。",
+  "container_deploy_registry_profile_required": "保存済みレジストリプロファイルを選択するか、カスタム認証情報を使用してください。",
+  "registry_credentials_title": "レジストリ認証情報",
+  "registry_credentials_add": "認証情報を追加",
+  "registry_credentials_edit": "認証情報を編集",
+  "registry_credentials_manage": "レジストリ認証情報を管理",
+  "registry_credentials_empty": "保存されたレジストリ認証情報はまだありません。",
+  "registry_credentials_label": "ラベル",
+  "registry_credentials_label_required": "ラベルは必須です",
+  "registry_credentials_host": "レジストリホスト",
+  "registry_credentials_host_required": "レジストリホストは必須です",
+  "registry_credentials_username": "ユーザー名",
+  "registry_credentials_username_required": "ユーザー名は必須です",
+  "registry_credentials_password": "パスワードまたはトークン",
+  "registry_credentials_password_required": "パスワードまたはトークンは必須です",
+  "registry_credentials_password_hint": "パーソナルアクセストークンまたはレジストリパスワード",
+  "registry_credentials_password_edit_hint": "空白のままにすると現在のパスワードを保持します",
+  "registry_credentials_ghcr_hint": "GHCRでは read:packages スコープのGitHub PATを使用してください。",
+  "registry_credentials_delete_title": "認証情報を削除しますか？",
+  "registry_credentials_delete_body": "「{label}」を削除しますか？元に戻せません。",
+  "@registry_credentials_delete_body": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "registry_credentials_deleted": "レジストリ認証情報を削除しました",
+  "registry_credentials_delete_failed": "認証情報の削除に失敗しました: {error}",
+  "@registry_credentials_delete_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "registry_credentials_save_failed": "認証情報の保存に失敗しました: {error}",
+  "@registry_credentials_save_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "container_detail_private_registry": "プライベートレジストリ: {host} · {username}",
+  "@container_detail_private_registry": {
+    "placeholders": {
+      "host": {
+        "type": "String"
+      },
+      "username": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -2849,24 +2849,23 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get command_cloud_sync_failed_saved =>
-      'Saved on Discord and locally. Cloud backup failed.';
+      'Discordとローカルに保存しました。クラウドバックアップに失敗しました。';
 
   @override
-  String get command_cloud_sync_retry => 'Retry sync';
+  String get command_cloud_sync_retry => '同期を再試行';
 
   @override
-  String get cmd_block_editor_empty_title => 'No actions yet';
+  String get cmd_block_editor_empty_title => 'アクションはまだありません';
 
   @override
-  String get cmd_block_editor_empty_hint =>
-      'Add an action block to define what your command does when it runs.';
+  String get cmd_block_editor_empty_hint => 'アクションブロックを追加して、コマンド実行時の動作を定義します。';
 
   @override
-  String get cmd_block_editor_add_action => 'Add an action';
+  String get cmd_block_editor_add_action => 'アクションを追加';
 
   @override
   String cmd_block_editor_action_label(int index) {
-    return 'Action $index';
+    return 'アクション $index';
   }
 
   @override
@@ -5345,7 +5344,7 @@ class AppLocalizationsJa extends AppLocalizations {
       '例:\n/hello → ボットが \"こんにちは！ 👋\" と返信';
 
   @override
-  String get onboarding_command_learn => 'Learn how commands work';
+  String get onboarding_command_learn => 'コマンドの仕組みを学ぶ';
 
   @override
   String get onboarding_command_text =>
@@ -5381,14 +5380,14 @@ class AppLocalizationsJa extends AppLocalizations {
   String get onboarding_remind_later => '後で通知する';
 
   @override
-  String get onboarding_skip_confirm => 'Skip onboarding';
+  String get onboarding_skip_confirm => 'オンボーディングをスキップ';
 
   @override
   String get onboarding_skip_dialog_desc =>
-      'You can resume where you left off next time, or skip the tour entirely.';
+      '次回は中断したところから再開するか、ツアーを完全にスキップできます。';
 
   @override
-  String get onboarding_skip_dialog_title => 'Leave the onboarding?';
+  String get onboarding_skip_dialog_title => 'オンボーディングを終了しますか？';
 
   @override
   String get onboarding_start_button => '続ける';
@@ -6269,95 +6268,90 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settings_account_status_disconnected => '未サインイン';
 
   @override
-  String get mobile_account_required_title => 'Sign in';
+  String get mobile_account_required_title => 'サインイン';
 
   @override
-  String get mobile_account_required_body => 'Sign in with Discord or email.';
+  String get mobile_account_required_body => 'Discordまたはメールでサインインしてください。';
 
   @override
-  String get mobile_account_required_feature_bots =>
-      'Sync and restore your bots from the cloud';
+  String get mobile_account_required_feature_bots => 'クラウドからボットを同期・復元';
 
   @override
-  String get mobile_account_required_feature_hosted =>
-      'Deploy and manage hosted applications';
+  String get mobile_account_required_feature_hosted => 'ホスト型アプリケーションのデプロイと管理';
 
   @override
   String get mobile_account_required_feature_recovery =>
-      'Recover everything after reinstall or on a new phone';
+      '再インストール後や新しい端末ですべてを復元';
 
   @override
   String mobile_account_required_failed(String error) {
-    return 'Discord sign-in failed: $error';
+    return 'Discordサインインに失敗しました: $error';
   }
 
   @override
-  String get mobile_login_or_divider => 'or';
+  String get mobile_login_or_divider => 'または';
 
   @override
-  String get mobile_login_show_email => 'Sign in with email';
+  String get mobile_login_show_email => 'メールでサインイン';
 
   @override
-  String get mobile_login_hide_email => 'Hide email sign-in';
+  String get mobile_login_hide_email => 'メールサインインを非表示';
 
   @override
-  String get mobile_login_email_title => 'Sign in with email';
+  String get mobile_login_email_title => 'メールでサインイン';
 
   @override
-  String get mobile_login_email_hint =>
-      'Use the email and password linked to your account.';
+  String get mobile_login_email_hint => 'アカウントに登録したメールとパスワードを使用してください。';
 
   @override
-  String get mobile_login_email => 'Email';
+  String get mobile_login_email => 'メール';
 
   @override
-  String get mobile_login_password => 'Password';
+  String get mobile_login_password => 'パスワード';
 
   @override
-  String get mobile_login_submit => 'Sign in';
+  String get mobile_login_submit => 'サインイン';
 
   @override
-  String get mobile_login_invalid_credentials => 'Invalid email or password.';
+  String get mobile_login_invalid_credentials => 'メールまたはパスワードが無効です。';
 
   @override
   String mobile_login_failed(String error) {
-    return 'Sign-in failed: $error';
+    return 'サインインに失敗しました: $error';
   }
 
   @override
-  String get settings_alternative_login_title => 'Alternative sign-in';
+  String get settings_alternative_login_title => '代替サインイン';
 
   @override
   String get settings_alternative_login_desc =>
-      'Add an email and password to sign in without Discord.';
+      'Discordなしでサインインするためのメールとパスワードを追加します。';
 
   @override
   String settings_alternative_login_current_email(String email) {
-    return 'Current email: $email';
+    return '現在のメール: $email';
   }
 
   @override
-  String get settings_alternative_login_current_password => 'Current password';
+  String get settings_alternative_login_current_password => '現在のパスワード';
 
   @override
-  String get settings_alternative_login_confirm_password => 'Confirm password';
+  String get settings_alternative_login_confirm_password => 'パスワードを確認';
 
   @override
-  String get settings_alternative_login_update => 'Update credentials';
+  String get settings_alternative_login_update => '認証情報を更新';
 
   @override
-  String get settings_add_credentials => 'Save credentials';
+  String get settings_add_credentials => '認証情報を保存';
 
   @override
-  String get settings_alternative_login_missing_fields =>
-      'Email and password are required.';
+  String get settings_alternative_login_missing_fields => 'メールとパスワードは必須です。';
 
   @override
-  String get settings_alternative_login_password_mismatch =>
-      'Passwords do not match.';
+  String get settings_alternative_login_password_mismatch => 'パスワードが一致しません。';
 
   @override
-  String get settings_credentials_saved => 'Alternative sign-in saved.';
+  String get settings_credentials_saved => '代替サインインを保存しました。';
 
   @override
   String get settings_ads_privacy_loading => '広告プライバシー設定を確認中...';
@@ -7430,66 +7424,62 @@ class AppLocalizationsJa extends AppLocalizations {
   String get subscription_manage => 'サブスクリプションを管理';
 
   @override
-  String get subscriptions_hub_title => 'Subscriptions';
+  String get subscriptions_hub_title => 'サブスクリプション';
 
   @override
-  String get subscriptions_hub_subtitle =>
-      'View and manage your Bot Premium and hosted application plans.';
+  String get subscriptions_hub_subtitle => 'Bot Premiumとホスト型アプリのプランを表示・管理します。';
 
   @override
-  String get subscriptions_hub_open_settings => 'Subscriptions & billing';
+  String get subscriptions_hub_open_settings => 'サブスクリプションと請求';
 
   @override
   String get subscriptions_hub_bot_premium_section => 'Bot Premium';
 
   @override
   String get subscriptions_hub_bot_premium_desc =>
-      'Remove ads and unlock premium features for your Discord bots.';
+      '広告を削除し、Discordボットのプレミアム機能を利用できます。';
 
   @override
-  String get subscriptions_hub_hosted_section => 'Hosted applications';
+  String get subscriptions_hub_hosted_section => 'ホスト型アプリケーション';
 
   @override
-  String get subscriptions_hub_hosted_desc =>
-      'Run Docker containers in the cloud without watching ads.';
+  String get subscriptions_hub_hosted_desc => '広告を見ずにクラウドでDockerコンテナを実行します。';
 
   @override
-  String get subscriptions_hub_status_active => 'Active';
+  String get subscriptions_hub_status_active => '有効';
 
   @override
-  String get subscriptions_hub_status_inactive => 'Not subscribed';
+  String get subscriptions_hub_status_inactive => '未加入';
 
   @override
-  String get subscriptions_hub_subscribe => 'Subscribe';
+  String get subscriptions_hub_subscribe => '登録する';
 
   @override
-  String get subscriptions_hub_summary_both =>
-      'Bot Premium and Hosted applications active';
+  String get subscriptions_hub_summary_both => 'Bot Premiumとホスト型アプリが有効';
 
   @override
-  String get subscriptions_hub_summary_bot_only => 'Bot Premium active';
+  String get subscriptions_hub_summary_bot_only => 'Bot Premiumが有効';
 
   @override
-  String get subscriptions_hub_summary_hosted_only =>
-      'Hosted applications active';
+  String get subscriptions_hub_summary_hosted_only => 'ホスト型アプリが有効';
 
   @override
-  String get subscriptions_hub_summary_none => 'No active subscriptions';
+  String get subscriptions_hub_summary_none => '有効なサブスクリプションはありません';
 
   @override
   String subscriptions_hub_expires_at(String date, String time) {
-    return 'Renews until $date at $time';
+    return '$date $time まで更新';
   }
 
   @override
-  String get subscription_upgrade_annual => 'Upgrade to annual';
+  String get subscription_upgrade_annual => '年間プランにアップグレード';
 
   @override
-  String get subscription_upgrade_two_apps => 'Upgrade to 2 containers';
+  String get subscription_upgrade_two_apps => '2コンテナにアップグレード';
 
   @override
   String get subscription_manage_cancel_hint =>
-      'To cancel or change billing, use Manage subscription — this opens the App Store or Google Play.';
+      '解約や請求の変更は「サブスクリプションを管理」から行ってください。App StoreまたはGoogle Playが開きます。';
 
   @override
   String get subscription_monthly_title => '月間';
@@ -8594,34 +8584,34 @@ class AppLocalizationsJa extends AppLocalizations {
   String get container_deploy_image_label => 'イメージ';
 
   @override
-  String get container_deploy_image_hint => 'タグ付きのDockerイメージ名';
+  String get container_deploy_image_hint =>
+      'タグ付きのDockerイメージ（例: ghcr.io/lazaroagomez/beatdock:latest）';
 
   @override
-  String get container_deploy_template_label => 'Template';
+  String get container_deploy_template_label => 'テンプレート';
 
   @override
-  String get container_deploy_template_easy_music => 'Easy Music Bot';
+  String get container_deploy_template_easy_music => 'かんたん音楽ボット';
 
   @override
-  String get container_deploy_template_custom => 'Custom image';
+  String get container_deploy_template_custom => 'カスタムイメージ';
 
   @override
   String get container_deploy_easy_music_hint =>
-      'Only your Discord bot token is required. Uses public Lavalink servers — no registry login, API keys, or extra setup.';
+      'DiscordボットトークンだけでOK。公開Lavalinkサーバーを使用するため、レジストリログイン、APIキー、追加設定は不要です。';
 
   @override
-  String get container_deploy_pick_bot => 'Use an existing bot';
+  String get container_deploy_pick_bot => '既存のボットを使う';
 
   @override
-  String get container_deploy_pick_bot_manual => 'Enter token manually';
+  String get container_deploy_pick_bot_manual => 'トークンを手入力';
 
   @override
   String get container_deploy_bot_token_hint =>
-      'Create a bot in the Discord Developer Portal, enable Message Content Intent, then invite it to your server.';
+      'Discord Developer Portalでボットを作成し、Message Content Intentを有効にしてからサーバーに招待してください。';
 
   @override
-  String get container_deploy_bot_token_required =>
-      'Discord bot token is required';
+  String get container_deploy_bot_token_required => 'Discordボットトークンは必須です';
 
   @override
   String get container_deploy_image_required => 'イメージは必須です';
@@ -8700,30 +8690,30 @@ class AppLocalizationsJa extends AppLocalizations {
   String get container_detail_stopped_ok => 'コンテナが停止しました';
 
   @override
-  String get container_detail_start_btn => 'Start';
+  String get container_detail_start_btn => '開始';
 
   @override
-  String get container_detail_starting => 'Starting...';
+  String get container_detail_starting => '開始中...';
 
   @override
-  String get container_detail_started_ok => 'Container is starting';
+  String get container_detail_started_ok => 'コンテナを開始しています';
 
   @override
-  String get container_detail_delete_title => 'Delete Container';
+  String get container_detail_delete_title => 'コンテナを削除';
 
   @override
   String get container_detail_delete_confirm =>
-      'This permanently deletes the container from the database and cloud. This cannot be undone.';
+      'データベースとクラウドからコンテナが完全に削除されます。元に戻せません。';
 
   @override
-  String get container_detail_delete_btn => 'Delete';
+  String get container_detail_delete_btn => '削除';
 
   @override
-  String get container_detail_deleted_ok => 'Container deleted';
+  String get container_detail_deleted_ok => 'コンテナを削除しました';
 
   @override
   String get container_detail_stopped_hint =>
-      'This container is shut down. You can restart it without re-entering environment variables.';
+      'このコンテナは停止中です。環境変数を再入力せずに再起動できます。';
 
   @override
   String get container_detail_update_resources => 'リソースの更新';
@@ -8872,7 +8862,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get container_hosted_resume_with_time =>
-      'You still have hosting time on this container. Tap Start to resume.';
+      'このコンテナにはまだホスティング時間が残っています。開始をタップして再開してください。';
 
   @override
   String container_hosted_watch_ad_earn(int reward) {
@@ -8915,115 +8905,111 @@ class AppLocalizationsJa extends AppLocalizations {
   String get container_deploy_ephemeral_storage => 'エフェメラルストレージ（永続ボリュームなし）';
 
   @override
-  String get container_deploy_private_image => 'Private image';
+  String get container_deploy_private_image => 'プライベートイメージ';
 
   @override
   String get container_deploy_private_image_hint =>
-      'Provide registry credentials to pull private images (e.g. GHCR).';
+      'プライベートイメージを取得するにはレジストリ認証情報を入力してください（例: GHCR）。';
 
   @override
-  String get container_deploy_use_custom_credentials =>
-      'Use custom credentials';
+  String get container_deploy_use_custom_credentials => 'カスタム認証情報を使用';
 
   @override
-  String get container_deploy_registry_profile => 'Saved registry profile';
+  String get container_deploy_registry_profile => '保存済みレジストリプロファイル';
 
   @override
-  String get container_deploy_registry_profile_none => 'Select a profile';
+  String get container_deploy_registry_profile_none => 'プロファイルを選択';
 
   @override
   String container_deploy_registry_detected(String host) {
-    return 'Registry: $host';
+    return 'レジストリ: $host';
   }
 
   @override
-  String get container_deploy_save_registry_auth =>
-      'Save credentials for reuse';
+  String get container_deploy_save_registry_auth => '認証情報を保存して再利用';
 
   @override
   String get container_deploy_registry_auth_required =>
-      'Username and password are required for private images.';
+      'プライベートイメージにはユーザー名とパスワードが必要です。';
 
   @override
   String get container_deploy_registry_profile_required =>
-      'Select a saved registry profile or use custom credentials.';
+      '保存済みレジストリプロファイルを選択するか、カスタム認証情報を使用してください。';
 
   @override
-  String get registry_credentials_title => 'Registry credentials';
+  String get registry_credentials_title => 'レジストリ認証情報';
 
   @override
-  String get registry_credentials_add => 'Add credentials';
+  String get registry_credentials_add => '認証情報を追加';
 
   @override
-  String get registry_credentials_edit => 'Edit credentials';
+  String get registry_credentials_edit => '認証情報を編集';
 
   @override
-  String get registry_credentials_manage => 'Manage registry credentials';
+  String get registry_credentials_manage => 'レジストリ認証情報を管理';
 
   @override
-  String get registry_credentials_empty => 'No saved registry credentials yet.';
+  String get registry_credentials_empty => '保存されたレジストリ認証情報はまだありません。';
 
   @override
-  String get registry_credentials_label => 'Label';
+  String get registry_credentials_label => 'ラベル';
 
   @override
-  String get registry_credentials_label_required => 'Label is required';
+  String get registry_credentials_label_required => 'ラベルは必須です';
 
   @override
-  String get registry_credentials_host => 'Registry host';
+  String get registry_credentials_host => 'レジストリホスト';
 
   @override
-  String get registry_credentials_host_required => 'Registry host is required';
+  String get registry_credentials_host_required => 'レジストリホストは必須です';
 
   @override
-  String get registry_credentials_username => 'Username';
+  String get registry_credentials_username => 'ユーザー名';
 
   @override
-  String get registry_credentials_username_required => 'Username is required';
+  String get registry_credentials_username_required => 'ユーザー名は必須です';
 
   @override
-  String get registry_credentials_password => 'Password or token';
+  String get registry_credentials_password => 'パスワードまたはトークン';
 
   @override
-  String get registry_credentials_password_required =>
-      'Password or token is required';
+  String get registry_credentials_password_required => 'パスワードまたはトークンは必須です';
 
   @override
-  String get registry_credentials_password_hint =>
-      'Personal access token or registry password';
+  String get registry_credentials_password_hint => 'パーソナルアクセストークンまたはレジストリパスワード';
 
   @override
   String get registry_credentials_password_edit_hint =>
-      'Leave blank to keep the current password';
+      '空白のままにすると現在のパスワードを保持します';
 
   @override
   String get registry_credentials_ghcr_hint =>
-      'For GHCR, use a GitHub PAT with read:packages scope.';
+      'GHCRでは read:packages スコープのGitHub PATを使用してください。';
 
   @override
-  String get registry_credentials_delete_title => 'Delete credentials?';
+  String get registry_credentials_delete_title => '認証情報を削除しますか？';
 
   @override
   String registry_credentials_delete_body(String label) {
-    return 'Delete \"$label\"? This cannot be undone.';
+    return '「$label」を削除しますか？元に戻せません。';
   }
 
   @override
-  String get registry_credentials_deleted => 'Registry credentials deleted';
+  String get registry_credentials_deleted => 'レジストリ認証情報を削除しました';
 
   @override
   String registry_credentials_delete_failed(String error) {
-    return 'Failed to delete credentials: $error';
+    return '認証情報の削除に失敗しました: $error';
   }
 
   @override
   String registry_credentials_save_failed(String error) {
-    return 'Failed to save credentials: $error';
+    return '認証情報の保存に失敗しました: $error';
   }
 
   @override
   String container_detail_private_registry(String host, String username) {
-    return 'Private registry: $host · $username';
+    return 'プライベートレジストリ: $host · $username';
   }
 
   @override
