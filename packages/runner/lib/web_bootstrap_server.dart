@@ -6,6 +6,7 @@ import 'package:alfred/alfred.dart';
 import 'package:bot_creator_shared/bot/bot_config.dart';
 import 'package:bot_creator_shared/bot/json_variable_store.dart';
 import 'package:bot_creator_shared/bot/variable_database.dart';
+import 'package:bot_creator_shared/utils/discord_auth_errors.dart';
 import 'package:bot_creator_runner/runner_runtime_controller.dart';
 import 'package:bot_creator_runner/stores/sqlite_cli_variable_store.dart';
 import 'package:bot_creator_runner/web_log_store.dart';
@@ -797,8 +798,18 @@ class RunnerWebBootstrapServer {
     );
 
     if (desiredState == 'running' && !_runtimeController.isBotRunning(botId)) {
-      await _runtimeController.startBot(botId: botId, botName: botName);
-      stdout.writeln('[Pool] Bot "$botName" ($botId) started.');
+      try {
+        await _runtimeController.startBot(botId: botId, botName: botName);
+        stdout.writeln('[Pool] Bot "$botName" ($botId) started.');
+      } catch (e) {
+        if (isDiscordTokenUnauthorized(e)) {
+          stderr.writeln(
+            '[Pool] Bot "$botName" ($botId) has invalid token; skipping start.',
+          );
+          return;
+        }
+        rethrow;
+      }
     }
   }
 
@@ -828,6 +839,7 @@ class RunnerWebBootstrapServer {
         botName.isEmpty ? botId : botName,
         config,
       );
+      _runtimeController.clearTokenInvalid(botId);
       return res.json({'ok': true});
     } catch (e) {
       throw AlfredException(HttpStatus.badRequest, {
@@ -848,7 +860,21 @@ class RunnerWebBootstrapServer {
       );
       return res.json(_buildStatusPayload());
     } on StateError catch (e) {
+      if (e.message.contains('invalid Discord token')) {
+        throw AlfredException(HttpStatus.unauthorized, {
+          'error': 'discord_token_invalid',
+          'detail': e.message,
+        });
+      }
       throw AlfredException(HttpStatus.conflict, {'error': e.message});
+    } catch (e) {
+      if (isDiscordTokenUnauthorized(e)) {
+        throw AlfredException(HttpStatus.unauthorized, {
+          'error': 'discord_token_invalid',
+          'detail': e.toString(),
+        });
+      }
+      rethrow;
     }
   }
 
@@ -1648,6 +1674,7 @@ class RunnerWebBootstrapServer {
       'lastSeenAt': state.lastSeenAt?.toIso8601String(),
       'lastError': state.lastError,
       'baselineRssBytes': state.baselineRssBytes,
+      'tokenInvalid': state.tokenInvalid,
     };
   }
 

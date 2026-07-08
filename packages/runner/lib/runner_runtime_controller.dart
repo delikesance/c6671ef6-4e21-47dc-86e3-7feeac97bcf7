@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:bot_creator_shared/bot/bot_config.dart';
+import 'package:bot_creator_shared/utils/discord_auth_errors.dart';
 import 'package:bot_creator_runner/discord_runner.dart';
 import 'package:bot_creator_runner/runner_bot_store.dart';
 import 'package:bot_creator_runner/stores/command_stats_store.dart';
@@ -14,6 +15,7 @@ class RunnerBotRuntimeState {
     required this.lastSeenAt,
     this.lastError,
     this.baselineRssBytes,
+    this.tokenInvalid = false,
   });
 
   final String botId;
@@ -22,6 +24,7 @@ class RunnerBotRuntimeState {
   final DateTime? lastSeenAt;
   final String? lastError;
   final int? baselineRssBytes;
+  final bool tokenInvalid;
 }
 
 class RunnerRuntimeController {
@@ -45,6 +48,7 @@ class RunnerRuntimeController {
   final Map<String, DateTime> _lastSeenAtByBot = <String, DateTime>{};
   final Map<String, String?> _lastErrorByBot = <String, String?>{};
   final Set<String> _busyBots = <String>{};
+  final Set<String> _tokenInvalidBots = <String>{};
 
   bool get isRunning => _runners.isNotEmpty;
   int get runningCount => _runners.length;
@@ -55,6 +59,13 @@ class RunnerRuntimeController {
   CommandStatsStore get commandStatsStore => _commandStatsStore;
 
   bool isBotRunning(String botId) => _runners.containsKey(botId);
+
+  bool isTokenInvalid(String botId) => _tokenInvalidBots.contains(botId);
+
+  /// Clears the in-memory token-invalid flag after an explicit config sync.
+  void clearTokenInvalid(String botId) {
+    _tokenInvalidBots.remove(botId);
+  }
 
   bool isDebugReplayCapturing(String botId) {
     final runner = _runners[botId];
@@ -99,6 +110,7 @@ class RunnerRuntimeController {
       lastSeenAt: _lastSeenAtByBot[botId],
       lastError: _lastErrorByBot[botId],
       baselineRssBytes: _baselineRssByBot[botId],
+      tokenInvalid: _tokenInvalidBots.contains(botId),
     );
   }
 
@@ -167,6 +179,11 @@ class RunnerRuntimeController {
       throw StateError('Bot "$botId" is already running.');
     }
 
+    if (_tokenInvalidBots.contains(botId)) {
+      _busyBots.remove(botId);
+      throw StateError('Bot "$botId" has an invalid Discord token.');
+    }
+
     final runner = DiscordRunner(
       botId,
       config,
@@ -185,9 +202,18 @@ class RunnerRuntimeController {
           baselineRssBytes ?? _readCurrentProcessRssBytes();
       _lastSeenAtByBot[botId] = DateTime.now().toUtc();
       _lastErrorByBot.remove(botId);
+      _tokenInvalidBots.remove(botId);
     } catch (error) {
       _lastSeenAtByBot[botId] = DateTime.now().toUtc();
       _lastErrorByBot[botId] = error.toString();
+      if (isDiscordTokenUnauthorized(error)) {
+        await _markTokenInvalid(botId, error.toString());
+      }
+      try {
+        await runner.stop();
+      } catch (_) {
+        // Best-effort cleanup after a failed start.
+      }
       rethrow;
     } finally {
       _busyBots.remove(botId);
@@ -223,8 +249,19 @@ class RunnerRuntimeController {
     _runners.remove(botId);
     _lastSeenAtByBot[botId] = DateTime.now().toUtc();
     _lastErrorByBot[botId] = reason;
+    if (isDiscordTokenUnauthorized(reason)) {
+      _tokenInvalidBots.add(botId);
+    }
     unawaited(_botStore.setRunning(botId, false));
     stderr.writeln('[Runner] Bot "$botId" disconnected: $reason');
+  }
+
+  Future<void> _markTokenInvalid(String botId, String reason) async {
+    _runners.remove(botId);
+    _tokenInvalidBots.add(botId);
+    _lastErrorByBot[botId] = reason;
+    await _botStore.setRunning(botId, false);
+    stderr.writeln('[Runner] Bot "$botId" token invalid: $reason');
   }
 
   Future<void> stopAllBots() async {
@@ -272,6 +309,19 @@ class RunnerRuntimeController {
       '[Self-Healing] Resuming ${toStart.length} bot(s) previously running...',
     );
     for (final entry in toStart) {
+      if (_tokenInvalidBots.contains(entry.id)) {
+        stderr.writeln(
+          '[Self-Healing] Skipping bot "${entry.name}" (${entry.id}): token invalid.',
+        );
+        continue;
+      }
+      final lastError = _lastErrorByBot[entry.id];
+      if (lastError != null && isDiscordTokenUnauthorized(lastError)) {
+        stderr.writeln(
+          '[Self-Healing] Skipping bot "${entry.name}" (${entry.id}): last error indicates invalid token.',
+        );
+        continue;
+      }
       try {
         await startBot(botId: entry.id, botName: entry.name);
         stdout.writeln(
@@ -297,6 +347,9 @@ class RunnerRuntimeController {
     await _botStore.save(botId, name, newConfig);
     final runner = _runners[botId];
     if (runner != null) {
+      if (_tokenInvalidBots.contains(botId)) {
+        return;
+      }
       final requiresReconnect = await runner.reloadConfig(newConfig);
       if (requiresReconnect && newConfig.autoRestart) {
         await _restartRunningBotWithConfig(
@@ -690,6 +743,10 @@ class RunnerRuntimeController {
     required String name,
     required BotConfig config,
   }) async {
+    if (_tokenInvalidBots.contains(botId)) {
+      return;
+    }
+
     final existing = _runners[botId];
     if (existing == null) {
       return;
@@ -698,14 +755,23 @@ class RunnerRuntimeController {
     await existing.stop();
     _runners.remove(botId);
 
-    final replacement = DiscordRunner(botId, config, statsStore: _commandStatsStore);
+    final replacement = DiscordRunner(
+      botId,
+      config,
+      statsStore: _commandStatsStore,
+      onDisconnected: (reason) => _handleBotDisconnected(botId, reason),
+    );
     try {
       await replacement.start();
       _runners[botId] = replacement;
       _botNames[botId] = name;
       _lastErrorByBot.remove(botId);
+      _tokenInvalidBots.remove(botId);
     } catch (error) {
       _lastErrorByBot[botId] = error.toString();
+      if (isDiscordTokenUnauthorized(error)) {
+        await _markTokenInvalid(botId, error.toString());
+      }
       rethrow;
     }
   }
