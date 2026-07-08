@@ -423,6 +423,35 @@ Future<bool> _runStartupTask({
   }
 }
 
+class OAuthCallbackRedirectPage extends StatefulWidget {
+  const OAuthCallbackRedirectPage({super.key});
+
+  @override
+  State<OAuthCallbackRedirectPage> createState() => _OAuthCallbackRedirectPageState();
+}
+
+class _OAuthCallbackRedirectPageState extends State<OAuthCallbackRedirectPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final navigator = MyApp.navigatorKey.currentState;
+      if (navigator != null) {
+        navigator.pushNamedAndRemoveUntil('/home', (route) => false);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+}
+
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
   static final GlobalKey<NavigatorState> navigatorKey =
@@ -474,7 +503,7 @@ class _MyAppState extends State<MyApp> {
         if (_isOAuthCallbackRoute(name)) {
           return MaterialPageRoute<void>(
             settings: settings,
-            builder: (context) => const MobileAccountGateShell(child: MyMainPage()),
+            builder: (context) => const OAuthCallbackRedirectPage(),
           );
         }
         return null;
@@ -542,6 +571,7 @@ class _MyMainPageState extends State<MyMainPage> {
         backgroundColor: const Color.fromRGBO(106, 15, 162, 1),
         title: Text(context.tr.app_title),
         centerTitle: true,
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),

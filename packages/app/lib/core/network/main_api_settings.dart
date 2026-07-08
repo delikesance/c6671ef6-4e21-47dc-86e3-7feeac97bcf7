@@ -234,7 +234,6 @@ class MainApiSettingsStore {
     return saveSession(
       session.copyWith(
         authMethod: MainApiAuthMethod.emailPassword,
-        refreshToken: null,
       ),
     );
   }

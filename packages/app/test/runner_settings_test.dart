@@ -19,7 +19,7 @@ void main() {
         apiToken: 'tok123',
         name: 'Prod',
       );
-      final json = config.toJson();
+      final json = config.toJson(includeToken: true);
       final restored = RunnerConnectionConfig.fromJson(json);
 
       expect(restored.id, 'abc');

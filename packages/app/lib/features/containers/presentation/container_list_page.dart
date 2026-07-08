@@ -3,6 +3,7 @@ import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/containers/presentation/container_deploy_page.dart';
+import 'package:bot_creator/features/containers/presentation/registry_credentials_page.dart';
 import 'package:bot_creator/features/containers/presentation/container_detail_page.dart';
 import 'package:bot_creator/features/containers/presentation/hosted_app_upsell_widgets.dart';
 import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
@@ -155,6 +156,18 @@ class _ContainerListPageState extends State<ContainerListPage> {
       appBar: AppBar(
         title: Text(tr.container_list_title),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.vpn_key_outlined),
+            tooltip: tr.registry_credentials_title,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => RegistryCredentialsPage(client: _client),
+                ),
+              );
+            },
+          ),
           IconButton(icon: const Icon(Icons.refresh), onPressed: _load),
           if (_atFreeContainerLimit &&
               SubscriptionService.supportsNativeBilling &&

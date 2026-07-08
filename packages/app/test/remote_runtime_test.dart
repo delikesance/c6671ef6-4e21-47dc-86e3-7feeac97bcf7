@@ -13,8 +13,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  setUp(() {
+  setUp(() async {
     SharedPreferences.setMockInitialValues(const <String, Object>{});
+    await MainApiSettingsStore.clearSession();
+    await MainApiSettingsStore.clearConfig();
     debugDefaultTargetPlatformOverride = TargetPlatform.android;
   });
 

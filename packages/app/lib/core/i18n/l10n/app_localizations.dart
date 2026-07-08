@@ -16090,6 +16090,192 @@ abstract class AppLocalizations {
   /// **'Ephemeral storage (no persistent volume)'**
   String get container_deploy_ephemeral_storage;
 
+  /// Toggle for private registry image on deploy page
+  ///
+  /// In en, this message translates to:
+  /// **'Private image'**
+  String get container_deploy_private_image;
+
+  /// Subtitle for private image toggle
+  ///
+  /// In en, this message translates to:
+  /// **'Provide registry credentials to pull private images (e.g. GHCR).'**
+  String get container_deploy_private_image_hint;
+
+  /// Toggle to enter inline registry credentials
+  ///
+  /// In en, this message translates to:
+  /// **'Use custom credentials'**
+  String get container_deploy_use_custom_credentials;
+
+  /// Dropdown label for saved registry credentials
+  ///
+  /// In en, this message translates to:
+  /// **'Saved registry profile'**
+  String get container_deploy_registry_profile;
+
+  /// Placeholder for registry profile dropdown
+  ///
+  /// In en, this message translates to:
+  /// **'Select a profile'**
+  String get container_deploy_registry_profile_none;
+
+  /// Detected registry host from image
+  ///
+  /// In en, this message translates to:
+  /// **'Registry: {host}'**
+  String container_deploy_registry_detected(String host);
+
+  /// Checkbox to save inline credentials as profile
+  ///
+  /// In en, this message translates to:
+  /// **'Save credentials for reuse'**
+  String get container_deploy_save_registry_auth;
+
+  /// Validation error for inline registry auth
+  ///
+  /// In en, this message translates to:
+  /// **'Username and password are required for private images.'**
+  String get container_deploy_registry_auth_required;
+
+  /// Validation error when no registry profile selected
+  ///
+  /// In en, this message translates to:
+  /// **'Select a saved registry profile or use custom credentials.'**
+  String get container_deploy_registry_profile_required;
+
+  /// Title for registry credentials page
+  ///
+  /// In en, this message translates to:
+  /// **'Registry credentials'**
+  String get registry_credentials_title;
+
+  /// Add registry credentials button
+  ///
+  /// In en, this message translates to:
+  /// **'Add credentials'**
+  String get registry_credentials_add;
+
+  /// Edit registry credentials title
+  ///
+  /// In en, this message translates to:
+  /// **'Edit credentials'**
+  String get registry_credentials_edit;
+
+  /// Link to open registry credentials page from deploy form
+  ///
+  /// In en, this message translates to:
+  /// **'Manage registry credentials'**
+  String get registry_credentials_manage;
+
+  /// Empty state on registry credentials page
+  ///
+  /// In en, this message translates to:
+  /// **'No saved registry credentials yet.'**
+  String get registry_credentials_empty;
+
+  /// Label field for registry credential profile
+  ///
+  /// In en, this message translates to:
+  /// **'Label'**
+  String get registry_credentials_label;
+
+  /// Validation for registry credential label
+  ///
+  /// In en, this message translates to:
+  /// **'Label is required'**
+  String get registry_credentials_label_required;
+
+  /// Registry host field
+  ///
+  /// In en, this message translates to:
+  /// **'Registry host'**
+  String get registry_credentials_host;
+
+  /// Validation for registry host
+  ///
+  /// In en, this message translates to:
+  /// **'Registry host is required'**
+  String get registry_credentials_host_required;
+
+  /// Registry username field
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get registry_credentials_username;
+
+  /// Validation for registry username
+  ///
+  /// In en, this message translates to:
+  /// **'Username is required'**
+  String get registry_credentials_username_required;
+
+  /// Registry password field
+  ///
+  /// In en, this message translates to:
+  /// **'Password or token'**
+  String get registry_credentials_password;
+
+  /// Validation for registry password
+  ///
+  /// In en, this message translates to:
+  /// **'Password or token is required'**
+  String get registry_credentials_password_required;
+
+  /// Helper for password field on create
+  ///
+  /// In en, this message translates to:
+  /// **'Personal access token or registry password'**
+  String get registry_credentials_password_hint;
+
+  /// Helper for password field on edit
+  ///
+  /// In en, this message translates to:
+  /// **'Leave blank to keep the current password'**
+  String get registry_credentials_password_edit_hint;
+
+  /// GHCR-specific helper text
+  ///
+  /// In en, this message translates to:
+  /// **'For GHCR, use a GitHub PAT with read:packages scope.'**
+  String get registry_credentials_ghcr_hint;
+
+  /// Delete confirmation title
+  ///
+  /// In en, this message translates to:
+  /// **'Delete credentials?'**
+  String get registry_credentials_delete_title;
+
+  /// Delete confirmation body
+  ///
+  /// In en, this message translates to:
+  /// **'Delete \"{label}\"? This cannot be undone.'**
+  String registry_credentials_delete_body(String label);
+
+  /// Snackbar after delete
+  ///
+  /// In en, this message translates to:
+  /// **'Registry credentials deleted'**
+  String get registry_credentials_deleted;
+
+  /// Snackbar on delete failure
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete credentials: {error}'**
+  String registry_credentials_delete_failed(String error);
+
+  /// Snackbar on save failure
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to save credentials: {error}'**
+  String registry_credentials_save_failed(String error);
+
+  /// Private registry info on container detail
+  ///
+  /// In en, this message translates to:
+  /// **'Private registry: {host} · {username}'**
+  String container_detail_private_registry(String host, String username);
+
   /// Snackbar after ad top-up applied to running container
   ///
   /// In en, this message translates to:

@@ -61,10 +61,15 @@ class MobileAccountGate {
     if (session == null) {
       return false;
     }
-    if (isEmailPasswordSession(session)) {
+    final method = _resolvedAuthMethod(session);
+    if (method != MainApiAuthMethod.discordOauth &&
+        method != MainApiAuthMethod.emailPassword) {
+      return false;
+    }
+    if (!session.isExpired) {
       return true;
     }
-    return isRefreshableDiscordOAuthSession(session);
+    return session.refreshToken?.trim().isNotEmpty ?? false;
   }
 
   static Future<bool> hasRequiredAccount() async {
@@ -77,8 +82,7 @@ class MobileAccountGate {
       return false;
     }
 
-    if (_resolvedAuthMethod(session!) == MainApiAuthMethod.discordOauth &&
-        (session.isExpired || session.expiresSoon())) {
+    if (session!.isExpired || session.expiresSoon()) {
       session = await restoreMainApiSessionIfNeeded();
     }
 
