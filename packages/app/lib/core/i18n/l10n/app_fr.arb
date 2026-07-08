@@ -10120,9 +10120,41 @@
   "@container_deploy_image_label": {
     "description": "Label for the Docker image field"
   },
-  "container_deploy_image_hint": "Nom de l'image Docker avec tag",
+  "container_deploy_image_hint": "Image Docker avec tag (ex. ghcr.io/lazaroagomez/beatdock:latest)",
   "@container_deploy_image_hint": {
     "description": "Helper text for the image field"
+  },
+  "container_deploy_template_label": "Modèle",
+  "@container_deploy_template_label": {
+    "description": "Label for hosted app template picker"
+  },
+  "container_deploy_template_easy_music": "Bot musique simple",
+  "@container_deploy_template_easy_music": {
+    "description": "Preset template for a minimal-config Discord music bot"
+  },
+  "container_deploy_template_custom": "Image personnalisée",
+  "@container_deploy_template_custom": {
+    "description": "Custom Docker image template option"
+  },
+  "container_deploy_easy_music_hint": "Seul le token de votre bot Discord est requis. Utilise des serveurs Lavalink publics — pas de connexion au registre, de clés API ni de configuration supplémentaire.",
+  "@container_deploy_easy_music_hint": {
+    "description": "Helper text for the easy music bot template"
+  },
+  "container_deploy_pick_bot": "Utiliser un bot existant",
+  "@container_deploy_pick_bot": {
+    "description": "Label for bot picker on deploy page"
+  },
+  "container_deploy_pick_bot_manual": "Saisir le token manuellement",
+  "@container_deploy_pick_bot_manual": {
+    "description": "Option to enter bot token manually instead of picking a saved bot"
+  },
+  "container_deploy_bot_token_hint": "Créez un bot sur le portail développeur Discord, activez l'intention Message Content, puis invitez-le sur votre serveur.",
+  "@container_deploy_bot_token_hint": {
+    "description": "Helper text for bot token field on easy music deploy"
+  },
+  "container_deploy_bot_token_required": "Le token du bot Discord est requis",
+  "@container_deploy_bot_token_required": {
+    "description": "Validation error when bot token is empty for easy music template"
   },
   "container_deploy_image_required": "L'image est requise",
   "@container_deploy_image_required": {
@@ -10421,5 +10453,117 @@
   "settings_add_credentials": "Enregistrer les identifiants",
   "settings_alternative_login_missing_fields": "L'e-mail et le mot de passe sont requis.",
   "settings_alternative_login_password_mismatch": "Les mots de passe ne correspondent pas.",
-  "settings_credentials_saved": "Connexion alternative enregistrée."
+  "settings_credentials_saved": "Connexion alternative enregistrée.",
+  "onboarding_command_learn": "Comprendre le fonctionnement des commandes",
+  "onboarding_skip_confirm": "Passer l'introduction",
+  "onboarding_skip_dialog_desc": "Vous pourrez reprendre là où vous vous êtes arrêté la prochaine fois, ou ignorer complètement la visite.",
+  "onboarding_skip_dialog_title": "Quitter l'introduction ?",
+  "mobile_account_required_feature_bots": "Synchroniser et restaurer vos bots depuis le cloud",
+  "mobile_account_required_feature_hosted": "Déployer et gérer des applications hébergées",
+  "mobile_account_required_feature_recovery": "Tout récupérer après réinstallation ou sur un nouveau téléphone",
+  "mobile_account_required_failed": "Échec de la connexion Discord : {error}",
+  "@mobile_account_required_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "subscriptions_hub_title": "Abonnements",
+  "subscriptions_hub_subtitle": "Consultez et gérez vos offres Bot Premium et applications hébergées.",
+  "subscriptions_hub_open_settings": "Abonnements et facturation",
+  "subscriptions_hub_bot_premium_section": "Bot Premium",
+  "subscriptions_hub_bot_premium_desc": "Supprimez les publicités et débloquez les fonctionnalités premium pour vos bots Discord.",
+  "subscriptions_hub_hosted_section": "Applications hébergées",
+  "subscriptions_hub_hosted_desc": "Exécutez des conteneurs Docker dans le cloud sans regarder de publicités.",
+  "subscriptions_hub_status_active": "Actif",
+  "subscriptions_hub_status_inactive": "Non abonné",
+  "subscriptions_hub_subscribe": "S'abonner",
+  "subscriptions_hub_summary_both": "Bot Premium et applications hébergées actifs",
+  "subscriptions_hub_summary_bot_only": "Bot Premium actif",
+  "subscriptions_hub_summary_hosted_only": "Applications hébergées actives",
+  "subscriptions_hub_summary_none": "Aucun abonnement actif",
+  "subscriptions_hub_expires_at": "Renouvelé jusqu'au {date} à {time}",
+  "@subscriptions_hub_expires_at": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "subscription_upgrade_annual": "Passer à l'abonnement annuel",
+  "subscription_upgrade_two_apps": "Passer à 2 conteneurs",
+  "subscription_manage_cancel_hint": "Pour annuler ou modifier la facturation, utilisez Gérer l'abonnement — cela ouvre l'App Store ou Google Play.",
+  "container_deploy_private_image": "Image privée",
+  "container_deploy_private_image_hint": "Fournissez des identifiants de registre pour récupérer des images privées (ex. GHCR).",
+  "container_deploy_use_custom_credentials": "Utiliser des identifiants personnalisés",
+  "container_deploy_registry_profile": "Profil de registre enregistré",
+  "container_deploy_registry_profile_none": "Sélectionner un profil",
+  "container_deploy_registry_detected": "Registre : {host}",
+  "@container_deploy_registry_detected": {
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "container_deploy_save_registry_auth": "Enregistrer les identifiants pour réutilisation",
+  "container_deploy_registry_auth_required": "Le nom d'utilisateur et le mot de passe sont requis pour les images privées.",
+  "container_deploy_registry_profile_required": "Sélectionnez un profil de registre enregistré ou utilisez des identifiants personnalisés.",
+  "registry_credentials_title": "Identifiants de registre",
+  "registry_credentials_add": "Ajouter des identifiants",
+  "registry_credentials_edit": "Modifier les identifiants",
+  "registry_credentials_manage": "Gérer les identifiants de registre",
+  "registry_credentials_empty": "Aucun identifiant de registre enregistré pour le moment.",
+  "registry_credentials_label": "Libellé",
+  "registry_credentials_label_required": "Le libellé est requis",
+  "registry_credentials_host": "Hôte du registre",
+  "registry_credentials_host_required": "L'hôte du registre est requis",
+  "registry_credentials_username": "Nom d'utilisateur",
+  "registry_credentials_username_required": "Le nom d'utilisateur est requis",
+  "registry_credentials_password": "Mot de passe ou jeton",
+  "registry_credentials_password_required": "Le mot de passe ou le jeton est requis",
+  "registry_credentials_password_hint": "Jeton d'accès personnel ou mot de passe du registre",
+  "registry_credentials_password_edit_hint": "Laisser vide pour conserver le mot de passe actuel",
+  "registry_credentials_ghcr_hint": "Pour GHCR, utilisez un PAT GitHub avec la portée read:packages.",
+  "registry_credentials_delete_title": "Supprimer les identifiants ?",
+  "registry_credentials_delete_body": "Supprimer « {label} » ? Cette action est irréversible.",
+  "@registry_credentials_delete_body": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "registry_credentials_deleted": "Identifiants de registre supprimés",
+  "registry_credentials_delete_failed": "Échec de la suppression des identifiants : {error}",
+  "@registry_credentials_delete_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "registry_credentials_save_failed": "Échec de l'enregistrement des identifiants : {error}",
+  "@registry_credentials_save_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "container_detail_private_registry": "Registre privé : {host} · {username}",
+  "@container_detail_private_registry": {
+    "placeholders": {
+      "host": {
+        "type": "String"
+      },
+      "username": {
+        "type": "String"
+      }
+    }
+  }
 }

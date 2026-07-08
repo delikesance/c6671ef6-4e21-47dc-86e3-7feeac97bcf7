@@ -3006,24 +3006,24 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get command_cloud_sync_failed_saved =>
-      'Saved on Discord and locally. Cloud backup failed.';
+      'Discord ve yerel olarak kaydedildi. Bulut yedekleme başarısız oldu.';
 
   @override
-  String get command_cloud_sync_retry => 'Retry sync';
+  String get command_cloud_sync_retry => 'Senkronizasyonu yeniden dene';
 
   @override
-  String get cmd_block_editor_empty_title => 'No actions yet';
+  String get cmd_block_editor_empty_title => 'Henüz eylem yok';
 
   @override
   String get cmd_block_editor_empty_hint =>
-      'Add an action block to define what your command does when it runs.';
+      'Komutunuz çalıştığında ne yapacağını tanımlamak için bir eylem bloğu ekleyin.';
 
   @override
-  String get cmd_block_editor_add_action => 'Add an action';
+  String get cmd_block_editor_add_action => 'Eylem ekle';
 
   @override
   String cmd_block_editor_action_label(int index) {
-    return 'Action $index';
+    return 'Eylem $index';
   }
 
   @override
@@ -5577,7 +5577,7 @@ class AppLocalizationsTr extends AppLocalizations {
       'Örnek:\n/hello → Bot \"Merhaba! 👋\" yanıtını verir';
 
   @override
-  String get onboarding_command_learn => 'Learn how commands work';
+  String get onboarding_command_learn => 'Komutların nasıl çalıştığını öğrenin';
 
   @override
   String get onboarding_command_text =>
@@ -5614,14 +5614,14 @@ class AppLocalizationsTr extends AppLocalizations {
   String get onboarding_remind_later => 'Daha sonra hatırlat';
 
   @override
-  String get onboarding_skip_confirm => 'Skip onboarding';
+  String get onboarding_skip_confirm => 'Tanıtımı atla';
 
   @override
   String get onboarding_skip_dialog_desc =>
-      'You can resume where you left off next time, or skip the tour entirely.';
+      'Bir sonraki sefer kaldığınız yerden devam edebilir veya turu tamamen atlayabilirsiniz.';
 
   @override
-  String get onboarding_skip_dialog_title => 'Leave the onboarding?';
+  String get onboarding_skip_dialog_title => 'Tanıtımdan çıkılsın mı?';
 
   @override
   String get onboarding_start_button => 'Devam Et';
@@ -6537,95 +6537,96 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settings_account_status_disconnected => 'Giriş yapılmadı';
 
   @override
-  String get mobile_account_required_title => 'Sign in';
+  String get mobile_account_required_title => 'Giriş yap';
 
   @override
-  String get mobile_account_required_body => 'Sign in with Discord or email.';
+  String get mobile_account_required_body =>
+      'Discord veya e-posta ile giriş yapın.';
 
   @override
   String get mobile_account_required_feature_bots =>
-      'Sync and restore your bots from the cloud';
+      'Botlarınızı buluttan senkronize edin ve geri yükleyin';
 
   @override
   String get mobile_account_required_feature_hosted =>
-      'Deploy and manage hosted applications';
+      'Barındırılan uygulamaları dağıtın ve yönetin';
 
   @override
   String get mobile_account_required_feature_recovery =>
-      'Recover everything after reinstall or on a new phone';
+      'Yeniden yüklemeden veya yeni telefonda her şeyi kurtarın';
 
   @override
   String mobile_account_required_failed(String error) {
-    return 'Discord sign-in failed: $error';
+    return 'Discord girişi başarısız: $error';
   }
 
   @override
-  String get mobile_login_or_divider => 'or';
+  String get mobile_login_or_divider => 'veya';
 
   @override
-  String get mobile_login_show_email => 'Sign in with email';
+  String get mobile_login_show_email => 'E-posta ile giriş yap';
 
   @override
-  String get mobile_login_hide_email => 'Hide email sign-in';
+  String get mobile_login_hide_email => 'E-posta girişini gizle';
 
   @override
-  String get mobile_login_email_title => 'Sign in with email';
+  String get mobile_login_email_title => 'E-posta ile giriş yap';
 
   @override
   String get mobile_login_email_hint =>
-      'Use the email and password linked to your account.';
+      'Hesabınıza bağlı e-posta ve şifreyi kullanın.';
 
   @override
-  String get mobile_login_email => 'Email';
+  String get mobile_login_email => 'E-posta';
 
   @override
-  String get mobile_login_password => 'Password';
+  String get mobile_login_password => 'Şifre';
 
   @override
-  String get mobile_login_submit => 'Sign in';
+  String get mobile_login_submit => 'Giriş yap';
 
   @override
-  String get mobile_login_invalid_credentials => 'Invalid email or password.';
+  String get mobile_login_invalid_credentials => 'Geçersiz e-posta veya şifre.';
 
   @override
   String mobile_login_failed(String error) {
-    return 'Sign-in failed: $error';
+    return 'Giriş başarısız: $error';
   }
 
   @override
-  String get settings_alternative_login_title => 'Alternative sign-in';
+  String get settings_alternative_login_title => 'Alternatif giriş';
 
   @override
   String get settings_alternative_login_desc =>
-      'Add an email and password to sign in without Discord.';
+      'Discord olmadan giriş yapmak için e-posta ve şifre ekleyin.';
 
   @override
   String settings_alternative_login_current_email(String email) {
-    return 'Current email: $email';
+    return 'Mevcut e-posta: $email';
   }
 
   @override
-  String get settings_alternative_login_current_password => 'Current password';
+  String get settings_alternative_login_current_password => 'Mevcut şifre';
 
   @override
-  String get settings_alternative_login_confirm_password => 'Confirm password';
+  String get settings_alternative_login_confirm_password => 'Şifreyi onayla';
 
   @override
-  String get settings_alternative_login_update => 'Update credentials';
+  String get settings_alternative_login_update => 'Kimlik bilgilerini güncelle';
 
   @override
-  String get settings_add_credentials => 'Save credentials';
+  String get settings_add_credentials => 'Kimlik bilgilerini kaydet';
 
   @override
   String get settings_alternative_login_missing_fields =>
-      'Email and password are required.';
+      'E-posta ve şifre gereklidir.';
 
   @override
   String get settings_alternative_login_password_mismatch =>
-      'Passwords do not match.';
+      'Şifreler eşleşmiyor.';
 
   @override
-  String get settings_credentials_saved => 'Alternative sign-in saved.';
+  String get settings_credentials_saved => 'Alternatif giriş kaydedildi.';
 
   @override
   String get settings_ads_privacy_loading =>
@@ -7767,66 +7768,66 @@ class AppLocalizationsTr extends AppLocalizations {
   String get subscription_manage => 'Aboneliği yönet';
 
   @override
-  String get subscriptions_hub_title => 'Subscriptions';
+  String get subscriptions_hub_title => 'Abonelikler';
 
   @override
   String get subscriptions_hub_subtitle =>
-      'View and manage your Bot Premium and hosted application plans.';
+      'Bot Premium ve barındırılan uygulama planlarınızı görüntüleyin ve yönetin.';
 
   @override
-  String get subscriptions_hub_open_settings => 'Subscriptions & billing';
+  String get subscriptions_hub_open_settings => 'Abonelikler ve faturalandırma';
 
   @override
   String get subscriptions_hub_bot_premium_section => 'Bot Premium';
 
   @override
   String get subscriptions_hub_bot_premium_desc =>
-      'Remove ads and unlock premium features for your Discord bots.';
+      'Reklamları kaldırın ve Discord botlarınız için premium özelliklerin kilidini açın.';
 
   @override
-  String get subscriptions_hub_hosted_section => 'Hosted applications';
+  String get subscriptions_hub_hosted_section => 'Barındırılan uygulamalar';
 
   @override
   String get subscriptions_hub_hosted_desc =>
-      'Run Docker containers in the cloud without watching ads.';
+      'Reklam izlemeden bulutta Docker konteynerleri çalıştırın.';
 
   @override
-  String get subscriptions_hub_status_active => 'Active';
+  String get subscriptions_hub_status_active => 'Aktif';
 
   @override
-  String get subscriptions_hub_status_inactive => 'Not subscribed';
+  String get subscriptions_hub_status_inactive => 'Abone değil';
 
   @override
-  String get subscriptions_hub_subscribe => 'Subscribe';
+  String get subscriptions_hub_subscribe => 'Abone ol';
 
   @override
   String get subscriptions_hub_summary_both =>
-      'Bot Premium and Hosted applications active';
+      'Bot Premium ve barındırılan uygulamalar aktif';
 
   @override
-  String get subscriptions_hub_summary_bot_only => 'Bot Premium active';
+  String get subscriptions_hub_summary_bot_only => 'Bot Premium aktif';
 
   @override
   String get subscriptions_hub_summary_hosted_only =>
-      'Hosted applications active';
+      'Barındırılan uygulamalar aktif';
 
   @override
-  String get subscriptions_hub_summary_none => 'No active subscriptions';
+  String get subscriptions_hub_summary_none => 'Aktif abonelik yok';
 
   @override
   String subscriptions_hub_expires_at(String date, String time) {
-    return 'Renews until $date at $time';
+    return '$date $time tarihine kadar yenilenir';
   }
 
   @override
-  String get subscription_upgrade_annual => 'Upgrade to annual';
+  String get subscription_upgrade_annual => 'Yıllık plana yükselt';
 
   @override
-  String get subscription_upgrade_two_apps => 'Upgrade to 2 containers';
+  String get subscription_upgrade_two_apps => '2 konteynere yükselt';
 
   @override
   String get subscription_manage_cancel_hint =>
-      'To cancel or change billing, use Manage subscription — this opens the App Store or Google Play.';
+      'İptal etmek veya faturalandırmayı değiştirmek için Aboneliği yönet\'i kullanın — App Store veya Google Play açılır.';
 
   @override
   String get subscription_monthly_title => 'Aylık';
@@ -8971,34 +8972,35 @@ class AppLocalizationsTr extends AppLocalizations {
   String get container_deploy_image_label => 'Görüntü';
 
   @override
-  String get container_deploy_image_hint => 'Etiketli Docker görüntü adi';
+  String get container_deploy_image_hint =>
+      'Etiketli Docker görüntüsü (örn. ghcr.io/lazaroagomez/beatdock:latest)';
 
   @override
-  String get container_deploy_template_label => 'Template';
+  String get container_deploy_template_label => 'Şablon';
 
   @override
-  String get container_deploy_template_easy_music => 'Easy Music Bot';
+  String get container_deploy_template_easy_music => 'Kolay Müzik Botu';
 
   @override
-  String get container_deploy_template_custom => 'Custom image';
+  String get container_deploy_template_custom => 'Özel görüntü';
 
   @override
   String get container_deploy_easy_music_hint =>
-      'Only your Discord bot token is required. Uses public Lavalink servers — no registry login, API keys, or extra setup.';
+      'Yalnızca Discord bot jetonunuz gerekir. Herkese açık Lavalink sunucularını kullanır — kayıt defteri girişi, API anahtarı veya ekstra kurulum yok.';
 
   @override
-  String get container_deploy_pick_bot => 'Use an existing bot';
+  String get container_deploy_pick_bot => 'Mevcut bir bot kullan';
 
   @override
-  String get container_deploy_pick_bot_manual => 'Enter token manually';
+  String get container_deploy_pick_bot_manual => 'Jetonu elle gir';
 
   @override
   String get container_deploy_bot_token_hint =>
-      'Create a bot in the Discord Developer Portal, enable Message Content Intent, then invite it to your server.';
+      'Discord Geliştirici Portalı\'nda bir bot oluşturun, Message Content Intent\'i etkinleştirin ve sunucunuza davet edin.';
 
   @override
   String get container_deploy_bot_token_required =>
-      'Discord bot token is required';
+      'Discord bot jetonu gereklidir';
 
   @override
   String get container_deploy_image_required => 'Görüntü gereklidir';
@@ -9078,30 +9080,30 @@ class AppLocalizationsTr extends AppLocalizations {
   String get container_detail_stopped_ok => 'Kapsayici durduruldu';
 
   @override
-  String get container_detail_start_btn => 'Start';
+  String get container_detail_start_btn => 'Başlat';
 
   @override
-  String get container_detail_starting => 'Starting...';
+  String get container_detail_starting => 'Başlatılıyor...';
 
   @override
-  String get container_detail_started_ok => 'Container is starting';
+  String get container_detail_started_ok => 'Konteyner başlatılıyor';
 
   @override
-  String get container_detail_delete_title => 'Delete Container';
+  String get container_detail_delete_title => 'Konteyneri sil';
 
   @override
   String get container_detail_delete_confirm =>
-      'This permanently deletes the container from the database and cloud. This cannot be undone.';
+      'Bu, konteyneri veritabanından ve buluttan kalıcı olarak siler. Geri alınamaz.';
 
   @override
-  String get container_detail_delete_btn => 'Delete';
+  String get container_detail_delete_btn => 'Sil';
 
   @override
-  String get container_detail_deleted_ok => 'Container deleted';
+  String get container_detail_deleted_ok => 'Konteyner silindi';
 
   @override
   String get container_detail_stopped_hint =>
-      'This container is shut down. You can restart it without re-entering environment variables.';
+      'Bu konteyner kapatıldı. Ortam değişkenlerini yeniden girmeden yeniden başlatabilirsiniz.';
 
   @override
   String get container_detail_update_resources => 'Kaynaklari Güncelle';
@@ -9260,7 +9262,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get container_hosted_resume_with_time =>
-      'You still have hosting time on this container. Tap Start to resume.';
+      'Bu konteynerde hâlâ barındırma süreniz var. Devam etmek için Başlat\'a dokunun.';
 
   @override
   String container_hosted_watch_ad_earn(int reward) {
@@ -9304,115 +9306,122 @@ class AppLocalizationsTr extends AppLocalizations {
       'Gecici depolama (kalici birim yok)';
 
   @override
-  String get container_deploy_private_image => 'Private image';
+  String get container_deploy_private_image => 'Özel görüntü';
 
   @override
   String get container_deploy_private_image_hint =>
-      'Provide registry credentials to pull private images (e.g. GHCR).';
+      'Özel görüntüleri çekmek için kayıt defteri kimlik bilgilerini girin (örn. GHCR).';
 
   @override
   String get container_deploy_use_custom_credentials =>
-      'Use custom credentials';
+      'Özel kimlik bilgileri kullan';
 
   @override
-  String get container_deploy_registry_profile => 'Saved registry profile';
+  String get container_deploy_registry_profile =>
+      'Kayıtlı kayıt defteri profili';
 
   @override
-  String get container_deploy_registry_profile_none => 'Select a profile';
+  String get container_deploy_registry_profile_none => 'Profil seç';
 
   @override
   String container_deploy_registry_detected(String host) {
-    return 'Registry: $host';
+    return 'Kayıt defteri: $host';
   }
 
   @override
   String get container_deploy_save_registry_auth =>
-      'Save credentials for reuse';
+      'Kimlik bilgilerini yeniden kullanım için kaydet';
 
   @override
   String get container_deploy_registry_auth_required =>
-      'Username and password are required for private images.';
+      'Özel görüntüler için kullanıcı adı ve şifre gereklidir.';
 
   @override
   String get container_deploy_registry_profile_required =>
-      'Select a saved registry profile or use custom credentials.';
+      'Kayıtlı bir kayıt defteri profili seçin veya özel kimlik bilgileri kullanın.';
 
   @override
-  String get registry_credentials_title => 'Registry credentials';
+  String get registry_credentials_title => 'Kayıt defteri kimlik bilgileri';
 
   @override
-  String get registry_credentials_add => 'Add credentials';
+  String get registry_credentials_add => 'Kimlik bilgisi ekle';
 
   @override
-  String get registry_credentials_edit => 'Edit credentials';
+  String get registry_credentials_edit => 'Kimlik bilgilerini düzenle';
 
   @override
-  String get registry_credentials_manage => 'Manage registry credentials';
+  String get registry_credentials_manage =>
+      'Kayıt defteri kimlik bilgilerini yönet';
 
   @override
-  String get registry_credentials_empty => 'No saved registry credentials yet.';
+  String get registry_credentials_empty =>
+      'Henüz kayıtlı kayıt defteri kimlik bilgisi yok.';
 
   @override
-  String get registry_credentials_label => 'Label';
+  String get registry_credentials_label => 'Etiket';
 
   @override
-  String get registry_credentials_label_required => 'Label is required';
+  String get registry_credentials_label_required => 'Etiket gereklidir';
 
   @override
-  String get registry_credentials_host => 'Registry host';
+  String get registry_credentials_host => 'Kayıt defteri ana bilgisayarı';
 
   @override
-  String get registry_credentials_host_required => 'Registry host is required';
+  String get registry_credentials_host_required =>
+      'Kayıt defteri ana bilgisayarı gereklidir';
 
   @override
-  String get registry_credentials_username => 'Username';
+  String get registry_credentials_username => 'Kullanıcı adı';
 
   @override
-  String get registry_credentials_username_required => 'Username is required';
+  String get registry_credentials_username_required =>
+      'Kullanıcı adı gereklidir';
 
   @override
-  String get registry_credentials_password => 'Password or token';
+  String get registry_credentials_password => 'Şifre veya jeton';
 
   @override
   String get registry_credentials_password_required =>
-      'Password or token is required';
+      'Şifre veya jeton gereklidir';
 
   @override
   String get registry_credentials_password_hint =>
-      'Personal access token or registry password';
+      'Kişisel erişim jetonu veya kayıt defteri şifresi';
 
   @override
   String get registry_credentials_password_edit_hint =>
-      'Leave blank to keep the current password';
+      'Mevcut şifreyi korumak için boş bırakın';
 
   @override
   String get registry_credentials_ghcr_hint =>
-      'For GHCR, use a GitHub PAT with read:packages scope.';
+      'GHCR için read:packages kapsamına sahip bir GitHub PAT kullanın.';
 
   @override
-  String get registry_credentials_delete_title => 'Delete credentials?';
+  String get registry_credentials_delete_title =>
+      'Kimlik bilgileri silinsin mi?';
 
   @override
   String registry_credentials_delete_body(String label) {
-    return 'Delete \"$label\"? This cannot be undone.';
+    return '\"$label\" silinsin mi? Bu işlem geri alınamaz.';
   }
 
   @override
-  String get registry_credentials_deleted => 'Registry credentials deleted';
+  String get registry_credentials_deleted =>
+      'Kayıt defteri kimlik bilgileri silindi';
 
   @override
   String registry_credentials_delete_failed(String error) {
-    return 'Failed to delete credentials: $error';
+    return 'Kimlik bilgileri silinemedi: $error';
   }
 
   @override
   String registry_credentials_save_failed(String error) {
-    return 'Failed to save credentials: $error';
+    return 'Kimlik bilgileri kaydedilemedi: $error';
   }
 
   @override
   String container_detail_private_registry(String host, String username) {
-    return 'Private registry: $host · $username';
+    return 'Özel kayıt defteri: $host · $username';
   }
 
   @override

@@ -10105,9 +10105,41 @@
   "@container_deploy_image_label": {
     "description": "Label for the Docker image field"
   },
-  "container_deploy_image_hint": "Nome da imagem Docker com tag",
+  "container_deploy_image_hint": "Imagem Docker com tag (ex.: ghcr.io/lazaroagomez/beatdock:latest)",
   "@container_deploy_image_hint": {
     "description": "Helper text for the image field"
+  },
+  "container_deploy_template_label": "Modelo",
+  "@container_deploy_template_label": {
+    "description": "Label for hosted app template picker"
+  },
+  "container_deploy_template_easy_music": "Bot de música fácil",
+  "@container_deploy_template_easy_music": {
+    "description": "Preset template for a minimal-config Discord music bot"
+  },
+  "container_deploy_template_custom": "Imagem personalizada",
+  "@container_deploy_template_custom": {
+    "description": "Custom Docker image template option"
+  },
+  "container_deploy_easy_music_hint": "Apenas o token do seu bot Discord é necessário. Usa servidores Lavalink públicos — sem login no registry, chaves de API ou configuração extra.",
+  "@container_deploy_easy_music_hint": {
+    "description": "Helper text for the easy music bot template"
+  },
+  "container_deploy_pick_bot": "Usar um bot existente",
+  "@container_deploy_pick_bot": {
+    "description": "Label for bot picker on deploy page"
+  },
+  "container_deploy_pick_bot_manual": "Inserir token manualmente",
+  "@container_deploy_pick_bot_manual": {
+    "description": "Option to enter bot token manually instead of picking a saved bot"
+  },
+  "container_deploy_bot_token_hint": "Crie um bot no Portal de Desenvolvedores do Discord, ative a intenção Message Content e convide-o para o seu servidor.",
+  "@container_deploy_bot_token_hint": {
+    "description": "Helper text for bot token field on easy music deploy"
+  },
+  "container_deploy_bot_token_required": "O token do bot Discord é obrigatório",
+  "@container_deploy_bot_token_required": {
+    "description": "Validation error when bot token is empty for easy music template"
   },
   "container_deploy_image_required": "Imagem é obrigatória",
   "@container_deploy_image_required": {
@@ -10353,5 +10385,175 @@
   "container_detail_apply_stored_minutes": "Aplicar {minutes} min armazenados",
   "container_detail_minutes_applied": "{minutes} min aplicados.",
   "subscription_feature_hosted_apps_title": "Aplicações hospedadas",
-  "subscription_feature_hosted_apps_desc": "Execute contêineres Docker com hospedagem ilimitada — sem anúncios."
+  "subscription_feature_hosted_apps_desc": "Execute contêineres Docker com hospedagem ilimitada — sem anúncios.",
+  "command_cloud_sync_failed_saved": "Salvo no Discord e localmente. Falha no backup na nuvem.",
+  "command_cloud_sync_retry": "Tentar sincronizar novamente",
+  "cmd_block_editor_empty_title": "Nenhuma ação ainda",
+  "cmd_block_editor_empty_hint": "Adicione um bloco de ação para definir o que seu comando faz ao ser executado.",
+  "cmd_block_editor_add_action": "Adicionar ação",
+  "cmd_block_editor_action_label": "Ação {index}",
+  "@cmd_block_editor_action_label": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "onboarding_command_learn": "Aprenda como os comandos funcionam",
+  "onboarding_skip_confirm": "Pular introdução",
+  "onboarding_skip_dialog_desc": "Você pode continuar de onde parou na próxima vez ou pular o tour completamente.",
+  "onboarding_skip_dialog_title": "Sair da introdução?",
+  "mobile_account_required_title": "Entrar",
+  "mobile_account_required_body": "Entre com Discord ou e-mail.",
+  "mobile_account_required_feature_bots": "Sincronize e restaure seus bots da nuvem",
+  "mobile_account_required_feature_hosted": "Implante e gerencie aplicações hospedadas",
+  "mobile_account_required_feature_recovery": "Recupere tudo após reinstalar ou em um novo telefone",
+  "mobile_account_required_failed": "Falha no login com Discord: {error}",
+  "@mobile_account_required_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "mobile_login_or_divider": "ou",
+  "mobile_login_show_email": "Entrar com e-mail",
+  "mobile_login_hide_email": "Ocultar login por e-mail",
+  "mobile_login_email_title": "Entrar com e-mail",
+  "mobile_login_email_hint": "Use o e-mail e a senha vinculados à sua conta.",
+  "mobile_login_email": "E-mail",
+  "mobile_login_password": "Senha",
+  "mobile_login_submit": "Entrar",
+  "mobile_login_invalid_credentials": "E-mail ou senha inválidos.",
+  "mobile_login_failed": "Falha no login: {error}",
+  "@mobile_login_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_alternative_login_title": "Login alternativo",
+  "settings_alternative_login_desc": "Adicione um e-mail e senha para entrar sem Discord.",
+  "settings_alternative_login_current_email": "E-mail atual: {email}",
+  "@settings_alternative_login_current_email": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_alternative_login_current_password": "Senha atual",
+  "settings_alternative_login_confirm_password": "Confirmar senha",
+  "settings_alternative_login_update": "Atualizar credenciais",
+  "settings_add_credentials": "Salvar credenciais",
+  "settings_alternative_login_missing_fields": "E-mail e senha são obrigatórios.",
+  "settings_alternative_login_password_mismatch": "As senhas não coincidem.",
+  "settings_credentials_saved": "Login alternativo salvo.",
+  "subscriptions_hub_title": "Assinaturas",
+  "subscriptions_hub_subtitle": "Veja e gerencie seus planos Bot Premium e aplicações hospedadas.",
+  "subscriptions_hub_open_settings": "Assinaturas e cobrança",
+  "subscriptions_hub_bot_premium_section": "Bot Premium",
+  "subscriptions_hub_bot_premium_desc": "Remova anúncios e desbloqueie recursos premium para seus bots Discord.",
+  "subscriptions_hub_hosted_section": "Aplicações hospedadas",
+  "subscriptions_hub_hosted_desc": "Execute contêineres Docker na nuvem sem assistir anúncios.",
+  "subscriptions_hub_status_active": "Ativo",
+  "subscriptions_hub_status_inactive": "Não assinado",
+  "subscriptions_hub_subscribe": "Assinar",
+  "subscriptions_hub_summary_both": "Bot Premium e aplicações hospedadas ativos",
+  "subscriptions_hub_summary_bot_only": "Bot Premium ativo",
+  "subscriptions_hub_summary_hosted_only": "Aplicações hospedadas ativas",
+  "subscriptions_hub_summary_none": "Nenhuma assinatura ativa",
+  "subscriptions_hub_expires_at": "Renova até {date} às {time}",
+  "@subscriptions_hub_expires_at": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "subscription_upgrade_annual": "Atualizar para anual",
+  "subscription_upgrade_two_apps": "Atualizar para 2 contêineres",
+  "subscription_manage_cancel_hint": "Para cancelar ou alterar a cobrança, use Gerenciar assinatura — isso abre a App Store ou Google Play.",
+  "container_detail_start_btn": "Iniciar",
+  "container_detail_starting": "Iniciando...",
+  "container_detail_started_ok": "Contêiner está iniciando",
+  "container_detail_delete_title": "Excluir contêiner",
+  "container_detail_delete_confirm": "Isso exclui permanentemente o contêiner do banco de dados e da nuvem. Não pode ser desfeito.",
+  "container_detail_delete_btn": "Excluir",
+  "container_detail_deleted_ok": "Contêiner excluído",
+  "container_detail_stopped_hint": "Este contêiner está desligado. Você pode reiniciá-lo sem inserir as variáveis de ambiente novamente.",
+  "container_hosted_resume_with_time": "Você ainda tem tempo de hospedagem neste contêiner. Toque em Iniciar para retomar.",
+  "container_deploy_private_image": "Imagem privada",
+  "container_deploy_private_image_hint": "Forneça credenciais do registry para baixar imagens privadas (ex.: GHCR).",
+  "container_deploy_use_custom_credentials": "Usar credenciais personalizadas",
+  "container_deploy_registry_profile": "Perfil de registry salvo",
+  "container_deploy_registry_profile_none": "Selecionar um perfil",
+  "container_deploy_registry_detected": "Registry: {host}",
+  "@container_deploy_registry_detected": {
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "container_deploy_save_registry_auth": "Salvar credenciais para reutilização",
+  "container_deploy_registry_auth_required": "Nome de usuário e senha são obrigatórios para imagens privadas.",
+  "container_deploy_registry_profile_required": "Selecione um perfil de registry salvo ou use credenciais personalizadas.",
+  "registry_credentials_title": "Credenciais do registry",
+  "registry_credentials_add": "Adicionar credenciais",
+  "registry_credentials_edit": "Editar credenciais",
+  "registry_credentials_manage": "Gerenciar credenciais do registry",
+  "registry_credentials_empty": "Nenhuma credencial de registry salva ainda.",
+  "registry_credentials_label": "Rótulo",
+  "registry_credentials_label_required": "O rótulo é obrigatório",
+  "registry_credentials_host": "Host do registry",
+  "registry_credentials_host_required": "O host do registry é obrigatório",
+  "registry_credentials_username": "Nome de usuário",
+  "registry_credentials_username_required": "O nome de usuário é obrigatório",
+  "registry_credentials_password": "Senha ou token",
+  "registry_credentials_password_required": "Senha ou token é obrigatório",
+  "registry_credentials_password_hint": "Token de acesso pessoal ou senha do registry",
+  "registry_credentials_password_edit_hint": "Deixe em branco para manter a senha atual",
+  "registry_credentials_ghcr_hint": "Para GHCR, use um PAT do GitHub com escopo read:packages.",
+  "registry_credentials_delete_title": "Excluir credenciais?",
+  "registry_credentials_delete_body": "Excluir \"{label}\"? Isso não pode ser desfeito.",
+  "@registry_credentials_delete_body": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "registry_credentials_deleted": "Credenciais do registry excluídas",
+  "registry_credentials_delete_failed": "Falha ao excluir credenciais: {error}",
+  "@registry_credentials_delete_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "registry_credentials_save_failed": "Falha ao salvar credenciais: {error}",
+  "@registry_credentials_save_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "container_detail_private_registry": "Registry privado: {host} · {username}",
+  "@container_detail_private_registry": {
+    "placeholders": {
+      "host": {
+        "type": "String"
+      },
+      "username": {
+        "type": "String"
+      }
+    }
+  }
 }

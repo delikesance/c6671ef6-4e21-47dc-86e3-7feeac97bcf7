@@ -3041,24 +3041,24 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get command_cloud_sync_failed_saved =>
-      'Saved on Discord and locally. Cloud backup failed.';
+      'Salvo no Discord e localmente. Falha no backup na nuvem.';
 
   @override
-  String get command_cloud_sync_retry => 'Retry sync';
+  String get command_cloud_sync_retry => 'Tentar sincronizar novamente';
 
   @override
-  String get cmd_block_editor_empty_title => 'No actions yet';
+  String get cmd_block_editor_empty_title => 'Nenhuma ação ainda';
 
   @override
   String get cmd_block_editor_empty_hint =>
-      'Add an action block to define what your command does when it runs.';
+      'Adicione um bloco de ação para definir o que seu comando faz ao ser executado.';
 
   @override
-  String get cmd_block_editor_add_action => 'Add an action';
+  String get cmd_block_editor_add_action => 'Adicionar ação';
 
   @override
   String cmd_block_editor_action_label(int index) {
-    return 'Action $index';
+    return 'Ação $index';
   }
 
   @override
@@ -5622,7 +5622,7 @@ class AppLocalizationsPt extends AppLocalizations {
       'Exemplo:\n/hello → O bot responde \"Olá! 👋\"';
 
   @override
-  String get onboarding_command_learn => 'Learn how commands work';
+  String get onboarding_command_learn => 'Aprenda como os comandos funcionam';
 
   @override
   String get onboarding_command_text =>
@@ -5659,14 +5659,14 @@ class AppLocalizationsPt extends AppLocalizations {
   String get onboarding_remind_later => 'Lembrar mais tarde';
 
   @override
-  String get onboarding_skip_confirm => 'Skip onboarding';
+  String get onboarding_skip_confirm => 'Pular introdução';
 
   @override
   String get onboarding_skip_dialog_desc =>
-      'You can resume where you left off next time, or skip the tour entirely.';
+      'Você pode continuar de onde parou na próxima vez ou pular o tour completamente.';
 
   @override
-  String get onboarding_skip_dialog_title => 'Leave the onboarding?';
+  String get onboarding_skip_dialog_title => 'Sair da introdução?';
 
   @override
   String get onboarding_start_button => 'Continuar';
@@ -6586,95 +6586,95 @@ class AppLocalizationsPt extends AppLocalizations {
   String get settings_account_status_disconnected => 'Não logado';
 
   @override
-  String get mobile_account_required_title => 'Sign in';
+  String get mobile_account_required_title => 'Entrar';
 
   @override
-  String get mobile_account_required_body => 'Sign in with Discord or email.';
+  String get mobile_account_required_body => 'Entre com Discord ou e-mail.';
 
   @override
   String get mobile_account_required_feature_bots =>
-      'Sync and restore your bots from the cloud';
+      'Sincronize e restaure seus bots da nuvem';
 
   @override
   String get mobile_account_required_feature_hosted =>
-      'Deploy and manage hosted applications';
+      'Implante e gerencie aplicações hospedadas';
 
   @override
   String get mobile_account_required_feature_recovery =>
-      'Recover everything after reinstall or on a new phone';
+      'Recupere tudo após reinstalar ou em um novo telefone';
 
   @override
   String mobile_account_required_failed(String error) {
-    return 'Discord sign-in failed: $error';
+    return 'Falha no login com Discord: $error';
   }
 
   @override
-  String get mobile_login_or_divider => 'or';
+  String get mobile_login_or_divider => 'ou';
 
   @override
-  String get mobile_login_show_email => 'Sign in with email';
+  String get mobile_login_show_email => 'Entrar com e-mail';
 
   @override
-  String get mobile_login_hide_email => 'Hide email sign-in';
+  String get mobile_login_hide_email => 'Ocultar login por e-mail';
 
   @override
-  String get mobile_login_email_title => 'Sign in with email';
+  String get mobile_login_email_title => 'Entrar com e-mail';
 
   @override
   String get mobile_login_email_hint =>
-      'Use the email and password linked to your account.';
+      'Use o e-mail e a senha vinculados à sua conta.';
 
   @override
-  String get mobile_login_email => 'Email';
+  String get mobile_login_email => 'E-mail';
 
   @override
-  String get mobile_login_password => 'Password';
+  String get mobile_login_password => 'Senha';
 
   @override
-  String get mobile_login_submit => 'Sign in';
+  String get mobile_login_submit => 'Entrar';
 
   @override
-  String get mobile_login_invalid_credentials => 'Invalid email or password.';
+  String get mobile_login_invalid_credentials => 'E-mail ou senha inválidos.';
 
   @override
   String mobile_login_failed(String error) {
-    return 'Sign-in failed: $error';
+    return 'Falha no login: $error';
   }
 
   @override
-  String get settings_alternative_login_title => 'Alternative sign-in';
+  String get settings_alternative_login_title => 'Login alternativo';
 
   @override
   String get settings_alternative_login_desc =>
-      'Add an email and password to sign in without Discord.';
+      'Adicione um e-mail e senha para entrar sem Discord.';
 
   @override
   String settings_alternative_login_current_email(String email) {
-    return 'Current email: $email';
+    return 'E-mail atual: $email';
   }
 
   @override
-  String get settings_alternative_login_current_password => 'Current password';
+  String get settings_alternative_login_current_password => 'Senha atual';
 
   @override
-  String get settings_alternative_login_confirm_password => 'Confirm password';
+  String get settings_alternative_login_confirm_password => 'Confirmar senha';
 
   @override
-  String get settings_alternative_login_update => 'Update credentials';
+  String get settings_alternative_login_update => 'Atualizar credenciais';
 
   @override
-  String get settings_add_credentials => 'Save credentials';
+  String get settings_add_credentials => 'Salvar credenciais';
 
   @override
   String get settings_alternative_login_missing_fields =>
-      'Email and password are required.';
+      'E-mail e senha são obrigatórios.';
 
   @override
   String get settings_alternative_login_password_mismatch =>
-      'Passwords do not match.';
+      'As senhas não coincidem.';
 
   @override
-  String get settings_credentials_saved => 'Alternative sign-in saved.';
+  String get settings_credentials_saved => 'Login alternativo salvo.';
 
   @override
   String get settings_ads_privacy_loading =>
@@ -7810,66 +7810,66 @@ class AppLocalizationsPt extends AppLocalizations {
   String get subscription_manage => 'Gerenciar assinatura';
 
   @override
-  String get subscriptions_hub_title => 'Subscriptions';
+  String get subscriptions_hub_title => 'Assinaturas';
 
   @override
   String get subscriptions_hub_subtitle =>
-      'View and manage your Bot Premium and hosted application plans.';
+      'Veja e gerencie seus planos Bot Premium e aplicações hospedadas.';
 
   @override
-  String get subscriptions_hub_open_settings => 'Subscriptions & billing';
+  String get subscriptions_hub_open_settings => 'Assinaturas e cobrança';
 
   @override
   String get subscriptions_hub_bot_premium_section => 'Bot Premium';
 
   @override
   String get subscriptions_hub_bot_premium_desc =>
-      'Remove ads and unlock premium features for your Discord bots.';
+      'Remova anúncios e desbloqueie recursos premium para seus bots Discord.';
 
   @override
-  String get subscriptions_hub_hosted_section => 'Hosted applications';
+  String get subscriptions_hub_hosted_section => 'Aplicações hospedadas';
 
   @override
   String get subscriptions_hub_hosted_desc =>
-      'Run Docker containers in the cloud without watching ads.';
+      'Execute contêineres Docker na nuvem sem assistir anúncios.';
 
   @override
-  String get subscriptions_hub_status_active => 'Active';
+  String get subscriptions_hub_status_active => 'Ativo';
 
   @override
-  String get subscriptions_hub_status_inactive => 'Not subscribed';
+  String get subscriptions_hub_status_inactive => 'Não assinado';
 
   @override
-  String get subscriptions_hub_subscribe => 'Subscribe';
+  String get subscriptions_hub_subscribe => 'Assinar';
 
   @override
   String get subscriptions_hub_summary_both =>
-      'Bot Premium and Hosted applications active';
+      'Bot Premium e aplicações hospedadas ativos';
 
   @override
-  String get subscriptions_hub_summary_bot_only => 'Bot Premium active';
+  String get subscriptions_hub_summary_bot_only => 'Bot Premium ativo';
 
   @override
   String get subscriptions_hub_summary_hosted_only =>
-      'Hosted applications active';
+      'Aplicações hospedadas ativas';
 
   @override
-  String get subscriptions_hub_summary_none => 'No active subscriptions';
+  String get subscriptions_hub_summary_none => 'Nenhuma assinatura ativa';
 
   @override
   String subscriptions_hub_expires_at(String date, String time) {
-    return 'Renews until $date at $time';
+    return 'Renova até $date às $time';
   }
 
   @override
-  String get subscription_upgrade_annual => 'Upgrade to annual';
+  String get subscription_upgrade_annual => 'Atualizar para anual';
 
   @override
-  String get subscription_upgrade_two_apps => 'Upgrade to 2 containers';
+  String get subscription_upgrade_two_apps => 'Atualizar para 2 contêineres';
 
   @override
   String get subscription_manage_cancel_hint =>
-      'To cancel or change billing, use Manage subscription — this opens the App Store or Google Play.';
+      'Para cancelar ou alterar a cobrança, use Gerenciar assinatura — isso abre a App Store ou Google Play.';
 
   @override
   String get subscription_monthly_title => 'Mensal';
@@ -9023,34 +9023,35 @@ class AppLocalizationsPt extends AppLocalizations {
   String get container_deploy_image_label => 'Imagem';
 
   @override
-  String get container_deploy_image_hint => 'Nome da imagem Docker com tag';
+  String get container_deploy_image_hint =>
+      'Imagem Docker com tag (ex.: ghcr.io/lazaroagomez/beatdock:latest)';
 
   @override
-  String get container_deploy_template_label => 'Template';
+  String get container_deploy_template_label => 'Modelo';
 
   @override
-  String get container_deploy_template_easy_music => 'Easy Music Bot';
+  String get container_deploy_template_easy_music => 'Bot de música fácil';
 
   @override
-  String get container_deploy_template_custom => 'Custom image';
+  String get container_deploy_template_custom => 'Imagem personalizada';
 
   @override
   String get container_deploy_easy_music_hint =>
-      'Only your Discord bot token is required. Uses public Lavalink servers — no registry login, API keys, or extra setup.';
+      'Apenas o token do seu bot Discord é necessário. Usa servidores Lavalink públicos — sem login no registry, chaves de API ou configuração extra.';
 
   @override
-  String get container_deploy_pick_bot => 'Use an existing bot';
+  String get container_deploy_pick_bot => 'Usar um bot existente';
 
   @override
-  String get container_deploy_pick_bot_manual => 'Enter token manually';
+  String get container_deploy_pick_bot_manual => 'Inserir token manualmente';
 
   @override
   String get container_deploy_bot_token_hint =>
-      'Create a bot in the Discord Developer Portal, enable Message Content Intent, then invite it to your server.';
+      'Crie um bot no Portal de Desenvolvedores do Discord, ative a intenção Message Content e convide-o para o seu servidor.';
 
   @override
   String get container_deploy_bot_token_required =>
-      'Discord bot token is required';
+      'O token do bot Discord é obrigatório';
 
   @override
   String get container_deploy_image_required => 'Imagem é obrigatória';
@@ -9130,30 +9131,30 @@ class AppLocalizationsPt extends AppLocalizations {
   String get container_detail_stopped_ok => 'Contêiner parado';
 
   @override
-  String get container_detail_start_btn => 'Start';
+  String get container_detail_start_btn => 'Iniciar';
 
   @override
-  String get container_detail_starting => 'Starting...';
+  String get container_detail_starting => 'Iniciando...';
 
   @override
-  String get container_detail_started_ok => 'Container is starting';
+  String get container_detail_started_ok => 'Contêiner está iniciando';
 
   @override
-  String get container_detail_delete_title => 'Delete Container';
+  String get container_detail_delete_title => 'Excluir contêiner';
 
   @override
   String get container_detail_delete_confirm =>
-      'This permanently deletes the container from the database and cloud. This cannot be undone.';
+      'Isso exclui permanentemente o contêiner do banco de dados e da nuvem. Não pode ser desfeito.';
 
   @override
-  String get container_detail_delete_btn => 'Delete';
+  String get container_detail_delete_btn => 'Excluir';
 
   @override
-  String get container_detail_deleted_ok => 'Container deleted';
+  String get container_detail_deleted_ok => 'Contêiner excluído';
 
   @override
   String get container_detail_stopped_hint =>
-      'This container is shut down. You can restart it without re-entering environment variables.';
+      'Este contêiner está desligado. Você pode reiniciá-lo sem inserir as variáveis de ambiente novamente.';
 
   @override
   String get container_detail_update_resources => 'Atualizar Recursos';
@@ -9313,7 +9314,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get container_hosted_resume_with_time =>
-      'You still have hosting time on this container. Tap Start to resume.';
+      'Você ainda tem tempo de hospedagem neste contêiner. Toque em Iniciar para retomar.';
 
   @override
   String container_hosted_watch_ad_earn(int reward) {
@@ -9357,21 +9358,21 @@ class AppLocalizationsPt extends AppLocalizations {
       'Armazenamento efêmero (sem volume persistente)';
 
   @override
-  String get container_deploy_private_image => 'Private image';
+  String get container_deploy_private_image => 'Imagem privada';
 
   @override
   String get container_deploy_private_image_hint =>
-      'Provide registry credentials to pull private images (e.g. GHCR).';
+      'Forneça credenciais do registry para baixar imagens privadas (ex.: GHCR).';
 
   @override
   String get container_deploy_use_custom_credentials =>
-      'Use custom credentials';
+      'Usar credenciais personalizadas';
 
   @override
-  String get container_deploy_registry_profile => 'Saved registry profile';
+  String get container_deploy_registry_profile => 'Perfil de registry salvo';
 
   @override
-  String get container_deploy_registry_profile_none => 'Select a profile';
+  String get container_deploy_registry_profile_none => 'Selecionar um perfil';
 
   @override
   String container_deploy_registry_detected(String host) {
@@ -9380,92 +9381,96 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get container_deploy_save_registry_auth =>
-      'Save credentials for reuse';
+      'Salvar credenciais para reutilização';
 
   @override
   String get container_deploy_registry_auth_required =>
-      'Username and password are required for private images.';
+      'Nome de usuário e senha são obrigatórios para imagens privadas.';
 
   @override
   String get container_deploy_registry_profile_required =>
-      'Select a saved registry profile or use custom credentials.';
+      'Selecione um perfil de registry salvo ou use credenciais personalizadas.';
 
   @override
-  String get registry_credentials_title => 'Registry credentials';
+  String get registry_credentials_title => 'Credenciais do registry';
 
   @override
-  String get registry_credentials_add => 'Add credentials';
+  String get registry_credentials_add => 'Adicionar credenciais';
 
   @override
-  String get registry_credentials_edit => 'Edit credentials';
+  String get registry_credentials_edit => 'Editar credenciais';
 
   @override
-  String get registry_credentials_manage => 'Manage registry credentials';
+  String get registry_credentials_manage => 'Gerenciar credenciais do registry';
 
   @override
-  String get registry_credentials_empty => 'No saved registry credentials yet.';
+  String get registry_credentials_empty =>
+      'Nenhuma credencial de registry salva ainda.';
 
   @override
-  String get registry_credentials_label => 'Label';
+  String get registry_credentials_label => 'Rótulo';
 
   @override
-  String get registry_credentials_label_required => 'Label is required';
+  String get registry_credentials_label_required => 'O rótulo é obrigatório';
 
   @override
-  String get registry_credentials_host => 'Registry host';
+  String get registry_credentials_host => 'Host do registry';
 
   @override
-  String get registry_credentials_host_required => 'Registry host is required';
+  String get registry_credentials_host_required =>
+      'O host do registry é obrigatório';
 
   @override
-  String get registry_credentials_username => 'Username';
+  String get registry_credentials_username => 'Nome de usuário';
 
   @override
-  String get registry_credentials_username_required => 'Username is required';
+  String get registry_credentials_username_required =>
+      'O nome de usuário é obrigatório';
 
   @override
-  String get registry_credentials_password => 'Password or token';
+  String get registry_credentials_password => 'Senha ou token';
 
   @override
   String get registry_credentials_password_required =>
-      'Password or token is required';
+      'Senha ou token é obrigatório';
 
   @override
   String get registry_credentials_password_hint =>
-      'Personal access token or registry password';
+      'Token de acesso pessoal ou senha do registry';
 
   @override
   String get registry_credentials_password_edit_hint =>
-      'Leave blank to keep the current password';
+      'Deixe em branco para manter a senha atual';
 
   @override
   String get registry_credentials_ghcr_hint =>
-      'For GHCR, use a GitHub PAT with read:packages scope.';
+      'Para GHCR, use um PAT do GitHub com escopo read:packages.';
 
   @override
-  String get registry_credentials_delete_title => 'Delete credentials?';
+  String get registry_credentials_delete_title => 'Excluir credenciais?';
 
   @override
   String registry_credentials_delete_body(String label) {
-    return 'Delete \"$label\"? This cannot be undone.';
+    return 'Excluir \"$label\"? Isso não pode ser desfeito.';
   }
 
   @override
-  String get registry_credentials_deleted => 'Registry credentials deleted';
+  String get registry_credentials_deleted =>
+      'Credenciais do registry excluídas';
 
   @override
   String registry_credentials_delete_failed(String error) {
-    return 'Failed to delete credentials: $error';
+    return 'Falha ao excluir credenciais: $error';
   }
 
   @override
   String registry_credentials_save_failed(String error) {
-    return 'Failed to save credentials: $error';
+    return 'Falha ao salvar credenciais: $error';
   }
 
   @override
   String container_detail_private_registry(String host, String username) {
-    return 'Private registry: $host · $username';
+    return 'Registry privado: $host · $username';
   }
 
   @override
