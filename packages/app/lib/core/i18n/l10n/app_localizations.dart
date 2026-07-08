@@ -15577,8 +15577,56 @@ abstract class AppLocalizations {
   /// Helper text for the image field
   ///
   /// In en, this message translates to:
-  /// **'Docker image name with tag'**
+  /// **'Docker image with tag (e.g. ghcr.io/lazaroagomez/beatdock:latest)'**
   String get container_deploy_image_hint;
+
+  /// Label for hosted app template picker
+  ///
+  /// In en, this message translates to:
+  /// **'Template'**
+  String get container_deploy_template_label;
+
+  /// Preset template for a minimal-config Discord music bot
+  ///
+  /// In en, this message translates to:
+  /// **'Easy Music Bot'**
+  String get container_deploy_template_easy_music;
+
+  /// Custom Docker image template option
+  ///
+  /// In en, this message translates to:
+  /// **'Custom image'**
+  String get container_deploy_template_custom;
+
+  /// Helper text for the easy music bot template
+  ///
+  /// In en, this message translates to:
+  /// **'Only your Discord bot token is required. Uses public Lavalink servers — no registry login, API keys, or extra setup.'**
+  String get container_deploy_easy_music_hint;
+
+  /// Label for bot picker on deploy page
+  ///
+  /// In en, this message translates to:
+  /// **'Use an existing bot'**
+  String get container_deploy_pick_bot;
+
+  /// Option to enter bot token manually instead of picking a saved bot
+  ///
+  /// In en, this message translates to:
+  /// **'Enter token manually'**
+  String get container_deploy_pick_bot_manual;
+
+  /// Helper text for bot token field on easy music deploy
+  ///
+  /// In en, this message translates to:
+  /// **'Create a bot in the Discord Developer Portal, enable Message Content Intent, then invite it to your server.'**
+  String get container_deploy_bot_token_hint;
+
+  /// Validation error when bot token is empty for easy music template
+  ///
+  /// In en, this message translates to:
+  /// **'Discord bot token is required'**
+  String get container_deploy_bot_token_required;
 
   /// Validation error when image is empty
   ///
