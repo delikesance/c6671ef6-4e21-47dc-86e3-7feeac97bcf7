@@ -9062,6 +9062,33 @@ class AppLocalizationsFr extends AppLocalizations {
   String get container_deploy_image_hint => 'Nom de l\'image Docker avec tag';
 
   @override
+  String get container_deploy_template_label => 'Template';
+
+  @override
+  String get container_deploy_template_easy_music => 'Easy Music Bot';
+
+  @override
+  String get container_deploy_template_custom => 'Custom image';
+
+  @override
+  String get container_deploy_easy_music_hint =>
+      'Only your Discord bot token is required. Uses public Lavalink servers — no registry login, API keys, or extra setup.';
+
+  @override
+  String get container_deploy_pick_bot => 'Use an existing bot';
+
+  @override
+  String get container_deploy_pick_bot_manual => 'Enter token manually';
+
+  @override
+  String get container_deploy_bot_token_hint =>
+      'Create a bot in the Discord Developer Portal, enable Message Content Intent, then invite it to your server.';
+
+  @override
+  String get container_deploy_bot_token_required =>
+      'Discord bot token is required';
+
+  @override
   String get container_deploy_image_required => 'L\'image est requise';
 
   @override
