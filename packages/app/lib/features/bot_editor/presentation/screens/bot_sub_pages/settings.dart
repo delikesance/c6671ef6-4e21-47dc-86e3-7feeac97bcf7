@@ -21,6 +21,7 @@ import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:bot_creator/core/discord/discord_intent_sync.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:bot_creator/core/utils/responsive.dart';
 import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
@@ -528,43 +529,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
         if (!proceed || !mounted) return;
       }
 
-      // Fetch app flags from Discord to compute privileged intents
-      final tempClient = await Nyxx.connectRest(effectiveToken);
-      Application app;
-      try {
-        app = await tempClient.applications.fetchCurrentApplication();
-      } finally {
-        await tempClient.close();
-      }
-
-      final computedIntents = <String, bool>{
-        // Non-privileged intents — always granted
-        'Guilds': true,
-        'Guild Messages': true,
-        'Direct Messages': true,
-        'Guild Message Reactions': true,
-        'Direct Message Reactions': true,
-        'Guild Message Typing': true,
-        'Direct Message Typing': true,
-        'Guild Scheduled Events': true,
-        'Auto Moderation Configuration': true,
-        'Auto Moderation Execution': true,
-        'Guild Moderation': true,
-        'Guild Expressions': true,
-        'Guild Integrations': true,
-        'Guild Webhooks': true,
-        'Guild Invites': true,
-        'Guild Voice States': true,
-        'Guild Message Polls': true,
-        'Direct Message Polls': true,
-        // Privileged intents — only if Discord app flags approve them
-        'Guild Members':
-            app.flags.hasGatewayGuildMembers || app.flags.hasGatewayGuildMembersLimited,
-        'Guild Presence':
-            app.flags.hasGatewayPresence || app.flags.hasGatewayPresenceLimited,
-        'Message Content':
-            app.flags.hasGatewayMessageContent || app.flags.hasGatewayMessageContentLimited,
-      };
+      final computedIntents = await fetchPortalIntents(effectiveToken);
 
       await appManager.createOrUpdateApp(
         id: discordUser.id,

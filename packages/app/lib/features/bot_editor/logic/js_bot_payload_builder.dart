@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:bot_creator/core/discord/discord_intent_sync.dart';
 import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/features/bot_editor/logic/normalize_command_data.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
@@ -13,6 +14,16 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
   final token = (appData['token'] ?? '').toString().trim();
   if (token.isEmpty) {
     throw StateError('Bot "$botId" has no token configured.');
+  }
+
+  try {
+    await refreshAppIntentsFromPortal(
+      botId: botId,
+      appData: appData,
+      token: token,
+    );
+  } catch (_) {
+    // Keep stored intents when portal sync is unavailable.
   }
 
   final commandsRaw = await AppManager().listAppCommands(botId);
