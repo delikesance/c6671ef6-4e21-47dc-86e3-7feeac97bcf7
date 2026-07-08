@@ -11253,6 +11253,158 @@
   "@container_deploy_ephemeral_storage": {
     "description": "Resource info on deploy page"
   },
+  "container_deploy_private_image": "Private image",
+  "@container_deploy_private_image": {
+    "description": "Toggle for private registry image on deploy page"
+  },
+  "container_deploy_private_image_hint": "Provide registry credentials to pull private images (e.g. GHCR).",
+  "@container_deploy_private_image_hint": {
+    "description": "Subtitle for private image toggle"
+  },
+  "container_deploy_use_custom_credentials": "Use custom credentials",
+  "@container_deploy_use_custom_credentials": {
+    "description": "Toggle to enter inline registry credentials"
+  },
+  "container_deploy_registry_profile": "Saved registry profile",
+  "@container_deploy_registry_profile": {
+    "description": "Dropdown label for saved registry credentials"
+  },
+  "container_deploy_registry_profile_none": "Select a profile",
+  "@container_deploy_registry_profile_none": {
+    "description": "Placeholder for registry profile dropdown"
+  },
+  "container_deploy_registry_detected": "Registry: {host}",
+  "@container_deploy_registry_detected": {
+    "description": "Detected registry host from image",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "container_deploy_save_registry_auth": "Save credentials for reuse",
+  "@container_deploy_save_registry_auth": {
+    "description": "Checkbox to save inline credentials as profile"
+  },
+  "container_deploy_registry_auth_required": "Username and password are required for private images.",
+  "@container_deploy_registry_auth_required": {
+    "description": "Validation error for inline registry auth"
+  },
+  "container_deploy_registry_profile_required": "Select a saved registry profile or use custom credentials.",
+  "@container_deploy_registry_profile_required": {
+    "description": "Validation error when no registry profile selected"
+  },
+  "registry_credentials_title": "Registry credentials",
+  "@registry_credentials_title": {
+    "description": "Title for registry credentials page"
+  },
+  "registry_credentials_add": "Add credentials",
+  "@registry_credentials_add": {
+    "description": "Add registry credentials button"
+  },
+  "registry_credentials_edit": "Edit credentials",
+  "@registry_credentials_edit": {
+    "description": "Edit registry credentials title"
+  },
+  "registry_credentials_manage": "Manage registry credentials",
+  "@registry_credentials_manage": {
+    "description": "Link to open registry credentials page from deploy form"
+  },
+  "registry_credentials_empty": "No saved registry credentials yet.",
+  "@registry_credentials_empty": {
+    "description": "Empty state on registry credentials page"
+  },
+  "registry_credentials_label": "Label",
+  "@registry_credentials_label": {
+    "description": "Label field for registry credential profile"
+  },
+  "registry_credentials_label_required": "Label is required",
+  "@registry_credentials_label_required": {
+    "description": "Validation for registry credential label"
+  },
+  "registry_credentials_host": "Registry host",
+  "@registry_credentials_host": {
+    "description": "Registry host field"
+  },
+  "registry_credentials_host_required": "Registry host is required",
+  "@registry_credentials_host_required": {
+    "description": "Validation for registry host"
+  },
+  "registry_credentials_username": "Username",
+  "@registry_credentials_username": {
+    "description": "Registry username field"
+  },
+  "registry_credentials_username_required": "Username is required",
+  "@registry_credentials_username_required": {
+    "description": "Validation for registry username"
+  },
+  "registry_credentials_password": "Password or token",
+  "@registry_credentials_password": {
+    "description": "Registry password field"
+  },
+  "registry_credentials_password_required": "Password or token is required",
+  "@registry_credentials_password_required": {
+    "description": "Validation for registry password"
+  },
+  "registry_credentials_password_hint": "Personal access token or registry password",
+  "@registry_credentials_password_hint": {
+    "description": "Helper for password field on create"
+  },
+  "registry_credentials_password_edit_hint": "Leave blank to keep the current password",
+  "@registry_credentials_password_edit_hint": {
+    "description": "Helper for password field on edit"
+  },
+  "registry_credentials_ghcr_hint": "For GHCR, use a GitHub PAT with read:packages scope.",
+  "@registry_credentials_ghcr_hint": {
+    "description": "GHCR-specific helper text"
+  },
+  "registry_credentials_delete_title": "Delete credentials?",
+  "@registry_credentials_delete_title": {
+    "description": "Delete confirmation title"
+  },
+  "registry_credentials_delete_body": "Delete \"{label}\"? This cannot be undone.",
+  "@registry_credentials_delete_body": {
+    "description": "Delete confirmation body",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "registry_credentials_deleted": "Registry credentials deleted",
+  "@registry_credentials_deleted": {
+    "description": "Snackbar after delete"
+  },
+  "registry_credentials_delete_failed": "Failed to delete credentials: {error}",
+  "@registry_credentials_delete_failed": {
+    "description": "Snackbar on delete failure",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "registry_credentials_save_failed": "Failed to save credentials: {error}",
+  "@registry_credentials_save_failed": {
+    "description": "Snackbar on save failure",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "container_detail_private_registry": "Private registry: {host} · {username}",
+  "@container_detail_private_registry": {
+    "description": "Private registry info on container detail",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      },
+      "username": {
+        "type": "String"
+      }
+    }
+  },
   "container_detail_topup_applied": "+{minutes} min added to this container.",
   "@container_detail_topup_applied": {
     "description": "Snackbar after ad top-up applied to running container",

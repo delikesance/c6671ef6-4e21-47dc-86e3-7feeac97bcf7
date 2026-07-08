@@ -328,6 +328,8 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
     final tr = context.tr;
     final state = _status?['state']?.toString() ?? '';
     final image = _status?['image']?.toString() ?? '';
+    final registryHost = _status?['registry_host']?.toString() ?? '';
+    final registryUsername = _status?['registry_username']?.toString() ?? '';
 
     return Scaffold(
       appBar: AppBar(title: Text(tr.container_detail_title(widget.containerId.substring(0, 8)))),
@@ -364,6 +366,19 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
               Card(child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 if (image.isNotEmpty) ...[
                   Text(image, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 12),
+                ],
+                if (registryHost.isNotEmpty || registryUsername.isNotEmpty) ...[
+                  Row(children: [
+                    const Icon(Icons.vpn_key_outlined, size: 18),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        tr.container_detail_private_registry(registryHost, registryUsername),
+                        style: TextStyle(color: colorScheme.onSurfaceVariant),
+                      ),
+                    ),
+                  ]),
                   const SizedBox(height: 12),
                 ],
                 Row(children: [

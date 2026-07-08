@@ -5,6 +5,7 @@ import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/features/containers/logic/hosted_app_hosting_actions.dart';
 import 'package:bot_creator/features/containers/presentation/hosted_app_upsell_widgets.dart';
+import 'package:bot_creator/features/containers/presentation/registry_credentials_page.dart';
 import 'package:flutter/material.dart';
 
 class ContainerDeployPage extends StatefulWidget {
@@ -21,14 +22,24 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
   final _imageCtrl = TextEditingController(text: 'nginx:alpine');
   final _envKeyCtrl = TextEditingController();
   final _envValCtrl = TextEditingController();
+  final _registryUserCtrl = TextEditingController();
+  final _registryPassCtrl = TextEditingController();
+  final _saveRegistryLabelCtrl = TextEditingController();
 
   final List<MapEntry<String, String>> _envVars = [];
   bool _deploying = false;
   bool _claimingAd = false;
   bool _loadingEligibility = true;
+  bool _loadingCredentials = false;
+  bool _privateImage = false;
+  bool _useInlineCredentials = false;
+  bool _saveRegistryAuth = false;
+  bool _obscureRegistryPassword = true;
   MainApiClient? _client;
   HostedAppEligibility? _eligibility;
   String? _ownerId;
+  List<RegistryCredential> _registryCredentials = const [];
+  String? _selectedCredentialId;
 
   @override
   void initState() {
@@ -54,6 +65,23 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
       } catch (_) {}
     }
     await _refreshEligibility();
+    await _loadRegistryCredentials();
+  }
+
+  Future<void> _loadRegistryCredentials() async {
+    if (_client == null) return;
+    setState(() => _loadingCredentials = true);
+    try {
+      final creds = await _client!.listRegistryCredentials();
+      if (mounted) {
+        setState(() {
+          _registryCredentials = creds;
+          _loadingCredentials = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loadingCredentials = false);
+    }
   }
 
   Future<void> _refreshEligibility() async {
@@ -87,6 +115,9 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
     _imageCtrl.dispose();
     _envKeyCtrl.dispose();
     _envValCtrl.dispose();
+    _registryUserCtrl.dispose();
+    _registryPassCtrl.dispose();
+    _saveRegistryLabelCtrl.dispose();
     super.dispose();
   }
 
@@ -168,12 +199,45 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
       final image = _imageCtrl.text.trim();
       final env = {for (final e in _envVars) e.key: e.value};
 
+      String? registryCredentialId;
+      RegistryAuthInput? registryAuth;
+      var saveRegistryAuth = false;
+      String? saveRegistryLabel;
+
+      if (_privateImage) {
+        if (_useInlineCredentials) {
+          final username = _registryUserCtrl.text.trim();
+          final password = _registryPassCtrl.text;
+          if (username.isEmpty || password.isEmpty) {
+            throw Exception(context.tr.container_deploy_registry_auth_required);
+          }
+          registryAuth = RegistryAuthInput(
+            registry: detectRegistryHostFromImage(image),
+            username: username,
+            password: password,
+          );
+          saveRegistryAuth = _saveRegistryAuth;
+          if (saveRegistryAuth) {
+            saveRegistryLabel = _saveRegistryLabelCtrl.text.trim();
+          }
+        } else {
+          if (_selectedCredentialId == null || _selectedCredentialId!.isEmpty) {
+            throw Exception(context.tr.container_deploy_registry_profile_required);
+          }
+          registryCredentialId = _selectedCredentialId;
+        }
+      }
+
       final result = await _client!.deployContainer(
         image: image,
         cpuMillis: 250,
         memoryMb: 192,
         storageGb: 1,
         env: env,
+        registryCredentialId: registryCredentialId,
+        registryAuth: registryAuth,
+        saveRegistryAuth: saveRegistryAuth,
+        saveRegistryLabel: saveRegistryLabel,
       );
 
       if (mounted) {
@@ -261,11 +325,12 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(context.tr.container_deploy_title)),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
+      body: SafeArea(
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+            children: [
             _buildEligibilityBanner(),
             Text(
               context.tr.container_deploy_image_label,
@@ -278,10 +343,121 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
                 hintText: 'nginx:alpine',
                 helperText: context.tr.container_deploy_image_hint,
               ),
+              onChanged: (_) => setState(() {}),
               validator: (v) => (v == null || v.trim().isEmpty)
                   ? context.tr.container_deploy_image_required
                   : null,
             ),
+            const SizedBox(height: 16),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(context.tr.container_deploy_private_image),
+              subtitle: Text(context.tr.container_deploy_private_image_hint),
+              value: _privateImage,
+              onChanged: (v) => setState(() => _privateImage = v),
+            ),
+            if (_privateImage) ...[
+              if (_loadingCredentials)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: LinearProgressIndicator(),
+                ),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(context.tr.container_deploy_use_custom_credentials),
+                value: _useInlineCredentials,
+                onChanged: (v) => setState(() => _useInlineCredentials = v),
+              ),
+              if (!_useInlineCredentials) ...[
+                DropdownButtonFormField<String?>(
+                  value: _selectedCredentialId,
+                  decoration: InputDecoration(
+                    labelText: context.tr.container_deploy_registry_profile,
+                  ),
+                  items: [
+                    DropdownMenuItem<String?>(
+                      value: null,
+                      child: Text(context.tr.container_deploy_registry_profile_none),
+                    ),
+                    ..._registryCredentials.map(
+                      (cred) => DropdownMenuItem<String?>(
+                        value: cred.id,
+                        child: Text('${cred.label} (${cred.registryHost})'),
+                      ),
+                    ),
+                  ],
+                  onChanged: (v) => setState(() => _selectedCredentialId = v),
+                ),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextButton.icon(
+                    onPressed: () async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              RegistryCredentialsPage(client: _client),
+                        ),
+                      );
+                      await _loadRegistryCredentials();
+                    },
+                    icon: const Icon(Icons.vpn_key_outlined),
+                    label: Text(context.tr.registry_credentials_manage),
+                  ),
+                ),
+              ] else ...[
+                Text(
+                  context.tr.container_deploy_registry_detected(
+                    detectRegistryHostFromImage(_imageCtrl.text),
+                  ),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    fontSize: 13,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: _registryUserCtrl,
+                  decoration: InputDecoration(
+                    labelText: context.tr.registry_credentials_username,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: _registryPassCtrl,
+                  obscureText: _obscureRegistryPassword,
+                  decoration: InputDecoration(
+                    labelText: context.tr.registry_credentials_password,
+                    helperText: context.tr.registry_credentials_ghcr_hint,
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscureRegistryPassword
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                      ),
+                      onPressed: () => setState(
+                        () => _obscureRegistryPassword = !_obscureRegistryPassword,
+                      ),
+                    ),
+                  ),
+                ),
+                CheckboxListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(context.tr.container_deploy_save_registry_auth),
+                  value: _saveRegistryAuth,
+                  onChanged: (v) => setState(() => _saveRegistryAuth = v ?? false),
+                ),
+                if (_saveRegistryAuth)
+                  TextFormField(
+                    controller: _saveRegistryLabelCtrl,
+                    decoration: InputDecoration(
+                      labelText: context.tr.registry_credentials_label,
+                      hintText: detectRegistryHostFromImage(_imageCtrl.text),
+                    ),
+                  ),
+              ],
+              const SizedBox(height: 8),
+            ],
             const SizedBox(height: 24),
             Text(
               context.tr.container_deploy_env_label,
@@ -390,6 +566,7 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
           ],
         ),
       ),
+    ),
     );
   }
 }

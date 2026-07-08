@@ -8888,6 +8888,118 @@ class AppLocalizationsJa extends AppLocalizations {
   String get container_deploy_ephemeral_storage => 'エフェメラルストレージ（永続ボリュームなし）';
 
   @override
+  String get container_deploy_private_image => 'Private image';
+
+  @override
+  String get container_deploy_private_image_hint =>
+      'Provide registry credentials to pull private images (e.g. GHCR).';
+
+  @override
+  String get container_deploy_use_custom_credentials =>
+      'Use custom credentials';
+
+  @override
+  String get container_deploy_registry_profile => 'Saved registry profile';
+
+  @override
+  String get container_deploy_registry_profile_none => 'Select a profile';
+
+  @override
+  String container_deploy_registry_detected(String host) {
+    return 'Registry: $host';
+  }
+
+  @override
+  String get container_deploy_save_registry_auth =>
+      'Save credentials for reuse';
+
+  @override
+  String get container_deploy_registry_auth_required =>
+      'Username and password are required for private images.';
+
+  @override
+  String get container_deploy_registry_profile_required =>
+      'Select a saved registry profile or use custom credentials.';
+
+  @override
+  String get registry_credentials_title => 'Registry credentials';
+
+  @override
+  String get registry_credentials_add => 'Add credentials';
+
+  @override
+  String get registry_credentials_edit => 'Edit credentials';
+
+  @override
+  String get registry_credentials_manage => 'Manage registry credentials';
+
+  @override
+  String get registry_credentials_empty => 'No saved registry credentials yet.';
+
+  @override
+  String get registry_credentials_label => 'Label';
+
+  @override
+  String get registry_credentials_label_required => 'Label is required';
+
+  @override
+  String get registry_credentials_host => 'Registry host';
+
+  @override
+  String get registry_credentials_host_required => 'Registry host is required';
+
+  @override
+  String get registry_credentials_username => 'Username';
+
+  @override
+  String get registry_credentials_username_required => 'Username is required';
+
+  @override
+  String get registry_credentials_password => 'Password or token';
+
+  @override
+  String get registry_credentials_password_required =>
+      'Password or token is required';
+
+  @override
+  String get registry_credentials_password_hint =>
+      'Personal access token or registry password';
+
+  @override
+  String get registry_credentials_password_edit_hint =>
+      'Leave blank to keep the current password';
+
+  @override
+  String get registry_credentials_ghcr_hint =>
+      'For GHCR, use a GitHub PAT with read:packages scope.';
+
+  @override
+  String get registry_credentials_delete_title => 'Delete credentials?';
+
+  @override
+  String registry_credentials_delete_body(String label) {
+    return 'Delete \"$label\"? This cannot be undone.';
+  }
+
+  @override
+  String get registry_credentials_deleted => 'Registry credentials deleted';
+
+  @override
+  String registry_credentials_delete_failed(String error) {
+    return 'Failed to delete credentials: $error';
+  }
+
+  @override
+  String registry_credentials_save_failed(String error) {
+    return 'Failed to save credentials: $error';
+  }
+
+  @override
+  String container_detail_private_registry(String host, String username) {
+    return 'Private registry: $host · $username';
+  }
+
+  @override
   String container_detail_topup_applied(int minutes) {
     return 'このコンテナに+$minutes分追加しました。';
   }

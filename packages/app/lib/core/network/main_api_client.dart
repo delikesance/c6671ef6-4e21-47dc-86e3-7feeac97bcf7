@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:bot_creator_shared/bot/bot_config.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
+import 'package:bot_creator/core/network/main_api_session_restore.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/core/utils/log_redaction.dart';
 import 'package:bot_creator/core/utils/hash_util.dart';
@@ -574,24 +575,14 @@ class MainApiClient implements RemoteRuntimeClient {
 
   Future<String?> _tryRefreshSession() async {
     try {
-      final session = await MainApiSettingsStore.loadSession();
-      final refreshToken = session?.refreshToken?.trim() ?? '';
-      if (refreshToken.isEmpty) {
-        return null;
-      }
-      debugPrint('[MainApiClient] Access token expired or invalid (401/403). Attempting to refresh session...');
-      final publicClient = MainApiClient(baseUrl: _baseUrl, httpClient: _http, timeout: _timeout);
-      final existing = await MainApiSettingsStore.loadSession();
-      final newSession = await publicClient.refreshSession(refreshToken: refreshToken);
-      await MainApiSettingsStore.saveRefreshedSession(newSession);
-      debugPrint('[MainApiClient] Session refreshed successfully.');
-      return newSession.accessToken;
+      debugPrint('[MainApiClient] Access token expired or invalid (401/403). Attempting central session restore...');
+      final session = await restoreMainApiSessionIfNeeded(
+        timeout: _timeout,
+        force: true,
+      );
+      return session?.accessToken;
     } catch (e) {
       debugPrint('[MainApiClient] Failed to refresh session: $e');
-      if (e is MainApiClientException && (e.statusCode == 401 || e.statusCode == 403)) {
-        debugPrint('[MainApiClient] Refresh token rejected. Clearing session.');
-        await MainApiSettingsStore.clearSession();
-      }
       return null;
     }
   }
@@ -1656,14 +1647,74 @@ class MainApiClient implements RemoteRuntimeClient {
     required int memoryMb,
     int storageGb = 10,
     Map<String, String> env = const <String, String>{},
+    String? registryCredentialId,
+    RegistryAuthInput? registryAuth,
+    bool saveRegistryAuth = false,
+    String? saveRegistryLabel,
   }) async {
-    return _post('/containers/deploy', <String, dynamic>{
+    final body = <String, dynamic>{
       'image': image,
       'cpu_millis': cpuMillis,
       'memory_mb': memoryMb,
       'storage_gb': storageGb,
       'env': env,
+    };
+    if (registryCredentialId != null && registryCredentialId.isNotEmpty) {
+      body['registry_credential_id'] = registryCredentialId;
+    }
+    if (registryAuth != null) {
+      body['registry_auth'] = registryAuth.toJson();
+    }
+    if (saveRegistryAuth) {
+      body['save_registry_auth'] = true;
+      if (saveRegistryLabel != null && saveRegistryLabel.isNotEmpty) {
+        body['save_registry_label'] = saveRegistryLabel;
+      }
+    }
+    return _post('/containers/deploy', body);
+  }
+
+  Future<List<RegistryCredential>> listRegistryCredentials() async {
+    final json = await _get('/registry-credentials');
+    final list = (json['credentials'] as List<dynamic>?)
+            ?.cast<Map<String, dynamic>>() ??
+        <Map<String, dynamic>>[];
+    return list.map(RegistryCredential.fromJson).toList();
+  }
+
+  Future<RegistryCredential> createRegistryCredential({
+    required String label,
+    required String registryHost,
+    required String username,
+    required String password,
+  }) async {
+    final json = await _post('/registry-credentials', <String, dynamic>{
+      'label': label,
+      'registry_host': registryHost,
+      'username': username,
+      'password': password,
     });
+    return RegistryCredential.fromJson(json);
+  }
+
+  Future<RegistryCredential> updateRegistryCredential(
+    String id, {
+    String? label,
+    String? registryHost,
+    String? username,
+    String? password,
+  }) async {
+    final body = <String, dynamic>{};
+    if (label != null) body['label'] = label;
+    if (registryHost != null) body['registry_host'] = registryHost;
+    if (username != null) body['username'] = username;
+    if (password != null) body['password'] = password;
+    final json = await _patch('/registry-credentials/$id', body);
+    return RegistryCredential.fromJson(json);
+  }
+
+  Future<void> deleteRegistryCredential(String id) async {
+    await _delete('/registry-credentials/$id');
   }
 
   /// Get the current status of a container.
@@ -1794,6 +1845,64 @@ String? _normalize(String? value) {
 }
 
 /// Information about a hosted container.
+class RegistryCredential {
+  const RegistryCredential({
+    required this.id,
+    required this.label,
+    required this.registryHost,
+    required this.username,
+  });
+
+  final String id;
+  final String label;
+  final String registryHost;
+  final String username;
+
+  factory RegistryCredential.fromJson(Map<String, dynamic> json) {
+    return RegistryCredential(
+      id: (json['id'] ?? '').toString(),
+      label: (json['label'] ?? '').toString(),
+      registryHost: (json['registry_host'] ?? '').toString(),
+      username: (json['username'] ?? '').toString(),
+    );
+  }
+}
+
+class RegistryAuthInput {
+  const RegistryAuthInput({
+    required this.username,
+    required this.password,
+    this.registry,
+  });
+
+  final String? registry;
+  final String username;
+  final String password;
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        if (registry != null && registry!.isNotEmpty) 'registry': registry,
+        'username': username,
+        'password': password,
+      };
+}
+
+String detectRegistryHostFromImage(String image) {
+  final trimmed = image.trim();
+  if (trimmed.isEmpty) return '';
+  var first = trimmed;
+  final at = trimmed.indexOf('@');
+  if (at > 0) first = trimmed.substring(0, at);
+  final slash = first.indexOf('/');
+  if (slash > 0) {
+    final head = first.substring(0, slash);
+    if (head.contains('.') || head == 'localhost') {
+      return head.toLowerCase();
+    }
+  }
+  return 'docker.io';
+}
+
+/// Information about a hosted container.
 class ContainerInfo {
   final String id;
   final String ownerId;
@@ -1807,6 +1916,9 @@ class ContainerInfo {
   final String state;
   final int hostPort;
   final String nodeIp;
+  final String? registryCredentialId;
+  final String registryHost;
+  final String registryUsername;
   final DateTime expiresAt;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -1824,6 +1936,9 @@ class ContainerInfo {
     required this.state,
     this.hostPort = 0,
     this.nodeIp = '',
+    this.registryCredentialId,
+    this.registryHost = '',
+    this.registryUsername = '',
     required this.expiresAt,
     required this.createdAt,
     required this.updatedAt,
@@ -1846,6 +1961,9 @@ class ContainerInfo {
       state: (json['state'] ?? '').toString(),
       hostPort: _parseInt(json['host_port'], 0),
       nodeIp: (json['node_ip'] ?? '').toString(),
+      registryCredentialId: json['registry_credential_id']?.toString(),
+      registryHost: (json['registry_host'] ?? '').toString(),
+      registryUsername: (json['registry_username'] ?? '').toString(),
       expiresAt: _parseDateTime(json['expires_at']),
       createdAt: _parseDateTime(json['created_at']),
       updatedAt: _parseDateTime(json['updated_at']),
@@ -1857,6 +1975,8 @@ class ContainerInfo {
   bool get isStopped => state == 'STOPPED' || state == 'STOPPING';
   bool get isFailed => state == 'FAILED';
   bool get isTerminal => isStopped || isFailed;
+  bool get usesPrivateRegistry =>
+      registryHost.isNotEmpty || registryUsername.isNotEmpty;
 
   static int parseInt(dynamic v, int fallback) {
     if (v is int) return v;
