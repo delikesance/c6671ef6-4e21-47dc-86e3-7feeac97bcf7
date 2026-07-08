@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:bot_creator/core/discord/discord_intent_sync.dart';
 import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
@@ -533,11 +534,6 @@ Future<Map<String, dynamic>> buildRemotePayload(String botId) async {
 ///
 /// This payload can be pushed to the runner via [RunnerClient.syncBot].
 Future<Map<String, dynamic>> buildBotPayload(String botId) async {
-  final cached = await _appManager.getCachedPayload(botId);
-  if (cached != null) {
-    return cached;
-  }
-
   final appData = await _appManager.getApp(botId);
   if (appData.isEmpty) {
     throw StateError('Bot "$botId" not found in local storage.');
@@ -548,44 +544,17 @@ Future<Map<String, dynamic>> buildBotPayload(String botId) async {
     throw StateError('Bot "$botId" has no token configured.');
   }
 
-  // Compute intents from Discord app flags
+  var intentsChanged = false;
   try {
-    final tempClient = await Nyxx.connectRest(token);
-    try {
-      final app = await tempClient.applications.fetchCurrentApplication();
-      appData['intents'] = {
-        // Non-privileged intents — always granted
-        'Guilds': true,
-        'Guild Messages': true,
-        'Direct Messages': true,
-        'Guild Message Reactions': true,
-        'Direct Message Reactions': true,
-        'Guild Message Typing': true,
-        'Direct Message Typing': true,
-        'Guild Scheduled Events': true,
-        'Auto Moderation Configuration': true,
-        'Auto Moderation Execution': true,
-        'Guild Moderation': true,
-        'Guild Expressions': true,
-        'Guild Integrations': true,
-        'Guild Webhooks': true,
-        'Guild Invites': true,
-        'Guild Voice States': true,
-        'Guild Message Polls': true,
-        'Direct Message Polls': true,
-        // Privileged intents — only if Discord app flags approve them
-        'Guild Members':
-            app.flags.hasGatewayGuildMembers || app.flags.hasGatewayGuildMembersLimited,
-        'Guild Presence':
-            app.flags.hasGatewayPresence || app.flags.hasGatewayPresenceLimited,
-        'Message Content':
-            app.flags.hasGatewayMessageContent || app.flags.hasGatewayMessageContentLimited,
-      };
-    } finally {
-      await tempClient.close();
+    intentsChanged = await refreshAppIntentsFromPortal(
+      botId: botId,
+      appData: appData,
+      token: token,
+    );
+    if (intentsChanged) {
+      await _appManager.invalidatePayloadCache(botId);
     }
   } catch (e) {
-    // If fetching app flags fails, keep existing intents as fallback
     if (_isTransientNetworkError(e)) {
       debugPrint(
         '[buildBotPayload] Offline — skipping Discord app flags fetch.',
@@ -593,6 +562,11 @@ Future<Map<String, dynamic>> buildBotPayload(String botId) async {
     } else {
       debugPrint('[buildBotPayload] Failed to fetch app flags for intents: $e');
     }
+  }
+
+  final cached = await _appManager.getCachedPayload(botId);
+  if (cached != null && !intentsChanged) {
+    return cached;
   }
 
   final scopedVariables = await _appManager.exportScopedVariables(botId);

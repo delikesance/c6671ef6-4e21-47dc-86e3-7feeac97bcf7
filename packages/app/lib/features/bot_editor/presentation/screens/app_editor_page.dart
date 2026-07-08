@@ -24,6 +24,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/core/discord/discord_intent_sync.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -652,41 +653,7 @@ class _OfflineTokenPageState extends State<_OfflineTokenPage> {
         if (!proceed || !mounted) return;
       }
 
-      // Fetch app flags from Discord to compute privileged intents
-      final tempClient = await Nyxx.connectRest(newToken);
-      Application app;
-      try {
-        app = await tempClient.applications.fetchCurrentApplication();
-      } finally {
-        await tempClient.close();
-      }
-
-      final computedIntents = <String, bool>{
-        'Guilds': true,
-        'Guild Messages': true,
-        'Direct Messages': true,
-        'Guild Message Reactions': true,
-        'Direct Message Reactions': true,
-        'Guild Message Typing': true,
-        'Direct Message Typing': true,
-        'Guild Scheduled Events': true,
-        'Auto Moderation Configuration': true,
-        'Auto Moderation Execution': true,
-        'Guild Moderation': true,
-        'Guild Expressions': true,
-        'Guild Integrations': true,
-        'Guild Webhooks': true,
-        'Guild Invites': true,
-        'Guild Voice States': true,
-        'Guild Message Polls': true,
-        'Direct Message Polls': true,
-        'Guild Members':
-            app.flags.hasGatewayGuildMembers || app.flags.hasGatewayGuildMembersLimited,
-        'Guild Presence':
-            app.flags.hasGatewayPresence || app.flags.hasGatewayPresenceLimited,
-        'Message Content':
-            app.flags.hasGatewayMessageContent || app.flags.hasGatewayMessageContentLimited,
-      };
+      final computedIntents = await fetchPortalIntents(newToken);
 
       await appManager.createOrUpdateApp(
         id: discordUser.id,
