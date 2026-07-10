@@ -68,6 +68,27 @@ const jsEditorSnippets = <JsEditorSnippet>[
         "const richUsers = await db.user.find((entry) => Number(entry.value) >= 100);",
   ),
   JsEditorSnippet(
+    label: 'db.user.reset',
+    insert: "await db.user.reset('coins');",
+  ),
+  JsEditorSnippet(
+    label: 'db.guildMember.get',
+    insert: "const xp = await db.guildMember.get('xp');",
+  ),
+  JsEditorSnippet(
+    label: 'db.guildMember.set',
+    insert: "await db.guildMember.set('xp', 0);",
+  ),
+  JsEditorSnippet(
+    label: 'db.guildMember.setIds',
+    insert:
+        "await db.guildMember.set('xp', 0, interaction.user.id, interaction.guildId);",
+  ),
+  JsEditorSnippet(
+    label: 'db.guildMember.reset',
+    insert: "await db.guildMember.reset('xp');",
+  ),
+  JsEditorSnippet(
     label: 'db.global',
     insert: "await db.global.set('counter', 1);\nconst n = await db.global.get('counter');",
   ),

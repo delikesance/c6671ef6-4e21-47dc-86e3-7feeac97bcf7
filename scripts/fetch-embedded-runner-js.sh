@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ASSET_DIR="$ROOT_DIR/packages/app/assets/embedded-runner-js"
 RELEASE_TAG="${RUNNER_JS_RELEASE_TAG:-}"
-GITHUB_REPO="${RUNNER_JS_GITHUB_REPO:-garder500/runner-js}"
+GITHUB_REPO="${RUNNER_JS_GITHUB_REPO:-ketsuna-org/runner-js}"
 
 mkdir -p "$ASSET_DIR"
 
