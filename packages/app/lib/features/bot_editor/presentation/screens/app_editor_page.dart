@@ -774,10 +774,9 @@ class _OfflineRecoveryPage extends StatefulWidget {
 
   const _OfflineRecoveryPage({
     required this.reason,
-    this.token,
     required this.onRetry,
     required this.onDeleteLocal,
-  });
+  }) : token = null;
 
   @override
   State<_OfflineRecoveryPage> createState() => _OfflineRecoveryPageState();

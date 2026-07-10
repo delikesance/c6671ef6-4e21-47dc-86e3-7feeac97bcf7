@@ -5,8 +5,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:bot_creator/core/secure/secure_storage_service.dart';
 
-const String _defaultMainApiBaseUrlRaw =
-    kDebugMode ? 'https://dev.bot-creator.fr/' : 'https://api.bot-creator.fr';
+const String _defaultMainApiBaseUrlRaw = kDebugMode
+    ? 'https://dev.bot-creator.fr/'
+    : 'https://api.bot-creator.fr';
 String get defaultMainApiBaseUrl =>
     MainApiConfig.normalizeBaseUrl(_defaultMainApiBaseUrlRaw);
 
@@ -88,6 +89,10 @@ class MainApiSession {
     return expiresAt.isBefore(DateTime.now().toUtc().add(threshold));
   }
 
+  bool get isManagedAccount =>
+      authMethod == MainApiAuthMethod.discordOauth ||
+      authMethod == MainApiAuthMethod.emailPassword;
+
   MainApiSession copyWith({
     String? accessToken,
     DateTime? expiresAt,
@@ -111,9 +116,9 @@ class MainApiSession {
   Map<String, dynamic> toJson() => <String, dynamic>{
     'accessToken': accessToken,
     'expiresAt': expiresAt.toUtc().toIso8601String(),
-    'refreshToken': ?_normalize(refreshToken),
-    'userId': ?_normalize(userId),
-    'username': ?_normalize(username),
+    'refreshToken': _normalize(refreshToken),
+    'userId': _normalize(userId),
+    'username': _normalize(username),
     if (scopes.isNotEmpty) 'scopes': scopes,
     if (authMethod != null) 'authMethod': authMethod!.storageValue,
   };
@@ -126,13 +131,12 @@ class MainApiSession {
       refreshToken: _normalize(json['refreshToken']?.toString()),
       userId: _normalize(json['userId']?.toString()),
       username: _normalize(json['username']?.toString()),
-      scopes:
-          rawScopes is List
-              ? rawScopes
-                  .map((item) => item.toString().trim())
-                  .where((item) => item.isNotEmpty)
-                  .toList(growable: false)
-              : const <String>[],
+      scopes: rawScopes is List
+          ? rawScopes
+                .map((item) => item.toString().trim())
+                .where((item) => item.isNotEmpty)
+                .toList(growable: false)
+          : const <String>[],
       authMethod: MainApiAuthMethod.fromStorage(json['authMethod']?.toString()),
     );
   }
@@ -168,39 +172,31 @@ class MainApiSettingsStore {
   }
 
   static Future<MainApiSession?> loadSession() async {
-    // Try secure storage first
     try {
       final secure = await SecureStorageService.instance;
       final jsonStr = await secure.read('main_api_session');
       if (jsonStr != null && jsonStr.isNotEmpty) {
-        final json = _decodeJsonMap(jsonStr);
-        if (json != null) {
-          final accessToken = _normalize(json['accessToken']?.toString());
-          final expiresAt = _normalize(json['expiresAt']?.toString());
-          if (accessToken != null && expiresAt != null) {
-            return _loadAndMigrateSession(MainApiSession.fromJson(json));
-          }
+        final session = _sessionFromStoredJson(jsonStr);
+        if (session != null) {
+          return session;
         }
       }
     } catch (_) {
       // Secure storage unavailable; fall through
     }
 
-    // One-time migration from legacy SharedPreferences
     final prefs = await SharedPreferences.getInstance();
     final json = _decodeJsonMap(prefs.getString(_sessionKey));
     if (json == null) {
       return null;
     }
 
-    final accessToken = _normalize(json['accessToken']?.toString());
-    final expiresAt = _normalize(json['expiresAt']?.toString());
-    if (accessToken == null || expiresAt == null) {
+    final session = MainApiSession.fromJson(json);
+    if (session.accessToken.trim().isEmpty) {
       await prefs.remove(_sessionKey);
       return null;
     }
 
-    final session = await _loadAndMigrateSession(MainApiSession.fromJson(json));
     try {
       final secure = await SecureStorageService.instance;
       await secure.write('main_api_session', jsonEncode(session.toJson()));
@@ -219,63 +215,33 @@ class MainApiSettingsStore {
       // Secure storage unavailable
     }
 
-    // Remove any legacy SharedPreferences copy.
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_sessionKey);
   }
 
-  static Future<void> saveDiscordOAuthSession(MainApiSession session) {
-    return saveSession(
-      session.copyWith(authMethod: MainApiAuthMethod.discordOauth),
-    );
-  }
-
-  static Future<void> saveEmailPasswordSession(MainApiSession session) {
-    return saveSession(
-      session.copyWith(
-        authMethod: MainApiAuthMethod.emailPassword,
-      ),
-    );
-  }
-
-  static Future<void> saveBotTokenSession(MainApiSession session) async {
+  /// Persists a bot-token exchange only when no managed account session exists.
+  static Future<bool> trySaveBotTokenSession(MainApiSession session) async {
     final existing = await loadSession();
-    if (existing?.authMethod == MainApiAuthMethod.discordOauth ||
-        (existing?.refreshToken?.trim().isNotEmpty ?? false)) {
-      return saveSession(
-        session.copyWith(authMethod: MainApiAuthMethod.discordOauth),
-      );
+    if (existing?.isManagedAccount ?? false) {
+      return false;
     }
-    return saveSession(
+    await saveSession(
       session.copyWith(authMethod: MainApiAuthMethod.botToken),
     );
-  }
-
-  static Future<void> saveRefreshedSession(MainApiSession session) async {
-    final existing = await loadSession();
-    final authMethod =
-        existing?.authMethod ??
-        ((existing?.refreshToken?.trim().isNotEmpty ?? false)
-            ? MainApiAuthMethod.discordOauth
-            : null) ??
-        session.authMethod;
-    return saveSession(session.copyWith(authMethod: authMethod));
+    return true;
   }
 
   static Future<void> clearSession() async {
-    // Clear from secure storage
     try {
       final secure = await SecureStorageService.instance;
       await secure.delete('main_api_session');
     } catch (_) {}
 
-    // Clear from legacy SharedPreferences
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_sessionKey);
   }
 
   static Future<void> clearAll() async {
-    // Clear session from secure storage
     try {
       final secure = await SecureStorageService.instance;
       await secure.delete('main_api_session');
@@ -285,16 +251,21 @@ class MainApiSettingsStore {
     await prefs.remove(_configKey);
     await prefs.remove(_sessionKey);
   }
+}
 
-  static Future<MainApiSession> _loadAndMigrateSession(
-    MainApiSession session,
-  ) async {
-    final migrated = _finalizeLoadedSession(session);
-    if (migrated.authMethod != session.authMethod) {
-      await saveSession(migrated);
-    }
-    return migrated;
+MainApiSession? _sessionFromStoredJson(String raw) {
+  final json = _decodeJsonMap(raw);
+  if (json == null) {
+    return null;
   }
+
+  final accessToken = _normalize(json['accessToken']?.toString());
+  final expiresAt = _normalize(json['expiresAt']?.toString());
+  if (accessToken == null || expiresAt == null) {
+    return null;
+  }
+
+  return MainApiSession.fromJson(json);
 }
 
 Map<String, dynamic>? _decodeJsonMap(String? raw) {
@@ -315,15 +286,4 @@ Map<String, dynamic>? _decodeJsonMap(String? raw) {
 String? _normalize(String? value) {
   final trimmed = value?.trim() ?? '';
   return trimmed.isEmpty ? null : trimmed;
-}
-
-MainApiSession _finalizeLoadedSession(MainApiSession session) {
-  if (session.authMethod == MainApiAuthMethod.emailPassword) {
-    return session;
-  }
-  if (session.authMethod == null &&
-      (session.refreshToken?.trim().isNotEmpty ?? false)) {
-    return session.copyWith(authMethod: MainApiAuthMethod.discordOauth);
-  }
-  return session;
 }

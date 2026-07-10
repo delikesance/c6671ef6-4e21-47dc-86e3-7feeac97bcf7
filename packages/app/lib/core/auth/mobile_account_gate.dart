@@ -1,4 +1,3 @@
-import 'package:bot_creator/core/auth/mobile_account_gate.dart';
 import 'dart:io';
 
 import 'package:bot_creator/core/network/main_api_session_restore.dart';
@@ -16,39 +15,32 @@ class MobileAccountGate {
     return Platform.isAndroid || Platform.isIOS;
   }
 
-  static MainApiAuthMethod? _resolvedAuthMethod(MainApiSession session) {
-    if (session.authMethod == MainApiAuthMethod.emailPassword) {
-      return MainApiAuthMethod.emailPassword;
-    }
-    return session.authMethod ??
-        ((session.refreshToken?.trim().isNotEmpty ?? false)
-            ? MainApiAuthMethod.discordOauth
-            : null);
-  }
-
   static bool isDiscordOAuthSession(MainApiSession? session) {
     if (session == null || session.isExpired) {
       return false;
     }
-    return _resolvedAuthMethod(session) == MainApiAuthMethod.discordOauth;
+    return session.authMethod == MainApiAuthMethod.discordOauth;
   }
 
   static bool isEmailPasswordSession(MainApiSession? session) {
     if (session == null || session.isExpired) {
       return false;
     }
-    return _resolvedAuthMethod(session) == MainApiAuthMethod.emailPassword;
+    return session.authMethod == MainApiAuthMethod.emailPassword;
   }
 
   static bool isManagedAccountSession(MainApiSession? session) {
-    return isDiscordOAuthSession(session) || isEmailPasswordSession(session);
+    if (session == null || session.isExpired) {
+      return false;
+    }
+    return session.isManagedAccount;
   }
 
   static bool isRefreshableDiscordOAuthSession(MainApiSession? session) {
     if (session == null) {
       return false;
     }
-    if (_resolvedAuthMethod(session) != MainApiAuthMethod.discordOauth) {
+    if (session.authMethod != MainApiAuthMethod.discordOauth) {
       return false;
     }
     if (!session.isExpired) {
@@ -58,12 +50,7 @@ class MobileAccountGate {
   }
 
   static bool isRefreshableManagedAccountSession(MainApiSession? session) {
-    if (session == null) {
-      return false;
-    }
-    final method = _resolvedAuthMethod(session);
-    if (method != MainApiAuthMethod.discordOauth &&
-        method != MainApiAuthMethod.emailPassword) {
+    if (session == null || !session.isManagedAccount) {
       return false;
     }
     if (!session.isExpired) {

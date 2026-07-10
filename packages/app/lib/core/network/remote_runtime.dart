@@ -1,4 +1,5 @@
 import 'package:bot_creator/core/network/main_api_client.dart';
+import 'package:bot_creator/core/network/main_api_session_restore.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
@@ -139,25 +140,7 @@ Future<ResolvedRemoteRuntime> resolveRemoteRuntime({
   final mainApiSession = await MainApiSettingsStore.loadSession();
 
   if (mainApiConfig.isConfigured && !isDesktop) {
-    var session = mainApiSession;
-    if (session != null && session.isExpired && session.refreshToken != null) {
-      try {
-        final client = MainApiClient(
-          baseUrl: mainApiConfig.baseUrl,
-          timeout: const Duration(seconds: 5), // short timeout — best effort
-        );
-        final newSession = await client.refreshSession(
-          refreshToken: session.refreshToken!,
-        );
-        final existing = await MainApiSettingsStore.loadSession();
-        await MainApiSettingsStore.saveSession(
-          newSession.copyWith(authMethod: existing?.authMethod),
-        );
-        session = newSession;
-      } catch (_) {
-        // Refresh failed, proceed to expired/null logic.
-      }
-    }
+    final session = await ensureMainApiSession();
 
     if (session != null && !session.isExpired) {
       return ResolvedRemoteRuntime(

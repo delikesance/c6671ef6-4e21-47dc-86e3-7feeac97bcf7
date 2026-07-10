@@ -92,4 +92,37 @@ void main() {
       expect(status.isBotRunning('bot-1'), isFalse);
     },
   );
+
+  test('refreshSession parses manager auth payload', () async {
+    final client = MainApiClient(
+      baseUrl: 'https://api.example.com',
+      httpClient: MockClient((request) async {
+        expect(request.url.path, '/auth/refresh');
+        return http.Response(
+          '''
+          {
+            "token": "new-access-token",
+            "refresh_token": "new-refresh-token",
+            "expires_at": "2030-01-01T00:00:00Z",
+            "owner_id": "owner-1",
+            "user": {
+              "id": "owner-1",
+              "username": "owner-one"
+            }
+          }
+          ''',
+          200,
+          headers: const <String, String>{'content-type': 'application/json'},
+        );
+      }),
+    );
+
+    final session = await client.refreshSession(refreshToken: 'old-refresh-token');
+
+    expect(session.accessToken, 'new-access-token');
+    expect(session.refreshToken, 'new-refresh-token');
+    expect(session.userId, 'owner-1');
+    expect(session.username, 'owner-one');
+    expect(session.expiresAt, DateTime.utc(2030, 1, 1));
+  });
 }

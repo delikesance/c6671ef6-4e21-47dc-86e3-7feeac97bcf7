@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:bot_creator/core/network/main_api_owner_sync.dart';
+import 'package:bot_creator/core/network/main_api_session_restore.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/network/remote_runtime.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
@@ -34,7 +35,6 @@ import 'package:bot_creator/features/ads/logic/ad_consent_service.dart';
 import 'package:bot_creator/features/ads/logic/ads_placement_policy.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/app_editor_page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/bot_logs.dart';
-import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/features/containers/presentation/container_list_page.dart';
 
 String _formatHostingDuration(BuildContext context, int totalMinutes) {
@@ -969,29 +969,9 @@ class HomePageState extends State<HomePage>
       return null;
     }
 
-    var session = await MainApiSettingsStore.loadSession();
-    if (session != null && session.isExpired && session.refreshToken != null) {
-      try {
-        appendBotDebugLog(
-          '[_resolveGlobalMainApiClient] Global session expired; attempting to refresh.',
-        );
-        final client = MainApiClient(
-          baseUrl: config.baseUrl,
-          timeout: const Duration(seconds: 5),
-        );
-        final newSession = await client.refreshSession(
-          refreshToken: session.refreshToken!,
-        );
-        await MainApiSettingsStore.saveRefreshedSession(newSession);
-        session = newSession;
-        appendBotDebugLog(
-          '[_resolveGlobalMainApiClient] Global session refreshed successfully.',
-        );
-      } catch (error) {
-        appendBotDebugLog(
-          '[_resolveGlobalMainApiClient] Global session refresh failed: $error.',
-        );
-      }
+    var session = await ensureMainApiSession();
+    if (session == null) {
+      session = await MainApiSettingsStore.loadSession();
     }
 
     if (session != null && !session.isExpired) {

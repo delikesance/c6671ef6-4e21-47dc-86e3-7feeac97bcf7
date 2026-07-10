@@ -21,7 +21,6 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 
 import 'package:bot_creator/features/ads/logic/ad_reward_service.dart';
 import 'package:bot_creator/core/utils/global.dart';
-import 'package:bot_creator/core/utils/responsive.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_owner_sync.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';

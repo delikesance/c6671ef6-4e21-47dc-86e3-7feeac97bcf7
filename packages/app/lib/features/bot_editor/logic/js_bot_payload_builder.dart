@@ -30,9 +30,6 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
   final commands = <Map<String, dynamic>>[];
 
   for (final command in commandsRaw) {
-    if (command is! Map) {
-      continue;
-    }
     final normalized = normalizeCommandData(Map<String, dynamic>.from(command));
     final data = Map<String, dynamic>.from(
       (normalized['data'] as Map?)?.cast<String, dynamic>() ?? const {},

@@ -182,6 +182,7 @@ DiscordCommandValidationIssue? validateCommandName(
     case ApplicationCommandType.message:
       return validateUserOrMessageNameFormat(name);
   }
+  return null;
 }
 
 DiscordCommandValidationIssue? validateDescriptionValue(

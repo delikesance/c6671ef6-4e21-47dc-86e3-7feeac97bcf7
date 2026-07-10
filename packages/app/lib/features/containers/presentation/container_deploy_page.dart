@@ -478,7 +478,7 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
               const SizedBox(height: 16),
               if (_localBots.isNotEmpty) ...[
                 DropdownButtonFormField<String?>(
-                  value: _selectedBotId,
+                  initialValue: _selectedBotId,
                   decoration: InputDecoration(
                     labelText: context.tr.container_deploy_pick_bot,
                   ),
@@ -557,7 +557,7 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
               ),
               if (!_useInlineCredentials) ...[
                 DropdownButtonFormField<String?>(
-                  value: _selectedCredentialId,
+                  initialValue: _selectedCredentialId,
                   decoration: InputDecoration(
                     labelText: context.tr.container_deploy_registry_profile,
                   ),

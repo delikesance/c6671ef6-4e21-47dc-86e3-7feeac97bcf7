@@ -16,14 +16,11 @@ class JsCompletionCandidate {
 /// Static completion index for JavaScript + discord.js + Bot Creator globals.
 class JsCompletionIndex {
   JsCompletionIndex._({
-    required List<String> globals,
+    required this._globals,
     required List<String> discordExports,
-    required Map<String, List<String>> members,
-    required Map<String, String> typeAliases,
-  }) : _globals = globals,
-       _discordExports = discordExports.toSet(),
-       _members = members,
-       _typeAliases = typeAliases;
+    required this._members,
+    required this._typeAliases,
+  }) : _discordExports = discordExports.toSet();
 
   final List<String> _globals;
   final Set<String> _discordExports;

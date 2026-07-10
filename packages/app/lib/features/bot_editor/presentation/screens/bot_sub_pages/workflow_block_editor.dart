@@ -826,7 +826,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceVariant.withValues(alpha: 0.2),
+              color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
@@ -844,9 +844,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
             ),
             items: widget.eventCategories
                 .map((cat) {
-                  final label = widget.eventCategoryLabel != null
-                      ? widget.eventCategoryLabel!(cat)
-                      : cat;
+                  final label = widget.eventCategoryLabel!(cat);
                   return DropdownMenuItem(value: cat, child: Text(label));
                 })
                 .toList(growable: false),
@@ -1610,7 +1608,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: colorScheme.surfaceVariant.withValues(alpha: 0.3),
+              color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
               border: Border(
                 bottom: BorderSide(
                   color: colorScheme.outlineVariant,
@@ -1646,7 +1644,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                   child: LinearProgressIndicator(
                     value: (_wizardStep + 1) / 4,
                     minHeight: 6,
-                    backgroundColor: colorScheme.surfaceVariant,
+                    backgroundColor: colorScheme.surfaceContainerHighest,
                     valueColor: AlwaysStoppedAnimation<Color>(AppTheme.brandPrimary),
                   ),
                 ),
@@ -1904,7 +1902,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceVariant.withValues(alpha: 0.2),
+                color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
@@ -1982,7 +1980,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceVariant.withValues(alpha: 0.2),
+              color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(AppTheme.radiusMd),
               border: Border.all(color: theme.colorScheme.outlineVariant),
             ),

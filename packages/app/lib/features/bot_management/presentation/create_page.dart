@@ -77,9 +77,7 @@ class _AppCreatePageState extends State<AppCreatePage> {
         children: [
           const Icon(Icons.vpn_key_off_rounded, color: Colors.orange),
           const SizedBox(width: 10),
-          Expanded(
-            child: Text(context.tr.app_token_invalid_title),
-          ),
+          Expanded(child: Text(context.tr.app_token_invalid_title)),
         ],
       ),
       content: Text(context.tr.app_token_invalid_content),
@@ -124,21 +122,20 @@ class _AppCreatePageState extends State<AppCreatePage> {
             if (mounted) {
               final proceed = await showDialog<bool>(
                 context: context,
-                builder:
-                    (context) => AlertDialog(
-                      title: Text(context.tr.app_sync_manager_title),
-                      content: Text(context.tr.app_sync_manager_desc),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, false),
-                          child: Text(context.tr.app_sync_manager_manual),
-                        ),
-                        FilledButton(
-                          onPressed: () => Navigator.pop(context, true),
-                          child: Text(context.tr.app_sync_manager_connect),
-                        ),
-                      ],
+                builder: (context) => AlertDialog(
+                  title: Text(context.tr.app_sync_manager_title),
+                  content: Text(context.tr.app_sync_manager_desc),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: Text(context.tr.app_sync_manager_manual),
                     ),
+                    FilledButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: Text(context.tr.app_sync_manager_connect),
+                    ),
+                  ],
+                ),
               );
 
               if (proceed == true) {
@@ -181,7 +178,10 @@ class _AppCreatePageState extends State<AppCreatePage> {
       );
 
       if (mounted) {
-        await _offerSampleCommand(discordUser.id.toString(), discordUser.username);
+        await _offerSampleCommand(
+          discordUser.id.toString(),
+          discordUser.username,
+        );
         if (mounted) {
           Navigator.pop(context);
         }
@@ -216,17 +216,15 @@ class _AppCreatePageState extends State<AppCreatePage> {
       builder: (ctx) => AlertDialog(
         title: Row(
           children: [
-            Icon(Icons.smart_toy_rounded,
-                color: Theme.of(ctx).colorScheme.primary),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(context.tr.app_create_sample_title),
+            Icon(
+              Icons.smart_toy_rounded,
+              color: Theme.of(ctx).colorScheme.primary,
             ),
+            const SizedBox(width: 10),
+            Expanded(child: Text(context.tr.app_create_sample_title)),
           ],
         ),
-        content: Text(
-          context.tr.app_create_sample_desc(botName),
-        ),
+        content: Text(context.tr.app_create_sample_desc(botName)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -244,16 +242,15 @@ class _AppCreatePageState extends State<AppCreatePage> {
     if (createSample != true || !mounted) return;
 
     try {
-      final sampleCommand = _buildSamplePingCommand(javascript: _createJavascriptBot);
+      final sampleCommand = _buildSamplePingCommand(
+        javascript: _createJavascriptBot,
+      );
       final commandId = sampleCommand['id'] as String;
       await appManager.saveAppCommand(botId, commandId, sampleCommand);
 
       await AppAnalytics.logEvent(
         name: "create_sample_command",
-        parameters: {
-          "bot_id": botId as Object,
-          "command_name": "ping",
-        },
+        parameters: {"bot_id": botId as Object, "command_name": "ping"},
       );
 
       if (mounted) {
@@ -266,10 +263,7 @@ class _AppCreatePageState extends State<AppCreatePage> {
         );
       }
     } catch (e) {
-      developer.log(
-        'Error creating sample command: $e',
-        name: 'AppCreatePage',
-      );
+      developer.log('Error creating sample command: $e', name: 'AppCreatePage');
     }
   }
 
@@ -290,7 +284,9 @@ class _AppCreatePageState extends State<AppCreatePage> {
         'editorMode': 'advanced',
         'executionMode': javascript ? 'javascript' : 'workflow',
         'bdfdScriptContent': '',
-        'jsScriptContent': javascript ? 'await interaction.reply("Pong!");' : '',
+        'jsScriptContent': javascript
+            ? 'await interaction.reply("Pong!");'
+            : '',
         'legacyModeEnabled': false,
         'legacyLocalOnly': false,
         'legacyPrefixOverride': '',
@@ -326,7 +322,7 @@ class _AppCreatePageState extends State<AppCreatePage> {
         description: context.tr.app_create_type_discord_desc,
         icon: Icons.smart_toy_rounded,
         iconColor: const Color(0xFF5865F2),
-        iconBackgroundColor: const Color(0xFF5865F2).withOpacity(0.12),
+        iconBackgroundColor: const Color(0xFF5865F2).withValues(alpha: 0.12),
         onTap: () {
           AppAnalytics.logEvent(
             name: "select_app_type",
@@ -343,7 +339,7 @@ class _AppCreatePageState extends State<AppCreatePage> {
         description: context.tr.cmd_execution_mode_javascript_desc,
         icon: Icons.code,
         iconColor: Colors.orange,
-        iconBackgroundColor: Colors.orange.withOpacity(0.12),
+        iconBackgroundColor: Colors.orange.withValues(alpha: 0.12),
         onTap: () {
           AppAnalytics.logEvent(
             name: "select_app_type",
@@ -362,7 +358,7 @@ class _AppCreatePageState extends State<AppCreatePage> {
           description: context.tr.app_create_type_hosted_desc,
           icon: Icons.storage_rounded,
           iconColor: Colors.teal,
-          iconBackgroundColor: Colors.teal.withOpacity(0.12),
+          iconBackgroundColor: Colors.teal.withValues(alpha: 0.12),
           onTap: () async {
             AppAnalytics.logEvent(
               name: "select_app_type",
@@ -381,9 +377,7 @@ class _AppCreatePageState extends State<AppCreatePage> {
             if (!context.mounted) return;
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (_) => const ContainerDeployPage(),
-              ),
+              MaterialPageRoute(builder: (_) => const ContainerDeployPage()),
             );
           },
         ),
@@ -396,16 +390,16 @@ class _AppCreatePageState extends State<AppCreatePage> {
         Text(
           context.tr.app_create_select_type_title,
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: colorScheme.onSurface,
-              ),
+            fontWeight: FontWeight.bold,
+            color: colorScheme.onSurface,
+          ),
         ),
         const SizedBox(height: 8),
         Text(
           context.tr.app_create_select_type_desc,
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyLarge?.copyWith(color: colorScheme.onSurfaceVariant),
         ),
         const SizedBox(height: 32),
         if (isMobile)
@@ -471,9 +465,7 @@ class _AppCreatePageState extends State<AppCreatePage> {
               const SizedBox(height: 16),
               Text(
                 context.tr.app_create_hero_title,
-                style: Theme.of(
-                  context,
-                ).textTheme.headlineSmall?.copyWith(
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: colorScheme.onPrimaryContainer,
                 ),
@@ -481,9 +473,7 @@ class _AppCreatePageState extends State<AppCreatePage> {
               const SizedBox(height: 8),
               Text(
                 context.tr.app_create_hero_desc,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyLarge?.copyWith(
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: colorScheme.onPrimaryContainer,
                 ),
               ),
@@ -499,15 +489,14 @@ class _AppCreatePageState extends State<AppCreatePage> {
               children: [
                 Text(
                   context.tr.app_resources_title,
-                  style: Theme.of(context).textTheme.titleLarge
-                      ?.copyWith(fontWeight: FontWeight.bold),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   context.tr.app_resources_desc,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                   ),
                 ),
@@ -517,10 +506,9 @@ class _AppCreatePageState extends State<AppCreatePage> {
                   title: context.tr.app_open_discord_portal,
                   subtitle: context.tr.app_open_discord_portal_desc,
                   badgeLabel: context.tr.app_external_link_badge,
-                  onTap:
-                      () => _openExternalPage(
-                        'https://discord.com/developers/applications',
-                      ),
+                  onTap: () => _openExternalPage(
+                    'https://discord.com/developers/applications',
+                  ),
                 ),
                 const SizedBox(height: 12),
                 _ExternalActionCard(
@@ -528,10 +516,9 @@ class _AppCreatePageState extends State<AppCreatePage> {
                   title: context.tr.app_open_token_tutorial,
                   subtitle: context.tr.app_open_token_tutorial_desc,
                   badgeLabel: context.tr.app_external_link_badge,
-                  onTap:
-                      () => _openExternalPage(
-                        'https://bot-creator.fr/tutorials/setup/security/2025/05/18/how-to-create-a-bot-token-bot-creator.html',
-                      ),
+                  onTap: () => _openExternalPage(
+                    'https://bot-creator.fr/tutorials/setup/security/2025/05/18/how-to-create-a-bot-token-bot-creator.html',
+                  ),
                 ),
               ],
             ),
@@ -546,15 +533,14 @@ class _AppCreatePageState extends State<AppCreatePage> {
               children: [
                 Text(
                   context.tr.app_token_section_title,
-                  style: Theme.of(context).textTheme.titleLarge
-                      ?.copyWith(fontWeight: FontWeight.bold),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   context.tr.app_token_section_desc,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                   ),
                 ),
@@ -563,9 +549,7 @@ class _AppCreatePageState extends State<AppCreatePage> {
                   decoration: InputDecoration(
                     labelText: context.tr.app_bot_token,
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(
-                        AppTheme.radiusLg,
-                      ),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                     ),
                     contentPadding: const EdgeInsets.all(16),
                     hintText: context.tr.app_enter_token,
@@ -573,14 +557,11 @@ class _AppCreatePageState extends State<AppCreatePage> {
                     isDense: isMobile,
                     prefixIcon: const Icon(Icons.key_rounded),
                     suffixIcon: IconButton(
-                      tooltip:
-                          _obscureToken
-                              ? context.tr.app_show_token
-                              : context.tr.app_hide_token,
+                      tooltip: _obscureToken
+                          ? context.tr.app_show_token
+                          : context.tr.app_hide_token,
                       onPressed: () {
-                        setState(
-                          () => _obscureToken = !_obscureToken,
-                        );
+                        setState(() => _obscureToken = !_obscureToken);
                       },
                       icon: Icon(
                         _obscureToken
@@ -594,10 +575,9 @@ class _AppCreatePageState extends State<AppCreatePage> {
                   autocorrect: false,
                   keyboardType: TextInputType.visiblePassword,
                   textInputAction: TextInputAction.done,
-                  onChanged:
-                      (value) => setState(() {
-                        _token = value;
-                      }),
+                  onChanged: (value) => setState(() {
+                    _token = value;
+                  }),
                 ),
                 const SizedBox(height: 12),
                 Container(
@@ -605,12 +585,8 @@ class _AppCreatePageState extends State<AppCreatePage> {
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     color: colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(
-                      AppTheme.radiusLg,
-                    ),
-                    border: Border.all(
-                      color: colorScheme.outlineVariant,
-                    ),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+                    border: Border.all(color: colorScheme.outlineVariant),
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -623,10 +599,7 @@ class _AppCreatePageState extends State<AppCreatePage> {
                       Expanded(
                         child: Text(
                           context.tr.app_token_security_hint,
-                          style:
-                              Theme.of(
-                                context,
-                              ).textTheme.bodyMedium,
+                          style: Theme.of(context).textTheme.bodyMedium,
                         ),
                       ),
                     ],
@@ -636,28 +609,22 @@ class _AppCreatePageState extends State<AppCreatePage> {
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton.icon(
-                    onPressed:
-                        _token.trim().isEmpty || _isSaving
-                            ? null
-                            : _saveBot,
-                    icon:
-                        _isSaving
-                            ? const SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                            : const Icon(
-                              Icons.check_circle_outline_rounded,
+                    onPressed: _token.trim().isEmpty || _isSaving
+                        ? null
+                        : _saveBot,
+                    icon: _isSaving
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
                             ),
+                          )
+                        : const Icon(Icons.check_circle_outline_rounded),
                     label: Text(context.tr.app_save_bot),
                     style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 16,
-                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
                   ),
                 ),
@@ -815,12 +782,11 @@ class _ExternalActionCard extends StatelessWidget {
                       ),
                       child: Text(
                         badgeLabel,
-                        style: Theme.of(
-                          context,
-                        ).textTheme.labelMedium?.copyWith(
-                          color: colorScheme.onSecondaryContainer,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: Theme.of(context).textTheme.labelMedium
+                            ?.copyWith(
+                              color: colorScheme.onSecondaryContainer,
+                              fontWeight: FontWeight.w600,
+                            ),
                       ),
                     ),
                   ],
@@ -853,9 +819,8 @@ class _TypeSelectionCard extends StatelessWidget {
     required this.iconColor,
     required this.iconBackgroundColor,
     required this.onTap,
-    this.isEnabled = true,
-    this.badgeText,
-  });
+  }) : isEnabled = true,
+       badgeText = null;
 
   @override
   Widget build(BuildContext context) {
@@ -870,9 +835,9 @@ class _TypeSelectionCard extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppTheme.radiusLg),
           side: BorderSide(
-            color: isEnabled 
-                ? colorScheme.outlineVariant 
-                : colorScheme.outlineVariant.withOpacity(0.5),
+            color: isEnabled
+                ? colorScheme.outlineVariant
+                : colorScheme.outlineVariant.withValues(alpha: 0.5),
           ),
         ),
         child: InkWell(
@@ -891,25 +856,27 @@ class _TypeSelectionCard extends StatelessWidget {
                         color: iconBackgroundColor,
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      child: Icon(
-                        icon,
-                        size: 32,
-                        color: iconColor,
-                      ),
+                      child: Icon(icon, size: 32, color: iconColor),
                     ),
                     const SizedBox(height: 24),
                     Text(
                       title,
                       style: theme.textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: isEnabled ? colorScheme.onSurface : colorScheme.onSurface.withOpacity(0.8),
+                        color: isEnabled
+                            ? colorScheme.onSurface
+                            : colorScheme.onSurface.withValues(alpha: 0.8),
                       ),
                     ),
                     const SizedBox(height: 12),
                     Text(
                       description,
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: isEnabled ? colorScheme.onSurfaceVariant : colorScheme.onSurfaceVariant.withOpacity(0.8),
+                        color: isEnabled
+                            ? colorScheme.onSurfaceVariant
+                            : colorScheme.onSurfaceVariant.withValues(
+                                alpha: 0.8,
+                              ),
                         height: 1.5,
                       ),
                     ),
@@ -926,9 +893,11 @@ class _TypeSelectionCard extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: colorScheme.secondaryContainer,
-                        borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+                        borderRadius: BorderRadius.circular(
+                          AppTheme.radiusPill,
+                        ),
                         border: Border.all(
-                          color: colorScheme.secondary.withOpacity(0.2),
+                          color: colorScheme.secondary.withValues(alpha: 0.2),
                         ),
                       ),
                       child: Text(

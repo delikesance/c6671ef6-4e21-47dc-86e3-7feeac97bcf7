@@ -635,21 +635,6 @@ class SubscriptionService {
     await _markExpired();
   }
 
-  static Future<void> _syncBillingEntitlement(PurchaseDetails purchase) async {
-    final verification = await _verifyPurchaseWithServer(purchase);
-    if (!verification.active) {
-      return;
-    }
-    unawaited(
-      AppDiagnostics.logInfo(
-        'Subscription synced to main API',
-        data: {
-          'product': purchase.productID,
-          'active': verification.active,
-        },
-      ),
-    );
-  }
 
   /// Called when a subscription expires or is revoked.
   /// The store will stop sending restored purchases and we reset local state.

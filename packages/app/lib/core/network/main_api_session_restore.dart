@@ -5,6 +5,14 @@ import 'package:bot_creator/core/network/main_api_settings.dart';
 
 Future<MainApiSession?>? _activeRestoreFuture;
 
+/// Ensures the persisted Main API session is valid, refreshing when needed.
+Future<MainApiSession?> ensureMainApiSession({
+  Duration timeout = const Duration(seconds: 6),
+  bool force = false,
+}) {
+  return restoreMainApiSessionIfNeeded(timeout: timeout, force: force);
+}
+
 /// Restores a persisted Main API session by refreshing when the access token
 /// is expired or close to expiry. Deduplicates concurrent requests.
 Future<MainApiSession?> restoreMainApiSessionIfNeeded({
@@ -65,8 +73,11 @@ Future<MainApiSession?> _restoreMainApiSessionIfNeededInternal({
     final refreshedSession = await client.refreshSession(
       refreshToken: refreshToken,
     );
-    await MainApiSettingsStore.saveRefreshedSession(refreshedSession);
-    return refreshedSession;
+    final authMethod = session.authMethod ?? refreshedSession.authMethod;
+    await MainApiSettingsStore.saveSession(
+      refreshedSession.copyWith(authMethod: authMethod),
+    );
+    return refreshedSession.copyWith(authMethod: authMethod);
   } catch (error) {
     if (error is MainApiClientException &&
         (error.statusCode == 401 || error.statusCode == 403)) {
