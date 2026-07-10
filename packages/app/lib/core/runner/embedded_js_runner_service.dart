@@ -3,12 +3,12 @@ import 'dart:io';
 
 import 'package:bot_creator/core/network/runner_kind.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
+import 'package:bot_creator/core/runner/embedded_runner_downloader.dart';
+import 'package:bot_creator/core/runner/embedded_runner_platform.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-
-const int _minEmbeddedBinaryBytes = 1024 * 1024;
 
 class EmbeddedJsRunnerService {
   EmbeddedJsRunnerService._();
@@ -29,7 +29,7 @@ class EmbeddedJsRunnerService {
         await _ensureStarted();
         if (_url != null && _apiToken != null) {
           return RunnerConnectionConfig(
-            id: 'embedded-js',
+            id: RunnerSettings.embeddedRunnerId,
             url: _url!,
             apiToken: _apiToken,
             name: 'Embedded JS Runner',
@@ -170,42 +170,83 @@ class EmbeddedJsRunnerService {
   }
 
   Future<String?> _resolveBinaryPath() async {
+    final platformAsset = resolveEmbeddedRunnerPlatformAsset();
+    if (platformAsset == null) {
+      return null;
+    }
+
     final supportDir = await getApplicationSupportDirectory();
     final targetDir = Directory(p.join(supportDir.path, 'embedded-runner-js'));
     if (!await targetDir.exists()) {
       await targetDir.create(recursive: true);
     }
 
-    final assetPath = _assetPathForPlatform();
-    if (assetPath == null) {
-      return null;
+    final assetPath = platformAsset.bundleAssetPath;
+    final fileName = platformAsset.fileName;
+    final bundledSize = await _bundledAssetByteLength(assetPath);
+    if (bundledSize != null) {
+      final versionedFileName =
+          '${p.basenameWithoutExtension(fileName)}.$bundledSize${p.extension(fileName)}';
+      final cachedPath = p.join(targetDir.path, versionedFileName);
+      if (await _isEmbeddedBinaryValid(File(cachedPath))) {
+        return cachedPath;
+      }
     }
 
-    final fileName = p.basename(assetPath);
-    final bundledSize = await _bundledAssetByteLength(assetPath);
-    final versionedFileName = bundledSize != null
-        ? '${p.basenameWithoutExtension(fileName)}.$bundledSize${p.extension(fileName)}'
-        : fileName;
-    final targetPath = p.join(targetDir.path, versionedFileName);
-    final targetFile = File(targetPath);
+    final cachedBinary = await _findCachedBinary(targetDir, fileName);
+    if (cachedBinary != null) {
+      return cachedBinary;
+    }
 
-    if (!await _isEmbeddedBinaryValid(targetFile)) {
-      final data = await _readBundledAsset(assetPath);
+    var data = await _readBundledAsset(assetPath);
+    if (data == null) {
+      final directPath = await _findDevBinary(assetPath);
+      if (directPath != null) {
+        return directPath;
+      }
+      debugPrint(
+        '[EmbeddedJsRunner] Downloading latest release: $fileName',
+      );
+      data = await downloadEmbeddedRunnerLatestRelease(fileName);
       if (data == null) {
-        final directPath = await _findDevBinary(assetPath);
-        if (directPath != null) {
-          return directPath;
-        }
+        debugPrint(
+          '[EmbeddedJsRunner] Failed to download latest release for $fileName',
+        );
         return null;
       }
-      await targetFile.writeAsBytes(data, flush: true);
-      if (!Platform.isWindows) {
-        await Process.run('chmod', ['+x', targetPath]);
-      }
-      await _pruneOldCachedBinaries(targetDir, keepFileName: versionedFileName);
     }
 
+    final versionedFileName =
+        '${p.basenameWithoutExtension(fileName)}.${data.length}${p.extension(fileName)}';
+    final targetPath = p.join(targetDir.path, versionedFileName);
+    await File(targetPath).writeAsBytes(data, flush: true);
+    if (!Platform.isWindows) {
+      await Process.run('chmod', ['+x', targetPath]);
+    }
+    await _pruneOldCachedBinaries(targetDir, keepFileName: versionedFileName);
     return targetPath;
+  }
+
+  Future<String?> _findCachedBinary(Directory targetDir, String fileName) async {
+    final baseName = p.basenameWithoutExtension(fileName);
+    final extension = p.extension(fileName);
+    try {
+      await for (final entity in targetDir.list()) {
+        if (entity is! File) {
+          continue;
+        }
+        final name = p.basename(entity.path);
+        final matchesVersioned =
+            name.startsWith('$baseName.') && name.endsWith(extension);
+        if (name != fileName && !matchesVersioned) {
+          continue;
+        }
+        if (await _isEmbeddedBinaryValid(entity)) {
+          return entity.path;
+        }
+      }
+    } catch (_) {}
+    return null;
   }
 
   Future<void> _pruneOldCachedBinaries(
@@ -238,7 +279,7 @@ class EmbeddedJsRunnerService {
       return false;
     }
     final size = await file.length();
-    return size >= _minEmbeddedBinaryBytes;
+    return size >= embeddedRunnerMinBinaryBytes;
   }
 
   Future<String?> _findDevBinary(String assetPath) async {
@@ -285,19 +326,6 @@ class EmbeddedJsRunnerService {
         .toList(growable: false);
   }
 
-  String? _assetPathForPlatform() {
-    if (Platform.isWindows) {
-      return 'assets/embedded-runner-js/bot-creator-runner-js-win.exe';
-    }
-    if (Platform.isLinux) {
-      return 'assets/embedded-runner-js/bot-creator-runner-js-linux-x64';
-    }
-    if (Platform.isMacOS) {
-      return 'assets/embedded-runner-js/bot-creator-runner-js-macos-arm64';
-    }
-    return null;
-  }
-
   Future<int?> _bundledAssetByteLength(String assetPath) async {
     try {
       final data = await rootBundle.load(assetPath);
@@ -318,7 +346,11 @@ class EmbeddedJsRunnerService {
   Future<List<int>?> _readBundledAsset(String assetPath) async {
     try {
       final data = await rootBundle.load(assetPath);
-      return data.buffer.asUint8List();
+      final bytes = data.buffer.asUint8List();
+      if (!isEmbeddedRunnerBinaryValid(bytes)) {
+        return null;
+      }
+      return bytes;
     } catch (_) {
       for (final candidate in _devAssetCandidates(assetPath)) {
         try {

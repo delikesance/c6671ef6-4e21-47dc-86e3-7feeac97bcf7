@@ -68,6 +68,12 @@ class RunnerConnectionConfig {
 class RunnerSettings {
   RunnerSettings._();
 
+  /// Registry id for the auto-started desktop embedded runner-js process.
+  static const embeddedRunnerId = 'embedded-js';
+
+  static bool isInternalEmbeddedRunner(RunnerConnectionConfig config) =>
+      config.id == embeddedRunnerId;
+
   // Legacy keys (singleton format)
   static const _keyUrl = 'developer_runner_url';
   static const _keyApiToken = 'developer_runner_api_token';
@@ -131,6 +137,7 @@ class RunnerSettings {
   static Future<List<RunnerConnectionConfig>> getRunners() async {
     final prefs = await SharedPreferences.getInstance();
     await _migrateLegacy(prefs);
+    await _migrateEmbeddedActiveSelection(prefs);
     final raw = prefs.getString(_keyRegistry);
     if (raw == null) return [];
     final runners = _decodeRegistry(raw);
@@ -145,12 +152,34 @@ class RunnerSettings {
     return prefs.getString(_keyActiveId);
   }
 
-  /// Returns the active runner config, or `null` if none is configured.
+  /// Returns the user-configured remote runner, or `null` if none is set.
+  ///
+  /// Does not include the internal [embeddedRunnerId] entry.
+  static Future<RunnerConnectionConfig?> getUserStoredConfig() async {
+    final runners = await getRunners();
+    final userRunners =
+        runners.where((runner) => !isInternalEmbeddedRunner(runner)).toList();
+    if (userRunners.isEmpty) {
+      return null;
+    }
+
+    final activeId = await getActiveId();
+    if (activeId != null && activeId != embeddedRunnerId) {
+      final match = userRunners.where((runner) => runner.id == activeId);
+      if (match.isNotEmpty) {
+        return match.first;
+      }
+    }
+
+    return userRunners.first;
+  }
+
+  /// Returns the active user remote runner config, or `null` if none is configured.
   static Future<RunnerConnectionConfig?> getConfig() async {
     if (await isTemporarilyDisabled()) {
       return null;
     }
-    return _hydrateStoredConfig(await getStoredConfig());
+    return getUserStoredConfig();
   }
 
   /// Resolves the best runner config for a specific bot.
@@ -164,13 +193,6 @@ class RunnerSettings {
 
     final engine = await getBotRuntimeEngine(botId);
     final isJavascriptBot = engine == runtimeEngineJavascript;
-
-    if (isJavascriptBot && !kIsWeb && _isDesktopPlatform) {
-      final embedded = await prepareEmbeddedJsRunner();
-      if (embedded != null) {
-        return embedded;
-      }
-    }
 
     final associatedId = getAssociatedRunnerId(botId);
     if (associatedId != null && associatedId != 'local') {
@@ -187,13 +209,10 @@ class RunnerSettings {
       }
     }
 
-    final stored = await getStoredConfig();
+    final stored = await getUserStoredConfig();
     if (stored != null) {
       if (!isJavascriptBot || _supportsJavascriptRunner(stored)) {
-        final hydrated = await _hydrateStoredConfig(stored);
-        if (hydrated != null) {
-          return hydrated;
-        }
+        return stored;
       }
     }
 
@@ -231,8 +250,10 @@ class RunnerSettings {
       await addRunner(embedded);
     }
 
+    final userRunners =
+        runners.where((runner) => !isInternalEmbeddedRunner(runner)).toList();
     final activeId = await getActiveId();
-    if ((activeId ?? '').isEmpty) {
+    if ((activeId ?? '').isEmpty && userRunners.isEmpty) {
       await setActiveRunner(embedded.id);
     }
   }
@@ -242,7 +263,7 @@ class RunnerSettings {
   }
 
   static bool _supportsJavascriptRunner(RunnerConnectionConfig config) {
-    return config.useEmbedded ||
+    return isInternalEmbeddedRunner(config) ||
         config.kind == RunnerKind.javascript ||
         config.kind == RunnerKind.auto;
   }
@@ -262,7 +283,7 @@ class RunnerSettings {
     if (stored == null) {
       return null;
     }
-    if (stored.useEmbedded && !kIsWeb) {
+    if (isInternalEmbeddedRunner(stored) && !kIsWeb) {
       final embedded = await EmbeddedJsRunnerService.instance.ensureConfig();
       if (embedded != null) {
         return embedded;
@@ -273,15 +294,7 @@ class RunnerSettings {
 
   /// Returns the stored active runner config even if temporarily disabled.
   static Future<RunnerConnectionConfig?> getStoredConfig() async {
-    final runners = await getRunners();
-    if (runners.isEmpty) return null;
-    final activeId = await getActiveId();
-    if (activeId != null) {
-      final match = runners.where((r) => r.id == activeId);
-      if (match.isNotEmpty) return match.first;
-    }
-    // Fallback to first runner if active ID is stale
-    return runners.first;
+    return getUserStoredConfig();
   }
 
   /// Creates a [RunnerClient] for the active runner, or `null` if none is
@@ -382,37 +395,19 @@ class RunnerSettings {
     await prefs.setString(_keyActiveId, id);
   }
 
-  /// Backward-compatible save: updates the active runner, or creates one.
+  /// Backward-compatible save: updates the user remote runner, or clears it.
   static Future<void> save({
     String? url,
     String? apiToken,
     RunnerKind? kind,
-    bool? useEmbedded,
   }) async {
-    if (useEmbedded == true) {
-      final config = await getStoredConfig();
-      final id = config?.id ?? _generateId();
-      await addRunner(
-        RunnerConnectionConfig(
-          id: id,
-          url: config?.url ?? 'http://127.0.0.1:18080',
-          apiToken: config?.apiToken,
-          name: config?.name ?? 'Embedded JS Runner',
-          kind: kind ?? RunnerKind.javascript,
-          useEmbedded: true,
-        ),
-      );
-      return;
-    }
-
     final normalizedUrl = _normalize(url);
     if (normalizedUrl == null) {
-      // Clear all runners
-      await clear();
+      await clearUserConfig();
       return;
     }
 
-    final config = await getStoredConfig();
+    final config = await getUserStoredConfig();
     final id = config?.id ?? _generateId();
     await addRunner(
       RunnerConnectionConfig(
@@ -421,9 +416,36 @@ class RunnerSettings {
         apiToken: _normalize(apiToken),
         name: config?.name,
         kind: kind ?? config?.kind ?? RunnerKind.auto,
-        useEmbedded: useEmbedded ?? config?.useEmbedded ?? false,
       ),
     );
+    await setActiveRunner(id);
+  }
+
+  /// Clears user remote runner config while preserving the internal embedded entry.
+  static Future<void> clearUserConfig() async {
+    final prefs = await SharedPreferences.getInstance();
+    await _migrateLegacy(prefs);
+    final runners = await _hydrateRunnerTokens(
+      _decodeRegistry(prefs.getString(_keyRegistry)),
+    );
+    final embeddedRunners =
+        runners.where(isInternalEmbeddedRunner).toList(growable: false);
+    for (final runner in runners) {
+      if (!isInternalEmbeddedRunner(runner)) {
+        await _deleteRunnerToken(runner.id);
+      }
+    }
+
+    if (embeddedRunners.isEmpty) {
+      await prefs.remove(_keyRegistry);
+    } else {
+      await _saveRegistry(prefs, embeddedRunners, includeTokens: false);
+    }
+
+    final activeId = prefs.getString(_keyActiveId);
+    if (activeId != null && activeId != embeddedRunnerId) {
+      await prefs.remove(_keyActiveId);
+    }
   }
 
   /// Backward-compatible helper.
@@ -527,6 +549,57 @@ class RunnerSettings {
         )
         .toList(growable: false);
     await _saveRegistry(prefs, sanitized, includeTokens: false);
+  }
+
+  static Future<void> _migrateEmbeddedActiveSelection(
+    SharedPreferences prefs,
+  ) async {
+    final raw = prefs.getString(_keyRegistry);
+    if (raw == null || raw.isEmpty) {
+      return;
+    }
+
+    final runners = _decodeRegistry(raw);
+    if (runners.isEmpty) {
+      return;
+    }
+
+    final activeId = prefs.getString(_keyActiveId);
+    final userRunners =
+        runners.where((runner) => !isInternalEmbeddedRunner(runner)).toList();
+
+    if (activeId == embeddedRunnerId) {
+      if (userRunners.isNotEmpty) {
+        await prefs.setString(_keyActiveId, userRunners.first.id);
+      } else {
+        await prefs.remove(_keyActiveId);
+      }
+      return;
+    }
+
+    if (activeId == null) {
+      return;
+    }
+
+    final activeMatch = runners.where((runner) => runner.id == activeId);
+    if (activeMatch.isEmpty) {
+      return;
+    }
+
+    final active = activeMatch.first;
+    if (active.useEmbedded && !_isExternalRunnerUrl(active.url)) {
+      if (userRunners.isNotEmpty) {
+        await prefs.setString(_keyActiveId, userRunners.first.id);
+      } else {
+        await prefs.remove(_keyActiveId);
+      }
+    }
+  }
+
+  static bool _isExternalRunnerUrl(String url) {
+    final normalized = url.trim().toLowerCase();
+    return !normalized.contains('127.0.0.1') &&
+        !normalized.contains('localhost');
   }
 
   /// Migrates the old singleton format into the registry (once).

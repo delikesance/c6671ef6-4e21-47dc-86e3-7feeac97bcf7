@@ -71,7 +71,7 @@ class _SettingPageState extends State<SettingPage> {
   bool _runnerTokenObscured = true;
   bool _runnerTemporarilyDisabled = false;
   RunnerKind _runnerKind = RunnerKind.auto;
-  bool _useEmbeddedJsRunner = false;
+  bool _useRemoteRunner = false;
   String? _runnerEngineLabel;
   String? _runnerVersionLabel;
   bool _mainApiSectionExpanded = false;
@@ -118,6 +118,9 @@ class _SettingPageState extends State<SettingPage> {
     return defaultTargetPlatform == TargetPlatform.android ||
         defaultTargetPlatform == TargetPlatform.iOS;
   }
+
+  bool get _showsRemoteRunnerConfig =>
+      !_isDesktopPlatform || _useRemoteRunner;
 
   Future<void> _runWithLoading(
     String message,
@@ -278,7 +281,7 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   Future<void> _loadRunnerSettings() async {
-    final config = await RunnerSettings.getStoredConfig();
+    final config = await RunnerSettings.getUserStoredConfig();
     final isDisabled = await RunnerSettings.isTemporarilyDisabled();
     if (!mounted) return;
     setState(() {
@@ -286,12 +289,31 @@ class _SettingPageState extends State<SettingPage> {
       _runnerApiTokenController.text = config?.apiToken ?? '';
       _runnerTemporarilyDisabled = isDisabled;
       _runnerKind = config?.kind ?? RunnerKind.auto;
-      _useEmbeddedJsRunner = config?.useEmbedded ?? false;
+      _useRemoteRunner = config != null;
       _runnerEngineLabel = null;
       _runnerVersionLabel = null;
     });
-    if (config != null && !isDisabled) {
+    if (_showsRemoteRunnerConfig && config != null && !isDisabled) {
       await _checkRunnerConnection();
+    }
+  }
+
+  Future<void> _toggleUseRemoteRunner(bool enabled) async {
+    setState(() {
+      _useRemoteRunner = enabled;
+      if (!enabled) {
+        _runnerUrlController.clear();
+        _runnerApiTokenController.clear();
+        _runnerStatusKey = null;
+        _runnerEngineLabel = null;
+        _runnerVersionLabel = null;
+      }
+    });
+
+    if (!enabled) {
+      await RunnerSettings.clearUserConfig();
+      if (!mounted) return;
+      _showSnack(context.tr.settings_runner_cleared);
     }
   }
 
@@ -305,7 +327,9 @@ class _SettingPageState extends State<SettingPage> {
       }
     });
 
-    if (!disabled && _runnerUrlController.text.trim().isNotEmpty) {
+    if (!disabled &&
+        _showsRemoteRunnerConfig &&
+        _runnerUrlController.text.trim().isNotEmpty) {
       await _checkRunnerConnection();
     }
 
@@ -317,28 +341,28 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   Future<void> _saveRunnerSettings() async {
-    if (_useEmbeddedJsRunner && _isDesktopPlatform) {
-      await RunnerSettings.save(
-        kind: _runnerKind == RunnerKind.auto ? RunnerKind.javascript : _runnerKind,
-        useEmbedded: true,
-      );
-    } else {
-      final url = _runnerUrlController.text.trim();
-      final apiToken = _runnerApiTokenController.text.trim();
-      await RunnerSettings.save(
-        url: url,
-        apiToken: apiToken,
-        kind: _runnerKind,
-        useEmbedded: false,
-      );
+    if (_isDesktopPlatform && !_useRemoteRunner) {
+      await RunnerSettings.clearUserConfig();
+      if (!mounted) return;
+      setState(() {
+        _runnerStatusKey = null;
+      });
+      _showSnack(context.tr.settings_runner_cleared);
+      return;
     }
+
+    final url = _runnerUrlController.text.trim();
+    final apiToken = _runnerApiTokenController.text.trim();
+    await RunnerSettings.save(
+      url: url,
+      apiToken: apiToken,
+      kind: _runnerKind,
+    );
     if (!mounted) return;
     setState(() {
       _runnerStatusKey = null;
     });
-    final cleared = !_useEmbeddedJsRunner &&
-        _runnerUrlController.text.trim().isEmpty &&
-        _runnerApiTokenController.text.trim().isEmpty;
+    final cleared = url.isEmpty && apiToken.isEmpty;
     _showSnack(
       cleared
           ? context.tr.settings_runner_cleared
@@ -350,33 +374,7 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   Future<void> _checkRunnerConnection() async {
-    if (_useEmbeddedJsRunner && _isDesktopPlatform) {
-      if (!mounted) return;
-      setState(() {
-        _checkingRunner = true;
-        _runnerStatusKey = null;
-      });
-      try {
-        final config = await RunnerSettings.getConfig();
-        if (config == null) {
-          throw const RunnerClientException('Embedded runner unavailable');
-        }
-        final client = config.createClient();
-        final root = await client.fetchRootInfo();
-        if (!mounted) return;
-        setState(() {
-          _runnerStatusKey = 'settings_runner_connected';
-          _checkingRunner = false;
-          _runnerEngineLabel = (root['engine'] ?? '').toString();
-          _runnerVersionLabel = (root['version'] ?? '').toString();
-        });
-      } catch (_) {
-        if (!mounted) return;
-        setState(() {
-          _runnerStatusKey = 'settings_runner_unreachable';
-          _checkingRunner = false;
-        });
-      }
+    if (!_showsRemoteRunnerConfig) {
       return;
     }
 
@@ -2352,228 +2350,163 @@ class _SettingPageState extends State<SettingPage> {
                           if (_isDesktopPlatform) ...[
                             SwitchListTile.adaptive(
                               contentPadding: EdgeInsets.zero,
-                              title: const Text('Use embedded JS runner'),
-                              subtitle: const Text(
-                                'Spawn the packaged runner-js binary locally (desktop only).',
+                              title: Text(context.tr.settings_runner_use_remote),
+                              subtitle: Text(
+                                context.tr.settings_runner_use_remote_desc,
                               ),
-                              value: _useEmbeddedJsRunner,
-                              onChanged: _runnerTemporarilyDisabled
-                                  ? null
-                                  : (value) {
-                                      setState(() {
-                                        _useEmbeddedJsRunner = value;
-                                        if (value) {
-                                          _runnerKind = RunnerKind.javascript;
-                                        }
-                                      });
-                                    },
+                              value: _useRemoteRunner,
+                              onChanged:
+                                  _runnerTemporarilyDisabled || _isBusy
+                                      ? null
+                                      : _toggleUseRemoteRunner,
                             ),
                             const SizedBox(height: 8),
                           ],
-                          Text(
-                            'Runner type',
-                            style: Theme.of(context).textTheme.labelLarge,
-                          ),
-                          const SizedBox(height: 8),
-                          SegmentedButton<RunnerKind>(
-                            segments: const [
-                              ButtonSegment(
-                                value: RunnerKind.dart,
-                                label: Text('Dart'),
-                                icon: Icon(Icons.memory),
-                              ),
-                              ButtonSegment(
-                                value: RunnerKind.javascript,
-                                label: Text('JS'),
-                                icon: Icon(Icons.code),
-                              ),
-                              ButtonSegment(
-                                value: RunnerKind.auto,
-                                label: Text('Auto'),
-                                icon: Icon(Icons.auto_awesome),
+                          if (_showsRemoteRunnerConfig) ...[
+                            Text(
+                              'Runner type',
+                              style: Theme.of(context).textTheme.labelLarge,
+                            ),
+                            const SizedBox(height: 8),
+                            SegmentedButton<RunnerKind>(
+                              segments: const [
+                                ButtonSegment(
+                                  value: RunnerKind.dart,
+                                  label: Text('Dart'),
+                                  icon: Icon(Icons.memory),
+                                ),
+                                ButtonSegment(
+                                  value: RunnerKind.javascript,
+                                  label: Text('JS'),
+                                  icon: Icon(Icons.code),
+                                ),
+                                ButtonSegment(
+                                  value: RunnerKind.auto,
+                                  label: Text('Auto'),
+                                  icon: Icon(Icons.auto_awesome),
+                                ),
+                              ],
+                              selected: {_runnerKind},
+                              onSelectionChanged:
+                                  _runnerTemporarilyDisabled
+                                      ? null
+                                      : (selection) {
+                                        setState(() {
+                                          _runnerKind = selection.first;
+                                        });
+                                      },
+                            ),
+                            if (_runnerEngineLabel != null &&
+                                _runnerEngineLabel!.isNotEmpty) ...[
+                              const SizedBox(height: 8),
+                              Text(
+                                'Detected engine: $_runnerEngineLabel'
+                                '${_runnerVersionLabel != null && _runnerVersionLabel!.isNotEmpty ? ' · v$_runnerVersionLabel' : ''}',
+                                style: Theme.of(context).textTheme.bodySmall,
                               ),
                             ],
-                            selected: {_runnerKind},
-                            onSelectionChanged: _runnerTemporarilyDisabled ||
-                                    _useEmbeddedJsRunner
-                                ? null
-                                : (selection) {
-                                    setState(() {
-                                      _runnerKind = selection.first;
-                                    });
-                                  },
-                          ),
-                          if (_runnerEngineLabel != null &&
-                              _runnerEngineLabel!.isNotEmpty) ...[
                             const SizedBox(height: 8),
-                            Text(
-                              'Detected engine: $_runnerEngineLabel'
-                              '${_runnerVersionLabel != null && _runnerVersionLabel!.isNotEmpty ? ' · v$_runnerVersionLabel' : ''}',
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                          ],
-                          const SizedBox(height: 8),
-                          SwitchListTile.adaptive(
-                            contentPadding: EdgeInsets.zero,
-                            title: Text(
-                              context.tr.settings_runner_disable_temp,
-                            ),
-                            subtitle: Text(
-                              context.tr.settings_runner_disable_temp_desc,
-                            ),
-                            value: _runnerTemporarilyDisabled,
-                            onChanged:
-                                _isBusy
-                                    ? null
-                                    : _toggleRunnerTemporarilyDisabled,
-                          ),
-                          const SizedBox(height: 12),
-                          TextField(
-                            controller: _runnerUrlController,
-                            enabled: !_useEmbeddedJsRunner,
-                            decoration: InputDecoration(
-                              hintText: context.tr.settings_runner_url_hint,
-                              isDense: true,
-                              border: const OutlineInputBorder(),
-                              suffixIcon:
-                                  (_runnerTemporarilyDisabled ||
-                                          _checkingRunner)
-                                      ? const Padding(
-                                        padding: EdgeInsets.all(10),
-                                        child: SizedBox(
-                                          width: 16,
-                                          height: 16,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                          ),
-                                        ),
-                                      )
-                                      : (_runnerStatusKey == null
-                                          ? null
-                                          : Icon(
-                                            _runnerStatusKey ==
-                                                    'settings_runner_connected'
-                                                ? Icons.check_circle
-                                                : Icons.error_outline,
-                                            color:
-                                                _runnerStatusKey ==
-                                                        'settings_runner_connected'
-                                                    ? AppTheme.successLight
-                                                    : AppTheme.errorLight,
-                                            size: 18,
-                                          )),
-                            ),
-                            keyboardType: TextInputType.url,
-                            autocorrect: false,
-                          ),
-                          const SizedBox(height: 12),
-                          TextField(
-                            controller: _runnerApiTokenController,
-                            enabled: !_useEmbeddedJsRunner,
-                            decoration: InputDecoration(
-                              labelText: context.tr.settings_runner_token_label,
-                              hintText: context.tr.settings_runner_token_hint,
-                              isDense: true,
-                              border: const OutlineInputBorder(),
-                              suffixIcon: IconButton(
-                                onPressed: () {
-                                  setState(() {
-                                    _runnerTokenObscured =
-                                        !_runnerTokenObscured;
-                                  });
-                                },
-                                icon: Icon(
-                                  _runnerTokenObscured
-                                      ? Icons.visibility_off
-                                      : Icons.visibility,
-                                  size: 18,
-                                ),
+                            SwitchListTile.adaptive(
+                              contentPadding: EdgeInsets.zero,
+                              title: Text(
+                                context.tr.settings_runner_disable_temp,
                               ),
-                            ),
-                            autocorrect: false,
-                            obscureText: _runnerTokenObscured,
-                          ),
-                          const SizedBox(height: 12),
-                          if (isMobile) ...[
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton.icon(
-                                onPressed:
-                                    _isBusy ||
-                                            _checkingRunner ||
-                                            _runnerTemporarilyDisabled
-                                        ? null
-                                        : _saveRunnerSettings,
-                                icon: const Icon(Icons.save_outlined, size: 18),
-                                label: Text(context.tr.settings_runner_save),
+                              subtitle: Text(
+                                context.tr.settings_runner_disable_temp_desc,
                               ),
+                              value: _runnerTemporarilyDisabled,
+                              onChanged:
+                                  _isBusy
+                                      ? null
+                                      : _toggleRunnerTemporarilyDisabled,
                             ),
-                            const SizedBox(height: 8),
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton.icon(
-                                onPressed:
-                                    _checkingRunner ||
-                                            _runnerTemporarilyDisabled
-                                        ? null
-                                        : _checkRunnerConnection,
-                                icon:
-                                    _checkingRunner
-                                        ? const SizedBox(
-                                          width: 14,
-                                          height: 14,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
+                            const SizedBox(height: 12),
+                            TextField(
+                              controller: _runnerUrlController,
+                              decoration: InputDecoration(
+                                hintText: context.tr.settings_runner_url_hint,
+                                isDense: true,
+                                border: const OutlineInputBorder(),
+                                suffixIcon:
+                                    (_runnerTemporarilyDisabled ||
+                                            _checkingRunner)
+                                        ? const Padding(
+                                          padding: EdgeInsets.all(10),
+                                          child: SizedBox(
+                                            width: 16,
+                                            height: 16,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                            ),
                                           ),
                                         )
-                                        : const Icon(Icons.wifi_find, size: 18),
-                                label: Text(context.tr.settings_runner_check),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      Theme.of(
-                                        context,
-                                      ).colorScheme.secondaryContainer,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            SizedBox(
-                              width: double.infinity,
-                              child: OutlinedButton.icon(
-                                onPressed:
-                                    _isBusy
-                                        ? null
-                                        : () {
-                                          _runnerUrlController.clear();
-                                          _runnerApiTokenController.clear();
-                                          _saveRunnerSettings();
-                                        },
-                                icon: const Icon(Icons.clear, size: 18),
-                                label: Text(context.tr.settings_runner_clear),
-                              ),
-                            ),
-                          ] else ...[
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: ElevatedButton.icon(
-                                    onPressed:
-                                        _isBusy ||
-                                                _checkingRunner ||
-                                                _runnerTemporarilyDisabled
+                                        : (_runnerStatusKey == null
                                             ? null
-                                            : _saveRunnerSettings,
-                                    icon: const Icon(
-                                      Icons.save_outlined,
-                                      size: 18,
-                                    ),
-                                    label: Text(
-                                      context.tr.settings_runner_save,
-                                    ),
+                                            : Icon(
+                                              _runnerStatusKey ==
+                                                      'settings_runner_connected'
+                                                  ? Icons.check_circle
+                                                  : Icons.error_outline,
+                                              color:
+                                                  _runnerStatusKey ==
+                                                          'settings_runner_connected'
+                                                      ? AppTheme.successLight
+                                                      : AppTheme.errorLight,
+                                              size: 18,
+                                            )),
+                              ),
+                              keyboardType: TextInputType.url,
+                              autocorrect: false,
+                            ),
+                            const SizedBox(height: 12),
+                            TextField(
+                              controller: _runnerApiTokenController,
+                              decoration: InputDecoration(
+                                labelText:
+                                    context.tr.settings_runner_token_label,
+                                hintText: context.tr.settings_runner_token_hint,
+                                isDense: true,
+                                border: const OutlineInputBorder(),
+                                suffixIcon: IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      _runnerTokenObscured =
+                                          !_runnerTokenObscured;
+                                    });
+                                  },
+                                  icon: Icon(
+                                    _runnerTokenObscured
+                                        ? Icons.visibility_off
+                                        : Icons.visibility,
+                                    size: 18,
                                   ),
                                 ),
-                                const SizedBox(width: 8),
-                                ElevatedButton.icon(
+                              ),
+                              autocorrect: false,
+                              obscureText: _runnerTokenObscured,
+                            ),
+                            const SizedBox(height: 12),
+                            if (isMobile) ...[
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton.icon(
+                                  onPressed:
+                                      _isBusy ||
+                                              _checkingRunner ||
+                                              _runnerTemporarilyDisabled
+                                          ? null
+                                          : _saveRunnerSettings,
+                                  icon: const Icon(
+                                    Icons.save_outlined,
+                                    size: 18,
+                                  ),
+                                  label: Text(context.tr.settings_runner_save),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton.icon(
                                   onPressed:
                                       _checkingRunner ||
                                               _runnerTemporarilyDisabled
@@ -2600,8 +2533,11 @@ class _SettingPageState extends State<SettingPage> {
                                         ).colorScheme.secondaryContainer,
                                   ),
                                 ),
-                                const SizedBox(width: 8),
-                                IconButton(
+                              ),
+                              const SizedBox(height: 8),
+                              SizedBox(
+                                width: double.infinity,
+                                child: OutlinedButton.icon(
                                   onPressed:
                                       _isBusy
                                           ? null
@@ -2611,10 +2547,75 @@ class _SettingPageState extends State<SettingPage> {
                                             _saveRunnerSettings();
                                           },
                                   icon: const Icon(Icons.clear, size: 18),
-                                  tooltip: context.tr.settings_runner_clear,
+                                  label: Text(context.tr.settings_runner_clear),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ] else ...[
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: ElevatedButton.icon(
+                                      onPressed:
+                                          _isBusy ||
+                                                  _checkingRunner ||
+                                                  _runnerTemporarilyDisabled
+                                              ? null
+                                              : _saveRunnerSettings,
+                                      icon: const Icon(
+                                        Icons.save_outlined,
+                                        size: 18,
+                                      ),
+                                      label: Text(
+                                        context.tr.settings_runner_save,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  ElevatedButton.icon(
+                                    onPressed:
+                                        _checkingRunner ||
+                                                _runnerTemporarilyDisabled
+                                            ? null
+                                            : _checkRunnerConnection,
+                                    icon:
+                                        _checkingRunner
+                                            ? const SizedBox(
+                                              width: 14,
+                                              height: 14,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                              ),
+                                            )
+                                            : const Icon(
+                                              Icons.wifi_find,
+                                              size: 18,
+                                            ),
+                                    label: Text(
+                                      context.tr.settings_runner_check,
+                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.secondaryContainer,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  IconButton(
+                                    onPressed:
+                                        _isBusy
+                                            ? null
+                                            : () {
+                                              _runnerUrlController.clear();
+                                              _runnerApiTokenController.clear();
+                                              _saveRunnerSettings();
+                                            },
+                                    icon: const Icon(Icons.clear, size: 18),
+                                    tooltip: context.tr.settings_runner_clear,
+                                  ),
+                                ],
+                              ),
+                            ],
                           ],
                         ],
                       ),

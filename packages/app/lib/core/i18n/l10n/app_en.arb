@@ -6752,6 +6752,12 @@
   "@settings_runner_desc": {
     "description": "Connect the app to a Bot Creator Runner. Remote runners should stay on trusted networks and use a bearer token."
   },
+  "@settings_runner_use_remote": {
+    "description": "Toggle to configure a remote runner instead of using the built-in local runner."
+  },
+  "@settings_runner_use_remote_desc": {
+    "description": "Connect to a remote Bot Creator Runner. Leave off to run bots locally on this device."
+  },
   "@settings_runner_disable_temp": {
     "description": "Temporarily disable Runner"
   },
@@ -10228,6 +10234,8 @@
   "settings_runner_connected": "Runner reachable ✓",
   "settings_runner_connecting": "Checking connection…",
   "settings_runner_desc": "Connect the app to a Bot Creator Runner. Remote runners should stay on trusted networks and use a bearer token.",
+  "settings_runner_use_remote": "Use remote runner",
+  "settings_runner_use_remote_desc": "Connect to a remote Bot Creator Runner. Leave off to run bots locally on this device.",
   "settings_runner_disable_temp": "Temporarily disable Runner",
   "settings_runner_disable_temp_desc": "Keep Runner settings but force local mode until re-enabled.",
   "settings_runner_disconnected": "Runner disconnected",

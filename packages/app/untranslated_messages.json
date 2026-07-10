@@ -1,1 +1,21 @@
-{}
+{
+  "de": [
+    "settings_runner_use_remote",
+    "settings_runner_use_remote_desc"
+  ],
+
+  "ja": [
+    "settings_runner_use_remote",
+    "settings_runner_use_remote_desc"
+  ],
+
+  "pt": [
+    "settings_runner_use_remote",
+    "settings_runner_use_remote_desc"
+  ],
+
+  "tr": [
+    "settings_runner_use_remote",
+    "settings_runner_use_remote_desc"
+  ]
+}
