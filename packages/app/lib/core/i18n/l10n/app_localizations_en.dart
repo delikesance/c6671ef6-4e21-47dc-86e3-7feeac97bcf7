@@ -7353,6 +7353,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Connect the app to a Bot Creator Runner. Remote runners should stay on trusted networks and use a bearer token.';
 
   @override
+  String get settings_runner_use_remote => 'Use remote runner';
+
+  @override
+  String get settings_runner_use_remote_desc =>
+      'Connect to a remote Bot Creator Runner. Leave off to run bots locally on this device.';
+
+  @override
   String get settings_runner_disable_temp => 'Temporarily disable Runner';
 
   @override

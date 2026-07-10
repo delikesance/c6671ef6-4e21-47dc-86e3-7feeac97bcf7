@@ -7080,6 +7080,13 @@ class AppLocalizationsJa extends AppLocalizations {
       'アプリをBot Creatorランナーに接続します。リモートランナーは信頼できるネットワークに配置してください。';
 
   @override
+  String get settings_runner_use_remote => 'Use remote runner';
+
+  @override
+  String get settings_runner_use_remote_desc =>
+      'Connect to a remote Bot Creator Runner. Leave off to run bots locally on this device.';
+
+  @override
   String get settings_runner_disable_temp => 'ランナーを一時的に無効化';
 
   @override

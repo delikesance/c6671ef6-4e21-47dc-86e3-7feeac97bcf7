@@ -237,7 +237,8 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
               ? await RunnerSettings.resolveConfigForBot(botId)
               : await RunnerSettings.getConfig();
       if (config != null) {
-        if (config.kind == RunnerKind.javascript || config.useEmbedded) {
+        if (RunnerSettings.isInternalEmbeddedRunner(config) ||
+            config.kind == RunnerKind.javascript) {
           runnerSupportsJavascript = true;
         } else if (config.kind == RunnerKind.auto) {
           try {

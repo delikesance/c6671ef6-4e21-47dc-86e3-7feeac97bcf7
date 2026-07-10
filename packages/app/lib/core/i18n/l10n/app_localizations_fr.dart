@@ -7475,6 +7475,13 @@ class AppLocalizationsFr extends AppLocalizations {
       'Connecte l\'application à un Bot Creator Runner. Un runner distant doit rester sur un réseau de confiance et utiliser un jeton bearer.';
 
   @override
+  String get settings_runner_use_remote => 'Utiliser un runner distant';
+
+  @override
+  String get settings_runner_use_remote_desc =>
+      'Connectez-vous à un Bot Creator Runner distant. Laissez désactivé pour exécuter les bots localement sur cet appareil.';
+
+  @override
   String get settings_runner_disable_temp =>
       'Désactiver temporairement le Runner';
 

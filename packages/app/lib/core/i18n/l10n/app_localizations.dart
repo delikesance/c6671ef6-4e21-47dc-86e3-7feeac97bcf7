@@ -12940,6 +12940,18 @@ abstract class AppLocalizations {
   /// **'Connect the app to a Bot Creator Runner. Remote runners should stay on trusted networks and use a bearer token.'**
   String get settings_runner_desc;
 
+  /// Toggle to configure a remote runner instead of using the built-in local runner.
+  ///
+  /// In en, this message translates to:
+  /// **'Use remote runner'**
+  String get settings_runner_use_remote;
+
+  /// Connect to a remote Bot Creator Runner. Leave off to run bots locally on this device.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to a remote Bot Creator Runner. Leave off to run bots locally on this device.'**
+  String get settings_runner_use_remote_desc;
+
   /// Temporarily disable Runner
   ///
   /// In en, this message translates to:

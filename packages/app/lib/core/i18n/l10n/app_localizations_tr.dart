@@ -7403,6 +7403,13 @@ class AppLocalizationsTr extends AppLocalizations {
       'Uygulamayı bir Bot Creator Runner\'a bağlayın. Uzak çalıştırıcılar güvenilir ağlarda kalmalı ve bir taşıyıcı jeton (bearer token) kullanmalıdır.';
 
   @override
+  String get settings_runner_use_remote => 'Use remote runner';
+
+  @override
+  String get settings_runner_use_remote_desc =>
+      'Connect to a remote Bot Creator Runner. Leave off to run bots locally on this device.';
+
+  @override
   String get settings_runner_disable_temp =>
       'Runner\'ı geçici olarak devre dışı bırak';
 

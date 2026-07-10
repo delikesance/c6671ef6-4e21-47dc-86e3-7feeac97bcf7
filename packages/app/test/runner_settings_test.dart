@@ -199,7 +199,7 @@ void main() {
       expect(runners.first.apiToken, 'tok');
     });
 
-    test('save with null URL clears everything', () async {
+    test('save with null URL clears user config', () async {
       await RunnerSettings.save(url: 'http://x', apiToken: 'y');
       await RunnerSettings.save(url: null);
 
@@ -358,6 +358,90 @@ void main() {
 
       expect(await RunnerSettings.isTemporarilyDisabled(), isFalse);
       expect((await RunnerSettings.getConfig())?.url, 'http://runner');
+    });
+  });
+
+  group('embedded runner separation', () {
+    test('getUserStoredConfig ignores embedded-js entry', () async {
+      await RunnerSettings.addRunner(
+        const RunnerConnectionConfig(
+          id: RunnerSettings.embeddedRunnerId,
+          url: 'http://127.0.0.1:18080',
+          useEmbedded: true,
+        ),
+      );
+      await RunnerSettings.addRunner(
+        const RunnerConnectionConfig(
+          id: 'remote',
+          url: 'https://runner.example.com',
+        ),
+      );
+      await RunnerSettings.setActiveRunner(RunnerSettings.embeddedRunnerId);
+
+      final userConfig = await RunnerSettings.getUserStoredConfig();
+      expect(userConfig?.id, 'remote');
+      expect((await RunnerSettings.getConfig())?.id, 'remote');
+    });
+
+    test('getConfig does not return embedded entry when it is active', () async {
+      await RunnerSettings.addRunner(
+        const RunnerConnectionConfig(
+          id: RunnerSettings.embeddedRunnerId,
+          url: 'http://127.0.0.1:18080',
+          useEmbedded: true,
+        ),
+      );
+      await RunnerSettings.setActiveRunner(RunnerSettings.embeddedRunnerId);
+
+      expect(await RunnerSettings.getConfig(), isNull);
+      expect(await RunnerSettings.getUserStoredConfig(), isNull);
+    });
+
+    test('clearUserConfig preserves embedded registry entry', () async {
+      await RunnerSettings.addRunner(
+        const RunnerConnectionConfig(
+          id: RunnerSettings.embeddedRunnerId,
+          url: 'http://127.0.0.1:18080',
+          useEmbedded: true,
+        ),
+      );
+      await RunnerSettings.addRunner(
+        const RunnerConnectionConfig(id: 'remote', url: 'https://runner.example.com'),
+      );
+      await RunnerSettings.setActiveRunner('remote');
+
+      await RunnerSettings.clearUserConfig();
+
+      final runners = await RunnerSettings.getRunners();
+      expect(runners, hasLength(1));
+      expect(runners.first.id, RunnerSettings.embeddedRunnerId);
+      expect(await RunnerSettings.getUserStoredConfig(), isNull);
+      expect(await RunnerSettings.getConfig(), isNull);
+    });
+
+    test('migrates active embedded selection to user runner when available', () async {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+        'runner_registry',
+        jsonEncode([
+          {
+            'id': RunnerSettings.embeddedRunnerId,
+            'url': 'http://127.0.0.1:18080',
+            'useEmbedded': true,
+          },
+          {
+            'id': 'remote',
+            'url': 'https://runner.example.com',
+          },
+        ]),
+      );
+      await prefs.setString('runner_active_id', RunnerSettings.embeddedRunnerId);
+
+      await RunnerSettings.getRunners();
+
+      expect(await RunnerSettings.getActiveId(), 'remote');
+      expect((await RunnerSettings.getUserStoredConfig())?.url,
+          'https://runner.example.com');
     });
   });
 }
