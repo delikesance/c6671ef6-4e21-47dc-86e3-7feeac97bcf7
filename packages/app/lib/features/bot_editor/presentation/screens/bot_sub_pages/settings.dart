@@ -22,6 +22,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:bot_creator/core/discord/discord_intent_sync.dart';
+import 'package:bot_creator/core/discord/portal_intent_feedback.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:bot_creator/core/utils/responsive.dart';
 import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
@@ -529,7 +530,8 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
         if (!proceed || !mounted) return;
       }
 
-      final computedIntents = await fetchPortalIntents(effectiveToken);
+      final intentOutcome = await fetchPortalIntentsWithOutcome(effectiveToken);
+      final computedIntents = intentOutcome.intents;
 
       await appManager.createOrUpdateApp(
         id: discordUser.id,
@@ -582,7 +584,13 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(context.tr.bot_settings_token_saved)),
       );
+      showPortalIntentOutcomeSnackbars(context, intentOutcome);
       unawaited(refreshBotRuntime(discordUser.id.toString()));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
     } finally {
       if (mounted) {
         setState(() {

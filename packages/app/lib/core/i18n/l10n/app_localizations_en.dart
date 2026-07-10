@@ -1930,6 +1930,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bot_settings_intents_saved => 'Intents saved successfully';
 
   @override
+  String get bot_settings_intents_auto_enabled =>
+      'Privileged gateway intents were enabled automatically in the Developer Portal.';
+
+  @override
+  String get bot_settings_intents_verified_bot_manual =>
+      'This verified bot requires manual privileged intent setup in the Discord Developer Portal.';
+
+  @override
+  String get bot_settings_intents_auto_enable_failed =>
+      'Token saved, but privileged intents could not be enabled automatically. Enable them in the Discord Developer Portal.';
+
+  @override
   String get bot_settings_lavalink_choose_server => 'Choose a public server...';
 
   @override

@@ -1841,6 +1841,18 @@ class AppLocalizationsJa extends AppLocalizations {
   String get bot_settings_intents_saved => 'インテントが正常に保存されました';
 
   @override
+  String get bot_settings_intents_auto_enabled =>
+      'Developer Portalで特権ゲートウェイインテントが自動的に有効になりました。';
+
+  @override
+  String get bot_settings_intents_verified_bot_manual =>
+      'この認証済みボットは、Discord Developer Portalで特権インテントを手動で有効にする必要があります。';
+
+  @override
+  String get bot_settings_intents_auto_enable_failed =>
+      'トークンは保存されましたが、特権インテントを自動的に有効にできませんでした。Discord Developer Portalで有効にしてください。';
+
+  @override
   String get bot_settings_lavalink_choose_server => '公開サーバーを選択...';
 
   @override

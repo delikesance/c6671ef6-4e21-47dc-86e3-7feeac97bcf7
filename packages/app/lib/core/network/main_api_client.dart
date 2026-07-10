@@ -176,6 +176,7 @@ class MainApiClient implements RemoteRuntimeClient {
        _timeout = timeout ?? const Duration(seconds: 30);
 
   final String _baseUrl;
+  String get baseUrl => _baseUrl;
   String? _accessToken;
   final http.Client _http;
   final Duration _timeout;
@@ -652,7 +653,10 @@ class MainApiClient implements RemoteRuntimeClient {
       'state': state,
       'redirect_uri': redirectUri,
     }, includeAuth: false);
-    return _sessionFromAuthPayload(json);
+    return _sessionFromAuthPayload(
+      json,
+      authMethod: MainApiAuthMethod.discordOauth,
+    );
   }
 
   Future<MainApiSession> exchangeDiscordBotToken({

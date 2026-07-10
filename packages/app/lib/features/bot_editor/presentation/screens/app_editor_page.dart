@@ -25,6 +25,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/discord/discord_intent_sync.dart';
+import 'package:bot_creator/core/discord/portal_intent_feedback.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -653,7 +654,8 @@ class _OfflineTokenPageState extends State<_OfflineTokenPage> {
         if (!proceed || !mounted) return;
       }
 
-      final computedIntents = await fetchPortalIntents(newToken);
+      final intentOutcome = await fetchPortalIntentsWithOutcome(newToken);
+      final computedIntents = intentOutcome.intents;
 
       await appManager.createOrUpdateApp(
         id: discordUser.id,
@@ -690,6 +692,7 @@ class _OfflineTokenPageState extends State<_OfflineTokenPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(context.tr.bot_settings_token_saved)),
       );
+      showPortalIntentOutcomeSnackbars(context, intentOutcome);
       await widget.onTokenSaved();
     } catch (e) {
       if (!mounted) return;
