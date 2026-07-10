@@ -1,5 +1,9 @@
+import 'dart:async';
+
+import 'package:app_links/app_links.dart';
 import 'package:bot_creator/core/auth/mobile_account_gate.dart';
 import 'package:bot_creator/core/auth/mobile_account_session.dart';
+import 'package:bot_creator/core/network/main_api_auth_service.dart';
 import 'package:bot_creator/features/auth/presentation/mobile_account_required_page.dart';
 import 'package:flutter/material.dart';
 
@@ -35,8 +39,18 @@ class _MobileAccountGateShellState extends State<MobileAccountGateShell>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
+      unawaited(_completePendingOAuthCallbackIfNeeded());
       _session.recheck();
     }
+  }
+
+  Future<void> _completePendingOAuthCallbackIfNeeded() async {
+    try {
+      final link = await AppLinks().getInitialLink();
+      if (link != null) {
+        await MainApiAuthService.tryCompleteMobileOAuthCallback(link);
+      }
+    } catch (_) {}
   }
 
   void _onSessionChanged() {

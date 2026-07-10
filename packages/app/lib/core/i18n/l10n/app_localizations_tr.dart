@@ -1941,6 +1941,18 @@ class AppLocalizationsTr extends AppLocalizations {
   String get bot_settings_intents_saved => 'Intent\'ler başarıyla kaydedildi';
 
   @override
+  String get bot_settings_intents_auto_enabled =>
+      'Ayricalikli gateway intent\'leri Developer Portal\'da otomatik olarak etkinlestirildi.';
+
+  @override
+  String get bot_settings_intents_verified_bot_manual =>
+      'Bu dogrulanmis bot, Discord Developer Portal\'da ayricalikli intent\'lerin manuel olarak etkinlestirilmesini gerektirir.';
+
+  @override
+  String get bot_settings_intents_auto_enable_failed =>
+      'Token kaydedildi, ancak ayricalikli intent\'ler otomatik olarak etkinlestirilemedi. Discord Developer Portal\'da etkinlestirin.';
+
+  @override
   String get bot_settings_lavalink_choose_server => 'Genel bir sunucu seç...';
 
   @override

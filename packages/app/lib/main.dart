@@ -29,6 +29,7 @@ import 'package:bot_creator/features/ads/logic/ad_native_service.dart';
 import 'package:bot_creator/features/ads/logic/ad_reward_service.dart';
 import 'package:bot_creator/core/auth/mobile_account_gate.dart';
 import 'package:bot_creator/core/auth/mobile_account_session.dart';
+import 'package:bot_creator/core/network/main_api_auth_service.dart';
 import 'package:bot_creator/core/network/main_api_session_restore.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
@@ -434,7 +435,17 @@ class _OAuthCallbackRedirectPageState extends State<OAuthCallbackRedirectPage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final routeName = ModalRoute.of(context)?.settings.name;
+      final callbackUri = routeName == null ? null : Uri.tryParse(routeName);
+      if (callbackUri != null) {
+        await MainApiAuthService.tryCompleteMobileOAuthCallback(callbackUri);
+      }
+      await MobileAccountSession.instance.recheck();
+
+      if (!mounted) {
+        return;
+      }
       final navigator = MyApp.navigatorKey.currentState;
       if (navigator != null) {
         navigator.pushNamedAndRemoveUntil('/home', (route) => false);

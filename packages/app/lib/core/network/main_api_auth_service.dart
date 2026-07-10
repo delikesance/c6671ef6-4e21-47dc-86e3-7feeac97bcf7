@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
@@ -7,6 +8,7 @@ import 'package:bot_creator/core/utils/external_link.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MainApiAuthService {
   MainApiAuthService._();
@@ -17,6 +19,7 @@ class MainApiAuthService {
   static const String _mobileOAuthHost = 'oauth';
   static const String _mobileOAuthUniversalLinkPath = '/oauth/main-api/discord';
   static const String _mobileOAuthCustomSchemePath = '/main-api/discord';
+  static const String _pendingOAuthKey = 'main_api_pending_oauth';
 
   static void _oauthDebug(String message) {
     if (!kDebugMode) {
@@ -36,6 +39,55 @@ class MainApiAuthService {
     }
     _oauthDebug('Using mobile app-links callback flow');
     return _connectMobile(client: client, timeout: timeout);
+  }
+
+  /// Completes a pending mobile OAuth callback after a cold start or app relaunch.
+  static Future<bool> tryCompleteMobileOAuthCallback(Uri callbackUri) async {
+    if (!_isExpectedMobileOAuthCallback(callbackUri)) {
+      return false;
+    }
+
+    final pending = await _loadPendingMobileOAuth();
+    if (pending == null) {
+      _oauthDebug('No pending mobile OAuth context found');
+      return false;
+    }
+
+    final error = (callbackUri.queryParameters['error'] ?? '').trim();
+    if (error.isNotEmpty) {
+      await _clearPendingMobileOAuth();
+      _oauthDebug('Pending OAuth callback returned error=$error');
+      return false;
+    }
+
+    final code = (callbackUri.queryParameters['code'] ?? '').trim();
+    final returnedState = (callbackUri.queryParameters['state'] ?? '').trim();
+    if (code.isEmpty) {
+      _oauthDebug('Pending OAuth callback missing code');
+      return false;
+    }
+    if (returnedState.isNotEmpty && returnedState != pending.expectedState) {
+      _oauthDebug('Pending OAuth callback state mismatch');
+      return false;
+    }
+
+    try {
+      final client = MainApiClient(baseUrl: pending.baseUrl);
+      final session = await client.completeDiscordAuthorization(
+        code: code,
+        state: pending.expectedState,
+        redirectUri: pending.redirectUri,
+      );
+      await MainApiSettingsStore.saveSession(
+        session.copyWith(authMethod: MainApiAuthMethod.discordOauth),
+      );
+      await _clearPendingMobileOAuth();
+      _oauthDebug('Pending mobile OAuth callback completed successfully');
+      return true;
+    } catch (error) {
+      _oauthDebug('Pending mobile OAuth completion failed: $error');
+      return false;
+    }
   }
 
   static Future<MainApiSession> _connectDesktop({
@@ -183,6 +235,14 @@ class MainApiAuthService {
       },
     );
 
+    await _savePendingMobileOAuth(
+      PendingMobileOAuth(
+        expectedState: expectedState,
+        redirectUri: redirectUri,
+        baseUrl: client.baseUrl,
+      ),
+    );
+
     try {
       final launched = await openExternalUrl(launchUri);
       _oauthDebug('Browser launch result launched=$launched');
@@ -237,11 +297,13 @@ class MainApiAuthService {
         );
       }
 
-      return client.completeDiscordAuthorization(
+      final session = await client.completeDiscordAuthorization(
         code: code,
         state: expectedState,
         redirectUri: redirectUri,
       );
+      await _clearPendingMobileOAuth();
+      return session;
     } finally {
       _oauthDebug('Canceling uriLinkStream subscription');
       await sub.cancel();
@@ -298,5 +360,58 @@ class MainApiAuthService {
       length,
       (_) => chars[random.nextInt(chars.length)],
     ).join();
+  }
+
+  static Future<void> _savePendingMobileOAuth(PendingMobileOAuth pending) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_pendingOAuthKey, jsonEncode(pending.toJson()));
+  }
+
+  static Future<PendingMobileOAuth?> _loadPendingMobileOAuth() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_pendingOAuthKey);
+    if (raw == null || raw.trim().isEmpty) {
+      return null;
+    }
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is! Map) {
+        return null;
+      }
+      return PendingMobileOAuth.fromJson(Map<String, dynamic>.from(decoded));
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static Future<void> _clearPendingMobileOAuth() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_pendingOAuthKey);
+  }
+}
+
+class PendingMobileOAuth {
+  const PendingMobileOAuth({
+    required this.expectedState,
+    required this.redirectUri,
+    required this.baseUrl,
+  });
+
+  final String expectedState;
+  final String redirectUri;
+  final String baseUrl;
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+    'expectedState': expectedState,
+    'redirectUri': redirectUri,
+    'baseUrl': baseUrl,
+  };
+
+  factory PendingMobileOAuth.fromJson(Map<String, dynamic> json) {
+    return PendingMobileOAuth(
+      expectedState: (json['expectedState'] ?? '').toString(),
+      redirectUri: (json['redirectUri'] ?? '').toString(),
+      baseUrl: (json['baseUrl'] ?? '').toString(),
+    );
   }
 }

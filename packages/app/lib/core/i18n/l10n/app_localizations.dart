@@ -3529,6 +3529,24 @@ abstract class AppLocalizations {
   /// **'Intents saved successfully'**
   String get bot_settings_intents_saved;
 
+  /// Shown when privileged gateway intents were auto-enabled via the Developer Portal API
+  ///
+  /// In en, this message translates to:
+  /// **'Privileged gateway intents were enabled automatically in the Developer Portal.'**
+  String get bot_settings_intents_auto_enabled;
+
+  /// Shown when a verified bot requires manual privileged intent setup in the Developer Portal
+  ///
+  /// In en, this message translates to:
+  /// **'This verified bot requires manual privileged intent setup in the Discord Developer Portal.'**
+  String get bot_settings_intents_verified_bot_manual;
+
+  /// Shown when auto-enabling privileged intents failed but the token was saved
+  ///
+  /// In en, this message translates to:
+  /// **'Token saved, but privileged intents could not be enabled automatically. Enable them in the Discord Developer Portal.'**
+  String get bot_settings_intents_auto_enable_failed;
+
   /// Choose a public server button
   ///
   /// In en, this message translates to:

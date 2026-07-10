@@ -172,37 +172,24 @@ class MainApiSettingsStore {
   }
 
   static Future<MainApiSession?> loadSession() async {
+    String? jsonStr;
     try {
       final secure = await SecureStorageService.instance;
-      final jsonStr = await secure.read('main_api_session');
-      if (jsonStr != null && jsonStr.isNotEmpty) {
-        final session = _sessionFromStoredJson(jsonStr);
-        if (session != null) {
-          return session;
-        }
-      }
+      jsonStr = await secure.read('main_api_session');
     } catch (_) {
       // Secure storage unavailable; fall through
     }
 
-    final prefs = await SharedPreferences.getInstance();
-    final json = _decodeJsonMap(prefs.getString(_sessionKey));
-    if (json == null) {
+    if (jsonStr == null || jsonStr.trim().isEmpty) {
+      final prefs = await SharedPreferences.getInstance();
+      jsonStr = prefs.getString(_sessionKey);
+    }
+
+    if (jsonStr == null || jsonStr.trim().isEmpty) {
       return null;
     }
 
-    final session = MainApiSession.fromJson(json);
-    if (session.accessToken.trim().isEmpty) {
-      await prefs.remove(_sessionKey);
-      return null;
-    }
-
-    try {
-      final secure = await SecureStorageService.instance;
-      await secure.write('main_api_session', jsonEncode(session.toJson()));
-    } catch (_) {}
-    await prefs.remove(_sessionKey);
-    return session;
+    return _sessionFromStoredJson(jsonStr);
   }
 
   static Future<void> saveSession(MainApiSession session) async {
@@ -216,7 +203,7 @@ class MainApiSettingsStore {
     }
 
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_sessionKey);
+    await prefs.setString(_sessionKey, jsonStr);
   }
 
   /// Persists a bot-token exchange only when no managed account session exists.

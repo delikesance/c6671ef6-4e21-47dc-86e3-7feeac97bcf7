@@ -43,6 +43,8 @@ class _MobileAccountRequiredPageState extends State<MobileAccountRequiredPage> {
         );
       } catch (_) {}
 
+      await MobileAccountSession.instance.recheck();
+
       if (!mounted) {
         return;
       }
