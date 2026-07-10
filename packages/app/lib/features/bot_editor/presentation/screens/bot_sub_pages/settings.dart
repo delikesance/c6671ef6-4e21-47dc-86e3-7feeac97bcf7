@@ -1031,7 +1031,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ),
               ),
               DropdownButtonFormField<String>(
-                value: _runtimeEngine,
+                initialValue: _runtimeEngine,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   helperText:

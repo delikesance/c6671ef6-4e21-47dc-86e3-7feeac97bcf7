@@ -155,7 +155,7 @@ class _EntryPointBlockState extends State<EntryPointBlock> {
                   (segment) => segment.value == widget.executionMode,
                 )
                     ? widget.executionMode
-                    : segments.first.value!;
+                    : segments.first.value;
                 return SegmentedButton<String>(
                   segments: segments,
                   selected: <String>{selectedValue},

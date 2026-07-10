@@ -218,7 +218,9 @@ class _MarketplacePageState extends State<MarketplacePage> {
     try {
       final client = MainApiClient(baseUrl: config.baseUrl);
       final session = await MainApiAuthService.connectWithDiscord(client: client);
-      await MainApiSettingsStore.saveDiscordOAuthSession(session);
+      await MainApiSettingsStore.saveSession(
+        session.copyWith(authMethod: MainApiAuthMethod.discordOauth),
+      );
       await MobileAccountSession.instance.recheck();
 
       if (mounted) {

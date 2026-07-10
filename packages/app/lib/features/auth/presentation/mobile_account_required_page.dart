@@ -32,7 +32,9 @@ class _MobileAccountRequiredPageState extends State<MobileAccountRequiredPage> {
       final config = await MainApiSettingsStore.loadConfig();
       final client = MainApiClient(baseUrl: config.baseUrl);
       final session = await MainApiAuthService.connectWithDiscord(client: client);
-      await MainApiSettingsStore.saveDiscordOAuthSession(session);
+      await MainApiSettingsStore.saveSession(
+        session.copyWith(authMethod: MainApiAuthMethod.discordOauth),
+      );
 
       try {
         await syncManagedBotsAfterDiscordLogin(

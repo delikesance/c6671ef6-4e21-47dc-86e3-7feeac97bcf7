@@ -15,6 +15,7 @@ import 'package:bot_creator/core/network/main_api_credentials_auth_service.dart'
 import 'package:bot_creator/core/auth/mobile_account_gate.dart';
 import 'package:bot_creator/core/auth/mobile_account_session.dart';
 import 'package:bot_creator/core/auth/main_api_account_bootstrap.dart';
+import 'package:bot_creator/core/network/main_api_session_restore.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
 import 'package:bot_creator/core/storage/runtime_preferences.dart';
@@ -494,21 +495,10 @@ class _SettingPageState extends State<SettingPage> {
       var statusKey = 'settings_main_api_connected';
 
       if (nextSession != null) {
-        var activeSession = nextSession;
-        if (activeSession.expiresSoon() && activeSession.refreshToken != null) {
-          _mainApiDebug('Session expires soon, attempting refresh');
-          try {
-            activeSession = await publicClient.refreshSession(
-              refreshToken: activeSession.refreshToken!,
-            );
-            await MainApiSettingsStore.saveSession(
-              activeSession.copyWith(authMethod: nextSession?.authMethod),
-            );
-            _mainApiDebug('Session refresh succeeded');
-          } catch (_) {
-            _mainApiDebug('Session refresh failed, keeping previous session');
-            // Keep existing session and validate it below.
-          }
+        var activeSession =
+            await ensureMainApiSession() ?? nextSession;
+        if (activeSession.isExpired) {
+          activeSession = nextSession;
         }
 
         try {
@@ -586,7 +576,9 @@ class _SettingPageState extends State<SettingPage> {
       _mainApiDebug(
         'OAuth completed, saving session expiresAt=${session.expiresAt.toUtc().toIso8601String()} user=${session.username ?? ''}',
       );
-      await MainApiSettingsStore.saveDiscordOAuthSession(session);
+      await MainApiSettingsStore.saveSession(
+        session.copyWith(authMethod: MainApiAuthMethod.discordOauth),
+      );
 
       // Immediately sync managed bots from the Manager to enrich local
       // entries with tokens and configs.

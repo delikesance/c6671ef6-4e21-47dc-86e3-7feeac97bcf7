@@ -24,7 +24,9 @@ class MainApiCredentialsAuthService {
         email: email,
         password: password,
       );
-      await MainApiSettingsStore.saveEmailPasswordSession(session);
+      await MainApiSettingsStore.saveSession(
+        session.copyWith(authMethod: MainApiAuthMethod.emailPassword),
+      );
       return session;
     } on MainApiClientException catch (error) {
       throw MainApiCredentialsAuthException(

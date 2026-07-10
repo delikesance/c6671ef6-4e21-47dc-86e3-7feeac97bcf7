@@ -1,4 +1,5 @@
 import 'package:bot_creator/core/network/main_api_client.dart';
+import 'package:bot_creator/core/network/main_api_session_restore.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/network/remote_runtime.dart';
 
@@ -118,7 +119,13 @@ class MainApiOwnerSyncHelper {
         botToken: trimmedToken,
       );
 
-      await MainApiSettingsStore.saveBotTokenSession(session);
+      final saved = await MainApiSettingsStore.trySaveBotTokenSession(session);
+      if (!saved) {
+        log(
+          'Manager session restore skipped for $botId: managed account session already present.',
+        );
+        return false;
+      }
       log(
         'Manager session restored from bot token for $botId.',
       );
@@ -146,23 +153,9 @@ class MainApiOwnerSyncHelper {
       return null;
     }
 
-    var session = await MainApiSettingsStore.loadSession();
-    if (session != null && session.isExpired && session.refreshToken != null) {
-      try {
-        log('resolveMainApiClientForBot($botId): session expired, attempting to refresh.');
-        final client = MainApiClient(
-          baseUrl: config.baseUrl,
-          timeout: const Duration(seconds: 5),
-        );
-        final newSession = await client.refreshSession(
-          refreshToken: session.refreshToken!,
-        );
-        await MainApiSettingsStore.saveRefreshedSession(newSession);
-        session = newSession;
-        log('resolveMainApiClientForBot($botId): session refreshed successfully.');
-      } catch (error) {
-        log('resolveMainApiClientForBot($botId): session refresh failed: $error');
-      }
+    var session = await ensureMainApiSession();
+    if (session == null) {
+      session = await MainApiSettingsStore.loadSession();
     }
 
     if (session != null && !session.isExpired) {
