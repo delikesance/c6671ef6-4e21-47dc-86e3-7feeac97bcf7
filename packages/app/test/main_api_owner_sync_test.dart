@@ -1,54 +1,68 @@
 import 'package:bot_creator/core/network/main_api_owner_sync.dart';
+import 'package:bot_creator/core/network/main_api_session_restore.dart';
+import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  test('resolves owner from owner_id field', () {
-    final resolution = resolveOwnerFromManagerBotPayload(<String, dynamic>{
-      'owner_id': '111111',
-    });
+  TestWidgetsFlutterBinding.ensureInitialized();
 
-    expect(resolution.ownerCandidates, <String>['111111']);
-    expect(resolution.preferredOwnerId, '111111');
-    expect(resolution.source, 'manager_payload');
+  setUp(() async {
+    SharedPreferences.setMockInitialValues(const <String, Object>{});
+    MainApiSettingsStore.invalidateSessionCache();
+    await MainApiSettingsStore.clearSession();
+    await MainApiSettingsStore.clearConfig();
   });
 
-  test('resolves owner from nested owner.id field', () {
-    final resolution = resolveOwnerFromManagerBotPayload(<String, dynamic>{
-      'owner': <String, dynamic>{'id': '222222'},
-    });
+  test('resolveMainApiClientForBot uses cached session without restore flag',
+      () async {
+    await MainApiSettingsStore.saveConfig(
+      const MainApiConfig(baseUrl: 'https://api.example.com'),
+    );
+    await MainApiSettingsStore.saveSession(
+      MainApiSession(
+        accessToken: 'cached-token',
+        expiresAt: DateTime.now().toUtc().add(const Duration(days: 7)),
+        refreshToken: 'refresh-token',
+        authMethod: MainApiAuthMethod.discordOauth,
+      ),
+    );
 
-    expect(resolution.ownerCandidates, <String>['222222']);
-    expect(resolution.preferredOwnerId, '222222');
+    final helper = MainApiOwnerSyncHelper(
+      resolveRuntime: ({getTimeout = const Duration(seconds: 30), postTimeout = const Duration(seconds: 90)}) async {
+        throw UnimplementedError();
+      },
+      loadLocalBotById: (botId) async => const {},
+      log: (_) {},
+    );
+
+    final client = await helper.resolveMainApiClientForBot(
+      botId: '123',
+      attemptSessionRestore: false,
+    );
+
+    expect(client, isNotNull);
   });
 
-  test('resolves owner from team owner_user_id field', () {
-    final resolution = resolveOwnerFromManagerBotPayload(<String, dynamic>{
-      'team': <String, dynamic>{'owner_user_id': '333333'},
-    });
+  test('resolveMainApiClientForBot skips network when restore disabled and no session',
+      () async {
+    await MainApiSettingsStore.saveConfig(
+      const MainApiConfig(baseUrl: 'https://api.example.com'),
+    );
 
-    expect(resolution.ownerCandidates, <String>['333333']);
-    expect(resolution.preferredOwnerId, '333333');
-  });
+    final helper = MainApiOwnerSyncHelper(
+      resolveRuntime: ({getTimeout = const Duration(seconds: 30), postTimeout = const Duration(seconds: 90)}) async {
+        throw UnimplementedError();
+      },
+      loadLocalBotById: (botId) async => {'token': 'bot-token'},
+      log: (_) {},
+    );
 
-  test('deduplicates owner candidates from all payload variants', () {
-    final resolution = resolveOwnerFromManagerBotPayload(<String, dynamic>{
-      'owner_id': '444444',
-      'ownerId': '444444',
-      'owner': <String, dynamic>{'id': '444444', 'owner_id': '444444'},
-      'team': <String, dynamic>{'owner_user_id': '444444'},
-    });
+    final client = await helper.resolveMainApiClientForBot(
+      botId: '123',
+      attemptSessionRestore: false,
+    );
 
-    expect(resolution.ownerCandidates, <String>['444444']);
-    expect(resolution.preferredOwnerId, '444444');
-  });
-
-  test('returns none source when no owner can be extracted', () {
-    final resolution = resolveOwnerFromManagerBotPayload(<String, dynamic>{
-      'bot_id': 'bot-1',
-    });
-
-    expect(resolution.ownerCandidates, isEmpty);
-    expect(resolution.preferredOwnerId, isNull);
-    expect(resolution.source, 'none');
+    expect(client, isNull);
   });
 }

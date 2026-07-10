@@ -1,6 +1,7 @@
 import 'dart:developer' as developer;
 
 import 'package:bot_creator/main.dart';
+import 'package:bot_creator/features/home/presentation/home_page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command_dashboard.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/commands.list.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/emojis.page.dart';
@@ -22,7 +23,6 @@ import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/core/utils/responsive.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/discord/discord_intent_sync.dart';
 import 'package:bot_creator/core/discord/portal_intent_feedback.dart';
@@ -704,12 +704,47 @@ class _OfflineTokenPageState extends State<_OfflineTokenPage> {
     }
   }
 
+  Future<void> _deleteBot() async {
+    final confirm = await AppTheme.showConfirmDialog(
+      context,
+      title: context.tr.bot_settings_delete_title,
+      content: context.tr.bot_settings_delete_desc(widget.botId),
+      confirmLabel: context.tr.delete,
+      isDestructive: true,
+    );
+    if (confirm != true || !mounted) return;
+
+    setState(() => _saving = true);
+    try {
+      await appManager.deleteBotCompletely(widget.botId);
+      if (!mounted) return;
+      Navigator.of(context).popUntil((route) => route.isFirst);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        HomePageState.current?.syncAllBotsFromManager();
+      });
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(context.tr.bot_settings_token_title),
-        automaticallyImplyLeading: !ResponsiveHelper.isDesktopPlatform(),
+        automaticallyImplyLeading: false,
+        leading:
+            !ResponsiveHelper.isDesktopPlatform()
+                ? IconButton(
+                  icon: const Icon(Icons.menu),
+                  onPressed: () => context.openParentDrawer(),
+                )
+                : null,
       ),
       body: Center(
         child: ConstrainedBox(
@@ -760,149 +795,21 @@ class _OfflineTokenPageState extends State<_OfflineTokenPage> {
                           : const Icon(Icons.save_outlined),
                   label: Text(context.tr.bot_settings_save_token_only_btn),
                 ),
+                const SizedBox(height: 24),
+                OutlinedButton.icon(
+                  onPressed: _saving ? null : _deleteBot,
+                  icon: const Icon(Icons.delete_outline, color: AppTheme.error),
+                  label: Text(
+                    context.tr.bot_home_delete,
+                    style: const TextStyle(color: AppTheme.error),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: AppTheme.error),
+                  ),
+                ),
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _OfflineRecoveryPage extends StatefulWidget {
-  final String? reason;
-  final String? token;
-  final Future<void> Function() onRetry;
-  final Future<void> Function() onDeleteLocal;
-
-  const _OfflineRecoveryPage({
-    required this.reason,
-    required this.onRetry,
-    required this.onDeleteLocal,
-  }) : token = null;
-
-  @override
-  State<_OfflineRecoveryPage> createState() => _OfflineRecoveryPageState();
-}
-
-class _OfflineRecoveryPageState extends State<_OfflineRecoveryPage> {
-  bool _showToken = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(context.tr.recovery_title),
-        automaticallyImplyLeading: !ResponsiveHelper.isDesktopPlatform(),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              widget.reason ?? 'Discord connection unavailable.',
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              'Offline features available: commands, globals, workflows.',
-            ),
-            const Text(
-              'Unavailable while offline: start bot, profile (username/avatar).',
-            ),
-            const SizedBox(height: 24),
-            if (widget.token != null && widget.token!.isNotEmpty) ...[
-              Text(
-                'Debug: Current Memory Token',
-                style: Theme.of(
-                  context,
-                ).textTheme.labelMedium?.copyWith(color: colorScheme.primary),
-              ),
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: colorScheme.outlineVariant),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        _showToken ? widget.token! : '••••••••••••••••',
-                        style: const TextStyle(fontFamily: 'monospace'),
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(
-                        _showToken ? Icons.visibility_off : Icons.visibility,
-                        size: 20,
-                      ),
-                      tooltip: _showToken ? 'Hide token' : 'Show token',
-                      onPressed: () => setState(() => _showToken = !_showToken),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.copy, size: 20),
-                      tooltip: 'Copy token',
-                      onPressed: () {
-                        Clipboard.setData(ClipboardData(text: widget.token!));
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Token copied to clipboard'),
-                          ),
-                        );
-                      },
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.bug_report_outlined, size: 20),
-                      tooltip: 'Show error details',
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder:
-                              (context) => AlertDialog(
-                                title: const Text('Connection Error Details'),
-                                content: SingleChildScrollView(
-                                  child: Text(
-                                    widget.reason ??
-                                        'No detailed error captured.',
-                                    style: const TextStyle(
-                                      fontFamily: 'monospace',
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: const Text('Close'),
-                                  ),
-                                ],
-                              ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24),
-            ],
-            FilledButton.icon(
-              onPressed: widget.onRetry,
-              icon: const Icon(Icons.refresh),
-              label: Text(context.tr.recovery_retry_discord),
-            ),
-            const SizedBox(height: 8),
-            OutlinedButton.icon(
-              onPressed: widget.onDeleteLocal,
-              icon: const Icon(Icons.delete),
-              label: Text(context.tr.recovery_delete_bot),
-            ),
-          ],
         ),
       ),
     );

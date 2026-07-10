@@ -92,6 +92,32 @@ class MainApiOwnerSyncHelper {
     );
   }
 
+  Future<MainApiClient?> exchangeEphemeralBotTokenClient(String botToken) async {
+    final trimmedToken = botToken.trim();
+    if (trimmedToken.isEmpty) {
+      return null;
+    }
+
+    final config = await MainApiSettingsStore.loadConfig();
+    if (!config.isConfigured) {
+      return null;
+    }
+
+    try {
+      final client = MainApiClient(baseUrl: config.baseUrl);
+      final session = await client.exchangeDiscordBotToken(
+        botToken: trimmedToken,
+      );
+      return MainApiClient(
+        baseUrl: config.baseUrl,
+        accessToken: session.accessToken,
+      );
+    } catch (error) {
+      log('Ephemeral bot-token exchange failed: $error');
+      return null;
+    }
+  }
+
   Future<bool> restoreMainApiSessionWithBotToken({
     required String botId,
     required String? botToken,
@@ -153,11 +179,7 @@ class MainApiOwnerSyncHelper {
       return null;
     }
 
-    var session = await ensureMainApiSession();
-    if (session == null) {
-      session = await MainApiSettingsStore.loadSession();
-    }
-
+    final session = await loadMainApiSession();
     if (session != null && !session.isExpired) {
       log(
         'resolveMainApiClientForBot($botId): using active manager session directly.',
@@ -166,6 +188,13 @@ class MainApiOwnerSyncHelper {
         baseUrl: config.baseUrl,
         accessToken: session.accessToken,
       );
+    }
+
+    if (!attemptSessionRestore) {
+      log(
+        'resolveMainApiClientForBot($botId): no cached session and restore disabled.',
+      );
+      return null;
     }
 
     var resolvedToken = botToken?.trim() ?? '';
@@ -177,33 +206,17 @@ class MainApiOwnerSyncHelper {
       );
     }
 
-    if (!attemptSessionRestore || resolvedToken.isEmpty) {
-      log(
-        'resolveMainApiClientForBot($botId): skipping restore (attemptSessionRestore=$attemptSessionRestore, tokenPresent=${resolvedToken.isNotEmpty}).',
-      );
+    if (resolvedToken.isEmpty) {
+      log('resolveMainApiClientForBot($botId): no bot token available.');
       return null;
     }
 
-    final restored = await restoreMainApiSessionWithBotToken(
-      botId: botId,
-      botToken: resolvedToken,
-    );
-    if (!restored) {
-      log('resolveMainApiClientForBot($botId): session restore failed.');
-      return null;
-    }
-
-    session = await MainApiSettingsStore.loadSession();
-    if (session != null && !session.isExpired) {
+    final ephemeral = await exchangeEphemeralBotTokenClient(resolvedToken);
+    if (ephemeral != null) {
       log(
-        'resolveMainApiClientForBot($botId) completed: restored manager client successfully.',
-      );
-      return MainApiClient(
-        baseUrl: config.baseUrl,
-        accessToken: session.accessToken,
+        'resolveMainApiClientForBot($botId) completed: using ephemeral bot-token client.',
       );
     }
-
-    return null;
+    return ephemeral;
   }
 }

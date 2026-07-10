@@ -1,0 +1,675 @@
+import 'dart:convert';
+
+import 'package:nyxx/nyxx.dart';
+import 'package:bot_creator_shared/types/component.dart';
+import 'package:bot_creator_shared/utils/component_workflow_bindings.dart';
+import 'package:bot_creator_shared/utils/custom_message_update_builder.dart';
+import 'package:bot_creator_shared/utils/interaction_ack_state.dart';
+
+class CustomSectionBuilder extends ComponentBuilder<SectionComponent> {
+  final List<TextDisplayComponentBuilder> sectionComponents;
+  final ComponentBuilder? sectionAccessory;
+
+  CustomSectionBuilder({required this.sectionComponents, this.sectionAccessory})
+    : super(type: ComponentType.section);
+
+  @override
+  Map<String, Object?> build() => {
+    ...super.build(),
+    'components': [
+      for (final component in sectionComponents) component.build(),
+    ],
+    if (sectionAccessory != null) 'accessory': sectionAccessory!.build(),
+  };
+}
+
+/// A fake [GuildEmoji] used to pass emoji data to nyxx builders without needing a real manager.
+class _FakeEmoji implements GuildEmoji {
+  @override
+  final Snowflake id;
+  @override
+  final String? name;
+  @override
+  final bool? isAnimated;
+
+  const _FakeEmoji({required this.id, this.name, this.isAnimated});
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _SelectMenuOptionBuilderWithEmojiFix extends SelectMenuOptionBuilder {
+  _SelectMenuOptionBuilderWithEmojiFix({
+    required super.label,
+    required super.value,
+    super.description,
+    super.emoji,
+  });
+
+  @override
+  Map<String, Object?> build() {
+    final base = super.build();
+    if (emoji != null && emoji!.id == Snowflake.zero) {
+      final emojiMap = base['emoji'] as Map<String, Object?>?;
+      if (emojiMap != null) {
+        final newEmojiMap = Map<String, Object?>.from(emojiMap);
+        newEmojiMap.remove('id');
+        newEmojiMap.remove('animated');
+        base['emoji'] = newEmojiMap;
+      }
+    }
+    return base;
+  }
+}
+
+class _TextInputBuilderWithoutLabel extends TextInputBuilder {
+  _TextInputBuilderWithoutLabel({
+    required super.customId,
+    required super.style,
+    super.placeholder,
+    super.value,
+    super.isRequired,
+    super.minLength,
+    super.maxLength,
+  }) : super(label: '');
+
+  @override
+  Map<String, Object?> build() {
+    final base = Map<String, Object?>.from(super.build());
+    base.remove('label');
+    return base;
+  }
+}
+
+Emoji? _parseEmoji(dynamic emojiData, String Function(String) resolve) {
+  if (emojiData == null) return null;
+
+  String? emojiText;
+  if (emojiData is Map) {
+    final id = resolve((emojiData['id'] ?? '').toString());
+    final name = resolve((emojiData['name'] ?? '').toString());
+    final animated = emojiData['animated'] == true;
+    if (id.isNotEmpty) {
+      final parsedId = int.tryParse(id);
+      if (parsedId != null) {
+        return _FakeEmoji(
+          id: Snowflake(parsedId),
+          name: name,
+          isAnimated: animated,
+        );
+      }
+    }
+    emojiText = name;
+  } else {
+    emojiText = resolve(emojiData.toString()).trim();
+  }
+
+  if (emojiText.isEmpty) return null;
+
+  // Custom emoji format: <a:name:id> or <:name:id>
+  final customMatch = RegExp(r'^<a?:([^:>]+):(\d+)>$').firstMatch(emojiText);
+  if (customMatch != null) {
+    final name = customMatch.group(1)!;
+    final idString = customMatch.group(2)!;
+    final id = int.tryParse(idString);
+    final isAnimated = emojiText.startsWith('<a:');
+    if (id != null) {
+      return _FakeEmoji(id: Snowflake(id), name: name, isAnimated: isAnimated);
+    }
+  }
+
+  // Unicode
+  return _FakeEmoji(id: Snowflake.zero, name: emojiText);
+}
+
+/// Resolves a disabled template string to a bool? for the Discord API.
+/// Empty or 'false'/'no'/'0' → null (enabled).
+/// Non-empty truthy values → true (disabled).
+bool? _resolveDisabled(String raw, String Function(String) resolve) {
+  final resolved = resolve(raw).trim().toLowerCase();
+  if (resolved.isEmpty || resolved == 'false' || resolved == 'no' || resolved == '0') {
+    return null;
+  }
+  return true;
+}
+
+ComponentBuilder buildComponentNode(
+  ComponentNode node,
+  String Function(String) resolve, {
+  bool inLabel = false,
+}) {
+  if (node is ActionRowNode) {
+    return ActionRowBuilder(
+      components: node.components
+          .map((c) => buildComponentNode(c, resolve, inLabel: inLabel))
+          .toList(),
+    );
+  } else if (node is ButtonNode) {
+    if (node.style == BcButtonStyle.link) {
+      final label = resolve(node.label);
+      final url = Uri.tryParse(resolve(node.url));
+      return ButtonBuilder.link(
+        label: label.isNotEmpty ? label : null,
+        url: url ?? Uri.parse('https://example.com'),
+        isDisabled: _resolveDisabled(node.disabled, resolve),
+        emoji: _parseEmoji(node.emoji, resolve),
+      );
+    } else if (node.style == BcButtonStyle.premium) {
+      final skuIdRaw = resolve(node.skuId);
+      final skuId = int.tryParse(skuIdRaw);
+      return ButtonBuilder(
+        style: ButtonStyle.premium,
+        skuId: skuId != null ? Snowflake(skuId) : Snowflake.zero,
+        isDisabled: _resolveDisabled(node.disabled, resolve),
+      );
+    }
+    final label = resolve(node.label);
+    final nyxxStyle = switch (node.style) {
+      BcButtonStyle.secondary => ButtonStyle.secondary,
+      BcButtonStyle.success => ButtonStyle.success,
+      BcButtonStyle.danger => ButtonStyle.danger,
+      _ => ButtonStyle.primary,
+    };
+    return ButtonBuilder(
+      style: nyxxStyle,
+      label: label.isNotEmpty ? label : null,
+      customId: resolve(node.customId),
+      isDisabled: _resolveDisabled(node.disabled, resolve),
+      emoji: _parseEmoji(node.emoji, resolve),
+    );
+  } else if (node is SelectMenuNode) {
+    final customId = resolve(node.customId);
+    final placeholderRaw = resolve(node.placeholder);
+    final placeholder = placeholderRaw.isNotEmpty ? placeholderRaw : null;
+
+    switch (node.type) {
+      case ComponentV2Type.userSelect:
+        return SelectMenuBuilder.userSelect(
+          customId: customId,
+          placeholder: placeholder,
+          minValues: node.minValues,
+          maxValues: node.maxValues,
+          isDisabled: _resolveDisabled(node.disabled, resolve),
+        );
+      case ComponentV2Type.roleSelect:
+        return SelectMenuBuilder.roleSelect(
+          customId: customId,
+          placeholder: placeholder,
+          minValues: node.minValues,
+          maxValues: node.maxValues,
+          isDisabled: _resolveDisabled(node.disabled, resolve),
+        );
+      case ComponentV2Type.mentionableSelect:
+        return SelectMenuBuilder.mentionableSelect(
+          customId: customId,
+          placeholder: placeholder,
+          minValues: node.minValues,
+          maxValues: node.maxValues,
+          isDisabled: _resolveDisabled(node.disabled, resolve),
+        );
+      case ComponentV2Type.channelSelect:
+        return SelectMenuBuilder.channelSelect(
+          customId: customId,
+          placeholder: placeholder,
+          minValues: node.minValues,
+          maxValues: node.maxValues,
+          isDisabled: _resolveDisabled(node.disabled, resolve),
+        );
+      case ComponentV2Type.categorySelect:
+        return SelectMenuBuilder.channelSelect(
+          customId: customId,
+          placeholder: placeholder,
+          minValues: node.minValues,
+          maxValues: node.maxValues,
+          isDisabled: _resolveDisabled(node.disabled, resolve),
+        )..channelTypes = [ChannelType.guildCategory];
+      case ComponentV2Type.voiceSelect:
+        return SelectMenuBuilder.channelSelect(
+          customId: customId,
+          placeholder: placeholder,
+          minValues: node.minValues,
+          maxValues: node.maxValues,
+          isDisabled: _resolveDisabled(node.disabled, resolve),
+        )..channelTypes = [ChannelType.guildVoice];
+      case ComponentV2Type.stringSelect:
+      default:
+        final options = node.options.map((opt) {
+          final desc = resolve(opt.description);
+          return _SelectMenuOptionBuilderWithEmojiFix(
+            label: resolve(opt.label),
+            value: resolve(opt.value),
+            description: desc.isNotEmpty ? desc : null,
+            emoji: _parseEmoji(opt.emoji, resolve),
+          );
+        }).toList();
+        return SelectMenuBuilder.stringSelect(
+          customId: customId,
+          options: options.isEmpty
+              ? [
+                  _SelectMenuOptionBuilderWithEmojiFix(
+                    label: 'Empty',
+                    value: 'empty',
+                  ),
+                ]
+              : options,
+          placeholder: placeholder,
+          minValues: node.minValues,
+          maxValues: node.maxValues,
+          isDisabled: _resolveDisabled(node.disabled, resolve),
+        );
+    }
+  } else if (node is SectionNode) {
+    final components = node.components
+        .map((c) => buildComponentNode(c, resolve))
+        .whereType<TextDisplayComponentBuilder>()
+        .toList();
+    final accessory = node.accessory != null
+        ? buildComponentNode(node.accessory!, resolve)
+        : null;
+    return CustomSectionBuilder(
+      sectionComponents: components,
+      sectionAccessory: accessory,
+    );
+  } else if (node is TextDisplayNode) {
+    return TextDisplayComponentBuilder(content: resolve(node.content));
+  } else if (node is ThumbnailNode) {
+    return ThumbnailComponentBuilder(
+      media: UnfurledMediaItemBuilder(url: Uri.parse(resolve(node.media.url))),
+      description: node.description.isNotEmpty
+          ? resolve(node.description)
+          : null,
+      isSpoiler: node.isSpoiler ? true : null,
+    );
+  } else if (node is MediaGalleryNode) {
+    return MediaGalleryComponentBuilder(
+      items: node.items
+          .map(
+            (i) => MediaGalleryItemBuilder(
+              media: UnfurledMediaItemBuilder(
+                url: Uri.parse(resolve(i.media.url)),
+              ),
+              description: i.description.isNotEmpty
+                  ? resolve(i.description)
+                  : null,
+              isSpoiler: i.isSpoiler ? true : null,
+            ),
+          )
+          .toList(),
+    );
+  } else if (node is SeparatorNode) {
+    return SeparatorComponentBuilder(
+      isDivider: node.isDivider ? true : null,
+      spacing: node.spacing == 2
+          ? SeparatorSpacingSize.large
+          : SeparatorSpacingSize.small,
+    );
+  } else if (node is FileNode) {
+    return FileComponentBuilder(
+      file: UnfurledMediaItemBuilder(url: Uri.parse(resolve(node.file.url))),
+      isSpoiler: node.isSpoiler ? true : null,
+    );
+  } else if (node is ContainerNode) {
+    DiscordColor? accentColor;
+    final colorStr = resolve(node.accentColor).replaceAll('#', '');
+    if (colorStr.length == 6) {
+      final colorInt = int.tryParse(colorStr, radix: 16);
+      if (colorInt != null) accentColor = DiscordColor(colorInt);
+    }
+    return ContainerComponentBuilder(
+      components: node.components
+          .map((c) => buildComponentNode(c, resolve, inLabel: inLabel))
+          .toList(),
+      accentColor: accentColor,
+      isSpoiler: node.isSpoiler ? true : null,
+    );
+  } else if (node is LabelNode) {
+    return LabelComponentBuilder(
+      label: resolve(node.label),
+      description: node.description.isNotEmpty
+          ? resolve(node.description)
+          : null,
+      component: node.component != null
+          ? buildComponentNode(node.component!, resolve, inLabel: true)
+          : TextDisplayComponentBuilder(content: ''),
+    );
+  } else if (node is ModalTextInputNode) {
+    if (inLabel) {
+      return _TextInputBuilderWithoutLabel(
+        customId: resolve(node.customId),
+        style: node.style == BcTextInputStyle.paragraph
+            ? TextInputStyle.paragraph
+            : TextInputStyle.short,
+        placeholder: node.placeholder.isNotEmpty
+            ? resolve(node.placeholder)
+            : null,
+        value: node.value.isNotEmpty ? resolve(node.value) : null,
+        isRequired: node.required ? true : null,
+        minLength: node.minLength,
+        maxLength: node.maxLength,
+      );
+    }
+    return TextInputBuilder(
+      customId: resolve(node.customId),
+      label: resolve(node.label),
+      style: node.style == BcTextInputStyle.paragraph
+          ? TextInputStyle.paragraph
+          : TextInputStyle.short,
+      placeholder: node.placeholder.isNotEmpty
+          ? resolve(node.placeholder)
+          : null,
+      value: node.value.isNotEmpty ? resolve(node.value) : null,
+      isRequired: node.required ? true : null,
+      minLength: node.minLength,
+      maxLength: node.maxLength,
+    );
+  } else if (node is FileUploadNode) {
+    return FileUploadComponentBuilder(
+      customId: resolve(node.customId),
+      minValues: node.minValues,
+      maxValues: node.maxValues,
+      isRequired: node.isRequired ? true : null,
+    );
+  } else if (node is RadioGroupNode) {
+    return RadioGroupComponentBuilder(
+      customId: resolve(node.customId),
+      options: node.options
+          .map(
+            (o) => RadioGroupOptionBuilder(
+              value: resolve(o.value),
+              label: resolve(o.label),
+              description: o.description.isNotEmpty
+                  ? resolve(o.description)
+                  : null,
+              defaultValue: o.isDefault ? true : null,
+            ),
+          )
+          .toList(),
+      isRequired: node.isRequired ? true : null,
+    );
+  } else if (node is CheckboxGroupNode) {
+    return CheckboxGroupComponentBuilder(
+      customId: resolve(node.customId),
+      options: node.options
+          .map(
+            (o) => CheckboxGroupOptionBuilder(
+              value: resolve(o.value),
+              label: resolve(o.label),
+              description: o.description.isNotEmpty
+                  ? resolve(o.description)
+                  : null,
+              defaultValue: o.isDefault ? true : null,
+            ),
+          )
+          .toList(),
+      minValues: node.minValues,
+      maxValues: node.maxValues,
+      isRequired: node.isRequired ? true : null,
+    );
+  } else if (node is CheckboxNode) {
+    return CheckboxComponentBuilder(
+      customId: resolve(node.customId),
+      defaultValue: node.isDefault ? true : null,
+    );
+  }
+
+  // Fallback
+  return TextDisplayComponentBuilder(content: 'Unknown component');
+}
+
+/// Convert a [ComponentV2Definition] into component builders for nyxx.
+List<ComponentBuilder> buildComponentNodes({
+  required ComponentV2Definition definition,
+  required String Function(String) resolve,
+}) {
+  final result = <ComponentBuilder>[];
+  final currentRowComponents = <ComponentBuilder>[];
+
+  void flushActionRow() {
+    if (currentRowComponents.isNotEmpty) {
+      result.add(ActionRowBuilder(components: List.from(currentRowComponents)));
+      currentRowComponents.clear();
+    }
+  }
+
+  for (final node in definition.components) {
+    if (node is ActionRowNode) {
+      flushActionRow();
+      if (node.components.isNotEmpty) {
+        result.add(buildComponentNode(node, resolve));
+      }
+    } else if (node is ButtonNode) {
+      currentRowComponents.add(buildComponentNode(node, resolve));
+      if (currentRowComponents.length >= 5) {
+        flushActionRow();
+      }
+    } else if (node is SelectMenuNode) {
+      flushActionRow();
+      result.add(
+        ActionRowBuilder(components: [buildComponentNode(node, resolve)]),
+      );
+    } else {
+      // Layout components (Container, TextDisplay, Section, MediaGallery, etc.)
+      // can be directly added to the root level in V2.
+      flushActionRow();
+      result.add(buildComponentNode(node, resolve));
+    }
+  }
+  flushActionRow();
+
+  return result;
+}
+
+/// Build a [MessageBuilder] from a [ComponentV2Definition].
+MessageBuilder buildComponentMessage({
+  required ComponentV2Definition definition,
+  required String Function(String) resolve,
+}) {
+  final nodes = buildComponentNodes(definition: definition, resolve: resolve);
+
+  // 1 << 15 (32768) is the IS_COMPONENTS_V2 flag
+  final flagsOpt = (definition.ephemeral ? 64 : 0) | 32768;
+
+  return MessageBuilder(
+    content: null, // content is banned for V2
+    components: nodes,
+    flags: MessageFlags(flagsOpt),
+  );
+}
+
+ComponentV2Definition _componentDefinitionFromPayload(
+  Map<String, dynamic> payload,
+) {
+  final componentsDef = payload['components'] ?? payload['componentV2'];
+  return componentsDef is Map
+      ? ComponentV2Definition.fromJson(Map<String, dynamic>.from(componentsDef))
+      : ComponentV2Definition();
+}
+
+/// Send a ComponentV2 message to a channel.
+Future<Map<String, dynamic>> sendComponentV2Action(
+  NyxxGateway client, {
+  required Map<String, dynamic> payload,
+  Snowflake? fallbackChannelId,
+  String Function(String)? resolve,
+  String? botId,
+  String? guildId,
+}) async {
+  resolve ??= (s) => s;
+  try {
+    final definition = _componentDefinitionFromPayload(payload);
+
+    final channelIdRaw = resolve((payload['channelId'] ?? '').toString());
+    Snowflake? channelId;
+    if (channelIdRaw.isNotEmpty) {
+      final parsed = int.tryParse(channelIdRaw);
+      if (parsed != null) channelId = Snowflake(parsed);
+    }
+    channelId ??= fallbackChannelId;
+
+    if (channelId == null) {
+      return {'error': 'No channelId available for sendComponentV2'};
+    }
+
+    final channel = await client.channels.fetch(channelId);
+    if (channel is! TextChannel) {
+      return {'error': 'Channel is not a text channel'};
+    }
+
+    final builder = buildComponentMessage(
+      definition: definition,
+      resolve: resolve,
+    );
+    final message = await channel.sendMessage(builder);
+    if (botId != null && botId.trim().isNotEmpty) {
+      registerComponentWorkflowBindings(
+        definition: definition,
+        resolve: resolve,
+        botId: botId,
+        guildId: guildId,
+        channelId: channelId.toString(),
+        messageId: message.id.toString(),
+      );
+    }
+
+    return {'messageId': message.id.toString()};
+  } catch (e) {
+    return {'error': e.toString()};
+  }
+}
+
+/// Respond to an interaction with a ComponentV2 message.
+/// If already acknowledged (deferred), updates the response.
+/// If interaction is null, falls back to sendComponentV2Action.
+Future<Map<String, dynamic>> respondWithComponentV2Action(
+  Interaction? interaction, {
+  required Map<String, dynamic> payload,
+  NyxxGateway? client,
+  Snowflake? fallbackChannelId,
+  String Function(String)? resolve,
+  String? botId,
+  String? guildId,
+  Map<String, String>? variables,
+}) async {
+  resolve ??= (s) => s;
+
+  // Collect canvas attachments (same logic as respondWithMessageAction)
+  final canvasAttachments = _collectComponentAttachments(variables);
+  if (interaction == null) {
+    if (client == null) {
+      return {
+        'error':
+            'respondWithComponentV2 requires either an interaction or a client for fallback',
+      };
+    }
+    return sendComponentV2Action(
+      client,
+      payload: payload,
+      fallbackChannelId: fallbackChannelId,
+      resolve: resolve,
+      botId: botId,
+      guildId: guildId,
+    );
+  }
+  try {
+    final definition = _componentDefinitionFromPayload(payload);
+
+    // build the component nodes
+    final nodes = buildComponentNodes(definition: definition, resolve: resolve);
+
+    // 1 << 15 (32768) is the IS_COMPONENTS_V2 flag
+    final flagsOpt = (definition.ephemeral ? 64 : 0) | 32768;
+
+    if (interaction is MessageResponse ||
+        interaction is ModalSubmitInteraction) {
+      final dynInt = interaction as dynamic;
+      final isAcknowledged = isInteractionAcknowledged(interaction);
+
+      try {
+        if (isAcknowledged) {
+          final builder = CustomMessageUpdateBuilder(
+            content: null,
+            components: nodes,
+            customFlags: flagsOpt,
+          );
+          final message = await dynInt.updateOriginalResponse(builder);
+          markInteractionAcknowledged(interaction);
+          if (botId != null && botId.trim().isNotEmpty) {
+            registerComponentWorkflowBindings(
+              definition: definition,
+              resolve: resolve,
+              botId: botId,
+              guildId: interaction.guildId?.toString(),
+              channelId: interaction.channelId?.toString(),
+              messageId: message.id.toString(),
+            );
+          }
+          return {'messageId': message.id.toString()};
+        } else {
+          final builder = MessageBuilder(
+            content: null,
+            components: nodes,
+            flags: MessageFlags(flagsOpt),
+            attachments: canvasAttachments,
+          );
+          await dynInt.respond(builder);
+          markInteractionAcknowledged(interaction);
+          String? messageId;
+          try {
+            final responseMessage = await dynInt.fetchOriginalResponse();
+            messageId = responseMessage.id.toString();
+          } catch (_) {}
+          if (botId != null && botId.trim().isNotEmpty) {
+            registerComponentWorkflowBindings(
+              definition: definition,
+              resolve: resolve,
+              botId: botId,
+              guildId: interaction.guildId?.toString(),
+              channelId: interaction.channelId?.toString(),
+              messageId: messageId,
+            );
+          }
+          return {
+            'messageId': messageId,
+            'status': 'responded',
+          };
+        }
+      } catch (e) {
+        return {'error': 'Failed to send interaction response: $e'};
+      }
+    }
+
+    return {'error': 'Interaction does not support message responses'};
+  } catch (e) {
+    return {'error': 'Failed to send interaction response: $e'};
+  }
+}
+
+/// Scans [variables] for keys matching `temp._canvasAttachment_*` and returns
+/// a list of [AttachmentBuilder] objects ready to be included in a message.
+List<AttachmentBuilder>? _collectComponentAttachments(
+  Map<String, String>? variables,
+) {
+  if (variables == null || variables.isEmpty) return null;
+
+  final attachments = <AttachmentBuilder>[];
+  final keysToRemove = <String>[];
+  for (final entry in variables.entries) {
+    if (!entry.key.startsWith('temp._canvasAttachment_')) continue;
+    if (entry.value.isEmpty) continue;
+
+    final name = entry.key.substring('temp._canvasAttachment_'.length);
+    if (name.isEmpty) continue;
+
+    try {
+      final bytes = base64Decode(entry.value);
+      attachments.add(AttachmentBuilder(data: bytes, fileName: '$name.png'));
+      keysToRemove.add(entry.key);
+    } catch (_) {}
+  }
+
+  for (final key in keysToRemove) {
+    variables.remove(key);
+  }
+
+  return attachments.isNotEmpty ? attachments : null;
+}

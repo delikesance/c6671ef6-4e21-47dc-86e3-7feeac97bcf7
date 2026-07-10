@@ -148,6 +148,14 @@ class MainApiSettingsStore {
   static const String _configKey = 'main_api_config';
   static const String _sessionKey = 'main_api_session';
 
+  static MainApiSession? _memorySession;
+  static bool _memorySessionLoaded = false;
+
+  static void invalidateSessionCache() {
+    _memorySession = null;
+    _memorySessionLoaded = false;
+  }
+
   static Future<MainApiConfig> loadConfig() async {
     final prefs = await SharedPreferences.getInstance();
     final json = _decodeJsonMap(prefs.getString(_configKey));
@@ -172,6 +180,10 @@ class MainApiSettingsStore {
   }
 
   static Future<MainApiSession?> loadSession() async {
+    if (_memorySessionLoaded) {
+      return _memorySession;
+    }
+
     String? jsonStr;
     try {
       final secure = await SecureStorageService.instance;
@@ -186,10 +198,14 @@ class MainApiSettingsStore {
     }
 
     if (jsonStr == null || jsonStr.trim().isEmpty) {
+      _memorySession = null;
+      _memorySessionLoaded = true;
       return null;
     }
 
-    return _sessionFromStoredJson(jsonStr);
+    _memorySession = _sessionFromStoredJson(jsonStr);
+    _memorySessionLoaded = true;
+    return _memorySession;
   }
 
   static Future<void> saveSession(MainApiSession session) async {
@@ -204,6 +220,8 @@ class MainApiSettingsStore {
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_sessionKey, jsonStr);
+    _memorySession = session;
+    _memorySessionLoaded = true;
   }
 
   /// Persists a bot-token exchange only when no managed account session exists.
@@ -226,6 +244,8 @@ class MainApiSettingsStore {
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_sessionKey);
+    _memorySession = null;
+    _memorySessionLoaded = true;
   }
 
   static Future<void> clearAll() async {
@@ -237,6 +257,8 @@ class MainApiSettingsStore {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_configKey);
     await prefs.remove(_sessionKey);
+    _memorySession = null;
+    _memorySessionLoaded = true;
   }
 }
 

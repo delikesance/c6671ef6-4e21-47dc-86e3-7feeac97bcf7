@@ -59,7 +59,6 @@ app.*.map.json
 /android/key.properties
 /packages/app/build
 /build
-/packages/shared/
 /data
 /packages/runner/data
 

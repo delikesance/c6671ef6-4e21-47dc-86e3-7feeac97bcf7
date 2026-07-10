@@ -266,9 +266,9 @@ class HomePageState extends State<HomePage>
 
                    final perBotClient = await _resolveMainApiClientForBot(
                     botId: botId,
-                    attemptSessionRestore: true,
+                    attemptSessionRestore: false,
                   );
-                  final botRuntime = await _resolveRemoteRuntime(botId: botId);
+                  final botRuntime = remoteRuntime;
                   
                   final associatedId = RunnerSettings.getAssociatedRunnerId(botId);
                   final isManagerBot = associatedId == 'manager' || (associatedId == null && perBotClient != null);
@@ -637,38 +637,27 @@ class HomePageState extends State<HomePage>
       appendBotDebugLog(
         '[syncAllBotsFromManager] Local apps for owner expansion count=${apps.length}.',
       );
-      // ── Phase 1: collect unique owner-bot clients (deduplicate) ──
+      // ── Phase 1: collect owner list clients (global session or one fallback) ──
       final ownerClients = <String, MainApiClient>{};
-      for (final rawApp in apps) {
-        if (rawApp is! Map) continue;
-        final app = Map<String, dynamic>.from(rawApp.cast<dynamic, dynamic>());
-        final botId = (app['id'] ?? '').toString().trim();
-        if (botId.isEmpty) continue;
-
-        final session = await MainApiSettingsStore.loadSession();
-        final ownerKey = (session?.userId ?? '').trim();
-        final dedupeKey = ownerKey.isEmpty ? 'bot:$botId' : 'owner:$ownerKey';
-        if (ownerClients.containsKey(dedupeKey)) {
-          appendBotDebugLog(
-            '[syncAllBotsFromManager] Owner already collected for dedupeKey=$dedupeKey.',
-          );
-          continue;
+      final globalClient = await _resolveGlobalMainApiClient(
+        attemptRestore: false,
+      );
+      if (globalClient != null) {
+        ownerClients['global'] = globalClient;
+      } else {
+        final apps = await appManager.getAllApps();
+        for (final rawApp in apps) {
+          if (rawApp is! Map) continue;
+          final botId = (rawApp['id'] ?? '').toString().trim();
+          final token = (rawApp['token'] ?? '').toString().trim();
+          if (token.isEmpty) continue;
+          final ephemeral =
+              await _ownerSyncHelper.exchangeEphemeralBotTokenClient(token);
+          if (ephemeral != null) {
+            ownerClients['bot:$botId'] = ephemeral;
+            break;
+          }
         }
-
-        final token = (app['token'] ?? '').toString();
-        final client = await _resolveMainApiClientForBot(
-          botId: botId,
-          botToken: token,
-          attemptSessionRestore: true,
-        );
-        if (client == null) {
-          appendBotDebugLog(
-            '[syncAllBotsFromManager] No manager client for local bot $botId during owner expansion.',
-          );
-          continue;
-        }
-
-        ownerClients[dedupeKey] = client;
       }
 
       // ── Phase 2: fetch listBots in parallel ──
@@ -723,7 +712,7 @@ class HomePageState extends State<HomePage>
             final snapshotClient = await _resolveMainApiClientForBot(
               botId: botId,
               botToken: token,
-              attemptSessionRestore: true,
+              attemptSessionRestore: false,
             );
             if (snapshotClient != null) {
               final payload = await buildRemotePayload(botId);
@@ -969,10 +958,7 @@ class HomePageState extends State<HomePage>
       return null;
     }
 
-    var session = await ensureMainApiSession();
-    if (session == null) {
-      session = await MainApiSettingsStore.loadSession();
-    }
+    var session = await loadMainApiSession();
 
     if (session != null && !session.isExpired) {
       appendBotDebugLog(
@@ -987,31 +973,24 @@ class HomePageState extends State<HomePage>
     if (attemptRestore) {
       final apps = await appManager.getAllApps();
       appendBotDebugLog(
-        '[_resolveGlobalMainApiClient] Global manager client unavailable; trying restore from ${apps.length} local apps.',
+        '[_resolveGlobalMainApiClient] No active session; trying one ephemeral bot-token exchange from ${apps.length} local apps.',
       );
       for (final rawApp in apps) {
         if (rawApp is! Map) continue;
-        final botId = (rawApp['id'] ?? '').toString();
-        final token = (rawApp['token'] ?? '').toString();
-        if (botId.isNotEmpty && token.isNotEmpty) {
+        final token = (rawApp['token'] ?? '').toString().trim();
+        if (token.isEmpty) continue;
+        final client =
+            await _ownerSyncHelper.exchangeEphemeralBotTokenClient(token);
+        if (client != null) {
           appendBotDebugLog(
-            '[_resolveGlobalMainApiClient] Trying restore with bot $botId.',
+            '[_resolveGlobalMainApiClient] Success: ephemeral client from local bot token.',
           );
-          final client = await _resolveMainApiClientForBot(
-            botId: botId,
-            botToken: token,
-            attemptSessionRestore: true,
-          );
-          if (client != null) {
-            appendBotDebugLog(
-              '[_resolveGlobalMainApiClient] Success: global client restored from bot $botId.',
-            );
-            return client;
-          }
+          return client;
         }
+        break;
       }
       appendBotDebugLog(
-        '[_resolveGlobalMainApiClient] Failed to restore global client from any local app.',
+        '[_resolveGlobalMainApiClient] Failed to create ephemeral client from local apps.',
       );
     }
 

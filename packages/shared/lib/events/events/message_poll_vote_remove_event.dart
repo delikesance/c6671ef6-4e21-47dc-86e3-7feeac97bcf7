@@ -1,0 +1,19 @@
+part of '../event_contexts.dart';
+
+EventExecutionContext buildMessagePollVoteRemoveEventContext(
+  MessagePollVoteRemoveEvent event,
+) {
+  return _baseEventContext(
+    eventName: 'messagePollVoteRemove',
+    guildId: _asSnowflake(event.guildId),
+    channelId: _asSnowflake(event.channelId),
+    userId: _asSnowflake(event.userId),
+    extra: _pollVoteExtra(
+      messageId: event.messageId,
+      answerId: event.answerId,
+      userId: event.userId,
+      channelId: event.channelId,
+      guildId: event.guildId,
+    ),
+  );
+}

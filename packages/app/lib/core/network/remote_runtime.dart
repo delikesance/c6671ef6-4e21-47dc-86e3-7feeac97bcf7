@@ -140,7 +140,7 @@ Future<ResolvedRemoteRuntime> resolveRemoteRuntime({
   final mainApiSession = await MainApiSettingsStore.loadSession();
 
   if (mainApiConfig.isConfigured && !isDesktop) {
-    final session = await ensureMainApiSession();
+    final session = await loadMainApiSession();
 
     if (session != null && !session.isExpired) {
       return ResolvedRemoteRuntime(
