@@ -1,0 +1,222 @@
+import 'package:nyxx/nyxx.dart';
+import 'package:bot_creator_shared/utils/component_workflow_bindings.dart';
+import 'package:bot_creator_shared/types/component.dart';
+import 'package:bot_creator_shared/actions/send_component_v2.dart';
+import 'package:bot_creator_shared/utils/embed_fields.dart';
+import 'package:bot_creator_shared/utils/interaction_ack_state.dart';
+import 'package:bot_creator_shared/utils/custom_message_update_builder.dart';
+import 'package:bot_creator_shared/utils/embed_timestamp.dart';
+
+/// Edit the original/deferred interaction response.
+/// Can update content, and/or components.
+Future<Map<String, dynamic>> editInteractionMessageAction(
+  Interaction<dynamic> interaction, {
+  required Map<String, dynamic> payload,
+  required String Function(String) resolve,
+  String? botId,
+}) async {
+  try {
+    if (interaction is! MessageResponse &&
+        interaction is! ModalSubmitInteraction) {
+      return {'error': 'Interaction does not support message responses'};
+    }
+
+    final msgInteraction = interaction;
+    final content = resolve((payload['content'] ?? '').toString());
+    final clearEmbeds = payload['clearEmbeds'] == true;
+    final clearComponents = payload['clearComponents'] == true;
+
+    final embedsRaw =
+        (payload['embeds'] is List)
+            ? List<Map<String, dynamic>>.from(
+              (payload['embeds'] as List).whereType<Map>().map(
+                (embed) => Map<String, dynamic>.from(
+                  embed.map((key, value) => MapEntry(key.toString(), value)),
+                ),
+              ),
+            )
+            : <Map<String, dynamic>>[];
+    final shouldUpdateEmbeds = clearEmbeds || payload['embeds'] is List;
+    final embeds = <EmbedBuilder>[];
+    if (!clearEmbeds) {
+      for (final embedJson in embedsRaw.take(10)) {
+        embedJson.remove('video');
+        embedJson.remove('provider');
+        final embed = EmbedBuilder();
+
+        final title = resolve((embedJson['title'] ?? '').toString());
+        final description = resolve(
+          (embedJson['description'] ?? '').toString(),
+        );
+        final url = resolve((embedJson['url'] ?? '').toString());
+
+        if (title.isNotEmpty) embed.title = title;
+        if (description.isNotEmpty) embed.description = description;
+        if (url.isNotEmpty) embed.url = Uri.tryParse(url);
+
+        final timestamp = parseEmbedTimestamp(
+          resolve((embedJson['timestamp'] ?? '').toString()),
+        );
+        if (timestamp != null) {
+          embed.timestamp = timestamp;
+        }
+
+        final colorRaw = resolve((embedJson['color'] ?? '').toString());
+        if (colorRaw.isNotEmpty) {
+          int? colorInt;
+          if (colorRaw.startsWith('#')) {
+            colorInt = int.tryParse(colorRaw.substring(1), radix: 16);
+          } else {
+            colorInt = int.tryParse(colorRaw);
+          }
+          if (colorInt != null) {
+            embed.color = DiscordColor.fromRgb(
+              (colorInt >> 16) & 0xFF,
+              (colorInt >> 8) & 0xFF,
+              colorInt & 0xFF,
+            );
+          }
+        }
+
+        final footerJson = Map<String, dynamic>.from(
+          (embedJson['footer'] as Map?)?.cast<String, dynamic>() ?? const {},
+        );
+        final footerText = resolve((footerJson['text'] ?? '').toString());
+        final footerIcon = resolve((footerJson['icon_url'] ?? '').toString());
+        if (footerText.isNotEmpty || footerIcon.isNotEmpty) {
+          embed.footer = EmbedFooterBuilder(
+            text: footerText.isEmpty ? '\u200B' : footerText,
+            iconUrl: footerIcon.isNotEmpty ? Uri.tryParse(footerIcon) : null,
+          );
+        }
+
+        final authorJson = Map<String, dynamic>.from(
+          (embedJson['author'] as Map?)?.cast<String, dynamic>() ?? const {},
+        );
+        final authorName = resolve((authorJson['name'] ?? '').toString());
+        final authorUrl = resolve((authorJson['url'] ?? '').toString());
+        final authorIcon = resolve(
+          (authorJson['author_icon_url'] ?? authorJson['icon_url'] ?? '')
+              .toString(),
+        );
+        if (authorName.isNotEmpty || authorUrl.isNotEmpty || authorIcon.isNotEmpty) {
+          embed.author = EmbedAuthorBuilder(
+            name: authorName.isEmpty ? '\u200B' : authorName,
+            url: authorUrl.isNotEmpty ? Uri.tryParse(authorUrl) : null,
+            iconUrl: authorIcon.isNotEmpty ? Uri.tryParse(authorIcon) : null,
+          );
+        }
+
+        final imageJson = Map<String, dynamic>.from(
+          (embedJson['image'] as Map?)?.cast<String, dynamic>() ?? const {},
+        );
+        final imageUrl = resolve((imageJson['url'] ?? '').toString());
+        if (imageUrl.isNotEmpty) {
+          embed.image = EmbedImageBuilder(url: Uri.parse(imageUrl));
+        }
+
+        final thumbnailJson = Map<String, dynamic>.from(
+          (embedJson['thumbnail'] as Map?)?.cast<String, dynamic>() ?? const {},
+        );
+        final thumbnailUrl = resolve((thumbnailJson['url'] ?? '').toString());
+        if (thumbnailUrl.isNotEmpty) {
+          embed.thumbnail = EmbedThumbnailBuilder(url: Uri.parse(thumbnailUrl));
+        }
+
+        final resolvedFields = buildResolvedEmbedFields(
+          embedJson: embedJson,
+          resolve: resolve,
+        );
+        if (resolvedFields.isNotEmpty) {
+          embed.fields = resolvedFields;
+        }
+
+        embeds.add(embed);
+      }
+    }
+
+    // Build components if defined
+    List<ComponentBuilder>? actionRows;
+    ComponentV2Definition? definition;
+    final componentsDef = payload['components'] ?? payload['componentV2'];
+    if (clearComponents) {
+      actionRows = [];
+    } else if (componentsDef is Map && componentsDef.isNotEmpty) {
+      definition = ComponentV2Definition.fromJson(
+        Map<String, dynamic>.from(
+          componentsDef.map((k, v) => MapEntry(k.toString(), v)),
+        ),
+      );
+      actionRows = buildComponentNodes(
+        definition: definition,
+        resolve: resolve,
+      );
+    }
+
+    final builder = CustomMessageUpdateBuilder(
+      customFlags: definition != null ? 32768 : null,
+    );
+    if (content.isNotEmpty) {
+      builder.content = content;
+    }
+    if (shouldUpdateEmbeds) {
+      builder.embeds = embeds;
+    }
+    if (clearComponents || (componentsDef is Map && componentsDef.isNotEmpty)) {
+      builder.components = actionRows;
+    }
+
+    final Message message;
+    if (interaction is MessageComponentInteraction && !isInteractionAcknowledged(interaction)) {
+      await interaction.respond(builder, updateMessage: true);
+      markInteractionAcknowledged(interaction);
+      Message? tempMsg = interaction.message;
+      if (tempMsg == null) {
+        try {
+          tempMsg = await interaction.fetchOriginalResponse();
+        } catch (_) {
+          tempMsg = _FakeMessage(id: Snowflake(0));
+        }
+      }
+      message = tempMsg;
+    } else {
+      if (!isInteractionAcknowledged(interaction)) {
+        try {
+          await (interaction as dynamic).acknowledge();
+          markInteractionAcknowledged(interaction);
+        } catch (_) {}
+      }
+      Message tempMsg;
+      try {
+        tempMsg = await (msgInteraction as dynamic).updateOriginalResponse(builder) as Message;
+      } catch (_) {
+        tempMsg = interaction.message ?? _FakeMessage(id: Snowflake(0));
+      }
+      message = tempMsg;
+    }
+
+    if (definition != null && botId != null && botId.trim().isNotEmpty) {
+      registerComponentWorkflowBindings(
+        definition: definition,
+        resolve: resolve,
+        botId: botId,
+        guildId: interaction.guildId?.toString(),
+        channelId: interaction.channelId?.toString(),
+        messageId: message.id.toString(),
+      );
+    }
+    return {'messageId': message.id.toString()};
+  } catch (e) {
+    return {'error': e.toString()};
+  }
+}
+
+class _FakeMessage implements Message {
+  @override
+  final Snowflake id;
+
+  _FakeMessage({required this.id});
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}

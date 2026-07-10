@@ -3,6 +3,24 @@ import 'dart:convert';
 const String workflowTypeGeneral = 'general';
 const String workflowTypeEvent = 'event';
 
+const String workflowExecutionModeWorkflow = 'workflow';
+const String workflowExecutionModeJavascript = 'javascript';
+
+String normalizeWorkflowExecutionMode(
+  dynamic raw, {
+  bool supportsJavascript = true,
+}) {
+  final value = (raw ?? workflowExecutionModeWorkflow).toString().trim().toLowerCase();
+  if (value == workflowExecutionModeJavascript && supportsJavascript) {
+    return workflowExecutionModeJavascript;
+  }
+  return workflowExecutionModeWorkflow;
+}
+
+String normalizeWorkflowJsScriptContent(dynamic raw) {
+  return (raw ?? '').toString();
+}
+
 class WorkflowArgumentDefinition {
   final String name;
   final bool required;
@@ -173,6 +191,21 @@ Map<String, dynamic> normalizeStoredWorkflowDefinition(
   } else {
     normalized.remove('eventTrigger');
   }
+
+  final jsScriptContent = normalizeWorkflowJsScriptContent(
+    normalized['jsScriptContent'] ?? normalized['script'],
+  );
+  var executionMode = normalizeWorkflowExecutionMode(normalized['executionMode']);
+  if (jsScriptContent.trim().isNotEmpty && executionMode == workflowExecutionModeWorkflow) {
+    executionMode = workflowExecutionModeJavascript;
+  }
+  normalized['executionMode'] = executionMode;
+  if (jsScriptContent.isNotEmpty) {
+    normalized['jsScriptContent'] = jsScriptContent;
+  } else {
+    normalized.remove('jsScriptContent');
+  }
+
   return normalized;
 }
 

@@ -495,8 +495,10 @@ class _SettingPageState extends State<SettingPage> {
       var statusKey = 'settings_main_api_connected';
 
       if (nextSession != null) {
-        var activeSession =
-            await ensureMainApiSession() ?? nextSession;
+        var activeSession = nextSession;
+        if (nextSession.expiresSoon()) {
+          activeSession = await ensureMainApiSession() ?? nextSession;
+        }
         if (activeSession.isExpired) {
           activeSession = nextSession;
         }

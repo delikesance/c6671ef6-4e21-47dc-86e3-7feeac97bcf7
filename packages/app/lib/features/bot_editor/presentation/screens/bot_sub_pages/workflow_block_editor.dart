@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
+import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/js_editor_page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder.response.dart';
 import 'package:bot_creator/core/models/types/app_emoji.dart';
 import 'package:bot_creator_shared/types/action.dart' show BotCreatorActionType;
@@ -17,8 +19,10 @@ import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blo
 import 'package:bot_creator/core/models/types/variable_suggestion.dart';
 import 'package:bot_creator_shared/types/variable_suggestion.dart' as shared;
 import 'package:bot_creator_shared/utils/variable_catalog.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
+import 'package:bot_creator/core/network/runner_settings.dart';
 
 /// Full-screen Scratch-like block editor for creating or editing a workflow.
 ///
@@ -98,6 +102,23 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
   List<VariableSuggestion> _variableSuggestions = [];
   bool _saving = false;
   List<String> _existingFolders = const [];
+
+  String _executionMode = workflowExecutionModeWorkflow;
+  late final TextEditingController _jsScriptController;
+  String _jsScriptContent = '';
+  bool _supportsJavascriptMode = false;
+  bool _isJavascriptOnlyBot = false;
+
+  bool get _isJavascriptMode => _executionMode == workflowExecutionModeJavascript;
+
+  bool get _showJavascriptExecutionMode =>
+      _supportsJavascriptMode && _workflowType == workflowTypeEvent;
+
+  bool get _isDesktop =>
+      !kIsWeb &&
+      (defaultTargetPlatform == TargetPlatform.windows ||
+          defaultTargetPlatform == TargetPlatform.linux ||
+          defaultTargetPlatform == TargetPlatform.macOS);
 
   bool get _isEditing => widget.initial != null;
 
@@ -191,6 +212,17 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
           const <Map<String, dynamic>>[],
     );
 
+    _jsScriptContent = normalizeWorkflowJsScriptContent(
+      normalized?['jsScriptContent'],
+    );
+    _jsScriptController = TextEditingController(text: _jsScriptContent);
+    _executionMode = normalizeWorkflowExecutionMode(
+      normalized?['executionMode'],
+      supportsJavascript: true,
+    );
+
+    unawaited(_loadRuntimeContext(normalized == null));
+
     _ensureEventSelection();
     _refreshVariableSuggestions();
 
@@ -210,7 +242,53 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
     _nameController.dispose();
     _folderController.dispose();
     _entryPointController.dispose();
+    _jsScriptController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadRuntimeContext(bool isNewWorkflow) async {
+    var botRuntimeEngine = runtimeEngineDart;
+    var runnerSupportsJavascript = false;
+
+    botRuntimeEngine = await getBotRuntimeEngine(widget.botId);
+
+    if (isJavascriptRuntimeEngine(botRuntimeEngine)) {
+      if (!kIsWeb &&
+          (defaultTargetPlatform == TargetPlatform.windows ||
+              defaultTargetPlatform == TargetPlatform.linux ||
+              defaultTargetPlatform == TargetPlatform.macOS)) {
+        runnerSupportsJavascript = true;
+      } else {
+        final config = await RunnerSettings.resolveConfigForBot(widget.botId);
+        runnerSupportsJavascript = config != null;
+      }
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _isJavascriptOnlyBot = botRuntimeEngine == runtimeEngineJavascript;
+      _supportsJavascriptMode =
+          botRuntimeEngine == runtimeEngineJavascript || runnerSupportsJavascript;
+      _executionMode = normalizeWorkflowExecutionMode(
+        _executionMode,
+        supportsJavascript: _supportsJavascriptMode,
+      );
+      if (isNewWorkflow &&
+          _isJavascriptOnlyBot &&
+          _workflowType == workflowTypeEvent) {
+        _executionMode = workflowExecutionModeJavascript;
+      }
+    });
+  }
+
+  String _normalizeExecutionMode(Object? raw) {
+    return normalizeWorkflowExecutionMode(
+      raw,
+      supportsJavascript: _supportsJavascriptMode,
+    );
   }
 
   // ── Helpers ──
@@ -369,6 +447,8 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
       folder: _folderController.text.trim(),
       eventVariableAliases:
           _eventVariableAliases.isNotEmpty ? Map<String, String>.from(_eventVariableAliases) : null,
+      executionMode: _executionMode,
+      jsScriptContent: _jsScriptController.text,
     );
 
     // Dynamic Refresh: apply changes immediately to running bot.
@@ -609,11 +689,15 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
       // ── Entry Point block ──
       if (showHeaderBlocks) _buildEntryPointBlock(),
 
-      // ── Action blocks ──
-      ..._buildActionBlocks(),
+      if (_isJavascriptMode && _showJavascriptExecutionMode) ...[
+        _buildJavascriptEditorTile(),
+      ] else ...[
+        // ── Action blocks ──
+        ..._buildActionBlocks(),
 
-      // ── Add button ──
-      if (showAddButton) _buildAddBlockButton(),
+        // ── Add button ──
+        if (showAddButton) _buildAddBlockButton(),
+      ],
     ];
   }
 
@@ -1269,7 +1353,115 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
           };
         });
       },
+      executionMode: _executionMode,
+      showJavascriptMode: _showJavascriptExecutionMode,
+      onExecutionModeChanged: _showJavascriptExecutionMode
+          ? (value) {
+              setState(() {
+                _executionMode = _normalizeExecutionMode(value);
+              });
+            }
+          : null,
     );
+  }
+
+  Widget _buildJavascriptEditorTile() {
+    final code = _jsScriptController.text;
+    final isEmpty = code.trim().isEmpty;
+    final preview =
+        isEmpty
+            ? context.tr.js_editor_hint
+            : code.length > 300
+            ? '${code.substring(0, 300)}…'
+            : code;
+
+    return ScratchBlock(
+      color: getCategoryColor('Script'),
+      title: context.tr.cmd_execution_mode_javascript,
+      icon: Icons.code,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: _openJavascriptEditor,
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 120),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: AppTheme.codeSurfaceVariant,
+            borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+            border: Border.all(color: AppTheme.grey),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.edit, size: 14, color: AppTheme.grey),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      context.tr.bdfd_editor_tap_hint,
+                      style: const TextStyle(fontSize: 11, color: AppTheme.grey),
+                    ),
+                  ),
+                  if (_isDesktop)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0x332196F3),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        context.tr.js_editor_segmented_label,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Color(0xFF90CAF9),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                preview,
+                style: const TextStyle(
+                  fontFamily: 'monospace',
+                  fontSize: 12,
+                  color: Color(0xFFCFD8DC),
+                ),
+                maxLines: 12,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openJavascriptEditor() async {
+    final result = await Navigator.push<String>(
+      context,
+      MaterialPageRoute<String>(
+        builder:
+            (_) => JsEditorPage(
+              initialCode: _jsScriptController.text,
+              title: context.tr.js_editor_title,
+            ),
+      ),
+    );
+
+    if (result == null || !mounted) {
+      return;
+    }
+
+    setState(() {
+      _jsScriptController.text = result;
+      _jsScriptContent = result;
+    });
   }
 
   // ── Action Blocks ──

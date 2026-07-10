@@ -4,6 +4,7 @@ import 'package:bot_creator/core/discord/discord_intent_sync.dart';
 import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/features/bot_editor/logic/normalize_command_data.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
+import 'package:bot_creator/features/bot_editor/logic/workflow_call.dart';
 
 Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
   final appData = await AppManager().getApp(botId);
@@ -107,10 +108,55 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
     });
   }
 
+  final events = <Map<String, dynamic>>[];
+  final workflows = await AppManager().getWorkflows(botId);
+  for (final rawWorkflow in workflows) {
+    final wf = normalizeStoredWorkflowDefinition(
+      Map<String, dynamic>.from(rawWorkflow),
+    );
+    if (normalizeWorkflowType(wf['workflowType']) != workflowTypeEvent) {
+      continue;
+    }
+    final trigger = normalizeWorkflowEventTrigger(wf['eventTrigger']);
+    final eventName = trigger['event'].toString().trim();
+    if (eventName.isEmpty) {
+      continue;
+    }
+
+    final executionMode =
+        (wf['executionMode'] ?? workflowExecutionModeWorkflow).toString().trim().toLowerCase();
+    var script = normalizeWorkflowJsScriptContent(wf['jsScriptContent']);
+    if (executionMode != workflowExecutionModeJavascript && script.trim().isEmpty) {
+      script = _synthesizeJsFromWorkflowActions(
+            (wf['actions'] as List?) ?? const [],
+            preferMessage: true,
+          ) ??
+          '';
+    }
+    if (script.trim().isEmpty) {
+      continue;
+    }
+
+    events.add({
+      'id': (wf['name'] ?? eventName).toString(),
+      'type': 'event',
+      'name': eventName,
+      'enabled': true,
+      'script': script,
+    });
+  }
+
+  final prefixRaw = (appData['prefix'] ?? '').toString().trim();
+  final hasPrefixCommands = commands.any((command) {
+    final name = (command['name'] ?? '').toString().trim();
+    return name.isNotEmpty;
+  });
+  final includePrefix = prefixRaw.isNotEmpty && hasPrefixCommands;
+
   return {
     'runtimeEngine': runtimeEngineJavascript,
     'token': token,
-    'prefix': (appData['prefix'] ?? '!').toString(),
+    if (includePrefix) 'prefix': prefixRaw,
     'autoRestart': appData['autoRestart'] == true,
     'intents': Map<String, bool>.from(
       (appData['intents'] as Map?)?.map(
@@ -119,7 +165,7 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
           const {},
     ),
     'commands': commands,
-    'events': const <Map<String, dynamic>>[],
+    'events': events,
     'scheduled': scheduled,
     'inboundWebhooks': inboundWebhooks,
     'globalVariables': Map<String, dynamic>.from(
@@ -139,7 +185,10 @@ Future<void> validateJsBotPayloadOrThrow(String botId) async {
   await buildJsBotPayload(botId);
 }
 
-String? _synthesizeJsFromWorkflowActions(List<dynamic> actions) {
+String? _synthesizeJsFromWorkflowActions(
+  List<dynamic> actions, {
+  bool preferMessage = false,
+}) {
   for (final raw in actions) {
     if (raw is! Map) {
       continue;
@@ -156,6 +205,9 @@ String? _synthesizeJsFromWorkflowActions(List<dynamic> actions) {
       continue;
     }
     final ephemeral = payload['ephemeral'] == true;
+    if (preferMessage) {
+      return 'await message.reply(${jsonEncode(content)});';
+    }
     if (ephemeral) {
       return 'await interaction.reply({ content: ${jsonEncode(content)}, ephemeral: true });';
     }

@@ -5,6 +5,11 @@ import 'package:bot_creator/core/network/main_api_settings.dart';
 
 Future<MainApiSession?>? _activeRestoreFuture;
 
+/// Reads the persisted Main API session from memory/disk without network I/O.
+Future<MainApiSession?> loadMainApiSession() {
+  return MainApiSettingsStore.loadSession();
+}
+
 /// Ensures the persisted Main API session is valid, refreshing when needed.
 Future<MainApiSession?> ensureMainApiSession({
   Duration timeout = const Duration(seconds: 6),
@@ -46,7 +51,7 @@ Future<MainApiSession?> _restoreMainApiSessionIfNeededInternal({
   required bool force,
 }) async {
   final config = await MainApiSettingsStore.loadConfig();
-  var session = await MainApiSettingsStore.loadSession();
+  var session = await loadMainApiSession();
   if (session == null) {
     return null;
   }
@@ -74,10 +79,9 @@ Future<MainApiSession?> _restoreMainApiSessionIfNeededInternal({
       refreshToken: refreshToken,
     );
     final authMethod = session.authMethod ?? refreshedSession.authMethod;
-    await MainApiSettingsStore.saveSession(
-      refreshedSession.copyWith(authMethod: authMethod),
-    );
-    return refreshedSession.copyWith(authMethod: authMethod);
+    final merged = refreshedSession.copyWith(authMethod: authMethod);
+    await MainApiSettingsStore.saveSession(merged);
+    return merged;
   } catch (error) {
     if (error is MainApiClientException &&
         (error.statusCode == 401 || error.statusCode == 403)) {

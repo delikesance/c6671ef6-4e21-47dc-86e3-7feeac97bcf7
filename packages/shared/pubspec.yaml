@@ -1,0 +1,25 @@
+name: bot_creator_shared
+description: Shared bot logic between the Flutter app and the CLI runner.
+license: LGPL-3.0-or-later
+publish_to: none
+version: 0.0.8
+resolution: workspace
+
+environment:
+  sdk: ^3.12.0
+
+dependencies:
+  nyxx: ^6.9.0
+  http: ^1.6.0
+  logging: ^1.3.0
+  crypto: ^3.0.6
+  image: ^4.5.0
+  nyxx_lavalink: ^4.1.0
+
+dependency_overrides:
+  lavalink:
+    path: ./local_dependencies/lavalink
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.25.8

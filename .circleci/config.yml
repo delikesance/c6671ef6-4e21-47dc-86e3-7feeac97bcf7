@@ -107,13 +107,12 @@ commands:
           name: Clean stale caches
           command: |
             cd ~/project
-            rm -rf .dart_tool packages/app/.dart_tool packages/runner/.dart_tool
+            rm -rf .dart_tool packages/app/.dart_tool packages/runner/.dart_tool packages/shared/.dart_tool
       - run:
           name: Get dependencies
           command: |
-            cd ~/project/packages/app
+            cd ~/project
             flutter pub get
-            dart pub upgrade bot_creator_shared
 
   get_flutter_deps_windows:
     steps:
@@ -122,14 +121,13 @@ commands:
           shell: bash.exe
           command: |
             cd ~/project
-            rm -rf .dart_tool packages/app/.dart_tool packages/runner/.dart_tool
+            rm -rf .dart_tool packages/app/.dart_tool packages/runner/.dart_tool packages/shared/.dart_tool
       - run:
           name: Get dependencies
           shell: bash.exe
           command: |
-            cd ~/project/packages/app
+            cd ~/project
             flutter pub get
-            dart pub upgrade bot_creator_shared
 
 # ── Jobs ──────────────────────────────────────────────────────────────────
 jobs:

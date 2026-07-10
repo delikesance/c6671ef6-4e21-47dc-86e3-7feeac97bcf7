@@ -8,6 +8,7 @@ on:
     paths:
       - "Dockerfile"
       - "packages/runner/**"
+      - "packages/shared/**"
   workflow_dispatch:
     inputs:
       publish:
@@ -41,14 +42,6 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
-
-      - name: Remove dependency overrides
-        run: |
-          sed -i '/dependency_overrides:/,$d' pubspec.yaml
-          # Swap SSH for HTTPS in runner pubspec
-          sed -i 's/git@github.com:/https:\/\/github.com\//g' packages/runner/pubspec.yaml
-
-
 
       - name: Set build configuration
         id: config

@@ -8,8 +8,29 @@ void main() {
 
   setUp(() async {
     SharedPreferences.setMockInitialValues(const <String, Object>{});
+    MainApiSettingsStore.invalidateSessionCache();
     await MainApiSettingsStore.clearSession();
     await MainApiSettingsStore.clearConfig();
+  });
+
+  test('cached session is returned without refresh when still valid', () async {
+    await MainApiSettingsStore.saveConfig(
+      const MainApiConfig(baseUrl: 'https://api.example.com'),
+    );
+    await MainApiSettingsStore.saveSession(
+      MainApiSession(
+        accessToken: 'valid-token',
+        expiresAt: DateTime.now().toUtc().add(const Duration(days: 7)),
+        refreshToken: 'refresh-token',
+        authMethod: MainApiAuthMethod.discordOauth,
+      ),
+    );
+
+    final loaded = await loadMainApiSession();
+    final ensured = await loadMainApiSession();
+
+    expect(loaded?.accessToken, 'valid-token');
+    expect(ensured?.accessToken, 'valid-token');
   });
 
   test('expired session without refresh token is cleared on restore', () async {

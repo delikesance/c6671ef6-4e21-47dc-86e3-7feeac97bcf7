@@ -139,19 +139,18 @@ Desktop supports `--dart-define` overrides for OAuth values (e.g., client id/sec
 
 ## Development notes
 
-* Main entrypoint: `lib/main.dart`
-* App/workspace navigation: `lib/routes/`
-* Discord runtime + command handling: `lib/utils/bot.dart`
-* Action system: `lib/actions/` and `lib/types/action.dart`
-* Persistence: `lib/utils/database.dart`
-* Drive sync: `lib/utils/drive.dart`
+This is a mono-repo workspace with three Dart packages:
 
-Inside `pubspec.yaml` add : 
-```yaml
-dependency_overrides:
-  bot_creator_shared:
-    path: packages/shared
-```
+* `packages/app` — Flutter UI (`bot_creator`)
+* `packages/runner` — CLI runner (`bot_creator_runner`)
+* `packages/shared` — shared bot logic (`bot_creator_shared`)
+
+From the repository root, run `flutter pub get` to resolve all workspace dependencies. No separate clone of `bot-creator-shared` is required.
+
+* Main app entrypoint: `packages/app/lib/main.dart`
+* Discord runtime + command handling: `packages/app/lib/features/bot_editor/logic/bot.dart`
+* Action system: `packages/shared/lib/actions/` and `packages/shared/lib/types/action.dart`
+* Persistence: `packages/app/lib/core/storage/database.dart`
 
 ## License
 

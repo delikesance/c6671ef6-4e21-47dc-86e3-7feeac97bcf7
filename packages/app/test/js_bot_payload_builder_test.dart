@@ -1,0 +1,105 @@
+import 'dart:io';
+
+import 'package:bot_creator/features/bot_editor/logic/js_bot_payload_builder.dart';
+import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
+import 'package:bot_creator/features/bot_editor/logic/workflow_call.dart';
+import 'package:bot_creator/main.dart';
+import 'package:bot_creator/core/storage/database.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+
+const MethodChannel _pathProviderChannel = MethodChannel(
+  'plugins.flutter.io/path_provider',
+);
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  late Directory documentsDir;
+  const botId = 'js-payload-test-bot';
+
+  setUpAll(() async {
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+    SharedPreferences.setMockInitialValues(const {});
+    documentsDir = await Directory.systemTemp.createTemp('js_payload_test');
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(_pathProviderChannel, (call) async {
+      return documentsDir.path;
+    });
+    appManager = AppManager();
+  });
+
+  tearDownAll(() async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(_pathProviderChannel, null);
+    if (await documentsDir.exists()) {
+      try {
+        await documentsDir.delete(recursive: true);
+      } catch (_) {}
+    }
+  });
+
+  setUp(() async {
+    await appManager.saveApp(botId, <String, dynamic>{
+      'id': botId,
+      'username': 'JsBot',
+      'token': 'test-token',
+      'runtimeEngine': runtimeEngineJavascript,
+      'prefix': '!',
+      'workflows': <Map<String, dynamic>>[],
+    });
+  });
+
+  test('includes javascript event workflows in payload events array', () async {
+    await appManager.saveWorkflow(
+      botId,
+      name: 'on-message',
+      actions: const <Map<String, dynamic>>[],
+      workflowType: workflowTypeEvent,
+      eventTrigger: <String, dynamic>{'event': 'messageCreate'},
+      executionMode: workflowExecutionModeJavascript,
+      jsScriptContent: 'await message.reply("hello");',
+    );
+
+    final payload = await buildJsBotPayload(botId);
+
+    expect(payload['events'], hasLength(1));
+    final event = (payload['events'] as List).first as Map<String, dynamic>;
+    expect(event['name'], 'messageCreate');
+    expect(event['script'], 'await message.reply("hello");');
+    expect(payload.containsKey('prefix'), isFalse);
+  });
+
+  test('omits prefix when no legacy commands exist', () async {
+    await appManager.saveWorkflow(
+      botId,
+      name: 'on-message',
+      actions: const <Map<String, dynamic>>[],
+      workflowType: workflowTypeEvent,
+      eventTrigger: <String, dynamic>{'event': 'messageCreate'},
+      executionMode: workflowExecutionModeJavascript,
+      jsScriptContent: 'console.log(message.content);',
+    );
+
+    final payload = await buildJsBotPayload(botId);
+    expect(payload.containsKey('prefix'), isFalse);
+  });
+
+  test('includes prefix when slash commands exist and prefix is configured', () async {
+    await appManager.saveAppCommand(botId, 'ping', <String, dynamic>{
+      'id': 'ping',
+      'name': 'ping',
+      'enabled': true,
+      'data': <String, dynamic>{
+        'executionMode': 'javascript',
+        'jsScriptContent': 'await interaction.reply("pong");',
+      },
+    });
+
+    final payload = await buildJsBotPayload(botId);
+    expect(payload['prefix'], '!');
+  });
+}

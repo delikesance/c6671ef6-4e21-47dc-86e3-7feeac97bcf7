@@ -41,34 +41,40 @@ const jsEditorSnippets = <JsEditorSnippet>[
         'client.login("TOKEN");\n',
   ),
   JsEditorSnippet(
-    label: 'db.get',
-    insert: "const value = await db.get('coins');",
+    label: 'db.user.get',
+    insert: "const coins = await db.user.get('coins');",
   ),
   JsEditorSnippet(
-    label: 'db.getUser',
-    insert: "const coins = await db.get('coins', { userId: interaction.user.id });",
+    label: 'db.user.set',
+    insert: "await db.user.set('coins', 0);",
   ),
   JsEditorSnippet(
-    label: 'db.getGuild',
-    insert: "const score = await db.get('score', { guildId: interaction.guildId });",
+    label: 'db.user.setId',
+    insert: "await db.user.set('coins', 0, interaction.user.id);",
   ),
   JsEditorSnippet(
-    label: 'db.set',
-    insert: "await db.set('coins', 0, { userId: interaction.user.id });",
+    label: 'db.guild.get',
+    insert: "const score = await db.guild.get('score');",
   ),
   JsEditorSnippet(
-    label: 'db.list',
+    label: 'db.user.list',
     insert:
-        "const leaderboard = await db.list('coins', {\n"
-        '  guildId: interaction.guildId,\n'
-        "  sort: 'value',\n"
-        "  order: 'desc',\n"
-        '});\n'
-        '// → { "userId": coins, ... } sorted highest first',
+        "const leaderboard = await db.user.list('coins', 'desc', 10, 0);\n"
+        '// → [{ id: "userId", value: coins }, ...]',
+  ),
+  JsEditorSnippet(
+    label: 'db.user.find',
+    insert:
+        "const richUsers = await db.user.find((entry) => Number(entry.value) >= 100);",
   ),
   JsEditorSnippet(
     label: 'db.global',
     insert: "await db.global.set('counter', 1);\nconst n = await db.global.get('counter');",
+  ),
+  JsEditorSnippet(
+    label: 'message.reply',
+    insert: 'await message.reply("");',
+    cursorOffset: 24,
   ),
 ];
 

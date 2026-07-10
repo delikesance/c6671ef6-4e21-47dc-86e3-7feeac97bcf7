@@ -277,6 +277,9 @@ class WorkflowEntryPointBlock extends StatefulWidget {
     this.customIdFilter = '',
     this.onCustomIdFilterChanged,
     this.flat = false,
+    this.executionMode = 'workflow',
+    this.onExecutionModeChanged,
+    this.showJavascriptMode = false,
   });
 
   /// Whether to render without card borders/margins and colored header bar.
@@ -301,6 +304,11 @@ class WorkflowEntryPointBlock extends StatefulWidget {
 
   final String customIdFilter;
   final ValueChanged<String>? onCustomIdFilterChanged;
+
+  /// `'workflow'` for visual blocks, `'javascript'` for JS scripts.
+  final String executionMode;
+  final ValueChanged<String>? onExecutionModeChanged;
+  final bool showJavascriptMode;
 
   @override
   State<WorkflowEntryPointBlock> createState() =>
@@ -412,6 +420,35 @@ class _WorkflowEntryPointBlockState extends State<WorkflowEntryPointBlock> {
               isDense: true,
             ),
             onChanged: widget.onCustomIdFilterChanged,
+          ),
+        ],
+
+        if (widget.onExecutionModeChanged != null && widget.showJavascriptMode) ...[
+          const SizedBox(height: 12),
+          Text(
+            context.tr.scratch_execution_mode,
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+          ),
+          const SizedBox(height: 8),
+          SegmentedButton<String>(
+            segments: <ButtonSegment<String>>[
+              ButtonSegment<String>(
+                value: 'workflow',
+                label: Text(context.tr.scratch_mode_blocks),
+                icon: const Icon(Icons.view_agenda),
+              ),
+              ButtonSegment<String>(
+                value: 'javascript',
+                label: Text(context.tr.cmd_execution_mode_javascript),
+                icon: const Icon(Icons.code),
+              ),
+            ],
+            selected: <String>{
+              widget.executionMode == 'javascript' ? 'javascript' : 'workflow',
+            },
+            onSelectionChanged: (selection) {
+              widget.onExecutionModeChanged!(selection.first);
+            },
           ),
         ],
 

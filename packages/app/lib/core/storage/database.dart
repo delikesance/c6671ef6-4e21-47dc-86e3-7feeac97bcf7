@@ -1860,6 +1860,8 @@ class AppManager implements BotDataStore {
     Map<String, dynamic>? eventTrigger,
     String? folder,
     Map<String, String>? eventVariableAliases,
+    String? executionMode,
+    String? jsScriptContent,
   }) async {
     final app = Map<String, dynamic>.from(await getApp(id));
     final workflows = _coerceWorkflowList(app['workflows']);
@@ -1899,16 +1901,25 @@ class AppManager implements BotDataStore {
         (existing?['eventVariableAliases'] as Map<String, dynamic>?)
             ?.map((k, v) => MapEntry(k.toString(), v.toString()));
 
+    final resolvedExecutionMode = normalizeWorkflowExecutionMode(
+      executionMode ?? existing?['executionMode'],
+    );
+    final resolvedJsScript = normalizeWorkflowJsScriptContent(
+      jsScriptContent ?? existing?['jsScriptContent'],
+    );
+
     final payload = <String, dynamic>{
       'name': normalizedName,
       'actions': List<Map<String, dynamic>>.from(actions),
       'workflowType': normalizedWorkflowType,
       'entryPoint': normalizedEntryPoint,
       'arguments': normalizedArguments,
+      'executionMode': resolvedExecutionMode,
       'updatedAt': DateTime.now().toIso8601String(),
       if (resolvedFolder.isNotEmpty) 'folder': resolvedFolder,
       if (resolvedAliases != null && resolvedAliases.isNotEmpty)
         'eventVariableAliases': resolvedAliases,
+      if (resolvedJsScript.isNotEmpty) 'jsScriptContent': resolvedJsScript,
     };
 
     if (normalizedWorkflowType == workflowTypeEvent) {
