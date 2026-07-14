@@ -1,53 +1,42 @@
 import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator_shared/utils/application_intent_sync.dart';
 import 'package:bot_creator_shared/utils/intent_resolver.dart';
+import 'package:http/http.dart' as http;
 
-/// Outcome of fetching portal intents, including auto-enable status.
+/// Outcome of fetching portal intents from the Developer Portal.
 class PortalIntentFetchOutcome {
   const PortalIntentFetchOutcome({
     required this.intents,
-    this.autoEnabled = false,
-    this.verifiedBotManualRequired = false,
-    this.autoEnableFailed = false,
+    this.missingPrivilegedIntents = const [],
   });
 
   final Map<String, bool> intents;
-  final bool autoEnabled;
-  final bool verifiedBotManualRequired;
-  final bool autoEnableFailed;
+  final List<String> missingPrivilegedIntents;
 }
 
 /// Fetches the current portal-enabled intents map for a bot token.
-///
-/// Attempts to auto-enable missing privileged intents via PATCH when allowed.
 Future<Map<String, bool>> fetchPortalIntents(String token) async {
   final outcome = await fetchPortalIntentsWithOutcome(token);
   return outcome.intents;
 }
 
-/// Like [fetchPortalIntents] but exposes auto-enable status for UI feedback.
+/// Like [fetchPortalIntents] but exposes missing privileged intent keys for UI feedback.
 Future<PortalIntentFetchOutcome> fetchPortalIntentsWithOutcome(
-  String token,
-) async {
-  try {
-    final result = await fetchPortalEnabledPrivilegedIntents(token);
-    return PortalIntentFetchOutcome(
-      intents: buildPortalIntentsMapFromPrivileged(result.enabled),
-      autoEnabled: result.didAutoEnable,
-    );
-  } on PortalIntentAutoEnableError {
-    final privileged = await readPortalEnabledPrivilegedIntents(token);
-    return PortalIntentFetchOutcome(
-      intents: buildPortalIntentsMapFromPrivileged(privileged),
-      verifiedBotManualRequired: true,
-    );
-  } on PortalIntentPatchFailedException {
-    final privileged = await readPortalEnabledPrivilegedIntents(token);
-    return PortalIntentFetchOutcome(
-      intents: buildPortalIntentsMapFromPrivileged(privileged),
-      autoEnableFailed: true,
-    );
-  }
+  String token, {
+  http.Client? client,
+}) async {
+  final result = await fetchPortalEnabledPrivilegedIntents(
+    token,
+    client: client,
+  );
+  final intents = buildPortalIntentsMapFromPrivileged(result.enabled);
+  final missing = privilegedIntentKeys
+      .where((key) => intents[key] != true)
+      .toList(growable: false);
+  return PortalIntentFetchOutcome(
+    intents: intents,
+    missingPrivilegedIntents: missing,
+  );
 }
 
 bool intentsMapsEqual(Map<String, bool> a, Map<String, bool> b) {

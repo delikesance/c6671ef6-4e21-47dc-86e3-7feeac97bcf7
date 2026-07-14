@@ -6,25 +6,14 @@ void showPortalIntentOutcomeSnackbars(
   BuildContext context,
   PortalIntentFetchOutcome outcome,
 ) {
-  final messenger = ScaffoldMessenger.of(context);
+  if (outcome.missingPrivilegedIntents.isEmpty) {
+    return;
+  }
 
-  if (outcome.autoEnabled) {
-    messenger.showSnackBar(
-      SnackBar(content: Text(context.tr.bot_settings_intents_auto_enabled)),
-    );
-  }
-  if (outcome.verifiedBotManualRequired) {
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text(context.tr.bot_settings_intents_verified_bot_manual),
-      ),
-    );
-  }
-  if (outcome.autoEnableFailed) {
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text(context.tr.bot_settings_intents_auto_enable_failed),
-      ),
-    );
-  }
+  final messenger = ScaffoldMessenger.of(context);
+  messenger.showSnackBar(
+    SnackBar(
+      content: Text(context.tr.bot_settings_intents_verified_bot_manual),
+    ),
+  );
 }

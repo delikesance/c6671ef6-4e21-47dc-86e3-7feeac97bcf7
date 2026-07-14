@@ -108,52 +108,12 @@ class BotSession {
     BotConfig config, {
     List<String>? warnings,
   }) async {
-    final restClient = await Nyxx.connectRest(_token);
-
-    try {
-      var currentApp = await restClient.applications.fetchCurrentApplication();
-
-      // Si les 3 intents limités ne sont pas encore tous activés
-      if (portalEnabledPrivilegedIntentsFromApplication(currentApp).length <
-          3) {
-        final botUser = await restClient.user.fetch();
-        final isVerified = botUser.flags?.has(UserFlags.verifiedBot) ?? false;
-
-        if (!isVerified) {
-          warnings?.add(
-            'Bot is not Verified — some privileged intents may be unavailable',
-          );
-        }
-
-        // On combine en toute sécurité avec l'existant pour ne rien écraser d'autre
-        final newFlags =
-            (currentApp.flags) |
-            ApplicationFlags.gatewayGuildMembersLimited |
-            ApplicationFlags.gatewayPresenceLimited |
-            ApplicationFlags.gatewayMessageContentLimited;
-
-        final appBuilder = ApplicationUpdateBuilder(flags: newFlags);
-
-        // Mise à jour via l'API (autorisée pour les versions _LIMITED)
-        currentApp = await restClient.applications.updateCurrentApplication(
-          appBuilder,
-        );
-      }
-
-      // Retour unique et propre
-      return buildEffectiveIntentsMap(
-        config: config,
-        portalEnabledPrivileged: portalEnabledPrivilegedIntentsFromApplication(
-          currentApp,
-        ),
-        warnings: warnings,
-      );
-    } catch (e) {
-      // Loggez l'erreur ici si la mise à jour échoue de manière inattendue
-      rethrow;
-    } finally {
-      await restClient.close();
-    }
+    final portalEnabled = await readPortalEnabledPrivilegedIntents(_token);
+    return buildEffectiveIntentsMap(
+      config: config,
+      portalEnabledPrivileged: portalEnabled,
+      warnings: warnings,
+    );
   }
 
   /// Starts the bot gateway connection and initializes all managers.
@@ -176,6 +136,12 @@ class BotSession {
     }
 
     final intents = buildGatewayIntents(effectiveIntents);
+
+    final enabledNames = enabledIntentNames(effectiveIntents);
+    callbacks.onLog?.call(
+      '[DiscordCache] Minimal cache enabled; intents: ${enabledNames.isEmpty ? 'Guilds only' : enabledNames.join(', ')}',
+      botId: botId,
+    );
 
     callbacks.onLog?.call('Starting bot gateway...', botId: botId);
 
@@ -279,7 +245,14 @@ class BotSession {
       // and automatically stops the session so the runner reports it as disconnected.
       final shardMessageSub = _gateway!.gateway.messages.listen((msg) {
         if (msg is Disconnecting) {
-          callbacks.onDisconnected?.call(msg.reason, botId: botId);
+          final reason = formatGatewayDisconnectMessage(msg.reason);
+          if (isDiscordGatewayDisallowedIntents(null, reason)) {
+            callbacks.onLog?.call(
+              'Disallowed intents (4014): $reason',
+              botId: botId,
+            );
+          }
+          callbacks.onDisconnected?.call(reason, botId: botId);
           stop();
         }
       });

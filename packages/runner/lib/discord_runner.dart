@@ -36,7 +36,11 @@ class DiscordRunner {
         },
         isDebugReplayCapturing: (botId) => _engine.isDebugReplayCapturing(botId),
         onDisconnected: (reason, {required botId}) {
-          _log.warning('Permanent disconnection: $reason');
+          if (isDiscordGatewayDisallowedIntents(null, reason)) {
+            _log.warning('Disallowed intents (4014): $reason');
+          } else {
+            _log.warning('Permanent disconnection: $reason');
+          }
           onDisconnected?.call(reason);
         },
       ),

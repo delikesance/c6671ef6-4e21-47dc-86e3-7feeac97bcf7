@@ -1657,6 +1657,10 @@ class RunnerWebBootstrapServer {
       bots[s.botId] = {
         'connected': s.state == 'running',
         'state': s.state,
+        'rssBytes': s.baselineRssBytes,
+        'guildCount': null,
+        'pid': null,
+        'lastError': s.lastError,
       };
     }
     return {'bots': bots};

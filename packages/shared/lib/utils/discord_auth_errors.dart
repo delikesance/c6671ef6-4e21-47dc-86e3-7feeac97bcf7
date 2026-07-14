@@ -9,10 +9,47 @@ class DiscordTokenUnauthorizedException implements Exception {
   String toString() => message;
 }
 
+const _gatewayDisallowedIntentsCode = '4014';
+
+/// Returns whether [error] or [reason] indicates disallowed gateway intents (4014).
+bool isDiscordGatewayDisallowedIntents(
+  Object? error, [
+  String? reason,
+]) {
+  if (error != null) {
+    final message = error.toString().toLowerCase();
+    if (message.contains('disallowed intent')) {
+      return true;
+    }
+    if (_messageContainsGatewayCode(message, _gatewayDisallowedIntentsCode)) {
+      return true;
+    }
+  }
+
+  final normalized = (reason ?? '').toLowerCase();
+  if (normalized.contains('disallowed intent')) {
+    return true;
+  }
+  return _messageContainsGatewayCode(normalized, _gatewayDisallowedIntentsCode);
+}
+
+/// Formats a gateway disconnect [reason] into a clear, actionable message.
+String formatGatewayDisconnectMessage(String reason) {
+  if (isDiscordGatewayDisallowedIntents(null, reason)) {
+    return 'Disallowed intents (4014) — enable the required intents in '
+        'Discord Developer Portal → Bot → Privileged Gateway Intents';
+  }
+  return reason.trim().isEmpty ? 'Gateway disconnected' : reason.trim();
+}
+
 /// Returns whether [error] indicates an invalid or unauthorized Discord bot token.
 bool isDiscordTokenUnauthorized(Object error) {
   if (error is DiscordTokenUnauthorizedException) {
     return true;
+  }
+
+  if (isDiscordGatewayDisallowedIntents(error)) {
+    return false;
   }
 
   final message = error.toString().toLowerCase();
@@ -41,6 +78,15 @@ Never throwIfDiscordTokenUnauthorized(Object error, {String? context}) {
   );
 }
 
+bool _messageContainsGatewayCode(String message, String code) {
+  return message.contains(code) &&
+      (message.contains('disconnect') ||
+          message.contains('close') ||
+          message.contains('gateway') ||
+          message.contains('auth') ||
+          message.contains('disallowed'));
+}
+
 bool _looksLikeDiscordRestUnauthorized(String message) {
   final hasUnauthorized =
       message.contains('unauthorized') || message.contains('forbidden');
@@ -66,21 +112,20 @@ bool _looksLikeDiscordRestUnauthorized(String message) {
 }
 
 bool _looksLikeGatewayAuthFailure(String message) {
+  if (isDiscordGatewayDisallowedIntents(null, message)) {
+    return false;
+  }
+
   const fatalCodes = <String>[
     '4004', // authentication failed
     '4010', // invalid shard
     '4011', // sharding required
     '4012', // invalid api version
     '4013', // invalid intents
-    '4014', // disallowed intents
   ];
 
   for (final code in fatalCodes) {
-    if (message.contains(code) &&
-        (message.contains('disconnect') ||
-            message.contains('close') ||
-            message.contains('gateway') ||
-            message.contains('auth'))) {
+    if (_messageContainsGatewayCode(message, code)) {
       return true;
     }
   }

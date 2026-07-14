@@ -103,12 +103,16 @@ class RunnerRuntimeController {
 
   RunnerBotRuntimeState runtimeStateForBot(String botId) {
     final running = _runners.containsKey(botId);
+    final lastError = _lastErrorByBot[botId];
+    final state = running
+        ? 'running'
+        : (lastError != null && lastError.trim().isNotEmpty ? 'error' : 'stopped');
     return RunnerBotRuntimeState(
       botId: botId,
       botName: _botNames[botId] ?? botId,
-      state: running ? 'running' : 'stopped',
+      state: state,
       lastSeenAt: _lastSeenAtByBot[botId],
-      lastError: _lastErrorByBot[botId],
+      lastError: lastError,
       baselineRssBytes: _baselineRssByBot[botId],
       tokenInvalid: _tokenInvalidBots.contains(botId),
     );
@@ -249,7 +253,8 @@ class RunnerRuntimeController {
     _runners.remove(botId);
     _lastSeenAtByBot[botId] = DateTime.now().toUtc();
     _lastErrorByBot[botId] = reason;
-    if (isDiscordTokenUnauthorized(reason)) {
+    if (!isDiscordGatewayDisallowedIntents(null, reason) &&
+        isDiscordTokenUnauthorized(reason)) {
       _tokenInvalidBots.add(botId);
     }
     unawaited(_botStore.setRunning(botId, false));
