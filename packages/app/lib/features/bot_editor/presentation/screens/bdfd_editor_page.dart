@@ -1,4 +1,5 @@
-import 'package:bot_creator/features/bot_editor/presentation/screens/bdfd_docs.dart';
+import 'package:bot_creator/features/documentation/documentation_navigation.dart';
+import 'package:bot_creator/features/documentation/documentation_urls.dart';
 import 'package:bot_creator/core/models/types/app_emoji.dart';
 
 import 'package:bot_creator_shared/utils/bdfd_autocomplete.dart';
@@ -887,9 +888,9 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
             tooltip: context.tr.bdfd_editor_docs,
             icon: const Icon(Icons.menu_book, color: Colors.white70),
             onPressed: () {
-              Navigator.push(
+              openDocumentationHub(
                 context,
-                MaterialPageRoute<void>(builder: (_) => const BdfdDocsPage()),
+                initialSection: DocumentationSection.botCreatorDocs,
               );
             },
           ),

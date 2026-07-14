@@ -665,11 +665,6 @@ List<String> get commandBuiltinVariableNames => commandBuiltinVariableCatalog
     .map((entry) => entry.name)
     .toList(growable: false);
 
-List<String> get commandBuiltinVariableDocumentationLines =>
-    commandBuiltinVariableCatalog
-        .map((entry) => '${entry.name}: ${entry.description}')
-        .toList(growable: false);
-
 List<VariableSuggestion> get builtinCommandVariableSuggestions =>
     commandBuiltinVariableCatalog
         .map((entry) => VariableSuggestion(

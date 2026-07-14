@@ -170,6 +170,10 @@ jobs:
       - run:
           name: Fetch embedded JS runner (Linux)
           command: |
+            if [ -n "${CIRCLE_TAG:-}" ] && [ -z "${RUNNER_JS_RELEASE_TAG:-}" ]; then
+              echo "RUNNER_JS_RELEASE_TAG must be set for tagged release builds" >&2
+              exit 1
+            fi
             if [ -n "${RUNNER_JS_RELEASE_TAG:-}" ]; then
               cd ~/project
               chmod +x scripts/fetch-embedded-runner-js.sh
@@ -199,6 +203,21 @@ jobs:
               echo "Linux executable not found: $BINARY_PATH" >&2; exit 1
             fi
             chmod +x "$BINARY_PATH"
+            if [ -n "${RUNNER_JS_RELEASE_TAG:-}" ] || [ -n "${CIRCLE_TAG:-}" ]; then
+              EMBEDDED_ASSET="data/flutter_assets/assets/embedded-runner-js/bot-creator-runner-js-linux-x64"
+              if [ ! -f "$BUNDLE_DIR/$EMBEDDED_ASSET" ]; then
+                echo "Embedded runner binary missing: $BUNDLE_DIR/$EMBEDDED_ASSET" >&2
+                exit 1
+              fi
+              EMBEDDED_SIZE="$(stat -c%s "$BUNDLE_DIR/$EMBEDDED_ASSET")"
+              if [ "$EMBEDDED_SIZE" -lt 1048576 ]; then
+                echo "Embedded runner binary too small ($EMBEDDED_SIZE bytes): $BUNDLE_DIR/$EMBEDDED_ASSET" >&2
+                exit 1
+              fi
+              echo "Embedded runner binary verified ($EMBEDDED_SIZE bytes)"
+            else
+              echo "Skipping embedded runner verification (dev/PR build)"
+            fi
       - run:
           name: Package Linux bundle
           command: |
@@ -320,6 +339,10 @@ jobs:
       - run:
           name: Fetch embedded JS runner (macOS)
           command: |
+            if [ -n "${CIRCLE_TAG:-}" ] && [ -z "${RUNNER_JS_RELEASE_TAG:-}" ]; then
+              echo "RUNNER_JS_RELEASE_TAG must be set for tagged release builds" >&2
+              exit 1
+            fi
             if [ -n "${RUNNER_JS_RELEASE_TAG:-}" ]; then
               cd ~/project
               chmod +x scripts/fetch-embedded-runner-js.sh
@@ -354,6 +377,29 @@ jobs:
             - ~/.cocoapods
             - ~/Library/Caches/CocoaPods
             - packages/app/macos/Pods
+      - run:
+          name: Verify macOS embedded runner asset
+          command: |
+            cd ~/project/packages/app
+            if [ -z "${RUNNER_JS_RELEASE_TAG:-}" ] && [ -z "${CIRCLE_TAG:-}" ]; then
+              echo "Skipping embedded runner verification (dev/PR build)"
+              exit 0
+            fi
+            APP_PATH=$(find build/macos/Build/Products/Release -maxdepth 1 -name '*.app' -print -quit)
+            if [ -z "$APP_PATH" ]; then
+              echo "No macOS app bundle found." >&2; exit 1
+            fi
+            EMBEDDED_ASSET="Contents/Frameworks/App.framework/Resources/flutter_assets/assets/embedded-runner-js/bot-creator-runner-js-macos-arm64"
+            if [ ! -f "$APP_PATH/$EMBEDDED_ASSET" ]; then
+              echo "Embedded runner binary missing: $APP_PATH/$EMBEDDED_ASSET" >&2
+              exit 1
+            fi
+            EMBEDDED_SIZE="$(stat -f%z "$APP_PATH/$EMBEDDED_ASSET")"
+            if [ "$EMBEDDED_SIZE" -lt 1048576 ]; then
+              echo "Embedded runner binary too small ($EMBEDDED_SIZE bytes): $APP_PATH/$EMBEDDED_ASSET" >&2
+              exit 1
+            fi
+            echo "Embedded runner binary verified ($EMBEDDED_SIZE bytes)"
       - run:
           name: Package macOS app bundle
           command: |
@@ -402,6 +448,10 @@ jobs:
           name: Fetch embedded JS runner (Windows)
           shell: bash.exe
           command: |
+            if [ -n "${CIRCLE_TAG:-}" ] && [ -z "${RUNNER_JS_RELEASE_TAG:-}" ]; then
+              echo "RUNNER_JS_RELEASE_TAG must be set for tagged release builds" >&2
+              exit 1
+            fi
             if [ -n "${RUNNER_JS_RELEASE_TAG:-}" ]; then
               cd ~/project
               chmod +x scripts/fetch-embedded-runner-js.sh
@@ -419,6 +469,27 @@ jobs:
           command: |
             cd ~/project/packages/app
             flutter build windows --release
+      - run:
+          name: Verify Windows embedded runner asset
+          shell: bash.exe
+          command: |
+            cd ~/project/packages/app
+            if [ -z "${RUNNER_JS_RELEASE_TAG:-}" ] && [ -z "${CIRCLE_TAG:-}" ]; then
+              echo "Skipping embedded runner verification (dev/PR build)"
+              exit 0
+            fi
+            BUNDLE_DIR="build/windows/x64/runner/Release"
+            EMBEDDED_ASSET="data/flutter_assets/assets/embedded-runner-js/bot-creator-runner-js-win.exe"
+            if [ ! -f "$BUNDLE_DIR/$EMBEDDED_ASSET" ]; then
+              echo "Embedded runner binary missing: $BUNDLE_DIR/$EMBEDDED_ASSET" >&2
+              exit 1
+            fi
+            EMBEDDED_SIZE="$(wc -c < "$BUNDLE_DIR/$EMBEDDED_ASSET" | tr -d ' ')"
+            if [ "$EMBEDDED_SIZE" -lt 1048576 ]; then
+              echo "Embedded runner binary too small ($EMBEDDED_SIZE bytes): $BUNDLE_DIR/$EMBEDDED_ASSET" >&2
+              exit 1
+            fi
+            echo "Embedded runner binary verified ($EMBEDDED_SIZE bytes)"
 
       # ── ZIP ──
       - run:

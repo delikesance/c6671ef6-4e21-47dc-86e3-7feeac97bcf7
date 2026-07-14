@@ -31,6 +31,7 @@ import 'package:bot_creator/core/diagnostics/recovery_manager.dart';
 import 'package:bot_creator/core/network/runner_kind.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
+import 'package:bot_creator/core/runner/embedded_js_runner_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:googleapis/drive/v3.dart';
@@ -72,6 +73,7 @@ class _SettingPageState extends State<SettingPage> {
   bool _runnerTemporarilyDisabled = false;
   RunnerKind _runnerKind = RunnerKind.auto;
   bool _useRemoteRunner = false;
+  String? _embeddedRunnerStatusLabel;
   String? _runnerEngineLabel;
   String? _runnerVersionLabel;
   bool _mainApiSectionExpanded = false;
@@ -292,10 +294,38 @@ class _SettingPageState extends State<SettingPage> {
       _useRemoteRunner = config != null;
       _runnerEngineLabel = null;
       _runnerVersionLabel = null;
+      _embeddedRunnerStatusLabel = _embeddedRunnerStatusText();
     });
     if (_showsRemoteRunnerConfig && config != null && !isDisabled) {
       await _checkRunnerConnection();
     }
+  }
+
+  String _embeddedRunnerStatusText() {
+    if (!_isDesktopPlatform) {
+      return '';
+    }
+
+    final service = EmbeddedJsRunnerService.instance;
+    if (service.isRunning) {
+      final baseUrl = service.baseUrl;
+      return baseUrl == null
+          ? 'Running'
+          : 'Running at $baseUrl';
+    }
+
+    final error = service.lastStartupError;
+    if (error != null && error.isNotEmpty) {
+      final phase = service.lastStartupPhase;
+      final phaseSuffix =
+          phase == null || phase.isEmpty ? '' : ' (phase: $phase)';
+      final logPath = service.logPath;
+      final logSuffix =
+          logPath == null || logPath.isEmpty ? '' : '\nLog: $logPath';
+      return 'Failed$phaseSuffix: $error$logSuffix';
+    }
+
+    return 'Not started';
   }
 
   Future<void> _toggleUseRemoteRunner(bool enabled) async {
@@ -2359,6 +2389,24 @@ class _SettingPageState extends State<SettingPage> {
                                   _runnerTemporarilyDisabled || _isBusy
                                       ? null
                                       : _toggleUseRemoteRunner,
+                            ),
+                            ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              leading: Icon(
+                                EmbeddedJsRunnerService.instance.isRunning
+                                    ? Icons.check_circle_outline
+                                    : Icons.error_outline,
+                                color:
+                                    EmbeddedJsRunnerService.instance.isRunning
+                                        ? AppTheme.successLight
+                                        : AppTheme.errorLight,
+                              ),
+                              title: const Text('Embedded JS Runner'),
+                              subtitle: Text(
+                                _embeddedRunnerStatusLabel ??
+                                    _embeddedRunnerStatusText(),
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
                             ),
                             const SizedBox(height: 8),
                           ],

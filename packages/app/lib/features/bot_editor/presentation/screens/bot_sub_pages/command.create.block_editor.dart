@@ -655,7 +655,7 @@ extension _CommandBlockEditor on _CommandCreatePageState {
             ),
             TextButton(
               onPressed: _openDocumentationCenter,
-              child: Text(context.tr.doc_template_variables_title),
+              child: Text(context.tr.docs_tab_bot_creator),
             ),
           ],
         ),

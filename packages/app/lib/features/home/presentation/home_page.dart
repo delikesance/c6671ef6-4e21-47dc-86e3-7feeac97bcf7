@@ -1363,12 +1363,18 @@ class HomePageState extends State<HomePage>
             final runnerConfig =
                 await RunnerSettings.resolveConfigForBot(botId);
             if (runnerConfig == null) {
+              final startupDetail =
+                  RunnerSettings.embeddedRunnerStartupFailureDetail();
+              final detailSuffix =
+                  startupDetail == null || startupDetail.isEmpty
+                      ? ''
+                      : ' ($startupDetail)';
               throw Exception(
                 _uiCopy(
                   fr:
-                      'Le runner JS embarque n\'a pas pu demarrer. Relancez completement l\'application (pas un hot reload).',
+                      'Le runner JS embarque n\'a pas pu demarrer. Relancez completement l\'application (pas un hot reload).$detailSuffix',
                   en:
-                      'The embedded JS runner could not start. Fully restart the app (not hot reload).',
+                      'The embedded JS runner could not start. Fully restart the app (not hot reload).$detailSuffix',
                 ),
               );
             }
