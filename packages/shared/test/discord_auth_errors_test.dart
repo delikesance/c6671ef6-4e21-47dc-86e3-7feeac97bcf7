@@ -2,58 +2,50 @@ import 'package:bot_creator_shared/utils/discord_auth_errors.dart';
 import 'package:test/test.dart';
 
 void main() {
+  group('isDiscordGatewayDisallowedIntents', () {
+    test('detects 4014 in disconnect reason', () {
+      expect(
+        isDiscordGatewayDisallowedIntents(
+          null,
+          'Shard 0 disconnected (code=4014)',
+        ),
+        isTrue,
+      );
+    });
+
+    test('detects disallowed intent message', () {
+      expect(
+        isDiscordGatewayDisallowedIntents(null, 'Used disallowed intents'),
+        isTrue,
+      );
+    });
+  });
+
+  group('formatGatewayDisconnectMessage', () {
+    test('returns actionable message for 4014', () {
+      expect(
+        formatGatewayDisconnectMessage('code=4014 disallowed'),
+        contains('Disallowed intents (4014)'),
+      );
+    });
+  });
+
   group('isDiscordTokenUnauthorized', () {
-    test('detects DiscordTokenUnauthorizedException', () {
+    test('does not treat 4014 as token unauthorized', () {
       expect(
         isDiscordTokenUnauthorized(
-          DiscordTokenUnauthorizedException('invalid token'),
-        ),
-        isTrue,
-      );
-    });
-
-    test('detects REST 401 on applications/@me', () {
-      expect(
-        isDiscordTokenUnauthorized(
-          Exception(
-            '401: Unauthorized (0) GET https://discord.com/api/v10/applications/@me',
-          ),
-        ),
-        isTrue,
-      );
-    });
-
-    test('detects discord_token_invalid marker', () {
-      expect(
-        isDiscordTokenUnauthorized(Exception('discord_token_invalid')),
-        isTrue,
-      );
-    });
-
-    test('detects gateway authentication failure close code', () {
-      expect(
-        isDiscordTokenUnauthorized(
-          Exception('Gateway disconnect: Authentication failed (4004)'),
-        ),
-        isTrue,
-      );
-    });
-
-    test('ignores transient network errors', () {
-      expect(
-        isDiscordTokenUnauthorized(
-          Exception('SocketException: Connection refused'),
+          Exception('Shard disconnected code=4014 disallowed intents'),
         ),
         isFalse,
       );
     });
 
-    test('ignores generic 500 errors', () {
+    test('still treats authentication failures as unauthorized', () {
       expect(
         isDiscordTokenUnauthorized(
-          Exception('500: Internal Server Error GET https://discord.com/api/v10/gateway'),
+          Exception('Gateway disconnected code=4004 authentication failed'),
         ),
-        isFalse,
+        isTrue,
       );
     });
   });

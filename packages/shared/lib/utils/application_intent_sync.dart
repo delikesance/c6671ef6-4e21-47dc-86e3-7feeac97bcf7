@@ -14,7 +14,6 @@ const _applicationFlagGatewayGuildMembersLimited = 1 << 14;
 const _applicationFlagGatewayGuildMembers = 1 << 15;
 const _applicationFlagGatewayMessageContentLimited = 1 << 18;
 const _applicationFlagGatewayMessageContent = 1 << 19;
-const _userFlagVerifiedBot = 1 << 16;
 
 /// Thrown when the bot is verified and privileged intents cannot be enabled via API.
 class PortalIntentAutoEnableError implements Exception {
@@ -68,33 +67,15 @@ Set<String> portalEnabledPrivilegedIntentsFromApplication(Application app) {
   return portalEnabledPrivilegedIntentsFromFlags(app.flags.value);
 }
 
-/// Full intents map reflecting portal-enabled privileged keys.
+/// Full intents map reflecting portal-enabled privileged keys (Guilds baseline only).
 Map<String, bool> buildPortalIntentsMapFromPrivileged(
   Set<String> portalPrivileged,
 ) {
-  return {
-    'Guilds': true,
-    'Guild Messages': true,
-    'Direct Messages': true,
-    'Guild Message Reactions': true,
-    'Direct Message Reactions': true,
-    'Guild Message Typing': true,
-    'Direct Message Typing': true,
-    'Guild Scheduled Events': true,
-    'Auto Moderation Configuration': true,
-    'Auto Moderation Execution': true,
-    'Guild Moderation': true,
-    'Guild Expressions': true,
-    'Guild Integrations': true,
-    'Guild Webhooks': true,
-    'Guild Invites': true,
-    'Guild Voice States': true,
-    'Guild Message Polls': true,
-    'Direct Message Polls': true,
-    'Guild Members': portalPrivileged.contains('Guild Members'),
-    'Guild Presence': portalPrivileged.contains('Guild Presence'),
-    'Message Content': portalPrivileged.contains('Message Content'),
-  };
+  final intents = <String, bool>{'Guilds': true};
+  for (final key in portalPrivileged) {
+    intents[key] = true;
+  }
+  return intents;
 }
 
 /// Full intents map reflecting portal flags (non-privileged always on).
@@ -132,8 +113,7 @@ class PortalPrivilegedIntentSyncResult {
   final bool didAutoEnable;
 }
 
-/// Fetches portal-enabled privileged intents, auto-enabling missing LIMITED flags
-/// via PATCH /applications/@me when allowed.
+/// Fetches portal-enabled privileged intents (read-only; never PATCHes the portal).
 ///
 /// Business logic is mirrored in runner-js `application-intent-sync.ts`.
 Future<PortalPrivilegedIntentSyncResult> fetchPortalEnabledPrivilegedIntents(
@@ -144,62 +124,9 @@ Future<PortalPrivilegedIntentSyncResult> fetchPortalEnabledPrivilegedIntents(
   final ownsClient = client == null;
 
   try {
-    var flags = await _fetchApplicationFlags(token, client: httpClient);
-    var enabled = portalEnabledPrivilegedIntentsFromFlags(flags);
-
-    if (enabled.length >= privilegedIntentKeys.length) {
-      return PortalPrivilegedIntentSyncResult(enabled: enabled);
-    }
-
-    final userFlags = await _fetchUserFlags(token, client: httpClient);
-    if ((userFlags & _userFlagVerifiedBot) != 0) {
-      throw const PortalIntentAutoEnableError();
-    }
-
-    final hasMembers = enabled.contains('Guild Members');
-    final hasPresence = enabled.contains('Guild Presence');
-    final hasMessageContent = enabled.contains('Message Content');
-
-    var patchFlags = flags;
-    if (!hasMembers) {
-      patchFlags |= _applicationFlagGatewayGuildMembersLimited;
-    }
-    if (!hasPresence) {
-      patchFlags |= _applicationFlagGatewayPresenceLimited;
-    }
-    if (!hasMessageContent) {
-      patchFlags |= _applicationFlagGatewayMessageContentLimited;
-    }
-
-    if (patchFlags == flags) {
-      return PortalPrivilegedIntentSyncResult(enabled: enabled);
-    }
-
-    final patchResponse = await httpClient.patch(
-      Uri.parse('$_discordApiBase/applications/@me'),
-      headers: {
-        'Authorization': 'Bot $token',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({'flags': patchFlags}),
-    );
-
-    if (patchResponse.statusCode == 401) {
-      throw DiscordTokenUnauthorizedException(
-        'Failed to update application flags via PATCH '
-        '(${patchResponse.statusCode})',
-      );
-    }
-
-    if (patchResponse.statusCode < 200 || patchResponse.statusCode >= 300) {
-      throw PortalIntentPatchFailedException(patchResponse.statusCode);
-    }
-
-    enabled = {...enabled, ...privilegedIntentKeys};
-    return PortalPrivilegedIntentSyncResult(
-      enabled: enabled,
-      didAutoEnable: true,
-    );
+    final flags = await _fetchApplicationFlags(token, client: httpClient);
+    final enabled = portalEnabledPrivilegedIntentsFromFlags(flags);
+    return PortalPrivilegedIntentSyncResult(enabled: enabled);
   } finally {
     if (ownsClient) {
       httpClient.close();
@@ -236,33 +163,6 @@ Future<int> _fetchApplicationFlags(
   return flags is int ? flags : int.tryParse(flags?.toString() ?? '') ?? 0;
 }
 
-Future<int> _fetchUserFlags(
-  String token, {
-  required http.Client client,
-}) async {
-  final response = await client.get(
-    Uri.parse('$_discordApiBase/users/@me'),
-    headers: {'Authorization': 'Bot $token'},
-  );
-
-  if (response.statusCode == 401 || response.statusCode == 403) {
-    throw DiscordTokenUnauthorizedException(
-      'Failed to fetch user info (${response.statusCode})',
-    );
-  }
-  if (response.statusCode < 200 || response.statusCode >= 300) {
-    throw Exception('Failed to fetch user info (${response.statusCode})');
-  }
-
-  final body = jsonDecode(response.body);
-  if (body is! Map) {
-    throw Exception('Invalid user response from Discord API');
-  }
-
-  final flags = body['flags'];
-  return flags is int ? flags : int.tryParse(flags?.toString() ?? '') ?? 0;
-}
-
 bool botConfigHasLegacyCommands(BotConfig config) {
   if (config.builtInLegacyHelpEnabled) {
     return true;
@@ -289,11 +189,6 @@ Map<String, bool> buildEffectiveIntentsMap({
   required Set<String> portalEnabledPrivileged,
   List<String>? warnings,
 }) {
-  final portalMap = <String, bool>{
-    for (final key in allIntentKeys) key: !privilegedIntentKeys.contains(key),
-    for (final key in portalEnabledPrivileged) key: true,
-  };
-
   final requiredKeys = resolveRequiredIntentKeys(
     eventWorkflows: config.workflows,
     hasLegacyCommands: botConfigHasLegacyCommands(config),
@@ -301,14 +196,54 @@ Map<String, bool> buildEffectiveIntentsMap({
     warnings: warnings,
   );
 
-  final effective = Map<String, bool>.from(portalMap);
-  for (final key in privilegedIntentKeys) {
-    effective[key] =
-        requiredKeys.contains(key) && portalEnabledPrivileged.contains(key);
+  final effective = <String, bool>{
+    for (final key in allIntentKeys) key: false,
+  };
+  effective['Guilds'] = true;
+
+  for (final key in requiredKeys) {
+    if (privilegedIntentKeys.contains(key)) {
+      effective[key] = portalEnabledPrivileged.contains(key);
+    } else {
+      effective[key] = true;
+    }
   }
 
   return effective;
 }
+
+/// Human-readable list of enabled intent keys from an effective map.
+List<String> enabledIntentNames(Map<String, bool> effectiveMap) {
+  return effectiveMap.entries
+      .where((entry) => entry.value)
+      .map((entry) => entry.key)
+      .toList()
+    ..sort();
+}
+
+final _intentKeyToGatewayBit = <String, Flag<GatewayIntents>>{
+  'Guilds': GatewayIntents.guilds,
+  'Guild Members': GatewayIntents.guildMembers,
+  'Guild Moderation': GatewayIntents.guildModeration,
+  'Guild Expressions': GatewayIntents.guildEmojisAndStickers,
+  'Guild Integrations': GatewayIntents.guildIntegrations,
+  'Guild Webhooks': GatewayIntents.guildWebhooks,
+  'Guild Invites': GatewayIntents.guildInvites,
+  'Guild Voice States': GatewayIntents.guildVoiceStates,
+  'Guild Presence': GatewayIntents.guildPresences,
+  'Guild Messages': GatewayIntents.guildMessages,
+  'Guild Message Reactions': GatewayIntents.guildMessageReactions,
+  'Guild Message Typing': GatewayIntents.guildMessageTyping,
+  'Direct Messages': GatewayIntents.directMessages,
+  'Direct Message Reactions': GatewayIntents.directMessageReactions,
+  'Direct Message Typing': GatewayIntents.directMessageTyping,
+  'Message Content': GatewayIntents.messageContent,
+  'Guild Scheduled Events': GatewayIntents.guildScheduledEvents,
+  'Auto Moderation Configuration': GatewayIntents.autoModerationConfiguration,
+  'Auto Moderation Execution': GatewayIntents.autoModerationExecution,
+  'Guild Message Polls': GatewayIntents.guildMessagePolls,
+  'Direct Message Polls': GatewayIntents.directMessagePolls,
+};
 
 /// Safe fallback when portal sync fails: strip all privileged intents.
 Map<String, bool> buildSafeFallbackIntentsMap({
@@ -329,16 +264,20 @@ Map<String, bool> buildSafeFallbackIntentsMap({
 
 /// Builds the gateway intent bitmask from an effective intents map.
 Flags<GatewayIntents> buildGatewayIntents(Map<String, bool> effectiveMap) {
-  Flags<GatewayIntents> intents = GatewayIntents.allUnprivileged;
+  var intents = Flags<GatewayIntents>(0);
 
-  if (effectiveMap['Guild Members'] == true) {
-    intents |= GatewayIntents.guildMembers;
+  for (final entry in effectiveMap.entries) {
+    if (entry.value != true) {
+      continue;
+    }
+    final bit = _intentKeyToGatewayBit[entry.key];
+    if (bit != null) {
+      intents |= bit;
+    }
   }
-  if (effectiveMap['Guild Presence'] == true) {
-    intents |= GatewayIntents.guildPresences;
-  }
-  if (effectiveMap['Message Content'] == true) {
-    intents |= GatewayIntents.messageContent;
+
+  if (intents.value == 0) {
+    intents |= GatewayIntents.guilds;
   }
 
   return intents;

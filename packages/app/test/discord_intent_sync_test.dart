@@ -8,85 +8,32 @@ import 'package:http/testing.dart';
 import 'package:test/test.dart';
 
 const _membersLimited = 1 << 14;
-const _presenceLimited = 1 << 12;
-const _messageContentLimited = 1 << 18;
-const _verifiedBot = 1 << 16;
 
 void main() {
   group('fetchPortalIntentsWithOutcome', () {
-    test('returns autoEnabled when privileged intents are patched', () async {
+    test('returns portal intents without auto-enabling', () async {
       final client = MockClient((request) async {
         if (request.method == 'GET' &&
             request.url.path.endsWith('/applications/@me')) {
-          return http.Response(jsonEncode({'flags': 0}), 200);
-        }
-        if (request.method == 'GET' && request.url.path.endsWith('/users/@me')) {
-          return http.Response(jsonEncode({'flags': 0}), 200);
+          return http.Response(jsonEncode({'flags': _membersLimited}), 200);
         }
         if (request.method == 'PATCH') {
-          return http.Response(
-            jsonEncode({
-              'flags':
-                  _membersLimited | _presenceLimited | _messageContentLimited,
-            }),
-            200,
-          );
+          fail('PATCH should not be called');
         }
         return http.Response('not found', 404);
       });
 
-      final outcome = await fetchPortalEnabledPrivilegedIntents(
+      final outcome = await fetchPortalIntentsWithOutcome(
         'token',
         client: client,
-      ).then(
-        (result) => PortalIntentFetchOutcome(
-          intents: buildPortalIntentsMapFromPrivileged(result.enabled),
-          autoEnabled: result.didAutoEnable,
-        ),
       );
 
-      expect(outcome.autoEnabled, isTrue);
-      expect(hasAllPrivilegedIntents(outcome.intents), isTrue);
-    });
-
-    test('maps verified bot auto-enable failure to manual outcome', () async {
-      final client = MockClient((request) async {
-        if (request.method == 'GET' &&
-            request.url.path.endsWith('/applications/@me')) {
-          return http.Response(jsonEncode({'flags': 0}), 200);
-        }
-        if (request.method == 'GET' && request.url.path.endsWith('/users/@me')) {
-          return http.Response(jsonEncode({'flags': _verifiedBot}), 200);
-        }
-        return http.Response('not found', 404);
+      expect(outcome.intents['Guilds'], isTrue);
+      expect(outcome.intents['Guild Members'], isTrue);
+      expect(outcome.missingPrivilegedIntents, {
+        'Guild Presence',
+        'Message Content',
       });
-
-      Future<PortalIntentFetchOutcome> loadOutcome() async {
-        try {
-          final result = await fetchPortalEnabledPrivilegedIntents(
-            'token',
-            client: client,
-          );
-          return PortalIntentFetchOutcome(
-            intents: buildPortalIntentsMapFromPrivileged(result.enabled),
-            autoEnabled: result.didAutoEnable,
-          );
-        } on PortalIntentAutoEnableError {
-          final privileged = await readPortalEnabledPrivilegedIntents(
-            'token',
-            client: client,
-          );
-          return PortalIntentFetchOutcome(
-            intents: buildPortalIntentsMapFromPrivileged(privileged),
-            verifiedBotManualRequired: true,
-          );
-        }
-      }
-
-      final outcome = await loadOutcome();
-
-      expect(outcome.verifiedBotManualRequired, isTrue);
-      expect(outcome.intents['Message Content'], isFalse);
     });
   });
 
