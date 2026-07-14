@@ -239,6 +239,15 @@ class RunnerSettings {
     return embedded;
   }
 
+  /// User-facing detail when the embedded runner failed to start.
+  static String? embeddedRunnerStartupFailureDetail() {
+    final service = EmbeddedJsRunnerService.instance;
+    if (service.isRunning) {
+      return null;
+    }
+    return service.lastStartupError;
+  }
+
   static Future<void> _persistEmbeddedRunnerAvailability(
     RunnerConnectionConfig embedded,
   ) async {

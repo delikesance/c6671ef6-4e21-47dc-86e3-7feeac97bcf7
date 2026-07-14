@@ -34,6 +34,7 @@ import 'package:bot_creator/core/network/main_api_session_restore.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
+import 'package:bot_creator/core/runner/embedded_js_runner_service.dart';
 import 'package:bot_creator/features/subscriptions/logic/hosted_app_subscription_service.dart';
 import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
 import 'package:bot_creator/features/onboarding/logic/onboarding_manager.dart';
@@ -355,6 +356,37 @@ Future<void> _warmUpServicesAfterLaunch() async {
     timeout: const Duration(seconds: 5),
     action: () async {
       await RunnerSettings.loadAssociations();
+    },
+  );
+
+  await _runStartupTask(
+    label: 'Embedded JS runner startup',
+    timeout: const Duration(seconds: 45),
+    action: () async {
+      if (!kIsWeb &&
+          (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
+        final embedded = await RunnerSettings.prepareEmbeddedJsRunner();
+        final service = EmbeddedJsRunnerService.instance;
+        if (embedded == null) {
+          await AppDiagnostics.logError(
+            'Embedded JS runner failed to start on desktop warm-up',
+            service.lastStartupError ?? 'unknown',
+            StackTrace.current,
+            fatal: false,
+            information:
+                'phase=${service.lastStartupPhase ?? 'unknown'}; '
+                'logPath=${service.logPath ?? 'n/a'}',
+          );
+        } else {
+          await AppDiagnostics.logInfo(
+            'Embedded JS runner warm-up succeeded',
+            data: <String, Object?>{
+              'baseUrl': embedded.url,
+              'logPath': service.logPath,
+            },
+          );
+        }
+      }
     },
   );
 

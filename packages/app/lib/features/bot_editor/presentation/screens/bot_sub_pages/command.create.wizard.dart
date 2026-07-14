@@ -240,7 +240,7 @@ extension _CommandCreateWizard on _CommandCreatePageState {
           child: TextButton.icon(
             onPressed: _openDocumentationCenter,
             icon: const Icon(Icons.menu_book_outlined),
-            label: Text(context.tr.cmd_show_variables),
+            label: Text(context.tr.docs_tab_bot_creator),
           ),
         ),
       ],

@@ -47,6 +47,89 @@ void main() {
     });
   });
 
+  group('packagedEmbeddedRunnerAssetCandidates', () {
+    test('includes flutter_assets and macOS bundle layouts', () {
+      const assetPath =
+          'assets/embedded-runner-js/bot-creator-runner-js-linux-x64';
+      final candidates = packagedEmbeddedRunnerAssetCandidates(assetPath);
+
+      expect(
+        candidates.any((path) => path.contains('data/flutter_assets/$assetPath')),
+        isTrue,
+      );
+      expect(
+        candidates.any(
+          (path) => path.contains('App.framework/Resources/flutter_assets'),
+        ),
+        isTrue,
+      );
+      expect(
+        candidates.any((path) => path.contains('Resources/flutter_assets')),
+        isTrue,
+      );
+    });
+  });
+
+  group('isEmbeddedRunnerBinaryFileValid', () {
+    test('rejects files smaller than 1 MiB', () async {
+      final dir = await Directory.systemTemp.createTemp('embedded-runner-test');
+      final file = File('${dir.path}/small.bin');
+      await file.writeAsBytes(List.filled(1024, 0));
+
+      expect(await isEmbeddedRunnerBinaryFileValid(file), isFalse);
+
+      await dir.delete(recursive: true);
+    });
+
+    test('accepts files at or above 1 MiB', () async {
+      final dir = await Directory.systemTemp.createTemp('embedded-runner-test');
+      final file = File('${dir.path}/valid.bin');
+      await file.writeAsBytes(List.filled(embeddedRunnerMinBinaryBytes, 9));
+
+      expect(await isEmbeddedRunnerBinaryFileValid(file), isTrue);
+
+      await dir.delete(recursive: true);
+    });
+  });
+
+  group('resolvePackagedEmbeddedRunnerAsset', () {
+    test('finds a valid binary placed on a candidate path', () async {
+      const assetPath =
+          'assets/embedded-runner-js/bot-creator-runner-js-linux-x64';
+      final candidates = packagedEmbeddedRunnerAssetCandidates(assetPath);
+      expect(candidates, isNotEmpty);
+
+      final dir = await Directory.systemTemp.createTemp('embedded-runner-test');
+      final source = File('${dir.path}/${assetPath.split('/').last}');
+      await source.writeAsBytes(List.filled(embeddedRunnerMinBinaryBytes, 3));
+
+      String? resolved;
+      for (final candidate in candidates) {
+        final file = File(candidate);
+        await file.parent.create(recursive: true);
+        if (await file.exists()) {
+          await file.delete();
+        }
+        await source.copy(candidate);
+        resolved = await resolvePackagedEmbeddedRunnerAsset(assetPath);
+        if (resolved != null) {
+          break;
+        }
+      }
+
+      expect(resolved, isNotNull);
+      expect(await isEmbeddedRunnerBinaryFileValid(File(resolved!)), isTrue);
+
+      await dir.delete(recursive: true);
+      if (resolved != null) {
+        final resolvedFile = File(resolved);
+        if (await resolvedFile.parent.exists()) {
+          await resolvedFile.parent.delete(recursive: true);
+        }
+      }
+    });
+  });
+
   group('downloadEmbeddedRunnerLatestRelease', () {
     test('returns bytes when response is valid', () async {
       final payload = List<int>.filled(embeddedRunnerMinBinaryBytes, 7);

@@ -9,7 +9,8 @@ import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command_option_serialization.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command_option_validation.dart';
-import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/workflow_docs.page.dart';
+import 'package:bot_creator/features/documentation/documentation_navigation.dart';
+import 'package:bot_creator/features/documentation/documentation_urls.dart';
 import 'package:bot_creator/core/models/types/app_emoji.dart';
 import 'package:bot_creator_shared/types/action.dart' show BotCreatorActionType;
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder/action_type_extension.dart';
@@ -1337,13 +1338,10 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   }
 
   void _openDocumentationCenter() {
-    Navigator.push(
+    openDocumentationHubForBot(
       context,
-      MaterialPageRoute<void>(
-        builder: (_) => const WorkflowDocumentationPage(
-          initialSearch: 'commandType target opts template variables',
-        ),
-      ),
+      botId: _botIdForConfig,
+      initialSection: DocumentationSection.botCreatorDocs,
     );
   }
 

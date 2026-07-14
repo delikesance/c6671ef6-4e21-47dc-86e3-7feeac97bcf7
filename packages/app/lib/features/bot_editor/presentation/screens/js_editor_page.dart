@@ -5,6 +5,8 @@ import 'package:bot_creator/core/js_editor/js_completion_index.dart';
 import 'package:bot_creator/core/js_editor/js_editor_snippets.dart';
 import 'package:bot_creator/core/js_editor/js_syntax_controller.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/features/documentation/documentation_navigation.dart';
+import 'package:bot_creator/features/documentation/documentation_urls.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -264,6 +266,17 @@ class _JsEditorPageState extends State<JsEditorPage> {
         ),
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
+          IconButton(
+            tooltip: context.tr.bdfd_editor_docs,
+            icon: const Icon(Icons.menu_book, color: Colors.white70),
+            onPressed: () {
+              openDocumentationHub(
+                context,
+                initialSection: DocumentationSection.discordJs,
+                showDiscordJsTab: true,
+              );
+            },
+          ),
           TextButton(
             onPressed: _done,
             child: Text(
