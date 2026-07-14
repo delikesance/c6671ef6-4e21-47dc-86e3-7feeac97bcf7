@@ -56,8 +56,10 @@ class RunnerWebBootstrapServer {
     required this.logStore,
     VariableDatabase? variableStore,
     String? dataDir,
+    RunnerRuntimeController? runtimeController,
   }) : _apiToken = normalizeRunnerApiToken(apiToken),
-       _runtimeController = RunnerRuntimeController(dataDir: dataDir),
+       _runtimeController =
+           runtimeController ?? RunnerRuntimeController(dataDir: dataDir),
        _injectedVariableStore = variableStore,
        _dataDir = dataDir {
     if (_injectedVariableStore != null) {
@@ -1657,9 +1659,9 @@ class RunnerWebBootstrapServer {
       bots[s.botId] = {
         'connected': s.state == 'running',
         'state': s.state,
-        'rssBytes': s.baselineRssBytes,
-        'guildCount': null,
-        'pid': null,
+        'rssBytes': s.rssBytes,
+        'guildCount': s.guildCount,
+        'pid': s.pid,
         'lastError': s.lastError,
       };
     }
@@ -1677,6 +1679,9 @@ class RunnerWebBootstrapServer {
       'state': state.state,
       'lastSeenAt': state.lastSeenAt?.toIso8601String(),
       'lastError': state.lastError,
+      'rssBytes': state.rssBytes,
+      'guildCount': state.guildCount,
+      'pid': state.pid,
       'baselineRssBytes': state.baselineRssBytes,
       'tokenInvalid': state.tokenInvalid,
     };

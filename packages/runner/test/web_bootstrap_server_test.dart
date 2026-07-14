@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:bot_creator_shared/bot/json_variable_store.dart';
 import 'package:bot_creator_runner/runner_bot_store.dart';
+import 'package:bot_creator_runner/runner_runtime_controller.dart';
 import 'package:bot_creator_runner/web_bootstrap_server.dart';
 import 'package:bot_creator_runner/web_log_store.dart';
 import 'package:http/http.dart' as http;
@@ -467,6 +468,40 @@ void main() {
       expect(response.statusCode, HttpStatus.conflict);
       final json = Map<String, dynamic>.from(jsonDecode(response.body) as Map);
       expect((json['error'] ?? '').toString(), contains('not running'));
+    });
+
+    test('running-status exposes per-bot rss, guild count, and pid', () async {
+      final port = await _allocatePort();
+      final controller = RunnerRuntimeController(dataDir: tempDir.path);
+      controller.seedBotMetricsForTest(
+        botId: 'pool-bot',
+        botName: 'Pool Bot',
+        baselineRssBytes: 48 * 1024 * 1024,
+        guildCount: 5,
+        rssBytes: 6 * 1024 * 1024,
+      );
+
+      server = RunnerWebBootstrapServer(
+        host: '127.0.0.1',
+        port: port,
+        logStore: RunnerLogStore(),
+        dataDir: tempDir.path,
+        runtimeController: controller,
+      );
+      await server!.start();
+
+      final response = await http.get(
+        Uri.parse('http://127.0.0.1:$port/bots/running-status'),
+      );
+
+      expect(response.statusCode, HttpStatus.ok);
+      final body = jsonDecode(response.body) as Map<String, dynamic>;
+      final bots = body['bots'] as Map<String, dynamic>;
+      final entry = bots['pool-bot'] as Map<String, dynamic>;
+
+      expect(entry['guildCount'], 5);
+      expect(entry['rssBytes'], 6 * 1024 * 1024);
+      expect(entry['pid'], pid);
     });
   });
 }

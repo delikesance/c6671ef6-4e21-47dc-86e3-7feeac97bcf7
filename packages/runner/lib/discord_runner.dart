@@ -15,13 +15,21 @@ class DiscordRunner {
   final RunnerDataStore store;
   final CommandStatsStore? statsStore;
   final void Function(String reason)? onDisconnected;
+  final void Function(BotRuntimeMetrics metrics, {required String botId})?
+  onMetrics;
   final Logger _log;
 
   late final BotEngine _engine;
   Timer? _scheduledWorkflowTimer;
   final Map<String, DateTime> _scheduledLastRun = <String, DateTime>{};
 
-  DiscordRunner(this.botId, this.config, {this.statsStore, this.onDisconnected})
+  DiscordRunner(
+    this.botId,
+    this.config, {
+    this.statsStore,
+    this.onDisconnected,
+    this.onMetrics,
+  })
     : store = RunnerDataStore(config, statsStore: statsStore),
       _log = Logger('bot:$botId') {
     _engine = BotEngine(
@@ -42,6 +50,9 @@ class DiscordRunner {
             _log.warning('Permanent disconnection: $reason');
           }
           onDisconnected?.call(reason);
+        },
+        onMetrics: (metrics, {required botId}) {
+          onMetrics?.call(metrics, botId: botId);
         },
       ),
     );

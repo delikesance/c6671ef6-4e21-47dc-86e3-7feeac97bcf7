@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:bot_creator_shared/bot/bot_config.dart';
+import 'package:bot_creator_shared/bot_creator_shared.dart';
 import 'package:bot_creator_shared/utils/discord_auth_errors.dart';
 import 'package:bot_creator_runner/discord_runner.dart';
 import 'package:bot_creator_runner/runner_bot_store.dart';
@@ -14,6 +15,9 @@ class RunnerBotRuntimeState {
     required this.state,
     required this.lastSeenAt,
     this.lastError,
+    this.rssBytes,
+    this.guildCount,
+    this.pid,
     this.baselineRssBytes,
     this.tokenInvalid = false,
   });
@@ -23,6 +27,9 @@ class RunnerBotRuntimeState {
   final String state;
   final DateTime? lastSeenAt;
   final String? lastError;
+  final int? rssBytes;
+  final int? guildCount;
+  final int? pid;
   final int? baselineRssBytes;
   final bool tokenInvalid;
 }
@@ -30,7 +37,8 @@ class RunnerBotRuntimeState {
 class RunnerRuntimeController {
   RunnerRuntimeController({RunnerBotStore? botStore, String? dataDir})
     : _botStore = botStore ?? RunnerBotStore(dataDir: dataDir),
-      _commandStatsStore = CommandStatsStore(dataDir ?? _resolveDataDir());
+      _commandStatsStore = CommandStatsStore(dataDir ?? _resolveDataDir()),
+      _processPid = pid;
 
   final RunnerBotStore _botStore;
   final CommandStatsStore _commandStatsStore;
@@ -45,10 +53,13 @@ class RunnerRuntimeController {
   final Map<String, DiscordRunner> _runners = <String, DiscordRunner>{};
   final Map<String, String> _botNames = <String, String>{};
   final Map<String, int?> _baselineRssByBot = <String, int?>{};
+  final Map<String, int?> _rssBytesByBot = <String, int?>{};
+  final Map<String, int?> _guildCountByBot = <String, int?>{};
   final Map<String, DateTime> _lastSeenAtByBot = <String, DateTime>{};
   final Map<String, String?> _lastErrorByBot = <String, String?>{};
   final Set<String> _busyBots = <String>{};
   final Set<String> _tokenInvalidBots = <String>{};
+  final int? _processPid;
 
   bool get isRunning => _runners.isNotEmpty;
   int get runningCount => _runners.length;
@@ -113,6 +124,9 @@ class RunnerRuntimeController {
       state: state,
       lastSeenAt: _lastSeenAtByBot[botId],
       lastError: lastError,
+      rssBytes: _rssBytesByBot[botId],
+      guildCount: _guildCountByBot[botId],
+      pid: _processPid,
       baselineRssBytes: _baselineRssByBot[botId],
       tokenInvalid: _tokenInvalidBots.contains(botId),
     );
@@ -125,9 +139,59 @@ class RunnerRuntimeController {
             ..._botNames.keys,
             ..._lastSeenAtByBot.keys,
             ..._lastErrorByBot.keys,
+            ..._guildCountByBot.keys,
+            ..._rssBytesByBot.keys,
           }.toList()
           ..sort();
     return ids.map(runtimeStateForBot).toList(growable: false);
+  }
+
+  void recordBotMetrics(String botId, BotRuntimeMetrics metrics) {
+    _guildCountByBot[botId] = metrics.guildCount;
+    _lastSeenAtByBot[botId] = DateTime.now().toUtc();
+    _refreshMarginalRss(botId);
+  }
+
+  /// Seeds per-bot metrics maps for tests and diagnostics.
+  void seedBotMetricsForTest({
+    required String botId,
+    required String botName,
+    required int baselineRssBytes,
+    int? guildCount,
+    int? rssBytes,
+    String? lastError,
+  }) {
+    _botNames[botId] = botName;
+    _baselineRssByBot[botId] = baselineRssBytes;
+    if (guildCount != null) {
+      _guildCountByBot[botId] = guildCount;
+    }
+    if (rssBytes != null) {
+      _rssBytesByBot[botId] = rssBytes;
+    }
+    if (lastError != null) {
+      _lastErrorByBot[botId] = lastError;
+    }
+    _lastSeenAtByBot[botId] = DateTime.now().toUtc();
+  }
+
+  /// Simulates a permanent gateway disconnect for tests.
+  void simulateBotDisconnectedForTest(String botId, String reason) {
+    _handleBotDisconnected(botId, reason);
+  }
+
+  void _refreshMarginalRss(String botId) {
+    final baseline = _baselineRssByBot[botId];
+    final current = _readCurrentProcessRssBytes();
+    if (baseline == null || current == null) {
+      return;
+    }
+    final delta = current - baseline;
+    _rssBytesByBot[botId] = delta > 0 ? delta : 0;
+  }
+
+  void _handleBotMetrics(String botId, BotRuntimeMetrics metrics) {
+    recordBotMetrics(botId, metrics);
   }
 
   /// Starts the bot identified by [botId] using the config persisted in the
@@ -193,6 +257,7 @@ class RunnerRuntimeController {
       config,
       statsStore: _commandStatsStore,
       onDisconnected: (reason) => _handleBotDisconnected(botId, reason),
+      onMetrics: (metrics, {required botId}) => _handleBotMetrics(botId, metrics),
     );
     try {
       if (!_statsInitialized) {
@@ -204,6 +269,7 @@ class RunnerRuntimeController {
       _botNames[botId] = (botName ?? '').trim().isEmpty ? botId : botName!;
       _baselineRssByBot[botId] =
           baselineRssBytes ?? _readCurrentProcessRssBytes();
+      _refreshMarginalRss(botId);
       _lastSeenAtByBot[botId] = DateTime.now().toUtc();
       _lastErrorByBot.remove(botId);
       _tokenInvalidBots.remove(botId);
@@ -765,6 +831,7 @@ class RunnerRuntimeController {
       config,
       statsStore: _commandStatsStore,
       onDisconnected: (reason) => _handleBotDisconnected(botId, reason),
+      onMetrics: (metrics, {required botId}) => _handleBotMetrics(botId, metrics),
     );
     try {
       await replacement.start();
