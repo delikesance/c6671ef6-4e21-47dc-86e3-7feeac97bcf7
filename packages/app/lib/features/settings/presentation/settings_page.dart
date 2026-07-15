@@ -25,6 +25,7 @@ import 'package:bot_creator/features/subscriptions/logic/hosted_app_subscription
 import 'package:bot_creator/features/subscriptions/presentation/subscriptions_hub_page.dart';
 import 'package:bot_creator/core/storage/drive.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
+import 'package:bot_creator/features/documentation/documentation_navigation.dart';
 
 import 'package:bot_creator/features/onboarding/logic/onboarding_manager.dart';
 import 'package:bot_creator/core/diagnostics/recovery_manager.dart';
@@ -32,6 +33,7 @@ import 'package:bot_creator/core/network/runner_kind.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:bot_creator/core/runner/embedded_js_runner_service.dart';
+import 'package:bot_creator/core/utils/external_link.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:googleapis/drive/v3.dart';
@@ -74,6 +76,7 @@ class _SettingPageState extends State<SettingPage> {
   RunnerKind _runnerKind = RunnerKind.auto;
   bool _useRemoteRunner = false;
   String? _embeddedRunnerStatusLabel;
+  EmbeddedRunnerDiagnostics? _embeddedRunnerDiagnostics;
   String? _runnerEngineLabel;
   String? _runnerVersionLabel;
   bool _mainApiSectionExpanded = false;
@@ -171,6 +174,9 @@ class _SettingPageState extends State<SettingPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(_settingsLifecycleObserver);
+    EmbeddedJsRunnerService.instance.downloadProgress.addListener(
+      _onEmbeddedRunnerDownloadProgress,
+    );
     _loadCachedSnapshotsFromCache();
     _loadRecoverySettings();
     _initializeDriveApi();
@@ -179,6 +185,7 @@ class _SettingPageState extends State<SettingPage> {
     _loadRuntimePreferences();
     if (_isDesktopPlatform) {
       _loadDiscordRpcSettings();
+      _refreshEmbeddedRunnerDiagnostics();
     } else {}
     _loadAdPrivacyRequirement();
   }
@@ -194,6 +201,9 @@ class _SettingPageState extends State<SettingPage> {
     _refreshingMainApiOnResume = true;
     try {
       await _loadMainApiSettings();
+      if (_isDesktopPlatform) {
+        await _refreshEmbeddedRunnerDiagnostics();
+      }
     } finally {
       _mainApiDebug('Resume refresh finished');
       _refreshingMainApiOnResume = false;
@@ -299,6 +309,105 @@ class _SettingPageState extends State<SettingPage> {
     if (_showsRemoteRunnerConfig && config != null && !isDisabled) {
       await _checkRunnerConnection();
     }
+    await _refreshEmbeddedRunnerDiagnostics();
+  }
+
+  Future<void> _refreshEmbeddedRunnerDiagnostics() async {
+    if (!_isDesktopPlatform) {
+      return;
+    }
+    final diagnostics = await EmbeddedJsRunnerService.instance.getDiagnostics();
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _embeddedRunnerDiagnostics = diagnostics;
+      _embeddedRunnerStatusLabel = _embeddedRunnerStatusText();
+    });
+  }
+
+  String _embeddedRunnerPrimaryStatusText() {
+    final service = EmbeddedJsRunnerService.instance;
+    if (service.isDownloading) {
+      return context.tr.settings_embedded_runner_status_downloading;
+    }
+    if (service.isRunning) {
+      final baseUrl = service.baseUrl;
+      if (baseUrl == null || baseUrl.isEmpty) {
+        return context.tr.settings_embedded_runner_status_running;
+      }
+      return context.tr.settings_embedded_runner_running_at(baseUrl);
+    }
+    final error = service.lastStartupError;
+    if (error != null && error.isNotEmpty) {
+      return context.tr.settings_embedded_runner_status_failed;
+    }
+    return context.tr.settings_embedded_runner_status_stopped;
+  }
+
+  String _truncateEmbeddedRunnerPath(String path) {
+    if (path.length <= 72) {
+      return path;
+    }
+    return '...${path.substring(path.length - 69)}';
+  }
+
+  String _embeddedRunnerExecutionModeHint() {
+    final lang = Localizations.localeOf(context).languageCode.toLowerCase();
+    if (lang.startsWith('fr')) {
+      return
+          'Les bots JavaScript utilisent toujours ce runner embarque. '
+          'Le mode d\'execution local desactive uniquement les runners distants '
+          'optionnels et le mode Dart local.';
+    }
+    return
+        'JavaScript bots always use this embedded runner. Local execution mode '
+        'only disables optional remote runners and Dart local mode.';
+  }
+
+  Future<void> _restartEmbeddedRunner() async {
+    await _runWithLoading(context.tr.settings_embedded_runner_restart, () async {
+      final config = await RunnerSettings.restartEmbeddedJsRunner();
+      await _refreshEmbeddedRunnerDiagnostics();
+      if (!mounted) {
+        return;
+      }
+      _showSnack(
+        config != null
+            ? context.tr.settings_embedded_runner_restart_success
+            : context.tr.settings_embedded_runner_restart_failed,
+      );
+    });
+  }
+
+  Future<void> _redownloadEmbeddedRunner() async {
+    await _runWithLoading(
+      context.tr.settings_embedded_runner_redownload,
+      () async {
+        final config = await RunnerSettings.redownloadEmbeddedJsRunner();
+        await _refreshEmbeddedRunnerDiagnostics();
+        if (!mounted) {
+          return;
+        }
+        _showSnack(
+          config != null
+              ? context.tr.settings_embedded_runner_redownload_success
+              : context.tr.settings_embedded_runner_redownload_failed,
+        );
+      },
+    );
+  }
+
+  Future<void> _openEmbeddedRunnerLog() async {
+    final logPath = _embeddedRunnerDiagnostics?.logPath ??
+        EmbeddedJsRunnerService.instance.logPath;
+    if (logPath == null || logPath.isEmpty) {
+      return;
+    }
+    final opened = await openExternalUrl(Uri.file(logPath));
+    if (!opened && mounted) {
+      _showSnack(context.tr.app_open_link_error);
+    }
   }
 
   String _embeddedRunnerStatusText() {
@@ -307,11 +416,24 @@ class _SettingPageState extends State<SettingPage> {
     }
 
     final service = EmbeddedJsRunnerService.instance;
+    final download = service.downloadProgress.value;
+    if (download != null) {
+      if (download.totalBytes != null) {
+        return context.tr.settings_embedded_runner_download_progress(
+          _formatEmbeddedRunnerDownloadBytes(download.receivedBytes),
+          _formatEmbeddedRunnerDownloadBytes(download.totalBytes!),
+        );
+      }
+      return context.tr.settings_embedded_runner_download_indeterminate(
+        _formatEmbeddedRunnerDownloadBytes(download.receivedBytes),
+      );
+    }
+
     if (service.isRunning) {
       final baseUrl = service.baseUrl;
       return baseUrl == null
-          ? 'Running'
-          : 'Running at $baseUrl';
+          ? context.tr.settings_embedded_runner_status_running
+          : context.tr.settings_embedded_runner_running_at(baseUrl);
     }
 
     final error = service.lastStartupError;
@@ -319,13 +441,10 @@ class _SettingPageState extends State<SettingPage> {
       final phase = service.lastStartupPhase;
       final phaseSuffix =
           phase == null || phase.isEmpty ? '' : ' (phase: $phase)';
-      final logPath = service.logPath;
-      final logSuffix =
-          logPath == null || logPath.isEmpty ? '' : '\nLog: $logPath';
-      return 'Failed$phaseSuffix: $error$logSuffix';
+      return '${context.tr.settings_embedded_runner_status_failed}$phaseSuffix: $error';
     }
 
-    return 'Not started';
+    return context.tr.settings_embedded_runner_status_stopped;
   }
 
   Future<void> _toggleUseRemoteRunner(bool enabled) async {
@@ -711,8 +830,28 @@ class _SettingPageState extends State<SettingPage> {
     }
   }
 
+  void _onEmbeddedRunnerDownloadProgress() {
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _embeddedRunnerStatusLabel = _embeddedRunnerStatusText();
+    });
+    unawaited(_refreshEmbeddedRunnerDiagnostics());
+  }
+
+  String _formatEmbeddedRunnerDownloadBytes(int bytes) {
+    if (bytes < 1024 * 1024) {
+      return '${(bytes / 1024).toStringAsFixed(0)} KB';
+    }
+    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+  }
+
   @override
   void dispose() {
+    EmbeddedJsRunnerService.instance.downloadProgress.removeListener(
+      _onEmbeddedRunnerDownloadProgress,
+    );
     WidgetsBinding.instance.removeObserver(_settingsLifecycleObserver);
     _discordRpcSnapshotSubscription?.cancel();
     _discordRpcClientIdController.dispose();
@@ -1437,6 +1576,137 @@ class _SettingPageState extends State<SettingPage> {
     );
   }
 
+  Widget _buildEmbeddedRunnerCard() {
+    final service = EmbeddedJsRunnerService.instance;
+    final diagnostics = _embeddedRunnerDiagnostics;
+    final download = service.downloadProgress.value;
+    final logPath = diagnostics?.logPath ?? service.logPath;
+    final binaryPath = diagnostics?.binaryPath;
+    final binarySize = diagnostics?.binarySizeBytes;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  service.isDownloading
+                      ? Icons.download_outlined
+                      : service.isRunning
+                      ? Icons.check_circle_outline
+                      : Icons.memory_outlined,
+                  color:
+                      service.isDownloading
+                          ? Theme.of(context).colorScheme.primary
+                          : service.isRunning
+                          ? AppTheme.successLight
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    context.tr.settings_embedded_runner_title,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              _embeddedRunnerPrimaryStatusText(),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            if (download != null) ...[
+              const SizedBox(height: 10),
+              LinearProgressIndicator(
+                value: download.fraction,
+                minHeight: 6,
+                borderRadius: BorderRadius.circular(3),
+              ),
+              const SizedBox(height: 6),
+            ],
+            Text(
+              _embeddedRunnerStatusLabel ?? _embeddedRunnerStatusText(),
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            if (diagnostics?.version != null &&
+                diagnostics!.version!.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(
+                '${context.tr.settings_runner_version}: v${diagnostics.version}',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+            if (binaryPath != null && binarySize != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                context.tr.settings_embedded_runner_binary_info(
+                  _formatEmbeddedRunnerDownloadBytes(binarySize),
+                  _truncateEmbeddedRunnerPath(binaryPath),
+                ),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+            if (diagnostics?.lastError != null &&
+                diagnostics!.lastError!.isNotEmpty &&
+                !service.isRunning) ...[
+              const SizedBox(height: 8),
+              Text(
+                diagnostics.lastError!,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: AppTheme.errorLight,
+                ),
+              ),
+            ],
+            if (_runnerTemporarilyDisabled && service.isRunning) ...[
+              const SizedBox(height: 8),
+              Text(
+                _embeddedRunnerExecutionModeHint(),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                OutlinedButton.icon(
+                  onPressed: _isBusy ? null : _restartEmbeddedRunner,
+                  icon: const Icon(Icons.refresh),
+                  label: Text(context.tr.settings_embedded_runner_restart),
+                ),
+                OutlinedButton.icon(
+                  onPressed: _isBusy ? null : _redownloadEmbeddedRunner,
+                  icon: const Icon(Icons.download_outlined),
+                  label: Text(context.tr.settings_embedded_runner_redownload),
+                ),
+                if (logPath != null && logPath.isNotEmpty)
+                  TextButton.icon(
+                    onPressed: _isBusy ? null : _openEmbeddedRunnerLog,
+                    icon: const Icon(Icons.description_outlined),
+                    label: Text(context.tr.settings_embedded_runner_open_log),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   String _autoBackupIntervalLabel(int hours) {
     switch (hours) {
       case 6:
@@ -1916,6 +2186,9 @@ class _SettingPageState extends State<SettingPage> {
                   ),
                   const SizedBox(height: 32),
 
+                  const _DocumentationCard(),
+                  const SizedBox(height: 16),
+
                   // ── Support Discord card ────────────────────────────────────
                   _SupportDiscordCard(),
                   const SizedBox(height: 16),
@@ -2320,6 +2593,10 @@ class _SettingPageState extends State<SettingPage> {
                   if (!_isManagedMobilePlatform) ...[
                     _buildDesktopRuntimeCard(),
                     const SizedBox(height: 16),
+                    if (_isDesktopPlatform) ...[
+                      _buildEmbeddedRunnerCard(),
+                      const SizedBox(height: 16),
+                    ],
                   ],
                   if (!_isManagedMobilePlatform && !_runnerTemporarilyDisabled)
                     Card(
@@ -2389,24 +2666,6 @@ class _SettingPageState extends State<SettingPage> {
                                   _runnerTemporarilyDisabled || _isBusy
                                       ? null
                                       : _toggleUseRemoteRunner,
-                            ),
-                            ListTile(
-                              contentPadding: EdgeInsets.zero,
-                              leading: Icon(
-                                EmbeddedJsRunnerService.instance.isRunning
-                                    ? Icons.check_circle_outline
-                                    : Icons.error_outline,
-                                color:
-                                    EmbeddedJsRunnerService.instance.isRunning
-                                        ? AppTheme.successLight
-                                        : AppTheme.errorLight,
-                              ),
-                              title: const Text('Embedded JS Runner'),
-                              subtitle: Text(
-                                _embeddedRunnerStatusLabel ??
-                                    _embeddedRunnerStatusText(),
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
                             ),
                             const SizedBox(height: 8),
                           ],
@@ -3331,6 +3590,28 @@ class _PrivacyPolicyCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ── Documentation Card ─────────────────────────────────────────────────────
+
+class _DocumentationCard extends StatelessWidget {
+  const _DocumentationCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: ListTile(
+        leading: Icon(
+          Icons.menu_book_outlined,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+        title: Text(context.tr.docs_hub_title),
+        subtitle: Text(context.tr.bot_settings_workflow_docs_desc),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => openDocumentationHub(context, showDiscordJsTab: true),
       ),
     );
   }

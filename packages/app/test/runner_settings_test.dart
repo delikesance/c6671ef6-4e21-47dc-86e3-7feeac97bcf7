@@ -1,8 +1,20 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:bot_creator/core/network/runner_kind.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
+import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
+import 'package:bot_creator/main.dart';
+import 'package:bot_creator/core/storage/database.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+
+const MethodChannel _pathProviderChannel = MethodChannel(
+  'plugins.flutter.io/path_provider',
+);
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -442,6 +454,95 @@ void main() {
       expect(await RunnerSettings.getActiveId(), 'remote');
       expect((await RunnerSettings.getUserStoredConfig())?.url,
           'https://runner.example.com');
+    });
+
+    test('addRunner refreshes embedded runner url when already registered', () async {
+      await RunnerSettings.addRunner(
+        const RunnerConnectionConfig(
+          id: RunnerSettings.embeddedRunnerId,
+          url: 'http://127.0.0.1:18080',
+          apiToken: 'old-token',
+          useEmbedded: true,
+        ),
+      );
+      await RunnerSettings.addRunner(
+        const RunnerConnectionConfig(
+          id: RunnerSettings.embeddedRunnerId,
+          url: 'http://127.0.0.1:19090',
+          apiToken: 'new-token',
+          useEmbedded: true,
+        ),
+      );
+
+      final runners = await RunnerSettings.getRunners();
+      final embedded = runners.firstWhere(
+        (runner) => runner.id == RunnerSettings.embeddedRunnerId,
+      );
+      expect(embedded.url, 'http://127.0.0.1:19090');
+    });
+  });
+
+  group('resolveConfigForBot with runner temporarily disabled', () {
+    late Directory documentsDir;
+    const dartBotId = 'runner-settings-dart-bot';
+    const jsBotId = 'runner-settings-js-bot';
+
+    setUpAll(() async {
+      sqfliteFfiInit();
+      databaseFactory = databaseFactoryFfi;
+      documentsDir = await Directory.systemTemp.createTemp('runner_settings_test');
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(_pathProviderChannel, (call) async {
+        return documentsDir.path;
+      });
+      appManager = AppManager();
+    });
+
+    tearDownAll(() async {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(_pathProviderChannel, null);
+      if (await documentsDir.exists()) {
+        try {
+          await documentsDir.delete(recursive: true);
+        } catch (_) {}
+      }
+    });
+
+    setUp(() async {
+      SharedPreferences.setMockInitialValues({});
+      await appManager.saveApp(dartBotId, <String, dynamic>{
+        'id': dartBotId,
+        'username': 'DartBot',
+        'runtimeEngine': runtimeEngineDart,
+      });
+      await appManager.saveApp(jsBotId, <String, dynamic>{
+        'id': jsBotId,
+        'username': 'JsBot',
+        'runtimeEngine': runtimeEngineJavascript,
+      });
+      await RunnerSettings.addRunner(
+        const RunnerConnectionConfig(
+          id: 'remote',
+          url: 'https://runner.example.com',
+        ),
+      );
+      await RunnerSettings.setActiveRunner('remote');
+      await RunnerSettings.setTemporarilyDisabled(true);
+    });
+
+    test('dart bot returns null and does not use remote runner', () async {
+      final config = await RunnerSettings.resolveConfigForBot(dartBotId);
+      expect(config, isNull);
+    });
+
+    test('javascript bot skips remote runner when disabled on desktop', () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.linux;
+      try {
+        final config = await RunnerSettings.resolveConfigForBot(jsBotId);
+        expect(config?.url, isNot('https://runner.example.com'));
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
     });
   });
 }

@@ -6544,6 +6544,69 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settings_runner_version => 'Runner';
 
   @override
+  String get settings_embedded_runner_title => 'Gömülü JS Runner';
+
+  @override
+  String settings_embedded_runner_download_progress(
+    String received,
+    String total,
+  ) {
+    return '$received / $total';
+  }
+
+  @override
+  String settings_embedded_runner_download_indeterminate(String received) {
+    return '$received indirildi';
+  }
+
+  @override
+  String get settings_embedded_runner_restart => 'Yeniden başlat';
+
+  @override
+  String get settings_embedded_runner_restart_success =>
+      'Gömülü JS runner yeniden başlatıldı';
+
+  @override
+  String get settings_embedded_runner_restart_failed =>
+      'Gömülü JS runner yeniden başlatılamadı';
+
+  @override
+  String get settings_embedded_runner_redownload => 'Yeniden indir';
+
+  @override
+  String get settings_embedded_runner_redownload_success =>
+      'Gömülü JS runner yeniden indirildi';
+
+  @override
+  String get settings_embedded_runner_redownload_failed =>
+      'Gömülü JS runner yeniden indirilemedi';
+
+  @override
+  String get settings_embedded_runner_open_log => 'Günlüğü aç';
+
+  @override
+  String settings_embedded_runner_binary_info(String size, String path) {
+    return 'Binary: $size · $path';
+  }
+
+  @override
+  String get settings_embedded_runner_status_running => 'Çalışıyor';
+
+  @override
+  String get settings_embedded_runner_status_stopped => 'Başlatılmadı';
+
+  @override
+  String get settings_embedded_runner_status_failed => 'Başarısız';
+
+  @override
+  String get settings_embedded_runner_status_downloading => 'İndiriliyor…';
+
+  @override
+  String settings_embedded_runner_running_at(String url) {
+    return '$url üzerinde çalışıyor';
+  }
+
+  @override
   String settings_snapshot_apps_count(int count) {
     return 'Uygulamalar: $count';
   }
@@ -8549,6 +8612,10 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get docs_webview_error => 'Dokumantasyon yuklenemedi';
+
+  @override
+  String get docs_webview_unavailable =>
+      'In-app documentation preview is not available on this device. Open the docs in your browser instead.';
 
   @override
   String get docs_open_in_browser => 'Tarayicida ac';

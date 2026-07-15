@@ -36,6 +36,14 @@ class _DocumentationHubPageState extends State<DocumentationHubPage>
       vsync: this,
       initialIndex: initialIndex,
     );
+    _tabController.addListener(_onTabChanged);
+  }
+
+  void _onTabChanged() {
+    if (_tabController.indexIsChanging) {
+      return;
+    }
+    setState(() {});
   }
 
   List<DocumentationSection> _buildSections() {
@@ -52,6 +60,7 @@ class _DocumentationHubPageState extends State<DocumentationHubPage>
 
   @override
   void dispose() {
+    _tabController.removeListener(_onTabChanged);
     _tabController.dispose();
     super.dispose();
   }
@@ -70,8 +79,8 @@ class _DocumentationHubPageState extends State<DocumentationHubPage>
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
+      body: IndexedStack(
+        index: _tabController.index,
         children: [
           for (final section in _sections)
             WebDocumentationView(

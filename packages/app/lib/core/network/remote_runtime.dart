@@ -102,13 +102,18 @@ Future<ResolvedRemoteRuntime> resolveRemoteRuntime({
           }
         }
         if (useAssociation) {
+          final hydrated =
+              await RunnerSettings.hydrateRunnerConnectionConfig(config);
+          if (hydrated == null) {
+            return const ResolvedRemoteRuntime(source: RemoteRuntimeSource.local);
+          }
           return ResolvedRemoteRuntime(
             source: RemoteRuntimeSource.runner,
-            client: config.createClient(
+            client: hydrated.createClient(
               getTimeout: getTimeout,
               postTimeout: postTimeout,
             ),
-            detailLabel: config.name ?? config.url,
+            detailLabel: hydrated.name ?? hydrated.url,
           );
         }
       }

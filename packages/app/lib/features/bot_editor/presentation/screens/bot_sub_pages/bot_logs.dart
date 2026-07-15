@@ -5,6 +5,7 @@ import 'package:bot_creator/core/theme/app_theme.dart';
 
 import 'package:bot_creator/core/network/remote_runtime.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
+import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -151,6 +152,22 @@ class _BotLogsPageState extends State<BotLogsPage> {
 
     _runtimeClient = runtime.client;
     _runtimeSource = runtime.source;
+    if (botId != null &&
+        _supportsManagerRuntime == false &&
+        (runtime.client == null || runtime.source == RemoteRuntimeSource.local)) {
+      final hydrated = await RunnerSettings.resolveConfigForBot(botId);
+      if (hydrated != null) {
+        _runtimeClient = hydrated.createClient(
+          getTimeout: const Duration(seconds: 5),
+          postTimeout: const Duration(seconds: 10),
+        );
+        _runtimeSource = RemoteRuntimeSource.runner;
+        _runtimeLabel = hydrated.name ?? hydrated.url;
+        if (kDebugMode) {
+          debugPrint('[BotLogs] Using hydrated runner client at ${hydrated.url}');
+        }
+      }
+    }
     if (!mounted) return;
 
     setState(() {

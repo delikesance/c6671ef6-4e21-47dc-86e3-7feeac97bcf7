@@ -1,3 +1,5 @@
+import 'package:bot_creator/features/documentation/documentation_navigation.dart';
+import 'package:bot_creator/features/documentation/documentation_urls.dart';
 import 'package:flutter/material.dart';
 import 'package:bot_creator/features/onboarding/logic/onboarding_manager.dart';
 import 'package:bot_creator/core/analytics/analytics.dart';
@@ -476,14 +478,13 @@ class _CreateBotStep extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  icon: const Icon(Icons.open_in_browser),
+                  icon: const Icon(Icons.menu_book_outlined),
                   label: Text(context.tr.onboarding_create_tutorial),
-                  onPressed: () async {
-                    final uri = Uri.parse(
-                      'https://bot-creator.fr/tutorials/setup/security/2025/05/18/how-to-create-a-bot-token-bot-creator.html',
-                    );
-                    await launchUrl(uri, mode: LaunchMode.externalApplication);
-                  },
+                  onPressed: () => openDocumentationArticle(
+                    context,
+                    url: botTokenTutorialUrl,
+                    title: context.tr.onboarding_create_tutorial,
+                  ),
                 ),
               ),
               const SizedBox(height: AppTheme.spacingMd),

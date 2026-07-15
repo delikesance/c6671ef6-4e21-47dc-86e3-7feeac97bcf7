@@ -6601,6 +6601,69 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settings_runner_version => 'Runner';
 
   @override
+  String get settings_embedded_runner_title => 'Eingebetteter JS-Runner';
+
+  @override
+  String settings_embedded_runner_download_progress(
+    String received,
+    String total,
+  ) {
+    return '$received von $total';
+  }
+
+  @override
+  String settings_embedded_runner_download_indeterminate(String received) {
+    return '$received heruntergeladen';
+  }
+
+  @override
+  String get settings_embedded_runner_restart => 'Neu starten';
+
+  @override
+  String get settings_embedded_runner_restart_success =>
+      'Eingebetteter JS-Runner neu gestartet';
+
+  @override
+  String get settings_embedded_runner_restart_failed =>
+      'Neustart des eingebetteten JS-Runners fehlgeschlagen';
+
+  @override
+  String get settings_embedded_runner_redownload => 'Erneut herunterladen';
+
+  @override
+  String get settings_embedded_runner_redownload_success =>
+      'Eingebetteter JS-Runner erneut heruntergeladen';
+
+  @override
+  String get settings_embedded_runner_redownload_failed =>
+      'Erneuter Download des eingebetteten JS-Runners fehlgeschlagen';
+
+  @override
+  String get settings_embedded_runner_open_log => 'Log öffnen';
+
+  @override
+  String settings_embedded_runner_binary_info(String size, String path) {
+    return 'Binary: $size · $path';
+  }
+
+  @override
+  String get settings_embedded_runner_status_running => 'Läuft';
+
+  @override
+  String get settings_embedded_runner_status_stopped => 'Nicht gestartet';
+
+  @override
+  String get settings_embedded_runner_status_failed => 'Fehlgeschlagen';
+
+  @override
+  String get settings_embedded_runner_status_downloading => 'Download läuft…';
+
+  @override
+  String settings_embedded_runner_running_at(String url) {
+    return 'Läuft auf $url';
+  }
+
+  @override
   String settings_snapshot_apps_count(int count) {
     return 'Apps: $count';
   }
@@ -8616,6 +8679,10 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get docs_webview_error => 'Dokumentation konnte nicht geladen werden';
+
+  @override
+  String get docs_webview_unavailable =>
+      'In-app documentation preview is not available on this device. Open the docs in your browser instead.';
 
   @override
   String get docs_open_in_browser => 'Im Browser offnen';

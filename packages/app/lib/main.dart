@@ -41,6 +41,8 @@ import 'package:bot_creator/features/onboarding/logic/onboarding_manager.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/features/auth/presentation/mobile_account_gate_shell.dart';
+import 'package:bot_creator/features/documentation/documentation_navigation.dart';
+import 'package:bot_creator/features/documentation/webview_platform_bootstrap.dart';
 
 
 @pragma('vm:entry-point')
@@ -102,6 +104,8 @@ Future<void> main() async {
   await runZonedGuarded(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
+
+      ensureDocumentationWebViewPlatform();
 
       // Windows TLS compatibility override — required for HTTP requests to
       // succeed on Windows (cert store behaviour diverges from other platforms).
@@ -361,7 +365,7 @@ Future<void> _warmUpServicesAfterLaunch() async {
 
   await _runStartupTask(
     label: 'Embedded JS runner startup',
-    timeout: const Duration(seconds: 45),
+    timeout: const Duration(minutes: 6),
     action: () async {
       if (!kIsWeb &&
           (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
@@ -621,6 +625,13 @@ class _MyMainPageState extends State<MyMainPage> {
             tooltip: context.tr.common_refresh,
             onPressed: () {
               HomePageState.current?.triggerRefresh();
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.menu_book_outlined),
+            tooltip: context.tr.docs_hub_title,
+            onPressed: () {
+              openDocumentationHub(context, showDiscordJsTab: true);
             },
           ),
           IconButton(

@@ -6252,6 +6252,67 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settings_runner_version => 'ランナー';
 
   @override
+  String get settings_embedded_runner_title => '組み込みJSランナー';
+
+  @override
+  String settings_embedded_runner_download_progress(
+    String received,
+    String total,
+  ) {
+    return '$received / $total';
+  }
+
+  @override
+  String settings_embedded_runner_download_indeterminate(String received) {
+    return '$received ダウンロード済み';
+  }
+
+  @override
+  String get settings_embedded_runner_restart => '再起動';
+
+  @override
+  String get settings_embedded_runner_restart_success => '組み込みJSランナーを再起動しました';
+
+  @override
+  String get settings_embedded_runner_restart_failed => '組み込みJSランナーの再起動に失敗しました';
+
+  @override
+  String get settings_embedded_runner_redownload => '再ダウンロード';
+
+  @override
+  String get settings_embedded_runner_redownload_success =>
+      '組み込みJSランナーを再ダウンロードしました';
+
+  @override
+  String get settings_embedded_runner_redownload_failed =>
+      '組み込みJSランナーの再ダウンロードに失敗しました';
+
+  @override
+  String get settings_embedded_runner_open_log => 'ログを開く';
+
+  @override
+  String settings_embedded_runner_binary_info(String size, String path) {
+    return 'バイナリ: $size · $path';
+  }
+
+  @override
+  String get settings_embedded_runner_status_running => '実行中';
+
+  @override
+  String get settings_embedded_runner_status_stopped => '未起動';
+
+  @override
+  String get settings_embedded_runner_status_failed => '失敗';
+
+  @override
+  String get settings_embedded_runner_status_downloading => 'ダウンロード中…';
+
+  @override
+  String settings_embedded_runner_running_at(String url) {
+    return '$url で実行中';
+  }
+
+  @override
   String settings_snapshot_apps_count(int count) {
     return 'アプリ: $count';
   }
@@ -8171,6 +8232,10 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get docs_webview_error => 'ドキュメントを読み込めませんでした';
+
+  @override
+  String get docs_webview_unavailable =>
+      'In-app documentation preview is not available on this device. Open the docs in your browser instead.';
 
   @override
   String get docs_open_in_browser => 'ブラウザで開く';

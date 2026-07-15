@@ -1,7 +1,21 @@
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
+import 'package:bot_creator/features/documentation/documentation_article_page.dart';
 import 'package:bot_creator/features/documentation/documentation_hub_page.dart';
 import 'package:bot_creator/features/documentation/documentation_urls.dart';
 import 'package:flutter/material.dart';
+
+Future<void> openDocumentationArticle(
+  BuildContext context, {
+  required String url,
+  required String title,
+}) {
+  return Navigator.push<void>(
+    context,
+    MaterialPageRoute<void>(
+      builder: (_) => DocumentationArticlePage(url: url, title: title),
+    ),
+  );
+}
 
 Future<void> openDocumentationHub(
   BuildContext context, {

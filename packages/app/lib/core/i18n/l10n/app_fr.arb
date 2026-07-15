@@ -5551,6 +5551,80 @@
   "@settings_runner_version": {
     "description": "Runner"
   },
+  "@settings_embedded_runner_title": {
+    "description": "Title for the embedded JS runner status row in settings."
+  },
+  "@settings_embedded_runner_download_progress": {
+    "description": "Download progress with known total size.",
+    "placeholders": {
+      "received": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "@settings_embedded_runner_download_indeterminate": {
+    "description": "Download progress when total size is unknown.",
+    "placeholders": {
+      "received": {
+        "type": "String"
+      }
+    }
+  },
+  "@settings_embedded_runner_restart": {
+    "description": "Restart embedded JS runner button label."
+  },
+  "@settings_embedded_runner_restart_success": {
+    "description": "Snack bar when embedded runner restart succeeds."
+  },
+  "@settings_embedded_runner_restart_failed": {
+    "description": "Snack bar when embedded runner restart fails."
+  },
+  "@settings_embedded_runner_redownload": {
+    "description": "Re-download embedded runner button label."
+  },
+  "@settings_embedded_runner_redownload_success": {
+    "description": "Snack bar when embedded runner re-download succeeds."
+  },
+  "@settings_embedded_runner_redownload_failed": {
+    "description": "Snack bar when embedded runner re-download fails."
+  },
+  "@settings_embedded_runner_open_log": {
+    "description": "Open embedded runner log file button label."
+  },
+  "@settings_embedded_runner_binary_info": {
+    "description": "Cached embedded runner binary size and path.",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      },
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "@settings_embedded_runner_status_running": {
+    "description": "Embedded runner is running."
+  },
+  "@settings_embedded_runner_status_stopped": {
+    "description": "Embedded runner is not running."
+  },
+  "@settings_embedded_runner_status_failed": {
+    "description": "Embedded runner failed to start."
+  },
+  "@settings_embedded_runner_status_downloading": {
+    "description": "Embedded runner binary is downloading."
+  },
+  "@settings_embedded_runner_running_at": {
+    "description": "Embedded runner local URL when running.",
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
   "@settings_snapshot_apps_count": {
     "placeholders": {
       "count": {
@@ -8643,6 +8717,22 @@
   "settings_runner_url_save": "Enregistrer l'URL",
   "settings_runner_url_saved": "URL du runner enregistrée",
   "settings_runner_version": "Runner",
+  "settings_embedded_runner_title": "Runner JS embarqué",
+  "settings_embedded_runner_download_progress": "{received} sur {total}",
+  "settings_embedded_runner_download_indeterminate": "{received} téléchargés",
+  "settings_embedded_runner_restart": "Redémarrer",
+  "settings_embedded_runner_restart_success": "Runner JS embarqué redémarré",
+  "settings_embedded_runner_restart_failed": "Échec du redémarrage du runner JS embarqué",
+  "settings_embedded_runner_redownload": "Retélécharger",
+  "settings_embedded_runner_redownload_success": "Runner JS embarqué retéléchargé",
+  "settings_embedded_runner_redownload_failed": "Échec du retéléchargement du runner JS embarqué",
+  "settings_embedded_runner_open_log": "Ouvrir le log",
+  "settings_embedded_runner_binary_info": "Binaire : {size} · {path}",
+  "settings_embedded_runner_status_running": "En cours d'exécution",
+  "settings_embedded_runner_status_stopped": "Non démarré",
+  "settings_embedded_runner_status_failed": "Échec",
+  "settings_embedded_runner_status_downloading": "Téléchargement…",
+  "settings_embedded_runner_running_at": "Actif sur {url}",
   "settings_snapshot_apps_count": "Apps : {count}",
   "settings_snapshot_apps_list": "Apps dans ce snapshot",
   "settings_snapshot_create_loading": "Création du snapshot...",
@@ -9600,6 +9690,10 @@
   "docs_webview_error": "Impossible de charger la documentation",
   "@docs_webview_error": {
     "description": "docs webview error"
+  },
+  "docs_webview_unavailable": "L'aperçu intégré de la documentation n'est pas disponible sur cet appareil. Ouvrez la documentation dans votre navigateur.",
+  "@docs_webview_unavailable": {
+    "description": "Shown when WebView is unsupported on the current platform"
   },
   "docs_open_in_browser": "Ouvrir dans le navigateur",
   "@docs_open_in_browser": {

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ui' as ui;
 
 import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/core/network/runner_kind.dart';
@@ -187,32 +188,31 @@ class RunnerSettings {
   /// JavaScript bots on desktop fall back to the embedded JS runner when no
   /// external runner is configured.
   static Future<RunnerConnectionConfig?> resolveConfigForBot(String botId) async {
-    if (await isTemporarilyDisabled()) {
-      return null;
-    }
-
+    final temporarilyDisabled = await isTemporarilyDisabled();
     final engine = await getBotRuntimeEngine(botId);
     final isJavascriptBot = engine == runtimeEngineJavascript;
 
-    final associatedId = getAssociatedRunnerId(botId);
-    if (associatedId != null && associatedId != 'local') {
-      final runners = await getRunners();
-      final match = runners.where((r) => r.id == associatedId);
-      if (match.isNotEmpty) {
-        final candidate = match.first;
-        if (!isJavascriptBot || _supportsJavascriptRunner(candidate)) {
-          final hydrated = await _hydrateStoredConfig(candidate);
-          if (hydrated != null) {
-            return hydrated;
+    if (!temporarilyDisabled) {
+      final associatedId = getAssociatedRunnerId(botId);
+      if (associatedId != null && associatedId != 'local') {
+        final runners = await getRunners();
+        final match = runners.where((r) => r.id == associatedId);
+        if (match.isNotEmpty) {
+          final candidate = match.first;
+          if (!isJavascriptBot || _supportsJavascriptRunner(candidate)) {
+            final hydrated = await _hydrateStoredConfig(candidate);
+            if (hydrated != null) {
+              return hydrated;
+            }
           }
         }
       }
-    }
 
-    final stored = await getUserStoredConfig();
-    if (stored != null) {
-      if (!isJavascriptBot || _supportsJavascriptRunner(stored)) {
-        return stored;
+      final stored = await getUserStoredConfig();
+      if (stored != null) {
+        if (!isJavascriptBot || _supportsJavascriptRunner(stored)) {
+          return stored;
+        }
       }
     }
 
@@ -239,25 +239,72 @@ class RunnerSettings {
     return embedded;
   }
 
-  /// User-facing detail when the embedded runner failed to start.
-  static String? embeddedRunnerStartupFailureDetail() {
-    final service = EmbeddedJsRunnerService.instance;
-    if (service.isRunning) {
+  /// Restarts the embedded JS runner process and re-registers it locally.
+  static Future<RunnerConnectionConfig?> restartEmbeddedJsRunner() async {
+    if (kIsWeb || !_isDesktopPlatform) {
       return null;
     }
+    final config = await EmbeddedJsRunnerService.instance.restart();
+    if (config != null) {
+      await _persistEmbeddedRunnerAvailability(config);
+    }
+    return config;
+  }
+
+  /// Re-downloads the embedded runner binary and restarts the process.
+  static Future<RunnerConnectionConfig?> redownloadEmbeddedJsRunner() async {
+    if (kIsWeb || !_isDesktopPlatform) {
+      return null;
+    }
+    final config =
+        await EmbeddedJsRunnerService.instance.redownloadAndRestart();
+    if (config != null) {
+      await _persistEmbeddedRunnerAvailability(config);
+    }
+    return config;
+  }
+
+  /// User-facing detail when the embedded runner failed to start.
+  static Future<String?> embeddedRunnerStartupFailureDetail() async {
+    final service = EmbeddedJsRunnerService.instance;
+    if (service.hasLiveConfig) {
+      return null;
+    }
+    if (service.isRunning) {
+      return _embeddedRunnerDesyncDetail();
+    }
     return service.lastStartupError;
+  }
+
+  static String _embeddedRunnerDesyncDetail() {
+    return _runtimeCopy(
+      fr:
+          'Le processus runner tourne mais l\'application a perdu la connexion. '
+          'Utilisez Redemarrer dans Parametres.',
+      en:
+          'Runner process is running but the app lost its connection. '
+          'Use Restart in Settings.',
+    );
+  }
+
+  static String _runtimeCopy({required String fr, required String en}) {
+    final lang =
+        ui.PlatformDispatcher.instance.locale.languageCode.toLowerCase();
+    return lang.startsWith('fr') ? fr : en;
+  }
+
+  /// Refreshes stored runner metadata (URL/token) before creating a client.
+  static Future<RunnerConnectionConfig?> hydrateRunnerConnectionConfig(
+    RunnerConnectionConfig config,
+  ) async {
+    return _hydrateStoredConfig(config);
   }
 
   static Future<void> _persistEmbeddedRunnerAvailability(
     RunnerConnectionConfig embedded,
   ) async {
     final runners = await getRunners();
-    final hasEmbedded = runners.any(
-      (runner) => runner.useEmbedded || runner.id == embedded.id,
-    );
-    if (!hasEmbedded) {
-      await addRunner(embedded);
-    }
+    await addRunner(embedded);
 
     final userRunners =
         runners.where((runner) => !isInternalEmbeddedRunner(runner)).toList();
