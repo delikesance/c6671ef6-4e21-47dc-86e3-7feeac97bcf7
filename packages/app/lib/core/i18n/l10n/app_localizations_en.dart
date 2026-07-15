@@ -6498,6 +6498,69 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings_runner_version => 'Runner';
 
   @override
+  String get settings_embedded_runner_title => 'Embedded JS Runner';
+
+  @override
+  String settings_embedded_runner_download_progress(
+    String received,
+    String total,
+  ) {
+    return '$received of $total';
+  }
+
+  @override
+  String settings_embedded_runner_download_indeterminate(String received) {
+    return '$received downloaded';
+  }
+
+  @override
+  String get settings_embedded_runner_restart => 'Restart';
+
+  @override
+  String get settings_embedded_runner_restart_success =>
+      'Embedded JS runner restarted';
+
+  @override
+  String get settings_embedded_runner_restart_failed =>
+      'Failed to restart embedded JS runner';
+
+  @override
+  String get settings_embedded_runner_redownload => 'Re-download';
+
+  @override
+  String get settings_embedded_runner_redownload_success =>
+      'Embedded JS runner re-downloaded';
+
+  @override
+  String get settings_embedded_runner_redownload_failed =>
+      'Failed to re-download embedded JS runner';
+
+  @override
+  String get settings_embedded_runner_open_log => 'Open log';
+
+  @override
+  String settings_embedded_runner_binary_info(String size, String path) {
+    return 'Binary: $size · $path';
+  }
+
+  @override
+  String get settings_embedded_runner_status_running => 'Running';
+
+  @override
+  String get settings_embedded_runner_status_stopped => 'Not started';
+
+  @override
+  String get settings_embedded_runner_status_failed => 'Failed';
+
+  @override
+  String get settings_embedded_runner_status_downloading => 'Downloading…';
+
+  @override
+  String settings_embedded_runner_running_at(String url) {
+    return 'Running at $url';
+  }
+
+  @override
   String settings_snapshot_apps_count(int count) {
     return 'Apps: $count';
   }
@@ -8486,6 +8549,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get docs_webview_error => 'Could not load documentation';
+
+  @override
+  String get docs_webview_unavailable =>
+      'In-app documentation preview is not available on this device. Open the docs in your browser instead.';
 
   @override
   String get docs_open_in_browser => 'Open in browser';

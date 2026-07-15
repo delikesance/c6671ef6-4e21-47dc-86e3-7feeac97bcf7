@@ -17,6 +17,54 @@ String embeddedRunnerLatestReleaseDownloadUrl(String fileName) {
   return 'https://github.com/$_githubRepo/releases/latest/download/$fileName';
 }
 
+/// GitHub release download URL for a specific release tag.
+String embeddedRunnerReleaseDownloadUrl(String tag, String fileName) {
+  return 'https://github.com/$_githubRepo/releases/download/$tag/$fileName';
+}
+
+/// GitHub API endpoint for the latest runner-js release metadata.
+String embeddedRunnerLatestReleaseApiUrl() {
+  return 'https://api.github.com/repos/$_githubRepo/releases/latest';
+}
+
+/// Environment variable override for the embedded runner binary path.
+const String embeddedRunnerEnvOverrideVar = 'BOT_CREATOR_EMBEDDED_RUNNER_JS_PATH';
+
+/// Returns [embeddedRunnerEnvOverrideVar] when set, otherwise null.
+String? embeddedRunnerEnvOverridePath({
+  Map<String, String>? environment,
+}) {
+  final env = environment ?? Platform.environment;
+  final value = env[embeddedRunnerEnvOverrideVar]?.trim();
+  if (value == null || value.isEmpty) {
+    return null;
+  }
+  return value;
+}
+
+/// Candidate paths to a locally built runner-js PKG binary in a monorepo checkout.
+List<String> monorepoRunnerJsBuildCandidates(String fileName) {
+  final candidates = <String>{};
+  try {
+    var dir = Directory.current;
+    for (var depth = 0; depth < 8; depth++) {
+      candidates.add(
+        p.normalize(p.join(dir.path, 'runner-js', 'build', fileName)),
+      );
+      candidates.add(
+        p.normalize(p.join(dir.path, '..', 'runner-js', 'build', fileName)),
+      );
+      final parent = dir.parent;
+      if (parent.path == dir.path) {
+        break;
+      }
+      dir = parent;
+    }
+  } catch (_) {}
+
+  return candidates.toList(growable: false);
+}
+
 /// Platform-specific bundled runner asset metadata.
 class EmbeddedRunnerPlatformAsset {
   const EmbeddedRunnerPlatformAsset({

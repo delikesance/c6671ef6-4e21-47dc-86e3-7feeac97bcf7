@@ -11,6 +11,31 @@ import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
+/// Snapshot of embedded JS runner state for settings and diagnostics.
+class EmbeddedRunnerDiagnostics {
+  const EmbeddedRunnerDiagnostics({
+    required this.isRunning,
+    required this.isDownloading,
+    this.phase,
+    this.lastError,
+    this.binaryPath,
+    this.binarySizeBytes,
+    this.baseUrl,
+    this.logPath,
+    this.version,
+  });
+
+  final bool isRunning;
+  final bool isDownloading;
+  final String? phase;
+  final String? lastError;
+  final String? binaryPath;
+  final int? binarySizeBytes;
+  final String? baseUrl;
+  final String? logPath;
+  final String? version;
+}
+
 class EmbeddedJsRunnerService {
   EmbeddedJsRunnerService._();
 
@@ -23,15 +48,26 @@ class EmbeddedJsRunnerService {
   String? _binaryPath;
   String? _logPath;
   String? _lastStartupError;
+  String? _lastBinaryResolveError;
   String? _lastStartupPhase;
   Future<void>? _startFuture;
   final StringBuffer _processOutput = StringBuffer();
+  final ValueNotifier<EmbeddedRunnerDownloadProgress?> downloadProgress =
+      ValueNotifier<EmbeddedRunnerDownloadProgress?>(null);
 
   bool get isRunning => _process != null;
+
+  bool get hasLiveConfig =>
+      _process != null && _url != null && _apiToken != null;
+
+  bool get isDownloading =>
+      downloadProgress.value != null || _lastStartupPhase == 'downloading';
 
   String? get lastStartupError => _lastStartupError;
 
   String? get lastStartupPhase => _lastStartupPhase;
+
+  String? get binaryPath => _binaryPath;
 
   String? get logPath => _logPath;
 
@@ -39,7 +75,11 @@ class EmbeddedJsRunnerService {
 
   Future<RunnerConnectionConfig?> ensureConfig() async {
     if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
-      if (isRunning && _url != null && _apiToken != null) {
+      if (_process != null && (_url == null || _apiToken == null)) {
+        await stop();
+      }
+
+      if (hasLiveConfig) {
         _lastStartupPhase = 'running';
         return _buildConfig();
       }
@@ -72,6 +112,149 @@ class EmbeddedJsRunnerService {
     return null;
   }
 
+  /// Clears in-flight startup so [ensureConfig] can start fresh (e.g. after hot reload).
+  void resetStartupState() {
+    _startFuture = null;
+  }
+
+  /// Stops the runner and starts it again using the existing binary resolution chain.
+  Future<RunnerConnectionConfig?> restart() async {
+    if (kIsWeb || !_isDesktopPlatform) {
+      return null;
+    }
+    await stop();
+    resetStartupState();
+    return ensureConfig();
+  }
+
+  /// Deletes cached PKG binaries (keeps runner.log) and downloads a fresh release.
+  Future<RunnerConnectionConfig?> redownloadAndRestart() async {
+    if (kIsWeb || !_isDesktopPlatform) {
+      return null;
+    }
+    await stop();
+    resetStartupState();
+    _binaryPath = null;
+    _lastStartupError = null;
+    await clearCachedBinary();
+
+    _startFuture = _ensureStarted(forceRedownload: true);
+    try {
+      await _startFuture;
+    } catch (error, stackTrace) {
+      _lastStartupError = error.toString();
+      _lastStartupPhase = 'failed';
+      debugPrint('[EmbeddedJsRunner] Failed to redownload: $error');
+      debugPrint('$stackTrace');
+      await AppDiagnostics.logError(
+        'Embedded JS runner redownload failed',
+        error,
+        stackTrace,
+        fatal: false,
+        information: _diagnosticsInformation(),
+      );
+    } finally {
+      _startFuture = null;
+    }
+
+    if (_url != null && _apiToken != null) {
+      _lastStartupError = null;
+      _lastStartupPhase = 'running';
+      return _buildConfig();
+    }
+    return null;
+  }
+
+  /// Removes downloaded runner binaries from application support storage.
+  Future<void> clearCachedBinary() async {
+    final targetDir = await _embeddedRunnerCacheDir();
+    if (!await targetDir.exists()) {
+      return;
+    }
+
+    try {
+      await for (final entity in targetDir.list()) {
+        if (entity is! File) {
+          continue;
+        }
+        final name = p.basename(entity.path);
+        if (name == 'runner.log' || !name.contains('bot-creator-runner-js')) {
+          continue;
+        }
+        try {
+          await entity.delete();
+        } on PathAccessException {
+          // Process may still hold the file open.
+        }
+      }
+    } catch (_) {}
+
+    if (_binaryPath != null) {
+      final cached = File(_binaryPath!);
+      if (!await cached.exists()) {
+        _binaryPath = null;
+      }
+    }
+  }
+
+  /// Returns current runner status for the settings UI.
+  Future<EmbeddedRunnerDiagnostics> getDiagnostics() async {
+    var binaryPath = _binaryPath;
+    int? binarySizeBytes;
+
+    if (binaryPath != null) {
+      final file = File(binaryPath);
+      if (await file.exists()) {
+        binarySizeBytes = await file.length();
+      } else {
+        binaryPath = null;
+      }
+    }
+
+    if (binaryPath == null) {
+      final platformAsset = resolveEmbeddedRunnerPlatformAsset();
+      if (platformAsset != null) {
+        final targetDir = await _embeddedRunnerCacheDir();
+        binaryPath = await _findCachedBinary(targetDir, platformAsset.fileName);
+        if (binaryPath != null) {
+          binarySizeBytes = await File(binaryPath).length();
+        }
+      }
+    }
+
+    String? version;
+    if (isRunning && _url != null) {
+      try {
+        version = await _buildConfig()
+            .createClient(getTimeout: const Duration(seconds: 5))
+            .getRunnerVersion();
+        if (version != null && version.trim().isEmpty) {
+          version = null;
+        } else {
+          version = version?.trim();
+        }
+      } catch (_) {
+        version = null;
+      }
+    }
+
+    return EmbeddedRunnerDiagnostics(
+      isRunning: isRunning,
+      isDownloading: isDownloading,
+      phase: _lastStartupPhase,
+      lastError: _lastStartupError ?? _lastBinaryResolveError,
+      binaryPath: binaryPath,
+      binarySizeBytes: binarySizeBytes,
+      baseUrl: _url,
+      logPath: _logPath,
+      version: version,
+    );
+  }
+
+  bool get _isDesktopPlatform {
+    return Platform.isWindows || Platform.isLinux || Platform.isMacOS;
+  }
+
   Future<void> stop() async {
     final process = _process;
     _process = null;
@@ -89,7 +272,7 @@ class EmbeddedJsRunnerService {
     }
   }
 
-  Future<void> _ensureStarted() async {
+  Future<void> _ensureStarted({bool forceRedownload = false}) async {
     if (_process != null) {
       return;
     }
@@ -100,10 +283,11 @@ class EmbeddedJsRunnerService {
 
     await stop();
 
-    final binaryPath = await _resolveBinaryPath();
+    final binaryPath = await _resolveBinaryPath(forceRedownload: forceRedownload);
     if (binaryPath == null) {
       throw StateError(
-        'Embedded JS runner binary is not available on this platform.',
+        _lastBinaryResolveError ??
+            'Embedded JS runner binary is not available on this platform.',
       );
     }
     _binaryPath = binaryPath;
@@ -225,14 +409,29 @@ class EmbeddedJsRunnerService {
     }
   }
 
-  Future<String?> _resolveBinaryPath() async {
+  Future<String?> _resolveBinaryPath({bool forceRedownload = false}) async {
+    _lastBinaryResolveError = null;
     final platformAsset = resolveEmbeddedRunnerPlatformAsset();
     if (platformAsset == null) {
+      _lastBinaryResolveError =
+          'Embedded JS runner is not supported on this platform.';
       return null;
     }
 
-    final supportDir = await getApplicationSupportDirectory();
-    final targetDir = Directory(p.join(supportDir.path, 'embedded-runner-js'));
+    if (!forceRedownload) {
+      final envOverride = embeddedRunnerEnvOverridePath();
+      if (envOverride != null) {
+        final envFile = File(envOverride);
+        if (await _isEmbeddedBinaryValid(envFile)) {
+          return envOverride;
+        }
+        _lastBinaryResolveError =
+            'BOT_CREATOR_EMBEDDED_RUNNER_JS_PATH is set but invalid: $envOverride';
+        return null;
+      }
+    }
+
+    final targetDir = await _embeddedRunnerCacheDir();
     if (!await targetDir.exists()) {
       await targetDir.create(recursive: true);
     }
@@ -240,43 +439,72 @@ class EmbeddedJsRunnerService {
     final assetPath = platformAsset.bundleAssetPath;
     final fileName = platformAsset.fileName;
 
-    // 1. Valid cached copy
-    final cachedBinary = await _findCachedBinary(targetDir, fileName);
-    if (cachedBinary != null) {
-      return cachedBinary;
-    }
-
-    // 2. Packaged asset on disk (filesystem copy — preferred for release)
-    final fromPackage = await _copyPackagedAssetToCache(
-      targetDir,
-      fileName,
-      assetPath,
-    );
-    if (fromPackage != null) {
-      return fromPackage;
-    }
-
-    // 3. rootBundle (dev / tests)
-    var data = await _readBundledAsset(assetPath);
-
-    // 4. Dev path candidates (local checkout)
-    if (data == null) {
-      final directPath = await _findDevBinary(assetPath);
-      if (directPath != null) {
-        return directPath;
+    if (!forceRedownload) {
+      // 1. Valid cached copy
+      final cachedBinary = await _findCachedBinary(targetDir, fileName);
+      if (cachedBinary != null) {
+        return cachedBinary;
       }
-      debugPrint(
-        '[EmbeddedJsRunner] Downloading latest release: $fileName',
+
+      // 2. Packaged asset on disk (filesystem copy — preferred for release)
+      final fromPackage = await _copyPackagedAssetToCache(
+        targetDir,
+        fileName,
+        assetPath,
       );
-      data = await downloadEmbeddedRunnerLatestRelease(fileName);
+      if (fromPackage != null) {
+        return fromPackage;
+      }
+
+      // 3. rootBundle (dev / tests)
+      var data = await _readBundledAsset(assetPath);
+
+      // 4. Dev path candidates (local checkout / monorepo sibling build)
       if (data == null) {
-        debugPrint(
-          '[EmbeddedJsRunner] Failed to download latest release for $fileName',
-        );
-        return null;
+        final directPath = await _findDevBinary(assetPath);
+        if (directPath != null) {
+          return directPath;
+        }
+      } else {
+        final versionedFileName =
+            '${p.basenameWithoutExtension(fileName)}.${data.length}${p.extension(fileName)}';
+        final targetPath = p.join(targetDir.path, versionedFileName);
+        await File(targetPath).writeAsBytes(data, flush: true);
+        if (!Platform.isWindows) {
+          await Process.run('chmod', ['+x', targetPath]);
+        }
+        await _pruneOldCachedBinaries(targetDir, keepFileName: versionedFileName);
+        return targetPath;
       }
     }
 
+    debugPrint(
+      '[EmbeddedJsRunner] Downloading latest release: $fileName',
+    );
+    _lastStartupPhase = 'downloading';
+    _updateDownloadProgress(
+      const EmbeddedRunnerDownloadProgress(receivedBytes: 0),
+    );
+    EmbeddedRunnerDownloadResult download;
+    try {
+      download = await downloadEmbeddedRunnerLatestRelease(
+        fileName,
+        onProgress: _updateDownloadProgress,
+      );
+    } finally {
+      _updateDownloadProgress(null);
+    }
+    if (!download.ok) {
+      _lastBinaryResolveError =
+          download.failureReason ?? 'Failed to download latest release.';
+      debugPrint(
+        '[EmbeddedJsRunner] Failed to download latest release: '
+        '${_lastBinaryResolveError!}',
+      );
+      return null;
+    }
+
+    final data = download.bytes!;
     final versionedFileName =
         '${p.basenameWithoutExtension(fileName)}.${data.length}${p.extension(fileName)}';
     final targetPath = p.join(targetDir.path, versionedFileName);
@@ -383,6 +611,7 @@ class EmbeddedJsRunnerService {
     final fileName = p.basename(assetPath);
     final cwd = Directory.current.path;
     final candidates = <String>{
+      ...monorepoRunnerJsBuildCandidates(fileName),
       assetPath,
       p.join(cwd, assetPath),
       p.join(cwd, 'packages', 'app', assetPath),
@@ -419,6 +648,11 @@ class EmbeddedJsRunnerService {
     return path;
   }
 
+  Future<Directory> _embeddedRunnerCacheDir() async {
+    final supportDir = await getApplicationSupportDirectory();
+    return Directory(p.join(supportDir.path, 'embedded-runner-js'));
+  }
+
   String _diagnosticsInformation() {
     final summary = _processOutputSummary();
     return [
@@ -429,5 +663,9 @@ class EmbeddedJsRunnerService {
       if (summary.isNotEmpty) 'processOutput=$summary',
       'asset=${resolveEmbeddedRunnerPlatformAsset()?.bundleAssetPath ?? 'unknown'}',
     ].join('; ');
+  }
+
+  void _updateDownloadProgress(EmbeddedRunnerDownloadProgress? progress) {
+    downloadProgress.value = progress;
   }
 }

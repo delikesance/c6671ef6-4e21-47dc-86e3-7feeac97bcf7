@@ -11509,6 +11509,105 @@ abstract class AppLocalizations {
   /// **'Runner'**
   String get settings_runner_version;
 
+  /// Title for the embedded JS runner status row in settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Embedded JS Runner'**
+  String get settings_embedded_runner_title;
+
+  /// Download progress with known total size.
+  ///
+  /// In en, this message translates to:
+  /// **'{received} of {total}'**
+  String settings_embedded_runner_download_progress(
+    String received,
+    String total,
+  );
+
+  /// Download progress when total size is unknown.
+  ///
+  /// In en, this message translates to:
+  /// **'{received} downloaded'**
+  String settings_embedded_runner_download_indeterminate(String received);
+
+  /// Restart embedded JS runner button label.
+  ///
+  /// In en, this message translates to:
+  /// **'Restart'**
+  String get settings_embedded_runner_restart;
+
+  /// Snack bar when embedded runner restart succeeds.
+  ///
+  /// In en, this message translates to:
+  /// **'Embedded JS runner restarted'**
+  String get settings_embedded_runner_restart_success;
+
+  /// Snack bar when embedded runner restart fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to restart embedded JS runner'**
+  String get settings_embedded_runner_restart_failed;
+
+  /// Re-download embedded runner button label.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-download'**
+  String get settings_embedded_runner_redownload;
+
+  /// Snack bar when embedded runner re-download succeeds.
+  ///
+  /// In en, this message translates to:
+  /// **'Embedded JS runner re-downloaded'**
+  String get settings_embedded_runner_redownload_success;
+
+  /// Snack bar when embedded runner re-download fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to re-download embedded JS runner'**
+  String get settings_embedded_runner_redownload_failed;
+
+  /// Open embedded runner log file button label.
+  ///
+  /// In en, this message translates to:
+  /// **'Open log'**
+  String get settings_embedded_runner_open_log;
+
+  /// Cached embedded runner binary size and path.
+  ///
+  /// In en, this message translates to:
+  /// **'Binary: {size} · {path}'**
+  String settings_embedded_runner_binary_info(String size, String path);
+
+  /// Embedded runner is running.
+  ///
+  /// In en, this message translates to:
+  /// **'Running'**
+  String get settings_embedded_runner_status_running;
+
+  /// Embedded runner is not running.
+  ///
+  /// In en, this message translates to:
+  /// **'Not started'**
+  String get settings_embedded_runner_status_stopped;
+
+  /// Embedded runner failed to start.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get settings_embedded_runner_status_failed;
+
+  /// Embedded runner binary is downloading.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading…'**
+  String get settings_embedded_runner_status_downloading;
+
+  /// Embedded runner local URL when running.
+  ///
+  /// In en, this message translates to:
+  /// **'Running at {url}'**
+  String settings_embedded_runner_running_at(String url);
+
   /// Apps: {count}
   ///
   /// In en, this message translates to:
@@ -14850,6 +14949,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not load documentation'**
   String get docs_webview_error;
+
+  /// Shown when WebView is unsupported on the current platform
+  ///
+  /// In en, this message translates to:
+  /// **'In-app documentation preview is not available on this device. Open the docs in your browser instead.'**
+  String get docs_webview_unavailable;
 
   /// docs open in browser
   ///

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:bot_creator/core/runner/embedded_runner_downloader.dart';
@@ -5,6 +6,7 @@ import 'package:bot_creator/core/runner/embedded_runner_platform.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:path/path.dart' as p;
 
 void main() {
   group('embeddedRunnerLatestReleaseDownloadUrl', () {
@@ -14,6 +16,27 @@ void main() {
           'bot-creator-runner-js-linux-x64',
         ),
         'https://github.com/ketsuna-org/runner-js/releases/latest/download/bot-creator-runner-js-linux-x64',
+      );
+    });
+  });
+
+  group('embeddedRunnerReleaseDownloadUrl', () {
+    test('builds versioned GitHub release URL', () {
+      expect(
+        embeddedRunnerReleaseDownloadUrl(
+          'runner-js-v0.4.0',
+          'bot-creator-runner-js-linux-x64',
+        ),
+        'https://github.com/ketsuna-org/runner-js/releases/download/runner-js-v0.4.0/bot-creator-runner-js-linux-x64',
+      );
+    });
+  });
+
+  group('embeddedRunnerLatestReleaseApiUrl', () {
+    test('points at runner-js latest release API', () {
+      expect(
+        embeddedRunnerLatestReleaseApiUrl(),
+        'https://api.github.com/repos/ketsuna-org/runner-js/releases/latest',
       );
     });
   });
@@ -29,6 +52,54 @@ void main() {
           List.filled(embeddedRunnerMinBinaryBytes, 0),
         ),
         isTrue,
+      );
+    });
+  });
+
+  group('monorepoRunnerJsBuildCandidates', () {
+    test('includes sibling runner-js build paths from cwd', () {
+      final cwd = Directory.current.path;
+      final candidates = monorepoRunnerJsBuildCandidates(
+        'bot-creator-runner-js-linux-x64',
+      );
+
+      expect(
+        candidates,
+        contains(
+          p.normalize(p.join(cwd, 'runner-js', 'build', 'bot-creator-runner-js-linux-x64')),
+        ),
+      );
+      expect(
+        candidates,
+        contains(
+          p.normalize(
+            p.join(cwd, '..', 'runner-js', 'build', 'bot-creator-runner-js-linux-x64'),
+          ),
+        ),
+      );
+    });
+  });
+
+  group('embeddedRunnerEnvOverridePath', () {
+    test('returns trimmed path when env var is set', () {
+      expect(
+        embeddedRunnerEnvOverridePath(
+          environment: {embeddedRunnerEnvOverrideVar: '  /tmp/custom-runner  '},
+        ),
+        '/tmp/custom-runner',
+      );
+    });
+
+    test('returns null when env var is unset', () {
+      expect(embeddedRunnerEnvOverridePath(environment: {}), isNull);
+    });
+
+    test('returns null when env var is empty', () {
+      expect(
+        embeddedRunnerEnvOverridePath(
+          environment: {embeddedRunnerEnvOverrideVar: '   '},
+        ),
+        isNull,
       );
     });
   });
@@ -143,38 +214,111 @@ void main() {
         return http.Response.bytes(payload, 200);
       });
 
-      final bytes = await downloadEmbeddedRunnerLatestRelease(
+      final result = await downloadEmbeddedRunnerLatestRelease(
         'bot-creator-runner-js-win.exe',
         client: client,
       );
 
-      expect(bytes, payload);
+      expect(result.ok, isTrue);
+      expect(result.bytes, payload);
+      expect(result.failureReason, isNull);
     });
 
-    test('returns null for non-200 responses', () async {
+    test('returns failure reason for non-200 responses', () async {
       final client = MockClient((request) async {
         return http.Response('missing', 404);
       });
 
-      final bytes = await downloadEmbeddedRunnerLatestRelease(
+      final result = await downloadEmbeddedRunnerLatestRelease(
         'bot-creator-runner-js-linux-x64',
         client: client,
       );
 
-      expect(bytes, isNull);
+      expect(result.ok, isFalse);
+      expect(result.bytes, isNull);
+      expect(result.failureReason, contains('HTTP 404'));
     });
 
-    test('returns null when payload is too small', () async {
+    test('returns failure reason when payload is too small', () async {
       final client = MockClient((request) async {
         return http.Response.bytes([1, 2, 3], 200);
       });
 
-      final bytes = await downloadEmbeddedRunnerLatestRelease(
+      final result = await downloadEmbeddedRunnerLatestRelease(
         'bot-creator-runner-js-linux-x64',
         client: client,
       );
 
-      expect(bytes, isNull);
+      expect(result.ok, isFalse);
+      expect(result.failureReason, contains('payload too small'));
+    });
+
+    test('falls back to tagged release URL when latest download fails', () async {
+      final payload = List<int>.filled(embeddedRunnerMinBinaryBytes, 4);
+      final requests = <Uri>[];
+
+      final client = MockClient((request) async {
+        requests.add(request.url);
+        if (request.url.toString() ==
+            embeddedRunnerLatestReleaseDownloadUrl(
+              'bot-creator-runner-js-linux-x64',
+            )) {
+          return http.Response('missing', 404);
+        }
+        if (request.url.toString() == embeddedRunnerLatestReleaseApiUrl()) {
+          return http.Response(
+            jsonEncode({'tag_name': 'runner-js-v0.4.0'}),
+            200,
+            headers: {'content-type': 'application/json'},
+          );
+        }
+        if (request.url.toString() ==
+            embeddedRunnerReleaseDownloadUrl(
+              'runner-js-v0.4.0',
+              'bot-creator-runner-js-linux-x64',
+            )) {
+          return http.Response.bytes(payload, 200);
+        }
+        return http.Response('unexpected', 500);
+      });
+
+      final result = await downloadEmbeddedRunnerLatestRelease(
+        'bot-creator-runner-js-linux-x64',
+        client: client,
+      );
+
+      expect(result.ok, isTrue);
+      expect(result.bytes, payload);
+      expect(
+        requests.map((url) => url.toString()),
+        contains(
+          embeddedRunnerReleaseDownloadUrl(
+            'runner-js-v0.4.0',
+            'bot-creator-runner-js-linux-x64',
+          ),
+        ),
+      );
+    });
+
+    test('reports download progress while streaming', () async {
+      final payload = List<int>.filled(embeddedRunnerMinBinaryBytes, 8);
+      final client = MockClient((request) async {
+        return http.Response.bytes(payload, 200);
+      });
+
+      final progressUpdates = <EmbeddedRunnerDownloadProgress>[];
+      final result = await downloadEmbeddedRunnerLatestRelease(
+        'bot-creator-runner-js-linux-x64',
+        client: client,
+        onProgress: progressUpdates.add,
+      );
+
+      expect(result.ok, isTrue);
+      expect(result.bytes, payload);
+      expect(progressUpdates, isNotEmpty);
+      expect(progressUpdates.last.receivedBytes, payload.length);
+      expect(progressUpdates.last.totalBytes, payload.length);
+      expect(progressUpdates.last.fraction, 1.0);
     });
   });
 }

@@ -1,7 +1,15 @@
+import 'package:bot_creator/core/i18n/l10n/app_localizations.dart';
+import 'package:bot_creator/features/documentation/documentation_hub_page.dart';
 import 'package:bot_creator/features/documentation/documentation_urls.dart';
+import 'package:bot_creator/features/documentation/web_documentation_view.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('documentation URLs', () {
     test('urlForDocumentationSection returns expected base URLs', () {
       expect(
@@ -24,6 +32,10 @@ void main() {
         isTrue,
       );
       expect(
+        isDocumentationHostAllowed(Uri.parse(botTokenTutorialUrl)),
+        isTrue,
+      );
+      expect(
         isDocumentationHostAllowed(Uri.parse('https://discord.js.org/')),
         isTrue,
       );
@@ -39,6 +51,15 @@ void main() {
         isDocumentationHostAllowed(Uri.parse('https://example.com/')),
         isFalse,
       );
+    });
+
+    test('botTokenTutorialUrl points at the getting started article', () {
+      expect(botTokenTutorialUrl, contains('getting%20started'));
+      expect(
+        botTokenTutorialUrl,
+        contains('how-to-create-a-bot-token-bot-creator'),
+      );
+      expect(botTokenTutorialUrl, isNot(contains('tutorials/setup/security')));
     });
   });
 
@@ -86,6 +107,39 @@ void main() {
         ),
         0,
       );
+    });
+  });
+
+  group('documentationWebViewGestureRecognizers', () {
+    test('includes vertical drag and pan recognizers', () {
+      final types =
+          documentationWebViewGestureRecognizers
+              .map((factory) => factory.constructor().runtimeType)
+              .toSet();
+
+      expect(types, contains(VerticalDragGestureRecognizer));
+      expect(types, contains(PanGestureRecognizer));
+    });
+  });
+
+  group('DocumentationHubPage', () {
+    testWidgets('uses IndexedStack instead of TabBarView', (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.linux;
+      try {
+        await tester.pumpWidget(
+          MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const DocumentationHubPage(),
+          ),
+        );
+        await tester.pump();
+
+        expect(find.byType(IndexedStack), findsOneWidget);
+        expect(find.byType(TabBarView), findsNothing);
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
     });
   });
 }

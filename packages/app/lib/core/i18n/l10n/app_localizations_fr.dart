@@ -6612,6 +6612,69 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settings_runner_version => 'Runner';
 
   @override
+  String get settings_embedded_runner_title => 'Runner JS embarqué';
+
+  @override
+  String settings_embedded_runner_download_progress(
+    String received,
+    String total,
+  ) {
+    return '$received sur $total';
+  }
+
+  @override
+  String settings_embedded_runner_download_indeterminate(String received) {
+    return '$received téléchargés';
+  }
+
+  @override
+  String get settings_embedded_runner_restart => 'Redémarrer';
+
+  @override
+  String get settings_embedded_runner_restart_success =>
+      'Runner JS embarqué redémarré';
+
+  @override
+  String get settings_embedded_runner_restart_failed =>
+      'Échec du redémarrage du runner JS embarqué';
+
+  @override
+  String get settings_embedded_runner_redownload => 'Retélécharger';
+
+  @override
+  String get settings_embedded_runner_redownload_success =>
+      'Runner JS embarqué retéléchargé';
+
+  @override
+  String get settings_embedded_runner_redownload_failed =>
+      'Échec du retéléchargement du runner JS embarqué';
+
+  @override
+  String get settings_embedded_runner_open_log => 'Ouvrir le log';
+
+  @override
+  String settings_embedded_runner_binary_info(String size, String path) {
+    return 'Binaire : $size · $path';
+  }
+
+  @override
+  String get settings_embedded_runner_status_running => 'En cours d\'exécution';
+
+  @override
+  String get settings_embedded_runner_status_stopped => 'Non démarré';
+
+  @override
+  String get settings_embedded_runner_status_failed => 'Échec';
+
+  @override
+  String get settings_embedded_runner_status_downloading => 'Téléchargement…';
+
+  @override
+  String settings_embedded_runner_running_at(String url) {
+    return 'Actif sur $url';
+  }
+
+  @override
   String settings_snapshot_apps_count(int count) {
     return 'Apps : $count';
   }
@@ -8635,6 +8698,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get docs_webview_error => 'Impossible de charger la documentation';
+
+  @override
+  String get docs_webview_unavailable =>
+      'L\'aperçu intégré de la documentation n\'est pas disponible sur cet appareil. Ouvrez la documentation dans votre navigateur.';
 
   @override
   String get docs_open_in_browser => 'Ouvrir dans le navigateur';

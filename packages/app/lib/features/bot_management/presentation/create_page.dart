@@ -5,6 +5,8 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 
 import 'package:bot_creator/core/auth/mobile_account_gate.dart';
 import 'package:bot_creator/core/utils/responsive.dart';
+import 'package:bot_creator/features/documentation/documentation_navigation.dart';
+import 'package:bot_creator/features/documentation/documentation_urls.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:developer' as developer;
@@ -515,9 +517,11 @@ class _AppCreatePageState extends State<AppCreatePage> {
                   icon: Icons.school_rounded,
                   title: context.tr.app_open_token_tutorial,
                   subtitle: context.tr.app_open_token_tutorial_desc,
-                  badgeLabel: context.tr.app_external_link_badge,
-                  onTap: () => _openExternalPage(
-                    'https://bot-creator.fr/tutorials/setup/security/2025/05/18/how-to-create-a-bot-token-bot-creator.html',
+                  trailingIcon: Icons.chevron_right_rounded,
+                  onTap: () => openDocumentationArticle(
+                    context,
+                    url: botTokenTutorialUrl,
+                    title: context.tr.app_open_token_tutorial,
                   ),
                 ),
               ],
@@ -712,14 +716,16 @@ class _ExternalActionCard extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.subtitle,
-    required this.badgeLabel,
     required this.onTap,
+    this.badgeLabel,
+    this.trailingIcon = Icons.open_in_new_rounded,
   });
 
   final IconData icon;
   final String title;
   final String subtitle;
-  final String badgeLabel;
+  final String? badgeLabel;
+  final IconData trailingIcon;
   final VoidCallback onTap;
 
   @override
@@ -769,31 +775,32 @@ class _ExternalActionCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 5,
-                      ),
-                      decoration: BoxDecoration(
-                        color: colorScheme.secondaryContainer,
-                        borderRadius: BorderRadius.circular(
-                          AppTheme.radiusPill,
+                    if (badgeLabel != null)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: colorScheme.secondaryContainer,
+                          borderRadius: BorderRadius.circular(
+                            AppTheme.radiusPill,
+                          ),
+                        ),
+                        child: Text(
+                          badgeLabel!,
+                          style: Theme.of(context).textTheme.labelMedium
+                              ?.copyWith(
+                                color: colorScheme.onSecondaryContainer,
+                                fontWeight: FontWeight.w600,
+                              ),
                         ),
                       ),
-                      child: Text(
-                        badgeLabel,
-                        style: Theme.of(context).textTheme.labelMedium
-                            ?.copyWith(
-                              color: colorScheme.onSecondaryContainer,
-                              fontWeight: FontWeight.w600,
-                            ),
-                      ),
-                    ),
                   ],
                 ),
               ),
               const SizedBox(width: 8),
-              Icon(Icons.open_in_new_rounded, color: colorScheme.primary),
+              Icon(trailingIcon, color: colorScheme.primary),
             ],
           ),
         ),

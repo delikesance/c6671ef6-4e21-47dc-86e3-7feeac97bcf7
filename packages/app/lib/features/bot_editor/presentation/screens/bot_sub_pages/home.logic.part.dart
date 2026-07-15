@@ -400,8 +400,13 @@ extension _AppHomePageLogic on _AppHomePageState {
 
       if (!_botLaunched) {
         clearBotBaselineRss();
-        startBotLogSession(botId: botId);
-        appendBotLog('Bot start requested', botId: botId);
+        final engine = await getBotRuntimeEngine(botId);
+        final isJsDesktop =
+            !_supportsForegroundTask && engine == runtimeEngineJavascript;
+        if (!isJsDesktop) {
+          startBotLogSession(botId: botId);
+          appendBotLog('Bot start requested', botId: botId);
+        }
       }
 
       if (_supportsForegroundTask) {
@@ -461,7 +466,7 @@ extension _AppHomePageLogic on _AppHomePageState {
           final runnerConfig = await RunnerSettings.resolveConfigForBot(botId);
           if (runnerConfig == null) {
             final startupDetail =
-                RunnerSettings.embeddedRunnerStartupFailureDetail();
+                await RunnerSettings.embeddedRunnerStartupFailureDetail();
             final detailSuffix =
                 startupDetail == null || startupDetail.isEmpty
                     ? ''

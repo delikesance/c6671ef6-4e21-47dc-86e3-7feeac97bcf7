@@ -1292,8 +1292,13 @@ class HomePageState extends State<HomePage>
 
       if (!isRunning) {
         clearBotBaselineRss();
-        startBotLogSession(botId: botId);
-        appendBotLog('Bot start requested', botId: botId);
+        final engine = await getBotRuntimeEngine(botId);
+        final isJsDesktop =
+            !_supportsForegroundTask && engine == runtimeEngineJavascript;
+        if (!isJsDesktop) {
+          startBotLogSession(botId: botId);
+          appendBotLog('Bot start requested', botId: botId);
+        }
       }
 
       if (_supportsForegroundTask) {
@@ -1364,7 +1369,7 @@ class HomePageState extends State<HomePage>
                 await RunnerSettings.resolveConfigForBot(botId);
             if (runnerConfig == null) {
               final startupDetail =
-                  RunnerSettings.embeddedRunnerStartupFailureDetail();
+                  await RunnerSettings.embeddedRunnerStartupFailureDetail();
               final detailSuffix =
                   startupDetail == null || startupDetail.isEmpty
                       ? ''

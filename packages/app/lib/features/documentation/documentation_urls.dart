@@ -9,6 +9,10 @@ const guideBaseUrl = 'https://bot-creator.fr/blog';
 const botCreatorDocsBaseUrl = 'https://bot-creator.fr/docs';
 const discordJsBaseUrl = 'https://discord.js.org';
 
+/// Step-by-step guide for creating a Discord bot token.
+const botTokenTutorialUrl =
+    'https://bot-creator.fr/getting%20started/2025/05/18/how-to-create-a-bot-token-bot-creator';
+
 /// Host suffixes allowed for in-app WebView navigation.
 const documentationAllowedHostSuffixes = <String>[
   'bot-creator.fr',
