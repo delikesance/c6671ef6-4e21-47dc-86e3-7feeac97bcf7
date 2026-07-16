@@ -322,6 +322,18 @@ class ManagedVariableStore implements VariableDatabase {
     return Map<String, dynamic>.from(response ?? {});
   }
 
+  @override
+  Future<void> removeAllScopedValuesForKey(
+    String botId,
+    String scope,
+    String key,
+  ) async {
+    await _post(botId, '/scoped/delete-by-key', {
+      'scope': scope,
+      'key': key,
+    });
+  }
+
   // ===== SCOPED ARRAYS =====
 
   @override

@@ -1718,7 +1718,7 @@ class AppManager implements BotDataStore {
     }
 
     final safeOffset = offset < 0 ? 0 : offset;
-    final safeLimit = limit.clamp(1, 25);
+    final safeLimit = limit.clamp(1, 1000);
     final end =
         (safeOffset + safeLimit) > items.length
             ? items.length

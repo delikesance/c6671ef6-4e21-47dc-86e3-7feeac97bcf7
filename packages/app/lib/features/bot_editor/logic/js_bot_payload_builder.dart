@@ -177,7 +177,7 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
           ) ??
           const <Map<String, dynamic>>[],
     ),
-    'scriptTimeoutMs': 30000,
+    'scriptTimeoutMs': 15 * 60 * 1000,
   };
 }
 

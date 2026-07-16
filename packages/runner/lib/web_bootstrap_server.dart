@@ -1731,22 +1731,9 @@ class RunnerWebBootstrapServer {
     final storageKey = _normalizeScopedStorageKey(key);
     final legacyKey = _toScopedReferenceKey(storageKey);
     await _ensureVariableStoreInitialized();
-    final contextIds =
-        (await _variableStore.listContextIds(
-          botId,
-          scope,
-          searchKey: storageKey,
-        )).toSet();
+    await _variableStore.removeAllScopedValuesForKey(botId, scope, storageKey);
     if (legacyKey != storageKey) {
-      contextIds.addAll(
-        await _variableStore.listContextIds(botId, scope, searchKey: legacyKey),
-      );
-    }
-    for (final cid in contextIds) {
-      await _variableStore.removeScopedVariable(botId, scope, cid, storageKey);
-      if (legacyKey != storageKey) {
-        await _variableStore.removeScopedVariable(botId, scope, cid, legacyKey);
-      }
+      await _variableStore.removeAllScopedValuesForKey(botId, scope, legacyKey);
     }
   }
 
