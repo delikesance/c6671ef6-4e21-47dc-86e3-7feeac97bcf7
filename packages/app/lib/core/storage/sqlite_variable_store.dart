@@ -532,7 +532,7 @@ class SqliteVariableStore implements VariableDatabase {
   }) async {
     await init();
     final safeOffset = offset < 0 ? 0 : offset;
-    final safeLimit = limit.clamp(1, 25);
+    final safeLimit = limit.clamp(1, 1000);
 
     final now = DateTime.now().millisecondsSinceEpoch;
     final rows = await _db.query(
@@ -592,6 +592,20 @@ class SqliteVariableStore implements VariableDatabase {
       'count': paged.length,
       'total': total,
     };
+  }
+
+  @override
+  Future<void> removeAllScopedValuesForKey(
+    String botId,
+    String scope,
+    String key,
+  ) async {
+    await init();
+    await _db.delete(
+      'variables',
+      where: 'bot_id = ? AND scope = ? AND key = ?',
+      whereArgs: [botId, scope, key],
+    );
   }
 
   @override

@@ -564,7 +564,7 @@ class SqliteCliVariableStore implements VariableDatabase {
   }) async {
     await init();
     final safeOffset = offset < 0 ? 0 : offset;
-    final safeLimit = limit.clamp(1, 25);
+    final safeLimit = limit.clamp(1, 1000);
 
     final now = DateTime.now().millisecondsSinceEpoch;
     final stmt = _db.prepare(
@@ -614,6 +614,21 @@ class SqliteCliVariableStore implements VariableDatabase {
       'count': paged.length,
       'total': total,
     };
+  }
+
+  @override
+  Future<void> removeAllScopedValuesForKey(
+    String botId,
+    String scope,
+    String key,
+  ) async {
+    await init();
+
+    final stmt = _db.prepare(
+      'DELETE FROM variables WHERE bot_id = ? AND scope = ? AND key = ?',
+    );
+    stmt.execute([botId, scope, key]);
+    stmt.close();
   }
 
   @override

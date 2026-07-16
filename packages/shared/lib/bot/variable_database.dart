@@ -89,7 +89,7 @@ abstract class VariableDatabase {
   ///   'total': `int`,
   /// }
   ///
-  /// [offset] is clamped to >= 0 and [limit] is clamped to 1..25.
+  /// [offset] is clamped to >= 0 and [limit] is clamped to 1..1000.
   Future<Map<String, dynamic>> queryScopedVariableIndex(
     String botId,
     String scope,
@@ -98,6 +98,13 @@ abstract class VariableDatabase {
     int limit = 25,
     bool descending = true,
   });
+
+  /// Deletes every scoped value for [scope]+[key] across all contexts.
+  Future<void> removeAllScopedValuesForKey(
+    String botId,
+    String scope,
+    String key,
+  );
 
   /// Delete all variables for a bot.
   Future<void> deleteAllForBot(String botId);

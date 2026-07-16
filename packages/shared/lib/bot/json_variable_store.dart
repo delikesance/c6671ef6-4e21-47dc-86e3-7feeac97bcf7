@@ -288,7 +288,7 @@ class JsonVariableStore implements VariableDatabase {
     bool descending = true,
   }) async {
     final safeOffset = offset < 0 ? 0 : offset;
-    final safeLimit = limit.clamp(1, 25);
+    final safeLimit = limit.clamp(1, 1000);
     final byScope =
         _scopedVariables[scope] ?? const <String, Map<String, dynamic>>{};
 
@@ -336,6 +336,33 @@ class JsonVariableStore implements VariableDatabase {
   Future<void> deleteAllForBot(String botId) async {
     _globalVariables.clear();
     _scopedVariables.clear();
+  }
+
+  @override
+  Future<void> removeAllScopedValuesForKey(
+    String botId,
+    String scope,
+    String key,
+  ) async {
+    final byScope = _scopedVariables[scope];
+    if (byScope == null) {
+      return;
+    }
+    for (final contextId in byScope.keys.toList(growable: false)) {
+      byScope[contextId]?.remove(key);
+      if (byScope[contextId]?.isEmpty ?? false) {
+        byScope.remove(contextId);
+      }
+    }
+    final expByScope = _scopedExpirations[scope];
+    if (expByScope != null) {
+      for (final contextId in expByScope.keys.toList(growable: false)) {
+        expByScope[contextId]?.remove(key);
+        if (expByScope[contextId]?.isEmpty ?? false) {
+          expByScope.remove(contextId);
+        }
+      }
+    }
   }
 
   /// Normalize variable value: preserve numbers, coerce others to strings.
