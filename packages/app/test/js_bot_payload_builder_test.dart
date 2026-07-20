@@ -102,4 +102,33 @@ void main() {
     final payload = await buildJsBotPayload(botId);
     expect(payload['prefix'], '!');
   });
+
+  test('includes presence status and activities from bot settings', () async {
+    await appManager.saveApp(botId, <String, dynamic>{
+      'id': botId,
+      'username': 'JsBot',
+      'token': 'test-token',
+      'runtimeEngine': runtimeEngineJavascript,
+      'presenceStatus': 'idle',
+      'activities': <Map<String, dynamic>>[
+        <String, dynamic>{
+          'type': 'watching',
+          'name': 'the logs',
+        },
+      ],
+      'workflows': <Map<String, dynamic>>[],
+    });
+
+    final payload = await buildJsBotPayload(botId);
+    final presence = payload['presence'] as Map<String, dynamic>;
+    expect(presence['status'], 'idle');
+    expect(presence['activities'], hasLength(1));
+    expect(
+      (presence['activities'] as List).first as Map,
+      equals(<String, dynamic>{
+        'type': 'watching',
+        'name': 'the logs',
+      }),
+    );
+  });
 }

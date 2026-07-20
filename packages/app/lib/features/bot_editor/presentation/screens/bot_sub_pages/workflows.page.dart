@@ -22,9 +22,16 @@ import 'package:flutter/services.dart';
 import 'package:bot_creator/core/utils/responsive.dart';
 
 class WorkflowsPage extends StatefulWidget {
-  const WorkflowsPage({super.key, required this.botId});
+  const WorkflowsPage({
+    super.key,
+    required this.botId,
+    this.eventsOnly = false,
+  });
 
   final String botId;
+
+  /// When true (JS bots), only event workflows are listed/created.
+  final bool eventsOnly;
 
   @override
   State<WorkflowsPage> createState() => _WorkflowsPageState();
@@ -35,7 +42,14 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
   bool _loading = true;
   List<AppEmoji> _appEmojis = [];
   String _searchQuery = '';
-  String _workflowFilter = 'all';
+  late String _workflowFilter;
+
+  @override
+  void initState() {
+    super.initState();
+    _workflowFilter = widget.eventsOnly ? workflowTypeEvent : 'all';
+    _load();
+  }
 
   String _toScopedReferenceName(String rawKey) {
     final key = rawKey.trim();
@@ -46,12 +60,6 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
       return key.substring(3);
     }
     return key;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
   }
 
   Future<void> _load() async {
@@ -1125,6 +1133,9 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
     return _workflows
         .where((workflow) {
           final workflowType = normalizeWorkflowType(workflow['workflowType']);
+          if (widget.eventsOnly && workflowType != workflowTypeEvent) {
+            return false;
+          }
           if (_workflowFilter != 'all' && workflowType != _workflowFilter) {
             return false;
           }
@@ -1153,6 +1164,11 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
   }
 
   Future<void> _showCreateWorkflowMenu() async {
+    if (widget.eventsOnly) {
+      await _createOrEditWorkflow(initialWorkflowType: workflowTypeEvent);
+      return;
+    }
+
     final selection = await showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
@@ -1198,17 +1214,18 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
       searchHint: context.tr.workflows_search_hint,
       addFilterLabel: context.tr.notion_filter_add,
       filters: [
-        NotionFilter(
-          id: 'type',
-          label: context.tr.notion_filter_type,
-          icon: Icons.category_outlined,
-          options: {
-            '': context.tr.common_all,
-            workflowTypeGeneral: context.tr.workflows_type_badge_general,
-            workflowTypeEvent: context.tr.workflows_type_badge_event,
-          },
-          selectedValue: _workflowFilter == 'all' ? '' : _workflowFilter,
-        ),
+        if (!widget.eventsOnly)
+          NotionFilter(
+            id: 'type',
+            label: context.tr.notion_filter_type,
+            icon: Icons.category_outlined,
+            options: {
+              '': context.tr.common_all,
+              workflowTypeGeneral: context.tr.workflows_type_badge_general,
+              workflowTypeEvent: context.tr.workflows_type_badge_event,
+            },
+            selectedValue: _workflowFilter == 'all' ? '' : _workflowFilter,
+          ),
       ],
       onFilterChanged: (filterId, value) {
         setState(() {
@@ -1222,8 +1239,10 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
       onCreateFromQuery:
           showCreate
               ? () => _createOrEditWorkflow(
-                initialWorkflowType: workflowTypeGeneral,
-              )
+                    initialWorkflowType: widget.eventsOnly
+                        ? workflowTypeEvent
+                        : workflowTypeGeneral,
+                  )
               : null,
     );
   }
@@ -1341,8 +1360,15 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
       }
     }
 
-    appendSection(context.tr.workflows_general_section, generalWorkflows);
-    appendSection(context.tr.workflows_event_section, eventWorkflows);
+    if (!widget.eventsOnly) {
+      appendSection(context.tr.workflows_general_section, generalWorkflows);
+    }
+    appendSection(
+      widget.eventsOnly
+          ? context.tr.workflows_type_event
+          : context.tr.workflows_event_section,
+      eventWorkflows,
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -1352,7 +1378,11 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                 onPressed: () => context.openParentDrawer(),
               )
             : null,
-        title: Text(context.tr.workflows_title),
+        title: Text(
+          widget.eventsOnly
+              ? context.tr.workflows_type_event
+              : context.tr.workflows_title,
+        ),
         actions: [
           IconButton(
             tooltip: context.tr.workflows_import_tooltip,

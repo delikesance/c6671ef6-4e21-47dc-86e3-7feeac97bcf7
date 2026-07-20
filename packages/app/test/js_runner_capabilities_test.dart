@@ -8,6 +8,7 @@ void main() {
       final caps = capabilitiesForEngine(runtimeEngineDart);
 
       expect(caps.supportsWorkflows, isTrue);
+      expect(caps.supportsEventListeners, isTrue);
       expect(caps.supportsSchedulerUi, isTrue);
       expect(caps.supportsInboundWebhooksUi, isTrue);
       expect(caps.supportsCommandDashboard, isTrue);
@@ -18,12 +19,13 @@ void main() {
       expect(caps.supportsSubcommandWorkflows, isTrue);
     });
 
-    test('javascript engine hides Dart-only features', () {
+    test('javascript engine exposes events/scheduler/webhooks but not Dart-only features', () {
       final caps = capabilitiesForEngine(runtimeEngineJavascript);
 
       expect(caps.supportsWorkflows, isFalse);
-      expect(caps.supportsSchedulerUi, isFalse);
-      expect(caps.supportsInboundWebhooksUi, isFalse);
+      expect(caps.supportsEventListeners, isTrue);
+      expect(caps.supportsSchedulerUi, isTrue);
+      expect(caps.supportsInboundWebhooksUi, isTrue);
       expect(caps.supportsCommandDashboard, isFalse);
       expect(caps.supportsDebugReplay, isFalse);
       expect(caps.supportsBotProcessStats, isFalse);
