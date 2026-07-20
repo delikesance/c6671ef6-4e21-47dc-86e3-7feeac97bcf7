@@ -8,8 +8,7 @@ environment:
   sdk: ^3.12.0
 
 dependencies:
-  bot_creator_shared:
-    path: ../shared
+  bot_creator_shared: any
   archive: ^4.0.9
   args: ^2.5.0
   http: ^1.6.0
