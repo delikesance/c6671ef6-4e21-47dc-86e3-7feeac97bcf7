@@ -6,8 +6,6 @@ repository: https://github.com/nyxx-discord/nyxx_lavalink
 environment:
   sdk: ^3.8.0
 
-resolution: workspace
-
 dependencies:
   http: ^1.6.0
   json_annotation: ^4.11.0
